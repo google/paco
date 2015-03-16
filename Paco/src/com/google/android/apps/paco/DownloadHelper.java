@@ -8,6 +8,7 @@ import org.joda.time.DateTime;
 import android.content.Context;
 import android.util.Log;
 
+import com.google.android.apps.paco.utils.AndroidUtils;
 import com.google.common.base.Joiner;
 import com.google.corp.productivity.specialprojects.android.comm.Request;
 import com.google.corp.productivity.specialprojects.android.comm.Response;
@@ -125,7 +126,7 @@ public class DownloadHelper {
     Response response = request.setUrl(ServerAddressBuilder.createServerUrl(serverAddress, path))
         .addHeader("http.useragent", "Android")
         .addHeader("paco.version", AndroidUtils.getAppVersion(context))
-        .addHeader("pacoProtocol", "3.1").execute();
+        .addHeader("pacoProtocol", "4").execute();
     return response.getContentAsString();
   }
 

@@ -40,7 +40,6 @@ import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.map.annotate.JsonSerialize.Inclusion;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 
@@ -124,7 +123,7 @@ public class EventServlet extends HttpServlet {
 
   private String jsonifyEvents(List<Event> events, boolean anon, String timezoneId) {
     ObjectMapper mapper = JsonConverter.getObjectMapper();
-    mapper.getSerializationConfig().setSerializationInclusion(Inclusion.NON_NULL);
+
     try {
       List<EventDAO> eventDAOs = Lists.newArrayList();
       for (Event event : events) {
@@ -143,12 +142,24 @@ public class EventServlet extends HttpServlet {
           scheduledTime = scheduledDateTime.toDate();
         }
 
-        eventDAOs.add(new EventDAO(userId, event.getWhen(), event.getExperimentName(), event.getLat(), event.getLon(),
-                                   event.getAppId(), event.getPacoVersion(), event.getWhatMap(), event.isShared(),
+        eventDAOs.add(new EventDAO(userId,
+                                   event.getWhen(),
+                                   event.getExperimentName(),
+                                   event.getLat(), event.getLon(),
+                                   event.getAppId(),
+                                   event.getPacoVersion(),
+                                   event.getWhatMap(),
+                                   event.isShared(),
                                    responseTime,
                                    scheduledTime,
-                                   null, Long.parseLong(event.getExperimentId()),
-                                   event.getExperimentVersion(), event.getTimeZone()));
+                                   null,
+                                   Long.parseLong(event.getExperimentId()),
+                                   event.getExperimentVersion(),
+                                   event.getTimeZone(),
+                                   event.getExperimentGroupName(),
+                                   event.getActionTriggerId(),
+                                   event.getActionTriggerSpecId(),
+                                   event.getActionId()));
       }
       return mapper.writeValueAsString(eventDAOs);
     } catch (JsonGenerationException e) {

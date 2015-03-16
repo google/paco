@@ -1,8 +1,8 @@
 /*
 * Copyright 2011 Google Inc. All Rights Reserved.
-* 
+*
 * Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance  with the License.  
+* you may not use this file except in compliance  with the License.
 * You may obtain a copy of the License at
 *
 *    http://www.apache.org/licenses/LICENSE-2.0
@@ -16,8 +16,6 @@
 */
 package com.google.android.apps.paco;
 
-import java.util.List;
-
 import org.codehaus.jackson.annotate.JsonIgnore;
 import org.codehaus.jackson.annotate.JsonProperty;
 
@@ -25,6 +23,8 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.text.TextUtils;
 import android.text.TextUtils.StringSplitter;
+
+import com.google.paco.shared.model2.Input2;
 
 public class Output implements Parcelable {
 
@@ -37,7 +37,7 @@ public class Output implements Parcelable {
       input.input_server_id = source.readLong();
       input.name = source.readString();
       input.answer = source.readString();
-      
+
       return input;
     }
 
@@ -45,22 +45,22 @@ public class Output implements Parcelable {
       return new Output[size];
     }
   }
-  
+
   public static final Creator CREATOR = new Creator();
 
   @JsonIgnore
   private long id = -1;
-  
+
   @JsonIgnore
   private long eventId = -1;
-  
+
   @JsonProperty("inputId")
   private long input_server_id = -1;
   private String name;
   private String answer;
 
   public Output() {
-    
+
   }
 
   @JsonIgnore
@@ -119,26 +119,26 @@ public class Output implements Parcelable {
     dest.writeLong(id);
     dest.writeLong(eventId);
     dest.writeLong(input_server_id);
-    
+
     dest.writeString(name);
     dest.writeString(answer);
-  }  
+  }
 
   /**
    * @param input
    * @return
    */
-  String getDisplayForList(Input input) {
-    List<String> listChoices = input.getListChoices();
+  String getDisplayForList(Input2 input) {
+    String[] listChoices = input.getListChoices();
     String answer = getAnswer();
     if (answer == null) {
       return "";
     }
 
-    if (!input.isMultiselect()) {      
+    if (!input.getMultiselect()) {
       int index = Integer.parseInt(answer) - 1;
-      if (index < listChoices.size()) {
-        return listChoices.get(index);
+      if (index < listChoices.length) {
+        return listChoices[index];
       } else {
         return "error: index value too large for list choices: " + index;
       }
@@ -155,8 +155,8 @@ public class Output implements Parcelable {
         buf.append(",");
       }
       int index = Integer.parseInt(piece) - 1;
-      if (index < listChoices.size()) {
-        buf.append(listChoices.get(index));
+      if (index < listChoices.length) {
+        buf.append(listChoices[index]);
       } else {
         buf.append("error: index value too large for list choices: " + index);
       }
@@ -172,7 +172,7 @@ public class Output implements Parcelable {
     return getAnswer();
   }
 
-  public String getDisplayOfAnswer(Input input) {
+  public String getDisplayOfAnswer(Input2 input) {
     if (input.getResponseType().equals(Input.LIST)) {
       return getDisplayForList(input);
     }

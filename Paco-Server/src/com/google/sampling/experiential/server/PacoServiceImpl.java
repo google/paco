@@ -94,7 +94,7 @@ public class PacoServiceImpl extends RemoteServiceServlet implements PacoService
       String experimentId,
       Map<String, String> kvPairs,
       Integer experimentVersion,
-      boolean shared) {
+      boolean shared, String groupName, Long actionTriggerId, Long actionTriggerSpecId, Long actionId) {
 
     Date scheduledTimeDate = scheduledTime != null ? parseDateString(scheduledTime) : null;
     Date responseTimeDate = responseTime != null ? parseDateString(responseTime) : null;
@@ -126,7 +126,8 @@ public class PacoServiceImpl extends RemoteServiceServlet implements PacoService
 
       // TODO fix this to just pass timezone all the way through
       EventRetriever.getInstance().postEvent(loggedInWho.getEmail().toLowerCase(), null, null, whenDate, "webform",
-          "", whats, shared, experimentId, null, experimentVersion, responseTimeDate, scheduledTimeDate, null, tz);
+          "", whats, shared, experimentId, null, experimentVersion, responseTimeDate, scheduledTimeDate, null, tz,
+          groupName, actionTriggerId, actionTriggerSpecId, actionId);
     } catch (Throwable e) {
       throw new IllegalArgumentException("Could not post Event: ", e);
     }
@@ -432,6 +433,12 @@ public class PacoServiceImpl extends RemoteServiceServlet implements PacoService
     Date scheduledTimeDate = event.getScheduledTime();
     Date responseTimeDate = event.getResponseTime();
     Date whenDate = new Date();
+
+    String groupName = event.getExperimentGroupName();
+    Long actionTriggerId = event.getActionTriggerId();
+    Long actionTriggerSpecId = event.getActionTriggerSpecId();
+    Long actionId = event.getActionId();
+
     Set<What> whats = parseWhats(event.getWhat());
 
 
@@ -450,7 +457,9 @@ public class PacoServiceImpl extends RemoteServiceServlet implements PacoService
       String tz = event.getTimezone();
       String experimentName = experiment.getTitle();
       EventRetriever.getInstance().postEvent(loggedInWho.getEmail().toLowerCase(), null, null, whenDate, "webform",
-          "1", whats, event.isShared(), Long.toString(experimentId), experimentName, experimentVersion, responseTimeDate, scheduledTimeDate, null, tz);
+          "1", whats, event.isShared(), Long.toString(experimentId), experimentName,
+          experimentVersion, responseTimeDate, scheduledTimeDate, null, tz,
+          groupName, actionTriggerId, actionTriggerSpecId, actionId);
     } catch (Throwable e) {
       throw new IllegalArgumentException("Could not post Event: ", e);
     }
@@ -540,7 +549,7 @@ public class PacoServiceImpl extends RemoteServiceServlet implements PacoService
 
 
       EventRetriever.getInstance().postEvent(lowerCase, null, null, new Date(), "webform",
-          "1", whats, false, Long.toString(experimentId), experimentName, experiment.getVersion(), responseTimeDate, null, null, tz);
+          "1", whats, false, Long.toString(experimentId), experimentName, experiment.getVersion(), responseTimeDate, null, null, tz, null, null, null, null);
 
       // create entry in table with user Id, experimentId, joinDate
 

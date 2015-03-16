@@ -26,6 +26,10 @@ public class EventEntityConverter {
     Date responseTime = (Date) entity.getProperty("responseTime");
     boolean shared = (Boolean) entity.getProperty("shared");
     String timeZone = (String) entity.getProperty("timeZone");
+    String groupName = (String)entity.getProperty("experimentGroupName");
+    Long actionId = (Long) entity.getProperty("actionId");
+    Long actionTriggerId = (Long) entity.getProperty("actionTriggerId");
+    Long actionTriggerSpecId = (Long) entity.getProperty("actionTriggerSpecId");
 
     Set<What> what = (Set<What>) entity.getProperty("what");
     List<String> keysList = (List<String>) entity.getProperty("keysList");
@@ -33,7 +37,7 @@ public class EventEntityConverter {
     List<PhotoBlob> blobs = (List<PhotoBlob>) entity.getProperty("blobs");
 
     Event event = new Event(who, lat, lon, when, appId, pacoVersion, what, shared, experimentId, experimentName, experimentVersion,
-                           responseTime, scheduledTime, blobs, timeZone);
+                           responseTime, scheduledTime, blobs, timeZone, groupName, actionTriggerId, actionTriggerSpecId, actionId);
     event.setId(id);
 
     return event;

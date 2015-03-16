@@ -7,6 +7,7 @@ import com.google.android.apps.paco.ExperimentProviderUtil;
 import com.google.android.apps.paco.JavascriptEventLoader;
 import com.google.android.apps.paco.JavascriptExperimentLoader;
 import com.google.android.apps.paco.JavascriptNotificationService;
+import com.google.paco.shared.model2.ExperimentGroup;
 
 public class AndroidJsInterpreterBuilder {
 
@@ -15,12 +16,12 @@ public class AndroidJsInterpreterBuilder {
 
   }
 
-  public static JsInterpreter createInterpreter(Context context, Experiment experiment) {
+  public static JsInterpreter createInterpreter(Context context, Experiment experiment, ExperimentGroup experimentGroup) {
     JsInterpreter interpreter = new JsInterpreter();
     ExperimentProviderUtil experimentProvider = new ExperimentProviderUtil(context);
     interpreter.bind("experimentLoader", new JavascriptExperimentLoader(context, experimentProvider, experiment));
-    interpreter.bind("db", new JavascriptEventLoader(experimentProvider, experiment));
-    interpreter.bind("notificationService", new JavascriptNotificationService(context, experiment));
+    interpreter.bind("db", new JavascriptEventLoader(experimentProvider, experiment, null));
+    interpreter.bind("notificationService", new JavascriptNotificationService(context, experiment, experimentGroup));
     return interpreter;
 
   }

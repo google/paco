@@ -14,7 +14,7 @@
 * specific language governing permissions and limitations
 * under the License.
 */
-package com.google.android.apps.paco;
+package com.google.paco.shared.util;
 
 import org.joda.time.DateMidnight;
 import org.joda.time.DateTime;
@@ -27,16 +27,16 @@ public class TimeUtil {
 
   private static DateTimeFormatter timeFormatter = ISODateTimeFormat.time();
 
-  static final String DATETIME_FORMAT = "yyyy/MM/dd HH:mm:ssZ";
+  public static final String DATETIME_FORMAT = "yyyy/MM/dd HH:mm:ssZ";
   private static DateTimeFormatter dateTimeFormatter = DateTimeFormat.forPattern(DATETIME_FORMAT);
 
-  static final String DATETIME_NOZONE_FORMAT = "yyyy/MM/dd hh:mm:ssa";
+  public static final String DATETIME_NOZONE_FORMAT = "yyyy/MM/dd hh:mm:ssa";
   public static DateTimeFormatter dateTimeNoZoneFormatter = DateTimeFormat.forPattern(DATETIME_NOZONE_FORMAT);
 
-  static final String DATE_FORMAT = "yyyy/MM/dd";
+  public static final String DATE_FORMAT = "yyyy/MM/dd";
   private static DateTimeFormatter dateFormatter = DateTimeFormat.forPattern(DATE_FORMAT);
 
-  static final String DATE_WITH_ZONE_FORMAT = "yyyy/MM/ddZ";
+  public static final String DATE_WITH_ZONE_FORMAT = "yyyy/MM/ddZ";
   private static DateTimeFormatter dateZoneFormatter = DateTimeFormat.forPattern(DATE_WITH_ZONE_FORMAT);
 
   private TimeUtil() {

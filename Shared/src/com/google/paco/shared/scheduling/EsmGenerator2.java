@@ -14,7 +14,7 @@
 * specific language governing permissions and limitations
 * under the License.
 */
-package com.google.android.apps.paco;
+package com.google.paco.shared.scheduling;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -25,11 +25,14 @@ import org.joda.time.DateTime;
 import org.joda.time.Interval;
 import org.joda.time.Minutes;
 
+import com.google.paco.shared.model2.Schedule;
+import com.google.paco.shared.util.TimeUtil;
+
 
 public class EsmGenerator2 {
 
   public static final Minutes BUFFER_MILLIS  = Minutes.minutes(59);
-  private SignalSchedule schedule;
+  private Schedule schedule;
   private DateTime periodStartDate;
   private ArrayList<DateTime> times;
 
@@ -37,39 +40,39 @@ public class EsmGenerator2 {
   // pick "frequency" number of time blocks randomly
   // pick random times within each chosen block
   // skip times within 1 hour of other times
-  public List<DateTime> generateForSchedule(DateTime startDate, SignalSchedule schedule) {
-    this.schedule = schedule;
+  public List<DateTime> generateForSchedule(DateTime startDate, Schedule schedule2) {
+    this.schedule = schedule2;
     this.periodStartDate = adjustStartDateToBeginningOfPeriod(startDate);
     times = new ArrayList<DateTime>();
 
-    if (schedule.getEsmFrequency() == null || schedule.getEsmFrequency() == 0) {
+    if (schedule2.getEsmFrequency() == null || schedule2.getEsmFrequency() == 0) {
       return times;
     }
     List<Integer> schedulableDays;
-    switch (schedule.getEsmPeriodInDays()) {
-    case SignalSchedule.ESM_PERIOD_DAY:
-      if (!schedule.getEsmWeekends() && TimeUtil.isWeekend(periodStartDate)) {
+    switch (schedule2.getEsmPeriodInDays()) {
+    case Schedule.ESM_PERIOD_DAY:
+      if (!schedule2.getEsmWeekends() && TimeUtil.isWeekend(periodStartDate)) {
         return times;
       } else {
         schedulableDays = Arrays.asList(1);
       }
       break;
-    case SignalSchedule.ESM_PERIOD_WEEK:
+    case Schedule.ESM_PERIOD_WEEK:
       schedulableDays = getPeriodDaysForWeek();
       break;
-    case SignalSchedule.ESM_PERIOD_MONTH:
+    case Schedule.ESM_PERIOD_MONTH:
       schedulableDays = getPeriodDaysForMonthOf(periodStartDate);
       break;
     default:
       throw new IllegalStateException("Cannot get here.");
     }
 
-    Minutes dayLengthIntervalInMinutes = Minutes.minutesIn(new Interval(schedule.getEsmStartHour(), schedule.getEsmEndHour()));
+    Minutes dayLengthIntervalInMinutes = Minutes.minutesIn(new Interval(schedule2.getEsmStartHour(), schedule2.getEsmEndHour()));
     Minutes totalMinutesInPeriod = dayLengthIntervalInMinutes.multipliedBy(schedulableDays.size());
-    Minutes sampleBlockTimeInMinutes = totalMinutesInPeriod.dividedBy(schedule.getEsmFrequency());
-    Minutes timeoutInMinutes = Minutes.minutes(schedule.getMinimumBuffer());
+    Minutes sampleBlockTimeInMinutes = totalMinutesInPeriod.dividedBy(schedule2.getEsmFrequency());
+    Minutes timeoutInMinutes = Minutes.minutes(schedule2.getMinimumBuffer());
     Random rand = new Random();
-    for (int signal = 0; signal < schedule.getEsmFrequency(); signal++) {
+    for (int signal = 0; signal < schedule2.getEsmFrequency(); signal++) {
 
       int candidateTimeInBlock;
       DateTime candidateTime;
@@ -89,13 +92,13 @@ public class EsmGenerator2 {
         }
 
         DateTime plusDays = periodStartDate.plusDays(schedulableDays.get(daysToAdd) - 1);
-        candidateTime = plusDays.withMillisOfDay(schedule.getEsmStartHour().intValue()).plusMinutes(minutesToAdd);
+        candidateTime = plusDays.withMillisOfDay(schedule2.getEsmStartHour().intValue()).plusMinutes(minutesToAdd);
         periodAttempts--;
       } while (periodAttempts > 0 &&
           (!isMinimalBufferedDistanceFromOtherTimes(candidateTime, timeoutInMinutes)
-              || (!schedule.getEsmWeekends() && TimeUtil.isWeekend(candidateTime))));
+              || (!schedule2.getEsmWeekends() && TimeUtil.isWeekend(candidateTime))));
       if (isMinimalBufferedDistanceFromOtherTimes(candidateTime, timeoutInMinutes) &&
-		  (schedule.getEsmWeekends() || !TimeUtil.isWeekend(candidateTime))) {
+		  (schedule2.getEsmWeekends() || !TimeUtil.isWeekend(candidateTime))) {
         times.add(candidateTime);
       }
 
@@ -105,11 +108,11 @@ public class EsmGenerator2 {
 
   private DateTime adjustStartDateToBeginningOfPeriod(DateTime startDate) {
     switch (schedule.getEsmPeriodInDays()) {
-    case SignalSchedule.ESM_PERIOD_DAY:
+    case Schedule.ESM_PERIOD_DAY:
       return startDate;
-    case SignalSchedule.ESM_PERIOD_WEEK:
+    case Schedule.ESM_PERIOD_WEEK:
       return startDate.dayOfWeek().withMinimumValue();
-    case SignalSchedule.ESM_PERIOD_MONTH:
+    case Schedule.ESM_PERIOD_MONTH:
       return startDate.dayOfMonth().withMinimumValue();
     default:
       throw new IllegalStateException("Cannot get here.");

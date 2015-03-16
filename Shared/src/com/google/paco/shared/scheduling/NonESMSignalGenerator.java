@@ -14,7 +14,7 @@
 * specific language governing permissions and limitations
 * under the License.
 */
-package com.google.android.apps.paco;
+package com.google.paco.shared.scheduling;
 
 import java.util.List;
 
@@ -26,22 +26,26 @@ import org.joda.time.Months;
 import org.joda.time.MutableDateTime;
 import org.joda.time.Weeks;
 
-import android.content.Context;
-
 import com.google.common.collect.Lists;
-import com.google.paco.shared.model.SignalTimeDAO;
+import com.google.paco.shared.model2.EventInterface;
+import com.google.paco.shared.model2.EventStore;
+import com.google.paco.shared.model2.Schedule;
+import com.google.paco.shared.model2.SignalTime;
 
 public class NonESMSignalGenerator {
 
-  private SignalSchedule schedule;
-  private Context context;
+  private Schedule schedule;
   private Long experimentId;
-  private ExperimentProviderUtil experimentProvider;
+  private EventStore eventStore;
+  private String groupName;
+  private Long actionTriggerId;
 
-  public NonESMSignalGenerator(SignalSchedule schedule, Long experimentId, ExperimentProviderUtil experimentProvider) {
+  public NonESMSignalGenerator(Schedule schedule, Long experimentId, EventStore eventStore, String groupName, Long actionTriggerId) {
     this.schedule = schedule;
     this.experimentId = experimentId;
-    this.experimentProvider = experimentProvider;
+    this.eventStore = eventStore;
+    this.groupName = groupName;
+    this.actionTriggerId = actionTriggerId;
   }
 
   public DateTime getNextAlarmTime(DateTime now) {
@@ -50,13 +54,13 @@ public class NonESMSignalGenerator {
     }
 
     switch (schedule.getScheduleType()) {
-    case SignalSchedule.DAILY:
+    case Schedule.DAILY:
       return scheduleDaily(now);
-    case SignalSchedule.WEEKDAY:
+    case Schedule.WEEKDAY:
       return scheduleWeekday(now);
-    case SignalSchedule.WEEKLY:
+    case Schedule.WEEKLY:
       return scheduleWeekly(now);
-    case SignalSchedule.MONTHLY:
+    case Schedule.MONTHLY:
       return scheduleMonthly(now);
     default:
       return null;
@@ -99,7 +103,7 @@ public class NonESMSignalGenerator {
   private DateTime scheduleWeekly(DateTime now) {
     DateTime nowMidnight = now.toDateMidnight().toDateTime();
     int nowDow = nowMidnight.getDayOfWeek(); // joda starts Monday, I start Sunday
-    Integer nowDowIndex = SignalSchedule.DAYS_OF_WEEK[nowDow == 7 ? 0 : nowDow]; // joda is 1 based, and starts on Monday. we are 0-based, Sunday-start
+    Integer nowDowIndex = Schedule.DAYS_OF_WEEK[nowDow == 7 ? 0 : nowDow]; // joda is 1 based, and starts on Monday. we are 0-based, Sunday-start
     if ((schedule.getWeekDaysScheduled() & nowDowIndex) == nowDowIndex) {
       DateTime nextTimeToday = getNextTimeToday(now, nowMidnight);
       if (nextTimeToday != null) {
@@ -158,7 +162,8 @@ public class NonESMSignalGenerator {
 
   }
   //  Visible for Testing
-  public DateTime getNextTimeTodayForSchedule(DateTime now, DateTime nowMidnight, SignalSchedule schedule, Long experimentId) {
+  public DateTime getNextTimeTodayForSchedule(DateTime now, DateTime nowMidnight,
+                                              Schedule schedule, Long experimentId) {
     int nowAsOffsetFromMidnight = now.getMillisOfDay();
     List<SignalTimeHolder> previousTimes = Lists.newArrayList();
     for (int i=0; i < schedule.getSignalTimes().size(); i++) {
@@ -173,10 +178,11 @@ public class NonESMSignalGenerator {
     return null;
   }
 
-  private SignalTimeHolder getTimeForSignalType(SignalTime signalTime, List<SignalTimeHolder> previousTimes, DateTime nowMidnight, Long experimentId) {
-    if (signalTime.getType() == SignalTimeDAO.FIXED_TIME) {
+  private SignalTimeHolder getTimeForSignalType(SignalTime signalTime, List<SignalTimeHolder> previousTimes,
+                                                DateTime nowMidnight, Long experimentId) {
+    if (signalTime.getType() == SignalTime.FIXED_TIME) {
       return getNextTimeForFixedType(signalTime, previousTimes, nowMidnight);
-    } else if (signalTime.getType() == SignalTimeDAO.OFFSET_TIME) {
+    } else if (signalTime.getType() == SignalTime.OFFSET_TIME) {
       return getNextTimeForOffsetType(signalTime, previousTimes, experimentId);
     } else {
       return createNullSignalTimeHolder(signalTime);
@@ -200,9 +206,9 @@ public class NonESMSignalGenerator {
 
   private SignalTimeHolder getNextTimeForFixedType(SignalTime signalTime, List<SignalTimeHolder> previousTimes,
                                                        DateTime nowMidnight) {
-    if (previousTimes.size() == 0 || signalTime.getMissedBasisBehavior() == SignalTimeDAO.MISSED_BEHAVIOR_USE_SCHEDULED_TIME) {
+    if (previousTimes.size() == 0 || signalTime.getMissedBasisBehavior() == SignalTime.MISSED_BEHAVIOR_USE_SCHEDULED_TIME) {
       return new SignalTimeHolder(null, null, nowMidnight.toDateTime().plusMillis(signalTime.getFixedTimeMillisFromMidnight()), signalTime);
-    } else if (signalTime.getMissedBasisBehavior() == SignalTimeDAO.MISSED_BEHAVIOR_SKIP && previousEventHasResponse(previousTimes)) {
+    } else if (signalTime.getMissedBasisBehavior() == SignalTime.MISSED_BEHAVIOR_SKIP && previousEventHasResponse(previousTimes)) {
         return new SignalTimeHolder(null, null, nowMidnight.toDateTime().plusMillis(signalTime.getFixedTimeMillisFromMidnight()), signalTime);
     } else {
       return createNullSignalTimeHolder(signalTime);
@@ -233,11 +239,11 @@ public class NonESMSignalGenerator {
       // once the user responds or the event timesout, we will recalculate.
       return previousTimePair.chosenTime;
     }
-    if (signalTime.getBasis() == SignalTimeDAO.OFFSET_BASIS_SCHEDULED_TIME) {
+    if (signalTime.getBasis() == SignalTime.OFFSET_BASIS_SCHEDULED_TIME) {
       return previousTimePair.scheduledTime;
-    } else if (signalTime.getBasis() == SignalTimeDAO.OFFSET_BASIS_RESPONSE_TIME){
+    } else if (signalTime.getBasis() == SignalTime.OFFSET_BASIS_RESPONSE_TIME){
       DateTime basis = previousTimePair.responseTime;
-      if (basis == null && signalTime.getMissedBasisBehavior() == SignalTimeDAO.MISSED_BEHAVIOR_USE_SCHEDULED_TIME) {
+      if (basis == null && signalTime.getMissedBasisBehavior() == SignalTime.MISSED_BEHAVIOR_USE_SCHEDULED_TIME) {
         basis = previousTimePair.scheduledTime; // fallback to the scheduled time if we should
       }
       return basis;
@@ -247,16 +253,17 @@ public class NonESMSignalGenerator {
 
   /**
    *
-   * @param previousTimePair
+   * @param previousTimeCollector
    * @param experimentId
    * @return boolean if an event has been recorded yet. This is not true when the notification is still out but unresponded and un-timedout.
    */
-  private boolean retrieveEventForPreviousTime(SignalTimeHolder previousTimePair, Long experimentId) {
+  private boolean retrieveEventForPreviousTime(SignalTimeHolder previousTimeCollector, Long experimentId) {
     // we depend on the previous time, but we haven't loaded it yet. Do that now.
-    Event event = experimentProvider.getEvent(experimentId, previousTimePair.chosenTime);
+    EventInterface event = eventStore.getEvent(experimentId, previousTimeCollector.chosenTime,
+                                               groupName, actionTriggerId, schedule.getId());
     if (event != null) {
-      previousTimePair.scheduledTime = event.getScheduledTime();
-      previousTimePair.responseTime = event.getResponseTime();
+      previousTimeCollector.scheduledTime = event.getScheduledTime();
+      previousTimeCollector.responseTime = event.getResponseTime();
       return true;
     }
     return false;
@@ -299,17 +306,13 @@ public class NonESMSignalGenerator {
 //    }
 
 
-  private void createMissedEvent(ExperimentProviderUtil eu) {
-
-  }
-
   private DateTime getNextScheduleDay(DateTime midnightTomorrow) {
 
     switch (schedule.getScheduleType()) {
-    case SignalSchedule.DAILY:
+    case Schedule.DAILY:
       return nextRepeatDaily(midnightTomorrow);
 
-    case SignalSchedule.WEEKDAY:
+    case Schedule.WEEKDAY:
       int tomorrowDOW = midnightTomorrow.getDayOfWeek();
       if (tomorrowDOW > DateTimeConstants.FRIDAY) {
         return midnightTomorrow.plusDays(8 - tomorrowDOW);
@@ -317,14 +320,14 @@ public class NonESMSignalGenerator {
         return midnightTomorrow;
       }
 
-    case SignalSchedule.WEEKLY:
+    case Schedule.WEEKLY:
       int scheduleDays = schedule.getWeekDaysScheduled();
       if (scheduleDays == 0) {
         return null;
       }
       for (int i=0; i < 8; i++) { // go at least to the same day next week.
         int midnightTomorrowDOW = midnightTomorrow.getDayOfWeek();
-        Integer nowDowIndex = SignalSchedule.DAYS_OF_WEEK[midnightTomorrowDOW == 7 ? 0 : midnightTomorrowDOW]; // joda is 1 based & counts Monday as first day of the week so Sunday is 7 instead of 0.
+        Integer nowDowIndex = Schedule.DAYS_OF_WEEK[midnightTomorrowDOW == 7 ? 0 : midnightTomorrowDOW]; // joda is 1 based & counts Monday as first day of the week so Sunday is 7 instead of 0.
         if ((scheduleDays & nowDowIndex) == nowDowIndex) {
           return nextRepeatWeekly(midnightTomorrow);
         }
@@ -333,7 +336,7 @@ public class NonESMSignalGenerator {
       }
       throw new IllegalStateException("Cannot get to here. Weekly must repeat at least once a week");
 
-    case SignalSchedule.MONTHLY:
+    case Schedule.MONTHLY:
       if (schedule.getByDayOfMonth()) {
         int midnightDOM = midnightTomorrow.getDayOfMonth();
         int scheduledDOM = schedule.getDayOfMonth();

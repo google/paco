@@ -1,8 +1,8 @@
 /*
 * Copyright 2011 Google Inc. All Rights Reserved.
-* 
+*
 * Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance  with the License.  
+* you may not use this file except in compliance  with the License.
 * You may obtain a copy of the License at
 *
 *    http://www.apache.org/licenses/LICENSE-2.0
@@ -32,7 +32,7 @@ public class SignalProvider extends ContentProvider {
   public static final Uri CONTENT_URI =
       Uri.parse("content://com.google.android.apps.paco.signal");
   private static final String DATABASE_NAME = "signal.db";
-  private static final int DATABASE_VERSION = 3;
+  private static final int DATABASE_VERSION = 4;
   private static final String TABLE_NAME = "signal";
 
   private DatabaseHelper dbHelper;
@@ -89,9 +89,16 @@ public class SignalProvider extends ContentProvider {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-      db.execSQL("CREATE TABLE " + TABLE_NAME + " (" + Signal._ID + " INTEGER PRIMARY KEY,"
-          + Signal.DATE + " INTEGER, " + Signal.EXPERIMENT_ID + " INTEGER, " + Signal.TIME + " INTEGER, "
-          + Signal.NOTIFICATION_CREATED + " INTEGER" + ");");
+      db.execSQL("CREATE TABLE " + TABLE_NAME + " ("
+              + Signal._ID + " INTEGER PRIMARY KEY,"
+              + Signal.DATE + " INTEGER, "
+              + Signal.EXPERIMENT_ID + " INTEGER, "
+              + Signal.TIME + " INTEGER, "
+              + Signal.NOTIFICATION_CREATED + " INTEGER,"
+              + Signal.GROUP_NAME + " TEXT, "
+              + Signal.ACTION_TRIGGER_ID + " INTEGER, "
+              + Signal.SCHEDULE_ID + " INTEGER "
+              + ");");
     }
 
     private void dropTable(SQLiteDatabase db) {
@@ -104,6 +111,15 @@ public class SignalProvider extends ContentProvider {
           + " to " + newVersion + ", which will destroy all old data");
       dropTable(db);
       onCreate(db);
+      if (oldVersion <= 3) {
+        // add three new columns
+        db.execSQL("ALTER TABLE " + SignalProvider.TABLE_NAME + " ADD COLUMN "
+                + Signal.GROUP_NAME + " TEXT;");
+        db.execSQL("ALTER TABLE " + SignalProvider.TABLE_NAME + " ADD COLUMN "
+                + Signal.ACTION_TRIGGER_ID + " INTEGER;");
+        db.execSQL("ALTER TABLE " + SignalProvider.TABLE_NAME + " ADD COLUMN "
+                + Signal.SCHEDULE_ID + " INTEGER;");
+      }
     }
   }
 }

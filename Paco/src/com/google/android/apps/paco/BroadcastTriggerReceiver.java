@@ -19,6 +19,8 @@ import android.util.Log;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
+import com.google.paco.shared.scheduling.ActionScheduleGenerator;
+import com.google.paco.shared.util.TimeUtil;
 
 public class BroadcastTriggerReceiver extends BroadcastReceiver {
 
@@ -89,8 +91,8 @@ public class BroadcastTriggerReceiver extends BroadcastReceiver {
       Event event = new Event();
       event.setExperimentId(experiment.getId());
       event.setServerExperimentId(experiment.getServerId());
-      event.setExperimentName(experiment.getTitle());
-      event.setExperimentVersion(experiment.getVersion());
+      event.setExperimentName(experiment.getExperimentDAO().getTitle());
+      event.setExperimentVersion(experiment.getExperimentDAO().getVersion());
       event.setResponseTime(new DateTime());
 
       Output responseForInput = new Output();
@@ -147,7 +149,7 @@ public class BroadcastTriggerReceiver extends BroadcastReceiver {
 
     String usedAppsString = Joiner.on(",").join(newSearchHistory);
     for (Experiment experiment : experimentsNeedingEvent) {
-      Event event = createSitesVisitedPacoEvent(usedAppsString, experiment, sessionStartMillis);
+      Event event = EventUtil.createSitesVisitedPacoEvent(usedAppsString, experiment, sessionStartMillis);
       experimentProviderUtil.insertEvent(event);
     }
 
@@ -158,7 +160,7 @@ public class BroadcastTriggerReceiver extends BroadcastReceiver {
     List<Experiment> experimentsNeedingEvent = Lists.newArrayList();
     DateTime now = DateTime.now();
     for (Experiment experiment2 : joined) {
-      if (!experiment2.isOver(now) && experiment2.isLogActions()) {
+      if (!ActionScheduleGenerator.isOver(now, experiment2.getExperimentDAO()) && experiment2.isLogActions()) {
         experimentsNeedingEvent.add(experiment2);
       }
     }
@@ -205,30 +207,6 @@ public class BroadcastTriggerReceiver extends BroadcastReceiver {
     }
   }
 
-  public static Event createSitesVisitedPacoEvent(String usedAppsString, Experiment experiment, long startTime) {
-    Event event = new Event();
-    event.setExperimentId(experiment.getId());
-    event.setServerExperimentId(experiment.getServerId());
-    event.setExperimentName(experiment.getTitle());
-    event.setExperimentVersion(experiment.getVersion());
-    event.setResponseTime(new DateTime());
-
-    Output responseForInput = new Output();
-
-    responseForInput.setAnswer(usedAppsString);
-    responseForInput.setName("sites_visited");
-    event.addResponse(responseForInput);
-
-    Output responseForInputSessionDuration = new Output();
-    long sessionDuration = (System.currentTimeMillis() - startTime) / 1000;
-    responseForInputSessionDuration.setAnswer(Long.toString(sessionDuration));
-    responseForInputSessionDuration.setName("session_duration");
-
-    event.addResponse(responseForInputSessionDuration);
-    return event;
-  }
-
-
   private boolean isUserPresent(Intent intent) {
     return intent.getAction().equals(android.content.Intent.ACTION_USER_PRESENT);
   }
@@ -266,7 +244,7 @@ public class BroadcastTriggerReceiver extends BroadcastReceiver {
     DateTime now = new DateTime();
     List<Experiment> joined = eu.getJoinedExperiments();
     for (Experiment experiment : joined) {
-      if (!experiment.isOver(now)) {
+      if (!ActionScheduleGenerator.isOver(now, experiment.getExperimentDAO())) {
        if (experiment.shouldWatchProcesses()) {
         shouldWatchProcesses = true;
        }

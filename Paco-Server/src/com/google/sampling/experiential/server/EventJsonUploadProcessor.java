@@ -146,9 +146,34 @@ public class EventJsonUploadProcessor {
       }
     }
 
-    if (eventJson.has("groupName")) {
-      groupName = eventJson.getString("groupName");
+    if (eventJson.has("experimentGroupName")) {
+      groupName = eventJson.getString("experimentGroupName");
     }
+
+    Long actionTriggerId = null;
+    if (eventJson.has("actionTriggerId")) {
+      String actionTriggerIdStr = eventJson.getString("actionTriggerId");
+      if (!Strings.isNullOrEmpty(actionTriggerIdStr)) {
+        actionTriggerId = Long.parseLong(actionTriggerIdStr);
+      }
+
+    }
+    Long actionTriggerSpecId = null;
+    if (eventJson.has("actionTriggerSpecId")) {
+      String actionTriggerSpecIdStr = eventJson.getString("actionTriggerSpecId");
+      if (!Strings.isNullOrEmpty(actionTriggerSpecIdStr)) {
+        actionTriggerSpecId = Long.parseLong(actionTriggerSpecIdStr);
+      }
+    }
+    Long actionId = null;
+    if (eventJson.has("actionId")) {
+      String actionIdStr = eventJson.getString("actionId");
+      if (!Strings.isNullOrEmpty(actionIdStr)) {
+        actionId = Long.parseLong(actionIdStr);
+      }
+    }
+
+
     log.info("Retrieving experimentId, experimentName for event posting: " + experimentId + ", " + experimentName);
     if (experimentId == null) {
       outcome.setError("No experiment ID for this event: " + eventId);
@@ -209,8 +234,6 @@ public class EventJsonUploadProcessor {
       }
     }
 
-//    SimpleDateFormat df = new SimpleDateFormat(TimeUtil.DATETIME_FORMAT);
-//    SimpleDateFormat oldDf = new SimpleDateFormat(TimeUtil.DATETIME_FORMAT_OLD);
     DateTimeFormatter df = org.joda.time.format.DateTimeFormat.forPattern(TimeUtil.DATETIME_FORMAT).withOffsetParsed();
 
     if (eventJson.has("responseTime")) {
@@ -230,13 +253,15 @@ public class EventJsonUploadProcessor {
       }
     }
 
+
     log.info("Sanity check: who = " + who + ", when = "
              + (new SimpleDateFormat(TimeUtil.DATETIME_FORMAT)).format(whenDate)
              + ", what length = " + whats.size());
 
 
     eventRetriever.postEvent(who, null, null, whenDate, appId, pacoVersion, whats, false, experimentId,
-                                           experimentName, experimentVersion, responseTime, scheduledTime, blobs);
+                                           experimentName, experimentVersion, responseTime, scheduledTime, blobs,
+                                           groupName, actionTriggerId, actionTriggerSpecId, actionId);
     return outcome;
   }
 

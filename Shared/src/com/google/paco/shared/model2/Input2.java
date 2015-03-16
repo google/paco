@@ -213,6 +213,15 @@ public class Input2 implements Validatable, Serializable {
     }
   }
 
+  public boolean isInvisible() {
+    return responseType.equals(LOCATION) || responseType.equals(PHOTO);
+  }
+
+  public boolean isNumeric() {
+    return responseType.equals(LIKERT) ||
+            responseType.equals(LIST) || // TODO (bobevans): LIST shoudl be a categorical, not a numeric.
+            responseType.equals(NUMBER);
+  }
 
 
 

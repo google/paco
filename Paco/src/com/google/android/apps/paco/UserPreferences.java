@@ -25,6 +25,7 @@ import android.accounts.Account;
 import android.content.Context;
 import android.content.SharedPreferences;
 
+import com.google.paco.shared.util.TimeUtil;
 import com.pacoapp.paco.R;
 
 /**
@@ -281,16 +282,16 @@ public class UserPreferences {
     getAppPrefs().edit().putBoolean(RINGTONE_INSTALLED_KEY, true).commit();
   }
 
-  public DateTime getRecentlyTriggeredTime(long experimentId) {
-    String storedTime = getAppPrefs().getString(EXPERIMENT_TRIGGERED_KEY + "_" + experimentId, null);
+  public DateTime getRecentlyTriggeredTime(String uniqueTriggerIdentifier) {
+    String storedTime = getAppPrefs().getString(EXPERIMENT_TRIGGERED_KEY + "_" + uniqueTriggerIdentifier, null);
     if (storedTime == null) {
       return null;
     }
     return TimeUtil.parseDateTime(storedTime);
   }
 
-  public void setRecentlyTriggeredTime(long experimentId, DateTime time) {
-    getAppPrefs().edit().putString(EXPERIMENT_TRIGGERED_KEY + "_" + experimentId, TimeUtil.formatDateTime(time)).commit();
+  public void setRecentlyTriggeredTime(String uniqueTriggerIdentifier, DateTime time) {
+    getAppPrefs().edit().putString(EXPERIMENT_TRIGGERED_KEY + "_" + uniqueTriggerIdentifier, TimeUtil.formatDateTime(time)).commit();
   }
 
 }

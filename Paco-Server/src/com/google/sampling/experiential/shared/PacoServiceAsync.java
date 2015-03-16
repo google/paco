@@ -39,7 +39,12 @@ public interface PacoServiceAsync {
       String experimentId,
       Map<String, String> kvPairs,
       Integer experimentVersion,
-      boolean shared, AsyncCallback<Void> asyncCallback);
+      boolean shared,
+      String groupName,
+      Long actionTriggerId,
+      Long actionTriggerSpecId,
+      Long actionId,
+      AsyncCallback<Void> asyncCallback);
 
   void saveExperiment(ExperimentDAO experiment, String timeZone, AsyncCallback<Outcome> asyncCallback);
 

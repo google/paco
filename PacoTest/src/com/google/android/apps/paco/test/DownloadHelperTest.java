@@ -6,9 +6,9 @@ import java.util.Random;
 import android.content.Context;
 import android.test.AndroidTestCase;
 
-import com.google.android.apps.paco.AndroidUtils;
 import com.google.android.apps.paco.DownloadHelper;
 import com.google.android.apps.paco.UserPreferences;
+import com.google.android.apps.paco.utils.AndroidUtils;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import com.google.corp.productivity.specialprojects.android.comm.Request;

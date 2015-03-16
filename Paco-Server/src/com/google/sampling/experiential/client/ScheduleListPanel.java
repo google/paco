@@ -35,6 +35,7 @@ public class ScheduleListPanel extends Composite {
   private VerticalPanel rootPanel;
   private ScheduleTrigger trigger;
   private LinkedList<SchedulePanel> schedulePanelsList;
+  private Long lastUsedScheduleId = 0l;
 
   public ScheduleListPanel(ScheduleTrigger trigger) {
     MyConstants myConstants = GWT.create(MyConstants.class);
@@ -59,7 +60,13 @@ public class ScheduleListPanel extends Composite {
       trigger.setSchedules(triggerSchedules);
     } else {
       for (int i = 0; i < trigger.getSchedules().size(); i++) {
-        SchedulePanel time = new SchedulePanel(this, trigger.getSchedules().get(i));
+        final Schedule schedule = trigger.getSchedules().get(i);
+        if (schedule.getId() != null ) {
+          if (lastUsedScheduleId == null || schedule.getId() > lastUsedScheduleId) {
+            lastUsedScheduleId = schedule.getId();
+          }
+        }
+        SchedulePanel time = new SchedulePanel(this, schedule);
         rootPanel.add(time);
         schedulePanelsList.add(time);
       }
@@ -67,7 +74,9 @@ public class ScheduleListPanel extends Composite {
   }
 
   private Schedule createBlankDAO() {
-    return new Schedule();
+    final Schedule schedule = new Schedule();
+    schedule.setId(++lastUsedScheduleId);
+    return schedule;
   }
 
   public void deleteSchedule(SchedulePanel schedulePanel) {

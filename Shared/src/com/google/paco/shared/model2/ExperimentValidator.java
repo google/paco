@@ -248,4 +248,13 @@ public class ExperimentValidator implements Validator {
     return results;
   }
 
+  public String stringifyResults() {
+    StringBuilder buf = new StringBuilder();
+    for (ValidationMessage msg : results) {
+      buf.append(msg.toString());
+      buf.append("\n");
+    }
+    return buf.toString();
+  }
+
 }

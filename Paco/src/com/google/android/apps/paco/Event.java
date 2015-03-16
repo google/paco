@@ -1,8 +1,8 @@
 /*
 * Copyright 2011 Google Inc. All Rights Reserved.
-* 
+*
 * Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance  with the License.  
+* you may not use this file except in compliance  with the License.
 * You may obtain a copy of the License at
 *
 *    http://www.apache.org/licenses/LICENSE-2.0
@@ -29,8 +29,12 @@ import org.joda.time.format.DateTimeFormatter;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-public class Event implements Parcelable {
+import com.google.paco.shared.model2.EventInterface;
+import com.google.paco.shared.util.TimeUtil;
 
+public class Event implements Parcelable, EventInterface {
+
+  @JsonIgnore
   DateTimeFormatter df = DateTimeFormat.forPattern(TimeUtil.DATETIME_FORMAT);
   public static class Creator implements Parcelable.Creator<Event> {
 
@@ -40,21 +44,25 @@ public class Event implements Parcelable {
       event.experimentId = source.readLong();
       event.experimentServerId = source.readLong();
       event.experimentName = source.readString();
+      event.experimentGroupName = source.readString();
+      event.actionId = source.readLong();
+      event.actionTriggerId = source.readLong();
+      event.actionTriggerSpecId = source.readLong();
       event.experimentVersion = source.readInt();
       long scheduledMillis = source.readLong();
       String scheduledMillisTzId = source.readString();
       if (scheduledMillis != -1) {
         event.scheduledTime = new DateTime(scheduledMillis, DateTimeZone.forID(scheduledMillisTzId));
       }
-      
+
       long respondedMillis = source.readLong();
       String respondedMillisTzId = source.readString();
       if (respondedMillis != -1) {
         event.responseTime = new DateTime(respondedMillis, DateTimeZone.forID(respondedMillisTzId));
       }
-      
+
       event.uploaded = source.readInt() == 1;
-      
+
       int responseSize = source.readInt();
       ClassLoader classLoader = getClass().getClassLoader();
 
@@ -70,36 +78,82 @@ public class Event implements Parcelable {
     }
   }
 
+  @JsonIgnore
   public static final Creator CREATOR = new Creator();
 
   @JsonIgnore
+  public void writeToParcel(Parcel dest, int flags) {
+    dest.writeLong(id);
+    dest.writeLong(experimentId);
+    dest.writeLong(experimentServerId);
+    dest.writeString(experimentName);
+    dest.writeString(experimentGroupName);
+    dest.writeLong(actionId);
+    dest.writeLong(actionTriggerId);
+    dest.writeLong(actionTriggerSpecId);
+    dest.writeInt(experimentVersion);
+    long scheduledMillis = -1;
+    String scheduledTzId = "";
+    if (scheduledTime != null) {
+      scheduledMillis = scheduledTime.getMillis();
+      scheduledTzId = scheduledTime.getZone().getID();
+    }
+    dest.writeLong(scheduledMillis);
+    dest.writeString(scheduledTzId);
+
+    long respondedMillis = -1;
+    String respondedTzId = "";
+    if (responseTime != null) {
+      respondedMillis = responseTime.getMillis();
+      respondedTzId = responseTime.getZone().getID();
+    }
+    dest.writeLong(respondedMillis);
+    dest.writeString(respondedTzId);
+
+    dest.writeInt(uploaded ? 1 : 0);
+    dest.writeInt(responses.size());
+    for (Output response : responses) {
+      dest.writeParcelable(response, 0);
+    }
+
+  }
+
+  @JsonIgnore
   private long id = -1;
-  
+
   @JsonIgnore
   private long experimentId = -1;
-  
+
   @JsonProperty("experimentId")
   private long experimentServerId = -1;
 
   private String experimentName;
-  
+
   @JsonIgnore
   private DateTime scheduledTime;
-  
+
   @JsonIgnore
   private DateTime responseTime;
-  
+
   @JsonIgnore
   private boolean uploaded;
-  
+
   private List<Output> responses = new ArrayList<Output>();
 
   private Integer experimentVersion;
 
-  public Event() {    
+  private String experimentGroupName;
+
+  private Long actionTriggerId;
+
+  private Long actionTriggerSpecId;
+
+  private Long actionId;
+
+  public Event() {
   }
-  
-  @JsonIgnore  
+
+  @JsonIgnore
   public long getId() {
     return id;
   }
@@ -189,38 +243,6 @@ public class Event implements Parcelable {
     return 0;
   }
 
-  @JsonIgnore
-  public void writeToParcel(Parcel dest, int flags) {
-    dest.writeLong(id);
-    dest.writeLong(experimentId);
-    dest.writeLong(experimentServerId);
-    dest.writeString(experimentName);
-    dest.writeInt(experimentVersion);
-    long scheduledMillis = -1;
-    String scheduledTzId = ""; 
-    if (scheduledTime != null) {
-      scheduledMillis = scheduledTime.getMillis();
-      scheduledTzId = scheduledTime.getZone().getID();
-    } 
-    dest.writeLong(scheduledMillis);
-    dest.writeString(scheduledTzId);    
-
-    long respondedMillis = -1;
-    String respondedTzId = "";
-    if (responseTime != null) {
-      respondedMillis = responseTime.getMillis();
-      respondedTzId = responseTime.getZone().getID();
-    } 
-    dest.writeLong(respondedMillis);
-    dest.writeString(respondedTzId);
-    
-    dest.writeInt(uploaded ? 1 : 0);
-    dest.writeInt(responses.size());
-    for (Output response : responses) {
-      dest.writeParcelable(response, 0);
-    }
-   
-  }
 
   @JsonIgnore
   public void addResponse(Output response) {
@@ -246,11 +268,43 @@ public class Event implements Parcelable {
   }
 
   public void setExperimentVersion(Integer version) {
-    this.experimentVersion = version;    
+    this.experimentVersion = version;
   }
 
   public Integer getExperimentVersion() {
-    return this.experimentVersion;    
+    return this.experimentVersion;
+  }
+
+  public void setExperimentGroupName(String experimentGroupName) {
+    this.experimentGroupName = experimentGroupName;
+  }
+
+  public String getExperimentGroupName() {
+    return experimentGroupName;
+  }
+
+  public Long getActionTriggerId() {
+    return actionTriggerId;
+  }
+
+  public void setActionTriggerId(Long actionTriggerId) {
+    this.actionTriggerId = actionTriggerId;
+  }
+
+  public Long getActionTriggerSpecId() {
+    return actionTriggerSpecId;
+  }
+
+  public void setActionTriggerSpecId(Long actionTriggerSpecId) {
+    this.actionTriggerSpecId = actionTriggerSpecId;
+  }
+
+  public void setActionId(Long actionId) {
+    this.actionId = actionId;
+  }
+
+  public Long getActionId() {
+    return this.actionId;
   }
 
 }

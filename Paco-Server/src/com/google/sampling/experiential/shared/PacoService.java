@@ -36,7 +36,8 @@ public interface PacoService extends RemoteService {
   List<EventDAO> eventSearch(String tags);
 
   void saveEvent(String who, String scheduledTime, String responseTime, String experimentId,
-                 Map<String, String> kvPairs, Integer experimentVersion, boolean shared);
+                 Map<String, String> kvPairs, Integer experimentVersion, boolean shared, String groupName,
+                 Long actionTriggerId, Long actionTriggerSpecId, Long actionId);
 
   Outcome saveExperiment(ExperimentDAO experiment, String timeZone);
 

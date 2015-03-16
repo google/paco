@@ -23,6 +23,7 @@ import java.util.List;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
+import com.google.paco.shared.util.ListMaker;
 
 
 
@@ -60,10 +61,10 @@ public class ExperimentDAO extends ExperimentDAOCore implements Serializable {
     this.creator = email;
     this.modifyDate = modifyDate;
     this.published = published;
-    this.admins = admins;
-    this.publishedUsers = publishedUsers;
+    this.admins = ListMaker.paramOrNewList(admins, String.class);
+    this.publishedUsers = ListMaker.paramOrNewList(publishedUsers, String.class);
     this.version = version;
-    this.groups = groups;
+    this.groups = ListMaker.paramOrNewList(groups, ExperimentGroup.class);
   }
 
   /**
@@ -178,7 +179,7 @@ public class ExperimentDAO extends ExperimentDAOCore implements Serializable {
   }
 
   //@JsonIgnore
-  private List<Input2> getInputs() {
+  public List<Input2> getInputs() {
     List<Input2> inputs = new java.util.ArrayList<Input2>();
     for (ExperimentGroup group : getGroups()) {
       inputs.addAll(group.getInputs());
@@ -197,6 +198,9 @@ public class ExperimentDAO extends ExperimentDAOCore implements Serializable {
     List<String> groupNames = Lists.newArrayList();
     List<ExperimentGroup> endOfDayGroups = Lists.newArrayList();
     for (ExperimentGroup group : groups) {
+      if (groupNames.contains(group.getName())) {
+        validator.addError("Group name: " + group.getName() + " is not unique. Group names must be unique");
+      }
       groupNames.add(group.getName());
       group.validateWith(validator);
       if (group.getEndOfDayGroup()) {

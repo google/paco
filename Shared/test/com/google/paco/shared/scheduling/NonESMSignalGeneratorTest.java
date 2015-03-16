@@ -14,7 +14,7 @@
 * specific language governing permissions and limitations
 * under the License.
 */
-package com.google.android.apps.paco;
+package com.google.paco.shared.scheduling;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,52 +25,58 @@ import org.joda.time.DateMidnight;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeConstants;
 
-import android.content.ContentResolver;
-import android.test.mock.MockContext;
-
-import com.google.paco.shared.model.SignalTimeDAO;
 import com.google.paco.shared.model.SignalingMechanismDAO;
+import com.google.paco.shared.model2.EventInterface;
+import com.google.paco.shared.model2.EventStore;
+import com.google.paco.shared.model2.Schedule;
+import com.google.paco.shared.model2.SignalTime;
 
 public class NonESMSignalGeneratorTest extends TestCase {
 
   private Long NULL_EXPERIMENT_ID = null;
 
 
-  private SignalSchedule createDailyScheduleWithTimes(List<SignalTime> times, int repeatRate) {
-    return createSchedule(times, SignalSchedule.DAILY, repeatRate,
+  private Schedule createDailyScheduleWithTimes(List<SignalTime> times, int repeatRate) {
+    return createSchedule(times, Schedule.DAILY, repeatRate,
         createDateTime_ThursdayAtHour(0), null, false, 1, null);
   }
 
-  private SignalSchedule createWeeklyScheduleWithTimes(List<SignalTime> times, int repeatRate, Integer daysRepeated) {
-    return createSchedule(times, SignalSchedule.WEEKLY, repeatRate,
+  private Schedule createWeeklyScheduleWithTimes(List<SignalTime> times, int repeatRate, Integer daysRepeated) {
+    return createSchedule(times, Schedule.WEEKLY, repeatRate,
         createDateTime_ThursdayAtHour(0), daysRepeated, false, 1, null);
   }
 
-  private SignalSchedule createWeekdayScheduleWithTimes(List<SignalTime> times) {
-    return createSchedule(times, SignalSchedule.WEEKDAY, 1, createDateTime_ThursdayAtHour(0),
+  private Schedule createWeekdayScheduleWithTimes(List<SignalTime> times) {
+    return createSchedule(times, Schedule.WEEKDAY, 1, createDateTime_ThursdayAtHour(0),
         null, false, 1, null);
   }
 
-  private SignalSchedule createMonthlyScheduleByDayOfMonthWithTimes(List<SignalTime> times,
+  private Schedule createMonthlyScheduleByDayOfMonthWithTimes(List<SignalTime> times,
       int repeatRate, boolean byDayOfMonth, int dayOfMonth) {
-    return createSchedule(times, SignalSchedule.MONTHLY, repeatRate,
+    return createSchedule(times, Schedule.MONTHLY, repeatRate,
         createDateTime_ThursdayAtHour(0), null, byDayOfMonth, dayOfMonth, null);
   }
 
-  private SignalSchedule createMonthlyScheduleByNthWeekWithTimes(List<SignalTime> times,
+  private Schedule createMonthlyScheduleByNthWeekWithTimes(List<SignalTime> times,
       Integer repeatRate, Integer nthOfMonth, Integer weekDaysScheduled) {
-    return createSchedule(times, SignalSchedule.MONTHLY, repeatRate,
+    return createSchedule(times, Schedule.MONTHLY, repeatRate,
         createDateTime_ThursdayAtHour(0), weekDaysScheduled, false, null,
         nthOfMonth);
   }
 
 
-  private SignalSchedule createSchedule(List<SignalTime> times, int scheduleType,
+  private Schedule createSchedule(List<SignalTime> times, int scheduleType,
       int repeatRate, DateTime beginDate, Integer weekDaysScheduled, boolean byDayOfMonth,
       Integer dayOfMonth, Integer nthOfMonth) {
-    SignalSchedule schedule = new SignalSchedule(1L, scheduleType, byDayOfMonth, dayOfMonth,
-        null,null,null,null, false, nthOfMonth, repeatRate, times, weekDaysScheduled, beginDate.getMillis(), true, 479 /* default timeout for non-esm*/,
-        SignalingMechanismDAO.SNOOZE_COUNT_DEFAULT, SignalingMechanismDAO.SNOOZE_TIME_DEFAULT, false);
+    Schedule schedule = new Schedule(scheduleType,
+                                     byDayOfMonth, dayOfMonth,
+                                     null,null,null, null,
+                                     nthOfMonth, repeatRate, times,
+                                     weekDaysScheduled, true, 479, 59,
+                                     SignalingMechanismDAO.SNOOZE_COUNT_DEFAULT,
+                                     SignalingMechanismDAO.SNOOZE_TIME_DEFAULT);
+    schedule.setBeginDate(beginDate.getMillis());
+
     return schedule;
   }
 
@@ -99,42 +105,42 @@ public class NonESMSignalGeneratorTest extends TestCase {
 
 
   public static SignalTime createFixedSignalTimeSkipOnMissed(DateTime twoPm) {
-    return new SignalTime(SignalTimeDAO.FIXED_TIME,SignalTimeDAO.OFFSET_BASIS_RESPONSE_TIME,
-                          twoPm.getMillisOfDay(), SignalTimeDAO.MISSED_BEHAVIOR_SKIP,
+    return new SignalTime(SignalTime.FIXED_TIME,SignalTime.OFFSET_BASIS_RESPONSE_TIME,
+                          twoPm.getMillisOfDay(), SignalTime.MISSED_BEHAVIOR_SKIP,
                           0, null);
   }
 
   public static SignalTime createFixedSignalTimeUseScheduledTimeOnMiss(DateTime twoPm) {
-    return new SignalTime(SignalTimeDAO.FIXED_TIME,SignalTimeDAO.OFFSET_BASIS_RESPONSE_TIME,
-                          twoPm.getMillisOfDay(), SignalTimeDAO.MISSED_BEHAVIOR_USE_SCHEDULED_TIME,
+    return new SignalTime(SignalTime.FIXED_TIME,SignalTime.OFFSET_BASIS_RESPONSE_TIME,
+                          twoPm.getMillisOfDay(), SignalTime.MISSED_BEHAVIOR_USE_SCHEDULED_TIME,
                           0, null);
   }
 
   public static SignalTime createOffsetSignalTimeResponseBasisSkipOnMiss(int offsetMillis) {
-    return new SignalTime(SignalTimeDAO.OFFSET_TIME, SignalTimeDAO.OFFSET_BASIS_RESPONSE_TIME,
-                          0, SignalTimeDAO.MISSED_BEHAVIOR_SKIP,
+    return new SignalTime(SignalTime.OFFSET_TIME, SignalTime.OFFSET_BASIS_RESPONSE_TIME,
+                          0, SignalTime.MISSED_BEHAVIOR_SKIP,
                           offsetMillis, null);
   }
 
   public static SignalTime createOffsetSignalTimeResponseBasisUseScheduledTimeOnMiss(int offsetMillis) {
-    return new SignalTime(SignalTimeDAO.OFFSET_TIME, SignalTimeDAO.OFFSET_BASIS_RESPONSE_TIME,
-                          0, SignalTimeDAO.MISSED_BEHAVIOR_USE_SCHEDULED_TIME,
+    return new SignalTime(SignalTime.OFFSET_TIME, SignalTime.OFFSET_BASIS_RESPONSE_TIME,
+                          0, SignalTime.MISSED_BEHAVIOR_USE_SCHEDULED_TIME,
                           offsetMillis, null);
   }
 
 
   public void testNullTimes() throws Exception {
     List<SignalTime> times = null;
-    SignalSchedule schedule = createDailyScheduleWithTimes(times, 1);
-    NonESMSignalGenerator generator = new NonESMSignalGenerator(schedule, NULL_EXPERIMENT_ID, null);
+    Schedule schedule = createDailyScheduleWithTimes(times, 1);
+    NonESMSignalGenerator generator = new NonESMSignalGenerator(schedule, NULL_EXPERIMENT_ID, null, null, null);
     assertNull(generator.getNextAlarmTime(createDateTime_ThursdayAtHour(13)));
 
   }
 
   public void testEmptyTimes() throws Exception {
     List<SignalTime> times = new ArrayList<SignalTime>();
-    SignalSchedule schedule = createDailyScheduleWithTimes(times, 1);
-    NonESMSignalGenerator generator = new NonESMSignalGenerator(schedule, NULL_EXPERIMENT_ID, null);
+    Schedule schedule = createDailyScheduleWithTimes(times, 1);
+    NonESMSignalGenerator generator = new NonESMSignalGenerator(schedule, NULL_EXPERIMENT_ID, null, null, null);
     assertNull(generator.getNextAlarmTime(createDateTime_ThursdayAtHour(13)));
   }
 
@@ -142,9 +148,9 @@ public class NonESMSignalGeneratorTest extends TestCase {
     List<SignalTime> times = new ArrayList<SignalTime>();
     DateTime twoPm = createDateTime_ThursdayAtHour(14);
     times.add(createFixedSignalTimeSkipOnMissed(twoPm));
-    SignalSchedule schedule = createDailyScheduleWithTimes(times, 1);
+    Schedule schedule = createDailyScheduleWithTimes(times, 1);
 
-    NonESMSignalGenerator generator = new NonESMSignalGenerator(schedule, NULL_EXPERIMENT_ID, null);
+    NonESMSignalGenerator generator = new NonESMSignalGenerator(schedule, NULL_EXPERIMENT_ID, null, null, null);
 
     DateTime onePm = createDateTime_ThursdayAtHour(13);
     assertEquals(twoPm, new DateTime(generator.getNextAlarmTime(onePm)));
@@ -154,9 +160,9 @@ public class NonESMSignalGeneratorTest extends TestCase {
     List<SignalTime> times = new ArrayList<SignalTime>();
     DateTime twoPm = createDateTime_ThursdayAtHour(14);
     times.add(createFixedSignalTimeSkipOnMissed(twoPm));
-    SignalSchedule schedule = createDailyScheduleWithTimes(times, 1);
+    Schedule schedule = createDailyScheduleWithTimes(times, 1);
 
-    NonESMSignalGenerator generator = new NonESMSignalGenerator(schedule, NULL_EXPERIMENT_ID, null);
+    NonESMSignalGenerator generator = new NonESMSignalGenerator(schedule, NULL_EXPERIMENT_ID, null, null, null);
 
     DateTime threePm = createDateTime_ThursdayAtHour(15);
     assertEquals(twoPm.plusDays(1), new DateTime(generator.getNextAlarmTime(threePm)));
@@ -166,9 +172,9 @@ public class NonESMSignalGeneratorTest extends TestCase {
     List<SignalTime> times = new ArrayList<SignalTime>();
     DateTime twoPm = createDateTime_ThursdayAtHour(14);
     times.add(createFixedSignalTimeSkipOnMissed(twoPm));
-    SignalSchedule schedule = createDailyScheduleWithTimes(times, 1);
+    Schedule schedule = createDailyScheduleWithTimes(times, 1);
 
-    NonESMSignalGenerator generator = new NonESMSignalGenerator(schedule, NULL_EXPERIMENT_ID, null);
+    NonESMSignalGenerator generator = new NonESMSignalGenerator(schedule, NULL_EXPERIMENT_ID, null, null, null);
 
     DateTime onePm = createDateTime_ThursdayAtHour(14);
     assertEquals(twoPm.plusDays(1), new DateTime(generator.getNextAlarmTime(onePm)));
@@ -178,9 +184,9 @@ public class NonESMSignalGeneratorTest extends TestCase {
     List<SignalTime> times = new ArrayList<SignalTime>();
     DateTime twoPm = createDateTime_ThursdayAtHour(14);
     times.add(createFixedSignalTimeSkipOnMissed(twoPm));
-    SignalSchedule schedule = createDailyScheduleWithTimes(times, 1);
+    Schedule schedule = createDailyScheduleWithTimes(times, 1);
 
-    NonESMSignalGenerator generator = new NonESMSignalGenerator(schedule, NULL_EXPERIMENT_ID, null);
+    NonESMSignalGenerator generator = new NonESMSignalGenerator(schedule, NULL_EXPERIMENT_ID, null, null, null);
 
     DateTime threePmFriday = createDateTime_FridayAtHour(15);
     assertEquals(twoPm.plusDays(2), new DateTime(generator.getNextAlarmTime(threePmFriday)));
@@ -190,9 +196,9 @@ public class NonESMSignalGeneratorTest extends TestCase {
     List<SignalTime> times = new ArrayList<SignalTime>();
     DateTime twoPm = createDateTime_ThursdayAtHour(14);
     times.add(createFixedSignalTimeSkipOnMissed(twoPm));
-    SignalSchedule schedule = createWeekdayScheduleWithTimes(times);
+    Schedule schedule = createWeekdayScheduleWithTimes(times);
 
-    NonESMSignalGenerator generator = new NonESMSignalGenerator(schedule, NULL_EXPERIMENT_ID, null);
+    NonESMSignalGenerator generator = new NonESMSignalGenerator(schedule, NULL_EXPERIMENT_ID, null, null, null);
 
     DateTime threePmFriday = createDateTime_FridayAtHour(15);
     assertEquals(twoPm.plusDays(4), new DateTime(generator.getNextAlarmTime(threePmFriday)));
@@ -204,9 +210,9 @@ public class NonESMSignalGeneratorTest extends TestCase {
     times.add(createFixedSignalTimeSkipOnMissed(twoPm));
     DateTime twelvePm = createDateTime_ThursdayAtHour(12);
     times.add(createFixedSignalTimeSkipOnMissed(twelvePm));
-    SignalSchedule schedule = createDailyScheduleWithTimes(times, 1);
+    Schedule schedule = createDailyScheduleWithTimes(times, 1);
 
-    NonESMSignalGenerator generator = new NonESMSignalGenerator(schedule, NULL_EXPERIMENT_ID, null);
+    NonESMSignalGenerator generator = new NonESMSignalGenerator(schedule, NULL_EXPERIMENT_ID, null, null, null);
 
     DateTime onePm = createDateTime_ThursdayAtHour(13);
     assertEquals(twoPm, new DateTime(generator.getNextAlarmTime(onePm)));
@@ -218,9 +224,9 @@ public class NonESMSignalGeneratorTest extends TestCase {
     times.add(createFixedSignalTimeSkipOnMissed(twoPm));
     DateTime threePm = createDateTime_ThursdayAtHour(15);
     times.add(createFixedSignalTimeSkipOnMissed(threePm));
-    SignalSchedule schedule = createDailyScheduleWithTimes(times, 1);
+    Schedule schedule = createDailyScheduleWithTimes(times, 1);
 
-    NonESMSignalGenerator generator = new NonESMSignalGenerator(schedule, NULL_EXPERIMENT_ID, null);
+    NonESMSignalGenerator generator = new NonESMSignalGenerator(schedule, NULL_EXPERIMENT_ID, null, null, null);
 
     DateTime onePm = createDateTime_ThursdayAtHour(13);
     assertEquals(twoPm, new DateTime(generator.getNextAlarmTime(onePm)));
@@ -234,9 +240,9 @@ public class NonESMSignalGeneratorTest extends TestCase {
     DateTime twoPm = createDateTime_ThursdayAtHour(14);
     times.add(createFixedSignalTimeUseScheduledTimeOnMiss(twoPm));
 
-    SignalSchedule schedule = createDailyScheduleWithTimes(times, 1);
+    Schedule schedule = createDailyScheduleWithTimes(times, 1);
 
-    NonESMSignalGenerator generator = new NonESMSignalGenerator(schedule, NULL_EXPERIMENT_ID, null);
+    NonESMSignalGenerator generator = new NonESMSignalGenerator(schedule, NULL_EXPERIMENT_ID, null, null, null);
 
     DateTime threePm = createDateTime_ThursdayAtHour(15);
     assertEquals(twelvePm.plusDays(1), new DateTime(generator.getNextAlarmTime(threePm)));
@@ -252,9 +258,9 @@ public class NonESMSignalGeneratorTest extends TestCase {
     DateTime twoPm = createDateTime_ThursdayAtHour(14);
     times.add(createFixedSignalTimeUseScheduledTimeOnMiss(twoPm));
 
-    SignalSchedule schedule = createDailyScheduleWithTimes(times, 1);
+    Schedule schedule = createDailyScheduleWithTimes(times, 1);
 
-    NonESMSignalGenerator generator = new NonESMSignalGenerator(schedule, NULL_EXPERIMENT_ID, null);
+    NonESMSignalGenerator generator = new NonESMSignalGenerator(schedule, NULL_EXPERIMENT_ID, null, null, null);
 
     DateTime threePm = createDateTime_ThursdayAtHour(15);
     assertEquals(twelvePm.plusDays(1), new DateTime(generator.getNextAlarmTime(threePm)));
@@ -265,13 +271,13 @@ public class NonESMSignalGeneratorTest extends TestCase {
     List<SignalTime> times = new ArrayList<SignalTime>();
     DateTime twelvePm = createDateTime_ThursdayAtHour(12);
     times.add(createFixedSignalTimeUseScheduledTimeOnMiss(twelvePm));
-    SignalSchedule schedule = createDailyScheduleWithTimes(times, 1);
+    Schedule schedule = createDailyScheduleWithTimes(times, 1);
 
 
     DateTime twoPm = createDateTime_ThursdayAtHour(14);
     times.add(createFixedSignalTimeUseScheduledTimeOnMiss(twoPm));
 
-    NonESMSignalGenerator generator = new NonESMSignalGenerator(schedule, NULL_EXPERIMENT_ID, null);
+    NonESMSignalGenerator generator = new NonESMSignalGenerator(schedule, NULL_EXPERIMENT_ID, null, null, null);
 
     DateTime threePmFriday = createDateTime_FridayAtHour(15);
     assertEquals(twelvePm.plusDays(2), new DateTime(generator.getNextAlarmTime(threePmFriday)));
@@ -281,9 +287,9 @@ public class NonESMSignalGeneratorTest extends TestCase {
     List<SignalTime> times = new ArrayList<SignalTime>();
     DateTime twoPm = createDateTime_ThursdayAtHour(14);
     times.add(createFixedSignalTimeSkipOnMissed(twoPm));
-    SignalSchedule schedule = createDailyScheduleWithTimes(times, 2);
+    Schedule schedule = createDailyScheduleWithTimes(times, 2);
 
-    NonESMSignalGenerator generator = new NonESMSignalGenerator(schedule, NULL_EXPERIMENT_ID, null);
+    NonESMSignalGenerator generator = new NonESMSignalGenerator(schedule, NULL_EXPERIMENT_ID, null, null, null);
 
     DateTime onePm = createDateTime_ThursdayAtHour(13);
     assertEquals(twoPm, new DateTime(generator.getNextAlarmTime(onePm)));
@@ -293,9 +299,9 @@ public class NonESMSignalGeneratorTest extends TestCase {
     List<SignalTime> times = new ArrayList<SignalTime>();
     DateTime twoPm = createDateTime_ThursdayAtHour(14);
     times.add(createFixedSignalTimeSkipOnMissed(twoPm));
-    SignalSchedule schedule = createDailyScheduleWithTimes(times, 2);
+    Schedule schedule = createDailyScheduleWithTimes(times, 2);
 
-    NonESMSignalGenerator generator = new NonESMSignalGenerator(schedule, NULL_EXPERIMENT_ID, null);
+    NonESMSignalGenerator generator = new NonESMSignalGenerator(schedule, NULL_EXPERIMENT_ID, null, null, null);
 
     DateTime threePm = createDateTime_ThursdayAtHour(15);
     assertEquals(twoPm.plusDays(2), new DateTime(generator.getNextAlarmTime(threePm)));
@@ -305,9 +311,9 @@ public class NonESMSignalGeneratorTest extends TestCase {
     List<SignalTime> times = new ArrayList<SignalTime>();
     DateTime twoPm = createDateTime_ThursdayAtHour(14);
     times.add(createFixedSignalTimeSkipOnMissed(twoPm));
-    SignalSchedule schedule = createDailyScheduleWithTimes(times, 2);
+    Schedule schedule = createDailyScheduleWithTimes(times, 2);
 
-    NonESMSignalGenerator generator = new NonESMSignalGenerator(schedule, NULL_EXPERIMENT_ID, null);
+    NonESMSignalGenerator generator = new NonESMSignalGenerator(schedule, NULL_EXPERIMENT_ID, null, null, null);
 
     DateTime threePm = createDateTime_FridayAtHour(15);
     assertEquals(twoPm.plusDays(2), new DateTime(generator.getNextAlarmTime(threePm)));
@@ -317,9 +323,9 @@ public class NonESMSignalGeneratorTest extends TestCase {
     List<SignalTime> times = new ArrayList<SignalTime>();
     DateTime twoPm = createDateTime_ThursdayAtHour(14);
     times.add(createFixedSignalTimeSkipOnMissed(twoPm));
-    SignalSchedule schedule = createDailyScheduleWithTimes(times, 2);
+    Schedule schedule = createDailyScheduleWithTimes(times, 2);
 
-    NonESMSignalGenerator generator = new NonESMSignalGenerator(schedule, NULL_EXPERIMENT_ID, null);
+    NonESMSignalGenerator generator = new NonESMSignalGenerator(schedule, NULL_EXPERIMENT_ID, null, null, null);
 
     DateTime threePm = createDateTime_FridayAtHour(15).plusDays(1);
     assertEquals(twoPm.plusDays(4), new DateTime(generator.getNextAlarmTime(threePm)));
@@ -329,9 +335,9 @@ public class NonESMSignalGeneratorTest extends TestCase {
     List<SignalTime> times = new ArrayList<SignalTime>();
     DateTime twoPm = createDateTime_ThursdayAtHour(14);
     times.add(createFixedSignalTimeSkipOnMissed(twoPm));
-    SignalSchedule schedule = createDailyScheduleWithTimes(times, 2);
+    Schedule schedule = createDailyScheduleWithTimes(times, 2);
 
-    NonESMSignalGenerator generator = new NonESMSignalGenerator(schedule, NULL_EXPERIMENT_ID, null);
+    NonESMSignalGenerator generator = new NonESMSignalGenerator(schedule, NULL_EXPERIMENT_ID, null, null, null);
 
     DateTime onePm = createDateTime_FridayAtHour(13).plusDays(1);
     assertEquals(twoPm.plusDays(2), new DateTime(generator.getNextAlarmTime(onePm)));
@@ -341,9 +347,9 @@ public class NonESMSignalGeneratorTest extends TestCase {
     List<SignalTime> times = new ArrayList<SignalTime>();
     DateTime twoPm = createDateTime_ThursdayAtHour(14);
     times.add(createFixedSignalTimeSkipOnMissed(twoPm));
-    SignalSchedule schedule = createDailyScheduleWithTimes(times, 3);
+    Schedule schedule = createDailyScheduleWithTimes(times, 3);
 
-    NonESMSignalGenerator generator = new NonESMSignalGenerator(schedule, NULL_EXPERIMENT_ID, null);
+    NonESMSignalGenerator generator = new NonESMSignalGenerator(schedule, NULL_EXPERIMENT_ID, null, null, null);
 
     DateTime threePm = createDateTime_ThursdayAtHour(15);
     assertEquals(twoPm.plusDays(3), new DateTime(generator.getNextAlarmTime(threePm)));
@@ -353,9 +359,9 @@ public class NonESMSignalGeneratorTest extends TestCase {
     List<SignalTime> times = new ArrayList<SignalTime>();
     DateTime twoPm = createDateTime_ThursdayAtHour(14);
     times.add(createFixedSignalTimeSkipOnMissed(twoPm));
-    SignalSchedule schedule = createDailyScheduleWithTimes(times, 3);
+    Schedule schedule = createDailyScheduleWithTimes(times, 3);
 
-    NonESMSignalGenerator generator = new NonESMSignalGenerator(schedule, NULL_EXPERIMENT_ID, null);
+    NonESMSignalGenerator generator = new NonESMSignalGenerator(schedule, NULL_EXPERIMENT_ID, null, null, null);
 
     DateTime onePm = createDateTime_FridayAtHour(13);
     assertEquals(twoPm.plusDays(3), new DateTime(generator.getNextAlarmTime(onePm)));
@@ -365,9 +371,9 @@ public class NonESMSignalGeneratorTest extends TestCase {
     List<SignalTime> times = new ArrayList<SignalTime>();
     DateTime twoPm = createDateTime_ThursdayAtHour(14);
     times.add(createFixedSignalTimeSkipOnMissed(twoPm));
-    SignalSchedule schedule = createDailyScheduleWithTimes(times, 3);
+    Schedule schedule = createDailyScheduleWithTimes(times, 3);
 
-    NonESMSignalGenerator generator = new NonESMSignalGenerator(schedule, NULL_EXPERIMENT_ID, null);
+    NonESMSignalGenerator generator = new NonESMSignalGenerator(schedule, NULL_EXPERIMENT_ID, null, null, null);
 
     DateTime onePm = createDateTime_FridayAtHour(13).plusDays(2);
     assertEquals(twoPm.plusDays(3), new DateTime(generator.getNextAlarmTime(onePm)));
@@ -377,9 +383,9 @@ public class NonESMSignalGeneratorTest extends TestCase {
     List<SignalTime> times = new ArrayList<SignalTime>();
     DateTime twoPm = createDateTime_ThursdayAtHour(14);
     times.add(createFixedSignalTimeSkipOnMissed(twoPm));
-    SignalSchedule schedule = createDailyScheduleWithTimes(times, 3);
+    Schedule schedule = createDailyScheduleWithTimes(times, 3);
 
-    NonESMSignalGenerator generator = new NonESMSignalGenerator(schedule, NULL_EXPERIMENT_ID, null);
+    NonESMSignalGenerator generator = new NonESMSignalGenerator(schedule, NULL_EXPERIMENT_ID, null, null, null);
 
     DateTime onePm = createDateTime_FridayAtHour(15).plusDays(2);
     assertEquals(twoPm.plusDays(6), new DateTime(generator.getNextAlarmTime(onePm)));
@@ -390,9 +396,9 @@ public class NonESMSignalGeneratorTest extends TestCase {
     List<SignalTime> times = new ArrayList<SignalTime>();
     DateTime twoPm = createDateTime_ThursdayAtHour(14);
     times.add(createFixedSignalTimeSkipOnMissed(twoPm));
-    SignalSchedule schedule = createDailyScheduleWithTimes(times, 4);
+    Schedule schedule = createDailyScheduleWithTimes(times, 4);
 
-    NonESMSignalGenerator generator = new NonESMSignalGenerator(schedule, NULL_EXPERIMENT_ID, null);
+    NonESMSignalGenerator generator = new NonESMSignalGenerator(schedule, NULL_EXPERIMENT_ID, null, null, null);
 
     DateTime threePm = createDateTime_ThursdayAtHour(15);
     assertEquals(twoPm.plusDays(4), new DateTime(generator.getNextAlarmTime(threePm)));
@@ -402,9 +408,9 @@ public class NonESMSignalGeneratorTest extends TestCase {
     List<SignalTime> times = new ArrayList<SignalTime>();
     DateTime twoPm = createDateTime_ThursdayAtHour(14);
     times.add(createFixedSignalTimeSkipOnMissed(twoPm));
-    SignalSchedule schedule = createDailyScheduleWithTimes(times, 4);
+    Schedule schedule = createDailyScheduleWithTimes(times, 4);
 
-    NonESMSignalGenerator generator = new NonESMSignalGenerator(schedule, NULL_EXPERIMENT_ID, null);
+    NonESMSignalGenerator generator = new NonESMSignalGenerator(schedule, NULL_EXPERIMENT_ID, null, null, null);
 
     DateTime threePm = createDateTime_ThursdayAtHour(15).plusDays(4);
     assertEquals(twoPm.plusDays(8), new DateTime(generator.getNextAlarmTime(threePm)));
@@ -412,8 +418,8 @@ public class NonESMSignalGeneratorTest extends TestCase {
 
   public void testNullTimesWeeklyNoDaysSelected() throws Exception {
     List<SignalTime> times = null;
-    SignalSchedule schedule = createWeeklyScheduleWithTimes(times, 1, null);
-    NonESMSignalGenerator generator = new NonESMSignalGenerator(schedule, NULL_EXPERIMENT_ID, null);
+    Schedule schedule = createWeeklyScheduleWithTimes(times, 1, null);
+    NonESMSignalGenerator generator = new NonESMSignalGenerator(schedule, NULL_EXPERIMENT_ID, null, null, null);
     assertNull(generator.getNextAlarmTime(createDateTime_ThursdayAtHour(13)));
   }
 
@@ -421,9 +427,9 @@ public class NonESMSignalGeneratorTest extends TestCase {
     List<SignalTime> times = new ArrayList<SignalTime>();
     DateTime twoPm = createDateTime_ThursdayAtHour(14);
     times.add(createFixedSignalTimeSkipOnMissed(twoPm));
-    SignalSchedule schedule = createWeeklyScheduleWithTimes(times, 1, 0 | SignalSchedule.THURSDAY);
+    Schedule schedule = createWeeklyScheduleWithTimes(times, 1, 0 | Schedule.THURSDAY);
 
-    NonESMSignalGenerator generator = new NonESMSignalGenerator(schedule, NULL_EXPERIMENT_ID, null);
+    NonESMSignalGenerator generator = new NonESMSignalGenerator(schedule, NULL_EXPERIMENT_ID, null, null, null);
 
     DateTime onePm = createDateTime_ThursdayAtHour(13);
     assertEquals(twoPm, new DateTime(generator.getNextAlarmTime(onePm)));
@@ -433,9 +439,9 @@ public class NonESMSignalGeneratorTest extends TestCase {
     List<SignalTime> times = new ArrayList<SignalTime>();
     DateTime twoPm = createDateTime_ThursdayAtHour(14);
     times.add(createFixedSignalTimeSkipOnMissed(twoPm));
-    SignalSchedule schedule = createWeeklyScheduleWithTimes(times, 1, 0 | SignalSchedule.THURSDAY);
+    Schedule schedule = createWeeklyScheduleWithTimes(times, 1, 0 | Schedule.THURSDAY);
 
-    NonESMSignalGenerator generator = new NonESMSignalGenerator(schedule, NULL_EXPERIMENT_ID, null);
+    NonESMSignalGenerator generator = new NonESMSignalGenerator(schedule, NULL_EXPERIMENT_ID, null, null, null);
 
     DateTime threePm = createDateTime_ThursdayAtHour(15);
 
@@ -448,9 +454,9 @@ public class NonESMSignalGeneratorTest extends TestCase {
     List<SignalTime> times = new ArrayList<SignalTime>();
     DateTime twoPm = createDateTime_ThursdayAtHour(14);
     times.add(createFixedSignalTimeSkipOnMissed(twoPm));
-    SignalSchedule schedule = createWeeklyScheduleWithTimes(times, 1, 0 | SignalSchedule.THURSDAY);
+    Schedule schedule = createWeeklyScheduleWithTimes(times, 1, 0 | Schedule.THURSDAY);
 
-    NonESMSignalGenerator generator = new NonESMSignalGenerator(schedule, NULL_EXPERIMENT_ID, null);
+    NonESMSignalGenerator generator = new NonESMSignalGenerator(schedule, NULL_EXPERIMENT_ID, null, null, null);
 
     DateTime threePm = createDateTime_ThursdayAtHour(15).plusDays(3);
 
@@ -463,9 +469,9 @@ public class NonESMSignalGeneratorTest extends TestCase {
     List<SignalTime> times = new ArrayList<SignalTime>();
     DateTime twoPm = createDateTime_ThursdayAtHour(14);
     times.add(createFixedSignalTimeSkipOnMissed(twoPm));
-    SignalSchedule schedule = createWeeklyScheduleWithTimes(times, 1, (0 | SignalSchedule.THURSDAY) | SignalSchedule.FRIDAY);
+    Schedule schedule = createWeeklyScheduleWithTimes(times, 1, (0 | Schedule.THURSDAY) | Schedule.FRIDAY);
 
-    NonESMSignalGenerator generator = new NonESMSignalGenerator(schedule, NULL_EXPERIMENT_ID, null);
+    NonESMSignalGenerator generator = new NonESMSignalGenerator(schedule, NULL_EXPERIMENT_ID, null, null, null);
 
     DateTime threePm = createDateTime_ThursdayAtHour(15);
 
@@ -478,9 +484,9 @@ public class NonESMSignalGeneratorTest extends TestCase {
     List<SignalTime> times = new ArrayList<SignalTime>();
     DateTime twoPm = createDateTime_ThursdayAtHour(14);
     times.add(createFixedSignalTimeSkipOnMissed(twoPm));
-    SignalSchedule schedule = createWeeklyScheduleWithTimes(times, 1, (0 | SignalSchedule.THURSDAY) | SignalSchedule.FRIDAY);
+    Schedule schedule = createWeeklyScheduleWithTimes(times, 1, (0 | Schedule.THURSDAY) | Schedule.FRIDAY);
 
-    NonESMSignalGenerator generator = new NonESMSignalGenerator(schedule, NULL_EXPERIMENT_ID, null);
+    NonESMSignalGenerator generator = new NonESMSignalGenerator(schedule, NULL_EXPERIMENT_ID, null, null, null);
 
     DateTime threePm = createDateTime_ThursdayAtHour(15).plusDays(3);
 
@@ -494,9 +500,9 @@ public class NonESMSignalGeneratorTest extends TestCase {
     List<SignalTime> times = new ArrayList<SignalTime>();
     DateTime twoPm = createDateTime_ThursdayAtHour(14);
     times.add(createFixedSignalTimeSkipOnMissed(twoPm));
-    SignalSchedule schedule = createWeeklyScheduleWithTimes(times, 1, (0 | SignalSchedule.THURSDAY) | SignalSchedule.MONDAY);
+    Schedule schedule = createWeeklyScheduleWithTimes(times, 1, (0 | Schedule.THURSDAY) | Schedule.MONDAY);
 
-    NonESMSignalGenerator generator = new NonESMSignalGenerator(schedule, NULL_EXPERIMENT_ID, null);
+    NonESMSignalGenerator generator = new NonESMSignalGenerator(schedule, NULL_EXPERIMENT_ID, null, null, null);
 
     DateTime threePm = createDateTime_ThursdayAtHour(15).plusDays(3);
 
@@ -512,9 +518,9 @@ public class NonESMSignalGeneratorTest extends TestCase {
     List<SignalTime> times = new ArrayList<SignalTime>();
     DateTime twoPm = createDateTime_ThursdayAtHour(14);
     times.add(createFixedSignalTimeSkipOnMissed(twoPm));
-    SignalSchedule schedule = createWeeklyScheduleWithTimes(times, 2, 0 | SignalSchedule.THURSDAY);
+    Schedule schedule = createWeeklyScheduleWithTimes(times, 2, 0 | Schedule.THURSDAY);
 
-    NonESMSignalGenerator generator = new NonESMSignalGenerator(schedule, NULL_EXPERIMENT_ID, null);
+    NonESMSignalGenerator generator = new NonESMSignalGenerator(schedule, NULL_EXPERIMENT_ID, null, null, null);
 
     DateTime threePm = createDateTime_ThursdayAtHour(13);
 
@@ -527,9 +533,9 @@ public class NonESMSignalGeneratorTest extends TestCase {
     List<SignalTime> times = new ArrayList<SignalTime>();
     DateTime twoPm = createDateTime_ThursdayAtHour(14);
     times.add(createFixedSignalTimeSkipOnMissed(twoPm));
-    SignalSchedule schedule = createWeeklyScheduleWithTimes(times, 2, 0 | SignalSchedule.THURSDAY);
+    Schedule schedule = createWeeklyScheduleWithTimes(times, 2, 0 | Schedule.THURSDAY);
 
-    NonESMSignalGenerator generator = new NonESMSignalGenerator(schedule, NULL_EXPERIMENT_ID, null);
+    NonESMSignalGenerator generator = new NonESMSignalGenerator(schedule, NULL_EXPERIMENT_ID, null, null, null);
 
     DateTime threePm = createDateTime_ThursdayAtHour(15);
 
@@ -542,9 +548,9 @@ public class NonESMSignalGeneratorTest extends TestCase {
     List<SignalTime> times = new ArrayList<SignalTime>();
     DateTime twoPm = createDateTime_ThursdayAtHour(14);
     times.add(createFixedSignalTimeSkipOnMissed(twoPm));
-    SignalSchedule schedule = createWeeklyScheduleWithTimes(times, 2, 0 | SignalSchedule.THURSDAY);
+    Schedule schedule = createWeeklyScheduleWithTimes(times, 2, 0 | Schedule.THURSDAY);
 
-    NonESMSignalGenerator generator = new NonESMSignalGenerator(schedule, NULL_EXPERIMENT_ID, null);
+    NonESMSignalGenerator generator = new NonESMSignalGenerator(schedule, NULL_EXPERIMENT_ID, null, null, null);
 
     DateTime threePm = createDateTime_FridayAtHour(15);
 
@@ -557,9 +563,9 @@ public class NonESMSignalGeneratorTest extends TestCase {
     List<SignalTime> times = new ArrayList<SignalTime>();
     DateTime twoPm = createDateTime_ThursdayAtHour(14);
     times.add(createFixedSignalTimeSkipOnMissed(twoPm));
-    SignalSchedule schedule = createWeeklyScheduleWithTimes(times, 2, 0 | SignalSchedule.THURSDAY);
+    Schedule schedule = createWeeklyScheduleWithTimes(times, 2, 0 | Schedule.THURSDAY);
 
-    NonESMSignalGenerator generator = new NonESMSignalGenerator(schedule, NULL_EXPERIMENT_ID, null);
+    NonESMSignalGenerator generator = new NonESMSignalGenerator(schedule, NULL_EXPERIMENT_ID, null, null, null);
 
     DateTime threePm = createDateTime_FridayAtHour(15).plusWeeks(2);
 
@@ -572,9 +578,9 @@ public class NonESMSignalGeneratorTest extends TestCase {
     List<SignalTime> times = new ArrayList<SignalTime>();
     DateTime twoPm = createDateTime_ThursdayAtHour(14);
     times.add(createFixedSignalTimeSkipOnMissed(twoPm));
-    SignalSchedule schedule = createWeeklyScheduleWithTimes(times, 2, (0 | SignalSchedule.THURSDAY) | SignalSchedule.MONDAY);
+    Schedule schedule = createWeeklyScheduleWithTimes(times, 2, (0 | Schedule.THURSDAY) | Schedule.MONDAY);
 
-    NonESMSignalGenerator generator = new NonESMSignalGenerator(schedule, NULL_EXPERIMENT_ID, null);
+    NonESMSignalGenerator generator = new NonESMSignalGenerator(schedule, NULL_EXPERIMENT_ID, null, null, null);
 
     DateTime threePm = createDateTime_ThursdayAtHour(15).plusDays(3);
 
@@ -590,9 +596,9 @@ public class NonESMSignalGeneratorTest extends TestCase {
     List<SignalTime> times = new ArrayList<SignalTime>();
     DateTime twoPm = createDateTime_ThursdayAtHour(14);
     times.add(createFixedSignalTimeSkipOnMissed(twoPm));
-    SignalSchedule schedule = createWeeklyScheduleWithTimes(times, 2, (0 | SignalSchedule.THURSDAY) | SignalSchedule.TUESDAY);
+    Schedule schedule = createWeeklyScheduleWithTimes(times, 2, (0 | Schedule.THURSDAY) | Schedule.TUESDAY);
 
-    NonESMSignalGenerator generator = new NonESMSignalGenerator(schedule, NULL_EXPERIMENT_ID, null);
+    NonESMSignalGenerator generator = new NonESMSignalGenerator(schedule, NULL_EXPERIMENT_ID, null, null, null);
 
     DateTime monday3Pm = createDateTime_ThursdayAtHour(15).plusDays(4);
 
@@ -608,9 +614,9 @@ public class NonESMSignalGeneratorTest extends TestCase {
     List<SignalTime> times = new ArrayList<SignalTime>();
     DateTime twoPm = createDateTime_ThursdayAtHour(14);
     times.add(createFixedSignalTimeSkipOnMissed(twoPm));
-    SignalSchedule schedule = createWeeklyScheduleWithTimes(times, 3, 0 | SignalSchedule.THURSDAY);
+    Schedule schedule = createWeeklyScheduleWithTimes(times, 3, 0 | Schedule.THURSDAY);
 
-    NonESMSignalGenerator generator = new NonESMSignalGenerator(schedule, NULL_EXPERIMENT_ID, null);
+    NonESMSignalGenerator generator = new NonESMSignalGenerator(schedule, NULL_EXPERIMENT_ID, null, null, null);
 
     DateTime threePm = createDateTime_ThursdayAtHour(15);
 
@@ -623,9 +629,9 @@ public class NonESMSignalGeneratorTest extends TestCase {
     List<SignalTime> times = new ArrayList<SignalTime>();
     DateTime twoPm = createDateTime_ThursdayAtHour(14);
     times.add(createFixedSignalTimeSkipOnMissed(twoPm));
-    SignalSchedule schedule = createWeeklyScheduleWithTimes(times, 3, (0 | SignalSchedule.THURSDAY) | SignalSchedule.TUESDAY);
+    Schedule schedule = createWeeklyScheduleWithTimes(times, 3, (0 | Schedule.THURSDAY) | Schedule.TUESDAY);
 
-    NonESMSignalGenerator generator = new NonESMSignalGenerator(schedule, NULL_EXPERIMENT_ID, null);
+    NonESMSignalGenerator generator = new NonESMSignalGenerator(schedule, NULL_EXPERIMENT_ID, null, null, null);
 
     DateTime monday3Pm = createDateTime_ThursdayAtHour(15).plusDays(4);
 
@@ -643,8 +649,8 @@ public class NonESMSignalGeneratorTest extends TestCase {
     times.add(createFixedSignalTimeSkipOnMissed(thursday2Pm));
 
     DateTime midnightDayOfMonthDue = createDateTime_ThursdayAtHour(0);
-    SignalSchedule schedule = createMonthlyScheduleByDayOfMonthWithTimes(times, 1, true, midnightDayOfMonthDue.getDayOfMonth());
-    NonESMSignalGenerator generator = new NonESMSignalGenerator(schedule, NULL_EXPERIMENT_ID, null);
+    Schedule schedule = createMonthlyScheduleByDayOfMonthWithTimes(times, 1, true, midnightDayOfMonthDue.getDayOfMonth());
+    NonESMSignalGenerator generator = new NonESMSignalGenerator(schedule, NULL_EXPERIMENT_ID, null, null, null);
 
     DateTime thursday1Pm = midnightDayOfMonthDue.plusHours(13);
     DateTime nextAlarmTime = generator.getNextAlarmTime(thursday1Pm);
@@ -659,8 +665,8 @@ public class NonESMSignalGeneratorTest extends TestCase {
     times.add(createFixedSignalTimeSkipOnMissed(thursday2Pm));
 
     DateTime midnightDayOfMonthDue = createDateTime_ThursdayAtHour(0);
-    SignalSchedule schedule = createMonthlyScheduleByDayOfMonthWithTimes(times, 1, true, midnightDayOfMonthDue.getDayOfMonth());
-    NonESMSignalGenerator generator = new NonESMSignalGenerator(schedule, NULL_EXPERIMENT_ID, null);
+    Schedule schedule = createMonthlyScheduleByDayOfMonthWithTimes(times, 1, true, midnightDayOfMonthDue.getDayOfMonth());
+    NonESMSignalGenerator generator = new NonESMSignalGenerator(schedule, NULL_EXPERIMENT_ID, null, null, null);
 
     DateTime thursday3Pm = midnightDayOfMonthDue.plusHours(15);
     DateTime nextAlarmTime = generator.getNextAlarmTime(thursday3Pm);
@@ -675,8 +681,8 @@ public class NonESMSignalGeneratorTest extends TestCase {
     times.add(createFixedSignalTimeSkipOnMissed(thursday2Pm));
 
     DateTime midnightDayOfMonthDue = createDateTime_ThursdayAtHour(0);
-    SignalSchedule schedule = createMonthlyScheduleByDayOfMonthWithTimes(times, 1, true, midnightDayOfMonthDue.getDayOfMonth());
-    NonESMSignalGenerator generator = new NonESMSignalGenerator(schedule, NULL_EXPERIMENT_ID, null);
+    Schedule schedule = createMonthlyScheduleByDayOfMonthWithTimes(times, 1, true, midnightDayOfMonthDue.getDayOfMonth());
+    NonESMSignalGenerator generator = new NonESMSignalGenerator(schedule, NULL_EXPERIMENT_ID, null, null, null);
 
     DateTime friday3pm = midnightDayOfMonthDue.plusHours(15).plusDays(1);
     DateTime nextAlarmTime = generator.getNextAlarmTime(friday3pm);
@@ -691,8 +697,8 @@ public class NonESMSignalGeneratorTest extends TestCase {
     times.add(createFixedSignalTimeSkipOnMissed(thursday2Pm));
 
     DateTime midnightDayOfMonthDue = createDateTime_ThursdayAtHour(0);
-    SignalSchedule schedule = createMonthlyScheduleByDayOfMonthWithTimes(times, 1, true, midnightDayOfMonthDue.getDayOfMonth());
-    NonESMSignalGenerator generator = new NonESMSignalGenerator(schedule, NULL_EXPERIMENT_ID, null);
+    Schedule schedule = createMonthlyScheduleByDayOfMonthWithTimes(times, 1, true, midnightDayOfMonthDue.getDayOfMonth());
+    NonESMSignalGenerator generator = new NonESMSignalGenerator(schedule, NULL_EXPERIMENT_ID, null, null, null);
 
     DateTime wednesday3pm = midnightDayOfMonthDue.plusHours(15).minusDays(1);
     DateTime nextAlarmTime = generator.getNextAlarmTime(wednesday3pm);
@@ -708,8 +714,8 @@ public class NonESMSignalGeneratorTest extends TestCase {
 
     DateTime midnightDayOfMonthDue = thursday2Pm.toDateMidnight().toDateTime();
 
-    SignalSchedule schedule = createMonthlyScheduleByNthWeekWithTimes(times, 1, 1, 0 | SignalSchedule.WEDNESDAY);
-    NonESMSignalGenerator generator = new NonESMSignalGenerator(schedule, NULL_EXPERIMENT_ID, null);
+    Schedule schedule = createMonthlyScheduleByNthWeekWithTimes(times, 1, 1, 0 | Schedule.WEDNESDAY);
+    NonESMSignalGenerator generator = new NonESMSignalGenerator(schedule, NULL_EXPERIMENT_ID, null, null, null);
 
     DateTime wednesday3pm = midnightDayOfMonthDue.plusHours(15).minusDays(1);
     DateTime nextAlarmTime = generator.getNextAlarmTime(wednesday3pm);
@@ -725,8 +731,8 @@ public class NonESMSignalGeneratorTest extends TestCase {
 
     DateTime midnightDayOfMonthDue = thursday2Pm.toDateMidnight().toDateTime();
 
-    SignalSchedule schedule = createMonthlyScheduleByNthWeekWithTimes(times, 2, 1, 0 | SignalSchedule.WEDNESDAY);
-    NonESMSignalGenerator generator = new NonESMSignalGenerator(schedule, NULL_EXPERIMENT_ID, null);
+    Schedule schedule = createMonthlyScheduleByNthWeekWithTimes(times, 2, 1, 0 | Schedule.WEDNESDAY);
+    NonESMSignalGenerator generator = new NonESMSignalGenerator(schedule, NULL_EXPERIMENT_ID, null, null, null);
 
     DateTime wednesday3pm = midnightDayOfMonthDue.plusHours(15).minusDays(1);
     DateTime nextAlarmTime = generator.getNextAlarmTime(wednesday3pm);
@@ -740,8 +746,8 @@ public class NonESMSignalGeneratorTest extends TestCase {
     DateTime today = new DateTime(2010, 12, 17, 14, 0, 0, 0);
     times.add(createFixedSignalTimeSkipOnMissed(today));
 
-    SignalSchedule schedule = createMonthlyScheduleByNthWeekWithTimes(times, 2, 3, 0 | SignalSchedule.WEDNESDAY);
-    NonESMSignalGenerator generator = new NonESMSignalGenerator(schedule, NULL_EXPERIMENT_ID, null);
+    Schedule schedule = createMonthlyScheduleByNthWeekWithTimes(times, 2, 3, 0 | Schedule.WEDNESDAY);
+    NonESMSignalGenerator generator = new NonESMSignalGenerator(schedule, NULL_EXPERIMENT_ID, null, null, null);
 
     DateTime nextAlarmTime = generator.getNextAlarmTime(today);
 
@@ -754,8 +760,8 @@ public class NonESMSignalGeneratorTest extends TestCase {
     DateTime today = new DateTime(2010, 12, 20, 14, 0, 0, 0);
     times.add(createFixedSignalTimeSkipOnMissed(today));
 
-    SignalSchedule schedule = createMonthlyScheduleByNthWeekWithTimes(times, 2, 3, 0 | SignalSchedule.FRIDAY);
-    NonESMSignalGenerator generator = new NonESMSignalGenerator(schedule, NULL_EXPERIMENT_ID, null);
+    Schedule schedule = createMonthlyScheduleByNthWeekWithTimes(times, 2, 3, 0 | Schedule.FRIDAY);
+    NonESMSignalGenerator generator = new NonESMSignalGenerator(schedule, NULL_EXPERIMENT_ID, null, null, null);
 
     DateTime nextAlarmTime = generator.getNextAlarmTime(today);
 
@@ -768,8 +774,8 @@ public class NonESMSignalGeneratorTest extends TestCase {
     DateTime today = new DateTime(2010, 12, 20, 14, 0, 0, 0);
     times.add(createFixedSignalTimeSkipOnMissed(today));
 
-    SignalSchedule schedule = createMonthlyScheduleByNthWeekWithTimes(times, 3, 3, 0 | SignalSchedule.FRIDAY);
-    NonESMSignalGenerator generator = new NonESMSignalGenerator(schedule, NULL_EXPERIMENT_ID, null);
+    Schedule schedule = createMonthlyScheduleByNthWeekWithTimes(times, 3, 3, 0 | Schedule.FRIDAY);
+    NonESMSignalGenerator generator = new NonESMSignalGenerator(schedule, NULL_EXPERIMENT_ID, null, null, null);
 
     DateTime nextAlarmTime = generator.getNextAlarmTime(today);
 
@@ -784,8 +790,8 @@ public class NonESMSignalGeneratorTest extends TestCase {
     times.add(createFixedSignalTimeSkipOnMissed(thursday2Pm));
 
     DateTime midnightDayOfMonthDue = createDateTime_ThursdayAtHour(0);
-    SignalSchedule schedule = createMonthlyScheduleByDayOfMonthWithTimes(times, 2, true, midnightDayOfMonthDue.getDayOfMonth());
-    NonESMSignalGenerator generator = new NonESMSignalGenerator(schedule, NULL_EXPERIMENT_ID, null);
+    Schedule schedule = createMonthlyScheduleByDayOfMonthWithTimes(times, 2, true, midnightDayOfMonthDue.getDayOfMonth());
+    NonESMSignalGenerator generator = new NonESMSignalGenerator(schedule, NULL_EXPERIMENT_ID, null, null, null);
 
     DateTime tuesday1pm = midnightDayOfMonthDue.minusHours(1);
     DateTime nextAlarmTime = generator.getNextAlarmTime(tuesday1pm);
@@ -799,8 +805,8 @@ public class NonESMSignalGeneratorTest extends TestCase {
     DateTime thursday2pm = new DateTime(2010, 12, 17, 14, 0, 0, 0);
     times.add(createFixedSignalTimeSkipOnMissed(thursday2pm));
 
-    SignalSchedule schedule = createMonthlyScheduleByDayOfMonthWithTimes(times, 2, true, thursday2pm.getDayOfMonth());
-    NonESMSignalGenerator generator = new NonESMSignalGenerator(schedule, NULL_EXPERIMENT_ID, null);
+    Schedule schedule = createMonthlyScheduleByDayOfMonthWithTimes(times, 2, true, thursday2pm.getDayOfMonth());
+    NonESMSignalGenerator generator = new NonESMSignalGenerator(schedule, NULL_EXPERIMENT_ID, null, null, null);
 
     DateTime nextAlarmTime = generator.getNextAlarmTime(thursday2pm);
 
@@ -813,8 +819,8 @@ public class NonESMSignalGeneratorTest extends TestCase {
     DateTime thursday2pm = new DateTime(2010, 12, 17, 14, 0, 0, 0);
     times.add(createFixedSignalTimeSkipOnMissed(thursday2pm));
 
-    SignalSchedule schedule = createMonthlyScheduleByDayOfMonthWithTimes(times, 3, true, thursday2pm.getDayOfMonth());
-    NonESMSignalGenerator generator = new NonESMSignalGenerator(schedule, NULL_EXPERIMENT_ID, null);
+    Schedule schedule = createMonthlyScheduleByDayOfMonthWithTimes(times, 3, true, thursday2pm.getDayOfMonth());
+    NonESMSignalGenerator generator = new NonESMSignalGenerator(schedule, NULL_EXPERIMENT_ID, null, null, null);
 
     DateTime nextAlarmTime = generator.getNextAlarmTime(thursday2pm.plusHours(1));
 
@@ -828,43 +834,39 @@ public class NonESMSignalGeneratorTest extends TestCase {
     DateTime twoPm = createDateTime_ThursdayAtHour(14);
     times.add(createFixedSignalTimeSkipOnMissed(twoPm));
     times.add(createOffsetSignalTimeResponseBasisSkipOnMiss(60 * 60 * 1000));
-    SignalSchedule schedule = createDailyScheduleWithTimes(times, 1);
+    Schedule schedule = createDailyScheduleWithTimes(times, 1);
 
-    NonESMSignalGenerator generator = new NonESMSignalGenerator(schedule, NULL_EXPERIMENT_ID, null);
+    NonESMSignalGenerator generator = new NonESMSignalGenerator(schedule, NULL_EXPERIMENT_ID, null, null, null);
 
     DateTime onePm = createDateTime_ThursdayAtHour(13);
     assertEquals(twoPm, new DateTime(generator.getNextAlarmTime(onePm)));
   }
 
   public void testDailyFixedTimeThenOffsetFromResponseTime2pm_3pmMissedResponse() throws Exception {
-    //setup
-    MockContext mockContext = new MockContext() {
+    EventStore mockEp = new EventStore() {
 
       @Override
-      public ContentResolver getContentResolver() {
-        return null;
+      public EventInterface getEvent(Long experimentId, final DateTime scheduledTime, String groupName, Long actionTriggerId,
+                                     Long scheduleId) {
+        return new EventInterface() {
+          @Override
+          public DateTime getScheduledTime() {
+            return scheduledTime;
+          }
+          @Override
+          public DateTime getResponseTime() {
+            return null;
+          }
+        };
       }
-
-    };
-
-    ExperimentProviderUtil mockEp = new ExperimentProviderUtil(mockContext) {
-
-      @Override
-      public Event getEvent(Long experimentServerId, DateTime scheduledTime) {
-        Event event = new Event();
-        event.setResponseTime(null);
-        event.setScheduledTime(scheduledTime);
-        return event;
-      }
-
     };
     List<SignalTime> times = new ArrayList<SignalTime>();
     DateTime twoPm = createDateTime_ThursdayAtHour(14);
     times.add(createFixedSignalTimeSkipOnMissed(twoPm));
     times.add(createOffsetSignalTimeResponseBasisSkipOnMiss(120 * 60 * 1000));
-    SignalSchedule schedule = createDailyScheduleWithTimes(times, 1);
+    Schedule schedule = createDailyScheduleWithTimes(times, 1);
 
-    NonESMSignalGenerator generator = new NonESMSignalGenerator(schedule, NULL_EXPERIMENT_ID, mockEp);
+    NonESMSignalGenerator generator = new NonESMSignalGenerator(schedule, NULL_EXPERIMENT_ID, mockEp, null, null);
 
     DateTime fourPm = createDateTime_ThursdayAtHour(16);
     DateTime twoPmTomorrow = twoPm.plusDays(1);
@@ -875,33 +877,31 @@ public class NonESMSignalGeneratorTest extends TestCase {
 
   public void testDailyFixedTimeThenOffsetFromResponseTime2pm_3pmResponded() throws Exception {
     //setup
-    MockContext mockContext = new MockContext() {
+    EventStore mockEp = new EventStore() {
 
       @Override
-      public ContentResolver getContentResolver() {
-        return null;
+      public EventInterface getEvent(Long experimentId, final DateTime scheduledTime, String groupName, Long actionTriggerId,
+                                     Long scheduleId) {
+        return new EventInterface() {
+          @Override
+          public DateTime getScheduledTime() {
+            return scheduledTime;
+          }
+
+          @Override
+          public DateTime getResponseTime() {
+            return scheduledTime.plusMinutes(10);
+          }
+        };
       }
-
-    };
-
-    ExperimentProviderUtil mockEp = new ExperimentProviderUtil(mockContext) {
-
-      @Override
-      public Event getEvent(Long experimentServerId, DateTime scheduledTime) {
-        Event event = new Event();
-        event.setResponseTime(scheduledTime.plusMinutes(10));
-        event.setScheduledTime(scheduledTime);
-        return event;
-      }
-
     };
     List<SignalTime> times = new ArrayList<SignalTime>();
     DateTime twoPm = createDateTime_ThursdayAtHour(14);
     times.add(createFixedSignalTimeSkipOnMissed(twoPm));
     times.add(createOffsetSignalTimeResponseBasisSkipOnMiss(120 * 60 * 1000));
-    SignalSchedule schedule = createDailyScheduleWithTimes(times, 1);
+    Schedule schedule = createDailyScheduleWithTimes(times, 1);
 
-    NonESMSignalGenerator generator = new NonESMSignalGenerator(schedule, NULL_EXPERIMENT_ID, mockEp);
+    NonESMSignalGenerator generator = new NonESMSignalGenerator(schedule, NULL_EXPERIMENT_ID, mockEp, null, null);
 
     DateTime four10Pm = createDateTime_ThursdayAtHour(16).plusMinutes(10);
     DateTime twoPmTomorrow = twoPm.plusDays(1);
@@ -911,34 +911,31 @@ public class NonESMSignalGeneratorTest extends TestCase {
   }
 
   public void testDailyFixedTimeThenOffsetFromResponseTime2pm_430pmResponded() throws Exception {
-    //setup
-    MockContext mockContext = new MockContext() {
-
+    EventStore mockEp = new EventStore() {
       @Override
-      public ContentResolver getContentResolver() {
-        return null;
+      public EventInterface getEvent(Long experimentId, final DateTime scheduledTime, String groupName, Long actionTriggerId,
+                                     Long scheduleId) {
+        return new EventInterface() {
+          @Override
+          public DateTime getScheduledTime() {
+            return scheduledTime;
+          }
+
+          @Override
+          public DateTime getResponseTime() {
+            return scheduledTime.plusMinutes(10);
+          }
+        };
+
       }
-
-    };
-
-    ExperimentProviderUtil mockEp = new ExperimentProviderUtil(mockContext) {
-
-      @Override
-      public Event getEvent(Long experimentServerId, DateTime scheduledTime) {
-        Event event = new Event();
-        event.setResponseTime(scheduledTime.plusMinutes(10));
-        event.setScheduledTime(scheduledTime);
-        return event;
-      }
-
     };
     List<SignalTime> times = new ArrayList<SignalTime>();
     DateTime twoPm = createDateTime_ThursdayAtHour(14);
     times.add(createFixedSignalTimeSkipOnMissed(twoPm));
     times.add(createOffsetSignalTimeResponseBasisSkipOnMiss(120 * 60 * 1000));
-    SignalSchedule schedule = createDailyScheduleWithTimes(times, 1);
+    Schedule schedule = createDailyScheduleWithTimes(times, 1);
 
-    NonESMSignalGenerator generator = new NonESMSignalGenerator(schedule, NULL_EXPERIMENT_ID, mockEp);
+    NonESMSignalGenerator generator = new NonESMSignalGenerator(schedule, NULL_EXPERIMENT_ID, mockEp, null, null);
 
     DateTime twoPmTomorrow = twoPm.plusDays(1);
     DateTime four30Pm = createDateTime_ThursdayAtHour(16).plusMinutes(30);
@@ -947,31 +944,20 @@ public class NonESMSignalGeneratorTest extends TestCase {
   }
 
   public void testDailyFixedTimeThenOffsetFromResponseTime2pm_3pmNotRespondedYet() throws Exception {
-    //setup
-    MockContext mockContext = new MockContext() {
-
+    EventStore mockEp = new EventStore() {
       @Override
-      public ContentResolver getContentResolver() {
+      public EventInterface getEvent(Long experimentId, DateTime scheduledTime, String groupName, Long actionTriggerId,
+                                     Long scheduleId) {
         return null;
       }
-
-    };
-
-    ExperimentProviderUtil mockEp = new ExperimentProviderUtil(mockContext) {
-
-      @Override
-      public Event getEvent(Long experimentServerId, DateTime scheduledTime) {
-       return null;
-      }
-
     };
     List<SignalTime> times = new ArrayList<SignalTime>();
     DateTime twoPm = createDateTime_ThursdayAtHour(14);
     times.add(createFixedSignalTimeSkipOnMissed(twoPm));
     times.add(createOffsetSignalTimeResponseBasisSkipOnMiss(120 * 60 * 1000));
-    SignalSchedule schedule = createDailyScheduleWithTimes(times, 1);
+    Schedule schedule = createDailyScheduleWithTimes(times, 1);
 
-    NonESMSignalGenerator generator = new NonESMSignalGenerator(schedule, NULL_EXPERIMENT_ID, mockEp);
+    NonESMSignalGenerator generator = new NonESMSignalGenerator(schedule, NULL_EXPERIMENT_ID, mockEp, null, null);
 
     DateTime fourPm = createDateTime_ThursdayAtHour(16);
     DateTime twoPmTomorrow = twoPm.plusDays(1);
@@ -981,34 +967,32 @@ public class NonESMSignalGeneratorTest extends TestCase {
   }
 
   public void testDailyFixedTimeThenOffsetFromResponseTimeWithUseScheduledTime2pm_3pmMissedResponse() throws Exception {
-    //setup
-    MockContext mockContext = new MockContext() {
+    EventStore mockEp = new EventStore() {
 
       @Override
-      public ContentResolver getContentResolver() {
-        return null;
+      public EventInterface getEvent(Long experimentId, final DateTime scheduledTime, String groupName, Long actionTriggerId,
+                                     Long scheduleId) {
+        return new EventInterface() {
+
+          @Override
+          public DateTime getScheduledTime() {
+            return scheduledTime;
+          }
+
+          @Override
+          public DateTime getResponseTime() {
+            return null;
+          }
+        };
       }
-
-    };
-
-    ExperimentProviderUtil mockEp = new ExperimentProviderUtil(mockContext) {
-
-      @Override
-      public Event getEvent(Long experimentServerId, DateTime scheduledTime) {
-        Event event = new Event();
-        event.setResponseTime(null);
-        event.setScheduledTime(scheduledTime);
-        return event;
-      }
-
     };
     List<SignalTime> times = new ArrayList<SignalTime>();
     DateTime twoPm = createDateTime_ThursdayAtHour(14);
     times.add(createFixedSignalTimeSkipOnMissed(twoPm));
     times.add(createOffsetSignalTimeResponseBasisUseScheduledTimeOnMiss(120 * 60 * 1000));
-    SignalSchedule schedule = createDailyScheduleWithTimes(times, 1);
+    Schedule schedule = createDailyScheduleWithTimes(times, 1);
 
-    NonESMSignalGenerator generator = new NonESMSignalGenerator(schedule, NULL_EXPERIMENT_ID, mockEp);
+    NonESMSignalGenerator generator = new NonESMSignalGenerator(schedule, NULL_EXPERIMENT_ID, mockEp, null, null);
 
     DateTime fourPm = createDateTime_ThursdayAtHour(16);
     DateTime twoPmTomorrow = twoPm.plusDays(1);
@@ -1018,26 +1002,24 @@ public class NonESMSignalGeneratorTest extends TestCase {
   }
 
   public void testDailyFixedTimeThenOffsetFromResponseTimeThenFixedMissedFirstResponse() throws Exception {
-    //setup
-    MockContext mockContext = new MockContext() {
+    EventStore mockEp = new EventStore() {
 
       @Override
-      public ContentResolver getContentResolver() {
-        return null;
+      public EventInterface getEvent(Long experimentId, final DateTime scheduledTime, String groupName, Long actionTriggerId,
+                                     Long scheduleId) {
+        return new EventInterface() {
+
+          @Override
+          public DateTime getScheduledTime() {
+            return scheduledTime;
+          }
+
+          @Override
+          public DateTime getResponseTime() {
+            return null;
+          }
+        };
       }
-
-    };
-
-    ExperimentProviderUtil mockEp = new ExperimentProviderUtil(mockContext) {
-
-      @Override
-      public Event getEvent(Long experimentServerId, DateTime scheduledTime) {
-        Event event = new Event();
-        event.setResponseTime(null);
-        event.setScheduledTime(scheduledTime);
-        return event;
-      }
-
     };
     List<SignalTime> times = new ArrayList<SignalTime>();
     DateTime eightAm = createDateTime_ThursdayAtHour(8);
@@ -1045,9 +1027,9 @@ public class NonESMSignalGeneratorTest extends TestCase {
     times.add(createOffsetSignalTimeResponseBasisSkipOnMiss(30 * 60 * 1000));
     DateTime sixPm = eightAm.plusHours(10);
     times.add(createFixedSignalTimeSkipOnMissed(sixPm));
-    SignalSchedule schedule = createDailyScheduleWithTimes(times, 1);
+    Schedule schedule = createDailyScheduleWithTimes(times, 1);
 
-    NonESMSignalGenerator generator = new NonESMSignalGenerator(schedule, NULL_EXPERIMENT_ID, mockEp);
+    NonESMSignalGenerator generator = new NonESMSignalGenerator(schedule, NULL_EXPERIMENT_ID, mockEp, null, null);
 
 
 
@@ -1073,38 +1055,35 @@ public class NonESMSignalGeneratorTest extends TestCase {
     times.add(createOffsetSignalTimeResponseBasisSkipOnMiss(30 * 60 * 1000));
     DateTime sixPm = eightAm.plusHours(10);
     times.add(createFixedSignalTimeSkipOnMissed(sixPm));
-    SignalSchedule schedule = createDailyScheduleWithTimes(times, 1);
+    Schedule schedule = createDailyScheduleWithTimes(times, 1);
 
-    MockContext mockContext = new MockContext() {
+    EventStore mockEp = new EventStore() {
       @Override
-      public ContentResolver getContentResolver() {
-        return null;
+      public EventInterface getEvent(Long experimentId, final DateTime scheduledTime, String groupName, Long actionTriggerId,
+                                     Long scheduleId) {
+        return new EventInterface() {
+
+          @Override
+          public DateTime getScheduledTime() {
+            return scheduledTime;
+          }
+
+          @Override
+          public DateTime getResponseTime() {
+            if (scheduledTime.equals(eightAm)) {
+              return eightAm.plusMinutes(10);
+            } else if (scheduledTime.equals(eightAm.plusMinutes(40))) {
+              return eightAm.plusMinutes(50);
+            }  else {
+              return null;
+            }
+
+          }
+        };
       }
     };
 
-    ExperimentProviderUtil mockEp = new ExperimentProviderUtil(mockContext) {
-      @Override
-      public Event getEvent(Long experimentServerId, DateTime scheduledTime) {
-        if (scheduledTime.equals(eightAm)) {
-          Event event = new Event();
-          event.setResponseTime(eightAm.plusMinutes(10));
-          event.setScheduledTime(scheduledTime);
-          return event;
-        } else if (scheduledTime.equals(eightAm.plusMinutes(40))) {
-          Event event = new Event();
-          event.setResponseTime(eightAm.plusMinutes(50));
-          event.setScheduledTime(scheduledTime);
-          return event;
-        }  else {
-          Event event = new Event();
-          event.setResponseTime(null);
-          event.setScheduledTime(scheduledTime);
-          return event;
-        }
-      }
-    };
-
-    NonESMSignalGenerator generator = new NonESMSignalGenerator(schedule, NULL_EXPERIMENT_ID, mockEp);
+    NonESMSignalGenerator generator = new NonESMSignalGenerator(schedule, NULL_EXPERIMENT_ID, mockEp, null, null);
 
     DateTime sevenAm = createDateTime_ThursdayAtHour(7);
     DateTime eight10Am = sevenAm.plusHours(1).plusMinutes(10);
@@ -1128,38 +1107,34 @@ public class NonESMSignalGeneratorTest extends TestCase {
     times.add(createOffsetSignalTimeResponseBasisSkipOnMiss(30 * 60 * 1000));
     DateTime sixPm = eightAm.plusHours(10);
     times.add(createFixedSignalTimeSkipOnMissed(sixPm));
-    SignalSchedule schedule = createDailyScheduleWithTimes(times, 1);
+    Schedule schedule = createDailyScheduleWithTimes(times, 1);
 
-    MockContext mockContext = new MockContext() {
+
+    EventStore mockEp = new EventStore() {
+
       @Override
-      public ContentResolver getContentResolver() {
-        return null;
-      }
+      public EventInterface getEvent(Long experimentId, final DateTime scheduledTime, String groupName, Long actionTriggerId,
+                                     Long scheduleId) {
+        return new EventInterface() {
+
+          @Override
+          public DateTime getScheduledTime() {
+            return scheduledTime;
+          }
+
+          @Override
+          public DateTime getResponseTime() {
+            if (scheduledTime.equals(eightAm)) {
+              return eightAm.plusMinutes(10);
+            } else {
+              return null;
+            }
+          }
+
+        };      }
     };
 
-    ExperimentProviderUtil mockEp = new ExperimentProviderUtil(mockContext) {
-      @Override
-      public Event getEvent(Long experimentServerId, DateTime scheduledTime) {
-        if (scheduledTime.equals(eightAm)) {
-          Event event = new Event();
-          event.setResponseTime(eightAm.plusMinutes(10));
-          event.setScheduledTime(scheduledTime);
-          return event;
-        } /*else if (scheduledTime.equals(eightAm.plusMinutes(40))) {
-          Event event = new Event();
-          event.setResponseTime(eightAm.plusMinutes(50));
-          event.setScheduledTime(scheduledTime);
-          return event;
-        } */ else {
-          Event event = new Event();
-          event.setResponseTime(null);
-          event.setScheduledTime(scheduledTime);
-          return event;
-        }
-      }
-    };
-
-    NonESMSignalGenerator generator = new NonESMSignalGenerator(schedule, NULL_EXPERIMENT_ID, mockEp);
+    NonESMSignalGenerator generator = new NonESMSignalGenerator(schedule, NULL_EXPERIMENT_ID, mockEp, null, null);
 
     DateTime sevenAm = createDateTime_ThursdayAtHour(7);
     DateTime eight10Am = sevenAm.plusHours(1).plusMinutes(10);
@@ -1183,38 +1158,31 @@ public class NonESMSignalGeneratorTest extends TestCase {
     times.add(createOffsetSignalTimeResponseBasisSkipOnMiss(30 * 60 * 1000));
     DateTime sixPm = eightAm.plusHours(10);
     times.add(createFixedSignalTimeUseScheduledTimeOnMiss(sixPm));
-    SignalSchedule schedule = createDailyScheduleWithTimes(times, 1);
+    Schedule schedule = createDailyScheduleWithTimes(times, 1);
+    EventStore mockEp = new EventStore() {
+      public EventInterface getEvent(Long experimentServerId, final DateTime scheduledTime, String groupName, Long actionTriggerId,
+                                     Long scheduleId) {
+        return new EventInterface() {
 
-    MockContext mockContext = new MockContext() {
-      @Override
-      public ContentResolver getContentResolver() {
-        return null;
+          @Override
+          public DateTime getScheduledTime() {
+            return scheduledTime;
+          }
+
+          @Override
+          public DateTime getResponseTime() {
+            if (scheduledTime.equals(eightAm)) {
+              return eightAm.plusMinutes(10);
+            } else {
+              return null;
+            }
+
+          }
+        };
       }
     };
 
-    ExperimentProviderUtil mockEp = new ExperimentProviderUtil(mockContext) {
-      @Override
-      public Event getEvent(Long experimentServerId, DateTime scheduledTime) {
-        if (scheduledTime.equals(eightAm)) {
-          Event event = new Event();
-          event.setResponseTime(eightAm.plusMinutes(10));
-          event.setScheduledTime(scheduledTime);
-          return event;
-        } /*else if (scheduledTime.equals(eightAm.plusMinutes(40))) {
-          Event event = new Event();
-          event.setResponseTime(eightAm.plusMinutes(50));
-          event.setScheduledTime(scheduledTime);
-          return event;
-        } */ else {
-          Event event = new Event();
-          event.setResponseTime(null);
-          event.setScheduledTime(scheduledTime);
-          return event;
-        }
-      }
-    };
-
-    NonESMSignalGenerator generator = new NonESMSignalGenerator(schedule, NULL_EXPERIMENT_ID, mockEp);
+    NonESMSignalGenerator generator = new NonESMSignalGenerator(schedule, NULL_EXPERIMENT_ID, mockEp, null, null);
 
     DateTime sevenAm = createDateTime_ThursdayAtHour(7);
     DateTime eight10Am = sevenAm.plusHours(1).plusMinutes(10);
@@ -1237,26 +1205,27 @@ public class NonESMSignalGeneratorTest extends TestCase {
     times.add(createFixedSignalTimeSkipOnMissed(eightAm));
     times.add(createOffsetSignalTimeResponseBasisSkipOnMiss(30 * 60 * 1000));
     times.add(createOffsetSignalTimeResponseBasisSkipOnMiss(10 * 60 * 60 * 1000));
-    SignalSchedule schedule = createDailyScheduleWithTimes(times, 1);
+    Schedule schedule = createDailyScheduleWithTimes(times, 1);
 
-    MockContext mockContext = new MockContext() {
-      @Override
-      public ContentResolver getContentResolver() {
-        return null;
+    EventStore mockEp = new EventStore() {
+      public EventInterface getEvent(Long experimentServerId, final DateTime scheduledTime, String groupName, Long actionTriggerId,
+                                     Long scheduleId) {
+        return new EventInterface() {
+
+          @Override
+          public DateTime getScheduledTime() {
+            return scheduledTime;
+          }
+
+          @Override
+          public DateTime getResponseTime() {
+              return null;
+          }
+        };
       }
     };
 
-    ExperimentProviderUtil mockEp = new ExperimentProviderUtil(mockContext) {
-      @Override
-      public Event getEvent(Long experimentServerId, DateTime scheduledTime) {
-        Event event = new Event();
-        event.setResponseTime(null);
-        event.setScheduledTime(scheduledTime);
-        return event;
-      }
-    };
-
-    NonESMSignalGenerator generator = new NonESMSignalGenerator(schedule, NULL_EXPERIMENT_ID, mockEp);
+    NonESMSignalGenerator generator = new NonESMSignalGenerator(schedule, NULL_EXPERIMENT_ID, mockEp, null, null);
 
     DateTime sevenAm = createDateTime_ThursdayAtHour(7);
     DateTime eight10Am = sevenAm.plusHours(1).plusMinutes(10);
@@ -1278,33 +1247,32 @@ public class NonESMSignalGeneratorTest extends TestCase {
     times.add(createFixedSignalTimeSkipOnMissed(eightAm));
     times.add(createOffsetSignalTimeResponseBasisSkipOnMiss(30 * 60 * 1000));
     times.add(createOffsetSignalTimeResponseBasisSkipOnMiss(10 * 60 * 60 * 1000));
-    SignalSchedule schedule = createDailyScheduleWithTimes(times, 1);
+    Schedule schedule = createDailyScheduleWithTimes(times, 1);
 
-    MockContext mockContext = new MockContext() {
-      @Override
-      public ContentResolver getContentResolver() {
-        return null;
+    EventStore mockEp = new EventStore() {
+      public EventInterface getEvent(Long experimentServerId, final DateTime scheduledTime, String groupName, Long actionTriggerId,
+                                     Long scheduleId) {
+        return new EventInterface() {
+
+          @Override
+          public DateTime getScheduledTime() {
+            return scheduledTime;
+          }
+
+          @Override
+          public DateTime getResponseTime() {
+            if (scheduledTime.equals(eightAm)) {
+              return eightAm.plusMinutes(10);
+            } else {
+              return null;
+            }
+
+          }
+        };
       }
     };
 
-    ExperimentProviderUtil mockEp = new ExperimentProviderUtil(mockContext) {
-      @Override
-      public Event getEvent(Long experimentServerId, DateTime scheduledTime) {
-        if (scheduledTime.equals(eightAm)) {
-          Event event = new Event();
-          event.setResponseTime(eightAm.plusMinutes(10));
-          event.setScheduledTime(scheduledTime);
-          return event;
-        } else {
-          Event event = new Event();
-          event.setResponseTime(null);
-          event.setScheduledTime(scheduledTime);
-          return event;
-        }
-      }
-    };
-
-    NonESMSignalGenerator generator = new NonESMSignalGenerator(schedule, NULL_EXPERIMENT_ID, mockEp);
+    NonESMSignalGenerator generator = new NonESMSignalGenerator(schedule, NULL_EXPERIMENT_ID, mockEp, null, null);
 
     DateTime sevenAm = createDateTime_ThursdayAtHour(7);
     DateTime eight10Am = sevenAm.plusHours(1).plusMinutes(10);
@@ -1326,38 +1294,34 @@ public class NonESMSignalGeneratorTest extends TestCase {
     times.add(createFixedSignalTimeSkipOnMissed(eightAm));
     times.add(createOffsetSignalTimeResponseBasisSkipOnMiss(30 * 60 * 1000));
     times.add(createOffsetSignalTimeResponseBasisSkipOnMiss(10 * 60 * 60 * 1000));
-    SignalSchedule schedule = createDailyScheduleWithTimes(times, 1);
+    Schedule schedule = createDailyScheduleWithTimes(times, 1);
 
-    MockContext mockContext = new MockContext() {
-      @Override
-      public ContentResolver getContentResolver() {
-        return null;
+    EventStore mockEp = new EventStore() {
+      public EventInterface getEvent(Long experimentServerId, final DateTime scheduledTime, String groupName, Long actionTriggerId,
+                                     Long scheduleId) {
+        return new EventInterface() {
+
+          @Override
+          public DateTime getScheduledTime() {
+            return scheduledTime;
+          }
+
+          @Override
+          public DateTime getResponseTime() {
+            if (scheduledTime.equals(eightAm)) {
+              return eightAm.plusMinutes(10);
+            } else if (scheduledTime.equals(eightAm.plusMinutes(40))) {
+              return eightAm.plusMinutes(50);
+            }  else {
+              return null;
+            }
+
+          }
+        };
       }
     };
 
-    ExperimentProviderUtil mockEp = new ExperimentProviderUtil(mockContext) {
-      @Override
-      public Event getEvent(Long experimentServerId, DateTime scheduledTime) {
-        if (scheduledTime.equals(eightAm)) {
-          Event event = new Event();
-          event.setResponseTime(eightAm.plusMinutes(10));
-          event.setScheduledTime(scheduledTime);
-          return event;
-        } else if (scheduledTime.equals(eightAm.plusMinutes(40))) {
-          Event event = new Event();
-          event.setResponseTime(eightAm.plusMinutes(50));
-          event.setScheduledTime(scheduledTime);
-          return event;
-        } else {
-          Event event = new Event();
-          event.setResponseTime(null);
-          event.setScheduledTime(scheduledTime);
-          return event;
-        }
-      }
-    };
-
-    NonESMSignalGenerator generator = new NonESMSignalGenerator(schedule, NULL_EXPERIMENT_ID, mockEp);
+    NonESMSignalGenerator generator = new NonESMSignalGenerator(schedule, NULL_EXPERIMENT_ID, mockEp, null, null);
 
     DateTime sevenAm = createDateTime_ThursdayAtHour(7);
     DateTime eight10Am = sevenAm.plusHours(1).plusMinutes(10);

@@ -2,6 +2,9 @@ package com.google.paco.shared.model2;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+
+import com.google.common.collect.Sets;
 
 public class ExperimentGroup implements Validatable, java.io.Serializable {
 
@@ -44,6 +47,20 @@ public class ExperimentGroup implements Validatable, java.io.Serializable {
 
   public void setActionTriggers(List<ActionTrigger> actionTriggers) {
     this.actionTriggers = actionTriggers;
+    ExperimentValidator validator = new ExperimentValidator();
+    validateActionTriggers(validator);
+    if (!validator.getResults().isEmpty()) {
+      throw new IllegalArgumentException(validator.stringifyResults());
+    }
+  }
+
+  public ActionTrigger getActionTriggerById(Long actionTriggerId) {
+    for (ActionTrigger at : actionTriggers) {
+      if (at.getId().equals(actionTriggerId)) {
+        return at;
+      }
+    }
+    return null;
   }
 
   public Feedback getFeedback() {
@@ -84,6 +101,11 @@ public class ExperimentGroup implements Validatable, java.io.Serializable {
 
   public void setInputs(List<Input2> inputs) {
     this.inputs = inputs;
+    ExperimentValidator validator = new ExperimentValidator();
+    validateInputs(validator);
+    if (!validator.getResults().isEmpty()) {
+      throw new IllegalArgumentException(validator.stringifyResults());
+    }
   }
 
   public Boolean getFixedDuration() {
@@ -144,8 +166,9 @@ public class ExperimentGroup implements Validatable, java.io.Serializable {
 
   public void validateWith(Validator validator) {
     validator.isNotNullAndNonEmptyString(name, "name is not properly initialized");
-    validator.isNotNullCollection(actionTriggers, "action triggers not properly initialized");
-    validator.isNotNullCollection(inputs, "inputs not properly initialized");
+
+    validateActionTriggers(validator);
+
     validator.isNotNull(backgroundListen, "backgroundListen not initialized");
     validator.isNotNull(logActions, "backgroundListen not initialized");
     if (backgroundListen) {
@@ -164,19 +187,35 @@ public class ExperimentGroup implements Validatable, java.io.Serializable {
     validator.isNotNull(feedbackType, "feedbacktype is not properly initialized");
     validator.isNotNull(feedback, "feedback is not properly initialized");
 
-    for (ActionTrigger actionTrigger : actionTriggers) {
-      actionTrigger.validateWith(validator);
-    }
-
-    for (Input2 input : inputs) {
-      input.validateWith(validator);
-    }
+    validateInputs(validator);
 
     validator.isNotNull(endOfDayGroup, "endOfDayGroup is not properly initialized");
     if (endOfDayGroup != null && endOfDayGroup) {
       validator.isNotNullAndNonEmptyString(endOfDayReferredGroupName, "endOfDayGroups need to specify the name of the group to which they refer");
     }
     feedback.validateWith(validator);
+  }
+
+  public void validateInputs(Validator validator) {
+    validator.isNotNullCollection(inputs, "inputs not properly initialized");
+    Set<String> inputNames = Sets.newHashSet();
+    for (Input2 input : inputs) {
+      if (!inputNames.add(input.getName())) {
+        validator.addError("Input name: " + input.getName() + " is duplicate. All input names within a group must be unique");
+      }
+      input.validateWith(validator);
+    }
+  }
+
+  public void validateActionTriggers(Validator validator) {
+    validator.isNotNullCollection(actionTriggers, "action triggers not properly initialized");
+    Set<Long> ids = Sets.newHashSet();
+    for (ActionTrigger actionTrigger : actionTriggers) {
+      actionTrigger.validateWith(validator);
+      if (!ids.add(actionTrigger.getId())) {
+        validator.addError("action trigger id: " + actionTrigger.getId() + " is not unique. Ids must be unique and stable across edits.");
+      }
+    }
   }
 
   public Boolean getEndOfDayGroup() {

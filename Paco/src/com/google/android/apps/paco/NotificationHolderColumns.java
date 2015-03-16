@@ -29,6 +29,14 @@ public class NotificationHolderColumns implements BaseColumns {
   public static final String TIMEOUT_MILLIS = "timeout_millis";
   public static final String NOTIFICATION_SOURCE = "notification_source";
   public static final String CUSTOM_MESSAGE = "custom_message";
+  public static final String EXPERIMENT_GROUP_NAME = "experiment_group_name";
+  public static final String ACTION_TRIGGER_ID = "action_trigger_id";
+  public static final String ACTION_ID = "action_id";
+
+//TODO Do we need this given that we are packing the path to the action again (exp, expGrp, actTrig, action)?
+  public static final String SNOOZE_COUNT = "snooze_count";
+  public static final String SNOOZE_TIME = "snooze_time";
+
 
   public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.google.paco.notification";
   public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.google.paco.notification";

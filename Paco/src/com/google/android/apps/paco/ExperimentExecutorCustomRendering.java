@@ -35,8 +35,6 @@ import java.util.Map;
 
 import org.joda.time.DateTime;
 import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -82,12 +80,18 @@ import com.google.android.apps.paco.questioncondparser.Binding;
 import com.google.android.apps.paco.questioncondparser.ExpressionEvaluator;
 import com.google.common.base.Strings;
 import com.google.paco.shared.model.FeedbackDAO;
+import com.google.paco.shared.model2.ExperimentGroup;
+import com.google.paco.shared.model2.Input2;
 import com.pacoapp.paco.R;
 
 public class ExperimentExecutorCustomRendering extends Activity implements ChangeListener, LocationListener  {
 
-  Experiment experiment;
-  ExperimentProviderUtil experimentProviderUtil;
+  private Experiment experiment;
+  private String notificationMessage;
+  private String notificationSource;
+  private ExperimentGroup experimentGroup;
+
+  private ExperimentProviderUtil experimentProviderUtil;
   private List<InputLayout> inputs = new ArrayList<InputLayout>();
   private LayoutInflater inflater;
   private LinearLayout mainLayout;
@@ -116,8 +120,7 @@ public class ExperimentExecutorCustomRendering extends Activity implements Chang
   private File photoFile;
 
   boolean showDialog = true;
-  private String notificationMessage;
-  private String notificationSource;
+
 
 
 
@@ -125,14 +128,16 @@ public class ExperimentExecutorCustomRendering extends Activity implements Chang
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     experimentProviderUtil = new ExperimentProviderUtil(this);
-    experiment = getExperimentFromIntent();
-    if (experiment == null) {
+    loadNotificationData();
+    if (experiment == null || experimentGroup == null) {
+      loadExperimentInfoFromIntent();
+    }
+
+    if (experiment == null || experimentGroup == null) {
       displayNoExperimentMessage();
     } else {
-      getSignallingData();
-
       inflater = (LayoutInflater)getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-      optionsMenu = new OptionsMenu(this, getIntent().getData(), scheduledTime != null && scheduledTime != 0L);
+      optionsMenu = new OptionsMenu(this, experiment.getExperimentDAO().getId(), scheduledTime != null && scheduledTime != 0L);
 
 
       mainLayout = (LinearLayout) inflater.inflate(R.layout.experiment_executor_custom_rendering, null);
@@ -158,7 +163,7 @@ public class ExperimentExecutorCustomRendering extends Activity implements Chang
 
 
       //render
-      if (experiment.isWebRecommended()) {
+      if (experimentGroup.getEndOfDayGroup()) {
         renderWebRecommendedMessage();
       } else {
         showForm(savedInstanceState);
@@ -168,30 +173,23 @@ public class ExperimentExecutorCustomRendering extends Activity implements Chang
 
   }
 
-
-
-  private void renderWebRecommendedMessage() {
-    final ScrollView scrollView = (ScrollView)findViewById(R.id.ScrollView01);
-    scrollView.setVisibility(View.GONE);
-    buttonView.setVisibility(View.VISIBLE);
-
-  }
-
-  private void getSignallingData() {
+  private void loadNotificationData() {
     Bundle extras = getIntent().getExtras();
     if (extras != null) {
       notificationHolderId = extras.getLong(NotificationCreator.NOTIFICATION_ID);
       NotificationHolder notificationHolder = experimentProviderUtil.getNotificationById(notificationHolderId);
+      Long timeoutMillis = null;
       if (notificationHolder != null) {
+        experiment = experimentProviderUtil.getExperimentByServerId(notificationHolder.getExperimentId());
+        experimentGroup = experiment.getExperimentDAO().getGroupByName(notificationHolder.getExperimentGroupName());
         scheduledTime = notificationHolder.getAlarmTime();
-        notificationMessage = notificationHolder.getMessage();
-        notificationSource = notificationHolder.getNotificationSource();
-        Log.i(PacoConstants.TAG, "Starting experimentExecutor from signal: " + experiment.getTitle() +". alarmTime: " + new DateTime(scheduledTime).toString());
+        Log.i(PacoConstants.TAG, "Starting experimentExecutor from signal: " + experiment.getExperimentDAO().getTitle() +". alarmTime: " + new DateTime(scheduledTime).toString());
+        timeoutMillis = notificationHolder.getTimeoutMillis();
       } else {
         scheduledTime = null;
       }
 
-      if (isExpiredEsmPing()) {
+      if (isExpiredEsmPing(timeoutMillis)) {
         Toast.makeText(this, R.string.survey_expired, Toast.LENGTH_LONG).show();
         finish();
       }
@@ -201,18 +199,39 @@ public class ExperimentExecutorCustomRendering extends Activity implements Chang
     }
   }
 
+  private void loadExperimentInfoFromIntent() {
+    Bundle extras = getIntent().getExtras();
+    if (extras != null) {
+      if (extras.containsKey(Experiment.EXPERIMENT_SERVER_ID_EXTRA_KEY)) {
+        long experimentId = extras.getLong(Experiment.EXPERIMENT_SERVER_ID_EXTRA_KEY);
+        experiment = experimentProviderUtil.getExperimentByServerId(experimentId);
+        if (experiment != null && extras.containsKey(Experiment.EXPERIMENT_GROUP_NAME_EXTRA_KEY)) {
+          String experimentGroupName = extras.getString(Experiment.EXPERIMENT_GROUP_NAME_EXTRA_KEY);
+          experimentGroup = experiment.getExperimentDAO().getGroupByName(experimentGroupName);
+        }
+      }
+    }
+  }
+
+  private void renderWebRecommendedMessage() {
+    final ScrollView scrollView = (ScrollView)findViewById(R.id.ScrollView01);
+    scrollView.setVisibility(View.GONE);
+    buttonView.setVisibility(View.VISIBLE);
+
+  }
+
   /**
    * If the user is self-reporting there might still be an active notification for this experiment. If so, we should
    * add its scheduleTime into this response. There should only ever be one.
    */
   private void lookForActiveNotificationForExperiment() {
-    NotificationHolder notificationHolder = experimentProviderUtil.getNotificationFor(experiment.getId().longValue());
+    NotificationHolder notificationHolder = experimentProviderUtil.getNotificationFor(experiment.getId().longValue(), experimentGroup.getName());
     if (notificationHolder != null) {
       if (notificationHolder.isActive(new DateTime())) {
         notificationHolderId = notificationHolder.getId();
         scheduledTime = notificationHolder.getAlarmTime();
         shouldExpireNotificationHolder = true;
-        Log.i(PacoConstants.TAG, "ExperimentExecutor: Self report, but found signal still active : " + experiment.getTitle() +". alarmTime: " + new DateTime(scheduledTime).toString());
+        Log.i(PacoConstants.TAG, "ExperimentExecutor: Self report, but found signal still active : " + experiment.getExperimentDAO().getTitle() +". alarmTime: " + new DateTime(scheduledTime).toString());
       } else {
         NotificationCreator.create(this).timeoutNotification(notificationHolder);
       }
@@ -349,9 +368,9 @@ public class ExperimentExecutorCustomRendering extends Activity implements Chang
   }
   //End Location
 
-  private boolean isExpiredEsmPing() {
-    return (scheduledTime != null && scheduledTime != 0L) &&
-        (new DateTime(scheduledTime)).plus(experiment.getExpirationTimeInMillis()).isBefore(new DateTime());
+  private boolean isExpiredEsmPing(Long timeoutMillis) {
+    return (scheduledTime != null && scheduledTime != 0L && timeoutMillis != null) &&
+        (new DateTime(scheduledTime)).plus(timeoutMillis).isBefore(new DateTime());
   }
 
   private void showForm(Bundle savedInstanceState) {
@@ -382,25 +401,25 @@ private void injectObjectsIntoJavascriptEnvironment() {
   final Map<String,String> map = new HashMap<String, String>();
   map.put("test", "false");
 
-  map.put("title", experiment.getTitle());
+  map.put("title", experiment.getExperimentDAO().getTitle());
   map.put("scheduledTime", Long.toString(scheduledTime));
   map.put("notificationLabel", notificationMessage);
   map.put("notificationSource", notificationSource);
   env = new Environment(map);
   webView.addJavascriptInterface(env, "env");
 
-  String text = experiment.getCustomRenderingCode();
+  String text = experimentGroup.getCustomRenderingCode();
   webView.addJavascriptInterface(text, "additions");
 
   webView.addJavascriptInterface(new JavascriptExperimentLoader(this, experimentProviderUtil, experiment), "experimentLoader");
 
-  JavascriptEventLoader javascriptEventLoader = new JavascriptEventLoader(experimentProviderUtil, experiment);
+  JavascriptEventLoader javascriptEventLoader = new JavascriptEventLoader(experimentProviderUtil, experiment, experimentGroup);
   webView.addJavascriptInterface(javascriptEventLoader, "db");
   // deprecated name - use "db" in all new experiments
   webView.addJavascriptInterface(javascriptEventLoader, "eventLoader");
 
   webView.addJavascriptInterface(new JavascriptEmail(this), "email");
-  webView.addJavascriptInterface(new JavascriptNotificationService(this, experiment), "notificationService");
+  webView.addJavascriptInterface(new JavascriptNotificationService(this, experiment, experimentGroup), "notificationService");
   webView.addJavascriptInterface(new JavascriptPhotoService(this), "photoService");
   webView.addJavascriptInterface(new JavascriptExecutorListener(experiment), "executor");
 
@@ -449,11 +468,10 @@ private WebViewClient createWebViewClientThatHandlesFileLinksForCharts() {
         return true; // throw away http requests - we don't want 3rd party javascript sending url requests due to security issues.
       }
 
-      String inputIdStr = uri.getQueryParameter("inputId");
-      if (inputIdStr == null) {
+      String inputName = uri.getQueryParameter("inputName");
+      if (inputName == null) {
         return true;
       }
-      long inputId = Long.parseLong(inputIdStr);
       JSONArray results = new JSONArray();
       for (Event event : experiment.getEvents()) {
         JSONArray eventJson = new JSONArray();
@@ -462,13 +480,12 @@ private WebViewClient createWebViewClientThatHandlesFileLinksForCharts() {
           continue; // missed signal;
         }
         eventJson.put(responseTime.getMillis());
-
         // in this case we are looking for one input from the responses that we are charting.
         for (Output response : event.getResponses()) {
-          if (response.getInputServerId() == inputId ) {
-            Input inputById = experiment.getInputById(inputId);
-            if (!inputById.isInvisible() && inputById.isNumeric()) {
-              eventJson.put(response.getDisplayOfAnswer(inputById));
+          if (response.getAnswer().equals(inputName)) {
+            Input2 input = experiment.getInputByName(inputName);
+            if (input.isNumeric()) {
+              eventJson.put(response.getDisplayOfAnswer(input));
               results.put(eventJson);
               continue;
             }
@@ -477,7 +494,7 @@ private WebViewClient createWebViewClientThatHandlesFileLinksForCharts() {
 
       }
       env.put("data", results.toString());
-      env.put("inputId", inputIdStr);
+      env.put("inputName", inputName);
 
       view.loadUrl(stripQuery(url));
       return true;
@@ -568,59 +585,13 @@ public static String convertLastEventToJsonString(final Experiment experiment) {
 
 private static String convertEventsToJsonString(final Experiment experiment,
                                                 List<Event> events) {
-  // TODO use jackson instead. But preserve these synthesized values for backward compatibility.
-  final JSONArray experimentData = new JSONArray();
-  for (Event event : events) {
-    try {
-      JSONObject eventObject = new JSONObject();
-      boolean missed = event.getResponseTime() == null;
-      eventObject.put("isMissedSignal", missed);
-      if (!missed) {
-        eventObject.put("responseTime", event.getResponseTime().getMillis());
-      }
-
-      boolean selfReport = event.getScheduledTime() == null;
-      eventObject.put("isSelfReport", selfReport);
-      if (!selfReport) {
-        eventObject.put("scheduleTime", event.getScheduledTime().getMillis());
-      }
-
-      JSONArray responses = new JSONArray();
-      for (Output response : event.getResponses()) {
-        JSONObject responseJson = new JSONObject();
-        Input input = experiment.getInputById(response.getInputServerId());
-        if (input == null) {
-          continue;
-        }
-        responseJson.put("inputId", input.getServerId());
-        // deprecate inputName in favor of name
-        responseJson.put("inputName", input.getName());
-        responseJson.put("name", input.getName());
-        responseJson.put("responseType", input.getResponseType());
-        responseJson.put("isMultiselect", input.isMultiselect());
-        responseJson.put("prompt", getTextOfInputForOutput(experiment, response));
-        responseJson.put("answer", response.getDisplayOfAnswer(input));
-        // deprecated for answerRaw
-        responseJson.put("answerOrder", response.getAnswer());
-        responseJson.put("answerRaw", response.getAnswer());
-        responses.put(responseJson);
-      }
-
-      eventObject.put("responses", responses);
-      if (responses.length() > 0) {
-        experimentData.put(eventObject);
-      }
-    } catch (JSONException jse) {
-      // skip this event and do the next event.
-    }
-  }
-  String experimentDataAsJson = experimentData.toString();
-  return experimentDataAsJson;
+  return FeedbackActivity.convertEventsToJsonString(experiment, events);
 }
 
-static String getTextOfInputForOutput(Experiment experiment, Output output) {
-  for (Input input : experiment.getInputs()) {
-    if (input.getServerId().equals(output.getInputServerId())) {
+static String getTextOfInputForOutput(ExperimentGroup experiment, Output output) {
+  for (Input2 input : experiment.getInputs()) {
+
+    if (input.getName().equals(output.getName())) {
       if (!input.isInvisible()) {
         return input.getText();
       } else {
@@ -694,7 +665,7 @@ public boolean onKeyDown(int keyCode, KeyEvent event) {
 
   void showFeedback() {
     Intent intent = new Intent(this, FeedbackActivity.class);
-    intent.setData(getIntent().getData());
+    intent.putExtras(getIntent().getExtras());
     startActivity(intent);
   }
 
@@ -702,7 +673,7 @@ public boolean onKeyDown(int keyCode, KeyEvent event) {
     com.google.android.apps.paco.questioncondparser.Environment interpreter = updateInterpreter(null);
     ExpressionEvaluator main = new ExpressionEvaluator(interpreter);
     for (InputLayout inputView : inputs) {
-      Input input = inputView.getInput();
+      Input2 input = inputView.getInput();
       try {
         if (input.getConditional() != null && input.getConditional() == true && !main.parse(input.getConditionExpression())) {
           continue;
@@ -713,13 +684,12 @@ public boolean onKeyDown(int keyCode, KeyEvent event) {
       }
       Output responseForInput = new Output();
       String answer = inputView.getValueAsString();
-      if (input.isMandatory() && (answer == null || answer.length() == 0 || answer.equals("-1") /*||
+      if (input.getRequired() && (answer == null || answer.length() == 0 || answer.equals("-1") /*||
           (input.getResponseType().equals(Input.LIST) && answer.equals("0"))*/)) {
         throw new IllegalStateException(getString(R.string.must_answer) + input.getText());
       }
       responseForInput.setAnswer(answer);
       responseForInput.setName(input.getName());
-      responseForInput.setInputServerId(input.getServerId());
       event.addResponse(responseForInput);
     }
   }
@@ -728,11 +698,11 @@ public boolean onKeyDown(int keyCode, KeyEvent event) {
     Event event = new Event();
     event.setExperimentId(experiment.getId());
     event.setServerExperimentId(experiment.getServerId());
-    event.setExperimentName(experiment.getTitle());
+    event.setExperimentName(experiment.getExperimentDAO().getTitle());
     if (scheduledTimeLong != null && scheduledTimeLong != 0L) {
       event.setScheduledTime(new DateTime(scheduledTimeLong));
     }
-    event.setExperimentVersion(experiment.getVersion());
+    event.setExperimentVersion(experiment.getExperimentDAO().getVersion());
     event.setResponseTime(new DateTime());
     return event;
   }
@@ -740,14 +710,6 @@ public boolean onKeyDown(int keyCode, KeyEvent event) {
 
   private void displayNoExperimentMessage() {
 
-  }
-
-  private Experiment getExperimentFromIntent() {
-    Uri uri = getIntent().getData();
-    if (uri == null) {
-      return null;
-    }
-    return experimentProviderUtil.getExperiment(uri);
   }
 
   @Override
@@ -864,7 +826,7 @@ public boolean onKeyDown(int keyCode, KeyEvent event) {
 
       notifySyncService();
 
-      if (experiment.getFeedbackType() != FeedbackDAO.FEEDBACK_TYPE_HIDE_FEEDBACK) {
+      if (experimentGroup.getFeedbackType() != FeedbackDAO.FEEDBACK_TYPE_HIDE_FEEDBACK) {
         showFeedback();
       }
       finish();

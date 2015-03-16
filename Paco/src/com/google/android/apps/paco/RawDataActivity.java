@@ -28,6 +28,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.widget.ArrayAdapter;
 
+import com.google.paco.shared.model2.Input2;
 import com.pacoapp.paco.R;
 
 public class RawDataActivity extends ListActivity {
@@ -76,7 +77,7 @@ public class RawDataActivity extends ListActivity {
           }
           buf.append(output.getName());
           buf.append("=");
-          Input input = experiment.getInputById(output.getInputServerId());
+          Input2 input = experiment.getInputByName(output.getName());
           if (input != null && input.getResponseType() != null &&
               (input.getResponseType().equals(Input.PHOTO) ||
                   input.getResponseType().equals(Input.SOUND))) {

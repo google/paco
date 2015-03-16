@@ -39,6 +39,7 @@ public class PacoActionListPanel extends Composite {
   private VerticalPanel rootPanel;
   private ActionTrigger trigger;
   private LinkedList<PacoActionPanel> actionPanelsList;
+  private Long lastUsedActionId = 0l;
 
   public PacoActionListPanel(ActionTrigger trigger) {
     MyConstants myConstants = GWT.create(MyConstants.class);
@@ -63,7 +64,13 @@ public class PacoActionListPanel extends Composite {
       trigger.setActions(triggerActions);
     } else {
       for (int i = 0; i < trigger.getActions().size(); i++) {
-        PacoActionPanel actionPanel = new PacoActionPanel(this, trigger.getActions().get(i));
+        final PacoAction pacoAction = trigger.getActions().get(i);
+        if (pacoAction.getId() != null ) {
+          if (lastUsedActionId == null || pacoAction.getId() > lastUsedActionId) {
+            lastUsedActionId = pacoAction.getId();
+          }
+        }
+        PacoActionPanel actionPanel = new PacoActionPanel(this, pacoAction);
         rootPanel.add(actionPanel);
         actionPanelsList.add(actionPanel);
       }
@@ -73,6 +80,7 @@ public class PacoActionListPanel extends Composite {
   private PacoAction createBlankAction() {
     PacoAction pacoAction = new PacoNotificationAction();
     pacoAction.setActionCode(PacoActionAllOthers.NOTIFICATION_TO_PARTICIPATE_ACTION_CODE);
+    pacoAction.setId(++lastUsedActionId);
     return pacoAction;
   }
 

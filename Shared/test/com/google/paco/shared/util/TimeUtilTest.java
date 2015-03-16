@@ -1,8 +1,8 @@
-package com.google.android.apps.paco;
+package com.google.paco.shared.util;
 
 import org.joda.time.DateTime;
 
-import com.google.android.apps.paco.TimeUtil;
+import com.google.paco.shared.util.TimeUtil;
 
 import junit.framework.TestCase;
 

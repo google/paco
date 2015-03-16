@@ -11,6 +11,7 @@ public class ScheduleTrigger extends ActionTrigger implements Validatable, java.
   public ScheduleTrigger() {
     super();
     this.type = "scheduleTrigger";
+    this.schedules = Lists.newArrayList();
   }
 
   public ScheduleTrigger(List<Schedule> schedules) {
@@ -37,5 +38,14 @@ public class ScheduleTrigger extends ActionTrigger implements Validatable, java.
     for (Schedule schedule : schedules) {
       schedule.validateWith(validator);
     }
+  }
+
+  public Schedule getSchedulesById(Long scheduleId) {
+    for (Schedule schedule : schedules) {
+      if (schedule.getId().equals(scheduleId)) {
+        return schedule;
+      }
+    }
+    return null;
   }
 }

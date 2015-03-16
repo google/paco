@@ -4,6 +4,8 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.google.paco.shared.util.ListMaker;
+
 public class ExperimentDAOCore implements Validatable, Serializable {
 
   public static final int APP_USAGE_BROWSER_HISTORY_DATA_COLLECTION = 1;
@@ -47,12 +49,7 @@ public class ExperimentDAOCore implements Validatable, Serializable {
     this.setRecordPhoneDetails(recordPhoneDetails);
     this.deleted = deleted != null ? deleted : false;
 
-    if (extraDataCollectionDeclarationsList != null) {
-      this.extraDataCollectionDeclarations = extraDataCollectionDeclarationsList;
-    } else {
-      this.extraDataCollectionDeclarations = new java.util.ArrayList();
-    }
-
+    this.extraDataCollectionDeclarations = ListMaker.paramOrNewList(extraDataCollectionDeclarationsList, Integer.class);
   }
 
   /**

@@ -71,7 +71,7 @@ public class ExperimentGroupListPanel extends Composite {
   }
 
   private ExperimentGroup createBlankDAO() {
-    return new ExperimentGroup("Group1");
+    return new ExperimentGroup("New Group");
   }
 
   public void deleteGroup(ExperimentGroupPanel groupPanel) {

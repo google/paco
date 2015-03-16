@@ -78,13 +78,33 @@ public class EventRetriever {
     return instance;
   }
 
+  public void postEvent(String who, String lat, String lon, Date whenDate, String appId, String pacoVersion,
+                        Set<What> whats, boolean shared, String experimentId, String experimentName,
+                        Integer experimentVersion, DateTime responseTime, DateTime scheduledTime,
+                        List<PhotoBlob> blobs, String groupName, Long actionTriggerId, Long actionTriggerSpecId, Long actionId) {
+
+    final String tz = responseTime != null && responseTime.getZone() != null
+            ? responseTime.getZone().toString()
+            : scheduledTime!= null && scheduledTime.getZone() != null
+              ? scheduledTime.getZone().toString()
+              : null;
+    postEvent(who, lat, lon, whenDate, appId, pacoVersion, whats, shared, experimentId, experimentName, experimentVersion,
+              responseTime != null ? responseTime.toDate() : null,
+              scheduledTime != null ? scheduledTime.toDate() : null, blobs,
+              tz, groupName, actionTriggerId, actionTriggerSpecId, actionId);
+  }
+
+
   public void postEvent(String who, String lat, String lon, Date whenDate, String appId,
       String pacoVersion, Set<What> what, boolean shared, String experimentId,
-      String experimentName, Integer experimentVersion, Date responseTime, Date scheduledTime, List<PhotoBlob> blobs, String tz) {
+      String experimentName, Integer experimentVersion, Date responseTime, Date scheduledTime, List<PhotoBlob> blobs,
+      String tz,
+      String groupName, Long actionTriggerId, Long actionTriggerSpecId, Long actionId) {
 //    long t1 = System.currentTimeMillis();
     PersistenceManager pm = PMF.get().getPersistenceManager();
     Event event = new Event(who, lat, lon, whenDate, appId, pacoVersion, what, shared,
-        experimentId, experimentName, experimentVersion, responseTime, scheduledTime, blobs, tz);
+        experimentId, experimentName, experimentVersion, responseTime, scheduledTime, blobs, tz,
+        groupName, actionTriggerId, actionTriggerSpecId, actionId);
     Transaction tx = null;
     try {
       tx = pm.currentTransaction();
@@ -418,18 +438,6 @@ public class EventRetriever {
     return queryBuilder.getQuery();
   }
 
-  public void postEvent(String who, String lat, String lon, Date whenDate, String appId, String pacoVersion,
-                        Set<What> whats, boolean shared, String experimentId, String experimentName,
-                        Integer experimentVersion, DateTime responseTime, DateTime scheduledTime, List<PhotoBlob> blobs) {
-
-    postEvent(who, lat, lon, whenDate, appId, pacoVersion, whats, shared, experimentId, experimentName, experimentVersion,
-              responseTime != null ? responseTime.toDate() : null,
-              scheduledTime != null ? scheduledTime.toDate() : null, blobs,
-              responseTime != null && responseTime.getZone() != null ? responseTime.getZone().toString()
-                                                                     : scheduledTime!= null && scheduledTime.getZone() != null ?
-                                                                                                                                 scheduledTime.getZone().toString() : null);
-  }
-
   public static void sortEvents(List<Event> greetings) {
     Comparator<Event> dateComparator = new Comparator<Event>() {
       @Override
@@ -456,7 +464,8 @@ public class EventRetriever {
       eventDAOs.add(new EventDAO(event.getWho(), event.getWhen(), event.getExperimentName(),
           event.getLat(), event.getLon(), event.getAppId(), event.getPacoVersion(),
           event.getWhatMap(), event.isShared(), event.getResponseTime(), event.getScheduledTime(),
-          toBase64StringArray(event.getBlobs()), Long.parseLong(event.getExperimentId()), event.getExperimentVersion(), event.getTimeZone()));
+          toBase64StringArray(event.getBlobs()), Long.parseLong(event.getExperimentId()), event.getExperimentVersion(),
+          event.getTimeZone(), event.getExperimentGroupName(), event.getActionTriggerId(), event.getActionTriggerSpecId(), event.getActionId()));
     }
     return eventDAOs;
   }

@@ -1,8 +1,8 @@
 /*
 * Copyright 2011 Google Inc. All Rights Reserved.
-* 
+*
 * Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance  with the License.  
+* you may not use this file except in compliance  with the License.
 * You may obtain a copy of the License at
 *
 *    http://www.apache.org/licenses/LICENSE-2.0
@@ -24,12 +24,12 @@ import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
 
-import com.pacoapp.paco.R;
-
 import android.app.ListActivity;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.widget.ArrayAdapter;
+
+import com.pacoapp.paco.R;
 
 public class ESMSignalViewer extends ListActivity {
 
@@ -47,7 +47,7 @@ public class ESMSignalViewer extends ListActivity {
 
   private void fillData() {
     // Get all of the schedule items from the database and create the item list
-    Cursor cursor = new AlarmStore(this).getAllSignalsForCurrentPeriod();
+    Cursor cursor = new AndroidEsmSignalStore(this).getAllSignalsForCurrentPeriod();
     startManagingCursor(cursor);
 //
 //    String[] from = new String[] {Signal.EXPERIMENT_ID, Signal.TIME};
@@ -66,11 +66,11 @@ public class ESMSignalViewer extends ListActivity {
 //      }
 //
 //    });
-    
+
     List<String> nameAndTime = new ArrayList<String>();
     while (cursor.moveToNext()) {
       Long experimentId = cursor.getLong(2);
-      String experimentName = experimentProviderUtil.getExperiment(experimentId).getTitle();
+      String experimentName = experimentProviderUtil.getExperiment(experimentId).getExperimentDAO().getTitle();
       String signalTime = new DateTime(cursor.getLong(3)).toString(timeFormatter);
       nameAndTime.add(experimentName + ": " + signalTime);
     }

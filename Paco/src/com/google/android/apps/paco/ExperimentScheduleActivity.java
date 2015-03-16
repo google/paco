@@ -1,5 +1,6 @@
 /*
  * Copyright 2011 Google Inc. All Rights Reserved.
+ * Copyright 2011 Google Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance  with the License.
@@ -30,10 +31,7 @@ import android.content.DialogInterface;
 import android.content.DialogInterface.OnMultiChoiceClickListener;
 import android.content.Intent;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
-import android.telephony.TelephonyManager;
-import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -52,11 +50,18 @@ import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
+import com.google.android.apps.paco.utils.IntentExtraHelper;
 import com.google.common.base.Strings;
-import com.google.paco.shared.model.SignalTimeDAO;
+import com.google.paco.shared.model2.ActionTrigger;
+import com.google.paco.shared.model2.ExperimentGroup;
+import com.google.paco.shared.model2.Schedule;
+import com.google.paco.shared.model2.ScheduleTrigger;
+import com.google.paco.shared.model2.SignalTime;
 import com.pacoapp.paco.R;
 
-public class ExperimentScheduleActivity extends Activity {
+public class ExperimentScheduleActivity extends Activity implements ExperimentLoadingActivity {
+
+  public static final String USER_EDITABLE_SCHEDULE = "UserEditableSchedule";
 
   private static final String TIME_FORMAT_STRING = "hh:mm aa";
 
@@ -88,66 +93,85 @@ public class ExperimentScheduleActivity extends Activity {
 
   private boolean fromInformedConsentPage;
 
+  private Schedule schedule;
+
+  private boolean userEditable = true;
+
+  private ExperimentGroup experimentGroup;
+
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
 
     final Intent intent = getIntent();
-    uri = intent.getData();
-    if (uri != null) {
-      fromInformedConsentPage = intent.getExtras() != null ? intent.getExtras().getBoolean(InformedConsentActivity.INFORMED_CONSENT_PAGE_EXTRA_KEY) : false;
-      // showingJoinedExperiments = uri.getPathSegments().get(0)
-      // .equals(ExperimentColumns.JOINED_EXPERIMENTS_CONTENT_URI.getPathSegments().get(0));
 
-      // branch out into a different view to include based on the type of
-      // schedule
-      // in the experiment.
-      experimentProviderUtil = new ExperimentProviderUtil(this);
-      // if (showingJoinedExperiments) {
-      experiment = experimentProviderUtil.getExperiment(uri);
-      // } else {
-      // experiment = experimentProviderUtil.getExperimentFromDisk(uri);
-      // }
-
-      setUpSchedulingLayout();
+    fromInformedConsentPage = intent.getExtras() != null
+            ? intent.getExtras().getBoolean(InformedConsentActivity.INFORMED_CONSENT_PAGE_EXTRA_KEY)
+            : false;
+    experimentProviderUtil = new ExperimentProviderUtil(this);
+    if (fromInformedConsentPage) {
+      experiment = experimentProviderUtil.getExperimentFromDisk(getIntent().getExtras().getLong(Experiment.EXPERIMENT_SERVER_ID_EXTRA_KEY), fromInformedConsentPage);
+    } else {
+      IntentExtraHelper.loadExperimentInfoFromIntent(this, intent, experimentProviderUtil);
     }
-  }
-
-  private void setUpSchedulingLayout() {
     if (experiment == null) {
       Toast.makeText(this, R.string.cannot_find_the_experiment_warning, Toast.LENGTH_SHORT).show();
       finish();
     } else {
-      // setup ui pieces for times lists and esm start/end timepickers
-      inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
-      timesScheduleLayout = (LinearLayout) inflater.inflate(R.layout.times_schedule, null);
-      timePicker = (TimePicker) timesScheduleLayout.findViewById(R.id.DailyScheduleTimePicker);
-      timePicker.setIs24HourView(false);
-      // end setup ui pieces
-
-      SignalingMechanism signalingMechanism = experiment.getSignalingMechanisms().get(0);
-      if (signalingMechanism != null && signalingMechanism.getType().equals(SignalingMechanism.SIGNAL_SCHEDULE_TYPE)) {
-        createSelections();
-      }
-
-      if (signalingMechanism == null
-          || signalingMechanism.getType().equals(SignalingMechanism.TRIGGER_TYPE)
-          || (signalingMechanism.getType().equals(SignalSchedule.SIGNAL_SCHEDULE_TYPE) && ((SignalSchedule)signalingMechanism).getScheduleType().equals(SignalSchedule.SELF_REPORT))) {
-        setContentView(R.layout.self_report_schedule);
-        save();
-        return;
-      } else if (((SignalSchedule)signalingMechanism).getScheduleType().equals(SignalSchedule.WEEKDAY)
-                 || ((SignalSchedule)signalingMechanism).getScheduleType().equals(SignalSchedule.DAILY)) {
-        showDailyScheduleConfiguration();
-      } else if (((SignalSchedule)signalingMechanism).getScheduleType().equals(SignalSchedule.WEEKLY)) {
-        showWeeklyScheduleConfiguration();
-      } else if (((SignalSchedule)signalingMechanism).getScheduleType().equals(SignalSchedule.MONTHLY)) {
-        showMonthlyScheduleConfiguration();
-      } else if (((SignalSchedule)signalingMechanism).getScheduleType().equals(SignalSchedule.ESM)) {
-        showEsmScheduleConfiguration();
-      }
-      setupScheduleSaving();
+      schedule = getScheduleFromIntent();
+      userEditable = getUserEditableFromIntent();
+      setUpSchedulingLayout();
     }
+
+  }
+
+  private boolean getUserEditableFromIntent() {
+    if (getIntent().getExtras() != null) {
+      return getIntent().getBooleanExtra(USER_EDITABLE_SCHEDULE, true);
+    }
+    return false;
+  }
+
+  private Schedule getScheduleFromIntent() {
+    if (getIntent().getExtras() != null) {
+      Long actionTriggerId = getIntent().getExtras().getLong(Experiment.ACTION_TRIGGER_ID);
+      Long scheduleId = getIntent().getExtras().getLong(Experiment.ACTION_TRIGGER_SPEC_ID);
+      ActionTrigger actionTrigger = experimentGroup.getActionTriggerById(actionTriggerId);
+      if (actionTrigger instanceof ScheduleTrigger) {
+        return ((ScheduleTrigger)actionTrigger).getSchedulesById(scheduleId);
+      }
+    }
+    throw new IllegalStateException("Could not find schedule from intent!");
+  }
+
+  private void setUpSchedulingLayout() {
+    // setup ui pieces for times lists and esm start/end timepickers
+    inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
+    timesScheduleLayout = (LinearLayout) inflater.inflate(R.layout.times_schedule, null);
+    timePicker = (TimePicker) timesScheduleLayout.findViewById(R.id.DailyScheduleTimePicker);
+    timePicker.setIs24HourView(false);
+    // end setup ui pieces
+
+    if (schedule == null) {
+    } else {
+      setContentView(R.layout.self_report_schedule);
+      save();
+      return;
+    }
+
+    createSelections();
+
+    if (schedule.getScheduleType().equals(Schedule.WEEKDAY)
+               || schedule.getScheduleType().equals(Schedule.DAILY)) {
+      showDailyScheduleConfiguration();
+    } else if (schedule.getScheduleType().equals(Schedule.WEEKLY)) {
+      showWeeklyScheduleConfiguration();
+    } else if (schedule.getScheduleType().equals(Schedule.MONTHLY)) {
+      showMonthlyScheduleConfiguration();
+    } else if (schedule.getScheduleType().equals(Schedule.ESM)) {
+      showEsmScheduleConfiguration();
+    }
+    setupScheduleSaving();
   }
 
   // Visible for testing
@@ -160,42 +184,26 @@ public class ExperimentScheduleActivity extends Activity {
   }
 
   private void setupScheduleSaving() {
-    if (userCannotConfirmSchedule()) {
+    if (userEditable) {
       save();
     } else {
       setupSaveButton();
     }
   }
 
-  private Boolean userCannotConfirmSchedule() {
-    if ((experiment.getSignalingMechanisms().get(0)) != null) {
-      if (((SignalSchedule)experiment.getSignalingMechanisms().get(0)).getUserEditable() != null
-          && ((SignalSchedule)experiment.getSignalingMechanisms().get(0)).getUserEditable() == Boolean.FALSE) {
-        return true;
-      }
-      boolean userCanOnlyEditOnJoin = ((SignalSchedule)experiment.getSignalingMechanisms().get(0)).getOnlyEditableOnJoin() != null
-                                     && ((SignalSchedule)experiment.getSignalingMechanisms().get(0)).getOnlyEditableOnJoin() == Boolean.TRUE;
-      if (userCanOnlyEditOnJoin && !fromInformedConsentPage) {
-        return true;
-      }
-
-    }
-    return false;
-  }
-
   private void showEsmScheduleConfiguration() {
     setContentView(R.layout.esm_schedule);
     TextView title = (TextView) findViewById(R.id.experimentNameSchedule);
-    title.setText(experiment.getTitle());
+    title.setText(experiment.getExperimentDAO().getTitle());
 
     startHourField = (Button) findViewById(R.id.startHourTimePickerLabel);
     startHourField.setText(new DateMidnight().toDateTime()
-                                             .withMillisOfDay(((SignalSchedule)experiment.getSignalingMechanisms().get(0)).getEsmStartHour().intValue())
+                                             .withMillisOfDay(schedule.getEsmStartHour().intValue())
                                              .toString(TIME_FORMAT_STRING));
 
     endHourField = (Button) findViewById(R.id.endHourTimePickerLabel);
     endHourField.setText(new DateMidnight().toDateTime()
-                                           .withMillisOfDay(((SignalSchedule)experiment.getSignalingMechanisms().get(0)).getEsmEndHour().intValue())
+                                           .withMillisOfDay(schedule.getEsmEndHour().intValue())
                                            .toString(TIME_FORMAT_STRING));
 
     // TODO (bobevans): get rid of this duplication
@@ -208,7 +216,7 @@ public class ExperimentScheduleActivity extends Activity {
         dialogBuilder.setView(timesScheduleLayout);
         final AlertDialog dialog = dialogBuilder.setTitle(R.string.start_time_title).create();
 
-        Long offset = ((SignalSchedule)experiment.getSignalingMechanisms().get(0)).getEsmStartHour();
+        Long offset = schedule.getEsmStartHour();
         DateTime startHour = new DateMidnight().toDateTime().withMillisOfDay(offset.intValue());
         timePicker.setCurrentHour(startHour.getHourOfDay());
         timePicker.setCurrentMinute(startHour.getMinuteOfHour());
@@ -217,8 +225,8 @@ public class ExperimentScheduleActivity extends Activity {
                          new DialogInterface.OnClickListener() {
 
                            public void onClick(DialogInterface dialog, int which) {
-                             ((SignalSchedule)experiment.getSignalingMechanisms().get(0)).setEsmStartHour(getHourOffsetFromPicker());
-                             startHourField.setText(getTextFromPicker(((SignalSchedule)experiment.getSignalingMechanisms().get(0)).getEsmStartHour()
+                             schedule.setEsmStartHour(getHourOffsetFromPicker());
+                             startHourField.setText(getTextFromPicker(schedule.getEsmStartHour()
                                                                                 .intValue()));
                            }
 
@@ -237,7 +245,7 @@ public class ExperimentScheduleActivity extends Activity {
         endHourDialogBuilder.setView(timesScheduleLayout);
         final AlertDialog endHourDialog = endHourDialogBuilder.setTitle(R.string.end_time_title).create();
 
-        Long offset = ((SignalSchedule)experiment.getSignalingMechanisms().get(0)).getEsmEndHour();
+        Long offset = schedule.getEsmEndHour();
         DateTime endHour = new DateMidnight().toDateTime().withMillisOfDay(offset.intValue());
         timePicker.setCurrentHour(endHour.getHourOfDay());
         timePicker.setCurrentMinute(endHour.getMinuteOfHour());
@@ -246,8 +254,8 @@ public class ExperimentScheduleActivity extends Activity {
                                 new DialogInterface.OnClickListener() {
 
                                   public void onClick(DialogInterface dialog, int which) {
-                                    ((SignalSchedule)experiment.getSignalingMechanisms().get(0)).setEsmEndHour(getHourOffsetFromPicker());
-                                    endHourField.setText(getTextFromPicker(((SignalSchedule)experiment.getSignalingMechanisms().get(0)).getEsmEndHour()
+                                    schedule.setEsmEndHour(getHourOffsetFromPicker());
+                                    endHourField.setText(getTextFromPicker(schedule.getEsmEndHour()
                                                                                      .intValue()));
                                   }
 
@@ -266,7 +274,7 @@ public class ExperimentScheduleActivity extends Activity {
 
   private void showDailyScheduleConfiguration() {
     setContentView(R.layout.daily_schedule);
-    if (((SignalSchedule)experiment.getSignalingMechanisms().get(0)).getScheduleType().equals(SignalSchedule.DAILY)) {
+    if (schedule.getScheduleType().equals(Schedule.DAILY)) {
       createRepeatRate(getString(R.string.days));
     } else {
       hideRepeatRate();
@@ -298,7 +306,7 @@ public class ExperimentScheduleActivity extends Activity {
 
     radioGroup = (RadioGroup) findViewById(R.id.RadioGroup01);
 
-    if (((SignalSchedule)experiment.getSignalingMechanisms().get(0)).getByDayOfMonth()) {
+    if (schedule.getByDayOfMonth()) {
       ((RadioButton) findViewById(R.id.domRadio)).setChecked(true);
     } else {
       ((RadioButton) findViewById(R.id.dowRadio)).setChecked(true);
@@ -309,7 +317,7 @@ public class ExperimentScheduleActivity extends Activity {
       }
 
     });
-    toggleByDayOfMonth_DayOfWeekWidgets(((SignalSchedule)experiment.getSignalingMechanisms().get(0)).getByDayOfMonth());
+    toggleByDayOfMonth_DayOfWeekWidgets(schedule.getByDayOfMonth());
     createTimesList();
   }
 
@@ -320,11 +328,11 @@ public class ExperimentScheduleActivity extends Activity {
                                                                          android.R.layout.simple_spinner_item);
     adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
     domSpinner.setAdapter(adapter);
-    domSpinner.setSelection(((SignalSchedule)experiment.getSignalingMechanisms().get(0)).getDayOfMonth() - 1);
+    domSpinner.setSelection(schedule.getDayOfMonth() - 1);
     domSpinner.setOnItemSelectedListener(new OnItemSelectedListener() {
 
       public void onItemSelected(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
-        ((SignalSchedule)experiment.getSignalingMechanisms().get(0)).setDayOfMonth(arg2 + 1);
+        schedule.setDayOfMonth(arg2 + 1);
       }
 
       public void onNothingSelected(AdapterView<?> arg0) {
@@ -339,11 +347,11 @@ public class ExperimentScheduleActivity extends Activity {
                                                                          android.R.layout.simple_spinner_item);
     adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
     nthOfMonthSpinner.setAdapter(adapter);
-    nthOfMonthSpinner.setSelection(((SignalSchedule)experiment.getSignalingMechanisms().get(0)).getNthOfMonth());
+    nthOfMonthSpinner.setSelection(schedule.getNthOfMonth());
     nthOfMonthSpinner.setOnItemSelectedListener(new OnItemSelectedListener() {
 
       public void onItemSelected(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
-        ((SignalSchedule)experiment.getSignalingMechanisms().get(0)).setNthOfMonth(arg2);
+        schedule.setNthOfMonth(arg2);
       }
 
       public void onNothingSelected(AdapterView<?> arg0) {
@@ -354,14 +362,14 @@ public class ExperimentScheduleActivity extends Activity {
 
   private void toggleByDayOfMonth_DayOfWeekWidgets(boolean isByDayOfMonth) {
     if (isByDayOfMonth) {
-      ((SignalSchedule)experiment.getSignalingMechanisms().get(0)).setByDayOfMonth(Boolean.TRUE);
+      schedule.setByDayOfMonth(Boolean.TRUE);
       nthOfMonthText.setVisibility(View.GONE);
       nthOfMonthSpinner.setVisibility(View.GONE);
       dayOfMonthText.setVisibility(View.VISIBLE);
       dowButton.setVisibility(View.GONE);
       domSpinner.setVisibility(View.VISIBLE);
     } else {
-      ((SignalSchedule)experiment.getSignalingMechanisms().get(0)).setByDayOfMonth(Boolean.FALSE);
+      schedule.setByDayOfMonth(Boolean.FALSE);
       nthOfMonthText.setVisibility(View.VISIBLE);
       nthOfMonthSpinner.setVisibility(View.VISIBLE);
       dayOfMonthText.setVisibility(View.GONE);
@@ -385,12 +393,12 @@ public class ExperimentScheduleActivity extends Activity {
                                                                          android.R.layout.simple_spinner_item);
     adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
     repeatRate.setAdapter(adapter);
-    repeatRate.setSelection(((SignalSchedule)experiment.getSignalingMechanisms().get(0)).getRepeatRate() - 1);
+    repeatRate.setSelection(schedule.getRepeatRate() - 1);
 
     repeatRate.setOnItemSelectedListener(new OnItemSelectedListener() {
 
       public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-        ((SignalSchedule)experiment.getSignalingMechanisms().get(0)).setRepeatRate(position + 1);
+        schedule.setRepeatRate(position + 1);
       }
 
       public void onNothingSelected(AdapterView<?> parent) {
@@ -404,10 +412,10 @@ public class ExperimentScheduleActivity extends Activity {
 
   private void createTimesList() {
     TextView title = (TextView) findViewById(R.id.experimentNameSchedule);
-    title.setText(experiment.getTitle());
+    title.setText(experiment.getExperimentDAO().getTitle());
 
     timeList = (ListView) findViewById(R.id.timesList);
-    final List<SignalTime> times = ((SignalSchedule)experiment.getSignalingMechanisms().get(0)).getSignalTimes();
+    final List<SignalTime> times = schedule.getSignalTimes();
     setArrayAdapter(times);
 
     // timeList.setOnItemClickListener(new OnItemClickListener() {
@@ -453,7 +461,7 @@ public class ExperimentScheduleActivity extends Activity {
   }
 
   private String getStringForTime(SignalTime time) {
-    if (time.getType() == SignalTimeDAO.FIXED_TIME) {
+    if (time.getType() == SignalTime.FIXED_TIME) {
       return new DateTime().withMillisOfDay(time.getFixedTimeMillisFromMidnight()).toString("hh:mm a");
     } else {
       return "+" + time.getOffsetTimeMillis() / 1000 / 60 + " mins";
@@ -473,7 +481,7 @@ public class ExperimentScheduleActivity extends Activity {
       }
 
       TextView label = (TextView) convertView.findViewById(R.id.textView1);
-      String labelText = ((SignalSchedule)experiment.getSignalingMechanisms().get(0)).getSignalTimes().get(position).getLabel();
+      String labelText = schedule.getSignalTimes().get(position).getLabel();
       if (Strings.isNullOrEmpty(labelText)) {
         labelText = "Time " + Integer.toString(position + 1);
       }
@@ -500,7 +508,7 @@ public class ExperimentScheduleActivity extends Activity {
     }
 
     public void onClick(View arg0) {
-      final List<SignalTime> times = ((SignalSchedule)experiment.getSignalingMechanisms().get(0)).getSignalTimes();
+      final List<SignalTime> times = schedule.getSignalTimes();
       final AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(ExperimentScheduleActivity.this);
       unsetTimesViewParent();
       dialogBuilder.setView(timesScheduleLayout);
@@ -530,9 +538,9 @@ public class ExperimentScheduleActivity extends Activity {
 
   private boolean[] createSelections() {
     selections = new boolean[7];
-    int weekDaysScheduled = ((SignalSchedule)experiment.getSignalingMechanisms().get(0)).getWeekDaysScheduled();
-    for (int i = 0; i < SignalSchedule.DAYS_OF_WEEK.length; i++) {
-      selections[i] = (weekDaysScheduled & SignalSchedule.DAYS_OF_WEEK[i]) == SignalSchedule.DAYS_OF_WEEK[i];
+    int weekDaysScheduled = schedule.getWeekDaysScheduled();
+    for (int i = 0; i < Schedule.DAYS_OF_WEEK.length; i++) {
+      selections[i] = (weekDaysScheduled & Schedule.DAYS_OF_WEEK[i]) == Schedule.DAYS_OF_WEEK[i];
     }
     return selections;
   }
@@ -547,93 +555,27 @@ public class ExperimentScheduleActivity extends Activity {
     });
   }
 
-  private void saveExperimentRegistration() {
-    SignalingMechanism sm = experiment.getSignalingMechanisms().get(0);
-    if (sm != null && sm.getType().equals(SignalingMechanism.SIGNAL_SCHEDULE_TYPE) && ((SignalSchedule)sm).getScheduleType().equals(SignalSchedule.ESM)) {
-      AlarmStore alarmStore = new AlarmStore(this);
-      alarmStore.deleteAllSignalsForSurvey(experiment.getId());
-      experimentProviderUtil.deleteNotificationsForExperiment(experiment.getId());
-    }
-    experimentProviderUtil.updateJoinedExperiment(experiment);
-    createJoinEvent();
-    startService(new Intent(this, SyncService.class));
-  }
-
-  /**
-   * Creates a pacot for a newly registered experiment
-   */
-  private void createJoinEvent() {
-    Event event = new Event();
-    event.setExperimentId(experiment.getId());
-    event.setServerExperimentId(experiment.getServerId());
-    event.setExperimentName(experiment.getTitle());
-    event.setExperimentVersion(experiment.getVersion());
-    event.setResponseTime(new DateTime());
-
-    event.addResponse(createOutput("joined", "true"));
-
-    SignalingMechanism schedule = experiment.getSignalingMechanisms().get(0);
-    event.addResponse(createOutput("schedule", schedule.toString()));
-
-    if (experiment.isRecordPhoneDetails()) {
-      Display defaultDisplay = getWindowManager().getDefaultDisplay();
-      String size = Integer.toString(defaultDisplay.getHeight()) + "x" +
-              Integer.toString(defaultDisplay.getWidth());
-      event.addResponse(createOutput("display", size));
-
-      event.addResponse(createOutput("make", Build.MANUFACTURER));
-      event.addResponse(createOutput("model", Build.MODEL));
-      event.addResponse(createOutput("android", Build.VERSION.RELEASE));
-      TelephonyManager manager = (TelephonyManager)getSystemService(Context.TELEPHONY_SERVICE);
-      String carrierName = manager.getNetworkOperatorName();
-      event.addResponse(createOutput("carrier", carrierName));
-    }
-
-    experimentProviderUtil.insertEvent(event);
-  }
-
-  private Output createOutput(String key, String answer) {
-    Output responseForInput = new Output();
-    responseForInput.setAnswer(answer);
-    responseForInput.setName(key);
-    return responseForInput;
-  }
-
   private void save() {
     Validation valid = isValid();
     if (!valid.ok()) {
       Toast.makeText(this, valid.errorMessage(), Toast.LENGTH_LONG).show();
       return;
-    }
-    scheduleExperiment();
-    if (fromInformedConsentPage) {
-      Toast.makeText(this, getString(R.string.successfully_joined_experiment), Toast.LENGTH_LONG).show();
-    } else if (userCannotConfirmSchedule()) {
-      Toast.makeText(this, getString(R.string.this_experiment_schedule_is_not_editable), Toast.LENGTH_LONG).show();
     } else {
-      Toast.makeText(this, getString(R.string.success), Toast.LENGTH_LONG).show();
+      setResult(RESULT_OK, serialize(schedule));
     }
   }
 
-  // Visible for testing
-  public void scheduleExperiment() {
-    saveExperimentRegistration();
-    setResult(FindExperimentsActivity.JOINED_EXPERIMENT);
-    if (uri != null) {
-      startService(new Intent(ExperimentScheduleActivity.this, BeeperService.class));
-      if (experiment.shouldWatchProcesses()) {
-        BroadcastTriggerReceiver.initPollingAndLoggingPreference(this);
-        BroadcastTriggerReceiver.startProcessService(this);
-      }
-    }
-    finish();
+  private Intent serialize(Schedule schedule2) {
+    Intent intent = new Intent();
+    intent.putExtra(Experiment.ACTION_TRIGGER_SPEC_ID, schedule2.getId());
+    //intent.putExtra(Experiment.ACTION_TRIGGER_SPEC, JsonConverter.schedule2);
+    return intent;
   }
 
   private Validation isValid() {
     Validation validation = new Validation();
-    SignalingMechanism signalingMechanism = experiment.getSignalingMechanisms().get(0);
-    if (signalingMechanism != null && signalingMechanism.getType().equals(SignalingMechanism.SIGNAL_SCHEDULE_TYPE) && ((SignalSchedule)signalingMechanism).getScheduleType().equals(SignalSchedule.ESM)) {
-      if (((SignalSchedule)signalingMechanism).getEsmStartHour() >= ((SignalSchedule)signalingMechanism).getEsmEndHour()) {
+    if (schedule != null && schedule.getScheduleType().equals(Schedule.ESM)) {
+      if (schedule.getEsmStartHour() >= schedule.getEsmEndHour()) {
         validation.addMessage(getString(R.string.start_hour_must_be_before_end_hour_warning));
       }
     }
@@ -661,7 +603,7 @@ public class ExperimentScheduleActivity extends Activity {
   private AlertDialog getDaysOfWeekDialog() {
     AlertDialog.Builder dialogBldr = new AlertDialog.Builder(this).setTitle(R.string.days_of_week_title);
 
-    if (((SignalSchedule)experiment.getSignalingMechanisms().get(0)).getScheduleType().equals(SignalSchedule.WEEKLY)) {
+    if (schedule.getScheduleType().equals(Schedule.WEEKLY)) {
       dialogBldr.setMultiChoiceItems(R.array.days_of_week, selections, new OnMultiChoiceClickListener() {
         public void onClick(DialogInterface dialog, int which, boolean isChecked) {
           selections[which] = isChecked;
@@ -690,15 +632,12 @@ public class ExperimentScheduleActivity extends Activity {
 
         for (int i = 0; i < 7; i++) {
           if (selections[i]) {
-            selected |= SignalSchedule.DAYS_OF_WEEK[i];
+            selected |= Schedule.DAYS_OF_WEEK[i];
           }
         }
-        getSchedule().setWeekDaysScheduled(selected);
+        schedule.setWeekDaysScheduled(selected);
       }
 
-      private SignalSchedule getSchedule() {
-        return (SignalSchedule)experiment.getSignalingMechanisms().get(0);
-      }
     });
     return dialogBldr.create();
 
@@ -707,6 +646,18 @@ public class ExperimentScheduleActivity extends Activity {
   // Visible for testing
   public Experiment getExperiment() {
     return experiment;
+  }
+
+  @Override
+  public void setExperiment(Experiment experimentByServerId) {
+    this.experiment = experimentByServerId;
+
+  }
+
+  @Override
+  public void setExperimentGroup(ExperimentGroup groupByName) {
+    this.experimentGroup = groupByName;
+
   }
 
 }

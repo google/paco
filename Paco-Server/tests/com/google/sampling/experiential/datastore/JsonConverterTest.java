@@ -12,13 +12,13 @@ import com.google.paco.shared.model2.ExperimentDAO;
 public class JsonConverterTest extends TestCase {
 
   private List<ExperimentDAO> experimentList;
-  private String pacoProtocolOld = null;
+  private String pacoProtocolOld = "3.1";
 
   protected void setUp() throws Exception {
     super.setUp();
 
     experimentList = Lists.newArrayList();
-    experimentList.add(new ExperimentDAO());
+    //experimentList.add(new ExperimentDAO());
 
     List<ActionTrigger> signalingMechanisms = new java.util.ArrayList<ActionTrigger>();
     ArrayList publishedAdmins = new java.util.ArrayList();

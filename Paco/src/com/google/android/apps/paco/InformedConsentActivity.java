@@ -30,7 +30,6 @@ import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.view.View;
@@ -39,17 +38,18 @@ import android.widget.CheckBox;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.apps.paco.utils.IntentExtraHelper;
+import com.google.paco.shared.model2.ExperimentGroup;
+import com.google.paco.shared.util.TimeUtil;
 import com.pacoapp.paco.R;
 
-public class InformedConsentActivity extends Activity {
+public class InformedConsentActivity extends Activity implements ExperimentLoadingActivity {
 
   public static final String INFORMED_CONSENT_PAGE_EXTRA_KEY = "InformedConsentPage";
 
   public static final int REFRESHING_JOINED_EXPERIMENT_DIALOG_ID = 1002;
 
-  private Uri uri;
   private Experiment experiment;
-  private boolean showingJoinedExperiments;
 
   private ExperimentProviderUtil experimentProviderUtil;
   private DownloadFullExperimentsTask experimentDownloadTask;
@@ -59,48 +59,47 @@ public class InformedConsentActivity extends Activity {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.informed_consent);
     final Intent intent = getIntent();
-    uri = intent.getData();
 
-    boolean myExperiments = intent.getExtras() != null ? intent.getExtras()
-                                                               .getBoolean(ExperimentDetailActivity.ID_FROM_MY_EXPERIMENTS_FILE)
-                                                      : false;
+    experimentProviderUtil = new ExperimentProviderUtil(this);
+    IntentExtraHelper.loadExperimentInfoFromIntent(this, intent, experimentProviderUtil);
 
-    if (uri != null) {
-      showingJoinedExperiments = intent.getData().equals(ExperimentColumns.JOINED_EXPERIMENTS_CONTENT_URI);
-      experimentProviderUtil = new ExperimentProviderUtil(this);
-      if (showingJoinedExperiments) {
-        experiment = experimentProviderUtil.getExperiment(uri);
-      } else {
-        experiment = experimentProviderUtil.getExperimentFromDisk(uri, myExperiments);
+    if (experiment == null) {
+      boolean myExperiments = intent.getExtras() != null
+              ? intent.getExtras().getBoolean(ExperimentDetailActivity.ID_FROM_MY_EXPERIMENTS_FILE)
+              : false;
+
+      Long experimentServerId = intent.getExtras().getLong(Experiment.EXPERIMENT_SERVER_ID_EXTRA_KEY);
+      experiment = experimentProviderUtil.getExperimentFromDisk(experimentServerId, myExperiments);
+    }
+    if (experiment == null) {
+      Toast.makeText(this, R.string.cannot_find_the_experiment_warning, Toast.LENGTH_SHORT).show();
+      finish();
+    } else {
+      // TextView title = (TextView)findViewById(R.id.experimentNameIc);
+      // title.setText(experiment.getTitle());
+      boolean logsActions = experiment.isLogActions();
+      if (logsActions || experiment.declaresLogAppUsageAndBrowserCollection()) {
+        TextView appBrowserUsageView = (TextView) findViewById(R.id.dataCollectedAppAndBrowserUsageView);
+        appBrowserUsageView.setVisibility(TextView.VISIBLE);
       }
-      if (experiment == null) {
-        Toast.makeText(this, R.string.cannot_find_the_experiment_warning, Toast.LENGTH_SHORT).show();
-        finish();
-      } else {
-        // TextView title = (TextView)findViewById(R.id.experimentNameIc);
-        // title.setText(experiment.getTitle());
-        if (experiment.isLogActions() || experiment.declaresLogAppUsageAndBrowserCollection()) {
-          TextView appBrowserUsageView = (TextView) findViewById(R.id.dataCollectedAppAndBrowserUsageView);
-          appBrowserUsageView.setVisibility(TextView.VISIBLE);
-        }
-        if (experiment.isRecordPhoneDetails() || experiment.declaresPhoneDetailsCollection()) {
-          TextView phoneDetailsView = (TextView) findViewById(R.id.dataCollectedPhoneDetailsView);
-          phoneDetailsView.setVisibility(TextView.VISIBLE);
-        }
+      if (experiment.getExperimentDAO().getRecordPhoneDetails()
+          || experiment.getExperimentDAO().getRecordPhoneDetails()) {
+        TextView phoneDetailsView = (TextView) findViewById(R.id.dataCollectedPhoneDetailsView);
+        phoneDetailsView.setVisibility(TextView.VISIBLE);
+      }
 
-        TextView ic = (TextView) findViewById(R.id.InformedConsentTextView);
-        ic.setText(experiment.getInformedConsentForm());
+      TextView ic = (TextView) findViewById(R.id.InformedConsentTextView);
+      ic.setText(experiment.getExperimentDAO().getInformedConsentForm());
 
-        if (experiment.getJoinDate() == null) {
-          final CheckBox icCheckbox = (CheckBox) findViewById(R.id.InformedConsentAgreementCheckBox);
-          icCheckbox.setOnClickListener(new OnClickListener() {
-            public void onClick(View v) {
-              if (icCheckbox.isChecked()) {
-                requestFullExperimentForJoining();
-              }
+      if (experiment.getJoinDate() == null) {
+        final CheckBox icCheckbox = (CheckBox) findViewById(R.id.InformedConsentAgreementCheckBox);
+        icCheckbox.setOnClickListener(new OnClickListener() {
+          public void onClick(View v) {
+            if (icCheckbox.isChecked()) {
+              requestFullExperimentForJoining();
             }
-          });
-        }
+          }
+        });
       }
     }
   }
@@ -183,15 +182,14 @@ public class InformedConsentActivity extends Activity {
   private void runScheduleActivity() {
     Intent intent = new Intent(InformedConsentActivity.this, ExperimentScheduleActivity.class);
     intent.setAction(Intent.ACTION_EDIT);
-    intent.setData(uri);
+    intent.putExtras(getIntent().getExtras());
     intent.putExtra(INFORMED_CONSENT_PAGE_EXTRA_KEY, true);
     startActivityForResult(intent, FindExperimentsActivity.JOIN_REQUEST_CODE);
   }
 
   private void joinExperiment() {
     experiment.setJoinDate(getTodayAsStringWithZone());
-    // Set the uri to refer to the experiment's new saved location.
-    uri = experimentProviderUtil.insertFullJoinedExperiment(experiment);
+    experimentProviderUtil.insertFullJoinedExperiment(experiment);
   }
 
   protected Dialog onCreateDialog(int id, Bundle args) {
@@ -268,9 +266,19 @@ public class InformedConsentActivity extends Activity {
     return TimeUtil.formatDateWithZone(new DateTime());
   }
 
-  // Visible for testing
-  public Uri getExperimentUri() {
-    return uri;
+  @Override
+  public void setExperiment(Experiment experimentByServerId) {
+    this.experiment = experimentByServerId;
+  }
+
+  @Override
+  public Experiment getExperiment() {
+    return experiment;
+  }
+
+  @Override
+  public void setExperimentGroup(ExperimentGroup groupByName) {
+    // no-op for this activity
   }
 
 }

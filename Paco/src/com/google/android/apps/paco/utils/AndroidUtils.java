@@ -1,4 +1,6 @@
-package com.google.android.apps.paco;
+package com.google.android.apps.paco.utils;
+
+import com.google.android.apps.paco.PacoConstants;
 
 import android.content.Context;
 import android.content.pm.PackageInfo;

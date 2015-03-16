@@ -36,10 +36,15 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.google.android.apps.paco.utils.IntentExtraHelper;
 import com.google.common.collect.Lists;
+import com.google.paco.shared.model2.ExperimentDAO;
+import com.google.paco.shared.model2.ExperimentGroup;
+import com.google.paco.shared.scheduling.ActionScheduleGenerator;
+import com.google.paco.shared.util.TimeUtil;
 import com.pacoapp.paco.R;
 
-public class ExperimentDetailActivity extends Activity {
+public class ExperimentDetailActivity extends Activity implements ExperimentLoadingActivity {
 
   public static final String ID_FROM_MY_EXPERIMENTS_FILE = "my_experimentsFile";
 
@@ -49,19 +54,18 @@ public class ExperimentDetailActivity extends Activity {
 
   static final String EXPERIMENT_NAME = "com.google.android.apps.paco.Experiment";
   static DateTimeFormatter df = DateTimeFormat.shortDate();
-  private Uri uri;
   private Button joinButton;
   private Experiment experiment;
   private ExperimentProviderUtil experimentProviderUtil;
   private UserPreferences userPrefs;
   private ProgressDialog p;
-  private boolean showingJoinedExperiments;
-
-
   private boolean useMyExperimentsDiskFile;
 
 
   private DownloadFullExperimentsTask experimentDownloadTask;
+
+
+  private Uri uri;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -69,17 +73,14 @@ public class ExperimentDetailActivity extends Activity {
 
     setContentView(R.layout.experiment_detail);
     final Intent intent = getIntent();
-    uri = intent.getData();
     useMyExperimentsDiskFile = intent.getExtras() != null ? intent.getExtras().getBoolean(ID_FROM_MY_EXPERIMENTS_FILE) : false;
-    showingJoinedExperiments = intent.getData().equals(ExperimentColumns.JOINED_EXPERIMENTS_CONTENT_URI);
     userPrefs = new UserPreferences(this);
-
     experimentProviderUtil = new ExperimentProviderUtil(this);
   }
 
 
   private boolean isLaunchedFromQRCode() {
-    return uri.getLastPathSegment().startsWith("0000");
+    return uri != null && uri.getLastPathSegment().startsWith("0000");
   }
 
   @Override
@@ -96,13 +97,14 @@ public class ExperimentDetailActivity extends Activity {
 
   private void showExperiment() {
     joinButton = (Button)findViewById(R.id.JoinExperimentButton);
-    if (isJoinedExperiment()) {
+    if (isJoinedExperiment() || isAlreadyJoined()) {
       joinButton.setVisibility(View.GONE);
     }
 
-    ((TextView)findViewById(R.id.experiment_name)).setText(experiment.getTitle());
-    ((TextView)findViewById(R.id.description)).setText(experiment.getDescription());
-    ((TextView)findViewById(R.id.creator)).setText(experiment.getCreator());
+    final ExperimentDAO experimentDAO = experiment.getExperimentDAO();
+    ((TextView)findViewById(R.id.experiment_name)).setText(experimentDAO.getTitle());
+    ((TextView)findViewById(R.id.description)).setText(experimentDAO.getDescription());
+    ((TextView)findViewById(R.id.creator)).setText(experimentDAO.getCreator());
 
 //    SignalSchedule schedule = experiment.getSchedule();
 //    Trigger trigger = experiment.getTrigger();
@@ -120,10 +122,9 @@ public class ExperimentDetailActivity extends Activity {
 
     String startDate = getString(R.string.ongoing_duration);
     String endDate = getString(R.string.ongoing_duration);
-    if (experiment.isFixedDuration()) {
-      // TODO: change format to short if necessary.
-      startDate = experiment.getStartDate();
-      endDate = experiment.getEndDate();
+    if (ActionScheduleGenerator.areAllGroupsFixedDuration(experimentDAO)) {
+      startDate = TimeUtil.formatDateTime(ActionScheduleGenerator.getEarliestStartDate(experimentDAO).toDateTime());
+      endDate = TimeUtil.formatDateTime(ActionScheduleGenerator.getLastEndTime(experimentDAO).toDateMidnight().toDateTime());
       ((TextView)findViewById(R.id.startDate)).setText(startDate);
       ((TextView)findViewById(R.id.endDate)).setText(endDate);
     } else {
@@ -149,48 +150,14 @@ public class ExperimentDetailActivity extends Activity {
     if (!isJoinedExperiment()) {
       joinButton.setOnClickListener(new OnClickListener() {
         public void onClick(View v) {
-          List<Experiment> potentialJoinedExperiment = experimentProviderUtil.getExperimentsByServerId(experiment.getServerId());
-          boolean alreadyJoined = false;
-          if (!potentialJoinedExperiment.isEmpty()) {
-            for (Experiment experiment : potentialJoinedExperiment) {
-              if (experiment.getJoinDate() != null) {
-                alreadyJoined = true;
-                break;
-              }
-            }
-          }
-          if (alreadyJoined) {
-            showJoinAgainDialog();
-          } else {
-            showInformedConsentActivity();
-          }
+          showInformedConsentActivity();
         }
 
-        private void showJoinAgainDialog() {
-          DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-              switch (which) {
-              case DialogInterface.BUTTON_POSITIVE:
-                showInformedConsentActivity();
-                break;
-
-              case DialogInterface.BUTTON_NEGATIVE:
-                break;
-              }
-            }
-          };
-
-          AlertDialog.Builder builder = new AlertDialog.Builder(ExperimentDetailActivity.this);
-          builder.setMessage(R.string.join_again).setPositiveButton(R.string.yes, dialogClickListener)
-                 .setNegativeButton(R.string.no, dialogClickListener).show();
-
-        }
 
         private void showInformedConsentActivity() {
           Intent intent = new Intent(ExperimentDetailActivity.this, InformedConsentActivity.class);
-          intent.setAction(Intent.ACTION_EDIT);
-          intent.setData(uri);
+//          intent.setAction(Intent.ACTION_EDIT);
+          intent.putExtras(getIntent().getExtras());
           intent.putExtra(ExperimentDetailActivity.ID_FROM_MY_EXPERIMENTS_FILE, useMyExperimentsDiskFile);
           startActivityForResult(intent, FindExperimentsActivity.JOIN_REQUEST_CODE);
         }
@@ -198,6 +165,19 @@ public class ExperimentDetailActivity extends Activity {
     }
   }
 
+  public boolean isAlreadyJoined() {
+    List<Experiment> potentialJoinedExperiment = experimentProviderUtil.getExperimentsByServerId(experiment.getServerId());
+    boolean alreadyJoined = false;
+    if (!potentialJoinedExperiment.isEmpty()) {
+      for (Experiment experiment : potentialJoinedExperiment) {
+        if (experiment.getJoinDate() != null) {
+          alreadyJoined = true;
+          break;
+        }
+      }
+    }
+    return alreadyJoined;
+  }
 
   private String toCommaSeparatedString(List<Long> times) {
     if (times == null) {
@@ -257,8 +237,6 @@ public class ExperimentDetailActivity extends Activity {
         }
 
         if (experiment != null) {
-          String serverId = Long.toString(experiment.getServerId());
-          uri = Uri.withAppendedPath(ExperimentColumns.CONTENT_URI, serverId);
           showExperiment();
         } else {
           ExperimentDetailActivity.this.finish();
@@ -289,21 +267,9 @@ public class ExperimentDetailActivity extends Activity {
       Intent acctChooser = new Intent(this, AccountChooser.class);
       this.startActivity(acctChooser);
     } else {
-
-      if (isLaunchedFromQRCode()) {
-        String realServerId = uri.getLastPathSegment().substring(4);
-        List<Experiment> experiments = experimentProviderUtil.getExperimentsByServerId(new Long(realServerId));
-        if (experiments != null && experiments.size() > 0) {
-          experiment = experiments.get(0);
-          uri= Uri.withAppendedPath(ExperimentColumns.CONTENT_URI, Long.toString(experiment.getId()));
-        }
-      } else {
-        if (showingJoinedExperiments) {
-          experiment = experimentProviderUtil.getExperiment(uri);
-        } else {
-          experiment = experimentProviderUtil.getExperimentFromDisk(uri, useMyExperimentsDiskFile);
-          uri= Uri.withAppendedPath(ExperimentColumns.CONTENT_URI, Long.toString(experiment.getServerId()));
-        }
+      if (!isLaunchedFromQRCode()) {
+        IntentExtraHelper.loadExperimentInfoFromIntent(this, getIntent(), experimentProviderUtil);
+        experiment = experimentProviderUtil.getExperimentFromDisk(uri, useMyExperimentsDiskFile);
       }
 
       if (isLaunchedFromQRCode() && experiment == null) {
@@ -324,6 +290,23 @@ public class ExperimentDetailActivity extends Activity {
   }
 
 
+  @Override
+  public void setExperiment(Experiment experimentByServerId) {
+    this.experiment = experimentByServerId;
+
+  }
+
+
+  @Override
+  public Experiment getExperiment() {
+    return experiment;
+  }
+
+
+  @Override
+  public void setExperimentGroup(ExperimentGroup groupByName) {
+    // no-op for this activity
+  }
 
 }
 

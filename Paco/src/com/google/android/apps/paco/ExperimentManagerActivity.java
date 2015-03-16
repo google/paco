@@ -77,28 +77,8 @@ public class ExperimentManagerActivity extends Activity {
     super.onCreate(savedInstanceState);
     installPacoBarkRingtone();
 
- // This will show the eula until the user accepts or quits the app.
     experimentProviderUtil = new ExperimentProviderUtil(this);
-    Experiment experiment = getExperimentFromIntent();
-    if (experiment != null) {
-      //startService(new Intent(this, ServerCommunicationService.class)); // check for updated experiments. Commented for now as it may lead to a db race condition.
-      Intent executorIntent = new Intent(this, ExperimentExecutor.class);
-      executorIntent.putExtras(getIntent());
-      executorIntent.setData(getIntent().getData());
-      startActivity(executorIntent);
-      finish();
-    }
     Eula.showEula(this);
-//
-//    if (!hasRegisteredExperiments()) {
-//      Intent findMyExperimentsIntent = new Intent(this, FindMyExperimentsActivity.class);
-//      startActivity(findMyExperimentsIntent);
-//      finish();
-//    } else {
-//      Intent intent = new Intent(ExperimentManagerActivity.this, RunningExperimentsActivity.class);
-//      intent.setData(ExperimentColumns.JOINED_EXPERIMENTS_CONTENT_URI);
-//      startActivity(intent);
-//    }
 
     setContentView(R.layout.experiment_manager_main);
     currentExperimentsButton = (ImageButton) findViewById(R.id.CurrentExperimentsBtn);
@@ -123,8 +103,8 @@ public class ExperimentManagerActivity extends Activity {
     ImageButton exploreDataButton = (ImageButton) findViewById(R.id.ExploreDataBtn);
     exploreDataButton.setOnClickListener(new OnClickListener() {
       public void onClick(View v) {
-        startActivity(new Intent(ExperimentManagerActivity.this,
-          ExploreDataActivity.class));
+//        startActivity(new Intent(ExperimentManagerActivity.this,
+          //ExploreDataActivity.class));
       }
     });
 
@@ -170,14 +150,6 @@ public class ExperimentManagerActivity extends Activity {
     });
 
 
-  }
-
-  private Experiment getExperimentFromIntent() {
-    Uri uri = getIntent().getData();
-    if (uri == null) {
-      return null;
-    }
-    return experimentProviderUtil.getExperiment(uri);
   }
 
   @Override

@@ -32,11 +32,9 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
-import android.content.ContentUris;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.view.ContextMenu;
@@ -54,6 +52,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.google.common.collect.Lists;
+import com.google.paco.shared.util.TimeUtil;
 import com.pacoapp.paco.R;
 
 
@@ -86,9 +85,6 @@ public class RunningExperimentsActivity extends Activity {
     mainLayout = (ViewGroup) getLayoutInflater().inflate(R.layout.find_experiments, null);
     setContentView(mainLayout);
     Intent intent = getIntent();
-    if (intent.getData() == null) {
-      intent.setData(ExperimentColumns.CONTENT_URI);
-    }
 
     userPrefs = new UserPreferences(this);
     list = (ListView) findViewById(R.id.find_experiments_list);
@@ -123,7 +119,7 @@ public class RunningExperimentsActivity extends Activity {
         @Override
         public int compare(Experiment lhs, Experiment rhs) {
 
-          return lhs.getTitle().toLowerCase().compareTo(rhs.getTitle().toLowerCase());
+          return lhs.getExperimentDAO().getTitle().toLowerCase().compareTo(rhs.getExperimentDAO().getTitle().toLowerCase());
         }
 
       });
@@ -232,7 +228,7 @@ public class RunningExperimentsActivity extends Activity {
 
   private void showDataForExperiment(long id) {
     Intent experimentIntent = new Intent(RunningExperimentsActivity.this, FeedbackActivity.class);
-    experimentIntent.setData(Uri.withAppendedPath(getIntent().getData(), Long.toString(id)));
+    experimentIntent.putExtra(Experiment.EXPERIMENT_SERVER_ID_EXTRA_KEY, id);
     startActivity(experimentIntent);
   }
 
@@ -241,16 +237,16 @@ public class RunningExperimentsActivity extends Activity {
 
     NotificationCreator nc = NotificationCreator.create(this);
     nc.timeoutNotificationsForExperiment(id);
-    Uri experimentUri = Uri.withAppendedPath(getIntent().getData(), Long.toString(id));
-    Experiment experiment = experimentProviderUtil.getExperiment(id);
+
+    Experiment experiment = experimentProviderUtil.getExperimentByServerId(id);
     createStopEvent(experiment);
 
-    experimentProviderUtil.deleteFullExperiment(experimentUri);
+    experimentProviderUtil.deleteExperiment(experiment.getId());
     if (experiment.shouldWatchProcesses()) {
       BroadcastTriggerReceiver.initPollingAndLoggingPreference(this);
     }
 
-    new AlarmStore(this).deleteAllSignalsForSurvey(id);
+    new AndroidEsmSignalStore(this).deleteAllSignalsForSurvey(id);
 
     reloadAdapter();
     startService(new Intent(RunningExperimentsActivity.this, BeeperService.class));
@@ -264,9 +260,9 @@ public class RunningExperimentsActivity extends Activity {
   private void createStopEvent(Experiment experiment) {
     Event event = new Event();
     event.setExperimentId(experiment.getId());
-    event.setServerExperimentId(experiment.getServerId());
-    event.setExperimentName(experiment.getTitle());
-    event.setExperimentVersion(experiment.getVersion());
+    event.setServerExperimentId(experiment.getExperimentDAO().getId());
+    event.setExperimentName(experiment.getExperimentDAO().getTitle());
+    event.setExperimentVersion(experiment.getExperimentDAO().getVersion());
     event.setResponseTime(new DateTime());
 
     Output responseForInput = new Output();
@@ -280,8 +276,8 @@ public class RunningExperimentsActivity extends Activity {
 
 
   private void editExperiment(long id) {
-    Intent experimentIntent = new Intent(RunningExperimentsActivity.this, ExperimentScheduleActivity.class);
-    experimentIntent.setData(Uri.withAppendedPath(getIntent().getData(), Long.toString(id)));
+    Intent experimentIntent = new Intent(RunningExperimentsActivity.this, ExperimentScheduleListActivity.class);
+    experimentIntent.putExtra(Experiment.EXPERIMENT_SERVER_ID_EXTRA_KEY, id);
     startActivity(experimentIntent);
   }
 
@@ -413,26 +409,24 @@ public class RunningExperimentsActivity extends Activity {
       Experiment experiment = getItem(position);
 
       TextView tv = (TextView) view.findViewById(R.id.experimentListRowTitle);
-      tv.setText(experiment != null ? experiment.getTitle() : "ERROR");
+      tv.setText(experiment != null ? experiment.getExperimentDAO().getTitle() : "ERROR");
       tv.setOnClickListener(myButtonListener);
 
-      tv.setTag(experiment.getId());
+      tv.setTag(experiment.getExperimentDAO().getId());
 
       ImageButton editButton = (ImageButton) view.findViewById(R.id.editExperimentButton);
       editButton.setOnClickListener(myButtonListener);
-      editButton.setTag(experiment.getId());
-      SignalingMechanism signalingMechanism = experiment.getSignalingMechanisms().get(0);
-      editButton.setEnabled(signalingMechanism.getType().equals(SignalingMechanism.SIGNAL_SCHEDULE_TYPE)
-                            && !((SignalSchedule) signalingMechanism).getScheduleType()
-                                                                     .equals(SignalSchedule.SELF_REPORT));
+      editButton.setTag(experiment.getExperimentDAO().getId());
+
+      editButton.setEnabled(experiment.hasUserEditableSchedule());
 
       ImageButton quitButton = (ImageButton) view.findViewById(R.id.quitExperimentButton);
       quitButton.setOnClickListener(myButtonListener);
-      quitButton.setTag(experiment.getId());
+      quitButton.setTag(experiment.getExperimentDAO().getId());
 
       ImageButton exploreButton = (ImageButton) view.findViewById(R.id.exploreDataExperimentButton);
       exploreButton.setOnClickListener(myButtonListener);
-      exploreButton.setTag(experiment.getId());
+      exploreButton.setTag(experiment.getExperimentDAO().getId());
       // show icon
       // ImageView iv = (ImageView) view.findViewById(R.id.explore_data_icon);
       // iv.setImageResource();
@@ -445,37 +439,39 @@ public class RunningExperimentsActivity extends Activity {
         final int position = list.getPositionForView(v);
         if (position == ListView.INVALID_POSITION) {
           return;
-        } else if (v.getId() == R.id.editExperimentButton) {
-          editExperiment((Long) v.getTag());
-        } else if (v.getId() == R.id.exploreDataExperimentButton) {
-          showDataForExperiment((Long) v.getTag());
-        } else if (v.getId() == R.id.quitExperimentButton) {
-          new AlertDialog.Builder(RunningExperimentsActivity.this).setCancelable(true)
-            .setTitle(R.string.stop_the_experiment_dialog_title)
-            .setMessage(R.string.stop_experiment_dialog_body)
-            .setPositiveButton(R.string.yes,
-                               new Dialog.OnClickListener() {
-                                 @Override
-                                 public void onClick(DialogInterface dialog,
-                                                     int which) {
-                                   deleteExperiment((Long) v.getTag());
-                                 }
-                               })
-            .setNegativeButton(R.string.no,
-                               new Dialog.OnClickListener() {
-                                 @Override
-                                 public void onClick(DialogInterface dialog,
-                                                     int which) {
-                                   dialog.dismiss();
-                                 }
-                               }).create().show();
+        } else {
+          final Long experimentServerId = (Long) v.getTag();
+          if (v.getId() == R.id.editExperimentButton) {
+            editExperiment(experimentServerId);
+          } else if (v.getId() == R.id.exploreDataExperimentButton) {
+            showDataForExperiment(experimentServerId);
+          } else if (v.getId() == R.id.quitExperimentButton) {
+            new AlertDialog.Builder(RunningExperimentsActivity.this).setCancelable(true)
+              .setTitle(R.string.stop_the_experiment_dialog_title)
+              .setMessage(R.string.stop_experiment_dialog_body)
+              .setPositiveButton(R.string.yes,
+                                 new Dialog.OnClickListener() {
+                                   @Override
+                                   public void onClick(DialogInterface dialog,
+                                                       int which) {
+                                     deleteExperiment(experimentServerId);
+                                   }
+                                 })
+              .setNegativeButton(R.string.no,
+                                 new Dialog.OnClickListener() {
+                                   @Override
+                                   public void onClick(DialogInterface dialog,
+                                                       int which) {
+                                     dialog.dismiss();
+                                   }
+                                 }).create().show();
 
-        } else if (v.getId() == R.id.experimentListRowTitle) {
-          Intent experimentIntent = new Intent(RunningExperimentsActivity.this, ExperimentExecutor.class);
-          Uri uri = ContentUris.withAppendedId(getIntent().getData(), (Long) v.getTag());
-          experimentIntent.setData(uri);
-          startActivity(experimentIntent);
-          finish();
+          } else if (v.getId() == R.id.experimentListRowTitle) {
+            Intent experimentIntent = new Intent(RunningExperimentsActivity.this, ExperimentGroupPicker.class);
+            experimentIntent.putExtra(Experiment.EXPERIMENT_SERVER_ID_EXTRA_KEY, experimentServerId);
+            startActivity(experimentIntent);
+            finish();
+          }
         }
       }
     };

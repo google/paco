@@ -30,10 +30,8 @@ import org.codehaus.jackson.map.JsonMappingException;
 import org.joda.time.DateTime;
 
 import android.app.ProgressDialog;
-import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.support.v4.app.DialogFragment;
@@ -55,6 +53,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.common.collect.Lists;
+import com.google.paco.shared.util.TimeUtil;
 import com.pacoapp.paco.R;
 
 
@@ -122,16 +121,18 @@ public class FindMyExperimentsActivity extends FragmentActivity implements Netwo
 
       public void onItemClick(AdapterView<?> listview, View textview, int position, long id) {
         Experiment experiment = experiments.get(position);
-        Uri uri = ContentUris.withAppendedId(getIntent().getData(), experiment.getServerId());
+        getIntent().putExtra(Experiment.EXPERIMENT_SERVER_ID_EXTRA_KEY, experiment.getServerId());
 
         String action = getIntent().getAction();
         if (Intent.ACTION_PICK.equals(action) || Intent.ACTION_GET_CONTENT.equals(action)) {
           // The caller is waiting for us to return an experiment selected by
           // the user. The have clicked on one, so return it now.
-          setResult(RESULT_OK, new Intent().setData(uri));
+          Intent resultIntent = new Intent();
+          resultIntent.putExtra(Experiment.EXPERIMENT_SERVER_ID_EXTRA_KEY, experiment.getServerId());
+          setResult(RESULT_OK, resultIntent);
         } else {
           Intent experimentIntent = new Intent(FindMyExperimentsActivity.this, ExperimentDetailActivity.class);
-          experimentIntent.setData(uri);
+          experimentIntent.putExtra(Experiment.EXPERIMENT_SERVER_ID_EXTRA_KEY, experiment.getServerId());
           experimentIntent.putExtra(ExperimentDetailActivity.ID_FROM_MY_EXPERIMENTS_FILE, true);
           startActivityForResult(experimentIntent, JOIN_REQUEST_CODE);
         }
@@ -262,7 +263,7 @@ public class FindMyExperimentsActivity extends FragmentActivity implements Netwo
 
           @Override
           public int compare(Experiment lhs, Experiment rhs) {
-            return lhs.getTitle().toLowerCase().compareTo(rhs.getTitle().toLowerCase());
+            return lhs.getExperimentDAO().getTitle().toLowerCase().compareTo(rhs.getExperimentDAO().getTitle().toLowerCase());
           }
 
         });
@@ -274,7 +275,7 @@ public class FindMyExperimentsActivity extends FragmentActivity implements Netwo
 
           @Override
           public int compare(Experiment lhs, Experiment rhs) {
-            return lhs.getTitle().toLowerCase().compareTo(rhs.getTitle().toLowerCase());
+            return lhs.getExperimentDAO().getTitle().toLowerCase().compareTo(rhs.getExperimentDAO().getTitle().toLowerCase());
           }
 
         });
@@ -382,11 +383,11 @@ public class FindMyExperimentsActivity extends FragmentActivity implements Netwo
         TextView creator = (TextView) view.findViewById(R.id.experimentListRowCreator);
 
         if (title != null) {
-            title.setText(experiment.getTitle());
+            title.setText(experiment.getExperimentDAO().getTitle());
         }
 
         if (creator != null){
-            creator.setText(experiment.getCreator());
+            creator.setText(experiment.getExperimentDAO().getCreator());
         } else {
             creator.setText(getContext().getString(R.string.unknown_author_text));
         }

@@ -19,6 +19,8 @@ import org.apache.commons.fileupload.FileItemStream;
 import org.apache.commons.fileupload.FileUploadBase.SizeLimitExceededException;
 import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.io.IOUtils;
+import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormatter;
 
 import au.com.bytecode.opencsv.CSVReader;
 
@@ -138,16 +140,17 @@ public class EventCsvUploadProcessor {
       pacoVersion = rowData.get("pacoVersion");
       rowData.remove("pacoVersion");
     }
-    SimpleDateFormat df = new SimpleDateFormat(TimeUtil.DATETIME_FORMAT);
-    SimpleDateFormat oldDf = new SimpleDateFormat(TimeUtil.DATETIME_FORMAT_OLD);
+//    SimpleDateFormat df = new SimpleDateFormat(TimeUtil.DATETIME_FORMAT);
+//    SimpleDateFormat oldDf = new SimpleDateFormat(TimeUtil.DATETIME_FORMAT_OLD);
+    DateTimeFormatter df = org.joda.time.format.DateTimeFormat.forPattern(TimeUtil.DATETIME_FORMAT).withOffsetParsed();
     Date whenDate = new Date();
 
     String experimentId = null;
     String experimentName = null;
     String groupName = null;
 
-    Date responseTime = null;
-    Date scheduledTime = null;
+    DateTime responseTime = null;
+    DateTime scheduledTime = null;
 
     if (rowData.containsKey("experimentId")) {
       experimentId = rowData.get("experimentId");
@@ -169,11 +172,35 @@ public class EventCsvUploadProcessor {
       }
     }
 
-    if (rowData.containsKey("groupName")) {
-      groupName = rowData.get("groupName");
-      rowData.remove("groupName");
+    if (rowData.containsKey("experimentGroupName")) {
+      groupName = rowData.get("experimentGroupName");
+      rowData.remove("experimentGroupName");
     }
 
+    Long actionTriggerId = null;
+    if (rowData.containsKey("actionTriggerId")) {
+      String actionTriggerIdStr = rowData.get("actionTriggerId");
+      if (!Strings.isNullOrEmpty(actionTriggerIdStr)) {
+        actionTriggerId = Long.parseLong(actionTriggerIdStr);
+      }
+      rowData.remove("actionTriggerId");
+    }
+    Long actionTriggerSpecId = null;
+    if (rowData.containsKey("actionTriggerSpecId")) {
+      String actionTriggerSpecIdStr = rowData.get("actionTriggerSpecId");
+      if (!Strings.isNullOrEmpty(actionTriggerSpecIdStr)) {
+        actionTriggerSpecId = Long.parseLong(actionTriggerSpecIdStr);
+      }
+      rowData.remove("actionTriggerSpecId");
+    }
+    Long actionId = null;
+    if (rowData.containsKey("actionId")) {
+      String actionIdStr = rowData.get("actionId");
+      if (!Strings.isNullOrEmpty(actionIdStr)) {
+        actionId = Long.parseLong(actionIdStr);
+      }
+      rowData.remove("actionId");
+    }
 
     ExperimentDAO experiment = ExperimentServiceFactory.getExperimentService().getExperiment(Long.parseLong(experimentId));
 
@@ -208,13 +235,13 @@ public class EventCsvUploadProcessor {
     if (rowData.containsKey("responseTime")) {
       String responseTimeStr = rowData.get("responseTime");
       if (!responseTimeStr.equals("null") && !responseTimeStr.isEmpty()) {
-        responseTime = parseDate(df, oldDf, responseTimeStr);
+        responseTime = parseDate(df, responseTimeStr);
       }
     }
     if (rowData.containsKey("scheduledTime")) {
       String timeStr = rowData.get("scheduledTime");
       if (!timeStr.equals("null") && !timeStr.isEmpty()) {
-        scheduledTime = parseDate(df, oldDf, timeStr);
+        scheduledTime = parseDate(df, timeStr);
       }
     }
 
@@ -222,13 +249,16 @@ public class EventCsvUploadProcessor {
              + (new SimpleDateFormat(TimeUtil.DATETIME_FORMAT)).format(whenDate) + ", appId = " + appId
              + ", what length = " + whats.size());
 
+
     EventRetriever.getInstance().postEvent(who, null, null, whenDate, appId, pacoVersion, whats, false, experimentId,
-                                           experimentName, experimentVersion, responseTime, scheduledTime, blobs, null);
+                                           experimentName, experimentVersion, responseTime, scheduledTime, blobs,
+                                           groupName, actionTriggerId, actionTriggerSpecId, actionId);
 
   }
 
-  private Date parseDate(SimpleDateFormat df, SimpleDateFormat oldDf, String when) throws ParseException {
-    return df.parse(when);
+  private DateTime parseDate(DateTimeFormatter df, String when) throws ParseException {
+    return df.parseDateTime(when);
   }
+
 
 }

@@ -20,6 +20,12 @@ import android.util.Log;
 import com.google.common.base.Joiner;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
+import com.google.paco.shared.model2.ActionTrigger;
+import com.google.paco.shared.model2.ExperimentGroup;
+import com.google.paco.shared.model2.InterruptCue;
+import com.google.paco.shared.model2.InterruptTrigger;
+import com.google.paco.shared.scheduling.ActionScheduleGenerator;
+import com.google.paco.shared.util.TimeUtil;
 
 public class ProcessService extends Service {
 
@@ -159,10 +165,21 @@ public class ProcessService extends Service {
           DateTime now = new DateTime();
           List<Experiment> joined = eu.getJoinedExperiments();
           for (Experiment experiment : joined) {
-            if (!experiment.isOver(now) && experiment.hasAppUsageTrigger()) {
-              Trigger trigger = (Trigger) experiment.getSignalingMechanisms().get(0);
-              if (trigger != null) {
-                tasks.add(trigger.getSourceIdentifier());
+            if (!ActionScheduleGenerator.isOver(now, experiment.getExperimentDAO())) {
+              List<ExperimentGroup> experimentGroups = experiment.getExperimentDAO().getGroups();
+              for (ExperimentGroup experimentGroup : experimentGroups) {
+                List<ActionTrigger> actionTriggers = experimentGroup.getActionTriggers();
+                for (ActionTrigger actionTrigger : actionTriggers) {
+                  if (actionTrigger instanceof InterruptTrigger) {
+                    InterruptTrigger interrupt = (InterruptTrigger) actionTrigger;
+                    List<InterruptCue> cues = interrupt.getCues();
+                    for (InterruptCue interruptCue : cues) {
+                      if (interruptCue.getCueCode() == InterruptCue.APP_USAGE) {
+                        tasks.add(interruptCue.getCueSource());
+                      }
+                    }
+                  }
+                }
               }
             }
           }
@@ -246,8 +263,8 @@ public class ProcessService extends Service {
     Event event = new Event();
     event.setExperimentId(experiment.getId());
     event.setServerExperimentId(experiment.getServerId());
-    event.setExperimentName(experiment.getTitle());
-    event.setExperimentVersion(experiment.getVersion());
+    event.setExperimentName(experiment.getExperimentDAO().getTitle());
+    event.setExperimentVersion(experiment.getExperimentDAO().getVersion());
     event.setResponseTime(new DateTime());
 
     Output responseForInput = new Output();
@@ -267,7 +284,7 @@ public class ProcessService extends Service {
     List<Experiment> experimentsNeedingEvent = Lists.newArrayList();
     DateTime now = DateTime.now();
     for (Experiment experiment2 : joined) {
-      if (!experiment2.isOver(now) && experiment2.isLogActions()) {
+      if (!ActionScheduleGenerator.isOver(now, experiment2.getExperimentDAO()) && experiment2.isLogActions()) {
         experimentsNeedingEvent.add(experiment2);
       }
     }

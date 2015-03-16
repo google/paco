@@ -14,7 +14,7 @@
 * specific language governing permissions and limitations
 * under the License.
 */
-package com.google.android.apps.paco;
+package com.google.paco.shared.scheduling;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -30,7 +30,9 @@ import org.joda.time.Hours;
 import org.joda.time.Interval;
 import org.joda.time.Minutes;
 
-import com.google.paco.shared.model.SignalingMechanismDAO;
+import com.google.paco.shared.model2.PacoNotificationAction;
+import com.google.paco.shared.model2.Schedule;
+import com.google.paco.shared.util.TimeUtil;
 
 public class ESMSignalGeneratorTest extends TestCase {
 
@@ -40,10 +42,10 @@ public class ESMSignalGeneratorTest extends TestCase {
     long endHourMillis = Hours.hours(17).toStandardDuration().getMillis();
     long startHourMillis = Hours.hours(9).toStandardDuration().getMillis();
     int esmFrequency = 1;
-    int esmPeriod = SignalSchedule.ESM_PERIOD_DAY;
+    int esmPeriod = Schedule.ESM_PERIOD_DAY;
     boolean esmWeekends = false;
 
-    SignalSchedule schedule = getScheduleWith(startDate, startHourMillis, endHourMillis,
+    Schedule schedule = getScheduleWith(startDate, startHourMillis, endHourMillis,
         esmPeriod, esmFrequency, esmWeekends);
 
     EsmGenerator2 esmGen = new EsmGenerator2();
@@ -60,10 +62,10 @@ public class ESMSignalGeneratorTest extends TestCase {
     long endHourMillis = Hours.hours(17).toStandardDuration().getMillis();
     long startHourMillis = Hours.hours(9).toStandardDuration().getMillis();
     int esmFrequency = 1;
-    int esmPeriod = SignalSchedule.ESM_PERIOD_DAY;
+    int esmPeriod = Schedule.ESM_PERIOD_DAY;
     boolean esmWeekends = false;
 
-    SignalSchedule schedule = getScheduleWith(startDate, startHourMillis, endHourMillis,
+    Schedule schedule = getScheduleWith(startDate, startHourMillis, endHourMillis,
         esmPeriod, esmFrequency, esmWeekends);
 
     EsmGenerator2 esmGen = new EsmGenerator2();
@@ -78,10 +80,10 @@ public class ESMSignalGeneratorTest extends TestCase {
     long endHourMillis = Hours.hours(17).toStandardDuration().getMillis();
     long startHourMillis = Hours.hours(9).toStandardDuration().getMillis();
     int esmFrequency = 8;
-    int esmPeriod = SignalSchedule.ESM_PERIOD_DAY;
+    int esmPeriod = Schedule.ESM_PERIOD_DAY;
     boolean esmWeekends = false;
 
-    SignalSchedule schedule = getScheduleWith(startDate, startHourMillis, endHourMillis,
+    Schedule schedule = getScheduleWith(startDate, startHourMillis, endHourMillis,
         esmPeriod, esmFrequency, esmWeekends);
 
     EsmGenerator2 esmGen = new EsmGenerator2();
@@ -110,10 +112,10 @@ public class ESMSignalGeneratorTest extends TestCase {
     long endHourMillis = Hours.hours(17).toStandardDuration().getMillis();
     long startHourMillis = Hours.hours(9).toStandardDuration().getMillis();
     int esmFrequency = 8;
-    int esmPeriod = SignalSchedule.ESM_PERIOD_WEEK;
+    int esmPeriod = Schedule.ESM_PERIOD_WEEK;
     boolean esmWeekends = false;
 
-    SignalSchedule schedule = getScheduleWith(startDate, startHourMillis, endHourMillis,
+    Schedule schedule = getScheduleWith(startDate, startHourMillis, endHourMillis,
         esmPeriod, esmFrequency, esmWeekends);
 
     EsmGenerator2 esmGen = new EsmGenerator2();
@@ -139,10 +141,10 @@ public class ESMSignalGeneratorTest extends TestCase {
     long endHourMillis = Hours.hours(17).toStandardDuration().getMillis();
     long startHourMillis = Hours.hours(9).toStandardDuration().getMillis();
     int esmFrequency = 2;
-    int esmPeriod = SignalSchedule.ESM_PERIOD_DAY;
+    int esmPeriod = Schedule.ESM_PERIOD_DAY;
     boolean esmWeekends = false;
 
-    SignalSchedule schedule = getScheduleWith(startDate, startHourMillis, endHourMillis,
+    Schedule schedule = getScheduleWith(startDate, startHourMillis, endHourMillis,
         esmPeriod, esmFrequency, esmWeekends);
 
     EsmGenerator2 esmGen = new EsmGenerator2();
@@ -158,10 +160,10 @@ public class ESMSignalGeneratorTest extends TestCase {
     long endHourMillis = Hours.hours(17).toStandardDuration().getMillis();
     long startHourMillis = Hours.hours(9).toStandardDuration().getMillis();
     int esmFrequency = 8;
-    int esmPeriod = SignalSchedule.ESM_PERIOD_DAY;
+    int esmPeriod = Schedule.ESM_PERIOD_DAY;
     boolean esmWeekends = false;
 
-    SignalSchedule schedule = getScheduleWith(startDate, startHourMillis, endHourMillis,
+    Schedule schedule = getScheduleWith(startDate, startHourMillis, endHourMillis,
         esmPeriod, esmFrequency, esmWeekends);
 
     EsmGenerator2 esmGen = new EsmGenerator2();
@@ -204,10 +206,10 @@ public class ESMSignalGeneratorTest extends TestCase {
     long endHourMillis = Hours.hours(17).toStandardDuration().getMillis();
     long startHourMillis = Hours.hours(9).toStandardDuration().getMillis();
     int esmFrequency = 1;
-    int esmPeriod = SignalSchedule.ESM_PERIOD_WEEK;
+    int esmPeriod = Schedule.ESM_PERIOD_WEEK;
     boolean esmWeekends = false;
 
-    SignalSchedule schedule = getScheduleWith(startDate, startHourMillis, endHourMillis,
+    Schedule schedule = getScheduleWith(startDate, startHourMillis, endHourMillis,
         esmPeriod, esmFrequency, esmWeekends);
 
     EsmGenerator2 esmGen = new EsmGenerator2();
@@ -224,10 +226,10 @@ public class ESMSignalGeneratorTest extends TestCase {
     long endHourMillis = Hours.hours(17).toStandardDuration().getMillis();
     long startHourMillis = Hours.hours(9).toStandardDuration().getMillis();
     int esmFrequency = 2;
-    int esmPeriod = SignalSchedule.ESM_PERIOD_WEEK;
+    int esmPeriod = Schedule.ESM_PERIOD_WEEK;
     boolean esmWeekends = false;
 
-    SignalSchedule schedule = getScheduleWith(startDate, startHourMillis, endHourMillis,
+    Schedule schedule = getScheduleWith(startDate, startHourMillis, endHourMillis,
         esmPeriod, esmFrequency, esmWeekends);
 
     EsmGenerator2 esmGen = new EsmGenerator2();
@@ -245,10 +247,10 @@ public class ESMSignalGeneratorTest extends TestCase {
     long endHourMillis = Hours.hours(17).toStandardDuration().getMillis();
     long startHourMillis = Hours.hours(9).toStandardDuration().getMillis();
     int esmFrequency = 5;
-    int esmPeriod = SignalSchedule.ESM_PERIOD_WEEK;
+    int esmPeriod = Schedule.ESM_PERIOD_WEEK;
     boolean esmWeekends = false;
 
-    SignalSchedule schedule = getScheduleWith(startDate, startHourMillis, endHourMillis,
+    Schedule schedule = getScheduleWith(startDate, startHourMillis, endHourMillis,
         esmPeriod, esmFrequency, esmWeekends);
 
     EsmGenerator2 esmGen = new EsmGenerator2();
@@ -265,10 +267,10 @@ public class ESMSignalGeneratorTest extends TestCase {
     long endHourMillis = Hours.hours(17).toStandardDuration().getMillis();
     long startHourMillis = Hours.hours(9).toStandardDuration().getMillis();
     int esmFrequency = 10;
-    int esmPeriod = SignalSchedule.ESM_PERIOD_WEEK;
+    int esmPeriod = Schedule.ESM_PERIOD_WEEK;
     boolean esmWeekends = false;
 
-    SignalSchedule schedule = getScheduleWith(startDate, startHourMillis, endHourMillis,
+    Schedule schedule = getScheduleWith(startDate, startHourMillis, endHourMillis,
         esmPeriod, esmFrequency, esmWeekends);
 
     EsmGenerator2 esmGen = new EsmGenerator2();
@@ -285,10 +287,10 @@ public class ESMSignalGeneratorTest extends TestCase {
     long endHourMillis = Hours.hours(17).toStandardDuration().getMillis();
     long startHourMillis = Hours.hours(9).toStandardDuration().getMillis();
     int esmFrequency = 5;
-    int esmPeriod = SignalSchedule.ESM_PERIOD_WEEK;
+    int esmPeriod = Schedule.ESM_PERIOD_WEEK;
     boolean esmWeekends = true;
 
-    SignalSchedule schedule = getScheduleWith(startDate, startHourMillis, endHourMillis,
+    Schedule schedule = getScheduleWith(startDate, startHourMillis, endHourMillis,
         esmPeriod, esmFrequency, esmWeekends);
 
     EsmGenerator2 esmGen = new EsmGenerator2();
@@ -305,10 +307,10 @@ public class ESMSignalGeneratorTest extends TestCase {
     long endHourMillis = Hours.hours(17).toStandardDuration().getMillis();
     long startHourMillis = Hours.hours(9).toStandardDuration().getMillis();
     int esmFrequency = 10;
-    int esmPeriod = SignalSchedule.ESM_PERIOD_WEEK;
+    int esmPeriod = Schedule.ESM_PERIOD_WEEK;
     boolean esmWeekends = true;
 
-    SignalSchedule schedule = getScheduleWith(startDate, startHourMillis, endHourMillis,
+    Schedule schedule = getScheduleWith(startDate, startHourMillis, endHourMillis,
         esmPeriod, esmFrequency, esmWeekends);
 
     EsmGenerator2 esmGen = new EsmGenerator2();
@@ -325,10 +327,10 @@ public class ESMSignalGeneratorTest extends TestCase {
     long endHourMillis = Hours.hours(17).toStandardDuration().getMillis();
     long startHourMillis = Hours.hours(9).toStandardDuration().getMillis();
     int esmFrequency = 30;
-    int esmPeriod = SignalSchedule.ESM_PERIOD_MONTH;
+    int esmPeriod = Schedule.ESM_PERIOD_MONTH;
     boolean esmWeekends = true;
 
-    SignalSchedule schedule = getScheduleWith(startDate, startHourMillis, endHourMillis,
+    Schedule schedule = getScheduleWith(startDate, startHourMillis, endHourMillis,
         esmPeriod, esmFrequency, esmWeekends);
 
     EsmGenerator2 esmGen = new EsmGenerator2();
@@ -345,10 +347,10 @@ public class ESMSignalGeneratorTest extends TestCase {
     long endHourMillis = Hours.hours(17).toStandardDuration().getMillis();
     long startHourMillis = Hours.hours(9).toStandardDuration().getMillis();
     int esmFrequency = 1;
-    int esmPeriod = SignalSchedule.ESM_PERIOD_MONTH;
+    int esmPeriod = Schedule.ESM_PERIOD_MONTH;
     boolean esmWeekends = false;
 
-    SignalSchedule schedule = getScheduleWith(startDate, startHourMillis, endHourMillis,
+    Schedule schedule = getScheduleWith(startDate, startHourMillis, endHourMillis,
         esmPeriod, esmFrequency, esmWeekends);
 
     EsmGenerator2 esmGen = new EsmGenerator2();
@@ -365,10 +367,10 @@ public class ESMSignalGeneratorTest extends TestCase {
     long endHourMillis = Hours.hours(17).toStandardDuration().getMillis();
     long startHourMillis = Hours.hours(9).toStandardDuration().getMillis();
     int esmFrequency = 10;
-    int esmPeriod = SignalSchedule.ESM_PERIOD_MONTH;
+    int esmPeriod = Schedule.ESM_PERIOD_MONTH;
     boolean esmWeekends = false;
 
-    SignalSchedule schedule = getScheduleWith(startDate, startHourMillis, endHourMillis,
+    Schedule schedule = getScheduleWith(startDate, startHourMillis, endHourMillis,
         esmPeriod, esmFrequency, esmWeekends);
 
     EsmGenerator2 esmGen = new EsmGenerator2();
@@ -385,10 +387,10 @@ public class ESMSignalGeneratorTest extends TestCase {
     long endHourMillis = Hours.hours(17).toStandardDuration().getMillis();
     long startHourMillis = Hours.hours(9).toStandardDuration().getMillis();
     int esmFrequency = 15;
-    int esmPeriod = SignalSchedule.ESM_PERIOD_MONTH;
+    int esmPeriod = Schedule.ESM_PERIOD_MONTH;
     boolean esmWeekends = false;
 
-    SignalSchedule schedule = getScheduleWith(startDate, startHourMillis, endHourMillis,
+    Schedule schedule = getScheduleWith(startDate, startHourMillis, endHourMillis,
         esmPeriod, esmFrequency, esmWeekends);
 
     EsmGenerator2 esmGen = new EsmGenerator2();
@@ -409,10 +411,10 @@ public class ESMSignalGeneratorTest extends TestCase {
     long endHourMillis = Hours.hours(17).toStandardDuration().getMillis();
     long startHourMillis = Hours.hours(9).toStandardDuration().getMillis();
     int esmFrequency = 23;
-    int esmPeriod = SignalSchedule.ESM_PERIOD_MONTH;
+    int esmPeriod = Schedule.ESM_PERIOD_MONTH;
     boolean esmWeekends = false;
 
-    SignalSchedule schedule = getScheduleWith(startDate, startHourMillis, endHourMillis,
+    Schedule schedule = getScheduleWith(startDate, startHourMillis, endHourMillis,
         esmPeriod, esmFrequency, esmWeekends);
 
     EsmGenerator2 esmGen = new EsmGenerator2();
@@ -429,10 +431,10 @@ public class ESMSignalGeneratorTest extends TestCase {
     long endHourMillis = Hours.hours(17).toStandardDuration().getMillis();
     long startHourMillis = Hours.hours(9).toStandardDuration().getMillis();
     int esmFrequency = 15;
-    int esmPeriod = SignalSchedule.ESM_PERIOD_MONTH;
+    int esmPeriod = Schedule.ESM_PERIOD_MONTH;
     boolean esmWeekends = true;
 
-    SignalSchedule schedule = getScheduleWith(startDate, startHourMillis, endHourMillis,
+    Schedule schedule = getScheduleWith(startDate, startHourMillis, endHourMillis,
         esmPeriod, esmFrequency, esmWeekends);
 
     EsmGenerator2 esmGen = new EsmGenerator2();
@@ -449,10 +451,10 @@ public class ESMSignalGeneratorTest extends TestCase {
     long endHourMillis = Hours.hours(17).toStandardDuration().getMillis();
     long startHourMillis = Hours.hours(9).toStandardDuration().getMillis();
     int esmFrequency = 31;
-    int esmPeriod = SignalSchedule.ESM_PERIOD_MONTH;
+    int esmPeriod = Schedule.ESM_PERIOD_MONTH;
     boolean esmWeekends = true;
 
-    SignalSchedule schedule = getScheduleWith(startDate, startHourMillis, endHourMillis,
+    Schedule schedule = getScheduleWith(startDate, startHourMillis, endHourMillis,
         esmPeriod, esmFrequency, esmWeekends);
 
     EsmGenerator2 esmGen = new EsmGenerator2();
@@ -466,7 +468,7 @@ public class ESMSignalGeneratorTest extends TestCase {
 
 
   private Interval createMonthIntervalForCalendarMonthOf(DateTime startDate, long endHourMillis, long startHourMillis,
-      SignalingMechanism schedule, Boolean esmWeekends) {
+      Schedule schedule, Boolean esmWeekends) {
     int daysInPeriod = startDate.dayOfMonth().withMaximumValue().getDayOfMonth();
     DateTime firstOfMonth = startDate.dayOfMonth().withMinimumValue();
     return new Interval(firstOfMonth.plus(startHourMillis), firstOfMonth.plusDays(daysInPeriod).plus(endHourMillis));
@@ -474,7 +476,7 @@ public class ESMSignalGeneratorTest extends TestCase {
 
 
   private Interval createWeekInterval(DateTime startDate, long endHourMillis, long startHourMillis,
-      SignalSchedule schedule, Boolean esmWeekends) {
+      Schedule schedule, Boolean esmWeekends) {
     int daysInPeriod = schedule.convertEsmPeriodToDays();
 
     if (!esmWeekends) {
@@ -484,13 +486,14 @@ public class ESMSignalGeneratorTest extends TestCase {
     return new Interval(startDate.plus(startHourMillis), startDate.plusDays(daysInPeriod).plus(endHourMillis));
   }
 
-  private SignalSchedule getScheduleWith(DateTime startDate, long startHourMillis,
+  private Schedule getScheduleWith(DateTime startDate, long startHourMillis,
       long endHourMillis, int esmPeriod, int esmFrequency, boolean esmWeekends) {
-    SignalSchedule schedule = new SignalSchedule(1L, SignalSchedule.ESM,
+    Schedule schedule = new Schedule(Schedule.ESM,
         false, null, // Not important to ESM testing
-        endHourMillis, esmFrequency, esmPeriod, startHourMillis, esmWeekends,
+        endHourMillis, esmFrequency, esmPeriod, startHourMillis,
         null, null, null, null, // Not important to ESM testing
-        startDate.getMillis(), true, 59, SignalingMechanismDAO.SNOOZE_COUNT_DEFAULT, SignalingMechanismDAO.SNOOZE_TIME_DEFAULT, false);
+        esmWeekends, 15, 59, PacoNotificationAction.SNOOZE_COUNT_DEFAULT, PacoNotificationAction.SNOOZE_TIME_DEFAULT);
+    schedule.setBeginDate(startDate.getMillis());
     return schedule;
   }
 

@@ -44,6 +44,7 @@ public class ActionTriggerListPanel extends Composite {
   private LinkedList<ActionTriggerPanel> actionTriggerPanelsList;
   private MyConstants myConstants;
   private Widget actionTriggerButtonPanel;
+  private Long lastIdUsed = 0l;
 
   public ActionTriggerListPanel(ExperimentGroup group) {
     myConstants = GWT.create(MyConstants.class);
@@ -64,6 +65,11 @@ public class ActionTriggerListPanel extends Composite {
     } else {
       for (int i = 0; i < group.getActionTriggers().size(); i++) {
         ActionTrigger actionTrigger = group.getActionTriggers().get(i);
+        if (actionTrigger.getId() != null) {
+          if (lastIdUsed == null || actionTrigger.getId() > lastIdUsed) {
+            lastIdUsed = actionTrigger.getId();
+          }
+        }
         ActionTriggerPanel actionTriggerPanel = null;
         if (actionTrigger instanceof ScheduleTrigger) {
           actionTriggerPanel  = new ScheduleTriggerPanel(this, (ScheduleTrigger)actionTrigger);
@@ -145,11 +151,15 @@ public class ActionTriggerListPanel extends Composite {
   }
 
   private InterruptTrigger createBlankInterruptTrigger() {
-    return new InterruptTrigger();
+    final InterruptTrigger interruptTrigger = new InterruptTrigger();
+    interruptTrigger.setId(++lastIdUsed);
+    return interruptTrigger;
   }
 
   private ScheduleTrigger createBlankScheduleTrigger() {
-    return new ScheduleTrigger();
+    final ScheduleTrigger scheduleTrigger = new ScheduleTrigger();
+    scheduleTrigger.setId(++lastIdUsed);
+    return scheduleTrigger;
   }
 
 }
