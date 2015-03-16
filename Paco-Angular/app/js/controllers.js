@@ -118,6 +118,17 @@ app.controller('TriggerCtrl', ['$scope', '$mdDialog', 'config',
     });
   };
 
+  $scope.showCue = function(event, cue) {
+    $mdDialog.show({
+      targetEvent: event,
+      templateUrl: 'partials/cue.html',
+      locals: {
+        cue: cue
+      },
+      controller: 'CueCtrl'
+    });
+  };
+
 }]);
 
 
@@ -131,6 +142,29 @@ app.controller('ActionCtrl', ['$scope', '$mdDialog', 'config', 'action',
     $mdDialog.hide();
   };
 
+  $scope.$watch('action.actionCode', function(newValue, oldValue) {
+    if (newValue) {
+      action.actionCode = parseInt(action.actionCode);
+    }
+  });
+}]);
+
+
+app.controller('CueCtrl', ['$scope', '$mdDialog', 'config', 'cue', 
+  function($scope, $mdDialog, config, cue) {
+
+  $scope.cue = cue;
+  $scope.cueTypes = config.cueTypes;
+
+  $scope.hide = function() {
+    $mdDialog.hide();
+  };
+
+  $scope.$watch('cue.cueCode', function(newValue, oldValue) {
+    if (newValue) {
+      cue.cueCode = parseInt(cue.cueCode);
+    }
+  });
 }]);
 
 
@@ -178,8 +212,9 @@ app.controller('ScheduleCtrl', ['$scope', '$mdDialog', 'config', 'schedule',
     }
   });
 
-  $scope.$watch('schedule.scheduleType', function(times) {
-    if (times) {
+  $scope.$watch('schedule.scheduleType', function(newValue, oldValue) {
+    if (newValue) {
+      schedule.scheduleType = parseInt(schedule.scheduleType);
       $scope.schedule.signalTimes = [{}];
     }
   });
@@ -191,6 +226,14 @@ app.controller('SummaryCtrl', ['$scope', 'config', function($scope, config) {
   $scope.getActionSummary = function() {
     if ($scope.action.actionCode !== undefined) {
       return config.actionTypes[$scope.action.actionCode];
+    } else {
+      return 'Undefined';
+    }
+  };
+
+  $scope.getCueSummary = function() {
+    if ($scope.cue.cueCode !== undefined) {
+      return config.cueTypes[$scope.cue.cueCode];
     } else {
       return 'Undefined';
     }

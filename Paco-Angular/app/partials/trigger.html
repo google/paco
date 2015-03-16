@@ -9,6 +9,10 @@
       Schedule
     </md-button>
 
+    <md-button ng-if="trigger.type=='interruptTrigger'" add-icon ng-click="trigger.cues.push({})">
+      Cue
+    </md-button>
+
     <md-button add-icon ng-click="trigger.actions.push({type:'eventTrigger'})">
       Action
     </md-button>
@@ -33,7 +37,24 @@
       <a class="remove-button" ng-if="trigger.schedules.length>1" href="" ng-click="remove(trigger.schedules, $index)">
       </a>
     </div>
+  </div>
 
+  <div ng-repeat="cue in trigger.cues track by $index">
+    <md-divider></md-divider>
+
+    <div class="section">
+      <div class="title">
+        <md-button ng-click="showCue($event, cue)">
+          Edit
+        </md-button>
+        Cue {{$index+1}}
+      </div>
+
+      <span ng-controller="SummaryCtrl" ng-bind="getCueSummary()"></span>
+
+      <a class="remove-button" ng-if="trigger.cues.length>1" href="" ng-click="remove(trigger.cues, $index)">
+      </a>
+    </div>
   </div>
 
 
@@ -52,7 +73,6 @@
 
       <a class="remove-button" ng-if="trigger.actions.length>1" href="" ng-click="remove(trigger.actions, $index)"></a>
     </div>
-
   </div>
 
 </div>
