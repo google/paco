@@ -101,11 +101,11 @@ public class ExperimentGroup implements Validatable, java.io.Serializable {
 
   public void setInputs(List<Input2> inputs) {
     this.inputs = inputs;
-    ExperimentValidator validator = new ExperimentValidator();
-    validateInputs(validator);
-    if (!validator.getResults().isEmpty()) {
-      throw new IllegalArgumentException(validator.stringifyResults());
-    }
+//    ExperimentValidator validator = new ExperimentValidator();
+//    validateInputs(validator);
+//    if (!validator.getResults().isEmpty()) {
+//      throw new IllegalArgumentException(validator.stringifyResults());
+//    }
   }
 
   public Boolean getFixedDuration() {

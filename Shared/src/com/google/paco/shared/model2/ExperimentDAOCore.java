@@ -4,8 +4,6 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.google.paco.shared.util.ListMaker;
-
 public class ExperimentDAOCore implements Validatable, Serializable {
 
   public static final int APP_USAGE_BROWSER_HISTORY_DATA_COLLECTION = 1;

@@ -1,4 +1,4 @@
-package com.google.paco.shared.util;
+package com.google.paco.shared.model2;
 
 import java.util.ArrayList;
 import java.util.List;
