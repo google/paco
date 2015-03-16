@@ -5,7 +5,9 @@
       <div>
         <select ng-model="schedule.scheduleType">
           <option value="" disabled selected>Signal Schedule</option>
-          <option ng-selected="{{$index==schedule.scheduleType}}" ng-repeat="type in scheduleTypes" value="{{$index}}">{{type}}</option>
+          <option ng-selected="{{$index==schedule.scheduleType}}" ng-repeat="type in scheduleTypes" value="{{$index}}">
+            {{type}}
+          </option>
         </select>
       </div>
 
@@ -98,8 +100,7 @@
         <md-checkbox ng-model="schedule.days[6]" aria-label="Saturday">Sa</md-checkbox>
       </div>
 
-      <div ng-repeat="time in schedule.signalTimes" 
-        ng-if="schedule.scheduleType>=0 && schedule.scheduleType<=3">
+      <div ng-repeat="time in schedule.signalTimes" ng-if="schedule.scheduleType>=0 && schedule.scheduleType<=3">
 
         <md-input-container class="short">
           <label>Time</label>

@@ -1,46 +1,21 @@
 var app = angular.module('pacoControllers', []);
 
-
-//TODO(ispiro):Move these into a factory or service
-var groupTemplate = {
-  actionTriggers: [],
-  inputs: []
-};
-var scheduleTriggerTemplate = {
-  type: 'scheduleTrigger',
-  actions: [{}],
-  schedules: [{}]
-};
-var eventTriggerTemplate = {
-  type: 'interruptTrigger',
-  actions: [{}]
-};
-var scheduleTypes = ['Daily', 'Weekdays', 'Weekly', 'Monthly',
-  'Random sampling (ESM)', 'Self Report'
-];
-
-var actionTypes = ['Create notification to participate',
-  'Create notification message',
-  'Log data',
-  'Execute script'
-];
-
-app.controller('ExperimentCtrl', ['$scope', '$http', '$routeParams', function($scope, $http, $routeParams) {
+app.controller('ExperimentCtrl', ['$scope', '$http', '$routeParams', 'config', 
+  function($scope, $http, $routeParams, config) {
 
   $scope.experimentIdx = parseInt($routeParams.experimentIdx);
   $scope.selectedIndex = 1;
   $scope.loaded = false;
-http://localhost:8080/experiments?id=5629499534213120
 
-  $http.get('/experiments?id=5629499534213120').success(function(data) {
-  //$http.get('js/experiment.json').success(function(data) {
+  //$http.get('/experiments?id=5629499534213120').success(function(data) {
+  $http.get('js/experiment.json').success(function(data) {
     $scope.experiment = data[$scope.experimentIdx];
     $scope.loaded = true;
     $scope.$broadcast('experimentChange');
   });
 
   $scope.addGroup = function() {
-    $scope.experiment.groups.push(groupTemplate);
+    $scope.experiment.groups.push(config.groupTemplate);
   }
 
   $scope.addInput = function(inputs, event, expandFn) {
@@ -50,13 +25,13 @@ http://localhost:8080/experiments?id=5629499534213120
   }
 
   $scope.addScheduleTrigger = function(triggers, event, expandFn) {
-    triggers.push(scheduleTriggerTemplate);
+    triggers.push(config.scheduleTriggerTemplate);
     expandFn(true);
     event.stopPropagation();
   }
 
   $scope.addEventTrigger = function(triggers, event, expandFn) {
-    triggers.push(eventTriggerTemplate);
+    triggers.push(config.eventTriggerTemplate);
     expandFn(true);
     event.stopPropagation();
   }
@@ -69,10 +44,10 @@ http://localhost:8080/experiments?id=5629499534213120
     var json = JSON.stringify($scope.experiment);
     var result = $http.post('/save', json);
     result.success(function(data, status, headers, config) {
-      alert("success");
+      alert('success');
     });
     result.error(function(data, status, headers, config) {
-      alert( "failure message: " + JSON.stringify({data: data}));
+      alert( 'failure message: ' + JSON.stringify({data: data}));
     });
   }
 
@@ -81,9 +56,9 @@ http://localhost:8080/experiments?id=5629499534213120
 
 
 
-app.controller('InputsCtrl', ['$scope', function($scope) {
+app.controller('InputsCtrl', ['$scope', 'config', function($scope, config) {
 
-  $scope.responseTypes = ["likert", "likert_smileys", "open text", "list", "photo", "location"];
+  $scope.responseTypes = config.responseTypes;
 
   $scope.addChoice = function(input) {
     if (input.listChoices === undefined) {
@@ -94,9 +69,8 @@ app.controller('InputsCtrl', ['$scope', function($scope) {
 }]);
 
 
-
-
 app.controller('ExpandCtrl', ['$scope', function($scope) {
+
   $scope.expand = false;
 
   $scope.toggleExpand = function(flag) {
@@ -113,11 +87,10 @@ app.controller('ExpandCtrl', ['$scope', function($scope) {
 }]);
 
 
+app.controller('TriggerCtrl', ['$scope', '$mdDialog', 'config', 
+  function($scope, $mdDialog, config) {
 
-
-app.controller('TriggerCtrl', ['$scope', '$mdDialog', function($scope, $mdDialog) {
-
-  $scope.scheduleTypes = scheduleTypes;
+  $scope.scheduleTypes = config.scheduleTypes;
 
   $scope.getType = function(idx) {
     return $scope.scheduleTypes[idx];
@@ -145,16 +118,14 @@ app.controller('TriggerCtrl', ['$scope', '$mdDialog', function($scope, $mdDialog
     });
   };
 
-
 }]);
 
 
-
-
-app.controller('ActionCtrl', ['$scope', '$mdDialog', 'action', function($scope, $mdDialog, action) {
+app.controller('ActionCtrl', ['$scope', '$mdDialog', 'config', 'action', 
+  function($scope, $mdDialog, config, action) {
 
   $scope.action = action;
-  $scope.actionTypes = actionTypes;
+  $scope.actionTypes = config.actionTypes;
 
   $scope.hide = function() {
     $mdDialog.hide();
@@ -163,14 +134,13 @@ app.controller('ActionCtrl', ['$scope', '$mdDialog', 'action', function($scope, 
 }]);
 
 
-
-
-app.controller('ScheduleCtrl', ['$scope', '$mdDialog', 'schedule', function($scope, $mdDialog, schedule) {
+app.controller('ScheduleCtrl', ['$scope', '$mdDialog', 'config', 'schedule', 
+  function($scope, $mdDialog, config, schedule) {
 
   $scope.schedule = schedule;
-  $scope.scheduleTypes = scheduleTypes;
-  $scope.weeksOfMonth = ["First", "Second", "Third", "Fourth", "Fifth"];
-  $scope.esmPeriods = ["Day", "Week", "Month"];
+  $scope.scheduleTypes = config.scheduleTypes;
+  $scope.weeksOfMonth = config.weeksOfMonth;
+  $scope.esmPeriods = config.esmPeriods;
   $scope.repeatRates = range(1, 30);
   $scope.daysOfMonth = range(1, 31);
 
@@ -216,11 +186,11 @@ app.controller('ScheduleCtrl', ['$scope', '$mdDialog', 'schedule', function($sco
 }]);
 
 
-app.controller('SummaryCtrl', ['$scope', function($scope) {
+app.controller('SummaryCtrl', ['$scope', 'config', function($scope, config) {
 
   $scope.getActionSummary = function() {
     if ($scope.action.actionCode !== undefined) {
-      return actionTypes[$scope.action.actionCode];
+      return config.actionTypes[$scope.action.actionCode];
     } else {
       return 'Undefined';
     }
@@ -252,7 +222,7 @@ app.controller('SummaryCtrl', ['$scope', function($scope) {
         str += 'Every ' + sched.repeatRate + ' months'
       }
     } else if (sched.scheduleType == 4) {
-      str += scheduleTypes[4] + ', ' + sched.esmFrequency + ' time';
+      str += config.scheduleTypes[4] + ', ' + sched.esmFrequency + ' time';
       if (sched.esmFrequency > 1) {
         str += 's per day';
       } else {
@@ -276,5 +246,4 @@ app.controller('SummaryCtrl', ['$scope', function($scope) {
 
     return str;
   };
-
 }]);
