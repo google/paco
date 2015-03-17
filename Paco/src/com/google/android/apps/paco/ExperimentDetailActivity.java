@@ -40,8 +40,6 @@ import com.google.android.apps.paco.utils.IntentExtraHelper;
 import com.google.common.collect.Lists;
 import com.google.paco.shared.model2.ExperimentDAO;
 import com.google.paco.shared.model2.ExperimentGroup;
-import com.google.paco.shared.scheduling.ActionScheduleGenerator;
-import com.google.paco.shared.util.TimeUtil;
 import com.pacoapp.paco.R;
 
 public class ExperimentDetailActivity extends Activity implements ExperimentLoadingActivity {
@@ -122,15 +120,15 @@ public class ExperimentDetailActivity extends Activity implements ExperimentLoad
 
     String startDate = getString(R.string.ongoing_duration);
     String endDate = getString(R.string.ongoing_duration);
-    if (ActionScheduleGenerator.areAllGroupsFixedDuration(experimentDAO)) {
-      startDate = TimeUtil.formatDateTime(ActionScheduleGenerator.getEarliestStartDate(experimentDAO).toDateTime());
-      endDate = TimeUtil.formatDateTime(ActionScheduleGenerator.getLastEndTime(experimentDAO).toDateMidnight().toDateTime());
-      ((TextView)findViewById(R.id.startDate)).setText(startDate);
-      ((TextView)findViewById(R.id.endDate)).setText(endDate);
-    } else {
+//    if (ActionScheduleGenerator.areAllGroupsFixedDuration(experimentDAO)) {
+//      startDate = TimeUtil.formatDateTime(ActionScheduleGenerator.getEarliestStartDate(experimentDAO).toDateTime());
+//      endDate = TimeUtil.formatDateTime(ActionScheduleGenerator.getLastEndTime(experimentDAO).toDateMidnight().toDateTime());
+//      ((TextView)findViewById(R.id.startDate)).setText(startDate);
+//      ((TextView)findViewById(R.id.endDate)).setText(endDate);
+//    } else {
       findViewById(R.id.startDatePanel).setVisibility(View.GONE);
       findViewById(R.id.endDatePanel).setVisibility(View.GONE);
-    }
+//    }
     ((TextView)findViewById(R.id.startDate)).setText(startDate);
     ((TextView)findViewById(R.id.endDate)).setText(endDate);
 
@@ -269,7 +267,8 @@ public class ExperimentDetailActivity extends Activity implements ExperimentLoad
     } else {
       if (!isLaunchedFromQRCode()) {
         IntentExtraHelper.loadExperimentInfoFromIntent(this, getIntent(), experimentProviderUtil);
-        experiment = experimentProviderUtil.getExperimentFromDisk(uri, useMyExperimentsDiskFile);
+        Long experimentId = getIntent().getExtras().getLong(Experiment.EXPERIMENT_SERVER_ID_EXTRA_KEY);
+        experiment = experimentProviderUtil.getExperimentFromDisk(experimentId, useMyExperimentsDiskFile);
       }
 
       if (isLaunchedFromQRCode() && experiment == null) {

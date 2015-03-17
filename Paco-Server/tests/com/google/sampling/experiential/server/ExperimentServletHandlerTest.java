@@ -13,7 +13,7 @@ import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import com.google.paco.shared.model2.ExperimentDAO;
 import com.google.paco.shared.model2.ExperimentDAOCore;
-import com.google.sampling.experiential.datastore.JsonConverter;
+import com.google.paco.shared.model2.JsonConverter;
 import com.google.sampling.experiential.shared.PacoService;
 
 public class ExperimentServletHandlerTest extends TestCase {

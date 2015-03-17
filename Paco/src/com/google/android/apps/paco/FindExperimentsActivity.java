@@ -247,7 +247,7 @@ public class FindExperimentsActivity extends FragmentActivity implements Network
   // Visible for testing
   public void updateDownloadedExperiments(String contentAsString) {
     try {
-      Map<String, Object> results = ExperimentProviderUtil.fromEntitiesJson(contentAsString);
+      Map<String, Object> results = ExperimentProviderUtil.fromDownloadedEntitiesJson(contentAsString);
       String newExperimentCursor = (String) results.get("cursor");
       List<Experiment> newExperiments = (List<Experiment>) results.get("results");
 

@@ -25,6 +25,7 @@ import com.google.common.collect.Sets;
 import com.google.paco.shared.comm.Outcome;
 import com.google.paco.shared.model2.ExperimentDAO;
 import com.google.paco.shared.model2.Input2;
+import com.google.paco.shared.util.ExperimentHelper;
 import com.google.sampling.experiential.model.PhotoBlob;
 import com.google.sampling.experiential.model.What;
 import com.google.sampling.experiential.shared.TimeUtil;
@@ -203,10 +204,10 @@ public class EventJsonUploadProcessor {
         JSONObject response = responses.getJSONObject(i);
         String name = response.getString("name");
 
-        String inputId = response.getString("inputId");
+
         Input2 input = null;
         if (input == null) {
-          input = experiment.getInputWithName(name, groupName);
+          input = ExperimentHelper.getInputWithName(experiment, name, groupName);
         }
         if (input != null) {
           log.info("Input name, responseType: " + input.getName() + ", " + input.getResponseType());
@@ -226,10 +227,6 @@ public class EventJsonUploadProcessor {
           answer = answer.substring(0, 497) + "...";
         }
 
-        if (Strings.isNullOrEmpty(name) && (input == null || Strings.isNullOrEmpty(input.getName()))) {
-          name = "unnamed_input_" + i;
-          whats.add(new What(name, inputId));
-        }
         whats.add(new What(name, answer));
       }
     }

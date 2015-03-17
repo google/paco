@@ -253,7 +253,7 @@ public class FindMyExperimentsActivity extends FragmentActivity implements Netwo
   // Visible for testing
   public void updateDownloadedExperiments(String contentAsString) {
     try {
-      Map<String, Object> results = ExperimentProviderUtil.fromEntitiesJson(contentAsString);
+      Map<String, Object> results = ExperimentProviderUtil.fromDownloadedEntitiesJson(contentAsString);
       String newExperimentCursor = (String) results.get("cursor");
       List<Experiment> newExperiments = (List<Experiment>) results.get("results");
 
@@ -305,7 +305,7 @@ public class FindMyExperimentsActivity extends FragmentActivity implements Netwo
 
   private void saveExperimentsToDisk() {
     try {
-      String contentAsString = experimentProviderUtil.getJson(experiments);
+      String contentAsString = ExperimentProviderUtil.getJson(experiments);
       experimentProviderUtil.saveMyExperimentsToDisk(contentAsString);
     } catch (JsonParseException e) {
       showFailureDialog(DownloadHelper.CONTENT_ERROR);

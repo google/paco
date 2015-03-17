@@ -7,7 +7,7 @@ import org.joda.time.DateTimeZone;
 
 import com.google.paco.shared.model2.ExperimentDAO;
 import com.google.paco.shared.model2.ExperimentQueryResult;
-import com.google.sampling.experiential.datastore.JsonConverter;
+import com.google.paco.shared.model2.JsonConverter;
 
 abstract class ExperimentServletHandler {
 

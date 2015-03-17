@@ -15,6 +15,7 @@ import com.google.appengine.api.datastore.Text;
 import com.google.appengine.api.datastore.Transaction;
 import com.google.common.collect.Lists;
 import com.google.paco.shared.model2.ExperimentDAO;
+import com.google.paco.shared.model2.JsonConverter;
 
 public class ExperimentJsonEntityManager {
   public static String EXPERIMENT_KIND = "experiment_json";

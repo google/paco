@@ -69,7 +69,7 @@ public class ExperimentServlet extends HttpServlet {
 
       logPacoClientVersion(req);
 
-      String email = getEmailOfUser(req, user);
+      String email = AuthUtil.getEmailOfUser(req, user);
 
       String shortParam = req.getParameter("short");
       String experimentsPublishedToMeParam = req.getParameter("mine");

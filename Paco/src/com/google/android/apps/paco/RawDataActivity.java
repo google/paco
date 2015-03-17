@@ -24,45 +24,39 @@ import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
 import android.app.ListActivity;
-import android.net.Uri;
 import android.os.Bundle;
 import android.widget.ArrayAdapter;
 
+import com.google.android.apps.paco.utils.IntentExtraHelper;
+import com.google.paco.shared.model2.ExperimentGroup;
 import com.google.paco.shared.model2.Input2;
 import com.pacoapp.paco.R;
 
-public class RawDataActivity extends ListActivity {
+public class RawDataActivity extends ListActivity implements ExperimentLoadingActivity {
 
   DateTimeFormatter df = DateTimeFormat.forPattern("MM/dd/yy HH:mm");
 
   private ExperimentProviderUtil experimentProviderUtil;
   private Experiment experiment;
 
+  private ExperimentGroup experimentGroup;
+
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     experimentProviderUtil = new ExperimentProviderUtil(this);
-    experiment = getExperimentFromIntent();
-    if (experiment == null) {
+    IntentExtraHelper.loadExperimentInfoFromIntent(this, getIntent(), experimentProviderUtil);
+    if (experiment == null || experimentGroup == null) {
       displayNoExperimentMessage();
     } else {
       setContentView(R.layout.event_list);
-      experimentProviderUtil.loadEventsForExperiment(experiment);
+      experimentProviderUtil.loadEventsForExperimentGroup(experiment, experimentGroup);
       fillData();
     }
   }
 
     private void displayNoExperimentMessage() {
   }
-
-    private Experiment getExperimentFromIntent() {
-      Uri uri = getIntent().getData();
-      if (uri == null) {
-        return null;
-      }
-      experiment = experimentProviderUtil.getExperiment(uri);
-      return experiment;
-    }
 
     private void fillData() {
       List<String> nameAndTime = new ArrayList<String>();
@@ -102,6 +96,23 @@ public class RawDataActivity extends ListActivity {
       }
       ArrayAdapter scheduleAdapter = new ArrayAdapter(this, R.layout.schedule_row, nameAndTime);
       setListAdapter(scheduleAdapter);
+
+    }
+
+    @Override
+    public void setExperiment(Experiment experimentByServerId) {
+      this.experiment = experimentByServerId;
+
+    }
+
+    @Override
+    public Experiment getExperiment() {
+      return experiment;
+    }
+
+    @Override
+    public void setExperimentGroup(ExperimentGroup groupByName) {
+      this.experimentGroup = groupByName;
 
     }
 

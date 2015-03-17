@@ -128,7 +128,7 @@ public class NotificationHolder  {
   }
 
   public boolean isCustomNotification() {
-    return this.notificationSource.equals(NotificationHolder.CUSTOM_GENERATED_NOTIFICATION);
+    return this.notificationSource != null && this.notificationSource.equals(NotificationHolder.CUSTOM_GENERATED_NOTIFICATION);
   }
 
   public Integer getSnoozeTime() {
@@ -182,6 +182,12 @@ public class NotificationHolder  {
 
   public Long getActionTriggerSpecId() {
     return this.actionTriggerSpecId;
+  }
+
+
+  public void setActionTriggerSpecId(long long1) {
+    this.actionTriggerSpecId = long1;
+
   }
 
 

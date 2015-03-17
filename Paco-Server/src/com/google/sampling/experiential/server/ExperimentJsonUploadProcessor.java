@@ -15,8 +15,8 @@ import com.google.appengine.api.users.User;
 import com.google.common.collect.Lists;
 import com.google.paco.shared.comm.Outcome;
 import com.google.paco.shared.model2.ExperimentDAO;
+import com.google.paco.shared.model2.JsonConverter;
 import com.google.paco.shared.model2.ValidationMessage;
-import com.google.sampling.experiential.datastore.JsonConverter;
 
 public class ExperimentJsonUploadProcessor {
 

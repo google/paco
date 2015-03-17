@@ -21,7 +21,6 @@ package com.google.paco.shared.model2;
 import java.io.Serializable;
 import java.util.List;
 
-import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 
 
@@ -73,6 +72,7 @@ public class ExperimentDAO extends ExperimentDAOCore implements Serializable {
     super();
     this.admins = new java.util.ArrayList();
     this.publishedUsers = new java.util.ArrayList();
+    this.groups = new java.util.ArrayList();
   }
 
   public String getModifyDate() {
@@ -152,38 +152,6 @@ public class ExperimentDAO extends ExperimentDAOCore implements Serializable {
   //@JsonIgnore
   public boolean isAdmin(String who) {
     return getAdmins().contains(who);
-  }
-
-  public Input2 getInputWithName(String name, String groupName) {
-    if (Strings.isNullOrEmpty(name)) {
-      return null;
-    }
-    List<Input2> inputs = null;
-    if (groupName == null || groupName.isEmpty()) {
-      inputs = getInputs();
-    } else {
-      ExperimentGroup group = getGroupByName(groupName);
-      if (group != null) {
-        inputs = group.getInputs();
-      }
-    }
-    if (inputs != null) {
-      for (Input2 input : inputs) {
-        if (name.equals(input.getName())) {
-          return input;
-        }
-      }
-    }
-    return null;
-  }
-
-  //@JsonIgnore
-  public List<Input2> getInputs() {
-    List<Input2> inputs = new java.util.ArrayList<Input2>();
-    for (ExperimentGroup group : getGroups()) {
-      inputs.addAll(group.getInputs());
-    }
-    return inputs;
   }
 
   @Override

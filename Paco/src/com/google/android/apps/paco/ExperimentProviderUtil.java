@@ -29,7 +29,6 @@ import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.JsonProcessingException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.map.annotate.JsonSerialize.Inclusion;
 import org.codehaus.jackson.type.TypeReference;
 import org.joda.time.DateMidnight;
 import org.joda.time.DateTime;
@@ -52,6 +51,7 @@ import com.google.paco.shared.model2.ExperimentDAO;
 import com.google.paco.shared.model2.ExperimentGroup;
 import com.google.paco.shared.model2.Input2;
 import com.google.paco.shared.model2.InterruptCue;
+import com.google.paco.shared.model2.JsonConverter;
 import com.google.paco.shared.model2.PacoAction;
 import com.google.paco.shared.model2.PacoNotificationAction;
 import com.google.paco.shared.model2.Schedule;
@@ -362,7 +362,7 @@ public class ExperimentProviderUtil implements EventStore {
    * @throws IOException
    */
   private void copyAllPropertiesFromJsonToExperimentDAO(ExperimentDAO experimentDAO, String jsonOfExperiment) throws JsonProcessingException, IOException {
-    ObjectMapper mapper = new ObjectMapper();
+    ObjectMapper mapper = JsonConverter.getObjectMapper();
     JsonNode rootNode = mapper.readTree(jsonOfExperiment);
     if (rootNode.has("serverId")) {
       experimentDAO.setId(rootNode.path("serverId").getLongValue());
@@ -655,8 +655,7 @@ public class ExperimentProviderUtil implements EventStore {
   }
 
   public static String getJson(Experiment experiment) {
-    ObjectMapper mapper = new ObjectMapper();
-    mapper.getSerializationConfig().setSerializationInclusion(Inclusion.NON_NULL);
+    ObjectMapper mapper = JsonConverter.getObjectMapper();
 
     try {
       return mapper.writeValueAsString(experiment);
@@ -672,8 +671,7 @@ public class ExperimentProviderUtil implements EventStore {
   }
 
   public static String getJson(List<Experiment> experiments) {
-    ObjectMapper mapper = new ObjectMapper();
-    mapper.getSerializationConfig().setSerializationInclusion(Inclusion.NON_NULL);
+    ObjectMapper mapper = JsonConverter.getObjectMapper();
 
     try {
       return mapper.writeValueAsString(experiments);
@@ -993,6 +991,11 @@ public class ExperimentProviderUtil implements EventStore {
     int customMessageIndex = cursor.getColumnIndexOrThrow(NotificationHolderColumns.CUSTOM_MESSAGE);
     int snoozeCountIndex = cursor.getColumnIndexOrThrow(NotificationHolderColumns.SNOOZE_COUNT);
     int snoozeTimeIndex = cursor.getColumnIndexOrThrow(NotificationHolderColumns.SNOOZE_TIME);
+    int groupNameIndexIndex = cursor.getColumnIndexOrThrow(NotificationHolderColumns.EXPERIMENT_GROUP_NAME);
+    int actionTriggerIdIndex = cursor.getColumnIndexOrThrow(NotificationHolderColumns.ACTION_TRIGGER_ID);
+    int actionTriggerSpecIdIndex = cursor.getColumnIndexOrThrow(NotificationHolderColumns.ACTION_TRIGGER_SPEC_ID);
+    int actionIdIndex = cursor.getColumnIndexOrThrow(NotificationHolderColumns.ACTION_ID);
+
 
     NotificationHolder notification = new NotificationHolder();
 
@@ -1027,6 +1030,21 @@ public class ExperimentProviderUtil implements EventStore {
 
     if (!cursor.isNull(snoozeTimeIndex)) {
       notification.setSnoozeTime(cursor.getInt(snoozeTimeIndex));
+    }
+
+    if (!cursor.isNull(groupNameIndexIndex)) {
+      notification.setExperimentGroupName(cursor.getString(groupNameIndexIndex));
+    }
+    if (!cursor.isNull(actionTriggerIdIndex)) {
+      notification.setActionTriggerId(cursor.getLong(actionTriggerIdIndex));
+    }
+
+    if (!cursor.isNull(actionTriggerSpecIdIndex)) {
+      notification.setActionTriggerSpecId(cursor.getLong(actionTriggerSpecIdIndex));
+    }
+
+    if (!cursor.isNull(actionIdIndex)) {
+      notification.setActionId(cursor.getLong(actionIdIndex));
     }
 
     return notification;
@@ -1123,6 +1141,18 @@ public class ExperimentProviderUtil implements EventStore {
     if (notification.getSnoozeTime() != null) {
       values.put(NotificationHolderColumns.SNOOZE_TIME, notification.getSnoozeTime());
     }
+    if (notification.getExperimentGroupName() != null) {
+      values.put(NotificationHolderColumns.EXPERIMENT_GROUP_NAME, notification.getExperimentGroupName());
+    }
+    if (notification.getActionTriggerId() != null) {
+      values.put(NotificationHolderColumns.ACTION_TRIGGER_ID, notification.getActionTriggerId());
+    }
+    if (notification.getActionTriggerSpecId() != null) {
+      values.put(NotificationHolderColumns.ACTION_TRIGGER_SPEC_ID, notification.getActionTriggerSpecId());
+    }
+    if (notification.getActionId() != null) {
+      values.put(NotificationHolderColumns.ACTION_ID, notification.getActionId());
+    }
     return values;
   }
 
@@ -1215,7 +1245,7 @@ public class ExperimentProviderUtil implements EventStore {
     List<Experiment> existing = loadExperimentsFromDisk(false);
     List<Experiment> newEx;
     try {
-      newEx = (List<Experiment>) fromEntitiesJson(contentAsString).get("results");
+      newEx = (List<Experiment>) fromDownloadedEntitiesJson(contentAsString).get("results");
       existing.addAll(newEx);
       String newJson = getJson(existing);
       if (newJson != null) {
@@ -1239,8 +1269,7 @@ public class ExperimentProviderUtil implements EventStore {
   private List<Experiment> createObjectsFromJsonStream(FileInputStream fis) throws IOException, JsonParseException,
                                                                            JsonMappingException {
     try {
-      ObjectMapper mapper = new ObjectMapper();
-      mapper.configure(org.codehaus.jackson.map.DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+      ObjectMapper mapper = JsonConverter.getObjectMapper();
       return mapper.readValue(fis, new TypeReference<List<Experiment>>() {});
     } catch (Exception e) {
       e.printStackTrace();
@@ -1251,8 +1280,7 @@ public class ExperimentProviderUtil implements EventStore {
   private List<Experiment> createObjectsFromJsonStream(String fis) throws IOException, JsonParseException,
                                                                            JsonMappingException {
     try {
-      ObjectMapper mapper = new ObjectMapper();
-      mapper.configure(org.codehaus.jackson.map.DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+      ObjectMapper mapper = JsonConverter.getObjectMapper();
       return mapper.readValue(fis, new TypeReference<List<Experiment>>() {
       });
     } catch (Exception e) {
@@ -1318,24 +1346,42 @@ public class ExperimentProviderUtil implements EventStore {
   }
 
   public static Map<String, Object> fromEntitiesJson(String resultsJson) throws JsonParseException, JsonMappingException, IOException {
-    ObjectMapper mapper = new ObjectMapper();
-    mapper.configure(org.codehaus.jackson.map.DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-      Map<String, Object> resultObjects = mapper.readValue(resultsJson, new TypeReference<Map<String, Object>>() {});
-      Object experimentResults = resultObjects.get("results");
-      String experimentJson = mapper.writeValueAsString(experimentResults);
-      List<Experiment> experiments = mapper.readValue(experimentJson, new TypeReference<List<Experiment>>() {});
-      resultObjects.put("results", experiments);
-      return resultObjects;
+    ObjectMapper mapper = JsonConverter.getObjectMapper();
+    Map<String, Object> resultObjects = mapper.readValue(resultsJson, new TypeReference<Map<String, Object>>() {
+    });
+    Object experimentResults = resultObjects.get("results");
+    String experimentJson = mapper.writeValueAsString(experimentResults);
+    List<Experiment> experiments = mapper.readValue(experimentJson, new TypeReference<List<Experiment>>() {
+    });
+    resultObjects.put("results", experiments);
+    return resultObjects;
+  }
+
+  public static Map<String, Object> fromDownloadedEntitiesJson(String resultsJson) throws JsonParseException, JsonMappingException, IOException {
+    ObjectMapper mapper = JsonConverter.getObjectMapper();
+
+    Map<String, Object> resultObjects = mapper.readValue(resultsJson, new TypeReference<Map<String, Object>>() {});
+    Object experimentResults = resultObjects.get("results");
+    String experimentJson = mapper.writeValueAsString(experimentResults);
+    List<ExperimentDAO> experiments = mapper.readValue(experimentJson, new TypeReference<List<ExperimentDAO>>() {
+    });
+    List<Experiment> experimentsWithDAOs = Lists.newArrayList();
+    for (ExperimentDAO experimentDAO : experiments) {
+      Experiment experiment = new Experiment();
+      experiment.setExperimentDAO(experimentDAO);
+      experimentsWithDAOs.add(experiment);
+    }
+    resultObjects.put("results", experimentsWithDAOs);
+    return resultObjects;
   }
 
   public static List<Experiment> getExperimentsFromJson(String contentAsString) throws JsonParseException, JsonMappingException, IOException {
-    Map<String, Object> results = fromEntitiesJson(contentAsString);
+    Map<String, Object> results = fromDownloadedEntitiesJson(contentAsString);
     return (List<Experiment>) results.get("results");
   }
 
   public static Experiment getSingleExperimentFromJson(String contentAsString) throws JsonParseException, JsonMappingException, IOException {
-    ObjectMapper mapper = new ObjectMapper();
-    mapper.configure(org.codehaus.jackson.map.DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+    ObjectMapper mapper = JsonConverter.getObjectMapper();
     return mapper.readValue(contentAsString, Experiment.class);
   }
 
@@ -1403,6 +1449,37 @@ public class ExperimentProviderUtil implements EventStore {
       }
     }
     return holders;
+  }
+
+  public void loadEventsForExperimentGroup(Experiment experiment, ExperimentGroup experimentGroup) {
+    String[] args = new String[]{ Long.toString(experiment.getId()), experimentGroup.getName()};
+    final String select = EventColumns.EXPERIMENT_ID + " = ? and " + EventColumns.GROUP_NAME + " = ?";
+    List<Event> eventSingleEntryList = findEventsBy(select, args, EventColumns._ID + " DESC");
+    experiment.setEvents(eventSingleEntryList);
+  }
+
+  private List<Event> findEventsBy(String select, String[] args, String sortOrder) {
+    List<Event> events = new ArrayList<Event>();
+    Cursor cursor = null;
+    try {
+      cursor = contentResolver.query(EventColumns.CONTENT_URI,
+          null, select, args, sortOrder);
+      if (cursor != null) {
+        while (cursor.moveToNext()) {
+          Event event = createEvent(cursor);
+          event.setResponses(findResponsesFor(event));
+          events.add(event);
+        }
+      }
+      return events;
+    } catch (RuntimeException e) {
+      Log.w(ExperimentProvider.TAG, "Caught unexpected exception.", e);
+    } finally {
+      if (cursor != null) {
+        cursor.close();
+      }
+    }
+    return events;
   }
 
 

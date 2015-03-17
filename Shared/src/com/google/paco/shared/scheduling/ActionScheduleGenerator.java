@@ -13,6 +13,8 @@ import com.google.paco.shared.model2.ActionTrigger;
 import com.google.paco.shared.model2.EventStore;
 import com.google.paco.shared.model2.ExperimentDAO;
 import com.google.paco.shared.model2.ExperimentGroup;
+import com.google.paco.shared.model2.PacoAction;
+import com.google.paco.shared.model2.PacoNotificationAction;
 import com.google.paco.shared.model2.Schedule;
 import com.google.paco.shared.model2.ScheduleTrigger;
 import com.google.paco.shared.model2.SignalTime;
@@ -99,8 +101,16 @@ public class ActionScheduleGenerator {
                     (currentNearestTime == null ||
                      nextTimeForSchedule.isBefore(currentNearestTime))) {
               currentNearestTime = nextTimeForSchedule;
+              final List<PacoAction> actions = scheduleTrigger.getActions();
+              PacoNotificationAction notificationAction = null;
+              for (PacoAction pacoAction : actions) {
+                if (pacoAction.getActionCode() == PacoAction.NOTIFICATION_TO_PARTICIPATE_ACTION_CODE) {
+                  notificationAction = (PacoNotificationAction) pacoAction;
+                }
+              }
               nextTimeActionSpecification = new ActionSpecification(currentNearestTime, experiment,
-                                                                    experimentGroup, actionTrigger, null, schedule.getId());
+                                                                    experimentGroup, actionTrigger,
+                                                                    notificationAction, schedule.getId());
             }
           }
         }

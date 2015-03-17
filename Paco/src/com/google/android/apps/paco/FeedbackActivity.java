@@ -52,6 +52,7 @@ import com.google.paco.shared.model2.ExperimentDAO;
 import com.google.paco.shared.model2.ExperimentGroup;
 import com.google.paco.shared.model2.Feedback;
 import com.google.paco.shared.model2.Input2;
+import com.google.paco.shared.util.ExperimentHelper;
 import com.pacoapp.paco.R;
 
 public class FeedbackActivity extends Activity {
@@ -101,7 +102,7 @@ public class FeedbackActivity extends Activity {
       rawDataButton.setOnClickListener(new OnClickListener() {
         public void onClick(View v) {
           Intent rawDataIntent = new Intent(FeedbackActivity.this, RawDataActivity.class);
-          rawDataIntent.setData(getIntent().getData());
+          rawDataIntent.putExtras(getIntent().getExtras());
           startActivity(rawDataIntent);
         }
       });
@@ -458,7 +459,7 @@ public class FeedbackActivity extends Activity {
   }
 
   String getTextOfInputForOutput(ExperimentDAO experiment, Output output) {
-    for (Input2 input : experiment.getInputs()) {
+    for (Input2 input : ExperimentHelper.getInputs(experiment)) {
       if (input.getName().equals(output.getName())) {
         if (!input.isInvisible()) {
           return input.getText();

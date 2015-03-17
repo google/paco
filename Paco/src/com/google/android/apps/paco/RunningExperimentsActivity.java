@@ -40,11 +40,9 @@ import android.provider.Settings;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
-import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageButton;
@@ -52,6 +50,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.google.common.collect.Lists;
+import com.google.paco.shared.model2.ExperimentGroup;
 import com.google.paco.shared.util.TimeUtil;
 import com.pacoapp.paco.R;
 
@@ -207,28 +206,35 @@ public class RunningExperimentsActivity extends Activity {
     }
   }
 
-  @Override
-  public boolean onContextItemSelected(MenuItem item) {
-    AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
-    switch (item.getItemId()) {
-    case EDIT_EXPERIMENT_OPTION:
-      editExperiment(info.id);
-      return true;
-    case STOP_EXPERIMENT_OPTION:
-      deleteExperiment(info.id);
-      return true;
-    case DATA_EXPERIMENT_OPTION:
-      showDataForExperiment(info.id);
-      return true;
+//  @Override
+//  public boolean onContextItemSelected(MenuItem item) {
+//    AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
+//    switch (item.getItemId()) {
+//    case EDIT_EXPERIMENT_OPTION:
+//      editExperiment(info.id);
+//      return true;
+//    case STOP_EXPERIMENT_OPTION:
+//      deleteExperiment(info.id);
+//      return true;
+//    case DATA_EXPERIMENT_OPTION:
+//      showDataForExperiment(info.id);
+//      return true;
+//
+//    default:
+//      return super.onContextItemSelected(item);
+//      }
+//  }
 
-    default:
-      return super.onContextItemSelected(item);
-      }
-  }
-
-  private void showDataForExperiment(long id) {
-    Intent experimentIntent = new Intent(RunningExperimentsActivity.this, FeedbackActivity.class);
-    experimentIntent.putExtra(Experiment.EXPERIMENT_SERVER_ID_EXTRA_KEY, id);
+  private void showDataForExperiment(Experiment experiment, List<ExperimentGroup> groups) {
+    Intent experimentIntent = null;
+    if (groups.size() > 1) {
+      experimentIntent = new Intent(RunningExperimentsActivity.this, ExperimentGroupPicker.class);
+      experimentIntent.putExtra(ExperimentGroupPicker.SHOULD_GO_TO_RENDER_NEXT, ExperimentGroupPicker.FEEDBACK_NEXT);
+    } else {
+      experimentIntent = new Intent(RunningExperimentsActivity.this, FeedbackActivity.class);
+      experimentIntent.putExtra(Experiment.EXPERIMENT_GROUP_NAME_EXTRA_KEY, groups.get(0).getName());
+    }
+    experimentIntent.putExtra(Experiment.EXPERIMENT_SERVER_ID_EXTRA_KEY, experiment.getExperimentDAO().getId());
     startActivity(experimentIntent);
   }
 
@@ -275,9 +281,16 @@ public class RunningExperimentsActivity extends Activity {
   }
 
 
-  private void editExperiment(long id) {
-    Intent experimentIntent = new Intent(RunningExperimentsActivity.this, ExperimentScheduleListActivity.class);
-    experimentIntent.putExtra(Experiment.EXPERIMENT_SERVER_ID_EXTRA_KEY, id);
+  private void editExperiment(Experiment experiment, List<ExperimentGroup> groups) {
+    Intent experimentIntent = null;
+    if (groups.size() > 1) {
+      experimentIntent = new Intent(RunningExperimentsActivity.this, ExperimentGroupPicker.class);
+      experimentIntent.putExtra(ExperimentGroupPicker.SHOULD_GO_TO_RENDER_NEXT, ExperimentGroupPicker.SCHEDULE_NEXT);
+    } else {
+      experimentIntent = new Intent(RunningExperimentsActivity.this, ExperimentScheduleListActivity.class);
+      experimentIntent.putExtra(Experiment.EXPERIMENT_GROUP_NAME_EXTRA_KEY, groups.get(0).getName());
+    }
+    experimentIntent.putExtra(Experiment.EXPERIMENT_SERVER_ID_EXTRA_KEY, experiment.getExperimentDAO().getId());
     startActivity(experimentIntent);
   }
 
@@ -441,10 +454,13 @@ public class RunningExperimentsActivity extends Activity {
           return;
         } else {
           final Long experimentServerId = (Long) v.getTag();
+          final Experiment experiment = experiments.get(position);
+          final List<ExperimentGroup> groups = experiment.getExperimentDAO().getGroups();
+
           if (v.getId() == R.id.editExperimentButton) {
-            editExperiment(experimentServerId);
+            editExperiment(experiment, groups);
           } else if (v.getId() == R.id.exploreDataExperimentButton) {
-            showDataForExperiment(experimentServerId);
+            showDataForExperiment(experiment, groups);
           } else if (v.getId() == R.id.quitExperimentButton) {
             new AlertDialog.Builder(RunningExperimentsActivity.this).setCancelable(true)
               .setTitle(R.string.stop_the_experiment_dialog_title)
@@ -467,7 +483,22 @@ public class RunningExperimentsActivity extends Activity {
                                  }).create().show();
 
           } else if (v.getId() == R.id.experimentListRowTitle) {
-            Intent experimentIntent = new Intent(RunningExperimentsActivity.this, ExperimentGroupPicker.class);
+            Intent experimentIntent = null;
+            if (groups.size() > 1) {
+              experimentIntent = new Intent(RunningExperimentsActivity.this, ExperimentGroupPicker.class);
+              experimentIntent.putExtra(ExperimentGroupPicker.SHOULD_GO_TO_RENDER_NEXT, ExperimentGroupPicker.RENDER_NEXT);
+            } else {
+              Class clazz = null;
+              final ExperimentGroup experimentGroup = groups.get(0);
+              if (experimentGroup.getCustomRendering()) {
+                clazz = ExperimentExecutorCustomRendering.class;
+              } else {
+                clazz = ExperimentExecutor.class;
+              }
+              experimentIntent = new Intent(RunningExperimentsActivity.this, clazz);
+              experimentIntent.putExtra(Experiment.EXPERIMENT_GROUP_NAME_EXTRA_KEY, experimentGroup.getName());
+
+            }
             experimentIntent.putExtra(Experiment.EXPERIMENT_SERVER_ID_EXTRA_KEY, experimentServerId);
             startActivity(experimentIntent);
             finish();

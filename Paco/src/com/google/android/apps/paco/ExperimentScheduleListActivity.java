@@ -17,10 +17,11 @@
 package com.google.android.apps.paco;
 
 import java.util.List;
+import java.util.Map;
 
 import org.joda.time.DateTime;
 
-import android.app.Activity;
+import android.app.ListActivity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
@@ -29,24 +30,28 @@ import android.telephony.TelephonyManager;
 import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.View.OnClickListener;
-import android.widget.Button;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
 import android.widget.Toast;
 
 import com.google.android.apps.paco.utils.IntentExtraHelper;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.google.paco.shared.model2.ActionTrigger;
 import com.google.paco.shared.model2.ExperimentGroup;
 import com.google.paco.shared.model2.Schedule;
 import com.google.paco.shared.model2.ScheduleTrigger;
 import com.pacoapp.paco.R;
 
-public class ExperimentScheduleListActivity extends Activity implements ExperimentLoadingActivity {
+public class ExperimentScheduleListActivity extends ListActivity implements ExperimentLoadingActivity {
 
   private Experiment experiment;
   private ExperimentProviderUtil experimentProviderUtil;
 
   private LayoutInflater inflater;
   private boolean fromInformedConsentPage;
+  private ExperimentGroup experimentGroup;
+  private Map<String, ScheduleBundle> scheduleMap;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -57,33 +62,92 @@ public class ExperimentScheduleListActivity extends Activity implements Experime
             ? getIntent().getExtras().getBoolean(InformedConsentActivity.INFORMED_CONSENT_PAGE_EXTRA_KEY)
             : false;
 
-    if (fromInformedConsentPage) {
-      experiment = experimentProviderUtil.getExperimentFromDisk(getIntent().getExtras().getLong(Experiment.EXPERIMENT_SERVER_ID_EXTRA_KEY), fromInformedConsentPage);
-    } else {
-      IntentExtraHelper.loadExperimentInfoFromIntent(this, getIntent(), experimentProviderUtil);
-    }
+    IntentExtraHelper.loadExperimentInfoFromIntent(this, getIntent(), experimentProviderUtil);
 
-    if (experiment == null) {
-      Toast.makeText(this, R.string.cannot_find_the_experiment_warning, Toast.LENGTH_SHORT).show();
+    if (!getUserEditableFromIntent()) {
+      save();
       finish();
     } else {
-      showAllSchedulesForAllGroups();
-      setupScheduleSaving();
+
+      if (experiment == null) {
+        Toast.makeText(this, R.string.cannot_find_the_experiment_warning, Toast.LENGTH_SHORT).show();
+        finish();
+      } else {
+        showAllSchedulesForAllGroups();
+        setupScheduleSaving();
+      }
     }
+  }
+
+  private boolean getUserEditableFromIntent() {
+    if (getIntent().getExtras() != null) {
+      return getIntent().getBooleanExtra(ExperimentScheduleActivity.USER_EDITABLE_SCHEDULE, true);
+    }
+    return true;
   }
 
   private void showAllSchedulesForAllGroups() {
     // TODO iterate each group, each scheduletrigger,
     // show details, and if editable, create link to ExperimentScheduleActivity
     // for that schedule with a onActivityResult call to update that schedule.
+    if (experimentGroup != null) {
+      showSchedulesForGroup(experimentGroup);
+    }
+  }
 
+  class ScheduleBundle {
+    ExperimentGroup group;
+    ScheduleTrigger trigger;
+    Schedule schedule;
+
+    public ScheduleBundle(ExperimentGroup group, ScheduleTrigger trigger, Schedule schedule) {
+      super();
+      this.group = group;
+      this.trigger = trigger;
+      this.schedule = schedule;
+    }
+
+  }
+
+  private void showSchedulesForGroup(ExperimentGroup experimentGroup2) {
+    List<String> scheduleDescriptions = Lists.newArrayList();
+    for (ActionTrigger actionTrigger : experimentGroup2.getActionTriggers()) {
+      if (actionTrigger instanceof ScheduleTrigger) {
+        ScheduleTrigger scheduleTrigger = (ScheduleTrigger) actionTrigger;
+        List<Schedule> schedules = scheduleTrigger.getSchedules();
+        for (Schedule schedule : schedules) {
+          final String scheduleDescription = schedule.toString();
+          ScheduleBundle sb = new ScheduleBundle(experimentGroup2, scheduleTrigger, schedule);
+          scheduleMap = Maps.newHashMap();
+          scheduleMap.put(scheduleDescription, sb);
+          scheduleDescriptions.add(scheduleDescription);
+        }
+      }
+    }
+    ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1,
+            scheduleDescriptions);
+    setListAdapter(adapter);
+  }
+
+
+  @Override
+  protected void onListItemClick(ListView l, View v, int position, long id) {
+    ScheduleBundle chosenSchedule = scheduleMap.get(getListAdapter().getItem(position));
+
+    Intent experimentIntent = new Intent(this, ExperimentScheduleActivity.class);
+    experimentIntent.putExtra(Experiment.EXPERIMENT_SERVER_ID_EXTRA_KEY, experiment.getExperimentDAO().getId());
+    experimentIntent.putExtra(Experiment.EXPERIMENT_GROUP_NAME_EXTRA_KEY, chosenSchedule.group.getName());
+    experimentIntent.putExtra(ExperimentScheduleActivity.SCHEDULE_TRIGGER_ID, chosenSchedule.trigger.getId());
+    experimentIntent.putExtra(ExperimentScheduleActivity.SCHEDULE_ID, chosenSchedule.schedule.getId());
+    startActivity(experimentIntent);
+    finish();
   }
 
   private void setupScheduleSaving() {
     if (!userCanEditAtLeastOneSchedule()) {
       save();
     } else {
-      setupSaveButton();
+      //setupSaveButton();
     }
   }
 
@@ -94,7 +158,7 @@ public class ExperimentScheduleListActivity extends Activity implements Experime
       for (ActionTrigger actionTrigger : actionTriggers) {
         if (actionTrigger.getUserEditable()) {
           boolean userCanOnlyEditOnJoin = actionTrigger.getOnlyEditableOnJoin();
-          if (userCanOnlyEditOnJoin && fromInformedConsentPage) {
+          if (!userCanOnlyEditOnJoin || (userCanOnlyEditOnJoin && fromInformedConsentPage)) {
             return true;
           }
         }
@@ -104,15 +168,15 @@ public class ExperimentScheduleListActivity extends Activity implements Experime
   }
 
 
-  private void setupSaveButton() {
-    Button saveScheduleButton = (Button) findViewById(R.id.SetDailyScheduleButton);
-    saveScheduleButton.setOnClickListener(new OnClickListener() {
-
-      public void onClick(View v) {
-        save();
-      }
-    });
-  }
+//  private void setupSaveButton() {
+//    Button saveScheduleButton = (Button) findViewById(R.id.SetDailyScheduleButton);
+//    saveScheduleButton.setOnClickListener(new OnClickListener() {
+//
+//      public void onClick(View v) {
+//        save();
+//      }
+//    });
+//  }
 
   private void saveExperimentRegistration() {
     boolean hasEsm = false;
@@ -232,7 +296,7 @@ public class ExperimentScheduleListActivity extends Activity implements Experime
 
   @Override
   public void setExperimentGroup(ExperimentGroup groupByName) {
-    // no-op for this activity
+    this.experimentGroup = groupByName;
   }
 
 }

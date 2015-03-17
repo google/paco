@@ -436,6 +436,8 @@ public class ExperimentExecutor extends Activity implements ChangeListener, Loca
   void showFeedback() {
     Intent intent = new Intent(this, FeedbackActivity.class);
     intent.putExtras(getIntent().getExtras());
+    intent.putExtra(Experiment.EXPERIMENT_SERVER_ID_EXTRA_KEY, experiment.getExperimentDAO().getId());
+    intent.putExtra(Experiment.EXPERIMENT_GROUP_NAME_EXTRA_KEY, experimentGroup.getName());
     startActivity(intent);
   }
 

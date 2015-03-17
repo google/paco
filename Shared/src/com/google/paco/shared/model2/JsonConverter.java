@@ -1,4 +1,4 @@
-package com.google.sampling.experiential.datastore;
+package com.google.paco.shared.model2;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -18,14 +18,6 @@ import org.codehaus.jackson.map.annotate.JsonSerialize.Inclusion;
 import org.codehaus.jackson.type.TypeReference;
 
 import com.google.common.collect.Maps;
-import com.google.paco.shared.model2.ActionTrigger;
-import com.google.paco.shared.model2.ExperimentDAO;
-import com.google.paco.shared.model2.ExperimentDAOCore;
-import com.google.paco.shared.model2.InterruptTrigger;
-import com.google.paco.shared.model2.PacoAction;
-import com.google.paco.shared.model2.PacoActionAllOthers;
-import com.google.paco.shared.model2.PacoNotificationAction;
-import com.google.paco.shared.model2.ScheduleTrigger;
 
 public class JsonConverter {
 

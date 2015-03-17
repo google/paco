@@ -19,12 +19,12 @@ import com.google.paco.shared.model2.ExperimentGroup;
 import com.google.paco.shared.model2.ExperimentQueryResult;
 import com.google.paco.shared.model2.ExperimentValidator;
 import com.google.paco.shared.model2.InterruptTrigger;
+import com.google.paco.shared.model2.JsonConverter;
 import com.google.paco.shared.model2.Schedule;
 import com.google.paco.shared.model2.ScheduleTrigger;
 import com.google.paco.shared.model2.SignalTime;
 import com.google.paco.shared.model2.ValidationMessage;
 import com.google.sampling.experiential.datastore.ExperimentJsonEntityManager;
-import com.google.sampling.experiential.datastore.JsonConverter;
 
 class DefaultExperimentService implements ExperimentService {
 

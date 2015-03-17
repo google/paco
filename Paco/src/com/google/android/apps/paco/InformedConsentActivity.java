@@ -180,10 +180,10 @@ public class InformedConsentActivity extends Activity implements ExperimentLoadi
   }
 
   private void runScheduleActivity() {
-    Intent intent = new Intent(InformedConsentActivity.this, ExperimentScheduleActivity.class);
-    intent.setAction(Intent.ACTION_EDIT);
+    Intent intent = new Intent(InformedConsentActivity.this, ExperimentScheduleListActivity.class);
     intent.putExtras(getIntent().getExtras());
     intent.putExtra(INFORMED_CONSENT_PAGE_EXTRA_KEY, true);
+    intent.putExtra(ExperimentScheduleActivity.USER_EDITABLE_SCHEDULE, experiment.hasUserEditableSchedule());
     startActivityForResult(intent, FindExperimentsActivity.JOIN_REQUEST_CODE);
   }
 

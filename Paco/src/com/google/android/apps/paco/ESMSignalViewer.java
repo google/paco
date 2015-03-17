@@ -21,25 +21,22 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.joda.time.DateTime;
-import org.joda.time.format.DateTimeFormatter;
-import org.joda.time.format.ISODateTimeFormat;
 
 import android.app.ListActivity;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.widget.ArrayAdapter;
 
+import com.google.paco.shared.util.TimeUtil;
 import com.pacoapp.paco.R;
 
-public class ESMSignalViewer extends ListActivity {
+public class ESMSignalViewer extends ListActivity  {
 
-  private DateTimeFormatter timeFormatter;
   private ExperimentProviderUtil experimentProviderUtil;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    timeFormatter = ISODateTimeFormat.dateTime();
     setContentView(R.layout.schedule_list);
     experimentProviderUtil = new ExperimentProviderUtil(this);
     fillData();
@@ -68,11 +65,16 @@ public class ESMSignalViewer extends ListActivity {
 //    });
 
     List<String> nameAndTime = new ArrayList<String>();
+    final int timeColumnIndex = cursor.getColumnIndex(Signal.TIME);
+    final int experimentIdColumnIndex = cursor.getColumnIndex(Signal.EXPERIMENT_ID);
+    final int experimentGroupColumnIndex = cursor.getColumnIndex(Signal.GROUP_NAME);
+
     while (cursor.moveToNext()) {
-      Long experimentId = cursor.getLong(2);
-      String experimentName = experimentProviderUtil.getExperiment(experimentId).getExperimentDAO().getTitle();
-      String signalTime = new DateTime(cursor.getLong(3)).toString(timeFormatter);
-      nameAndTime.add(experimentName + ": " + signalTime);
+      Long experimentId = cursor.getLong(experimentIdColumnIndex);
+      String experimentGroupName = cursor.getString(experimentGroupColumnIndex);
+      String experimentName = experimentProviderUtil.getExperimentByServerId(experimentId).getExperimentDAO().getTitle();
+      String signalTime = TimeUtil.formatDateTimeShortNoZone(new DateTime(cursor.getLong(timeColumnIndex)));
+      nameAndTime.add(signalTime + "  " + experimentName + "/" + experimentGroupName );
     }
     ArrayAdapter scheduleAdapter = new ArrayAdapter(this, R.layout.schedule_row, nameAndTime);
     setListAdapter(scheduleAdapter);

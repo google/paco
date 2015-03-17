@@ -11,7 +11,7 @@ import com.google.appengine.tools.development.testing.LocalDatastoreServiceTestC
 import com.google.appengine.tools.development.testing.LocalServiceTestHelper;
 import com.google.common.collect.Lists;
 import com.google.paco.shared.model2.ExperimentDAO;
-import com.google.sampling.experiential.datastore.JsonConverter;
+import com.google.paco.shared.model2.JsonConverter;
 
 public class ExperimentRetrieverTest extends TestCase {
 

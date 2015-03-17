@@ -31,6 +31,7 @@ import com.google.common.collect.Sets;
 import com.google.paco.shared.comm.Outcome;
 import com.google.paco.shared.model2.ExperimentDAO;
 import com.google.paco.shared.model2.Input2;
+import com.google.paco.shared.util.ExperimentHelper;
 import com.google.sampling.experiential.model.PhotoBlob;
 import com.google.sampling.experiential.model.What;
 import com.google.sampling.experiential.shared.TimeUtil;
@@ -220,7 +221,7 @@ public class EventCsvUploadProcessor {
         String answer = rowData.get(name);
         Input2 input = null;
         if (experiment != null) {
-          input = experiment.getInputWithName(name, groupName);
+          input =ExperimentHelper.getInputWithName(experiment, name, groupName);
         }
         if (input != null && input.getResponseType() != null && input.getResponseType().equals(Input2.PHOTO)) {
           PhotoBlob photoBlob = new PhotoBlob(name, Base64.decodeBase64(answer.getBytes()));

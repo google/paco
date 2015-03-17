@@ -47,7 +47,7 @@ import com.google.appengine.api.modules.ModulesService;
 import com.google.appengine.api.modules.ModulesServiceFactory;
 import com.google.appengine.api.users.User;
 import com.google.common.collect.Lists;
-import com.google.sampling.experiential.datastore.JsonConverter;
+import com.google.paco.shared.model2.JsonConverter;
 import com.google.sampling.experiential.model.Event;
 import com.google.sampling.experiential.shared.EventDAO;
 

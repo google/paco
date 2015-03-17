@@ -219,7 +219,13 @@ public class NotificationCreator {
 
 
   private NotificationHolder createNewNotificationWithDetails(Context context,ActionSpecification timeExperiment) {
-    long expirationTimeInMillis = timeExperiment.action.getTimeout() * 1000;
+    final PacoNotificationAction action = timeExperiment.action;
+    long expirationTimeInMillis;
+    if (action != null) {
+      expirationTimeInMillis = action.getTimeout() * 60 * 1000;
+    } else {
+      expirationTimeInMillis = Integer.parseInt(PacoNotificationAction.ESM_SIGNAL_TIMEOUT);
+    }
 
     NotificationHolder notificationHolder = new NotificationHolder(timeExperiment.time.getMillis(),
                                                                    timeExperiment.experiment.getId(),
@@ -227,14 +233,14 @@ public class NotificationCreator {
                                                                    expirationTimeInMillis,
                                                                    timeExperiment.experimentGroup.getName(),
                                                                    timeExperiment.actionTrigger.getId(),
-                                                                   timeExperiment.action.getId(),
+                                                                   action.getId(),
                                                                    null,
-                                                                   timeExperiment.action.getMsgText() != null
-                                                                     ? timeExperiment.action.getMsgText()
+                                                                   action.getMsgText() != null
+                                                                     ? action.getMsgText()
                                                                      : context.getString(R.string.time_to_participate_notification_text),
                                                                      timeExperiment.actionTriggerSpecId);
     experimentProviderUtil.insertNotification(notificationHolder);
-    fireNotification(context, notificationHolder, timeExperiment.experiment.getTitle(), timeExperiment.action.getMsgText());
+    fireNotification(context, notificationHolder, timeExperiment.experiment.getTitle(), action.getMsgText());
     return notificationHolder;
   }
 

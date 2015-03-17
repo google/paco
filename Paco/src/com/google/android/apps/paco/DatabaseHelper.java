@@ -72,7 +72,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             + NotificationHolderColumns.SNOOZE_TIME + " INTEGER, "
             + NotificationHolderColumns.EXPERIMENT_GROUP_NAME + " TEXT, "
             + NotificationHolderColumns.ACTION_TRIGGER_ID + " INTEGER, "
-            + NotificationHolderColumns.ACTION_ID + " INTEGER "
+            + NotificationHolderColumns.ACTION_ID + " INTEGER, "
+            + NotificationHolderColumns.ACTION_TRIGGER_SPEC_ID + " INTEGER "
             + ");");
 
     // insertValues(db);
@@ -256,6 +257,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
               + NotificationHolderColumns.ACTION_TRIGGER_ID + " INTEGER ;");
       db.execSQL("ALTER TABLE " + ExperimentProvider.NOTIFICATION_TABLE_NAME + " ADD COLUMN "
               + NotificationHolderColumns.ACTION_ID + " INTEGER;");
+      db.execSQL("ALTER TABLE " + ExperimentProvider.NOTIFICATION_TABLE_NAME + " ADD COLUMN "
+              + NotificationHolderColumns.ACTION_TRIGGER_SPEC_ID + " INTEGER;");
 
       db.execSQL("ALTER TABLE " + ExperimentProvider.EVENTS_TABLE_NAME + " ADD COLUMN "
               + EventColumns.GROUP_NAME + " TEXT;");

@@ -38,6 +38,7 @@ import com.google.paco.shared.model2.Input2;
 import com.google.paco.shared.model2.InterruptCue;
 import com.google.paco.shared.model2.InterruptTrigger;
 import com.google.paco.shared.model2.ScheduleTrigger;
+import com.google.paco.shared.util.ExperimentHelper;
 import com.google.paco.shared.util.TimeUtil;
 
 public class Experiment implements Parcelable {
@@ -151,12 +152,7 @@ public class Experiment implements Parcelable {
 
   @JsonIgnore
   public Input2 getInputByName(String inputName) {
-    for (Input2 input : experimentDelegate.getInputs()) {
-      if (input.getName().equals(inputName)) {
-        return input;
-      }
-    }
-    return null;
+    return ExperimentHelper.getInputWithName(experimentDelegate, inputName, null);
   }
 
   @Override
@@ -273,6 +269,7 @@ public class Experiment implements Parcelable {
 
   public void setExperimentDAO(com.google.paco.shared.model2.ExperimentDAO experimentDAO) {
     this.experimentDelegate = experimentDAO;
+    this.serverId = experimentDelegate.getId();
 
   }
 

@@ -30,7 +30,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnMultiChoiceClickListener;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -52,7 +51,6 @@ import android.widget.Toast;
 
 import com.google.android.apps.paco.utils.IntentExtraHelper;
 import com.google.common.base.Strings;
-import com.google.paco.shared.model2.ActionTrigger;
 import com.google.paco.shared.model2.ExperimentGroup;
 import com.google.paco.shared.model2.Schedule;
 import com.google.paco.shared.model2.ScheduleTrigger;
@@ -65,7 +63,10 @@ public class ExperimentScheduleActivity extends Activity implements ExperimentLo
 
   private static final String TIME_FORMAT_STRING = "hh:mm aa";
 
-  private Uri uri;
+  public static final String SCHEDULE_TRIGGER_ID = "schedule_trigger";
+
+  public static final String SCHEDULE_ID = "schedule_id";
+
   private Experiment experiment;
   private ExperimentProviderUtil experimentProviderUtil;
   private TimePicker timePicker;
@@ -91,13 +92,13 @@ public class ExperimentScheduleActivity extends Activity implements ExperimentLo
 
   private LinearLayout timesScheduleLayout;
 
-  private boolean fromInformedConsentPage;
-
   private Schedule schedule;
 
   private boolean userEditable = true;
 
   private ExperimentGroup experimentGroup;
+
+  private ScheduleTrigger scheduleTrigger;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -105,22 +106,21 @@ public class ExperimentScheduleActivity extends Activity implements ExperimentLo
 
     final Intent intent = getIntent();
 
-    fromInformedConsentPage = intent.getExtras() != null
-            ? intent.getExtras().getBoolean(InformedConsentActivity.INFORMED_CONSENT_PAGE_EXTRA_KEY)
-            : false;
     experimentProviderUtil = new ExperimentProviderUtil(this);
-    if (fromInformedConsentPage) {
-      experiment = experimentProviderUtil.getExperimentFromDisk(getIntent().getExtras().getLong(Experiment.EXPERIMENT_SERVER_ID_EXTRA_KEY), fromInformedConsentPage);
-    } else {
-      IntentExtraHelper.loadExperimentInfoFromIntent(this, intent, experimentProviderUtil);
-    }
+    IntentExtraHelper.loadExperimentInfoFromIntent(this, intent, experimentProviderUtil);
+
     if (experiment == null) {
       Toast.makeText(this, R.string.cannot_find_the_experiment_warning, Toast.LENGTH_SHORT).show();
       finish();
     } else {
-      schedule = getScheduleFromIntent();
-      userEditable = getUserEditableFromIntent();
-      setUpSchedulingLayout();
+      loadScheduleFromIntent();
+      if (schedule == null) {
+        Toast.makeText(this, R.string.cannot_find_the_experiment_warning, Toast.LENGTH_SHORT).show();
+        finish();
+      } else {
+        userEditable = getUserEditableFromIntent();
+        setUpSchedulingLayout();
+      }
     }
 
   }
@@ -132,16 +132,13 @@ public class ExperimentScheduleActivity extends Activity implements ExperimentLo
     return false;
   }
 
-  private Schedule getScheduleFromIntent() {
+  private void loadScheduleFromIntent() {
     if (getIntent().getExtras() != null) {
-      Long actionTriggerId = getIntent().getExtras().getLong(Experiment.ACTION_TRIGGER_ID);
-      Long scheduleId = getIntent().getExtras().getLong(Experiment.ACTION_TRIGGER_SPEC_ID);
-      ActionTrigger actionTrigger = experimentGroup.getActionTriggerById(actionTriggerId);
-      if (actionTrigger instanceof ScheduleTrigger) {
-        return ((ScheduleTrigger)actionTrigger).getSchedulesById(scheduleId);
-      }
+      long scheduleTriggerId = getIntent().getExtras().getLong(ExperimentScheduleActivity.SCHEDULE_TRIGGER_ID);
+      Long scheduleId = getIntent().getExtras().getLong(ExperimentScheduleActivity.SCHEDULE_ID);
+      scheduleTrigger = (ScheduleTrigger)experimentGroup.getActionTriggerById(scheduleTriggerId);
+      schedule = scheduleTrigger.getSchedulesById(scheduleId);
     }
-    throw new IllegalStateException("Could not find schedule from intent!");
   }
 
   private void setUpSchedulingLayout() {
@@ -153,7 +150,6 @@ public class ExperimentScheduleActivity extends Activity implements ExperimentLo
     // end setup ui pieces
 
     if (schedule == null) {
-    } else {
       setContentView(R.layout.self_report_schedule);
       save();
       return;
