@@ -72,7 +72,7 @@ md-toolbar .subtitle {
 }
 
 .md-button[add-icon] {
-  background: url('/img/ic_add_circle_outline_24px.svg') no-repeat;
+  background: url('../img/ic_add_circle_outline_24px.svg') no-repeat;
   background-position: 3px 3px;
   padding-left: 32px;
 }

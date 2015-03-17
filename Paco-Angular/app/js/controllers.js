@@ -7,9 +7,9 @@ app.controller('ExperimentCtrl', ['$scope', '$http', '$routeParams', 'config',
   $scope.selectedIndex = 1;
   $scope.loaded = false;
 
-  //$http.get('/experiments?id=5629499534213120').success(function(data) {
-  $http.get('js/experiment.json').success(function(data) {
-    $scope.experiment = data[$scope.experimentIdx];
+  $http.get('/experiments?id=' + $scope.experimentIdx).success(function(data) {
+  //$http.get('js/experiment.json').success(function(data) {
+    $scope.experiment = data[0];
     $scope.loaded = true;
     $scope.$broadcast('experimentChange');
   });

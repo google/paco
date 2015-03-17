@@ -37,7 +37,7 @@
 }
 
 .remove-button {
-  background: url('/img/ic_clear_24px.svg') no-repeat;
+  background: url('../img/ic_clear_24px.svg') no-repeat;
   float: right;
   height: 24px;
   opacity: .5;
@@ -45,7 +45,7 @@
 }
 
 .add-button {
-  background: url('/img/ic_add_circle_outline_24px.svg') no-repeat;
+  background: url('../img/ic_add_circle_outline_24px.svg') no-repeat;
   float: right;
   height: 24px;
   margin-right: 8px;
@@ -86,7 +86,7 @@
 }
 
 .group .removeGroup {
-  background: url('/img/ic_clear_24px.svg') no-repeat;
+  background: url('../img/ic_clear_24px.svg') no-repeat;
   height: 26px;
   opacity: .5;
   position: absolute;
@@ -127,7 +127,7 @@ md-card-content .reference {
 }
 
 md-card-content[expandable]::after {
-  background: url('/img/ic_unfoldMore.svg') no-repeat;
+  background: url('../img/ic_unfoldMore.svg') no-repeat;
   content: "";
   height: 24px;
   opacity: .5;
@@ -143,7 +143,7 @@ md-card-content[expandable]:hover::after {
 }
 
 md-card-content.expand::after  {
-  background: url('/img/ic_unfoldLess.svg') no-repeat;
+  background: url('../img/ic_unfoldLess.svg') no-repeat;
 }
 
 md-card md-card-content {

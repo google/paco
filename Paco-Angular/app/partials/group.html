@@ -28,7 +28,7 @@
           </md-button>
         </div>
 
-        <div ng-repeat="trigger in group.actionTriggers track by $index" ng-show="expand" class="trigger" ng-include="'/partials/trigger.html'">
+        <div ng-repeat="trigger in group.actionTriggers track by $index" ng-show="expand" class="trigger" ng-include="'partials/trigger.html'">
         </div>
       </md-card-content>
 
@@ -43,7 +43,7 @@
             Input
           </md-button>
         </div>
-        <div ng-controller="InputsCtrl" ng-show="expand" ng-include="'/partials/inputs.html'">
+        <div ng-controller="InputsCtrl" ng-show="expand" ng-include="'partials/inputs.html'">
         </div>
       </md-card-content>
 
