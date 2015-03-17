@@ -35,6 +35,20 @@ public class NonESMSignalGeneratorTest extends TestCase {
 
   private Long NULL_EXPERIMENT_ID = null;
 
+  class TestEventStore implements EventStore {
+
+    @Override
+    public EventInterface getEvent(Long experimentId, DateTime scheduledTime, String groupName, Long actionTriggerId,
+                                   Long scheduleId) {
+      return null;
+    }
+
+    @Override
+    public void updateEvent(EventInterface correspondingEvent) {
+
+    }
+
+  }
 
   private Schedule createDailyScheduleWithTimes(List<SignalTime> times, int repeatRate) {
     return createSchedule(times, Schedule.DAILY, repeatRate,
@@ -843,7 +857,7 @@ public class NonESMSignalGeneratorTest extends TestCase {
   }
 
   public void testDailyFixedTimeThenOffsetFromResponseTime2pm_3pmMissedResponse() throws Exception {
-    EventStore mockEp = new EventStore() {
+    EventStore mockEp = new TestEventStore() {
 
       @Override
       public EventInterface getEvent(Long experimentId, final DateTime scheduledTime, String groupName, Long actionTriggerId,
@@ -877,7 +891,7 @@ public class NonESMSignalGeneratorTest extends TestCase {
 
   public void testDailyFixedTimeThenOffsetFromResponseTime2pm_3pmResponded() throws Exception {
     //setup
-    EventStore mockEp = new EventStore() {
+    EventStore mockEp = new TestEventStore() {
 
       @Override
       public EventInterface getEvent(Long experimentId, final DateTime scheduledTime, String groupName, Long actionTriggerId,
@@ -911,7 +925,7 @@ public class NonESMSignalGeneratorTest extends TestCase {
   }
 
   public void testDailyFixedTimeThenOffsetFromResponseTime2pm_430pmResponded() throws Exception {
-    EventStore mockEp = new EventStore() {
+    EventStore mockEp = new TestEventStore() {
       @Override
       public EventInterface getEvent(Long experimentId, final DateTime scheduledTime, String groupName, Long actionTriggerId,
                                      Long scheduleId) {
@@ -944,7 +958,7 @@ public class NonESMSignalGeneratorTest extends TestCase {
   }
 
   public void testDailyFixedTimeThenOffsetFromResponseTime2pm_3pmNotRespondedYet() throws Exception {
-    EventStore mockEp = new EventStore() {
+    EventStore mockEp = new TestEventStore() {
       @Override
       public EventInterface getEvent(Long experimentId, DateTime scheduledTime, String groupName, Long actionTriggerId,
                                      Long scheduleId) {
@@ -967,7 +981,7 @@ public class NonESMSignalGeneratorTest extends TestCase {
   }
 
   public void testDailyFixedTimeThenOffsetFromResponseTimeWithUseScheduledTime2pm_3pmMissedResponse() throws Exception {
-    EventStore mockEp = new EventStore() {
+    EventStore mockEp = new TestEventStore() {
 
       @Override
       public EventInterface getEvent(Long experimentId, final DateTime scheduledTime, String groupName, Long actionTriggerId,
@@ -1002,7 +1016,7 @@ public class NonESMSignalGeneratorTest extends TestCase {
   }
 
   public void testDailyFixedTimeThenOffsetFromResponseTimeThenFixedMissedFirstResponse() throws Exception {
-    EventStore mockEp = new EventStore() {
+    EventStore mockEp = new TestEventStore() {
 
       @Override
       public EventInterface getEvent(Long experimentId, final DateTime scheduledTime, String groupName, Long actionTriggerId,
@@ -1057,7 +1071,7 @@ public class NonESMSignalGeneratorTest extends TestCase {
     times.add(createFixedSignalTimeSkipOnMissed(sixPm));
     Schedule schedule = createDailyScheduleWithTimes(times, 1);
 
-    EventStore mockEp = new EventStore() {
+    EventStore mockEp = new TestEventStore() {
       @Override
       public EventInterface getEvent(Long experimentId, final DateTime scheduledTime, String groupName, Long actionTriggerId,
                                      Long scheduleId) {
@@ -1110,7 +1124,7 @@ public class NonESMSignalGeneratorTest extends TestCase {
     Schedule schedule = createDailyScheduleWithTimes(times, 1);
 
 
-    EventStore mockEp = new EventStore() {
+    EventStore mockEp = new TestEventStore() {
 
       @Override
       public EventInterface getEvent(Long experimentId, final DateTime scheduledTime, String groupName, Long actionTriggerId,
@@ -1159,7 +1173,7 @@ public class NonESMSignalGeneratorTest extends TestCase {
     DateTime sixPm = eightAm.plusHours(10);
     times.add(createFixedSignalTimeUseScheduledTimeOnMiss(sixPm));
     Schedule schedule = createDailyScheduleWithTimes(times, 1);
-    EventStore mockEp = new EventStore() {
+    EventStore mockEp = new TestEventStore() {
       public EventInterface getEvent(Long experimentServerId, final DateTime scheduledTime, String groupName, Long actionTriggerId,
                                      Long scheduleId) {
         return new EventInterface() {
@@ -1207,7 +1221,7 @@ public class NonESMSignalGeneratorTest extends TestCase {
     times.add(createOffsetSignalTimeResponseBasisSkipOnMiss(10 * 60 * 60 * 1000));
     Schedule schedule = createDailyScheduleWithTimes(times, 1);
 
-    EventStore mockEp = new EventStore() {
+    EventStore mockEp = new TestEventStore() {
       public EventInterface getEvent(Long experimentServerId, final DateTime scheduledTime, String groupName, Long actionTriggerId,
                                      Long scheduleId) {
         return new EventInterface() {
@@ -1249,7 +1263,7 @@ public class NonESMSignalGeneratorTest extends TestCase {
     times.add(createOffsetSignalTimeResponseBasisSkipOnMiss(10 * 60 * 60 * 1000));
     Schedule schedule = createDailyScheduleWithTimes(times, 1);
 
-    EventStore mockEp = new EventStore() {
+    EventStore mockEp = new TestEventStore() {
       public EventInterface getEvent(Long experimentServerId, final DateTime scheduledTime, String groupName, Long actionTriggerId,
                                      Long scheduleId) {
         return new EventInterface() {
@@ -1296,7 +1310,7 @@ public class NonESMSignalGeneratorTest extends TestCase {
     times.add(createOffsetSignalTimeResponseBasisSkipOnMiss(10 * 60 * 60 * 1000));
     Schedule schedule = createDailyScheduleWithTimes(times, 1);
 
-    EventStore mockEp = new EventStore() {
+    EventStore mockEp = new TestEventStore() {
       public EventInterface getEvent(Long experimentServerId, final DateTime scheduledTime, String groupName, Long actionTriggerId,
                                      Long scheduleId) {
         return new EventInterface() {

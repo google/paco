@@ -3,7 +3,7 @@ package com.google.paco.shared.comm;
 public class Outcome implements java.io.Serializable {
 
   private long eventId;
-  private boolean status = true;
+  private boolean status;
   private String errorMessage;
 
   public Outcome(long eventId) {
@@ -13,6 +13,7 @@ public class Outcome implements java.io.Serializable {
 
   public Outcome() {
     super();
+    this.status = true;
   }
 
   public Outcome(long eventId, String errorMessage) {
@@ -37,6 +38,7 @@ public class Outcome implements java.io.Serializable {
     this.status = status;
   }
 
+
   public String getErrorMessage() {
     return errorMessage;
   }
@@ -49,6 +51,10 @@ public class Outcome implements java.io.Serializable {
     this.status = false;
     this.errorMessage = errorMessage;
 
+  }
+
+  public boolean getStatus() {
+    return status;
   }
 
 }

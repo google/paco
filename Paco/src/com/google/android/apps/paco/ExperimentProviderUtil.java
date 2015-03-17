@@ -929,9 +929,14 @@ public class ExperimentProviderUtil implements EventStore {
     return input;
   }
 
-  public void updateEvent(Event event) {
-    contentResolver.update(EventColumns.CONTENT_URI,
-        createContentValues(event), "_id=" + event.getId(), null);
+  public void updateEvent(EventInterface eventI) {
+    if (eventI instanceof Event) {
+      Event event = (Event)eventI;
+      contentResolver.update(EventColumns.CONTENT_URI,
+          createContentValues(event), "_id=" + event.getId(), null);
+    } else {
+      throw new IllegalArgumentException("I only know how to deal with Android objects!");
+    }
   }
 
   public List<Event> getEventsNeedingUpload() {

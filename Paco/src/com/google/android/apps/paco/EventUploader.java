@@ -14,29 +14,32 @@ import org.codehaus.jackson.type.TypeReference;
 import android.content.Context;
 import android.util.Log;
 
-import com.google.android.apps.paco.utils.AndroidUtils;
 import com.google.corp.productivity.specialprojects.android.comm.Response;
 import com.google.corp.productivity.specialprojects.android.comm.UrlContentManager;
 import com.google.paco.shared.comm.Outcome;
+import com.google.paco.shared.model2.EventStore;
+import com.google.paco.shared.model2.JsonConverter;
 
 public class EventUploader {
 
   private static final int UPLOAD_EVENT_GROUP_SIZE = 50;
-  
+
   private UrlContentManager um;
-  private ExperimentProviderUtil experimentProviderUtil;
+  private EventStore eventStore;
   private String serverAddress;
 
   private Context context;
 
-  public EventUploader(UrlContentManager um, String serverAddress, 
-                       ExperimentProviderUtil experimentProviderUtil, SyncService syncService) {
+  private String appVersion;
+
+  public EventUploader(UrlContentManager um, String serverAddress,
+                       EventStore eventStore, String appVersion) {
     this.um = um;
-    this.experimentProviderUtil = experimentProviderUtil;
+    this.eventStore = eventStore;
     this.serverAddress = serverAddress;
-    this.context = syncService;
+    this.appVersion = appVersion;
   }
-  
+
   public void uploadEvents(List<Event> allEvents) {
     if (allEvents.size() == 0) {
       Log.d(PacoConstants.TAG, "Nothing to sync");
@@ -54,14 +57,8 @@ public class EventUploader {
       ResponsePair response = sendToPaco(events);
       switch (response.overallCode) {
       case 200:
-        for (int i = 0; i < response.outcomes.size(); i++) {
-          Outcome current = response.outcomes.get(i);
-          if (current.succeeded()) {
-            Event correspondingEvent = events.get((int) current.getEventId());
-            correspondingEvent.setUploaded(true);
-            experimentProviderUtil.updateEvent(correspondingEvent);
-          }
-        }
+        final List<Outcome> outcomes = response.outcomes;
+        markEventsAccordingToOutcomes(events, outcomes);
         uploaded = end;
         break;
       default:
@@ -69,7 +66,7 @@ public class EventUploader {
         break;
       }
     }
- 
+
     if (!hasErrorOcurred) {
       Log.d(PacoConstants.TAG, "syncing complete");
     } else {
@@ -77,42 +74,52 @@ public class EventUploader {
     }
   }
 
+  public void markEventsAccordingToOutcomes(List<Event> events, final List<Outcome> outcomes) {
+    for (int i = 0; i < outcomes.size(); i++) {
+      Outcome currentOutcome = outcomes.get(i);
+      if (currentOutcome.succeeded()) {
+        Event correspondingEvent = events.get((int) currentOutcome.getEventId());
+        correspondingEvent.setUploaded(true);
+        eventStore.updateEvent(correspondingEvent);
+      }
+    }
+  }
+
   private static class ResponsePair {
     int overallCode;
     List<Outcome> outcomes;
   }
-  
+
   private ResponsePair sendToPaco(List<Event> events) {
     ResponsePair responsePair = new ResponsePair();
-    
+
     String json = toJson(events, responsePair);
     if (responsePair.overallCode == 500) {
       return responsePair;
     }
-    
+
     try {
-      Log.i("" + this, "Preparing to post.");      
+      Log.i("" + this, "Preparing to post.");
       Response response = um.createRequest().setUrl(ServerAddressBuilder.createServerUrl(serverAddress, "/events")).
           setPostData(json, Charset.forName("UTF_8").name())
           .addHeader("http.useragent", "Android")
-          .addHeader("paco.version", AndroidUtils.getAppVersion(context))
+          .addHeader("paco.version", appVersion)
           .execute();
-      
+
       responsePair.overallCode = response.getHttpCode();
       readOutcomesFromJson(responsePair, response.getContentAsString());
       return responsePair;
     } finally {
       if (um != null) {
-        um.cleanUp(); 
+        um.cleanUp();
       }
     }
-    
+
   }
 
   private void readOutcomesFromJson(ResponsePair responsePair, String contentAsString) {
     if (contentAsString != null) {
-      ObjectMapper mapper2 = new ObjectMapper();
-      mapper2.configure(org.codehaus.jackson.map.DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES, false);        
+      ObjectMapper mapper2 = JsonConverter.getObjectMapper();
       try {
         responsePair.outcomes = mapper2.readValue(contentAsString, new TypeReference<List<Outcome>>() {});
       } catch (JsonParseException e) {
@@ -125,15 +132,15 @@ public class EventUploader {
         Log.e(PacoConstants.TAG, e.getMessage(), e);
         responsePair.overallCode = 500;
       }
-    } 
+    }
   }
 
   private String toJson(List<Event> events, ResponsePair responsePair) {
-    ObjectMapper mapper = new ObjectMapper();
+    ObjectMapper mapper = JsonConverter.getObjectMapper();
     StringWriter stringWriter = new StringWriter();
     Log.d(PacoConstants.TAG, "syncing events");
     try {
-      mapper.writeValue(stringWriter, events);      
+      mapper.writeValue(stringWriter, events);
     } catch (JsonGenerationException e) {
       Log.e(PacoConstants.TAG, e.getMessage(), e);
       responsePair.overallCode = 500;

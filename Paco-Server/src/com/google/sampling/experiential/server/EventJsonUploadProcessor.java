@@ -12,7 +12,6 @@ import org.apache.commons.codec.binary.Base64;
 import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.map.annotate.JsonSerialize.Inclusion;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormatter;
 import org.json.JSONArray;
@@ -25,6 +24,7 @@ import com.google.common.collect.Sets;
 import com.google.paco.shared.comm.Outcome;
 import com.google.paco.shared.model2.ExperimentDAO;
 import com.google.paco.shared.model2.Input2;
+import com.google.paco.shared.model2.JsonConverter;
 import com.google.paco.shared.util.ExperimentHelper;
 import com.google.sampling.experiential.model.PhotoBlob;
 import com.google.sampling.experiential.model.What;
@@ -38,6 +38,7 @@ public class EventJsonUploadProcessor {
 
   public EventJsonUploadProcessor(ExperimentService experimentRetriever, EventRetriever eventRetriever) {
     this.eventRetriever = eventRetriever;
+    this.experimentRetriever = experimentRetriever;
   }
 
   public static EventJsonUploadProcessor create() {
@@ -48,9 +49,11 @@ public class EventJsonUploadProcessor {
   public String processJsonEvents(String postBodyString, String whoFromLogin, String appIdHeader, String pacoVersion) {
     try {
       if (postBodyString.startsWith("[")) {
-        return toJson(processJsonArray(new JSONArray(postBodyString), whoFromLogin, appIdHeader, pacoVersion));
+        final JSONArray events = new JSONArray(postBodyString);
+        return toJson(processJsonArray(events, whoFromLogin, appIdHeader, pacoVersion));
       } else {
-        return toJson(processSingleJsonEvent(new JSONObject(postBodyString), whoFromLogin, appIdHeader, pacoVersion));
+        final JSONObject currentEvent = new JSONObject(postBodyString);
+        return toJson(processSingleJsonEvent(currentEvent, whoFromLogin, appIdHeader, pacoVersion));
       }
     } catch (JSONException e) {
       throw new IllegalArgumentException("JSON Exception reading post data: " + e.getMessage());
@@ -58,8 +61,8 @@ public class EventJsonUploadProcessor {
   }
 
   private String toJson(List<Outcome> outcomes) {
-    ObjectMapper mapper = new ObjectMapper();
-    mapper.getSerializationConfig().setSerializationInclusion(Inclusion.NON_NULL);
+    ObjectMapper mapper = JsonConverter.getObjectMapper();
+
     try {
       return mapper.writeValueAsString(outcomes);
     } catch (JsonGenerationException e) {
@@ -154,7 +157,7 @@ public class EventJsonUploadProcessor {
     Long actionTriggerId = null;
     if (eventJson.has("actionTriggerId")) {
       String actionTriggerIdStr = eventJson.getString("actionTriggerId");
-      if (!Strings.isNullOrEmpty(actionTriggerIdStr)) {
+      if (!Strings.isNullOrEmpty(actionTriggerIdStr) && !actionTriggerIdStr.equals("null")) {
         actionTriggerId = Long.parseLong(actionTriggerIdStr);
       }
 
@@ -162,14 +165,14 @@ public class EventJsonUploadProcessor {
     Long actionTriggerSpecId = null;
     if (eventJson.has("actionTriggerSpecId")) {
       String actionTriggerSpecIdStr = eventJson.getString("actionTriggerSpecId");
-      if (!Strings.isNullOrEmpty(actionTriggerSpecIdStr)) {
+      if (!Strings.isNullOrEmpty(actionTriggerSpecIdStr) && !actionTriggerSpecIdStr.equals("null")) {
         actionTriggerSpecId = Long.parseLong(actionTriggerSpecIdStr);
       }
     }
     Long actionId = null;
     if (eventJson.has("actionId")) {
       String actionIdStr = eventJson.getString("actionId");
-      if (!Strings.isNullOrEmpty(actionIdStr)) {
+      if (!Strings.isNullOrEmpty(actionIdStr) && !actionIdStr.equals("null")) {
         actionId = Long.parseLong(actionIdStr);
       }
     }

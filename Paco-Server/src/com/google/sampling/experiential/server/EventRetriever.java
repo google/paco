@@ -150,7 +150,7 @@ public class EventRetriever {
 
     long t11 = System.currentTimeMillis();
 
-    List<Experiment> adminExperiments = getExperimentsForAdmin(loggedInuser, pm);
+    List<Long> adminExperiments = getExperimentsForAdmin(loggedInuser, pm);
     log.info("Loggedin user's administered experiments: " +loggedInuser +" has ids: " +
         getIdsQuoted(adminExperiments));
 
@@ -211,14 +211,19 @@ public class EventRetriever {
    * @return
    */
   private boolean isAdminOfFilteredExperiments(List<com.google.sampling.experiential.server.Query>
-    queryFilters, List<Experiment> adminExperiments) {
-    List<String> adminIds = getIds(adminExperiments);
+    queryFilters, List<Long> adminExperiments) {
     boolean filteringForAdminedExperiment = false;
     for (com.google.sampling.experiential.server.Query query : queryFilters) {
-      if (query.getKey().equals("experimentId") || query.getKey().equals("experimentName")) {
-        // TODO (bobevans) experimentName is broken here. Need then to test against names
-        filteringForAdminedExperiment = adminIds.contains(query.getValue());
-        if (!filteringForAdminedExperiment) { // All filters must be admin'ed experiments for now.
+      if (query.getKey().equals("experimentId") ) {
+        final String queryValue = query.getValue();
+
+        try {
+          Long experimentId = Long.parseLong(queryValue);
+          filteringForAdminedExperiment = adminExperiments.contains(experimentId);
+          if (!filteringForAdminedExperiment) { // All filters must be admin'ed experiments for now.
+            return false;
+          }
+        } catch (NumberFormatException e) {
           return false;
         }
       }
@@ -318,7 +323,7 @@ public class EventRetriever {
     adjustTimeZone(allEvents);
   }
 
-  private boolean isAnAdministrator(List<Experiment> adminExperiments) {
+  private boolean isAnAdministrator(List<Long> adminExperiments) {
     return adminExperiments != null && adminExperiments.size() > 0;
   }
 
@@ -390,13 +395,13 @@ public class EventRetriever {
 
 
   /**
-   * @param experimentsForAdmin
+   * @param adminExperiments
    * @return
    */
-  private List<String> getIdsQuoted(List<Experiment> experimentsForAdmin) {
+  private List<String> getIdsQuoted(List<Long> adminExperiments) {
     List<String> ids = Lists.newArrayList();
-    for(String experimentId : getIds(experimentsForAdmin)) {
-      ids.add("'" + experimentId +"'");
+    for (Long long1 : adminExperiments) {
+      ids.add("'" + long1 +"'");
     }
     return ids;
   }
@@ -410,11 +415,8 @@ public class EventRetriever {
   }
 
   @SuppressWarnings("unchecked")
-  private List<Experiment> getExperimentsForAdmin(String user, PersistenceManager pm) {
-    Query q = pm.newQuery(Experiment.class);
-    q.setFilter("admins == whoParam");
-    q.declareParameters("String whoParam");
-    return (List<Experiment>) q.execute(user);
+  private List<Long> getExperimentsForAdmin(String user, PersistenceManager pm) {
+    return ExperimentAccessManager.getExistingExperimentsIdsForAdmin(user);
   }
 
   @SuppressWarnings("unchecked")
@@ -544,7 +546,7 @@ public class EventRetriever {
 
     long t11 = System.currentTimeMillis();
 
-    List<Experiment> adminExperiments = getExperimentsForAdmin(loggedInuser, pm);
+    List<Long> adminExperiments = getExperimentsForAdmin(loggedInuser, pm);
     log.info("Loggedin user's administered experiments: " + loggedInuser + " has ids: "
              + getIdsQuoted(adminExperiments));
 
