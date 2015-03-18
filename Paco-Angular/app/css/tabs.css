@@ -101,3 +101,9 @@ nav a {
   vertical-align: middle;
   width: 20px;
 }
+
+#save {
+  position: fixed;
+  right: 16px;
+  top: 16px;
+}

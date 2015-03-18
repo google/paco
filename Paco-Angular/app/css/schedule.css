@@ -53,7 +53,7 @@
   border: none;
 }
 
-.md-actions {
+.md-actions.inline {
   bottom: 0;
   position: absolute;
   right: 0;

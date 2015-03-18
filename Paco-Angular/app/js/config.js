@@ -49,7 +49,16 @@ app.service('config', function() {
 
   this.groupTemplate = {
     actionTriggers: [],
-    inputs: []
+    inputs: [],
+    customRendering: false,
+    fixedDuration: false,
+    logActions: false,
+    backgroundListen: false,
+    endOfDayGroup: false,
+    feedback: {
+      text: '',
+      feedbackType: 'display'
+    }
   };
 
   this.scheduleTriggerTemplate = {

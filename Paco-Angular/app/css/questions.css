@@ -171,3 +171,13 @@ md-card .section .title {
 .light {
   color: #9FA8DA;
 }
+
+md-dialog ul {
+  list-style: none;
+  padding-left: 16px;
+}
+
+md-dialog li {
+  font-style: italic;
+}
+
