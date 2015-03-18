@@ -1,18 +1,56 @@
 var app = angular.module('pacoControllers', []);
 
-app.controller('ExperimentCtrl', ['$scope', '$http', '$routeParams', 'config', 
-  function($scope, $http, $routeParams, config) {
+app.controller('ExperimentCtrl', ['$scope', '$http', '$routeParams', '$mdDialog', 'config', 
+  function($scope, $http, $routeParams, $mdDialog, config) {
 
   $scope.experimentIdx = parseInt($routeParams.experimentIdx);
-  $scope.selectedIndex = 1;
+  $scope.selectedIndex = 0;
   $scope.loaded = false;
 
-  $http.get('/experiments?id=' + $scope.experimentIdx).success(function(data) {
-  //$http.get('js/experiment.json').success(function(data) {
-    $scope.experiment = data[0];
-    $scope.loaded = true;
-    $scope.$broadcast('experimentChange');
+  if ($scope.experimentIdx !== 0) {
+    $http.get('/experiments?id=' + $scope.experimentIdx).success(function(data) {
+      $scope.experiment = data[0];
+      $scope.loaded = true;
+      $scope.$broadcast('experimentChange');
+    });
+    $scope.selectedIndex = 1;
+  }
+
+  $http.get('/experiments?mine').success(function(data) {
+    $scope.experiments = data;
   });
+
+
+  $scope.saveExperiment = function() {
+    $http.post('/experiments', $scope.experiment).success(function(data) {
+      if (data.length > 0) {
+        if (data[0].status === true) {
+          $mdDialog.show(
+            $mdDialog.alert()
+            .title('Save Status')
+            .content('Success!')
+            .ariaLabel('Success')
+            .ok('OK')
+          );
+
+        } else {
+          var errorMessage = data[0].errorMessage;
+          $mdDialog.show({
+            templateUrl: 'partials/error.html',
+            locals: {
+              errorMessage: errorMessage
+            },
+            controller: 'ErrorCtrl'
+          });
+        }
+      }
+    }).error(function(data, status, headers, config) {
+      console.log(data);
+      console.log(status);
+      console.log(headers);
+      console.log(config);
+    });
+  };
 
   $scope.addGroup = function() {
     $scope.experiment.groups.push(config.groupTemplate);
@@ -128,7 +166,6 @@ app.controller('TriggerCtrl', ['$scope', '$mdDialog', 'config',
       controller: 'CueCtrl'
     });
   };
-
 }]);
 
 
@@ -165,6 +202,25 @@ app.controller('CueCtrl', ['$scope', '$mdDialog', 'config', 'cue',
       cue.cueCode = parseInt(cue.cueCode);
     }
   });
+}]);
+
+
+app.controller('ErrorCtrl', ['$scope', '$mdDialog', 'config', 'errorMessage', 
+  function($scope, $mdDialog, config, errorMessage) {
+
+  $scope.errorMessage = errorMessage;
+  var lines = errorMessage.split('\n');
+  var errors = [];
+  for (var i = 0; i < lines.length; i++) {
+    if (lines[i].indexOf("ERROR:") === 0) {
+      errors.push(lines[i].substr(7));
+    }
+  }
+  $scope.errors = errors;
+
+  $scope.hide = function() {
+    $mdDialog.hide();
+  };
 }]);
 
 
@@ -247,7 +303,7 @@ app.controller('SummaryCtrl', ['$scope', 'config', function($scope, config) {
     if (sched.scheduleType == 0) {
       if (sched.repeatRate == 1) {
         str += 'Every day';
-      } else {
+      } else if (sched.repeatRate != undefined) {
         str += 'Every ' + sched.repeatRate + ' days'
       }
     } else if (sched.scheduleType == 1) {
@@ -255,13 +311,13 @@ app.controller('SummaryCtrl', ['$scope', 'config', function($scope, config) {
     } else if (sched.scheduleType == 2) {
       if (sched.repeatRate == 1) {
         str += 'Every week';
-      } else {
+      } else if (sched.repeatRate != undefined) {
         str += 'Every ' + sched.repeatRate + ' weeks'
       }
     } else if (sched.scheduleType == 3) {
       if (sched.repeatRate == 1) {
         str += 'Every month';
-      } else {
+      } else if (sched.repeatRate != undefined) {
         str += 'Every ' + sched.repeatRate + ' months'
       }
     } else if (sched.scheduleType == 4) {
@@ -279,11 +335,13 @@ app.controller('SummaryCtrl', ['$scope', 'config', function($scope, config) {
     }
 
     if (sched.scheduleType >= 0 && sched.scheduleType <= 3) {
-      str += ', ' + sched.signalTimes.length;
-      if (sched.signalTimes.length == 1) {
-        str += ' time each';
-      } else {
-        str += ' times each';
+      if (sched.signalTimes) {
+        str += ', ' + sched.signalTimes.length;
+        if (sched.signalTimes.length == 1) {
+          str += ' time each';
+        } else {
+          str += ' times each';
+        }
       }
     }
 
