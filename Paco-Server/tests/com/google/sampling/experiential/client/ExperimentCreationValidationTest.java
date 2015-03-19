@@ -34,6 +34,7 @@ public class ExperimentCreationValidationTest extends GWTTestCase {
 
   protected void gwtSetUp() {
     loginInfo = createLoginInfo();
+    createValidOngoingExperiment();
     createValidOngoingExperimentGroup();
   }
 
