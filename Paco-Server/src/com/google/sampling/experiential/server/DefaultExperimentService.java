@@ -25,6 +25,7 @@ import com.google.paco.shared.model2.ScheduleTrigger;
 import com.google.paco.shared.model2.SignalTime;
 import com.google.paco.shared.model2.ValidationMessage;
 import com.google.sampling.experiential.datastore.ExperimentJsonEntityManager;
+import com.google.sampling.experiential.datastore.PublicExperimentList;
 
 class DefaultExperimentService implements ExperimentService {
 
@@ -46,8 +47,24 @@ class DefaultExperimentService implements ExperimentService {
 
   @Override
   public List<ExperimentDAO> getExperimentsById(List<Long> experimentIds, String email, DateTimeZone timezone) {
-    // TODO who can access this call and in what role?
-    // is email a participant or an admin?
+    List<Long> allowedExperimentIds = Lists.newArrayList();
+    for (Long experimentId : experimentIds) {
+      if (ExperimentAccessManager.isUserAllowedToGetExperiments(experimentId, email)) {
+        allowedExperimentIds.add(experimentId);
+      }
+    }
+
+    List<String> experimentJsons = getExperimentsByIdAsJson(allowedExperimentIds, email, timezone);
+    List<ExperimentDAO> experiments = Lists.newArrayList();
+    for (String experimentJson : experimentJsons) {
+      if (experimentJson != null) {
+        experiments .add(JsonConverter.fromSingleEntityJson(experimentJson));
+      }
+    }
+    return experiments;
+  }
+
+  protected List<ExperimentDAO> getExperimentsByIdInternal(List<Long> experimentIds, String email, DateTimeZone timezone) {
     List<String> experimentJsons = getExperimentsByIdAsJson(experimentIds, email, timezone);
     List<ExperimentDAO> experiments = Lists.newArrayList();
     for (String experimentJson : experimentJsons) {
@@ -58,8 +75,8 @@ class DefaultExperimentService implements ExperimentService {
     return experiments;
   }
 
-  @Override
-  public List<String> getExperimentsByIdAsJson(List<Long> experimentIds, String email, DateTimeZone timezone) {
+
+  protected List<String> getExperimentsByIdAsJson(List<Long> experimentIds, String email, DateTimeZone timezone) {
  //   TODO who can access this call and in what role?
     // is email a participant or an admin?
     return ExperimentJsonEntityManager.getExperimentsById(experimentIds);
@@ -82,6 +99,12 @@ class DefaultExperimentService implements ExperimentService {
       TransactionOptions options = TransactionOptions.Builder.withXG(true);
       Transaction tx = ds.beginTransaction(options);
       try {
+        if (experiment.getId() == null) {
+          experiment.setCreator(loggedInUserEmail);
+          if (!experiment.getAdmins().contains(loggedInUserEmail)) {
+            experiment.getAdmins().add(loggedInUserEmail);
+          }
+        }
 
         Key experimentKey = ExperimentJsonEntityManager.saveExperiment(ds, tx, JsonConverter.jsonify(experiment),
                                                                        experiment.getId(),
@@ -90,6 +113,7 @@ class DefaultExperimentService implements ExperimentService {
         if (experimentKey == null) {
           return null;
         }
+        experiment.setId(experimentKey.getId());
         boolean aclUpdate = ExperimentAccessManager.updateAccessControlEntities(ds, tx, experiment, experimentKey, timezone);
         if (aclUpdate) {
           tx.commit();
@@ -130,20 +154,12 @@ class DefaultExperimentService implements ExperimentService {
   }
 
 
-  // specific retrieval queries
-  @Override
-  public ExperimentQueryResult getAllJoinableExperiments(String lowerCase, DateTimeZone timeZoneForClient,
-                                                         Integer limit, String cursor) {
-    // TODO Auto-generated method stub
-    return null;
-  }
-
   @Override
   public ExperimentQueryResult getMyJoinableExperiments(String lowerCase, DateTimeZone timeZoneForClient,
                                                         Integer limit, String cursor) {
     List<Long> experimentIds = ExperimentAccessManager.getExistingExperimentsIdsForAdmin(lowerCase);
     experimentIds.addAll(ExperimentAccessManager.getExistingPublishedExperimentIdsForUser(lowerCase));
-    List<ExperimentDAO> experiments = getExperimentsById(experimentIds, lowerCase, timeZoneForClient);
+    List<ExperimentDAO> experiments = getExperimentsByIdInternal(experimentIds, lowerCase, timeZoneForClient);
     return new ExperimentQueryResult(cursor, experiments); // TODO honor the limit and cursor
   }
 
@@ -151,16 +167,16 @@ class DefaultExperimentService implements ExperimentService {
   public ExperimentQueryResult getUsersAdministeredExperiments(String email, DateTimeZone timezone, Integer limit,
                                                                String cursor) {
     List<Long> experimentIds = ExperimentAccessManager.getExistingExperimentsIdsForAdmin(email);
-    List<ExperimentDAO> experiments = getExperimentsById(experimentIds, email, timezone);
+    List<ExperimentDAO> experiments = getExperimentsByIdInternal(experimentIds, email, timezone);
     return new ExperimentQueryResult(cursor, experiments); // TODO honor the limit and cursor
   }
 
   @Override
   public ExperimentQueryResult getExperimentsPublishedPublicly(DateTimeZone timezone, Integer limit, String cursor) {
-    // TODO Auto-generated method stub
-    return null;
+    List<Long> experimentIds = PublicExperimentList.getPublicExperiments(timezone.getID());
+    List<ExperimentDAO> experiments = getExperimentsByIdInternal(experimentIds, null, timezone);
+    return new ExperimentQueryResult(cursor, experiments); // TODO honor the limit and cursor
   }
-
 
   // referred experiments
   @Override
@@ -222,7 +238,7 @@ class DefaultExperimentService implements ExperimentService {
   }
 
   private DateTime latestOf(DateTime lastEndDate, DateTime thisActionTriggerEndDate) {
-    if (thisActionTriggerEndDate.isAfter(lastEndDate)) {
+    if (lastEndDate == null || thisActionTriggerEndDate.isAfter(lastEndDate)) {
       return thisActionTriggerEndDate;
     } else {
       return lastEndDate;

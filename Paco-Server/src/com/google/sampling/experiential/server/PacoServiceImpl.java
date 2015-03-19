@@ -483,11 +483,6 @@ public class PacoServiceImpl extends RemoteServiceServlet implements PacoService
   }
 
   @Override
-  public ExperimentQueryResult getAllJoinableExperiments(String tz, Integer limit, String cursor) {
-    return ExperimentServiceFactory.getExperimentService().getAllJoinableExperiments(getWhoFromLogin().getEmail().toLowerCase(),  getTimeZoneOnClient(), limit, cursor);
-  }
-
-  @Override
   public ExperimentQueryResult getMyJoinableExperiments(String tz, Integer limit, String cursor) {
     return ExperimentServiceFactory.getExperimentService().getMyJoinableExperiments(getWhoFromLogin().getEmail().toLowerCase(),  getTimeZoneOnClient(), limit, cursor);
   }

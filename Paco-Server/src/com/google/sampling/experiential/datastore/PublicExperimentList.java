@@ -10,13 +10,17 @@ import org.joda.time.DateTimeZone;
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Entity;
+import com.google.appengine.api.datastore.EntityNotFoundException;
 import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.KeyFactory;
 import com.google.appengine.api.datastore.Query;
 import com.google.appengine.api.datastore.Query.Filter;
 import com.google.appengine.api.datastore.Query.FilterOperator;
 import com.google.appengine.api.datastore.QueryResultIterable;
+import com.google.appengine.api.datastore.Transaction;
 import com.google.common.collect.Lists;
+import com.google.paco.shared.model2.ExperimentDAO;
+import com.google.paco.shared.scheduling.ActionScheduleGenerator;
 import com.google.sampling.experiential.model.Experiment;
 import com.google.sampling.experiential.server.TimeUtil;
 
@@ -32,11 +36,34 @@ public class PublicExperimentList {
 
   public static String PUBLIC_EXPERIMENT_KIND = "public_experiment";
 
+  public static void updatePublicExperimentsList(Transaction tx, DatastoreService ds, ExperimentDAO experiment, Key experimentKey, DateTime dateTime) {
+    if (experiment.getId() == null) {
+      log.severe("Experiment must have an id to be published publicly.");
+      throw new IllegalArgumentException("Experiments must have an id to be in the public experiments list");
+    }
+
+    Key existingKey = KeyFactory.createKey(PUBLIC_EXPERIMENT_KIND, experimentKey.getId());
+    Entity existingPublicAcl = null;
+    try {
+      existingPublicAcl = ds.get(tx, existingKey);
+    } catch (EntityNotFoundException e) {
+    }
+    Entity entity = new Entity(PUBLIC_EXPERIMENT_KIND, experimentKey.getId());
+    entity.setProperty(END_DATE_PROPERTY, getEndDateColumn(experiment));
+
+    if (!ActionScheduleGenerator.isOver(dateTime, experiment) && experiment.getPublished() && experiment.getPublishedUsers().isEmpty()) {
+      ds.put(tx, entity);
+    } else if (existingPublicAcl != null) {
+      ds.delete(tx, existingKey);
+    }
+  }
+
+  @Deprecated
   public static void updatePublicExperimentsList(Experiment experiment, DateTime dateTime) {
     DatastoreService ds = DatastoreServiceFactory.getDatastoreService();
 
     if (experiment.getId() == null) {
-      log.severe("Experiment must have an id to be versioned in history table.");
+      log.severe("Experiment must have an id to be published publicly.");
       throw new IllegalArgumentException("Experiments must have an id to be in the public experiments list");
     }
 
@@ -78,6 +105,10 @@ public class PublicExperimentList {
     return experiment.getEndDateAsDate() != null ? experiment.getEndDateAsDate() : INFINITY;
   }
 
+  private static Date getEndDateColumn(ExperimentDAO experiment) {
+    final DateTime lastEndTime = ActionScheduleGenerator.getLastEndTime(experiment);
+    return lastEndTime != null ? lastEndTime.toDate() : INFINITY;
+  }
 
 
   public static List<Long> getPublicExperiments(String timezone) {
@@ -87,7 +118,7 @@ public class PublicExperimentList {
     DateTime nowInUserTimezone = TimeUtil.getNowInUserTimezone(DateTimeZone.forID(timezone));
     String dateString = toDateString(nowInUserTimezone);
     Filter endDateFilter = new Query.FilterPredicate(END_DATE_PROPERTY,
-                                                     FilterOperator.LESS_THAN,
+                                                     FilterOperator.GREATER_THAN,
                                                      dateString);
     query.setFilter(endDateFilter);
     QueryResultIterable<Entity> result = ds.prepare(query).asQueryResultIterable();
@@ -100,6 +131,20 @@ public class PublicExperimentList {
     }
     return experimentIds;
   }
+
+  public static boolean isPublicExperiment(Long experimentId) {
+    Key key = KeyFactory.createKey(PUBLIC_EXPERIMENT_KIND, experimentId);
+    DatastoreService ds = DatastoreServiceFactory.getDatastoreService();
+    Query query = new Query(PUBLIC_EXPERIMENT_KIND);
+    Entity result;
+    try {
+      result = ds.get(key);
+      return result != null;
+    } catch (EntityNotFoundException e) {
+    }
+    return false;
+  }
+
 
   private static boolean expired(Date endDateProperty, DateTime nowInUserTimezone) {
     try {

@@ -2,6 +2,7 @@ package com.google.sampling.experiential.server;
 
 import java.util.List;
 
+import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 
 import com.google.appengine.api.datastore.DatastoreService;
@@ -18,6 +19,7 @@ import com.google.appengine.api.datastore.Transaction;
 import com.google.common.collect.Lists;
 import com.google.paco.shared.model2.ExperimentDAO;
 import com.google.sampling.experiential.datastore.ExperimentJsonEntityManager;
+import com.google.sampling.experiential.datastore.PublicExperimentList;
 
 public class ExperimentAccessManager {
 
@@ -93,13 +95,13 @@ public class ExperimentAccessManager {
 
       updateAdminTable(tx, ds, experiment, experimentKey);
       updateParticipantTable(tx, ds, experiment, experimentKey);
-      updatePublicTable(tx, ds, experiment, experimentKey);
+      updatePublicTable(tx, ds, experiment, experimentKey, timezone);
       return true;
   }
 
-  private static void updatePublicTable(Transaction tx, DatastoreService ds, ExperimentDAO experiment, Key experimentKey) {
-    // TODO Auto-generated method stub
-
+  private static void updatePublicTable(Transaction tx, DatastoreService ds, ExperimentDAO experiment, Key experimentKey, DateTimeZone timezone) {
+    final DateTime now = new DateTime().withZone(timezone);
+    PublicExperimentList.updatePublicExperimentsList(tx, ds, experiment, experimentKey, now);
   }
 
   private static void updateParticipantTable(Transaction tx, DatastoreService ds, ExperimentDAO experiment, Key experimentKey) {
@@ -215,6 +217,38 @@ public class ExperimentAccessManager {
     PreparedQuery preparedQuery = ds.prepare(query);
     List<Entity> results = preparedQuery.asList(getFetchOptions());
     return results;
+  }
+
+  public static boolean isUserAllowedToGetExperiments(Long experimentId, String email) {
+    if (isAdminForExperiment(email, experimentId) || isExperimentPublishedToUser(email, experimentId)
+        || isPublicExperiment(experimentId)) {
+      return true;
+    }
+    return false;
+  }
+
+  private static boolean isPublicExperiment(Long experimentId) {
+    return PublicExperimentList.isPublicExperiment(experimentId);
+  }
+
+  private static boolean isExperimentPublishedToUser(String email, Long experimentId) {
+    DatastoreService ds = DatastoreServiceFactory.getDatastoreService();
+    Query query = new com.google.appengine.api.datastore.Query(PUBLISHED_USER_KIND);
+    query.addFilter(USER_ID, FilterOperator.EQUAL, email);
+    query.addFilter(EXPERIMENT_ID, FilterOperator.EQUAL, experimentId);
+    PreparedQuery preparedQuery = ds.prepare(query);
+    List<Entity> results = preparedQuery.asList(getFetchOptions());
+    return !results.isEmpty();
+  }
+
+  private static boolean isAdminForExperiment(String email, Long experimentId) {
+    DatastoreService ds = DatastoreServiceFactory.getDatastoreService();
+    Query query = new com.google.appengine.api.datastore.Query(ADMIN_USER_KIND);
+    query.addFilter(ADMIN_ID, FilterOperator.EQUAL, email);
+    query.addFilter(EXPERIMENT_ID, FilterOperator.EQUAL, experimentId);
+    PreparedQuery preparedQuery = ds.prepare(query);
+    List<Entity> results = preparedQuery.asList(getFetchOptions());
+    return !results.isEmpty();
   }
 
 

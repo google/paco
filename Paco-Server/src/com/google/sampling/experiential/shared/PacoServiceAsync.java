@@ -48,8 +48,6 @@ public interface PacoServiceAsync {
 
   void saveExperiment(ExperimentDAO experiment, String timeZone, AsyncCallback<Outcome> asyncCallback);
 
-  void getAllJoinableExperiments(String tz, Integer limit, String cursor, AsyncCallback<ExperimentQueryResult> callback);
-
   void getMyJoinableExperiments(String tz, Integer limit, String cursor, AsyncCallback<ExperimentQueryResult> callback);
 
   void getUsersJoinedExperiments(Integer limit, String cursor, AsyncCallback<ExperimentQueryResult> callback);
