@@ -58,7 +58,7 @@ public class NotificationCreator {
     return new NotificationCreator(context.getApplicationContext());
   }
 
-  public void createNotificationsForAlarmTime(long notificationId, long alarmTime) {
+  public void createNotificationsForAlarmTime(long alarmTime) {
     try {
       createAllNotificationsForLastMinute(alarmTime);
     } finally {
