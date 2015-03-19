@@ -13,6 +13,8 @@ import com.google.common.collect.Lists;
 import com.google.paco.shared.model2.ActionTrigger;
 import com.google.paco.shared.model2.ExperimentDAO;
 import com.google.paco.shared.model2.ExperimentGroup;
+import com.google.paco.shared.model2.PacoAction;
+import com.google.paco.shared.model2.PacoNotificationAction;
 import com.google.paco.shared.model2.Schedule;
 import com.google.paco.shared.model2.ScheduleTrigger;
 
@@ -35,7 +37,8 @@ public class ExperimentCacheHelperTests extends TestCase {
     signalSchedule.setScheduleType(Schedule.ESM);
 
     ScheduleTrigger st = new ScheduleTrigger(Lists.newArrayList(signalSchedule));
-
+    PacoAction a = new PacoNotificationAction();
+    st.setActions(Lists.newArrayList(a));
     List<ActionTrigger> actionTriggers = Lists.newArrayList();
     actionTriggers.add(st);
 

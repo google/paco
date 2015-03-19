@@ -26,7 +26,7 @@ public interface ExperimentService {
   ExperimentDAO getExperiment(Long id);
   String getExperimentAsJson(Long id);
   List<ExperimentDAO> getExperimentsById(List<Long> experimentIds, String email, DateTimeZone timezone);
-  List<String> getExperimentsByIdAsJson(List<Long> experimentIds, String email, DateTimeZone timezone);
+  //List<String> getExperimentsByIdAsJson(List<Long> experimentIds, String email, DateTimeZone timezone);
 
   // saving experiments
   List<ValidationMessage> saveExperiment(ExperimentDAO experimentDAO, User userFromLogin, DateTimeZone timezone);
@@ -34,12 +34,6 @@ public interface ExperimentService {
   //delete experiments
   Boolean deleteExperiment(ExperimentDAO experimentDAO, String loggedInUserEmail);
   Boolean deleteExperiment(Long experimentId, String loggedInUserEmail);
-
-  // Specific queries for clients
-  // Note currently ExperimentQueryResult returns a cursor and a set of DAOs.
-  // We should provide an ExperimentQueryResult that sends Json straight through without the unnecessary (db json) -> local DAO -> json translation steps
-  ExperimentQueryResult getAllJoinableExperiments(String lowerCase, DateTimeZone timeZoneForClient, Integer limit,
-                                                  String cursor);
 
   ExperimentQueryResult getMyJoinableExperiments(String lowerCase, DateTimeZone timeZoneForClient, Integer limit,
                                                  String cursor);

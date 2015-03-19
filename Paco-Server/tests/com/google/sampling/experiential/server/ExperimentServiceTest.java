@@ -10,16 +10,17 @@ import org.joda.time.DateTimeZone;
 import com.google.appengine.tools.development.testing.LocalDatastoreServiceTestConfig;
 import com.google.appengine.tools.development.testing.LocalServiceTestHelper;
 import com.google.common.collect.Lists;
+import com.google.paco.shared.comm.Outcome;
 import com.google.paco.shared.model2.ExperimentDAO;
 import com.google.paco.shared.model2.JsonConverter;
 
-public class ExperimentRetrieverTest extends TestCase {
+public class ExperimentServiceTest extends TestCase {
 
 
   private final String email = "user1@gmail.com";
   private final String authDomain = "unused_auth_domain";
 
-  private final LocalServiceTestHelper helper = new LocalServiceTestHelper(new LocalDatastoreServiceTestConfig());
+  private final LocalServiceTestHelper helper = new LocalServiceTestHelper(new LocalDatastoreServiceTestConfig().setApplyAllHighRepJobPolicy() );
   private PacoServiceImpl pacoService;
 
   public void setUp() {
@@ -27,6 +28,8 @@ public class ExperimentRetrieverTest extends TestCase {
     pacoService = new PacoServiceImpl();
     logInEnvironment();
   }
+
+
 
   private void logInEnvironment() {
     helper.setEnvIsLoggedIn(true);
@@ -41,13 +44,16 @@ public class ExperimentRetrieverTest extends TestCase {
   }
 
   private void saveToServer(ExperimentDAO experiment) {
-    pacoService.saveExperiment(experiment, null);
+    Outcome result = pacoService.saveExperiment(experiment, null);
+    if (!result.succeeded()) {
+      throw new IllegalStateException("Could not save test experiments to server: " + result.getErrorMessage());
+    }
   }
 
 
   public void testRetrieveMatchingExperimentsOneExperimentId() {
-    createAndSaveExperiment(ExperimentTestConstants.TEST_EXPERIMENT_0);
-    createAndSaveExperiment(ExperimentTestConstants.TEST_EXPERIMENT_1);
+    createAndSaveExperiment(ExperimentTestConstants.TEST_EXPERIMENT_0_NEW);
+    createAndSaveExperiment(ExperimentTestConstants.TEST_EXPERIMENT_1_NEW);
     List<Long> experimentList = Lists.newArrayList(1l);
     List<ExperimentDAO> experiments = ExperimentServiceFactory.getExperimentService().getExperimentsById(experimentList, email, null);
     assertTrue(experiments.size() == 1);
@@ -55,8 +61,8 @@ public class ExperimentRetrieverTest extends TestCase {
   }
 
   public void testRetrieveMatchingExperimentsTwoExperimentIds() {
-    createAndSaveExperiment(ExperimentTestConstants.TEST_EXPERIMENT_0);
-    createAndSaveExperiment(ExperimentTestConstants.TEST_EXPERIMENT_1);
+    createAndSaveExperiment(ExperimentTestConstants.TEST_EXPERIMENT_0_NEW);
+    createAndSaveExperiment(ExperimentTestConstants.TEST_EXPERIMENT_1_NEW);
     List<Long> experimentList = Lists.newArrayList(1l, 6l);
     List<ExperimentDAO> experiments = ExperimentServiceFactory.getExperimentService().getExperimentsById(experimentList, email, null);
     assertTrue(experiments.size() == 2);
@@ -65,8 +71,8 @@ public class ExperimentRetrieverTest extends TestCase {
   }
 
   public void testRetrieveMyExperiments() throws Exception {
-    createAndSaveExperiment(ExperimentTestConstants.TEST_EXPERIMENT_USER1_ADMIN);
-    createAndSaveExperiment(ExperimentTestConstants.TEST_EXPERIMENT_USER2_ADMIN);
+    createAndSaveExperiment(ExperimentTestConstants.TEST_EXPERIMENT_USER1_ADMIN_NEW);
+    createAndSaveExperiment(ExperimentTestConstants.TEST_EXPERIMENT_USER2_ADMIN_NEW);
     DateTimeZone email1Timezone = DateTime.now().getZone();
     List<ExperimentDAO> experiments = ExperimentServiceFactory.getExperimentService().getMyJoinableExperiments("user1@gmail.com", email1Timezone, null, null).getExperiments();
     assertTrue(experiments.size() == 1);
@@ -79,10 +85,18 @@ public class ExperimentRetrieverTest extends TestCase {
   }
 
   public void testRetrieveMyExperimentsUserPublishedUserButNotPublished() throws Exception {
-    createAndSaveExperiment(ExperimentTestConstants.TEST_EXPERIMENT_USER1_PUBLISHED_USER_NOT_PUBLISHED);
+    createAndSaveExperiment(ExperimentTestConstants.TEST_EXPERIMENT_USER1_PUBLISHED_USER_NOT_PUBLISHED_NEW);
     DateTimeZone email1Timezone = DateTime.now().getZone();
     List<ExperimentDAO> experiments = ExperimentServiceFactory.getExperimentService().getMyJoinableExperiments("user1@gmail.com", email1Timezone, null, null).getExperiments();
     assertTrue(experiments.size() == 0);
+  }
+
+
+
+  @Override
+  protected void tearDown() throws Exception {
+    helper.tearDown();
+    super.tearDown();
   }
 
 

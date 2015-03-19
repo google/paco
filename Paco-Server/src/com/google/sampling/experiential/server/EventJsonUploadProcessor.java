@@ -125,7 +125,7 @@ public class EventJsonUploadProcessor {
 
     Date whenDate =  new Date();
 
-    String experimentId = null;
+    String experimentIdStr = null;
     String experimentName = null;
     Integer experimentVersion = null;
     DateTime responseTime = null;
@@ -133,7 +133,7 @@ public class EventJsonUploadProcessor {
     String groupName = null;
 
     if (eventJson.has("experimentId")) {
-      experimentId = eventJson.getString("experimentId");
+      experimentIdStr = eventJson.getString("experimentId");
     }
     if (eventJson.has("experimentName")) {
       experimentName = eventJson.getString("experimentName");
@@ -178,13 +178,21 @@ public class EventJsonUploadProcessor {
     }
 
 
-    log.info("Retrieving experimentId, experimentName for event posting: " + experimentId + ", " + experimentName);
-    if (experimentId == null) {
+    log.info("Retrieving experimentId, experimentName for event posting: " + experimentIdStr + ", " + experimentName);
+    if (experimentIdStr == null) {
       outcome.setError("No experiment ID for this event: " + eventId);
       return outcome;
     }
 
-    ExperimentDAO experiment = experimentRetriever.getExperiment(Long.parseLong(experimentId));
+    Long experimentIdLong = null;
+    try {
+      experimentIdLong = Long.parseLong(experimentIdStr);
+    } catch (NumberFormatException e) {
+      outcome.setError("experimentId, " + experimentIdStr + ", not a number for this event: " + eventId);
+      return outcome;
+    }
+
+    ExperimentDAO experiment = experimentRetriever.getExperiment(experimentIdLong);
 
     if (experiment == null) {
       outcome.setError("No existing experiment for this event: " + eventId);
@@ -259,7 +267,7 @@ public class EventJsonUploadProcessor {
              + ", what length = " + whats.size());
 
 
-    eventRetriever.postEvent(who, null, null, whenDate, appId, pacoVersion, whats, false, experimentId,
+    eventRetriever.postEvent(who, null, null, whenDate, appId, pacoVersion, whats, false, experimentIdStr,
                                            experimentName, experimentVersion, responseTime, scheduledTime, blobs,
                                            groupName, actionTriggerId, actionTriggerSpecId, actionId);
     return outcome;

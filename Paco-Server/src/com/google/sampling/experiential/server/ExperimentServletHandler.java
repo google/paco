@@ -6,7 +6,6 @@ import java.util.logging.Logger;
 import org.joda.time.DateTimeZone;
 
 import com.google.paco.shared.model2.ExperimentDAO;
-import com.google.paco.shared.model2.ExperimentQueryResult;
 import com.google.paco.shared.model2.JsonConverter;
 
 abstract class ExperimentServletHandler {
@@ -30,11 +29,7 @@ abstract class ExperimentServletHandler {
     return jsonify(getAllExperimentsAvailableToUser());
   }
 
-  protected List<ExperimentDAO> getAllExperimentsAvailableToUser() {
-    ExperimentQueryResult result = ExperimentServiceFactory.getExperimentService().getAllJoinableExperiments(email, timezone, limit, cursor);
-    cursor = result.getCursor();
-    return result.getExperiments();
-  }
+  protected abstract List<ExperimentDAO> getAllExperimentsAvailableToUser();
 
   protected String jsonify(List<ExperimentDAO> availableExperiments) {
     return JsonConverter.jsonify(availableExperiments, limit, cursor, pacoProtocol);

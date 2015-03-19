@@ -71,7 +71,6 @@ public class ExperimentServlet extends HttpServlet {
 
       String email = AuthUtil.getEmailOfUser(req, user);
 
-      String shortParam = req.getParameter("short");
       String experimentsPublishedToMeParam = req.getParameter("mine");
       String selectedExperimentsParam = req.getParameter("id");
       String experimentsPublishedPubliclyParam = req.getParameter("public");
@@ -101,8 +100,6 @@ public class ExperimentServlet extends HttpServlet {
       ExperimentServletHandler handler;
       if (experimentsPublishedToMeParam != null) {
         handler = new ExperimentServletExperimentsForMeLoadHandler(email, timezone, limit, cursor, pacoProtocol);
-      } else if (shortParam != null) {
-        handler = new ExperimentServletShortLoadHandler(email, timezone, limit, cursor, pacoProtocol);
       } else if (selectedExperimentsParam != null) {
         handler = new ExperimentServletSelectedExperimentsFullLoadHandler(email, timezone, selectedExperimentsParam, pacoProtocol);
       } else if (experimentsPublishedPubliclyParam != null) {
@@ -110,10 +107,15 @@ public class ExperimentServlet extends HttpServlet {
       } else if (experimentsAdministeredByUserParam != null) {
         handler = new ExperimentServletAdminExperimentsFullLoadHandler(email, timezone, limit, cursor, pacoProtocol);
       } else {
-        handler = new ExperimentServletAllExperimentsFullLoadHandler(email, timezone, limit, cursor, pacoProtocol);
+        handler = null; //new ExperimentServletAllExperimentsFullLoadHandler(email, timezone, limit, cursor, pacoProtocol);
       }
-      experimentsJson = handler.performLoad();
-      resp.getWriter().println(scriptBust(experimentsJson));
+      if (handler != null) {
+        experimentsJson = handler.performLoad();
+        resp.getWriter().println(scriptBust(experimentsJson));
+      } else {
+        resp.getWriter().println(scriptBust("Unrecognized parameters!"));
+      }
+
     }
   }
 

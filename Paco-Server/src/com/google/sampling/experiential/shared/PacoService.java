@@ -45,8 +45,6 @@ public interface PacoService extends RemoteService {
 
   boolean joinExperiment(Long id);
 
-  ExperimentQueryResult getAllJoinableExperiments(String tz, Integer limit, String cursor);
-
   ExperimentQueryResult getMyJoinableExperiments(String tz, Integer limit, String cursor);
 
   ExperimentQueryResult getUsersJoinedExperiments(Integer limit, String cursor);

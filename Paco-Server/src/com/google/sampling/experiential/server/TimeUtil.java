@@ -53,20 +53,26 @@ public class TimeUtil {
   }
 
   public static DateTimeZone getTimeZoneForClient(HttpServletRequest req) {
-    String tzStr = req.getParameter("tz"); // don't urldecode this as it always gets decoded properly..
-    if (tzStr != null && !tzStr.isEmpty()) {
-      DateTimeZone jodaTimeZone = null;
-      try {
-        jodaTimeZone = DateTimeZone.forID(tzStr);
-        if (jodaTimeZone != null) {
-          return jodaTimeZone;
+    Locale clientLocale = null;
+    if (req != null) {
+      String tzStr = req.getParameter("tz"); // don't urldecode this as it
+                                             // always gets decoded properly..
+      if (tzStr != null && !tzStr.isEmpty()) {
+        DateTimeZone jodaTimeZone = null;
+        try {
+          jodaTimeZone = DateTimeZone.forID(tzStr);
+          if (jodaTimeZone != null) {
+            return jodaTimeZone;
+          }
+        } catch (IllegalArgumentException e) {
+          log.severe("Could not parse timezone: " + tzStr);
         }
-      } catch (IllegalArgumentException e) {
-        log.severe("Could not parse timezone: " + tzStr);
       }
+      clientLocale = req.getLocale();
     }
-
-    Locale clientLocale = req.getLocale();
+    if (clientLocale == null) {
+      clientLocale = Locale.getDefault();
+    }
     Calendar calendar = Calendar.getInstance(clientLocale);
     TimeZone clientTimeZone = calendar.getTimeZone();
     DateTimeZone jodaTimeZone = DateTimeZone.forTimeZone(clientTimeZone);

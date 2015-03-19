@@ -99,13 +99,6 @@ public class EventJsonUploadProcessorTest extends TestCase {
       }
 
       @Override
-      public ExperimentQueryResult getAllJoinableExperiments(String lowerCase, DateTimeZone timeZoneForClient,
-                                                             Integer limit, String cursor) {
-        // TODO Auto-generated method stub
-        return null;
-      }
-
-      @Override
       public ExperimentQueryResult getMyJoinableExperiments(String lowerCase, DateTimeZone timeZoneForClient,
                                                             Integer limit, String cursor) {
         // TODO Auto-generated method stub
@@ -143,11 +136,6 @@ public class EventJsonUploadProcessorTest extends TestCase {
         return null;
       }
 
-      @Override
-      public List<String> getExperimentsByIdAsJson(List<Long> experimentIds, String email, DateTimeZone timezone) {
-        // TODO Auto-generated method stub
-        return null;
-      }
 
       @Override
       public Boolean deleteExperiment(Long experimentId, String loggedInUserEmail) {
@@ -188,13 +176,6 @@ public class EventJsonUploadProcessorTest extends TestCase {
       }
 
       @Override
-      public ExperimentQueryResult getAllJoinableExperiments(String lowerCase, DateTimeZone timeZoneForClient,
-                                                             Integer limit, String cursor) {
-        // TODO Auto-generated method stub
-        return null;
-      }
-
-      @Override
       public ExperimentQueryResult getMyJoinableExperiments(String lowerCase, DateTimeZone timeZoneForClient,
                                                             Integer limit, String cursor) {
         // TODO Auto-generated method stub
@@ -232,11 +213,6 @@ public class EventJsonUploadProcessorTest extends TestCase {
         return null;
       }
 
-      @Override
-      public List<String> getExperimentsByIdAsJson(List<Long> experimentIds, String email, DateTimeZone timezone) {
-        // TODO Auto-generated method stub
-        return null;
-      }
 
       @Override
       public Boolean deleteExperiment(Long experimentId, String loggedInUserEmail) {
@@ -282,13 +258,6 @@ public class EventJsonUploadProcessorTest extends TestCase {
       }
 
       @Override
-      public ExperimentQueryResult getAllJoinableExperiments(String lowerCase, DateTimeZone timeZoneForClient,
-                                                             Integer limit, String cursor) {
-        // TODO Auto-generated method stub
-        return null;
-      }
-
-      @Override
       public ExperimentQueryResult getMyJoinableExperiments(String lowerCase, DateTimeZone timeZoneForClient,
                                                             Integer limit, String cursor) {
         // TODO Auto-generated method stub
@@ -326,11 +295,6 @@ public class EventJsonUploadProcessorTest extends TestCase {
         return null;
       }
 
-      @Override
-      public List<String> getExperimentsByIdAsJson(List<Long> experimentIds, String email, DateTimeZone timezone) {
-        // TODO Auto-generated method stub
-        return null;
-      }
 
       @Override
       public Boolean deleteExperiment(Long experimentId, String loggedInUserEmail) {
@@ -378,12 +342,6 @@ public class EventJsonUploadProcessorTest extends TestCase {
 
       }
       @Override
-      public ExperimentQueryResult getAllJoinableExperiments(String lowerCase, DateTimeZone timeZoneForClient,
-                                                             Integer limit, String cursor) {
-        // TODO Auto-generated method stub
-        return null;
-      }
-      @Override
       public ExperimentQueryResult getMyJoinableExperiments(String lowerCase, DateTimeZone timeZoneForClient,
                                                             Integer limit, String cursor) {
         // TODO Auto-generated method stub
@@ -413,11 +371,6 @@ public class EventJsonUploadProcessorTest extends TestCase {
       }
       @Override
       public String getExperimentAsJson(Long id) {
-        // TODO Auto-generated method stub
-        return null;
-      }
-      @Override
-      public List<String> getExperimentsByIdAsJson(List<Long> experimentIds, String email, DateTimeZone timezone) {
         // TODO Auto-generated method stub
         return null;
       }

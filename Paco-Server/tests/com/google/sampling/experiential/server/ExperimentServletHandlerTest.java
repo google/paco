@@ -6,11 +6,14 @@ import java.util.Map;
 
 import junit.framework.TestCase;
 
+import org.joda.time.DateTimeZone;
+
 import com.google.appengine.tools.development.testing.LocalDatastoreServiceTestConfig;
 import com.google.appengine.tools.development.testing.LocalMemcacheServiceTestConfig;
 import com.google.appengine.tools.development.testing.LocalServiceTestHelper;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
+import com.google.paco.shared.comm.Outcome;
 import com.google.paco.shared.model2.ExperimentDAO;
 import com.google.paco.shared.model2.ExperimentDAOCore;
 import com.google.paco.shared.model2.JsonConverter;
@@ -28,7 +31,7 @@ public class ExperimentServletHandlerTest extends TestCase {
   private final String authDomain = "unused_auth_domain";
   private PacoService mapService;
 
-  private final LocalServiceTestHelper helper = new LocalServiceTestHelper(new LocalDatastoreServiceTestConfig(),
+  private final LocalServiceTestHelper helper = new LocalServiceTestHelper(new LocalDatastoreServiceTestConfig().setApplyAllHighRepJobPolicy(),
                                                                            new LocalMemcacheServiceTestConfig());
   private String pacoProtocol = null;
 
@@ -38,10 +41,10 @@ public class ExperimentServletHandlerTest extends TestCase {
     logInEnvironment();
     mapService = new PacoServiceImpl();
 
-    createAndSaveExperiment(ExperimentTestConstants.TEST_EXPERIMENT_0);
-    createAndSaveExperiment(ExperimentTestConstants.TEST_EXPERIMENT_1);
-    createAndSaveExperiment(ExperimentTestConstants.TEST_EXPERIMENT_2);
-    createAndSaveExperiment(ExperimentTestConstants.TEST_EXPERIMENT_3);
+    createAndSaveExperiment(ExperimentTestConstants.TEST_EXPERIMENT_0_NEW);
+    createAndSaveExperiment(ExperimentTestConstants.TEST_EXPERIMENT_1_NEW);
+    createAndSaveExperiment(ExperimentTestConstants.TEST_EXPERIMENT_2_NEW);
+    createAndSaveExperiment(ExperimentTestConstants.TEST_EXPERIMENT_3_NEW);
   }
 
 
@@ -60,8 +63,8 @@ public class ExperimentServletHandlerTest extends TestCase {
 
 
   public void testShortLoadIsShortButComplete() {
-    ExperimentServletHandler shortHandler = new ExperimentServletShortLoadHandler(email, null, null, null, pacoProtocol);
-    ExperimentServletHandler longHandler = new ExperimentServletAllExperimentsFullLoadHandler(email, null, null, null, pacoProtocol);
+    ExperimentServletHandler shortHandler = new ExperimentServletExperimentsForMeLoadHandler(email, null, null, null, pacoProtocol);
+    ExperimentServletHandler longHandler = new ExperimentServletAdminExperimentsFullLoadHandler(email, null, null, null, pacoProtocol);
 
     String shortContent = shortHandler.performLoad();
     String longContent = longHandler.performLoad();
@@ -120,11 +123,12 @@ public class ExperimentServletHandlerTest extends TestCase {
   }
 
   public void testPublicExperimentNoPagination() {
-    createAndSaveExperiment(ExperimentTestConstants.TEST_EXPERIMENT_PUBLISHED_0);
-    createAndSaveExperiment(ExperimentTestConstants.TEST_EXPERIMENT_PUBLISHED_1);
-    createAndSaveExperiment(ExperimentTestConstants.TEST_EXPERIMENT_PUBLISHED_2);
-    createAndSaveExperiment(ExperimentTestConstants.TEST_EXPERIMENT_PUBLISHED_3);
-    ExperimentServletHandler handler = new ExperimentServletExperimentsShortPublicLoadHandler(email, null, null, null, pacoProtocol );
+    createAndSaveExperiment(ExperimentTestConstants.TEST_EXPERIMENT_PUBLISHED_0_NEW);
+    createAndSaveExperiment(ExperimentTestConstants.TEST_EXPERIMENT_PUBLISHED_1_NEW);
+    createAndSaveExperiment(ExperimentTestConstants.TEST_EXPERIMENT_PUBLISHED_2_NEW);
+    createAndSaveExperiment(ExperimentTestConstants.TEST_EXPERIMENT_PUBLISHED_3_NEW);
+    DateTimeZone timezone = DateTimeZone.getDefault();
+    ExperimentServletHandler handler = new ExperimentServletExperimentsShortPublicLoadHandler(email, timezone, null, null, pacoProtocol );
     String content = handler.performLoad();
 
     assertTrue(content != null);
@@ -133,10 +137,10 @@ public class ExperimentServletHandlerTest extends TestCase {
   }
 
   public void testPublicExperimentWithPaginationCoveringAll() {
-    createAndSaveExperiment(ExperimentTestConstants.TEST_EXPERIMENT_PUBLISHED_0);
-    createAndSaveExperiment(ExperimentTestConstants.TEST_EXPERIMENT_PUBLISHED_1);
-    createAndSaveExperiment(ExperimentTestConstants.TEST_EXPERIMENT_PUBLISHED_2);
-    createAndSaveExperiment(ExperimentTestConstants.TEST_EXPERIMENT_PUBLISHED_3);
+    createAndSaveExperiment(ExperimentTestConstants.TEST_EXPERIMENT_PUBLISHED_0_NEW);
+    createAndSaveExperiment(ExperimentTestConstants.TEST_EXPERIMENT_PUBLISHED_1_NEW);
+    createAndSaveExperiment(ExperimentTestConstants.TEST_EXPERIMENT_PUBLISHED_2_NEW);
+    createAndSaveExperiment(ExperimentTestConstants.TEST_EXPERIMENT_PUBLISHED_3_NEW);
     ExperimentServletHandler handler = new ExperimentServletExperimentsShortPublicLoadHandler(email, null, 4, null, pacoProtocol);
     String content = handler.performLoad();
 
@@ -160,10 +164,10 @@ public class ExperimentServletHandlerTest extends TestCase {
 
 
   public void testPublicExperimentWithPaginationOnMultiplePages() {
-    createAndSaveExperiment(ExperimentTestConstants.TEST_EXPERIMENT_PUBLISHED_0);
-    createAndSaveExperiment(ExperimentTestConstants.TEST_EXPERIMENT_PUBLISHED_1);
-    createAndSaveExperiment(ExperimentTestConstants.TEST_EXPERIMENT_PUBLISHED_2);
-    createAndSaveExperiment(ExperimentTestConstants.TEST_EXPERIMENT_PUBLISHED_3);
+    createAndSaveExperiment(ExperimentTestConstants.TEST_EXPERIMENT_PUBLISHED_0_NEW);
+    createAndSaveExperiment(ExperimentTestConstants.TEST_EXPERIMENT_PUBLISHED_1_NEW);
+    createAndSaveExperiment(ExperimentTestConstants.TEST_EXPERIMENT_PUBLISHED_2_NEW);
+    createAndSaveExperiment(ExperimentTestConstants.TEST_EXPERIMENT_PUBLISHED_3_NEW);
     ExperimentServletHandler handler = new ExperimentServletExperimentsShortPublicLoadHandler(email, null, 2, null, pacoProtocol);
     String content = handler.performLoad();
 
@@ -212,7 +216,10 @@ public class ExperimentServletHandlerTest extends TestCase {
   }
 
   private void saveToServer(ExperimentDAO experiment) {
-    mapService.saveExperiment(experiment, null);
+    Outcome outcome = mapService.saveExperiment(experiment, null);
+    if (!outcome.succeeded()) {
+      throw new IllegalStateException("Could not save test experiments to server: " + outcome.getErrorMessage());
+    }
   }
 
   private List<ExperimentDAO> getExperimentList(String content) {
