@@ -47,19 +47,15 @@
         </div>
       </md-card-content>
 
-
-      <md-card-content>
+      <md-card-content expandable ng-controller="ExpandCtrl" ng-class="{expand: expand}">
         <md-divider></md-divider>
-        <md-checkbox class="end" ng-model="group.endOfDayGroup" aria-label="End of day group">
-          End of day group
-        </md-checkbox>
-
-        <select class="reference"  ng-model="group.endOfDayReferredGroupName" 
-          ng-if="group.endOfDayGroup">
-          <option disabled selected>Reference group</option>
-          <option ng-repeat="group in experiment.groups" value="{{group.name}}">{{group.name}}</option>
-        </select>
-
+        <div class="section" ng-click="toggleExpand()">
+          <div class="title">
+            <span ng-if="experiment.groups.length>1">Group {{$index+1}}</span> Advanced
+          </div>
+          <i>End of day, background listening, logging, custom rendering</i>
+        </div>
+        <div ng-show="expand" ng-include="'partials/advanced.html'"></div>
       </md-card-content>
     </md-card>
   </div>

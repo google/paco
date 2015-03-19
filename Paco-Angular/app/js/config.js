@@ -47,6 +47,14 @@ app.service('config', function() {
     'location'
   ];
 
+  this.feedbackTypes = [
+    'Static Message Feedback',
+    'Retrospective Feedback (QS default)',
+    'Responsive Feedback (adaptive)',
+    'Custom Code Feedback',
+    'Disable Feedback Message'
+  ];
+
   this.groupTemplate = {
     actionTriggers: [],
     inputs: [],
@@ -55,21 +63,25 @@ app.service('config', function() {
     logActions: false,
     backgroundListen: false,
     endOfDayGroup: false,
+    feedbackType: 0,
     feedback: {
-      text: '',
-      feedbackType: 'display'
+      text: 'Thanks for Participating!',
     }
+  };
+
+  this.actionTemplate = {
+    'type': 'pacoNotificationAction'
   };
 
   this.scheduleTriggerTemplate = {
     type: 'scheduleTrigger',
-    actions: [{}],
+    actions: [this.actionTemplate],
     schedules: [{}]
   };
 
   this.eventTriggerTemplate = {
     type: 'interruptTrigger',
-    actions: [{}],
+    actions: [this.actionTemplate],
     cues: [{}]
   };
 

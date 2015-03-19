@@ -50,9 +50,7 @@
     <div class="padded">
       Admin
       <br />
-      <textarea>
-        {{experiment}}
-      </textarea>
+      <textarea ng-blur="convertBack($event)">{{experiment|json}}</textarea>
     </div>
   </div>
   <div role="tabpanel" ng-switch-when="4">

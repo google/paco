@@ -1,7 +1,7 @@
 var app = angular.module('pacoControllers', []);
 
-app.controller('ExperimentCtrl', ['$scope', '$http', '$routeParams', '$mdDialog', 'config', 
-  function($scope, $http, $routeParams, $mdDialog, config) {
+app.controller('ExperimentCtrl', ['$scope', '$http', '$routeParams', '$mdDialog', '$filter', 'config', 
+  function($scope, $http, $routeParams, $mdDialog, $filter, config) {
 
   $scope.experimentIdx = parseInt($routeParams.experimentIdx);
   $scope.selectedIndex = 0;
@@ -13,7 +13,7 @@ app.controller('ExperimentCtrl', ['$scope', '$http', '$routeParams', '$mdDialog'
       $scope.loaded = true;
       $scope.$broadcast('experimentChange');
     });
-    $scope.selectedIndex = 1;
+    $scope.selectedIndex = 2;
   }
 
   $http.get('/experiments?mine').success(function(data) {
@@ -34,6 +34,8 @@ app.controller('ExperimentCtrl', ['$scope', '$http', '$routeParams', '$mdDialog'
           );
 
         } else {
+
+          console.log(data);
           var errorMessage = data[0].errorMessage;
           $mdDialog.show({
             templateUrl: 'partials/error.html',
@@ -78,17 +80,10 @@ app.controller('ExperimentCtrl', ['$scope', '$http', '$routeParams', '$mdDialog'
     arr.splice(idx, 1);
   };
 
-  $scope.save = function() {
-    var json = JSON.stringify($scope.experiment);
-    var result = $http.post('/save', json);
-    result.success(function(data, status, headers, config) {
-      alert('success');
-    });
-    result.error(function(data, status, headers, config) {
-      alert( 'failure message: ' + JSON.stringify({data: data}));
-    });
-  }
-
+  $scope.convertBack = function(event) {
+    var json = event.target.value;
+    $scope.experiment = JSON.parse(json);
+  };
 }]);
 
 
@@ -133,6 +128,12 @@ app.controller('TriggerCtrl', ['$scope', '$mdDialog', 'config',
   $scope.getType = function(idx) {
     return $scope.scheduleTypes[idx];
   };
+
+  $scope.addAction = function(actions, event) {
+    var action = config.actionTemplate;
+    action.id = actions.length;
+    actions.push(action);
+  }
 
   $scope.showSchedule = function(event, schedule) {
     $mdDialog.show({

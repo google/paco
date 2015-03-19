@@ -116,14 +116,16 @@ md-card-content {
 }
 
 md-card-content .end {
-  margin-left: 226px;
-  width: 200px;
+/*  
+  left: 210px;
+  top: 0px;
+  width: 200px;*/
 }
 
 md-card-content .reference {
-  position: absolute;
-  left: 420px;
-  top: 20px;
+  
+/*  left: 420px;
+  top: 16px;*/
 }
 
 md-card-content[expandable]::after {
