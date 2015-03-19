@@ -425,7 +425,7 @@ public class EventJsonUploadProcessorTest extends TestCase {
   @Test
   public void testSingleJsonEvent() throws Exception {
     EventJsonUploadProcessor ejup = new EventJsonUploadProcessor(emptyExperimentService, noOpEventRetriever);
-    String result = ejup.processJsonEvents("{\"experimentId\" : \"ignored\"}", who, null, null);
+    String result = ejup.processJsonEvents("{\"experimentId\" : \"1\"}", who, null, null);
     String expectedOutcomeJson = toJson(new Outcome(0));
     assertEquals(expectedOutcomeJson, result);
   }
@@ -434,15 +434,14 @@ public class EventJsonUploadProcessorTest extends TestCase {
   @Test
   public void testEmptyJsonArray() throws Exception {
     EventJsonUploadProcessor ejup = new EventJsonUploadProcessor(emptyExperimentService, noOpEventRetriever);
-    String result = ejup.processJsonEvents("[{ \"experimentId\" : \"ignored\"}]", who, null, null);
-    String expectedOutcomeJson = toJson(new Outcome(0));
-    assertEquals(expectedOutcomeJson, result);
+    String result = ejup.processJsonEvents("[]", who, null, null);
+    assertEquals("[]", result);
   }
 
   @Test
   public void testTwoEventJsonArray() throws Exception {
     EventJsonUploadProcessor ejup = new EventJsonUploadProcessor(emptyExperimentService, noOpEventRetriever);
-    String result = ejup.processJsonEvents("[{\"experimentId\" : \"ignored\", \"foo\" : \"bar\"}, { \"experimentId\" : \"ignored\", \"foo2\" : \"baz\"}]", who, null, null);
+    String result = ejup.processJsonEvents("[{\"experimentId\" : \"1\", \"foo\" : \"bar\"}, { \"experimentId\" : \"2\", \"foo2\" : \"baz\"}]", who, null, null);
     String expectedOutcomeJson = toJson(new Outcome(0), new Outcome(1));
     assertEquals(expectedOutcomeJson, result);
   }
@@ -451,14 +450,14 @@ public class EventJsonUploadProcessorTest extends TestCase {
   public void testBadEvent() throws Exception {
     EventJsonUploadProcessor ejup = new EventJsonUploadProcessor(emptyExperimentService, blowUpEventRetriever);
     String result = ejup.processJsonEvents("[{\"experimentId\" : \"ignored\"}]", who, null, null);
-    String expectedOutcomeJson = toJson(new Outcome(0, "Exception posting event: 0. This event is bad"));
+    String expectedOutcomeJson = toJson(new Outcome(0, "experimentId, ignored, not a number for this event: 0"));
     assertEquals(expectedOutcomeJson, result);
   }
 
   @Test
   public void testOneGoodEventOneBadEvent() throws Exception {
     EventJsonUploadProcessor ejup = new EventJsonUploadProcessor(emptyExperimentService, noOpThenBlowUpEventRetriever);
-    String result = ejup.processJsonEvents("[{\"experimentId\" : \"ignored\"},{\"experimentId\" : \"ignored\"}]", who, null, null);
+    String result = ejup.processJsonEvents("[{\"experimentId\" : \"1\"},{\"experimentId\" : \"2\"}]", who, null, null);
     String expectedOutcomeJson = toJson(new Outcome(0),
                                         new Outcome(1, "Exception posting event: 1. This event is bad"));
     assertEquals(expectedOutcomeJson, result);
@@ -467,7 +466,7 @@ public class EventJsonUploadProcessorTest extends TestCase {
   @Test
   public void testExperimentDoesNotExist() throws Exception {
     EventJsonUploadProcessor ejup = new EventJsonUploadProcessor(noExperimentService, noOpEventRetriever);
-    String result = ejup.processJsonEvents("{\"experimentId\" : \"ignored\"}", who, null, null);
+    String result = ejup.processJsonEvents("{\"experimentId\" : \"525\"}", who, null, null);
     String expectedOutcomeJson = toJson(new Outcome(0, "No existing experiment for this event: 0"));
     assertEquals(expectedOutcomeJson, result);
   }
@@ -475,7 +474,7 @@ public class EventJsonUploadProcessorTest extends TestCase {
   @Test
   public void testOneOfTwoExperimentsDoesNotExist() throws Exception {
     EventJsonUploadProcessor ejup = new EventJsonUploadProcessor(noThenYesExperimentService, noOpEventRetriever);
-    String result = ejup.processJsonEvents("[{\"experimentId\" : \"ignored\"},{\"experimentId\" : \"ignored\"}]", who, null, null);
+    String result = ejup.processJsonEvents("[{\"experimentId\" : \"525\"},{\"experimentId\" : \"1\"}]", who, null, null);
     String expectedOutcomeJson = toJson(new Outcome(0, "No existing experiment for this event: 0"), new Outcome(1));
     assertEquals(expectedOutcomeJson, result);
   }
@@ -485,14 +484,14 @@ public class EventJsonUploadProcessorTest extends TestCase {
   public void testExperimentNotAllowed() throws Exception {
     EventJsonUploadProcessor ejup = new EventJsonUploadProcessor(notAllowedExperimentService, noOpEventRetriever);
     String result = ejup.processJsonEvents("{\"experimentId\" : \"ignored\"}", who, null, null);
-    String expectedOutcomeJson = toJson(new Outcome(0, "No existing experiment for this event: 0"));
+    String expectedOutcomeJson = toJson(new Outcome(0, "experimentId, ignored, not a number for this event: 0"));
     assertEquals(expectedOutcomeJson, result);
   }
 
   @Test
   public void testDateParseErrorJsonArray() throws Exception {
     EventJsonUploadProcessor ejup = new EventJsonUploadProcessor(emptyExperimentService, noOpEventRetriever);
-    String result = ejup.processJsonEvents("[{\"responseTime\":\"12baddate\",\"experimentId\" : \"ignored\"}]", who, null, null);
+    String result = ejup.processJsonEvents("[{\"responseTime\":\"12baddate\",\"experimentId\" : \"1\"}]", who, null, null);
     String expectedOutcomeJson = toJson(new Outcome(0,"Exception posting event: 0. Invalid format: \"12baddate\" is malformed at \"baddate\""));
     assertEquals(expectedOutcomeJson, result);
   }
@@ -500,7 +499,7 @@ public class EventJsonUploadProcessorTest extends TestCase {
   @Test
   public void testOneOfTwoExperimentsParseErrorsNotExist() throws Exception {
     EventJsonUploadProcessor ejup = new EventJsonUploadProcessor(emptyExperimentService, noOpEventRetriever);
-    String result = ejup.processJsonEvents("[{\"experimentId\" : \"ignored\",\"responseTime\":\"12baddate\"},{\"experimentId\" : \"ignored\"}]", who, null, null);
+    String result = ejup.processJsonEvents("[{\"experimentId\" : \"1\",\"responseTime\":\"12baddate\"},{\"experimentId\" : \"2\"}]", who, null, null);
     String expectedOutcomeJson = toJson(new Outcome(0, "Exception posting event: 0. Invalid format: \"12baddate\" is malformed at \"baddate\""), new Outcome(1));
     assertEquals(expectedOutcomeJson, result);
   }
