@@ -506,7 +506,7 @@ public ExperimentQueryResult getAllJoinableExperiments(String email, DateTimeZon
 
   public ExperimentQueryResult getExperimentsPublishedPublicly(DateTimeZone dateTimeZone, Integer limit, String cursorString) {
     long t0 = System.currentTimeMillis();
-    List<Long> publicExperimentIds = PublicExperimentList.getPublicExperiments(dateTimeZone.getID());
+    List<Long> publicExperimentIds = PublicExperimentList.getPublicExperiments(dateTimeZone.getID(), limit, cursorString).ids;
     long t1 = System.currentTimeMillis();
     System.out.println("getPublicExperimentsIds: " + (t1 - t0));
 //    Iterable<String> publicExperimentIdStrings = Longs.stringConverter().reverse().convertAll(publicExperimentIds);

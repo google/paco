@@ -19,7 +19,11 @@ abstract class ExperimentServletHandler {
 
   public ExperimentServletHandler(String email, DateTimeZone timezone2, Integer limit, String cursor, String pacoProtocol) {
     this.email = email;
-    this.timezone = timezone2;
+    if (timezone2 != null) {
+      this.timezone = timezone2;
+    } else {
+      this.timezone = DateTimeZone.getDefault();
+    }
     this.limit = limit;
     this.cursor = cursor;
     this.pacoProtocol = pacoProtocol;

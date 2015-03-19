@@ -31,8 +31,7 @@ public class JsonConverter {
    */
   public static String jsonify(List<? extends ExperimentDAOCore> experiments, Integer limit, String cursor, String pacoProtocol) {
     try {
-      ObjectMapper mapper = new ObjectMapper();
-      mapper.getSerializationConfig().setSerializationInclusion(Inclusion.NON_NULL);
+      ObjectMapper mapper = getObjectMapper();
 
       Float pacoProtocolFloat = null;
       if (pacoProtocol != null) {
@@ -103,7 +102,6 @@ public class JsonConverter {
 
   public static String jsonify(ExperimentDAOCore experiment) {
     ObjectMapper mapper = getObjectMapper();
-    mapper.getSerializationConfig().setSerializationInclusion(Inclusion.NON_NULL);
     try {
       return mapper.writeValueAsString(experiment);
     } catch (JsonGenerationException e) {

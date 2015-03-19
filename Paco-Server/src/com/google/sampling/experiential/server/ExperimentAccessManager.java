@@ -105,34 +105,54 @@ public class ExperimentAccessManager {
   }
 
   private static void updateParticipantTable(Transaction tx, DatastoreService ds, ExperimentDAO experiment, Key experimentKey) {
-    List<String> newPublishedList = experiment.getPublishedUsers();
-    List<Entity> existingPublishedList = getExistingPublishedUsersForExperiment(tx, ds, experimentKey);
-
-    List<Key> toBeRemovedList = Lists.newArrayList();
-    List<String> notToBeModified = Lists.newArrayList();
-
-    for (Entity entity : existingPublishedList) {
-      String userName = (String) entity.getProperty(USER_ID);
-      if (!newPublishedList.contains(userName)) {
-        toBeRemovedList.add(entity.getKey());
-      } else {
-        notToBeModified.add(userName);
+    List<Entity> existingPublishedUserAcls = getExistingPublishedUsersForExperiment(tx, ds, experimentKey);
+    if (!experiment.getPublished() && existingPublishedUserAcls.isEmpty()) {
+      return; // not published and nothing to remove and no reason to add
+    } else if (!experiment.getPublished() && existingPublishedUserAcls.size() > 0) {
+      List<Key> aclsToBeRemoved = Lists.newArrayList();
+      for (Entity existing : existingPublishedUserAcls) {
+        aclsToBeRemoved.add(existing.getKey());
       }
-    }
-    // build add list
-    newPublishedList.removeAll(notToBeModified);
+      removePublishedUserAcls(tx, ds, aclsToBeRemoved);
+      return;
+    } else {
+      List<String> newPublishedUsers = experiment.getPublishedUsers();
+      if (!existingPublishedUserAcls.isEmpty()) {
+        List<Key> aclsToBeRemoved = Lists.newArrayList();
+        for (Entity entity : existingPublishedUserAcls) {
+          String existingUserEmail = (String) entity.getProperty(USER_ID);
+          if (!newPublishedUsers.contains(existingUserEmail)) {
+            aclsToBeRemoved.add(entity.getKey());
+          } else {
+            newPublishedUsers.remove(existingUserEmail);
+          }
+        }
 
-    // add new users
-    List<Entity> userAccessRules = Lists.newArrayList();
+        removePublishedUserAcls(tx, ds, aclsToBeRemoved);
+      }
+
+      addPublishedUserAcls(tx, ds, newPublishedUsers, experimentKey.getId());
+
+    }
+
+
+  }
+
+  public static void addPublishedUserAcls(Transaction tx, DatastoreService ds, List<String> newPublishedList,
+                                         final long experimentId) {
+    List<Entity> newPublishedAcls = Lists.newArrayList();
     for (String admin : newPublishedList) {
       Entity userAccess = new Entity(PUBLISHED_USER_KIND);
-      userAccess.setProperty(EXPERIMENT_ID, experimentKey.getId());
+      userAccess.setProperty(EXPERIMENT_ID, experimentId);
       userAccess.setProperty(USER_ID, admin);
-      userAccessRules.add(userAccess);
+      newPublishedAcls.add(userAccess);
     }
-    if (!userAccessRules.isEmpty()) {
-      ds.put(tx, userAccessRules);
+    if (!newPublishedAcls.isEmpty()) {
+      ds.put(tx, newPublishedAcls);
     }
+  }
+
+  public static void removePublishedUserAcls(Transaction tx, DatastoreService ds, List<Key> toBeRemovedList) {
     if (!toBeRemovedList.isEmpty()) {
       ds.delete(tx, toBeRemovedList);
     }
@@ -172,9 +192,7 @@ public class ExperimentAccessManager {
     if (!adminAccessRules.isEmpty()) {
       ds.put(tx, adminAccessRules);
     }
-    if (!toBeRemovedList.isEmpty()) {
-      ds.delete(tx, toBeRemovedList);
-    }
+    removePublishedUserAcls(tx, ds, toBeRemovedList);
   }
 
   private static List<Entity> getExistingAdminsForExperiment(Transaction tx, DatastoreService ds, Key experimentKey) {

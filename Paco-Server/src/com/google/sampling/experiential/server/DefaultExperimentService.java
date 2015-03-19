@@ -26,6 +26,7 @@ import com.google.paco.shared.model2.SignalTime;
 import com.google.paco.shared.model2.ValidationMessage;
 import com.google.sampling.experiential.datastore.ExperimentJsonEntityManager;
 import com.google.sampling.experiential.datastore.PublicExperimentList;
+import com.google.sampling.experiential.datastore.PublicExperimentList.CursorExerimentIdListPair;
 
 class DefaultExperimentService implements ExperimentService {
 
@@ -155,11 +156,11 @@ class DefaultExperimentService implements ExperimentService {
 
 
   @Override
-  public ExperimentQueryResult getMyJoinableExperiments(String lowerCase, DateTimeZone timeZoneForClient,
+  public ExperimentQueryResult getMyJoinableExperiments(String email, DateTimeZone timeZoneForClient,
                                                         Integer limit, String cursor) {
-    List<Long> experimentIds = ExperimentAccessManager.getExistingExperimentsIdsForAdmin(lowerCase);
-    experimentIds.addAll(ExperimentAccessManager.getExistingPublishedExperimentIdsForUser(lowerCase));
-    List<ExperimentDAO> experiments = getExperimentsByIdInternal(experimentIds, lowerCase, timeZoneForClient);
+    List<Long> experimentIds = ExperimentAccessManager.getExistingExperimentsIdsForAdmin(email);
+    experimentIds.addAll(ExperimentAccessManager.getExistingPublishedExperimentIdsForUser(email));
+    List<ExperimentDAO> experiments = getExperimentsByIdInternal(experimentIds, email, timeZoneForClient);
     return new ExperimentQueryResult(cursor, experiments); // TODO honor the limit and cursor
   }
 
@@ -173,9 +174,9 @@ class DefaultExperimentService implements ExperimentService {
 
   @Override
   public ExperimentQueryResult getExperimentsPublishedPublicly(DateTimeZone timezone, Integer limit, String cursor) {
-    List<Long> experimentIds = PublicExperimentList.getPublicExperiments(timezone.getID());
-    List<ExperimentDAO> experiments = getExperimentsByIdInternal(experimentIds, null, timezone);
-    return new ExperimentQueryResult(cursor, experiments); // TODO honor the limit and cursor
+    CursorExerimentIdListPair cursorIdPair = PublicExperimentList.getPublicExperiments(timezone.getID(), limit, cursor);
+    List<ExperimentDAO> experiments = getExperimentsByIdInternal(cursorIdPair.ids, null, timezone);
+    return new ExperimentQueryResult(cursorIdPair.cursor, experiments);
   }
 
   // referred experiments

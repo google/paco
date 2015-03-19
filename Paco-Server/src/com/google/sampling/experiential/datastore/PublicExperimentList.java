@@ -7,16 +7,18 @@ import java.util.logging.Logger;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 
+import com.google.appengine.api.datastore.Cursor;
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.EntityNotFoundException;
+import com.google.appengine.api.datastore.FetchOptions;
 import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.KeyFactory;
 import com.google.appengine.api.datastore.Query;
 import com.google.appengine.api.datastore.Query.Filter;
 import com.google.appengine.api.datastore.Query.FilterOperator;
-import com.google.appengine.api.datastore.QueryResultIterable;
+import com.google.appengine.api.datastore.QueryResultList;
 import com.google.appengine.api.datastore.Transaction;
 import com.google.common.collect.Lists;
 import com.google.paco.shared.model2.ExperimentDAO;
@@ -110,18 +112,35 @@ public class PublicExperimentList {
     return lastEndTime != null ? lastEndTime.toDate() : INFINITY;
   }
 
+  public static class CursorExerimentIdListPair {
+    public String cursor;
+    public List<Long> ids;
+    public CursorExerimentIdListPair(String cursor, List<Long> ids) {
+      super();
+      this.cursor = cursor;
+      this.ids = ids;
+    }
 
-  public static List<Long> getPublicExperiments(String timezone) {
+  }
+
+  public static CursorExerimentIdListPair getPublicExperiments(String timezone, Integer limit, String cursor) {
     DatastoreService ds = DatastoreServiceFactory.getDatastoreService();
     Query query = new Query(PUBLIC_EXPERIMENT_KIND);
 
     DateTime nowInUserTimezone = TimeUtil.getNowInUserTimezone(DateTimeZone.forID(timezone));
     String dateString = toDateString(nowInUserTimezone);
     Filter endDateFilter = new Query.FilterPredicate(END_DATE_PROPERTY,
-                                                     FilterOperator.GREATER_THAN,
+                                                     FilterOperator.LESS_THAN,
                                                      dateString);
     query.setFilter(endDateFilter);
-    QueryResultIterable<Entity> result = ds.prepare(query).asQueryResultIterable();
+    FetchOptions options = FetchOptions.Builder.withDefaults();
+    if (limit != null) {
+      options.limit(limit);
+    }
+    if (cursor != null) {
+      options.startCursor(Cursor.fromWebSafeString(cursor));
+    }
+    QueryResultList<Entity> result = ds.prepare(query).asQueryResultList(options);
     List<Long> experimentIds = Lists.newArrayList();
     for (Entity entity : result) {
       Date endDateProperty = (Date)entity.getProperty(END_DATE_PROPERTY);
@@ -129,7 +148,7 @@ public class PublicExperimentList {
         experimentIds.add(entity.getKey().getId());
       }
     }
-    return experimentIds;
+    return new CursorExerimentIdListPair(result.getCursor().toWebSafeString(), experimentIds);
   }
 
   public static boolean isPublicExperiment(Long experimentId) {
