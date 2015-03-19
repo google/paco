@@ -1,0 +1,50 @@
+<div class="advanced">
+
+  <div>
+    <md-checkbox ng-model="group.endOfDayGroup" aria-label="End of day group">
+      End of day group
+    </md-checkbox>
+
+    <div class="referred" ng-if="group.endOfDayGroup">
+    Referred group 
+    <select ng-model="group.endOfDayReferredGroupName">
+      <option ng-repeat="group in experiment.groups" value="{{group.name}}">{{group.name}}
+      </option>
+    </select> 
+    </div>
+  </div>
+
+  <div>
+    <md-checkbox ng-model="group.backgroundListen" aria-label="Listen for other apps sending data to PACO">
+      Background Listening
+    </md-checkbox>
+
+    <div class="identifier" ng-if="group.backgroundListen" >
+    Source of data 
+    <md-input-container md-no-float>
+      <input type="text" ng-model="group.backgroundListenSourceIdentifier" placeholder="Identifier">
+    </md-input-container>
+    </div>
+  </div>
+
+  <div>
+    <md-checkbox ng-model="group.logActions" aria-label="Log app usage and browser history">
+      Log app usage and browser history
+    </md-checkbox>
+  </div>
+
+
+
+  <div>
+    <md-checkbox ng-model="group.customRendering" aria-label="Override form display">
+      Override form display
+    </md-checkbox>
+
+
+    <md-input-container ng-if="group.customRendering">
+      <label>Custom code</label>
+      <textarea ng-model="group.customRenderingCode" columns="1"></textarea>
+    </md-input-container>
+  </div>
+
+</div>
