@@ -53,6 +53,11 @@
   border: none;
 }
 
+.schedule .short {
+   width: 200px;
+  display: inline;
+}
+
 .md-actions.inline {
   bottom: 0;
   position: absolute;

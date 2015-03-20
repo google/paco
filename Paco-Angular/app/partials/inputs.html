@@ -24,13 +24,6 @@
       Multiple selections
     </md-checkbox>
 
-    <div ng-if="input.conditional">
-      <md-input-container>
-        <label>Condition</label>
-        <input ng-model="input.conditionExpression">
-      </md-input-container>
-    </div>
-
   </div>
 
   <div class="column1">
@@ -39,10 +32,19 @@
       <input ng-model="input.text" md-maxlength="60">
     </md-input-container>
 
-    <md-input-container class="short">
+    <div class="clearfix">
+    <md-input-container class="medium">
       <label>Question {{$index + 1}} Label</label>
       <input ng-model="input.name">
     </md-input-container>
+
+     <div ng-if="input.conditional">
+      <md-input-container>
+        <label>Condition</label>
+        <input ng-model="input.conditionExpression">
+      </md-input-container>
+    </div>
+    </div>
 
     <div class="likert" ng-if="input.responseType == 'likert'">
       <md-input-container class="short">
@@ -50,12 +52,12 @@
         <input ng-model="input.likertSteps" type="number">
       </md-input-container>
 
-      <md-input-container class="short">
+      <md-input-container class="medium">
         <label>Left Side Label</label>
         <input ng-model="input.leftSideLabel">
       </md-input-container>
 
-      <md-input-container class="short">
+      <md-input-container class="medium">
         <label>Right Side Label</label>
         <input ng-model="input.rightSideLabel">
       </md-input-container>

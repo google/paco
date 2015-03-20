@@ -100,14 +100,14 @@
         <md-checkbox ng-model="schedule.days[6]" aria-label="Saturday">Sa</md-checkbox>
       </div>
 
-      <div ng-repeat="time in schedule.signalTimes" ng-if="schedule.scheduleType>=0 && schedule.scheduleType<=3">
+      <div ng-repeat="time in schedule.signalTimes track by $index" ng-if="schedule.scheduleType>=0 && schedule.scheduleType<=3" class="clearfix">
 
-        <md-input-container class="short">
+        <md-input-container class="medium">
           <label>Time</label>
           <input type="time" milli ng-model="time.fixedTimeMillisFromMidnight">
         </md-input-container>
 
-        <md-input-container class="short">
+        <md-input-container class="medium">
           <label>Label</label>
           <input type="text" ng-model="time.label">
         </md-input-container>

@@ -61,19 +61,35 @@
 .column0 {
   display: inline-block;
   vertical-align: top;
-  width: 250px;
+  width: 192px;
 }
 
 .column1 {
   display: inline-block;
   vertical-align: top;
   margin-right: 24px;
-  width: 550px;
+  width: 600px;
+}
+
+.clearfix:after {
+  visibility: hidden;
+  display: block;
+  font-size: 0;
+  content: " ";
+  clear: both;
+  height: 0;
 }
 
 .short {
-  width: 200px;
-  display: inline-block;
+  width: 112px;
+  margin-right: 16px;
+  float: left;
+}
+
+.medium {
+  float: left;
+  margin-right: 16px;
+  width: 224px;
 }
 
 .groups > button {
