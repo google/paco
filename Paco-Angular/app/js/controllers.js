@@ -244,9 +244,7 @@ app.controller('ScheduleCtrl', ['$scope', '$mdDialog', 'config', 'schedule',
   }
 
   $scope.addTime = function(times, idx) {
-    times.splice(idx + 1, 0, {
-      'fixedTimeMillisFromMidnight': 0
-    });
+    times.splice(idx + 1, 0, config.signalTimeTemplate);
   };
 
   $scope.remove = function(arr, idx) {
@@ -272,7 +270,9 @@ app.controller('ScheduleCtrl', ['$scope', '$mdDialog', 'config', 'schedule',
   $scope.$watch('schedule.scheduleType', function(newValue, oldValue) {
     if (newValue) {
       schedule.scheduleType = parseInt(schedule.scheduleType);
-      $scope.schedule.signalTimes = [{}];
+      if ($scope.schedule.signalTimes == undefined) {
+        $scope.schedule.signalTimes = [config.signalTimeTemplate];
+      }
     }
   });
 }]);

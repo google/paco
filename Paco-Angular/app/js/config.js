@@ -85,4 +85,7 @@ app.service('config', function() {
     cues: [{}]
   };
 
+  this.signalTimeTemplate = {
+    'fixedTimeMillisFromMidnight': 0
+  };
 });
