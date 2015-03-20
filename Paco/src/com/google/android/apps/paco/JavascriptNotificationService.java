@@ -28,4 +28,8 @@ public class JavascriptNotificationService {
   public void removeNotification(String message) {
     NotificationCreator.create(context).removeNotificationsForCustomGeneratedScript(experiment, experimentGroup, message);
   }
+
+  public void removeAllNotifications() {
+    NotificationCreator.create(context).removeAllNotificationsForCustomGeneratedScript(experiment, experimentGroup);
+  }
 }

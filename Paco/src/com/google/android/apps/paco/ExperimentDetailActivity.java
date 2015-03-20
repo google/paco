@@ -245,7 +245,7 @@ public class ExperimentDetailActivity extends Activity implements ExperimentLoad
     showDialog(REFRESHING_EXPERIMENTS_DIALOG_ID);
     List<Long> experimentServerIds = Lists.newArrayList(Long.parseLong(realServerId));
     experimentDownloadTask = new DownloadFullExperimentsTask(this, listener, userPrefs, experimentServerIds);
-    experimentDownloadTask.execute(null);
+    experimentDownloadTask.execute((Void)null);
   }
 
 

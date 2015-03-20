@@ -96,7 +96,7 @@ public class NotificationCreator {
           fireNotification(context, notificationHolder, experiment.getExperimentDAO().getTitle(), message);
 
           createAlarmToCancelNotificationAtTimeout(context, notificationHolder);
-          if (notificationHolder.getSnoozeCount() > PacoNotificationAction.SNOOZE_COUNT_DEFAULT) {
+          if (notificationHolder.getSnoozeCount() != null && (notificationHolder.getSnoozeCount() > PacoNotificationAction.SNOOZE_COUNT_DEFAULT)) {
             createAlarmForSnooze(context, notificationHolder);
           }
         } else {
@@ -420,6 +420,16 @@ public class NotificationCreator {
         }
       }
   }
+
+  public void removeAllNotificationsForCustomGeneratedScript(ExperimentDAO experiment, ExperimentGroup experimentGroup) {
+    List<NotificationHolder> notifs = experimentProviderUtil.getAllNotificationsFor(experiment.getId(), experimentGroup.getName());
+    for (NotificationHolder notificationHolder : notifs) {
+      if (notificationHolder.isCustomNotification()) {
+        timeoutNotification(notificationHolder);
+      }
+    }
+}
+
 
 
 

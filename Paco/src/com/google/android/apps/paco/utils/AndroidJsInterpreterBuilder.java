@@ -45,6 +45,8 @@ public class AndroidJsInterpreterBuilder {
     interpreter.newBind("experimentLoader", new JavascriptExperimentLoader(context, experimentProvider, experiment, androidExperiment));
     interpreter.newBind("notificationService", new JavascriptNotificationService(context, experiment, experimentGroup));
     interpreter.newBind("log", new JavascriptLogger());
+
+    interpreter.newBind("sensors", new JavascriptSensorManager(context));
     return interpreter;
 
   }

@@ -84,7 +84,6 @@ public class AndroidActionExecutor {
         // server.
         String baseScript = interpreterBase() + getBaseScript(context);
         interpreter.eval(baseScript + "\n" + customScript);
-        System.out.println("filler");
       }
       break;
     default:

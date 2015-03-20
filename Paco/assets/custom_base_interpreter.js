@@ -267,7 +267,10 @@ var paco = (function (init) {
 	        },
 	        removeNotification : function(message) { 
 		          alert("No notification support"); 
-		    }
+		    },
+		      removeAllNotifications : function() {
+		        alert("No notification support");
+		      }
 	      };
 	    }
 
@@ -277,7 +280,10 @@ var paco = (function (init) {
 	      }, 
 	      removeNotification : function() {
 	    	  notificationService.removeNotification();
-	      }
+	      },
+        removeAllNotifications : function() {
+          notificationService.removeAllNotifications();
+        }
 	    };
 	  })();
 
