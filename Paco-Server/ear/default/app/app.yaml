@@ -1,0 +1,41 @@
+application: pacostage
+version: 1
+runtime: python27
+api_version: 1
+threadsafe: yes
+default_expiration: "30d"
+
+libraries:
+- name: webapp2
+  version: latest
+
+handlers:
+- url: /
+  static_files: index.html
+  upload: index.html
+  expiration: "15m"
+
+- url: /
+  static_files: index.html
+  upload: index.html
+
+- url: /app
+  static_dir: app
+
+- url: /js
+  static_dir: js
+
+- url: /img
+  static_dir: img
+
+- url: /css
+  static_dir: css
+
+- url: /partials
+  static_dir: partials
+
+- url: /angular
+  static_dir: angular
+
+- url: /bower_components
+  static_dir: bower_components

@@ -1,0 +1,138 @@
+[{
+  "title": "DIN Example",
+  "description": "This is the first new model experiment on staging",
+  "creator": "rbe5000@gmail.com",
+  "organization": "google",
+  "contactEmail": "rbe5000@gmail.com",
+  "id": 5725485073956864,
+  "informedConsentForm": "No data sharing without explicit permission!",
+  "recordPhoneDetails": false,
+  "extraDataCollectionDeclarations": [],
+  "deleted": false,
+  "modifyDate": "2015/02/27",
+  "published": false,
+  "admins": ["rbe5000@gmail.com", "ispiro@google.com"],
+  "publishedUsers": [],
+  "version": 1,
+  "groups": [{
+    "name": "Din Daily",
+    "customRendering": false,
+    "customRenderingCode": "",
+    "fixedDuration": false,
+    "logActions": false,
+    "backgroundListen": false,
+    "actionTriggers": [{
+      "type": "scheduleTrigger",
+      "actions": [{
+        "actionCode": 1,
+        "type": "pacoNotificationAction",
+        "snoozeCount": 0,
+        "snoozeTime": 600000,
+        "timeout": 15,
+        "delay": 5000,
+        "msgText": "Time to participate",
+        "snoozeTimeInMinutes": 10
+      }],
+      "onlyEditableOnJoin": false,
+      "userEditable": true,
+      "schedules": [{
+        "scheduleType": 4,
+        "esmFrequency": 8,
+        "esmPeriodInDays": 0,
+        "esmStartHour": 32400000,
+        "esmEndHour": 64800000,
+        "signalTimes": [{
+          "type": 0,
+          "fixedTimeMillisFromMidnight": 43200000,
+          "offsetTimeMillis": 1800000,
+          "missedBasisBehavior": 1
+        }],
+        "repeatRate": 1,
+        "weekDaysScheduled": 0,
+        "nthOfMonth": 1,
+        "byDayOfMonth": true,
+        "dayOfMonth": 1,
+        "esmWeekends": false,
+        "minimumBuffer": 59,
+        "defaultMinimumBuffer": 59,
+        "byDayOfWeek": false
+      }]
+    }],
+    "inputs": [{
+      "name": "what",
+      "required": false,
+      "conditional": false,
+      "responseType": "open text",
+      "text": "What did you want to know?",
+      "likertSteps": 5,
+      "multiselect": false
+    }],
+    "endOfDayGroup": false,
+    "feedback": {
+      "text": "Thanks for Participating at this moment",
+      "feedbackType": "display"
+    },
+    "feedbackType": 0
+  }, {
+    "name": "End of Day",
+    "customRendering": false,
+    "customRenderingCode": "",
+    "fixedDuration": false,
+    "logActions": false,
+    "backgroundListen": false,
+    "actionTriggers": [{
+      "type": "scheduleTrigger",
+      "actions": [{
+        "actionCode": 1,
+        "type": "pacoNotificationAction",
+        "snoozeCount": 0,
+        "snoozeTime": 600000,
+        "timeout": 180,
+        "delay": 5000,
+        "msgText": "Time to participate",
+        "snoozeTimeInMinutes": 10
+      }],
+      "onlyEditableOnJoin": false,
+      "userEditable": true,
+      "schedules": [{
+        "scheduleType": 0,
+        "esmFrequency": 3,
+        "esmPeriodInDays": 0,
+        "esmStartHour": 32400000,
+        "esmEndHour": 61200000,
+        "signalTimes": [{
+          "type": 0,
+          "fixedTimeMillisFromMidnight": 68400000,
+          "offsetTimeMillis": 1800000,
+          "missedBasisBehavior": 1,
+          "label": "Reflection time"
+        }],
+        "repeatRate": 1,
+        "weekDaysScheduled": 0,
+        "nthOfMonth": 1,
+        "byDayOfMonth": true,
+        "dayOfMonth": 1,
+        "esmWeekends": false,
+        "minimumBuffer": 59,
+        "defaultMinimumBuffer": 59,
+        "byDayOfWeek": false
+      }]
+    }],
+    "inputs": [{
+      "name": "why",
+      "required": false,
+      "conditional": false,
+      "responseType": "open text",
+      "text": "Why did you want to know this?",
+      "likertSteps": 5,
+      "multiselect": false
+    }],
+    "endOfDayGroup": true,
+    "endOfDayReferredGroupName": "Din Daily",
+    "feedback": {
+      "text": "Thanks for Participating!",
+      "feedbackType": "display"
+    },
+    "feedbackType": 0
+  }]
+}]
