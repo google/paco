@@ -71,6 +71,7 @@ public class NotificationCreatorService extends Service {
             notificationCreator.timeoutNotification(notificationId);
           } else if (alarmTime != -1) {
             notificationCreator.createNotificationsForAlarmTime(alarmTime);
+            AndroidActionExecutor.getInstance(NotificationCreatorService.this).runAllActionsForAlarmTime(alarmTime);
           } else {
             notificationCreator.recreateActiveNotifications();
           }

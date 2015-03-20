@@ -25,6 +25,7 @@ import com.google.paco.shared.model2.ExperimentGroup;
 import com.google.paco.shared.model2.InterruptCue;
 import com.google.paco.shared.model2.InterruptTrigger;
 import com.google.paco.shared.scheduling.ActionScheduleGenerator;
+import com.google.paco.shared.util.ExperimentHelper;
 import com.google.paco.shared.util.TimeUtil;
 
 public class ProcessService extends Service {
@@ -284,7 +285,7 @@ public class ProcessService extends Service {
     List<Experiment> experimentsNeedingEvent = Lists.newArrayList();
     DateTime now = DateTime.now();
     for (Experiment experiment2 : joined) {
-      if (!ActionScheduleGenerator.isOver(now, experiment2.getExperimentDAO()) && experiment2.isLogActions()) {
+      if (!ActionScheduleGenerator.isOver(now, experiment2.getExperimentDAO()) && ExperimentHelper.isLogActions(experiment2.getExperimentDAO())) {
         experimentsNeedingEvent.add(experiment2);
       }
     }

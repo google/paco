@@ -198,7 +198,7 @@ public class ExperimentProviderUtil implements EventStore {
    * Used when refreshing experiment list from the server.
    * If the experiment server id is already in the database,
    * then update it, otherwise, add it.
-   * @param newExperimentDefinitions
+   * @param experimentList
    * @param shouldOverrideExistingSettings downloaded (refreshed experiments should not override certain
    * local properties. Locally modified experiments should override local properties, e.g., logActions.
    */
@@ -668,6 +668,7 @@ public class ExperimentProviderUtil implements EventStore {
     }
 
     return null;
+
   }
 
   public static String getJson(List<Experiment> experiments) {
@@ -691,6 +692,12 @@ public class ExperimentProviderUtil implements EventStore {
         EventColumns._ID +" DESC");
     experiment.setEvents(eventSingleEntryList);
   }
+
+  public List<Event> loadEventsForExperimentByServerId(Long serverId) {
+    return findEventsBy(EventColumns.EXPERIMENT_SERVER_ID + " = " + Long.toString(serverId),
+        EventColumns._ID +" DESC");
+  }
+
 
   public Uri insertEvent(Event event) {
     Uri uri = contentResolver.insert(EventColumns.CONTENT_URI,
@@ -1356,12 +1363,29 @@ public class ExperimentProviderUtil implements EventStore {
     });
     Object experimentResults = resultObjects.get("results");
     String experimentJson = mapper.writeValueAsString(experimentResults);
-    List<Experiment> experiments = mapper.readValue(experimentJson, new TypeReference<List<Experiment>>() {
-    });
+    List<ExperimentDAO> experimentDAOs = mapper.readValue(experimentJson, new TypeReference<List<ExperimentDAO>>() {});
+
+    List<Experiment> experiments = Lists.newArrayList();
+    for (ExperimentDAO experimentDAO : experimentDAOs) {
+      Experiment newExperiment = new Experiment();
+      newExperiment.setExperimentDAO(experimentDAO);
+      newExperiment.setServerId(experimentDAO.getId());
+      experiments.add(newExperiment);
+    }
+
+
     resultObjects.put("results", experiments);
     return resultObjects;
   }
 
+  /**
+   * this one wraps the downlaoded DAOs with Android Experiment objects
+   * @param resultsJson
+   * @return
+   * @throws JsonParseException
+   * @throws JsonMappingException
+   * @throws IOException
+   */
   public static Map<String, Object> fromDownloadedEntitiesJson(String resultsJson) throws JsonParseException, JsonMappingException, IOException {
     ObjectMapper mapper = JsonConverter.getObjectMapper();
 

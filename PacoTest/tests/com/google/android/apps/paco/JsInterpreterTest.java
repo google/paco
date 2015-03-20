@@ -26,7 +26,7 @@ public class JsInterpreterTest {
 
   @Test
   public void testSimpleAddition() {
-    Integer result = (Integer)interpreter.eval("4 + 5");
+    Double result = (Double)interpreter.eval("4 + 5");
     assertEquals(9, result.intValue());
   }
 
@@ -46,7 +46,7 @@ public class JsInterpreterTest {
 
   @Test
   public void testFunctionCall() throws Exception {
-    Integer result = (Integer)interpreter.eval("function f() { return 4 + 5; } f();");
+    Double result = (Double)interpreter.eval("function f() { return 4 + 5; } f();");
     assertEquals(9, result.intValue());
   }
 
@@ -102,7 +102,6 @@ public class JsInterpreterTest {
       interpreter.eval("lst.add(pojo.getY());");
       assertEquals(3, arrayList.size());
       assertEquals("bananas", arrayList.get(2));
-
   }
 
 }

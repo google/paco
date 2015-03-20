@@ -12,13 +12,14 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.os.PowerManager;
 import android.util.Log;
-import android.util.Pair;
 
 import com.google.paco.shared.model2.ExperimentGroup;
 import com.google.paco.shared.model2.InterruptTrigger;
 import com.google.paco.shared.model2.PacoAction;
 import com.google.paco.shared.model2.PacoNotificationAction;
 import com.google.paco.shared.scheduling.ActionSpecification;
+import com.google.paco.shared.util.ExperimentHelper;
+import com.google.paco.shared.util.ExperimentHelper.Pair;
 import com.google.paco.shared.util.TimeUtil;
 
 public class BroadcastTriggerService extends Service {
@@ -73,10 +74,10 @@ public class BroadcastTriggerService extends Service {
       if (!experiment.isRunning(now)) {
         continue;
       }
-      List<ExperimentGroup> groupsListening = experiment.isBackgroundListeningForSourceId(sourceIdentifier);
+      List<ExperimentGroup> groupsListening = ExperimentHelper.isBackgroundListeningForSourceId(experiment.getExperimentDAO(), sourceIdentifier);
       persistBroadcastData(eu, experiment, groupsListening, extras);
 
-      List<Pair<ExperimentGroup, InterruptTrigger>> triggersThatMatch = experiment.shouldTriggerBy(triggerEvent, sourceIdentifier);
+      List<Pair<ExperimentGroup, InterruptTrigger>> triggersThatMatch = ExperimentHelper.shouldTriggerBy(experiment.getExperimentDAO(), triggerEvent, sourceIdentifier);
       for (Pair<ExperimentGroup, InterruptTrigger> triggerInfo : triggersThatMatch) {
         List<PacoAction> actions = triggerInfo.second.getActions();
         for (PacoAction pacoAction : actions) {
@@ -87,6 +88,8 @@ public class BroadcastTriggerService extends Service {
               ActionSpecification timeExperiment = new ActionSpecification(time, experiment.getExperimentDAO(), triggerInfo.first, triggerInfo.second,  (PacoNotificationAction)pacoAction, (Long)null);
               notificationCreator.createNotificationsForTrigger(experiment, triggerInfo, ((PacoNotificationAction)pacoAction).getDelay(), time, triggerEvent, sourceIdentifier, timeExperiment);
             }
+          } else if (pacoAction.getActionCode() == PacoAction.EXECUTE_SCRIPT_ACTION_CODE) {
+            AndroidActionExecutor.runAction(getApplicationContext(), pacoAction, experiment, experiment.getExperimentDAO(), triggerInfo.first);
           }
         }
       }

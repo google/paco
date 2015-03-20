@@ -30,6 +30,7 @@ import android.widget.ArrayAdapter;
 import com.google.android.apps.paco.utils.IntentExtraHelper;
 import com.google.paco.shared.model2.ExperimentGroup;
 import com.google.paco.shared.model2.Input2;
+import com.google.paco.shared.util.ExperimentHelper;
 import com.pacoapp.paco.R;
 
 public class RawDataActivity extends ListActivity implements ExperimentLoadingActivity {
@@ -71,7 +72,7 @@ public class RawDataActivity extends ListActivity implements ExperimentLoadingAc
           }
           buf.append(output.getName());
           buf.append("=");
-          Input2 input = experiment.getInputByName(output.getName());
+          Input2 input = ExperimentHelper.getInputWithName(experiment.getExperimentDAO(), output.getName(), null);
           if (input != null && input.getResponseType() != null &&
               (input.getResponseType().equals(Input.PHOTO) ||
                   input.getResponseType().equals(Input.SOUND))) {

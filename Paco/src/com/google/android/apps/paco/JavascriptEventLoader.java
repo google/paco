@@ -10,18 +10,22 @@ import android.util.Log;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
+import com.google.paco.shared.model2.ExperimentDAO;
 import com.google.paco.shared.model2.ExperimentGroup;
 
 public class JavascriptEventLoader {
   private ExperimentProviderUtil experimentProviderUtil;
-  private Experiment experiment;
+  private ExperimentDAO experiment;
   private ExperimentGroup experimentGroup;
+  private Experiment androidExperiment;
 
   /**
+   * @param androidExperiment
    *
    */
-  public JavascriptEventLoader(ExperimentProviderUtil experimentProviderUtil, Experiment experiment, ExperimentGroup experimentGroup) {
+  public JavascriptEventLoader(ExperimentProviderUtil experimentProviderUtil, Experiment androidExperiment, ExperimentDAO experiment, ExperimentGroup experimentGroup) {
     this.experimentProviderUtil = experimentProviderUtil;
+    this.androidExperiment = androidExperiment;
     this.experiment = experiment;
     this.experimentGroup = experimentGroup;
   }
@@ -32,16 +36,17 @@ public class JavascriptEventLoader {
 
   public String loadAllEvents() {
     long t1 = System.currentTimeMillis();
-    experimentProviderUtil.loadEventsForExperiment(experiment);
-    String convertExperimentResultsToJsonString = FeedbackActivity.convertExperimentResultsToJsonString( experimentGroup.getFeedback(), experiment);
+    List<Event> events = experimentProviderUtil.loadEventsForExperimentByServerId(experiment.getId());
+    String convertExperimentResultsToJsonString = FeedbackActivity.convertEventsToJsonString(events);
     long t2= System.currentTimeMillis();
     Log.e(PacoConstants.TAG, "time for loadAllEvents: " + (t2 - t1));
     return convertExperimentResultsToJsonString;
   }
 
   public String getLastEvent() {
-    final com.google.paco.shared.model2.Feedback feedback = experimentGroup.getFeedback();
-    return FeedbackActivity.convertLastEventToJsonString(feedback, experiment);
+    // TODO make this class manage retrieval better so that we aren't pulling tons of data into the webview.
+    List<Event> events = experimentProviderUtil.loadEventsForExperimentByServerId(experiment.getId());
+    return FeedbackActivity.convertLastEventToJsonString(events);
   }
 
   /**
@@ -95,7 +100,7 @@ public class JavascriptEventLoader {
       }
 
 
-      Event event = EventUtil.createEvent(experiment, experimentGroupName, scheduledTime, actionTriggerId, actionTriggerSpecId, actionId);
+      Event event = EventUtil.createEvent(androidExperiment, experimentGroupName, scheduledTime, actionTriggerId, actionTriggerSpecId, actionId);
 
       JSONArray jsonResponses = eventJson.getJSONArray("responses");
       List<Output> responses = Lists.newArrayList();

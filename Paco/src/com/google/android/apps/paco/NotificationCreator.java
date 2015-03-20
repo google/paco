@@ -30,7 +30,6 @@ import android.net.Uri;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
 import android.util.Log;
-import android.util.Pair;
 
 import com.google.common.collect.Lists;
 import com.google.paco.shared.model2.ExperimentDAO;
@@ -39,6 +38,7 @@ import com.google.paco.shared.model2.InterruptTrigger;
 import com.google.paco.shared.model2.PacoNotificationAction;
 import com.google.paco.shared.scheduling.ActionScheduleGenerator;
 import com.google.paco.shared.scheduling.ActionSpecification;
+import com.google.paco.shared.util.ExperimentHelper.Pair;
 import com.pacoapp.paco.R;
 
 public class NotificationCreator {
@@ -137,6 +137,9 @@ public class NotificationCreator {
         experimentDAOs, new AndroidEsmSignalStore(context), experimentProviderUtil);
 
     for (ActionSpecification timeExperiment : times) {
+      if (timeExperiment.action == null) {
+        continue; // not a notification action specification
+      }
       // TODO might we be able to timeout all notifications for all experiments instead of doing this for each experiment?
       timeoutNotifications(experimentProviderUtil.getAllNotificationsFor(timeExperiment.experiment.getId()));
       createNewNotificationForExperiment(context, timeExperiment, false);
@@ -343,13 +346,13 @@ public class NotificationCreator {
     createNewNotificationForExperiment(context, timeExperiment, false);
   }
 
-  public void createNotificationsForCustomGeneratedScript(Experiment experiment, ExperimentGroup experimentGroup, String message, boolean makeSound, boolean makeVibrate, long timeoutMillis) {
+  public void createNotificationsForCustomGeneratedScript(ExperimentDAO experiment, ExperimentGroup experimentGroup, String message, boolean makeSound, boolean makeVibrate, long timeoutMillis) {
     List<NotificationHolder> notifications = experimentProviderUtil.getAllNotificationsFor(experiment.getId());
 
     if (activeNotificationForCustomGeneratedScript(notifications, message)) {
       return;
     }
-    createNewCustomNotificationForExperiment(context, DateTime.now(), experiment.getExperimentDAO(), experimentGroup.getName(), timeoutMillis, message);
+    createNewCustomNotificationForExperiment(context, DateTime.now(), experiment, experimentGroup.getName(), timeoutMillis, message);
   }
 
 
@@ -407,7 +410,7 @@ public class NotificationCreator {
     alarmManager.set(AlarmManager.RTC_WAKEUP, snoozeDurationInMillis, intent);
   }
 
-  public void removeNotificationsForCustomGeneratedScript(Experiment experiment, ExperimentGroup experimentGroup, String message) {
+  public void removeNotificationsForCustomGeneratedScript(ExperimentDAO experiment, ExperimentGroup experimentGroup, String message) {
       List<NotificationHolder> notifs = experimentProviderUtil.getAllNotificationsFor(experiment.getId(), experimentGroup.getName());
       for (NotificationHolder notificationHolder : notifs) {
         if (notificationHolder.isCustomNotification() &&

@@ -27,18 +27,9 @@ import org.joda.time.DateTime;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.util.Pair;
 
-import com.google.common.base.Strings;
-import com.google.common.collect.Lists;
-import com.google.paco.shared.model2.ActionTrigger;
 import com.google.paco.shared.model2.ExperimentDAO;
 import com.google.paco.shared.model2.ExperimentGroup;
-import com.google.paco.shared.model2.Input2;
-import com.google.paco.shared.model2.InterruptCue;
-import com.google.paco.shared.model2.InterruptTrigger;
-import com.google.paco.shared.model2.ScheduleTrigger;
-import com.google.paco.shared.util.ExperimentHelper;
 import com.google.paco.shared.util.TimeUtil;
 
 public class Experiment implements Parcelable {
@@ -148,88 +139,9 @@ public class Experiment implements Parcelable {
     return events;
   }
 
-
-
-  @JsonIgnore
-  public Input2 getInputByName(String inputName) {
-    return ExperimentHelper.getInputWithName(experimentDelegate, inputName, null);
-  }
-
   @Override
   public String toString() {
     return experimentDelegate.getTitle();
-  }
-
-  @JsonIgnore
-  public List<Pair<ExperimentGroup, InterruptTrigger>> shouldTriggerBy(int event, String sourceIdentifier) {
-    List<Pair<ExperimentGroup, InterruptTrigger>> groupsThatTrigger = Lists.newArrayList();
-    List<ExperimentGroup> groups = experimentDelegate.getGroups();
-    for (ExperimentGroup experimentGroup : groups) {
-      List<ActionTrigger> triggers = experimentGroup.getActionTriggers();
-      for (ActionTrigger actionTrigger : triggers) {
-        if (actionTrigger instanceof InterruptTrigger) {
-          InterruptTrigger trigger = (InterruptTrigger) actionTrigger;
-          List<InterruptCue> cues = trigger.getCues();
-          for (InterruptCue interruptCue : cues) {
-            boolean cueCodeMatches = interruptCue.getCueCode() == event;
-            if (!cueCodeMatches) {
-              continue;
-            }
-
-            boolean usesSourceId = interruptCue.getCueCode() == InterruptCue.PACO_ACTION_EVENT || interruptCue.getCueCode() == InterruptCue.APP_USAGE;
-            boolean sourceIdsMatch;
-            boolean triggerSourceIdIsEmpty = Strings.isNullOrEmpty(interruptCue.getCueSource());
-            if (usesSourceId) {
-              boolean paramEmpty = Strings.isNullOrEmpty(sourceIdentifier);
-              sourceIdsMatch = (paramEmpty && triggerSourceIdIsEmpty) ||
-                interruptCue.getCueSource().equals(sourceIdentifier);
-            } else {
-              sourceIdsMatch = true;
-            }
-            if (cueCodeMatches && sourceIdsMatch) {
-              groupsThatTrigger.add(new Pair(experimentGroup, trigger));
-            }
-          }
-        }
-      }
-    }
-    return groupsThatTrigger;
-  }
-
-  @JsonIgnore
-  public boolean shouldWatchProcesses() {
-    return hasAppUsageTrigger() || isLogActions();
-  }
-
-  boolean isLogActions() {
-    List<ExperimentGroup> groups = experimentDelegate.getGroups();
-    for (ExperimentGroup experimentGroup : groups) {
-      if (experimentGroup.getLogActions()) {
-        return true;
-      }
-    }
-    return false;
-  }
-
-  @JsonIgnore
-  public boolean hasAppUsageTrigger() {
-    List<ExperimentGroup> groups = experimentDelegate.getGroups();
-    for (ExperimentGroup experimentGroup : groups) {
-      List<ActionTrigger> triggers = experimentGroup.getActionTriggers();
-      for (ActionTrigger actionTrigger : triggers) {
-        if (actionTrigger instanceof InterruptTrigger) {
-          InterruptTrigger trigger = (InterruptTrigger)actionTrigger;
-          List<InterruptCue> cues = trigger.getCues();
-          for (InterruptCue interruptCue : cues) {
-            if (interruptCue.getCueCode() == InterruptCue.APP_USAGE) {
-              return true;
-            }
-          }
-
-        }
-      }
-    }
-    return false;
   }
 
   public boolean isRunning(DateTime now) {
@@ -251,22 +163,6 @@ public class Experiment implements Parcelable {
     return !now.isBefore(startDate) && !now.isAfter(endDate);
   }
 
-  private boolean isAnyGroupOngoingDuration() {
-    List<ExperimentGroup> groups = experimentDelegate.getGroups();
-    for (ExperimentGroup experimentGroup : groups) {
-      if (!experimentGroup.getFixedDuration()) {
-        return true;
-      }
-    }
-    return false;
-  }
-
-  @JsonIgnore
-  public boolean declaresLogAppUsageAndBrowserCollection() {
-    return experimentDelegate.getExtraDataCollectionDeclarations() != null
-            && experimentDelegate.getExtraDataCollectionDeclarations().contains(ExperimentDAO.APP_USAGE_BROWSER_HISTORY_DATA_COLLECTION);
-  }
-
   public void setExperimentDAO(com.google.paco.shared.model2.ExperimentDAO experimentDAO) {
     this.experimentDelegate = experimentDAO;
     this.serverId = experimentDelegate.getId();
@@ -275,30 +171,6 @@ public class Experiment implements Parcelable {
 
   public ExperimentDAO getExperimentDAO() {
     return experimentDelegate;
-  }
-
-  public boolean hasUserEditableSchedule() {
-    List<ExperimentGroup> experimentGroups = experimentDelegate.getGroups();
-    for (ExperimentGroup experimentGroup : experimentGroups) {
-      List<ActionTrigger> triggers = experimentGroup.getActionTriggers();
-      for (ActionTrigger actionTrigger : triggers) {
-        if (actionTrigger.getUserEditable() && actionTrigger instanceof ScheduleTrigger) {
-          return true;
-        }
-      }
-    }
-    return false;
-  }
-
-  public List<ExperimentGroup> isBackgroundListeningForSourceId(String sourceIdentifier) {
-    List<ExperimentGroup> listeningExperimentGroups  = Lists.newArrayList();
-    List<ExperimentGroup> experimentGroups = experimentDelegate.getGroups();
-    for (ExperimentGroup experimentGroup : experimentGroups) {
-      if (experimentGroup.getBackgroundListen() && experimentGroup.getBackgroundListenSourceIdentifier().equals(sourceIdentifier)) {
-        listeningExperimentGroups.add(experimentGroup);
-      }
-    }
-    return listeningExperimentGroups;
   }
 
 

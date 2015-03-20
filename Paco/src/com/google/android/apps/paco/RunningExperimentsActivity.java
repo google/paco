@@ -51,6 +51,7 @@ import android.widget.TextView;
 
 import com.google.common.collect.Lists;
 import com.google.paco.shared.model2.ExperimentGroup;
+import com.google.paco.shared.util.ExperimentHelper;
 import com.google.paco.shared.util.TimeUtil;
 import com.pacoapp.paco.R;
 
@@ -248,7 +249,7 @@ public class RunningExperimentsActivity extends Activity {
     createStopEvent(experiment);
 
     experimentProviderUtil.deleteExperiment(experiment.getId());
-    if (experiment.shouldWatchProcesses()) {
+    if (ExperimentHelper.shouldWatchProcesses(experiment.getExperimentDAO())) {
       BroadcastTriggerReceiver.initPollingAndLoggingPreference(this);
     }
 
@@ -431,7 +432,7 @@ public class RunningExperimentsActivity extends Activity {
       editButton.setOnClickListener(myButtonListener);
       editButton.setTag(experiment.getExperimentDAO().getId());
 
-      editButton.setEnabled(experiment.hasUserEditableSchedule());
+      editButton.setEnabled(ExperimentHelper.hasUserEditableSchedule(experiment.getExperimentDAO()));
 
       ImageButton quitButton = (ImageButton) view.findViewById(R.id.quitExperimentButton);
       quitButton.setOnClickListener(myButtonListener);

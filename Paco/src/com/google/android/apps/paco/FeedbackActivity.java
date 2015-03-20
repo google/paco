@@ -24,7 +24,6 @@ import java.util.Map;
 import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.map.annotate.JsonSerialize.Inclusion;
 import org.joda.time.DateTime;
 import org.json.JSONArray;
 
@@ -52,6 +51,7 @@ import com.google.paco.shared.model2.ExperimentDAO;
 import com.google.paco.shared.model2.ExperimentGroup;
 import com.google.paco.shared.model2.Feedback;
 import com.google.paco.shared.model2.Input2;
+import com.google.paco.shared.model2.JsonConverter;
 import com.google.paco.shared.util.ExperimentHelper;
 import com.pacoapp.paco.R;
 
@@ -140,7 +140,7 @@ public class FeedbackActivity extends Activity {
 
   private void injectObjectsIntoJavascriptEnvironment(final com.google.paco.shared.model2.Feedback feedback) {
     final Map<String,String> map = new HashMap<String, String>();
-    map.put("lastResponse", convertLastEventToJsonString(feedback, experiment));
+    map.put("lastResponse", convertLastEventToJsonString(experiment.getEvents()));
     map.put("title", experiment.getExperimentDAO().getTitle());
     map.put("experiment", ExperimentProviderUtil.getJson(experiment));
     map.put("test", "false");
@@ -151,7 +151,7 @@ public class FeedbackActivity extends Activity {
     webView.addJavascriptInterface(new JavascriptEmail(), "email");
     webView.addJavascriptInterface(new JavascriptExperimentLoader(experiment), "experimentLoader");
 
-    JavascriptEventLoader javascriptEventLoader = new JavascriptEventLoader(experimentProviderUtil, experiment, experimentGroup);
+    JavascriptEventLoader javascriptEventLoader = new JavascriptEventLoader(experimentProviderUtil, experiment, experiment.getExperimentDAO(), experimentGroup);
     webView.addJavascriptInterface(javascriptEventLoader, "db");
     // deprecated name - use "db" in all new experiments
     webView.addJavascriptInterface(javascriptEventLoader, "eventLoader");
@@ -195,7 +195,7 @@ public class FeedbackActivity extends Activity {
           // in this case we are looking for one input from the responses that we are charting.
           for (Output response : event.getResponses()) {
             if (response.getName().equals(inputIdStr)) {
-              Input2 inputById = experiment.getInputByName(inputIdStr);
+              Input2 inputById = ExperimentHelper.getInputWithName(experiment.getExperimentDAO(), inputIdStr, null);
               if (inputById.isNumeric()) {
                 eventJson.put(response.getDisplayOfAnswer(inputById));
                 results.put(eventJson);
@@ -287,24 +287,18 @@ public class FeedbackActivity extends Activity {
 
   public static String convertExperimentResultsToJsonString(final com.google.paco.shared.model2.Feedback feedback, final Experiment experiment) {
     List<Event> events = experiment.getEvents();
-    return convertEventsToJsonString(experiment, events);
+    return convertEventsToJsonString(events);
   }
 
-  public static String convertLastEventToJsonString(final com.google.paco.shared.model2.Feedback feedback, final Experiment experiment) {
-    List<Event> events = experiment.getEvents();
+  public static String convertLastEventToJsonString(List<Event> events) {
     if (events.isEmpty()) {
       return "[]";
     }
-    return convertEventsToJsonString(experiment, events.subList(0,1));
+    return convertEventsToJsonString(events.subList(0,1));
   }
 
-  public static String convertEventsToJsonString(final Experiment experiment,
-                                                  List<Event> events) {
-    ObjectMapper mapper = new ObjectMapper();
-    mapper.configure(org.codehaus.jackson.map.DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-    mapper.getSerializationConfig().setSerializationInclusion(Inclusion.NON_NULL);
-//    mapper.getDeserializationConfig().addMixInAnnotations(ActionTrigger.class, ActionTriggerMixIn.class);
-//    mapper.getDeserializationConfig().addMixInAnnotations(PacoAction.class, PacoActionMixIn.class);
+  public static String convertEventsToJsonString(List<Event> events) {
+    ObjectMapper mapper = JsonConverter.getObjectMapper();
 
     String eventJson = null;
     try {

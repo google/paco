@@ -2,17 +2,18 @@ package com.google.android.apps.paco;
 
 import android.content.Context;
 
+import com.google.paco.shared.model2.ExperimentDAO;
 import com.google.paco.shared.model2.ExperimentGroup;
 
 public class JavascriptNotificationService {
 
   private Context context;
-  private Experiment experiment;
+  private ExperimentDAO experiment;
   private ExperimentGroup experimentGroup;
 
-  public JavascriptNotificationService(Context context, Experiment experiment, ExperimentGroup experimentGroup) {
+  public JavascriptNotificationService(Context context, ExperimentDAO experiment2, ExperimentGroup experimentGroup) {
     this.context = context;
-    this.experiment = experiment;
+    this.experiment = experiment2;
     this.experimentGroup = experimentGroup;
   }
 

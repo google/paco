@@ -20,6 +20,7 @@ import android.util.Log;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import com.google.paco.shared.scheduling.ActionScheduleGenerator;
+import com.google.paco.shared.util.ExperimentHelper;
 import com.google.paco.shared.util.TimeUtil;
 
 public class BroadcastTriggerReceiver extends BroadcastReceiver {
@@ -160,7 +161,7 @@ public class BroadcastTriggerReceiver extends BroadcastReceiver {
     List<Experiment> experimentsNeedingEvent = Lists.newArrayList();
     DateTime now = DateTime.now();
     for (Experiment experiment2 : joined) {
-      if (!ActionScheduleGenerator.isOver(now, experiment2.getExperimentDAO()) && experiment2.isLogActions()) {
+      if (!ActionScheduleGenerator.isOver(now, experiment2.getExperimentDAO()) && ExperimentHelper.isLogActions(experiment2.getExperimentDAO())) {
         experimentsNeedingEvent.add(experiment2);
       }
     }
@@ -245,10 +246,10 @@ public class BroadcastTriggerReceiver extends BroadcastReceiver {
     List<Experiment> joined = eu.getJoinedExperiments();
     for (Experiment experiment : joined) {
       if (!ActionScheduleGenerator.isOver(now, experiment.getExperimentDAO())) {
-       if (experiment.shouldWatchProcesses()) {
+       if (ExperimentHelper.shouldWatchProcesses(experiment.getExperimentDAO())) {
         shouldWatchProcesses = true;
        }
-       if (experiment.isLogActions()) {
+       if (ExperimentHelper.isLogActions(experiment.getExperimentDAO())) {
          shouldLogActions = true;
        }
       }

@@ -19,7 +19,7 @@ import com.google.common.collect.ImmutableSet;
 public class JsInterpreter {
 
   public static class RestrictedContextFactory extends ContextFactory {
-    private static final Set<String> ALLOWED_CLASS_NAMES = 
+    private static final Set<String> ALLOWED_CLASS_NAMES =
               ImmutableSet.of("java.util.ArrayList",
                               com.google.android.apps.paco.Experiment.class.getName(),
                               com.google.android.apps.paco.Event.class.getName(),
@@ -38,13 +38,17 @@ public class JsInterpreter {
       context.setClassShutter(new ClassShutter() {
           @Override
           public boolean visibleToScripts(String className) {
+//            if (true) return true;
             // TODO restrict this to just the specific classes scripts need
-            // e.g. 
+            // e.g.
             if (className.startsWith("com.google.android.apps.paco.")) {
               return true;
             }
 
             if (className.startsWith("com.pacoapp.paco.")) {
+              return true;
+            }
+            if (className.startsWith("com.google.paco.")) {
               return true;
             }
 
@@ -61,25 +65,25 @@ public class JsInterpreter {
   private ScriptableObject rootScope;
   private Object securityDomain;
   private RestrictedContextFactory contextFactory;
+  private Context context;
 
   public JsInterpreter() {
     super();
-    contextFactory = new RestrictedContextFactory(); 
+    contextFactory = new RestrictedContextFactory();
     securityDomain = null;
-    try {
-      Context context = contextFactory.enterContext();
+      context = contextFactory.enterContext();
       // Turn compilation off. Necessary for Android.
       context.setOptimizationLevel(-1);
-      rootScope = context.initStandardObjects(null, true);      
-    } finally {
-      Context.exit();
-    }
+      rootScope = context.initStandardObjects(null, true);
+//      String prepCodeForPacoJs = "var window = window || {};\nfunction alert(msg) { log.error(msg); };\n";
+//    context.evaluateString(rootScope, prepCodeForPacoJs, "init", 1, securityDomain);
 
   }
 
   public Object eval(String code) {
     try {
-      Context context = contextFactory.enterContext();
+//      Context context = contextFactory.enterContext();
+//      context.setOptimizationLevel(-1);
       return context.evaluateString(rootScope, code, "doit:", 1, securityDomain);
     } catch (JavaScriptException jse) {
       // log
@@ -87,15 +91,23 @@ public class JsInterpreter {
     } catch (RhinoException re) {
       // log
       throw new IllegalStateException(re);
-    } finally {
-      Context.exit();
+//    } finally {
+//      context.exit();
     }
   }
 
-  public void bind(String name, Object value) {    
-    rootScope.put(name, rootScope, value);    
+  public void exit() {
+    context.exit();
   }
-  
+
+  public void newBind(String name, Object obj) {
+    ScriptableObject.putProperty(rootScope, name, context.javaToJS(obj, rootScope));
+  }
+
+  public void bind(String name, Object value) {
+    rootScope.put(name, rootScope, value);
+  }
+
   public void bind(Object object, String name, Object value) {
     try {
       ScriptableObject scriptable = (ScriptableObject) object;
@@ -118,7 +130,7 @@ public class JsInterpreter {
     }
     return null;
   }
-  
+
   public Object callFunction(String script, String functionName, Object... args)
       throws IOException, NoSuchMethodException {
     Reader reader = new StringReader(script);

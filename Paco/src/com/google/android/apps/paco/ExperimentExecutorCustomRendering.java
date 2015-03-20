@@ -82,6 +82,7 @@ import com.google.common.base.Strings;
 import com.google.paco.shared.model.FeedbackDAO;
 import com.google.paco.shared.model2.ExperimentGroup;
 import com.google.paco.shared.model2.Input2;
+import com.google.paco.shared.util.ExperimentHelper;
 import com.pacoapp.paco.R;
 
 public class ExperimentExecutorCustomRendering extends Activity implements ChangeListener, LocationListener  {
@@ -411,15 +412,15 @@ private void injectObjectsIntoJavascriptEnvironment() {
   String text = experimentGroup.getCustomRenderingCode();
   webView.addJavascriptInterface(text, "additions");
 
-  webView.addJavascriptInterface(new JavascriptExperimentLoader(this, experimentProviderUtil, experiment), "experimentLoader");
+  webView.addJavascriptInterface(new JavascriptExperimentLoader(this, experimentProviderUtil, experiment.getExperimentDAO(), experiment), "experimentLoader");
 
-  JavascriptEventLoader javascriptEventLoader = new JavascriptEventLoader(experimentProviderUtil, experiment, experimentGroup);
+  JavascriptEventLoader javascriptEventLoader = new JavascriptEventLoader(experimentProviderUtil, experiment, experiment.getExperimentDAO(), experimentGroup);
   webView.addJavascriptInterface(javascriptEventLoader, "db");
   // deprecated name - use "db" in all new experiments
   webView.addJavascriptInterface(javascriptEventLoader, "eventLoader");
 
   webView.addJavascriptInterface(new JavascriptEmail(this), "email");
-  webView.addJavascriptInterface(new JavascriptNotificationService(this, experiment, experimentGroup), "notificationService");
+  webView.addJavascriptInterface(new JavascriptNotificationService(this, experiment.getExperimentDAO(), experimentGroup), "notificationService");
   webView.addJavascriptInterface(new JavascriptPhotoService(this), "photoService");
   webView.addJavascriptInterface(new JavascriptExecutorListener(experiment), "executor");
 
@@ -483,7 +484,7 @@ private WebViewClient createWebViewClientThatHandlesFileLinksForCharts() {
         // in this case we are looking for one input from the responses that we are charting.
         for (Output response : event.getResponses()) {
           if (response.getAnswer().equals(inputName)) {
-            Input2 input = experiment.getInputByName(inputName);
+            Input2 input = ExperimentHelper.getInputWithName(experiment.getExperimentDAO(),inputName,null);
             if (input.isNumeric()) {
               eventJson.put(response.getDisplayOfAnswer(input));
               results.put(eventJson);
@@ -585,7 +586,7 @@ public static String convertLastEventToJsonString(final Experiment experiment) {
 
 private static String convertEventsToJsonString(final Experiment experiment,
                                                 List<Event> events) {
-  return FeedbackActivity.convertEventsToJsonString(experiment, events);
+  return FeedbackActivity.convertEventsToJsonString(events);
 }
 
 static String getTextOfInputForOutput(ExperimentGroup experiment, Output output) {

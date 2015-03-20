@@ -1,35 +1,35 @@
 package com.google.android.apps.paco;
 
-import java.io.IOException;
-
-import org.codehaus.jackson.JsonParseException;
-import org.codehaus.jackson.map.JsonMappingException;
-
 import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 
 import com.google.common.collect.Lists;
+import com.google.paco.shared.model2.ExperimentDAO;
+import com.google.paco.shared.model2.JsonConverter;
+import com.google.paco.shared.util.ExperimentHelper;
 
 public class JavascriptExperimentLoader {
   /**
    *
    */
-  private Experiment experiment;
+  private ExperimentDAO experiment;
   private String json;
   private ExperimentProviderUtil experimentProvider;
   private Context context;
+  private Experiment androidExperiment;
 
-  public JavascriptExperimentLoader(Context context, ExperimentProviderUtil experimentProvider, Experiment experiment) {
+  public JavascriptExperimentLoader(Context context, ExperimentProviderUtil experimentProvider, ExperimentDAO experiment2 ,Experiment androidExperiment) {
     this.context = context;
       this.experimentProvider = experimentProvider;
-      this.experiment = experiment;
+      this.experiment = experiment2;
+      this.androidExperiment = androidExperiment;
   }
 
   public String getExperiment() {
     long t1 = System.currentTimeMillis();
     if (this.json == null) {
-      json = ExperimentProviderUtil.getJson(experiment);
+      json = JsonConverter.jsonify(experiment);
     }
     long t2= System.currentTimeMillis();
     Log.e(PacoConstants.TAG, "time to load experiment in getExperiment(): " + (t2 - t1));
@@ -48,34 +48,22 @@ public class JavascriptExperimentLoader {
 
       @Override
       public void run() {
-        try {
-          long t1 = System.currentTimeMillis();
-          Experiment experiment = ExperimentProviderUtil.getSingleExperimentFromJson(experimentJson);
-          long t2= System.currentTimeMillis();
-          Log.e(PacoConstants.TAG, "time to load from json : " + (t2 - t1));
-          experimentProvider.updateExistingExperiments(Lists.newArrayList(experiment), true);
-          long t3= System.currentTimeMillis();
-          Log.e(PacoConstants.TAG, "time to update: " + (t3 - t2));
-          context.startService(new Intent(context, BeeperService.class));
-          if (experiment.shouldWatchProcesses()) {
-            BroadcastTriggerReceiver.initPollingAndLoggingPreference(context);
-            BroadcastTriggerReceiver.startProcessService(context);
-          } else {
-            BroadcastTriggerReceiver.stopProcessService(context);
-          }
-          long t4 = System.currentTimeMillis();
-          Log.e(PacoConstants.TAG, "total time in saveExperiment: " + (t4 - t1));
-        } catch (JsonParseException e) {
-          e.printStackTrace();
-          //return "{ \"status\" : 0, \"error_message\" : \"json parse error: " + e.getMessage() + "\" }";
-        } catch (JsonMappingException e) {
-          e.printStackTrace();
-          //return "{ \"status\" : 0, \"error_message\" : \"json mapping error: " + e.getMessage() + "\" }";
-        } catch (IOException e) {
-          e.printStackTrace();
-          //return "{ \"status\" : 0, \"error_message\" : \"io error: " + e.getMessage() + "\" }";
+        long t1 = System.currentTimeMillis();
+        ExperimentDAO experiment = JsonConverter.fromSingleEntityJson(experimentJson);
+        long t2 = System.currentTimeMillis();
+        Log.e(PacoConstants.TAG, "time to load from json : " + (t2 - t1));
+        experimentProvider.updateExistingExperiments(Lists.newArrayList(androidExperiment), true);
+        long t3 = System.currentTimeMillis();
+        Log.e(PacoConstants.TAG, "time to update: " + (t3 - t2));
+        context.startService(new Intent(context, BeeperService.class));
+        if (ExperimentHelper.shouldWatchProcesses(experiment)) {
+          BroadcastTriggerReceiver.initPollingAndLoggingPreference(context);
+          BroadcastTriggerReceiver.startProcessService(context);
+        } else {
+          BroadcastTriggerReceiver.stopProcessService(context);
         }
-        //return "{ \"status\" : 1, \"error_message\" : \"\" }";
+        long t4 = System.currentTimeMillis();
+        Log.e(PacoConstants.TAG, "total time in saveExperiment: " + (t4 - t1));
       }
 
     }).start();

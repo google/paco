@@ -41,6 +41,7 @@ import com.google.paco.shared.model2.ActionTrigger;
 import com.google.paco.shared.model2.ExperimentGroup;
 import com.google.paco.shared.model2.Schedule;
 import com.google.paco.shared.model2.ScheduleTrigger;
+import com.google.paco.shared.util.ExperimentHelper;
 import com.pacoapp.paco.R;
 
 public class ExperimentScheduleListActivity extends ListActivity implements ExperimentLoadingActivity {
@@ -269,7 +270,7 @@ public class ExperimentScheduleListActivity extends ListActivity implements Expe
     saveExperimentRegistration();
     setResult(FindExperimentsActivity.JOINED_EXPERIMENT);
     startService(new Intent(ExperimentScheduleListActivity.this, BeeperService.class));
-    if (experiment.shouldWatchProcesses()) {
+    if (ExperimentHelper.shouldWatchProcesses(experiment.getExperimentDAO())) {
       BroadcastTriggerReceiver.initPollingAndLoggingPreference(this);
       BroadcastTriggerReceiver.startProcessService(this);
     }

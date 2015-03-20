@@ -40,6 +40,7 @@ import android.widget.Toast;
 
 import com.google.android.apps.paco.utils.IntentExtraHelper;
 import com.google.paco.shared.model2.ExperimentGroup;
+import com.google.paco.shared.util.ExperimentHelper;
 import com.google.paco.shared.util.TimeUtil;
 import com.pacoapp.paco.R;
 
@@ -77,8 +78,8 @@ public class InformedConsentActivity extends Activity implements ExperimentLoadi
     } else {
       // TextView title = (TextView)findViewById(R.id.experimentNameIc);
       // title.setText(experiment.getTitle());
-      boolean logsActions = experiment.isLogActions();
-      if (logsActions || experiment.declaresLogAppUsageAndBrowserCollection()) {
+      boolean logsActions = ExperimentHelper.isLogActions(experiment.getExperimentDAO());
+      if (logsActions || ExperimentHelper.declaresLogAppUsageAndBrowserCollection(experiment.getExperimentDAO())) {
         TextView appBrowserUsageView = (TextView) findViewById(R.id.dataCollectedAppAndBrowserUsageView);
         appBrowserUsageView.setVisibility(TextView.VISIBLE);
       }
@@ -183,7 +184,7 @@ public class InformedConsentActivity extends Activity implements ExperimentLoadi
     Intent intent = new Intent(InformedConsentActivity.this, ExperimentScheduleListActivity.class);
     intent.putExtras(getIntent().getExtras());
     intent.putExtra(INFORMED_CONSENT_PAGE_EXTRA_KEY, true);
-    intent.putExtra(ExperimentScheduleActivity.USER_EDITABLE_SCHEDULE, experiment.hasUserEditableSchedule());
+    intent.putExtra(ExperimentScheduleActivity.USER_EDITABLE_SCHEDULE, ExperimentHelper.hasUserEditableSchedule(experiment.getExperimentDAO()));
     startActivityForResult(intent, FindExperimentsActivity.JOIN_REQUEST_CODE);
   }
 
