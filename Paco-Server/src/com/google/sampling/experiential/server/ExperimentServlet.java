@@ -17,8 +17,6 @@
 package com.google.sampling.experiential.server;
 
 import java.io.IOException;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.util.logging.Logger;
 
 import javax.servlet.ServletConfig;
@@ -132,27 +130,6 @@ public class ExperimentServlet extends HttpServlet {
   private String scriptBust(String experimentsJson) {
     // TODO add scriptbusting prefix to this and client code.
     return experimentsJson;
-  }
-
-  private String getEmailOfUser(HttpServletRequest req, User user) {
-    String email = user != null ? user.getEmail() : null;
-    if (email == null && isDevInstance(req)) {
-      email = "<put your email here to test in developer mode>";
-    }
-    if (email == null) {
-      throw new IllegalArgumentException("You must login!");
-    }
-    return email.toLowerCase();
-  }
-
-
-  public static boolean isDevInstance(HttpServletRequest req) {
-    try {
-      return DEV_HOST.equals(InetAddress.getLocalHost().toString());
-    } catch (UnknownHostException e) {
-      e.printStackTrace();
-    }
-    return false;
   }
 
   @Override

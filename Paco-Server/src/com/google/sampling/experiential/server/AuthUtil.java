@@ -72,5 +72,4 @@ public class AuthUtil {
     return SystemProperty.environment.value() == SystemProperty.Environment.Value.Development;
   }
 
-
 }

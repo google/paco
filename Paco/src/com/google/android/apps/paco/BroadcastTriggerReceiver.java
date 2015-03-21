@@ -1,5 +1,6 @@
 package com.google.android.apps.paco;
 
+import java.util.Date;
 import java.util.List;
 
 import org.joda.time.DateTime;
@@ -19,6 +20,7 @@ import android.util.Log;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
+import com.google.paco.shared.model2.InterruptCue;
 import com.google.paco.shared.scheduling.ActionScheduleGenerator;
 import com.google.paco.shared.util.ExperimentHelper;
 import com.google.paco.shared.util.TimeUtil;
@@ -31,17 +33,23 @@ public class BroadcastTriggerReceiver extends BroadcastReceiver {
 
   public static final String PACO_TRIGGER_INTENT = "com.pacoapp.paco.action.PACO_TRIGGER";
   public static final String PACO_ACTION_PAYLOAD = "paco_action_payload";
+  private static final Object ANDROID_PLAY_MUSIC_ACTION = "com.android.music.playstatechanged";
 
 
 	@Override
   public void onReceive(final Context context, final Intent intent) {
-    if (isPhoneHangup(intent)) {
+    if (isPhoneRelated(context, intent)) {
+      processPhoneStateTriggers(context, intent);
+    } else if (isPhoneHangup(intent)) {
       triggerPhoneHangup(context, intent);
     } else if (isUserPresent(intent)) {
       triggerUserPresent(context, intent);
     } else if (intent.getAction().equals(PACO_TRIGGER_INTENT)) {
       triggerPacoTriggerReceived(context, intent);
+    } else if (intent.getAction().equals(ANDROID_PLAY_MUSIC_ACTION)) {
+      triggerMusicStateAction(context, intent);
     }
+
     PowerManager pm = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
     final PowerManager.WakeLock wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK,
                                                     "Paco BroadcastTriggerService wakelock");
@@ -73,7 +81,113 @@ public class BroadcastTriggerReceiver extends BroadcastReceiver {
       }
     };
     (new Thread(runnable)).start();
+  }
 
+	/**
+	 * This is a modified version of code by Gabe Sechen on StackOverflow:
+	 * http://stackoverflow.com/questions/15563921/detecting-an-incoming-call-coming-to-an-android-device
+	 *
+	 * @param context
+	 * @param intent
+	 */
+  private void processPhoneStateTriggers(Context context, Intent intent) {
+    String stateStr = intent.getExtras().getString(TelephonyManager.EXTRA_STATE);
+    int state = 0;
+    if (stateStr.equals(TelephonyManager.EXTRA_STATE_IDLE)) {
+      state = TelephonyManager.CALL_STATE_IDLE;
+    } else if (stateStr.equals(TelephonyManager.EXTRA_STATE_OFFHOOK)) {
+      state = TelephonyManager.CALL_STATE_OFFHOOK;
+    } else if (stateStr.equals(TelephonyManager.EXTRA_STATE_RINGING)) {
+      state = TelephonyManager.CALL_STATE_RINGING;
+    }
+
+    onCallStateChanged(context, state);
+  }
+
+  // Incoming call- goes from IDLE to RINGING when it rings, to OFFHOOK when it's answered, to IDLE when its hung up
+  // Outgoing call- goes from IDLE to OFFHOOK when it dials out, to IDLE when hung up
+  public void onCallStateChanged(Context context, int state) {
+    int lastState = BroadcastTriggerReceiver.getLastPhoneState(context);
+    if (lastState == state) {
+      return;
+    }
+
+    switch (state) {
+    case TelephonyManager.CALL_STATE_RINGING:
+      BroadcastTriggerReceiver.setPhoneCallIncoming(context, true);
+      BroadcastTriggerReceiver.setLastPhoneState(context, state);
+      BroadcastTriggerReceiver.setPhoneCallStartTime(context, new Date());
+      break;
+
+    case TelephonyManager.CALL_STATE_OFFHOOK:
+      BroadcastTriggerReceiver.setLastPhoneState(context, state);
+      BroadcastTriggerReceiver.setPhoneCallStartTime(context, new Date());
+
+      if (lastState != TelephonyManager.CALL_STATE_RINGING) {
+        triggerOutgoingCallStarted(context, new Date());
+      } else {
+        triggerIncomingCallStarted(context, new Date());
+      }
+      break;
+
+    case TelephonyManager.CALL_STATE_IDLE:
+      if (lastState == TelephonyManager.CALL_STATE_RINGING) {
+        triggerMissedCall(context, BroadcastTriggerReceiver.getPhoneCallStartTime(context));
+      } else if (BroadcastTriggerReceiver.getPhoneCallIncoming(context)) {
+        triggerIncomingCallEnded(context, BroadcastTriggerReceiver.getPhoneCallStartTime(context), new Date());
+      } else {
+        triggerOutgoingCallEnded(context, BroadcastTriggerReceiver.getPhoneCallStartTime(context), new Date());
+      }
+      BroadcastTriggerReceiver.unsetLastPhoneState(context);
+      BroadcastTriggerReceiver.unsetPhoneCallIncoming(context);
+      BroadcastTriggerReceiver.unsetPhoneCallStartTime(context);
+
+      break;
+    }
+  }
+
+
+
+
+  private void triggerIncomingCallStarted(Context context, Date callStartTime2) {
+    triggerEvent(context, InterruptCue.PHONE_INCOMING_CALL_STARTED);
+  }
+
+  private void triggerIncomingCallEnded(Context context, Date callStartTime, Date date) {
+    triggerEvent(context, InterruptCue.PHONE_INCOMING_CALL_ENDED, callDuration(callStartTime, date));
+  }
+
+
+  private void triggerOutgoingCallStarted(Context context, Date callStartTime) {
+    triggerEvent(context, InterruptCue.PHONE_OUTGOING_CALL_STARTED);
+  }
+
+  private void triggerOutgoingCallEnded(Context context, Date callStartTime, Date date) {
+    triggerEvent(context, InterruptCue.PHONE_OUTGOING_CALL_ENDED, callDuration(callStartTime, date));
+  }
+
+
+  private void triggerMissedCall(Context context, Date callStartTime) {
+    triggerEvent(context, InterruptCue.PHONE_MISSED_CALL);
+  }
+
+  private long callDuration(Date callStartTime, Date date) {
+    if (callStartTime != null && date != null) {
+      return date.getTime() - callStartTime.getTime();
+    }
+    return 0;
+  }
+
+
+  private void triggerMusicStateAction(Context context, Intent intent) {
+    if(intent.hasExtra("playing")) {
+      boolean playing = intent.getBooleanExtra("playing", false);
+      if (playing) {
+        triggerEvent(context, InterruptCue.MUSIC_STARTED);
+      } else {
+        triggerEvent(context, InterruptCue.MUSIC_STOPPED);
+      }
+    }
   }
 
   protected void createScreenOnPacoEvents(Context context) {
@@ -345,9 +459,17 @@ public class BroadcastTriggerReceiver extends BroadcastReceiver {
     if (sourceIdentifier == null || sourceIdentifier.length() == 0) {
       Log.d(PacoConstants.TAG, "No source identifier specified for PACO_TRIGGER");
     } else {
-      triggerEvent(context, Trigger.PACO_ACTION_EVENT, sourceIdentifier, intent.getExtras());
+      triggerEvent(context, InterruptCue.PACO_ACTION_EVENT, sourceIdentifier, intent.getExtras());
     }
   }
+
+  private boolean isPhoneRelated(Context context, Intent intent) {
+    if (intent.getAction().equals("android.intent.action.PHONE_STATE")) {
+      return true;
+    }
+    return false;
+  }
+
 
   private boolean isPhoneHangup(Intent intent) {
     String telephonyExtraState = intent.getStringExtra(TelephonyManager.EXTRA_STATE);
@@ -356,11 +478,11 @@ public class BroadcastTriggerReceiver extends BroadcastReceiver {
 
   private void triggerUserPresent(Context context, Intent intent) {
     Log.i(PacoConstants.TAG, "User present trigger");
-    triggerEvent(context, Trigger.USER_PRESENT);
+    triggerEvent(context, InterruptCue.USER_PRESENT);
   }
 
   private void triggerPhoneHangup(Context context, Intent intent) {
-    triggerEvent(context, Trigger.HANGUP);
+    triggerEvent(context, InterruptCue.PHONE_HANGUP);
   }
 
   private void triggerEvent(Context context, int triggerEventCode) {
@@ -380,6 +502,99 @@ public class BroadcastTriggerReceiver extends BroadcastReceiver {
     }
     context.startService(broadcastTriggerServiceIntent);
   }
+
+  private void triggerEvent(Context context, int triggerEventCodeForPhoneState, long callDuration) {
+    Intent broadcastTriggerServiceIntent = new Intent(context, BroadcastTriggerService.class);
+    broadcastTriggerServiceIntent.putExtra(Experiment.TRIGGERED_TIME, DateTime.now().toString(TimeUtil.DATETIME_FORMAT));
+    broadcastTriggerServiceIntent.putExtra(Experiment.TRIGGER_EVENT, triggerEventCodeForPhoneState);
+
+    broadcastTriggerServiceIntent.putExtra(Experiment.TRIGGER_PHONE_CALL_DURATION, callDuration);
+    context.startService(broadcastTriggerServiceIntent);
+  }
+
+
+  public static void setAppToWatchStarted(Context context, String newTask) {
+    SharedPreferences prefs = context.getSharedPreferences("PacoProcessWatcher", Context.MODE_PRIVATE);
+    Editor editor = prefs.edit();
+    editor.putString("ClosedAppTriggerStarted", newTask);
+    editor.commit();
+  }
+
+  public static String getAppToWatch(Context context) {
+    SharedPreferences prefs = context.getSharedPreferences("PacoProcessWatcher", Context.MODE_PRIVATE);
+    return prefs.getString("ClosedAppTriggerStarted", null);
+  }
+
+
+  public static void unsetAppToWatchStarted(Context context) {
+    SharedPreferences prefs = context.getSharedPreferences("PacoProcessWatcher", Context.MODE_PRIVATE);
+    Editor editor = prefs.edit();
+    editor.remove("ClosedAppTriggerStarted");
+    editor.commit();
+  }
+
+  private static int getLastPhoneState(Context context) {
+    SharedPreferences prefs = context.getSharedPreferences("PacoProcessWatcher", Context.MODE_PRIVATE);
+    return prefs.getInt("LastPhoneState", -1);
+  }
+
+  private static void setLastPhoneState(Context context, int state) {
+    SharedPreferences prefs = context.getSharedPreferences("PacoProcessWatcher", Context.MODE_PRIVATE);
+    Editor editor = prefs.edit();
+    editor.putInt("LastPhoneState", state);
+    editor.commit();
+  }
+
+  private static void unsetLastPhoneState(Context context) {
+    SharedPreferences prefs = context.getSharedPreferences("PacoProcessWatcher", Context.MODE_PRIVATE);
+    Editor editor = prefs.edit();
+    editor.remove("LastPhoneState");
+    editor.commit();
+  }
+
+  private static void setPhoneCallIncoming(Context context, boolean b) {
+    SharedPreferences prefs = context.getSharedPreferences("PacoProcessWatcher", Context.MODE_PRIVATE);
+    Editor editor = prefs.edit();
+    editor.putBoolean("PhoneCallIncoming", b);
+    editor.commit();
+  }
+
+  private static boolean getPhoneCallIncoming(Context context) {
+    SharedPreferences prefs = context.getSharedPreferences("PacoProcessWatcher", Context.MODE_PRIVATE);
+    return prefs.getBoolean("PhoneCallIncoming", false);
+  }
+
+  private static void unsetPhoneCallIncoming(Context context) {
+    SharedPreferences prefs = context.getSharedPreferences("PacoProcessWatcher", Context.MODE_PRIVATE);
+    Editor editor = prefs.edit();
+    editor.remove("PhoneCallIncoming");
+    editor.commit();
+  }
+
+  private static void setPhoneCallStartTime(Context context, Date callStartTime) {
+    SharedPreferences prefs = context.getSharedPreferences("PacoProcessWatcher", Context.MODE_PRIVATE);
+    Editor editor = prefs.edit();
+    editor.putLong("PhoneCallStartTime", callStartTime.getTime());
+    editor.commit();
+  }
+
+  private static Date getPhoneCallStartTime(Context context) {
+    SharedPreferences prefs = context.getSharedPreferences("PacoProcessWatcher", Context.MODE_PRIVATE);
+    long timeMillis = prefs.getLong("PhoneCallStartTime", 0);
+    if (timeMillis != 0) {
+      return new Date(timeMillis);
+    }
+    return null;
+  }
+
+  private static void unsetPhoneCallStartTime(Context context) {
+    SharedPreferences prefs = context.getSharedPreferences("PacoProcessWatcher", Context.MODE_PRIVATE);
+    Editor editor = prefs.edit();
+    editor.remove("PhoneCallStartTime");
+    editor.commit();
+
+  }
+
 
 
 }

@@ -80,6 +80,7 @@ public class ExperimentJsonUploadProcessor {
       } catch (JSONException e) {
         results.add(new Outcome(i, "JSONException posting experiment: " + i + ". " + e.getMessage()));
       } catch (Throwable e) {
+        log.warning("Error posting: " + e.getMessage());
         results.add(new Outcome(i, "Exception posting experiment: " + i + ". " + e.getMessage()));
       }
     }

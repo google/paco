@@ -18,13 +18,13 @@ import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.Query;
 import com.google.appengine.api.datastore.Query.FilterOperator;
 import com.google.appengine.api.datastore.QueryResultIterable;
-import com.google.appengine.api.users.User;
 import com.google.common.collect.Lists;
 import com.google.paco.shared.model.ExperimentDAO;
 import com.google.paco.shared.model.SignalScheduleDAO;
 import com.google.paco.shared.model.SignalingMechanismDAO;
 import com.google.paco.shared.model.TriggerDAO;
 import com.google.sampling.experiential.model.Experiment;
+import com.google.sampling.experiential.server.AuthUtil;
 import com.google.sampling.experiential.server.DAOConverterOld;
 
 public class ExperimentVersionEntity {
@@ -57,7 +57,7 @@ public class ExperimentVersionEntity {
 //    return key;
 //  }
 
-  public static List<Experiment> getExperiments(User loggedInUser) {
+  public static List<Experiment> getExperiments() {
     DatastoreService ds = DatastoreServiceFactory.getDatastoreService();
     Query query = new Query(EXPERIMENT_VERSION_KIND);
     QueryResultIterable<Entity> result = ds.prepare(query).asQueryResultIterable();
@@ -66,7 +66,7 @@ public class ExperimentVersionEntity {
       ExperimentDAO experimentDAO = oldDAOfromSingleEntityJson((String)entity.getProperty(DEFINITION_COLUMN));
 
       Experiment experiment = new Experiment();
-      DAOConverterOld.fromExperimentDAO(experimentDAO, experiment, loggedInUser);
+      DAOConverterOld.fromExperimentDAO(experimentDAO, experiment, AuthUtil.getWhoFromLogin());
       experiments.add(experiment);
     }
     return experiments;
@@ -104,7 +104,7 @@ public class ExperimentVersionEntity {
   }
 
 
-  public static Experiment getExperimentVersion(User loggedInUser, Long jdoExperimentId, Integer version) {
+  public static Experiment getExperimentVersion(Long jdoExperimentId, Integer version) {
     DatastoreService ds = DatastoreServiceFactory.getDatastoreService();
     Query query = new Query(EXPERIMENT_VERSION_KIND);
     query.addFilter(JDO_EXPERIMENT_ID_COLUMN, FilterOperator.EQUAL, jdoExperimentId);
@@ -115,8 +115,7 @@ public class ExperimentVersionEntity {
     }
     ExperimentDAO experimentDAO = oldDAOfromSingleEntityJson((String)result.getProperty(DEFINITION_COLUMN));
     Experiment experiment = new Experiment();
-    DAOConverterOld.fromExperimentDAO(experimentDAO, experiment, loggedInUser);
-
+    DAOConverterOld.fromExperimentDAO(experimentDAO, experiment, AuthUtil.getWhoFromLogin());
     return experiment;
   }
 }

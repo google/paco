@@ -77,7 +77,8 @@ public class ExperimentHelper {
           InterruptTrigger trigger = (InterruptTrigger)actionTrigger;
           List<InterruptCue> cues = trigger.getCues();
           for (InterruptCue interruptCue : cues) {
-            if (interruptCue.getCueCode() == InterruptCue.APP_USAGE) {
+            if (interruptCue.getCueCode() == InterruptCue.APP_USAGE ||
+                    interruptCue.getCueCode() == InterruptCue.APP_CLOSED) {
               return true;
             }
           }
@@ -87,6 +88,29 @@ public class ExperimentHelper {
     }
     return false;
   }
+
+  @JsonIgnore
+  public static boolean hasAppClosedTrigger(ExperimentDAO experiment) {
+    List<ExperimentGroup> groups = experiment.getGroups();
+    for (ExperimentGroup experimentGroup : groups) {
+      List<ActionTrigger> triggers = experimentGroup.getActionTriggers();
+      for (ActionTrigger actionTrigger : triggers) {
+        if (actionTrigger instanceof InterruptTrigger) {
+          InterruptTrigger trigger = (InterruptTrigger)actionTrigger;
+          List<InterruptCue> cues = trigger.getCues();
+          for (InterruptCue interruptCue : cues) {
+            if (interruptCue.getCueCode() == InterruptCue.APP_CLOSED) {
+              return true;
+            }
+          }
+
+        }
+      }
+    }
+    return false;
+  }
+
+
 
   public static boolean isLogActions(ExperimentDAO experiment) {
     List<ExperimentGroup> groups = experiment.getGroups();

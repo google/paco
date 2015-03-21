@@ -17,6 +17,7 @@
 
 
 #import "GTMHTTPFetcher.h"
+#import "GTMHTTPFetcherLogging.h"
 #import "GTMOAuth2Authentication.h"
 #import "PacoAuthenticator.h"
 #import "PacoDateUtility.h"
@@ -46,9 +47,6 @@
     // OAuth2
     [fetcher setAuthorizer:self.authenticator.auth];
     
-  } else if (self.authenticator.cookie) {
-    // Client Login
-    [request setValue:self.authenticator.cookie forHTTPHeaderField:@"Cookie"];
   } else {
     DDLogError(@"Error authenticating request.");
   }
@@ -63,11 +61,11 @@
   [request setValue:@"3.0" forHTTPHeaderField:@"pacoProtocol"];
 
   // Authenticate
+    [GTMHTTPFetcher setLoggingEnabled:YES];
   GTMHTTPFetcher *fetcher = [[GTMHTTPFetcher alloc] initWithRequest:request];
   [self authenticateRequest:request withFetcher:fetcher];
-  //Set delegateQueue so that fetcher can work in a background thread
-  fetcher.delegateQueue = [[NSOperationQueue alloc] init];
-  
+  fetcher.delegateQueue = [NSOperationQueue mainQueue];
+
   // Fetch
   [fetcher beginFetchWithCompletionHandler:^(NSData *data, NSError *error) {
       if (error) {

@@ -75,6 +75,7 @@ public class Experiment implements Parcelable {
   public static final String TRIGGERED_TIME = "triggeredTime";
   public static final String TRIGGER_EVENT = "trigger_event";
   public static final String TRIGGER_SOURCE_IDENTIFIER = "sourceIdentifier";
+  public static final String TRIGGER_PHONE_CALL_DURATION = "phoneCallDurationMillis";
 
   public static final String EXPERIMENT_GROUP_NAME_EXTRA_KEY = "experimentGroupName";
   public static final String EXPERIMENT_SERVER_ID_EXTRA_KEY = "experimentServerId";
@@ -172,6 +173,7 @@ public class Experiment implements Parcelable {
   public ExperimentDAO getExperimentDAO() {
     return experimentDelegate;
   }
+
 
 
 }

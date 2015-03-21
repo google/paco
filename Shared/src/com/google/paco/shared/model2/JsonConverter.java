@@ -17,6 +17,7 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.annotate.JsonSerialize.Inclusion;
 import org.codehaus.jackson.type.TypeReference;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 public class JsonConverter {
@@ -140,7 +141,7 @@ public class JsonConverter {
     } catch (IOException e) {
       log.severe("Could not parse json. " + e.getMessage());
     }
-    return null;
+    return Lists.newArrayList();
   }
 
   public static Map<String, Object> fromEntitiesJson(String resultsJson) {

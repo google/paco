@@ -109,9 +109,6 @@ public class EventServlet extends HttpServlet {
     resp.getWriter().println(mappingOutput.toString());
   }
 
-  private boolean isDevInstance(HttpServletRequest req) {
-    return ExperimentServlet.isDevInstance(req);
-  }
 
   private void dumpEventsJson(HttpServletResponse resp, HttpServletRequest req, boolean anon) throws IOException {
     List<com.google.sampling.experiential.server.Query> query = new QueryParser().parse(stripQuotes(HttpUtil.getParam(req, "q")));
