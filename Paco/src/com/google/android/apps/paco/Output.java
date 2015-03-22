@@ -173,10 +173,10 @@ public class Output implements Parcelable {
   }
 
   public String getDisplayOfAnswer(Input2 input) {
-    if (input.getResponseType().equals(Input.LIST)) {
+    if (input.getResponseType().equals(Input2.LIST)) {
       return getDisplayForList(input);
     }
-    if (input.getResponseType().equals(Input.LIKERT) && getAnswer() != null) {
+    if (input.getResponseType().equals(Input2.LIKERT) && getAnswer() != null) {
       return getDisplayForLikert();
     }
     return getAnswer();

@@ -247,7 +247,7 @@ public class ExperimentExecutor extends Activity implements ChangeListener, Loca
   private void registerLocationListenerIfNecessary() {
     locationInputs = new ArrayList<InputLayout>();
     for (InputLayout input : inputs) {
-      if (input.getInput().getResponseType().equals(Input.LOCATION)) {
+      if (input.getInput().getResponseType().equals(Input2.LOCATION)) {
         locationInputs.add(input);
       }
     }

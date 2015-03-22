@@ -3,6 +3,7 @@ package com.google.android.apps.paco;
 import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
+import android.webkit.JavascriptInterface;
 
 import com.google.common.collect.Lists;
 import com.google.paco.shared.model2.ExperimentDAO;
@@ -26,6 +27,7 @@ public class JavascriptExperimentLoader {
       this.androidExperiment = androidExperiment;
   }
 
+  @JavascriptInterface
   public String getExperiment() {
     long t1 = System.currentTimeMillis();
     if (this.json == null) {
@@ -41,6 +43,7 @@ public class JavascriptExperimentLoader {
    * @param experimentJson
    * @return json object of an outcome { status: [1|0], error_message : [nil|errorstring] }
    */
+  @JavascriptInterface
   public String saveExperiment(final String experimentJson) {
     this.json = experimentJson;
     new Thread(new Runnable() {

@@ -7,6 +7,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.util.Log;
+import android.webkit.JavascriptInterface;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
@@ -30,10 +31,12 @@ public class JavascriptEventLoader {
     this.experimentGroup = experimentGroup;
   }
 
+  @JavascriptInterface
   public String getAllEvents() {
     return loadAllEvents();
   }
 
+  @JavascriptInterface
   public String loadAllEvents() {
     long t1 = System.currentTimeMillis();
     List<Event> events = experimentProviderUtil.loadEventsForExperimentByServerId(experiment.getId());
@@ -43,6 +46,7 @@ public class JavascriptEventLoader {
     return convertExperimentResultsToJsonString;
   }
 
+  @JavascriptInterface
   public String getLastEvent() {
     // TODO make this class manage retrieval better so that we aren't pulling tons of data into the webview.
     List<Event> events = experimentProviderUtil.loadEventsForExperimentByServerId(experiment.getId());
@@ -53,10 +57,12 @@ public class JavascriptEventLoader {
    * Backward compatible alias for saveEvent
    * @param json
    */
+  @JavascriptInterface
   public void saveResponse(String json) {
      saveEvent(json);
   }
 
+  @JavascriptInterface
   public void saveEvent(String json) {
     try {
       JSONObject eventJson = new JSONObject(json);

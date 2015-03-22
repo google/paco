@@ -6,6 +6,7 @@ import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
+import android.webkit.JavascriptInterface;
 
 import com.google.common.base.Strings;
 
@@ -20,6 +21,7 @@ class JavascriptEmail {
     this.context = context;
   }
 
+  @JavascriptInterface
   public void sendEmail(String body, String subject, String userEmail) {
     sendEmailInner(body, subject, userEmail);
   }

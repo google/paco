@@ -74,8 +74,8 @@ public class RawDataActivity extends ListActivity implements ExperimentLoadingAc
           buf.append("=");
           Input2 input = ExperimentHelper.getInputWithName(experiment.getExperimentDAO(), output.getName(), null);
           if (input != null && input.getResponseType() != null &&
-              (input.getResponseType().equals(Input.PHOTO) ||
-                  input.getResponseType().equals(Input.SOUND))) {
+              (input.getResponseType().equals(Input2.PHOTO) ||
+                  input.getResponseType().equals(Input2.SOUND))) {
             buf.append("<multimedia:"+input.getResponseType()+">");
           } else {
             buf.append(output.getAnswer());

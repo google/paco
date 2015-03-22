@@ -66,6 +66,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.webkit.ConsoleMessage;
+import android.webkit.JavascriptInterface;
 import android.webkit.JsResult;
 import android.webkit.WebChromeClient;
 import android.webkit.WebView;
@@ -261,7 +262,7 @@ public class ExperimentExecutorCustomRendering extends Activity implements Chang
   private void registerLocationListenerIfNecessary() {
     locationInputs = new ArrayList<InputLayout>();
     for (InputLayout input : inputs) {
-      if (input.getInput().getResponseType().equals(Input.LOCATION)) {
+      if (input.getInput().getResponseType().equals(Input2.LOCATION)) {
         locationInputs.add(input);
       }
     }
@@ -574,7 +575,7 @@ private void setWebChromeClientThatHandlesAlertsAsDialogs() {
   });
 }
 
-public static String convertExperimentResultsToJsonString(final Feedback feedback, final Experiment experiment) {
+public static String convertExperimentResultsToJsonString(final Experiment experiment) {
   List<Event> events = experiment.getEvents();
   return convertEventsToJsonString(experiment, events);
 }
@@ -820,6 +821,7 @@ public boolean onKeyDown(int keyCode, KeyEvent event) {
     public JavascriptExecutorListener(Experiment experiment) {
         this.experiment = experiment;
     }
+    @JavascriptInterface
     public void done() {
       deleteNotification();
 
