@@ -55,14 +55,20 @@ app.service('config', function() {
     'Disable Feedback Message'
   ];
 
+  this.experimentTemplate = {
+    admins: [],
+    creator: "",
+    contactEmail: "",
+    published: false,
+    publishedUsers: [],
+    groups: [],
+
+  }
+
   this.groupTemplate = {
     actionTriggers: [],
+    name: "New Group",
     inputs: [],
-    customRendering: false,
-    fixedDuration: false,
-    logActions: false,
-    backgroundListen: false,
-    endOfDayGroup: false,
     feedbackType: 0,
     feedback: {
       text: 'Thanks for Participating!',

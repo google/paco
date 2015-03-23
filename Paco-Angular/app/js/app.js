@@ -11,11 +11,9 @@ pacoApp.config(['$routeProvider',
       templateUrl: 'partials/experiment.html',
       controller: 'ExperimentCtrl',
     }).
-    when('/experiment/', {
-      redirectTo: '/experiment/0'
-    }).
     otherwise({
-      redirectTo: '/experiment/0'
+      templateUrl: 'partials/experiment.html',
+      controller: 'ExperimentCtrl',
     });
   }]);
 

@@ -6,7 +6,7 @@
 
       Server reported the following problems:
       <ol>
-        <li ng-repeat="error in errors">
+        <li ng-repeat="error in errors track by $index">
           {{error}}
         </li>
       </ol>

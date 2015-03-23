@@ -1,23 +1,50 @@
 var app = angular.module('pacoControllers', []);
 
-app.controller('ExperimentCtrl', ['$scope', '$http', '$routeParams', '$mdDialog', '$filter', 'config', 
-  function($scope, $http, $routeParams, $mdDialog, $filter, config) {
+app.controller('ExperimentCtrl', ['$scope', '$http', '$routeParams', '$mdDialog', '$filter', '$location', '$window', 'config', 
+  function($scope, $http, $routeParams, $mdDialog, $filter, $location, $window, config) {
 
-  $scope.experimentIdx = parseInt($routeParams.experimentIdx);
+  $scope.experimentIdx = false;
   $scope.selectedIndex = 0;
   $scope.loaded = false;
+  $scope.newExperiment = false;
 
-  if ($scope.experimentIdx !== 0) {
+  if (angular.isDefined($routeParams.experimentIdx)) {
+    if ($routeParams.experimentIdx == 'new') {
+      $scope.experiment = angular.copy(config.experimentTemplate);
+      $scope.newExperiment = true;
+      $scope.selectedIndex = 1;
+    } else {
+      $scope.experimentIdx = parseInt($routeParams.experimentIdx);
+    }
+  }
+
+  if ($scope.experimentIdx) {
     $http.get('/experiments?id=' + $scope.experimentIdx).success(function(data) {
       $scope.experiment = data[0];
       $scope.loaded = true;
       $scope.$broadcast('experimentChange');
     });
-    $scope.selectedIndex = 2;
+    $scope.selectedIndex = 1;
   }
 
-  $http.get('/experiments?mine').success(function(data) {
-    $scope.experiments = data;
+  $http.get('/auth/user').success(function(data) {
+    
+     if (data && data.user && data.user !== "") {
+      $scope.user = data.user;
+
+      if ($scope.newExperiment) {
+        $scope.experiment.creator = $scope.user;
+        $scope.experiment.contactEmail = $scope.user;
+        $scope.experiment.admins.push($scope.user);
+      }
+
+      $http.get('/experiments?mine').success(function(data) {
+        $scope.experiments = data;
+      });
+     }
+    
+  }).error(function(data) {
+    console.log(data);
   });
 
 
@@ -33,9 +60,11 @@ app.controller('ExperimentCtrl', ['$scope', '$http', '$routeParams', '$mdDialog'
             .ok('OK')
           );
 
+          if (angular.isUndefined($scope.experiment.id)) {
+            $window.location.href = "#/experiment/";
+          }
         } else {
-
-          console.log(data);
+          console.dir(data);
           var errorMessage = data[0].errorMessage;
           $mdDialog.show({
             templateUrl: 'partials/error.html',
@@ -54,27 +83,31 @@ app.controller('ExperimentCtrl', ['$scope', '$http', '$routeParams', '$mdDialog'
     });
   };
 
+  $scope.addExperiment = function() {
+    $location.path('/experiment/new');
+  };
+
   $scope.addGroup = function() {
-    $scope.experiment.groups.push(config.groupTemplate);
-  }
+    $scope.experiment.groups.push(angular.copy(config.groupTemplate));
+  };
 
   $scope.addInput = function(inputs, event, expandFn) {
     inputs.push({});
     expandFn(true);
     event.stopPropagation();
-  }
+  };
 
   $scope.addScheduleTrigger = function(triggers, event, expandFn) {
-    triggers.push(config.scheduleTriggerTemplate);
+    triggers.push(angular.copy(config.scheduleTriggerTemplate));
     expandFn(true);
     event.stopPropagation();
-  }
+  };
 
   $scope.addEventTrigger = function(triggers, event, expandFn) {
-    triggers.push(config.eventTriggerTemplate);
+    triggers.push(angular.copy(config.eventTriggerTemplate));
     expandFn(true);
     event.stopPropagation();
-  }
+  };
 
   $scope.remove = function(arr, idx) {
     arr.splice(idx, 1);
@@ -244,7 +277,7 @@ app.controller('ScheduleCtrl', ['$scope', '$mdDialog', 'config', 'schedule',
   }
 
   $scope.addTime = function(times, idx) {
-    times.splice(idx + 1, 0, config.signalTimeTemplate);
+    times.splice(idx + 1, 0, angular.copy(config.signalTimeTemplate));
   };
 
   $scope.remove = function(arr, idx) {
@@ -271,7 +304,7 @@ app.controller('ScheduleCtrl', ['$scope', '$mdDialog', 'config', 'schedule',
     if (newValue) {
       schedule.scheduleType = parseInt(schedule.scheduleType);
       if ($scope.schedule.signalTimes == undefined) {
-        $scope.schedule.signalTimes = [config.signalTimeTemplate];
+        $scope.schedule.signalTimes = [angular.copy(config.signalTimeTemplate)];
       }
     }
   });
