@@ -111,9 +111,6 @@ class DefaultExperimentService implements ExperimentService {
                                                                        experiment.getId(),
                                                                        experiment.getTitle(),
                                                                        experiment.getVersion());
-        if (experimentKey == null) {
-          return null;
-        }
         experiment.setId(experimentKey.getId());
         boolean aclUpdate = ExperimentAccessManager.updateAccessControlEntities(ds, tx, experiment, experimentKey, timezone);
         if (aclUpdate) {
