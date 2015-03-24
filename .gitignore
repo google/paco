@@ -2,6 +2,7 @@ local.properties
 .settings
 .DS_Store
 *.keystore
+AndroidCompatSupport/v7/appcompat/bin/*
 Paco/bin/*
 Paco/gen/*
 PacoAndroidLib/bin/*
