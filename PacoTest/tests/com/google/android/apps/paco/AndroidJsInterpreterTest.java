@@ -6,8 +6,8 @@ import android.content.Context;
 import android.test.AndroidTestCase;
 import android.test.mock.MockContext;
 
-import com.google.android.apps.paco.utils.AndroidJsInterpreterBuilder;
-import com.google.android.apps.paco.utils.JsInterpreter;
+import com.google.android.apps.paco.js.interpreter.AndroidJsInterpreterBuilder;
+import com.google.android.apps.paco.js.interpreter.JsInterpreter;
 
 public class AndroidJsInterpreterTest extends AndroidTestCase {
 

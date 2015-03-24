@@ -16,10 +16,12 @@
  ~ under the License.
  -->
 <resources>
-<style name="PacoTheme" parent="@android:style/Theme.Light.NoTitleBar">
-  
+<style name="PacoTheme" parent="@style/Theme.AppCompat.Light">
+ <!--   
   <item name="android:textColor">#007dc6</item> 
   <item name="android:layout_gravity">center|top</item>
+  
   <item name="android:padding">4dip</item>
+  -->
 </style>
 </resources>

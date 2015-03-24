@@ -25,7 +25,8 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 
-import android.app.Activity;
+import android.annotation.SuppressLint;
+import android.app.ActionBar;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.ContentResolver;
@@ -36,8 +37,10 @@ import android.content.res.Resources;
 import android.database.Cursor;
 import android.media.RingtoneManager;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -50,7 +53,7 @@ import com.pacoapp.paco.R;
 /**
  *
  */
-public class ExperimentManagerActivity extends Activity {
+public class ExperimentManagerActivity extends ActionBarActivity {
 
   private static final String RINGTONE_TITLE_COLUMN_NAME = "title";
   private static final String PACO_BARK_RINGTONE_TITLE = "Paco Bark";
@@ -72,6 +75,7 @@ public class ExperimentManagerActivity extends Activity {
   private ImageButton currentExperimentsButton;
   private ExperimentProviderUtil experimentProviderUtil;
 
+  @SuppressLint("NewApi")
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
@@ -150,6 +154,15 @@ public class ExperimentManagerActivity extends Activity {
     });
 
 
+    final ActionBar actionBar = getActionBar();
+    if (actionBar != null) {
+      actionBar.setIcon(getDrawable(R.drawable.paco64));
+      actionBar.setLogo(R.drawable.paco64);
+    } else {
+      final android.support.v7.app.ActionBar supportActionBar = getSupportActionBar();
+      supportActionBar.setIcon(R.drawable.paco64);
+      supportActionBar.setLogo(R.drawable.paco64);
+    }
   }
 
   @Override
@@ -165,15 +178,28 @@ public class ExperimentManagerActivity extends Activity {
 
   @Override
   public boolean onCreateOptionsMenu(Menu menu) {
-    menu.add(0, ABOUT_PACO_ITEM, 1, R.string.about_paco_menu_item);
-    menu.add(0, DEBUG_ITEM, 7, R.string.debug_menu_item);
-    menu.add(0, SERVER_ADDRESS_ITEM, 6, R.string.server_address_menu_item);
-//    menu.add(0, UPDATE_ITEM, 4, R.string.check_updates_menu_item);
-    menu.add(0, ACCOUNT_CHOOSER_ITEM, 3, R.string.choose_account_menu_item);
-    menu.add(0, RINGTONE_CHOOSER_ITEM, 2, R.string.choose_alert_menu_item);
-    menu.add(0, SEND_LOG_ITEM, 4, R.string.send_log_menu_item);
-    menu.add(0, EULA_ITEM, 4, R.string.eula_menu_item);
+    MenuItem item = menu.add(0, ABOUT_PACO_ITEM, 3, R.string.about_paco_menu_item);
+    addToActionBar(item);
+    item = menu.add(0, DEBUG_ITEM, 7, R.string.debug_menu_item);
+    addToActionBar(item);
+    item = menu.add(0, SERVER_ADDRESS_ITEM, 6, R.string.server_address_menu_item);
+    addToActionBar(item);
+    item = menu.add(0, ACCOUNT_CHOOSER_ITEM, 2, R.string.choose_account_menu_item);
+    addToActionBar(item);
+    item = menu.add(0, RINGTONE_CHOOSER_ITEM, 1, R.string.choose_alert_menu_item);
+    addToActionBar(item);
+    item = menu.add(0, SEND_LOG_ITEM, 5, R.string.send_log_menu_item);
+    addToActionBar(item);
+    item = menu.add(0, EULA_ITEM, 4, R.string.eula_menu_item);
+    addToActionBar(item);
     return true;
+  }
+
+  @SuppressLint("NewApi")
+  public void addToActionBar(MenuItem item) {
+    if (Integer.parseInt(Build.VERSION.SDK) >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
+      item.setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER);
+    }
   }
 
   @Override

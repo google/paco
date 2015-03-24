@@ -1,8 +1,8 @@
 /*
 * Copyright 2011 Google Inc. All Rights Reserved.
-* 
+*
 * Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance  with the License.  
+* you may not use this file except in compliance  with the License.
 * You may obtain a copy of the License at
 *
 *    http://www.apache.org/licenses/LICENSE-2.0
@@ -15,7 +15,6 @@
 * under the License.
 */
 package com.google.android.apps.paco.questioncondparser;
-import com.pacoapp.paco.R;
 import java.util.HashMap;
 
 
@@ -26,11 +25,11 @@ public class Environment {
 	public Environment() {
 		this.knownQuestions = new HashMap<String, Binding>();
 	}
-	
+
 	public boolean exists(String id) {
-		return knownQuestions.containsKey(id);		
+		return knownQuestions.containsKey(id);
 	}
-	
+
 	public boolean correctType(String id) {
 		Binding input = knownQuestions.get(id);
 		return input != null && input.responseType().equals(Integer.class);
@@ -43,9 +42,9 @@ public class Environment {
 	    //} else {
 	      knownQuestions.put(input.getVarName(), input);
 	    //}
-	  } 
+	  }
 	}
-	
+
 	public Object getValue(String id) {
 		return knownQuestions.get(id).value();
 	}

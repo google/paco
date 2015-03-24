@@ -13,8 +13,8 @@ import android.content.Context;
 import android.content.res.AssetManager;
 import android.util.Log;
 
-import com.google.android.apps.paco.utils.AndroidJsInterpreterBuilder;
-import com.google.android.apps.paco.utils.JsInterpreter;
+import com.google.android.apps.paco.js.interpreter.AndroidJsInterpreterBuilder;
+import com.google.android.apps.paco.js.interpreter.JsInterpreter;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.paco.shared.model2.ExperimentDAO;

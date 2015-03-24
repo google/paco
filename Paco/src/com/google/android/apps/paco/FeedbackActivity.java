@@ -27,8 +27,6 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.joda.time.DateTime;
 import org.json.JSONArray;
 
-import android.accounts.Account;
-import android.accounts.AccountManager;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -47,9 +45,11 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Button;
 
+import com.google.android.apps.paco.js.bridge.JavascriptEmail;
+import com.google.android.apps.paco.js.bridge.JavascriptEventLoader;
+import com.google.android.apps.paco.js.bridge.JavascriptExperimentLoader;
 import com.google.paco.shared.model2.ExperimentDAO;
 import com.google.paco.shared.model2.ExperimentGroup;
-import com.google.paco.shared.model2.Feedback;
 import com.google.paco.shared.model2.Input2;
 import com.google.paco.shared.model2.JsonConverter;
 import com.google.paco.shared.util.ExperimentHelper;
@@ -65,22 +65,6 @@ public class FeedbackActivity extends Activity {
   boolean showDialog = true;
   private Environment env;
   private ExperimentGroup experimentGroup;
-
-  private class JavascriptEmail {
-    public void sendEmail(String body, String subject, String userEmail) {
-      FeedbackActivity.this.sendEmail(body, subject, userEmail);
-    }
-  }
-
-  private class JavascriptExperimentLoader {
-    private Experiment experiment;
-    public JavascriptExperimentLoader(Experiment experiment) {
-        this.experiment = experiment;
-    }
-    public String getExperiment() {
-      return ExperimentProviderUtil.getJson(experiment);
-    }
-  }
 
 
   @Override
@@ -148,10 +132,13 @@ public class FeedbackActivity extends Activity {
     String text = experimentGroup.getFeedback().getText();
     webView.addJavascriptInterface(text, "additions");
 
-    webView.addJavascriptInterface(new JavascriptEmail(), "email");
-    webView.addJavascriptInterface(new JavascriptExperimentLoader(experiment), "experimentLoader");
+    webView.addJavascriptInterface(new JavascriptEmail(this), "email");
+    webView.addJavascriptInterface(new JavascriptExperimentLoader(this, experimentProviderUtil,
+                                                                  experiment.getExperimentDAO(), experiment),
+                                                                  "experimentLoader");
 
-    JavascriptEventLoader javascriptEventLoader = new JavascriptEventLoader(experimentProviderUtil, experiment, experiment.getExperimentDAO(), experimentGroup);
+    JavascriptEventLoader javascriptEventLoader = new JavascriptEventLoader(experimentProviderUtil, experiment,
+                                                                            experiment.getExperimentDAO(), experimentGroup);
     webView.addJavascriptInterface(javascriptEventLoader, "db");
     // deprecated name - use "db" in all new experiments
     webView.addJavascriptInterface(javascriptEventLoader, "eventLoader");
@@ -406,51 +393,11 @@ public class FeedbackActivity extends Activity {
     }
   }
 
-  private void sendEmail(String body, String subject, String userEmail) {
-    userEmail = findAccount(userEmail);
-    Intent emailIntent = new Intent(android.content.Intent.ACTION_SEND);
-    String aEmailList[] = { userEmail};
-    emailIntent.putExtra(android.content.Intent.EXTRA_EMAIL, aEmailList);
-    emailIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, subject);
-    emailIntent.putExtra(android.content.Intent.EXTRA_TEXT, body);
-    emailIntent.setType("plain/text");
-
-    startActivity(emailIntent);
-  }
-
-  private String findAccount(String userEmail) {
-    String domainName = null;
-    if (userEmail.startsWith("@")) {
-      domainName = userEmail.substring(1);
-    }
-    Account[] accounts = AccountManager.get(this).getAccounts();
-    for (Account account : accounts) {
-      if (userEmail == null || userEmail.length() == 0) {
-        return account.name; // return first
-      }
-
-      if (domainName != null) {
-        int atIndex = account.name.indexOf('@');
-        if (atIndex != -1) {
-          String accountDomain = account.name.substring(atIndex + 1);
-          if (accountDomain.equals(domainName)) {
-            return account.name;
-          }
-        }
-      }
-    }
-    return "";
-  }
-
   @Override
   protected void onSaveInstanceState(Bundle outState) {
     outState.putString("url", webView.getUrl());
     outState.putString("showDialog", showDialog+"");
  }
-
-  private boolean isOldDefaultFeedback(Feedback feedback) {
-    return Feedback.DEFAULT_FEEDBACK_MSG.equals(feedback.getText());
-  }
 
   String getTextOfInputForOutput(ExperimentDAO experiment, Output output) {
     for (Input2 input : ExperimentHelper.getInputs(experiment)) {

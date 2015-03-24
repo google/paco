@@ -25,7 +25,6 @@ import org.joda.time.DateTime;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.NotificationManager;
-import android.app.ProgressDialog;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -64,21 +63,21 @@ public class ExperimentExecutor extends Activity implements ChangeListener, Loca
 
   private Experiment experiment;
   private ExperimentGroup experimentGroup;
+  private Long actionTriggerId;
+  private Long actionId;
+  private Long actionTriggerSpecId;
+
   private Long notificationHolderId;
   private boolean shouldExpireNotificationHolder;
+  private Long scheduledTime = 0L;
 
   private ExperimentProviderUtil experimentProviderUtil;
-
   private List<InputLayout> inputs = new ArrayList<InputLayout>();
   private LayoutInflater inflater;
   private LinearLayout mainLayout;
-  private Button refreshButton;
   private OptionsMenu optionsMenu;
-  private Long scheduledTime = 0L;
-  private LinearLayout inputsScrollPane;
+
   private Object updateLock = new Object();
-  private UserPreferences userPrefs;
-  private ProgressDialog p;
 
   private ArrayList<InputLayout> locationInputs;
   private Location location;
@@ -90,23 +89,21 @@ public class ExperimentExecutor extends Activity implements ChangeListener, Loca
   private TextView warningText;
 
   private List<SpeechRecognitionListener> speechRecognitionListeners = new ArrayList<SpeechRecognitionListener>();
-  private Long actionTriggerId;
-  private Long actionId;
-  private String source;
-  private Long actionTriggerSpecId;
   public static final int RESULT_SPEECH = 3;
+
+  private LinearLayout inputsScrollPane;
+
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     experimentProviderUtil = new ExperimentProviderUtil(this);
-    userPrefs = new UserPreferences(this);
     loadNotificationData();
-    if (getExperiment() == null || experimentGroup == null) {
+    if (experiment == null || experimentGroup == null) {
       IntentExtraHelper.loadExperimentInfoFromIntent(this, getIntent(), experimentProviderUtil);
     }
 
-    if (getExperiment() == null || experimentGroup == null) {
+    if (experiment == null || experimentGroup == null) {
       displayNoExperimentMessage();
     } else {
       inflater = (LayoutInflater)getSystemService(Context.LAYOUT_INFLATER_SERVICE);

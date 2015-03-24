@@ -77,8 +77,15 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.apps.paco.js.bridge.JavascriptEmail;
+import com.google.android.apps.paco.js.bridge.JavascriptEventLoader;
+import com.google.android.apps.paco.js.bridge.JavascriptExperimentLoader;
+import com.google.android.apps.paco.js.bridge.JavascriptNotificationService;
+import com.google.android.apps.paco.js.bridge.JavascriptPackageManager;
+import com.google.android.apps.paco.js.bridge.JavascriptPhotoService;
 import com.google.android.apps.paco.questioncondparser.Binding;
 import com.google.android.apps.paco.questioncondparser.ExpressionEvaluator;
+import com.google.android.apps.paco.utils.IntentExtraHelper;
 import com.google.common.base.Strings;
 import com.google.paco.shared.model.FeedbackDAO;
 import com.google.paco.shared.model2.ExperimentGroup;
@@ -86,44 +93,51 @@ import com.google.paco.shared.model2.Input2;
 import com.google.paco.shared.util.ExperimentHelper;
 import com.pacoapp.paco.R;
 
-public class ExperimentExecutorCustomRendering extends Activity implements ChangeListener, LocationListener  {
+public class ExperimentExecutorCustomRendering extends Activity implements ChangeListener, LocationListener, ExperimentLoadingActivity  {
 
   private Experiment experiment;
-  private String notificationMessage;
-  private String notificationSource;
   private ExperimentGroup experimentGroup;
+  private Long actionTriggerId;
+  private Long actionId;
+  private Long actionTriggerSpecId;
+
+  private Long notificationHolderId;
+  private boolean shouldExpireNotificationHolder;
+  private Long scheduledTime = 0L;
 
   private ExperimentProviderUtil experimentProviderUtil;
   private List<InputLayout> inputs = new ArrayList<InputLayout>();
   private LayoutInflater inflater;
   private LinearLayout mainLayout;
   private OptionsMenu optionsMenu;
-  private Long scheduledTime = 0L;
+
   private Object updateLock = new Object();
 
   private ArrayList<InputLayout> locationInputs;
   private Location location;
 
-  private Long notificationHolderId;
-  private boolean shouldExpireNotificationHolder;
   private View buttonView;
+  private Button doOnPhoneButton;
   private Button doOnWebButton;
   private TextView warningText;
 
   private List<SpeechRecognitionListener> speechRecognitionListeners = new ArrayList<SpeechRecognitionListener>();
-  private WebView webView;
-  private Environment env;
 
   public static final int RESULT_SPEECH = 3001;
   public static final int RESULT_CAMERA = 3002;
   public static final int RESULT_GALLERY = 3003;
+
+  private WebView webView;
+  private Environment env;
+
 
   private final int IMAGE_MAX_SIZE = 600;
   private File photoFile;
 
   boolean showDialog = true;
 
-
+  private String notificationMessage;
+  private String notificationSource;
 
 
   @Override
@@ -132,7 +146,7 @@ public class ExperimentExecutorCustomRendering extends Activity implements Chang
     experimentProviderUtil = new ExperimentProviderUtil(this);
     loadNotificationData();
     if (experiment == null || experimentGroup == null) {
-      loadExperimentInfoFromIntent();
+      IntentExtraHelper.loadExperimentInfoFromIntent(this, getIntent(), experimentProviderUtil);
     }
 
     if (experiment == null || experimentGroup == null) {
@@ -155,6 +169,17 @@ public class ExperimentExecutorCustomRendering extends Activity implements Chang
       warningText.setText(warningText.getText() + getString(R.string.use_browser) + "http://"
           + getString(R.string.about_weburl));
 
+      doOnPhoneButton = (Button) findViewById(R.id.DoOnPhoneButton);
+      doOnPhoneButton.setVisibility(View.GONE);
+      // doOnPhoneButton.setOnClickListener(new OnClickListener() {
+      // public void onClick(View v) {
+      // buttonView.setVisibility(View.GONE);
+      // //mainLayout.removeView(buttonView);
+      // scrollView.setVisibility(View.VISIBLE);
+      // showForm();
+      // }
+      // });
+
       doOnWebButton = (Button) findViewById(R.id.DoOnWebButtonButton);
       doOnWebButton.setOnClickListener(new OnClickListener() {
         public void onClick(View v) {
@@ -175,6 +200,13 @@ public class ExperimentExecutorCustomRendering extends Activity implements Chang
 
   }
 
+  private void renderWebRecommendedMessage() {
+    final ScrollView scrollView = (ScrollView)findViewById(R.id.ScrollView01);
+    scrollView.setVisibility(View.GONE);
+    buttonView.setVisibility(View.VISIBLE);
+
+  }
+
   private void loadNotificationData() {
     Bundle extras = getIntent().getExtras();
     if (extras != null) {
@@ -184,6 +216,9 @@ public class ExperimentExecutorCustomRendering extends Activity implements Chang
       if (notificationHolder != null) {
         experiment = experimentProviderUtil.getExperimentByServerId(notificationHolder.getExperimentId());
         experimentGroup = experiment.getExperimentDAO().getGroupByName(notificationHolder.getExperimentGroupName());
+        actionTriggerId = notificationHolder.getActionTriggerId();
+        actionId = notificationHolder.getActionId();
+        actionTriggerSpecId = notificationHolder.getActionTriggerSpecId();
         scheduledTime = notificationHolder.getAlarmTime();
         Log.i(PacoConstants.TAG, "Starting experimentExecutor from signal: " + experiment.getExperimentDAO().getTitle() +". alarmTime: " + new DateTime(scheduledTime).toString());
         timeoutMillis = notificationHolder.getTimeoutMillis();
@@ -201,27 +236,6 @@ public class ExperimentExecutorCustomRendering extends Activity implements Chang
     }
   }
 
-  private void loadExperimentInfoFromIntent() {
-    Bundle extras = getIntent().getExtras();
-    if (extras != null) {
-      if (extras.containsKey(Experiment.EXPERIMENT_SERVER_ID_EXTRA_KEY)) {
-        long experimentId = extras.getLong(Experiment.EXPERIMENT_SERVER_ID_EXTRA_KEY);
-        experiment = experimentProviderUtil.getExperimentByServerId(experimentId);
-        if (experiment != null && extras.containsKey(Experiment.EXPERIMENT_GROUP_NAME_EXTRA_KEY)) {
-          String experimentGroupName = extras.getString(Experiment.EXPERIMENT_GROUP_NAME_EXTRA_KEY);
-          experimentGroup = experiment.getExperimentDAO().getGroupByName(experimentGroupName);
-        }
-      }
-    }
-  }
-
-  private void renderWebRecommendedMessage() {
-    final ScrollView scrollView = (ScrollView)findViewById(R.id.ScrollView01);
-    scrollView.setVisibility(View.GONE);
-    buttonView.setVisibility(View.VISIBLE);
-
-  }
-
   /**
    * If the user is self-reporting there might still be an active notification for this experiment. If so, we should
    * add its scheduleTime into this response. There should only ever be one.
@@ -229,6 +243,9 @@ public class ExperimentExecutorCustomRendering extends Activity implements Chang
   private void lookForActiveNotificationForExperiment() {
     NotificationHolder notificationHolder = experimentProviderUtil.getNotificationFor(experiment.getId().longValue(), experimentGroup.getName());
     if (notificationHolder != null) {
+      experiment = experimentProviderUtil.getExperimentByServerId(notificationHolder.getExperimentId());
+      experimentGroup = getExperiment().getExperimentDAO().getGroupByName(notificationHolder.getExperimentGroupName());
+
       if (notificationHolder.isActive(new DateTime())) {
         notificationHolderId = notificationHolder.getId();
         scheduledTime = notificationHolder.getAlarmTime();
@@ -424,6 +441,7 @@ private void injectObjectsIntoJavascriptEnvironment() {
   webView.addJavascriptInterface(new JavascriptNotificationService(this, experiment.getExperimentDAO(), experimentGroup), "notificationService");
   webView.addJavascriptInterface(new JavascriptPhotoService(this), "photoService");
   webView.addJavascriptInterface(new JavascriptExecutorListener(experiment), "executor");
+  webView.addJavascriptInterface(new JavascriptPackageManager(this), "packageManager");
 
 }
 
@@ -626,7 +644,8 @@ public boolean onKeyDown(int keyCode, KeyEvent event) {
         // to a notification.
         scheduledTime = 0L;
       }
-      Event event = createEvent(experiment, scheduledTime);
+      Event event = EventUtil.createEvent(getExperiment(), experimentGroup.getName(),
+                                          actionTriggerId, actionId, actionTriggerSpecId, scheduledTime);
       gatherResponses(event);
       experimentProviderUtil.insertEvent(event);
 
@@ -698,20 +717,6 @@ public boolean onKeyDown(int keyCode, KeyEvent event) {
       event.addResponse(responseForInput);
     }
   }
-
-  public static Event createEvent(Experiment experiment, Long scheduledTimeLong) {
-    Event event = new Event();
-    event.setExperimentId(experiment.getId());
-    event.setServerExperimentId(experiment.getServerId());
-    event.setExperimentName(experiment.getExperimentDAO().getTitle());
-    if (scheduledTimeLong != null && scheduledTimeLong != 0L) {
-      event.setScheduledTime(new DateTime(scheduledTimeLong));
-    }
-    event.setExperimentVersion(experiment.getExperimentDAO().getVersion());
-    event.setResponseTime(new DateTime());
-    return event;
-  }
-
 
   private void displayNoExperimentMessage() {
 
@@ -843,7 +848,7 @@ public boolean onKeyDown(int keyCode, KeyEvent event) {
 
 //start duplicate from inputlayout for photo service
 
-  void renderCameraOrGalleryChooser() {
+  public void renderCameraOrGalleryChooser() {
     String title = getString(R.string.please_choose_the_source_of_your_image);
     Dialog chooserDialog = new AlertDialog.Builder(this).setTitle(title)
             .setNegativeButton(getString(R.string.camera), new Dialog.OnClickListener() {
@@ -1006,5 +1011,19 @@ public boolean onKeyDown(int keyCode, KeyEvent event) {
   }
 
 // end duplicate from inputlayout
+  public void setExperimentGroup(ExperimentGroup group) {
+    this.experimentGroup = group;
+
+  }
+
+  public Experiment getExperiment() {
+    return experiment;
+  }
+
+
+  public void setExperiment(Experiment experiment) {
+    this.experiment = experiment;
+
+  }
 
 }

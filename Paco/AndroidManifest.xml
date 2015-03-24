@@ -26,6 +26,7 @@
     <application
         android:icon="@drawable/paco64"
         android:label="@string/app_name"
+        android:allowBackup="false"
         android:theme="@style/PacoTheme" >
                 
         <activity android:name="com.google.android.apps.paco.ExperimentManagerActivity" >
@@ -272,5 +273,5 @@
     
 
     <uses-feature android:name="android.hardware.camera" android:required="false"/>
-    <uses-sdk android:minSdkVersion="8"  android:targetSdkVersion="22"></uses-sdk>
+    <uses-sdk android:minSdkVersion="10"  android:targetSdkVersion="22"></uses-sdk>
 </manifest>
