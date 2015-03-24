@@ -55,16 +55,6 @@ app.service('config', function() {
     'Disable Feedback Message'
   ];
 
-  this.experimentTemplate = {
-    admins: [],
-    creator: "",
-    contactEmail: "",
-    published: false,
-    publishedUsers: [],
-    groups: [],
-
-  }
-
   this.groupTemplate = {
     actionTriggers: [],
     name: "New Group",
@@ -74,6 +64,15 @@ app.service('config', function() {
       text: 'Thanks for Participating!',
     }
   };
+
+  this.experimentTemplate = {
+    admins: [],
+    creator: "",
+    contactEmail: "",
+    published: false,
+    publishedUsers: [],
+    groups: [this.groupTemplate],
+  }
 
   this.actionTemplate = {
     'type': 'pacoNotificationAction'

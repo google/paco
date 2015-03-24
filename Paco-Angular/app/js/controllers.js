@@ -1,7 +1,7 @@
 var app = angular.module('pacoControllers', []);
 
-app.controller('ExperimentCtrl', ['$scope', '$http', '$routeParams', '$mdDialog', '$filter', '$location', '$window', 'config', 
-  function($scope, $http, $routeParams, $mdDialog, $filter, $location, $window, config) {
+app.controller('ExperimentCtrl', ['$scope', '$http', '$routeParams', '$mdDialog', '$filter', '$location', 'config', 
+  function($scope, $http, $routeParams, $mdDialog, $filter, $location, config) {
 
   $scope.experimentIdx = false;
   $scope.selectedIndex = 0;
@@ -27,7 +27,7 @@ app.controller('ExperimentCtrl', ['$scope', '$http', '$routeParams', '$mdDialog'
     $scope.selectedIndex = 1;
   }
 
-  $http.get('/auth/user').success(function(data) {
+  $http.get('/userinfo').success(function(data) {
     
      if (data && data.user && data.user !== "") {
       $scope.user = data.user;
@@ -61,8 +61,10 @@ app.controller('ExperimentCtrl', ['$scope', '$http', '$routeParams', '$mdDialog'
           );
 
           if (angular.isUndefined($scope.experiment.id)) {
-            $window.location.href = "#/experiment/";
+            $scope.experimentIdx = data[0].experimentId;
+            $location.path('/experiment/' + $scope.experimentIdx);
           }
+
         } else {
           console.dir(data);
           var errorMessage = data[0].errorMessage;
