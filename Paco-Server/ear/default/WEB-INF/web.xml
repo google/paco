@@ -103,7 +103,7 @@
   </servlet>
   <servlet-mapping>
     <servlet-name>authServlet</servlet-name>
-    <url-pattern>/auth/user</url-pattern>
+    <url-pattern>/userinfo</url-pattern>
   </servlet-mapping>
 
   <servlet>
