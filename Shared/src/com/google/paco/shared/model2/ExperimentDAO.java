@@ -51,7 +51,7 @@ public class ExperimentDAO extends ExperimentDAOCore implements Serializable {
       String modifyDate, Boolean published, List<String> admins, List<String> publishedUsers,
       Boolean deleted, Integer version, Boolean recordPhoneDetails, List<ExperimentGroup> groups,
       List<Integer> extraDataDeclarations) {
-    super(id, title, description, informedConsentForm, email, joinDate, recordPhoneDetails, deleted, extraDataDeclarations, null, null, null);
+    super(id, title, description, informedConsentForm, email, joinDate, recordPhoneDetails, deleted, extraDataDeclarations, null, null, null, null, null);
     this.id = id;
     this.title = title;
     this.description = description;

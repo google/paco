@@ -2,6 +2,7 @@ package com.google.paco.shared.model2;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class ExperimentDAOCore implements Validatable, Serializable {
@@ -28,12 +29,15 @@ public class ExperimentDAOCore implements Validatable, Serializable {
   private Boolean recordPhoneDetails = false;
   private List<Integer> extraDataCollectionDeclarations;
   protected Boolean deleted = false;
+  private Date earliestStartDate;
+  private Date latestEndDate;
 
   public ExperimentDAOCore(Long id, String title, String description, String informedConsentForm,
                            String creatorEmail,
                            String joinDate, Boolean recordPhoneDetails, Boolean deleted2,
                            List<Integer> extraDataCollectionDeclarationsList,
-                           String organization, String contactPhone, String contactEmail) {
+                           String organization, String contactPhone, String contactEmail,
+                           Date earliestStartDate, Date latestEndDate) {
     super();
     this.id = id;
     this.title = title;
@@ -48,6 +52,9 @@ public class ExperimentDAOCore implements Validatable, Serializable {
     this.deleted = deleted != null ? deleted : false;
 
     this.extraDataCollectionDeclarations = ListMaker.paramOrNewList(extraDataCollectionDeclarationsList, Integer.class);
+
+    this.earliestStartDate = earliestStartDate;
+    this.latestEndDate = latestEndDate;
   }
 
   /**
@@ -175,6 +182,22 @@ public class ExperimentDAOCore implements Validatable, Serializable {
                                            "organization must be non null if it is specified");
     }
 
+  }
+
+  public Date getEarliestStartDate() {
+    return earliestStartDate;
+  }
+
+  public void setEarliestStartDate(Date earliestStartDate) {
+    this.earliestStartDate = earliestStartDate;
+  }
+
+  public Date getLatestEndDate() {
+    return latestEndDate;
+  }
+
+  public void setLatestEndDate(Date latestEndDate) {
+    this.latestEndDate = latestEndDate;
   }
 
 

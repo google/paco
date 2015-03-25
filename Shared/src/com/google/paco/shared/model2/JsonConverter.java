@@ -19,6 +19,7 @@ import org.codehaus.jackson.type.TypeReference;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.paco.shared.scheduling.ActionScheduleGenerator;
 
 public class JsonConverter {
 
@@ -86,19 +87,21 @@ public class JsonConverter {
 
   private static List<ExperimentDAOCore> getShortExperiments(List<ExperimentDAO> experiments) {
     List<ExperimentDAOCore> shortExperiments = new ArrayList<ExperimentDAOCore>();
-    for (ExperimentDAOCore experiment : experiments) {
+    for (ExperimentDAO experiment : experiments) {
       shortExperiments.add(experimentDAOCoreFromExperimentDAO(experiment));
     }
     return shortExperiments;
 
   }
 
-  private static ExperimentDAOCore experimentDAOCoreFromExperimentDAO(ExperimentDAOCore experiment) {
+  private static ExperimentDAOCore experimentDAOCoreFromExperimentDAO(ExperimentDAO experiment) {
     return new ExperimentDAOCore(experiment.getId(), experiment.getTitle(), experiment.getDescription(),
         experiment.getInformedConsentForm(), experiment.getCreator(),
         experiment.getJoinDate(),
         experiment.getRecordPhoneDetails(), experiment.getDeleted(), experiment.getExtraDataCollectionDeclarations(),
-        experiment.getOrganization(), experiment.getContactPhone(), experiment.getContactEmail());
+        experiment.getOrganization(), experiment.getContactPhone(), experiment.getContactEmail(),
+        ActionScheduleGenerator.getEarliestStartDate(experiment).toDate(),
+        ActionScheduleGenerator.getLastEndTime(experiment).toDateMidnight().toDate());
   }
 
   public static String jsonify(ExperimentDAOCore experiment) {
