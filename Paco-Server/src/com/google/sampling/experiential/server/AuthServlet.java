@@ -61,6 +61,7 @@ public class AuthServlet extends HttpServlet {
     // TODO(ispiro): This should only be returned if there is no current user.
     // Always returning for now because the dev server returns
     // 'bobevans999@gmail.com' even if the user is logged out.
+    // We may want to reconsider using referer header since it's spoofable.
     String url = req.getHeader("referer");
     String login = userService.createLoginURL(url);
     mapObject.put("login", login);
