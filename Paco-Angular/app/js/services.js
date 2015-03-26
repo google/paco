@@ -1,4 +1,4 @@
-app.service('config', function() {
+pacoApp.service('config', function() {
 
   this.scheduleTypes = [
     'Daily',
@@ -54,10 +54,14 @@ app.service('config', function() {
     'Custom Code Feedback',
     'Disable Feedback Message'
   ];
+});
 
-  this.groupTemplate = {
+
+pacoApp.service('template', function() {
+
+  this.group = {
     actionTriggers: [],
-    name: "New Group",
+    name: 'New Group',
     inputs: [],
     feedbackType: 0,
     feedback: {
@@ -65,32 +69,32 @@ app.service('config', function() {
     }
   };
 
-  this.experimentTemplate = {
+  this.experiment = {
     admins: [],
-    creator: "",
-    contactEmail: "",
+    creator: '',
+    contactEmail: '',
     published: false,
     publishedUsers: [],
-    groups: [this.groupTemplate],
+    groups: [this.group],
   }
 
-  this.actionTemplate = {
+  this.action = {
     'type': 'pacoNotificationAction'
   };
 
-  this.scheduleTriggerTemplate = {
+  this.scheduleTrigger = {
     type: 'scheduleTrigger',
-    actions: [this.actionTemplate],
+    actions: [this.action],
     schedules: [{}]
   };
 
-  this.eventTriggerTemplate = {
+  this.eventTrigger = {
     type: 'interruptTrigger',
-    actions: [this.actionTemplate],
+    actions: [this.action],
     cues: [{}]
   };
 
-  this.signalTimeTemplate = {
+  this.signalTime = {
     'fixedTimeMillisFromMidnight': 0
   };
 });

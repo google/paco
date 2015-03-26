@@ -1,22 +1,20 @@
 <md-toolbar class="md-tall">
-
   <img src="img/paco256.png" class="paco">
   <span class="title">Paco</span>
   <span class="subtitle">The Personal Analytics Companion</span>
-
-  <!--     <nav>
-      <a href="#/experiment/{{previousIdx}}" ng-show="previousIdx != -1">&lt;</a>
-      <a href="#/experiment/{{nextIdx}}" ng-show="nextIdx != -1">&gt;</a>
-    </nav> -->
-
 </md-toolbar>
 
-
-<md-button class="md-raised" ng-click="saveExperiment()" id="save">
+<md-button class="md-raised" ng-click="saveExperiment()" id="save" ng-if="experiment">
   Save
 </md-button>
 
-<md-tabs class="md-accent" md-selected="selectedIndex">
+<a href="{{loginURL}}" ng-if="loginURL">
+  <md-button class="md-raised" id="save">
+    Login
+  </md-button>
+</a>
+
+<md-tabs class="md-accent" md-selected="tabIndex">
   <md-tab id="tab0">
     Experiments
   </md-tab>
@@ -34,21 +32,10 @@
   </md-tab>
 </md-tabs>
 
-<ng-switch on="selectedIndex" class="tabpanel-container">
+<ng-switch on="tabIndex" class="tabpanel-container">
   <div role="tabpanel" ng-switch-when="0">
-    <p>
-      <md-button class="md-raised" ng-click="addExperiment()">
-        Create New Experiment
-      </md-button>
-    </p>
-    <md-progress-circular md-mode="indeterminate" ng-if="!experiments">
-    </md-progress-circular>
-    <p>
-      <div ng-repeat="exp in experiments">
-        <a href="#/experiment/{{exp.id}}">{{exp.title}}</a>
-      </div>
-    </div>
-  </p>
+    <div ng-include="'partials/list.html'" class="list"></div>
+  </div>
   <div role="tabpanel" ng-switch-when="1">
     <div ng-include="'partials/basics.html'" class="basics"></div>
   </div>

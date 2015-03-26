@@ -1,31 +1,28 @@
 <md-dialog aria-label="Edit Action">
-  <md-content>
 
+  <md-content>
     <div class="column0">
       <div>
         <select ng-model="action.actionCode">
           <option value="" disabled selected>Choose Action</option>
-          <option ng-selected="{{$index==action.actionCode}}" ng-repeat="type in actionTypes" value="{{$index}}">{{type}}</option>
+          <option ng-selected="{{$index==action.actionCode}}" ng-repeat="type in actionTypes"
+          value="{{$index}}">{{type}}</option>
         </select>
       </div>
-
-
+      
       <md-input-container>
         <label>Timeout</label>
         <input type="number" min=0 max=479 ng-model="action.timeout">
       </md-input-container>
-
       <md-input-container>
         <label>Snooze repeats</label>
         <input type="number" min=0 max=1 ng-model="action.snoozeCount">
       </md-input-container>
-
       <md-input-container>
         <label>Snooze time</label>
         <input type="number" ng-model="action.snoozeTimeInMinutes">
       </md-input-container>
     </div>
-
   </md-content>
 
   <div class="md-actions">
@@ -33,4 +30,5 @@
       Done
     </md-button>
   </div>
+
 </md-dialog>
