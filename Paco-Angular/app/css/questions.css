@@ -128,6 +128,7 @@ md-card {
 }
 
 md-card-content {
+  background: white;
   position: relative;
 }
 
@@ -166,15 +167,52 @@ md-card-content.expand::after  {
 
 md-card md-card-content {
   padding: 0;
+  min-height: 58px;
 }
 
 md-card .section {
+  background: white;
   cursor: pointer;
   font-size: 18px;
   font-weight: 400;
   padding: 16px;
   -webkit-user-select: none;
 }
+
+/*.trigger {
+  -webkit-transition: all linear 0.5s;
+  transition: all linear 0.5s;
+}
+
+.trigger.ng-hide {
+  max-height: 0;
+  overflow: hidden;
+}*/
+
+
+
+div[expander] {
+  -webkit-transition: all linear .25s;
+}
+
+/*.animate-show {
+  margin-bottom: 0px;
+  
+  transition: all linear .5s;
+  background: white;
+}
+
+md-card-content .animate-show.ng-hide-add.ng-hide-add-active,
+md-card-content .animate-show.ng-hide-remove.ng-hide-remove-active {
+  border: 1px solid red;
+}
+
+.animate-show.ng-hide {
+  margin-bottom: -100%;
+}
+*/
+
+
 
 md-card .section .title {
   display: inline-block;

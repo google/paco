@@ -35,6 +35,36 @@ pacoApp.directive('milli', function() {
 });
 
 
+
+pacoApp.directive('expander', function() {
+  return {
+    restrict: 'A',
+    link: function(scope, element, attributes) {
+      scope.expand = true;
+
+      scope.toggleExpand = function(flag) {
+
+        console.log(element);
+
+        if (flag === undefined) {
+          scope.expand = !scope.expand;
+        } else {
+          scope.expand = flag;
+        }
+
+        if (scope.expand) {
+          element[0].style.marginBottom = 0;
+        } else {
+          console.log(element[0].clientHeight);
+          var ht = element[0].clientHeight;
+          element[0].style.marginBottom = -ht + "px";
+        }
+      }
+    }
+  }
+});
+
+
 /**
  * Code based on this tutorial
  * http://buildinternet.com/2013/08/drag-and-drop-file-upload-with-angularjs/

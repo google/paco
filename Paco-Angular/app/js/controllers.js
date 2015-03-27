@@ -106,19 +106,6 @@ pacoApp.controller('ExperimentCtrl', ['$scope', '$http', '$routeParams',
 
 pacoApp.controller('ExpandCtrl', ['$scope', function($scope) {
 
-  $scope.expand = false;
-
-  $scope.toggleExpand = function(flag) {
-    if (flag === undefined) {
-      $scope.expand = !$scope.expand;
-    } else {
-      $scope.expand = flag;
-    }
-  }
-
-  $scope.$on('experimentChange', function(event, args) {
-    $scope.expand = true;
-  });
 }]);
 
 
@@ -169,7 +156,7 @@ pacoApp.controller('TriggerCtrl', ['$scope', '$mdDialog', 'config', 'template',
     $scope.scheduleTypes = config.scheduleTypes;
 
     $scope.addAction = function(actions, event) {
-      var action = angular.copy(tempalte.action);
+      var action = angular.copy(template.action);
       action.id = actions.length;
       actions.push(action);
     }
