@@ -23,7 +23,7 @@ pacoApp.controller('ExperimentCtrl', ['$scope', '$http', '$routeParams',
         $scope.experiment = data[0];
         $scope.$broadcast('experimentChange');
       });
-      $scope.tabIndex = 1;
+      $scope.tabIndex = 2;
     }
 
     $http.get('/userinfo').success(function(data) {
@@ -105,7 +105,6 @@ pacoApp.controller('ExperimentCtrl', ['$scope', '$http', '$routeParams',
 
 
 pacoApp.controller('ExpandCtrl', ['$scope', function($scope) {
-
 }]);
 
 

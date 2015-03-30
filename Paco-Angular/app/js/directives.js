@@ -36,15 +36,15 @@ pacoApp.directive('milli', function() {
 
 
 
-pacoApp.directive('expander', function() {
+pacoApp.directive('expandable', ['$timeout', function($timeout) {
   return {
     restrict: 'A',
+    scope: true,
     link: function(scope, element, attributes) {
       scope.expand = true;
+      scope.container = element;
 
       scope.toggleExpand = function(flag) {
-
-        console.log(element);
 
         if (flag === undefined) {
           scope.expand = !scope.expand;
@@ -53,13 +53,31 @@ pacoApp.directive('expander', function() {
         }
 
         if (scope.expand) {
-          element[0].style.marginBottom = 0;
+          scope.expander.style.marginBottom = 0;
+          scope.expander.style.opacity = 1;
+          element.addClass('expand');
         } else {
-          console.log(element[0].clientHeight);
           var ht = element[0].clientHeight;
-          element[0].style.marginBottom = -ht + "px";
+          scope.expander.style.marginBottom = -ht + 'px';
+          scope.expander.style.opacity = 0;
+          element.removeClass('expand');
         }
-      }
+      };
+
+
+      $timeout(function() {
+        scope.toggleExpand(scope.expand)
+      }, 250);
+    }
+  }
+}]);
+
+pacoApp.directive('expander', function() {
+  return {
+    restrict: 'A',
+    scope: false,
+    link: function(scope, element, attributes) {
+      scope.expander = element[0];
     }
   }
 });

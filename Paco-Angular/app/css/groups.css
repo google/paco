@@ -1,0 +1,145 @@
+.groups > button {
+  margin: 16px;
+}
+
+.group {
+  margin-top: 32px;
+  position: relative;
+}
+
+.group .removeGroup {
+  background: url('../img/ic_clear_24px.svg') no-repeat;
+  height: 26px;
+  opacity: .5;
+  position: absolute;
+  right: 31px;
+  top: 31px;
+  width: 26px;
+}
+
+.group .removeGroup:hover {
+  opacity: 1;
+}
+
+.group .header > md-input-container {
+  margin: 16px;
+  padding-bottom: 0;
+  width: 200px
+}
+
+.choice {
+  position: relative;
+}
+
+.choice .remove-button {
+  position: absolute;
+  top: 32px;
+  right: -40px;
+}
+
+.light {
+  color: #9FA8DA;
+}
+
+.trigger .header, .input .header {
+  background: #E8EAF6;
+}
+
+.section {
+  font-weight: 300;
+  padding: 12px;
+  margin: 0;
+}
+
+.remove-button {
+  background: url('../img/ic_clear_24px.svg') no-repeat;
+  float: right;
+  height: 24px;
+  opacity: .5;
+  width: 24px;
+}
+
+.add-button {
+  background: url('../img/ic_add_circle_outline_24px.svg') no-repeat;
+  float: right;
+  height: 24px;
+  margin-right: 8px;
+  opacity: .5;
+  width: 24px;
+}
+
+.remove-button:hover, .add-button:hover {
+  opacity: 1;
+}
+
+
+
+md-card .section {
+  background: white;
+  cursor: pointer;
+  font-weight: 400;
+  padding: 16px;
+  -webkit-user-select: none;
+}
+
+md-card .section .title {
+  display: inline-block;
+  width: 200px;
+  height: 24px;
+}
+
+
+md-card-content[expandable]::after {
+  background: url('../img/ic_unfoldMore.svg') no-repeat;
+  content: "";
+  height: 24px;
+  opacity: .5;
+  pointer-events: none;
+  position: absolute;
+  right: 16px;
+  top: 16px;
+  width: 24px;
+}
+
+md-card-content[expandable]:hover::after {
+  opacity: 1;
+}
+
+md-card-content.expand::after  {
+  background: url('../img/ic_unfoldLess.svg') no-repeat;
+}
+
+div[expander] {
+  -webkit-transition: all linear .5s;
+}
+
+
+
+
+.advanced .identifier {
+  position: absolute;
+  left: 240px;
+  top: 4px;
+  z-index: 10;
+}
+
+.advanced .identifier md-input-container {
+  position: absolute;
+  left: 108px;
+  top: -28px;
+}
+
+.advanced .referred {
+  position: absolute;
+  left: 240px;
+  top: 8px;
+  z-index: 10;
+}
+
+.advanced textarea {
+  font-family: monospace;
+}
+
+.advanced .over {
+  z-index: 100;
+}

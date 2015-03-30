@@ -1,6 +1,7 @@
-<div class="advanced">
+<div class="column0"></div>
 
-  <div>
+<div class="advanced column1">
+  <div class="over">
     <md-checkbox ng-model="group.endOfDayGroup" aria-label="End of day group">
       End of day group
     </md-checkbox>
@@ -20,8 +21,8 @@
     </md-checkbox>
 
     <div class="identifier" ng-if="group.backgroundListen" >
-    Source of data 
-    <md-input-container md-no-float>
+    Source of data
+    <md-input-container md-no-float>    
       <input type="text" ng-model="group.backgroundListenSourceIdentifier" placeholder="Identifier">
     </md-input-container>
     </div>

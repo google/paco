@@ -1,25 +1,3 @@
-body, html {
-  background: #F5F5F5;
-  min-width: 1024px;
-}
-
-body::before {
-  position: absolute;
-  top: 0px;
-  left: 0px;
-  width: 100%;
-  height: 176px;
-  background: #5c6bc0;
-  content: '';
-}
-
-#body {
-  width: 960px;
-  position: relative;
-  left: 50%;
-  margin-left: -512px;
-}
-
 md-tab {
   color: rgba(255,255,255,.5) !important;
 }
@@ -58,6 +36,12 @@ md-toolbar .title {
   text-transform: uppercase;
 }
 
+md-toolbar #login {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+}
+
 md-toolbar .subtitle {
   font-size: 18px;
   position: absolute;
@@ -66,9 +50,12 @@ md-toolbar .subtitle {
 }
 
 .md-button {
-  height: 32px !important;
   margin-top: -4px;
   margin-bottom: -4px;
+}
+
+#save {
+  float: right;
 }
 
 .md-button[add-icon] {
@@ -77,33 +64,8 @@ md-toolbar .subtitle {
   padding-left: 32px;
 }
 
-div[role="tabpanel"] {
+/*div[role="tabpanel"] {
   width: 100%;
   position: absolute;
   padding-bottom: 32px;
-}
-
-.padded {
-  padding: 24px;
-}
-
-nav {
-  position: fixed;
-  top: 0;
-  right: 0;
-}
-
-nav a {
-  color: black;
-  display: inline-block;
-  text-align: center;
-  text-decoration: none;
-  vertical-align: middle;
-  width: 20px;
-}
-
-#save {
-  position: fixed;
-  right: 16px;
-  top: 16px;
-}
+}*/

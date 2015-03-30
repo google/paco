@@ -1,6 +1,4 @@
-.trigger .header {
-  background: #E8EAF6;
-}
+
 
 .schedule h1 {
   font-weight: 400;
@@ -26,6 +24,8 @@
   margin: 0;
   padding: 0;
 }
+
+
 
 .days {
   margin-bottom: 24px;
@@ -71,7 +71,11 @@
   margin-right: -28px;
 }
 
-.column1 .remove-button {
-  position: relative;
-  top: 26px;
+.snooze label {
+  display: inline-block;
+  width: 20 0px;
+}
+
+.snooze input {
+  width: 200px;
 }

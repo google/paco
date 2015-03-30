@@ -5,17 +5,16 @@
         <label>Group {{$index+1}}</label>
         <input ng-model="group.name">
       </md-input-container>
-      <a href="" ng-if="experiment.groups.length>1" class="removeGroup" 
-        ng-click="remove(experiment.groups, $index)">
+      <a href="" ng-if="experiment.groups.length>1" class="removeGroup" ng-click="remove(experiment.groups, $index)">
       </a>
     </div>
 
     <md-card>
 
-      <md-card-content expandable ng-class="{expand: expand}" ng-controller="ExpandCtrl">
+      <md-card-content expandable expand="true">
         <div class="section" ng-click="toggleExpand()">
           <div class="title">
-            <span ng-if="experiment.groups.length>1">Group {{$parent.$parent.$index+1}}</span>
+            <span ng-if="experiment.groups.length>1">Group {{$parent.$parent.$index+1}}</span>            
             Triggers <span class="light">({{group.actionTriggers.length}})</span>
           </div>
           <md-button add-icon ng-click="addScheduleTrigger($event, toggleExpand)">
@@ -26,18 +25,17 @@
           </md-button>
         </div>
         <div expander>
-          <div ng-repeat="trigger in group.actionTriggers track by $index" 
-        class="trigger" ng-include="'partials/trigger.html'">
+          <div ng-repeat="trigger in group.actionTriggers track by $index"
+          ng-include="'partials/trigger.html'">
           </div>
-        </div>    
+        </div>
       </md-card-content>
 
-      <md-card-content expandable ng-class="{expand: expand}" ng-controller="ExpandCtrl">
+      <md-card-content expandable>
         <md-divider></md-divider>
         <div class="section" ng-click="toggleExpand()">
           <div class="title">
-            <span ng-if="experiment.groups.length>1">Group {{$index+1}}</span>
-            Inputs
+            <span ng-if="experiment.groups.length>1">Group {{$index+1}}</span> Inputs
             <span class="light">({{group.inputs.length}})</span>
           </div>
           <md-button add-icon ng-click="addInput($event, toggleExpand)">
@@ -45,11 +43,13 @@
           </md-button>
         </div>
         <div expander>
-          <div ng-include="'partials/input.html'"></div>
+          <div ng-repeat="input in group.inputs track by $index" 
+            ng-include="'partials/input.html'">
+          </div>
         </div>
       </md-card-content>
 
-      <md-card-content expandable ng-class="{expand: expand}" ng-controller="ExpandCtrl">
+      <md-card-content expandable>
         <md-divider></md-divider>
         <div class="section" ng-click="toggleExpand()">
           <div class="title">

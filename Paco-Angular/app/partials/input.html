@@ -1,6 +1,6 @@
-<div ng-repeat="input in group.inputs" class="input" ng-controller="InputCtrl">
+<div class="input" ng-controller="InputCtrl">
 
-  <div class="section">
+  <div class="header section">
     Input {{$index + 1}}
     <a class="remove-button" href="" ng-click="remove(group.inputs, $index)"></a>
     <a class="add-button" href="" ng-click="group.inputs.push({})"></a>
