@@ -1,0 +1,16 @@
+<md-toolbar class="md-tall">
+  <img src="img/paco256.png" class="paco">
+  <span class="title">Paco</span>
+  <span class="subtitle">The Personal Analytics Companion</span>
+
+  <a href="{{loginURL}}" ng-if="loginURL">
+    <md-button class="md-raised" id="login">
+      Login
+    </md-button>
+  </a>
+</md-toolbar>
+
+<div id="main">
+  <div ng-if="experimentId" ng-include="'partials/experiment.html'"></div>
+  <div ng-if="!experimentId && user" ng-include="'partials/list.html'"></div>
+</div>
