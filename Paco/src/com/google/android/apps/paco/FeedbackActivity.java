@@ -27,13 +27,14 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.joda.time.DateTime;
 import org.json.JSONArray;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
@@ -55,7 +56,7 @@ import com.google.paco.shared.model2.JsonConverter;
 import com.google.paco.shared.util.ExperimentHelper;
 import com.pacoapp.paco.R;
 
-public class FeedbackActivity extends Activity {
+public class FeedbackActivity extends ActionBarActivity {
 
   private static final String TEMP_URL = null;
   ExperimentProviderUtil experimentProviderUtil;
@@ -70,6 +71,15 @@ public class FeedbackActivity extends Activity {
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
+    ActionBar actionBar = getSupportActionBar();
+    actionBar.setLogo(R.drawable.ic_launcher);
+    actionBar.setDisplayUseLogoEnabled(true);
+    actionBar.setDisplayShowHomeEnabled(true);
+    actionBar.setDisplayHomeAsUpEnabled(true);
+    actionBar.setDisplayShowTitleEnabled(false);
+
+
+
     experimentProviderUtil = new ExperimentProviderUtil(this);
     loadExperimentInfoFromIntent();
 
@@ -105,7 +115,7 @@ public class FeedbackActivity extends Activity {
 
       if (experimentGroup.getFeedbackType() == com.google.paco.shared.model2.Feedback.FEEDBACK_TYPE_RETROSPECTIVE) {
         // TODO get rid of this and just use the customFeedback view
-        loadOldDefaultFeedbackIntoWebView();
+        loadRetrospectiveFeedbackIntoWebView();
       } else {
         loadCustomFeedbackIntoWebView();
       }
@@ -126,11 +136,10 @@ public class FeedbackActivity extends Activity {
     final Map<String,String> map = new HashMap<String, String>();
     map.put("lastResponse", convertLastEventToJsonString(experiment.getEvents()));
     map.put("title", experiment.getExperimentDAO().getTitle());
-    map.put("experiment", ExperimentProviderUtil.getJson(experiment));
     map.put("test", "false");
-
-    String text = experimentGroup.getFeedback().getText();
-    webView.addJavascriptInterface(text, "additions");
+    map.put("additions", experimentGroup.getFeedback().getText());
+    env = new Environment(map);
+    webView.addJavascriptInterface(env, "env");
 
     webView.addJavascriptInterface(new JavascriptEmail(this), "email");
     webView.addJavascriptInterface(new JavascriptExperimentLoader(this, experimentProviderUtil,
@@ -140,16 +149,10 @@ public class FeedbackActivity extends Activity {
     JavascriptEventLoader javascriptEventLoader = new JavascriptEventLoader(experimentProviderUtil, experiment,
                                                                             experiment.getExperimentDAO(), experimentGroup);
     webView.addJavascriptInterface(javascriptEventLoader, "db");
-    // deprecated name - use "db" in all new experiments
-    webView.addJavascriptInterface(javascriptEventLoader, "eventLoader");
-
-    env = new Environment(map);
-    webView.addJavascriptInterface(env, "env");
-
   }
 
-  private void loadOldDefaultFeedbackIntoWebView() {
-    webView.loadUrl("file:///android_asset/default_feedback.html");
+  private void loadRetrospectiveFeedbackIntoWebView() {
+    webView.loadUrl("file:///android_asset/retrospective_feedback.html");
   }
 
   private void loadCustomFeedbackIntoWebView() {

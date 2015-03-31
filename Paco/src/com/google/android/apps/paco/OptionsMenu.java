@@ -16,20 +16,23 @@
 */
 package com.google.android.apps.paco;
 
-import android.content.Context;
+import android.app.Activity;
 import android.content.Intent;
+import android.support.v4.app.NavUtils;
 import android.view.Menu;
 import android.view.MenuItem;
 
 import com.pacoapp.paco.R;
+import com.pacoapp.paco.ui.MyExperimentsActivity;
+import com.pacoapp.paco.ui.ScheduleListActivity;
 
 public class OptionsMenu {
 
-  private Context context;
+  private Activity context;
   private Long experimentServerId;
   private boolean wasSignalled;
 
-  public OptionsMenu(Context experimentExecutor, Long experimentId, boolean wasSignalled) {
+  public OptionsMenu(Activity experimentExecutor, Long experimentId, boolean wasSignalled) {
     this.context = experimentExecutor;
     this.experimentServerId = experimentId;
     this.wasSignalled = wasSignalled;
@@ -59,6 +62,13 @@ public class OptionsMenu {
 
   public boolean onOptionsItemSelected(MenuItem item) {
     switch (item.getItemId()) {
+    case android.R.id.home:
+      if (!wasSignalled) {
+        final Intent intent = new Intent(context, MyExperimentsActivity.class);
+        NavUtils.navigateUpTo(context, intent);
+        return true;
+      }
+      return false;
       case PAGING_ITEM:
         launchScheduleDetailScreen();
         return true;
@@ -114,7 +124,7 @@ public class OptionsMenu {
 
 
   private void launchScheduleDetailScreen() {
-    Intent debugIntent = new Intent(context, ExperimentScheduleListActivity.class);
+    Intent debugIntent = new Intent(context, ScheduleListActivity.class);
     debugIntent.putExtra(Experiment.EXPERIMENT_SERVER_ID_EXTRA_KEY, experimentServerId);
     context.startActivity(debugIntent);
   }

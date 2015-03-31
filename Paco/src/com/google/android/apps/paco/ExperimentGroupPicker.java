@@ -18,6 +18,7 @@ import com.google.paco.shared.model2.ExperimentDAO;
 import com.google.paco.shared.model2.ExperimentGroup;
 import com.google.paco.shared.scheduling.ActionScheduleGenerator;
 import com.pacoapp.paco.R;
+import com.pacoapp.paco.ui.ScheduleListActivity;
 
 public class ExperimentGroupPicker extends ListActivity implements ExperimentLoadingActivity {
 
@@ -104,7 +105,7 @@ public class ExperimentGroupPicker extends ListActivity implements ExperimentLoa
       clazz = FeedbackActivity.class;
       break;
     case SCHEDULE_NEXT:
-      clazz = ExperimentScheduleListActivity.class;
+      clazz = ScheduleListActivity.class;
       break;
     }
     Intent experimentIntent = new Intent(this, clazz);

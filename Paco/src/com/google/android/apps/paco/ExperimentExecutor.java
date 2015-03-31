@@ -39,6 +39,8 @@ import android.os.Bundle;
 import android.provider.MediaStore;
 import android.provider.Settings;
 import android.speech.RecognizerIntent;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -59,7 +61,7 @@ import com.google.paco.shared.model2.ExperimentGroup;
 import com.google.paco.shared.model2.Input2;
 import com.pacoapp.paco.R;
 
-public class ExperimentExecutor extends Activity implements ChangeListener, LocationListener, ExperimentLoadingActivity  {
+public class ExperimentExecutor extends ActionBarActivity implements ChangeListener, LocationListener, ExperimentLoadingActivity  {
 
   private Experiment experiment;
   private ExperimentGroup experimentGroup;
@@ -97,6 +99,12 @@ public class ExperimentExecutor extends Activity implements ChangeListener, Loca
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
+    ActionBar actionBar = getSupportActionBar();
+    actionBar.setLogo(R.drawable.ic_launcher);
+    actionBar.setDisplayUseLogoEnabled(true);
+    actionBar.setDisplayShowHomeEnabled(true);
+    actionBar.setDisplayShowTitleEnabled(false);
+
     experimentProviderUtil = new ExperimentProviderUtil(this);
     loadNotificationData();
     if (experiment == null || experimentGroup == null) {
@@ -106,6 +114,9 @@ public class ExperimentExecutor extends Activity implements ChangeListener, Loca
     if (experiment == null || experimentGroup == null) {
       displayNoExperimentMessage();
     } else {
+      if (scheduledTime == null || scheduledTime == 0l) {
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+      }
       inflater = (LayoutInflater)getSystemService(Context.LAYOUT_INFLATER_SERVICE);
       optionsMenu = new OptionsMenu(this, getExperiment().getExperimentDAO().getId(), scheduledTime != null && scheduledTime != 0L);
 

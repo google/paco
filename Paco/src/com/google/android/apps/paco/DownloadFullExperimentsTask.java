@@ -22,7 +22,7 @@ import java.util.List;
 import android.content.Context;
 import android.os.AsyncTask;
 
-class DownloadFullExperimentsTask extends AsyncTask<Void, Void, String> {
+public class DownloadFullExperimentsTask extends AsyncTask<Void, Void, String> {
   private final Context enclosingContext;
   private UserPreferences userPrefs;
   private DownloadFullExperimentsTaskListener listener;

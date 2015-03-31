@@ -23,7 +23,6 @@ import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
@@ -31,6 +30,9 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.ActionBarActivity;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -42,7 +44,7 @@ import com.google.paco.shared.model2.ExperimentDAO;
 import com.google.paco.shared.model2.ExperimentGroup;
 import com.pacoapp.paco.R;
 
-public class ExperimentDetailActivity extends Activity implements ExperimentLoadingActivity {
+public class ExperimentDetailActivity extends ActionBarActivity implements ExperimentLoadingActivity {
 
   public static final String ID_FROM_MY_EXPERIMENTS_FILE = "my_experimentsFile";
 
@@ -68,12 +70,29 @@ public class ExperimentDetailActivity extends Activity implements ExperimentLoad
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-
     setContentView(R.layout.experiment_detail);
+
+    getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+    ActionBar actionBar = getSupportActionBar();
+    actionBar.setLogo(R.drawable.ic_launcher);
+    actionBar.setDisplayUseLogoEnabled(true);
+    actionBar.setDisplayShowHomeEnabled(true);
+
+
     final Intent intent = getIntent();
     useMyExperimentsDiskFile = intent.getExtras() != null ? intent.getExtras().getBoolean(ID_FROM_MY_EXPERIMENTS_FILE) : false;
     userPrefs = new UserPreferences(this);
     experimentProviderUtil = new ExperimentProviderUtil(this);
+  }
+
+  @Override
+  public boolean onOptionsItemSelected(MenuItem item) {
+      int id = item.getItemId();
+      if (id == android.R.id.home) {
+        finish();
+        return true;
+      }
+      return super.onOptionsItemSelected(item);
   }
 
 

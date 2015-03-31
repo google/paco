@@ -57,6 +57,8 @@ import android.os.Bundle;
 import android.provider.MediaStore;
 import android.provider.Settings;
 import android.speech.RecognizerIntent;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.ActionBarActivity;
 import android.util.Base64;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -93,7 +95,7 @@ import com.google.paco.shared.model2.Input2;
 import com.google.paco.shared.util.ExperimentHelper;
 import com.pacoapp.paco.R;
 
-public class ExperimentExecutorCustomRendering extends Activity implements ChangeListener, LocationListener, ExperimentLoadingActivity  {
+public class ExperimentExecutorCustomRendering extends ActionBarActivity implements ChangeListener, LocationListener, ExperimentLoadingActivity  {
 
   private Experiment experiment;
   private ExperimentGroup experimentGroup;
@@ -143,6 +145,13 @@ public class ExperimentExecutorCustomRendering extends Activity implements Chang
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
+    ActionBar actionBar = getSupportActionBar();
+    actionBar.setLogo(R.drawable.ic_launcher);
+    actionBar.setDisplayUseLogoEnabled(true);
+    actionBar.setDisplayShowHomeEnabled(true);
+    actionBar.setDisplayShowTitleEnabled(false);
+
+
     experimentProviderUtil = new ExperimentProviderUtil(this);
     loadNotificationData();
     if (experiment == null || experimentGroup == null) {

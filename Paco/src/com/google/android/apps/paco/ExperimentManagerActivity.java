@@ -17,31 +17,21 @@
 package com.google.android.apps.paco;
 
 import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
 
 import android.annotation.SuppressLint;
 import android.app.ActionBar;
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.content.ContentResolver;
-import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Resources;
-import android.database.Cursor;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.provider.MediaStore;
 import android.support.v7.app.ActionBarActivity;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -49,6 +39,7 @@ import android.view.View.OnClickListener;
 import android.widget.ImageButton;
 
 import com.pacoapp.paco.R;
+import com.pacoapp.paco.os.RingtoneUtil;
 
 /**
  *
@@ -79,7 +70,7 @@ public class ExperimentManagerActivity extends ActionBarActivity {
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    installPacoBarkRingtone();
+    new RingtoneUtil(this).installPacoBarkRingtone();
 
     experimentProviderUtil = new ExperimentProviderUtil(this);
     Eula.showEula(this);
@@ -285,105 +276,6 @@ public class ExperimentManagerActivity extends ActionBarActivity {
     }
 
     startActivityForResult(intent, RINGTONE_REQUESTCODE);
-  }
-
-  private void installPacoBarkRingtone() {
-    UserPreferences userPreferences = new UserPreferences(this);
-    if (userPreferences.hasInstalledPacoBarkRingtone()) {
-      return;
-    }
-
-    File f = copyRingtoneFromAssetsToSdCard();
-    if (f == null) {
-      return;
-    }
-    ContentValues values = createBarkRingtoneDatabaseEntry(f);
-    Uri uri = MediaStore.Audio.Media.getContentUriForPath(f.getAbsolutePath());
-    ContentResolver mediaStoreContentProvider = getBaseContext().getContentResolver();
-    Cursor existingRingtoneCursor = mediaStoreContentProvider.query(uri, null, null, null, null); // Note: i want to just retrieve MediaStore.MediaColumns.TITLE and to search on the match, but it is returning null for the TITLE value!!!
-    Cursor c = mediaStoreContentProvider.query(uri, null, null, null, null);
-    boolean alreadyInstalled = false;
-    while (c.moveToNext()) {
-      int titleColumnIndex = c.getColumnIndex(RINGTONE_TITLE_COLUMN_NAME);
-      String ringtoneTitle = c.getString(titleColumnIndex);
-      if (PACO_BARK_RINGTONE_TITLE.equals(ringtoneTitle)) {
-        alreadyInstalled = true;
-      }
-    }
-    existingRingtoneCursor.close();
-
-    if (!alreadyInstalled) {
-      Uri newUri = mediaStoreContentProvider.insert(uri, values);
-      if (newUri != null) {
-        userPreferences.setRingtone(newUri.toString());
-        userPreferences.setPacoBarkRingtoneInstalled();
-      }
-    }
-
-
-  }
-
-  private File copyRingtoneFromAssetsToSdCard()  {
-    InputStream fis = null;
-    OutputStream fos = null;
-    try {
-      fis = getAssets().open(BARK_RINGTONE_FILENAME);
-
-      if (fis == null) {
-        return null;
-      }
-
-      File path = new File(android.os.Environment.getExternalStorageDirectory().getAbsolutePath()
-                           + "/Android/data/" + getPackageName() + "/");
-      if (!path.exists()) {
-        path.mkdirs();
-      }
-
-      File f = new File(path, BARK_RINGTONE_FILENAME);
-      fos = new FileOutputStream(f);
-      byte[] buf = new byte[1024];
-      int len;
-      while ((len = fis.read(buf)) > 0) {
-        fos.write(buf, 0, len);
-      }
-      return f;
-    } catch (FileNotFoundException e) {
-      Log.e(PacoConstants.TAG, "Could not create ringtone file on sd card. Error = " + e.getMessage());
-    } catch (IOException e) {
-      Log.e(PacoConstants.TAG, "Either Could not open ringtone from assets. Or could not write to sd card. Error = " + e.getMessage());
-      return null;
-    } finally {
-      if (fos != null) {
-        try {
-          fos.close();
-        } catch (IOException e) {
-          Log.e(PacoConstants.TAG, "could not close sd card file handle. Error = " + e.getMessage());
-        }
-      }
-      if (fis != null) {
-        try {
-          fis.close();
-        } catch (IOException e) {
-          Log.e(PacoConstants.TAG, "could not close asset file handle. Error = " + e.getMessage());
-        }
-      }
-    }
-    return null;
-  }
-
-  private ContentValues createBarkRingtoneDatabaseEntry(File f) {
-    ContentValues values = new ContentValues();
-    values.put(MediaStore.MediaColumns.DATA, f.getAbsolutePath());
-    values.put(MediaStore.MediaColumns.TITLE, PACO_BARK_RINGTONE_TITLE);
-    values.put(MediaStore.MediaColumns.SIZE, f.length());
-    values.put(MediaStore.MediaColumns.MIME_TYPE, "audio/mp3");
-    values.put(MediaStore.Audio.Media.ARTIST, "Paco");
-    // values.put(MediaStore.Audio.Media.DURATION, ""); This is not needed
-    values.put(MediaStore.Audio.Media.IS_RINGTONE, true);
-    values.put(MediaStore.Audio.Media.IS_NOTIFICATION, true);
-    values.put(MediaStore.Audio.Media.IS_ALARM, false);
-    values.put(MediaStore.Audio.Media.IS_MUSIC, false);
-    return values;
   }
 
   private void launchServerConfiguration() {

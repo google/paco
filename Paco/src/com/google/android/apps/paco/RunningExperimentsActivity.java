@@ -54,6 +54,7 @@ import com.google.paco.shared.model2.ExperimentGroup;
 import com.google.paco.shared.util.ExperimentHelper;
 import com.google.paco.shared.util.TimeUtil;
 import com.pacoapp.paco.R;
+import com.pacoapp.paco.ui.ScheduleListActivity;
 
 
 /**
@@ -284,13 +285,13 @@ public class RunningExperimentsActivity extends Activity {
 
   private void editExperiment(Experiment experiment, List<ExperimentGroup> groups) {
     Intent experimentIntent = null;
-    if (groups.size() > 1) {
-      experimentIntent = new Intent(RunningExperimentsActivity.this, ExperimentGroupPicker.class);
-      experimentIntent.putExtra(ExperimentGroupPicker.SHOULD_GO_TO_RENDER_NEXT, ExperimentGroupPicker.SCHEDULE_NEXT);
-    } else {
-      experimentIntent = new Intent(RunningExperimentsActivity.this, ExperimentScheduleListActivity.class);
-      experimentIntent.putExtra(Experiment.EXPERIMENT_GROUP_NAME_EXTRA_KEY, groups.get(0).getName());
-    }
+//    if (groups.size() > 1) {
+//      experimentIntent = new Intent(RunningExperimentsActivity.this, ExperimentGroupPicker.class);
+//      experimentIntent.putExtra(ExperimentGroupPicker.SHOULD_GO_TO_RENDER_NEXT, ExperimentGroupPicker.SCHEDULE_NEXT);
+//    } else {
+      experimentIntent = new Intent(RunningExperimentsActivity.this, ScheduleListActivity.class);
+//      experimentIntent.putExtra(Experiment.EXPERIMENT_GROUP_NAME_EXTRA_KEY, groups.get(0).getName());
+//    }
     experimentIntent.putExtra(Experiment.EXPERIMENT_SERVER_ID_EXTRA_KEY, experiment.getExperimentDAO().getId());
     startActivity(experimentIntent);
   }

@@ -36,10 +36,12 @@ import android.os.Bundle;
 import android.provider.Settings;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.ActionBarActivity;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
@@ -60,11 +62,11 @@ import com.pacoapp.paco.R;
 /**
  *
  */
-public class FindExperimentsActivity extends FragmentActivity implements NetworkActivityLauncher {
+public class FindExperimentsActivity extends ActionBarActivity implements NetworkActivityLauncher {
 
   static final int REFRESHING_EXPERIMENTS_DIALOG_ID = 1001;
   static final int JOIN_REQUEST_CODE = 1;
-  static final int JOINED_EXPERIMENT = 1;
+  public static final int JOINED_EXPERIMENT = 1;
   static final Integer DOWNLOAD_LIMIT = 20;
 
   private ExperimentProviderUtil experimentProviderUtil;
@@ -86,6 +88,11 @@ public class FindExperimentsActivity extends FragmentActivity implements Network
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     mainLayout = (ViewGroup) getLayoutInflater().inflate(R.layout.find_experiments, null);
+    getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+    ActionBar actionBar = getSupportActionBar();
+    actionBar.setLogo(R.drawable.ic_launcher);
+    actionBar.setDisplayUseLogoEnabled(true);
+    actionBar.setDisplayShowHomeEnabled(true);
     setContentView(mainLayout);
     Intent intent = getIntent();
 
@@ -137,6 +144,17 @@ public class FindExperimentsActivity extends FragmentActivity implements Network
     });
     registerForContextMenu(list);
   }
+
+  @Override
+  public boolean onOptionsItemSelected(MenuItem item) {
+      int id = item.getItemId();
+      if (id == android.R.id.home) {
+        finish();
+        return true;
+      }
+      return super.onOptionsItemSelected(item);
+  }
+
 
   private boolean isConnected() {
     return NetworkUtil.isConnected(this);

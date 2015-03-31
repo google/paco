@@ -24,18 +24,21 @@
     <uses-feature android:name="android.hardware.camera.autofocus" android:required="false"/>
     
     <application
-        android:icon="@drawable/paco64"
+        android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
         android:allowBackup="false"
-        android:theme="@style/PacoTheme" >
-                
-        <activity android:name="com.google.android.apps.paco.ExperimentManagerActivity" >
+        android:theme="@style/AppTheme" >
+
+        <activity android:name="com.pacoapp.paco.ui.MyExperimentsActivity" 
+            android:label="Paco"
+            android:icon="@drawable/ic_launcher">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        
         <activity android:name="com.google.android.apps.paco.ExperimentList" >
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
@@ -45,46 +48,36 @@
                 <data android:mimeType="vnd.android.cursor.dir/vnd.google.paco.experiment" />
             </intent-filter>
         </activity>
+        
         <activity
             android:name="com.google.android.apps.paco.FindExperimentsActivity"
+            android:label="Public Experiments"
             android:configChanges="orientation|keyboardHidden"
             android:screenOrientation="portrait" >
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
-
                 <category android:name="android.intent.category.DEFAULT" />
-
                 <data android:mimeType="vnd.android.cursor.dir/vnd.google.paco.experiment" />
             </intent-filter>
         </activity>
+        
         <activity
             android:name="com.google.android.apps.paco.FindMyExperimentsActivity"
+            android:label="My Experiment Invitations"
             android:configChanges="orientation|keyboardHidden"
             android:screenOrientation="portrait" >
         </activity>
         <activity
             android:name="com.google.android.apps.paco.RunningExperimentsActivity"
             android:screenOrientation="portrait" >
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
-
-                <category android:name="android.intent.category.DEFAULT" />
-
-                <data android:mimeType="vnd.android.cursor.dir/vnd.google.paco.experiment" />
-            </intent-filter>
         </activity>
+        
         <activity
             android:name="com.google.android.apps.paco.ExploreDataActivity"
             android:configChanges="orientation|keyboard|keyboardHidden"
             android:screenOrientation="portrait"  >
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
-
-                <category android:name="android.intent.category.DEFAULT" />
-
-                <data android:mimeType="vnd.android.cursor.dir/vnd.google.paco.experiment" />
-            </intent-filter>
         </activity>
+        
         <activity
             android:name="com.google.android.apps.paco.ExperimentDetailActivity"
             android:label="Join Experiment"
@@ -105,27 +98,21 @@
                 <data android:mimeType="vnd.android.cursor.dir/vnd.google.paco.experiment" />
             </intent-filter>
         </activity>
-        <activity
-            android:name="com.google.android.apps.paco.ExperimentScheduleActivity"
-            android:configChanges="orientation|keyboardHidden"
-            android:screenOrientation="portrait"
-            android:windowSoftInputMode="stateHidden" />
-        <activity
-            android:name="com.google.android.apps.paco.ExperimentScheduleListActivity"
-            android:configChanges="orientation|keyboardHidden"
-            android:screenOrientation="portrait"
-            android:windowSoftInputMode="stateHidden" />
         
         <activity
             android:name="com.google.android.apps.paco.InformedConsentActivity"
+            android:label="Informed Consent"
             android:configChanges="orientation|keyboardHidden"
             android:screenOrientation="portrait" />
+        
         <activity
             android:name="com.google.android.apps.paco.ExperimentGroupPicker"
+            android:label="Pick Group"
             android:configChanges="orientation|keyboardHidden"
             android:screenOrientation="portrait" />
         <activity
             android:name="com.google.android.apps.paco.ExperimentExecutor"
+            android:label="Experiment Form"
             android:configChanges="orientation|keyboardHidden"
             android:windowSoftInputMode="stateHidden" >
             <intent-filter>
@@ -135,7 +122,9 @@
             </intent-filter>           
         </activity>
                 <activity
-            android:name="com.google.android.apps.paco.ExperimentExecutorCustomRendering" />
+            android:name="com.google.android.apps.paco.ExperimentExecutorCustomRendering" 
+            android:label="Experiment Form"
+            />
         
         <activity
             android:name="com.google.android.apps.paco.FeedbackActivity"
@@ -147,7 +136,8 @@
             </intent-filter>
         </activity>
         <activity android:name="com.google.android.apps.paco.WelcomeActivity" />
-        <activity android:name="com.google.android.apps.paco.AccountChooser" />
+        <activity android:name="com.google.android.apps.paco.AccountChooser" 
+            android:label="Account Chooser"/>
         <activity
             android:name="com.google.android.apps.paco.ESMSignalViewer"
             android:label="ESM Signal Viewer"
@@ -172,10 +162,29 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
-        <activity android:name="com.google.android.apps.paco.ContactOptionsActivity" />
-        <activity android:name="com.google.android.apps.paco.HelpActivity" />
+        <activity android:name="com.google.android.apps.paco.ContactOptionsActivity" android:label="Contact Options"/>
+        <activity android:name="com.google.android.apps.paco.HelpActivity" android:label="Help"/>
         <activity android:name="com.google.android.apps.paco.EulaDisplayActivity" />
-
+<!-- New UI -->
+            <activity
+            android:name="com.pacoapp.paco.ui.ScheduleListActivity" android:label="Experiment Schedules">
+        </activity>
+         <activity android:name=".SchedulePagerActivity"
+             android:label="Experiment Schedule Details">
+            <meta-data android:name="android.support.PARENT_ACTIVITY"
+                android:value=".ScheduleListActivity"/>
+         </activity>
+            
+        <activity
+            android:name="com.pacoapp.paco.ui.ScheduleDetailActivity"
+            android:label="Schedule Details"
+            android:parentActivityName="com.pacoapp.paco.ui.ScheduleListActivity" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".ScheduleListActivity" />
+        </activity>
+     
+     <!--  end new ui -->   
         <!-- services -->
         <service android:name="com.google.android.apps.paco.NotificationCreatorService" >
             <intent-filter>
@@ -249,6 +258,7 @@
 
         <activity
             android:name="com.google.android.apps.paco.FindMyOrAllExperimentsChooserActivity"
+            android:label="Find Experiments"
             >
         </activity>
 

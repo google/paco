@@ -24,14 +24,20 @@ import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.joda.time.DateTime;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.ActionBarActivity;
+import android.telephony.TelephonyManager;
+import android.view.Display;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.CheckBox;
@@ -39,12 +45,18 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.apps.paco.utils.IntentExtraHelper;
+import com.google.paco.shared.model2.ActionTrigger;
 import com.google.paco.shared.model2.ExperimentGroup;
+import com.google.paco.shared.model2.Schedule;
+import com.google.paco.shared.model2.ScheduleTrigger;
 import com.google.paco.shared.util.ExperimentHelper;
+import com.google.paco.shared.util.SchedulePrinter;
 import com.google.paco.shared.util.TimeUtil;
 import com.pacoapp.paco.R;
+import com.pacoapp.paco.ui.ScheduleDetailFragment;
+import com.pacoapp.paco.ui.ScheduleListActivity;
 
-public class InformedConsentActivity extends Activity implements ExperimentLoadingActivity {
+public class InformedConsentActivity extends ActionBarActivity implements ExperimentLoadingActivity {
 
   public static final String INFORMED_CONSENT_PAGE_EXTRA_KEY = "InformedConsentPage";
 
@@ -59,6 +71,12 @@ public class InformedConsentActivity extends Activity implements ExperimentLoadi
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.informed_consent);
+    getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+    ActionBar actionBar = getSupportActionBar();
+    actionBar.setLogo(R.drawable.ic_launcher);
+    actionBar.setDisplayUseLogoEnabled(true);
+    actionBar.setDisplayShowHomeEnabled(true);
+
     final Intent intent = getIntent();
 
     experimentProviderUtil = new ExperimentProviderUtil(this);
@@ -177,15 +195,88 @@ public class InformedConsentActivity extends Activity implements ExperimentLoadi
   public void saveDownloadedExperimentBeforeScheduling(Experiment fullExperiment) {
     experiment = fullExperiment;
     joinExperiment();
+    createJoinEvent();
+    startService(new Intent(this, SyncService.class));
+    startService(new Intent(this, BeeperService.class));
+    if (ExperimentHelper.shouldWatchProcesses(experiment.getExperimentDAO())) {
+      BroadcastTriggerReceiver.initPollingAndLoggingPreference(this);
+      BroadcastTriggerReceiver.startProcessService(this);
+    }
     runScheduleActivity();
   }
 
+  private void createJoinEvent() {
+    Event event = new Event();
+    event.setExperimentId(experiment.getId());
+    event.setServerExperimentId(experiment.getServerId());
+    event.setExperimentName(experiment.getExperimentDAO().getTitle());
+    event.setExperimentGroupName(null);
+    event.setActionTriggerId(null);
+    event.setActionTriggerSpecId(null);
+    event.setActionId(null);
+    event.setExperimentVersion(experiment.getExperimentDAO().getVersion());
+    event.setResponseTime(new DateTime());
+
+    event.addResponse(createOutput("joined", "true"));
+
+    event.addResponse(createOutput("schedule", createSchedulesString()));
+
+    if (experiment.getExperimentDAO().getRecordPhoneDetails()) {
+      Display defaultDisplay = getWindowManager().getDefaultDisplay();
+      String size = Integer.toString(defaultDisplay.getHeight()) + "x" + Integer.toString(defaultDisplay.getWidth());
+      event.addResponse(createOutput("display", size));
+
+      event.addResponse(createOutput("make", Build.MANUFACTURER));
+      event.addResponse(createOutput("model", Build.MODEL));
+      event.addResponse(createOutput("android", Build.VERSION.RELEASE));
+      TelephonyManager manager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
+      String carrierName = manager.getNetworkOperatorName();
+      event.addResponse(createOutput("carrier", carrierName));
+    }
+
+    experimentProviderUtil.insertEvent(event);
+  }
+
+  public String createSchedulesString() {
+    StringBuffer buf = new StringBuffer();
+    List<ExperimentGroup> groups = experiment.getExperimentDAO().getGroups();
+    boolean firstItem = true;
+    for (ExperimentGroup experimentGroup : groups) {
+      List<ActionTrigger> actionTriggers = experimentGroup.getActionTriggers();
+      for (ActionTrigger actionTrigger : actionTriggers) {
+        if (actionTrigger instanceof ScheduleTrigger) {
+          List<Schedule> schedules = ((ScheduleTrigger)actionTrigger).getSchedules();
+
+          for (Schedule schedule : schedules) {
+            if (firstItem) {
+              firstItem = false;
+            } else {
+              buf.append("; ");
+            }
+            buf.append(SchedulePrinter.toString(schedule));
+          }
+        }
+      }
+    }
+    return buf.toString();
+  }
+
+  private Output createOutput(String key, String answer) {
+    Output responseForInput = new Output();
+    responseForInput.setAnswer(answer);
+    responseForInput.setName(key);
+    return responseForInput;
+  }
+
+
+
+
   private void runScheduleActivity() {
-    Intent intent = new Intent(InformedConsentActivity.this, ExperimentScheduleListActivity.class);
-    intent.putExtras(getIntent().getExtras());
-    intent.putExtra(INFORMED_CONSENT_PAGE_EXTRA_KEY, true);
-    intent.putExtra(ExperimentScheduleActivity.USER_EDITABLE_SCHEDULE, ExperimentHelper.hasUserEditableSchedule(experiment.getExperimentDAO()));
-    startActivityForResult(intent, FindExperimentsActivity.JOIN_REQUEST_CODE);
+    Intent experimentIntent = new Intent(this, ScheduleListActivity.class);
+    experimentIntent.putExtras(getIntent().getExtras());
+    experimentIntent.putExtra(INFORMED_CONSENT_PAGE_EXTRA_KEY, true);
+    experimentIntent.putExtra(ScheduleDetailFragment.USER_EDITABLE_SCHEDULE, ExperimentHelper.hasUserEditableSchedule(experiment.getExperimentDAO()));
+    startActivityForResult(experimentIntent, FindExperimentsActivity.JOIN_REQUEST_CODE);
   }
 
   private void joinExperiment() {
@@ -211,6 +302,16 @@ public class InformedConsentActivity extends Activity implements ExperimentLoadi
       return null;
     }
     }
+  }
+
+  @Override
+  public boolean onOptionsItemSelected(MenuItem item) {
+      int id = item.getItemId();
+      if (id == android.R.id.home) {
+        finish();
+        return true;
+      }
+      return super.onOptionsItemSelected(item);
   }
 
   @Override

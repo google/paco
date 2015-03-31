@@ -3,6 +3,7 @@ package com.google.paco.shared.model2;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
@@ -16,6 +17,8 @@ import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.annotate.JsonSerialize.Inclusion;
 import org.codehaus.jackson.type.TypeReference;
+import org.joda.time.DateMidnight;
+import org.joda.time.DateTime;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -95,13 +98,24 @@ public class JsonConverter {
   }
 
   private static ExperimentDAOCore experimentDAOCoreFromExperimentDAO(ExperimentDAO experiment) {
+
+    Date earliestStartDate = null;
+    DateMidnight earliestStartDate2 = ActionScheduleGenerator.getEarliestStartDate(experiment);
+    if (earliestStartDate2 != null) {
+      earliestStartDate = earliestStartDate2.toDate();
+    }
+    Date endDate = null;
+    DateTime lastEndTime = ActionScheduleGenerator.getLastEndTime(experiment);
+    if (lastEndTime != null) {
+      endDate = lastEndTime.toDateMidnight().toDate();
+    }
     return new ExperimentDAOCore(experiment.getId(), experiment.getTitle(), experiment.getDescription(),
         experiment.getInformedConsentForm(), experiment.getCreator(),
         experiment.getJoinDate(),
         experiment.getRecordPhoneDetails(), experiment.getDeleted(), experiment.getExtraDataCollectionDeclarations(),
         experiment.getOrganization(), experiment.getContactPhone(), experiment.getContactEmail(),
-        ActionScheduleGenerator.getEarliestStartDate(experiment).toDate(),
-        ActionScheduleGenerator.getLastEndTime(experiment).toDateMidnight().toDate());
+        earliestStartDate,
+        endDate);
   }
 
   public static String jsonify(ExperimentDAOCore experiment) {

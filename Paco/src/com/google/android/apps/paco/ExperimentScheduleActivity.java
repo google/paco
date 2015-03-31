@@ -56,16 +56,11 @@ import com.google.paco.shared.model2.Schedule;
 import com.google.paco.shared.model2.ScheduleTrigger;
 import com.google.paco.shared.model2.SignalTime;
 import com.pacoapp.paco.R;
+import com.pacoapp.paco.ui.ScheduleDetailFragment;
 
 public class ExperimentScheduleActivity extends Activity implements ExperimentLoadingActivity {
 
-  public static final String USER_EDITABLE_SCHEDULE = "UserEditableSchedule";
-
   private static final String TIME_FORMAT_STRING = "hh:mm aa";
-
-  public static final String SCHEDULE_TRIGGER_ID = "schedule_trigger";
-
-  public static final String SCHEDULE_ID = "schedule_id";
 
   private Experiment experiment;
   private ExperimentProviderUtil experimentProviderUtil;
@@ -127,15 +122,15 @@ public class ExperimentScheduleActivity extends Activity implements ExperimentLo
 
   private boolean getUserEditableFromIntent() {
     if (getIntent().getExtras() != null) {
-      return getIntent().getBooleanExtra(USER_EDITABLE_SCHEDULE, true);
+      return getIntent().getBooleanExtra(ScheduleDetailFragment.USER_EDITABLE_SCHEDULE, true);
     }
     return false;
   }
 
   private void loadScheduleFromIntent() {
     if (getIntent().getExtras() != null) {
-      long scheduleTriggerId = getIntent().getExtras().getLong(ExperimentScheduleActivity.SCHEDULE_TRIGGER_ID);
-      Long scheduleId = getIntent().getExtras().getLong(ExperimentScheduleActivity.SCHEDULE_ID);
+      long scheduleTriggerId = getIntent().getExtras().getLong(ScheduleDetailFragment.SCHEDULE_TRIGGER_ID);
+      Long scheduleId = getIntent().getExtras().getLong(ScheduleDetailFragment.SCHEDULE_ID);
       scheduleTrigger = (ScheduleTrigger)experimentGroup.getActionTriggerById(scheduleTriggerId);
       schedule = scheduleTrigger.getSchedulesById(scheduleId);
     }
@@ -542,13 +537,6 @@ public class ExperimentScheduleActivity extends Activity implements ExperimentLo
   }
 
   private void setupSaveButton() {
-    Button saveScheduleButton = (Button) findViewById(R.id.SetDailyScheduleButton);
-    saveScheduleButton.setOnClickListener(new OnClickListener() {
-
-      public void onClick(View v) {
-        save();
-      }
-    });
   }
 
   private void save() {
