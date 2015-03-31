@@ -109,6 +109,9 @@ class DefaultExperimentService implements ExperimentService {
             experiment.getAdmins().add(loggedInUserEmail);
           }
         }
+        if (Strings.isNullOrEmpty(experiment.getContactEmail())) {
+          experiment.setContactEmail(experiment.getCreator());
+        }
 
         Key experimentKey = ExperimentJsonEntityManager.saveExperiment(ds, tx, JsonConverter.jsonify(experiment),
                                                                        experiment.getId(),
