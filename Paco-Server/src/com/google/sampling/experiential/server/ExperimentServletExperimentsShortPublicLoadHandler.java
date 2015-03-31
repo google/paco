@@ -15,7 +15,7 @@ public class ExperimentServletExperimentsShortPublicLoadHandler extends Experime
   }
 
   protected List<ExperimentDAO> getAllExperimentsAvailableToUser() {
-    ExperimentQueryResult result = ExperimentServiceFactory.getExperimentService().getExperimentsPublishedPublicly(timezone, limit, cursor);
+    ExperimentQueryResult result = ExperimentServiceFactory.getExperimentService().getExperimentsPublishedPublicly(timezone, limit, cursor, email);
     cursor = result.getCursor();
     return result.getExperiments();
   }

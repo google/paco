@@ -259,7 +259,7 @@ public class ExperimentAccessManager {
     return !results.isEmpty();
   }
 
-  private static boolean isAdminForExperiment(String email, Long experimentId) {
+  static boolean isAdminForExperiment(String email, Long experimentId) {
     DatastoreService ds = DatastoreServiceFactory.getDatastoreService();
     Query query = new com.google.appengine.api.datastore.Query(ADMIN_USER_KIND);
     query.addFilter(ADMIN_ID, FilterOperator.EQUAL, email);

@@ -12,6 +12,7 @@ import com.google.appengine.api.datastore.Transaction;
 import com.google.appengine.api.datastore.TransactionOptions;
 import com.google.appengine.api.users.User;
 import com.google.common.collect.Lists;
+import com.google.gwt.thirdparty.guava.common.base.Strings;
 import com.google.paco.shared.model.SignalTimeDAO;
 import com.google.paco.shared.model2.ActionTrigger;
 import com.google.paco.shared.model2.ExperimentDAO;
@@ -30,14 +31,15 @@ import com.google.sampling.experiential.datastore.PublicExperimentList.CursorExe
 
 class DefaultExperimentService implements ExperimentService {
 
-  //get experiments
-  @Override
-  public String getExperimentAsJson(Long id) {
+  private String getExperimentAsJson(Long id) {
     return ExperimentJsonEntityManager.getExperiment(id);
   }
 
 
   @Override
+  /**
+   * This is to be used server side only because it does not scrub out participant id information.
+   */
   public ExperimentDAO getExperiment(Long id) {
     String experimentJson = getExperimentAsJson(id);
     if (experimentJson != null) {
@@ -62,6 +64,7 @@ class DefaultExperimentService implements ExperimentService {
         experiments .add(JsonConverter.fromSingleEntityJson(experimentJson));
       }
     }
+    removeNonAdminData(email, experiments);
     return experiments;
   }
 
@@ -158,8 +161,10 @@ class DefaultExperimentService implements ExperimentService {
     List<Long> experimentIds = ExperimentAccessManager.getExistingExperimentsIdsForAdmin(email);
     experimentIds.addAll(ExperimentAccessManager.getExistingPublishedExperimentIdsForUser(email));
     List<ExperimentDAO> experiments = getExperimentsByIdInternal(experimentIds, email, timeZoneForClient);
+    removeNonAdminData(email, experiments);
     return new ExperimentQueryResult(cursor, experiments); // TODO honor the limit and cursor
   }
+
 
   @Override
   public ExperimentQueryResult getUsersAdministeredExperiments(String email, DateTimeZone timezone, Integer limit,
@@ -170,10 +175,49 @@ class DefaultExperimentService implements ExperimentService {
   }
 
   @Override
-  public ExperimentQueryResult getExperimentsPublishedPublicly(DateTimeZone timezone, Integer limit, String cursor) {
+  public ExperimentQueryResult getExperimentsPublishedPublicly(DateTimeZone timezone, Integer limit, String cursor, String email) {
     CursorExerimentIdListPair cursorIdPair = PublicExperimentList.getPublicExperiments(timezone.getID(), limit, cursor);
     List<ExperimentDAO> experiments = getExperimentsByIdInternal(cursorIdPair.ids, null, timezone);
+    removeNonAdminData(email, experiments);
     return new ExperimentQueryResult(cursorIdPair.cursor, experiments);
+  }
+
+  public void removeNonAdminData(String email, List<ExperimentDAO> experiments) {
+    removeOtherPublished(experiments, email);
+    removeAdmins(experiments, email);
+    removeCreator(experiments, email);
+  }
+
+
+  private void removeOtherPublished(List<ExperimentDAO> experiments, String email) {
+    for (ExperimentDAO experimentDAO : experiments) {
+      if (!experimentDAO.getAdmins().contains(email)) {
+        List<String> empty = Lists.newArrayList();
+        experimentDAO.setPublishedUsers(empty);
+      }
+    }
+  }
+
+  private void removeCreator(List<ExperimentDAO> experiments, String email) {
+    for (ExperimentDAO experimentDAO : experiments) {
+      if (!experimentDAO.getAdmins().contains(email)) {
+        String contact = experimentDAO.getContactEmail();
+        if (Strings.isNullOrEmpty(contact)) {
+          experimentDAO.setContactEmail(experimentDAO.getCreator());
+        } else {
+          experimentDAO.setCreator(null);
+        }
+      }
+    }
+  }
+
+  private void removeAdmins(List<ExperimentDAO> experiments ,String email) {
+    for (ExperimentDAO experimentDAO : experiments) {
+      if (!experimentDAO.getAdmins().contains(email)) {
+        List<String> empty = Lists.newArrayList();
+        experimentDAO.setAdmins(empty);
+      }
+    }
   }
 
   // referred experiments

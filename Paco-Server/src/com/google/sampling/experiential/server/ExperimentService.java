@@ -24,7 +24,6 @@ public interface ExperimentService {
   // retrieving experiments
   // Note: DAOs are here for internal use and for the GWT client. Remote clients will use the AsJson api.
   ExperimentDAO getExperiment(Long id);
-  String getExperimentAsJson(Long id);
   List<ExperimentDAO> getExperimentsById(List<Long> experimentIds, String email, DateTimeZone timezone);
   //List<String> getExperimentsByIdAsJson(List<Long> experimentIds, String email, DateTimeZone timezone);
 
@@ -41,7 +40,7 @@ public interface ExperimentService {
   ExperimentQueryResult getUsersAdministeredExperiments(String email, DateTimeZone timezone, Integer limit,
                                                         String cursor);
 
-  ExperimentQueryResult getExperimentsPublishedPublicly(DateTimeZone timezone, Integer limit, String cursor);
+  ExperimentQueryResult getExperimentsPublishedPublicly(DateTimeZone timezone, Integer limit, String cursor, String email);
 
 
   // referred experiments are used for linked end of day studies
