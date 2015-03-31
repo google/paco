@@ -1,54 +1,36 @@
-pacoApp.controller('ExperimentCtrl', ['$scope', '$http', '$routeParams',
-  '$mdDialog', '$filter', '$location', 'template',
-  function($scope, $http, $routeParams, $mdDialog, $filter, $location,
-    template) {
+pacoApp.controller('ExperimentCtrl', ['$scope', '$http',
+  '$mdDialog', '$filter', 'template', '$location',
+  function($scope, $http, $mdDialog, $filter, template, $location) {
 
-    $scope.experimentId = false;
     $scope.tabIndex = 0;
-    $scope.newExperiment = false;
 
-    if (angular.isDefined($routeParams.experimentId)) {
-      if ($routeParams.experimentId == 'new') {
+
+      if ($scope.experimentId == -1) {
         $scope.experiment = angular.copy(template.experiment);
-        $scope.newExperiment = true;
-        $scope.tabIndex = 1;
-      } else {
-        $scope.experimentId = parseInt($routeParams.experimentId);
-      }
-    }
 
-    if ($scope.experimentId) {
-      $http.get('/experiments?id=' + $scope.experimentId).success(function(
+       if ($scope.user) {
+         $scope.experiment.creator = $scope.user;
+         $scope.experiment.contactEmail = $scope.user;
+         $scope.experiment.admins.push($scope.user);
+       }
+
+        $scope.tabIndex = 0;
+      } else if ($scope.experimentId) {
+        $http.get('/experiments?id=' + $scope.experimentId).success(function(
         data) {
-        $scope.experiment = data[0];
-        $scope.$broadcast('experimentChange');
-      });
-      $scope.tabIndex = 2;
-    }
+          $scope.experiment = data[0];
+        });
+        $scope.tabIndex = 1;
+      }
 
-    $http.get('/userinfo').success(function(data) {
-
-      // For now, make sure email isn't bobevans999@gmail for local dev testing
-      if (data.user && data.user !== "bobevans999@gmail.com") {
-        $scope.user = data.user;
-
+      $scope.$watch('user', function(newValue, oldValue) {
         if ($scope.newExperiment) {
           $scope.experiment.creator = $scope.user;
           $scope.experiment.contactEmail = $scope.user;
-          $scope.experiment.admins.push($scope.user);
+          $scope.experiment.admins = [$scope.user];
         }
-
-        $http.get('/experiments?mine').success(function(data) {
-          $scope.experiments = data;
-        });
-      } else {
-        $scope.loginURL = data.login;
-      }
-
-    }).error(function(data) {
-      console.log(data);
-    });
-
+      });
+         
 
     $scope.saveExperiment = function() {
       $http.post('/experiments', $scope.experiment).success(function(data) {
@@ -62,9 +44,9 @@ pacoApp.controller('ExperimentCtrl', ['$scope', '$http', '$routeParams',
               .ok('OK')
             );
 
-            if (angular.isUndefined($scope.experiment.id)) {
-              $scope.experimentId = data[0].experimentId;
-              $location.path('/experiment/' + $scope.experimentId);
+            if ($scope.newExperiment) {
+              console.log(data);
+              $location.path('/experiment/' + data[0].experimentId);
             }
 
           } else {
@@ -84,10 +66,6 @@ pacoApp.controller('ExperimentCtrl', ['$scope', '$http', '$routeParams',
       });
     };
 
-    $scope.addExperiment = function() {
-      $location.path('/experiment/new');
-    };
-
     $scope.addGroup = function() {
       $scope.experiment.groups.push(angular.copy(template.group));
     };
@@ -104,11 +82,49 @@ pacoApp.controller('ExperimentCtrl', ['$scope', '$http', '$routeParams',
 ]);
 
 
-pacoApp.controller('ExpandCtrl', ['$scope', function($scope) {
-}]);
+pacoApp.controller('HomeCtrl', ['$scope', '$http', '$routeParams', '$location',
+  function($scope, $http, $routeParams, $location) {
+    $scope.newExperiment = false;
+    $scope.experimentId = false;
+
+    $http.get('/userinfo').success(function(data) {
+
+      console.log(data);
+      // For now, make sure email isn't bobevans999@gmail for local dev testing
+      if (data.user && data.user !== 'yourGoogleEmail@here.com') {
+        $scope.user = data.user;
+
+        $http.get('/experiments?mine').success(function(data) {
+          $scope.experiments = data;
+        });
+      } else {
+        $scope.loginURL = data.login;
+      }
+
+    }).error(function(data) {
+      console.log(data);
+    });
 
 
-pacoApp.controller('GroupCtrl', ['$scope', 'template', 
+    if (angular.isDefined($routeParams.experimentId)) {
+      if ($routeParams.experimentId == 'new') {
+        $scope.newExperiment = true;
+        $scope.experimentId = -1;
+      } else {
+        $scope.experimentId = parseInt($routeParams.experimentId);
+      }
+    }          
+
+    $scope.addExperiment = function() {
+      $location.path('/experiment/new');
+    };
+  }
+]);
+
+
+
+
+pacoApp.controller('GroupCtrl', ['$scope', 'template',
   function($scope, template) {
 
     $scope.addInput = function(event, expandFn) {
@@ -137,8 +153,8 @@ pacoApp.controller('InputCtrl', ['$scope', 'config', function($scope, config) {
   $scope.responseTypes = config.responseTypes;
 
   $scope.$watch('input.responseType', function(newValue, oldValue) {
-    if ($scope.input.responseType === 'list' && 
-        $scope.input.listChoices === undefined) {
+    if ($scope.input.responseType === 'list' &&
+      $scope.input.listChoices === undefined) {
       $scope.input.listChoices = [''];
     }
   });

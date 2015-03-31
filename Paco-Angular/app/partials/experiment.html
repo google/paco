@@ -1,42 +1,27 @@
-<md-toolbar class="md-tall">
-  <img src="img/paco256.png" class="paco">
-  <span class="title">Paco</span>
-  <span class="subtitle">The Personal Analytics Companion</span>
-
-  <a href="{{loginURL}}" ng-if="loginURL">
-    <md-button class="md-raised" id="login">
-      Login
-    </md-button>
-  </a>
-
-</md-toolbar>
-<div id="body">
-
+<div ng-controller="ExperimentCtrl">
   <md-card>
     <md-card-content>
       <div class="padded">
         Experiments > <b>{{experiment.title}}</b>
         <i ng-if="!experiment.title">New experiment</i>
 
-        <md-button id="save" ng-click="saveExperiment()" ng-if="experiment">
-          Save
+        <a href="#" class="remove-button"></a>
+        <md-button id="save" ng-click="saveExperiment()">
+          Save Experiment
         </md-button>
       </div>
       <md-tabs class="md-accent" md-selected="tabIndex">
-        <md-tab id="tab0">
-          Experiments
-        </md-tab>
         <md-tab id="tab1" ng-if="experiment">
           Basics
         </md-tab>
         <md-tab id="tab2" ng-if="experiment">
           Questions
         </md-tab>
-        <md-tab id="tab3" ng-if="experiment">
-          Admin
-        </md-tab>
         <md-tab id="tab4" ng-if="experiment">
           Consent
+        </md-tab>
+        <md-tab id="tab3" ng-if="experiment">
+          Source
         </md-tab>
       </md-tabs>
     </md-card-content>
@@ -44,24 +29,20 @@
 
   <ng-switch on="tabIndex" class="tabpanel-container">
     <div role="tabpanel" ng-switch-when="0">
-      <div ng-include="'partials/list.html'" class="padded list"></div>
-    </div>
-    <div role="tabpanel" ng-switch-when="1">
       <div ng-include="'partials/basics.html'" class="basics"></div>
     </div>
-    <div role="tabpanel" ng-switch-when="2">
+    <div role="tabpanel" ng-switch-when="1">
       <div ng-include="'partials/groups.html'"></div>
     </div>
     <div role="tabpanel" ng-switch-when="3" class="admin">
       <div class="padded">
-        Admin
+        JSON data for experiment
         <br />
         <textarea ng-blur="convertBack($event)">{{experiment|json}}</textarea>
       </div>
     </div>
-    <div role="tabpanel" ng-switch-when="4">
+    <div role="tabpanel" ng-switch-when="2">
       <div ng-include="'partials/consent.html'" class="padded"></div>
     </div>
   </ng-switch>
-
 </div>

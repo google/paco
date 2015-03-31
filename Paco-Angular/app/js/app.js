@@ -7,12 +7,12 @@ pacoApp.config(['$routeProvider',
   function($routeProvider) {
     $routeProvider.
     when('/experiment/:experimentId', {
-      templateUrl: 'partials/experiment.html',
-      controller: 'ExperimentCtrl',
+      templateUrl: 'partials/home.html',
+      controller: 'HomeCtrl',
     }).
     otherwise({
-      templateUrl: 'partials/experiment.html',
-      controller: 'ExperimentCtrl',
+      templateUrl: 'partials/home.html',
+      controller: 'HomeCtrl',
     });
   }
 ]);

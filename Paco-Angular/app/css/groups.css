@@ -89,7 +89,7 @@ md-card .section .title {
 }
 
 
-md-card-content[expandable]::after {
+md-card-content[expandable=true]::after {
   background: url('../img/ic_unfoldMore.svg') no-repeat;
   content: "";
   height: 24px;
@@ -101,7 +101,7 @@ md-card-content[expandable]::after {
   width: 24px;
 }
 
-md-card-content[expandable]:hover::after {
+md-card-content[expandable=true]:hover::after {
   opacity: 1;
 }
 
@@ -109,12 +109,15 @@ md-card-content.expand::after  {
   background: url('../img/ic_unfoldLess.svg') no-repeat;
 }
 
-div[expander] {
-  -webkit-transition: all linear .5s;
+.md-button[add-icon] {
+  background: url('../img/ic_add_circle_outline_24px.svg') no-repeat;
+  background-position: 3px 3px;
+  padding-left: 32px;
 }
 
-
-
+div[expander] {
+  -webkit-transition: opacity ease-in-out .5s, margin-bottom ease-in-out .5s;
+}
 
 .advanced .identifier {
   position: absolute;

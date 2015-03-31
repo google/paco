@@ -3,16 +3,15 @@ body, html {
   min-width: 1024px;
 }
 
-#body {
+#main {
   width: 960px;
   position: relative;
   left: 50%;
   margin-left: -480px;
 }
 
-.padded {
-  padding: 16px;
-}
+
+
 
 md-card {
   margin: 16px;
@@ -38,7 +37,21 @@ md-dialog li {
   font-style: italic;
 }
 
+/*.md-button[add-icon] {
+  background: url('../img/ic_add_circle_outline_24px.svg') no-repeat;
+  background-position: 3px 3px;
+}
 
+.md-button[remove-icon] {
+  background: url('img/ic_clear_24px.svg') no-repeat;
+  background-position: 3px 3px;
+}
+*/
+
+
+.padded {
+  padding: 16px;
+}
 
 .column0 {
   display: inline-block;
@@ -57,8 +70,6 @@ md-dialog li {
   position: relative;
   top: 26px;
 }
-
-
 
 .clearfix:after {
   visibility: hidden;
@@ -80,8 +91,6 @@ md-dialog li {
   margin-right: 16px;
   width: 224px;
 }
-
-
 
 .admin textarea {
   border: 1px solid #e5e5e5;

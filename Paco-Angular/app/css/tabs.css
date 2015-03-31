@@ -57,15 +57,3 @@ md-toolbar .subtitle {
 #save {
   float: right;
 }
-
-.md-button[add-icon] {
-  background: url('../img/ic_add_circle_outline_24px.svg') no-repeat;
-  background-position: 3px 3px;
-  padding-left: 32px;
-}
-
-/*div[role="tabpanel"] {
-  width: 100%;
-  position: absolute;
-  padding-bottom: 32px;
-}*/

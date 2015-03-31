@@ -3,7 +3,7 @@
     Create New Experiment
   </md-button>
 </p>
-<md-progress-circular md-mode="indeterminate" ng-if="!experiments">
+<md-progress-circular md-mode="indeterminate" ng-if="!experiments && user">
 </md-progress-circular>
 <p>
   <div ng-repeat="exp in experiments">
