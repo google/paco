@@ -167,9 +167,10 @@ public class ExperimentDAOCore implements Validatable, Serializable {
   public void validateWith(Validator validator) {
     validator.isNotNullAndNonEmptyString(title, "Experiment title cannot be null");
     validator.isValidEmail(creator, "Experiment creator must be a valid email address");
-    if (contactEmail != null) {
+    if (contactEmail != null && contactEmail.length() > 0) {
       validator.isValidEmail(contactEmail, "Experiment contact must be a valid email address");
     }
+
     validator.isNotNull(deleted, "deleted is not properly initialized");
     validator.isNotNull(recordPhoneDetails, "recordPhoneDetails is not properly initialized");
     validator.isNotNullCollection(extraDataCollectionDeclarations,
