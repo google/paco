@@ -33,7 +33,7 @@ public class JavascriptSensorManager {
    */
   @JavascriptInterface
   public Integer getStepCount() {
-    StepSensor stepSensor = StepSensorFactory.getStepSensor(context, StepSensorFactory.JAWBONE_STEP_SENSOR);
+    StepSensor stepSensor = StepSensorFactory.getStepSensor(context, StepSensorFactory.ANDROID_STEP_SENSOR);
     if (stepSensor != null) {
       return stepSensor.getStepCount();
     }

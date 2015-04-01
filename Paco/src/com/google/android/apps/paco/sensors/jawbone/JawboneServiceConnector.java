@@ -97,9 +97,11 @@ public class JawboneServiceConnector implements StepSensor {
       return -1;
 
     Log.i(PacoConstants.TAG, "Calling service for data");
-//    new Thread(new Runnable() {
-//      @Override
-//      public void run() {
+
+    final StepCountSensorFuture future = new StepCountSensorFuture(jawboneService, key);
+    new Thread(new Runnable() {
+      @Override
+      public void run() {
 //        try {
 //          final int value = jawboneService.getValue(key);
 //          if (isErrorCode(value)) {
@@ -114,10 +116,12 @@ public class JawboneServiceConnector implements StepSensor {
 //        }
 //        context.unbindService(mConnection);
 //        unbindState("Done with request. Unbinding service");
-//      }
-//    }).start();
-    StepCountSensorFuture future = new StepCountSensorFuture(jawboneService, key);
-    future.retrieveValue(key);
+
+        future.retrieveValue(key);
+
+      }
+
+    }).start();
     try {
       return future.get();
     } catch (InterruptedException e) {
