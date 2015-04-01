@@ -142,6 +142,12 @@ public class EventJsonUploadProcessorTest extends TestCase {
         return null;
       }
 
+      @Override
+      public Boolean deleteExperiments(List<Long> experimentIds, String email) {
+        // TODO Auto-generated method stub
+        return null;
+      }
+
     };
 
     noExperimentService = new ExperimentService() {
@@ -208,6 +214,12 @@ public class EventJsonUploadProcessorTest extends TestCase {
 
       @Override
       public List<ValidationMessage> saveExperiment(ExperimentDAO experimentDAO, User userFromLogin, DateTimeZone timezone) {
+        // TODO Auto-generated method stub
+        return null;
+      }
+
+      @Override
+      public Boolean deleteExperiments(List<Long> experimentIds, String email) {
         // TODO Auto-generated method stub
         return null;
       }
@@ -287,6 +299,12 @@ public class EventJsonUploadProcessorTest extends TestCase {
         return null;
       }
 
+      @Override
+      public Boolean deleteExperiments(List<Long> experimentIds, String email) {
+        // TODO Auto-generated method stub
+        return null;
+      }
+
     };
 
     noThenYesExperimentService = new ExperimentService() {
@@ -355,6 +373,11 @@ public class EventJsonUploadProcessorTest extends TestCase {
       }
       @Override
       public List<ValidationMessage> saveExperiment(ExperimentDAO experimentDAO, User userFromLogin, DateTimeZone timezone) {
+        // TODO Auto-generated method stub
+        return null;
+      }
+      @Override
+      public Boolean deleteExperiments(List<Long> experimentIds, String email) {
         // TODO Auto-generated method stub
         return null;
       }

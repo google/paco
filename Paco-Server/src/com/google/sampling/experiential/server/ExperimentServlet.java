@@ -17,6 +17,7 @@
 package com.google.sampling.experiential.server;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.logging.Logger;
 
 import javax.servlet.ServletConfig;
@@ -28,6 +29,9 @@ import javax.servlet.http.HttpServletResponse;
 import org.joda.time.DateTimeZone;
 
 import com.google.appengine.api.users.User;
+import com.google.common.collect.Lists;
+import com.google.gwt.thirdparty.guava.common.base.Strings;
+import com.google.paco.shared.comm.Outcome;
 
 /**
  * Servlet that answers requests for experiments.
@@ -134,8 +138,60 @@ public class ExperimentServlet extends HttpServlet {
 
   @Override
   protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-    readExperimentDefinitions(req, resp);
+    resp.setContentType("application/json;charset=UTF-8");
+    User user = AuthUtil.getWhoFromLogin();
+    if (user == null) {
+      AuthUtil.redirectUserToLogin(req, resp);
+    } else {
+      DateTimeZone timezone = TimeUtil.getTimeZoneForClient(req);
+      logPacoClientVersion(req);
+      String email = AuthUtil.getEmailOfUser(req, user);
+
+      String delete = req.getParameter("delete");
+      if (!Strings.isNullOrEmpty(delete)) {
+        String selectedExperimentsParam = req.getParameter("id");
+        if (Strings.isNullOrEmpty(selectedExperimentsParam)) {
+          List<Outcome> outcomes = createErrorOutcome();
+          resp.getWriter().println(ExperimentJsonUploadProcessor.toJson(outcomes));
+        } else {
+          resp.getWriter().println(ExperimentJsonUploadProcessor.toJson(deleteExperiments(email, selectedExperimentsParam)));
+        }
+      } else {
+        readExperimentDefinitions(req, resp);
+      }
+    }
   }
+
+
+
+  public List<Outcome> createErrorOutcome() {
+    Outcome outcome = new Outcome(0, "No experiment ids specified for deletion");
+    List<Outcome> outcomes = Lists.newArrayList(outcome);
+    return outcomes;
+  }
+
+  private List<Outcome> deleteExperiments(String email, String selectedExperimentsParam) {
+    ExperimentService expService = ExperimentServiceFactory.getExperimentService();
+    List<Long> experimentIds = ExperimentServletSelectedExperimentsFullLoadHandler.parseExperimentIds(selectedExperimentsParam);
+    if (experimentIds.isEmpty()) {
+      return createErrorOutcome();
+    }
+    Outcome outcome = new Outcome();
+    List<Outcome> outcomeList = Lists.newArrayList();
+    outcomeList.add(outcome);
+    try {
+      final Boolean deleteExperimentsResult = expService.deleteExperiments(experimentIds, email);
+      if (!deleteExperimentsResult) {
+        outcome.setError("Could not delete experiments. Rolled back.");
+      }
+    } catch (Exception e) {
+      outcome.setError("Could not delete experiments. Rolled back. Error: " + e.getMessage());
+    }
+
+    return outcomeList;
+  }
+
+
 
   private void readExperimentDefinitions(HttpServletRequest req, HttpServletResponse resp) throws IOException {
     String postBodyString;
@@ -154,7 +210,6 @@ public class ExperimentServlet extends HttpServlet {
     log.info("Paco version = " + pacoVersion);
     DateTimeZone timezone = TimeUtil.getTimeZoneForClient(req);
     String results = ExperimentJsonUploadProcessor.create().processJsonExperiments(postBodyString, AuthUtil.getWhoFromLogin(), appIdHeader, pacoVersion, timezone);
-    resp.setContentType("application/json;charset=UTF-8");
     resp.getWriter().write(results);
   }
 }

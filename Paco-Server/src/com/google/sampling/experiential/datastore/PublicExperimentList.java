@@ -60,6 +60,21 @@ public class PublicExperimentList {
     }
   }
 
+  public static void deletePublicExperiment(Transaction tx, DatastoreService ds, Key experimentKey) {
+    Key key = KeyFactory.createKey(PUBLIC_EXPERIMENT_KIND, experimentKey.getId());
+    ds.delete(tx, key);
+  }
+
+  public static void deletePublicExperiments(Transaction tx, DatastoreService ds, List<Long> experimentIds) {
+    List<Key> keys = Lists.newArrayList();
+    for (Long experimentId : experimentIds) {
+      Key key = KeyFactory.createKey(PUBLIC_EXPERIMENT_KIND, experimentId);
+      keys.add(key);
+    }
+
+    ds.delete(tx, keys);
+  }
+
   @Deprecated
   public static void updatePublicExperimentsList(Experiment experiment, DateTime dateTime) {
     DatastoreService ds = DatastoreServiceFactory.getDatastoreService();
@@ -184,5 +199,7 @@ public class PublicExperimentList {
     Key key = KeyFactory.createKey(PUBLIC_EXPERIMENT_KIND, experiment.getId());
     ds.delete(key);
   }
+
+
 
 }

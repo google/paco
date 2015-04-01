@@ -153,18 +153,29 @@ public class ExperimentJsonEntityManager {
   }
 
 
-  public static Boolean delete(Long experimentId) {
+  public static void delete(DatastoreService ds, Transaction tx, Long experimentId) {
     if (experimentId == null) {
-      return false;
+      throw new IllegalArgumentException("no experimentId specified");
     }
-    DatastoreService ds = DatastoreServiceFactory.getDatastoreService();
-    try {
-      ds.delete(createkeyForId(experimentId));
-      return true;
-    } catch (Exception e) {
-      e.printStackTrace();
-      return false;
-    }
+    ds.delete(tx, createkeyForId(experimentId));
   }
+
+  public static void delete(DatastoreService ds, Transaction tx, List<Long> experimentIds) {
+    if (experimentIds == null || experimentIds.isEmpty()) {
+      throw new IllegalArgumentException("no experimentIds specified");
+    }
+    ds.delete(tx, createkeysForIds(experimentIds));
+  }
+
+
+
+  private static List<Key> createkeysForIds(List<Long> experimentIds) {
+    List<Key> keys = Lists.newArrayList();
+    for (Long experimentId : experimentIds) {
+      keys.add(createkeyForId(experimentId));
+    }
+    return keys;
+  }
+
 
 }

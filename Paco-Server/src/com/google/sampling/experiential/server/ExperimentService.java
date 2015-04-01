@@ -52,5 +52,7 @@ public interface ExperimentService {
   // TODO maybe this should be in a cross-platform Utility class?
   boolean isOver(ExperimentDAO experiment, DateTime today);
 
+  Boolean deleteExperiments(List<Long> experimentIds, String email);
+
 
 }

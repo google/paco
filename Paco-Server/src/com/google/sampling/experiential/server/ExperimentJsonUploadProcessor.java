@@ -12,7 +12,7 @@ import org.json.JSONException;
 
 import com.google.appengine.api.users.User;
 import com.google.common.collect.Lists;
-import com.google.paco.shared.comm.ExperimentSaveOutcome;
+import com.google.paco.shared.comm.ExperimentEditOutcome;
 import com.google.paco.shared.comm.Outcome;
 import com.google.paco.shared.model2.ExperimentDAO;
 import com.google.paco.shared.model2.JsonConverter;
@@ -42,7 +42,7 @@ public class ExperimentJsonUploadProcessor {
     }
   }
 
-  private String toJson(List<Outcome> outcomes) {
+  static String toJson(List<Outcome> outcomes) {
     ObjectMapper mapper = JsonConverter.getObjectMapper();
     try {
       return mapper.writeValueAsString(outcomes);
@@ -87,7 +87,7 @@ public class ExperimentJsonUploadProcessor {
   }
 
   private Outcome postObject(ExperimentDAO experimentDAO, int objectId, User userFromLogin, String appIdHeader, String pacoVersionHeader, DateTimeZone timezone) throws Throwable {
-    ExperimentSaveOutcome outcome = new ExperimentSaveOutcome(objectId);
+    ExperimentEditOutcome outcome = new ExperimentEditOutcome(objectId);
 
     Long id = experimentDAO.getId();
     log.info("Retrieving experimentId, experimentName for experiment posting: " + id + ", " + experimentDAO.getTitle());

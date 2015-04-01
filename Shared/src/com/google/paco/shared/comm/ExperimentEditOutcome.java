@@ -1,21 +1,21 @@
 package com.google.paco.shared.comm;
 
-public class ExperimentSaveOutcome extends Outcome {
+public class ExperimentEditOutcome extends Outcome {
 
   private Long experimentId;
 
 
-  public ExperimentSaveOutcome(long eventId, Long experimentId) {
+  public ExperimentEditOutcome(long eventId, Long experimentId) {
     super(eventId);
     this.experimentId = experimentId;
   }
 
-  public ExperimentSaveOutcome(long eventId, String errorMessage, Long experimentId) {
+  public ExperimentEditOutcome(long eventId, String errorMessage, Long experimentId) {
     super(eventId, errorMessage);
     this.experimentId = experimentId;
   }
 
-  public ExperimentSaveOutcome(int eventId) {
+  public ExperimentEditOutcome(int eventId) {
     super(eventId);
   }
 

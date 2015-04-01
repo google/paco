@@ -11,6 +11,7 @@ import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.Transaction;
 import com.google.appengine.api.datastore.TransactionOptions;
 import com.google.appengine.api.users.User;
+import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import com.google.gwt.thirdparty.guava.common.base.Strings;
 import com.google.paco.shared.model.SignalTimeDAO;
@@ -118,20 +119,17 @@ class DefaultExperimentService implements ExperimentService {
                                                                        experiment.getTitle(),
                                                                        experiment.getVersion());
         experiment.setId(experimentKey.getId());
-        boolean aclUpdate = ExperimentAccessManager.updateAccessControlEntities(ds, tx, experiment, experimentKey, timezone);
-        if (aclUpdate) {
-          tx.commit();
-          return null;
-        }
+        ExperimentAccessManager.updateAccessControlEntities(ds, tx, experiment, experimentKey, timezone);
+        tx.commit();
+        return null;
       } catch (Exception e) {
         e.printStackTrace();
+        throw new IllegalStateException(e);
       } finally {
         if (tx.isActive()) {
           tx.rollback();
         }
       }
-
-      return null;
     }
     throw new IllegalStateException(loggedInUserEmail + " does not have permission to edit " + experiment.getTitle());
 
@@ -144,10 +142,22 @@ class DefaultExperimentService implements ExperimentService {
       throw new IllegalArgumentException("Cannot delete experiment: " + experimentId + " because it does not exist");
     }
     if (ExperimentAccessManager.isUserAllowedToDeleteExperiment(experimentId, loggedInUserEmail)) {
-      Boolean result = ExperimentJsonEntityManager.delete(experimentId);
-      if (result) {
-        ExperimentAccessManager.deleteAccessControlEntitiesFor(experimentId);
+      DatastoreService ds = DatastoreServiceFactory.getDatastoreService();
+      TransactionOptions options = TransactionOptions.Builder.withXG(true);
+      Transaction tx = ds.beginTransaction(options);
+      try {
+        ExperimentJsonEntityManager.delete(ds, tx, experimentId);
+        ExperimentAccessManager.deleteAccessControlEntitiesFor(ds, tx, experimentId);
+        tx.commit();
+        return true;
+      } catch (Exception e) {
+        e.printStackTrace();
+      } finally {
+        if (tx.isActive()) {
+          tx.rollback();
+        }
       }
+      return false;
     }
     throw new IllegalStateException(loggedInUserEmail + " does not have permission to delete " + experimentId);
   }
@@ -156,6 +166,33 @@ class DefaultExperimentService implements ExperimentService {
   public Boolean deleteExperiment(ExperimentDAO experimentDAO, String loggedInUserEmail) {
     return deleteExperiment(experimentDAO.getId(), loggedInUserEmail);
   }
+
+  @Override
+  public Boolean deleteExperiments(List<Long> experimentIds, String email) {
+    if (experimentIds == null || experimentIds.isEmpty()) {
+      throw new IllegalArgumentException("No ids specified for deletion");
+    }
+    if (ExperimentAccessManager.isUserAllowedToDeleteExperiments(experimentIds, email)) {
+      DatastoreService ds = DatastoreServiceFactory.getDatastoreService();
+      TransactionOptions options = TransactionOptions.Builder.withXG(true);
+      Transaction tx = ds.beginTransaction(options);
+      try {
+        ExperimentJsonEntityManager.delete(ds, tx, experimentIds);
+        ExperimentAccessManager.deleteAccessControlEntitiesFor(ds, tx, experimentIds);
+        tx.commit();
+        return true;
+      } catch (Exception e) {
+        e.printStackTrace();
+      } finally {
+        if (tx.isActive()) {
+          tx.rollback();
+        }
+      }
+      return false;
+    }
+    throw new IllegalStateException(email + " does not have permission to delete one or more of the experiments: " + Joiner.on(",").join(experimentIds));
+  }
+
 
 
   @Override
@@ -289,5 +326,6 @@ class DefaultExperimentService implements ExperimentService {
       return lastEndDate;
     }
   }
+
 
 }

@@ -36,7 +36,7 @@ public class ExperimentServletSelectedExperimentsFullLoadHandler extends Experim
     return ExperimentServiceFactory.getExperimentService().getExperimentsById(experimentIds, email, timezone);
   }
 
-  private List<Long> parseExperimentIds(String expStr) {
+  public static List<Long> parseExperimentIds(String expStr) {
     List<Long> experimentIds = Lists.newArrayList();
     Iterable<String> strIds = Splitter.on(",").trimResults().split(expStr);
     for (String id : strIds) {
@@ -48,7 +48,7 @@ public class ExperimentServletSelectedExperimentsFullLoadHandler extends Experim
     return experimentIds;
   }
 
-  private Long extractExperimentId(String expStr) {
+  private static Long extractExperimentId(String expStr) {
     try {
       return Long.parseLong(expStr, 10);
     } catch (NumberFormatException e) {
