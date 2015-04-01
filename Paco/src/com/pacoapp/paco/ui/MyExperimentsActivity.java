@@ -33,6 +33,7 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.drawable.ColorDrawable;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Build;
@@ -77,7 +78,6 @@ import com.google.android.apps.paco.WelcomeActivity;
 import com.google.common.collect.Lists;
 import com.google.paco.shared.model2.ExperimentGroup;
 import com.google.paco.shared.util.ExperimentHelper;
-import com.google.paco.shared.util.TimeUtil;
 import com.pacoapp.paco.R;
 import com.pacoapp.paco.os.RingtoneUtil;
 
@@ -116,6 +116,7 @@ public class MyExperimentsActivity extends ActionBarActivity {
     actionBar.setLogo(R.drawable.ic_launcher);
     actionBar.setDisplayUseLogoEnabled(true);
     actionBar.setDisplayShowHomeEnabled(true);
+    actionBar.setBackgroundDrawable(new ColorDrawable(0xff4A53B3));
     // TODO would this work if it is in the Systemchangereceiver ?
     new RingtoneUtil(this).installPacoBarkRingtone();
 
@@ -129,7 +130,7 @@ public class MyExperimentsActivity extends ActionBarActivity {
 
     experimentProviderUtil = new ExperimentProviderUtil(this);
 
-    reloadAdapter();
+
     registerForContextMenu(list);
   }
 
@@ -157,6 +158,7 @@ public class MyExperimentsActivity extends ActionBarActivity {
       Intent acctChooser = new Intent(this, AccountChooser.class);
       this.startActivity(acctChooser);
     }
+    reloadAdapter();
   }
 
   private void showDataForExperiment(Experiment experiment, List<ExperimentGroup> groups) {
@@ -235,25 +237,26 @@ public class MyExperimentsActivity extends ActionBarActivity {
 
   private TextView createListHeader() {
     TextView listHeader = (TextView) findViewById(R.id.ExperimentListTitle);
-    String header = getString(R.string.running_experiments_title);
+    String header = getString(R.string.your_current_experiments);
     listHeader.setText(header);
     listHeader.setTextSize(25);
+    listHeader.setBackgroundColor(0xffdddddd);
     return listHeader;
   }
 
-  private TextView createRefreshHeader() {
-    TextView listHeader = (TextView) findViewById(R.id.ExperimentRefreshTitle);
-    DateTime lastRefresh = userPrefs.getJoinedExperimentListRefreshTime();
-    if (lastRefresh == null) {
-      listHeader.setVisibility(View.GONE);
-    } else {
-      String lastRefreshTime = TimeUtil.formatDateTime(lastRefresh);
-      String header = getString(R.string.last_refreshed) + ": " + lastRefreshTime;
-      listHeader.setText(header);
-      listHeader.setTextSize(15);
-    }
-    return listHeader;
-  }
+//  private TextView createRefreshHeader() {
+//    TextView listHeader = (TextView) findViewById(R.id.ExperimentRefreshTitle);
+//    DateTime lastRefresh = userPrefs.getJoinedExperimentListRefreshTime();
+//    if (lastRefresh == null) {
+//      listHeader.setVisibility(View.GONE);
+//    } else {
+//      String lastRefreshTime = TimeUtil.formatDateTime(lastRefresh);
+//      String header = getString(R.string.last_refreshed) + ": " + lastRefreshTime;
+//      listHeader.setText(header);
+//      listHeader.setTextSize(15);
+//    }
+//    return listHeader;
+//  }
 
   protected Dialog onCreateDialog(int id, Bundle args) {
     switch (id) {

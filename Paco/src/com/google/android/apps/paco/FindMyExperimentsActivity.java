@@ -27,11 +27,11 @@ import java.util.Map;
 
 import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.map.JsonMappingException;
-import org.joda.time.DateTime;
 
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.support.v4.app.DialogFragment;
@@ -55,7 +55,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.common.collect.Lists;
-import com.google.paco.shared.util.TimeUtil;
 import com.pacoapp.paco.R;
 
 
@@ -94,6 +93,7 @@ public class FindMyExperimentsActivity extends ActionBarActivity implements Netw
     actionBar.setLogo(R.drawable.ic_launcher);
     actionBar.setDisplayUseLogoEnabled(true);
     actionBar.setDisplayShowHomeEnabled(true);
+    actionBar.setBackgroundDrawable(new ColorDrawable(0xff4A53B3));
 
     Intent intent = getIntent();
     if (intent.getData() == null) {
@@ -102,8 +102,8 @@ public class FindMyExperimentsActivity extends ActionBarActivity implements Netw
 
     userPrefs = new UserPreferences(this);
     list = (ListView) findViewById(R.id.find_experiments_list);
-    createListHeader();
-    createRefreshHeader();
+//    createListHeader();
+//    createRefreshHeader();
 
     experimentProviderUtil = new ExperimentProviderUtil(this);
 
@@ -199,26 +199,26 @@ public class FindMyExperimentsActivity extends ActionBarActivity implements Netw
     return listHeader;
   }
 
-  private TextView createRefreshHeader() {
-    TextView listHeader = (TextView)findViewById(R.id.ExperimentRefreshTitle);
-    DateTime lastRefresh = userPrefs.getAvailableExperimentListRefreshTime();
-    if (lastRefresh == null) {
-      listHeader.setVisibility(View.GONE);
-    } else {
-      String lastRefreshTime = TimeUtil.dateTimeNoZoneFormatter.print(lastRefresh);
-      String header = getString(R.string.last_refreshed) + ": " + lastRefreshTime;
-      listHeader.setText(header);
-      listHeader.setTextSize(15);
-    }
-    return listHeader;
-  }
+//  private TextView createRefreshHeader() {
+//    TextView listHeader = (TextView)findViewById(R.id.ExperimentRefreshTitle);
+//    DateTime lastRefresh = userPrefs.getAvailableExperimentListRefreshTime();
+//    if (lastRefresh == null) {
+//      listHeader.setVisibility(View.GONE);
+//    } else {
+//      String lastRefreshTime = TimeUtil.dateTimeNoZoneFormatter.print(lastRefresh);
+//      String header = getString(R.string.last_refreshed) + ": " + lastRefreshTime;
+//      listHeader.setText(header);
+//      listHeader.setTextSize(15);
+//    }
+//    return listHeader;
+//  }
 
   private void saveRefreshTime() {
     userPrefs.setMyExperimentListRefreshTime(new Date().getTime());
-    TextView listHeader = (TextView)findViewById(R.id.ExperimentRefreshTitle);
-    DateTime lastRefresh = userPrefs.getMyExperimentListRefreshTime();
-    String header = getString(R.string.last_refreshed) + ": " + TimeUtil.dateTimeNoZoneFormatter.print(lastRefresh);
-    listHeader.setText(header);
+//    TextView listHeader = (TextView)findViewById(R.id.ExperimentRefreshTitle);
+//    DateTime lastRefresh = userPrefs.getMyExperimentListRefreshTime();
+//    String header = getString(R.string.last_refreshed) + ": " + TimeUtil.dateTimeNoZoneFormatter.print(lastRefresh);
+//    listHeader.setText(header);
   }
 
   public void showNetworkConnectionActivity() {

@@ -34,11 +34,11 @@
             android:id="@+id/ExperimentListTitle"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="center|top"
+            android:layout_gravity="left|top"
             android:background="@drawable/list_header_background"
             android:gravity="center|top"
             android:text="@string/your_current_experiments"
-            android:textColor="#ffffff" />
+            android:textColor="#000000" />
 
         <ProgressBar
             android:id="@+id/findExperimentsProgressBar"

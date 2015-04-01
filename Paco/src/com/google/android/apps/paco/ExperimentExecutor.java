@@ -30,6 +30,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
+import android.graphics.drawable.ColorDrawable;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
@@ -104,6 +105,7 @@ public class ExperimentExecutor extends ActionBarActivity implements ChangeListe
     actionBar.setDisplayUseLogoEnabled(true);
     actionBar.setDisplayShowHomeEnabled(true);
     actionBar.setDisplayShowTitleEnabled(false);
+    actionBar.setBackgroundDrawable(new ColorDrawable(0xff4A53B3));
 
     experimentProviderUtil = new ExperimentProviderUtil(this);
     loadNotificationData();

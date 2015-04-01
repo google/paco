@@ -48,6 +48,7 @@ import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.CompressFormat;
 import android.graphics.BitmapFactory;
+import android.graphics.drawable.ColorDrawable;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
@@ -150,7 +151,7 @@ public class ExperimentExecutorCustomRendering extends ActionBarActivity impleme
     actionBar.setDisplayUseLogoEnabled(true);
     actionBar.setDisplayShowHomeEnabled(true);
     actionBar.setDisplayShowTitleEnabled(false);
-
+    actionBar.setBackgroundDrawable(new ColorDrawable(0xff4A53B3));
 
     experimentProviderUtil = new ExperimentProviderUtil(this);
     loadNotificationData();

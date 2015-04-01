@@ -6,6 +6,7 @@ import org.joda.time.DateTime;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.NavUtils;
@@ -82,6 +83,7 @@ public class ScheduleListActivity extends ActionBarActivity implements ScheduleL
     actionBar.setLogo(R.drawable.ic_launcher);
     actionBar.setDisplayUseLogoEnabled(true);
     actionBar.setDisplayShowHomeEnabled(true);
+    actionBar.setBackgroundDrawable(new ColorDrawable(0xff4A53B3));
 
     IntentExtraHelper.loadExperimentInfoFromIntent(this, getIntent(), experimentProviderUtil);
 

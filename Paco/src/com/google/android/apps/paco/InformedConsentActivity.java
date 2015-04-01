@@ -30,6 +30,7 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
@@ -76,6 +77,7 @@ public class InformedConsentActivity extends ActionBarActivity implements Experi
     actionBar.setLogo(R.drawable.ic_launcher);
     actionBar.setDisplayUseLogoEnabled(true);
     actionBar.setDisplayShowHomeEnabled(true);
+    actionBar.setBackgroundDrawable(new ColorDrawable(0xff4A53B3));
 
     final Intent intent = getIntent();
 

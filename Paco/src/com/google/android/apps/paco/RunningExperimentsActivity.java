@@ -21,7 +21,6 @@ import java.io.IOException;
 import java.nio.charset.UnsupportedCharsetException;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.List;
 
 import org.codehaus.jackson.JsonParseException;
@@ -52,7 +51,6 @@ import android.widget.TextView;
 import com.google.common.collect.Lists;
 import com.google.paco.shared.model2.ExperimentGroup;
 import com.google.paco.shared.util.ExperimentHelper;
-import com.google.paco.shared.util.TimeUtil;
 import com.pacoapp.paco.R;
 import com.pacoapp.paco.ui.ScheduleListActivity;
 
@@ -90,8 +88,8 @@ public class RunningExperimentsActivity extends Activity {
     userPrefs = new UserPreferences(this);
     list = (ListView) findViewById(R.id.find_experiments_list);
     list.setBackgroundColor(333);
-    createListHeader();
-    createRefreshHeader();
+//    createListHeader();
+//    createRefreshHeader();
 
     experimentProviderUtil = new ExperimentProviderUtil(this);
 
@@ -182,11 +180,11 @@ public class RunningExperimentsActivity extends Activity {
   }
 
   private void saveRefreshTime() {
-    userPrefs.setJoinedExperimentListRefreshTime(new Date().getTime());
-    TextView listHeader = (TextView)findViewById(R.id.ExperimentRefreshTitle);
-    DateTime lastRefresh = userPrefs.getJoinedExperimentListRefreshTime();
-    String header = getString(R.string.last_refreshed) + ": " + TimeUtil.formatDateTime(lastRefresh);
-    listHeader.setText(header);
+//    userPrefs.setJoinedExperimentListRefreshTime(new Date().getTime());
+//    TextView listHeader = (TextView)findViewById(R.id.ExperimentRefreshTitle);
+//    DateTime lastRefresh = userPrefs.getJoinedExperimentListRefreshTime();
+//    String header = getString(R.string.last_refreshed) + ": " + TimeUtil.formatDateTime(lastRefresh);
+//    listHeader.setText(header);
   }
 
   private void showFailureDialog(String status) {
@@ -329,17 +327,18 @@ public class RunningExperimentsActivity extends Activity {
   }
 
   private TextView createRefreshHeader() {
-    TextView listHeader = (TextView)findViewById(R.id.ExperimentRefreshTitle);
-    DateTime lastRefresh = userPrefs.getJoinedExperimentListRefreshTime();
-    if (lastRefresh == null) {
-      listHeader.setVisibility(View.GONE);
-    } else {
-      String lastRefreshTime = TimeUtil.formatDateTime(lastRefresh);
-      String header = getString(R.string.last_refreshed) + ": " + lastRefreshTime;
-      listHeader.setText(header);
-      listHeader.setTextSize(15);
-    }
-    return listHeader;
+    return null;
+//    TextView listHeader = (TextView)findViewById(R.id.ExperimentRefreshTitle);
+//    DateTime lastRefresh = userPrefs.getJoinedExperimentListRefreshTime();
+//    if (lastRefresh == null) {
+//      listHeader.setVisibility(View.GONE);
+//    } else {
+//      String lastRefreshTime = TimeUtil.formatDateTime(lastRefresh);
+//      String header = getString(R.string.last_refreshed) + ": " + lastRefreshTime;
+//      listHeader.setText(header);
+//      listHeader.setTextSize(15);
+//    }
+//    return listHeader;
   }
 
 

@@ -30,26 +30,6 @@
         android:gravity="center|top"
         android:orientation="vertical" >
 
-        <TextView
-            android:id="@+id/ExperimentListTitle"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center|top"
-            android:background="@drawable/list_header_background"
-            android:gravity="center|top"
-            android:text="@string/your_current_experiments"
-            android:textColor="#ffffff" />
-
-        <TextView
-            android:id="@+id/ExperimentRefreshTitle"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center|top"
-            android:background="@drawable/list_header_background"
-            android:gravity="center|top"
-            android:text="@string/last_refreshed"
-            android:textColor="#ffffff" />
-
         <ProgressBar
             android:id="@+id/findExperimentsProgressBar"
             style="@android:style/Widget.ProgressBar.Horizontal"

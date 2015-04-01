@@ -6,6 +6,7 @@ import org.joda.time.DateTime;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.NavUtils;
@@ -63,6 +64,7 @@ public class ScheduleDetailActivity extends ActionBarActivity implements Schedul
     actionBar.setLogo(R.drawable.ic_launcher);
     actionBar.setDisplayUseLogoEnabled(true);
     actionBar.setDisplayShowHomeEnabled(true);
+    actionBar.setBackgroundDrawable(new ColorDrawable(0xff4A53B3));
 
     // savedInstanceState is non-null when there is fragment state
     // saved from previous configurations of this activity

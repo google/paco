@@ -283,5 +283,5 @@
     
 
     <uses-feature android:name="android.hardware.camera" android:required="false"/>
-    <uses-sdk android:minSdkVersion="10"  android:targetSdkVersion="22"></uses-sdk>
+    <uses-sdk android:minSdkVersion="11"  android:targetSdkVersion="22"></uses-sdk>
 </manifest>
