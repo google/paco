@@ -107,13 +107,9 @@ public class ExperimentJsonUploadProcessor {
 
     List<ValidationMessage> saveExperimentErrorResults = experimentService.saveExperiment(experimentDAO, userFromLogin, timezone);
     if (saveExperimentErrorResults != null) {
-      StringBuilder buf = new StringBuilder();
-      for (ValidationMessage validationMessage : saveExperimentErrorResults) {
-        buf.append(validationMessage.toString());
-        buf.append("\n");
-      }
-      outcome.setError("Could not save experiment: " + objectId +". ExperimentId: " + experimentDAO.getId()
-                       + ". title: " + experimentDAO.getTitle() +"\nErrors:\n" + buf.toString());
+      ObjectMapper mapper = JsonConverter.getObjectMapper();
+      String json = mapper.writeValueAsString(saveExperimentErrorResults);
+      outcome.setError(json);
     }
     outcome.setExperimentId(experimentDAO.getId());
     return outcome;

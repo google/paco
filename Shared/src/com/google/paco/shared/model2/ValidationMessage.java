@@ -1,6 +1,8 @@
 package com.google.paco.shared.model2;
 
-public class ValidationMessage {
+import java.io.Serializable;
+
+public class ValidationMessage implements Serializable {
 
   private int importance;
   private String msg;
