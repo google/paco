@@ -23,7 +23,6 @@
 
   <div ng-repeat="schedule in trigger.schedules track by $index">
     <md-divider></md-divider>
-
     <div class="section">
       <div class="title">
         <md-button ng-click="showSchedule($event, schedule)">
@@ -31,9 +30,7 @@
         </md-button>
         Schedule {{$index+1}}
       </div>
-
       <span ng-controller="SummaryCtrl" ng-bind="getScheduleSummary()"></span>
-
       <a class="remove-button" ng-if="trigger.schedules.length>1" href="" ng-click="remove(trigger.schedules, $index)">
       </a>
     </div>
@@ -41,7 +38,6 @@
 
   <div ng-repeat="cue in trigger.cues track by $index">
     <md-divider></md-divider>
-
     <div class="section">
       <div class="title">
         <md-button ng-click="showCue($event, cue)">
@@ -49,18 +45,14 @@
         </md-button>
         Cue {{$index+1}}
       </div>
-
       <span ng-controller="SummaryCtrl" ng-bind="getCueSummary()"></span>
-
       <a class="remove-button" ng-if="trigger.cues.length>1" href="" ng-click="remove(trigger.cues, $index)">
       </a>
     </div>
   </div>
 
-
   <div ng-repeat="action in trigger.actions track by $index">
     <md-divider></md-divider>
-
     <div class="section">
       <div class="title">
         <md-button ng-click="showAction($event, action)">
@@ -68,9 +60,7 @@
         </md-button>
         Action {{$index+1}}
       </div>
-
       <span ng-controller="SummaryCtrl" ng-bind="getActionSummary()"></span>
-
       <a class="remove-button" ng-if="trigger.actions.length>1" href="" ng-click="remove(trigger.actions, $index)"></a>
     </div>
   </div>

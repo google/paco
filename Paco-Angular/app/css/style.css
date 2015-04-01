@@ -8,14 +8,12 @@ body, html {
   position: relative;
   left: 50%;
   margin-left: -480px;
+  padding: 16px;
 }
 
-
-
-
 md-card {
-  margin: 16px;
   overflow: hidden;
+  margin: 0px;
 }
 
 md-card-content {
@@ -100,3 +98,14 @@ md-dialog li {
   padding: 20px;
   width: 100%;
 }
+
+div[ui-ace] {
+  height: 600px;
+}
+
+.error {
+  color: red;
+  font-weight: 500;
+  margin-left: 16px;
+}
+
