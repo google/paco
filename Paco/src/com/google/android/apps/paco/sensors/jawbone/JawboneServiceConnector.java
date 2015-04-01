@@ -1,6 +1,11 @@
 package com.google.android.apps.paco.sensors.jawbone;
 
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import android.content.ComponentName;
 import android.content.Context;
@@ -14,13 +19,14 @@ import android.util.Log;
 
 import com.bodymedia.mobile.jrs.JawboneDataService;
 import com.google.android.apps.paco.PacoConstants;
+import com.google.android.apps.paco.sensors.StepSensor;
 
 /**
  * This is a one-shot connector used by a script to retrieve the current step count from the JRS service.
  *
  *This is based on the example app from Jawbone research showing how to use the JRS service.
  */
-public class JawboneServiceConnector {
+public class JawboneServiceConnector implements StepSensor {
 
   private static final String JAWBONE_SERVICE_DOMAIN = "com.bodymedia.mobile.jrs.service.JawboneService";
 
@@ -46,7 +52,7 @@ public class JawboneServiceConnector {
       jawboneService = JawboneDataService.Stub.asInterface(service);
       bound = true;
       Log.i(PacoConstants.TAG, "Jawbone service connected");
-      showKeys();
+      //showKeys();
     }
 
     public void onServiceDisconnected(ComponentName className) {
@@ -73,12 +79,9 @@ public class JawboneServiceConnector {
     }
   }
 
-  /**
-   * The main step count method
-   * @param string
-   */
-  public void getCurrentStepCount() {
-    queryForValue("<insert proper key here?");
+  @Override
+  public Integer getStepCount() {
+    return queryForValue("steps_today");
   }
 
   /**
@@ -87,31 +90,42 @@ public class JawboneServiceConnector {
    *
    * @param key
    *          one of the existing keys.
+   * @return
    */
-  void queryForValue(final String key) {
+  Integer queryForValue(final String key) {
     if (!bound)
-      return;
+      return -1;
 
     Log.i(PacoConstants.TAG, "Calling service for data");
-    new Thread(new Runnable() {
-      @Override
-      public void run() {
-        try {
-          final int value = jawboneService.getValue(key);
-          if (isErrorCode(value)) {
-            Log.e(PacoConstants.TAG, "Error code received: " + value);
-            Log.e(PacoConstants.TAG, "Error message: " + getErrorMessage(value));
-            return;
-          }
-
-          Log.i(PacoConstants.TAG, "Received response: " + String.valueOf(value));
-        } catch (RemoteException e) {
-          e.printStackTrace();
-        }
-        context.unbindService(mConnection);
-        unbindState("Done with request. Unbinding service");
-      }
-    }).start();
+//    new Thread(new Runnable() {
+//      @Override
+//      public void run() {
+//        try {
+//          final int value = jawboneService.getValue(key);
+//          if (isErrorCode(value)) {
+//            Log.e(PacoConstants.TAG, "Error code received: " + value);
+//            Log.e(PacoConstants.TAG, "Error message: " + getErrorMessage(value));
+//            return;
+//          }
+//
+//          Log.i(PacoConstants.TAG, "Received response: " + String.valueOf(value));
+//        } catch (RemoteException e) {
+//          e.printStackTrace();
+//        }
+//        context.unbindService(mConnection);
+//        unbindState("Done with request. Unbinding service");
+//      }
+//    }).start();
+    StepCountSensorFuture future = new StepCountSensorFuture(jawboneService, key);
+    future.retrieveValue(key);
+    try {
+      return future.get();
+    } catch (InterruptedException e) {
+      e.printStackTrace();
+    } catch (ExecutionException e) {
+      e.printStackTrace();
+    }
+    return -1;
   }
 
 
@@ -200,4 +214,73 @@ public class JawboneServiceConnector {
 
     return explicitIntent;
   }
+
+
+  public class StepCountSensorFuture implements Future<Integer> {
+
+    private volatile Integer result = null;
+    private volatile boolean cancelled = false;
+    private final CountDownLatch countDownLatch;
+    private JawboneDataService jawboneService;
+
+    public StepCountSensorFuture(JawboneDataService jawboneService, String key) {
+      this.jawboneService = jawboneService;
+      countDownLatch = new CountDownLatch(1);
+    }
+
+    public void retrieveValue(String key) {
+      try {
+        int value = jawboneService.getValue(key);
+        if (isErrorCode(value)) {
+          Log.e(PacoConstants.TAG, "Error code received: " + value);
+          Log.e(PacoConstants.TAG, "Error message: " + getErrorMessage(value));
+        }
+        onResult(value);
+      } catch (RemoteException e) {
+        Log.e(PacoConstants.TAG, "RemoteException received: " + e);
+        onResult(-1);
+      }
+    }
+
+    @Override
+    public boolean cancel(final boolean mayInterruptIfRunning) {
+        if (isDone()) {
+            return false;
+        } else {
+            countDownLatch.countDown();
+            cancelled = true;
+            return !isDone();
+        }
+    }
+
+    @Override
+    public Integer get() throws InterruptedException, ExecutionException {
+        countDownLatch.await();
+        return result;
+    }
+
+    @Override
+    public Integer get(final long timeout, final TimeUnit unit)
+            throws InterruptedException, ExecutionException, TimeoutException {
+        countDownLatch.await(timeout, unit);
+        return result;
+    }
+
+    @Override
+    public boolean isCancelled() {
+        return cancelled;
+    }
+
+    @Override
+    public boolean isDone() {
+        return countDownLatch.getCount() == 0;
+    }
+
+    public void onResult(final Integer result) {
+        this.result = result;
+        countDownLatch.countDown();
+    }
+
+}
+
 }

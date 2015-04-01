@@ -19,12 +19,26 @@ public class JavascriptSensorManager {
    * @return
    */
   @JavascriptInterface
-  public Integer getStepCount() {
-    StepSensor stepSensor = StepSensorFactory.getStepSensor(context);
+  public Integer getStepCountFrom(int type) {
+    StepSensor stepSensor = StepSensorFactory.getStepSensor(context, type);
     if (stepSensor != null) {
       return stepSensor.getStepCount();
     }
     return -1;
   }
+
+  /**
+   * Returns -1 if there is no step sensor in the phone.
+   * @return
+   */
+  @JavascriptInterface
+  public Integer getStepCount() {
+    StepSensor stepSensor = StepSensorFactory.getStepSensor(context, StepSensorFactory.JAWBONE_STEP_SENSOR);
+    if (stepSensor != null) {
+      return stepSensor.getStepCount();
+    }
+    return -1;
+  }
+
 
 }

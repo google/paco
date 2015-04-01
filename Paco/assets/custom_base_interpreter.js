@@ -4,7 +4,6 @@ var paco = (function (init) {
   
   obj.createResponseForInput = function(input) {
     return { "name" : input.name, 
-             "inputId" : input.id, 
              "prompt" : input.text,
              "isMultiselect" : input.isMultiselect,
              "answer" : input.answer, 
