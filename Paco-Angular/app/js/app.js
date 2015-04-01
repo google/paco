@@ -1,6 +1,7 @@
 var pacoApp = angular.module('pacoApp', [
   'ngRoute',
-  'ngMaterial'
+  'ngMaterial',
+  'ui.ace'
 ]);
 
 pacoApp.config(['$routeProvider',

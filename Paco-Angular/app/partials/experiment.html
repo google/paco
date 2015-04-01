@@ -18,7 +18,7 @@
           Questions
         </md-tab>
         <md-tab id="tab4" ng-if="experiment">
-          Consent
+          Admin
         </md-tab>
         <md-tab id="tab3" ng-if="experiment">
           Source
@@ -35,14 +35,23 @@
       <div ng-include="'partials/groups.html'"></div>
     </div>
     <div role="tabpanel" ng-switch-when="3" class="admin">
-      <div class="padded">
-        JSON data for experiment
-        <br />
-        <textarea ng-blur="convertBack($event)">{{experiment|json}}</textarea>
-      </div>
+      <p>
+        JSON source code for experiment
+        <span class="error" ng-if="aceError">Syntax Error!</span>
+      </p>
+      <md-card>
+        <md-card-content>
+          <div ui-ace="{
+            onChange: aceChanged, 
+            onLoad : aceLoaded, 
+            mode: 'javascript'
+          }" ng-model="experimentJSON"></div>
+        </md-card-content>
+      </md-card>
+
     </div>
     <div role="tabpanel" ng-switch-when="2">
-      <div ng-include="'partials/consent.html'" class="padded"></div>
+      <div ng-include="'partials/consent.html'"></div>
     </div>
   </ng-switch>
 </div>

@@ -4,33 +4,56 @@ pacoApp.controller('ExperimentCtrl', ['$scope', '$http',
 
     $scope.tabIndex = 0;
 
+    $scope.experimentJSON = "Hello world!";
 
-      if ($scope.experimentId == -1) {
-        $scope.experiment = angular.copy(template.experiment);
+    if ($scope.experimentId == -1) {
+      $scope.experiment = angular.copy(template.experiment);
 
-       if ($scope.user) {
-         $scope.experiment.creator = $scope.user;
-         $scope.experiment.contactEmail = $scope.user;
-         $scope.experiment.admins.push($scope.user);
-       }
-
-        $scope.tabIndex = 0;
-      } else if ($scope.experimentId) {
-        $http.get('/experiments?id=' + $scope.experimentId).success(function(
-        data) {
-          $scope.experiment = data[0];
-        });
-        $scope.tabIndex = 1;
+      if ($scope.user) {
+        $scope.experiment.creator = $scope.user;
+        $scope.experiment.contactEmail = $scope.user;
+        $scope.experiment.admins.push($scope.user);
       }
 
-      $scope.$watch('user', function(newValue, oldValue) {
-        if ($scope.newExperiment) {
-          $scope.experiment.creator = $scope.user;
-          $scope.experiment.contactEmail = $scope.user;
-          $scope.experiment.admins = [$scope.user];
-        }
-      });
-         
+      $scope.tabIndex = 0;
+    } else if ($scope.experimentId) {
+      $http.get('/experiments?id=' + $scope.experimentId).success(
+        function(data) {
+          $scope.experiment = data[0];
+          $scope.tabIndex = 1;
+        });
+
+    }
+
+    $scope.$watch('user', function(newValue, oldValue) {
+      if ($scope.newExperiment) {
+        $scope.experiment.creator = $scope.user;
+        $scope.experiment.contactEmail = $scope.user;
+        $scope.experiment.admins = [$scope.user];
+      }
+    });
+
+    // Ace is loaded when the Source tab is selected so load pretty JSON here
+    $scope.aceLoaded = function(_e) {
+      $scope.aceSession = _e.getSession();
+      $scope.experimentJSON = JSON.stringify($scope.experiment, null, '  ');
+    };
+
+    // Ace doesn't seem to propagate changes back up to this controller. So as 
+    // a work-around, use the session to get the current value.
+    $scope.aceChanged = function(_e) {
+
+      var aceValue = $scope.aceSession.getValue();
+      try {
+        var exp = JSON.parse(aceValue);
+      } catch (e) {
+        $scope.aceError = true;
+        return false;
+      }
+      $scope.aceError = false;
+      $scope.experiment = exp;
+    }
+
 
     $scope.saveExperiment = function() {
       $http.post('/experiments', $scope.experiment).success(function(data) {
@@ -113,7 +136,7 @@ pacoApp.controller('HomeCtrl', ['$scope', '$http', '$routeParams', '$location',
       } else {
         $scope.experimentId = parseInt($routeParams.experimentId);
       }
-    }          
+    }
 
     $scope.addExperiment = function() {
       $location.path('/experiment/new');
