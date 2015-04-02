@@ -1,10 +1,47 @@
+pacoApp.controller('HomeCtrl', ['$scope', '$http', '$routeParams', '$location',
+  function($scope, $http, $routeParams, $location) {
+    $scope.newExperiment = false;
+    $scope.experimentId = false;
+
+    $http.get('/userinfo').success(function(data) {
+
+      // For now, make sure email isn't bobevans999@gmail for local dev testing
+      if (data.user && data.user !== 'yourGoogleEmail@here.com') {
+        $scope.user = data.user;
+
+        $http.get('/experiments?mine').success(function(data) {
+          $scope.experiments = data;
+        });
+      } else {
+        $scope.loginURL = data.login;
+      }
+
+    }).error(function(data) {
+      console.log(data);
+    });
+
+
+    if (angular.isDefined($routeParams.experimentId)) {
+      if ($routeParams.experimentId == 'new') {
+        $scope.newExperiment = true;
+        $scope.experimentId = -1;
+      } else {
+        $scope.experimentId = parseInt($routeParams.experimentId);
+      }
+    }
+
+    $scope.addExperiment = function() {
+      $location.path('/experiment/new');
+    };
+  }
+]);
+
+
 pacoApp.controller('ExperimentCtrl', ['$scope', '$http',
   '$mdDialog', '$filter', 'template', '$location',
   function($scope, $http, $mdDialog, $filter, template, $location) {
-
     $scope.tabIndex = 0;
-
-    $scope.experimentJSON = "Hello world!";
+    $scope.ace = {};
 
     if ($scope.experimentId == -1) {
       $scope.experiment = angular.copy(template.experiment);
@@ -22,7 +59,6 @@ pacoApp.controller('ExperimentCtrl', ['$scope', '$http',
           $scope.experiment = data[0];
           $scope.tabIndex = 1;
         });
-
     }
 
     $scope.$watch('user', function(newValue, oldValue) {
@@ -33,27 +69,25 @@ pacoApp.controller('ExperimentCtrl', ['$scope', '$http',
       }
     });
 
-    // Ace is loaded when the Source tab is selected so load pretty JSON here
-    $scope.aceLoaded = function(_e) {
-      $scope.aceSession = _e.getSession();
-      $scope.experimentJSON = JSON.stringify($scope.experiment, null, '  ');
+    myScope = $scope;
+    // Ace is reloaded when the Source tab is selected so get pretty JSON here
+    $scope.aceLoaded = function(editor) {
+      $scope.ace = {
+        JSON: JSON.stringify($scope.experiment, null, '  '),
+        error: false
+      };
     };
 
-    // Ace doesn't seem to propagate changes back up to this controller. So as 
-    // a work-around, use the session to get the current value.
-    $scope.aceChanged = function(_e) {
-
-      var aceValue = $scope.aceSession.getValue();
+    $scope.$watch('ace.JSON', function(newValue, oldValue) {
       try {
-        var exp = JSON.parse(aceValue);
+        var exp = JSON.parse(newValue);
       } catch (e) {
-        $scope.aceError = true;
+        $scope.ace.error = true;
         return false;
       }
-      $scope.aceError = false;
+      $scope.ace.error = false;
       $scope.experiment = exp;
-    }
-
+    });
 
     $scope.saveExperiment = function() {
       $http.post('/experiments', $scope.experiment).success(function(data) {
@@ -68,7 +102,6 @@ pacoApp.controller('ExperimentCtrl', ['$scope', '$http',
             );
 
             if ($scope.newExperiment) {
-              console.log(data);
               $location.path('/experiment/' + data[0].experimentId);
             }
 
@@ -103,48 +136,6 @@ pacoApp.controller('ExperimentCtrl', ['$scope', '$http',
     };
   }
 ]);
-
-
-pacoApp.controller('HomeCtrl', ['$scope', '$http', '$routeParams', '$location',
-  function($scope, $http, $routeParams, $location) {
-    $scope.newExperiment = false;
-    $scope.experimentId = false;
-
-    $http.get('/userinfo').success(function(data) {
-
-      console.log(data);
-      // For now, make sure email isn't bobevans999@gmail for local dev testing
-      if (data.user && data.user !== 'yourGoogleEmail@here.com') {
-        $scope.user = data.user;
-
-        $http.get('/experiments?mine').success(function(data) {
-          $scope.experiments = data;
-        });
-      } else {
-        $scope.loginURL = data.login;
-      }
-
-    }).error(function(data) {
-      console.log(data);
-    });
-
-
-    if (angular.isDefined($routeParams.experimentId)) {
-      if ($routeParams.experimentId == 'new') {
-        $scope.newExperiment = true;
-        $scope.experimentId = -1;
-      } else {
-        $scope.experimentId = parseInt($routeParams.experimentId);
-      }
-    }
-
-    $scope.addExperiment = function() {
-      $location.path('/experiment/new');
-    };
-  }
-]);
-
-
 
 
 pacoApp.controller('GroupCtrl', ['$scope', 'template',

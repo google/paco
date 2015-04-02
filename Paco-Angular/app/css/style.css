@@ -13,7 +13,7 @@ body, html {
 
 md-card {
   overflow: hidden;
-  margin: 0px;
+  margin: 16px 0 16px 0;
 }
 
 md-card-content {
@@ -90,16 +90,7 @@ md-dialog li {
   width: 224px;
 }
 
-.admin textarea {
-  border: 1px solid #e5e5e5;
-  box-sizing: border-box;
-  font-family: monospace;
-  height: 600px;
-  padding: 20px;
-  width: 100%;
-}
-
-div[ui-ace] {
+.source div[ui-ace] {
   height: 600px;
 }
 

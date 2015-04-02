@@ -1,9 +1,8 @@
-.groups > button {
-  margin: 16px;
-}
+/*.groups > button {
+  margin: 8px 0 8px 0;
+}*/
 
 .group {
-  margin-top: 32px;
   position: relative;
 }
 
@@ -12,7 +11,7 @@
   height: 26px;
   opacity: .5;
   position: absolute;
-  right: 31px;
+  right: 8px;
   top: 31px;
   width: 26px;
 }
@@ -22,8 +21,8 @@
 }
 
 .group .header > md-input-container {
-  margin: 16px;
   padding-bottom: 0;
+  margin-top: 16px;
   width: 200px
 }
 

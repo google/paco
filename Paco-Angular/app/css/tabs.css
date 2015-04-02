@@ -23,30 +23,30 @@ md-toolbar .paco {
   background: white;
   border-radius: 50%;
   height: 96px;
-  margin: 12px;
-  padding: 12px;
+  margin: 16px;
+  padding: 16px;
   width: 96px;
 }
 
 md-toolbar .title {
   font-size: 34px;
   position: absolute;
-  left: 120px;
-  top: 24px;
+  left: 128px;
+  top: 32px;
   text-transform: uppercase;
 }
 
 md-toolbar #login {
   position: absolute;
-  top: 16px;
+  top: 24px;
   right: 16px;
 }
 
 md-toolbar .subtitle {
   font-size: 18px;
   position: absolute;
-  left: 120px;
-  top: 64px;
+  left: 128px;
+  top: 72px;
 }
 
 .md-button {

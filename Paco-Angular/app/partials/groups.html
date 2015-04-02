@@ -1,9 +1,9 @@
 <div class="groups">
-  <p>
-    <md-button class="md-raised" ng-click="addGroup()">
-      Add Experiment Group
+
+  <md-button add-icon  ng-click="addGroup()">
+      Experiment Group
     </md-button>
-  </p>
+
   <div class="group" ng-repeat="group in experiment.groups track by $index" ng-controller="GroupCtrl">
     <div class="header" ng-if="experiment.groups.length>1">
       <md-input-container ng-if="experiment.groups.length>1">
