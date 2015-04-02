@@ -78,6 +78,7 @@ public class SplashActivity extends Activity {
     }
   }
 
+
   private void getAuthAccessToken(final String accountName) {
     AccountManager accountManager = AccountManager.get(this);
     Account[] accounts = accountManager.getAccountsByType("com.google");
@@ -111,8 +112,8 @@ public class SplashActivity extends Activity {
 //              Intent result = new Intent();
 //              result.putExtra(AccountChooser.ACCOUNT_NAME, accountName);
 //              SplashActivity.this.setResult(0, result);
-//              SplashActivity.this.finish();
-              finish();
+              SplashActivity.this.finish();
+//              finish();
 
             } catch (OperationCanceledException e) {
               Log.e(PacoConstants.TAG, "The user has denied you access to the API");
@@ -131,6 +132,14 @@ public class SplashActivity extends Activity {
 
   private String getAccessToken() {
     return userPrefs.getAccessToken();
+  }
+
+  @Override
+  protected void onResume() {
+    super.onResume();
+    if (userPrefs.getAccessToken() != null) {
+      finish();
+    }
   }
 
 
