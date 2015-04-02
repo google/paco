@@ -41,7 +41,7 @@ public class SplashActivity extends Activity {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
           Intent intent = AccountManager.newChooseAccountIntent(null, null,
                                                                 new String[]{"com.google"},
-                                                                true,
+                                                                false,
                                                                 null,
                                                                 PacoService.AUTH_TOKEN_TYPE_USERINFO_EMAIL,
                                                                 null, null);
@@ -68,6 +68,8 @@ public class SplashActivity extends Activity {
       if (accountName != null) {
         userPrefs.saveSelectedAccount(accountName);
         getAuthAccessToken(accountName);
+//        String token = GoogleAuthUtil.getToken(this, accountName, PacoService.AUTH_TOKEN_TYPE_USERINFO_EMAIL);
+//        finish();
       } else {
         finish(); // TODO handler errors
       }
@@ -105,11 +107,12 @@ public class SplashActivity extends Activity {
               String accessToken = future.getResult().getString(AccountManager.KEY_AUTHTOKEN);
               Log.i(PacoConstants.TAG, "Got OAuth2 access token: " + accessToken);
               setAccessToken(accessToken);
-
-              Intent result = new Intent();
-              result.putExtra(AccountChooser.ACCOUNT_NAME, accountName);
-              SplashActivity.this.setResult(0, result);
-              SplashActivity.this.finish();
+//
+//              Intent result = new Intent();
+//              result.putExtra(AccountChooser.ACCOUNT_NAME, accountName);
+//              SplashActivity.this.setResult(0, result);
+//              SplashActivity.this.finish();
+              finish();
 
             } catch (OperationCanceledException e) {
               Log.e(PacoConstants.TAG, "The user has denied you access to the API");
