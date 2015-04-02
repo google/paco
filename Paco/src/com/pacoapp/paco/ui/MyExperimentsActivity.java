@@ -52,7 +52,6 @@ import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.google.android.apps.paco.AccountChooser;
 import com.google.android.apps.paco.AndroidEsmSignalStore;
 import com.google.android.apps.paco.BeeperService;
 import com.google.android.apps.paco.BroadcastTriggerReceiver;
@@ -154,11 +153,14 @@ public class MyExperimentsActivity extends ActionBarActivity {
   @Override
   protected void onResume() {
     super.onResume();
-    if (userPrefs.getSelectedAccount() == null) {
-      Intent acctChooser = new Intent(this, AccountChooser.class);
-      this.startActivity(acctChooser);
+    if (userPrefs.getAccessToken() == null) {
+      Intent splash = new Intent(this, SplashActivity.class);
+      this.startActivity(splash);
+//      Intent acctChooser = new Intent(this, AccountChooser.class);
+//      this.startActivity(acctChooser);
+    } else {
+      reloadAdapter();
     }
-    reloadAdapter();
   }
 
   private void showDataForExperiment(Experiment experiment, List<ExperimentGroup> groups) {

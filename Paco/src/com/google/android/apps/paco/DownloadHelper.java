@@ -8,11 +8,8 @@ import org.joda.time.DateTime;
 import android.content.Context;
 import android.util.Log;
 
-import com.google.android.apps.paco.utils.AndroidUtils;
+import com.google.android.apps.paco.utils.PacoService;
 import com.google.common.base.Joiner;
-import com.google.corp.productivity.specialprojects.android.comm.Request;
-import com.google.corp.productivity.specialprojects.android.comm.Response;
-import com.google.corp.productivity.specialprojects.android.comm.UrlContentManager;
 
 public class DownloadHelper {
 
@@ -23,10 +20,8 @@ public class DownloadHelper {
   public static final int ENABLED_NETWORK = 1;
 
   private Context context;
-  private UrlContentManager manager;
   private UserPreferences userPrefs;
   private String contentAsString;
-  private Request request;
   private String cursor;
   private Integer limit;
   public static final String EXECUTION_ERROR = "execution_error";
@@ -37,7 +32,6 @@ public class DownloadHelper {
 
   public DownloadHelper(Context context, UserPreferences userPrefs, Integer limit, String cursor) {
     this.context = context;
-    this.manager = new UrlContentManager(context);
     this.userPrefs = userPrefs;
     this.cursor = cursor;
     this.limit = limit;
@@ -53,10 +47,6 @@ public class DownloadHelper {
     } catch (Exception e) {
       Log.e(PacoConstants.TAG, "Exception. Unable to update my experiments, " + e.getMessage());
       return DownloadHelper.SERVER_COMMUNICATION_ERROR;
-    } finally {
-      if (manager != null) {
-        manager.cleanUp();
-      }
     }
   }
 
@@ -76,10 +66,6 @@ public class DownloadHelper {
     } catch (Exception e) {
       Log.e(PacoConstants.TAG, "Exception. Unable to update available experiments, " + e.getMessage());
       return DownloadHelper.SERVER_COMMUNICATION_ERROR;
-    } finally {
-      if (manager != null) {
-        manager.cleanUp();
-      }
     }
   }
 
@@ -98,10 +84,6 @@ public class DownloadHelper {
     } catch (Exception e) {
       Log.e(PacoConstants.TAG, "Exception. Unable to update running experiments, " + e.getMessage());
       return DownloadHelper.SERVER_COMMUNICATION_ERROR;
-    } finally {
-      if (manager != null) {
-        manager.cleanUp();
-      }
     }
   }
 
@@ -122,12 +104,9 @@ public class DownloadHelper {
     }
     String timezoneId = new DateTime().getZone().getID();
     path += "&tz=" + URLEncoder.encode(timezoneId, "UTF-8");
-    request = manager.createRequest();
-    Response response = request.setUrl(ServerAddressBuilder.createServerUrl(serverAddress, path))
-        .addHeader("http.useragent", "Android")
-        .addHeader("paco.version", AndroidUtils.getAppVersion(context))
-        .addHeader("pacoProtocol", "4").execute();
-    return response.getContentAsString();
+    final String completeUrl = ServerAddressBuilder.createServerUrl(serverAddress, path);
+    String result = new PacoService(context).get(completeUrl, null);
+    return result;
   }
 
   private String formatExperimentIdList(List<Long> experimentIds) {
@@ -137,10 +116,6 @@ public class DownloadHelper {
 
   public String getContentAsString() {
     return contentAsString;
-  }
-
-  public Request getRequest() {
-    return request;
   }
 
 

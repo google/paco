@@ -20,13 +20,15 @@ import android.util.Log;
 import android.util.Pair;
 import android.widget.TextView;
 
+import com.pacoapp.paco.R;
+
 public class LoginActivity extends Activity {
 
   private static final String TAG = LoginActivity.class.getName();
 
   private static final String UTF_8 = "UTF-8";
-  private static final String APP_ENGINE_ORIGIN = "https://quantifiedself-staging.appspot.com/";
-  private static final String AUTH_TOKEN_TYPE_USERINFO_EMAIL = "oauth2:https://www.googleapis.com/auth/userinfo.email";
+  private static final String APP_ENGINE_ORIGIN = "https://www.pacoapp.com/";
+  public static final String AUTH_TOKEN_TYPE_USERINFO_EMAIL = "oauth2:https://www.googleapis.com/auth/userinfo.email";
   private static final String AUTH_TOKEN_TYPE_USERINFO_PROFILE = "oauth2:https://www.googleapis.com/auth/userinfo.profile";
 
 
@@ -39,10 +41,12 @@ public class LoginActivity extends Activity {
     super.onCreate(savedInstanceState);
 
     Bundle extras = getIntent().getExtras();
-    date_yyyyMMdd = (String) extras.get("date");
+    if (extras != null) {
+      date_yyyyMMdd = (String) extras.get("date");
+    }
 
-    //setContentView(R.layout.syncing);
-    //statusTextView = (TextView) findViewById(R.id.sync_status);
+    setContentView(R.layout.activity_login_syncing);
+    statusTextView = (TextView) findViewById(R.id.sync_status);
     doToken();
   }
 
@@ -71,7 +75,6 @@ public class LoginActivity extends Activity {
             try {
               String accessToken = future.getResult().getString(AccountManager.KEY_AUTHTOKEN);
               setStatus("Got OAuth2 access token: " + accessToken);
-              //app.setAccessToken(accessToken);
               testToken(accessToken);
             } catch (OperationCanceledException e) {
               setStatus("The user has denied you access to the API");
@@ -108,29 +111,29 @@ public class LoginActivity extends Activity {
 
       @Override
       protected Void doInBackground(Void... params) {
-        try {
-          String url = "https://www.googleapis.com/oauth2/v1/userinfo?access_token=" + accessToken;
-          publishProgress("Calling " + url);
-          List<Pair<String, String>> headers = new ArrayList<Pair<String, String>>();
-          //          headers.add(new Pair<String, String>("Authorization", "Bearer " + accessToken));
-          get(url, headers);
-        } catch (Exception e) {
-          Log.w("EXCEPTION", e);
-          publishProgress("EXECPTION  " + e);
-        }
+//        try {
+//          String url = "https://www.googleapis.com/oauth2/v1/userinfo?access_token=" + accessToken;
+//          publishProgress("Calling " + url);
+//          List<Pair<String, String>> headers = new ArrayList<Pair<String, String>>();
+//          //          headers.add(new Pair<String, String>("Authorization", "Bearer " + accessToken));
+//          get(url, headers);
+//        } catch (Exception e) {
+//          Log.w("EXCEPTION", e);
+//          publishProgress("EXECPTION  " + e);
+//        }
 
         try {
           String url = APP_ENGINE_ORIGIN;
-          publishProgress("Calling " + url);
+          //publishProgress("Calling " + url);
           List<Pair<String, String>> headers = new ArrayList<Pair<String, String>>();
           headers.add(new Pair<String, String>("Authorization", "Bearer " + accessToken));
 //          String body = getSyncPayload();
 //          post(url, body, headers);
-          String result = get(url + "experiments", headers);
+          String result = get(url + "experiments?admin", headers);
           Log.d("TEST", "RESULT = " + result);
         } catch (Exception e) {
           Log.w("EXCEPTION", e);
-          publishProgress("EXECPTION  " + e);
+          //publishProgress("EXECPTION  " + e);
         }
         return null;
       }
@@ -185,7 +188,7 @@ public class LoginActivity extends Activity {
 
   private void setStatus(String msg) {
     Log.i(TAG, msg);
-    statusTextView.setText(msg);
+    statusTextView.setText(statusTextView.getText() + "\n" + msg);
   }
 
   static String read(InputStreamReader reader) throws IOException {

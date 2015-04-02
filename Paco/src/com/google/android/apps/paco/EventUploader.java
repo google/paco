@@ -2,7 +2,6 @@ package com.google.android.apps.paco;
 
 import java.io.IOException;
 import java.io.StringWriter;
-import java.nio.charset.Charset;
 import java.util.List;
 
 import org.codehaus.jackson.JsonGenerationException;
@@ -14,8 +13,7 @@ import org.codehaus.jackson.type.TypeReference;
 import android.content.Context;
 import android.util.Log;
 
-import com.google.corp.productivity.specialprojects.android.comm.Response;
-import com.google.corp.productivity.specialprojects.android.comm.UrlContentManager;
+import com.google.android.apps.paco.utils.PacoService;
 import com.google.paco.shared.comm.Outcome;
 import com.google.paco.shared.model2.EventStore;
 import com.google.paco.shared.model2.JsonConverter;
@@ -24,20 +22,16 @@ public class EventUploader {
 
   private static final int UPLOAD_EVENT_GROUP_SIZE = 50;
 
-  private UrlContentManager um;
   private EventStore eventStore;
   private String serverAddress;
 
   private Context context;
 
-  private String appVersion;
-
-  public EventUploader(UrlContentManager um, String serverAddress,
-                       EventStore eventStore, String appVersion) {
-    this.um = um;
+  public EventUploader(Context context, String serverAddress,
+                       EventStore eventStore) {
+    this.context = context;
     this.eventStore = eventStore;
     this.serverAddress = serverAddress;
-    this.appVersion = appVersion;
   }
 
   public void uploadEvents(List<Event> allEvents) {
@@ -98,23 +92,15 @@ public class EventUploader {
       return responsePair;
     }
 
-    try {
-      Log.i("" + this, "Preparing to post.");
-      Response response = um.createRequest().setUrl(ServerAddressBuilder.createServerUrl(serverAddress, "/events")).
-          setPostData(json, Charset.forName("UTF_8").name())
-          .addHeader("http.useragent", "Android")
-          .addHeader("paco.version", appVersion)
-          .execute();
 
-      responsePair.overallCode = response.getHttpCode();
-      readOutcomesFromJson(responsePair, response.getContentAsString());
-      return responsePair;
-    } finally {
-      if (um != null) {
-        um.cleanUp();
-      }
-    }
-
+    Log.i("" + this, "Preparing to post.");
+    final String completeServerUrl = ServerAddressBuilder.createServerUrl(serverAddress, "/events");
+    final PacoService pacoService = new PacoService(context);
+    String result = pacoService.post(completeServerUrl, json, null);
+    responsePair.overallCode = pacoService.getStatusCode();
+    // TODO deal with http errors from the post call
+    readOutcomesFromJson(responsePair, result);
+    return responsePair;
   }
 
   private void readOutcomesFromJson(ResponsePair responsePair, String contentAsString) {

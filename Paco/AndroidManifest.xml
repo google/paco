@@ -36,7 +36,7 @@
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
+             </intent-filter>
         </activity>
         
         <activity android:name="com.google.android.apps.paco.ExperimentList" >
@@ -66,16 +66,6 @@
             android:label="My Experiment Invitations"
             android:configChanges="orientation|keyboardHidden"
             android:screenOrientation="portrait" >
-        </activity>
-        <activity
-            android:name="com.google.android.apps.paco.RunningExperimentsActivity"
-            android:screenOrientation="portrait" >
-        </activity>
-        
-        <activity
-            android:name="com.google.android.apps.paco.ExploreDataActivity"
-            android:configChanges="orientation|keyboard|keyboardHidden"
-            android:screenOrientation="portrait"  >
         </activity>
         
         <activity
@@ -138,13 +128,14 @@
         <activity android:name="com.google.android.apps.paco.WelcomeActivity" />
         <activity android:name="com.google.android.apps.paco.AccountChooser" 
             android:label="Account Chooser"/>
+        <activity android:name="com.pacoapp.paco.ui.SplashActivity"/>
+        
         <activity
             android:name="com.google.android.apps.paco.ESMSignalViewer"
             android:label="ESM Signal Viewer"
             android:screenOrientation="portrait" >
             <intent-filter>
                 <action android:name="com.google.android.apps.paco.ESM_SIGNALS" />
-
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>

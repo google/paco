@@ -25,9 +25,6 @@ import android.content.Intent;
 import android.os.IBinder;
 import android.os.PowerManager;
 
-import com.google.android.apps.paco.utils.AndroidUtils;
-import com.google.corp.productivity.specialprojects.android.comm.UrlContentManager;
-
 public class SyncService extends Service {
 
 
@@ -76,15 +73,9 @@ public class SyncService extends Service {
     synchronized (SyncService.class) {
       experimentProviderUtil = new ExperimentProviderUtil(this);
       List<Event> allEvents = experimentProviderUtil.getEventsNeedingUpload();
-      EventUploader eventUploader = new EventUploader(new UrlContentManager(this),
-                        userPrefs.getServerAddress(),
-                        experimentProviderUtil, getAppVersion());
+      EventUploader eventUploader = new EventUploader(this, userPrefs.getServerAddress(),
+                        experimentProviderUtil);
       eventUploader.uploadEvents(allEvents);
     }
   }
-
-  private String getAppVersion() {
-    return AndroidUtils.getAppVersion(this);
-  }
-
 }

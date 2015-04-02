@@ -95,6 +95,8 @@ public class UserPreferences {
 
   private static final String EXPERIMENT_TRIGGERED_KEY = null;
 
+  private static final String ACCESS_TOKEN_KEY = "access-token-key";
+
 
 
   public UserPreferences(Context context) {
@@ -292,6 +294,14 @@ public class UserPreferences {
 
   public void setRecentlyTriggeredTime(String uniqueTriggerIdentifier, DateTime time) {
     getAppPrefs().edit().putString(EXPERIMENT_TRIGGERED_KEY + "_" + uniqueTriggerIdentifier, TimeUtil.formatDateTime(time)).commit();
+  }
+
+  public void setAccessToken(String token) {
+    getAppPrefs().edit().putString(ACCESS_TOKEN_KEY, token).commit();
+  }
+
+  public String getAccessToken() {
+    return getAppPrefs().getString(ACCESS_TOKEN_KEY, null);
   }
 
 }
