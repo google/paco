@@ -44,7 +44,6 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -428,19 +427,19 @@ public class RunningExperimentsActivity extends Activity {
 
       tv.setTag(experiment.getExperimentDAO().getId());
 
-      ImageButton editButton = (ImageButton) view.findViewById(R.id.editExperimentButton);
-      editButton.setOnClickListener(myButtonListener);
-      editButton.setTag(experiment.getExperimentDAO().getId());
-
-      editButton.setEnabled(ExperimentHelper.hasUserEditableSchedule(experiment.getExperimentDAO()));
-
-      ImageButton quitButton = (ImageButton) view.findViewById(R.id.quitExperimentButton);
-      quitButton.setOnClickListener(myButtonListener);
-      quitButton.setTag(experiment.getExperimentDAO().getId());
-
-      ImageButton exploreButton = (ImageButton) view.findViewById(R.id.exploreDataExperimentButton);
-      exploreButton.setOnClickListener(myButtonListener);
-      exploreButton.setTag(experiment.getExperimentDAO().getId());
+//      ImageButton editButton = (ImageButton) view.findViewById(R.id.editExperimentButton);
+//      editButton.setOnClickListener(myButtonListener);
+//      editButton.setTag(experiment.getExperimentDAO().getId());
+//
+//      editButton.setEnabled(ExperimentHelper.hasUserEditableSchedule(experiment.getExperimentDAO()));
+//
+//      ImageButton quitButton = (ImageButton) view.findViewById(R.id.quitExperimentButton);
+//      quitButton.setOnClickListener(myButtonListener);
+//      quitButton.setTag(experiment.getExperimentDAO().getId());
+//
+//      ImageButton exploreButton = (ImageButton) view.findViewById(R.id.exploreDataExperimentButton);
+//      exploreButton.setOnClickListener(myButtonListener);
+//      exploreButton.setTag(experiment.getExperimentDAO().getId());
       // show icon
       // ImageView iv = (ImageView) view.findViewById(R.id.explore_data_icon);
       // iv.setImageResource();
@@ -458,7 +457,7 @@ public class RunningExperimentsActivity extends Activity {
           final Experiment experiment = experiments.get(position);
           final List<ExperimentGroup> groups = experiment.getExperimentDAO().getGroups();
 
-          if (v.getId() == R.id.editExperimentButton) {
+/*          if (v.getId() == R.id.editExperimentButton) {
             editExperiment(experiment, groups);
           } else if (v.getId() == R.id.exploreDataExperimentButton) {
             showDataForExperiment(experiment, groups);
@@ -483,7 +482,7 @@ public class RunningExperimentsActivity extends Activity {
                                    }
                                  }).create().show();
 
-          } else if (v.getId() == R.id.experimentListRowTitle) {
+          } else*/ if (v.getId() == R.id.experimentListRowTitle) {
             Intent experimentIntent = null;
             if (groups.size() > 1) {
               experimentIntent = new Intent(RunningExperimentsActivity.this, ExperimentGroupPicker.class);

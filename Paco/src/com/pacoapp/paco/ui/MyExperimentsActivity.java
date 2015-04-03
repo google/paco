@@ -48,7 +48,6 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -77,6 +76,7 @@ import com.google.android.apps.paco.WelcomeActivity;
 import com.google.common.collect.Lists;
 import com.google.paco.shared.model2.ExperimentGroup;
 import com.google.paco.shared.util.ExperimentHelper;
+import com.google.paco.shared.util.TimeUtil;
 import com.pacoapp.paco.R;
 import com.pacoapp.paco.os.RingtoneUtil;
 
@@ -116,6 +116,7 @@ public class MyExperimentsActivity extends ActionBarActivity {
     actionBar.setDisplayUseLogoEnabled(true);
     actionBar.setDisplayShowHomeEnabled(true);
     actionBar.setBackgroundDrawable(new ColorDrawable(0xff4A53B3));
+
     // TODO would this work if it is in the Systemchangereceiver ?
     new RingtoneUtil(this).installPacoBarkRingtone();
 
@@ -123,12 +124,12 @@ public class MyExperimentsActivity extends ActionBarActivity {
     setContentView(mainLayout);
 
     userPrefs = new UserPreferences(this);
+
     list = (ListView) findViewById(R.id.find_experiments_list);
     list.setBackgroundColor(333);
     createListHeader();
 
     experimentProviderUtil = new ExperimentProviderUtil(this);
-
 
     registerForContextMenu(list);
   }
@@ -340,28 +341,45 @@ public class MyExperimentsActivity extends ActionBarActivity {
       Experiment experiment = getItem(position);
 
       TextView tv = (TextView) view.findViewById(R.id.experimentListRowTitle);
-      tv.setText(experiment != null ? experiment.getExperimentDAO().getTitle() : "ERROR");
+      tv.setText(experiment != null ? experiment.getExperimentDAO().getTitle() : "");
       tv.setOnClickListener(myButtonListener);
-
       tv.setTag(experiment.getExperimentDAO().getId());
 
-      ImageButton editButton = (ImageButton) view.findViewById(R.id.editExperimentButton);
-      editButton.setOnClickListener(myButtonListener);
-      editButton.setTag(experiment.getExperimentDAO().getId());
+      TextView organizationView = (TextView) view.findViewById(R.id.experimentListRowSubtitle);
+      organizationView.setText(experiment != null ? "by " + experiment.getExperimentDAO().getOrganization() : "");
+      organizationView.setTag(experiment.getExperimentDAO().getId());
+      organizationView.setOnClickListener(myButtonListener);
 
-      editButton.setEnabled(ExperimentHelper.hasUserEditableSchedule(experiment.getExperimentDAO()));
+      TextView joinDateView = (TextView) view.findViewById(R.id.experimentListRowJoinDate);
+      joinDateView.setText(experiment != null ? "Joined on " + formatJoinDate(experiment) : "");
+      joinDateView.setTag(experiment.getExperimentDAO().getId());
+      joinDateView.setOnClickListener(myButtonListener);
 
-      ImageButton quitButton = (ImageButton) view.findViewById(R.id.quitExperimentButton);
-      quitButton.setOnClickListener(myButtonListener);
-      quitButton.setTag(experiment.getExperimentDAO().getId());
 
-      ImageButton exploreButton = (ImageButton) view.findViewById(R.id.exploreDataExperimentButton);
-      exploreButton.setOnClickListener(myButtonListener);
-      exploreButton.setTag(experiment.getExperimentDAO().getId());
+
+//      ImageButton editButton = (ImageButton) view.findViewById(R.id.editExperimentButton);
+//      editButton.setOnClickListener(myButtonListener);
+//      editButton.setTag(experiment.getExperimentDAO().getId());
+//
+//      editButton.setEnabled(ExperimentHelper.hasUserEditableSchedule(experiment.getExperimentDAO()));
+//
+//      ImageButton quitButton = (ImageButton) view.findViewById(R.id.quitExperimentButton);
+//      quitButton.setOnClickListener(myButtonListener);
+//      quitButton.setTag(experiment.getExperimentDAO().getId());
+//
+//      ImageButton exploreButton = (ImageButton) view.findViewById(R.id.exploreDataExperimentButton);
+//      exploreButton.setOnClickListener(myButtonListener);
+//      exploreButton.setTag(experiment.getExperimentDAO().getId());
       // show icon
       // ImageView iv = (ImageView) view.findViewById(R.id.explore_data_icon);
       // iv.setImageResource();
       return view;
+    }
+
+    public String formatJoinDate(Experiment experiment) {
+      final String joinDate = experiment.getJoinDate();
+      DateTime dt = TimeUtil.parseDateWithZone(joinDate);
+      return TimeUtil.formatDateLong(dt);
     }
 
     private OnClickListener myButtonListener = new OnClickListener() {
@@ -375,7 +393,7 @@ public class MyExperimentsActivity extends ActionBarActivity {
           final Experiment experiment = experiments.get(position);
           final List<ExperimentGroup> groups = experiment.getExperimentDAO().getGroups();
 
-          if (v.getId() == R.id.editExperimentButton) {
+          /*if (v.getId() == R.id.editExperimentButton) {
             editExperiment(experiment, groups);
           } else if (v.getId() == R.id.exploreDataExperimentButton) {
             showDataForExperiment(experiment, groups);
@@ -400,7 +418,7 @@ public class MyExperimentsActivity extends ActionBarActivity {
                                                                                     }
                                                                                   }).create().show();
 
-          } else if (v.getId() == R.id.experimentListRowTitle) {
+          } else if (v.getId() == R.id.experimentListRowTitle) { */
             Intent experimentIntent = null;
             if (groups.size() > 1) {
               experimentIntent = new Intent(MyExperimentsActivity.this, ExperimentGroupPicker.class);
@@ -420,7 +438,7 @@ public class MyExperimentsActivity extends ActionBarActivity {
             }
             experimentIntent.putExtra(Experiment.EXPERIMENT_SERVER_ID_EXTRA_KEY, experimentServerId);
             startActivity(experimentIntent);
-          }
+          /*}*/
         }
       }
     };

@@ -30,6 +30,9 @@ public class TimeUtil {
   public static final String DATETIME_FORMAT = "yyyy/MM/dd HH:mm:ssZ";
   private static DateTimeFormatter dateTimeFormatter = DateTimeFormat.forPattern(DATETIME_FORMAT);
 
+  public static final String DATE_LONG_FORMAT = "MMMM dd, yyyy";
+  private static DateTimeFormatter dateLongFormatter = DateTimeFormat.forPattern(DATE_LONG_FORMAT);
+
   public static final String DATETIME_NOZONE_FORMAT = "yyyy/MM/dd hh:mm:ssa";
   public static DateTimeFormatter dateTimeNoZoneFormatter = DateTimeFormat.forPattern(DATETIME_NOZONE_FORMAT);
 
@@ -58,12 +61,20 @@ public class TimeUtil {
     return dateTime.toString(dateTimeFormatter);
   }
 
+  public static String formatDateLong(DateTime dateTime) {
+    return dateTime.toString(dateLongFormatter);
+  }
+
   public static String formatDateTimeShortNoZone(DateTime dateTime) {
     return dateTime.toString(dateTimeNoZoneShortFormatter);
   }
 
   public static DateTime parseDateTime(String dateTimeStr) {
     return dateTimeFormatter.parseDateTime(dateTimeStr);
+  }
+
+  public static DateTime parseDateWithZone(String dateTimeStr) {
+    return dateZoneFormatter.parseDateTime(dateTimeStr);
   }
 
   public static String formatDate(long dateTimeMillis) {
