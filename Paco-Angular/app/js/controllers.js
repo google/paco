@@ -69,7 +69,6 @@ pacoApp.controller('ExperimentCtrl', ['$scope', '$http',
       }
     });
 
-    myScope = $scope;
     // Ace is reloaded when the Source tab is selected so get pretty JSON here
     $scope.aceLoaded = function(editor) {
       $scope.ace = {
@@ -158,6 +157,12 @@ pacoApp.controller('GroupCtrl', ['$scope', 'template',
       expandFn(true);
       event.stopPropagation();
     };
+
+    $scope.aceLoad = function(editor) {
+      editor.setAutoScrollEditorIntoView(true);
+    };
+
+
   }
 ]);
 

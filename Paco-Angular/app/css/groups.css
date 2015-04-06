@@ -26,6 +26,18 @@
   width: 200px
 }
 
+.group .duration {
+  padding: 0 0 0 16px;
+}
+
+.group .duration .title {
+  margin-top: 16px;
+}
+
+.group .duration md-input-container {
+  padding: 0 0 2px 0;
+}
+
 .choice {
   position: relative;
 }
@@ -145,3 +157,14 @@ div[expander] {
 .advanced .over {
   z-index: 100;
 }
+
+.advanced .ace_editor {
+  border-top: 1px solid lightgray;
+  position: relative !important;
+}
+
+ /* .ace_editor {
+    border: 1px solid lightgray;
+    margin: auto;
+    height: 200px;
+  }*/

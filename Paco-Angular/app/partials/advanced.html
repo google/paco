@@ -1,17 +1,15 @@
-<div class="column0"></div>
-
-<div class="advanced column1">
+<div class="advanced">
   <div class="over">
     <md-checkbox ng-model="group.endOfDayGroup" aria-label="End of day group">
       End of day group
     </md-checkbox>
 
     <div class="referred" ng-if="group.endOfDayGroup">
-    Referred group 
-    <select ng-model="group.endOfDayReferredGroupName">
-      <option ng-repeat="group in experiment.groups" value="{{group.name}}">{{group.name}}
-      </option>
-    </select> 
+      Referred group
+      <select ng-model="group.endOfDayReferredGroupName">
+        <option ng-repeat="group in experiment.groups" value="{{group.name}}">{{group.name}}
+        </option>
+      </select>
     </div>
   </div>
 
@@ -20,11 +18,11 @@
       Background Listening
     </md-checkbox>
 
-    <div class="identifier" ng-if="group.backgroundListen" >
-    Source of data
-    <md-input-container md-no-float>    
-      <input type="text" ng-model="group.backgroundListenSourceIdentifier" placeholder="Identifier">
-    </md-input-container>
+    <div class="identifier" ng-if="group.backgroundListen">
+      Source of data
+      <md-input-container md-no-float>
+        <input type="text" ng-model="group.backgroundListenSourceIdentifier" placeholder="Identifier">
+      </md-input-container>
     </div>
   </div>
 
@@ -38,11 +36,20 @@
     <md-checkbox ng-model="group.customRendering" aria-label="Override form display">
       Override form display
     </md-checkbox>
-
-    <md-input-container ng-if="group.customRendering">
-      <label>Custom code</label>
-      <textarea ng-model="group.customRenderingCode" columns="1"></textarea>
-    </md-input-container>
   </div>
 
+  <div class="source" ng-if="group.customRendering">
+    <div class="padded">
+      Enter HTML and Javascript for custom rendering of experiment
+    </div>
+    <div class="ace_editor" ng-model="group.customRenderingCode" 
+      ui-ace="{
+        mode: 'javascript', 
+        rendererOptions: {
+          minLines: 3,
+          maxLines: 'Infinity'
+        }
+      }">
+    </div>
+  </div>
 </div>
