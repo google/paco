@@ -56,12 +56,15 @@ import android.widget.Toast;
 
 import com.google.common.collect.Lists;
 import com.pacoapp.paco.R;
+import com.pacoapp.paco.net.ExperimentUrlBuilder;
+import com.pacoapp.paco.net.NetworkClient;
+import com.pacoapp.paco.net.PacoForegroundService;
 
 
 /**
  *
  */
-public class FindMyExperimentsActivity extends ActionBarActivity implements NetworkActivityLauncher {
+public class FindMyExperimentsActivity extends ActionBarActivity implements NetworkActivityLauncher, NetworkClient {
 
   static final int REFRESHING_EXPERIMENTS_DIALOG_ID = 1001;
   static final int JOIN_REQUEST_CODE = 1;
@@ -81,7 +84,6 @@ public class FindMyExperimentsActivity extends ActionBarActivity implements Netw
   private Button refreshButton;
   private boolean dialogable;
 
-  private static DownloadMyExperimentsTask experimentDownloadTask;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -113,7 +115,7 @@ public class FindMyExperimentsActivity extends ActionBarActivity implements Netw
     refreshButton.setOnClickListener(new OnClickListener() {
       public void onClick(View v) {
         if (!isConnected()) {
-          showDialogById(DownloadHelper.NO_NETWORK_CONNECTION);
+          showDialogById(DownloadExperimentsHelper.NO_NETWORK_CONNECTION);
         } else {
           refreshList();
         }
@@ -223,7 +225,7 @@ public class FindMyExperimentsActivity extends ActionBarActivity implements Netw
 
   public void showNetworkConnectionActivity() {
     try {
-      startActivityForResult(new Intent(Settings.ACTION_WIRELESS_SETTINGS), DownloadHelper.ENABLED_NETWORK);
+      startActivityForResult(new Intent(Settings.ACTION_WIRELESS_SETTINGS), DownloadExperimentsHelper.ENABLED_NETWORK);
     } catch (Exception e) {
 
     }
@@ -231,26 +233,10 @@ public class FindMyExperimentsActivity extends ActionBarActivity implements Netw
 
 
   protected void refreshList() {
-    DownloadExperimentsTaskListener listener = new DownloadExperimentsTaskListener() {
-
-      @Override
-      public void done(String resultCode) {
-        progressBar.setVisibility(View.GONE);
-        String contentAsString = experimentDownloadTask.getContentAsString();
-        if (resultCode == DownloadHelper.SUCCESS && contentAsString != null) {
-          updateDownloadedExperiments(contentAsString);
-          saveRefreshTime();
-        } else if (resultCode == DownloadHelper.SUCCESS && contentAsString == null) {
-          showFailureDialog("No experiment data retrieved. Try again.");
-        } else {
-          showFailureDialog(resultCode);
-        }
-      }
-
-    };
     progressBar.setVisibility(View.VISIBLE);
-    experimentDownloadTask = new DownloadMyExperimentsTask(this, listener, userPrefs, FindExperimentsActivity.DOWNLOAD_LIMIT, experimentCursor);
-    experimentDownloadTask.execute();
+    final String myExperimentsUrl = ExperimentUrlBuilder.buildUrlForMyExperiments(userPrefs, experimentCursor,
+                                                                                  FindExperimentsActivity.DOWNLOAD_LIMIT);
+    new PacoForegroundService(this, myExperimentsUrl).execute();
   }
 
   private void dismissAnyDialog() {
@@ -310,13 +296,13 @@ public class FindMyExperimentsActivity extends ActionBarActivity implements Netw
 
       reloadAdapter();
     } catch (JsonParseException e) {
-      showFailureDialog(DownloadHelper.CONTENT_ERROR);
+      showFailureDialog(DownloadExperimentsHelper.CONTENT_ERROR);
     } catch (JsonMappingException e) {
-      showFailureDialog(DownloadHelper.CONTENT_ERROR);
+      showFailureDialog(DownloadExperimentsHelper.CONTENT_ERROR);
     } catch (UnsupportedCharsetException e) {
-      showFailureDialog(DownloadHelper.CONTENT_ERROR);
+      showFailureDialog(DownloadExperimentsHelper.CONTENT_ERROR);
     } catch (IOException e) {
-      showFailureDialog(DownloadHelper.CONTENT_ERROR);
+      showFailureDialog(DownloadExperimentsHelper.CONTENT_ERROR);
     }
 
   }
@@ -326,13 +312,13 @@ public class FindMyExperimentsActivity extends ActionBarActivity implements Netw
       String contentAsString = ExperimentProviderUtil.getJson(experiments);
       experimentProviderUtil.saveMyExperimentsToDisk(contentAsString);
     } catch (JsonParseException e) {
-      showFailureDialog(DownloadHelper.CONTENT_ERROR);
+      showFailureDialog(DownloadExperimentsHelper.CONTENT_ERROR);
     } catch (JsonMappingException e) {
-      showFailureDialog(DownloadHelper.CONTENT_ERROR);
+      showFailureDialog(DownloadExperimentsHelper.CONTENT_ERROR);
     } catch (UnsupportedCharsetException e) {
-      showFailureDialog(DownloadHelper.CONTENT_ERROR);
+      showFailureDialog(DownloadExperimentsHelper.CONTENT_ERROR);
     } catch (IOException e) {
-      showFailureDialog(DownloadHelper.CONTENT_ERROR);
+      showFailureDialog(DownloadExperimentsHelper.CONTENT_ERROR);
     }
   }
 
@@ -368,11 +354,11 @@ public class FindMyExperimentsActivity extends ActionBarActivity implements Netw
 
   private void showFailureDialog(String status) {
     if (dialogable) {
-      if (status.equals(DownloadHelper.CONTENT_ERROR) ||
-          status.equals(DownloadHelper.RETRIEVAL_ERROR)) {
-        showDialogById(DownloadHelper.INVALID_DATA_ERROR);
+      if (status.equals(DownloadExperimentsHelper.CONTENT_ERROR) ||
+          status.equals(DownloadExperimentsHelper.RETRIEVAL_ERROR)) {
+        showDialogById(DownloadExperimentsHelper.INVALID_DATA_ERROR);
       } else {
-        showDialogById(DownloadHelper.SERVER_ERROR);
+        showDialogById(DownloadExperimentsHelper.SERVER_ERROR);
       }
     }
   }
@@ -436,6 +422,49 @@ public class FindMyExperimentsActivity extends ActionBarActivity implements Netw
   protected void onPause() {
     dialogable = false;
     super.onPause();
+  }
+
+  @Override
+  public Context getContext() {
+    return this;
+  }
+
+  @Override
+  public void show(final String msg) {
+    runOnUiThread(new Runnable() {
+      @Override
+      public void run() {
+        Toast.makeText(FindMyExperimentsActivity.this, msg, Toast.LENGTH_LONG);
+      }
+    });
+  }
+
+  @Override
+  public void showAndFinish(final String msg) {
+    runOnUiThread(new Runnable() {
+      @Override
+      public void run() {
+        progressBar.setVisibility(View.GONE);
+        if (msg != null) {
+          Toast.makeText(FindMyExperimentsActivity.this, "Download complete", Toast.LENGTH_LONG);
+          updateDownloadedExperiments(msg);
+          saveRefreshTime();
+        } else {
+          showFailureDialog("No experiment data retrieved. Try again.");
+        }
+      }
+    });
+  }
+
+  @Override
+  public void handleException(final Exception exception) {
+    runOnUiThread(new Runnable() {
+      @Override
+      public void run() {
+        progressBar.setVisibility(View.GONE);
+        Toast.makeText(FindMyExperimentsActivity.this, "Exception: " + exception.getMessage(), Toast.LENGTH_LONG);
+      }
+    });
   }
 
 

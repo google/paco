@@ -250,6 +250,13 @@
                 <action android:name="com.pacoapp.paco.action.PACO_TRIGGER" />
             </intent-filter>
         </receiver>
+        
+          <receiver android:name="com.pacoapp.paco.net.GetInBackground$CallbackReceiver" android:exported="true">
+            <intent-filter>
+                <action android:name="com.pacoapp.paco.net.Callback" >
+                </action>
+            </intent-filter>
+        </receiver>
 
         <service android:name="com.google.android.apps.paco.BroadcastTriggerService" />
 

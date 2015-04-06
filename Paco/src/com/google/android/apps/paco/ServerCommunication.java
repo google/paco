@@ -32,6 +32,10 @@ import android.content.Intent;
 import android.net.Uri;
 import android.util.Log;
 
+import com.pacoapp.paco.net.ExperimentUrlBuilder;
+import com.pacoapp.paco.net.NetworkClient;
+import com.pacoapp.paco.net.PacoBackgroundService;
+
 public class ServerCommunication {
 
   private static final int DURATION_IN_MINUTES_THAT_IS_LONGER_THAN_TIME_TO_DOWNLOAD_JOINED_EXPERIMENTS = 5;
@@ -95,15 +99,20 @@ public class ServerCommunication {
   }
 
   private void updateJoinedExperiments() {
-    ExperimentProviderUtil experimentProviderUtil = new ExperimentProviderUtil(context);
-    DownloadHelper downloadHelper = new DownloadHelper(context, userPrefs, (Integer)null, (String)null);
+    final ExperimentProviderUtil experimentProviderUtil = new ExperimentProviderUtil(context);
     List<Long> joinedExperimentServerIds = experimentProviderUtil.getJoinedExperimentServerIds();
     if (joinedExperimentServerIds != null && joinedExperimentServerIds.size() > 0) {
-      String resultCode = downloadHelper.downloadRunningExperiments(joinedExperimentServerIds);
-      String contentAsString = downloadHelper.getContentAsString();
-      if (resultCode.equals(DownloadHelper.SUCCESS) && contentAsString != null) {
-        saveDownloadedExperiments(experimentProviderUtil, contentAsString);
-      }
+      NetworkClient networkClient = new NetworkClient.BackgroundNetworkClient(context) {
+        @Override
+        public void showAndFinish(String msg) {
+          if (msg != null) {
+            saveDownloadedExperiments(experimentProviderUtil, msg);
+          }
+        }
+
+      };
+      final Long[] arrayOfIds = joinedExperimentServerIds.toArray(new Long[joinedExperimentServerIds.size()]);
+      new PacoBackgroundService(networkClient, ExperimentUrlBuilder.buildUrlForFullExperiment(userPrefs, arrayOfIds));
     }
     userPrefs.setJoinedExperimentListRefreshTime(new Date().getTime());
   }

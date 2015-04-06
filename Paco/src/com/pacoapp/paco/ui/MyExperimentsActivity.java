@@ -54,8 +54,7 @@ import android.widget.TextView;
 import com.google.android.apps.paco.AndroidEsmSignalStore;
 import com.google.android.apps.paco.BeeperService;
 import com.google.android.apps.paco.BroadcastTriggerReceiver;
-import com.google.android.apps.paco.DownloadFullExperimentsTask;
-import com.google.android.apps.paco.DownloadHelper;
+import com.google.android.apps.paco.DownloadExperimentsHelper;
 import com.google.android.apps.paco.ESMSignalViewer;
 import com.google.android.apps.paco.EulaDisplayActivity;
 import com.google.android.apps.paco.Event;
@@ -104,8 +103,6 @@ public class MyExperimentsActivity extends ActionBarActivity {
 
   private List<Experiment> experiments = Lists.newArrayList();
   protected AvailableExperimentsListAdapter adapter;
-
-  private static DownloadFullExperimentsTask experimentDownloadTask;
 
   @SuppressLint("NewApi")
   @Override
@@ -266,13 +263,13 @@ public class MyExperimentsActivity extends ActionBarActivity {
     case REFRESHING_EXPERIMENTS_DIALOG_ID: {
       return getRefreshJoinedDialog();
     }
-    case DownloadHelper.INVALID_DATA_ERROR: {
+    case DownloadExperimentsHelper.INVALID_DATA_ERROR: {
       return getUnableToJoinDialog(getString(R.string.invalid_data));
     }
-    case DownloadHelper.SERVER_ERROR: {
+    case DownloadExperimentsHelper.SERVER_ERROR: {
       return getUnableToJoinDialog(getString(R.string.dialog_dismiss));
     }
-    case DownloadHelper.NO_NETWORK_CONNECTION: {
+    case DownloadExperimentsHelper.NO_NETWORK_CONNECTION: {
       return getNoNetworkDialog();
     }
     default: {
@@ -320,7 +317,7 @@ public class MyExperimentsActivity extends ActionBarActivity {
   }
 
   private void showNetworkConnectionActivity() {
-    startActivityForResult(new Intent(Settings.ACTION_WIRELESS_SETTINGS), DownloadHelper.ENABLED_NETWORK);
+    startActivityForResult(new Intent(Settings.ACTION_WIRELESS_SETTINGS), DownloadExperimentsHelper.ENABLED_NETWORK);
   }
 
   private class AvailableExperimentsListAdapter extends ArrayAdapter<Experiment> {

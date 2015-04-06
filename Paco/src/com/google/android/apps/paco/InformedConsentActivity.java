@@ -17,7 +17,6 @@
 package com.google.android.apps.paco;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.List;
 
 import org.codehaus.jackson.JsonParseException;
@@ -54,19 +53,21 @@ import com.google.paco.shared.util.ExperimentHelper;
 import com.google.paco.shared.util.SchedulePrinter;
 import com.google.paco.shared.util.TimeUtil;
 import com.pacoapp.paco.R;
+import com.pacoapp.paco.net.ExperimentUrlBuilder;
+import com.pacoapp.paco.net.NetworkClient;
+import com.pacoapp.paco.net.PacoForegroundService;
 import com.pacoapp.paco.ui.ScheduleDetailFragment;
 import com.pacoapp.paco.ui.ScheduleListActivity;
 
-public class InformedConsentActivity extends ActionBarActivity implements ExperimentLoadingActivity {
+public class InformedConsentActivity extends ActionBarActivity implements ExperimentLoadingActivity, NetworkClient {
 
   public static final String INFORMED_CONSENT_PAGE_EXTRA_KEY = "InformedConsentPage";
 
   public static final int REFRESHING_JOINED_EXPERIMENT_DIALOG_ID = 1002;
 
   private Experiment experiment;
-
   private ExperimentProviderUtil experimentProviderUtil;
-  private DownloadFullExperimentsTask experimentDownloadTask;
+  private CheckBox icCheckbox;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -113,7 +114,7 @@ public class InformedConsentActivity extends ActionBarActivity implements Experi
       ic.setText(experiment.getExperimentDAO().getInformedConsentForm());
 
       if (experiment.getJoinDate() == null) {
-        final CheckBox icCheckbox = (CheckBox) findViewById(R.id.InformedConsentAgreementCheckBox);
+        icCheckbox = (CheckBox) findViewById(R.id.InformedConsentAgreementCheckBox);
         icCheckbox.setOnClickListener(new OnClickListener() {
           public void onClick(View v) {
             if (icCheckbox.isChecked()) {
@@ -144,50 +145,30 @@ public class InformedConsentActivity extends ActionBarActivity implements Experi
 
   private void requestFullExperimentForJoining() {
     if (!NetworkUtil.isConnected(this)) {
-      showDialog(DownloadHelper.NO_NETWORK_CONNECTION, null);
+      showDialog(DownloadExperimentsHelper.NO_NETWORK_CONNECTION, null);
     } else {
-      DownloadFullExperimentsTaskListener listener = new DownloadFullExperimentsTaskListener() {
-
-        @Override
-        public void done(String resultCode) {
-          dismissDialog(REFRESHING_JOINED_EXPERIMENT_DIALOG_ID);
-          if (resultCode.equals(DownloadHelper.SUCCESS)) {
-            List<Experiment> experimentList = getDownloadedExperimentsList();
-            if (experimentList == null || experimentList.isEmpty()) {
-              showFailureDialog(getString(R.string.could_not_load_full_experiment_));
-            } else {
-              saveDownloadedExperimentBeforeScheduling(experimentList.get(0));
-            }
-          } else {
-            showFailureDialog(resultCode);
-          }
-        }
-      };
-      showDialog(REFRESHING_JOINED_EXPERIMENT_DIALOG_ID, null);
-
-      List<Long> experimentServerIds = Arrays.asList(experiment.getServerId());
-      experimentDownloadTask = new DownloadFullExperimentsTask(this, listener, new UserPreferences(this),
-                                                               experimentServerIds);
-      experimentDownloadTask.execute();
+      //      progressBar.setVisibility(View.VISIBLE);
+      final String myExperimentsUrl = ExperimentUrlBuilder.buildUrlForFullExperiment(new UserPreferences(this),
+                                                                                   experiment.getServerId());
+      new PacoForegroundService(this, myExperimentsUrl).execute();
     }
   }
 
-  private List<Experiment> getDownloadedExperimentsList() {
-    String contentAsString = experimentDownloadTask.getContentAsString();
+  private List<Experiment> getDownloadedExperimentsList(String contentAsString) {
     List<Experiment> experimentList;
     try {
       experimentList = ExperimentProviderUtil.getExperimentsFromJson(contentAsString);
     } catch (JsonParseException e) {
       e.printStackTrace();
-      showDialog(DownloadHelper.SERVER_ERROR, null);
+      showDialog(DownloadExperimentsHelper.SERVER_ERROR, null);
       return null;
     } catch (JsonMappingException e) {
       e.printStackTrace();
-      showDialog(DownloadHelper.SERVER_ERROR, null);
+      showDialog(DownloadExperimentsHelper.SERVER_ERROR, null);
       return null;
     } catch (IOException e) {
       e.printStackTrace();
-      showDialog(DownloadHelper.SERVER_ERROR, null);
+      showDialog(DownloadExperimentsHelper.SERVER_ERROR, null);
       return null;
     }
     return experimentList;
@@ -274,11 +255,16 @@ public class InformedConsentActivity extends ActionBarActivity implements Experi
 
 
   private void runScheduleActivity() {
-    Intent experimentIntent = new Intent(this, ScheduleListActivity.class);
-    experimentIntent.putExtras(getIntent().getExtras());
-    experimentIntent.putExtra(INFORMED_CONSENT_PAGE_EXTRA_KEY, true);
-    experimentIntent.putExtra(ScheduleDetailFragment.USER_EDITABLE_SCHEDULE, ExperimentHelper.hasUserEditableSchedule(experiment.getExperimentDAO()));
-    startActivityForResult(experimentIntent, FindExperimentsActivity.JOIN_REQUEST_CODE);
+    if (ExperimentHelper.hasUserEditableSchedule(experiment.getExperimentDAO())) {
+      Intent experimentIntent = new Intent(this, ScheduleListActivity.class);
+      experimentIntent.putExtras(getIntent().getExtras());
+      experimentIntent.putExtra(INFORMED_CONSENT_PAGE_EXTRA_KEY, true);
+      experimentIntent.putExtra(ScheduleDetailFragment.USER_EDITABLE_SCHEDULE, ExperimentHelper.hasUserEditableSchedule(experiment.getExperimentDAO()));
+      startActivityForResult(experimentIntent, FindExperimentsActivity.JOIN_REQUEST_CODE);
+    } else {
+      setResult(FindExperimentsActivity.JOINED_EXPERIMENT);
+      finish();
+    }
   }
 
   private void joinExperiment() {
@@ -291,13 +277,13 @@ public class InformedConsentActivity extends ActionBarActivity implements Experi
     case REFRESHING_JOINED_EXPERIMENT_DIALOG_ID: {
       return getRefreshJoinedDialog();
     }
-    case DownloadHelper.INVALID_DATA_ERROR: {
+    case DownloadExperimentsHelper.INVALID_DATA_ERROR: {
       return getUnableToJoinDialog(getString(R.string.invalid_data));
     }
-    case DownloadHelper.SERVER_ERROR: {
+    case DownloadExperimentsHelper.SERVER_ERROR: {
       return getUnableToJoinDialog(getString(R.string.dialog_dismiss));
     }
-    case DownloadHelper.NO_NETWORK_CONNECTION: {
+    case DownloadExperimentsHelper.NO_NETWORK_CONNECTION: {
       return getNoNetworkDialog();
     }
     default: {
@@ -355,14 +341,14 @@ public class InformedConsentActivity extends ActionBarActivity implements Experi
   }
 
   private void showNetworkConnectionActivity() {
-    startActivityForResult(new Intent(Settings.ACTION_WIRELESS_SETTINGS), DownloadHelper.ENABLED_NETWORK);
+    startActivityForResult(new Intent(Settings.ACTION_WIRELESS_SETTINGS), DownloadExperimentsHelper.ENABLED_NETWORK);
   }
 
   private void showFailureDialog(String status) {
-    if (status.equals(DownloadHelper.CONTENT_ERROR) || status.equals(DownloadHelper.RETRIEVAL_ERROR)) {
-      showDialog(DownloadHelper.INVALID_DATA_ERROR, null);
+    if (status.equals(DownloadExperimentsHelper.CONTENT_ERROR) || status.equals(DownloadExperimentsHelper.RETRIEVAL_ERROR)) {
+      showDialog(DownloadExperimentsHelper.INVALID_DATA_ERROR, null);
     } else {
-      showDialog(DownloadHelper.SERVER_ERROR, null);
+      showDialog(DownloadExperimentsHelper.SERVER_ERROR, null);
     }
   }
 
@@ -382,7 +368,55 @@ public class InformedConsentActivity extends ActionBarActivity implements Experi
 
   @Override
   public void setExperimentGroup(ExperimentGroup groupByName) {
-    // no-op for this activity
+    // no-op for this networkClient
+  }
+
+
+  @Override
+  public Context getContext() {
+    return this;
+  }
+
+  @Override
+  public void show(final String msg) {
+    runOnUiThread(new Runnable() {
+      @Override
+      public void run() {
+        Toast.makeText(InformedConsentActivity.this, msg, Toast.LENGTH_LONG);
+      }
+    });
+  }
+
+  @Override
+  public void showAndFinish(final String msg) {
+    runOnUiThread(new Runnable() {
+      @Override
+      public void run() {
+        //progressBar.setVisibility(View.GONE);
+        if (msg != null) {
+          List<Experiment> experimentList = getDownloadedExperimentsList(msg);
+          if (experimentList == null || experimentList.isEmpty()) {
+            showFailureDialog(getString(R.string.could_not_load_full_experiment_));
+          } else {
+            saveDownloadedExperimentBeforeScheduling(experimentList.get(0));
+          }
+        } else {
+          icCheckbox.setChecked(false);
+          showFailureDialog("Could not successfully join. Try again.");
+        }
+      }
+    });
+  }
+
+  @Override
+  public void handleException(final Exception exception) {
+    runOnUiThread(new Runnable() {
+      @Override
+      public void run() {
+        //progressBar.setVisibility(View.GONE);
+        Toast.makeText(InformedConsentActivity.this, "Exception: " + exception.getMessage(), Toast.LENGTH_LONG);
+      }
+    });
   }
 
 }

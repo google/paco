@@ -3,6 +3,7 @@ package com.google.android.apps.paco;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
 
 import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.JsonParseException;
@@ -13,10 +14,11 @@ import org.codehaus.jackson.type.TypeReference;
 import android.content.Context;
 import android.util.Log;
 
-import com.google.android.apps.paco.utils.PacoService;
 import com.google.paco.shared.comm.Outcome;
 import com.google.paco.shared.model2.EventStore;
 import com.google.paco.shared.model2.JsonConverter;
+import com.pacoapp.paco.net.NetworkClient;
+import com.pacoapp.paco.net.PacoBackgroundService;
 
 public class EventUploader {
 
@@ -85,21 +87,38 @@ public class EventUploader {
   }
 
   private ResponsePair sendToPaco(List<Event> events) {
-    ResponsePair responsePair = new ResponsePair();
+    final ResponsePair responsePair = new ResponsePair();
 
     String json = toJson(events, responsePair);
     if (responsePair.overallCode == 500) {
       return responsePair;
     }
 
+    final CountDownLatch latch = new CountDownLatch(1);
+    NetworkClient networkClient = new NetworkClient.BackgroundNetworkClient(context) {
+      @Override
+      public void showAndFinish(String msg) {
+        if (msg != null) {
+          responsePair.overallCode = 200;
+          readOutcomesFromJson(responsePair, msg);
+          latch.countDown();
+        } else {
+          responsePair.overallCode = 500;
+        }
+      }
+
+    };
 
     Log.i("" + this, "Preparing to post.");
     final String completeServerUrl = ServerAddressBuilder.createServerUrl(serverAddress, "/events");
-    final PacoService pacoService = new PacoService(context);
-    String result = pacoService.post(completeServerUrl, json, null);
-    responsePair.overallCode = pacoService.getStatusCode();
-    // TODO deal with http errors from the post call
-    readOutcomesFromJson(responsePair, result);
+    new PacoBackgroundService(networkClient, completeServerUrl, json).execute()  ;
+
+    try {
+      latch.await();
+    } catch (InterruptedException e) {
+      Log.e(PacoConstants.TAG, "exception waiting for post of events", e);
+      responsePair.overallCode = 500;
+    }
     return responsePair;
   }
 

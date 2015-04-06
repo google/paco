@@ -1,4 +1,4 @@
-package com.google.android.apps.paco.utils;
+package com.pacoapp.paco.net;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -25,14 +25,10 @@ import android.util.Pair;
 
 import com.google.android.apps.paco.PacoConstants;
 import com.google.android.apps.paco.UserPreferences;
+import com.google.android.apps.paco.utils.AndroidUtils;
 import com.google.common.collect.Lists;
 
 public class PacoService {
-
-  public static final String AUTH_TOKEN_TYPE_USERINFO_EMAIL = "oauth2:https://www.googleapis.com/auth/userinfo.email";
-  private static final String AUTH_TOKEN_TYPE_USERINFO_PROFILE = "oauth2:https://www.googleapis.com/auth/userinfo.profile";
-
-  private static final String UTF_8 = "UTF-8";
 
   private Context context;
   private UserPreferences userPrefs;
@@ -92,12 +88,12 @@ public class PacoService {
 
       if ("POST".equals(httpMethod)) {
         urlConnection.setDoOutput(true);
-        OutputStreamWriter writer = new OutputStreamWriter(urlConnection.getOutputStream(), UTF_8);
+        OutputStreamWriter writer = new OutputStreamWriter(urlConnection.getOutputStream(), AbstractAuthTokenTask.UTF_8);
         writer.write(body);
         writer.flush();
       }
 
-      InputStreamReader reader = new InputStreamReader(urlConnection.getInputStream(), UTF_8);
+      InputStreamReader reader = new InputStreamReader(urlConnection.getInputStream(), AbstractAuthTokenTask.UTF_8);
       String result = read(reader);
       Log.d(PacoConstants.TAG, "RESULT = " + result);
       return result;
@@ -220,7 +216,7 @@ public class PacoService {
           userPrefs.setAccessToken(null);
         }
 
-        String authTokenType = PacoService.AUTH_TOKEN_TYPE_USERINFO_EMAIL;
+        String authTokenType = AbstractAuthTokenTask.AUTH_TOKEN_TYPE_USERINFO_EMAIL;
 
         Log.i(PacoConstants.TAG, "Get access token for " + accountName + " using authTokenType " + authTokenType);
         accountManager.getAuthToken(account, authTokenType, true,

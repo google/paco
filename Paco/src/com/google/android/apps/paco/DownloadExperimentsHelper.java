@@ -8,10 +8,10 @@ import org.joda.time.DateTime;
 import android.content.Context;
 import android.util.Log;
 
-import com.google.android.apps.paco.utils.PacoService;
 import com.google.common.base.Joiner;
+import com.pacoapp.paco.net.PacoService;
 
-public class DownloadHelper {
+public class DownloadExperimentsHelper {
 
   public static final int INVALID_DATA_ERROR = 1003;
   public static final int SERVER_ERROR = 1004;
@@ -30,7 +30,7 @@ public class DownloadHelper {
   public static final String RETRIEVAL_ERROR = "retrieval_error";
   public static final String SUCCESS = "success";
 
-  public DownloadHelper(Context context, UserPreferences userPrefs, Integer limit, String cursor) {
+  public DownloadExperimentsHelper(Context context, UserPreferences userPrefs, Integer limit, String cursor) {
     this.context = context;
     this.userPrefs = userPrefs;
     this.cursor = cursor;
@@ -41,12 +41,12 @@ public class DownloadHelper {
     try {
       contentAsString = makeMyExperimentsRequest();
       if (contentAsString == null) {
-        return DownloadHelper.RETRIEVAL_ERROR;
+        return DownloadExperimentsHelper.RETRIEVAL_ERROR;
       }
-      return DownloadHelper.SUCCESS;
+      return DownloadExperimentsHelper.SUCCESS;
     } catch (Exception e) {
       Log.e(PacoConstants.TAG, "Exception. Unable to update my experiments, " + e.getMessage());
-      return DownloadHelper.SERVER_COMMUNICATION_ERROR;
+      return DownloadExperimentsHelper.SERVER_COMMUNICATION_ERROR;
     }
   }
 
@@ -60,12 +60,12 @@ public class DownloadHelper {
     try {
       contentAsString = makeAvailableExperimentsRequest();
       if (contentAsString == null) {
-        return DownloadHelper.RETRIEVAL_ERROR;
+        return DownloadExperimentsHelper.RETRIEVAL_ERROR;
       }
-      return DownloadHelper.SUCCESS;
+      return DownloadExperimentsHelper.SUCCESS;
     } catch (Exception e) {
       Log.e(PacoConstants.TAG, "Exception. Unable to update available experiments, " + e.getMessage());
-      return DownloadHelper.SERVER_COMMUNICATION_ERROR;
+      return DownloadExperimentsHelper.SERVER_COMMUNICATION_ERROR;
     }
   }
 
@@ -78,12 +78,12 @@ public class DownloadHelper {
     try {
       contentAsString = makeRunningExperimentsRequest(experimentIds);
       if (contentAsString == null) {
-        return DownloadHelper.RETRIEVAL_ERROR;
+        return DownloadExperimentsHelper.RETRIEVAL_ERROR;
       }
-      return DownloadHelper.SUCCESS;
+      return DownloadExperimentsHelper.SUCCESS;
     } catch (Exception e) {
       Log.e(PacoConstants.TAG, "Exception. Unable to update running experiments, " + e.getMessage());
-      return DownloadHelper.SERVER_COMMUNICATION_ERROR;
+      return DownloadExperimentsHelper.SERVER_COMMUNICATION_ERROR;
     }
   }
 

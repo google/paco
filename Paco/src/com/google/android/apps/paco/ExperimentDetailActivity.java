@@ -26,6 +26,7 @@ import org.joda.time.format.DateTimeFormatter;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.drawable.ColorDrawable;
@@ -38,14 +39,17 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.apps.paco.utils.IntentExtraHelper;
-import com.google.common.collect.Lists;
 import com.google.paco.shared.model2.ExperimentDAO;
 import com.google.paco.shared.model2.ExperimentGroup;
 import com.pacoapp.paco.R;
+import com.pacoapp.paco.net.ExperimentUrlBuilder;
+import com.pacoapp.paco.net.NetworkClient;
+import com.pacoapp.paco.net.PacoForegroundService;
 
-public class ExperimentDetailActivity extends ActionBarActivity implements ExperimentLoadingActivity {
+public class ExperimentDetailActivity extends ActionBarActivity implements ExperimentLoadingActivity, NetworkClient {
 
   public static final String ID_FROM_MY_EXPERIMENTS_FILE = "my_experimentsFile";
 
@@ -63,10 +67,8 @@ public class ExperimentDetailActivity extends ActionBarActivity implements Exper
   private boolean useMyExperimentsDiskFile;
 
 
-  private DownloadFullExperimentsTask experimentDownloadTask;
-
-
   private Uri uri;
+  protected Long qrCodeExperimentId;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -233,49 +235,25 @@ public class ExperimentDetailActivity extends ActionBarActivity implements Exper
   }
 
 
-  protected void refreshList(final String realServerId) {
-    DownloadFullExperimentsTaskListener listener = new DownloadFullExperimentsTaskListener() {
-
-      @Override
-      public void done(String resultCode) {
-
-        if (resultCode.equals(DownloadHelper.SUCCESS)) {
-          experimentProviderUtil.addExperimentToExperimentsOnDisk(experimentDownloadTask.getContentAsString());
-          List<Experiment> experiments = experimentProviderUtil.loadExperimentsFromDisk(false);
-          Long serverId = Long.parseLong(realServerId);
-          for (Iterator iterator = experiments.iterator(); iterator.hasNext();) {
-            Experiment currentExperiment = (Experiment) iterator.next();
-            if (currentExperiment.getServerId().equals(serverId)) {
-              experiment = currentExperiment;
-            }
-          }
-          dismissDialog(REFRESHING_EXPERIMENTS_DIALOG_ID);
-        } else {
-          dismissDialog(REFRESHING_EXPERIMENTS_DIALOG_ID);
-          showFailureDialog(resultCode);
-        }
-
-        if (experiment != null) {
-          showExperiment();
-        } else {
-          ExperimentDetailActivity.this.finish();
-        }
-
-      }
-    };
-    showDialog(REFRESHING_EXPERIMENTS_DIALOG_ID);
-    List<Long> experimentServerIds = Lists.newArrayList(Long.parseLong(realServerId));
-    experimentDownloadTask = new DownloadFullExperimentsTask(this, listener, userPrefs, experimentServerIds);
-    experimentDownloadTask.execute((Void)null);
+  protected void retrieveExperimentFromServer(final String realServerId) {
+    if (!NetworkUtil.isConnected(this)) {
+      showDialog(DownloadExperimentsHelper.NO_NETWORK_CONNECTION, null);
+    } else {
+      //      progressBar.setVisibility(View.VISIBLE);
+      qrCodeExperimentId = Long.parseLong(realServerId);
+      final String myExperimentsUrl = ExperimentUrlBuilder.buildUrlForFullExperiment(new UserPreferences(this),
+                                                                                   qrCodeExperimentId);
+      new PacoForegroundService(this, myExperimentsUrl).execute();
+    }
   }
 
 
   private void showFailureDialog(String status) {
-    if (status.equals(DownloadHelper.CONTENT_ERROR) ||
-        status.equals(DownloadHelper.RETRIEVAL_ERROR)) {
-      showDialog(DownloadHelper.INVALID_DATA_ERROR, null);
+    if (status.equals(DownloadExperimentsHelper.CONTENT_ERROR) ||
+        status.equals(DownloadExperimentsHelper.RETRIEVAL_ERROR)) {
+      showDialog(DownloadExperimentsHelper.INVALID_DATA_ERROR, null);
     } else {
-      showDialog(DownloadHelper.SERVER_ERROR, null);
+      showDialog(DownloadExperimentsHelper.SERVER_ERROR, null);
     }
   }
 
@@ -293,14 +271,15 @@ public class ExperimentDetailActivity extends ActionBarActivity implements Exper
       }
 
       if (isLaunchedFromQRCode() && experiment == null) {
-        new AlertDialog.Builder(this).setMessage(R.string.selected_experiment_not_on_phone_refresh).setPositiveButton(R.string.accept, new DialogInterface.OnClickListener() {
-
-          public void onClick(DialogInterface dialog, int which) {
-            String realServerId = uri.getLastPathSegment().substring(4);
-            refreshList(realServerId);
-          }
-        }).show();
-
+        new AlertDialog.Builder(this)
+          .setMessage(R.string.selected_experiment_not_on_phone_refresh)
+          .setPositiveButton(R.string.accept, new DialogInterface.OnClickListener() {
+                                       public void onClick(DialogInterface dialog, int which) {
+                                         String realServerId = uri.getLastPathSegment().substring(4);
+                                         retrieveExperimentFromServer(realServerId);
+                                       }
+                                     })
+          .show();
       } else {
         showExperiment();
       }
@@ -325,8 +304,62 @@ public class ExperimentDetailActivity extends ActionBarActivity implements Exper
 
   @Override
   public void setExperimentGroup(ExperimentGroup groupByName) {
-    // no-op for this activity
+    // no-op for this networkClient
   }
 
+
+  @Override
+  public Context getContext() {
+    return this;
+  }
+
+  @Override
+  public void show(final String msg) {
+    runOnUiThread(new Runnable() {
+      @Override
+      public void run() {
+        Toast.makeText(ExperimentDetailActivity.this, msg, Toast.LENGTH_LONG);
+      }
+    });
+  }
+
+  @Override
+  public void showAndFinish(final String msg) {
+    runOnUiThread(new Runnable() {
+      @Override
+      public void run() {
+        //progressBar.setVisibility(View.GONE);
+        if (msg != null) {
+          // TODO this is a slow, roundabout way to do this. Just get back the experiment directly.
+          experimentProviderUtil.addExperimentToExperimentsOnDisk(msg);
+          List<Experiment> experiments = experimentProviderUtil.loadExperimentsFromDisk(false);
+          for (Iterator iterator = experiments.iterator(); iterator.hasNext();) {
+            Experiment currentExperiment = (Experiment) iterator.next();
+            if (currentExperiment.getServerId().equals(qrCodeExperimentId)) {
+              experiment = currentExperiment;
+            }
+          }
+          if (experiment != null) {
+            showExperiment();
+          } else {
+            ExperimentDetailActivity.this.finish();
+          }
+        } else {
+          showFailureDialog("Could not successfully join. Try again.");
+        }
+      }
+    });
+  }
+
+  @Override
+  public void handleException(final Exception exception) {
+    runOnUiThread(new Runnable() {
+      @Override
+      public void run() {
+        //progressBar.setVisibility(View.GONE);
+        Toast.makeText(ExperimentDetailActivity.this, "Exception: " + exception.getMessage(), Toast.LENGTH_LONG);
+      }
+    });
+  }
 }
 

@@ -98,7 +98,7 @@ public class RunningExperimentsActivity extends Activity {
     refreshButton.setOnClickListener(new OnClickListener() {
       public void onClick(View v) {
         if (!isConnected()) {
-          showDialog(DownloadHelper.NO_NETWORK_CONNECTION, null);
+          showDialog(DownloadExperimentsHelper.NO_NETWORK_CONNECTION, null);
         } else {
           refreshList();
         }
@@ -139,7 +139,7 @@ public class RunningExperimentsActivity extends Activity {
       @Override
       public void done(String resultCode) {
         dismissDialog(REFRESHING_EXPERIMENTS_DIALOG_ID);
-        if (resultCode == DownloadHelper.SUCCESS) {
+        if (resultCode == DownloadExperimentsHelper.SUCCESS) {
           saveDownloadedExperiments();
           saveRefreshTime();
         } else {
@@ -168,13 +168,13 @@ public class RunningExperimentsActivity extends Activity {
     try {
       experimentProviderUtil.updateExistingExperiments(contentAsString);
     } catch (JsonParseException e) {
-      showFailureDialog(DownloadHelper.CONTENT_ERROR);
+      showFailureDialog(DownloadExperimentsHelper.CONTENT_ERROR);
     } catch (JsonMappingException e) {
-      showFailureDialog(DownloadHelper.CONTENT_ERROR);
+      showFailureDialog(DownloadExperimentsHelper.CONTENT_ERROR);
     } catch (UnsupportedCharsetException e) {
-      showFailureDialog(DownloadHelper.CONTENT_ERROR);
+      showFailureDialog(DownloadExperimentsHelper.CONTENT_ERROR);
     } catch (IOException e) {
-      showFailureDialog(DownloadHelper.CONTENT_ERROR);
+      showFailureDialog(DownloadExperimentsHelper.CONTENT_ERROR);
     }
   }
 
@@ -187,11 +187,11 @@ public class RunningExperimentsActivity extends Activity {
   }
 
   private void showFailureDialog(String status) {
-    if (status.equals(DownloadHelper.CONTENT_ERROR) ||
-        status.equals(DownloadHelper.RETRIEVAL_ERROR)) {
-      showDialog(DownloadHelper.INVALID_DATA_ERROR, null);
+    if (status.equals(DownloadExperimentsHelper.CONTENT_ERROR) ||
+        status.equals(DownloadExperimentsHelper.RETRIEVAL_ERROR)) {
+      showDialog(DownloadExperimentsHelper.INVALID_DATA_ERROR, null);
     } else {
-      showDialog(DownloadHelper.SERVER_ERROR, null);
+      showDialog(DownloadExperimentsHelper.SERVER_ERROR, null);
     }
   }
 
@@ -345,11 +345,11 @@ public class RunningExperimentsActivity extends Activity {
     switch (id) {
       case REFRESHING_EXPERIMENTS_DIALOG_ID: {
           return getRefreshJoinedDialog();
-      } case DownloadHelper.INVALID_DATA_ERROR: {
+      } case DownloadExperimentsHelper.INVALID_DATA_ERROR: {
           return getUnableToJoinDialog(getString(R.string.invalid_data));
-      } case DownloadHelper.SERVER_ERROR: {
+      } case DownloadExperimentsHelper.SERVER_ERROR: {
         return getUnableToJoinDialog(getString(R.string.dialog_dismiss));
-      } case DownloadHelper.NO_NETWORK_CONNECTION: {
+      } case DownloadExperimentsHelper.NO_NETWORK_CONNECTION: {
         return getNoNetworkDialog();
       } default: {
         return null;
@@ -400,7 +400,7 @@ public class RunningExperimentsActivity extends Activity {
   }
 
   private void showNetworkConnectionActivity() {
-    startActivityForResult(new Intent(Settings.ACTION_WIRELESS_SETTINGS), DownloadHelper.ENABLED_NETWORK);
+    startActivityForResult(new Intent(Settings.ACTION_WIRELESS_SETTINGS), DownloadExperimentsHelper.ENABLED_NETWORK);
   }
 
 

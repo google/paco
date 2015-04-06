@@ -41,7 +41,7 @@ public class DownloadFullExperimentsTask extends AsyncTask<Void, Void, String> {
   }
 
   protected String doInBackground(Void... params) {
-    DownloadHelper downloadHelper = new DownloadHelper(enclosingContext, userPrefs, null, null);
+    DownloadExperimentsHelper downloadHelper = new DownloadExperimentsHelper(enclosingContext, userPrefs, null, null);
     String errorCode = downloadHelper.downloadRunningExperiments(experimentIds);
     contentAsString = downloadHelper.getContentAsString();
     return errorCode;

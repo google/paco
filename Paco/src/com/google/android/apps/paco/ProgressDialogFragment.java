@@ -63,13 +63,13 @@ public class ProgressDialogFragment extends DialogFragment {
       case FindExperimentsActivity.REFRESHING_EXPERIMENTS_DIALOG_ID: {
         dialog = getRefreshJoinedDialog();
         break;
-      } case DownloadHelper.INVALID_DATA_ERROR: {
+      } case DownloadExperimentsHelper.INVALID_DATA_ERROR: {
         dialog = getUnableToJoinDialog(getString(R.string.invalid_data));
         break;
-      } case DownloadHelper.SERVER_ERROR: {
+      } case DownloadExperimentsHelper.SERVER_ERROR: {
         dialog = getUnableToJoinDialog(getString(R.string.dialog_dismiss));
         break;
-      } case DownloadHelper.NO_NETWORK_CONNECTION: {
+      } case DownloadExperimentsHelper.NO_NETWORK_CONNECTION: {
         dialog = getNoNetworkDialog();
         break;
       } default: {

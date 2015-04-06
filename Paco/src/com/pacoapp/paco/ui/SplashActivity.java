@@ -22,15 +22,15 @@ import android.widget.Toast;
 import com.google.android.apps.paco.AccountChooser;
 import com.google.android.apps.paco.PacoConstants;
 import com.google.android.apps.paco.UserPreferences;
-import com.google.android.apps.paco.utils.PacoService;
 import com.google.android.gms.auth.GooglePlayServicesAvailabilityException;
 import com.google.android.gms.auth.UserRecoverableAuthException;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.pacoapp.paco.R;
-import com.pacoapp.paco.auth.AbstractAuthTokenTask;
-import com.pacoapp.paco.auth.GetAuthTokenInForeground;
+import com.pacoapp.paco.net.AbstractAuthTokenTask;
+import com.pacoapp.paco.net.GetAuthTokenInForeground;
+import com.pacoapp.paco.net.NetworkClient;
 
-public class SplashActivity extends Activity {
+public class SplashActivity extends Activity implements NetworkClient {
 
   public static final String EXTRA_ACCOUNTNAME = "extra_accountname";
   static final int REQUEST_CODE_PICK_ACCOUNT = 1000;
@@ -83,7 +83,7 @@ public class SplashActivity extends Activity {
     }
     if (resultCode == RESULT_OK) {
         Log.i(PacoConstants.TAG, "Retrying");
-        getTask(this, userPrefs.getSelectedAccount(), PacoService.AUTH_TOKEN_TYPE_USERINFO_EMAIL).execute();
+        getTask(this).execute();
         return;
     }
     if (resultCode == RESULT_CANCELED) {
@@ -133,7 +133,7 @@ public class SplashActivity extends Activity {
       setAccessToken(null);
     }
 
-    String authTokenType = PacoService.AUTH_TOKEN_TYPE_USERINFO_EMAIL;
+    String authTokenType = AbstractAuthTokenTask.AUTH_TOKEN_TYPE_USERINFO_EMAIL;
 
     Log.i(PacoConstants.TAG, "Get access token for " + accountName + " using authTokenType " + authTokenType);
     accountManager.getAuthToken(account, authTokenType, null, this,
@@ -183,15 +183,15 @@ public class SplashActivity extends Activity {
       pickUserAccount();
     } else {
       if (isDeviceOnline()) {
-        getTask(this, userPrefs.getSelectedAccount(), PacoService.AUTH_TOKEN_TYPE_USERINFO_EMAIL).execute();
+        getTask(this).execute();
       } else {
         Toast.makeText(this, "No network connection available", Toast.LENGTH_SHORT).show();
       }
     }
   }
 
-  private AbstractAuthTokenTask getTask(SplashActivity activity, String email, String scope) {
-    return new GetAuthTokenInForeground(activity, email, scope);
+  private AbstractAuthTokenTask getTask(SplashActivity activity) {
+    return new GetAuthTokenInForeground(activity);
   }
 
 
@@ -202,7 +202,7 @@ public class SplashActivity extends Activity {
                                                             new String[]{"com.google"},
                                                             false,
                                                             null,
-                                                            PacoService.AUTH_TOKEN_TYPE_USERINFO_EMAIL,
+                                                            AbstractAuthTokenTask.AUTH_TOKEN_TYPE_USERINFO_EMAIL,
                                                             null, null);
       startActivityForResult(intent, REQUEST_CODE_PICK_ACCOUNT);
     } else {
@@ -230,6 +230,7 @@ public class SplashActivity extends Activity {
     });
 }
 
+  @Override
   public void handleException(final Exception e) {
     runOnUiThread(new Runnable() {
         @Override
@@ -260,6 +261,11 @@ public class SplashActivity extends Activity {
     show(string);
     finish();
 
+  }
+
+  @Override
+  public Context getContext() {
+    return this.getApplicationContext();
   }
 
 }

@@ -1,4 +1,4 @@
-package com.pacoapp.paco.auth;
+package com.pacoapp.paco.net;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -7,7 +7,6 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 import org.json.JSONException;
-import org.json.JSONObject;
 
 import android.os.AsyncTask;
 import android.util.Log;
@@ -15,7 +14,6 @@ import android.util.Log;
 import com.google.android.apps.paco.PacoConstants;
 import com.google.android.apps.paco.UserPreferences;
 import com.google.android.gms.auth.GoogleAuthUtil;
-import com.pacoapp.paco.ui.SplashActivity;
 
 
 /*
@@ -37,24 +35,23 @@ import com.pacoapp.paco.ui.SplashActivity;
 
 public abstract class AbstractAuthTokenTask extends AsyncTask<Void, Void, Void> {
 
-      private static final String NAME_KEY = "given_name";
-      protected SplashActivity mActivity;
+      protected NetworkClient networkClient;
 
-      protected String mScope;
-      protected String mEmail;
-      private UserPreferences userPrefs;
+      protected String oAuthScope = AUTH_TOKEN_TYPE_USERINFO_EMAIL;
+      protected UserPreferences userPrefs;
+      public static final String AUTH_TOKEN_TYPE_USERINFO_EMAIL = "oauth2:https://www.googleapis.com/auth/userinfo.email";
+      private static final String AUTH_TOKEN_TYPE_USERINFO_PROFILE = "oauth2:https://www.googleapis.com/auth/userinfo.profile";
+      static final String UTF_8 = "UTF-8";
 
-      AbstractAuthTokenTask(SplashActivity activity, String email, String scope) {
-          this.mActivity = activity;
-          userPrefs = new UserPreferences(activity);
-          this.mScope = scope;
-          this.mEmail = email;
+      AbstractAuthTokenTask(NetworkClient networkClient) {
+          this.networkClient = networkClient;
+          userPrefs = new UserPreferences(networkClient.getContext());
       }
 
       @Override
       protected Void doInBackground(Void... params) {
         try {
-          fetchNameFromProfileServer();
+          doRequest();
         } catch (IOException ex) {
           onError("Following Error occured, please try again. " + ex.getMessage(), ex);
         } catch (JSONException e) {
@@ -67,12 +64,12 @@ public abstract class AbstractAuthTokenTask extends AsyncTask<Void, Void, Void> 
           if (e != null) {
             Log.e(PacoConstants.TAG, "Exception: ", e);
           }
-          mActivity.show(msg);  // will be run in UI thread
+          networkClient.show(msg);  // will be run in UI thread
       }
 
       /**
        * Get a authentication token if one is not available. If the error is not recoverable then
-       * it displays the error message on parent activity.
+       * it displays the error message on parent networkClient.
        */
       protected abstract String fetchToken() throws IOException;
 
@@ -83,7 +80,7 @@ public abstract class AbstractAuthTokenTask extends AsyncTask<Void, Void, Void> 
        * @throws IOException if communication with user info server failed.
        * @throws JSONException if the response from the server could not be parsed.
        */
-      private void fetchNameFromProfileServer() throws IOException, JSONException {
+      protected void doRequest() throws IOException, JSONException {
           String token = fetchToken();
           if (token == null) {
             // error has already been handled in fetchToken()
@@ -93,15 +90,15 @@ public abstract class AbstractAuthTokenTask extends AsyncTask<Void, Void, Void> 
           URL url = new URL("https://www.googleapis.com/oauth2/v1/userinfo?access_token=" + token);
           HttpURLConnection con = (HttpURLConnection) url.openConnection();
           int sc = con.getResponseCode();
+
           if (sc == 200) {
             InputStream is = con.getInputStream();
             String name = "Finished!"; //getFirstName(readResponse(is));
             is.close();
-            mActivity.showAndFinish("Hello " + name + "!");
-
+            networkClient.showAndFinish("Hello " + name + "!");
             return;
           } else if (sc == 401) {
-              GoogleAuthUtil.invalidateToken(mActivity, token);
+              GoogleAuthUtil.invalidateToken(networkClient.getContext(), token);
               onError("Server auth error, please try again.", null);
               Log.i(PacoConstants.TAG, "Server auth error: " + readResponse(con.getErrorStream()));
               return;
@@ -114,22 +111,14 @@ public abstract class AbstractAuthTokenTask extends AsyncTask<Void, Void, Void> 
       /**
        * Reads the response from the input stream and returns it as a string.
        */
-      private static String readResponse(InputStream is) throws IOException {
+      protected static String readResponse(InputStream is) throws IOException {
           ByteArrayOutputStream bos = new ByteArrayOutputStream();
           byte[] data = new byte[2048];
           int len = 0;
           while ((len = is.read(data, 0, data.length)) >= 0) {
               bos.write(data, 0, len);
           }
-          return new String(bos.toByteArray(), "UTF-8");
+          return new String(bos.toByteArray(), UTF_8);
       }
 
-      /**
-       * Parses the response and returns the first name of the user.
-       * @throws JSONException if the response is not JSON or if first name does not exist in response
-       */
-      private String getFirstName(String jsonResponse) throws JSONException {
-        JSONObject profile = new JSONObject(jsonResponse);
-        return profile.getString(NAME_KEY);
-      }
   }
