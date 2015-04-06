@@ -1,35 +1,35 @@
-<p>Let's define some of the basics for your experiment.</p>
-<md-card>
-  <md-card-content>
-    <h2>Experiment Listing</h2>
-    
-    <md-input-container>
-      <label>Title</label>
-      <input ng-model="experiment.title">
-      <div ng-messages>
-        <div ng-message>Your experiment title should be simple, specific and memorable.</div>
-      </div>
-    </md-input-container>
+<div class="basics">
+  <p>Let's define some of the basics for your experiment.</p>
+  <md-card>
+    <md-card-content>
+      <h2>Experiment Listing</h2>
 
-    <md-input-container>
-      <label>Description</label>
-      <textarea ng-model="experiment.description"></textarea>
-      <div ng-messages>
-        <div ng-message>Our search tools run through the title and description sections of your project,
-          so be sure to incorporate any keywords here.</div>
-      </div>
-    </md-input-container>
+      <md-input-container>
+        <label>Title</label>
+        <input ng-model="experiment.title">
+        <div ng-messages>
+          <div ng-message>Your experiment title should be simple, specific and memorable.</div>
+        </div>
+      </md-input-container>
 
-    <md-input-container>
-      <label>Organization</label>
-      <input ng-model="experiment.organization">
-      <div ng-messages>
-        <div ng-message>What organization is sponsoring the experiment? This will appear on the app
-          Experiment created by. If it's not sponsoered by an organization, you can
-          just use your name.</div>
-      </div>
-    </md-input-container>
+      <md-input-container>
+        <label>Organization</label>
+        <input ng-model="experiment.organization">
+        <div ng-messages>
+          <div ng-message>What organization is sponsoring the experiment? If it's not sponsored by
+            an organization, you can just use your name.</div>
+        </div>
+      </md-input-container>
 
+      <md-input-container>
+        <label>Description</label>
+        <textarea ng-model="experiment.description"></textarea>
+        <div ng-messages>
+          <div ng-message>Our search tools run through the title and description sections of your
+            project, so be sure to incorporate any keywords here.</div>
+        </div>
+      </md-input-container>
+      <!-- 
     <h2>Upload an image</h2>
     <div class="padded upload" file-dropzone="[image/png, image/jpeg, image/gif]" file="image"
     dragging="highlight" file-name="imageFileName" data-max-file-size="5">
@@ -42,6 +42,7 @@
           for credibility.</p>
       </div>
     </div>
-
-  </md-card-content>
-</md-card>
+ -->
+    </md-card-content>
+  </md-card>
+</div>

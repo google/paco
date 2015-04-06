@@ -2,7 +2,7 @@
  * Angular Material Design
  * https://github.com/angular/material
  * @license MIT
- * v0.7.0-master-6784497
+ * v0.8.3-master-076a97d
  */
 goog.provide('ng.material.components.slider');
 goog.require('ng.material.core');
@@ -61,22 +61,39 @@ function SliderDirective($$rAF, $window, $mdAria, $mdUtil, $mdConstant, $mdThemi
     scope: {},
     require: '?ngModel',
     template:
-      '<div class="md-track-container">' +
-      '<div class="md-track"></div>' +
-      '<div class="md-track md-track-fill"></div>' +
-      '<div class="md-track-ticks"></div>' +
-      '</div>' +
-      '<div class="md-thumb-container">' +
-      '<div class="md-thumb"></div>' +
-      '<div class="md-focus-thumb"></div>' +
-      '<div class="md-focus-ring"></div>' +
-      '<div class="md-sign">' +
-      '<span class="md-thumb-text"></span>' +
-      '</div>' +
-      '<div class="md-disabled-thumb"></div>' +
-      '</div>',
-    link: postLink
+      '<div class="md-slider-wrapper">\
+        <div class="md-track-container">\
+          <div class="md-track"></div>\
+          <div class="md-track md-track-fill"></div>\
+          <div class="md-track-ticks"></div>\
+        </div>\
+        <div class="md-thumb-container">\
+          <div class="md-thumb"></div>\
+          <div class="md-focus-thumb"></div>\
+          <div class="md-focus-ring"></div>\
+          <div class="md-sign">\
+            <span class="md-thumb-text"></span>\
+          </div>\
+          <div class="md-disabled-thumb"></div>\
+        </div>\
+      </div>',
+    compile: compile
   };
+
+  // **********************************************************
+  // Private Methods
+  // **********************************************************
+
+  function compile (tElement, tAttrs) {
+    tElement.attr({
+      tabIndex: 0,
+      role: 'slider'
+    });
+
+    $mdAria.expect(tElement, 'aria-label');
+
+    return postLink;
+  }
 
   function postLink(scope, element, attr, ngModelCtrl) {
     $mdTheming(element);
@@ -92,7 +109,10 @@ function SliderDirective($$rAF, $window, $mdAria, $mdUtil, $mdConstant, $mdThemi
       $viewChangeListeners: []
     };
 
-    var isDisabledGetter = $parse(attr.ngDisabled);
+    var isDisabledParsed = attr.ngDisabled && $parse(attr.ngDisabled);
+    var isDisabledGetter = isDisabledParsed ?
+      function() { return isDisabledParsed(scope.$parent); } :
+      angular.noop;
     var thumb = angular.element(element[0].querySelector('.md-thumb'));
     var thumbText = angular.element(element[0].querySelector('.md-thumb-text'));
     var thumbContainer = thumb.parent();
@@ -114,14 +134,9 @@ function SliderDirective($$rAF, $window, $mdAria, $mdUtil, $mdConstant, $mdThemi
       stopDisabledWatch = scope.$parent.$watch(attr.ngDisabled, updateAriaDisabled);
     }
 
-    $mdAria.expect(element, 'aria-label');
-
     $mdGesture.register(element, 'drag');
+
     element
-      .attr({
-        tabIndex: 0,
-        role: 'slider'
-      })
       .on('keydown', keydownListener)
       .on('$md.pressdown', onPressDown)
       .on('$md.pressup', onPressUp)
@@ -275,8 +290,8 @@ function SliderDirective($$rAF, $window, $mdAria, $mdUtil, $mdConstant, $mdThemi
     function setSliderPercent(percent) {
       activeTrack.css('width', (percent * 100) + '%');
       thumbContainer.css(
-        $mdConstant.CSS.TRANSFORM,
-        'translate3d(' + (percent * 100) + '%,0,0)'
+        'left',
+        (percent * 100) + '%'
       );
       element.toggleClass('md-min', percent === 0);
     }
@@ -289,7 +304,7 @@ function SliderDirective($$rAF, $window, $mdAria, $mdUtil, $mdConstant, $mdThemi
     var isDiscrete = angular.isDefined(attr.mdDiscrete);
 
     function onPressDown(ev) {
-      if (isDisabledGetter(scope)) return;
+      if (isDisabledGetter()) return;
 
       element.addClass('active');
       element[0].focus();
@@ -303,16 +318,19 @@ function SliderDirective($$rAF, $window, $mdAria, $mdUtil, $mdConstant, $mdThemi
       });
     }
     function onPressUp(ev) {
+      if (isDisabledGetter()) return;
+
       element.removeClass('dragging active');
 
       var exactVal = percentToValue( positionToPercent( ev.pointer.x ));
       var closestVal = minMaxValidator( stepValidator(exactVal) );
       scope.$apply(function() {
         setModelValue(closestVal);
+        ngModelRender();
       });
     }
     function onDragStart(ev) {
-      if (isDisabledGetter(scope)) return;
+      if (isDisabledGetter()) return;
       isDragging = true;
       ev.stopPropagation();
 

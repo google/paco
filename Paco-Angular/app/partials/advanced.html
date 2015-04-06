@@ -44,7 +44,8 @@
     </div>
     <div class="ace_editor" ng-model="group.customRenderingCode" 
       ui-ace="{
-        mode: 'javascript', 
+        mode: 'javascript',
+        onLoad: aceLoaded,
         rendererOptions: {
           minLines: 3,
           maxLines: 'Infinity'

@@ -10,36 +10,37 @@
           Save Experiment
         </md-button>
       </div>
-      <md-tabs class="md-accent" md-selected="tabIndex">
-        <md-tab id="tab1" ng-if="experiment">
-          Basics
+      
+      <md-tabs md-selected="tabIndex">
+        <!-- There is an error if md-on-select/deselect are not defined. -->
+        <md-tab md-on-select="" md-on-deselect="">
+          <md-tab-label>
+            Basics
+          </md-tab-label>
         </md-tab>
-        <md-tab id="tab2" ng-if="experiment">
-          Questions
+        <md-tab md-on-select="" md-on-deselect="">
+          <md-tab-label>
+            Questions
+          </md-tab-label>
         </md-tab>
-        <md-tab id="tab4" ng-if="experiment">
-          Admin
+        <md-tab md-on-select="" md-on-deselect="">
+          <md-tab-label>
+            Admin
+          </md-tab-label>
         </md-tab>
-        <md-tab id="tab3" ng-if="experiment">
-          Source
+        <md-tab md-on-select="" md-on-deselect="">
+          <md-tab-label>
+            Source
+          </md-tab-label>
         </md-tab>
       </md-tabs>
+
     </md-card-content>
   </md-card>
 
-  <ng-switch on="tabIndex" class="tabpanel-container">
-    <div role="tabpanel" ng-switch-when="0">
-      <div ng-include="'partials/basics.html'" class="basics"></div>
-    </div>
-    <div role="tabpanel" ng-switch-when="1">
-      <div ng-include="'partials/groups.html'"></div>
-    </div>
-    <div role="tabpanel" ng-switch-when="2">
-      <div ng-include="'partials/admin.html'"></div>
-    </div>
-    <div role="tabpanel" ng-switch-when="3">
-      <div ng-include="'partials/source.html'"></div>
-    </div>
-  </ng-switch>
+  <div ng-include="'partials/basics.html'" ng-if="tabIndex==0"></div>
+  <div ng-include="'partials/groups.html'" ng-if="tabIndex==1"></div>
+  <div ng-include="'partials/admin.html'" ng-if="tabIndex==2"></div>
+  <div ng-include="'partials/source.html'" ng-if="tabIndex==3"></div>
 
 </div>

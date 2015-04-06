@@ -41,7 +41,13 @@ pacoApp.controller('ExperimentCtrl', ['$scope', '$http',
   '$mdDialog', '$filter', 'template', '$location',
   function($scope, $http, $mdDialog, $filter, template, $location) {
     $scope.tabIndex = 0;
+    $scope.tabs = ['Basics','Questions','Admin','Source'];
     $scope.ace = {};
+
+    $scope.handleSelectedIndexChange = function() {
+
+    };
+
 
     if ($scope.experimentId == -1) {
       $scope.experiment = angular.copy(template.experiment);
@@ -69,8 +75,13 @@ pacoApp.controller('ExperimentCtrl', ['$scope', '$http',
       }
     });
 
+    $scope.next = function() {};
+    $scope.previous = function() {};
+
+
     // Ace is reloaded when the Source tab is selected so get pretty JSON here
     $scope.aceLoaded = function(editor) {
+      editor.$blockScrolling = 'Infinity';
       $scope.ace = {
         JSON: JSON.stringify($scope.experiment, null, '  '),
         error: false
@@ -158,11 +169,9 @@ pacoApp.controller('GroupCtrl', ['$scope', 'template',
       event.stopPropagation();
     };
 
-    $scope.aceLoad = function(editor) {
-      editor.setAutoScrollEditorIntoView(true);
+    $scope.aceLoaded = function(editor) {
+      editor.$blockScrolling = 'Infinity';
     };
-
-
   }
 ]);
 

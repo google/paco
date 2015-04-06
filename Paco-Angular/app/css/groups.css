@@ -35,7 +35,7 @@
 }
 
 .group .duration md-input-container {
-  padding: 0 0 2px 0;
+  padding: 0;
 }
 
 .choice {
@@ -122,7 +122,7 @@ md-card-content.expand::after  {
 
 .md-button[add-icon] {
   background: url('../img/ic_add_circle_outline_24px.svg') no-repeat;
-  background-position: 3px 3px;
+  background-position: 4px 50%;
   padding-left: 32px;
 }
 

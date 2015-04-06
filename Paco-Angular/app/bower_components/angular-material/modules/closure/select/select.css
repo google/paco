@@ -2,10 +2,10 @@
  * Angular Material Design
  * https://github.com/angular/material
  * @license MIT
- * v0.7.1-master-bbbec18
+ * v0.8.3-master-076a97d
  */
 .md-select-menu-container {
-  position: absolute;
+  position: fixed;
   left: 0;
   top: 0;
   z-index: 99;
@@ -31,10 +31,26 @@
     transition: all 0.3s cubic-bezier(0.55, 0, 0.55, 0.2);
     transition-duration: 250ms; }
 
+md-input-container > md-select {
+  margin: 0;
+  margin-top: 1.4em; }
+
 md-select {
   display: inline-block;
-  margin-top: 20px; }
-  md-select:focus .md-select-label {
+  margin-top: 1.5em;
+  margin-bottom: 1.625em;
+  margin-left: 2px;
+  margin-right: 2px; }
+  md-select:focus {
+    outline: none; }
+  md-select[disabled]:hover {
+    cursor: default; }
+  md-select:not([disabled]):hover {
+    cursor: pointer; }
+  md-select:not([disabled]).ng-invalid.ng-dirty .md-select-label {
+    padding-bottom: 7px;
+    border-bottom: 2px solid; }
+  md-select:not([disabled]):focus .md-select-label {
     border-bottom: 2px solid;
     padding-bottom: 7px; }
 
@@ -46,26 +62,30 @@ md-select {
       -ms-flex-align: center;
           align-items: center;
   padding-top: 9px;
-  padding-right: 32px;
   padding-bottom: 8px;
   border-bottom: 1px solid;
-  font-size: 0.875em;
+  font-size: 1.6rem;
   line-height: 0.8em;
   position: relative;
   box-sizing: border-box;
   min-width: 64px; }
-  .md-select-label:after {
+  .md-select-label *:first-child {
+    -webkit-flex: 1;
+        -ms-flex: 1;
+            flex: 1; }
+  .md-select-label .md-select-icon {
+    -webkit-align-items: flex-end;
+        -ms-flex-align: end;
+            align-items: flex-end;
+    text-align: end;
+    width: 24px;
+    margin: 0 4px; }
+  .md-select-label .md-select-icon:after {
+    display: block;
     content: '\25BC';
-    display: -webkit-flex;
-    display: -ms-flexbox;
-    display: flex;
-    -webkit-align-items: center;
-        -ms-flex-align: center;
-            align-items: center;
-    position: absolute;
-    height: 100%;
-    top: 0px;
-    right: 2px;
+    position: relative;
+    top: 2px;
+    speak: none;
     -webkit-transform: scaleY(0.6) scaleX(1);
             transform: scaleY(0.6) scaleX(1); }
 
@@ -82,7 +102,7 @@ md-select-menu {
   -webkit-transform: scale(1);
           transform: scale(1);
   max-height: 256px;
-  overflow-y: scroll; }
+  overflow-y: hidden; }
   md-select-menu.md-reverse {
     -webkit-flex-direction: column-reverse;
         -ms-flex-direction: column-reverse;
@@ -91,7 +111,9 @@ md-select-menu {
     padding-top: 8px;
     padding-bottom: 8px; }
   md-select-menu md-content {
-    min-width: 136px; }
+    min-width: 136px;
+    max-height: 256px;
+    overflow-y: auto; }
   md-select-menu > * {
     opacity: 0; }
 
@@ -107,19 +129,26 @@ md-option {
   width: auto;
   padding: 0 16px 0 16px;
   height: 48px; }
+  md-option:focus {
+    outline: none; }
   md-option .md-text {
     width: auto;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    font-size: 0.875em; }
+    font-size: 1.6rem; }
 
 md-optgroup {
   display: block; }
   md-optgroup label {
     display: block;
-    font-size: 0.75em;
+    font-size: 1.6rem;
     text-transform: uppercase;
     padding: 16px 8px; }
   md-optgroup md-option {
     padding-left: 24px; }
+
+@media screen and (-ms-high-contrast: active) {
+  .md-select-backdrop {
+    background-color: transparent; }
+ }
