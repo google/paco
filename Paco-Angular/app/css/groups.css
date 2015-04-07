@@ -143,19 +143,19 @@ div[expander] {
   top: -28px;
 }
 
+.advanced .over {
+  position: relative;
+}
+
 .advanced .referred {
   position: absolute;
   left: 240px;
-  top: 8px;
+  top: -24px;
   z-index: 10;
 }
 
 .advanced textarea {
   font-family: monospace;
-}
-
-.advanced .over {
-  z-index: 100;
 }
 
 .advanced .ace_editor {
