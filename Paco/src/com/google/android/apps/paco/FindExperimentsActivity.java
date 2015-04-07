@@ -59,6 +59,7 @@ import com.pacoapp.paco.R;
 import com.pacoapp.paco.net.ExperimentUrlBuilder;
 import com.pacoapp.paco.net.NetworkClient;
 import com.pacoapp.paco.net.PacoForegroundService;
+import com.pacoapp.paco.ui.SplashActivity;
 
 
 /**
@@ -165,8 +166,8 @@ public class FindExperimentsActivity extends ActionBarActivity implements Networ
   @Override
   protected void onResume() {
     super.onResume();
-    if (userPrefs.getSelectedAccount() == null) {
-      Intent acctChooser = new Intent(this, AccountChooser.class);
+    if (userPrefs.getAccessToken() == null) {
+      Intent acctChooser = new Intent(this, SplashActivity.class);
       this.startActivity(acctChooser);
     } else {
       if (userPrefs.isAvailableExperimentsListStale()) {

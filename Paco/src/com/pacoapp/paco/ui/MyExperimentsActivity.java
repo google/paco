@@ -577,9 +577,20 @@ public class MyExperimentsActivity extends ActionBarActivity {
     startActivity(startIntent);
   }
 
+  @SuppressLint("NewApi")
   private void launchAccountChooser() {
-    Intent intent = new Intent(this, com.google.android.apps.paco.AccountChooser.class);
+    Intent intent = new Intent(this, SplashActivity.class);
+    intent.putExtra(SplashActivity.EXTRA_CHANGING_EXISTING_ACCOUNT, true);
     startActivity(intent);
+//    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
+//      Intent intent = AccountManager.newChooseAccountIntent(null, null, new String[] { "com.google" }, false, null,
+//                                                            AbstractAuthTokenTask.AUTH_TOKEN_TYPE_USERINFO_EMAIL, null,
+//                                                            null);
+//      startActivityForResult(intent, SplashActivity.REQUEST_CODE_PICK_ACCOUNT);
+//    } else {
+//      Intent intent = new Intent(this, AccountChooser.class);
+//      startActivityForResult(intent, SplashActivity.REQUEST_CODE_PICK_ACCOUNT);
+//    }
   }
 
 }

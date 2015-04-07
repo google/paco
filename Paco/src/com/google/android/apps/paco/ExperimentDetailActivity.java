@@ -48,6 +48,7 @@ import com.pacoapp.paco.R;
 import com.pacoapp.paco.net.ExperimentUrlBuilder;
 import com.pacoapp.paco.net.NetworkClient;
 import com.pacoapp.paco.net.PacoForegroundService;
+import com.pacoapp.paco.ui.SplashActivity;
 
 public class ExperimentDetailActivity extends ActionBarActivity implements ExperimentLoadingActivity, NetworkClient {
 
@@ -260,9 +261,9 @@ public class ExperimentDetailActivity extends ActionBarActivity implements Exper
 
   @Override
   protected void onResume() {
-    if (isLaunchedFromQRCode() && userPrefs.getSelectedAccount() == null) {
-      Intent acctChooser = new Intent(this, AccountChooser.class);
-      this.startActivity(acctChooser);
+    if (isLaunchedFromQRCode() && userPrefs.getAccessToken() == null) {
+        Intent splash = new Intent(this, SplashActivity.class);
+        this.startActivity(splash);
     } else {
       if (!isLaunchedFromQRCode()) {
         IntentExtraHelper.loadExperimentInfoFromIntent(this, getIntent(), experimentProviderUtil);

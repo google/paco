@@ -33,17 +33,23 @@ import com.pacoapp.paco.net.NetworkClient;
 public class SplashActivity extends Activity implements NetworkClient {
 
   public static final String EXTRA_ACCOUNTNAME = "extra_accountname";
-  static final int REQUEST_CODE_PICK_ACCOUNT = 1000;
-  static final int REQUEST_CODE_RECOVER_FROM_AUTH_ERROR = 1001;
-  static final int REQUEST_CODE_RECOVER_FROM_PLAY_SERVICES_ERROR = 1002;
+  public static final String EXTRA_CHANGING_EXISTING_ACCOUNT = "extra_changing_existing_account";
+
+  public static final int REQUEST_CODE_PICK_ACCOUNT = 1000;
+  public static final int REQUEST_CODE_RECOVER_FROM_AUTH_ERROR = 1001;
+  public static final int REQUEST_CODE_RECOVER_FROM_PLAY_SERVICES_ERROR = 1002;
 
   protected static final int ACCOUNT_CHOOSER_REQUEST_CODE = 55;
+
+
   private UserPreferences userPrefs;
+  private boolean changingExistingAccount;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.splash_screen);
+    changingExistingAccount = getIntent().getBooleanExtra(EXTRA_CHANGING_EXISTING_ACCOUNT, false);
 
     userPrefs = new UserPreferences(getApplicationContext());
 
@@ -63,6 +69,7 @@ public class SplashActivity extends Activity implements NetworkClient {
       if (requestCode == REQUEST_CODE_PICK_ACCOUNT) {
           if (resultCode == RESULT_OK) {
               userPrefs.saveSelectedAccount(data.getStringExtra(AccountManager.KEY_ACCOUNT_NAME));
+              changingExistingAccount = false; // unset so that we don't loop in the picker forever
               authenticateUser();
           } else if (resultCode == RESULT_CANCELED) {
               Toast.makeText(this, "You must pick an account", Toast.LENGTH_SHORT).show();
@@ -173,13 +180,13 @@ public class SplashActivity extends Activity implements NetworkClient {
   @Override
   protected void onResume() {
     super.onResume();
-    if (userPrefs.getAccessToken() != null) {
-      finish();
+    if (changingExistingAccount) {
+      authenticateUser();
     }
   }
 
   public void authenticateUser() {
-    if (userPrefs.getSelectedAccount() == null) {
+    if (userPrefs.getSelectedAccount() == null || changingExistingAccount) {
       pickUserAccount();
     } else {
       if (isDeviceOnline()) {
@@ -198,9 +205,13 @@ public class SplashActivity extends Activity implements NetworkClient {
   @SuppressLint("NewApi")
   public void pickUserAccount() {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
-      Intent intent = AccountManager.newChooseAccountIntent(null, null,
+      Account account = null;
+      if (userPrefs.getSelectedAccount() != null) {
+        account = getAccountFor(userPrefs.getSelectedAccount());
+      }
+      Intent intent = AccountManager.newChooseAccountIntent(account, null,
                                                             new String[]{"com.google"},
-                                                            false,
+                                                            changingExistingAccount,
                                                             null,
                                                             AbstractAuthTokenTask.AUTH_TOKEN_TYPE_USERINFO_EMAIL,
                                                             null, null);
@@ -209,6 +220,17 @@ public class SplashActivity extends Activity implements NetworkClient {
       Intent intent = new Intent(SplashActivity.this, AccountChooser.class);
       startActivityForResult(intent, REQUEST_CODE_PICK_ACCOUNT);
     }
+  }
+
+  private Account getAccountFor(String selectedAccount) {
+    AccountManager am = AccountManager.get(this);
+    Account[] accounts = am.getAccountsByType("com.google");
+    for (Account account : accounts) {
+      if (account.name.equals(selectedAccount)) {
+        return account;
+      }
+    }
+    return null;
   }
 
   /** Checks whether the device currently has a network connection */
