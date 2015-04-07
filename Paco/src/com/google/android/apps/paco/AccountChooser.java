@@ -13,8 +13,8 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.google.corp.productivity.specialprojects.android.comm.LoginRedirectHandler;
 import com.pacoapp.paco.R;
+import com.pacoapp.paco.net.AbstractAuthTokenTask;
 
 public class AccountChooser extends ListActivity {
 
@@ -45,7 +45,7 @@ public class AccountChooser extends ListActivity {
     AccountManager am = AccountManager.get(this);
     accounts = am.getAccountsByType(accountType);
     if (accounts == null || accounts.length == 0) {
-      am.addAccount(accountType, LoginRedirectHandler.AUTH_TOKEN_TYPE, null, null, null, null, null);
+      am.addAccount(accountType, AbstractAuthTokenTask.AUTH_TOKEN_TYPE_USERINFO_EMAIL, null, null, null, null, null);
     } else {
       List<String> accountNames = new ArrayList<String>();
       for (Account acct : accounts) {
