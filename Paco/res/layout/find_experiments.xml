@@ -44,6 +44,13 @@
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
             android:layout_gravity="center|top" />
+
+        <TextView
+            android:id="@android:id/empty"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:text="You have no running experiments" />
+
     </LinearLayout>
 
     <LinearLayout

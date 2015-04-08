@@ -235,6 +235,8 @@ public class FindMyExperimentsActivity extends ActionBarActivity implements Netw
 
   protected void refreshList() {
     progressBar.setVisibility(View.VISIBLE);
+
+    // TODO replace this by binding to MyExperimentsFetchService and having it callback when it is done
     final String myExperimentsUrl = ExperimentUrlBuilder.buildUrlForMyExperiments(userPrefs, experimentCursor,
                                                                                   FindExperimentsActivity.DOWNLOAD_LIMIT);
     new PacoForegroundService(this, myExperimentsUrl).execute();

@@ -199,6 +199,7 @@
         </service>
         <service android:name="com.google.android.apps.paco.SyncService" />
         <service android:name="com.google.android.apps.paco.ServerCommunicationService" />
+        <service android:name="com.pacoapp.paco.net.MyExperimentsFetchService" />
 
         <receiver android:name="com.google.android.apps.paco.AlarmReceiver" >
             <intent-filter>

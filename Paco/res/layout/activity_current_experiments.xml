@@ -59,4 +59,47 @@
             android:layout_gravity="center|top" />
     </LinearLayout>
 
+      <LinearLayout
+          android:id="@+id/announcementLayout"
+          android:layout_width="fill_parent"
+          android:layout_height="0dip"
+          android:layout_gravity="center|top"
+          android:layout_weight="0.49"
+          android:gravity="center|top"
+          android:orientation="vertical"
+          android:visibility="gone" 
+          android:background="@color/orange_background">
+
+          <ImageButton
+              android:id="@+id/invitationAnnouncementCloseButton"
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:layout_gravity="right"
+              android:src="@android:drawable/ic_menu_close_clear_cancel" />
+
+          <TextView
+              android:id="@+id/invitationTextView"
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:text="YOU HAVE A NEW INVITATION"
+              android:textAppearance="?android:attr/textAppearanceLarge" 
+              android:textColor="#ffffff"/>
+          <TextView
+              android:id="@+id/invitationExperimentNameTextView"
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:text="Experiment Name"
+              android:textAppearance="?android:attr/textAppearanceLarge" 
+              android:textColor="#ffffff"/>
+
+          <TextView
+              android:id="@+id/invitationContactTextView"
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:text="Organization Contact"
+              android:textAppearance="?android:attr/textAppearanceSmall" 
+              android:textColor="#ffffff"/>
+
+    </LinearLayout>
+
 </LinearLayout>

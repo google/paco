@@ -30,14 +30,17 @@ import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.graphics.drawable.ColorDrawable;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.provider.Settings;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
@@ -48,6 +51,8 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -59,6 +64,7 @@ import com.google.android.apps.paco.ESMSignalViewer;
 import com.google.android.apps.paco.EulaDisplayActivity;
 import com.google.android.apps.paco.Event;
 import com.google.android.apps.paco.Experiment;
+import com.google.android.apps.paco.ExperimentDetailActivity;
 import com.google.android.apps.paco.ExperimentExecutor;
 import com.google.android.apps.paco.ExperimentExecutorCustomRendering;
 import com.google.android.apps.paco.ExperimentGroupPicker;
@@ -72,11 +78,15 @@ import com.google.android.apps.paco.ServerConfiguration;
 import com.google.android.apps.paco.SyncService;
 import com.google.android.apps.paco.UserPreferences;
 import com.google.android.apps.paco.WelcomeActivity;
+import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.paco.shared.model2.ExperimentGroup;
 import com.google.paco.shared.util.ExperimentHelper;
 import com.google.paco.shared.util.TimeUtil;
 import com.pacoapp.paco.R;
+import com.pacoapp.paco.net.MyExperimentsFetchService;
+import com.pacoapp.paco.net.MyExperimentsFetchService.ExperimentFetchListener;
+import com.pacoapp.paco.net.MyExperimentsFetchService.LocalBinder;
 import com.pacoapp.paco.os.RingtoneUtil;
 
 /**
@@ -103,6 +113,32 @@ public class MyExperimentsActivity extends ActionBarActivity {
 
   private List<Experiment> experiments = Lists.newArrayList();
   protected AvailableExperimentsListAdapter adapter;
+  private LinearLayout invitationLayout;
+  private TextView invitationExperimentName;
+  private TextView invitationContactTextView;
+  private ImageButton invitationCloseButton;
+  protected boolean bound;
+  protected MyExperimentsFetchService mService;
+  private List<Experiment> invitations;
+
+
+  private ServiceConnection mConnection = new ServiceConnection() {
+
+    @Override
+    public void onServiceConnected(ComponentName className, IBinder service) {
+      // We've bound to LocalService, cast the IBinder and get LocalService
+      // instance
+      LocalBinder binder = (LocalBinder) service;
+      mService = binder.getService();
+      bound = true;
+      getAnyNewInvitations();
+    }
+
+    @Override
+    public void onServiceDisconnected(ComponentName arg0) {
+      bound = false;
+    }
+  };
 
   @SuppressLint("NewApi")
   @Override
@@ -126,9 +162,121 @@ public class MyExperimentsActivity extends ActionBarActivity {
     list.setBackgroundColor(333);
     createListHeader();
 
-    experimentProviderUtil = new ExperimentProviderUtil(this);
+    invitationLayout = (LinearLayout)findViewById(R.id.announcementLayout);
+    invitationExperimentName = (TextView)findViewById(R.id.invitationExperimentNameTextView);
+    invitationContactTextView = (TextView)findViewById(R.id.invitationContactTextView);
+    invitationCloseButton = (ImageButton)findViewById(R.id.invitationAnnouncementCloseButton);
 
+    experimentProviderUtil = new ExperimentProviderUtil(this);
     registerForContextMenu(list);
+  }
+
+
+  private void getAnyNewInvitations() {
+    mService.getExperiments(new ExperimentFetchListener() {
+
+
+      @Override
+      public void done(List<Experiment> invitations) {
+        List<Experiment> unseenInvitations = removeSeenInvitations(invitations);
+        unseenInvitations = removeJoinedExperiments(unseenInvitations);
+        MyExperimentsActivity.this.invitations = unseenInvitations;
+        runOnUiThread(new Runnable() {
+
+          @Override
+          public void run() {
+            showInvitations(MyExperimentsActivity.this.invitations);
+
+          }
+        });
+
+      }
+    });
+  }
+
+  protected List<Experiment> removeJoinedExperiments(List<Experiment> invitations) {
+    List<Long> joinedExperimentIds = Lists.newArrayList();
+    for (Experiment experiment : experiments) {
+      joinedExperimentIds.add(experiment.getExperimentDAO().getId());
+    }
+    List<Experiment> unseen = Lists.newArrayList();
+    for (Experiment invitation : invitations) {
+      final Long invitationId = invitation.getExperimentDAO().getId();
+      if (!joinedExperimentIds.contains(invitationId)) {
+        unseen.add(invitation);
+      }
+    }
+
+    return unseen;
+  }
+
+
+  private List<Experiment> removeSeenInvitations(List<Experiment> invitations) {
+    List<Long> seen = getSeenInvitations();
+    List<Experiment> unseen = Lists.newArrayList();
+    for (Experiment invitation : invitations) {
+      final Long invitationId = invitation.getExperimentDAO().getId();
+      if (!seen.contains(invitationId)) {
+        unseen.add(invitation);
+      }
+    }
+
+    return unseen;
+  }
+
+  public List<Long> getSeenInvitations() {
+    return userPrefs.getSeenExperimentInvitationIds();
+  }
+
+  private void saveSeenInvitations(List<Long> seen) {
+    userPrefs.saveSeenExperimentInvitations(seen);
+  }
+
+  private void markInvitationSeen(Experiment invitation) {
+    Long serverId = invitation.getExperimentDAO().getId();
+    List<Long> seen = getSeenInvitations();
+    if (!seen.contains(serverId)) {
+      seen.add(serverId);
+      saveSeenInvitations(seen);
+    }
+  }
+
+  protected void showInvitations(final List<Experiment> invitations) {
+    if (invitations.size() == 0) {
+      invitationLayout.setVisibility(View.GONE);
+      return;
+    }
+
+    final Experiment invitation = invitations.get(0);
+
+    invitationExperimentName.setText(invitation.getExperimentDAO().getTitle());
+    String organization = invitation.getExperimentDAO().getOrganization();
+    if (Strings.isNullOrEmpty(organization)) {
+      organization = invitation.getExperimentDAO().getContactEmail();
+    }
+    invitationContactTextView.setText(organization);
+    invitationLayout.setVisibility(View.VISIBLE);
+    invitationLayout.setOnClickListener(new OnClickListener() {
+
+      @Override
+      public void onClick(View v) {
+        Intent intent = new Intent(MyExperimentsActivity.this, ExperimentDetailActivity.class);
+        intent.putExtra(ExperimentDetailActivity.ID_FROM_MY_EXPERIMENTS_FILE, true);
+        intent.putExtra(Experiment.EXPERIMENT_SERVER_ID_EXTRA_KEY, invitation.getExperimentDAO().getId());
+        startActivity(intent);
+      }
+    });
+    invitationCloseButton.setOnClickListener(new OnClickListener() {
+
+      @Override
+      public void onClick(View v) {
+        invitationLayout.setVisibility(View.GONE);
+        markInvitationSeen(invitation);
+        invitations.remove(invitation);
+        showInvitations(invitations);
+      }
+
+    });
   }
 
   public void reloadAdapter() {
@@ -158,6 +306,12 @@ public class MyExperimentsActivity extends ActionBarActivity {
 //      this.startActivity(acctChooser);
     } else {
       reloadAdapter();
+      if (invitationLayout.getVisibility() == View.VISIBLE) {
+        List<Experiment> unseen = removeJoinedExperiments(invitations);
+        unseen = removeSeenInvitations(unseen);
+        invitations = unseen;
+        showInvitations(unseen);
+      }
     }
   }
 
@@ -593,4 +747,22 @@ public class MyExperimentsActivity extends ActionBarActivity {
 //    }
   }
 
+  @Override
+  protected void onStop() {
+    super.onStop();
+    if (bound) {
+      unbindService(mConnection);
+      bound = false;
+    }
+  }
+
+  @Override
+  protected void onStart() {
+    super.onStart();
+    // Bind to LocalService
+    if (userPrefs.getAccessToken() != null) {
+      Intent intent = new Intent(this, MyExperimentsFetchService.class);
+      bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
+    }
+  }
 }

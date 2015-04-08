@@ -17,7 +17,9 @@
 package com.google.android.apps.paco;
 
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import org.joda.time.DateTime;
 
@@ -25,6 +27,9 @@ import android.accounts.Account;
 import android.content.Context;
 import android.content.SharedPreferences;
 
+import com.google.common.base.Joiner;
+import com.google.common.base.Splitter;
+import com.google.common.collect.Lists;
 import com.google.paco.shared.util.TimeUtil;
 import com.pacoapp.paco.R;
 
@@ -35,6 +40,8 @@ import com.pacoapp.paco.R;
  *
  */
 public class UserPreferences {
+
+  private static final String SEEN_EXPERIMENT_INVITATIONS_KEY = "seenExperimentInvitations";
 
   private static final String PHOTO_ADDRESS = "PHOTO_ADDRESS";
 
@@ -302,6 +309,26 @@ public class UserPreferences {
 
   public String getAccessToken() {
     return getAppPrefs().getString(ACCESS_TOKEN_KEY, null);
+  }
+
+  public List<Long> getSeenExperimentInvitationIds() {
+    String seen = getAppPrefs().getString(SEEN_EXPERIMENT_INVITATIONS_KEY, null);
+    if (seen == null) {
+      return new ArrayList<Long>();
+    } else {
+      List<Long> seenIds = Lists.newArrayList();
+      Iterable<String> seenStr = Splitter.on(",").split(seen);
+      for (String seenId : seenStr) {
+        seenIds.add(Long.parseLong(seenId));
+      }
+      return seenIds;
+    }
+
+  }
+
+  public void saveSeenExperimentInvitations(List<Long> seen) {
+    String seenIdsStr = Joiner.on(",").join(seen);
+    getAppPrefs().edit().putString(SEEN_EXPERIMENT_INVITATIONS_KEY, seenIdsStr).commit();
   }
 
 }
