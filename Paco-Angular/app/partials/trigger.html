@@ -5,7 +5,7 @@
       <span ng-if="trigger.type=='interruptTrigger'">Event</span> Trigger
     </div>
 
-    <md-button ng-if="trigger.type=='scheduleTrigger'" add-icon ng-click="trigger.schedules.push({type:'scheduleTrigger'})">
+    <md-button ng-if="trigger.type=='scheduleTrigger'" add-icon ng-click="trigger.schedules.push({scheduleType:''})">
       Schedule
     </md-button>
 

@@ -24,11 +24,11 @@ pacoApp.service('config', function() {
     'Phone call started'
   ];
 
-  this.esmPeriods = [
-    'Day',
-    'Week',
-    'Month'
-  ];
+  this.esmPeriods = {
+    1: 'day',
+    7: 'week',
+    30: 'month'
+  };
 
   this.weeksOfMonth = [
     'First',
@@ -82,10 +82,14 @@ pacoApp.service('template', function() {
     'type': 'pacoNotificationAction'
   };
 
+  this.schedule = {
+    scheduleType: ''
+  };
+
   this.scheduleTrigger = {
     type: 'scheduleTrigger',
     actions: [this.action],
-    schedules: [{}]
+    schedules: [this.schedule]
   };
 
   this.eventTrigger = {

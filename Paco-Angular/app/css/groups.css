@@ -133,14 +133,14 @@ div[expander] {
 .advanced .identifier {
   position: absolute;
   left: 240px;
-  top: 4px;
+  top: 116px;
   z-index: 10;
 }
 
 .advanced .identifier md-input-container {
   position: absolute;
-  left: 108px;
-  top: -28px;
+  left: 120px;
+  top: -10px;
 }
 
 .advanced .over {

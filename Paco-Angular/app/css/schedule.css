@@ -49,24 +49,33 @@
   display: inline-block;
 }
 
+.schedule .column0 {
+  width: 200px;
+  margin-right: 16px;
+}
+
+.schedule .column1 {
+  margin-right: 0;
+  width: 500px;
+}
+
+.schedule .column1 button {
+  margin-top: 20px;
+}
+
 .schedule md-radio-group {
   border: none;
 }
 
-.schedule .short {
-   width: 200px;
-  display: inline;
-}
-
 .md-actions.inline {
+  border: none !important;
   bottom: 0;
   position: absolute;
   right: 0;
-  width: 100px;
 }
 
 .section input[type=time] {
-  border: none!important;
+  border: none !important;
   color: black;
   margin-right: -28px;
 }
@@ -78,4 +87,14 @@
 
 .snooze input {
   width: 200px;
+}
+
+.action {
+  min-width: 300px;
+}
+
+.action .ace_editor {
+  width: 600px;
+  margin-top: 16px;
+  border: 1px solid lightgray;
 }

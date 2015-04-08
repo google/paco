@@ -8,7 +8,6 @@ body, html {
   position: relative;
   left: 50%;
   margin-left: -480px;
-  padding: 16px;
 }
 
 md-card {

@@ -241,6 +241,7 @@ pacoApp.controller('ActionCtrl', ['$scope', '$mdDialog', 'config', 'action',
   function($scope, $mdDialog, config, action) {
 
     $scope.action = action;
+    $scope.action.actionCode += '';
     $scope.actionTypes = config.actionTypes;
 
     $scope.hide = function() {
@@ -249,7 +250,7 @@ pacoApp.controller('ActionCtrl', ['$scope', '$mdDialog', 'config', 'action',
 
     $scope.$watch('action.actionCode', function(newValue, oldValue) {
       if (newValue) {
-        action.actionCode = parseInt(action.actionCode);
+        //action.actionCode = parseInt(action.actionCode);
       }
     });
   }
@@ -301,6 +302,18 @@ pacoApp.controller('ScheduleCtrl', ['$scope', '$mdDialog', 'config', 'template',
   function($scope, $mdDialog, config, template, schedule) {
 
     $scope.schedule = schedule;
+    $scope.schedule.repeatRate += '';
+    if ($scope.schedule.esmPeriodInDays == undefined) {
+      $scope.schedule.esmPeriodInDays = '';
+    } else {
+      $scope.schedule.esmPeriodInDays += '';
+    }
+
+    console.log("ESM");
+    console.log($scope.schedule.esmPeriodInDays);
+
+    // Force scheduleType to be a string
+    $scope.schedule.scheduleType += '';
     $scope.scheduleTypes = config.scheduleTypes;
     $scope.weeksOfMonth = config.weeksOfMonth;
     $scope.esmPeriods = config.esmPeriods;
@@ -327,6 +340,10 @@ pacoApp.controller('ScheduleCtrl', ['$scope', '$mdDialog', 'config', 'template',
       $mdDialog.hide();
     };
 
+    $scope.parseInt = function(number) {
+      return parseInt(number, 10);
+    }
+
     $scope.$watchCollection('schedule.days', function(days) {
       var sum = 0;
       if (days) {
@@ -341,10 +358,9 @@ pacoApp.controller('ScheduleCtrl', ['$scope', '$mdDialog', 'config', 'template',
 
     $scope.$watch('schedule.scheduleType', function(newValue, oldValue) {
       if (newValue) {
-        schedule.scheduleType = parseInt(schedule.scheduleType);
         if ($scope.schedule.signalTimes == undefined) {
           $scope.schedule.signalTimes = [angular.copy(template.signalTime)];
-          $scope.schedule.repeatRate = 1;
+          $scope.schedule.repeatRate = '';
         }
       }
     });
@@ -399,11 +415,12 @@ pacoApp.controller('SummaryCtrl', ['$scope', 'config', function($scope, config) 
       str += config.scheduleTypes[4] + ', ' + sched.esmFrequency +
         ' time';
       if (sched.esmFrequency > 1) {
-        str += 's per day';
+        str += 's per ';
       } else {
-        str += ' per day';
+        str += ' per ';
       }
-      //TODO(ispiro):Use period when model supports it
+      str += config.esmPeriods[sched.esmPeriodInDays];
+
     } else if (sched.scheduleType == 5) {
       str = 'Self report only';
     } else {
