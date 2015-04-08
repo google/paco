@@ -14,20 +14,35 @@
  ~ KIND, either express or implied.  See the License for the
  ~ specific language governing permissions and limitations
  ~ under the License.
- -->
+-->
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-  android:id="@+id/ScrollView01"
-		android:layout_width="fill_parent" android:layout_height="wrap_content"
-		android:padding="0dp" android:layout_margin="0dp">
-<LinearLayout
-  android:layout_width="wrap_content" android:layout_height="fill_parent" android:orientation="vertical">
-	<include layout="@layout/experiment_detail_part"></include>
+    android:id="@+id/ScrollView01"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:layout_margin="0dp"
+    android:padding="0dp" >
 
-<Button android:layout_width="wrap_content" 
-android:layout_height="wrap_content" 
-android:id="@+id/JoinExperimentButton" 
-android:text="@string/join_this_experiment" 
-android:layout_marginTop="15dip"></Button>
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:orientation="vertical" >
 
-</LinearLayout>
+        <include layout="@layout/experiment_detail_part" >
+        </include>
+
+        <Button
+            android:id="@+id/JoinExperimentButton"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:layout_gravity="center_horizontal|bottom"
+            android:layout_marginTop="15dip"
+            android:background="@color/purple_background"
+            android:paddingBottom="4dip"
+            android:paddingLeft="8dip"
+            android:paddingTop="4dip"
+            android:text="@string/join_this_experiment"
+            android:textColor="#ffffff" >
+        </Button>
+    </LinearLayout>
+
 </ScrollView>
