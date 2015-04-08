@@ -723,8 +723,14 @@ public class InputLayout extends LinearLayout implements SpeechRecognitionListen
         R.layout.list_choices, this, true);
     final Spinner findViewById = (Spinner) findViewById(R.id.list);
     // Formerly android.R.layout.simple_spinner_item
+    final String[] listChoices = input.getListChoices();
+    List<String> listChoicesList = new ArrayList();
+    for (String currentChoiceString : listChoices) {
+      listChoicesList.add(currentChoiceString);
+    }
+
     ArrayAdapter<String> choices = new ArrayAdapter<String>(getContext(), R.layout.multiline_spinner_item,
-        input.getListChoices());
+        listChoicesList);
     String defaultListItem = getResources().getString(R.string.default_list_item);
     choices.insert(defaultListItem, 0);       // "No selection" list item.
     findViewById.setAdapter(choices);
