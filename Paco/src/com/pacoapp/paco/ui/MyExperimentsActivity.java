@@ -126,8 +126,6 @@ public class MyExperimentsActivity extends ActionBarActivity {
 
     @Override
     public void onServiceConnected(ComponentName className, IBinder service) {
-      // We've bound to LocalService, cast the IBinder and get LocalService
-      // instance
       LocalBinder binder = (LocalBinder) service;
       mService = binder.getService();
       bound = true;
