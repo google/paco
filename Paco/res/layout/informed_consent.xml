@@ -26,7 +26,11 @@
         android:text="@string/data_handling_title"
         android:textColor="#000000"
         android:textSize="15dip"
-        android:textStyle="bold" >
+        android:textStyle="bold"
+                    android:paddingLeft="8dip"
+            android:paddingTop="4dip"
+            android:paddingBottom="4dip"
+         >
     </TextView>
 
     <TextView
@@ -36,7 +40,11 @@
         android:fadingEdge="horizontal"
         android:text="@string/informed_consent_preamble"
         android:textColor="#000000"
-        android:textSize="15dip" >
+        android:textSize="15dip"
+                    android:paddingLeft="8dip"
+            android:paddingTop="4dip"
+            android:paddingBottom="4dip"
+         >
     </TextView>
     
     <!-- data collection list -->
@@ -47,7 +55,11 @@
         android:layout_gravity="left"
         android:text="@string/types_of_data_collected"
         android:textColor="#000000"
-        android:textStyle="bold" >
+        android:textStyle="bold"
+                    android:paddingLeft="8dip"
+            android:paddingTop="4dip"
+            android:paddingBottom="4dip"
+         >
     </TextView>
 
     <TextView
@@ -56,7 +68,11 @@
         android:layout_height="wrap_content"
         android:layout_gravity="left"
         android:layout_marginLeft="15dip"
-        android:text="@string/survey_responses_data_collected" >
+        android:text="@string/survey_responses_data_collected"
+                    android:paddingLeft="8dip"
+            android:paddingTop="4dip"
+            android:paddingBottom="4dip"
+         >
     </TextView>    
     
     <TextView
@@ -66,7 +82,11 @@
         android:layout_gravity="left"
         android:layout_marginLeft="15dip"
         android:text="@string/app_usage_and_browser_usage_data_collected" 
-        android:visibility="gone">        
+        android:visibility="gone"
+                    android:paddingLeft="8dip"
+            android:paddingTop="4dip"
+            android:paddingBottom="4dip"
+        >        
     </TextView> 
       
     <TextView
@@ -76,7 +96,11 @@
         android:layout_gravity="left"
         android:layout_marginLeft="15dip"
         android:text="Phone make, model, carrier" 
-        android:visibility="gone">        
+        android:visibility="gone"
+                    android:paddingLeft="8dip"
+            android:paddingTop="4dip"
+            android:paddingBottom="4dip"
+        >        
     </TextView>
     
     <!-- Experiment informed consent content -->
@@ -87,7 +111,11 @@
         android:layout_gravity="left"
         android:textColor="#000000"
         android:text="@string/experiment_informed_consent"
-        android:textStyle="bold" >
+        android:textStyle="bold" 
+                    android:paddingLeft="8dip"
+            android:paddingTop="4dip"
+            android:paddingBottom="4dip"
+        >
     </TextView>
 
     <ScrollView
@@ -102,7 +130,11 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Placeholder informed consent text"
-            android:textSize="20dip" >
+            android:textSize="20dip" 
+                        android:paddingLeft="8dip"
+            android:paddingTop="4dip"
+            android:paddingBottom="4dip"
+            >
         </TextView>
     </ScrollView>
 
@@ -112,7 +144,11 @@
         android:layout_height="65dip"
         android:layout_alignParentBottom="true"
         android:layout_gravity="center"
-        android:text="@string/consent_checkbox_text" >
+        android:text="@string/consent_checkbox_text" 
+                    android:paddingLeft="8dip"
+            android:paddingTop="4dip"
+            android:paddingBottom="4dip"
+        >
     </CheckBox>
 
 </LinearLayout>
