@@ -33,7 +33,6 @@ public class AndroidJsInterpreterBuilder {
     ExperimentProviderUtil experimentProvider = new ExperimentProviderUtil(context);
     bindLibraries(context, interpreter);
     interpreter.newBind("db", new JavascriptEventLoader(experimentProvider, androidExperiment, experiment, experimentGroup));
-
     interpreter.newBind("experimentLoader", new JavascriptExperimentLoader(context, experimentProvider, experiment, androidExperiment));
     interpreter.newBind("notificationService", new JavascriptNotificationService(context, experiment, experimentGroup));
     interpreter.newBind("log", new JavascriptLogger());
@@ -52,7 +51,7 @@ public class AndroidJsInterpreterBuilder {
     if (!Strings.isNullOrEmpty(jqueryLibString)) {
       interpreter.addLibrary(jqueryLibString);
     } else {
-      throw new IllegalStateException("Could not bind " + libFileNameInAssets + " empty file");
+      throw new IllegalStateException("Could not bind " + libFileNameInAssets + ". empty file");
     }
   }
 

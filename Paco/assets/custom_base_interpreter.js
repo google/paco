@@ -154,7 +154,10 @@ var paco = (function (init) {
     var getAllEvents = function() {
         // shallow cloning of the events array
         var newarray = new Array();
-        $.each(db.getAllEvents(), function(index, value) { newarray[index] = value });
+        var eventData = db.getAllEvents();
+        for(var i=0; i < eventData.length; i++) {
+          newarray[i] = eventData[i];
+        }
         return newarray;
     };
 
