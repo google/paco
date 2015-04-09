@@ -9,14 +9,13 @@ import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBarActivity;
 
-import com.google.android.apps.paco.Experiment;
-import com.google.android.apps.paco.ExperimentLoadingActivity;
-import com.google.android.apps.paco.ExperimentProviderUtil;
-import com.google.android.apps.paco.utils.IntentExtraHelper;
 import com.google.paco.shared.model2.ExperimentGroup;
 import com.google.paco.shared.model2.Schedule;
 import com.google.paco.shared.model2.ScheduleTrigger;
 import com.pacoapp.paco.R;
+import com.pacoapp.paco.model.Experiment;
+import com.pacoapp.paco.model.ExperimentProviderUtil;
+import com.pacoapp.paco.utils.IntentExtraHelper;
 
 public class SchedulePagerActivity extends ActionBarActivity implements ScheduleDetailFragment.Callbacks, ExperimentLoadingActivity {
     ViewPager mViewPager;

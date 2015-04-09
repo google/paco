@@ -8,10 +8,10 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 
-import com.google.android.apps.paco.PacoConstants;
 import com.google.android.gms.auth.GoogleAuthException;
 import com.google.android.gms.auth.GoogleAuthUtil;
 import com.google.android.gms.auth.UserRecoverableNotifiedException;
+import com.pacoapp.paco.PacoConstants;
 import com.pacoapp.paco.ui.SplashActivity;
 
 public class GetInBackground extends AbstractAuthTokenTask {

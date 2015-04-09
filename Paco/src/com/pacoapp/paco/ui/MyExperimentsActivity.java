@@ -56,38 +56,27 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.google.android.apps.paco.AndroidEsmSignalStore;
-import com.google.android.apps.paco.BeeperService;
-import com.google.android.apps.paco.BroadcastTriggerReceiver;
-import com.google.android.apps.paco.DownloadExperimentsHelper;
-import com.google.android.apps.paco.ESMSignalViewer;
-import com.google.android.apps.paco.EulaDisplayActivity;
-import com.google.android.apps.paco.Event;
-import com.google.android.apps.paco.Experiment;
-import com.google.android.apps.paco.ExperimentDetailActivity;
-import com.google.android.apps.paco.ExperimentExecutor;
-import com.google.android.apps.paco.ExperimentExecutorCustomRendering;
-import com.google.android.apps.paco.ExperimentGroupPicker;
-import com.google.android.apps.paco.ExperimentProviderUtil;
-import com.google.android.apps.paco.FeedbackActivity;
-import com.google.android.apps.paco.FindExperimentsActivity;
-import com.google.android.apps.paco.FindMyOrAllExperimentsChooserActivity;
-import com.google.android.apps.paco.NotificationCreator;
-import com.google.android.apps.paco.Output;
-import com.google.android.apps.paco.ServerConfiguration;
-import com.google.android.apps.paco.SyncService;
-import com.google.android.apps.paco.UserPreferences;
-import com.google.android.apps.paco.WelcomeActivity;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.paco.shared.model2.ExperimentGroup;
 import com.google.paco.shared.util.ExperimentHelper;
 import com.google.paco.shared.util.TimeUtil;
 import com.pacoapp.paco.R;
+import com.pacoapp.paco.UserPreferences;
+import com.pacoapp.paco.model.Event;
+import com.pacoapp.paco.model.Experiment;
+import com.pacoapp.paco.model.ExperimentProviderUtil;
+import com.pacoapp.paco.model.Output;
 import com.pacoapp.paco.net.MyExperimentsFetchService;
+import com.pacoapp.paco.net.NetworkUtil;
+import com.pacoapp.paco.net.SyncService;
 import com.pacoapp.paco.net.MyExperimentsFetchService.ExperimentFetchListener;
 import com.pacoapp.paco.net.MyExperimentsFetchService.LocalBinder;
 import com.pacoapp.paco.os.RingtoneUtil;
+import com.pacoapp.paco.sensors.android.BroadcastTriggerReceiver;
+import com.pacoapp.paco.triggering.AndroidEsmSignalStore;
+import com.pacoapp.paco.triggering.BeeperService;
+import com.pacoapp.paco.triggering.NotificationCreator;
 
 /**
  *
@@ -415,13 +404,13 @@ public class MyExperimentsActivity extends ActionBarActivity {
     case REFRESHING_EXPERIMENTS_DIALOG_ID: {
       return getRefreshJoinedDialog();
     }
-    case DownloadExperimentsHelper.INVALID_DATA_ERROR: {
+    case NetworkUtil.INVALID_DATA_ERROR: {
       return getUnableToJoinDialog(getString(R.string.invalid_data));
     }
-    case DownloadExperimentsHelper.SERVER_ERROR: {
+    case NetworkUtil.SERVER_ERROR: {
       return getUnableToJoinDialog(getString(R.string.dialog_dismiss));
     }
-    case DownloadExperimentsHelper.NO_NETWORK_CONNECTION: {
+    case NetworkUtil.NO_NETWORK_CONNECTION: {
       return getNoNetworkDialog();
     }
     default: {
@@ -469,7 +458,7 @@ public class MyExperimentsActivity extends ActionBarActivity {
   }
 
   private void showNetworkConnectionActivity() {
-    startActivityForResult(new Intent(Settings.ACTION_WIRELESS_SETTINGS), DownloadExperimentsHelper.ENABLED_NETWORK);
+    startActivityForResult(new Intent(Settings.ACTION_WIRELESS_SETTINGS), NetworkUtil.ENABLED_NETWORK);
   }
 
   private class AvailableExperimentsListAdapter extends ArrayAdapter<Experiment> {
@@ -715,7 +704,7 @@ public class MyExperimentsActivity extends ActionBarActivity {
   }
 
   private void launchServerConfiguration() {
-    Intent startIntent = new Intent(this, ServerConfiguration.class);
+    Intent startIntent = new Intent(this, ServerConfigurationActivity.class);
     startActivity(startIntent);
   }
 

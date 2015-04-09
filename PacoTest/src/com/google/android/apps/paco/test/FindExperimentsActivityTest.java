@@ -10,9 +10,9 @@ import android.view.View;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.google.android.apps.paco.ExperimentProviderUtil;
-import com.google.android.apps.paco.FindExperimentsActivity;
 import com.pacoapp.paco.R;
+import com.pacoapp.paco.model.ExperimentProviderUtil;
+import com.pacoapp.paco.ui.FindExperimentsActivity;
 
 public class FindExperimentsActivityTest extends ActivityInstrumentationTestCase2<FindExperimentsActivity> {
 

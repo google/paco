@@ -15,8 +15,8 @@ import android.net.Uri;
 import android.provider.MediaStore;
 import android.util.Log;
 
-import com.google.android.apps.paco.PacoConstants;
-import com.google.android.apps.paco.UserPreferences;
+import com.pacoapp.paco.PacoConstants;
+import com.pacoapp.paco.UserPreferences;
 
 public class RingtoneUtil {
 

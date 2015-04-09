@@ -5,9 +5,8 @@ import java.net.URLEncoder;
 
 import org.joda.time.DateTime;
 
-import com.google.android.apps.paco.ServerAddressBuilder;
-import com.google.android.apps.paco.UserPreferences;
 import com.google.common.base.Joiner;
+import com.pacoapp.paco.UserPreferences;
 
 public class ExperimentUrlBuilder {
 

@@ -9,9 +9,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.test.ActivityUnitTestCase;
 
-import com.google.android.apps.paco.Experiment;
-import com.google.android.apps.paco.ExperimentProviderUtil;
-import com.google.android.apps.paco.InformedConsentActivity;
+import com.pacoapp.paco.model.Experiment;
+import com.pacoapp.paco.model.ExperimentProviderUtil;
+import com.pacoapp.paco.ui.InformedConsentActivity;
 
 public class InformedConsentActivityTest extends ActivityUnitTestCase<InformedConsentActivity> {
 

@@ -14,6 +14,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.pacoapp.paco.R;
+import com.pacoapp.paco.UserPreferences;
 import com.pacoapp.paco.net.AbstractAuthTokenTask;
 
 public class AccountChooser extends ListActivity {

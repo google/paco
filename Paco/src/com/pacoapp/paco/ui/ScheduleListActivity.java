@@ -17,18 +17,6 @@ import android.view.Display;
 import android.view.MenuItem;
 import android.widget.Toast;
 
-import com.google.android.apps.paco.AndroidEsmSignalStore;
-import com.google.android.apps.paco.BeeperService;
-import com.google.android.apps.paco.BroadcastTriggerReceiver;
-import com.google.android.apps.paco.Event;
-import com.google.android.apps.paco.Experiment;
-import com.google.android.apps.paco.ExperimentLoadingActivity;
-import com.google.android.apps.paco.ExperimentProviderUtil;
-import com.google.android.apps.paco.FindExperimentsActivity;
-import com.google.android.apps.paco.InformedConsentActivity;
-import com.google.android.apps.paco.Output;
-import com.google.android.apps.paco.SyncService;
-import com.google.android.apps.paco.utils.IntentExtraHelper;
 import com.google.paco.shared.model2.ActionTrigger;
 import com.google.paco.shared.model2.ExperimentGroup;
 import com.google.paco.shared.model2.Schedule;
@@ -36,6 +24,15 @@ import com.google.paco.shared.model2.ScheduleTrigger;
 import com.google.paco.shared.util.ExperimentHelper;
 import com.google.paco.shared.util.SchedulePrinter;
 import com.pacoapp.paco.R;
+import com.pacoapp.paco.model.Event;
+import com.pacoapp.paco.model.Experiment;
+import com.pacoapp.paco.model.ExperimentProviderUtil;
+import com.pacoapp.paco.model.Output;
+import com.pacoapp.paco.net.SyncService;
+import com.pacoapp.paco.sensors.android.BroadcastTriggerReceiver;
+import com.pacoapp.paco.triggering.AndroidEsmSignalStore;
+import com.pacoapp.paco.triggering.BeeperService;
+import com.pacoapp.paco.utils.IntentExtraHelper;
 
 /**
  * An activity representing a list of Schedules. This activity has different

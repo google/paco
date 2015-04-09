@@ -11,9 +11,9 @@ import org.json.JSONException;
 import android.os.AsyncTask;
 import android.util.Log;
 
-import com.google.android.apps.paco.PacoConstants;
-import com.google.android.apps.paco.UserPreferences;
 import com.google.android.gms.auth.GoogleAuthUtil;
+import com.pacoapp.paco.PacoConstants;
+import com.pacoapp.paco.UserPreferences;
 
 
 /*

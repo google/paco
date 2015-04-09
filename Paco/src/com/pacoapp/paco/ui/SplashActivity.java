@@ -20,12 +20,12 @@ import android.widget.Button;
 import android.widget.Toast;
 
 import com.google.android.apps.paco.AccountChooser;
-import com.google.android.apps.paco.PacoConstants;
-import com.google.android.apps.paco.UserPreferences;
 import com.google.android.gms.auth.GooglePlayServicesAvailabilityException;
 import com.google.android.gms.auth.UserRecoverableAuthException;
 import com.google.android.gms.common.GooglePlayServicesUtil;
+import com.pacoapp.paco.PacoConstants;
 import com.pacoapp.paco.R;
+import com.pacoapp.paco.UserPreferences;
 import com.pacoapp.paco.net.AbstractAuthTokenTask;
 import com.pacoapp.paco.net.GetAuthTokenInForeground;
 import com.pacoapp.paco.net.NetworkClient;

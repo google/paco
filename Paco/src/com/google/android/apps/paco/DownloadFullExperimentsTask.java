@@ -19,6 +19,8 @@ package com.google.android.apps.paco;
 
 import java.util.List;
 
+import com.pacoapp.paco.UserPreferences;
+
 import android.content.Context;
 import android.os.AsyncTask;
 

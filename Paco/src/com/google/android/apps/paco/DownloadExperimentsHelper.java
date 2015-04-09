@@ -9,27 +9,19 @@ import android.content.Context;
 import android.util.Log;
 
 import com.google.common.base.Joiner;
+import com.pacoapp.paco.PacoConstants;
+import com.pacoapp.paco.UserPreferences;
+import com.pacoapp.paco.net.NetworkUtil;
 import com.pacoapp.paco.net.PacoService;
+import com.pacoapp.paco.net.ServerAddressBuilder;
 
 public class DownloadExperimentsHelper {
-
-  public static final int INVALID_DATA_ERROR = 1003;
-  public static final int SERVER_ERROR = 1004;
-  public static final int NO_NETWORK_CONNECTION = 1005;
-
-  public static final int ENABLED_NETWORK = 1;
 
   private Context context;
   private UserPreferences userPrefs;
   private String contentAsString;
   private String cursor;
   private Integer limit;
-  public static final String EXECUTION_ERROR = "execution_error";
-  public static final String SERVER_COMMUNICATION_ERROR = "server_communication_error";
-  public static final String CONTENT_ERROR = "content_error";
-  public static final String RETRIEVAL_ERROR = "retrieval_error";
-  public static final String SUCCESS = "success";
-
   public DownloadExperimentsHelper(Context context, UserPreferences userPrefs, Integer limit, String cursor) {
     this.context = context;
     this.userPrefs = userPrefs;
@@ -41,12 +33,12 @@ public class DownloadExperimentsHelper {
     try {
       contentAsString = makeMyExperimentsRequest();
       if (contentAsString == null) {
-        return DownloadExperimentsHelper.RETRIEVAL_ERROR;
+        return NetworkUtil.RETRIEVAL_ERROR;
       }
-      return DownloadExperimentsHelper.SUCCESS;
+      return NetworkUtil.SUCCESS;
     } catch (Exception e) {
       Log.e(PacoConstants.TAG, "Exception. Unable to update my experiments, " + e.getMessage());
-      return DownloadExperimentsHelper.SERVER_COMMUNICATION_ERROR;
+      return NetworkUtil.SERVER_COMMUNICATION_ERROR;
     }
   }
 
@@ -60,12 +52,12 @@ public class DownloadExperimentsHelper {
     try {
       contentAsString = makeAvailableExperimentsRequest();
       if (contentAsString == null) {
-        return DownloadExperimentsHelper.RETRIEVAL_ERROR;
+        return NetworkUtil.RETRIEVAL_ERROR;
       }
-      return DownloadExperimentsHelper.SUCCESS;
+      return NetworkUtil.SUCCESS;
     } catch (Exception e) {
       Log.e(PacoConstants.TAG, "Exception. Unable to update available experiments, " + e.getMessage());
-      return DownloadExperimentsHelper.SERVER_COMMUNICATION_ERROR;
+      return NetworkUtil.SERVER_COMMUNICATION_ERROR;
     }
   }
 
@@ -78,12 +70,12 @@ public class DownloadExperimentsHelper {
     try {
       contentAsString = makeRunningExperimentsRequest(experimentIds);
       if (contentAsString == null) {
-        return DownloadExperimentsHelper.RETRIEVAL_ERROR;
+        return NetworkUtil.RETRIEVAL_ERROR;
       }
-      return DownloadExperimentsHelper.SUCCESS;
+      return NetworkUtil.SUCCESS;
     } catch (Exception e) {
       Log.e(PacoConstants.TAG, "Exception. Unable to update running experiments, " + e.getMessage());
-      return DownloadExperimentsHelper.SERVER_COMMUNICATION_ERROR;
+      return NetworkUtil.SERVER_COMMUNICATION_ERROR;
     }
   }
 

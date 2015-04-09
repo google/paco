@@ -10,7 +10,6 @@ import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
-import com.google.android.apps.paco.Experiment;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.paco.shared.model2.ActionTrigger;
@@ -18,6 +17,7 @@ import com.google.paco.shared.model2.ExperimentGroup;
 import com.google.paco.shared.model2.Schedule;
 import com.google.paco.shared.model2.ScheduleTrigger;
 import com.google.paco.shared.util.SchedulePrinter;
+import com.pacoapp.paco.model.Experiment;
 
 /**
  * A list fragment representing a list of Schedules. This fragment also supports

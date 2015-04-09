@@ -31,11 +31,11 @@ import android.content.Context;
 import android.net.Uri;
 import android.util.Log;
 
-import com.google.android.apps.paco.Experiment;
-import com.google.android.apps.paco.ExperimentProviderUtil;
-import com.google.android.apps.paco.PacoConstants;
-import com.google.android.apps.paco.UserPreferences;
 import com.google.common.collect.Lists;
+import com.pacoapp.paco.PacoConstants;
+import com.pacoapp.paco.UserPreferences;
+import com.pacoapp.paco.model.Experiment;
+import com.pacoapp.paco.model.ExperimentProviderUtil;
 import com.pacoapp.paco.net.MyExperimentsFetchService.ExperimentFetchListener;
 
 public class MyExperimentsFetcher {
@@ -150,7 +150,7 @@ public class MyExperimentsFetcher {
     }
   }
   private void onError(Exception e) {
-    // TODO Signal any bound service that we were unable to refresh myexperiments
+    // TODO EsmSignalColumns any bound service that we were unable to refresh myexperiments
     Log.e(PacoConstants.TAG, "Could not fetch MyExperiments: " + e.getMessage(), e);
   }
 

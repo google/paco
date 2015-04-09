@@ -56,7 +56,7 @@
         </activity>
         
         <activity
-            android:name="com.google.android.apps.paco.FindExperimentsActivity"
+            android:name="com.pacoapp.paco.ui.FindExperimentsActivity"
             android:label="Public Experiments"
             android:configChanges="orientation|keyboardHidden"
             android:screenOrientation="portrait" >
@@ -68,14 +68,14 @@
         </activity>
         
         <activity
-            android:name="com.google.android.apps.paco.FindMyExperimentsActivity"
+            android:name="com.pacoapp.paco.ui.FindMyExperimentsActivity"
             android:label="My Experiment Invitations"
             android:configChanges="orientation|keyboardHidden"
             android:screenOrientation="portrait" >
         </activity>
         
         <activity
-            android:name="com.google.android.apps.paco.ExperimentDetailActivity"
+            android:name="com.pacoapp.paco.ui.ExperimentDetailActivity"
             android:label="Join Experiment"
             android:screenOrientation="portrait"  >
             <intent-filter>
@@ -96,18 +96,18 @@
         </activity>
         
         <activity
-            android:name="com.google.android.apps.paco.InformedConsentActivity"
+            android:name="com.pacoapp.paco.ui.InformedConsentActivity"
             android:label="Informed Consent"
             android:configChanges="orientation|keyboardHidden"
             android:screenOrientation="portrait" />
         
         <activity
-            android:name="com.google.android.apps.paco.ExperimentGroupPicker"
+            android:name="com.pacoapp.paco.ui.ExperimentGroupPicker"
             android:label="Pick Group"
             android:configChanges="orientation|keyboardHidden"
             android:screenOrientation="portrait" />
         <activity
-            android:name="com.google.android.apps.paco.ExperimentExecutor"
+            android:name="com.pacoapp.paco.ui.ExperimentExecutor"
             android:label="Experiment Form"
             android:configChanges="orientation|keyboardHidden"
             android:windowSoftInputMode="stateHidden" >
@@ -118,12 +118,12 @@
             </intent-filter>           
         </activity>
                 <activity
-            android:name="com.google.android.apps.paco.ExperimentExecutorCustomRendering" 
+            android:name="com.pacoapp.paco.ui.ExperimentExecutorCustomRendering" 
             android:label="Experiment Form"
             />
         
         <activity
-            android:name="com.google.android.apps.paco.FeedbackActivity"
+            android:name="com.pacoapp.paco.ui.FeedbackActivity"
             android:noHistory="true" >
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
@@ -131,13 +131,13 @@
                 <data android:mimeType="vnd.android.cursor.item/vnd.google.paco.experiment" />
             </intent-filter>
         </activity>
-        <activity android:name="com.google.android.apps.paco.WelcomeActivity" />
+        <activity android:name="com.pacoapp.paco.ui.WelcomeActivity" />
         <activity android:name="com.google.android.apps.paco.AccountChooser" 
             android:label="Account Chooser"/>
         <activity android:name="com.pacoapp.paco.ui.SplashActivity"/>
         
         <activity
-            android:name="com.google.android.apps.paco.ESMSignalViewer"
+            android:name="com.pacoapp.paco.ui.ESMSignalViewer"
             android:label="ESM Signal Viewer"
             android:screenOrientation="portrait" >
             <intent-filter>
@@ -146,22 +146,22 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="com.google.android.apps.paco.ServerConfiguration"
+            android:name="com.pacoapp.paco.ui.ServerConfigurationActivity"
             android:label="Paco Server Configuration" >
             <intent-filter>
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
         <activity
-            android:name="com.google.android.apps.paco.RawDataActivity"
+            android:name="com.pacoapp.paco.ui.RawDataActivity"
             android:label="Paco Raw Data Viewer" >
             <intent-filter>
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
-        <activity android:name="com.google.android.apps.paco.ContactOptionsActivity" android:label="Contact Options"/>
-        <activity android:name="com.google.android.apps.paco.HelpActivity" android:label="Help"/>
-        <activity android:name="com.google.android.apps.paco.EulaDisplayActivity" />
+        <activity android:name="com.pacoapp.paco.ui.ContactOptionsActivity" android:label="Contact Options"/>
+        <activity android:name="com.pacoapp.paco.ui.HelpActivity" android:label="Help"/>
+        <activity android:name="com.pacoapp.paco.ui.EulaDisplayActivity" />
 <!-- New UI -->
             <activity
             android:name="com.pacoapp.paco.ui.ScheduleListActivity" android:label="Experiment Schedules">
@@ -183,25 +183,25 @@
      
      <!--  end new ui -->   
         <!-- services -->
-        <service android:name="com.google.android.apps.paco.NotificationCreatorService" >
+        <service android:name="com.pacoapp.paco.triggering.NotificationCreatorService" >
             <intent-filter>
                 <action android:name="com.google.android.apps.paco.NotificationCreatorService" />
 
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </service>
-        <service android:name="com.google.android.apps.paco.BeeperService" >
+        <service android:name="com.pacoapp.paco.triggering.BeeperService" >
             <intent-filter>
                 <action android:name="com.google.android.apps.paco.BeeperService" />
 
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </service>
-        <service android:name="com.google.android.apps.paco.SyncService" />
-        <service android:name="com.google.android.apps.paco.ServerCommunicationService" />
+        <service android:name="com.pacoapp.paco.net.SyncService" />
+        <service android:name="com.pacoapp.paco.net.ServerCommunicationService" />
         <service android:name="com.pacoapp.paco.net.MyExperimentsFetchService" />
 
-        <receiver android:name="com.google.android.apps.paco.AlarmReceiver" >
+        <receiver android:name="com.pacoapp.paco.os.AlarmReceiver" >
             <intent-filter>
                 <action android:name="com.google.android.apps.paco.AlarmReceiver" />
 
@@ -209,13 +209,13 @@
             </intent-filter>
         </receiver>
         <receiver
-            android:name="com.google.android.apps.paco.NetworkChangeReceiver"
+            android:name="com.pacoapp.paco.os.NetworkChangeReceiver"
             android:process=":remote" >
             <intent-filter>
                 <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
             </intent-filter>
         </receiver>
-        <receiver android:name="com.google.android.apps.paco.SystemChangeEventReceiver" >
+        <receiver android:name="com.pacoapp.paco.os.SystemChangeEventReceiver" >
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
@@ -232,15 +232,15 @@
         </receiver>
 
         <provider
-            android:name="com.google.android.apps.paco.SignalProvider"
+            android:name="com.pacoapp.paco.model.EsmSignalProvider"
             android:authorities="com.google.android.apps.paco.signal"
             android:exported="false" />
         <provider
-            android:name="com.google.android.apps.paco.ExperimentProvider"
+            android:name="com.pacoapp.paco.model.ExperimentProvider"
             android:authorities="com.google.android.apps.paco.ExperimentProvider"
             android:exported="false" />
 
-        <receiver android:name="com.google.android.apps.paco.BroadcastTriggerReceiver" >
+        <receiver android:name="com.pacoapp.paco.sensors.android.BroadcastTriggerReceiver" >
             <intent-filter>
                 <action android:name="android.intent.action.PHONE_STATE_CHANGED" />
                 <action android:name="android.intent.action.PHONE_STATE" />
@@ -259,15 +259,14 @@
             </intent-filter>
         </receiver>
 
-        <service android:name="com.google.android.apps.paco.BroadcastTriggerService" />
+        <service android:name="com.pacoapp.paco.sensors.android.BroadcastTriggerService" />
 
         <activity
-            android:name="com.google.android.apps.paco.FindMyOrAllExperimentsChooserActivity"
-            android:label="Find Experiments"
+            android:name="com.pacoapp.paco.ui.FindMyOrAllExperimentsChooserActivity" android:label="Find Experiments"
             >
         </activity>
 
-        <service android:name="com.google.android.apps.paco.ProcessService"></service>
+        <service android:name="com.pacoapp.paco.sensors.android.ProcessService"></service>
     </application>
 
     <uses-permission android:name="android.permission.GET_ACCOUNTS" />

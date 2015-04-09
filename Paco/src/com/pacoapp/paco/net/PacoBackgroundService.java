@@ -13,10 +13,10 @@ import org.json.JSONException;
 import android.util.Log;
 import android.util.Pair;
 
-import com.google.android.apps.paco.PacoConstants;
-import com.google.android.apps.paco.utils.AndroidUtils;
 import com.google.android.gms.auth.GoogleAuthUtil;
 import com.google.common.collect.Lists;
+import com.pacoapp.paco.PacoConstants;
+import com.pacoapp.paco.os.AndroidUtils;
 
 public class PacoBackgroundService extends GetInBackground {
 

@@ -33,17 +33,15 @@ import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
-import com.google.android.apps.paco.Experiment;
-import com.google.android.apps.paco.ExperimentLoadingActivity;
-import com.google.android.apps.paco.ExperimentProviderUtil;
-import com.google.android.apps.paco.Validation;
-import com.google.android.apps.paco.utils.IntentExtraHelper;
 import com.google.common.base.Strings;
 import com.google.paco.shared.model2.ExperimentGroup;
 import com.google.paco.shared.model2.Schedule;
 import com.google.paco.shared.model2.ScheduleTrigger;
 import com.google.paco.shared.model2.SignalTime;
 import com.pacoapp.paco.R;
+import com.pacoapp.paco.model.Experiment;
+import com.pacoapp.paco.model.ExperimentProviderUtil;
+import com.pacoapp.paco.utils.IntentExtraHelper;
 
 /**
  * A fragment representing a single Schedule detail screen. This fragment is

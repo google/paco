@@ -26,7 +26,7 @@ import android.os.IBinder;
 import android.os.PowerManager;
 import android.util.Log;
 
-import com.google.android.apps.paco.Experiment;
+import com.pacoapp.paco.model.Experiment;
 
 public class MyExperimentsFetchService extends Service {
   private static MyExperimentsFetcher fetcherInstance;

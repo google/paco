@@ -51,6 +51,22 @@ import com.google.common.collect.Lists;
 import com.google.paco.shared.model2.ExperimentGroup;
 import com.google.paco.shared.util.ExperimentHelper;
 import com.pacoapp.paco.R;
+import com.pacoapp.paco.UserPreferences;
+import com.pacoapp.paco.model.Event;
+import com.pacoapp.paco.model.Experiment;
+import com.pacoapp.paco.model.ExperimentProviderUtil;
+import com.pacoapp.paco.model.Output;
+import com.pacoapp.paco.net.NetworkUtil;
+import com.pacoapp.paco.net.SyncService;
+import com.pacoapp.paco.sensors.android.BroadcastTriggerReceiver;
+import com.pacoapp.paco.triggering.AndroidEsmSignalStore;
+import com.pacoapp.paco.triggering.BeeperService;
+import com.pacoapp.paco.triggering.NotificationCreator;
+import com.pacoapp.paco.ui.ExperimentExecutor;
+import com.pacoapp.paco.ui.ExperimentExecutorCustomRendering;
+import com.pacoapp.paco.ui.ExperimentGroupPicker;
+import com.pacoapp.paco.ui.FeedbackActivity;
+import com.pacoapp.paco.ui.FindExperimentsActivity;
 import com.pacoapp.paco.ui.ScheduleListActivity;
 
 
@@ -98,7 +114,7 @@ public class RunningExperimentsActivity extends Activity {
     refreshButton.setOnClickListener(new OnClickListener() {
       public void onClick(View v) {
         if (!isConnected()) {
-          showDialog(DownloadExperimentsHelper.NO_NETWORK_CONNECTION, null);
+          showDialog(NetworkUtil.NO_NETWORK_CONNECTION, null);
         } else {
           refreshList();
         }
@@ -139,7 +155,7 @@ public class RunningExperimentsActivity extends Activity {
       @Override
       public void done(String resultCode) {
         dismissDialog(REFRESHING_EXPERIMENTS_DIALOG_ID);
-        if (resultCode == DownloadExperimentsHelper.SUCCESS) {
+        if (resultCode == NetworkUtil.SUCCESS) {
           saveDownloadedExperiments();
           saveRefreshTime();
         } else {
@@ -168,13 +184,13 @@ public class RunningExperimentsActivity extends Activity {
     try {
       experimentProviderUtil.updateExistingExperiments(contentAsString);
     } catch (JsonParseException e) {
-      showFailureDialog(DownloadExperimentsHelper.CONTENT_ERROR);
+      showFailureDialog(NetworkUtil.CONTENT_ERROR);
     } catch (JsonMappingException e) {
-      showFailureDialog(DownloadExperimentsHelper.CONTENT_ERROR);
+      showFailureDialog(NetworkUtil.CONTENT_ERROR);
     } catch (UnsupportedCharsetException e) {
-      showFailureDialog(DownloadExperimentsHelper.CONTENT_ERROR);
+      showFailureDialog(NetworkUtil.CONTENT_ERROR);
     } catch (IOException e) {
-      showFailureDialog(DownloadExperimentsHelper.CONTENT_ERROR);
+      showFailureDialog(NetworkUtil.CONTENT_ERROR);
     }
   }
 
@@ -187,11 +203,11 @@ public class RunningExperimentsActivity extends Activity {
   }
 
   private void showFailureDialog(String status) {
-    if (status.equals(DownloadExperimentsHelper.CONTENT_ERROR) ||
-        status.equals(DownloadExperimentsHelper.RETRIEVAL_ERROR)) {
-      showDialog(DownloadExperimentsHelper.INVALID_DATA_ERROR, null);
+    if (status.equals(NetworkUtil.CONTENT_ERROR) ||
+        status.equals(NetworkUtil.RETRIEVAL_ERROR)) {
+      showDialog(NetworkUtil.INVALID_DATA_ERROR, null);
     } else {
-      showDialog(DownloadExperimentsHelper.SERVER_ERROR, null);
+      showDialog(NetworkUtil.SERVER_ERROR, null);
     }
   }
 
@@ -345,11 +361,11 @@ public class RunningExperimentsActivity extends Activity {
     switch (id) {
       case REFRESHING_EXPERIMENTS_DIALOG_ID: {
           return getRefreshJoinedDialog();
-      } case DownloadExperimentsHelper.INVALID_DATA_ERROR: {
+      } case NetworkUtil.INVALID_DATA_ERROR: {
           return getUnableToJoinDialog(getString(R.string.invalid_data));
-      } case DownloadExperimentsHelper.SERVER_ERROR: {
+      } case NetworkUtil.SERVER_ERROR: {
         return getUnableToJoinDialog(getString(R.string.dialog_dismiss));
-      } case DownloadExperimentsHelper.NO_NETWORK_CONNECTION: {
+      } case NetworkUtil.NO_NETWORK_CONNECTION: {
         return getNoNetworkDialog();
       } default: {
         return null;
@@ -400,7 +416,7 @@ public class RunningExperimentsActivity extends Activity {
   }
 
   private void showNetworkConnectionActivity() {
-    startActivityForResult(new Intent(Settings.ACTION_WIRELESS_SETTINGS), DownloadExperimentsHelper.ENABLED_NETWORK);
+    startActivityForResult(new Intent(Settings.ACTION_WIRELESS_SETTINGS), NetworkUtil.ENABLED_NETWORK);
   }
 
 

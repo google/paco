@@ -23,10 +23,10 @@ import android.os.Bundle;
 import android.util.Log;
 import android.util.Pair;
 
-import com.google.android.apps.paco.PacoConstants;
-import com.google.android.apps.paco.UserPreferences;
-import com.google.android.apps.paco.utils.AndroidUtils;
 import com.google.common.collect.Lists;
+import com.pacoapp.paco.PacoConstants;
+import com.pacoapp.paco.UserPreferences;
+import com.pacoapp.paco.os.AndroidUtils;
 
 public class PacoService {
 

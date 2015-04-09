@@ -49,14 +49,18 @@ import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
-import com.google.android.apps.paco.utils.IntentExtraHelper;
 import com.google.common.base.Strings;
 import com.google.paco.shared.model2.ExperimentGroup;
 import com.google.paco.shared.model2.Schedule;
 import com.google.paco.shared.model2.ScheduleTrigger;
 import com.google.paco.shared.model2.SignalTime;
 import com.pacoapp.paco.R;
+import com.pacoapp.paco.model.Experiment;
+import com.pacoapp.paco.model.ExperimentProviderUtil;
+import com.pacoapp.paco.ui.ExperimentLoadingActivity;
 import com.pacoapp.paco.ui.ScheduleDetailFragment;
+import com.pacoapp.paco.ui.Validation;
+import com.pacoapp.paco.utils.IntentExtraHelper;
 
 public class ExperimentScheduleActivity extends Activity implements ExperimentLoadingActivity {
 

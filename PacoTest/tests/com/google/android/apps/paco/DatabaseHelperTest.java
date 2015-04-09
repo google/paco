@@ -8,6 +8,7 @@ import android.test.AndroidTestCase;
 
 import com.google.common.base.Splitter;
 import com.google.paco.shared.util.TimeUtil;
+import com.pacoapp.paco.model.ExperimentColumns;
 
 public class DatabaseHelperTest extends AndroidTestCase {
 

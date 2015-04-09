@@ -39,7 +39,18 @@ import android.view.View.OnClickListener;
 import android.widget.ImageButton;
 
 import com.pacoapp.paco.R;
+import com.pacoapp.paco.UserPreferences;
+import com.pacoapp.paco.model.ExperimentColumns;
+import com.pacoapp.paco.model.ExperimentProviderUtil;
 import com.pacoapp.paco.os.RingtoneUtil;
+import com.pacoapp.paco.ui.ContactOptionsActivity;
+import com.pacoapp.paco.ui.ESMSignalViewer;
+import com.pacoapp.paco.ui.Eula;
+import com.pacoapp.paco.ui.EulaDisplayActivity;
+import com.pacoapp.paco.ui.FindMyOrAllExperimentsChooserActivity;
+import com.pacoapp.paco.ui.HelpActivity;
+import com.pacoapp.paco.ui.ServerConfigurationActivity;
+import com.pacoapp.paco.ui.WelcomeActivity;
 
 /**
  *
@@ -279,7 +290,7 @@ public class ExperimentManagerActivity extends ActionBarActivity {
   }
 
   private void launchServerConfiguration() {
-    Intent startIntent = new Intent(this, ServerConfiguration.class);
+    Intent startIntent = new Intent(this, ServerConfigurationActivity.class);
     startActivity(startIntent);
   }
 

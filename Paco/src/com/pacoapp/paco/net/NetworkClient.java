@@ -3,7 +3,7 @@ package com.pacoapp.paco.net;
 import android.content.Context;
 import android.util.Log;
 
-import com.google.android.apps.paco.PacoConstants;
+import com.pacoapp.paco.PacoConstants;
 
 public interface NetworkClient {
 
