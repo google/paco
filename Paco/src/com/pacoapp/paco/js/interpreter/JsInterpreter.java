@@ -1,8 +1,5 @@
 package com.pacoapp.paco.js.interpreter;
 
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
@@ -17,10 +14,7 @@ import org.mozilla.javascript.RhinoException;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.ScriptableObject;
 
-import android.util.Log;
-
 import com.google.common.collect.ImmutableSet;
-import com.pacoapp.paco.PacoConstants;
 
 public class JsInterpreter {
 
@@ -81,24 +75,7 @@ public class JsInterpreter {
       // Turn compilation off. Necessary for Android.
       context.setOptimizationLevel(-1);
       rootScope = context.initStandardObjects(null, true);
-      Reader reader = null;
-      try {
-        reader = new BufferedReader(new FileReader("file:///android_asset/jquery-1.5.1.min.js"));
-        context.compileReader(rootScope, reader, "jquery src", 0, securityDomain);
-      } catch (FileNotFoundException e) {
-        Log.e(PacoConstants.TAG, "could not inject jquery", e);
-      } catch (IOException e) {
-        Log.e(PacoConstants.TAG, "could not inject jquery", e);
-      } finally {
-        if (reader != null) {
-          try {
-            reader.close();
-          } catch (IOException e) {
-          }
-        }
-      }
-
-//      String prepCodeForPacoJs = "var window = window || {};\nfunction alert(msg) { log.error(msg); };\n";
+      //      String prepCodeForPacoJs = "var window = window || {};\nfunction alert(msg) { log.error(msg); };\n";
 //    context.evaluateString(rootScope, prepCodeForPacoJs, "init", 1, securityDomain);
 
   }
@@ -123,6 +100,9 @@ public class JsInterpreter {
     context.exit();
   }
 
+  public void addLibrary(String lib) {
+    context.evaluateString(rootScope, lib, "doit:", 1, securityDomain);
+  }
   public void newBind(String name, Object obj) {
     ScriptableObject.putProperty(rootScope, name, context.javaToJS(obj, rootScope));
   }
