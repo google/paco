@@ -28,7 +28,6 @@ import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.map.JsonMappingException;
 
 import android.content.Context;
-import android.net.Uri;
 import android.util.Log;
 
 import com.google.common.collect.Lists;
@@ -50,7 +49,6 @@ public class MyExperimentsFetcher {
     return instance;
   }
 
-  private static final Uri CONTENT_URI = Uri.parse("content://com.google.android.apps.paco.ServerCommunication/");
   private Context context;
   private UserPreferences userPrefs;
   private String experimentCursor;
@@ -69,16 +67,18 @@ public class MyExperimentsFetcher {
     if (isUpdating) {
       return;
     }
-    //if (userPrefs.isMyExperimentsListStale()) {
+    isUpdating = true;
+    if (userPrefs.isMyExperimentsListStale()) {
       updateMyExperiments();
-//    } else {
-//      if (experiments != null) {
-//        listener.done(experiments);
-//      }
-//    }
+    } else {
+      if (experiments != null) {
+        listener.done(experiments);
+      }
+      isUpdating = false;
+    }
   }
   private void updateMyExperiments() {
-    isUpdating = true;
+
     final ExperimentProviderUtil experimentProviderUtil = new ExperimentProviderUtil(context);
     NetworkClient networkClient = new NetworkClient.BackgroundNetworkClient(context) {
         @Override
