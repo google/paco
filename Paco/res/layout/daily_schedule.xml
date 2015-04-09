@@ -44,10 +44,5 @@
 	    android:layout_width="wrap_content"
 	    android:layout_height="280dp" />
 	
-	<Button android:layout_width="wrap_content"
-		android:layout_height="wrap_content" android:id="@+id/SetDailyScheduleButton"
-		android:text="@string/save_schedule" android:layout_gravity="center"></Button>
-
-
 
 </LinearLayout>

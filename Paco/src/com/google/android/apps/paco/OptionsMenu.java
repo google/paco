@@ -1,8 +1,8 @@
 /*
 * Copyright 2011 Google Inc. All Rights Reserved.
-* 
+*
 * Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance  with the License.  
+* you may not use this file except in compliance  with the License.
 * You may obtain a copy of the License at
 *
 *    http://www.apache.org/licenses/LICENSE-2.0
@@ -16,23 +16,25 @@
 */
 package com.google.android.apps.paco;
 
-import com.pacoapp.paco.R;
-
-import android.content.Context;
+import android.app.Activity;
 import android.content.Intent;
-import android.net.Uri;
+import android.support.v4.app.NavUtils;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.pacoapp.paco.R;
+import com.pacoapp.paco.ui.MyExperimentsActivity;
+import com.pacoapp.paco.ui.ScheduleListActivity;
+
 public class OptionsMenu {
 
-  private Context context;
-  private Uri experimentUri;
+  private Activity context;
+  private Long experimentServerId;
   private boolean wasSignalled;
 
-  public OptionsMenu(Context experimentExecutor, Uri experimentUri, boolean wasSignalled) {
+  public OptionsMenu(Activity experimentExecutor, Long experimentId, boolean wasSignalled) {
     this.context = experimentExecutor;
-    this.experimentUri = experimentUri;
+    this.experimentServerId = experimentId;
     this.wasSignalled = wasSignalled;
   }
 
@@ -60,6 +62,13 @@ public class OptionsMenu {
 
   public boolean onOptionsItemSelected(MenuItem item) {
     switch (item.getItemId()) {
+    case android.R.id.home:
+      if (!wasSignalled) {
+        final Intent intent = new Intent(context, MyExperimentsActivity.class);
+        NavUtils.navigateUpTo(context, intent);
+        return true;
+      }
+      return false;
       case PAGING_ITEM:
         launchScheduleDetailScreen();
         return true;
@@ -68,14 +77,14 @@ public class OptionsMenu {
         return true;
       case DATA_ITEM:
         launchDataScreen();
-        return true;  
+        return true;
 //      case REFRESH_EXPERIMENT_ITEM:
 //        launchRefreshExperiments();
 //        return true;
       case MAINPAGE_ITEM:
         launchMainPage();
         return true;
-      case HELP_ITEM:      
+      case HELP_ITEM:
         launchHelp();
         return true;
 //      case DEBUG_ITEM:
@@ -92,7 +101,7 @@ public class OptionsMenu {
 //        return true;
       default:
         return false;
-    } 
+    }
   }
 
 //  private void launchRefreshExperiments() {
@@ -113,10 +122,10 @@ public class OptionsMenu {
     ((ExperimentExecutor)context).stopExperiment();
    }
 
-  
+
   private void launchScheduleDetailScreen() {
-    Intent debugIntent = new Intent(context, ExperimentScheduleActivity.class);
-    debugIntent.setData(experimentUri);
+    Intent debugIntent = new Intent(context, ScheduleListActivity.class);
+    debugIntent.putExtra(Experiment.EXPERIMENT_SERVER_ID_EXTRA_KEY, experimentServerId);
     context.startActivity(debugIntent);
   }
 
@@ -166,7 +175,7 @@ public class OptionsMenu {
   private static final int REFRESH_EXPERIMENT_ITEM = 5;
   private static final int UPDATE_ITEM = 6;
 
-  
+
 //  private static final int DEBUG_ITEM = 2;
 //  private static final int REFRESH_ITEM = 3;
 //  private static final int RESULTS_ITEM = 4;

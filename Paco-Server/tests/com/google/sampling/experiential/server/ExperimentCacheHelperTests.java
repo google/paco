@@ -1,5 +1,7 @@
 package com.google.sampling.experiential.server;
 
+import java.util.List;
+
 import junit.framework.TestCase;
 
 import org.joda.time.DateTime;
@@ -7,17 +9,22 @@ import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.junit.Test;
 
-import com.google.paco.shared.model.ExperimentDAO;
-import com.google.paco.shared.model.SignalScheduleDAO;
-import com.google.paco.shared.model.SignalingMechanismDAO;
+import com.google.common.collect.Lists;
+import com.google.paco.shared.model2.ActionTrigger;
+import com.google.paco.shared.model2.ExperimentDAO;
+import com.google.paco.shared.model2.ExperimentGroup;
+import com.google.paco.shared.model2.PacoAction;
+import com.google.paco.shared.model2.PacoNotificationAction;
+import com.google.paco.shared.model2.Schedule;
+import com.google.paco.shared.model2.ScheduleTrigger;
 
 public class ExperimentCacheHelperTests extends TestCase {
 
-  private ExperimentRetriever experimentRetriever;
+  private ExperimentService experimentRetriever;
 
   protected void setUp() throws Exception {
     super.setUp();
-    experimentRetriever = ExperimentRetriever.getInstance();
+    experimentRetriever = ExperimentServiceFactory.getExperimentService();
   }
 
   @Test
@@ -26,23 +33,34 @@ public class ExperimentCacheHelperTests extends TestCase {
     DateTimeFormatter formatter = DateTimeFormat.forPattern("yyyy/MM/dd");
 
     ExperimentDAO experiment = new ExperimentDAO();
-    SignalScheduleDAO signalSchedule = new SignalScheduleDAO();
-    signalSchedule.setScheduleType(SignalScheduleDAO.ESM);
+    Schedule signalSchedule = new Schedule();
+    signalSchedule.setScheduleType(Schedule.ESM);
 
-    experiment.setSignalingMechanisms(new SignalingMechanismDAO[] {signalSchedule});
-    experiment.setFixedDuration(true);
-    experiment.setStartDate(today.minusDays(2).toString(formatter));
+    ScheduleTrigger st = new ScheduleTrigger(Lists.newArrayList(signalSchedule));
+    PacoAction a = new PacoNotificationAction();
+    st.setActions(Lists.newArrayList(a));
+    List<ActionTrigger> actionTriggers = Lists.newArrayList();
+    actionTriggers.add(st);
+
+    ExperimentGroup eg = new ExperimentGroup();
+    eg.setActionTriggers(actionTriggers);
+
+    List<ExperimentGroup> egl = Lists.newArrayList(eg);
+
+    experiment.setGroups(egl);
+    eg.setFixedDuration(true);
+    eg.setStartDate(today.minusDays(2).toString(formatter));
 
     // End date yesterday
-    experiment.setEndDate(today.minusDays(1).toString(formatter));
+    eg.setEndDate(today.minusDays(1).toString(formatter));
     assertTrue(experimentRetriever.isOver(experiment, today));
 
     // End date tomorrow
-    experiment.setEndDate(today.plusDays(1).toString(formatter));
+    eg.setEndDate(today.plusDays(1).toString(formatter));
     assertFalse(experimentRetriever.isOver(experiment, today));
 
     // End date today
-    experiment.setEndDate(today.toString(formatter));
+    eg.setEndDate(today.toString(formatter));
     assertFalse(experimentRetriever.isOver(experiment, today));
 
   }

@@ -19,7 +19,7 @@ package com.google.android.apps.paco;
 import android.content.Context;
 import android.os.AsyncTask;
 
-class DownloadMyExperimentsTask extends AsyncTask<Void, Void, String> {
+public class DownloadMyExperimentsTask extends AsyncTask<Void, Void, String> {
   private final Context enclosingContext;
   private UserPreferences userPrefs;
   private DownloadExperimentsTaskListener listener;

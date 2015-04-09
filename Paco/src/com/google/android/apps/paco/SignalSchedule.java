@@ -25,8 +25,7 @@ import org.codehaus.jackson.annotate.JsonProperty;
 import org.joda.time.DateMidnight;
 import org.joda.time.DateTime;
 
-import android.content.Context;
-
+import com.google.paco.shared.model2.Schedule;
 import com.pacoapp.paco.R;
 
 /**
@@ -304,13 +303,6 @@ public class SignalSchedule extends SignalingMechanism {
   }
 
 
-  public DateTime getNextAlarmTime(DateTime dateTime, Context context, Long experimentServerId) {
-    if (!getScheduleType().equals(SignalSchedule.ESM)) {
-      return new NonESMSignalGenerator(this, experimentServerId, new ExperimentProviderUtil(context)).getNextAlarmTime(dateTime);
-    }
-    return null;  // TODO (bobevans) move the esm handling in Experiment to here.
-  }
-
   public Long getBeginDate() {
     return beginDate;
   }
@@ -372,8 +364,8 @@ public class SignalSchedule extends SignalingMechanism {
   private String stringNamesOf(Integer weekDaysScheduled2) {
     StringBuilder buf = new StringBuilder();
     boolean first = true;
-    for (int i= 0; i < SignalSchedule.DAYS_OF_WEEK.length;i++) {
-      if ((weekDaysScheduled & SignalSchedule.DAYS_OF_WEEK[i]) == SignalSchedule.DAYS_OF_WEEK[i]) {
+    for (int i= 0; i < Schedule.DAYS_OF_WEEK.length;i++) {
+      if ((weekDaysScheduled & Schedule.DAYS_OF_WEEK[i]) == Schedule.DAYS_OF_WEEK[i]) {
         if (first) {
           first = false;
         } else {

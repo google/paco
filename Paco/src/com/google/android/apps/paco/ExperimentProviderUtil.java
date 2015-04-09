@@ -24,10 +24,11 @@ import java.util.List;
 import java.util.Map;
 
 import org.codehaus.jackson.JsonGenerationException;
+import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.JsonParseException;
+import org.codehaus.jackson.JsonProcessingException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.map.annotate.JsonSerialize.Inclusion;
 import org.codehaus.jackson.type.TypeReference;
 import org.joda.time.DateMidnight;
 import org.joda.time.DateTime;
@@ -39,15 +40,26 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
-import android.provider.BaseColumns;
-import android.text.TextUtils;
-import android.text.TextUtils.StringSplitter;
 import android.util.Log;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
+import com.google.paco.shared.model2.ActionTrigger;
+import com.google.paco.shared.model2.EventInterface;
+import com.google.paco.shared.model2.EventStore;
+import com.google.paco.shared.model2.ExperimentDAO;
+import com.google.paco.shared.model2.ExperimentGroup;
+import com.google.paco.shared.model2.Input2;
+import com.google.paco.shared.model2.InterruptCue;
+import com.google.paco.shared.model2.JsonConverter;
+import com.google.paco.shared.model2.PacoAction;
+import com.google.paco.shared.model2.PacoNotificationAction;
+import com.google.paco.shared.model2.Schedule;
+import com.google.paco.shared.model2.ScheduleTrigger;
+import com.google.paco.shared.scheduling.ActionScheduleGenerator;
+import com.google.paco.shared.util.TimeUtil;
 
-public class ExperimentProviderUtil {
+public class ExperimentProviderUtil implements EventStore {
 
   private Context context;
   private ContentResolver contentResolver;
@@ -60,6 +72,9 @@ public class ExperimentProviderUtil {
   public ExperimentProviderUtil(Context context) {
     super();
     this.context = context;
+    if (context == null) {
+      throw new IllegalArgumentException("Need a context to instantiate experimentproviderutil");
+    }
     this.contentResolver = context.getContentResolver();
   }
 
@@ -71,9 +86,10 @@ public class ExperimentProviderUtil {
     List<Experiment> joinedExperiments = getJoinedExperiments();
     List<Experiment> stillRunningExperiments = Lists.newArrayList();
     DateMidnight tonightMidnight = new DateMidnight().plusDays(1);
+    DateTime now = DateTime.now();
     for (Experiment experiment : joinedExperiments) {
-      String endDate = experiment.getEndDate();
-      if (experiment.isFixedDuration() != null && experiment.isFixedDuration() || endDate == null || endDateFormatter.parseDateTime(endDate).isAfter(tonightMidnight)) {
+
+      if (!ActionScheduleGenerator.isOver(now, experiment.getExperimentDAO())) {
         stillRunningExperiments.add(experiment);
       }
     }
@@ -100,6 +116,11 @@ public class ExperimentProviderUtil {
     return findExperimentsBy(select, ExperimentColumns.CONTENT_URI);
   }
 
+  public Experiment getExperimentByServerId(long id) {
+    String select = ExperimentColumns.SERVER_ID + "=" + id;
+    return findExperimentBy(select, ExperimentColumns.CONTENT_URI);
+  }
+
   public Uri insertExperiment(Experiment experiment) {
     return contentResolver.insert(ExperimentColumns.CONTENT_URI,
         createContentValues(experiment));
@@ -118,19 +139,22 @@ public class ExperimentProviderUtil {
    * @return
    */
   public Uri insertFullJoinedExperiment(Experiment experiment) {
-    List<SignalingMechanism> signalingMechanisms = experiment.getSignalingMechanisms();
-    Long joinDateMillis = getJoinDateMillis(experiment);
-    for (SignalingMechanism signalingMechanism : signalingMechanisms) {
-      if (signalingMechanism instanceof SignalSchedule) {
-        SignalSchedule schedule = (SignalSchedule) signalingMechanism;
-        schedule.setBeginDate(joinDateMillis);
+    long joinDateMillis = getJoinDateMillis(experiment);
+    for (ExperimentGroup experimentGroup : experiment.getExperimentDAO().getGroups()) {
+      List<ActionTrigger> actionTriggers = experimentGroup.getActionTriggers();
+      for (ActionTrigger actionTrigger : actionTriggers) {
+        if (actionTrigger instanceof ScheduleTrigger) {
+          ScheduleTrigger scheduleTrigger = (ScheduleTrigger)actionTrigger;
+          List<Schedule> schedules = scheduleTrigger.getSchedules();
+          for (Schedule schedule : schedules) {
+            schedule.setJoinDateMillis(joinDateMillis);
+          }
+        }
       }
     }
     Uri uri = contentResolver.insert(ExperimentColumns.CONTENT_URI,
         createContentValues(experiment));
-
     long rowId = Long.parseLong(uri.getLastPathSegment());
-
     experiment.setId(rowId);
     return uri;
   }
@@ -174,67 +198,32 @@ public class ExperimentProviderUtil {
    * Used when refreshing experiment list from the server.
    * If the experiment server id is already in the database,
    * then update it, otherwise, add it.
-   * @param experiments
+   * @param experimentList
    * @param shouldOverrideExistingSettings downloaded (refreshed experiments should not override certain
    * local properties. Locally modified experiments should override local properties, e.g., logActions.
    */
-  public void updateExistingExperiments(List<Experiment> experiments, Boolean shouldOverrideExistingSettings) {
-
-    for (Experiment experiment : experiments) {
-      long t1 = System.currentTimeMillis();
-
+  public void updateExistingExperiments(List<Experiment> newExperimentDefinitions,
+                                        Boolean shouldOverrideExistingSettings) {
+    for (Experiment experiment : newExperimentDefinitions) {
       List<Experiment> existingList = getExperimentsByServerId(experiment.getServerId());
-
-      long t2 = System.currentTimeMillis();
-      Log.e(PacoConstants.TAG, "time to load existing experiments (count: " + existingList.size() + " : " + (t2 - t1));
-
       if (existingList.size() == 0) {
         continue;
       }
-      for (Experiment existingExperiment : existingList) {
-        long startTime = System.currentTimeMillis();
-        existingExperiment.setInputs(experiment.getInputs());
-        existingExperiment.setFeedback(experiment.getFeedback());
-        if (false /* TODO test if the user has modified any of the signaling mechanisms and update if they have not created custom times */) {
-          existingExperiment.setSignalingMechanisms(experiment.getSignalingMechanisms());
-        }
+      for (Experiment existingExperiment : existingList) { // should become only 1 element if we prevent joining experiments multiple times
         copyAllPropertiesToExistingJoinedExperiment(experiment, existingExperiment, shouldOverrideExistingSettings);
         updateJoinedExperiment(existingExperiment);
-        Log.i(PacoConstants.TAG, "Time to update one existing joined experiment: " + (System.currentTimeMillis() - startTime));
       }
 
     }
   }
 
-  private void copyAllPropertiesToExistingJoinedExperiment(Experiment experiment, Experiment existingExperiment, Boolean shouldOverrideExistingSettings) {
-    existingExperiment.setCreator(experiment.getCreator());
-    existingExperiment.setVersion(experiment.getVersion());
-    existingExperiment.setDescription(experiment.getDescription());
-    existingExperiment.setEndDate(experiment.getEndDate());
-    existingExperiment.setFixedDuration(experiment.isFixedDuration());
-    existingExperiment.setIcon(experiment.getIcon());
-    existingExperiment.setInformedConsentForm(experiment.getInformedConsentForm());
-    existingExperiment.setQuestionsChange(experiment.isQuestionsChange());
-    existingExperiment.setStartDate(experiment.getStartDate());
-    existingExperiment.setTitle(experiment.getTitle());
-    existingExperiment.setWebRecommended(experiment.isWebRecommended());
-    existingExperiment.setCustomRendering(experiment.isCustomRendering());
-    existingExperiment.setCustomRenderingCode(experiment.getCustomRenderingCode());
-    existingExperiment.setFeedbackType(experiment.getFeedbackType());
-    // for now, because we can modify the experiment in the js at runtime, we do not want to update this.
-    // however, this creates a problem for admins who want to update experiments.
-    // TODO find a way to merge current state and updates correctly
-    if (shouldOverrideExistingSettings) {
-      existingExperiment.setLogActions(experiment.isLogActions());
-    }
+  private void copyAllPropertiesToExistingJoinedExperiment(Experiment newExperiment, Experiment existingExperiment,
+                                                           Boolean shouldOverrideExistingSettings) {
+    ExperimentDAO newExperimentDAO = newExperiment.getExperimentDAO();
+    ExperimentDAO existingDAO = existingExperiment.getExperimentDAO();
+    // TODO preserve any modified schedule settings if it is user-editable and different from the new
+    existingExperiment.setExperimentDAO(newExperimentDAO);
 
-    existingExperiment.setRecordPhoneDetails(experiment.isRecordPhoneDetails());
-    existingExperiment.setBackgroundListen(experiment.isBackgroundListen());
-    existingExperiment.setBackgroundListenSourceIdentifier(experiment.getBackgroundListenSourceIdentifier());
-  }
-
-  private void deleteFullExperiment(Experiment experiment2) {
-    deleteExperiment(experiment2.getId());
   }
 
   public void updateJoinedExperiment(Experiment experiment) {
@@ -322,6 +311,291 @@ public class ExperimentProviderUtil {
   }
 
 
+  public List<Experiment> getExperimentsWithDAO() {
+    List<Experiment> experiments = new ArrayList<Experiment>();
+    Cursor cursor = null;
+    try {
+      cursor = contentResolver.query(ExperimentColumns.JOINED_EXPERIMENTS_CONTENT_URI,
+          null, null, null, null);
+      if (cursor != null) {
+        int idIndex = cursor.getColumnIndex(ExperimentColumns._ID);
+        int jsonIndex = cursor.getColumnIndex(ExperimentColumns.JSON);
+
+        while (cursor.moveToNext()) {
+          try {
+            Experiment experiment = new Experiment();
+            ExperimentDAO experimentDAO = new ExperimentDAO();
+
+            if (!cursor.isNull(idIndex)) {
+              experiment.setId(cursor.getLong(idIndex));
+            }
+
+            if (!cursor.isNull(jsonIndex)) {
+              String jsonOfExperiment = cursor.getString(jsonIndex);
+              copyAllPropertiesFromJsonToExperimentDAO(experimentDAO, jsonOfExperiment);
+              experiment.setExperimentDAO(experimentDAO);
+              experiments.add(experiment);
+            }
+          } catch (JsonProcessingException e) {
+            e.printStackTrace();
+          } catch (IOException e) {
+            e.printStackTrace();
+          }
+        }
+      }
+    } catch (RuntimeException e) {
+      Log.w(ExperimentProvider.TAG, "Caught unexpected exception.", e);
+    } finally {
+      if (cursor != null) {
+        cursor.close();
+      }
+    }
+    return experiments;
+  }
+
+
+  /** This converts the old version of json (db == 22) to the new model
+   *
+   * @param experimentDAO
+   * @param jsonOfExperiment
+   * @throws JsonProcessingException
+   * @throws IOException
+   */
+  private void copyAllPropertiesFromJsonToExperimentDAO(ExperimentDAO experimentDAO, String jsonOfExperiment) throws JsonProcessingException, IOException {
+    ObjectMapper mapper = JsonConverter.getObjectMapper();
+    JsonNode rootNode = mapper.readTree(jsonOfExperiment);
+    if (rootNode.has("serverId")) {
+      experimentDAO.setId(rootNode.path("serverId").getLongValue());
+    }
+    if (rootNode.has("title")) {
+      experimentDAO.setTitle(rootNode.path("title").getTextValue());
+    }
+    if (rootNode.has("description")) {
+      experimentDAO.setCreator(rootNode.path("description").getTextValue());
+    }
+    if (rootNode.has("creator")) {
+      experimentDAO.setCreator(rootNode.path("creator").getTextValue());
+    }
+    if (rootNode.has("modifyDate")) {
+      experimentDAO.setModifyDate(rootNode.path("modifyDate").getTextValue());
+    }
+    if (rootNode.has("version")) {
+      experimentDAO.setVersion(rootNode.path("version").getIntValue());
+    }
+    if (rootNode.has("joinDate")) {
+      experimentDAO.setJoinDate(rootNode.path("joinDate").getTextValue());
+    }
+    if (rootNode.has("informedConsentForm")) {
+      experimentDAO.setInformedConsentForm(rootNode.path("informedConsent").getTextValue());
+    }
+    if (rootNode.has("recordPhoneDetails")) {
+      experimentDAO.setRecordPhoneDetails(rootNode.path("recordPhoneDetails").getBooleanValue());
+    }
+    if (rootNode.has("deleted")) {
+      experimentDAO.setDeleted(rootNode.path("deleted").getBooleanValue());
+    }
+    if (rootNode.has("extraDataCollectionDeclarations")) {
+      List<Integer> edcd = Lists.newArrayList();
+      List<JsonNode> edcdNodes = rootNode.findValues("extraDataCollectionDeclarations");
+      for (JsonNode edcdNode : edcdNodes) {
+        edcd.add(edcdNode.getIntValue());
+      }
+      experimentDAO.setExtraDataCollectionDeclarations(edcd);
+    }
+
+    List<String> admins = Lists.newArrayList();
+    List<JsonNode> adminNodes = rootNode.findValues("admins");
+    for (JsonNode adminNode : adminNodes) {
+      admins.add(adminNode.getTextValue());
+    }
+    experimentDAO.setAdmins(admins);
+
+    if (rootNode.has("published")) {
+      experimentDAO.setPublished(rootNode.path("published").getBooleanValue());
+    }
+    List<String> publishedList = Lists.newArrayList();
+    List<JsonNode> publishedListNodes = rootNode.findValues("publishedUsers");
+    for (JsonNode publishedListNode : publishedListNodes) {
+      publishedList.add(publishedListNode.getTextValue());
+    }
+    experimentDAO.setPublishedUsers(publishedList);
+
+
+    ExperimentGroup defaultExperimentGroup = new ExperimentGroup();
+    defaultExperimentGroup.setName("default");
+    experimentDAO.getGroups().add(defaultExperimentGroup);
+
+    if (rootNode.has("endDate")) {
+      defaultExperimentGroup.setEndDate(rootNode.path("endDate").getTextValue());
+    }
+    if (rootNode.has("startDate")) {
+      defaultExperimentGroup.setEndDate(rootNode.path("startDate").getTextValue());
+    }
+    if (rootNode.has("fixedDuration")) {
+      defaultExperimentGroup.setFixedDuration(rootNode.path("ongoing").getBooleanValue());
+    }
+
+
+
+//    experimentDAO.setWebRecommended(experiment.isWebRecommended());
+    // maybe blow up on webrecommended to let them know to unjoin and rejoin
+    // TODO figure out how to handle this.
+
+    if (rootNode.has("customRendering")) {
+      defaultExperimentGroup.setCustomRendering(rootNode.path("customRendering").getBooleanValue());
+    }
+    if (rootNode.has("customRenderingCode")) {
+      defaultExperimentGroup.setCustomRenderingCode(rootNode.path("customRenderingCode").getTextValue());
+    }
+
+    if (rootNode.has("feedbackType")) {
+      defaultExperimentGroup.setFeedbackType(rootNode.path("feedbackType").getIntValue());
+    }
+    if (rootNode.has("logActions")) {
+      defaultExperimentGroup.setLogActions(rootNode.path("logActions").getBooleanValue());
+    }
+
+    if (rootNode.has("backgroundListen")) {
+      defaultExperimentGroup.setBackgroundListen(rootNode.path("backgroundListen").getBooleanValue());
+    }
+    if (rootNode.has("backgroundListenSourceIdentifier")) {
+      defaultExperimentGroup.setBackgroundListenSourceIdentifier(rootNode.path("backgroundListenSourceIdentifier").getTextValue());
+    }
+    if (rootNode.has("inputs")) {
+      List<Input2> inputs = Lists.newArrayList();
+      List<JsonNode> inputsNode = rootNode.findValues("inputs");
+      for (JsonNode inputNode : inputsNode) {
+        Input2 input = new Input2();
+        if (inputNode.has("name")) {
+          input.setName(inputNode.path("name").getTextValue());
+        }
+        if (inputNode.has("required")) {
+          input.setRequired(inputNode.path("required").getBooleanValue());
+        }
+        if (inputNode.has("conditional")) {
+          input.setConditional(inputNode.path("conditional").getBooleanValue());
+        }
+        if (inputNode.has("conditionExpression")) {
+          input.setConditionExpression(inputNode.path("conditionExpression").getTextValue());
+        }
+        if (inputNode.has("responseType")) {
+          input.setResponseType(inputNode.path("responseType").getTextValue());
+        }
+        if (inputNode.has("text")) {
+          input.setText(inputNode.path("text").getTextValue());
+        }
+        if (inputNode.has("likertSteps")) {
+          input.setLikertSteps(inputNode.path("likertSteps").getIntValue());
+        }
+        if (inputNode.has("leftSideLabel")) {
+          input.setLeftSideLabel(inputNode.path("leftSideLabel").getTextValue());
+        }
+        if (inputNode.has("rightSideLabel")) {
+          input.setRightSideLabel(inputNode.path("rightSideLabel").getTextValue());
+        }
+        if (inputNode.has("multiselect")) {
+          input.setMultiselect(inputNode.path("multiselect").getBooleanValue());
+        }
+        List<String> listChoices = Lists.newArrayList();
+        List<JsonNode> listChoicesNode = rootNode.findValues("listChoices");
+        for (JsonNode listChoiceNode : inputsNode) {
+          listChoices.add(listChoiceNode.getTextValue());
+        }
+        String[] listChoicesArray = new String[listChoices.size()];
+        listChoices.toArray(listChoicesArray);
+        input.setListChoices(listChoicesArray);
+      }
+
+      defaultExperimentGroup.setInputs(inputs);
+    }
+
+    //signaling mechanisms
+    if (rootNode.has("signalingMechanisms")) {
+      List<ActionTrigger> actionTriggers = defaultExperimentGroup.getActionTriggers();
+      List<JsonNode> signalingMechanismNodes = rootNode.findValues("signalingMechanisms");
+      JsonNode signalingMechanismNode = signalingMechanismNodes.get(0);
+      if (signalingMechanismNode.has("type")) {
+        String type = signalingMechanismNode.path("type").getTextValue();
+
+        PacoNotificationAction defaultAction = new PacoNotificationAction();
+        defaultAction.setActionCode(PacoAction.NOTIFICATION_TO_PARTICIPATE_ACTION_CODE);
+
+
+        if (type.equals("signalSchedule")) {
+          com.google.paco.shared.model2.ScheduleTrigger trigger = new com.google.paco.shared.model2.ScheduleTrigger();
+          trigger.getActions().add(defaultAction);
+          com.google.paco.shared.model2.Schedule schedule = new com.google.paco.shared.model2.Schedule();
+
+          defaultAction.setSnoozeCount(signalingMechanismNode.path("snoozeCount").getIntValue());
+          defaultAction.setSnoozeTime(signalingMechanismNode.path("snoozeTime").getIntValue());
+          defaultAction.setTimeout(signalingMechanismNode.path("timeout").getIntValue());
+
+          schedule.setScheduleType(signalingMechanismNode.path("scheduleType").getIntValue());
+          schedule.setEsmFrequency(signalingMechanismNode.path("esmFrequency").getIntValue());
+          schedule.setEsmPeriodInDays(signalingMechanismNode.path("esmPeriodInDays").getIntValue());
+          schedule.setEsmStartHour(signalingMechanismNode.path("esmStartHour").getLongValue());
+          schedule.setEsmEndHour(signalingMechanismNode.path("esmEndHour").getLongValue());
+          schedule.setRepeatRate(signalingMechanismNode.path("repeatRate").getIntValue());
+          schedule.setWeekDaysScheduled(signalingMechanismNode.path("weekdaysScheduled").getIntValue());
+          schedule.setNthOfMonth(signalingMechanismNode.path("nthOfMonth").getIntValue());
+          schedule.setByDayOfMonth(signalingMechanismNode.path("byDayOfMonth").getBooleanValue());
+          schedule.setDayOfMonth(signalingMechanismNode.path("dayOfMonth").getIntValue());
+          schedule.setEsmWeekends(signalingMechanismNode.path("esmWeekends").getBooleanValue());
+          schedule.setMinimumBuffer(signalingMechanismNode.path("minimumBuffer").getIntValue());
+
+          trigger.setUserEditable(signalingMechanismNode.path("userEditable").getBooleanValue());
+          trigger.setOnlyEditableOnJoin(signalingMechanismNode.path("onlyEditableOnJoin").getBooleanValue());
+
+          List<com.google.paco.shared.model2.SignalTime> signalTimes = schedule.getSignalTimes();
+          if (signalingMechanismNode.has("signalTimes")) {
+            List<JsonNode> signalTimeNodes = signalingMechanismNode.findValues("signalTimes");
+            for (JsonNode signalTimeNode : signalTimeNodes) {
+              com.google.paco.shared.model2.SignalTime newSt = new com.google.paco.shared.model2.SignalTime();
+              newSt.setType(signalTimeNode.path("type").getIntValue());
+              newSt.setFixedTimeMillisFromMidnight(signalTimeNode.path("fixedTimeMillisFromMidnight").getIntValue());
+              newSt.setBasis(signalTimeNode.path("basis").getIntValue());
+              newSt.setOffsetTimeMillis(signalTimeNode.path("offsetTimeMillis").getIntValue());
+              newSt.setLabel(signalTimeNode.path("label").getTextValue());
+              schedule.getSignalTimes().add(newSt);
+            }
+          }
+
+          trigger.getSchedules().add(schedule);
+          actionTriggers.add(trigger);
+        } else if (type.equals("trigger")) {
+          com.google.paco.shared.model2.InterruptTrigger trigger = new com.google.paco.shared.model2.InterruptTrigger();
+          trigger.getActions().add(defaultAction);
+          trigger.setMinimumBuffer(signalingMechanismNode.path("minimumBuffer").getIntValue());
+          InterruptCue cue = new InterruptCue();
+          if (signalingMechanismNode.has("eventCode")) {
+            cue.setCueCode(signalingMechanismNode.path("eventCode").getIntValue());
+          }
+          if (signalingMechanismNode.has("delay")) {
+            defaultAction.setDelay(signalingMechanismNode.path("delay").getIntValue());
+          }
+          if (signalingMechanismNode.has("sourceIdentifier")) {
+            cue.setCueSource(signalingMechanismNode.path("sourceIdentifier").getTextValue());
+          }
+
+          trigger.getCues().add(cue);
+          actionTriggers.add(trigger);
+        }
+
+      }
+    }
+
+    if (rootNode.has("feedback")) {
+      com.google.paco.shared.model2.Feedback f = new com.google.paco.shared.model2.Feedback();
+      List<JsonNode> feedbackNodes = rootNode.findValues("feedback");
+      JsonNode feedbackNode = feedbackNodes.get(0);
+      if (feedbackNode.has("text")) {
+        f.setText(feedbackNode.path("text").getTextValue());
+      }
+    }
+
+
+  }
+
   static Experiment createExperiment(Cursor cursor) {
     int idIndex = cursor.getColumnIndex(ExperimentColumns._ID);
     int jsonIndex = cursor.getColumnIndex(ExperimentColumns.JSON);
@@ -381,8 +655,7 @@ public class ExperimentProviderUtil {
   }
 
   public static String getJson(Experiment experiment) {
-    ObjectMapper mapper = new ObjectMapper();
-    mapper.getSerializationConfig().setSerializationInclusion(Inclusion.NON_NULL);
+    ObjectMapper mapper = JsonConverter.getObjectMapper();
 
     try {
       return mapper.writeValueAsString(experiment);
@@ -395,11 +668,11 @@ public class ExperimentProviderUtil {
     }
 
     return null;
+
   }
 
   public static String getJson(List<Experiment> experiments) {
-    ObjectMapper mapper = new ObjectMapper();
-    mapper.getSerializationConfig().setSerializationInclusion(Inclusion.NON_NULL);
+    ObjectMapper mapper = JsonConverter.getObjectMapper();
 
     try {
       return mapper.writeValueAsString(experiments);
@@ -419,6 +692,12 @@ public class ExperimentProviderUtil {
         EventColumns._ID +" DESC");
     experiment.setEvents(eventSingleEntryList);
   }
+
+  public List<Event> loadEventsForExperimentByServerId(Long serverId) {
+    return findEventsBy(EventColumns.EXPERIMENT_SERVER_ID + " = " + Long.toString(serverId),
+        EventColumns._ID +" DESC");
+  }
+
 
   public Uri insertEvent(Event event) {
     Uri uri = contentResolver.insert(EventColumns.CONTENT_URI,
@@ -458,6 +737,19 @@ public class ExperimentProviderUtil {
       values.put(EventColumns.RESPONSE_TIME, event.getResponseTime().getMillis());
     }
 
+    if (event.getExperimentGroupName() != null) {
+      values.put(EventColumns.GROUP_NAME, event.getExperimentGroupName());
+    }
+    if (event.getActionTriggerId() != null) {
+      values.put(EventColumns.ACTION_TRIGGER_ID, event.getActionTriggerId());
+    }
+    if (event.getActionTriggerSpecId() != null) {
+      values.put(EventColumns.ACTION_TRIGGER_SPEC_ID, event.getActionTriggerSpecId());
+    }
+    if (event.getActionId() != null) {
+      values.put(EventColumns.ACTION_ID, event.getActionId());
+    }
+
     values.put(EventColumns.UPLOADED, event.isUploaded() ? 1 : 0);
 
     return values;
@@ -489,11 +781,11 @@ public class ExperimentProviderUtil {
     return values;
   }
 
-  private Event findEventBy(String select, String sortOrder) {
+  private Event findEventBy(String select, String[] selectionArgs, String sortOrder) {
     Cursor cursor = null;
     try {
       cursor = contentResolver.query(EventColumns.CONTENT_URI,
-          null, select, null, sortOrder);
+          null, select, selectionArgs, sortOrder);
       if (cursor != null && cursor.moveToNext()) {
         Event event = createEvent(cursor);
         event.setResponses(findResponsesFor(event));
@@ -566,37 +858,53 @@ public class ExperimentProviderUtil {
     int scheduleTimeIndex = cursor.getColumnIndex(EventColumns.SCHEDULE_TIME);
     int responseTimeIndex = cursor.getColumnIndex(EventColumns.RESPONSE_TIME);
     int uploadedIndex = cursor.getColumnIndex(EventColumns.UPLOADED);
-
-    Event input = new Event();
+    int groupNameIndex = cursor.getColumnIndex(EventColumns.GROUP_NAME);
+    int actionTriggerIndex = cursor.getColumnIndex(EventColumns.ACTION_TRIGGER_ID);
+    int actionTriggerSpecIndex = cursor.getColumnIndex(EventColumns.ACTION_TRIGGER_SPEC_ID);
+    int actionIdIndex = cursor.getColumnIndex(EventColumns.ACTION_ID);
+    Event event = new Event();
 
     if (!cursor.isNull(idIndex)) {
-      input.setId(cursor.getLong(idIndex));
+      event.setId(cursor.getLong(idIndex));
     }
 
     if (!cursor.isNull(experimentIdIndex)) {
-      input.setExperimentId(cursor.getLong(experimentIdIndex));
+      event.setExperimentId(cursor.getLong(experimentIdIndex));
     }
 
     if (!cursor.isNull(experimentServerIdIndex)) {
-      input.setServerExperimentId(cursor.getLong(experimentServerIdIndex));
+      event.setServerExperimentId(cursor.getLong(experimentServerIdIndex));
     }
     if (!cursor.isNull(experimentVersionIndex)) {
-      input.setExperimentVersion(cursor.getInt(experimentVersionIndex));
+      event.setExperimentVersion(cursor.getInt(experimentVersionIndex));
     }
     if (!cursor.isNull(experimentNameIndex)) {
-      input.setExperimentName(cursor.getString(experimentNameIndex));
+      event.setExperimentName(cursor.getString(experimentNameIndex));
     }
 
     if (!cursor.isNull(responseTimeIndex)) {
-      input.setResponseTime(new DateTime(cursor.getLong(responseTimeIndex)));
+      event.setResponseTime(new DateTime(cursor.getLong(responseTimeIndex)));
     }
     if (!cursor.isNull(scheduleTimeIndex)) {
-      input.setScheduledTime(new DateTime(cursor.getLong(scheduleTimeIndex)));
+      event.setScheduledTime(new DateTime(cursor.getLong(scheduleTimeIndex)));
     }
     if (!cursor.isNull(uploadedIndex)) {
-      input.setUploaded(cursor.getInt(uploadedIndex) == 1);
+      event.setUploaded(cursor.getInt(uploadedIndex) == 1);
     }
-    return input;
+
+    if (!cursor.isNull(groupNameIndex)) {
+      event.setExperimentGroupName(cursor.getString(groupNameIndex));
+    }
+    if (!cursor.isNull(actionTriggerIndex)) {
+      event.setActionTriggerId(cursor.getLong(actionTriggerIndex));
+    }
+    if (!cursor.isNull(actionTriggerSpecIndex)) {
+      event.setActionTriggerSpecId(cursor.getLong(actionTriggerSpecIndex));
+    }
+    if (!cursor.isNull(actionIdIndex)) {
+      event.setActionId(cursor.getLong(actionIdIndex));
+    }
+    return event;
   }
 
   private Output createResponse(Cursor cursor) {
@@ -628,9 +936,14 @@ public class ExperimentProviderUtil {
     return input;
   }
 
-  public void updateEvent(Event event) {
-    contentResolver.update(EventColumns.CONTENT_URI,
-        createContentValues(event), "_id=" + event.getId(), null);
+  public void updateEvent(EventInterface eventI) {
+    if (eventI instanceof Event) {
+      Event event = (Event)eventI;
+      contentResolver.update(EventColumns.CONTENT_URI,
+          createContentValues(event), "_id=" + event.getId(), null);
+    } else {
+      throw new IllegalArgumentException("I only know how to deal with Android objects!");
+    }
   }
 
   public List<Event> getEventsNeedingUpload() {
@@ -642,16 +955,9 @@ public class ExperimentProviderUtil {
     return findEventsBy(null, null);
   }
 
-  public void deleteFullExperiment(Uri uri) {
-    Experiment experiment = getExperiment(uri);
-    if (experiment != null) {
-      deleteFullExperiment(experiment);
-    }
-  }
-
-  public NotificationHolder getNotificationFor(long experimentId) {
-    String[] selectionArgs = new String[] {Long.toString(experimentId)};
-    String selectionClause = NotificationHolderColumns.EXPERIMENT_ID + " = ?";
+  public NotificationHolder getNotificationFor(long experimentId, String source) {
+    String[] selectionArgs = new String[] {Long.toString(experimentId), source};
+    String selectionClause = NotificationHolderColumns.EXPERIMENT_ID + " = ? and " + NotificationHolderColumns.NOTIFICATION_SOURCE + " = ?";
     Cursor cursor = null;
     try {
       cursor = contentResolver.query(NotificationHolderColumns.CONTENT_URI,
@@ -667,10 +973,10 @@ public class ExperimentProviderUtil {
     return null;
   }
 
-  public List<NotificationHolder> getNotificationsFor(long experimentId) {
+  public List<NotificationHolder> getNotificationsFor(long experimentId, String experimentGroupName) {
     List<NotificationHolder> holders = new ArrayList<NotificationHolder>();
-    String[] selectionArgs = new String[] {Long.toString(experimentId)};
-    String selectionClause = NotificationHolderColumns.EXPERIMENT_ID + " = ?";
+    String[] selectionArgs = new String[] {Long.toString(experimentId), experimentGroupName};
+    String selectionClause = NotificationHolderColumns.EXPERIMENT_ID + " = ? and " + NotificationHolderColumns.NOTIFICATION_SOURCE + " = ?";
     Cursor cursor = null;
     try {
       cursor = contentResolver.query(NotificationHolderColumns.CONTENT_URI,
@@ -695,6 +1001,13 @@ public class ExperimentProviderUtil {
     int timeoutMillisIdIndex = cursor.getColumnIndexOrThrow(NotificationHolderColumns.TIMEOUT_MILLIS);
     int notificationSourceIndex = cursor.getColumnIndexOrThrow(NotificationHolderColumns.NOTIFICATION_SOURCE);
     int customMessageIndex = cursor.getColumnIndexOrThrow(NotificationHolderColumns.CUSTOM_MESSAGE);
+    int snoozeCountIndex = cursor.getColumnIndexOrThrow(NotificationHolderColumns.SNOOZE_COUNT);
+    int snoozeTimeIndex = cursor.getColumnIndexOrThrow(NotificationHolderColumns.SNOOZE_TIME);
+    int groupNameIndexIndex = cursor.getColumnIndexOrThrow(NotificationHolderColumns.EXPERIMENT_GROUP_NAME);
+    int actionTriggerIdIndex = cursor.getColumnIndexOrThrow(NotificationHolderColumns.ACTION_TRIGGER_ID);
+    int actionTriggerSpecIdIndex = cursor.getColumnIndexOrThrow(NotificationHolderColumns.ACTION_TRIGGER_SPEC_ID);
+    int actionIdIndex = cursor.getColumnIndexOrThrow(NotificationHolderColumns.ACTION_ID);
+
 
     NotificationHolder notification = new NotificationHolder();
 
@@ -723,6 +1036,29 @@ public class ExperimentProviderUtil {
     if (!cursor.isNull(customMessageIndex)) {
       notification.setMessage(cursor.getString(customMessageIndex));
     }
+    if (!cursor.isNull(snoozeCountIndex)) {
+      notification.setSnoozeCount(cursor.getInt(snoozeCountIndex));
+    }
+
+    if (!cursor.isNull(snoozeTimeIndex)) {
+      notification.setSnoozeTime(cursor.getInt(snoozeTimeIndex));
+    }
+
+    if (!cursor.isNull(groupNameIndexIndex)) {
+      notification.setExperimentGroupName(cursor.getString(groupNameIndexIndex));
+    }
+    if (!cursor.isNull(actionTriggerIdIndex)) {
+      notification.setActionTriggerId(cursor.getLong(actionTriggerIdIndex));
+    }
+
+    if (!cursor.isNull(actionTriggerSpecIdIndex)) {
+      notification.setActionTriggerSpecId(cursor.getLong(actionTriggerSpecIdIndex));
+    }
+
+    if (!cursor.isNull(actionIdIndex)) {
+      notification.setActionId(cursor.getLong(actionIdIndex));
+    }
+
     return notification;
   }
 
@@ -811,7 +1147,24 @@ public class ExperimentProviderUtil {
     if (notification.getMessage() != null) {
       values.put(NotificationHolderColumns.CUSTOM_MESSAGE, notification.getMessage());
     }
-
+    if (notification.getSnoozeCount() != null) {
+      values.put(NotificationHolderColumns.SNOOZE_COUNT, notification.getSnoozeCount());
+    }
+    if (notification.getSnoozeTime() != null) {
+      values.put(NotificationHolderColumns.SNOOZE_TIME, notification.getSnoozeTime());
+    }
+    if (notification.getExperimentGroupName() != null) {
+      values.put(NotificationHolderColumns.EXPERIMENT_GROUP_NAME, notification.getExperimentGroupName());
+    }
+    if (notification.getActionTriggerId() != null) {
+      values.put(NotificationHolderColumns.ACTION_TRIGGER_ID, notification.getActionTriggerId());
+    }
+    if (notification.getActionTriggerSpecId() != null) {
+      values.put(NotificationHolderColumns.ACTION_TRIGGER_SPEC_ID, notification.getActionTriggerSpecId());
+    }
+    if (notification.getActionId() != null) {
+      values.put(NotificationHolderColumns.ACTION_ID, notification.getActionId());
+    }
     return values;
   }
 
@@ -904,7 +1257,7 @@ public class ExperimentProviderUtil {
     List<Experiment> existing = loadExperimentsFromDisk(false);
     List<Experiment> newEx;
     try {
-      newEx = (List<Experiment>) fromEntitiesJson(contentAsString).get("results");
+      newEx = (List<Experiment>) fromDownloadedEntitiesJson(contentAsString).get("results");
       existing.addAll(newEx);
       String newJson = getJson(existing);
       if (newJson != null) {
@@ -928,8 +1281,7 @@ public class ExperimentProviderUtil {
   private List<Experiment> createObjectsFromJsonStream(FileInputStream fis) throws IOException, JsonParseException,
                                                                            JsonMappingException {
     try {
-      ObjectMapper mapper = new ObjectMapper();
-      mapper.configure(org.codehaus.jackson.map.DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+      ObjectMapper mapper = JsonConverter.getObjectMapper();
       return mapper.readValue(fis, new TypeReference<List<Experiment>>() {});
     } catch (Exception e) {
       e.printStackTrace();
@@ -940,8 +1292,7 @@ public class ExperimentProviderUtil {
   private List<Experiment> createObjectsFromJsonStream(String fis) throws IOException, JsonParseException,
                                                                            JsonMappingException {
     try {
-      ObjectMapper mapper = new ObjectMapper();
-      mapper.configure(org.codehaus.jackson.map.DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+      ObjectMapper mapper = JsonConverter.getObjectMapper();
       return mapper.readValue(fis, new TypeReference<List<Experiment>>() {
       });
     } catch (Exception e) {
@@ -989,8 +1340,11 @@ public class ExperimentProviderUtil {
   }
 
   public Experiment getExperimentFromDisk(Uri uri, boolean myExperimentsFile) {
-    Long experimentServerId = new Long(uri.getLastPathSegment());
-    return getExperimentFromDisk(experimentServerId, myExperimentsFile);
+    return getExperimentFromDisk(getExperimentServerIdFromUri(uri), myExperimentsFile);
+  }
+
+  public Long getExperimentServerIdFromUri(Uri uri) {
+    return new Long(uri.getLastPathSegment());
   }
 
   public Experiment getExperimentFromDisk(Long experimentServerId, boolean myExperimentsFile) {
@@ -1004,33 +1358,81 @@ public class ExperimentProviderUtil {
   }
 
   public static Map<String, Object> fromEntitiesJson(String resultsJson) throws JsonParseException, JsonMappingException, IOException {
-    ObjectMapper mapper = new ObjectMapper();
-    mapper.configure(org.codehaus.jackson.map.DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-      Map<String, Object> resultObjects = mapper.readValue(resultsJson, new TypeReference<Map<String, Object>>() {});
-      Object experimentResults = resultObjects.get("results");
-      String experimentJson = mapper.writeValueAsString(experimentResults);
-      List<Experiment> experiments = mapper.readValue(experimentJson, new TypeReference<List<Experiment>>() {});
-      resultObjects.put("results", experiments);
-      return resultObjects;
+    ObjectMapper mapper = JsonConverter.getObjectMapper();
+    Map<String, Object> resultObjects = mapper.readValue(resultsJson, new TypeReference<Map<String, Object>>() {
+    });
+    Object experimentResults = resultObjects.get("results");
+    String experimentJson = mapper.writeValueAsString(experimentResults);
+    List<ExperimentDAO> experimentDAOs = mapper.readValue(experimentJson, new TypeReference<List<ExperimentDAO>>() {});
+
+    List<Experiment> experiments = Lists.newArrayList();
+    for (ExperimentDAO experimentDAO : experimentDAOs) {
+      Experiment newExperiment = new Experiment();
+      newExperiment.setExperimentDAO(experimentDAO);
+      newExperiment.setServerId(experimentDAO.getId());
+      experiments.add(newExperiment);
+    }
+
+
+    resultObjects.put("results", experiments);
+    return resultObjects;
+  }
+
+  /**
+   * this one wraps the downlaoded DAOs with Android Experiment objects
+   * @param resultsJson
+   * @return
+   * @throws JsonParseException
+   * @throws JsonMappingException
+   * @throws IOException
+   */
+  public static Map<String, Object> fromDownloadedEntitiesJson(String resultsJson) throws JsonParseException, JsonMappingException, IOException {
+    ObjectMapper mapper = JsonConverter.getObjectMapper();
+
+    Map<String, Object> resultObjects = mapper.readValue(resultsJson, new TypeReference<Map<String, Object>>() {});
+    Object experimentResults = resultObjects.get("results");
+    String experimentJson = mapper.writeValueAsString(experimentResults);
+    List<ExperimentDAO> experiments = mapper.readValue(experimentJson, new TypeReference<List<ExperimentDAO>>() {
+    });
+    List<Experiment> experimentsWithDAOs = Lists.newArrayList();
+    for (ExperimentDAO experimentDAO : experiments) {
+      Experiment experiment = new Experiment();
+      experiment.setExperimentDAO(experimentDAO);
+      experimentsWithDAOs.add(experiment);
+    }
+    resultObjects.put("results", experimentsWithDAOs);
+    return resultObjects;
   }
 
   public static List<Experiment> getExperimentsFromJson(String contentAsString) throws JsonParseException, JsonMappingException, IOException {
-    Map<String, Object> results = fromEntitiesJson(contentAsString);
+    Map<String, Object> results = fromDownloadedEntitiesJson(contentAsString);
     return (List<Experiment>) results.get("results");
   }
 
   public static Experiment getSingleExperimentFromJson(String contentAsString) throws JsonParseException, JsonMappingException, IOException {
-    ObjectMapper mapper = new ObjectMapper();
-    mapper.configure(org.codehaus.jackson.map.DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+    ObjectMapper mapper = JsonConverter.getObjectMapper();
     return mapper.readValue(contentAsString, Experiment.class);
   }
 
-  public Event getEvent(Long experimentServerId, DateTime scheduledTime) {
+  @Override
+  public EventInterface getEvent(Long experimentServerId, DateTime scheduledTime,
+                                 String groupName, Long actionTriggerId, Long scheduleId) {
     if (scheduledTime == null) {
       return null;
     }
-    Event event = findEventBy(EventColumns.EXPERIMENT_SERVER_ID + "=" + experimentServerId + " AND " + EventColumns.SCHEDULE_TIME + "=" + scheduledTime.getMillis(),
-                                                    EventColumns._ID +" DESC");
+    String selectionClause = EventColumns.EXPERIMENT_SERVER_ID + " = ? "
+                              + " AND " + EventColumns.SCHEDULE_TIME + " = ? "
+                              + " AND " + EventColumns.GROUP_NAME + " = ? "
+                              + " AND " + EventColumns.ACTION_TRIGGER_ID + " = ? "
+                              + " AND " + EventColumns.ACTION_TRIGGER_SPEC_ID + " = ? ";
+
+    String[] selectionArgs = new String[] { Long.toString(experimentServerId),
+                                          Long.toString(scheduledTime.getMillis()),
+                                          groupName,
+                                          Long.toString(actionTriggerId),
+                                          Long.toString(scheduleId)};
+
+    Event event = findEventBy(selectionClause, selectionArgs, EventColumns._ID +" DESC");
     if (event != null) {
       Log.i(PacoConstants.TAG, "Found event for experimentId: " + experimentServerId +", st = " + scheduledTime);
     } else {
@@ -1039,23 +1441,66 @@ public class ExperimentProviderUtil {
     return event;
   }
 
-  // legacy for 21->22 db upgrade
-  public void loadInputsForExperiment(Experiment experiment) {
-    String select = "_id" + " = " + experiment.getId();
-    experiment.setInputs(findInputsBy(select));
-  }
-
-  private List<Input> findInputsBy(String select) {
-    List<Input> inputs = new ArrayList<Input>();
+  public List<NotificationHolder> getAllNotificationsFor(Long experimentId) {
+    List<NotificationHolder> holders = new ArrayList<NotificationHolder>();
+    String[] selectionArgs = new String[] {Long.toString(experimentId)};
+    String selectionClause = NotificationHolderColumns.EXPERIMENT_ID + " = ?";
     Cursor cursor = null;
     try {
-      cursor = contentResolver.query(InputColumns.CONTENT_URI,
-          null, select, null, null);
+      cursor = contentResolver.query(NotificationHolderColumns.CONTENT_URI,
+        null, selectionClause, selectionArgs, null);
+      while (cursor.moveToNext()) {
+        holders.add(createNotification(cursor));
+      }
+    } finally {
+      if (cursor != null) {
+        cursor.close();
+      }
+    }
+    return holders;
+  }
+
+  public List<NotificationHolder> getAllNotificationsFor(Long experimentId, String groupName) {
+    List<NotificationHolder> holders = new ArrayList<NotificationHolder>();
+    String[] selectionArgs = new String[] {Long.toString(experimentId), groupName};
+    String selectionClause = NotificationHolderColumns.EXPERIMENT_ID + " = ? and "
+            + NotificationHolderColumns.EXPERIMENT_GROUP_NAME + " = ?";
+    Cursor cursor = null;
+    try {
+      cursor = contentResolver.query(NotificationHolderColumns.CONTENT_URI,
+        null, selectionClause, selectionArgs, null);
+      while (cursor.moveToNext()) {
+        holders.add(createNotification(cursor));
+      }
+    } finally {
+      if (cursor != null) {
+        cursor.close();
+      }
+    }
+    return holders;
+  }
+
+  public void loadEventsForExperimentGroup(Experiment experiment, ExperimentGroup experimentGroup) {
+    String[] args = new String[]{ Long.toString(experiment.getId()), experimentGroup.getName()};
+    final String select = EventColumns.EXPERIMENT_ID + " = ? and " + EventColumns.GROUP_NAME + " = ?";
+    List<Event> eventSingleEntryList = findEventsBy(select, args, EventColumns._ID + " DESC");
+    experiment.setEvents(eventSingleEntryList);
+  }
+
+  private List<Event> findEventsBy(String select, String[] args, String sortOrder) {
+    List<Event> events = new ArrayList<Event>();
+    Cursor cursor = null;
+    try {
+      cursor = contentResolver.query(EventColumns.CONTENT_URI,
+          null, select, args, sortOrder);
       if (cursor != null) {
         while (cursor.moveToNext()) {
-          inputs.add(createInput(cursor));
+          Event event = createEvent(cursor);
+          event.setResponses(findResponsesFor(event));
+          events.add(event);
         }
       }
+      return events;
     } catch (RuntimeException e) {
       Log.w(ExperimentProvider.TAG, "Caught unexpected exception.", e);
     } finally {
@@ -1063,353 +1508,10 @@ public class ExperimentProviderUtil {
         cursor.close();
       }
     }
-    return inputs;
-  }
-
-  static class InputColumns implements BaseColumns {
-    public static final String EXPERIMENT_ID = "experiment_id";
-    public static final String SERVER_ID = "question_id";
-    public static final String NAME = "name";
-    public static final String TEXT = "text";
-    public static final String MANDATORY = "mandatory";
-    public static final String QUESTION_TYPE = "question_type";
-    public static final String RESPONSE_TYPE = "response_type";
-    public static final String LIKERT_STEPS = "likert_steps";
-    public static final String LEFT_SIDE_LABEL = "left_side_label";
-    public static final String RIGHT_SIDE_LABEL = "right_side_label";
-    public static final String LIST_CHOICES_JSON = "list_choices";
-    public static final String SCHEDULED_DATE = "scheduledDate";
-    public static final String CONDITIONAL = "conditional";
-    public static final String CONDITIONAL_EXPRESSION = "condition_expression";
-    public static final String MULTISELECT = "multiselect";
-
-    public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.google.paco.input";
-    public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.google.paco.input";
-
-    public static final Uri CONTENT_URI = Uri.parse("content://"+ExperimentProviderUtil.AUTHORITY+"/inputs");
-
-
-
-  }
-  public static Input createInput(Cursor cursor) {
-    int idIndex = cursor.getColumnIndexOrThrow(InputColumns._ID);
-    int serverIdIndex = cursor.getColumnIndexOrThrow(InputColumns.SERVER_ID);
-    int experimentIndex = cursor.getColumnIndex(InputColumns.EXPERIMENT_ID);
-    int quesstionTypeIndex = cursor.getColumnIndex(InputColumns.QUESTION_TYPE);
-    int responseTypeIndex = cursor.getColumnIndex(InputColumns.RESPONSE_TYPE);
-    int mandatoryIndex = cursor.getColumnIndex(InputColumns.MANDATORY);
-    int textIndex = cursor.getColumnIndex(InputColumns.TEXT);
-    int nameIndex = cursor.getColumnIndex(InputColumns.NAME);
-    int scheduledDateIndex = cursor.getColumnIndex(InputColumns.SCHEDULED_DATE);
-    int likertStepsIndex = cursor.getColumnIndex(InputColumns.LIKERT_STEPS);
-    int leftSideLabelIndex = cursor.getColumnIndex(InputColumns.LEFT_SIDE_LABEL);
-    int rightSideLabelIndex = cursor.getColumnIndex(InputColumns.RIGHT_SIDE_LABEL);
-    int listChoiceIndex = cursor.getColumnIndex(InputColumns.LIST_CHOICES_JSON);
-    int conditionIndex = cursor.getColumnIndex(InputColumns.CONDITIONAL);
-    int conditionExpressionIndex = cursor.getColumnIndex(InputColumns.CONDITIONAL_EXPRESSION);
-    int multiselectIndex = cursor.getColumnIndex(InputColumns.MULTISELECT);
-
-    Input input = new Input();
-
-    if (!cursor.isNull(idIndex)) {
-      input.setId(cursor.getLong(idIndex));
-    }
-
-    if (!cursor.isNull(serverIdIndex)) {
-      input.setServerId(cursor.getLong(serverIdIndex));
-    }
-
-    if (!cursor.isNull(experimentIndex)) {
-      input.setExperimentId(cursor.getLong(experimentIndex));
-    }
-
-    if (!cursor.isNull(nameIndex)) {
-      input.setName(cursor.getString(nameIndex));
-    }
-
-    if (!cursor.isNull(quesstionTypeIndex)) {
-      input.setQuestionType(cursor.getString(quesstionTypeIndex));
-    }
-
-    if (!cursor.isNull(responseTypeIndex)) {
-      input.setResponseType(cursor.getString(responseTypeIndex));
-    }
-
-    if (!cursor.isNull(scheduledDateIndex)) {
-      input.setScheduleDateFromLong(cursor.getLong(scheduledDateIndex));
-    }
-
-    if (!cursor.isNull(mandatoryIndex)) {
-      input.setMandatory(cursor.getInt(mandatoryIndex) == 1);
-    }
-
-    if (!cursor.isNull(textIndex)) {
-      input.setText(cursor.getString(textIndex));
-    }
-
-    if (!cursor.isNull(likertStepsIndex)) {
-      input.setLikertSteps(cursor.getInt(likertStepsIndex));
-    }
-    if (!cursor.isNull(leftSideLabelIndex)) {
-      input.setLeftSideLabel(cursor.getString(leftSideLabelIndex));
-    }
-    if (!cursor.isNull(rightSideLabelIndex)) {
-      input.setRightSideLabel(cursor.getString(rightSideLabelIndex));
-    }
-
-    List<String> listChoices = null;
-    if (!cursor.isNull(listChoiceIndex)) {
-      String jsonChoices = cursor.getString(listChoiceIndex);
-      ObjectMapper mapper = new ObjectMapper();
-      try {
-        listChoices = mapper.readValue(jsonChoices, new TypeReference<List<String>>() {
-        });
-      } catch (JsonParseException e) {
-        e.printStackTrace();
-      } catch (JsonMappingException e) {
-        e.printStackTrace();
-      } catch (IOException e) {
-        e.printStackTrace();
-      }
-    }
-    if (listChoices == null) {
-      listChoices = new ArrayList<String>();
-    }
-    input.setListChoices(listChoices);
-
-    if (!cursor.isNull(conditionIndex)) {
-      input.setConditional(cursor.getInt(conditionIndex) == 1);
-    }
-    if (!cursor.isNull(conditionExpressionIndex)) {
-      input.setConditionExpression(cursor.getString(conditionExpressionIndex));
-    }
-    if (!cursor.isNull(multiselectIndex)) {
-      input.setMultiselect(cursor.getInt(multiselectIndex) == 1);
-    }
-    return input;
-  }
-
-  public static class FeedbackColumns implements BaseColumns {
-
-    public static final String EXPERIMENT_ID = "experiment_id";
-    public static final String SERVER_ID = "server_id";
-    public static final String TEXT = "text";
-
-    public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.google.paco.feedback";
-    public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.google.paco.feedback";
-
-    public static final Uri CONTENT_URI = Uri.parse("content://"+ExperimentProviderUtil.AUTHORITY+"/feedback");
-
-  }
-//  public static void loadFeedbackForExperiment(Experiment experiment) {
-//    String select = FeedbackColumns.EXPERIMENT_ID + " = " + experiment.getId();
-//    experiment.setFeeback(ExperimentProviderUtil.findFeedbackBy(select));
-//  }
-
-//  private static List<Feedback> findFeedbackBy(String select) {
-//    List<Feedback> feedback = new ArrayList<Feedback>();
-//    Cursor cursor = null;
-//    try {
-//      cursor = contentResolver.query(FeedbackColumns.CONTENT_URI,
-//          null, select, null, null);
-//      if (cursor != null) {
-//        while (cursor.moveToNext()) {
-//          feedback.add(createFeedback(cursor));
-//        }
-//      }
-//    } catch (RuntimeException e) {
-//      Log.w(ExperimentProvider.TAG, "Caught unexpected exception.", e);
-//    } finally {
-//      if (cursor != null) {
-//        cursor.close();
-//      }
-//    }
-//    return feedback;
-//  }
-
-  public static Feedback createFeedback(Cursor cursor) {
-    int idIndex = cursor.getColumnIndexOrThrow(FeedbackColumns._ID);
-    int serverIdIndex = cursor.getColumnIndexOrThrow(FeedbackColumns.SERVER_ID);
-    int experimentIndex = cursor.getColumnIndex(FeedbackColumns.EXPERIMENT_ID);
-    int textIndex = cursor.getColumnIndex(FeedbackColumns.TEXT);
-
-    Feedback input = new Feedback();
-
-    if (!cursor.isNull(idIndex)) {
-      input.setId(cursor.getLong(idIndex));
-    }
-
-    if (!cursor.isNull(serverIdIndex)) {
-      input.setServerId(cursor.getLong(serverIdIndex));
-    }
-
-    if (!cursor.isNull(experimentIndex)) {
-      input.setExperimentId(cursor.getLong(experimentIndex));
-    }
-    if (!cursor.isNull(textIndex)) {
-      input.setText(cursor.getString(textIndex));
-    }
-    return input;
-  }
-
-  public static class SignalScheduleColumns implements BaseColumns {
-    public static final String EXPERIMENT_ID = "experiment_id";
-    public static final String SERVER_ID = "server_id";
-    public static final String SCHEDULE_TYPE = "schedule_type";
-    public static final String TIMES_CSV = "times";
-    public static final String ESM_FREQUENCY = "esm_frequency";
-    public static final String ESM_PERIOD = "esm_period";
-
-    public static final String ESM_START_HOUR = "esm_start_hour";
-    public static final String ESM_END_HOUR = "esm_end_hour";
-    public static final String ESM_WEEKENDS = "esm_weekends";
-
-    public static final String REPEAT_RATE =  "repeat_rate";
-    public static final String WEEKDAYS_SCHEDULED  = "weekdays_scheduled";
-    public static final String NTH_OF_MONTH  = "nth_of_month";
-    public static final String BY_DAY_OF_MONTH = "by_day_of_month";
-    public static final String DAY_OF_MONTH  = "day_of_month";
-    public static final String BEGIN_DATE  = "begin_date";
-    public static final String USER_EDITABLE = "user_editable";
-    public static final String TIME_OUT = "timeout";
-    public static final String MINIMUM_BUFFER = "minimum_buffer";
-    public static final String SNOOZE_COUNT = "snooze_count";
-    public static final String SNOOZE_TIME = "snooze_time";
-    public static final String SIGNAL_TIMES = "signalTimesJson";
-    public static final String ONLY_EDITABLE_ON_JOIN = "only_editable_on_join";
-
-    public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.google.paco.schedule";
-    public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.google.paco.schedule";
-
-    public static final Uri CONTENT_URI = Uri.parse("content://"+ExperimentProviderUtil.AUTHORITY+"/schedules");
-
-
-
-
-
-
-
-  }
-  public static SignalingMechanism createSchedule(Cursor cursor) {
-    int idIndex = cursor.getColumnIndexOrThrow(SignalScheduleColumns._ID);
-    int serverIdIndex = cursor.getColumnIndexOrThrow(SignalScheduleColumns.SERVER_ID);
-    int scheduleTypeIndex = cursor.getColumnIndex(SignalScheduleColumns.SCHEDULE_TYPE);
-    int timesCSVIndex = cursor.getColumnIndex(SignalScheduleColumns.TIMES_CSV);
-    int esmFrequencyIndex = cursor.getColumnIndex(SignalScheduleColumns.ESM_FREQUENCY);
-    int esmPeriodIndex = cursor.getColumnIndex(SignalScheduleColumns.ESM_PERIOD);
-
-    int esmStartIndex = cursor.getColumnIndex(SignalScheduleColumns.ESM_START_HOUR);
-    int esmEndIndex = cursor.getColumnIndex(SignalScheduleColumns.ESM_END_HOUR);
-    int esmWeekendsIndex = cursor.getColumnIndex(SignalScheduleColumns.ESM_WEEKENDS);
-
-    int repeatIndex = cursor.getColumnIndex(SignalScheduleColumns.REPEAT_RATE);
-    int weekdaysIndex = cursor.getColumnIndex(SignalScheduleColumns.WEEKDAYS_SCHEDULED);
-    int nthIndex = cursor.getColumnIndex(SignalScheduleColumns.NTH_OF_MONTH);
-    int byDayIndex = cursor.getColumnIndex(SignalScheduleColumns.BY_DAY_OF_MONTH);
-    int dayIndex = cursor.getColumnIndex(SignalScheduleColumns.DAY_OF_MONTH);
-    int beginDateIndex = cursor.getColumnIndex(SignalScheduleColumns.BEGIN_DATE);
-    int userEditableIndex = cursor.getColumnIndex(SignalScheduleColumns.USER_EDITABLE);
-    int onlyEditableOnJoinIndex = cursor.getColumnIndex(SignalScheduleColumns.ONLY_EDITABLE_ON_JOIN);
-    int timeoutIndex = cursor.getColumnIndex(SignalScheduleColumns.TIME_OUT);
-    int minBufferIndex = cursor.getColumnIndex(SignalScheduleColumns.MINIMUM_BUFFER);
-    int snoozeCountIndex = cursor.getColumnIndex(SignalScheduleColumns.SNOOZE_COUNT);
-    int snoozeTimeIndex = cursor.getColumnIndex(SignalScheduleColumns.SNOOZE_TIME);
-    int signalTimesJsonIndex = cursor.getColumnIndex(SignalScheduleColumns.SIGNAL_TIMES);
-
-    SignalSchedule schedule = new SignalSchedule();
-    if (!cursor.isNull(idIndex)) {
-      schedule.setId(cursor.getLong(idIndex));
-    }
-    if (!cursor.isNull(serverIdIndex)) {
-      schedule.setServerId(cursor.getLong(serverIdIndex));
-    }
-
-    if (!cursor.isNull(scheduleTypeIndex)) {
-      schedule.setScheduleType(cursor.getInt(scheduleTypeIndex));
-    }
-    if (!cursor.isNull(timesCSVIndex)) {
-      List<Long> times = new ArrayList<Long>();
-      StringSplitter sp = new TextUtils.SimpleStringSplitter(',');
-      sp.setString(cursor.getString(timesCSVIndex));
-      for (String string : sp) {
-        times.add(Long.parseLong(string));
-      }
-      schedule.setTimes(times);
-    }
-    if (!cursor.isNull(signalTimesJsonIndex)) {
-      List<SignalTime> signalTimes = fromJson(cursor.getString(signalTimesJsonIndex));
-      schedule.setSignalTimes(signalTimes);
-    }
-
-    if (!cursor.isNull(esmFrequencyIndex)) {
-      schedule.setEsmFrequency(cursor.getInt(esmFrequencyIndex));
-    }
-    if (!cursor.isNull(esmPeriodIndex)) {
-      schedule.setEsmPeriodInDays(cursor.getInt(esmPeriodIndex));
-    }
-    if (!cursor.isNull(esmStartIndex)) {
-      schedule.setEsmStartHour(cursor.getLong(esmStartIndex));
-    }
-    if (!cursor.isNull(esmEndIndex)) {
-      schedule.setEsmEndHour(cursor.getLong(esmEndIndex));
-    }
-    if (!cursor.isNull(esmWeekendsIndex)) {
-      schedule.setEsmWeekends(cursor.getInt(esmWeekendsIndex) == 1 ? Boolean.TRUE : Boolean.FALSE);
-    }
-    if (!cursor.isNull(repeatIndex)) {
-      schedule.setRepeatRate(cursor.getInt(repeatIndex));
-    }
-    if (!cursor.isNull(weekdaysIndex)) {
-      schedule.setWeekDaysScheduled(cursor.getInt(weekdaysIndex));
-    }
-    if (!cursor.isNull(nthIndex)) {
-      schedule.setNthOfMonth(cursor.getInt(nthIndex));
-    }
-    if (!cursor.isNull(byDayIndex)) {
-      schedule.setByDayOfMonth(cursor.getInt(byDayIndex) == 1? Boolean.TRUE : Boolean.FALSE);
-    }
-    if (!cursor.isNull(dayIndex)) {
-      schedule.setDayOfMonth(cursor.getInt(dayIndex));
-    }
-    if (!cursor.isNull(beginDateIndex)) {
-      schedule.setBeginDate(cursor.getLong(beginDateIndex));
-    }
-    if (!cursor.isNull(userEditableIndex)) {
-      schedule.setUserEditable(cursor.getInt(userEditableIndex) == 1? Boolean.TRUE : Boolean.FALSE);
-    }
-    if (!cursor.isNull(onlyEditableOnJoinIndex)) {
-      schedule.setOnlyEditableOnJoin(cursor.getInt(onlyEditableOnJoinIndex) == 1? Boolean.TRUE : Boolean.FALSE);
-    }
-    if (!cursor.isNull(timeoutIndex)) {
-      schedule.setTimeout(cursor.getInt(timeoutIndex));
-    }
-    if (!cursor.isNull(minBufferIndex)) {
-      schedule.setMinimumBuffer(cursor.getInt(minBufferIndex));
-    }
-
-    if (!cursor.isNull(snoozeCountIndex)) {
-      schedule.setSnoozeCount(cursor.getInt(snoozeCountIndex));
-    }
-
-    if (!cursor.isNull(snoozeTimeIndex)) {
-      schedule.setSnoozeTime(cursor.getInt(snoozeTimeIndex));
-    }
-
-    return schedule;
-  }
-
-  private static List<SignalTime> fromJson(String string) {
-    try {
-      ObjectMapper mapper = new ObjectMapper();
-      mapper.configure(org.codehaus.jackson.map.DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-      return mapper.readValue(string, new TypeReference<List<SignalTime>>() {});
-    } catch (Exception e) {
-      e.printStackTrace();
-    }
-    return Lists.newArrayList();
+    return events;
   }
 
 
-  // end 21-> 22 backward compat code.
+
 
 }

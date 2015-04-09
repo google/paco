@@ -1,8 +1,8 @@
 /*
 * Copyright 2011 Google Inc. All Rights Reserved.
-* 
+*
 * Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance  with the License.  
+* you may not use this file except in compliance  with the License.
 * You may obtain a copy of the License at
 *
 *    http://www.apache.org/licenses/LICENSE-2.0
@@ -20,41 +20,43 @@ package com.google.sampling.experiential.client;
 
 
 import java.util.LinkedList;
+import java.util.List;
 
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.VerticalPanel;
-import com.google.paco.shared.model.ExperimentDAO;
-import com.google.paco.shared.model.InputDAO;
+import com.google.paco.shared.model2.ExperimentGroup;
+import com.google.paco.shared.model2.Input2;
 
 /**
  * A composite container for a bunch of InputPanel views.
- * 
+ *
  * @author Bob Evans
  *
  */
 public class InputsListPanel extends Composite {
   private VerticalPanel mainPanel;
-  private ExperimentDAO experiment;
+  private ExperimentGroup experiment;
   private LinkedList<InputsPanel> inputsPanelsList;
 
-  public InputsListPanel(ExperimentDAO experiment) {
-    this.experiment = experiment;
+  public InputsListPanel(ExperimentGroup group2) {
+    this.experiment = group2;
     mainPanel = new VerticalPanel();
     mainPanel.setSpacing(2);
     initWidget(mainPanel);
 
     inputsPanelsList = new LinkedList<InputsPanel>();
-    InputDAO[] inputs = experiment.getInputs();
-    if (inputs == null || inputs.length == 0) {
-      InputDAO emptyInputDAO = createEmptyInput();
+    List<Input2> inputs = group2.getInputs();
+    if (inputs == null || inputs.isEmpty()) {
+      Input2 emptyInputDAO = createEmptyInput();
       InputsPanel inputsPanel = new InputsPanel(this, emptyInputDAO);
-      inputs = new InputDAO[] {emptyInputDAO};
+      inputs = new java.util.ArrayList();
+      inputs.add(emptyInputDAO);
       mainPanel.add(inputsPanel);
       inputsPanelsList.add(inputsPanel);
-      experiment.setInputs(inputs);
+      group2.setInputs(inputs);
     } else {
-      for (int i = 0; i < inputs.length; i++) {
-        InputsPanel inputsPanel = new InputsPanel(this, inputs[i]);
+      for (Input2 input : inputs) {
+        InputsPanel inputsPanel = new InputsPanel(this, input);
         mainPanel.add(inputsPanel);
         inputsPanelsList.add(inputsPanel);
       }
@@ -81,7 +83,7 @@ public class InputsListPanel extends Composite {
 
     updateExperimentInputs();
   }
-  
+
   public boolean checkListItemsHaveAtLeatOneOptionAndHighlight() {
     boolean requiredFieldsAreFilled = true;
     for (InputsPanel inputsPanel : inputsPanelsList) {
@@ -93,7 +95,7 @@ public class InputsListPanel extends Composite {
     }
     return requiredFieldsAreFilled;
   }
-  
+
   public boolean checkVarNamesFilledWithoutSpacesAndHighlight() {
     boolean varNamesHaveNoSpaces = true;
     for (InputsPanel inputsPanel : inputsPanelsList) {
@@ -109,15 +111,15 @@ public class InputsListPanel extends Composite {
   /**
    * @return
    */
-  private InputDAO createEmptyInput() {
-    return new InputDAO(null, null, null, "");
+  private Input2 createEmptyInput() {
+    return new Input2();
   }
 
   // TODO this is not very efficient.
   private void updateExperimentInputs() {
-    InputDAO[] newInputs = new InputDAO[inputsPanelsList.size()];
+    List<Input2> newInputs = new java.util.ArrayList();
     for (int i = 0; i < inputsPanelsList.size(); i++) {
-      newInputs[i] = inputsPanelsList.get(i).getInput();
+      newInputs.add(inputsPanelsList.get(i).getInput());
     }
     experiment.setInputs(newInputs);
   }

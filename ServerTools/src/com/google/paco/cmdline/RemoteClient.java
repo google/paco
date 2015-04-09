@@ -5,8 +5,9 @@ import java.util.List;
 
 import com.google.appengine.tools.remoteapi.RemoteApiInstaller;
 import com.google.appengine.tools.remoteapi.RemoteApiOptions;
-import com.google.sampling.experiential.model.Experiment;
-import com.google.sampling.experiential.server.ExperimentRetriever;
+import com.google.paco.shared.model2.ExperimentDAO;
+import com.google.sampling.experiential.server.ExperimentService;
+import com.google.sampling.experiential.server.ExperimentServiceFactory;
 
 public class RemoteClient {
 
@@ -30,8 +31,8 @@ public class RemoteClient {
   }
 
   private static void queryForEventsFromExperiment(long l) {
-    ExperimentRetriever er = ExperimentRetriever.getInstance();
-    Experiment experiment = er.getExperiment(Long.toString(l));
+    ExperimentService er = ExperimentServiceFactory.getExperimentService();
+    ExperimentDAO experiment = er.getExperiment(l);
     List<String> admins = experiment.getAdmins();
     for (String admin : admins) {
       System.out.println("Admin: " + admin);

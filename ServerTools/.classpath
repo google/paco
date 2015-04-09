@@ -4,9 +4,8 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6"/>
 	<classpathentry kind="lib" path="lib/guava-16.0.1.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/Paco-Server"/>
-	<classpathentry kind="con" path="com.google.appengine.eclipse.core.GAE_CONTAINER/appengine-java-sdk-1.9.0-paco"/>
-	<classpathentry kind="lib" path="/Users/bobevans/git/paco/tools/appengine-java-sdk-1.9.0/lib/impl/appengine-api.jar"/>
-	<classpathentry kind="lib" path="/Users/bobevans/git/paco/tools/appengine-java-sdk-1.9.0/lib/appengine-remote-api.jar"/>
-	
+	<classpathentry kind="lib" path="../tools/appengine-java-sdk-1.9.0/lib/impl/appengine-api.jar"/>
+	<classpathentry kind="lib" path="../tools/appengine-java-sdk-1.9.0/lib/appengine-remote-api.jar"/>
+	<classpathentry kind="src" path="/Shared"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

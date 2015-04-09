@@ -1,8 +1,8 @@
 /*
 * Copyright 2011 Google Inc. All Rights Reserved.
-* 
+*
 * Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance  with the License.  
+* you may not use this file except in compliance  with the License.
 * You may obtain a copy of the License at
 *
 *    http://www.apache.org/licenses/LICENSE-2.0
@@ -27,18 +27,21 @@ import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 
-import com.google.android.apps.paco.ExperimentAlarms.TimeExperiment;
+import com.google.common.collect.Lists;
+import com.google.paco.shared.model2.ExperimentDAO;
+import com.google.paco.shared.scheduling.ActionScheduleGenerator;
+import com.google.paco.shared.scheduling.ActionSpecification;
 
 /**
  * Class that is responsible for keeping the alarm schedule.
- * 
- * Android drops alarms. This class retrieves them from an AlarmStore, and also 
+ *
+ * Android drops alarms. This class retrieves them from an AlarmStore, and also
  * uses a generator to generate alarms for a survey according to user preferences.
- * 
- * It's a bit overly decoupled at the moment, that will change as the surveys become 
+ *
+ * It's a bit overly decoupled at the moment, that will change as the surveys become
  * first class objects with different scheduling frequencies.
- * 
- * 
+ *
+ *
  *
  */
 public class AlarmCreator2 {
@@ -47,9 +50,9 @@ public class AlarmCreator2 {
 
   /**
    * Produce an AlarmCreator with a context.
-   * 
+   *
    * @param context Android context from caller.
-   * @return AlarmCreator 
+   * @return AlarmCreator
    */
   public static AlarmCreator2 createAlarmCreator(Context context) {
     AlarmManager alarmManager = (AlarmManager) context.getSystemService(Service.ALARM_SERVICE);
@@ -61,9 +64,9 @@ public class AlarmCreator2 {
   private Context pendingIntentContext;
 
   /**
-   * An Alarm creator will generate alarms to a given schedule for a 
+   * An Alarm creator will generate alarms to a given schedule for a
    * given Experiment.
-   * 
+   *
    * @param alarmManager
    * @param contextForPendingIntent An Android Context that provides access to system services.
    */
@@ -73,28 +76,34 @@ public class AlarmCreator2 {
   }
 
   /**
-   * Generate an Android alarm for the next due experiment. 
-   * 
+   * Generate an Android alarm for the next due experiment.
+   *
    * @param regenerateAlarms
    */
   public void updateAlarm() {
     ExperimentProviderUtil experimentProviderUtil = new ExperimentProviderUtil(pendingIntentContext);
     List<Experiment> experiments = experimentProviderUtil.getJoinedExperiments();
+    List<ExperimentDAO> experimentDAOs = Lists.newArrayList();
+    for (Experiment experiment : experiments) {
+      experimentDAOs.add(experiment.getExperimentDAO());
+    }
     if (experiments.isEmpty()) {
       Log.i(PacoConstants.TAG, "No joined experiments. Not creating alarms.");
       return;
     }
 
-    List<TimeExperiment> experimentTimes = ExperimentAlarms.arrangeExperimentsByNextTime(experiments, pendingIntentContext);
+    List<ActionSpecification> experimentTimes = ActionScheduleGenerator.arrangeExperimentsByNextTime(experimentDAOs,
+                                                                                                     new AndroidEsmSignalStore(pendingIntentContext),
+                                                                                                     experimentProviderUtil);
     if (experimentTimes.isEmpty()) {
       Log.i(PacoConstants.TAG, "No experiments with a next time to signal.");
       return;
     }
-    TimeExperiment nextNearestAlarmTime = experimentTimes.get(0);
+    ActionSpecification nextNearestAlarmTime = experimentTimes.get(0);
     createAlarm(nextNearestAlarmTime.time, nextNearestAlarmTime.experiment);
   }
 
-  void createAlarm(DateTime alarmTime, Experiment experiment) {
+  private void createAlarm(DateTime alarmTime, ExperimentDAO experiment) {
     Log.i(PacoConstants.TAG, "Creating alarm: " + alarmTime.toString() +" for experiment: " + experiment.getTitle());
     PendingIntent intent = createAlarmReceiverIntentForExperiment(alarmTime);
     alarmManager.cancel(intent);
@@ -103,14 +112,14 @@ public class AlarmCreator2 {
 
   /**
    * Create an AlarmReceiver PendingIntent for the next experiment.
-   *  
+   *
    * @param alarmTime Time to trigger notification
    * @return
    */
   private PendingIntent createAlarmReceiverIntentForExperiment(DateTime alarmTime) {
-    Intent ultimateIntent = new Intent(pendingIntentContext, AlarmReceiver.class);    
+    Intent ultimateIntent = new Intent(pendingIntentContext, AlarmReceiver.class);
     ultimateIntent.putExtra(Experiment.SCHEDULED_TIME, alarmTime.getMillis());
-    return PendingIntent.getBroadcast(pendingIntentContext, ALARM_RECEIVER_INTENT_REQUEST_CODE, 
+    return PendingIntent.getBroadcast(pendingIntentContext, ALARM_RECEIVER_INTENT_REQUEST_CODE,
         ultimateIntent, PendingIntent.FLAG_UPDATE_CURRENT);
   }
 

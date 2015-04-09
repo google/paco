@@ -98,6 +98,20 @@ public class Event {
   private Date responseTime;
 
   @Persistent
+  private String experimentGroupName;
+
+  @Persistent
+  private Long actionTriggerId;
+
+  @Persistent
+  private Long actionTriggerSpecId;
+
+  @Persistent
+  private Long actionId;
+
+
+
+  @Persistent
   @Extension(vendorName="datanucleus", key="gae.unindexed", value="true")
   private Set<What> what;
 
@@ -131,7 +145,8 @@ public class Event {
 
   public Event(String who, String lat, String lon, Date when, String appId, String pacoVersion,
       Set<What> what, boolean shared, String experimentId, String experimentName, Integer experimentVersion,
-      Date responseTime, Date scheduledTime, List<PhotoBlob> blobs, String timezone) {
+      Date responseTime, Date scheduledTime, List<PhotoBlob> blobs, String timezone,
+      String groupName, Long actionTriggerId2, Long actionTriggerSpecId2, Long actionId2) {
     super();
     if (/*what.size() == 0 || */who == null || when == null) {
       throw new IllegalArgumentException("There must be a who and a when");
@@ -154,6 +169,10 @@ public class Event {
       this.blobs = blobs;
     }
     this.timeZone = timezone;
+    this.experimentGroupName = groupName;
+    this.actionTriggerId = actionTriggerId2;
+    this.actionTriggerSpecId = actionTriggerSpecId2;
+    this.actionId = actionId2;
   }
 
   private void setWhatMap(Set<What> whats) {
@@ -434,6 +453,38 @@ public class Event {
       }
       return new DateTime(time).withZone(timezoneForOffsetHours);
     }
+  }
+
+  public String getExperimentGroupName() {
+    return experimentGroupName;
+  }
+
+  public void setExperimentGroupName(String experimentGroupName) {
+    this.experimentGroupName = experimentGroupName;
+  }
+
+  public Long getActionTriggerId() {
+    return actionTriggerId;
+  }
+
+  public void setActionTriggerId(Long actionTriggerId) {
+    this.actionTriggerId = actionTriggerId;
+  }
+
+  public Long getActionTriggerSpecId() {
+    return actionTriggerSpecId;
+  }
+
+  public void setActionTriggerSpecId(Long actionTriggerSpecId) {
+    this.actionTriggerSpecId = actionTriggerSpecId;
+  }
+
+  public Long getActionId() {
+    return actionId;
+  }
+
+  public void setActionId(Long actionId) {
+    this.actionId = actionId;
   }
 
 }

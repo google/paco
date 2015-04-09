@@ -21,7 +21,7 @@ import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.user.client.ui.CheckBox;
+import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HasVerticalAlignment;
@@ -30,7 +30,7 @@ import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
-import com.google.paco.shared.model.SignalScheduleDAO;
+import com.google.paco.shared.model2.Schedule;
 
 /**
  * Container for all scheduling configuration panels.
@@ -42,19 +42,21 @@ public class SchedulePanel extends Composite {
 
   private static final boolean EVERYDAY = true;
   private VerticalPanel scheduleDetailsPanel;
-  private SignalScheduleDAO schedule;
+  private Schedule schedule;
   private MyConstants myConstants;
+  private ScheduleListPanel parent;
 
-  public SchedulePanel(SignalScheduleDAO schedule) {
+  public SchedulePanel(ScheduleListPanel parent, Schedule schedule) {
     this.schedule = schedule;
+    this.parent = parent;
     myConstants = GWT.create(MyConstants.class);
 
-    VerticalPanel verticalPanel = new VerticalPanel();
-    initWidget(verticalPanel);
+    VerticalPanel rootPanel = new VerticalPanel();
+    initWidget(rootPanel);
 
     HorizontalPanel horizontalPanel = new HorizontalPanel();
     horizontalPanel.setSpacing(3);
-    verticalPanel.add(horizontalPanel);
+    rootPanel.add(horizontalPanel);
 
     Label lblSignalSchedule = new Label(myConstants.signalSchedule() + ":");
     lblSignalSchedule.setStyleName("keyLabel");
@@ -68,59 +70,34 @@ public class SchedulePanel extends Composite {
     listBox.setVisibleItemCount(1);
 
     scheduleDetailsPanel = new VerticalPanel();
-    verticalPanel.add(scheduleDetailsPanel);
+    rootPanel.add(scheduleDetailsPanel);
     setPanelForScheduleType();
     addListSelectionListener(listBox);
-    verticalPanel.add(createUserEditable(schedule));
-    verticalPanel.add(createUserEditableOnce(schedule));
-
+    rootPanel.add(createListMgmtButtons());
   }
 
-  private Widget createUserEditable(SignalScheduleDAO schedule2) {
-    HorizontalPanel userEditablePanel = new HorizontalPanel();
-    userEditablePanel.setSpacing(2);
-    userEditablePanel.setVerticalAlignment(HasVerticalAlignment.ALIGN_MIDDLE);
-    userEditablePanel.setWidth("");
-    Label lblUserEditable = new Label("User Editable: ");
-    lblUserEditable.setStyleName("gwt-Label-Header");
-    userEditablePanel.add(lblUserEditable);
 
-    final CheckBox userEditableCheckBox = new CheckBox("");
-    userEditablePanel.add(userEditableCheckBox);
-    userEditableCheckBox.setValue(schedule.getUserEditable() != null ? schedule.getUserEditable() : Boolean.TRUE);
-    userEditableCheckBox.addClickHandler(new ClickHandler() {
-
-      @Override
+  private HorizontalPanel createListMgmtButtons() {
+    HorizontalPanel upperLinePanel = new HorizontalPanel();
+    Button deleteButton = new Button("Delete Schedule");
+    deleteButton.addClickHandler(new ClickHandler() {
       public void onClick(ClickEvent event) {
-        schedule.setUserEditable(userEditableCheckBox.getValue());
+        parent.deleteSchedule(SchedulePanel.this);
       }
-
     });
-    return userEditablePanel;
-  }
+    upperLinePanel.add(deleteButton);
 
-  private Widget createUserEditableOnce(SignalScheduleDAO schedule2) {
-    HorizontalPanel userEditablePanel = new HorizontalPanel();
-    userEditablePanel.setSpacing(2);
-    userEditablePanel.setVerticalAlignment(HasVerticalAlignment.ALIGN_MIDDLE);
-    userEditablePanel.setWidth("");
-    Label lblUserEditable = new Label("Only Editable on Join: ");
-    lblUserEditable.setStyleName("gwt-Label-Header");
-    userEditablePanel.add(lblUserEditable);
+    Button addButton = new Button("Add Schedule");
+    upperLinePanel.add(addButton);
 
-    final CheckBox userEditableCheckBox = new CheckBox("");
-    userEditablePanel.add(userEditableCheckBox);
-    userEditableCheckBox.setValue(schedule.getOnlyEditableOnJoin() != null ? schedule.getOnlyEditableOnJoin() : Boolean.FALSE);
-    userEditableCheckBox.addClickHandler(new ClickHandler() {
-
-      @Override
+    addButton.addClickHandler(new ClickHandler() {
       public void onClick(ClickEvent event) {
-        schedule.setOnlyEditableOnJoin(userEditableCheckBox.getValue());
+        parent.addSchedule(SchedulePanel.this);
       }
-
     });
-    return userEditablePanel;
+    return upperLinePanel;
   }
+
 
 
 
@@ -170,7 +147,7 @@ public class SchedulePanel extends Composite {
   }
 
   private ListBox createScheduleTypeListBox() {
-    return createListbox(SignalScheduleDAO.SCHEDULE_TYPES_NAMES, schedule.getScheduleType());
+    return createListbox(Schedule.SCHEDULE_TYPES_NAMES, schedule.getScheduleType());
   }
 
   public static ListBox createListbox(String[] choices, Integer chosenItem) {
@@ -206,6 +183,10 @@ public class SchedulePanel extends Composite {
 
   private void setMonthlyPanel() {
     setPanel(new MonthlyPanel(schedule));
+  }
+
+  public Schedule getSchedule() {
+    return schedule;
   }
 
 }

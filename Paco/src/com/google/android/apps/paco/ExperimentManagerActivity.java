@@ -17,28 +17,21 @@
 package com.google.android.apps.paco;
 
 import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
 
-import android.app.Activity;
+import android.annotation.SuppressLint;
+import android.app.ActionBar;
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.content.ContentResolver;
-import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Resources;
-import android.database.Cursor;
 import android.media.RingtoneManager;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
-import android.provider.MediaStore;
-import android.util.Log;
+import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -46,11 +39,12 @@ import android.view.View.OnClickListener;
 import android.widget.ImageButton;
 
 import com.pacoapp.paco.R;
+import com.pacoapp.paco.os.RingtoneUtil;
 
 /**
  *
  */
-public class ExperimentManagerActivity extends Activity {
+public class ExperimentManagerActivity extends ActionBarActivity {
 
   private static final String RINGTONE_TITLE_COLUMN_NAME = "title";
   private static final String PACO_BARK_RINGTONE_TITLE = "Paco Bark";
@@ -72,33 +66,14 @@ public class ExperimentManagerActivity extends Activity {
   private ImageButton currentExperimentsButton;
   private ExperimentProviderUtil experimentProviderUtil;
 
+  @SuppressLint("NewApi")
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    installPacoBarkRingtone();
+    new RingtoneUtil(this).installPacoBarkRingtone();
 
- // This will show the eula until the user accepts or quits the app.
     experimentProviderUtil = new ExperimentProviderUtil(this);
-    Experiment experiment = getExperimentFromIntent();
-    if (experiment != null) {
-      //startService(new Intent(this, ServerCommunicationService.class)); // check for updated experiments. Commented for now as it may lead to a db race condition.
-      Intent executorIntent = new Intent(this, ExperimentExecutor.class);
-      executorIntent.putExtras(getIntent());
-      executorIntent.setData(getIntent().getData());
-      startActivity(executorIntent);
-      finish();
-    }
     Eula.showEula(this);
-//
-//    if (!hasRegisteredExperiments()) {
-//      Intent findMyExperimentsIntent = new Intent(this, FindMyExperimentsActivity.class);
-//      startActivity(findMyExperimentsIntent);
-//      finish();
-//    } else {
-//      Intent intent = new Intent(ExperimentManagerActivity.this, RunningExperimentsActivity.class);
-//      intent.setData(ExperimentColumns.JOINED_EXPERIMENTS_CONTENT_URI);
-//      startActivity(intent);
-//    }
 
     setContentView(R.layout.experiment_manager_main);
     currentExperimentsButton = (ImageButton) findViewById(R.id.CurrentExperimentsBtn);
@@ -123,8 +98,8 @@ public class ExperimentManagerActivity extends Activity {
     ImageButton exploreDataButton = (ImageButton) findViewById(R.id.ExploreDataBtn);
     exploreDataButton.setOnClickListener(new OnClickListener() {
       public void onClick(View v) {
-        startActivity(new Intent(ExperimentManagerActivity.this,
-          ExploreDataActivity.class));
+//        startActivity(new Intent(ExperimentManagerActivity.this,
+          //ExploreDataActivity.class));
       }
     });
 
@@ -170,14 +145,15 @@ public class ExperimentManagerActivity extends Activity {
     });
 
 
-  }
-
-  private Experiment getExperimentFromIntent() {
-    Uri uri = getIntent().getData();
-    if (uri == null) {
-      return null;
+    final ActionBar actionBar = getActionBar();
+    if (actionBar != null) {
+      actionBar.setIcon(getDrawable(R.drawable.paco64));
+      actionBar.setLogo(R.drawable.paco64);
+    } else {
+      final android.support.v7.app.ActionBar supportActionBar = getSupportActionBar();
+      supportActionBar.setIcon(R.drawable.paco64);
+      supportActionBar.setLogo(R.drawable.paco64);
     }
-    return experimentProviderUtil.getExperiment(uri);
   }
 
   @Override
@@ -193,15 +169,28 @@ public class ExperimentManagerActivity extends Activity {
 
   @Override
   public boolean onCreateOptionsMenu(Menu menu) {
-    menu.add(0, ABOUT_PACO_ITEM, 1, R.string.about_paco_menu_item);
-    menu.add(0, DEBUG_ITEM, 7, R.string.debug_menu_item);
-    menu.add(0, SERVER_ADDRESS_ITEM, 6, R.string.server_address_menu_item);
-//    menu.add(0, UPDATE_ITEM, 4, R.string.check_updates_menu_item);
-    menu.add(0, ACCOUNT_CHOOSER_ITEM, 3, R.string.choose_account_menu_item);
-    menu.add(0, RINGTONE_CHOOSER_ITEM, 2, R.string.choose_alert_menu_item);
-    menu.add(0, SEND_LOG_ITEM, 4, R.string.send_log_menu_item);
-    menu.add(0, EULA_ITEM, 4, R.string.eula_menu_item);
+    MenuItem item = menu.add(0, ABOUT_PACO_ITEM, 3, R.string.about_paco_menu_item);
+    addToActionBar(item);
+    item = menu.add(0, DEBUG_ITEM, 7, R.string.debug_menu_item);
+    addToActionBar(item);
+    item = menu.add(0, SERVER_ADDRESS_ITEM, 6, R.string.server_address_menu_item);
+    addToActionBar(item);
+    item = menu.add(0, ACCOUNT_CHOOSER_ITEM, 2, R.string.choose_account_menu_item);
+    addToActionBar(item);
+    item = menu.add(0, RINGTONE_CHOOSER_ITEM, 1, R.string.choose_alert_menu_item);
+    addToActionBar(item);
+    item = menu.add(0, SEND_LOG_ITEM, 5, R.string.send_log_menu_item);
+    addToActionBar(item);
+    item = menu.add(0, EULA_ITEM, 4, R.string.eula_menu_item);
+    addToActionBar(item);
     return true;
+  }
+
+  @SuppressLint("NewApi")
+  public void addToActionBar(MenuItem item) {
+    if (Integer.parseInt(Build.VERSION.SDK) >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
+      item.setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER);
+    }
   }
 
   @Override
@@ -287,105 +276,6 @@ public class ExperimentManagerActivity extends Activity {
     }
 
     startActivityForResult(intent, RINGTONE_REQUESTCODE);
-  }
-
-  private void installPacoBarkRingtone() {
-    UserPreferences userPreferences = new UserPreferences(this);
-    if (userPreferences.hasInstalledPacoBarkRingtone()) {
-      return;
-    }
-
-    File f = copyRingtoneFromAssetsToSdCard();
-    if (f == null) {
-      return;
-    }
-    ContentValues values = createBarkRingtoneDatabaseEntry(f);
-    Uri uri = MediaStore.Audio.Media.getContentUriForPath(f.getAbsolutePath());
-    ContentResolver mediaStoreContentProvider = getBaseContext().getContentResolver();
-    Cursor existingRingtoneCursor = mediaStoreContentProvider.query(uri, null, null, null, null); // Note: i want to just retrieve MediaStore.MediaColumns.TITLE and to search on the match, but it is returning null for the TITLE value!!!
-    Cursor c = mediaStoreContentProvider.query(uri, null, null, null, null);
-    boolean alreadyInstalled = false;
-    while (c.moveToNext()) {
-      int titleColumnIndex = c.getColumnIndex(RINGTONE_TITLE_COLUMN_NAME);
-      String ringtoneTitle = c.getString(titleColumnIndex);
-      if (PACO_BARK_RINGTONE_TITLE.equals(ringtoneTitle)) {
-        alreadyInstalled = true;
-      }
-    }
-    existingRingtoneCursor.close();
-
-    if (!alreadyInstalled) {
-      Uri newUri = mediaStoreContentProvider.insert(uri, values);
-      if (newUri != null) {
-        userPreferences.setRingtone(newUri.toString());
-        userPreferences.setPacoBarkRingtoneInstalled();
-      }
-    }
-
-
-  }
-
-  private File copyRingtoneFromAssetsToSdCard()  {
-    InputStream fis = null;
-    OutputStream fos = null;
-    try {
-      fis = getAssets().open(BARK_RINGTONE_FILENAME);
-
-      if (fis == null) {
-        return null;
-      }
-
-      File path = new File(android.os.Environment.getExternalStorageDirectory().getAbsolutePath()
-                           + "/Android/data/" + getPackageName() + "/");
-      if (!path.exists()) {
-        path.mkdirs();
-      }
-
-      File f = new File(path, BARK_RINGTONE_FILENAME);
-      fos = new FileOutputStream(f);
-      byte[] buf = new byte[1024];
-      int len;
-      while ((len = fis.read(buf)) > 0) {
-        fos.write(buf, 0, len);
-      }
-      return f;
-    } catch (FileNotFoundException e) {
-      Log.e(PacoConstants.TAG, "Could not create ringtone file on sd card. Error = " + e.getMessage());
-    } catch (IOException e) {
-      Log.e(PacoConstants.TAG, "Either Could not open ringtone from assets. Or could not write to sd card. Error = " + e.getMessage());
-      return null;
-    } finally {
-      if (fos != null) {
-        try {
-          fos.close();
-        } catch (IOException e) {
-          Log.e(PacoConstants.TAG, "could not close sd card file handle. Error = " + e.getMessage());
-        }
-      }
-      if (fis != null) {
-        try {
-          fis.close();
-        } catch (IOException e) {
-          Log.e(PacoConstants.TAG, "could not close asset file handle. Error = " + e.getMessage());
-        }
-      }
-    }
-    return null;
-  }
-
-  private ContentValues createBarkRingtoneDatabaseEntry(File f) {
-    ContentValues values = new ContentValues();
-    values.put(MediaStore.MediaColumns.DATA, f.getAbsolutePath());
-    values.put(MediaStore.MediaColumns.TITLE, PACO_BARK_RINGTONE_TITLE);
-    values.put(MediaStore.MediaColumns.SIZE, f.length());
-    values.put(MediaStore.MediaColumns.MIME_TYPE, "audio/mp3");
-    values.put(MediaStore.Audio.Media.ARTIST, "Paco");
-    // values.put(MediaStore.Audio.Media.DURATION, ""); This is not needed
-    values.put(MediaStore.Audio.Media.IS_RINGTONE, true);
-    values.put(MediaStore.Audio.Media.IS_NOTIFICATION, true);
-    values.put(MediaStore.Audio.Media.IS_ALARM, false);
-    values.put(MediaStore.Audio.Media.IS_MUSIC, false);
-    return values;
   }
 
   private void launchServerConfiguration() {

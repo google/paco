@@ -19,7 +19,7 @@
 <resources>
 
     <string name="app_name">PACO</string>
-    <string name="server">quantifiedself.appspot.com</string>
+    <string name="server">quantifiedself-staging.appspot.com</string>
     <string name="app_package">com.pacoapp.paco</string>
     <string name="contact_email">paco-users@googlegroups.com</string>
     <string name="about_googlegroups">paco-users@googlegroups.com</string>
@@ -184,7 +184,7 @@
     <string name="edit_schedule_menu_item">Edit Schedule</string>
     <string name="stop_experiment_menu_item">Stop Experiment</string>
     <string name="explore_data_menu_item">Explore data</string>
-    <string name="running_experiments_title">Running Experiments</string>
+    <string name="running_experiments_title">My Experiments</string>
     <string name="find_my_experiments_list_title">Experiments for You</string>
     <string name="find_public_experiments_title">Public Experiments</string>
     <string name="stop_the_experiment_dialog_title">Stop the Experiment?</string>
@@ -234,7 +234,7 @@
     <string name="relationships">Relationships</string>
     <string name="distributions">Distributions</string>
     <string name="raw_data_button_text">Go to Raw Data</string>
-    <string name="your_current_experiments">Your Current Experiments</string>
+    <string name="your_current_experiments">My Current Experiments</string>
     <string name="refresh_experiments_list_from_server">Refresh Experiments List from Server</string>
     <string name="load_more_experiments_from_server">Load More Experiments from Server</string>
     <string name="data_handling_title">Data Handling &amp; Privacy Agreement between You and the Experiment Creator</string>
@@ -304,5 +304,6 @@
     <string name="survey_responses_data_collected">User responses to experiment form</string>
     <string name="app_usage_and_browser_usage_data_collected">Apps and sites used during experiment</string>
     <string name="discover_experiments_title">Discover Experiments</string>
-
+<!-- new ui -->
+    <string name="title_schedule_detail">Schedule Detail</string>
 </resources>

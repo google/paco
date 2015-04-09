@@ -2,6 +2,7 @@ local.properties
 .settings
 .DS_Store
 *.keystore
+AndroidCompatSupport/v7/appcompat/bin/*
 Paco/bin/*
 Paco/gen/*
 PacoAndroidLib/bin/*
@@ -26,6 +27,7 @@ PacoTest/local.properties
 PacoTest/bin/*
 PacoTest/testbin/*
 PacoTest/gen/*
+PacoTest/libs/js.jar
 PacoTest/reports/*
 ServerTools/bin/*
 Shared/bin

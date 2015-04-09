@@ -4,8 +4,8 @@ import java.util.List;
 
 import org.joda.time.DateTimeZone;
 
-import com.google.paco.shared.model.ExperimentDAO;
-import com.google.paco.shared.model.ExperimentQueryResult;
+import com.google.paco.shared.model2.ExperimentDAO;
+import com.google.paco.shared.model2.ExperimentQueryResult;
 
 public class ExperimentServletAdminExperimentsFullLoadHandler extends ExperimentServletHandler {
 
@@ -14,7 +14,7 @@ public class ExperimentServletAdminExperimentsFullLoadHandler extends Experiment
   }
 
   protected List<ExperimentDAO> getAllExperimentsAvailableToUser() {
-    ExperimentQueryResult result = ExperimentCacheHelper.getInstance().getUsersAdministeredExperiments(email, timezone, limit, cursor);
+    ExperimentQueryResult result = ExperimentServiceFactory.getExperimentService().getUsersAdministeredExperiments(email, timezone, limit, cursor);
     cursor = result.getCursor();
     return result.getExperiments();
   }

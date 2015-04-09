@@ -1,8 +1,8 @@
 /*
 * Copyright 2011 Google Inc. All Rights Reserved.
-* 
+*
 * Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance  with the License.  
+* you may not use this file except in compliance  with the License.
 * You may obtain a copy of the License at
 *
 *    http://www.apache.org/licenses/LICENSE-2.0
@@ -21,25 +21,22 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.joda.time.DateTime;
-import org.joda.time.format.DateTimeFormatter;
-import org.joda.time.format.ISODateTimeFormat;
-
-import com.pacoapp.paco.R;
 
 import android.app.ListActivity;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.widget.ArrayAdapter;
 
-public class ESMSignalViewer extends ListActivity {
+import com.google.paco.shared.util.TimeUtil;
+import com.pacoapp.paco.R;
 
-  private DateTimeFormatter timeFormatter;
+public class ESMSignalViewer extends ListActivity  {
+
   private ExperimentProviderUtil experimentProviderUtil;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    timeFormatter = ISODateTimeFormat.dateTime();
     setContentView(R.layout.schedule_list);
     experimentProviderUtil = new ExperimentProviderUtil(this);
     fillData();
@@ -47,7 +44,7 @@ public class ESMSignalViewer extends ListActivity {
 
   private void fillData() {
     // Get all of the schedule items from the database and create the item list
-    Cursor cursor = new AlarmStore(this).getAllSignalsForCurrentPeriod();
+    Cursor cursor = new AndroidEsmSignalStore(this).getAllSignalsForCurrentPeriod();
     startManagingCursor(cursor);
 //
 //    String[] from = new String[] {Signal.EXPERIMENT_ID, Signal.TIME};
@@ -66,13 +63,18 @@ public class ESMSignalViewer extends ListActivity {
 //      }
 //
 //    });
-    
+
     List<String> nameAndTime = new ArrayList<String>();
+    final int timeColumnIndex = cursor.getColumnIndex(Signal.TIME);
+    final int experimentIdColumnIndex = cursor.getColumnIndex(Signal.EXPERIMENT_ID);
+    final int experimentGroupColumnIndex = cursor.getColumnIndex(Signal.GROUP_NAME);
+
     while (cursor.moveToNext()) {
-      Long experimentId = cursor.getLong(2);
-      String experimentName = experimentProviderUtil.getExperiment(experimentId).getTitle();
-      String signalTime = new DateTime(cursor.getLong(3)).toString(timeFormatter);
-      nameAndTime.add(experimentName + ": " + signalTime);
+      Long experimentId = cursor.getLong(experimentIdColumnIndex);
+      String experimentGroupName = cursor.getString(experimentGroupColumnIndex);
+      String experimentName = experimentProviderUtil.getExperimentByServerId(experimentId).getExperimentDAO().getTitle();
+      String signalTime = TimeUtil.formatDateTimeShortNoZone(new DateTime(cursor.getLong(timeColumnIndex)));
+      nameAndTime.add(signalTime + "  " + experimentName + "/" + experimentGroupName );
     }
     ArrayAdapter scheduleAdapter = new ArrayAdapter(this, R.layout.schedule_row, nameAndTime);
     setListAdapter(scheduleAdapter);

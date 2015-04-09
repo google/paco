@@ -63,12 +63,15 @@ public class NotificationCreatorService extends Service {
             alarmTime = extras.getLong(Experiment.SCHEDULED_TIME, -1);
             isSnoozeWakeup = extras.getBoolean(NotificationCreator.SNOOZE_REPEATER_EXTRA_KEY, false);
           }
+
+          // assuming the alarm is for an actionTrigger/action to create a Notification
           if (isSnoozeWakeup && notificationId != -1) {
             notificationCreator.createSnoozeWakeupNotification(notificationId);
           } else if (notificationId != -1) {
             notificationCreator.timeoutNotification(notificationId);
           } else if (alarmTime != -1) {
-            notificationCreator.createNotificationsForAlarmTime(notificationId, alarmTime);
+            notificationCreator.createNotificationsForAlarmTime(alarmTime);
+            AndroidActionExecutor.getInstance(NotificationCreatorService.this).runAllActionsForAlarmTime(alarmTime);
           } else {
             notificationCreator.recreateActiveNotifications();
           }

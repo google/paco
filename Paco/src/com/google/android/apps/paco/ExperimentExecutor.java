@@ -20,18 +20,17 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-import org.joda.time.DateMidnight;
 import org.joda.time.DateTime;
 
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.NotificationManager;
-import android.app.ProgressDialog;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
+import android.graphics.drawable.ColorDrawable;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
@@ -41,15 +40,15 @@ import android.os.Bundle;
 import android.provider.MediaStore;
 import android.provider.Settings;
 import android.speech.RecognizerIntent;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
@@ -58,28 +57,35 @@ import android.widget.Toast;
 import com.google.android.apps.paco.questioncondparser.Binding;
 import com.google.android.apps.paco.questioncondparser.Environment;
 import com.google.android.apps.paco.questioncondparser.ExpressionEvaluator;
+import com.google.android.apps.paco.utils.IntentExtraHelper;
+import com.google.paco.shared.model2.ExperimentGroup;
+import com.google.paco.shared.model2.Input2;
 import com.pacoapp.paco.R;
 
-public class ExperimentExecutor extends Activity implements ChangeListener, LocationListener  {
+public class ExperimentExecutor extends ActionBarActivity implements ChangeListener, LocationListener, ExperimentLoadingActivity  {
 
   private Experiment experiment;
+  private ExperimentGroup experimentGroup;
+  private Long actionTriggerId;
+  private Long actionId;
+  private Long actionTriggerSpecId;
+
+  private Long notificationHolderId;
+  private boolean shouldExpireNotificationHolder;
+  private Long scheduledTime = 0L;
+
   private ExperimentProviderUtil experimentProviderUtil;
   private List<InputLayout> inputs = new ArrayList<InputLayout>();
   private LayoutInflater inflater;
   private LinearLayout mainLayout;
-  private Button refreshButton;
   private OptionsMenu optionsMenu;
-  private Long scheduledTime = 0L;
-  private LinearLayout inputsScrollPane;
+
   private Object updateLock = new Object();
-  private UserPreferences userPrefs;
-  private ProgressDialog p;
 
   private ArrayList<InputLayout> locationInputs;
   private Location location;
 
-  private Long notificationHolderId;
-  private boolean shouldExpireNotificationHolder;
+
   private View buttonView;
   private Button doOnPhoneButton;
   private Button doOnWebButton;
@@ -88,19 +94,33 @@ public class ExperimentExecutor extends Activity implements ChangeListener, Loca
   private List<SpeechRecognitionListener> speechRecognitionListeners = new ArrayList<SpeechRecognitionListener>();
   public static final int RESULT_SPEECH = 3;
 
+  private LinearLayout inputsScrollPane;
+
+
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
+    ActionBar actionBar = getSupportActionBar();
+    actionBar.setLogo(R.drawable.ic_launcher);
+    actionBar.setDisplayUseLogoEnabled(true);
+    actionBar.setDisplayShowHomeEnabled(true);
+    actionBar.setDisplayShowTitleEnabled(false);
+    actionBar.setBackgroundDrawable(new ColorDrawable(0xff4A53B3));
+
     experimentProviderUtil = new ExperimentProviderUtil(this);
-    userPrefs = new UserPreferences(this);
-    experiment = getExperimentFromIntent();
-    if (experiment == null) {
+    loadNotificationData();
+    if (experiment == null || experimentGroup == null) {
+      IntentExtraHelper.loadExperimentInfoFromIntent(this, getIntent(), experimentProviderUtil);
+    }
+
+    if (experiment == null || experimentGroup == null) {
       displayNoExperimentMessage();
     } else {
-      getSignallingData();
-
+      if (scheduledTime == null || scheduledTime == 0l) {
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+      }
       inflater = (LayoutInflater)getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-      optionsMenu = new OptionsMenu(this, getIntent().getData(), scheduledTime != null && scheduledTime != 0L);
+      optionsMenu = new OptionsMenu(this, getExperiment().getExperimentDAO().getId(), scheduledTime != null && scheduledTime != 0L);
 
       mainLayout = (LinearLayout) inflater.inflate(R.layout.experiment_executor, null);
       setContentView(mainLayout);
@@ -136,17 +156,15 @@ public class ExperimentExecutor extends Activity implements ChangeListener, Loca
         }
       });
 
-      if (experiment.isWebRecommended()) {
+      if (experimentGroup.getEndOfDayGroup()) {
         renderWebRecommendedMessage();
       } else {
-        if (experiment.isCustomRendering() != null && experiment.isCustomRendering()) {
+        if (experimentGroup.getCustomRendering() != null && experimentGroup.getCustomRendering()) {
           Intent customExecutorIntent = new Intent(this, ExperimentExecutorCustomRendering.class);
-          customExecutorIntent.setData(getIntent().getData());
 
           Bundle extras = getIntent().getExtras();
           if (extras != null) {
-            customExecutorIntent.putExtra(Experiment.SCHEDULED_TIME, scheduledTime);
-            customExecutorIntent.putExtra(NotificationCreator.NOTIFICATION_ID, extras.getLong(NotificationCreator.NOTIFICATION_ID));
+            customExecutorIntent.putExtras(extras);
           }
 
           startActivity(customExecutorIntent);
@@ -167,19 +185,26 @@ public class ExperimentExecutor extends Activity implements ChangeListener, Loca
 
   }
 
-  private void getSignallingData() {
+  private void loadNotificationData() {
     Bundle extras = getIntent().getExtras();
     if (extras != null) {
       notificationHolderId = extras.getLong(NotificationCreator.NOTIFICATION_ID);
       NotificationHolder notificationHolder = experimentProviderUtil.getNotificationById(notificationHolderId);
+      Long timeoutMillis = null;
       if (notificationHolder != null) {
+        experiment = experimentProviderUtil.getExperimentByServerId(notificationHolder.getExperimentId());
+        experimentGroup = getExperiment().getExperimentDAO().getGroupByName(notificationHolder.getExperimentGroupName());
+        actionTriggerId = notificationHolder.getActionTriggerId();
+        actionId = notificationHolder.getActionId();
+        actionTriggerSpecId = notificationHolder.getActionTriggerSpecId();
         scheduledTime = notificationHolder.getAlarmTime();
-        Log.i(PacoConstants.TAG, "Starting experimentExecutor from signal: " + experiment.getTitle() +". alarmTime: " + new DateTime(scheduledTime).toString());
+        Log.i(PacoConstants.TAG, "Starting experimentExecutor from signal: " + getExperiment().getExperimentDAO().getTitle() +". alarmTime: " + new DateTime(scheduledTime).toString());
+        timeoutMillis = notificationHolder.getTimeoutMillis();
       } else {
         scheduledTime = null;
       }
 
-      if (isExpiredEsmPing()) {
+      if (isExpiredEsmPing(timeoutMillis)) {
         Toast.makeText(this, R.string.survey_expired, Toast.LENGTH_LONG).show();
         finish();
       }
@@ -194,13 +219,16 @@ public class ExperimentExecutor extends Activity implements ChangeListener, Loca
    * add its scheduleTime into this response. There should only ever be one.
    */
   private void lookForActiveNotificationForExperiment() {
-    NotificationHolder notificationHolder = experimentProviderUtil.getNotificationFor(experiment.getId().longValue());
+    NotificationHolder notificationHolder = experimentProviderUtil.getNotificationFor(getExperiment().getId().longValue(), experimentGroup.getName());
     if (notificationHolder != null) {
+      experiment = experimentProviderUtil.getExperimentByServerId(notificationHolder.getExperimentId());
+      experimentGroup = getExperiment().getExperimentDAO().getGroupByName(notificationHolder.getExperimentGroupName());
+
       if (notificationHolder.isActive(new DateTime())) {
         notificationHolderId = notificationHolder.getId();
         scheduledTime = notificationHolder.getAlarmTime();
         shouldExpireNotificationHolder = true;
-        Log.i(PacoConstants.TAG, "ExperimentExecutor: Self report, but found signal still active : " + experiment.getTitle() +". alarmTime: " + new DateTime(scheduledTime).toString());
+        Log.i(PacoConstants.TAG, "ExperimentExecutor: Self report, but found signal still active : " + getExperiment().getExperimentDAO().getTitle() +". alarmTime: " + new DateTime(scheduledTime).toString());
       } else {
         NotificationCreator.create(this).timeoutNotification(notificationHolder);
       }
@@ -229,7 +257,7 @@ public class ExperimentExecutor extends Activity implements ChangeListener, Loca
   private void registerLocationListenerIfNecessary() {
     locationInputs = new ArrayList<InputLayout>();
     for (InputLayout input : inputs) {
-      if (input.getInput().getResponseType().equals(Input.LOCATION)) {
+      if (input.getInput().getResponseType().equals(Input2.LOCATION)) {
         locationInputs.add(input);
       }
     }
@@ -337,9 +365,9 @@ public class ExperimentExecutor extends Activity implements ChangeListener, Loca
   }
   //End Location
 
-  private boolean isExpiredEsmPing() {
-    return (scheduledTime != null && scheduledTime != 0L) &&
-        (new DateTime(scheduledTime)).plus(experiment.getExpirationTimeInMillis()).isBefore(new DateTime());
+  private boolean isExpiredEsmPing(Long timeoutMillis) {
+    return (scheduledTime != null && scheduledTime != 0L && timeoutMillis != null) &&
+        (new DateTime(scheduledTime)).plus(timeoutMillis).isBefore(new DateTime());
   }
 
   private void showForm() {
@@ -372,7 +400,8 @@ public class ExperimentExecutor extends Activity implements ChangeListener, Loca
         // to a notification.
         scheduledTime = 0L;
       }
-      Event event = createEvent(experiment, scheduledTime);
+      Event event = EventUtil.createEvent(getExperiment(), experimentGroup.getName(),
+                                          actionTriggerId, actionId, actionTriggerSpecId, scheduledTime);
       gatherResponses(event);
       experimentProviderUtil.insertEvent(event);
 
@@ -416,7 +445,9 @@ public class ExperimentExecutor extends Activity implements ChangeListener, Loca
 
   void showFeedback() {
     Intent intent = new Intent(this, FeedbackActivity.class);
-    intent.setData(getIntent().getData());
+    intent.putExtras(getIntent().getExtras());
+    intent.putExtra(Experiment.EXPERIMENT_SERVER_ID_EXTRA_KEY, experiment.getExperimentDAO().getId());
+    intent.putExtra(Experiment.EXPERIMENT_GROUP_NAME_EXTRA_KEY, experimentGroup.getName());
     startActivity(intent);
   }
 
@@ -424,7 +455,7 @@ public class ExperimentExecutor extends Activity implements ChangeListener, Loca
     Environment interpreter = updateInterpreter(null);
     ExpressionEvaluator main = new ExpressionEvaluator(interpreter);
     for (InputLayout inputView : inputs) {
-      Input input = inputView.getInput();
+      Input2 input = inputView.getInput();
       try {
         if (input.getConditional() != null && input.getConditional() == true && !main.parse(input.getConditionExpression())) {
           continue;
@@ -435,65 +466,37 @@ public class ExperimentExecutor extends Activity implements ChangeListener, Loca
       }
       Output responseForInput = new Output();
       String answer = inputView.getValueAsString();
-      if (input.isMandatory() && (answer == null || answer.length() == 0 || answer.equals("-1") /*||
+      if (input.getRequired() && (answer == null || answer.length() == 0 || answer.equals("-1") /*||
           (input.getResponseType().equals(Input.LIST) && answer.equals("0"))*/)) {
         throw new IllegalStateException(getString(R.string.must_answer) + input.getText());
       }
       responseForInput.setAnswer(answer);
       responseForInput.setName(input.getName());
-      responseForInput.setInputServerId(input.getServerId());
       event.addResponse(responseForInput);
     }
   }
 
-  public static Event createEvent(Experiment experiment, Long scheduledTimeLong) {
-    Event event = new Event();
-    event.setExperimentId(experiment.getId());
-    event.setServerExperimentId(experiment.getServerId());
-    event.setExperimentName(experiment.getTitle());
-    if (scheduledTimeLong != null && scheduledTimeLong != 0L) {
-      event.setScheduledTime(new DateTime(scheduledTimeLong));
-    }
-    event.setExperimentVersion(experiment.getVersion());
-    event.setResponseTime(new DateTime());
-    return event;
-  }
-
   private void renderInputs() {
-    if (experiment.isQuestionsChange()) {
-      DateMidnight dateMidnight = new DateMidnight();
-      boolean hadQuestionForToday = false;
-      for (Input input : experiment.getInputs()) {
-        if (dateMidnight.isEqual(new DateMidnight(input.getScheduleDate().getTime()))) {
-          hadQuestionForToday = true;
-          InputLayout inputView = renderInput(input);
-          inputs.add(inputView);
-          inputsScrollPane.addView(inputView);
-        }
-      }
-    } else {
-      for (Input input : experiment.getInputs()) {
-        InputLayout inputView = renderInput(input);
-        inputs.add(inputView);
-        inputsScrollPane.addView(inputView);
-        inputView.addChangeListener(this);
-      }
-      //setNextActionOnOpenTexts();
+    for (Input2 input : experimentGroup.getInputs()) {
+      InputLayout inputView = renderInput(input);
+      inputs.add(inputView);
+      inputsScrollPane.addView(inputView);
+      inputView.addChangeListener(this);
     }
   }
 
-  private void setNextActionOnOpenTexts() {
-    int size = inputs.size() - 1;
-    for (int i = 0; i < size; i++) {
-      InputLayout inputLayout = inputs.get(i);
-      if (inputLayout.getInput().getResponseType().equals(Input.OPEN_TEXT)) {
-        EditText openText = ((EditText)inputLayout.getComponentWithValue());
-        openText.setImeOptions(EditorInfo.IME_ACTION_NEXT);
-        openText.setImeActionLabel("Next", EditorInfo.IME_ACTION_NEXT);
-      }
-    }
-
-  }
+//  private void setNextActionOnOpenTexts() {
+//    int size = inputs.size() - 1;
+//    for (int i = 0; i < size; i++) {
+//      InputLayout inputLayout = inputs.get(i);
+//      if (inputLayout.getInput().getResponseType().equals(Input.OPEN_TEXT)) {
+//        EditText openText = ((EditText)inputLayout.getComponentWithValue());
+//        openText.setImeOptions(EditorInfo.IME_ACTION_NEXT);
+//        openText.setImeActionLabel("Next", EditorInfo.IME_ACTION_NEXT);
+//      }
+//    }
+//
+//  }
 
   /**
    * Note this is a simple version geared towards questions
@@ -508,27 +511,34 @@ public class ExperimentExecutor extends Activity implements ChangeListener, Loca
    * @param input
    * @return
    */
-  private InputLayout renderInput(Input input) {
+  private InputLayout renderInput(Input2 input) {
     return createInputViewGroup(input);
   }
 
-  private InputLayout createInputViewGroup(Input input) {
+  private InputLayout createInputViewGroup(Input2 input) {
     return new InputLayout(this, input);
   }
 
   private void displayExperimentTitle() {
-    ((TextView)findViewById(R.id.experiment_title)).setText(experiment.getTitle());
+    ((TextView)findViewById(R.id.experiment_title)).setText(getExperiment().getExperimentDAO().getTitle());
   }
 
   private void displayNoExperimentMessage() {
   }
 
-  private Experiment getExperimentFromIntent() {
-    Uri uri = getIntent().getData();
-    if (uri == null) {
-      return null;
-    }
-    return experimentProviderUtil.getExperiment(uri);
+  public void setExperimentGroup(ExperimentGroup group) {
+    this.experimentGroup = group;
+
+  }
+
+  public Experiment getExperiment() {
+    return experiment;
+  }
+
+
+  public void setExperiment(Experiment experiment) {
+    this.experiment = experiment;
+
   }
 
   @Override
@@ -542,7 +552,7 @@ public class ExperimentExecutor extends Activity implements ChangeListener, Loca
   }
 
   public void stopExperiment() {
-    experimentProviderUtil.deleteFullExperiment(getIntent().getData());
+    experimentProviderUtil.deleteExperiment(getExperiment().getId());
     updateAlarms();
     finish();
   }

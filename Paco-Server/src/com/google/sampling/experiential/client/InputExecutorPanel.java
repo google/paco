@@ -11,16 +11,15 @@ import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.RadioButton;
-import com.google.gwt.user.client.ui.TextArea;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
-import com.google.paco.shared.model.InputDAO;
+import com.google.paco.shared.model2.Input2;
 import com.google.sampling.experiential.shared.Output;
 
 public class InputExecutorPanel extends Composite {
 
-  protected InputDAO input;
-  
+  protected Input2 input;
+
   protected VerticalPanel mainPanel;
   private HorizontalPanel upperLinePanel;
   private HorizontalPanel lowerLinePanel;
@@ -35,25 +34,25 @@ public class InputExecutorPanel extends Composite {
 
   private MultiselectList multiselectList;
 
-  public InputExecutorPanel(InputDAO input) {
+  public InputExecutorPanel(Input2 input) {
     super();
     this.input = input;
     createLayout();
   }
 
-  public InputDAO getInput() {
+  public Input2 getInput() {
     return input;
   }
 
   public Output getValue() {
     String value = "";
-    if (input.getResponseType().equals(InputDAO.OPEN_TEXT)) {
+    if (input.getResponseType().equals(Input2.OPEN_TEXT)) {
       value = readOpenText();
-    } else if (input.getResponseType().equals(InputDAO.LIST)) {
+    } else if (input.getResponseType().equals(Input2.LIST)) {
       value = readList();
-    } else if (input.getResponseType().equals(InputDAO.LIKERT)) {
+    } else if (input.getResponseType().equals(Input2.LIKERT)) {
       value = readLikert();
-    } else if (input.getResponseType().equals(InputDAO.NUMBER)) {
+    } else if (input.getResponseType().equals(Input2.NUMBER)) {
       value = readNumber();
     }
     return new Output(input.getName(), value);
@@ -93,33 +92,33 @@ public class InputExecutorPanel extends Composite {
   }
 
   protected String readOpenText() {
-    return text.getText();    
+    return text.getText();
   }
 
   protected void createLayout() {
     mainPanel = new VerticalPanel();
     mainPanel.setSpacing(2);
     initWidget(mainPanel);
-    
+
     upperLinePanel = new HorizontalPanel();
     upperLinePanel.setStyleName("left");
     mainPanel.add(upperLinePanel);
-  
+
     lowerLinePanel = new HorizontalPanel();
     mainPanel.add(lowerLinePanel);
-  
+
     createTextPrompt();
     renderInputItem();
   }
 
   private void renderInputItem() {
-    if (input.getResponseType().equals(InputDAO.OPEN_TEXT)) {
+    if (input.getResponseType().equals(Input2.OPEN_TEXT)) {
       renderOpenText();
-    } else if (input.getResponseType().equals(InputDAO.LIST)) {
+    } else if (input.getResponseType().equals(Input2.LIST)) {
       renderList();
-    } else if (input.getResponseType().equals(InputDAO.LIKERT)) {
+    } else if (input.getResponseType().equals(Input2.LIKERT)) {
       renderLikert();
-    } else if (input.getResponseType().equals(InputDAO.NUMBER)) {
+    } else if (input.getResponseType().equals(Input2.NUMBER)) {
       renderOpenText();
     }
     mainPanel.add(new HTML("<br/>"));
@@ -130,7 +129,7 @@ public class InputExecutorPanel extends Composite {
     String groupName = "likert_choices_"+Long.toString(System.currentTimeMillis());
     if (input.getLikertSteps() == null) {
       // backward compatibility for a short while
-      input.setLikertSteps(InputDAO.DEFAULT_LIKERT_STEPS);
+      input.setLikertSteps(Input2.DEFAULT_LIKERT_STEPS);
     }
     for (int i = 0; i < input.getLikertSteps(); i++) {
       String name = "";
@@ -141,17 +140,17 @@ public class InputExecutorPanel extends Composite {
         leftLabel.setStyleName("keyLabel");
         lowerLinePanel.add(leftLabel);
       }
-      
-      RadioButton radio = new RadioButton(groupName, "");     
+
+      RadioButton radio = new RadioButton(groupName, "");
       likerts.add(radio);
       lowerLinePanel.add(radio);
-      
+
       if (i == input.getLikertSteps() - 1 && input.getRightSideLabel() != null) {
         Label rightLabel = new Label(input.getRightSideLabel());
         rightLabel.setStyleName("keyLabel");
         lowerLinePanel.add(rightLabel);
       }
-      
+
     }
   }
 
@@ -166,11 +165,11 @@ public class InputExecutorPanel extends Composite {
       for (String choice : input.getListChoices()) {
         list.addItem(choice);
       }
-      lowerLinePanel.add(list);    
+      lowerLinePanel.add(list);
       list.addChangeHandler(new ChangeHandler() {
         public void onChange(ChangeEvent changeEvent) {
           hasBeenSelected = true;
-        } 
+        }
       });
     }
   }
@@ -185,7 +184,7 @@ public class InputExecutorPanel extends Composite {
 
     text.setMaxLength(500);
     holder.add(text);
-        
+
     Label fivehundredlimit = new Label("(" + myConstants.fiveHundredCharLimit() + ")");
     fivehundredlimit.setStyleName("paco-small");
     holder.add(fivehundredlimit);
@@ -194,7 +193,7 @@ public class InputExecutorPanel extends Composite {
   private void createTextPrompt() {
     Label label = new Label(input.getText());
     label.setStyleName("keyLabel");
-    upperLinePanel.add(label);    
+    upperLinePanel.add(label);
   }
 
 }

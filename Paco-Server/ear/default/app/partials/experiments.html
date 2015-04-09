@@ -1,0 +1,13 @@
+Search:<input ng-model="query" type="text"/>
+<table>
+  <tr>
+    <th><a href="" ng-click="sortField ='title'; reverse = !reverse">Title</a></th>
+    <th><a href="" ng-click="sortField = 'creator'; reverse = !reverse">Creator</a></th>
+    <th><a href="" ng-click="sortField = 'modifyDate'; reverse = !reverse">Date</a></th>
+  </tr>
+  <tr ng-repeat="paco in experiments | filter:query | orderBy:sortField:reverse">
+    <td>{{paco.title}}</td>
+    <td>{{paco.creator}}</td>
+    <td>{{paco.modifyDate}}</td>
+  </tr>
+</table>

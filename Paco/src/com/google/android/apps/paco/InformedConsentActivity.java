@@ -24,32 +24,46 @@ import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.joda.time.DateTime;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.net.Uri;
+import android.graphics.drawable.ColorDrawable;
+import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.ActionBarActivity;
+import android.telephony.TelephonyManager;
+import android.view.Display;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.CheckBox;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.apps.paco.utils.IntentExtraHelper;
+import com.google.paco.shared.model2.ActionTrigger;
+import com.google.paco.shared.model2.ExperimentGroup;
+import com.google.paco.shared.model2.Schedule;
+import com.google.paco.shared.model2.ScheduleTrigger;
+import com.google.paco.shared.util.ExperimentHelper;
+import com.google.paco.shared.util.SchedulePrinter;
+import com.google.paco.shared.util.TimeUtil;
 import com.pacoapp.paco.R;
+import com.pacoapp.paco.ui.ScheduleDetailFragment;
+import com.pacoapp.paco.ui.ScheduleListActivity;
 
-public class InformedConsentActivity extends Activity {
+public class InformedConsentActivity extends ActionBarActivity implements ExperimentLoadingActivity {
 
   public static final String INFORMED_CONSENT_PAGE_EXTRA_KEY = "InformedConsentPage";
 
   public static final int REFRESHING_JOINED_EXPERIMENT_DIALOG_ID = 1002;
 
-  private Uri uri;
   private Experiment experiment;
-  private boolean showingJoinedExperiments;
 
   private ExperimentProviderUtil experimentProviderUtil;
   private DownloadFullExperimentsTask experimentDownloadTask;
@@ -58,47 +72,55 @@ public class InformedConsentActivity extends Activity {
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.informed_consent);
+    getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+    ActionBar actionBar = getSupportActionBar();
+    actionBar.setLogo(R.drawable.ic_launcher);
+    actionBar.setDisplayUseLogoEnabled(true);
+    actionBar.setDisplayShowHomeEnabled(true);
+    actionBar.setBackgroundDrawable(new ColorDrawable(0xff4A53B3));
+
     final Intent intent = getIntent();
-    uri = intent.getData();
 
-    boolean myExperiments = intent.getExtras() != null ? intent.getExtras().getBoolean(ExperimentDetailActivity.ID_FROM_MY_EXPERIMENTS_FILE) : false;
+    experimentProviderUtil = new ExperimentProviderUtil(this);
+    IntentExtraHelper.loadExperimentInfoFromIntent(this, intent, experimentProviderUtil);
 
-    if (uri != null) {
-      showingJoinedExperiments = intent.getData().equals(ExperimentColumns.JOINED_EXPERIMENTS_CONTENT_URI);
-      experimentProviderUtil = new ExperimentProviderUtil(this);
-      if (showingJoinedExperiments) {
-        experiment = experimentProviderUtil.getExperiment(uri);
-      } else {
-        experiment = experimentProviderUtil.getExperimentFromDisk(uri, myExperiments);
+    if (experiment == null) {
+      boolean myExperiments = intent.getExtras() != null
+              ? intent.getExtras().getBoolean(ExperimentDetailActivity.ID_FROM_MY_EXPERIMENTS_FILE)
+              : false;
+
+      Long experimentServerId = intent.getExtras().getLong(Experiment.EXPERIMENT_SERVER_ID_EXTRA_KEY);
+      experiment = experimentProviderUtil.getExperimentFromDisk(experimentServerId, myExperiments);
+    }
+    if (experiment == null) {
+      Toast.makeText(this, R.string.cannot_find_the_experiment_warning, Toast.LENGTH_SHORT).show();
+      finish();
+    } else {
+      // TextView title = (TextView)findViewById(R.id.experimentNameIc);
+      // title.setText(experiment.getTitle());
+      boolean logsActions = ExperimentHelper.isLogActions(experiment.getExperimentDAO());
+      if (logsActions || ExperimentHelper.declaresLogAppUsageAndBrowserCollection(experiment.getExperimentDAO())) {
+        TextView appBrowserUsageView = (TextView) findViewById(R.id.dataCollectedAppAndBrowserUsageView);
+        appBrowserUsageView.setVisibility(TextView.VISIBLE);
       }
-      if (experiment == null) {
-        Toast.makeText(this, R.string.cannot_find_the_experiment_warning, Toast.LENGTH_SHORT).show();
-        finish();
-      } else {
-        // TextView title = (TextView)findViewById(R.id.experimentNameIc);
-        // title.setText(experiment.getTitle());
-        if (experiment.isLogActions() || experiment.declaresLogAppUsageAndBrowserCollection()) {
-          TextView appBrowserUsageView = (TextView) findViewById(R.id.dataCollectedAppAndBrowserUsageView);
-          appBrowserUsageView.setVisibility(TextView.VISIBLE);
-        }
-        if (experiment.isRecordPhoneDetails() || experiment.declaresPhoneDetailsCollection()) {
-          TextView phoneDetailsView = (TextView) findViewById(R.id.dataCollectedPhoneDetailsView);
-          phoneDetailsView.setVisibility(TextView.VISIBLE);
-        }
+      if (experiment.getExperimentDAO().getRecordPhoneDetails()
+          || experiment.getExperimentDAO().getRecordPhoneDetails()) {
+        TextView phoneDetailsView = (TextView) findViewById(R.id.dataCollectedPhoneDetailsView);
+        phoneDetailsView.setVisibility(TextView.VISIBLE);
+      }
 
-        TextView ic = (TextView) findViewById(R.id.InformedConsentTextView);
-        ic.setText(experiment.getInformedConsentForm());
+      TextView ic = (TextView) findViewById(R.id.InformedConsentTextView);
+      ic.setText(experiment.getExperimentDAO().getInformedConsentForm());
 
-        if (experiment.getJoinDate() == null) {
-          final CheckBox icCheckbox = (CheckBox) findViewById(R.id.InformedConsentAgreementCheckBox);
-          icCheckbox.setOnClickListener(new OnClickListener() {
-            public void onClick(View v) {
-              if (icCheckbox.isChecked()) {
-                requestFullExperimentForJoining();
-              }
+      if (experiment.getJoinDate() == null) {
+        final CheckBox icCheckbox = (CheckBox) findViewById(R.id.InformedConsentAgreementCheckBox);
+        icCheckbox.setOnClickListener(new OnClickListener() {
+          public void onClick(View v) {
+            if (icCheckbox.isChecked()) {
+              requestFullExperimentForJoining();
             }
-          });
-        }
+          }
+        });
       }
     }
   }
@@ -175,38 +197,123 @@ public class InformedConsentActivity extends Activity {
   public void saveDownloadedExperimentBeforeScheduling(Experiment fullExperiment) {
     experiment = fullExperiment;
     joinExperiment();
+    createJoinEvent();
+    startService(new Intent(this, SyncService.class));
+    startService(new Intent(this, BeeperService.class));
+    if (ExperimentHelper.shouldWatchProcesses(experiment.getExperimentDAO())) {
+      BroadcastTriggerReceiver.initPollingAndLoggingPreference(this);
+      BroadcastTriggerReceiver.startProcessService(this);
+    }
     runScheduleActivity();
   }
 
+  private void createJoinEvent() {
+    Event event = new Event();
+    event.setExperimentId(experiment.getId());
+    event.setServerExperimentId(experiment.getServerId());
+    event.setExperimentName(experiment.getExperimentDAO().getTitle());
+    event.setExperimentGroupName(null);
+    event.setActionTriggerId(null);
+    event.setActionTriggerSpecId(null);
+    event.setActionId(null);
+    event.setExperimentVersion(experiment.getExperimentDAO().getVersion());
+    event.setResponseTime(new DateTime());
+
+    event.addResponse(createOutput("joined", "true"));
+
+    event.addResponse(createOutput("schedule", createSchedulesString()));
+
+    if (experiment.getExperimentDAO().getRecordPhoneDetails()) {
+      Display defaultDisplay = getWindowManager().getDefaultDisplay();
+      String size = Integer.toString(defaultDisplay.getHeight()) + "x" + Integer.toString(defaultDisplay.getWidth());
+      event.addResponse(createOutput("display", size));
+
+      event.addResponse(createOutput("make", Build.MANUFACTURER));
+      event.addResponse(createOutput("model", Build.MODEL));
+      event.addResponse(createOutput("android", Build.VERSION.RELEASE));
+      TelephonyManager manager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
+      String carrierName = manager.getNetworkOperatorName();
+      event.addResponse(createOutput("carrier", carrierName));
+    }
+
+    experimentProviderUtil.insertEvent(event);
+  }
+
+  public String createSchedulesString() {
+    StringBuffer buf = new StringBuffer();
+    List<ExperimentGroup> groups = experiment.getExperimentDAO().getGroups();
+    boolean firstItem = true;
+    for (ExperimentGroup experimentGroup : groups) {
+      List<ActionTrigger> actionTriggers = experimentGroup.getActionTriggers();
+      for (ActionTrigger actionTrigger : actionTriggers) {
+        if (actionTrigger instanceof ScheduleTrigger) {
+          List<Schedule> schedules = ((ScheduleTrigger)actionTrigger).getSchedules();
+
+          for (Schedule schedule : schedules) {
+            if (firstItem) {
+              firstItem = false;
+            } else {
+              buf.append("; ");
+            }
+            buf.append(SchedulePrinter.toString(schedule));
+          }
+        }
+      }
+    }
+    return buf.toString();
+  }
+
+  private Output createOutput(String key, String answer) {
+    Output responseForInput = new Output();
+    responseForInput.setAnswer(answer);
+    responseForInput.setName(key);
+    return responseForInput;
+  }
+
+
+
+
   private void runScheduleActivity() {
-    Intent intent = new Intent(InformedConsentActivity.this,
-                               ExperimentScheduleActivity.class);
-    intent.setAction(Intent.ACTION_EDIT);
-    intent.setData(uri);
-    intent.putExtra(INFORMED_CONSENT_PAGE_EXTRA_KEY, true);
-    startActivityForResult(intent, FindExperimentsActivity.JOIN_REQUEST_CODE);
+    Intent experimentIntent = new Intent(this, ScheduleListActivity.class);
+    experimentIntent.putExtras(getIntent().getExtras());
+    experimentIntent.putExtra(INFORMED_CONSENT_PAGE_EXTRA_KEY, true);
+    experimentIntent.putExtra(ScheduleDetailFragment.USER_EDITABLE_SCHEDULE, ExperimentHelper.hasUserEditableSchedule(experiment.getExperimentDAO()));
+    startActivityForResult(experimentIntent, FindExperimentsActivity.JOIN_REQUEST_CODE);
   }
 
   private void joinExperiment() {
     experiment.setJoinDate(getTodayAsStringWithZone());
-    // Set the uri to refer to the experiment's new saved location.
-    uri = experimentProviderUtil.insertFullJoinedExperiment(experiment);
+    experimentProviderUtil.insertFullJoinedExperiment(experiment);
   }
 
-    protected Dialog onCreateDialog(int id, Bundle args) {
+  protected Dialog onCreateDialog(int id, Bundle args) {
     switch (id) {
     case REFRESHING_JOINED_EXPERIMENT_DIALOG_ID: {
       return getRefreshJoinedDialog();
-    } case DownloadHelper.INVALID_DATA_ERROR: {
+    }
+    case DownloadHelper.INVALID_DATA_ERROR: {
       return getUnableToJoinDialog(getString(R.string.invalid_data));
-    } case DownloadHelper.SERVER_ERROR: {
+    }
+    case DownloadHelper.SERVER_ERROR: {
       return getUnableToJoinDialog(getString(R.string.dialog_dismiss));
-    } case DownloadHelper.NO_NETWORK_CONNECTION: {
+    }
+    case DownloadHelper.NO_NETWORK_CONNECTION: {
       return getNoNetworkDialog();
-    } default: {
+    }
+    default: {
       return null;
     }
     }
+  }
+
+  @Override
+  public boolean onOptionsItemSelected(MenuItem item) {
+      int id = item.getItemId();
+      if (id == android.R.id.home) {
+        finish();
+        return true;
+      }
+      return super.onOptionsItemSelected(item);
   }
 
   @Override
@@ -216,38 +323,34 @@ public class InformedConsentActivity extends Activity {
 
   private ProgressDialog getRefreshJoinedDialog() {
     return ProgressDialog.show(this, getString(R.string.experiment_retrieval),
-                               getString(R.string.retrieving_your_joined_experiment_from_the_server),
-                               true, true);
+                               getString(R.string.retrieving_your_joined_experiment_from_the_server), true, true);
   }
 
   private AlertDialog getUnableToJoinDialog(String message) {
     AlertDialog.Builder unableToJoinBldr = new AlertDialog.Builder(this);
-    unableToJoinBldr.setTitle(R.string.experiment_could_not_be_retrieved)
-    .setMessage(message)
-    .setPositiveButton(R.string.dialog_dismiss, new DialogInterface.OnClickListener() {
-      public void onClick(DialogInterface dialog, int which) {
-        setResult(FindExperimentsActivity.JOINED_EXPERIMENT);
-        finish();
-      }
-    });
+    unableToJoinBldr.setTitle(R.string.experiment_could_not_be_retrieved).setMessage(message)
+                    .setPositiveButton(R.string.dialog_dismiss, new DialogInterface.OnClickListener() {
+                      public void onClick(DialogInterface dialog, int which) {
+                        setResult(FindExperimentsActivity.JOINED_EXPERIMENT);
+                        finish();
+                      }
+                    });
     return unableToJoinBldr.create();
   }
 
   private AlertDialog getNoNetworkDialog() {
     AlertDialog.Builder noNetworkBldr = new AlertDialog.Builder(this);
-    noNetworkBldr.setTitle(R.string.network_required)
-    .setMessage(getString(R.string.need_network_connection))
-    .setPositiveButton(R.string.go_to_network_settings, new DialogInterface.OnClickListener() {
-      public void onClick(DialogInterface dialog, int which) {
-        showNetworkConnectionActivity();
-      }
-    })
-    .setNegativeButton(R.string.no_thanks, new DialogInterface.OnClickListener() {
-      public void onClick(DialogInterface dialog, int which) {
-        setResult(FindExperimentsActivity.JOINED_EXPERIMENT);
-        finish();
-      }
-    });
+    noNetworkBldr.setTitle(R.string.network_required).setMessage(getString(R.string.need_network_connection))
+                 .setPositiveButton(R.string.go_to_network_settings, new DialogInterface.OnClickListener() {
+                   public void onClick(DialogInterface dialog, int which) {
+                     showNetworkConnectionActivity();
+                   }
+                 }).setNegativeButton(R.string.no_thanks, new DialogInterface.OnClickListener() {
+                   public void onClick(DialogInterface dialog, int which) {
+                     setResult(FindExperimentsActivity.JOINED_EXPERIMENT);
+                     finish();
+                   }
+                 });
     return noNetworkBldr.create();
   }
 
@@ -256,8 +359,7 @@ public class InformedConsentActivity extends Activity {
   }
 
   private void showFailureDialog(String status) {
-    if (status.equals(DownloadHelper.CONTENT_ERROR) ||
-        status.equals(DownloadHelper.RETRIEVAL_ERROR)) {
+    if (status.equals(DownloadHelper.CONTENT_ERROR) || status.equals(DownloadHelper.RETRIEVAL_ERROR)) {
       showDialog(DownloadHelper.INVALID_DATA_ERROR, null);
     } else {
       showDialog(DownloadHelper.SERVER_ERROR, null);
@@ -268,10 +370,19 @@ public class InformedConsentActivity extends Activity {
     return TimeUtil.formatDateWithZone(new DateTime());
   }
 
-  // Visible for testing
-  public Uri getExperimentUri() {
-    return uri;
+  @Override
+  public void setExperiment(Experiment experimentByServerId) {
+    this.experiment = experimentByServerId;
   }
 
+  @Override
+  public Experiment getExperiment() {
+    return experiment;
+  }
+
+  @Override
+  public void setExperimentGroup(ExperimentGroup groupByName) {
+    // no-op for this activity
+  }
 
 }

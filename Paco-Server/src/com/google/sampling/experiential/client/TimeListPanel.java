@@ -24,8 +24,8 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.VerticalPanel;
-import com.google.paco.shared.model.SignalScheduleDAO;
-import com.google.paco.shared.model.SignalTimeDAO;
+import com.google.paco.shared.model2.Schedule;
+import com.google.paco.shared.model2.SignalTime;
 
 /**
  * Container Panel for the times an experiment is scheduled,
@@ -36,10 +36,10 @@ import com.google.paco.shared.model.SignalTimeDAO;
  */
 public class TimeListPanel extends Composite {
   private VerticalPanel rootPanel;
-  private SignalScheduleDAO schedule;
+  private Schedule schedule;
   private LinkedList<TimePanel> timePanelsList;
 
-  public TimeListPanel(SignalScheduleDAO schedule) {
+  public TimeListPanel(Schedule schedule) {
     MyConstants myConstants = GWT.create(MyConstants.class);
     this.schedule = schedule;
     rootPanel = new VerticalPanel();
@@ -53,8 +53,8 @@ public class TimeListPanel extends Composite {
     timePanelsList = new LinkedList<TimePanel>();
 
     if (schedule.getSignalTimes() == null || schedule.getSignalTimes().isEmpty()) {
-      List<SignalTimeDAO> times = new ArrayList<SignalTimeDAO>();
-      SignalTimeDAO signalTimeDAO = createBlankSignalTimeDAO();
+      List<SignalTime> times = new ArrayList<SignalTime>();
+      SignalTime signalTimeDAO = createBlankSignalTimeDAO();
       times.add(signalTimeDAO);
       TimePanel timePanel = new TimePanel(this, signalTimeDAO, true);
       rootPanel.add(timePanel);
@@ -69,12 +69,12 @@ public class TimeListPanel extends Composite {
     }
   }
 
-  private SignalTimeDAO createBlankSignalTimeDAO() {
-    SignalTimeDAO signalTimeDAO = new SignalTimeDAO();
-    signalTimeDAO.setType(SignalTimeDAO.FIXED_TIME);
+  private SignalTime createBlankSignalTimeDAO() {
+    SignalTime signalTimeDAO = new SignalTime();
+    signalTimeDAO.setType(SignalTime.FIXED_TIME);
     signalTimeDAO.setFixedTimeMillisFromMidnight(12 * 60 * 60 * 1000);
-    signalTimeDAO.setOffsetTimeMillis(SignalTimeDAO.OFFSET_TIME_DEFAULT);
-    signalTimeDAO.setMissedBasisBehavior(SignalTimeDAO.MISSED_BEHAVIOR_USE_SCHEDULED_TIME);
+    signalTimeDAO.setOffsetTimeMillis(SignalTime.OFFSET_TIME_DEFAULT);
+    signalTimeDAO.setMissedBasisBehavior(SignalTime.MISSED_BEHAVIOR_USE_SCHEDULED_TIME);
     return signalTimeDAO;
   }
 
@@ -82,7 +82,7 @@ public class TimeListPanel extends Composite {
     if (timePanelsList.size() == 1) {
       return;
     }
-    SignalTimeDAO signalTimeDAO = timePanel.getTime();
+    SignalTime signalTimeDAO = timePanel.getTime();
     schedule.getSignalTimes().remove(signalTimeDAO);
 
     timePanelsList.remove(timePanel);
@@ -101,7 +101,7 @@ public class TimeListPanel extends Composite {
     int predecessorIndex = timePanelsList.indexOf(timePanel);
 
 
-    SignalTimeDAO signalTimeDAO = createBlankSignalTimeDAO();
+    SignalTime signalTimeDAO = createBlankSignalTimeDAO();
     schedule.getSignalTimes().add(predecessorIndex + 1, signalTimeDAO);
 
     TimePanel newTimePanel = new TimePanel(this, signalTimeDAO, false);

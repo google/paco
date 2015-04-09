@@ -27,7 +27,7 @@ import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.RadioButton;
 import com.google.gwt.user.client.ui.VerticalPanel;
-import com.google.paco.shared.model.SignalScheduleDAO;
+import com.google.paco.shared.model2.Schedule;
 
 /**
  * Configure Monthly scheduling options for an experiment.
@@ -37,10 +37,10 @@ import com.google.paco.shared.model.SignalScheduleDAO;
  */
 public class MonthlyPanel extends Composite {
 
-  private SignalScheduleDAO schedule;
+  private Schedule schedule;
   private MyConstants myConstants;
 
-  public MonthlyPanel(final SignalScheduleDAO schedule) {
+  public MonthlyPanel(final Schedule schedule) {
     myConstants = GWT.create(MyConstants.class);
     this.schedule = schedule;
     VerticalPanel verticalPanel = new VerticalPanel();
@@ -142,17 +142,9 @@ public class MonthlyPanel extends Composite {
       toggleDayOfMonthDayOfWeekPanels(schedule, listBox, nth, weekDayPanel, true);
     }
 
-    TimeoutPanel timeoutPanel = new TimeoutPanel(schedule);
-    verticalPanel.add(timeoutPanel);
-    timeoutPanel.setWidth("286px");
-
-    SnoozePanel snoozePanel = new SnoozePanel(schedule);
-    verticalPanel.add(snoozePanel);
-    snoozePanel.setWidth("286px");
-
   }
 
-  private ListBox createNthDayListBox(final SignalScheduleDAO schedule,
+  private ListBox createNthDayListBox(final Schedule schedule,
       HorizontalPanel weekdayPanel) {
     final ListBox nth = new ListBox();
 
@@ -204,7 +196,7 @@ public class MonthlyPanel extends Composite {
     return listBox;
   }
 
-  private void toggleDayOfMonthDayOfWeekPanels(final SignalScheduleDAO schedule,
+  private void toggleDayOfMonthDayOfWeekPanels(final Schedule schedule,
       final ListBox listBox, final ListBox nth, final WeekDayPanel weekDayPanel, boolean enabled) {
     listBox.setEnabled(!enabled);
     nth.setEnabled(enabled);

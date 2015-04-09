@@ -1,8 +1,8 @@
 /*
 * Copyright 2011 Google Inc. All Rights Reserved.
-* 
+*
 * Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance  with the License.  
+* you may not use this file except in compliance  with the License.
 * You may obtain a copy of the License at
 *
 *    http://www.apache.org/licenses/LICENSE-2.0
@@ -17,28 +17,13 @@
 package com.google.android.apps.paco;
 
 
-import java.io.IOException;
-import java.io.StringWriter;
 import java.util.List;
-
-import org.codehaus.jackson.JsonGenerationException;
-import org.codehaus.jackson.JsonParseException;
-import org.codehaus.jackson.map.JsonMappingException;
-import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.type.TypeReference;
 
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.os.IBinder;
 import android.os.PowerManager;
-import android.util.Log;
-
-import com.google.corp.productivity.specialprojects.android.comm.Response;
-import com.google.corp.productivity.specialprojects.android.comm.UrlContentManager;
-import com.google.paco.shared.Outcome;
 
 public class SyncService extends Service {
 
@@ -88,11 +73,9 @@ public class SyncService extends Service {
     synchronized (SyncService.class) {
       experimentProviderUtil = new ExperimentProviderUtil(this);
       List<Event> allEvents = experimentProviderUtil.getEventsNeedingUpload();
-      EventUploader eventUploader = new EventUploader(new UrlContentManager(this), 
-                        userPrefs.getServerAddress(), 
-                        experimentProviderUtil, this);
-      eventUploader.uploadEvents(allEvents); 
+      EventUploader eventUploader = new EventUploader(this, userPrefs.getServerAddress(),
+                        experimentProviderUtil);
+      eventUploader.uploadEvents(allEvents);
     }
   }
-
 }

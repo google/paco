@@ -16,26 +16,29 @@
 */
 package com.google.android.apps.paco;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.codehaus.jackson.JsonGenerationException;
+import org.codehaus.jackson.map.JsonMappingException;
+import org.codehaus.jackson.map.ObjectMapper;
 import org.joda.time.DateTime;
 import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 
-import android.accounts.Account;
-import android.accounts.AccountManager;
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.webkit.ConsoleMessage;
@@ -45,10 +48,17 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Button;
 
-import com.google.paco.shared.model.FeedbackDAO;
+import com.google.android.apps.paco.js.bridge.JavascriptEmail;
+import com.google.android.apps.paco.js.bridge.JavascriptEventLoader;
+import com.google.android.apps.paco.js.bridge.JavascriptExperimentLoader;
+import com.google.paco.shared.model2.ExperimentDAO;
+import com.google.paco.shared.model2.ExperimentGroup;
+import com.google.paco.shared.model2.Input2;
+import com.google.paco.shared.model2.JsonConverter;
+import com.google.paco.shared.util.ExperimentHelper;
 import com.pacoapp.paco.R;
 
-public class FeedbackActivity extends Activity {
+public class FeedbackActivity extends ActionBarActivity {
 
   private static final String TEMP_URL = null;
   ExperimentProviderUtil experimentProviderUtil;
@@ -57,33 +67,30 @@ public class FeedbackActivity extends Activity {
   private Button rawDataButton;
   boolean showDialog = true;
   private Environment env;
-
-  private class JavascriptEmail {
-    public void sendEmail(String body, String subject, String userEmail) {
-      FeedbackActivity.this.sendEmail(body, subject, userEmail);
-    }
-  }
-
-  private class JavascriptExperimentLoader {
-    private Experiment experiment;
-    public JavascriptExperimentLoader(Experiment experiment) {
-        this.experiment = experiment;
-    }
-    public String getExperiment() {
-      return ExperimentProviderUtil.getJson(experiment);
-    }
-  }
+  private ExperimentGroup experimentGroup;
 
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
+    ActionBar actionBar = getSupportActionBar();
+    actionBar.setLogo(R.drawable.ic_launcher);
+    actionBar.setDisplayUseLogoEnabled(true);
+    actionBar.setDisplayShowHomeEnabled(true);
+    actionBar.setDisplayHomeAsUpEnabled(true);
+    actionBar.setDisplayShowTitleEnabled(false);
+    actionBar.setBackgroundDrawable(new ColorDrawable(0xff4A53B3));
+
+
     experimentProviderUtil = new ExperimentProviderUtil(this);
-    experiment = getExperimentFromIntent();
-    if (experiment == null) {
+    loadExperimentInfoFromIntent();
+
+    if (experiment == null || experimentGroup == null) {
       displayNoExperimentMessage();
     } else {
       setContentView(R.layout.feedback);
+
+      // TODO revamp this to deal with null experimentGroup (do we give a list of groups? the exploredata button in runningexperiments needs this)
       experimentProviderUtil.loadLastEventForExperiment(experiment);
 
 
@@ -91,14 +98,14 @@ public class FeedbackActivity extends Activity {
       rawDataButton.setOnClickListener(new OnClickListener() {
         public void onClick(View v) {
           Intent rawDataIntent = new Intent(FeedbackActivity.this, RawDataActivity.class);
-          rawDataIntent.setData(getIntent().getData());
+          rawDataIntent.putExtras(getIntent().getExtras());
           startActivity(rawDataIntent);
         }
       });
       webView = (WebView)findViewById(R.id.feedbackText);
       webView.getSettings().setJavaScriptEnabled(true);
 
-      final Feedback feedback = experiment.getFeedback().get(0);
+      final com.google.paco.shared.model2.Feedback feedback = experimentGroup.getFeedback();
 
       injectObjectsIntoJavascriptEnvironment(feedback);
 
@@ -108,9 +115,9 @@ public class FeedbackActivity extends Activity {
       WebViewClient webViewClient = createWebViewClientThatHandlesFileLinksForCharts(feedback);
       webView.setWebViewClient(webViewClient);
 
-      if (experiment.getFeedbackType() == FeedbackDAO.FEEDBACK_TYPE_RETROSPECTIVE) {
+      if (experimentGroup.getFeedbackType() == com.google.paco.shared.model2.Feedback.FEEDBACK_TYPE_RETROSPECTIVE) {
         // TODO get rid of this and just use the customFeedback view
-        loadOldDefaultFeedbackIntoWebView();
+        loadRetrospectiveFeedbackIntoWebView();
       } else {
         loadCustomFeedbackIntoWebView();
       }
@@ -127,38 +134,43 @@ public class FeedbackActivity extends Activity {
 
   }
 
-  private void injectObjectsIntoJavascriptEnvironment(final Feedback feedback) {
+  @Override
+  public boolean onOptionsItemSelected(MenuItem item) {
+      int id = item.getItemId();
+      if (id == android.R.id.home) {
+        finish();
+        return true;
+      }
+      return super.onOptionsItemSelected(item);
+  }
+  private void injectObjectsIntoJavascriptEnvironment(final com.google.paco.shared.model2.Feedback feedback) {
     final Map<String,String> map = new HashMap<String, String>();
-    map.put("lastResponse", convertLastEventToJsonString(feedback, experiment));
-    map.put("title", experiment.getTitle());
-    map.put("experiment", ExperimentProviderUtil.getJson(experiment));
+    map.put("lastResponse", convertLastEventToJsonString(experiment.getEvents()));
+    map.put("title", experiment.getExperimentDAO().getTitle());
     map.put("test", "false");
-
-    String text = experiment.getFeedback().get(0).getText();
-    webView.addJavascriptInterface(text, "additions");
-
-    webView.addJavascriptInterface(new JavascriptEmail(), "email");
-    webView.addJavascriptInterface(new JavascriptExperimentLoader(experiment), "experimentLoader");
-
-    JavascriptEventLoader javascriptEventLoader = new JavascriptEventLoader(experimentProviderUtil, experiment);
-    webView.addJavascriptInterface(javascriptEventLoader, "db");
-    // deprecated name - use "db" in all new experiments
-    webView.addJavascriptInterface(javascriptEventLoader, "eventLoader");
-
+    map.put("additions", experimentGroup.getFeedback().getText());
     env = new Environment(map);
     webView.addJavascriptInterface(env, "env");
 
+    webView.addJavascriptInterface(new JavascriptEmail(this), "email");
+    webView.addJavascriptInterface(new JavascriptExperimentLoader(this, experimentProviderUtil,
+                                                                  experiment.getExperimentDAO(), experiment),
+                                                                  "experimentLoader");
+
+    JavascriptEventLoader javascriptEventLoader = new JavascriptEventLoader(experimentProviderUtil, experiment,
+                                                                            experiment.getExperimentDAO(), experimentGroup);
+    webView.addJavascriptInterface(javascriptEventLoader, "db");
   }
 
-  private void loadOldDefaultFeedbackIntoWebView() {
-    webView.loadUrl("file:///android_asset/default_feedback.html");
+  private void loadRetrospectiveFeedbackIntoWebView() {
+    webView.loadUrl("file:///android_asset/retrospective_feedback.html");
   }
 
   private void loadCustomFeedbackIntoWebView() {
     webView.loadUrl("file:///android_asset/skeleton.html");
   }
 
-  private WebViewClient createWebViewClientThatHandlesFileLinksForCharts(final Feedback feedback) {
+  private WebViewClient createWebViewClientThatHandlesFileLinksForCharts(final com.google.paco.shared.model2.Feedback feedback) {
     WebViewClient webViewClient = new WebViewClient() {
 
       public boolean shouldOverrideUrlLoading(WebView view, String url) {
@@ -167,11 +179,11 @@ public class FeedbackActivity extends Activity {
           return true; // throw away http requests - we don't want 3rd party javascript sending url requests due to security issues.
         }
 
-        String inputIdStr = uri.getQueryParameter("inputId");
+        String inputIdStr = uri.getQueryParameter("inputName");
         if (inputIdStr == null) {
           return true;
         }
-        long inputId = Long.parseLong(inputIdStr);
+
         JSONArray results = new JSONArray();
         for (Event event : experiment.getEvents()) {
           JSONArray eventJson = new JSONArray();
@@ -183,9 +195,9 @@ public class FeedbackActivity extends Activity {
 
           // in this case we are looking for one input from the responses that we are charting.
           for (Output response : event.getResponses()) {
-            if (response.getInputServerId() == inputId ) {
-              Input inputById = experiment.getInputById(inputId);
-              if (!inputById.isInvisible() && inputById.isNumeric()) {
+            if (response.getName().equals(inputIdStr)) {
+              Input2 inputById = ExperimentHelper.getInputWithName(experiment.getExperimentDAO(), inputIdStr, null);
+              if (inputById.isNumeric()) {
                 eventJson.put(response.getDisplayOfAnswer(inputById));
                 results.put(eventJson);
                 continue;
@@ -274,76 +286,90 @@ public class FeedbackActivity extends Activity {
     });
   }
 
-  public static String convertExperimentResultsToJsonString(final Feedback feedback, final Experiment experiment) {
+  public static String convertExperimentResultsToJsonString(final com.google.paco.shared.model2.Feedback feedback, final Experiment experiment) {
     List<Event> events = experiment.getEvents();
-    return convertEventsToJsonString(feedback, experiment, events);
+    return convertEventsToJsonString(events);
   }
 
-  public static String convertLastEventToJsonString(final Feedback feedback, final Experiment experiment) {
-    List<Event> events = experiment.getEvents();
+  public static String convertLastEventToJsonString(List<Event> events) {
     if (events.isEmpty()) {
       return "[]";
     }
-    return convertEventsToJsonString(feedback, experiment, events.subList(0,1));
+    return convertEventsToJsonString(events.subList(0,1));
   }
 
-  private static String convertEventsToJsonString(final Feedback feedback, final Experiment experiment,
-                                                  List<Event> events) {
-    // TODO use jackson instead. But preserve these synthesized values for backward compatibility.
-    final JSONArray experimentData = new JSONArray();
-    for (Event event : events) {
-      try {
-        JSONObject eventObject = new JSONObject();
-        boolean missed = event.getResponseTime() == null;
-        eventObject.put("isMissedSignal", missed);
-        if (!missed) {
-          eventObject.put("responseTime", event.getResponseTime().getMillis());
-        }
+  public static String convertEventsToJsonString(List<Event> events) {
+    ObjectMapper mapper = JsonConverter.getObjectMapper();
 
-        boolean selfReport = event.getScheduledTime() == null;
-        eventObject.put("isSelfReport", selfReport);
-        if (!selfReport) {
-          eventObject.put("scheduleTime", event.getScheduledTime().getMillis());
-        }
-
-        JSONArray responses = new JSONArray();
-        for (Output response : event.getResponses()) {
-          JSONObject responseJson = new JSONObject();
-          Input input = experiment.getInputById(response.getInputServerId());
-          if (input == null) {
-            // just create the event based on all of the values in the datum
-            responseJson.put("name", response.getName());
-            responseJson.put("isMultiselect", false);
-            responseJson.put("prompt", feedback.getTextOfInputForOutput(experiment, response));
-            responseJson.put("answer", response.getAnswer());
-            // deprecate answerOrder for answerRaw
-            responseJson.put("answerOrder", response.getAnswer());
-            responseJson.put("answerRaw", response.getAnswer());
-            responses.put(responseJson);
-          } else {
-            responseJson.put("inputId", input.getServerId());
-            responseJson.put("name", input.getName());
-            responseJson.put("responseType", input.getResponseType());
-            responseJson.put("isMultiselect", input.isMultiselect());
-            responseJson.put("prompt", feedback.getTextOfInputForOutput(experiment, response));
-            responseJson.put("answer", response.getDisplayOfAnswer(input));
-            // deprecate answerOrder for answerRaw
-            responseJson.put("answerOrder", response.getAnswer());
-            responseJson.put("answerRaw", response.getAnswer());
-            responses.put(responseJson);
-          }
-        }
-
-        eventObject.put("responses", responses);
-        if (responses.length() > 0) {
-          experimentData.put(eventObject);
-        }
-      } catch (JSONException jse) {
-        // skip this event and do the next event.
-      }
+    String eventJson = null;
+    try {
+      eventJson = mapper.writeValueAsString(events);
+    } catch (JsonGenerationException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    } catch (JsonMappingException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    } catch (IOException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
     }
-    String experimentDataAsJson = experimentData.toString();
-    return experimentDataAsJson;
+    return eventJson;
+
+    // TODO use jackson instead. But preserve these synthesized values for backward compatibility.
+//    final JSONArray experimentData = new JSONArray();
+//    for (Event event : events) {
+//      try {
+//        JSONObject eventObject = new JSONObject();
+//        boolean missed = event.getResponseTime() == null;
+//        eventObject.put("isMissedSignal", missed);
+//        if (!missed) {
+//          eventObject.put("responseTime", event.getResponseTime().getMillis());
+//        }
+//
+//        boolean selfReport = event.getScheduledTime() == null;
+//        eventObject.put("isSelfReport", selfReport);
+//        if (!selfReport) {
+//          eventObject.put("scheduleTime", event.getScheduledTime().getMillis());
+//        }
+//
+//        JSONArray responses = new JSONArray();
+//        for (Output response : event.getResponses()) {
+//          JSONObject responseJson = new JSONObject();
+//          Input2 input = experiment.getInputByName(response.getName());
+//          if (input == null) {
+//            // just create the event based on all of the values in the datum
+//            responseJson.put("name", response.getName());
+//            responseJson.put("isMultiselect", false);
+//            responseJson.put("prompt", feedback.getTextOfInputForOutput(experiment.getExperimentDAO(), response));
+//            responseJson.put("answer", response.getAnswer());
+//            // deprecate answerOrder for answerRaw
+//            responseJson.put("answerOrder", response.getAnswer());
+//            responseJson.put("answerRaw", response.getAnswer());
+//            responses.put(responseJson);
+//          } else {
+//            responseJson.put("name", input.getName());
+//            responseJson.put("responseType", input.getResponseType());
+//            responseJson.put("isMultiselect", input.getMultiselect());
+//            responseJson.put("prompt", feedback.getTextOfInputForOutput(experiment, response));
+//            responseJson.put("answer", response.getDisplayOfAnswer(input));
+//            // deprecate answerOrder for answerRaw
+//            responseJson.put("answerOrder", response.getAnswer());
+//            responseJson.put("answerRaw", response.getAnswer());
+//            responses.put(responseJson);
+//          }
+//        }
+//
+//        eventObject.put("responses", responses);
+//        if (responses.length() > 0) {
+//          experimentData.put(eventObject);
+//        }
+//      } catch (JSONException jse) {
+//        // skip this event and do the next event.
+//      }
+//    }
+//    String experimentDataAsJson = experimentData.toString();
+//    return experimentDataAsJson;
   }
 
 
@@ -366,49 +392,19 @@ public class FeedbackActivity extends Activity {
     //finish();
   }
 
-  private Experiment getExperimentFromIntent() {
-    Uri uri = getIntent().getData();
-    if (uri == null) {
-      return null;
+  private void loadExperimentInfoFromIntent() {
+    Bundle extras = getIntent().getExtras();
+    if (extras == null) {
+      return;
     }
-    Experiment experiment = experimentProviderUtil.getExperiment(uri);
-    return experiment;
-  }
-
-  private void sendEmail(String body, String subject, String userEmail) {
-    userEmail = findAccount(userEmail);
-    Intent emailIntent = new Intent(android.content.Intent.ACTION_SEND);
-    String aEmailList[] = { userEmail};
-    emailIntent.putExtra(android.content.Intent.EXTRA_EMAIL, aEmailList);
-    emailIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, subject);
-    emailIntent.putExtra(android.content.Intent.EXTRA_TEXT, body);
-    emailIntent.setType("plain/text");
-
-    startActivity(emailIntent);
-  }
-
-  private String findAccount(String userEmail) {
-    String domainName = null;
-    if (userEmail.startsWith("@")) {
-      domainName = userEmail.substring(1);
-    }
-    Account[] accounts = AccountManager.get(this).getAccounts();
-    for (Account account : accounts) {
-      if (userEmail == null || userEmail.length() == 0) {
-        return account.name; // return first
-      }
-
-      if (domainName != null) {
-        int atIndex = account.name.indexOf('@');
-        if (atIndex != -1) {
-          String accountDomain = account.name.substring(atIndex + 1);
-          if (accountDomain.equals(domainName)) {
-            return account.name;
-          }
-        }
+    if (extras.containsKey(Experiment.EXPERIMENT_SERVER_ID_EXTRA_KEY)) {
+      long experimentServerId = extras.getLong(Experiment.EXPERIMENT_SERVER_ID_EXTRA_KEY);
+      experiment = experimentProviderUtil.getExperimentByServerId(experimentServerId);
+      if (experiment != null && extras.containsKey(Experiment.EXPERIMENT_GROUP_NAME_EXTRA_KEY)) {
+        String experimentGroupName = extras.getString(Experiment.EXPERIMENT_GROUP_NAME_EXTRA_KEY);
+          experimentGroup = experiment.getExperimentDAO().getGroupByName(experimentGroupName);
       }
     }
-    return "";
   }
 
   @Override
@@ -417,8 +413,18 @@ public class FeedbackActivity extends Activity {
     outState.putString("showDialog", showDialog+"");
  }
 
-  private boolean isOldDefaultFeedback(Feedback feedback) {
-    return FeedbackDAO.DEFAULT_FEEDBACK_MSG.equals(feedback.getText());
+  String getTextOfInputForOutput(ExperimentDAO experiment, Output output) {
+    for (Input2 input : ExperimentHelper.getInputs(experiment)) {
+      if (input.getName().equals(output.getName())) {
+        if (!input.isInvisible()) {
+          return input.getText();
+        } else {
+          return input.getResponseType();
+        }
+      }
+    }
+    return output.getName();
   }
+
 
 }

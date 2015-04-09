@@ -13,6 +13,15 @@ import android.os.IBinder;
 import android.os.PowerManager;
 import android.util.Log;
 
+import com.google.paco.shared.model2.ExperimentGroup;
+import com.google.paco.shared.model2.InterruptTrigger;
+import com.google.paco.shared.model2.PacoAction;
+import com.google.paco.shared.model2.PacoNotificationAction;
+import com.google.paco.shared.scheduling.ActionSpecification;
+import com.google.paco.shared.util.ExperimentHelper;
+import com.google.paco.shared.util.ExperimentHelper.Pair;
+import com.google.paco.shared.util.TimeUtil;
+
 public class BroadcastTriggerService extends Service {
 
   @Override
@@ -47,7 +56,7 @@ public class BroadcastTriggerService extends Service {
   }
 
   protected void propagateToExperimentsThatCare(Bundle extras) {
-    
+
     final int triggerEvent = extras.getInt(Experiment.TRIGGER_EVENT);
     final String sourceIdentifier = extras.getString(Experiment.TRIGGER_SOURCE_IDENTIFIER);
     final String timeStr = extras.getString(Experiment.TRIGGERED_TIME);
@@ -59,62 +68,79 @@ public class BroadcastTriggerService extends Service {
     if (timeStr != null) {
       time = DateTimeFormat.forPattern(TimeUtil.DATETIME_FORMAT).parseDateTime(timeStr);
     }
-    
+
     ExperimentProviderUtil eu = new ExperimentProviderUtil(this);
     DateTime now = new DateTime();
     NotificationCreator notificationCreator = NotificationCreator.create(this);
     List<Experiment> joined = eu.getJoinedExperiments();
-    
+
     for (Experiment experiment : joined) {
-      
-      // see if this experiment wants background logging for the current event
-      if (experiment.isRunning(now)
-          && experiment.isBackgroundListen()
-          && experiment.getBackgroundListenSourceIdentifier().equals(sourceIdentifier)) {
-        persistBroadcastData(eu, experiment, extras);
+      if (!experiment.isRunning(now)) {
+        continue;
       }
-      
-      // see if this experiment wants a notification given the current event
-      SignalingMechanism signalingMechanism = experiment.getSignalingMechanisms().get(0);
-      if (experiment.isRunning(now)
-          && experiment.shouldTriggerBy(triggerEvent, sourceIdentifier)
-          && !recentlyTriggered(experiment.getServerId(),
-                                signalingMechanism.getMinimumBuffer())) {
-        setRecentlyTriggered(now, experiment.getServerId());
-        notificationCreator.createNotificationsForTrigger(experiment, time, triggerEvent, sourceIdentifier);
+      List<ExperimentGroup> groupsListening = ExperimentHelper.isBackgroundListeningForSourceId(experiment.getExperimentDAO(), sourceIdentifier);
+      persistBroadcastData(eu, experiment, groupsListening, extras);
+
+      List<Pair<ExperimentGroup, InterruptTrigger>> triggersThatMatch = ExperimentHelper.shouldTriggerBy(experiment.getExperimentDAO(), triggerEvent, sourceIdentifier);
+      for (Pair<ExperimentGroup, InterruptTrigger> triggerInfo : triggersThatMatch) {
+        List<PacoAction> actions = triggerInfo.second.getActions();
+        for (PacoAction pacoAction : actions) {
+          if (pacoAction.getActionCode() == pacoAction.NOTIFICATION_TO_PARTICIPATE_ACTION_CODE) {
+            String uniqueStringForTrigger = createUniqueStringForTrigger(experiment, triggerInfo);
+            if (!recentlyTriggered(experiment, uniqueStringForTrigger, triggerInfo.second.getMinimumBuffer())) {
+              setRecentlyTriggered(now, uniqueStringForTrigger);
+              ActionSpecification timeExperiment = new ActionSpecification(time, experiment.getExperimentDAO(), triggerInfo.first, triggerInfo.second,  (PacoNotificationAction)pacoAction, (Long)null);
+              notificationCreator.createNotificationsForTrigger(experiment, triggerInfo, ((PacoNotificationAction)pacoAction).getDelay(), time, triggerEvent, sourceIdentifier, timeExperiment);
+            }
+          } else if (pacoAction.getActionCode() == PacoAction.EXECUTE_SCRIPT_ACTION_CODE) {
+            AndroidActionExecutor.runAction(getApplicationContext(), pacoAction, experiment, experiment.getExperimentDAO(), triggerInfo.first);
+          }
+        }
       }
+
     }
   }
 
-  private void setRecentlyTriggered(DateTime now, long experimentId) {
+  private void setRecentlyTriggered(DateTime now, String uniqueStringForTrigger) {
     UserPreferences prefs = new UserPreferences(getApplicationContext());
-    prefs.setRecentlyTriggeredTime(experimentId, now);
+    prefs.setRecentlyTriggeredTime(uniqueStringForTrigger, now);
 
   }
 
-  private boolean recentlyTriggered(long experimentId, Integer minimumBufferInMinutes) {
+  private boolean recentlyTriggered(Experiment experiment, String uniqueStringForTrigger, int minimumBuffer) {
     UserPreferences prefs = new UserPreferences(getApplicationContext());
-    DateTime recentlyTriggered = prefs.getRecentlyTriggeredTime(experimentId);
-    return recentlyTriggered != null && recentlyTriggered.plusMinutes(minimumBufferInMinutes).isAfterNow();
+    DateTime recentlyTriggered = prefs.getRecentlyTriggeredTime(uniqueStringForTrigger);
+    return recentlyTriggered != null && recentlyTriggered.plusMinutes(minimumBuffer).isAfterNow();
   }
-  
+
+  public String createUniqueStringForTrigger(Experiment experiment, Pair<ExperimentGroup, InterruptTrigger> pair) {
+    return experiment.getId() + ":"
+            + pair.first.getName() + ":"
+            + pair.second.getId();
+  }
+
   /*
    * create and persist event containing any payload data sent along in original PACO_INTENT broadcast
    */
-  private void persistBroadcastData(ExperimentProviderUtil eu, Experiment experiment, Bundle extras) {
-    Event event = ExperimentExecutor.createEvent(experiment, new DateTime().getMillis());
-    Bundle payload = extras.getBundle(BroadcastTriggerReceiver.PACO_ACTION_PAYLOAD);
-    for (String key : payload.keySet()) {
-      if (payload.get(key) == null) {
-        continue;
+  private void persistBroadcastData(ExperimentProviderUtil eu, Experiment experiment,
+                                    List<ExperimentGroup> groupsListening, Bundle extras) {
+    long nowMillis = new DateTime().getMillis();
+    for (ExperimentGroup experimentGroup : groupsListening) {
+
+      Event event = EventUtil.createEvent(experiment, experimentGroup.getName(), nowMillis, null, null, null);
+      Bundle payload = extras.getBundle(BroadcastTriggerReceiver.PACO_ACTION_PAYLOAD);
+      for (String key : payload.keySet()) {
+        if (payload.get(key) == null) {
+          continue;
+        }
+        Output output = new Output();
+        output.setEventId(event.getId());
+        output.setName(key);
+        output.setAnswer(payload.get(key).toString());
+        event.addResponse(output);
       }
-      Output output = new Output();
-      output.setEventId(event.getId());
-      output.setName(key);
-      output.setAnswer(payload.get(key).toString());
-      event.addResponse(output);
+      eu.insertEvent(event);
     }
-    eu.insertEvent(event);
     notifySyncService();
   }
 

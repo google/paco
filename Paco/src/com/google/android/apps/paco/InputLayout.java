@@ -64,13 +64,14 @@ import android.widget.Toast;
 
 import com.google.android.apps.paco.questioncondparser.ExpressionEvaluator;
 import com.google.common.base.Strings;
+import com.google.paco.shared.model2.Input2;
 import com.pacoapp.paco.R;
 
 public class InputLayout extends LinearLayout implements SpeechRecognitionListener {
   public static final int CAMERA_REQUEST_CODE = 10000001;
   // TODO Bob  refactor into separate classes because not every input can receive text from speech recognition
 
-  private Input input;
+  private Input2 input;
   private View componentWithValue;
   private List<ChangeListener> inputChangeListeners;
   private TextView promptTextView;
@@ -90,15 +91,15 @@ public class InputLayout extends LinearLayout implements SpeechRecognitionListen
   private ImageView photoView;
   private static int code = 1200;
 
-  public InputLayout(ExperimentExecutor context, Input input) {
+  public InputLayout(ExperimentExecutor context, Input2 input2) {
     super(context);
-    this.input = input;
+    this.input = input2;
     setOrientation(LinearLayout.VERTICAL);
     promptTextView = getInputTextView();
     addView(promptTextView);
-    componentWithValue = getInputResponseTypeView(input);
+    componentWithValue = getInputResponseTypeView(input2);
     inputChangeListeners = new ArrayList<ChangeListener>();
-    setVisible(input.getConditional() == null || !input.getConditional());
+    setVisible(input2.getConditional() == null || !input2.getConditional());
   }
 
   public View getComponentWithValue() {
@@ -168,19 +169,19 @@ public class InputLayout extends LinearLayout implements SpeechRecognitionListen
     if (!isVisible()) {
       return null;
     }
-    if (input.getResponseType().equals(Input.LIKERT_SMILEYS)) {
+    if (input.getResponseType().equals(Input2.LIKERT_SMILEYS)) {
       return getGeistNowLikertValue();
-    } else if (input.getResponseType().equals(Input.OPEN_TEXT)) {
+    } else if (input.getResponseType().equals(Input2.OPEN_TEXT)) {
       return getOpenTextValue();
-    } else if (input.getResponseType().equals(Input.LIKERT)) {
+    } else if (input.getResponseType().equals(Input2.LIKERT)) {
       return getLikertValue();
-    } else if (input.getResponseType().equals(Input.LIST)) {
+    } else if (input.getResponseType().equals(Input2.LIST)) {
       return getListValue();
-    } else if (input.getResponseType().equals(Input.LOCATION)) {
+    } else if (input.getResponseType().equals(Input2.LOCATION)) {
       return getLocationValue();
-    } else if (input.getResponseType().equals(Input.NUMBER)) {
+    } else if (input.getResponseType().equals(Input2.NUMBER)) {
       return getNumberValue();
-    } else if (input.getResponseType().equals(Input.PHOTO)) {
+    } else if (input.getResponseType().equals(Input2.PHOTO)) {
       return getPhotoValue();
     }
     return null;
@@ -190,19 +191,19 @@ public class InputLayout extends LinearLayout implements SpeechRecognitionListen
     if (!isVisible()) {
       return null;
     }
-    if (input.getResponseType().equals(Input.LIKERT_SMILEYS)) {
+    if (input.getResponseType().equals(Input2.LIKERT_SMILEYS)) {
       return intToString(getGeistNowLikertValue());
-    } else if (input.getResponseType().equals(Input.OPEN_TEXT)) {
+    } else if (input.getResponseType().equals(Input2.OPEN_TEXT)) {
       return getOpenTextValue();
-    } else if (input.getResponseType().equals(Input.LIKERT)) {
+    } else if (input.getResponseType().equals(Input2.LIKERT)) {
       return intToString(getLikertValue());
-    } else if (input.getResponseType().equals(Input.LIST)) {
+    } else if (input.getResponseType().equals(Input2.LIST)) {
       return getListValueAsString();
-    } else if (input.getResponseType().equals(Input.LOCATION)) {
+    } else if (input.getResponseType().equals(Input2.LOCATION)) {
       return getLocationValue();
-    } else if (input.getResponseType().equals(Input.NUMBER)) {
+    } else if (input.getResponseType().equals(Input2.NUMBER)) {
       return intToString(getNumberValue());
-    } else if (input.getResponseType().equals(Input.PHOTO)) {
+    } else if (input.getResponseType().equals(Input2.PHOTO)) {
       return getPhotoValue();
     }
     return null;
@@ -216,7 +217,7 @@ public class InputLayout extends LinearLayout implements SpeechRecognitionListen
   }
 
   private String getListValueAsString() {
-    if (!input.isMultiselect()) {
+    if (!input.getMultiselect()) {
       if (!listHasBeenSelected) {
         return null;
       }
@@ -226,23 +227,23 @@ public class InputLayout extends LinearLayout implements SpeechRecognitionListen
   }
 
   public Class getResponseType() {
-    if (input.getResponseType().equals(Input.LIKERT_SMILEYS)) {
+    if (input.getResponseType().equals(Input2.LIKERT_SMILEYS)) {
       return Integer.class;
-    } else if (input.getResponseType().equals(Input.OPEN_TEXT)) {
+    } else if (input.getResponseType().equals(Input2.OPEN_TEXT)) {
       return String.class;
-    } else if (input.getResponseType().equals(Input.LIKERT)) {
+    } else if (input.getResponseType().equals(Input2.LIKERT)) {
       return Integer.class;
-    } else if (input.getResponseType().equals(Input.LIST)) {
+    } else if (input.getResponseType().equals(Input2.LIST)) {
         return List.class;
-    } else if (input.getResponseType().equals(Input.NUMBER)) {
+    } else if (input.getResponseType().equals(Input2.NUMBER)) {
       return Integer.class;
-    } else if (input.getResponseType().equals(Input.LOCATION)) {
+    } else if (input.getResponseType().equals(Input2.LOCATION)) {
       return String.class;// GeoPoint.class;
-    } else if (input.getResponseType().equals(Input.ACTIVITY)) {
+    } else if (input.getResponseType().equals(Input2.ACTIVITY)) {
       return String.class;
-    } else if (input.getResponseType().equals(Input.PHOTO)) {
+    } else if (input.getResponseType().equals(Input2.PHOTO)) {
       return Bitmap.class;
-    } else if (input.getResponseType().equals(Input.SOUND)) {
+    } else if (input.getResponseType().equals(Input2.SOUND)) {
       return SoundPool.class; // TODO (bobevans): is this really a good idea as
                               // the storage type? probably not.
     }
@@ -370,7 +371,7 @@ public class InputLayout extends LinearLayout implements SpeechRecognitionListen
   }
 
   private List<Integer> getListValue() {
-    if (!input.isMultiselect()) {
+    if (!input.getMultiselect()) {
       ArrayList<Integer> list = new ArrayList<Integer>();
       list.add(((Spinner) componentWithValue).getSelectedItemPosition());
       return list;
@@ -417,31 +418,31 @@ public class InputLayout extends LinearLayout implements SpeechRecognitionListen
     return null;
   }
 
-  public Input getInput() {
+  public Input2 getInput() {
     return input;
   }
 
-  private View getInputResponseTypeView(Input input) {
-    String questionType = input.getResponseType();
-    if (questionType.equals(Input.LIKERT_SMILEYS)) {
-      return renderGeistNowSmilerLikert(input.getLikertSteps());
-    } else if (questionType.equals(Input.OPEN_TEXT)) {
+  private View getInputResponseTypeView(Input2 input2) {
+    String questionType = input2.getResponseType();
+    if (questionType.equals(Input2.LIKERT_SMILEYS)) {
+      return renderGeistNowSmilerLikert(input2.getLikertSteps());
+    } else if (questionType.equals(Input2.OPEN_TEXT)) {
       return renderOpenText();
-    } else if (questionType.equals(Input.LIKERT)) {
-      return renderLikert(input);
-    } else if (questionType.equals(Input.LIST)) {
-      return renderList(input);
-    } else if (questionType.equals(Input.LOCATION)) {
-      return renderLocation(input);
-    } else if (questionType.equals(Input.NUMBER)) {
-      return renderNumber(input);
-    } else if (questionType.equals(Input.PHOTO)) {
-      return renderPhotoButton(input);
+    } else if (questionType.equals(Input2.LIKERT)) {
+      return renderLikert(input2);
+    } else if (questionType.equals(Input2.LIST)) {
+      return renderList(input2);
+    } else if (questionType.equals(Input2.LOCATION)) {
+      return renderLocation(input2);
+    } else if (questionType.equals(Input2.NUMBER)) {
+      return renderNumber(input2);
+    } else if (questionType.equals(Input2.PHOTO)) {
+      return renderPhotoButton(input2);
     }
     return null;
   }
 
-  private View renderPhotoButton(Input input2) {
+  private View renderPhotoButton(Input2 input2) {
     View photoInputView = ((LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(
         R.layout.photo_input, this, true);
     Button cameraButton = (Button) findViewById(R.id.CameraButton);
@@ -566,7 +567,7 @@ public class InputLayout extends LinearLayout implements SpeechRecognitionListen
   // Maybe data has a thumbnail that we can show in a popup.
   // }
 
-  private View renderNumber(Input input2) {
+  private View renderNumber(Input2 input2) {
     View numberPickerView = ((LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(
         R.layout.number_picker, this, true);
     final EditText numberText = (EditText) findViewById(R.id.timepicker_input);
@@ -607,7 +608,7 @@ public class InputLayout extends LinearLayout implements SpeechRecognitionListen
     return numberText;
   }
 
-  private View renderLocation(Input input2) {
+  private View renderLocation(Input2 input2) {
     View locationTextView = ((LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(
         R.layout.location_text, this, true);
     final TextView findViewById = (TextView) findViewById(R.id.location_display);
@@ -629,8 +630,8 @@ public class InputLayout extends LinearLayout implements SpeechRecognitionListen
     return findViewById;
   }
 
-  private View renderList(Input input2) {
-    if (input2.isMultiselect()) {
+  private View renderList(Input2 input2) {
+    if (input2.getMultiselect()) {
       return renderMultiSelectListButton();
     }
     return renderSingleSelectList();
@@ -670,14 +671,13 @@ public class InputLayout extends LinearLayout implements SpeechRecognitionListen
     AlertDialog.Builder builder = new AlertDialog.Builder(this.getContext());
     builder.setTitle(R.string.make_selections);
 
-    boolean[] checkedChoicesBoolArray = new boolean[input.getListChoices().size()];
-    int count = input.getListChoices().size();
+    boolean[] checkedChoicesBoolArray = new boolean[input.getListChoices().length];
+    int count = input.getListChoices().length;
 
     for (int i = 0; i < count; i++) {
-      checkedChoicesBoolArray[i] = checkedChoices.contains(input.getListChoices().get(i));
+      checkedChoicesBoolArray[i] = checkedChoices.contains(input.getListChoices()[i]);
     }
-    String[] listChoices = new String[input.getListChoices().size()];
-    input.getListChoices().toArray(listChoices);
+    String[] listChoices = input.getListChoices();
     builder.setMultiChoiceItems(listChoices, checkedChoicesBoolArray, multiselectListDialogListener);
     builder.setPositiveButton(R.string.done_button, new Dialog.OnClickListener() {
 
@@ -748,7 +748,7 @@ public class InputLayout extends LinearLayout implements SpeechRecognitionListen
     return findViewById;
   }
 
-  private View renderLikert(Input input2) {
+  private View renderLikert(Input2 input2) {
     Integer steps = input2.getLikertSteps();
     if (steps == null) {
       steps = 5;

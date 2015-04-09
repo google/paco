@@ -27,21 +27,21 @@ import java.util.Map;
 
 import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.map.JsonMappingException;
-import org.joda.time.DateTime;
 
 import android.app.ProgressDialog;
-import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
-import android.net.Uri;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.ActionBarActivity;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
@@ -61,11 +61,11 @@ import com.pacoapp.paco.R;
 /**
  *
  */
-public class FindExperimentsActivity extends FragmentActivity implements NetworkActivityLauncher {
+public class FindExperimentsActivity extends ActionBarActivity implements NetworkActivityLauncher {
 
   static final int REFRESHING_EXPERIMENTS_DIALOG_ID = 1001;
   static final int JOIN_REQUEST_CODE = 1;
-  static final int JOINED_EXPERIMENT = 1;
+  public static final int JOINED_EXPERIMENT = 1;
   static final Integer DOWNLOAD_LIMIT = 20;
 
   private ExperimentProviderUtil experimentProviderUtil;
@@ -87,16 +87,20 @@ public class FindExperimentsActivity extends FragmentActivity implements Network
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     mainLayout = (ViewGroup) getLayoutInflater().inflate(R.layout.find_experiments, null);
+    getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+    ActionBar actionBar = getSupportActionBar();
+    actionBar.setLogo(R.drawable.ic_launcher);
+    actionBar.setDisplayUseLogoEnabled(true);
+    actionBar.setDisplayShowHomeEnabled(true);
+    actionBar.setBackgroundDrawable(new ColorDrawable(0xff4A53B3));
+
     setContentView(mainLayout);
     Intent intent = getIntent();
-    if (intent.getData() == null) {
-      intent.setData(ExperimentColumns.CONTENT_URI);
-    }
 
     userPrefs = new UserPreferences(this);
     list = (ListView) findViewById(R.id.find_experiments_list);
-    createListHeader();
-    createRefreshHeader();
+//    createListHeader();
+//    createRefreshHeader();
 
     experimentProviderUtil = new ExperimentProviderUtil(this);
 
@@ -122,22 +126,36 @@ public class FindExperimentsActivity extends FragmentActivity implements Network
 
       public void onItemClick(AdapterView<?> listview, View textview, int position, long id) {
         Experiment experiment = experiments.get(position);
-        Uri uri = ContentUris.withAppendedId(getIntent().getData(), experiment.getServerId());
+        getIntent().putExtra(Experiment.EXPERIMENT_SERVER_ID_EXTRA_KEY, experiment.getServerId());
 
         String action = getIntent().getAction();
         if (Intent.ACTION_PICK.equals(action) || Intent.ACTION_GET_CONTENT.equals(action)) {
           // The caller is waiting for us to return an experiment selected by
           // the user. The have clicked on one, so return it now.
-          setResult(RESULT_OK, new Intent().setData(uri));
+          Intent resultIntent = new Intent();
+          resultIntent.putExtra(Experiment.EXPERIMENT_SERVER_ID_EXTRA_KEY, experiment.getServerId());
+          setResult(RESULT_OK, resultIntent);
         } else {
           Intent experimentIntent = new Intent(FindExperimentsActivity.this, ExperimentDetailActivity.class);
-          experimentIntent.setData(uri);
+          experimentIntent.putExtra(Experiment.EXPERIMENT_SERVER_ID_EXTRA_KEY, experiment.getServerId());
+          experimentIntent.putExtra(ExperimentDetailActivity.ID_FROM_MY_EXPERIMENTS_FILE, true);
           startActivityForResult(experimentIntent, JOIN_REQUEST_CODE);
         }
       }
     });
     registerForContextMenu(list);
   }
+
+  @Override
+  public boolean onOptionsItemSelected(MenuItem item) {
+      int id = item.getItemId();
+      if (id == android.R.id.home) {
+        finish();
+        return true;
+      }
+      return super.onOptionsItemSelected(item);
+  }
+
 
   private boolean isConnected() {
     return NetworkUtil.isConnected(this);
@@ -176,26 +194,26 @@ public class FindExperimentsActivity extends FragmentActivity implements Network
     return listHeader;
   }
 
-  private TextView createRefreshHeader() {
-    TextView listHeader = (TextView)findViewById(R.id.ExperimentRefreshTitle);
-    DateTime lastRefresh = userPrefs.getAvailableExperimentListRefreshTime();
-    if (lastRefresh == null) {
-      listHeader.setVisibility(View.GONE);
-    } else {
-      String lastRefreshTime = TimeUtil.dateTimeNoZoneFormatter.print(lastRefresh);
-      String header = getString(R.string.last_refreshed) + ": " + lastRefreshTime;
-      listHeader.setText(header);
-      listHeader.setTextSize(15);
-    }
-    return listHeader;
-  }
+//  private TextView createRefreshHeader() {
+//    TextView listHeader = (TextView)findViewById(R.id.ExperimentRefreshTitle);
+//    DateTime lastRefresh = userPrefs.getAvailableExperimentListRefreshTime();
+//    if (lastRefresh == null) {
+//      listHeader.setVisibility(View.GONE);
+//    } else {
+//      String lastRefreshTime = TimeUtil.dateTimeNoZoneFormatter.print(lastRefresh);
+//      String header = getString(R.string.last_refreshed) + ": " + lastRefreshTime;
+//      listHeader.setText(header);
+//      listHeader.setTextSize(15);
+//    }
+//    return listHeader;
+//  }
 
   private void saveRefreshTime() {
     userPrefs.setAvailableExperimentListRefreshTime(new Date().getTime());
-    TextView listHeader = (TextView)findViewById(R.id.ExperimentRefreshTitle);
-    DateTime lastRefresh = userPrefs.getAvailableExperimentListRefreshTime();
-    String header = getString(R.string.last_refreshed) + ": " + TimeUtil.dateTimeNoZoneFormatter.print(lastRefresh);
-    listHeader.setText(header);
+//    TextView listHeader = (TextView)findViewById(R.id.ExperimentRefreshTitle);
+//    DateTime lastRefresh = userPrefs.getAvailableExperimentListRefreshTime();
+//    String header = getString(R.string.last_refreshed) + ": " + TimeUtil.dateTimeNoZoneFormatter.print(lastRefresh);
+//    listHeader.setText(header);
   }
 
   public void showNetworkConnectionActivity() {
@@ -248,7 +266,7 @@ public class FindExperimentsActivity extends FragmentActivity implements Network
   // Visible for testing
   public void updateDownloadedExperiments(String contentAsString) {
     try {
-      Map<String, Object> results = ExperimentProviderUtil.fromEntitiesJson(contentAsString);
+      Map<String, Object> results = ExperimentProviderUtil.fromDownloadedEntitiesJson(contentAsString);
       String newExperimentCursor = (String) results.get("cursor");
       List<Experiment> newExperiments = (List<Experiment>) results.get("results");
 
@@ -258,7 +276,7 @@ public class FindExperimentsActivity extends FragmentActivity implements Network
 
           @Override
           public int compare(Experiment lhs, Experiment rhs) {
-            return lhs.getTitle().toLowerCase().compareTo(rhs.getTitle().toLowerCase());
+            return lhs.getExperimentDAO().getTitle().toLowerCase().compareTo(rhs.getExperimentDAO().getTitle().toLowerCase());
           }
 
         });
@@ -277,7 +295,7 @@ public class FindExperimentsActivity extends FragmentActivity implements Network
 
           @Override
           public int compare(Experiment lhs, Experiment rhs) {
-            return lhs.getTitle().toLowerCase().compareTo(rhs.getTitle().toLowerCase());
+            return lhs.getExperimentDAO().getTitle().toLowerCase().compareTo(rhs.getExperimentDAO().getTitle().toLowerCase());
           }
 
         });
@@ -381,11 +399,11 @@ public class FindExperimentsActivity extends FragmentActivity implements Network
         TextView creator = (TextView) view.findViewById(R.id.experimentListRowCreator);
 
         if (title != null) {
-            title.setText(experiment.getTitle());
+            title.setText(experiment.getExperimentDAO().getTitle());
         }
 
         if (creator != null){
-            creator.setText(experiment.getCreator());
+            creator.setText(experiment.getExperimentDAO().getCreator());
         } else {
             creator.setText(getContext().getString(R.string.unknown_author_text));
         }

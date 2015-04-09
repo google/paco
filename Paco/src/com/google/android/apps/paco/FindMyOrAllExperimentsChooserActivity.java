@@ -1,18 +1,28 @@
 package com.google.android.apps.paco;
 
-import android.app.Activity;
 import android.content.Intent;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.ActionBarActivity;
+import android.view.MenuItem;
 import android.view.View;
 
 import com.pacoapp.paco.R;
 
-public class FindMyOrAllExperimentsChooserActivity extends Activity {
+public class FindMyOrAllExperimentsChooserActivity extends ActionBarActivity {
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_find_my_or_all_experiments_chooser);
+
+    ActionBar actionBar = getSupportActionBar();
+    actionBar.setLogo(R.drawable.ic_launcher);
+    actionBar.setDisplayUseLogoEnabled(true);
+    actionBar.setDisplayShowHomeEnabled(true);
+    actionBar.setDisplayHomeAsUpEnabled(true);
+    actionBar.setBackgroundDrawable(new ColorDrawable(0xff4A53B3));
   }
 
 
@@ -24,6 +34,16 @@ public class FindMyOrAllExperimentsChooserActivity extends Activity {
   public void allExperimentsButtonClicked(View v) {
     Intent intent = new Intent(this, FindExperimentsActivity.class);
     startActivityForResult(intent, FindExperimentsActivity.JOIN_REQUEST_CODE);
+  }
+
+  @Override
+  public boolean onOptionsItemSelected(MenuItem item) {
+      int id = item.getItemId();
+      if (id == android.R.id.home) {
+        finish();
+        return true;
+      }
+      return super.onOptionsItemSelected(item);
   }
 
   @Override

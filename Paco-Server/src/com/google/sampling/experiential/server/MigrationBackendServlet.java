@@ -19,29 +19,19 @@ package com.google.sampling.experiential.server;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
-import java.util.List;
 import java.util.logging.Logger;
 
-import javax.jdo.PersistenceManager;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.codec.digest.DigestUtils;
-import org.joda.time.Duration;
 
 import com.google.appengine.api.ThreadManager;
 import com.google.appengine.api.users.User;
 import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
-import com.google.common.collect.Lists;
-import com.google.paco.shared.model.FeedbackDAO;
-import com.google.paco.shared.model.SignalScheduleDAO;
-import com.google.paco.shared.model.SignalTimeDAO;
-import com.google.sampling.experiential.model.Experiment;
-import com.google.sampling.experiential.model.SignalSchedule;
-import com.google.sampling.experiential.model.SignalTime;
 
 /**
  * Servlet that handles migration tasks for data
@@ -55,72 +45,16 @@ public class MigrationBackendServlet extends HttpServlet {
 
 
   private void doMigrations() {
-    migration95();
+    migration96();
   }
 
-  private void migration95() {
-    setFeedbackTypeOnExperiments();
-    convertScheduleTimeLongsToSignalTimeObjects();
-  }
-
-  private void convertScheduleTimeLongsToSignalTimeObjects() {
-    long t1 = System.currentTimeMillis();
-    log.info("Starting convertScheduleTimes from Long to SignalTime objects");
-    PersistenceManager pm = null;
-    try {
-      pm = PMF.get().getPersistenceManager();
-      javax.jdo.Query newQuery = pm.newQuery(Experiment.class);
-      List<Experiment> updatedExperiments = Lists.newArrayList();
-      List<Experiment> experiments = (List<Experiment>)newQuery.execute();
-      for (Experiment experiment : experiments) {
-        SignalSchedule schedule = experiment.getSchedule();
-        if (schedule != null && schedule.getSignalTimes().isEmpty()) {
-          if (schedule.getScheduleType() != SignalScheduleDAO.SELF_REPORT &&
-                  schedule.getScheduleType() != SignalScheduleDAO.ESM ) {
-            log.info("Converting for experiment: " + experiment.getTitle());
-            List<SignalTime> signalTimes = Lists.newArrayList();
-            List<Long> times = schedule.getTimes();
-            for (Long long1 : times) {
-              signalTimes.add(new SignalTime(null, SignalTimeDAO.FIXED_TIME,
-                                             SignalTimeDAO.OFFSET_BASIS_SCHEDULED_TIME,
-                                             (int)long1.longValue(),
-                                             SignalTimeDAO.MISSED_BEHAVIOR_USE_SCHEDULED_TIME,
-                                             0, ""));
-            }
-            schedule.setSignalTimes(signalTimes);
-            experiment.setSchedule(schedule);
-            updatedExperiments.add(experiment);
-          }
-        }
-      }
-      pm.makePersistentAll(updatedExperiments);
-    } finally  {
-      pm.close();
-    }
-    long t2 = System.currentTimeMillis();
-    long seconds = new Duration(t1, t2).getStandardSeconds();
-    log.info("Done converting signal times. " + seconds + "seconds to complete");
-  }
-
-  private void setFeedbackTypeOnExperiments() {
-    PersistenceManager pm = null;
-    try {
-      pm = PMF.get().getPersistenceManager();
-      javax.jdo.Query newQuery = pm.newQuery(Experiment.class);
-      List<Experiment> experiments = (List<Experiment>)newQuery.execute();
-      for (Experiment experiment : experiments) {
-        if (experiment.getFeedbackType() == null) {
-          if (FeedbackDAO.DEFAULT_FEEDBACK_MSG.equals(experiment.getFeedback().get(0).getLongText())) {
-            experiment.setFeedbackType(FeedbackDAO.FEEDBACK_TYPE_RETROSPECTIVE);
-          } else {
-            experiment.setFeedbackType(FeedbackDAO.FEEDBACK_TYPE_CUSTOM);
-          }
-        }
-      }
-      pm.makePersistentAll(experiments);
-    } finally  {
-      pm.close();
-    }
+  private void migration96() {
+    // read experiments
+    // create json from experiments
+    // store json experiments in new experiment_lt table as Entities
+    // Experiment, title, creator, start, end, admin list, published list?, blob
+    // test that we can read those experiments and that they are equal to the existing experiments
+    // repair all versions to make jdoExperiemntId be the new experiment_entity id.
 
   }
 

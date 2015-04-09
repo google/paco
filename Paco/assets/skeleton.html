@@ -18,7 +18,7 @@
  	  
  	  function getData() {
         var jsondata = window.env.getValue("lastResponse");
-        var experimentData = $.parseJSON(jsondata);
+        var experimentData = $.parseJSON(jsondata); 
         if (!experimentData) {
           // hack for samsung tmobile phones
           experimentData = eval('(' + jsondata + ')');
@@ -98,11 +98,12 @@
       var additionsDivID = document.getElementById("additionsdiv");         
       var newScript = document.createElement('script');
       newScript.type = 'text/javascript';
-      newScript.innerHTML = scriptBody(window.additions.substring(0));
+
+      newScript.innerHTML = scriptBody(window.env.getValue("additions"));
       additionsDivID.appendChild(newScript);
         
       var newSpan = document.createElement('span');
-      newSpan.innerHTML = htmlBody(window.additions);
+      newSpan.innerHTML = htmlBody(window.env.getValue("additions"));
       additionsDivID.appendChild(newSpan);
 
       

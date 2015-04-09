@@ -40,7 +40,6 @@ import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.map.annotate.JsonSerialize.Inclusion;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 
@@ -48,6 +47,7 @@ import com.google.appengine.api.modules.ModulesService;
 import com.google.appengine.api.modules.ModulesServiceFactory;
 import com.google.appengine.api.users.User;
 import com.google.common.collect.Lists;
+import com.google.paco.shared.model2.JsonConverter;
 import com.google.sampling.experiential.model.Event;
 import com.google.sampling.experiential.shared.EventDAO;
 
@@ -119,8 +119,8 @@ public class EventServlet extends HttpServlet {
   }
 
   private String jsonifyEvents(List<Event> events, boolean anon, String timezoneId) {
-    ObjectMapper mapper = new ObjectMapper();
-    mapper.getSerializationConfig().setSerializationInclusion(Inclusion.NON_NULL);
+    ObjectMapper mapper = JsonConverter.getObjectMapper();
+
     try {
       List<EventDAO> eventDAOs = Lists.newArrayList();
       for (Event event : events) {
@@ -139,12 +139,24 @@ public class EventServlet extends HttpServlet {
           scheduledTime = scheduledDateTime.toDate();
         }
 
-        eventDAOs.add(new EventDAO(userId, event.getWhen(), event.getExperimentName(), event.getLat(), event.getLon(),
-                                   event.getAppId(), event.getPacoVersion(), event.getWhatMap(), event.isShared(),
+        eventDAOs.add(new EventDAO(userId,
+                                   event.getWhen(),
+                                   event.getExperimentName(),
+                                   event.getLat(), event.getLon(),
+                                   event.getAppId(),
+                                   event.getPacoVersion(),
+                                   event.getWhatMap(),
+                                   event.isShared(),
                                    responseTime,
                                    scheduledTime,
-                                   null, Long.parseLong(event.getExperimentId()),
-                                   event.getExperimentVersion(), event.getTimeZone()));
+                                   null,
+                                   Long.parseLong(event.getExperimentId()),
+                                   event.getExperimentVersion(),
+                                   event.getTimeZone(),
+                                   event.getExperimentGroupName(),
+                                   event.getActionTriggerId(),
+                                   event.getActionTriggerSpecId(),
+                                   event.getActionId()));
       }
       return mapper.writeValueAsString(eventDAOs);
     } catch (JsonGenerationException e) {
@@ -337,7 +349,7 @@ public class EventServlet extends HttpServlet {
     String appIdHeader = req.getHeader("http.useragent");
     String pacoVersion = req.getHeader("paco.version");
     log.info("Paco version = " + pacoVersion);
-    String results = EventJsonUploadProcessor.create().processJsonEvents(postBodyString, AuthUtil.getWhoFromLogin().getEmail().toLowerCase(), appIdHeader, pacoVersion);
+    String results = EventJsonUploadProcessor.create().processJsonEvents(postBodyString, AuthUtil.getEmailOfUser(req, AuthUtil.getWhoFromLogin()), appIdHeader, pacoVersion);
     resp.setContentType("application/json;charset=UTF-8");
     resp.getWriter().write(results);
   }

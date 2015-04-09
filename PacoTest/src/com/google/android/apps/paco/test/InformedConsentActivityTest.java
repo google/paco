@@ -7,11 +7,9 @@ import org.codehaus.jackson.map.JsonMappingException;
 
 import android.content.Context;
 import android.content.Intent;
-import android.net.Uri;
 import android.test.ActivityUnitTestCase;
 
 import com.google.android.apps.paco.Experiment;
-import com.google.android.apps.paco.ExperimentColumns;
 import com.google.android.apps.paco.ExperimentProviderUtil;
 import com.google.android.apps.paco.InformedConsentActivity;
 
@@ -49,7 +47,6 @@ public class InformedConsentActivityTest extends ActivityUnitTestCase<InformedCo
 
     simulateDownloadingAndSavingExperiment(experiment);
 
-    checkExperimentUriProperlyUpdated();
     Experiment savedExperiment = experimentProviderUtil.getExperiment(experiment.getId());
     checkExperimentProperlyJoined(savedExperiment);
 
@@ -76,19 +73,13 @@ public class InformedConsentActivityTest extends ActivityUnitTestCase<InformedCo
       return null;
     }
   }
-  
+
   private void configureActivityForTesting(Experiment experiment) {
     activity.setActivityProperties(experiment, experimentProviderUtil);
   }
 
   private void simulateDownloadingAndSavingExperiment(Experiment experiment) {
     activity.saveDownloadedExperimentBeforeScheduling(experiment);
-  }
-  
-  private void checkExperimentUriProperlyUpdated() {
-    Uri uri = activity.getExperimentUri();
-    assertTrue(uri.getPathSegments().get(0)
-    .equals(ExperimentColumns.JOINED_EXPERIMENTS_CONTENT_URI.getPathSegments().get(0)));
   }
 
   private void checkExperimentProperlyJoined(Experiment savedExperiment) {

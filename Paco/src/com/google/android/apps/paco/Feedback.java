@@ -66,18 +66,6 @@ public class Feedback {
   }
 
 
-  String getTextOfInputForOutput(Experiment experiment, Output output) {
-    for (Input input : experiment.getInputs()) {
-      if (input.getServerId().equals(output.getInputServerId())) {
-        if (!input.isInvisible()) {
-          return input.getText();
-        } else {
-          return input.getResponseType();
-        }
-      }
-    }
-    return output.getName();
-  }
 
 
 

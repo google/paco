@@ -19,6 +19,8 @@ package com.google.android.apps.paco;
 import org.joda.time.DateTime;
 import org.joda.time.Minutes;
 
+import com.google.paco.shared.scheduling.ActionSpecification;
+
 
 public class NotificationHolder  {
 
@@ -31,22 +33,39 @@ public class NotificationHolder  {
   /** The source of this experiment, e.g., one of the signal groups (currently only one) or a custom notification created by api **/
   private String notificationSource = DEFAULT_SIGNAL_GROUP;
   private String message;
+  private Integer snoozeTime;
+  private Integer snoozeCount;
+
+  private String experimentGroupName;
+  private Long actionTriggerId;
+  private Long actionId;
+  private Long actionTriggerSpecId;
+
   public static final String CUSTOM_GENERATED_NOTIFICATION = "customGenerated";
 
 
   public NotificationHolder(Long alarmTime, Long experimentId,
-      Integer noticeCount, Long timeoutMillis, String notificationSource, String message) {
+      Integer noticeCount, Long timeoutMillis, String experimentGroupName,
+      Long actionTriggerId, Long actionId,
+      String notificationSource, String message,
+      Long actionTriggerSpecId) {
     super();
     this.alarmTime = alarmTime;
     this.experimentId = experimentId;
     this.noticeCount = noticeCount;
     this.timeoutMillis = timeoutMillis;
+    this.experimentGroupName = experimentGroupName;
+    this.actionTriggerId = actionTriggerId;
+    this.actionId = actionId;
+    this.actionTriggerSpecId = actionTriggerSpecId;
     this.notificationSource = notificationSource;
     this.message = message;
   }
 
+
   public NotificationHolder() {
   }
+
 
   public Long getAlarmTime() {
     return alarmTime;
@@ -109,7 +128,67 @@ public class NotificationHolder  {
   }
 
   public boolean isCustomNotification() {
-    return this.notificationSource.equals(NotificationHolder.CUSTOM_GENERATED_NOTIFICATION);
+    return this.notificationSource != null && this.notificationSource.equals(NotificationHolder.CUSTOM_GENERATED_NOTIFICATION);
   }
+
+  public Integer getSnoozeTime() {
+    return snoozeTime;
+  }
+
+  public void setSnoozeTime(Integer st) {
+    this.snoozeTime = st;
+  }
+
+  public Integer getSnoozeCount() {
+    return snoozeCount;
+  }
+
+  public void setSnoozeCount(Integer sc) {
+    this.snoozeCount = sc;
+  }
+
+  public String getExperimentGroupName() {
+    return experimentGroupName;
+  }
+
+  public void setExperimentGroupName(String experimentGroupName) {
+    this.experimentGroupName = experimentGroupName;
+  }
+
+  public Long getActionTriggerId() {
+    return actionTriggerId;
+  }
+
+  public void setActionTriggerId(Long actionTriggerId) {
+    this.actionTriggerId = actionTriggerId;
+  }
+
+  public Long getActionId() {
+    return actionId;
+  }
+
+  public void setActionId(Long actionId) {
+    this.actionId = actionId;
+  }
+
+  public boolean matches(ActionSpecification timeExperiment) {
+    return this.experimentId.equals(timeExperiment.experiment.getId()) &&
+            this.experimentGroupName.equals(timeExperiment.experimentGroup.getName()) &&
+            this.actionTriggerId.equals(timeExperiment.actionTrigger.getId()) &&
+            this.actionTriggerSpecId.equals(timeExperiment.actionTriggerSpecId) &&
+            this.actionId.equals(timeExperiment.action.getId());
+
+  }
+
+  public Long getActionTriggerSpecId() {
+    return this.actionTriggerSpecId;
+  }
+
+
+  public void setActionTriggerSpecId(long long1) {
+    this.actionTriggerSpecId = long1;
+
+  }
+
 
 }

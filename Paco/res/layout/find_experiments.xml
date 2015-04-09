@@ -23,48 +23,29 @@
     android:orientation="vertical" >
 
     <LinearLayout
-    android:layout_width="fill_parent"
-    android:layout_height="0dip"
-    android:layout_gravity="center|top"
-    android:gravity="center|top"
-    android:layout_weight="1"
-    
-    android:orientation="vertical" >
-        <TextView
-            android:id="@+id/ExperimentListTitle"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center|top"
-            android:background="@drawable/list_header_background"
-            android:gravity="center|top"
-            android:text="@string/your_current_experiments"
-            android:textColor="#ffffff" />
-        
-        <TextView
-            android:id="@+id/ExperimentRefreshTitle"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center|top"
-            android:background="@drawable/list_header_background"
-            android:gravity="center|top"
-            android:text="@string/last_refreshed"
-            android:textColor="#ffffff" />
-        
-                <ProgressBar
-            android:indeterminate="true"
+        android:layout_width="fill_parent"
+        android:layout_height="0dip"
+        android:layout_gravity="center|top"
+        android:layout_weight="1"
+        android:gravity="center|top"
+        android:orientation="vertical" >
+
+        <ProgressBar
             android:id="@+id/findExperimentsProgressBar"
             style="@android:style/Widget.ProgressBar.Horizontal"
-            android:layout_height="wrap_content" 
             android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
             android:gravity="center|top"
-            android:visibility="gone"
-            />        
+            android:indeterminate="true"
+            android:visibility="gone" />
+
         <ListView
             android:id="@+id/find_experiments_list"
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
             android:layout_gravity="center|top" />
-</LinearLayout>
+    </LinearLayout>
+
     <LinearLayout
         android:layout_width="fill_parent"
         android:layout_height="50dip"

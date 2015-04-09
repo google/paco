@@ -78,13 +78,33 @@ public class EventRetriever {
     return instance;
   }
 
+  public void postEvent(String who, String lat, String lon, Date whenDate, String appId, String pacoVersion,
+                        Set<What> whats, boolean shared, String experimentId, String experimentName,
+                        Integer experimentVersion, DateTime responseTime, DateTime scheduledTime,
+                        List<PhotoBlob> blobs, String groupName, Long actionTriggerId, Long actionTriggerSpecId, Long actionId) {
+
+    final String tz = responseTime != null && responseTime.getZone() != null
+            ? responseTime.getZone().toString()
+            : scheduledTime!= null && scheduledTime.getZone() != null
+              ? scheduledTime.getZone().toString()
+              : null;
+    postEvent(who, lat, lon, whenDate, appId, pacoVersion, whats, shared, experimentId, experimentName, experimentVersion,
+              responseTime != null ? responseTime.toDate() : null,
+              scheduledTime != null ? scheduledTime.toDate() : null, blobs,
+              tz, groupName, actionTriggerId, actionTriggerSpecId, actionId);
+  }
+
+
   public void postEvent(String who, String lat, String lon, Date whenDate, String appId,
       String pacoVersion, Set<What> what, boolean shared, String experimentId,
-      String experimentName, Integer experimentVersion, Date responseTime, Date scheduledTime, List<PhotoBlob> blobs, String tz) {
+      String experimentName, Integer experimentVersion, Date responseTime, Date scheduledTime, List<PhotoBlob> blobs,
+      String tz,
+      String groupName, Long actionTriggerId, Long actionTriggerSpecId, Long actionId) {
 //    long t1 = System.currentTimeMillis();
     PersistenceManager pm = PMF.get().getPersistenceManager();
     Event event = new Event(who, lat, lon, whenDate, appId, pacoVersion, what, shared,
-        experimentId, experimentName, experimentVersion, responseTime, scheduledTime, blobs, tz);
+        experimentId, experimentName, experimentVersion, responseTime, scheduledTime, blobs, tz,
+        groupName, actionTriggerId, actionTriggerSpecId, actionId);
     Transaction tx = null;
     try {
       tx = pm.currentTransaction();
@@ -130,7 +150,7 @@ public class EventRetriever {
 
     long t11 = System.currentTimeMillis();
 
-    List<Experiment> adminExperiments = getExperimentsForAdmin(loggedInuser, pm);
+    List<Long> adminExperiments = getExperimentsForAdmin(loggedInuser, pm);
     log.info("Loggedin user's administered experiments: " +loggedInuser +" has ids: " +
         getIdsQuoted(adminExperiments));
 
@@ -191,14 +211,19 @@ public class EventRetriever {
    * @return
    */
   private boolean isAdminOfFilteredExperiments(List<com.google.sampling.experiential.server.Query>
-    queryFilters, List<Experiment> adminExperiments) {
-    List<String> adminIds = getIds(adminExperiments);
+    queryFilters, List<Long> adminExperiments) {
     boolean filteringForAdminedExperiment = false;
     for (com.google.sampling.experiential.server.Query query : queryFilters) {
-      if (query.getKey().equals("experimentId") || query.getKey().equals("experimentName")) {
-        // TODO (bobevans) experimentName is broken here. Need then to test against names
-        filteringForAdminedExperiment = adminIds.contains(query.getValue());
-        if (!filteringForAdminedExperiment) { // All filters must be admin'ed experiments for now.
+      if (query.getKey().equals("experimentId") ) {
+        final String queryValue = query.getValue();
+
+        try {
+          Long experimentId = Long.parseLong(queryValue);
+          filteringForAdminedExperiment = adminExperiments.contains(experimentId);
+          if (!filteringForAdminedExperiment) { // All filters must be admin'ed experiments for now.
+            return false;
+          }
+        } catch (NumberFormatException e) {
           return false;
         }
       }
@@ -298,7 +323,7 @@ public class EventRetriever {
     adjustTimeZone(allEvents);
   }
 
-  private boolean isAnAdministrator(List<Experiment> adminExperiments) {
+  private boolean isAnAdministrator(List<Long> adminExperiments) {
     return adminExperiments != null && adminExperiments.size() > 0;
   }
 
@@ -370,13 +395,13 @@ public class EventRetriever {
 
 
   /**
-   * @param experimentsForAdmin
+   * @param adminExperiments
    * @return
    */
-  private List<String> getIdsQuoted(List<Experiment> experimentsForAdmin) {
+  private List<String> getIdsQuoted(List<Long> adminExperiments) {
     List<String> ids = Lists.newArrayList();
-    for(String experimentId : getIds(experimentsForAdmin)) {
-      ids.add("'" + experimentId +"'");
+    for (Long long1 : adminExperiments) {
+      ids.add("'" + long1 +"'");
     }
     return ids;
   }
@@ -390,11 +415,8 @@ public class EventRetriever {
   }
 
   @SuppressWarnings("unchecked")
-  private List<Experiment> getExperimentsForAdmin(String user, PersistenceManager pm) {
-    Query q = pm.newQuery(Experiment.class);
-    q.setFilter("admins == whoParam");
-    q.declareParameters("String whoParam");
-    return (List<Experiment>) q.execute(user);
+  private List<Long> getExperimentsForAdmin(String user, PersistenceManager pm) {
+    return ExperimentAccessManager.getExistingExperimentsIdsForAdmin(user);
   }
 
   @SuppressWarnings("unchecked")
@@ -416,18 +438,6 @@ public class EventRetriever {
     JDOQueryBuilder queryBuilder = new JDOQueryBuilder(newQuery);
     queryBuilder.addFilters(queryFilters, clientTimeZone);
     return queryBuilder.getQuery();
-  }
-
-  public void postEvent(String who, String lat, String lon, Date whenDate, String appId, String pacoVersion,
-                        Set<What> whats, boolean shared, String experimentId, String experimentName,
-                        Integer experimentVersion, DateTime responseTime, DateTime scheduledTime, List<PhotoBlob> blobs) {
-
-    postEvent(who, lat, lon, whenDate, appId, pacoVersion, whats, shared, experimentId, experimentName, experimentVersion,
-              responseTime != null ? responseTime.toDate() : null,
-              scheduledTime != null ? scheduledTime.toDate() : null, blobs,
-              responseTime != null && responseTime.getZone() != null ? responseTime.getZone().toString()
-                                                                     : scheduledTime!= null && scheduledTime.getZone() != null ?
-                                                                                                                                 scheduledTime.getZone().toString() : null);
   }
 
   public static void sortEvents(List<Event> greetings) {
@@ -456,7 +466,8 @@ public class EventRetriever {
       eventDAOs.add(new EventDAO(event.getWho(), event.getWhen(), event.getExperimentName(),
           event.getLat(), event.getLon(), event.getAppId(), event.getPacoVersion(),
           event.getWhatMap(), event.isShared(), event.getResponseTime(), event.getScheduledTime(),
-          toBase64StringArray(event.getBlobs()), Long.parseLong(event.getExperimentId()), event.getExperimentVersion(), event.getTimeZone()));
+          toBase64StringArray(event.getBlobs()), Long.parseLong(event.getExperimentId()), event.getExperimentVersion(),
+          event.getTimeZone(), event.getExperimentGroupName(), event.getActionTriggerId(), event.getActionTriggerSpecId(), event.getActionId()));
     }
     return eventDAOs;
   }
@@ -488,7 +499,7 @@ public class EventRetriever {
       log.info("dev mode or user querying self data");
       executeQuery(allEvents, eventJDOQuery);
     } else if (hasAnExperimentIdFilter(query) && !eventJDOQuery.hasAWho() &&
-            ExperimentRetriever.isExperimentAdministrator(requestorEmail,
+            EventRetriever.isExperimentAdministrator(requestorEmail,
                                                           getExperimentById(getExperimentIdFromFilter(query), pm))) {
       log.info("Admin query for an experiment");
       executeQuery(allEvents, eventJDOQuery);
@@ -506,6 +517,12 @@ public class EventRetriever {
     sortList(newArrayList);
     return newArrayList;
   }
+
+  public static boolean isExperimentAdministrator(String loggedInUserEmail, Experiment experiment) {
+    return experiment.getCreator().getEmail().toLowerCase().equals(loggedInUserEmail) ||
+          experiment.getAdmins().contains(loggedInUserEmail);
+  }
+
 
   private EventDSQuery createDSQueryFrom(PersistenceManager pm,
                                          List<com.google.sampling.experiential.server.Query> query,
@@ -529,7 +546,7 @@ public class EventRetriever {
 
     long t11 = System.currentTimeMillis();
 
-    List<Experiment> adminExperiments = getExperimentsForAdmin(loggedInuser, pm);
+    List<Long> adminExperiments = getExperimentsForAdmin(loggedInuser, pm);
     log.info("Loggedin user's administered experiments: " + loggedInuser + " has ids: "
              + getIdsQuoted(adminExperiments));
 
