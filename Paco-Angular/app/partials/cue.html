@@ -5,7 +5,7 @@
       <div>
         <select ng-model="cue.cueCode">
           <option value="" disabled selected>Choose cue event</option>
-          <option ng-selected="{{$index==cue.cueCode}}" 
+          <option ng-selected="''+$index==cue.cueCode" 
             ng-repeat="type in cueTypes" value={{$index}}>{{type}}</option>
         </select>
       </div>
@@ -15,7 +15,6 @@
         <input type="text" ng-model="cue.cueSource">
       </md-input-container>
     </div>
-
   </md-content>
 
   <div class="md-actions">

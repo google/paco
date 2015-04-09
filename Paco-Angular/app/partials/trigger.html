@@ -5,19 +5,19 @@
       <span ng-if="trigger.type=='interruptTrigger'">Event</span> Trigger
     </div>
 
-    <md-button ng-if="trigger.type=='scheduleTrigger'" add-icon ng-click="trigger.schedules.push({scheduleType:''})">
+    <md-button ng-if="trigger.type=='scheduleTrigger'" add-icon ng-click="addSchedule()">
       Schedule
     </md-button>
 
-    <md-button ng-if="trigger.type=='interruptTrigger'" add-icon ng-click="trigger.cues.push({})">
+    <md-button ng-if="trigger.type=='interruptTrigger'" add-icon ng-click="addCue()">
       Cue
     </md-button>
 
-        <md-button add-icon  ng-click="addGroup()">
+    <md-button add-icon ng-click="addGroup()">
       Experiment Group
     </md-button>
 
-    <md-button add-icon ng-click="addAction(trigger.actions, $event)">
+    <md-button add-icon ng-click="addAction()">
       Action
     </md-button>
 

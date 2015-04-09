@@ -79,12 +79,18 @@ pacoApp.service('template', function() {
   }
 
   this.action = {
-    'type': 'pacoNotificationAction'
+    type: 'pacoNotificationAction',
+    actionCode: ''
   };
 
   this.schedule = {
     scheduleType: ''
   };
+
+  this.cue = {
+    cueCode: ''
+  };
+
 
   this.scheduleTrigger = {
     type: 'scheduleTrigger',
@@ -95,7 +101,7 @@ pacoApp.service('template', function() {
   this.eventTrigger = {
     type: 'interruptTrigger',
     actions: [this.action],
-    cues: [{}]
+    cues: [this.cue]
   };
 
   this.signalTime = {

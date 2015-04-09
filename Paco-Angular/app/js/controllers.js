@@ -198,10 +198,18 @@ pacoApp.controller('TriggerCtrl', ['$scope', '$mdDialog', 'config', 'template',
 
     $scope.scheduleTypes = config.scheduleTypes;
 
-    $scope.addAction = function(actions, event) {
+    $scope.addAction = function(event) {
       var action = angular.copy(template.action);
-      action.id = actions.length;
-      actions.push(action);
+      //action.id = actions.length;
+      $scope.trigger.actions.push(action);
+    }
+
+    $scope.addSchedule = function(event) {
+      $scope.trigger.schedules.push(angular.copy(template.schedule));
+    }
+
+   $scope.addCue = function(event) {
+      $scope.trigger.cues.push(angular.copy(template.cue));
     }
 
     $scope.showSchedule = function(event, schedule) {
@@ -241,18 +249,22 @@ pacoApp.controller('ActionCtrl', ['$scope', '$mdDialog', 'config', 'action',
   function($scope, $mdDialog, config, action) {
 
     $scope.action = action;
-    $scope.action.actionCode += '';
+
+    if ($scope.action.actionCode == undefined) {
+      $scope.action.actionCode = '';
+    } else {
+      $scope.action.actionCode += '';
+    }
+
     $scope.actionTypes = config.actionTypes;
 
     $scope.hide = function() {
       $mdDialog.hide();
     };
 
-    $scope.$watch('action.actionCode', function(newValue, oldValue) {
-      if (newValue) {
-        //action.actionCode = parseInt(action.actionCode);
-      }
-    });
+    $scope.aceLoaded = function(editor) {
+      editor.$blockScrolling = 'Infinity';
+    };
   }
 ]);
 
@@ -261,17 +273,18 @@ pacoApp.controller('CueCtrl', ['$scope', '$mdDialog', 'config', 'cue',
   function($scope, $mdDialog, config, cue) {
 
     $scope.cue = cue;
+
+    if ($scope.cue.cueCode == undefined) {
+      $scope.cue.cueCode = '';
+    } else {
+      $scope.cue.cueCode += '';
+    }
+
     $scope.cueTypes = config.cueTypes;
 
     $scope.hide = function() {
       $mdDialog.hide();
     };
-
-    $scope.$watch('cue.cueCode', function(newValue, oldValue) {
-      if (newValue) {
-        cue.cueCode = parseInt(cue.cueCode);
-      }
-    });
   }
 ]);
 
@@ -309,11 +322,9 @@ pacoApp.controller('ScheduleCtrl', ['$scope', '$mdDialog', 'config', 'template',
       $scope.schedule.esmPeriodInDays += '';
     }
 
-    console.log("ESM");
-    console.log($scope.schedule.esmPeriodInDays);
-
     // Force scheduleType to be a string
     $scope.schedule.scheduleType += '';
+
     $scope.scheduleTypes = config.scheduleTypes;
     $scope.weeksOfMonth = config.weeksOfMonth;
     $scope.esmPeriods = config.esmPeriods;

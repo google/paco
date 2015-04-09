@@ -4,7 +4,7 @@
     <div>
       <select ng-model="action.actionCode">
         <option value="" disabled selected>Choose Action</option>
-        <option ng-selected="{{''+$index === action.actionCode}}" 
+        <option ng-selected="''+$index==action.actionCode" 
         ng-repeat="type in actionTypes" value="{{$index}}">{{type}}</option>
       </select>
     </div>
@@ -30,7 +30,7 @@
         mode: 'javascript',
         onLoad: aceLoaded,
         rendererOptions: {
-          minLines: 3,
+          minLines: 10,
           maxLines: 'Infinity'
         }
       }">
