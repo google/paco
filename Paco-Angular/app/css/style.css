@@ -1,13 +1,11 @@
-body, html {
+body,
+html {
   background: #F5F5F5;
   min-width: 1024px;
 }
 
-#main {
-  width: 960px;
-  position: relative;
-  left: 50%;
-  margin-left: -480px;
+a {
+  color: #3e82f7;
 }
 
 md-card {
@@ -34,16 +32,6 @@ md-dialog li {
   font-style: italic;
 }
 
-/*.md-button[add-icon] {
-  background: url('../img/ic_add_circle_outline_24px.svg') no-repeat;
-  background-position: 3px 3px;
-}
-
-.md-button[remove-icon] {
-  background: url('img/ic_clear_24px.svg') no-repeat;
-  background-position: 3px 3px;
-}
-*/
 
 
 .padded {

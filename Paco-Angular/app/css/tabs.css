@@ -15,41 +15,6 @@ md-tab-item.md-active {
   color: white !important;
 }
 
-md-toolbar {
-  background: #5c6bc0 !important;
-  vertical-align: middle;
-}
-
-md-toolbar .paco {
-  background: white;
-  border-radius: 50%;
-  height: 96px;
-  margin: 16px;
-  padding: 16px;
-  width: 96px;
-}
-
-md-toolbar .title {
-  font-size: 34px;
-  position: absolute;
-  left: 128px;
-  top: 32px;
-  text-transform: uppercase;
-}
-
-md-toolbar #login {
-  position: absolute;
-  top: 24px;
-  right: 16px;
-}
-
-md-toolbar .subtitle {
-  font-size: 18px;
-  position: absolute;
-  left: 128px;
-  top: 72px;
-}
-
 .md-button {
   margin-top: -4px;
   margin-bottom: -4px;
