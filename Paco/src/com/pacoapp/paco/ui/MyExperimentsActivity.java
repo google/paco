@@ -20,10 +20,14 @@ package com.pacoapp.paco.ui;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.nio.charset.UnsupportedCharsetException;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 
+import org.codehaus.jackson.JsonParseException;
+import org.codehaus.jackson.map.JsonMappingException;
 import org.joda.time.DateTime;
 
 import android.annotation.SuppressLint;
@@ -55,7 +59,9 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
@@ -68,10 +74,13 @@ import com.pacoapp.paco.model.Event;
 import com.pacoapp.paco.model.Experiment;
 import com.pacoapp.paco.model.ExperimentProviderUtil;
 import com.pacoapp.paco.model.Output;
+import com.pacoapp.paco.net.ExperimentUrlBuilder;
 import com.pacoapp.paco.net.MyExperimentsFetchService;
 import com.pacoapp.paco.net.MyExperimentsFetchService.ExperimentFetchListener;
 import com.pacoapp.paco.net.MyExperimentsFetchService.LocalBinder;
+import com.pacoapp.paco.net.NetworkClient;
 import com.pacoapp.paco.net.NetworkUtil;
+import com.pacoapp.paco.net.PacoBackgroundService;
 import com.pacoapp.paco.net.SyncService;
 import com.pacoapp.paco.os.RingtoneUtil;
 import com.pacoapp.paco.sensors.android.BroadcastTriggerReceiver;
@@ -82,7 +91,7 @@ import com.pacoapp.paco.triggering.NotificationCreator;
 /**
  *
  */
-public class MyExperimentsActivity extends ActionBarActivity implements NavigationDrawerFragment.NavigationDrawerCallbacks {
+public class MyExperimentsActivity extends ActionBarActivity implements NavigationDrawerFragment.NavigationDrawerCallbacks, NetworkClient {
 
   private static final int RINGTONE_REQUESTCODE = 945;
   private static final int ABOUT_PACO_ITEM = 3;
@@ -95,6 +104,7 @@ public class MyExperimentsActivity extends ActionBarActivity implements Navigati
 
   public static final int REFRESHING_EXPERIMENTS_DIALOG_ID = 1001;
   private static final int FIND_EXPERIMENTS_ITEM = 11;
+  private static final int REFRESH_EXPERIMENTS_CHOOSER_ITEM = 12;
 
   private ExperimentProviderUtil experimentProviderUtil;
   private ListView list;
@@ -129,6 +139,7 @@ public class MyExperimentsActivity extends ActionBarActivity implements Navigati
   };
 
   private NavigationDrawerFragment mNavigationDrawerFragment;
+  private ProgressBar progressBar;
 
 
 
@@ -149,6 +160,9 @@ public class MyExperimentsActivity extends ActionBarActivity implements Navigati
     // Set up the drawer.
     mNavigationDrawerFragment = (NavigationDrawerFragment) getSupportFragmentManager().findFragmentById(R.id.navigation_drawer);
     mNavigationDrawerFragment.setUp(R.id.navigation_drawer, (DrawerLayout) findViewById(R.id.drawer_layout));
+
+    progressBar = (ProgressBar)findViewById(R.id.findExperimentsProgressBar);
+
 
     // TODO would this work if it is in the Systemchangereceiver ?
     new RingtoneUtil(this).installPacoBarkRingtone();
@@ -198,7 +212,7 @@ public class MyExperimentsActivity extends ActionBarActivity implements Navigati
     ActionBar actionBar = getSupportActionBar();
     actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
     actionBar.setDisplayShowTitleEnabled(true);
-    //actionBar.setTitle(mTitle);
+    actionBar.setTitle("Paco");
 }
 
 
@@ -628,30 +642,32 @@ public class MyExperimentsActivity extends ActionBarActivity implements Navigati
   @SuppressLint("NewApi")
   @Override
   public boolean onCreateOptionsMenu(Menu menu) {
-
+    int pos = 1;
     if (!mNavigationDrawerFragment.isDrawerOpen()) {
       // Only show items in the action bar relevant to this screen
       // if the drawer is not showing. Otherwise, let the drawer
       // decide what to show in the action bar.
       // getMenuInflater().inflate(R.menu.main, menu);
-      MenuItem item = menu.add(0, FIND_EXPERIMENTS_ITEM, 1, "Find Experiments");
+      MenuItem item = menu.add(0, FIND_EXPERIMENTS_ITEM, pos++, getString(R.string.find_experiments));
       item.setIcon(android.R.drawable.ic_menu_search);
       if (Integer.parseInt(Build.VERSION.SDK) >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
         item.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
       }
-      item = menu.add(0, RINGTONE_CHOOSER_ITEM, 2, R.string.choose_alert_menu_item);
+      item = menu.add(0, REFRESH_EXPERIMENTS_CHOOSER_ITEM, pos++, R.string.refresh_experiments);
       addToActionBar(item);
-      item = menu.add(0, ACCOUNT_CHOOSER_ITEM, 3, R.string.choose_account_menu_item);
+      item = menu.add(0, RINGTONE_CHOOSER_ITEM, pos++, R.string.choose_alert_menu_item);
       addToActionBar(item);
-      item = menu.add(0, ABOUT_PACO_ITEM, 4, R.string.about_paco_menu_item);
+      item = menu.add(0, ACCOUNT_CHOOSER_ITEM, pos++, R.string.choose_account_menu_item);
       addToActionBar(item);
-      item = menu.add(0, EULA_ITEM, 5, R.string.eula_menu_item);
+      item = menu.add(0, ABOUT_PACO_ITEM, pos++, R.string.about_paco_menu_item);
       addToActionBar(item);
-      item = menu.add(0, SEND_LOG_ITEM, 6, R.string.send_log_menu_item);
+      item = menu.add(0, EULA_ITEM, pos++, R.string.eula_menu_item);
       addToActionBar(item);
-      item = menu.add(0, SERVER_ADDRESS_ITEM, 7, R.string.server_address_menu_item);
+      item = menu.add(0, SEND_LOG_ITEM, pos++, R.string.send_log_menu_item);
       addToActionBar(item);
-      item = menu.add(0, DEBUG_ITEM, 8, R.string.debug_menu_item);
+      item = menu.add(0, SERVER_ADDRESS_ITEM, pos++, R.string.server_address_menu_item);
+      addToActionBar(item);
+      item = menu.add(0, DEBUG_ITEM, pos++, R.string.debug_menu_item);
       addToActionBar(item);
       restoreActionBar();
       return true;
@@ -693,11 +709,47 @@ public class MyExperimentsActivity extends ActionBarActivity implements Navigati
     case FIND_EXPERIMENTS_ITEM:
       launchFindExperiments();
       return true;
+    case REFRESH_EXPERIMENTS_CHOOSER_ITEM:
+      refreshExperiments();
+      return true;
     default:
       return false;
     }
   }
 
+  private void refreshExperiments() {
+
+    if (!NetworkUtil.isConnected(this)) {
+      showDialog(NetworkUtil.NO_NETWORK_CONNECTION, null);
+    } else {
+      refreshList();
+    }
+
+  }
+
+  private void refreshList() {
+    List<Long> joinedExperimentServerIds = experimentProviderUtil.getJoinedExperimentServerIds();
+    if (joinedExperimentServerIds != null && joinedExperimentServerIds.size() > 0) {
+      progressBar.setVisibility(View.VISIBLE);
+      final Long[] arrayOfIds = joinedExperimentServerIds.toArray(new Long[joinedExperimentServerIds.size()]);
+      new PacoBackgroundService(this, ExperimentUrlBuilder.buildUrlForFullExperiment(userPrefs, arrayOfIds)).execute();
+    }
+  }
+
+  private void saveDownloadedExperiments(ExperimentProviderUtil experimentProviderUtil,
+                                         String contentAsString) {
+    try {
+      experimentProviderUtil.updateExistingExperiments(contentAsString);
+    } catch (JsonParseException e) {
+      // Nothing to be done here.
+    } catch (JsonMappingException e) {
+      // Nothing to be done here.
+    } catch (UnsupportedCharsetException e) {
+      // Nothing to be done here.
+    } catch (IOException e) {
+      // Nothing to be done here.
+    }
+  }
   private void launchFindExperiments() {
     startActivity(new Intent(this, FindMyOrAllExperimentsChooserActivity.class));
   }
@@ -815,4 +867,50 @@ public class MyExperimentsActivity extends ActionBarActivity implements Navigati
       bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
     }
   }
+
+  @Override
+  public Context getContext() {
+    return this;
+  }
+
+  @Override
+  public void show(final String msg) {
+    runOnUiThread(new Runnable() {
+      @Override
+      public void run() {
+        Toast.makeText(MyExperimentsActivity.this, msg, Toast.LENGTH_LONG).show();
+      }
+    });
+  }
+
+  @Override
+  public void showAndFinish(final String msg) {
+    runOnUiThread(new Runnable() {
+      @Override
+      public void run() {
+        progressBar.setVisibility(View.GONE);
+        if (msg != null) {
+          Toast.makeText(MyExperimentsActivity.this, "Download complete", Toast.LENGTH_LONG).show();
+          saveDownloadedExperiments(experimentProviderUtil, msg);
+          userPrefs.setJoinedExperimentListRefreshTime(new Date().getTime());
+          reloadAdapter();
+        } else {
+          Toast.makeText(MyExperimentsActivity.this, "No experiment data retrieved. Try again.", Toast.LENGTH_LONG).show();
+        }
+      }
+    });
+  }
+
+  @Override
+  public void handleException(final Exception exception) {
+    runOnUiThread(new Runnable() {
+      @Override
+      public void run() {
+        progressBar.setVisibility(View.GONE);
+        Toast.makeText(MyExperimentsActivity.this, "Exception: " + exception.getMessage(), Toast.LENGTH_LONG).show();
+      }
+    });
+  }
+
+
 }
