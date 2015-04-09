@@ -25,12 +25,12 @@
           <input type="number" ng-model="schedule.minimumBuffer">
         </md-input-container>
 
-        <md-input-container>
-          <label>Snooze repeats</label>
-          <input type="number" min=0 max=1 ng-model="schedule.snoozeCount">
-        </md-input-container>
+        <md-checkbox ng-model="schedule.snoozeCount" aria-label="Repeat snooze">
+          Repeat snooze
+        </md-checkbox>
 
-        <md-input-container>
+        <md-input-container ng-if="schedule.snoozeCount" 
+          ng-init="schedule.snoozeTimeInMinutes=10">
           <label>Snooze time</label>
           <input type="number" ng-model="schedule.snoozeTimeInMinutes">
         </md-input-container>
@@ -138,15 +138,12 @@
 
           <md-content></md-content>
 
-          <select ng-model="schedule.esmPeriodInDays" flex="33">
-            <option value="" disabled selected></option>
+          <select ng-model="schedule.esmPeriodInDays" flex="33" class="period">
+            <option value="" disabled selected>Select period</option>
             <option  ng-selected="{{days == schedule.esmPeriodInDays}}" 
             ng-repeat="(days, period) in esmPeriods" value="{{days}}">{{period}}</option>
           </select>
         </div>
-
-        <br>
-        <br>
 
         <div layout="row">
           <md-input-container flex>

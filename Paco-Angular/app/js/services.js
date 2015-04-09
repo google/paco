@@ -17,11 +17,18 @@ pacoApp.service('config', function() {
   ];
 
   this.cueTypes = [
-    'Phone call ended',
-    'User present',
+    'HANGUP (deprecated)',
+    'USER_PRESENT',
     'Paco action',
-    'App used',
-    'Phone call started'
+    'App Started',
+    'App Stopped',
+    'Music Started',
+    'Music Stopped',
+    'Incoming call started',
+    'Incoming call ended',
+    'Outgoing call started',
+    'Outgoing call ended',
+    'Missed call'
   ];
 
   this.esmPeriods = {
@@ -84,13 +91,14 @@ pacoApp.service('template', function() {
   };
 
   this.schedule = {
-    scheduleType: ''
+    scheduleType: '',
+    userEditable: true,
+    timeout: 15
   };
 
   this.cue = {
     cueCode: ''
   };
-
 
   this.scheduleTrigger = {
     type: 'scheduleTrigger',

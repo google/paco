@@ -200,7 +200,7 @@ pacoApp.controller('TriggerCtrl', ['$scope', '$mdDialog', 'config', 'template',
 
     $scope.addAction = function(event) {
       var action = angular.copy(template.action);
-      //action.id = actions.length;
+      //action.id = $scope.trigger.actions.length;
       $scope.trigger.actions.push(action);
     }
 
@@ -315,7 +315,11 @@ pacoApp.controller('ScheduleCtrl', ['$scope', '$mdDialog', 'config', 'template',
   function($scope, $mdDialog, config, template, schedule) {
 
     $scope.schedule = schedule;
-    $scope.schedule.repeatRate += '';
+
+    if ($scope.schedule.repeatRate != undefined) {
+      $scope.schedule.repeatRate += '';
+    }
+    
     if ($scope.schedule.esmPeriodInDays == undefined) {
       $scope.schedule.esmPeriodInDays = '';
     } else {

@@ -1,6 +1,6 @@
 <div ng-controller="TriggerCtrl" class="trigger">
   <div class="header section">
-    <div class="title">
+    <div class="subtitle">
       <span ng-if="trigger.type=='scheduleTrigger'">Scheduled</span>
       <span ng-if="trigger.type=='interruptTrigger'">Event</span> Trigger
     </div>
@@ -28,7 +28,7 @@
   <div ng-repeat="schedule in trigger.schedules track by $index">
     <md-divider></md-divider>
     <div class="section">
-      <div class="title">
+      <div class="subtitle">
         <md-button ng-click="showSchedule($event, schedule)">
           Edit
         </md-button>
@@ -43,7 +43,7 @@
   <div ng-repeat="cue in trigger.cues track by $index">
     <md-divider></md-divider>
     <div class="section">
-      <div class="title">
+      <div class="subtitle">
         <md-button ng-click="showCue($event, cue)">
           Edit
         </md-button>
@@ -58,7 +58,7 @@
   <div ng-repeat="action in trigger.actions track by $index">
     <md-divider></md-divider>
     <div class="section">
-      <div class="title">
+      <div class="subtitle">
         <md-button ng-click="showAction($event, action)">
           Edit
         </md-button>

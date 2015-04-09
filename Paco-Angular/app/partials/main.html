@@ -15,5 +15,5 @@
 <div class="main">
   <div ng-if="experimentId" ng-include="'partials/experiment.html'"></div>
   <div ng-if="!experimentId && user" ng-include="'partials/list.html'"></div>
-  <div ng-if="!user" ng-include="'partials/home.html'"></div>
+  <div ng-if="!user && !experimentId" ng-include="'partials/home.html'"></div>
 </div>

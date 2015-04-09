@@ -93,10 +93,14 @@ md-card .section {
   -webkit-user-select: none;
 }
 
-md-card .section .title {
+md-card .section .subtitle, md-card .section .title {
   display: inline-block;
-  width: 200px;
   height: 24px;
+  width: 200px;
+} 
+
+md-card .section .title {
+  font-weight: bold;
 }
 
 

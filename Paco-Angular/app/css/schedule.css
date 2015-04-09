@@ -25,7 +25,9 @@
   padding: 0;
 }
 
-
+.schedule .period {
+  margin-top: 30px;
+}
 
 .days {
   margin-bottom: 24px;
