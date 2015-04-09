@@ -57,7 +57,7 @@
         
         <activity
             android:name="com.pacoapp.paco.ui.FindExperimentsActivity"
-            android:label="Public Experiments"
+            android:label="Experiment Hub"
             android:configChanges="orientation|keyboardHidden"
             android:screenOrientation="portrait" >
             <intent-filter>

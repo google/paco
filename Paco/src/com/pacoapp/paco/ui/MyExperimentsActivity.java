@@ -42,6 +42,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.provider.Settings;
+import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.view.LayoutInflater;
@@ -68,10 +69,10 @@ import com.pacoapp.paco.model.Experiment;
 import com.pacoapp.paco.model.ExperimentProviderUtil;
 import com.pacoapp.paco.model.Output;
 import com.pacoapp.paco.net.MyExperimentsFetchService;
-import com.pacoapp.paco.net.NetworkUtil;
-import com.pacoapp.paco.net.SyncService;
 import com.pacoapp.paco.net.MyExperimentsFetchService.ExperimentFetchListener;
 import com.pacoapp.paco.net.MyExperimentsFetchService.LocalBinder;
+import com.pacoapp.paco.net.NetworkUtil;
+import com.pacoapp.paco.net.SyncService;
 import com.pacoapp.paco.os.RingtoneUtil;
 import com.pacoapp.paco.sensors.android.BroadcastTriggerReceiver;
 import com.pacoapp.paco.triggering.AndroidEsmSignalStore;
@@ -81,7 +82,7 @@ import com.pacoapp.paco.triggering.NotificationCreator;
 /**
  *
  */
-public class MyExperimentsActivity extends ActionBarActivity {
+public class MyExperimentsActivity extends ActionBarActivity implements NavigationDrawerFragment.NavigationDrawerCallbacks {
 
   private static final int RINGTONE_REQUESTCODE = 945;
   private static final int ABOUT_PACO_ITEM = 3;
@@ -127,21 +128,30 @@ public class MyExperimentsActivity extends ActionBarActivity {
     }
   };
 
+  private NavigationDrawerFragment mNavigationDrawerFragment;
+
+
+
   @SuppressLint("NewApi")
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
+    mainLayout = (ViewGroup) getLayoutInflater().inflate(R.layout.activity_current_experiments, null);
+    setContentView(mainLayout);
+
+
     ActionBar actionBar = getSupportActionBar();
     actionBar.setLogo(R.drawable.ic_launcher);
     actionBar.setDisplayUseLogoEnabled(true);
     actionBar.setDisplayShowHomeEnabled(true);
     actionBar.setBackgroundDrawable(new ColorDrawable(0xff4A53B3));
 
+    // Set up the drawer.
+    mNavigationDrawerFragment = (NavigationDrawerFragment) getSupportFragmentManager().findFragmentById(R.id.navigation_drawer);
+    mNavigationDrawerFragment.setUp(R.id.navigation_drawer, (DrawerLayout) findViewById(R.id.drawer_layout));
+
     // TODO would this work if it is in the Systemchangereceiver ?
     new RingtoneUtil(this).installPacoBarkRingtone();
-
-    mainLayout = (ViewGroup) getLayoutInflater().inflate(R.layout.activity_current_experiments, null);
-    setContentView(mainLayout);
 
     userPrefs = new UserPreferences(this);
 
@@ -157,6 +167,39 @@ public class MyExperimentsActivity extends ActionBarActivity {
     experimentProviderUtil = new ExperimentProviderUtil(this);
     registerForContextMenu(list);
   }
+
+  @Override
+  public void onNavigationDrawerItemSelected(int position) {
+      // update the main content by replacing fragments
+//      FragmentManager fragmentManager = getSupportFragmentManager();
+//      fragmentManager.beginTransaction()
+//              .replace(R.id.container, PlaceholderFragment.newInstance(position + 1))
+//              .commit();
+    // TODO dispatch to the appropriate activity
+    switch (position) {
+    case 0:
+      // we are here launchMyCurrentExperiments();
+      break;
+    case 1:
+      launchFindMyExperiments();
+      break;
+    case 2:
+      launchFindPublicExperiments();
+      break;
+    case 3:
+      launchCompletedExperiments();
+      break;
+    default:
+      break;
+    }
+  }
+
+  public void restoreActionBar() {
+    ActionBar actionBar = getSupportActionBar();
+    actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
+    actionBar.setDisplayShowTitleEnabled(true);
+    //actionBar.setTitle(mTitle);
+}
 
 
   private void getAnyNewInvitations() {
@@ -585,26 +628,35 @@ public class MyExperimentsActivity extends ActionBarActivity {
   @SuppressLint("NewApi")
   @Override
   public boolean onCreateOptionsMenu(Menu menu) {
-    MenuItem item = menu.add(0, FIND_EXPERIMENTS_ITEM, 1, "Find Experiments");
-    item.setIcon(android.R.drawable.ic_menu_search);
-    if (Integer.parseInt(Build.VERSION.SDK) >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
-      item.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+
+    if (!mNavigationDrawerFragment.isDrawerOpen()) {
+      // Only show items in the action bar relevant to this screen
+      // if the drawer is not showing. Otherwise, let the drawer
+      // decide what to show in the action bar.
+      // getMenuInflater().inflate(R.menu.main, menu);
+      MenuItem item = menu.add(0, FIND_EXPERIMENTS_ITEM, 1, "Find Experiments");
+      item.setIcon(android.R.drawable.ic_menu_search);
+      if (Integer.parseInt(Build.VERSION.SDK) >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
+        item.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+      }
+      item = menu.add(0, RINGTONE_CHOOSER_ITEM, 2, R.string.choose_alert_menu_item);
+      addToActionBar(item);
+      item = menu.add(0, ACCOUNT_CHOOSER_ITEM, 3, R.string.choose_account_menu_item);
+      addToActionBar(item);
+      item = menu.add(0, ABOUT_PACO_ITEM, 4, R.string.about_paco_menu_item);
+      addToActionBar(item);
+      item = menu.add(0, EULA_ITEM, 5, R.string.eula_menu_item);
+      addToActionBar(item);
+      item = menu.add(0, SEND_LOG_ITEM, 6, R.string.send_log_menu_item);
+      addToActionBar(item);
+      item = menu.add(0, SERVER_ADDRESS_ITEM, 7, R.string.server_address_menu_item);
+      addToActionBar(item);
+      item = menu.add(0, DEBUG_ITEM, 8, R.string.debug_menu_item);
+      addToActionBar(item);
+      restoreActionBar();
+      return true;
     }
-    item = menu.add(0, RINGTONE_CHOOSER_ITEM, 2, R.string.choose_alert_menu_item);
-    addToActionBar(item);
-    item = menu.add(0, ACCOUNT_CHOOSER_ITEM, 3, R.string.choose_account_menu_item);
-    addToActionBar(item);
-    item = menu.add(0, ABOUT_PACO_ITEM, 4, R.string.about_paco_menu_item);
-    addToActionBar(item);
-    item = menu.add(0, EULA_ITEM, 5, R.string.eula_menu_item);
-    addToActionBar(item);
-    item = menu.add(0, SEND_LOG_ITEM, 6, R.string.send_log_menu_item);
-    addToActionBar(item);
-    item = menu.add(0, SERVER_ADDRESS_ITEM, 7, R.string.server_address_menu_item);
-    addToActionBar(item);
-    item = menu.add(0, DEBUG_ITEM, 8, R.string.debug_menu_item);
-    addToActionBar(item);
-    return true;
+    return super.onCreateOptionsMenu(menu);
   }
 
   @SuppressLint("NewApi")
@@ -648,7 +700,18 @@ public class MyExperimentsActivity extends ActionBarActivity {
 
   private void launchFindExperiments() {
     startActivity(new Intent(this, FindMyOrAllExperimentsChooserActivity.class));
+  }
 
+  private void launchFindMyExperiments() {
+    startActivity(new Intent(this, FindMyExperimentsActivity.class));
+  }
+
+  private void launchFindPublicExperiments() {
+    startActivity(new Intent(this, FindExperimentsActivity.class));
+  }
+
+  private void launchCompletedExperiments() {
+    //startActivity(new Intent(this, CompletedExperimentsActivity.class));
   }
 
   private void launchEula() {
