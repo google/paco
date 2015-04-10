@@ -38,8 +38,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.graphics.drawable.ColorDrawable;
-import android.media.RingtoneManager;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.provider.Settings;
@@ -408,18 +406,9 @@ public class MyExperimentsActivity extends ActionBarActivity implements
   @Override
   protected void onActivityResult(int requestCode, int resultCode, Intent data) {
     super.onActivityResult(requestCode, resultCode, data);
-    if (requestCode == RINGTONE_REQUESTCODE && resultCode == RESULT_OK) {
-      Uri uri = data.getParcelableExtra(RingtoneManager.EXTRA_RINGTONE_PICKED_URI);
-      final UserPreferences userPreferences = new UserPreferences(this);
-      if (uri != null) {
-        userPreferences.setRingtoneUri(uri.toString());
-        String name= data.getParcelableExtra(RingtoneManager.EXTRA_RINGTONE_TITLE);
-        userPreferences.setRingtoneName(name);
-      } else {
-        userPreferences.clearRingtone();
-      }
+    if (RingtoneUtil.isOkRingtoneResult(requestCode, resultCode)) {
+      RingtoneUtil.updateRingtone(data, this);
     }
-
   }
 
   private TextView createListHeader() {

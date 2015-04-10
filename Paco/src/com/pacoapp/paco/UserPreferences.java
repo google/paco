@@ -287,7 +287,7 @@ public class UserPreferences {
   }
 
   public String getRingtoneName() {
-    return getAppPrefs().getString(RINGTONE_NAME_KEY, null);
+    return getAppPrefs().getString(RINGTONE_NAME_KEY, "Paco Bark");
   }
 
 

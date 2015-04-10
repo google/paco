@@ -7,17 +7,21 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+import android.app.Activity;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
+import android.media.Ringtone;
+import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Build;
 import android.provider.MediaStore;
 import android.util.Log;
 
 import com.pacoapp.paco.PacoConstants;
+import com.pacoapp.paco.R;
 import com.pacoapp.paco.UserPreferences;
 
 public class RingtoneUtil {
@@ -27,6 +31,7 @@ public class RingtoneUtil {
   private static final String BARK_RINGTONE_FILENAME = "deepbark_trial.mp3";
   private Context context;
   private UserPreferences userPreferences;
+  public static final int RINGTONE_REQUESTCODE = 945;
 
 
   public RingtoneUtil(Context context) {
@@ -228,4 +233,43 @@ public class RingtoneUtil {
         return newToneUri;
     }
 }
+
+  public static boolean isOkRingtoneResult(int requestCode, int resultCode) {
+    return requestCode == RINGTONE_REQUESTCODE && resultCode == Activity.RESULT_OK;
+  }
+
+  public static void updateRingtone(Intent data, final Activity activity) {
+    Uri uri = data.getParcelableExtra(RingtoneManager.EXTRA_RINGTONE_PICKED_URI);
+    final UserPreferences userPreferences = new UserPreferences(activity);
+    if (uri != null) {
+      userPreferences.setRingtoneUri(uri.toString());
+      String name= getNameOfRingtone(activity, uri);
+      userPreferences.setRingtoneName(name);
+    } else {
+      userPreferences.clearRingtone();
+    }
+  }
+
+  public static void launchRingtoneChooserFor(final Activity activity) {
+    UserPreferences userPreferences = new UserPreferences(activity);
+    String uri = userPreferences.getRingtoneUri();
+    Intent intent = new Intent(RingtoneManager.ACTION_RINGTONE_PICKER);
+    intent.putExtra(RingtoneManager.EXTRA_RINGTONE_TYPE, RingtoneManager.TYPE_NOTIFICATION);
+    intent.putExtra(RingtoneManager.EXTRA_RINGTONE_TITLE, R.string.select_signal_tone);
+    intent.putExtra(RingtoneManager.EXTRA_RINGTONE_SHOW_SILENT, false);
+    intent.putExtra(RingtoneManager.EXTRA_RINGTONE_SHOW_DEFAULT, true);
+    if (uri != null) {
+      intent.putExtra(RingtoneManager.EXTRA_RINGTONE_EXISTING_URI, Uri.parse(uri));
+    } else {
+      intent.putExtra(RingtoneManager.EXTRA_RINGTONE_EXISTING_URI,
+                      RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION));
+    }
+
+    activity.startActivityForResult(intent, RingtoneUtil.RINGTONE_REQUESTCODE);
+  }
+
+  public static String getNameOfRingtone(Context context, Uri uri) {
+    Ringtone ringtone = RingtoneManager.getRingtone(context, uri);
+    return ringtone.getTitle(context);
+  }
 }

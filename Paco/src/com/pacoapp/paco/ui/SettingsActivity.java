@@ -7,8 +7,6 @@ import java.io.InputStreamReader;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.graphics.drawable.ColorDrawable;
-import android.media.RingtoneManager;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
@@ -23,10 +21,9 @@ import android.widget.TextView;
 
 import com.pacoapp.paco.R;
 import com.pacoapp.paco.UserPreferences;
+import com.pacoapp.paco.os.RingtoneUtil;
 
 public class SettingsActivity extends ActionBarActivity {
-
-  private static final int RINGTONE_REQUESTCODE = 945;
 
   private TextView ringtoneTextView;
   private CheckBox wifiOnlyCheckBox;
@@ -52,7 +49,7 @@ public class SettingsActivity extends ActionBarActivity {
     ringtoneTextView.setOnClickListener(new OnClickListener() {
       @Override
       public void onClick(View v) {
-        launchRingtoneChooser();
+        RingtoneUtil.launchRingtoneChooserFor(SettingsActivity.this);
       }
     });
 
@@ -146,24 +143,6 @@ public class SettingsActivity extends ActionBarActivity {
     return log.toString();
   }
 
-  private void launchRingtoneChooser() {
-    UserPreferences userPreferences = new UserPreferences(this);
-    String uri = userPreferences.getRingtoneUri();
-    Intent intent = new Intent(RingtoneManager.ACTION_RINGTONE_PICKER);
-    intent.putExtra(RingtoneManager.EXTRA_RINGTONE_TYPE, RingtoneManager.TYPE_NOTIFICATION);
-    intent.putExtra(RingtoneManager.EXTRA_RINGTONE_TITLE, R.string.select_signal_tone);
-    intent.putExtra(RingtoneManager.EXTRA_RINGTONE_SHOW_SILENT, false);
-    intent.putExtra(RingtoneManager.EXTRA_RINGTONE_SHOW_DEFAULT, true);
-    if (uri != null) {
-      intent.putExtra(RingtoneManager.EXTRA_RINGTONE_EXISTING_URI, Uri.parse(uri));
-    } else {
-      intent.putExtra(RingtoneManager.EXTRA_RINGTONE_EXISTING_URI,
-                      RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION));
-    }
-
-    startActivityForResult(intent, RINGTONE_REQUESTCODE);
-  }
-
   @SuppressLint("NewApi")
   private void launchAccountChooser() {
     Intent intent = new Intent(this, SplashActivity.class);
@@ -183,19 +162,10 @@ public class SettingsActivity extends ActionBarActivity {
   @Override
   protected void onActivityResult(int requestCode, int resultCode, Intent data) {
     super.onActivityResult(requestCode, resultCode, data);
-    if (requestCode == RINGTONE_REQUESTCODE && resultCode == RESULT_OK) {
-      Uri uri = data.getParcelableExtra(RingtoneManager.EXTRA_RINGTONE_PICKED_URI);
-      final UserPreferences userPreferences = new UserPreferences(this);
-      if (uri != null) {
-        userPreferences.setRingtoneUri(uri.toString());
-        String name= data.getParcelableExtra(RingtoneManager.EXTRA_RINGTONE_TITLE);
-        userPreferences.setRingtoneName(name);
-      } else {
-        userPreferences.clearRingtone();
-      }
+    if (RingtoneUtil.isOkRingtoneResult(requestCode, resultCode)) {
+      RingtoneUtil.updateRingtone(data, this);
     }
   }
-
 
 
   @Override
