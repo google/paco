@@ -45,16 +45,6 @@
              </intent-filter>
         </activity>
         
-        <activity android:name="com.google.android.apps.paco.ExperimentList" >
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
-
-                <category android:name="android.intent.category.DEFAULT" />
-
-                <data android:mimeType="vnd.android.cursor.dir/vnd.google.paco.experiment" />
-            </intent-filter>
-        </activity>
-        
         <activity
             android:name="com.pacoapp.paco.ui.FindExperimentsActivity"
             android:label="Experiment Hub"
@@ -69,7 +59,7 @@
         
         <activity
             android:name="com.pacoapp.paco.ui.FindMyExperimentsActivity"
-            android:label="My Experiment Invitations"
+            android:label="My Invitations"
             android:configChanges="orientation|keyboardHidden"
             android:screenOrientation="portrait" >
         </activity>
@@ -103,7 +93,7 @@
         
         <activity
             android:name="com.pacoapp.paco.ui.ExperimentGroupPicker"
-            android:label="Pick Group"
+            android:label="Pick Group to Respond"
             android:configChanges="orientation|keyboardHidden"
             android:screenOrientation="portrait" />
         <activity
