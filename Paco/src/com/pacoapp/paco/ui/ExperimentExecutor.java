@@ -555,7 +555,10 @@ public class ExperimentExecutor extends ActionBarActivity implements ChangeListe
 
   @Override
   public boolean onCreateOptionsMenu(Menu menu) {
-    return optionsMenu.init(menu);
+    if (optionsMenu != null) {
+      return optionsMenu.init(menu);
+    }
+    return super.onCreateOptionsMenu(menu);
   }
 
   @Override
