@@ -721,7 +721,7 @@ public class MyExperimentsActivity extends ActionBarActivity implements
   }
 
   private void launchOpenSourceLibs() {
-    //startActivity(new Intent(this, CompletedExperimentsActivity.class));
+    startActivity(new Intent(this, OpenSourceLicenseListActivity.class));
   }
 
   private void launchSettings() {

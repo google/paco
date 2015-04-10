@@ -152,8 +152,10 @@
         <activity android:name="com.pacoapp.paco.ui.ContactOptionsActivity" android:label="Contact Options"/>
         <activity android:name="com.pacoapp.paco.ui.HelpActivity" android:label="Help"/>
         <activity android:name="com.pacoapp.paco.ui.EulaDisplayActivity" />
+        <activity android:name="com.pacoapp.paco.ui.OpenSourceLicenseListActivity"
+            android:label="Opensource" />
 <!-- New UI -->
-            <activity
+        <activity
             android:name="com.pacoapp.paco.ui.ScheduleListActivity" android:label="Experiment Schedules">
         </activity>
          <activity android:name="com.pacoapp.paco.ui.SchedulePagerActivity"
