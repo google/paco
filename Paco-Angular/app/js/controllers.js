@@ -41,13 +41,7 @@ pacoApp.controller('ExperimentCtrl', ['$scope', '$http',
   '$mdDialog', '$filter', 'template', '$location',
   function($scope, $http, $mdDialog, $filter, template, $location) {
     $scope.tabIndex = 0;
-    $scope.tabs = ['Basics','Questions','Admin','Source'];
     $scope.ace = {};
-
-    $scope.handleSelectedIndexChange = function() {
-
-    };
-
 
     if ($scope.experimentId == -1) {
       $scope.experiment = angular.copy(template.experiment);
@@ -74,10 +68,6 @@ pacoApp.controller('ExperimentCtrl', ['$scope', '$http',
         $scope.experiment.admins = [$scope.user];
       }
     });
-
-    $scope.next = function() {};
-    $scope.previous = function() {};
-
 
     // Ace is reloaded when the Source tab is selected so get pretty JSON here
     $scope.aceLoaded = function(editor) {
@@ -172,6 +162,18 @@ pacoApp.controller('GroupCtrl', ['$scope', 'template',
     $scope.aceLoaded = function(editor) {
       editor.$blockScrolling = 'Infinity';
     };
+
+
+    $scope.$watchCollection('group.actionTriggers', function() {
+      for (var i = 0; i < $scope.group.actionTriggers.length; i++) {
+        if ($scope.group.actionTriggers[i].type == 'scheduleTrigger') {
+          $scope.hasScheduleTrigger = true;
+          return;
+        }
+      }
+      $scope.hasScheduleTrigger = false;
+    });
+
   }
 ]);
 

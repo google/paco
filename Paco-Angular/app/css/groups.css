@@ -130,6 +130,16 @@ md-card-content.expand::after  {
   padding-left: 32px;
 }
 
+/* Hack to make background image appear lighter when button is disabled */
+.md-button[add-icon][disabled]:after {
+  background: rgba(255, 255, 255, .66);
+  content: '';
+  position: absolute;
+  left: 0;
+  width: 28px;
+  height: 100%;
+}
+
 div[expander] {
   -webkit-transition: opacity ease-in-out .5s, margin-bottom ease-in-out .5s;
 }
