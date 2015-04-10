@@ -296,7 +296,7 @@ public class NotificationCreator {
             .setAutoCancel(true);
 
     int defaults = Notification.DEFAULT_VIBRATE | Notification.DEFAULT_LIGHTS;
-    String ringtoneUri = new UserPreferences(context).getRingtone();
+    String ringtoneUri = new UserPreferences(context).getRingtoneUri();
     if (ringtoneUri != null) {
       notificationBuilder.setSound(Uri.parse(ringtoneUri));
     } else {

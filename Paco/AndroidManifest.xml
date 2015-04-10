@@ -173,6 +173,10 @@
                 android:value=".ScheduleListActivity" />
         </activity>
      
+           <activity
+            android:name="com.pacoapp.paco.ui.SettingsActivity"
+            android:label="@string/title_activity_settings" >
+        </activity>
      <!--  end new ui -->   
         <!-- services -->
         <service android:name="com.pacoapp.paco.triggering.NotificationCreatorService" >

@@ -273,7 +273,7 @@ public class ExperimentManagerActivity extends ActionBarActivity {
 
   private void launchRingtoneChooser() {
     UserPreferences userPreferences = new UserPreferences(this);
-    String uri = userPreferences.getRingtone();
+    String uri = userPreferences.getRingtoneUri();
     Intent intent = new Intent(RingtoneManager.ACTION_RINGTONE_PICKER);
     intent.putExtra(RingtoneManager.EXTRA_RINGTONE_TYPE, RingtoneManager.TYPE_NOTIFICATION);
     intent.putExtra(RingtoneManager.EXTRA_RINGTONE_TITLE, R.string.select_signal_tone);
@@ -321,10 +321,13 @@ public class ExperimentManagerActivity extends ActionBarActivity {
       finish();
     } else if (requestCode == RINGTONE_REQUESTCODE && resultCode == RESULT_OK) {
       Uri uri = data.getParcelableExtra(RingtoneManager.EXTRA_RINGTONE_PICKED_URI);
+      final UserPreferences userPreferences = new UserPreferences(this);
       if (uri != null) {
-        new UserPreferences(this).setRingtone(uri.toString());
+        userPreferences.setRingtoneUri(uri.toString());
+        String name= data.getParcelableExtra(RingtoneManager.EXTRA_RINGTONE_TITLE);
+        userPreferences.setRingtoneName(name);
       } else {
-        new UserPreferences(this).clearRingtone();
+        userPreferences.clearRingtone();
       }
 
     }

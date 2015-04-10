@@ -75,7 +75,8 @@ public class RingtoneUtil {
     if (!alreadyInstalled) {
       Uri newUri = mediaStoreContentProvider.insert(uri, values);
       if (newUri != null) {
-        userPreferences.setRingtone(newUri.toString());
+        userPreferences.setRingtoneUri(newUri.toString());
+        userPreferences.setRingtoneName(PACO_BARK_RINGTONE_TITLE);
         userPreferences.setPacoBarkRingtoneInstalled();
       }
     }
@@ -217,7 +218,8 @@ public class RingtoneUtil {
         values.put(MediaStore.Audio.Media.IS_MUSIC, false);
 
         Uri newToneUri = context.getContentResolver().insert(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, values);
-        userPreferences.setRingtone(newToneUri.toString());
+        userPreferences.setRingtoneUri(newToneUri.toString());
+        userPreferences.setRingtoneName(PACO_BARK_RINGTONE_TITLE);
         userPreferences.setPacoBarkRingtoneInstalled();
         // Apparently this is best practice, although I have no idea what the Media Scanner
         // does with the new data

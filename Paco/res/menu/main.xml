@@ -4,10 +4,13 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     tools:context=".MainActivity" >
+    <!--  action bar visible -->
     <item android:id="@+id/action_find_experiments"
         android:title="@string/action_find_experiments"
         android:icon="@android:drawable/ic_menu_search"
         app:showAsAction="always" />
+    
+    <!--  overflow -->
     <item android:id="@+id/action_refreshMenuItem"
         android:title="@string/refresh_experiment_menu_item"
         android:icon="@drawable/ic_action_refresh"
@@ -34,6 +37,7 @@
         android:title="@string/action_user_agreement"
         android:orderInCategory="100"
         app:showAsAction="never" />
+    <!--   -->
     <item android:id="@+id/action_open_source_libs"
         android:title="@string/action_open_source_libs"
         android:orderInCategory="100"

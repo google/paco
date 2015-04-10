@@ -17,9 +17,7 @@
  */
 package com.pacoapp.paco.ui;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.nio.charset.UnsupportedCharsetException;
 import java.util.Collections;
 import java.util.Comparator;
@@ -412,10 +410,13 @@ public class MyExperimentsActivity extends ActionBarActivity implements
     super.onActivityResult(requestCode, resultCode, data);
     if (requestCode == RINGTONE_REQUESTCODE && resultCode == RESULT_OK) {
       Uri uri = data.getParcelableExtra(RingtoneManager.EXTRA_RINGTONE_PICKED_URI);
+      final UserPreferences userPreferences = new UserPreferences(this);
       if (uri != null) {
-        new UserPreferences(this).setRingtone(uri.toString());
+        userPreferences.setRingtoneUri(uri.toString());
+        String name= data.getParcelableExtra(RingtoneManager.EXTRA_RINGTONE_TITLE);
+        userPreferences.setRingtoneName(name);
       } else {
-        new UserPreferences(this).clearRingtone();
+        userPreferences.clearRingtone();
       }
     }
 
@@ -725,7 +726,7 @@ public class MyExperimentsActivity extends ActionBarActivity implements
   }
 
   private void launchSettings() {
-    //startActivity(new Intent(this, FindMyOrAllExperimentsChooserActivity.class));
+    startActivity(new Intent(this, SettingsActivity.class));
   }
 
   private void launchEula() {
@@ -750,64 +751,6 @@ public class MyExperimentsActivity extends ActionBarActivity implements
     emailIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, "Paco Feedback");
     emailIntent.setType("plain/text");
     startActivity(emailIntent);
-  }
-
-  private void launchLogSender() {
-    String log = readLog();
-    createEmailIntent(log);
-  }
-
-
-  private void createEmailIntent(String log) {
-    Intent emailIntent = new Intent(android.content.Intent.ACTION_SEND);
-    emailIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, "Paco Feedback");
-    emailIntent.setType("plain/text");
-    emailIntent.putExtra(android.content.Intent.EXTRA_TEXT, log);
-    startActivity(emailIntent);
-  }
-
-  private String readLog() {
-    StringBuilder log = new StringBuilder();
-    try {
-      Process process = Runtime.getRuntime().exec("logcat -d");
-      BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-
-      String line;
-      while ((line = bufferedReader.readLine()) != null) {
-        log.append(line).append("\n");
-      }
-    } catch (IOException e) {
-      return null;
-    }
-    return log.toString();
-  }
-
-  private void launchRingtoneChooser() {
-    UserPreferences userPreferences = new UserPreferences(this);
-    String uri = userPreferences.getRingtone();
-    Intent intent = new Intent(RingtoneManager.ACTION_RINGTONE_PICKER);
-    intent.putExtra(RingtoneManager.EXTRA_RINGTONE_TYPE, RingtoneManager.TYPE_NOTIFICATION);
-    intent.putExtra(RingtoneManager.EXTRA_RINGTONE_TITLE, R.string.select_signal_tone);
-    intent.putExtra(RingtoneManager.EXTRA_RINGTONE_SHOW_SILENT, false);
-    intent.putExtra(RingtoneManager.EXTRA_RINGTONE_SHOW_DEFAULT, true);
-    if (uri != null) {
-      intent.putExtra(RingtoneManager.EXTRA_RINGTONE_EXISTING_URI, Uri.parse(uri));
-    } else {
-      intent.putExtra(RingtoneManager.EXTRA_RINGTONE_EXISTING_URI,
-                      RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION));
-    }
-
-    startActivityForResult(intent, RINGTONE_REQUESTCODE);
-  }
-
-  private void launchServerConfiguration() {
-    Intent startIntent = new Intent(this, ServerConfigurationActivity.class);
-    startActivity(startIntent);
-  }
-
-  private void launchDebug() {
-    Intent startIntent = new Intent(this, ESMSignalViewer.class);
-    startActivity(startIntent);
   }
 
   @SuppressLint("NewApi")

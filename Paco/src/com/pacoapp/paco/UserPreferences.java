@@ -31,7 +31,6 @@ import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 import com.google.paco.shared.util.TimeUtil;
-import com.pacoapp.paco.R;
 
 /**
  * A place for storing various preferences of the user.
@@ -86,7 +85,8 @@ public class UserPreferences {
 
   private static final String RINGTONE_PREF_KEY = "ringtone_pref";
 
-  private static final String RINGTONE_KEY = "ringtone_key";
+  private static final String RINGTONE_URI_KEY = "ringtone_key";
+  private static final String RINGTONE_NAME_KEY = "ringtone-name";
 
   private static final String RINGTONE_INSTALLED_KEY = "paco_bark_ringtone_installed";
 
@@ -103,6 +103,9 @@ public class UserPreferences {
   private static final String EXPERIMENT_TRIGGERED_KEY = null;
 
   private static final String ACCESS_TOKEN_KEY = "access-token-key";
+
+  private static final String WIFI_ONLY_KEY = "wifi-only";
+
 
 
 
@@ -271,16 +274,26 @@ public class UserPreferences {
     return prefs.getString(SELECTED_ACCOUNT_KEY, null);
   }
 
-  public void setRingtone(String ringtoneUri) {
-    getAppPrefs().edit().putString(RINGTONE_KEY, ringtoneUri).commit();
+  public void setRingtoneUri(String ringtoneUri) {
+    getAppPrefs().edit().putString(RINGTONE_URI_KEY, ringtoneUri).commit();
   }
 
-  public String getRingtone() {
-    return getAppPrefs().getString(RINGTONE_KEY, null);
+  public String getRingtoneUri() {
+    return getAppPrefs().getString(RINGTONE_URI_KEY, null);
   }
 
-  public boolean clearRingtone() {
-    return getAppPrefs().edit().clear().commit();
+  public void setRingtoneName(String ringtoneName) {
+    getAppPrefs().edit().putString(RINGTONE_NAME_KEY, ringtoneName).commit();
+  }
+
+  public String getRingtoneName() {
+    return getAppPrefs().getString(RINGTONE_NAME_KEY, null);
+  }
+
+
+  public void clearRingtone() {
+    setRingtoneName(null);
+    setRingtoneUri(null);
   }
 
   public boolean hasInstalledPacoBarkRingtone() {
@@ -329,6 +342,14 @@ public class UserPreferences {
   public void saveSeenExperimentInvitations(List<Long> seen) {
     String seenIdsStr = Joiner.on(",").join(seen);
     getAppPrefs().edit().putString(SEEN_EXPERIMENT_INVITATIONS_KEY, seenIdsStr).commit();
+  }
+
+  public boolean getWifiOnly() {
+    return getAppPrefs().getBoolean(WIFI_ONLY_KEY, false);
+  }
+
+  public void setWifiOnly(boolean wifiOnly) {
+    getAppPrefs().edit().putBoolean(WIFI_ONLY_KEY, wifiOnly).commit();
   }
 
 }

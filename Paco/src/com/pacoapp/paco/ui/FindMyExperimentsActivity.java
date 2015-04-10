@@ -247,11 +247,11 @@ public class FindMyExperimentsActivity extends ActionBarActivity implements
   }
 
   private void launchOpenSourceLibs() {
-    //startActivity(new Intent(this, CompletedExperimentsActivity.class));
+    startActivity(new Intent(this, OpenSourceLicenseListActivity.class));
   }
 
   private void launchSettings() {
-    //startActivity(new Intent(this, FindMyOrAllExperimentsChooserActivity.class));
+    startActivity(new Intent(this, SettingsActivity.class));
   }
 
   private void launchEula() {
