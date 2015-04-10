@@ -94,17 +94,7 @@ import com.pacoapp.paco.triggering.NotificationCreator;
 public class MyExperimentsActivity extends ActionBarActivity implements NavigationDrawerFragment.NavigationDrawerCallbacks, NetworkClient {
 
   private static final int RINGTONE_REQUESTCODE = 945;
-  private static final int ABOUT_PACO_ITEM = 3;
-  private static final int DEBUG_ITEM = 4;
-  private static final int SERVER_ADDRESS_ITEM = 5;
-  private static final int ACCOUNT_CHOOSER_ITEM = 7;
-  private static final int RINGTONE_CHOOSER_ITEM = 8;
-  private static final int SEND_LOG_ITEM = 9;
-  private static final int EULA_ITEM = 10;
-
   public static final int REFRESHING_EXPERIMENTS_DIALOG_ID = 1001;
-  private static final int FIND_EXPERIMENTS_ITEM = 11;
-  private static final int REFRESH_EXPERIMENTS_CHOOSER_ITEM = 12;
 
   private ExperimentProviderUtil experimentProviderUtil;
   private ListView list;
@@ -140,6 +130,7 @@ public class MyExperimentsActivity extends ActionBarActivity implements Navigati
 
   private NavigationDrawerFragment mNavigationDrawerFragment;
   private ProgressBar progressBar;
+  private ListView navDrawerList;
 
 
 
@@ -161,6 +152,8 @@ public class MyExperimentsActivity extends ActionBarActivity implements Navigati
     mNavigationDrawerFragment = (NavigationDrawerFragment) getSupportFragmentManager().findFragmentById(R.id.navigation_drawer);
     mNavigationDrawerFragment.setUp(R.id.navigation_drawer, (DrawerLayout) findViewById(R.id.drawer_layout));
 
+
+    navDrawerList = (ListView)mNavigationDrawerFragment.getView().findViewById(R.id.navDrawerList);
     progressBar = (ProgressBar)findViewById(R.id.findExperimentsProgressBar);
 
 
@@ -184,12 +177,7 @@ public class MyExperimentsActivity extends ActionBarActivity implements Navigati
 
   @Override
   public void onNavigationDrawerItemSelected(int position) {
-      // update the main content by replacing fragments
-//      FragmentManager fragmentManager = getSupportFragmentManager();
-//      fragmentManager.beginTransaction()
-//              .replace(R.id.container, PlaceholderFragment.newInstance(position + 1))
-//              .commit();
-    // TODO dispatch to the appropriate activity
+    //navDrawerList.setItemChecked(position, true);
     switch (position) {
     case 0:
       // we are here launchMyCurrentExperiments();
@@ -644,31 +632,7 @@ public class MyExperimentsActivity extends ActionBarActivity implements Navigati
   public boolean onCreateOptionsMenu(Menu menu) {
     int pos = 1;
     if (!mNavigationDrawerFragment.isDrawerOpen()) {
-      // Only show items in the action bar relevant to this screen
-      // if the drawer is not showing. Otherwise, let the drawer
-      // decide what to show in the action bar.
-      // getMenuInflater().inflate(R.menu.main, menu);
-      MenuItem item = menu.add(0, FIND_EXPERIMENTS_ITEM, pos++, getString(R.string.find_experiments));
-      item.setIcon(android.R.drawable.ic_menu_search);
-      if (Integer.parseInt(Build.VERSION.SDK) >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
-        item.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
-      }
-      item = menu.add(0, REFRESH_EXPERIMENTS_CHOOSER_ITEM, pos++, R.string.refresh_experiments);
-      addToActionBar(item);
-      item = menu.add(0, RINGTONE_CHOOSER_ITEM, pos++, R.string.choose_alert_menu_item);
-      addToActionBar(item);
-      item = menu.add(0, ACCOUNT_CHOOSER_ITEM, pos++, R.string.choose_account_menu_item);
-      addToActionBar(item);
-      item = menu.add(0, ABOUT_PACO_ITEM, pos++, R.string.about_paco_menu_item);
-      addToActionBar(item);
-      item = menu.add(0, EULA_ITEM, pos++, R.string.eula_menu_item);
-      addToActionBar(item);
-      item = menu.add(0, SEND_LOG_ITEM, pos++, R.string.send_log_menu_item);
-      addToActionBar(item);
-      item = menu.add(0, SERVER_ADDRESS_ITEM, pos++, R.string.server_address_menu_item);
-      addToActionBar(item);
-      item = menu.add(0, DEBUG_ITEM, pos++, R.string.debug_menu_item);
-      addToActionBar(item);
+      getMenuInflater().inflate(R.menu.main, menu);
       restoreActionBar();
       return true;
     }
@@ -684,37 +648,33 @@ public class MyExperimentsActivity extends ActionBarActivity implements Navigati
 
   @Override
   public boolean onOptionsItemSelected(MenuItem item) {
-    switch (item.getItemId()) {
-    case ABOUT_PACO_ITEM:
-      launchPaco();
-      return true;
-    case DEBUG_ITEM:
-      launchDebug();
-      return true;
-    case SERVER_ADDRESS_ITEM:
-      launchServerConfiguration();
-      return true;
-    case ACCOUNT_CHOOSER_ITEM:
-      launchAccountChooser();
-      return true;
-    case RINGTONE_CHOOSER_ITEM:
-      launchRingtoneChooser();
-      return true;
-    case SEND_LOG_ITEM:
-      launchLogSender();
-      return true;
-    case EULA_ITEM:
-      launchEula();
-      return true;
-    case FIND_EXPERIMENTS_ITEM:
+    int id = item.getItemId();
+    if (id == R.id.action_find_experiments) {
       launchFindExperiments();
       return true;
-    case REFRESH_EXPERIMENTS_CHOOSER_ITEM:
+    } else if (id == R.id.action_refreshMenuItem) {
       refreshExperiments();
       return true;
-    default:
-      return false;
+    } else if (id == R.id.action_settings) {
+      launchSettings();
+      return true;
+    } else if (id == R.id.action_about) {
+       launchAbout();
+      return true;
+    } else if (id == R.id.action_user_guide) {
+      launchHelp();
+      return true;
+    } else if (id == R.id.action_user_agreement) {
+      launchEula();
+      return true;
+    } else if (id == R.id.action_open_source_libs) {
+      launchOpenSourceLibs();
+      return true;
+    } else if (id == R.id.action_email_paco_team) {
+      createEmailPacoTeamIntent();
+      return true;
     }
+    return false;
   }
 
   private void refreshExperiments() {
@@ -766,15 +726,37 @@ public class MyExperimentsActivity extends ActionBarActivity implements Navigati
     //startActivity(new Intent(this, CompletedExperimentsActivity.class));
   }
 
+  private void launchOpenSourceLibs() {
+    //startActivity(new Intent(this, CompletedExperimentsActivity.class));
+  }
+
+  private void launchSettings() {
+    //startActivity(new Intent(this, FindMyOrAllExperimentsChooserActivity.class));
+  }
+
   private void launchEula() {
     Intent eulaIntent = new Intent(this, EulaDisplayActivity.class);
     startActivity(eulaIntent);
+  }
+
+  private void launchHelp() {
+    startActivity(new Intent(this, HelpActivity.class));
   }
 
   private void launchLogSender() {
     String log = readLog();
     createEmailIntent(log);
   }
+
+  private void createEmailPacoTeamIntent() {
+    Intent emailIntent = new Intent(android.content.Intent.ACTION_SEND);
+    String aEmailList[] = { getString(R.string.contact_email) };
+    emailIntent.putExtra(android.content.Intent.EXTRA_EMAIL, aEmailList);
+    emailIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, "Paco Feedback");
+    emailIntent.setType("plain/text");
+    startActivity(emailIntent);
+  }
+
 
   private void createEmailIntent(String log) {
     Intent emailIntent = new Intent(android.content.Intent.ACTION_SEND);
@@ -828,7 +810,7 @@ public class MyExperimentsActivity extends ActionBarActivity implements Navigati
     startActivity(startIntent);
   }
 
-  private void launchPaco() {
+  private void launchAbout() {
     Intent startIntent = new Intent(this, WelcomeActivity.class);
     startActivity(startIntent);
   }
