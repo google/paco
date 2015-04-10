@@ -3,13 +3,23 @@ package com.pacoapp.paco.net;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.support.v4.net.ConnectivityManagerCompat;
+
+import com.pacoapp.paco.UserPreferences;
 
 public class NetworkUtil {
-  
+
   public static boolean isConnected(Context context) {
     ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
     NetworkInfo networkInfo = cm.getActiveNetworkInfo();
-    return networkInfo != null && networkInfo.isConnected();
+    boolean basicNetworkOn = networkInfo != null && networkInfo.isConnected();
+    if (!basicNetworkOn) {
+      return false;
+    }
+    if (new UserPreferences(context.getApplicationContext()).getWifiOnly()) {
+      return !ConnectivityManagerCompat.isActiveNetworkMetered(cm);
+    }
+    return true;
   }
 
   public static final String EXECUTION_ERROR = "execution_error";

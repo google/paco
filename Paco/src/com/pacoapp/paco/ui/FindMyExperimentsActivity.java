@@ -199,7 +199,7 @@ public class FindMyExperimentsActivity extends ActionBarActivity implements
   public boolean onOptionsItemSelected(MenuItem item) {
     int id = item.getItemId();
     if (id == R.id.action_refreshMenuItem) {
-      if (!isConnected()) {
+      if (!NetworkUtil.isConnected(this)) {
         showDialogById(NetworkUtil.NO_NETWORK_CONNECTION);
       } else {
         refreshList();
@@ -228,10 +228,6 @@ public class FindMyExperimentsActivity extends ActionBarActivity implements
       return true;
     }
     return super.onOptionsItemSelected(item);
-  }
-
-  private void launchFindExperiments() {
-    startActivity(new Intent(this, FindMyOrAllExperimentsChooserActivity.class));
   }
 
   private void launchFindMyExperiments() {
@@ -278,10 +274,6 @@ public class FindMyExperimentsActivity extends ActionBarActivity implements
   }
 
 
-
-  private boolean isConnected() {
-    return NetworkUtil.isConnected(this);
-  }
 
   @Override
   protected void onResume() {

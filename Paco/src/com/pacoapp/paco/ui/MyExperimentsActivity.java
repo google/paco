@@ -661,7 +661,6 @@ public class MyExperimentsActivity extends ActionBarActivity implements
   }
 
   private void refreshExperiments() {
-
     if (!NetworkUtil.isConnected(this)) {
       showDialog(NetworkUtil.NO_NETWORK_CONNECTION, null);
     } else {

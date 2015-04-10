@@ -196,7 +196,11 @@ public class FindExperimentsActivity extends ActionBarActivity implements Networ
   public boolean onOptionsItemSelected(MenuItem item) {
     int id = item.getItemId();
     if (id == R.id.action_refreshMenuItem) {
-      refreshList();
+      if (!NetworkUtil.isConnected(this)) {
+        showDialogById(NetworkUtil.NO_NETWORK_CONNECTION);
+      } else {
+        refreshList();
+      }
       return true;
     } else if (id == R.id.action_settings) {
       launchSettings();
@@ -268,12 +272,6 @@ public class FindExperimentsActivity extends ActionBarActivity implements Networ
     emailIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, "Paco Feedback");
     emailIntent.setType("plain/text");
     startActivity(emailIntent);
-  }
-
-
-
-  private boolean isConnected() {
-    return NetworkUtil.isConnected(this);
   }
 
   @Override
