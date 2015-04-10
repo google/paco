@@ -18,10 +18,12 @@
             android:layout_height="wrap_content"
             android:text="Ringtone for alerts"
             android:textAppearance="?android:attr/textAppearanceLarge" />
-<View
-    android:layout_width="fill_parent"
-    android:layout_height="1dp"
-    android:background="@android:color/darker_gray"/>
+
+        <View
+            android:layout_width="fill_parent"
+            android:layout_height="1dp"
+            android:background="@android:color/darker_gray" />
+
         <TextView
             android:id="@+id/ringToneTextView"
             android:layout_width="wrap_content"
@@ -29,7 +31,6 @@
             android:clickable="true"
             android:text="Paco bark"
             android:textAppearance="?android:attr/textAppearanceMedium" />
-        
     </LinearLayout>
 
     <LinearLayout
@@ -46,16 +47,17 @@
             android:layout_height="wrap_content"
             android:text="Data Transfer"
             android:textAppearance="?android:attr/textAppearanceLarge" />
-<View
-    android:layout_width="fill_parent"
-    android:layout_height="1dp"
-    android:background="@android:color/darker_gray"/>
+
+        <View
+            android:layout_width="fill_parent"
+            android:layout_height="1dp"
+            android:background="@android:color/darker_gray" />
+
         <CheckBox
             android:id="@+id/wifiCheckBox"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Wifi Only" />
-
     </LinearLayout>
 
     <LinearLayout
@@ -72,10 +74,12 @@
             android:layout_height="wrap_content"
             android:text="Google Email Address"
             android:textAppearance="?android:attr/textAppearanceLarge" />
-<View
-    android:layout_width="fill_parent"
-    android:layout_height="1dp"
-    android:background="@android:color/darker_gray"/>
+
+        <View
+            android:layout_width="fill_parent"
+            android:layout_height="1dp"
+            android:background="@android:color/darker_gray" />
+
         <TextView
             android:id="@+id/accountTextView"
             android:layout_width="fill_parent"
@@ -104,10 +108,12 @@
             android:layout_height="wrap_content"
             android:text="@string/server_address_warning"
             android:textAppearance="?android:attr/textAppearanceSmall" />
-<View
-    android:layout_width="fill_parent"
-    android:layout_height="1dp"
-    android:background="@android:color/darker_gray"/>
+
+        <View
+            android:layout_width="fill_parent"
+            android:layout_height="1dp"
+            android:background="@android:color/darker_gray" />
+
         <EditText
             android:id="@+id/serverAddressView"
             android:layout_width="fill_parent"
@@ -122,12 +128,15 @@
         android:layout_marginBottom="8dp"
         android:layout_marginLeft="8dp"
         android:layout_marginRight="8dp"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="0dp"
         android:orientation="vertical" >
-<View
-    android:layout_width="fill_parent"
-    android:layout_height="3dp"
-    android:background="@android:color/darker_gray"/>
+
+        <View
+            android:layout_width="fill_parent"
+            android:layout_height="3dp"
+            android:layout_marginBottom="4dp"
+            android:background="@android:color/darker_gray" />
+
         <Button
             android:id="@+id/sendPacoLogButton"
             android:layout_width="wrap_content"
