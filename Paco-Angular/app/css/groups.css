@@ -1,7 +1,3 @@
-/*.groups > button {
-  margin: 8px 0 8px 0;
-}*/
-
 .group {
   position: relative;
 }
@@ -38,6 +34,10 @@
   padding: 0;
 }
 
+.group .duration md-radio-group {
+  margin-left: 4px;
+}
+
 .choice {
   position: relative;
 }
@@ -54,7 +54,13 @@
 
 .trigger .header, .input .header {
   background: #E8EAF6;
+  padding-left: 36px;
 }
+
+.input select {
+  margin-left: 16px;
+}
+
 
 .section {
   font-weight: 300;
@@ -93,16 +99,25 @@ md-card .section {
   -webkit-user-select: none;
 }
 
-md-card .section .subtitle, md-card .section .title {
+md-card .section .title {
   display: inline-block;
+  font-weight: bold;
   height: 24px;
   width: 200px;
 } 
 
-md-card .section .title {
-  font-weight: bold;
+md-card .section .subtitle {
+  display: inline-block;
+  height: 24px;
+  width: 180px;
 }
 
+md-card .section .subsub {
+  display: inline-block;
+  height: 24px;
+  margin-left: 32px;
+  width: 182px;
+}
 
 md-card-content[expandable=true]::after {
   background: url('../img/ic_unfoldMore.svg') no-repeat;
@@ -132,7 +147,7 @@ md-card-content.expand::after  {
 
 /* Hack to make background image appear lighter when button is disabled */
 .md-button[add-icon][disabled]:after {
-  background: rgba(255, 255, 255, .66);
+  background: rgba(255, 255, 255, .6);
   content: '';
   position: absolute;
   left: 0;
@@ -146,7 +161,7 @@ div[expander] {
 
 .advanced .identifier {
   position: absolute;
-  left: 240px;
+  left: 320px;
   top: 116px;
   z-index: 10;
 }
@@ -157,13 +172,17 @@ div[expander] {
   top: -10px;
 }
 
+.advanced md-checkbox {
+  margin-left: 36px;
+}
+
 .advanced .over {
   position: relative;
 }
 
 .advanced .referred {
   position: absolute;
-  left: 240px;
+  left: 320px;
   top: -24px;
   z-index: 10;
 }
@@ -176,9 +195,3 @@ div[expander] {
   border-top: 1px solid lightgray;
   position: relative !important;
 }
-
- /* .ace_editor {
-    border: 1px solid lightgray;
-    margin: auto;
-    height: 200px;
-  }*/

@@ -21,8 +21,7 @@
             <span ng-if="experiment.groups.length>1">Group {{$parent.$parent.$index+1}}</span>            
             Triggers <span class="light">({{group.actionTriggers.length}})</span>
           </div>
-          <md-button add-icon ng-click="addScheduleTrigger($event, toggleExpand)"
-            ng-disabled="hasScheduleTrigger">
+          <md-button add-icon ng-click="addScheduleTrigger($event, toggleExpand)">
             Scheduled Trigger
           </md-button>
           <md-button add-icon ng-click="addEventTrigger($event, toggleExpand)">

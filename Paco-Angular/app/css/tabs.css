@@ -20,6 +20,10 @@ md-tab-item.md-active {
   margin-bottom: -4px;
 }
 
-#save {
+.save {
   float: right;
+}
+
+.save a {
+  color: red;
 }

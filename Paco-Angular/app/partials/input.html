@@ -21,10 +21,6 @@
       <md-checkbox ng-model="input.conditional" aria-label="Conditional">
         Conditional
       </md-checkbox>
-
-      <md-checkbox ng-model="input.multiselect" aria-label="Multiple selections" ng-if="input.responseType == 'list'">
-        Multiple selections
-      </md-checkbox>
     </div>
 
     <div class="column1">
@@ -33,18 +29,24 @@
         <input ng-model="input.text">
       </md-input-container>
 
-      <div class="clearfix">
-        <md-input-container class="medium">
+      <div layout="row">
+        <md-input-container class="medium" flex>
           <label>Question {{$index + 1}} Variable Name</label>
           <input ng-model="input.name">
         </md-input-container>
 
-        <div ng-if="input.conditional">
-          <md-input-container>
+        <div flex>
+          <md-input-container ng-if="input.conditional">
             <label>Condition</label>
             <input ng-model="input.conditionExpression">
           </md-input-container>
         </div>
+      </div>
+
+      <div ng-if="input.responseType == 'list'">
+        <md-checkbox ng-model="input.multiselect" aria-label="Multiple selections">
+          Multiple selections
+        </md-checkbox>
       </div>
 
       <div class="likert" ng-if="input.responseType == 'likert'">

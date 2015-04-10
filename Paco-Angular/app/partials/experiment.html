@@ -5,12 +5,23 @@
         Experiments > <b>{{experiment.title}}</b>
         <i ng-if="!experiment.title">New experiment</i>
 
-        <a href="#" class="remove-button"></a>
-        <md-button id="save" ng-click="saveExperiment()">
-          Save Experiment
-        </md-button>
+        <!-- <a href="#" class="remove-button"></a> -->
+
+        <div class="save">
+
+          <md-button ng-click="saveExperiment()">
+            Save Experiment
+          </md-button>
+
+          <a href="#">
+            <md-button>
+              Discard Changes
+            </md-button>
+          </a>
+
+        </div>
       </div>
-      
+
       <md-tabs md-selected="tabIndex">
         <!-- There is an error if md-on-select/deselect are not defined. -->
         <md-tab md-on-select="" md-on-deselect="">
