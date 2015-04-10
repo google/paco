@@ -173,6 +173,8 @@ public class ExperimentExecutorCustomRendering extends ActionBarActivity impleme
     if (experiment == null || experimentGroup == null) {
       displayNoExperimentMessage();
     } else {
+      actionBar.setTitle(experiment.getExperimentDAO().getTitle());
+
       inflater = (LayoutInflater)getSystemService(Context.LAYOUT_INFLATER_SERVICE);
       optionsMenu = new OptionsMenu(this, experiment.getExperimentDAO().getId(), scheduledTime != null && scheduledTime != 0L);
 

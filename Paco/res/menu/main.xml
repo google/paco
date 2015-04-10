@@ -10,6 +10,7 @@
         app:showAsAction="always" />
     <item android:id="@+id/action_refreshMenuItem"
         android:title="@string/refresh_experiment_menu_item"
+        android:icon="@drawable/ic_action_refresh"
         app:showAsAction="never" />
     <item android:id="@+id/action_settings"
         android:title="@string/action_settings"

@@ -18,7 +18,7 @@
 
 <resources>
 
-    <string name="app_name">PACO</string>
+    <string name="app_name">Paco</string>
     <string name="server">quantifiedself-staging.appspot.com</string>
     <string name="app_package">com.pacoapp.paco</string>
     <string name="contact_email">paco-users@googlegroups.com</string>
@@ -237,7 +237,7 @@
     <string name="raw_data_button_text">Go to Raw Data</string>
     <string name="your_current_experiments">My Current Experiments</string>
     <string name="refresh_experiments_list_from_server">Refresh Experiments List from Server</string>
-    <string name="load_more_experiments_from_server">Load More Experiments from Server</string>
+    <string name="load_more_experiments_from_server">Refresh Again to Load More Experiments from Server</string>
     <string name="data_handling_title">You Agree to Share Information with the Experimenters</string>
     <string name="informed_consent_preamble">By joining this experiment, you will be sharing your responses with the creator and administrators of this experiment, and they may use that information for research, product development, or other purposes.  Please read the privacy policy or data handling statement they have provided below to decide whether you want to participate in this experiment.</string>
     <string name="consent_checkbox_text">"          I consent"</string>
@@ -315,5 +315,6 @@
     <string name="title_schedule_detail">Schedule Detail</string>
         <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="choose_experiment_group">Choose an Experiment Group to Respond</string>
     
 </resources>

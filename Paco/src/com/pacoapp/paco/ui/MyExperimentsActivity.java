@@ -42,7 +42,6 @@ import android.content.ServiceConnection;
 import android.graphics.drawable.ColorDrawable;
 import android.media.RingtoneManager;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.provider.Settings;
@@ -91,7 +90,8 @@ import com.pacoapp.paco.triggering.NotificationCreator;
 /**
  *
  */
-public class MyExperimentsActivity extends ActionBarActivity implements NavigationDrawerFragment.NavigationDrawerCallbacks, NetworkClient {
+public class MyExperimentsActivity extends ActionBarActivity implements
+    NavigationDrawerFragment.NavigationDrawerCallbacks, NetworkClient {
 
   private static final int RINGTONE_REQUESTCODE = 945;
   public static final int REFRESHING_EXPERIMENTS_DIALOG_ID = 1001;
@@ -148,10 +148,10 @@ public class MyExperimentsActivity extends ActionBarActivity implements Navigati
     actionBar.setDisplayShowHomeEnabled(true);
     actionBar.setBackgroundDrawable(new ColorDrawable(0xff4A53B3));
 
+
     // Set up the drawer.
     mNavigationDrawerFragment = (NavigationDrawerFragment) getSupportFragmentManager().findFragmentById(R.id.navigation_drawer);
     mNavigationDrawerFragment.setUp(R.id.navigation_drawer, (DrawerLayout) findViewById(R.id.drawer_layout));
-
 
     navDrawerList = (ListView)mNavigationDrawerFragment.getView().findViewById(R.id.navDrawerList);
     progressBar = (ProgressBar)findViewById(R.id.findExperimentsProgressBar);
@@ -639,13 +639,6 @@ public class MyExperimentsActivity extends ActionBarActivity implements Navigati
     return super.onCreateOptionsMenu(menu);
   }
 
-  @SuppressLint("NewApi")
-  public void addToActionBar(MenuItem item) {
-    if (Integer.parseInt(Build.VERSION.SDK) >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
-      item.setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER);
-    }
-  }
-
   @Override
   public boolean onOptionsItemSelected(MenuItem item) {
     int id = item.getItemId();
@@ -671,7 +664,7 @@ public class MyExperimentsActivity extends ActionBarActivity implements Navigati
       launchOpenSourceLibs();
       return true;
     } else if (id == R.id.action_email_paco_team) {
-      createEmailPacoTeamIntent();
+      launchEmailPacoTeam();
       return true;
     }
     return false;
@@ -710,6 +703,7 @@ public class MyExperimentsActivity extends ActionBarActivity implements Navigati
       // Nothing to be done here.
     }
   }
+
   private void launchFindExperiments() {
     startActivity(new Intent(this, FindMyOrAllExperimentsChooserActivity.class));
   }
@@ -743,18 +737,24 @@ public class MyExperimentsActivity extends ActionBarActivity implements Navigati
     startActivity(new Intent(this, HelpActivity.class));
   }
 
-  private void launchLogSender() {
-    String log = readLog();
-    createEmailIntent(log);
+  private void launchAbout() {
+    Intent startIntent = new Intent(this, WelcomeActivity.class);
+    startActivity(startIntent);
   }
 
-  private void createEmailPacoTeamIntent() {
+
+  private void launchEmailPacoTeam() {
     Intent emailIntent = new Intent(android.content.Intent.ACTION_SEND);
     String aEmailList[] = { getString(R.string.contact_email) };
     emailIntent.putExtra(android.content.Intent.EXTRA_EMAIL, aEmailList);
     emailIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, "Paco Feedback");
     emailIntent.setType("plain/text");
     startActivity(emailIntent);
+  }
+
+  private void launchLogSender() {
+    String log = readLog();
+    createEmailIntent(log);
   }
 
 
@@ -807,11 +807,6 @@ public class MyExperimentsActivity extends ActionBarActivity implements Navigati
 
   private void launchDebug() {
     Intent startIntent = new Intent(this, ESMSignalViewer.class);
-    startActivity(startIntent);
-  }
-
-  private void launchAbout() {
-    Intent startIntent = new Intent(this, WelcomeActivity.class);
     startActivity(startIntent);
   }
 

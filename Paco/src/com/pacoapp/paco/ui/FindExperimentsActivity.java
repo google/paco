@@ -28,6 +28,7 @@ import java.util.Map;
 import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.map.JsonMappingException;
 
+import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
@@ -41,14 +42,13 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.view.LayoutInflater;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -68,7 +68,8 @@ import com.pacoapp.paco.net.PacoForegroundService;
 /**
  *
  */
-public class FindExperimentsActivity extends ActionBarActivity implements NetworkActivityLauncher, NetworkClient {
+public class FindExperimentsActivity extends ActionBarActivity implements NetworkActivityLauncher,
+  NetworkClient, NavigationDrawerFragment.NavigationDrawerCallbacks  {
 
   public static final int REFRESHING_EXPERIMENTS_DIALOG_ID = 1001;
   public static final int JOIN_REQUEST_CODE = 1;
@@ -86,20 +87,27 @@ public class FindExperimentsActivity extends ActionBarActivity implements Networ
   private ProgressBar progressBar;
   private String experimentCursor;
   private boolean loadedAllExperiments;
-  private Button refreshButton;
+  private NavigationDrawerFragment mNavigationDrawerFragment;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     mainLayout = (ViewGroup) getLayoutInflater().inflate(R.layout.find_experiments, null);
-    getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+    setContentView(mainLayout);
+
+
     ActionBar actionBar = getSupportActionBar();
     actionBar.setLogo(R.drawable.ic_launcher);
     actionBar.setDisplayUseLogoEnabled(true);
     actionBar.setDisplayShowHomeEnabled(true);
     actionBar.setBackgroundDrawable(new ColorDrawable(0xff4A53B3));
+    actionBar.setDisplayHomeAsUpEnabled(true);
 
-    setContentView(mainLayout);
+
+    // Set up the drawer.
+//    mNavigationDrawerFragment = (NavigationDrawerFragment) getSupportFragmentManager().findFragmentById(R.id.navigation_drawer);
+//    mNavigationDrawerFragment.setUp(R.id.navigation_drawer, (DrawerLayout) findViewById(R.id.drawer_layout));
+
     Intent intent = getIntent();
 
     userPrefs = new UserPreferences(this);
@@ -108,19 +116,6 @@ public class FindExperimentsActivity extends ActionBarActivity implements Networ
 //    createRefreshHeader();
 
     experimentProviderUtil = new ExperimentProviderUtil(this);
-
-    refreshButton = (Button) findViewById(R.id.RefreshExperimentsButton2);
-    refreshButton.setVisibility(View.VISIBLE);
-
-    refreshButton.setOnClickListener(new OnClickListener() {
-      public void onClick(View v) {
-        if (!isConnected()) {
-          showDialogById(NetworkUtil.NO_NETWORK_CONNECTION);
-        } else {
-          refreshList();
-        }
-      }
-    });
 
     progressBar = (ProgressBar)findViewById(R.id.findExperimentsProgressBar);
 
@@ -152,14 +147,129 @@ public class FindExperimentsActivity extends ActionBarActivity implements Networ
   }
 
   @Override
-  public boolean onOptionsItemSelected(MenuItem item) {
-      int id = item.getItemId();
-      if (id == android.R.id.home) {
-        finish();
-        return true;
-      }
-      return super.onOptionsItemSelected(item);
+  public void onNavigationDrawerItemSelected(int position) {
+    //navDrawerList.setItemChecked(position, true);
+    switch (position) {
+    case 0:
+      // we are here launchMyCurrentExperiments();
+      break;
+    case 1:
+      launchFindMyExperiments();
+      break;
+    case 2:
+      launchFindPublicExperiments();
+      break;
+    case 3:
+      launchCompletedExperiments();
+      break;
+    default:
+      break;
+    }
   }
+
+  public void restoreActionBar() {
+    ActionBar actionBar = getSupportActionBar();
+    actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
+    actionBar.setDisplayShowTitleEnabled(true);
+    actionBar.setTitle("Paco");
+}
+
+  @SuppressLint("NewApi")
+  @Override
+  public boolean onCreateOptionsMenu(Menu menu) {
+    int pos = 1;
+    if (true || !mNavigationDrawerFragment.isDrawerOpen()) {
+      getMenuInflater().inflate(R.menu.main, menu);
+      //restoreActionBar();
+      // TODO hide find experiments (this is that item)
+      // TODO make refresh be an always action
+      MenuItem findExperiments = menu.getItem(0);
+      findExperiments.setVisible(false);
+      MenuItem refreshExperiments = menu.getItem(1);
+      refreshExperiments.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+      return true;
+    }
+    return super.onCreateOptionsMenu(menu);
+  }
+
+  @Override
+  public boolean onOptionsItemSelected(MenuItem item) {
+    int id = item.getItemId();
+    if (id == R.id.action_refreshMenuItem) {
+      refreshList();
+      return true;
+    } else if (id == R.id.action_settings) {
+      launchSettings();
+      return true;
+    } else if (id == R.id.action_about) {
+       launchAbout();
+      return true;
+    } else if (id == R.id.action_user_guide) {
+      launchHelp();
+      return true;
+    } else if (id == R.id.action_user_agreement) {
+      launchEula();
+      return true;
+    } else if (id == R.id.action_open_source_libs) {
+      launchOpenSourceLibs();
+      return true;
+    } else if (id == R.id.action_email_paco_team) {
+      launchEmailPacoTeam();
+      return true;
+    } else if (id == android.R.id.home) {
+      finish();
+      return true;
+    }
+    return super.onOptionsItemSelected(item);
+  }
+
+  private void launchFindExperiments() {
+    startActivity(new Intent(this, FindMyOrAllExperimentsChooserActivity.class));
+  }
+
+  private void launchFindMyExperiments() {
+    startActivity(new Intent(this, FindMyExperimentsActivity.class));
+  }
+
+  private void launchFindPublicExperiments() {
+    startActivity(new Intent(this, FindExperimentsActivity.class));
+  }
+
+  private void launchCompletedExperiments() {
+    //startActivity(new Intent(this, CompletedExperimentsActivity.class));
+  }
+
+  private void launchOpenSourceLibs() {
+    //startActivity(new Intent(this, CompletedExperimentsActivity.class));
+  }
+
+  private void launchSettings() {
+    //startActivity(new Intent(this, FindMyOrAllExperimentsChooserActivity.class));
+  }
+
+  private void launchEula() {
+    Intent eulaIntent = new Intent(this, EulaDisplayActivity.class);
+    startActivity(eulaIntent);
+  }
+
+  private void launchHelp() {
+    startActivity(new Intent(this, HelpActivity.class));
+  }
+  private void launchAbout() {
+    Intent startIntent = new Intent(this, WelcomeActivity.class);
+    startActivity(startIntent);
+  }
+
+
+  private void launchEmailPacoTeam() {
+    Intent emailIntent = new Intent(android.content.Intent.ACTION_SEND);
+    String aEmailList[] = { getString(R.string.contact_email) };
+    emailIntent.putExtra(android.content.Intent.EXTRA_EMAIL, aEmailList);
+    emailIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, "Paco Feedback");
+    emailIntent.setType("plain/text");
+    startActivity(emailIntent);
+  }
+
 
 
   private boolean isConnected() {
@@ -254,6 +364,7 @@ public class FindExperimentsActivity extends ActionBarActivity implements Networ
 
   // Visible for testing
   public void updateDownloadedExperiments(String contentAsString) {
+    String oldCursor = experimentCursor;
     try {
       Map<String, Object> results = ExperimentProviderUtil.fromDownloadedEntitiesJson(contentAsString);
       String newExperimentCursor = (String) results.get("cursor");
@@ -289,15 +400,15 @@ public class FindExperimentsActivity extends ActionBarActivity implements Networ
           }
 
         });
+
         experimentCursor = newExperimentCursor;
         saveExperimentsToDisk();
       }
-      if (newExperiments.size() == 0 || newExperimentCursor == null) {
+      if (newExperiments.size() < DOWNLOAD_LIMIT || newExperimentCursor == null || oldCursor == newExperimentCursor) {
         experimentCursor = null; // we have hit the end. The next refresh starts over
-        refreshButton.setText(getString(R.string.refresh_experiments_list_from_server));
         Toast.makeText(this, R.string.no_more_experiments_on_server, Toast.LENGTH_LONG).show();
       } else {
-        refreshButton.setText(getString(R.string.load_more_experiments_from_server));
+        Toast.makeText(this, R.string.load_more_experiments_from_server, Toast.LENGTH_LONG).show();;
       }
       reloadAdapter();
     } catch (JsonParseException e) {

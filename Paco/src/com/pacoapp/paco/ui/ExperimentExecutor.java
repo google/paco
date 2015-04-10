@@ -114,7 +114,8 @@ public class ExperimentExecutor extends ActionBarActivity implements ChangeListe
     actionBar.setLogo(R.drawable.ic_launcher);
     actionBar.setDisplayUseLogoEnabled(true);
     actionBar.setDisplayShowHomeEnabled(true);
-    actionBar.setDisplayShowTitleEnabled(false);
+//    actionBar.setDisplayHomeAsUpEnabled(true);
+    actionBar.setDisplayShowTitleEnabled(true);
     actionBar.setBackgroundDrawable(new ColorDrawable(0xff4A53B3));
 
     experimentProviderUtil = new ExperimentProviderUtil(this);
@@ -126,6 +127,7 @@ public class ExperimentExecutor extends ActionBarActivity implements ChangeListe
     if (experiment == null || experimentGroup == null) {
       displayNoExperimentMessage();
     } else {
+      actionBar.setTitle(experiment.getExperimentDAO().getTitle());
       if (scheduledTime == null || scheduledTime == 0l) {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
       }
@@ -530,7 +532,7 @@ public class ExperimentExecutor extends ActionBarActivity implements ChangeListe
   }
 
   private void displayExperimentTitle() {
-    ((TextView)findViewById(R.id.experiment_title)).setText(getExperiment().getExperimentDAO().getTitle());
+    ((TextView)findViewById(R.id.experiment_title)).setText(experimentGroup.getName());
   }
 
   private void displayNoExperimentMessage() {

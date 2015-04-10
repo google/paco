@@ -4,10 +4,16 @@ import java.util.List;
 
 import org.joda.time.DateTime;
 
-import android.app.ListActivity;
 import android.content.Intent;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.ActionBarActivity;
+import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
@@ -21,7 +27,7 @@ import com.pacoapp.paco.model.Experiment;
 import com.pacoapp.paco.model.ExperimentProviderUtil;
 import com.pacoapp.paco.utils.IntentExtraHelper;
 
-public class ExperimentGroupPicker extends ListActivity implements ExperimentLoadingActivity {
+public class ExperimentGroupPicker extends ActionBarActivity implements ExperimentLoadingActivity {
 
   public static final String SHOULD_GO_TO_RENDER_NEXT = "should_render_next";
   public static final int FEEDBACK_NEXT = 1;
@@ -33,6 +39,8 @@ public class ExperimentGroupPicker extends ListActivity implements ExperimentLoa
   private List<ExperimentGroup> choosableGroups;
   private List<String> choosableGroupNames;
   private int shouldRender;
+  private ViewGroup mainLayout;
+  private ListView list;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -44,6 +52,16 @@ public class ExperimentGroupPicker extends ListActivity implements ExperimentLoa
       Toast.makeText(this, R.string.cannot_find_the_experiment_warning, Toast.LENGTH_SHORT).show();
       finish();
     } else {
+      mainLayout = (ViewGroup) getLayoutInflater().inflate(R.layout.activity_experiment_group_picker, null);
+      setContentView(mainLayout);
+
+      ActionBar actionBar = getSupportActionBar();
+      actionBar.setLogo(R.drawable.ic_launcher);
+      actionBar.setDisplayUseLogoEnabled(true);
+      actionBar.setDisplayShowHomeEnabled(true);
+      actionBar.setBackgroundDrawable(new ColorDrawable(0xff4A53B3));
+      actionBar.setDisplayHomeAsUpEnabled(true);
+
       experimentGroups = experiment.getExperimentDAO().getGroups();
       choosableGroupNames = Lists.newArrayList();
 
@@ -61,10 +79,28 @@ public class ExperimentGroupPicker extends ListActivity implements ExperimentLoa
       }
       ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1,
                                                               choosableGroupNames);
-      setListAdapter(adapter);
+      list = (ListView) findViewById(R.id.groupList);
+      list.setAdapter(adapter);
+      list.setOnItemClickListener(new OnItemClickListener() {
+
+        @Override
+        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+          onListItemClick(list, view, position, id);
+
+        }
+      });
     }
   }
 
+  @Override
+  public boolean onOptionsItemSelected(MenuItem item) {
+    int id = item.getItemId();
+    if (id == android.R.id.home) {
+      finish();
+      return true;
+    }
+    return super.onOptionsItemSelected(item);
+  }
 
 
   @Override
@@ -90,7 +126,6 @@ public class ExperimentGroupPicker extends ListActivity implements ExperimentLoa
 
 
 
-  @Override
   protected void onListItemClick(ListView l, View v, int position, long id) {
     ExperimentGroup chosenGroup = choosableGroups.get(position);
     Class clazz = null;

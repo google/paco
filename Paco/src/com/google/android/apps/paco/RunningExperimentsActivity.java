@@ -43,7 +43,6 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -108,18 +107,18 @@ public class RunningExperimentsActivity extends Activity {
 
     experimentProviderUtil = new ExperimentProviderUtil(this);
 
-    Button refreshButton = (Button) findViewById(R.id.RefreshExperimentsButton2);
-    refreshButton.setVisibility(View.VISIBLE);
-
-    refreshButton.setOnClickListener(new OnClickListener() {
-      public void onClick(View v) {
-        if (!isConnected()) {
-          showDialog(NetworkUtil.NO_NETWORK_CONNECTION, null);
-        } else {
-          refreshList();
-        }
-      }
-    });
+//    Button refreshButton = (Button) findViewById(R.id.RefreshExperimentsButton2);
+//    refreshButton.setVisibility(View.VISIBLE);
+//
+//    refreshButton.setOnClickListener(new OnClickListener() {
+//      public void onClick(View v) {
+//        if (!isConnected()) {
+//          showDialog(NetworkUtil.NO_NETWORK_CONNECTION, null);
+//        } else {
+//          refreshList();
+//        }
+//      }
+//    });
 
     reloadAdapter();
     registerForContextMenu(list);
