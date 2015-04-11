@@ -23,9 +23,13 @@ import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
-import android.app.ListActivity;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.ActionBarActivity;
+import android.view.MenuItem;
 import android.widget.ArrayAdapter;
+import android.widget.ListView;
 
 import com.google.paco.shared.model2.ExperimentGroup;
 import com.google.paco.shared.model2.Input2;
@@ -37,7 +41,7 @@ import com.pacoapp.paco.model.ExperimentProviderUtil;
 import com.pacoapp.paco.model.Output;
 import com.pacoapp.paco.utils.IntentExtraHelper;
 
-public class RawDataActivity extends ListActivity implements ExperimentLoadingActivity {
+public class RawDataActivity extends ActionBarActivity implements ExperimentLoadingActivity {
 
   DateTimeFormatter df = DateTimeFormat.forPattern("MM/dd/yy HH:mm");
 
@@ -45,6 +49,8 @@ public class RawDataActivity extends ListActivity implements ExperimentLoadingAc
   private Experiment experiment;
 
   private ExperimentGroup experimentGroup;
+
+  private ListView list;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -55,12 +61,30 @@ public class RawDataActivity extends ListActivity implements ExperimentLoadingAc
       displayNoExperimentMessage();
     } else {
       setContentView(R.layout.event_list);
+
+      ActionBar actionBar = getSupportActionBar();
+      actionBar.setLogo(R.drawable.ic_launcher);
+      actionBar.setDisplayUseLogoEnabled(true);
+      actionBar.setDisplayShowHomeEnabled(true);
+      actionBar.setBackgroundDrawable(new ColorDrawable(0xff4A53B3));
+      actionBar.setDisplayHomeAsUpEnabled(true);
+
       experimentProviderUtil.loadEventsForExperimentGroup(experiment, experimentGroup);
       fillData();
     }
   }
 
-    private void displayNoExperimentMessage() {
+  @Override
+  public boolean onOptionsItemSelected(MenuItem item) {
+    int id = item.getItemId();
+    if (id == android.R.id.home) {
+      finish();
+      return true;
+    }
+    return super.onOptionsItemSelected(item);
+  }
+
+  private void displayNoExperimentMessage() {
   }
 
     private void fillData() {
@@ -99,9 +123,8 @@ public class RawDataActivity extends ListActivity implements ExperimentLoadingAc
         }
         nameAndTime.add(signalTime + ": " + buf.toString());
       }
-      ArrayAdapter scheduleAdapter = new ArrayAdapter(this, R.layout.schedule_row, nameAndTime);
-      setListAdapter(scheduleAdapter);
-
+      list = (ListView) findViewById(R.id.eventList);
+      list.setAdapter(new ArrayAdapter(this, R.layout.schedule_row, nameAndTime));
     }
 
     @Override

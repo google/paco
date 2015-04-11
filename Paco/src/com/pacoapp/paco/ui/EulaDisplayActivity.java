@@ -19,11 +19,13 @@ package com.pacoapp.paco.ui;
 
 import java.io.InputStream;
 
-import android.app.Activity;
 import android.content.res.Resources;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.ActionBarActivity;
 import android.view.KeyEvent;
-import android.view.Window;
+import android.view.MenuItem;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
@@ -35,17 +37,24 @@ import com.pacoapp.paco.utils.EulaLocaleHelper;
  *
  * @author Bob Evans
  */
-public class EulaDisplayActivity extends Activity {
+public class EulaDisplayActivity extends ActionBarActivity {
 
   private WebView webView;
 
   @Override
   public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    requestWindowFeature(Window.FEATURE_NO_TITLE);
-    requestWindowFeature(Window.FEATURE_PROGRESS);
+//    requestWindowFeature(Window.FEATURE_NO_TITLE);
+//    requestWindowFeature(Window.FEATURE_PROGRESS);
 
     setContentView(R.layout.eula);
+
+    ActionBar actionBar = getSupportActionBar();
+    actionBar.setLogo(R.drawable.ic_launcher);
+    actionBar.setDisplayUseLogoEnabled(true);
+    actionBar.setDisplayShowHomeEnabled(true);
+    actionBar.setBackgroundDrawable(new ColorDrawable(0xff4A53B3));
+    actionBar.setDisplayHomeAsUpEnabled(true);
 
     webView = (WebView) findViewById(R.id.eula_main);
     webView.setWebViewClient(new EulaWebViewClient());
@@ -60,6 +69,16 @@ public class EulaDisplayActivity extends Activity {
   } catch (Exception e) {
   }
     webView.loadData(eulaText, "text/html", "UTF-8");
+  }
+
+  @Override
+  public boolean onOptionsItemSelected(MenuItem item) {
+    int id = item.getItemId();
+    if (id == android.R.id.home) {
+      finish();
+      return true;
+    }
+    return super.onOptionsItemSelected(item);
   }
 
   @Override

@@ -1,8 +1,8 @@
 /*
 * Copyright 2011 Google Inc. All Rights Reserved.
-* 
+*
 * Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance  with the License.  
+* you may not use this file except in compliance  with the License.
 * You may obtain a copy of the License at
 *
 *    http://www.apache.org/licenses/LICENSE-2.0
@@ -17,36 +17,35 @@
 package com.pacoapp.paco.ui;
 
 
-import java.util.Locale;
-
-import com.pacoapp.paco.R;
-import com.pacoapp.paco.utils.AndroidLocaleHelper;
-
-import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.ActionBarActivity;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.Window;
 import android.webkit.WebView;
 import android.widget.TextView;
+
+import com.pacoapp.paco.R;
+import com.pacoapp.paco.utils.AndroidLocaleHelper;
 
 /**
  * An activity that displays a welcome screen.
  *
  * @author Sandor Dornbush, Bob Evans
  */
-public class WelcomeActivity extends Activity {
+public class WelcomeActivity extends ActionBarActivity {
 
   static final String WELCOME_PAGE = "welcome_page";
 
   static class WelcomePageLocaleHelper extends AndroidLocaleHelper<String> {
-    
+
     @Override
     protected String getEnVersion() {
       return "file:///android_asset/welcome_paco.html";
@@ -67,14 +66,22 @@ public class WelcomeActivity extends Activity {
       return "file:///android_asset/welcome_paco_pt.html";
     }
   }
-  
+
   @Override
   public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    requestWindowFeature(Window.FEATURE_NO_TITLE);
-    requestWindowFeature(Window.FEATURE_PROGRESS);
+//    requestWindowFeature(Window.FEATURE_NO_TITLE);
+//    requestWindowFeature(Window.FEATURE_PROGRESS);
 
     setContentView(R.layout.welcome);
+
+    ActionBar actionBar = getSupportActionBar();
+    actionBar.setLogo(R.drawable.ic_launcher);
+    actionBar.setDisplayUseLogoEnabled(true);
+    actionBar.setDisplayShowHomeEnabled(true);
+    actionBar.setBackgroundDrawable(new ColorDrawable(0xff4A53B3));
+    actionBar.setDisplayHomeAsUpEnabled(true);
+
 
     WebView web = (WebView) findViewById(R.id.welcome_web);
     web.loadUrl(new WelcomePageLocaleHelper().getLocalizedResource());
@@ -93,9 +100,19 @@ public class WelcomeActivity extends Activity {
     });
   }
 
+  @Override
+  public boolean onOptionsItemSelected(MenuItem item) {
+    int id = item.getItemId();
+    if (id == android.R.id.home) {
+      finish();
+      return true;
+    }
+    return super.onOptionsItemSelected(item);
+  }
+
   /**
    * Shows the "about" dialog.
-   * 
+   *
    * TODO: Add a menu option for showing the same thing.
    */
   public void about() {
@@ -103,7 +120,7 @@ public class WelcomeActivity extends Activity {
     View view = li.inflate(R.layout.about, null);
     TextView versionField = (TextView)view.findViewById(R.id.versionField);
     versionField.setText(getVersion());
-    
+
     AlertDialog.Builder builder = new AlertDialog.Builder(this);
     builder.setView(view);
     builder.setPositiveButton(R.string.ok, null);
@@ -120,6 +137,6 @@ public class WelcomeActivity extends Activity {
     } catch (NameNotFoundException e) {
       e.printStackTrace();
     }
-    return "unknown";    
+    return "unknown";
   }
 }
