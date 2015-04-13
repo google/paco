@@ -2,7 +2,7 @@ package com.pacoapp.paco.utils;
 
 import java.util.Locale;
 
-import com.google.paco.shared.client.LocaleHelper;
+import com.pacoapp.paco.shared.client.LocaleHelper;
 
 public abstract class AndroidLocaleHelper<T> extends LocaleHelper<T>{
 
@@ -15,6 +15,6 @@ public abstract class AndroidLocaleHelper<T> extends LocaleHelper<T>{
     return Locale.getDefault().getLanguage();
   }
 
-  
+
 }
 
