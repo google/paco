@@ -239,6 +239,7 @@
 		44A843E41ADB9C0A009C7226 /* SchedulePrinter.java in Sources */ = {isa = PBXBuildFile; fileRef = 44A843C31ADB9C0A009C7226 /* SchedulePrinter.java */; };
 		44A843E51ADB9C0A009C7226 /* TimeUtil.java in Sources */ = {isa = PBXBuildFile; fileRef = 44A843C41ADB9C0A009C7226 /* TimeUtil.java */; };
 		44A843E71ADB9C2F009C7226 /* j2objcprefixes.properties in Resources */ = {isa = PBXBuildFile; fileRef = 44A843E61ADB9C2F009C7226 /* j2objcprefixes.properties */; };
+		44A843E91ADB9EAD009C7226 /* PacoInstantiateJ2ObjcClass.m in Sources */ = {isa = PBXBuildFile; fileRef = 44A843E81ADB9EAD009C7226 /* PacoInstantiateJ2ObjcClass.m */; };
 		44F9DDF91ADB5EA50098BECB /* libz.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 44F9DDF81ADB5EA50098BECB /* libz.dylib */; };
 		7F8531D41A37BE680028BA23 /* JCNotificationBanner.m in Sources */ = {isa = PBXBuildFile; fileRef = 7F8531BE1A37BE680028BA23 /* JCNotificationBanner.m */; };
 		7F8531D51A37BE680028BA23 /* JCNotificationBannerPresenter.m in Sources */ = {isa = PBXBuildFile; fileRef = 7F8531C11A37BE680028BA23 /* JCNotificationBannerPresenter.m */; };
@@ -279,7 +280,7 @@
 				"$(DERIVED_FILE_DIR)/${INPUT_FILE_BASE}.h",
 				"$(DERIVED_FILE_DIR)/${INPUT_FILE_BASE}.m",
 			);
-			script = "../Shared/j2objc/j2objc -d ${DERIVED_FILE_DIR} -classpath ../Shared/lib/joda-time-2.5.jar -sourcepath ../Shared/src --no-package-directories -use-arc ${INPUT_FILE_PATH};";
+			script = "../Shared/j2objc/j2objc -d ${DERIVED_FILE_DIR} -classpath ../Shared/lib/joda-time-2.5.jar -sourcepath ../Shared/src  --prefixes ../Shared/j2objcprefixes.properties --no-package-directories -use-arc ${INPUT_FILE_PATH};";
 		};
 /* End PBXBuildRule section */
 
@@ -709,6 +710,7 @@
 		44A843C31ADB9C0A009C7226 /* SchedulePrinter.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = SchedulePrinter.java; sourceTree = "<group>"; };
 		44A843C41ADB9C0A009C7226 /* TimeUtil.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = TimeUtil.java; sourceTree = "<group>"; };
 		44A843E61ADB9C2F009C7226 /* j2objcprefixes.properties */ = {isa = PBXFileReference; lastKnownFileType = text; name = j2objcprefixes.properties; path = ../Shared/j2objcprefixes.properties; sourceTree = "<group>"; };
+		44A843E81ADB9EAD009C7226 /* PacoInstantiateJ2ObjcClass.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoInstantiateJ2ObjcClass.m; sourceTree = "<group>"; };
 		44F9DDF81ADB5EA50098BECB /* libz.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libz.dylib; path = usr/lib/libz.dylib; sourceTree = SDKROOT; };
 		7F8531BD1A37BE680028BA23 /* JCNotificationBanner.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = JCNotificationBanner.h; path = jcnotificationbannerpresenter/Library/JCNotificationBanner.h; sourceTree = "<group>"; };
 		7F8531BE1A37BE680028BA23 /* JCNotificationBanner.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = JCNotificationBanner.m; path = jcnotificationbannerpresenter/Library/JCNotificationBanner.m; sourceTree = "<group>"; };
@@ -1372,6 +1374,7 @@
 				3662927C1821C10800FC647A /* PacoExperimentScheduleTests.m */,
 				366292851821C2EF00FC647A /* PacoUtilityTests.m */,
 				3640612F18230DA700DA5EB7 /* PacoExperimentTests.m */,
+				44A843E81ADB9EAD009C7226 /* PacoInstantiateJ2ObjcClass.m */,
 				36B8EC3817568E40004CF035 /* resources */,
 			);
 			path = PacoTests;
@@ -2108,6 +2111,7 @@
 			files = (
 				36A8201D18B5576400FE83A5 /* PacoScheduleGenerator+Weekdays.m in Sources */,
 				36B5A4FB18282E46004DB894 /* PacoScheduleGeneratorWeeklyESMTests.m in Sources */,
+				44A843E91ADB9EAD009C7226 /* PacoInstantiateJ2ObjcClass.m in Sources */,
 				365D20EA181B1B000097F379 /* PacoNSStringCategoryTests.m in Sources */,
 				36B8EC3C17568E40004CF035 /* PacoTests.m in Sources */,
 				367233E418061FD6006611E6 /* PacoScheduleGeneratorTests.m in Sources */,
@@ -2275,7 +2279,7 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "Paco/source/Paco-Prefix.pch";
 				INFOPLIST_FILE = "Paco/config/Paco-Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				LIBRARY_SEARCH_PATHS = ../Shared/j2objc/lib;
 				OTHER_LDFLAGS = (
 					"-ObjC",
@@ -2305,7 +2309,7 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "Paco/source/Paco-Prefix.pch";
 				INFOPLIST_FILE = "Paco/config/Paco-Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				LIBRARY_SEARCH_PATHS = ../Shared/j2objc/lib;
 				OTHER_LDFLAGS = (
 					"-ObjC",
@@ -2327,6 +2331,7 @@
 		31977204163F0733000AC06B /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
 				BUNDLE_LOADER = "$(BUILT_PRODUCTS_DIR)/Paco.app/Paco";
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
@@ -2337,16 +2342,25 @@
 				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "Paco/source/Paco-Prefix.pch";
+				HEADER_SEARCH_PATHS = "$(inherited)";
 				INFOPLIST_FILE = "PacoTests/resources/PacoTests-Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
+				LIBRARY_SEARCH_PATHS = "$(inherited)";
+				OTHER_LDFLAGS = (
+					"-framework",
+					XCTest,
+				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
 				TEST_HOST = "$(BUNDLE_LOADER)";
+				USER_HEADER_SEARCH_PATHS = "$(inherited) /Users/bobevans/Library/Developer/Xcode/DerivedData/Paco-habypqfxmikiorflqzxvnofpplmd/Build/Intermediates/Paco.build/Debug-iphonesimulator/Paco.build/DerivedSources";
 			};
 			name = Debug;
 		};
 		31977205163F0733000AC06B /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
 				BUNDLE_LOADER = "$(BUILT_PRODUCTS_DIR)/Paco.app/Paco";
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
@@ -2357,10 +2371,18 @@
 				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "Paco/source/Paco-Prefix.pch";
+				HEADER_SEARCH_PATHS = "$(inherited)";
 				INFOPLIST_FILE = "PacoTests/resources/PacoTests-Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
+				LIBRARY_SEARCH_PATHS = "$(inherited)";
+				OTHER_LDFLAGS = (
+					"-framework",
+					XCTest,
+				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
 				TEST_HOST = "$(BUNDLE_LOADER)";
+				USER_HEADER_SEARCH_PATHS = "$(inherited) /Users/bobevans/Library/Developer/Xcode/DerivedData/Paco-habypqfxmikiorflqzxvnofpplmd/Build/Intermediates/Paco.build/Debug-iphonesimulator/Paco.build/DerivedSources";
 			};
 			name = Release;
 		};
