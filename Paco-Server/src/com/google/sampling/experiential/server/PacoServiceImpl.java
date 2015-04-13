@@ -41,18 +41,18 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.google.gwt.thirdparty.guava.common.base.Strings;
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
-import com.google.paco.shared.comm.Outcome;
-import com.google.paco.shared.model2.ActionTrigger;
-import com.google.paco.shared.model2.ExperimentDAO;
-import com.google.paco.shared.model2.ExperimentGroup;
-import com.google.paco.shared.model2.ExperimentQueryResult;
-import com.google.paco.shared.model2.ValidationMessage;
 import com.google.sampling.experiential.model.Event;
 import com.google.sampling.experiential.model.What;
 import com.google.sampling.experiential.shared.DateStat;
 import com.google.sampling.experiential.shared.EventDAO;
 import com.google.sampling.experiential.shared.ExperimentStatsDAO;
 import com.google.sampling.experiential.shared.PacoService;
+import com.pacoapp.paco.shared.comm.Outcome;
+import com.pacoapp.paco.shared.model2.ActionTrigger;
+import com.pacoapp.paco.shared.model2.ExperimentDAO;
+import com.pacoapp.paco.shared.model2.ExperimentGroup;
+import com.pacoapp.paco.shared.model2.ExperimentQueryResult;
+import com.pacoapp.paco.shared.model2.ValidationMessage;
 
 
 /*

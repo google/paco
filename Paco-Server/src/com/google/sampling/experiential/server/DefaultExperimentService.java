@@ -14,21 +14,21 @@ import com.google.appengine.api.users.User;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import com.google.gwt.thirdparty.guava.common.base.Strings;
-import com.google.paco.shared.model.SignalTimeDAO;
-import com.google.paco.shared.model2.ActionTrigger;
-import com.google.paco.shared.model2.ExperimentDAO;
-import com.google.paco.shared.model2.ExperimentGroup;
-import com.google.paco.shared.model2.ExperimentQueryResult;
-import com.google.paco.shared.model2.ExperimentValidator;
-import com.google.paco.shared.model2.InterruptTrigger;
-import com.google.paco.shared.model2.JsonConverter;
-import com.google.paco.shared.model2.Schedule;
-import com.google.paco.shared.model2.ScheduleTrigger;
-import com.google.paco.shared.model2.SignalTime;
-import com.google.paco.shared.model2.ValidationMessage;
 import com.google.sampling.experiential.datastore.ExperimentJsonEntityManager;
 import com.google.sampling.experiential.datastore.PublicExperimentList;
 import com.google.sampling.experiential.datastore.PublicExperimentList.CursorExerimentIdListPair;
+import com.pacoapp.paco.shared.model.SignalTimeDAO;
+import com.pacoapp.paco.shared.model2.ActionTrigger;
+import com.pacoapp.paco.shared.model2.ExperimentDAO;
+import com.pacoapp.paco.shared.model2.ExperimentGroup;
+import com.pacoapp.paco.shared.model2.ExperimentQueryResult;
+import com.pacoapp.paco.shared.model2.ExperimentValidator;
+import com.pacoapp.paco.shared.model2.InterruptTrigger;
+import com.pacoapp.paco.shared.model2.JsonConverter;
+import com.pacoapp.paco.shared.model2.Schedule;
+import com.pacoapp.paco.shared.model2.ScheduleTrigger;
+import com.pacoapp.paco.shared.model2.SignalTime;
+import com.pacoapp.paco.shared.model2.ValidationMessage;
 
 class DefaultExperimentService implements ExperimentService {
 

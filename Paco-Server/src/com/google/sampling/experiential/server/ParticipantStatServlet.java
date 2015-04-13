@@ -21,8 +21,8 @@ import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.google.paco.shared.model2.ExperimentDAO;
 import com.google.sampling.experiential.model.Event;
+import com.pacoapp.paco.shared.model2.ExperimentDAO;
 
 public class ParticipantStatServlet extends HttpServlet {
 

@@ -19,7 +19,7 @@ package com.pacoapp.paco.model;
 import org.joda.time.DateTime;
 import org.joda.time.Minutes;
 
-import com.google.paco.shared.scheduling.ActionSpecification;
+import com.pacoapp.paco.shared.scheduling.ActionSpecification;
 
 
 public class NotificationHolder  {

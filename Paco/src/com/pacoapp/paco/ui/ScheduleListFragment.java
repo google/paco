@@ -12,12 +12,12 @@ import android.widget.ListView;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.google.paco.shared.model2.ActionTrigger;
-import com.google.paco.shared.model2.ExperimentGroup;
-import com.google.paco.shared.model2.Schedule;
-import com.google.paco.shared.model2.ScheduleTrigger;
-import com.google.paco.shared.util.SchedulePrinter;
 import com.pacoapp.paco.model.Experiment;
+import com.pacoapp.paco.shared.model2.ActionTrigger;
+import com.pacoapp.paco.shared.model2.ExperimentGroup;
+import com.pacoapp.paco.shared.model2.Schedule;
+import com.pacoapp.paco.shared.model2.ScheduleTrigger;
+import com.pacoapp.paco.shared.util.SchedulePrinter;
 
 /**
  * A list fragment representing a list of Schedules. This fragment also supports

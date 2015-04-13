@@ -1,8 +1,8 @@
 package com.pacoapp.paco.ui;
 
-import com.google.paco.shared.model2.ExperimentGroup;
-import com.google.paco.shared.model2.Schedule;
-import com.google.paco.shared.model2.ScheduleTrigger;
+import com.pacoapp.paco.shared.model2.ExperimentGroup;
+import com.pacoapp.paco.shared.model2.Schedule;
+import com.pacoapp.paco.shared.model2.ScheduleTrigger;
 
 class ScheduleBundle {
   ExperimentGroup group;

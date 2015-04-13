@@ -34,12 +34,12 @@ import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.HasVerticalAlignment;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.VerticalPanel;
-import com.google.paco.shared.model2.ExperimentDAO;
-import com.google.paco.shared.model2.ExperimentDAOCore;
 import com.google.sampling.experiential.shared.EventDAO;
 import com.google.sampling.experiential.shared.LoginInfo;
 import com.google.sampling.experiential.shared.PacoServiceAsync;
 import com.google.sampling.experiential.shared.TimeUtil;
+import com.pacoapp.paco.shared.model2.ExperimentDAO;
+import com.pacoapp.paco.shared.model2.ExperimentDAOCore;
 
 public class ExperimentLandingPanel extends Composite {
 

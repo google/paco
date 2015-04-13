@@ -13,11 +13,11 @@ import com.google.appengine.tools.development.testing.LocalServiceTestHelper;
 import com.google.common.base.Joiner;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
-import com.google.paco.shared.comm.Outcome;
-import com.google.paco.shared.model2.ExperimentDAO;
-import com.google.paco.shared.model2.ExperimentDAOCore;
-import com.google.paco.shared.model2.JsonConverter;
 import com.google.sampling.experiential.shared.PacoService;
+import com.pacoapp.paco.shared.comm.Outcome;
+import com.pacoapp.paco.shared.model2.ExperimentDAO;
+import com.pacoapp.paco.shared.model2.ExperimentDAOCore;
+import com.pacoapp.paco.shared.model2.JsonConverter;
 
 public class ExperimentServletHandlerTest extends TestCase {
 

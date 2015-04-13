@@ -32,13 +32,6 @@ import android.support.v4.app.NotificationManagerCompat;
 import android.util.Log;
 
 import com.google.common.collect.Lists;
-import com.google.paco.shared.model2.ExperimentDAO;
-import com.google.paco.shared.model2.ExperimentGroup;
-import com.google.paco.shared.model2.InterruptTrigger;
-import com.google.paco.shared.model2.PacoNotificationAction;
-import com.google.paco.shared.scheduling.ActionScheduleGenerator;
-import com.google.paco.shared.scheduling.ActionSpecification;
-import com.google.paco.shared.util.ExperimentHelper.Pair;
 import com.pacoapp.paco.PacoConstants;
 import com.pacoapp.paco.R;
 import com.pacoapp.paco.UserPreferences;
@@ -49,6 +42,13 @@ import com.pacoapp.paco.model.NotificationHolder;
 import com.pacoapp.paco.model.NotificationHolderColumns;
 import com.pacoapp.paco.net.SyncService;
 import com.pacoapp.paco.os.AlarmReceiver;
+import com.pacoapp.paco.shared.model2.ExperimentDAO;
+import com.pacoapp.paco.shared.model2.ExperimentGroup;
+import com.pacoapp.paco.shared.model2.InterruptTrigger;
+import com.pacoapp.paco.shared.model2.PacoNotificationAction;
+import com.pacoapp.paco.shared.scheduling.ActionScheduleGenerator;
+import com.pacoapp.paco.shared.scheduling.ActionSpecification;
+import com.pacoapp.paco.shared.util.ExperimentHelper.Pair;
 import com.pacoapp.paco.ui.ExperimentExecutor;
 
 public class NotificationCreator {

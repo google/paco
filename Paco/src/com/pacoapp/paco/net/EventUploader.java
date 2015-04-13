@@ -14,11 +14,11 @@ import org.codehaus.jackson.type.TypeReference;
 import android.content.Context;
 import android.util.Log;
 
-import com.google.paco.shared.comm.Outcome;
-import com.google.paco.shared.model2.EventStore;
-import com.google.paco.shared.model2.JsonConverter;
 import com.pacoapp.paco.PacoConstants;
 import com.pacoapp.paco.model.Event;
+import com.pacoapp.paco.shared.comm.Outcome;
+import com.pacoapp.paco.shared.model2.EventStore;
+import com.pacoapp.paco.shared.model2.JsonConverter;
 
 public class EventUploader {
 

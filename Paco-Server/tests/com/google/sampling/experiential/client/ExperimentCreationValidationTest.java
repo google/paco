@@ -3,10 +3,10 @@ package com.google.sampling.experiential.client;
 import java.util.ArrayList;
 
 import com.google.gwt.junit.client.GWTTestCase;
-import com.google.paco.shared.model2.ExperimentDAO;
-import com.google.paco.shared.model2.ExperimentGroup;
-import com.google.paco.shared.model2.Input2;
 import com.google.sampling.experiential.shared.LoginInfo;
+import com.pacoapp.paco.shared.model2.ExperimentDAO;
+import com.pacoapp.paco.shared.model2.ExperimentGroup;
+import com.pacoapp.paco.shared.model2.Input2;
 
 public class ExperimentCreationValidationTest extends GWTTestCase {
 

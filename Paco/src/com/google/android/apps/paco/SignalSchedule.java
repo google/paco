@@ -25,8 +25,8 @@ import org.codehaus.jackson.annotate.JsonProperty;
 import org.joda.time.DateMidnight;
 import org.joda.time.DateTime;
 
-import com.google.paco.shared.model2.Schedule;
 import com.pacoapp.paco.R;
+import com.pacoapp.paco.shared.model2.Schedule;
 
 /**
  *

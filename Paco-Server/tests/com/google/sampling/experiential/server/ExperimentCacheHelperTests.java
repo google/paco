@@ -10,13 +10,13 @@ import org.joda.time.format.DateTimeFormatter;
 import org.junit.Test;
 
 import com.google.common.collect.Lists;
-import com.google.paco.shared.model2.ActionTrigger;
-import com.google.paco.shared.model2.ExperimentDAO;
-import com.google.paco.shared.model2.ExperimentGroup;
-import com.google.paco.shared.model2.PacoAction;
-import com.google.paco.shared.model2.PacoNotificationAction;
-import com.google.paco.shared.model2.Schedule;
-import com.google.paco.shared.model2.ScheduleTrigger;
+import com.pacoapp.paco.shared.model2.ActionTrigger;
+import com.pacoapp.paco.shared.model2.ExperimentDAO;
+import com.pacoapp.paco.shared.model2.ExperimentGroup;
+import com.pacoapp.paco.shared.model2.PacoAction;
+import com.pacoapp.paco.shared.model2.PacoNotificationAction;
+import com.pacoapp.paco.shared.model2.Schedule;
+import com.pacoapp.paco.shared.model2.ScheduleTrigger;
 
 public class ExperimentCacheHelperTests extends TestCase {
 

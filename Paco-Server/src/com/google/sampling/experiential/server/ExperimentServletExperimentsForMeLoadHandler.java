@@ -4,8 +4,8 @@ import java.util.List;
 
 import org.joda.time.DateTimeZone;
 
-import com.google.paco.shared.model2.ExperimentDAO;
-import com.google.paco.shared.model2.ExperimentQueryResult;
+import com.pacoapp.paco.shared.model2.ExperimentDAO;
+import com.pacoapp.paco.shared.model2.ExperimentQueryResult;
 
 
 public class ExperimentServletExperimentsForMeLoadHandler extends ExperimentServletShortLoadHandler {

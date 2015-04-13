@@ -20,18 +20,18 @@ import android.util.Log;
 import com.google.common.base.Joiner;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
-import com.google.paco.shared.model2.ActionTrigger;
-import com.google.paco.shared.model2.ExperimentGroup;
-import com.google.paco.shared.model2.InterruptCue;
-import com.google.paco.shared.model2.InterruptTrigger;
-import com.google.paco.shared.scheduling.ActionScheduleGenerator;
-import com.google.paco.shared.util.ExperimentHelper;
-import com.google.paco.shared.util.TimeUtil;
 import com.pacoapp.paco.PacoConstants;
 import com.pacoapp.paco.model.Event;
 import com.pacoapp.paco.model.Experiment;
 import com.pacoapp.paco.model.ExperimentProviderUtil;
 import com.pacoapp.paco.model.Output;
+import com.pacoapp.paco.shared.model2.ActionTrigger;
+import com.pacoapp.paco.shared.model2.ExperimentGroup;
+import com.pacoapp.paco.shared.model2.InterruptCue;
+import com.pacoapp.paco.shared.model2.InterruptTrigger;
+import com.pacoapp.paco.shared.scheduling.ActionScheduleGenerator;
+import com.pacoapp.paco.shared.util.ExperimentHelper;
+import com.pacoapp.paco.shared.util.TimeUtil;
 
 public class ProcessService extends Service {
 

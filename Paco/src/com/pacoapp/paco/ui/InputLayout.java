@@ -64,10 +64,10 @@ import android.widget.Toast;
 
 import com.google.android.apps.paco.questioncondparser.ExpressionEvaluator;
 import com.google.common.base.Strings;
-import com.google.paco.shared.model2.Input2;
 import com.pacoapp.paco.PacoConstants;
 import com.pacoapp.paco.R;
 import com.pacoapp.paco.UserPreferences;
+import com.pacoapp.paco.shared.model2.Input2;
 import com.pacoapp.paco.ui.autocomplete.AutocompleteDictionary;
 import com.pacoapp.paco.ui.autocomplete.AutocompleteUsageFilteringArrayAdapter;
 import com.pacoapp.paco.ui.autocomplete.PersistentAutocompleteDictionary;

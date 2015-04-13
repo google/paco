@@ -128,7 +128,7 @@
       
       Additional arguments like -style PRETTY or -logLevel DEBUG
       <arg line="${gwt.args}"/>
-       <arg value="com.google.paco.shared.client.SharedModuleEntryPoint"/>
+       <arg value="com.pacoapp.paco.shared.client.SharedModuleEntryPoint"/>
     </java>
  
  </target>

@@ -10,8 +10,6 @@ import android.content.res.AssetManager;
 import android.util.Log;
 
 import com.google.common.base.Strings;
-import com.google.paco.shared.model2.ExperimentDAO;
-import com.google.paco.shared.model2.ExperimentGroup;
 import com.pacoapp.paco.PacoConstants;
 import com.pacoapp.paco.js.bridge.JavascriptEventLoader;
 import com.pacoapp.paco.js.bridge.JavascriptExperimentLoader;
@@ -20,6 +18,8 @@ import com.pacoapp.paco.js.bridge.JavascriptNotificationService;
 import com.pacoapp.paco.js.bridge.JavascriptSensorManager;
 import com.pacoapp.paco.model.Experiment;
 import com.pacoapp.paco.model.ExperimentProviderUtil;
+import com.pacoapp.paco.shared.model2.ExperimentDAO;
+import com.pacoapp.paco.shared.model2.ExperimentGroup;
 
 public class AndroidJsInterpreterBuilder {
 

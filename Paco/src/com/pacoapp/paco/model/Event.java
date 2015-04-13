@@ -29,8 +29,8 @@ import org.joda.time.format.DateTimeFormatter;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import com.google.paco.shared.model2.EventInterface;
-import com.google.paco.shared.util.TimeUtil;
+import com.pacoapp.paco.shared.model2.EventInterface;
+import com.pacoapp.paco.shared.util.TimeUtil;
 
 public class Event implements Parcelable, EventInterface {
 

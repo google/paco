@@ -17,10 +17,10 @@ import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.VerticalPanel;
-import com.google.paco.shared.model2.ExperimentDAO;
 import com.google.sampling.experiential.shared.EventDAO;
 import com.google.sampling.experiential.shared.Output;
 import com.google.sampling.experiential.shared.PacoServiceAsync;
+import com.pacoapp.paco.shared.model2.ExperimentDAO;
 
 public abstract class AbstractExperimentExecutorPanel extends Composite {
 

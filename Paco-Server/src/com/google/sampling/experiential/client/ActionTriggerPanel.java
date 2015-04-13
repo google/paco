@@ -11,7 +11,7 @@ import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
-import com.google.paco.shared.model2.ActionTrigger;
+import com.pacoapp.paco.shared.model2.ActionTrigger;
 
 public abstract class ActionTriggerPanel extends Composite {
 

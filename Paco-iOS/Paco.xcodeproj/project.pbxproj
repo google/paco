@@ -278,7 +278,7 @@
 				"$(DERIVED_FILE_DIR)/${INPUT_FILE_BASE}.h",
 				"$(DERIVED_FILE_DIR)/${INPUT_FILE_BASE}.m",
 			);
-			script = "../Shared/j2objc/j2objc -d ${DERIVED_FILE_DIR} -sourcepath ../Shared/src --no-package-directories -use-arc ${INPUT_FILE_PATH};";
+			script = "../Shared/j2objc/j2objc -d ${DERIVED_FILE_DIR} -classpath ../Shared/lib/joda-time-2.5.jar -sourcepath ../Shared/src --no-package-directories -use-arc ${INPUT_FILE_PATH};";
 		};
 /* End PBXBuildRule section */
 

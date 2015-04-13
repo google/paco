@@ -44,13 +44,6 @@ import android.widget.CheckBox;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.paco.shared.model2.ActionTrigger;
-import com.google.paco.shared.model2.ExperimentGroup;
-import com.google.paco.shared.model2.Schedule;
-import com.google.paco.shared.model2.ScheduleTrigger;
-import com.google.paco.shared.util.ExperimentHelper;
-import com.google.paco.shared.util.SchedulePrinter;
-import com.google.paco.shared.util.TimeUtil;
 import com.pacoapp.paco.R;
 import com.pacoapp.paco.UserPreferences;
 import com.pacoapp.paco.model.Event;
@@ -63,6 +56,13 @@ import com.pacoapp.paco.net.NetworkUtil;
 import com.pacoapp.paco.net.PacoForegroundService;
 import com.pacoapp.paco.net.SyncService;
 import com.pacoapp.paco.sensors.android.BroadcastTriggerReceiver;
+import com.pacoapp.paco.shared.model2.ActionTrigger;
+import com.pacoapp.paco.shared.model2.ExperimentGroup;
+import com.pacoapp.paco.shared.model2.Schedule;
+import com.pacoapp.paco.shared.model2.ScheduleTrigger;
+import com.pacoapp.paco.shared.util.ExperimentHelper;
+import com.pacoapp.paco.shared.util.SchedulePrinter;
+import com.pacoapp.paco.shared.util.TimeUtil;
 import com.pacoapp.paco.triggering.BeeperService;
 import com.pacoapp.paco.utils.IntentExtraHelper;
 

@@ -28,13 +28,13 @@ import android.content.Intent;
 import android.util.Log;
 
 import com.google.common.collect.Lists;
-import com.google.paco.shared.model2.ExperimentDAO;
-import com.google.paco.shared.scheduling.ActionScheduleGenerator;
-import com.google.paco.shared.scheduling.ActionSpecification;
 import com.pacoapp.paco.PacoConstants;
 import com.pacoapp.paco.model.Experiment;
 import com.pacoapp.paco.model.ExperimentProviderUtil;
 import com.pacoapp.paco.os.AlarmReceiver;
+import com.pacoapp.paco.shared.model2.ExperimentDAO;
+import com.pacoapp.paco.shared.scheduling.ActionScheduleGenerator;
+import com.pacoapp.paco.shared.scheduling.ActionSpecification;
 
 /**
  * Class that is responsible for keeping the alarm schedule.

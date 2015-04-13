@@ -48,11 +48,6 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Button;
 
-import com.google.paco.shared.model2.ExperimentDAO;
-import com.google.paco.shared.model2.ExperimentGroup;
-import com.google.paco.shared.model2.Input2;
-import com.google.paco.shared.model2.JsonConverter;
-import com.google.paco.shared.util.ExperimentHelper;
 import com.pacoapp.paco.PacoConstants;
 import com.pacoapp.paco.R;
 import com.pacoapp.paco.js.bridge.Environment;
@@ -63,6 +58,11 @@ import com.pacoapp.paco.model.Event;
 import com.pacoapp.paco.model.Experiment;
 import com.pacoapp.paco.model.ExperimentProviderUtil;
 import com.pacoapp.paco.model.Output;
+import com.pacoapp.paco.shared.model2.ExperimentDAO;
+import com.pacoapp.paco.shared.model2.ExperimentGroup;
+import com.pacoapp.paco.shared.model2.Input2;
+import com.pacoapp.paco.shared.model2.JsonConverter;
+import com.pacoapp.paco.shared.util.ExperimentHelper;
 
 public class FeedbackActivity extends ActionBarActivity {
 
@@ -111,7 +111,7 @@ public class FeedbackActivity extends ActionBarActivity {
       webView = (WebView)findViewById(R.id.feedbackText);
       webView.getSettings().setJavaScriptEnabled(true);
 
-      final com.google.paco.shared.model2.Feedback feedback = experimentGroup.getFeedback();
+      final com.pacoapp.paco.shared.model2.Feedback feedback = experimentGroup.getFeedback();
 
       injectObjectsIntoJavascriptEnvironment(feedback);
 
@@ -121,7 +121,7 @@ public class FeedbackActivity extends ActionBarActivity {
       WebViewClient webViewClient = createWebViewClientThatHandlesFileLinksForCharts(feedback);
       webView.setWebViewClient(webViewClient);
 
-      if (experimentGroup.getFeedbackType() == com.google.paco.shared.model2.Feedback.FEEDBACK_TYPE_RETROSPECTIVE) {
+      if (experimentGroup.getFeedbackType() == com.pacoapp.paco.shared.model2.Feedback.FEEDBACK_TYPE_RETROSPECTIVE) {
         // TODO get rid of this and just use the customFeedback view
         loadRetrospectiveFeedbackIntoWebView();
       } else {
@@ -149,7 +149,7 @@ public class FeedbackActivity extends ActionBarActivity {
       }
       return super.onOptionsItemSelected(item);
   }
-  private void injectObjectsIntoJavascriptEnvironment(final com.google.paco.shared.model2.Feedback feedback) {
+  private void injectObjectsIntoJavascriptEnvironment(final com.pacoapp.paco.shared.model2.Feedback feedback) {
     final Map<String,String> map = new HashMap<String, String>();
     map.put("lastResponse", convertLastEventToJsonString(experiment.getEvents()));
     map.put("title", experiment.getExperimentDAO().getTitle());
@@ -176,7 +176,7 @@ public class FeedbackActivity extends ActionBarActivity {
     webView.loadUrl("file:///android_asset/skeleton.html");
   }
 
-  private WebViewClient createWebViewClientThatHandlesFileLinksForCharts(final com.google.paco.shared.model2.Feedback feedback) {
+  private WebViewClient createWebViewClientThatHandlesFileLinksForCharts(final com.pacoapp.paco.shared.model2.Feedback feedback) {
     WebViewClient webViewClient = new WebViewClient() {
 
       public boolean shouldOverrideUrlLoading(WebView view, String url) {
@@ -292,7 +292,7 @@ public class FeedbackActivity extends ActionBarActivity {
     });
   }
 
-  public static String convertExperimentResultsToJsonString(final com.google.paco.shared.model2.Feedback feedback, final Experiment experiment) {
+  public static String convertExperimentResultsToJsonString(final com.pacoapp.paco.shared.model2.Feedback feedback, final Experiment experiment) {
     List<Event> events = experiment.getEvents();
     return convertEventsToJsonString(events);
   }

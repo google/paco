@@ -1,7 +1,7 @@
 package com.pacoapp.paco.ui;
 
-import com.google.paco.shared.model2.ExperimentGroup;
 import com.pacoapp.paco.model.Experiment;
+import com.pacoapp.paco.shared.model2.ExperimentGroup;
 
 public interface ExperimentLoadingActivity {
 

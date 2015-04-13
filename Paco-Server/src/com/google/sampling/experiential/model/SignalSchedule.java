@@ -32,7 +32,7 @@ import org.joda.time.DateTime;
 
 import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.KeyFactory;
-import com.google.paco.shared.model2.Schedule;
+import com.pacoapp.paco.shared.model2.Schedule;
 
 
 /**

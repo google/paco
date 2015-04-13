@@ -21,10 +21,10 @@ import com.google.appengine.api.datastore.Query.FilterOperator;
 import com.google.appengine.api.datastore.QueryResultList;
 import com.google.appengine.api.datastore.Transaction;
 import com.google.common.collect.Lists;
-import com.google.paco.shared.model2.ExperimentDAO;
-import com.google.paco.shared.scheduling.ActionScheduleGenerator;
 import com.google.sampling.experiential.model.Experiment;
 import com.google.sampling.experiential.server.TimeUtil;
+import com.pacoapp.paco.shared.model2.ExperimentDAO;
+import com.pacoapp.paco.shared.scheduling.ActionScheduleGenerator;
 
 public class PublicExperimentList {
 

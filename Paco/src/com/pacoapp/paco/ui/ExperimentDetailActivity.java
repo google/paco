@@ -41,8 +41,6 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.paco.shared.model2.ExperimentDAO;
-import com.google.paco.shared.model2.ExperimentGroup;
 import com.pacoapp.paco.R;
 import com.pacoapp.paco.UserPreferences;
 import com.pacoapp.paco.model.Experiment;
@@ -51,6 +49,8 @@ import com.pacoapp.paco.net.ExperimentUrlBuilder;
 import com.pacoapp.paco.net.NetworkClient;
 import com.pacoapp.paco.net.NetworkUtil;
 import com.pacoapp.paco.net.PacoForegroundService;
+import com.pacoapp.paco.shared.model2.ExperimentDAO;
+import com.pacoapp.paco.shared.model2.ExperimentGroup;
 import com.pacoapp.paco.utils.IntentExtraHelper;
 
 public class ExperimentDetailActivity extends ActionBarActivity implements ExperimentLoadingActivity, NetworkClient {

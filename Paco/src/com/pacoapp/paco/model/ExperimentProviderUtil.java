@@ -44,21 +44,21 @@ import android.util.Log;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
-import com.google.paco.shared.model2.ActionTrigger;
-import com.google.paco.shared.model2.EventInterface;
-import com.google.paco.shared.model2.EventStore;
-import com.google.paco.shared.model2.ExperimentDAO;
-import com.google.paco.shared.model2.ExperimentGroup;
-import com.google.paco.shared.model2.Input2;
-import com.google.paco.shared.model2.InterruptCue;
-import com.google.paco.shared.model2.JsonConverter;
-import com.google.paco.shared.model2.PacoAction;
-import com.google.paco.shared.model2.PacoNotificationAction;
-import com.google.paco.shared.model2.Schedule;
-import com.google.paco.shared.model2.ScheduleTrigger;
-import com.google.paco.shared.scheduling.ActionScheduleGenerator;
-import com.google.paco.shared.util.TimeUtil;
 import com.pacoapp.paco.PacoConstants;
+import com.pacoapp.paco.shared.model2.ActionTrigger;
+import com.pacoapp.paco.shared.model2.EventInterface;
+import com.pacoapp.paco.shared.model2.EventStore;
+import com.pacoapp.paco.shared.model2.ExperimentDAO;
+import com.pacoapp.paco.shared.model2.ExperimentGroup;
+import com.pacoapp.paco.shared.model2.Input2;
+import com.pacoapp.paco.shared.model2.InterruptCue;
+import com.pacoapp.paco.shared.model2.JsonConverter;
+import com.pacoapp.paco.shared.model2.PacoAction;
+import com.pacoapp.paco.shared.model2.PacoNotificationAction;
+import com.pacoapp.paco.shared.model2.Schedule;
+import com.pacoapp.paco.shared.model2.ScheduleTrigger;
+import com.pacoapp.paco.shared.scheduling.ActionScheduleGenerator;
+import com.pacoapp.paco.shared.util.TimeUtil;
 
 public class ExperimentProviderUtil implements EventStore {
 
@@ -523,9 +523,9 @@ public class ExperimentProviderUtil implements EventStore {
 
 
         if (type.equals("signalSchedule")) {
-          com.google.paco.shared.model2.ScheduleTrigger trigger = new com.google.paco.shared.model2.ScheduleTrigger();
+          com.pacoapp.paco.shared.model2.ScheduleTrigger trigger = new com.pacoapp.paco.shared.model2.ScheduleTrigger();
           trigger.getActions().add(defaultAction);
-          com.google.paco.shared.model2.Schedule schedule = new com.google.paco.shared.model2.Schedule();
+          com.pacoapp.paco.shared.model2.Schedule schedule = new com.pacoapp.paco.shared.model2.Schedule();
 
           defaultAction.setSnoozeCount(signalingMechanismNode.path("snoozeCount").getIntValue());
           defaultAction.setSnoozeTime(signalingMechanismNode.path("snoozeTime").getIntValue());
@@ -547,11 +547,11 @@ public class ExperimentProviderUtil implements EventStore {
           trigger.setUserEditable(signalingMechanismNode.path("userEditable").getBooleanValue());
           trigger.setOnlyEditableOnJoin(signalingMechanismNode.path("onlyEditableOnJoin").getBooleanValue());
 
-          List<com.google.paco.shared.model2.SignalTime> signalTimes = schedule.getSignalTimes();
+          List<com.pacoapp.paco.shared.model2.SignalTime> signalTimes = schedule.getSignalTimes();
           if (signalingMechanismNode.has("signalTimes")) {
             List<JsonNode> signalTimeNodes = signalingMechanismNode.findValues("signalTimes");
             for (JsonNode signalTimeNode : signalTimeNodes) {
-              com.google.paco.shared.model2.SignalTime newSt = new com.google.paco.shared.model2.SignalTime();
+              com.pacoapp.paco.shared.model2.SignalTime newSt = new com.pacoapp.paco.shared.model2.SignalTime();
               newSt.setType(signalTimeNode.path("type").getIntValue());
               newSt.setFixedTimeMillisFromMidnight(signalTimeNode.path("fixedTimeMillisFromMidnight").getIntValue());
               newSt.setBasis(signalTimeNode.path("basis").getIntValue());
@@ -564,7 +564,7 @@ public class ExperimentProviderUtil implements EventStore {
           trigger.getSchedules().add(schedule);
           actionTriggers.add(trigger);
         } else if (type.equals("trigger")) {
-          com.google.paco.shared.model2.InterruptTrigger trigger = new com.google.paco.shared.model2.InterruptTrigger();
+          com.pacoapp.paco.shared.model2.InterruptTrigger trigger = new com.pacoapp.paco.shared.model2.InterruptTrigger();
           trigger.getActions().add(defaultAction);
           trigger.setMinimumBuffer(signalingMechanismNode.path("minimumBuffer").getIntValue());
           InterruptCue cue = new InterruptCue();
@@ -586,7 +586,7 @@ public class ExperimentProviderUtil implements EventStore {
     }
 
     if (rootNode.has("feedback")) {
-      com.google.paco.shared.model2.Feedback f = new com.google.paco.shared.model2.Feedback();
+      com.pacoapp.paco.shared.model2.Feedback f = new com.pacoapp.paco.shared.model2.Feedback();
       List<JsonNode> feedbackNodes = rootNode.findValues("feedback");
       JsonNode feedbackNode = feedbackNodes.get(0);
       if (feedbackNode.has("text")) {

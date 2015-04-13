@@ -28,9 +28,9 @@ import org.joda.time.DateTime;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import com.google.paco.shared.model2.ExperimentDAO;
-import com.google.paco.shared.model2.ExperimentGroup;
-import com.google.paco.shared.util.TimeUtil;
+import com.pacoapp.paco.shared.model2.ExperimentDAO;
+import com.pacoapp.paco.shared.model2.ExperimentGroup;
+import com.pacoapp.paco.shared.util.TimeUtil;
 
 public class Experiment implements Parcelable {
 
@@ -164,7 +164,7 @@ public class Experiment implements Parcelable {
     return !now.isBefore(startDate) && !now.isAfter(endDate);
   }
 
-  public void setExperimentDAO(com.google.paco.shared.model2.ExperimentDAO experimentDAO) {
+  public void setExperimentDAO(com.pacoapp.paco.shared.model2.ExperimentDAO experimentDAO) {
     this.experimentDelegate = experimentDAO;
     this.serverId = experimentDelegate.getId();
 

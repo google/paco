@@ -18,8 +18,8 @@ import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
-import com.google.paco.shared.model2.Input2;
 import com.google.sampling.experiential.shared.EventDAO;
+import com.pacoapp.paco.shared.model2.Input2;
 
 public class EventPanel extends Composite {
 

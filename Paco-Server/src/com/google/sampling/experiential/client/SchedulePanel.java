@@ -30,7 +30,7 @@ import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
-import com.google.paco.shared.model2.Schedule;
+import com.pacoapp.paco.shared.model2.Schedule;
 
 /**
  * Container for all scheduling configuration panels.

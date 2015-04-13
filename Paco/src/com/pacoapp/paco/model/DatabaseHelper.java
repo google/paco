@@ -7,7 +7,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
-import com.google.paco.shared.model2.PacoNotificationAction;
+import com.pacoapp.paco.shared.model2.PacoNotificationAction;
 
 /**
  * This class helps open, create, and upgrade the database file.

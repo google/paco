@@ -3,8 +3,8 @@ package com.pacoapp.paco.js.bridge;
 import android.content.Context;
 import android.webkit.JavascriptInterface;
 
-import com.google.paco.shared.model2.ExperimentDAO;
-import com.google.paco.shared.model2.ExperimentGroup;
+import com.pacoapp.paco.shared.model2.ExperimentDAO;
+import com.pacoapp.paco.shared.model2.ExperimentGroup;
 import com.pacoapp.paco.triggering.NotificationCreator;
 
 public class JavascriptNotificationService {

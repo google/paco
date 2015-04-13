@@ -27,10 +27,10 @@ import android.database.Cursor;
 import android.os.Bundle;
 import android.widget.ArrayAdapter;
 
-import com.google.paco.shared.util.TimeUtil;
 import com.pacoapp.paco.R;
 import com.pacoapp.paco.model.EsmSignalColumns;
 import com.pacoapp.paco.model.ExperimentProviderUtil;
+import com.pacoapp.paco.shared.util.TimeUtil;
 import com.pacoapp.paco.triggering.AndroidEsmSignalStore;
 
 public class ESMSignalViewer extends ListActivity  {

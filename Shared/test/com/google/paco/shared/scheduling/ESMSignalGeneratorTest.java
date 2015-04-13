@@ -30,9 +30,10 @@ import org.joda.time.Hours;
 import org.joda.time.Interval;
 import org.joda.time.Minutes;
 
-import com.google.paco.shared.model2.PacoNotificationAction;
-import com.google.paco.shared.model2.Schedule;
-import com.google.paco.shared.util.TimeUtil;
+import com.pacoapp.paco.shared.model2.PacoNotificationAction;
+import com.pacoapp.paco.shared.model2.Schedule;
+import com.pacoapp.paco.shared.scheduling.EsmGenerator2;
+import com.pacoapp.paco.shared.util.TimeUtil;
 
 public class ESMSignalGeneratorTest extends TestCase {
 

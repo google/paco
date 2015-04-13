@@ -11,14 +11,14 @@ import android.webkit.JavascriptInterface;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
-import com.google.paco.shared.model2.ExperimentDAO;
-import com.google.paco.shared.model2.ExperimentGroup;
 import com.pacoapp.paco.PacoConstants;
 import com.pacoapp.paco.model.Event;
 import com.pacoapp.paco.model.EventUtil;
 import com.pacoapp.paco.model.Experiment;
 import com.pacoapp.paco.model.ExperimentProviderUtil;
 import com.pacoapp.paco.model.Output;
+import com.pacoapp.paco.shared.model2.ExperimentDAO;
+import com.pacoapp.paco.shared.model2.ExperimentGroup;
 import com.pacoapp.paco.ui.FeedbackActivity;
 
 public class JavascriptEventLoader {

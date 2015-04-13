@@ -424,12 +424,12 @@ public class Experiment {
 
   @JsonIgnore
   private DateTime getEndDateTime() {
-    if (getSchedule() != null && getSchedule().getScheduleType().equals(com.google.paco.shared.model2.Schedule.WEEKDAY)) {
+    if (getSchedule() != null && getSchedule().getScheduleType().equals(com.pacoapp.paco.shared.model2.Schedule.WEEKDAY)) {
       List<SignalTime> signalTimes = schedule.getSignalTimes();
       List<Integer> times = Lists.newArrayList();
       for (SignalTime signalTime : signalTimes) {
         // TODO adjust for offset times and include them
-        if (signalTime.getType() == com.google.paco.shared.model2.SignalTime.FIXED_TIME) {
+        if (signalTime.getType() == com.pacoapp.paco.shared.model2.SignalTime.FIXED_TIME) {
           times.add(signalTime.getFixedTimeMillisFromMidnight());
         }
       }

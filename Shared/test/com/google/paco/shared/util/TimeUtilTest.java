@@ -2,7 +2,7 @@ package com.google.paco.shared.util;
 
 import org.joda.time.DateTime;
 
-import com.google.paco.shared.util.TimeUtil;
+import com.pacoapp.paco.shared.util.TimeUtil;
 
 import junit.framework.TestCase;
 

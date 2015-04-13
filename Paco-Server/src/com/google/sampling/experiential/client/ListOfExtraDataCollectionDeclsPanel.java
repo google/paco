@@ -22,7 +22,7 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.VerticalPanel;
-import com.google.paco.shared.model2.ExperimentDAOCore;
+import com.pacoapp.paco.shared.model2.ExperimentDAOCore;
 
 /**
  * A panel to contain a collection of extra data collection declaration panels.

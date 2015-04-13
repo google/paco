@@ -24,7 +24,7 @@ import android.os.Parcelable;
 import android.text.TextUtils;
 import android.text.TextUtils.StringSplitter;
 
-import com.google.paco.shared.model2.Input2;
+import com.pacoapp.paco.shared.model2.Input2;
 
 public class Output implements Parcelable {
 

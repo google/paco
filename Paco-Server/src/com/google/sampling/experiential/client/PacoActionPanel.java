@@ -36,10 +36,10 @@ import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
-import com.google.paco.shared.model2.InterruptTrigger;
-import com.google.paco.shared.model2.PacoAction;
-import com.google.paco.shared.model2.PacoActionAllOthers;
-import com.google.paco.shared.model2.PacoNotificationAction;
+import com.pacoapp.paco.shared.model2.InterruptTrigger;
+import com.pacoapp.paco.shared.model2.PacoAction;
+import com.pacoapp.paco.shared.model2.PacoActionAllOthers;
+import com.pacoapp.paco.shared.model2.PacoNotificationAction;
 
 import edu.ycp.cs.dh.acegwt.client.ace.AceEditor;
 import edu.ycp.cs.dh.acegwt.client.ace.AceEditorCallback;

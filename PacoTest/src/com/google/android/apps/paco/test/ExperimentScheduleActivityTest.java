@@ -12,10 +12,10 @@ import android.test.ActivityUnitTestCase;
 
 import com.google.android.apps.paco.ExperimentScheduleActivity;
 import com.google.android.apps.paco.SignalTime;
-import com.google.paco.shared.model2.Schedule;
-import com.google.paco.shared.util.TimeUtil;
 import com.pacoapp.paco.model.Experiment;
 import com.pacoapp.paco.model.ExperimentProviderUtil;
+import com.pacoapp.paco.shared.model2.Schedule;
+import com.pacoapp.paco.shared.util.TimeUtil;
 
 /*
  * TODO: Make this into instrumentation testing, changing the experiment schedule

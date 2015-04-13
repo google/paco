@@ -19,12 +19,12 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 import com.google.common.collect.Lists;
-import com.google.paco.shared.model2.ExperimentDAO;
-import com.google.paco.shared.model2.ExperimentGroup;
-import com.google.paco.shared.scheduling.ActionScheduleGenerator;
 import com.pacoapp.paco.R;
 import com.pacoapp.paco.model.Experiment;
 import com.pacoapp.paco.model.ExperimentProviderUtil;
+import com.pacoapp.paco.shared.model2.ExperimentDAO;
+import com.pacoapp.paco.shared.model2.ExperimentGroup;
+import com.pacoapp.paco.shared.scheduling.ActionScheduleGenerator;
 import com.pacoapp.paco.utils.IntentExtraHelper;
 
 public class ExperimentGroupPicker extends ActionBarActivity implements ExperimentLoadingActivity {

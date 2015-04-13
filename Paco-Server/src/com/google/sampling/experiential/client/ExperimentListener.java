@@ -16,7 +16,7 @@
 */
 package com.google.sampling.experiential.client;
 
-import com.google.paco.shared.model2.ExperimentDAO;
+import com.pacoapp.paco.shared.model2.ExperimentDAO;
 
 /**
  * A narrow interface for the actions available to do on

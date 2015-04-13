@@ -27,9 +27,9 @@ import android.content.Context;
 import android.database.Cursor;
 
 import com.google.common.base.Strings;
-import com.google.paco.shared.scheduling.EsmSignalStore;
 import com.pacoapp.paco.model.EsmSignalColumns;
 import com.pacoapp.paco.model.EsmSignalProvider;
+import com.pacoapp.paco.shared.scheduling.EsmSignalStore;
 
 /**
  * Non-Android-specific interface for storing and retrieving geneated ESM signals.

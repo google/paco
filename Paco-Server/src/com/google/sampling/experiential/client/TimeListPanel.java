@@ -24,8 +24,8 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.VerticalPanel;
-import com.google.paco.shared.model2.Schedule;
-import com.google.paco.shared.model2.SignalTime;
+import com.pacoapp.paco.shared.model2.Schedule;
+import com.pacoapp.paco.shared.model2.SignalTime;
 
 /**
  * Container Panel for the times an experiment is scheduled,

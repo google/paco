@@ -37,7 +37,7 @@
 <inherits name="com.google.gwt.http.HTTP" />
 <inherits name="com.google.gwt.json.JSON" />
 <inherits name="com.google.gwt.i18n.I18N"/>
-<inherits name="com.google.paco.shared.Shared" />
+<inherits name="com.pacoapp.paco.shared.Shared" />
 <inherits name='edu.ycp.cs.dh.acegwt.AceGWT'/>
 <inherits name='com.google.gwt.maps.Maps' />
  <inherits name="com.google.web.bindery.autobean.AutoBean"/> <!--  json preview -->

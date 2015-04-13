@@ -69,21 +69,21 @@
 -dontwarn org.mozilla.javascript.**
 -dontwarn org.antlr.runtime.**
 -dontwarn org.codehaus.jackson.**
--dontwarn com.google.paco.shared.client.**
+-dontwarn com.pacoapp.paco.shared.client.**
 -dontwarn com.google.common.**
--dontwarn com.google.paco.shared.OutcomeTest
+-dontwarn com.pacoapp.paco.shared.OutcomeTest
 
 -keep class com.pacoapp.paco.** { *; }
 -keep interface com.pacoapp.paco.** { *; }
 -keep class com.google.android.apps.paco.** { *; }
 -keep interface com.google.android.apps.paco.** { *; }
--keep class com.google.paco.shared.** { *; }
--keep interface com.google.paco.shared.** { *; }
+-keep class com.pacoapp.paco.shared.** { *; }
+-keep interface com.pacoapp.paco.shared.** { *; }
 -keep class org.mozilla.javascript.** { *; }
 -keep class org.antlr.runtime.** { *; }
 -keep class org.codehaus.jackson.** { *; }
 -keep class org.joda.** { *; }
--keep class com.google.paco.shared.client.** { *; }
+-keep class com.pacoapp.paco.shared.client.** { *; }
 -keep class com.google.common.** { *; }
 -keep class com.jawbone.** {*;}
 -keep class com.bodymedia.** {*;}

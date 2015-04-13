@@ -5,7 +5,7 @@ import org.codehaus.jackson.annotate.JsonSubTypes;
 import org.codehaus.jackson.annotate.JsonSubTypes.Type;
 import org.codehaus.jackson.annotate.JsonTypeInfo;
 
-import com.google.paco.shared.model.SignalingMechanismDAO;
+import com.pacoapp.paco.shared.model.SignalingMechanismDAO;
 
 @JsonTypeInfo(
               use = JsonTypeInfo.Id.NAME,

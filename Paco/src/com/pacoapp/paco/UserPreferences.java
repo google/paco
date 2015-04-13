@@ -30,7 +30,7 @@ import android.content.SharedPreferences;
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
-import com.google.paco.shared.util.TimeUtil;
+import com.pacoapp.paco.shared.util.TimeUtil;
 
 /**
  * A place for storing various preferences of the user.

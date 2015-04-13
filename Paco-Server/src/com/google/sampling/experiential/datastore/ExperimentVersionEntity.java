@@ -19,13 +19,13 @@ import com.google.appengine.api.datastore.Query;
 import com.google.appengine.api.datastore.Query.FilterOperator;
 import com.google.appengine.api.datastore.QueryResultIterable;
 import com.google.common.collect.Lists;
-import com.google.paco.shared.model.ExperimentDAO;
-import com.google.paco.shared.model.SignalScheduleDAO;
-import com.google.paco.shared.model.SignalingMechanismDAO;
-import com.google.paco.shared.model.TriggerDAO;
 import com.google.sampling.experiential.model.Experiment;
 import com.google.sampling.experiential.server.AuthUtil;
 import com.google.sampling.experiential.server.DAOConverterOld;
+import com.pacoapp.paco.shared.model.ExperimentDAO;
+import com.pacoapp.paco.shared.model.SignalScheduleDAO;
+import com.pacoapp.paco.shared.model.SignalingMechanismDAO;
+import com.pacoapp.paco.shared.model.TriggerDAO;
 
 public class ExperimentVersionEntity {
   private static final String DEFINITION_COLUMN = "definition";

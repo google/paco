@@ -31,7 +31,7 @@ import org.joda.time.DateTimeZone;
 import com.google.appengine.api.users.User;
 import com.google.common.collect.Lists;
 import com.google.gwt.thirdparty.guava.common.base.Strings;
-import com.google.paco.shared.comm.Outcome;
+import com.pacoapp.paco.shared.comm.Outcome;
 
 /**
  * Servlet that answers requests for experiments.
