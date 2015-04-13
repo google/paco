@@ -8,7 +8,6 @@ import org.joda.time.DateMidnight;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
 
-import com.google.paco.shared.model.SignalTimeDAO;
 import com.google.paco.shared.model2.ActionTrigger;
 import com.google.paco.shared.model2.EventStore;
 import com.google.paco.shared.model2.ExperimentDAO;
@@ -240,7 +239,7 @@ public class ActionScheduleGenerator {
             if (schedule.getScheduleType().equals(Schedule.WEEKDAY)) {
               List<SignalTime> times = schedule.getSignalTimes();
               SignalTime lastSignalTime = times.get(times.size() - 1);
-              if (lastSignalTime.getType() == SignalTimeDAO.FIXED_TIME) {
+              if (lastSignalTime.getType() == SignalTime.FIXED_TIME) {
                 // TODO actually compute the last time based on all of the rules for offset times and skip if missed rules
                 DateTime lastTimeForDay = new DateTime().plus(lastSignalTime.getFixedTimeMillisFromMidnight());
                 lastTimeForSignalGroup = new DateMidnight(TimeUtil.unformatDate(experimentGroup.getEndDate())).toDateTime()
