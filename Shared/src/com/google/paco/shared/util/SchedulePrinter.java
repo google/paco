@@ -3,7 +3,6 @@ package com.google.paco.shared.util;
 import org.joda.time.DateMidnight;
 import org.joda.time.DateTime;
 
-import com.google.common.base.Strings;
 import com.google.paco.shared.model2.Schedule;
 import com.google.paco.shared.model2.SignalTime;
 
@@ -49,7 +48,7 @@ public class SchedulePrinter {
           buf.append(",");
         }
         final String label = time.getLabel();
-        if (!Strings.isNullOrEmpty(label) && label.equals("null")) {
+        if (label != null && !label.isEmpty() && !label.equals("null")) {
           buf.append(label);
           buf.append(": ");
         }

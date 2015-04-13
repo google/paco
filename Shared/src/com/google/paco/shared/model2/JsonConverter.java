@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
@@ -20,8 +21,6 @@ import org.codehaus.jackson.type.TypeReference;
 import org.joda.time.DateMidnight;
 import org.joda.time.DateTime;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import com.google.paco.shared.scheduling.ActionScheduleGenerator;
 
 public class JsonConverter {
@@ -71,7 +70,7 @@ public class JsonConverter {
     if (experiments == null) {
       experiments = Collections.EMPTY_LIST;
     }
-    Map<String, Object> preJsonObject = Maps.newHashMap();
+    Map<String, Object> preJsonObject = new HashMap();
     preJsonObject.put("results", experiments);
     if (limit != null) {
       preJsonObject.put("limit", limit);
@@ -158,7 +157,7 @@ public class JsonConverter {
     } catch (IOException e) {
       log.severe("Could not parse json. " + e.getMessage());
     }
-    return Lists.newArrayList();
+    return new ArrayList();
   }
 
   public static Map<String, Object> fromEntitiesJson(String resultsJson) {

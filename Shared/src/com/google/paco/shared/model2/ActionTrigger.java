@@ -1,11 +1,10 @@
 package com.google.paco.shared.model2;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 
 
 public abstract class ActionTrigger implements Validatable, Serializable {
@@ -24,7 +23,7 @@ public abstract class ActionTrigger implements Validatable, Serializable {
 
   public ActionTrigger() {
     super();
-    actions = Lists.newArrayList();
+    actions = new ArrayList();
   }
 
   public String getType() {
@@ -84,7 +83,7 @@ public abstract class ActionTrigger implements Validatable, Serializable {
   public void validateActions(Validator validator) {
     validator.isNotNullAndNonEmptyCollection(actions, "ActionTrigger actions should contain at least one action");
 
-    Set<Long> ids = Sets.newHashSet();
+    Set<Long> ids = new HashSet();
 
     boolean hasNotificationToParticipateAction = false;
     boolean hasNotificationMessageAction = false;

@@ -19,9 +19,9 @@
 package com.google.paco.shared.model2;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
-import com.google.common.collect.Lists;
 
 
 
@@ -162,8 +162,8 @@ public class ExperimentDAO extends ExperimentDAOCore implements Serializable {
     if (publishedUsers != null && !publishedUsers.isEmpty()) {
       validator.isValidCollectionOfEmailAddresses(publishedUsers, "published users should contain valid email addresses");
     }
-    List<String> groupNames = Lists.newArrayList();
-    List<ExperimentGroup> endOfDayGroups = Lists.newArrayList();
+    List<String> groupNames = new ArrayList();
+    List<ExperimentGroup> endOfDayGroups = new ArrayList();
     for (ExperimentGroup group : groups) {
       if (groupNames.contains(group.getName())) {
         validator.addError("Group name: " + group.getName() + " is not unique. Group names must be unique");

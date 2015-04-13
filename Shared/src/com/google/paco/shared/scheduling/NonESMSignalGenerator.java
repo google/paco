@@ -16,6 +16,7 @@
 */
 package com.google.paco.shared.scheduling;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.joda.time.DateMidnight;
@@ -26,7 +27,6 @@ import org.joda.time.Months;
 import org.joda.time.MutableDateTime;
 import org.joda.time.Weeks;
 
-import com.google.common.collect.Lists;
 import com.google.paco.shared.model2.EventInterface;
 import com.google.paco.shared.model2.EventStore;
 import com.google.paco.shared.model2.Schedule;
@@ -165,7 +165,7 @@ public class NonESMSignalGenerator {
   public DateTime getNextTimeTodayForSchedule(DateTime now, DateTime nowMidnight,
                                               Schedule schedule, Long experimentId) {
     int nowAsOffsetFromMidnight = now.getMillisOfDay();
-    List<SignalTimeHolder> previousTimes = Lists.newArrayList();
+    List<SignalTimeHolder> previousTimes = new ArrayList();
     for (int i=0; i < schedule.getSignalTimes().size(); i++) {
       SignalTime signalTime = schedule.getSignalTimes().get(i);
       SignalTimeHolder signalTimeHolder = getTimeForSignalType(signalTime, previousTimes, nowMidnight, experimentId);

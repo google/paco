@@ -1,11 +1,8 @@
 package com.google.paco.shared.util;
 
+import java.util.ArrayList;
 import java.util.List;
 
-import org.codehaus.jackson.annotate.JsonIgnore;
-
-import com.google.common.base.Strings;
-import com.google.common.collect.Lists;
 import com.google.paco.shared.model2.ActionTrigger;
 import com.google.paco.shared.model2.ExperimentDAO;
 import com.google.paco.shared.model2.ExperimentGroup;
@@ -17,7 +14,7 @@ import com.google.paco.shared.model2.ScheduleTrigger;
 public class ExperimentHelper {
 
   public static Input2 getInputWithName(ExperimentDAO experiment, String name, String groupName) {
-    if (Strings.isNullOrEmpty(name)) {
+    if (name == null || name.isEmpty()) {
       return null;
     }
     List<Input2> inputs = null;
@@ -39,7 +36,6 @@ public class ExperimentHelper {
     return null;
   }
 
-  //@JsonIgnore
   public static List<Input2> getInputs(ExperimentDAO experiment) {
     List<Input2> inputs = new java.util.ArrayList<Input2>();
     for (ExperimentGroup group : experiment.getGroups()) {
@@ -48,7 +44,6 @@ public class ExperimentHelper {
     return inputs;
   }
 
-  @JsonIgnore
   public static boolean declaresLogAppUsageAndBrowserCollection(ExperimentDAO experiment) {
     return experiment.getExtraDataCollectionDeclarations() != null
             && experiment.getExtraDataCollectionDeclarations().contains(ExperimentDAO.APP_USAGE_BROWSER_HISTORY_DATA_COLLECTION);
@@ -67,7 +62,6 @@ public class ExperimentHelper {
     return false;
   }
 
-  @JsonIgnore
   public static boolean hasAppUsageTrigger(ExperimentDAO experiment) {
     List<ExperimentGroup> groups = experiment.getGroups();
     for (ExperimentGroup experimentGroup : groups) {
@@ -89,7 +83,6 @@ public class ExperimentHelper {
     return false;
   }
 
-  @JsonIgnore
   public static boolean hasAppClosedTrigger(ExperimentDAO experiment) {
     List<ExperimentGroup> groups = experiment.getGroups();
     for (ExperimentGroup experimentGroup : groups) {
@@ -122,7 +115,6 @@ public class ExperimentHelper {
     return false;
   }
 
-  @JsonIgnore
   public static boolean shouldWatchProcesses(ExperimentDAO experiment) {
     return hasAppUsageTrigger(experiment) || isLogActions(experiment);
   }
@@ -140,9 +132,8 @@ public class ExperimentHelper {
 
   }
 
-  @JsonIgnore
   public static List<Pair<ExperimentGroup, InterruptTrigger>> shouldTriggerBy(ExperimentDAO experiment, int event, String sourceIdentifier) {
-    List<Pair<ExperimentGroup, InterruptTrigger>> groupsThatTrigger = Lists.newArrayList();
+    List<Pair<ExperimentGroup, InterruptTrigger>> groupsThatTrigger = new ArrayList();
     List<ExperimentGroup> groups = experiment.getGroups();
     for (ExperimentGroup experimentGroup : groups) {
       List<ActionTrigger> triggers = experimentGroup.getActionTriggers();
@@ -158,9 +149,9 @@ public class ExperimentHelper {
 
             boolean usesSourceId = interruptCue.getCueCode() == InterruptCue.PACO_ACTION_EVENT || interruptCue.getCueCode() == InterruptCue.APP_USAGE;
             boolean sourceIdsMatch;
-            boolean triggerSourceIdIsEmpty = Strings.isNullOrEmpty(interruptCue.getCueSource());
+            boolean triggerSourceIdIsEmpty = interruptCue.getCueSource() == null || interruptCue.getCueSource().isEmpty() ;
             if (usesSourceId) {
-              boolean paramEmpty = Strings.isNullOrEmpty(sourceIdentifier);
+              boolean paramEmpty = sourceIdentifier == null || sourceIdentifier.isEmpty();
               sourceIdsMatch = (paramEmpty && triggerSourceIdIsEmpty) ||
                 interruptCue.getCueSource().equals(sourceIdentifier);
             } else {
@@ -187,7 +178,7 @@ public class ExperimentHelper {
   }
 
   public static List<ExperimentGroup> isBackgroundListeningForSourceId(ExperimentDAO experiment, String sourceIdentifier) {
-    List<ExperimentGroup> listeningExperimentGroups  = Lists.newArrayList();
+    List<ExperimentGroup> listeningExperimentGroups  = new ArrayList();
     List<ExperimentGroup> experimentGroups = experiment.getGroups();
     for (ExperimentGroup experimentGroup : experimentGroups) {
       if (experimentGroup.getBackgroundListen() && experimentGroup.getBackgroundListenSourceIdentifier().equals(sourceIdentifier)) {

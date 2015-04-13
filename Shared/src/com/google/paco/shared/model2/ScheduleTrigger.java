@@ -1,8 +1,8 @@
 package com.google.paco.shared.model2;
 
+import java.util.ArrayList;
 import java.util.List;
 
-import com.google.common.collect.Lists;
 
 public class ScheduleTrigger extends ActionTrigger implements Validatable, java.io.Serializable  {
 
@@ -11,7 +11,7 @@ public class ScheduleTrigger extends ActionTrigger implements Validatable, java.
   public ScheduleTrigger() {
     super();
     this.type = "scheduleTrigger";
-    this.schedules = Lists.newArrayList();
+    this.schedules = new ArrayList();
   }
 
   public ScheduleTrigger(List<Schedule> schedules) {
@@ -20,7 +20,7 @@ public class ScheduleTrigger extends ActionTrigger implements Validatable, java.
     if (schedules != null) {
       this.schedules = schedules;
     } else {
-      this.schedules = Lists.newArrayList();
+      this.schedules = new ArrayList();
     }
   }
 

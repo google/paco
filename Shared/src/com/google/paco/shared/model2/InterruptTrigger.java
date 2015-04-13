@@ -1,9 +1,9 @@
 package com.google.paco.shared.model2;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
-import com.google.common.collect.Lists;
 
 
 public class InterruptTrigger extends ActionTrigger implements Validatable, MinimumBufferable, Serializable {
@@ -15,7 +15,7 @@ public class InterruptTrigger extends ActionTrigger implements Validatable, Mini
   public InterruptTrigger() {
     super();
     this.type = "interruptTrigger";
-    cues = Lists.newArrayList();
+    cues = new ArrayList();
   }
 
   public List<InterruptCue> getCues() {

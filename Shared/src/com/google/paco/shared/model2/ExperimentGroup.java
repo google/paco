@@ -1,10 +1,10 @@
 package com.google.paco.shared.model2;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import com.google.common.collect.Sets;
 
 public class ExperimentGroup implements Validatable, java.io.Serializable {
 
@@ -198,7 +198,7 @@ public class ExperimentGroup implements Validatable, java.io.Serializable {
 
   public void validateInputs(Validator validator) {
     validator.isNotNullCollection(inputs, "inputs not properly initialized");
-    Set<String> inputNames = Sets.newHashSet();
+    Set<String> inputNames = new HashSet();
     for (Input2 input : inputs) {
       if (!inputNames.add(input.getName())) {
         validator.addError("Input name: " + input.getName() + " is duplicate. All input names within a group must be unique");
@@ -209,7 +209,7 @@ public class ExperimentGroup implements Validatable, java.io.Serializable {
 
   public void validateActionTriggers(Validator validator) {
     validator.isNotNullCollection(actionTriggers, "action triggers not properly initialized");
-    Set<Long> ids = Sets.newHashSet();
+    Set<Long> ids = new HashSet();
     for (ActionTrigger actionTrigger : actionTriggers) {
       actionTrigger.validateWith(validator);
       if (!ids.add(actionTrigger.getId())) {
