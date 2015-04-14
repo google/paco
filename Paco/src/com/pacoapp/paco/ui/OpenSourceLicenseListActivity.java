@@ -36,6 +36,8 @@ public class OpenSourceLicenseListActivity extends ActionBarActivity  {
     sites.add("http://commons.apache.org");
     sites.add("http://jquery.org");
     sites.add("http://angularjs.org");
+    sites.add("https://material.angularjs.org/#/");
+    sites.add("https://github.com/google/j2objc");
 
     libNames = new ArrayList<String>();
     libNames.add("Joda-Time");
@@ -46,6 +48,8 @@ public class OpenSourceLicenseListActivity extends ActionBarActivity  {
     libNames.add("Apache Commons");
     libNames.add("jQuery");
     libNames.add("AngularJs");
+    libNames.add("Angular Material");
+    libNames.add("J2ObjC");
 
     ActionBar actionBar = getSupportActionBar();
     actionBar.setLogo(R.drawable.ic_launcher);
