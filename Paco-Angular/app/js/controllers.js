@@ -3,6 +3,9 @@ pacoApp.controller('HomeCtrl', ['$scope', '$http', '$routeParams', '$location',
     $scope.newExperiment = false;
     $scope.experimentId = false;
 
+
+    console.dir($routeParams);
+
     $http.get('/userinfo').success(function(data) {
 
       // For now, make sure email isn't bobevans999@gmail for local dev testing
@@ -38,11 +41,12 @@ pacoApp.controller('HomeCtrl', ['$scope', '$http', '$routeParams', '$location',
 
 
 pacoApp.controller('ExperimentCtrl', ['$scope', '$http',
-  '$mdDialog', '$filter', 'template', '$location',
-  function($scope, $http, $mdDialog, $filter, template, $location) {
+  '$mdDialog', '$filter', 'config', 'template', '$location',
+  function($scope, $http, $mdDialog, $filter, config, template, $location) {
     $scope.tabIndex = 0;
     $scope.ace = {};
-
+    $scope.tabs = config.tabs;
+    
     if ($scope.experimentId == -1) {
       $scope.experiment = angular.copy(template.experiment);
 

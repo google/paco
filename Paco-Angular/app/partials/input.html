@@ -1,7 +1,10 @@
 <div class="input" ng-controller="InputCtrl">
 
   <div class="header section">
-    Input {{$index + 1}}
+    <span ng-bind="input.name" style="font-family: monospace; text-transform: uppercase;" ng-if="input.name"></span>
+    <span ng-if="!input.name">Input {{$index + 1}}</span>
+    <span ng-bind="input.text">:</span>
+
     <a class="remove-button" href="" ng-click="remove(group.inputs, $index)"></a>
     <a class="add-button" href="" ng-click="group.inputs.push({})"></a>
   </div>
@@ -31,7 +34,7 @@
 
       <div layout="row">
         <md-input-container class="medium" flex>
-          <label>Question {{$index + 1}} Variable Name</label>
+          <label>Input {{$index + 1}} Variable Name</label>
           <input ng-model="input.name">
         </md-input-container>
 

@@ -1,5 +1,12 @@
 pacoApp.service('config', function() {
 
+  this.tabs = [
+    'basics',
+    'groups',
+    'admin',
+    'source'
+  ];
+
   this.scheduleTypes = [
     'Daily',
     'Weekdays',

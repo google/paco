@@ -11,6 +11,10 @@ pacoApp.config(['$routeProvider',
       templateUrl: 'partials/main.html',
       controller: 'HomeCtrl',
     }).
+    when('/experiment/:tab/:experimentId', {
+      templateUrl: 'partials/main.html',
+      controller: 'HomeCtrl',
+    }).
     otherwise({
       templateUrl: 'partials/main.html',
       controller: 'HomeCtrl',

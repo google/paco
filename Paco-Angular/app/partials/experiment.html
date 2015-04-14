@@ -24,24 +24,9 @@
 
       <md-tabs md-selected="tabIndex">
         <!-- There is an error if md-on-select/deselect are not defined. -->
-        <md-tab md-on-select="" md-on-deselect="">
+        <md-tab ng-repeat="tab in tabs" md-on-select="" md-on-deselect="">
           <md-tab-label>
-            Basics
-          </md-tab-label>
-        </md-tab>
-        <md-tab md-on-select="" md-on-deselect="">
-          <md-tab-label>
-            Questions
-          </md-tab-label>
-        </md-tab>
-        <md-tab md-on-select="" md-on-deselect="">
-          <md-tab-label>
-            Admin
-          </md-tab-label>
-        </md-tab>
-        <md-tab md-on-select="" md-on-deselect="">
-          <md-tab-label>
-            Source
+            {{tab}}
           </md-tab-label>
         </md-tab>
       </md-tabs>
@@ -49,9 +34,11 @@
     </md-card-content>
   </md-card>
 
-  <div ng-include="'partials/basics.html'" ng-if="tabIndex==0"></div>
-  <div ng-include="'partials/groups.html'" ng-if="tabIndex==1"></div>
+  <div ng-repeat="tab in tabs">
+    <div ng-include="'partials/'+tab+'.html'" ng-if="tabIndex==$index"></div>
+  </div>
+<!--   <div ng-include="'partials/groups.html'" ng-if="tabIndex==1"></div>
   <div ng-include="'partials/admin.html'" ng-if="tabIndex==2"></div>
   <div ng-include="'partials/source.html'" ng-if="tabIndex==3"></div>
-
+ -->
 </div>
