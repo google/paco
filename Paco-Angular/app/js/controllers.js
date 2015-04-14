@@ -2,9 +2,7 @@ pacoApp.controller('HomeCtrl', ['$scope', '$http', '$routeParams', '$location',
   function($scope, $http, $routeParams, $location) {
     $scope.newExperiment = false;
     $scope.experimentId = false;
-
-
-    console.dir($routeParams);
+    $scope.tabIndex = -1;
 
     $http.get('/userinfo').success(function(data) {
 
@@ -42,11 +40,19 @@ pacoApp.controller('HomeCtrl', ['$scope', '$http', '$routeParams', '$location',
 
 pacoApp.controller('ExperimentCtrl', ['$scope', '$http',
   '$mdDialog', '$filter', 'config', 'template', '$location',
-  function($scope, $http, $mdDialog, $filter, config, template, $location) {
-    $scope.tabIndex = 0;
+  function($scope, $http, $mdDialog, $filter, config, template, 
+      $location) {
     $scope.ace = {};
     $scope.tabs = config.tabs;
-    
+    $scope.state = {tabId: 0};
+
+    if ($location.hash()) {
+      var newTabId = config.tabs.indexOf($location.hash());
+      if (newTabId != -1) {
+        $scope.state.tabId = newTabId;
+      }
+    }
+
     if ($scope.experimentId == -1) {
       $scope.experiment = angular.copy(template.experiment);
 
@@ -55,13 +61,12 @@ pacoApp.controller('ExperimentCtrl', ['$scope', '$http',
         $scope.experiment.contactEmail = $scope.user;
         $scope.experiment.admins.push($scope.user);
       }
-
-      $scope.tabIndex = 0;
     } else if ($scope.experimentId) {
       $http.get('/experiments?id=' + $scope.experimentId).success(
         function(data) {
           $scope.experiment = data[0];
-          $scope.tabIndex = 1;
+          //
+          $scope.prepareAce();
         });
     }
 
@@ -73,9 +78,21 @@ pacoApp.controller('ExperimentCtrl', ['$scope', '$http',
       }
     });
 
-    // Ace is reloaded when the Source tab is selected so get pretty JSON here
-    $scope.aceLoaded = function(editor) {
-      editor.$blockScrolling = 'Infinity';
+    // TODO(ispiro): figure out a way to disabled the default # scrolling 
+    $scope.$watch('state.tabId', function(newValue, oldValue) {
+      if ($scope.state.tabId == 0) {
+        $location.hash('');
+      } else if ($scope.state.tabId > 0) {
+        $location.hash(config.tabs[$scope.state.tabId]);
+      }
+    });
+
+    // Ace is loaded when the Source tab is selected so get pretty JSON here
+    $scope.prepareAce = function(editor) {
+      if (editor) {
+        editor.$blockScrolling = 'Infinity';
+      }
+
       $scope.ace = {
         JSON: JSON.stringify($scope.experiment, null, '  '),
         error: false

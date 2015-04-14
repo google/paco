@@ -7,9 +7,9 @@
   <md-card>
     <md-card-content>
       <div ng-model="ace.JSON" ui-ace="{
-            onLoad : aceLoaded, 
-            mode: 'javascript'
-          }" ></div>
+          onLoad : prepareAce, 
+          mode: 'javascript'
+        }" ></div>
     </md-card-content>
   </md-card>
 </div>
