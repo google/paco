@@ -3,10 +3,9 @@ package com.pacoapp.paco.net;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStreamWriter;
+import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.List;
-
-import javax.net.ssl.HttpsURLConnection;
 
 import org.json.JSONException;
 
@@ -58,7 +57,7 @@ public class PacoBackgroundService extends GetInBackground {
     addAccessTokenBearerHeader(fetchToken(), headers);
 
     URL u = new URL(url);
-    HttpsURLConnection urlConnection = (HttpsURLConnection) u.openConnection();
+    HttpURLConnection urlConnection = ServerAddressBuilder.getConnection(u);
     for (Pair<String, String> header : headers) {
       urlConnection.addRequestProperty(header.first, header.second);
     }

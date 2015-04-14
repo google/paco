@@ -118,32 +118,35 @@ public class BroadcastTriggerReceiver extends BroadcastReceiver {
       return;
     }
 
+    final Date callStartTime = new Date();
     switch (state) {
     case TelephonyManager.CALL_STATE_RINGING:
       BroadcastTriggerReceiver.setPhoneCallIncoming(context, true);
       BroadcastTriggerReceiver.setLastPhoneState(context, state);
-      BroadcastTriggerReceiver.setPhoneCallStartTime(context, new Date());
+      BroadcastTriggerReceiver.setPhoneCallStartTime(context, callStartTime);
       break;
 
     case TelephonyManager.CALL_STATE_OFFHOOK:
       BroadcastTriggerReceiver.setLastPhoneState(context, state);
-      BroadcastTriggerReceiver.setPhoneCallStartTime(context, new Date());
+      BroadcastTriggerReceiver.setPhoneCallStartTime(context, callStartTime);
 
       if (lastState != TelephonyManager.CALL_STATE_RINGING) {
-        triggerOutgoingCallStarted(context, new Date());
+        triggerOutgoingCallStarted(context, callStartTime);
       } else {
-        triggerIncomingCallStarted(context, new Date());
+        triggerIncomingCallStarted(context, callStartTime);
       }
+      triggerCallStarted(context, callStartTime);
       break;
 
     case TelephonyManager.CALL_STATE_IDLE:
       if (lastState == TelephonyManager.CALL_STATE_RINGING) {
         triggerMissedCall(context, BroadcastTriggerReceiver.getPhoneCallStartTime(context));
       } else if (BroadcastTriggerReceiver.getPhoneCallIncoming(context)) {
-        triggerIncomingCallEnded(context, BroadcastTriggerReceiver.getPhoneCallStartTime(context), new Date());
+        triggerIncomingCallEnded(context, BroadcastTriggerReceiver.getPhoneCallStartTime(context), callStartTime);
       } else {
-        triggerOutgoingCallEnded(context, BroadcastTriggerReceiver.getPhoneCallStartTime(context), new Date());
+        triggerOutgoingCallEnded(context, BroadcastTriggerReceiver.getPhoneCallStartTime(context), callStartTime);
       }
+      triggerCallEnded(context, BroadcastTriggerReceiver.getPhoneCallStartTime(context), callStartTime);
       BroadcastTriggerReceiver.unsetLastPhoneState(context);
       BroadcastTriggerReceiver.unsetPhoneCallIncoming(context);
       BroadcastTriggerReceiver.unsetPhoneCallStartTime(context);
@@ -155,12 +158,20 @@ public class BroadcastTriggerReceiver extends BroadcastReceiver {
 
 
 
+  private void triggerCallEnded(Context context, Date phoneCallStartTime, Date date) {
+      triggerPhoneEndEvent(context, InterruptCue.PHONE_CALL_ENDED, callDuration(phoneCallStartTime, date));
+  }
+
+  private void triggerCallStarted(Context context, Date callStartTime) {
+    triggerEvent(context, InterruptCue.PHONE_CALL_STARTED);
+  }
+
   private void triggerIncomingCallStarted(Context context, Date callStartTime2) {
     triggerEvent(context, InterruptCue.PHONE_INCOMING_CALL_STARTED);
   }
 
   private void triggerIncomingCallEnded(Context context, Date callStartTime, Date date) {
-    triggerEvent(context, InterruptCue.PHONE_INCOMING_CALL_ENDED, callDuration(callStartTime, date));
+    triggerPhoneEndEvent(context, InterruptCue.PHONE_INCOMING_CALL_ENDED, callDuration(callStartTime, date));
   }
 
 
@@ -169,7 +180,7 @@ public class BroadcastTriggerReceiver extends BroadcastReceiver {
   }
 
   private void triggerOutgoingCallEnded(Context context, Date callStartTime, Date date) {
-    triggerEvent(context, InterruptCue.PHONE_OUTGOING_CALL_ENDED, callDuration(callStartTime, date));
+    triggerPhoneEndEvent(context, InterruptCue.PHONE_OUTGOING_CALL_ENDED, callDuration(callStartTime, date));
   }
 
 
@@ -509,7 +520,7 @@ public class BroadcastTriggerReceiver extends BroadcastReceiver {
     context.startService(broadcastTriggerServiceIntent);
   }
 
-  private void triggerEvent(Context context, int triggerEventCodeForPhoneState, long callDuration) {
+  private void triggerPhoneEndEvent(Context context, int triggerEventCodeForPhoneState, long callDuration) {
     Intent broadcastTriggerServiceIntent = new Intent(context, BroadcastTriggerService.class);
     broadcastTriggerServiceIntent.putExtra(Experiment.TRIGGERED_TIME, DateTime.now().toString(TimeUtil.DATETIME_FORMAT));
     broadcastTriggerServiceIntent.putExtra(Experiment.TRIGGER_EVENT, triggerEventCodeForPhoneState);

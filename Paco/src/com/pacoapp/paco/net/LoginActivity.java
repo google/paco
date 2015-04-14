@@ -151,7 +151,7 @@ public class LoginActivity extends Activity {
           URL u = new URL(url);
           publishProgress("[url   ] " + u);
 
-          HttpURLConnection urlConnection = (HttpURLConnection) u.openConnection();
+          HttpURLConnection urlConnection = ServerAddressBuilder.getConnection(u);
           // urlConnection.setDoOutput(true);
           urlConnection.setChunkedStreamingMode(0);
           urlConnection.setRequestMethod(httpMethod);

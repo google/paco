@@ -88,7 +88,7 @@ public abstract class AbstractAuthTokenTask extends AsyncTask<Void, Void, Void> 
           }
           userPrefs.setAccessToken(token);
           URL url = new URL("https://www.googleapis.com/oauth2/v1/userinfo?access_token=" + token);
-          HttpURLConnection con = (HttpURLConnection) url.openConnection();
+          HttpURLConnection con = ServerAddressBuilder.getConnection(url);
           int sc = con.getResponseCode();
 
           if (sc == 200) {
