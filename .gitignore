@@ -2,7 +2,9 @@ local.properties
 .settings
 .DS_Store
 *.keystore
+AndroidCompatSupport/v7/appcompat/bin/res/crunch
 AndroidCompatSupport/v7/appcompat/bin/*
+AndroidCompatSupport/v7/appcompat/gen/*
 Paco/bin/*
 Paco/gen/*
 PacoAndroidLib/bin/*
