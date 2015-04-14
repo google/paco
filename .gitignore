@@ -32,6 +32,7 @@ PacoTest/reports/*
 ServerTools/bin/*
 Shared/bin
 Shared/.gwt/*
+Shared/j2objc
 Shared/testbin
 Shared/dist
 Shared/reports
