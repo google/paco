@@ -77,6 +77,7 @@ public class ExperimentServlet extends HttpServlet {
       String selectedExperimentsParam = req.getParameter("id");
       String experimentsPublishedPubliclyParam = req.getParameter("public");
       String experimentsAdministeredByUserParam = req.getParameter("admin");
+      String experimentsJoinedByMeParam = req.getParameter("joined");
 
       String pacoProtocol = req.getHeader("pacoProtocol");
       if (pacoProtocol == null) {
@@ -106,7 +107,12 @@ public class ExperimentServlet extends HttpServlet {
         handler = new ExperimentServletSelectedExperimentsFullLoadHandler(email, timezone, selectedExperimentsParam, pacoProtocol);
       } else if (experimentsPublishedPubliclyParam != null) {
         handler = new ExperimentServletExperimentsShortPublicLoadHandler(email, timezone, limit, cursor, pacoProtocol);
-      } else if (experimentsAdministeredByUserParam != null) {
+      } /*else if (experimentsAdministeredByUserParam != null && experimentsJoinedByMeParam != null) {
+        handler = new ExperimentServletAdminAndJoinedExperimentsShortLoadHandler(email, timezone, limit, cursor, pacoProtocol);
+      } */else if (experimentsJoinedByMeParam != null) {
+        handler = new ExperimentServletJoinedExperimentsShortLoadHandler(email, timezone, limit, cursor, pacoProtocol);
+      }
+      else if (experimentsAdministeredByUserParam != null) {
         handler = new ExperimentServletAdminExperimentsFullLoadHandler(email, timezone, limit, cursor, pacoProtocol);
       } else {
         handler = null; //new ExperimentServletAllExperimentsFullLoadHandler(email, timezone, limit, cursor, pacoProtocol);

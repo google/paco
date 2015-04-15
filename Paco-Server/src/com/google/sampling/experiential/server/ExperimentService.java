@@ -54,5 +54,7 @@ public interface ExperimentService {
 
   Boolean deleteExperiments(List<Long> experimentIds, String email);
 
+  ExperimentQueryResult getMyJoinedExperiments(String email, DateTimeZone timezone, Integer limit, String cursor);
+
 
 }

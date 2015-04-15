@@ -1,6 +1,9 @@
 package com.google.sampling.experiential.server;
 
+import java.util.Date;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
@@ -13,10 +16,13 @@ import com.google.appengine.api.datastore.TransactionOptions;
 import com.google.appengine.api.users.User;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import com.google.gwt.thirdparty.guava.common.base.Strings;
 import com.google.sampling.experiential.datastore.ExperimentJsonEntityManager;
 import com.google.sampling.experiential.datastore.PublicExperimentList;
 import com.google.sampling.experiential.datastore.PublicExperimentList.CursorExerimentIdListPair;
+import com.google.sampling.experiential.model.Event;
 import com.pacoapp.paco.shared.model.SignalTimeDAO;
 import com.pacoapp.paco.shared.model2.ActionTrigger;
 import com.pacoapp.paco.shared.model2.ExperimentDAO;
@@ -193,8 +199,6 @@ class DefaultExperimentService implements ExperimentService {
     throw new IllegalStateException(email + " does not have permission to delete one or more of the experiments: " + Joiner.on(",").join(experimentIds));
   }
 
-
-
   @Override
   public ExperimentQueryResult getMyJoinableExperiments(String email, DateTimeZone timeZoneForClient,
                                                         Integer limit, String cursor) {
@@ -204,6 +208,88 @@ class DefaultExperimentService implements ExperimentService {
     removeNonAdminData(email, experiments);
     return new ExperimentQueryResult(cursor, experiments); // TODO honor the limit and cursor
   }
+
+  @Override
+  public ExperimentQueryResult getMyJoinedExperiments(String email, DateTimeZone timeZoneForClient,
+                                                        Integer limit, String cursor) {
+    List<Pair<Long, Date>> experimentIdJoinDatePairs = ExperimentAccessManager.getJoinedExperimentsFor(email);
+
+    if (experimentIdJoinDatePairs == null || experimentIdJoinDatePairs.size() == 0) {
+      List<Event> events = getJoinEventsForLoggedInUser(email, timeZoneForClient);
+      experimentIdJoinDatePairs = getUniqueExperimentIdAndJoinDates(events);
+      if (experimentIdJoinDatePairs.size() > 0) {
+        ExperimentAccessManager.addJoinedExperimentsFor(email, experimentIdJoinDatePairs);
+      }
+    }
+
+    List<ExperimentDAO> experimentDAOs = Lists.newArrayList();
+    if (experimentIdJoinDatePairs.size() == 0) {
+      return new ExperimentQueryResult(cursor, experimentDAOs);
+    }
+
+
+
+    Map<Long, Date> experimentIds = Maps.newHashMap();
+
+    for (Pair<Long,Date> pair: experimentIdJoinDatePairs) {
+      experimentIds.put(pair.first, pair.second);
+    }
+    List<ExperimentDAO> experiments = getExperimentsByIdInternal(Lists.newArrayList(experimentIds.keySet()), email, timeZoneForClient);
+    removeNonAdminData(email, experiments);
+    addJoinDate(experiments, experimentIds);
+    return new ExperimentQueryResult(cursor, experiments); // TODO honor the limit and cursor
+  }
+
+  private void addJoinDate(List<ExperimentDAO> experiments, Map<Long, Date> experimentIds) {
+    // Are the experiments returned in the order the ids were sent?
+    // Can't say for sure so n^2 it is
+    for (ExperimentDAO experiment : experiments) {
+      Date date = experimentIds.get(experiment.getId());
+      experiment.setJoinDate(com.pacoapp.paco.shared.util.TimeUtil.formatDate(date.getTime()));
+    }
+  }
+
+
+  public static List<Pair<Long, Date>> getUniqueExperimentIdAndJoinDates(List<Event> events) {
+    Set<Pair<Long, Date>> experimentIds = Sets.newHashSet();
+    for(Event event : events) {
+      if (event.getExperimentId() == null) {
+        continue; // legacy check
+      }
+      long experimentId = Long.parseLong(event.getExperimentId());
+      Date joinDate = event.getResponseTime();
+      Pair<Long, Date> pair = new Pair<Long, Date>(experimentId, joinDate);
+      experimentIds.add(pair);
+    }
+    return Lists.newArrayList(experimentIds);
+  }
+
+  public static List<Event> getJoinEventsForLoggedInUser(String loggedInUserEmail, DateTimeZone timeZoneOnClient) {
+    List<com.google.sampling.experiential.server.Query> queries = new QueryParser().parse("who=" + loggedInUserEmail);
+    List<Event> events = EventRetriever.getInstance().getEvents(queries, loggedInUserEmail, timeZoneOnClient, 0, 20000);
+    System.out.println("DEFAULT EVENT SIZE: " + events.size());
+
+    Map<String, Event> eventsByExperimentId = Maps.newHashMap();
+    for (Event event : events) {
+      if (event.isJoined()) {
+        String experimentId = event.getExperimentId();
+        if (experimentId == null) {
+          continue;
+        }
+        final Event eventWithSameId = eventsByExperimentId.get(experimentId);
+        if (eventWithSameId != null) {
+          if (eventWithSameId.getResponseTime().before(event.getResponseTime())) {
+            eventsByExperimentId.put(event.getExperimentId(), event);
+          }
+        } else {
+          eventsByExperimentId.put(event.getExperimentId(), event);
+        }
+      }
+    }
+    return Lists.newArrayList(eventsByExperimentId.values());
+  }
+
+
 
 
   @Override

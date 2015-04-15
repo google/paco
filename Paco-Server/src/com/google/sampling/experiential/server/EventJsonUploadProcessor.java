@@ -239,6 +239,7 @@ public class EventJsonUploadProcessor {
         }
 
         whats.add(new What(name, answer));
+
       }
     }
 

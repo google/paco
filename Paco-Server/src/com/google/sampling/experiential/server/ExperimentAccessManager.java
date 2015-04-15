@@ -1,5 +1,6 @@
 package com.google.sampling.experiential.server;
 
+import java.util.Date;
 import java.util.List;
 
 import org.joda.time.DateTime;
@@ -16,6 +17,7 @@ import com.google.appengine.api.datastore.Query.CompositeFilterOperator;
 import com.google.appengine.api.datastore.Query.Filter;
 import com.google.appengine.api.datastore.Query.FilterOperator;
 import com.google.appengine.api.datastore.Transaction;
+import com.google.appengine.api.datastore.TransactionOptions;
 import com.google.common.collect.Lists;
 import com.google.sampling.experiential.datastore.ExperimentJsonEntityManager;
 import com.google.sampling.experiential.datastore.PublicExperimentList;
@@ -27,7 +29,9 @@ public class ExperimentAccessManager {
   private static final String ADMIN_USER_KIND = "admin_user";
   private static final String ADMIN_ID = "admin_id";
   private static final String PUBLISHED_USER_KIND = "published_user";
+  private static final String JOINED_USER_KIND = "joined_user";
   private static final String USER_ID = "user_id";
+  private static final String JOIN_DATE = "join_date";
 
   public static boolean isUserAllowedToDeleteExperiment(Long experimentId, String loggedInUserEmail) {
     return isUserAdmin(experimentId, loggedInUserEmail);
@@ -353,7 +357,75 @@ public class ExperimentAccessManager {
     return !results.isEmpty();
   }
 
+  public static List<Pair<Long, Date>> getJoinedExperimentsFor(String loggedInUserEmail) {
+    DatastoreService ds = DatastoreServiceFactory.getDatastoreService();
+    Query query = new com.google.appengine.api.datastore.Query(JOINED_USER_KIND);
+    query.addFilter(USER_ID, FilterOperator.EQUAL, loggedInUserEmail);
+    PreparedQuery preparedQuery = ds.prepare(query);
+    List<Entity> results = preparedQuery.asList(getFetchOptions());
+    List<Pair<Long, Date>> keys = Lists.newArrayList();
+    for (Entity entity : results) {
+      keys.add(new Pair(entity.getProperty(EXPERIMENT_ID), entity.getProperty(JOIN_DATE)));
+    }
 
+    return keys;
+  }
 
+  public static Entity createUserJoinedAclEntity(final long experimentId, String admin, Date joinDate) {
+    Entity userAccess = new Entity(JOINED_USER_KIND);
+    userAccess.setProperty(EXPERIMENT_ID, experimentId);
+    userAccess.setProperty(USER_ID, admin);
+    userAccess.setProperty(JOIN_DATE, joinDate);
+    return userAccess;
+  }
+
+  /**
+   * this method is expressly for upgrading the algorithm from identifying unique experiment ids in events to
+   * using the ExperimentAccessManager table.
+   *
+   * @param loggedInUserEmail
+   * @param idDatePairs
+   */
+  public static void addJoinedExperimentsFor(String loggedInUserEmail, List<Pair<Long, Date>> idDatePairs) {
+    DatastoreService ds = DatastoreServiceFactory.getDatastoreService();
+    Transaction tx = null;
+    try {
+      TransactionOptions options = TransactionOptions.Builder.withXG(true);
+      tx = ds.beginTransaction(options);
+      List<Entity> newJoinedAcls = Lists.newArrayList();
+      for (Pair<Long, Date> pair : idDatePairs) {
+        Entity userAccess = createUserJoinedAclEntity(pair.first, loggedInUserEmail, pair.second);
+        newJoinedAcls.add(userAccess);
+      }
+      if (!newJoinedAcls.isEmpty()) {
+        ds.put(tx, newJoinedAcls);
+        tx.commit();
+      }
+    } finally {
+      if (tx != null && tx.isActive()) {
+        tx.rollback();
+      }
+    }
+  }
+
+  public static void addJoinedExperimentFor(String loggedInUserEmail, Long experimentId, Date joinDate) {
+    DatastoreService ds = DatastoreServiceFactory.getDatastoreService();
+    Transaction tx = null;
+    try {
+      tx = ds.beginTransaction();
+      addJoinedExperiment(ds, tx, loggedInUserEmail, experimentId, joinDate);
+      tx.commit();
+    } finally {
+      if (tx != null && tx.isActive()) {
+        tx.rollback();
+      }
+    }
+  }
+
+  public static void addJoinedExperiment(DatastoreService ds, Transaction tx, String loggedInUserEmail,
+                                         Long experimentId, Date joinDate) {
+    Entity userAccess = createUserJoinedAclEntity(experimentId, loggedInUserEmail, joinDate);
+    ds.put(tx, userAccess);
+  }
 
 }
