@@ -1,8 +1,9 @@
 .main {
-  width: 960px;
-  position: relative;
   left: 50%;
   margin-left: -480px;
+  margin-bottom: 64px; 
+  position: relative;
+  width: 960px;
 }
 
 md-toolbar {

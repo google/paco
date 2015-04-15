@@ -15,11 +15,38 @@
     </div>
 
     <md-card>
+
+      <md-card-content>
+        <div class="duration section" layout="row">
+          <div class="title">
+            Duration
+          </div>
+          <md-radio-group ng-model="group.fixedDuration" layout="row">
+            <md-radio-button value="false">Ongoing</md-radio-button>
+            <md-radio-button value="true">Fixed</md-radio-button>
+          </md-radio-group>
+
+          <div flex class="date">
+            <md-input-container ng-if="group.fixedDuration=='true'">
+              <label>Start date</label>
+              <input type="date" ng-model="group.startDate">
+            </md-input-container>
+          </div>
+          <div flex class="date">
+            <md-input-container ng-if="group.fixedDuration=='true'">
+              <label>End date</label>
+              <input type="date" ng-model="group.endDate">
+            </md-input-container>
+          </div>
+        </div>
+      </md-card-content>
+
       <md-card-content expandable="{{group.actionTriggers.length>0}}">
+        <md-divider></md-divider>
+
         <div class="section" ng-click="toggleExpand()">
           <div class="title">
-            <span ng-if="experiment.groups.length>1">Group {{$parent.$parent.$index+1}}</span>            
-            Triggers <span class="light">({{group.actionTriggers.length}})</span>
+            <span ng-if="experiment.groups.length>1">Group {{$parent.$parent.$index+1}}</span>            Triggers <span class="light">({{group.actionTriggers.length}})</span>
           </div>
           <md-button add-icon ng-click="addScheduleTrigger($event, toggleExpand)">
             Scheduled Trigger
@@ -29,27 +56,8 @@
           </md-button>
         </div>
         <div expander>
-          <md-divider></md-divider>
-          <div class="duration section" layout="row">
-            <div class="title">
-              Group Duration
-            </div>
-            <md-radio-group ng-model="group.fixedDuration" layout="row" flex="33">
-              <md-radio-button value="false">Ongoing</md-radio-button>
-              <md-radio-button value="true">Fixed</md-radio-button>
-            </md-radio-group>
+          <!--  <md-divider></md-divider> -->
 
-            <md-input-container flex ng-if="group.fixedDuration=='true'">
-              <label>Start</label>
-              <input type="date" ng-model="group.startDate">
-            </md-input-container>
-
-            <md-input-container flex ng-if="group.fixedDuration=='true'">
-              <label>End</label>
-              <input type="date" ng-model="group.endDate">
-            </md-input-container>
-
-          </div>
           <div ng-repeat="trigger in group.actionTriggers track by $index" ng-include="'partials/trigger.html'">
           </div>
         </div>
@@ -78,7 +86,7 @@
           <div class="title">
             <span ng-if="experiment.groups.length>1">Group {{$index+1}}</span> Advanced
           </div>
-          <i>End of day, background listening, logging, custom rendering</i>
+          <i>End of day, background listening, logging, custom rendering, feedback</i>
         </div>
         <div expander>
           <div ng-include="'partials/advanced.html'"></div>

@@ -1,4 +1,4 @@
-<div class="advanced">
+<div class="padded advanced">
   <div class="over">
     <md-checkbox ng-model="group.endOfDayGroup" aria-label="End of day group">
       End of day group
@@ -44,9 +44,8 @@
   </div>
 
   <div class="source" ng-if="group.customRendering">
-    <div class="padded">
-      Enter HTML and Javascript for custom rendering of experiment
-    </div>
+    Enter HTML and Javascript for custom rendering of experiment
+
     <div class="ace_editor" ng-model="group.customRenderingCode" ui-ace="{
         mode: 'javascript',
         onLoad: aceLoaded,
@@ -57,4 +56,33 @@
       }">
     </div>
   </div>
+
+  <div class="feedback" layout="row">
+
+    Feedback 
+    <select ng-model="group.feedbackType">
+      <option ng-repeat="type in feedbackTypes" value="{{$index}}">{{type}}</option>
+    </select>
+
+    <div class="message" flex>
+      <md-input-container md-no-float ng-if="group.feedbackType==='0'">
+        <input type="text" ng-model="group.feedback.text" placeholder="Message">
+      </md-input-container>
+    </div>
+  </div>
+
+  <div class="source" ng-if="group.feedbackType==3" ng-init="group.feedback.text=''">
+    Enter custom feedback code
+
+    <div class="ace_editor" ng-model="group.feedback.text" ui-ace="{
+        mode: 'javascript',
+        onLoad: aceLoaded,
+        rendererOptions: {
+          minLines: 10,
+          maxLines: 'Infinity'
+        }
+      }">
+    </div>
+  </div>
+
 </div>

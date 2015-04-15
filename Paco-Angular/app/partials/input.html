@@ -1,9 +1,8 @@
 <div class="input" ng-controller="InputCtrl">
 
   <div class="header section">
-    <span ng-bind="input.name" style="font-family: monospace; text-transform: uppercase;" ng-if="input.name"></span>
+    <span ng-bind="input.name" ng-if="input.name"></span>
     <span ng-if="!input.name">Input {{$index + 1}}</span>
-    <span ng-bind="input.text">:</span>
 
     <a class="remove-button" href="" ng-click="remove(group.inputs, $index)"></a>
     <a class="add-button" href="" ng-click="group.inputs.push({})"></a>

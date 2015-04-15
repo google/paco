@@ -62,11 +62,11 @@ pacoApp.service('config', function() {
   ];
 
   this.feedbackTypes = [
-    'Static Message Feedback',
-    'Retrospective Feedback (QS default)',
-    'Responsive Feedback (adaptive)',
-    'Custom Code Feedback',
-    'Disable Feedback Message'
+    'Static Message',
+    'Retrospective (QS default)',
+    'Responsive (adaptive)',
+    'Custom Code',
+    'Disable Feedback'
   ];
 });
 

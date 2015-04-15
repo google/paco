@@ -43,6 +43,7 @@ pacoApp.controller('ExperimentCtrl', ['$scope', '$http',
   function($scope, $http, $mdDialog, $filter, config, template, 
       $location) {
     $scope.ace = {};
+    $scope.feedbackTypes = config.feedbackTypes;
     $scope.tabs = config.tabs;
     $scope.state = {tabId: 0};
 
