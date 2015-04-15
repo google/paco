@@ -40,12 +40,14 @@ pacoApp.controller('HomeCtrl', ['$scope', '$http', '$routeParams', '$location',
 
 pacoApp.controller('ExperimentCtrl', ['$scope', '$http',
   '$mdDialog', '$filter', 'config', 'template', '$location',
-  function($scope, $http, $mdDialog, $filter, config, template, 
-      $location) {
+  function($scope, $http, $mdDialog, $filter, config, template,
+    $location) {
     $scope.ace = {};
     $scope.feedbackTypes = config.feedbackTypes;
     $scope.tabs = config.tabs;
-    $scope.state = {tabId: 0};
+    $scope.state = {
+      tabId: 0
+    };
 
     if ($location.hash()) {
       var newTabId = config.tabs.indexOf($location.hash());
@@ -171,6 +173,14 @@ pacoApp.controller('GroupCtrl', ['$scope', 'template',
 
     $scope.addScheduleTrigger = function(event, expandFn) {
       $scope.group.actionTriggers.push(angular.copy(template.scheduleTrigger));
+
+      console.dir($scope.group.actionTriggers);
+
+      var trigger = $scope.group.actionTriggers[$scope.group.actionTriggers.length - 1];
+      
+      
+      //trigger.addClass('reveal'); // = 58 + 'px';
+
       expandFn(true);
       event.stopPropagation();
     };
@@ -224,7 +234,6 @@ pacoApp.controller('TriggerCtrl', ['$scope', '$mdDialog', 'config', 'template',
 
     $scope.addAction = function(event) {
       var action = angular.copy(template.action);
-      //action.id = $scope.trigger.actions.length;
       $scope.trigger.actions.push(action);
     }
 
@@ -232,7 +241,7 @@ pacoApp.controller('TriggerCtrl', ['$scope', '$mdDialog', 'config', 'template',
       $scope.trigger.schedules.push(angular.copy(template.schedule));
     }
 
-   $scope.addCue = function(event) {
+    $scope.addCue = function(event) {
       $scope.trigger.cues.push(angular.copy(template.cue));
     }
 
@@ -343,7 +352,7 @@ pacoApp.controller('ScheduleCtrl', ['$scope', '$mdDialog', 'config', 'template',
     if ($scope.schedule.repeatRate != undefined) {
       $scope.schedule.repeatRate += '';
     }
-    
+
     if ($scope.schedule.esmPeriodInDays == undefined) {
       $scope.schedule.esmPeriodInDays = '';
     } else {
