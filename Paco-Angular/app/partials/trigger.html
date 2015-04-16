@@ -5,16 +5,16 @@
       <span ng-if="trigger.type=='interruptTrigger'">Event</span> Trigger
     </div>
 
-    <md-button ng-if="trigger.type=='scheduleTrigger'" add-icon ng-click="addSchedule()">
-      Schedule
+    <md-button ng-if="trigger.type=='scheduleTrigger'" ng-click="addSchedule()">
+      Add Schedule
     </md-button>
 
-    <md-button ng-if="trigger.type=='interruptTrigger'" add-icon ng-click="addCue()">
-      Cue
+    <md-button ng-if="trigger.type=='interruptTrigger'" ng-click="addCue()">
+      Add Cue
     </md-button>
 
-    <md-button add-icon ng-click="addAction()">
-      Action
+    <md-button ng-click="addAction()">
+      Add Action
     </md-button>
 
     <a class="remove-button" href="" ng-click="remove(group.actionTriggers, $index)">
@@ -22,7 +22,7 @@
   </div>
 
   <div ng-repeat="schedule in trigger.schedules track by $index">
-    <md-divider></md-divider>
+    <!-- <md-divider></md-divider> -->
     <div class="section">
       <div class="subsub">
         <md-button ng-click="showSchedule($event, schedule)">
@@ -37,7 +37,7 @@
   </div>
 
   <div ng-repeat="cue in trigger.cues track by $index">
-    <md-divider></md-divider>
+    <!-- <md-divider></md-divider> -->
     <div class="section">
       <div class="subsub">
         <md-button ng-click="showCue($event, cue)">
@@ -52,7 +52,7 @@
   </div>
 
   <div ng-repeat="action in trigger.actions track by $index">
-    <md-divider></md-divider>
+    <!-- <md-divider></md-divider> -->
     <div class="section">
       <div class="subsub">
         <md-button ng-click="showAction($event, action)">

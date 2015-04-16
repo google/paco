@@ -6,9 +6,8 @@
   background: url('../img/ic_clear_24px.svg') no-repeat;
   height: 26px;
   opacity: .5;
-  position: absolute;
-  right: 8px;
-  top: 31px;
+  display: inline-block;
+  float: right;
   width: 26px;
 }
 
@@ -106,16 +105,40 @@ md-card .section {
   background: white;
   cursor: pointer;
   font-weight: 400;
+  outline: none;
   padding: 16px;
   -webkit-user-select: none;
 }
 
 md-card .section .title {
+  outline: none;
   display: inline-block;
   font-weight: bold;
   height: 24px;
   width: 200px;
 } 
+
+md-card .section .group-name {
+  position: absolute;
+  top: 12px;
+  left: 230px;
+  width: 400px;
+}
+
+md-card .group-toggle {
+  background: url('../img/ic_expand_more_48px.svg') no-repeat;
+  background-size: 24px;
+  width: 24px;
+  height: 24px;
+  margin: 0 0 -4px -4px;
+  display: inline-block;
+  -webkit-transition: -webkit-transform .25s;
+  outline: none;
+}
+
+md-card .group-toggle.hiding {
+  -webkit-transform: rotate(-180deg);
+}
 
 md-card .section .subtitle {
   display: inline-block;

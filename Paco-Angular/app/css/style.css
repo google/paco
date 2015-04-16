@@ -10,7 +10,7 @@ a {
 
 md-card {
   overflow: hidden;
-  margin: 16px 0 16px 0;
+  margin: 32px 0 32px 0;
 }
 
 md-card-content {
@@ -85,4 +85,14 @@ md-dialog li {
   color: red;
   font-weight: 500;
   margin-left: 16px;
+}
+
+.notransition {
+  border: 2px solid red;
+  background: red;
+  -webkit-transition: none !important;
+  -moz-transition: none !important;
+  -o-transition: none !important;
+  -ms-transition: none !important;
+  transition: none !important;
 }

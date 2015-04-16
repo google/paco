@@ -13,6 +13,11 @@ pacoApp.controller('HomeCtrl', ['$scope', '$http', '$routeParams', '$location',
         $http.get('/experiments?mine').success(function(data) {
           $scope.experiments = data;
         });
+
+        $http.get('/experiments?mine').success(function(data) {
+          $scope.experiments = data;
+        });
+
       } else {
         $scope.loginURL = data.login;
       }
@@ -164,6 +169,7 @@ pacoApp.controller('ExperimentCtrl', ['$scope', '$http',
 
 pacoApp.controller('GroupCtrl', ['$scope', 'template',
   function($scope, template) {
+    $scope.hiding = false;
 
     $scope.addInput = function(event, expandFn) {
       $scope.group.inputs.push({});
@@ -171,16 +177,13 @@ pacoApp.controller('GroupCtrl', ['$scope', 'template',
       event.stopPropagation();
     };
 
+    $scope.toggleGroup = function($event) {
+      $scope.hiding = !$scope.hiding;
+    };
+
     $scope.addScheduleTrigger = function(event, expandFn) {
       $scope.group.actionTriggers.push(angular.copy(template.scheduleTrigger));
-
-      console.dir($scope.group.actionTriggers);
-
       var trigger = $scope.group.actionTriggers[$scope.group.actionTriggers.length - 1];
-      
-      
-      //trigger.addClass('reveal'); // = 58 + 'px';
-
       expandFn(true);
       event.stopPropagation();
     };
@@ -205,7 +208,6 @@ pacoApp.controller('GroupCtrl', ['$scope', 'template',
       }
       $scope.hasScheduleTrigger = false;
     });
-
   }
 ]);
 
@@ -419,7 +421,7 @@ pacoApp.controller('ScheduleCtrl', ['$scope', '$mdDialog', 'config', 'template',
 pacoApp.controller('SummaryCtrl', ['$scope', 'config', function($scope, config) {
 
   $scope.getActionSummary = function() {
-    if ($scope.action.actionCode !== undefined) {
+    if ($scope.action.actionCode !== undefined && $scope.action.actionCode !== '') {
       return config.actionTypes[$scope.action.actionCode];
     } else {
       return 'Undefined';
@@ -427,7 +429,7 @@ pacoApp.controller('SummaryCtrl', ['$scope', 'config', function($scope, config) 
   };
 
   $scope.getCueSummary = function() {
-    if ($scope.cue.cueCode !== undefined) {
+    if ($scope.cue.cueCode !== undefined && $scope.cue.cueCode !== '') {
       return config.cueTypes[$scope.cue.cueCode];
     } else {
       return 'Undefined';
@@ -437,6 +439,10 @@ pacoApp.controller('SummaryCtrl', ['$scope', 'config', function($scope, config) 
   $scope.getScheduleSummary = function() {
     var sched = $scope.schedule;
     var str = '';
+
+    if (sched.scheduleType == '') {
+      return 'Undefined';
+    }
 
     //ispiro:using === for these comparisons breaks on schedule edit
     if (sched.scheduleType == 0) {

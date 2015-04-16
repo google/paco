@@ -44,12 +44,22 @@ pacoApp.directive('expandable', ['$timeout', function($timeout) {
       scope.expand = true;
       scope.container = element;
 
-      scope.toggleExpand = function(flag) {
+      scope.toggleExpand = function(flag, skipAnimation) {
+
+        if (attributes['expandable'] === 'false') {
+          return;
+        }
 
         if (flag === undefined) {
           scope.expand = !scope.expand;
         } else {
           scope.expand = flag;
+        }
+
+        if (angular.isDefined(skipAnimation) && skipAnimation == true) {
+          angular.element(scope.expander).addClass('notransition');
+        } else {
+          angular.element(scope.expander).removeClass('notransition');
         }
 
         if (scope.expand) {
@@ -65,11 +75,11 @@ pacoApp.directive('expandable', ['$timeout', function($timeout) {
       };
 
       if (attributes['expanded'] === 'false') {
-        scope.toggleExpand(false);
+        scope.expand = false;
       }
 
       $timeout(function() {
-        scope.toggleExpand(scope.expand)
+        scope.toggleExpand(scope.expand, true);
       }, 250);
     }
   }
@@ -84,6 +94,22 @@ pacoApp.directive('expander', function() {
     }
   }
 });
+
+pacoApp.directive('hidable', [function() {
+  return {
+    restrict: 'A',
+    scope: true,
+    link: function(scope, element, attributes) {
+      scope.hiding = false;
+      scope.container = element;
+      var lastHeight;
+
+      scope.toggleHide = function() {
+        scope.hiding = !scope.hiding;
+      };
+    }
+  }
+}]);
 
 
 /**
