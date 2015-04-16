@@ -7,7 +7,6 @@ var paco = (function (init) {
              "prompt" : input.text,
              "isMultiselect" : input.isMultiselect,
              "answer" : input.answer, 
-             "answerOrder" : input.answerOrder, 
              "responseType" : input.responseType
            };
   };
@@ -137,7 +136,7 @@ var paco = (function (init) {
       
       for (var j =0 ; j < responses.length; j++) {
         if (responses[j]["name"] === item) {
-          return responses[j]["answerOrder"];
+          return responses[j]["answer"];
         }
       }
       return null;
