@@ -128,7 +128,7 @@ static NSString* const kSoundNameThird = @"deepbark_trial_third.mp3";
 }
 
 
-- (void)testCancelTimeoutNotification {
+- (void)testCancelTimeoutNotification { 
   UILocalNotification* notification = [[UILocalNotification alloc] init];
   notification.timeZone = [NSTimeZone systemTimeZone];
   notification.alertBody = kAlertBodyDefault;
