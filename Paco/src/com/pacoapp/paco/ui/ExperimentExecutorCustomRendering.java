@@ -860,7 +860,7 @@ public boolean onKeyDown(int keyCode, KeyEvent event) {
 
       notifySyncService();
 
-      if (experimentGroup.getFeedbackType() != FeedbackDAO.FEEDBACK_TYPE_HIDE_FEEDBACK) {
+      if (experimentGroup.getFeedback().getType() != FeedbackDAO.FEEDBACK_TYPE_HIDE_FEEDBACK) {
         showFeedback();
       }
       finish();

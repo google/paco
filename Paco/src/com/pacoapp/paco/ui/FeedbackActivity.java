@@ -121,7 +121,7 @@ public class FeedbackActivity extends ActionBarActivity {
       WebViewClient webViewClient = createWebViewClientThatHandlesFileLinksForCharts(feedback);
       webView.setWebViewClient(webViewClient);
 
-      if (experimentGroup.getFeedbackType() == com.pacoapp.paco.shared.model2.Feedback.FEEDBACK_TYPE_RETROSPECTIVE) {
+      if (experimentGroup.getFeedback().getType() == com.pacoapp.paco.shared.model2.Feedback.FEEDBACK_TYPE_RETROSPECTIVE) {
         // TODO get rid of this and just use the customFeedback view
         loadRetrospectiveFeedbackIntoWebView();
       } else {

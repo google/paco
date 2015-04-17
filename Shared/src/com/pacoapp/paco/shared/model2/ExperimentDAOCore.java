@@ -178,7 +178,7 @@ public class ExperimentDAOCore implements Validatable, Serializable {
     if (joinDate != null) {
       validator.isValidDateString(joinDate, "join date should be a valid date string");
     }
-    if (organization != null) {
+    if (organization != null && organization.length() > 0) {
       validator.isNotNullAndNonEmptyString(organization,
                                            "organization must be non null if it is specified");
     }

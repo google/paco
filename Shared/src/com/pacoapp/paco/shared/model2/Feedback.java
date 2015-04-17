@@ -31,7 +31,7 @@ public class Feedback implements Validatable, Serializable {
   public static final String DEFAULT_FEEDBACK_MSG = "Thanks for Participating!";
 
   private String text;
-  private Integer type;
+  private Integer type = FEEDBACK_TYPE_STATIC_MESSAGE;
 
   /**
    * @param id
@@ -52,22 +52,12 @@ public class Feedback implements Validatable, Serializable {
     this.text = text;
   }
 
-
-
-  @Deprecated
-  public String getFeedbackType() {
-    return "display";
-  }
-
-  @Deprecated
-  public void setFeedbackType(String feedbackType) {
-    // this is the old feedbacktype it is hardwired to "display" until we remove it.
-
-  }
-
   public void validateWith(Validator validator) {
-    validator.isNotNullAndNonEmptyString(text, "feedback text should not be null or empty");
-    validator.isValidHtmlOrJavascript(text, "text should be valid javascript");
+    validator.isNotNull(type, "feedback type should be set");
+    if (getType() != null && getType() != FEEDBACK_TYPE_RETROSPECTIVE && getType() != FEEDBACK_TYPE_HIDE_FEEDBACK) {
+      validator.isNotNullAndNonEmptyString(text, "feedback text should not be null or empty");
+      validator.isValidHtmlOrJavascript(text, "text should be valid javascript");
+    }
   }
 
   public Integer getType() {

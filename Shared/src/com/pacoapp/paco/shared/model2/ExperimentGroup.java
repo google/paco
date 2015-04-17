@@ -28,7 +28,6 @@ public class ExperimentGroup implements Validatable, java.io.Serializable {
   private String endOfDayReferredGroupName;
 
   private Feedback feedback;
-  private Integer feedbackType;
 
   public ExperimentGroup() {
     super();
@@ -85,14 +84,6 @@ public class ExperimentGroup implements Validatable, java.io.Serializable {
 
   public void setCustomRenderingCode(String customRenderingCode) {
     this.customRenderingCode = customRenderingCode;
-  }
-
-  public Integer getFeedbackType() {
-    return feedbackType;
-  }
-
-  public void setFeedbackType(Integer feedbackType) {
-    this.feedbackType = feedbackType;
   }
 
   public List<Input2> getInputs() {
@@ -184,7 +175,6 @@ public class ExperimentGroup implements Validatable, java.io.Serializable {
       validator.isValidDateString(startDate, "start date must be a valid string");
       validator.isValidDateString(endDate, "end date must be a valid string");
     }
-    validator.isNotNull(feedbackType, "feedbacktype is not properly initialized");
     validator.isNotNull(feedback, "feedback is not properly initialized");
 
     validateInputs(validator);

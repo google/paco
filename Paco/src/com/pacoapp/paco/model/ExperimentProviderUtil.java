@@ -450,7 +450,7 @@ public class ExperimentProviderUtil implements EventStore {
     }
 
     if (rootNode.has("feedbackType")) {
-      defaultExperimentGroup.setFeedbackType(rootNode.path("feedbackType").getIntValue());
+      defaultExperimentGroup.getFeedback().setType(rootNode.path("feedbackType").getIntValue());
     }
     if (rootNode.has("logActions")) {
       defaultExperimentGroup.setLogActions(rootNode.path("logActions").getBooleanValue());
