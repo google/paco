@@ -71,7 +71,7 @@
 
   <target name="runserver" depends="build"
       description="Starts the development server.">
-    <dev_appserver war="ear/default" address="0.0.0.0">
+    <dev_appserver war="ear" address="0.0.0.0">
       <options>
         <arg value="--jvm_flag=-Dappengine.user.timezone=UTC"/>
       </options>
