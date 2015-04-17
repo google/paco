@@ -1,2 +1,0 @@
-function Mpb(){var a,b,c,d,e;e=new N0b(5);R4b(e.cb,Rpc,'cwSplitLayoutPanel');e.cb.style[Asc]='3px solid #e7e7e7';ISb(e,new LRb(Gwc),50);JSb(e,new LRb(Hwc),50);I0b(e,new LRb(Iwc),(gTb(),aTb),100,null);I0b(e,new LRb(Jwc),fTb,100,null);ISb(e,new LRb(Kwc),50);JSb(e,new LRb(Lwc),50);c='\u4EE5\u4E0B\u6587\u5B57\u663E\u793A\u4E86\u5206\u9694\u6761\u4E24\u4FA7\u7684\u5185\u5BB9\u662F\u5982\u4F55\u5E03\u5C40\u7684\u3002';for(d=0;d<3;++d){c+=bpc+c}a=new LRb(c);b=new JOb(a);I0b(e,b,_Sb,0,null);return e}
-K1(729,1,joc);_.lc=function Upb(){s4(this.a,Mpb())};Yoc(vn)(44);

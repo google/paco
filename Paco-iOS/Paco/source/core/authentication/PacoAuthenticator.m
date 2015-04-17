@@ -15,8 +15,6 @@
 
 #import "PacoAuthenticator.h"
 
-#import "GoogleClientLogin.h"
-#import "GoogleAppEngineAuth.h"
 #import "GTMOAuth2Authentication.h"
 #import "GTMOAuth2SignIn.h"
 #import "GTMOAuth2ViewControllerTouch.h"
@@ -29,16 +27,13 @@ NSString* const kPacoService = @"com.google.paco";
 
 typedef void (^PacoAuthenticationBlock)(NSError *);
 
-@interface PacoAuthenticator () <GoogleClientLoginDelegate>
-@property(nonatomic, readwrite, retain) GoogleAppEngineAuth *appEngineAuth;
+@interface PacoAuthenticator ()
 @property(nonatomic, readwrite, retain) GTMOAuth2ViewControllerTouch *authUI;
 @property(nonatomic, readwrite, retain) GTMOAuth2Authentication *auth;
 @property(nonatomic, readwrite, copy) PacoAuthenticationBlock completionHandler;
-@property(nonatomic, readwrite, copy) NSString *cookie;
 @property(nonatomic, readwrite, assign) BOOL userLoggedIn;
 
 @property(nonatomic, readwrite, strong) NSString* accountEmail;
-@property(nonatomic, readwrite, strong) NSString* accountPassword;
 
 
 @end
@@ -78,18 +73,6 @@ typedef void (^PacoAuthenticationBlock)(NSError *);
   return NO;
 }
 
-- (void)storeAccount {
-  NSAssert([self.accountEmail length] > 0 && [self.accountPassword length] > 0,
-           @"There isn't any valid user account to stored!");
-  
-  BOOL success = [SSKeychain setPassword:self.accountPassword
-                              forService:kPacoService
-                                 account:self.accountEmail];
-  if (!success) {
-    NSLog(@"[ERROR] Failed to store account in keychain!");
-  }
-}
-
 - (BOOL)hasAccountInKeyChain {
   NSArray* accounts = [SSKeychain accountsForService:kPacoService];
   return [accounts count] > 0;
@@ -108,44 +91,18 @@ typedef void (^PacoAuthenticationBlock)(NSError *);
 
 - (void)deleteAccount {
   self.accountEmail = nil;
-  self.accountPassword = nil;
   if ([self hasAccountInKeyChain]) {
     [self deleteAllAccountsFromKeyChain];
   }
+  // Remove auth from keychain to prevent future auto sign-in as (null).
+  [GTMOAuth2ViewControllerTouch removeAuthFromKeychainForName:@"PacoKeychain2"];
+  [GTMOAuth2ViewControllerTouch revokeTokenForGoogleAuthentication:self.auth];
 }
 
 - (BOOL)isLoggedIn
 {
   return self.userLoggedIn;
 }
-
-- (BOOL)setupWithCookie {
-  NSURL* url = [NSURL URLWithString:[PacoClient sharedInstance].serverDomain];
-  NSArray* cookies = [[NSHTTPCookieStorage sharedHTTPCookieStorage] cookiesForURL:url];
-  if (0 == [cookies count]) {
-    return NO;
-  }
-  NSHTTPCookie* cookie = cookies[0];
-  NSDate* expireDate = cookie.expiresDate;
-  if (expireDate == nil) {
-    return NO;
-  }
-  NSTimeInterval interval = [expireDate timeIntervalSinceNow];
-  NSTimeInterval THIRTY_MINUTES_INTERVAL = 30*60;
-  //If cookie expires in more than 30 minutes, we consider it a valid cookie;
-  //otherwise, we need to re-login user to get a new cookie.
-  //We use 30 minutes here just to be safe, since user would quit our app in less than 30 minutes
-  if (interval > THIRTY_MINUTES_INTERVAL) {
-    self.userLoggedIn = YES;
-    self.cookie = cookie.value;
-  } else {
-    NSLog(@"Cookie will expire soon, need to re-logIn user...");
-    self.userLoggedIn = NO;
-    self.cookie = nil;
-  }
-  return self.userLoggedIn;
-}
-
 
 - (NSString*)userEmail {
   if (self.accountEmail == nil) {
@@ -154,63 +111,15 @@ typedef void (^PacoAuthenticationBlock)(NSError *);
   return self.accountEmail;
 }
 
-- (NSString*)userPassword {
-  if (self.accountPassword == nil) {
-    self.accountPassword = [SSKeychain passwordForService:kPacoService account:[self userEmail]];
-  }
-  return self.accountPassword;
-}
-
-
-#pragma mark - ClientLogin
-- (void)deleteCookie {  
-  self.cookie = nil;
-  
-  NSURL* url = [NSURL URLWithString:[PacoClient sharedInstance].serverDomain];
-  NSArray* cookies =
-      [NSArray arrayWithArray:[[NSHTTPCookieStorage sharedHTTPCookieStorage] cookiesForURL:url]];
-  if (0 == [cookies count]) {
-    return;
-  }
-  for (NSHTTPCookie* cookie in cookies) {
-    [[NSHTTPCookieStorage sharedHTTPCookieStorage] deleteCookie:cookie];
-  }
-}
-
 - (void)invalidateCurrentAccount {
   self.userLoggedIn = NO;
-  [self deleteCookie];
   [self deleteAccount];
 }
 
 - (void)reAuthenticateWithBlock:(void(^)(NSError*))completionBlock {
-  NSAssert(!self.userLoggedIn, @"user should not be logged in!");
-  NSAssert([self isUserAccountStored], @"user should have stored user name and password!");
-  NSAssert(self.cookie == nil, @"no cookie set up!");
-  
-  NSString* email = [self userEmail];
-  NSAssert([email length] > 0, @"There isn't any valid user email stored to use!");
-  NSString* password = [self userPassword];
-  NSAssert([password length] > 0, @"There isn't any valid user password stored to use!");
-  [self authenticateWithClientLogin:email
-                           password:password
-                  completionHandler:completionBlock];
+  [self authenticateWithOAuth2WithCompletionHandler:completionBlock];
 }
 
-
-
-- (void)authenticateWithClientLogin:(NSString *)email
-                           password:(NSString *)password
-                  completionHandler:(void (^)(NSError *))completionHandler {
-  self.accountEmail = email;
-  self.accountPassword = password;
-  self.completionHandler = completionHandler;
-  _appEngineAuth = [[GoogleAppEngineAuth alloc] initWithDelegate:self
-                                                       andAppURL:[NSURL URLWithString:[PacoClient sharedInstance].serverDomain]];
-  [_appEngineAuth authWithUsername:email
-                       andPassword:password
-                        withSource:@"Paco-Paco-testIOS"];
-}
 
 #pragma mark - OAuth2
 
@@ -272,40 +181,6 @@ typedef void (^PacoAuthenticationBlock)(NSError *);
       presentViewController:_authUI animated:NO completion:^{
         self.authUI = nil;
       }];
-}
-
-
-#pragma mark - GoogleClientLoginDelegate
-
--(void)authSucceeded:(NSString *)authKey {
-  NSLog(@"PACO CLIENT LOGIN AUTH SUCCEEDED.");
-  self.userLoggedIn = YES;
-  
-  self.cookie = [NSString stringWithFormat:@"SACSID=%@", authKey];
-  
-  [self storeAccount];
-
-  if (self.completionHandler) {
-    self.completionHandler(nil);
-  }
-}
-
--(void)authFailed:(NSString *)error {
-  NSLog(@"PACO CLIENT LOGIN AUTH FAILED [%@]", error);  
-  self.userLoggedIn = NO;
-    
-  if (self.completionHandler) {
-    self.completionHandler([NSError errorWithDomain:error code:-1 userInfo:nil]);
-  }
-}
-
--(void)authCaptchaTestNeededFor:(NSString *)captchaToken withCaptchaURL:(NSURL *)captchaURL {
-  NSLog(@"PACO CLIENT LOGIN AUTH CAPTCHA TEST NEEDED FOR %@ %@", captchaToken, captchaURL);
-  self.userLoggedIn = NO;
-  [self deleteAccount];
-  if (self.completionHandler) {
-    self.completionHandler([NSError errorWithDomain:@"NEEDS CAPTCHA" code:-1 userInfo:nil]);
-  }
 }
 
 @end

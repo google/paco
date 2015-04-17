@@ -17,8 +17,6 @@
 package com.google.sampling.experiential.server;
 
 import java.io.IOException;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -34,6 +32,7 @@ import org.joda.time.DateTimeZone;
 import org.joda.time.Duration;
 
 import com.google.appengine.api.users.User;
+import com.google.appengine.api.utils.SystemProperty;
 import com.google.common.collect.Lists;
 import com.google.paco.shared.model.FeedbackDAO;
 import com.google.paco.shared.model.SignalScheduleDAO;
@@ -174,7 +173,7 @@ public class ExperimentServlet extends HttpServlet {
 
       logPacoClientVersion(req);
 
-      String email = getEmailOfUser(req, user);
+      String email = AuthUtil.getEmailOfUser(req, user);
 
       String shortParam = req.getParameter("short");
       String experimentsPublishedToMeParam = req.getParameter("mine");
@@ -235,27 +234,6 @@ public class ExperimentServlet extends HttpServlet {
   private String scriptBust(String experimentsJson) {
     // TODO add scriptbusting prefix to this and client code.
     return experimentsJson;
-  }
-
-  private String getEmailOfUser(HttpServletRequest req, User user) {
-    String email = user != null ? user.getEmail() : null;
-    if (email == null && isDevInstance(req)) {
-      email = "<put your email here to test in developer mode>";
-    }
-    if (email == null) {
-      throw new IllegalArgumentException("You must login!");
-    }
-    return email.toLowerCase();
-  }
-
-
-  public static boolean isDevInstance(HttpServletRequest req) {
-    try {
-      return DEV_HOST.equals(InetAddress.getLocalHost().toString());
-    } catch (UnknownHostException e) {
-      e.printStackTrace();
-    }
-    return false;
   }
 
   @Override

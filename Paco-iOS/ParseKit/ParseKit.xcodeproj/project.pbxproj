@@ -3805,7 +3805,7 @@
 			name = ParseKitTests;
 			productName = NewTests;
 			productReference = D37D8DC61571A4F700CDB822 /* ParseKitTests.octest */;
-			productType = "com.apple.product-type.bundle";
+			productType = "com.apple.product-type.bundle.ocunit-test";
 		};
 		D3D9753116E7F36700D55EAB /* libParseKit */ = {
 			isa = PBXNativeTarget;
@@ -3867,6 +3867,7 @@
 		0867D690FE84028FC02AAC07 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
+				LastTestingUpgradeCheck = 0610;
 				LastUpgradeCheck = 0510;
 			};
 			buildConfigurationList = 1DEB91B108733DA50010E9CD /* Build configuration list for PBXProject "ParseKit" */;

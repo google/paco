@@ -20,7 +20,6 @@ import org.joda.time.DateTimeZone;
 import com.google.appengine.api.datastore.Cursor;
 import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.users.User;
-import com.google.appengine.api.users.UserServiceFactory;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -340,11 +339,7 @@ public class ExperimentRetriever {
   }
 
   private boolean hasAdministrativeRightsOnExperiment(String loggedInUserEmail, Experiment experiment) {
-    return isExperimentAdministrator(loggedInUserEmail, experiment) || isSystemAdministrator();
-  }
-
-  private boolean isSystemAdministrator() {
-    return UserServiceFactory.getUserService().isUserAdmin();
+    return isExperimentAdministrator(loggedInUserEmail, experiment) || AuthUtil.isSystemAdministrator();
   }
 
   public static boolean isExperimentAdministrator(String loggedInUserEmail, Experiment experiment) {

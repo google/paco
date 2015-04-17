@@ -35,6 +35,7 @@ import android.os.Parcelable;
 import com.google.paco.shared.model.ExperimentDAO;
 import com.google.paco.shared.model.FeedbackDAO;
 import com.google.paco.shared.model.SignalTimeDAO;
+import com.google.paco.shared.model.TriggerDAO;
 
 public class Experiment implements Parcelable {
 
@@ -109,6 +110,7 @@ public class Experiment implements Parcelable {
   public static final String TRIGGERED_TIME = "triggeredTime";
   public static final String TRIGGER_EVENT = "trigger_event";
   public static final String TRIGGER_SOURCE_IDENTIFIER = "sourceIdentifier";
+  public static final String TRIGGER_PHONE_CALL_DURATION = "phoneCallDurationMillis";
 
 
   public String getModifyDate() {
@@ -605,7 +607,7 @@ public class Experiment implements Parcelable {
     for (SignalingMechanism signalingMechanism : getSignalingMechanisms()) {
       if (signalingMechanism instanceof Trigger) {
         Trigger trigger = (Trigger)signalingMechanism;
-        if (trigger.getEventCode() == Trigger.APP_USAGE) {
+        if (trigger.getEventCode() == TriggerDAO.APP_USAGE || trigger.getEventCode() == TriggerDAO.APP_CLOSED) {
           return true;
         }
       }
@@ -706,5 +708,18 @@ public class Experiment implements Parcelable {
     this.extraDataCollectionDeclarations = extraDataDeclarations;
   }
 
+	public boolean hasAppCloseTrigger() {
+		for (SignalingMechanism signalingMechanism : getSignalingMechanisms()) {
+			if (signalingMechanism instanceof Trigger) {
+				Trigger trigger = (Trigger) signalingMechanism;
+				if (trigger.getEventCode() == TriggerDAO.APP_CLOSED) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+	
+	
 
 }
