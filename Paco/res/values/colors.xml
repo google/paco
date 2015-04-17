@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <color name="purple_background">#4A53B3</color>
+  <color name="action_bar_text_color">#ffffff</color>
+  <color name="orange_background">#F75733</color>    
+</resources>

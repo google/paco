@@ -26,8 +26,7 @@ import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.HasVerticalAlignment;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
-import com.google.paco.shared.model.ExperimentDAO;
-import com.google.paco.shared.model.ExperimentDAOCore;
+import com.pacoapp.paco.shared.model2.ExperimentDAOCore;
 
 /**
  * Panel to show one individual list choice item. This is part of the
@@ -40,13 +39,13 @@ public class ExtraDataCollectionDeclPanel extends Composite {
 
   private HorizontalPanel horizontalPanel;
   private CheckBox checkBox;
-  private ExperimentDAO experiment;
+  private ExperimentDAOCore experiment;
   private Integer decl;
   private MyConstants myConstants;
 
   /**
    */
-  public ExtraDataCollectionDeclPanel(Integer decl, ExperimentDAO experiment) {
+  public ExtraDataCollectionDeclPanel(Integer decl, ExperimentDAOCore experiment) {
     this.experiment = experiment;
     this.decl = decl;
     myConstants = GWT.create(MyConstants.class);

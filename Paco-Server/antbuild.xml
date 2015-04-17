@@ -71,7 +71,7 @@
 
   <target name="runserver" depends="build"
       description="Starts the development server.">
-    <dev_appserver war="ear/default" address="0.0.0.0">
+    <dev_appserver war="ear" address="0.0.0.0">
       <options>
         <arg value="--jvm_flag=-Dappengine.user.timezone=UTC"/>
       </options>
@@ -266,7 +266,7 @@ Test targets suppressed because -junit argument was not specified when running w
     <!--  <antcall target="test.prod" /> -->
   </target>
 
-  <target name="build" depends="copyjars,gwtc,datanucleusenhance,symlinks_for_reportworker" description="Build this project" />
+  <target name="build" depends="copyjars,gwtc,datanucleusenhance" description="Build this project" />
 
   <target name="ear" depends="build" description="Create an ear file">
     <zip destfile="paco.ear" basedir="ear"/>

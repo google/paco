@@ -1,8 +1,8 @@
 /*
 * Copyright 2011 Google Inc. All Rights Reserved.
-* 
+*
 * Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance  with the License.  
+* you may not use this file except in compliance  with the License.
 * You may obtain a copy of the License at
 *
 *    http://www.apache.org/licenses/LICENSE-2.0
@@ -16,12 +16,12 @@
 */
 package com.google.sampling.experiential.client;
 
-import com.google.paco.shared.model.ExperimentDAO;
+import com.pacoapp.paco.shared.model2.ExperimentDAO;
 
 /**
- * A narrow interface for the actions available to do on 
+ * A narrow interface for the actions available to do on
  * experiments in the administered and joined views.
- * 
+ *
  * @author Bob Evans
  *
  */
@@ -45,7 +45,7 @@ public interface ExperimentListener {
   public static final int SHOW_REF_CODE = 17;
   public static final int INDIVIDUAL_STATS_CODE = 18;
   public static final int JOINED_CODE = 19;
-  
+
 
   void eventFired(int experimentCode, ExperimentDAO experiment, boolean joined, boolean findView);
 }

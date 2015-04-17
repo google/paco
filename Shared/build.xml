@@ -36,6 +36,10 @@
                 <exclude name="**/*.launch"/>
                 <exclude name="**/*.java"/>
             </fileset>
+            <fileset dir="src_non_j2objc">
+                <exclude name="**/*.launch"/>
+                <exclude name="**/*.java"/>
+            </fileset>
         </copy>
     </target>
     <target name="test-init" depends="init">
@@ -58,11 +62,15 @@
 			<fileset dir="src">
 				<include name="**/*.java" />
 			</fileset>
+			<fileset dir="src_non_j2objc">
+				<include name="**/*.java" />
+			</fileset>
 		</copy>
 
 		<javac debug="true" debuglevel="${debuglevel}" destdir="bin"
 			source="${source}" target="${target}">
 			<src path="src" />
+                        <src path="src_non_j2objc" />
 			<classpath refid="Shared.classpath" />
 
 		</javac>
@@ -76,6 +84,7 @@
         <sysproperty key="java.awt.headless" value="true" />
         <classpath>
           <pathelement location="src" />
+          <pathelement location="src_non_j2objc" />
           <pathelement location="test" />
           <path refid="Shared.classpath" />
           <pathelement location="testbin" />
@@ -128,7 +137,7 @@
       
       Additional arguments like -style PRETTY or -logLevel DEBUG
       <arg line="${gwt.args}"/>
-       <arg value="com.google.paco.shared.client.SharedModuleEntryPoint"/>
+       <arg value="com.pacoapp.paco.shared.client.SharedModuleEntryPoint"/>
     </java>
  
  </target>

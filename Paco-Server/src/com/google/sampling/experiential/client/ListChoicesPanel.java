@@ -1,8 +1,8 @@
 /*
 * Copyright 2011 Google Inc. All Rights Reserved.
-* 
+*
 * Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance  with the License.  
+* you may not use this file except in compliance  with the License.
 * You may obtain a copy of the License at
 *
 *    http://www.apache.org/licenses/LICENSE-2.0
@@ -18,7 +18,9 @@
 
 package com.google.sampling.experiential.client;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.List;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -26,7 +28,7 @@ import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.VerticalPanel;
-import com.google.paco.shared.model.InputDAO;
+import com.pacoapp.paco.shared.model2.Input2;
 
 /**
  * A collection of all the ListChoicePanels to define the choices for a given
@@ -37,19 +39,19 @@ import com.google.paco.shared.model.InputDAO;
  */
 public class ListChoicesPanel extends Composite {
 
-  private InputDAO input;
+  private Input2 input;
   private VerticalPanel mainPanel;
   private LinkedList<ListChoicePanel> choicePanelsList;
 
   /**
    * @param input
    */
-  public ListChoicesPanel(final InputDAO input) {
+  public ListChoicesPanel(final Input2 input) {
     this.input = input;
     mainPanel = new VerticalPanel();
     mainPanel.setSpacing(2);
     initWidget(mainPanel);
-    
+
     final CheckBox multiselect = new CheckBox("Multiple selections");
     multiselect.setValue(input.getMultiselect());
     multiselect.addClickHandler(new ClickHandler() {
@@ -58,27 +60,28 @@ public class ListChoicesPanel extends Composite {
       public void onClick(ClickEvent event) {
         input.setMultiselect(multiselect.getValue());
       }
-      
+
     });
     mainPanel.add(multiselect);
-    
+
     Label lblSignalTimes = new Label("List Choice (s)");
     lblSignalTimes.setStyleName("gwt-Label-Header");
     mainPanel.add(lblSignalTimes);
 
     choicePanelsList = new LinkedList<ListChoicePanel>();
-    String[] choices = input.getListChoices();
-    if (choices == null || choices.length == 0) {
+    List<String> choices = input.getListChoices();
+    if (choices == null || choices.size() == 0) {
       ListChoicePanel choicePanel = new ListChoicePanel(this);
       String choice = choicePanel.getChoice();
-      choices = new String[] {choice};
+      choices = new ArrayList<String>();
+      choices.add(choice);
       mainPanel.add(choicePanel);
       choicePanelsList.add(choicePanel);
       input.setListChoices(choices);
     } else {
-      for (int i = 0; i < choices.length; i++) {
+      for (int i = 0; i < choices.size(); i++) {
         ListChoicePanel choicePanel = new ListChoicePanel(this);
-        choicePanel.setChoice(choices[i]);
+        choicePanel.setChoice(choices.get(i));
         mainPanel.add(choicePanel);
         choicePanelsList.add(choicePanel);
       }
@@ -109,22 +112,23 @@ public class ListChoicesPanel extends Composite {
 
   // TODO this is not very efficient.
   private void updateChoices() {
-    String[] newTimes = new String[choicePanelsList.size()];
+    List<String> newTimes = new ArrayList();
     for (int i = 0; i < choicePanelsList.size(); i++) {
-      newTimes[i] = choicePanelsList.get(i).getChoice();
+      newTimes.add(choicePanelsList.get(i).getChoice());
     }
     input.setListChoices(newTimes);
   }
 
   public void updateChoice(ListChoicePanel choicePanel) {
     int index = choicePanelsList.indexOf(choicePanel);
-    input.getListChoices()[index] = choicePanel.getChoice();
+    input.getListChoices().remove(index);
+    input.getListChoices().add(index,choicePanel.getChoice());
   }
-  
+
   public ListChoicePanel getFirstChoicePanel() {
     return getChoicePanel(0);
   }
-  
+
   private ListChoicePanel getChoicePanel(int index) {
     return choicePanelsList.get(index);
   }

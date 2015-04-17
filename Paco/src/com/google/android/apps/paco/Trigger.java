@@ -5,7 +5,7 @@ import java.util.Map;
 
 import org.codehaus.jackson.annotate.JsonIgnore;
 
-import com.google.paco.shared.model.TriggerDAO;
+import com.pacoapp.paco.shared.model.TriggerDAO;
 
 public class Trigger extends SignalingMechanism {
 

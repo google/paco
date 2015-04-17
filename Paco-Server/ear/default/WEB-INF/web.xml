@@ -98,6 +98,15 @@
   </servlet-mapping>
 
   <servlet>
+    <servlet-name>authServlet</servlet-name>
+    <servlet-class>com.google.sampling.experiential.server.AuthServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>authServlet</servlet-name>
+    <url-pattern>/userinfo</url-pattern>
+  </servlet-mapping>
+
+  <servlet>
     <servlet-name>participationStatsServlet</servlet-name>
     <servlet-class>com.google.sampling.experiential.server.ParticipantStatServlet</servlet-class>
   </servlet>

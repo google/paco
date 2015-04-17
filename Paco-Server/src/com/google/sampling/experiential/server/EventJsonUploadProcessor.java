@@ -12,7 +12,6 @@ import org.apache.commons.codec.binary.Base64;
 import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.map.annotate.JsonSerialize.Inclusion;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormatter;
 import org.json.JSONArray;
@@ -22,35 +21,39 @@ import org.json.JSONObject;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import com.google.paco.shared.Outcome;
-import com.google.paco.shared.model.InputDAO;
-import com.google.sampling.experiential.model.Experiment;
-import com.google.sampling.experiential.model.Input;
 import com.google.sampling.experiential.model.PhotoBlob;
 import com.google.sampling.experiential.model.What;
 import com.google.sampling.experiential.shared.TimeUtil;
+import com.pacoapp.paco.shared.comm.Outcome;
+import com.pacoapp.paco.shared.model2.ExperimentDAO;
+import com.pacoapp.paco.shared.model2.Input2;
+import com.pacoapp.paco.shared.model2.JsonConverter;
+import com.pacoapp.paco.shared.util.ExperimentHelper;
 
 public class EventJsonUploadProcessor {
 
   private static final Logger log = Logger.getLogger(EventJsonUploadProcessor.class.getName());
-  private ExperimentRetriever experimentRetriever;
+  private ExperimentService experimentRetriever;
   private EventRetriever eventRetriever;
 
-  public EventJsonUploadProcessor(ExperimentRetriever experimentRetriever, EventRetriever eventRetriever) {
-    this.experimentRetriever = experimentRetriever;
+  public EventJsonUploadProcessor(ExperimentService experimentRetriever, EventRetriever eventRetriever) {
     this.eventRetriever = eventRetriever;
+    this.experimentRetriever = experimentRetriever;
   }
 
   public static EventJsonUploadProcessor create() {
-    return new EventJsonUploadProcessor(ExperimentRetriever.getInstance(), EventRetriever.getInstance());
+    ExperimentService experimentService = ExperimentServiceFactory.getExperimentService();
+    return new EventJsonUploadProcessor(experimentService, EventRetriever.getInstance());
   }
 
   public String processJsonEvents(String postBodyString, String whoFromLogin, String appIdHeader, String pacoVersion) {
     try {
       if (postBodyString.startsWith("[")) {
-        return toJson(processJsonArray(new JSONArray(postBodyString), whoFromLogin, appIdHeader, pacoVersion));
+        final JSONArray events = new JSONArray(postBodyString);
+        return toJson(processJsonArray(events, whoFromLogin, appIdHeader, pacoVersion));
       } else {
-        return toJson(processSingleJsonEvent(new JSONObject(postBodyString), whoFromLogin, appIdHeader, pacoVersion));
+        final JSONObject currentEvent = new JSONObject(postBodyString);
+        return toJson(processSingleJsonEvent(currentEvent, whoFromLogin, appIdHeader, pacoVersion));
       }
     } catch (JSONException e) {
       throw new IllegalArgumentException("JSON Exception reading post data: " + e.getMessage());
@@ -58,8 +61,8 @@ public class EventJsonUploadProcessor {
   }
 
   private String toJson(List<Outcome> outcomes) {
-    ObjectMapper mapper = new ObjectMapper();
-    mapper.getSerializationConfig().setSerializationInclusion(Inclusion.NON_NULL);
+    ObjectMapper mapper = JsonConverter.getObjectMapper();
+
     try {
       return mapper.writeValueAsString(outcomes);
     } catch (JsonGenerationException e) {
@@ -122,14 +125,15 @@ public class EventJsonUploadProcessor {
 
     Date whenDate =  new Date();
 
-    String experimentId = null;
+    String experimentIdStr = null;
     String experimentName = null;
     Integer experimentVersion = null;
     DateTime responseTime = null;
     DateTime scheduledTime = null;
+    String groupName = null;
 
     if (eventJson.has("experimentId")) {
-      experimentId = eventJson.getString("experimentId");
+      experimentIdStr = eventJson.getString("experimentId");
     }
     if (eventJson.has("experimentName")) {
       experimentName = eventJson.getString("experimentName");
@@ -145,13 +149,50 @@ public class EventJsonUploadProcessor {
         }
       }
     }
-    log.info("Retrieving experimentId, experimentName for event posting: " + experimentId + ", " + experimentName);
-    if (experimentId == null) {
+
+    if (eventJson.has("experimentGroupName")) {
+      groupName = eventJson.getString("experimentGroupName");
+    }
+
+    Long actionTriggerId = null;
+    if (eventJson.has("actionTriggerId")) {
+      String actionTriggerIdStr = eventJson.getString("actionTriggerId");
+      if (!Strings.isNullOrEmpty(actionTriggerIdStr) && !actionTriggerIdStr.equals("null")) {
+        actionTriggerId = Long.parseLong(actionTriggerIdStr);
+      }
+
+    }
+    Long actionTriggerSpecId = null;
+    if (eventJson.has("actionTriggerSpecId")) {
+      String actionTriggerSpecIdStr = eventJson.getString("actionTriggerSpecId");
+      if (!Strings.isNullOrEmpty(actionTriggerSpecIdStr) && !actionTriggerSpecIdStr.equals("null")) {
+        actionTriggerSpecId = Long.parseLong(actionTriggerSpecIdStr);
+      }
+    }
+    Long actionId = null;
+    if (eventJson.has("actionId")) {
+      String actionIdStr = eventJson.getString("actionId");
+      if (!Strings.isNullOrEmpty(actionIdStr) && !actionIdStr.equals("null")) {
+        actionId = Long.parseLong(actionIdStr);
+      }
+    }
+
+
+    log.info("Retrieving experimentId, experimentName for event posting: " + experimentIdStr + ", " + experimentName);
+    if (experimentIdStr == null) {
       outcome.setError("No experiment ID for this event: " + eventId);
       return outcome;
     }
 
-    Experiment experiment = experimentRetriever.getExperiment(experimentId);
+    Long experimentIdLong = null;
+    try {
+      experimentIdLong = Long.parseLong(experimentIdStr);
+    } catch (NumberFormatException e) {
+      outcome.setError("experimentId, " + experimentIdStr + ", not a number for this event: " + eventId);
+      return outcome;
+    }
+
+    ExperimentDAO experiment = experimentRetriever.getExperiment(experimentIdLong);
 
     if (experiment == null) {
       outcome.setError("No existing experiment for this event: " + eventId);
@@ -169,27 +210,25 @@ public class EventJsonUploadProcessor {
     if (eventJson.has("responses")) {
       JSONArray responses = eventJson.getJSONArray("responses");
       log.info("There are " + responses.length() + " response objects");
+
       for (int i = 0; i < responses.length(); i++) {
         JSONObject response = responses.getJSONObject(i);
         String name = response.getString("name");
 
-        String inputId = response.getString("inputId");
-        Input input = null;
-        if (experiment != null) {
-          input = experiment.getInputWithId(Long.valueOf(inputId));
-        }
+
+        Input2 input = null;
         if (input == null) {
-          input = experiment.getInputWithName(name);
+          input = ExperimentHelper.getInputWithName(experiment, name, groupName);
         }
         if (input != null) {
           log.info("Input name, responseType: " + input.getName() + ", " + input.getResponseType());
         } else {
-          log.info("input is null for inputId: " + inputId);
+          log.info("input is null for name, group: " + name +", " + groupName);
         }
 
         String answer = response.getString("answer");
 
-        if (input != null && input.getResponseType() != null && input.getResponseType().equals(InputDAO.PHOTO) && !Strings.isNullOrEmpty(answer)) {
+        if (input != null && input.getResponseType() != null && input.getResponseType().equals(Input2.PHOTO) && !Strings.isNullOrEmpty(answer)) {
           PhotoBlob photoBlob = new PhotoBlob(name, Base64.decodeBase64(answer.getBytes()));
           blobs.add(photoBlob);
           answer = "blob";
@@ -199,16 +238,11 @@ public class EventJsonUploadProcessor {
           answer = answer.substring(0, 497) + "...";
         }
 
-        if (Strings.isNullOrEmpty(name) && (input == null || Strings.isNullOrEmpty(input.getName()))) {
-          name = "unnamed_input_" + i;
-          whats.add(new What(name, inputId));
-        }
         whats.add(new What(name, answer));
+
       }
     }
 
-//    SimpleDateFormat df = new SimpleDateFormat(TimeUtil.DATETIME_FORMAT);
-//    SimpleDateFormat oldDf = new SimpleDateFormat(TimeUtil.DATETIME_FORMAT_OLD);
     DateTimeFormatter df = org.joda.time.format.DateTimeFormat.forPattern(TimeUtil.DATETIME_FORMAT).withOffsetParsed();
 
     if (eventJson.has("responseTime")) {
@@ -228,13 +262,15 @@ public class EventJsonUploadProcessor {
       }
     }
 
+
     log.info("Sanity check: who = " + who + ", when = "
              + (new SimpleDateFormat(TimeUtil.DATETIME_FORMAT)).format(whenDate)
              + ", what length = " + whats.size());
 
 
-    eventRetriever.postEvent(who, null, null, whenDate, appId, pacoVersion, whats, false, experimentId,
-                                           experimentName, experimentVersion, responseTime, scheduledTime, blobs);
+    eventRetriever.postEvent(who, null, null, whenDate, appId, pacoVersion, whats, false, experimentIdStr,
+                                           experimentName, experimentVersion, responseTime, scheduledTime, blobs,
+                                           groupName, actionTriggerId, actionTriggerSpecId, actionId);
     return outcome;
   }
 

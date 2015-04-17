@@ -20,27 +20,18 @@ import java.io.IOException;
 import java.util.List;
 import java.util.logging.Logger;
 
-import javax.jdo.PersistenceManager;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
-import org.joda.time.Duration;
 
 import com.google.appengine.api.users.User;
-import com.google.appengine.api.utils.SystemProperty;
 import com.google.common.collect.Lists;
-import com.google.paco.shared.model.FeedbackDAO;
-import com.google.paco.shared.model.SignalScheduleDAO;
-import com.google.paco.shared.model.SignalTimeDAO;
-import com.google.sampling.experiential.datastore.PublicExperimentList;
-import com.google.sampling.experiential.model.Experiment;
-import com.google.sampling.experiential.model.SignalSchedule;
-import com.google.sampling.experiential.model.SignalTime;
+import com.google.gwt.thirdparty.guava.common.base.Strings;
+import com.pacoapp.paco.shared.comm.Outcome;
 
 /**
  * Servlet that answers requests for experiments.
@@ -62,99 +53,6 @@ public class ExperimentServlet extends HttpServlet {
   @Override
   public void init(ServletConfig config) throws ServletException {
     super.init(config);
-    doMigrateWork();
-  }
-
-
-
-  private void doMigrateWork() {
-    //populatePublicExperimentsList();
-    //setFeedbackTypeOnExperiments();
-    //convertScheduleTimeLongsToSignalTimeObjects();
-  }
-
-
-
-  private void convertScheduleTimeLongsToSignalTimeObjects() {
-    long t1 = System.currentTimeMillis();
-    log.info("Starting convertScheduleTimes from Long to SignalTime objects");
-    PersistenceManager pm = null;
-    try {
-      pm = PMF.get().getPersistenceManager();
-      javax.jdo.Query newQuery = pm.newQuery(Experiment.class);
-      List<Experiment> updatedExperiments = Lists.newArrayList();
-      List<Experiment> experiments = (List<Experiment>)newQuery.execute();
-      for (Experiment experiment : experiments) {
-        SignalSchedule schedule = experiment.getSchedule();
-        if (schedule != null && schedule.getSignalTimes().isEmpty()) {
-          if (schedule.getScheduleType() != SignalScheduleDAO.SELF_REPORT &&
-                  schedule.getScheduleType() != SignalScheduleDAO.ESM ) {
-            log.info("Converting for experiment: " + experiment.getTitle());
-            List<SignalTime> signalTimes = Lists.newArrayList();
-            List<Long> times = schedule.getTimes();
-            for (Long long1 : times) {
-              signalTimes.add(new SignalTime(null, SignalTimeDAO.FIXED_TIME,
-                                             SignalTimeDAO.OFFSET_BASIS_SCHEDULED_TIME,
-                                             (int)long1.longValue(),
-                                             SignalTimeDAO.MISSED_BEHAVIOR_USE_SCHEDULED_TIME,
-                                             0, ""));
-            }
-            schedule.setSignalTimes(signalTimes);
-            experiment.setSchedule(schedule);
-            updatedExperiments.add(experiment);
-          }
-        }
-      }
-      pm.makePersistentAll(updatedExperiments);
-    } finally  {
-      pm.close();
-    }
-    long t2 = System.currentTimeMillis();
-    long seconds = new Duration(t1, t2).getStandardSeconds();
-    log.info("Done converting signal times. " + seconds + "seconds to complete");
-  }
-
-
-
-  private void setFeedbackTypeOnExperiments() {
-    PersistenceManager pm = null;
-    try {
-      pm = PMF.get().getPersistenceManager();
-      javax.jdo.Query newQuery = pm.newQuery(Experiment.class);
-      List<Experiment> experiments = (List<Experiment>)newQuery.execute();
-      for (Experiment experiment : experiments) {
-        if (experiment.getFeedbackType() == null) {
-          if (FeedbackDAO.DEFAULT_FEEDBACK_MSG.equals(experiment.getFeedback().get(0).getLongText())) {
-            experiment.setFeedbackType(FeedbackDAO.FEEDBACK_TYPE_RETROSPECTIVE);
-          } else {
-            experiment.setFeedbackType(FeedbackDAO.FEEDBACK_TYPE_CUSTOM);
-          }
-        }
-      }
-      pm.makePersistentAll(experiments);
-    } finally  {
-      pm.close();
-    }
-
-  }
-
-
-
-  private void populatePublicExperimentsList() {
-    if (!PublicExperimentList.getPublicExperiments(null).isEmpty()) {
-      return;
-    }
-    PersistenceManager pm = null;
-    try {
-      pm = PMF.get().getPersistenceManager();
-      javax.jdo.Query newQuery = pm.newQuery(Experiment.class);
-      List<Experiment> experiments = (List<Experiment>)newQuery.execute();
-      PublicExperimentList.updatePublicExperimentsList(experiments, new DateTime());
-    } finally  {
-      pm.close();
-    }
-
-
   }
 
 
@@ -175,11 +73,11 @@ public class ExperimentServlet extends HttpServlet {
 
       String email = AuthUtil.getEmailOfUser(req, user);
 
-      String shortParam = req.getParameter("short");
       String experimentsPublishedToMeParam = req.getParameter("mine");
       String selectedExperimentsParam = req.getParameter("id");
       String experimentsPublishedPubliclyParam = req.getParameter("public");
       String experimentsAdministeredByUserParam = req.getParameter("admin");
+      String experimentsJoinedByMeParam = req.getParameter("joined");
 
       String pacoProtocol = req.getHeader("pacoProtocol");
       if (pacoProtocol == null) {
@@ -205,19 +103,27 @@ public class ExperimentServlet extends HttpServlet {
       ExperimentServletHandler handler;
       if (experimentsPublishedToMeParam != null) {
         handler = new ExperimentServletExperimentsForMeLoadHandler(email, timezone, limit, cursor, pacoProtocol);
-      } else if (shortParam != null) {
-        handler = new ExperimentServletShortLoadHandler(email, timezone, limit, cursor, pacoProtocol);
       } else if (selectedExperimentsParam != null) {
         handler = new ExperimentServletSelectedExperimentsFullLoadHandler(email, timezone, selectedExperimentsParam, pacoProtocol);
       } else if (experimentsPublishedPubliclyParam != null) {
         handler = new ExperimentServletExperimentsShortPublicLoadHandler(email, timezone, limit, cursor, pacoProtocol);
-      } else if (experimentsAdministeredByUserParam != null) {
+      } /*else if (experimentsAdministeredByUserParam != null && experimentsJoinedByMeParam != null) {
+        handler = new ExperimentServletAdminAndJoinedExperimentsShortLoadHandler(email, timezone, limit, cursor, pacoProtocol);
+      } */else if (experimentsJoinedByMeParam != null) {
+        handler = new ExperimentServletJoinedExperimentsShortLoadHandler(email, timezone, limit, cursor, pacoProtocol);
+      }
+      else if (experimentsAdministeredByUserParam != null) {
         handler = new ExperimentServletAdminExperimentsFullLoadHandler(email, timezone, limit, cursor, pacoProtocol);
       } else {
-        handler = new ExperimentServletAllExperimentsFullLoadHandler(email, timezone, limit, cursor, pacoProtocol);
+        handler = null; //new ExperimentServletAllExperimentsFullLoadHandler(email, timezone, limit, cursor, pacoProtocol);
       }
-      experimentsJson = handler.performLoad();
-      resp.getWriter().println(scriptBust(experimentsJson));
+      if (handler != null) {
+        experimentsJson = handler.performLoad();
+        resp.getWriter().println(scriptBust(experimentsJson));
+      } else {
+        resp.getWriter().println(scriptBust("Unrecognized parameters!"));
+      }
+
     }
   }
 
@@ -238,8 +144,60 @@ public class ExperimentServlet extends HttpServlet {
 
   @Override
   protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-    readExperimentDefinitions(req, resp);
+    resp.setContentType("application/json;charset=UTF-8");
+    User user = AuthUtil.getWhoFromLogin();
+    if (user == null) {
+      AuthUtil.redirectUserToLogin(req, resp);
+    } else {
+      DateTimeZone timezone = TimeUtil.getTimeZoneForClient(req);
+      logPacoClientVersion(req);
+      String email = AuthUtil.getEmailOfUser(req, user);
+
+      String delete = req.getParameter("delete");
+      if (!Strings.isNullOrEmpty(delete)) {
+        String selectedExperimentsParam = req.getParameter("id");
+        if (Strings.isNullOrEmpty(selectedExperimentsParam)) {
+          List<Outcome> outcomes = createErrorOutcome();
+          resp.getWriter().println(ExperimentJsonUploadProcessor.toJson(outcomes));
+        } else {
+          resp.getWriter().println(ExperimentJsonUploadProcessor.toJson(deleteExperiments(email, selectedExperimentsParam)));
+        }
+      } else {
+        readExperimentDefinitions(req, resp);
+      }
+    }
   }
+
+
+
+  public List<Outcome> createErrorOutcome() {
+    Outcome outcome = new Outcome(0, "No experiment ids specified for deletion");
+    List<Outcome> outcomes = Lists.newArrayList(outcome);
+    return outcomes;
+  }
+
+  private List<Outcome> deleteExperiments(String email, String selectedExperimentsParam) {
+    ExperimentService expService = ExperimentServiceFactory.getExperimentService();
+    List<Long> experimentIds = ExperimentServletSelectedExperimentsFullLoadHandler.parseExperimentIds(selectedExperimentsParam);
+    if (experimentIds.isEmpty()) {
+      return createErrorOutcome();
+    }
+    Outcome outcome = new Outcome();
+    List<Outcome> outcomeList = Lists.newArrayList();
+    outcomeList.add(outcome);
+    try {
+      final Boolean deleteExperimentsResult = expService.deleteExperiments(experimentIds, email);
+      if (!deleteExperimentsResult) {
+        outcome.setError("Could not delete experiments. Rolled back.");
+      }
+    } catch (Exception e) {
+      outcome.setError("Could not delete experiments. Rolled back. Error: " + e.getMessage());
+    }
+
+    return outcomeList;
+  }
+
+
 
   private void readExperimentDefinitions(HttpServletRequest req, HttpServletResponse resp) throws IOException {
     String postBodyString;
@@ -258,7 +216,6 @@ public class ExperimentServlet extends HttpServlet {
     log.info("Paco version = " + pacoVersion);
     DateTimeZone timezone = TimeUtil.getTimeZoneForClient(req);
     String results = ExperimentJsonUploadProcessor.create().processJsonExperiments(postBodyString, AuthUtil.getWhoFromLogin(), appIdHeader, pacoVersion, timezone);
-    resp.setContentType("application/json;charset=UTF-8");
     resp.getWriter().write(results);
   }
 }

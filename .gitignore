@@ -2,6 +2,9 @@ local.properties
 .settings
 .DS_Store
 *.keystore
+AndroidCompatSupport/v7/appcompat/bin/res/crunch
+AndroidCompatSupport/v7/appcompat/bin/*
+AndroidCompatSupport/v7/appcompat/gen/*
 Paco/bin/*
 Paco/gen/*
 PacoAndroidLib/bin/*
@@ -26,16 +29,35 @@ PacoTest/local.properties
 PacoTest/bin/*
 PacoTest/testbin/*
 PacoTest/gen/*
+PacoTest/libs/js.jar
 PacoTest/reports/*
 ServerTools/bin/*
 Shared/bin
 Shared/.gwt/*
+Shared/j2objc
 Shared/testbin
 Shared/dist
 Shared/reports
 Paco/libs/shared.jar
 Paco-Server/ear/default/WEB-INF/lib/shared.jar
 Paco-Server/ear/reportworker/WEB-INF/lib/shared.jar
+# Created by https://www.gitignore.io
+
+### Xcode ###
+build/
+*.pbxuser
+!default.pbxuser
+*.mode1v3
+!default.mode1v3
+*.mode2v3
+!default.mode2v3
+*.perspectivev3
+!default.perspectivev3
+xcuserdata
+*.xccheckout
+*.moved-aside
+DerivedData
+*.xcuserstate
 Paco-iOS/Paco.xcodeproj/project.xcworkspace/xcuserdata/*
 Paco-iOS/Paco.xcodeproj/project.xcworkspace/xcshareddata/*
 Paco-iOS/Paco.xcodeproj/xcuserdata/*

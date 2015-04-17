@@ -32,9 +32,4 @@
 
 	<include layout="@layout/repeat_every_n_schedule" />
 	<ListView android:id="@+id/timesList" android:layout_width="wrap_content" android:layout_height="260dp"/>
-	<Button android:layout_width="wrap_content"
-		android:layout_height="wrap_content" android:id="@+id/SetDailyScheduleButton"
-		android:text="@string/save_schedule" android:layout_gravity="center"></Button>
-
-
 </LinearLayout>

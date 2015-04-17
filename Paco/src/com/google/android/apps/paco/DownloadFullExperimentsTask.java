@@ -19,10 +19,12 @@ package com.google.android.apps.paco;
 
 import java.util.List;
 
+import com.pacoapp.paco.UserPreferences;
+
 import android.content.Context;
 import android.os.AsyncTask;
 
-class DownloadFullExperimentsTask extends AsyncTask<Void, Void, String> {
+public class DownloadFullExperimentsTask extends AsyncTask<Void, Void, String> {
   private final Context enclosingContext;
   private UserPreferences userPrefs;
   private DownloadFullExperimentsTaskListener listener;
@@ -41,7 +43,7 @@ class DownloadFullExperimentsTask extends AsyncTask<Void, Void, String> {
   }
 
   protected String doInBackground(Void... params) {
-    DownloadHelper downloadHelper = new DownloadHelper(enclosingContext, userPrefs, null, null);
+    DownloadExperimentsHelper downloadHelper = new DownloadExperimentsHelper(enclosingContext, userPrefs, null, null);
     String errorCode = downloadHelper.downloadRunningExperiments(experimentIds);
     contentAsString = downloadHelper.getContentAsString();
     return errorCode;
