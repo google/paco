@@ -88,8 +88,6 @@ md-dialog li {
 }
 
 .notransition {
-  border: 2px solid red;
-  background: red;
   -webkit-transition: none !important;
   -moz-transition: none !important;
   -o-transition: none !important;

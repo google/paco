@@ -183,7 +183,8 @@ pacoApp.controller('GroupCtrl', ['$scope', 'template',
 
     $scope.addScheduleTrigger = function(event, expandFn) {
       $scope.group.actionTriggers.push(angular.copy(template.scheduleTrigger));
-      var trigger = $scope.group.actionTriggers[$scope.group.actionTriggers.length - 1];
+      var trigger = $scope.group.actionTriggers[$scope.group.actionTriggers
+        .length - 1];
       expandFn(true);
       event.stopPropagation();
     };
@@ -369,6 +370,17 @@ pacoApp.controller('ScheduleCtrl', ['$scope', '$mdDialog', 'config', 'template',
     $scope.esmPeriods = config.esmPeriods;
     $scope.repeatRates = range(1, 30);
     $scope.daysOfMonth = range(1, 31);
+    $scope.days = [];
+
+    if ($scope.schedule.weekDaysScheduled !== undefined) {
+      var bits = parseInt($scope.schedule.weekDaysScheduled).toString(2);
+      for (var i = 0; i < bits.length; i++) {
+        var bit = bits[bits.length - i - 1];
+        if (bit == '1') {
+          $scope.days[i] = true;
+        }
+      }
+    }
 
     function range(start, end) {
       var arr = [];
@@ -394,11 +406,11 @@ pacoApp.controller('ScheduleCtrl', ['$scope', '$mdDialog', 'config', 'template',
       return parseInt(number, 10);
     }
 
-    $scope.$watchCollection('schedule.days', function(days) {
+    $scope.$watchCollection('days', function(days) {
       var sum = 0;
       if (days) {
         for (var i = 0; i < 7; i++) {
-          if ($scope.schedule.days[i]) {
+          if ($scope.days[i]) {
             sum += Math.pow(2, i);
           }
         }
@@ -418,10 +430,39 @@ pacoApp.controller('ScheduleCtrl', ['$scope', '$mdDialog', 'config', 'template',
 ]);
 
 
+pacoApp.controller('AdminCtrl', ['$scope', 'config', function($scope, config) {
+
+  $scope.dataDeclarations = config.dataDeclarations;
+  $scope.declared = [];
+
+  $scope.inList = function(item) {
+    if ($scope.experiment && $scope.experiment.extraDataCollectionDeclarations) {
+      var id = parseInt(item);
+      if ($scope.experiment.extraDataCollectionDeclarations.indexOf(id) !== -1) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  $scope.toggle = function(item) {
+    var id = parseInt(item);
+    var find = $scope.experiment.extraDataCollectionDeclarations.indexOf(id);
+
+    if (find == -1) {
+      $scope.experiment.extraDataCollectionDeclarations.push(id);
+    } else {
+      $scope.experiment.extraDataCollectionDeclarations.splice(find, 1);
+    }
+  };
+}]);
+
+
 pacoApp.controller('SummaryCtrl', ['$scope', 'config', function($scope, config) {
 
   $scope.getActionSummary = function() {
-    if ($scope.action.actionCode !== undefined && $scope.action.actionCode !== '') {
+    if ($scope.action.actionCode !== undefined && $scope.action.actionCode !==
+      '') {
       return config.actionTypes[$scope.action.actionCode];
     } else {
       return 'Undefined';

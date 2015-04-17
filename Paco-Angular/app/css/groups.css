@@ -61,7 +61,6 @@
 }
 
 .trigger.reveal {
-  border: 2px solid red;
   max-height: 10px;
   overflow: hidden;
   -webkit-transition: height .5s;

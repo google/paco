@@ -7,6 +7,12 @@ pacoApp.service('config', function() {
     'source'
   ];
 
+  this.dataDeclarations = {
+    1: 'App Usage and Browser History',
+    2: 'Location Information',
+    3: 'Phone Details (Make, Model, Carrier)'
+  };
+
   this.scheduleTypes = [
     'Daily',
     'Weekdays',
@@ -90,6 +96,7 @@ pacoApp.service('template', function() {
     published: false,
     publishedUsers: [],
     groups: [this.group],
+    dataDeclarations: [],
   }
 
   this.action = {
