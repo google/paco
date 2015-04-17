@@ -16,6 +16,7 @@
 */
 package com.google.sampling.experiential.client;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -125,31 +126,35 @@ public class ChartPanel extends Composite {
    *
    * @return List of labels for choices in likert scale.
    */
-  private String[] getLikertCategories() {
+  private List<String> getLikertCategories() {
     Integer likertSteps = input.getLikertSteps();
     if (likertSteps == null) {
       likertSteps = 0;
     }
-    String[] choices = new String[likertSteps];
+    List<String> choices = new ArrayList<String>();
     if (!Strings.isNullOrEmpty(input.getLeftSideLabel())) {
-      choices[0] = input.getLeftSideLabel();
+      choices.add(input.getLeftSideLabel() + " " + "(1)");
+    }  else {
+      choices.add("(1)");
     }
-    choices[0] = (choices[0] != null ? choices[0] + " " : "") + "(1)";
-    if (!Strings.isNullOrEmpty(input.getRightSideLabel())) {
-      choices[likertSteps - 1] = input.getRightSideLabel();
-    }
-    choices[likertSteps - 1] = (choices[likertSteps - 1] != null ? choices[likertSteps - 1] + " " : "") + " (" + likertSteps + ")";
+
     for (int i=1;i < (likertSteps - 1); i++) {
-      choices[i] = "(" + (i + 1) + ")";
+      choices.add("(" + (i + 1) + ")");
+    }
+
+    if (!Strings.isNullOrEmpty(input.getRightSideLabel())) {
+      choices.add(input.getRightSideLabel() + "(" + likertSteps + ")");
+    } else {
+      choices.add("(" + likertSteps + ")");
     }
     return choices;
   }
 
-  private String[] getLikertSmileyCategories() {
+  private List<String> getLikertSmileyCategories() {
     final int smiley_count = 5;
-    String[] choices = new String[smiley_count];
+    List<String> choices = new ArrayList<String>();
     for (int i=0;i < 5; i++) {
-      choices[i] = Integer.toString(i + 1);
+      choices.add(Integer.toString(i + 1));
     }
     return choices;
   }

@@ -2,6 +2,7 @@ package com.google.sampling.experiential.client;
 
 import java.util.ArrayList;
 
+import com.google.common.collect.Lists;
 import com.google.gwt.junit.client.GWTTestCase;
 import com.google.sampling.experiential.shared.LoginInfo;
 import com.pacoapp.paco.shared.model2.ExperimentDAO;
@@ -246,7 +247,7 @@ public class ExperimentCreationValidationTest extends GWTTestCase {
   private Input2 createValidListInput() {
     Input2 input = new Input2("inputName", "inputPrompt");
     input.setResponseType(Input2.LIST);
-    input.setListChoices(new String[]{"option1"});
+    input.setListChoices(Lists.newArrayList("option1"));
     return input;
   }
 
@@ -259,7 +260,7 @@ public class ExperimentCreationValidationTest extends GWTTestCase {
   private Input2 createListInputWithSpaceyVarName() {
     Input2 input = new Input2("varName with space", "inputPrompt");
     input.setResponseType(Input2.LIST);
-    input.setListChoices(new String[]{"option1"});
+    input.setListChoices(Lists.newArrayList("option1"));
     return input;
   }
 

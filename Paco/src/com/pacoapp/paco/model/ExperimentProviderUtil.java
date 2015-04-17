@@ -502,9 +502,8 @@ public class ExperimentProviderUtil implements EventStore {
         for (JsonNode listChoiceNode : inputsNode) {
           listChoices.add(listChoiceNode.getTextValue());
         }
-        String[] listChoicesArray = new String[listChoices.size()];
-        listChoices.toArray(listChoicesArray);
-        input.setListChoices(listChoicesArray);
+
+        input.setListChoices(listChoices);
       }
 
       defaultExperimentGroup.setInputs(inputs);

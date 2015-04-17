@@ -676,14 +676,16 @@ public class InputLayout extends LinearLayout implements SpeechRecognitionListen
     AlertDialog.Builder builder = new AlertDialog.Builder(this.getContext());
     builder.setTitle(R.string.make_selections);
 
-    boolean[] checkedChoicesBoolArray = new boolean[input.getListChoices().length];
-    int count = input.getListChoices().length;
+    boolean[] checkedChoicesBoolArray = new boolean[input.getListChoices().size()];
+    int count = input.getListChoices().size();
 
     for (int i = 0; i < count; i++) {
-      checkedChoicesBoolArray[i] = checkedChoices.contains(input.getListChoices()[i]);
+      checkedChoicesBoolArray[i] = checkedChoices.contains(input.getListChoices().get(i));
     }
-    String[] listChoices = input.getListChoices();
-    builder.setMultiChoiceItems(listChoices, checkedChoicesBoolArray, multiselectListDialogListener);
+    List<String> listChoices = input.getListChoices();
+    String[] listChoiceArray = new String[listChoices.size()];
+    listChoices.toArray(listChoiceArray );
+    builder.setMultiChoiceItems(listChoiceArray, checkedChoicesBoolArray, multiselectListDialogListener);
     builder.setPositiveButton(R.string.done_button, new Dialog.OnClickListener() {
 
       @Override
@@ -728,11 +730,7 @@ public class InputLayout extends LinearLayout implements SpeechRecognitionListen
         R.layout.list_choices, this, true);
     final Spinner findViewById = (Spinner) findViewById(R.id.list);
     // Formerly android.R.layout.simple_spinner_item
-    final String[] listChoices = input.getListChoices();
-    List<String> listChoicesList = new ArrayList();
-    for (String currentChoiceString : listChoices) {
-      listChoicesList.add(currentChoiceString);
-    }
+    final List<String> listChoicesList = input.getListChoices();
 
     ArrayAdapter<String> choices = new ArrayAdapter<String>(getContext(), R.layout.multiline_spinner_item,
         listChoicesList);

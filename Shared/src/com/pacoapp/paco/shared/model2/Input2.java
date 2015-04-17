@@ -20,6 +20,7 @@ package com.pacoapp.paco.shared.model2;
 
 
 import java.io.Serializable;
+import java.util.List;
 
 public class Input2 implements Validatable, Serializable {
 
@@ -49,7 +50,7 @@ public class Input2 implements Validatable, Serializable {
   private String rightSideLabel;
 
 
-  private String[] listChoices;
+  private List<String> listChoices;
   private Boolean multiselect = false;
 
   /**
@@ -73,7 +74,7 @@ public class Input2 implements Validatable, Serializable {
    */
   public Input2(String name, String responseType, String text, Boolean required,
       Integer likertSteps, Boolean conditional, String conditionExpr, String leftSideLabel,
-      String rightSideLabel, String[] listChoices, Boolean multiselect) {
+      String rightSideLabel, List<String> listChoices, Boolean multiselect) {
     this.text = text;
     this.required = required != null ? required : false;
     this.responseType = responseType;
@@ -171,12 +172,12 @@ public class Input2 implements Validatable, Serializable {
     this.rightSideLabel = rightSideLabel;
   }
 
-  public String[] getListChoices() {
+  public List<String> getListChoices() {
     return listChoices;
   }
 
-  public void setListChoices(String[] listChoices) {
-    this.listChoices = listChoices;
+  public void setListChoices(List<String> list2) {
+    this.listChoices = list2;
   }
 
   public Boolean getMultiselect() {
@@ -201,7 +202,7 @@ public class Input2 implements Validatable, Serializable {
       //validator.isNotNull(leftSideLabel, "no left label is specified for scale");
       //validator.isNotNull(rightSideLabel, "no right label is specified for scale");
     } else if (responseType.equals(LIST)) {
-      validator.isNotNullAndNonEmptyArray(listChoices, "lists must have a non-empty set of choices");
+      validator.isNotNullAndNonEmptyCollection(listChoices, "lists must have a non-empty set of choices");
       for (String choice : listChoices) {
         validator.isNotNullAndNonEmptyString(choice, "list choice text must all be non-empty");
         if (choice != null && choice.length() > 0) {

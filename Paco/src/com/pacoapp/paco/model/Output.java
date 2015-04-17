@@ -16,6 +16,8 @@
 */
 package com.pacoapp.paco.model;
 
+import java.util.List;
+
 import org.codehaus.jackson.annotate.JsonIgnore;
 import org.codehaus.jackson.annotate.JsonProperty;
 
@@ -129,7 +131,7 @@ public class Output implements Parcelable {
    * @return
    */
   String getDisplayForList(Input2 input) {
-    String[] listChoices = input.getListChoices();
+    List<String> listChoices = input.getListChoices();
     String answer = getAnswer();
     if (answer == null) {
       return "";
@@ -137,8 +139,8 @@ public class Output implements Parcelable {
 
     if (!input.getMultiselect()) {
       int index = Integer.parseInt(answer) - 1;
-      if (index < listChoices.length) {
-        return listChoices[index];
+      if (index < listChoices.size()) {
+        return listChoices.get(index);
       } else {
         return "error: index value too large for list choices: " + index;
       }
@@ -155,8 +157,8 @@ public class Output implements Parcelable {
         buf.append(",");
       }
       int index = Integer.parseInt(piece) - 1;
-      if (index < listChoices.length) {
-        buf.append(listChoices[index]);
+      if (index < listChoices.size()) {
+        buf.append(listChoices.get(index));
       } else {
         buf.append("error: index value too large for list choices: " + index);
       }

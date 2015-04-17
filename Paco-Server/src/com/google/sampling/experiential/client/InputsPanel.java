@@ -140,7 +140,7 @@ public class InputsPanel extends Composite {
   }
 
   private boolean checkLChoicesAreNotEmptyAndHighlight() {
-    boolean isFilled = !(input.getListChoices().length == 0) && !input.getListChoices()[0].isEmpty();
+    boolean isFilled = !(input.getListChoices().size() == 0) && !input.getListChoices().get(0).isEmpty();
     TextBox firstListChoiceTextBox = responseView.getListChoicesPanel().getFirstChoicePanel().getTextField();
     setFieldHighlight(firstListChoiceTextBox, isFilled);
     return isFilled;

@@ -18,7 +18,9 @@
 
 package com.google.sampling.experiential.client;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.List;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -67,18 +69,19 @@ public class ListChoicesPanel extends Composite {
     mainPanel.add(lblSignalTimes);
 
     choicePanelsList = new LinkedList<ListChoicePanel>();
-    String[] choices = input.getListChoices();
-    if (choices == null || choices.length == 0) {
+    List<String> choices = input.getListChoices();
+    if (choices == null || choices.size() == 0) {
       ListChoicePanel choicePanel = new ListChoicePanel(this);
       String choice = choicePanel.getChoice();
-      choices = new String[] {choice};
+      choices = new ArrayList<String>();
+      choices.add(choice);
       mainPanel.add(choicePanel);
       choicePanelsList.add(choicePanel);
       input.setListChoices(choices);
     } else {
-      for (int i = 0; i < choices.length; i++) {
+      for (int i = 0; i < choices.size(); i++) {
         ListChoicePanel choicePanel = new ListChoicePanel(this);
-        choicePanel.setChoice(choices[i]);
+        choicePanel.setChoice(choices.get(i));
         mainPanel.add(choicePanel);
         choicePanelsList.add(choicePanel);
       }
@@ -109,16 +112,17 @@ public class ListChoicesPanel extends Composite {
 
   // TODO this is not very efficient.
   private void updateChoices() {
-    String[] newTimes = new String[choicePanelsList.size()];
+    List<String> newTimes = new ArrayList();
     for (int i = 0; i < choicePanelsList.size(); i++) {
-      newTimes[i] = choicePanelsList.get(i).getChoice();
+      newTimes.add(choicePanelsList.get(i).getChoice());
     }
     input.setListChoices(newTimes);
   }
 
   public void updateChoice(ListChoicePanel choicePanel) {
     int index = choicePanelsList.indexOf(choicePanel);
-    input.getListChoices()[index] = choicePanel.getChoice();
+    input.getListChoices().remove(index);
+    input.getListChoices().add(index,choicePanel.getChoice());
   }
 
   public ListChoicePanel getFirstChoicePanel() {

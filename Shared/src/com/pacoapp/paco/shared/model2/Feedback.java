@@ -31,6 +31,7 @@ public class Feedback implements Validatable, Serializable {
   public static final String DEFAULT_FEEDBACK_MSG = "Thanks for Participating!";
 
   private String text;
+  private Integer type;
 
   /**
    * @param id
@@ -51,10 +52,14 @@ public class Feedback implements Validatable, Serializable {
     this.text = text;
   }
 
+
+
+  @Deprecated
   public String getFeedbackType() {
     return "display";
   }
 
+  @Deprecated
   public void setFeedbackType(String feedbackType) {
     // this is the old feedbacktype it is hardwired to "display" until we remove it.
 
@@ -63,6 +68,14 @@ public class Feedback implements Validatable, Serializable {
   public void validateWith(Validator validator) {
     validator.isNotNullAndNonEmptyString(text, "feedback text should not be null or empty");
     validator.isValidHtmlOrJavascript(text, "text should be valid javascript");
+  }
+
+  public Integer getType() {
+    return type;
+  }
+
+  public void setType(Integer type) {
+    this.type = type;
   }
 
 }
