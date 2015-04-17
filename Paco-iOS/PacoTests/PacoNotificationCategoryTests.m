@@ -65,11 +65,12 @@ static NSString* DEFINITION_JSON = @"{\"title\":\"NotificationTest-FixInterval-2
                @"DEFINITION_JSON should be successfully serialized!");
   PacoExperimentDefinition* definition = [PacoExperimentDefinition pacoExperimentDefinitionFromJSON:definitionDict];
   XCTAssertTrue(definition != nil, @"definition should not be nil!");
+  
   PacoExperiment* experimentInstance = [[PacoExperiment alloc] init];
   experimentInstance.schedule = definition.schedule;
   experimentInstance.definition = definition;
   experimentInstance.instanceId = definition.experimentId;
-  XCTAssertNotNil(experimentInstance, @"experimentInstance should be valid!");
+  XCTAssertNotNil(experimentInstance, @"experimentInstance should be valid!");  
   self.testExperiment = experimentInstance;
   
   NSDate* date1 = [NSDate dateWithTimeIntervalSinceNow:10];
@@ -90,9 +91,10 @@ static NSString* DEFINITION_JSON = @"{\"title\":\"NotificationTest-FixInterval-2
 
 
 - (void)testCreatePacoInfo {
-  NSDictionary* dict = @{@"experimentInstanceId":self.testID,
-                         @"notificationFireDate":self.testFireDate,
-                         @"notificationTimeoutDate":self.testTimeoutDate};
+  NSDictionary* dict = @{kUserInfoKeyExperimentId:self.testID,
+                         kUserInfoKeyExperimentTitle:self.testTitle,
+                         kUserInfoKeyNotificationFireDate:self.testFireDate,
+                         kUserInfoKeyNotificationTimeoutDate:self.testTimeoutDate};
   
   PacoNotificationInfo* info = [PacoNotificationInfo pacoInfoWithDictionary:dict];
   XCTAssertTrue(info != nil, @"should have a valid info");
