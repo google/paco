@@ -1,6 +1,7 @@
 .basics md-input-container {
   margin: 16px;
   max-width: 600px;
+  overflow-y: hidden;
 }
 
 .basics md-input-container div[ng-message] {

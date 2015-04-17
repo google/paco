@@ -7,6 +7,7 @@
   <md-progress-circular md-mode="indeterminate" ng-if="!experiments && user">
   </md-progress-circular>
 
+  Administered Experiments
   <div ng-repeat="exp in experiments">
     <md-card>
       <md-card-content class="padded">
@@ -14,6 +15,22 @@
         <div ng-if="exp.organization">
           by {{exp.organization}}
         </div>
+
+        <span class="admin">Admin</span>
+      </md-card-content>
+    </md-card>
+  </div>
+
+  Joined Experiments
+  <div ng-repeat="exp in joined">
+    <md-card>
+      <md-card-content class="padded">
+        <a href="#/experiment/{{exp.id}}">{{exp.title}}</a>
+        <div ng-if="exp.organization">
+          by {{exp.organization}}
+        </div>
+
+        <span class="participant">Participant</span>
       </md-card-content>
     </md-card>
   </div>

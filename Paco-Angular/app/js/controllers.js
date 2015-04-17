@@ -14,8 +14,8 @@ pacoApp.controller('HomeCtrl', ['$scope', '$http', '$routeParams', '$location',
           $scope.experiments = data;
         });
 
-        $http.get('/experiments?mine').success(function(data) {
-          $scope.experiments = data;
+        $http.get('/experiments?joined').success(function(data) {
+          $scope.joined = data;
         });
 
       } else {
