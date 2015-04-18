@@ -1,0 +1,88 @@
+<div class="padded advanced">
+  <div class="over">
+    <md-checkbox ng-model="group.endOfDayGroup" aria-label="End of day group">
+      End of day group
+    </md-checkbox>
+
+    <div class="referred" ng-if="group.endOfDayGroup">
+      <!-- ispiro: This dummy md-content serves to prevent the md-select from
+                 adding margin-right to document.body. The buggy behavior is 
+                 related to https://github.com/angular/material/issues/1743 
+                 This hack means the md-select can be scrolled away from where 
+                 it first appeared. -->
+      <md-content></md-content>
+      <md-select ng-model="group.endOfDayReferredGroupName" placeholder="Referred Group">
+        <md-option ng-repeat="group in experiment.groups" value="{{group.name}}">{{group.name}}
+        </md-option>
+      </md-select>
+    </div>
+  </div>
+
+  <div>
+    <md-checkbox ng-model="group.backgroundListen" aria-label="Listen for other apps sending data to PACO">
+      Background Listening
+    </md-checkbox>
+
+    <div class="identifier" ng-if="group.backgroundListen">
+      Source of data
+      <md-input-container md-no-float>
+        <input type="text" ng-model="group.backgroundListenSourceIdentifier" placeholder="Identifier">
+      </md-input-container>
+    </div>
+  </div>
+
+  <div>
+    <md-checkbox ng-model="group.logActions" aria-label="Log app usage and browser history">
+      Log app usage and browser history
+    </md-checkbox>
+  </div>
+
+  <div>
+    <md-checkbox ng-model="group.customRendering" aria-label="Override form display">
+      Override form display
+    </md-checkbox>
+  </div>
+
+  <div class="source" ng-if="group.customRendering">
+    Enter HTML and Javascript for custom rendering of experiment
+
+    <div class="ace_editor" ng-model="group.customRenderingCode" ui-ace="{
+        mode: 'javascript',
+        onLoad: aceLoaded,
+        rendererOptions: {
+          minLines: 10,
+          maxLines: 'Infinity'
+        }
+      }">
+    </div>
+  </div>
+
+  <div class="feedback" layout="row">
+
+    Feedback 
+    <select ng-model="group.feedbackType">
+      <option ng-repeat="type in feedbackTypes" value="{{$index}}">{{type}}</option>
+    </select>
+
+    <div class="message" flex>
+      <md-input-container md-no-float ng-if="group.feedbackType==='0'">
+        <input type="text" ng-model="group.feedback.text" placeholder="Message">
+      </md-input-container>
+    </div>
+  </div>
+
+  <div class="source" ng-if="group.feedbackType==3" ng-init="group.feedback.text=''">
+    Enter custom feedback code
+
+    <div class="ace_editor" ng-model="group.feedback.text" ui-ace="{
+        mode: 'javascript',
+        onLoad: aceLoaded,
+        rendererOptions: {
+          minLines: 10,
+          maxLines: 'Infinity'
+        }
+      }">
+    </div>
+  </div>
+
+</div>
