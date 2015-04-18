@@ -10,8 +10,8 @@ import org.joda.time.DateTimeZone;
 import com.google.appengine.api.ThreadManager;
 import com.google.common.base.Strings;
 import com.google.sampling.experiential.model.Event;
-import com.google.sampling.experiential.model.Experiment;
 import com.google.sampling.experiential.shared.EventDAO;
+import com.pacoapp.paco.shared.model2.ExperimentDAO;
 
 /**
  * Setup a job as a background thread to run a report.
@@ -131,13 +131,17 @@ public class ReportJobExecutor {
 
   private String generateEODHtml(boolean anon, String jobId, String experimentId, EventQueryResultPair eventQueryResultPair, String timeZoneForClient) throws IOException {
     log.info("Checking referred experiment for job: " + jobId);
-    Experiment referredExperiment = ExperimentRetriever.getInstance().getReferredExperiment(Long.parseLong(experimentId));
+    ExperimentDAO referredExperiment = getReferredExperiment(experimentId);
     if (referredExperiment != null) {
       List<EventDAO> eodEventDAOs = EventRetriever.convertEventsToDAOs(eventQueryResultPair.getEvents());
       List<EventDAO> dailyPingEodEventDAOs = new EndOfDayEventProcessor().breakEodResponsesIntoIndividualDailyEventResponses(eodEventDAOs);
       return new HtmlBlobWriter().writeEndOfDayExperimentEventsAsHtml(anon, jobId, experimentId, dailyPingEodEventDAOs, timeZoneForClient);
     }
     return null;
+  }
+
+  private ExperimentDAO getReferredExperiment(String experimentId) {
+    return ExperimentServiceFactory.getExperimentService().getReferredExperiment(Long.parseLong(experimentId));
   }
 
   private String generateCSVReport(boolean anon, String jobId, String experimentId, EventQueryResultPair eventQueryResultPair, DateTimeZone clientTimezone)
@@ -152,7 +156,7 @@ public class ReportJobExecutor {
   }
 
   private String generateEODCSV(boolean anon, String jobId, String experimentId, List<Event> events, String clientTimezone) throws IOException {
-    Experiment referredExperiment = ExperimentRetriever.getInstance().getReferredExperiment(Long.parseLong(experimentId));
+    ExperimentDAO referredExperiment = getReferredExperiment(experimentId);
     if (referredExperiment != null) {
       List<EventDAO> eodEventDAOs = EventRetriever.convertEventsToDAOs(events);
       List<EventDAO> dailyPingEodEventDAOs = new EndOfDayEventProcessor().breakEodResponsesIntoIndividualDailyEventResponses(eodEventDAOs);

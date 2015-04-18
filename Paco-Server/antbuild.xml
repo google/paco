@@ -71,15 +71,15 @@
 
   <target name="runserver" depends="build"
       description="Starts the development server.">
-    <dev_appserver war="ear/default" address="0.0.0.0">
+    <dev_appserver war="ear" address="0.0.0.0">
       <options>
         <arg value="--jvm_flag=-Dappengine.user.timezone=UTC"/>
       </options>
     </dev_appserver>
   </target>
 
-<target name="runserver_debug" depends="build" description="Starts the development server in debug mode.">
-    <dev_appserver war="ear/default" port="8888" address="0.0.0.0">
+<target name="runserver_debug" description="Starts the development server in debug mode.">
+    <dev_appserver war="ear" port="8888" address="0.0.0.0">
       <options>
         <arg value="--jvm_flag=-Dappengine.user.timezone=UTC"/>
         <arg value="--jvm_flag=-Xdebug"/>
@@ -180,6 +180,12 @@
       <arg value="com.google.sampling.experiential.PacoEventserver"/>
     </java>
   </target>
+
+  <target name="symlinks_for_reportworker">
+    <symlink link="${basedir}/ear/reportworker/WEB-INF/lib" resource="${basedir}/ear/default/WEB-INF/lib" failonerror="false" overwrite="true"/>
+    <symlink link="${basedir}/ear/reportworker/WEB-INF/classes" resource="${basedir}/ear/default/WEB-INF/classes" failonerror="false" overwrite="true"/>
+  </target>
+
 
   <target name="devmode" depends="javac" description="Run development mode">
     <java failonerror="true" fork="true" classname="com.google.gwt.dev.DevMode">

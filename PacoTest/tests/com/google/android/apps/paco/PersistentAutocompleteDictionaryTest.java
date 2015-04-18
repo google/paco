@@ -2,6 +2,8 @@ package com.google.android.apps.paco;
 
 import java.util.List;
 
+import com.pacoapp.paco.ui.autocomplete.PersistentAutocompleteDictionary;
+
 import android.test.AndroidTestCase;
 
 public class PersistentAutocompleteDictionaryTest extends AndroidTestCase {

@@ -18,6 +18,12 @@
     <welcome-file>index.jsp</welcome-file>
   </welcome-file-list>
 
+  <!-- Filters -->
+  <filter>
+    <filter-name>Authenticated Servlet Filter</filter-name>
+    <filter-class>com.google.sampling.experiential.server.AuthenticatedServletFilter</filter-class>
+  </filter>
+  
   <!-- 
   <filter>
     <filter-name>dbQuotaFilter</filter-name>
@@ -92,6 +98,15 @@
   </servlet-mapping>
 
   <servlet>
+    <servlet-name>authServlet</servlet-name>
+    <servlet-class>com.google.sampling.experiential.server.AuthServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>authServlet</servlet-name>
+    <url-pattern>/userinfo</url-pattern>
+  </servlet-mapping>
+
+  <servlet>
     <servlet-name>participationStatsServlet</servlet-name>
     <servlet-class>com.google.sampling.experiential.server.ParticipantStatServlet</servlet-class>
   </servlet>
@@ -109,6 +124,18 @@
     <url-pattern>/jobStatus</url-pattern>
   </servlet-mapping>
   
+  <filter-mapping>
+    <filter-name>Authenticated Servlet Filter</filter-name>
+    <servlet-name>SimonServlet</servlet-name>
+  </filter-mapping>
+  <servlet>
+    <servlet-name>SimonServlet</servlet-name>
+    <servlet-class>com.google.sampling.experiential.server.SimonServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>SimonServlet</servlet-name>
+    <url-pattern>/simon</url-pattern>
+  </servlet-mapping>
   
   <!--  administrative and debugging endpoints -->
   <servlet>
@@ -140,6 +167,7 @@
       <url-pattern>/experiments*</url-pattern>
       <url-pattern>/participantStats*</url-pattern>
       <url-pattern>/jobStatus*</url-pattern>
+      <url-pattern>/simon*</url-pattern>      
     </web-resource-collection>
     <user-data-constraint>
       <transport-guarantee>CONFIDENTIAL</transport-guarantee>

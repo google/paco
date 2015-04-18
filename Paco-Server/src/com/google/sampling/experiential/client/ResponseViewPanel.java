@@ -1,8 +1,8 @@
 /*
 * Copyright 2011 Google Inc. All Rights Reserved.
-* 
+*
 * Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance  with the License.  
+* you may not use this file except in compliance  with the License.
 * You may obtain a copy of the License at
 *
 *    http://www.apache.org/licenses/LICENSE-2.0
@@ -24,13 +24,12 @@ import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.TextBox;
-import com.google.gwt.user.client.ui.VerticalPanel;
-import com.google.paco.shared.model.InputDAO;
+import com.pacoapp.paco.shared.model2.Input2;
 
 
 /**
- * Panel to hold the configuration of an Input's response details. 
- * 
+ * Panel to hold the configuration of an Input's response details.
+ *
  * @author Bob Evans
  *
  */
@@ -38,30 +37,30 @@ import com.google.paco.shared.model.InputDAO;
 public class ResponseViewPanel extends Composite {
 
   private HorizontalPanel mainPanel;
-  private InputDAO input;
+  private Input2 input;
   private TextBox stepsText;
   private TextBox leftSideText;
   private TextBox rightSideText;
   private ListChoicesPanel listChoicesPanel;
 
-  public ResponseViewPanel(InputDAO input) {
+  public ResponseViewPanel(Input2 input) {
     super();
     mainPanel = new HorizontalPanel();
     initWidget(mainPanel);
     drawWidgetForInput(input);
   }
 
-  public void drawWidgetForInput(InputDAO input) {
+  public void drawWidgetForInput(Input2 input) {
     this.input = input;
     mainPanel.clear();
     String responseType = input.getResponseType();
-    if (responseType == null  || responseType.equals(InputDAO.LIKERT_SMILEYS)
-        || responseType.equals(InputDAO.OPEN_TEXT)) {
+    if (responseType == null  || responseType.equals(Input2.LIKERT_SMILEYS)
+        || responseType.equals(Input2.OPEN_TEXT)) {
       mainPanel.setVisible(false);
-    } else if (responseType.equals(InputDAO.LIKERT)) {
+    } else if (responseType.equals(Input2.LIKERT)) {
       drawLikertStepsPanel();
       mainPanel.setVisible(true);
-    } else if (responseType.equals(InputDAO.LIST)) {
+    } else if (responseType.equals(Input2.LIST)) {
       drawListPanel();
       mainPanel.setVisible(true);
     } else {
@@ -77,7 +76,7 @@ public class ResponseViewPanel extends Composite {
     listChoicesPanel.setStyleName("left");
     mainPanel.add(listChoicesPanel);
   }
-  
+
   public ListChoicesPanel getListChoicesPanel() {
     return listChoicesPanel;
   }
@@ -114,7 +113,7 @@ public class ResponseViewPanel extends Composite {
           String rightSideLabel = rightSideText.getValue();
           input.setRightSideLabel(rightSideLabel);
         } catch (NumberFormatException e) {
-          input.setLikertSteps(InputDAO.DEFAULT_LIKERT_STEPS);
+          input.setLikertSteps(Input2.DEFAULT_LIKERT_STEPS);
         }
       }
     };
@@ -125,8 +124,8 @@ public class ResponseViewPanel extends Composite {
 
   private void setLikertValueInWidget() {
     if (input.getLikertSteps() == null) {
-      input.setLikertSteps(InputDAO.DEFAULT_LIKERT_STEPS);
-      stepsText.setValue(Integer.toString(InputDAO.DEFAULT_LIKERT_STEPS));
+      input.setLikertSteps(Input2.DEFAULT_LIKERT_STEPS);
+      stepsText.setValue(Integer.toString(Input2.DEFAULT_LIKERT_STEPS));
     } else {
       stepsText.setValue(Integer.toString(input.getLikertSteps()));
     }
@@ -138,7 +137,7 @@ public class ResponseViewPanel extends Composite {
     }
   }
 
-  public InputDAO getInput() {
+  public Input2 getInput() {
     return input;
   }
 }

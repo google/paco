@@ -20,7 +20,6 @@
 #import "PacoLayout.h"
 #import "PacoMenuButton.h"
 #import "PacoRunningExperimentsViewController.h"
-#import "PacoTitleView.h"
 #import "PacoClient.h"
 #import "PacoContactUsViewController.h"
 #import "PacoWebViewController.h"
@@ -39,8 +38,8 @@
 {
   self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
   if (self) {
-    PacoTitleView *title = [PacoTitleView viewWithDefaultIconAndText:@"Paco"];
-    self.navigationItem.titleView = title;
+    NSArray *nibContents = [[NSBundle mainBundle] loadNibNamed:@"PacoTitleView" owner:nil options:nil];
+    self.navigationItem.titleView = [nibContents lastObject];
 
     UIButton* infoButton = [UIButton buttonWithType:UIButtonTypeInfoLight];
     [infoButton addTarget:self action:@selector(onInfoSelect:) forControlEvents:UIControlEventTouchUpInside];
@@ -139,22 +138,7 @@
   [PacoLayout layoutViews:buttons inGridWithWidth:2 gridHeight:3 inRect:layoutRect];
 
   [view setNeedsLayout];
-}
 
-BOOL loginAttempt = false;
-
-// ispiro: I moved the login code from viewDidLoad to viewDidAppear and this resolves the warning
-// about "Unbalanced calls to begin/end appearance transitions." However, it introduces a new
-// glitch because viewDidAppear may be called more than once in the view's life cycle. For now,
-// I just use a boolean variable to make sure we only attempt the login once. This hack should go
-// away when we switch to the Google+ auth library.
-
-- (void)viewDidAppear:(BOOL)animated {
-  [super viewDidAppear:animated];
-
-  if (loginAttempt) {
-    return;
-  }
   [[PacoClient sharedInstance] loginWithCompletionBlock:^(NSError *error) {
     NSString* message = [self welcomeMessage];
     if (error) {
@@ -170,7 +154,6 @@ BOOL loginAttempt = false;
                                                                     tapHandler:nil];
     [[JCNotificationCenter sharedCenter] enqueueNotification:banner];
   }];
-  loginAttempt = true;
 }
 
 - (NSString*)welcomeMessage {
@@ -250,11 +233,12 @@ BOOL loginAttempt = false;
                                                   otherButtonTitles:NSLocalizedString(@"About Paco", nil),
                                                                     NSLocalizedString(@"Send Logs to Paco Team", nil),
                                                                     NSLocalizedString(@"Configure Server Address", nil),
-                                                                    NSLocalizedString(@"Open Source Libraries", nil), nil];
+                                                                    NSLocalizedString(@"Open Source Libraries", nil),
+                                                                    NSLocalizedString(@"Sign Out", nil), nil];
   [actionSheet showInView:self.view];
 }
 
-- (void)actionSheet:(UIActionSheet *)actionSheet clickedButtonAtIndex:(NSInteger)buttonIndex {
+- (void)actionSheet:(UIActionSheet *)actionSheet didDismissWithButtonIndex:(NSInteger)buttonIndex {
   switch (buttonIndex) {
     case 0: {
       [self loadWebView:NSLocalizedString(@"About Paco",nil) andHTML:@"welcome_paco"];
@@ -270,6 +254,10 @@ BOOL loginAttempt = false;
     }
     case 3: {
       [self opensourceCreditsPage];
+      break;
+    }
+    case 4: {
+      [self signOut];
       break;
     }
     default:
@@ -318,6 +306,10 @@ BOOL loginAttempt = false;
 - (void)opensourceCreditsPage {
   PacoOpenSourceLibViewController* creditsViewController = [[PacoOpenSourceLibViewController alloc] init];
   [self.navigationController pushViewController:creditsViewController animated:YES];
+}
+
+- (void)signOut {
+  [[PacoClient sharedInstance] invalidateUserAccount];
 }
 
 - (void)loadWebView:(NSString*)title andHTML:(NSString*)htmlName {

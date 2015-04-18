@@ -1,8 +1,8 @@
 /*
 * Copyright 2011 Google Inc. All Rights Reserved.
-* 
+*
 * Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance  with the License.  
+* you may not use this file except in compliance  with the License.
 * You may obtain a copy of the License at
 *
 *    http://www.apache.org/licenses/LICENSE-2.0
@@ -23,11 +23,11 @@ import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.VerticalPanel;
-import com.google.paco.shared.model.SignalScheduleDAO;
+import com.pacoapp.paco.shared.model2.Schedule;
 
 /**
  * Panel that allows selection of days of week to schedule an experiment.
- * 
+ *
  * @author Bob Evans
  *
  */
@@ -42,9 +42,9 @@ public class WeekDayPanel extends Composite {
   private CheckBox checkBoxSat;
   private boolean multiSelect;
   private CheckBox[] checkBoxes;
-  private SignalScheduleDAO schedule;
+  private Schedule schedule;
 
-  public WeekDayPanel(boolean multiSelect, SignalScheduleDAO schedule) {
+  public WeekDayPanel(boolean multiSelect, Schedule schedule) {
     MyConstants myConstants = GWT.create(MyConstants.class);
     this.schedule = schedule;
     this.multiSelect = multiSelect;
@@ -122,7 +122,7 @@ public class WeekDayPanel extends Composite {
         selected(6);
       }
     });
-    
+
   }
 
   private void setSelctedCheckboxes() {
@@ -135,8 +135,8 @@ public class WeekDayPanel extends Composite {
       if (!multiSelect && bitsSet == 1) {
         break;
       }
-      if ((daysScheduled & SignalScheduleDAO.DAYS_OF_WEEK[i])
-          == SignalScheduleDAO.DAYS_OF_WEEK[i]) {
+      if ((daysScheduled & Schedule.DAYS_OF_WEEK[i])
+          == Schedule.DAYS_OF_WEEK[i]) {
         checkBoxes[i].setValue(Boolean.TRUE);
         bitsSet++;
       }
@@ -154,7 +154,7 @@ public class WeekDayPanel extends Composite {
     int selected = 0;
     for (int i = 0; i < 7; i++) {
       if (checkBoxes[i].getValue() == Boolean.TRUE) {
-        selected |= SignalScheduleDAO.DAYS_OF_WEEK[i];
+        selected |= Schedule.DAYS_OF_WEEK[i];
       }
     }
     schedule.setWeekDaysScheduled(selected);

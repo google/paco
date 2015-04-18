@@ -29,7 +29,8 @@ import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.VerticalPanel;
-import com.google.paco.shared.model.ExperimentDAO;
+import com.pacoapp.paco.shared.model2.ExperimentDAO;
+import com.pacoapp.paco.shared.model2.ExperimentDAOCore;
 
 /**
  *
@@ -113,7 +114,7 @@ public class ExperimentRow extends Composite {
 
   }
 
-  private void createButtonPanel(ExperimentDAO experiment, boolean joined, HorizontalPanel horizontalPanel,
+  private void createButtonPanel(ExperimentDAOCore experiment, boolean joined, HorizontalPanel horizontalPanel,
                                  HorizontalPanel horizontalPanel_1, boolean findView) {
     if (findView) {
       createFindViewPanel(horizontalPanel, horizontalPanel_1);
@@ -201,7 +202,7 @@ public class ExperimentRow extends Composite {
     horizontalPanel.setCellVerticalAlignment(deleteButton, HasVerticalAlignment.ALIGN_MIDDLE);
   }
 
-  private void createDeleteButton(ExperimentDAO experiment, HorizontalPanel horizontalPanel,
+  private void createDeleteButton(ExperimentDAOCore experiment, HorizontalPanel horizontalPanel,
                                   HorizontalPanel horizontalPanel_1) {
     Button deleteButton = new Button(
         experiment.getDeleted() != null && experiment.getDeleted() ? myConstants.unHide() : myConstants.hide());
@@ -229,7 +230,7 @@ public class ExperimentRow extends Composite {
   }
 
   private boolean isExperimentPurged() {
-    return experiment == null || experiment.getSignalingMechanisms() == null;
+    return experiment == null || experiment.getGroups() == null;
   }
 
   private void createAnonCSVButton(HorizontalPanel horizontalPanel, HorizontalPanel horizontalPanel_1) {

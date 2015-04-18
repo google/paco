@@ -3,7 +3,7 @@ package com.google.android.apps.paco;
 import org.joda.time.DateMidnight;
 import org.joda.time.DateTime;
 
-import com.google.paco.shared.model.SignalTimeDAO;
+import com.pacoapp.paco.shared.model.SignalTimeDAO;
 
 public class SignalTime {
 

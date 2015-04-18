@@ -1,8 +1,0 @@
-function c0b(a,b,c){this.b=a;this.d=b;this.c=c}
-function lMb(a){var b,c;b=clb(a.b.ie(wad),149);if(b==null){c=Ukb(rHb,D1c,1,['Cars','Sports','Vacation Spots']);a.b.ke(wad,c);return c}else{return b}}
-function kMb(a){var b,c;b=clb(a.b.ie(vad),149);if(b==null){c=Ukb(rHb,D1c,1,['compact','sedan','coupe','convertible','SUV','truck']);a.b.ke(vad,c);return c}else{return b}}
-function mMb(a){var b,c;b=clb(a.b.ie(xad),149);if(b==null){c=Ukb(rHb,D1c,1,[oad,pad,qad,rad,'Lacrosse','Polo',sad,'Softball',tad]);a.b.ke(xad,c);return c}else{return b}}
-function nMb(a){var b,c;b=clb(a.b.ie(yad),149);if(b==null){c=Ukb(rHb,D1c,1,['Carribean','Grand Canyon','Paris','Italy','New York','Las Vegas']);a.b.ke(yad,c);return c}else{return b}}
-function $_b(a,b,c){var d,e;ur(b.db);e=null;switch(c){case 0:e=kMb(a.b);break;case 1:e=mMb(a.b);break;case 2:e=nMb(a.b);}for(d=0;d<e.length;++d){tBc(b,e[d])}}
-function Z_b(a){var b,c,d,e,f,g,i;d=new BAc;d.f[L8c]=20;b=new zBc(false);f=lMb(a.b);for(e=0;e<f.length;++e){tBc(b,f[e])}vBc(b,'cwListBox-dropBox');c=new DLc;c.f[L8c]=4;ALc(c,new ewc('<b>Select a category:<\/b>'));ALc(c,b);yAc(d,c);g=new zBc(true);vBc(g,zad);g.db.style[y4c]='11em';g.db.size=10;i=new DLc;i.f[L8c]=4;ALc(i,new ewc('<b>Select all that apply:<\/b>'));ALc(i,g);yAc(d,i);kj(b,new c0b(a,g,b),(Kw(),Kw(),Jw));$_b(a,g,0);vBc(g,zad);return d}
-var zad='cwListBox-multiBox',vad='cwListBoxCars',wad='cwListBoxCategories',xad='cwListBoxSports',yad='cwListBoxVacations';tIb(742,1,o2c,c0b);_.Cc=function d0b(a){$_b(this.b,this.d,this.c.db.selectedIndex);vBc(this.d,zad)};_.b=null;_.c=null;_.d=null;tIb(743,1,q2c);_.mc=function h0b(){YKb(this.c,Z_b(this.b))};var Bwb=GSc(A9c,'CwListBox$1',742);d3c(wn)(4);

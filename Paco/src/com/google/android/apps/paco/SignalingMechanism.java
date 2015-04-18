@@ -5,7 +5,7 @@ import org.codehaus.jackson.annotate.JsonSubTypes;
 import org.codehaus.jackson.annotate.JsonSubTypes.Type;
 import org.codehaus.jackson.annotate.JsonTypeInfo;
 
-import com.google.paco.shared.model.SignalingMechanismDAO;
+import com.pacoapp.paco.shared.model.SignalingMechanismDAO;
 
 @JsonTypeInfo(
               use = JsonTypeInfo.Id.NAME,
@@ -26,6 +26,7 @@ public class SignalingMechanism {
   protected Integer minimumBuffer;
   protected Integer snoozeCount = SignalingMechanismDAO.SNOOZE_COUNT_DEFAULT;
   protected Integer snoozeTime = SignalingMechanismDAO.SNOOZE_TIME_DEFAULT;
+
   protected String name = DEFAULT_SIGNALING_GROUP_NAME;
 
   public Integer getTimeout() {

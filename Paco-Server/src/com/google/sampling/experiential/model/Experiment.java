@@ -41,8 +41,6 @@ import com.google.appengine.api.datastore.Text;
 import com.google.appengine.api.users.User;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
-import com.google.paco.shared.model.SignalScheduleDAO;
-import com.google.paco.shared.model.SignalTimeDAO;
 import com.google.sampling.experiential.shared.TimeUtil;
 
 
@@ -163,38 +161,7 @@ public class Experiment {
   private List<Integer> extraDataCollectionDeclarations;
 
 
-  /**
-   * @param id
-   * @param title2
-   * @param description2
-   * @param creator2
-   * @param informedConsentForm2
-   * @param questionsCanChange
-   * @param modifyDate
-   * @param published TODO
-   * @param admins TODO
-   */
-  public Experiment(Long id, String title, String description, User creator,
-      String informedConsentForm, Boolean questionsCanChange, SignalSchedule schedule,
-      String modifyDate, Boolean published, List<String> admins) {
-    this.id = id;
-    this.title = title;
-    this.description = description;
-    this.creator = creator;
-    this.informedConsentForm = informedConsentForm;
-    this.schedule = schedule;
-    this.questionsChange = questionsCanChange;
-    this.modifyDate = getFormattedDate(modifyDate, TimeUtil.DATE_FORMAT);
-    this.inputs = Lists.newArrayList();
-    feedback = Lists.newArrayList();
-    this.published = published;
-    this.admins = admins;
-    if (this.admins == null) {
-      this.admins = Lists.newArrayList(creator.getEmail());
-    } else if (admins.size() == 0 || !admins.contains(creator.getEmail())) {
-      admins.add(0, creator.getEmail());
-    }
-  }
+  
 
   /**
    *
@@ -457,12 +424,12 @@ public class Experiment {
 
   @JsonIgnore
   private DateTime getEndDateTime() {
-    if (getSchedule() != null && getSchedule().getScheduleType().equals(SignalScheduleDAO.WEEKDAY)) {
+    if (getSchedule() != null && getSchedule().getScheduleType().equals(com.pacoapp.paco.shared.model2.Schedule.WEEKDAY)) {
       List<SignalTime> signalTimes = schedule.getSignalTimes();
       List<Integer> times = Lists.newArrayList();
       for (SignalTime signalTime : signalTimes) {
         // TODO adjust for offset times and include them
-        if (signalTime.getType() == SignalTimeDAO.FIXED_TIME) {
+        if (signalTime.getType() == com.pacoapp.paco.shared.model2.SignalTime.FIXED_TIME) {
           times.add(signalTime.getFixedTimeMillisFromMidnight());
         }
       }

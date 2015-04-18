@@ -205,7 +205,7 @@ var paco = (function (init) {
       
       for (var j =0 ; j < responses.length; j++) {
         if (responses[j]["name"] === item) {
-          return responses[j]["answerOrder"];
+          return responses[j]["answer"];
         }
       }
       return null;
@@ -236,7 +236,7 @@ var paco = (function (init) {
     };
 
     var getAnswerNTimesAgoFor = function (item, nBack) {
-        var responses = getResponsesForEventNTimesAgo(nBack);
+        var responses = getResponsesForEventNTimesAgo(nBack);        
         return getResponseForItem(responses, item);
     };
 

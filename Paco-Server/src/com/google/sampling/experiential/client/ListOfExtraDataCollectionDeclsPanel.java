@@ -22,7 +22,7 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.VerticalPanel;
-import com.google.paco.shared.model.ExperimentDAO;
+import com.pacoapp.paco.shared.model2.ExperimentDAOCore;
 
 /**
  * A panel to contain a collection of extra data collection declaration panels.
@@ -35,7 +35,7 @@ public class ListOfExtraDataCollectionDeclsPanel extends Composite {
   /**
    * @param experiment
    */
-  public ListOfExtraDataCollectionDeclsPanel(final ExperimentDAO experiment) {
+  public ListOfExtraDataCollectionDeclsPanel(final ExperimentDAOCore experiment) {
     mainPanel = new VerticalPanel();
     mainPanel.setSpacing(2);
     initWidget(mainPanel);
@@ -44,7 +44,7 @@ public class ListOfExtraDataCollectionDeclsPanel extends Composite {
     lblDeclareExtras.setStyleName("gwt-Label-Header");
     mainPanel.add(lblDeclareExtras);
 
-    for (Integer decl : ExperimentDAO.EXTRA_DATA_COLLECTION_DECLS) {
+    for (Integer decl : ExperimentDAOCore.EXTRA_DATA_COLLECTION_DECLS) {
       ExtraDataCollectionDeclPanel declRow = new ExtraDataCollectionDeclPanel(decl, experiment);
       mainPanel.add(declRow);
     }

@@ -16,6 +16,7 @@
 */
 package com.google.sampling.experiential.client;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -48,9 +49,9 @@ import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
-import com.google.paco.shared.model.InputDAO;
 import com.google.sampling.experiential.shared.EventDAO;
 import com.google.sampling.experiential.shared.TimeUtil;
+import com.pacoapp.paco.shared.model2.Input2;
 
 /**
  * Component for holding an individual chart for an Input's responses.
@@ -61,7 +62,7 @@ import com.google.sampling.experiential.shared.TimeUtil;
 public class ChartPanel extends Composite {
 
   private static final Class<String> DEFAULT_DATA_CLASS = String.class;
-  private InputDAO input;
+  private Input2 input;
   private List<EventDAO> data;
 
   private MapWidget map;
@@ -73,7 +74,7 @@ public class ChartPanel extends Composite {
   private VerticalPanel rootPanel;
   private static final LatLng google = LatLng.newInstance(37.420769, -122.085854);
 
-  public ChartPanel(InputDAO input, List<EventDAO> eventList, int mapWidth, int mapHeight, boolean showLabel) {
+  public ChartPanel(Input2 input, List<EventDAO> eventList, int mapWidth, int mapHeight, boolean showLabel) {
     this.input = input;
     this.data = eventList;
     this.mapWidth = mapWidth;
@@ -94,21 +95,21 @@ public class ChartPanel extends Composite {
 
     ChartOMundo cm = new ChartOMundo();
     Class dataTypeOf = getSampleDataType(cm);
-    if (input.getResponseType().equals(InputDAO.OPEN_TEXT) &&
+    if (input.getResponseType().equals(Input2.OPEN_TEXT) &&
         dataTypeOf.equals(DEFAULT_DATA_CLASS)) {
       rootPanel.add(cm.createWordCloud("", eventList, input.getName()));
-    } else if (input.getResponseType().equals(InputDAO.PHOTO)) {
+    } else if (input.getResponseType().equals(Input2.PHOTO)) {
       rootPanel.add(createPhotoSlider());
-    } else if (input.getResponseType().equals(InputDAO.LOCATION)) {
+    } else if (input.getResponseType().equals(Input2.LOCATION)) {
       renderEventsOnMap();
       //rootPanel.add();
-    } else if (input.getResponseType().equals(InputDAO.LIST)) {
+    } else if (input.getResponseType().equals(Input2.LIST)) {
       rootPanel.add(cm.createBarChartForList(eventList, "", input.getName(),
           input.getListChoices(), input.getMultiselect()));
-    } else if (input.getResponseType().equals(InputDAO.LIKERT)) {
+    } else if (input.getResponseType().equals(Input2.LIKERT)) {
       rootPanel.add(cm.createBarChartForList(eventList, "", input.getName(),
           getLikertCategories(), false));
-    } else if (input.getResponseType().equals(InputDAO.LIKERT_SMILEYS)) {
+    } else if (input.getResponseType().equals(Input2.LIKERT_SMILEYS)) {
       rootPanel.add(cm.createBarChartForList(eventList, "", input.getName(),
       getLikertSmileyCategories(), false));
     } else {
@@ -116,7 +117,7 @@ public class ChartPanel extends Composite {
     }
   }
 
-  public ChartPanel(InputDAO input, List<EventDAO> events) {
+  public ChartPanel(Input2 input, List<EventDAO> events) {
     this(input, events, 800, 600, true);
   }
 
@@ -125,31 +126,35 @@ public class ChartPanel extends Composite {
    *
    * @return List of labels for choices in likert scale.
    */
-  private String[] getLikertCategories() {
+  private List<String> getLikertCategories() {
     Integer likertSteps = input.getLikertSteps();
     if (likertSteps == null) {
       likertSteps = 0;
     }
-    String[] choices = new String[likertSteps];
+    List<String> choices = new ArrayList<String>();
     if (!Strings.isNullOrEmpty(input.getLeftSideLabel())) {
-      choices[0] = input.getLeftSideLabel();
+      choices.add(input.getLeftSideLabel() + " " + "(1)");
+    }  else {
+      choices.add("(1)");
     }
-    choices[0] = (choices[0] != null ? choices[0] + " " : "") + "(1)";
-    if (!Strings.isNullOrEmpty(input.getRightSideLabel())) {
-      choices[likertSteps - 1] = input.getRightSideLabel();
-    }
-    choices[likertSteps - 1] = (choices[likertSteps - 1] != null ? choices[likertSteps - 1] + " " : "") + " (" + likertSteps + ")";
+
     for (int i=1;i < (likertSteps - 1); i++) {
-      choices[i] = "(" + (i + 1) + ")";
+      choices.add("(" + (i + 1) + ")");
+    }
+
+    if (!Strings.isNullOrEmpty(input.getRightSideLabel())) {
+      choices.add(input.getRightSideLabel() + "(" + likertSteps + ")");
+    } else {
+      choices.add("(" + likertSteps + ")");
     }
     return choices;
   }
 
-  private String[] getLikertSmileyCategories() {
+  private List<String> getLikertSmileyCategories() {
     final int smiley_count = 5;
-    String[] choices = new String[smiley_count];
+    List<String> choices = new ArrayList<String>();
     for (int i=0;i < 5; i++) {
-      choices[i] = Integer.toString(i + 1);
+      choices.add(Integer.toString(i + 1));
     }
     return choices;
   }
