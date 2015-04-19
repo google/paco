@@ -21,6 +21,7 @@ pacoApp.controller('HomeCtrl', ['$scope', '$http', '$routeParams', '$location',
       } else {
         $scope.loginURL = data.login;
       }
+      $scope.logoutURL = data.logout;
 
     }).error(function(data) {
       console.log(data);
@@ -135,7 +136,6 @@ pacoApp.controller('ExperimentCtrl', ['$scope', '$http',
             }
 
           } else {
-            console.dir(data);
             var errorMessage = data[0].errorMessage;
             $mdDialog.show({
               templateUrl: 'partials/error.html',
@@ -330,14 +330,18 @@ pacoApp.controller('ErrorCtrl', ['$scope', '$mdDialog', 'config',
   function($scope, $mdDialog, config, errorMessage) {
 
     $scope.errorMessage = errorMessage;
-    var lines = errorMessage.split('\n');
-    var errors = [];
-    for (var i = 0; i < lines.length; i++) {
-      if (lines[i].indexOf("ERROR:") === 0) {
-        errors.push(lines[i].substr(7));
+    
+    // TODO(ispiro): correctly handle Exception errors
+    if (errorMessage.indexOf("Exception") == 0) {
+      $scope.errors = [errorMessage];
+    } else {
+
+      var err = JSON.parse($scope.errorMessage);
+      $scope.errors = [];
+      for (error in err) {
+        $scope.errors.push(err[error].msg);
       }
     }
-    $scope.errors = errors;
 
     $scope.hide = function() {
       $mdDialog.hide();
@@ -438,7 +442,8 @@ pacoApp.controller('AdminCtrl', ['$scope', 'config', function($scope, config) {
   $scope.inList = function(item) {
     if ($scope.experiment && $scope.experiment.extraDataCollectionDeclarations) {
       var id = parseInt(item);
-      if ($scope.experiment.extraDataCollectionDeclarations.indexOf(id) !== -1) {
+      if ($scope.experiment.extraDataCollectionDeclarations.indexOf(id) !==
+        -1) {
         return true;
       }
     }
@@ -447,7 +452,8 @@ pacoApp.controller('AdminCtrl', ['$scope', 'config', function($scope, config) {
 
   $scope.toggle = function(item) {
     var id = parseInt(item);
-    var find = $scope.experiment.extraDataCollectionDeclarations.indexOf(id);
+    var find = $scope.experiment.extraDataCollectionDeclarations.indexOf(
+      id);
 
     if (find == -1) {
       $scope.experiment.extraDataCollectionDeclarations.push(id);

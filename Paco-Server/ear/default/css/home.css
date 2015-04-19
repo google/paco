@@ -34,6 +34,12 @@ md-toolbar #login {
   right: 16px;
 }
 
+md-toolbar .previous {
+  position: absolute;
+  right: 16px;
+  bottom: 16px;
+}
+
 md-toolbar .subtitle {
   font-size: 18px;
   position: absolute;
@@ -97,3 +103,19 @@ md-toolbar .subtitle {
   font-weight: 100;
   margin: 0;
 }
+
+.sitemap {
+  padding-top: 32px;
+  background: #eee;
+  height: 100px;
+}
+
+.sitemap .links {
+  text-align: center;
+  position: relative;
+  width: 960px;
+  left: 50%;
+  bottom: 0px;
+  margin-left: -480px;
+}
+
