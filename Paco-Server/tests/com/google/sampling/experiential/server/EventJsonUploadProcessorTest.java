@@ -13,7 +13,6 @@ import org.joda.time.DateTimeZone;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.google.appengine.api.users.User;
 import com.google.common.collect.Lists;
 import com.google.sampling.experiential.model.PhotoBlob;
 import com.google.sampling.experiential.model.What;
@@ -137,7 +136,7 @@ public class EventJsonUploadProcessorTest extends TestCase {
       }
 
       @Override
-      public List<ValidationMessage> saveExperiment(ExperimentDAO experimentDAO, User userFromLogin, DateTimeZone timezone) {
+      public List<ValidationMessage> saveExperiment(ExperimentDAO experimentDAO, String userFromLogin, DateTimeZone timezone) {
         // TODO Auto-generated method stub
         return null;
       }
@@ -151,6 +150,12 @@ public class EventJsonUploadProcessorTest extends TestCase {
       @Override
       public ExperimentQueryResult getMyJoinedExperiments(String email, DateTimeZone timezone, Integer limit,
                                                           String cursor) {
+        // TODO Auto-generated method stub
+        return null;
+      }
+
+      @Override
+      public ExperimentQueryResult getAllExperiments(String cursor) {
         // TODO Auto-generated method stub
         return null;
       }
@@ -220,7 +225,7 @@ public class EventJsonUploadProcessorTest extends TestCase {
       }
 
       @Override
-      public List<ValidationMessage> saveExperiment(ExperimentDAO experimentDAO, User userFromLogin, DateTimeZone timezone) {
+      public List<ValidationMessage> saveExperiment(ExperimentDAO experimentDAO, String userFromLogin, DateTimeZone timezone) {
         // TODO Auto-generated method stub
         return null;
       }
@@ -234,6 +239,12 @@ public class EventJsonUploadProcessorTest extends TestCase {
       @Override
       public ExperimentQueryResult getMyJoinedExperiments(String email, DateTimeZone timezone, Integer limit,
                                                           String cursor) {
+        // TODO Auto-generated method stub
+        return null;
+      }
+
+      @Override
+      public ExperimentQueryResult getAllExperiments(String cursor) {
         // TODO Auto-generated method stub
         return null;
       }
@@ -308,7 +319,7 @@ public class EventJsonUploadProcessorTest extends TestCase {
       }
 
       @Override
-      public List<ValidationMessage> saveExperiment(ExperimentDAO experimentDAO, User userFromLogin, DateTimeZone timezone) {
+      public List<ValidationMessage> saveExperiment(ExperimentDAO experimentDAO, String userFromLogin, DateTimeZone timezone) {
         // TODO Auto-generated method stub
         return null;
       }
@@ -322,6 +333,12 @@ public class EventJsonUploadProcessorTest extends TestCase {
       @Override
       public ExperimentQueryResult getMyJoinedExperiments(String email, DateTimeZone timezone, Integer limit,
                                                           String cursor) {
+        // TODO Auto-generated method stub
+        return null;
+      }
+
+      @Override
+      public ExperimentQueryResult getAllExperiments(String cursor) {
         // TODO Auto-generated method stub
         return null;
       }
@@ -393,7 +410,7 @@ public class EventJsonUploadProcessorTest extends TestCase {
         return null;
       }
       @Override
-      public List<ValidationMessage> saveExperiment(ExperimentDAO experimentDAO, User userFromLogin, DateTimeZone timezone) {
+      public List<ValidationMessage> saveExperiment(ExperimentDAO experimentDAO, String userFromLogin, DateTimeZone timezone) {
         // TODO Auto-generated method stub
         return null;
       }
@@ -405,6 +422,11 @@ public class EventJsonUploadProcessorTest extends TestCase {
       @Override
       public ExperimentQueryResult getMyJoinedExperiments(String email, DateTimeZone timezone, Integer limit,
                                                           String cursor) {
+        // TODO Auto-generated method stub
+        return null;
+      }
+      @Override
+      public ExperimentQueryResult getAllExperiments(String cursor) {
         // TODO Auto-generated method stub
         return null;
       }

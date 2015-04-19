@@ -28,6 +28,10 @@ public class ExperimentGroup implements Validatable, java.io.Serializable {
   private String endOfDayReferredGroupName;
 
   private Feedback feedback;
+
+  // Need to keep this for the interim experiments on staging
+  // this will allow us to copy it on to the Feedback object for those
+  // experiments
   private Integer feedbackType;
 
   public ExperimentGroup() {
