@@ -140,7 +140,7 @@
   <!--  administrative and debugging endpoints -->
   <servlet>
     <servlet-name>migrationFrontendServlet</servlet-name>
-    <servlet-class>com.google.sampling.experiential.server.MigrationFrontendServlet</servlet-class>
+    <servlet-class>com.google.sampling.experiential.server.migration.MigrationFrontendServlet</servlet-class>
   </servlet>
   <servlet-mapping>
     <servlet-name>migrationFrontendServlet</servlet-name>

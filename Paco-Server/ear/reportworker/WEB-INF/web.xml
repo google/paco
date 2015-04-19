@@ -33,7 +33,7 @@
   
   <servlet>   
     <servlet-name>migrationBackendServlet</servlet-name>
-    <servlet-class>com.google.sampling.experiential.server.MigrationBackendServlet</servlet-class>
+    <servlet-class>com.google.sampling.experiential.server.migration.MigrationBackendServlet</servlet-class>
   </servlet>    
   <servlet-mapping>
     <servlet-name>migrationBackendServlet</servlet-name>
