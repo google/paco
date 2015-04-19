@@ -63,8 +63,15 @@ public class AuthServlet extends HttpServlet {
     // 'bobevans999@gmail.com' even if the user is logged out.
     // We may want to reconsider using referer header since it's spoofable.
     String url = req.getHeader("referer");
+
+    if (url == null) {
+      url = "";
+    }
+
     String login = userService.createLoginURL(url);
+    String logout = userService.createLogoutURL(url);
     mapObject.put("login", login);
+    mapObject.put("logout", logout);
     
     String json = mapper.writeValueAsString(mapObject);
     resp.getWriter().println(json);
