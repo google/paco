@@ -74,7 +74,7 @@ pacoApp.controller('ExperimentCtrl', ['$scope', '$http',
       $http.get('/experiments?id=' + $scope.experimentId).success(
         function(data) {
           $scope.experiment = data[0];
-          //
+          $scope.experiment0 = angular.copy(data[0]);
           $scope.prepareAce();
         });
     }
@@ -134,6 +134,8 @@ pacoApp.controller('ExperimentCtrl', ['$scope', '$http',
             if ($scope.newExperiment) {
               $location.path('/experiment/' + data[0].experimentId);
             }
+
+            $scope.experiment0 = angular.copy($scope.experiment);
 
           } else {
             var errorMessage = data[0].errorMessage;
@@ -330,7 +332,7 @@ pacoApp.controller('ErrorCtrl', ['$scope', '$mdDialog', 'config',
   function($scope, $mdDialog, config, errorMessage) {
 
     $scope.errorMessage = errorMessage;
-    
+
     // TODO(ispiro): correctly handle Exception errors
     if (errorMessage.indexOf("Exception") == 0) {
       $scope.errors = [errorMessage];
