@@ -627,4 +627,29 @@ public ExperimentQueryResult getAllJoinableExperiments(String email, DateTimeZon
       return com.google.sampling.experiential.server.TimeUtil.getDateMidnightForDateString(experiment.getEndDate()).plusDays(1).toDateTime();
     }
   }
+
+  public Pair<String, List<Experiment>> getExperiments(String cursorString, int limit) {
+    PersistenceManager pm = null;
+    try {
+      pm = PMF.get().getPersistenceManager();
+      javax.jdo.Query q = pm.newQuery(Experiment.class);
+      if (cursorString != null) {
+        Cursor cursor = Cursor.fromWebSafeString(cursorString);
+        Map<String, Object> extensionMap = Maps.newHashMap();
+        extensionMap.put(JDOCursorHelper.CURSOR_EXTENSION, cursor);
+        q.setExtensions(extensionMap);
+      }
+      q.setRange(0, limit > 0 ? Math.max(MAX_LIMIT_SIZE, limit) : DEFAULT_LIMIT_SIZE);
+
+      List<Experiment> experiments = (List<Experiment>) q.execute();
+      Cursor newCursor = JDOCursorHelper.getCursor(experiments);
+      String newCursorString = newCursor.toWebSafeString();
+
+      return new Pair<String, List<Experiment>>(newCursorString, experiments);
+    } finally {
+      if (pm != null) {
+        pm.close();
+      }
+    }
+  }
 }

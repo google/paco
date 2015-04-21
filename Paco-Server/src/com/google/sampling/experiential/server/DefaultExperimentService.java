@@ -114,9 +114,9 @@ class DefaultExperimentService implements ExperimentService {
       try {
         if (experiment.getId() == null) {
           experiment.setCreator(loggedInUserEmail);
-          if (!experiment.getAdmins().contains(loggedInUserEmail)) {
-            experiment.getAdmins().add(loggedInUserEmail);
-          }
+        }
+        if (!experiment.getAdmins().contains(loggedInUserEmail)) {
+          experiment.getAdmins().add(loggedInUserEmail);
         }
         if (Strings.isNullOrEmpty(experiment.getContactEmail())) {
           experiment.setContactEmail(experiment.getCreator());
