@@ -60,18 +60,18 @@
   <div class="feedback" layout="row">
 
     Feedback 
-    <select ng-model="group.feedbackType">
+    <select ng-model="group.feedback.type">
       <option ng-repeat="type in feedbackTypes" value="{{$index}}">{{type}}</option>
     </select>
 
     <div class="message" flex>
-      <md-input-container md-no-float ng-if="group.feedbackType==='0'">
+      <md-input-container md-no-float ng-if="group.feedback.type==='0'">
         <input type="text" ng-model="group.feedback.text" placeholder="Message">
       </md-input-container>
     </div>
   </div>
 
-  <div class="source" ng-if="group.feedbackType==3" ng-init="group.feedback.text=''">
+  <div class="source" ng-if="group.feedback.type==3" ng-init="group.feedback.text=''">
     Enter custom feedback code
 
     <div class="ace_editor" ng-model="group.feedback.text" ui-ace="{

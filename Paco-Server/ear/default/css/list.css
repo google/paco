@@ -1,21 +1,31 @@
-
 .list .admin {
   background: url('../img/admin.png') no-repeat;
   background-size: 10px 10px;
-  background-position: 4px 4px;
+  background-position: 4px 6px;
   padding-left: 18px;
   position: absolute;
   top: 16px;
   right: 16px;
 }
 
-
 .list .participant {
   background: url('../img/participant.png') no-repeat;
-  background-size: 10px 10px;
-  background-position: 4px 4px;
-  padding-left: 18px;
+  background-size: 5px 10px;
+  background-position: 4px 6px;
+  padding-left: 13px;
   position: absolute;
   top: 16px;
   right: 16px;
+}
+
+.list a {
+  text-decoration: none;
+}
+
+.list md-card {
+  width: 600px;
+}
+
+.list .group {
+  margin-top: 32px;
 }

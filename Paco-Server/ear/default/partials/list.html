@@ -7,32 +7,89 @@
   <md-progress-circular md-mode="indeterminate" ng-if="!experiments && user">
   </md-progress-circular>
 
-  Administered Experiments
-  <div ng-repeat="exp in experiments">
-    <md-card>
-      <md-card-content class="padded">
-        <a href="#/experiment/{{exp.id}}">{{exp.title}}</a>
-        <div ng-if="exp.organization">
-          by {{exp.organization}}
-        </div>
+  <div ng-if="experiments" class="group">
+    Administered Experiments
+    <div ng-repeat="exp in experiments">
+      <md-card>
+        <md-card-content class="padded">
+          <a href="#/experiment/{{exp.id}}">{{exp.title}}
+        </a>
+          <div ng-if="exp.organization">
+            by {{exp.organization}}
+          </div>
 
-        <span class="admin">Admin</span>
-      </md-card-content>
-    </md-card>
+          <span class="admin">Admin</span>
+
+          <div class="buttons">
+            <a href="#/experiment/{{exp.id}}">
+              <md-button>
+                Edit
+              </md-button>
+            </a>
+
+            <a href="events?q=%27experimentId={{exp.id}}%27" target="_new">
+              <md-button>
+                View Data
+              </md-button>
+            </a>
+
+            <a href="participantStats?experimentId={{exp.id}}" target="_new">
+              <md-button>
+                Stats
+              </md-button>
+            </a>
+
+            <a href="events?csv&q=%27experimentId={{exp.id}}%27" target="_new">
+              <md-button>
+                CSV
+              </md-button>
+            </a>
+
+            <a href="events?csv&anon=true&q=%27experimentId={{exp.id}}%27" target="_new">
+              <md-button>
+                AnonCSV
+              </md-button>
+            </a>
+
+          </div>
+
+        </md-card-content>
+      </md-card>
+    </div>
   </div>
 
-  Joined Experiments
-  <div ng-repeat="exp in joined">
-    <md-card>
-      <md-card-content class="padded">
-        <a href="#/experiment/{{exp.id}}">{{exp.title}}</a>
-        <div ng-if="exp.organization">
-          by {{exp.organization}}
-        </div>
+  <div ng-if="joined" class="group">
+    Joined Experiments
+    <div ng-repeat="exp in joined">
+      <md-card>
+        <md-card-content class="padded">
+          <a href="#/experiment/{{exp.id}}">{{exp.title}}</a>
+          <div ng-if="exp.organization">
+            by {{exp.organization}}
+          </div>
+          <span class="participant">Participant</span>
+          <div class="buttons">
+            <a href="events?q=%27experimentId={{exp.id}}%27" target="_new">
+              <md-button>
+                View Data
+              </md-button>
+            </a>
 
-        <span class="participant">Participant</span>
-      </md-card-content>
-    </md-card>
+            <a href="participantStats?experimentId={{exp.id}}" target="_new">
+              <md-button>
+                Stats
+              </md-button>
+            </a>
+
+            <a href="events?csv&q=%27experimentId={{exp.id}}%27" target="_new">
+              <md-button>
+                CSV
+              </md-button>
+            </a>
+          </div>
+        </md-card-content>
+      </md-card>
+    </div>
   </div>
 
 </div>

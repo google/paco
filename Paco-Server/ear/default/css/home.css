@@ -1,3 +1,9 @@
+.bg {
+  background: #F5F5F5;
+  display: inline-block;
+  width: 100%;
+}
+
 .main {
   left: 50%;
   margin-left: -480px;
@@ -32,6 +38,12 @@ md-toolbar #login {
   position: absolute;
   top: 24px;
   right: 16px;
+}
+
+md-toolbar .previous {
+  position: absolute;
+  right: 16px;
+  bottom: 16px;
 }
 
 md-toolbar .subtitle {
@@ -96,4 +108,22 @@ md-toolbar .subtitle {
   font-size: 32px;
   font-weight: 100;
   margin: 0;
+}
+
+.sitemap {
+  padding-top: 32px;
+  height: 100px;
+}
+
+.sitemap .links {
+  text-align: center;
+  position: relative;
+  width: 960px;
+  left: 50%;
+  bottom: 0px;
+  margin-left: -480px;
+}
+
+.sitemap .links a {
+  display: block;
 }

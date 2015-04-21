@@ -21,6 +21,7 @@ pacoApp.controller('HomeCtrl', ['$scope', '$http', '$routeParams', '$location',
       } else {
         $scope.loginURL = data.login;
       }
+      $scope.logoutURL = data.logout;
 
     }).error(function(data) {
       console.log(data);
@@ -73,7 +74,7 @@ pacoApp.controller('ExperimentCtrl', ['$scope', '$http',
       $http.get('/experiments?id=' + $scope.experimentId).success(
         function(data) {
           $scope.experiment = data[0];
-          //
+          $scope.experiment0 = angular.copy(data[0]);
           $scope.prepareAce();
         });
     }
@@ -134,8 +135,9 @@ pacoApp.controller('ExperimentCtrl', ['$scope', '$http',
               $location.path('/experiment/' + data[0].experimentId);
             }
 
+            $scope.experiment0 = angular.copy($scope.experiment);
+
           } else {
-            console.dir(data);
             var errorMessage = data[0].errorMessage;
             $mdDialog.show({
               templateUrl: 'partials/error.html',
@@ -171,8 +173,21 @@ pacoApp.controller('GroupCtrl', ['$scope', 'template',
   function($scope, template) {
     $scope.hiding = false;
 
+    if ($scope.group.fixedDuration != undefined) {
+      $scope.group.fixedDuration += '';
+    }
+
+    if ($scope.group.feedback.type !== undefined) {
+      $scope.group.feedback.type += '';
+    } 
+
+    $scope.dateToString = function(d) {
+      var s = d.getUTCFullYear() + '/' + (d.getMonth()+1) + '/' + d.getDate();
+      return s;
+    };
+
     $scope.addInput = function(event, expandFn) {
-      $scope.group.inputs.push({});
+      $scope.group.inputs.push(angular.copy(template.input));
       expandFn(true);
       event.stopPropagation();
     };
@@ -208,6 +223,16 @@ pacoApp.controller('GroupCtrl', ['$scope', 'template',
         }
       }
       $scope.hasScheduleTrigger = false;
+    });
+
+    $scope.$watch('group.fixedDuration', function(newVal, oldVal) {
+      if (newVal && newVal == 'true' && $scope.group.startDate == undefined) {
+        var today = new Date();
+        var today = new Date();
+        var tomorrow = new Date(today.getTime() + (24 * 60 * 60 * 1000));
+        $scope.group.startDate = $scope.dateToString(today);;
+        $scope.group.endDate = $scope.dateToString(tomorrow);
+      }
     });
   }
 ]);
@@ -330,14 +355,18 @@ pacoApp.controller('ErrorCtrl', ['$scope', '$mdDialog', 'config',
   function($scope, $mdDialog, config, errorMessage) {
 
     $scope.errorMessage = errorMessage;
-    var lines = errorMessage.split('\n');
-    var errors = [];
-    for (var i = 0; i < lines.length; i++) {
-      if (lines[i].indexOf("ERROR:") === 0) {
-        errors.push(lines[i].substr(7));
+
+    // TODO(ispiro): correctly handle Exception errors
+    if (errorMessage.indexOf("Exception") == 0) {
+      $scope.errors = [errorMessage];
+    } else {
+
+      var err = JSON.parse($scope.errorMessage);
+      $scope.errors = [];
+      for (error in err) {
+        $scope.errors.push(err[error].msg);
       }
     }
-    $scope.errors = errors;
 
     $scope.hide = function() {
       $mdDialog.hide();
@@ -422,8 +451,12 @@ pacoApp.controller('ScheduleCtrl', ['$scope', '$mdDialog', 'config', 'template',
       if (newValue) {
         if ($scope.schedule.signalTimes == undefined) {
           $scope.schedule.signalTimes = [angular.copy(template.signalTime)];
-          $scope.schedule.repeatRate = '';
         }
+
+        if ($scope.schedule.scheduleType == 4) {
+          $scope.schedule = angular.copy(template.defaultEsmSchedule);
+        }
+
       }
     });
   }
@@ -438,7 +471,8 @@ pacoApp.controller('AdminCtrl', ['$scope', 'config', function($scope, config) {
   $scope.inList = function(item) {
     if ($scope.experiment && $scope.experiment.extraDataCollectionDeclarations) {
       var id = parseInt(item);
-      if ($scope.experiment.extraDataCollectionDeclarations.indexOf(id) !== -1) {
+      if ($scope.experiment.extraDataCollectionDeclarations.indexOf(id) !==
+        -1) {
         return true;
       }
     }
@@ -447,7 +481,8 @@ pacoApp.controller('AdminCtrl', ['$scope', 'config', function($scope, config) {
 
   $scope.toggle = function(item) {
     var id = parseInt(item);
-    var find = $scope.experiment.extraDataCollectionDeclarations.indexOf(id);
+    var find = $scope.experiment.extraDataCollectionDeclarations.indexOf(
+      id);
 
     if (find == -1) {
       $scope.experiment.extraDataCollectionDeclarations.push(id);

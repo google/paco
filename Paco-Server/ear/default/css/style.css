@@ -1,16 +1,17 @@
 body,
 html {
-  background: #F5F5F5;
+  background: #eee;
   min-width: 1024px;
 }
 
 a {
   color: #3e82f7;
+  text-decoration: none;
 }
 
 md-card {
   overflow: hidden;
-  margin: 32px 0 32px 0;
+  margin: 16px 0 16px 0;
 }
 
 md-card-content {

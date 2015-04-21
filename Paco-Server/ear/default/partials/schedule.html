@@ -15,19 +15,10 @@
 
       <div class="snooze" ng-if="schedule.scheduleType < 5">
 
-        <md-input-container>
-          <label>Timeout</label>
-          <input type="number" min=0 max=479 ng-model="schedule.timeout">
-        </md-input-container>
-
         <md-input-container ng-if="schedule.scheduleType == 4">
           <label>Minimum between</label>
           <input type="number" ng-model="schedule.minimumBuffer">
         </md-input-container>
-
-        <md-checkbox ng-model="schedule.snoozeCount" aria-label="Repeat snooze">
-          Repeat snooze
-        </md-checkbox>
 
         <md-input-container ng-if="schedule.snoozeCount" 
           ng-init="schedule.snoozeTimeInMinutes=10">
@@ -46,7 +37,6 @@
     </div>
 
     <div class="column1">
-
       <div ng-if="schedule.scheduleType==='0'">
         Repeat every
         <select ng-model="schedule.repeatRate">

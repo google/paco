@@ -51,18 +51,18 @@
         </md-checkbox>
       </div>
 
-      <div class="likert" ng-if="input.responseType == 'likert'">
-        <md-input-container class="short">
+      <div class="likert" ng-if="input.responseType == 'likert'" layout="row">
+        <md-input-container flex>
           <label>Likert Steps</label>
           <input ng-model="input.likertSteps" type="number">
         </md-input-container>
 
-        <md-input-container class="medium">
+        <md-input-container flex>
           <label>Left Side Label</label>
           <input ng-model="input.leftSideLabel">
         </md-input-container>
 
-        <md-input-container class="medium">
+        <md-input-container flex>
           <label>Right Side Label</label>
           <input ng-model="input.rightSideLabel">
         </md-input-container>

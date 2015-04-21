@@ -1,7 +1,17 @@
-<md-card>
-  <md-card-content class="">
+<md-card ng-controller="AdminCtrl">
+  <md-card-content>
 
     <div layout="row" layout-margin>
+
+      <div flex class="published">
+        <label>Experiment Status</label>
+        <md-switch ng-model="experiment.published" aria-label="Published">
+          {{experiment.published ? "Published" : "Unpublished"}}
+        </md-switch>
+        <div class="warning" ng-show="experiment0.published!=experiment.published">
+          Save changes to {{experiment.published ? "publish" : "unpublish"}}
+        </div>
+      </div>
 
       <md-input-container flex>
         <label>Creator</label>
@@ -33,7 +43,7 @@
         </div>
       </md-input-container>
 
-      <div flex ng-controller="AdminCtrl">
+      <div flex>
 
         Extra Types of Data Collection
         <div ng-repeat="(id, declare) in dataDeclarations">
