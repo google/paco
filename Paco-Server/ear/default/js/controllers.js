@@ -177,6 +177,10 @@ pacoApp.controller('GroupCtrl', ['$scope', 'template',
       $scope.group.fixedDuration += '';
     }
 
+    if ($scope.group.feedback.type !== undefined) {
+      $scope.group.feedback.type += '';
+    } 
+
     $scope.dateToString = function(d) {
       var s = d.getUTCFullYear() + '/' + (d.getMonth()+1) + '/' + d.getDate();
       return s;

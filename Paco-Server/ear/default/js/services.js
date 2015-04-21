@@ -83,8 +83,9 @@ pacoApp.service('template', function() {
     actionTriggers: [],
     name: 'New Group',
     inputs: [],
-    feedbackType: 0,
+    feedbackType: '0',
     feedback: {
+      type: '0',
       text: 'Thanks for Participating!',
     },
     fixedDuration: 'false'
