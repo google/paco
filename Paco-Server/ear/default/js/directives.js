@@ -35,6 +35,28 @@ pacoApp.directive('milli', function() {
 });
 
 
+pacoApp.directive('pacoDate', function() {
+  return {
+    restrict: 'A',
+    require: 'ngModel',
+    link: function(scope, element, attr, ngModel) {
+
+      function dateToPacoDate(dateString) {
+        var date = new Date(dateString);
+        dd = scope.dateToString(date);
+        return dd;
+      }
+
+      function pacoDateToDate(pacoDate) {
+        return new Date(pacoDate);
+      }
+      ngModel.$parsers.push(dateToPacoDate);
+      ngModel.$formatters.push(pacoDateToDate);
+    }
+  };
+});
+
+
 pacoApp.directive('set', function() {
   return {
     restrict: 'A',

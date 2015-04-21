@@ -173,8 +173,17 @@ pacoApp.controller('GroupCtrl', ['$scope', 'template',
   function($scope, template) {
     $scope.hiding = false;
 
+    if ($scope.group.fixedDuration != undefined) {
+      $scope.group.fixedDuration += '';
+    }
+
+    $scope.dateToString = function(d) {
+      var s = d.getUTCFullYear() + '/' + (d.getMonth()+1) + '/' + d.getDate();
+      return s;
+    };
+
     $scope.addInput = function(event, expandFn) {
-      $scope.group.inputs.push({});
+      $scope.group.inputs.push(angular.copy(template.input));
       expandFn(true);
       event.stopPropagation();
     };
@@ -210,6 +219,16 @@ pacoApp.controller('GroupCtrl', ['$scope', 'template',
         }
       }
       $scope.hasScheduleTrigger = false;
+    });
+
+    $scope.$watch('group.fixedDuration', function(newVal, oldVal) {
+      if (newVal && newVal == 'true' && $scope.group.startDate == undefined) {
+        var today = new Date();
+        var today = new Date();
+        var tomorrow = new Date(today.getTime() + (24 * 60 * 60 * 1000));
+        $scope.group.startDate = $scope.dateToString(today);;
+        $scope.group.endDate = $scope.dateToString(tomorrow);
+      }
     });
   }
 ]);
@@ -428,8 +447,12 @@ pacoApp.controller('ScheduleCtrl', ['$scope', '$mdDialog', 'config', 'template',
       if (newValue) {
         if ($scope.schedule.signalTimes == undefined) {
           $scope.schedule.signalTimes = [angular.copy(template.signalTime)];
-          $scope.schedule.repeatRate = '';
         }
+
+        if ($scope.schedule.scheduleType == 4) {
+          $scope.schedule = angular.copy(template.defaultEsmSchedule);
+        }
+
       }
     });
   }

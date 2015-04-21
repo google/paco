@@ -1,9 +1,5 @@
 <div class="groups">
 
-  <md-button ng-click="addGroup()">
-    Add Experiment Group
-  </md-button>
-
   <div class="group" ng-repeat="group in experiment.groups track by $index" ng-controller="GroupCtrl">
 
     <md-card hidable>
@@ -40,13 +36,13 @@
           <div flex class="date">
             <md-input-container ng-if="group.fixedDuration=='true'">
               <label>Start date</label>
-              <input type="date" ng-model="group.startDate">
+              <input type="date" paco-date ng-model="group.startDate">
             </md-input-container>
           </div>
           <div flex class="date">
             <md-input-container ng-if="group.fixedDuration=='true'">
               <label>End date</label>
-              <input type="date" ng-model="group.endDate">
+              <input type="date" paco-date ng-model="group.endDate">
             </md-input-container>
           </div>
         </div>
@@ -106,4 +102,8 @@
 
     </md-card>
   </div>
+
+  <md-button ng-click="addGroup()">
+    Add Experiment Group
+  </md-button>
 </div>

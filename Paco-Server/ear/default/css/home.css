@@ -1,3 +1,9 @@
+.bg {
+  background: #F5F5F5;
+  display: inline-block;
+  width: 100%;
+}
+
 .main {
   left: 50%;
   margin-left: -480px;
@@ -106,7 +112,6 @@ md-toolbar .subtitle {
 
 .sitemap {
   padding-top: 32px;
-  background: #eee;
   height: 100px;
 }
 
@@ -119,3 +124,6 @@ md-toolbar .subtitle {
   margin-left: -480px;
 }
 
+.sitemap .links a {
+  display: block;
+}

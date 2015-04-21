@@ -86,7 +86,8 @@ pacoApp.service('template', function() {
     feedbackType: 0,
     feedback: {
       text: 'Thanks for Participating!',
-    }
+    },
+    fixedDuration: 'false'
   };
 
   this.experiment = {
@@ -99,15 +100,35 @@ pacoApp.service('template', function() {
     dataDeclarations: [],
   }
 
+  this.input = {
+    responseType: 'open text'
+  }
+
   this.action = {
     type: 'pacoNotificationAction',
     actionCode: ''
   };
 
+  this.defaultScheduleAction = {
+    type: 'pacoNotificationAction',
+    actionCode: 0,
+    timeout: 15
+  };
+
   this.schedule = {
     scheduleType: '',
     userEditable: true,
-    timeout: 15
+    timeout: 15,
+    repeatRate: 1
+  };
+
+  this.defaultEsmSchedule = {
+    scheduleType: '4',
+    userEditable: true,
+    timeout: 15,
+    esmPeriodInDays: '1',
+    esmFrequency: 8,
+    repeatRate: 1
   };
 
   this.cue = {
@@ -116,7 +137,7 @@ pacoApp.service('template', function() {
 
   this.scheduleTrigger = {
     type: 'scheduleTrigger',
-    actions: [this.action],
+    actions: [this.defaultScheduleAction],
     schedules: [this.schedule]
   };
 
