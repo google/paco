@@ -3,10 +3,10 @@
 
     <div class="column0">
       <div>
-        <select ng-model="cue.cueCode">
+        <select ng-model="cue.cueCode" as-string>
           <option value="" disabled selected>Choose cue event</option>
-          <option ng-selected="''+$index==cue.cueCode" 
-            ng-repeat="type in cueTypes" value={{$index}}>{{type}}</option>
+          <option ng-selected="$index==cue.cueCode" 
+            ng-repeat="type in cueTypes" value="{{$index}}">{{type}}</option>
         </select>
       </div>
 

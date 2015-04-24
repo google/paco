@@ -28,19 +28,19 @@
           <div class="title">
             Duration
           </div>
-          <md-radio-group ng-model="group.fixedDuration" layout="row">
+          <md-radio-group ng-model="group.fixedDuration" layout="row" as-string>
             <md-radio-button value="false">Ongoing</md-radio-button>
             <md-radio-button value="true">Fixed</md-radio-button>
           </md-radio-group>
 
           <div flex class="date">
-            <md-input-container ng-if="group.fixedDuration=='true'">
+            <md-input-container ng-if="group.fixedDuration">
               <label>Start date</label>
               <input type="date" paco-date ng-model="group.startDate">
             </md-input-container>
           </div>
           <div flex class="date">
-            <md-input-container ng-if="group.fixedDuration=='true'">
+            <md-input-container ng-if="group.fixedDuration">
               <label>End date</label>
               <input type="date" paco-date ng-model="group.endDate">
             </md-input-container>

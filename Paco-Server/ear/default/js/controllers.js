@@ -173,16 +173,8 @@ pacoApp.controller('GroupCtrl', ['$scope', 'template',
   function($scope, template) {
     $scope.hiding = false;
 
-    if ($scope.group.fixedDuration != undefined) {
-      $scope.group.fixedDuration += '';
-    }
-
-    if ($scope.group.feedback.type !== undefined) {
-      $scope.group.feedback.type += '';
-    } 
-
     $scope.dateToString = function(d) {
-      var s = d.getUTCFullYear() + '/' + (d.getMonth()+1) + '/' + d.getDate();
+      var s = d.getUTCFullYear() + '/' + (d.getMonth() + 1) + '/' + d.getDate();
       return s;
     };
 
@@ -214,19 +206,9 @@ pacoApp.controller('GroupCtrl', ['$scope', 'template',
       editor.$blockScrolling = 'Infinity';
     };
 
-
-    $scope.$watchCollection('group.actionTriggers', function() {
-      for (var i = 0; i < $scope.group.actionTriggers.length; i++) {
-        if ($scope.group.actionTriggers[i].type == 'scheduleTrigger') {
-          $scope.hasScheduleTrigger = true;
-          return;
-        }
-      }
-      $scope.hasScheduleTrigger = false;
-    });
-
     $scope.$watch('group.fixedDuration', function(newVal, oldVal) {
-      if (newVal && newVal == 'true' && $scope.group.startDate == undefined) {
+      if (newVal && newVal == true && $scope.group.startDate ==
+        undefined) {
         var today = new Date();
         var today = new Date();
         var tomorrow = new Date(today.getTime() + (24 * 60 * 60 * 1000));
@@ -311,12 +293,6 @@ pacoApp.controller('ActionCtrl', ['$scope', '$mdDialog', 'config', 'action',
 
     $scope.action = action;
 
-    if ($scope.action.actionCode == undefined) {
-      $scope.action.actionCode = '';
-    } else {
-      $scope.action.actionCode += '';
-    }
-
     $scope.actionTypes = config.actionTypes;
 
     $scope.hide = function() {
@@ -334,13 +310,6 @@ pacoApp.controller('CueCtrl', ['$scope', '$mdDialog', 'config', 'cue',
   function($scope, $mdDialog, config, cue) {
 
     $scope.cue = cue;
-
-    if ($scope.cue.cueCode == undefined) {
-      $scope.cue.cueCode = '';
-    } else {
-      $scope.cue.cueCode += '';
-    }
-
     $scope.cueTypes = config.cueTypes;
 
     $scope.hide = function() {
@@ -380,19 +349,6 @@ pacoApp.controller('ScheduleCtrl', ['$scope', '$mdDialog', 'config', 'template',
   function($scope, $mdDialog, config, template, schedule) {
 
     $scope.schedule = schedule;
-
-    if ($scope.schedule.repeatRate != undefined) {
-      $scope.schedule.repeatRate += '';
-    }
-
-    if ($scope.schedule.esmPeriodInDays == undefined) {
-      $scope.schedule.esmPeriodInDays = '';
-    } else {
-      $scope.schedule.esmPeriodInDays += '';
-    }
-
-    // Force scheduleType to be a string
-    $scope.schedule.scheduleType += '';
 
     $scope.scheduleTypes = config.scheduleTypes;
     $scope.weeksOfMonth = config.weeksOfMonth;
@@ -448,13 +404,18 @@ pacoApp.controller('ScheduleCtrl', ['$scope', '$mdDialog', 'config', 'template',
     });
 
     $scope.$watch('schedule.scheduleType', function(newValue, oldValue) {
+
       if (newValue) {
         if ($scope.schedule.signalTimes == undefined) {
           $scope.schedule.signalTimes = [angular.copy(template.signalTime)];
         }
 
         if ($scope.schedule.scheduleType == 4) {
-          $scope.schedule = angular.copy(template.defaultEsmSchedule);
+          
+          // It won't work to assign a new copy of the template to the schedule
+          // variable since this orphans it from the top-level experiment.
+          // Instead, use extend to copy the properties of the template in.
+          angular.extend($scope.schedule, template.defaultEsmSchedule);
         }
 
       }
@@ -516,7 +477,7 @@ pacoApp.controller('SummaryCtrl', ['$scope', 'config', function($scope, config) 
     var sched = $scope.schedule;
     var str = '';
 
-    if (sched.scheduleType == '') {
+    if (sched.scheduleType == null) {
       return 'Undefined';
     }
 

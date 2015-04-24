@@ -1,12 +1,10 @@
 <md-dialog aria-label="Edit Schedule" class="schedule">
   <md-content>
-
     <div class="column0">
       <div>
-        <select ng-model="schedule.scheduleType">
+        <select ng-model="schedule.scheduleType" as-string>
           <option disabled selected value="">Signal Schedule</option>
-          <!-- Need to cast the $index to a string -->
-          <option ng-selected="{{''+$index === schedule.scheduleType}}" ng-repeat="type in scheduleTypes"
+          <option ng-selected="$index===schedule.scheduleType" ng-repeat="type in scheduleTypes"
           value="{{$index}}">
             {{type}}
           </option>
@@ -37,9 +35,9 @@
     </div>
 
     <div class="column1">
-      <div ng-if="schedule.scheduleType==='0'">
+      <div ng-if="schedule.scheduleType==0">
         Repeat every
-        <select ng-model="schedule.repeatRate">
+        <select ng-model="schedule.repeatRate" as-string>
           <option value="" disabled selected></option>
           <option ng-selected="{{rate == schedule.repeatRate}}" ng-repeat="rate in repeatRates"
           value="{{rate}}">{{rate}}</option>
@@ -49,7 +47,7 @@
 
       <div ng-if="schedule.scheduleType==2">
         Repeat every
-        <select ng-model="schedule.repeatRate">
+        <select ng-model="schedule.repeatRate" as-string>
           <option value="" disabled selected></option>
           <option ng-selected="{{rate == schedule.repeatRate}}" ng-repeat="rate in repeatRates"
           value="{{rate}}">{{rate}}</option>
@@ -59,7 +57,7 @@
 
       <div ng-if="schedule.scheduleType==3">
         Repeat every
-        <select ng-model="schedule.repeatRate">
+        <select ng-model="schedule.repeatRate" as-string>
           <option value="" disabled selected></option>
           <option ng-selected="{{rate == schedule.repeatRate}}" ng-repeat="rate in repeatRates"
           value="{{rate}}">{{rate}}</option>
@@ -128,7 +126,7 @@
 
           <md-content></md-content>
 
-          <select ng-model="schedule.esmPeriodInDays" flex="33" class="period">
+          <select ng-model="schedule.esmPeriodInDays" flex="33" class="period" as-string>
             <option value="" disabled selected>Select period</option>
             <option  ng-selected="{{days == schedule.esmPeriodInDays}}" 
             ng-repeat="(days, period) in esmPeriods" value="{{days}}">{{period}}</option>
