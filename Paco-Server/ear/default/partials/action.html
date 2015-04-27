@@ -3,12 +3,12 @@
     <div>
       <select ng-model="action.actionCode" as-string>
         <option value="" disabled selected>Choose Action</option>
-        <option ng-selected="$index===action.actionCode" ng-repeat="type in actionTypes"
+        <option ng-selected="$index === action.actionCode" ng-repeat="type in actionTypes"
         value="{{$index}}">{{type}}</option>
       </select>
     </div>
 
-    <div ng-if="action.actionCode<2">
+    <div ng-if="action.actionCode < 2">
       <md-input-container>
         <label>Timeout</label>
         <input type="number" min=0 max=479 ng-model="action.timeout">
@@ -19,13 +19,13 @@
         <input type="number" ng-model="action.snoozeCount">
       </md-input-container>
 
-      <md-input-container ng-if="action.snoozeCount>0">
+      <md-input-container ng-if="action.snoozeCount > 0">
         <label>Snooze time</label>
         <input type="number" ng-model="action.snoozeTimeInMinutes">
       </md-input-container>
     </div>
 
-    <div ng-if="action.actionCode==3" class="ace_editor" ng-model="action.customCode"
+    <div ng-if="action.actionCode === 3" class="ace_editor" ng-model="action.customCode"
     ui-ace="{
         mode: 'javascript',
         onLoad: aceLoaded,

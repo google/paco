@@ -61,18 +61,19 @@
 
     Feedback
     <select ng-model="group.feedback.type" as-string>
-      <option ng-selected="$index==group.feedback.type" ng-repeat="type in feedbackTypes" 
+      <option ng-selected="$index === group.feedback.type" ng-repeat="type in feedbackTypes" 
         value="{{$index}}">{{type}}</option>
     </select>
 
     <div class="message" flex>
-      <md-input-container md-no-float ng-if="group.feedback.type==='0'">
+      <md-input-container md-no-float ng-if="group.feedback.type === 0">
         <input type="text" ng-model="group.feedback.text" placeholder="Message">
       </md-input-container>
     </div>
   </div>
 
-  <div class="source" ng-if="group.feedback.type==3" ng-init="group.feedback.text=''">
+  <!-- TODO(ispiro): clear out text when switching between type 0 and 3 -->
+  <div class="source" ng-if="group.feedback.type === 3">
     Enter custom feedback code
 
     <div class="ace_editor" ng-model="group.feedback.text" ui-ace="{
