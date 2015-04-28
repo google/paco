@@ -29,11 +29,11 @@ pacoApp.controller('HomeCtrl', ['$scope', '$http', '$routeParams', '$location',
 
 
     if (angular.isDefined($routeParams.experimentId)) {
-      if ($routeParams.experimentId == 'new') {
+      if ($routeParams.experimentId === 'new') {
         $scope.newExperiment = true;
         $scope.experimentId = -1;
       } else {
-        $scope.experimentId = parseInt($routeParams.experimentId);
+        $scope.experimentId = parseInt($routeParams.experimentId, 10);
       }
     }
 
@@ -57,12 +57,12 @@ pacoApp.controller('ExperimentCtrl', ['$scope', '$http',
 
     if ($location.hash()) {
       var newTabId = config.tabs.indexOf($location.hash());
-      if (newTabId != -1) {
+      if (newTabId !== -1) {
         $scope.state.tabId = newTabId;
       }
     }
 
-    if ($scope.experimentId == -1) {
+    if ($scope.experimentId === -1) {
       $scope.experiment = angular.copy(template.experiment);
 
       if ($scope.user) {
@@ -87,9 +87,9 @@ pacoApp.controller('ExperimentCtrl', ['$scope', '$http',
       }
     });
 
-    // TODO(ispiro): figure out a way to disabled the default # scrolling 
+    // TODO(ispiro): figure out a way to disable the default # scrolling 
     $scope.$watch('state.tabId', function(newValue, oldValue) {
-      if ($scope.state.tabId == 0) {
+      if ($scope.state.tabId === 0) {
         $location.hash('');
       } else if ($scope.state.tabId > 0) {
         $location.hash(config.tabs[$scope.state.tabId]);
@@ -173,16 +173,8 @@ pacoApp.controller('GroupCtrl', ['$scope', 'template',
   function($scope, template) {
     $scope.hiding = false;
 
-    if ($scope.group.fixedDuration != undefined) {
-      $scope.group.fixedDuration += '';
-    }
-
-    if ($scope.group.feedback.type !== undefined) {
-      $scope.group.feedback.type += '';
-    } 
-
     $scope.dateToString = function(d) {
-      var s = d.getUTCFullYear() + '/' + (d.getMonth()+1) + '/' + d.getDate();
+      var s = d.getUTCFullYear() + '/' + (d.getMonth() + 1) + '/' + d.getDate();
       return s;
     };
 
@@ -214,19 +206,9 @@ pacoApp.controller('GroupCtrl', ['$scope', 'template',
       editor.$blockScrolling = 'Infinity';
     };
 
-
-    $scope.$watchCollection('group.actionTriggers', function() {
-      for (var i = 0; i < $scope.group.actionTriggers.length; i++) {
-        if ($scope.group.actionTriggers[i].type == 'scheduleTrigger') {
-          $scope.hasScheduleTrigger = true;
-          return;
-        }
-      }
-      $scope.hasScheduleTrigger = false;
-    });
-
     $scope.$watch('group.fixedDuration', function(newVal, oldVal) {
-      if (newVal && newVal == 'true' && $scope.group.startDate == undefined) {
+      if (newVal && newVal == true && $scope.group.startDate ==
+        undefined) {
         var today = new Date();
         var today = new Date();
         var tomorrow = new Date(today.getTime() + (24 * 60 * 60 * 1000));
@@ -310,18 +292,8 @@ pacoApp.controller('ActionCtrl', ['$scope', '$mdDialog', 'config', 'action',
   function($scope, $mdDialog, config, action) {
 
     $scope.action = action;
-
-    if ($scope.action.actionCode == undefined) {
-      $scope.action.actionCode = '';
-    } else {
-      $scope.action.actionCode += '';
-    }
-
     $scope.actionTypes = config.actionTypes;
-
-    $scope.hide = function() {
-      $mdDialog.hide();
-    };
+    $scope.hide = $mdDialog.hide;
 
     $scope.aceLoaded = function(editor) {
       editor.$blockScrolling = 'Infinity';
@@ -334,18 +306,8 @@ pacoApp.controller('CueCtrl', ['$scope', '$mdDialog', 'config', 'cue',
   function($scope, $mdDialog, config, cue) {
 
     $scope.cue = cue;
-
-    if ($scope.cue.cueCode == undefined) {
-      $scope.cue.cueCode = '';
-    } else {
-      $scope.cue.cueCode += '';
-    }
-
     $scope.cueTypes = config.cueTypes;
-
-    $scope.hide = function() {
-      $mdDialog.hide();
-    };
+    $scope.hide = $mdDialog.hide;
   }
 ]);
 
@@ -355,9 +317,10 @@ pacoApp.controller('ErrorCtrl', ['$scope', '$mdDialog', 'config',
   function($scope, $mdDialog, config, errorMessage) {
 
     $scope.errorMessage = errorMessage;
+    $scope.hide = $mdDialog.hide;
 
     // TODO(ispiro): correctly handle Exception errors
-    if (errorMessage.indexOf("Exception") == 0) {
+    if (errorMessage.indexOf('Exception') === 0) {
       $scope.errors = [errorMessage];
     } else {
 
@@ -367,10 +330,6 @@ pacoApp.controller('ErrorCtrl', ['$scope', '$mdDialog', 'config',
         $scope.errors.push(err[error].msg);
       }
     }
-
-    $scope.hide = function() {
-      $mdDialog.hide();
-    };
   }
 ]);
 
@@ -381,25 +340,13 @@ pacoApp.controller('ScheduleCtrl', ['$scope', '$mdDialog', 'config', 'template',
 
     $scope.schedule = schedule;
 
-    if ($scope.schedule.repeatRate != undefined) {
-      $scope.schedule.repeatRate += '';
-    }
-
-    if ($scope.schedule.esmPeriodInDays == undefined) {
-      $scope.schedule.esmPeriodInDays = '';
-    } else {
-      $scope.schedule.esmPeriodInDays += '';
-    }
-
-    // Force scheduleType to be a string
-    $scope.schedule.scheduleType += '';
-
     $scope.scheduleTypes = config.scheduleTypes;
     $scope.weeksOfMonth = config.weeksOfMonth;
     $scope.esmPeriods = config.esmPeriods;
     $scope.repeatRates = range(1, 30);
     $scope.daysOfMonth = range(1, 31);
     $scope.days = [];
+    $scope.hide = $mdDialog.hide;
 
     if ($scope.schedule.weekDaysScheduled !== undefined) {
       var bits = parseInt($scope.schedule.weekDaysScheduled).toString(2);
@@ -427,10 +374,6 @@ pacoApp.controller('ScheduleCtrl', ['$scope', '$mdDialog', 'config', 'template',
       arr.splice(idx, 1);
     };
 
-    $scope.hide = function() {
-      $mdDialog.hide();
-    };
-
     $scope.parseInt = function(number) {
       return parseInt(number, 10);
     }
@@ -448,13 +391,18 @@ pacoApp.controller('ScheduleCtrl', ['$scope', '$mdDialog', 'config', 'template',
     });
 
     $scope.$watch('schedule.scheduleType', function(newValue, oldValue) {
-      if (newValue) {
-        if ($scope.schedule.signalTimes == undefined) {
+
+      if (angular.isDefined(newValue)) {
+        if ($scope.schedule.signalTimes === undefined) {
           $scope.schedule.signalTimes = [angular.copy(template.signalTime)];
         }
 
-        if ($scope.schedule.scheduleType == 4) {
-          $scope.schedule = angular.copy(template.defaultEsmSchedule);
+        if ($scope.schedule.scheduleType === 4) {
+          
+          // We can just assign a new copy of the template to the schedule
+          // variable since this orphans it from the top-level experiment.
+          // Instead, we use extend to copy the properties of the template in.
+          angular.extend($scope.schedule, template.defaultEsmSchedule);
         }
 
       }
@@ -471,8 +419,7 @@ pacoApp.controller('AdminCtrl', ['$scope', 'config', function($scope, config) {
   $scope.inList = function(item) {
     if ($scope.experiment && $scope.experiment.extraDataCollectionDeclarations) {
       var id = parseInt(item);
-      if ($scope.experiment.extraDataCollectionDeclarations.indexOf(id) !==
-        -1) {
+      if ($scope.experiment.extraDataCollectionDeclarations.indexOf(id) !== -1) {
         return true;
       }
     }
@@ -481,10 +428,9 @@ pacoApp.controller('AdminCtrl', ['$scope', 'config', function($scope, config) {
 
   $scope.toggle = function(item) {
     var id = parseInt(item);
-    var find = $scope.experiment.extraDataCollectionDeclarations.indexOf(
-      id);
+    var find = $scope.experiment.extraDataCollectionDeclarations.indexOf(id);
 
-    if (find == -1) {
+    if (find === -1) {
       $scope.experiment.extraDataCollectionDeclarations.push(id);
     } else {
       $scope.experiment.extraDataCollectionDeclarations.splice(find, 1);
@@ -516,7 +462,7 @@ pacoApp.controller('SummaryCtrl', ['$scope', 'config', function($scope, config) 
     var sched = $scope.schedule;
     var str = '';
 
-    if (sched.scheduleType == '') {
+    if (sched.scheduleType === null) {
       return 'Undefined';
     }
 

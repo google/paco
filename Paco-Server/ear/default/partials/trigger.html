@@ -1,15 +1,16 @@
 <div ng-controller="TriggerCtrl" class="trigger">
   <div class="header section">
     <div class="subtitle">
-      <span ng-if="trigger.type=='scheduleTrigger'">Scheduled</span>
-      <span ng-if="trigger.type=='interruptTrigger'">Event</span> Trigger
+      <span ng-if="trigger.type === 'scheduleTrigger'">Scheduled</span>
+      <span ng-if="trigger.type === 'interruptTrigger'">Event</span>
+      Trigger
     </div>
 
-    <md-button ng-if="trigger.type=='scheduleTrigger'" ng-click="addSchedule()">
+    <md-button ng-if="trigger.type === 'scheduleTrigger'" ng-click="addSchedule()">
       Add Schedule
     </md-button>
 
-    <md-button ng-if="trigger.type=='interruptTrigger'" ng-click="addCue()">
+    <md-button ng-if="trigger.type === 'interruptTrigger'" ng-click="addCue()">
       Add Cue
     </md-button>
 
@@ -22,46 +23,43 @@
   </div>
 
   <div ng-repeat="schedule in trigger.schedules track by $index">
-    <!-- <md-divider></md-divider> -->
     <div class="section">
       <div class="subsub">
         <md-button ng-click="showSchedule($event, schedule)">
-          Edit Schedule {{$index+1}}
+          Edit Schedule {{$index + 1}}
         </md-button>
         
       </div>
       <span ng-controller="SummaryCtrl" ng-bind="getScheduleSummary()"></span>
-      <a class="remove-button" ng-if="trigger.schedules.length>1" href="" ng-click="remove(trigger.schedules, $index)">
+      <a class="remove-button" ng-if="trigger.schedules.length > 1" href="" ng-click="remove(trigger.schedules, $index)">
       </a>
     </div>
   </div>
 
   <div ng-repeat="cue in trigger.cues track by $index">
-    <!-- <md-divider></md-divider> -->
     <div class="section">
       <div class="subsub">
         <md-button ng-click="showCue($event, cue)">
-          Edit Cue {{$index+1}}
+          Edit Cue {{$index + 1}}
         </md-button>
         
       </div>
       <span ng-controller="SummaryCtrl" ng-bind="getCueSummary()"></span>
-      <a class="remove-button" ng-if="trigger.cues.length>1" href="" ng-click="remove(trigger.cues, $index)">
+      <a class="remove-button" ng-if="trigger.cues.length > 1" href="" ng-click="remove(trigger.cues, $index)">
       </a>
     </div>
   </div>
 
   <div ng-repeat="action in trigger.actions track by $index">
-    <!-- <md-divider></md-divider> -->
     <div class="section">
       <div class="subsub">
         <md-button ng-click="showAction($event, action)">
-          Edit Action {{$index+1}}
+          Edit Action {{$index + 1}}
         </md-button>
         
       </div>
       <span ng-controller="SummaryCtrl" ng-bind="getActionSummary()"></span>
-      <a class="remove-button" ng-if="trigger.actions.length>1" href="" ng-click="remove(trigger.actions, $index)"></a>
+      <a class="remove-button" ng-if="trigger.actions.length > 1" href="" ng-click="remove(trigger.actions, $index)"></a>
     </div>
   </div>
 

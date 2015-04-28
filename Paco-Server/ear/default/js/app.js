@@ -2,7 +2,7 @@ var pacoApp = angular.module('pacoApp', [
   'ngRoute',
   'ngMaterial',
   'ui.ace'
-]).value('$anchorScroll', angular.noop);
+]);
 
 
 pacoApp.config(['$routeProvider',
@@ -19,9 +19,3 @@ pacoApp.config(['$routeProvider',
     });
   }
 ]);
-
-// pacoApp.config(['$anchorScrollProvider',
-//   function($anchorScrollProvider) {
-//     $anchorScrollProvider.disableAutoScrolling();
-//   }
-// ]);

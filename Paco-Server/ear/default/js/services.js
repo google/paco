@@ -83,9 +83,9 @@ pacoApp.service('template', function() {
     actionTriggers: [],
     name: 'New Group',
     inputs: [],
-    feedbackType: '0',
+    feedbackType: 0,
     feedback: {
-      type: '0',
+      type: 0,
       text: 'Thanks for Participating!',
     },
     fixedDuration: 'false'
@@ -117,24 +117,21 @@ pacoApp.service('template', function() {
   };
 
   this.schedule = {
-    scheduleType: '',
     userEditable: true,
     timeout: 15,
     repeatRate: 1
   };
 
   this.defaultEsmSchedule = {
-    scheduleType: '4',
+    scheduleType: 4,
     userEditable: true,
     timeout: 15,
-    esmPeriodInDays: '1',
+    esmPeriodInDays: 1,
     esmFrequency: 8,
     repeatRate: 1
   };
 
-  this.cue = {
-    cueCode: ''
-  };
+  this.cue = {};
 
   this.scheduleTrigger = {
     type: 'scheduleTrigger',

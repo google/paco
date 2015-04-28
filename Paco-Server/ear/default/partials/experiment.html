@@ -5,10 +5,7 @@
         <a href="#">Experiments</a> > <b>{{experiment.title}}</b>
         <i ng-if="!experiment.title">New experiment</i>
 
-        <!-- <a href="#" class="remove-button"></a> -->
-
         <div class="save">
-
           <md-button ng-click="saveExperiment()">
             Save Experiment
           </md-button>
@@ -18,7 +15,6 @@
               Discard Changes
             </md-button>
           </a>
-
         </div>
       </div>
 
@@ -35,7 +31,7 @@
   </md-card>
 
   <div ng-repeat="tab in tabs">
-    <div ng-include="'partials/'+tab+'.html'" ng-if="state.tabId==$index">
+    <div ng-include="'partials/' + tab + '.html'" ng-if="state.tabId === $index">
     </div>
   </div>
 </div>

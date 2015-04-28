@@ -8,7 +8,7 @@
         <md-switch ng-model="experiment.published" aria-label="Published">
           {{experiment.published ? "Published" : "Unpublished"}}
         </md-switch>
-        <div class="warning" ng-show="experiment0.published!=experiment.published">
+        <div class="warning" ng-show="experiment0.published !== experiment.published">
           Save changes to {{experiment.published ? "publish" : "unpublish"}}
         </div>
       </div>
@@ -50,7 +50,6 @@
 
           <!-- TODO(ispiro): switch to md-checkbox -->
           <label>
-            <!-- <input type=checkbox ng-checked="inList(id)" value="{{id}}" ng-click="toggle(id)"> {{declare}} -->
             <input type=checkbox ng-checked="inList(id)" value="{{id}}" ng-click="toggle(id)"> {{declare}}
           </label>
         </div>

@@ -35,6 +35,44 @@ pacoApp.directive('milli', function() {
 });
 
 
+/**
+ * Directive for two-way filtering numbers and booleans. The various select
+ * elements use stringified numbers or bools for their values, a constraint of 
+ * Angular. Add this directive to a select and it will properly handle 
+ * numbers and bools by converting back and forth to stringified versions.
+ * Use the ng-selected directive on each option inside the select to get it to
+ * properly show the selected value on initial load.
+ */
+
+pacoApp.directive('asString', function() {
+  return {
+    restrict: 'A',
+    require: 'ngModel',
+    link: function(scope, element, attr, ngModel) {
+
+      function numberOrBoolToString(number) {
+        if (number === undefined || number === null) {
+          return '';
+        }
+        return number + '';
+      }
+
+      function stringToNumberOrBool(string) {
+        if (string === 'true') {
+          return true;
+        } else if (string === 'false') {
+          return false;
+        } 
+        return parseInt(string, 10);
+      }
+
+      ngModel.$parsers.push(stringToNumberOrBool);
+      ngModel.$formatters.push(numberOrBoolToString);
+    }
+  };
+});
+
+
 pacoApp.directive('pacoDate', function() {
   return {
     restrict: 'A',
@@ -100,7 +138,7 @@ pacoApp.directive('expandable', ['$timeout', function($timeout) {
           scope.expand = flag;
         }
 
-        if (angular.isDefined(skipAnimation) && skipAnimation == true) {
+        if (angular.isDefined(skipAnimation) && skipAnimation === true) {
           angular.element(scope.expander).addClass('notransition');
         } else {
           angular.element(scope.expander).removeClass('notransition');
@@ -182,7 +220,7 @@ pacoApp.directive('fileDropzone', function() {
         scope.$apply(function() {
           scope.dragging = true;
         });
-        if (event != null) {
+        if (event !== null) {
           event.preventDefault();
         }
         return false;
@@ -192,7 +230,7 @@ pacoApp.directive('fileDropzone', function() {
         scope.$apply(function() {
           scope.dragging = false;
         });
-        if (event != null) {
+        if (event !== null) {
           event.stopPropagation();
         }
         // return false;

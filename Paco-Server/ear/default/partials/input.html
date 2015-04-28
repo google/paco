@@ -12,7 +12,7 @@
     <div class="column0">
       <select ng-model="input.responseType">
         <option value="" disabled selected>Response Type</option>
-        <option ng-selected="{{type == input.responseType}}" ng-repeat="type in responseTypes"
+        <option ng-selected="{{type === input.responseType}}" ng-repeat="type in responseTypes"
         value="{{type}}">{{type}}</option>
       </select>
 
@@ -45,13 +45,13 @@
         </div>
       </div>
 
-      <div ng-if="input.responseType == 'list'">
+      <div ng-if="input.responseType === 'list'">
         <md-checkbox ng-model="input.multiselect" aria-label="Multiple selections">
           Multiple selections
         </md-checkbox>
       </div>
 
-      <div class="likert" ng-if="input.responseType == 'likert'" layout="row">
+      <div class="likert" ng-if="input.responseType === 'likert'" layout="row">
         <md-input-container flex>
           <label>Likert Steps</label>
           <input ng-model="input.likertSteps" type="number">
@@ -68,7 +68,7 @@
         </md-input-container>
       </div>
 
-      <div class="list" ng-if="input.responseType == 'list'">
+      <div class="list" ng-if="input.responseType === 'list'">
         <div class="choice" ng-repeat="choice in input.listChoices track by $index">
           <md-input-container>
             <label>Choice {{$index + 1}}</label>
