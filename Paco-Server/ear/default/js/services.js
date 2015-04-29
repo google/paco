@@ -44,11 +44,11 @@ pacoApp.service('config', function() {
     'Missed call'
   ];
 
-  this.esmPeriods = {
-    1: 'day',
-    7: 'week',
-    30: 'month'
-  };
+  this.esmPeriods = [
+    'day',
+    'week',
+    'month'
+  ];
 
   this.weeksOfMonth = [
     'First',
@@ -105,14 +105,12 @@ pacoApp.service('template', function() {
     responseType: 'open text'
   }
 
-  this.action = {
-    type: 'pacoNotificationAction',
-    actionCode: ''
+  this.otherAction = {
+    type: 'pacoActionAllOthers'
   };
 
-  this.defaultScheduleAction = {
+  this.defaultAction = {
     type: 'pacoNotificationAction',
-    actionCode: 0,
     timeout: 15
   };
 
@@ -123,29 +121,34 @@ pacoApp.service('template', function() {
   };
 
   this.defaultEsmSchedule = {
-    scheduleType: 4,
-    userEditable: true,
-    timeout: 15,
-    esmPeriodInDays: 1,
     esmFrequency: 8,
-    repeatRate: 1
+    esmPeriodInDays: 0,
+    esmEndHour: 61200000,
+    esmStartHour: 32400000,
+    esmWeekends: true,
+    minimumBuffer: 59,
+    repeatRate: 1,
+    scheduleType: 4,
+    timeout: 15,
+    userEditable: true
   };
 
   this.cue = {};
 
   this.scheduleTrigger = {
     type: 'scheduleTrigger',
-    actions: [this.defaultScheduleAction],
+    actions: [this.defaultAction],
     schedules: [this.schedule]
   };
 
   this.eventTrigger = {
     type: 'interruptTrigger',
-    actions: [this.action],
+    actions: [this.defaultAction],
     cues: [this.cue]
   };
 
   this.signalTime = {
-    'fixedTimeMillisFromMidnight': 0
+    fixedTimeMillisFromMidnight: 0,
+    type: 0
   };
 });

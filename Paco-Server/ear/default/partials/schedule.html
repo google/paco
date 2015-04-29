@@ -85,7 +85,7 @@
         </md-radio-group>
       </div>
 
-      <div ng-if="schedule.scheduleType === 2 || (schedule.scheduleType === 3 && !schedule.byDayOfMonth)"
+      <div ng-if="schedule.scheduleType === 2 || (schedule.scheduleType === 3 && schedule.byDayOfMonth === false)"
       class="days">
         Repeat on
         <md-checkbox ng-model="days[0]" aria-label="Sunday">Su</md-checkbox>
@@ -124,12 +124,12 @@
             <input type="number" min="0" max="100" ng-model="schedule.esmFrequency">
           </md-input-container>
 
-          <md-content></md-content>
-
+          <md-content>{{schedule.esmPeriodInDays}}</md-content>
+          
           <select ng-model="schedule.esmPeriodInDays" flex="33" class="period" as-string>
             <option value="" disabled selected>Select period</option>
-            <option ng-selected="days === schedule.esmPeriodInDays" ng-repeat="(days, period) in esmPeriods"
-            value="{{days}}">{{period}}</option>
+            <option ng-selected="$index === schedule.esmPeriodInDays" ng-repeat="period in esmPeriods"
+            value="{{$index}}">{{period}}</option>
           </select>
         </div>
 

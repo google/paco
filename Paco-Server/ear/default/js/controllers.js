@@ -243,7 +243,7 @@ pacoApp.controller('TriggerCtrl', ['$scope', '$mdDialog', 'config', 'template',
     $scope.scheduleTypes = config.scheduleTypes;
 
     $scope.addAction = function(event) {
-      var action = angular.copy(template.action);
+      var action = angular.copy(template.defaultAction);
       $scope.trigger.actions.push(action);
     }
 
@@ -261,6 +261,7 @@ pacoApp.controller('TriggerCtrl', ['$scope', '$mdDialog', 'config', 'template',
         locals: {
           schedule: schedule
         },
+        clickOutsideToClose: true,
         controller: 'ScheduleCtrl'
       });
     };
@@ -271,6 +272,7 @@ pacoApp.controller('TriggerCtrl', ['$scope', '$mdDialog', 'config', 'template',
         locals: {
           action: action
         },
+        clickOutsideToClose: true,
         controller: 'ActionCtrl'
       });
     };
@@ -280,7 +282,8 @@ pacoApp.controller('TriggerCtrl', ['$scope', '$mdDialog', 'config', 'template',
         templateUrl: 'partials/cue.html',
         locals: {
           cue: cue
-        },
+        },        
+        clickOutsideToClose: true,
         controller: 'CueCtrl'
       });
     };
@@ -288,12 +291,20 @@ pacoApp.controller('TriggerCtrl', ['$scope', '$mdDialog', 'config', 'template',
 ]);
 
 
-pacoApp.controller('ActionCtrl', ['$scope', '$mdDialog', 'config', 'action',
-  function($scope, $mdDialog, config, action) {
+pacoApp.controller('ActionCtrl', ['$scope', '$mdDialog', 'config', 'template', 'action',
+  function($scope, $mdDialog, config, template, action) {
 
     $scope.action = action;
     $scope.actionTypes = config.actionTypes;
     $scope.hide = $mdDialog.hide;
+    
+    $scope.$watch('action.actionCode', function(newValue, oldValue) {
+      if (newValue <= 2) {
+        angular.extend($scope.action, template.defaultAction);
+      } else if (newValue >= 3) {
+        angular.extend($scope.action, template.otherAction);
+      }
+    });
 
     $scope.aceLoaded = function(editor) {
       editor.$blockScrolling = 'Infinity';
@@ -397,9 +408,9 @@ pacoApp.controller('ScheduleCtrl', ['$scope', '$mdDialog', 'config', 'template',
           $scope.schedule.signalTimes = [angular.copy(template.signalTime)];
         }
 
-        if ($scope.schedule.scheduleType === 4) {
+        if (newValue === 4 && oldValue !== 4) {
           
-          // We can just assign a new copy of the template to the schedule
+          // We can't just assign a new copy of the template to the schedule
           // variable since this orphans it from the top-level experiment.
           // Instead, we use extend to copy the properties of the template in.
           angular.extend($scope.schedule, template.defaultEsmSchedule);
@@ -444,7 +455,7 @@ pacoApp.controller('SummaryCtrl', ['$scope', 'config', function($scope, config) 
   $scope.getActionSummary = function() {
     if ($scope.action.actionCode !== undefined && $scope.action.actionCode !==
       '') {
-      return config.actionTypes[$scope.action.actionCode];
+      return config.actionTypes[$scope.action.actionCode - 1];
     } else {
       return 'Undefined';
     }
@@ -452,7 +463,7 @@ pacoApp.controller('SummaryCtrl', ['$scope', 'config', function($scope, config) 
 
   $scope.getCueSummary = function() {
     if ($scope.cue.cueCode !== undefined && $scope.cue.cueCode !== '') {
-      return config.cueTypes[$scope.cue.cueCode];
+      return config.cueTypes[$scope.cue.cueCode - 1];
     } else {
       return 'Undefined';
     }
