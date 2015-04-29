@@ -95,29 +95,6 @@ pacoApp.directive('pacoDate', function() {
 });
 
 
-pacoApp.directive('set', function() {
-  return {
-    restrict: 'A',
-    require: 'ngModel',
-    link: function(scope, element, attr, ngModel) {
-
-      function setToArray(arr) {
-        
-        var dd = Date.parse(text);
-        return dd - UTCOffset;
-      }
-
-      function arrayToSet(arr) {
-        return new Date(parseInt(millis) + UTCOffset);
-      }
-      ngModel.$parsers.push(setToArray);
-      ngModel.$formatters.push(arrayToSet);
-    }
-  };
-});
-
-
-
 pacoApp.directive('expandable', ['$timeout', function($timeout) {
   return {
     restrict: 'A',
