@@ -2,13 +2,10 @@
  * Angular Material Design
  * https://github.com/angular/material
  * @license MIT
- * v0.8.3-master-076a97d
+ * v0.9.0-rc3-master-4917a16
  */
 goog.provide('ng.material.components.progressCircular');
 goog.require('ng.material.core');
-(function() {
-'use strict';
-
 /**
  * @ngdoc module
  * @name material.components.progressCircular
@@ -108,4 +105,5 @@ function MdProgressCircularDirective($mdConstant, $mdTheming) {
   }
 }
 MdProgressCircularDirective.$inject = ["$mdConstant", "$mdTheming"];
-})();
+
+ng.material.components.progressCircular = angular.module("material.components.progressCircular");

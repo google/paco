@@ -112,7 +112,7 @@ md-card .section {
 md-card .section .title {
   outline: none;
   display: inline-block;
-  font-weight: bold;
+  font-weight: 500;
   height: 24px;
   width: 200px;
 } 

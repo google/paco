@@ -5,12 +5,6 @@
     </md-checkbox>
 
     <div class="referred" ng-if="group.endOfDayGroup">
-      <!-- ispiro: This dummy md-content serves to prevent the md-select from
-                 adding margin-right to document.body. The buggy behavior is 
-                 related to https://github.com/angular/material/issues/1743 
-                 This hack means the md-select can be scrolled away from where 
-                 it first appeared. -->
-      <md-content></md-content>
       <md-select ng-model="group.endOfDayReferredGroupName" placeholder="Referred Group">
         <md-option ng-repeat="group in experiment.groups" value="{{group.name}}">{{group.name}}
         </md-option>
