@@ -20,40 +20,41 @@
 
           <span class="admin">Admin</span>
 
-          <div class="buttons">
-            <a href="#/experiment/{{exp.id}}">
-              <md-button>
-                Edit
-              </md-button>
-            </a>
-
-            <a href="events?q=%27experimentId={{exp.id}}%27" target="_new">
-              <md-button>
-                View Data
-              </md-button>
-            </a>
-
-            <a href="participantStats?experimentId={{exp.id}}" target="_new">
-              <md-button>
-                Stats
-              </md-button>
-            </a>
-
-            <a href="events?csv&q=%27experimentId={{exp.id}}%27" target="_new">
-              <md-button>
-                CSV
-              </md-button>
-            </a>
-
-            <a href="events?csv&anon=true&q=%27experimentId={{exp.id}}%27" target="_new">
-              <md-button>
-                AnonCSV
-              </md-button>
-            </a>
-
-          </div>
-
         </md-card-content>
+
+        <div class="md-actions">
+          <a href="#/experiment/{{exp.id}}">
+            <md-button>
+              Edit
+            </md-button>
+          </a>
+
+          <a href="events?q=%27experimentId={{exp.id}}%27" target="_new">
+            <md-button>
+              View Data
+            </md-button>
+          </a>
+
+          <a href="participantStats?experimentId={{exp.id}}" target="_new">
+            <md-button>
+              Stats
+            </md-button>
+          </a>
+
+          <a href="events?csv&q=%27experimentId={{exp.id}}%27" target="_new">
+            <md-button>
+              CSV
+            </md-button>
+          </a>
+
+          <a href="events?csv&anon=true&q=%27experimentId={{exp.id}}%27" target="_new">
+            <md-button>
+              AnonCSV
+            </md-button>
+          </a>
+
+        </div>
+
       </md-card>
     </div>
   </div>
