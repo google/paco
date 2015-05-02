@@ -182,7 +182,7 @@ public class ExperimentGroup implements Validatable, java.io.Serializable {
     }
     validator.isNotNull(customRendering, "customRendering not initialized properly");
     if (customRendering != null && customRendering) {
-      validator.isValidJavascript(customRenderingCode, "code is not properly formed");
+      validator.isValidJavascript(customRenderingCode, "custom rendering code is not properly formed");
     }
     validator.isNotNull(fixedDuration, "fixed duration not properly initialized");
     if (fixedDuration != null && fixedDuration) {
