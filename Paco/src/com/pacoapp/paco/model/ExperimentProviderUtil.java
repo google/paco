@@ -478,6 +478,9 @@ public class ExperimentProviderUtil implements EventStore {
         if (inputNode.has("required")) {
           input.setRequired(inputNode.path("required").getBooleanValue());
         }
+        if (inputNode.has("mandatory")) {
+          input.setRequired(inputNode.path("mandatory").getBooleanValue());
+        }
         if (inputNode.has("conditional")) {
           input.setConditional(inputNode.path("conditional").getBooleanValue());
         }
