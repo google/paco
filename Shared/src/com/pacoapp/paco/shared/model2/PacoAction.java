@@ -10,6 +10,7 @@ public abstract class PacoAction implements Validatable, java.io.Serializable {
 
   public static final int[] ACTIONS = new int[]{NOTIFICATION_TO_PARTICIPATE_ACTION_CODE ,NOTIFICATION_ACTION_CODE, LOG_EVENT_ACTION_CODE,EXECUTE_SCRIPT_ACTION_CODE};
   public static final String[] ACTION_NAMES = new String[] {"Create notification to participate", "Create notification message", "Log data", "Execute script"};
+
   private Integer actionCode = NOTIFICATION_TO_PARTICIPATE_ACTION_CODE;
 
   // This id should be unique within its group and stable across edits because the client
