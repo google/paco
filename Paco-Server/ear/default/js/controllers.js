@@ -10,7 +10,7 @@ pacoApp.controller('HomeCtrl', ['$scope', '$http', '$routeParams', '$location',
       if (data.user && data.user !== 'yourGoogleEmail@here.com') {
         $scope.user = data.user;
 
-        $http.get('/experiments?mine').success(function(data) {
+        $http.get('/experiments?admin').success(function(data) {
           $scope.experiments = data;
         });
 
