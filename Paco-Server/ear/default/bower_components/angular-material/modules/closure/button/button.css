@@ -2,8 +2,9 @@
  * Angular Material Design
  * https://github.com/angular/material
  * @license MIT
- * v0.8.3-master-076a97d
+ * v0.9.0-rc3-master-4917a16
  */
+/* mixin definition ; sets LTR and RTL within the same style call */
 /**
  * Position a FAB button.
  */
@@ -21,6 +22,7 @@
   padding: 0 0.6rem;
   margin: 0.6rem 0.8rem;
   line-height: 3.6rem;
+  min-height: 3.6rem;
   background: transparent;
   white-space: nowrap;
   min-width: 8.8rem;
@@ -52,6 +54,9 @@
     margin: 0 0.6rem;
     height: 4.8rem;
     min-width: 0;
+    line-height: 4.8rem;
+    padding-left: 0;
+    padding-right: 0;
     width: 4.8rem; }
   .md-button.md-fab {
     z-index: 20;
@@ -93,7 +98,7 @@
       border-radius: 50%;
       background-clip: padding-box;
       overflow: hidden;
-      -webkit-mask-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAA5JREFUeNpiYGBgAAgwAAAEAAGbA+oJAAAAAElFTkSuQmCC); }
+      -webkit-mask-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAA5JREFUeNpiYGBgAAgwAAAEAAGbA+oJAAAAAElFTkSuQmCC'); }
     .md-button.md-fab md-icon {
       margin-top: 0; }
     .md-button.md-fab.md-mini {
@@ -104,14 +109,14 @@
 .md-toast-open-top .md-button.md-fab-top-left, .md-toast-open-top .md-button.md-fab-top-right {
   -webkit-transform: translate3d(0, 4.2rem, 0);
           transform: translate3d(0, 4.2rem, 0); }
-  .md-toast-open-top .md-button.md-fab-top-left:not([disabled]):focus, .md-toast-open-top .md-button.md-fab-top-left:not([disabled]):hover, .md-toast-open-top .md-button.md-fab-top-right:not([disabled]):focus, .md-toast-open-top .md-button.md-fab-top-right:not([disabled]):hover {
+  .md-toast-open-top .md-button.md-fab-top-left:not([disabled]).md-focused, .md-toast-open-top .md-button.md-fab-top-left:not([disabled]):hover, .md-toast-open-top .md-button.md-fab-top-right:not([disabled]).md-focused, .md-toast-open-top .md-button.md-fab-top-right:not([disabled]):hover {
     -webkit-transform: translate3d(0, 3.2rem, 0);
             transform: translate3d(0, 3.2rem, 0); }
 
 .md-toast-open-bottom .md-button.md-fab-bottom-left, .md-toast-open-bottom .md-button.md-fab-bottom-right {
   -webkit-transform: translate3d(0, -4.2rem, 0);
           transform: translate3d(0, -4.2rem, 0); }
-  .md-toast-open-bottom .md-button.md-fab-bottom-left:not([disabled]):focus, .md-toast-open-bottom .md-button.md-fab-bottom-left:not([disabled]):hover, .md-toast-open-bottom .md-button.md-fab-bottom-right:not([disabled]):focus, .md-toast-open-bottom .md-button.md-fab-bottom-right:not([disabled]):hover {
+  .md-toast-open-bottom .md-button.md-fab-bottom-left:not([disabled]).md-focused, .md-toast-open-bottom .md-button.md-fab-bottom-left:not([disabled]):hover, .md-toast-open-bottom .md-button.md-fab-bottom-right:not([disabled]).md-focused, .md-toast-open-bottom .md-button.md-fab-bottom-right:not([disabled]):hover {
     -webkit-transform: translate3d(0, -5.2rem, 0);
             transform: translate3d(0, -5.2rem, 0); }
 
@@ -144,5 +149,4 @@
 
 @media screen and (-ms-high-contrast: active) {
   .md-button.md-raised, .md-button.md-fab {
-    border: 1px solid #fff; }
- }
+    border: 1px solid #fff; } }

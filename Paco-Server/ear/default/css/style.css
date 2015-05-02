@@ -10,6 +10,10 @@ a {
   text-decoration: none;
 }
 
+b {
+  font-weight: 500;
+}
+
 md-card {
   overflow: hidden;
   margin: 16px 0 16px 0;

@@ -57,7 +57,7 @@
 
 .trigger .header, .input .header {
   background: #E8EAF6;
-  padding-left: 36px;
+  padding-left: 32px;
 }
 
 .trigger.reveal {
@@ -112,7 +112,7 @@ md-card .section {
 md-card .section .title {
   outline: none;
   display: inline-block;
-  font-weight: bold;
+  font-weight: 500;
   height: 24px;
   width: 200px;
 } 
@@ -192,10 +192,14 @@ div[expander] {
   -webkit-transition: opacity ease-in-out .5s, margin-bottom ease-in-out .5s;
 }
 
+.advanced.padded {
+  padding-top: 0px;
+}
+
 .advanced .identifier {
   position: absolute;
-  left: 336px;
-  top: 136px;
+  left: 332px;
+  top: 44px;
   z-index: 10;
 }
 
@@ -218,6 +222,7 @@ div[expander] {
 }
 
 .advanced .over {
+  margin-left: 8px;
   position: relative;
 }
 

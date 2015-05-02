@@ -2,13 +2,11 @@
  * Angular Material Design
  * https://github.com/angular/material
  * @license MIT
- * v0.8.3-master-076a97d
+ * v0.9.0-rc3-master-4917a16
  */
 goog.provide('ng.material.components.select');
 goog.require('ng.material.components.backdrop');
 goog.require('ng.material.core');
-(function() {
-'use strict';
 /**
  * @ngdoc module
  * @name material.components.select
@@ -120,7 +118,7 @@ function SelectDirective($mdSelect, $mdUtil, $mdTheming, $interpolate, $compile,
     }
 
     if (attr.name) {
-      var autofillClone = angular.element('<select class="visually-hidden">');
+      var autofillClone = angular.element('<select class="md-visually-hidden">');
       autofillClone.attr({
         'name': '.' + attr.name,
         'ng-model': attr.ngModel,
@@ -134,7 +132,7 @@ function SelectDirective($mdSelect, $mdUtil, $mdTheming, $interpolate, $compile,
         else if (el.hasAttribute('value')) newEl.attr('value', el.getAttribute('value'));
         autofillClone.append(newEl);
       });
-      
+
       element.parent().append(autofillClone);
     }
 
@@ -146,6 +144,8 @@ function SelectDirective($mdSelect, $mdUtil, $mdTheming, $interpolate, $compile,
         '</md-select-menu></div>';
 
     element.empty().append(labelEl);
+
+    attr.tabindex = attr.tabindex || '0';
 
     $mdTheming(element);
 
@@ -180,7 +180,7 @@ function SelectDirective($mdSelect, $mdUtil, $mdTheming, $interpolate, $compile,
         var newText = text || attr.placeholder || '';
         var target = customLabel ? labelEl : labelEl.children().eq(0);
 
-        if (lineHeight === undefined) {
+        if (!lineHeight) {
           target.text('M');
           lineHeight = target[0].offsetHeight;
         }
@@ -208,7 +208,6 @@ function SelectDirective($mdSelect, $mdUtil, $mdTheming, $interpolate, $compile,
 
       scope.$$postDigest(syncLabelText);
 
-      var selectMenuCtrl;
       function syncLabelText() {
         if (selectContainer) {
           selectMenuCtrl = selectMenuCtrl || selectContainer.find('md-select-menu').controller('mdSelectMenu');
@@ -250,17 +249,17 @@ function SelectDirective($mdSelect, $mdUtil, $mdTheming, $interpolate, $compile,
         }
         isDisabled = disabled;
         if (disabled) {
-          element.attr('tabindex', -1);
+          element.attr({'tabindex': -1, 'aria-disabled': 'true'});
           element.off('click', openSelect);
           element.off('keydown', handleKeypress);
         } else {
-          element.attr('tabindex', 0);
+          element.attr({'tabindex': attr.tabindex, 'aria-disabled':'false'});
           element.on('click', openSelect);
           element.on('keydown', handleKeypress);
         }
       });
       if (!attr.disabled && !attr.ngDisabled) {
-        element.attr('tabindex', 0);
+        element.attr({'tabindex': attr.tabindex, 'aria-disabled':'false'});
         element.on('click', openSelect);
         element.on('keydown', handleKeypress);
       }
@@ -268,7 +267,6 @@ function SelectDirective($mdSelect, $mdUtil, $mdTheming, $interpolate, $compile,
       element.attr({
         'role': 'combobox',
         'id': 'select_' + $mdUtil.nextUid(),
-        'aria-haspopup': true,
         'aria-expanded': 'false',
         'aria-labelledby': labelEl.attr('id')
       });
@@ -455,7 +453,7 @@ function SelectMenuDirective($parse, $mdUtil, $mdTheming) {
         optNodes = $element.find('md-option');
         optText = new Array(optNodes.length);
         angular.forEach(optNodes, function(el, i) {
-          optText[i] = el.textContent;
+          optText[i] = el.textContent.trim();
         });
       }
       for (var i = 0; i < optText.length; ++i) {
@@ -588,7 +586,8 @@ function OptionDirective($mdInkRipple, $mdUtil) {
   function compile(element, attr) {
     // Manual transclusion to avoid the extra inner <span> that ng-transclude generates
     element.append( angular.element('<div class="md-text">').append(element.contents()) );
-    if (attr.tabindex === undefined) element.attr('tabindex', 0);
+
+    element.attr('tabindex', attr.tabindex || '0');
     return postLink;
   }
 
@@ -604,18 +603,20 @@ function OptionDirective($mdInkRipple, $mdUtil) {
       scope.$watch(function() { return element.text(); }, setOptionValue)
     }
 
-    attr.$observe('selected', function(selected) {
-      if (!angular.isDefined(selected)) return;
-      if (selected) {
-        if (!selectCtrl.isMultiple) {
-          selectCtrl.deselect( Object.keys(selectCtrl.selected)[0] );
+    scope.$$postDigest(function() {
+      attr.$observe('selected', function(selected) {
+        if (!angular.isDefined(selected)) return;
+        if (selected) {
+          if (!selectCtrl.isMultiple) {
+            selectCtrl.deselect( Object.keys(selectCtrl.selected)[0] );
+          }
+          selectCtrl.select(optionCtrl.hashKey, optionCtrl.value);
+        } else {
+          selectCtrl.deselect(optionCtrl.hashKey);
         }
-        selectCtrl.select(optionCtrl.hashKey, optionCtrl.value);
-      } else {
-        selectCtrl.deselect(optionCtrl.hashKey);
-      }
-      selectCtrl.refreshViewValue();
-      selectCtrl.ngModel.$render();
+        selectCtrl.refreshViewValue();
+        selectCtrl.ngModel.$render();
+      });
     });
 
     $mdInkRipple.attachButtonBehavior(scope, element);
@@ -688,13 +689,13 @@ function SelectProvider($$interimElementProvider) {
     });
 
   /* @ngInject */
-  function selectDefaultOptions($mdSelect, $mdConstant, $$rAF, $mdUtil, $mdTheming, $timeout, $window) {
+  function selectDefaultOptions($mdSelect, $mdConstant, $$rAF, $mdUtil, $mdTheming, $timeout, $window ) {
     return {
       parent: 'body',
       onShow: onShow,
       onRemove: onRemove,
       hasBackdrop: true,
-      disableParentScroll: $mdUtil.floatingScrollbars(),
+      disableParentScroll: true,
       themable: true
     };
 
@@ -714,7 +715,11 @@ function SelectProvider($$interimElementProvider) {
       });
 
       opts.resizeFn = function() {
-        animateSelect(scope, element, opts);
+        $$rAF(function() {
+          $$rAF(function() {
+            animateSelect(scope, element, opts);
+          });
+        });
       };
 
       angular.element($window).on('resize', opts.resizeFn);
@@ -743,14 +748,10 @@ function SelectProvider($$interimElementProvider) {
         scope.$$loadingAsyncDone = true;
       }
 
-      if (opts.disableParentScroll) {
-        opts.disableTarget = opts.parent.find('md-content');
-        if (!opts.disableTarget.length) opts.disableTarget = opts.parent;
-        if ($mdUtil.floatingScrollbars()) {
-          opts.disableTarget.css('margin-right', '16px');
-        }
-        opts.lastOverflow = opts.disableTarget.css('overflow');
-        opts.disableTarget.css('overflow', 'hidden');
+      if (opts.disableParentScroll && !$mdUtil.getClosest(opts.target, 'MD-DIALOG')) {
+        opts.restoreScroll = $mdUtil.disableScrollAround(opts.target);
+      } else {
+        opts.disableParentScroll = false;
       }
       // Only activate click listeners after a short time to stop accidental double taps/clicks
       // from clicking the wrong item
@@ -775,7 +776,6 @@ function SelectProvider($$interimElementProvider) {
 
       function configureAria() {
         opts.selectEl.attr('aria-labelledby', opts.target.attr('id'));
-        opts.target.attr('aria-owns', opts.selectEl.attr('id'));
         opts.target.attr('aria-expanded', 'true');
       }
 
@@ -818,7 +818,7 @@ function SelectProvider($$interimElementProvider) {
           switch (ev.keyCode) {
             case $mdConstant.KEY_CODE.UP_ARROW: return focusPrevOption();
             case $mdConstant.KEY_CODE.DOWN_ARROW: return focusNextOption();
-            default: 
+            default:
               if (ev.keyCode >= 31 && ev.keyCode <= 90) {
                 var optNode = opts.selectEl.controller('mdSelectMenu').optNodeForKeyboardSearch(ev);
                 optNode && optNode.focus();
@@ -873,14 +873,8 @@ function SelectProvider($$interimElementProvider) {
         .removeClass('md-clickable');
       opts.target.attr('aria-expanded', 'false');
 
-      if (opts.disableParentScroll && $mdUtil.floatingScrollbars()) {
-        opts.disableTarget.css('overflow', opts.lastOverflow);
-        opts.disableTarget.css('margin-right', '0px');
-        delete opts.lastOverflow;
-        delete opts.disableTarget;
-      }
 
-      angular.element($window).off('resize', opts.resizefn);
+      angular.element($window).off('resize', opts.resizeFn);
       angular.element($window).off('orientationchange', opts.resizefn);
       opts.resizeFn = undefined;
 
@@ -891,8 +885,13 @@ function SelectProvider($$interimElementProvider) {
 
       return $mdUtil.transitionEndPromise(element, { timeout: 350 }).then(function() {
         element.removeClass('md-active');
-        opts.parent[0].removeChild(element[0]); // use browser to avoid $destroy event
         opts.backdrop && opts.backdrop.remove();
+        if (element[0].parentNode === opts.parent[0]) {
+          opts.parent[0].removeChild(element[0]); // use browser to avoid $destroy event
+        }
+        if (opts.disableParentScroll) {
+          opts.restoreScroll();
+        }
         if (opts.restoreFocus) opts.target.focus();
       });
     }
@@ -957,7 +956,7 @@ function SelectProvider($$interimElementProvider) {
       var centeredRect = getOffsetRect(centeredNode);
 
       if (centeredNode) {
-        var centeredStyle = window.getComputedStyle(centeredNode);
+        var centeredStyle = $window.getComputedStyle(centeredNode);
         centeredRect.paddingLeft = parseInt(centeredStyle.paddingLeft, 10) || 0;
         centeredRect.paddingRight = parseInt(centeredStyle.paddingRight, 10) || 0;
       }
@@ -1052,5 +1051,5 @@ function nodesToArray(nodes) {
   }
   return results;
 }
-})();
 
+ng.material.components.select = angular.module("material.components.select");

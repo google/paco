@@ -1,5 +1,5 @@
 <md-dialog aria-label="Edit Schedule" class="schedule">
-  <md-content>
+  <md-dialog-content>
     <div class="column0">
       <div>
         <select ng-model="schedule.scheduleType" as-string>
@@ -85,9 +85,11 @@
         </md-radio-group>
       </div>
 
-      <div ng-if="schedule.scheduleType === 2 || (schedule.scheduleType === 3 && !schedule.byDayOfMonth)"
+      <div ng-if="schedule.scheduleType === 2 || (schedule.scheduleType === 3 && schedule.byDayOfMonth === false)"
       class="days">
-        Repeat on
+        <div class="repeat-label">
+          Repeat on
+        </div>
         <md-checkbox ng-model="days[0]" aria-label="Sunday">Su</md-checkbox>
         <md-checkbox ng-model="days[1]" aria-label="Monday">M</md-checkbox>
         <md-checkbox ng-model="days[2]" aria-label="Tuesday">Tu</md-checkbox>
@@ -123,13 +125,11 @@
             <label>Frequency</label>
             <input type="number" min="0" max="100" ng-model="schedule.esmFrequency">
           </md-input-container>
-
-          <md-content></md-content>
-
+          
           <select ng-model="schedule.esmPeriodInDays" flex="33" class="period" as-string>
             <option value="" disabled selected>Select period</option>
-            <option ng-selected="days === schedule.esmPeriodInDays" ng-repeat="(days, period) in esmPeriods"
-            value="{{days}}">{{period}}</option>
+            <option ng-selected="$index === schedule.esmPeriodInDays" ng-repeat="period in esmPeriods"
+            value="{{$index}}">{{period}}</option>
           </select>
         </div>
 
@@ -144,7 +144,7 @@
             <input type="time" milli ng-model="schedule.esmEndHour">
           </md-input-container>
 
-          <div flex class="add">
+          <div flex="40" class="add">
             <md-checkbox ng-model="schedule.esmWeekends" aria-label="Include weekends">
               Include weekends
             </md-checkbox>
@@ -153,8 +153,8 @@
       </div>
     </div>
 
-  </md-content>
-  <div class="inline md-actions">
+  </md-dialog-content>
+  <div class="md-actions">
     <md-button ng-click="hide()" class="md-primary">
       Done
     </md-button>
