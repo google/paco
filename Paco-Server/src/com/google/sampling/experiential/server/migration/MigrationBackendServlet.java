@@ -16,7 +16,9 @@
  */
 package com.google.sampling.experiential.server.migration;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.util.logging.Logger;
 
 import javax.servlet.ServletException;
@@ -69,8 +71,12 @@ public class MigrationBackendServlet extends HttpServlet {
             statusMgr.failReport(requestorEmail, jobId, "Check server logs for stacktrace");
           }
         } catch (Throwable e) {
-          statusMgr.failReport(requestorEmail, jobId, e.getClass() + "." + e.getMessage());
+          final String fullStack = getStackTraceAsString(e);
+          final String string = fullStack.substring(0, 700);
+          statusMgr.failReport(requestorEmail, jobId, e.getClass() + "." + e.getMessage() +"\n" + string);
           log.severe("Could not run migration job: " + e.getMessage());
+
+          log.severe("stacktrace: " + fullStack);
         }
       }
     });
@@ -95,5 +101,14 @@ public class MigrationBackendServlet extends HttpServlet {
       throw new IllegalArgumentException("Must pass the who param");
     }
     return whoParam.toLowerCase();
+  }
+
+
+  public String getStackTraceAsString(Throwable e) {
+    final ByteArrayOutputStream out = new ByteArrayOutputStream();
+    PrintStream pw = new PrintStream(out);
+    e.printStackTrace(pw);
+    final String string = out.toString();
+    return string;
   }
 }

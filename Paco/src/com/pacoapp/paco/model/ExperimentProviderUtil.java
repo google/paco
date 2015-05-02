@@ -43,6 +43,7 @@ import android.net.Uri;
 import android.util.Log;
 
 import com.google.common.base.Function;
+import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import com.pacoapp.paco.PacoConstants;
 import com.pacoapp.paco.shared.model2.ActionTrigger;
@@ -50,6 +51,7 @@ import com.pacoapp.paco.shared.model2.EventInterface;
 import com.pacoapp.paco.shared.model2.EventStore;
 import com.pacoapp.paco.shared.model2.ExperimentDAO;
 import com.pacoapp.paco.shared.model2.ExperimentGroup;
+import com.pacoapp.paco.shared.model2.ExperimentValidator;
 import com.pacoapp.paco.shared.model2.Input2;
 import com.pacoapp.paco.shared.model2.InterruptCue;
 import com.pacoapp.paco.shared.model2.JsonConverter;
@@ -57,6 +59,7 @@ import com.pacoapp.paco.shared.model2.PacoAction;
 import com.pacoapp.paco.shared.model2.PacoNotificationAction;
 import com.pacoapp.paco.shared.model2.Schedule;
 import com.pacoapp.paco.shared.model2.ScheduleTrigger;
+import com.pacoapp.paco.shared.model2.ValidationMessage;
 import com.pacoapp.paco.shared.scheduling.ActionScheduleGenerator;
 import com.pacoapp.paco.shared.util.TimeUtil;
 
@@ -376,6 +379,7 @@ public class ExperimentProviderUtil implements EventStore {
     }
     if (rootNode.has("creator")) {
       experimentDAO.setCreator(rootNode.path("creator").getTextValue());
+      experimentDAO.setContactEmail(rootNode.path("creator").getTextValue());
     }
     if (rootNode.has("modifyDate")) {
       experimentDAO.setModifyDate(rootNode.path("modifyDate").getTextValue());
@@ -450,7 +454,8 @@ public class ExperimentProviderUtil implements EventStore {
     }
 
     if (rootNode.has("feedbackType")) {
-      defaultExperimentGroup.getFeedback().setType(rootNode.path("feedbackType").getIntValue());
+      //see feedback section below
+      defaultExperimentGroup.setFeedbackType(rootNode.path("feedbackType").getIntValue());
     }
     if (rootNode.has("logActions")) {
       defaultExperimentGroup.setLogActions(rootNode.path("logActions").getBooleanValue());
@@ -519,13 +524,15 @@ public class ExperimentProviderUtil implements EventStore {
 
         PacoNotificationAction defaultAction = new PacoNotificationAction();
         defaultAction.setActionCode(PacoAction.NOTIFICATION_TO_PARTICIPATE_ACTION_CODE);
+        defaultAction.setId(1l);
 
 
         if (type.equals("signalSchedule")) {
           com.pacoapp.paco.shared.model2.ScheduleTrigger trigger = new com.pacoapp.paco.shared.model2.ScheduleTrigger();
+          trigger.setId(1l);
           trigger.getActions().add(defaultAction);
           com.pacoapp.paco.shared.model2.Schedule schedule = new com.pacoapp.paco.shared.model2.Schedule();
-
+          schedule.setId(1l);
           defaultAction.setSnoozeCount(signalingMechanismNode.path("snoozeCount").getIntValue());
           defaultAction.setSnoozeTime(signalingMechanismNode.path("snoozeTime").getIntValue());
           defaultAction.setTimeout(signalingMechanismNode.path("timeout").getIntValue());
@@ -556,6 +563,7 @@ public class ExperimentProviderUtil implements EventStore {
               newSt.setBasis(signalTimeNode.path("basis").getIntValue());
               newSt.setOffsetTimeMillis(signalTimeNode.path("offsetTimeMillis").getIntValue());
               newSt.setLabel(signalTimeNode.path("label").getTextValue());
+              newSt.setMissedBasisBehavior(signalTimeNode.path("missedBasisBehavior").getIntValue());
               schedule.getSignalTimes().add(newSt);
             }
           }
@@ -564,7 +572,13 @@ public class ExperimentProviderUtil implements EventStore {
           actionTriggers.add(trigger);
         } else if (type.equals("trigger")) {
           com.pacoapp.paco.shared.model2.InterruptTrigger trigger = new com.pacoapp.paco.shared.model2.InterruptTrigger();
+          trigger.setId(1l);
           trigger.getActions().add(defaultAction);
+
+          defaultAction.setSnoozeCount(signalingMechanismNode.path("snoozeCount").getIntValue());
+          defaultAction.setSnoozeTime(signalingMechanismNode.path("snoozeTime").getIntValue());
+          defaultAction.setTimeout(signalingMechanismNode.path("timeout").getIntValue());
+
           trigger.setMinimumBuffer(signalingMechanismNode.path("minimumBuffer").getIntValue());
           InterruptCue cue = new InterruptCue();
           if (signalingMechanismNode.has("eventCode")) {
@@ -584,15 +598,25 @@ public class ExperimentProviderUtil implements EventStore {
       }
     }
 
+    com.pacoapp.paco.shared.model2.Feedback f = new com.pacoapp.paco.shared.model2.Feedback();
     if (rootNode.has("feedback")) {
-      com.pacoapp.paco.shared.model2.Feedback f = new com.pacoapp.paco.shared.model2.Feedback();
       List<JsonNode> feedbackNodes = rootNode.findValues("feedback");
       JsonNode feedbackNode = feedbackNodes.get(0);
       if (feedbackNode.has("text")) {
         f.setText(feedbackNode.path("text").getTextValue());
       }
-    }
 
+    }
+    if (rootNode.has("feedbackType")) {
+      f.setType(rootNode.path("feedbackType").getIntValue());
+    }
+    defaultExperimentGroup.setFeedback(f);
+    ExperimentValidator validator = new ExperimentValidator();
+    experimentDAO.validateWith(validator);
+    List<ValidationMessage> results = validator.getResults();
+    if (!results.isEmpty()) {
+      Log.e(PacoConstants.TAG, "error migrating experiment: " + experimentDAO.getId() + ":\n" + Joiner.on(",").join(results));
+    }
 
   }
 

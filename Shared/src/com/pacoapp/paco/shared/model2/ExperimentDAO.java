@@ -157,6 +157,7 @@ public class ExperimentDAO extends ExperimentDAOCore implements Serializable {
   @Override
   public void validateWith(Validator validator) {
     super.validateWith(validator);
+//    System.out.println("VALIDATING EXPERIMENTDAO");
     validator.isValidCollectionOfEmailAddresses(admins, "admins should be a valid list of email addresses");
     validator.isNotNullAndNonEmptyCollection(groups, "there should be at least one experiment group");
     if (publishedUsers != null && !publishedUsers.isEmpty()) {

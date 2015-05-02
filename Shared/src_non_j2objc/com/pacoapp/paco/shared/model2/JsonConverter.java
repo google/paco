@@ -21,7 +21,10 @@ import org.codehaus.jackson.type.TypeReference;
 import org.joda.time.DateMidnight;
 import org.joda.time.DateTime;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
+import com.pacoapp.paco.shared.model.FeedbackDAO;
+import com.pacoapp.paco.shared.model.InputDAO;
 import com.pacoapp.paco.shared.model.SignalScheduleDAO;
 import com.pacoapp.paco.shared.model.SignalTimeDAO;
 import com.pacoapp.paco.shared.model.SignalingMechanismDAO;
@@ -98,24 +101,24 @@ public class JsonConverter {
   public static List<? extends com.pacoapp.paco.shared.model.ExperimentDAOCore> createBackwardCompatibleExperiments(List<? extends ExperimentDAOCore> experiments) {
     List<com.pacoapp.paco.shared.model.ExperimentDAOCore> backwardCompatibleExperiments = Lists.newArrayList();
     for (ExperimentDAOCore experimentDAOCore : experiments) {
-      ExperimentDAO experimentDAO = (ExperimentDAO)experimentDAOCore;
-      if (!isExperimentBackwardCompatible(experimentDAO) ) {
+      if (!isExperimentBackwardCompatible(experimentDAOCore) ) {
+        log.info("Experiment is not backward compat: "+ experimentDAOCore.getTitle() + ", " + experimentDAOCore.getId());
         continue;
       }
 
-
-      com.pacoapp.paco.shared.model.ExperimentDAOCore bcExperiment = null;
-      if (experimentDAO instanceof ExperimentDAO) {
-      bcExperiment = new com.pacoapp.paco.shared.model.ExperimentDAO(experimentDAO.getId(),
+      if (experimentDAOCore instanceof ExperimentDAO) {
+        ExperimentDAO experimentDAO = (ExperimentDAO)experimentDAOCore;
+        final ExperimentGroup experimentGroup = experimentDAO.getGroups().get(0);
+        com.pacoapp.paco.shared.model.ExperimentDAO bcExperiment = new com.pacoapp.paco.shared.model.ExperimentDAO(experimentDAO.getId(),
                                                           experimentDAO.getTitle(),
                                                           experimentDAO.getDescription(),
                                                           experimentDAO.getInformedConsentForm(),
                                                           experimentDAO.getCreator(),
                                                           getSignalingMechanismsBC(experimentDAO),
-                                                          experimentDAO.getGroups().get(0).getFixedDuration(),
+                                                          experimentGroup.getFixedDuration(),
                                                           false,
-                                                          experimentDAO.getGroups().get(0).getStartDate(),
-                                                          experimentDAO.getGroups().get(0).getEndDate(),
+                                                          experimentGroup.getStartDate(),
+                                                          experimentGroup.getEndDate(),
                                                           null,
                                                           null,
                                                           experimentDAO.getModifyDate(),
@@ -125,51 +128,87 @@ public class JsonConverter {
                                                           experimentDAO.getDeleted(),
                                                           getWebRecommendedBC(experimentDAO),
                                                           experimentDAO.getVersion(),
-                                                          experimentDAO.getGroups().get(0).getCustomRendering(),
-                                                          experimentDAO.getGroups().get(0).getCustomRenderingCode(),
-                                                          experimentDAO.getGroups().get(0).getFeedbackType(),
-                                                          experimentDAO.getGroups().get(0).getBackgroundListen(),
-                                                          experimentDAO.getGroups().get(0).getBackgroundListenSourceIdentifier(),
-                                                          experimentDAO.getGroups().get(0).getLogActions(),
+                                                          experimentGroup.getCustomRendering(),
+                                                          experimentGroup.getCustomRenderingCode(),
+                                                          experimentGroup.getFeedbackType(),
+                                                          experimentGroup.getBackgroundListen(),
+                                                          experimentGroup.getBackgroundListenSourceIdentifier(),
+                                                          experimentGroup.getLogActions(),
                                                           experimentDAO.getRecordPhoneDetails(),
                                                           experimentDAO.getExtraDataCollectionDeclarations());
+        final List<Input2> model2Inputs = experimentGroup.getInputs();
+        InputDAO[] inputs = new InputDAO[model2Inputs.size()];
+        // convert model2Inputs to inputDAOs
+        long inputId = 1;
+        for (int i=0; i < model2Inputs.size(); i++) {
+          Input2 model2Input = model2Inputs.get(i);
+          final List<java.lang.String> listChoices = model2Input.getListChoices();
+          String[] listChoicesArray = null;
+          if (listChoices == null) {
+            listChoicesArray = new String[0];
+          } else {
+            listChoicesArray = new String[listChoices.size()];
+            listChoices.toArray(listChoicesArray);
+          }
+          InputDAO oldInput = new InputDAO(inputId++,
+                                           model2Input.getName(),
+                                           (String)null,
+                                           model2Input.getResponseType(),
+                                           model2Input.getText(),
+                                           model2Input.getRequired(),
+                                           (Long)null,
+                                           model2Input.getLikertSteps(),
+                                           model2Input.getConditional(),
+                                           model2Input.getConditionExpression(),
+                                           model2Input.getLeftSideLabel(),
+                                           model2Input.getRightSideLabel(),
+                                           listChoicesArray,
+                                           model2Input.getMultiselect());
+          inputs[i] = oldInput;
+        }
+        bcExperiment.setInputs(inputs);
+        backwardCompatibleExperiments.add(bcExperiment);
+
+        FeedbackDAO[] feedbacks = new FeedbackDAO[1];
+        Feedback model2Feedback = experimentGroup.getFeedback();
+        FeedbackDAO oldFeedback = new FeedbackDAO();
+        oldFeedback.setText(model2Feedback.getText());
+        feedbacks[0] = oldFeedback;
+        bcExperiment.setFeedback(feedbacks);
       } else {
-//        Long id, String title, String description, String informedConsentForm,
-//        String email, Boolean fixedDuration,
-//        String startDate, String endDate, String joinDate, Boolean backgroundListen,
-//        String backgroundListenSourceIdentifier, Boolean logActions, Boolean recordPhoneDetails,
-//        List<Integer> extraDataCollectionDeclarations
-        bcExperiment = new com.pacoapp.paco.shared.model.ExperimentDAOCore(experimentDAO.getId(),
-                                                                           experimentDAO.getTitle(),
-                                                                           experimentDAO.getDescription(),
-                                                                           experimentDAO.getInformedConsentForm(),
-                                                                           experimentDAO.getCreator(),
-                                                                           experimentDAO.getEarliestStartDate() != null,
-                                                                           TimeUtil.formatDate(experimentDAO.getEarliestStartDate().getTime()),
-                                                                           TimeUtil.formatDate(experimentDAO.getLatestEndDate().getTime()),
+        com.pacoapp.paco.shared.model.ExperimentDAOCore bcExperiment =
+                new com.pacoapp.paco.shared.model.ExperimentDAOCore(experimentDAOCore.getId(),
+                                                                           experimentDAOCore.getTitle(),
+                                                                           experimentDAOCore.getDescription(),
+                                                                           experimentDAOCore.getInformedConsentForm(),
+                                                                           experimentDAOCore.getCreator(),
+                                                                           experimentDAOCore.getEarliestStartDate() != null,
+                                                                           TimeUtil.formatDate(experimentDAOCore.getEarliestStartDate().getTime()),
+                                                                           TimeUtil.formatDate(experimentDAOCore.getLatestEndDate().getTime()),
                                                                            null,
-                                                                           getBackgroundListen(experimentDAO),
-                                                                           getBackgroundListenSourceId(experimentDAO),
-                                                                           getLogActions(experimentDAO),
-                                                                           experimentDAO.getRecordPhoneDetails(),
-                                                                           experimentDAO.getExtraDataCollectionDeclarations());
+                                                                           getBackgroundListen(experimentDAOCore),
+                                                                           getBackgroundListenSourceId(experimentDAOCore),
+                                                                           getLogActions(experimentDAOCore),
+                                                                           experimentDAOCore.getRecordPhoneDetails(),
+                                                                           experimentDAOCore.getExtraDataCollectionDeclarations());
+        backwardCompatibleExperiments.add(bcExperiment);
       }
-      backwardCompatibleExperiments.add(bcExperiment);
+
     }
     return backwardCompatibleExperiments;
   }
 
-  private static String getBackgroundListenSourceId(ExperimentDAO experimentDAO) {
+  private static String getBackgroundListenSourceId(ExperimentDAOCore experimentDAOCore) {
     // TODO populate this until the new clients are out.
     return null;
   }
 
-  private static Boolean getBackgroundListen(ExperimentDAO experimentDAO) {
+  private static Boolean getBackgroundListen(ExperimentDAOCore experimentDAOCore) {
  // TODO populate this until the new clients are out.
     return false; // almost certainly false
   }
 
-  private static Boolean getLogActions(ExperimentDAO experimentDAO) {
+  private static Boolean getLogActions(ExperimentDAOCore experimentDAOCore) {
  // TODO populate this until the new clients are out.
     return false; // TODO fix this
   }
@@ -190,13 +229,24 @@ public class JsonConverter {
   }
 
   private static com.pacoapp.paco.shared.model.SignalingMechanismDAO[] getSignalingMechanismsBC(ExperimentDAO experimentDAO) {
-    ActionTrigger at = experimentDAO.getGroups().get(0).getActionTriggers().get(0);
+    final List<ActionTrigger> actionTriggers = experimentDAO.getGroups().get(0).getActionTriggers();
     SignalingMechanismDAO[] daos = new SignalingMechanismDAO[1];
+    if (actionTriggers.size() == 0) {
 
+      SignalScheduleDAO schedule = new SignalScheduleDAO(1l, Schedule.SELF_REPORT, false,
+                                                         null, null, null, null,
+                                                         null, null, null, null,
+                                                         null, false, true, null,
+                                                         null, null, null, false);
+      daos[0] = schedule;
+      return daos;
+    }
+
+    ActionTrigger at = actionTriggers.get(0);
     if (at instanceof ScheduleTrigger) {
-      ScheduleTrigger st = (ScheduleTrigger)at;
-      Schedule s = st.getSchedules().get(0);
-      PacoNotificationAction a = (PacoNotificationAction) st.getActions().get(0);
+      ScheduleTrigger scheduledTrigger = (ScheduleTrigger)at;
+      Schedule schedule = scheduledTrigger.getSchedules().get(0);
+      PacoNotificationAction a = (PacoNotificationAction) scheduledTrigger.getActions().get(0);
 
       //
 //      long id, Integer scheduleType, Boolean byDayOfMonth,
@@ -206,12 +256,33 @@ public class JsonConverter {
 //      Integer minimumBuffer, Integer snoozeCount, Integer snoozeTime, Boolean onlyEditableOnJoin
       //
 
-      SignalScheduleDAO newS = new SignalScheduleDAO(st.getId(), s.getScheduleType(), s.getByDayOfMonth(), s.getDayOfMonth(),
-                                                  s.getEsmEndHour(), s.getEsmFrequency(), s.getEsmPeriodInDays(),
-                                                  s.getEsmStartHour(), s.getNthOfMonth(), s.getRepeatRate(),
-                                                  getSignalTimesBC(s), s.getWeekDaysScheduled(), s.getEsmWeekends(),
-                                                  st.getUserEditable(), a.getTimeout(), s.getMinimumBuffer(),
-                                                  a.getSnoozeCount(), a.getSnoozeTime(), st.getOnlyEditableOnJoin()
+      Preconditions.checkNotNull(scheduledTrigger, "scheduledTrigger is null");
+      Preconditions.checkNotNull(schedule, "schedule is null");
+      List<SignalTimeDAO> signalTimesBC = null;
+      if (schedule.getScheduleType() != Schedule.ESM) {
+        signalTimesBC = getSignalTimesBC(schedule);
+      }
+      //Preconditions.checkArgument(signalTimesBC != null && signalTimesBC.size() > 0, "signalTimes is null or empty");
+      SignalScheduleDAO newS = new SignalScheduleDAO(
+                                                     makePrimitive(scheduledTrigger.getId()),
+                                                     makePrimitive(schedule.getScheduleType()),
+                                                     schedule.getByDayOfMonth(),
+                                                     schedule.getDayOfMonth(),
+                                                     schedule.getEsmEndHour(),
+                                                     schedule.getEsmFrequency(),
+                                                     schedule.getEsmPeriodInDays(),
+                                                     schedule.getEsmStartHour(),
+                                                     schedule.getNthOfMonth(),
+                                                     schedule.getRepeatRate(),
+                                                     signalTimesBC,
+                                                     schedule.getWeekDaysScheduled(),
+                                                     schedule.getEsmWeekends(),
+                                                     scheduledTrigger.getUserEditable(),
+                                                     a.getTimeout(),
+                                                     schedule.getMinimumBuffer(),
+                                                     a.getSnoozeCount(),
+                                                     a.getSnoozeTime(),
+                                                     scheduledTrigger.getOnlyEditableOnJoin()
                                                   );
       daos[0] = newS;
     } else {
@@ -232,13 +303,67 @@ public class JsonConverter {
     return daos;
   }
 
+  private static Boolean makePrimitive(Boolean byDayOfMonth) {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  private static Integer makePrimitive(Integer scheduleType) {
+    if (scheduleType == null) {
+      return 0;
+    } else {
+      return scheduleType;
+    }
+  }
+
+  public static long makePrimitive(Long id) {
+    if (id == null) {
+      return 0;
+    } else {
+      return id;
+    }
+  }
+
   public static List<SignalTimeDAO> getSignalTimesBC(Schedule s) {
-    List<SignalTimeDAO> res = Lists.newArrayList();
     List<SignalTime> times = s.getSignalTimes();
+    if (times == null || times.isEmpty()) {
+      return Lists.newArrayList();
+    }
+    List<SignalTimeDAO> res = Lists.newArrayList();
+    long id = 1l;
     for (SignalTime signalTime : times) {
-      res.add(new SignalTimeDAO(0l, signalTime.getType(), signalTime.getBasis(),
-                                signalTime.getFixedTimeMillisFromMidnight(), signalTime.getMissedBasisBehavior(),
-                                signalTime.getOffsetTimeMillis(), signalTime.getLabel()));
+      //Preconditions.checkNotNull(signalTime, "signalTime is null");
+      Integer type = signalTime.getType();
+      if (type == null) {
+        type = SignalTimeDAO.FIXED_TIME;
+      }
+      Integer basis = signalTime.getBasis();
+      if (basis == null) {
+        basis = SignalTimeDAO.OFFSET_BASIS_SCHEDULED_TIME;
+      }
+      Integer fixedTimeMillisFromMidnight = signalTime.getFixedTimeMillisFromMidnight();
+      if (fixedTimeMillisFromMidnight == null) {
+        fixedTimeMillisFromMidnight = 0;
+      }
+
+      Integer missedBasisBehavior = signalTime.getMissedBasisBehavior();
+      if (missedBasisBehavior == null) {
+        missedBasisBehavior = SignalTimeDAO.MISSED_BEHAVIOR_USE_SCHEDULED_TIME;
+      }
+      Integer offsetTimeMillis = signalTime.getOffsetTimeMillis();
+      if (offsetTimeMillis == null) {
+        offsetTimeMillis = SignalTimeDAO.OFFSET_TIME_DEFAULT;
+      }
+      String label = signalTime.getLabel();
+
+      SignalTimeDAO oldSignalTime = new SignalTimeDAO(id++,
+                                          type,
+                                          basis,
+                                          fixedTimeMillisFromMidnight,
+                                          missedBasisBehavior,
+                                          offsetTimeMillis,
+                                          label);
+      res.add(oldSignalTime);
     }
     return res;
   }
@@ -247,27 +372,34 @@ public class JsonConverter {
     if (experimentDAOCore instanceof ExperimentDAO) {
       ExperimentDAO experimentDAO = (ExperimentDAO) experimentDAOCore;
       if (experimentDAO.getGroups().size() != 1) {
+        log.info("group size != 1");
         return false;
       }
       ExperimentGroup group = experimentDAO.getGroups().get(0);
       List<ActionTrigger> actionTriggers = group.getActionTriggers();
-      if (actionTriggers.size() != 1) {
+      if (actionTriggers.size() > 1) {
+        log.info("actionTriggers size > 1");
         return false;
       }
-      ActionTrigger at = actionTriggers.get(0);
-      List<PacoAction> actions = at.getActions();
-      if (actions.size() != 1 || actions.get(0).getActionCode() != PacoAction.NOTIFICATION_TO_PARTICIPATE_ACTION_CODE) {
-        return false;
-      }
-      if (at instanceof ScheduleTrigger) {
-        ScheduleTrigger st = (ScheduleTrigger) at;
-        if (st.getSchedules().size() != 1) {
+      if (actionTriggers.size() == 1) {
+        ActionTrigger at = actionTriggers.get(0);
+        List<PacoAction> actions = at.getActions();
+        if (actions.size() != 1 || actions.get(0).getActionCode() != PacoAction.NOTIFICATION_TO_PARTICIPATE_ACTION_CODE) {
+          log.info("actions size > 1 or action != notification");
           return false;
         }
-      } else if (at instanceof InterruptTrigger) {
-        InterruptTrigger it = (InterruptTrigger) at;
-        if (it.getCues().size() != 1) {
-          return false;
+        if (at instanceof ScheduleTrigger) {
+          ScheduleTrigger st = (ScheduleTrigger) at;
+          if (st.getSchedules().size() > 1) {
+            log.info("schedule size > 1");
+            return false;
+          }
+        } else if (at instanceof InterruptTrigger) {
+          InterruptTrigger it = (InterruptTrigger) at;
+          if (it.getCues().size() != 1) {
+            log.info("cue size != 1");
+            return false;
+          }
         }
       }
     }
@@ -292,8 +424,8 @@ public class JsonConverter {
   }
 
   public static String shortJsonify(List<ExperimentDAO> experiments, Integer limit, String cursor, String pacoProtocol) {
-    List<ExperimentDAOCore> shortExperiments = getShortExperiments(experiments);
-    return jsonify(shortExperiments, limit, cursor, pacoProtocol);
+    //List<ExperimentDAOCore> shortExperiments = getShortExperiments(experiments);
+    return jsonify(experiments, limit, cursor, pacoProtocol);
   }
 
   private static List<ExperimentDAOCore> getShortExperiments(List<ExperimentDAO> experiments) {

@@ -34,6 +34,7 @@ import com.pacoapp.paco.shared.model2.Schedule;
 import com.pacoapp.paco.shared.model2.ScheduleTrigger;
 import com.pacoapp.paco.shared.model2.SignalTime;
 import com.pacoapp.paco.shared.model2.ValidationMessage;
+import com.pacoapp.paco.shared.scheduling.ActionScheduleGenerator;
 import com.pacoapp.paco.shared.util.ExperimentHelper;
 
 class DefaultExperimentService implements ExperimentService {
@@ -80,7 +81,12 @@ class DefaultExperimentService implements ExperimentService {
     List<ExperimentDAO> experiments = Lists.newArrayList();
     for (String experimentJson : experimentJsons) {
       if (experimentJson != null) {
-        experiments .add(JsonConverter.fromSingleEntityJson(experimentJson));
+        final ExperimentDAO fromSingleEntityJson = JsonConverter.fromSingleEntityJson(experimentJson);
+        if (fromSingleEntityJson != null) {
+          experiments .add(fromSingleEntityJson);
+        } else {
+          System.out.println("could not recreate experiment for experiment data: " + experimentJson);
+        }
       }
     }
     return experiments;
@@ -126,6 +132,7 @@ class DefaultExperimentService implements ExperimentService {
                                                                        experiment.getId(),
                                                                        experiment.getTitle(),
                                                                        experiment.getVersion());
+
         experiment.setId(experimentKey.getId());
         ExperimentAccessManager.updateAccessControlEntities(ds, tx, experiment, experimentKey, timezone);
         tx.commit();
@@ -207,9 +214,28 @@ class DefaultExperimentService implements ExperimentService {
     List<Long> experimentIds = ExperimentAccessManager.getExistingExperimentsIdsForAdmin(email);
     experimentIds.addAll(ExperimentAccessManager.getExistingPublishedExperimentIdsForUser(email));
     List<ExperimentDAO> experiments = getExperimentsByIdInternal(experimentIds, email, timeZoneForClient);
+    experiments = removeEnded(experiments, timeZoneForClient);
     removeNonAdminData(email, experiments);
     return new ExperimentQueryResult(cursor, experiments); // TODO honor the limit and cursor
   }
+
+  private List<ExperimentDAO> removeEnded(List<ExperimentDAO> experiments, DateTimeZone timeZoneForClient) {
+    List<ExperimentDAO> keepers = Lists.newArrayList();
+    DateTime now = DateTime.now().withZone(timeZoneForClient);
+    for (ExperimentDAO experimentDAO : experiments) {
+      final DateTime latestEndDate = getLatestEndDate(experimentDAO);
+      if (latestEndDate == null || latestEndDate.isAfter(now)) {
+        keepers.add(experimentDAO);
+      }
+    }
+    return keepers;
+  }
+
+
+  private DateTime getLatestEndDate(ExperimentDAO experimentDAO) {
+    return ActionScheduleGenerator.getLastEndTime(experimentDAO);
+  }
+
 
   @Override
   public ExperimentQueryResult getMyJoinedExperiments(String email, DateTimeZone timeZoneForClient,

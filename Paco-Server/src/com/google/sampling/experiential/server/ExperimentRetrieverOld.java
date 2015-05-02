@@ -642,13 +642,14 @@ public ExperimentQueryResult getAllJoinableExperiments(String email, DateTimeZon
       q.setRange(0, limit > 0 ? Math.max(MAX_LIMIT_SIZE, limit) : DEFAULT_LIMIT_SIZE);
 
       List<Experiment> experiments = (List<Experiment>) q.execute();
+      System.out.println("got experiments. Count = " + experiments.size());
       Cursor newCursor = JDOCursorHelper.getCursor(experiments);
       String newCursorString = newCursor.toWebSafeString();
 
       return new Pair<String, List<Experiment>>(newCursorString, experiments);
     } finally {
       if (pm != null) {
-        pm.close();
+        //pm.close();
       }
     }
   }

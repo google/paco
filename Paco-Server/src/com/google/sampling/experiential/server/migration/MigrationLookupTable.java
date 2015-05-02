@@ -7,6 +7,7 @@ import com.google.gwt.gen2.logging.shared.Log;
 import com.google.gwt.thirdparty.guava.common.base.Strings;
 import com.google.sampling.experiential.server.migration.jobs.ExperimentJDOToDatastoreMigration;
 import com.google.sampling.experiential.server.migration.jobs.FeedbackTypeRepairMigration;
+import com.google.sampling.experiential.server.migration.jobs.TestJDODSCompat;
 
 public class MigrationLookupTable {
 
@@ -14,6 +15,7 @@ public class MigrationLookupTable {
   static {
     migrations.put("96", ExperimentJDOToDatastoreMigration.class);
     migrations.put("97", FeedbackTypeRepairMigration.class);
+    migrations.put("965", TestJDODSCompat.class);
   }
   public static MigrationJob getMigrationByName(String name) {
     if (Strings.isNullOrEmpty(name)) {

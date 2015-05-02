@@ -204,7 +204,7 @@ public class ExperimentAccessManager {
       newPublishedAcls.add(userAccess);
     }
     if (!newPublishedAcls.isEmpty()) {
-      ds.put(tx, newPublishedAcls);
+      ds.put(/*tx,*/ newPublishedAcls);
     }
   }
 
@@ -217,7 +217,7 @@ public class ExperimentAccessManager {
 
   public static void removePublishedUserAcls(Transaction tx, DatastoreService ds, List<Key> toBeRemovedList) {
     if (!toBeRemovedList.isEmpty()) {
-      ds.delete(tx, toBeRemovedList);
+      ds.delete(/*tx,*/ toBeRemovedList);
     }
   }
 
@@ -251,7 +251,7 @@ public class ExperimentAccessManager {
       adminAccessRules.add(adminAccess);
     }
     if (!adminAccessRules.isEmpty()) {
-      ds.put(tx, adminAccessRules);
+      ds.put(/*tx,*/ adminAccessRules);
     }
     removePublishedUserAcls(tx, ds, toBeRemovedList);
   }

@@ -33,6 +33,7 @@ public class ScheduleTrigger extends ActionTrigger implements Validatable, java.
 
   public void validateWith(Validator validator) {
     super.validateWith(validator);
+//    System.out.println("VALIDATING SCHEDULETRIGGER");
     validator.isNotNullAndNonEmptyCollection(schedules, "ScheduleTrigger needs at least one schedule");
     for (Schedule schedule : schedules) {
       schedule.validateWith(validator);

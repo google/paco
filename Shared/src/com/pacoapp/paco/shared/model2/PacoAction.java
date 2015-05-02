@@ -40,6 +40,7 @@ public abstract class PacoAction implements Validatable, java.io.Serializable {
   }
 
   public void validateWith(Validator validator) {
+//    System.out.println("VALIDATING PacoAction");
     validator.isNotNull(actionCode, "action code is not properly initialized");
   }
 

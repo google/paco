@@ -24,12 +24,11 @@ import com.pacoapp.paco.shared.model2.JsonConverter;
 import com.pacoapp.paco.shared.util.ExperimentHelper.Pair;
 
 public class ExperimentJsonEntityManager {
-  public static String EXPERIMENT_KIND = "experiment_json";
+  public static String EXPERIMENT_KIND = "Experiment"; // we are updating the existing table with these properties
 
   private static final String TITLE_COLUMN = "title";
   private static final String VERSION_COLUMN = "version";
   private static final String DEFINITION_COLUMN = "definition";
-  private static String END_DATE_COLUMN = "end_date";
 
   public static final Logger log = Logger.getLogger(ExperimentJsonEntityManager.class.getName());
 
@@ -55,7 +54,7 @@ public class ExperimentJsonEntityManager {
 //  }
 
   public static Key saveExperiment(DatastoreService ds, Transaction tx, String experimentJson, Long experimentId, String experimentTitle, Integer version) {
-    System.out.println("JSON experiment received:\n " + experimentJson);
+    //System.out.println("JSON experiment received:\n " + experimentJson);
     Entity entity = null;
 
     if (experimentId != null) {
@@ -72,7 +71,7 @@ public class ExperimentJsonEntityManager {
 
     Text experimentJsonText = new Text(experimentJson);
     entity.setUnindexedProperty(DEFINITION_COLUMN, experimentJsonText);
-    Key key = ds.put(tx, entity);
+    Key key = ds.put(/*tx, */entity);
     return key;
   }
 
@@ -113,6 +112,9 @@ public class ExperimentJsonEntityManager {
 
   private static String reapplyIdIfFirstTime(String value, long experimentId) {
     ExperimentDAO experiment = JsonConverter.fromSingleEntityJson(value);
+    if (experiment == null) {
+      return value; // this is to deal temporarily with migratin testing. TODO delete
+    }
     if (experiment.getId() == null || !experiment.getId().equals(experimentId) ) {
       experiment.setId(experimentId);
       return JsonConverter.jsonify(experiment);

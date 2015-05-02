@@ -237,6 +237,7 @@ public class Schedule  implements Validatable, MinimumBufferable, Serializable {
   }
 
   public void validateWith(Validator validator) {
+//    System.out.println("VALIDATING SCHEDULE");
     validator.isNotNull(scheduleType, "scheduleType is not properly initialized");
     switch (scheduleType) {
     case DAILY:

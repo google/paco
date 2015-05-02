@@ -73,6 +73,7 @@ public abstract class ActionTrigger implements Validatable, Serializable {
   }
 
   public void validateWith(Validator validator) {
+//    System.out.println("VALIDATING ACTION TRIGGER");
     validator.isNotNullAndNonEmptyString(getType(), getClass().getSimpleName()
                                          + " type field is not properly initialized");
     validator.isNotNull(onlyEditableOnJoin, "onlyEditableOnJoin is not properly initialized");
@@ -81,6 +82,7 @@ public abstract class ActionTrigger implements Validatable, Serializable {
   }
 
   public void validateActions(Validator validator) {
+//    System.out.println("VALIDATING Actions");
     validator.isNotNullAndNonEmptyCollection(actions, "ActionTrigger actions should contain at least one action");
 
     Set<Long> ids = new HashSet();

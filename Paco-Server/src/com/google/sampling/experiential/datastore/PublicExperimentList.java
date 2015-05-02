@@ -38,7 +38,8 @@ public class PublicExperimentList {
 
   public static String PUBLIC_EXPERIMENT_KIND = "public_experiment";
 
-  public static void updatePublicExperimentsList(Transaction tx, DatastoreService ds, ExperimentDAO experiment, Key experimentKey, DateTime dateTime) {
+  public static void updatePublicExperimentsList(Transaction tx, DatastoreService ds,
+                                                 ExperimentDAO experiment, Key experimentKey, DateTime dateTime) {
     if (experiment.getId() == null) {
       log.severe("Experiment must have an id to be published publicly.");
       throw new IllegalArgumentException("Experiments must have an id to be in the public experiments list");
@@ -54,9 +55,9 @@ public class PublicExperimentList {
     entity.setProperty(END_DATE_PROPERTY, getEndDateColumn(experiment));
 
     if (!ActionScheduleGenerator.isOver(dateTime, experiment) && experiment.getPublished() && experiment.getPublishedUsers().isEmpty()) {
-      ds.put(tx, entity);
+      ds.put(/*tx, */entity);
     } else if (existingPublicAcl != null) {
-      ds.delete(tx, existingKey);
+      ds.delete(/*tx,*/ existingKey);
     }
   }
 
