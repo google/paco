@@ -550,8 +550,8 @@ public class ExperimentProviderUtil implements EventStore {
           schedule.setEsmWeekends(signalingMechanismNode.path("esmWeekends").getBooleanValue());
           schedule.setMinimumBuffer(signalingMechanismNode.path("minimumBuffer").getIntValue());
 
-          trigger.setUserEditable(signalingMechanismNode.path("userEditable").getBooleanValue());
-          trigger.setOnlyEditableOnJoin(signalingMechanismNode.path("onlyEditableOnJoin").getBooleanValue());
+          schedule.setUserEditable(signalingMechanismNode.path("userEditable").getBooleanValue());
+          schedule.setOnlyEditableOnJoin(signalingMechanismNode.path("onlyEditableOnJoin").getBooleanValue());
 
           List<com.pacoapp.paco.shared.model2.SignalTime> signalTimes = schedule.getSignalTimes();
           if (signalingMechanismNode.has("signalTimes")) {

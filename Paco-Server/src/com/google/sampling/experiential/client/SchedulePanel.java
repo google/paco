@@ -22,6 +22,7 @@ import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.Button;
+import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HasVerticalAlignment;
@@ -72,6 +73,9 @@ public class SchedulePanel extends Composite {
     scheduleDetailsPanel = new VerticalPanel();
     rootPanel.add(scheduleDetailsPanel);
     setPanelForScheduleType();
+    rootPanel.add(createUserEditable());
+    rootPanel.add(createUserEditableOnce());
+
     addListSelectionListener(listBox);
     rootPanel.add(createListMgmtButtons());
   }
@@ -187,6 +191,54 @@ public class SchedulePanel extends Composite {
 
   public Schedule getSchedule() {
     return schedule;
+  }
+
+  private Widget createUserEditable() {
+    HorizontalPanel userEditablePanel = new HorizontalPanel();
+    userEditablePanel.setSpacing(2);
+    userEditablePanel.setVerticalAlignment(HasVerticalAlignment.ALIGN_MIDDLE);
+    userEditablePanel.setWidth("");
+    Label lblUserEditable = new Label("User Editable: ");
+    lblUserEditable.setStyleName("gwt-Label-Header");
+    userEditablePanel.add(lblUserEditable);
+
+    final CheckBox userEditableCheckBox = new CheckBox("");
+    userEditablePanel.add(userEditableCheckBox);
+    userEditableCheckBox.setValue(schedule.getUserEditable() != null ? schedule.getUserEditable()
+                                                                              : Boolean.TRUE);
+    userEditableCheckBox.addClickHandler(new ClickHandler() {
+
+      @Override
+      public void onClick(ClickEvent event) {
+        schedule.setUserEditable(userEditableCheckBox.getValue());
+      }
+
+    });
+    return userEditablePanel;
+  }
+
+  private Widget createUserEditableOnce() {
+    HorizontalPanel userEditablePanel = new HorizontalPanel();
+    userEditablePanel.setSpacing(2);
+    userEditablePanel.setVerticalAlignment(HasVerticalAlignment.ALIGN_MIDDLE);
+    userEditablePanel.setWidth("");
+    Label lblUserEditable = new Label("Only Editable on Join: ");
+    lblUserEditable.setStyleName("gwt-Label-Header");
+    userEditablePanel.add(lblUserEditable);
+
+    final CheckBox userEditableCheckBox = new CheckBox("");
+    userEditablePanel.add(userEditableCheckBox);
+    userEditableCheckBox.setValue(schedule.getOnlyEditableOnJoin() != null ? schedule.getOnlyEditableOnJoin()
+                                                                                    : Boolean.FALSE);
+    userEditableCheckBox.addClickHandler(new ClickHandler() {
+
+      @Override
+      public void onClick(ClickEvent event) {
+        schedule.setOnlyEditableOnJoin(userEditableCheckBox.getValue());
+      }
+
+    });
+    return userEditablePanel;
   }
 
 }

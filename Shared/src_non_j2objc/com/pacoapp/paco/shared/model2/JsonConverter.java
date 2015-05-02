@@ -277,12 +277,12 @@ public class JsonConverter {
                                                      signalTimesBC,
                                                      schedule.getWeekDaysScheduled(),
                                                      schedule.getEsmWeekends(),
-                                                     scheduledTrigger.getUserEditable(),
+                                                     schedule.getUserEditable(),
                                                      a.getTimeout(),
                                                      schedule.getMinimumBuffer(),
                                                      a.getSnoozeCount(),
                                                      a.getSnoozeTime(),
-                                                     scheduledTrigger.getOnlyEditableOnJoin()
+                                                     schedule.getOnlyEditableOnJoin()
                                                   );
       daos[0] = newS;
     } else {

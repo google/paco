@@ -74,6 +74,9 @@ public class Schedule  implements Validatable, MinimumBufferable, Serializable {
   private long joinDateMillis;
   private Long beginDate;
   private Long id;
+  private Boolean onlyEditableOnJoin = false;
+  private Boolean userEditable = true;
+
 
   /**
    *
@@ -239,6 +242,9 @@ public class Schedule  implements Validatable, MinimumBufferable, Serializable {
   public void validateWith(Validator validator) {
 //    System.out.println("VALIDATING SCHEDULE");
     validator.isNotNull(scheduleType, "scheduleType is not properly initialized");
+    validator.isNotNull(onlyEditableOnJoin, "onlyEditableOnJoin is not properly initialized");
+    validator.isNotNull(userEditable, "userEditable is not properly initialized");
+
     switch (scheduleType) {
     case DAILY:
     case WEEKDAY:
@@ -332,6 +338,22 @@ public class Schedule  implements Validatable, MinimumBufferable, Serializable {
 
   public void setId(Long id) {
     this.id = id;
+  }
+
+  public Boolean getOnlyEditableOnJoin() {
+    return onlyEditableOnJoin;
+  }
+
+  public Boolean getUserEditable() {
+    return userEditable;
+  }
+
+  public void setOnlyEditableOnJoin(Boolean value) {
+    this.onlyEditableOnJoin = value;
+  }
+
+  public void setUserEditable(Boolean userEditable) {
+    this.userEditable = userEditable;
   }
 
 

@@ -9,6 +9,7 @@ import com.pacoapp.paco.shared.model2.ExperimentGroup;
 import com.pacoapp.paco.shared.model2.Input2;
 import com.pacoapp.paco.shared.model2.InterruptCue;
 import com.pacoapp.paco.shared.model2.InterruptTrigger;
+import com.pacoapp.paco.shared.model2.Schedule;
 import com.pacoapp.paco.shared.model2.ScheduleTrigger;
 
 public class ExperimentHelper {
@@ -54,8 +55,14 @@ public class ExperimentHelper {
     for (ExperimentGroup experimentGroup : experimentGroups) {
       List<ActionTrigger> triggers = experimentGroup.getActionTriggers();
       for (ActionTrigger actionTrigger : triggers) {
-        if (actionTrigger.getUserEditable() && actionTrigger instanceof ScheduleTrigger) {
-          return true;
+        if (actionTrigger instanceof ScheduleTrigger) {
+          ScheduleTrigger scheduleTrigger = (ScheduleTrigger)actionTrigger;
+          List<Schedule> schedules = scheduleTrigger.getSchedules();
+          for (Schedule schedule : schedules) {
+            if (schedule.getUserEditable()) {
+              return true;
+            }
+          }
         }
       }
     }

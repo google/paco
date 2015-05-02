@@ -342,18 +342,19 @@ public class ExperimentJDOToDatastoreMigration implements MigrationJob {
       return null;
     }
     ActionTrigger actionTrigger = new ScheduleTrigger();
+    com.pacoapp.paco.shared.model2.Schedule schedule = new Schedule();
+    ((ScheduleTrigger) actionTrigger).setSchedules(Lists.newArrayList(schedule));
+
     final Boolean onlyEditableOnJoin = oldSchedule.getOnlyEditableOnJoin();
     if (onlyEditableOnJoin != null) {
-      actionTrigger.setOnlyEditableOnJoin(onlyEditableOnJoin);
+      schedule.setOnlyEditableOnJoin(onlyEditableOnJoin);
     }
 
     final Boolean userEditable = oldSchedule.getUserEditable();
     if (userEditable != null) {
-      actionTrigger.setUserEditable(userEditable);
+      schedule.setUserEditable(userEditable);
     }
 
-    com.pacoapp.paco.shared.model2.Schedule schedule = new Schedule();
-    ((ScheduleTrigger) actionTrigger).setSchedules(Lists.newArrayList(schedule));
 
     schedule.setScheduleType(oldScheduleType);
     schedule.setId(1l);
