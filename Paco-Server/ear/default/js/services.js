@@ -18,8 +18,7 @@ pacoApp.service('config', function() {
     'Weekdays',
     'Weekly',
     'Monthly',
-    'Random sampling (ESM)',
-    'Self Report'
+    'Random sampling (ESM)'
   ];
 
   this.actionTypes = [
