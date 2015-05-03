@@ -531,90 +531,93 @@ public class ExperimentProviderUtil implements EventStore {
     //signaling mechanisms
     if (rootNode.has("signalingMechanisms")) {
       List<ActionTrigger> actionTriggers = defaultExperimentGroup.getActionTriggers();
-      List<JsonNode> signalingMechanismNodes = rootNode.findValues("signalingMechanisms");
-      JsonNode signalingMechanismNode = signalingMechanismNodes.get(0);
-      if (signalingMechanismNode.has("type")) {
-        String type = signalingMechanismNode.path("type").getTextValue();
+      ArrayNode signalingMechanismNodes = (ArrayNode) rootNode.path("signalingMechanisms");
+      for (int k = 0; k< signalingMechanismNodes.size(); k++) {
+        JsonNode signalingMechanismNode = signalingMechanismNodes.get(k);
+          if (signalingMechanismNode.has("type")) {
+          String type = signalingMechanismNode.path("type").getTextValue();
 
-        PacoNotificationAction defaultAction = new PacoNotificationAction();
-        defaultAction.setActionCode(PacoAction.NOTIFICATION_TO_PARTICIPATE_ACTION_CODE);
-        defaultAction.setId(1l);
+          PacoNotificationAction defaultAction = new PacoNotificationAction();
+          defaultAction.setActionCode(PacoAction.NOTIFICATION_TO_PARTICIPATE_ACTION_CODE);
+          defaultAction.setId(1l);
 
 
-        if (type.equals("signalSchedule")) {
-          com.pacoapp.paco.shared.model2.ScheduleTrigger trigger = new com.pacoapp.paco.shared.model2.ScheduleTrigger();
-          trigger.setId(1l);
-          trigger.getActions().add(defaultAction);
-          com.pacoapp.paco.shared.model2.Schedule schedule = new com.pacoapp.paco.shared.model2.Schedule();
-          schedule.setId(1l);
-          defaultAction.setSnoozeCount(signalingMechanismNode.path("snoozeCount").getIntValue());
-          defaultAction.setSnoozeTime(signalingMechanismNode.path("snoozeTime").getIntValue());
-          defaultAction.setTimeout(signalingMechanismNode.path("timeout").getIntValue());
+          if (type.equals("signalSchedule")) {
+            com.pacoapp.paco.shared.model2.ScheduleTrigger trigger = new com.pacoapp.paco.shared.model2.ScheduleTrigger();
+            trigger.setId(1l);
+            trigger.getActions().add(defaultAction);
+            com.pacoapp.paco.shared.model2.Schedule schedule = new com.pacoapp.paco.shared.model2.Schedule();
+            schedule.setId(1l);
+            defaultAction.setSnoozeCount(signalingMechanismNode.path("snoozeCount").getIntValue());
+            defaultAction.setSnoozeTime(signalingMechanismNode.path("snoozeTime").getIntValue());
+            defaultAction.setTimeout(signalingMechanismNode.path("timeout").getIntValue());
 
-          schedule.setScheduleType(signalingMechanismNode.path("scheduleType").getIntValue());
-          schedule.setEsmFrequency(signalingMechanismNode.path("esmFrequency").getIntValue());
-          schedule.setEsmPeriodInDays(signalingMechanismNode.path("esmPeriodInDays").getIntValue());
-          schedule.setEsmStartHour(signalingMechanismNode.path("esmStartHour").getLongValue());
-          schedule.setEsmEndHour(signalingMechanismNode.path("esmEndHour").getLongValue());
-          schedule.setRepeatRate(signalingMechanismNode.path("repeatRate").getIntValue());
-          schedule.setWeekDaysScheduled(signalingMechanismNode.path("weekdaysScheduled").getIntValue());
-          schedule.setNthOfMonth(signalingMechanismNode.path("nthOfMonth").getIntValue());
-          schedule.setByDayOfMonth(signalingMechanismNode.path("byDayOfMonth").getBooleanValue());
-          schedule.setDayOfMonth(signalingMechanismNode.path("dayOfMonth").getIntValue());
-          schedule.setEsmWeekends(signalingMechanismNode.path("esmWeekends").getBooleanValue());
-          schedule.setMinimumBuffer(signalingMechanismNode.path("minimumBuffer").getIntValue());
+            schedule.setScheduleType(signalingMechanismNode.path("scheduleType").getIntValue());
+            schedule.setEsmFrequency(signalingMechanismNode.path("esmFrequency").getIntValue());
+            schedule.setEsmPeriodInDays(signalingMechanismNode.path("esmPeriodInDays").getIntValue());
+            schedule.setEsmStartHour(signalingMechanismNode.path("esmStartHour").getLongValue());
+            schedule.setEsmEndHour(signalingMechanismNode.path("esmEndHour").getLongValue());
+            schedule.setRepeatRate(signalingMechanismNode.path("repeatRate").getIntValue());
+            schedule.setWeekDaysScheduled(signalingMechanismNode.path("weekdaysScheduled").getIntValue());
+            schedule.setNthOfMonth(signalingMechanismNode.path("nthOfMonth").getIntValue());
+            schedule.setByDayOfMonth(signalingMechanismNode.path("byDayOfMonth").getBooleanValue());
+            schedule.setDayOfMonth(signalingMechanismNode.path("dayOfMonth").getIntValue());
+            schedule.setEsmWeekends(signalingMechanismNode.path("esmWeekends").getBooleanValue());
+            schedule.setMinimumBuffer(signalingMechanismNode.path("minimumBuffer").getIntValue());
 
-          schedule.setUserEditable(signalingMechanismNode.path("userEditable").getBooleanValue());
-          schedule.setOnlyEditableOnJoin(signalingMechanismNode.path("onlyEditableOnJoin").getBooleanValue());
+            schedule.setUserEditable(signalingMechanismNode.path("userEditable").getBooleanValue());
+            schedule.setOnlyEditableOnJoin(signalingMechanismNode.path("onlyEditableOnJoin").getBooleanValue());
 
-          List<com.pacoapp.paco.shared.model2.SignalTime> signalTimes = schedule.getSignalTimes();
-          if (signalingMechanismNode.has("signalTimes")) {
-            List<JsonNode> signalTimeNodes = signalingMechanismNode.findValues("signalTimes");
-            for (JsonNode signalTimeNode : signalTimeNodes) {
-              com.pacoapp.paco.shared.model2.SignalTime newSt = new com.pacoapp.paco.shared.model2.SignalTime();
-              newSt.setType(signalTimeNode.path("type").getIntValue());
-              newSt.setFixedTimeMillisFromMidnight(signalTimeNode.path("fixedTimeMillisFromMidnight").getIntValue());
-              newSt.setBasis(signalTimeNode.path("basis").getIntValue());
-              newSt.setOffsetTimeMillis(signalTimeNode.path("offsetTimeMillis").getIntValue());
-              newSt.setLabel(signalTimeNode.path("label").getTextValue());
-              newSt.setMissedBasisBehavior(signalTimeNode.path("missedBasisBehavior").getIntValue());
-              schedule.getSignalTimes().add(newSt);
+            List<com.pacoapp.paco.shared.model2.SignalTime> signalTimes = schedule.getSignalTimes();
+            if (signalingMechanismNode.has("signalTimes")) {
+              ArrayNode signalTimeNodes = (ArrayNode) signalingMechanismNode.path("signalTimes");
+              for (int l = 0; l < signalTimeNodes.size(); l++) {
+                JsonNode signalTimeNode  = signalTimeNodes.get(l);
+                com.pacoapp.paco.shared.model2.SignalTime newSt = new com.pacoapp.paco.shared.model2.SignalTime();
+                newSt.setType(signalTimeNode.path("type").getIntValue());
+                newSt.setFixedTimeMillisFromMidnight(signalTimeNode.path("fixedTimeMillisFromMidnight").getIntValue());
+                newSt.setBasis(signalTimeNode.path("basis").getIntValue());
+                newSt.setOffsetTimeMillis(signalTimeNode.path("offsetTimeMillis").getIntValue());
+                newSt.setLabel(signalTimeNode.path("label").getTextValue());
+                newSt.setMissedBasisBehavior(signalTimeNode.path("missedBasisBehavior").getIntValue());
+                schedule.getSignalTimes().add(newSt);
+              }
             }
+
+            trigger.getSchedules().add(schedule);
+            actionTriggers.add(trigger);
+          } else if (type.equals("trigger")) {
+            com.pacoapp.paco.shared.model2.InterruptTrigger trigger = new com.pacoapp.paco.shared.model2.InterruptTrigger();
+            trigger.setId(1l);
+            trigger.getActions().add(defaultAction);
+
+            defaultAction.setSnoozeCount(signalingMechanismNode.path("snoozeCount").getIntValue());
+            defaultAction.setSnoozeTime(signalingMechanismNode.path("snoozeTime").getIntValue());
+            defaultAction.setTimeout(signalingMechanismNode.path("timeout").getIntValue());
+
+            trigger.setMinimumBuffer(signalingMechanismNode.path("minimumBuffer").getIntValue());
+            InterruptCue cue = new InterruptCue();
+            if (signalingMechanismNode.has("eventCode")) {
+              cue.setCueCode(signalingMechanismNode.path("eventCode").getIntValue());
+            }
+            if (signalingMechanismNode.has("delay")) {
+              defaultAction.setDelay(signalingMechanismNode.path("delay").getIntValue());
+            }
+            if (signalingMechanismNode.has("sourceIdentifier")) {
+              cue.setCueSource(signalingMechanismNode.path("sourceIdentifier").getTextValue());
+            }
+
+            trigger.getCues().add(cue);
+            actionTriggers.add(trigger);
           }
 
-          trigger.getSchedules().add(schedule);
-          actionTriggers.add(trigger);
-        } else if (type.equals("trigger")) {
-          com.pacoapp.paco.shared.model2.InterruptTrigger trigger = new com.pacoapp.paco.shared.model2.InterruptTrigger();
-          trigger.setId(1l);
-          trigger.getActions().add(defaultAction);
-
-          defaultAction.setSnoozeCount(signalingMechanismNode.path("snoozeCount").getIntValue());
-          defaultAction.setSnoozeTime(signalingMechanismNode.path("snoozeTime").getIntValue());
-          defaultAction.setTimeout(signalingMechanismNode.path("timeout").getIntValue());
-
-          trigger.setMinimumBuffer(signalingMechanismNode.path("minimumBuffer").getIntValue());
-          InterruptCue cue = new InterruptCue();
-          if (signalingMechanismNode.has("eventCode")) {
-            cue.setCueCode(signalingMechanismNode.path("eventCode").getIntValue());
-          }
-          if (signalingMechanismNode.has("delay")) {
-            defaultAction.setDelay(signalingMechanismNode.path("delay").getIntValue());
-          }
-          if (signalingMechanismNode.has("sourceIdentifier")) {
-            cue.setCueSource(signalingMechanismNode.path("sourceIdentifier").getTextValue());
-          }
-
-          trigger.getCues().add(cue);
-          actionTriggers.add(trigger);
         }
-
       }
     }
 
     com.pacoapp.paco.shared.model2.Feedback f = new com.pacoapp.paco.shared.model2.Feedback();
     if (rootNode.has("feedback")) {
-      List<JsonNode> feedbackNodes = rootNode.findValues("feedback");
+      ArrayNode feedbackNodes = (ArrayNode) rootNode.path("feedback");
       JsonNode feedbackNode = feedbackNodes.get(0);
       if (feedbackNode.has("text")) {
         f.setText(feedbackNode.path("text").getTextValue());
@@ -629,7 +632,7 @@ public class ExperimentProviderUtil implements EventStore {
     experimentDAO.validateWith(validator);
     List<ValidationMessage> results = validator.getResults();
     if (!results.isEmpty()) {
-      if (results.size() == 1 && results.get(0).getMsg().equals("ERROR: admins should be a valid list of email addresses")) {
+      if (results.size() == 1 && results.get(0).getMsg().equals("admins should be a valid list of email addresses")) {
         return; // OK to not have admins
       } else {
         Log.e(PacoConstants.TAG, "error migrating experiment: " + experimentDAO.getId() + ":\n" + Joiner.on(",").join(results));
