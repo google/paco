@@ -21,7 +21,7 @@ function defaultPage(){
     var input = inputs[i];
     inputsByName[input.name] = input;
   }
-  alert(JSON.stringify(inputs, null, 2));
+  //alert(JSON.stringify(inputs, null, 2));
   var experimentData = $.parseJSON(jsondata);
   if (!experimentData) {
     // hack for samsung tmobile phones
