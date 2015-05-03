@@ -279,7 +279,7 @@ public class MyExperimentsActivity extends ActionBarActivity implements
 
     invitationExperimentName.setText(invitation.getExperimentDAO().getTitle());
     String organization = invitation.getExperimentDAO().getOrganization();
-    if (Strings.isNullOrEmpty(organization)) {
+    if (Strings.isNullOrEmpty(organization) || organization.equals("null")) {
       organization = invitation.getExperimentDAO().getContactEmail();
     }
     invitationContactTextView.setText(organization);
@@ -519,7 +519,11 @@ public class MyExperimentsActivity extends ActionBarActivity implements
       tv.setTag(experiment.getExperimentDAO().getId());
 
       TextView organizationView = (TextView) view.findViewById(R.id.experimentListRowSubtitle);
-      organizationView.setText(experiment != null ? "by " + experiment.getExperimentDAO().getOrganization() : "");
+      String organization = experiment.getExperimentDAO().getOrganization();
+      if (Strings.isNullOrEmpty(organization) || organization.equals("null")) {
+        organization = experiment.getExperimentDAO().getContactEmail();
+      }
+      organizationView.setText(experiment != null ? "by " + organization : "");
       organizationView.setTag(experiment.getExperimentDAO().getId());
       organizationView.setOnClickListener(myButtonListener);
 
@@ -550,7 +554,13 @@ public class MyExperimentsActivity extends ActionBarActivity implements
     }
 
     public String formatJoinDate(Experiment experiment) {
-      final String joinDate = experiment.getJoinDate();
+      String joinDate = experiment.getJoinDate();
+      if (joinDate == null) {
+        joinDate = experiment.getExperimentDAO().getJoinDate();
+      }
+      if (joinDate == null) {
+        return "";
+      }
       DateTime dt = TimeUtil.parseDateWithZone(joinDate);
       return TimeUtil.formatDateLong(dt);
     }

@@ -29,6 +29,7 @@ import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.JsonProcessingException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.node.ArrayNode;
 import org.codehaus.jackson.type.TypeReference;
 import org.joda.time.DateMidnight;
 import org.joda.time.DateTime;
@@ -365,11 +366,11 @@ public class ExperimentProviderUtil implements EventStore {
    * @throws JsonProcessingException
    * @throws IOException
    */
-  private void copyAllPropertiesFromJsonToExperimentDAO(ExperimentDAO experimentDAO, String jsonOfExperiment) throws JsonProcessingException, IOException {
+  public static void copyAllPropertiesFromJsonToExperimentDAO(ExperimentDAO experimentDAO, String jsonOfExperiment) throws JsonProcessingException, IOException {
     ObjectMapper mapper = JsonConverter.getObjectMapper();
     JsonNode rootNode = mapper.readTree(jsonOfExperiment);
-    if (rootNode.has("serverId")) {
-      experimentDAO.setId(rootNode.path("serverId").getLongValue());
+    if (rootNode.has("id")) {
+      experimentDAO.setId(rootNode.path("id").getLongValue());
     }
     if (rootNode.has("title")) {
       experimentDAO.setTitle(rootNode.path("title").getTextValue());
@@ -380,6 +381,12 @@ public class ExperimentProviderUtil implements EventStore {
     if (rootNode.has("creator")) {
       experimentDAO.setCreator(rootNode.path("creator").getTextValue());
       experimentDAO.setContactEmail(rootNode.path("creator").getTextValue());
+    }
+    if (rootNode.has("contactEmail")) {
+      experimentDAO.setContactEmail(rootNode.path("contactEmail").getTextValue());
+    }
+    if (!rootNode.has("creator") && !rootNode.has("contactEmail")) {
+      experimentDAO.setContactEmail(rootNode.path("").getTextValue());
     }
     if (rootNode.has("modifyDate")) {
       experimentDAO.setModifyDate(rootNode.path("modifyDate").getTextValue());
@@ -437,7 +444,7 @@ public class ExperimentProviderUtil implements EventStore {
       defaultExperimentGroup.setEndDate(rootNode.path("startDate").getTextValue());
     }
     if (rootNode.has("fixedDuration")) {
-      defaultExperimentGroup.setFixedDuration(rootNode.path("ongoing").getBooleanValue());
+      defaultExperimentGroup.setFixedDuration(rootNode.path("fixedDuration").getBooleanValue());
     }
 
 
@@ -469,9 +476,12 @@ public class ExperimentProviderUtil implements EventStore {
     }
     if (rootNode.has("inputs")) {
       List<Input2> inputs = Lists.newArrayList();
-      List<JsonNode> inputsNode = rootNode.findValues("inputs");
-      for (JsonNode inputNode : inputsNode) {
+      ArrayNode inputsNode = (ArrayNode)rootNode.path("inputs");
+
+      for (int i=0; i < inputsNode.size(); i++) {
+        JsonNode inputNode = inputsNode.get(i);
         Input2 input = new Input2();
+        inputs.add(input);
         if (inputNode.has("name")) {
           input.setName(inputNode.path("name").getTextValue());
         }
@@ -506,8 +516,9 @@ public class ExperimentProviderUtil implements EventStore {
           input.setMultiselect(inputNode.path("multiselect").getBooleanValue());
         }
         List<String> listChoices = Lists.newArrayList();
-        List<JsonNode> listChoicesNode = rootNode.findValues("listChoices");
-        for (JsonNode listChoiceNode : inputsNode) {
+        ArrayNode listChoicesNode = (ArrayNode) inputNode.path("listChoices");
+        for (int l = 0; l < listChoicesNode.size(); l++) {
+          JsonNode listChoiceNode = listChoicesNode.get(l);
           listChoices.add(listChoiceNode.getTextValue());
         }
 
@@ -618,7 +629,11 @@ public class ExperimentProviderUtil implements EventStore {
     experimentDAO.validateWith(validator);
     List<ValidationMessage> results = validator.getResults();
     if (!results.isEmpty()) {
-      Log.e(PacoConstants.TAG, "error migrating experiment: " + experimentDAO.getId() + ":\n" + Joiner.on(",").join(results));
+      if (results.size() == 1 && results.get(0).getMsg().equals("ERROR: admins should be a valid list of email addresses")) {
+        return; // OK to not have admins
+      } else {
+        Log.e(PacoConstants.TAG, "error migrating experiment: " + experimentDAO.getId() + ":\n" + Joiner.on(",").join(results));
+      }
     }
 
   }
@@ -661,8 +676,13 @@ public class ExperimentProviderUtil implements EventStore {
     if (experiment.getServerId() != null) {
       values.put(ExperimentColumns.SERVER_ID, experiment.getServerId());
     }
+    if (experiment.getExperimentDAO().getTitle() != null) {
+      values.put(ExperimentColumns.TITLE, experiment.getExperimentDAO().getTitle());
+    }
     if (experiment.getJoinDate() != null) {
       values.put(ExperimentColumns.JOIN_DATE, experiment.getJoinDate());
+    } else if (experiment.getExperimentDAO().getJoinDate() != null) {
+      values.put(ExperimentColumns.JOIN_DATE, experiment.getExperimentDAO().getJoinDate());
     }
 
     long t1 = System.currentTimeMillis();
@@ -1275,9 +1295,9 @@ public class ExperimentProviderUtil implements EventStore {
     return ensureExperiments(experiments);
   }
 
-  public void deleteExperimentCachesOnDisk() {
-    context.deleteFile(MY_EXPERIMENTS_FILENAME);
-    context.deleteFile(PUBLIC_EXPERIMENTS_FILENAME);
+  public static void deleteExperimentCachesOnDisk(Context context2) {
+    context2.deleteFile(MY_EXPERIMENTS_FILENAME);
+    context2.deleteFile(PUBLIC_EXPERIMENTS_FILENAME);
   }
 
   public void addExperimentToExperimentsOnDisk(String contentAsString) {

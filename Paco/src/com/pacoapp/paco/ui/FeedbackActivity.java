@@ -152,6 +152,7 @@ public class FeedbackActivity extends ActionBarActivity {
   private void injectObjectsIntoJavascriptEnvironment(final com.pacoapp.paco.shared.model2.Feedback feedback) {
     final Map<String,String> map = new HashMap<String, String>();
     map.put("lastResponse", convertLastEventToJsonString(experiment.getEvents()));
+    map.put("experimentGroupName", experimentGroup.getName());
     map.put("title", experiment.getExperimentDAO().getTitle());
     map.put("test", "false");
     map.put("additions", experimentGroup.getFeedback().getText());
