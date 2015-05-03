@@ -186,7 +186,7 @@ public class FeedbackActivity extends ActionBarActivity {
           return true; // throw away http requests - we don't want 3rd party javascript sending url requests due to security issues.
         }
 
-        String inputIdStr = uri.getQueryParameter("inputName");
+        String inputIdStr = uri.getQueryParameter("inputId");
         if (inputIdStr == null) {
           return true;
         }

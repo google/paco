@@ -9,10 +9,7 @@ function getGroupByName(experiment, name) {
   return null;
 }
 
-function defaultPage(){
-  var jsondata = window.env.getValue("lastResponse");
-  var experiment = paco.experimentService.getExperiment();
-  //alert(JSON.stringify(experiment, null, 2));
+function mapInputs(experiment) {
   var inputsByName = [];
   var groupName =  window.env.getValue("experimentGroupName");
   var group = getGroupByName(experiment, groupName);
@@ -21,6 +18,15 @@ function defaultPage(){
     var input = inputs[i];
     inputsByName[input.name] = input;
   }
+  return inputsByName;
+}
+
+function defaultPage(){
+  var jsondata = window.env.getValue("lastResponse");
+  var experiment = paco.experimentService.getExperiment();
+  //alert(JSON.stringify(experiment, null, 2));
+  var inputsByName = mapInputs(experiment);
+  
   //alert(JSON.stringify(inputs, null, 2));
   var experimentData = $.parseJSON(jsondata);
   if (!experimentData) {
