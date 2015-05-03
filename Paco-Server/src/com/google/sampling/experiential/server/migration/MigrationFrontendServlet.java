@@ -29,8 +29,6 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.http.HttpStatus;
-
 import com.google.appengine.api.modules.ModulesService;
 import com.google.appengine.api.modules.ModulesServiceFactory;
 import com.google.appengine.api.users.User;
@@ -59,7 +57,7 @@ public class MigrationFrontendServlet extends HttpServlet {
       String jobId = sendMigrateRequestToBackend(req, jobName);
       resp.sendRedirect("/jobStatus?jobId=" + jobId);
     } else {
-      resp.sendError(HttpStatus.SC_FORBIDDEN);
+      resp.sendError(HttpServletResponse.SC_FORBIDDEN);
     }
   }
 
