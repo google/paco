@@ -171,6 +171,25 @@ pacoApp.directive('hidable', [function() {
 }]);
 
 
+pacoApp.filter('unquote', function() {
+  return function(str) {
+    var start = 0;
+    var end = str.length;
+
+    if (str[0] === '"') {
+      start = 1;
+    }
+
+    if (str[str.length - 1] === '"') {
+      end = str.length - 1;
+    }
+
+    return str.substring(start, end);
+  }
+});
+
+
+
 /**
  * Code based on this tutorial
  * http://buildinternet.com/2013/08/drag-and-drop-file-upload-with-angularjs/

@@ -1,0 +1,24 @@
+<div ng-controller="CsvCtrl" class="csv">
+  <h2>Data for Experiment {{csvExperimentId}}</h2>
+
+  <span ng-if="!csv">{{status}}</span>
+
+  <md-progress-circular md-mode="indeterminate" ng-if="!csv">
+  </md-progress-circular>
+  
+  <md-card ng-if="csv">
+    <md-card-content>
+      <table>
+        <tr ng-repeat="row in table track by $index">
+          <td ng-repeat="cell in row track by $index">{{cell | unquote}}</td>
+        </tr>
+        <tfoot>
+          <td>Showing {{table.length - 1}} out of {{table.length - 1}}</td>
+        </tfoot>
+      </table>
+    </md-card-content>
+  </md-card>
+
+  <a ng-href="{{csvData}}" download="export.csv">Download CSV</a>
+
+</div>

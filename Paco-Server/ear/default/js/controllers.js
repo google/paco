@@ -6,7 +6,7 @@ pacoApp.controller('HomeCtrl', ['$scope', '$http', '$routeParams', '$location',
 
     $http.get('/userinfo').success(function(data) {
 
-      // For now, make sure email isn't bobevans999@gmail for local dev testing
+      // Make sure email isn't yourGoogleEmail@here.com for local dev testing
       if (data.user && data.user !== 'yourGoogleEmail@here.com') {
         $scope.user = data.user;
 
@@ -35,6 +35,10 @@ pacoApp.controller('HomeCtrl', ['$scope', '$http', '$routeParams', '$location',
       } else {
         $scope.experimentId = parseInt($routeParams.experimentId, 10);
       }
+    }
+
+    if (angular.isDefined($routeParams.csvExperimentId)) {
+      $scope.csvExperimentId = parseInt($routeParams.csvExperimentId, 10);
     }
 
     $scope.addExperiment = function() {
@@ -169,6 +173,68 @@ pacoApp.controller('ExperimentCtrl', ['$scope', '$http',
 ]);
 
 
+pacoApp.controller('CsvCtrl', ['$scope', '$http', '$mdDialog', '$timeout', '$location',
+  function($scope, $http, $mdDialog, $timeout, $location) {
+
+    var startMarker =
+      '<title>Current Status of Report Generation for job: ';
+    var endMarker = '</title>';
+
+    $scope.status = 'Idle';
+
+    if ($location.hash() && $location.hash() === 'anon') {
+      $scope.anon = true;
+    }
+
+    $scope.poll = function() {
+      $scope.status += '.';
+
+      $http.get($scope.jobUrl).success(
+        function(data) {
+
+          $scope.result = data;
+
+          if (data === 'pending\n') {
+            $timeout($scope.poll, 1000);
+          } else {
+            $scope.csv = data;
+            var rows = data.split('\n');
+            $scope.table = [];
+            for (var i = 0; i < rows.length; i++) {
+              var cells = rows[i].split(',');
+              if (cells.length > 1) {
+                $scope.table.push(cells);
+              }
+            }
+            var blob = new Blob([data], { type : 'text/csv' });
+            $scope.csvData = (window.URL || window.webkitURL).createObjectURL(blob);
+          }
+        }
+      )
+    };
+    
+    $scope.status = 'Sending CSV request';
+    $scope.endpoint = '/events?q=experimentId=' + $scope.csvExperimentId + '&csv';
+    
+    if ($scope.anon) {
+      $scope.endpoint += '&anon=true';
+    }
+    
+    $http.get($scope.endpoint).success(
+      function(data) {
+        //TODO: endpoint should return report URL, not HTML
+        startPos = data.indexOf(startMarker) + startMarker.length;
+        endPos = data.indexOf(endMarker);
+        if (startPos !== -1 && endPos !== -1) {
+          $scope.jobUrl = '/jobStatus?jobId=' + data.substring(startPos,
+            endPos) + '&cmdline=1';
+          $scope.status = 'Waiting';
+          $scope.poll();
+        }
+    });
+  }
+]);
+
 pacoApp.controller('GroupCtrl', ['$scope', 'template',
   function($scope, template) {
     $scope.hiding = false;
@@ -282,7 +348,7 @@ pacoApp.controller('TriggerCtrl', ['$scope', '$mdDialog', 'config', 'template',
         templateUrl: 'partials/cue.html',
         locals: {
           cue: cue
-        },        
+        },
         clickOutsideToClose: true,
         controller: 'CueCtrl'
       });
@@ -291,13 +357,14 @@ pacoApp.controller('TriggerCtrl', ['$scope', '$mdDialog', 'config', 'template',
 ]);
 
 
-pacoApp.controller('ActionCtrl', ['$scope', '$mdDialog', 'config', 'template', 'action',
+pacoApp.controller('ActionCtrl', ['$scope', '$mdDialog', 'config', 'template',
+  'action',
   function($scope, $mdDialog, config, template, action) {
 
     $scope.action = action;
     $scope.actionTypes = config.actionTypes;
     $scope.hide = $mdDialog.hide;
-    
+
     $scope.$watch('action.actionCode', function(newValue, oldValue) {
       if (newValue <= 2) {
         angular.extend($scope.action, template.defaultAction);
@@ -409,7 +476,7 @@ pacoApp.controller('ScheduleCtrl', ['$scope', '$mdDialog', 'config', 'template',
         }
 
         if (newValue === 4 && oldValue !== 4) {
-          
+
           // We can't just assign a new copy of the template to the schedule
           // variable since this orphans it from the top-level experiment.
           // Instead, we use extend to copy the properties of the template in.
@@ -430,7 +497,8 @@ pacoApp.controller('AdminCtrl', ['$scope', 'config', function($scope, config) {
   $scope.inList = function(item) {
     if ($scope.experiment && $scope.experiment.extraDataCollectionDeclarations) {
       var id = parseInt(item);
-      if ($scope.experiment.extraDataCollectionDeclarations.indexOf(id) !== -1) {
+      if ($scope.experiment.extraDataCollectionDeclarations.indexOf(id) !==
+        -1) {
         return true;
       }
     }
@@ -439,7 +507,8 @@ pacoApp.controller('AdminCtrl', ['$scope', 'config', function($scope, config) {
 
   $scope.toggle = function(item) {
     var id = parseInt(item);
-    var find = $scope.experiment.extraDataCollectionDeclarations.indexOf(id);
+    var find = $scope.experiment.extraDataCollectionDeclarations.indexOf(
+      id);
 
     if (find === -1) {
       $scope.experiment.extraDataCollectionDeclarations.push(id);
