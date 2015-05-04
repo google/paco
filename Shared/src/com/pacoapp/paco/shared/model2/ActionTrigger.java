@@ -11,8 +11,6 @@ public abstract class ActionTrigger implements Validatable, Serializable {
 
   protected String type;
   protected List<PacoAction> actions;
-  private Boolean onlyEditableOnJoin = false;
-  private Boolean userEditable = true;
 
   // This id should be unique within its group and stable across edits because the client
   // relies on the id to recognize a actionTrigger and action that started a
@@ -56,31 +54,15 @@ public abstract class ActionTrigger implements Validatable, Serializable {
     return null;
   }
 
-  public Boolean getOnlyEditableOnJoin() {
-    return onlyEditableOnJoin;
-  }
-
-  public Boolean getUserEditable() {
-    return userEditable;
-  }
-
-  public void setOnlyEditableOnJoin(Boolean value) {
-    this.onlyEditableOnJoin = value;
-  }
-
-  public void setUserEditable(Boolean userEditable) {
-    this.userEditable = userEditable;
-  }
-
   public void validateWith(Validator validator) {
+//    System.out.println("VALIDATING ACTION TRIGGER");
     validator.isNotNullAndNonEmptyString(getType(), getClass().getSimpleName()
                                          + " type field is not properly initialized");
-    validator.isNotNull(onlyEditableOnJoin, "onlyEditableOnJoin is not properly initialized");
-    validator.isNotNull(userEditable, "userEditable is not properly initialized");
     validateActions(validator);
   }
 
   public void validateActions(Validator validator) {
+//    System.out.println("VALIDATING Actions");
     validator.isNotNullAndNonEmptyCollection(actions, "ActionTrigger actions should contain at least one action");
 
     Set<Long> ids = new HashSet();

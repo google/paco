@@ -56,6 +56,7 @@ public class InterruptCue implements Validatable, java.io.Serializable {
   }
 
   public void validateWith(Validator validator) {
+//    System.out.println("VALIDATING CUE");
     validator.isNotNull(cueCode, "cue code is not properly initialized");
     if (cueCode == PACO_ACTION_EVENT || cueCode == APP_USAGE) {
       validator.isNotNullAndNonEmptyString(cueSource,

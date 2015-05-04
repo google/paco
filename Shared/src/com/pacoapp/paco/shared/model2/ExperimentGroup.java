@@ -29,6 +29,11 @@ public class ExperimentGroup implements Validatable, java.io.Serializable {
 
   private Feedback feedback;
 
+  // Need to keep this for the interim experiments on staging
+  // this will allow us to copy it on to the Feedback object for those
+  // experiments
+  private Integer feedbackType;
+
   public ExperimentGroup() {
     super();
     this.actionTriggers = new ArrayList<ActionTrigger>();
@@ -84,6 +89,14 @@ public class ExperimentGroup implements Validatable, java.io.Serializable {
 
   public void setCustomRenderingCode(String customRenderingCode) {
     this.customRenderingCode = customRenderingCode;
+  }
+
+  public Integer getFeedbackType() {
+    return feedbackType;
+  }
+
+  public void setFeedbackType(Integer feedbackType) {
+    this.feedbackType = feedbackType;
   }
 
   public List<Input2> getInputs() {
@@ -156,25 +169,27 @@ public class ExperimentGroup implements Validatable, java.io.Serializable {
   }
 
   public void validateWith(Validator validator) {
+//    System.out.println("VALIDATING GROUP");
     validator.isNotNullAndNonEmptyString(name, "name is not properly initialized");
 
     validateActionTriggers(validator);
 
     validator.isNotNull(backgroundListen, "backgroundListen not initialized");
-    validator.isNotNull(logActions, "backgroundListen not initialized");
-    if (backgroundListen) {
+    validator.isNotNull(logActions, "logActions not initialized");
+    if (backgroundListen != null && backgroundListen) {
       validator.isNotNullAndNonEmptyString(backgroundListenSourceIdentifier,
                                            "background listening requires a source identifier");
     }
     validator.isNotNull(customRendering, "customRendering not initialized properly");
-    if (customRendering) {
-      validator.isValidJavascript(customRenderingCode, "code is not properly formed");
+    if (customRendering != null && customRendering) {
+      validator.isValidJavascript(customRenderingCode, "custom rendering code is not properly formed");
     }
     validator.isNotNull(fixedDuration, "fixed duration not properly initialized");
-    if (fixedDuration) {
+    if (fixedDuration != null && fixedDuration) {
       validator.isValidDateString(startDate, "start date must be a valid string");
       validator.isValidDateString(endDate, "end date must be a valid string");
     }
+    validator.isNotNull(feedbackType, "feedbacktype is not properly initialized");
     validator.isNotNull(feedback, "feedback is not properly initialized");
 
     validateInputs(validator);
@@ -187,23 +202,31 @@ public class ExperimentGroup implements Validatable, java.io.Serializable {
   }
 
   public void validateInputs(Validator validator) {
+//    System.out.println("VALIDATING INPTUS");
     validator.isNotNullCollection(inputs, "inputs not properly initialized");
     Set<String> inputNames = new HashSet();
+    if (inputs == null) {
+      return;
+    }
     for (Input2 input : inputs) {
-      if (!inputNames.add(input.getName())) {
-        validator.addError("Input name: " + input.getName() + " is duplicate. All input names within a group must be unique");
-      }
+      // TODO commenting this out for now because one experimentor uses the same name cleverly but under conditionals that are mutually exclusive.
+//      if (!inputNames.add(input.getName())) {
+//        validator.addError("Input name: " + input.getName() + " is duplicate. All input names within a group must be unique");
+//      }
       input.validateWith(validator);
     }
   }
 
   public void validateActionTriggers(Validator validator) {
+//    System.out.println("VALIDATING ACTION TRIGGERS");
     validator.isNotNullCollection(actionTriggers, "action triggers not properly initialized");
     Set<Long> ids = new HashSet();
-    for (ActionTrigger actionTrigger : actionTriggers) {
-      actionTrigger.validateWith(validator);
-      if (!ids.add(actionTrigger.getId())) {
-        validator.addError("action trigger id: " + actionTrigger.getId() + " is not unique. Ids must be unique and stable across edits.");
+    if (actionTriggers  != null) {
+      for (ActionTrigger actionTrigger : actionTriggers) {
+        actionTrigger.validateWith(validator);
+        if (!ids.add(actionTrigger.getId())) {
+          validator.addError("action trigger id: " + actionTrigger.getId() + " is not unique. Ids must be unique and stable across edits.");
+        }
       }
     }
   }

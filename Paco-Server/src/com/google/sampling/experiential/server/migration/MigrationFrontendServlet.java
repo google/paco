@@ -14,7 +14,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.google.sampling.experiential.server;
+package com.google.sampling.experiential.server.migration;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -29,12 +29,10 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.http.HttpStatus;
-
 import com.google.appengine.api.modules.ModulesService;
 import com.google.appengine.api.modules.ModulesServiceFactory;
 import com.google.appengine.api.users.User;
-import com.google.appengine.api.users.UserService;
+import com.google.sampling.experiential.server.AuthUtil;
 
 /**
  * Servlet that handles migration tasks for data
@@ -44,7 +42,6 @@ import com.google.appengine.api.users.UserService;
 public class MigrationFrontendServlet extends HttpServlet {
 
   public static final Logger log = Logger.getLogger(MigrationFrontendServlet.class.getName());
-  private UserService userService;
 
   @Override
   protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException,
@@ -56,15 +53,17 @@ public class MigrationFrontendServlet extends HttpServlet {
     if (user == null) {
       AuthUtil.redirectUserToLogin(req, resp);
     } else if (AuthUtil.isUserAdmin()) {
-      String jobId = sendMigrateRequestToBackend(req);
+      String jobName = req.getParameter("name");
+      String jobId = sendMigrateRequestToBackend(req, jobName);
       resp.sendRedirect("/jobStatus?jobId=" + jobId);
     } else {
-      resp.sendError(HttpStatus.SC_FORBIDDEN);
+      resp.sendError(HttpServletResponse.SC_FORBIDDEN);
     }
   }
 
 
-  private String sendMigrateRequestToBackend(HttpServletRequest req) throws IOException {
+  private String sendMigrateRequestToBackend(HttpServletRequest req, String jobName) throws IOException {
+    req.getParameter("name");
     ModulesService modulesApi = ModulesServiceFactory.getModulesService();
     String backendAddress = modulesApi.getVersionHostname("reportworker", modulesApi.getDefaultVersion("reportworker"));
 
@@ -72,13 +71,13 @@ public class MigrationFrontendServlet extends HttpServlet {
     try {
       BufferedReader reader = null;
       try {
-        reader = sendToBackend(backendAddress);
+        reader = sendToBackend(backendAddress, jobName);
       } catch (SocketTimeoutException se) {
         try {
           Thread.sleep(100);
         } catch (InterruptedException e) {
         }
-        reader = sendToBackend(backendAddress);
+        reader = sendToBackend(backendAddress, jobName);
       }
       if (reader != null) {
         StringBuilder buf = new StringBuilder();
@@ -95,8 +94,9 @@ public class MigrationFrontendServlet extends HttpServlet {
     return null;
   }
 
-  private BufferedReader sendToBackend(String backendAddress) throws MalformedURLException, IOException {
-    URL url = new URL("http://" + backendAddress + "/migrateBackend?who=" + AuthUtil.getWhoFromLogin().getEmail().toLowerCase());
+  private BufferedReader sendToBackend(String backendAddress, String jobName) throws MalformedURLException, IOException {
+    URL url = new URL("http://" + backendAddress + "/migrateBackend?who=" + AuthUtil.getWhoFromLogin().getEmail().toLowerCase() +
+                      "&migrationName=" + jobName );
     log.info("URL to backend = " + url.toString());
     InputStreamReader inputStreamReader = new InputStreamReader(url.openStream());
     BufferedReader reader = new BufferedReader(inputStreamReader);

@@ -52,6 +52,7 @@ public class InterruptTrigger extends ActionTrigger implements Validatable, Mini
 
   public void validateWith(Validator validator) {
     super.validateWith(validator);
+//    System.out.println("VALIDATING INTERRUPT");
     validator.isNotNull(minimumBuffer, "minimumBuffer is not properly initialized");
     validator.isNotNullAndNonEmptyCollection(cues, "InterruptTrigger needs at least one cue");
     for (InterruptCue cue: cues) {

@@ -1,12 +1,18 @@
 package com.pacoapp.paco.model;
 
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
+import org.codehaus.jackson.JsonProcessingException;
+
 import android.content.Context;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
+import com.pacoapp.paco.shared.model2.ExperimentDAO;
 import com.pacoapp.paco.shared.model2.PacoNotificationAction;
 
 /**
@@ -219,32 +225,29 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
     if (oldVersion == 22) {
       // loadAllExperiments with existing json
-      ExperimentProviderUtil eu = new ExperimentProviderUtil(context);
-      List<Experiment> joined = eu.getExperimentsWithDAO();
-      for (Experiment experiment : joined) {
-        eu.updateJoinedExperiment(experiment);
-      }
+
+      rewriteJsonOfAllExperiments(db);
 
       // delete cached downloaded experiments
-      eu.deleteExperimentCachesOnDisk();
+      ExperimentProviderUtil.deleteExperimentCachesOnDisk(context);
 
       // remove obsolete columns on table.
-      db.execSQL("ALTER TABLE " + ExperimentProvider.EXPERIMENTS_TABLE_NAME + " DROP COLUMN "
-                 + "version" + ";");
-      db.execSQL("ALTER TABLE " + ExperimentProvider.EXPERIMENTS_TABLE_NAME + " DROP COLUMN "
-                 + "description" + ";");
-      db.execSQL("ALTER TABLE " + ExperimentProvider.EXPERIMENTS_TABLE_NAME + " DROP COLUMN "
-                 + "creator" + ";");
-      db.execSQL("ALTER TABLE " + ExperimentProvider.EXPERIMENTS_TABLE_NAME + " DROP COLUMN "
-                 + "informed_consent" + ";");
-      db.execSQL("ALTER TABLE " + ExperimentProvider.EXPERIMENTS_TABLE_NAME + " DROP COLUMN "
-                 + "hash" + ";");
-      db.execSQL("ALTER TABLE " + ExperimentProvider.EXPERIMENTS_TABLE_NAME + " DROP COLUMN "
-                 + "fixed_duration" + ";");
-      db.execSQL("ALTER TABLE " + ExperimentProvider.EXPERIMENTS_TABLE_NAME + " DROP COLUMN "
-                 + "start_date" + ";");
-      db.execSQL("ALTER TABLE " + ExperimentProvider.EXPERIMENTS_TABLE_NAME + " DROP COLUMN "
-                 + "end_date" + ";");
+//      db.execSQL("ALTER TABLE " + ExperimentProvider.EXPERIMENTS_TABLE_NAME + " DROP COLUMN "
+//                 + "version" + ";");
+//      db.execSQL("ALTER TABLE " + ExperimentProvider.EXPERIMENTS_TABLE_NAME + " DROP COLUMN "
+//                 + "description" + ";");
+//      db.execSQL("ALTER TABLE " + ExperimentProvider.EXPERIMENTS_TABLE_NAME + " DROP COLUMN "
+//                 + "creator" + ";");
+//      db.execSQL("ALTER TABLE " + ExperimentProvider.EXPERIMENTS_TABLE_NAME + " DROP COLUMN "
+//                 + "informed_consent" + ";");
+//      db.execSQL("ALTER TABLE " + ExperimentProvider.EXPERIMENTS_TABLE_NAME + " DROP COLUMN "
+//                 + "hash" + ";");
+//      db.execSQL("ALTER TABLE " + ExperimentProvider.EXPERIMENTS_TABLE_NAME + " DROP COLUMN "
+//                 + "fixed_duration" + ";");
+//      db.execSQL("ALTER TABLE " + ExperimentProvider.EXPERIMENTS_TABLE_NAME + " DROP COLUMN "
+//                 + "start_date" + ";");
+//      db.execSQL("ALTER TABLE " + ExperimentProvider.EXPERIMENTS_TABLE_NAME + " DROP COLUMN "
+//                 + "end_date" + ";");
 
       //update to pass information along in notifications
       db.execSQL("ALTER TABLE " + ExperimentProvider.NOTIFICATION_TABLE_NAME + " ADD COLUMN "
@@ -270,6 +273,64 @@ public class DatabaseHelper extends SQLiteOpenHelper {
               + EventColumns.ACTION_ID + " INTEGER;");
     }
   }
+
+  private void rewriteJsonOfAllExperiments(SQLiteDatabase db) {
+    // TODO Auto-generated method stub
+    List<Experiment> joined = getExperimentsWithDAO(db);
+    for (Experiment experiment : joined) {
+      updateJoinedExperiment(db, experiment);
+    }
+  }
+
+  private void updateJoinedExperiment(SQLiteDatabase db, Experiment experiment) {
+    int count = db.update(ExperimentProvider.EXPERIMENTS_TABLE_NAME,
+        ExperimentProviderUtil.createContentValues(experiment),
+        ExperimentColumns._ID + "=" + experiment.getId(), null);
+
+  }
+
+  public List<Experiment> getExperimentsWithDAO(SQLiteDatabase db) {
+    List<Experiment> experiments = new ArrayList<Experiment>();
+    Cursor cursor = null;
+    try {
+      cursor = db.query(ExperimentProvider.EXPERIMENTS_TABLE_NAME,
+          null, null, null, null, null, null);
+      if (cursor != null) {
+        int idIndex = cursor.getColumnIndex(ExperimentColumns._ID);
+        int jsonIndex = cursor.getColumnIndex(ExperimentColumns.JSON);
+
+        while (cursor.moveToNext()) {
+          try {
+            Experiment experiment = new Experiment();
+            ExperimentDAO experimentDAO = new ExperimentDAO();
+
+            if (!cursor.isNull(idIndex)) {
+              experiment.setId(cursor.getLong(idIndex));
+            }
+
+            if (!cursor.isNull(jsonIndex)) {
+              String jsonOfExperiment = cursor.getString(jsonIndex);
+              ExperimentProviderUtil.copyAllPropertiesFromJsonToExperimentDAO(experimentDAO, jsonOfExperiment);
+              experiment.setExperimentDAO(experimentDAO);
+              experiments.add(experiment);
+            }
+          } catch (JsonProcessingException e) {
+            e.printStackTrace();
+          } catch (IOException e) {
+            e.printStackTrace();
+          }
+        }
+      }
+    } catch (RuntimeException e) {
+      Log.w(ExperimentProvider.TAG, "Caught unexpected exception.", e);
+    } finally {
+      if (cursor != null) {
+        cursor.close();
+      }
+    }
+    return experiments;
+  }
+
 
   // private static HashMap<Integer, String>
   // convertDateLongsToStrings(SQLiteDatabase db,

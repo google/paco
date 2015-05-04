@@ -18,8 +18,7 @@ pacoApp.service('config', function() {
     'Weekdays',
     'Weekly',
     'Monthly',
-    'Random sampling (ESM)',
-    'Self Report'
+    'Random sampling (ESM)'
   ];
 
   this.actionTypes = [
@@ -41,7 +40,10 @@ pacoApp.service('config', function() {
     'Incoming call ended',
     'Outgoing call started',
     'Outgoing call ended',
-    'Missed call'
+    'Missed call',
+    'Call Started (in or out)',
+    'Call Ended (in or out)'
+    
   ];
 
   this.esmPeriods = [

@@ -165,6 +165,7 @@ public class ExperimentDAOCore implements Validatable, Serializable {
 
   @Override
   public void validateWith(Validator validator) {
+//    System.out.println("VALIDATING CORE");
     validator.isNotNullAndNonEmptyString(title, "Experiment title cannot be null");
     validator.isValidEmail(creator, "Experiment creator must be a valid email address");
     if (contactEmail != null && contactEmail.length() > 0) {

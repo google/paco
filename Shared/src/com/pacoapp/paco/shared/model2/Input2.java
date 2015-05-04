@@ -189,33 +189,37 @@ public class Input2 implements Validatable, Serializable {
   }
 
   public void validateWith(Validator validator) {
+//    System.out.println("VALIDATING Input");
     validator.isNotNullAndNonEmptyString(name, "input name is not properly initialized");
-    validator.isNotNullAndNonEmptyString(text, "input question text is not properly initialized");
+    //validator.isNotNullAndNonEmptyString(text, "input question text is not properly initialized");
     if (text != null && text.length() > 0) {
       validator.isTrue(text.length() <= 500, "input question text is too long. 500 char limit.");
     }
     validator.isNotNull(responseType, "responseType is not properly initialized");
     validator.isNotNull(required, "required is not properly initialized");
-
-    if (responseType.equals(LIKERT)) {
-      validator.isNotNull(likertSteps, "scales need a number of steps specified");
-      //validator.isNotNull(leftSideLabel, "no left label is specified for scale");
-      //validator.isNotNull(rightSideLabel, "no right label is specified for scale");
-    } else if (responseType.equals(LIST)) {
-      validator.isNotNullAndNonEmptyCollection(listChoices, "lists must have a non-empty set of choices");
-      for (String choice : listChoices) {
-        validator.isNotNullAndNonEmptyString(choice, "list choice text must all be non-empty");
-        if (choice != null && choice.length() > 0) {
-          validator.isTrue(choice.length() <= 500, "list choice text is too long. 500 char limit.");
+    if (responseType != null) {
+      if (responseType.equals(LIKERT)) {
+        validator.isNotNull(likertSteps, "scales need a number of steps specified");
+        //validator.isNotNull(leftSideLabel, "no left label is specified for scale");
+        //validator.isNotNull(rightSideLabel, "no right label is specified for scale");
+      } else if (responseType.equals(LIST)) {
+        validator.isNotNullAndNonEmptyCollection(listChoices, "lists must have a non-empty set of choices");
+        for (String choice : listChoices) {
+          validator.isNotNullAndNonEmptyString(choice, "list choice text must all be non-empty");
+          if (choice != null && choice.length() > 0) {
+            validator.isTrue(choice.length() <= 500, "list choice text is too long. 500 char limit.");
+          }
         }
+        validator.isNotNull(multiselect, "multiselect is not initialized properly");
+      } else if (responseType.equals(LIKERT_SMILEYS)) {
+        //validator.isNotNull(likertSteps, "likert steps is not initialized properly");
+//        if (likertSteps != null) {
+//          validator.isTrue(likertSteps == 5, "likert smiley only allows 5 steps");
+//        }
       }
-      validator.isNotNull(multiselect, "multiselect is not initialized properly");
-    } else if (responseType.equals(LIKERT_SMILEYS)) {
-      validator.isNotNull(likertSteps, "likert steps is not initialized properly");
-      validator.isTrue(likertSteps == 5, "likert smiley only allows 5 steps");
     }
     validator.isNotNull(conditional, "conditional is not initialized properly");
-    if (conditional) {
+    if (conditional != null && conditional) {
       validator.isValidConditionalExpression(conditionExpression, "conditionalExpression is not properly specified");
     }
   }

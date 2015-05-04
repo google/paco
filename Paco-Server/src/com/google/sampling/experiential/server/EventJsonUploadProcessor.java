@@ -226,7 +226,10 @@ public class EventJsonUploadProcessor {
           log.info("input is null for name, group: " + name +", " + groupName);
         }
 
-        String answer = response.getString("answer");
+        String answer = null;
+        if (response.has("answer")) {
+          answer = response.getString("answer");
+        }
 
         if (input != null && input.getResponseType() != null && input.getResponseType().equals(Input2.PHOTO) && !Strings.isNullOrEmpty(answer)) {
           PhotoBlob photoBlob = new PhotoBlob(name, Base64.decodeBase64(answer.getBytes()));

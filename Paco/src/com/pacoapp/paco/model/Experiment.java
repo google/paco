@@ -101,8 +101,11 @@ public class Experiment implements Parcelable {
     this.serverId = serverId;
   }
 
-    public String getJoinDate() {
-    return joinDate;
+  public String getJoinDate() {
+    if (experimentDelegate != null) {
+      return experimentDelegate.getJoinDate();
+    }
+    return null;
   }
 
   public void setJoinDate(String joinDate) {

@@ -29,6 +29,7 @@ import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.JsonProcessingException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.node.ArrayNode;
 import org.codehaus.jackson.type.TypeReference;
 import org.joda.time.DateMidnight;
 import org.joda.time.DateTime;
@@ -43,6 +44,7 @@ import android.net.Uri;
 import android.util.Log;
 
 import com.google.common.base.Function;
+import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import com.pacoapp.paco.PacoConstants;
 import com.pacoapp.paco.shared.model2.ActionTrigger;
@@ -50,6 +52,7 @@ import com.pacoapp.paco.shared.model2.EventInterface;
 import com.pacoapp.paco.shared.model2.EventStore;
 import com.pacoapp.paco.shared.model2.ExperimentDAO;
 import com.pacoapp.paco.shared.model2.ExperimentGroup;
+import com.pacoapp.paco.shared.model2.ExperimentValidator;
 import com.pacoapp.paco.shared.model2.Input2;
 import com.pacoapp.paco.shared.model2.InterruptCue;
 import com.pacoapp.paco.shared.model2.JsonConverter;
@@ -57,6 +60,7 @@ import com.pacoapp.paco.shared.model2.PacoAction;
 import com.pacoapp.paco.shared.model2.PacoNotificationAction;
 import com.pacoapp.paco.shared.model2.Schedule;
 import com.pacoapp.paco.shared.model2.ScheduleTrigger;
+import com.pacoapp.paco.shared.model2.ValidationMessage;
 import com.pacoapp.paco.shared.scheduling.ActionScheduleGenerator;
 import com.pacoapp.paco.shared.util.TimeUtil;
 
@@ -362,11 +366,11 @@ public class ExperimentProviderUtil implements EventStore {
    * @throws JsonProcessingException
    * @throws IOException
    */
-  private void copyAllPropertiesFromJsonToExperimentDAO(ExperimentDAO experimentDAO, String jsonOfExperiment) throws JsonProcessingException, IOException {
+  public static void copyAllPropertiesFromJsonToExperimentDAO(ExperimentDAO experimentDAO, String jsonOfExperiment) throws JsonProcessingException, IOException {
     ObjectMapper mapper = JsonConverter.getObjectMapper();
     JsonNode rootNode = mapper.readTree(jsonOfExperiment);
-    if (rootNode.has("serverId")) {
-      experimentDAO.setId(rootNode.path("serverId").getLongValue());
+    if (rootNode.has("id")) {
+      experimentDAO.setId(rootNode.path("id").getLongValue());
     }
     if (rootNode.has("title")) {
       experimentDAO.setTitle(rootNode.path("title").getTextValue());
@@ -376,6 +380,13 @@ public class ExperimentProviderUtil implements EventStore {
     }
     if (rootNode.has("creator")) {
       experimentDAO.setCreator(rootNode.path("creator").getTextValue());
+      experimentDAO.setContactEmail(rootNode.path("creator").getTextValue());
+    }
+    if (rootNode.has("contactEmail")) {
+      experimentDAO.setContactEmail(rootNode.path("contactEmail").getTextValue());
+    }
+    if (!rootNode.has("creator") && !rootNode.has("contactEmail")) {
+      experimentDAO.setContactEmail(rootNode.path("").getTextValue());
     }
     if (rootNode.has("modifyDate")) {
       experimentDAO.setModifyDate(rootNode.path("modifyDate").getTextValue());
@@ -433,7 +444,7 @@ public class ExperimentProviderUtil implements EventStore {
       defaultExperimentGroup.setEndDate(rootNode.path("startDate").getTextValue());
     }
     if (rootNode.has("fixedDuration")) {
-      defaultExperimentGroup.setFixedDuration(rootNode.path("ongoing").getBooleanValue());
+      defaultExperimentGroup.setFixedDuration(rootNode.path("fixedDuration").getBooleanValue());
     }
 
 
@@ -450,7 +461,8 @@ public class ExperimentProviderUtil implements EventStore {
     }
 
     if (rootNode.has("feedbackType")) {
-      defaultExperimentGroup.getFeedback().setType(rootNode.path("feedbackType").getIntValue());
+      //see feedback section below
+      defaultExperimentGroup.setFeedbackType(rootNode.path("feedbackType").getIntValue());
     }
     if (rootNode.has("logActions")) {
       defaultExperimentGroup.setLogActions(rootNode.path("logActions").getBooleanValue());
@@ -464,14 +476,20 @@ public class ExperimentProviderUtil implements EventStore {
     }
     if (rootNode.has("inputs")) {
       List<Input2> inputs = Lists.newArrayList();
-      List<JsonNode> inputsNode = rootNode.findValues("inputs");
-      for (JsonNode inputNode : inputsNode) {
+      ArrayNode inputsNode = (ArrayNode)rootNode.path("inputs");
+
+      for (int i=0; i < inputsNode.size(); i++) {
+        JsonNode inputNode = inputsNode.get(i);
         Input2 input = new Input2();
+        inputs.add(input);
         if (inputNode.has("name")) {
           input.setName(inputNode.path("name").getTextValue());
         }
         if (inputNode.has("required")) {
           input.setRequired(inputNode.path("required").getBooleanValue());
+        }
+        if (inputNode.has("mandatory")) {
+          input.setRequired(inputNode.path("mandatory").getBooleanValue());
         }
         if (inputNode.has("conditional")) {
           input.setConditional(inputNode.path("conditional").getBooleanValue());
@@ -498,8 +516,9 @@ public class ExperimentProviderUtil implements EventStore {
           input.setMultiselect(inputNode.path("multiselect").getBooleanValue());
         }
         List<String> listChoices = Lists.newArrayList();
-        List<JsonNode> listChoicesNode = rootNode.findValues("listChoices");
-        for (JsonNode listChoiceNode : inputsNode) {
+        ArrayNode listChoicesNode = (ArrayNode) inputNode.path("listChoices");
+        for (int l = 0; l < listChoicesNode.size(); l++) {
+          JsonNode listChoiceNode = listChoicesNode.get(l);
           listChoices.add(listChoiceNode.getTextValue());
         }
 
@@ -512,87 +531,113 @@ public class ExperimentProviderUtil implements EventStore {
     //signaling mechanisms
     if (rootNode.has("signalingMechanisms")) {
       List<ActionTrigger> actionTriggers = defaultExperimentGroup.getActionTriggers();
-      List<JsonNode> signalingMechanismNodes = rootNode.findValues("signalingMechanisms");
-      JsonNode signalingMechanismNode = signalingMechanismNodes.get(0);
-      if (signalingMechanismNode.has("type")) {
-        String type = signalingMechanismNode.path("type").getTextValue();
+      ArrayNode signalingMechanismNodes = (ArrayNode) rootNode.path("signalingMechanisms");
+      for (int k = 0; k< signalingMechanismNodes.size(); k++) {
+        JsonNode signalingMechanismNode = signalingMechanismNodes.get(k);
+          if (signalingMechanismNode.has("type")) {
+          String type = signalingMechanismNode.path("type").getTextValue();
 
-        PacoNotificationAction defaultAction = new PacoNotificationAction();
-        defaultAction.setActionCode(PacoAction.NOTIFICATION_TO_PARTICIPATE_ACTION_CODE);
+          PacoNotificationAction defaultAction = new PacoNotificationAction();
+          defaultAction.setActionCode(PacoAction.NOTIFICATION_TO_PARTICIPATE_ACTION_CODE);
+          defaultAction.setId(1l);
 
 
-        if (type.equals("signalSchedule")) {
-          com.pacoapp.paco.shared.model2.ScheduleTrigger trigger = new com.pacoapp.paco.shared.model2.ScheduleTrigger();
-          trigger.getActions().add(defaultAction);
-          com.pacoapp.paco.shared.model2.Schedule schedule = new com.pacoapp.paco.shared.model2.Schedule();
+          if (type.equals("signalSchedule")) {
+            com.pacoapp.paco.shared.model2.ScheduleTrigger trigger = new com.pacoapp.paco.shared.model2.ScheduleTrigger();
+            trigger.setId(1l);
+            trigger.getActions().add(defaultAction);
+            com.pacoapp.paco.shared.model2.Schedule schedule = new com.pacoapp.paco.shared.model2.Schedule();
+            schedule.setId(1l);
+            defaultAction.setSnoozeCount(signalingMechanismNode.path("snoozeCount").getIntValue());
+            defaultAction.setSnoozeTime(signalingMechanismNode.path("snoozeTime").getIntValue());
+            defaultAction.setTimeout(signalingMechanismNode.path("timeout").getIntValue());
 
-          defaultAction.setSnoozeCount(signalingMechanismNode.path("snoozeCount").getIntValue());
-          defaultAction.setSnoozeTime(signalingMechanismNode.path("snoozeTime").getIntValue());
-          defaultAction.setTimeout(signalingMechanismNode.path("timeout").getIntValue());
+            schedule.setScheduleType(signalingMechanismNode.path("scheduleType").getIntValue());
+            schedule.setEsmFrequency(signalingMechanismNode.path("esmFrequency").getIntValue());
+            schedule.setEsmPeriodInDays(signalingMechanismNode.path("esmPeriodInDays").getIntValue());
+            schedule.setEsmStartHour(signalingMechanismNode.path("esmStartHour").getLongValue());
+            schedule.setEsmEndHour(signalingMechanismNode.path("esmEndHour").getLongValue());
+            schedule.setRepeatRate(signalingMechanismNode.path("repeatRate").getIntValue());
+            schedule.setWeekDaysScheduled(signalingMechanismNode.path("weekdaysScheduled").getIntValue());
+            schedule.setNthOfMonth(signalingMechanismNode.path("nthOfMonth").getIntValue());
+            schedule.setByDayOfMonth(signalingMechanismNode.path("byDayOfMonth").getBooleanValue());
+            schedule.setDayOfMonth(signalingMechanismNode.path("dayOfMonth").getIntValue());
+            schedule.setEsmWeekends(signalingMechanismNode.path("esmWeekends").getBooleanValue());
+            schedule.setMinimumBuffer(signalingMechanismNode.path("minimumBuffer").getIntValue());
 
-          schedule.setScheduleType(signalingMechanismNode.path("scheduleType").getIntValue());
-          schedule.setEsmFrequency(signalingMechanismNode.path("esmFrequency").getIntValue());
-          schedule.setEsmPeriodInDays(signalingMechanismNode.path("esmPeriodInDays").getIntValue());
-          schedule.setEsmStartHour(signalingMechanismNode.path("esmStartHour").getLongValue());
-          schedule.setEsmEndHour(signalingMechanismNode.path("esmEndHour").getLongValue());
-          schedule.setRepeatRate(signalingMechanismNode.path("repeatRate").getIntValue());
-          schedule.setWeekDaysScheduled(signalingMechanismNode.path("weekdaysScheduled").getIntValue());
-          schedule.setNthOfMonth(signalingMechanismNode.path("nthOfMonth").getIntValue());
-          schedule.setByDayOfMonth(signalingMechanismNode.path("byDayOfMonth").getBooleanValue());
-          schedule.setDayOfMonth(signalingMechanismNode.path("dayOfMonth").getIntValue());
-          schedule.setEsmWeekends(signalingMechanismNode.path("esmWeekends").getBooleanValue());
-          schedule.setMinimumBuffer(signalingMechanismNode.path("minimumBuffer").getIntValue());
+            schedule.setUserEditable(signalingMechanismNode.path("userEditable").getBooleanValue());
+            schedule.setOnlyEditableOnJoin(signalingMechanismNode.path("onlyEditableOnJoin").getBooleanValue());
 
-          trigger.setUserEditable(signalingMechanismNode.path("userEditable").getBooleanValue());
-          trigger.setOnlyEditableOnJoin(signalingMechanismNode.path("onlyEditableOnJoin").getBooleanValue());
-
-          List<com.pacoapp.paco.shared.model2.SignalTime> signalTimes = schedule.getSignalTimes();
-          if (signalingMechanismNode.has("signalTimes")) {
-            List<JsonNode> signalTimeNodes = signalingMechanismNode.findValues("signalTimes");
-            for (JsonNode signalTimeNode : signalTimeNodes) {
-              com.pacoapp.paco.shared.model2.SignalTime newSt = new com.pacoapp.paco.shared.model2.SignalTime();
-              newSt.setType(signalTimeNode.path("type").getIntValue());
-              newSt.setFixedTimeMillisFromMidnight(signalTimeNode.path("fixedTimeMillisFromMidnight").getIntValue());
-              newSt.setBasis(signalTimeNode.path("basis").getIntValue());
-              newSt.setOffsetTimeMillis(signalTimeNode.path("offsetTimeMillis").getIntValue());
-              newSt.setLabel(signalTimeNode.path("label").getTextValue());
-              schedule.getSignalTimes().add(newSt);
+            List<com.pacoapp.paco.shared.model2.SignalTime> signalTimes = schedule.getSignalTimes();
+            if (signalingMechanismNode.has("signalTimes")) {
+              ArrayNode signalTimeNodes = (ArrayNode) signalingMechanismNode.path("signalTimes");
+              for (int l = 0; l < signalTimeNodes.size(); l++) {
+                JsonNode signalTimeNode  = signalTimeNodes.get(l);
+                com.pacoapp.paco.shared.model2.SignalTime newSt = new com.pacoapp.paco.shared.model2.SignalTime();
+                newSt.setType(signalTimeNode.path("type").getIntValue());
+                newSt.setFixedTimeMillisFromMidnight(signalTimeNode.path("fixedTimeMillisFromMidnight").getIntValue());
+                newSt.setBasis(signalTimeNode.path("basis").getIntValue());
+                newSt.setOffsetTimeMillis(signalTimeNode.path("offsetTimeMillis").getIntValue());
+                newSt.setLabel(signalTimeNode.path("label").getTextValue());
+                newSt.setMissedBasisBehavior(signalTimeNode.path("missedBasisBehavior").getIntValue());
+                schedule.getSignalTimes().add(newSt);
+              }
             }
+
+            trigger.getSchedules().add(schedule);
+            actionTriggers.add(trigger);
+          } else if (type.equals("trigger")) {
+            com.pacoapp.paco.shared.model2.InterruptTrigger trigger = new com.pacoapp.paco.shared.model2.InterruptTrigger();
+            trigger.setId(1l);
+            trigger.getActions().add(defaultAction);
+
+            defaultAction.setSnoozeCount(signalingMechanismNode.path("snoozeCount").getIntValue());
+            defaultAction.setSnoozeTime(signalingMechanismNode.path("snoozeTime").getIntValue());
+            defaultAction.setTimeout(signalingMechanismNode.path("timeout").getIntValue());
+
+            trigger.setMinimumBuffer(signalingMechanismNode.path("minimumBuffer").getIntValue());
+            InterruptCue cue = new InterruptCue();
+            if (signalingMechanismNode.has("eventCode")) {
+              cue.setCueCode(signalingMechanismNode.path("eventCode").getIntValue());
+            }
+            if (signalingMechanismNode.has("delay")) {
+              defaultAction.setDelay(signalingMechanismNode.path("delay").getIntValue());
+            }
+            if (signalingMechanismNode.has("sourceIdentifier")) {
+              cue.setCueSource(signalingMechanismNode.path("sourceIdentifier").getTextValue());
+            }
+
+            trigger.getCues().add(cue);
+            actionTriggers.add(trigger);
           }
 
-          trigger.getSchedules().add(schedule);
-          actionTriggers.add(trigger);
-        } else if (type.equals("trigger")) {
-          com.pacoapp.paco.shared.model2.InterruptTrigger trigger = new com.pacoapp.paco.shared.model2.InterruptTrigger();
-          trigger.getActions().add(defaultAction);
-          trigger.setMinimumBuffer(signalingMechanismNode.path("minimumBuffer").getIntValue());
-          InterruptCue cue = new InterruptCue();
-          if (signalingMechanismNode.has("eventCode")) {
-            cue.setCueCode(signalingMechanismNode.path("eventCode").getIntValue());
-          }
-          if (signalingMechanismNode.has("delay")) {
-            defaultAction.setDelay(signalingMechanismNode.path("delay").getIntValue());
-          }
-          if (signalingMechanismNode.has("sourceIdentifier")) {
-            cue.setCueSource(signalingMechanismNode.path("sourceIdentifier").getTextValue());
-          }
-
-          trigger.getCues().add(cue);
-          actionTriggers.add(trigger);
         }
-
       }
     }
 
+    com.pacoapp.paco.shared.model2.Feedback f = new com.pacoapp.paco.shared.model2.Feedback();
     if (rootNode.has("feedback")) {
-      com.pacoapp.paco.shared.model2.Feedback f = new com.pacoapp.paco.shared.model2.Feedback();
-      List<JsonNode> feedbackNodes = rootNode.findValues("feedback");
+      ArrayNode feedbackNodes = (ArrayNode) rootNode.path("feedback");
       JsonNode feedbackNode = feedbackNodes.get(0);
       if (feedbackNode.has("text")) {
         f.setText(feedbackNode.path("text").getTextValue());
       }
-    }
 
+    }
+    if (rootNode.has("feedbackType")) {
+      f.setType(rootNode.path("feedbackType").getIntValue());
+    }
+    defaultExperimentGroup.setFeedback(f);
+    ExperimentValidator validator = new ExperimentValidator();
+    experimentDAO.validateWith(validator);
+    List<ValidationMessage> results = validator.getResults();
+    if (!results.isEmpty()) {
+      if (results.size() == 1 && results.get(0).getMsg().equals("admins should be a valid list of email addresses")) {
+        return; // OK to not have admins
+      } else {
+        Log.e(PacoConstants.TAG, "error migrating experiment: " + experimentDAO.getId() + ":\n" + Joiner.on(",").join(results));
+      }
+    }
 
   }
 
@@ -634,8 +679,13 @@ public class ExperimentProviderUtil implements EventStore {
     if (experiment.getServerId() != null) {
       values.put(ExperimentColumns.SERVER_ID, experiment.getServerId());
     }
+    if (experiment.getExperimentDAO().getTitle() != null) {
+      values.put(ExperimentColumns.TITLE, experiment.getExperimentDAO().getTitle());
+    }
     if (experiment.getJoinDate() != null) {
       values.put(ExperimentColumns.JOIN_DATE, experiment.getJoinDate());
+    } else if (experiment.getExperimentDAO().getJoinDate() != null) {
+      values.put(ExperimentColumns.JOIN_DATE, experiment.getExperimentDAO().getJoinDate());
     }
 
     long t1 = System.currentTimeMillis();
@@ -1248,9 +1298,9 @@ public class ExperimentProviderUtil implements EventStore {
     return ensureExperiments(experiments);
   }
 
-  public void deleteExperimentCachesOnDisk() {
-    context.deleteFile(MY_EXPERIMENTS_FILENAME);
-    context.deleteFile(PUBLIC_EXPERIMENTS_FILENAME);
+  public static void deleteExperimentCachesOnDisk(Context context2) {
+    context2.deleteFile(MY_EXPERIMENTS_FILENAME);
+    context2.deleteFile(PUBLIC_EXPERIMENTS_FILENAME);
   }
 
   public void addExperimentToExperimentsOnDisk(String contentAsString) {

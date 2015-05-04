@@ -5,25 +5,30 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.logging.Logger;
 
+import com.google.appengine.api.datastore.Cursor;
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.EntityNotFoundException;
+import com.google.appengine.api.datastore.FetchOptions;
 import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.KeyFactory;
+import com.google.appengine.api.datastore.PreparedQuery;
+import com.google.appengine.api.datastore.Query;
+import com.google.appengine.api.datastore.QueryResultList;
 import com.google.appengine.api.datastore.Text;
 import com.google.appengine.api.datastore.Transaction;
 import com.google.common.collect.Lists;
 import com.pacoapp.paco.shared.model2.ExperimentDAO;
 import com.pacoapp.paco.shared.model2.JsonConverter;
+import com.pacoapp.paco.shared.util.ExperimentHelper.Pair;
 
 public class ExperimentJsonEntityManager {
-  public static String EXPERIMENT_KIND = "experiment_json";
+  public static String EXPERIMENT_KIND = "Experiment"; // we are updating the existing table with these properties
 
   private static final String TITLE_COLUMN = "title";
   private static final String VERSION_COLUMN = "version";
   private static final String DEFINITION_COLUMN = "definition";
-  private static String END_DATE_COLUMN = "end_date";
 
   public static final Logger log = Logger.getLogger(ExperimentJsonEntityManager.class.getName());
 
@@ -49,7 +54,7 @@ public class ExperimentJsonEntityManager {
 //  }
 
   public static Key saveExperiment(DatastoreService ds, Transaction tx, String experimentJson, Long experimentId, String experimentTitle, Integer version) {
-    System.out.println("JSON experiment received:\n " + experimentJson);
+    //System.out.println("JSON experiment received:\n " + experimentJson);
     Entity entity = null;
 
     if (experimentId != null) {
@@ -66,7 +71,7 @@ public class ExperimentJsonEntityManager {
 
     Text experimentJsonText = new Text(experimentJson);
     entity.setUnindexedProperty(DEFINITION_COLUMN, experimentJsonText);
-    Key key = ds.put(tx, entity);
+    Key key = ds.put(/*tx, */entity);
     return key;
   }
 
@@ -107,6 +112,9 @@ public class ExperimentJsonEntityManager {
 
   private static String reapplyIdIfFirstTime(String value, long experimentId) {
     ExperimentDAO experiment = JsonConverter.fromSingleEntityJson(value);
+    if (experiment == null) {
+      return value; // this is to deal temporarily with migratin testing. TODO delete
+    }
     if (experiment.getId() == null || !experiment.getId().equals(experimentId) ) {
       experiment.setId(experimentId);
       return JsonConverter.jsonify(experiment);
@@ -135,6 +143,46 @@ public class ExperimentJsonEntityManager {
     }
     return experimentJsons;
   }
+
+  public static Pair<String, List<String>> getAllExperiments(String cursor) {
+    List<String> entities = Lists.newArrayList();
+    DatastoreService ds = DatastoreServiceFactory.getDatastoreService();
+    Query query = new Query(EXPERIMENT_KIND);
+    PreparedQuery preparedQuery = ds.prepare(query);
+    FetchOptions options = null;
+    Cursor fromWebSafeString = null;
+    if (cursor != null) {
+      fromWebSafeString = Cursor.fromWebSafeString(cursor);
+    }
+    options = getFetchOptions(fromWebSafeString);
+
+    // preparedQuery.countEntities(getFetchOptions(cursor));
+    QueryResultList<Entity> iterable = preparedQuery.asQueryResultList(options);
+    for (Entity experiment : iterable) {
+      Text json = (Text) experiment.getProperty(DEFINITION_COLUMN);
+      if (json != null) {
+        entities.add(json.getValue());
+      }
+    }
+
+    String newCursor = iterable.getCursor().toWebSafeString();
+    Pair<String, List<String>> res = new Pair<String, List<String>>(newCursor, entities);
+    return res;
+  }
+
+
+
+  public static FetchOptions getFetchOptions(Cursor cursor) {
+    FetchOptions options = null;
+    if (cursor != null) {
+      options = FetchOptions.Builder.withCursor(cursor);
+    } else {
+      options = FetchOptions.Builder.withDefaults();
+    }
+    return options;
+  }
+
+
 
 
   public static Key createkeyForId(Long id) {

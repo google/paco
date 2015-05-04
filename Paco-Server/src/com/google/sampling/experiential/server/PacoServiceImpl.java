@@ -172,7 +172,9 @@ public class PacoServiceImpl extends RemoteServiceServlet implements PacoService
     if (timezoneForId != null) {
       timezoneForId = DateTimeZone.forID(timezone);
     }
-    List<ValidationMessage> saveExperimentErrorResults = ExperimentServiceFactory.getExperimentService().saveExperiment(experimentDAO, loggedInUser, timezoneForId);
+    List<ValidationMessage> saveExperimentErrorResults = ExperimentServiceFactory.getExperimentService().saveExperiment(experimentDAO,
+                                                                                                                        loggedInUser.getEmail().toLowerCase(),
+                                                                                                                        timezoneForId);
     if (saveExperimentErrorResults != null) {
       StringBuilder buf = new StringBuilder();
       for (ValidationMessage validationMessage : saveExperimentErrorResults) {

@@ -444,7 +444,9 @@ private void injectObjectsIntoJavascriptEnvironment() {
   map.put("test", "false");
 
   map.put("title", experiment.getExperimentDAO().getTitle());
-  map.put("scheduledTime", Long.toString(scheduledTime));
+  if (scheduledTime != null) {
+    map.put("scheduledTime", Long.toString(scheduledTime));
+  }
   map.put("notificationLabel", notificationMessage);
   map.put("notificationSource", notificationSource);
   env = new Environment(map);

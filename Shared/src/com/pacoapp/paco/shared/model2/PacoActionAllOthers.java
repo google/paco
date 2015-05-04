@@ -20,6 +20,7 @@ public class PacoActionAllOthers extends PacoAction {
 
   public void validateWith(Validator validator) {
     super.validateWith(validator);
+//    System.out.println("VALIDATING PACOACTIONALLOTHES");
     if (getActionCode() == EXECUTE_SCRIPT_ACTION_CODE) {
       validator.isValidJavascript(customScript, "custom script for action " + ACTION_NAMES[getActionCode() - 1] + "should be valid javascript");
     }

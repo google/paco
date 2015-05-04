@@ -82,6 +82,7 @@ public class PacoNotificationAction extends PacoAction {
 
   public void validateWith(Validator validator) {
     super.validateWith(validator);
+//    System.out.println("VALIDATING PACONOTIFICATIONACTION");
     // need to detect if we are an action for InterruptTrigger
     validator.isNotNull(delay, "delay is not properly initialized for PacoNotificationActions for InterruptTriggers");
     validator.isNotNull(msgText, "msgText is not properly initialized");

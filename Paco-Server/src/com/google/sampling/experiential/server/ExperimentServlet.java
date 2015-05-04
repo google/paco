@@ -160,7 +160,8 @@ public class ExperimentServlet extends HttpServlet {
           List<Outcome> outcomes = createErrorOutcome();
           resp.getWriter().println(ExperimentJsonUploadProcessor.toJson(outcomes));
         } else {
-          resp.getWriter().println(ExperimentJsonUploadProcessor.toJson(deleteExperiments(email, selectedExperimentsParam)));
+          resp.getWriter().println(ExperimentJsonUploadProcessor.toJson(deleteExperiments(email,
+                                                                                          selectedExperimentsParam)));
         }
       } else {
         readExperimentDefinitions(req, resp);
@@ -215,7 +216,8 @@ public class ExperimentServlet extends HttpServlet {
     String pacoVersion = req.getHeader("paco.version");
     log.info("Paco version = " + pacoVersion);
     DateTimeZone timezone = TimeUtil.getTimeZoneForClient(req);
-    String results = ExperimentJsonUploadProcessor.create().processJsonExperiments(postBodyString, AuthUtil.getWhoFromLogin(), appIdHeader, pacoVersion, timezone);
+    final User whoFromLogin = AuthUtil.getWhoFromLogin();
+    String results = ExperimentJsonUploadProcessor.create().processJsonExperiments(postBodyString, whoFromLogin, appIdHeader, pacoVersion, timezone);
     resp.getWriter().write(results);
   }
 }

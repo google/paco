@@ -13,12 +13,11 @@ import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.Transaction;
 import com.google.appengine.api.datastore.TransactionOptions;
-import com.google.appengine.api.users.User;
 import com.google.common.base.Joiner;
+import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import com.google.gwt.thirdparty.guava.common.base.Strings;
 import com.google.sampling.experiential.datastore.ExperimentJsonEntityManager;
 import com.google.sampling.experiential.datastore.PublicExperimentList;
 import com.google.sampling.experiential.datastore.PublicExperimentList.CursorExerimentIdListPair;
@@ -35,6 +34,8 @@ import com.pacoapp.paco.shared.model2.Schedule;
 import com.pacoapp.paco.shared.model2.ScheduleTrigger;
 import com.pacoapp.paco.shared.model2.SignalTime;
 import com.pacoapp.paco.shared.model2.ValidationMessage;
+import com.pacoapp.paco.shared.scheduling.ActionScheduleGenerator;
+import com.pacoapp.paco.shared.util.ExperimentHelper;
 
 class DefaultExperimentService implements ExperimentService {
 
@@ -80,7 +81,12 @@ class DefaultExperimentService implements ExperimentService {
     List<ExperimentDAO> experiments = Lists.newArrayList();
     for (String experimentJson : experimentJsons) {
       if (experimentJson != null) {
-        experiments .add(JsonConverter.fromSingleEntityJson(experimentJson));
+        final ExperimentDAO fromSingleEntityJson = JsonConverter.fromSingleEntityJson(experimentJson);
+        if (fromSingleEntityJson != null) {
+          experiments .add(fromSingleEntityJson);
+        } else {
+          System.out.println("could not recreate experiment for experiment data: " + experimentJson);
+        }
       }
     }
     return experiments;
@@ -96,7 +102,9 @@ class DefaultExperimentService implements ExperimentService {
 
   // save experiments
   @Override
-  public List<ValidationMessage> saveExperiment(ExperimentDAO experiment, User userFromLogin, DateTimeZone timezone) {
+  public List<ValidationMessage> saveExperiment(ExperimentDAO experiment,
+                                                String loggedInUserEmail,
+                                                DateTimeZone timezone) {
     ExperimentValidator validator = new ExperimentValidator();
     experiment.validateWith(validator);
     List<ValidationMessage> results = validator.getResults();
@@ -104,7 +112,7 @@ class DefaultExperimentService implements ExperimentService {
       return results;
     }
 
-    String loggedInUserEmail = userFromLogin.getEmail().toLowerCase();
+
     if (ExperimentAccessManager.isUserAllowedToSaveExperiment(experiment.getId(), loggedInUserEmail)) {
       DatastoreService ds = DatastoreServiceFactory.getDatastoreService();
       TransactionOptions options = TransactionOptions.Builder.withXG(true);
@@ -112,9 +120,9 @@ class DefaultExperimentService implements ExperimentService {
       try {
         if (experiment.getId() == null) {
           experiment.setCreator(loggedInUserEmail);
-          if (!experiment.getAdmins().contains(loggedInUserEmail)) {
-            experiment.getAdmins().add(loggedInUserEmail);
-          }
+        }
+        if (!experiment.getAdmins().contains(loggedInUserEmail)) {
+          experiment.getAdmins().add(loggedInUserEmail);
         }
         if (Strings.isNullOrEmpty(experiment.getContactEmail())) {
           experiment.setContactEmail(experiment.getCreator());
@@ -124,6 +132,7 @@ class DefaultExperimentService implements ExperimentService {
                                                                        experiment.getId(),
                                                                        experiment.getTitle(),
                                                                        experiment.getVersion());
+
         experiment.setId(experimentKey.getId());
         ExperimentAccessManager.updateAccessControlEntities(ds, tx, experiment, experimentKey, timezone);
         tx.commit();
@@ -205,9 +214,28 @@ class DefaultExperimentService implements ExperimentService {
     List<Long> experimentIds = ExperimentAccessManager.getExistingExperimentsIdsForAdmin(email);
     experimentIds.addAll(ExperimentAccessManager.getExistingPublishedExperimentIdsForUser(email));
     List<ExperimentDAO> experiments = getExperimentsByIdInternal(experimentIds, email, timeZoneForClient);
+    experiments = removeEnded(experiments, timeZoneForClient);
     removeNonAdminData(email, experiments);
     return new ExperimentQueryResult(cursor, experiments); // TODO honor the limit and cursor
   }
+
+  private List<ExperimentDAO> removeEnded(List<ExperimentDAO> experiments, DateTimeZone timeZoneForClient) {
+    List<ExperimentDAO> keepers = Lists.newArrayList();
+    DateTime now = DateTime.now().withZone(timeZoneForClient);
+    for (ExperimentDAO experimentDAO : experiments) {
+      final DateTime latestEndDate = getLatestEndDate(experimentDAO);
+      if (latestEndDate == null || latestEndDate.isAfter(now)) {
+        keepers.add(experimentDAO);
+      }
+    }
+    return keepers;
+  }
+
+
+  private DateTime getLatestEndDate(ExperimentDAO experimentDAO) {
+    return ActionScheduleGenerator.getLastEndTime(experimentDAO);
+  }
+
 
   @Override
   public ExperimentQueryResult getMyJoinedExperiments(String email, DateTimeZone timeZoneForClient,
@@ -411,6 +439,23 @@ class DefaultExperimentService implements ExperimentService {
     } else {
       return lastEndDate;
     }
+  }
+
+
+  @Override
+  public ExperimentQueryResult getAllExperiments(String cursor) {
+    ExperimentQueryResult result = new ExperimentQueryResult();
+    ExperimentHelper.Pair<String, List<String>> jsonResults = ExperimentJsonEntityManager.getAllExperiments(cursor);
+
+    List<ExperimentDAO> experiments = Lists.newArrayList();
+    List<String> experimentEntities = jsonResults.second;
+    for (String experimentJson : experimentEntities) {
+      experiments.add(JsonConverter.fromSingleEntityJson(experimentJson));
+    }
+
+    result.setExperiments(experiments);
+    result.setCursor(jsonResults.first);
+    return result;
   }
 
 

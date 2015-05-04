@@ -19,7 +19,6 @@ package com.pacoapp.paco.model;
 import java.util.List;
 
 import org.codehaus.jackson.annotate.JsonIgnore;
-import org.codehaus.jackson.annotate.JsonProperty;
 
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -56,7 +55,7 @@ public class Output implements Parcelable {
   @JsonIgnore
   private long eventId = -1;
 
-  @JsonProperty("inputId")
+  @JsonIgnore
   private long input_server_id = -1;
   private String name;
   private String answer;
@@ -85,12 +84,12 @@ public class Output implements Parcelable {
     this.eventId = eventId;
   }
 
-  @JsonProperty("inputId")
+  @JsonIgnore
   public long getInputServerId() {
     return input_server_id;
   }
 
-  @JsonProperty("inputId")
+  @JsonIgnore
   public void setInputServerId(long serverId) {
     this.input_server_id = serverId;
   }

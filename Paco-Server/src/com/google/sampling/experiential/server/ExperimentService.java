@@ -5,7 +5,6 @@ import java.util.List;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 
-import com.google.appengine.api.users.User;
 import com.pacoapp.paco.shared.model2.ExperimentDAO;
 import com.pacoapp.paco.shared.model2.ExperimentQueryResult;
 import com.pacoapp.paco.shared.model2.ValidationMessage;
@@ -28,7 +27,7 @@ public interface ExperimentService {
   //List<String> getExperimentsByIdAsJson(List<Long> experimentIds, String email, DateTimeZone timezone);
 
   // saving experiments
-  List<ValidationMessage> saveExperiment(ExperimentDAO experimentDAO, User userFromLogin, DateTimeZone timezone);
+  List<ValidationMessage> saveExperiment(ExperimentDAO experimentDAO, String loggedInUserEmail, DateTimeZone timezone);
 
   //delete experiments
   Boolean deleteExperiment(ExperimentDAO experimentDAO, String loggedInUserEmail);
@@ -55,6 +54,8 @@ public interface ExperimentService {
   Boolean deleteExperiments(List<Long> experimentIds, String email);
 
   ExperimentQueryResult getMyJoinedExperiments(String email, DateTimeZone timezone, Integer limit, String cursor);
+
+  ExperimentQueryResult getAllExperiments(String cursor);
 
 
 }

@@ -105,7 +105,9 @@ public class ExperimentJsonUploadProcessor {
       return outcome;
     }
 
-    List<ValidationMessage> saveExperimentErrorResults = experimentService.saveExperiment(experimentDAO, userFromLogin, timezone);
+    List<ValidationMessage> saveExperimentErrorResults = experimentService.saveExperiment(experimentDAO,
+                                                                                          userFromLogin.getEmail().toLowerCase(),
+                                                                                          timezone);
     if (saveExperimentErrorResults != null) {
       ObjectMapper mapper = JsonConverter.getObjectMapper();
       String json = mapper.writeValueAsString(saveExperimentErrorResults);

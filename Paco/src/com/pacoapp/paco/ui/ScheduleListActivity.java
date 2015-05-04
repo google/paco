@@ -190,12 +190,19 @@ public class ScheduleListActivity extends ActionBarActivity implements ScheduleL
     for (ExperimentGroup experimentGroup : groups) {
       List<ActionTrigger> actionTriggers = experimentGroup.getActionTriggers();
       for (ActionTrigger actionTrigger : actionTriggers) {
-        if (actionTrigger.getUserEditable()) {
-          boolean userCanOnlyEditOnJoin = actionTrigger.getOnlyEditableOnJoin();
-          if (!userCanOnlyEditOnJoin || (userCanOnlyEditOnJoin && fromInformedConsentPage)) {
-            return true;
+        if (actionTrigger instanceof ScheduleTrigger) {
+          ScheduleTrigger scheduleTrigger = (ScheduleTrigger)actionTrigger;
+          List<Schedule> schedules = scheduleTrigger.getSchedules();
+          for (Schedule schedule : schedules) {
+            if (schedule.getUserEditable()) {
+              boolean userCanOnlyEditOnJoin = schedule.getOnlyEditableOnJoin();
+              if (!userCanOnlyEditOnJoin || (userCanOnlyEditOnJoin && fromInformedConsentPage)) {
+                return true;
+              }
+            }
           }
         }
+
       }
     }
     return false;
