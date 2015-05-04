@@ -11,6 +11,7 @@ import com.pacoapp.paco.model.Experiment;
 import com.pacoapp.paco.model.ExperimentProviderUtil;
 import com.pacoapp.paco.sensors.android.BroadcastTriggerReceiver;
 import com.pacoapp.paco.shared.model2.ExperimentDAO;
+import com.pacoapp.paco.shared.model2.ExperimentGroup;
 import com.pacoapp.paco.shared.model2.JsonConverter;
 import com.pacoapp.paco.shared.util.ExperimentHelper;
 import com.pacoapp.paco.triggering.BeeperService;
@@ -24,12 +25,28 @@ public class JavascriptExperimentLoader {
   private ExperimentProviderUtil experimentProvider;
   private Context context;
   private Experiment androidExperiment;
+  private ExperimentGroup experimentGroup;
+  private String experimentGroupJson;
 
-  public JavascriptExperimentLoader(Context context, ExperimentProviderUtil experimentProvider, ExperimentDAO experiment2 ,Experiment androidExperiment) {
+  public JavascriptExperimentLoader(Context context, ExperimentProviderUtil experimentProvider,
+                                    ExperimentDAO experiment2, Experiment androidExperiment, ExperimentGroup experimentGroup2) {
     this.context = context;
       this.experimentProvider = experimentProvider;
       this.experiment = experiment2;
       this.androidExperiment = androidExperiment;
+      this.experimentGroup = experimentGroup2;
+  }
+
+
+  @JavascriptInterface
+  public String getExperimentGroup() {
+    long t1 = System.currentTimeMillis();
+    if (this.experimentGroupJson == null) {
+      experimentGroupJson = JsonConverter.jsonify(experimentGroup);
+    }
+    long t2= System.currentTimeMillis();
+    Log.e(PacoConstants.TAG, "time to load experiment in getExperiment(): " + (t2 - t1));
+    return experimentGroupJson;
   }
 
   @JavascriptInterface

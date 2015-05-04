@@ -449,13 +449,14 @@ private void injectObjectsIntoJavascriptEnvironment() {
   }
   map.put("notificationLabel", notificationMessage);
   map.put("notificationSource", notificationSource);
+  map.put("experimentGroupName", experimentGroup.getName());
   env = new Environment(map);
   webView.addJavascriptInterface(env, "env");
 
   String text = experimentGroup.getCustomRenderingCode();
   webView.addJavascriptInterface(text, "additions");
 
-  webView.addJavascriptInterface(new JavascriptExperimentLoader(this, experimentProviderUtil, experiment.getExperimentDAO(), experiment), "experimentLoader");
+  webView.addJavascriptInterface(new JavascriptExperimentLoader(this, experimentProviderUtil, experiment.getExperimentDAO(), experiment, experimentGroup), "experimentLoader");
 
   JavascriptEventLoader javascriptEventLoader = new JavascriptEventLoader(experimentProviderUtil, experiment, experiment.getExperimentDAO(), experimentGroup);
   webView.addJavascriptInterface(javascriptEventLoader, "db");

@@ -33,7 +33,7 @@ public class AndroidJsInterpreterBuilder {
     ExperimentProviderUtil experimentProvider = new ExperimentProviderUtil(context);
     bindLibraries(context, interpreter);
     interpreter.newBind("db", new JavascriptEventLoader(experimentProvider, androidExperiment, experiment, experimentGroup));
-    interpreter.newBind("experimentLoader", new JavascriptExperimentLoader(context, experimentProvider, experiment, androidExperiment));
+    interpreter.newBind("experimentLoader", new JavascriptExperimentLoader(context, experimentProvider, experiment, androidExperiment, experimentGroup));
     interpreter.newBind("notificationService", new JavascriptNotificationService(context, experiment, experimentGroup));
     interpreter.newBind("log", new JavascriptLogger());
 
