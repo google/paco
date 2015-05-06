@@ -8,7 +8,7 @@ pacoApp.controller('HomeCtrl', ['$scope', '$http', '$routeParams', '$location', 
     $http.get('/userinfo').success(function(data) {
 
       $scope.loaded = true;
-      
+
       // Make sure email isn't yourGoogleEmail@here.com for local dev testing
       if (data.user && data.user !== 'yourGoogleEmail@here.com') {
         $scope.user = data.user;
@@ -335,11 +335,13 @@ pacoApp.controller('TriggerCtrl', ['$scope', '$mdDialog', 'config', 'template',
       });
     };
 
-    $scope.showAction = function(event, action) {
+    $scope.showAction = function(event, action, triggerType) {
+
       $mdDialog.show({
         templateUrl: 'partials/action.html',
         locals: {
-          action: action
+          action: action,
+          triggerType: triggerType
         },
         clickOutsideToClose: true,
         controller: 'ActionCtrl'
@@ -361,10 +363,11 @@ pacoApp.controller('TriggerCtrl', ['$scope', '$mdDialog', 'config', 'template',
 
 
 pacoApp.controller('ActionCtrl', ['$scope', '$mdDialog', 'config', 'template',
-  'action',
-  function($scope, $mdDialog, config, template, action) {
+  'action', 'triggerType',
+  function($scope, $mdDialog, config, template, action, triggerType) {
 
     $scope.action = action;
+    $scope.triggerType = triggerType;
     $scope.actionTypes = config.actionTypes;
     $scope.hide = $mdDialog.hide;
 

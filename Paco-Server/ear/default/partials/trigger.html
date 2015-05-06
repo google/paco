@@ -53,7 +53,7 @@
   <div ng-repeat="action in trigger.actions track by $index">
     <div class="section">
       <div class="subsub">
-        <md-button ng-click="showAction($event, action)">
+        <md-button ng-click="showAction($event, action, trigger.type)">
           Edit Action {{$index + 1}}
         </md-button>
         

@@ -7,11 +7,23 @@
         value="{{$index + 1}}">{{type}}</option>
       </select>
     </div>
+    
+    <md-input-container ng-if="triggerType === 'interruptTrigger'">
+      <label>Delay between cue and action</label>
+      <input type="number" ng-model="action.delay">
+       <div ng-messages>
+          <div ng-message>seconds</div>
+        </div>
+    </md-input-container>
+  
 
     <div ng-if="action.actionCode < 3">
       <md-input-container>
         <label>Timeout</label>
         <input type="number" min=0 max=479 ng-model="action.timeout">
+        <div ng-messages>
+          <div ng-message>minutes</div>
+        </div>
       </md-input-container>
       
       <md-input-container>
@@ -22,6 +34,9 @@
       <md-input-container ng-if="action.snoozeCount > 0">
         <label>Snooze time</label>
         <input type="number" ng-model="action.snoozeTimeInMinutes">
+        <div ng-messages>
+          <div ng-message>minutes</div>
+        </div>
       </md-input-container>
     </div>
 
