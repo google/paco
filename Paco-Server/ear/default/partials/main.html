@@ -11,11 +11,17 @@
     </md-button>
   </a>
 
-  <a href="{{logoutURL}}" ng-if="logoutURL && !loginURL">
-    <md-button class="md-raised" id="login">
-      Sign Out
-    </md-button>
-  </a>
+
+  <div class="logout"  ng-if="logoutURL && !loginURL">
+    <span class="user" ng-bind="user"></span>
+    <p>
+      <a href="{{logoutURL}}">
+        <md-button class="md-raised">
+          Sign Out
+        </md-button>
+      </a>
+    </p>
+  </div>
 
   <a href="index.jsp" class="previous">Previous Version</a>
 </md-toolbar>

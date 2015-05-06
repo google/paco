@@ -40,6 +40,18 @@ md-toolbar #login {
   right: 16px;
 }
 
+md-toolbar .logout {
+  font-size: 14px;
+  position: absolute;
+  text-align: right;
+  top: 16px;
+  right: 8px;
+}
+
+md-toolbar .logout .user {
+  margin-right: 8px;
+}
+
 md-toolbar .previous {
   position: absolute;
   right: 16px;
