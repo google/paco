@@ -9,7 +9,7 @@
 
   <div ng-if="experiments" class="group">
     Administered Experiments
-    <div ng-repeat="exp in experiments">
+    <div ng-repeat="exp in experiments | orderBy: 'title'">
       <md-card>
         <md-card-content class="padded">
           <a href="#/experiment/{{exp.id}}">{{exp.title}}
@@ -28,12 +28,6 @@
               Edit
             </md-button>
           </a>
-          <!-- 
-          <a href="events?q=%27experimentId={{exp.id}}%27" target="_new">
-            <md-button>
-              View Data
-            </md-button>
-          </a> -->
 
           <a href="participantStats?experimentId={{exp.id}}" target="_new">
             <md-button>
