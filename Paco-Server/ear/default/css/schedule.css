@@ -71,6 +71,10 @@ md-dialog.schedule md-dialog-content, md-dialog.action md-dialog-content {
   border: none;
 }
 
+.cue {
+  min-width: 400px;
+}
+
 .section input[type=time] {
   border: none !important;
   color: black;
