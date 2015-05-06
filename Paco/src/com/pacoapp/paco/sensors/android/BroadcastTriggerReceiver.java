@@ -103,30 +103,34 @@ public class BroadcastTriggerReceiver extends BroadcastReceiver {
   }
 
 	private void triggerPacoExperimentEndedEvent(Context context, Intent intent) {
-    String experimentServerId = intent.getStringExtra(EXPERIMENT_SERVER_ID_EXTRA_KEY);
-    if (experimentServerId == null || experimentServerId.length() == 0) {
+    long experimentServerId = intent.getLongExtra(EXPERIMENT_SERVER_ID_EXTRA_KEY, -10l);
+    if (experimentServerId == -10l) {
       Log.d(PacoConstants.TAG, "No experimentServerId specified for PACO_EXPERIMENT_ENDED_ACTION");
-    } else {
-      triggerEvent(context, InterruptCue.PACO_EXPERIMENT_ENDED_EVENT, experimentServerId, intent.getExtras());
+      return;
     }
+    String experimentServerIdString = Long.toString(experimentServerId);
+    triggerEvent(context, InterruptCue.PACO_EXPERIMENT_ENDED_EVENT, experimentServerIdString, intent.getExtras());
   }
 
   private void triggerPacoExperimentJoinEvent(Context context, Intent intent) {
-    String experimentServerId = intent.getStringExtra(EXPERIMENT_SERVER_ID_EXTRA_KEY);
-    if (experimentServerId == null || experimentServerId.length() == 0) {
+    long experimentServerId = intent.getLongExtra(EXPERIMENT_SERVER_ID_EXTRA_KEY, -10l);
+    if (experimentServerId == -10l) {
       Log.d(PacoConstants.TAG, "No experimentServerId specified for PACO_EXPERIMENT_JOINED_ACTION");
-    } else {
-      triggerEvent(context, InterruptCue.PACO_EXPERIMENT_JOINED_EVENT, experimentServerId, intent.getExtras());
+      return;
     }
+    String experimentServerIdString = Long.toString(experimentServerId);
+    triggerEvent(context, InterruptCue.PACO_EXPERIMENT_JOINED_EVENT, experimentServerIdString, intent.getExtras());
   }
 
   private void triggerPacoExperimentResponseReceivedEvent(Context context, Intent intent) {
-    String experimentServerId = intent.getStringExtra(EXPERIMENT_SERVER_ID_EXTRA_KEY);
-    if (experimentServerId == null || experimentServerId.length() == 0) {
+    long experimentServerId = intent.getLongExtra(EXPERIMENT_SERVER_ID_EXTRA_KEY, -10l);
+    if (experimentServerId == -10l) {
       Log.d(PacoConstants.TAG, "No experimentServerId specified for PACO_EXPERIMENT_RESPONSE_RECEIVED_ACTION");
-    } else {
-      triggerEvent(context, InterruptCue.PACO_EXPERIMENT_RESPONSE_RECEIVED_EVENT, experimentServerId, intent.getExtras());
+      return;
     }
+    String experimentServerIdString = Long.toString(experimentServerId);
+    triggerEvent(context, InterruptCue.PACO_EXPERIMENT_RESPONSE_RECEIVED_EVENT, experimentServerIdString, intent.getExtras());
+
   }
 
   /**

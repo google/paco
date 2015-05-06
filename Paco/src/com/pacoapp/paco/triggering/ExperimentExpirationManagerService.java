@@ -91,7 +91,7 @@ public class ExperimentExpirationManagerService extends Service {
 
     List<Experiment> stillRunningExperiments = checkForEndedExperiments(experiments);
     if (!stillRunningExperiments.isEmpty()) {
-      createWakeupAlarm();
+      createNextAlarm();
     }
   }
 
@@ -111,9 +111,9 @@ public class ExperimentExpirationManagerService extends Service {
     return stillRunning;
   }
 
-  private void createWakeupAlarm() {
+  private void createNextAlarm() {
 
-    DateTime alarmTime = new DateMidnight().plusDays(1).toDateTime();
+    DateTime alarmTime = new DateMidnight().plusDays(1).toDateTime().plusHours(10); // 10am // TODO make this a userpref in settings
     Log.i(PacoConstants.TAG, "Creating wakeup alarm for experiment expiration " + alarmTime.toString());
     PendingIntent intent = createAlarmReceiverIntentForExperiment(alarmTime);
     alarmManager.cancel(intent);

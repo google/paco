@@ -167,7 +167,8 @@ public class ExperimentHelper {
                 interruptCue.getCueSource().equals(sourceIdentifier);
             } else if (isExperimentActionTrigger) {
               boolean paramExists = sourceIdentifier != null && !sourceIdentifier.isEmpty();
-              sourceIdsMatch = paramExists && sourceIdentifier.equals(experiment.getId());
+              boolean sameExperiment = Long.parseLong(sourceIdentifier) == experiment.getId();
+              sourceIdsMatch = paramExists == true && sameExperiment == true;
             } else {
               sourceIdsMatch = true;
             }

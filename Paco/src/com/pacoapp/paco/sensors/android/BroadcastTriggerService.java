@@ -27,8 +27,8 @@ import com.pacoapp.paco.shared.model2.PacoAction;
 import com.pacoapp.paco.shared.model2.PacoNotificationAction;
 import com.pacoapp.paco.shared.scheduling.ActionSpecification;
 import com.pacoapp.paco.shared.util.ExperimentHelper;
-import com.pacoapp.paco.shared.util.TimeUtil;
 import com.pacoapp.paco.shared.util.ExperimentHelper.Pair;
+import com.pacoapp.paco.shared.util.TimeUtil;
 import com.pacoapp.paco.triggering.AndroidActionExecutor;
 import com.pacoapp.paco.triggering.NotificationCreator;
 
@@ -65,15 +65,15 @@ public class BroadcastTriggerService extends Service {
     (new Thread(runnable)).start();
   }
 
-  protected void propagateToExperimentsThatCare(Bundle extras) {
+  protected synchronized void propagateToExperimentsThatCare(Bundle extras) {
 
     final int triggerEvent = extras.getInt(Experiment.TRIGGER_EVENT);
     final String sourceIdentifier = extras.getString(Experiment.TRIGGER_SOURCE_IDENTIFIER);
     final String timeStr = extras.getString(Experiment.TRIGGERED_TIME);
-    
-    // TODO pass the duration along to the experiment somehow (either log it at the moment it happened, or, pass it in the notification (yuck)? 
+
+    // TODO pass the duration along to the experiment somehow (either log it at the moment it happened, or, pass it in the notification (yuck)?
     final long duration = extras.getLong(Experiment.TRIGGER_PHONE_CALL_DURATION);
-    
+
     DateTime time = null;
     if (timeStr != null) {
       time = DateTimeFormat.forPattern(TimeUtil.DATETIME_FORMAT).parseDateTime(timeStr);
