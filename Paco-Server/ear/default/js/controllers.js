@@ -1,5 +1,5 @@
-pacoApp.controller('HomeCtrl', ['$scope', '$http', '$routeParams', '$location',
-  function($scope, $http, $routeParams, $location) {
+pacoApp.controller('HomeCtrl', ['$scope', '$http', '$routeParams', '$location', '$cacheFactory',
+  function($scope, $http, $routeParams, $location, $cacheFactory) {
     $scope.newExperiment = false;
     $scope.experimentId = false;
     $scope.tabIndex = -1;
@@ -10,11 +10,11 @@ pacoApp.controller('HomeCtrl', ['$scope', '$http', '$routeParams', '$location',
       if (data.user && data.user !== 'yourGoogleEmail@here.com') {
         $scope.user = data.user;
 
-        $http.get('/experiments?admin').success(function(data) {
+        $http.get('/experiments?admin', {cache: true}).success(function(data) {
           $scope.experiments = data;
         });
 
-        $http.get('/experiments?joined').success(function(data) {
+        $http.get('/experiments?joined', {cache: true}).success(function(data) {
           $scope.joined = data;
         });
 
@@ -75,7 +75,7 @@ pacoApp.controller('ExperimentCtrl', ['$scope', '$http',
         $scope.experiment.admins.push($scope.user);
       }
     } else if ($scope.experimentId) {
-      $http.get('/experiments?id=' + $scope.experimentId).success(
+      $http.get('/experiments?id=' + $scope.experimentId, {cache: true}).success(
         function(data) {
           $scope.experiment = data[0];
           $scope.experiment0 = angular.copy(data[0]);
