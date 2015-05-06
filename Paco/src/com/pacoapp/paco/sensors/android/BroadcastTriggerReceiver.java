@@ -33,13 +33,20 @@ import com.pacoapp.paco.shared.util.TimeUtil;
 
 public class BroadcastTriggerReceiver extends BroadcastReceiver {
 
+  public static final String EXPERIMENT_SERVER_ID_EXTRA_KEY = "experimentServerId";
   private static final String FREQUENCY = "Frequency";
   public static final String RUNNING_PROCESS_WATCHER_FLAG = "RUNNING_PROCESS_WATCHER";
   private static final String LOGGING_ACTIONS_FLAG = "LOGGING_ACTIONS";
 
   public static final String PACO_TRIGGER_INTENT = "com.pacoapp.paco.action.PACO_TRIGGER";
   public static final String PACO_ACTION_PAYLOAD = "paco_action_payload";
-  private static final Object ANDROID_PLAY_MUSIC_ACTION = "com.android.music.playstatechanged";
+
+  public static final String PACO_EXPERIMENT_JOINED_ACTION =  "com.pacoapp.paco.action.PACO_EXPERIMENT_JOINED_ACTION";
+  public static final String PACO_EXPERIMENT_ENDED_ACTION = "com.pacoapp.paco.action.PACO_EXPERIMENT_ENDED_ACTION";
+  public static final String PACO_EXPERIMENT_RESPONSE_RECEIVED_ACTION = "com.pacoapp.paco.action.PACO_EXPERIMENT_RESPONSE_RECEIVED_ACTION";
+
+  private static final String ANDROID_PLAY_MUSIC_ACTION = "com.android.music.playstatechanged";
+
 
 
 	@Override
@@ -54,6 +61,12 @@ public class BroadcastTriggerReceiver extends BroadcastReceiver {
       triggerPacoTriggerReceived(context, intent);
     } else if (intent.getAction().equals(ANDROID_PLAY_MUSIC_ACTION)) {
       triggerMusicStateAction(context, intent);
+    } else if (intent.getAction().equals(PACO_EXPERIMENT_JOINED_ACTION)) {
+      triggerPacoExperimentJoinEvent(context ,intent);
+    } else if (intent.getAction().equals(PACO_EXPERIMENT_ENDED_ACTION)) {
+      triggerPacoExperimentEndedEvent(context ,intent);
+    } else if (intent.getAction().equals(PACO_EXPERIMENT_RESPONSE_RECEIVED_ACTION)) {
+      triggerPacoExperimentResponseReceivedEvent(context ,intent);
     }
 
     PowerManager pm = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
@@ -89,7 +102,34 @@ public class BroadcastTriggerReceiver extends BroadcastReceiver {
     (new Thread(runnable)).start();
   }
 
-	/**
+	private void triggerPacoExperimentEndedEvent(Context context, Intent intent) {
+    String experimentServerId = intent.getStringExtra(EXPERIMENT_SERVER_ID_EXTRA_KEY);
+    if (experimentServerId == null || experimentServerId.length() == 0) {
+      Log.d(PacoConstants.TAG, "No experimentServerId specified for PACO_EXPERIMENT_ENDED_ACTION");
+    } else {
+      triggerEvent(context, InterruptCue.PACO_EXPERIMENT_ENDED_EVENT, experimentServerId, intent.getExtras());
+    }
+  }
+
+  private void triggerPacoExperimentJoinEvent(Context context, Intent intent) {
+    String experimentServerId = intent.getStringExtra(EXPERIMENT_SERVER_ID_EXTRA_KEY);
+    if (experimentServerId == null || experimentServerId.length() == 0) {
+      Log.d(PacoConstants.TAG, "No experimentServerId specified for PACO_EXPERIMENT_JOINED_ACTION");
+    } else {
+      triggerEvent(context, InterruptCue.PACO_EXPERIMENT_JOINED_EVENT, experimentServerId, intent.getExtras());
+    }
+  }
+
+  private void triggerPacoExperimentResponseReceivedEvent(Context context, Intent intent) {
+    String experimentServerId = intent.getStringExtra(EXPERIMENT_SERVER_ID_EXTRA_KEY);
+    if (experimentServerId == null || experimentServerId.length() == 0) {
+      Log.d(PacoConstants.TAG, "No experimentServerId specified for PACO_EXPERIMENT_RESPONSE_RECEIVED_ACTION");
+    } else {
+      triggerEvent(context, InterruptCue.PACO_EXPERIMENT_RESPONSE_RECEIVED_EVENT, experimentServerId, intent.getExtras());
+    }
+  }
+
+  /**
 	 * This is a modified version of code by Gabe Sechen on StackOverflow:
 	 * http://stackoverflow.com/questions/15563921/detecting-an-incoming-call-coming-to-an-android-device
 	 *
@@ -507,6 +547,8 @@ public class BroadcastTriggerReceiver extends BroadcastReceiver {
   }
 
   private void triggerEvent(Context context, int triggerEventCode, String sourceIdentifier, Bundle payload) {
+    final String extraKey = Experiment.TRIGGER_SOURCE_IDENTIFIER;
+
     Intent broadcastTriggerServiceIntent = new Intent(context, BroadcastTriggerService.class);
     broadcastTriggerServiceIntent.putExtra(Experiment.TRIGGERED_TIME, DateTime.now().toString(TimeUtil.DATETIME_FORMAT));
     broadcastTriggerServiceIntent.putExtra(Experiment.TRIGGER_EVENT, triggerEventCode);
@@ -515,7 +557,8 @@ public class BroadcastTriggerReceiver extends BroadcastReceiver {
     }
     broadcastTriggerServiceIntent.putExtra(PACO_ACTION_PAYLOAD, payload);
     if (sourceIdentifier != null) {
-      broadcastTriggerServiceIntent.putExtra(Experiment.TRIGGER_SOURCE_IDENTIFIER, sourceIdentifier);
+
+      broadcastTriggerServiceIntent.putExtra(extraKey, sourceIdentifier);
     }
     context.startService(broadcastTriggerServiceIntent);
   }

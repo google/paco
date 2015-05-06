@@ -42,7 +42,10 @@ pacoApp.service('config', function() {
     'Outgoing call ended',
     'Missed call',
     'Call Started (in or out)',
-    'Call Ended (in or out)'
+    'Call Ended (in or out)',
+    "Experiment joined", 
+    "Experiment ended", 
+    "Response received"
     
   ];
 

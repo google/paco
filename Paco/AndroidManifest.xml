@@ -196,7 +196,16 @@
         <service android:name="com.pacoapp.paco.net.SyncService" />
         <service android:name="com.pacoapp.paco.net.ServerCommunicationService" />
         <service android:name="com.pacoapp.paco.net.MyExperimentsFetchService" />
+        <service android:name="com.pacoapp.paco.triggering.ExperimentExpirationManagerService" />
 
+        <receiver android:name="com.pacoapp.paco.os.ExperimentExpirationAlarmReceiver" android:exported="false">
+            <intent-filter>
+                <action android:name="com.pacoapp.paco.os.ExperimentExpirationAlarmReceiver" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </receiver>
+        
         <receiver android:name="com.pacoapp.paco.os.AlarmReceiver" >
             <intent-filter>
                 <action android:name="com.google.android.apps.paco.AlarmReceiver" />
