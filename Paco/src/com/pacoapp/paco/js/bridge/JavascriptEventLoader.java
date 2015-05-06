@@ -82,8 +82,8 @@ public class JavascriptEventLoader {
         }
       }
       String experimentGroupName = null;
-      if (eventJson.has("experimentGroup")) {
-        experimentGroupName = eventJson.getString("experimentGroup");
+      if (eventJson.has("experimentGroupName")) {
+        experimentGroupName = eventJson.getString("experimentGroupName");
       }
 
       Long actionTriggerId = null;
@@ -129,12 +129,9 @@ public class JavascriptEventLoader {
           output.setName(jsonOutput.getString("name"));
         }
 
-        if (jsonOutput.has("inputId")) {
-          output.setInputServerId(jsonOutput.getLong("inputId"));
-        }
-
         responses.add(output);
       }
+
       event.setResponses(responses);
       experimentProviderUtil.insertEvent(event);
     } catch (NumberFormatException e) {

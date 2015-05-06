@@ -68,13 +68,10 @@ public class ScheduleListActivity extends ActionBarActivity implements ScheduleL
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-
     experimentProviderUtil = new ExperimentProviderUtil(this);
-
     fromInformedConsentPage = getIntent().getExtras() != null ? getIntent().getExtras()
                                                                            .getBoolean(InformedConsentActivity.INFORMED_CONSENT_PAGE_EXTRA_KEY)
                                                              : false;
-
     getSupportActionBar().setDisplayHomeAsUpEnabled(true);
     ActionBar actionBar = getSupportActionBar();
     actionBar.setLogo(R.drawable.ic_launcher);

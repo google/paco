@@ -18,7 +18,7 @@ var paco = (function (init) {
   obj.createResponseForInput = function(input) {
     return { "name" : input.name, 
              "prompt" : input.text,
-             "isMultiselect" : input.isMultiselect,
+             "isMultiselect" : input.multiselect,
              "answer" : input.answer, 
              "responseType" : input.responseType
            };
@@ -32,20 +32,37 @@ var paco = (function (init) {
     return responses;
   };
 
-  obj.createResponseEventForExperimentWithResponses = function(experiment, experimentGroup, responses, scheduledTime) {
+  obj.createResponseEventForExperimentWithResponses = function(experiment, experimentGroup, 
+      actionTriggerId, actionId, actionTriggerSpecId, responses, scheduledTime) {
     return  {
       "experimentId" : experiment.id,
       "experimentVersion" : experiment.version,
       "experimentGroupName" : experimentGroup.name,
+      "actionTriggerId" : actionTriggerId,
+      "actionId" : actionId, 
+      "actionTriggerSpecId" : actionTriggerSpecId, 
       "responseTime" : null, 
       "scheduledTime" : scheduledTime,
       "responses" : responses
     };
   };
 
-  obj.createResponseEventForExperiment = function(experiment, experimentGroup, scheduledTime) {
+//  
+  obj.addEodResponses = function(responses, referredGroupName, currentEvent) {
+    responses.push({"name" : "eodResponseTime", 
+                    "answer": currentEvent.responseTime
+    });
+    responses.push({"name" : "referred_group", 
+                    "answer" : referredGroupName 
+    });
+  }
+//
+  obj.createResponseEventForExperimentGroup = function(experiment, experimentGroup, 
+      actionTriggerId, actionId, actionTriggerSpecId,
+            scheduledTime) {
+    var responses = obj.createResponsesForInputs(experimentGroup.inputs);
     return obj.createResponseEventForExperimentWithResponses(experiment, experimentGroup, 
-        obj.createResponsesForInputs(experimentGroup.inputs), scheduledTime);
+        actionTriggerId, actionId, actionTriggerSpecId, responses, scheduledTime);
   };
 
   obj.answerHas = function(answer, value) {
@@ -78,10 +95,10 @@ var paco = (function (init) {
   };
   
   valid = function(input, inputHtml, response) { 
-    if ((input.required && inputHtml.element[0].style.display != "none") && (!response.answer || response.answer.length === 0)) {
-      return { "succeeded" : false , "error" : "Response required for " + input.name, "name" : input.name};    
+    if ((input.mandatory && inputHtml.element[0].style.display != "none") && (!response.answer || response.answer.length === 0)) {
+      return { "succeeded" : false , "error" : "Response mandatory for " + input.name, "name" : input.name};    
     } else if (!validValueForResponseType(response)) {
-      return { "succeeded" : false , "error" : "Response required for " + name, "name" : name};    
+      return { "succeeded" : false , "error" : "Response mandatory for " + name, "name" : name};    
     } else {
       return { "succeeded" : true };
     }
@@ -252,7 +269,8 @@ var paco = (function (init) {
         var events = db.getAllEvents();
         return events.slice(0..n);
       },
-
+      getResponseForItem  : getResponseForItem,
+      
       getResponsesForEventNTimesAgo : getResponsesForEventNTimesAgo,
 
       getAnswerNTimesAgoFor : getAnswerNTimesAgoFor,
@@ -318,7 +336,7 @@ var paco = (function (init) {
       if (!window.experimentLoader) {
         return null;
       } else {
-        return JSON.parse(window.experimentLoader.getgetEndOfDayReferredExperimentGroup());
+        return JSON.parse(window.experimentLoader.getEndOfDayReferredExperimentGroup());
       }
     };
 
@@ -420,9 +438,9 @@ var paco = (function (init) {
 paco.renderer = (function() {
 
   renderPrompt = function(input) {
-    var element = $(document.createElement("span"));
-    element.text(input.text);
-    element.addClass("prompt");
+    var element = $(document.createElement("h6"));
+    element.addClass("left light");
+    element.text(input.text);    
     return element;    
   };
 
@@ -460,7 +478,6 @@ paco.renderer = (function() {
     });
     parent.append(element);
     
-    conditionalListener.addInput(input, response, parent);
     return element;
   };
 
@@ -471,6 +488,7 @@ paco.renderer = (function() {
   renderTextShort = function(input, response, parent, conditionalListener) {
     var rawElement = document.createElement("input");
     var element = $(rawElement);
+    element.addClass("light");
     element.attr("type", "text");
     element.attr("name", input.name);
     if (response.answer) {
@@ -484,16 +502,13 @@ paco.renderer = (function() {
       conditionalListener.inputChanged();
     });
 
-
-    conditionalListener.addInput(input, response, parent);
-    
     return element;
   };
 
   renderNumber = function(input, response, parent, conditionalListener) {
     var rawElement = document.createElement("input");
     var element = $(rawElement);
-
+    element.addClass("light");
     element.attr("type", "text");
     element.attr("name", input.name);
     if (response.answer) {
@@ -510,8 +525,6 @@ paco.renderer = (function() {
       conditionalListener.inputChanged();
     });
     parent.append(element);
-    
-    conditionalListener.addInput(input, response, parent);
 
     return element;
   };
@@ -522,7 +535,8 @@ paco.renderer = (function() {
     if (left) {
       var element = $(document.createElement("span"));
       element.html(left);
-      element.addClass("radioLabel");
+//      element.addClass("radio-label");
+      element.addClass("light");
       parent.append(element);
     }
 
@@ -532,78 +546,139 @@ paco.renderer = (function() {
     }
     var steps = input.likertSteps;
     for(var i = 0; i < steps; i++) {
+      
       var rawElement = document.createElement("input");
-      var element = $(rawElement);      
+      var element = $(rawElement);
+//      element.addClass("light"); // radio-input
+      element.addClass("yui3-cssreset");
       element.attr("type","radio");
       element.attr("name", input.name);
+      element.attr("id", input.name + "_" + i);
       if (selected && selected === i) {
         element.attr("checked", true);
       } 
       parent.append(element);
+      var label = $("<label>");
+      label.attr("for", input.name + "_" + i);
+      label.attr("value", "");
+      label.addClass("light");      
+      parent.append(label);
+      
       element.change(function(index) {
         return function() { 
           response.answer = index + 1;
           conditionalListener.inputChanged();
         };        
-      }(i));        
+      }(i));     
+      
     }
+    
     var right = input.rightSideLabel || "";
     if (right) {
       var element = $(document.createElement("span"));
       element.text(right);
-      element.addClass("radioLabel");
+//      element.addClass("radio-label");
+      element.addClass("light");
       parent.append(element);
     }
-
-    conditionalListener.addInput(input, response, parent);
 
     return element;
   };
 
   renderList = function(input, response, parent, conditionalListener) {
-    var selected;
-    if (response.answer) {
-      selected = parseInt(response.answer) - 1;
-    }
+    
+    
     var steps = input.listChoices;
-
-
-    var s = $('<select name="' + input.name + '" ' + (input.multiselect ? 'multiple' : '') + '/>');
-    var startIndex = 0;
-    if (!input.multiselect) {
-      $("<option />", {value: 0, text: "Please select"}).appendTo(s);
-      startIndex = 1;
-    }
-    for(var i = 0; i < steps.length; i++) {
-      $("<option />", {value: (i + 1), text: steps[i]}).appendTo(s);
-    }
-    s.change(function() {
-      if (!input.multiselect) {
+    if (input.multiselect) {
+      var selected;
+      if (response.answer) {
+        var listAnswer = parseInt(response.answer) - 1;
+        selected = listAnswer.split(",");        
+      } else {
+        selected = [];
+      }
+      parent.addClass("left-align");
+      
+      for (var step = 0; step < steps.length; step++) {
+        var currentStep = steps[step];
+        var p = $('<p>');
+        p.addClass("input-field col s12 left-align");
+        parent.append(p);
+        
+        var lbl = $("<label>");
+        lbl.attr("for", input.name + "_" + step)
+        lbl.text(currentStep);
+        
+        
+        var chk = $("<input>");        
+        chk.attr("id", input.name + "_" + step);
+        chk.attr("type", "checkbox");
+//        chk.attr("value", step);
+        chk.attr("checked", (selected.indexOf(step) != -1));
+        chk.addClass("filled-in ");
+        p.append(chk);
+        p.append(lbl);
+        p.append($("<br>"));
+        
+        chk.change(function() { 
+            var values = [];
+            var i = 0;
+            var list = $('input:checkbox[id^="' + input.name  + '_"]').each(function() {
+              if (this.checked) {
+                values.push(i);
+              }
+              i++;
+            });
+            
+            var valueString = values.join(",");
+            response.answer = valueString;
+//            alert("Values: " + valueString);
+            conditionalListener.inputChanged();        
+        });
+        
+                
+      }
+      
+    } else {
+      var selected;
+      if (response.answer) {
+        selected = parseInt(response.answer) - 1;
+      }
+      $('select').material_select('destroy');
+      var s = $('<select id="' + input.name + '" name="' + input.name + '" />');
+      var startIndex = 0;
+          $("<option />", {value: 0, text: "Please select"}).appendTo(s);
+          startIndex = 1;
+      for(var i = 0; i < steps.length; i++) {
+        $("<option />", {value: (i + 1), text: steps[i]}).appendTo(s);
+      }
+      s.addClass("light");
+      
+      parent.append(s)
+      
+      var label = $("<label>");
+      label.attr("for", input.name);
+      label.attr("text", "");
+      label.addClass("light");      
+      parent.append(label);
+   
+      $('select').material_select();
+      s.css("display", "block");
+      
+      s.change(function() {
         var val = this.selectedIndex; 
         response.answer = val;
-      } else {
-        var values = [];
-        var list = $("select[name=" + input.name + "]");
-        var listOptions = list.val();
-        for( x = 0; x < listOptions.length; x++) {
-          values.push(parseInt(x) + 1);
-        }
-        var valueString = values.join(",");
-        response.answer = valueString;
-      }
-      conditionalListener.inputChanged();
-    });
-    parent.append(s)
-
-    conditionalListener.addInput(input, response, parent);
-
-    return s;
+        conditionalListener.inputChanged();
+      });
+  
+      return s;
+    }
   };
 
   renderPhotoButton = function(input, response, parent, conditionalListener) {
     var rawElement = document.createElement("input");
     var element = $(rawElement);
-
+    element.addClass("light");
     element.attr("type", "button");
     element.attr("name", input.name);
     element.attr("value", "Click");
@@ -627,33 +702,52 @@ paco.renderer = (function() {
     imgElement.css("vertical-align", "bottom");
     parent.append(element);
     parent.append(imgElement);
-    
-    
-    conditionalListener.addInput(input, response, parent);
 
     return element;
   };
 
   renderInput = function(input, response, conditionalListener) {
-    var rawElement = document.createElement("div");    
-    var div = $(rawElement);
-    div.css({"margin-top":".5em", "margin-bottom" : "0.5em"});
-    div.append(renderPrompt(input));
-    div.append(renderBreak());
+    var panelDiv = $("<div>");
     
+//    var divPromptRow = $("<div>");
+//    divPromptRow.addClass("row");
+//    divPromptRow.css({"margin-bottom" : "0px"});
+//    panelDiv.add(divPromptRow);
+//    
+//    var divPrompt = $("<div>");
+//    divPrompt.addClass("input-field col s12 left-align");
+//    
+//    divPrompt.append(renderPrompt(input));
+//    divPromptRow.append(divPrompt);
+//    
+    panelDiv.append(renderPrompt(input));
+    
+    
+    
+//    div.append(renderBreak());
+    var divInputRow = $("<div>");
+    divInputRow.addClass("row");
+    divInputRow.css({"margin-bottom" : "0px"});
+    
+    var divInput = $("<div>").addClass("input-field col s12");
+    divInputRow.append(divInput);
+    panelDiv.append(divInputRow);
     if (input.responseType === "open text") {
-      renderTextShort(input, response, div, conditionalListener);
+      renderTextShort(input, response, divInput, conditionalListener);
     } else if (input.responseType === "likert") {
-      renderScale(input, response, div, conditionalListener);
+      renderScale(input, response, divInput, conditionalListener);
     } else if (input.responseType === "number") {
-      renderNumber(input, response, div, conditionalListener);
+      renderNumber(input, response, divInput, conditionalListener);
     } else if (input.responseType === "list") {
-      renderList(input, response, div, conditionalListener);
+      renderList(input, response, divInput, conditionalListener);
     } else if (input.responseType === "photo") {
-      renderPhotoButton(input, response, div, conditionalListener);
-    } 
-    div.append(renderBreak());
-    return { "element" : div, "response" : response };
+      renderPhotoButton(input, response, divInput, conditionalListener);
+    }
+    conditionalListener.addInput(input, response, panelDiv);
+
+    panelDiv.append(renderBreak());
+    
+    return { "element" : panelDiv, "response" : response };
   };
 
   renderInputs = function(experimentGroup, responseEvent, conditionalListener) {
@@ -667,8 +761,7 @@ paco.renderer = (function() {
   };
   
   renderBreak = function() {
-    var br = $(document.createElement("br"));
-    return br;
+    return $("<br>");
   };
 
   renderExperimentTitle = function(experiment) {
@@ -685,7 +778,7 @@ paco.renderer = (function() {
     saveButton.css({"margin-top":".5em", "margin-bottom" : "0.5em"});
     return saveButton;
   };
-
+  
   renderDoneButton = function(experiment) {
     var doneButton = document.createElement("input");
     doneButton.type="submit";
@@ -716,6 +809,7 @@ paco.renderer = (function() {
       removeErrors(event.responses);      
       if (mainValidationCallback) {
         mainValidationCallback(event);
+        saveButton.removeClass("disabled");
       }        
     };
 
@@ -728,7 +822,7 @@ paco.renderer = (function() {
       "valid" : validResponse
     };
 
-    saveButton.click(function() { paco.validate(experimentGroup, responseEvent, inputHtmls, errorMarkingCallback) });
+    saveButton.click(function() { saveButton.addClass("disabled"); paco.validate(experimentGroup, responseEvent, inputHtmls, errorMarkingCallback) });
   };
 
   registerDoneButtonCallback = function(doneButton) {
@@ -741,15 +835,16 @@ paco.renderer = (function() {
     });
   };
 
-  renderForm = function(experiment, experimentGroup, responseEvent, rootPanel, saveCallback, conditionalListener) {
-    rootPanel.append(renderExperimentTitle(experiment));
+  renderForm = function(experiment, experimentGroup, responseEvent, 
+      rootPanel, saveCallback, conditionalListener) {
+    rootPanel.html("");
     var inputHtmls = renderInputs(experimentGroup, responseEvent, conditionalListener);
     for (var i in inputHtmls) {
       var ihtml = inputHtmls[i];
       rootPanel.append(ihtml.element);      
     }
-    var saveButton = renderSaveButton();
-    rootPanel.append(saveButton);
+
+    var saveButton = $("#submit-button");
     registerValidationErrorMarkingCallback(experimentGroup, responseEvent, inputHtmls, saveButton, saveCallback);
     // run this once to hide the hidden ones
     conditionalListener.inputChanged();
@@ -763,8 +858,10 @@ paco.renderer = (function() {
     scriptElement.type = 'text/javascript';
     
     var strippedCode = scriptBody(customRenderingCode);
-    scriptElement.text = strippedCode;    
+    scriptElement.text = strippedCode;
+    
     additionsDivId.append(scriptElement);
+
     var newSpan = $(document.createElement('span'));
     
     var html = htmlBody(customRenderingCode);
@@ -779,8 +876,7 @@ paco.renderer = (function() {
   };
 
   loadCustomExperiment = function(experimentGroup, rootPanel) {    
-    var additionsDivId = $(document.createElement("div"));
-    
+    var additionsDivId = $(document.createElement("div"));    
     var customRenderingCode = experimentGroup.customRenderingCode;
     var newHtml = $(document.createElement('div'));
     newHtml.html(customRenderingCode);
@@ -883,6 +979,60 @@ paco.renderer = (function() {
       renderCustomFeedback(experimentGroup, db, element);
     }
   };
+  
+  var mapInputs = function(inputs) {
+    var inputsByName = [];
+    for (var i = 0; i< inputs.length; i++) {
+      var input = inputs[i];
+      inputsByName[input.name] = input;
+    }
+    return inputsByName;
+  };
+  
+  var renderNiceOutputs = function(responses, inputsByName, element) {
+    var responsesHtml = "";
+    for ( var i = 0; i < responses.length; i++) {
+      var response = responses[i];
+      if (response.answer == null || response.answer.length == 0) {
+        response.answer = "";
+      }
+      var input = inputsByName[response.name];
+      
+      responsesHtml += "<div class=\"row\" style=\"margin-bottom: 0px;\">";
+      responsesHtml += "<h6 class=\"left\">";
+      responsesHtml += input.text;
+      responsesHtml += "</h6><br>";
+      responsesHtml += "<p class=\"light grey-text\">";
+      if (input.responseType === "photo") {
+        responsesHtml += "<img src='data:image/jpg;base64," + response["answer"] + "' width=150>";
+      } else if (input.responseType === "location") {
+        responsesHtml += response["answer"];
+        responsesHtml += "&nbsp;&nbsp;&nbsp;<a href='file:///android_asset/map.html?inputId=" + response["name"] + "'>Maps</a>";
+      } else {
+        responsesHtml += response["answer"];
+      }
+      responsesHtml += "</p></div>";
+    }
+    element.html(responsesHtml);
+  };
+
+  var days = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+  
+  renderDailyPingResponsesPanel = function(referredExperimentGroupInputs, 
+      currentEvent, currentPingIndex, pingCount) {
+    var responseDateTime = new Date(currentEvent.responseTime);
+    $("#date-dow-banner").html(days[responseDateTime.getDay()]);
+    $("#date-mdy-field").html(responseDateTime.toLocaleDateString());
+    $("#response-n-of").html(currentPingIndex);
+    $("#response-count").html(pingCount);
+    $("#responsetime-field").html(responseDateTime.toLocaleTimeString());
+    
+    var dailyResponsesDiv = $("#daily-responses");
+    renderNiceOutputs(currentEvent.responses, 
+                                        mapInputs(referredExperimentGroupInputs),
+                                        dailyResponsesDiv);
+  };
+
 
   var obj = {};
   obj.renderPrompt = renderPrompt;
@@ -900,6 +1050,7 @@ paco.renderer = (function() {
   obj.renderSaveButton = renderSaveButton;
   obj.registerValidationErrorMarkingCallback = registerValidationErrorMarkingCallback;
   obj.renderFeedback = renderFeedback;
+  obj.renderDailyPingResponsesPanel = renderDailyPingResponsesPanel;
   return obj;
 
 })();
@@ -907,97 +1058,180 @@ paco.renderer = (function() {
 
 
 
-paco.execute = (function() {
+paco.executeEod = (function() {
 
-  return function(experiment, experimentGroup, form_root) {
-
-  var conditionalListener = (function() {
-    var inputs = [];
-
-    var obj = {};
-    obj.addInput = function(input, responseHolder, visualElement) {
-      inputs.push({ "input" : input, "responseHolder" : responseHolder, "viz" : visualElement});
+  return function(experiment, experimentGroup, referredExperimentGroup, 
+      actionTriggerId, actionId, actionTriggerSpecId, form_root) {
+    var getEodResponseTimeFrom = function(event) {
+      return getResponseForItem(event.responses, "eodResponseTime");
     };
-
-    obj.inputChanged = function() {
-      var values = {};
-      
-      for (var inputIdx in inputs) {
-        var inputPair = inputs[inputIdx];
-        var input = inputPair.input;
-        var value = inputPair.responseHolder.answer;
-        values[input.name] = value; 
-      }
-
-      for (var inputIdx in inputs) {
-        var inputPair = inputs[inputIdx];
-        var input = inputPair.input;
-        if (input.conditional) {
-          var valid = parser.parse(input.conditionExpression, values);
-          if (!valid) {
-            inputPair.viz[0].style.display = "none";
-          } else {
-            inputPair.viz[0].style.display = "";
+    
+    var getResponseTimeFrom = function(event) {
+      return event.responseTime;
+    };
+    
+    var getResponseForItem = function(responses, item) {
+      return paco.db.getResponseForItem(responses, item);
+    }
+    
+    var getActiveEventsWithoutEod = function(referredExperimentGroup, experimentGroup, db) {      
+      var dailyEvents = []; // responseTime, event
+      var eodEvents = {}; // eodResponseTime, event
+      var timeout = experimentGroup.actionTriggers[0].actions[0].timeout * 60 * 1000; // in millis
+      var now = new Date().getTime();
+      var cutoffDateTimeMs = now - timeout;
+      var allEvents = db.getAllEvents();
+      for (var i = 0; i < allEvents.length; i++) {
+        var event = allEvents[i];
+        if (!event.responseTime) {
+          continue;
+        } 
+        if (new Date(event.responseTime).getTime() < cutoffDateTimeMs) {
+          break;
+        }
+        var eventGroupName = event.experimentGroupName;
+        if (!eventGroupName) {
+          continue;
+        }
+        if (eventGroupName === experimentGroup.name) {
+          var eventEodResponseTimeObj = getEodResponseTimeFrom(event);
+          if (eventEodResponseTimeObj) {
+            eodEvents[eventEodResponseTimeObj + ""] = event;
+          }
+        } else if (eventGroupName === referredExperimentGroup.name) {
+          var eventResponseTime = getResponseTimeFrom(event);
+          var alreadyAnswered = eodEvents[eventResponseTime];
+          if (!alreadyAnswered) {
+            dailyEvents.push(event);
           }
         }
       }
-      
+    
+      var result = [];
+      $.each(dailyEvents, function(i, event) {
+        var eventResponseTime = getResponseTimeFrom(event);
+        if (eventResponseTime) {
+          var alreadyAnswered = eodEvents[eventResponseTime];
+          if (!alreadyAnswered) {
+            result.push(event);
+          } else {
+          }
+        }
+      });
+
+      return result;
     };
+    
 
-    return obj;
-  })();
+    var conditionalListener = (function() {
+      var inputs = [];
+      var obj = {};
 
+      obj.addInput = function(input, responseHolder, visualElement) {
+        inputs.push({
+          "input" : input,
+          "responseHolder" : responseHolder,
+          "viz" : visualElement
+        });
+      };
 
+      obj.inputChanged = function() {
+        var values = {};
+
+        for ( var inputIdx in inputs) {
+          var inputPair = inputs[inputIdx];
+          var input = inputPair.input;
+          var value = inputPair.responseHolder.answer;
+          values[input.name] = value;
+        }
+
+        for ( var inputIdx in inputs) {
+          var inputPair = inputs[inputIdx];
+          var input = inputPair.input;
+          
+          if (input.conditional) {
+            var validity = parser.parse(input.conditionExpression, values);
+            if (!validity) {
+              //inputPair.viz[0].style.display = "none";
+              inputPair.viz.addClass("hide");
+            } else {
+              //inputPair.viz[0].style.display = "";
+              inputPair.viz.removeClass("hide");
+            }
+          }
+        }
+
+      };
+
+      return obj;
+    })();
+
+    var unfinishedDailyEvents = getActiveEventsWithoutEod(referredExperimentGroup, experimentGroup, paco.db);
+    var pingCount = unfinishedDailyEvents.length;
+    var currentPingIndex = 1;
+    
     var dbSaveOutcomeCallback = function(status) {
-      if (status["status"] === "success") {    
-        form_root.html("Feedback");
-        paco.renderer.renderFeedback(experiment, experimentGroup, paco.db, form_root);
+      if (status["status"] === "success") {
+        var currentEvent = unfinishedDailyEvents.pop();        
+        if (!currentEvent) {
+          paco.executor.done();
+//          form_root.html("<div>Feedback</div>");
+//          paco.renderer.renderFeedback(experiment, experimentGroup, paco.db, form_root);
+        } else {
+          currentPingIndex++;          
+          renderEvent(currentEvent, currentPingIndex, pingCount);
+        }
       } else {
-        alert("Could not store data. You might try again. Error: " + status["error"]);
+        alert("Could not store data. You might try again. Or contact the researcher running the study. Error: " + status["error"]);
       }   
     };
 
     var saveDataCallback = function(event) {
+//      alert("Saving event: " + JSON.stringify(event, null, 2));
       paco.db.saveEvent(event, dbSaveOutcomeCallback);
     };
+    
     var scheduledTime;
     if (window.env) {
       scheduledTime = window.env.getValue("scheduledTime");
     }
-    var responseEvent = paco.createResponseEventForExperiment(experiment, experimentGroup, scheduledTime);
-
-    if (!experiment.customRendering) {
-      paco.renderer.renderForm(experiment, experimentGroup, responseEvent, form_root, saveDataCallback, conditionalListener);    
-    } else {
-      paco.renderer.renderCustomExperimentForm(experiment, experimentGroup, responseEvent, form_root, saveDataCallback, conditionalListener);
+    
+    var renderEvent = function(currentEvent, currentPingIndex, pingCount) {
+      var responseEvent = paco.createResponseEventForExperimentGroup(experiment, experimentGroup, 
+          actionTriggerId, actionId, actionTriggerSpecId, scheduledTime);
+      paco.addEodResponses(responseEvent.responses, referredExperimentGroup.name, currentEvent);
+      
+      form_root.append(paco.renderer.renderDailyPingResponsesPanel(referredExperimentGroup.inputs, 
+          currentEvent, currentPingIndex, pingCount));
+      paco.renderer.renderForm(experiment, experimentGroup, responseEvent, 
+          $("#eod-questions"), saveDataCallback, conditionalListener);
     }
-  };
+        
+    if (unfinishedDailyEvents.length > 0) {
+      var currentEvent = unfinishedDailyEvents.pop();
+      renderEvent(currentEvent, currentPingIndex, pingCount, saveCallback);
+    } else {
+      $("#response-banner").html(paco.renderer.renderPlainText("No active daily responses"));
+      $("#submit-button").prop("disabled", true);
+    }
 
-  
+    
+    
+    
+  };
 })();
     
-function runCustomExperiment(s0) {
-  var form_root = $(document.createElement("div"));
-  $(document.body).append(form_root);
+function runEodExperiment() {
+  var form_root = $(document.body);
+  
   var experiment = paco.experimentService.getExperiment();
   var experimentGroup = paco.experimentService.getExperimentGroup();
+  var referredGroup = paco.experimentService.getEndOfDayReferredExperimentGroup();
+  var actionTriggerId = window.env.getValue("actionTriggerId");
+  var actionTriggerSpecId = window.env.getValue("actionTriggerSpecId");
+  var actionId = window.env.getValue("actionId");
   
-  paco.renderer.loadCustomExperiment(experimentGroup, form_root);
-  if (main) {
-    main(paco.experiment(), experimentGroup, form_root);
-  } else {
-    form_root.html("Could not initialize the experiment");
-  }
+  paco.executeEod(experiment, experimentGroup, referredGroup, 
+      actionTriggerId, actionId, actionTriggerSpecId, form_root);
 };
 
-
-var getTestExperiment = function() {
-  return {"title":"CustomHtml","description":"","informedConsentForm":"","creator":"bobevans999@gmail.com","fixedDuration":false,"id":995,"questionsChange":false,"modifyDate":"2013/11/05","inputs":[{"id":998,"questionType":"question","text":"What time is it?","mandatory":false,"responseType":"likert","likertSteps":5,"name":"q1","conditional":false,"listChoices":[],"invisibleInput":false},{"id":999,"questionType":"question","text":"How do you feel?","mandatory":false,"responseType":"open text","likertSteps":5,"name":"q2","conditional":false,"listChoices":[],"invisibleInput":false}],"feedback":[{"id":1194,"feedbackType":"display","text":"Thanks for Participating!"}],"published":false,"deleted":false,"webRecommended":false,"version":27,"signalingMechanisms":[{"type":"signalSchedule","id":996,"scheduleType":0,"esmFrequency":3,"esmPeriodInDays":0,"esmStartHour":32400000,"esmEndHour":61200000,"times":[0],"repeatRate":1,"weekDaysScheduled":0,"nthOfMonth":1,"byDayOfMonth":true,"dayOfMonth":1,"esmWeekends":false,"byDayOfWeek":false}],"schedule":{"type":"signalSchedule","id":996,"scheduleType":0,"esmFrequency":3,"esmPeriodInDays":0,"esmStartHour":32400000,"esmEndHour":61200000,"times":[0],"repeatRate":1,"weekDaysScheduled":0,"nthOfMonth":1,"byDayOfMonth":true,"dayOfMonth":1,"esmWeekends":false,"byDayOfWeek":false},"customRendering":true,"customRenderingCode":"<script>\nfunction save() {\n    var experiment = paco.experiment();\n    var inputs = experiment.inputs;\n    var responses = [];\n    for (var i in inputs) {\n        var input = inputs[i];\n        var element = $('input[name='+input.name+']');\n        var value = element.val();\n        var responseObject = paco.createResponseForInput(input);\n        responseObject.answerOrder = value;   \n        responseObject.answer = value;   \n        responses.push(responseObject);\n    }\n    var event = paco.createResponseEventForExperimentWithResponses(experiment, responses);\n    \n    var dbSaveOutcomeCallback = function(status) {\n      if (status[\"status\"] === \"success\") {    \n        alert(\"Saved. \" + JSON.stringify(event));        \n        paco.executor.done();\n        // var form_root = $('#root');\n        // form_root.html(\"\");\n        // paco.renderer.renderFeedback(experiment, paco.db, form_root);        \n      } else {\n        alert(\"Could not store data. You might try again. Error: \" + status[\"error\"]);\n      }   \n    };\n\n    paco.db.saveEvent(event, dbSaveOutcomeCallback);        \n\n}\n\n\n</script>\n<div id=\"root\">\n<h1>Please answer the following</h1>\nQ1 <input type=text name=q1></br>\nQ2 <input type=text name=q2></br>\n<input type=submit name=submit onclick=\"save()\">\n</div>"};
-};
-
-var saveTestExperiment = function() {
-	return {
-		"status" : "1",
-		"error_message" : "not supported in test environment"
-	};
-};

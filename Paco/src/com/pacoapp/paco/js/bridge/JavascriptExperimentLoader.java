@@ -27,6 +27,7 @@ public class JavascriptExperimentLoader {
   private Experiment androidExperiment;
   private ExperimentGroup experimentGroup;
   private String experimentGroupJson;
+  private String experimentGroupReferredJson;
 
   public JavascriptExperimentLoader(Context context, ExperimentProviderUtil experimentProvider,
                                     ExperimentDAO experiment2, Experiment androidExperiment, ExperimentGroup experimentGroup2) {
@@ -45,9 +46,29 @@ public class JavascriptExperimentLoader {
       experimentGroupJson = JsonConverter.jsonify(experimentGroup);
     }
     long t2= System.currentTimeMillis();
-    Log.e(PacoConstants.TAG, "time to load experiment in getExperiment(): " + (t2 - t1));
+    Log.e(PacoConstants.TAG, "time to load experiment group: " + (t2 - t1));
     return experimentGroupJson;
   }
+
+  @JavascriptInterface
+  public String getEndOfDayReferredExperimentGroup() {
+    long t1 = System.currentTimeMillis();
+    if (this.experimentGroupReferredJson == null) {
+      String referredGroupName = experimentGroup.getEndOfDayReferredGroupName();
+      if (referredGroupName == null || referredGroupName.length() == 0) {
+        return null;
+      }
+      ExperimentGroup referredGroup = experiment.getGroupByName(referredGroupName);
+      if (referredGroup == null) {
+        return null;
+      }
+      experimentGroupReferredJson = JsonConverter.jsonify(referredGroup);
+    }
+    long t2= System.currentTimeMillis();
+    Log.e(PacoConstants.TAG, "time to load referred experiment group: " + (t2 - t1));
+    return experimentGroupReferredJson;
+  }
+
 
   @JavascriptInterface
   public String getExperiment() {
