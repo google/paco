@@ -3,9 +3,12 @@ pacoApp.controller('HomeCtrl', ['$scope', '$http', '$routeParams', '$location', 
     $scope.newExperiment = false;
     $scope.experimentId = false;
     $scope.tabIndex = -1;
+    $scope.loaded = false;
 
     $http.get('/userinfo').success(function(data) {
 
+      $scope.loaded = true;
+      
       // Make sure email isn't yourGoogleEmail@here.com for local dev testing
       if (data.user && data.user !== 'yourGoogleEmail@here.com') {
         $scope.user = data.user;

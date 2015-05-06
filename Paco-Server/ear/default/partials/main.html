@@ -20,11 +20,11 @@
   <a href="index.jsp" class="previous">Previous Version</a>
 </md-toolbar>
 
-<div class="bg">
+<div class="bg" class="ng-cloak">
   <div class="main">
     <div ng-if="experimentId" ng-include="'partials/experiment.html'"></div>
     <div ng-if="!experimentId && user && !csvExperimentId" ng-include="'partials/list.html'"></div>
-    <div ng-if="!user && !experimentId" ng-include="'partials/home.html'"></div>
+    <div ng-if="!user && !experimentId && loaded" ng-include="'partials/home.html'"></div>
     <div ng-if="csvExperimentId && user" ng-include="'partials/data.html'"></div>
   </div>
 </div>
