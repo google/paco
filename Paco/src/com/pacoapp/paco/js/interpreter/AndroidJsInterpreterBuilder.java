@@ -15,6 +15,7 @@ import com.pacoapp.paco.js.bridge.JavascriptEventLoader;
 import com.pacoapp.paco.js.bridge.JavascriptExperimentLoader;
 import com.pacoapp.paco.js.bridge.JavascriptLogger;
 import com.pacoapp.paco.js.bridge.JavascriptNotificationService;
+import com.pacoapp.paco.js.bridge.JavascriptPackageManager;
 import com.pacoapp.paco.js.bridge.JavascriptSensorManager;
 import com.pacoapp.paco.model.Experiment;
 import com.pacoapp.paco.model.ExperimentProviderUtil;
@@ -33,10 +34,11 @@ public class AndroidJsInterpreterBuilder {
     ExperimentProviderUtil experimentProvider = new ExperimentProviderUtil(context);
     bindLibraries(context, interpreter);
     interpreter.newBind("db", new JavascriptEventLoader(experimentProvider, androidExperiment, experiment, experimentGroup));
-    interpreter.newBind("experimentLoader", new JavascriptExperimentLoader(context, experimentProvider, experiment, androidExperiment));
+    final JavascriptExperimentLoader obj = new JavascriptExperimentLoader(context, experimentProvider, experiment, androidExperiment, experimentGroup);
+    interpreter.newBind("experimentLoader", obj);
     interpreter.newBind("notificationService", new JavascriptNotificationService(context, experiment, experimentGroup));
+    interpreter.newBind("packageManager", new JavascriptPackageManager(context));
     interpreter.newBind("log", new JavascriptLogger());
-
     interpreter.newBind("sensors", new JavascriptSensorManager(context));
     return interpreter;
 

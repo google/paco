@@ -4,8 +4,9 @@ table["a1"] = 5;
 table["a"] = 9;
 table["bb"] = "spaghetti";
 table["c"] = 9;
+table["ban-ana"] = 10;
 }
-
+ 
 start
   = orstmt
   
@@ -53,7 +54,7 @@ integer "integer"
   = digits:[0-9]+ { return parseInt(digits.join(""), 10); }
 
 symbol "symbol"
-  = chars:([A-Za-z] [A-Za-z0-9]*)  { return chars.join(""); }
+  = first:[A-Za-z] rest:[A-Za-z0-9-_]*  { return first + rest.join(""); }
 
 string
   = "\"" alpha:[A-Za-z_0-9]+ "\"" { return alpha.join(""); }

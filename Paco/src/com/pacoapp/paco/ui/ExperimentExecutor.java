@@ -168,10 +168,11 @@ public class ExperimentExecutor extends ActionBarActivity implements ChangeListe
         }
       });
 
-      if (experimentGroup.getEndOfDayGroup()) {
-        renderWebRecommendedMessage();
-      } else {
-        if (experimentGroup.getCustomRendering() != null && experimentGroup.getCustomRendering()) {
+//      if (experimentGroup.getEndOfDayGroup()) {
+//        renderWebRecommendedMessage();
+//      } else {
+        if (experimentGroup.getEndOfDayGroup() ||
+                (experimentGroup.getCustomRendering() != null && experimentGroup.getCustomRendering())) {
           Intent customExecutorIntent = new Intent(this, ExperimentExecutorCustomRendering.class);
 
           Bundle extras = getIntent().getExtras();
@@ -184,7 +185,7 @@ public class ExperimentExecutor extends ActionBarActivity implements ChangeListe
         } else {
           showForm();
         }
-      }
+//      }
     }
 
 

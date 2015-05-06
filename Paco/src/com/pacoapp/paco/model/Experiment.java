@@ -110,6 +110,9 @@ public class Experiment implements Parcelable {
 
   public void setJoinDate(String joinDate) {
     this.joinDate = joinDate;
+    if (experimentDelegate != null) {
+      experimentDelegate.setJoinDate(joinDate);
+    }
   }
 
   @JsonProperty("localId")

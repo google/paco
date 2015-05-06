@@ -161,7 +161,7 @@ public class FeedbackActivity extends ActionBarActivity {
 
     webView.addJavascriptInterface(new JavascriptEmail(this), "email");
     webView.addJavascriptInterface(new JavascriptExperimentLoader(this, experimentProviderUtil,
-                                                                  experiment.getExperimentDAO(), experiment),
+                                                                  experiment.getExperimentDAO(), experiment, experimentGroup),
                                                                   "experimentLoader");
 
     JavascriptEventLoader javascriptEventLoader = new JavascriptEventLoader(experimentProviderUtil, experiment,

@@ -64,6 +64,7 @@ import com.pacoapp.paco.shared.util.ExperimentHelper;
 import com.pacoapp.paco.shared.util.SchedulePrinter;
 import com.pacoapp.paco.shared.util.TimeUtil;
 import com.pacoapp.paco.triggering.BeeperService;
+import com.pacoapp.paco.triggering.PacoExperimentActionBroadcaster;
 import com.pacoapp.paco.utils.IntentExtraHelper;
 
 public class InformedConsentActivity extends ActionBarActivity implements ExperimentLoadingActivity, NetworkClient {
@@ -186,6 +187,7 @@ public class InformedConsentActivity extends ActionBarActivity implements Experi
     experiment = fullExperiment;
     joinExperiment();
     createJoinEvent();
+    PacoExperimentActionBroadcaster.sendJoinExperiment(getApplicationContext(),  experiment);
     startService(new Intent(this, SyncService.class));
     startService(new Intent(this, BeeperService.class));
     if (ExperimentHelper.shouldWatchProcesses(experiment.getExperimentDAO())) {

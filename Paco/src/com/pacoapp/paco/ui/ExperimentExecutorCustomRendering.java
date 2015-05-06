@@ -211,16 +211,8 @@ public class ExperimentExecutorCustomRendering extends ActionBarActivity impleme
         }
       });
 
-
-      //render
-      if (experimentGroup.getEndOfDayGroup()) {
-        renderWebRecommendedMessage();
-      } else {
-        showForm(savedInstanceState);
-      }
+      showForm(savedInstanceState);
     }
-
-
   }
 
   private void renderWebRecommendedMessage() {
@@ -449,13 +441,25 @@ private void injectObjectsIntoJavascriptEnvironment() {
   }
   map.put("notificationLabel", notificationMessage);
   map.put("notificationSource", notificationSource);
+  map.put("experimentGroupName", experimentGroup.getName());
+  if (actionTriggerId != null) {
+    map.put("actionTriggerId", Long.toString(actionTriggerId));
+  }
+  if (actionId != null) {
+    map.put("actionId", Long.toString(actionId));
+  }
+  if (actionTriggerSpecId != null) {
+    map.put("actionTriggerSpecId", Long.toString(actionTriggerSpecId));
+  }
+
+
   env = new Environment(map);
   webView.addJavascriptInterface(env, "env");
 
   String text = experimentGroup.getCustomRenderingCode();
   webView.addJavascriptInterface(text, "additions");
 
-  webView.addJavascriptInterface(new JavascriptExperimentLoader(this, experimentProviderUtil, experiment.getExperimentDAO(), experiment), "experimentLoader");
+  webView.addJavascriptInterface(new JavascriptExperimentLoader(this, experimentProviderUtil, experiment.getExperimentDAO(), experiment, experimentGroup), "experimentLoader");
 
   JavascriptEventLoader javascriptEventLoader = new JavascriptEventLoader(experimentProviderUtil, experiment, experiment.getExperimentDAO(), experimentGroup);
   webView.addJavascriptInterface(javascriptEventLoader, "db");
@@ -471,37 +475,50 @@ private void injectObjectsIntoJavascriptEnvironment() {
 }
 
 private void loadCustomRendererIntoWebView() {
-  if (true/*experiment.fullyCustom()*/) {
-    // url-based loading of webview
-    webView.loadUrl("file:///android_asset/custom_skeleton.html");
+  if (experimentGroup.getEndOfDayGroup()) {
+    loadEndOfDayUrl();
+  } else if (!experimentGroup.getEndOfDayGroup()) {
+    loadUrl();
+  } /*else {
+    loadData();
+  }*/
+}
 
-    // polymer experimentation
-   // webView.loadUrl("file:///android_asset/skeleton2.html");
-    //webView.loadUrl("file:///android_asset/polymer.html");
-    //webView.loadUrl("file:///android_asset/empty.html");
-    //webView.loadUrl("file:///android_asset/vulcanized-simple.html");
-    //webView.loadUrl("file:///android_asset/vulcanized-paper.html");
-  } else {
-    // data-based loading of webview
-    BufferedReader r = null;
-    try {
-      StringBuffer data = new StringBuffer();
-      InputStream in = this.getClassLoader().getResourceAsStream("file:///android_asset/polymer.html");
-      r = new BufferedReader(new InputStreamReader(in));
-      String line;
-      while ((line = r.readLine()) != null) {
-        data.append(line);
-      }
-      webView.loadData(data.toString(), "text/html", "UTF-8");
-    } catch (IOException e) {
-      e.printStackTrace();
-    } finally {
-      if (r != null) {
-        try {
-          r.close();
-        } catch (IOException e) {
-          e.printStackTrace();
-        }
+private void loadEndOfDayUrl() {
+  webView.loadUrl("file:///android_asset/eod_skeleton.html");
+
+}
+
+public void loadUrl() {
+  webView.loadUrl("file:///android_asset/custom_skeleton.html");
+  // polymer experimentation
+  // webView.loadUrl("file:///android_asset/skeleton2.html");
+  //webView.loadUrl("file:///android_asset/polymer.html");
+  //webView.loadUrl("file:///android_asset/empty.html");
+  //webView.loadUrl("file:///android_asset/vulcanized-simple.html");
+  //webView.loadUrl("file:///android_asset/vulcanized-paper.html");
+}
+
+public void loadData() {
+  // data-based loading of webview
+  BufferedReader r = null;
+  try {
+    StringBuffer data = new StringBuffer();
+    InputStream in = this.getClassLoader().getResourceAsStream("file:///android_asset/polymer.html");
+    r = new BufferedReader(new InputStreamReader(in));
+    String line;
+    while ((line = r.readLine()) != null) {
+      data.append(line);
+    }
+    webView.loadData(data.toString(), "text/html", "UTF-8");
+  } catch (IOException e) {
+    e.printStackTrace();
+  } finally {
+    if (r != null) {
+      try {
+        r.close();
+      } catch (IOException e) {
+        e.printStackTrace();
       }
     }
   }
@@ -1050,5 +1067,12 @@ public boolean onKeyDown(int keyCode, KeyEvent event) {
     this.experiment = experiment;
 
   }
+
+    public void stopExperiment() {
+    experimentProviderUtil.deleteExperiment(getExperiment().getId());
+    updateAlarms();
+    finish();
+  }
+
 
 }

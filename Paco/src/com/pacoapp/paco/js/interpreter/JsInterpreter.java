@@ -14,7 +14,10 @@ import org.mozilla.javascript.RhinoException;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.ScriptableObject;
 
+import android.util.Log;
+
 import com.google.common.collect.ImmutableSet;
+import com.pacoapp.paco.PacoConstants;
 
 public class JsInterpreter {
 
@@ -38,7 +41,7 @@ public class JsInterpreter {
       context.setClassShutter(new ClassShutter() {
           @Override
           public boolean visibleToScripts(String className) {
-//            if (true) return true;
+            if (true) return true;
             // TODO restrict this to just the specific classes scripts need
             // e.g.
             if (className.startsWith("com.google.android.apps.paco.")) {
@@ -86,10 +89,11 @@ public class JsInterpreter {
 //      context.setOptimizationLevel(-1);
       return context.evaluateString(rootScope, code, "doit:", 1, securityDomain);
     } catch (JavaScriptException jse) {
-      // log
+      Log.e(PacoConstants.TAG, "JSE: " + jse.getMessage() + ". " + jse.getScriptStackTrace());
       throw jse;
     } catch (RhinoException re) {
       // log
+      Log.e(PacoConstants.TAG, "JSE: " + re.getMessage() + ". "  + re.getScriptStackTrace());
       throw new IllegalStateException(re);
 //    } finally {
 //      context.exit();

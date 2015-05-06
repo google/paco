@@ -156,11 +156,19 @@ public class ExperimentHelper {
 
             boolean usesSourceId = interruptCue.getCueCode() == InterruptCue.PACO_ACTION_EVENT || interruptCue.getCueCode() == InterruptCue.APP_USAGE;
             boolean sourceIdsMatch;
+            boolean isExperimentActionTrigger = interruptCue.getCueCode() == InterruptCue.PACO_EXPERIMENT_JOINED_EVENT
+                    || interruptCue.getCueCode() == InterruptCue.PACO_EXPERIMENT_ENDED_EVENT
+                    || interruptCue.getCueCode() == InterruptCue.PACO_EXPERIMENT_RESPONSE_RECEIVED_EVENT;
+
             boolean triggerSourceIdIsEmpty = interruptCue.getCueSource() == null || interruptCue.getCueSource().isEmpty() ;
             if (usesSourceId) {
               boolean paramEmpty = sourceIdentifier == null || sourceIdentifier.isEmpty();
               sourceIdsMatch = (paramEmpty && triggerSourceIdIsEmpty) ||
                 interruptCue.getCueSource().equals(sourceIdentifier);
+            } else if (isExperimentActionTrigger) {
+              boolean paramExists = sourceIdentifier != null && !sourceIdentifier.isEmpty();
+              boolean sameExperiment = Long.parseLong(sourceIdentifier) == experiment.getId();
+              sourceIdsMatch = paramExists == true && sameExperiment == true;
             } else {
               sourceIdsMatch = true;
             }

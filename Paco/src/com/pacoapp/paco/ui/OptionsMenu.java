@@ -73,11 +73,19 @@ public class OptionsMenu {
   }
 
   private void launchDataScreen() {
-   ((ExperimentExecutor)context).showFeedback();
+    if (context instanceof ExperimentExecutor) {
+      ((ExperimentExecutor)context).showFeedback();
+    } else if (context instanceof ExperimentExecutorCustomRendering) {
+      ((ExperimentExecutorCustomRendering)context).showFeedback();
+    }
   }
 
   private void launchStopScreen() {
-    ((ExperimentExecutor)context).stopExperiment();
+    if (context instanceof ExperimentExecutor) {
+      ((ExperimentExecutor)context).stopExperiment();
+    } else if (context instanceof ExperimentExecutorCustomRendering) {
+      ((ExperimentExecutorCustomRendering)context).stopExperiment();
+    }
    }
 
 
