@@ -10,7 +10,7 @@ var paco = (function (init) {
              "responseType" : input.responseType
            };
   };
-
+  
   obj.createResponsesForInputs = function(inputs) {
     var responses = [];
     for (var experimentalInput in inputs) {
@@ -19,18 +19,28 @@ var paco = (function (init) {
     return responses;
   };
 
-  obj.createResponseEventForExperimentWithResponses = function(experiment, responses, scheduledTime) {
+  obj.createResponseEventForExperimentWithResponses = function(experiment, experimentGroup, 
+      actionTriggerId, actionId, actionTriggerSpecId, responses, scheduledTime) {
     return  {
       "experimentId" : experiment.id,
+      "experimentVersion" : experiment.version,
+      "experimentGroupName" : experimentGroup.name,
+      "actionTriggerId" : actionTriggerId,
+      "actionId" : actionId, 
+      "actionTriggerSpecId" : actionTriggerSpecId, 
       "responseTime" : null, 
       "scheduledTime" : scheduledTime,
-      "version" : experiment.version,
       "responses" : responses
     };
   };
 
-  obj.createResponseEventForExperiment = function(experiment, scheduledTime) {
-    return obj.createResponseEventForExperimentWithResponses(experiment, obj.createResponsesForInputs(experiment.inputs), scheduledTime);
+//  
+//
+  obj.createResponseEventForExperimentGroup = function(experiment, experimentGroup, 
+      actionTriggerId, actionId, actionTriggerSpecId, scheduledTime) {
+    var responses = obj.createResponsesForInputs(experimentGroup.inputs);
+    return obj.createResponseEventForExperimentWithResponses(experiment, experimentGroup, 
+        actionTriggerId, actionId, actionTriggerSpecId, responses, scheduledTime);
   };
 
   obj.answerHas = function(answer, value) {
@@ -240,6 +250,15 @@ var paco = (function (init) {
       }
     };
 
+    var getExperimentGroup = function() {
+      if (!experimentLoader) {
+        return null;
+      } else {
+        return JSON.parse(experimentLoader.getExperimentGroup());
+      }
+    };
+    
+
     var saveExperiment = function(experimentString) {
       if (!experimentLoader) {
         return saveTestExperiment();
@@ -250,6 +269,7 @@ var paco = (function (init) {
 
     return {
       getExperiment : getExperiment,
+      getExperimentGroup : getExperimentGroup,
       saveExperiment : function(experiment, callback) {
         var result = saveExperiment(JSON.stringify(experiment), callback);
         if (callback) {

@@ -96,6 +96,7 @@ public class JavascriptExperimentLoader {
       public void run() {
         long t1 = System.currentTimeMillis();
         ExperimentDAO experiment = JsonConverter.fromSingleEntityJson(experimentJson);
+        androidExperiment.setExperimentDAO(experiment);
         long t2 = System.currentTimeMillis();
         Log.e(PacoConstants.TAG, "time to load from json : " + (t2 - t1));
         experimentProvider.updateExistingExperiments(Lists.newArrayList(androidExperiment), true);
