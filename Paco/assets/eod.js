@@ -1209,7 +1209,7 @@ paco.executeEod = (function() {
         
     if (unfinishedDailyEvents.length > 0) {
       var currentEvent = unfinishedDailyEvents.pop();
-      renderEvent(currentEvent, currentPingIndex, pingCount, saveCallback);
+      renderEvent(currentEvent, currentPingIndex, pingCount, saveDataCallback);
     } else {
       $("#response-banner").html(paco.renderer.renderPlainText("No active daily responses"));
       $("#submit-button").prop("disabled", true);
