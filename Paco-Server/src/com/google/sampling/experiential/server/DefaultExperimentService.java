@@ -30,6 +30,7 @@ import com.pacoapp.paco.shared.model2.ExperimentQueryResult;
 import com.pacoapp.paco.shared.model2.ExperimentValidator;
 import com.pacoapp.paco.shared.model2.InterruptTrigger;
 import com.pacoapp.paco.shared.model2.JsonConverter;
+import com.pacoapp.paco.shared.model2.PacoAction;
 import com.pacoapp.paco.shared.model2.Schedule;
 import com.pacoapp.paco.shared.model2.ScheduleTrigger;
 import com.pacoapp.paco.shared.model2.SignalTime;
@@ -114,6 +115,7 @@ class DefaultExperimentService implements ExperimentService {
 
 
     if (ExperimentAccessManager.isUserAllowedToSaveExperiment(experiment.getId(), loggedInUserEmail)) {
+      ensureIdsOnSubObjects(experiment);
       DatastoreService ds = DatastoreServiceFactory.getDatastoreService();
       TransactionOptions options = TransactionOptions.Builder.withXG(true);
       Transaction tx = ds.beginTransaction(options);
@@ -149,6 +151,36 @@ class DefaultExperimentService implements ExperimentService {
     throw new IllegalStateException(loggedInUserEmail + " does not have permission to edit " + experiment.getTitle());
 
   }
+
+  private void ensureIdsOnSubObjects(ExperimentDAO experiment) {
+    long id = new Date().getTime();
+    List<ExperimentGroup> groups = experiment.getGroups();
+    for (ExperimentGroup experimentGroup : groups) {
+      List<ActionTrigger> actionTriggers = experimentGroup.getActionTriggers();
+      for (ActionTrigger actionTrigger : actionTriggers) {
+        if (actionTrigger.getId() == null) {
+          actionTrigger.setId(id++);
+        }
+        List<PacoAction> actions = actionTrigger.getActions();
+        for (PacoAction pacoAction : actions) {
+          if (pacoAction.getId() == null) {
+            pacoAction.setId(id++);
+          }
+        }
+        if (actionTrigger instanceof ScheduleTrigger) {
+          ScheduleTrigger scheduleTrigger = (ScheduleTrigger)actionTrigger;
+          List<Schedule> schedules = scheduleTrigger.getSchedules();
+          for (Schedule schedule : schedules) {
+            if (schedule.getId() == null) {
+              schedule.setId(id++);
+            }
+          }
+        }
+      }
+    }
+
+  }
+
 
   // delete experiments
   @Override
