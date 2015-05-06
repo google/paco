@@ -44,13 +44,22 @@
       </md-input-container>
 
       <div flex>
-
         Extra Types of Data Collection
         <div ng-repeat="(id, declare) in dataDeclarations">
 
           <!-- TODO(ispiro): switch to md-checkbox -->
           <label>
             <input type=checkbox ng-checked="inList(id)" value="{{id}}" ng-click="toggle(id)"> {{declare}}
+          </label>
+        </div>
+      </div>
+      
+      <div flex>
+        Phone details
+        <div>
+          <label>
+            <input type=checkbox ng-model="experiment.recordPhoneDetails">
+            Record phone details in the "Join" event
           </label>
         </div>
       </div>
