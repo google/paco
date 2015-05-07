@@ -1008,6 +1008,16 @@ paco.renderer = (function() {
       } else if (input.responseType === "location") {
         responsesHtml += response["answer"];
         responsesHtml += "&nbsp;&nbsp;&nbsp;<a href='file:///android_asset/map.html?inputId=" + response["name"] + "'>Maps</a>";
+      } else if (input.responseType === "list") {
+        
+        var answer = response["answer"];
+        var listChoiceName = answer;
+        if (answer) {
+          answer = parseInt(answer);
+          var index = answer - 1;
+          listChoiceName = input.listChoices[index];
+        }        
+        responsesHtml += listChoiceName;
       } else {
         responsesHtml += response["answer"];
       }
