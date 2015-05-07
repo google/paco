@@ -5,8 +5,7 @@
       <div>
         <select ng-model="cue.cueCode" as-string>
           <option value="" disabled selected>Choose cue event</option>
-          <option ng-selected="($index + 1) === cue.cueCode" 
-            ng-repeat="type in cueTypes" value="{{$index + 1}}">{{type}}</option>
+          <option ng-selected="($index + 1) === cue.cueCode" ng-repeat="type in cueTypes" value="{{$index + 1}}">{{type}}</option>
         </select>
       </div>
 

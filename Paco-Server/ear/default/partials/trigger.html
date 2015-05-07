@@ -18,6 +18,11 @@
       Add Action
     </md-button>
 
+    <md-input-container ng-if="trigger.type === 'interruptTrigger'" class="minBuffer">
+      <label>Minimum minutes between signals</label>
+      <input type="number" ng-model="trigger.minimumBuffer">
+    </md-input-container>
+
     <a class="remove-button" href="" ng-click="remove(group.actionTriggers, $index)">
     </a>
   </div>

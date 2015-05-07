@@ -66,6 +66,13 @@
   -webkit-transition: height .5s;
 }
 
+.trigger .minBuffer {
+  position: absolute;
+  top: 44px;
+  left: 480px;
+  width: 300px !important;
+}
+
 .input select {
   margin-left: 16px;
 }
