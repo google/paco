@@ -77,7 +77,7 @@ public class JavascriptEventLoader {
       Long scheduledTime = null;
       if (eventJson.has("scheduledTime")) {
         String scheduledTimeString = eventJson.getString("scheduledTime");
-        if (!Strings.isNullOrEmpty(scheduledTimeString)) {
+        if (!Strings.isNullOrEmpty(scheduledTimeString) && !scheduledTimeString.equals("null")) {
           scheduledTime = Long.parseLong(scheduledTimeString);
         }
       }
@@ -92,7 +92,7 @@ public class JavascriptEventLoader {
 
       if (eventJson.has("actionTriggerId")) {
         String actionTriggerIdStr = eventJson.getString("actionTriggerId");
-        if (!Strings.isNullOrEmpty(actionTriggerIdStr)) {
+        if (!Strings.isNullOrEmpty(actionTriggerIdStr) && !actionTriggerIdStr.equals("null")) {
           actionTriggerId = Long.parseLong(actionTriggerIdStr);
         }
 
@@ -100,20 +100,21 @@ public class JavascriptEventLoader {
 
       if (eventJson.has("actionTriggerSpecId")) {
         String actionTriggerSpecIdStr = eventJson.getString("actionTriggerSpecId");
-        if (!Strings.isNullOrEmpty(actionTriggerSpecIdStr)) {
+        if (!Strings.isNullOrEmpty(actionTriggerSpecIdStr) && !actionTriggerSpecIdStr.equals("null")) {
           actionTriggerSpecId = Long.parseLong(actionTriggerSpecIdStr);
         }
       }
 
       if (eventJson.has("actionId")) {
         String actionIdStr = eventJson.getString("actionId");
-        if (!Strings.isNullOrEmpty(actionIdStr)) {
+        if (!Strings.isNullOrEmpty(actionIdStr) && !actionIdStr.equals("null")) {
           actionId = Long.parseLong(actionIdStr);
         }
       }
 
 
-      Event event = EventUtil.createEvent(androidExperiment, experimentGroupName, scheduledTime, actionTriggerId, actionTriggerSpecId, actionId);
+      Event event = EventUtil.createEvent(androidExperiment, experimentGroupName,
+                                          actionTriggerId, actionId, actionTriggerSpecId, scheduledTime);
 
       JSONArray jsonResponses = eventJson.getJSONArray("responses");
       List<Output> responses = Lists.newArrayList();
@@ -135,11 +136,10 @@ public class JavascriptEventLoader {
       event.setResponses(responses);
       experimentProviderUtil.insertEvent(event);
     } catch (NumberFormatException e) {
-      // TODO Auto-generated catch block
+      Log.e(PacoConstants.TAG, "NumberFormatException: ", e);
       e.printStackTrace();
     } catch (JSONException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
+      Log.e(PacoConstants.TAG, "JSONException: ", e);
     }
   }
 }

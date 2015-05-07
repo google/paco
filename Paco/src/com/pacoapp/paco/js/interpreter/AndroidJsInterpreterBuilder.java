@@ -33,7 +33,7 @@ public class AndroidJsInterpreterBuilder {
     JsInterpreter interpreter = new JsInterpreter();
     ExperimentProviderUtil experimentProvider = new ExperimentProviderUtil(context);
     bindLibraries(context, interpreter);
-    interpreter.newBind("db", new JavascriptEventLoader(experimentProvider, androidExperiment, experiment, experimentGroup));
+    interpreter.newBind("pacodb", new JavascriptEventLoader(experimentProvider, androidExperiment, experiment, experimentGroup));
     final JavascriptExperimentLoader obj = new JavascriptExperimentLoader(context, experimentProvider, experiment, androidExperiment, experimentGroup);
     interpreter.newBind("experimentLoader", obj);
     interpreter.newBind("notificationService", new JavascriptNotificationService(context, experiment, experimentGroup));

@@ -819,9 +819,6 @@ public class ExperimentProviderUtil implements EventStore {
     if (response.getEventId() >= 0) {
       values.put(OutputColumns.EVENT_ID, response.getEventId());
     }
-    if (response.getInputServerId() >= 0) {
-      values.put(OutputColumns.INPUT_SERVER_ID, response.getInputServerId());
-    }
     if (response.getAnswer() != null) {
       values.put(OutputColumns.ANSWER, response.getAnswer());
     }

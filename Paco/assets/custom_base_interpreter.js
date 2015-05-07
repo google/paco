@@ -97,7 +97,7 @@ var paco = (function (init) {
 
       function saveEvent(event) {
         event.responseTime = new Date();
-        db.saveEvent(JSON.stringify(event));
+        pacodb.saveEvent(JSON.stringify(event));
         events.unshift(event);
         return {"status" : "success"};
       };
@@ -122,7 +122,7 @@ var paco = (function (init) {
     };
 
     var db; 
-    if (!db) {
+    if (!pacodb) {
       db = testDb();
     } else {
       db = realDb();
