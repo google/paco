@@ -235,7 +235,7 @@ public class EventJsonUploadProcessor {
           PhotoBlob photoBlob = new PhotoBlob(name, Base64.decodeBase64(answer.getBytes()));
           blobs.add(photoBlob);
           answer = "blob";
-        } else if (answer.length() >= 500) {
+        } else if (answer != null && answer.length() >= 500) {
           log.info("The response was too long for: " + name + ".");
           log.info("Response was " + answer);
           answer = answer.substring(0, 497) + "...";
