@@ -70,7 +70,9 @@ public class ExperimentGroupPicker extends ActionBarActivity implements Experime
       choosableGroups = Lists.newArrayList();
       for (ExperimentGroup experimentGroup : groups) {
         if (!experimentGroup.getFixedDuration() || (!ActionScheduleGenerator.isOver(new DateTime(), experimentDAO))) {
-          choosableGroups.add(experimentGroup);
+          if (shouldRender == RENDER_NEXT && experimentGroup.getInputs() != null && !experimentGroup.getInputs().isEmpty()) {
+            choosableGroups.add(experimentGroup);
+          }
         }
       }
 
