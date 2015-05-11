@@ -5,8 +5,6 @@ pacoApp.controller('HomeCtrl', ['$scope', '$http', '$routeParams', '$location', 
     $scope.tabIndex = -1;
     $scope.loaded = false;
 
-    console.log($scope);
-
     $http.get('/userinfo').success(function(data) {
 
       $scope.loaded = true;
@@ -221,8 +219,6 @@ pacoApp.controller('CsvCtrl', ['$scope', '$http', '$mdDialog', '$timeout', '$loc
     $scope.status = 'Sending CSV request';
     $scope.endpoint = '/events?q=experimentId=' + $scope.csvExperimentId + '&csv';
     
-    console.log($scope.endpoint);
-
     if ($scope.anon) {
       $scope.endpoint += '&anon=true';
     }
@@ -392,8 +388,6 @@ pacoApp.controller('ActionCtrl', ['$scope', '$mdDialog', 'config', 'template',
 
 pacoApp.controller('CueCtrl', ['$scope', '$mdDialog', 'config', 'cue',
   function($scope, $mdDialog, config, cue) {
-
-    console.log(cue);
 
     $scope.cue = cue;
     $scope.cueTypes = config.cueTypes;

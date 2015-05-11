@@ -47,12 +47,6 @@
             </md-button>
           </a>
 
-          <a href="#"  ng-controller="EodCtrl" ng-model="exp" ng-click="showEod()">
-            <md-button>
-              EOD
-            </md-button>
-          </a>
-
         </div>
 
       </md-card>
@@ -82,15 +76,9 @@
               </md-button>
             </a>
 
-            <a href="#/data/{{exp.id}}">
+            <a href="events?csv&q=%27experimentId={{exp.id}}%27" target="_new">
               <md-button>
-                Data
-              </md-button>
-            </a>
-
-            <a href="#"  ng-controller="EodCtrl" ng-model="exp" ng-click="showEod()">
-              <md-button>
-                EOD
+                CSV
               </md-button>
             </a>
           </div>
