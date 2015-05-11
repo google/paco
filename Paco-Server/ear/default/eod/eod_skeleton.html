@@ -1,0 +1,183 @@
+<html>
+<head>
+
+<link type="text/css" rel="stylesheet" href="/eod/css/materialize.css"
+	media="screen,projection" />
+<link type="text/css" rel="stylesheet" href="/eod/styles.css"
+	media="screen,projection" />
+	
+<!--Import jQuery before materialize.js-->
+<!-- <script type="text/javascript" src="/eod/jquery-1.11.2.js"></script> -->
+<script type="text/javascript" src="/eod/jquery-2.1.3.min.js"></script>
+<script type="text/javascript" src="/eod/js/materialize.min.js"></script>
+<link rel="stylesheet" type="text/css" href="/eod/cssreset-min.css">
+<script language="javascript" type="text/javascript" src="/eod/peg-0.8.0.min.js"></script>
+<script language="javascript" type="text/javascript" src="/eod/conditional_parser.js"></script>
+<script language="javascript" type="text/javascript" src="/eod/eod.js"></script>
+
+
+<script language="javascript" type="text/javascript">     
+  $(document).ready(function() {  
+   //$('select').material_select();      
+   runEodExperiment();
+  });       
+</script>
+    
+<!--Let browser know website is optimized for mobile-->
+<meta name="viewport"
+	content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+
+<script>
+function leftDate(currentIndex) {
+}
+
+function rightDate(currentIndex) {
+}
+
+function leftPing(currentIndex) {
+}
+
+function rightPing(currentIndex) {
+}
+
+function exit() {
+    var answer = confirm("If you have not submitted, you may lose data. Are you sure you want to leave?");
+    if (answer) {
+        paco.executor.done();
+    }    
+// TODO check for dirty data
+// if so, alert whether to exit or not
+// if alert is no, do nothing
+// if alert is yes, exit window
+// todo do we go to feedback?  Yes, just a thank you.
+//
+}
+
+function submit() {
+// alert ready to save this item?
+// if no then do nothing
+// if yes then
+  // save the current item
+  // load the next item
+}
+
+
+// onload
+// 1) retrieve the events up to the timeout datetime that do not have responses
+//    this means retrieving any already-answered events and pairing them with their daily.
+//    We can look for the end of day group name and the eodresponseTime. Then we can
+//       leave out events from the first group that matchg an eodResponseTime.
+// 2) for each unanswered daily event render
+//   a) the text and answer of each item
+//   b) each experimentGroup.inputs item (keyed with eodResponseTime as suffix on id)
+// 3) Setup the save button to record the answers.
+
+</script>
+</head>
+
+<body>
+	<header>
+		<div class="indigo lighten-1 section no-pad-bot" id="date-banner">
+			<div class="container">
+				<div class="row" style="margin-bottom: 0px; padding-bottom: 4px; visibility: gone;">
+					<!-- <div class="col s1 lighten-1"  >
+						<a href="javascript:leftDate(0);" id="date-left-nav"
+							class="btn-small waves-effect waves-light white-text"><h5
+								class="light" >&lt;</h5></a>
+					</div> -->
+					<div class="col s10 header white-text" style="padding-left: 0px;"><!--  20px -->
+						<div class="header white-text" >
+							<h6 id="date-dow-banner"></h6>
+						</div>
+						<div class="header lighten-5 grey-text" id="date-mdy-field"></div>
+					</div>
+					<!-- <div class="col s1 light right"  st>
+						<a href="javascript:rightDate(0);" id="date-right-nav"
+							class="btn-small waves-effect waves-light white-text"><h5
+								class="light">&gt;</h5></a>
+					</div> -->
+				</div>
+			</div>
+		</div>
+
+		<div class="section no-pad" style="margin-top: 4px;" id="response-banner">
+			<div class="container">
+				<div class="row" style="margin-bottom: 0px;">
+<!-- 					<div class="col s1 light">
+						<a href="javascript:leftPing();" id="ping-left-nav"
+							class="btn-small waves-effect waves-light indigo-text"><h5
+								class="light">&lt;</h5></a>
+					</div>
+ -->					<div class="col s10 light header left indigo-text"
+						style="padding-left: 0px;"> <!--  20px -->
+						<div>
+							<h6>
+								Ping <span id="response-n-of">1</span> of <span id="response-count">4</span>
+							</h6>
+						</div>
+						<div class="light grey-text">
+							Captured at <span id="responsetime-field">4:35 PM</span>
+						</div>
+					</div>
+	<!-- 				<div class="col s1 light right" id="response-right-nav">
+						<a href="javascript:rightPing();" id="ping-right-nav"
+							class="btn-small waves-effect waves-light indigo-text"><h5
+								class="light">&gt;</h5></a>
+					</div> -->
+				</div>
+			</div>
+		</div>
+	</header>
+	<main>
+	<div class="grey lighten-3">
+		<div class="container">
+			<div class="section" id="daily-responses">
+				<!--   Daily Responses Section   
+				<div class="row" style="margin-bottom: 0px;">
+					<h6 class="left" id="q1">What info did you need recently?</h6>
+					<br>
+					<p class="light grey-text">How to get to Bangalore</p>
+				</div>
+				-->
+			</div>
+		</div>
+	</div>
+
+	<div class="container">
+		<div class="section" id="eod-questions">
+			<!--   End of Day Questions Section 
+			<div class="row" style="margin-bottom: 0px;">
+                <div class="input-field col s12">
+                    <h6 class="left" id="q1">Did you find what you were looking
+                        for?</h6>
+                </div>
+            </div>
+            <div class="row" style="margin-bottom: 0px;">
+                <div class="input-field col s12">
+                    <input type=text class="light">
+                </div>
+
+            </div>
+			  -->
+		</div>
+	</div>
+	</main>
+
+	<footer class="page-footer white">
+		<div class="footer-copyright">
+			<div class="container">
+				<div class="right">
+					<b> <a href="javascript:exit();" id="exit-button"
+						class="btn-small waves-effect waves-light indigo-text">Exit</a>&nbsp;&nbsp;
+						<a href="" id="submit-button"
+						class="btn-small waves-effect waves-light indigo-text">Submit</a>
+					</b>
+				</div>
+			</div>
+		</div>
+	</footer>
+
+
+
+</body>
+</html>
