@@ -159,6 +159,10 @@ md-card .section .subsub {
   width: 182px;
 }
 
+.groups md-card md-card-content {
+  min-height: 58px;
+}
+
 md-card-content[expandable=true]::after {
   background: url('../img/ic_unfoldMore.svg') no-repeat;
   content: "";

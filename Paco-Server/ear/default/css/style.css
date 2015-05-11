@@ -26,7 +26,6 @@ md-card-content {
 
 md-card md-card-content {
   padding: 0;
-  min-height: 58px;
 }
 
 md-dialog ul {
@@ -36,6 +35,19 @@ md-dialog ul {
 
 md-dialog li {
   font-style: italic;
+}
+
+.eod md-dialog-content {
+  min-width: 600px;
+  min-height: 400px;
+}
+.eod iframe {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  border: none;
 }
 
 .padded {
