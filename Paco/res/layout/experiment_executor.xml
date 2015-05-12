@@ -30,8 +30,8 @@
 			android:textSize="25dip"></TextView>
 		<ScrollView android:id="@+id/ScrollView01"
 			android:layout_width="fill_parent" android:layout_height="wrap_content" 
-               android:paddingRight="6dp" 
-            android:layout_margin="0dp" 
+               android:padding="8dp"
+               android:layout_margin="8dp"
       android:scrollbarFadeDuration="0" android:scrollbarAlwaysDrawVerticalTrack="true">
 			<LinearLayout
 				android:id="@+id/ScrollViewChild"	 
