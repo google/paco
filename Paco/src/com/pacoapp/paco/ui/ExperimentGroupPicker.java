@@ -22,8 +22,11 @@ import com.google.common.collect.Lists;
 import com.pacoapp.paco.R;
 import com.pacoapp.paco.model.Experiment;
 import com.pacoapp.paco.model.ExperimentProviderUtil;
+import com.pacoapp.paco.shared.model2.ActionTrigger;
 import com.pacoapp.paco.shared.model2.ExperimentDAO;
 import com.pacoapp.paco.shared.model2.ExperimentGroup;
+import com.pacoapp.paco.shared.model2.InterruptCue;
+import com.pacoapp.paco.shared.model2.InterruptTrigger;
 import com.pacoapp.paco.shared.scheduling.ActionScheduleGenerator;
 import com.pacoapp.paco.utils.IntentExtraHelper;
 
@@ -71,6 +74,13 @@ public class ExperimentGroupPicker extends ActionBarActivity implements Experime
       for (ExperimentGroup experimentGroup : groups) {
         if (!experimentGroup.getFixedDuration() || (!ActionScheduleGenerator.isOver(new DateTime(), experimentDAO))) {
           if (shouldRender == RENDER_NEXT && experimentGroup.getInputs() != null && !experimentGroup.getInputs().isEmpty()) {
+            choosableGroups.add(experimentGroup);
+          }
+        } else if (experimentGroup.getFixedDuration() && ActionScheduleGenerator.isOver(new DateTime(), experimentDAO)) {
+          final ActionTrigger actionTrigger = experimentGroup.getActionTriggers().get(0);
+          if (shouldRender == RENDER_NEXT && experimentGroup.getInputs() != null && !experimentGroup.getInputs().isEmpty() &&
+                  actionTrigger instanceof InterruptTrigger
+                  && ((InterruptTrigger)actionTrigger).getCues().get(0).getCueCode() == InterruptCue.PACO_EXPERIMENT_ENDED_EVENT) {
             choosableGroups.add(experimentGroup);
           }
         }
