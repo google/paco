@@ -1,11 +1,10 @@
-pacoApp.controller('HomeCtrl', ['$scope', '$http', '$routeParams', '$location', '$cacheFactory',
+pacoApp.controller('HomeCtrl', ['$scope', '$http', '$routeParams', '$location',
+  '$cacheFactory',
   function($scope, $http, $routeParams, $location, $cacheFactory) {
     $scope.newExperiment = false;
     $scope.experimentId = false;
     $scope.tabIndex = -1;
     $scope.loaded = false;
-
-    console.log($scope);
 
     $http.get('/userinfo').success(function(data) {
 
@@ -15,11 +14,15 @@ pacoApp.controller('HomeCtrl', ['$scope', '$http', '$routeParams', '$location', 
       if (data.user && data.user !== 'yourGoogleEmail@here.com') {
         $scope.user = data.user;
 
-        $http.get('/experiments?admin', {cache: true}).success(function(data) {
+        $http.get('/experiments?admin', {
+          cache: true
+        }).success(function(data) {
           $scope.experiments = data;
         });
 
-        $http.get('/experiments?joined', {cache: true}).success(function(data) {
+        $http.get('/experiments?joined', {
+          cache: true
+        }).success(function(data) {
           $scope.joined = data;
         });
 
@@ -80,7 +83,9 @@ pacoApp.controller('ExperimentCtrl', ['$scope', '$http',
         $scope.experiment.admins.push($scope.user);
       }
     } else if ($scope.experimentId) {
-      $http.get('/experiments?id=' + $scope.experimentId, {cache: true}).success(
+      $http.get('/experiments?id=' + $scope.experimentId, {
+        cache: true
+      }).success(
         function(data) {
           $scope.experiment = data[0];
           $scope.experiment0 = angular.copy(data[0]);
@@ -178,7 +183,8 @@ pacoApp.controller('ExperimentCtrl', ['$scope', '$http',
 ]);
 
 
-pacoApp.controller('CsvCtrl', ['$scope', '$http', '$mdDialog', '$timeout', '$location',
+pacoApp.controller('CsvCtrl', ['$scope', '$http', '$mdDialog', '$timeout',
+  '$location',
   function($scope, $http, $mdDialog, $timeout, $location) {
 
     var startMarker =
@@ -211,22 +217,26 @@ pacoApp.controller('CsvCtrl', ['$scope', '$http', '$mdDialog', '$timeout', '$loc
                 $scope.table.push(cells);
               }
             }
-            var blob = new Blob([data], { type : 'text/csv' });
-            $scope.csvData = (window.URL || window.webkitURL).createObjectURL(blob);
+            var blob = new Blob([data], {
+              type: 'text/csv'
+            });
+            $scope.csvData = (window.URL || window.webkitURL).createObjectURL(
+              blob);
           }
         }
       )
     };
-    
+
     $scope.status = 'Sending CSV request';
-    $scope.endpoint = '/events?q=experimentId=' + $scope.csvExperimentId + '&csv';
-    
+    $scope.endpoint = '/events?q=experimentId=' + $scope.csvExperimentId +
+      '&csv';
+
     console.log($scope.endpoint);
 
     if ($scope.anon) {
       $scope.endpoint += '&anon=true';
     }
-    
+
     $http.get($scope.endpoint).success(
       function(data) {
         //TODO: endpoint should return report URL, not HTML
@@ -238,7 +248,7 @@ pacoApp.controller('CsvCtrl', ['$scope', '$http', '$mdDialog', '$timeout', '$loc
           $scope.status = 'Waiting';
           $scope.poll();
         }
-    });
+      });
   }
 ]);
 
@@ -376,6 +386,10 @@ pacoApp.controller('ActionCtrl', ['$scope', '$mdDialog', 'config', 'template',
     $scope.hide = $mdDialog.hide;
 
     $scope.$watch('action.actionCode', function(newValue, oldValue) {
+      if (newValue === oldValue) {
+        return;
+      }
+
       if (newValue <= 2) {
         angular.extend($scope.action, template.defaultAction);
       } else if (newValue >= 3) {
