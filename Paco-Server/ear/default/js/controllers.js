@@ -117,7 +117,7 @@ pacoApp.controller('ExperimentCtrl', ['$scope', '$http',
       }
 
       $scope.ace = {
-        JSON: JSON.stringify($scope.experiment, null, '  '),
+        JSON: angular.toJson($scope.experiment, true),
         error: false
       };
     };
@@ -183,6 +183,41 @@ pacoApp.controller('ExperimentCtrl', ['$scope', '$http',
 ]);
 
 
+
+pacoApp.controller('JoinCtrl', ['$scope', '$http',
+  function($scope, $http) {
+
+    var obj = {};
+    obj.experimentId = $scope.exp.id;
+    obj.appId = 'webform';  
+    obj.experimentVersion = $scope.exp.version;
+    obj.experimentName = $scope.exp.title;
+    obj.responses = [{"name":"joined", "answer": true}];
+    var now = new Date();
+    var iso = now.toISOString();
+
+    // Tweak ISO string to conform to yyyy/MM/dd HH:mm:ssZ
+    iso = iso.replace(/-/g, '/');
+    iso = iso.replace(/T/, ' ');
+    iso = iso.replace(/\.[0-9]*/, '');
+
+    obj.responseTime = iso;
+
+    $scope.json = JSON.stringify(obj);
+
+    $scope.joinExperiment = function() {
+      $http.post('/events', $scope.json).success(function(data) {
+          console.log(data[0]);
+        }).error(function(data, status, headers, config) {
+          console.error(data);
+      });
+
+    };
+  }
+]);
+
+
+
 pacoApp.controller('CsvCtrl', ['$scope', '$http', '$mdDialog', '$timeout',
   '$location',
   function($scope, $http, $mdDialog, $timeout, $location) {
@@ -230,8 +265,6 @@ pacoApp.controller('CsvCtrl', ['$scope', '$http', '$mdDialog', '$timeout',
     $scope.status = 'Sending CSV request';
     $scope.endpoint = '/events?q=experimentId=' + $scope.csvExperimentId +
       '&csv';
-
-    console.log($scope.endpoint);
 
     if ($scope.anon) {
       $scope.endpoint += '&anon=true';
@@ -319,6 +352,61 @@ pacoApp.controller('InputCtrl', ['$scope', 'config', function($scope, config) {
   }
 }]);
 
+pacoApp.controller('PreviewCtrl', ['$scope', '$http', 'config', function($scope, $http, config) {
+  $scope.group = {
+    index: 0
+  };
+
+  $scope.responses = {};
+
+  $scope.post = {
+    appId: 'webform',
+    pacoVersion: 1,
+  };
+
+  $scope.$watch('experiment', function(newValue, oldValue) {
+    if (angular.isDefined($scope.experiment)) {
+      $scope.post.experimentId = $scope.experiment.id;
+    }
+  });
+
+  $scope.respond = function() {
+    var experimentGroup = $scope.experiment.groups[$scope.group.index];
+    $scope.post.experimentGroupName = experimentGroup.name;
+    $scope.post.experimentName = $scope.experiment.name;
+    $scope.post.experimentVersion = $scope.experiment.version;
+    $scope.post.responses = [];
+
+    for (var id in $scope.responses) {
+      var input = experimentGroup.inputs[id];     
+      var pair = {
+        name: input.name,
+        answer: $scope.responses[id]
+      };
+      
+      $scope.post.responses.push(pair);
+    }
+
+    $http.post('/events', $scope.post).success(function(data) {
+        console.log(data[0]);
+      }).error(function(data, status, headers, config) {
+        console.error(data);
+    });
+  };
+
+  $scope.range = function(start, end) {
+    var arr = [];
+    for (var i = start; i <= end; i++) {
+      arr.push(i);
+    }
+    return arr;
+  }
+
+
+  $scope.selectGroup = function() {
+    console.log($scope.groupIndex);
+  };
+}]);
 
 pacoApp.controller('TriggerCtrl', ['$scope', '$mdDialog', 'config', 'template',
   function($scope, $mdDialog, config, template) {

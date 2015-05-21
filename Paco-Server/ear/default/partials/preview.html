@@ -1,0 +1,70 @@
+<div class="preview" ng-controller="PreviewCtrl">
+
+  <div ng-if="experiment.groups.length > 1" class="group-select">
+    <label>Select Group:</label>
+    <md-select ng-model="group.index">
+      <md-option ng-repeat="grp in experiment.groups" value="{{$index}}" placeholder="group">
+        {{grp.name}}
+      </md-option>
+    </md-select>
+  </div>
+
+  <md-card>
+    <md-card-content>
+      <div>
+        <div ng-repeat="input in experiment.groups[group.index].inputs track by $index">
+          <div class="padded">
+            <div>{{$index + 1}} {{input.text}}</div>
+            <div ng-if="input.responseType === 'likert'" class="likert input">
+              <div layout="row">
+                <span>{{input.leftSideLabel}}</span>
+                <md-radio-group layout="row" ng-model="responses[$index]">
+                  <md-radio-button ng-repeat="score in range(1, input.likertSteps)" value="{{score}}" aria-label="likert {{score}}">
+                  </md-radio-button>
+                </md-radio-group>
+                <span>{{input.rightSideLabel}}</span>
+              </div>
+            </div>
+
+            <div ng-if="input.responseType === 'likert_smileys'" class="likert input">
+              <div layout="row">
+                <span>Frown</span>
+                <md-radio-group layout="row" ng-model="responses[$index]">
+                  <md-radio-button ng-repeat="score in range(1, 5)" value="{{score}}">
+                  </md-radio-button>
+                </md-radio-group>
+                <span>Smile</span>
+              </div>
+            </div>
+
+            <div ng-if="input.responseType === 'open text'" class="input">
+              <div>
+                <md-input-container md-no-float>
+                  <input type="text" placeholder="answer" ng-model="responses[$index]"></input>
+                </md-input-container>
+              </div>
+            </div>
+
+            <div ng-if="input.responseType === 'list'" class="input">
+              <md-select placeholder="Select" ng-model="responses[$index]">
+                <md-option ng-repeat="choice in input.listChoices" value="{{$index}}">
+                  {{choice}}
+                </md-option>
+              </md-select>
+            </div>
+
+            <div ng-if="input.responseType === 'photo'" class="input">
+              Photo
+            </div>
+
+            <div ng-if="input.responseType === 'location'" class="input">
+              Location
+            </div>
+          </div>
+          <md-divider></md-divider>
+        </div>
+      </div>
+    </md-card-content>
+  </md-card>
+  <md-button ng-click="respond()">Respond</md-button>
+</div>

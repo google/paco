@@ -13,7 +13,7 @@ pacoApp.controller('EodCtrl', ['$scope', '$http', '$mdDialog', '$timeout',
           window.env.events = data;
 
           $mdDialog.show({
-            template: '<md-dialog class="eod"><md-dialog-content><iframe src="/eod/eod_skeleton.html"></iframe></md-dialog-content></md-dialog>',
+            template: '<md-dialog class="eod" aria-label="End of Day" ><md-dialog-content><iframe src="/eod/eod_skeleton.html"></iframe></md-dialog-content></md-dialog>',
             clickOutsideToClose: true,
           });
         });
@@ -23,7 +23,6 @@ pacoApp.controller('EodCtrl', ['$scope', '$http', '$mdDialog', '$timeout',
     window.env.experimentId = $scope.exp.id;
 
     window.env.getValue = function(id) {
-      console.dir($scope.exp);
       if ($scope.exp[id]) {
         return $scope.exp[id];
       }
@@ -32,7 +31,10 @@ pacoApp.controller('EodCtrl', ['$scope', '$http', '$mdDialog', '$timeout',
 
 
     window.db = {
-      // saveEvent: 
+      saveEvent: function(e) {
+        console.log("Trying to save");
+        console.log(e);
+      },
       getAllEvents: function() {
         return window.env.events;
       },
@@ -46,10 +48,10 @@ pacoApp.controller('EodCtrl', ['$scope', '$http', '$mdDialog', '$timeout',
         return $scope.exp;
       },
       getExperimentGroup: function() {
-        return $scope.exp.groups[0];
+        return $scope.exp.groups[1];
       },
       getEndOfDayReferredExperimentGroup: function() {
-        return $scope.exp.groups[1];
+        return $scope.exp.groups[0];
       }
     };
 

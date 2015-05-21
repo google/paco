@@ -1089,23 +1089,36 @@ paco.executeEod = (function() {
       return paco.db.getResponseForItem(responses, item);
     }
     
-    var getActiveEventsWithoutEod = function(referredExperimentGroup, experimentGroup, db) {      
+    var getActiveEventsWithoutEod = function(referredExperimentGroup, experimentGroup, db) {    
+    
+      var allEvents = db.getAllEvents();
+
+      console.log(allEvents);
+
+
       var dailyEvents = []; // responseTime, event
       var eodEvents = {}; // eodResponseTime, event
       var timeout = experimentGroup.actionTriggers[0].actions[0].timeout * 60 * 1000; // in millis
       var now = new Date().getTime();
       var cutoffDateTimeMs = now - timeout;
-      var allEvents = db.getAllEvents();
+
       for (var i = 0; i < allEvents.length; i++) {
         var event = allEvents[i];
         if (!event.responseTime) {
           continue;
         } 
         if (new Date(event.responseTime).getTime() < cutoffDateTimeMs) {
+          console.log(new Date(event.responseTime).getTime());
+          console.log(now);
+          console.log(experimentGroup.actionTriggers[0].actions[0].timeout);
+          console.log(timeout);
+          console.log(cutoffDateTimeMs);
           break;
         }
         var eventGroupName = event.experimentGroupName;
+        alert(eventGroupName);
         if (!eventGroupName) {
+          console.log(3);
           continue;
         }
         if (eventGroupName === experimentGroup.name) {

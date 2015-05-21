@@ -4,7 +4,8 @@ pacoApp.service('config', function() {
     'basics',
     'groups',
     'admin',
-    'source'
+    'source',
+    'preview'
   ];
 
   this.dataDeclarations = {

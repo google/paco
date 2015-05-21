@@ -1,0 +1,22 @@
+.preview .input {
+  margin-bottom: 32px;
+}
+
+.preview .likert span {
+  line-height: 36px;
+  margin-right: 16px;
+}
+
+.preview .likert md-radio-button {
+  margin: 5px;
+}
+
+.preview .group-select {
+  padding-left: 16px;
+  padding-top: 16px;
+}
+
+.preview textarea {
+  width: 100%;
+  height: 200px;
+}
