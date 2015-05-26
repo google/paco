@@ -103,6 +103,11 @@ pacoApp.directive('expandable', ['$timeout', function($timeout) {
       scope.expand = true;
       scope.container = element;
 
+      scope.fixHeight = function() {
+        scope.toggleExpand(!scope.expand, true);
+        scope.toggleExpand(!scope.expand, true);
+      };
+
       scope.toggleExpand = function(flag, skipAnimation) {
 
         if (attributes['expandable'] === 'false') {
@@ -140,6 +145,10 @@ pacoApp.directive('expandable', ['$timeout', function($timeout) {
       $timeout(function() {
         scope.toggleExpand(scope.expand, true);
       }, 250);
+
+      $timeout(function() {
+        scope.fixHeight();
+      }, 1000);
     }
   }
 }]);
