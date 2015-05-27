@@ -110,6 +110,11 @@ pacoApp.controller('ExperimentCtrl', ['$scope', '$http',
       }
     });
 
+    $scope.lineCount = function(str) {
+      var lines = str.split('\n');
+      return lines.length;
+    }
+
     // Ace is loaded when the Source tab is selected so get pretty JSON here
     $scope.prepareAce = function(editor) {
       if (editor) {
@@ -129,8 +134,9 @@ pacoApp.controller('ExperimentCtrl', ['$scope', '$http',
         $scope.ace.error = true;
         return false;
       }
-      $scope.ace.error = false;
       $scope.experiment = exp;
+      $scope.ace.error = false;
+      $scope.ace.height = $scope.lineCount(newValue) * 16;
     });
 
     $scope.saveExperiment = function() {
@@ -227,6 +233,7 @@ pacoApp.controller('CsvCtrl', ['$scope', '$http', '$mdDialog', '$timeout',
     var endMarker = '</title>';
 
     $scope.status = 'Idle';
+    $scope.error = false;
 
     if ($location.hash() && $location.hash() === 'anon') {
       $scope.anon = true;
@@ -281,7 +288,9 @@ pacoApp.controller('CsvCtrl', ['$scope', '$http', '$mdDialog', '$timeout',
           $scope.status = 'Waiting';
           $scope.poll();
         }
-      });
+      }).error(function(data, status, headers, config) {
+        $scope.error = "Error type " + status;
+    });
   }
 ]);
 
