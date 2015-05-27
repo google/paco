@@ -142,6 +142,7 @@ pacoApp.controller('ExperimentCtrl', ['$scope', '$http',
     $scope.saveExperiment = function() {
       $http.post('/experiments', $scope.experiment).success(function(data) {
         if (data.length > 0) {
+          
           if (data[0].status === true) {
             $mdDialog.show(
               $mdDialog.alert()
@@ -149,14 +150,12 @@ pacoApp.controller('ExperimentCtrl', ['$scope', '$http',
               .content('Success!')
               .ariaLabel('Success')
               .ok('OK')
-            );
-
-            if ($scope.newExperiment) {
-              $location.path('/experiment/' + data[0].experimentId);
-            }
-
-            $scope.experiment0 = angular.copy($scope.experiment);
-
+            ).then(function() {
+              $scope.experiment0 = angular.copy($scope.experiment);
+              if ($scope.newExperiment) {
+                $location.path('/experiment/' + data[0].experimentId);
+              }
+            });
           } else {
             var errorMessage = data[0].errorMessage;
             $mdDialog.show({
