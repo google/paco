@@ -101,6 +101,7 @@ pacoApp.service('template', function() {
     admins: [],
     creator: '',
     contactEmail: '',
+    extraDataCollectionDeclarations: [],
     published: false,
     publishedUsers: [],
     groups: [this.group],
