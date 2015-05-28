@@ -6,6 +6,14 @@ pacoApp.controller('HomeCtrl', ['$scope', '$http', '$routeParams', '$location',
     $scope.tabIndex = -1;
     $scope.loaded = false;
 
+    $scope.reload = function() {
+      $http.get('/experiments?joined', {
+        cache: false
+      }).success(function(data) {
+        $scope.joined = data;
+      });
+    };
+
     $http.get('/userinfo').success(function(data) {
 
       $scope.loaded = true;
@@ -24,6 +32,16 @@ pacoApp.controller('HomeCtrl', ['$scope', '$http', '$routeParams', '$location',
           cache: true
         }).success(function(data) {
           $scope.joined = data;
+          $scope.joinedIndex = [];
+          for (var i = 0; i < data.length; i++) {
+            $scope.joinedIndex.push(data[i].id);
+          }
+        });
+
+        $http.get('/experiments?mine', {
+          cache: true
+        }).success(function(data) {
+          $scope.joinable = data;
         });
 
       } else {
@@ -139,10 +157,16 @@ pacoApp.controller('ExperimentCtrl', ['$scope', '$http',
       $scope.ace.height = $scope.lineCount(newValue) * 16;
     });
 
+    $scope.deleteExperiment = function() {
+      $http.get('/experiments?delete&id=' + $scope.experiment.id).success(function(data) {
+        console.log(data);
+      });
+    };
+
     $scope.saveExperiment = function() {
       $http.post('/experiments', $scope.experiment).success(function(data) {
         if (data.length > 0) {
-          
+
           if (data[0].status === true) {
             $mdDialog.show(
               $mdDialog.alert()
@@ -213,6 +237,7 @@ pacoApp.controller('JoinCtrl', ['$scope', '$http',
     $scope.joinExperiment = function() {
       $http.post('/events', $scope.json).success(function(data) {
           console.log(data[0]);
+          $scope.reloadJoined();
         }).error(function(data, status, headers, config) {
           console.error(data);
       });

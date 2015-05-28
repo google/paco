@@ -74,7 +74,9 @@
             by {{exp.organization}}
           </div>
           <span class="participant">Participant</span>
-          <div class="buttons">
+        </md-card-content>
+
+        <div class="md-actions">
             <a href="events?q=%27experimentId={{exp.id}}%27" target="_new">
               <md-button>
                 View Data
@@ -99,9 +101,30 @@
               </md-button>
             </a>
           </div>
-        </md-card-content>
       </md-card>
     </div>
   </div>
+
+  <div ng-if="joinable" class="group">
+    Joinable Experiments
+    <div ng-repeat="exp in joinable" ng-if="joinedIndex.indexOf(exp.id) === -1">
+      <md-card>
+        <md-card-content class="padded">
+          <a href="#/experiment/{{exp.id}}">{{exp.title}}</a>
+          <div ng-if="exp.organization">
+            by {{exp.organization}}
+          </div>
+
+          <a href="#" ng-controller="JoinCtrl" ng-model="exp" ng-click="joinExperiment()">
+            <md-button>
+              Join
+            </md-button>
+          </a>
+        </md-card-content>
+
+      </md-card>
+    </div>
+  </div>
+
 
 </div>
