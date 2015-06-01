@@ -82,7 +82,8 @@
                 Respond
               </md-button>
             </a>
-                        <a href="events?q=%27experimentId={{exp.id}}%27" target="_new">
+            
+            <a href="events?q=%27experimentId={{exp.id}}%27" target="_new">
               <md-button>
                 View Data
               </md-button>
@@ -100,7 +101,8 @@
               </md-button>
             </a>
 
-            <a href="#"  ng-controller="EodCtrl" ng-model="exp" ng-click="showEod()">
+            <a href="#"  ng-controller="EodCtrl" ng-model="exp" ng-click="showEod()"
+              ng-if="eodExperiments[exp.id]">
               <md-button>
                 EOD
               </md-button>

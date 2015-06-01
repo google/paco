@@ -6,11 +6,42 @@ pacoApp.controller('HomeCtrl', ['$scope', '$http', '$routeParams', '$location',
     $scope.tabIndex = -1;
     $scope.loaded = false;
 
-    $scope.reload = function() {
+    $scope.loadJoined = function(reload) {
+      var cache = true;
+      if (reload !== undefined && reload === true) {
+        cache = false;
+      }
       $http.get('/experiments?joined', {
-        cache: false
+        cache: cache
       }).success(function(data) {
         $scope.joined = data;
+        $scope.joinedIndex = [];
+        $scope.eodExperiments = {};
+        for (var i = 0; i < data.length; i++) {
+          var experiment = data[i];
+          $scope.joinedIndex.push(experiment.id);
+          for (var g = 0; g < experiment.groups.length; g++) {
+            if (experiment.groups[g].endOfDayGroup) {
+              $scope.eodExperiments[experiment.id] = true;
+            }
+          }
+        }
+      });
+    };
+
+    $scope.loadAdmin = function() {
+      $http.get('/experiments?admin', {
+        cache: true
+      }).success(function(data) {
+        $scope.experiments = data;
+      });
+    }
+
+    $scope.loadJoinable = function() {
+      $http.get('/experiments?mine', {
+        cache: true
+      }).success(function(data) {
+        $scope.joinable = data;
       });
     };
 
@@ -21,29 +52,9 @@ pacoApp.controller('HomeCtrl', ['$scope', '$http', '$routeParams', '$location',
       // Make sure email isn't yourGoogleEmail@here.com for local dev testing
       if (data.user && data.user !== 'yourGoogleEmail@here.com') {
         $scope.user = data.user;
-
-        $http.get('/experiments?admin', {
-          cache: true
-        }).success(function(data) {
-          $scope.experiments = data;
-        });
-
-        $http.get('/experiments?joined', {
-          cache: true
-        }).success(function(data) {
-          $scope.joined = data;
-          $scope.joinedIndex = [];
-          for (var i = 0; i < data.length; i++) {
-            $scope.joinedIndex.push(data[i].id);
-          }
-        });
-
-        $http.get('/experiments?mine', {
-          cache: true
-        }).success(function(data) {
-          $scope.joinable = data;
-        });
-
+        $scope.loadJoined();
+        $scope.loadAdmin();
+        $scope.loadJoinable();
       } else {
         $scope.loginURL = data.login;
       }
@@ -218,8 +229,8 @@ pacoApp.controller('ExperimentCtrl', ['$scope', '$http',
 
 
 
-pacoApp.controller('JoinCtrl', ['$scope', '$http',
-  function($scope, $http) {
+pacoApp.controller('JoinCtrl', ['$scope', '$http', '$mdDialog',
+  function($scope, $http, $mdDialog) {
 
     var obj = {};
     obj.experimentId = $scope.exp.id;
@@ -241,8 +252,16 @@ pacoApp.controller('JoinCtrl', ['$scope', '$http',
 
     $scope.joinExperiment = function() {
       $http.post('/events', $scope.json).success(function(data) {
-          console.log(data[0]);
-          $scope.reloadJoined();
+          if (data[0].status === true) {
+            $scope.loadJoined(true);
+            $mdDialog.show(
+              $mdDialog.alert()
+              .title('Join Status')
+              .content('Success!')
+              .ariaLabel('Success')
+              .ok('OK')
+            );
+          }
         }).error(function(data, status, headers, config) {
           console.error(data);
       });

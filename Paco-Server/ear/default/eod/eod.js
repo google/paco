@@ -1091,11 +1091,9 @@ paco.executeEod = (function() {
     
     var getActiveEventsWithoutEod = function(referredExperimentGroup, experimentGroup, db) {    
     
+      console.log(experimentGroup);
+
       var allEvents = db.getAllEvents();
-
-      console.log(allEvents);
-
-
       var dailyEvents = []; // responseTime, event
       var eodEvents = {}; // eodResponseTime, event
       var timeout = experimentGroup.actionTriggers[0].actions[0].timeout * 60 * 1000; // in millis
