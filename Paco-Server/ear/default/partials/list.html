@@ -14,9 +14,9 @@
         <md-card-content class="padded">
           <a href="#/experiment/{{exp.id}}">{{exp.title}}
         </a>
-          <div ng-if="exp.organization">
-            by {{exp.organization}}
-          </div>
+          <span ng-if="exp.organization" class="organization">
+            administered by {{exp.organization}}
+          </span>
 
           <span class="admin">Admin</span>
 
@@ -70,14 +70,19 @@
       <md-card>
         <md-card-content class="padded">
           <a href="#/experiment/{{exp.id}}">{{exp.title}}</a>
-          <div ng-if="exp.organization">
-            by {{exp.organization}}
-          </div>
+          <span ng-if="exp.organization" class="organization">
+            administered by {{exp.organization}}
+          </span>
           <span class="participant">Participant</span>
         </md-card-content>
 
         <div class="md-actions">
-            <a href="events?q=%27experimentId={{exp.id}}%27" target="_new">
+            <a href="#/respond/{{exp.id}}">
+              <md-button>
+                Respond
+              </md-button>
+            </a>
+                        <a href="events?q=%27experimentId={{exp.id}}%27" target="_new">
               <md-button>
                 View Data
               </md-button>
@@ -111,11 +116,12 @@
       <md-card>
         <md-card-content class="padded">
           <a href="#/experiment/{{exp.id}}">{{exp.title}}</a>
-          <div ng-if="exp.organization">
-            by {{exp.organization}}
-          </div>
+          <span ng-if="exp.organization" class="organization">
+            administered by {{exp.organization}}
+          </span>
 
-          <a href="#" ng-controller="JoinCtrl" ng-model="exp" ng-click="joinExperiment()">
+          <a href="#" ng-controller="JoinCtrl" ng-model="exp" 
+            ng-click="joinExperiment()" class="join">
             <md-button>
               Join
             </md-button>

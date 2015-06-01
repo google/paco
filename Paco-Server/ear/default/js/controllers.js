@@ -67,6 +67,11 @@ pacoApp.controller('HomeCtrl', ['$scope', '$http', '$routeParams', '$location',
       $scope.csvExperimentId = parseInt($routeParams.csvExperimentId, 10);
     }
 
+    if (angular.isDefined($routeParams.respondExperimentId)) {
+      $scope.respondExperimentId = parseInt($routeParams.respondExperimentId, 10);
+      $scope.experimentId = $scope.respondExperimentId;
+    }
+
     $scope.addExperiment = function() {
       $location.path('/experiment/new');
     };

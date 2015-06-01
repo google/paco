@@ -19,7 +19,8 @@
               <div layout="row">
                 <span>{{input.leftSideLabel}}</span>
                 <md-radio-group layout="row" ng-model="responses[$index]">
-                  <md-radio-button ng-repeat="score in range(1, input.likertSteps)" value="{{score}}" aria-label="likert {{score}}">
+                  <md-radio-button ng-repeat="score in range(1, input.likertSteps)" value="{{score}}" 
+                    aria-label="Likert {{score}}">
                   </md-radio-button>
                 </md-radio-group>
                 <span>{{input.rightSideLabel}}</span>
@@ -30,7 +31,8 @@
               <div layout="row">
                 <span>Frown</span>
                 <md-radio-group layout="row" ng-model="responses[$index]">
-                  <md-radio-button ng-repeat="score in range(1, 5)" value="{{score}}">
+                  <md-radio-button ng-repeat="score in range(1, 5)" value="{{score}}" 
+                    aria-label="Likert smiley {{score}}">
                   </md-radio-button>
                 </md-radio-group>
                 <span>Smile</span>

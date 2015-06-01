@@ -16,7 +16,11 @@ pacoApp.config(['$routeProvider',
     when('/data/:csvExperimentId', {
       templateUrl: 'partials/main.html',
       controller: 'HomeCtrl',
-    }).    
+    }).
+    when('/respond/:respondExperimentId', {
+      templateUrl: 'partials/main.html',
+      controller: 'HomeCtrl',
+    }).
     otherwise({
       templateUrl: 'partials/main.html',
       controller: 'HomeCtrl',
