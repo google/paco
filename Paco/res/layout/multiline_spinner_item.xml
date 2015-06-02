@@ -5,4 +5,7 @@
     style="?android:attr/spinnerDropDownItemStyle"
     android:singleLine="false"
     android:layout_width="fill_parent"
-    android:layout_height="fill_parent" />
+    android:layout_height="fill_parent" 
+    android:textSize="18dip"
+    android:layout_margin="8dip"    />
+    

@@ -42,7 +42,8 @@
              android:paddingTop="0dp"
               android:paddingBottom="0dp"
                android:paddingRight="2dp" 
-
+                android:layout_marginTop="8dp"
+                                android:layout_marginBottom="16dp"
         
         />
 		</ScrollView>

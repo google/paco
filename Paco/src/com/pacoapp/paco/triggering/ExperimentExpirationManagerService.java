@@ -64,8 +64,9 @@ public class ExperimentExpirationManagerService extends Service {
     Runnable runnable = new Runnable() {
       public void run() {
         try {
+          ExperimentExpirationManagerService.this.context = getApplicationContext();
           ExperimentExpirationManagerService.this.alarmManager = (AlarmManager) context.getSystemService(Service.ALARM_SERVICE);
-          ExperimentExpirationManagerService.this.context = context.getApplicationContext();
+
           work();
         } finally {
           wl.release();

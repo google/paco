@@ -318,5 +318,6 @@
     <string name="choose_experiment_group">Choose an Experiment Group to Respond</string>
     <string name="title_activity_settings">Settings</string>
     <string name="hello_world">Hello world!</string>
+    <string name="location_to_be_recorded_default_prompt">Location to be recorded</string>
 
 </resources>
