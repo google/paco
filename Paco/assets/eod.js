@@ -998,7 +998,8 @@ paco.renderer = (function() {
     for ( var i = 0; i < responses.length; i++) {
       var response = responses[i];
       if (response.answer == null || response.answer.length == 0) {
-        response.answer = "";
+        continue;
+        //response.answer = "";
       }
       var input = inputsByName[response.name];
       
@@ -1007,7 +1008,7 @@ paco.renderer = (function() {
       responsesHtml += input.text;
       responsesHtml += "</h6><br>";
       responsesHtml += "<p class=\"light grey-text\">";
-      if (input.responseType === "photo") {
+      if (input.responseType === "photo" && response["answer"].length > 0) {
         responsesHtml += "<img src='data:image/jpg;base64," + response["answer"] + "' width=150>";
       } else if (input.responseType === "location") {
         responsesHtml += response["answer"];
