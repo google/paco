@@ -3,6 +3,7 @@ package com.pacoapp.paco.net;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStreamWriter;
+import java.net.ConnectException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.List;
@@ -70,9 +71,12 @@ public class PacoBackgroundService extends GetInBackground {
       writer.flush();
     }
 
-
-
-    int sc = urlConnection.getResponseCode();
+    int sc = 0;
+    try {
+      sc = urlConnection.getResponseCode();
+    } catch (ConnectException e) {
+      sc = 503;
+    }
     if (sc == 200) {
       InputStream is = urlConnection.getInputStream();
       String result = readResponse(urlConnection.getInputStream());

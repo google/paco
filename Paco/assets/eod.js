@@ -822,7 +822,11 @@ paco.renderer = (function() {
       "valid" : validResponse
     };
 
-    saveButton.click(function() { saveButton.addClass("disabled"); paco.validate(experimentGroup, responseEvent, inputHtmls, errorMarkingCallback) });
+    saveButton.off("click");
+    saveButton.click(function() { 
+      saveButton.addClass("disabled"); 
+      paco.validate(experimentGroup, responseEvent, inputHtmls, errorMarkingCallback) 
+    });
   };
 
   registerDoneButtonCallback = function(doneButton) {
@@ -994,7 +998,8 @@ paco.renderer = (function() {
     for ( var i = 0; i < responses.length; i++) {
       var response = responses[i];
       if (response.answer == null || response.answer.length == 0) {
-        response.answer = "";
+        continue;
+        //response.answer = "";
       }
       var input = inputsByName[response.name];
       
@@ -1003,7 +1008,7 @@ paco.renderer = (function() {
       responsesHtml += input.text;
       responsesHtml += "</h6><br>";
       responsesHtml += "<p class=\"light grey-text\">";
-      if (input.responseType === "photo") {
+      if (input.responseType === "photo" && response["answer"].length > 0) {
         responsesHtml += "<img src='data:image/jpg;base64," + response["answer"] + "' width=150>";
       } else if (input.responseType === "location") {
         responsesHtml += response["answer"];
@@ -1182,11 +1187,11 @@ paco.executeEod = (function() {
     
     var dbSaveOutcomeCallback = function(status) {
       if (status["status"] === "success") {
-        var currentEvent = unfinishedDailyEvents.pop();        
+//        alert("Success in dbSaveOutcomeCallback");
+        var currentEvent = unfinishedDailyEvents.pop();
+//        alert("dbSave curr = " + JSON.stringify(currentEvent, null, 2));
         if (!currentEvent) {
           paco.executor.done();
-//          form_root.html("<div>Feedback</div>");
-//          paco.renderer.renderFeedback(experiment, experimentGroup, paco.db, form_root);
         } else {
           currentPingIndex++;          
           renderEvent(currentEvent, currentPingIndex, pingCount);
@@ -1217,9 +1222,10 @@ paco.executeEod = (function() {
           $("#eod-questions"), saveDataCallback, conditionalListener);
     }
         
-    if (unfinishedDailyEvents.length > 0) {
+    if (unfinishedDailyEvents.length > 0) {      
       var currentEvent = unfinishedDailyEvents.pop();
-      renderEvent(currentEvent, currentPingIndex, pingCount, saveDataCallback);
+//      alert("main curr = " + JSON.stringify(currentEvent, null, 2));
+      renderEvent(currentEvent, currentPingIndex, pingCount);
     } else {
       $("#response-banner").html(paco.renderer.renderPlainText("No active daily responses"));
       $("#submit-button").prop("disabled", true);

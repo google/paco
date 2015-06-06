@@ -19,7 +19,7 @@
 <resources>
 
     <string name="app_name">Paco</string>
-    <string name="server">quantifiedself-staging.appspot.com</string>
+    <string name="server">quantifiedself-staging2.appspot.com</string>
     <string name="app_package">com.pacoapp.paco</string>
     <string name="contact_email">paco-users@googlegroups.com</string>
     <string name="about_googlegroups">paco-users@googlegroups.com</string>
@@ -318,5 +318,6 @@
     <string name="choose_experiment_group">Choose an Experiment Group to Respond</string>
     <string name="title_activity_settings">Settings</string>
     <string name="hello_world">Hello world!</string>
+    <string name="location_to_be_recorded_default_prompt">Location to be recorded</string>
 
 </resources>

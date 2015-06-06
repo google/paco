@@ -72,12 +72,17 @@ public class SettingsActivity extends ActionBarActivity {
 
     serverAddressTextView = (TextView)findViewById(R.id.serverAddressView);
     serverAddressTextView.setText(userPrefs.getServerAddress());
-    serverAddressTextView.setOnClickListener(new OnClickListener() {
-      @Override
-      public void onClick(View v) {
-        userPrefs.setServerAddress(serverAddressTextView.getText().toString());
-      }
-    });
+//    serverAddressTextView.setOnFocusChangeListener(new OnFocusChangeListener() {
+//
+//      @Override
+//      public void onFocusChange(View v, boolean hasFocus) {
+//        if (hasFocus) {
+//          userPrefs.setServerAddress(serverAddressTextView.getText().toString());
+//        }
+//      }
+//    });
+
+
 
     Button sendLogButton = (Button)findViewById(R.id.sendPacoLogButton);
     sendLogButton.setOnClickListener(new OnClickListener() {
@@ -174,6 +179,15 @@ public class SettingsActivity extends ActionBarActivity {
     super.onResume();
     ringtoneTextView.setText(userPrefs.getRingtoneName());
     accountTextView.setText(userPrefs.getSelectedAccount());
+  }
+
+
+  @Override
+  protected void onPause() {
+    super.onPause();
+    if (!serverAddressTextView.getText().equals(userPrefs.getServerAddress())) {
+      userPrefs.setServerAddress(serverAddressTextView.getText().toString());
+    }
   }
 
 
