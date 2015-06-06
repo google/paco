@@ -13,7 +13,7 @@ pacoApp.controller('EodCtrl', ['$scope', '$http', '$mdDialog', '$timeout',
           window.env.events = data;
 
           $mdDialog.show({
-            template: '<md-dialog class="eod" aria-label="End of Day" ><md-dialog-content><iframe src="/eod/eod_skeleton.html"></iframe></md-dialog-content></md-dialog>',
+            template: '<md-dialog class="eod" aria-label="End of Day"><md-dialog-content><iframe src="/eod/eod_skeleton.html"></iframe></md-dialog-content></md-dialog>',
             clickOutsideToClose: true,
           });
         });
@@ -32,8 +32,27 @@ pacoApp.controller('EodCtrl', ['$scope', '$http', '$mdDialog', '$timeout',
 
     window.db = {
       saveEvent: function(e) {
-        console.log("Trying to save");
-        console.log(e);
+        var obj = JSON.parse(e);
+
+        var now = new Date();
+        var iso = now.toISOString();
+
+        // Tweak ISO string to conform to yyyy/MM/dd HH:mm:ssZ
+        iso = iso.replace(/-/g, '/');
+        iso = iso.replace(/T/, ' ');
+        iso = iso.replace(/\.[0-9]*/, '');
+        obj.responseTime = iso;
+
+        console.dir(obj);
+
+
+
+        $http.post('/events', obj).success(function(data) {
+          console.log(data[0]);
+        }).error(function(data, status, headers, config) {
+          console.error(data);
+        });
+
       },
       getAllEvents: function() {
         return window.env.events;
@@ -48,10 +67,24 @@ pacoApp.controller('EodCtrl', ['$scope', '$http', '$mdDialog', '$timeout',
         return $scope.exp;
       },
       getExperimentGroup: function() {
-        return $scope.exp.groups[1];
+        for (var i = 0; i < $scope.exp.groups.length; i++) {
+          if ($scope.exp.groups[i].endOfDayGroup === true) {
+            return $scope.exp.groups[i];
+          }
+        }
+        return null;
       },
       getEndOfDayReferredExperimentGroup: function() {
-        return $scope.exp.groups[0];
+        var eodGroup = this.getExperimentGroup();
+        if (eodGroup !== null) {
+          var referringGroupName = eodGroup.endOfDayReferredGroupName;
+          for (var i = 0; i < $scope.exp.groups.length; i++) {
+            if ($scope.exp.groups[i].name === referringGroupName) {
+              return $scope.exp.groups[i];
+            }
+          }
+        }
+        return null;
       }
     };
 

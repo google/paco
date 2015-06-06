@@ -67,8 +67,6 @@ pacoApp.controller('HomeCtrl', ['$scope', '$http', '$routeParams', '$location',
       }
     };
 
-    //$scope.fixEmptyHash();
-
     $http.get('/userinfo').success(function(data) {
 
       $scope.loaded = true;

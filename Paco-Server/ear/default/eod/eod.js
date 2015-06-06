@@ -362,10 +362,10 @@ var paco = (function (init) {
       }
     };
   })(); 
-	  
-	  
+    
+    
   obj.experiment = function() {
-	  
+    
     if (!context.experimentLoader) {
       return getTestExperiment();
     } else {
@@ -411,26 +411,26 @@ var paco = (function (init) {
   })();
   
   obj.notificationService = (function() {
-	    if (!context.notificationService) {
-	      context.notificationService = { 
-	        createNotification : function(message) { 
-	          alert("No notification support"); 
-	        },
-	        removeNotification : function(message) { 
-		          alert("No notification support"); 
-		    }
-	      };
-	    }
+      if (!context.notificationService) {
+        context.notificationService = { 
+          createNotification : function(message) { 
+            alert("No notification support"); 
+          },
+          removeNotification : function(message) { 
+              alert("No notification support"); 
+        }
+        };
+      }
 
-	    return {
-	      createNotification : function(message) {
-	        context.notificationService.createNotification(message);
-	      }, 
-	      removeNotification : function() {
-	    	  context.notificationService.removeNotification();
-	      }
-	    };
-	  })();
+      return {
+        createNotification : function(message) {
+          context.notificationService.createNotification(message);
+        }, 
+        removeNotification : function() {
+          context.notificationService.removeNotification();
+        }
+      };
+    })();
 
 
   return obj;
@@ -999,7 +999,8 @@ paco.renderer = (function() {
     for ( var i = 0; i < responses.length; i++) {
       var response = responses[i];
       if (response.answer == null || response.answer.length == 0) {
-        response.answer = "";
+        continue;
+        //response.answer = "";
       }
       var input = inputsByName[response.name];
       
@@ -1008,7 +1009,7 @@ paco.renderer = (function() {
       responsesHtml += input.text;
       responsesHtml += "</h6><br>";
       responsesHtml += "<p class=\"light grey-text\">";
-      if (input.responseType === "photo") {
+      if (input.responseType === "photo" && response["answer"].length > 0) {
         responsesHtml += "<img src='data:image/jpg;base64," + response["answer"] + "' width=150>";
       } else if (input.responseType === "location") {
         responsesHtml += response["answer"];
@@ -1089,34 +1090,23 @@ paco.executeEod = (function() {
       return paco.db.getResponseForItem(responses, item);
     }
     
-    var getActiveEventsWithoutEod = function(referredExperimentGroup, experimentGroup, db) {    
-    
-      console.log(experimentGroup);
-
-      var allEvents = db.getAllEvents();
+    var getActiveEventsWithoutEod = function(referredExperimentGroup, experimentGroup, db) {      
       var dailyEvents = []; // responseTime, event
       var eodEvents = {}; // eodResponseTime, event
       var timeout = experimentGroup.actionTriggers[0].actions[0].timeout * 60 * 1000; // in millis
       var now = new Date().getTime();
       var cutoffDateTimeMs = now - timeout;
-
+      var allEvents = db.getAllEvents();
       for (var i = 0; i < allEvents.length; i++) {
         var event = allEvents[i];
         if (!event.responseTime) {
           continue;
         } 
         if (new Date(event.responseTime).getTime() < cutoffDateTimeMs) {
-          console.log(new Date(event.responseTime).getTime());
-          console.log(now);
-          console.log(experimentGroup.actionTriggers[0].actions[0].timeout);
-          console.log(timeout);
-          console.log(cutoffDateTimeMs);
           break;
         }
         var eventGroupName = event.experimentGroupName;
-        alert(eventGroupName);
         if (!eventGroupName) {
-          console.log(3);
           continue;
         }
         if (eventGroupName === experimentGroup.name) {
@@ -1218,9 +1208,7 @@ paco.executeEod = (function() {
     };
     
     var scheduledTime;
-
     var context = parent;
-
     if (context.env) {
       scheduledTime = context.env.getValue("scheduledTime");
     }
@@ -1257,9 +1245,9 @@ function runEodExperiment() {
   var experiment = paco.experimentService.getExperiment();
   var experimentGroup = paco.experimentService.getExperimentGroup();
   var referredGroup = paco.experimentService.getEndOfDayReferredExperimentGroup();
-  var actionTriggerId = null;//window.env.getValue("actionTriggerId");
-  var actionTriggerSpecId = null;//window.env.getValue("actionTriggerSpecId");
-  var actionId = null;//window.env.getValue("actionId");
+  var actionTriggerId = null;//context.env.getValue("actionTriggerId");
+  var actionTriggerSpecId = null;//context.env.getValue("actionTriggerSpecId");
+  var actionId = null;//context.env.getValue("actionId");
   
   paco.executeEod(experiment, experimentGroup, referredGroup, 
       actionTriggerId, actionId, actionTriggerSpecId, form_root);
