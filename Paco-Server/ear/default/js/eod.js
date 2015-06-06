@@ -3,7 +3,7 @@ pacoApp.controller('EodCtrl', ['$scope', '$http', '$mdDialog', '$timeout',
     $http, $mdDialog, $timeout) {
 
     var endpoint = '/events?q=\'experimentId=' + $scope.exp.id + ':who=' +
-      $scope.user + '\&json';
+      $scope.user + '\'&json';
 
     $scope.showEod = function(event) {
       $http.get(endpoint, {

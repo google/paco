@@ -66,7 +66,7 @@
 
   <div ng-if="joined" class="group">
     Joined Experiments
-    <div ng-repeat="exp in joined">
+    <div ng-repeat="exp in joined | orderBy:'title'">
       <md-card>
         <md-card-content class="padded">
           <a href="#/experiment/{{exp.id}}">{{exp.title}}</a>

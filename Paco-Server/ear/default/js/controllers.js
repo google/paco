@@ -5,6 +5,7 @@ pacoApp.controller('HomeCtrl', ['$scope', '$http', '$routeParams', '$location',
     $scope.experimentId = false;
     $scope.tabIndex = -1;
     $scope.loaded = false;
+    $scope.cache = $cacheFactory.get('$http');
 
     $scope.loadJoined = function(reload) {
       var cache = true;
@@ -29,21 +30,44 @@ pacoApp.controller('HomeCtrl', ['$scope', '$http', '$routeParams', '$location',
       });
     };
 
-    $scope.loadAdmin = function() {
+    $scope.loadAdmin = function(reload) {
+      var cache = true;
+      if (reload !== undefined && reload === true) {
+        cache = false;
+      }
       $http.get('/experiments?admin', {
-        cache: true
+        cache: cache
       }).success(function(data) {
         $scope.experiments = data;
       });
     }
 
-    $scope.loadJoinable = function() {
+    $scope.loadJoinable = function(reload) {
+      var cache = true;
+      if (reload !== undefined && reload === true) {
+        cache = false;
+      }
       $http.get('/experiments?mine', {
-        cache: true
+        cache: cache
       }).success(function(data) {
         $scope.joinable = data;
       });
     };
+
+    $scope.addExperiment = function() {
+      $location.path('/experiment/new');
+    };
+
+    $scope.fixEmptyHash = function() {
+      if (document.location.hash === '') {
+        var URL = document.location.toString();
+        if (URL[URL.length -1] === '#') {
+          document.location = URL.substring(0, URL.length -1);
+        }
+      }
+    };
+
+    //$scope.fixEmptyHash();
 
     $http.get('/userinfo').success(function(data) {
 
@@ -83,9 +107,7 @@ pacoApp.controller('HomeCtrl', ['$scope', '$http', '$routeParams', '$location',
       $scope.experimentId = $scope.respondExperimentId;
     }
 
-    $scope.addExperiment = function() {
-      $location.path('/experiment/new');
-    };
+
   }
 ]);
 
@@ -192,6 +214,9 @@ pacoApp.controller('ExperimentCtrl', ['$scope', '$http',
               .ok('OK')
             ).then(function() {
               $scope.experiment0 = angular.copy($scope.experiment);
+              
+              $scope.cache.remove('/experiments?admin');  
+
               if ($scope.newExperiment) {
                 $location.path('/experiment/' + data[0].experimentId);
               }
@@ -431,6 +456,16 @@ pacoApp.controller('PreviewCtrl', ['$scope', '$http', 'config', function($scope,
     var experimentGroup = $scope.experiment.groups[$scope.group.index];
     $scope.post.experimentGroupName = experimentGroup.name;
     $scope.post.experimentName = $scope.experiment.name;
+    var now = new Date();
+    var iso = now.toISOString();
+
+    // Tweak ISO string to conform to yyyy/MM/dd HH:mm:ssZ
+    iso = iso.replace(/-/g, '/');
+    iso = iso.replace(/T/, ' ');
+    iso = iso.replace(/\.[0-9]*/, '');
+    $scope.post.responseTime = iso;
+
+
     $scope.post.experimentVersion = $scope.experiment.version;
     $scope.post.responses = [];
 

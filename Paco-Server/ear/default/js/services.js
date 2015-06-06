@@ -151,7 +151,8 @@ pacoApp.service('template', function() {
   this.eventTrigger = {
     type: 'interruptTrigger',
     actions: [this.defaultAction],
-    cues: [this.cue]
+    cues: [this.cue],
+    minimumBuffer: 59
   };
 
   this.signalTime = {

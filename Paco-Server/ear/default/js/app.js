@@ -5,13 +5,12 @@ var pacoApp = angular.module('pacoApp', [
 ]);
 
 
-pacoApp.config(['$routeProvider',
-  function($routeProvider) {
+pacoApp.config(['$routeProvider','$locationProvider',
+  function($routeProvider, $locationProvider) {
     $routeProvider.
     when('/experiment/:experimentId', {
       templateUrl: 'partials/main.html',
       controller: 'HomeCtrl',
-      reloadOnSearch: false,
     }).
     when('/data/:csvExperimentId', {
       templateUrl: 'partials/main.html',
@@ -21,10 +20,16 @@ pacoApp.config(['$routeProvider',
       templateUrl: 'partials/main.html',
       controller: 'HomeCtrl',
     }).
+    when('/experiments', {
+      templateUrl: 'partials/main.html',
+      controller: 'HomeCtrl',
+    }).
     otherwise({
       templateUrl: 'partials/main.html',
       controller: 'HomeCtrl',
     });
+
+    //$locationProvider.html5Mode(true);
   }
 ]);
 
