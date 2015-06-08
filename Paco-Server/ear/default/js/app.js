@@ -11,6 +11,7 @@ pacoApp.config(['$routeProvider','$locationProvider',
     when('/experiment/:experimentId', {
       templateUrl: 'partials/main.html',
       controller: 'HomeCtrl',
+      reloadOnSearch: false,
     }).
     when('/data/:csvExperimentId', {
       templateUrl: 'partials/main.html',
