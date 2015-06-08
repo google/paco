@@ -58,14 +58,18 @@ pacoApp.controller('HomeCtrl', ['$scope', '$http', '$routeParams', '$location',
       $location.path('/experiment/new');
     };
 
-    $scope.fixEmptyHash = function() {
-      if (document.location.hash === '') {
-        var URL = document.location.toString();
-        if (URL[URL.length -1] === '#') {
-          document.location = URL.substring(0, URL.length -1);
-        }
+    $scope.forceHttps = function() {
+      var devMode = ($location.host() === 'localhost' || 
+                      $location.host() === '127.0.0.1');
+      var insecure = ($location.protocol() === 'http');
+      
+      if (!devMode && insecure) {
+        var URL = document.location;
+        document.location = URL.replace('http://','https://');
       }
     };
+
+    $scope.forceHttps();
 
     $http.get('/userinfo').success(function(data) {
 
