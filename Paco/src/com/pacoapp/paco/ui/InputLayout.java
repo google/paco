@@ -73,7 +73,7 @@ import com.pacoapp.paco.ui.autocomplete.AutocompleteUsageFilteringArrayAdapter;
 import com.pacoapp.paco.ui.autocomplete.PersistentAutocompleteDictionary;
 
 public class InputLayout extends LinearLayout implements SpeechRecognitionListener {
-  public static final int CAMERA_REQUEST_CODE = 10000001;
+  public static final int CAMERA_REQUEST_CODE = 10001;
   // TODO Bob  refactor into separate classes because not every input can receive text from speech recognition
 
   private Input2 input;
