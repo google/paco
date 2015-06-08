@@ -47,12 +47,20 @@
               </div>
             </div>
 
-            <div ng-if="input.responseType === 'list'" class="input">
+            <div ng-if="input.responseType === 'list' && !input.multiselect" class="input">
               <md-select placeholder="Select" ng-model="responses[$index]">
                 <md-option ng-repeat="choice in input.listChoices" value="{{$index}}">
                   {{choice}}
                 </md-option>
               </md-select>
+            </div>
+
+            <div ng-if="input.responseType === 'list' && input.multiselect" class="input">
+              <md-checkbox ng-repeat="choice in input.listChoices" 
+                ng-checked="inListString($index, $parent.$index)"
+                ng-click="toggleStringItem($index, $parent.$index)">
+                  {{choice}}
+              </md-checkbox>
             </div>
 
             <div ng-if="input.responseType === 'photo'" class="input">

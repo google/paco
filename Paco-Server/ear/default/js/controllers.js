@@ -496,10 +496,48 @@ pacoApp.controller('PreviewCtrl', ['$scope', '$http', 'config', function($scope,
     return arr;
   }
 
-
   $scope.selectGroup = function() {
     console.log($scope.groupIndex);
   };
+
+  $scope.inListString = function(item, responseId) {
+    var listString = $scope.responses[responseId];
+    if (listString === undefined || listString === '') {
+      return false;
+    }
+    var list = listString.split(',');
+    //var id = parseInt(item);
+    if (list.indexOf(item + '') !== -1) {
+      return true;
+    }
+    return false;
+  }
+
+  $scope.toggleStringItem = function(item, responseId) {
+
+    var listString = $scope.responses[responseId];
+    var list = [];
+
+    if (listString === undefined || listString === '') {
+      $scope.responses[responseId] = [];
+    } else {
+      list = listString.split(',');
+    }
+
+    var find = list.indexOf('' + item);
+
+    if (find === -1) {
+      list.push(item + '');
+    } else {
+      list.splice(find, 1);
+    }
+
+    $scope.responses[responseId] = list.join();;
+  };
+
+
+
+
 }]);
 
 pacoApp.controller('TriggerCtrl', ['$scope', '$mdDialog', 'config', 'template',
@@ -702,7 +740,7 @@ pacoApp.controller('AdminCtrl', ['$scope', 'config', function($scope, config) {
   $scope.dataDeclarations = config.dataDeclarations;
   $scope.declared = [];
 
-  $scope.inList = function(item) {
+  $scope.inList = function(item, list) {
     if ($scope.experiment && $scope.experiment.extraDataCollectionDeclarations) {
       var id = parseInt(item);
       if ($scope.experiment.extraDataCollectionDeclarations.indexOf(id) !==
@@ -713,7 +751,7 @@ pacoApp.controller('AdminCtrl', ['$scope', 'config', function($scope, config) {
     return false;
   }
 
-  $scope.toggle = function(item) {
+  $scope.toggleDeclaration = function(item, list) {
     var id = parseInt(item);
     var find = $scope.experiment.extraDataCollectionDeclarations.indexOf(
       id);
