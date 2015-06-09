@@ -66,6 +66,8 @@ public class ExperimentJsonEntityManager {
 
     if (version == null || version == 0) {
       version = 1;
+    } else {
+      version++;
     }
     entity.setProperty(VERSION_COLUMN, version);
 
