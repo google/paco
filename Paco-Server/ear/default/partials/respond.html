@@ -1,11 +1,41 @@
 <div ng-controller="ExperimentCtrl">
+  <div ng-controller="RespondCtrl">
 
   <div class="padded">
     <a href="#">Experiments</a> &gt 
     <a href="#/experiment/{{respondExperimentId}}">{{respondExperimentId}}</a> &gt; 
-    Respond
+    Respond     {{respond.groupIndex}}
+
+  </div>
+   <div ng-if="experiment.groups.length > 1" class="group-select">
+    <label>Select Group:</label>
+    <md-select ng-model="respond.groupIndex">
+      <md-option ng-repeat="grp in experiment.groups" value="{{$index}}" placeholder="group">
+        {{grp.name}}
+      </md-option>
+    </md-select>
+  </div>
+
+  <div ng-if="experiment.groups[group.index].endOfDayGroup" ng-controller="EodCtrl">
+    
+    <div ng-if="activeEvents.length > 0">
+      <md-card>
+        <md-card-content> 
+          <div class="header">
+            <div class="day">{{activeEvents[0].responseTime | date:'EEEE'}}</div>
+            <div class="date">{{activeEvents[0].responseTime | date:'d/M/yyyy'}}</div>
+            <div class="ping">Ping 1 of {{activeEvents.length}}</div>
+            <div class="time">Captured at 
+              {{activeEvents[0].responseTime | date:'mediumTime'}}</div>
+          </div>
+          <p class="padded event">
+            {{activeEvents[0]}}
+          </p>
+        </md-card-content>
+      </md-card>
+    </div>
   </div>
 
   <div ng-include="'partials/preview.html'"></div>
-
+  </div>
 </div>

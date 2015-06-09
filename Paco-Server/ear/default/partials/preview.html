@@ -1,14 +1,5 @@
 <div class="preview" ng-controller="PreviewCtrl">
-
-  <div ng-if="experiment.groups.length > 1" class="group-select">
-    <label>Select Group:</label>
-    <md-select ng-model="group.index">
-      <md-option ng-repeat="grp in experiment.groups" value="{{$index}}" placeholder="group">
-        {{grp.name}}
-      </md-option>
-    </md-select>
-  </div>
-
+  {{respond}}
   <md-card>
     <md-card-content>
       <div>
@@ -76,5 +67,6 @@
       </div>
     </md-card-content>
   </md-card>
-  <md-button ng-click="respond()">Respond</md-button>
+
+  <md-button class="md-raised md-primary" ng-click="respond()">Respond</md-button>
 </div>

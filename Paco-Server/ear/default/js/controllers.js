@@ -114,6 +114,15 @@ pacoApp.controller('HomeCtrl', ['$scope', '$http', '$routeParams', '$location',
 ]);
 
 
+pacoApp.controller('RespondCtrl', ['$scope',
+  function($scope) {
+    $scope.respond = {
+        groupIndex: 0
+      }
+  }
+]);
+
+
 pacoApp.controller('ExperimentCtrl', ['$scope', '$http',
   '$mdDialog', '$filter', 'config', 'template', '$location',
   function($scope, $http, $mdDialog, $filter, config, template,
@@ -440,7 +449,7 @@ pacoApp.controller('PreviewCtrl', ['$scope', '$http', 'config', function($scope,
   $scope.group = {
     index: 0
   };
-
+  console.dir($scope);
   $scope.responses = {};
 
   $scope.post = {
@@ -448,7 +457,8 @@ pacoApp.controller('PreviewCtrl', ['$scope', '$http', 'config', function($scope,
     pacoVersion: 1,
   };
 
-  $scope.$watch('experiment', function(newValue, oldValue) {
+  $scope.$watch('group', function(newValue, oldValue) {
+    console.dir($scope);
     if (angular.isDefined($scope.experiment)) {
       $scope.post.experimentId = $scope.experiment.id;
     }
