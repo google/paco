@@ -16,37 +16,40 @@
   padding-top: 16px;
 }
 
+.preview md-card-content.readonly {
+  background: #efefef;
+}
+
 .preview textarea {
   width: 100%;
   height: 200px;
 }
 
-.preview .header div {
+.event .header div {
   padding-left: 16px;
 }
 
-.preview .header .day {
+.event .header .day {
   background: #5c6bc0;
   color: white;
   font-weight: 500;
   padding-top: 8px;
 }
 
-.preview .header .date {
+.event .header .date {
   background: #5c6bc0;
   color: #aaa;
   padding-bottom: 8px;
 }
 
-.preview .header .ping {
+.event .header .ping {
   color: #5c6bc0;
 }
 
-.preview .header .time {
+.event .header .time {
   color: #666;
 }
 
-.preview .event {
-  background: #ccc;
+.event {
   margin: 0;
 }

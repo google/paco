@@ -1,3 +1,140 @@
+
+pacoApp.directive('pacoGroup', function () {
+
+  var controller = ['$scope', '$http', 'config', function($scope, $http, config) {
+
+    $scope.mask = {};
+    $scope.responses = $scope.responses || {};
+
+    $scope.post = {
+      appId: 'webform',
+      pacoVersion: 1,
+    };
+
+    $scope.$watch('group', function(newValue, oldValue) {
+      if (angular.isDefined($scope.experiment)) {
+        $scope.post.experimentId = $scope.experiment.id;
+      }
+    });
+
+    $scope.$watchCollection('responses', function(newValue, oldValue) {
+        
+        if (angular.isDefined(newValue) && 
+            angular.isDefined($scope.group)) {
+
+          for ( var inputIdx in $scope.group.inputs) {
+            var input = $scope.group.inputs[inputIdx];
+            if (input.conditional) {
+              var validity = parser.parse(input.conditionExpression, $scope.responses);
+              $scope.mask[inputIdx] = !validity;
+            }
+          }
+        }
+    });
+
+    $scope.respond = function() {
+
+      console.log($scope.event);
+
+      var post = {};
+
+      post.experimentGroupName = $scope.group.name;
+      post.experimentName = $scope.$parent.experiment.name;
+      post.experimentId = $scope.$parent.experiment.id;
+      post.experimentVersion = $scope.$parent.experiment.version;
+      post.responses = [];
+
+      var now = new Date();
+      var iso = now.toISOString();
+
+      // Tweak ISO string to conform to yyyy/MM/dd HH:mm:ssZ
+      iso = iso.replace(/-/g, '/');
+      iso = iso.replace(/T/, ' ');
+      iso = iso.replace(/\.[0-9]*/, '');
+      post.responseTime = iso;
+
+      for (var name in $scope.responses) {
+      var pair = {
+        name: name,
+        answer: $scope.responses[name]
+      };
+      post.responses.push(pair);
+    }
+
+    $http.post('/events', post).success(function(data) {
+        console.log(data[0]);
+      }).error(function(data, status, headers, config) {
+        console.error(data);
+      });
+    };
+
+    $scope.range = function(start, end) {
+      var arr = [];
+      for (var i = start; i <= end; i++) {
+        arr.push(i);
+      }
+      return arr;
+    }
+
+    $scope.inListString = function(item, responseName) {
+      if (!$scope.responses) {
+        return false;
+      }
+      var listString = $scope.responses[responseName];
+      if (listString === undefined || listString === '') {
+        return false;
+      }
+      var list = listString.split(',');
+      if (list.indexOf(item + '') !== -1) {
+        return true;
+      }
+      return false;
+    }
+
+    $scope.toggleStringItem = function(item, responseName) {
+
+      var listString = $scope.responses[responseName];
+      var list = [];
+
+      if (listString === undefined || listString === '') {
+        $scope.responses[responseName] = [];
+      } else {
+        list = listString.split(',');
+      }
+
+      var find = list.indexOf('' + item);
+
+      if (find === -1) {
+        list.push(item + '');
+      } else {
+        list.splice(find, 1);
+      }
+
+      $scope.responses[responseName] = list.join();
+    };
+
+  }];
+
+
+  return {
+    restrict: 'E',
+    scope: {  'group': '=data',
+              'responses': '=',
+              'preview': '=',
+              'readonly': '=',
+              'event': '='},
+
+    controller: controller,
+    templateUrl: 'partials/group.html'
+  };
+});
+
+
+
+
+
+
+
 /**
  * This directive uses two-way data filtering to convert between the time
  * returned by an HTML time input (a timestamp relative to midnight, 12/31/1969) 

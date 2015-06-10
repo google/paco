@@ -52,6 +52,9 @@ pacoApp.controller('EodCtrl', ['$scope', '$http', '$mdDialog', '$timeout',
       var timeout = $scope.eodGroup.actionTriggers[0].actions[0].timeout * 60 * 1000; // in millis
       var now = new Date().getTime();
       var cutoffDateTimeMs = now - timeout;
+
+      console.log($scope.allEvents);
+
       for (var i = 0; i < $scope.allEvents.length; i++) {
         var event = $scope.allEvents[i];
         if (!event.responseTime) {
@@ -75,7 +78,22 @@ pacoApp.controller('EodCtrl', ['$scope', '$http', '$mdDialog', '$timeout',
           }
         }
       }
+
+      console.log(eodEvents);
+      console.log(dailyEvents);
+
+      for (var i = 0; i < dailyEvents.length; i++) {
+        var event = dailyEvents[i];
+        var responsePairs = {};
+        for (var j = 0; j < event.responses.length; j++) {
+          var response = event.responses[j];
+          responsePairs[response.name] = response.answer;
+        }
+        event.responsePairs = responsePairs;
+      }
+
       $scope.activeEvents = dailyEvents;
+      $scope.activeEvent = dailyEvents[0];
     };
 
 

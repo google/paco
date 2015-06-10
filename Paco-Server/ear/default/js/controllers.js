@@ -114,21 +114,6 @@ pacoApp.controller('HomeCtrl', ['$scope', '$http', '$routeParams', '$location',
 ]);
 
 
-pacoApp.controller('RespondCtrl', ['$scope',
-  function($scope) {
-
-      $scope.response = {};
-
-     $scope.$watch('response.groupIndex', function(newValue, oldValue) {
-      if (newValue) {
-        $scope.group = $scope.experiment.groups[newValue];
-      }
-    });
-
-  }
-]);
-
-
 pacoApp.controller('ExperimentCtrl', ['$scope', '$http',
   '$mdDialog', '$filter', 'config', 'template', '$location',
   function($scope, $http, $mdDialog, $filter, config, template,
@@ -136,8 +121,10 @@ pacoApp.controller('ExperimentCtrl', ['$scope', '$http',
     $scope.ace = {};
     $scope.feedbackTypes = config.feedbackTypes;
     $scope.tabs = config.tabs;
+
     $scope.state = {
-      tabId: 0
+      tabId: 0,
+      groupIndex: 0
     };
 
     if ($location.hash()) {
@@ -384,7 +371,7 @@ pacoApp.controller('CsvCtrl', ['$scope', '$http', '$mdDialog', '$timeout',
   }
 ]);
 
-pacoApp.controller('GroupCtrl', ['$scope', 'template',
+pacoApp.controller('GroupsCtrl', ['$scope', 'template',
   function($scope, template) {
     $scope.hiding = false;
 
@@ -451,129 +438,134 @@ pacoApp.controller('InputCtrl', ['$scope', 'config', function($scope, config) {
   }
 }]);
 
-pacoApp.controller('PreviewCtrl', ['$scope', '$http', 'config', function($scope, $http, config) {
+// pacoApp.controller('GroupCtrl', ['$scope', '$http', 'config', function($scope, $http, config) {
 
-  $scope.responses = {};
-  $scope.mask = {};
+//   $scope.mask = {};
+//   $scope.responses = $scope.responses || {};
 
-  $scope.post = {
-    appId: 'webform',
-    pacoVersion: 1,
-  };
+//   $scope.post = {
+//     appId: 'webform',
+//     pacoVersion: 1,
+//   };
 
-  $scope.$watch('group', function(newValue, oldValue) {
-    if (angular.isDefined($scope.experiment)) {
-      $scope.post.experimentId = $scope.experiment.id;
-    }
-  });
+//   $scope.$watch('group', function(newValue, oldValue) {
+//     if (angular.isDefined($scope.experiment)) {
+//       $scope.post.experimentId = $scope.experiment.id;
+//     }
+//   });
 
-  $scope.$watchCollection('responses', function(newValue, oldValue) {
+//   $scope.$watchCollection('responses', function(newValue, oldValue) {
       
-      if (angular.isDefined(newValue) && angular.isDefined($scope.group)) {
+//       if (angular.isDefined(newValue) && 
+//           angular.isDefined($scope.group) &&
+//           angular.isDefined($scope.group.inputs)) {
 
-        var values = {};
+//         var values = {};
 
-        for (var responseIdx in $scope.responses) {
-          var name = $scope.group.inputs[responseIdx].name;
-          var value = $scope.responses[responseIdx];
-          values[name] = value;
-        }
+//         for (var responseIdx in $scope.responses) {
+//           var name = $scope.group.inputs[responseIdx].name;
+//           var value = $scope.responses[responseIdx];
+//           values[name] = value;
+//         }
 
-        for ( var inputIdx in $scope.group.inputs) {
-          var input = $scope.group.inputs[inputIdx];
-          if (input.conditional) {
-            var validity = parser.parse(input.conditionExpression, values);
-            $scope.mask[inputIdx] = !validity;
-          }
-        }
-      }
-  });
+//         for ( var inputIdx in $scope.group.inputs) {
+//           var input = $scope.group.inputs[inputIdx];
+//           if (input.conditional) {
+//             var validity = parser.parse(input.conditionExpression, values);
+//             $scope.mask[inputIdx] = !validity;
+//           }
+//         }
+//       }
+//   });
 
-  $scope.respond = function() {
-    var experimentGroup = $scope.group;
-    $scope.post.experimentGroupName = experimentGroup.name;
-    $scope.post.experimentName = $scope.experiment.name;
-    var now = new Date();
-    var iso = now.toISOString();
+//   $scope.respond = function() {
+//     var experimentGroup = $scope.experiment.groups[$scope.state.groupIndex];
+//     $scope.post.experimentGroupName = experimentGroup.name;
+//     //$scope.post.experimentName = $scope.experiment.name;
+//     var now = new Date();
+//     var iso = now.toISOString();
 
-    // Tweak ISO string to conform to yyyy/MM/dd HH:mm:ssZ
-    iso = iso.replace(/-/g, '/');
-    iso = iso.replace(/T/, ' ');
-    iso = iso.replace(/\.[0-9]*/, '');
-    $scope.post.responseTime = iso;
+//     // Tweak ISO string to conform to yyyy/MM/dd HH:mm:ssZ
+//     iso = iso.replace(/-/g, '/');
+//     iso = iso.replace(/T/, ' ');
+//     iso = iso.replace(/\.[0-9]*/, '');
+//     $scope.post.responseTime = iso;
 
 
-    $scope.post.experimentVersion = $scope.experiment.version;
-    $scope.post.responses = [];
+//     //$scope.post.experimentVersion = $scope.experiment.version;
+//     $scope.post.responses = [];
 
-    for (var id in $scope.responses) {
-      var input = experimentGroup.inputs[id];     
-      var pair = {
-        name: input.name,
-        answer: $scope.responses[id]
-      };
+//     for (var id in $scope.responses) {
+//       var input = experimentGroup.inputs[id];     
+//       var pair = {
+//         name: input.name,
+//         answer: $scope.responses[id]
+//       };
       
-      $scope.post.responses.push(pair);
-    }
+//       $scope.post.responses.push(pair);
+//     }
 
-    $http.post('/events', $scope.post).success(function(data) {
-        console.log(data[0]);
-      }).error(function(data, status, headers, config) {
-        console.error(data);
-    });
-  };
+//     $http.post('/events', $scope.post).success(function(data) {
+//         console.log(data[0]);
+//       }).error(function(data, status, headers, config) {
+//         console.error(data);
+//     });
+//   };
 
-  $scope.range = function(start, end) {
-    var arr = [];
-    for (var i = start; i <= end; i++) {
-      arr.push(i);
-    }
-    return arr;
-  }
+//   $scope.range = function(start, end) {
+//     var arr = [];
+//     for (var i = start; i <= end; i++) {
+//       arr.push(i);
+//     }
+//     return arr;
+//   }
 
-  $scope.selectGroup = function() {
-    console.log($scope.groupIndex);
-  };
+//   $scope.selectGroup = function() {
+//     console.log($scope.groupIndex);
+//   };
 
-  $scope.inListString = function(item, responseId) {
-    var listString = $scope.responses[responseId];
-    if (listString === undefined || listString === '') {
-      return false;
-    }
-    var list = listString.split(',');
-    //var id = parseInt(item);
-    if (list.indexOf(item + '') !== -1) {
-      return true;
-    }
-    return false;
-  }
+//   $scope.inListString = function(item, responseId) {
+//     if (!$scope.responses) {
+//       return false;
+//     }
+//     var listString = $scope.responses[responseId];
+//     if (listString === undefined || listString === '') {
+//       return false;
+//     }
+//     var list = listString.split(',');
+//     //var id = parseInt(item);
+//     if (list.indexOf(item + '') !== -1) {
+//       return true;
+//     }
+//     return false;
+//   }
 
-  $scope.toggleStringItem = function(item, responseId) {
+//   $scope.toggleStringItem = function(item, responseId) {
 
-    var listString = $scope.responses[responseId];
-    var list = [];
+//     var listString = $scope.responses[responseId];
+//     var list = [];
 
-    if (listString === undefined || listString === '') {
-      $scope.responses[responseId] = [];
-    } else {
-      list = listString.split(',');
-    }
+//     if (listString === undefined || listString === '') {
+//       $scope.responses[responseId] = [];
+//     } else {
+//       list = listString.split(',');
+//     }
 
-    var find = list.indexOf('' + item);
+//     var find = list.indexOf('' + item);
 
-    if (find === -1) {
-      list.push(item + '');
-    } else {
-      list.splice(find, 1);
-    }
+//     if (find === -1) {
+//       list.push(item + '');
+//     } else {
+//       list.splice(find, 1);
+//     }
 
-    $scope.responses[responseId] = list.join();;
-  };
-
-
+//     $scope.responses[responseId] = list.join();;
+//   };
 
 
-}]);
+
+
+// }]);
 
 pacoApp.controller('TriggerCtrl', ['$scope', '$mdDialog', 'config', 'template',
   function($scope, $mdDialog, config, template) {

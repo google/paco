@@ -1,6 +1,6 @@
 <div class="groups">
 
-  <div class="group" ng-repeat="group in experiment.groups track by $index" ng-controller="GroupCtrl">
+  <div class="group" ng-repeat="group in experiment.groups track by $index" ng-controller="GroupsCtrl">
 
     <md-card hidable>
       <md-card-content ng-if="experiment.groups.length > 1 || hiding">
