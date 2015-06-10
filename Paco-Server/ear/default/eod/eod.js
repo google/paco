@@ -1090,7 +1090,7 @@ paco.executeEod = (function() {
       return paco.db.getResponseForItem(responses, item);
     }
     
-    var getActiveEventsWithoutEod = function(referredExperimentGroup, experimentGroup, db) {      
+    var getActiveEventsWithoutEod = function(referredExperimentGroup, experimentGroup, db) {
       var dailyEvents = []; // responseTime, event
       var eodEvents = {}; // eodResponseTime, event
       var timeout = experimentGroup.actionTriggers[0].actions[0].timeout * 60 * 1000; // in millis
