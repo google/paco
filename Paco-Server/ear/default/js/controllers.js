@@ -116,9 +116,15 @@ pacoApp.controller('HomeCtrl', ['$scope', '$http', '$routeParams', '$location',
 
 pacoApp.controller('RespondCtrl', ['$scope',
   function($scope) {
-    $scope.respond = {
-        groupIndex: 0
+
+      $scope.response = {};
+
+     $scope.$watch('response.groupIndex', function(newValue, oldValue) {
+      if (newValue) {
+        $scope.group = $scope.experiment.groups[newValue];
       }
+    });
+
   }
 ]);
 
@@ -446,11 +452,9 @@ pacoApp.controller('InputCtrl', ['$scope', 'config', function($scope, config) {
 }]);
 
 pacoApp.controller('PreviewCtrl', ['$scope', '$http', 'config', function($scope, $http, config) {
-  $scope.group = {
-    index: 0
-  };
-  console.dir($scope);
+
   $scope.responses = {};
+  $scope.mask = {};
 
   $scope.post = {
     appId: 'webform',
@@ -458,14 +462,35 @@ pacoApp.controller('PreviewCtrl', ['$scope', '$http', 'config', function($scope,
   };
 
   $scope.$watch('group', function(newValue, oldValue) {
-    console.dir($scope);
     if (angular.isDefined($scope.experiment)) {
       $scope.post.experimentId = $scope.experiment.id;
     }
   });
 
+  $scope.$watchCollection('responses', function(newValue, oldValue) {
+      
+      if (angular.isDefined(newValue) && angular.isDefined($scope.group)) {
+
+        var values = {};
+
+        for (var responseIdx in $scope.responses) {
+          var name = $scope.group.inputs[responseIdx].name;
+          var value = $scope.responses[responseIdx];
+          values[name] = value;
+        }
+
+        for ( var inputIdx in $scope.group.inputs) {
+          var input = $scope.group.inputs[inputIdx];
+          if (input.conditional) {
+            var validity = parser.parse(input.conditionExpression, values);
+            $scope.mask[inputIdx] = !validity;
+          }
+        }
+      }
+  });
+
   $scope.respond = function() {
-    var experimentGroup = $scope.experiment.groups[$scope.group.index];
+    var experimentGroup = $scope.group;
     $scope.post.experimentGroupName = experimentGroup.name;
     $scope.post.experimentName = $scope.experiment.name;
     var now = new Date();

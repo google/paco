@@ -1,9 +1,8 @@
 <div class="preview" ng-controller="PreviewCtrl">
-  {{respond}}
   <md-card>
     <md-card-content>
       <div>
-        <div ng-repeat="input in experiment.groups[group.index].inputs track by $index">
+        <div ng-repeat="input in group.inputs track by $index" ng-hide="mask[$index]">
           <div class="padded">
             <div>{{$index + 1}} {{input.text}}</div>
             <div ng-if="input.responseType === 'likert'" class="likert input">

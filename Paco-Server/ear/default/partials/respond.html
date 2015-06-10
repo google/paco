@@ -1,22 +1,21 @@
 <div ng-controller="ExperimentCtrl">
   <div ng-controller="RespondCtrl">
-
   <div class="padded">
     <a href="#">Experiments</a> &gt 
     <a href="#/experiment/{{respondExperimentId}}">{{respondExperimentId}}</a> &gt; 
-    Respond     {{respond.groupIndex}}
+    Respond    
 
   </div>
    <div ng-if="experiment.groups.length > 1" class="group-select">
     <label>Select Group:</label>
-    <md-select ng-model="respond.groupIndex">
+    <md-select ng-model="response.groupIndex">
       <md-option ng-repeat="grp in experiment.groups" value="{{$index}}" placeholder="group">
         {{grp.name}}
       </md-option>
     </md-select>
   </div>
 
-  <div ng-if="experiment.groups[group.index].endOfDayGroup" ng-controller="EodCtrl">
+  <div ng-if="experiment.groups[response.groupIndex].endOfDayGroup" ng-controller="EodCtrl">
     
     <div ng-if="activeEvents.length > 0">
       <md-card>
