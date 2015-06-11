@@ -1,9 +1,10 @@
 pacoApp.controller('EodCtrl', ['$scope', '$http', '$mdDialog', '$timeout',
-  function($scope,
-    $http, $mdDialog, $timeout) {
+  function($scope, $http, $mdDialog, $timeout) {
 
     var endpoint = '/events?q=\'experimentId=' + $scope.experiment.id + ':who=' +
       $scope.user + '\'&json';
+
+    $scope.activeIdx = 0;
 
     $scope.getExperimentGroup = function() {
       for (var i = 0; i < $scope.experiment.groups.length; i++) {
@@ -53,10 +54,15 @@ pacoApp.controller('EodCtrl', ['$scope', '$http', '$mdDialog', '$timeout',
       var now = new Date().getTime();
       var cutoffDateTimeMs = now - timeout;
 
-      console.log($scope.allEvents);
-
       for (var i = 0; i < $scope.allEvents.length; i++) {
         var event = $scope.allEvents[i];
+
+        event.responsePairs = {};
+        for (var j = 0; j < event.responses.length; j++) {
+          var response = event.responses[j];
+          event.responsePairs[response.name] = response.answer;
+        }
+
         if (!event.responseTime) {
           continue;
         } 
@@ -68,8 +74,10 @@ pacoApp.controller('EodCtrl', ['$scope', '$http', '$mdDialog', '$timeout',
           continue;
         }
         if (eventGroupName === $scope.eodGroup.name) {
-          if (event.responseTime) {
-            eodEvents[event.responseTime + ''] = event;
+          
+          var eventEodResponseTime = event.responsePairs['eodResponseTime'];
+          if (eventEodResponseTime) {
+            eodEvents[eventEodResponseTime + ""] = event;
           }
         } else if (eventGroupName === $scope.referredGroup.name) {
           var alreadyAnswered = eodEvents[event.responseTime];
@@ -79,21 +87,7 @@ pacoApp.controller('EodCtrl', ['$scope', '$http', '$mdDialog', '$timeout',
         }
       }
 
-      console.log(eodEvents);
-      console.log(dailyEvents);
-
-      for (var i = 0; i < dailyEvents.length; i++) {
-        var event = dailyEvents[i];
-        var responsePairs = {};
-        for (var j = 0; j < event.responses.length; j++) {
-          var response = event.responses[j];
-          responsePairs[response.name] = response.answer;
-        }
-        event.responsePairs = responsePairs;
-      }
-
       $scope.activeEvents = dailyEvents;
-      $scope.activeEvent = dailyEvents[0];
     };
 
 

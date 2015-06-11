@@ -1,7 +1,8 @@
 
 pacoApp.directive('pacoGroup', function () {
 
-  var controller = ['$scope', '$http', 'config', function($scope, $http, config) {
+  var controller = ['$scope', '$http', '$location', '$mdDialog', '$anchorScroll',
+    function($scope, $http, $location, $mdDialog, $anchorScroll) {
 
     $scope.mask = {};
     $scope.responses = $scope.responses || {};
@@ -34,8 +35,6 @@ pacoApp.directive('pacoGroup', function () {
 
     $scope.respond = function() {
 
-      console.log($scope.event);
-
       var post = {};
 
       post.experimentGroupName = $scope.group.name;
@@ -54,15 +53,51 @@ pacoApp.directive('pacoGroup', function () {
       post.responseTime = iso;
 
       for (var name in $scope.responses) {
-      var pair = {
-        name: name,
-        answer: $scope.responses[name]
-      };
-      post.responses.push(pair);
-    }
+        var pair = {
+          name: name,
+          answer: $scope.responses[name]
+        };
+        post.responses.push(pair);
+      }
+      
+      if ($scope.events) {
+        var event = $scope.events[$scope.activeIdx];
+        var eodPair = {
+          'name': 'eodResponseTime',
+          'answer':  event.responseTime
+        }
+        var referPair = {
+          'name': 'referred_group',
+          'answer': event.experimentGroupName
+        }
+        post.responses.push(eodPair);
+        post.responses.push(referPair);
+      }
 
     $http.post('/events', post).success(function(data) {
-        console.log(data[0]);
+
+        if (data[0].status === true) {
+
+          if ($scope.events) {
+            $scope.activeIdx++;
+            $scope.responses = {};
+          }
+
+          $anchorScroll('');
+
+          if (!$scope.events || !$scope.events[$scope.activeIdx]) {
+            $mdDialog.show(
+              $mdDialog.alert()
+              .title('Respond Status')
+              .content('Success!')
+              .ariaLabel('Success')
+              .ok('OK')
+            ).then(function() {
+              $location.path('/#/experiments');
+            });
+          }
+        }
+
       }).error(function(data, status, headers, config) {
         console.error(data);
       });
@@ -122,7 +157,8 @@ pacoApp.directive('pacoGroup', function () {
               'responses': '=',
               'preview': '=',
               'readonly': '=',
-              'event': '='},
+              'events': '=',
+              'activeIdx': '='},
 
     controller: controller,
     templateUrl: 'partials/group.html'

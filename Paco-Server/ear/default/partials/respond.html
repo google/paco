@@ -15,29 +15,35 @@
     </md-select>
   </div>
 
-  <div ng-if="experiment.groups[state.groupIndex].endOfDayGroup" ng-controller="EodCtrl">
-    
-    <div ng-if="activeEvent" class="event">
+  <div ng-if="experiment.groups[state.groupIndex].endOfDayGroup" ng-controller="EodCtrl">    
+    <div ng-if="activeEvents[activeIdx]" class="event">
 
       <md-card>
         <md-card-content> 
-
+        {{activeIdx}}
           <div class="header">
-            <div class="day">{{activeEvent.responseTime | date:'EEEE'}}</div>
-            <div class="date">{{activeEvent.responseTime | date:'d/M/yyyy'}}</div>
-            <div class="ping">Ping 1 of {{activeEvents.length}}</div>
+            <div class="day">{{activeEvents[activeIdx].responseTime | date:'EEEE'}}</div>
+            <div class="date">{{activeEvent[activeIdx].responseTime | date:'d/M/yyyy'}}</div>
+            <div class="ping">Ping {{activeIdx + 1}} of {{activeEvents.length}}</div>
             <div class="time">Captured at 
-              {{activeEvent.responseTime | date:'mediumTime'}}</div>
+              {{activeEvents[activeIdx].responseTime | date:'mediumTime'}}</div>
           </div>
         </md-card-content>
       </md-card>
 
-      <paco-group data="referredGroup" readonly=true responses="activeEvent.responsePairs"></paco-group>
+      <paco-group data="referredGroup" readonly=true responses="activeEvents[activeIdx].responsePairs">
+      </paco-group>
     </div>
+    <div ng-if="!activeEvents[activeIdx]">
+      No more daily events.
+    </div>
+    <paco-group data="experiment.groups[state.groupIndex]" events="activeEvents" 
+      active-idx="activeIdx" readonly="!activeEvents[activeIdx]"></paco-group>
   </div>
 
-  [{{activeEvent}}]
-
-  <paco-group data="experiment.groups[state.groupIndex]" event="activeEvent"></paco-group>
+  <div ng-if="!experiment.groups[state.groupIndex].endOfDayGroup">
+    <paco-group data="experiment.groups[state.groupIndex]"></paco-group>
+  </div>
+  
 
 </div>
