@@ -32,12 +32,15 @@
 
       <paco-group data="referredGroup" readonly=true responses="activeEvents[activeIdx].responsePairs">
       </paco-group>
+      
+      <paco-group data="experiment.groups[state.groupIndex]" events="activeEvents" 
+      active-idx="activeIdx"></paco-group>
+
     </div>
     <div ng-if="!activeEvents[activeIdx]">
       No more daily events.
     </div>
-    <paco-group data="experiment.groups[state.groupIndex]" events="activeEvents" 
-      active-idx="activeIdx" readonly="!activeEvents[activeIdx]"></paco-group>
+   
   </div>
 
   <div ng-if="!experiment.groups[state.groupIndex].endOfDayGroup">
