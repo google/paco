@@ -106,8 +106,9 @@ public class ScheduleListActivity extends ActionBarActivity implements ScheduleL
       // 'activated' state when touched.
       ScheduleListFragment scheduleListFragment = (ScheduleListFragment) getSupportFragmentManager().findFragmentById(R.id.schedule_list);
       scheduleListFragment.setActivateOnItemClick(true);
-      Toast.makeText(getApplicationContext(), "You may edit the schedule of the experiment or press back to go home.", Toast.LENGTH_LONG).show();
+
     }
+    Toast.makeText(getApplicationContext(), "Joined! You may customize the schedule of the experiment or just press back to go home.", Toast.LENGTH_LONG).show();
   }
 
   /**
