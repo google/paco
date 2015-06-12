@@ -133,6 +133,7 @@ public class ExperimentJsonEntityManager {
     List<String> experimentJsons = Lists.newArrayList();
     Map<Key, Entity> experiments = ds.get(experimentKeys);
     if (experiments == null) {
+      log.info("returned experiment list is empty");
       return Lists.newArrayList();
     }
     for (Entry<Key, Entity> entry : experiments.entrySet()) {
@@ -141,6 +142,8 @@ public class ExperimentJsonEntityManager {
       if (json != null) {
         // TODO just return DAOs don't do the 2x conversion when it is going to become a DAO anyway.
         experimentJsons.add(reapplyIdIfFirstTime(json.getValue(), experiment.getKey().getId()));
+      } else {
+        log.severe("No json for experiment: " + experiment.getProperty(TITLE_COLUMN));
       }
     }
     return experimentJsons;

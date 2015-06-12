@@ -118,6 +118,7 @@ public class ExperimentServlet extends HttpServlet {
         handler = null; //new ExperimentServletAllExperimentsFullLoadHandler(email, timezone, limit, cursor, pacoProtocol);
       }
       if (handler != null) {
+        log.info("Loading experiments...");
         experimentsJson = handler.performLoad();
         resp.getWriter().println(scriptBust(experimentsJson));
       } else {
