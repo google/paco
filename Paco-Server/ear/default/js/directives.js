@@ -63,7 +63,6 @@ pacoApp.directive('pacoGroup', function () {
         var event = $scope.events[$scope.activeIdx];
         var responseTime = $filter('date')(new Date(event.responseTime), 'yyyy/MM/dd HH:mm:ssZ');
 
-
         var eodPair = {
           'name': 'eodResponseTime',
           'answer':  responseTime

@@ -2,7 +2,7 @@ pacoApp.controller('EodCtrl', ['$scope', '$http', '$mdDialog', '$timeout',
   function($scope, $http, $mdDialog, $timeout) {
 
     var endpoint = '/events?q=\'experimentId=' + $scope.experiment.id + ':who=' +
-      $scope.user + '\'&json';
+      $scope.user + '\'&json&includePhotos=true';
 
     $scope.activeIdx = 0;
 
@@ -75,7 +75,7 @@ pacoApp.controller('EodCtrl', ['$scope', '$http', '$mdDialog', '$timeout',
         }
         if (eventGroupName === $scope.eodGroup.name) {
           
-          var eventEodResponseTime = event.responsePairs['eodResponseTime'];
+          var eventEodResponseTime = new Date(event.responsePairs['eodResponseTime']).getTime();
           if (eventEodResponseTime) {
             eodEvents[eventEodResponseTime + ""] = event;
           }
@@ -86,6 +86,8 @@ pacoApp.controller('EodCtrl', ['$scope', '$http', '$mdDialog', '$timeout',
           }
         }
       }
+
+      console.log(eodEvents);
 
       $scope.activeEvents = dailyEvents;
     };
