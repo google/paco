@@ -30,11 +30,11 @@
         </md-card-content>
       </md-card>
 
-      <paco-group data="referredGroup" readonly=true responses="activeEvents[activeIdx].responsePairs">
+      <paco-group data="referredGroup" readonly="true" responses="activeEvents[activeIdx].responsePairs">
       </paco-group>
       
       <paco-group data="experiment.groups[state.groupIndex]" events="activeEvents" 
-      active-idx="activeIdx"></paco-group>
+      active-idx="activeIdx" experiment="experiment"></paco-group>
 
     </div>
     <div ng-if="!activeEvents[activeIdx]">
@@ -44,7 +44,7 @@
   </div>
 
   <div ng-if="!experiment.groups[state.groupIndex].endOfDayGroup">
-    <paco-group data="experiment.groups[state.groupIndex]"></paco-group>
+    <paco-group data="experiment.groups[state.groupIndex]" experiment="experiment"></paco-group>
   </div>
   
 

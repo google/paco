@@ -1,8 +1,8 @@
 
 pacoApp.directive('pacoGroup', function () {
 
-  var controller = ['$scope', '$http', '$location', '$mdDialog', '$anchorScroll',
-    function($scope, $http, $location, $mdDialog, $anchorScroll) {
+  var controller = ['$scope', '$http', '$location', '$mdDialog', '$anchorScroll', '$filter',
+    function($scope, $http, $location, $mdDialog, $anchorScroll, $filter) {
 
     $scope.mask = {};
     $scope.responses = $scope.responses || {};
@@ -38,19 +38,14 @@ pacoApp.directive('pacoGroup', function () {
       var post = {};
 
       post.experimentGroupName = $scope.group.name;
-      post.experimentName = $scope.$parent.experiment.name;
+      post.experimentName = $scope.experiment.title;
+
       post.experimentId = $scope.$parent.experiment.id;
-      post.experimentVersion = $scope.$parent.experiment.version;
+      post.experimentVersion = $scope.experiment.version;
+      post.pacoVersion = 4;
+      post.appId = 'webForm';
       post.responses = [];
-
-      var now = new Date();
-      var iso = now.toISOString();
-
-      // Tweak ISO string to conform to yyyy/MM/dd HH:mm:ssZ
-      iso = iso.replace(/-/g, '/');
-      iso = iso.replace(/T/, ' ');
-      iso = iso.replace(/\.[0-9]*/, '');
-      post.responseTime = iso;
+      post.responseTime = $filter('date')(new Date(), 'yyyy/MM/dd HH:mm:ssZ');
 
       for (var name in $scope.responses) {
         var pair = {
@@ -61,10 +56,14 @@ pacoApp.directive('pacoGroup', function () {
       }
       
       if ($scope.events) {
+
         var event = $scope.events[$scope.activeIdx];
+        var responseTime = $filter('date')(new Date(event.responseTime), 'yyyy/MM/dd HH:mm:ssZ');
+
+
         var eodPair = {
           'name': 'eodResponseTime',
-          'answer':  event.responseTime
+          'answer':  responseTime
         }
         var referPair = {
           'name': 'referred_group',
@@ -158,6 +157,7 @@ pacoApp.directive('pacoGroup', function () {
               'preview': '=',
               'readonly': '=',
               'events': '=',
+              'experiment': '=',
               'activeIdx': '='},
 
     controller: controller,

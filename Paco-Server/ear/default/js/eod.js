@@ -48,8 +48,8 @@ pacoApp.controller('EodCtrl', ['$scope', '$http', '$mdDialog', '$timeout',
 
     $scope.getActiveEventsWithoutEod = function() {
 
-      var dailyEvents = []; // responseTime, event
-      var eodEvents = {}; // eodResponseTime, event
+      var dailyEvents = [];
+      var eodEvents = {};
       var timeout = $scope.eodGroup.actionTriggers[0].actions[0].timeout * 60 * 1000; // in millis
       var now = new Date().getTime();
       var cutoffDateTimeMs = now - timeout;
@@ -89,69 +89,5 @@ pacoApp.controller('EodCtrl', ['$scope', '$http', '$mdDialog', '$timeout',
 
       $scope.activeEvents = dailyEvents;
     };
-
-
-
-
-
-    // window.db = {
-    //   saveEvent: function(e) {
-    //     var obj = JSON.parse(e);
-
-    //     var now = new Date();
-    //     var iso = now.toISOString();
-
-    //     // Tweak ISO string to conform to yyyy/MM/dd HH:mm:ssZ
-    //     iso = iso.replace(/-/g, '/');
-    //     iso = iso.replace(/T/, ' ');
-    //     iso = iso.replace(/\.[0-9]*/, '');
-    //     obj.responseTime = iso;
-
-    //     console.dir(obj);
-
-
-
-    //     $http.post('/events', obj).success(function(data) {
-    //       console.log(data[0]);
-    //     }).error(function(data, status, headers, config) {
-    //       console.error(data);
-    //     });
-
-    //   },
-    //   getAllEvents: function() {
-    //     return window.env.events;
-    //   },
-    //   getLastEvent: function() {
-    //     return window.env.events[window.env.events.length - 1];
-    //   }
-    // };
-
-  //   window.experimentLoader = {
-  //     getExperiment: function() {
-  //       return $scope.exp;
-  //     },
-  //     getExperimentGroup: function() {
-  //       for (var i = 0; i < $scope.exp.groups.length; i++) {
-  //         if ($scope.exp.groups[i].endOfDayGroup === true) {
-  //           return $scope.exp.groups[i];
-  //         }
-  //       }
-  //       return null;
-  //     },
-  //     getEndOfDayReferredExperimentGroup: function() {
-  //       var eodGroup = this.getExperimentGroup();
-  //       if (eodGroup !== null) {
-  //         var referringGroupName = eodGroup.endOfDayReferredGroupName;
-  //         for (var i = 0; i < $scope.exp.groups.length; i++) {
-  //           if ($scope.exp.groups[i].name === referringGroupName) {
-  //             return $scope.exp.groups[i];
-  //           }
-  //         }
-  //       }
-  //       return null;
-  //     }
-  //   };
-
-  // }
   }
 ]);
