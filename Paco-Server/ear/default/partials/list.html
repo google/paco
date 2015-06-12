@@ -37,7 +37,7 @@
 
           <a href="#/data/{{exp.id}}">
             <md-button>
-              Data
+              View Data
             </md-button>
           </a>
 
@@ -46,7 +46,7 @@
               Anon Data
             </md-button>
           </a>
-
+          
           <a href="#" ng-controller="JoinCtrl" ng-model="exp" ng-click="joinExperiment()">
             <md-button>
               Join
@@ -82,8 +82,8 @@
                 Respond
               </md-button>
             </a>
-            
-            <a href="events?q=%27experimentId={{exp.id}}%27" target="_new">
+
+            <a href="#/data/{{exp.id}}#mine">
               <md-button>
                 View Data
               </md-button>
@@ -92,12 +92,6 @@
             <a href="participantStats?experimentId={{exp.id}}" target="_new">
               <md-button>
                 Stats
-              </md-button>
-            </a>
-
-            <a href="#/data/{{exp.id}}">
-              <md-button>
-                Data
               </md-button>
             </a>
 <!-- 

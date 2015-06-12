@@ -108,8 +108,6 @@ pacoApp.controller('HomeCtrl', ['$scope', '$http', '$routeParams', '$location',
       $scope.respondExperimentId = parseInt($routeParams.respondExperimentId, 10);
       $scope.experimentId = $scope.respondExperimentId;
     }
-
-
   }
 ]);
 
@@ -316,6 +314,10 @@ pacoApp.controller('CsvCtrl', ['$scope', '$http', '$mdDialog', '$timeout',
       $scope.anon = true;
     }
 
+    if ($location.hash() && $location.hash() === 'mine') {
+      $scope.myData = true;
+    }
+
     $scope.poll = function() {
       $scope.status += '.';
 
@@ -347,8 +349,13 @@ pacoApp.controller('CsvCtrl', ['$scope', '$http', '$mdDialog', '$timeout',
     };
 
     $scope.status = 'Sending CSV request';
-    $scope.endpoint = '/events?q=experimentId=' + $scope.csvExperimentId +
-      '&csv';
+    $scope.endpoint = '/events?q=\'experimentId=' + $scope.csvExperimentId;
+ 
+    if ($scope.myData) {
+      $scope.endpoint += ':who=' + $scope.user;      
+    }
+
+    $scope.endpoint += '\'&csv';
 
     if ($scope.anon) {
       $scope.endpoint += '&anon=true';

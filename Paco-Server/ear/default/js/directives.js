@@ -7,6 +7,8 @@ pacoApp.directive('pacoGroup', function () {
     $scope.mask = {};
     $scope.responses = $scope.responses || {};
 
+    console.log($scope.responses);
+
     $scope.post = {
       appId: 'webform',
       pacoVersion: 1,
@@ -39,7 +41,6 @@ pacoApp.directive('pacoGroup', function () {
 
       post.experimentGroupName = $scope.group.name;
       post.experimentName = $scope.experiment.title;
-
       post.experimentId = $scope.$parent.experiment.id;
       post.experimentVersion = $scope.experiment.version;
       post.pacoVersion = 4;
@@ -54,6 +55,8 @@ pacoApp.directive('pacoGroup', function () {
         };
         post.responses.push(pair);
       }
+
+      //post.responses.push({name: 'photo', answer: imgData});
       
       if ($scope.events) {
 
@@ -72,6 +75,9 @@ pacoApp.directive('pacoGroup', function () {
         post.responses.push(eodPair);
         post.responses.push(referPair);
       }
+
+      console.log(post);
+
 
     $http.post('/events', post).success(function(data) {
 
@@ -92,7 +98,7 @@ pacoApp.directive('pacoGroup', function () {
               .ariaLabel('Success')
               .ok('OK')
             ).then(function() {
-              $location.path('/#/experiments');
+              $location.path('/experiments');
             });
           }
         }
@@ -468,3 +474,5 @@ pacoApp.directive('fileDropzone', function() {
     }
   };
 });
+
+
