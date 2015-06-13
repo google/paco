@@ -14,70 +14,71 @@
  ~ KIND, either express or implied.  See the License for the
  ~ specific language governing permissions and limitations
  ~ under the License.
- -->
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-	android:layout_width="fill_parent" android:layout_height="wrap_content"
-	android:orientation="vertical"
-  >
-	<TextView android:text="@string/title" android:id="@+id/experimentListRowTitle"
-      android:paddingLeft="8dip"
-      android:paddingTop="4dip"
-      android:paddingBottom="2dip"   
-	    android:layout_gravity="left"
-	    android:gravity="left"
-	    android:textSize="24dip"
-		android:layout_width="fill_parent"
-		android:layout_height="wrap_content"
-		android:focusable="true"
-		android:clickable="true"
-        android:textColor="@color/purple_background"
-		/>
-<TextView android:text="@string/title" android:id="@+id/experimentListRowSubtitle"
-    android:paddingLeft="8dip"
-      android:paddingTop="0dip"
-      android:paddingBottom="4dip"
-        android:layout_gravity="left"
-        android:gravity="left"
-        android:textSize="16dip"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        />
-<TextView android:text="@string/title" android:id="@+id/experimentListRowJoinDate"
-    android:paddingLeft="8dip"
-      android:paddingTop="4dip"
-      android:paddingBottom="4dip"
-        android:layout_gravity="left"
-        android:gravity="left"
-        android:textSize="12dip"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        />
+-->
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal" >
 
-	<!--  
-    <ImageButton 
-        android:textSize="5dip"  
-        android:id="@+id/exploreDataExperimentButton"
-        android:layout_width="35dp" android:layout_height="wrap_content"
-        android:layout_gravity="right" android:minWidth="50dip"
-        android:src="@drawable/calculator_lb48" 
+    <LinearLayout
+        android:id="@+id/textLayout"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_toLeftOf="@+id/menuButton"
+        android:orientation="vertical" >
+
+        <TextView
+            android:id="@+id/experimentListRowTitle"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="left"
+            android:clickable="true"
+            android:focusable="true"
+            android:gravity="left"
+            android:paddingBottom="2dip"
+            android:paddingLeft="8dip"
+            android:paddingTop="4dip"
+            android:text="Experiment Title"
+            android:textColor="@color/purple_background"
+            android:textSize="24dip" />
+
+        <TextView
+            android:id="@+id/experimentListRowSubtitle"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="left"
+            android:gravity="left"
+            android:paddingBottom="4dip"
+            android:paddingLeft="8dip"
+            android:paddingTop="0dip"
+            android:text="@string/title"
+            android:textSize="16dip" />
+
+        <TextView
+            android:id="@+id/experimentListRowJoinDate"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="left"
+            android:gravity="left"
+            android:paddingBottom="4dip"
+            android:paddingLeft="8dip"
+            android:paddingTop="4dip"
+            android:text="@string/title"
+            android:textSize="12dip" />
+    </LinearLayout>
+
+    <ImageButton
+        android:id="@+id/menuButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentTop="true"
         android:background="@null"
-        android:contentDescription="@string/explore_data"/>
-	<ImageButton 
-	    android:textSize="5dip" 
-	    android:id="@+id/editExperimentButton"
-		android:layout_width="35dp" android:layout_height="wrap_content"
-		android:layout_gravity="right" android:minWidth="50dip"
-		android:src="@drawable/clock48"
-		 android:background="@null"
-		android:contentDescription="@string/edit_schedule"/>
-		
-	<ImageButton 
-	    android:textSize="5dip" 
-	    android:id="@+id/quitExperimentButton"
-		android:layout_width="35dp" android:layout_height="wrap_content"
-		android:layout_gravity="right" android:minWidth="50dip"
-		android:src="@drawable/stop48"
-		 android:background="@null"
-        android:contentDescription="@string/stop_experiment"/>
-        -->
-</LinearLayout>
+        android:contentDescription="Experiment Menu"
+        android:paddingBottom="4dip"
+        android:paddingLeft="8dip" 
+        android:paddingRight="8dip" 
+        android:paddingTop="8dip"
+        android:src="@drawable/ic_more_vert_black_24dp" />
+
+</RelativeLayout>
