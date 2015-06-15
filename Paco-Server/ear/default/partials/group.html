@@ -60,8 +60,7 @@
             </div>
 
             <div ng-if="input.responseType === 'photo'" class="input">
-             {{responses[input.name]}}
-            <!-- <img src="{{responses[input.name]}}"> -->
+              <img ng-src="data:image/jpg;base64,{{responses[input.name]}}" ng-if="responses[input.name]">
             </div>
 
             <div ng-if="input.responseType === 'location'" class="input">

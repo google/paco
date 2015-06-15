@@ -86,9 +86,6 @@ pacoApp.controller('EodCtrl', ['$scope', '$http', '$mdDialog', '$timeout',
           }
         }
       }
-
-      console.log(eodEvents);
-
       $scope.activeEvents = dailyEvents;
     };
   }

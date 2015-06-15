@@ -7,8 +7,6 @@ pacoApp.directive('pacoGroup', function () {
     $scope.mask = {};
     $scope.responses = $scope.responses || {};
 
-    console.log($scope.responses);
-
     $scope.post = {
       appId: 'webform',
       pacoVersion: 1,
@@ -55,8 +53,6 @@ pacoApp.directive('pacoGroup', function () {
         };
         post.responses.push(pair);
       }
-
-      //post.responses.push({name: 'photo', answer: imgData});
       
       if ($scope.events) {
 
@@ -473,5 +469,3 @@ pacoApp.directive('fileDropzone', function() {
     }
   };
 });
-
-
