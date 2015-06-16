@@ -1,0 +1,141 @@
+.bg {
+  background: #F5F5F5;
+  display: inline-block;
+  width: 100%;
+}
+
+.main {
+  left: 50%;
+  margin-left: -480px;
+  margin-bottom: 64px; 
+  position: relative;
+  width: 960px;
+}
+
+md-toolbar {
+  background: #5c6bc0 !important;
+  box-shadow: 0px 3px 3px rgba(0,0,0,.1);
+}
+
+md-toolbar .paco {
+  background: white;
+  border-radius: 50%;
+  height: 96px;
+  margin: 16px;
+  padding: 16px;
+  width: 96px;
+}
+
+md-toolbar .title {
+  font-size: 34px;
+  position: absolute;
+  left: 128px;
+  top: 32px;
+  text-transform: uppercase;
+}
+
+md-toolbar #login {
+  position: absolute;
+  top: 24px;
+  right: 16px;
+}
+
+md-toolbar .logout {
+  font-size: 14px;
+  position: absolute;
+  text-align: right;
+  top: 16px;
+  right: 8px;
+}
+
+md-toolbar .logout .user {
+  margin-right: 8px;
+}
+
+md-toolbar .previous {
+  position: absolute;
+  right: 16px;
+  bottom: 16px;
+}
+
+md-toolbar .subtitle {
+  font-size: 18px;
+  position: absolute;
+  left: 128px;
+  top: 72px;
+}
+
+.home {
+  font-weight: 300;
+}
+
+.home a {
+  text-decoration: none;
+}
+
+.home .top {
+  margin-top: 24px;
+  overflow: hidden;
+}
+
+.home .top .iphone {
+  float: left;
+  margin-top: 16px;
+}
+
+.home .top h2 {
+  color: #ff5722;
+  font-weight: 300;
+  margin: 16px 0 16px 0;
+}
+
+.home .top h1 {
+  color: #ff5722;
+  font-weight: 100;
+  font-size: 60px;
+  line-height: 50px;
+  margin: 16px 0 0 0;
+}
+
+.home .top .apps {
+  margin-top: 64px;
+}
+
+.home .top .signin button {
+  background: #5c6bc0;
+  color: white;
+  margin: 0 8px 0 0;
+}
+
+.home .text {
+  padding: 16px;
+  padding-right: 30%;
+}
+
+.home .what {
+  background: #eceff1;
+}
+
+.home .text h1 {
+  font-size: 32px;
+  font-weight: 100;
+  margin: 0;
+}
+
+.sitemap {
+  padding-top: 32px;
+  height: 100px;
+}
+
+.sitemap .links {
+  text-align: center;
+  position: relative;
+  width: 960px;
+  left: 50%;
+  bottom: 0px;
+  margin-left: -480px;
+}
+
+.sitemap .links a {
+  display: block;
+}

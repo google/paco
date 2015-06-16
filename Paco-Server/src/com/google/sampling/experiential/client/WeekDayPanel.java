@@ -23,7 +23,7 @@ import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.VerticalPanel;
-import com.google.paco.shared.model2.Schedule;
+import com.pacoapp.paco.shared.model2.Schedule;
 
 /**
  * Panel that allows selection of days of week to schedule an experiment.

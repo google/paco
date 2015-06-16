@@ -5,10 +5,9 @@ import java.util.List;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 
-import com.google.appengine.api.users.User;
-import com.google.paco.shared.model2.ExperimentDAO;
-import com.google.paco.shared.model2.ExperimentQueryResult;
-import com.google.paco.shared.model2.ValidationMessage;
+import com.pacoapp.paco.shared.model2.ExperimentDAO;
+import com.pacoapp.paco.shared.model2.ExperimentQueryResult;
+import com.pacoapp.paco.shared.model2.ValidationMessage;
 
 
 /**
@@ -24,12 +23,11 @@ public interface ExperimentService {
   // retrieving experiments
   // Note: DAOs are here for internal use and for the GWT client. Remote clients will use the AsJson api.
   ExperimentDAO getExperiment(Long id);
-  String getExperimentAsJson(Long id);
   List<ExperimentDAO> getExperimentsById(List<Long> experimentIds, String email, DateTimeZone timezone);
   //List<String> getExperimentsByIdAsJson(List<Long> experimentIds, String email, DateTimeZone timezone);
 
   // saving experiments
-  List<ValidationMessage> saveExperiment(ExperimentDAO experimentDAO, User userFromLogin, DateTimeZone timezone);
+  List<ValidationMessage> saveExperiment(ExperimentDAO experimentDAO, String loggedInUserEmail, DateTimeZone timezone);
 
   //delete experiments
   Boolean deleteExperiment(ExperimentDAO experimentDAO, String loggedInUserEmail);
@@ -41,7 +39,7 @@ public interface ExperimentService {
   ExperimentQueryResult getUsersAdministeredExperiments(String email, DateTimeZone timezone, Integer limit,
                                                         String cursor);
 
-  ExperimentQueryResult getExperimentsPublishedPublicly(DateTimeZone timezone, Integer limit, String cursor);
+  ExperimentQueryResult getExperimentsPublishedPublicly(DateTimeZone timezone, Integer limit, String cursor, String email);
 
 
   // referred experiments are used for linked end of day studies
@@ -52,6 +50,12 @@ public interface ExperimentService {
 
   // TODO maybe this should be in a cross-platform Utility class?
   boolean isOver(ExperimentDAO experiment, DateTime today);
+
+  Boolean deleteExperiments(List<Long> experimentIds, String email);
+
+  ExperimentQueryResult getMyJoinedExperiments(String email, DateTimeZone timezone, Integer limit, String cursor);
+
+  ExperimentQueryResult getAllExperiments(String cursor);
 
 
 }

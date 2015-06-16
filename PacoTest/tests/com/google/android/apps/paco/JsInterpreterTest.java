@@ -8,7 +8,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.google.android.apps.paco.utils.JsInterpreter;
+import com.pacoapp.paco.js.interpreter.JsInterpreter;
 
 public class JsInterpreterTest {
 

@@ -18,8 +18,8 @@ import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
-import com.google.paco.shared.model2.Input2;
 import com.google.sampling.experiential.shared.EventDAO;
+import com.pacoapp.paco.shared.model2.Input2;
 
 public class EventPanel extends Composite {
 
@@ -122,7 +122,7 @@ public class EventPanel extends Composite {
             return;
           }
       } else if (input.getResponseType().equals(Input2.LIST)) {
-        String[] listChoices = input.getListChoices();
+        List<String> listChoices = input.getListChoices();
         if (input.getMultiselect() != null && input.getMultiselect()) {
           StringBuffer buff = new StringBuffer();
           boolean first = true;
@@ -155,17 +155,17 @@ public class EventPanel extends Composite {
     }
   }
 
-  private String getListChoiceForAnswer(String value, String[] listChocies) {
+  private String getListChoiceForAnswer(String value, List<String> listChoices) {
     int zeroBasedIndex = -1;
     try {
       zeroBasedIndex = Integer.parseInt(value) - 1;
     } catch (NumberFormatException nfe) {
       // Log this error.
     }
-    if (zeroBasedIndex < 0 || zeroBasedIndex > listChocies.length - 1) {
+    if (zeroBasedIndex < 0 || zeroBasedIndex > listChoices.size() - 1) {
       value = "";
     } else {
-      value = listChocies[zeroBasedIndex];
+      value = listChoices.get(zeroBasedIndex);
     }
     return value;
   }

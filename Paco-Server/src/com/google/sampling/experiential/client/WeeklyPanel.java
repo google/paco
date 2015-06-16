@@ -22,7 +22,7 @@ import com.google.gwt.user.client.ui.HasVerticalAlignment;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.VerticalPanel;
-import com.google.paco.shared.model2.Schedule;
+import com.pacoapp.paco.shared.model2.Schedule;
 
 /**
  * Panel that allows configuration of a weekly experiment schedule.

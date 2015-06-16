@@ -17,6 +17,7 @@
 package com.google.sampling.experiential.server;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.logging.Logger;
 
 import javax.servlet.ServletConfig;
@@ -28,6 +29,9 @@ import javax.servlet.http.HttpServletResponse;
 import org.joda.time.DateTimeZone;
 
 import com.google.appengine.api.users.User;
+import com.google.common.collect.Lists;
+import com.google.gwt.thirdparty.guava.common.base.Strings;
+import com.pacoapp.paco.shared.comm.Outcome;
 
 /**
  * Servlet that answers requests for experiments.
@@ -64,7 +68,7 @@ public class ExperimentServlet extends HttpServlet {
       AuthUtil.redirectUserToLogin(req, resp);
     } else {
       DateTimeZone timezone = TimeUtil.getTimeZoneForClient(req);
-
+      log.info("Timezone is computed to be: " + timezone.toString());
       logPacoClientVersion(req);
 
       String email = AuthUtil.getEmailOfUser(req, user);
@@ -73,6 +77,7 @@ public class ExperimentServlet extends HttpServlet {
       String selectedExperimentsParam = req.getParameter("id");
       String experimentsPublishedPubliclyParam = req.getParameter("public");
       String experimentsAdministeredByUserParam = req.getParameter("admin");
+      String experimentsJoinedByMeParam = req.getParameter("joined");
 
       String pacoProtocol = req.getHeader("pacoProtocol");
       if (pacoProtocol == null) {
@@ -102,12 +107,18 @@ public class ExperimentServlet extends HttpServlet {
         handler = new ExperimentServletSelectedExperimentsFullLoadHandler(email, timezone, selectedExperimentsParam, pacoProtocol);
       } else if (experimentsPublishedPubliclyParam != null) {
         handler = new ExperimentServletExperimentsShortPublicLoadHandler(email, timezone, limit, cursor, pacoProtocol);
-      } else if (experimentsAdministeredByUserParam != null) {
+      } /*else if (experimentsAdministeredByUserParam != null && experimentsJoinedByMeParam != null) {
+        handler = new ExperimentServletAdminAndJoinedExperimentsShortLoadHandler(email, timezone, limit, cursor, pacoProtocol);
+      } */else if (experimentsJoinedByMeParam != null) {
+        handler = new ExperimentServletJoinedExperimentsShortLoadHandler(email, timezone, limit, cursor, pacoProtocol);
+      }
+      else if (experimentsAdministeredByUserParam != null) {
         handler = new ExperimentServletAdminExperimentsFullLoadHandler(email, timezone, limit, cursor, pacoProtocol);
       } else {
         handler = null; //new ExperimentServletAllExperimentsFullLoadHandler(email, timezone, limit, cursor, pacoProtocol);
       }
       if (handler != null) {
+        log.info("Loading experiments...");
         experimentsJson = handler.performLoad();
         resp.getWriter().println(scriptBust(experimentsJson));
       } else {
@@ -134,8 +145,61 @@ public class ExperimentServlet extends HttpServlet {
 
   @Override
   protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-    readExperimentDefinitions(req, resp);
+    resp.setContentType("application/json;charset=UTF-8");
+    User user = AuthUtil.getWhoFromLogin();
+    if (user == null) {
+      AuthUtil.redirectUserToLogin(req, resp);
+    } else {
+      DateTimeZone timezone = TimeUtil.getTimeZoneForClient(req);
+      logPacoClientVersion(req);
+      String email = AuthUtil.getEmailOfUser(req, user);
+
+      String delete = req.getParameter("delete");
+      if (!Strings.isNullOrEmpty(delete)) {
+        String selectedExperimentsParam = req.getParameter("id");
+        if (Strings.isNullOrEmpty(selectedExperimentsParam)) {
+          List<Outcome> outcomes = createErrorOutcome();
+          resp.getWriter().println(ExperimentJsonUploadProcessor.toJson(outcomes));
+        } else {
+          resp.getWriter().println(ExperimentJsonUploadProcessor.toJson(deleteExperiments(email,
+                                                                                          selectedExperimentsParam)));
+        }
+      } else {
+        readExperimentDefinitions(req, resp);
+      }
+    }
   }
+
+
+
+  public List<Outcome> createErrorOutcome() {
+    Outcome outcome = new Outcome(0, "No experiment ids specified for deletion");
+    List<Outcome> outcomes = Lists.newArrayList(outcome);
+    return outcomes;
+  }
+
+  private List<Outcome> deleteExperiments(String email, String selectedExperimentsParam) {
+    ExperimentService expService = ExperimentServiceFactory.getExperimentService();
+    List<Long> experimentIds = ExperimentServletSelectedExperimentsFullLoadHandler.parseExperimentIds(selectedExperimentsParam);
+    if (experimentIds.isEmpty()) {
+      return createErrorOutcome();
+    }
+    Outcome outcome = new Outcome();
+    List<Outcome> outcomeList = Lists.newArrayList();
+    outcomeList.add(outcome);
+    try {
+      final Boolean deleteExperimentsResult = expService.deleteExperiments(experimentIds, email);
+      if (!deleteExperimentsResult) {
+        outcome.setError("Could not delete experiments. Rolled back.");
+      }
+    } catch (Exception e) {
+      outcome.setError("Could not delete experiments. Rolled back. Error: " + e.getMessage());
+    }
+
+    return outcomeList;
+  }
+
+
 
   private void readExperimentDefinitions(HttpServletRequest req, HttpServletResponse resp) throws IOException {
     String postBodyString;
@@ -153,8 +217,8 @@ public class ExperimentServlet extends HttpServlet {
     String pacoVersion = req.getHeader("paco.version");
     log.info("Paco version = " + pacoVersion);
     DateTimeZone timezone = TimeUtil.getTimeZoneForClient(req);
-    String results = ExperimentJsonUploadProcessor.create().processJsonExperiments(postBodyString, AuthUtil.getWhoFromLogin(), appIdHeader, pacoVersion, timezone);
-    resp.setContentType("application/json;charset=UTF-8");
+    final User whoFromLogin = AuthUtil.getWhoFromLogin();
+    String results = ExperimentJsonUploadProcessor.create().processJsonExperiments(postBodyString, whoFromLogin, appIdHeader, pacoVersion, timezone);
     resp.getWriter().write(results);
   }
 }

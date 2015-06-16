@@ -2,7 +2,7 @@ package com.google.paco.shared.scheduling;
 
 import junit.framework.TestCase;
 
-import com.google.paco.shared.model2.Schedule;
+import com.pacoapp.paco.shared.model2.Schedule;
 
 
 public class ScheduleTest extends TestCase {

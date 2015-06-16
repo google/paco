@@ -36,7 +36,7 @@ import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
-import com.google.paco.shared.model2.Input2;
+import com.pacoapp.paco.shared.model2.Input2;
 
 /**
  *
@@ -140,7 +140,7 @@ public class InputsPanel extends Composite {
   }
 
   private boolean checkLChoicesAreNotEmptyAndHighlight() {
-    boolean isFilled = !(input.getListChoices().length == 0) && !input.getListChoices()[0].isEmpty();
+    boolean isFilled = !(input.getListChoices().size() == 0) && !input.getListChoices().get(0).isEmpty();
     TextBox firstListChoiceTextBox = responseView.getListChoicesPanel().getFirstChoicePanel().getTextField();
     setFieldHighlight(firstListChoiceTextBox, isFilled);
     return isFilled;

@@ -24,8 +24,8 @@ import java.util.List;
 
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.VerticalPanel;
-import com.google.paco.shared.model2.ExperimentGroup;
-import com.google.paco.shared.model2.Input2;
+import com.pacoapp.paco.shared.model2.ExperimentGroup;
+import com.pacoapp.paco.shared.model2.Input2;
 
 /**
  * A composite container for a bunch of InputPanel views.

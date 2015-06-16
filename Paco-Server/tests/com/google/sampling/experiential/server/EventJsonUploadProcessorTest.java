@@ -13,14 +13,13 @@ import org.joda.time.DateTimeZone;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.google.appengine.api.users.User;
 import com.google.common.collect.Lists;
-import com.google.paco.shared.comm.Outcome;
-import com.google.paco.shared.model2.ExperimentDAO;
-import com.google.paco.shared.model2.ExperimentQueryResult;
-import com.google.paco.shared.model2.ValidationMessage;
 import com.google.sampling.experiential.model.PhotoBlob;
 import com.google.sampling.experiential.model.What;
+import com.pacoapp.paco.shared.comm.Outcome;
+import com.pacoapp.paco.shared.model2.ExperimentDAO;
+import com.pacoapp.paco.shared.model2.ExperimentQueryResult;
+import com.pacoapp.paco.shared.model2.ValidationMessage;
 
 public class EventJsonUploadProcessorTest extends TestCase {
 
@@ -119,7 +118,7 @@ public class EventJsonUploadProcessorTest extends TestCase {
       }
 
       @Override
-      public ExperimentQueryResult getExperimentsPublishedPublicly(DateTimeZone timezone, Integer limit, String cursor) {
+      public ExperimentQueryResult getExperimentsPublishedPublicly(DateTimeZone timezone, Integer limit, String cursor, String email) {
         // TODO Auto-generated method stub
         return null;
       }
@@ -131,20 +130,32 @@ public class EventJsonUploadProcessorTest extends TestCase {
       }
 
       @Override
-      public String getExperimentAsJson(Long id) {
-        // TODO Auto-generated method stub
-        return null;
-      }
-
-
-      @Override
       public Boolean deleteExperiment(Long experimentId, String loggedInUserEmail) {
         // TODO Auto-generated method stub
         return null;
       }
 
       @Override
-      public List<ValidationMessage> saveExperiment(ExperimentDAO experimentDAO, User userFromLogin, DateTimeZone timezone) {
+      public List<ValidationMessage> saveExperiment(ExperimentDAO experimentDAO, String userFromLogin, DateTimeZone timezone) {
+        // TODO Auto-generated method stub
+        return null;
+      }
+
+      @Override
+      public Boolean deleteExperiments(List<Long> experimentIds, String email) {
+        // TODO Auto-generated method stub
+        return null;
+      }
+
+      @Override
+      public ExperimentQueryResult getMyJoinedExperiments(String email, DateTimeZone timezone, Integer limit,
+                                                          String cursor) {
+        // TODO Auto-generated method stub
+        return null;
+      }
+
+      @Override
+      public ExperimentQueryResult getAllExperiments(String cursor) {
         // TODO Auto-generated method stub
         return null;
       }
@@ -196,7 +207,7 @@ public class EventJsonUploadProcessorTest extends TestCase {
       }
 
       @Override
-      public ExperimentQueryResult getExperimentsPublishedPublicly(DateTimeZone timezone, Integer limit, String cursor) {
+      public ExperimentQueryResult getExperimentsPublishedPublicly(DateTimeZone timezone, Integer limit, String cursor, String email) {
         // TODO Auto-generated method stub
         return null;
       }
@@ -208,20 +219,32 @@ public class EventJsonUploadProcessorTest extends TestCase {
       }
 
       @Override
-      public String getExperimentAsJson(Long id) {
-        // TODO Auto-generated method stub
-        return null;
-      }
-
-
-      @Override
       public Boolean deleteExperiment(Long experimentId, String loggedInUserEmail) {
         // TODO Auto-generated method stub
         return null;
       }
 
       @Override
-      public List<ValidationMessage> saveExperiment(ExperimentDAO experimentDAO, User userFromLogin, DateTimeZone timezone) {
+      public List<ValidationMessage> saveExperiment(ExperimentDAO experimentDAO, String userFromLogin, DateTimeZone timezone) {
+        // TODO Auto-generated method stub
+        return null;
+      }
+
+      @Override
+      public Boolean deleteExperiments(List<Long> experimentIds, String email) {
+        // TODO Auto-generated method stub
+        return null;
+      }
+
+      @Override
+      public ExperimentQueryResult getMyJoinedExperiments(String email, DateTimeZone timezone, Integer limit,
+                                                          String cursor) {
+        // TODO Auto-generated method stub
+        return null;
+      }
+
+      @Override
+      public ExperimentQueryResult getAllExperiments(String cursor) {
         // TODO Auto-generated method stub
         return null;
       }
@@ -278,7 +301,7 @@ public class EventJsonUploadProcessorTest extends TestCase {
       }
 
       @Override
-      public ExperimentQueryResult getExperimentsPublishedPublicly(DateTimeZone timezone, Integer limit, String cursor) {
+      public ExperimentQueryResult getExperimentsPublishedPublicly(DateTimeZone timezone, Integer limit, String cursor, String email) {
         // TODO Auto-generated method stub
         return null;
       }
@@ -290,20 +313,32 @@ public class EventJsonUploadProcessorTest extends TestCase {
       }
 
       @Override
-      public String getExperimentAsJson(Long id) {
-        // TODO Auto-generated method stub
-        return null;
-      }
-
-
-      @Override
       public Boolean deleteExperiment(Long experimentId, String loggedInUserEmail) {
         // TODO Auto-generated method stub
         return null;
       }
 
       @Override
-      public List<ValidationMessage> saveExperiment(ExperimentDAO experimentDAO, User userFromLogin, DateTimeZone timezone) {
+      public List<ValidationMessage> saveExperiment(ExperimentDAO experimentDAO, String userFromLogin, DateTimeZone timezone) {
+        // TODO Auto-generated method stub
+        return null;
+      }
+
+      @Override
+      public Boolean deleteExperiments(List<Long> experimentIds, String email) {
+        // TODO Auto-generated method stub
+        return null;
+      }
+
+      @Override
+      public ExperimentQueryResult getMyJoinedExperiments(String email, DateTimeZone timezone, Integer limit,
+                                                          String cursor) {
+        // TODO Auto-generated method stub
+        return null;
+      }
+
+      @Override
+      public ExperimentQueryResult getAllExperiments(String cursor) {
         // TODO Auto-generated method stub
         return null;
       }
@@ -360,7 +395,7 @@ public class EventJsonUploadProcessorTest extends TestCase {
         return null;
       }
       @Override
-      public ExperimentQueryResult getExperimentsPublishedPublicly(DateTimeZone timezone, Integer limit, String cursor) {
+      public ExperimentQueryResult getExperimentsPublishedPublicly(DateTimeZone timezone, Integer limit, String cursor, String email) {
         // TODO Auto-generated method stub
         return null;
       }
@@ -370,17 +405,28 @@ public class EventJsonUploadProcessorTest extends TestCase {
         return false;
       }
       @Override
-      public String getExperimentAsJson(Long id) {
-        // TODO Auto-generated method stub
-        return null;
-      }
-      @Override
       public Boolean deleteExperiment(Long experimentId, String loggedInUserEmail) {
         // TODO Auto-generated method stub
         return null;
       }
       @Override
-      public List<ValidationMessage> saveExperiment(ExperimentDAO experimentDAO, User userFromLogin, DateTimeZone timezone) {
+      public List<ValidationMessage> saveExperiment(ExperimentDAO experimentDAO, String userFromLogin, DateTimeZone timezone) {
+        // TODO Auto-generated method stub
+        return null;
+      }
+      @Override
+      public Boolean deleteExperiments(List<Long> experimentIds, String email) {
+        // TODO Auto-generated method stub
+        return null;
+      }
+      @Override
+      public ExperimentQueryResult getMyJoinedExperiments(String email, DateTimeZone timezone, Integer limit,
+                                                          String cursor) {
+        // TODO Auto-generated method stub
+        return null;
+      }
+      @Override
+      public ExperimentQueryResult getAllExperiments(String cursor) {
         // TODO Auto-generated method stub
         return null;
       }

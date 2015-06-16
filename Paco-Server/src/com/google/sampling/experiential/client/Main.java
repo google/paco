@@ -53,10 +53,6 @@ import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.visualization.client.VisualizationUtils;
 import com.google.gwt.visualization.client.visualizations.corechart.LineChart;
-import com.google.paco.shared.comm.Outcome;
-import com.google.paco.shared.model2.ExperimentDAO;
-import com.google.paco.shared.model2.ExperimentDAOCore;
-import com.google.paco.shared.model2.ExperimentQueryResult;
 import com.google.sampling.experiential.shared.EventDAO;
 import com.google.sampling.experiential.shared.ExperimentStatsDAO;
 import com.google.sampling.experiential.shared.LoginInfo;
@@ -64,6 +60,10 @@ import com.google.sampling.experiential.shared.LoginService;
 import com.google.sampling.experiential.shared.LoginServiceAsync;
 import com.google.sampling.experiential.shared.PacoService;
 import com.google.sampling.experiential.shared.PacoServiceAsync;
+import com.pacoapp.paco.shared.comm.Outcome;
+import com.pacoapp.paco.shared.model2.ExperimentDAO;
+import com.pacoapp.paco.shared.model2.ExperimentDAOCore;
+import com.pacoapp.paco.shared.model2.ExperimentQueryResult;
 
 /**
  * Default Entry point into the GWT application.

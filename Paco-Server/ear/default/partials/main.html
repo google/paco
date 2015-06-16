@@ -1,0 +1,55 @@
+<md-toolbar class="md-tall">
+  <a href="/?">
+    <img src="img/paco256.png" class="paco">
+  </a>
+  <span class="title">Paco</span>
+  <span class="subtitle">The Personal Analytics Companion</span>
+
+  <a href="{{loginURL}}" ng-if="loginURL">
+    <md-button class="md-raised" id="login">
+      Sign In
+    </md-button>
+  </a>
+
+  <div class="logout"  ng-if="logoutURL && !loginURL">
+    <span class="user" ng-bind="user"></span>
+    <p>
+      <a href="{{logoutURL}}">
+        <md-button class="md-raised">
+          Sign Out
+        </md-button>
+      </a>
+    </p>
+  </div>
+
+  <a href="index.jsp" class="previous">Previous Version</a>
+</md-toolbar>
+
+<div class="bg" class="ng-cloak">
+  <div class="main">
+    <div ng-if="experimentId && !respondExperimentId" ng-include="'partials/experiment.html'"></div>
+    <div ng-if="!experimentId && user && !csvExperimentId && !respondExperimentId" 
+      ng-include="'partials/list.html'"></div>
+    <div ng-if="!user && !experimentId && loaded" ng-include="'partials/home.html'"></div>
+    <div ng-if="csvExperimentId && user" ng-include="'partials/data.html'"></div>
+    <div ng-if="respondExperimentId && user" ng-include="'partials/respond.html'"></div>
+  </div>
+</div>
+
+<div class="sitemap">
+  <div class="links" layout="row">
+    <div flex>
+      <a href="https://github.com/google/paco" target="_new">Github</a>
+      <a href="https://github.com/google/paco/wiki" target="_new">Developer Wiki</a>
+
+    </div>
+    <div flex>
+      <a href="https://twitter.com/pacoapp" target="_new">Twitter</a>
+      <a href="https://plus.sandbox.google.com/+Pacoapp/posts" target="_new">Google+</a>      
+    </div>
+    <div flex>
+      <a href="mailto:bob@pacoapp.com" target="_new">Contact</a>
+      <a href="privacypolicy.html" target="_new">Privacy</a>      
+    </div>
+  </div>
+</div>

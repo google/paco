@@ -1,0 +1,84 @@
+<div class="input" ng-controller="InputCtrl">
+
+  <div class="header section">
+    <span ng-bind="input.name" ng-if="input.name"></span>
+    <span ng-if="!input.name">Input {{$index + 1}}</span>
+
+    <a class="remove-button" href="" ng-click="remove(group.inputs, $index)"></a>
+    <a class="add-button" href="" ng-click="group.inputs.push({})"></a>
+  </div>
+
+  <div class="padded">
+    <div class="column0">
+      <select ng-model="input.responseType">
+        <option value="" disabled selected>Response Type</option>
+        <option ng-selected="{{type === input.responseType}}" ng-repeat="type in responseTypes"
+        value="{{type}}">{{type}}</option>
+      </select>
+
+      <md-checkbox ng-model="input.mandatory" aria-label="Mandatory">
+        Mandatory
+      </md-checkbox>
+
+      <md-checkbox ng-model="input.conditional" aria-label="Conditional">
+        Conditional
+      </md-checkbox>
+    </div>
+
+    <div class="column1">
+      <md-input-container>
+        <label>Question for the Participant</label>
+        <input ng-model="input.text">
+      </md-input-container>
+
+      <div layout="row">
+        <md-input-container class="medium" flex>
+          <label>Input {{$index + 1}} Variable Name</label>
+          <input ng-model="input.name">
+        </md-input-container>
+
+        <div flex>
+          <md-input-container ng-if="input.conditional">
+            <label>Condition</label>
+            <input ng-model="input.conditionExpression">
+          </md-input-container>
+        </div>
+      </div>
+
+      <div ng-if="input.responseType === 'list'">
+        <md-checkbox ng-model="input.multiselect" aria-label="Multiple selections">
+          Multiple selections
+        </md-checkbox>
+      </div>
+
+      <div class="likert" ng-if="input.responseType === 'likert'" layout="row">
+        <md-input-container flex>
+          <label>Likert Steps</label>
+          <input ng-model="input.likertSteps" type="number">
+        </md-input-container>
+
+        <md-input-container flex>
+          <label>Left Side Label</label>
+          <input ng-model="input.leftSideLabel">
+        </md-input-container>
+
+        <md-input-container flex>
+          <label>Right Side Label</label>
+          <input ng-model="input.rightSideLabel">
+        </md-input-container>
+      </div>
+
+      <div class="list" ng-if="input.responseType === 'list'">
+        <div class="choice" ng-repeat="choice in input.listChoices track by $index">
+          <md-input-container>
+            <label>Choice {{$index + 1}}</label>
+            <input ng-model="input.listChoices[$index]">
+          </md-input-container>
+          <a href="" class="remove-button" ng-click="remove(input.listChoices, $index)"></a>
+        </div>
+
+        <md-button add-icon ng-click="addChoice()">Choice</md-button>
+      </div>
+    </div>
+  </div>
+</div>

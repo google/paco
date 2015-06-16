@@ -1,0 +1,81 @@
+<div class="preview">
+  <md-card>
+    <md-card-content ng-class="{readonly: readonly}">
+      <div>
+        <div ng-repeat="input in group.inputs track by $index" ng-hide="mask[$index]">
+          <div class="padded">
+            <div>{{$index + 1}} {{input.text}}</div>
+            <div ng-if="input.responseType === 'likert'" class="likert input">
+              <div layout="row">
+                <span>{{input.leftSideLabel}}</span>
+                <md-radio-group layout="row" ng-model="responses[input.name]">
+                  <md-radio-button ng-repeat="score in range(1, input.likertSteps)" 
+                    value="{{score}}" 
+                    aria-label="Likert {{score}}"
+                    ng-disabled="readonly">
+                  </md-radio-button>
+                </md-radio-group>
+                <span>{{input.rightSideLabel}}</span>
+              </div>
+            </div>
+
+            <div ng-if="input.responseType === 'likert_smileys'" class="likert input">
+              <div layout="row">
+                <span>Frown</span>
+                <md-radio-group layout="row" ng-model="responses[input.name]">
+                  <md-radio-button ng-repeat="score in range(1, 5)" 
+                    value="{{score}}" 
+                    aria-label="Likert smiley {{score}}"
+                    ng-disabled="readonly">
+                  </md-radio-button>
+                </md-radio-group>
+                <span>Smile</span>
+              </div>
+            </div>
+
+            <div ng-if="input.responseType === 'open text'" class="input">
+              <div>
+                <md-input-container md-no-float>
+                  <input type="text" placeholder="answer" 
+                    ng-model="responses[input.name]" ng-disabled="readonly"></input>
+                </md-input-container>
+              </div>
+            </div>
+
+            <div ng-if="input.responseType === 'list' && !input.multiselect" class="input">
+              <md-select placeholder="Select" ng-model="responses[input.name]" ng-disabled="readonly">
+                <md-option ng-repeat="choice in input.listChoices" value="{{$index + 1}}">
+                  {{choice}}
+                </md-option>
+              </md-select>
+            </div>
+
+            <div ng-if="input.responseType === 'list' && input.multiselect" class="input">
+              <md-checkbox ng-repeat="choice in input.listChoices" 
+                ng-checked="inListString($index + 1, input.name)"
+                ng-click="toggleStringItem($index + 1, input.name)"
+                ng-disabled="readonly">
+                  {{choice}}
+              </md-checkbox>
+            </div>
+
+            <div ng-if="input.responseType === 'photo'" class="input">
+              <img ng-src="data:image/jpg;base64,{{responses[input.name]}}" ng-if="responses[input.name]">
+            </div>
+
+            <div ng-if="input.responseType === 'location'" class="input">
+              Location
+            </div>
+          </div>
+          <md-divider></md-divider>
+        </div>
+      </div>
+    </md-card-content>
+  </md-card>
+
+  <md-button class="md-raised md-primary" ng-click="respond()" 
+    ng-disabled="preview"
+    ng-hide="readonly">
+    Respond
+  </md-button>
+</div>

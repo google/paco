@@ -25,11 +25,12 @@ import org.joda.time.DateMidnight;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeConstants;
 
-import com.google.paco.shared.model.SignalingMechanismDAO;
-import com.google.paco.shared.model2.EventInterface;
-import com.google.paco.shared.model2.EventStore;
-import com.google.paco.shared.model2.Schedule;
-import com.google.paco.shared.model2.SignalTime;
+import com.pacoapp.paco.shared.model.SignalingMechanismDAO;
+import com.pacoapp.paco.shared.model2.EventInterface;
+import com.pacoapp.paco.shared.model2.EventStore;
+import com.pacoapp.paco.shared.model2.Schedule;
+import com.pacoapp.paco.shared.model2.SignalTime;
+import com.pacoapp.paco.shared.scheduling.NonESMSignalGenerator;
 
 public class NonESMSignalGeneratorTest extends TestCase {
 

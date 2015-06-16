@@ -5,10 +5,10 @@ import java.util.List;
 import android.content.Context;
 import android.net.Uri;
 
-import com.google.android.apps.paco.Experiment;
-import com.google.android.apps.paco.ExperimentColumns;
-import com.google.android.apps.paco.ExperimentProviderUtil;
 import com.google.common.collect.Lists;
+import com.pacoapp.paco.model.Experiment;
+import com.pacoapp.paco.model.ExperimentColumns;
+import com.pacoapp.paco.model.ExperimentProviderUtil;
 
 class MockExperimentProviderUtil extends ExperimentProviderUtil {
 

@@ -18,7 +18,7 @@ package com.google.sampling.experiential.client;
 
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
-import com.google.paco.shared.model2.ScheduleTrigger;
+import com.pacoapp.paco.shared.model2.ScheduleTrigger;
 
 /**
  * View trigger configuration.

@@ -29,10 +29,10 @@ import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
-import com.google.paco.shared.model2.ActionTrigger;
-import com.google.paco.shared.model2.ExperimentGroup;
-import com.google.paco.shared.model2.InterruptTrigger;
-import com.google.paco.shared.model2.ScheduleTrigger;
+import com.pacoapp.paco.shared.model2.ActionTrigger;
+import com.pacoapp.paco.shared.model2.ExperimentGroup;
+import com.pacoapp.paco.shared.model2.InterruptTrigger;
+import com.pacoapp.paco.shared.model2.ScheduleTrigger;
 
 /**
  * Container Panel for the action trigger panels

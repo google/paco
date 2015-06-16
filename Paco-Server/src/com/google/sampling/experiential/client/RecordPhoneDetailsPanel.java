@@ -25,7 +25,7 @@ import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.VerticalPanel;
-import com.google.paco.shared.model2.ExperimentDAOCore;
+import com.pacoapp.paco.shared.model2.ExperimentDAOCore;
 
 /**
  * Record Phone Details configuration panel.

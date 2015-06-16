@@ -39,20 +39,19 @@ import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import com.google.gwt.thirdparty.guava.common.base.Strings;
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
-import com.google.paco.shared.comm.Outcome;
-import com.google.paco.shared.model2.ActionTrigger;
-import com.google.paco.shared.model2.ExperimentDAO;
-import com.google.paco.shared.model2.ExperimentGroup;
-import com.google.paco.shared.model2.ExperimentQueryResult;
-import com.google.paco.shared.model2.ValidationMessage;
 import com.google.sampling.experiential.model.Event;
 import com.google.sampling.experiential.model.What;
 import com.google.sampling.experiential.shared.DateStat;
 import com.google.sampling.experiential.shared.EventDAO;
 import com.google.sampling.experiential.shared.ExperimentStatsDAO;
 import com.google.sampling.experiential.shared.PacoService;
+import com.pacoapp.paco.shared.comm.Outcome;
+import com.pacoapp.paco.shared.model2.ActionTrigger;
+import com.pacoapp.paco.shared.model2.ExperimentDAO;
+import com.pacoapp.paco.shared.model2.ExperimentGroup;
+import com.pacoapp.paco.shared.model2.ExperimentQueryResult;
+import com.pacoapp.paco.shared.model2.ValidationMessage;
 
 
 /*
@@ -173,7 +172,9 @@ public class PacoServiceImpl extends RemoteServiceServlet implements PacoService
     if (timezoneForId != null) {
       timezoneForId = DateTimeZone.forID(timezone);
     }
-    List<ValidationMessage> saveExperimentErrorResults = ExperimentServiceFactory.getExperimentService().saveExperiment(experimentDAO, loggedInUser, timezoneForId);
+    List<ValidationMessage> saveExperimentErrorResults = ExperimentServiceFactory.getExperimentService().saveExperiment(experimentDAO,
+                                                                                                                        loggedInUser.getEmail().toLowerCase(),
+                                                                                                                        timezoneForId);
     if (saveExperimentErrorResults != null) {
       StringBuilder buf = new StringBuilder();
       for (ValidationMessage validationMessage : saveExperimentErrorResults) {
@@ -321,90 +322,13 @@ public class PacoServiceImpl extends RemoteServiceServlet implements PacoService
   public ExperimentQueryResult getUsersJoinedExperiments(Integer limit, String cursor) {
       String loggedInUserEmail = getWhoFromLogin().getEmail().toLowerCase();
 
-      List<Event> events = getEventsForLoggedInUser(loggedInUserEmail);
+      final DateTimeZone timeZoneOnClient = getTimeZoneOnClient();
 
-      Map<Long, String> experimentIdTitleMap = Maps.newConcurrentMap();
-      Set<Long> experimentIds = getUniqueExperimentIdsAndMakeIdTitleMap(events, experimentIdTitleMap);
-
-      List<ExperimentDAO> experimentDAOs = Lists.newArrayList();
-      if (experimentIds.size() == 0) {
-        return new ExperimentQueryResult(cursor, experimentDAOs);
-      }
-
-      ArrayList<Long> idList = Lists.newArrayList(experimentIds);
-      System.out.println("Found " + experimentIds.size() +" unique experiments where joined.");
-      System.out.println(Joiner.on(",").join(idList));
-
-
-      List<ExperimentDAO> experiments = ExperimentServiceFactory.getExperimentService().getExperimentsById(idList, loggedInUserEmail, getTimeZoneOnClient());
-
-//      PersistenceManager pm = null;
-//      try {
-//        pm = PMF.get().getPersistenceManager();
-//        Query q = pm.newQuery(Experiment.class, ":p.contains(id)");
-//
-//
-//        List<Experiment> experiments = (List<Experiment>) q.execute(idList);
-//        System.out.println("Got back " + experiments.size() + " experiments");
-//        if (experiments != null) {
-//          for (Experiment experiment : experiments) {
-//            experimentDAOs.add(DAOConverter.createDAO(experiment));
-//            idList.remove(experiment.getId().longValue());
-//          }
-//        }
-//        for (Long id : idList) {
-//          String titleFromEvent = experimentIdTitleMap.get(id);
-//          if (titleFromEvent != null) {
-//            titleFromEvent = titleFromEvent + " (Deleted)";
-//          } else {
-//            titleFromEvent = " (Deleted)";
-//          }
-//          experimentDAOs.add(new ExperimentDAO(id, titleFromEvent, "", "", "",
-//              null, null, null, null, null, null, null, null, null, null));
-//        }
-//      } finally {
-//        if (pm != null) {
-//          pm.close();
-//        }
-//      }
-      return new ExperimentQueryResult(cursor, experimentDAOs);
-  }
-
-  private Set<Long> getUniqueExperimentIdsAndMakeIdTitleMap(List<Event> events, Map<Long, String> experimentIdTitleMap) {
-    Set<Long> experimentIds = Sets.newHashSet();
-    for(Event event : events) {
-      if (event.getExperimentId() == null) {
-        continue; // legacy check
-      }
-      long experimentId = Long.parseLong(event.getExperimentId());
-      experimentIds.add(experimentId);
-      String experimentTitle = event.getExperimentName();
-      if (Strings.isNullOrEmpty(experimentTitle)) {
-        experimentTitle = "";
-      }
-      experimentIdTitleMap.put(experimentId, experimentTitle);
-
-    }
-    return experimentIds;
-  }
-
-  private List<Event> getEventsForLoggedInUser(String loggedInUserEmail) {
-    List<com.google.sampling.experiential.server.Query> queries = new QueryParser().parse("who=" + loggedInUserEmail);
-    List<Event> events = EventRetriever.getInstance().getEvents(queries, getWho(),
-        getTimeZoneOnClient(), 0, 20000);
-    return events;
+      return ExperimentServiceFactory.getExperimentService().getMyJoinedExperiments(loggedInUserEmail, timeZoneOnClient, 1000, cursor);
   }
 
   private DateTimeZone getTimeZoneOnClient() {
     return TimeUtil.getTimeZoneForClient(getThreadLocalRequest());
-  }
-
-  private List<String> getIds(Set<String> experimentsForAdmin) {
-    List<String> ids = Lists.newArrayList();
-    for(String experimentId : experimentsForAdmin) {
-      ids.add("'" + experimentId +"'");
-    }
-    return ids;
   }
 
   @Override

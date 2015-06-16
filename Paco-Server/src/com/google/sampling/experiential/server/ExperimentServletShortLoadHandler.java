@@ -3,8 +3,8 @@ import java.util.List;
 
 import org.joda.time.DateTimeZone;
 
-import com.google.paco.shared.model2.ExperimentDAO;
-import com.google.paco.shared.model2.JsonConverter;
+import com.pacoapp.paco.shared.model2.ExperimentDAO;
+import com.pacoapp.paco.shared.model2.JsonConverter;
 
 
 public abstract class ExperimentServletShortLoadHandler extends ExperimentServletHandler {

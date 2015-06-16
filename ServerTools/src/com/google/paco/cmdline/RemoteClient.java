@@ -5,9 +5,9 @@ import java.util.List;
 
 import com.google.appengine.tools.remoteapi.RemoteApiInstaller;
 import com.google.appengine.tools.remoteapi.RemoteApiOptions;
-import com.google.paco.shared.model2.ExperimentDAO;
 import com.google.sampling.experiential.server.ExperimentService;
 import com.google.sampling.experiential.server.ExperimentServiceFactory;
+import com.pacoapp.paco.shared.model2.ExperimentDAO;
 
 public class RemoteClient {
 

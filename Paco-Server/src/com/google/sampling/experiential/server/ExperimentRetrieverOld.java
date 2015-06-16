@@ -22,11 +22,6 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import com.google.paco.shared.model.ExperimentDAO;
-import com.google.paco.shared.model.ExperimentQueryResult;
-import com.google.paco.shared.model.SignalScheduleDAO;
-import com.google.paco.shared.model.SignalTimeDAO;
-import com.google.paco.shared.model.SignalingMechanismDAO;
 import com.google.sampling.experiential.datastore.PublicExperimentList;
 import com.google.sampling.experiential.model.Experiment;
 import com.google.sampling.experiential.model.ExperimentReference;
@@ -34,6 +29,11 @@ import com.google.sampling.experiential.model.Feedback;
 import com.google.sampling.experiential.model.Input;
 import com.google.sampling.experiential.model.SignalSchedule;
 import com.google.sampling.experiential.model.Trigger;
+import com.pacoapp.paco.shared.model.ExperimentDAO;
+import com.pacoapp.paco.shared.model.ExperimentQueryResult;
+import com.pacoapp.paco.shared.model.SignalScheduleDAO;
+import com.pacoapp.paco.shared.model.SignalTimeDAO;
+import com.pacoapp.paco.shared.model.SignalingMechanismDAO;
 
 public class ExperimentRetrieverOld {
 
@@ -625,6 +625,32 @@ public ExperimentQueryResult getAllJoinableExperiments(String email, DateTimeZon
       }
     } else /* if (getScheduleType().equals(SCHEDULE_TYPE_ESM)) */{
       return com.google.sampling.experiential.server.TimeUtil.getDateMidnightForDateString(experiment.getEndDate()).plusDays(1).toDateTime();
+    }
+  }
+
+  public Pair<String, List<Experiment>> getExperiments(String cursorString, int limit) {
+    PersistenceManager pm = null;
+    try {
+      pm = PMF.get().getPersistenceManager();
+      javax.jdo.Query q = pm.newQuery(Experiment.class);
+      if (cursorString != null) {
+        Cursor cursor = Cursor.fromWebSafeString(cursorString);
+        Map<String, Object> extensionMap = Maps.newHashMap();
+        extensionMap.put(JDOCursorHelper.CURSOR_EXTENSION, cursor);
+        q.setExtensions(extensionMap);
+      }
+      q.setRange(0, limit > 0 ? Math.max(MAX_LIMIT_SIZE, limit) : DEFAULT_LIMIT_SIZE);
+
+      List<Experiment> experiments = (List<Experiment>) q.execute();
+      System.out.println("got experiments. Count = " + experiments.size());
+      Cursor newCursor = JDOCursorHelper.getCursor(experiments);
+      String newCursorString = newCursor.toWebSafeString();
+
+      return new Pair<String, List<Experiment>>(newCursorString, experiments);
+    } finally {
+      if (pm != null) {
+        //pm.close();
+      }
     }
   }
 }

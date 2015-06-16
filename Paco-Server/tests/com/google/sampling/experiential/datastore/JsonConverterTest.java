@@ -6,9 +6,9 @@ import java.util.List;
 import junit.framework.TestCase;
 
 import com.google.common.collect.Lists;
-import com.google.paco.shared.model2.ActionTrigger;
-import com.google.paco.shared.model2.ExperimentDAO;
-import com.google.paco.shared.model2.JsonConverter;
+import com.pacoapp.paco.shared.model2.ActionTrigger;
+import com.pacoapp.paco.shared.model2.ExperimentDAO;
+import com.pacoapp.paco.shared.model2.JsonConverter;
 
 public class JsonConverterTest extends TestCase {
 

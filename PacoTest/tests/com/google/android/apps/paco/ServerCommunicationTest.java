@@ -5,6 +5,9 @@ import java.util.Date;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeUtils;
 
+import com.pacoapp.paco.UserPreferences;
+import com.pacoapp.paco.net.ServerCommunication;
+
 import android.test.AndroidTestCase;
 
 public class ServerCommunicationTest extends AndroidTestCase {

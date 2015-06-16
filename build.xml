@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <project basedir="." default="build" name="Shared">
     <property environment="env"/>
-    <property name="PacoAndroidLib.location" value="PacoAndroidLib"/>
     <property name="PacoTest.location" value="PacoTest"/>
     <property name="Paco.location" value="Paco"/>
     <property name="Paco-Server.location" value="Paco-Server"/>
@@ -15,7 +14,6 @@
     <target name="clean">
         <ant antfile="build.xml" dir="${Shared.location}" inheritAll="false" target="clean"/>
         <ant antfile="build.xml" dir="${PacoTest.location}" inheritAll="false" target="clean"/>
-        <ant antfile="build.xml" dir="${PacoAndroidLib.location}" inheritAll="false" target="clean"/>
         <ant antfile="build.xml" dir="${Paco.location}" inheritAll="false" target="clean"/>
         <ant antfile="antbuild.xml" dir="${Paco-Server.location}" inheritAll="false" target="clean"/>
     </target>
@@ -23,12 +21,6 @@
   <target name="build-shared">
     <subant target="build">
       <fileset dir="${Shared.location}" includes="build.xml"/>
-    </subant>
-  </target>
-
-  <target name="build-android-lib">
-    <subant target="debug">
-      <fileset dir="${PacoAndroidLib.location}" includes="build.xml"/>
     </subant>
   </target>
 
@@ -68,7 +60,7 @@
     </target>
 
 
-    <target description="Build all projects." name="build" depends="copy-shared,build-android-lib,build-android,build-android-test,build-server">
+    <target description="Build all projects." name="build" depends="copy-shared,build-android,build-android-test,build-server">
     </target>
 
 

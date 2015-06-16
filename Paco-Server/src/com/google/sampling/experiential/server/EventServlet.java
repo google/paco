@@ -28,6 +28,7 @@ import java.net.URL;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.logging.Logger;
 
@@ -35,6 +36,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.codehaus.jackson.JsonGenerationException;
@@ -47,9 +49,11 @@ import com.google.appengine.api.modules.ModulesService;
 import com.google.appengine.api.modules.ModulesServiceFactory;
 import com.google.appengine.api.users.User;
 import com.google.common.collect.Lists;
-import com.google.paco.shared.model2.JsonConverter;
+import com.google.common.collect.Maps;
 import com.google.sampling.experiential.model.Event;
+import com.google.sampling.experiential.model.PhotoBlob;
 import com.google.sampling.experiential.shared.EventDAO;
+import com.pacoapp.paco.shared.model2.JsonConverter;
 
 /**
  * Servlet that answers queries for Events.
@@ -75,11 +79,16 @@ public class EventServlet extends HttpServlet {
       if (anonStr != null) {
         anon = Boolean.parseBoolean(anonStr);
       }
+      String includePhotosParam = req.getParameter("includePhotos");
+      boolean includePhotos = false;
+      if (includePhotosParam != null) {
+        includePhotos = Boolean.parseBoolean(includePhotosParam);
+      }
       if (req.getParameter("mapping") != null) {
         dumpUserIdMapping(req, resp);
       } else if (req.getParameter("json") != null) {
         resp.setContentType("application/json;charset=UTF-8");
-        dumpEventsJson(resp, req, anon);
+        dumpEventsJson(resp, req, anon, includePhotos);
       } else if (req.getParameter("photozip") != null) {
         dumpPhotosZip(resp, req, anon);
       } else if (req.getParameter("csv") != null) {
@@ -110,15 +119,15 @@ public class EventServlet extends HttpServlet {
   }
 
 
-  private void dumpEventsJson(HttpServletResponse resp, HttpServletRequest req, boolean anon) throws IOException {
+  private void dumpEventsJson(HttpServletResponse resp, HttpServletRequest req, boolean anon, boolean includePhotos) throws IOException {
     List<com.google.sampling.experiential.server.Query> query = new QueryParser().parse(stripQuotes(HttpUtil.getParam(req, "q")));
     List<Event> events = getEventsWithQuery(req, query, 0, 20000);
     EventRetriever.sortEvents(events);
-    String jsonOutput = jsonifyEvents(events, anon, TimeUtil.getTimeZoneForClient(req).getID());
+    String jsonOutput = jsonifyEvents(events, anon, TimeUtil.getTimeZoneForClient(req).getID(), includePhotos);
     resp.getWriter().println(jsonOutput);
   }
 
-  private String jsonifyEvents(List<Event> events, boolean anon, String timezoneId) {
+  private String jsonifyEvents(List<Event> events, boolean anon, String timezoneId, boolean includePhotos) {
     ObjectMapper mapper = JsonConverter.getObjectMapper();
 
     try {
@@ -138,6 +147,35 @@ public class EventServlet extends HttpServlet {
         if (scheduledDateTime != null) {
           scheduledTime = scheduledDateTime.toDate();
         }
+        final Map<String, String> whatMap = event.getWhatMap();
+        List<PhotoBlob> photos = event.getBlobs();
+        String[] photoBlobs = null;
+        if (includePhotos && photos != null && photos.size() > 0) {
+
+          photoBlobs = new String[photos.size()];
+
+          Map<String, PhotoBlob> photoByNames = Maps.newConcurrentMap();
+          for (PhotoBlob photoBlob : photos) {
+            photoByNames.put(photoBlob.getName(), photoBlob);
+          }
+          for(String key : whatMap.keySet()) {
+            String value = null;
+            if (photoByNames.containsKey(key)) {
+              byte[] photoData = photoByNames.get(key).getValue();
+              if (photoData != null && photoData.length > 0) {
+                String photoString = new String(Base64.encodeBase64(photoData));
+                if (!photoString.equals("==")) {
+                  value = photoString;
+                } else {
+                  value = "";
+                }
+              } else {
+                value = "";
+              }
+              whatMap.put(key, value);
+            }
+          }
+        }
 
         eventDAOs.add(new EventDAO(userId,
                                    event.getWhen(),
@@ -145,7 +183,7 @@ public class EventServlet extends HttpServlet {
                                    event.getLat(), event.getLon(),
                                    event.getAppId(),
                                    event.getPacoVersion(),
-                                   event.getWhatMap(),
+                                   whatMap,
                                    event.isShared(),
                                    responseTime,
                                    scheduledTime,

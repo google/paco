@@ -1,0 +1,30 @@
+<md-dialog aria-label="Error">
+  <md-dialog-content>
+
+    <div ng-if="errors.length > 0">
+      <h2>Validation Error</h2>
+
+      Server reported the following problems:
+      <ol>
+        <li ng-repeat="error in errors track by $index">
+          {{error}}
+        </li>
+      </ol>
+    </div>
+
+    <div ng-if="errors.length === 0">
+      <h2>Unknown Error</h2>
+
+      Message from server:
+      <ul>
+        <li>{{errorMessage}}</li>
+      </ul>
+    </div>
+
+  </md-dialog-content>
+  <div class="md-actions">
+    <md-button ng-click="hide()" class="md-primary">
+      Done
+    </md-button>
+  </div>
+</md-dialog>

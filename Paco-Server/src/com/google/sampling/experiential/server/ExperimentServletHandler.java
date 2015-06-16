@@ -5,8 +5,8 @@ import java.util.logging.Logger;
 
 import org.joda.time.DateTimeZone;
 
-import com.google.paco.shared.model2.ExperimentDAO;
-import com.google.paco.shared.model2.JsonConverter;
+import com.pacoapp.paco.shared.model2.ExperimentDAO;
+import com.pacoapp.paco.shared.model2.JsonConverter;
 
 abstract class ExperimentServletHandler {
 

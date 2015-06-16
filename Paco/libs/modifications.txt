@@ -1,0 +1,6 @@
+Using jarjar, I minimized Google Play services because it was causing a DEX method limit error.
+It has 20k methods, one third of the 64k limit. See this article for more info 
+(https://androiddevx.wordpress.com/2014/10/28/google-play-services-on-a-much-needed-diet/)
+
+As of the latest Google Play Services SDK, 6.5.87, you can now pick sub-jars from GPS. However, it requires Gradle.
+See: http://android-developers.blogspot.com/2014/12/google-play-services-and-dex-method.html

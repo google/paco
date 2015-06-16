@@ -21,10 +21,10 @@ import com.google.appengine.api.datastore.Query.FilterOperator;
 import com.google.appengine.api.datastore.QueryResultList;
 import com.google.appengine.api.datastore.Transaction;
 import com.google.common.collect.Lists;
-import com.google.paco.shared.model2.ExperimentDAO;
-import com.google.paco.shared.scheduling.ActionScheduleGenerator;
 import com.google.sampling.experiential.model.Experiment;
 import com.google.sampling.experiential.server.TimeUtil;
+import com.pacoapp.paco.shared.model2.ExperimentDAO;
+import com.pacoapp.paco.shared.scheduling.ActionScheduleGenerator;
 
 public class PublicExperimentList {
 
@@ -38,7 +38,8 @@ public class PublicExperimentList {
 
   public static String PUBLIC_EXPERIMENT_KIND = "public_experiment";
 
-  public static void updatePublicExperimentsList(Transaction tx, DatastoreService ds, ExperimentDAO experiment, Key experimentKey, DateTime dateTime) {
+  public static void updatePublicExperimentsList(Transaction tx, DatastoreService ds,
+                                                 ExperimentDAO experiment, Key experimentKey, DateTime dateTime) {
     if (experiment.getId() == null) {
       log.severe("Experiment must have an id to be published publicly.");
       throw new IllegalArgumentException("Experiments must have an id to be in the public experiments list");
@@ -54,10 +55,25 @@ public class PublicExperimentList {
     entity.setProperty(END_DATE_PROPERTY, getEndDateColumn(experiment));
 
     if (!ActionScheduleGenerator.isOver(dateTime, experiment) && experiment.getPublished() && experiment.getPublishedUsers().isEmpty()) {
-      ds.put(tx, entity);
+      ds.put(/*tx, */entity);
     } else if (existingPublicAcl != null) {
-      ds.delete(tx, existingKey);
+      ds.delete(/*tx,*/ existingKey);
     }
+  }
+
+  public static void deletePublicExperiment(Transaction tx, DatastoreService ds, Key experimentKey) {
+    Key key = KeyFactory.createKey(PUBLIC_EXPERIMENT_KIND, experimentKey.getId());
+    ds.delete(tx, key);
+  }
+
+  public static void deletePublicExperiments(Transaction tx, DatastoreService ds, List<Long> experimentIds) {
+    List<Key> keys = Lists.newArrayList();
+    for (Long experimentId : experimentIds) {
+      Key key = KeyFactory.createKey(PUBLIC_EXPERIMENT_KIND, experimentId);
+      keys.add(key);
+    }
+
+    ds.delete(tx, keys);
   }
 
   @Deprecated
@@ -184,5 +200,7 @@ public class PublicExperimentList {
     Key key = KeyFactory.createKey(PUBLIC_EXPERIMENT_KIND, experiment.getId());
     ds.delete(key);
   }
+
+
 
 }

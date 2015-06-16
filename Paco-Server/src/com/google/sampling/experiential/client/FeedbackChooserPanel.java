@@ -32,8 +32,8 @@ import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
-import com.google.paco.shared.model2.ExperimentGroup;
-import com.google.paco.shared.model2.Feedback;
+import com.pacoapp.paco.shared.model2.ExperimentGroup;
+import com.pacoapp.paco.shared.model2.Feedback;
 
 import edu.ycp.cs.dh.acegwt.client.ace.AceEditor;
 import edu.ycp.cs.dh.acegwt.client.ace.AceEditorCallback;
@@ -103,10 +103,10 @@ public class FeedbackChooserPanel extends Composite {
       Feedback feedback = new Feedback();
       feedback.setText(Feedback.DEFAULT_FEEDBACK_MSG);
       group.setFeedback(feedback);
-      group.setFeedbackType(Feedback.FEEDBACK_TYPE_STATIC_MESSAGE);
+      group.getFeedback().setType(Feedback.FEEDBACK_TYPE_STATIC_MESSAGE);
       feedbackChoices.setItemSelected(0, true);
     } else {
-      Integer feedbackType = group.getFeedbackType();
+      Integer feedbackType = group.getFeedback().getType();
       int selectedIndex = 0;
       if (feedbackType == null) {
         // no existing experiments will have a feedback type unless we write a migration script
@@ -114,10 +114,10 @@ public class FeedbackChooserPanel extends Composite {
         // assign appropriately
         if (hasNonDefaultFeedback()) {
           selectedIndex = Feedback.FEEDBACK_TYPE_CUSTOM; // we were retrospective by default
-          group.setFeedbackType(selectedIndex);
+          group.getFeedback().setType(selectedIndex);
         } else {
           selectedIndex = Feedback.FEEDBACK_TYPE_STATIC_MESSAGE;
-          group.setFeedbackType(selectedIndex);
+          group.getFeedback().setType(selectedIndex);
         }
       } else {
         selectedIndex = feedbackType;
@@ -138,7 +138,7 @@ public class FeedbackChooserPanel extends Composite {
   }
 
   private void respondToListSelection(int index) {
-    experiment.setFeedbackType(index);
+    experiment.getFeedback().setType(index);
     switch (index) {
     case Feedback.FEEDBACK_TYPE_STATIC_MESSAGE:
       experiment.getFeedback().setText(Feedback.DEFAULT_FEEDBACK_MSG);
@@ -153,7 +153,7 @@ public class FeedbackChooserPanel extends Composite {
 
   private void updatePanel() {
     detailsPanel.clear();
-    switch (experiment.getFeedbackType()) {
+    switch (experiment.getFeedback().getType()) {
       case Feedback.FEEDBACK_TYPE_STATIC_MESSAGE:
         detailsPanel.add(createStaticMessagePanel());
         break;

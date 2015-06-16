@@ -3,7 +3,7 @@ import static org.junit.Assert.*;
 
 import org.junit.Test;
 
-import com.google.paco.shared.comm.Outcome;
+import com.pacoapp.paco.shared.comm.Outcome;
 
 
 public class OutcomeTest {

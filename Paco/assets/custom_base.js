@@ -17,11 +17,9 @@ var paco = (function (init) {
 
   obj.createResponseForInput = function(input) {
     return { "name" : input.name, 
-             "inputId" : input.id, 
              "prompt" : input.text,
              "isMultiselect" : input.isMultiselect,
              "answer" : input.answer, 
-             "answerOrder" : input.answerOrder, 
              "responseType" : input.responseType
            };
   };
@@ -34,18 +32,20 @@ var paco = (function (init) {
     return responses;
   };
 
-  obj.createResponseEventForExperimentWithResponses = function(experiment, responses, scheduledTime) {
+  obj.createResponseEventForExperimentWithResponses = function(experiment, experimentGroup, responses, scheduledTime) {
     return  {
       "experimentId" : experiment.id,
+      "experimentVersion" : experiment.version,
+      "experimentGroupName" : experimentGroup.name,
       "responseTime" : null, 
       "scheduledTime" : scheduledTime,
-      "version" : experiment.version,
       "responses" : responses
     };
   };
 
-  obj.createResponseEventForExperiment = function(experiment, scheduledTime) {
-    return obj.createResponseEventForExperimentWithResponses(experiment, obj.createResponsesForInputs(experiment.inputs), scheduledTime);
+  obj.createResponseEventForExperiment = function(experiment, experimentGroup, scheduledTime) {
+    return obj.createResponseEventForExperimentWithResponses(experiment, experimentGroup, 
+        obj.createResponsesForInputs(experimentGroup.inputs), scheduledTime);
   };
 
   obj.answerHas = function(answer, value) {
@@ -71,27 +71,27 @@ var paco = (function (init) {
 
   function validValueForResponseType(response) {
     if (response.responseType === "number") {
-      return validNumber(response.answerOrder);
+      return validNumber(response.answer);
     } else {
       return true;
     }
   };
   
   valid = function(input, inputHtml, response) { 
-    if ((input.mandatory && inputHtml.element[0].style.display != "none") && (!response.answerOrder || response.answerOrder.length === 0)) {
-      return { "succeeded" : false , "error" : "Response mandatory for " + input.name, "name" : input.name};    
+    if ((input.required && inputHtml.element[0].style.display != "none") && (!response.answer || response.answer.length === 0)) {
+      return { "succeeded" : false , "error" : "Response required for " + input.name, "name" : input.name};    
     } else if (!validValueForResponseType(response)) {
-      return { "succeeded" : false , "error" : "Response mandatory for " + name, "name" : name};    
+      return { "succeeded" : false , "error" : "Response required for " + name, "name" : name};    
     } else {
       return { "succeeded" : true };
     }
   };
   
   
-  obj.validate = function(experiment, responseEvent, inputHtmls, errorMarkingCallback) {
+  obj.validate = function(experimentGroup, responseEvent, inputHtmls, errorMarkingCallback) {
     var errors = [];
-    for (var i in experiment.inputs) {
-      var input = experiment.inputs[i];
+    for (var i in experimentGroup.inputs) {
+      var input = experimentGroup.inputs[i];
       var response = responseEvent.responses[i];
       var visualElement = inputHtmls[i];
       var validity = valid(input, visualElement, response);
@@ -205,7 +205,7 @@ var paco = (function (init) {
       
       for (var j =0 ; j < responses.length; j++) {
         if (responses[j]["name"] === item) {
-          return responses[j]["answerOrder"];
+          return responses[j]["answer"];
         }
       }
       return null;
@@ -236,7 +236,7 @@ var paco = (function (init) {
     };
 
     var getAnswerNTimesAgoFor = function (item, nBack) {
-        var responses = getResponsesForEventNTimesAgo(nBack);
+        var responses = getResponsesForEventNTimesAgo(nBack);        
         return getResponseForItem(responses, item);
     };
 
@@ -305,6 +305,23 @@ var paco = (function (init) {
         return JSON.parse(window.experimentLoader.getExperiment());
       }
     };
+    
+    var getExperimentGroup = function() {
+      if (!window.experimentLoader) {
+        return null;
+      } else {
+        return JSON.parse(window.experimentLoader.getExperimentGroup());
+      }
+    };
+    
+    var getEndOfDayReferredExperimentGroup = function() {
+      if (!window.experimentLoader) {
+        return null;
+      } else {
+        return JSON.parse(window.experimentLoader.getgetEndOfDayReferredExperimentGroup());
+      }
+    };
+
 
     var saveExperiment = function(experimentString) {
       if (!window.experimentLoader) {
@@ -316,6 +333,8 @@ var paco = (function (init) {
 
     return {
       getExperiment : getExperiment,
+      getExperimentGroup : getExperimentGroup,
+      getEndOfDayReferredExperimentGroup : getEndOfDayReferredExperimentGroup,
       saveExperiment : function(experiment, callback) {
         var result = saveExperiment(JSON.stringify(experiment), callback);
         if (callback) {
@@ -413,8 +432,8 @@ paco.renderer = (function() {
     element.attr("type", "text");
     element.attr("name", input.name);
 
-    if (response.answerOrder) {
-      element.attr("value", response.answerOrder);
+    if (response.answer) {
+      element.attr("value", response.answer);
     }
 
     var myElement = element;
@@ -435,7 +454,6 @@ paco.renderer = (function() {
     var element = renderVisualCallback(input, response);
 
     element.change(function() {
-      response.answerOrder = element.val();
       response.answer = element.val();
       conditionalListener.inputChanged();
       
@@ -455,13 +473,12 @@ paco.renderer = (function() {
     var element = $(rawElement);
     element.attr("type", "text");
     element.attr("name", input.name);
-    if (response.answerOrder) {
-      element.attr("value", response.answerOrder);
+    if (response.answer) {
+      element.attr("value", response.answer);
     }
     parent.append(element);
 
     element.change(function() {
-      response.answerOrder = element.val();
       response.answer = element.val();
 
       conditionalListener.inputChanged();
@@ -479,12 +496,11 @@ paco.renderer = (function() {
 
     element.attr("type", "text");
     element.attr("name", input.name);
-    if (response.answerOrder) {
-      element.attr("value", parseInt(response.answerOrder) - 1);
+    if (response.answer) {
+      element.attr("value", parseInt(response.answer) - 1);
     }
     element.blur(function() {
       try {
-        response.answerOrder = element.val();
         response.answer = element.val();
         element.removeClass("outlineElement");
       } catch (e) {
@@ -511,14 +527,13 @@ paco.renderer = (function() {
     }
 
     var selected;
-    if (response.answerOrder) {
-      selected = parseInt(response.answerOrder) - 1;
+    if (response.answer) {
+      selected = parseInt(response.answer) - 1;
     }
     var steps = input.likertSteps;
     for(var i = 0; i < steps; i++) {
       var rawElement = document.createElement("input");
-      var element = $(rawElement);
-
+      var element = $(rawElement);      
       element.attr("type","radio");
       element.attr("name", input.name);
       if (selected && selected === i) {
@@ -527,8 +542,7 @@ paco.renderer = (function() {
       parent.append(element);
       element.change(function(index) {
         return function() { 
-          response.answerOrder = index + 1;
-          response.answer = index + 1 
+          response.answer = index + 1;
           conditionalListener.inputChanged();
         };        
       }(i));        
@@ -548,8 +562,8 @@ paco.renderer = (function() {
 
   renderList = function(input, response, parent, conditionalListener) {
     var selected;
-    if (response.answerOrder) {
-      selected = parseInt(response.answerOrder) - 1;
+    if (response.answer) {
+      selected = parseInt(response.answer) - 1;
     }
     var steps = input.listChoices;
 
@@ -566,17 +580,15 @@ paco.renderer = (function() {
     s.change(function() {
       if (!input.multiselect) {
         var val = this.selectedIndex; 
-        response.answerOrder = val;
         response.answer = val;
       } else {
         var values = [];
         var list = $("select[name=" + input.name + "]");
         var listOptions = list.val();
-        for(x=0;x<listOptions.length;x++) {
+        for( x = 0; x < listOptions.length; x++) {
           values.push(parseInt(x) + 1);
         }
         var valueString = values.join(",");
-        response.answerOrder = valueString;
         response.answer = valueString;
       }
       conditionalListener.inputChanged();
@@ -644,10 +656,10 @@ paco.renderer = (function() {
     return { "element" : div, "response" : response };
   };
 
-  renderInputs = function(experiment, responseEvent, conditionalListener) {
+  renderInputs = function(experimentGroup, responseEvent, conditionalListener) {
     var inputHtmls = [];
-    for (var i in  experiment.inputs) {
-      var input = experiment.inputs[i];
+    for (var i in  experimentGroup.inputs) {
+      var input = experimentGroup.inputs[i];
       var response = responseEvent.responses[i]; // TODO kind of gross, but these are pair-wise matches with inputs.
       inputHtmls.push(renderInput(input, response, conditionalListener))
     }
@@ -698,7 +710,7 @@ paco.renderer = (function() {
     }
   };
 
-  registerValidationErrorMarkingCallback = function(experiment, responseEvent, inputHtmls, saveButton, mainValidationCallback) {
+  registerValidationErrorMarkingCallback = function(experimentGroup, responseEvent, inputHtmls, saveButton, mainValidationCallback) {
 
     var validResponse = function(event) {
       removeErrors(event.responses);      
@@ -716,10 +728,10 @@ paco.renderer = (function() {
       "valid" : validResponse
     };
 
-    saveButton.click(function() { paco.validate(experiment, responseEvent, inputHtmls, errorMarkingCallback) });
+    saveButton.click(function() { paco.validate(experimentGroup, responseEvent, inputHtmls, errorMarkingCallback) });
   };
 
-  registerDoneButtonCallback = function(experiment, doneButton) {
+  registerDoneButtonCallback = function(doneButton) {
     doneButton.click(function() { 
       if (window.executor) {
         window.executor.done();
@@ -729,32 +741,30 @@ paco.renderer = (function() {
     });
   };
 
-  renderForm = function(experiment, responseEvent, rootPanel, saveCallback, conditionalListener) {
+  renderForm = function(experiment, experimentGroup, responseEvent, rootPanel, saveCallback, conditionalListener) {
     rootPanel.append(renderExperimentTitle(experiment));
-    var inputHtmls = renderInputs(experiment, responseEvent, conditionalListener);
+    var inputHtmls = renderInputs(experimentGroup, responseEvent, conditionalListener);
     for (var i in inputHtmls) {
       var ihtml = inputHtmls[i];
       rootPanel.append(ihtml.element);      
     }
     var saveButton = renderSaveButton();
     rootPanel.append(saveButton);
-    registerValidationErrorMarkingCallback(experiment, responseEvent, inputHtmls, saveButton, saveCallback);
+    registerValidationErrorMarkingCallback(experimentGroup, responseEvent, inputHtmls, saveButton, saveCallback);
     // run this once to hide the hidden ones
     conditionalListener.inputChanged();
   };
 
-  renderCustomExperimentForm = function(experiment, responseEvent, rootPanel, saveCallback, conditionalListener) {    
+  renderCustomExperimentForm = function(experiment, experimentGroup, responseEvent, rootPanel, saveCallback, conditionalListener) {    
     var additionsDivId = $(document.createElement("div"));
 
-    var customRenderingCode = experiment.customRenderingCode;
+    var customRenderingCode = experimentGroup.customRenderingCode;
     var scriptElement = document.createElement("script");
     scriptElement.type = 'text/javascript';
     
     var strippedCode = scriptBody(customRenderingCode);
-    scriptElement.text = strippedCode;
-    
+    scriptElement.text = strippedCode;    
     additionsDivId.append(scriptElement);
-
     var newSpan = $(document.createElement('span'));
     
     var html = htmlBody(customRenderingCode);
@@ -768,25 +778,13 @@ paco.renderer = (function() {
     rootPanel.append(additionsDivId);
   };
 
-  loadCustomExperiment = function(experiment, rootPanel) {    
+  loadCustomExperiment = function(experimentGroup, rootPanel) {    
     var additionsDivId = $(document.createElement("div"));
-
-    var customRenderingCode = experiment.customRenderingCode;        
-
-//    var newSpan = $(document.createElement('span'));    
-//    var html = htmlBody(customRenderingCode);
-//    newSpan.html(html);    
-//    additionsDivId.append(newSpan);
+    
+    var customRenderingCode = experimentGroup.customRenderingCode;
     var newHtml = $(document.createElement('div'));
     newHtml.html(customRenderingCode);
     additionsDivId.append(newHtml)
-    
-//    var scriptElement = document.createElement("script");
-//    scriptElement.type = 'text/javascript';    
-//    var strippedCode = scriptBody(customRenderingCode);
-//    scriptElement.text = strippedCode;    
-//    additionsDivId.append(scriptElement);
-
     rootPanel.append(additionsDivId);
   };
 
@@ -813,7 +811,7 @@ paco.renderer = (function() {
     return element;
   };
 
-  renderDefaultFeedback = function(experiment, db, element) {
+  renderDefaultFeedback = function(experimentGroup, db, element) {
     var subElement = $(document.createElement("div"));
     subElement.text("Thank you for participating!");
     subElement.addClass("title");
@@ -833,7 +831,7 @@ paco.renderer = (function() {
     // render done button that listens and calls some native function wrapper that exits
     var doneButton = renderDoneButton();
     element.append(doneButton);
-    registerDoneButtonCallback(experiment, doneButton);
+    registerDoneButtonCallback(doneButton);
   };
 
 
@@ -856,10 +854,10 @@ paco.renderer = (function() {
   }
   
 
-  renderCustomFeedback = function(experiment, db, element) {
+  renderCustomFeedback = function(experimentGroup, db, element) {
     var additionsDivId = $(document.createElement("div"));
 
-    var feedbackText = experiment.feedback[0].text;
+    var feedbackText = experimentGroup.feedback.text;
     var scriptElement = document.createElement("script");
     scriptElement.type = 'text/javascript';
     scriptElement.text = scriptBody(feedbackText); 
@@ -872,17 +870,17 @@ paco.renderer = (function() {
 
     var doneButton = renderDoneButton();
     additionsDivId.append(doneButton);
-    registerDoneButtonCallback(experiment, doneButton);
+    registerDoneButtonCallback(doneButton);
 
     element.append(additionsDivId);
 
   };
 
-  renderFeedback = function(experiment, db, element) {
-    if (!experiment.feedback) {
-      renderDefaultFeedback(experiment, db, element);
+  renderFeedback = function(experimentGroup, db, element) {
+    if (!experimentGroup.feedback) {
+      renderDefaultFeedback(experimentGroup, db, element);
     } else {
-      renderCustomFeedback(experiment, db, element);
+      renderCustomFeedback(experimentGroup, db, element);
     }
   };
 
@@ -911,7 +909,7 @@ paco.renderer = (function() {
 
 paco.execute = (function() {
 
-  return function(experiment, form_root) {
+  return function(experiment, experimentGroup, form_root) {
 
   var conditionalListener = (function() {
     var inputs = [];
@@ -927,7 +925,7 @@ paco.execute = (function() {
       for (var inputIdx in inputs) {
         var inputPair = inputs[inputIdx];
         var input = inputPair.input;
-        var value = inputPair.responseHolder.answerOrder;
+        var value = inputPair.responseHolder.answer;
         values[input.name] = value; 
       }
 
@@ -953,7 +951,7 @@ paco.execute = (function() {
     var dbSaveOutcomeCallback = function(status) {
       if (status["status"] === "success") {    
         form_root.html("Feedback");
-        paco.renderer.renderFeedback(experiment, paco.db, form_root);
+        paco.renderer.renderFeedback(experiment, experimentGroup, paco.db, form_root);
       } else {
         alert("Could not store data. You might try again. Error: " + status["error"]);
       }   
@@ -966,12 +964,12 @@ paco.execute = (function() {
     if (window.env) {
       scheduledTime = window.env.getValue("scheduledTime");
     }
-    var responseEvent = paco.createResponseEventForExperiment(experiment, scheduledTime);
+    var responseEvent = paco.createResponseEventForExperiment(experiment, experimentGroup, scheduledTime);
 
     if (!experiment.customRendering) {
-      paco.renderer.renderForm(experiment, responseEvent, form_root, saveDataCallback, conditionalListener);    
+      paco.renderer.renderForm(experiment, experimentGroup, responseEvent, form_root, saveDataCallback, conditionalListener);    
     } else {
-      paco.renderer.renderCustomExperimentForm(experiment, responseEvent, form_root, saveDataCallback, conditionalListener);
+      paco.renderer.renderCustomExperimentForm(experiment, experimentGroup, responseEvent, form_root, saveDataCallback, conditionalListener);
     }
   };
 
@@ -979,21 +977,22 @@ paco.execute = (function() {
 })();
     
 function runCustomExperiment(s0) {
-  var t0 = Date.now();
   var form_root = $(document.createElement("div"));
   $(document.body).append(form_root);
-  var experiment = paco.experiment();
-  paco.renderer.loadCustomExperiment(experiment, form_root);
+  var experiment = paco.experimentService.getExperiment();
+  var experimentGroup = paco.experimentService.getExperimentGroup();
+  var actionTriggerId = window.env.getValue("actionTriggerId");
+  var actionTriggerSpecId = window.env.getValue("actionTriggerSpecId");
+  var actionId = window.env.getValue("actionId");
+
+  paco.renderer.loadCustomExperiment(experimentGroup, form_root);
   if (main) {
-    var t1 = Date.now();
-    main(paco.experiment(), form_root);
-    var t2 = Date.now();
-    //alert("times: outertot= " + (t2 - s0) + " , total=" + (t2 - t0) + " , setup=" + (t1 - t0) + " , main = " + (t2 - t1));
+    main(paco.experiment(), experimentGroup, form_root);
   } else {
     form_root.html("Could not initialize the experiment");
   }
 };
-  
+
 
 var getTestExperiment = function() {
   return {"title":"CustomHtml","description":"","informedConsentForm":"","creator":"bobevans999@gmail.com","fixedDuration":false,"id":995,"questionsChange":false,"modifyDate":"2013/11/05","inputs":[{"id":998,"questionType":"question","text":"What time is it?","mandatory":false,"responseType":"likert","likertSteps":5,"name":"q1","conditional":false,"listChoices":[],"invisibleInput":false},{"id":999,"questionType":"question","text":"How do you feel?","mandatory":false,"responseType":"open text","likertSteps":5,"name":"q2","conditional":false,"listChoices":[],"invisibleInput":false}],"feedback":[{"id":1194,"feedbackType":"display","text":"Thanks for Participating!"}],"published":false,"deleted":false,"webRecommended":false,"version":27,"signalingMechanisms":[{"type":"signalSchedule","id":996,"scheduleType":0,"esmFrequency":3,"esmPeriodInDays":0,"esmStartHour":32400000,"esmEndHour":61200000,"times":[0],"repeatRate":1,"weekDaysScheduled":0,"nthOfMonth":1,"byDayOfMonth":true,"dayOfMonth":1,"esmWeekends":false,"byDayOfWeek":false}],"schedule":{"type":"signalSchedule","id":996,"scheduleType":0,"esmFrequency":3,"esmPeriodInDays":0,"esmStartHour":32400000,"esmEndHour":61200000,"times":[0],"repeatRate":1,"weekDaysScheduled":0,"nthOfMonth":1,"byDayOfMonth":true,"dayOfMonth":1,"esmWeekends":false,"byDayOfWeek":false},"customRendering":true,"customRenderingCode":"<script>\nfunction save() {\n    var experiment = paco.experiment();\n    var inputs = experiment.inputs;\n    var responses = [];\n    for (var i in inputs) {\n        var input = inputs[i];\n        var element = $('input[name='+input.name+']');\n        var value = element.val();\n        var responseObject = paco.createResponseForInput(input);\n        responseObject.answerOrder = value;   \n        responseObject.answer = value;   \n        responses.push(responseObject);\n    }\n    var event = paco.createResponseEventForExperimentWithResponses(experiment, responses);\n    \n    var dbSaveOutcomeCallback = function(status) {\n      if (status[\"status\"] === \"success\") {    \n        alert(\"Saved. \" + JSON.stringify(event));        \n        paco.executor.done();\n        // var form_root = $('#root');\n        // form_root.html(\"\");\n        // paco.renderer.renderFeedback(experiment, paco.db, form_root);        \n      } else {\n        alert(\"Could not store data. You might try again. Error: \" + status[\"error\"]);\n      }   \n    };\n\n    paco.db.saveEvent(event, dbSaveOutcomeCallback);        \n\n}\n\n\n</script>\n<div id=\"root\">\n<h1>Please answer the following</h1>\nQ1 <input type=text name=q1></br>\nQ2 <input type=text name=q2></br>\n<input type=submit name=submit onclick=\"save()\">\n</div>"};

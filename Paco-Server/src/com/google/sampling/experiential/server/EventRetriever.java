@@ -101,6 +101,15 @@ public class EventRetriever {
       String tz,
       String groupName, Long actionTriggerId, Long actionTriggerSpecId, Long actionId) {
 //    long t1 = System.currentTimeMillis();
+
+
+    boolean isJoinEvent = false;
+    for (What whatItem : what) {
+      if (whatItem.getName().toLowerCase().equals("joined") && whatItem.getValue().equals("true")) {
+        isJoinEvent = true;
+      }
+    }
+
     PersistenceManager pm = PMF.get().getPersistenceManager();
     Event event = new Event(who, lat, lon, whenDate, appId, pacoVersion, what, shared,
         experimentId, experimentName, experimentVersion, responseTime, scheduledTime, blobs, tz,
@@ -110,6 +119,9 @@ public class EventRetriever {
       tx = pm.currentTransaction();
       tx.begin();
       pm.makePersistent(event);
+      if (isJoinEvent) {
+        ExperimentAccessManager.addJoinedExperimentFor(who, Long.valueOf(experimentId), responseTime);
+      }
       tx.commit();
       log.info("Event saved");
     } finally {
@@ -138,12 +150,12 @@ public class EventRetriever {
       return events;
   }
 
-  public List<Event> getEvents(List<com.google.sampling.experiential.server.Query> queryFilters,
-      String loggedInuser, DateTimeZone clientTimeZone, int offset, int limit) {
+  public List<Event> getEvents(List<com.google.sampling.experiential.server.Query> queryFilters, String loggedInuser,
+                               DateTimeZone clientTimeZone, int offset, int limit) {
     if (limit == 0) {
       limit = DEFAULT_FETCH_LIMIT;
     }
-    doOneTimeCleanup();
+
     Set<Event> allEvents = Sets.newHashSet();
     PersistenceManager pm = PMF.get().getPersistenceManager();
     EventJDOQuery eventJDOQuery = createJDOQueryFrom(pm, queryFilters, clientTimeZone, offset, limit);
@@ -151,8 +163,8 @@ public class EventRetriever {
     long t11 = System.currentTimeMillis();
 
     List<Long> adminExperiments = getExperimentsForAdmin(loggedInuser, pm);
-    log.info("Loggedin user's administered experiments: " +loggedInuser +" has ids: " +
-        getIdsQuoted(adminExperiments));
+    log.info("Loggedin user's administered experiments: " + loggedInuser + " has ids: "
+             + getIdsQuoted(adminExperiments));
 
     if (isDevMode(loggedInuser) || isUserQueryingTheirOwnData(loggedInuser, eventJDOQuery)) {
       log.info("dev mode or user querying self");
@@ -164,8 +176,7 @@ public class EventRetriever {
         eventJDOQuery.addFilters(":p.contains(experimentId)");
         eventJDOQuery.addParameterObjects("(" + getIdsQuoted(adminExperiments) + ")");
         executeQuery(allEvents, eventJDOQuery);
-      } else if (hasAnExperimentIdFilter(queryFilters) &&
-          !isAdminOfFilteredExperiments(queryFilters, adminExperiments)) {
+      } else if (hasAnExperimentIdFilter(queryFilters) && !isAdminOfFilteredExperiments(queryFilters, adminExperiments)) {
         if (!eventJDOQuery.hasAWho()) {
           addWhoQueryForLoggedInuser(loggedInuser, eventJDOQuery);
           executeQuery(allEvents, eventJDOQuery);
@@ -182,7 +193,6 @@ public class EventRetriever {
       // also get all shared data that matches the query
       addAllSharedEvents(queryFilters, clientTimeZone, allEvents, pm);
     }
-
 
     long t12 = System.currentTimeMillis();
     log.info("get execute time: " + (t12 - t11));
@@ -245,7 +255,13 @@ public class EventRetriever {
     log.info("Query = " + query.toString());
     log.info("Query params = " + Joiner.on(",").join(eventJDOQuery.getParameters()));
 
-    List<Event> queryResults = (List<Event>) query.executeWithArray(eventJDOQuery.getParameters().toArray());
+    final Object[] params = eventJDOQuery.getParameters().toArray();
+    List<Event> queryResults = null;
+    if (params != null && params.length > 0) {
+      queryResults = (List<Event>) query.executeWithArray(params);
+    } else {
+      queryResults = (List<Event>) query.execute();
+    }
     allEvents.addAll(queryResults);
     adjustTimeZone(allEvents);
   }
@@ -427,13 +443,9 @@ public class EventRetriever {
     return pm.getObjectById(Experiment.class, experimentId);
   }
 
-
-  private void doOneTimeCleanup() {
-  }
-
   private EventJDOQuery createJDOQueryFrom(PersistenceManager pm,
-      List<com.google.sampling.experiential.server.Query> queryFilters,
-      DateTimeZone clientTimeZone, int offset, int limit) {
+                                           List<com.google.sampling.experiential.server.Query> queryFilters,
+                                           DateTimeZone clientTimeZone, int offset, int limit) {
     Query newQuery = pm.newQuery(Event.class);
     JDOQueryBuilder queryBuilder = new JDOQueryBuilder(newQuery);
     queryBuilder.addFilters(queryFilters, clientTimeZone);
@@ -539,7 +551,6 @@ public class EventRetriever {
     if (limit == 0) {
       limit = DEFAULT_FETCH_LIMIT;
     }
-    doOneTimeCleanup();
     Set<Event> allEvents = Sets.newHashSet();
     PersistenceManager pm = PMF.get().getPersistenceManager();
     EventJDOQuery eventJDOQuery = createJDOQueryFrom(pm, queryFilters, clientTimeZone, offset, limit);

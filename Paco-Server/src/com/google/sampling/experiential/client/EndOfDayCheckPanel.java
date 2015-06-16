@@ -27,7 +27,7 @@ import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
-import com.google.paco.shared.model2.ExperimentGroup;
+import com.pacoapp.paco.shared.model2.ExperimentGroup;
 
 public class EndOfDayCheckPanel extends Composite {
 

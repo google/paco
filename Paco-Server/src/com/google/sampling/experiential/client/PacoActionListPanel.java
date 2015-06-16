@@ -24,10 +24,10 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.VerticalPanel;
-import com.google.paco.shared.model2.ActionTrigger;
-import com.google.paco.shared.model2.PacoAction;
-import com.google.paco.shared.model2.PacoActionAllOthers;
-import com.google.paco.shared.model2.PacoNotificationAction;
+import com.pacoapp.paco.shared.model2.ActionTrigger;
+import com.pacoapp.paco.shared.model2.PacoAction;
+import com.pacoapp.paco.shared.model2.PacoActionAllOthers;
+import com.pacoapp.paco.shared.model2.PacoNotificationAction;
 
 /**
  * Container Panel for the trigger cue panels

@@ -6,7 +6,7 @@ import com.google.common.collect.Lists;
 import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.VerticalPanel;
-import com.google.paco.shared.model2.Input2;
+import com.pacoapp.paco.shared.model2.Input2;
 
 public class MultiselectList extends Composite {
 

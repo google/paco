@@ -24,8 +24,8 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.VerticalPanel;
-import com.google.paco.shared.model2.InterruptCue;
-import com.google.paco.shared.model2.InterruptTrigger;
+import com.pacoapp.paco.shared.model2.InterruptCue;
+import com.pacoapp.paco.shared.model2.InterruptTrigger;
 
 /**
  * Container Panel for the trigger cue panels

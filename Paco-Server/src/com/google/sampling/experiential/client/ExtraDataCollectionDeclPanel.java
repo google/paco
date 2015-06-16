@@ -26,7 +26,7 @@ import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.HasVerticalAlignment;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
-import com.google.paco.shared.model2.ExperimentDAOCore;
+import com.pacoapp.paco.shared.model2.ExperimentDAOCore;
 
 /**
  * Panel to show one individual list choice item. This is part of the

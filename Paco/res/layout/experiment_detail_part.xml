@@ -14,119 +14,251 @@
  ~ KIND, either express or implied.  See the License for the
  ~ specific language governing permissions and limitations
  ~ under the License.
- -->
-<merge xmlns:android="http://schemas.android.com/apk/res/android">
-<!--	<ScrollView android:id="@+id/ScrollView01"-->
-<!--		android:layout_width="fill_parent" android:layout_height="wrap_content"-->
-<!--		android:padding="0dp" android:layout_margin="0dp">-->
-<!--		<LinearLayout android:id="@+id/ScrollViewChild"-->
-<!--			android:orientation="vertical" android:gravity="center|top"-->
-<!--			android:layout_gravity="center|top" android:layout_width="fill_parent"-->
-<!--			android:layout_height="wrap_content" android:padding="0dp">-->
+-->
+<merge xmlns:android="http://schemas.android.com/apk/res/android" >
 
-			<TextView android:text="Name of this experiment"
-				android:textSize="25dip" android:layout_height="wrap_content"
-				android:layout_width="wrap_content" android:id="@+id/experiment_name">
-          
-      </TextView>
-                <LinearLayout android:layout_width="wrap_content"
-                android:layout_height="wrap_content" android:orientation="vertical"
-                android:layout_gravity="left">
-                  <TextView android:layout_width="wrap_content"
-                      android:layout_height="wrap_content" android:text="@string/creator"
-                      android:textStyle="bold" android:layout_gravity="left" />
-                  <TextView android:layout_width="wrap_content"
-                      android:layout_height="wrap_content" android:id="@+id/creator"
-                      android:text="" android:layout_gravity="left" />
-                </LinearLayout>
-      
-			<LinearLayout android:layout_width="wrap_content"
-				android:layout_height="wrap_content" android:orientation="vertical"
-				android:layout_gravity="left">
-				<TextView android:layout_width="wrap_content"
-					android:layout_height="wrap_content" android:text="@string/description"
-					android:textStyle="bold" android:textSize="16dip" android:gravity="left"
-					android:layout_gravity="left"></TextView>
-				<TextView android:layout_width="wrap_content"
-					android:layout_height="wrap_content" android:textSize="16dip"
-					android:id="@+id/description" android:text="@string/description" />
+    <TextView
+        android:id="@+id/experiment_name"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:paddingBottom="4dip"
+        android:paddingLeft="8dip"
+        android:paddingTop="4dip"
+        android:text="Name of this experiment"
+        android:textSize="25sp">
+    </TextView>
 
-			</LinearLayout>
-			<LinearLayout android:layout_width="wrap_content"
-                android:layout_height="wrap_content" android:orientation="vertical"
-                android:layout_gravity="left">
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="left"
+        android:orientation="vertical" >
 
-                <LinearLayout
-                    android:id="@+id/scheduleDisplayPanel"
-                    android:layout_width="wrap_content"
+        <TextView
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="left"
+            android:paddingBottom="4dip"
+            android:paddingLeft="8dip"
+            android:paddingTop="4dip"
+            android:text="@string/creator"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/creator"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="left"
+            android:paddingBottom="4dip"
+            android:paddingLeft="8dip"
+            android:paddingTop="4dip"
+            android:text="" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="left"
+        android:orientation="vertical" >
+
+        <TextView
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="left"
+            android:gravity="left"
+            android:paddingBottom="4dip"
+            android:paddingLeft="8dip"
+            android:paddingTop="4dip"
+            android:text="@string/description"
+            android:textSize="16dip"
+            android:textStyle="bold" >
+        </TextView>
+
+        <TextView
+            android:id="@+id/description"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:paddingBottom="4dip"
+            android:paddingLeft="8dip"
+            android:paddingTop="4dip"
+            android:text="@string/description"
+            android:textSize="16dip" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="left"
+        android:orientation="vertical" >
+
+        <LinearLayout
+            android:id="@+id/scheduleDisplayPanel"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="left"
+            android:orientation="vertical" >
+
+            <TextView
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="left"
+                android:paddingBottom="4dip"
+                android:paddingLeft="8dip"
+                android:paddingTop="4dip"
+                android:text="@string/schedule"
+                android:textStyle="bold" >
+            </TextView>
+
+            <TextView
+                android:id="@+id/schedule"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="left"
+                android:paddingBottom="4dip"
+                android:paddingLeft="8dip"
+                android:paddingTop="4dip"
+                android:text="@string/schedule" >
+            </TextView>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="left"
+            android:orientation="horizontal" >
+
+            <LinearLayout
+                android:id="@+id/startDatePanel"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="left"
+                android:orientation="vertical" >
+
+                <TextView
+                    android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
                     android:layout_gravity="left"
-                    android:orientation="vertical" >
+                    android:paddingBottom="4dip"
+                    android:paddingLeft="8dip"
+                    android:paddingTop="4dip"
+                    android:text="@string/start_date"
+                    android:textStyle="bold" >
+                </TextView>
 
-                    <TextView android:layout_width="wrap_content"
-                        android:layout_height="wrap_content" android:textStyle="bold"
-                        android:text="@string/schedule" android:layout_gravity="left"></TextView>
-                    <TextView android:layout_width="wrap_content"
-                        android:layout_height="wrap_content" android:text="@string/schedule"
-                        android:id="@+id/schedule" android:layout_gravity="left"></TextView>
-                </LinearLayout>
-                
-	            <LinearLayout android:layout_width="wrap_content"
-					android:layout_height="wrap_content" android:orientation="horizontal"
-					android:layout_gravity="left">
-					<LinearLayout android:layout_width="wrap_content"
-						android:id="@+id/startDatePanel" android:layout_height="wrap_content"
-						android:orientation="vertical" android:layout_gravity="left">
-						<TextView android:layout_width="wrap_content"
-							android:layout_height="wrap_content" android:textStyle="bold"
-							android:text="@string/start_date" android:layout_gravity="left"></TextView>
-						<TextView android:layout_width="wrap_content"
-							android:layout_height="wrap_content" android:text="@string/start_date"
-							android:id="@+id/startDate" android:layout_gravity="left"></TextView>
-					</LinearLayout>
-					<LinearLayout android:layout_width="wrap_content"
-						android:id="@+id/endDatePanel" android:layout_height="wrap_content"
-						android:orientation="vertical" android:layout_gravity="left">
-						<TextView android:layout_width="wrap_content"
-							android:layout_height="wrap_content" android:textStyle="bold"
-							android:text="@string/end_date" android:layout_gravity="left"></TextView>
-						<TextView android:layout_width="wrap_content"
-							android:layout_height="wrap_content" android:text="@string/end_date"
-							android:id="@+id/endDate" android:layout_gravity="left"></TextView>
-					</LinearLayout>
-				</LinearLayout>
-			</LinearLayout>	
-			<LinearLayout android:layout_width="wrap_content"
-				android:layout_height="wrap_content" android:orientation="horizontal"
-				android:layout_gravity="left">
+                <TextView
+                    android:id="@+id/startDate"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="left"
+                    android:paddingBottom="4dip"
+                    android:paddingLeft="8dip"
+                    android:paddingTop="4dip"
+                    android:text="@string/start_date" >
+                </TextView>
+            </LinearLayout>
 
-				<LinearLayout android:layout_width="wrap_content"
-					android:visibility="gone" android:id="@+id/esmPanel"
-					android:layout_height="wrap_content" android:orientation="vertical"
-					android:layout_gravity="left">
-					<TextView android:layout_width="wrap_content"
-						android:layout_height="wrap_content" android:textStyle="bold"
-						android:text="@string/esm_frequency" android:layout_gravity="left"></TextView>
-					<TextView android:layout_width="wrap_content"
-						android:layout_height="wrap_content" android:text=""
-						android:id="@+id/esm_frequency" android:layout_gravity="left"></TextView>
-				</LinearLayout>
-				<LinearLayout android:layout_width="wrap_content"
-					android:visibility="gone" android:id="@+id/timePanel"
-					android:layout_height="wrap_content" android:orientation="vertical"
-					android:layout_gravity="left">
-					<TextView android:layout_width="wrap_content"
-						android:layout_height="wrap_content" android:textStyle="bold"
-						android:text="@string/scheduled_time" android:layout_gravity="left"></TextView>
-					<TextView android:layout_width="wrap_content"
-						android:layout_height="wrap_content" android:text=""
-						android:id="@+id/time" android:layout_gravity="left"></TextView>
-				</LinearLayout>
+            <LinearLayout
+                android:id="@+id/endDatePanel"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="left"
+                android:orientation="vertical" >
 
+                <TextView
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="left"
+                    android:paddingBottom="4dip"
+                    android:paddingLeft="8dip"
+                    android:paddingTop="4dip"
+                    android:text="@string/end_date"
+                    android:textStyle="bold" >
+                </TextView>
 
-			</LinearLayout>
-<!--		</LinearLayout>-->
-<!--	</ScrollView>-->
-<!---->
+                <TextView
+                    android:id="@+id/endDate"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="left"
+                    android:paddingBottom="4dip"
+                    android:paddingLeft="8dip"
+                    android:paddingTop="4dip"
+                    android:text="@string/end_date" >
+                </TextView>
+            </LinearLayout>
+        </LinearLayout>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="left"
+        android:orientation="horizontal" >
+
+        <LinearLayout
+            android:id="@+id/esmPanel"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="left"
+            android:orientation="vertical"
+            android:visibility="gone" >
+
+            <TextView
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="left"
+                android:paddingBottom="4dip"
+                android:paddingLeft="8dip"
+                android:paddingTop="4dip"
+                android:text="@string/esm_frequency"
+                android:textStyle="bold" >
+            </TextView>
+
+            <TextView
+                android:id="@+id/esm_frequency"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="left"
+                android:paddingBottom="4dip"
+                android:paddingLeft="8dip"
+                android:paddingTop="4dip"
+                android:text="" >
+            </TextView>
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/timePanel"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="left"
+            android:orientation="vertical"
+            android:visibility="gone" >
+
+            <TextView
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="left"
+                android:paddingBottom="4dip"
+                android:paddingLeft="8dip"
+                android:paddingTop="4dip"
+                android:text="@string/scheduled_time"
+                android:textStyle="bold" >
+            </TextView>
+
+            <TextView
+                android:id="@+id/time"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="left"
+                android:paddingBottom="4dip"
+                android:paddingLeft="8dip"
+                android:paddingTop="4dip"
+                android:text="" >
+            </TextView>
+        </LinearLayout>
+    </LinearLayout>
+    <!-- </LinearLayout> -->
+    <!-- </ScrollView> -->
+    <!--  -->
 
 </merge>

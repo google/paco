@@ -5,25 +5,30 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.logging.Logger;
 
+import com.google.appengine.api.datastore.Cursor;
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.EntityNotFoundException;
+import com.google.appengine.api.datastore.FetchOptions;
 import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.KeyFactory;
+import com.google.appengine.api.datastore.PreparedQuery;
+import com.google.appengine.api.datastore.Query;
+import com.google.appengine.api.datastore.QueryResultList;
 import com.google.appengine.api.datastore.Text;
 import com.google.appengine.api.datastore.Transaction;
 import com.google.common.collect.Lists;
-import com.google.paco.shared.model2.ExperimentDAO;
-import com.google.paco.shared.model2.JsonConverter;
+import com.pacoapp.paco.shared.model2.ExperimentDAO;
+import com.pacoapp.paco.shared.model2.JsonConverter;
+import com.pacoapp.paco.shared.util.ExperimentHelper.Pair;
 
 public class ExperimentJsonEntityManager {
-  public static String EXPERIMENT_KIND = "experiment_json";
+  public static String EXPERIMENT_KIND = "Experiment"; // we are updating the existing table with these properties
 
   private static final String TITLE_COLUMN = "title";
   private static final String VERSION_COLUMN = "version";
   private static final String DEFINITION_COLUMN = "definition";
-  private static String END_DATE_COLUMN = "end_date";
 
   public static final Logger log = Logger.getLogger(ExperimentJsonEntityManager.class.getName());
 
@@ -49,7 +54,7 @@ public class ExperimentJsonEntityManager {
 //  }
 
   public static Key saveExperiment(DatastoreService ds, Transaction tx, String experimentJson, Long experimentId, String experimentTitle, Integer version) {
-    System.out.println("JSON experiment received:\n " + experimentJson);
+    //System.out.println("JSON experiment received:\n " + experimentJson);
     Entity entity = null;
 
     if (experimentId != null) {
@@ -59,14 +64,11 @@ public class ExperimentJsonEntityManager {
     }
     entity.setProperty(TITLE_COLUMN, experimentTitle);
 
-    if (version == null || version == 0) {
-      version = 1;
-    }
     entity.setProperty(VERSION_COLUMN, version);
 
     Text experimentJsonText = new Text(experimentJson);
     entity.setUnindexedProperty(DEFINITION_COLUMN, experimentJsonText);
-    Key key = ds.put(tx, entity);
+    Key key = ds.put(/*tx, */entity);
     return key;
   }
 
@@ -107,6 +109,9 @@ public class ExperimentJsonEntityManager {
 
   private static String reapplyIdIfFirstTime(String value, long experimentId) {
     ExperimentDAO experiment = JsonConverter.fromSingleEntityJson(value);
+    if (experiment == null) {
+      return value; // this is to deal temporarily with migratin testing. TODO delete
+    }
     if (experiment.getId() == null || !experiment.getId().equals(experimentId) ) {
       experiment.setId(experimentId);
       return JsonConverter.jsonify(experiment);
@@ -123,6 +128,7 @@ public class ExperimentJsonEntityManager {
     List<String> experimentJsons = Lists.newArrayList();
     Map<Key, Entity> experiments = ds.get(experimentKeys);
     if (experiments == null) {
+      log.info("returned experiment list is empty");
       return Lists.newArrayList();
     }
     for (Entry<Key, Entity> entry : experiments.entrySet()) {
@@ -131,10 +137,52 @@ public class ExperimentJsonEntityManager {
       if (json != null) {
         // TODO just return DAOs don't do the 2x conversion when it is going to become a DAO anyway.
         experimentJsons.add(reapplyIdIfFirstTime(json.getValue(), experiment.getKey().getId()));
+      } else {
+        log.severe("No json for experiment: " + experiment.getProperty(TITLE_COLUMN));
       }
     }
     return experimentJsons;
   }
+
+  public static Pair<String, List<String>> getAllExperiments(String cursor) {
+    List<String> entities = Lists.newArrayList();
+    DatastoreService ds = DatastoreServiceFactory.getDatastoreService();
+    Query query = new Query(EXPERIMENT_KIND);
+    PreparedQuery preparedQuery = ds.prepare(query);
+    FetchOptions options = null;
+    Cursor fromWebSafeString = null;
+    if (cursor != null) {
+      fromWebSafeString = Cursor.fromWebSafeString(cursor);
+    }
+    options = getFetchOptions(fromWebSafeString);
+
+    // preparedQuery.countEntities(getFetchOptions(cursor));
+    QueryResultList<Entity> iterable = preparedQuery.asQueryResultList(options);
+    for (Entity experiment : iterable) {
+      Text json = (Text) experiment.getProperty(DEFINITION_COLUMN);
+      if (json != null) {
+        entities.add(json.getValue());
+      }
+    }
+
+    String newCursor = iterable.getCursor().toWebSafeString();
+    Pair<String, List<String>> res = new Pair<String, List<String>>(newCursor, entities);
+    return res;
+  }
+
+
+
+  public static FetchOptions getFetchOptions(Cursor cursor) {
+    FetchOptions options = null;
+    if (cursor != null) {
+      options = FetchOptions.Builder.withCursor(cursor);
+    } else {
+      options = FetchOptions.Builder.withDefaults();
+    }
+    return options;
+  }
+
+
 
 
   public static Key createkeyForId(Long id) {
@@ -153,18 +201,29 @@ public class ExperimentJsonEntityManager {
   }
 
 
-  public static Boolean delete(Long experimentId) {
+  public static void delete(DatastoreService ds, Transaction tx, Long experimentId) {
     if (experimentId == null) {
-      return false;
+      throw new IllegalArgumentException("no experimentId specified");
     }
-    DatastoreService ds = DatastoreServiceFactory.getDatastoreService();
-    try {
-      ds.delete(createkeyForId(experimentId));
-      return true;
-    } catch (Exception e) {
-      e.printStackTrace();
-      return false;
-    }
+    ds.delete(tx, createkeyForId(experimentId));
   }
+
+  public static void delete(DatastoreService ds, Transaction tx, List<Long> experimentIds) {
+    if (experimentIds == null || experimentIds.isEmpty()) {
+      throw new IllegalArgumentException("no experimentIds specified");
+    }
+    ds.delete(tx, createkeysForIds(experimentIds));
+  }
+
+
+
+  private static List<Key> createkeysForIds(List<Long> experimentIds) {
+    List<Key> keys = Lists.newArrayList();
+    for (Long experimentId : experimentIds) {
+      keys.add(createkeyForId(experimentId));
+    }
+    return keys;
+  }
+
 
 }
