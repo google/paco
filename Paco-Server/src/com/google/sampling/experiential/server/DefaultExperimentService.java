@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.logging.Logger;
 
+import org.joda.time.DateMidnight;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 
@@ -134,6 +135,13 @@ class DefaultExperimentService implements ExperimentService {
         if (Strings.isNullOrEmpty(experiment.getContactEmail())) {
           experiment.setContactEmail(experiment.getCreator());
         }
+        Integer version = experiment.getVersion();
+        if (version == null || version == 0) {
+          version = 1;
+        } else {
+          version++;
+        }
+        experiment.setVersion(version);
         Key experimentKey = ExperimentJsonEntityManager.saveExperiment(ds, tx, JsonConverter.jsonify(experiment),
                                                                        experiment.getId(),
                                                                        experiment.getTitle(),
@@ -257,10 +265,10 @@ class DefaultExperimentService implements ExperimentService {
 
   private List<ExperimentDAO> removeEnded(List<ExperimentDAO> experiments, DateTimeZone timeZoneForClient) {
     List<ExperimentDAO> keepers = Lists.newArrayList();
-    DateTime now = DateTime.now().withZone(timeZoneForClient);
+    DateMidnight now = DateTime.now().withZone(timeZoneForClient).toDateMidnight();
     for (ExperimentDAO experimentDAO : experiments) {
       final DateTime latestEndDate = getLatestEndDate(experimentDAO);
-      if (latestEndDate == null || latestEndDate.isAfter(now)) {
+      if (latestEndDate == null || !now.isAfter(latestEndDate)) {
         keepers.add(experimentDAO);
       }
     }

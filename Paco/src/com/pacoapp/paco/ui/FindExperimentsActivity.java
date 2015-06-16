@@ -45,6 +45,7 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
@@ -500,10 +501,12 @@ public class FindExperimentsActivity extends ActionBarActivity implements Networ
 
         if (title != null) {
             title.setText(experiment.getExperimentDAO().getTitle());
+            title.setOnClickListener(myButtonListener);
         }
 
         if (creator != null){
             creator.setText(experiment.getExperimentDAO().getCreator());
+            creator.setOnClickListener(myButtonListener);
         } else {
             creator.setText(getContext().getString(R.string.unknown_author_text));
         }
@@ -512,6 +515,28 @@ public class FindExperimentsActivity extends ActionBarActivity implements Networ
       }
       return view;
     }
+
+    private OnClickListener myButtonListener = new OnClickListener() {
+      @Override
+      public void onClick(final View v) {
+        final int position = list.getPositionForView(v);
+        if (position == ListView.INVALID_POSITION) {
+          return;
+        } else {
+          final Long experimentServerId = (Long) v.getTag();
+          final Experiment experiment = experiments.get(position);
+
+          getIntent().putExtra(Experiment.EXPERIMENT_SERVER_ID_EXTRA_KEY, experiment.getServerId());
+
+          String action = getIntent().getAction();
+          Intent experimentIntent = new Intent(FindExperimentsActivity.this, ExperimentDetailActivity.class);
+          experimentIntent.putExtra(Experiment.EXPERIMENT_SERVER_ID_EXTRA_KEY, experiment.getServerId());
+          experimentIntent.putExtra(ExperimentDetailActivity.ID_FROM_MY_EXPERIMENTS_FILE, true);
+          startActivityForResult(experimentIntent, JOIN_REQUEST_CODE);
+        }
+      }
+    };
+
 
   }
 

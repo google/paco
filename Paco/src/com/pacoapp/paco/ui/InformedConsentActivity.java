@@ -62,6 +62,7 @@ import com.pacoapp.paco.shared.util.ExperimentHelper;
 import com.pacoapp.paco.shared.util.SchedulePrinter;
 import com.pacoapp.paco.shared.util.TimeUtil;
 import com.pacoapp.paco.triggering.BeeperService;
+import com.pacoapp.paco.triggering.ExperimentExpirationManagerService;
 import com.pacoapp.paco.triggering.PacoExperimentActionBroadcaster;
 import com.pacoapp.paco.utils.IntentExtraHelper;
 
@@ -203,6 +204,7 @@ public class InformedConsentActivity extends ActionBarActivity implements Experi
       BroadcastTriggerReceiver.initPollingAndLoggingPreference(this);
       BroadcastTriggerReceiver.startProcessService(this);
     }
+    startService(new Intent(this, ExperimentExpirationManagerService.class));
     progressBar.setVisibility(View.GONE);
     runScheduleActivity();
   }

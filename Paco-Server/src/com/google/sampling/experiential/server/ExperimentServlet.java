@@ -68,7 +68,7 @@ public class ExperimentServlet extends HttpServlet {
       AuthUtil.redirectUserToLogin(req, resp);
     } else {
       DateTimeZone timezone = TimeUtil.getTimeZoneForClient(req);
-
+      log.info("Timezone is computed to be: " + timezone.toString());
       logPacoClientVersion(req);
 
       String email = AuthUtil.getEmailOfUser(req, user);
