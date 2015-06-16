@@ -85,6 +85,7 @@ import com.pacoapp.paco.shared.util.ExperimentHelper;
 import com.pacoapp.paco.shared.util.TimeUtil;
 import com.pacoapp.paco.triggering.AndroidEsmSignalStore;
 import com.pacoapp.paco.triggering.BeeperService;
+import com.pacoapp.paco.triggering.ExperimentExpirationManagerService;
 import com.pacoapp.paco.triggering.NotificationCreator;
 
 /**
@@ -361,22 +362,22 @@ public class MyExperimentsActivity extends ActionBarActivity implements
   }
 
   // Visible for testing
-  public void deleteExperiment(long id) {
+  public void deleteExperiment(Experiment experiment2) {
     NotificationCreator nc = NotificationCreator.create(this);
-    nc.timeoutNotificationsForExperiment(id);
+    nc.timeoutNotificationsForExperiment(experiment2.getExperimentDAO().getId());
 
-    Experiment experiment = experimentProviderUtil.getExperimentByServerId(id);
-    createStopEvent(experiment);
+    createStopEvent(experiment2);
 
-    experimentProviderUtil.deleteExperiment(experiment.getId());
-    if (ExperimentHelper.shouldWatchProcesses(experiment.getExperimentDAO())) {
+    experimentProviderUtil.deleteExperiment(experiment2.getId());
+    if (ExperimentHelper.shouldWatchProcesses(experiment2.getExperimentDAO())) {
       BroadcastTriggerReceiver.initPollingAndLoggingPreference(this);
     }
 
-    new AndroidEsmSignalStore(this).deleteAllSignalsForSurvey(id);
+    new AndroidEsmSignalStore(this).deleteAllSignalsForSurvey(experiment2.getId());
 
     reloadAdapter();
-    startService(new Intent(MyExperimentsActivity.this, BeeperService.class));
+    startService(new Intent(this, BeeperService.class));
+    startService(new Intent(this, ExperimentExpirationManagerService.class));
   }
 
   /**
@@ -399,12 +400,6 @@ public class MyExperimentsActivity extends ActionBarActivity implements
 
     experimentProviderUtil.insertEvent(event);
     startService(new Intent(this, SyncService.class));
-  }
-
-  private void editExperiment(Experiment experiment, List<ExperimentGroup> groups) {
-    Intent experimentIntent = new Intent(MyExperimentsActivity.this, ScheduleListActivity.class);
-    experimentIntent.putExtra(Experiment.EXPERIMENT_SERVER_ID_EXTRA_KEY, experiment.getExperimentDAO().getId());
-    startActivity(experimentIntent);
   }
 
   @Override
@@ -619,7 +614,7 @@ public class MyExperimentsActivity extends ActionBarActivity implements
                   emailResearcher(experiment);
                   break;
               case R.id.stopExperiment:
-                stopExperiment(experiment);
+                deleteExperiment(experiment);
                 break;
               default:
                   break;
@@ -672,16 +667,6 @@ public class MyExperimentsActivity extends ActionBarActivity implements
     Intent debugIntent = new Intent(this, ScheduleListActivity.class);
     debugIntent.putExtra(Experiment.EXPERIMENT_SERVER_ID_EXTRA_KEY, experiment.getExperimentDAO().getId());
     startActivity(debugIntent);
-  }
-
-  public void stopExperiment(Experiment experiment) {
-    experimentProviderUtil.deleteExperiment(experiment.getId());
-    updateAlarms();
-    reloadAdapter();
-  }
-
-  private void updateAlarms() {
-    startService(new Intent(this, BeeperService.class));
   }
 
   @SuppressLint("NewApi")

@@ -66,7 +66,6 @@ public class ExperimentExpirationManagerService extends Service {
         try {
           ExperimentExpirationManagerService.this.context = getApplicationContext();
           ExperimentExpirationManagerService.this.alarmManager = (AlarmManager) context.getSystemService(Service.ALARM_SERVICE);
-
           work();
         } finally {
           wl.release();
