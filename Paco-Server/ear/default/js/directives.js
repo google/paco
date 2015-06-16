@@ -1,3 +1,177 @@
+
+pacoApp.directive('pacoGroup', function () {
+
+  var controller = ['$scope', '$http', '$location', '$mdDialog', '$anchorScroll', '$filter',
+    function($scope, $http, $location, $mdDialog, $anchorScroll, $filter) {
+
+    $scope.mask = {};
+    $scope.responses = $scope.responses || {};
+
+    $scope.post = {
+      appId: 'webform',
+      pacoVersion: 1,
+    };
+
+    $scope.$watch('group', function(newValue, oldValue) {
+      if (angular.isDefined($scope.experiment)) {
+        $scope.post.experimentId = $scope.experiment.id;
+      }
+    });
+
+    $scope.$watchCollection('responses', function(newValue, oldValue) {
+        
+        if (angular.isDefined(newValue) && 
+            angular.isDefined($scope.group)) {
+
+          for ( var inputIdx in $scope.group.inputs) {
+            var input = $scope.group.inputs[inputIdx];
+            if (input.conditional) {
+              var validity = parser.parse(input.conditionExpression, $scope.responses);
+              $scope.mask[inputIdx] = !validity;
+            }
+          }
+        }
+    });
+
+    $scope.respond = function() {
+
+      var post = {};
+
+      post.experimentGroupName = $scope.group.name;
+      post.experimentName = $scope.experiment.title;
+      post.experimentId = $scope.$parent.experiment.id;
+      post.experimentVersion = $scope.experiment.version;
+      post.pacoVersion = 4;
+      post.appId = 'webForm';
+      post.responses = [];
+      post.responseTime = $filter('date')(new Date(), 'yyyy/MM/dd HH:mm:ssZ');
+
+      for (var name in $scope.responses) {
+        var pair = {
+          name: name,
+          answer: $scope.responses[name]
+        };
+        post.responses.push(pair);
+      }
+      
+      if ($scope.events) {
+
+        var event = $scope.events[$scope.activeIdx];
+        var responseTime = $filter('date')(new Date(event.responseTime), 'yyyy/MM/dd HH:mm:ssZ');
+
+        var eodPair = {
+          'name': 'eodResponseTime',
+          'answer':  responseTime
+        }
+        var referPair = {
+          'name': 'referred_group',
+          'answer': event.experimentGroupName
+        }
+        post.responses.push(eodPair);
+        post.responses.push(referPair);
+      }
+
+      console.log(post);
+
+
+    $http.post('/events', post).success(function(data) {
+
+        if (data[0].status === true) {
+
+          if ($scope.events) {
+            $scope.activeIdx++;
+            $scope.responses = {};
+          }
+
+          $anchorScroll('');
+
+          if (!$scope.events || !$scope.events[$scope.activeIdx]) {
+            $mdDialog.show(
+              $mdDialog.alert()
+              .title('Respond Status')
+              .content('Success!')
+              .ariaLabel('Success')
+              .ok('OK')
+            ).then(function() {
+              $location.path('/experiments');
+            });
+          }
+        }
+
+      }).error(function(data, status, headers, config) {
+        console.error(data);
+      });
+    };
+
+    $scope.range = function(start, end) {
+      var arr = [];
+      for (var i = start; i <= end; i++) {
+        arr.push(i);
+      }
+      return arr;
+    }
+
+    $scope.inListString = function(item, responseName) {
+      if (!$scope.responses) {
+        return false;
+      }
+      var listString = $scope.responses[responseName];
+      if (listString === undefined || listString === '') {
+        return false;
+      }
+      var list = listString.split(',');
+      if (list.indexOf(item + '') !== -1) {
+        return true;
+      }
+      return false;
+    }
+
+    $scope.toggleStringItem = function(item, responseName) {
+
+      var listString = $scope.responses[responseName];
+      var list = [];
+
+      if (listString === undefined || listString === '') {
+        $scope.responses[responseName] = [];
+      } else {
+        list = listString.split(',');
+      }
+
+      var find = list.indexOf('' + item);
+
+      if (find === -1) {
+        list.push(item + '');
+      } else {
+        list.splice(find, 1);
+      }
+
+      $scope.responses[responseName] = list.join();
+    };
+
+  }];
+
+
+  return {
+    restrict: 'E',
+    scope: {  'group': '=data',
+              'responses': '=',
+              'preview': '=',
+              'readonly': '=',
+              'events': '=',
+              'experiment': '=',
+              'activeIdx': '='},
+
+    controller: controller,
+    templateUrl: 'partials/group.html'
+  };
+});
+
+
+
+
+
+
+
 /**
  * This directive uses two-way data filtering to convert between the time
  * returned by an HTML time input (a timestamp relative to midnight, 12/31/1969) 
@@ -103,6 +277,11 @@ pacoApp.directive('expandable', ['$timeout', function($timeout) {
       scope.expand = true;
       scope.container = element;
 
+      scope.fixHeight = function() {
+        scope.toggleExpand(!scope.expand, true);
+        scope.toggleExpand(!scope.expand, true);
+      };
+
       scope.toggleExpand = function(flag, skipAnimation) {
 
         if (attributes['expandable'] === 'false') {
@@ -140,6 +319,10 @@ pacoApp.directive('expandable', ['$timeout', function($timeout) {
       $timeout(function() {
         scope.toggleExpand(scope.expand, true);
       }, 250);
+
+      $timeout(function() {
+        scope.fixHeight();
+      }, 1000);
     }
   }
 }]);

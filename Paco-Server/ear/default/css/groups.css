@@ -67,9 +67,7 @@
 }
 
 .trigger .minBuffer {
-  position: absolute;
-  top: 44px;
-  left: 480px;
+  
   width: 300px !important;
 }
 
@@ -113,6 +111,7 @@ md-card .section {
   font-weight: 400;
   outline: none;
   padding: 16px;
+  position: relative;
   -webkit-user-select: none;
 }
 
@@ -129,6 +128,13 @@ md-card .section .group-name {
   top: 12px;
   left: 230px;
   width: 400px;
+}
+
+md-card .section .buffer-input {
+  position: absolute;
+  top: 6px;
+  left: 500px;
+  width: 100px;
 }
 
 md-card .group-toggle {
@@ -157,6 +163,10 @@ md-card .section .subsub {
   height: 24px;
   margin-left: 32px;
   width: 182px;
+}
+
+.groups md-card md-card-content {
+  min-height: 58px;
 }
 
 md-card-content[expandable=true]::after {
