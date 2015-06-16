@@ -1,0 +1,118 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+ <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <script language="javascript" type="text/javascript" src="file:///android_asset/jquery.js"></script>
+    <script language="javascript" type="text/javascript" src="file:///android_asset/jquery.flot.js"></script>
+    <script language="javascript" type="text/javascript" src="file:///android_asset/jquery.flot.stack.js"></script>
+    <script language="javascript" type="text/javascript" src="file:///android_asset/peg-0.8.0.min.js"></script>
+    <script language="javascript" type="text/javascript" src="file:///android_asset/conditional_parser.js"></script>
+    <script language="javascript" type="text/javascript" src="file:///android_asset/custom_base.js"></script>
+    
+    
+ 	<script language="javascript" type="text/javascript">
+ 	  var emailer = window.email;
+ 	  function sendEmail(body, subject, tofield) {
+ 	      emailer.sendEmail(body, subject, tofield);
+ 	  };
+ 	  
+ 	  function getData() {
+        var jsondata = window.env.getValue("lastResponse");
+        var experimentData = $.parseJSON(jsondata); 
+        if (!experimentData) {
+          // hack for samsung tmobile phones
+          experimentData = eval('(' + jsondata + ')');
+        }
+        return experimentData; 	    
+ 	  };
+ 	  
+ 	  function printResponses() {
+ 	    var experimentData = getData(); 
+
+        if (!experimentData) {
+            alert("No Data");
+            return;
+        } 
+        
+        var responsesHtml = ""; 
+        
+        if (experimentData.length == 0) {
+          responsesHtml = "No responses found.";
+        } else {
+          var latestEvent = experimentData[0];
+          try{
+            var responses = latestEvent.responses;
+          } catch(err) {
+            var additionsDivID = document.getElementById("additionsdiv");
+            var newSpan = document.createElement('span');
+            newSpan.innerHTML = '<br><br>No data was found.';
+            additionsDivID.appendChild(newSpan);  
+            return;
+          }   
+          for (var i=0;i < responses.length;i++) {
+            var response = responses[i];
+            if (response.answer == null || response.answer.length == 0) {
+              response.answer = "No Answer";
+            }
+            
+            responsesHtml += "<div>";
+            responsesHtml += "<div style='text-align:left;line-height:1.5;font-size:20;'>";
+            responsesHtml += response["prompt"];
+            responsesHtml += "</div><br/>";
+            responsesHtml += "<div style='color:#333333;text-align:center;line-height:1.5;font-size:18;'>";
+            if (response["responseType"] == "photo") {
+              responsesHtml += "<img src='data:image/jpg;base64," + response["answer"]  +"' width=150>";
+            } else {
+              responsesHtml += response["answer"];
+              responsesHtml += "&nbsp;&nbsp;&nbsp;<a href='file:///android_asset/time.html?inputId=" + response["name"] + "'>Chart</a>";
+            }      
+            responsesHtml += "</div><br/></div>";
+          } 
+          if (responsesHtml == "") {
+            responsesHtml = "No responses found!";
+          }
+        }
+ 	    $("#responses").html(responsesHtml);
+ 	  };
+ 	  
+ 	  $(document).ready(function() {
+        
+      function scriptBody(customFeedback) {
+        var scriptStartIndex = customFeedback.indexOf("<script>");
+        var scriptEndIndex = customFeedback.indexOf("</"+"script>");
+        if (scriptStartIndex != -1 && scriptEndIndex != -1) {
+          return customFeedback.substring(scriptStartIndex+8,scriptEndIndex);
+        } 
+        return "";
+      }
+      
+      function htmlBody(customFeedback) {
+        var scriptEndIndex = customFeedback.indexOf("</"+"script>");
+        if (scriptEndIndex != -1) {
+          return customFeedback.substring(scriptEndIndex+9);
+        } else {
+         return customFeedback;
+        }
+      }
+
+      var additionsDivID = document.getElementById("additionsdiv");         
+      var newScript = document.createElement('script');
+      newScript.type = 'text/javascript';
+
+      newScript.innerHTML = scriptBody(window.env.getValue("additions"));
+      additionsDivID.appendChild(newScript);
+        
+      var newSpan = document.createElement('span');
+      newSpan.innerHTML = htmlBody(window.env.getValue("additions"));
+      additionsDivID.appendChild(newSpan);
+
+      
+   	});   	
+ </script>
+ </head>
+  <body style='text-align:center;color:#4272db;' >
+  
+  <div id="additionsdiv"></div>
+ 
+  </body>
+</html>
