@@ -1,0 +1,65 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+ <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <script language="javascript" type="text/javascript" src="file:///android_asset/jquery.js"></script>
+    
+        <script language="javascript" type="text/javascript">
+          $(document).ready(function() {
+                var jsondata = window.eventLoader.loadAllEvents();
+                var experimentData = $.parseJSON(jsondata);
+                if (!experimentData) {
+                  // hack for samsung tmobile phones
+                  experimentData = eval('(' + jsondata + ')');
+                }
+
+                if (!experimentData) {
+                   alert("No Data");
+                   return;
+                } 
+        
+                var responsesHtml = ""; 
+                
+                var latestEvent = experimentData[0];    
+                try{
+                  var responses = latestEvent.responses;
+                }catch(err){
+                  alert('There is no recorded data for this variable.');
+                  $("#default").html("<h1>Your trend here<h1>");
+                  return;
+                }
+                
+                var inputId = parseInt(window.env.getValue("inputId"));                
+                for ( var i = 0; i < responses.length; i++) {
+                  var response = responses[i];
+                  if (response["inputId"] == inputId){
+                    if (response.answer == null || response.answer.length == 0) {
+                        response.answer = "No Answer";
+                    }
+                    if (response["responseType"] == "photo") {
+                      responsesHtml= "<img src='data:image/jpg;base64," + response["answer"]  +"' width=150>";
+                    } else if (response["responseType"] == "location") {
+                      responsesHtml= "file:///android_asset/map.html?inputId=" + response["inputId"];
+                    } else {
+                      responsesHtml= "file:///android_asset/time.html?inputId=" + response["inputId"];
+                    }      
+                  }
+                }
+                if (responsesHtml == ""){
+                  alert("No responses found!");
+                  $("#default").html("<h2> Your Trend Here </h2>");
+                } else{
+                  try{
+                    document.location.href = responsesHtml;
+                  } catch (err){         
+                    alert("No responses found!");
+                    $("#default").html("<h2>Your Trend Here</h2>");
+                  }
+                }  
+        });     
+ </script>
+ </head>
+ <body style='text-align: center; color: #4272db;'>
+    <div id="default"></div>
+ </body>
+</html>
