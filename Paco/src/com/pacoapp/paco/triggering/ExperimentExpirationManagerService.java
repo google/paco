@@ -20,7 +20,6 @@ import com.pacoapp.paco.PacoConstants;
 import com.pacoapp.paco.model.Experiment;
 import com.pacoapp.paco.model.ExperimentProviderUtil;
 import com.pacoapp.paco.os.ExperimentExpirationAlarmReceiver;
-import com.pacoapp.paco.shared.model2.ExperimentDAO;
 import com.pacoapp.paco.shared.scheduling.ActionScheduleGenerator;
 
 /**
@@ -80,10 +79,6 @@ public class ExperimentExpirationManagerService extends Service {
   public void work() {
     ExperimentProviderUtil experimentProviderUtil = new ExperimentProviderUtil(context);
     List<Experiment> experiments = experimentProviderUtil.getJoinedExperiments();
-    List<ExperimentDAO> experimentDAOs = Lists.newArrayList();
-    for (Experiment experiment : experiments) {
-      experimentDAOs.add(experiment.getExperimentDAO());
-    }
     if (experiments.isEmpty()) {
       Log.i(PacoConstants.TAG, "No joined experiments. Not creating alarms.");
       return;
@@ -100,6 +95,7 @@ public class ExperimentExpirationManagerService extends Service {
     DateTime now = DateTime.now();
     for (Experiment experiment : experiments) {
       if (ActionScheduleGenerator.isOver(now, experiment.getExperimentDAO())) {
+        Log.i(PacoConstants.TAG, "Experiment has ended. Firing event: " + experiment.getExperimentDAO().getTitle());
         PacoExperimentActionBroadcaster.sendExperimentEnded(context.getApplicationContext(), experiment);
         // TODO remove from joined and move to archived.
         // TODO only fire experiment over broadcast once.
