@@ -108,7 +108,9 @@ public class ScheduleListActivity extends ActionBarActivity implements ScheduleL
       scheduleListFragment.setActivateOnItemClick(true);
 
     }
-    Toast.makeText(getApplicationContext(), "Joined! You may customize the schedule of the experiment or just press back to go home.", Toast.LENGTH_LONG).show();
+    if (fromInformedConsentPage) {
+      Toast.makeText(getApplicationContext(), "Joined! You may customize the schedule of the experiment or just press back to go home.", Toast.LENGTH_LONG).show();
+    }
   }
 
   /**
@@ -298,6 +300,7 @@ public class ScheduleListActivity extends ActionBarActivity implements ScheduleL
 
   private void save() {
     if (!userCanEditAtLeastOneSchedule()) {
+      setResult(FindExperimentsActivity.JOINED_EXPERIMENT);
       finish();
     } else {
       scheduleExperiment();

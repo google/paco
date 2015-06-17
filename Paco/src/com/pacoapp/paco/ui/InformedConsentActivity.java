@@ -148,10 +148,8 @@ public class InformedConsentActivity extends ActionBarActivity implements Experi
   protected void onActivityResult(int requestCode, int resultCode, Intent data) {
     super.onActivityResult(requestCode, resultCode, data);
     if (requestCode == FindExperimentsActivity.JOIN_REQUEST_CODE) {
-      if (resultCode == FindExperimentsActivity.JOINED_EXPERIMENT) {
-        setResult(resultCode);
-        finish();
-      }
+      setResult(FindExperimentsActivity.JOINED_EXPERIMENT);
+      finish();
     }
   }
 
