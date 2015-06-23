@@ -25,6 +25,11 @@ pacoApp.config(['$routeProvider','$locationProvider',
       templateUrl: 'partials/main.html',
       controller: 'HomeCtrl',
     }).
+    when('/copy/:copyId', {
+      templateUrl: 'partials/main.html',
+      controller: 'HomeCtrl',
+      reloadOnSearch: false,
+    }).
     otherwise({
       templateUrl: 'partials/main.html',
       controller: 'HomeCtrl',

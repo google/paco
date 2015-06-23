@@ -76,7 +76,7 @@ pacoApp.controller('HomeCtrl', ['$scope', '$http', '$routeParams', '$location',
       $scope.loaded = true;
 
       // Make sure email isn't yourGoogleEmail@here.com for local dev testing
-      if (data.user && data.user !== 'yourGoogleEmail@here.com') {
+      if (data.user && data.user !== 'bobevans999@gmail.com') {
         $scope.user = data.user;
         $scope.loadJoined();
         $scope.loadAdmin();
@@ -98,6 +98,11 @@ pacoApp.controller('HomeCtrl', ['$scope', '$http', '$routeParams', '$location',
       } else {
         $scope.experimentId = parseInt($routeParams.experimentId, 10);
       }
+    }
+
+    if (angular.isDefined($routeParams.copyId)) {
+      $scope.newExperiment = true;
+      $scope.experimentId = parseInt($routeParams.copyId);
     }
 
     if (angular.isDefined($routeParams.csvExperimentId)) {
@@ -148,11 +153,23 @@ pacoApp.controller('ExperimentCtrl', ['$scope', '$http',
           $scope.experiment = data[0];
           $scope.experiment0 = angular.copy(data[0]);
           $scope.prepareAce();
+
+           if ($scope.newExperiment) {
+            $scope.experiment.title = 'Copy of ' + $scope.experiment.title;
+            $scope.experiment.id = null;
+            $scope.experiment.version = 1;
+           }
+
+          if ($scope.user) {
+            $scope.experiment.creator = $scope.user;
+            $scope.experiment.contactEmail = $scope.user;
+            $scope.experiment.admins.push($scope.user);
+          }
         });
     }
 
     $scope.$watch('user', function(newValue, oldValue) {
-      if ($scope.newExperiment) {
+      if ($scope.newExperiment && $scope.experiment) {
         $scope.experiment.creator = $scope.user;
         $scope.experiment.contactEmail = $scope.user;
         $scope.experiment.admins = [$scope.user];
@@ -186,6 +203,9 @@ pacoApp.controller('ExperimentCtrl', ['$scope', '$http',
     };
 
     $scope.$watch('ace.JSON', function(newValue, oldValue) {
+      if (!oldValue) {
+        return;
+      }
       try {
         var exp = JSON.parse(newValue);
       } catch (e) {
@@ -204,9 +224,10 @@ pacoApp.controller('ExperimentCtrl', ['$scope', '$http',
     };
 
     $scope.saveExperiment = function() {
-      $http.post('/experiments', $scope.experiment).success(function(data) {
-        if (data.length > 0) {
 
+      $http.post('/experiments', $scope.experiment).success(function(data) {
+
+        if (data.length > 0) {
           if (data[0].status === true) {
             $mdDialog.show(
               $mdDialog.alert()
