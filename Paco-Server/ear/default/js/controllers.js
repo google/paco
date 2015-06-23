@@ -143,7 +143,7 @@ pacoApp.controller('ExperimentCtrl', ['$scope', '$http',
       if ($scope.user) {
         $scope.experiment.creator = $scope.user;
         $scope.experiment.contactEmail = $scope.user;
-        $scope.experiment.admins.push($scope.user);
+        $scope.experiment.admins = [$scope.user];
       }
     } else if ($scope.experimentId) {
       $http.get('/experiments?id=' + $scope.experimentId, {
