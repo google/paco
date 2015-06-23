@@ -531,7 +531,7 @@ public class FindExperimentsActivity extends ActionBarActivity implements Networ
           String action = getIntent().getAction();
           Intent experimentIntent = new Intent(FindExperimentsActivity.this, ExperimentDetailActivity.class);
           experimentIntent.putExtra(Experiment.EXPERIMENT_SERVER_ID_EXTRA_KEY, experiment.getServerId());
-          experimentIntent.putExtra(ExperimentDetailActivity.ID_FROM_MY_EXPERIMENTS_FILE, true);
+          experimentIntent.putExtra(ExperimentDetailActivity.ID_FROM_MY_EXPERIMENTS_FILE, false);
           startActivityForResult(experimentIntent, JOIN_REQUEST_CODE);
         }
       }

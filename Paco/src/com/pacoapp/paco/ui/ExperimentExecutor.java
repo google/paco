@@ -537,7 +537,11 @@ public class ExperimentExecutor extends ActionBarActivity implements ChangeListe
   }
 
   private void displayExperimentTitle() {
-    ((TextView)findViewById(R.id.experiment_title)).setText(experimentGroup.getName());
+    String name = experimentGroup.getName();
+    if (name == null || name.equals("default")) {
+      name = "";
+    }
+    ((TextView)findViewById(R.id.experiment_title)).setText(name);
   }
 
   private void displayNoExperimentMessage() {
