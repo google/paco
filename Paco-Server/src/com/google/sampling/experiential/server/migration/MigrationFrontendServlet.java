@@ -95,7 +95,7 @@ public class MigrationFrontendServlet extends HttpServlet {
   }
 
   private BufferedReader sendToBackend(String backendAddress, String jobName) throws MalformedURLException, IOException {
-    URL url = new URL("http://" + backendAddress + "/migrateBackend?who=" + AuthUtil.getWhoFromLogin().getEmail().toLowerCase() +
+    URL url = new URL("https://" + backendAddress + "/migrateBackend?who=" + AuthUtil.getWhoFromLogin().getEmail().toLowerCase() +
                       "&migrationName=" + jobName );
     log.info("URL to backend = " + url.toString());
     InputStreamReader inputStreamReader = new InputStreamReader(url.openStream());
