@@ -82,24 +82,31 @@
   margin: 0;
 }
 
-.remove-button {
+.button.remove {
   background: url('../img/ic_clear_24px.svg') no-repeat;
-  float: right;
-  height: 24px;
-  opacity: .5;
-  width: 24px;
 }
 
-.add-button {
+.button.add {
   background: url('../img/ic_add_circle_outline_24px.svg') no-repeat;
+}
+
+.button.up {
+  background: url('../img/ic_arrow_up_24.svg') no-repeat;
+}
+
+.button.down {
+  background: url('../img/ic_arrow_down_24.svg') no-repeat;
+}
+
+.button {
   float: right;
   height: 24px;
-  margin-right: 8px;
+  margin-left: 8px;
   opacity: .5;
   width: 24px;
 }
 
-.remove-button:hover, .add-button:hover {
+.button:hover {
   opacity: 1;
 }
 

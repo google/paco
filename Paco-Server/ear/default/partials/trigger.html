@@ -18,7 +18,7 @@
       Add Action
     </md-button>
 
-    <a class="remove-button" href="" ng-click="remove(group.actionTriggers, $index)">
+    <a class="remove button" href="" ng-click="remove(group.actionTriggers, $index)">
     </a>
   </div>
 
@@ -31,7 +31,7 @@
         
       </div>
       <span ng-controller="SummaryCtrl" ng-bind="getScheduleSummary()"></span>
-      <a class="remove-button" ng-if="trigger.schedules.length > 1" href="" ng-click="remove(trigger.schedules, $index)">
+      <a class="remove button" ng-if="trigger.schedules.length > 1" href="" ng-click="remove(trigger.schedules, $index)">
       </a>
     </div>
   </div>
@@ -53,7 +53,7 @@
         
       </div>
       <span ng-controller="SummaryCtrl" ng-bind="getCueSummary()"></span>
-      <a class="remove-button" ng-if="trigger.cues.length > 1" href="" ng-click="remove(trigger.cues, $index)">
+      <a class="remove button" ng-if="trigger.cues.length > 1" href="" ng-click="remove(trigger.cues, $index)">
       </a>
     </div>
   </div>
@@ -67,7 +67,7 @@
         
       </div>
       <span ng-controller="SummaryCtrl" ng-bind="getActionSummary()"></span>
-      <a class="remove-button" ng-if="trigger.actions.length > 1" href="" ng-click="remove(trigger.actions, $index)"></a>
+      <a class="remove button" ng-if="trigger.actions.length > 1" href="" ng-click="remove(trigger.actions, $index)"></a>
     </div>
   </div>
 

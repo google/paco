@@ -408,10 +408,25 @@ pacoApp.controller('GroupsCtrl', ['$scope', 'template',
       return s;
     };
 
-    $scope.addInput = function(event, expandFn) {
-      $scope.group.inputs.push(angular.copy(template.input));
-      expandFn(true);
+    $scope.addInput = function(event, expandFn, index) {
+      var input = angular.copy(template.input);
+
+      if (index !== undefined) {
+        $scope.group.inputs.splice(index, 0, input);
+      } else {
+        $scope.group.inputs.push(input);        
+      }
+      if (expandFn) {
+        expandFn(true);
+      }
+
       event.stopPropagation();
+    };
+
+     $scope.swapInputs = function(event, index1, index2) {
+      var temp = $scope.group.inputs[index2];
+      $scope.group.inputs[index2] = $scope.group.inputs[index1];
+      $scope.group.inputs[index1] = temp;
     };
 
     $scope.toggleGroup = function($event) {
