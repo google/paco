@@ -8,10 +8,14 @@ var pacoApp = angular.module('pacoApp', [
 pacoApp.config(['$routeProvider','$locationProvider',
   function($routeProvider, $locationProvider) {
     $routeProvider.
-    when('/experiment/:experimentId', {
+    when('/edit/:editId', {
       templateUrl: 'partials/main.html',
       controller: 'HomeCtrl',
       reloadOnSearch: false,
+    }).
+    when('/experiment/:experimentId', {
+      templateUrl: 'partials/main.html',
+      controller: 'HomeCtrl'
     }).
     when('/data/:csvExperimentId', {
       templateUrl: 'partials/main.html',

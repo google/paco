@@ -6,6 +6,7 @@ pacoApp.controller('HomeCtrl', ['$scope', '$http', '$routeParams', '$location',
     $scope.tabIndex = -1;
     $scope.loaded = false;
     $scope.cache = $cacheFactory.get('$http');
+    $scope.edit = false;
 
     $scope.loadJoined = function(reload) {
       var cache = true;
@@ -54,10 +55,6 @@ pacoApp.controller('HomeCtrl', ['$scope', '$http', '$routeParams', '$location',
       });
     };
 
-    $scope.addExperiment = function() {
-      $location.path('/experiment/new');
-    };
-
     $scope.forceHttps = function() {
       var devMode = ($location.host() === 'localhost' || 
                       $location.host() === '127.0.0.1');
@@ -75,7 +72,7 @@ pacoApp.controller('HomeCtrl', ['$scope', '$http', '$routeParams', '$location',
 
       $scope.loaded = true;
 
-      // Make sure email isn't yourGoogleEmail@here.com for local dev testing
+      // Make sure email isn't the dev email address
       if (data.user && data.user !== 'bobevans999@gmail.com') {
         $scope.user = data.user;
         $scope.loadJoined();
@@ -92,12 +89,17 @@ pacoApp.controller('HomeCtrl', ['$scope', '$http', '$routeParams', '$location',
 
 
     if (angular.isDefined($routeParams.experimentId)) {
-      if ($routeParams.experimentId === 'new') {
+      $scope.experimentId = parseInt($routeParams.experimentId, 10);
+    }
+
+    if (angular.isDefined($routeParams.editId)) {
+      if ($routeParams.editId === 'new') {
         $scope.newExperiment = true;
         $scope.experimentId = -1;
       } else {
-        $scope.experimentId = parseInt($routeParams.experimentId, 10);
+        $scope.experimentId = parseInt($routeParams.editId, 10);
       }
+      $scope.edit = true;
     }
 
     if (angular.isDefined($routeParams.copyId)) {
