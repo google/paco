@@ -55,6 +55,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.pacoapp.paco.R;
 import com.pacoapp.paco.UserPreferences;
@@ -504,8 +505,18 @@ public class FindExperimentsActivity extends ActionBarActivity implements Networ
             title.setOnClickListener(myButtonListener);
         }
 
-        if (creator != null){
-            creator.setText(experiment.getExperimentDAO().getCreator());
+        if (creator != null) {
+          String organization = experiment.getExperimentDAO().getOrganization();
+          String contactEmail = experiment.getExperimentDAO().getContactEmail();
+          if (Strings.isNullOrEmpty(contactEmail)) {
+            contactEmail = experiment.getExperimentDAO().getCreator();
+          }
+          if (!Strings.isNullOrEmpty(organization)) {
+            contactEmail += ", " + organization;
+          }
+
+          creator.setText(contactEmail);
+
             creator.setOnClickListener(myButtonListener);
         } else {
             creator.setText(getContext().getString(R.string.unknown_author_text));
