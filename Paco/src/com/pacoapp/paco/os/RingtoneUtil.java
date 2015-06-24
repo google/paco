@@ -82,9 +82,9 @@ public class RingtoneUtil {
       if (newUri != null) {
         userPreferences.setRingtoneUri(newUri.toString());
         userPreferences.setRingtoneName(PACO_BARK_RINGTONE_TITLE);
-        userPreferences.setPacoBarkRingtoneInstalled();
       }
     }
+    userPreferences.setPacoBarkRingtoneInstalled();
 
 
   }
