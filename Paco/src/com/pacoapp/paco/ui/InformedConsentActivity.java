@@ -41,19 +41,17 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.CheckBox;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.pacoapp.paco.R;
-import com.pacoapp.paco.UserPreferences;
 import com.pacoapp.paco.model.Event;
 import com.pacoapp.paco.model.Experiment;
 import com.pacoapp.paco.model.ExperimentProviderUtil;
 import com.pacoapp.paco.model.Output;
-import com.pacoapp.paco.net.ExperimentUrlBuilder;
 import com.pacoapp.paco.net.NetworkClient;
 import com.pacoapp.paco.net.NetworkUtil;
-import com.pacoapp.paco.net.PacoForegroundService;
 import com.pacoapp.paco.net.SyncService;
 import com.pacoapp.paco.sensors.android.BroadcastTriggerReceiver;
 import com.pacoapp.paco.shared.model2.ActionTrigger;
@@ -64,6 +62,7 @@ import com.pacoapp.paco.shared.util.ExperimentHelper;
 import com.pacoapp.paco.shared.util.SchedulePrinter;
 import com.pacoapp.paco.shared.util.TimeUtil;
 import com.pacoapp.paco.triggering.BeeperService;
+import com.pacoapp.paco.triggering.ExperimentExpirationManagerService;
 import com.pacoapp.paco.triggering.PacoExperimentActionBroadcaster;
 import com.pacoapp.paco.utils.IntentExtraHelper;
 
@@ -76,6 +75,9 @@ public class InformedConsentActivity extends ActionBarActivity implements Experi
   private Experiment experiment;
   private ExperimentProviderUtil experimentProviderUtil;
   private CheckBox icCheckbox;
+
+  private ProgressBar progressBar;
+
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -107,6 +109,8 @@ public class InformedConsentActivity extends ActionBarActivity implements Experi
     } else {
       // TextView title = (TextView)findViewById(R.id.experimentNameIc);
       // title.setText(experiment.getTitle());
+      progressBar = (ProgressBar)findViewById(R.id.findExperimentsProgressBar);
+
       boolean logsActions = ExperimentHelper.isLogActions(experiment.getExperimentDAO());
       if (logsActions || ExperimentHelper.declaresLogAppUsageAndBrowserCollection(experiment.getExperimentDAO())) {
         TextView appBrowserUsageView = (TextView) findViewById(R.id.dataCollectedAppAndBrowserUsageView);
@@ -144,10 +148,8 @@ public class InformedConsentActivity extends ActionBarActivity implements Experi
   protected void onActivityResult(int requestCode, int resultCode, Intent data) {
     super.onActivityResult(requestCode, resultCode, data);
     if (requestCode == FindExperimentsActivity.JOIN_REQUEST_CODE) {
-      if (resultCode == FindExperimentsActivity.JOINED_EXPERIMENT) {
-        setResult(resultCode);
-        finish();
-      }
+      setResult(FindExperimentsActivity.JOINED_EXPERIMENT);
+      finish();
     }
   }
 
@@ -155,10 +157,16 @@ public class InformedConsentActivity extends ActionBarActivity implements Experi
     if (!NetworkUtil.isConnected(this)) {
       showDialog(NetworkUtil.NO_NETWORK_CONNECTION, null);
     } else {
-      //      progressBar.setVisibility(View.VISIBLE);
-      final String myExperimentsUrl = ExperimentUrlBuilder.buildUrlForFullExperiment(new UserPreferences(this),
-                                                                                   experiment.getServerId());
-      new PacoForegroundService(this, myExperimentsUrl).execute();
+      // WE are currently downloading the full experiment.
+            progressBar.setVisibility(View.VISIBLE);
+//      final List<ExperimentGroup> groups = experiment.getGroups();
+//      if (groups == null || groups.size() == 0) {
+//        final String myExperimentsUrl = ExperimentUrlBuilder.buildUrlForFullExperiment(new UserPreferences(this),
+//                                                                                   experiment.getServerId());
+//        new PacoForegroundService(this, myExperimentsUrl).execute();
+//      } else {
+        saveDownloadedExperimentBeforeScheduling(experiment);
+//      }
     }
   }
 
@@ -194,6 +202,8 @@ public class InformedConsentActivity extends ActionBarActivity implements Experi
       BroadcastTriggerReceiver.initPollingAndLoggingPreference(this);
       BroadcastTriggerReceiver.startProcessService(this);
     }
+    startService(new Intent(this, ExperimentExpirationManagerService.class));
+    progressBar.setVisibility(View.GONE);
     runScheduleActivity();
   }
 

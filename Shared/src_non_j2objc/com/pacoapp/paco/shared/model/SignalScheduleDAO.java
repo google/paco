@@ -64,7 +64,6 @@ public class SignalScheduleDAO  extends SignalingMechanismDAO implements Seriali
     private Long esmStartHour = 9 * 60 * 60 * 1000L;
     private Long esmEndHour = 17 * 60 * 60 * 1000L;
 
-    private List<Long> times;
     private List<SignalTimeDAO> signalTimes;
     private Integer repeatRate = 1;
     private Integer weekDaysScheduled = 0;
@@ -268,11 +267,16 @@ public class SignalScheduleDAO  extends SignalingMechanismDAO implements Seriali
     }
 
     public List<Long> getTimes() {
+      List<Long> times = new ArrayList<Long>();
+      if (getScheduleType() == null || getScheduleType() == SELF_REPORT || getScheduleType() == ESM) {
+        return times;
+      }
+      for (SignalTimeDAO signalTimeDAO : signalTimes) {
+        if (signalTimeDAO.getType() == SignalTimeDAO.FIXED_TIME) {
+          times.add(new Long(signalTimeDAO.getFixedTimeMillisFromMidnight()));
+        }
+      }
       return times;
-    }
-
-    public void setTimes(List<Long> times) {
-      this.times = times;
     }
 
 }

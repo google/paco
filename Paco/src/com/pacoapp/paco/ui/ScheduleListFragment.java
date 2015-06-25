@@ -12,6 +12,7 @@ import android.widget.ListView;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.pacoapp.paco.R;
 import com.pacoapp.paco.model.Experiment;
 import com.pacoapp.paco.shared.model2.ActionTrigger;
 import com.pacoapp.paco.shared.model2.ExperimentGroup;
@@ -170,8 +171,8 @@ public class ScheduleListFragment extends ListFragment {
 
   private void showSchedulesForGroups() {
     List<String> scheduleDescriptions = buildListData();
-    setListAdapter(new ArrayAdapter<String>(getActivity(), android.R.layout.simple_list_item_activated_1,
-            android.R.id.text1, scheduleDescriptions));
+    setListAdapter(new ArrayAdapter<String>(getActivity(), R.layout.fragment_schedule_list,
+            R.id.scheduleTextView, scheduleDescriptions));
     ((ArrayAdapter) getListAdapter()).notifyDataSetChanged();
   }
 

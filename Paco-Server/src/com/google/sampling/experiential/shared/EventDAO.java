@@ -18,8 +18,13 @@ package com.google.sampling.experiential.shared;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+
+import org.codehaus.jackson.annotate.JsonIgnore;
+
+import com.google.common.collect.Lists;
 
 
 /**
@@ -64,6 +69,7 @@ public class EventDAO implements Serializable {
     this.experimentName = experimentName;
   }
 
+  @JsonIgnore
   private Map<String, String> what;
 
   private Date responseTime;
@@ -81,11 +87,12 @@ public class EventDAO implements Serializable {
   private Long actionTriggerSpecId;
   private Long actionId;
 
-
+  @JsonIgnore
   public Map<String, String> getWhat() {
     return what;
   }
 
+  @JsonIgnore
   public void setWhat(Map<String, String> what) {
     this.what = what;
   }
@@ -136,18 +143,22 @@ public class EventDAO implements Serializable {
     this.who = who;
   }
 
+  @JsonIgnore
   public String getLat() {
     return lat;
   }
 
+  @JsonIgnore
   public void setLat(String lat) {
     this.lat = lat;
   }
 
+  @JsonIgnore
   public String getLon() {
     return lon;
   }
 
+  @JsonIgnore
   public void setLon(String lon) {
     this.lon = lon;
   }
@@ -160,6 +171,7 @@ public class EventDAO implements Serializable {
     this.when = when;
   }
 
+  @JsonIgnore
   public String getWhatString() {
     StringBuilder whatStr = new StringBuilder();
     boolean first = true;
@@ -176,6 +188,7 @@ public class EventDAO implements Serializable {
     return whatStr.toString();
   }
 
+  @JsonIgnore
   public String getWhatByKey(String key) {
     return what.get(key);
   }
@@ -196,10 +209,12 @@ public class EventDAO implements Serializable {
     this.pacoVersion = pacoVersion;
   }
 
+  @JsonIgnore
   public boolean isShared() {
     return shared;
   }
 
+  @JsonIgnore
   public void setShared(boolean shared) {
     this.shared = shared;
   }
@@ -214,6 +229,7 @@ public class EventDAO implements Serializable {
   public void setResponseTime(Date responseTime) {
     this.responseTime = responseTime;
   }
+
 
   public Date getScheduledTime() {
     return scheduledTime;
@@ -230,6 +246,7 @@ public class EventDAO implements Serializable {
   /**
    * @return
    */
+  @JsonIgnore
   public long responseTime() {
     if (responseTime == null || scheduledTime == null) {
       return 0;
@@ -252,6 +269,7 @@ public class EventDAO implements Serializable {
     this.blobs = blobs;
   }
 
+  @JsonIgnore
   public Date getIdFromTimes() {
     if (getScheduledTime() != null) {
       return getScheduledTime();
@@ -332,6 +350,14 @@ public class EventDAO implements Serializable {
     this.actionId = actionId;
   }
 
-
+  public List<Output> getResponses() {
+    List<Output> responses = Lists.newArrayList();
+    Map<String, String> whats = getWhat();
+    for (String whatKey : whats.keySet()) {
+      String whatValue = whats.get(whatKey);
+      responses.add(new Output(whatKey, whatValue));
+    }
+    return responses;
+  }
 
 }

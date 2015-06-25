@@ -1,14 +1,13 @@
 <div class="source">
   <p>
-    JSON source code for experiment
+    JSON source code for experiment {{ace.height}}
     <span class="error" ng-if="ace.error">Syntax Error!</span>
   </p>
-
   <md-card>
     <md-card-content>
-      <div ng-model="ace.JSON" ui-ace="{
-          onLoad : prepareAce, 
-          mode: 'javascript'
+      <div style="height: {{ace.height}}px" ng-model="ace.JSON" ui-ace="{
+          onLoad: prepareAce,
+          mode: 'javascript',
         }" ></div>
     </md-card-content>
   </md-card>

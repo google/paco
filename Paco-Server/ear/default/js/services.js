@@ -4,7 +4,8 @@ pacoApp.service('config', function() {
     'basics',
     'groups',
     'admin',
-    'source'
+    'source',
+    'preview'
   ];
 
   this.dataDeclarations = {
@@ -100,6 +101,7 @@ pacoApp.service('template', function() {
     admins: [],
     creator: '',
     contactEmail: '',
+    extraDataCollectionDeclarations: [],
     published: false,
     publishedUsers: [],
     groups: [this.group],
@@ -149,7 +151,8 @@ pacoApp.service('template', function() {
   this.eventTrigger = {
     type: 'interruptTrigger',
     actions: [this.defaultAction],
-    cues: [this.cue]
+    cues: [this.cue],
+    minimumBuffer: 59
   };
 
   this.signalTime = {

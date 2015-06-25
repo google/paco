@@ -981,7 +981,10 @@ function runCustomExperiment(s0) {
   $(document.body).append(form_root);
   var experiment = paco.experimentService.getExperiment();
   var experimentGroup = paco.experimentService.getExperimentGroup();
-  
+  var actionTriggerId = window.env.getValue("actionTriggerId");
+  var actionTriggerSpecId = window.env.getValue("actionTriggerSpecId");
+  var actionId = window.env.getValue("actionId");
+
   paco.renderer.loadCustomExperiment(experimentGroup, form_root);
   if (main) {
     main(paco.experiment(), experimentGroup, form_root);

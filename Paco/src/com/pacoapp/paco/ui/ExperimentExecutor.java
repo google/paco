@@ -66,9 +66,13 @@ import com.pacoapp.paco.model.ExperimentProviderUtil;
 import com.pacoapp.paco.model.NotificationHolder;
 import com.pacoapp.paco.model.Output;
 import com.pacoapp.paco.net.SyncService;
+import com.pacoapp.paco.sensors.android.BroadcastTriggerReceiver;
 import com.pacoapp.paco.shared.model2.ExperimentGroup;
 import com.pacoapp.paco.shared.model2.Input2;
+import com.pacoapp.paco.shared.util.ExperimentHelper;
+import com.pacoapp.paco.triggering.AndroidEsmSignalStore;
 import com.pacoapp.paco.triggering.BeeperService;
+import com.pacoapp.paco.triggering.ExperimentExpirationManagerService;
 import com.pacoapp.paco.triggering.NotificationCreator;
 import com.pacoapp.paco.utils.IntentExtraHelper;
 
@@ -533,7 +537,11 @@ public class ExperimentExecutor extends ActionBarActivity implements ChangeListe
   }
 
   private void displayExperimentTitle() {
-    ((TextView)findViewById(R.id.experiment_title)).setText(experimentGroup.getName());
+    String name = experimentGroup.getName();
+    if (name == null || name.equals("default")) {
+      name = "";
+    }
+    ((TextView)findViewById(R.id.experiment_title)).setText(name);
   }
 
   private void displayNoExperimentMessage() {
@@ -568,10 +576,51 @@ public class ExperimentExecutor extends ActionBarActivity implements ChangeListe
   }
 
   public void stopExperiment() {
-    experimentProviderUtil.deleteExperiment(getExperiment().getId());
-    updateAlarms();
+    deleteExperiment();
     finish();
   }
+
+  public void deleteExperiment() {
+    NotificationCreator nc = NotificationCreator.create(this);
+    nc.timeoutNotificationsForExperiment(experiment.getExperimentDAO().getId());
+
+    createStopEvent(experiment);
+
+    experimentProviderUtil.deleteExperiment(experiment.getId());
+    if (ExperimentHelper.shouldWatchProcesses(experiment.getExperimentDAO())) {
+      BroadcastTriggerReceiver.initPollingAndLoggingPreference(this);
+    }
+
+    new AndroidEsmSignalStore(this).deleteAllSignalsForSurvey(experiment.getId());
+
+    startService(new Intent(this, BeeperService.class));
+    startService(new Intent(this, ExperimentExpirationManagerService.class));
+  }
+
+  /**
+   * Creates a pacot for stopping an experiment
+   *
+   * @param experiment
+   */
+  private void createStopEvent(Experiment experiment) {
+    Event event = new Event();
+    event.setExperimentId(experiment.getId());
+    event.setServerExperimentId(experiment.getExperimentDAO().getId());
+    event.setExperimentName(experiment.getExperimentDAO().getTitle());
+    event.setExperimentVersion(experiment.getExperimentDAO().getVersion());
+    event.setResponseTime(new DateTime());
+
+    Output responseForInput = new Output();
+    responseForInput.setAnswer("false");
+    responseForInput.setName("joined");
+    event.addResponse(responseForInput);
+
+    experimentProviderUtil.insertEvent(event);
+    startService(new Intent(this, SyncService.class));
+  }
+
+
+
 
   public void onChange(InputLayout input) {
     synchronized (updateLock) {

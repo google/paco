@@ -4,7 +4,9 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.logging.Logger;
 
+import org.joda.time.DateMidnight;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 
@@ -39,6 +41,8 @@ import com.pacoapp.paco.shared.scheduling.ActionScheduleGenerator;
 import com.pacoapp.paco.shared.util.ExperimentHelper;
 
 class DefaultExperimentService implements ExperimentService {
+
+  private static final Logger log = Logger.getLogger(DefaultExperimentService.class.getName());
 
   private String getExperimentAsJson(Long id) {
     return ExperimentJsonEntityManager.getExperiment(id);
@@ -79,14 +83,16 @@ class DefaultExperimentService implements ExperimentService {
 
   protected List<ExperimentDAO> getExperimentsByIdInternal(List<Long> experimentIds, String email, DateTimeZone timezone) {
     List<String> experimentJsons = getExperimentsByIdAsJson(experimentIds, email, timezone);
+    log.info("Got back " + experimentJsons.size() +" jsons for " + experimentIds.size() + " ids ( " + Joiner.on(",").join(experimentIds) + ")");
     List<ExperimentDAO> experiments = Lists.newArrayList();
     for (String experimentJson : experimentJsons) {
       if (experimentJson != null) {
         final ExperimentDAO fromSingleEntityJson = JsonConverter.fromSingleEntityJson(experimentJson);
         if (fromSingleEntityJson != null) {
-          experiments .add(fromSingleEntityJson);
+          experiments.add(fromSingleEntityJson);
+          log.info("Retrieved experimentDAO from json for experiment: " + fromSingleEntityJson.getTitle());
         } else {
-          System.out.println("could not recreate experiment for experiment data: " + experimentJson);
+          log.severe("could not recreate experiment for experiment data: " + experimentJson);
         }
       }
     }
@@ -129,7 +135,13 @@ class DefaultExperimentService implements ExperimentService {
         if (Strings.isNullOrEmpty(experiment.getContactEmail())) {
           experiment.setContactEmail(experiment.getCreator());
         }
-
+        Integer version = experiment.getVersion();
+        if (version == null || version == 0) {
+          version = 1;
+        } else {
+          version++;
+        }
+        experiment.setVersion(version);
         Key experimentKey = ExperimentJsonEntityManager.saveExperiment(ds, tx, JsonConverter.jsonify(experiment),
                                                                        experiment.getId(),
                                                                        experiment.getTitle(),
@@ -253,10 +265,10 @@ class DefaultExperimentService implements ExperimentService {
 
   private List<ExperimentDAO> removeEnded(List<ExperimentDAO> experiments, DateTimeZone timeZoneForClient) {
     List<ExperimentDAO> keepers = Lists.newArrayList();
-    DateTime now = DateTime.now().withZone(timeZoneForClient);
+    DateMidnight now = DateTime.now().withZone(timeZoneForClient).toDateMidnight();
     for (ExperimentDAO experimentDAO : experiments) {
       final DateTime latestEndDate = getLatestEndDate(experimentDAO);
-      if (latestEndDate == null || latestEndDate.isAfter(now)) {
+      if (latestEndDate == null || !now.isAfter(latestEndDate)) {
         keepers.add(experimentDAO);
       }
     }
@@ -356,6 +368,7 @@ class DefaultExperimentService implements ExperimentService {
   public ExperimentQueryResult getUsersAdministeredExperiments(String email, DateTimeZone timezone, Integer limit,
                                                                String cursor) {
     List<Long> experimentIds = ExperimentAccessManager.getExistingExperimentsIdsForAdmin(email);
+    //log.info("Administered experiments for: " + email + ". Count: " + experimentIds.size() + ". ids = " + Joiner.on(",").join(experimentIds));
     List<ExperimentDAO> experiments = getExperimentsByIdInternal(experimentIds, email, timezone);
     return new ExperimentQueryResult(cursor, experiments); // TODO honor the limit and cursor
   }

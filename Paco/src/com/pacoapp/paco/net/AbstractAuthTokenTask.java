@@ -3,6 +3,7 @@ package com.pacoapp.paco.net;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.ConnectException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
@@ -89,7 +90,13 @@ public abstract class AbstractAuthTokenTask extends AsyncTask<Void, Void, Void> 
           userPrefs.setAccessToken(token);
           URL url = new URL("https://www.googleapis.com/oauth2/v1/userinfo?access_token=" + token);
           HttpURLConnection con = ServerAddressBuilder.getConnection(url);
-          int sc = con.getResponseCode();
+
+          int sc = 0;
+          try {
+            sc = con.getResponseCode();
+          } catch (ConnectException e) {
+            sc = 503;
+          }
 
           if (sc == 200) {
             InputStream is = con.getInputStream();

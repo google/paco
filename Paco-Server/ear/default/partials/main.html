@@ -1,5 +1,5 @@
 <md-toolbar class="md-tall">
-  <a href="#">
+  <a href="/?">
     <img src="img/paco256.png" class="paco">
   </a>
   <span class="title">Paco</span>
@@ -10,7 +10,6 @@
       Sign In
     </md-button>
   </a>
-
 
   <div class="logout"  ng-if="logoutURL && !loginURL">
     <span class="user" ng-bind="user"></span>
@@ -23,15 +22,18 @@
     </p>
   </div>
 
-  <a href="index.jsp" class="previous">Previous Version</a>
+  
 </md-toolbar>
 
 <div class="bg" class="ng-cloak">
   <div class="main">
-    <div ng-if="experimentId" ng-include="'partials/experiment.html'"></div>
-    <div ng-if="!experimentId && user && !csvExperimentId" ng-include="'partials/list.html'"></div>
+    <div ng-if="experimentId && !respondExperimentId && edit" ng-include="'partials/edit.html'"></div>
+    <div ng-if="experimentId && !respondExperimentId && !edit" ng-include="'partials/experiment.html'"></div>
+    <div ng-if="!experimentId && user && !csvExperimentId && !respondExperimentId" 
+      ng-include="'partials/list.html'"></div>
     <div ng-if="!user && !experimentId && loaded" ng-include="'partials/home.html'"></div>
     <div ng-if="csvExperimentId && user" ng-include="'partials/data.html'"></div>
+    <div ng-if="respondExperimentId && user" ng-include="'partials/respond.html'"></div>
   </div>
 </div>
 

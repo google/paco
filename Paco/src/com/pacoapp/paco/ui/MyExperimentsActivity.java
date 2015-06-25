@@ -44,6 +44,7 @@ import android.provider.Settings;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
+import android.support.v7.widget.PopupMenu;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -76,11 +77,15 @@ import com.pacoapp.paco.net.PacoBackgroundService;
 import com.pacoapp.paco.net.SyncService;
 import com.pacoapp.paco.os.RingtoneUtil;
 import com.pacoapp.paco.sensors.android.BroadcastTriggerReceiver;
+import com.pacoapp.paco.shared.model2.ActionTrigger;
 import com.pacoapp.paco.shared.model2.ExperimentGroup;
+import com.pacoapp.paco.shared.model2.Schedule;
+import com.pacoapp.paco.shared.model2.ScheduleTrigger;
 import com.pacoapp.paco.shared.util.ExperimentHelper;
 import com.pacoapp.paco.shared.util.TimeUtil;
 import com.pacoapp.paco.triggering.AndroidEsmSignalStore;
 import com.pacoapp.paco.triggering.BeeperService;
+import com.pacoapp.paco.triggering.ExperimentExpirationManagerService;
 import com.pacoapp.paco.triggering.NotificationCreator;
 
 /**
@@ -357,22 +362,22 @@ public class MyExperimentsActivity extends ActionBarActivity implements
   }
 
   // Visible for testing
-  public void deleteExperiment(long id) {
+  public void deleteExperiment(Experiment experiment2) {
     NotificationCreator nc = NotificationCreator.create(this);
-    nc.timeoutNotificationsForExperiment(id);
+    nc.timeoutNotificationsForExperiment(experiment2.getExperimentDAO().getId());
 
-    Experiment experiment = experimentProviderUtil.getExperimentByServerId(id);
-    createStopEvent(experiment);
+    createStopEvent(experiment2);
 
-    experimentProviderUtil.deleteExperiment(experiment.getId());
-    if (ExperimentHelper.shouldWatchProcesses(experiment.getExperimentDAO())) {
+    experimentProviderUtil.deleteExperiment(experiment2.getId());
+    if (ExperimentHelper.shouldWatchProcesses(experiment2.getExperimentDAO())) {
       BroadcastTriggerReceiver.initPollingAndLoggingPreference(this);
     }
 
-    new AndroidEsmSignalStore(this).deleteAllSignalsForSurvey(id);
+    new AndroidEsmSignalStore(this).deleteAllSignalsForSurvey(experiment2.getId());
 
     reloadAdapter();
-    startService(new Intent(MyExperimentsActivity.this, BeeperService.class));
+    startService(new Intent(this, BeeperService.class));
+    startService(new Intent(this, ExperimentExpirationManagerService.class));
   }
 
   /**
@@ -395,12 +400,6 @@ public class MyExperimentsActivity extends ActionBarActivity implements
 
     experimentProviderUtil.insertEvent(event);
     startService(new Intent(this, SyncService.class));
-  }
-
-  private void editExperiment(Experiment experiment, List<ExperimentGroup> groups) {
-    Intent experimentIntent = new Intent(MyExperimentsActivity.this, ScheduleListActivity.class);
-    experimentIntent.putExtra(Experiment.EXPERIMENT_SERVER_ID_EXTRA_KEY, experiment.getExperimentDAO().getId());
-    startActivity(experimentIntent);
   }
 
   @Override
@@ -534,22 +533,12 @@ public class MyExperimentsActivity extends ActionBarActivity implements
 
 
 
-//      ImageButton editButton = (ImageButton) view.findViewById(R.id.editExperimentButton);
-//      editButton.setOnClickListener(myButtonListener);
-//      editButton.setTag(experiment.getExperimentDAO().getId());
-//
-//      editButton.setEnabled(ExperimentHelper.hasUserEditableSchedule(experiment.getExperimentDAO()));
-//
-//      ImageButton quitButton = (ImageButton) view.findViewById(R.id.quitExperimentButton);
-//      quitButton.setOnClickListener(myButtonListener);
-//      quitButton.setTag(experiment.getExperimentDAO().getId());
-//
-//      ImageButton exploreButton = (ImageButton) view.findViewById(R.id.exploreDataExperimentButton);
-//      exploreButton.setOnClickListener(myButtonListener);
-//      exploreButton.setTag(experiment.getExperimentDAO().getId());
-      // show icon
-      // ImageView iv = (ImageView) view.findViewById(R.id.explore_data_icon);
-      // iv.setImageResource();
+      ImageButton menuButton = (ImageButton) view.findViewById(R.id.menuButton);
+      menuButton.setOnClickListener(myButtonListener);
+      menuButton.setTag(experiment.getExperimentDAO().getId());
+
+      menuButton.setEnabled(true);
+      menuButton.setOnClickListener(myButtonListener);
       return view;
     }
 
@@ -576,32 +565,9 @@ public class MyExperimentsActivity extends ActionBarActivity implements
           final Experiment experiment = experiments.get(position);
           final List<ExperimentGroup> groups = experiment.getExperimentDAO().getGroups();
 
-          /*if (v.getId() == R.id.editExperimentButton) {
-            editExperiment(experiment, groups);
-          } else if (v.getId() == R.id.exploreDataExperimentButton) {
-            showDataForExperiment(experiment, groups);
-          } else if (v.getId() == R.id.quitExperimentButton) {
-            new AlertDialog.Builder(MyExperimentsActivity.this).setCancelable(true)
-                                                               .setTitle(R.string.stop_the_experiment_dialog_title)
-                                                               .setMessage(R.string.stop_experiment_dialog_body)
-                                                               .setPositiveButton(R.string.yes,
-                                                                                  new Dialog.OnClickListener() {
-                                                                                    @Override
-                                                                                    public void onClick(DialogInterface dialog,
-                                                                                                        int which) {
-                                                                                      deleteExperiment(experimentServerId);
-                                                                                    }
-                                                                                  })
-                                                               .setNegativeButton(R.string.no,
-                                                                                  new Dialog.OnClickListener() {
-                                                                                    @Override
-                                                                                    public void onClick(DialogInterface dialog,
-                                                                                                        int which) {
-                                                                                      dialog.dismiss();
-                                                                                    }
-                                                                                  }).create().show();
-
-          } else if (v.getId() == R.id.experimentListRowTitle) { */
+          if (v.getId() == R.id.menuButton) {
+            showPopup(experiment, v);
+          } else {
             Intent experimentIntent = null;
             if (groups.size() > 1) {
               experimentIntent = new Intent(MyExperimentsActivity.this, ExperimentGroupPicker.class);
@@ -621,10 +587,86 @@ public class MyExperimentsActivity extends ActionBarActivity implements
             }
             experimentIntent.putExtra(Experiment.EXPERIMENT_SERVER_ID_EXTRA_KEY, experimentServerId);
             startActivity(experimentIntent);
-          /*}*/
+          }
         }
       }
     };
+
+    protected void showPopup(final Experiment experiment, View v) {
+      PopupMenu popup = new PopupMenu(MyExperimentsActivity.this, v);
+      final Menu menu = popup.getMenu();
+      popup.getMenuInflater().inflate(R.menu.experiment_popup,
+              menu);
+
+      if (!userCanEditAtLeastOneSchedule(experiment)) {
+        menu.removeItem(R.id.editSchedule);
+      }
+      popup.show();
+      popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+          @Override
+          public boolean onMenuItemClick(MenuItem item) {
+
+              switch (item.getItemId()) {
+              case R.id.editSchedule:
+                  launchScheduleDetailScreen(experiment);
+                  break;
+              case R.id.emailResearcher:
+                  emailResearcher(experiment);
+                  break;
+              case R.id.stopExperiment:
+                deleteExperiment(experiment);
+                break;
+              default:
+                  break;
+              }
+
+              return true;
+          }
+
+
+      });
+
+    }
+
+
+  }
+
+
+  private boolean userCanEditAtLeastOneSchedule(Experiment experiment) {
+      List<ExperimentGroup> groups = experiment.getExperimentDAO().getGroups();
+      for (ExperimentGroup experimentGroup : groups) {
+        List<ActionTrigger> actionTriggers = experimentGroup.getActionTriggers();
+        for (ActionTrigger actionTrigger : actionTriggers) {
+          if (actionTrigger instanceof ScheduleTrigger) {
+            ScheduleTrigger scheduleTrigger = (ScheduleTrigger)actionTrigger;
+            List<Schedule> schedules = scheduleTrigger.getSchedules();
+            for (Schedule schedule : schedules) {
+              if (schedule.getUserEditable()) {
+                boolean userCanOnlyEditOnJoin = schedule.getOnlyEditableOnJoin();
+                if (!userCanOnlyEditOnJoin) {
+                  return true;
+                }
+              }
+            }
+          }
+
+        }
+      }
+      return false;
+    }
+  protected void emailResearcher(Experiment experiment) {
+    String contactEmail = experiment.getExperimentDAO().getContactEmail();
+    if (Strings.isNullOrEmpty(contactEmail)) {
+      contactEmail = experiment.getExperimentDAO().getCreator();
+    }
+
+    launchEmailTo(contactEmail);
+  }
+
+  private void launchScheduleDetailScreen(Experiment experiment) {
+    Intent debugIntent = new Intent(this, ScheduleListActivity.class);
+    debugIntent.putExtra(Experiment.EXPERIMENT_SERVER_ID_EXTRA_KEY, experiment.getExperimentDAO().getId());
+    startActivity(debugIntent);
   }
 
   @SuppressLint("NewApi")
@@ -743,8 +785,12 @@ public class MyExperimentsActivity extends ActionBarActivity implements
 
 
   private void launchEmailPacoTeam() {
+    launchEmailTo(getString(R.string.contact_email));
+  }
+
+  public void launchEmailTo(final String emailAddress) {
     Intent emailIntent = new Intent(android.content.Intent.ACTION_SEND);
-    String aEmailList[] = { getString(R.string.contact_email) };
+    String aEmailList[] = { emailAddress };
     emailIntent.putExtra(android.content.Intent.EXTRA_EMAIL, aEmailList);
     emailIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, "Paco Feedback");
     emailIntent.setType("plain/text");

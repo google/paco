@@ -2,6 +2,7 @@ package com.google.sampling.experiential.server;
 
 import java.util.Date;
 import java.util.List;
+import java.util.logging.Logger;
 
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
@@ -25,6 +26,7 @@ import com.pacoapp.paco.shared.model2.ExperimentDAO;
 
 public class ExperimentAccessManager {
 
+  private static Logger log = Logger.getLogger(ExperimentAccessManager.class.getName());
   private static final String EXPERIMENT_ID = "experimentId";
   private static final String ADMIN_USER_KIND = "admin_user";
   private static final String ADMIN_ID = "admin_id";
@@ -386,25 +388,38 @@ public class ExperimentAccessManager {
    * @param loggedInUserEmail
    * @param idDatePairs
    */
-  public static void addJoinedExperimentsFor(String loggedInUserEmail, List<Pair<Long, Date>> idDatePairs) {
+  public static void addJoinedExperimentsFor(String loggedInUserEmail, List<Pair<Long, Date>> idDatePairsFull) {
+
+    int startPosition = 0;
+    int totalCount = idDatePairsFull.size();
+    log.info("AddJoinedExperimentsFor user: " + loggedInUserEmail + ". Count: " + idDatePairsFull.size());
+    final int batchsize = 5;
     DatastoreService ds = DatastoreServiceFactory.getDatastoreService();
-    Transaction tx = null;
-    try {
-      TransactionOptions options = TransactionOptions.Builder.withXG(true);
-      tx = ds.beginTransaction(options);
-      List<Entity> newJoinedAcls = Lists.newArrayList();
-      for (Pair<Long, Date> pair : idDatePairs) {
-        Entity userAccess = createUserJoinedAclEntity(pair.first, loggedInUserEmail, pair.second);
-        newJoinedAcls.add(userAccess);
+    while (startPosition < totalCount) {
+      int fullrangeLeft = totalCount - startPosition;
+      int nextBucketSize = Math.min(batchsize, fullrangeLeft);
+
+      List<Pair<Long, Date>> subList = idDatePairsFull.subList(startPosition, startPosition + nextBucketSize);
+
+      Transaction tx = null;
+      try {
+        TransactionOptions options = TransactionOptions.Builder.withXG(true);
+        tx = ds.beginTransaction(options);
+        List<Entity> newJoinedAcls = Lists.newArrayList();
+        for (Pair<Long, Date> pair : subList) {
+          Entity userAccess = createUserJoinedAclEntity(pair.first, loggedInUserEmail, pair.second);
+          newJoinedAcls.add(userAccess);
+        }
+        if (!newJoinedAcls.isEmpty()) {
+          ds.put(tx, newJoinedAcls);
+          tx.commit();
+        }
+      } finally {
+        if (tx != null && tx.isActive()) {
+          tx.rollback();
+        }
       }
-      if (!newJoinedAcls.isEmpty()) {
-        ds.put(tx, newJoinedAcls);
-        tx.commit();
-      }
-    } finally {
-      if (tx != null && tx.isActive()) {
-        tx.rollback();
-      }
+      startPosition = startPosition + nextBucketSize;
     }
   }
 

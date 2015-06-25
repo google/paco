@@ -1,8 +1,10 @@
 <div class="list">
   <p>
-    <md-button class="md-raised" ng-click="addExperiment()">
-      Create New Experiment
-    </md-button>
+    <a href="#/edit/new">
+        <md-button class="md-raised">
+          Create New Experiment
+        </md-button>
+      </a>
   </p>
   <md-progress-circular md-mode="indeterminate" ng-if="!experiments && user">
   </md-progress-circular>
@@ -14,18 +16,24 @@
         <md-card-content class="padded">
           <a href="#/experiment/{{exp.id}}">{{exp.title}}
         </a>
-          <div ng-if="exp.organization">
-            by {{exp.organization}}
-          </div>
+          <span ng-if="exp.organization" class="organization">
+            administered by {{exp.organization}}
+          </span>
 
           <span class="admin">Admin</span>
 
         </md-card-content>
 
         <div class="md-actions">
-          <a href="#/experiment/{{exp.id}}">
+          <a href="#/edit/{{exp.id}}">
             <md-button>
               Edit
+            </md-button>
+          </a>
+
+          <a href="#/copy/{{exp.id}}">
+            <md-button>
+              Copy
             </md-button>
           </a>
 
@@ -37,7 +45,7 @@
 
           <a href="#/data/{{exp.id}}">
             <md-button>
-              Data
+              View Data
             </md-button>
           </a>
 
@@ -46,25 +54,38 @@
               Anon Data
             </md-button>
           </a>
+          
+          <a href="#" ng-controller="JoinCtrl" ng-model="exp" ng-click="joinExperiment()">
+            <md-button>
+              Join
+            </md-button>
+          </a>
 
         </div>
-
       </md-card>
     </div>
   </div>
 
   <div ng-if="joined" class="group">
     Joined Experiments
-    <div ng-repeat="exp in joined">
+    <div ng-repeat="exp in joined | orderBy:'title'">
       <md-card>
         <md-card-content class="padded">
           <a href="#/experiment/{{exp.id}}">{{exp.title}}</a>
-          <div ng-if="exp.organization">
-            by {{exp.organization}}
-          </div>
+          <span ng-if="exp.organization" class="organization">
+            administered by {{exp.organization}}
+          </span>
           <span class="participant">Participant</span>
-          <div class="buttons">
-            <a href="events?q=%27experimentId={{exp.id}}%27" target="_new">
+        </md-card-content>
+
+        <div class="md-actions">
+            <a href="#/respond/{{exp.id}}">
+              <md-button>
+                Respond
+              </md-button>
+            </a>
+
+            <a href="#/data/{{exp.id}}#mine">
               <md-button>
                 View Data
               </md-button>
@@ -75,16 +96,39 @@
                 Stats
               </md-button>
             </a>
-
-            <a href="events?csv&q=%27experimentId={{exp.id}}%27" target="_new">
+<!-- 
+            <a href="#"  ng-controller="EodCtrl" ng-model="exp" ng-click="showEod()"
+              ng-if="eodExperiments[exp.id]">
               <md-button>
-                CSV
+                EOD
               </md-button>
-            </a>
+            </a> -->
           </div>
-        </md-card-content>
       </md-card>
     </div>
   </div>
+
+  <div ng-if="joinable" class="group">
+    Joinable Experiments
+    <div ng-repeat="exp in joinable" ng-if="joinedIndex.indexOf(exp.id) === -1">
+      <md-card>
+        <md-card-content class="padded">
+          <a href="#/experiment/{{exp.id}}">{{exp.title}}</a>
+          <span ng-if="exp.organization" class="organization">
+            administered by {{exp.organization}}
+          </span>
+
+          <a href="#" ng-controller="JoinCtrl" ng-model="exp" 
+            ng-click="joinExperiment()" class="join">
+            <md-button>
+              Join
+            </md-button>
+          </a>
+        </md-card-content>
+
+      </md-card>
+    </div>
+  </div>
+
 
 </div>

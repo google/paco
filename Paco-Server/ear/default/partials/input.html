@@ -4,8 +4,14 @@
     <span ng-bind="input.name" ng-if="input.name"></span>
     <span ng-if="!input.name">Input {{$index + 1}}</span>
 
-    <a class="remove-button" href="" ng-click="remove(group.inputs, $index)"></a>
-    <a class="add-button" href="" ng-click="group.inputs.push({})"></a>
+    <a class="remove button" href="" ng-click="remove(group.inputs, $index)"></a>
+    <a class="add button" href="" ng-click="addInput($event, null, $index + 1)"></a>
+    <a class="up button" href="" ng-click="swapInputs($event, $index - 1, $index)"
+      ng-if="$index > 0"></a>
+    <a class="down button" href="" ng-click="swapInputs($event, $index + 1, $index)" 
+      ng-if="$index < group.inputs.length - 1"></a>
+
+
   </div>
 
   <div class="padded">
@@ -16,8 +22,8 @@
         value="{{type}}">{{type}}</option>
       </select>
 
-      <md-checkbox ng-model="input.mandatory" aria-label="Mandatory">
-        Mandatory
+      <md-checkbox ng-model="input.required" aria-label="Required">
+        Required
       </md-checkbox>
 
       <md-checkbox ng-model="input.conditional" aria-label="Conditional">
@@ -74,7 +80,7 @@
             <label>Choice {{$index + 1}}</label>
             <input ng-model="input.listChoices[$index]">
           </md-input-container>
-          <a href="" class="remove-button" ng-click="remove(input.listChoices, $index)"></a>
+          <a href="" class="remove button" ng-click="remove(input.listChoices, $index)"></a>
         </div>
 
         <md-button add-icon ng-click="addChoice()">Choice</md-button>

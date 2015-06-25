@@ -38,6 +38,7 @@ public class ExperimentGroup implements Validatable, java.io.Serializable {
     super();
     this.actionTriggers = new ArrayList<ActionTrigger>();
     this.inputs = new ArrayList<Input2>();
+    this.feedbackType = Feedback.FEEDBACK_TYPE_STATIC_MESSAGE;
   }
 
   public ExperimentGroup(String string) {

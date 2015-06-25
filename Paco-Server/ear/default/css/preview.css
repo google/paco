@@ -1,0 +1,55 @@
+.preview .input {
+  margin-bottom: 32px;
+}
+
+.preview .likert span {
+  line-height: 36px;
+  margin-right: 16px;
+}
+
+.preview .likert md-radio-button {
+  margin: 5px;
+}
+
+.preview .group-select {
+  padding-left: 16px;
+  padding-top: 16px;
+}
+
+.preview md-card-content.readonly {
+  background: #efefef;
+}
+
+.preview textarea {
+  width: 100%;
+  height: 200px;
+}
+
+.event .header div {
+  padding-left: 16px;
+}
+
+.event .header .day {
+  background: #5c6bc0;
+  color: white;
+  font-weight: 500;
+  padding-top: 8px;
+}
+
+.event .header .date {
+  background: #5c6bc0;
+  color: #aaa;
+  padding-bottom: 8px;
+}
+
+.event .header .ping {
+  color: #5c6bc0;
+}
+
+.event .header .time {
+  color: #666;
+}
+
+.event {
+  margin: 0;
+}

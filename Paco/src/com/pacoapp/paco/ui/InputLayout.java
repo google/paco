@@ -73,7 +73,7 @@ import com.pacoapp.paco.ui.autocomplete.AutocompleteUsageFilteringArrayAdapter;
 import com.pacoapp.paco.ui.autocomplete.PersistentAutocompleteDictionary;
 
 public class InputLayout extends LinearLayout implements SpeechRecognitionListener {
-  public static final int CAMERA_REQUEST_CODE = 10000001;
+  public static final int CAMERA_REQUEST_CODE = 10001;
   // TODO Bob  refactor into separate classes because not every input can receive text from speech recognition
 
   private Input2 input;
@@ -450,6 +450,7 @@ public class InputLayout extends LinearLayout implements SpeechRecognitionListen
   private View renderPhotoButton(Input2 input2) {
     View photoInputView = ((LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(
         R.layout.photo_input, this, true);
+    photoInputView.setPadding(0, 2, 0, 8);
     Button cameraButton = (Button) findViewById(R.id.CameraButton);
     photoView = (ImageView) findViewById(R.id.CameraPreviewImage);
     if (file != null) {
@@ -575,6 +576,7 @@ public class InputLayout extends LinearLayout implements SpeechRecognitionListen
   private View renderNumber(Input2 input2) {
     View numberPickerView = ((LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(
         R.layout.number_picker, this, true);
+    numberPickerView.setPadding(0, 2, 0, 8);
     final EditText numberText = (EditText) findViewById(R.id.timepicker_input);
     final Button inc = (Button) findViewById(R.id.increment);
     final Button dec = (Button) findViewById(R.id.decrement);
@@ -616,6 +618,7 @@ public class InputLayout extends LinearLayout implements SpeechRecognitionListen
   private View renderLocation(Input2 input2) {
     View locationTextView = ((LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(
         R.layout.location_text, this, true);
+    locationTextView.setPadding(0, 2, 0, 16);
     final TextView findViewById = (TextView) findViewById(R.id.location_display);
     Button gpsSettings = (Button) findViewById(R.id.settings_button);
     gpsSettings.setOnClickListener(new OnClickListener() {
@@ -645,6 +648,7 @@ public class InputLayout extends LinearLayout implements SpeechRecognitionListen
   private View renderMultiSelectListButton() {
     View listView = ((LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(
         R.layout.multiselect_list_button, this, true);
+    listView.setPadding(0, 2, 0, 16);
     final Button multiSelectListButton = (Button) findViewById(R.id.multiselect_list_button);
 
     DialogInterface.OnMultiChoiceClickListener multiselectListDialogListener = new DialogInterface.OnMultiChoiceClickListener() {
@@ -728,15 +732,20 @@ public class InputLayout extends LinearLayout implements SpeechRecognitionListen
   private View renderSingleSelectList() {
     View listView = ((LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(
         R.layout.list_choices, this, true);
+    listView.setPadding(0, 2, 0, 8);
     final Spinner findViewById = (Spinner) findViewById(R.id.list);
     // Formerly android.R.layout.simple_spinner_item
     final List<String> listChoicesList = input.getListChoices();
 
-    ArrayAdapter<String> choices = new ArrayAdapter<String>(getContext(), R.layout.multiline_spinner_item,
-        listChoicesList);
+    ArrayAdapter<String> choices = new ArrayAdapter<String>(getContext(),
+            //android.R.layout.simple_spinner_dropdown_item,
+            R.layout.multiline_spinner_item,
+            listChoicesList);
     String defaultListItem = getResources().getString(R.string.default_list_item);
     choices.insert(defaultListItem, 0);       // "No selection" list item.
+
     findViewById.setAdapter(choices);
+
     findViewById.setOnItemSelectedListener(new OnItemSelectedListener() {
 
       public void onItemSelected(AdapterView<?> arg0, View v, int index, long id) {
@@ -765,6 +774,7 @@ public class InputLayout extends LinearLayout implements SpeechRecognitionListen
     int radioGroupLayoutId = getRadioGroupLayoutId(steps);
     View likertView = ((LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(
         radioGroupLayoutId, this, true);
+    likertView.setPadding(0, 2, 0, 16);
     String leftSideLabel = input2.getLeftSideLabel();
     if (leftSideLabel != null) {
       TextView leftSideView = (TextView) findViewById(R.id.LeftText);
@@ -836,6 +846,7 @@ public class InputLayout extends LinearLayout implements SpeechRecognitionListen
         R.layout.open_text, this, true);
     openTextView = (AutoCompleteTextView) findViewById(R.id.open_text_answer);
     openTextView.setThreshold(1);
+    openTextView.setPadding(0, 2, 0, 16);
     // Theoretically this should allow autocorrect.  However, apparently this change is not reflected on the
     // emulator, so we need to test it on the device.
     openTextView.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_AUTO_CORRECT | InputType.TYPE_TEXT_FLAG_AUTO_COMPLETE);
@@ -875,7 +886,11 @@ public class InputLayout extends LinearLayout implements SpeechRecognitionListen
 
   private TextView getInputTextView() {
     TextView inputTextView = new TextView(getContext());
+    inputTextView.setPadding(0, 8, 0, 4);
     String text = input.getText();
+    if (input.getResponseType().equals(Input2.LOCATION) && Strings.isNullOrEmpty(text)) {
+      text = getContext().getString(R.string.location_to_be_recorded_default_prompt);
+    }
     inputTextView.setText(text);
     inputTextView.setTextSize(18);
     if (!Strings.isNullOrEmpty(text)) {
@@ -948,6 +963,7 @@ public class InputLayout extends LinearLayout implements SpeechRecognitionListen
       throw new RuntimeException("Currently we are only doing the GeistNow 5 step likert scale.");
     }
     View likertView = ((LayoutInflater)getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(R.layout.likert_smiley, this, true);
+    likertView.setPadding(0, 2, 0, 16);
     RadioGroup findViewById = (RadioGroup) findViewById(R.id.GeistNowRadioGroup);
     findViewById.setOnCheckedChangeListener(new OnCheckedChangeListener() {
 

@@ -104,7 +104,12 @@ public class ExperimentJsonUploadProcessor {
       outcome.setError("Existing experiment for this event: " + objectId + ". Not allowed to modify.");
       return outcome;
     }
-
+    // TODO move this check into the tx in the experimentService to make it atomic
+    if (existingExperiment != null && existingExperiment.getVersion() > experimentDAO.getVersion()) {
+      outcome.setExperimentId(id);
+      outcome.setError("Newer version of the experiment for this event: " + objectId + ". Refresh and try editing again.");
+      return outcome;
+    }
     List<ValidationMessage> saveExperimentErrorResults = experimentService.saveExperiment(experimentDAO,
                                                                                           userFromLogin.getEmail().toLowerCase(),
                                                                                           timezone);

@@ -22,8 +22,8 @@ public class PacoExperimentActionBroadcaster {
   }
 
   public static void sendPacoExperimentBroadcast(Context context, Experiment experiment,
-                                                 final String pacoExperimentJoinedAction) {
-    Intent intent = new Intent(pacoExperimentJoinedAction);
+                                                 final String pacoExperimentAction) {
+    Intent intent = new Intent(pacoExperimentAction);
     intent.putExtra(BroadcastTriggerReceiver.EXPERIMENT_SERVER_ID_EXTRA_KEY, experiment.getExperimentDAO().getId());
     context.sendBroadcast(intent);
   }
