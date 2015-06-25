@@ -1,8 +1,10 @@
 <div class="list">
   <p>
-    <md-button class="md-raised" ng-click="addExperiment()">
-      Create New Experiment
-    </md-button>
+    <a href="#/edit/new">
+        <md-button class="md-raised">
+          Create New Experiment
+        </md-button>
+      </a>
   </p>
   <md-progress-circular md-mode="indeterminate" ng-if="!experiments && user">
   </md-progress-circular>
@@ -23,9 +25,15 @@
         </md-card-content>
 
         <div class="md-actions">
-          <a href="#/experiment/{{exp.id}}">
+          <a href="#/edit/{{exp.id}}">
             <md-button>
               Edit
+            </md-button>
+          </a>
+
+          <a href="#/copy/{{exp.id}}">
+            <md-button>
+              Copy
             </md-button>
           </a>
 
@@ -52,12 +60,6 @@
               Join
             </md-button>
           </a>
-
-<!--           <a href="#"  ng-controller="EodCtrl" ng-model="exp" ng-click="showEod()">
-            <md-button>
-              EOD
-            </md-button>
-          </a> -->
 
         </div>
       </md-card>

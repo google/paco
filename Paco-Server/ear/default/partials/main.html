@@ -27,7 +27,8 @@
 
 <div class="bg" class="ng-cloak">
   <div class="main">
-    <div ng-if="experimentId && !respondExperimentId" ng-include="'partials/experiment.html'"></div>
+    <div ng-if="experimentId && !respondExperimentId && edit" ng-include="'partials/edit.html'"></div>
+    <div ng-if="experimentId && !respondExperimentId && !edit" ng-include="'partials/experiment.html'"></div>
     <div ng-if="!experimentId && user && !csvExperimentId && !respondExperimentId" 
       ng-include="'partials/list.html'"></div>
     <div ng-if="!user && !experimentId && loaded" ng-include="'partials/home.html'"></div>

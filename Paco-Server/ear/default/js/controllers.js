@@ -6,6 +6,7 @@ pacoApp.controller('HomeCtrl', ['$scope', '$http', '$routeParams', '$location',
     $scope.tabIndex = -1;
     $scope.loaded = false;
     $scope.cache = $cacheFactory.get('$http');
+    $scope.edit = false;
 
     $scope.loadJoined = function(reload) {
       var cache = true;
@@ -54,10 +55,6 @@ pacoApp.controller('HomeCtrl', ['$scope', '$http', '$routeParams', '$location',
       });
     };
 
-    $scope.addExperiment = function() {
-      $location.path('/experiment/new');
-    };
-
     $scope.forceHttps = function() {
       var devMode = ($location.host() === 'localhost' || 
                       $location.host() === '127.0.0.1');
@@ -75,8 +72,8 @@ pacoApp.controller('HomeCtrl', ['$scope', '$http', '$routeParams', '$location',
 
       $scope.loaded = true;
 
-      // Make sure email isn't yourGoogleEmail@here.com for local dev testing
-      if (data.user && data.user !== 'yourGoogleEmail@here.com') {
+      // Make sure email isn't the dev email address
+      if (data.user && data.user !== 'bobevans999@gmail.com') {
         $scope.user = data.user;
         $scope.loadJoined();
         $scope.loadAdmin();
@@ -92,12 +89,23 @@ pacoApp.controller('HomeCtrl', ['$scope', '$http', '$routeParams', '$location',
 
 
     if (angular.isDefined($routeParams.experimentId)) {
-      if ($routeParams.experimentId === 'new') {
+      $scope.experimentId = parseInt($routeParams.experimentId, 10);
+    }
+
+    if (angular.isDefined($routeParams.editId)) {
+      if ($routeParams.editId === 'new') {
         $scope.newExperiment = true;
         $scope.experimentId = -1;
       } else {
-        $scope.experimentId = parseInt($routeParams.experimentId, 10);
+        $scope.experimentId = parseInt($routeParams.editId, 10);
       }
+      $scope.edit = true;
+    }
+
+    if (angular.isDefined($routeParams.copyId)) {
+      $scope.newExperiment = true;
+      $scope.edit = true;
+      $scope.experimentId = parseInt($routeParams.copyId);
     }
 
     if (angular.isDefined($routeParams.csvExperimentId)) {
@@ -138,7 +146,7 @@ pacoApp.controller('ExperimentCtrl', ['$scope', '$http',
       if ($scope.user) {
         $scope.experiment.creator = $scope.user;
         $scope.experiment.contactEmail = $scope.user;
-        $scope.experiment.admins.push($scope.user);
+        $scope.experiment.admins = [$scope.user];
       }
     } else if ($scope.experimentId) {
       $http.get('/experiments?id=' + $scope.experimentId, {
@@ -148,11 +156,23 @@ pacoApp.controller('ExperimentCtrl', ['$scope', '$http',
           $scope.experiment = data[0];
           $scope.experiment0 = angular.copy(data[0]);
           $scope.prepareAce();
+
+          if ($scope.newExperiment) {
+            $scope.experiment.title = 'Copy of ' + $scope.experiment.title;
+            $scope.experiment.id = null;
+            $scope.experiment.version = 1;
+
+            if ($scope.user) {
+              $scope.experiment.creator = $scope.user;
+              $scope.experiment.contactEmail = $scope.user;
+              $scope.experiment.admins = [$scope.user];
+            }
+          }
         });
     }
 
     $scope.$watch('user', function(newValue, oldValue) {
-      if ($scope.newExperiment) {
+      if (newValue && $scope.newExperiment && $scope.experiment) {
         $scope.experiment.creator = $scope.user;
         $scope.experiment.contactEmail = $scope.user;
         $scope.experiment.admins = [$scope.user];
@@ -173,6 +193,19 @@ pacoApp.controller('ExperimentCtrl', ['$scope', '$http',
       return lines.length;
     }
 
+    $scope.$watch('experiment.groups', function(newValue, oldValue) {
+      if (newValue) {
+        var groups = [];
+        for (var groupId in $scope.experiment.groups) {
+          var group = $scope.experiment.groups[groupId];
+          if (group.customRendering != true && group.inputs.length > 0) {
+            groups.push(group);
+          } 
+        }
+        $scope.respondableGroups = groups;
+      }
+    });
+
     // Ace is loaded when the Source tab is selected so get pretty JSON here
     $scope.prepareAce = function(editor) {
       if (editor) {
@@ -186,6 +219,9 @@ pacoApp.controller('ExperimentCtrl', ['$scope', '$http',
     };
 
     $scope.$watch('ace.JSON', function(newValue, oldValue) {
+      if (!oldValue) {
+        return;
+      }
       try {
         var exp = JSON.parse(newValue);
       } catch (e) {
@@ -204,9 +240,10 @@ pacoApp.controller('ExperimentCtrl', ['$scope', '$http',
     };
 
     $scope.saveExperiment = function() {
-      $http.post('/experiments', $scope.experiment).success(function(data) {
-        if (data.length > 0) {
 
+      $http.post('/experiments', $scope.experiment).success(function(data) {
+
+        if (data.length > 0) {
           if (data[0].status === true) {
             $mdDialog.show(
               $mdDialog.alert()
@@ -215,12 +252,14 @@ pacoApp.controller('ExperimentCtrl', ['$scope', '$http',
               .ariaLabel('Success')
               .ok('OK')
             ).then(function() {
+              $scope.experiment.version++;
               $scope.experiment0 = angular.copy($scope.experiment);
-              
+
               $scope.cache.remove('/experiments?admin');  
+              $scope.cache.remove('/experiments?id=' + $scope.experiment.id);
 
               if ($scope.newExperiment) {
-                $location.path('/experiment/' + data[0].experimentId);
+                $location.path('/edit/' + data[0].experimentId);
               }
             });
           } else {
@@ -387,10 +426,25 @@ pacoApp.controller('GroupsCtrl', ['$scope', 'template',
       return s;
     };
 
-    $scope.addInput = function(event, expandFn) {
-      $scope.group.inputs.push(angular.copy(template.input));
-      expandFn(true);
+    $scope.addInput = function(event, expandFn, index) {
+      var input = angular.copy(template.input);
+
+      if (index !== undefined) {
+        $scope.group.inputs.splice(index, 0, input);
+      } else {
+        $scope.group.inputs.push(input);        
+      }
+      if (expandFn) {
+        expandFn(true);
+      }
+
       event.stopPropagation();
+    };
+
+     $scope.swapInputs = function(event, index1, index2) {
+      var temp = $scope.group.inputs[index2];
+      $scope.group.inputs[index2] = $scope.group.inputs[index1];
+      $scope.group.inputs[index1] = temp;
     };
 
     $scope.toggleGroup = function($event) {
@@ -532,9 +586,6 @@ pacoApp.controller('ActionCtrl', ['$scope', '$mdDialog', 'config', 'template',
 
 pacoApp.controller('CueCtrl', ['$scope', '$mdDialog', 'config', 'cue',
   function($scope, $mdDialog, config, cue) {
-
-    console.log(cue);
-
     $scope.cue = cue;
     $scope.cueTypes = config.cueTypes;
     $scope.hide = $mdDialog.hide;
@@ -548,6 +599,8 @@ pacoApp.controller('ErrorCtrl', ['$scope', '$mdDialog', 'config',
 
     $scope.errorMessage = errorMessage;
     $scope.hide = $mdDialog.hide;
+
+    console.log(errorMessage);
 
     // TODO(ispiro): correctly handle Exception errors
     if (errorMessage.indexOf('Exception') === 0) {

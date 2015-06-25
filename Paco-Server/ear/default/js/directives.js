@@ -42,7 +42,7 @@ pacoApp.directive('pacoGroup', function () {
       post.experimentId = $scope.$parent.experiment.id;
       post.experimentVersion = $scope.experiment.version;
       post.pacoVersion = 4;
-      post.appId = 'webForm';
+      post.appId = 'webform';
       post.responses = [];
       post.responseTime = $filter('date')(new Date(), 'yyyy/MM/dd HH:mm:ssZ');
 
@@ -70,9 +70,6 @@ pacoApp.directive('pacoGroup', function () {
         post.responses.push(eodPair);
         post.responses.push(referPair);
       }
-
-      console.log(post);
-
 
     $http.post('/events', post).success(function(data) {
 
@@ -165,9 +162,6 @@ pacoApp.directive('pacoGroup', function () {
     templateUrl: 'partials/group.html'
   };
 });
-
-
-
 
 
 

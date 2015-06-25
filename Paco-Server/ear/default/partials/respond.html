@@ -6,14 +6,16 @@
     Respond    
 
   </div>
-   <div ng-if="experiment.groups.length > 1" class="group-select">
+   <div ng-if="respondableGroups.length > 1" class="group-select">
     <label>Select Group:</label>
     <md-select ng-model="state.groupIndex">
-      <md-option ng-repeat="grp in experiment.groups" value="{{$index}}" placeholder="group">
+      <md-option ng-repeat="grp in respondableGroups" value="{{$index}}" placeholder="group">
         {{grp.name}}
       </md-option>
     </md-select>
   </div>
+
+  {{experiment.groups[state.groupIndex]}}
 
   <div ng-if="experiment.groups[state.groupIndex].endOfDayGroup" ng-controller="EodCtrl">    
     <div ng-if="activeEvents[activeIdx]" class="event">
