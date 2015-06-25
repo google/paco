@@ -238,12 +238,13 @@ pacoApp.controller('ExperimentCtrl', ['$scope', '$http',
               .ariaLabel('Success')
               .ok('OK')
             ).then(function() {
+              $scope.experiment.version++;
               $scope.experiment0 = angular.copy($scope.experiment);
-              
+
               $scope.cache.remove('/experiments?admin');  
 
               if ($scope.newExperiment) {
-                $location.path('/experiment/' + data[0].experimentId);
+                $location.path('/edit/' + data[0].experimentId);
               }
             });
           } else {
@@ -570,9 +571,6 @@ pacoApp.controller('ActionCtrl', ['$scope', '$mdDialog', 'config', 'template',
 
 pacoApp.controller('CueCtrl', ['$scope', '$mdDialog', 'config', 'cue',
   function($scope, $mdDialog, config, cue) {
-
-    console.log(cue);
-
     $scope.cue = cue;
     $scope.cueTypes = config.cueTypes;
     $scope.hide = $mdDialog.hide;
@@ -586,6 +584,8 @@ pacoApp.controller('ErrorCtrl', ['$scope', '$mdDialog', 'config',
 
     $scope.errorMessage = errorMessage;
     $scope.hide = $mdDialog.hide;
+
+    console.log(errorMessage);
 
     // TODO(ispiro): correctly handle Exception errors
     if (errorMessage.indexOf('Exception') === 0) {
