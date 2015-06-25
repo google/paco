@@ -104,6 +104,7 @@ pacoApp.controller('HomeCtrl', ['$scope', '$http', '$routeParams', '$location',
 
     if (angular.isDefined($routeParams.copyId)) {
       $scope.newExperiment = true;
+      $scope.edit = true;
       $scope.experimentId = parseInt($routeParams.copyId);
     }
 
@@ -156,22 +157,22 @@ pacoApp.controller('ExperimentCtrl', ['$scope', '$http',
           $scope.experiment0 = angular.copy(data[0]);
           $scope.prepareAce();
 
-           if ($scope.newExperiment) {
+          if ($scope.newExperiment) {
             $scope.experiment.title = 'Copy of ' + $scope.experiment.title;
             $scope.experiment.id = null;
             $scope.experiment.version = 1;
-           }
 
-          if ($scope.user) {
-            $scope.experiment.creator = $scope.user;
-            $scope.experiment.contactEmail = $scope.user;
-            $scope.experiment.admins.push($scope.user);
+            if ($scope.user) {
+              $scope.experiment.creator = $scope.user;
+              $scope.experiment.contactEmail = $scope.user;
+              $scope.experiment.admins = [$scope.user];
+            }
           }
         });
     }
 
     $scope.$watch('user', function(newValue, oldValue) {
-      if ($scope.newExperiment && $scope.experiment) {
+      if (newValue && $scope.newExperiment && $scope.experiment) {
         $scope.experiment.creator = $scope.user;
         $scope.experiment.contactEmail = $scope.user;
         $scope.experiment.admins = [$scope.user];
@@ -191,6 +192,19 @@ pacoApp.controller('ExperimentCtrl', ['$scope', '$http',
       var lines = str.split('\n');
       return lines.length;
     }
+
+    $scope.$watch('experiment.groups', function(newValue, oldValue) {
+      if (newValue) {
+        var groups = [];
+        for (var groupId in $scope.experiment.groups) {
+          var group = $scope.experiment.groups[groupId];
+          if (group.customRendering != true && group.inputs.length > 0) {
+            groups.push(group);
+          } 
+        }
+        $scope.respondableGroups = groups;
+      }
+    });
 
     // Ace is loaded when the Source tab is selected so get pretty JSON here
     $scope.prepareAce = function(editor) {
@@ -242,6 +256,7 @@ pacoApp.controller('ExperimentCtrl', ['$scope', '$http',
               $scope.experiment0 = angular.copy($scope.experiment);
 
               $scope.cache.remove('/experiments?admin');  
+              $scope.cache.remove('/experiments?id=' + $scope.experiment.id);
 
               if ($scope.newExperiment) {
                 $location.path('/edit/' + data[0].experimentId);
