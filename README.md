@@ -15,9 +15,9 @@ https://github.com/google/paco/wiki
 Also, you can stay in touch
 
 ### Social Media
-Blog: http://blog.pacoapp.com
-Twitter: https://twitter.com/@PacoApp
-G+: https://plus.google.com/+Pacoapp/posts
+* Blog: http://blog.pacoapp.com
+* Twitter: https://twitter.com/@PacoApp
+* G+: https://plus.google.com/+Pacoapp/posts
 
 ### Mailing Lists
 * Developers: https://groups.google.com/forum/#!forum/paco-developers
