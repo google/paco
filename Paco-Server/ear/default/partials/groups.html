@@ -81,10 +81,6 @@
           <md-button ng-click="addInput($event, toggleExpand)">
             Add Input
           </md-button>
-          <md-button ng-click="addInput($event, toggleExpand, 0)" ng-if="group.inputs.length > 0">
-            Insert Input
-          </md-button>
-
         </div>
         <div expander ng-show="group.inputs.length > 0">
           <div ng-repeat="input in group.inputs track by $index" ng-include="'partials/input.html'">
