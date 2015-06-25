@@ -158,7 +158,7 @@ public class ExperimentServlet extends HttpServlet {
       if (!Strings.isNullOrEmpty(delete)) {
         String selectedExperimentsParam = req.getParameter("id");
         if (Strings.isNullOrEmpty(selectedExperimentsParam)) {
-          List<Outcome> outcomes = createErrorOutcome();
+          List<Outcome> outcomes = createErrorOutcome("No experiment ids specified for deletion");
           resp.getWriter().println(ExperimentJsonUploadProcessor.toJson(outcomes));
         } else {
           resp.getWriter().println(ExperimentJsonUploadProcessor.toJson(deleteExperiments(email,
@@ -172,8 +172,8 @@ public class ExperimentServlet extends HttpServlet {
 
 
 
-  public List<Outcome> createErrorOutcome() {
-    Outcome outcome = new Outcome(0, "No experiment ids specified for deletion");
+  public List<Outcome> createErrorOutcome(String msg) {
+    Outcome outcome = new Outcome(0, msg);
     List<Outcome> outcomes = Lists.newArrayList(outcome);
     return outcomes;
   }
@@ -182,7 +182,7 @@ public class ExperimentServlet extends HttpServlet {
     ExperimentService expService = ExperimentServiceFactory.getExperimentService();
     List<Long> experimentIds = ExperimentServletSelectedExperimentsFullLoadHandler.parseExperimentIds(selectedExperimentsParam);
     if (experimentIds.isEmpty()) {
-      return createErrorOutcome();
+      return createErrorOutcome("No experiment ids specified for deletion");
     }
     Outcome outcome = new Outcome();
     List<Outcome> outcomeList = Lists.newArrayList();
@@ -206,11 +206,16 @@ public class ExperimentServlet extends HttpServlet {
     try {
       postBodyString = org.apache.commons.io.IOUtils.toString(req.getInputStream(), "UTF-8");
     } catch (IOException e) {
-      log.info("IO Exception reading post data stream: " + e.getMessage());
-      throw e;
+      final String msg = "IO Exception reading post data stream: " + e.getMessage();
+      log.info(msg);
+      List<Outcome> outcomes = createErrorOutcome(msg);
+      resp.getWriter().println(ExperimentJsonUploadProcessor.toJson(outcomes));
+      return;
     }
     if (postBodyString.equals("")) {
-      throw new IllegalArgumentException("Empty Post body");
+      List<Outcome> outcomes = createErrorOutcome("Empty Post body");
+      resp.getWriter().println(ExperimentJsonUploadProcessor.toJson(outcomes));
+      return;
     }
 
     String appIdHeader = req.getHeader("http.useragent");
