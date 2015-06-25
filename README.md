@@ -13,14 +13,17 @@ To learn about development, check out our wiki:
 https://github.com/google/paco/wiki
 
 Also, you can stay in touch
+
+### Social Media
+Blog: http://blog.pacoapp.com
+Twitter: https://twitter.com/@PacoApp
+G+: https://plus.google.com/+Pacoapp/posts
+
 ### Mailing Lists
 * Developers: https://groups.google.com/forum/#!forum/paco-developers
 * Announcements: https://groups.google.com/forum/#!forum/paco-announcements
 * Users: https://groups.google.com/forum/#!forum/paco-users
 
------
-* Twitter: https://twitter.com/pacoapp
-* Google+: https://plus.google.com/u/0/b/115229263290117262376/
 
 LICENSE:
 Paco is licensed under the Apache 2.0 License
