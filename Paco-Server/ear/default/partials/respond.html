@@ -15,9 +15,7 @@
     </md-select>
   </div>
 
-  {{experiment.groups[state.groupIndex]}}
-
-  <div ng-if="experiment.groups[state.groupIndex].endOfDayGroup" ng-controller="EodCtrl">    
+  <div ng-if="respondableGroups[state.groupIndex].endOfDayGroup" ng-controller="EodCtrl">    
     <div ng-if="activeEvents[activeIdx]" class="event">
 
       <md-card>
@@ -35,7 +33,7 @@
       <paco-group data="referredGroup" readonly="true" responses="activeEvents[activeIdx].responsePairs">
       </paco-group>
       
-      <paco-group data="experiment.groups[state.groupIndex]" events="activeEvents" 
+      <paco-group data="respondableGroups[state.groupIndex]" events="activeEvents" 
       active-idx="activeIdx" experiment="experiment"></paco-group>
 
     </div>
@@ -45,8 +43,8 @@
    
   </div>
 
-  <div ng-if="!experiment.groups[state.groupIndex].endOfDayGroup">
-    <paco-group data="experiment.groups[state.groupIndex]" experiment="experiment"></paco-group>
+  <div ng-if="!respondableGroups[state.groupIndex].endOfDayGroup">
+    <paco-group data="respondableGroups[state.groupIndex]" experiment="experiment"></paco-group>
   </div>
   
 
