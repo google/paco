@@ -233,12 +233,6 @@ pacoApp.controller('ExperimentCtrl', ['$scope', '$http',
       $scope.ace.height = $scope.lineCount(newValue) * 16;
     });
 
-    $scope.deleteExperiment = function() {
-      $http.get('/experiments?delete&id=' + $scope.experiment.id).success(function(data) {
-        console.log(data);
-      });
-    };
-
     $scope.saveExperiment = function() {
 
       $http.post('/experiments', $scope.experiment).success(function(data) {
@@ -295,29 +289,38 @@ pacoApp.controller('ExperimentCtrl', ['$scope', '$http',
 
 
 
-pacoApp.controller('JoinCtrl', ['$scope', '$http', '$mdDialog',
-  function($scope, $http, $mdDialog) {
+pacoApp.controller('ListCtrl', ['$scope', '$http', '$mdDialog', 'util',
+  function($scope, $http, $mdDialog, util) {
 
-    var obj = {};
-    obj.experimentId = $scope.exp.id;
-    obj.appId = 'webform';  
-    obj.experimentVersion = $scope.exp.version;
-    obj.experimentName = $scope.exp.title;
-    obj.responses = [{"name":"joined", "answer": true}];
-    var now = new Date();
-    var iso = now.toISOString();
 
-    // Tweak ISO string to conform to yyyy/MM/dd HH:mm:ssZ
-    iso = iso.replace(/-/g, '/');
-    iso = iso.replace(/T/, ' ');
-    iso = iso.replace(/\.[0-9]*/, '');
 
-    obj.responseTime = iso;
+    $scope.deleteExperiment = function(id) {
+      alert("Are you sure you want to delete " + id + "?");
+      return;
+      $http.get('/experiments?delete&id=' + $scope.experiment.id).success(function(data) {
+        console.log(data);
+      });
+    };
 
-    $scope.json = JSON.stringify(obj);
 
-    $scope.joinExperiment = function() {
-      $http.post('/events', $scope.json).success(function(data) {
+
+  
+
+    $scope.joinExperiment = function(exp) {
+
+      console.log(exp);
+
+      var obj = {};
+      obj.experimentId = exp.id;
+      obj.appId = 'webform';  
+      obj.experimentVersion = exp.version;
+      obj.experimentName = exp.title;
+      obj.responses = [{"name":"joined", "answer": true}];
+      obj.responseTime = util.formatDate(new Date());
+      var json = JSON.stringify(obj);
+
+
+      $http.post('/events', json).success(function(data) {
           if (data[0].status === true) {
             $scope.loadJoined(true);
             $mdDialog.show(

@@ -1,8 +1,8 @@
 
 pacoApp.directive('pacoGroup', function () {
 
-  var controller = ['$scope', '$http', '$location', '$mdDialog', '$anchorScroll', '$filter',
-    function($scope, $http, $location, $mdDialog, $anchorScroll, $filter) {
+  var controller = ['$scope', '$http', '$location', '$mdDialog', '$anchorScroll', 'util',
+    function($scope, $http, $location, $mdDialog, $anchorScroll, util) {
 
     $scope.mask = {};
     $scope.responses = $scope.responses || {};
@@ -44,7 +44,7 @@ pacoApp.directive('pacoGroup', function () {
       post.pacoVersion = 4;
       post.appId = 'webform';
       post.responses = [];
-      post.responseTime = $filter('date')(new Date(), 'yyyy/MM/dd HH:mm:ssZ');
+      post.responseTime = util.formatDate(new Date());
 
       for (var name in $scope.responses) {
         var pair = {
@@ -57,7 +57,7 @@ pacoApp.directive('pacoGroup', function () {
       if ($scope.events) {
 
         var event = $scope.events[$scope.activeIdx];
-        var responseTime = $filter('date')(new Date(event.responseTime), 'yyyy/MM/dd HH:mm:ssZ');
+        var responseTime = util.formatDate(new Date(event.responseTime));
 
         var eodPair = {
           'name': 'eodResponseTime',

@@ -160,3 +160,11 @@ pacoApp.service('template', function() {
     type: 0
   };
 });
+
+pacoApp.service('util', ['$filter', function($filter) {
+
+  this.formatDate = function(date) {
+    return $filter('date')(date, 'yyyy/MM/dd HH:mm:ssZ');
+  };
+
+}]);
