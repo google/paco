@@ -602,8 +602,9 @@ pacoApp.controller('ErrorCtrl', ['$scope', '$mdDialog', 'config',
 
     console.log(errorMessage);
 
-    // TODO(ispiro): correctly handle Exception errors
-    if (errorMessage.indexOf('Exception') === 0) {
+    // TODO(bobevans): make server error formats consistent to avoid this special casing
+    if (errorMessage.indexOf('Exception') === 0 ||
+        errorMessage.indexOf('Newer version') === 0) {
       $scope.errors = [errorMessage];
     } else {
 
