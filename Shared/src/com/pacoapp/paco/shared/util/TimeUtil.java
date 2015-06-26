@@ -45,6 +45,8 @@ public class TimeUtil {
   public static final String DATE_WITH_ZONE_FORMAT = "yyyy/MM/ddZ";
   private static DateTimeFormatter dateZoneFormatter = DateTimeFormat.forPattern(DATE_WITH_ZONE_FORMAT);
 
+  public static final DateTimeFormatter hourFormatter = DateTimeFormat.forPattern("hh:mma");
+
   private TimeUtil() {
     super();
   }
