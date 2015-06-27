@@ -38,7 +38,7 @@ public class PublicExperimentList {
 
   public static String PUBLIC_EXPERIMENT_KIND = "public_experiment";
 
-  public static void updatePublicExperimentsList(Transaction tx, DatastoreService ds,
+  public static void updatePublicExperimentsList(/*Transaction tx,*/ DatastoreService ds,
                                                  ExperimentDAO experiment, Key experimentKey, DateTime dateTime) {
     if (experiment.getId() == null) {
       log.severe("Experiment must have an id to be published publicly.");
@@ -48,7 +48,7 @@ public class PublicExperimentList {
     Key existingKey = KeyFactory.createKey(PUBLIC_EXPERIMENT_KIND, experimentKey.getId());
     Entity existingPublicAcl = null;
     try {
-      existingPublicAcl = ds.get(tx, existingKey);
+      existingPublicAcl = ds.get(/*tx,*/ existingKey);
     } catch (EntityNotFoundException e) {
     }
     Entity entity = new Entity(PUBLIC_EXPERIMENT_KIND, experimentKey.getId());

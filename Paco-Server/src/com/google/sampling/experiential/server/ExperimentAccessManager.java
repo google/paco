@@ -141,7 +141,7 @@ public class ExperimentAccessManager {
 
 
   private static void deleteParticipantTableEntries(Transaction tx, DatastoreService ds, Key experimentKey) {
-    List<Entity> existingParticipantList = getExistingPublishedUsersForExperiment(tx, ds, experimentKey, false);
+    List<Entity> existingParticipantList = getExistingPublishedUsersForExperiment(/*tx,*/ ds, experimentKey, false);
     List<Key> participantKeys = Lists.newArrayList();
     for (Entity entity : existingParticipantList) {
       participantKeys.add(entity.getKey());
@@ -160,17 +160,17 @@ public class ExperimentAccessManager {
 
   public static void updateAccessControlEntities(DatastoreService ds, Transaction tx, ExperimentDAO experiment, Key experimentKey, DateTimeZone timezone) {
     updateAdminTable(tx, ds, experiment, experimentKey);
-    updateParticipantTable(tx, ds, experiment, experimentKey);
-    updatePublicTable(tx, ds, experiment, experimentKey, timezone);
+    updateParticipantTable(/*tx,*/ ds, experiment, experimentKey);
+    updatePublicTable(/*tx,*/ ds, experiment, experimentKey, timezone);
   }
 
-  private static void updatePublicTable(Transaction tx, DatastoreService ds, ExperimentDAO experiment, Key experimentKey, DateTimeZone timezone) {
+  private static void updatePublicTable(/*Transaction tx, */DatastoreService ds, ExperimentDAO experiment, Key experimentKey, DateTimeZone timezone) {
     final DateTime now = new DateTime().withZone(timezone);
-    PublicExperimentList.updatePublicExperimentsList(tx, ds, experiment, experimentKey, now);
+    PublicExperimentList.updatePublicExperimentsList(/*tx,*/ ds, experiment, experimentKey, now);
   }
 
-  private static void updateParticipantTable(Transaction tx, DatastoreService ds, ExperimentDAO experiment, Key experimentKey) {
-    List<Entity> existingPublishedUserAcls = getExistingPublishedUsersForExperiment(tx, ds, experimentKey, false);
+  private static void updateParticipantTable(/*Transaction tx, */DatastoreService ds, ExperimentDAO experiment, Key experimentKey) {
+    List<Entity> existingPublishedUserAcls = getExistingPublishedUsersForExperiment(/*tx,*/ ds, experimentKey, false);
     if (!experiment.getPublished() && existingPublishedUserAcls.isEmpty()) {
       return; // not published and nothing to remove and no reason to add
     } else if (!experiment.getPublished() && existingPublishedUserAcls.size() > 0) {
@@ -178,7 +178,7 @@ public class ExperimentAccessManager {
       for (Entity existing : existingPublishedUserAcls) {
         aclsToBeRemoved.add(existing.getKey());
       }
-      removePublishedUserAcls(tx, ds, aclsToBeRemoved);
+      removePublishedUserAcls(/*tx,*/ ds, aclsToBeRemoved);
       return;
     } else {
       List<String> newPublishedUsers = experiment.getPublishedUsers();
@@ -192,22 +192,54 @@ public class ExperimentAccessManager {
             newPublishedUsers.remove(existingUserEmail);
           }
         }
-        removePublishedUserAcls(tx, ds, aclsToBeRemoved);
+        removePublishedUserAcls(/*tx,*/ ds, aclsToBeRemoved);
       }
-      addPublishedUserAcls(tx, ds, newPublishedUsers, experimentKey.getId());
+      addPublishedUserAcls(/*tx,*/ ds, newPublishedUsers, experimentKey.getId());
     }
   }
 
-  public static void addPublishedUserAcls(Transaction tx, DatastoreService ds, List<String> newPublishedList,
+  public static void addPublishedUserAcls(/*Transaction tx2,*/ DatastoreService ds, List<String> newPublishedList,
                                          final long experimentId) {
-    List<Entity> newPublishedAcls = Lists.newArrayList();
-    for (String admin : newPublishedList) {
-      Entity userAccess = createPublishedUserAclEntity(experimentId, admin);
-      newPublishedAcls.add(userAccess);
+//    List<Entity> newPublishedAcls = Lists.newArrayList();
+//    for (String admin : newPublishedList) {
+//      Entity userAccess = createPublishedUserAclEntity(experimentId, admin);
+//      newPublishedAcls.add(userAccess);
+//    }
+//    if (!newPublishedAcls.isEmpty()) {
+//      ds.put(/*tx,*/ newPublishedAcls);
+//    }
+
+    int startPosition = 0;
+    int totalCount = newPublishedList.size();
+    log.info("AddPublishedUsers. Count: " + newPublishedList.size());
+    final int batchsize = 5;
+    while (startPosition < totalCount) {
+      int fullrangeLeft = totalCount - startPosition;
+      int nextBucketSize = Math.min(batchsize, fullrangeLeft);
+
+      List<String> subList = newPublishedList.subList(startPosition, startPosition + nextBucketSize);
+
+      Transaction tx = null;
+      try {
+        TransactionOptions options = TransactionOptions.Builder.withXG(true);
+        tx = ds.beginTransaction(options);
+        List<Entity> newJoinedAcls = Lists.newArrayList();
+        for (String admin : subList) {
+          Entity userAccess = createPublishedUserAclEntity(experimentId, admin);
+          newJoinedAcls.add(userAccess);
+        }
+        if (!newJoinedAcls.isEmpty()) {
+          ds.put(tx, newJoinedAcls);
+          tx.commit();
+        }
+      } finally {
+        if (tx != null && tx.isActive()) {
+          tx.rollback();
+        }
+      }
+      startPosition = startPosition + nextBucketSize;
     }
-    if (!newPublishedAcls.isEmpty()) {
-      ds.put(/*tx,*/ newPublishedAcls);
-    }
+
   }
 
   public static Entity createPublishedUserAclEntity(final long experimentId, String admin) {
@@ -217,7 +249,7 @@ public class ExperimentAccessManager {
     return userAccess;
   }
 
-  public static void removePublishedUserAcls(Transaction tx, DatastoreService ds, List<Key> toBeRemovedList) {
+  public static void removePublishedUserAcls(/*Transaction tx,*/ DatastoreService ds, List<Key> toBeRemovedList) {
     if (!toBeRemovedList.isEmpty()) {
       ds.delete(/*tx,*/ toBeRemovedList);
     }
@@ -255,7 +287,7 @@ public class ExperimentAccessManager {
     if (!adminAccessRules.isEmpty()) {
       ds.put(/*tx,*/ adminAccessRules);
     }
-    removePublishedUserAcls(tx, ds, toBeRemovedList);
+    removePublishedUserAcls(/*tx,*/ ds, toBeRemovedList);
   }
 
   public static Entity createAdminAcl(Key experimentKey, String admin) {
@@ -303,7 +335,7 @@ public class ExperimentAccessManager {
     return keys;
   }
 
-  private static List<Entity> getExistingPublishedUsersForExperiment(Transaction tx, DatastoreService ds, Key experimentKey, boolean keysOnly) {
+  private static List<Entity> getExistingPublishedUsersForExperiment(/*Transaction tx,*/ DatastoreService ds, Key experimentKey, boolean keysOnly) {
     Query query = new com.google.appengine.api.datastore.Query(PUBLISHED_USER_KIND);
     if (keysOnly) {
       query.setKeysOnly();
