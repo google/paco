@@ -22,6 +22,7 @@ import android.widget.Toast;
 import com.google.android.apps.paco.AccountChooser;
 import com.google.android.gms.auth.GooglePlayServicesAvailabilityException;
 import com.google.android.gms.auth.UserRecoverableAuthException;
+import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.pacoapp.paco.PacoConstants;
 import com.pacoapp.paco.R;
@@ -49,6 +50,7 @@ public class SplashActivity extends Activity implements NetworkClient {
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.splash_screen);
+
     changingExistingAccount = getIntent().getBooleanExtra(EXTRA_CHANGING_EXISTING_ACCOUNT, false);
 
     userPrefs = new UserPreferences(getApplicationContext());
@@ -180,8 +182,29 @@ public class SplashActivity extends Activity implements NetworkClient {
   @Override
   protected void onResume() {
     super.onResume();
-    if (changingExistingAccount) {
-      authenticateUser();
+    //handle case of broken Google Play Services
+    // TODO remove when we get a build that properly incorporates Google Play Services and resources
+    // and can build an apk with < 64k methods for Android < 5.0 phones
+    int resultCode = GooglePlayServicesUtil.isGooglePlayServicesAvailable(getApplicationContext());
+
+    if (resultCode != ConnectionResult.SUCCESS) {
+      try {
+        // if the class that Paco doesn't provide is not on the system, don't
+        // use it to show an error dialog. Instead make a toast or dialog.
+        SplashActivity.this.getClassLoader().loadClass("com.google.android.gms.common.R$string");
+        Dialog dialog = GooglePlayServicesUtil.getErrorDialog(resultCode,
+                                                              SplashActivity.this,
+                                                              REQUEST_CODE_RECOVER_FROM_PLAY_SERVICES_ERROR);
+                                                      dialog.show();
+      } catch (ClassNotFoundException e) {
+        Toast.makeText(getApplicationContext(),
+                       "GooglePlayServices are not available. ERROR:\n" + getGooglePlayConnectionErrorString(resultCode),
+                       Toast.LENGTH_LONG).show();
+      }
+    } else {
+      if (changingExistingAccount) {
+        authenticateUser();
+      }
     }
   }
 
@@ -192,7 +215,7 @@ public class SplashActivity extends Activity implements NetworkClient {
       if (isDeviceOnline()) {
         getTask(this).execute();
       } else {
-        Toast.makeText(this, "No network connection available", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "No network connection available", Toast.LENGTH_LONG).show();
       }
     }
   }
@@ -263,10 +286,23 @@ public class SplashActivity extends Activity implements NetworkClient {
                 // the user to update the APK
                 int statusCode = ((GooglePlayServicesAvailabilityException)e)
                         .getConnectionStatusCode();
-                Dialog dialog = GooglePlayServicesUtil.getErrorDialog(statusCode,
-                        SplashActivity.this,
-                        REQUEST_CODE_RECOVER_FROM_PLAY_SERVICES_ERROR);
-                dialog.show();
+
+                try {
+                   // TODO remove this when we can build Google Play Services in properly
+                  // if the class that Paco doesn't provide is not on the system, don't
+                  // use it to show an error dialog. Instead make a toast or dialog.
+                  SplashActivity.this.getClassLoader().loadClass("com.google.android.gms.common.R$string");
+                  Dialog dialog = GooglePlayServicesUtil.getErrorDialog(statusCode,
+                                                                        SplashActivity.this,
+                                                                        REQUEST_CODE_RECOVER_FROM_PLAY_SERVICES_ERROR);
+                                                                dialog.show();
+                } catch (ClassNotFoundException e) {
+                  String gpsError = getGooglePlayConnectionErrorString(statusCode);
+                  Toast.makeText(getApplicationContext(),
+                               "Login ERROR: " + gpsError,
+                               Toast.LENGTH_LONG).show();
+                }
+
             } else if (e instanceof UserRecoverableAuthException) {
                 // Unable to authenticate, such as when the user has not yet granted
                 // the app access to the account, but the user can fix this.
@@ -276,8 +312,69 @@ public class SplashActivity extends Activity implements NetworkClient {
                         REQUEST_CODE_RECOVER_FROM_PLAY_SERVICES_ERROR);
             }
         }
-    });
+
+         });
 }
+
+  public String getGooglePlayConnectionErrorString(int statusCode) {
+    String gpsError = "unknown";
+    switch(statusCode) {
+    case ConnectionResult.API_UNAVAILABLE:
+      gpsError = "API Unavailable";
+      break;
+    case ConnectionResult.CANCELED:
+      gpsError = "Canceled";
+      break;
+    case ConnectionResult.DEVELOPER_ERROR:
+      gpsError = "Developer Error";
+      break;
+    case ConnectionResult.INTERNAL_ERROR:
+      gpsError = "Internal error";
+      break;
+    case ConnectionResult.INTERRUPTED:
+      gpsError = "Interrupted";
+      break;
+    case ConnectionResult.INVALID_ACCOUNT:
+      gpsError = "Invalid Account";
+      break;
+    case ConnectionResult.LICENSE_CHECK_FAILED:
+      gpsError = "License Check Failed";
+      break;
+    case ConnectionResult.NETWORK_ERROR:
+      gpsError = "Network Error";
+      break;
+    case ConnectionResult.RESOLUTION_REQUIRED:
+      gpsError = "Resolution Required";
+      break;
+    case ConnectionResult.SERVICE_DISABLED:
+      gpsError = "Service Disabled";
+      break;
+    case ConnectionResult.SERVICE_INVALID:
+      gpsError = "Service Invalid";
+      break;
+    case ConnectionResult.SERVICE_MISSING:
+      gpsError = "Service Missing";
+      break;
+    case ConnectionResult.SERVICE_VERSION_UPDATE_REQUIRED:
+      gpsError = "Service version update required";
+      break;
+    case ConnectionResult.SIGN_IN_FAILED:
+      gpsError = "Sign in failed";
+      break;
+    case ConnectionResult.SIGN_IN_REQUIRED:
+      gpsError = "Sign in required";
+      break;
+    case ConnectionResult.SUCCESS:
+      gpsError = "Success";
+      break;
+    case ConnectionResult.TIMEOUT:
+      gpsError = "Timeout";
+      break;
+    default:
+      break;
+    }
+    return gpsError;
+  }
 
   public void showAndFinish(String string) {
     show(string);
