@@ -100,7 +100,8 @@
             android:name="com.pacoapp.paco.ui.ExperimentExecutor"
             android:label="Experiment Form"
             android:configChanges="orientation|keyboardHidden"
-            android:windowSoftInputMode="stateHidden" >
+            android:windowSoftInputMode="stateHidden" 
+            android:screenOrientation="portrait" >
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
 
@@ -110,6 +111,7 @@
                 <activity
             android:name="com.pacoapp.paco.ui.ExperimentExecutorCustomRendering" 
             android:label="Experiment Form"
+            android:screenOrientation="portrait" 
             />
         
         <activity
