@@ -8,6 +8,12 @@ pacoApp.controller('HomeCtrl', ['$scope', '$http', '$routeParams', '$location',
     $scope.cache = $cacheFactory.get('$http');
     $scope.edit = false;
 
+    $scope.loadList = function(reload) {
+      $scope.loadAdmin(reload);
+      $scope.loadJoined(reload);
+      $scope.loadJoinable(reload);
+    }
+
     $scope.loadJoined = function(reload) {
       var cache = true;
       if (reload !== undefined && reload === true) {
@@ -292,24 +298,24 @@ pacoApp.controller('ExperimentCtrl', ['$scope', '$http',
 pacoApp.controller('ListCtrl', ['$scope', '$http', '$mdDialog', 'util',
   function($scope, $http, $mdDialog, util) {
 
+    $scope.deleteExperiment = function(ev, exp) {
 
-
-    $scope.deleteExperiment = function(id) {
-      alert("Are you sure you want to delete " + id + "?");
-      return;
-      $http.get('/experiments?delete&id=' + $scope.experiment.id).success(function(data) {
-        console.log(data);
-      });
+      var confirm = $mdDialog.confirm()
+        .parent(angular.element(document.body))
+        .title('Confirm experiment deletion')
+        .content('Would you like to delete experiment ' + exp.id + '? (' + exp.title + ')')
+        .ariaLabel('Confirm experiment deletion')
+        .ok('Delete')
+        .cancel('Cancel')
+        .targetEvent(ev);
+      $mdDialog.show(confirm).then(function() {
+        $http.post('/experiments?delete=1&id=' + exp.id, {}).success(function(data) {
+          $scope.loadList(true);
+        });
+      });      
     };
 
-
-
-  
-
     $scope.joinExperiment = function(exp) {
-
-      console.log(exp);
-
       var obj = {};
       obj.experimentId = exp.id;
       obj.appId = 'webform';  
@@ -318,7 +324,6 @@ pacoApp.controller('ListCtrl', ['$scope', '$http', '$mdDialog', 'util',
       obj.responses = [{"name":"joined", "answer": true}];
       obj.responseTime = util.formatDate(new Date());
       var json = JSON.stringify(obj);
-
 
       $http.post('/events', json).success(function(data) {
           if (data[0].status === true) {
