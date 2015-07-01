@@ -61,7 +61,8 @@
             </md-button>
           </a>
           
-          <a href="#" ng-click="joinExperiment(exp)">
+          <a href="#" ng-click="joinExperiment(exp)" 
+            ng-if="joinedIndex.indexOf(exp.id) === -1">
             <md-button>
               Join
             </md-button>

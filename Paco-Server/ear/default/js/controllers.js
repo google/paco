@@ -93,7 +93,6 @@ pacoApp.controller('HomeCtrl', ['$scope', '$http', '$routeParams', '$location',
       console.log(data);
     });
 
-
     if (angular.isDefined($routeParams.experimentId)) {
       $scope.experimentId = parseInt($routeParams.experimentId, 10);
     }
@@ -299,7 +298,6 @@ pacoApp.controller('ListCtrl', ['$scope', '$http', '$mdDialog', 'util',
   function($scope, $http, $mdDialog, util) {
 
     $scope.deleteExperiment = function(ev, exp) {
-
       var confirm = $mdDialog.confirm()
         .parent(angular.element(document.body))
         .title('Confirm experiment deletion')
