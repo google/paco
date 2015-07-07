@@ -73,7 +73,7 @@ pacoApp.controller('HomeCtrl', ['$scope', '$http', '$routeParams', '$location',
       $scope.loaded = true;
 
       // Make sure email isn't the dev email address
-      if (data.user && data.user !== 'bobevans999@gmail.com') {
+      if (data.user && data.user !== 'yourGoogleEmail@here.com') {
         $scope.user = data.user;
         $scope.loadJoined();
         $scope.loadAdmin();

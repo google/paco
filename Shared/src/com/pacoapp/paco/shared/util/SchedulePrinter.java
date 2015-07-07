@@ -108,23 +108,11 @@ public class SchedulePrinter {
 
   public static String getHourOffsetAsTimeString(Long time) {
     DateTime endHour = new DateMidnight().toDateTime().plus(time);
-    String endHourString = endHour.getHourOfDay() + ":" + pad(endHour.getMinuteOfHour());
-    return endHourString;
+    return TimeUtil.hourFormatter.print(endHour);
   }
 
   public static String getHourOffsetAsTimeString(SignalTime time) {
-    DateTime endHour = new DateMidnight().toDateTime().plus(time.getFixedTimeMillisFromMidnight());
-    String endHourString = endHour.getHourOfDay() + ":" + pad(endHour.getMinuteOfHour());
-    return endHourString;
-  }
-
-
-  private static String pad(int minuteOfHour) {
-    if (minuteOfHour < 10) {
-      return "0" + minuteOfHour;
-    } else {
-      return Integer.toString(minuteOfHour);
-    }
+    return getHourOffsetAsTimeString((long)time.getFixedTimeMillisFromMidnight());
   }
 
 

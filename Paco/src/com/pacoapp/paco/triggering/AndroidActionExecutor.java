@@ -86,7 +86,9 @@ public class AndroidActionExecutor {
         // TODO - Either sanitize the code here, or, when it is uploaded to the
         // server.
         String baseScript = interpreterBase() + getBaseScript(context);
+        Log.i(PacoConstants.TAG, "Evaluating Script action in interpreter.");
         interpreter.eval(baseScript + "\n" + customScript);
+        interpreter.exit();
       }
       break;
     default:

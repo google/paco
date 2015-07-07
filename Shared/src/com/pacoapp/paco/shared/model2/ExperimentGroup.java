@@ -52,11 +52,12 @@ public class ExperimentGroup implements Validatable, java.io.Serializable {
 
   public void setActionTriggers(List<ActionTrigger> actionTriggers) {
     this.actionTriggers = actionTriggers;
-    ExperimentValidator validator = new ExperimentValidator();
-    validateActionTriggers(validator);
-    if (!validator.getResults().isEmpty()) {
-      throw new IllegalArgumentException(validator.stringifyResults());
-    }
+    // TODO comment this for now because upon json deserialization it throws and breaks protocol (we should always check later).
+//    ExperimentValidator validator = new ExperimentValidator();
+//    validateActionTriggers(validator);
+//    if (!validator.getResults().isEmpty()) {
+//      throw new IllegalArgumentException(validator.stringifyResults());
+//    }
   }
 
   public ActionTrigger getActionTriggerById(Long actionTriggerId) {
