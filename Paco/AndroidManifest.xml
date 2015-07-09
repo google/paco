@@ -17,8 +17,8 @@
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.pacoapp.paco"
-    android:versionCode="116"
-    android:versionName="2.3" >
+    android:versionCode="122"
+    android:versionName="4.1.1" >
     <uses-feature android:name="android.hardware.location" android:required="false"/>
     <uses-feature android:name="android.hardware.telephony" android:required="false"/>
     <uses-feature android:name="android.hardware.camera.autofocus" android:required="false"/>
@@ -100,7 +100,8 @@
             android:name="com.pacoapp.paco.ui.ExperimentExecutor"
             android:label="Experiment Form"
             android:configChanges="orientation|keyboardHidden"
-            android:windowSoftInputMode="stateHidden" >
+            android:windowSoftInputMode="stateHidden" 
+            android:screenOrientation="portrait" >
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
 
@@ -110,6 +111,7 @@
                 <activity
             android:name="com.pacoapp.paco.ui.ExperimentExecutorCustomRendering" 
             android:label="Experiment Form"
+            android:screenOrientation="portrait" 
             />
         
         <activity

@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.joda.time.DateMidnight;
 import org.joda.time.DateTime;
+import org.joda.time.Days;
 
 import android.app.AlarmManager;
 import android.app.PendingIntent;
@@ -20,7 +21,6 @@ import com.pacoapp.paco.PacoConstants;
 import com.pacoapp.paco.model.Experiment;
 import com.pacoapp.paco.model.ExperimentProviderUtil;
 import com.pacoapp.paco.os.ExperimentExpirationAlarmReceiver;
-import com.pacoapp.paco.shared.model2.ExperimentDAO;
 import com.pacoapp.paco.shared.scheduling.ActionScheduleGenerator;
 
 /**
@@ -80,10 +80,6 @@ public class ExperimentExpirationManagerService extends Service {
   public void work() {
     ExperimentProviderUtil experimentProviderUtil = new ExperimentProviderUtil(context);
     List<Experiment> experiments = experimentProviderUtil.getJoinedExperiments();
-    List<ExperimentDAO> experimentDAOs = Lists.newArrayList();
-    for (Experiment experiment : experiments) {
-      experimentDAOs.add(experiment.getExperimentDAO());
-    }
     if (experiments.isEmpty()) {
       Log.i(PacoConstants.TAG, "No joined experiments. Not creating alarms.");
       return;
@@ -99,7 +95,12 @@ public class ExperimentExpirationManagerService extends Service {
     List<Experiment> stillRunning = Lists.newArrayList();
     DateTime now = DateTime.now();
     for (Experiment experiment : experiments) {
-      if (ActionScheduleGenerator.isOver(now, experiment.getExperimentDAO())) {
+
+      DateTime lastEndTime = ActionScheduleGenerator.getLastEndTime(experiment.getExperimentDAO());
+      if (ActionScheduleGenerator.isOver(now, experiment.getExperimentDAO()) &&
+              lastEndTime != null && Days.daysBetween(lastEndTime, now).getDays() < 2) {
+
+        Log.i(PacoConstants.TAG, "Experiment has ended. Firing event: " + experiment.getExperimentDAO().getTitle());
         PacoExperimentActionBroadcaster.sendExperimentEnded(context.getApplicationContext(), experiment);
         // TODO remove from joined and move to archived.
         // TODO only fire experiment over broadcast once.

@@ -111,15 +111,15 @@ public class EsmSignalProvider extends ContentProvider {
           + " to " + newVersion + ", which will destroy all old data");
       dropTable(db);
       onCreate(db);
-      if (oldVersion <= 3) {
-        // add three new columns
-        db.execSQL("ALTER TABLE " + EsmSignalProvider.TABLE_NAME + " ADD COLUMN "
-                + EsmSignalColumns.GROUP_NAME + " TEXT;");
-        db.execSQL("ALTER TABLE " + EsmSignalProvider.TABLE_NAME + " ADD COLUMN "
-                + EsmSignalColumns.ACTION_TRIGGER_ID + " INTEGER;");
-        db.execSQL("ALTER TABLE " + EsmSignalProvider.TABLE_NAME + " ADD COLUMN "
-                + EsmSignalColumns.SCHEDULE_ID + " INTEGER;");
-      }
+//      if (oldVersion <= 3) {
+//        // add three new columns
+//        db.execSQL("ALTER TABLE " + EsmSignalProvider.TABLE_NAME + " ADD COLUMN "
+//                + EsmSignalColumns.GROUP_NAME + " TEXT;");
+//        db.execSQL("ALTER TABLE " + EsmSignalProvider.TABLE_NAME + " ADD COLUMN "
+//                + EsmSignalColumns.ACTION_TRIGGER_ID + " INTEGER;");
+//        db.execSQL("ALTER TABLE " + EsmSignalProvider.TABLE_NAME + " ADD COLUMN "
+//                + EsmSignalColumns.SCHEDULE_ID + " INTEGER;");
+//      }
     }
   }
 }

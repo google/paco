@@ -55,6 +55,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.pacoapp.paco.R;
 import com.pacoapp.paco.UserPreferences;
@@ -504,8 +505,18 @@ public class FindExperimentsActivity extends ActionBarActivity implements Networ
             title.setOnClickListener(myButtonListener);
         }
 
-        if (creator != null){
-            creator.setText(experiment.getExperimentDAO().getCreator());
+        if (creator != null) {
+          String organization = experiment.getExperimentDAO().getOrganization();
+          String contactEmail = experiment.getExperimentDAO().getContactEmail();
+          if (Strings.isNullOrEmpty(contactEmail)) {
+            contactEmail = experiment.getExperimentDAO().getCreator();
+          }
+          if (!Strings.isNullOrEmpty(organization)) {
+            contactEmail += ", " + organization;
+          }
+
+          creator.setText(contactEmail);
+
             creator.setOnClickListener(myButtonListener);
         } else {
             creator.setText(getContext().getString(R.string.unknown_author_text));
@@ -531,7 +542,7 @@ public class FindExperimentsActivity extends ActionBarActivity implements Networ
           String action = getIntent().getAction();
           Intent experimentIntent = new Intent(FindExperimentsActivity.this, ExperimentDetailActivity.class);
           experimentIntent.putExtra(Experiment.EXPERIMENT_SERVER_ID_EXTRA_KEY, experiment.getServerId());
-          experimentIntent.putExtra(ExperimentDetailActivity.ID_FROM_MY_EXPERIMENTS_FILE, true);
+          experimentIntent.putExtra(ExperimentDetailActivity.ID_FROM_MY_EXPERIMENTS_FILE, false);
           startActivityForResult(experimentIntent, JOIN_REQUEST_CODE);
         }
       }

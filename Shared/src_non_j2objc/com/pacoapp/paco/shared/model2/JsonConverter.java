@@ -152,7 +152,7 @@ public class JsonConverter {
           }
           InputDAO oldInput = new InputDAO(inputId++,
                                            model2Input.getName(),
-                                           (String)null,
+                                           InputDAO.QUESTION,
                                            model2Input.getResponseType(),
                                            model2Input.getText(),
                                            model2Input.getRequired(),
@@ -171,8 +171,7 @@ public class JsonConverter {
 
         FeedbackDAO[] feedbacks = new FeedbackDAO[1];
         Feedback model2Feedback = experimentGroup.getFeedback();
-        FeedbackDAO oldFeedback = new FeedbackDAO();
-        oldFeedback.setText(model2Feedback.getText());
+        FeedbackDAO oldFeedback = new FeedbackDAO(1l, model2Feedback.getText());
         feedbacks[0] = oldFeedback;
         bcExperiment.setFeedback(feedbacks);
       } else {

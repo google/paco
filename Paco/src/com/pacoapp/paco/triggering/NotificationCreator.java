@@ -199,7 +199,7 @@ public class NotificationCreator {
   }
 
   private void createNewNotificationForExperiment(Context context, ActionSpecification timeExperiment, boolean customGenerated) {
-
+    Log.i(PacoConstants.TAG, "CreateNewNotificationForExperiment start");
     NotificationHolder notificationHolder = createNewNotificationWithDetails(context, timeExperiment);
 
     createAlarmToCancelNotificationAtTimeout(context, notificationHolder);
@@ -207,7 +207,7 @@ public class NotificationCreator {
     if (timeExperiment.action.getSnoozeCount() > PacoNotificationAction.SNOOZE_COUNT_DEFAULT) {
       createAlarmForSnooze(context, notificationHolder);
     }
-
+    Log.i(PacoConstants.TAG, "CreateNewNotificationForExperiment done");
   }
 
   private void createNewCustomNotificationForExperiment(Context context, DateTime time, ExperimentDAO experiment, String groupName, long expirationTimeInMillis, String message) {
@@ -335,23 +335,31 @@ public class NotificationCreator {
   }
 
   public void createNotificationsForTrigger(Experiment experiment, Pair<ExperimentGroup, InterruptTrigger> triggerInfo, long delayTime, DateTime triggeredDateTime, int triggerEvent, String sourceIdentifier, ActionSpecification timeExperiment) {
+    Log.i(PacoConstants.TAG, "entering createNotificationsForTrigger");
     ExperimentGroup experimentGroup = triggerInfo.first;
-    List<NotificationHolder> notificationsForGroup = experimentProviderUtil.getNotificationsFor(experiment.getId(), experimentGroup.getName());
+    List<NotificationHolder> notificationsForGroup = experimentProviderUtil.getNotificationsFor(experiment.getId(),
+                                                                                                experimentGroup.getName());
 
+    Log.i(PacoConstants.TAG, "Got notificationsForGroup: " + notificationsForGroup.size());
     // Approach 1 for triggers, mark old triggers notification as missed, cancel them, and install notification for new trigger.
     // we cannot catch the notification before the user can click it. Thus they will always get triggered twice.
 //    timeoutNotifications(notificationsForTrigger);
 
     //  Alternate approach, ignore new trigger if there is already an active notification for this trigger
     if (activeNotificationForTrigger(notificationsForGroup, timeExperiment)) {
+      Log.i(PacoConstants.TAG, "ACtive notification for trigger exists. not notifying");
       return;
     }
 
+    Log.i(PacoConstants.TAG, "delaytime in notificaiton action: " + delayTime);
     try {
+      if (delayTime >= 5000) { // temporary bug in the default value
+        delayTime /= 1000;
+      }
       Thread.sleep(delayTime * 1000);
     } catch (InterruptedException e) {
     }
-
+    Log.i(PacoConstants.TAG, "timeout and createNew");
     timeoutNotifications(notificationsForGroup);
     createNewNotificationForExperiment(context, timeExperiment, false);
   }

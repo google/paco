@@ -112,16 +112,16 @@ class DefaultExperimentService implements ExperimentService {
   public List<ValidationMessage> saveExperiment(ExperimentDAO experiment,
                                                 String loggedInUserEmail,
                                                 DateTimeZone timezone) {
-    ExperimentValidator validator = new ExperimentValidator();
-    experiment.validateWith(validator);
-    List<ValidationMessage> results = validator.getResults();
-    if (!results.isEmpty()) {
-      return results;
-    }
-
-
     if (ExperimentAccessManager.isUserAllowedToSaveExperiment(experiment.getId(), loggedInUserEmail)) {
-      ensureIdsOnSubObjects(experiment);
+      ensureIdsOnActionTriggerObjects(experiment);
+
+      ExperimentValidator validator = new ExperimentValidator();
+      experiment.validateWith(validator);
+      List<ValidationMessage> results = validator.getResults();
+      if (!results.isEmpty()) {
+        return results;
+      }
+
       DatastoreService ds = DatastoreServiceFactory.getDatastoreService();
       TransactionOptions options = TransactionOptions.Builder.withXG(true);
       Transaction tx = ds.beginTransaction(options);
@@ -164,27 +164,38 @@ class DefaultExperimentService implements ExperimentService {
 
   }
 
-  private void ensureIdsOnSubObjects(ExperimentDAO experiment) {
+  private void ensureIdsOnActionTriggerObjects(ExperimentDAO experiment) {
+    // ill-formed experiments will be handled next in the validation phase before saving.
     long id = new Date().getTime();
     List<ExperimentGroup> groups = experiment.getGroups();
+    if (groups == null) {
+      return;
+    }
     for (ExperimentGroup experimentGroup : groups) {
       List<ActionTrigger> actionTriggers = experimentGroup.getActionTriggers();
-      for (ActionTrigger actionTrigger : actionTriggers) {
-        if (actionTrigger.getId() == null) {
-          actionTrigger.setId(id++);
-        }
-        List<PacoAction> actions = actionTrigger.getActions();
-        for (PacoAction pacoAction : actions) {
-          if (pacoAction.getId() == null) {
-            pacoAction.setId(id++);
+      if (actionTriggers != null) {
+        for (ActionTrigger actionTrigger : actionTriggers) {
+          if (actionTrigger.getId() == null) {
+            actionTrigger.setId(id++);
           }
-        }
-        if (actionTrigger instanceof ScheduleTrigger) {
-          ScheduleTrigger scheduleTrigger = (ScheduleTrigger)actionTrigger;
-          List<Schedule> schedules = scheduleTrigger.getSchedules();
-          for (Schedule schedule : schedules) {
-            if (schedule.getId() == null) {
-              schedule.setId(id++);
+          List<PacoAction> actions = actionTrigger.getActions();
+          if (actions != null) {
+
+            for (PacoAction pacoAction : actions) {
+              if (pacoAction.getId() == null) {
+                pacoAction.setId(id++);
+              }
+            }
+          }
+          if (actionTrigger instanceof ScheduleTrigger) {
+            ScheduleTrigger scheduleTrigger = (ScheduleTrigger)actionTrigger;
+            List<Schedule> schedules = scheduleTrigger.getSchedules();
+            if (schedules != null) {
+              for (Schedule schedule : schedules) {
+                if (schedule.getId() == null) {
+                  schedule.setId(id++);
+                }
+              }
             }
           }
         }
