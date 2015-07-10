@@ -94,7 +94,8 @@ public class ExperimentProviderUtil implements EventStore {
     DateTime now = DateTime.now();
     for (Experiment experiment : joinedExperiments) {
 
-      if (!ActionScheduleGenerator.isOver(now, experiment.getExperimentDAO())) {
+      final ExperimentDAO experimentDAO = experiment.getExperimentDAO();
+      if (experimentDAO != null && !ActionScheduleGenerator.isOver(now, experimentDAO)) {
         stillRunningExperiments.add(experiment);
       }
     }
