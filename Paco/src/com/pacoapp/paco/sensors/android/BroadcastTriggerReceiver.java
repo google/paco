@@ -12,6 +12,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.database.Cursor;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.PowerManager;
 import android.provider.Browser;
@@ -403,8 +404,13 @@ public class BroadcastTriggerReceiver extends BroadcastReceiver {
   public static void startProcessService(Context context) {
     Log.i(PacoConstants.TAG, "Starting App Usage poller");
     BroadcastTriggerReceiver.toggleWatchRunningProcesses(context, true);
-    Intent intent = new Intent(context, ProcessService.class);
-    context.startService(intent);
+    if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+      Intent intent = new Intent(context, LollipopProcessMonitorService.class);
+      context.startService(intent);
+    } else {
+      Intent intent = new Intent(context, ProcessService.class);
+      context.startService(intent);
+    }
   }
 
   public static void stopProcessService(Context context) {
