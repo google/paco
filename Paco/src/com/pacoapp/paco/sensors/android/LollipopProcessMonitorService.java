@@ -189,12 +189,13 @@ public class LollipopProcessMonitorService extends Service {
             Iterable<String> appsStartedList = Splitter.on(",").split(appsStarted);
             for (String appStarted : appsStartedList) {
               if (!newAppNames.contains(appsStarted)) {
+             // TODO not that this is flushing all of them, in some world, not this one,
+                // it is possible that we should just remove the one that is no longer new.
+                BroadcastTriggerReceiver.unsetAppToWatchStarted(getApplicationContext());
                 triggerAppClosed(appStarted);
               }
             }
-            // TODO not that this is flushing all of them, in some world, not this one,
-            // it is possible that we should just remove the one that is no longer new.
-            BroadcastTriggerReceiver.unsetAppToWatchStarted(getApplicationContext());
+
           }
         }
 
