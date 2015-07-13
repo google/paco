@@ -278,7 +278,6 @@
 			isEditable = 1;
 			outputFiles = (
 				"$(DERIVED_FILE_DIR)/${INPUT_FILE_BASE}.h",
-				"$(DERIVED_FILE_DIR)/${INPUT_FILE_BASE}.m",
 			);
 			script = "../Shared/j2objc/j2objc -d ${DERIVED_FILE_DIR} -classpath ../Shared/lib/joda-time-2.5.jar -sourcepath ../Shared/src  --prefixes ../Shared/j2objcprefixes.properties --no-package-directories -use-arc ${INPUT_FILE_PATH};";
 		};
