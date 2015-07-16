@@ -13,6 +13,9 @@ var paco = (function (init) {
   
   obj.createResponsesForInputs = function(inputs) {
     var responses = [];
+    if (!inputs) {
+      return responses;
+    }
     for (var experimentalInput in inputs) {
       responses.push(obj.createResponseForInput(inputs[experimentalInput]));
     }
@@ -21,10 +24,11 @@ var paco = (function (init) {
 
   obj.createResponseEventForExperimentWithResponses = function(experiment, experimentGroup, 
       actionTriggerId, actionId, actionTriggerSpecId, responses, scheduledTime) {
+    var egName = experimentGroup != null ? experimentGroup.name : "";
     return  {
       "experimentId" : experiment.id,
       "experimentVersion" : experiment.version,
-      "experimentGroupName" : experimentGroup.name,
+      "experimentGroupName" : egName,
       "actionTriggerId" : actionTriggerId,
       "actionId" : actionId, 
       "actionTriggerSpecId" : actionTriggerSpecId, 
@@ -38,9 +42,14 @@ var paco = (function (init) {
 //
   obj.createResponseEventForExperimentGroup = function(experiment, experimentGroup, 
       actionTriggerId, actionId, actionTriggerSpecId, scheduledTime) {
-    var responses = obj.createResponsesForInputs(experimentGroup.inputs);
+    var inputs = experimentGroup != null ? experimentGroup.inputs : null;
+    var responses = obj.createResponsesForInputs(inputs);
     return obj.createResponseEventForExperimentWithResponses(experiment, experimentGroup, 
         actionTriggerId, actionId, actionTriggerSpecId, responses, scheduledTime);
+  };
+  
+  obj.createResponseEventForExperiment = function(experiment, scheduledTime) {
+    return obj.createResponseEventForExperimentGroup(experiment, null, null, null, null, scheduledTime);
   };
 
   obj.answerHas = function(answer, value) {
@@ -104,14 +113,14 @@ var paco = (function (init) {
 
       function getAllEvents() {
         if (!loaded) {
-          events = JSON.parse(db.getAllEvents());
+          events = JSON.parse(pacodb.getAllEvents());
           loaded = true;
         }
         return events;
       }
 
       function getLastEvent() {
-        return JSON.parse(db.getLastEvent());
+        return JSON.parse(pacodb.getLastEvent());
       };
 
       return {
@@ -179,7 +188,7 @@ var paco = (function (init) {
         return event.responses;
     };
 
-    var getAnswerNTimesAgoFor = function (item, nBack) {
+    var getAnswerNTimesAgoFor_ = function (item, nBack) {
         var responses = getResponsesForEventNTimesAgo(nBack);
         return getResponseForItem(responses, item);
     };
@@ -199,13 +208,13 @@ var paco = (function (init) {
 
       getResponsesForEventNTimesAgo : getResponsesForEventNTimesAgo,
 
-      getAnswerNTimesAgoFor : getAnswerNTimesAgoFor,
+      getAnswerNTimesAgoFor : getAnswerNTimesAgoFor_,
       getLastAnswerFor : function (item) {
-        return getAnswerNTimesAgoFor(item, 1);
+        return getAnswerNTimesAgoFor_(item, 1);
       },
 
       getAnswerBeforeLastFor : function (item) {
-        return getAnswerNTimesAgoFor(item, 2);
+        return getAnswerNTimesAgoFor_(item, 2);
       },
 
       getMostRecentAnswerFor : function(key) {
@@ -299,8 +308,8 @@ var paco = (function (init) {
 	      createNotification : function(message) {
 	        notificationService.createNotification(message);
 	      }, 
-	      removeNotification : function() {
-	    	  notificationService.removeNotification();
+	      removeNotification : function(message) {
+	    	  notificationService.removeNotification(message);
 	      },
         removeAllNotifications : function() {
           notificationService.removeAllNotifications();
