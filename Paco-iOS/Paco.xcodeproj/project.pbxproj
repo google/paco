@@ -2073,10 +2073,7 @@
 				GCC_PREFIX_HEADER = "Paco/source/Paco-Prefix.pch";
 				INFOPLIST_FILE = "Paco/config/Paco-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
-				LIBRARY_SEARCH_PATHS = (
-					"$(PROJECT_DIR)/DerivedData/Paco/Build/Products/Debug-iphoneos",
-					"$(PROJECT_DIR)/DerivedData/Paco/Build/Products/Debug-iphonesimulator",
-				);
+				LIBRARY_SEARCH_PATHS = "";
 				OTHER_LDFLAGS = (
 					"-ObjC",
 					"-all_load",
@@ -2101,10 +2098,7 @@
 				GCC_PREFIX_HEADER = "Paco/source/Paco-Prefix.pch";
 				INFOPLIST_FILE = "Paco/config/Paco-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
-				LIBRARY_SEARCH_PATHS = (
-					"$(PROJECT_DIR)/DerivedData/Paco/Build/Products/Debug-iphoneos",
-					"$(PROJECT_DIR)/DerivedData/Paco/Build/Products/Debug-iphonesimulator",
-				);
+				LIBRARY_SEARCH_PATHS = "";
 				OTHER_LDFLAGS = (
 					"-ObjC",
 					"-all_load",
@@ -2142,7 +2136,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
 				TEST_HOST = "$(BUNDLE_LOADER)";
-				USER_HEADER_SEARCH_PATHS = "$(inherited) /Users/bobevans/Library/Developer/Xcode/DerivedData/Paco-habypqfxmikiorflqzxvnofpplmd/Build/Intermediates/Paco.build/Debug-iphonesimulator/Paco.build/DerivedSources";
+				USER_HEADER_SEARCH_PATHS = "$(inherited)";
 			};
 			name = Debug;
 		};
@@ -2171,7 +2165,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
 				TEST_HOST = "$(BUNDLE_LOADER)";
-				USER_HEADER_SEARCH_PATHS = "$(inherited) /Users/bobevans/Library/Developer/Xcode/DerivedData/Paco-habypqfxmikiorflqzxvnofpplmd/Build/Intermediates/Paco.build/Debug-iphonesimulator/Paco.build/DerivedSources";
+				USER_HEADER_SEARCH_PATHS = "$(inherited)";
 			};
 			name = Release;
 		};
