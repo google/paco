@@ -25,6 +25,8 @@
 
 @property (strong, nonatomic) UILocalNotification* notificationFromAppLaunch;
 
+@property(nonatomic,copy) NSArray *scheduledLocalNotifications NS_AVAILABLE_IOS(4_0);   
+
 - (void)processNotificationIfNeeded;
 
 @end

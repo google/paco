@@ -51,8 +51,10 @@ static NSString* esmDefinitionJson = @"{\"title\":\"Notification - ESM Test\",\"
   id definitionDict = [NSJSONSerialization JSONObjectWithData:data
                                                       options:NSJSONReadingAllowFragments
                                                         error:&error];
+    
   XCTAssertTrue(error == nil && [definitionDict isKindOfClass:[NSDictionary class]],
                @"esmExperimentTemplate should be successfully serialized!");
+    
   PacoExperimentDefinition* definition = [PacoExperimentDefinition pacoExperimentDefinitionFromJSON:definitionDict];
   XCTAssertNotNil(definition, @"definition should not be nil!");
   
