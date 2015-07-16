@@ -1,3 +1,15 @@
+/* Installation
+ * 
+ * The following will install the necessary npm modules for this gulpfile:
+ 
+ % npm install gulp-ruby-sass gulp-autoprefixer gulp-minify-css gulp-jshint \
+    gulp-concat gulp-uglify gulp-imagemin gulp-notify gulp-rename del \
+    gulp-util gulp-html-replace --save-dev
+
+ *
+ */
+
+
 // Load plugins
 var gulp = require('gulp');
 var autoprefixer = require('gulp-autoprefixer');
