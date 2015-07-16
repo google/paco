@@ -8,6 +8,12 @@ pacoApp.controller('HomeCtrl', ['$scope', '$http', '$routeParams', '$location',
     $scope.cache = $cacheFactory.get('$http');
     $scope.edit = false;
 
+    $scope.loadList = function(reload) {
+      $scope.loadAdmin(reload);
+      $scope.loadJoined(reload);
+      $scope.loadJoinable(reload);
+    }
+
     $scope.loadJoined = function(reload) {
       var cache = true;
       if (reload !== undefined && reload === true) {
@@ -86,7 +92,6 @@ pacoApp.controller('HomeCtrl', ['$scope', '$http', '$routeParams', '$location',
     }).error(function(data) {
       console.log(data);
     });
-
 
     if (angular.isDefined($routeParams.experimentId)) {
       $scope.experimentId = parseInt($routeParams.experimentId, 10);
@@ -233,12 +238,6 @@ pacoApp.controller('ExperimentCtrl', ['$scope', '$http',
       $scope.ace.height = $scope.lineCount(newValue) * 16;
     });
 
-    $scope.deleteExperiment = function() {
-      $http.get('/experiments?delete&id=' + $scope.experiment.id).success(function(data) {
-        console.log(data);
-      });
-    };
-
     $scope.saveExperiment = function() {
 
       $http.post('/experiments', $scope.experiment).success(function(data) {
@@ -295,29 +294,36 @@ pacoApp.controller('ExperimentCtrl', ['$scope', '$http',
 
 
 
-pacoApp.controller('JoinCtrl', ['$scope', '$http', '$mdDialog',
-  function($scope, $http, $mdDialog) {
+pacoApp.controller('ListCtrl', ['$scope', '$http', '$mdDialog', 'util',
+  function($scope, $http, $mdDialog, util) {
 
-    var obj = {};
-    obj.experimentId = $scope.exp.id;
-    obj.appId = 'webform';  
-    obj.experimentVersion = $scope.exp.version;
-    obj.experimentName = $scope.exp.title;
-    obj.responses = [{"name":"joined", "answer": true}];
-    var now = new Date();
-    var iso = now.toISOString();
+    $scope.deleteExperiment = function(ev, exp) {
+      var confirm = $mdDialog.confirm()
+        .parent(angular.element(document.body))
+        .title('Confirm experiment deletion')
+        .content('Would you like to delete experiment ' + exp.id + '? (' + exp.title + ')')
+        .ariaLabel('Confirm experiment deletion')
+        .ok('Delete')
+        .cancel('Cancel')
+        .targetEvent(ev);
+      $mdDialog.show(confirm).then(function() {
+        $http.post('/experiments?delete=1&id=' + exp.id, {}).success(function(data) {
+          $scope.loadList(true);
+        });
+      });      
+    };
 
-    // Tweak ISO string to conform to yyyy/MM/dd HH:mm:ssZ
-    iso = iso.replace(/-/g, '/');
-    iso = iso.replace(/T/, ' ');
-    iso = iso.replace(/\.[0-9]*/, '');
+    $scope.joinExperiment = function(exp) {
+      var obj = {};
+      obj.experimentId = exp.id;
+      obj.appId = 'webform';  
+      obj.experimentVersion = exp.version;
+      obj.experimentName = exp.title;
+      obj.responses = [{"name":"joined", "answer": true}];
+      obj.responseTime = util.formatDate(new Date());
+      var json = JSON.stringify(obj);
 
-    obj.responseTime = iso;
-
-    $scope.json = JSON.stringify(obj);
-
-    $scope.joinExperiment = function() {
-      $http.post('/events', $scope.json).success(function(data) {
+      $http.post('/events', json).success(function(data) {
           if (data[0].status === true) {
             $scope.loadJoined(true);
             $mdDialog.show(
@@ -602,8 +608,9 @@ pacoApp.controller('ErrorCtrl', ['$scope', '$mdDialog', 'config',
 
     console.log(errorMessage);
 
-    // TODO(ispiro): correctly handle Exception errors
-    if (errorMessage.indexOf('Exception') === 0) {
+    // TODO(bobevans): make server error formats consistent to avoid this special casing
+    if (errorMessage.indexOf('Exception') === 0 ||
+        errorMessage.indexOf('Newer version') === 0) {
       $scope.errors = [errorMessage];
     } else {
 

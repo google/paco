@@ -1,4 +1,4 @@
-<div class="list">
+<div class="list" ng-controller="ListCtrl">
   <p>
     <a href="#/edit/new">
         <md-button class="md-raised">
@@ -36,6 +36,12 @@
               Copy
             </md-button>
           </a>
+          
+          <a href="" ng-click="deleteExperiment($event, exp)">
+            <md-button >
+              Delete
+            </md-button>
+          </a>
 
           <a href="participantStats?experimentId={{exp.id}}" target="_new">
             <md-button>
@@ -55,7 +61,8 @@
             </md-button>
           </a>
           
-          <a href="#" ng-controller="JoinCtrl" ng-model="exp" ng-click="joinExperiment()">
+          <a href="#" ng-click="joinExperiment(exp)" 
+            ng-if="joinedIndex.indexOf(exp.id) === -1">
             <md-button>
               Join
             </md-button>
@@ -96,13 +103,7 @@
                 Stats
               </md-button>
             </a>
-<!-- 
-            <a href="#"  ng-controller="EodCtrl" ng-model="exp" ng-click="showEod()"
-              ng-if="eodExperiments[exp.id]">
-              <md-button>
-                EOD
-              </md-button>
-            </a> -->
+
           </div>
       </md-card>
     </div>
@@ -118,12 +119,9 @@
             administered by {{exp.organization}}
           </span>
 
-          <a href="#" ng-controller="JoinCtrl" ng-model="exp" 
-            ng-click="joinExperiment()" class="join">
-            <md-button>
-              Join
-            </md-button>
-          </a>
+          <md-button ng-click="joinExperiment(exp)" class="join">
+            Join
+          </md-button>
         </md-card-content>
 
       </md-card>
