@@ -20,6 +20,8 @@
 <application>quantifiedself</application>
   <module>default</module>
   <version>138</version>
+  
+  <public-root>/dist</public-root>
 
   <static-files>
     <exclude path='**/*.gwt.rpc'/>

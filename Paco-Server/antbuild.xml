@@ -181,6 +181,15 @@
     </java>
   </target>
 
+  <target name="symlink_for_dev">
+    <!-- Attempt to delete dist as a symlink first. Otherwise the delete command
+         will delete web itself -->
+    <symlink action="delete" link="${basedir}/ear/default/dist"/>
+    <!-- Delete dist as a directory in case it was the output from gulp -->
+    <delete dir="${basedir}/ear/default/dist" failonerror="false" />
+    <symlink link="${basedir}/ear/default/dist" resource="${basedir}/web" failonerror="true" overwrite="true"/>
+  </target>
+
   <target name="symlinks_for_reportworker">
     <symlink link="${basedir}/ear/reportworker/WEB-INF/lib" resource="${basedir}/ear/default/WEB-INF/lib" failonerror="false" overwrite="true"/>
     <symlink link="${basedir}/ear/reportworker/WEB-INF/classes" resource="${basedir}/ear/default/WEB-INF/classes" failonerror="false" overwrite="true"/>
