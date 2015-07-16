@@ -39,7 +39,7 @@ static const int ddLogLevel = LOG_LEVEL_VERBOSE;
 //production server: 0
 //local server: 1
 //staging server: 2
-#define SERVER_DOMAIN_FLAG 0
+#define SERVER_DOMAIN_FLAG 2
 
 
 #define IS_IOS_7 ([[[UIDevice currentDevice] systemVersion] floatValue] >= 7.0)

@@ -17,7 +17,6 @@
 		3197721B163F265C000AC06B /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3197721A163F265B000AC06B /* Security.framework */; };
 		3197721D163F2672000AC06B /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3197721C163F2672000AC06B /* SystemConfiguration.framework */; };
 		31D5575116DAD33200C7D1BE /* MobileCoreServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 31D5575016DAD33200C7D1BE /* MobileCoreServices.framework */; };
-		36000C3417C6B0A300A8A9E7 /* libParseKitMobile.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 36000C2817C6AEA900A8A9E7 /* libParseKitMobile.a */; };
 		36000C5917CD1AF600A8A9E7 /* Test_999999999.plist in Resources */ = {isa = PBXBuildFile; fileRef = 36000C5817CD1AF600A8A9E7 /* Test_999999999.plist */; };
 		3612A269185FE7AA00DEADD1 /* PacoTimeEditView.m in Sources */ = {isa = PBXBuildFile; fileRef = 3612A268185FE7AA00DEADD1 /* PacoTimeEditView.m */; };
 		361A118B18F30CC9000E9CA2 /* UIColor+Paco.m in Sources */ = {isa = PBXBuildFile; fileRef = 361A118A18F30CC9000E9CA2 /* UIColor+Paco.m */; };
@@ -204,7 +203,6 @@
 		4448BCC11A808E7A0034FCE9 /* ReleaseNotes.txt in Resources */ = {isa = PBXBuildFile; fileRef = 4448BC911A808E7A0034FCE9 /* ReleaseNotes.txt */; };
 		4448BCDC1A80901D0034FCE9 /* GTMOAuth2ViewControllerTouch.m in Sources */ = {isa = PBXBuildFile; fileRef = 4448BCDA1A80901D0034FCE9 /* GTMOAuth2ViewControllerTouch.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
 		4448BCDD1A80901D0034FCE9 /* GTMOAuth2ViewTouch.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4448BCDB1A80901D0034FCE9 /* GTMOAuth2ViewTouch.xib */; };
-		44A843E91ADB9EAD009C7226 /* PacoInstantiateJ2ObjcClass.m in Sources */ = {isa = PBXBuildFile; fileRef = 44A843E81ADB9EAD009C7226 /* PacoInstantiateJ2ObjcClass.m */; };
 		7F8531D41A37BE680028BA23 /* JCNotificationBanner.m in Sources */ = {isa = PBXBuildFile; fileRef = 7F8531BE1A37BE680028BA23 /* JCNotificationBanner.m */; };
 		7F8531D51A37BE680028BA23 /* JCNotificationBannerPresenter.m in Sources */ = {isa = PBXBuildFile; fileRef = 7F8531C11A37BE680028BA23 /* JCNotificationBannerPresenter.m */; };
 		7F8531D61A37BE680028BA23 /* JCNotificationBannerPresenterIOS7Style.m in Sources */ = {isa = PBXBuildFile; fileRef = 7F8531C31A37BE680028BA23 /* JCNotificationBannerPresenterIOS7Style.m */; };
@@ -219,6 +217,8 @@
 		7FB660801AA8C305008D2327 /* paco32@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 7FB6607E1AA8C305008D2327 /* paco32@2x.png */; };
 		7FB660811AA8C305008D2327 /* paco32@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = 7FB6607F1AA8C305008D2327 /* paco32@3x.png */; };
 		7FB660901AA8C352008D2327 /* PacoTitleView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 7FB6608F1AA8C352008D2327 /* PacoTitleView.xib */; };
+		A6974B1E1B5735C200FBEA04 /* libicucore.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 36000C3717C6B34000A8A9E7 /* libicucore.dylib */; };
+		A6C69D961B55BF2C0086E424 /* libParseKitMobile.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 36000C2817C6AEA900A8A9E7 /* libParseKitMobile.a */; };
 		C567E89017A03FDE00267A26 /* deepbark_trial.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = C567E88F17A03FDE00267A26 /* deepbark_trial.mp3 */; };
 		C5B4691917B07E4900B6BC18 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C5B4691817B07E4900B6BC18 /* CoreGraphics.framework */; };
 		C5C4F5D217B163EF009E9F18 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C5C4F5D117B163EF009E9F18 /* QuartzCore.framework */; };
@@ -233,6 +233,20 @@
 		E4E8F352183B21500022613A /* PacoContactUsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = E4E8F351183B21500022613A /* PacoContactUsViewController.m */; };
 		E4F9A79818899F39006A2803 /* PacoStepperView.m in Sources */ = {isa = PBXBuildFile; fileRef = E4F9A79718899F39006A2803 /* PacoStepperView.m */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXBuildRule section */
+		A6C69D981B56E2890086E424 /* PBXBuildRule */ = {
+			isa = PBXBuildRule;
+			compilerSpec = com.apple.compilers.proxy.script;
+			fileType = sourcecode.java;
+			isEditable = 1;
+			outputFiles = (
+				"$(DERIVED_FILE_DIR)/${INPUT_FILE_BASE}.h",
+				"$(DERIVED_FILE_DIR)/${INPUT_FILE_BASE}.m",
+			);
+			script = "if [ ! -f \"${J2OBJC_HOME}/j2objc\" ]; then echo \"J2OBJC_HOME not correctly defined in Settings.xcconfig, currently set to '${J2OBJC_HOME}'\"; exit 1; fi;\n\nif [ ! -f \"${PROJECT_DIR}/../Shared/src\" ]; then echo \"Source Not found\"; exit 1; fi;\n\n\"${J2OBJC_HOME}/j2objc\" -d ${DERIVED_FILES_DIR} -sourcepath \"${PROJECT_DIR}/../Shared/src\" --no-package-directories -use-arc --prefix Othello.Engine=OE -g ${INPUT_FILE_PATH};";
+		};
+/* End PBXBuildRule section */
 
 /* Begin PBXContainerItemProxy section */
 		319771F3163F0733000AC06B /* PBXContainerItemProxy */ = {
@@ -626,7 +640,6 @@
 		4448BCD91A80901D0034FCE9 /* GTMOAuth2ViewControllerTouch.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GTMOAuth2ViewControllerTouch.h; sourceTree = "<group>"; };
 		4448BCDA1A80901D0034FCE9 /* GTMOAuth2ViewControllerTouch.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GTMOAuth2ViewControllerTouch.m; sourceTree = "<group>"; };
 		4448BCDB1A80901D0034FCE9 /* GTMOAuth2ViewTouch.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = GTMOAuth2ViewTouch.xib; sourceTree = "<group>"; };
-		44A843E81ADB9EAD009C7226 /* PacoInstantiateJ2ObjcClass.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoInstantiateJ2ObjcClass.m; sourceTree = "<group>"; };
 		44F9DDF81ADB5EA50098BECB /* libz.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libz.dylib; path = usr/lib/libz.dylib; sourceTree = SDKROOT; };
 		7F8531BD1A37BE680028BA23 /* JCNotificationBanner.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = JCNotificationBanner.h; path = jcnotificationbannerpresenter/Library/JCNotificationBanner.h; sourceTree = "<group>"; };
 		7F8531BE1A37BE680028BA23 /* JCNotificationBanner.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = JCNotificationBanner.m; path = jcnotificationbannerpresenter/Library/JCNotificationBanner.m; sourceTree = "<group>"; };
@@ -654,6 +667,9 @@
 		7FB6607E1AA8C305008D2327 /* paco32@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "paco32@2x.png"; sourceTree = "<group>"; };
 		7FB6607F1AA8C305008D2327 /* paco32@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "paco32@3x.png"; sourceTree = "<group>"; };
 		7FB6608F1AA8C352008D2327 /* PacoTitleView.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = PacoTitleView.xib; sourceTree = "<group>"; };
+		A6A8B35E1B57107900C41844 /* Settings.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Settings.xcconfig; sourceTree = "<group>"; };
+		A6C69D901B55BBDF0086E424 /* libicucore.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libicucore.dylib; path = ../../../../../usr/lib/libicucore.dylib; sourceTree = "<group>"; };
+		A6C69D941B55BE2E0086E424 /* libParseKitMobile.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libParseKitMobile.a; path = "DerivedData/Paco/Build/Products/Debug-iphonesimulator/libParseKitMobile.a"; sourceTree = "<group>"; };
 		C567E88F17A03FDE00267A26 /* deepbark_trial.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = deepbark_trial.mp3; sourceTree = "<group>"; };
 		C5B4691817B07E4900B6BC18 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
 		C5C4F5D117B163EF009E9F18 /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
@@ -681,12 +697,13 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A6974B1E1B5735C200FBEA04 /* libicucore.dylib in Frameworks */,
+				A6C69D961B55BF2C0086E424 /* libParseKitMobile.a in Frameworks */,
 				E4D5DE861837DE9A00E5446A /* MessageUI.framework in Frameworks */,
 				C5C4F5D217B163EF009E9F18 /* QuartzCore.framework in Frameworks */,
 				319771C9163F0733000AC06B /* UIKit.framework in Frameworks */,
 				319771CB163F0733000AC06B /* Foundation.framework in Frameworks */,
 				C5B4691917B07E4900B6BC18 /* CoreGraphics.framework in Frameworks */,
-				36000C3417C6B0A300A8A9E7 /* libParseKitMobile.a in Frameworks */,
 				31D5575116DAD33200C7D1BE /* MobileCoreServices.framework in Frameworks */,
 				3129004216DAAC9F008FF617 /* MapKit.framework in Frameworks */,
 				3129004016DAA4C7008FF617 /* CoreLocation.framework in Frameworks */,
@@ -712,6 +729,7 @@
 		319771B9163F0733000AC06B = {
 			isa = PBXGroup;
 			children = (
+				A6A8B35E1B57107900C41844 /* Settings.xcconfig */,
 				319771CE163F0733000AC06B /* Paco */,
 				36B8EC3517568E40004CF035 /* PacoTests */,
 				36B8EC1217568E33004CF035 /* vendor */,
@@ -733,6 +751,8 @@
 		319771C7163F0733000AC06B /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				A6C69D901B55BBDF0086E424 /* libicucore.dylib */,
+				A6C69D941B55BE2E0086E424 /* libParseKitMobile.a */,
 				44F9DDF81ADB5EA50098BECB /* libz.dylib */,
 				E4D5DE851837DE9900E5446A /* MessageUI.framework */,
 				C5C4F5D117B163EF009E9F18 /* QuartzCore.framework */,
@@ -1286,7 +1306,6 @@
 				3662927C1821C10800FC647A /* PacoExperimentScheduleTests.m */,
 				366292851821C2EF00FC647A /* PacoUtilityTests.m */,
 				3640612F18230DA700DA5EB7 /* PacoExperimentTests.m */,
-				44A843E81ADB9EAD009C7226 /* PacoInstantiateJ2ObjcClass.m */,
 				36B8EC3817568E40004CF035 /* resources */,
 			);
 			path = PacoTests;
@@ -1504,6 +1523,7 @@
 				319771C2163F0733000AC06B /* Resources */,
 			);
 			buildRules = (
+				A6C69D981B56E2890086E424 /* PBXBuildRule */,
 			);
 			dependencies = (
 				36000C3617C6B0A800A8A9E7 /* PBXTargetDependency */,
@@ -1883,7 +1903,6 @@
 			files = (
 				36A8201D18B5576400FE83A5 /* PacoScheduleGenerator+Weekdays.m in Sources */,
 				36B5A4FB18282E46004DB894 /* PacoScheduleGeneratorWeeklyESMTests.m in Sources */,
-				44A843E91ADB9EAD009C7226 /* PacoInstantiateJ2ObjcClass.m in Sources */,
 				365D20EA181B1B000097F379 /* PacoNSStringCategoryTests.m in Sources */,
 				36B8EC3C17568E40004CF035 /* PacoTests.m in Sources */,
 				367233E418061FD6006611E6 /* PacoScheduleGeneratorTests.m in Sources */,
@@ -1976,6 +1995,7 @@
 /* Begin XCBuildConfiguration section */
 		319771FE163F0733000AC06B /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = A6A8B35E1B57107900C41844 /* Settings.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
@@ -2043,6 +2063,7 @@
 		};
 		31977201163F0733000AC06B /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = A6A8B35E1B57107900C41844 /* Settings.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
@@ -2052,7 +2073,10 @@
 				GCC_PREFIX_HEADER = "Paco/source/Paco-Prefix.pch";
 				INFOPLIST_FILE = "Paco/config/Paco-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
-				LIBRARY_SEARCH_PATHS = "";
+				LIBRARY_SEARCH_PATHS = (
+					"$(PROJECT_DIR)/DerivedData/Paco/Build/Products/Debug-iphoneos",
+					"$(PROJECT_DIR)/DerivedData/Paco/Build/Products/Debug-iphonesimulator",
+				);
 				OTHER_LDFLAGS = (
 					"-ObjC",
 					"-all_load",
@@ -2077,7 +2101,10 @@
 				GCC_PREFIX_HEADER = "Paco/source/Paco-Prefix.pch";
 				INFOPLIST_FILE = "Paco/config/Paco-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
-				LIBRARY_SEARCH_PATHS = "";
+				LIBRARY_SEARCH_PATHS = (
+					"$(PROJECT_DIR)/DerivedData/Paco/Build/Products/Debug-iphoneos",
+					"$(PROJECT_DIR)/DerivedData/Paco/Build/Products/Debug-iphonesimulator",
+				);
 				OTHER_LDFLAGS = (
 					"-ObjC",
 					"-all_load",

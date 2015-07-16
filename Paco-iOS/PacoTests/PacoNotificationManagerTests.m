@@ -19,6 +19,8 @@
 #import "UILocalNotification+Paco.h"
 #import "PacoDateUtility.h"
 
+
+
 @interface PacoNotificationManager ()
 
 @property (atomic, retain, readwrite) NSMutableDictionary* notificationDict;
@@ -299,9 +301,19 @@
   self.expectExpiredNotifications = @[timeoutNoti, obsoleteNoti, timeoutNoti1, timeoutNoti2];
   
   XCTAssertEqual((int)[notificationsToSchedule count], 9, @"should have 9 notifications in total");
+    
+    
+    
   [UIApplication sharedApplication].scheduledLocalNotifications = notificationsToSchedule;
+    
+    
+    
+    NSArray * deleteThis =[UIApplication sharedApplication].scheduledLocalNotifications;
+    
+    
   XCTAssertEqual((int)[[UIApplication sharedApplication].scheduledLocalNotifications count], 9,
                  @"should have 9 notifications scheduled");
+    
   
   self.testManager.notificationDict = notificationDict;
   XCTAssertEqual((int)[self.testManager totalNumberOfActiveNotifications], 0, @"should have 0 active notifications");
