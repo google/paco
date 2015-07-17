@@ -1,0 +1,5 @@
+# ignore all files
+.svn
+bin
+obj
+
