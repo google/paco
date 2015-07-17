@@ -1,2 +1,0 @@
-
-    [self fireSyntaxSelector:@selector(parser:didMatchInterior:) withRuleName:@"{{methodName}}"];
