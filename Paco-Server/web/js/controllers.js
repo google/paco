@@ -224,7 +224,8 @@ pacoApp.controller('ExperimentCtrl', ['$scope', '$http',
     };
 
     $scope.$watch('ace.JSON', function(newValue, oldValue) {
-      if (!oldValue) {
+
+      if (!oldValue || oldValue == newValue) {
         return;
       }
       try {
