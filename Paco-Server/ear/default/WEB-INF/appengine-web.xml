@@ -17,9 +17,9 @@
  ~ under the License.
  -->
 <appengine-web-app xmlns='http://appengine.google.com/ns/1.0'>
-<application>quantifiedself-staging</application>
+<application>quantifiedself</application>
   <module>default</module>
-  <version>138</version>
+  <version>139</version>
 
   <static-files>
     <exclude path='**/*.gwt.rpc'/>
