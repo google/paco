@@ -152,6 +152,9 @@ public class Experiment implements Parcelable {
   }
 
   public boolean isRunning(DateTime now) {
+    if (experimentDelegate == null) {
+      return false;
+    }
     List<ExperimentGroup> groups = experimentDelegate.getGroups();
     for (ExperimentGroup experimentGroup : groups) {
       if (isRunning(now, experimentGroup)) {

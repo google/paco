@@ -114,6 +114,7 @@ public class ServerCommunication {
       final Long[] arrayOfIds = joinedExperimentServerIds.toArray(new Long[joinedExperimentServerIds.size()]);
       new PacoBackgroundService(networkClient, ExperimentUrlBuilder.buildUrlForFullExperiment(userPrefs, arrayOfIds));
     }
+    // Update even if we don't succeed to prevent endless retries when network is down.
     userPrefs.setJoinedExperimentListRefreshTime(new Date().getTime());
   }
 

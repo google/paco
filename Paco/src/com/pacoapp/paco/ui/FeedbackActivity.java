@@ -48,6 +48,7 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Button;
 
+import com.google.common.base.Strings;
 import com.pacoapp.paco.PacoConstants;
 import com.pacoapp.paco.R;
 import com.pacoapp.paco.js.bridge.Environment;
@@ -128,13 +129,12 @@ public class FeedbackActivity extends ActionBarActivity {
         loadCustomFeedbackIntoWebView();
       }
       if (savedInstanceState != null){
-        webView.loadUrl((String) savedInstanceState.get("url"));
-        String showDialogString =  (String) savedInstanceState.get("showDialog");
-        if (showDialogString.equals("false")){
-          showDialog = false;
-        }else{
-          showDialog = true;
+        String savedUrl = savedInstanceState.getString("url");
+        if (!Strings.isNullOrEmpty(savedUrl)) {
+          webView.loadUrl(savedUrl);
         }
+        showDialog = savedInstanceState.getBoolean("showDialog", false);
+
       }
     }
 
@@ -414,12 +414,6 @@ public class FeedbackActivity extends ActionBarActivity {
     }
   }
 
-  @Override
-  protected void onSaveInstanceState(Bundle outState) {
-    outState.putString("url", webView.getUrl());
-    outState.putString("showDialog", showDialog+"");
- }
-
   String getTextOfInputForOutput(ExperimentDAO experiment, Output output) {
     for (Input2 input : ExperimentHelper.getInputs(experiment)) {
       if (input.getName().equals(output.getName())) {
@@ -433,5 +427,26 @@ public class FeedbackActivity extends ActionBarActivity {
     return output.getName();
   }
 
+  @Override
+  protected void onSaveInstanceState(Bundle outState) {
+    if (webView != null) {
+      outState.putString("url", webView.getUrl());
+    }
+    outState.putBoolean("showDialog", showDialog);
+  }
+
+  // TODO resolve whether this should be here or in the onCreate method.
+//  @Override
+//  protected void onRestoreInstanceState(Bundle savedInstanceState) {
+//    super.onRestoreInstanceState(savedInstanceState);
+//    String url = savedInstanceState.getString("url");
+//    if (url != null) {
+//      if (webView != null) {
+//        webView.loadUrl(url);
+//      }
+//    }
+//    showDialog = savedInstanceState.getBoolean("showDialog", false);
+//  }
+//
 
 }

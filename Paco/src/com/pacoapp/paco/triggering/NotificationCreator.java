@@ -53,6 +53,7 @@ import com.pacoapp.paco.ui.ExperimentExecutor;
 
 public class NotificationCreator {
 
+  private static final int DEFAULT_SNOOZE_10_MINUTES = 600000;
   public static final String SNOOZE_REPEATER_EXTRA_KEY = "SNOOZE REPEATER";
   private static final int MILLIS_IN_MINUTE = 60000;
   public static String NOTIFICATION_ID = "com.google.android.apps.paco.notification_id";
@@ -404,6 +405,9 @@ public class NotificationCreator {
     DateTime alarmTime = new DateTime(notificationHolder.getAlarmTime());
     Experiment experiment = experimentProviderUtil.getExperimentByServerId(notificationHolder.getExperimentId());
     Integer snoozeTime = notificationHolder.getSnoozeTime();
+    if (snoozeTime == null) {
+      snoozeTime = DEFAULT_SNOOZE_10_MINUTES;
+    }
     int snoozeMinutes = snoozeTime / MILLIS_IN_MINUTE;
     DateTime timeoutMinutes = new DateTime(alarmTime).plusMinutes(snoozeMinutes);
     long snoozeDurationInMillis = timeoutMinutes.getMillis();
