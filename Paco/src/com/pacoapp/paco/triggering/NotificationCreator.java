@@ -31,6 +31,7 @@ import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
 import android.util.Log;
 
+import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.pacoapp.paco.PacoConstants;
 import com.pacoapp.paco.R;
@@ -104,7 +105,7 @@ public class NotificationCreator {
           if (notificationHolder.isCustomNotification()) {
             message = notificationHolder.getMessage();
           }
-          fireNotification(context, notificationHolder, experiment.getExperimentDAO().getTitle(), message);
+          fireNotification(context, notificationHolder, experiment.getExperimentDAO().getTitle(), message, experiment.getExperimentDAO().getRingtoneUri());
 
           createAlarmToCancelNotificationAtTimeout(context, notificationHolder);
           if (notificationHolder.getSnoozeCount() != null && (notificationHolder.getSnoozeCount() > PacoNotificationAction.SNOOZE_COUNT_DEFAULT)) {
@@ -128,7 +129,7 @@ public class NotificationCreator {
     if (notificationHolder.isActive(now)) {
         Experiment experiment = experimentProviderUtil.getExperimentByServerId(notificationHolder.getExperimentId());
         cancelNotification(context, notificationHolder.getId());  // in case this exists on the status bar, blow it away (this happens on package_replace calls).
-        fireNotification(context, notificationHolder, experiment.getExperimentDAO().getTitle(),  context.getString(R.string.time_to_participate_notification_text));
+        fireNotification(context, notificationHolder, experiment.getExperimentDAO().getTitle(),  context.getString(R.string.time_to_participate_notification_text), experiment.getExperimentDAO().getRingtoneUri());
     }
     // TODO
     // Optionally create another snooze alarm if the snoozeCount says it should happen and there is time left
@@ -226,7 +227,7 @@ public class NotificationCreator {
 
 
     experimentProviderUtil.insertNotification(notificationHolder);
-    fireNotification(context, notificationHolder, experiment.getTitle(), message);
+    fireNotification(context, notificationHolder, experiment.getTitle(), message, experiment.getRingtoneUri());
     createAlarmToCancelNotificationAtTimeout(context, notificationHolder);
   }
 
@@ -254,17 +255,17 @@ public class NotificationCreator {
                                                                      : context.getString(R.string.time_to_participate_notification_text),
                                                                      timeExperiment.actionTriggerSpecId);
     experimentProviderUtil.insertNotification(notificationHolder);
-    fireNotification(context, notificationHolder, timeExperiment.experiment.getTitle(), action.getMsgText());
+    fireNotification(context, notificationHolder, timeExperiment.experiment.getTitle(), action.getMsgText(), timeExperiment.experiment.getRingtoneUri());
     return notificationHolder;
   }
 
-  private void fireNotification(Context context, NotificationHolder notificationHolder, String experimentTitle, String message) {
+  private void fireNotification(Context context, NotificationHolder notificationHolder, String experimentTitle, String message, String experimentSpecificRingtone) {
     Log.i(PacoConstants.TAG, "Creating notification for experiment: " + experimentTitle
             + ". source: " + notificationHolder.getNotificationSource()
             + ". alarmTime: " + notificationHolder.getAlarmTime().toString()
             + ", holderId = " + notificationHolder.getId());
 
-    Notification notification = createNotification(context, notificationHolder, experimentTitle, message);
+    Notification notification = createAndroidNotification(context, notificationHolder, experimentTitle, message, experimentSpecificRingtone);
     //NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
     NotificationManagerCompat notificationManager = NotificationManagerCompat.from(context);
 
@@ -272,7 +273,7 @@ public class NotificationCreator {
 
   }
 
-  private Notification createNotification(Context context, NotificationHolder notificationHolder, String experimentTitle, String message) {
+  private Notification createAndroidNotification(Context context, NotificationHolder notificationHolder, String experimentTitle, String message, String experimentSpecificRingtone) {
     int icon = R.drawable.paco32;
 
 
@@ -297,6 +298,15 @@ public class NotificationCreator {
             .setAutoCancel(true);
 
     int defaults = Notification.DEFAULT_VIBRATE | Notification.DEFAULT_LIGHTS;
+    defaults = getRingtone(context, notificationBuilder, defaults, experimentSpecificRingtone);
+    notificationBuilder.setDefaults(defaults);
+    return notificationBuilder.build();
+  }
+
+  public int getRingtone(Context context, NotificationCompat.Builder notificationBuilder, int defaults, String experimentRingtone) {
+    if (!Strings.isNullOrEmpty(experimentRingtone)) {
+      notificationBuilder.setSound(Uri.parse(experimentRingtone)); // TODO add error handling that ringtone exists somewhere in this process.
+    }
     String ringtoneUri = new UserPreferences(context).getRingtoneUri();
     if (ringtoneUri != null) {
       notificationBuilder.setSound(Uri.parse(ringtoneUri));
@@ -306,8 +316,7 @@ public class NotificationCreator {
 //                                   + "/Android/data/" + context.getPackageName() + "/" +
 //                                   "deepbark_trial.mp3");
     }
-    notificationBuilder.setDefaults(defaults);
-    return notificationBuilder.build();
+    return defaults;
   }
 
   private void createAlarmToCancelNotificationAtTimeout(Context context, NotificationHolder notificationHolder) {

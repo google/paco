@@ -89,7 +89,7 @@ public class UserPreferences {
   private static final String RINGTONE_NAME_KEY = "ringtone-name";
 
   private static final String RINGTONE_INSTALLED_KEY = "paco_bark_ringtone_installed";
-
+  private static final String RINGTONE_ALT_INSTALLED_KEY = "alt_ringtone_installed";
 
   private SharedPreferences signallingPrefs;
   private Context context;
@@ -303,6 +303,15 @@ public class UserPreferences {
   public void setPacoBarkRingtoneInstalled() {
     getAppPrefs().edit().putBoolean(RINGTONE_INSTALLED_KEY, true).commit();
   }
+
+  public boolean hasInstalledAlternateRingtone() {
+    return getAppPrefs().getBoolean(RINGTONE_ALT_INSTALLED_KEY, false);
+  }
+
+  public void setAlternateRingtoneInstalled() {
+    getAppPrefs().edit().putBoolean(RINGTONE_ALT_INSTALLED_KEY, true).commit();
+  }
+
 
   public DateTime getRecentlyTriggeredTime(String uniqueTriggerIdentifier) {
     String storedTime = getAppPrefs().getString(EXPERIMENT_TRIGGERED_KEY + "_" + uniqueTriggerIdentifier, null);
