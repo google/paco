@@ -27,6 +27,8 @@ import com.pacoapp.paco.model.EventUtil;
 import com.pacoapp.paco.model.Experiment;
 import com.pacoapp.paco.model.ExperimentProviderUtil;
 import com.pacoapp.paco.model.Output;
+import com.pacoapp.paco.sensors.android.procmon.LollipopProcessMonitorService;
+import com.pacoapp.paco.sensors.android.procmon.ProcessService;
 import com.pacoapp.paco.shared.model2.InterruptCue;
 import com.pacoapp.paco.shared.scheduling.ActionScheduleGenerator;
 import com.pacoapp.paco.shared.util.ExperimentHelper;
@@ -518,7 +520,7 @@ public class BroadcastTriggerReceiver extends BroadcastReceiver {
   }
 
   public static int getFrequency(Context context) {
-    return context.getSharedPreferences("PacoProcessWatcher", Context.MODE_PRIVATE).getInt(FREQUENCY, 1);
+    return context.getSharedPreferences("PacoProcessWatcher", Context.MODE_PRIVATE).getInt(FREQUENCY, 4);
   }
 
   private void triggerPacoTriggerReceived(Context context, Intent intent) {

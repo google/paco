@@ -1,4 +1,4 @@
-package com.pacoapp.paco.sensors.android;
+package com.pacoapp.paco.sensors.android.procmon;
 
 import java.util.Collections;
 import java.util.List;
@@ -25,6 +25,8 @@ import com.pacoapp.paco.model.Event;
 import com.pacoapp.paco.model.Experiment;
 import com.pacoapp.paco.model.ExperimentProviderUtil;
 import com.pacoapp.paco.model.Output;
+import com.pacoapp.paco.sensors.android.BroadcastTriggerReceiver;
+import com.pacoapp.paco.sensors.android.BroadcastTriggerService;
 import com.pacoapp.paco.shared.model2.ActionTrigger;
 import com.pacoapp.paco.shared.model2.ExperimentGroup;
 import com.pacoapp.paco.shared.model2.InterruptCue;

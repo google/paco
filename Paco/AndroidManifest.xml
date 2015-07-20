@@ -276,8 +276,8 @@
             >
         </activity>
 
-        <service android:name="com.pacoapp.paco.sensors.android.ProcessService"></service>
-        <service android:name="com.pacoapp.paco.sensors.android.LollipopProcessMonitorService"></service>
+        <service android:name="com.pacoapp.paco.sensors.android.procmon.ProcessService"></service>
+        <service android:name="com.pacoapp.paco.sensors.android.procmon.LollipopProcessMonitorService"></service>
     </application>
 
     <uses-permission android:name="android.permission.GET_ACCOUNTS" />

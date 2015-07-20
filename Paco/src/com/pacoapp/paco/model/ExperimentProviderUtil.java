@@ -751,8 +751,7 @@ public class ExperimentProviderUtil implements EventStore {
 
 
   public Uri insertEvent(Event event) {
-    Uri uri = contentResolver.insert(EventColumns.CONTENT_URI,
-        createContentValues(event));
+    Uri uri = contentResolver.insert(EventColumns.CONTENT_URI, createContentValues(event));
     long rowId = Long.parseLong(uri.getLastPathSegment());
     event.setId(rowId);
     for (Output response : event.getResponses()) {
@@ -760,6 +759,13 @@ public class ExperimentProviderUtil implements EventStore {
       insertResponse(response);
     }
     return uri;
+  }
+
+  public void insertEvent(EventInterface eventI) {
+    if (eventI instanceof Event) {
+      Event event = (Event)eventI;
+      insertEvent(event);
+    }
   }
 
   private ContentValues createContentValues(Event event) {
