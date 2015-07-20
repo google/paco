@@ -29,6 +29,8 @@ public class RingtoneUtil {
   private static final String RINGTONE_TITLE_COLUMN_NAME = "title";
   private static final String PACO_BARK_RINGTONE_TITLE = "Paco Bark";
   private static final String BARK_RINGTONE_FILENAME = "deepbark_trial.mp3";
+  private static final String ALTERNATE_RINGTONE_FILENAME = "PBSRingtone_2.mp3";
+  private static final String ALTERNATE_RINGTONE_TITLE = "Paco Alert 2";
   private Context context;
   private UserPreferences userPreferences;
   public static final int RINGTONE_REQUESTCODE = 945;
@@ -45,7 +47,7 @@ public class RingtoneUtil {
       return;
     }
 
-    File f = copyRingtoneFromAssetsToSdCard();
+    File f = copyRingtoneFromAssetsToSdCard(BARK_RINGTONE_FILENAME);
     if (f == null) {
       return;
     }
@@ -54,15 +56,27 @@ public class RingtoneUtil {
 
   public void installPacoBarkRingtone() {
     UserPreferences userPreferences = new UserPreferences(context);
-    if (userPreferences.hasInstalledPacoBarkRingtone()) {
-      return;
-    }
 
-    File f = copyRingtoneFromAssetsToSdCard();
+    if (!userPreferences.hasInstalledAlternateRingtone()) {
+      installRingtone(userPreferences, ALTERNATE_RINGTONE_FILENAME, ALTERNATE_RINGTONE_TITLE);
+    }
+    // only try once
+    userPreferences.setAlternateRingtoneInstalled();
+
+    if (!userPreferences.hasInstalledPacoBarkRingtone()) {
+      installRingtone(userPreferences, BARK_RINGTONE_FILENAME, PACO_BARK_RINGTONE_TITLE);
+    }
+    // only try once
+    userPreferences.setPacoBarkRingtoneInstalled();
+
+  }
+
+  public void installRingtone(UserPreferences userPreferences, String ringtoneFilename, String ringtoneTitle) {
+    File f = copyRingtoneFromAssetsToSdCard(ringtoneFilename);
     if (f == null) {
       return;
     }
-    ContentValues values = createBarkRingtoneDatabaseEntry(f);
+    ContentValues values = createBarkRingtoneDatabaseEntry(f, ringtoneTitle);
     Uri uri = MediaStore.Audio.Media.getContentUriForPath(f.getAbsolutePath());
     ContentResolver mediaStoreContentProvider = context.getContentResolver();
     Cursor existingRingtoneCursor = mediaStoreContentProvider.query(uri, null, null, null, null); // Note: i want to just retrieve MediaStore.MediaColumns.TITLE and to search on the match, but it is returning null for the TITLE value!!!
@@ -70,8 +84,8 @@ public class RingtoneUtil {
     boolean alreadyInstalled = false;
     while (c.moveToNext()) {
       int titleColumnIndex = c.getColumnIndex(RINGTONE_TITLE_COLUMN_NAME);
-      String ringtoneTitle = c.getString(titleColumnIndex);
-      if (PACO_BARK_RINGTONE_TITLE.equals(ringtoneTitle)) {
+      String existingRingtoneTitle = c.getString(titleColumnIndex);
+      if (existingRingtoneTitle.equals(ringtoneTitle)) {
         alreadyInstalled = true;
       }
     }
@@ -81,19 +95,16 @@ public class RingtoneUtil {
       Uri newUri = mediaStoreContentProvider.insert(uri, values);
       if (newUri != null) {
         userPreferences.setRingtoneUri(newUri.toString());
-        userPreferences.setRingtoneName(PACO_BARK_RINGTONE_TITLE);
+        userPreferences.setRingtoneName(ringtoneTitle);
       }
     }
-    userPreferences.setPacoBarkRingtoneInstalled();
-
-
   }
 
-  private File copyRingtoneFromAssetsToSdCard()  {
+  private File copyRingtoneFromAssetsToSdCard(String ringtoneFilename)  {
     InputStream fis = null;
     OutputStream fos = null;
     try {
-      fis = context.getAssets().open(BARK_RINGTONE_FILENAME);
+      fis = context.getAssets().open(ringtoneFilename);
 
       if (fis == null) {
         return null;
@@ -105,7 +116,7 @@ public class RingtoneUtil {
         path.mkdirs();
       }
 
-      File f = new File(path, BARK_RINGTONE_FILENAME);
+      File f = new File(path, ringtoneFilename);
       fos = new FileOutputStream(f);
       byte[] buf = new byte[1024];
       int len;
@@ -137,10 +148,10 @@ public class RingtoneUtil {
     return null;
   }
 
-  private ContentValues createBarkRingtoneDatabaseEntry(File f) {
+  private ContentValues createBarkRingtoneDatabaseEntry(File f, String ringtoneTitle) {
     ContentValues values = new ContentValues();
     values.put(MediaStore.MediaColumns.DATA, f.getAbsolutePath());
-    values.put(MediaStore.MediaColumns.TITLE, PACO_BARK_RINGTONE_TITLE);
+    values.put(MediaStore.MediaColumns.TITLE, ringtoneTitle);
     values.put(MediaStore.MediaColumns.SIZE, f.length());
     values.put(MediaStore.MediaColumns.MIME_TYPE, "audio/mp3");
     values.put(MediaStore.Audio.Media.ARTIST, "Paco");
