@@ -17,11 +17,12 @@
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.pacoapp.paco"
-    android:versionCode="122"
-    android:versionName="4.1.1" >
+    android:versionCode="124"
+    android:versionName="4.1.2" xmlns:tools="http://schemas.android.com/tools">
     <uses-feature android:name="android.hardware.location" android:required="false"/>
     <uses-feature android:name="android.hardware.telephony" android:required="false"/>
     <uses-feature android:name="android.hardware.camera.autofocus" android:required="false"/>
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
     
     <application
         android:icon="@drawable/ic_launcher"
@@ -276,7 +277,8 @@
             >
         </activity>
 
-        <service android:name="com.pacoapp.paco.sensors.android.ProcessService"></service>
+        <service android:name="com.pacoapp.paco.sensors.android.procmon.ProcessService"></service>
+        <service android:name="com.pacoapp.paco.sensors.android.procmon.LollipopProcessMonitorService"></service>
     </application>
 
     <uses-permission android:name="android.permission.GET_ACCOUNTS" />
@@ -294,7 +296,8 @@
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
     <uses-permission android:name="android.permission.GET_TASKS"/>
     <uses-permission android:name="com.android.browser.permission.READ_HISTORY_BOOKMARKS" />
-    
+     <uses-permission android:name="android.permission.PACKAGE_USAGE_STATS"
+        tools:ignore="ProtectedPermissions" />
 
     <uses-feature android:name="android.hardware.camera" android:required="false"/>
     <uses-sdk android:minSdkVersion="11"  android:targetSdkVersion="22"></uses-sdk>

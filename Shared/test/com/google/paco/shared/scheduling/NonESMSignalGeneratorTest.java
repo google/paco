@@ -49,6 +49,11 @@ public class NonESMSignalGeneratorTest extends TestCase {
 
     }
 
+    @Override
+    public void insertEvent(EventInterface event) {
+
+    }
+
   }
 
   private Schedule createDailyScheduleWithTimes(List<SignalTime> times, int repeatRate) {

@@ -836,7 +836,8 @@ public class InputLayout extends LinearLayout implements SpeechRecognitionListen
     case 10:
       return R.layout.radio_group_10;
     default:
-      throw new IllegalArgumentException("Steps unknown or too big: " + steps);
+      Log.e(PacoConstants.TAG, "Steps unknown or too big: " + steps);
+      return R.layout.radio_group_error;
     }
 
   }

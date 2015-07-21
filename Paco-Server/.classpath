@@ -5,7 +5,11 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/Shared"/>
-	<classpathentry kind="con" path="com.google.gwt.eclipse.core.GWT_CONTAINER/gwt-2.6.0"/>
+	<classpathentry kind="lib" path="/Users/bobevans/git/paco/tools/gwt-2.6.0/gwt-user.jar"/>
+	<classpathentry kind="lib" path="/Users/bobevans/git/paco/tools/gwt-2.6.0/gwt-codeserver.jar"/>
+	<classpathentry kind="lib" path="/Users/bobevans/git/paco/tools/gwt-2.6.0/gwt-dev.jar"/>
+	<classpathentry kind="lib" path="/Users/bobevans/git/paco/tools/gwt-2.6.0/validation-api-1.0.0.GA-sources.jar"/>
+	<classpathentry kind="lib" path="/Users/bobevans/git/paco/tools/gwt-2.6.0/validation-api-1.0.0.GA.jar" sourcepath="/Users/bobevans/git/paco/tools/gwt-2.6.0/validation-api-1.0.0.GA-sources.jar"/>
 	<classpathentry kind="lib" path="ear/default/WEB-INF/lib/antlr-runtime-3.2.jar"/>
 	<classpathentry kind="lib" path="ear/default/WEB-INF/lib/Apis_Google_Maps-3.8.0-beta2.jar"/>
 	<classpathentry kind="lib" path="ear/default/WEB-INF/lib/commons-codec-1.5.jar"/>
