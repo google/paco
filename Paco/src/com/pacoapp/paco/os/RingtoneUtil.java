@@ -29,8 +29,8 @@ public class RingtoneUtil {
   private static final String RINGTONE_TITLE_COLUMN_NAME = "title";
   private static final String PACO_BARK_RINGTONE_TITLE = "Paco Bark";
   private static final String BARK_RINGTONE_FILENAME = "deepbark_trial.mp3";
-  private static final String ALTERNATE_RINGTONE_FILENAME = "PBSRingtone_2.mp3";
-  private static final String ALTERNATE_RINGTONE_TITLE = "Paco Alert 2";
+  public static final String ALTERNATE_RINGTONE_FILENAME = "PBSRingtone_2.mp3";
+  public static final String ALTERNATE_RINGTONE_TITLE = "Paco Alternate Alert";
   private Context context;
   private UserPreferences userPreferences;
   public static final int RINGTONE_REQUESTCODE = 945;
@@ -58,20 +58,20 @@ public class RingtoneUtil {
     UserPreferences userPreferences = new UserPreferences(context);
 
     if (!userPreferences.hasInstalledAlternateRingtone()) {
-      installRingtone(userPreferences, ALTERNATE_RINGTONE_FILENAME, ALTERNATE_RINGTONE_TITLE);
+      installRingtone(userPreferences, ALTERNATE_RINGTONE_FILENAME, ALTERNATE_RINGTONE_TITLE, true);
     }
     // only try once
     userPreferences.setAlternateRingtoneInstalled();
 
     if (!userPreferences.hasInstalledPacoBarkRingtone()) {
-      installRingtone(userPreferences, BARK_RINGTONE_FILENAME, PACO_BARK_RINGTONE_TITLE);
+      installRingtone(userPreferences, BARK_RINGTONE_FILENAME, PACO_BARK_RINGTONE_TITLE, false);
     }
     // only try once
     userPreferences.setPacoBarkRingtoneInstalled();
 
   }
 
-  public void installRingtone(UserPreferences userPreferences, String ringtoneFilename, String ringtoneTitle) {
+  public void installRingtone(UserPreferences userPreferences, String ringtoneFilename, String ringtoneTitle, boolean altRingtone) {
     File f = copyRingtoneFromAssetsToSdCard(ringtoneFilename);
     if (f == null) {
       return;
@@ -94,8 +94,13 @@ public class RingtoneUtil {
     if (!alreadyInstalled) {
       Uri newUri = mediaStoreContentProvider.insert(uri, values);
       if (newUri != null) {
-        userPreferences.setRingtoneUri(newUri.toString());
-        userPreferences.setRingtoneName(ringtoneTitle);
+        if (!altRingtone) {
+          userPreferences.setRingtoneUri(newUri.toString());
+          userPreferences.setRingtoneName(ringtoneTitle);
+        } else {
+          userPreferences.setAltRingtoneUri(newUri.toString());
+          userPreferences.setAltRingtoneName(ALTERNATE_RINGTONE_TITLE);
+        }
       }
     }
   }

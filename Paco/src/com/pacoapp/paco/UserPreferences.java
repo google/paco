@@ -88,6 +88,10 @@ public class UserPreferences {
   private static final String RINGTONE_URI_KEY = "ringtone_key";
   private static final String RINGTONE_NAME_KEY = "ringtone-name";
 
+  private static final String RINGTONE_ALT_URI_KEY = "ringtone_alt-key";
+  private static final String RINGTONE_ALT_NAME_KEY = "ringtone-alt-name";
+
+
   private static final String RINGTONE_INSTALLED_KEY = "paco_bark_ringtone_installed";
   private static final String RINGTONE_ALT_INSTALLED_KEY = "alt_ringtone_installed";
 
@@ -290,6 +294,26 @@ public class UserPreferences {
     return getAppPrefs().getString(RINGTONE_NAME_KEY, "Paco Bark");
   }
 
+  //
+
+  public void setAltRingtoneUri(String ringtoneUri) {
+    getAppPrefs().edit().putString(RINGTONE_ALT_URI_KEY, ringtoneUri).commit();
+  }
+
+  public String getAltRingtoneUri() {
+    return getAppPrefs().getString(RINGTONE_ALT_URI_KEY, null);
+  }
+
+  public void setAltRingtoneName(String ringtoneName) {
+    getAppPrefs().edit().putString(RINGTONE_ALT_NAME_KEY, ringtoneName).commit();
+  }
+
+  public String getAltRingtoneName() {
+    return getAppPrefs().getString(RINGTONE_ALT_NAME_KEY, "Paco Alert 2");
+  }
+
+
+  //
 
   public void clearRingtone() {
     setRingtoneName(null);
