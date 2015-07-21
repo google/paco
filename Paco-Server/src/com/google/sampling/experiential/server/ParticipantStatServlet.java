@@ -22,7 +22,7 @@ import com.google.appengine.api.users.UserServiceFactory;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.sampling.experiential.model.Event;
-import com.google.sampling.experiential.model.Experiment;
+import com.pacoapp.paco.shared.model2.ExperimentDAO;
 
 public class ParticipantStatServlet extends HttpServlet {
 
@@ -32,21 +32,20 @@ public class ParticipantStatServlet extends HttpServlet {
 
   @Override
   protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-    UserService userService = UserServiceFactory.getUserService();
-    User user = getWhoFromLogin();
+    User user = AuthUtil.getWhoFromLogin();
 
     if (user == null) {
-      resp.sendRedirect(userService.createLoginURL(req.getRequestURI()));
+      AuthUtil.redirectUserToLogin(req, resp);
     } else {
       resp.setContentType("text/html;charset=UTF-8");
 
       String experimentId = req.getParameter("experimentId");
       if (experimentId == null || experimentId.isEmpty()) {
-        resp.getWriter().write("No results");
+        resp.getWriter().write("No experiment id specified");
         return;
       } else {
         final boolean alpha = req.getParameter("alpha") != null;
-        Experiment experiment = ExperimentRetriever.getInstance().getExperiment(experimentId);
+        ExperimentDAO experiment = ExperimentServiceFactory.getExperimentService().getExperiment(Long.parseLong(experimentId));
         List<Query> queryFilters = new QueryParser().parse("experimentId=" + experimentId);
         DateTimeZone timeZoneForClient = TimeUtil.getTimeZoneForClient(req);
         List<Event> events = EventRetriever.getInstance().getEvents(queryFilters, user.getEmail(),

@@ -20,9 +20,7 @@
 #import "PacoLayout.h"
 #import "PacoMenuButton.h"
 #import "PacoRunningExperimentsViewController.h"
-#import "PacoTitleView.h"
 #import "PacoClient.h"
-#import "PacoLoginScreenViewController.h"
 #import "PacoContactUsViewController.h"
 #import "PacoWebViewController.h"
 #import "GoogleClientLogin.h"
@@ -40,8 +38,8 @@
 {
   self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
   if (self) {
-    PacoTitleView *title = [PacoTitleView viewWithDefaultIconAndText:@"Paco"];
-    self.navigationItem.titleView = title;
+    NSArray *nibContents = [[NSBundle mainBundle] loadNibNamed:@"PacoTitleView" owner:nil options:nil];
+    self.navigationItem.titleView = [nibContents lastObject];
 
     UIButton* infoButton = [UIButton buttonWithType:UIButtonTypeInfoLight];
     [infoButton addTarget:self action:@selector(onInfoSelect:) forControlEvents:UIControlEventTouchUpInside];
@@ -149,7 +147,7 @@
         message = NSLocalizedString(@"Something went wrong, please try again.", nil);
       }
     }
-    [JCNotificationCenter sharedCenter].presenter = [[JCNotificationBannerPresenterSmokeStyle alloc] init];
+    [JCNotificationCenter sharedCenter].presenter = [JCNotificationBannerPresenterSmokeStyle new];
     JCNotificationBanner* banner = [[JCNotificationBanner alloc] initWithTitle:@""
                                                                        message:message
                                                                        timeout:3.
@@ -235,11 +233,12 @@
                                                   otherButtonTitles:NSLocalizedString(@"About Paco", nil),
                                                                     NSLocalizedString(@"Send Logs to Paco Team", nil),
                                                                     NSLocalizedString(@"Configure Server Address", nil),
-                                                                    NSLocalizedString(@"Open Source Libraries", nil), nil];
+                                                                    NSLocalizedString(@"Open Source Libraries", nil),
+                                                                    NSLocalizedString(@"Sign Out", nil), nil];
   [actionSheet showInView:self.view];
 }
 
-- (void)actionSheet:(UIActionSheet *)actionSheet clickedButtonAtIndex:(NSInteger)buttonIndex {
+- (void)actionSheet:(UIActionSheet *)actionSheet didDismissWithButtonIndex:(NSInteger)buttonIndex {
   switch (buttonIndex) {
     case 0: {
       [self loadWebView:NSLocalizedString(@"About Paco",nil) andHTML:@"welcome_paco"];
@@ -255,6 +254,10 @@
     }
     case 3: {
       [self opensourceCreditsPage];
+      break;
+    }
+    case 4: {
+      [self signOut];
       break;
     }
     default:
@@ -303,6 +306,10 @@
 - (void)opensourceCreditsPage {
   PacoOpenSourceLibViewController* creditsViewController = [[PacoOpenSourceLibViewController alloc] init];
   [self.navigationController pushViewController:creditsViewController animated:YES];
+}
+
+- (void)signOut {
+  [[PacoClient sharedInstance] invalidateUserAccount];
 }
 
 - (void)loadWebView:(NSString*)title andHTML:(NSString*)htmlName {

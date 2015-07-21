@@ -1,0 +1,26 @@
+<div ng-controller="ExperimentCtrl">
+  <md-card>
+    <md-card-content>
+      <div class="padded">
+        {{experiment.title}}
+        
+        <div ng-if="experiment.organization">
+          by {{experiment.organization}}
+        </div>
+
+        <div ng-if="experiment.organization">
+          Description
+          <p>
+           {{experiment.organization}}
+           </p>
+        </div>
+    
+        <div ng-if="experiment.informedConsentForm">
+          Informed Consent
+          <p>
+           {{experiment.informedConsentForm}}
+           </p>
+        </div>
+    </md-card-content>
+  </md-card>
+</div>

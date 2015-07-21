@@ -1,0 +1,180 @@
+/** Add css rules here for your application. */
+
+
+/** Example rules used by the template application (remove for your app) */
+
+
+table, tbody, tr, td {
+  text-align: left;
+  margin: 2;
+}
+
+.bordered {border:2px solid lightgray; width:100% }
+.inputsBordered {border:1px solid lightgray; width:100% }
+
+.word-cloud {font-family: arial; font-size: 10px; border:5px solid darkgray }
+.word-cloud-1 {font-size: 10px; color: #acc1f3; }
+.word-cloud-2 {font-size: 14px; color: #86a0dc; }
+.word-cloud-3 {font-size: 18px; color: #607ec5; } 
+.word-cloud-4 {font-size: 22px; color: #264ca2; }
+.word-cloud-5 {font-size: 26px; color: #133b97; }
+.word-cloud-6 {font-size: 32px; color: #002a8b; }
+.word-cloud-7 {font-size: 36px; color: #071a41; }
+.word-cloud-8 {font-size: 40px; color: #081122; }
+.word-cloud-9 {font-size: 44px; color: #000000; }
+
+.left {
+  text-align: left;
+}
+
+.center {
+  text-align: center;
+}
+
+.experiment-definition-panel {
+  padding: .75em;	
+}
+
+.keyLabel {
+  font-weight: bold;
+  text-align:left;
+}
+
+.gwt-LabelBigger {
+
+  color: #777777;
+  margin: 40px 0px 70px;
+  font-size: 2em;
+  font-weight: bold;
+  text-align: center;
+
+}
+.gwt-Label-underline {
+  text-decoration: underline;
+  font-weight: bold;
+  font-size: .9em;
+  margin:  2px 1px 2px 1px;
+}
+.gwt-Link-underline {
+  cursor: pointer;
+  text-decoration: underline;
+  font-weight: bold;
+  font-size: 1.1em;
+  margin:  2px 1px 2px 1px;
+}
+
+.gwt-Link-underline-strikethrough {
+  cursor: pointer;
+  text-decoration: underline;
+  font-weight: bold;
+  font-size: 1.1em;
+  margin:  2px 1px 2px 1px;
+}
+
+
+.paco-experimentRow { 
+    margin: 2px;
+}
+.paco-ExperimentRow-Button {
+  margin: 0;
+  padding: 2px 3px;
+  text-decoration: none;
+  font-size: .8em;
+  cursor: pointer;
+  cursor: hand;
+  border: 1px outset #ccc;
+}
+.paco-experimentPanel {
+  padding: 1px;
+  border: 1px ridge;  
+}
+.paco-HTML-Large {
+  padding: 2px;
+  font-size: large;
+  font-weight: bold;
+  color: #333333;  
+}
+.paco-HTML-Larger {
+  padding: 2px;
+  font-size: larger;
+  font-weight: bold;
+  color: #333333;  
+}
+
+.paco-Loading-Panel {
+  padding: 2px;
+  font-size: large;
+  font-weight: bold;
+  color: #333333;
+  background-color: #efe700
+  
+}
+.paco-Logo {
+  margin-top: 0px;
+  margin-right: 8px;
+  margin-left: 3px;
+}
+.gwt-Label-Header {
+  color: #333333;
+  font-size: .9em;
+  font-weight: 600;
+}
+.paco-Name-Greeting {
+  margin-top: 5px;
+  padding-top: 3px;
+  color: #333333;
+  font-size: .9em;
+  font-weight: bold;
+}
+
+
+.paco-HTML {
+  padding: 2px;
+  font-weight: bold;
+  color: #333333;
+}
+
+.paco-small {
+  padding: 1px;
+  font-weight: normal;
+  font-size: smaller;
+  color: #333333;
+}
+
+.front_page {
+	background-image:url('/images/back.jpg');
+	background-size:100% 100%;
+	background-repeat:no-repeat;
+	color:#234069;
+	text-align:center;
+	font-family: Times;
+}
+
+.paco-offset-background {
+  background-color: #EFF2F8;
+  border:1px solid gray;
+}
+.paco-HTML-Large-offset-background {
+  padding: 2px;
+  font-size: large;
+  font-weight: bold;
+  color: #333333;  
+  background-color: #CAD4E6;
+  border:1px solid gray;
+}
+
+
+.paco-Login {
+  padding: 2px;
+  font-size: 45px;
+  font-weight: bold;
+  color: #333333;
+}
+
+a.paco-Login a.paco-Login:visited, a.paco-Login:hover {
+	color: #333333;
+}
+
+.error-highlight {
+  border: 3px solid red;
+}

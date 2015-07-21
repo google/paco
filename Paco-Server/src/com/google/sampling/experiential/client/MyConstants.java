@@ -196,7 +196,7 @@ public interface MyConstants extends Constants {
   @DefaultStringValue("T")
   String thursdayInitial();
 
-  @DefaultStringValue("SF")
+  @DefaultStringValue("F")
   String fridayInitial();
 
   @DefaultStringValue("S")
@@ -371,7 +371,7 @@ public interface MyConstants extends Constants {
   @DefaultStringValue("Inputs")
   String inputs();
 
-  @DefaultStringValue("Signal Schedule")
+  @DefaultStringValue("Schedule Type")
   String signalSchedule();
 
   @DefaultStringValue("Signaling")
@@ -392,16 +392,16 @@ public interface MyConstants extends Constants {
   @DefaultStringValue("ID")
   String experimentId();
 
-  @DefaultStringValue("Signaling Mechanism")
-  String signalMechanism();
+  @DefaultStringValue("Triggering Type")
+  String actionTrigger();
 
-  @DefaultStringValue("Choose Trigger")
-  String chooseTrigger();
+  @DefaultStringValue("Choose cue event")
+  String chooseTriggerCue();
 
-  @DefaultStringValue("Delay after trigger until notification (in seconds)")
+  @DefaultStringValue("Delay after cue until notification (in seconds)")
   String chooseTriggerDelay();
 
-  @DefaultStringValue("This is a triggered experiment. No schedule to configure.")
+  @DefaultStringValue("This is a event-contingent experiment. No schedule to configure.")
   String triggeredExperimentNotScheduled();
 
 
@@ -528,4 +528,59 @@ public interface MyConstants extends Constants {
 
   @DefaultStringValue("Extra Types of Data Collection")
   String getExtraDataCollectionDeclarationTitle();
+
+  @DefaultStringValue("Choose Action")
+  String chooseTriggerAction();
+
+  @DefaultStringValue("Actions")
+  String triggerActions();
+
+  @DefaultStringValue("Cues")
+  String triggerCues();
+
+  @DefaultStringValue("Custom Script")
+  String triggerCustomScript();
+
+  @DefaultStringValue("Experiment Group")
+  String experimentGroupDefinition();
+
+  @DefaultStringValue("Experiment Groups")
+  String experimentGroups();
+
+  @DefaultStringValue("Schedules")
+  String triggerSchedules();
+
+  @DefaultStringValue("Action Triggers")
+  String actionTriggers();
+
+  @DefaultStringValue("Add Scheduled Trigger")
+  String scheduleTriggerButton();
+
+  @DefaultStringValue("Add Event Trigger")
+  String interruptTriggerButton();
+
+  @DefaultStringValue("Choose Action Moments")
+  String chooseActionMoments();
+
+  @DefaultStringValue("Click to edit the action's custom script")
+  String clickToEditCustomScript();
+
+  @DefaultStringValue("Click to close the custom script editor")
+  String clickToCloseCustomScriptEditor();
+
+  @DefaultStringValue("This is an end-of-day group")
+  String endOfDayGroupLabel();
+
+  @DefaultStringValue("Specify the name of the group to which this group refers")
+  String endOfDayReferredGroupIdentifierLabel();
+
+  @DefaultStringValue("Group Name")
+  String experimentGroupNameLabel();
+
+  @DefaultStringValue("Organization Name")
+  String experimentOrganization();
+
+  @DefaultStringValue("Contact Email (support email for participants if different than creator email)")
+  String experimentContactEmail();
+
 }

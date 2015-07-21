@@ -1,0 +1,32 @@
+.csv h2 {
+  font-weight: 500;
+}
+
+.csv table {
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.csv table tr {
+  border-bottom: 1px solid #e3e3e3;
+  height: 48px;
+}
+
+.csv table tr:first-of-type {
+  color: rgba(0, 0, 0, .54);
+  font-size: 12px;
+}
+
+.csv table td {
+  padding: 0 56px 0 24px;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.csv table td:first-of-type {
+  text-align: left;
+}
+
+.csv md-card {
+  overflow-x: scroll;
+}

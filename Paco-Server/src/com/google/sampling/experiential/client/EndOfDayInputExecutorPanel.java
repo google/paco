@@ -1,8 +1,8 @@
 /*
 * Copyright 2011 Google Inc. All Rights Reserved.
-* 
+*
 * Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance  with the License.  
+* you may not use this file except in compliance  with the License.
 * You may obtain a copy of the License at
 *
 *    http://www.apache.org/licenses/LICENSE-2.0
@@ -20,10 +20,10 @@ package com.google.sampling.experiential.client;
 
 
 import com.google.gwt.i18n.client.DateTimeFormat;
-import com.google.paco.shared.model.InputDAO;
 import com.google.sampling.experiential.shared.EventDAO;
 import com.google.sampling.experiential.shared.Output;
 import com.google.sampling.experiential.shared.TimeUtil;
+import com.pacoapp.paco.shared.model2.Input2;
 
 /**
  *
@@ -36,7 +36,7 @@ public class EndOfDayInputExecutorPanel extends InputExecutorPanel {
 
   private EventDAO referredEvent;
 
-  public EndOfDayInputExecutorPanel(InputDAO input, EventDAO eventDAO) {
+  public EndOfDayInputExecutorPanel(Input2 input, EventDAO eventDAO) {
     super(input);
     this.referredEvent = eventDAO;
   }

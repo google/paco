@@ -1,8 +1,8 @@
 /*
 * Copyright 2011 Google Inc. All Rights Reserved.
-* 
+*
 * Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance  with the License.  
+* you may not use this file except in compliance  with the License.
 * You may obtain a copy of the License at
 *
 *    http://www.apache.org/licenses/LICENSE-2.0
@@ -52,13 +52,13 @@ public class ChartOMundo {
   /**
    * Produce a set of charts, in most-interesting -> least-interesting order
    * otherwise there may be way too many charts for all variable combinations.
-   * 
+   *
    * So, first, do Time-series line charts for all numbers, ordered by variance
    * (most -> least) Next, do bar charts for all categorical strings, ordered by
    * variance Next do scatterplot of all numerical types pair-wise. Next do
    * scatterplot with numericals and strings as labels on dots.
-   * 
-   * 
+   *
+   *
    * @param query
    * @param eventList
    */
@@ -323,8 +323,8 @@ public class ChartOMundo {
         .add(createDisclosurePanel(chartTitleFull, createBarChart(eventList, chartTitleFull, key)));
   }
 
-  private void plotWordCloudForCategoricals(String chartTitle, 
-      String key, 
+  private void plotWordCloudForCategoricals(String chartTitle,
+      String key,
       List<EventDAO> eventList) {
     charts.add(createWordCloud(chartTitle, eventList, key));
   }
@@ -441,7 +441,7 @@ public class ChartOMundo {
   }
 
   private Map<String, List<String>> getStringTypes(Map<String, List<String>> mapOfAllValuesByKey,
-      Map<String, List<? extends Number>> numericTypes, 
+      Map<String, List<? extends Number>> numericTypes,
       Map<String, List<? extends Date>> dateTypes) {
     Map<String, List<String>> stringTypes = Maps.newHashMap(mapOfAllValuesByKey);
     for (String key : numericTypes.keySet()) {
@@ -549,7 +549,7 @@ public class ChartOMundo {
   /**
    * Produce a set of charts, in most-interesting -> least-interesting order
    * otherwise there may be way too many charts for all variable combinations.
-   * 
+   *
    * @param query
    * @param eventList
    */
@@ -621,7 +621,7 @@ public class ChartOMundo {
     return variances.firstKey();
   }
 
-  private TreeMap<String, Integer> getVariancesOfKeys(Map<String, 
+  private TreeMap<String, Integer> getVariancesOfKeys(Map<String,
       List<String>> mapOfAllValuesByKey) {
     TreeMap<String, Integer> mapOfVariances = Maps.newTreeMap();
     for (String key : mapOfAllValuesByKey.keySet()) {
@@ -715,7 +715,7 @@ public class ChartOMundo {
   }
 
   public ColumnChart createBarChartForList(List<EventDAO> eventList, String chartTitle,
-      String changingParameterKey, String[] listChoices, Boolean multiselectList) {
+      String changingParameterKey, List<String> list, Boolean multiselectList) {
     String xAxis = changingParameterKey;
     String yAxis = "Count";
 
@@ -743,19 +743,19 @@ public class ChartOMundo {
         if (activityCount == null) {
           activityCount = 0;
         }
-        counts.put(currentActivity, activityCount + 1);  
+        counts.put(currentActivity, activityCount + 1);
       }
-      
+
     }
 
-    data.addRows(listChoices.length);
+    data.addRows(list.size());
 
     int row = 0;
 //    for (String key : counts.keySet()) {
-    for (int i=0; i < listChoices.length; i++) {
-      data.setValue(row, 0, listChoices[i]);
+    for (int i=0; i < list.size(); i++) {
+      data.setValue(row, 0, list.get(i));
       int countForChoice = 0;
-      String iStr = Integer.toString(i + 1); 
+      String iStr = Integer.toString(i + 1);
       //everything is offset by 1 because listchoices are 1-n, not zero based
       if (counts.containsKey(iStr)) {
         countForChoice = counts.get(iStr);
@@ -763,12 +763,12 @@ public class ChartOMundo {
       data.setValue(row, 1, countForChoice);
       row++;
     }
-    
+
 //    log.info("Keys in the dataset: ");
 //    for (String key : counts.keySet()) {
 //      log.info("key: " + key);
 //    }
-//    
+//
 
     ColumnChart bar = new ColumnChart(data, createOptions(chartTitle, xAxis, yAxis, "#ffcc00"));
     return bar;
@@ -868,7 +868,7 @@ public class ChartOMundo {
     }
     // Window.alert("Points:<br/>" + debugPoints);
     ScatterChart scatterChart =
-        new ScatterChart(data, 
+        new ScatterChart(data,
             createScatterChartOptions(chartTitle, xAxis, yAxis, "#000033", 0, 0));
     return scatterChart;
   }
@@ -880,7 +880,7 @@ public class ChartOMundo {
 
     List<DateStat> statsByDate =
       DateStat.calculateParameterDailyStats(changingParameterKey, eventList);
-  
+
     DataTable data = DataTable.create();
     data.addRows(statsByDate.size());
     data.addColumn(ColumnType.DATE, xAxis);
@@ -939,8 +939,8 @@ public class ChartOMundo {
     return (smoothingFactor * average) + ((1 - smoothingFactor) * trend);
   }
 
-  private com.google.gwt.visualization.client.visualizations.ScatterChart.Options 
-    createScatterChartOptions(String title, String xTitle, String yTitle, String barColor, 
+  private com.google.gwt.visualization.client.visualizations.ScatterChart.Options
+    createScatterChartOptions(String title, String xTitle, String yTitle, String barColor,
         double min, double max) {
     ScatterChart.Options options = ScatterChart.Options.create();
     options.setWidth(CHART_WIDTH);
@@ -961,8 +961,8 @@ public class ChartOMundo {
 
   }
 
-  private static com.google.gwt.visualization.client.visualizations.LineChart.Options 
-      createLineChartOptions(String title, String xTitle, String yTitle, String barColor, 
+  private static com.google.gwt.visualization.client.visualizations.LineChart.Options
+      createLineChartOptions(String title, String xTitle, String yTitle, String barColor,
           double min, double max) {
     LineChart.Options options = LineChart.Options.create();
     options.setWidth(CHART_WIDTH);

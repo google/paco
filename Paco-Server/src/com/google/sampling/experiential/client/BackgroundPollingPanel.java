@@ -25,7 +25,7 @@ import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.VerticalPanel;
-import com.google.paco.shared.model.ExperimentDAO;
+import com.pacoapp.paco.shared.model2.ExperimentGroup;
 
 /**
  * Container for all scheduling configuration panels.
@@ -35,14 +35,14 @@ import com.google.paco.shared.model.ExperimentDAO;
  */
 public class BackgroundPollingPanel extends Composite {
 
-  private final ExperimentDAO experiment;
+  private final ExperimentGroup experiment;
 
   private MyConstants myConstants;
   private VerticalPanel rootPanel;
   private HorizontalPanel pollingCheckboxPanel;
 
-  public BackgroundPollingPanel(ExperimentDAO experiment) {
-    this.experiment = experiment;
+  public BackgroundPollingPanel(ExperimentGroup group) {
+    this.experiment = group;
     myConstants = GWT.create(MyConstants.class);
 
     rootPanel = new VerticalPanel();
@@ -65,8 +65,8 @@ public class BackgroundPollingPanel extends Composite {
     checkBoxLabel.setStyleName("gwt-Label-Header");
     pollingCheckboxPanel.add(checkBoxLabel);
 
-    
-    shouldLogCheckbox.setValue(experiment.isLogActions() != null && experiment.isLogActions());
+
+    shouldLogCheckbox.setValue(group.getLogActions() != null && group.getLogActions());
 
     shouldLogCheckbox.addValueChangeHandler(new ValueChangeHandler<Boolean>() {
 

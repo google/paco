@@ -25,7 +25,7 @@
 <LinearLayout
 	android:layout_width="fill_parent" android:layout_height="fill_parent"
 	android:orientation="vertical" android:id="@+id/main_layout"
-	android:layout_gravity="center|top">
+	android:layout_gravity="center|top" android:padding="10dip">
 	<TextView android:id="@+id/ExperimentManagerTitle"
 		android:layout_width="fill_parent" android:layout_height="wrap_content"
 		android:textSize="25dip" android:text="@string/experiment_manager_screen_welcome_to_paco"

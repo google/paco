@@ -78,8 +78,9 @@ typedef void(^BackgroundFetchCompletionBlock)(UIBackgroundFetchResult result);
   self = [super init];
   if (self) {
     [self checkIfUserFirstLaunchPaco];
+    [self checkIfUserFirstLaunchOAuth2];
     
-    self.authenticator = [[PacoAuthenticator alloc] initWithFirstLaunchFlag:_firstLaunch];
+    self.authenticator = [[PacoAuthenticator alloc] initWithFirstLaunchFlag:_firstLaunch|_firstOAuth2];
     self.scheduler = [PacoScheduler schedulerWithDelegate:self firstLaunchFlag:_firstLaunch];
     self.service = [[PacoService alloc] init];
     _reachability = [Reachability reachabilityWithHostname:@"www.google.com"];
@@ -114,6 +115,18 @@ typedef void(^BackgroundFetchCompletionBlock)(UIBackgroundFetchResult result);
   }
 }
 
+- (void)checkIfUserFirstLaunchOAuth2 {
+  NSString* launchedKey = @"oauth2_launched";
+  id value = [[NSUserDefaults standardUserDefaults] objectForKey:launchedKey];
+  if (value == nil) { //first launch
+    [[NSUserDefaults standardUserDefaults] setObject:@YES forKey:launchedKey];
+    [[NSUserDefaults standardUserDefaults] synchronize];
+    _firstOAuth2 = YES;
+  } else {
+    _firstOAuth2 = NO;
+  }
+}
+
 #pragma mark Public methods
 - (BOOL)isLoggedIn {
   return [self.authenticator isLoggedIn];
@@ -141,7 +154,11 @@ typedef void(^BackgroundFetchCompletionBlock)(UIBackgroundFetchResult result);
 
 - (void)invalidateUserAccount {
   [self.authenticator invalidateCurrentAccount];
-  [self showLoginScreenWithCompletionBlock:nil];
+  [self showLoginScreenWithCompletionBlock:^(NSError *error) {
+     if (!error) {
+       [self startWorkingAfterLogIn];
+     }
+   }];
 }
 
 - (NSArray*)eventsFromExpiredNotifications:(NSArray*)expiredNotifications {
@@ -365,15 +382,8 @@ typedef void(^BackgroundFetchCompletionBlock)(UIBackgroundFetchResult result);
 }
 
 #pragma mark bring up login flow if necessary
-- (void)showLoginScreenWithCompletionBlock:(LoginCompletionBlock)block
-{
-  UINavigationController* navi = (UINavigationController*)
-      ((PacoAppDelegate*)[UIApplication sharedApplication].delegate).window.rootViewController;
-  if (![navi.visibleViewController isKindOfClass:[PacoLoginScreenViewController class]]) {
-    PacoLoginScreenViewController *loginViewController =
-        [PacoLoginScreenViewController controllerWithCompletionBlock:block];
-    [navi presentViewController:loginViewController animated:YES completion:nil];
-  }  
+- (void)showLoginScreenWithCompletionBlock:(LoginCompletionBlock)block {  
+  [[PacoClient sharedInstance] loginWithOAuth2CompletionHandler:block];
 }
 
 - (void)startWorkingAfterLogIn {
@@ -443,40 +453,12 @@ typedef void(^BackgroundFetchCompletionBlock)(UIBackgroundFetchResult result);
     }
     return;
   }
-
-  
-  if ([self.authenticator setupWithCookie]) {
-    DDLogInfo(@"Valid cookie detected, no need to log in!");
-    [self startWorkingAfterLogIn];
-    
-    if (block != nil) {
-      block(nil);
-    }
-    return;
-  }
   
   if (![self isUserAccountStored]) {
     [self showLoginScreenWithCompletionBlock:block];
   } else {
     [self reAuthenticateUserWithBlock:block];
   }
-}
-
-
-- (void)loginWithClientLogin:(NSString *)email
-                    password:(NSString *)password
-           completionHandler:(void (^)(NSError *))completionHandler {
-  NSAssert(![self isLoggedIn], @"user should not be logged in!");
-  [self.authenticator authenticateWithClientLogin:email
-                                         password:password
-                                completionHandler:^(NSError *error) {
-                                  if (!error) {
-                                    [self startWorkingAfterLogIn];
-                                    completionHandler(nil);
-                                  } else {
-                                    completionHandler(error);
-                                  }
-                                }];    
 }
 
 
@@ -502,9 +484,7 @@ typedef void(^BackgroundFetchCompletionBlock)(UIBackgroundFetchResult result);
 
 
 - (void)uploadPendingEventsInBackground {
-  dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-    [self.eventManager startUploadingEvents];
-  });
+  [self.eventManager startUploadingEvents];
 }
 
 
@@ -535,21 +515,17 @@ typedef void(^BackgroundFetchCompletionBlock)(UIBackgroundFetchResult result);
 - (void)refreshMyDefinitionsWithBlock:(PacoRefreshCompletionBlock)completionBlock {
   @synchronized(self) {
     DDLogInfo(@"Start refreshing definitions...");
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-      [self.service loadMyFullDefinitionListWithBlock:^(NSArray* definitions, NSError *error) {
-        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-          if (!error) {
-            DDLogInfo(@"Succeeded to refreshing definitions.");
-            [self refreshSucceedWithDefinitions:definitions isPartialUpdate:NO];
-          } else {
-            DDLogError(@"Failed to refresh definitions: %@", [error description]);
-          }
-          if (completionBlock) {
-            completionBlock(error);
-          }
-        });
-      }];
-    });
+    [self.service loadMyFullDefinitionListWithBlock:^(NSArray* definitions, NSError *error) {
+      if (!error) {
+        DDLogInfo(@"Succeeded to refreshing definitions.");
+        [self refreshSucceedWithDefinitions:definitions isPartialUpdate:NO];
+      } else {
+        DDLogError(@"Failed to refresh definitions: %@", [error description]);
+      }
+      if (completionBlock) {
+        completionBlock(error);
+      }
+    }];
   }
 }
 
@@ -563,53 +539,42 @@ typedef void(^BackgroundFetchCompletionBlock)(UIBackgroundFetchResult result);
       return;
     }
     
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-      NSArray* definitionIdList = [self.model runningExperimentIdList];
-      void(^finishBlock)(NSArray* , NSError*) = ^(NSArray* definitions, NSError* error) {
-        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-          if (!error) {
-            [self refreshSucceedWithDefinitions:definitions isPartialUpdate:YES];
-          }
-          if (completionBlock) {
-            completionBlock(error);
-          }
-        });
-      };
-      [self.service loadFullDefinitionListWithIDs:definitionIdList andBlock:finishBlock];
-    });
+    NSArray* definitionIdList = [self.model runningExperimentIdList];
+    void(^finishBlock)(NSArray* , NSError*) = ^(NSArray* definitions, NSError* error) {
+      if (!error) {
+        [self refreshSucceedWithDefinitions:definitions isPartialUpdate:YES];
+      }
+      if (completionBlock) {
+        completionBlock(error);
+      }
+    };
+    [self.service loadFullDefinitionListWithIDs:definitionIdList andBlock:finishBlock];
   }
 }
 
 #pragma mark Private methods
 - (void)prefetchInBackground {
   @synchronized(self) {
-    //dispatch loading running experiments to another thread
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-      NSError* error = [self.model loadExperimentInstancesFromFile];
-      [[NSNotificationCenter defaultCenter] postNotificationName:kPacoNotificationLoadedRunningExperiments
-                                                          object:error];
-      [self setUpNotificationSystem];
-    });
-
-    //dispatch loading my definitions to another thread
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-      // Load the experiment definitions.
-      BOOL success = [self.model loadExperimentDefinitionsFromFile];
-      if (success) {
+    NSError* error = [self.model loadExperimentInstancesFromFile];
+    [[NSNotificationCenter defaultCenter] postNotificationName:kPacoNotificationLoadedRunningExperiments
+                                                        object:error];
+    [self setUpNotificationSystem];
+    // Load the experiment definitions.
+    BOOL success = [self.model loadExperimentDefinitionsFromFile];
+    if (success) {
+      [[NSNotificationCenter defaultCenter] postNotificationName:kPacoNotificationLoadedMyDefinitions
+                                                          object:nil];
+    } else {
+      [self.service loadMyFullDefinitionListWithBlock:^(NSArray* definitions, NSError* error) {
+        if (!error) {
+          [self.model fullyUpdateDefinitionList:definitions];
+        } else {
+          DDLogError(@"Failed to prefetch definitions: %@", [error description]);
+        }
         [[NSNotificationCenter defaultCenter] postNotificationName:kPacoNotificationLoadedMyDefinitions
-                                                            object:nil];
-      } else {
-        [self.service loadMyFullDefinitionListWithBlock:^(NSArray* definitions, NSError* error) {
-          if (!error) {
-            [self.model fullyUpdateDefinitionList:definitions];
-          } else {
-            DDLogError(@"Failed to prefetch definitions: %@", [error description]);
-          }
-          [[NSNotificationCenter defaultCenter] postNotificationName:kPacoNotificationLoadedMyDefinitions
-                                                              object:error];
-        }];
-      }
-    });
+                                                            object:error];
+      }];
+    }
   }
 }
 
@@ -619,19 +584,17 @@ typedef void(^BackgroundFetchCompletionBlock)(UIBackgroundFetchResult result);
                             schedule:(PacoExperimentSchedule*)schedule
                      completionBlock:(void(^)())completionBlock {
   NSAssert(definition, @"definition should not be nil");
-  dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-    [self.eventManager saveJoinEventWithDefinition:definition withSchedule:schedule];
-    //create a new experiment and save it to cache
-    PacoExperiment *experiment = [self.model addExperimentWithDefinition:definition
-                                                                schedule:schedule];
-    DDLogInfo(@"Experiment Joined with schedule: %@", [experiment.schedule description]);
-    //start scheduling notifications for this joined experiment
-    [self.scheduler startSchedulingForExperimentIfNeeded:experiment];
-    
-    if (completionBlock) {
-      completionBlock();
-    }
-  });
+  [self.eventManager saveJoinEventWithDefinition:definition withSchedule:schedule];
+  //create a new experiment and save it to cache
+  PacoExperiment *experiment = [self.model addExperimentWithDefinition:definition
+                                                              schedule:schedule];
+  DDLogInfo(@"Experiment Joined with schedule: %@", [experiment.schedule description]);
+  //start scheduling notifications for this joined experiment
+  [self.scheduler startSchedulingForExperimentIfNeeded:experiment];
+  
+  if (completionBlock) {
+    completionBlock();
+  }
 }
 
 #pragma mark modify a running experiment's schedule
@@ -644,14 +607,12 @@ typedef void(^BackgroundFetchCompletionBlock)(UIBackgroundFetchResult result);
     }
     return;
   }
-  dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-    DDLogInfo(@"Change schedule for experiment ...");
-    [self.model configureExperiment:experiment withSchedule:newSchedule];
-    [self.scheduler restartNotificationSystem];
-    if (completionBlock) {
-      completionBlock();
-    }
-  });
+  DDLogInfo(@"Change schedule for experiment ...");
+  [self.model configureExperiment:experiment withSchedule:newSchedule];
+  [self.scheduler restartNotificationSystem];
+  if (completionBlock) {
+    completionBlock();
+  }
 }
 
 #pragma mark stop an experiment
@@ -659,27 +620,25 @@ typedef void(^BackgroundFetchCompletionBlock)(UIBackgroundFetchResult result);
   if (!experiment) {
     return;
   }
-
-  dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-    [self.eventManager saveStopEventWithExperiment:experiment];
-
-    if ([experiment isScheduledExperiment]) {
-      //clear all scheduled notifications and notifications in the tray for the stopped experiment
-      [self.scheduler stopSchedulingForExperimentIfNeeded:experiment];
-    }
-    //remove experiment from local cache, this needs to be done after stopSchedulingForExperimentIfNeeded
-    //is called, since we may need to store missing survey events, which needs the experiment from model
-    [self.model deleteExperimentInstance:experiment];
-
-    //shut down notification if needed after experiment is deleted from model
-    if ([experiment isScheduledExperiment] && ![self needsNotificationSystem]) {
-      [self shutDownNotificationSystemIfNeeded];
-    }
-
-    if (completionBlock) {
-      completionBlock();
-    }
-  });
+  
+  [self.eventManager saveStopEventWithExperiment:experiment];
+  
+  if ([experiment isScheduledExperiment]) {
+    //clear all scheduled notifications and notifications in the tray for the stopped experiment
+    [self.scheduler stopSchedulingForExperimentIfNeeded:experiment];
+  }
+  //remove experiment from local cache, this needs to be done after stopSchedulingForExperimentIfNeeded
+  //is called, since we may need to store missing survey events, which needs the experiment from model
+  [self.model deleteExperimentInstance:experiment];
+  
+  //shut down notification if needed after experiment is deleted from model
+  if ([experiment isScheduledExperiment] && ![self needsNotificationSystem]) {
+    [self shutDownNotificationSystemIfNeeded];
+  }
+  
+  if (completionBlock) {
+    completionBlock();
+  }
 }
 
 #pragma mark submit a survey

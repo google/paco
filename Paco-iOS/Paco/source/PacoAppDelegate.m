@@ -78,9 +78,7 @@
 
 - (void)showNoSurveyNeededForNotification:(UILocalNotification*)notification {
   DDLogInfo(@"Show a banner of No Survey Needed");
-  JCNotificationBannerPresenterSmokeStyle* style = [[JCNotificationBannerPresenterSmokeStyle alloc] initWithMessageFont:[UIFont fontWithName:@"HelveticaNeue" size:14]];
-  [JCNotificationCenter sharedCenter].presenter = style;
-  
+  [JCNotificationCenter sharedCenter].presenter = [JCNotificationBannerPresenterSmokeStyle new];
   NSString* format = @"This notification has expired.\n"
                      @"(It's notifications expire after %d minutes.)";
   NSString* message = [NSString stringWithFormat:format, [notification pacoTimeoutMinutes]];
@@ -133,6 +131,13 @@
   logger.rollingFrequency = 2 * 24 * 60 * 60; //48 hours rolling
   logger.logFileManager.maximumNumberOfLogFiles = 7;
   [DDLog addLogger:logger];
+
+  if (floor(NSFoundationVersionNumber) > NSFoundationVersionNumber_iOS_7_1 ||
+      [UIApplication instancesRespondToSelector:@selector(registerUserNotificationSettings:)]) {
+    UIUserNotificationType types = UIUserNotificationTypeBadge | UIUserNotificationTypeSound | UIUserNotificationTypeAlert;
+    UIUserNotificationSettings *mySettings = [UIUserNotificationSettings settingsForTypes:types categories:nil];
+    [application registerUserNotificationSettings:mySettings];
+  }
   
   // Override the navigation bar and item tint color globally across the app.
   [[UINavigationBar appearance] setTintColor:[UIColor pacoBlue]];

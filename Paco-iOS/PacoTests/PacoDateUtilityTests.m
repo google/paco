@@ -104,9 +104,14 @@
   XCTAssertEqualObjects(result, nil, @"should get a nil string give a nil input");
 }
 
+- (void)testEscapedNameForTimeZone1 {
+    NSString* result = [PacoDateUtility escapedNameForTimeZone:[NSTimeZone timeZoneWithName:@"America/Santiago"]];
+    XCTAssertEqualObjects(result, @"America%2FSantiago", @"Forward slash should be escaped");
+}
 
-
-
-
+- (void)testEscapedNameForTimeZone2 {
+    NSString* result = [PacoDateUtility escapedNameForTimeZone:[NSTimeZone timeZoneWithName:@"America/Los_Angeles"]];
+    XCTAssertEqualObjects(result, @"America%2FLos_Angeles", @"Underscore should not be escaped");
+}
 
 @end

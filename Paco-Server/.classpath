@@ -3,32 +3,29 @@
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="src" path="tests"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="lib" path="war/WEB-INF/lib/json-1.5.jar"/>
-	<classpathentry kind="lib" path="war/WEB-INF/lib/validation-api-1.0.0.GA.jar"/>
-	<classpathentry kind="lib" path="war/WEB-INF/lib/validation-api-1.0.0.GA-sources.jar"/>
-	<classpathentry kind="lib" path="war/WEB-INF/lib/jsr107cache-1.1.jar"/>
-	<classpathentry kind="lib" path="war/WEB-INF/lib/gwt-visualization.jar"/>
-	<classpathentry kind="lib" path="war/WEB-INF/lib/antlr-runtime-3.2.jar"/>
-	<classpathentry kind="lib" path="war/WEB-INF/lib/opencsv-2.3.jar"/>
-	<classpathentry kind="lib" path="war/WEB-INF/lib/commons-codec-1.5.jar"/>
-	<classpathentry kind="lib" path="war/WEB-INF/lib/commons-fileupload-1.2.2.jar" sourcepath="/Users/bobevans/.m2/repository/commons-fileupload/commons-fileupload/1.2.2/commons-fileupload-1.2.2-sources.jar"/>
-	<classpathentry kind="lib" path="war/WEB-INF/lib/commons-io-2.0.1.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/Shared"/>
-	<classpathentry kind="lib" path="war/WEB-INF/lib/commons-lang3-3.1.jar"/>
-	<classpathentry kind="lib" path="war/WEB-INF/lib/Apis_Google_Maps-3.8.0-beta2.jar"/>
-	<classpathentry exported="true" kind="lib" path="war/WEB-INF/lib/joda-time-2.2.jar"/>
-	<classpathentry kind="lib" path="war/WEB-INF/lib/jackson-all-1.9.11.jar"/>
-	<classpathentry kind="lib" path="war/WEB-INF/lib/gwt-incubator.jar"/>
-	<classpathentry kind="lib" path="war/WEB-INF/lib/gwt-maps-api-3.10.0-alpha-7-SNAPSHOT.jar"/>
-	<classpathentry kind="lib" path="war/WEB-INF/lib/gwt-ajaxloader.jar"/>
 	<classpathentry kind="con" path="com.google.gwt.eclipse.core.GWT_CONTAINER/gwt-2.6.0"/>
-	<classpathentry kind="lib" path="/Users/bobevans/git/paco/tools/appengine-java-sdk-1.9.0/lib/testing/appengine-testing.jar"/>
-	<classpathentry kind="lib" path="war/WEB-INF/lib/guava-16.0.1.jar"/>
-	<classpathentry kind="lib" path="war/WEB-INF/lib/guava-gwt-16.0.1.jar"/>
-	<classpathentry kind="lib" path="/Users/bobevans/git/paco/tools/appengine-java-sdk-1.9.0/lib/impl/appengine-api.jar"/>
+	<classpathentry kind="lib" path="ear/default/WEB-INF/lib/antlr-runtime-3.2.jar"/>
+	<classpathentry kind="lib" path="ear/default/WEB-INF/lib/Apis_Google_Maps-3.8.0-beta2.jar"/>
+	<classpathentry kind="lib" path="ear/default/WEB-INF/lib/commons-codec-1.5.jar"/>
+	<classpathentry kind="lib" path="ear/default/WEB-INF/lib/commons-fileupload-1.2.2.jar"/>
+	<classpathentry kind="lib" path="ear/default/WEB-INF/lib/commons-io-2.0.1.jar"/>
+	<classpathentry kind="lib" path="ear/default/WEB-INF/lib/commons-lang3-3.1.jar"/>
+	<classpathentry kind="lib" path="ear/default/WEB-INF/lib/guava-16.0.1.jar"/>
+	<classpathentry kind="lib" path="ear/default/WEB-INF/lib/guava-gwt-16.0.1.jar"/>
+	<classpathentry kind="lib" path="ear/default/WEB-INF/lib/gwt-ajaxloader.jar"/>
+	<classpathentry kind="lib" path="ear/default/WEB-INF/lib/gwt-incubator.jar"/>
+	<classpathentry kind="lib" path="ear/default/WEB-INF/lib/gwt-maps-api-3.10.0-alpha-7-SNAPSHOT.jar"/>
+	<classpathentry kind="lib" path="ear/default/WEB-INF/lib/gwt-visualization.jar"/>
+	<classpathentry kind="lib" path="ear/default/WEB-INF/lib/jackson-all-1.9.11.jar"/>
+	<classpathentry kind="lib" path="ear/default/WEB-INF/lib/joda-time-2.2.jar"/>
+	<classpathentry kind="lib" path="ear/default/WEB-INF/lib/opencsv-2.3.jar"/>
+	<classpathentry kind="lib" path="ear/default/WEB-INF/lib/validation-api-1.0.0.GA.jar"/>
+	<classpathentry kind="con" path="com.google.appengine.eclipse.core.GAE_CONTAINER/appengine-java-sdk-1.9.0"/>
+	<classpathentry kind="lib" path="../tools/appengine-java-sdk-1.9.0/lib/testing/appengine-testing.jar"/>
 	<classpathentry kind="lib" path="/Users/bobevans/git/paco/tools/appengine-java-sdk-1.9.0/lib/impl/appengine-api-stubs.jar"/>
+	<classpathentry kind="lib" path="/Users/bobevans/git/paco/tools/appengine-java-sdk-1.9.0/lib/impl/appengine-api.jar"/>
 	<classpathentry kind="lib" path="/Users/bobevans/git/paco/tools/appengine-java-sdk-1.9.0/lib/impl/appengine-api-labs.jar"/>
-	<classpathentry kind="con" path="com.google.appengine.eclipse.core.GAE_CONTAINER/appengine-java-sdk-1.9.0-paco"/>
-	<classpathentry kind="output" path="war/WEB-INF/classes"/>
+	<classpathentry kind="output" path="ear/default/WEB-INF/classes"/>
 </classpath>

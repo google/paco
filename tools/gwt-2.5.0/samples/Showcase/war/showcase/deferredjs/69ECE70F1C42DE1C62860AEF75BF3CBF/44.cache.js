@@ -1,2 +1,0 @@
-function JCb(){var a,b,c,d,e;e=new xdc(5);Ahc(e.db,DCc,'cwSplitLayoutPanel');e.db.style[tFc]='3px solid #e7e7e7';v3b(e,new y2b(GJc),50);w3b(e,new y2b(HJc),50);sdc(e,new y2b(IJc),(V3b(),P3b),100,null);sdc(e,new y2b(JJc),U3b,100,null);v3b(e,new y2b(KJc),50);w3b(e,new y2b(LJc),50);c='Voici un texte permettant de voir comment le contenu situ\xE9 de chaque c\xF4t\xE9 de la barre de fractionnement se d\xE9file.';for(d=0;d<3;++d){c+=PBc+c}a=new y2b(c);b=new w_b(a);sdc(e,b,O3b,0,null);return e}
-Leb(750,1,XAc);_.qc=function RCb(){ohb(this.b,JCb())};KBc(In)(44);

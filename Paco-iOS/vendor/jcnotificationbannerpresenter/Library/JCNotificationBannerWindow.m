@@ -18,20 +18,19 @@
     return bannerView;
   } else {
     UIWindow* nextWindow;
-    BOOL useNextWindow = NO;
+    BOOL encounteredBannerWindow = NO;
     for (UIWindow* window in [[UIApplication sharedApplication].windows reverseObjectEnumerator]) {
-      if (useNextWindow) {
+      if (encounteredBannerWindow && ![window isKindOfClass:[JCNotificationBannerWindow class]]) {
         nextWindow = window;
         break;
       }
 
-      if ([window isKindOfClass:[JCNotificationBannerWindow class]]) {
-        useNextWindow = YES;
+      if (!encounteredBannerWindow && [window isKindOfClass:[JCNotificationBannerWindow class]]) {
+        encounteredBannerWindow = YES;
       }
     }
 
     if (nextWindow) {
-      NSAssert(![nextWindow isKindOfClass:[JCNotificationBannerWindow class]], @"Did not expect multiple notification windows.");
       return [nextWindow hitTest:point withEvent:event];
     } else {
       return superHitView;

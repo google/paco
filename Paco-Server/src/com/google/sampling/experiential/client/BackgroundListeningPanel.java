@@ -28,7 +28,7 @@ import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
-import com.google.paco.shared.model.ExperimentDAO;
+import com.pacoapp.paco.shared.model2.ExperimentGroup;
 
 /**
  * Container for all scheduling configuration panels.
@@ -38,15 +38,15 @@ import com.google.paco.shared.model.ExperimentDAO;
  */
 public class BackgroundListeningPanel extends Composite {
 
-  private final ExperimentDAO experiment;
+  private final ExperimentGroup experiment;
 
   private MyConstants myConstants;
   private VerticalPanel rootPanel;
   private HorizontalPanel listeningCheckboxPanel;
   private HorizontalPanel sourceIdentifierPanel;
 
-  public BackgroundListeningPanel(ExperimentDAO experiment) {
-    this.experiment = experiment;
+  public BackgroundListeningPanel(ExperimentGroup group) {
+    this.experiment = group;
     myConstants = GWT.create(MyConstants.class);
 
     rootPanel = new VerticalPanel();
@@ -58,7 +58,7 @@ public class BackgroundListeningPanel extends Composite {
 
     HTML html = new HTML("&nbsp;&nbsp;&nbsp;<font color=\"red\" size=\"smaller\"><i>(" + myConstants.iOSIncompatible() + ")</i></font>");
     rootPanel.add(html);
-    
+
     // set up the checkbox
     listeningCheckboxPanel = new HorizontalPanel();
     rootPanel.add(listeningCheckboxPanel);
@@ -67,14 +67,14 @@ public class BackgroundListeningPanel extends Composite {
     Label checkBoxLabel = new Label(myConstants.shouldBackgroundListen());
     checkBoxLabel.setStyleName("gwt-Label-Header");
     listeningCheckboxPanel.add(checkBoxLabel);
-    shouldListenCheckbox.setValue(experiment.isBackgroundListen() != null && experiment.isBackgroundListen());
+    shouldListenCheckbox.setValue(group.getBackgroundListen() != null && group.getBackgroundListen());
     shouldListenCheckbox.addValueChangeHandler(new ValueChangeHandler<Boolean>() {
       @Override
       public void onValueChange(ValueChangeEvent<Boolean> event) {
         BackgroundListeningPanel.this.experiment.setBackgroundListen(event.getValue());
       }
     });
-    
+
     // set up the sourceIdentifier textbox
     sourceIdentifierPanel = new HorizontalPanel();
     rootPanel.add(sourceIdentifierPanel);
@@ -83,7 +83,7 @@ public class BackgroundListeningPanel extends Composite {
     sourceIdentifierPanel.add(textBoxLabel);
     final TextBox sourceIdentifierTextBox = new TextBox();
     sourceIdentifierPanel.add(sourceIdentifierTextBox);
-    sourceIdentifierTextBox.setValue(experiment.getBackgroundListenSourceIdentifier());
+    sourceIdentifierTextBox.setValue(group.getBackgroundListenSourceIdentifier());
     sourceIdentifierTextBox.addChangeHandler(new ChangeHandler() {
       @Override
       public void onChange(ChangeEvent event) {

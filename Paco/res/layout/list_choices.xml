@@ -14,17 +14,19 @@
  ~ KIND, either express or implied.  See the License for the
  ~ specific language governing permissions and limitations
  ~ under the License.
- -->
+-->
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:padding="0dip">
+    android:orientation="vertical"
+    android:padding="16dip" >
 
-    <Spinner android:id="@+id/list"
+    <Spinner
+        android:id="@+id/list"
         android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:padding="0dip"/>
+        android:layout_height="fill_parent" 
+        android:padding="4dp"
+         />
 
 </LinearLayout>

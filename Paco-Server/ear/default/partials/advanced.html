@@ -1,0 +1,78 @@
+<div class="padded advanced">
+  <div class="over">
+    <md-checkbox ng-model="group.endOfDayGroup" aria-label="End of day group">
+      End of day group
+    </md-checkbox>
+
+    <div class="referred" ng-if="group.endOfDayGroup">
+      <md-select ng-model="group.endOfDayReferredGroupName" placeholder="Referred Group">
+        <md-option ng-repeat="group in experiment.groups" value="{{group.name}}">{{group.name}}
+        </md-option>
+      </md-select>
+    </div>
+
+    <md-checkbox ng-model="group.backgroundListen" aria-label="Listen for other apps sending data to PACO">
+      Background Listening
+    </md-checkbox>
+
+    <div class="identifier" ng-if="group.backgroundListen">
+      Source of data
+      <md-input-container md-no-float>
+        <input type="text" ng-model="group.backgroundListenSourceIdentifier" placeholder="Identifier">
+      </md-input-container>
+    </div>
+
+    <md-checkbox ng-model="group.logActions" aria-label="Log app usage and browser history">
+      Log app usage and browser history
+    </md-checkbox>
+
+    <md-checkbox ng-model="group.customRendering" aria-label="Override form display">
+      Override form display
+    </md-checkbox>
+  </div>
+
+  <div class="source" ng-if="group.customRendering">
+    Enter HTML and Javascript for custom rendering of experiment
+
+    <div class="ace_editor" ng-model="group.customRenderingCode" ui-ace="{
+        mode: 'javascript',
+        onLoad: aceLoaded,
+        rendererOptions: {
+          minLines: 10,
+          maxLines: 100
+        }
+      }">
+    </div>
+  </div>
+
+  <div class="feedback" layout="row">
+
+    Feedback
+    <select ng-model="group.feedback.type" as-string>
+      <option ng-selected="$index === group.feedback.type" ng-repeat="type in feedbackTypes" 
+        value="{{$index}}">{{type}}</option>
+    </select>
+
+    <div class="message" flex>
+      <md-input-container md-no-float ng-if="group.feedback.type === 0">
+        <input type="text" ng-model="group.feedback.text" placeholder="Message">
+      </md-input-container>
+    </div>
+  </div>
+
+  <!-- TODO(ispiro): clear out text when switching between type 0 and 3 -->
+  <div class="source" ng-if="group.feedback.type === 3">
+    Enter custom feedback code
+
+    <div class="ace_editor" ng-model="group.feedback.text" ui-ace="{
+        mode: 'javascript',
+        onLoad: aceLoaded,
+        rendererOptions: {
+          minLines: 10,
+          maxLines: 'Infinity'
+        }
+      }">
+    </div>
+  </div>
+
+</div>

@@ -1,0 +1,47 @@
+<html>
+<head>
+  
+<script language="javascript" type="text/javascript" src="file:///android_asset/jquery.js"></script>
+    <script language="javascript" type="text/javascript" src="file:///android_asset/jquery.flot.js"></script>
+    <script language="javascript" type="text/javascript" src="file:///android_asset/jquery.flot.stack.js"></script>
+    <script language="javascript" type="text/javascript" src="file:///android_asset/peg-0.7.0.min.js"></script>
+    <script language="javascript" type="text/javascript" src="file:///android_asset/conditional_parser.js"></script>
+    <script language="javascript" type="text/javascript" src="file:///android_asset/custom_base.js"></script>
+    
+  <script>
+  var startTime = Date.now();
+
+  /*
+   window.addEventListener('polymer-ready', function(e) {
+        var endTime = Date.now();
+      var delta = endTime - startTime;
+          document.getElementById("status").innerHTML += "<br> polymer-ready=" + delta;          
+    });
+ */
+ 
+   function log(msg) {
+     document.getElementById("status").innerHTML += msg;
+   };
+   
+  window.onload = function() {
+      var endTime = Date.now();
+      var delta = endTime - startTime;
+      log("<br> onload=" + delta);          
+  };
+  </script>    
+</head>
+
+ <script language="javascript" type="text/javascript">        
+     $(document).ready(function() {        
+        runCustomExperiment();
+        var delta = endTime - startTime;
+        log("<br> runCustom=" + delta);        
+     });       
+    </script>
+
+
+    <body bgcolor="green">
+    
+    <div id="status">Preparing...</div>
+    </body>
+</html>

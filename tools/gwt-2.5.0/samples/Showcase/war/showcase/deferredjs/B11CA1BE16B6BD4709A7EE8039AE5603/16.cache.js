@@ -1,2 +1,0 @@
-function JDb(){var a,b,c,d,e;b=new r5b(4,4);d=b.g;c=b.f;for(e=0;e<d;++e){for(a=0;a<c;++a){L4b(b,e,a,new MVb((cjb(),Tib)))}}D4b(b,'cwGrid');return b}
-oeb(771,1,HAc);_.lc=function PDb(){Ygb(this.a,JDb())};uBc(wn)(16);

@@ -27,10 +27,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.jdo.PersistenceManager;
-import javax.jdo.Query;
-import javax.jdo.Transaction;
-
 import org.joda.time.DateMidnight;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeConstants;
@@ -43,18 +39,19 @@ import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import com.google.gwt.thirdparty.guava.common.base.Strings;
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
-import com.google.paco.shared.model.ExperimentDAO;
-import com.google.paco.shared.model.ExperimentQueryResult;
-import com.google.paco.shared.model.FeedbackDAO;
 import com.google.sampling.experiential.model.Event;
-import com.google.sampling.experiential.model.Experiment;
 import com.google.sampling.experiential.model.What;
 import com.google.sampling.experiential.shared.DateStat;
 import com.google.sampling.experiential.shared.EventDAO;
 import com.google.sampling.experiential.shared.ExperimentStatsDAO;
 import com.google.sampling.experiential.shared.PacoService;
+import com.pacoapp.paco.shared.comm.Outcome;
+import com.pacoapp.paco.shared.model2.ActionTrigger;
+import com.pacoapp.paco.shared.model2.ExperimentDAO;
+import com.pacoapp.paco.shared.model2.ExperimentGroup;
+import com.pacoapp.paco.shared.model2.ExperimentQueryResult;
+import com.pacoapp.paco.shared.model2.ValidationMessage;
 
 
 /*
@@ -86,7 +83,7 @@ public class PacoServiceImpl extends RemoteServiceServlet implements PacoService
   private List<EventDAO> getEventsForQuery(String tags) {
     List<com.google.sampling.experiential.server.Query> queries = new QueryParser().parse(tags);
     List<Event> result = EventRetriever.getInstance().getEvents(queries, getWho(),
-        TimeUtil.getTimeZoneForClient(getThreadLocalRequest()), 0, 20000);
+        getTimeZoneOnClient(), 0, 20000);
     return EventRetriever.convertEventsToDAOs(result);
   }
 
@@ -96,7 +93,7 @@ public class PacoServiceImpl extends RemoteServiceServlet implements PacoService
       String experimentId,
       Map<String, String> kvPairs,
       Integer experimentVersion,
-      boolean shared) {
+      boolean shared, String groupName, Long actionTriggerId, Long actionTriggerSpecId, Long actionId) {
 
     Date scheduledTimeDate = scheduledTime != null ? parseDateString(scheduledTime) : null;
     Date responseTimeDate = responseTime != null ? parseDateString(responseTime) : null;
@@ -109,7 +106,7 @@ public class PacoServiceImpl extends RemoteServiceServlet implements PacoService
       throw new IllegalArgumentException("Who passed in is not the logged in user!");
     }
 
-    Experiment experiment = ExperimentRetriever.getInstance().getExperiment(experimentId);
+    ExperimentDAO experiment = ExperimentServiceFactory.getExperimentService().getExperiment(Long.parseLong(experimentId));
 
     if (experiment == null) {
       throw new IllegalArgumentException("Must post to an existing experiment!");
@@ -121,14 +118,15 @@ public class PacoServiceImpl extends RemoteServiceServlet implements PacoService
 
     try {
       String tz = null;
-      DateTimeZone timeZoneForClient = TimeUtil.getTimeZoneForClient(getThreadLocalRequest());
+      DateTimeZone timeZoneForClient = getTimeZoneOnClient();
       if (timeZoneForClient != null) {
         tz = timeZoneForClient.getID();
       }
 
       // TODO fix this to just pass timezone all the way through
       EventRetriever.getInstance().postEvent(loggedInWho.getEmail().toLowerCase(), null, null, whenDate, "webform",
-          "", whats, shared, experimentId, null, experimentVersion, responseTimeDate, scheduledTimeDate, null, tz);
+          "", whats, shared, experimentId, null, experimentVersion, responseTimeDate, scheduledTimeDate, null, tz,
+          groupName, actionTriggerId, actionTriggerSpecId, actionId);
     } catch (Throwable e) {
       throw new IllegalArgumentException("Could not post Event: ", e);
     }
@@ -167,47 +165,39 @@ public class PacoServiceImpl extends RemoteServiceServlet implements PacoService
   }
 
   @Override
-  public void saveExperiment(ExperimentDAO experimentDAO, String timezone) {
+  public Outcome saveExperiment(ExperimentDAO experimentDAO, String timezone) {
+    Outcome outcome = new Outcome(0);
     User loggedInUser = getWhoFromLogin();
-    ExperimentRetriever.getInstance().saveExperiment(experimentDAO, loggedInUser, timezone);
+    DateTimeZone timezoneForId = getTimeZoneOnClient();
+    if (timezoneForId != null) {
+      timezoneForId = DateTimeZone.forID(timezone);
+    }
+    List<ValidationMessage> saveExperimentErrorResults = ExperimentServiceFactory.getExperimentService().saveExperiment(experimentDAO,
+                                                                                                                        loggedInUser.getEmail().toLowerCase(),
+                                                                                                                        timezoneForId);
+    if (saveExperimentErrorResults != null) {
+      StringBuilder buf = new StringBuilder();
+      for (ValidationMessage validationMessage : saveExperimentErrorResults) {
+        buf.append(validationMessage.toString());
+        buf.append("\n");
+      }
+      outcome.setError("Could not save experiment:" + experimentDAO.getId()
+                       + ". title: " + experimentDAO.getTitle() +"\nErrors:\n" + buf.toString());
+    }
+
+    return outcome;
   }
 
-  public Boolean deleteExperiment(ExperimentDAO experimentDAO) {
+  public boolean deleteExperiment(ExperimentDAO experimentDAO) {
     System.out.println("Delete called for " + experimentDAO.getId());
     User loggedInUser = getWhoFromLogin();
     String loggedInUserEmail = loggedInUser.getEmail().toLowerCase();
-    return ExperimentRetriever.getInstance().deleteExperiment(experimentDAO, loggedInUserEmail);
+    return ExperimentServiceFactory.getExperimentService().deleteExperiment(experimentDAO, loggedInUserEmail);
   }
 
   public ExperimentQueryResult getUsersAdministeredExperiments(Integer limit, String cursor) {
-    User user = getWhoFromLogin();
-    List<ExperimentDAO> experimentDAOs = Lists.newArrayList();
-
-    PersistenceManager pm = null;
-    Transaction tx = null;
-    try {
-      pm = PMF.get().getPersistenceManager();
-      tx = pm.currentTransaction();
-      tx.begin();
-      Query q = pm.newQuery(Experiment.class);
-      q.setFilter("admins == whoParam");
-      q.declareParameters("String whoParam");
-      List<Experiment> experiments = (List<Experiment>) q.execute(user.getEmail().toLowerCase());
-      if (experiments != null) {
-        for (Experiment experiment : experiments) {
-          experimentDAOs.add(DAOConverter.createDAO(experiment));
-        }
-      }
-      tx.commit();
-    } finally {
-      if (tx.isActive()) {
-        tx.rollback();
-      }
-      if (pm != null) {
-        pm.close();
-      }
-    }
-    return new ExperimentQueryResult(cursor, experimentDAOs);
+    String loggedInEmail = getWhoFromLogin().getEmail().toLowerCase();
+    return ExperimentServiceFactory.getExperimentService().getUsersAdministeredExperiments(loggedInEmail, getTimeZoneOnClient(), limit, cursor);
   }
 
   public ExperimentStatsDAO statsForExperiment(Long experimentId, boolean justUser) {
@@ -330,72 +320,15 @@ public class PacoServiceImpl extends RemoteServiceServlet implements PacoService
   }
 
   public ExperimentQueryResult getUsersJoinedExperiments(Integer limit, String cursor) {
-      List<com.google.sampling.experiential.server.Query> queries = new QueryParser().parse("who=" + getWhoFromLogin().getEmail().toLowerCase());
-      List<Event> events = EventRetriever.getInstance().getEvents(queries, getWho(),
-          TimeUtil.getTimeZoneForClient(getThreadLocalRequest()), 0, 20000);
-      Map<Long, String> experimentIdTitleMap = Maps.newConcurrentMap();
-      Set<Long> experimentIds = Sets.newHashSet();
-      for(Event event : events) {
-        if (event.getExperimentId() == null) {
-          continue; // legacy check
-        }
-        long experimentId = Long.parseLong(event.getExperimentId());
-        experimentIds.add(experimentId);
-        String experimentTitle = event.getExperimentName();
-        if (Strings.isNullOrEmpty(experimentTitle)) {
-          experimentTitle = "";
-        }
-        experimentIdTitleMap.put(experimentId, experimentTitle);
+      String loggedInUserEmail = getWhoFromLogin().getEmail().toLowerCase();
 
-      }
-      List<ExperimentDAO> experimentDAOs = Lists.newArrayList();
-      if (experimentIds.size() == 0) {
-        return new ExperimentQueryResult(cursor, experimentDAOs);
-      }
+      final DateTimeZone timeZoneOnClient = getTimeZoneOnClient();
 
-      ArrayList<Long> idList = Lists.newArrayList(experimentIds);
-      System.out.println("Found " + experimentIds.size() +" unique experiments where joined.");
-      System.out.println(Joiner.on(",").join(idList));
-
-
-      PersistenceManager pm = null;
-      try {
-        pm = PMF.get().getPersistenceManager();
-        Query q = pm.newQuery(Experiment.class, ":p.contains(id)");
-
-
-        List<Experiment> experiments = (List<Experiment>) q.execute(idList);
-        System.out.println("Got back " + experiments.size() + " experiments");
-        if (experiments != null) {
-          for (Experiment experiment : experiments) {
-            experimentDAOs.add(DAOConverter.createDAO(experiment));
-            idList.remove(experiment.getId().longValue());
-          }
-        }
-        for (Long id : idList) {
-          String titleFromEvent = experimentIdTitleMap.get(id);
-          if (titleFromEvent != null) {
-            titleFromEvent = titleFromEvent + " (Deleted)";
-          } else {
-            titleFromEvent = " (Deleted)";
-          }
-          experimentDAOs.add(new ExperimentDAO(id, titleFromEvent, "", "", "",
-              null, null, null, null, null, null, null, null, null, null, null, null, null, null, false, (String)null, FeedbackDAO.FEEDBACK_TYPE_CUSTOM, false, (String)null, false, false, null));
-        }
-      } finally {
-        if (pm != null) {
-          pm.close();
-        }
-      }
-      return new ExperimentQueryResult(cursor, experimentDAOs);
+      return ExperimentServiceFactory.getExperimentService().getMyJoinedExperiments(loggedInUserEmail, timeZoneOnClient, 1000, cursor);
   }
 
-  private List<String> getIds(Set<String> experimentsForAdmin) {
-    List<String> ids = Lists.newArrayList();
-    for(String experimentId : experimentsForAdmin) {
-      ids.add("'" + experimentId +"'");
-    }
-    return ids;
+  private DateTimeZone getTimeZoneOnClient() {
+    return TimeUtil.getTimeZoneForClient(getThreadLocalRequest());
   }
 
   @Override
@@ -424,10 +357,16 @@ public class PacoServiceImpl extends RemoteServiceServlet implements PacoService
     Date scheduledTimeDate = event.getScheduledTime();
     Date responseTimeDate = event.getResponseTime();
     Date whenDate = new Date();
+
+    String groupName = event.getExperimentGroupName();
+    Long actionTriggerId = event.getActionTriggerId();
+    Long actionTriggerSpecId = event.getActionTriggerSpecId();
+    Long actionId = event.getActionId();
+
     Set<What> whats = parseWhats(event.getWhat());
 
 
-    Experiment experiment = ExperimentRetriever.getInstance().getExperiment(Long.toString(experimentId));
+    ExperimentDAO experiment = ExperimentServiceFactory.getExperimentService().getExperiment(experimentId);
 
     if (experiment == null) {
       throw new IllegalArgumentException("Must post to an existing experiment!");
@@ -442,7 +381,9 @@ public class PacoServiceImpl extends RemoteServiceServlet implements PacoService
       String tz = event.getTimezone();
       String experimentName = experiment.getTitle();
       EventRetriever.getInstance().postEvent(loggedInWho.getEmail().toLowerCase(), null, null, whenDate, "webform",
-          "1", whats, event.isShared(), Long.toString(experimentId), experimentName, experimentVersion, responseTimeDate, scheduledTimeDate, null, tz);
+          "1", whats, event.isShared(), Long.toString(experimentId), experimentName,
+          experimentVersion, responseTimeDate, scheduledTimeDate, null, tz,
+          groupName, actionTriggerId, actionTriggerSpecId, actionId);
     } catch (Throwable e) {
       throw new IllegalArgumentException("Could not post Event: ", e);
     }
@@ -450,18 +391,12 @@ public class PacoServiceImpl extends RemoteServiceServlet implements PacoService
 
   @Override
   public ExperimentDAO referencedExperiment(Long referringExperimentId) {
-    Experiment experiment = ExperimentRetriever.getInstance().getReferredExperiment(referringExperimentId);
-    if (experiment != null) {
-      return DAOConverter.createDAO(experiment);
-    }
-    return null;
+    return ExperimentServiceFactory.getExperimentService().getReferredExperiment(referringExperimentId);
   }
 
   @Override
   public void setReferencedExperiment(Long referringExperimentId, Long referencedExperimentId) {
-    ExperimentRetriever.getInstance().setReferredExperiment(referringExperimentId, referencedExperimentId);
-    ExperimentCacheHelper.getInstance().clearCache();
-
+    ExperimentServiceFactory.getExperimentService().setReferredExperiment(referringExperimentId, referencedExperimentId);
   }
 
   @Override
@@ -472,13 +407,8 @@ public class PacoServiceImpl extends RemoteServiceServlet implements PacoService
   }
 
   @Override
-  public ExperimentQueryResult getAllJoinableExperiments(String tz, Integer limit, String cursor) {
-    return ExperimentCacheHelper.getInstance().getJoinableExperiments(getWhoFromLogin().getEmail().toLowerCase(),  TimeUtil.getTimeZoneForClient(getThreadLocalRequest()), limit, cursor);
-  }
-
-  @Override
   public ExperimentQueryResult getMyJoinableExperiments(String tz, Integer limit, String cursor) {
-    return ExperimentCacheHelper.getInstance().getMyJoinableExperiments(getWhoFromLogin().getEmail().toLowerCase(),  TimeUtil.getTimeZoneForClient(getThreadLocalRequest()), limit, cursor);
+    return ExperimentServiceFactory.getExperimentService().getMyJoinableExperiments(getWhoFromLogin().getEmail().toLowerCase(),  getTimeZoneOnClient(), limit, cursor);
   }
 
 
@@ -493,7 +423,7 @@ public class PacoServiceImpl extends RemoteServiceServlet implements PacoService
       throw new IllegalArgumentException("Must supply experiment Id");
     }
 
-    Experiment experiment = ExperimentRetriever.getInstance().getExperiment(Long.toString(experimentId));
+    ExperimentDAO experiment = ExperimentServiceFactory.getExperimentService().getExperiment(experimentId);
 
     if (experiment == null) {
       throw new IllegalArgumentException("Unknown experiment!");
@@ -501,12 +431,12 @@ public class PacoServiceImpl extends RemoteServiceServlet implements PacoService
 
     String lowerCase = loggedInWho.getEmail().toLowerCase();
     if (!experiment.isWhoAllowedToPostToExperiment(lowerCase)) {
-      throw new IllegalArgumentException("This user is not allowed to post to this experiment");
+      throw new IllegalArgumentException("This user is not allowed to join this experiment");
     }
 
     try {
       String tz = null;
-      DateTimeZone timezone = TimeUtil.getTimeZoneForClient(getThreadLocalRequest());
+      DateTimeZone timezone = getTimeZoneOnClient();
       if (timezone != null) {
         tz = timezone.toString();
       }
@@ -520,10 +450,25 @@ public class PacoServiceImpl extends RemoteServiceServlet implements PacoService
       String experimentName = experiment.getTitle();
       Set<What> whats = Sets.newHashSet();
       whats.add(new What("joined", "true"));
-      whats.add(new What("schedule", experiment.getSchedule().toString()));
+
+      for (ExperimentGroup group : experiment.getGroups()) {
+        String groupSchedule = "schedule_" + group.getName();
+        StringBuilder scheduleString = new StringBuilder();
+
+        List<String> actionTriggerStrings = Lists.newArrayList();
+        List<ActionTrigger> actionTriggers = group.getActionTriggers();
+        for (ActionTrigger actionTrigger : actionTriggers) {
+          actionTriggerStrings.add(actionTrigger.toString());
+        }
+        String scheduleAsString = Joiner.on(",").join(actionTriggerStrings);
+
+        whats.add(new What(groupSchedule, scheduleAsString));
+      }
+
+
 
       EventRetriever.getInstance().postEvent(lowerCase, null, null, new Date(), "webform",
-          "1", whats, false, Long.toString(experimentId), experimentName, experiment.getVersion(), responseTimeDate, null, null, tz);
+          "1", whats, false, Long.toString(experimentId), experimentName, experiment.getVersion(), responseTimeDate, null, null, tz, null, null, null, null);
 
       // create entry in table with user Id, experimentId, joinDate
 

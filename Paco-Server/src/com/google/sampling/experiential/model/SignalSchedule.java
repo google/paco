@@ -32,7 +32,7 @@ import org.joda.time.DateTime;
 
 import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.KeyFactory;
-import com.google.paco.shared.model.SignalScheduleDAO;
+import com.pacoapp.paco.shared.model2.Schedule;
 
 
 /**
@@ -278,12 +278,12 @@ public class SignalSchedule {
   public String toString() {
 
     StringBuilder buf = new StringBuilder();
-    appendKeyValue(buf, "type", SignalScheduleDAO.SCHEDULE_TYPES_NAMES[scheduleType]);
+    appendKeyValue(buf, "type", Schedule.SCHEDULE_TYPES_NAMES[scheduleType]);
     comma(buf);
-    if (scheduleType == SignalScheduleDAO.ESM) {
+    if (scheduleType == Schedule.ESM) {
       appendKeyValue(buf, "frequency", esmFrequency.toString());
       comma(buf);
-      appendKeyValue(buf,"esmPeriod", SignalScheduleDAO.ESM_PERIODS_NAMES[esmPeriodInDays]);
+      appendKeyValue(buf,"esmPeriod", Schedule.ESM_PERIODS_NAMES[esmPeriodInDays]);
       comma(buf);
       appendKeyValue(buf,"startHour", getHourOffsetAsTimeString(esmStartHour));
       comma(buf);
@@ -294,13 +294,15 @@ public class SignalSchedule {
     }
     buf.append("times = [");
     boolean firstTime = true;
-    for (SignalTime time : signalTimes) {
-      if (firstTime) {
-        firstTime = false;
-      } else {
-        buf.append(",");
+    if (signalTimes != null) {
+      for (SignalTime time : signalTimes) {
+        if (firstTime) {
+          firstTime = false;
+        } else {
+          buf.append(",");
+        }
+        buf.append(getHourOffsetAsTimeString(time));
       }
-      buf.append(getHourOffsetAsTimeString(time));
     }
     buf.append("]");
     comma(buf);
@@ -320,14 +322,14 @@ public class SignalSchedule {
   private String stringNamesOf(Integer weekDaysScheduled2) {
     StringBuilder buf = new StringBuilder();
     boolean first = true;
-    for (int i= 0; i < SignalScheduleDAO.DAYS_OF_WEEK.length;i++) {
-      if ((weekDaysScheduled & SignalScheduleDAO.DAYS_OF_WEEK[i]) == SignalScheduleDAO.DAYS_OF_WEEK[i]) {
+    for (int i= 0; i < Schedule.DAYS_OF_WEEK.length;i++) {
+      if ((weekDaysScheduled & Schedule.DAYS_OF_WEEK[i]) == Schedule.DAYS_OF_WEEK[i]) {
         if (first) {
           first = false;
         } else {
           comma(buf);
         }
-        buf.append(SignalScheduleDAO.DAYS_OF_WEEK[i]);
+        buf.append(Schedule.DAYS_OF_WEEK[i]);
       }
     }
     return buf.toString();

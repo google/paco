@@ -17,6 +17,7 @@
 
 
 #import "GTMHTTPFetcher.h"
+#import "GTMHTTPFetcherLogging.h"
 #import "GTMOAuth2Authentication.h"
 #import "PacoAuthenticator.h"
 #import "PacoDateUtility.h"
@@ -46,9 +47,6 @@
     // OAuth2
     [fetcher setAuthorizer:self.authenticator.auth];
     
-  } else if (self.authenticator.cookie) {
-    // Client Login
-    [request setValue:self.authenticator.cookie forHTTPHeaderField:@"Cookie"];
   } else {
     DDLogError(@"Error authenticating request.");
   }
@@ -63,11 +61,11 @@
   [request setValue:@"3.0" forHTTPHeaderField:@"pacoProtocol"];
 
   // Authenticate
+    [GTMHTTPFetcher setLoggingEnabled:YES];
   GTMHTTPFetcher *fetcher = [[GTMHTTPFetcher alloc] initWithRequest:request];
   [self authenticateRequest:request withFetcher:fetcher];
-  //Set delegateQueue so that fetcher can work in a background thread
-  fetcher.delegateQueue = [[NSOperationQueue alloc] init];
-  
+  fetcher.delegateQueue = [NSOperationQueue mainQueue];
+
   // Fetch
   [fetcher beginFetchWithCompletionHandler:^(NSData *data, NSError *error) {
       if (error) {
@@ -98,9 +96,9 @@
   NSURL *url = [NSURL URLWithString:
                    [NSString stringWithFormat:@"%@/%@",[PacoClient sharedInstance].serverDomain,endPointString]];
   NSMutableURLRequest *request =
-  [NSMutableURLRequest requestWithURL:url
+    [NSMutableURLRequest requestWithURL:url
                           cachePolicy:NSURLRequestReloadIgnoringLocalCacheData
-                      timeoutInterval:120];
+                          timeoutInterval:120];
   [request setHTTPMethod:@"GET"];
   
   [self executePacoServiceCall:request completionHandler:^(id jsonData, NSError *error) {
@@ -128,12 +126,15 @@
   if (limit > 0) {
     endPoint = [endPoint stringByAppendingFormat:@"&limit=%lu", (unsigned long)limit];
   }
+    endPoint = [endPoint stringByAppendingFormat:@"&tz=%@", [PacoDateUtility escapedNameForSystemTimeZone]];
   [self sendGetHTTPRequestWithEndPoint:endPoint andBlock:block];
 }
 
 
 - (void)loadMyShortDefinitionListWithBlock:(void (^)(NSArray*, NSError*))completionBlock {
-  [self sendGetHTTPRequestWithEndPoint:@"experiments?mine" andBlock:^(NSArray *items, NSString *cursor, NSError *error) {
+  NSString *endPoint = [@"experiments?mine" stringByAppendingFormat:@"&tz=%@",
+                        [PacoDateUtility escapedNameForSystemTimeZone]];
+  [self sendGetHTTPRequestWithEndPoint:endPoint andBlock:^(NSArray *items, NSString *cursor, NSError *error) {
     if (completionBlock) {
       completionBlock(items, error);
     }
@@ -142,7 +143,7 @@
 
 - (void)loadFullDefinitionListWithIDs:(NSArray*)idList andBlock:(void (^)(NSArray*, NSError*))completionBlock {
   NSAssert([idList count] > 0, @"idList should have more than one id inside!");
-  NSString* endPointString = [NSString stringWithFormat:@"experiments?id=%@",[idList componentsJoinedByString:@","]];
+  NSString* endPointString = [NSString stringWithFormat:@"experiments?id=%@&tz=%@",[idList componentsJoinedByString:@","], [PacoDateUtility escapedNameForSystemTimeZone]];
   [self sendGetHTTPRequestWithEndPoint:endPointString andBlock:^(NSArray* items, NSString* cursor, NSError* error) {
     if (completionBlock) {
       NSMutableArray* definitionList = [NSMutableArray arrayWithCapacity:[items count]];
@@ -267,7 +268,7 @@
                      [successEventIndexes addObject:eventIndex];
                    }
                  }
-               }                
+               }
                if (completionBlock) {
                  completionBlock(successEventIndexes, error);
                }

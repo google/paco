@@ -22,7 +22,6 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 
 import javax.jdo.annotations.Extension;
@@ -41,7 +40,6 @@ import org.joda.time.format.DateTimeFormatter;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 import com.google.sampling.experiential.server.EventServlet;
 import com.google.sampling.experiential.shared.TimeUtil;
 
@@ -100,6 +98,20 @@ public class Event {
   private Date responseTime;
 
   @Persistent
+  private String experimentGroupName;
+
+  @Persistent
+  private Long actionTriggerId;
+
+  @Persistent
+  private Long actionTriggerSpecId;
+
+  @Persistent
+  private Long actionId;
+
+
+
+  @Persistent
   @Extension(vendorName="datanucleus", key="gae.unindexed", value="true")
   private Set<What> what;
 
@@ -133,7 +145,8 @@ public class Event {
 
   public Event(String who, String lat, String lon, Date when, String appId, String pacoVersion,
       Set<What> what, boolean shared, String experimentId, String experimentName, Integer experimentVersion,
-      Date responseTime, Date scheduledTime, List<PhotoBlob> blobs, String timezone) {
+      Date responseTime, Date scheduledTime, List<PhotoBlob> blobs, String timezone,
+      String groupName, Long actionTriggerId2, Long actionTriggerSpecId2, Long actionId2) {
     super();
     if (/*what.size() == 0 || */who == null || when == null) {
       throw new IllegalArgumentException("There must be a who and a when");
@@ -156,40 +169,10 @@ public class Event {
       this.blobs = blobs;
     }
     this.timeZone = timezone;
-  }
-
-  /**
-   * Only difference from the other constructor is the newWhat format as a Map instead of a string
-   *
-   * @param who2
-   * @param lat2
-   * @param lon2
-   * @param when2
-   * @param appId2
-   * @param pacoVersion2
-   * @param newWhat
-   * @param shared2
-   * @param experimentId2
-   * @param experimentName2
-   * @param experimentVersion2
-   * @param responseTime2
-   * @param scheduledTime2
-   * @param blobs2
-   * @param timeZone2
-   */
-  public Event(String who2, String lat2, String lon2, Date when2, String appId2, String pacoVersion2,
-               Map<String, String> newWhat, boolean shared2, String experimentId2, String experimentName2,
-               Integer experimentVersion2, Date responseTime2, Date scheduledTime2, List<PhotoBlob> blobs2,
-               String timeZone2) {
-    this(who2, lat2, lon2, when2, appId2, pacoVersion2, convertWhatMap(newWhat), shared2, experimentId2, experimentName2, experimentVersion2, responseTime2, scheduledTime2, blobs2, timeZone2);
-  }
-
-  private static Set<What> convertWhatMap(Map<String, String> newWhat) {
-    Set<What> whats = Sets.newHashSet();
-    for (Entry<String, String>  what : newWhat.entrySet()) {
-      whats.add(new What(what.getKey(), what.getValue()));
-    }
-    return whats;
+    this.experimentGroupName = groupName;
+    this.actionTriggerId = actionTriggerId2;
+    this.actionTriggerSpecId = actionTriggerSpecId2;
+    this.actionId = actionId2;
   }
 
   private void setWhatMap(Set<What> whats) {
@@ -470,6 +453,38 @@ public class Event {
       }
       return new DateTime(time).withZone(timezoneForOffsetHours);
     }
+  }
+
+  public String getExperimentGroupName() {
+    return experimentGroupName;
+  }
+
+  public void setExperimentGroupName(String experimentGroupName) {
+    this.experimentGroupName = experimentGroupName;
+  }
+
+  public Long getActionTriggerId() {
+    return actionTriggerId;
+  }
+
+  public void setActionTriggerId(Long actionTriggerId) {
+    this.actionTriggerId = actionTriggerId;
+  }
+
+  public Long getActionTriggerSpecId() {
+    return actionTriggerSpecId;
+  }
+
+  public void setActionTriggerSpecId(Long actionTriggerSpecId) {
+    this.actionTriggerSpecId = actionTriggerSpecId;
+  }
+
+  public Long getActionId() {
+    return actionId;
+  }
+
+  public void setActionId(Long actionId) {
+    this.actionId = actionId;
   }
 
 }

@@ -17,33 +17,21 @@
 package com.google.sampling.experiential.server;
 
 import java.io.IOException;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.util.List;
 import java.util.logging.Logger;
 
-import javax.jdo.PersistenceManager;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
-import org.joda.time.Duration;
 
 import com.google.appengine.api.users.User;
-import com.google.appengine.api.users.UserService;
-import com.google.appengine.api.users.UserServiceFactory;
 import com.google.common.collect.Lists;
-import com.google.paco.shared.model.FeedbackDAO;
-import com.google.paco.shared.model.SignalScheduleDAO;
-import com.google.paco.shared.model.SignalTimeDAO;
-import com.google.sampling.experiential.datastore.PublicExperimentList;
-import com.google.sampling.experiential.model.Experiment;
-import com.google.sampling.experiential.model.SignalSchedule;
-import com.google.sampling.experiential.model.SignalTime;
+import com.google.gwt.thirdparty.guava.common.base.Strings;
+import com.pacoapp.paco.shared.comm.Outcome;
 
 /**
  * Servlet that answers requests for experiments.
@@ -59,106 +47,12 @@ public class ExperimentServlet extends HttpServlet {
   private static final int EXPERIMENT_LIMIT_MAX = 50;
   public static final Logger log = Logger.getLogger(ExperimentServlet.class.getName());
   public static final String DEV_HOST = "<Your machine name here>";
-  private UserService userService;
 
 
 
   @Override
   public void init(ServletConfig config) throws ServletException {
     super.init(config);
-    doMigrateWork();
-  }
-
-
-
-  private void doMigrateWork() {
-    //populatePublicExperimentsList();
-    //setFeedbackTypeOnExperiments();
-    //convertScheduleTimeLongsToSignalTimeObjects();
-  }
-
-
-
-  private void convertScheduleTimeLongsToSignalTimeObjects() {
-    long t1 = System.currentTimeMillis();
-    log.info("Starting convertScheduleTimes from Long to SignalTime objects");
-    PersistenceManager pm = null;
-    try {
-      pm = PMF.get().getPersistenceManager();
-      javax.jdo.Query newQuery = pm.newQuery(Experiment.class);
-      List<Experiment> updatedExperiments = Lists.newArrayList();
-      List<Experiment> experiments = (List<Experiment>)newQuery.execute();
-      for (Experiment experiment : experiments) {
-        SignalSchedule schedule = experiment.getSchedule();
-        if (schedule != null && schedule.getSignalTimes().isEmpty()) {
-          if (schedule.getScheduleType() != SignalScheduleDAO.SELF_REPORT &&
-                  schedule.getScheduleType() != SignalScheduleDAO.ESM ) {
-            log.info("Converting for experiment: " + experiment.getTitle());
-            List<SignalTime> signalTimes = Lists.newArrayList();
-            List<Long> times = schedule.getTimes();
-            for (Long long1 : times) {
-              signalTimes.add(new SignalTime(null, SignalTimeDAO.FIXED_TIME,
-                                             SignalTimeDAO.OFFSET_BASIS_SCHEDULED_TIME,
-                                             (int)long1.longValue(),
-                                             SignalTimeDAO.MISSED_BEHAVIOR_USE_SCHEDULED_TIME,
-                                             0, ""));
-            }
-            schedule.setSignalTimes(signalTimes);
-            experiment.setSchedule(schedule);
-            updatedExperiments.add(experiment);
-          }
-        }
-      }
-      pm.makePersistentAll(updatedExperiments);
-    } finally  {
-      pm.close();
-    }
-    long t2 = System.currentTimeMillis();
-    long seconds = new Duration(t1, t2).getStandardSeconds();
-    log.info("Done converting signal times. " + seconds + "seconds to complete");
-  }
-
-
-
-  private void setFeedbackTypeOnExperiments() {
-    PersistenceManager pm = null;
-    try {
-      pm = PMF.get().getPersistenceManager();
-      javax.jdo.Query newQuery = pm.newQuery(Experiment.class);
-      List<Experiment> experiments = (List<Experiment>)newQuery.execute();
-      for (Experiment experiment : experiments) {
-        if (experiment.getFeedbackType() == null) {
-          if (FeedbackDAO.DEFAULT_FEEDBACK_MSG.equals(experiment.getFeedback().get(0).getLongText())) {
-            experiment.setFeedbackType(FeedbackDAO.FEEDBACK_TYPE_RETROSPECTIVE);
-          } else {
-            experiment.setFeedbackType(FeedbackDAO.FEEDBACK_TYPE_CUSTOM);
-          }
-        }
-      }
-      pm.makePersistentAll(experiments);
-    } finally  {
-      pm.close();
-    }
-
-  }
-
-
-
-  private void populatePublicExperimentsList() {
-    if (!PublicExperimentList.getPublicExperiments(null).isEmpty()) {
-      return;
-    }
-    PersistenceManager pm = null;
-    try {
-      pm = PMF.get().getPersistenceManager();
-      javax.jdo.Query newQuery = pm.newQuery(Experiment.class);
-      List<Experiment> experiments = (List<Experiment>)newQuery.execute();
-      PublicExperimentList.updatePublicExperimentsList(experiments, new DateTime());
-    } finally  {
-      pm.close();
-    }
-
-
   }
 
 
@@ -168,22 +62,22 @@ public class ExperimentServlet extends HttpServlet {
   IOException {
     resp.setContentType("application/json;charset=UTF-8");
 
-    User user = getWhoFromLogin();
+    User user = AuthUtil.getWhoFromLogin();
 
     if (user == null) {
-      redirectUserToLogin(req, resp);
+      AuthUtil.redirectUserToLogin(req, resp);
     } else {
       DateTimeZone timezone = TimeUtil.getTimeZoneForClient(req);
-
+      log.info("Timezone is computed to be: " + timezone.toString());
       logPacoClientVersion(req);
 
-      String email = getEmailOfUser(req, user);
+      String email = AuthUtil.getEmailOfUser(req, user);
 
-      String shortParam = req.getParameter("short");
       String experimentsPublishedToMeParam = req.getParameter("mine");
       String selectedExperimentsParam = req.getParameter("id");
       String experimentsPublishedPubliclyParam = req.getParameter("public");
       String experimentsAdministeredByUserParam = req.getParameter("admin");
+      String experimentsJoinedByMeParam = req.getParameter("joined");
 
       String pacoProtocol = req.getHeader("pacoProtocol");
       if (pacoProtocol == null) {
@@ -209,27 +103,33 @@ public class ExperimentServlet extends HttpServlet {
       ExperimentServletHandler handler;
       if (experimentsPublishedToMeParam != null) {
         handler = new ExperimentServletExperimentsForMeLoadHandler(email, timezone, limit, cursor, pacoProtocol);
-      } else if (shortParam != null) {
-        handler = new ExperimentServletShortLoadHandler(email, timezone, limit, cursor, pacoProtocol);
       } else if (selectedExperimentsParam != null) {
         handler = new ExperimentServletSelectedExperimentsFullLoadHandler(email, timezone, selectedExperimentsParam, pacoProtocol);
       } else if (experimentsPublishedPubliclyParam != null) {
         handler = new ExperimentServletExperimentsShortPublicLoadHandler(email, timezone, limit, cursor, pacoProtocol);
-      } else if (experimentsAdministeredByUserParam != null) {
+      } /*else if (experimentsAdministeredByUserParam != null && experimentsJoinedByMeParam != null) {
+        handler = new ExperimentServletAdminAndJoinedExperimentsShortLoadHandler(email, timezone, limit, cursor, pacoProtocol);
+      } */else if (experimentsJoinedByMeParam != null) {
+        handler = new ExperimentServletJoinedExperimentsShortLoadHandler(email, timezone, limit, cursor, pacoProtocol);
+      }
+      else if (experimentsAdministeredByUserParam != null) {
         handler = new ExperimentServletAdminExperimentsFullLoadHandler(email, timezone, limit, cursor, pacoProtocol);
       } else {
-        handler = new ExperimentServletAllExperimentsFullLoadHandler(email, timezone, limit, cursor, pacoProtocol);
+        handler = null; //new ExperimentServletAllExperimentsFullLoadHandler(email, timezone, limit, cursor, pacoProtocol);
       }
-      experimentsJson = handler.performLoad();
-      resp.getWriter().println(scriptBust(experimentsJson));
+      if (handler != null) {
+        log.info("Loading experiments...");
+        experimentsJson = handler.performLoad();
+        resp.getWriter().println(scriptBust(experimentsJson));
+      } else {
+        resp.getWriter().println(scriptBust("Unrecognized parameters!"));
+      }
+
     }
   }
 
 
 
-  private void redirectUserToLogin(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-    resp.sendRedirect(userService.createLoginURL(req.getRequestURI()));
-  }
 
   private void logPacoClientVersion(HttpServletRequest req) {
     String pacoVersion = req.getHeader("paco.version");
@@ -243,57 +143,87 @@ public class ExperimentServlet extends HttpServlet {
     return experimentsJson;
   }
 
-  private String getEmailOfUser(HttpServletRequest req, User user) {
-    String email = user != null ? user.getEmail() : null;
-    if (email == null && isDevInstance(req)) {
-      email = "<put your email here to test in developer mode>";
-    }
-    if (email == null) {
-      throw new IllegalArgumentException("You must login!");
-    }
-    return email.toLowerCase();
-  }
-
-  private User getWhoFromLogin() {
-    userService = UserServiceFactory.getUserService();
-    return userService.getCurrentUser();
-  }
-
-  public static boolean isDevInstance(HttpServletRequest req) {
-    try {
-      return DEV_HOST.equals(InetAddress.getLocalHost().toString());
-    } catch (UnknownHostException e) {
-      e.printStackTrace();
-    }
-    return false;
-  }
-
   @Override
   protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-    userService = UserServiceFactory.getUserService();
-    if (userService.isUserAdmin()) {
-      readExperimentDefinitions(req, resp);
+    resp.setContentType("application/json;charset=UTF-8");
+    User user = AuthUtil.getWhoFromLogin();
+    if (user == null) {
+      AuthUtil.redirectUserToLogin(req, resp);
+    } else {
+      DateTimeZone timezone = TimeUtil.getTimeZoneForClient(req);
+      logPacoClientVersion(req);
+      String email = AuthUtil.getEmailOfUser(req, user);
+
+      String delete = req.getParameter("delete");
+      if (!Strings.isNullOrEmpty(delete)) {
+        String selectedExperimentsParam = req.getParameter("id");
+        if (Strings.isNullOrEmpty(selectedExperimentsParam)) {
+          List<Outcome> outcomes = createErrorOutcome("No experiment ids specified for deletion");
+          resp.getWriter().println(ExperimentJsonUploadProcessor.toJson(outcomes));
+        } else {
+          resp.getWriter().println(ExperimentJsonUploadProcessor.toJson(deleteExperiments(email,
+                                                                                          selectedExperimentsParam)));
+        }
+      } else {
+        readExperimentDefinitions(req, resp);
+      }
     }
   }
+
+
+
+  public List<Outcome> createErrorOutcome(String msg) {
+    Outcome outcome = new Outcome(0, msg);
+    List<Outcome> outcomes = Lists.newArrayList(outcome);
+    return outcomes;
+  }
+
+  private List<Outcome> deleteExperiments(String email, String selectedExperimentsParam) {
+    ExperimentService expService = ExperimentServiceFactory.getExperimentService();
+    List<Long> experimentIds = ExperimentServletSelectedExperimentsFullLoadHandler.parseExperimentIds(selectedExperimentsParam);
+    if (experimentIds.isEmpty()) {
+      return createErrorOutcome("No experiment ids specified for deletion");
+    }
+    Outcome outcome = new Outcome();
+    List<Outcome> outcomeList = Lists.newArrayList();
+    outcomeList.add(outcome);
+    try {
+      final Boolean deleteExperimentsResult = expService.deleteExperiments(experimentIds, email);
+      if (!deleteExperimentsResult) {
+        outcome.setError("Could not delete experiments. Rolled back.");
+      }
+    } catch (Exception e) {
+      outcome.setError("Could not delete experiments. Rolled back. Error: " + e.getMessage());
+    }
+
+    return outcomeList;
+  }
+
+
 
   private void readExperimentDefinitions(HttpServletRequest req, HttpServletResponse resp) throws IOException {
     String postBodyString;
     try {
       postBodyString = org.apache.commons.io.IOUtils.toString(req.getInputStream(), "UTF-8");
     } catch (IOException e) {
-      log.info("IO Exception reading post data stream: " + e.getMessage());
-      throw e;
+      final String msg = "IO Exception reading post data stream: " + e.getMessage();
+      log.info(msg);
+      List<Outcome> outcomes = createErrorOutcome(msg);
+      resp.getWriter().println(ExperimentJsonUploadProcessor.toJson(outcomes));
+      return;
     }
     if (postBodyString.equals("")) {
-      throw new IllegalArgumentException("Empty Post body");
+      List<Outcome> outcomes = createErrorOutcome("Empty Post body");
+      resp.getWriter().println(ExperimentJsonUploadProcessor.toJson(outcomes));
+      return;
     }
 
     String appIdHeader = req.getHeader("http.useragent");
     String pacoVersion = req.getHeader("paco.version");
     log.info("Paco version = " + pacoVersion);
     DateTimeZone timezone = TimeUtil.getTimeZoneForClient(req);
-    String results = ExperimentJsonUploadProcessor.create().processJsonExperiments(postBodyString, getWhoFromLogin(), appIdHeader, pacoVersion, timezone);
-    resp.setContentType("application/json;charset=UTF-8");
+    final User whoFromLogin = AuthUtil.getWhoFromLogin();
+    String results = ExperimentJsonUploadProcessor.create().processJsonExperiments(postBodyString, whoFromLogin, appIdHeader, pacoVersion, timezone);
     resp.getWriter().write(results);
   }
 }

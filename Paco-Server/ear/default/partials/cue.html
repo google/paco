@@ -1,0 +1,24 @@
+<md-dialog aria-label="Edit Cue">
+  <md-dialog-content>
+
+    <div class="cue">
+      <div>
+        <select ng-model="cue.cueCode" as-string>
+          <option value="" disabled selected>Choose cue event</option>
+          <option ng-selected="($index + 1) === cue.cueCode" ng-repeat="type in cueTypes" value="{{$index + 1}}">{{type}}</option>
+        </select>
+      </div>
+
+      <md-input-container ng-if="cue.cueCode === 3 || cue.cueCode === 4 || cue.cueCode === 5">
+        <label>Source of Paco Action</label>
+        <input type="text" ng-model="cue.cueSource">
+      </md-input-container>
+    </div>
+  </md-dialog-content>
+
+  <div class="md-actions">
+    <md-button ng-click="hide()" class="md-primary">
+      Done
+    </md-button>
+  </div>
+</md-dialog>

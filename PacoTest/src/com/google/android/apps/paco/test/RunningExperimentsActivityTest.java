@@ -7,9 +7,9 @@ import java.util.List;
 import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.map.JsonMappingException;
 
-import com.google.android.apps.paco.ExperimentProviderUtil;
 import com.google.android.apps.paco.RunningExperimentsActivity;
 import com.pacoapp.paco.R;
+import com.pacoapp.paco.model.ExperimentProviderUtil;
 
 import android.os.SystemClock;
 import android.test.ActivityInstrumentationTestCase2;

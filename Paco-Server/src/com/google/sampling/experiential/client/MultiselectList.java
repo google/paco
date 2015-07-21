@@ -6,15 +6,15 @@ import com.google.common.collect.Lists;
 import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.VerticalPanel;
-import com.google.paco.shared.model.InputDAO;
+import com.pacoapp.paco.shared.model2.Input2;
 
 public class MultiselectList extends Composite {
 
-  private InputDAO input;
+  private Input2 input;
   private VerticalPanel mainPanel;
-  List<CheckBox> checkboxes; 
-  
-  public MultiselectList(InputDAO input) {
+  List<CheckBox> checkboxes;
+
+  public MultiselectList(Input2 input) {
     super();
     this.input = input;
     mainPanel = new VerticalPanel();
@@ -30,7 +30,7 @@ public class MultiselectList extends Composite {
       mainPanel.add(option);
     }
   }
-  
+
   public String readSelection() {
     StringBuilder buf = new StringBuilder();
     boolean first = true;
@@ -42,7 +42,7 @@ public class MultiselectList extends Composite {
         } else {
           buf.append(",");
         }
-        buf.append(Integer.toString(i + 1));        
+        buf.append(Integer.toString(i + 1));
       }
     }
     return buf.toString();

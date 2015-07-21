@@ -1,0 +1,40 @@
+body  {
+	display: flex;
+	min-height: 100vh;
+	flex-direction: column;
+}
+
+main {
+	flex: 1 0 auto;
+}
+
+
+
+.outlineElement {
+	outline: 2px solid #F00;
+}
+
+.prompt {
+	font-weight: bold;
+}
+
+.title {
+	font-weight: bold;
+	font-size: 2em;
+	margin-bottom: 1em;
+}
+
+.radioLabel {
+	font-size: .9em;
+	margin: .3em;
+}
+
+.radio-label {
+   display: inline-block;
+    vertical-align: top;
+    margin-right: 3%;
+}
+.radio-input {
+   display: inline-block;
+    vertical-align: top;
+}

@@ -1,8 +1,8 @@
 /*
 * Copyright 2011 Google Inc. All Rights Reserved.
-* 
+*
 * Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance  with the License.  
+* you may not use this file except in compliance  with the License.
 * You may obtain a copy of the License at
 *
 *    http://www.apache.org/licenses/LICENSE-2.0
@@ -27,10 +27,10 @@ import com.google.common.collect.Lists;
 
 
 /**
- * 
+ *
  * Factored out baseclass for JDOqueries.
  * Reused by Expeirment and Event queries.
- * 
+ *
  * @author Bob Evans
  *
  */
@@ -45,12 +45,12 @@ public class BaseJDOQuery {
   private boolean conjunctive = true;
 
   /**
-   * 
+   *
    */
   public BaseJDOQuery(Query newQuery) {
     super();
     this.query = newQuery;
-    
+
     parameterDecls = Lists.newArrayList();
     parameterObjects = Lists.newArrayList();
     filters = Lists.newArrayList();
@@ -70,14 +70,14 @@ public class BaseJDOQuery {
     for (String param : params) {
       parameterDecls.add(param);
     }
-    
+
   }
 
   public void addFilters(String... string) {
     for (String string2 : string) {
-      filters.add(string2);  
+      filters.add(string2);
     }
-    
+
   }
 
   public Query getQuery() {
@@ -92,13 +92,13 @@ public class BaseJDOQuery {
     return query;
   }
 
-  private String getJunctionString() {
+  protected String getJunctionString() {
     if (conjunctive) {
       return defaultJunction();
     }
     return OR_JUNCTION;
   }
-  
+
   public void setConjunctive(boolean conjunctive) {
     this.conjunctive = conjunctive;
   }
@@ -110,5 +110,5 @@ public class BaseJDOQuery {
   public List<Object> getParameters() {
     return parameterObjects;
   }
-  
+
 }

@@ -1,5 +1,6 @@
 package com.google.sampling.experiential.client;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -17,26 +18,26 @@ import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
-import com.google.paco.shared.model.InputDAO;
 import com.google.sampling.experiential.shared.EventDAO;
+import com.pacoapp.paco.shared.model2.Input2;
 
 public class EventPanel extends Composite {
 
   private AbstractExperimentExecutorPanel parent;
   private EventDAO event;
   private VerticalPanel mainPanel;
-  private InputDAO[] inputs;
+  private List<Input2> inputs;
   protected MyConstants myConstants;
   protected MyMessages myMessages;
 
 
-  public EventPanel(AbstractExperimentExecutorPanel parent, EventDAO eventDAO, InputDAO[] inputDAOs) {
+  public EventPanel(AbstractExperimentExecutorPanel parent, EventDAO eventDAO, List<Input2> list) {
     myConstants = GWT.create(MyConstants.class);
     myMessages = GWT.create(MyMessages.class);
 
     this.parent = parent;
     this.event = eventDAO;
-    this.inputs = inputDAOs;
+    this.inputs = list;
 
     mainPanel = new VerticalPanel();
     mainPanel.setVerticalAlignment(HasVerticalAlignment.ALIGN_MIDDLE);
@@ -87,14 +88,14 @@ public class EventPanel extends Composite {
       return;
     }
 
-    Grid grid = new Grid(inputs.length * 2, 1);
+    Grid grid = new Grid(inputs.size() * 2, 1);
     //grid.setBorderWidth(1);
     grid.setWidth("100%");
     mainPanel.add(grid);
 
     int rowIndex = 0;
-    for (int i=0;i < inputs.length; i++) {
-      InputDAO input = inputs[i];
+    for (int i=0;i < inputs.size(); i++) {
+      Input2 input = inputs.get(i);
       String valueString = whatMap.get(input.getName());
       Widget value = null;
 
@@ -111,7 +112,7 @@ public class EventPanel extends Composite {
           if (blobData.isEmpty()) {
             value = new Label("");
           } else {
-            // the inline image would get destroyed by wrapping a label and 
+            // the inline image would get destroyed by wrapping a label and
             // there is no gwt html element for an image that allows setting the data attribute
             // so, if we have an image, we directly add it to the html and return here.
             // TODO get rid of this kludge
@@ -120,8 +121,8 @@ public class EventPanel extends Composite {
             rowIndex = rowIndex + 2;
             return;
           }
-      } else if (input.getResponseType().equals(InputDAO.LIST)) {
-        String[] listChoices = input.getListChoices();
+      } else if (input.getResponseType().equals(Input2.LIST)) {
+        List<String> listChoices = input.getListChoices();
         if (input.getMultiselect() != null && input.getMultiselect()) {
           StringBuffer buff = new StringBuffer();
           boolean first = true;
@@ -139,7 +140,7 @@ public class EventPanel extends Composite {
         } else {
           value = new Label(getListChoiceForAnswer(valueString, listChoices));
         }
-      } else if (input.getResponseType().equals(InputDAO.LOCATION)) {
+      } else if (input.getResponseType().equals(Input2.LOCATION)) {
         value = new ChartPanel(input, Lists.newArrayList(event), 300, 300, false);
       } else {
         if (valueString.equals("blob") && input.getResponseType().equals("photo")) {
@@ -147,22 +148,24 @@ public class EventPanel extends Composite {
         }
         value = new HTML(new SafeHtmlBuilder().appendEscaped(valueString).toSafeHtml().asString());
       }
-      addColumnToGrid(grid, rowIndex, displayText, value);
-      rowIndex = rowIndex + 2;
+      if (valueString != null && valueString.length() > 0) {
+        addColumnToGrid(grid, rowIndex, displayText, value);
+        rowIndex = rowIndex + 2;
+      }
     }
   }
 
-  private String getListChoiceForAnswer(String value, String[] listChocies) {
+  private String getListChoiceForAnswer(String value, List<String> listChoices) {
     int zeroBasedIndex = -1;
     try {
       zeroBasedIndex = Integer.parseInt(value) - 1;
     } catch (NumberFormatException nfe) {
       // Log this error.
     }
-    if (zeroBasedIndex < 0 || zeroBasedIndex > listChocies.length - 1) {
+    if (zeroBasedIndex < 0 || zeroBasedIndex > listChoices.size() - 1) {
       value = "";
     } else {
-      value = listChocies[zeroBasedIndex];
+      value = listChoices.get(zeroBasedIndex);
     }
     return value;
   }
@@ -176,7 +179,7 @@ public class EventPanel extends Composite {
     grid.setWidget(i, 0, label);
     grid.setWidget(i + 1, 0, widget);
   }
-  
+
   private void addColumnToGrid(Grid grid, int i, String text, String value) {
     SafeHtml questionText = new SafeHtmlBuilder().appendEscaped(text).toSafeHtml();
     //Label label = new Label(questionText.asString());

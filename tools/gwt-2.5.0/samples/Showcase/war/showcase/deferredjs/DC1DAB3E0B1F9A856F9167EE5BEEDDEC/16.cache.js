@@ -1,2 +1,0 @@
-function Jqb(){var a,b,c,d,e;b=new rUb(4,4);d=b.g;c=b.f;for(e=0;e<d;++e){for(a=0;a<c;++a){LTb(b,e,a,new MIb((c6(),T5)))}}DTb(b,'cwGrid');return b}
-o1(746,1,Hnc);_.lc=function Pqb(){Y3(this.a,Jqb())};uoc(wn)(16);

@@ -18,8 +18,8 @@
 
 <resources>
 
-    <string name="app_name">PACO</string>
-    <string name="server">quantifiedself.appspot.com</string>
+    <string name="app_name">Paco</string>
+    <string name="server">www.pacoapp.com</string>
     <string name="app_package">com.pacoapp.paco</string>
     <string name="contact_email">paco-users@googlegroups.com</string>
     <string name="about_googlegroups">paco-users@googlegroups.com</string>
@@ -184,9 +184,10 @@
     <string name="edit_schedule_menu_item">Edit Schedule</string>
     <string name="stop_experiment_menu_item">Stop Experiment</string>
     <string name="explore_data_menu_item">Explore data</string>
-    <string name="running_experiments_title">Running Experiments</string>
+    <string name="running_experiments_title">My Current Experiments</string>
+    <string name="completed_experiments_title">Completed Experiments</string>
     <string name="find_my_experiments_list_title">Experiments for You</string>
-    <string name="find_public_experiments_title">Public Experiments</string>
+    <string name="find_public_experiments_title">Experiment Hub</string>
     <string name="stop_the_experiment_dialog_title">Stop the Experiment?</string>
     <string name="stop_experiment_dialog_body">Are you sure you want to stop the experiment?</string>
     <string name="unknown_author_text">unknown author</string>
@@ -197,7 +198,7 @@
     <string name="done_button">Done</string>
     <string name="time_to_participate_notification_text">Time to participate!</string>
     <string name="time_for_notification_title">"Time for "</string>
-    <string name="refresh_experiment_menu_item">Refresh Experiment</string>
+    <string name="refresh_experiment_menu_item">Refresh Experiments</string>
     <string name="main_page_menu_item">Main Page</string>
     <string name="missed_signal_value">Missed</string>
     <string name="version_is_current">This version is current.</string>
@@ -234,11 +235,11 @@
     <string name="relationships">Relationships</string>
     <string name="distributions">Distributions</string>
     <string name="raw_data_button_text">Go to Raw Data</string>
-    <string name="your_current_experiments">Your Current Experiments</string>
+    <string name="your_current_experiments">My Current Experiments</string>
     <string name="refresh_experiments_list_from_server">Refresh Experiments List from Server</string>
-    <string name="load_more_experiments_from_server">Load More Experiments from Server</string>
-    <string name="data_handling_title">Data Handling &amp; Privacy Agreement between You and the Experiment Creator</string>
-    <string name="informed_consent_preamble">By joining this experiment, you may be sharing data with the creator and administrators of this experiment. Read the data handling policy they have provided below to decide on whether you want to participate in this experiment.</string>
+    <string name="load_more_experiments_from_server">Refresh Again to Load More Experiments from Server</string>
+    <string name="data_handling_title">You Agree to Share Information with the Experimenters</string>
+    <string name="informed_consent_preamble">By joining this experiment, you will be sharing your responses with the creator and administrators of this experiment, and they may use that information for research, product development, or other purposes.  Please read the privacy policy or data handling statement they have provided below to decide whether you want to participate in this experiment.</string>
     <string name="consent_checkbox_text">"          I consent"</string>
     <string name="available_experiments">Available Experiments</string>
     <string name="retrieving_location">Retrieving...</string>
@@ -290,8 +291,14 @@
     <string name="please_choose_the_source_of_your_image">Please choose the source of your image</string>
     <string name="camera">Camera</string>
     <string name="gallery">Gallery</string>
+    <string name="action_find_experiments">Find Experiments</string>
     <string name="action_settings">Settings</string>
-    <string name="find_my_experiments">Find My Experiments</string>
+    <string name="action_user_guide">User Guide</string>
+    <string name="action_email_paco_team">Email Paco Team</string>
+    <string name="action_about">About Paco</string>
+    <string name="action_user_agreement">User Agreement</string>
+    <string name="action_open_source_libs">Open source libraries</string>
+    <string name="find_my_experiments">My Experiment Invitations</string>
     <string name="find_all_public_experiments">Find All Public Experiments</string>
     <string name="could_not_load_full_experiment_">Could not load full experiment.</string>
     <string name="no_more_experiments_on_server">All experiments downloaded from server</string>
@@ -304,5 +311,13 @@
     <string name="survey_responses_data_collected">User responses to experiment form</string>
     <string name="app_usage_and_browser_usage_data_collected">Apps and sites used during experiment</string>
     <string name="discover_experiments_title">Discover Experiments</string>
+    <!-- new ui -->
+    <string name="title_schedule_detail">Schedule Detail</string>
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="choose_experiment_group">Choose an Experiment Group to Respond</string>
+    <string name="title_activity_settings">Settings</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="location_to_be_recorded_default_prompt">Location to be recorded</string>
 
 </resources>

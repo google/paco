@@ -1,8 +1,8 @@
 /*
 * Copyright 2011 Google Inc. All Rights Reserved.
-* 
+*
 * Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance  with the License.  
+* you may not use this file except in compliance  with the License.
 * You may obtain a copy of the License at
 *
 *    http://www.apache.org/licenses/LICENSE-2.0
@@ -30,30 +30,19 @@ public class LoginServiceImpl extends RemoteServiceServlet implements
     UserService userService = UserServiceFactory.getUserService();
     User user = userService.getCurrentUser();
     LoginInfo loginInfo = new LoginInfo();
-    DBWhitelist whitelist = new DBWhitelist();    
-    
-    
+
+
     if (user == null) {
       loginInfo.setLoggedIn(false);
-      loginInfo.setWhitelisted(false);
       loginInfo.setLoginUrl(userService.createLoginURL(requestUri, "google.com"));
       return loginInfo;
-    } 
-    
-    boolean whitelisted = whitelist.allowed(user.getEmail());
-    if (whitelisted) {
-      loginInfo.setLoggedIn(true);
-      loginInfo.setWhitelisted(true);
-      loginInfo.setEmailAddress(user.getEmail());
-      loginInfo.setNickname(user.getNickname());
-      loginInfo.setLogoutUrl(userService.createLogoutURL(requestUri, "google.com"));
-    } else { 
-      loginInfo.setLoggedIn(true);
-      loginInfo.setWhitelisted(false);
-      loginInfo.setLoginUrl(userService.createLoginURL(requestUri, "google.com"));
-      loginInfo.setLogoutUrl(userService.createLogoutURL(requestUri, "google.com"));
-    } 
-    return loginInfo;
+    }
+
+    loginInfo.setLoggedIn(true);
+    loginInfo.setEmailAddress(user.getEmail());
+    loginInfo.setNickname(user.getNickname());
+    loginInfo.setLogoutUrl(userService.createLogoutURL(requestUri, "google.com"));
+      return loginInfo;
   }
 
 }

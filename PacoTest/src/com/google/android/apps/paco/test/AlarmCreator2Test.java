@@ -1,6 +1,6 @@
 package com.google.android.apps.paco.test;
 
-import com.google.android.apps.paco.AlarmCreator2;
+import com.pacoapp.paco.triggering.AlarmCreator2;
 
 import android.app.AlarmManager;
 import android.app.Service;
