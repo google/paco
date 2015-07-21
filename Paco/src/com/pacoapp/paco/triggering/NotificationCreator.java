@@ -43,6 +43,7 @@ import com.pacoapp.paco.model.NotificationHolder;
 import com.pacoapp.paco.model.NotificationHolderColumns;
 import com.pacoapp.paco.net.SyncService;
 import com.pacoapp.paco.os.AlarmReceiver;
+import com.pacoapp.paco.os.RingtoneUtil;
 import com.pacoapp.paco.shared.model2.ExperimentDAO;
 import com.pacoapp.paco.shared.model2.ExperimentGroup;
 import com.pacoapp.paco.shared.model2.InterruptTrigger;
@@ -303,18 +304,26 @@ public class NotificationCreator {
     return notificationBuilder.build();
   }
 
-  public int getRingtone(Context context, NotificationCompat.Builder notificationBuilder, int defaults, String experimentRingtone) {
+  public int getRingtone(Context context, NotificationCompat.Builder notificationBuilder, int defaults,
+                         String experimentRingtone) {
     if (!Strings.isNullOrEmpty(experimentRingtone)) {
-      notificationBuilder.setSound(Uri.parse(experimentRingtone)); // TODO add error handling that ringtone exists somewhere in this process.
+      if (experimentRingtone.equals(RingtoneUtil.ALTERNATE_RINGTONE_FILENAME)
+          || experimentRingtone.equals(RingtoneUtil.ALTERNATE_RINGTONE_TITLE)) {
+        // TODO massive hack for quick study. FIX with proper ringtone
+        // customization per experiment
+        String ringtoneUri = new UserPreferences(context).getAltRingtoneUri();
+        if (ringtoneUri != null) {
+          notificationBuilder.setSound(Uri.parse(ringtoneUri));
+          return defaults;
+        }
+      }
     }
+
     String ringtoneUri = new UserPreferences(context).getRingtoneUri();
     if (ringtoneUri != null) {
       notificationBuilder.setSound(Uri.parse(ringtoneUri));
     } else {
       defaults |= Notification.DEFAULT_SOUND;
-//    notification.sound = Uri.parse(android.os.Environment.getExternalStorageDirectory().getAbsolutePath()
-//                                   + "/Android/data/" + context.getPackageName() + "/" +
-//                                   "deepbark_trial.mp3");
     }
     return defaults;
   }
