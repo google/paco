@@ -104,6 +104,8 @@ typedef void(^BackgroundFetchCompletionBlock)(UIBackgroundFetchResult result);
 }
 
 - (void)checkIfUserFirstLaunchPaco {
+    
+     DDLogInfo(@"PacoClient-- checkIfUserFirstLaunchPaco ");
   NSString* launchedKey = @"paco_launched";
   id value = [[NSUserDefaults standardUserDefaults] objectForKey:launchedKey];
   if (value == nil) { //first launch
@@ -116,6 +118,9 @@ typedef void(^BackgroundFetchCompletionBlock)(UIBackgroundFetchResult result);
 }
 
 - (void)checkIfUserFirstLaunchOAuth2 {
+    
+    
+    DDLogInfo(@"PacoClient-- checkIfUserFirstLaunchOAuth2 ");
   NSString* launchedKey = @"oauth2_launched";
   id value = [[NSUserDefaults standardUserDefaults] objectForKey:launchedKey];
   if (value == nil) { //first launch
@@ -162,6 +167,8 @@ typedef void(^BackgroundFetchCompletionBlock)(UIBackgroundFetchResult result);
 }
 
 - (NSArray*)eventsFromExpiredNotifications:(NSArray*)expiredNotifications {
+    
+      DDLogInfo(@"PacoClient-- eventsFromExpiredNotifications ");
   NSAssert([[self userEmail] length] > 0, @"userEmail should be valid");
   NSMutableArray* eventList = [NSMutableArray arrayWithCapacity:[expiredNotifications count]];
   for (UILocalNotification* notification in expiredNotifications) {
@@ -240,6 +247,8 @@ typedef void(^BackgroundFetchCompletionBlock)(UIBackgroundFetchResult result);
 
 - (void)shutDownNotificationSystemIfNeeded {
   @synchronized(self) {
+      
+       DDLogInfo(@"PacoClient-- shutDownNotificationSystemIfNeeded ");
     if ([self isNotificationSystemOn]) {
       DDLogInfo(@"Shut down notification system.");
       [[NSUserDefaults standardUserDefaults] setBool:NO forKey:kPacoNotificationSystemTurnedOn];
@@ -254,6 +263,8 @@ typedef void(^BackgroundFetchCompletionBlock)(UIBackgroundFetchResult result);
 
 #pragma mark PacoSchedulerDelegate
 - (void)handleExpiredNotifications:(NSArray*)expiredNotifications {
+    
+    DDLogInfo(@"PacoClient-- handleExpiredNotifications ");
   if (0 == [expiredNotifications count]) {
     return;
   }
@@ -265,6 +276,8 @@ typedef void(^BackgroundFetchCompletionBlock)(UIBackgroundFetchResult result);
 
 //return YES if Paco finishes loading both running experiments and also notifications
 - (BOOL)isDoneInitializationForMajorTask {
+    
+     DDLogInfo(@"PacoClient-- isDoneInitializationForMajorTask ");
   if (![self.model hasLoadedRunningExperiments]) {
     DDLogInfo(@"PacoClient: running experiments are not loaded yet!");
     return NO;
@@ -291,6 +304,8 @@ typedef void(^BackgroundFetchCompletionBlock)(UIBackgroundFetchResult result);
 }
 
 - (NSArray*)nextNotificationsToSchedule {
+    
+   DDLogInfo(@"PacoClient-- nextNotificationsToSchedule ");
   NSUInteger numOfRunningExperiments = [self.model.runningExperiments count];
   NSMutableArray* allNotifications =
       [NSMutableArray arrayWithCapacity:numOfRunningExperiments * kTotalNumOfNotifications];
@@ -330,6 +345,8 @@ typedef void(^BackgroundFetchCompletionBlock)(UIBackgroundFetchResult result);
 //b. perform major task if needed
 //c. trigger or shutdown the notifications system
 - (void)setUpNotificationSystem {
+    
+      DDLogInfo(@"PacoClient-- setUpNotificationSystem ");
   DDLogInfo(@"Setting up notification system...");
   [self.scheduler initializeNotifications];
   DDLogInfo(@"Finish initializing notifications");
@@ -354,6 +371,8 @@ typedef void(^BackgroundFetchCompletionBlock)(UIBackgroundFetchResult result);
 }
 
 - (void)backgroundFetchStartedWithBlock:(void(^)(UIBackgroundFetchResult))completionBlock {
+    
+    DDLogInfo(@"PacoClient-- backgroundFetchStartedWithBlock ");
   if (![self isNotificationSystemOn]) {
     DDLogInfo(@"Skip Executing Major Task, notification system is off");
     [self disableBackgroundFetch];
@@ -378,6 +397,8 @@ typedef void(^BackgroundFetchCompletionBlock)(UIBackgroundFetchResult result);
 
 - (void)disableBackgroundFetch {
   DDLogInfo(@"Disable background fetch");
+    
+ 
   [[UIApplication sharedApplication] setMinimumBackgroundFetchInterval:UIApplicationBackgroundFetchIntervalNever];
 }
 
@@ -422,6 +443,9 @@ typedef void(^BackgroundFetchCompletionBlock)(UIBackgroundFetchResult result);
   //If there is an account stored, and the internet is offline, then we should allow user to use
   //our app, so we need to prefetch definitions and experiments. When the internet is reacheable,
   //we will re-authenticate user
+    
+    
+      DDLogInfo(@"PacoClient-- reAuthenticateUserWithBlock ");
   if (!self.reachability.isReachable) {
     [self prefetchInBackground];
     if (block != nil) {
@@ -464,6 +488,8 @@ typedef void(^BackgroundFetchCompletionBlock)(UIBackgroundFetchResult result);
 
 - (void)loginWithOAuth2CompletionHandler:(void (^)(NSError *))completionHandler {
   if ([self isLoggedIn]) {
+      
+        DDLogInfo(@"PacoClient-- loginWithOAuth2CompletionHandler ");
     if (completionHandler != nil) {
       completionHandler(nil);
     }
@@ -492,7 +518,7 @@ typedef void(^BackgroundFetchCompletionBlock)(UIBackgroundFetchResult result);
 //refreshing only running experiments' definitions is a partial refreshing
 - (void)refreshSucceedWithDefinitions:(NSArray*)newDefinitions isPartialUpdate:(BOOL)isPartial{
   DDLogInfo(@"Fetched %lu definitions from server", (unsigned long)[newDefinitions count]);
-
+    DDLogInfo(@"PacoClient-- refreshSucceedWithDefinitions ");
   //save survey missing events
   [self.scheduler cleanExpiredNotifications];
   
@@ -507,13 +533,19 @@ typedef void(^BackgroundFetchCompletionBlock)(UIBackgroundFetchResult result);
   }
   
   BOOL shouldRefreshSchedules = [self.model refreshExperimentsWithDefinitionList:newDefinitions];
-  if (shouldRefreshSchedules) { //reset notification system
+  if (shouldRefreshSchedules) {
+      
+        DDLogInfo(@"PacoClient-- shouldRefresh Schedule  ");
+      
+      //reset notification system
     [self.scheduler restartNotificationSystem];
   }
 }
 
 - (void)refreshMyDefinitionsWithBlock:(PacoRefreshCompletionBlock)completionBlock {
   @synchronized(self) {
+      
+       DDLogInfo(@"PacoClient-- Refresh definitios With block ");
     DDLogInfo(@"Start refreshing definitions...");
     [self.service loadMyFullDefinitionListWithBlock:^(NSArray* definitions, NSError *error) {
       if (!error) {
@@ -531,6 +563,8 @@ typedef void(^BackgroundFetchCompletionBlock)(UIBackgroundFetchResult result);
 
 
 - (void)refreshRunningExperimentsWithBlock:(PacoRefreshCompletionBlock)completionBlock {
+    
+       DDLogInfo(@"PacoClient-- Refresh definitios With refreshRunningExperimentsWithBlock");
   @synchronized(self) {
     if (![self.model hasRunningExperiments]) {
       if (completionBlock) {
@@ -554,6 +588,7 @@ typedef void(^BackgroundFetchCompletionBlock)(UIBackgroundFetchResult result);
 
 #pragma mark Private methods
 - (void)prefetchInBackground {
+       DDLogInfo(@"PacoClient-- Refresh prefetchInBackground");
   @synchronized(self) {
     NSError* error = [self.model loadExperimentInstancesFromFile];
     [[NSNotificationCenter defaultCenter] postNotificationName:kPacoNotificationLoadedRunningExperiments
@@ -583,6 +618,8 @@ typedef void(^BackgroundFetchCompletionBlock)(UIBackgroundFetchResult result);
 - (void)joinExperimentWithDefinition:(PacoExperimentDefinition*)definition
                             schedule:(PacoExperimentSchedule*)schedule
                      completionBlock:(void(^)())completionBlock {
+                         
+  DDLogInfo(@"PacoClient-- Refresh joinExperimentWithDefinition ");
   NSAssert(definition, @"definition should not be nil");
   [self.eventManager saveJoinEventWithDefinition:definition withSchedule:schedule];
   //create a new experiment and save it to cache
@@ -607,7 +644,7 @@ typedef void(^BackgroundFetchCompletionBlock)(UIBackgroundFetchResult result);
     }
     return;
   }
-  DDLogInfo(@"Change schedule for experiment ...");
+  DDLogInfo(@"Change schedule for changeScheduleForExperiment ...");
   [self.model configureExperiment:experiment withSchedule:newSchedule];
   [self.scheduler restartNotificationSystem];
   if (completionBlock) {
@@ -620,6 +657,8 @@ typedef void(^BackgroundFetchCompletionBlock)(UIBackgroundFetchResult result);
   if (!experiment) {
     return;
   }
+    
+       DDLogInfo(@"PacoClient-- stopExperiment ");
   
   [self.eventManager saveStopEventWithExperiment:experiment];
   
@@ -645,6 +684,8 @@ typedef void(^BackgroundFetchCompletionBlock)(UIBackgroundFetchResult result);
 - (void)submitSurveyWithDefinition:(PacoExperimentDefinition*)definition
                       surveyInputs:(NSArray*)surveyInputs
                       notification:(UILocalNotification*)notification {
+                          
+                             DDLogInfo(@"PacoClient-- submitSurvayWithDefinition ");
   if (notification) {
     [self.eventManager saveSurveySubmittedEventForDefinition:definition
                                                   withInputs:surveyInputs
@@ -653,6 +694,8 @@ typedef void(^BackgroundFetchCompletionBlock)(UIBackgroundFetchResult result);
   } else {
     [self.eventManager saveSelfReportEventWithDefinition:definition andInputs:surveyInputs];
   }
+                          
+    DDLogInfo(@"PacoClient-- submitSurvayWithDefinition ");
 }
 
 

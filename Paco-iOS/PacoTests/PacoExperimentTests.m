@@ -14,8 +14,15 @@
  */
 
 #import <XCTest/XCTest.h>
+#import "PacoService.h"
+#import "PacoClient.h" 
+
+
+
 
 @interface PacoExperimentTests : XCTestCase
+
+@property (nonatomic, retain, readonly) PacoService *service;
 
 @end
 
@@ -23,6 +30,10 @@
 
 - (void)setUp {
   [super setUp];
+    
+    
+    _service=[[PacoService alloc] init];
+    
   // Put setup code here; it will be run once, before the first test case.
 }
 
@@ -31,6 +42,11 @@
   [super tearDown];
 }
 
-
+-(void) testServer
+{
+    
+    
+    
+}
 
 @end

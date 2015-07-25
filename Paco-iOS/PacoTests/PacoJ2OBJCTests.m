@@ -22,7 +22,6 @@
 #include "java/lang/Long.h"
 #include "java/util/ArrayList.h"
 #include "java/util/List.h"
-#import "PacoTestViewController.h"
 #import "ExperimentDAO.h"
 
 
@@ -73,6 +72,16 @@
     [super tearDown];
 }
 
+-(void) testRemanemMethod
+{
+  
+  //  PAExperimentGroup   * eGroup = [[PAExperimentGroup alloc] init];
+    
+    
+   
+    
+}
+
 
 -(void) testDayIncrement
 {
@@ -116,6 +125,8 @@
     
      PASchedule* schedule  = [self setupSchedul:startDate EndHoursMill:endHourMIlls StartHourMill:startHourMIlls ESMFrequencey:esmFrequency EMSPeriod:esmPeriod ESMWeekends:esmWeekends];
     
+  
+    
     PAEsmGenerator2* generator = [[PAEsmGenerator2 alloc] init];
     id<JavaUtilList>  list =  [generator generateForScheduleWithOrgJodaTimeDateTime:startDate  withPASchedule:schedule];
     int i =  [list size];
@@ -128,6 +139,8 @@
 {
     
     OrgJodaTimeDateTime *startDate = [[OrgJodaTimeDateTime alloc] initWithInt:2010 withInt:12 withInt:19 withInt:0 withInt:0 withInt:0 withInt:0];
+    
+    
     OrgJodaTimeHours * hours        = [OrgJodaTimeHours hoursWithInt:17];
     OrgJodaTimeDuration * duration  = [hours toStandardDuration];
     long endHourMIlls               = [duration  getStandardSeconds]*1000;
@@ -182,6 +195,8 @@
     OrgJodaTimeHours *      startHours = [OrgJodaTimeHours hoursWithInt:9];
     OrgJodaTimeDuration *   startDuration = [startHours toStandardDuration];
     long                    startHourMIlls = [startDuration  getStandardSeconds]*1000;
+    
+ 
     
     
     int     esmFrequency = 8;
