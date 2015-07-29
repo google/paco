@@ -1,5 +1,0 @@
-<module>
-      <source path='client'/>
-      <source path='comm'/>
-      <source path='model2'/>
-</module>

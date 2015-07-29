@@ -1,5 +1,6 @@
 package com.google.sampling.experiential.server;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.nio.channels.Channels;
@@ -18,10 +19,13 @@ import org.joda.time.format.DateTimeFormatter;
 import au.com.bytecode.opencsv.CSVWriter;
 
 import com.google.appengine.api.blobstore.BlobKey;
-import com.google.appengine.api.files.AppEngineFile;
-import com.google.appengine.api.files.FileService;
-import com.google.appengine.api.files.FileServiceFactory;
-import com.google.appengine.api.files.FileWriteChannel;
+import com.google.appengine.api.blobstore.BlobstoreService;
+import com.google.appengine.api.blobstore.BlobstoreServiceFactory;
+import com.google.appengine.tools.cloudstorage.GcsFileOptions;
+import com.google.appengine.tools.cloudstorage.GcsFilename;
+import com.google.appengine.tools.cloudstorage.GcsOutputChannel;
+import com.google.appengine.tools.cloudstorage.GcsService;
+import com.google.appengine.tools.cloudstorage.GcsServiceFactory;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.google.sampling.experiential.model.Event;
@@ -29,15 +33,15 @@ import com.google.sampling.experiential.shared.EventDAO;
 import com.google.sampling.experiential.shared.TimeUtil;
 
 public class CSVBlobWriter {
-  
+
   private static final Logger log = Logger.getLogger(CSVBlobWriter.class.getName());
   private DateTimeFormatter jodaFormatter = DateTimeFormat.forPattern(TimeUtil.DATETIME_FORMAT).withOffsetParsed();
 
-  
+
   public CSVBlobWriter() {
   }
 
-  public String writeEndOfDayExperimentEventsAsCSV(boolean anon, List<EventDAO> events, 
+  public String writeEndOfDayExperimentEventsAsCSV(boolean anon, List<EventDAO> events,
                                                    String jobId, String clientTimezone) throws IOException {
    sortEventDAOs(events);
    List<String[]> eventsCSV = Lists.newArrayList();
@@ -66,40 +70,84 @@ public class CSVBlobWriter {
    columns.add(8, "scheduledTime");
    columns.add(9, "timeZone");
 
-       
-   FileService fileService = FileServiceFactory.getFileService();
-   AppEngineFile file = fileService.createNewBlobFile("text/csv", jobId);
+   return writeBlobUsingNewApi(jobId, columns, eventsCSV).getKeyString();
 
-   // Open a channel to write to it
-   boolean lock = true;
-   FileWriteChannel writeChannel = fileService.openWriteChannel(file, lock);
 
-   // Different standard Java ways of writing to the channel
-   // are possible. Here we use a PrintWriter:
-   PrintWriter out = new PrintWriter(Channels.newWriter(writeChannel, "UTF8"));
-
-   CSVWriter csvWriter = null;
-   try {     
-     csvWriter = new CSVWriter(out);
-     String[] columnsArray = columns.toArray(new String[0]);
-     csvWriter.writeNext(columnsArray);
-     for (String[] eventCSV : eventsCSV) {
-       csvWriter.writeNext(eventCSV);
-     }
-     csvWriter.flush();
-   } finally {
-     if (csvWriter != null) {
-       csvWriter.close();
-     }
-   }
-   out.close();
-   writeChannel.closeFinally();
-   BlobKey blobKey = fileService.getBlobKey(file);
-   return blobKey.getKeyString();
+//   FileService fileService = FileServiceFactory.getFileService();
+//   AppEngineFile file = fileService.createNewBlobFile("text/csv", jobId);
+//
+//   // Open a channel to write to it
+//   boolean lock = true;
+//   FileWriteChannel writeChannel = fileService.openWriteChannel(file, lock);
+//
+//   // Different standard Java ways of writing to the channel
+//   // are possible. Here we use a PrintWriter:
+//   PrintWriter out = new PrintWriter(Channels.newWriter(writeChannel, "UTF8"));
+//
+//   CSVWriter csvWriter = null;
+//   try {
+//     csvWriter = new CSVWriter(out);
+//     String[] columnsArray = columns.toArray(new String[0]);
+//     csvWriter.writeNext(columnsArray);
+//     for (String[] eventCSV : eventsCSV) {
+//       csvWriter.writeNext(eventCSV);
+//     }
+//     csvWriter.flush();
+//   } finally {
+//     if (csvWriter != null) {
+//       csvWriter.close();
+//     }
+//   }
+//   out.close();
+//   writeChannel.closeFinally();
+//   BlobKey blobKey = fileService.getBlobKey(file);
+//   return blobKey.getKeyString();
  }
 
- private String[] toCSV(EventDAO event, List<String> columnNames, boolean anon, 
+  private BlobKey writeBlobUsingNewApi(String jobId, List<String> columns, List<String[]> eventsCSV) throws IOException,
+                                                                               FileNotFoundException {
+    log.info("Writing csv using new api");
+
+    GcsService gcsService = GcsServiceFactory.createGcsService();
+    String BUCKETNAME = "reportbucket";
+    String FILENAME = jobId;
+    GcsFilename filename = new GcsFilename(BUCKETNAME, FILENAME);
+    GcsFileOptions options = new GcsFileOptions.Builder().mimeType("text/csv").acl("public-read")
+                                                         .addUserMetadata("jobId", jobId).build();
+
+    GcsOutputChannel writeChannel = gcsService.createOrReplace(filename, options);
+    PrintWriter writer = new PrintWriter(Channels.newWriter(writeChannel, "UTF8"));
+    log.info("got writer");
+    CSVWriter csvWriter = null;
+    try {
+      csvWriter = new CSVWriter(writer);
+      log.info("got csv writer");
+      String[] columnsArray = columns.toArray(new String[0]);
+      csvWriter.writeNext(columnsArray);
+      for (String[] eventCSV : eventsCSV) {
+        csvWriter.writeNext(eventCSV);
+      }
+
+      writer.flush();
+      writeChannel.waitForOutstandingWrites();
+    } finally {
+      if (csvWriter != null) {
+        csvWriter.close();
+      }
+    }
+
+    writeChannel.close();
+    log.info("wrote to cloud store");
+    BlobstoreService blobstoreService = BlobstoreServiceFactory.getBlobstoreService();
+    BlobKey blobKey = blobstoreService.createGsBlobKey(
+        "/gs/" + BUCKETNAME + "/" + FILENAME);
+    return blobKey;
+  }
+
+
+ private String[] toCSV(EventDAO event, List<String> columnNames, boolean anon,
                         String clientTimezone) {
+   log.info("converting to csv. event: " + getTimeString(event, event.getResponseTime(), clientTimezone));
      int csvIndex = 0;
      String[] parts = new String[10 + columnNames.size()];
      if (anon) {
@@ -116,7 +164,7 @@ public class CSVBlobWriter {
      parts[csvIndex++] = getTimeString(event, event.getResponseTime(), clientTimezone);
      parts[csvIndex++] = getTimeString(event, event.getScheduledTime(), clientTimezone);
      parts[csvIndex++] = event.getTimezone();
-     
+
      Map<String, String> whatMap = event.getWhat();
      for (String key : columnNames) {
        String value = whatMap.get(key);
@@ -126,19 +174,19 @@ public class CSVBlobWriter {
 
  }
 
- String writeNormalExperimentEventsAsCSV(boolean anon, List<Event> events, String jobId) throws IOException {
+ String writeNormalExperimentEventsAsCSV(boolean anon, List<EventDAO> eodEventDAOs, String jobId, String clientTimezone) throws IOException {
    List<String[]> eventsCSV = Lists.newArrayList();
 
    Set<String> foundColumnNames = Sets.newHashSet();
-   for (Event event : events) {
-     Map<String, String> whatMap = event.getWhatMap();
+   for (EventDAO event : eodEventDAOs) {
+     Map<String, String> whatMap = event.getWhat();
      foundColumnNames.addAll(whatMap.keySet());
    }
    List<String> columns = Lists.newArrayList();
    columns.addAll(foundColumnNames);
    Collections.sort(columns);
-   for (Event event : events) {
-     eventsCSV.add(event.toCSV(columns, anon));
+   for (EventDAO event : eodEventDAOs) {
+     eventsCSV.add(toCSV(event, columns, anon, clientTimezone));
    }
    // add back in the standard pacot event columns
    columns.add(0, "who");
@@ -151,37 +199,8 @@ public class CSVBlobWriter {
    columns.add(7, "responseTime");
    columns.add(8, "scheduledTime");
    columns.add(9, "timeZone");
+   return writeBlobUsingNewApi(jobId, columns, eventsCSV).getKeyString();
 
-   FileService fileService = FileServiceFactory.getFileService();
-   AppEngineFile file = fileService.createNewBlobFile("text/csv", jobId);
-
-   // Open a channel to write to it
-   boolean lock = true;
-   FileWriteChannel writeChannel = fileService.openWriteChannel(file, lock);
-
-   // Different standard Java ways of writing to the channel
-   // are possible. Here we use a PrintWriter:
-   PrintWriter out = new PrintWriter(Channels.newWriter(writeChannel, "UTF8"));
-
-
-   CSVWriter csvWriter = null;
-   try {
-     csvWriter = new CSVWriter(out);
-     String[] columnsArray = columns.toArray(new String[0]);
-     csvWriter.writeNext(columnsArray);
-     for (String[] eventCSV : eventsCSV) {
-       csvWriter.writeNext(eventCSV);
-     }
-     csvWriter.flush();
-   } finally {
-     if (csvWriter != null) {
-       csvWriter.close();
-     }
-   }
-   out.close();
-   writeChannel.closeFinally();
-   BlobKey blobKey = fileService.getBlobKey(file);
-   return blobKey.getKeyString();
 
  }
 
@@ -211,7 +230,7 @@ public class CSVBlobWriter {
      scheduledTimeString = jodaFormatter.print(Event.getTimeZoneAdjustedDate(time, clientTimezone, event.getTimezone()));
    }
    return scheduledTimeString;
- } 
+ }
 
 
 }

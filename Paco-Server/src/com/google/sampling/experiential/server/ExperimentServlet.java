@@ -29,8 +29,8 @@ import javax.servlet.http.HttpServletResponse;
 import org.joda.time.DateTimeZone;
 
 import com.google.appengine.api.users.User;
+import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
-import com.google.gwt.thirdparty.guava.common.base.Strings;
 import com.pacoapp.paco.shared.comm.Outcome;
 
 /**

@@ -13,7 +13,6 @@ import com.google.appengine.tools.development.testing.LocalServiceTestHelper;
 import com.google.common.base.Joiner;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
-import com.google.sampling.experiential.shared.PacoService;
 import com.pacoapp.paco.shared.comm.Outcome;
 import com.pacoapp.paco.shared.model2.ExperimentDAO;
 import com.pacoapp.paco.shared.model2.ExperimentDAOCore;
@@ -29,7 +28,6 @@ public class ExperimentServletHandlerTest extends TestCase {
   private final String email = "bobevans@google.com";
   private final String userId = "bobevans@google.com";
   private final String authDomain = "unused_auth_domain";
-  private PacoService mapService;
 
   private final LocalServiceTestHelper helper = new LocalServiceTestHelper(new LocalDatastoreServiceTestConfig().setApplyAllHighRepJobPolicy(),
                                                                            new LocalMemcacheServiceTestConfig());
@@ -39,7 +37,6 @@ public class ExperimentServletHandlerTest extends TestCase {
     super.setUp();
     helper.setUp();
     logInEnvironment();
-    mapService = new PacoServiceImpl();
 
     createAndSaveExperiment(ExperimentTestConstants.TEST_EXPERIMENT_0_NEW);
     createAndSaveExperiment(ExperimentTestConstants.TEST_EXPERIMENT_1_NEW);
@@ -242,7 +239,7 @@ public class ExperimentServletHandlerTest extends TestCase {
   }
 
   private void saveToServer(ExperimentDAO experiment) {
-    Outcome outcome = mapService.saveExperiment(experiment, null);
+    Outcome outcome = new Outcome(0, "Test needs to be fixed to save using ExperimentServlet.doPost()");
     if (!outcome.succeeded()) {
       throw new IllegalStateException("Could not save test experiments to server: " + outcome.getErrorMessage());
     }

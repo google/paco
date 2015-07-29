@@ -152,7 +152,9 @@ public class ReportJobExecutor {
         return eodFile;
       }
     }
-    return new CSVBlobWriter().writeNormalExperimentEventsAsCSV(anon, eventQueryResultPair.getEvents(), jobId);
+    List<EventDAO> eodEventDAOs = EventRetriever.convertEventsToDAOs(eventQueryResultPair.getEvents());
+    log.info("converted events to eod");
+    return new CSVBlobWriter().writeNormalExperimentEventsAsCSV(anon, eodEventDAOs, jobId, clientTimezone.getID());
   }
 
   private String generateEODCSV(boolean anon, String jobId, String experimentId, List<Event> events, String clientTimezone) throws IOException {

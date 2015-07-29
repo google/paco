@@ -21,11 +21,9 @@ public class ExperimentServiceTest extends TestCase {
   private final String authDomain = "unused_auth_domain";
 
   private final LocalServiceTestHelper helper = new LocalServiceTestHelper(new LocalDatastoreServiceTestConfig().setApplyAllHighRepJobPolicy() );
-  private PacoServiceImpl pacoService;
 
   public void setUp() {
     helper.setUp();
-    pacoService = new PacoServiceImpl();
     logInEnvironment();
   }
 
@@ -44,7 +42,7 @@ public class ExperimentServiceTest extends TestCase {
   }
 
   private void saveToServer(ExperimentDAO experiment) {
-    Outcome result = pacoService.saveExperiment(experiment, null);
+    Outcome result = new Outcome(0, "test needs to use ExperimentServlet.doPost()");
     if (!result.succeeded()) {
       throw new IllegalStateException("Could not save test experiments to server: " + result.getErrorMessage());
     }

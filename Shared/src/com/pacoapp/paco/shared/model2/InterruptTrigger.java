@@ -13,7 +13,7 @@ public class InterruptTrigger extends ActionTrigger implements Validatable, Mini
 
   public InterruptTrigger() {
     super();
-    this.type = "interruptTrigger";
+    this.type = INTERRUPT_TRIGGER_TYPE_SPECIFIER;
     cues = new ArrayList();
   }
 
