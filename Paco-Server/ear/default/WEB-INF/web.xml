@@ -49,35 +49,6 @@
   -->
 
   <!-- Servlets -->
-  <!--  gwt endpoints -->
-  <servlet>
-    <servlet-name>pacoServiceServlet</servlet-name>
-    <servlet-class>com.google.sampling.experiential.server.PacoServiceImpl</servlet-class>
-  </servlet>
-  <servlet-mapping>
-    <servlet-name>pacoServiceServlet</servlet-name>
-    <url-pattern>/pacoserver/maps</url-pattern>
-  </servlet-mapping>
-  
-  <servlet>
-    <servlet-name>loginService</servlet-name>
-    <servlet-class>com.google.sampling.experiential.server.LoginServiceImpl</servlet-class>
-  </servlet>
-  <servlet-mapping>
-    <servlet-name>loginService</servlet-name>
-    <url-pattern>/pacoserver/login</url-pattern>
-  </servlet-mapping>
-
-  <servlet>
-    <servlet-name>remoteLoggingService</servlet-name>
-    <servlet-class>com.google.gwt.gen2.logging.server.RemoteLoggingService</servlet-class>
-  </servlet>
-  <servlet-mapping>
-    <servlet-name>remoteLoggingService</servlet-name>
-    <url-pattern>/pacoserver/logging</url-pattern>
-  </servlet-mapping>
-  
-  
   <!--  model & report endpoints -->
   <servlet>
     <servlet-name>eventServlet</servlet-name>

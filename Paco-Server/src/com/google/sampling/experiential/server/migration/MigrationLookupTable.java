@@ -1,15 +1,17 @@
 package com.google.sampling.experiential.server.migration;
 
 import java.util.Map;
+import java.util.logging.Logger;
 
+import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
-import com.google.gwt.gen2.logging.shared.Log;
-import com.google.gwt.thirdparty.guava.common.base.Strings;
 import com.google.sampling.experiential.server.migration.jobs.ExperimentJDOToDatastoreMigration;
 import com.google.sampling.experiential.server.migration.jobs.FeedbackTypeRepairMigration;
 import com.google.sampling.experiential.server.migration.jobs.TestJDODSCompat;
 
 public class MigrationLookupTable {
+  private static final Logger log = Logger.getLogger(MigrationLookupTable.class.getName());
+
 
   private static Map<String, Class> migrations = Maps.newHashMap();
   static {
@@ -19,7 +21,7 @@ public class MigrationLookupTable {
   }
   public static MigrationJob getMigrationByName(String name) {
     if (Strings.isNullOrEmpty(name)) {
-      Log.info("Could not run migration - no jobName specified");
+      log.info("Could not run migration - no jobName specified");
       return null;
     }
     Class migrationClass = migrations.get(name);
@@ -27,14 +29,14 @@ public class MigrationLookupTable {
       try {
         return (MigrationJob) migrationClass.newInstance();
       } catch (InstantiationException e) {
-        Log.severe("Could not instantiate migration named: " + name);
+        log.severe("Could not instantiate migration named: " + name);
         e.printStackTrace();
       } catch (IllegalAccessException e) {
-        Log.severe("Did not have access to instantiate migration named: " + name);
+        log.severe("Did not have access to instantiate migration named: " + name);
         e.printStackTrace();
       }
     } else {
-      Log.info("Migration name " + name + " does not exist in map");
+      log.info("Migration name " + name + " does not exist in map");
     }
     return null;
   }

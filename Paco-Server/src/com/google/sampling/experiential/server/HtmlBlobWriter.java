@@ -18,12 +18,19 @@ import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
 import com.google.appengine.api.blobstore.BlobKey;
+import com.google.appengine.api.blobstore.BlobstoreService;
+import com.google.appengine.api.blobstore.BlobstoreServiceFactory;
 import com.google.appengine.api.files.AppEngineFile;
 import com.google.appengine.api.files.FileService;
 import com.google.appengine.api.files.FileServiceFactory;
 import com.google.appengine.api.files.FileWriteChannel;
 import com.google.appengine.api.files.FinalizationException;
 import com.google.appengine.api.files.LockException;
+import com.google.appengine.tools.cloudstorage.GcsFileOptions;
+import com.google.appengine.tools.cloudstorage.GcsFilename;
+import com.google.appengine.tools.cloudstorage.GcsOutputChannel;
+import com.google.appengine.tools.cloudstorage.GcsService;
+import com.google.appengine.tools.cloudstorage.GcsServiceFactory;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.sampling.experiential.model.Event;
@@ -56,35 +63,38 @@ public class HtmlBlobWriter {
       throw e;
     }
 
-    BlobKey blobKey = writeBlobUsingOldApi(eventQueryResultPair, jobId, timeZone, experiment, eventPage);
+    BlobKey blobKey = writeBlobUsingNewApi(eventQueryResultPair, jobId, timeZone, experiment, eventPage);
     return blobKey.getKeyString();
 
   }
 
-//  private BlobKey writeBlobUsingNewApi(EventQueryResultPair eventQueryResultPair, String jobId, String timeZone,
-//                                       Experiment experiment, String eventPage) throws IOException,
-//                                                                               FileNotFoundException {
-//
-//    GcsService gcsService = GcsServiceFactory.createGcsService();
-//    String BUCKETNAME;
-//    String FILENAME;
-//    GcsFilename filename = new GcsFilename(BUCKETNAME, FILENAME);
-//    GcsFileOptions options = new GcsFileOptions.Builder().mimeType("text/html").acl("public-read")
-//                                                         .addUserMetadata("myfield1", "my field value").build();
-//
-//    GcsOutputChannel writeChannel = gcsService.createOrReplace(filename, options);
-//    PrintWriter writer = new PrintWriter(Channels.newWriter(writeChannel, "UTF8"));
-//    writer.println("The woods are lovely dark and deep.");
-//    writer.println("But I have promises to keep.");
-//    writer.flush();
-//
-//    writeChannel.waitForOutstandingWrites();
-//
-//    writeChannel.write(ByteBuffer.wrap("And miles to go before I sleep.".getBytes("UTF8")));
-//
-//    writeChannel.close();
-//    return newBlobKey(filename);
-//  }
+  private BlobKey writeBlobUsingNewApi(EventQueryResultPair eventQueryResultPair, String jobId, String timeZone,
+                                       ExperimentDAO experiment, String eventPage) throws IOException,
+                                                                               FileNotFoundException {
+
+    GcsService gcsService = GcsServiceFactory.createGcsService();
+    String BUCKETNAME = "reportbucket";
+    String FILENAME = jobId;
+    GcsFilename filename = new GcsFilename(BUCKETNAME, FILENAME);
+    GcsFileOptions options = new GcsFileOptions.Builder().mimeType("text/html").acl("public-read")
+                                                         .addUserMetadata("jobId", jobId).build();
+
+    GcsOutputChannel writeChannel = gcsService.createOrReplace(filename, options);
+    PrintWriter writer = new PrintWriter(Channels.newWriter(writeChannel, "UTF8"));
+    writer.println(printHeader(eventQueryResultPair.getEvents().size(), getExperimentTitle(experiment), timeZone));
+    writer.println(eventPage);
+    writer.flush();
+
+    writeChannel.waitForOutstandingWrites();
+
+    //writeChannel.write(ByteBuffer.wrap("And miles to go before I sleep.".getBytes("UTF8")));
+
+    writeChannel.close();
+    BlobstoreService blobstoreService = BlobstoreServiceFactory.getBlobstoreService();
+    BlobKey blobKey = blobstoreService.createGsBlobKey(
+        "/gs/" + BUCKETNAME + "/" + FILENAME);
+    return blobKey;
+  }
 
   private BlobKey writeBlobUsingOldApi(EventQueryResultPair eventQueryResultPair, String jobId, String timeZone,
                                        ExperimentDAO experiment, String eventPage) throws IOException,
