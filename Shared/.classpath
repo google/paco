@@ -8,8 +8,8 @@
 	<classpathentry kind="con" path="com.google.gwt.eclipse.core.GWT_CONTAINER"/>
 	<classpathentry kind="lib" path="lib/jackson-all-1.9.11.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/js.jar"/>
-	<classpathentry kind="lib" path="lib/guava-16.0.1.jar"/>
 	<classpathentry kind="lib" path="lib/joda-convert-1.7.jar"/>
 	<classpathentry kind="lib" path="lib/joda-time-2.5.jar"/>
+	<classpathentry kind="lib" path="lib/guava-16.0.1.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

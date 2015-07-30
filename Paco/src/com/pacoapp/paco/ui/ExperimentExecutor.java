@@ -43,11 +43,14 @@ import android.speech.RecognizerIntent;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
@@ -390,6 +393,9 @@ public class ExperimentExecutor extends ActionBarActivity implements ChangeListe
   private void showForm() {
     renderInputs();
     renderSaveButton();
+    mainLayout.clearFocus();
+    InputLayout firstInput = inputs.get(0);
+    firstInput.requestFocus();
   }
 
   private void renderSaveButton() {
@@ -495,10 +501,28 @@ public class ExperimentExecutor extends ActionBarActivity implements ChangeListe
 
   private void renderInputs() {
     for (Input2 input : experimentGroup.getInputs()) {
-      InputLayout inputView = renderInput(input);
+      final InputLayout inputView = renderInput(input);
       inputs.add(inputView);
       inputsScrollPane.addView(inputView);
       inputView.addChangeListener(this);
+      if (input.getResponseType().equals(Input2.OPEN_TEXT)) {
+        final TextView componentWithValue = (TextView)inputView.getComponentWithValue();
+        componentWithValue.setImeOptions(EditorInfo.IME_ACTION_DONE);
+        componentWithValue.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+
+          @Override
+          public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+            if (actionId == EditorInfo.IME_ACTION_DONE) {
+              // hide virtual keyboard
+              InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+              imm.hideSoftInputFromWindow(inputView.getComponentWithValue().getWindowToken(),
+                                        InputMethodManager.HIDE_NOT_ALWAYS);
+              return true;
+          }
+          return false;
+          }
+        });
+      }
     }
   }
 
