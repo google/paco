@@ -21,6 +21,8 @@
   <module>default</module>
   <version>140</version>
 
+  <public-root>/web</public-root>
+
   <static-files>
     <exclude path='**/*.gwt.rpc'/>
   </static-files>
