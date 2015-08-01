@@ -145,7 +145,7 @@ public class ExperimentExecutor extends ActionBarActivity implements ChangeListe
       setContentView(mainLayout);
 
       inputsScrollPane = (LinearLayout)findViewById(R.id.ScrollViewChild);
-      displayExperimentTitle();
+      displayExperimentGroupTitle();
 
       ((LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE)).inflate(R.layout.experiment_web_recommended_buttons,
                                                                            mainLayout, true);
@@ -259,6 +259,13 @@ public class ExperimentExecutor extends ActionBarActivity implements ChangeListe
   protected void onResume() {
     super.onResume();
     registerLocationListenerIfNecessary();
+    mainLayout.clearFocus();
+    if (inputs != null && inputs.size() > 0) {
+      InputLayout firstInput = inputs.get(0);
+      if (firstInput.getInput().getResponseType().equals(Input2.OPEN_TEXT)) {
+        firstInput.requestFocus();
+      }
+    }
   }
 
   @Override
@@ -393,9 +400,6 @@ public class ExperimentExecutor extends ActionBarActivity implements ChangeListe
   private void showForm() {
     renderInputs();
     renderSaveButton();
-    mainLayout.clearFocus();
-    InputLayout firstInput = inputs.get(0);
-    firstInput.requestFocus();
   }
 
   private void renderSaveButton() {
@@ -560,12 +564,14 @@ public class ExperimentExecutor extends ActionBarActivity implements ChangeListe
     return new InputLayout(this, input);
   }
 
-  private void displayExperimentTitle() {
+  private void displayExperimentGroupTitle() {
+    final TextView groupNameTextView = (TextView)findViewById(R.id.experiment_title);
     String name = experimentGroup.getName();
-    if (name == null || name.equals("default")) {
-      name = "";
+    if (name == null || experiment.getExperimentDAO().getGroups().size() == 1) {
+      groupNameTextView.setVisibility(View.GONE);
+    } else {
+      groupNameTextView.setText(name);
     }
-    ((TextView)findViewById(R.id.experiment_title)).setText(name);
   }
 
   private void displayNoExperimentMessage() {
