@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-public class ExperimentDAOCore implements Validatable, Serializable {
+public class ExperimentDAOCore extends ModelBase implements Validatable, Serializable {
 
   public static final int APP_USAGE_BROWSER_HISTORY_DATA_COLLECTION = 1;
   public static final int LOCATION_DATA_COLLECTION = 2;

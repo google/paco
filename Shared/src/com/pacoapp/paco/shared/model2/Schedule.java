@@ -23,7 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class Schedule  implements Validatable, MinimumBufferable, Serializable {
+public class Schedule extends ModelBase implements Validatable, MinimumBufferable, Serializable {
 
   public static final int SATURDAY = 64;
   public static final int FRIDAY = 32;

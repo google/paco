@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Set;
 
 
-public class ExperimentGroup implements Validatable, java.io.Serializable {
+public class ExperimentGroup extends ModelBase implements Validatable, java.io.Serializable {
 
   private String name;
 

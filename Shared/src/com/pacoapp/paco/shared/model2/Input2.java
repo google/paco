@@ -22,7 +22,7 @@ package com.pacoapp.paco.shared.model2;
 import java.io.Serializable;
 import java.util.List;
 
-public class Input2 implements Validatable, Serializable {
+public class Input2 extends ModelBase implements Validatable, Serializable {
 
   public static final String LIKERT = "likert";
   public static final String LIKERT_SMILEYS = "likert_smileys";
