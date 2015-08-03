@@ -5,6 +5,7 @@ local.properties
 AndroidCompatSupport/v7/appcompat/bin/res/crunch
 AndroidCompatSupport/v7/appcompat/bin/*
 AndroidCompatSupport/v7/appcompat/gen/*
+google_play_services_lib/*
 Paco/bin/*
 Paco/gen/*
 PacoAndroidLib/bin/*
@@ -34,7 +35,7 @@ PacoTest/reports/*
 ServerTools/bin/*
 Shared/bin
 Shared/.gwt/*
-Shared/j2objc
+Shared/j2objc*
 Shared/testbin
 Shared/dist
 Shared/reports
@@ -63,3 +64,4 @@ Paco-iOS/Paco.xcodeproj/project.xcworkspace/xcshareddata/*
 Paco-iOS/Paco.xcodeproj/xcuserdata/*
 Paco-iOS/ParseKit/ParseKit.xcodeproj/xcuserdata/*
 Paco-iOS/ParseKit/lib/OCMock/OCMock.xcodeproj/xcuserdata/*
+Paco-iOS/ParseKit/include*

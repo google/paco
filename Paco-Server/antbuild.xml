@@ -78,6 +78,22 @@
     </dev_appserver>
   </target>
 
+  <target name="gulp" depends="build">
+    <copy todir="build">
+      <fileset dir="ear"/>
+    </copy>
+    <exec executable="gulp"></exec>
+  </target>
+
+  <target name="runserver_gulp" depends="gulp"
+      description="Starts the development server with gulped build.">
+    <dev_appserver war="build" address="0.0.0.0">
+      <options>
+        <arg value="--jvm_flag=-Dappengine.user.timezone=UTC"/>
+      </options>
+    </dev_appserver>
+  </target>
+
 <target name="runserver_debug" description="Starts the development server in debug mode.">
     <dev_appserver war="ear" port="8888" address="0.0.0.0">
       <options>

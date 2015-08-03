@@ -43,11 +43,14 @@ import android.speech.RecognizerIntent;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
@@ -142,7 +145,7 @@ public class ExperimentExecutor extends ActionBarActivity implements ChangeListe
       setContentView(mainLayout);
 
       inputsScrollPane = (LinearLayout)findViewById(R.id.ScrollViewChild);
-      displayExperimentTitle();
+      displayExperimentGroupTitle();
 
       ((LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE)).inflate(R.layout.experiment_web_recommended_buttons,
                                                                            mainLayout, true);
@@ -256,6 +259,13 @@ public class ExperimentExecutor extends ActionBarActivity implements ChangeListe
   protected void onResume() {
     super.onResume();
     registerLocationListenerIfNecessary();
+    mainLayout.clearFocus();
+    if (inputs != null && inputs.size() > 0) {
+      InputLayout firstInput = inputs.get(0);
+      if (firstInput.getInput().getResponseType().equals(Input2.OPEN_TEXT)) {
+        firstInput.requestFocus();
+      }
+    }
   }
 
   @Override
@@ -495,10 +505,28 @@ public class ExperimentExecutor extends ActionBarActivity implements ChangeListe
 
   private void renderInputs() {
     for (Input2 input : experimentGroup.getInputs()) {
-      InputLayout inputView = renderInput(input);
+      final InputLayout inputView = renderInput(input);
       inputs.add(inputView);
       inputsScrollPane.addView(inputView);
       inputView.addChangeListener(this);
+      if (input.getResponseType().equals(Input2.OPEN_TEXT)) {
+        final TextView componentWithValue = (TextView)inputView.getComponentWithValue();
+        componentWithValue.setImeOptions(EditorInfo.IME_ACTION_DONE);
+        componentWithValue.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+
+          @Override
+          public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+            if (actionId == EditorInfo.IME_ACTION_DONE) {
+              // hide virtual keyboard
+              InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+              imm.hideSoftInputFromWindow(inputView.getComponentWithValue().getWindowToken(),
+                                        InputMethodManager.HIDE_NOT_ALWAYS);
+              return true;
+          }
+          return false;
+          }
+        });
+      }
     }
   }
 
@@ -536,12 +564,14 @@ public class ExperimentExecutor extends ActionBarActivity implements ChangeListe
     return new InputLayout(this, input);
   }
 
-  private void displayExperimentTitle() {
+  private void displayExperimentGroupTitle() {
+    final TextView groupNameTextView = (TextView)findViewById(R.id.experiment_title);
     String name = experimentGroup.getName();
-    if (name == null || name.equals("default")) {
-      name = "";
+    if (name == null || experiment.getExperimentDAO().getGroups().size() == 1) {
+      groupNameTextView.setVisibility(View.GONE);
+    } else {
+      groupNameTextView.setText(name);
     }
-    ((TextView)findViewById(R.id.experiment_title)).setText(name);
   }
 
   private void displayNoExperimentMessage() {

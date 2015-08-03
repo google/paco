@@ -1,3 +1,0 @@
-{%for 1 to depth %}    {%/for%}if ([self speculate:^{ [self {{methodName}}_]; }]) {
-{%for 1 to depth %}    {%/for%}    [self {{methodName}}_];
-{%for 1 to depth %}    {%/for%}}
