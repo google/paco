@@ -563,6 +563,7 @@ public class JsonConverter {
   @JsonSubTypes({ @Type(value = ScheduleTrigger.class, name = "scheduleTrigger"),
                  @Type(value = InterruptTrigger.class, name = "interruptTrigger") })
   private class ActionTriggerMixIn {
+      
     // Nothing to be done here. This class exists for the sake of its
     // annotations.
   }

@@ -13,7 +13,7 @@ public class Outcome implements java.io.Serializable {
 
   public Outcome() {
     super();
-    this.status = true;
+      this.status = true;
   }
 
   public Outcome(long eventId, String errorMessage) {

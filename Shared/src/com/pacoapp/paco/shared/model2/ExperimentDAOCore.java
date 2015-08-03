@@ -16,6 +16,10 @@ public class ExperimentDAOCore implements Validatable, Serializable {
     EXTRA_DATA_COLLECTION_DECLS.add(LOCATION_DATA_COLLECTION);
     EXTRA_DATA_COLLECTION_DECLS.add(PHONE_DETAILS);
    }
+    
+    
+    
+
 
   protected String title;
   protected String description;
@@ -56,6 +60,9 @@ public class ExperimentDAOCore implements Validatable, Serializable {
     this.earliestStartDate = earliestStartDate;
     this.latestEndDate = latestEndDate;
   }
+    
+    
+
 
   /**
    *
@@ -77,6 +84,9 @@ public class ExperimentDAOCore implements Validatable, Serializable {
     return description;
   }
 
+    
+    
+    
   public void setDescription(String description) {
     this.description = description;
   }
