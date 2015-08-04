@@ -809,12 +809,13 @@ paco.renderer = (function() {
       removeErrors(event.responses);      
       if (mainValidationCallback) {
         mainValidationCallback(event);
-        saveButton.removeClass("disabled");
+        saveButton.show();        
       }        
     };
 
     var invalidResponse = function(event) {
       addErrors(event);
+      saveButton.show();
     };
 
     var errorMarkingCallback = {
@@ -823,9 +824,10 @@ paco.renderer = (function() {
     };
 
     saveButton.off("click");
-    saveButton.click(function() { 
-      saveButton.addClass("disabled"); 
-      paco.validate(experimentGroup, responseEvent, inputHtmls, errorMarkingCallback) 
+    saveButton.click(function(event) { 
+      saveButton.hide(); 
+      paco.validate(experimentGroup, responseEvent, inputHtmls, errorMarkingCallback);
+      event.preventDefault();
     });
   };
 
@@ -1002,7 +1004,9 @@ paco.renderer = (function() {
         //response.answer = "";
       }
       var input = inputsByName[response.name];
-      
+      if (!input) {
+        continue;
+      }
       responsesHtml += "<div class=\"row\" style=\"margin-bottom: 0px;\">";
       responsesHtml += "<h6 class=\"left\">";
       responsesHtml += input.text;
@@ -1038,7 +1042,7 @@ paco.renderer = (function() {
     var responseDateTime = new Date(currentEvent.responseTime);
     $("#date-dow-banner").html(days[responseDateTime.getDay()]);
     $("#date-mdy-field").html(responseDateTime.toLocaleDateString());
-    $("#response-n-of").html(currentPingIndex);
+    $("#response-n-of").html(currentPingIndex + 1);
     $("#response-count").html(pingCount);
     $("#responsetime-field").html(responseDateTime.toLocaleTimeString());
     
@@ -1077,6 +1081,18 @@ paco.executeEod = (function() {
 
   return function(experiment, experimentGroup, referredExperimentGroup, 
       actionTriggerId, actionId, actionTriggerSpecId, form_root) {
+    
+
+    
+    var mapInputs = function(inputs) {
+      var inputsByName = [];
+      for (var i = 0; i< inputs.length; i++) {
+        var input = inputs[i];
+        inputsByName[input.name] = input;
+      }
+      return inputsByName;
+    };
+    
     var getEodResponseTimeFrom = function(event) {
       return getResponseForItem(event.responses, "eodResponseTime");
     };
@@ -1102,99 +1118,69 @@ paco.executeEod = (function() {
           continue;
         } 
         if (new Date(event.responseTime).getTime() < cutoffDateTimeMs) {
+          // maybe build the list of already expired events to show as well.
           break;
         }
         var eventGroupName = event.experimentGroupName;
         if (!eventGroupName) {
           continue;
         }
-        if (eventGroupName === experimentGroup.name) {
+        if (eventGroupName === experimentGroup.name) { // eod
           var eventEodResponseTimeObj = getEodResponseTimeFrom(event);
           if (eventEodResponseTimeObj) {
             eodEvents[eventEodResponseTimeObj + ""] = event;
           }
-        } else if (eventGroupName === referredExperimentGroup.name) {
+        } else if (eventGroupName === referredExperimentGroup.name) { // daily
           var eventResponseTime = getResponseTimeFrom(event);
-          var alreadyAnswered = eodEvents[eventResponseTime];
-          if (!alreadyAnswered) {
-            dailyEvents.push(event);
-          }
+          dailyEvents.push(event);
         }
       }
     
-      var result = [];
+      var unfinished = [];
+      var finishedTimes = [];
       $.each(dailyEvents, function(i, event) {
         var eventResponseTime = getResponseTimeFrom(event);
         if (eventResponseTime) {
           var alreadyAnswered = eodEvents[eventResponseTime];
           if (!alreadyAnswered) {
-            result.push(event);
+            unfinished.push(event); // this reverses the order to responseTime ascending.
           } else {
+            finishedTimes.push(eventResponseTime);
           }
         }
       });
 
-      return result;
+      return { "unfinished" : dailyEvents, "finishedTimes" : finishedTimes};
     };
     
 
-    var conditionalListener = (function() {
-      var inputs = [];
-      var obj = {};
-
-      obj.addInput = function(input, responseHolder, visualElement) {
-        inputs.push({
-          "input" : input,
-          "responseHolder" : responseHolder,
-          "viz" : visualElement
-        });
-      };
-
-      obj.inputChanged = function() {
-        var values = {};
-
-        for ( var inputIdx in inputs) {
-          var inputPair = inputs[inputIdx];
-          var input = inputPair.input;
-          var value = inputPair.responseHolder.answer;
-          values[input.name] = value;
-        }
-
-        for ( var inputIdx in inputs) {
-          var inputPair = inputs[inputIdx];
-          var input = inputPair.input;
-          
-          if (input.conditional) {
-            var validity = parser.parse(input.conditionExpression, values);
-            if (!validity) {
-              //inputPair.viz[0].style.display = "none";
-              inputPair.viz.addClass("hide");
-            } else {
-              //inputPair.viz[0].style.display = "";
-              inputPair.viz.removeClass("hide");
-            }
-          }
-        }
-
-      };
-
-      return obj;
-    })();
-
-    var unfinishedDailyEvents = getActiveEventsWithoutEod(referredExperimentGroup, experimentGroup, paco.db);
+    var dailyEvents = getActiveEventsWithoutEod(referredExperimentGroup, experimentGroup, paco.db);
+    var unfinishedDailyEvents = dailyEvents.unfinished;
+    var submitted = dailyEvents.finishedTimes;
+    //var inputsByName = mapInputs(referredExperimentGroup.inputs);
+    var eodInputsByName = mapInputs(experimentGroup.inputs);
     var pingCount = unfinishedDailyEvents.length;
-    var currentPingIndex = 1;
+    var currentPingIndex = 0;
+    var unsavedEdits = false;
     
+
+   
     var dbSaveOutcomeCallback = function(status) {
       if (status["status"] === "success") {
 //        alert("Success in dbSaveOutcomeCallback");
-        var currentEvent = unfinishedDailyEvents.pop();
-//        alert("dbSave curr = " + JSON.stringify(currentEvent, null, 2));
-        if (!currentEvent) {
+        var justSaved = unfinishedDailyEvents[currentPingIndex]; 
+        submitted.push(justSaved.responseTime);
+        if (submitted.length == unfinishedDailyEvents.length) {
+          // TODO render a congratulations that they have completed k of n days or all done.
           paco.executor.done();
         } else {
-          currentPingIndex++;          
-          renderEvent(currentEvent, currentPingIndex, pingCount);
+//          history.pushState({ "id" : currentPingIndex}, '', '');
+          currentPingIndex++;
+          if (currentPingIndex == pingCount) {
+            currentPingIndex = currentPingIndex - 2;
+          }
+          $('html, body').animate({ scrollTop: 0 }, 0);          
+          renderEvent();
         }
       } else {
         alert("Could not store data. You might try again. Or contact the researcher running the study. Error: " + status["error"]);
@@ -1203,7 +1189,23 @@ paco.executeEod = (function() {
 
     var saveDataCallback = function(event) {
 //      alert("Saving event: " + JSON.stringify(event, null, 2));
-      paco.db.saveEvent(event, dbSaveOutcomeCallback);
+      var responses = event.responses;
+      var atLeastOneAnswer = false;
+      for (var i = 0; i < event.responses.length; i++) {
+        var name = event.responses[i].name;
+        if (!eodInputsByName[name]) {
+          continue;
+        }
+        var answer = event.responses[i].answer; 
+        if (answer && answer.length > 0) {
+          atLeastOneAnswer = true;
+        } 
+      }
+      if (atLeastOneAnswer) {
+        paco.db.saveEvent(event, dbSaveOutcomeCallback);
+      } else {
+        alert("You cannot submit an empty response.");
+      } 
     };
     
     var scheduledTime;
@@ -1211,32 +1213,143 @@ paco.executeEod = (function() {
       scheduledTime = window.env.getValue("scheduledTime");
     }
     
-    var renderEvent = function(currentEvent, currentPingIndex, pingCount) {
-      var responseEvent = paco.createResponseEventForExperimentGroup(experiment, experimentGroup, 
-          actionTriggerId, actionId, actionTriggerSpecId, scheduledTime);
-      paco.addEodResponses(responseEvent.responses, referredExperimentGroup.name, currentEvent);
-      
+    var renderEvent = function() {
+      unsavedEdits = false;
+      var currentEvent = unfinishedDailyEvents[currentPingIndex];
       form_root.append(paco.renderer.renderDailyPingResponsesPanel(referredExperimentGroup.inputs, 
           currentEvent, currentPingIndex, pingCount));
-      paco.renderer.renderForm(experiment, experimentGroup, responseEvent, 
-          $("#eod-questions"), saveDataCallback, conditionalListener);
-    }
+      if (submitted.indexOf(currentEvent.responseTime) != -1) {
+        $("#eod-questions").html("<b>Already replied</b>");
+      } else {
+       // prepare response collector
         
+        var responseEvent = paco.createResponseEventForExperimentGroup(experiment, experimentGroup, 
+            actionTriggerId, actionId, actionTriggerSpecId, scheduledTime);
+        paco.addEodResponses(responseEvent.responses, referredExperimentGroup.name, currentEvent);
+                
+        
+        var conditionalListener = (function() {
+          var inputs = [];
+          var obj = {};
+
+          obj.addInput = function(input, responseHolder, visualElement) {
+            inputs.push({
+              "input" : input,
+              "responseHolder" : responseHolder,
+              "viz" : visualElement
+            });
+          };
+
+          obj.inputChanged = function() {
+            var values = {};
+            unsavedEdits = false;
+
+            for ( var inputIdx in inputs) {
+              var inputPair = inputs[inputIdx];
+              var input = inputPair.input;
+              var value = inputPair.responseHolder.answer;
+              values[input.name] = value;
+              
+              if (value && value.length > 0) {
+                unsavedEdits = true;
+              }
+            }
+
+            for ( var inputIdx in inputs) {
+              var inputPair = inputs[inputIdx];
+              var input = inputPair.input;
+              
+              if (input.conditional) {
+                var validity = parser.parse(input.conditionExpression, values);
+                if (!validity) {
+                  //inputPair.viz[0].style.display = "none";
+                  inputPair.viz.addClass("hide");
+                } else {
+                  //inputPair.viz[0].style.display = "";
+                  inputPair.viz.removeClass("hide");
+                }
+              }
+            }
+
+          };
+
+          return obj;
+        })();
+
+        paco.renderer.renderForm(experiment, experimentGroup, responseEvent, 
+            $("#eod-questions"), saveDataCallback, conditionalListener);
+      }
+      if (currentPingIndex == 0) {
+        $("#ping-left-nav").hide();
+      } else {      
+        $("#ping-left-nav").show();
+        $("#ping-left-nav").off("click");
+        $("#ping-left-nav").on("click", function() {
+          if (unsavedEdits) {
+            var r = confirm("You have not submitted the work on this page. Are you sure to leave this page?");
+            if (r == true) {
+              currentPingIndex -= 1;
+              renderEvent();
+            }
+          } else {
+            currentPingIndex -= 1;
+            renderEvent();
+          }
+        });
+
+      }
+      if (currentPingIndex == (pingCount - 1)) {
+        $("#ping-right-nav").hide();
+      } else {
+        $("#ping-right-nav").show();
+        $("#ping-right-nav").off("click");
+        $("#ping-right-nav").on("click", function() {
+          if (unsavedEdits) {
+            var r = confirm("You have not submitted the work on this page. Are you sure to leave this page?");
+            if (r == true) {
+              currentPingIndex += 1;
+              renderEvent();
+            }
+          } else {
+            currentPingIndex += 1;
+            renderEvent();
+          }          
+        });
+
+      }
+      
+    };
+    
+    function exit() {
+      if (unsavedEdits || submitted.length < unfinishedDailyEvents.length) {
+        var answer = confirm("You have not submitted responses for all daily events. Are you sure you want to leave?");
+        if (answer) {
+            paco.executor.done();
+        }
+      } else {
+        paco.executor.done();
+      }
+    };
+      
+    $("#exit-button").click(exit);
+    
     if (unfinishedDailyEvents.length > 0) {      
-      var currentEvent = unfinishedDailyEvents.pop();
-//      alert("main curr = " + JSON.stringify(currentEvent, null, 2));
-      renderEvent(currentEvent, currentPingIndex, pingCount);
+      renderEvent();      
     } else {
       $("#response-banner").html(paco.renderer.renderPlainText("No active daily responses"));
       $("#submit-button").prop("disabled", true);
     }
-
-    
-    
-    
   };
 })();
-    
+
+
+function leftPing(currentIndex) {
+}
+
+function rightPing(currentIndex) {
+}
+
+
 function runEodExperiment() {
   var form_root = $(document.body);
   
