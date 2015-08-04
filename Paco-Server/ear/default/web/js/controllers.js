@@ -208,6 +208,9 @@ pacoApp.controller('ExperimentCtrl', ['$scope', '$http',
           } 
         }
         $scope.respondableGroups = groups;
+        if ($scope.respondableGroups.length === 1) {
+          $scope.state.groupIndex = 0;
+        }
       }
     });
 
