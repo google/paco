@@ -1179,7 +1179,7 @@ paco.executeEod = (function() {
           if (currentPingIndex == pingCount) {
             currentPingIndex = currentPingIndex - 2;
           }
-//          $('html, body').animate({ scrollTop: 0 }, 0);          
+          $('html, body').animate({ scrollTop: 0 }, 0);          
           renderEvent();
         }
       } else {
