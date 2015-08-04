@@ -317,49 +317,6 @@ public class ExperimentProviderUtil implements EventStore {
   }
 
 
-  public List<Experiment> getExperimentsWithDAO() {
-    List<Experiment> experiments = new ArrayList<Experiment>();
-    Cursor cursor = null;
-    try {
-      cursor = contentResolver.query(ExperimentColumns.JOINED_EXPERIMENTS_CONTENT_URI,
-          null, null, null, null);
-      if (cursor != null) {
-        int idIndex = cursor.getColumnIndex(ExperimentColumns._ID);
-        int jsonIndex = cursor.getColumnIndex(ExperimentColumns.JSON);
-
-        while (cursor.moveToNext()) {
-          try {
-            Experiment experiment = new Experiment();
-            ExperimentDAO experimentDAO = new ExperimentDAO();
-
-            if (!cursor.isNull(idIndex)) {
-              experiment.setId(cursor.getLong(idIndex));
-            }
-
-            if (!cursor.isNull(jsonIndex)) {
-              String jsonOfExperiment = cursor.getString(jsonIndex);
-              copyAllPropertiesFromJsonToExperimentDAO(experimentDAO, jsonOfExperiment);
-              experiment.setExperimentDAO(experimentDAO);
-              experiments.add(experiment);
-            }
-          } catch (JsonProcessingException e) {
-            e.printStackTrace();
-          } catch (IOException e) {
-            e.printStackTrace();
-          }
-        }
-      }
-    } catch (RuntimeException e) {
-      Log.w(ExperimentProvider.TAG, "Caught unexpected exception.", e);
-    } finally {
-      if (cursor != null) {
-        cursor.close();
-      }
-    }
-    return experiments;
-  }
-
-
   /** This converts the old version of json (db == 22) to the new model
    *
    * @param experimentDAO
