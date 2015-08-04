@@ -15,7 +15,27 @@
 <script language="javascript" type="text/javascript" src="file:///android_asset/conditional_parser.js"></script>
 <script language="javascript" type="text/javascript" src="file:///android_asset/eod.js"></script>
 
+<!--  local refs for browser testing -->
+<!-- <link type="text/css" rel="stylesheet" href="css/materialize.css"
+    media="screen,projection" />
+<link type="text/css" rel="stylesheet" href="styles.css"
+    media="screen,projection" />
 
+<script type="text/javascript" src="jquery-2.1.3.min.js"></script>
+<script type="text/javascript" src="js/materialize.min.js"></script>
+<link rel="stylesheet" type="text/css" href="cssreset-min.css">
+<script language="javascript" type="text/javascript" src="peg-0.8.0.min.js"></script>
+<script language="javascript" type="text/javascript" src="conditional_parser.js"></script>
+ -->
+<!--  testdata - needs to happen before eod.js since it sets the base environment --> 
+<!-- <script language="javascript" type="text/javascript" src="testdata.js"></script>
+<script language="javascript" type="text/javascript" src="testfunctions.js"></script> -->
+<!--  testdata end -->
+
+<script language="javascript" type="text/javascript" src="eod.js"></script>
+
+
+<!--  end local refs -->
 <script language="javascript" type="text/javascript">     
   $(document).ready(function() {  
    //$('select').material_select();      
@@ -28,39 +48,6 @@
 	content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
 
 <script>
-function leftDate(currentIndex) {
-}
-
-function rightDate(currentIndex) {
-}
-
-function leftPing(currentIndex) {
-}
-
-function rightPing(currentIndex) {
-}
-
-function exit() {
-    var answer = confirm("If you have not submitted, you may lose data. Are you sure you want to leave?");
-    if (answer) {
-        paco.executor.done();
-    }    
-// TODO check for dirty data
-// if so, alert whether to exit or not
-// if alert is no, do nothing
-// if alert is yes, exit window
-// todo do we go to feedback?  Yes, just a thank you.
-//
-}
-
-function submit() {
-// alert ready to save this item?
-// if no then do nothing
-// if yes then
-  // save the current item
-  // load the next item
-}
-
 
 // onload
 // 1) retrieve the events up to the timeout datetime that do not have responses
@@ -83,7 +70,7 @@ function submit() {
 					<!-- <div class="col s1 lighten-1"  >
 						<a href="javascript:leftDate(0);" id="date-left-nav"
 							class="btn-small waves-effect waves-light white-text"><h5
-								class="light" >&lt;</h5></a>
+								class="light">&lt;</h5></a>
 					</div> -->
 					<div class="col s10 header white-text" style="padding-left: 0px;"><!--  20px -->
 						<div class="header white-text" >
@@ -103,12 +90,12 @@ function submit() {
 		<div class="section no-pad" style="margin-top: 4px;" id="response-banner">
 			<div class="container">
 				<div class="row" style="margin-bottom: 0px;">
-<!-- 					<div class="col s1 light">
+ 					<div class="col s1 light">
 						<a href="javascript:leftPing();" id="ping-left-nav"
 							class="btn-small waves-effect waves-light indigo-text"><h5
-								class="light">&lt;</h5></a>
+								class="light"><font size="+2"><b>&lt;</b></font></h5></a>
 					</div>
- -->					<div class="col s10 light header left indigo-text"
+					<div class="col s10 light header left indigo-text"
 						style="padding-left: 0px;"> <!--  20px -->
 						<div>
 							<h6>
@@ -119,11 +106,11 @@ function submit() {
 							Captured at <span id="responsetime-field">4:35 PM</span>
 						</div>
 					</div>
-	<!-- 				<div class="col s1 light right" id="response-right-nav">
+	 				<div class="col s1 light right" id="response-right-nav">
 						<a href="javascript:rightPing();" id="ping-right-nav"
 							class="btn-small waves-effect waves-light indigo-text"><h5
-								class="light">&gt;</h5></a>
-					</div> -->
+								class="light"><font size="+2"><b>&gt;</b></font></h5></a>
+					</div> 
 				</div>
 			</div>
 		</div>
