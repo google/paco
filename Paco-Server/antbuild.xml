@@ -123,6 +123,16 @@
     <appcfg action="update" war="ear" />
   </target>
 
+  <target name="update_gulp" depends="build,gulp"
+    description="Uploads the gulped application to App Engine.">
+    <appcfg action="update" war="build" />
+  </target>
+
+  <target name="update_gulp_only"
+    description="Uploads the gulped application to App Engine - NO BUILD.">
+    <appcfg action="update" war="build" />
+  </target>
+
   <target name="update_indexes" depends="datanucleusenhance"
       description="Uploads just the datastore index configuration to App Engine.">
     <appcfg action="update_indexes" war="ear" />

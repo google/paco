@@ -208,6 +208,9 @@ pacoApp.controller('ExperimentCtrl', ['$scope', '$http',
           } 
         }
         $scope.respondableGroups = groups;
+        if ($scope.respondableGroups.length === 1) {
+          $scope.state.groupIndex = 0;
+        }
       }
     });
 
@@ -224,7 +227,7 @@ pacoApp.controller('ExperimentCtrl', ['$scope', '$http',
     };
 
     $scope.$watch('ace.JSON', function(newValue, oldValue) {
-      if (!oldValue) {
+      if (!oldValue || oldValue == newValue) {
         return;
       }
       try {

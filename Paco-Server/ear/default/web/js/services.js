@@ -109,6 +109,7 @@ pacoApp.service('template', function() {
   }
 
   this.input = {
+    likertSteps: 5,
     responseType: 'open text'
   }
 
