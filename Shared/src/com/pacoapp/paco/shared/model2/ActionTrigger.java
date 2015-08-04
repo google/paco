@@ -7,10 +7,8 @@ import java.util.List;
 import java.util.Set;
 
 
-public abstract class ActionTrigger implements Validatable, Serializable {
+public abstract class ActionTrigger extends ModelBase implements Validatable, Serializable {
 
-  public static final String INTERRUPT_TRIGGER_TYPE_SPECIFIER = "interruptTrigger";
-  public static final String SCHEDULE_TRIGGER_TYPE_SPECIFIER = "scheduleTrigger";
   protected String type;
   protected List<PacoAction> actions;
 

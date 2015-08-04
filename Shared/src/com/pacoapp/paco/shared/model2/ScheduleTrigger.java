@@ -9,13 +9,13 @@ public class ScheduleTrigger extends ActionTrigger implements Validatable, java.
 
   public ScheduleTrigger() {
     super();
-    this.type = SCHEDULE_TRIGGER_TYPE_SPECIFIER;
+    this.type = "scheduleTrigger";
     this.schedules = new ArrayList();
   }
 
   public ScheduleTrigger(List<Schedule> schedules) {
     super();
-    this.type = SCHEDULE_TRIGGER_TYPE_SPECIFIER;
+    this.type = "scheduleTrigger";
     if (schedules != null) {
       this.schedules = schedules;
     } else {

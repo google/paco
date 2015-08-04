@@ -43,7 +43,6 @@ public class ExperimentDAO extends ExperimentDAOCore implements Serializable {
   private List<String> publishedUsers;
   private Integer version = 1;
   protected List<ExperimentGroup> groups;
-  private String ringtoneUri;
 
   // Visible for testing
   public ExperimentDAO(Long id, String title, String description, String informedConsentForm,
@@ -193,14 +192,6 @@ public class ExperimentDAO extends ExperimentDAOCore implements Serializable {
       validator.isNotNull(id, "editing an existing version, database id should not be null");
     }
 
-  }
-
-  public String getRingtoneUri() {
-    return ringtoneUri;
-  }
-
-  public void setRingtoneUri(String ringtoneUri) {
-    this.ringtoneUri = ringtoneUri;
   }
 
 }
