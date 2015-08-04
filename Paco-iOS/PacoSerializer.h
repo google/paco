@@ -53,7 +53,6 @@ typedef NS_ENUM(NSInteger, PacoParentType) {
 
 /* disable the use of default init so the caller uses the init method with classes */
 - (id) init __attribute__((unavailable("init with array of class names")));
-
 /* init with classes. This is the method that shoul be used always*/
 - (instancetype)initWithArrayOfClasses:(NSArray*) serializedJson;
 /* convert netst foundation collections to json data*/

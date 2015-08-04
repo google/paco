@@ -28,6 +28,11 @@ static NSString* smDefinition = @"[{\"title\":\"ESM Demo\",\"description\":\"Thi
 static NSString* destDefinition =@"{  \r\n   \"$schema\":\"http://json-schema.org/draft-04/schema#\",\r\n   \"title\":\"Product\",\r\n   \"description\":\"A product from Acme's catalog\",\r\n   \"type\":\"object\",\r\n   \"properties\":{  \r\n      \"id\":{  \r\n         \"description\":\"The unique identifier for a product\",\r\n         \"type\":\"integer\"\r\n      },\r\n      \"name\":{  \r\n         \"description\":\"Name of the product\",\r\n         \"type\":\"string\"\r\n      }\r\n   },\r\n   \"required\":[  \r\n      \"id\",\r\n      \"name\"\r\n   ]\r\n}";
 
 
+static NSString* newDefinition =@"[{\r\n  \"title\" : \"My Title\",\r\n  \"description\" : \"this is muy description\",\r\n  \"creator\" : \"tim.n.obrien@yahoo.com\",\r\n  \"organization\" : null,\r\n  \"contactEmail\" : null,\r\n  \"contactPhone\" : null,\r\n  \"joinDate\" : \"12\/14\/2014\",\r\n  \"id\" : 12345,\r\n  \"informedConsentForm\" : \"informed consent\",\r\n  \"recordPhoneDetails\" : false,\r\n  \"extraDataCollectionDeclarations\" : [ ],\r\n  \"deleted\" : false,\r\n  \"earliestStartDate\" : null,\r\n  \"latestEndDate\" : null,\r\n  \"modifyDate\" : null,\r\n  \"published\" : true,\r\n  \"admins\" : [ \"tim\", \"jack\", \"john\", \"mike\" ],\r\n  \"publishedUsers\" : [ \"tim\", \"jack\", \"john\", \"mike\" ],\r\n  \"version\" : 1,\r\n  \"groups\" : [ {\r\n    \"name\" : \"test experiment groups\",\r\n    \"customRendering\" : false,\r\n    \"customRenderingCode\" : null,\r\n    \"fixedDuration\" : false,\r\n    \"startDate\" : null,\r\n    \"endDate\" : null,\r\n    \"logActions\" : false,\r\n    \"backgroundListen\" : false,\r\n    \"backgroundListenSourceIdentifier\" : null,\r\n    \"actionTriggers\" : [ {\r\n      \"type\" : \"scheduleTrigger\",\r\n      \"actions\" : [ ],\r\n      \"id\" : null,\r\n      \"schedules\" : [ {\r\n        \"scheduleType\" : 0,\r\n        \"esmFrequency\" : 3,\r\n        \"esmPeriodInDays\" : 0,\r\n        \"esmStartHour\" : 32400000,\r\n        \"esmEndHour\" : 61200000,\r\n        \"signalTimes\" : [ ],\r\n        \"repeatRate\" : 1,\r\n        \"weekDaysScheduled\" : 0,\r\n        \"nthOfMonth\" : 1,\r\n        \"byDayOfMonth\" : true,\r\n        \"dayOfMonth\" : 1,\r\n        \"esmWeekends\" : false,\r\n        \"minimumBuffer\" : 59,\r\n        \"joinDateMillis\" : 0,\r\n        \"beginDate\" : null,\r\n        \"id\" : null,\r\n        \"onlyEditableOnJoin\" : false,\r\n        \"userEditable\" : true,\r\n        \"byDayOfWeek\" : false,\r\n        \"defaultMinimumBuffer\" : 59,\r\n        \"nameOfClass\" : \"com.pacoapp.paco.shared.model2.Schedule\"\r\n      }, {\r\n        \"scheduleType\" : 0,\r\n        \"esmFrequency\" : 3,\r\n        \"esmPeriodInDays\" : 0,\r\n        \"esmStartHour\" : 32400000,\r\n        \"esmEndHour\" : 61200000,\r\n        \"signalTimes\" : [ ],\r\n        \"repeatRate\" : 1,\r\n        \"weekDaysScheduled\" : 0,\r\n        \"nthOfMonth\" : 1,\r\n        \"byDayOfMonth\" : true,\r\n        \"dayOfMonth\" : 1,\r\n        \"esmWeekends\" : false,\r\n        \"minimumBuffer\" : 59,\r\n        \"joinDateMillis\" : 0,\r\n        \"beginDate\" : null,\r\n        \"id\" : null,\r\n        \"onlyEditableOnJoin\" : false,\r\n        \"userEditable\" : true,\r\n        \"byDayOfWeek\" : false,\r\n        \"defaultMinimumBuffer\" : 59,\r\n        \"nameOfClass\" : \"com.pacoapp.paco.shared.model2.Schedule\"\r\n      }, {\r\n        \"scheduleType\" : 0,\r\n        \"esmFrequency\" : 3,\r\n        \"esmPeriodInDays\" : 0,\r\n        \"esmStartHour\" : 32400000,\r\n        \"esmEndHour\" : 61200000,\r\n        \"signalTimes\" : [ ],\r\n        \"repeatRate\" : 1,\r\n        \"weekDaysScheduled\" : 0,\r\n        \"nthOfMonth\" : 1,\r\n        \"byDayOfMonth\" : true,\r\n        \"dayOfMonth\" : 1,\r\n        \"esmWeekends\" : false,\r\n        \"minimumBuffer\" : 59,\r\n        \"joinDateMillis\" : 0,\r\n        \"beginDate\" : null,\r\n        \"id\" : null,\r\n        \"onlyEditableOnJoin\" : false,\r\n        \"userEditable\" : true,\r\n        \"byDayOfWeek\" : false,\r\n        \"defaultMinimumBuffer\" : 59,\r\n        \"nameOfClass\" : \"com.pacoapp.paco.shared.model2.Schedule\"\r\n      } ],\r\n      \"nameOfClass\" : \"com.pacoapp.paco.shared.model2.ScheduleTrigger\"\r\n    } ],\r\n    \"inputs\" : [ ],\r\n    \"endOfDayGroup\" : false,\r\n    \"endOfDayReferredGroupName\" : null,\r\n    \"feedback\" : null,\r\n    \"feedbackType\" : 0,\r\n    \"nameOfClass\" : \"com.pacoapp.paco.shared.model2.ExperimentGroup\"\r\n  } ],\r\n  \"nameOfClass\" : \"com.pacoapp.paco.shared.model2.ExperimentDAO\"\r\n}]";
+
+
+
+
 
 @interface PacoServiceTests : XCTestCase
 
@@ -181,90 +186,12 @@ static NSString* destDefinition =@"{  \r\n   \"$schema\":\"http://json-schema.or
 
 
 
--(void) populateObjectFromDictionary:(NSDictionary*) dictionary Object:(id) object
-{
-       NSArray * array = [dictionary allKeys];
-       NSMutableArray * noArray = [NSMutableArray new];
-       NSMutableArray * yesArray = [NSMutableArray new ];
-      NSArray* resultsArray =   [self arrayOfIvarsFromInstance:object];
-    
-       for(NSString* string  in array)
-       {
-        NSString * str =  [NSString stringWithFormat:@"_%@",string];
-        if([resultsArray  containsObject:str])
-        {
-            
-            [object setValue:[dictionary objectForKey:string]   forKeyPath:string];
-            
-            [yesArray addObject:str];
-        }
-        else{
-            
-            [noArray addObject:str];
-        }
-        
-    }
-   
-}
 
 
 
 
 
 
--(void)  recurseJason:(id ) recurseObject Level:(int) level
-{
-    
-    
-   
-    
-    if( [recurseObject isKindOfClass:[NSDictionary class]]  )
-    {
-        
-        NSLog(@" DICTIONARY -->" );
-             NSArray * arrayOfKeys = [recurseObject allKeys];
-             for( NSString* key in arrayOfKeys )
-             {
-                 
-                 NSLog(@"%@", key);
-                id  newObject = [recurseObject objectForKey:key];
-                 
-                [self recurseJason:newObject Level:level+1];
-                 
-            }
-        
-            NSLog(@" <--DICTIONARY " );
-        
-    }
-    else  if( [recurseObject isKindOfClass:[NSArray class]]  )
-    {
-        NSLog(@" LIST -->" );
-        for( NSObject* obj in recurseObject )
-        {
-             [self recurseJason:obj Level:level+1];
-        }
-            NSLog(@" <--LIST " );
-        
-        
-    }
-    else{
-        
-        NSMutableString * m =[NSMutableString new];
-        
-        for(int i =0 ; i < level; i++)
-        {
-            [m insertString:@"    " atIndex:0];
-            
-        }
-        
-        NSString * string = [NSString stringWithFormat:@"%@%@",@"",recurseObject];
-        NSLog(@"=%@", string );
-        
-    }
-    
-    
-    
-}
 
 
 
@@ -301,25 +228,22 @@ static NSString* destDefinition =@"{  \r\n   \"$schema\":\"http://json-schema.or
 
 -(void) testBuildModelTree
 {
-   
-    
-    __block  NSArray * root;
-    id context;
+ 
     NSError* error;
-    NSData* data = [smDefinition dataUsingEncoding:NSUTF8StringEncoding];
-    id definitionDict = [NSJSONSerialization JSONObjectWithData:data
+    NSData* data = [newDefinition dataUsingEncoding:NSUTF8StringEncoding];
+    id definingObject = [NSJSONSerialization JSONObjectWithData:data
                                                         options:NSJSONReadingAllowFragments
                                                           error:&error];
     
     PacoSerializer * serializer = [[PacoSerializer alloc] initWithArrayOfClasses:_classes];
-    NSObject* resultObject  =  [serializer buildObjectHierarchyFromCollections:definitionDict];
+    NSObject* resultObject  =  [serializer buildObjectHierarchyFromCollections:definingObject];
+   // NSObject* resultObject2 = [serializer buildObjectHierarchyFromJSONOBject:data];
 
-    NSObject* resultObject2 = [serializer buildObjectHierarchyFromJSONOBject:data];
-   id retObject = [serializer toJ2OBJCCollctionsHeirarchy:resultObject2];
+   id retObject = [serializer toJ2OBJCCollctionsHeirarchy:resultObject];
+    
     NSError* error2 =nil;
     NSData* newData  = [serializer foundationCollectionToJSONData:resultObject Error:error2];
     NSString *string =  [[NSString alloc] initWithData:newData encoding:NSUTF8StringEncoding] ;
-
     NSLog(@"json string %@", string);
   
 }
@@ -329,51 +253,9 @@ static NSString* destDefinition =@"{  \r\n   \"$schema\":\"http://json-schema.or
 
 
 
--(void)testLoad
-{
-    
-    PacoModel * model = [[PacoModel alloc] init];
-    NSArray * array =  [model loadExperimentDefinitionsFromFileWithJson];
-    
-    NSLog(@" this is %@",array);
-    NSDictionary* dict =nil;
-    
-    Class theClass = NSClassFromString(@"PacoExperimentDefinition");
-    id definition = [[theClass alloc] init];
-    NSArray* resultsArray =   [self arrayOfIvarsFromInstance:definition];
-    
-    NSLog(@"%@", resultsArray);
-    
-    for(dict in array)
-    {
-        
-        NSLog(@"%@", dict);
-        [self recurseJason:dict Level:0];
-        
-       // [self populateObjectFromDictionary:dict Object:definition];
-      //  NSArray * array = [dict allKeys];
-        
-    
-     
-    }
-    
-    NSLog(@"done");
-    
-    
-}
 
 
 
 
--(void) testPrefetchBackkground
-{
-    
-    [[PacoClient sharedInstance]  prefetchInBackground];
-    
- 
-    
-    NSLog(@"most likely this one ");
-    
-}
 
 @end
