@@ -64,5 +64,9 @@ extern NSString* const kPacoNotificationAppBecomeActive;
 - (void)configureExperiment:(PacoExperiment*)experiment
                withSchedule:(PacoExperimentSchedule*)newSchedule;
 
+/* delete this */
+
+- (NSArray* )loadExperimentDefinitionsFromFileWithJson;
+
 @end
 
