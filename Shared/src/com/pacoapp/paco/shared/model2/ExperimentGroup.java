@@ -41,31 +41,8 @@ public class ExperimentGroup extends ModelBase implements Validatable, java.io.S
     this.feedbackType = Feedback.FEEDBACK_TYPE_STATIC_MESSAGE;
   }
     
-  public static ExperimentGroup makeExperimentGroupDamnHard()
- {
-        
-     return null;
-     
- }
-    
-    
-    
- public static ExperimentGroup makeExperimentGroupNotSoSimple()
-    {
-         ExperimentGroup group = new ExperimentGroup();
-        int i =3;
-        
-        if(i ==3)
-        {
-            java.util.Date date = new java.util.Date();
-            System.out.println(date );
-            return null;
-            
-        }
-    
-        return group;
-    }
 
+    
   public ExperimentGroup(String string) {
     this();
     this.name = string;

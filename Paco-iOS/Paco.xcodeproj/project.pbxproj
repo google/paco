@@ -302,9 +302,7 @@
 		A676C73C1B615AAB00F37572 /* libobjc.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = A676C73B1B615AAB00F37572 /* libobjc.dylib */; };
 		A678C2751B703955003F0D27 /* ModelBase.java in Sources */ = {isa = PBXBuildFile; fileRef = A678C2741B703955003F0D27 /* ModelBase.java */; };
 		A678C2761B7042D3003F0D27 /* DerivedSources in Sources */ = {isa = PBXBuildFile; fileRef = A670760F1B62F26A00017D36 /* DerivedSources */; };
-		A678C27E1B70439F003F0D27 /* ModelBase.java in Sources */ = {isa = PBXBuildFile; fileRef = A678C27D1B70439F003F0D27 /* ModelBase.java */; };
-		A6D9ABE81B59D2C500595C06 /* .translate_list in Resources */ = {isa = PBXBuildFile; fileRef = A6D9AA911B59D2C400595C06 /* .translate_list */; };
-		A6D9ABE91B59D2C500595C06 /* .translate_mark in Resources */ = {isa = PBXBuildFile; fileRef = A6D9AA921B59D2C400595C06 /* .translate_mark */; };
+		A678C2E51B716283003F0D27 /* ModelBase.java in Sources */ = {isa = PBXBuildFile; fileRef = A678C2E41B716283003F0D27 /* ModelBase.java */; };
 		C567E89017A03FDE00267A26 /* deepbark_trial.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = C567E88F17A03FDE00267A26 /* deepbark_trial.mp3 */; };
 		C5B4691917B07E4900B6BC18 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C5B4691817B07E4900B6BC18 /* CoreGraphics.framework */; };
 		C5C4F5D217B163EF009E9F18 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C5C4F5D117B163EF009E9F18 /* QuartzCore.framework */; };
@@ -848,11 +846,8 @@
 		A676C7391B615A3D00F37572 /* libobjc.A.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libobjc.A.dylib; path = usr/lib/libobjc.A.dylib; sourceTree = SDKROOT; };
 		A676C73B1B615AAB00F37572 /* libobjc.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libobjc.dylib; path = usr/lib/libobjc.dylib; sourceTree = SDKROOT; };
 		A678C2741B703955003F0D27 /* ModelBase.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = ModelBase.java; sourceTree = "<group>"; };
-		A678C27D1B70439F003F0D27 /* ModelBase.java */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.java; name = ModelBase.java; path = ../Shared/src/com/pacoapp/paco/shared/model2/ModelBase.java; sourceTree = "<group>"; };
+		A678C2E41B716283003F0D27 /* ModelBase.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = ModelBase.java; sourceTree = "<group>"; };
 		A6A25B9A1B61895A00E47DE1 /* PacoExperimentSchedule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoExperimentSchedule.h; sourceTree = "<group>"; };
-		A6D9AA8D1B5981E200595C06 /* DerivedSources */ = {isa = PBXFileReference; lastKnownFileType = folder; name = DerivedSources; path = "DerivedData/Paco/Build/Intermediates/Paco.build/Debug-iphoneos/Paco.build/DerivedSources"; sourceTree = "<group>"; };
-		A6D9AA911B59D2C400595C06 /* .translate_list */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = .translate_list; sourceTree = "<group>"; };
-		A6D9AA921B59D2C400595C06 /* .translate_mark */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = .translate_mark; sourceTree = "<group>"; };
 		C567E88F17A03FDE00267A26 /* deepbark_trial.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = deepbark_trial.mp3; sourceTree = "<group>"; };
 		C5B4691817B07E4900B6BC18 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
 		C5C4F5D117B163EF009E9F18 /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
@@ -914,7 +909,6 @@
 		319771B9163F0733000AC06B = {
 			isa = PBXGroup;
 			children = (
-				A678C27D1B70439F003F0D27 /* ModelBase.java */,
 				A670760F1B62F26A00017D36 /* DerivedSources */,
 				A620E3691B61AF460018AE42 /* PacoSerializers */,
 				A6D9AA8C1B59817700595C06 /* Testing */,
@@ -1842,6 +1836,7 @@
 				A633A9881B5DA0970046436D /* InterruptTrigger.java */,
 				A633A9891B5DA0970046436D /* ListMaker.java */,
 				A633A98A1B5DA0970046436D /* MinimumBufferable.java */,
+				A678C2E41B716283003F0D27 /* ModelBase.java */,
 				A633A98B1B5DA0970046436D /* PacoAction.java */,
 				A633A98C1B5DA0970046436D /* PacoActionAllOthers.java */,
 				A633A98D1B5DA0970046436D /* PacoNotificationAction.java */,
@@ -1887,20 +1882,8 @@
 		A6D9AA8C1B59817700595C06 /* Testing */ = {
 			isa = PBXGroup;
 			children = (
-				A6D9AA901B59D2C400595C06 /* objc */,
-				A6D9AA8D1B5981E200595C06 /* DerivedSources */,
 			);
 			name = Testing;
-			sourceTree = "<group>";
-		};
-		A6D9AA901B59D2C400595C06 /* objc */ = {
-			isa = PBXGroup;
-			children = (
-				A6D9AA911B59D2C400595C06 /* .translate_list */,
-				A6D9AA921B59D2C400595C06 /* .translate_mark */,
-			);
-			name = objc;
-			path = "../../../Downloads/j2objc-master/joda_time/build_result/objc";
 			sourceTree = "<group>";
 		};
 		C5C4F5D417B1738E009E9F18 /* jcnotificationbannerpresenter */ = {
@@ -2165,12 +2148,10 @@
 				36B8EBD917568E29004CF035 /* current_experiments_normal.png in Resources */,
 				A633A9731B5D66D90046436D /* org in Resources */,
 				4448BCBE1A808E7A0034FCE9 /* GTMOAuth2Framework-Info.plist in Resources */,
-				A6D9ABE81B59D2C500595C06 /* .translate_list in Resources */,
 				36B8EBDA17568E29004CF035 /* current_experiments_pressed.png in Resources */,
 				36B8EBDE17568E29004CF035 /* experiment_disabled.png in Resources */,
 				36B8EBDF17568E29004CF035 /* experiment_focused.png in Resources */,
 				7FB660811AA8C305008D2327 /* paco32@3x.png in Resources */,
-				A6D9ABE91B59D2C500595C06 /* .translate_mark in Resources */,
 				4448BCAA1A808E7A0034FCE9 /* ReleaseNotes.txt in Resources */,
 				4448BCB61A808E7A0034FCE9 /* UnitTests-Info.plist in Resources */,
 				36B8EBE017568E29004CF035 /* experiment_normal.png in Resources */,
@@ -2414,13 +2395,13 @@
 				365D20EA181B1B000097F379 /* PacoNSStringCategoryTests.m in Sources */,
 				36B8EC3C17568E40004CF035 /* PacoTests.m in Sources */,
 				367233E418061FD6006611E6 /* PacoScheduleGeneratorTests.m in Sources */,
+				A678C2E51B716283003F0D27 /* ModelBase.java in Sources */,
 				363C9A431816F4A600D806F6 /* PacoNSMutableArrayCategoryTests.m in Sources */,
 				36AD6CEB17C5977E00B93855 /* PacoEvaluatorTests.m in Sources */,
 				A633A9B21B5DA0970046436D /* Schedule.java in Sources */,
 				A676C7381B6043DE00F37572 /* PacoServiceTests.m in Sources */,
 				A633A9C21B5DA1B70046436D /* PacoJ2OBJCTests.m in Sources */,
 				A676C7351B60255600F37572 /* PacoTestJSONToModalConversion.m in Sources */,
-				A678C27E1B70439F003F0D27 /* ModelBase.java in Sources */,
 				A633A9AD1B5DA0970046436D /* ListMaker.java in Sources */,
 				A670761A1B699A9500017D36 /* NSObject+ITNDescription.m in Sources */,
 				A633A9A31B5DA0970046436D /* EventStore.java in Sources */,

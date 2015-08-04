@@ -6,9 +6,7 @@ public class ModelBase  implements   Serializable{
  
 
 	public String getNameOfClass() {
-		 
-			return  this.getClass().getName();
-			 	 
+           return  this.getClass().getName();
 		 }
 
 }
