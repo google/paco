@@ -414,6 +414,11 @@
         clazzName = @"PAFeedback";
         
     }
+    else if ( [modelNames  count] == 0)
+    {
+          clazzName =  @"PAInterruptTrigger";
+                   
+    }
     /* matched a signiture for PASignalTime */
     /* fixedTimeMillisFromMidnight_*/
     else if( [modelNames containsObject:@"PASignalTime"] && [[dictionary allKeys] count] ==2  && [[dictionary allKeys] containsObject:@"fixedTimeMillisFromMidnight"]  )
@@ -573,8 +578,10 @@
 -(void)  recurseJason:(id ) recurseObject
 {
     
+
+ 
   /*
-      object could be 
+      object could be
        1) a dictionary representation of a model object
        2) a list of objects
        3) an attribute value
