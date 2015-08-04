@@ -72,16 +72,19 @@ public class ActionScheduleGenerator {
 
     ActionSpecification nextTimeActionSpecification = null;
 
-    if (isExperimentNotStartedYet(now, experiment)) {
-      now = getEarliestStartDate(experiment).toDateTime();
-    }
+
 
     // new build up list of referent times and which component scheduled it
     List<ExperimentGroup> groups = experiment.getGroups();
     DateTime currentNearestTime = null;
     for (ExperimentGroup experimentGroup : groups) {
-      if (!isExperimentGroupStarted(experimentGroup) || isExperimentGroupOver(experimentGroup)) {
+      if (isExperimentGroupOver(experimentGroup)) {
         continue;
+      }
+
+      DateTime startDateTime = now;
+      if (!isExperimentGroupStarted(experimentGroup)) {
+          startDateTime = TimeUtil.unformatDate(experimentGroup.getStartDate());
       }
 
       List<ActionTrigger> actionTriggers = experimentGroup.getActionTriggers();
@@ -93,10 +96,10 @@ public class ActionScheduleGenerator {
           for (Schedule schedule : schedules) {
             DateTime nextTimeForSchedule = null;
             if (schedule.getScheduleType().equals(Schedule.ESM)) {
-              nextTimeForSchedule = scheduleESM(now, schedule, alarmStore,
+              nextTimeForSchedule = scheduleESM(startDateTime, schedule, alarmStore,
                                                 experiment.getId(), experimentGroup.getName(), actionTrigger.getId());
             } else {
-              nextTimeForSchedule = getNextAlarmTime(now, experiment.getId(), schedule, eventStore,
+              nextTimeForSchedule = getNextAlarmTime(startDateTime, experiment.getId(), schedule, eventStore,
                                                      experimentGroup.getName(), actionTrigger.getId());
             }
 
