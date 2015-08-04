@@ -72,14 +72,21 @@ public class ActionScheduleGenerator {
 
     ActionSpecification nextTimeActionSpecification = null;
 
-    if (isExperimentNotStartedYet(now, experiment)) {
-      now = getEarliestStartDate(experiment).toDateTime();
-    }
+
 
     // new build up list of referent times and which component scheduled it
     List<ExperimentGroup> groups = experiment.getGroups();
     DateTime currentNearestTime = null;
     for (ExperimentGroup experimentGroup : groups) {
+      if (isExperimentGroupOver(experimentGroup)) {
+        continue;
+      }
+
+      DateTime startDateTime = now;
+      if (!isExperimentGroupStarted(experimentGroup)) {
+          startDateTime = TimeUtil.unformatDate(experimentGroup.getStartDate());
+      }
+
       List<ActionTrigger> actionTriggers = experimentGroup.getActionTriggers();
 
       for (ActionTrigger actionTrigger : actionTriggers) {
@@ -89,10 +96,10 @@ public class ActionScheduleGenerator {
           for (Schedule schedule : schedules) {
             DateTime nextTimeForSchedule = null;
             if (schedule.getScheduleType().equals(Schedule.ESM)) {
-              nextTimeForSchedule = scheduleESM(now, schedule, alarmStore,
+              nextTimeForSchedule = scheduleESM(startDateTime, schedule, alarmStore,
                                                 experiment.getId(), experimentGroup.getName(), actionTrigger.getId());
             } else {
-              nextTimeForSchedule = getNextAlarmTime(now, experiment.getId(), schedule, eventStore,
+              nextTimeForSchedule = getNextAlarmTime(startDateTime, experiment.getId(), schedule, eventStore,
                                                      experimentGroup.getName(), actionTrigger.getId());
             }
 
@@ -134,6 +141,56 @@ public class ActionScheduleGenerator {
 //      }
 //    }
 //    return nextNearestTime;
+  }
+
+  public static boolean isExperimentGroupOver(ExperimentGroup experimentGroup) {
+    if (!experimentGroup.getFixedDuration()) {
+      return false;
+    }
+
+    DateTime now = DateTime.now();
+    List<ActionTrigger> triggers = experimentGroup.getActionTriggers();
+    for (ActionTrigger actionTrigger : triggers) {
+      DateTime lastTimeForSignalGroup = null;
+      if (actionTrigger instanceof ScheduleTrigger) {
+        ScheduleTrigger scheduledTrigger = (ScheduleTrigger)actionTrigger;
+        List<Schedule> schedules = scheduledTrigger.getSchedules();
+        for (Schedule schedule : schedules) {
+          if (schedule.getScheduleType().equals(Schedule.WEEKDAY)) {
+            List<SignalTime> times = schedule.getSignalTimes();
+            SignalTime lastSignalTime = times.get(times.size() - 1);
+            if (lastSignalTime.getType() == SignalTime.FIXED_TIME) {
+              // TODO actually compute the last time based on all of the rules for offset times and skip if missed rules
+              DateTime lastTimeForDay = new DateTime().plus(lastSignalTime.getFixedTimeMillisFromMidnight());
+              lastTimeForSignalGroup = new DateMidnight(TimeUtil.unformatDate(experimentGroup.getEndDate())).toDateTime()
+                      .withMillisOfDay(lastTimeForDay.getMillisOfDay());
+            } else {
+              lastTimeForSignalGroup = new DateMidnight(TimeUtil.unformatDate(experimentGroup.getEndDate())).plusDays(1).toDateTime();
+            }
+          } else {
+            lastTimeForSignalGroup = new DateMidnight(TimeUtil.unformatDate(experimentGroup.getEndDate())).plusDays(1).toDateTime();
+          }
+        }
+      } else {
+        lastTimeForSignalGroup = new DateMidnight(TimeUtil.unformatDate(experimentGroup.getEndDate())).plusDays(1).toDateTime();
+      }
+
+      if (lastTimeForSignalGroup.isAfter(now)) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  public static boolean isExperimentGroupStarted(ExperimentGroup experimentGroup) {
+    if (!experimentGroup.getFixedDuration()) {
+      return true;
+    }
+    DateMidnight startDate = TimeUtil.unformatDate(experimentGroup.getStartDate()).toDateMidnight();
+    if (DateTime.now().isBefore(startDate)) {
+      return false;
+    }
+    return true;
   }
 
   public static boolean isOver(DateTime now, ExperimentDAO experiment) {
