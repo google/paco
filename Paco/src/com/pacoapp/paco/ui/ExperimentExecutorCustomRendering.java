@@ -567,6 +567,7 @@ private WebViewClient createWebViewClientThatHandlesFileLinksForCharts() {
       view.loadUrl(stripQuery(url));
       return true;
     }
+
   };
   return webViewClient;
 }
@@ -585,39 +586,50 @@ private void setWebChromeClientThatHandlesAlertsAsDialogs() {
     @Override
     public boolean onJsAlert(WebView view, String url, String message, JsResult result) {
 
-      new AlertDialog.Builder(view.getContext()).setMessage(message).setCancelable(true).setPositiveButton(R.string.ok, new Dialog.OnClickListener() {
-
+      new AlertDialog.Builder(view.getContext())
+      .setMessage(message)
+      .setTitle("Alert!")
+      .setCancelable(true)
+      .setPositiveButton(R.string.ok, new Dialog.OnClickListener() {
         public void onClick(DialogInterface dialog, int which) {
           dialog.dismiss();
         }
-
-      }).create().show();
+      })
+      .create()
+      .show();
       result.confirm();
       return true;
     }
 
     public boolean onJsConfirm (WebView view, String url, String message, final JsResult result){
-      if (url.contains("file:///android_asset/map.html")){
+
         if (showDialog == false){
           result.confirm();
           return true;
-        } else{
-          new AlertDialog.Builder(view.getContext()).setMessage(message).setCancelable(true).setPositiveButton(R.string.ok, new Dialog.OnClickListener() {
+        } else {
+          new AlertDialog.Builder(view.getContext())
+          .setMessage(message)
+          .setTitle("Confirm")
+          .setCancelable(true)
+          .setPositiveButton(R.string.yes, new Dialog.OnClickListener() {
             public void onClick(DialogInterface dialog, int which) {
               showDialog = false;
               dialog.dismiss();
               result.confirm();
             }
-          }).setNegativeButton(R.string.cancel_button, new Dialog.OnClickListener() {
+          })
+          .setNegativeButton(R.string.cancel_button, new Dialog.OnClickListener() {
             public void onClick(DialogInterface dialog, int which) {
               dialog.dismiss();
               result.cancel();
             }
-          }).create().show();
+          })
+          .create()
+          .show();
           return true;
         }
-      }
-      return super.onJsConfirm(view, url, message, result);
+
+     // return super.onJsConfirm(view, url, message, result);
     }
 
     @Override
@@ -678,6 +690,7 @@ public boolean onKeyDown(int keyCode, KeyEvent event) {
     }
     return super.onKeyDown(keyCode, event);
 }
+
 
 
 /// saving and external service callouts
