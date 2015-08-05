@@ -39,6 +39,9 @@
 #include "java/util/iterator.h"
 #import "ITAhoCorasickContainer.h"
 
+
+#define METHOD_PREFIX @"PA"
+
 @interface PacoSerializer()
 
 @property (nonatomic,strong)   NSMutableArray*   objectTracking;
@@ -95,7 +98,7 @@
 {
     _parentCollection =nil;
     [_objectTracking removeAllObjects];
-    [self recurseObjectHierarchy:@[@"PARENT",parent]];
+    [self recurseObjectHierarchy:@[PACO_OBJECT_PARENT,parent]];
     return _parentCollection;
     
 }
@@ -104,7 +107,7 @@
 {
      _parentCollection =nil;
     [_objectTracking removeAllObjects];
-    [self recurseObjectHierarchy:@[@"PARENT",parent]];
+    [self recurseObjectHierarchy:@[PACO_OBJECT_PARENT,parent]];
      NSError* error2 =nil;
      NSData* newData  = [NSJSONSerialization dataWithJSONObject:_parentCollection options:NSJSONWritingPrettyPrinted  error:&error2];
      return newData;
@@ -140,8 +143,65 @@
 
 
 
+-(void) validate:(NSArray *) parentInfo
+{
+    if( [parentInfo[1]  isKindOfClass:[JavaUtilArrayList class]])
+    {
+        
+        NSArray* myArray =  (NSArray*) [parentInfo[1] toArray];
+        for( NSObject*  o  in myArray  )
+        {
+            [self validate:@[parentInfo[0],o]];
+        }
+
+        
+    }
+    else if( [parentInfo[1]  isKindOfClass:[JavaUtilHashMap class]])
+    {
+       
+        NSArray* myArray = (NSArray*) [[parentInfo[1] keySet] toArray];
+        for( NSString *  str  in  myArray )
+        {
+            [self validate:@[str,[parentInfo[1] valueForKey:str]]];
+        }
+    }
+    else
+    {
+        if( ![parentInfo[1] isKindOfClass:[NSString  class]] && ![parentInfo[1] isKindOfClass:[NSNumber  class]] )
+        {
+            // do nothing
+            
+        
+            NSLog(@"call validate on %@", parentInfo[1]  );
+        
+            NSObject* object = parentInfo[1];
+            unsigned int numIvars = 0;
+            Ivar * ivars = class_copyIvarList([object class], &numIvars);
+            for(int i =0; i < numIvars; i++)
+            {
+                NSString * ivarName = [NSString stringWithCString:ivar_getName(ivars[i]  ) encoding:NSUTF8StringEncoding];
+                NSObject* o = object_getIvar(object, ivars[i]);
+                if(o)
+                {
+                    [self validate:@[ivarName,o]];
+                }
+            }
+           
+
+        }
+        else
+        {
+             // validate
+        
+        }
+    }
+
+}
+
+
+
 /*
-    build a collection hierarchy from j2objc model objects.
+    build a foundation collection hierarchy from j2objc model objects.
  
  */
 
@@ -181,8 +241,6 @@
     }
     else
     {
-
-        
         if( ![parentInfo[1] isKindOfClass:[NSString  class]] && ![parentInfo[1] isKindOfClass:[NSNumber  class]] )
         {
             NSMutableDictionary * mutableDictionary = [NSMutableDictionary new];
@@ -710,7 +768,7 @@
     
     for(NSString* className in _classes)
     {
-       NSString* withPrefix = [NSString stringWithFormat:@"PA%@",className];
+       NSString* withPrefix = [NSString stringWithFormat:@"%@%@",METHOD_PREFIX, className];
        Class theClass = NSClassFromString(withPrefix);
        id object = [[theClass alloc] init];
        [self.container addStringPattern:[self toMatchString:object]];
@@ -889,6 +947,7 @@
         }
         
         free(ivars);
+        [_cache setObject:resultsArray forKey:object];
     }
     return resultsArray;
 }

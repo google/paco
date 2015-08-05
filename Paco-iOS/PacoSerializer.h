@@ -66,6 +66,9 @@ typedef NS_ENUM(NSInteger, PacoParentType) {
 -(NSObject* ) toJSONobject:(NSObject*) parent;
 /* create a json object from nested Foundation classes */
 -(NSObject*) buildObjectHierarchyFromCollections:(id) collection;
+/* recursively call validate   */ 
+
+-(void) validate:(NSArray *) parentInfo;
 
 
 @end

@@ -194,25 +194,39 @@ static NSString* newDefinition =@"[{\r\n  \"title\" : \"My Title\",\r\n  \"descr
     NSMutableArray* mutableArray  = [NSMutableArray new];
     NSString* path = @"/Users/northropo/Project/paco/Paco-iOS/DerivedData/Paco/Build/Intermediates/Paco.build/Debug-iphonesimulator/Paco.build/DerivedSources";
     NSArray* dirs = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:path error:Nil];
-    
-    
-    
-    
     NSArray* headers = [dirs filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"self ENDSWITH '.h'"]];
-    
     for(NSString* fileName in headers)
     {
         NSString * trimmedString = [fileName substringToIndex:[fileName length] -2];
         [mutableArray addObject:trimmedString];
         
     }
-    
     return mutableArray;
-    
+
 }
 
 
+-(void) testValidateModelTree
+{
+    
+    NSError* error;
+    NSData* data = [newDefinition dataUsingEncoding:NSUTF8StringEncoding];
+    id definingObject = [NSJSONSerialization JSONObjectWithData:data
+                         
+                                                        options:NSJSONReadingAllowFragments
+                                                          error:&error];
+    
+    PacoSerializer * serializer = [[PacoSerializer alloc] initWithArrayOfClasses:_classes];
+    
+    NSObject* resultObject  =  [serializer buildObjectHierarchyFromCollections:definingObject];
+    // NSObject* resultObject2 = [serializer buildObjectHierarchyFromJSONOBject:data];
 
+   
+    [serializer validate:@[@"parent", resultObject]];
+    
+  
+    
+}
 
 
 -(void) testBuildModelTree
