@@ -20,7 +20,9 @@
 #include "java/util/HashMap.h"
 #include "java/util/ArrayList.h"
 #include "NSObject+ITNDescription.h"
- 
+#import  "NSObject+J2objcKVO.h"
+
+
 
 static NSString* smDefinition = @"[{\"title\":\"ESM Demo\",\"description\":\"This experiment demonstrates an ESM (Experiential Sampling Method) study. It will prompt the user to respond to some questions randomly 5 times per day between 10 and 6. The notification to respond will time out in 15 minutes and record a missed signal in that case. The experiment is ongoing, as opposed to a fixed number of days, in duration. It also uses conditional branching to show some questions only when other questions answers take on certain values.\",\"creator\":\"bobevans@google.com\",\"contactEmail\":\"bobevans@google.com\",\"id\":5754435435233280,\"recordPhoneDetails\":false,\"extraDataCollectionDeclarations\":[],\"deleted\":false,\"published\":false,\"admins\":[\"bobevans@google.com\",\"elasticsearch64@gmail.com\"],\"publishedUsers\":[],\"version\":3,\"groups\":[{\"name\":\"New Group\",\"customRendering\":false,\"fixedDuration\":false,\"logActions\":false,\"backgroundListen\":false,\"actionTriggers\":[{\"type\":\"scheduleTrigger\",\"actions\":[{\"actionCode\":1,\"id\":1436903218335,\"type\":\"pacoNotificationAction\",\"snoozeCount\":0,\"snoozeTime\":600000,\"timeout\":15,\"delay\":5000,\"msgText\":\"Time to participate\",\"snoozeTimeInMinutes\":10}],\"id\":1436903218334,\"schedules\":[{\"scheduleType\":4,\"esmFrequency\":5,\"esmPeriodInDays\":0,\"esmStartHour\":36000000,\"esmEndHour\":64800000,\"signalTimes\":[{\"type\":0,\"fixedTimeMillisFromMidnight\":0}],\"repeatRate\":1,\"weekDaysScheduled\":0,\"nthOfMonth\":1,\"byDayOfMonth\":true,\"dayOfMonth\":1,\"esmWeekends\":true,\"minimumBuffer\":59,\"joinDateMillis\":0,\"id\":1436903218336,\"onlyEditableOnJoin\":false,\"userEditable\":true,\"defaultMinimumBuffer\":59,\"byDayOfWeek\":false}]}],\"inputs\":[{\"name\":\"activity\",\"required\":false,\"conditional\":false,\"responseType\":\"open text\",\"text\":\"What are you doing right now?\",\"multiselect\":false,\"numeric\":false,\"invisible\":false},{\"name\":\"where\",\"required\":false,\"conditional\":false,\"responseType\":\"list\",\"text\":\"Where are you?\",\"listChoices\":[\"Home\",\"Work\",\"Other\"],\"multiselect\":false,\"numeric\":true,\"invisible\":false},{\"name\":\"other_where\",\"required\":false,\"conditional\":true,\"conditionExpression\":\"where == 3\",\"responseType\":\"open text\",\"text\":\"Please enter a name for the place you are\",\"multiselect\":false,\"numeric\":false,\"invisible\":false},{\"name\":\"photo\",\"required\":false,\"conditional\":false,\"responseType\":\"photo\",\"text\":\"Take a photo if you like\",\"multiselect\":false,\"numeric\":false,\"invisible\":true}],\"endOfDayGroup\":false,\"feedback\":{\"text\":\"Thank you for Participating!\",\"type\":0},\"feedbackType\":0}]},{\"title\":\"user present trigger\",\"creator\":\"elasticsearch64@gmail.com\",\"contactEmail\":\"elasticsearch64@gmail.com\",\"id\":5685441885896704,\"recordPhoneDetails\":false,\"extraDataCollectionDeclarations\":[],\"deleted\":false,\"published\":false,\"admins\":[\"elasticsearch64@gmail.com\"],\"publishedUsers\":[],\"version\":2,\"groups\":[{\"name\":\"New Group\",\"customRendering\":false,\"fixedDuration\":false,\"logActions\":false,\"backgroundListen\":false,\"actionTriggers\":[{\"type\":\"interruptTrigger\",\"actions\":[{\"actionCode\":1,\"id\":1437698202506,\"type\":\"pacoNotificationAction\",\"snoozeCount\":0,\"snoozeTime\":600000,\"timeout\":15,\"delay\":5000,\"msgText\":\"Time to participate\",\"snoozeTimeInMinutes\":10}],\"id\":1437698202505,\"cues\":[{\"cueCode\":2}],\"minimumBuffer\":59,\"defaultMinimumBuffer\":15}],\"inputs\":[],\"endOfDayGroup\":false,\"feedback\":{\"text\":\"Thanks for Participating!\",\"type\":0},\"feedbackType\":0}]}]";
 
@@ -230,14 +232,17 @@ static NSString* newDefinition =@"[{\r\n  \"title\" : \"My Title\",\r\n  \"descr
     
     NSError* error;
     NSData* data = [newDefinition dataUsingEncoding:NSUTF8StringEncoding];
-    id definingObject = [NSJSONSerialization JSONObjectWithData:data
-                         
-                                                        options:NSJSONReadingAllowFragments
-                                                          error:&error];
-    
     PacoSerializer * serializer = [[PacoSerializer alloc] initWithArrayOfClasses:_classes];
-    JavaUtilArrayList* arrayList   = (JavaUtilArrayList*) [serializer buildObjectHierarchyFromJSONOBject:data];
-    PAExperimentDAO * dao =  [arrayList getWithInt:0];
+    id object   = (JavaUtilArrayList*) [serializer buildObjectHierarchyFromJSONOBject:data];
+    PAExperimentDAO * dao =  [object valueForKeyAndIndex:0 Key:@""];
+      [dao setValueEx:@"12/12/20012" forKey:@"modifyDate"];
+      NSString* str = [dao valueForKeyEx:@"modifyDate"];
+      NSLog(@" string %@", str);
+    
+    
+
+    
+    
     
     
 }

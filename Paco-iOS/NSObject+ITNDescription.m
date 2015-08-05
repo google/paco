@@ -20,9 +20,6 @@
 @implementation NSObject (ITNDescription)
 
 
-
-
-
 - (NSString *)itn_shortDescription {
     return [self itn_descriptionWithIndentation:0 depth:0];
 }

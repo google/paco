@@ -9,6 +9,7 @@
 #import "NSObject+J2objcKVO.h"
 #import "ModelBase.h" 
 #import <objc/runtime.h>
+#include "java/util/ArrayList.h"
 
 @implementation NSObject (J2objcKVO)
 
@@ -18,18 +19,18 @@
     return [self isKindOfClass:[PAModelBase class]];
 }
 
-- (id)valueForKeyEX: (NSString *)key
+- (id)valueForKeyEx:(NSString *)key
 {
-    
+    id retVal=nil;
     if([self isJ2Objc])
     {
-        [self getModalAttribute:key Object:self];
+        retVal=[self getModalAttribute:key Object:self];
     }
     else
     {
-        [self valueForKey:key];
+        retVal=[self valueForKey:key];
     }
- 
+    return retVal;
 }
 
 - (void )setValueEx: (id)value forKey: (NSString *)key
@@ -212,6 +213,47 @@
 }
 
 
+- (id) valueForKeyAndIndex:(int)index  Key:(NSString*) key
+{
+    
+    id retVal=nil;;
+    if([self isKindOfClass:[JavaUtilArrayList class]])
+    {
+        
+        retVal =  [((JavaUtilArrayList*) self) getWithInt:index];
+        
+        
+    }
+    else
+    {
+         NSObject* object = [self valueForKeyEx:key];
+        if([object isKindOfClass:[JavaUtilArrayList class]])
+        {
+            retVal =    [((JavaUtilArrayList*) object) getWithInt:index];
 
-
+        }
+        
+        
+    }
+    return   retVal;
+    
+}
 @end
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
