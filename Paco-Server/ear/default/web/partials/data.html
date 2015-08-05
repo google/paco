@@ -15,7 +15,7 @@
       <md-card-content>
         <table>
           <tr ng-repeat="row in table track by $index">
-            <td ng-repeat="cell in row track by $index">{{cell | unquote}}</td>
+            <td ng-repeat="cell in row track by $index">{{cell}}</td>
           </tr>
           <tfoot>
             <td>Showing {{table.length - 1}} out of {{table.length - 1}}</td>
