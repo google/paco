@@ -12,12 +12,13 @@ pacoApp.controller('HomeCtrl', ['$scope', '$http', '$routeParams', '$location',
       $scope.loadAdmin(reload);
       $scope.loadJoined(reload);
       $scope.loadJoinable(reload);
-    }
+    };
 
     $scope.loadJoined = function(reload) {
       var cache = true;
       if (reload !== undefined && reload === true) {
         cache = false;
+        $scope.cache.remove('/experiments?joined');
       }
       $http.get('/experiments?joined', {
         cache: cache
@@ -41,6 +42,7 @@ pacoApp.controller('HomeCtrl', ['$scope', '$http', '$routeParams', '$location',
       var cache = true;
       if (reload !== undefined && reload === true) {
         cache = false;
+        $scope.cache.remove('/experiments?admin');
       }
       $http.get('/experiments?admin', {
         cache: cache
@@ -53,6 +55,7 @@ pacoApp.controller('HomeCtrl', ['$scope', '$http', '$routeParams', '$location',
       var cache = true;
       if (reload !== undefined && reload === true) {
         cache = false;
+        $scope.cache.remove('/experiments?mine');
       }
       $http.get('/experiments?mine', {
         cache: cache
@@ -79,7 +82,7 @@ pacoApp.controller('HomeCtrl', ['$scope', '$http', '$routeParams', '$location',
       $scope.loaded = true;
 
       // Make sure email isn't the dev email address
-      if (data.user && data.user !== 'yourGoogleEmail@here.com') {
+      if (data.user && data.user !== 'bobevans999@gmail.com') {
         $scope.user = data.user;
         $scope.loadJoined();
         $scope.loadAdmin();
@@ -316,7 +319,8 @@ pacoApp.controller('ListCtrl', ['$scope', '$http', '$mdDialog', 'util',
       });      
     };
 
-    $scope.joinExperiment = function(exp) {
+    $scope.joinExperiment = function($event, exp) {
+
       var obj = {};
       obj.experimentId = exp.id;
       obj.appId = 'webform';  
@@ -328,7 +332,8 @@ pacoApp.controller('ListCtrl', ['$scope', '$http', '$mdDialog', 'util',
 
       $http.post('/events', json).success(function(data) {
           if (data[0].status === true) {
-            $scope.loadJoined(true);
+            $scope.loadList(true);
+
             $mdDialog.show(
               $mdDialog.alert()
               .title('Join Status')
@@ -341,6 +346,8 @@ pacoApp.controller('ListCtrl', ['$scope', '$http', '$mdDialog', 'util',
           console.error(data);
       });
 
+        $event.stopPropagation();
+
     };
   }
 ]);
@@ -348,8 +355,8 @@ pacoApp.controller('ListCtrl', ['$scope', '$http', '$mdDialog', 'util',
 
 
 pacoApp.controller('CsvCtrl', ['$scope', '$http', '$mdDialog', '$timeout',
-  '$location',
-  function($scope, $http, $mdDialog, $timeout, $location) {
+  '$location', '$filter',
+  function($scope, $http, $mdDialog, $timeout, $location, $filter) {
 
     var startMarker =
       '<title>Current Status of Report Generation for job: ';
@@ -372,20 +379,14 @@ pacoApp.controller('CsvCtrl', ['$scope', '$http', '$mdDialog', '$timeout',
       $http.get($scope.jobUrl).success(
         function(data) {
 
-          $scope.result = data;
-
           if (data === 'pending\n') {
             $timeout($scope.poll, 1000);
+
           } else {
-            $scope.csv = data;
-            var rows = data.split('\n');
-            $scope.table = [];
-            for (var i = 0; i < rows.length; i++) {
-              var cells = rows[i].split(',');
-              if (cells.length > 1) {
-                $scope.table.push(cells);
-              }
-            }
+
+            $scope.csv = data.trim();
+            $scope.table = $filter('csvToObj')($scope.csv);
+
             var blob = new Blob([data], {
               type: 'text/csv'
             });
