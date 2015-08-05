@@ -135,6 +135,8 @@ static NSString* const kSoundNameThird = @"deepbark_trial_third.mp3";
   notification.soundName = kSoundNameDefault;
   notification.fireDate = [NSDate dateWithTimeIntervalSinceNow:1];
   [[UIApplication sharedApplication] scheduleLocalNotification:notification];
+    
+    
   XCTAssertEqual([self scheduledCountWithDelay], 1,
                  @"it should be invalid to schedule a notification for now");
   

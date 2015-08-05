@@ -141,8 +141,7 @@ static NSString* testDefinitionJson = @"{\"title\":\"Notification - ESM Daily\",
   NSIndexSet* set = [NSIndexSet indexSetWithIndexesInRange:NSMakeRange(3, (8 - 2) * 3 - 3)];
   XCTAssertEqualObjects([newDates objectsAtIndexes:set], datesOnDayTwo, @"datesOnDayTwo should be a sub-array of previously generated dates");
   XCTAssertEqualObjects([self.testExperiment.schedule esmScheduleList], datesOnDayTwo, @"esmScheduleList should be updated");
-  
-  
+
   //new fromDate: 2013 11/12 16:00:00
   fromDate = [self dateFromComponentsWithYear:2013
                                         month:11
