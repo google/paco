@@ -57,8 +57,6 @@
 
 /* aho corasic matching algorithm */
 @property (strong, nonatomic) ITAhoCorasickContainer *container;
-
-
 /* The first or parent node  */
 @property (nonatomic,strong) id    parentNode;
 /* collection object */
@@ -169,9 +167,9 @@
     {
         if( ![parentInfo[1] isKindOfClass:[NSString  class]] && ![parentInfo[1] isKindOfClass:[NSNumber  class]] )
         {
-            // do nothing
             
-        
+            // validate
+            
             NSLog(@"call validate on %@", parentInfo[1]  );
         
             NSObject* object = parentInfo[1];
@@ -191,7 +189,7 @@
         }
         else
         {
-             // validate
+            
         
         }
     }

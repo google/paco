@@ -303,6 +303,7 @@
 		A678C2751B703955003F0D27 /* ModelBase.java in Sources */ = {isa = PBXBuildFile; fileRef = A678C2741B703955003F0D27 /* ModelBase.java */; };
 		A678C2761B7042D3003F0D27 /* DerivedSources in Sources */ = {isa = PBXBuildFile; fileRef = A670760F1B62F26A00017D36 /* DerivedSources */; };
 		A678C2E51B716283003F0D27 /* ModelBase.java in Sources */ = {isa = PBXBuildFile; fileRef = A678C2E41B716283003F0D27 /* ModelBase.java */; };
+		A678C3151B728E60003F0D27 /* NSObject+J2objcKVO.m in Sources */ = {isa = PBXBuildFile; fileRef = A678C3141B728E60003F0D27 /* NSObject+J2objcKVO.m */; };
 		C567E89017A03FDE00267A26 /* deepbark_trial.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = C567E88F17A03FDE00267A26 /* deepbark_trial.mp3 */; };
 		C5B4691917B07E4900B6BC18 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C5B4691817B07E4900B6BC18 /* CoreGraphics.framework */; };
 		C5C4F5D217B163EF009E9F18 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C5C4F5D117B163EF009E9F18 /* QuartzCore.framework */; };
@@ -847,6 +848,8 @@
 		A676C73B1B615AAB00F37572 /* libobjc.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libobjc.dylib; path = usr/lib/libobjc.dylib; sourceTree = SDKROOT; };
 		A678C2741B703955003F0D27 /* ModelBase.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = ModelBase.java; sourceTree = "<group>"; };
 		A678C2E41B716283003F0D27 /* ModelBase.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = ModelBase.java; sourceTree = "<group>"; };
+		A678C3131B728E60003F0D27 /* NSObject+J2objcKVO.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSObject+J2objcKVO.h"; sourceTree = "<group>"; };
+		A678C3141B728E60003F0D27 /* NSObject+J2objcKVO.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSObject+J2objcKVO.m"; sourceTree = "<group>"; };
 		A6A25B9A1B61895A00E47DE1 /* PacoExperimentSchedule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoExperimentSchedule.h; sourceTree = "<group>"; };
 		C567E88F17A03FDE00267A26 /* deepbark_trial.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = deepbark_trial.mp3; sourceTree = "<group>"; };
 		C5B4691817B07E4900B6BC18 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
@@ -909,6 +912,8 @@
 		319771B9163F0733000AC06B = {
 			isa = PBXGroup;
 			children = (
+				A678C3131B728E60003F0D27 /* NSObject+J2objcKVO.h */,
+				A678C3141B728E60003F0D27 /* NSObject+J2objcKVO.m */,
 				A670760F1B62F26A00017D36 /* DerivedSources */,
 				A620E3691B61AF460018AE42 /* PacoSerializers */,
 				A6D9AA8C1B59817700595C06 /* Testing */,
@@ -2303,6 +2308,7 @@
 				36B8EB8C17568DAF004CF035 /* PacoTableTextCell.m in Sources */,
 				36417BE8180DCA9600335B74 /* NSCalendar+Paco.m in Sources */,
 				4448BCBD1A808E7A0034FCE9 /* GTMOAuth2SignIn.m in Sources */,
+				A678C3151B728E60003F0D27 /* NSObject+J2objcKVO.m in Sources */,
 				36B8EB8D17568DAF004CF035 /* PacoTableView.m in Sources */,
 				44A843C81ADB9C0A009C7226 /* EventInterface.java in Sources */,
 				44A843D51ADB9C0A009C7226 /* PacoAction.java in Sources */,
