@@ -12,12 +12,13 @@ pacoApp.controller('HomeCtrl', ['$scope', '$http', '$routeParams', '$location',
       $scope.loadAdmin(reload);
       $scope.loadJoined(reload);
       $scope.loadJoinable(reload);
-    }
+    };
 
     $scope.loadJoined = function(reload) {
       var cache = true;
       if (reload !== undefined && reload === true) {
         cache = false;
+        $scope.cache.remove('/experiments?joined');
       }
       $http.get('/experiments?joined', {
         cache: cache
@@ -41,6 +42,7 @@ pacoApp.controller('HomeCtrl', ['$scope', '$http', '$routeParams', '$location',
       var cache = true;
       if (reload !== undefined && reload === true) {
         cache = false;
+        $scope.cache.remove('/experiments?admin');
       }
       $http.get('/experiments?admin', {
         cache: cache
@@ -53,6 +55,7 @@ pacoApp.controller('HomeCtrl', ['$scope', '$http', '$routeParams', '$location',
       var cache = true;
       if (reload !== undefined && reload === true) {
         cache = false;
+        $scope.cache.remove('/experiments?mine');
       }
       $http.get('/experiments?mine', {
         cache: cache
@@ -316,7 +319,8 @@ pacoApp.controller('ListCtrl', ['$scope', '$http', '$mdDialog', 'util',
       });      
     };
 
-    $scope.joinExperiment = function(exp) {
+    $scope.joinExperiment = function($event, exp) {
+
       var obj = {};
       obj.experimentId = exp.id;
       obj.appId = 'webform';  
@@ -328,7 +332,8 @@ pacoApp.controller('ListCtrl', ['$scope', '$http', '$mdDialog', 'util',
 
       $http.post('/events', json).success(function(data) {
           if (data[0].status === true) {
-            $scope.loadJoined(true);
+            $scope.loadList(true);
+
             $mdDialog.show(
               $mdDialog.alert()
               .title('Join Status')
@@ -340,6 +345,8 @@ pacoApp.controller('ListCtrl', ['$scope', '$http', '$mdDialog', 'util',
         }).error(function(data, status, headers, config) {
           console.error(data);
       });
+
+        $event.stopPropagation();
 
     };
   }
