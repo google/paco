@@ -1354,8 +1354,35 @@ function runEodExperiment() {
   var form_root = $(document.body);
   
   var experiment = paco.experimentService.getExperiment();
-  var experimentGroup = paco.experimentService.getExperimentGroup();
-  var referredGroup = paco.experimentService.getEndOfDayReferredExperimentGroup();
+  //var experimentGroup = paco.experimentService.getExperimentGroup();
+  var experimentGroupName = window.env.getValue("experimentGroupName");
+  
+  var experimentGroup = null;
+  for (var j = 0; j < experiment.groups.length; j++) {
+    var grp = experiment.groups[j];
+    if (grp.name === experimentGroupName) {
+      experimentGroup = grp;
+      break;
+    }
+  }
+  if (experimentGroup == null) {
+    //alert("Did not find eod group");
+    experimentGroup = paco.experimentService.getExperimentGroup();
+  }
+  
+  var referredGroupName = experimentGroup.endOfDayReferredGroupName;
+  var referredGroup = null;
+  for (var i = 0; i < experiment.groups.length; i++) {
+    var grp = experiment.groups[i];
+    if (grp.name === referredGroupName) {
+      referredGroup = grp;
+      break;
+    }
+  }
+  if (referredGroup == null) {
+    //alert("did not find referred group");
+    referredGroup = paco.experimentService.getEndOfDayReferredExperimentGroup();
+  }
   var actionTriggerId = window.env.getValue("actionTriggerId");
   var actionTriggerSpecId = window.env.getValue("actionTriggerSpecId");
   var actionId = window.env.getValue("actionId");
