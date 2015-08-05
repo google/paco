@@ -8,6 +8,8 @@
   <md-card>
     <md-card-content>
       <div class="padded">
+
+        {{experiment}}
         <h1>{{experiment.title}}</h1>
         
         <div ng-if="experiment.organization">
@@ -30,7 +32,7 @@
         </div>
 
         <div ng-if="joinedIndex.indexOf(experiment.id) === -1" ng-controller="ListCtrl">
-          <md-button ng-click="joinExperiment(experiment)" class="md-raised md-primary">
+          <md-button ng-click="joinExperiment($event, experiment)" class="md-raised md-primary">
             Join Experiment
           </md-button>
         </div>
