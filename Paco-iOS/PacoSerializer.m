@@ -10,16 +10,15 @@
 
 /*
    TODDO
-    - refactor out populating parent object with new attribute
+ 
     - optimization = only perform matching when parent is a list
-    - extract list of ivars once up front
     - code comments
     - match algroithm try improvements.
     - find a way to obtain the list of classes besides the contructor.
-    - use aho corasic alroithm with matching Levenshtein distance
     _ make thread safe.
     - pass error down recurse methods.
-    - turn off warnings that are understood
+    -handle all java types LinkList ....
+     -verify cache strategy - is object unique.
  
  
  */

@@ -46,7 +46,7 @@ typedef NS_ENUM(NSInteger, PacoParentType) {
 
 /*
    used to track where we are in a collection heirarchy. Object tracking should contain
-   only classes of NSArray or classes of NSDictionary.
+   only classes of NSArray or classes of NSDictionary. 
  
  */
 
