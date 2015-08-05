@@ -601,16 +601,20 @@ paco.renderer = (function() {
       
       for (var step = 0; step < steps.length; step++) {
         var currentStep = steps[step];
-        var p = $('<p>');
+        var p = $('<div>'); // didn't work
+        p.css("line-height", "1"); // didnt work
         p.addClass("input-field col s12 left-align");
         parent.append(p);
         
         var lbl = $("<label>");
+        lbl.addClass("grey-text text-darken-2");
+        lbl.css("line-height", "1");
         lbl.attr("for", input.name + "_" + step)
         lbl.text(currentStep);
         
         
-        var chk = $("<input>");        
+        var chk = $("<input>");
+        chk.css("line-height", "1");
         chk.attr("id", input.name + "_" + step);
         chk.attr("type", "checkbox");
 //        chk.attr("value", step);
@@ -618,7 +622,7 @@ paco.renderer = (function() {
         chk.addClass("filled-in ");
         p.append(chk);
         p.append(lbl);
-        p.append($("<br>"));
+        //p.append($("<br>"));
         
         chk.change(function() { 
             var values = [];
@@ -1007,11 +1011,12 @@ paco.renderer = (function() {
       if (!input) {
         continue;
       }
-      responsesHtml += "<div class=\"row\" style=\"margin-bottom: 0px;\">";
+      responsesHtml += "<div class=\"row\" style=\"margin-bottom: 5px;\">";
       responsesHtml += "<h6 class=\"left\">";
       responsesHtml += input.text;
       responsesHtml += "</h6><br>";
-      responsesHtml += "<p class=\"light grey-text\">";
+      responsesHtml += "<p class=\"grey-text text-darken-3\">";
+      responsesHtml += "&nbsp;&nbsp;&nbsp;"
       if (input.responseType === "photo" && response["answer"].length > 0) {
         responsesHtml += "<img src='data:image/jpg;base64," + response["answer"] + "' width=150>";
       } else if (input.responseType === "location") {
@@ -1030,7 +1035,7 @@ paco.renderer = (function() {
       } else {
         responsesHtml += response["answer"];
       }
-      responsesHtml += "</p></div>";
+      responsesHtml += "<br/></p></div>";
     }
     element.html(responsesHtml);
   };
@@ -1354,8 +1359,35 @@ function runEodExperiment() {
   var form_root = $(document.body);
   
   var experiment = paco.experimentService.getExperiment();
-  var experimentGroup = paco.experimentService.getExperimentGroup();
-  var referredGroup = paco.experimentService.getEndOfDayReferredExperimentGroup();
+  //var experimentGroup = paco.experimentService.getExperimentGroup();
+  var experimentGroupName = window.env.getValue("experimentGroupName");
+  
+  var experimentGroup = null;
+  for (var j = 0; j < experiment.groups.length; j++) {
+    var grp = experiment.groups[j];
+    if (grp.name === experimentGroupName) {
+      experimentGroup = grp;
+      break;
+    }
+  }
+  if (experimentGroup == null) {
+    //alert("Did not find eod group");
+    experimentGroup = paco.experimentService.getExperimentGroup();
+  }
+  
+  var referredGroupName = experimentGroup.endOfDayReferredGroupName;
+  var referredGroup = null;
+  for (var i = 0; i < experiment.groups.length; i++) {
+    var grp = experiment.groups[i];
+    if (grp.name === referredGroupName) {
+      referredGroup = grp;
+      break;
+    }
+  }
+  if (referredGroup == null) {
+    //alert("did not find referred group");
+    referredGroup = paco.experimentService.getEndOfDayReferredExperimentGroup();
+  }
   var actionTriggerId = window.env.getValue("actionTriggerId");
   var actionTriggerSpecId = window.env.getValue("actionTriggerSpecId");
   var actionId = window.env.getValue("actionId");

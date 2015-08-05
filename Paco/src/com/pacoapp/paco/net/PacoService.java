@@ -95,7 +95,7 @@ public class PacoService {
 
       InputStreamReader reader = new InputStreamReader(urlConnection.getInputStream(), AbstractAuthTokenTask.UTF_8);
       String result = read(reader);
-      Log.d(PacoConstants.TAG, "RESULT = " + result);
+      //Log.d(PacoConstants.TAG, "RESULT = " + result);
       return result;
     } catch (Exception e) {
       Log.w(PacoConstants.TAG, "Exception: " + e);
