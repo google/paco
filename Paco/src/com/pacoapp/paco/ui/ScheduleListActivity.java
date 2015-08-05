@@ -226,7 +226,7 @@ public class ScheduleListActivity extends ActionBarActivity implements ScheduleL
     }
     if (hasEsm) {
       AndroidEsmSignalStore alarmStore = new AndroidEsmSignalStore(this);
-      alarmStore.deleteAllSignalsForSurvey(experiment.getId());
+      alarmStore.deleteAllSignalsForSurvey(experiment.getExperimentDAO().getId());
     }
     experimentProviderUtil.deleteNotificationsForExperiment(experiment.getId());
     experimentProviderUtil.updateJoinedExperiment(experiment);

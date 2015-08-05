@@ -112,7 +112,7 @@ public class ScheduleDetailActivity extends ActionBarActivity implements Schedul
   public void saveSchedule() {
     if (schedule != null && schedule.getScheduleType().equals(Schedule.ESM)) {
       AndroidEsmSignalStore alarmStore = new AndroidEsmSignalStore(this);
-      alarmStore.deleteAllSignalsForSurvey(experiment.getId());
+      alarmStore.deleteAllSignalsForSurvey(experiment.getExperimentDAO().getId());
     }
     experimentProviderUtil.deleteNotificationsForExperiment(experiment.getId());
     experimentProviderUtil.updateJoinedExperiment(experiment);
