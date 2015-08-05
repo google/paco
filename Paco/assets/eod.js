@@ -1338,7 +1338,7 @@ paco.executeEod = (function() {
       
     $("#exit-button").click(exit);
     
-    if (unfinishedDailyEvents.length > 0) {      
+    if (unfinishedDailyEvents.length > 0 && submitted.length < unfinishedDailyEvents.length) {      
       renderEvent();      
     } else {
       $("#response-banner").html(paco.renderer.renderPlainText("No active daily responses"));
