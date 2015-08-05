@@ -83,7 +83,7 @@ public class PacoForegroundService extends GetAuthTokenInForeground {
     if (sc == 200) {
       InputStream is = urlConnection.getInputStream();
       String result = readResponse(urlConnection.getInputStream());
-      Log.d(PacoConstants.TAG, "RESULT = " + result);
+      //Log.d(PacoConstants.TAG, "RESULT = " + result);
       is.close();
       networkClient.showAndFinish(result);
       return;
