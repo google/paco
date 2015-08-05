@@ -980,7 +980,20 @@ function runCustomExperiment(s0) {
   var form_root = $(document.createElement("div"));
   $(document.body).append(form_root);
   var experiment = paco.experimentService.getExperiment();
-  var experimentGroup = paco.experimentService.getExperimentGroup();
+  
+  var experimentGroupName = window.env.getValue("experimentGroupName");  
+  var experimentGroup = null;
+  for (var j = 0; j < experiment.groups.length; j++) {
+    var grp = experiment.groups[j];
+    if (grp.name === experimentGroupName) {
+      experimentGroup = grp;
+      break;
+    }
+  }
+  if (experimentGroup == null) {
+    experimentGroup = paco.experimentService.getExperimentGroup();
+  }
+  
   var actionTriggerId = window.env.getValue("actionTriggerId");
   var actionTriggerSpecId = window.env.getValue("actionTriggerSpecId");
   var actionId = window.env.getValue("actionId");

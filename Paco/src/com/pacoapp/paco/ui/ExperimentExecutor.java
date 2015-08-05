@@ -621,7 +621,7 @@ public class ExperimentExecutor extends ActionBarActivity implements ChangeListe
       BroadcastTriggerReceiver.initPollingAndLoggingPreference(this);
     }
 
-    new AndroidEsmSignalStore(this).deleteAllSignalsForSurvey(experiment.getId());
+    new AndroidEsmSignalStore(this).deleteAllSignalsForSurvey(experiment.getExperimentDAO().getId());
 
     startService(new Intent(this, BeeperService.class));
     startService(new Intent(this, ExperimentExpirationManagerService.class));

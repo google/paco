@@ -1100,7 +1100,7 @@ public boolean onKeyDown(int keyCode, KeyEvent event) {
       BroadcastTriggerReceiver.initPollingAndLoggingPreference(this);
     }
 
-    new AndroidEsmSignalStore(this).deleteAllSignalsForSurvey(experiment.getId());
+    new AndroidEsmSignalStore(this).deleteAllSignalsForSurvey(experiment.getExperimentDAO().getId());
 
     startService(new Intent(this, BeeperService.class));
     startService(new Intent(this, ExperimentExpirationManagerService.class));

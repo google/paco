@@ -373,7 +373,7 @@ public class MyExperimentsActivity extends ActionBarActivity implements
       BroadcastTriggerReceiver.initPollingAndLoggingPreference(this);
     }
 
-    new AndroidEsmSignalStore(this).deleteAllSignalsForSurvey(experiment2.getId());
+    new AndroidEsmSignalStore(this).deleteAllSignalsForSurvey(experiment2.getExperimentDAO().getId());
 
     reloadAdapter();
     startService(new Intent(this, BeeperService.class));
