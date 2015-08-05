@@ -84,11 +84,21 @@ public class ExperimentProviderUtil implements EventStore {
   }
 
   public List<Experiment> getJoinedExperiments() {
-    return findExperimentsBy(null, ExperimentColumns.JOINED_EXPERIMENTS_CONTENT_URI);
+    List<Experiment> cachedExperiments = JoinedExperimentCache.getInstance().getExperiments();
+    if (cachedExperiments.size() > 0) {
+      return cachedExperiments;
+    }
+
+    final List<Experiment> foundExperiments = findExperimentsBy(null, ExperimentColumns.JOINED_EXPERIMENTS_CONTENT_URI);
+    if (foundExperiments != null && foundExperiments.size() > 0 ) {
+      JoinedExperimentCache.getInstance().insertExperiments(foundExperiments);
+    }
+    return foundExperiments;
   }
 
   public List<Long> getJoinedExperimentServerIds() {
     List<Experiment> joinedExperiments = getJoinedExperiments();
+
     List<Experiment> stillRunningExperiments = Lists.newArrayList();
     DateMidnight tonightMidnight = new DateMidnight().plusDays(1);
     DateTime now = DateTime.now();
@@ -107,29 +117,65 @@ public class ExperimentProviderUtil implements EventStore {
     return experimentIds;
   }
 
-  public Experiment getExperiment(Uri uri) {
-    return findExperimentBy(null, uri);
-  }
-
-
-  public Experiment getExperiment(long id) {
+  private boolean isJoinedExperimentAndroidId(long id) {
     String select = ExperimentColumns._ID + "=" + id;
-    return findExperimentBy(select, ExperimentColumns.CONTENT_URI);
+    Cursor cursor = null;
+    try {
+      cursor = contentResolver.query(ExperimentColumns.CONTENT_URI,
+          null, select, null, null);
+      if (cursor != null && cursor.moveToNext()) {
+        return true;
+      }
+    } catch (RuntimeException e) {
+      Log.w(ExperimentProvider.TAG, "Caught unexpected exception.", e);
+    } finally {
+      if (cursor != null) {
+        cursor.close();
+      }
+    }
+    return false;
   }
 
   public List<Experiment> getExperimentsByServerId(long id) {
+    List<Experiment> cachedExperiments = JoinedExperimentCache.getInstance().getExperimentsByServerId(id);
+    if (cachedExperiments.size() > 0) {
+      return cachedExperiments;
+    }
     String select = ExperimentColumns.SERVER_ID + "=" + id;
-    return findExperimentsBy(select, ExperimentColumns.CONTENT_URI);
+    final List<Experiment> foundExperiments = findExperimentsBy(select, ExperimentColumns.CONTENT_URI);
+
+    if (foundExperiments != null && foundExperiments.size() > 0) {
+      JoinedExperimentCache.getInstance().insertExperiments(foundExperiments);
+    }
+
+
+    return foundExperiments;
   }
 
   public Experiment getExperimentByServerId(long id) {
+    Experiment cachedExperiment = JoinedExperimentCache.getInstance().getExperimentByServerId(id);
+    if (cachedExperiment != null) {
+      return cachedExperiment;
+    }
+
     String select = ExperimentColumns.SERVER_ID + "=" + id;
-    return findExperimentBy(select, ExperimentColumns.CONTENT_URI);
+    final Experiment foundExperiment = findExperimentBy(select, ExperimentColumns.CONTENT_URI);
+
+    if (foundExperiment != null) {
+      JoinedExperimentCache.getInstance().insertExperiment(foundExperiment);
+    }
+
+    return foundExperiment;
   }
 
-  public Uri insertExperiment(Experiment experiment) {
-    return contentResolver.insert(ExperimentColumns.CONTENT_URI,
+  private Uri insertExperiment(Experiment experiment) {
+    final Uri returnedUri = contentResolver.insert(ExperimentColumns.CONTENT_URI,
         createContentValues(experiment));
+    long rowId = Long.parseLong(returnedUri.getLastPathSegment());
+    experiment.setId(rowId);
+
+    JoinedExperimentCache.getInstance().insertExperiment(experiment);
+    return returnedUri;
   }
 
   /**
@@ -145,6 +191,11 @@ public class ExperimentProviderUtil implements EventStore {
    * @return
    */
   public Uri insertFullJoinedExperiment(Experiment experiment) {
+    setJoinDateOnSchedules(experiment);
+    return insertExperiment(experiment);
+  }
+
+  private void setJoinDateOnSchedules(Experiment experiment) {
     long joinDateMillis = getJoinDateMillis(experiment);
     for (ExperimentGroup experimentGroup : experiment.getExperimentDAO().getGroups()) {
       List<ActionTrigger> actionTriggers = experimentGroup.getActionTriggers();
@@ -158,11 +209,6 @@ public class ExperimentProviderUtil implements EventStore {
         }
       }
     }
-    Uri uri = contentResolver.insert(ExperimentColumns.CONTENT_URI,
-        createContentValues(experiment));
-    long rowId = Long.parseLong(uri.getLastPathSegment());
-    experiment.setId(rowId);
-    return uri;
   }
 
   private Long getJoinDateMillis(Experiment experiment) {
@@ -176,13 +222,17 @@ public class ExperimentProviderUtil implements EventStore {
     return insertFullJoinedExperiment(experiment);
   }
 
+  /**
+   * This uses the Android ContentProvider id for the joined experiment
+   * @param experimentId
+   */
   public void deleteExperiment(long experimentId) {
-    Experiment experiment = getExperiment(experimentId);
-    if (experiment != null) {
+    if (isJoinedExperimentAndroidId(experimentId)) {
       String[] selectionArgs = new String[] {Long.toString(experimentId)};
       contentResolver.delete(ExperimentColumns.CONTENT_URI,
           "_id = ?",
           selectionArgs);
+      JoinedExperimentCache.getInstance().deleteExperiment(experimentId);
     }
   }
 
@@ -237,42 +287,13 @@ public class ExperimentProviderUtil implements EventStore {
     int count = contentResolver.update(ExperimentColumns.JOINED_EXPERIMENTS_CONTENT_URI,
         createContentValues(experiment),
         ExperimentColumns._ID + "=" + experiment.getId(), null);
+    JoinedExperimentCache.getInstance().insertExperiment(experiment);
     Log.i(ExperimentProviderUtil.class.getSimpleName(), " updated "+ count + " rows. Time: " + (System.currentTimeMillis() - t1));
   }
 
   public void deleteAllExperiments() {
-    contentResolver.delete(ExperimentColumns.CONTENT_URI, null, null);
-  }
-
-  public void deleteAllJoinedExperiments() {
-    // TODO first select all joined_experiments ids.
-    Cursor cursor = null;
-    try {
-      cursor = contentResolver.query(ExperimentColumns.JOINED_EXPERIMENTS_CONTENT_URI,
-          new String[] { ExperimentColumns._ID },
-          ExperimentColumns.JOIN_DATE + " IS NOT NULL ",
-          null, null);
-      if (cursor != null) {
-        StringBuilder idsStringBuilder = new StringBuilder();
-        int lineCount = 0;
-        while (cursor.moveToNext()) {
-          if (lineCount > 0) {
-            idsStringBuilder.append(",");
-          }
-          idsStringBuilder.append(cursor.getString(0));
-          lineCount++;
-        }
-        String idsString = idsStringBuilder.toString();
-        contentResolver.delete(
-            ExperimentColumns.JOINED_EXPERIMENTS_CONTENT_URI, null, null);
-        // TODO delete all from child tables where experiment_ids match
-      }
-    } finally {
-      if (cursor != null) {
-        cursor.close();
-      }
-    }
-
+    contentResolver.delete(ExperimentColumns.JOINED_EXPERIMENTS_CONTENT_URI, null, null);
+    JoinedExperimentCache.getInstance().deleteAllExperiments();
   }
 
   private Experiment findExperimentBy(String select, Uri contentUri) {
@@ -1310,19 +1331,6 @@ public class ExperimentProviderUtil implements EventStore {
       e.printStackTrace();
     }
     return Lists.newArrayList();
-  }
-
-  public boolean hasJoinedExperiments() {
-    Cursor query = null;
-    try {
-      query = contentResolver.query(ExperimentColumns.JOINED_EXPERIMENTS_CONTENT_URI,
-            new String[] {ExperimentColumns._ID}, null, null, null);
-      return query.moveToFirst();
-    } finally {
-      if (query != null) {
-        query.close();
-      }
-    }
   }
 
   public void loadLastEventForExperiment(Experiment experiment) {
