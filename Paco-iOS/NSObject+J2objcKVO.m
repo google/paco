@@ -24,38 +24,60 @@
 #pragma mark - key methods
 - (void )setValueEx: (id)value forKey: (NSString *)key
 {
-  if([self isJ2Objc])
-  {
-      
-      [self setModalAttribute:key Object:self Argument:value];
-  }
-  else
-  {
-      [self setValue:value  forKey:key];
-  }
+    
+    @try {
+        if([self isJ2Objc])
+        {
+            
+            [self setModalAttribute:key Object:self Argument:value];
+        }
+        else
+        {
+            [self setValue:value  forKey:key];
+        }
+    }
+    @catch (NSException *exception) {
+        NSLog(@"error excoeption %@", exception.reason );
+    }
+ 
+    
 }
 
 
 - (id)valueForKeyEx:(NSString *)key
 {
     id retVal=nil;
-    if([self isJ2Objc])
-    {
-        if([self isIndexed:key])
+
+    
+    
+    
+    
+    @try {
+        if([self isJ2Objc])
         {
-            int index = [self getIndex:key];
-            retVal = [self valueForKeyAndIndex:index Key:key];
+            if([self isIndexed:key])
+            {
+                int index = [self getIndex:key];
+                retVal = [self valueForKeyAndIndex:index Key:key];
+            }
+            else
+            {
+                retVal=[self getModalAttribute:key Object:self];
+            }
         }
         else
         {
-           retVal=[self getModalAttribute:key Object:self];
+            retVal=[self valueForKey:key];
         }
     }
-    else
-    {
-        retVal=[self valueForKey:key];
+    @catch (NSException *exception) {
+        NSLog(@"error excoeption %@", exception.reason );
     }
-    return retVal;
+    @finally
+    {
+        
+        return retVal;
+    }
 }
 
 
@@ -66,30 +88,44 @@
 
 - (id)valueForKeyPathEx: (NSString *)keyPath
 {
-    NSRange range = [keyPath rangeOfString: @"."];
-    if(range.location == NSNotFound)
-        return [self valueForKeyEx: keyPath];
-    
-    NSString *key = [keyPath substringToIndex: range.location];
-    NSString *rest = [keyPath substringFromIndex: NSMaxRange(range)];
-    
-    id next = [self valueForKeyEx: key];
-    return [next valueForKeyPathEx: rest];
+    @try {
+        NSRange range = [keyPath rangeOfString: @"."];
+        if(range.location == NSNotFound)
+            return [self valueForKeyEx: keyPath];
+        NSString *key = [keyPath substringToIndex: range.location];
+        NSString *rest = [keyPath substringFromIndex: NSMaxRange(range)];
+        id next = [self valueForKeyEx: key];
+        return [next valueForKeyPathEx: rest];
+    }
+    @catch (NSException *exception) {
+        
+          NSLog(@"error excoeption %@", exception.reason );
+    }
+
 }
 
 - (void)setValueForKeyPathEx: (id)value forKeyPath: (NSString *)keyPath
 {
-    NSRange range = [keyPath rangeOfString: @"."];
-    if(range.location == NSNotFound)
-    {
-        [self setValueEx: value forKey: keyPath];
-        return;
-    }
     
-    NSString *key = [keyPath substringToIndex: range.location];
-    NSString *rest = [keyPath substringFromIndex: NSMaxRange(range)];
-    id next = [self valueForKeyEx: key];
-    [next setValueEx: value forKeyPath: rest];
+    @try {
+        NSRange range = [keyPath rangeOfString: @"."];
+        if(range.location == NSNotFound)
+        {
+            [self setValueEx: value forKey: keyPath];
+            return;
+        }
+        
+        NSString *key = [keyPath substringToIndex: range.location];
+        NSString *rest = [keyPath substringFromIndex: NSMaxRange(range)];
+        id next = [self valueForKeyEx: key];
+        [next setValueEx: value forKeyPath: rest];
+    }
+    @catch (NSException *exception) {
+        
+            NSLog(@"error excoeption %@", exception.reason );
+    }
+   
+
     
 }
 
@@ -101,19 +137,33 @@
 
 -(NSObject*) getModalAttribute:(NSString*) attributeName Object:(NSObject*) object
 {
+    
     NSObject*  retVal = nil;
-    NSString *newAttributeName  = [attributeName stringByReplacingCharactersInRange:NSMakeRange(0,1)
-                                                                         withString:[[attributeName substringToIndex:1]
-                                                                                     
-                                                                                     capitalizedString]];
-    NSString * methodName  = [NSString stringWithFormat:@"get%@",newAttributeName ];
-    SEL sel = NSSelectorFromString(methodName);
+    
+    
+    @try {
+        NSString *newAttributeName  = [attributeName stringByReplacingCharactersInRange:NSMakeRange(0,1)
+                                                                             withString:[[attributeName substringToIndex:1]
+                                                                                         
+                                                                                         capitalizedString]];
+        NSString * methodName  = [NSString stringWithFormat:@"get%@",newAttributeName ];
+        SEL sel = NSSelectorFromString(methodName);
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Warc-performSelector-leaks"
-    retVal = [object performSelector:sel];
+        retVal = [object performSelector:sel];
 #pragma clang diagnostic pop
+    }
+    @catch (NSException *exception) {
+        
+        NSLog(@"error excoeption %@", exception.reason );
+    }
+    @finally {
+        
+        return retVal;
+    }
 
-    return retVal;
+
+    
 }
 
 
@@ -128,6 +178,9 @@
 -(BOOL) setModalAttribute:(NSString*) attributeName Object:(NSObject*) object Argument:(NSObject*) argument
 {
     BOOL retVal = FALSE;
+    
+    
+    
     NSString *rootString = [self makeCommonAttributeOperationName:attributeName  Object:object];
     if([rootString length] !=0)
     {

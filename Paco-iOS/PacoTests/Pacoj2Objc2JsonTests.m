@@ -305,7 +305,7 @@ static NSString* newDefinition =
                                         error:&error];
 
   PacoSerializer* serializer =
-      [[PacoSerializer alloc] initWithArrayOfClasses:_classes];
+      [[PacoSerializer alloc] initWithArrayOfClasses:_classes withNameOfClassAttribute:@"nameOfClass"];
   NSObject* resultObject =
       [serializer buildObjectHierarchyFromCollections:definingObject];
   // NSObject* resultObject2 = [serializer
@@ -317,7 +317,7 @@ static NSString* newDefinition =
   NSError* error;
   NSData* data = [newDefinition dataUsingEncoding:NSUTF8StringEncoding];
   PacoSerializer* serializer =
-      [[PacoSerializer alloc] initWithArrayOfClasses:_classes];
+      [[PacoSerializer alloc] initWithArrayOfClasses:_classes withNameOfClassAttribute:@"nameOfClass"];
   id object =
       (JavaUtilArrayList*)[serializer buildObjectHierarchyFromJSONOBject:data];
   PAExperimentDAO* dao = [object valueForKeyAndIndex:0 Key:@""];
@@ -338,7 +338,7 @@ static NSString* newDefinition =
                                       options:NSJSONReadingAllowFragments
                                         error:&error];
   PacoSerializer* serializer =
-      [[PacoSerializer alloc] initWithArrayOfClasses:_classes];
+      [[PacoSerializer alloc] initWithArrayOfClasses:_classes withNameOfClassAttribute:@"nameOfClass"];
   // NSObject* resultObject  =  [serializer
   // buildObjectHierarchyFromCollections:definingObject];
   NSObject* resultObject = [serializer buildObjectHierarchyFromJSONOBject:data];
