@@ -245,18 +245,26 @@ pacoApp.controller('ExperimentCtrl', ['$scope', '$http',
     });
 
     $scope.saveExperiment = function() {
+      $scope.cancelSave = false;
+      $mdDialog.show(
+        $mdDialog.alert()
+          .title('Save Status')
+          .content('Saving to remote PACO server')
+          .ariaLabel('Save Status')
+          .ok('Cancel')
+      ).then(function() {
+        $scope.cancelSave = true;
+      });
 
       $http.post('/experiments', $scope.experiment).success(function(data) {
-
+        // Save may succeed if post request was in flight when canceled 
+        if ($scope.cancelSave) {
+          return;
+        }
+        $mdDialog.cancel();
         if (data.length > 0) {
           if (data[0].status === true) {
-            $mdDialog.show(
-              $mdDialog.alert()
-              .title('Save Status')
-              .content('Success!')
-              .ariaLabel('Success')
-              .ok('OK')
-            ).then(function() {
+
               $scope.experiment.version++;
               $scope.experiment0 = angular.copy($scope.experiment);
 
@@ -266,7 +274,6 @@ pacoApp.controller('ExperimentCtrl', ['$scope', '$http',
               if ($scope.newExperiment) {
                 $location.path('/edit/' + data[0].experimentId);
               }
-            });
           } else {
             var errorMessage = data[0].errorMessage;
             $mdDialog.show({
