@@ -42,8 +42,7 @@ static NSString* smDefinition =
     @"\"type\":\"scheduleTrigger\",\"actions\":[{\"actionCode\":1,\"id\":"
     @"1436903218335,\"type\":\"pacoNotificationAction\",\"snoozeCount\":0,"
     @"\"snoozeTime\":600000,\"timeout\":15,\"delay\":5000,\"msgText\":\"Time "
-    @"to "
-    @"participate\",\"snoozeTimeInMinutes\":10}],\"id\":1436903218334,"
+    @"to " @"participate\",\"snoozeTimeInMinutes\":10}],\"id\":1436903218334,"
     @"\"schedules\":[{\"scheduleType\":4,\"esmFrequency\":5,"
     @"\"esmPeriodInDays\":0,\"esmStartHour\":36000000,\"esmEndHour\":64800000,"
     @"\"signalTimes\":[{\"type\":0,\"fixedTimeMillisFromMidnight\":0}],"
@@ -74,14 +73,12 @@ static NSString* smDefinition =
     @"\"recordPhoneDetails\":false,\"extraDataCollectionDeclarations\":[],"
     @"\"deleted\":false,\"published\":false,\"admins\":[\"elasticsearch64@"
     @"gmail.com\"],\"publishedUsers\":[],\"version\":2,\"groups\":[{\"name\":"
-    @"\"New "
-    @"Group\",\"customRendering\":false,\"fixedDuration\":false,"
+    @"\"New " @"Group\",\"customRendering\":false,\"fixedDuration\":false,"
     @"\"logActions\":false,\"backgroundListen\":false,\"actionTriggers\":[{"
     @"\"type\":\"interruptTrigger\",\"actions\":[{\"actionCode\":1,\"id\":"
     @"1437698202506,\"type\":\"pacoNotificationAction\",\"snoozeCount\":0,"
     @"\"snoozeTime\":600000,\"timeout\":15,\"delay\":5000,\"msgText\":\"Time "
-    @"to "
-    @"participate\",\"snoozeTimeInMinutes\":10}],\"id\":1437698202505,"
+    @"to " @"participate\",\"snoozeTimeInMinutes\":10}],\"id\":1437698202505,"
     @"\"cues\":[{\"cueCode\":2}],\"minimumBuffer\":59,"
     @"\"defaultMinimumBuffer\":15}],\"inputs\":[],\"endOfDayGroup\":false,"
     @"\"feedback\":{\"text\":\"Thanks for "
@@ -281,8 +278,8 @@ static NSString* newDefinition =
 - (NSArray*)getClassNames {
   NSMutableArray* mutableArray = [NSMutableArray new];
   NSString* path = @"/Users/northropo/Project/paco/Paco-iOS/DerivedData/Paco/"
-                   @"Build/Intermediates/Paco.build/Debug-iphonesimulator/"
-                   @"Paco.build/DerivedSources";
+      @"Build/Intermediates/Paco.build/Debug-iphonesimulator/"
+      @"Paco.build/DerivedSources";
   NSArray* dirs =
       [[NSFileManager defaultManager] contentsOfDirectoryAtPath:path error:Nil];
   NSArray* headers =
@@ -305,7 +302,8 @@ static NSString* newDefinition =
                                         error:&error];
 
   PacoSerializer* serializer =
-      [[PacoSerializer alloc] initWithArrayOfClasses:_classes withNameOfClassAttribute:@"nameOfClass"];
+      [[PacoSerializer alloc] initWithArrayOfClasses:_classes
+                            withNameOfClassAttribute:@"nameOfClass"];
   NSObject* resultObject =
       [serializer buildObjectHierarchyFromCollections:definingObject];
   // NSObject* resultObject2 = [serializer
@@ -317,7 +315,8 @@ static NSString* newDefinition =
   NSError* error;
   NSData* data = [newDefinition dataUsingEncoding:NSUTF8StringEncoding];
   PacoSerializer* serializer =
-      [[PacoSerializer alloc] initWithArrayOfClasses:_classes withNameOfClassAttribute:@"nameOfClass"];
+      [[PacoSerializer alloc] initWithArrayOfClasses:_classes
+                            withNameOfClassAttribute:@"nameOfClass"];
   id object =
       (JavaUtilArrayList*)[serializer buildObjectHierarchyFromJSONOBject:data];
   PAExperimentDAO* dao = [object valueForKeyAndIndex:0 Key:@""];
@@ -338,7 +337,8 @@ static NSString* newDefinition =
                                       options:NSJSONReadingAllowFragments
                                         error:&error];
   PacoSerializer* serializer =
-      [[PacoSerializer alloc] initWithArrayOfClasses:_classes withNameOfClassAttribute:@"nameOfClass"];
+      [[PacoSerializer alloc] initWithArrayOfClasses:_classes
+                            withNameOfClassAttribute:@"nameOfClass"];
   // NSObject* resultObject  =  [serializer
   // buildObjectHierarchyFromCollections:definingObject];
   NSObject* resultObject = [serializer buildObjectHierarchyFromJSONOBject:data];
