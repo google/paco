@@ -3,6 +3,10 @@
   font-weight: 400;
 }
 
+.csv h2, .csv .status, .csv .error {
+  margin-left: 16px;
+}
+
 .csv table {
   border-collapse: collapse;
   font-size: 13px;
@@ -28,6 +32,6 @@
   text-align: left;
 }
 
-.csv md-card {
+.csv .csv-table {
   overflow-x: scroll;
 }
