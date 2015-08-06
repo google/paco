@@ -12,6 +12,6 @@
 
 - (id)it_valueForKey:(id)key;
 
-@property (strong, nonatomic) id it_defaultValue;
+@property(strong, nonatomic) id it_defaultValue;
 
 @end

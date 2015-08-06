@@ -257,7 +257,6 @@
 		A61769D71B6C327D005A3918 /* ITAhoCorasickContainer.m in Sources */ = {isa = PBXBuildFile; fileRef = A61769D41B6C327D005A3918 /* ITAhoCorasickContainer.m */; };
 		A61769D81B6C327D005A3918 /* NSMutableDictionary+ITExtension.m in Sources */ = {isa = PBXBuildFile; fileRef = A61769D61B6C327D005A3918 /* NSMutableDictionary+ITExtension.m */; };
 		A620E35B1B61AF3A0018AE42 /* PacoSerializer.m in Sources */ = {isa = PBXBuildFile; fileRef = A620E35A1B61AF3A0018AE42 /* PacoSerializer.m */; };
-		A633A9731B5D66D90046436D /* org in Resources */ = {isa = PBXBuildFile; fileRef = A633A9721B5D66D90046436D /* org */; };
 		A633A99F1B5DA0970046436D /* ExperimentEditOutcome.java in Sources */ = {isa = PBXBuildFile; fileRef = A633A97A1B5DA0970046436D /* ExperimentEditOutcome.java */; };
 		A633A9A01B5DA0970046436D /* Outcome.java in Sources */ = {isa = PBXBuildFile; fileRef = A633A97B1B5DA0970046436D /* Outcome.java */; };
 		A633A9A11B5DA0970046436D /* ActionTrigger.java in Sources */ = {isa = PBXBuildFile; fileRef = A633A97D1B5DA0970046436D /* ActionTrigger.java */; };
@@ -293,12 +292,12 @@
 		A633A9BF1B5DA0970046436D /* TimeUtil.java in Sources */ = {isa = PBXBuildFile; fileRef = A633A99D1B5DA0970046436D /* TimeUtil.java */; };
 		A633A9C01B5DA0970046436D /* readme.md in Sources */ = {isa = PBXBuildFile; fileRef = A633A99E1B5DA0970046436D /* readme.md */; };
 		A633A9C21B5DA1B70046436D /* PacoJ2OBJCTests.m in Sources */ = {isa = PBXBuildFile; fileRef = A633A9C11B5DA1B70046436D /* PacoJ2OBJCTests.m */; };
+		A6701D611B73D48C00229432 /* joda in Resources */ = {isa = PBXBuildFile; fileRef = A6701D601B73D48C00229432 /* joda */; };
 		A67076101B62F26A00017D36 /* DerivedSources in Resources */ = {isa = PBXBuildFile; fileRef = A670760F1B62F26A00017D36 /* DerivedSources */; };
 		A67076111B62F26A00017D36 /* DerivedSources in Resources */ = {isa = PBXBuildFile; fileRef = A670760F1B62F26A00017D36 /* DerivedSources */; };
 		A67076191B699A9500017D36 /* NSObject+ITNDescription.m in Sources */ = {isa = PBXBuildFile; fileRef = A67076181B699A9500017D36 /* NSObject+ITNDescription.m */; };
 		A670761A1B699A9500017D36 /* NSObject+ITNDescription.m in Sources */ = {isa = PBXBuildFile; fileRef = A67076181B699A9500017D36 /* NSObject+ITNDescription.m */; };
-		A676C7351B60255600F37572 /* PacoTestJSONToModalConversion.m in Sources */ = {isa = PBXBuildFile; fileRef = A676C7341B60255600F37572 /* PacoTestJSONToModalConversion.m */; };
-		A676C7381B6043DE00F37572 /* PacoServiceTests.m in Sources */ = {isa = PBXBuildFile; fileRef = A676C7371B6043DE00F37572 /* PacoServiceTests.m */; };
+		A676C7381B6043DE00F37572 /* Pacoj2Objc2JsonTests.m in Sources */ = {isa = PBXBuildFile; fileRef = A676C7371B6043DE00F37572 /* Pacoj2Objc2JsonTests.m */; };
 		A676C73C1B615AAB00F37572 /* libobjc.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = A676C73B1B615AAB00F37572 /* libobjc.dylib */; };
 		A678C2751B703955003F0D27 /* ModelBase.java in Sources */ = {isa = PBXBuildFile; fileRef = A678C2741B703955003F0D27 /* ModelBase.java */; };
 		A678C2761B7042D3003F0D27 /* DerivedSources in Sources */ = {isa = PBXBuildFile; fileRef = A670760F1B62F26A00017D36 /* DerivedSources */; };
@@ -770,7 +769,7 @@
 		44A843C21ADB9C0A009C7226 /* ExperimentHelper.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = ExperimentHelper.java; sourceTree = "<group>"; };
 		44A843C31ADB9C0A009C7226 /* SchedulePrinter.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = SchedulePrinter.java; sourceTree = "<group>"; };
 		44A843C41ADB9C0A009C7226 /* TimeUtil.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = TimeUtil.java; sourceTree = "<group>"; };
-		44A843E61ADB9C2F009C7226 /* j2objcprefixes.properties */ = {isa = PBXFileReference; lastKnownFileType = text; name = j2objcprefixes.properties; path = ../Shared/j2objcprefixes.properties; sourceTree = "<group>"; };
+		44A843E61ADB9C2F009C7226 /* j2objcprefixes.properties */ = {isa = PBXFileReference; lastKnownFileType = text; name = j2objcprefixes.properties; path = ../../../Shared/j2objcprefixes.properties; sourceTree = "<group>"; };
 		44F9DDF81ADB5EA50098BECB /* libz.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libz.dylib; path = usr/lib/libz.dylib; sourceTree = SDKROOT; };
 		7F8531BD1A37BE680028BA23 /* JCNotificationBanner.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = JCNotificationBanner.h; path = jcnotificationbannerpresenter/Library/JCNotificationBanner.h; sourceTree = "<group>"; };
 		7F8531BE1A37BE680028BA23 /* JCNotificationBanner.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = JCNotificationBanner.m; path = jcnotificationbannerpresenter/Library/JCNotificationBanner.m; sourceTree = "<group>"; };
@@ -798,13 +797,12 @@
 		7FB6607E1AA8C305008D2327 /* paco32@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "paco32@2x.png"; sourceTree = "<group>"; };
 		7FB6607F1AA8C305008D2327 /* paco32@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "paco32@3x.png"; sourceTree = "<group>"; };
 		7FB6608F1AA8C352008D2327 /* PacoTitleView.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = PacoTitleView.xib; sourceTree = "<group>"; };
-		A61769D31B6C327D005A3918 /* ITAhoCorasickContainer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ITAhoCorasickContainer.h; sourceTree = "<group>"; };
-		A61769D41B6C327D005A3918 /* ITAhoCorasickContainer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ITAhoCorasickContainer.m; sourceTree = "<group>"; };
-		A61769D51B6C327D005A3918 /* NSMutableDictionary+ITExtension.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSMutableDictionary+ITExtension.h"; sourceTree = "<group>"; };
-		A61769D61B6C327D005A3918 /* NSMutableDictionary+ITExtension.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSMutableDictionary+ITExtension.m"; sourceTree = "<group>"; };
-		A620E3591B61AF3A0018AE42 /* PacoSerializer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoSerializer.h; sourceTree = "<group>"; };
-		A620E35A1B61AF3A0018AE42 /* PacoSerializer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoSerializer.m; sourceTree = "<group>"; };
-		A633A9721B5D66D90046436D /* org */ = {isa = PBXFileReference; lastKnownFileType = folder; path = org; sourceTree = "<group>"; };
+		A61769D31B6C327D005A3918 /* ITAhoCorasickContainer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ITAhoCorasickContainer.h; path = ../../../ITAhoCorasickContainer.h; sourceTree = "<group>"; };
+		A61769D41B6C327D005A3918 /* ITAhoCorasickContainer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = ITAhoCorasickContainer.m; path = ../../../ITAhoCorasickContainer.m; sourceTree = "<group>"; };
+		A61769D51B6C327D005A3918 /* NSMutableDictionary+ITExtension.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "NSMutableDictionary+ITExtension.h"; path = "../../../NSMutableDictionary+ITExtension.h"; sourceTree = "<group>"; };
+		A61769D61B6C327D005A3918 /* NSMutableDictionary+ITExtension.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "NSMutableDictionary+ITExtension.m"; path = "../../../NSMutableDictionary+ITExtension.m"; sourceTree = "<group>"; };
+		A620E3591B61AF3A0018AE42 /* PacoSerializer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PacoSerializer.h; path = ../../../PacoSerializer.h; sourceTree = "<group>"; };
+		A620E35A1B61AF3A0018AE42 /* PacoSerializer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = PacoSerializer.m; path = ../../../PacoSerializer.m; sourceTree = "<group>"; };
 		A633A97A1B5DA0970046436D /* ExperimentEditOutcome.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = ExperimentEditOutcome.java; sourceTree = "<group>"; };
 		A633A97B1B5DA0970046436D /* Outcome.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = Outcome.java; sourceTree = "<group>"; };
 		A633A97D1B5DA0970046436D /* ActionTrigger.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = ActionTrigger.java; sourceTree = "<group>"; };
@@ -840,20 +838,19 @@
 		A633A99D1B5DA0970046436D /* TimeUtil.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = TimeUtil.java; sourceTree = "<group>"; };
 		A633A99E1B5DA0970046436D /* readme.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = readme.md; sourceTree = "<group>"; };
 		A633A9C11B5DA1B70046436D /* PacoJ2OBJCTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoJ2OBJCTests.m; sourceTree = "<group>"; };
-		A670760F1B62F26A00017D36 /* DerivedSources */ = {isa = PBXFileReference; lastKnownFileType = folder; name = DerivedSources; path = "DerivedData/Paco/Build/Intermediates/Paco.build/Debug-iphonesimulator/Paco.build/DerivedSources"; sourceTree = "<group>"; };
-		A67076171B699A9500017D36 /* NSObject+ITNDescription.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSObject+ITNDescription.h"; sourceTree = "<group>"; };
-		A67076181B699A9500017D36 /* NSObject+ITNDescription.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSObject+ITNDescription.m"; sourceTree = "<group>"; };
-		A676C7341B60255600F37572 /* PacoTestJSONToModalConversion.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoTestJSONToModalConversion.m; sourceTree = "<group>"; };
-		A676C7371B6043DE00F37572 /* PacoServiceTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoServiceTests.m; sourceTree = "<group>"; };
+		A6701D601B73D48C00229432 /* joda */ = {isa = PBXFileReference; lastKnownFileType = folder; path = joda; sourceTree = "<group>"; };
+		A670760F1B62F26A00017D36 /* DerivedSources */ = {isa = PBXFileReference; lastKnownFileType = folder; name = DerivedSources; path = "../../DerivedData/Paco/Build/Intermediates/Paco.build/Debug-iphonesimulator/Paco.build/DerivedSources"; sourceTree = "<group>"; };
+		A67076171B699A9500017D36 /* NSObject+ITNDescription.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "NSObject+ITNDescription.h"; path = "../../../NSObject+ITNDescription.h"; sourceTree = "<group>"; };
+		A67076181B699A9500017D36 /* NSObject+ITNDescription.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "NSObject+ITNDescription.m"; path = "../../../NSObject+ITNDescription.m"; sourceTree = "<group>"; };
+		A676C7371B6043DE00F37572 /* Pacoj2Objc2JsonTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Pacoj2Objc2JsonTests.m; sourceTree = "<group>"; };
 		A676C7391B615A3D00F37572 /* libobjc.A.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libobjc.A.dylib; path = usr/lib/libobjc.A.dylib; sourceTree = SDKROOT; };
 		A676C73B1B615AAB00F37572 /* libobjc.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libobjc.dylib; path = usr/lib/libobjc.dylib; sourceTree = SDKROOT; };
 		A678C2741B703955003F0D27 /* ModelBase.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = ModelBase.java; sourceTree = "<group>"; };
 		A678C2E41B716283003F0D27 /* ModelBase.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = ModelBase.java; sourceTree = "<group>"; };
-		A678C3131B728E60003F0D27 /* NSObject+J2objcKVO.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSObject+J2objcKVO.h"; sourceTree = "<group>"; };
-		A678C3141B728E60003F0D27 /* NSObject+J2objcKVO.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSObject+J2objcKVO.m"; sourceTree = "<group>"; };
+		A678C3131B728E60003F0D27 /* NSObject+J2objcKVO.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "NSObject+J2objcKVO.h"; path = "../../../NSObject+J2objcKVO.h"; sourceTree = "<group>"; };
+		A678C3141B728E60003F0D27 /* NSObject+J2objcKVO.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "NSObject+J2objcKVO.m"; path = "../../../NSObject+J2objcKVO.m"; sourceTree = "<group>"; };
 		A678C3191B72C40E003F0D27 /* CollectionsKeyValueFiltering.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CollectionsKeyValueFiltering.h; sourceTree = "<group>"; };
 		A678C31A1B72C40E003F0D27 /* CollectionsKeyValueFiltering.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CollectionsKeyValueFiltering.m; sourceTree = "<group>"; };
-		A6A25B9A1B61895A00E47DE1 /* PacoExperimentSchedule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoExperimentSchedule.h; sourceTree = "<group>"; };
 		C567E88F17A03FDE00267A26 /* deepbark_trial.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = deepbark_trial.mp3; sourceTree = "<group>"; };
 		C5B4691817B07E4900B6BC18 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
 		C5C4F5D117B163EF009E9F18 /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
@@ -917,12 +914,6 @@
 			children = (
 				A678C3191B72C40E003F0D27 /* CollectionsKeyValueFiltering.h */,
 				A678C31A1B72C40E003F0D27 /* CollectionsKeyValueFiltering.m */,
-				A678C3131B728E60003F0D27 /* NSObject+J2objcKVO.h */,
-				A678C3141B728E60003F0D27 /* NSObject+J2objcKVO.m */,
-				A670760F1B62F26A00017D36 /* DerivedSources */,
-				A620E3691B61AF460018AE42 /* PacoSerializers */,
-				A6D9AA8C1B59817700595C06 /* Testing */,
-				44A843E61ADB9C2F009C7226 /* j2objcprefixes.properties */,
 				44A8439B1ADB9C0A009C7226 /* src */,
 				319771CE163F0733000AC06B /* Paco */,
 				36B8EC3517568E40004CF035 /* PacoTests */,
@@ -1074,6 +1065,7 @@
 		36B8EB0117568DAF004CF035 /* core */ = {
 			isa = PBXGroup;
 			children = (
+				A6ABFA681B73D8DF00F90598 /* serializers */,
 				36AD6CDF17C443DF00B93855 /* common */,
 				36B8EB0217568DAF004CF035 /* authentication */,
 				36B8EB0517568DAF004CF035 /* client */,
@@ -1369,12 +1361,13 @@
 		36B8EB9417568E29004CF035 /* resources */ = {
 			isa = PBXGroup;
 			children = (
+				44A843E61ADB9C2F009C7226 /* j2objcprefixes.properties */,
 				E480BE131896F3C700662432 /* en.lproj */,
 				36488BB418C8FB2E004517E2 /* incompatible@2x.png */,
+				A670760F1B62F26A00017D36 /* DerivedSources */,
 				36F457E21863ABA900931049 /* welcome_paco.html */,
 				367171FC183AFE33005A5058 /* help.html */,
 				36000C5817CD1AF600A8A9E7 /* Test_999999999.plist */,
-				A6A25B9A1B61895A00E47DE1 /* PacoExperimentSchedule.h */,
 				C567E88F17A03FDE00267A26 /* deepbark_trial.mp3 */,
 				36B8EB9617568E29004CF035 /* calculator.png */,
 				36B8EB9717568E29004CF035 /* current_experiments_disabled.png */,
@@ -1388,7 +1381,6 @@
 				36B8EBA517568E29004CF035 /* feedback_disabled.png */,
 				36B8EBA617568E29004CF035 /* feedback_focused.png */,
 				36B8EBA717568E29004CF035 /* feedback_normal.png */,
-				A633A9721B5D66D90046436D /* org */,
 				36B8EBA817568E29004CF035 /* feedback_pressed.png */,
 				36B8EBA917568E29004CF035 /* find_experiments_disabled.png */,
 				36B8EBAA17568E29004CF035 /* find_experiments_focused.png */,
@@ -1417,6 +1409,7 @@
 		36B8EC1217568E33004CF035 /* vendor */ = {
 			isa = PBXGroup;
 			children = (
+				A6701D601B73D48C00229432 /* joda */,
 				4448BC371A808E7A0034FCE9 /* gtm-oauth2 */,
 				36C4A33618A4DEEE00D8FE59 /* lumberjack */,
 				C5C4F5D417B1738E009E9F18 /* jcnotificationbannerpresenter */,
@@ -1505,9 +1498,8 @@
 				3662927C1821C10800FC647A /* PacoExperimentScheduleTests.m */,
 				366292851821C2EF00FC647A /* PacoUtilityTests.m */,
 				3640612F18230DA700DA5EB7 /* PacoExperimentTests.m */,
+				A676C7371B6043DE00F37572 /* Pacoj2Objc2JsonTests.m */,
 				36B8EC3817568E40004CF035 /* resources */,
-				A676C7341B60255600F37572 /* PacoTestJSONToModalConversion.m */,
-				A676C7371B6043DE00F37572 /* PacoServiceTests.m */,
 			);
 			path = PacoTests;
 			sourceTree = "<group>";
@@ -1752,29 +1744,6 @@
 			path = util;
 			sourceTree = "<group>";
 		};
-		A61769C51B6C326E005A3918 /* matchers */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			name = matchers;
-			sourceTree = "<group>";
-		};
-		A620E3691B61AF460018AE42 /* PacoSerializers */ = {
-			isa = PBXGroup;
-			children = (
-				A61769D31B6C327D005A3918 /* ITAhoCorasickContainer.h */,
-				A61769D41B6C327D005A3918 /* ITAhoCorasickContainer.m */,
-				A61769D51B6C327D005A3918 /* NSMutableDictionary+ITExtension.h */,
-				A61769D61B6C327D005A3918 /* NSMutableDictionary+ITExtension.m */,
-				A61769C51B6C326E005A3918 /* matchers */,
-				A67076171B699A9500017D36 /* NSObject+ITNDescription.h */,
-				A67076181B699A9500017D36 /* NSObject+ITNDescription.m */,
-				A620E3591B61AF3A0018AE42 /* PacoSerializer.h */,
-				A620E35A1B61AF3A0018AE42 /* PacoSerializer.m */,
-			);
-			name = PacoSerializers;
-			sourceTree = "<group>";
-		};
 		A633A9741B5DA0970046436D /* src */ = {
 			isa = PBXGroup;
 			children = (
@@ -1889,11 +1858,37 @@
 			name = modal2;
 			sourceTree = "<group>";
 		};
-		A6D9AA8C1B59817700595C06 /* Testing */ = {
+		A6ABFA681B73D8DF00F90598 /* serializers */ = {
 			isa = PBXGroup;
 			children = (
+				A6ABFA771B73D91700F90598 /* categories */,
+				A6ABFA761B73D8FD00F90598 /* helpers */,
+				A620E3591B61AF3A0018AE42 /* PacoSerializer.h */,
+				A620E35A1B61AF3A0018AE42 /* PacoSerializer.m */,
 			);
-			name = Testing;
+			name = serializers;
+			sourceTree = "<group>";
+		};
+		A6ABFA761B73D8FD00F90598 /* helpers */ = {
+			isa = PBXGroup;
+			children = (
+				A61769D31B6C327D005A3918 /* ITAhoCorasickContainer.h */,
+				A61769D41B6C327D005A3918 /* ITAhoCorasickContainer.m */,
+				A61769D51B6C327D005A3918 /* NSMutableDictionary+ITExtension.h */,
+				A61769D61B6C327D005A3918 /* NSMutableDictionary+ITExtension.m */,
+			);
+			name = helpers;
+			sourceTree = "<group>";
+		};
+		A6ABFA771B73D91700F90598 /* categories */ = {
+			isa = PBXGroup;
+			children = (
+				A67076171B699A9500017D36 /* NSObject+ITNDescription.h */,
+				A67076181B699A9500017D36 /* NSObject+ITNDescription.m */,
+				A678C3131B728E60003F0D27 /* NSObject+J2objcKVO.h */,
+				A678C3141B728E60003F0D27 /* NSObject+J2objcKVO.m */,
+			);
+			name = categories;
 			sourceTree = "<group>";
 		};
 		C5C4F5D417B1738E009E9F18 /* jcnotificationbannerpresenter */ = {
@@ -2156,7 +2151,6 @@
 				36B8EBD817568E29004CF035 /* current_experiments_focused.png in Resources */,
 				36488BB518C8FB2E004517E2 /* incompatible@2x.png in Resources */,
 				36B8EBD917568E29004CF035 /* current_experiments_normal.png in Resources */,
-				A633A9731B5D66D90046436D /* org in Resources */,
 				4448BCBE1A808E7A0034FCE9 /* GTMOAuth2Framework-Info.plist in Resources */,
 				36B8EBDA17568E29004CF035 /* current_experiments_pressed.png in Resources */,
 				36B8EBDE17568E29004CF035 /* experiment_disabled.png in Resources */,
@@ -2183,6 +2177,7 @@
 				36B8EBF517568E29004CF035 /* question.png in Resources */,
 				7FB660801AA8C305008D2327 /* paco32@2x.png in Resources */,
 				E480BE201896F3E100662432 /* Localizable.strings in Resources */,
+				A6701D611B73D48C00229432 /* joda in Resources */,
 				36B8EBF817568E29004CF035 /* smile_icon1.png in Resources */,
 				36B8EBF917568E29004CF035 /* smile_icon1_re.png in Resources */,
 				36B8EBFA17568E29004CF035 /* smile_icon2.png in Resources */,
@@ -2411,9 +2406,8 @@
 				363C9A431816F4A600D806F6 /* PacoNSMutableArrayCategoryTests.m in Sources */,
 				36AD6CEB17C5977E00B93855 /* PacoEvaluatorTests.m in Sources */,
 				A633A9B21B5DA0970046436D /* Schedule.java in Sources */,
-				A676C7381B6043DE00F37572 /* PacoServiceTests.m in Sources */,
+				A676C7381B6043DE00F37572 /* Pacoj2Objc2JsonTests.m in Sources */,
 				A633A9C21B5DA1B70046436D /* PacoJ2OBJCTests.m in Sources */,
-				A676C7351B60255600F37572 /* PacoTestJSONToModalConversion.m in Sources */,
 				A633A9AD1B5DA0970046436D /* ListMaker.java in Sources */,
 				A670761A1B699A9500017D36 /* NSObject+ITNDescription.m in Sources */,
 				A633A9A31B5DA0970046436D /* EventStore.java in Sources */,

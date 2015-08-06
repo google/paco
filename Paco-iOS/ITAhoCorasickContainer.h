@@ -3,7 +3,6 @@
 //  Copyright (c) 2015 *instinctools. All rights reserved.
 //
 
-
 #import <Foundation/Foundation.h>
 
 @interface ITAhoCorasickContainer : NSObject
@@ -31,7 +30,6 @@
  */
 - (NSDictionary *)findAllMatches:(NSString *)source;
 
-
--(NSArray*) getTestArray;
+- (NSArray *)getTestArray;
 
 @end
