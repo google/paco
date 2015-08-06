@@ -36,7 +36,7 @@
 #include "java/util/ArrayList.h"
 #include "java/util/iterator.h"
 #import "ITAhoCorasickContainer.h"
-#import  "NSObject+J2objcKVO.h"
+#import "NSObject+J2objcKVO.h"
 
 #define METHOD_PREFIX @"PA"
 
@@ -53,6 +53,8 @@
 /* serilized json */
 @property(nonatomic, strong) NSCache* cache;
 
+/* serilized json */
+@property(nonatomic, strong) NSMutableDictionary* attributeClassMap;
 /* aho corasic matching algorithm */
 @property(strong, nonatomic) ITAhoCorasickContainer* container;
 /* The first or parent node  */
@@ -76,7 +78,8 @@
     _objectTracking = [NSMutableArray new];
     _cache = [NSCache new];
     _container = [ITAhoCorasickContainer new];
-    [self buildSearchStrings];
+    _attributeClassMap = [NSMutableDictionary new];
+    [self buildAttibuuteClassMap];
   }
   return self;
 }
@@ -199,16 +202,23 @@
       [self push:mutableDictionary];
       NSObject* object = parentInfo[1];
       unsigned int numIvars = 0;
-      Ivar* ivars = class_copyIvarList([object class], &numIvars);
-      NSLog(@"%@", [object class]);
-      for (int i = 0; i < numIvars; i++) {
-        NSString* ivarName = [NSString stringWithCString:ivar_getName(ivars[i])
-                                                encoding:NSUTF8StringEncoding];
-        NSObject* o = object_getIvar(object, ivars[i]);
-        if (o) {
-          [self recurseObjectHierarchy:@[ ivarName, o ]];
+
+      NSObject* interObject = object;
+      while (![interObject isMemberOfClass:[NSObject class]]) {
+        Ivar* ivars = class_copyIvarList([interObject class], &numIvars);
+        for (int i = 0; i < numIvars; i++) {
+          NSString* ivarName =
+              [NSString stringWithCString:ivar_getName(ivars[i])
+                                 encoding:NSUTF8StringEncoding];
+          NSObject* o = object_getIvar(object, ivars[i]);
+          if (o) {
+            [self recurseObjectHierarchy:@[ ivarName, o ]];
+          }
         }
+        interObject = [[interObject.superclass alloc] init];
+        ;
       }
+
       [self pop];
     } else {
       [self addToCollection:parentInfo[0] Value:parentInfo[1]];
@@ -293,9 +303,6 @@
   return methodName;
 }
 
-
-
- 
 /*
     adds an object to an array list
 
@@ -332,6 +339,13 @@
 - (NSObject*)match:(NSArray*)recurseObject {
   NSString* clazzName = nil;
   NSDictionary* dictionary = recurseObject[1];
+
+  /*
+
+
+   */
+
+  NSString* clazz = [self findClassNameFromAttributes:[dictionary allKeys]];
 
   //    NSString* searchString = [self ahoCorasickMatcher:dictionary];
   //    NSDictionary* results =  [self.container findAllMatches:searchString];
@@ -409,8 +423,7 @@
 
      */
     if (addList) {
-        
-        [parent setValueEx:object  forKey:attributeName];
+      [parent setValueEx:object forKey:attributeName];
     }
   }
 }
@@ -519,7 +532,7 @@
       _parentNode = arrayList;
     }
 
-      id al =  [parent valueForKeyEx:attributeName];
+    id al = [parent valueForKeyEx:attributeName];
     if (al == nil) {
       [self push:arrayList];
     } else {
@@ -533,10 +546,7 @@
     [self pop];
 
     if ([arrayList isEmpty] != 0 && al == nil) {
-        
-        
-        [[self parent]  setValueEx:arrayList forKey:attributeName];
-      
+      [[self parent] setValueEx:arrayList forKey:attributeName];
     }
 
   } else  // Not a list and not a dictionary.
@@ -562,6 +572,41 @@
     NSLog(@"Setting value %@ for key %@ on class %@", recurseObject[1],
           recurseObject[0], [[self parent] class]);
   }
+}
+
+#pragma mark - intersection match strategy
+
+- (void)buildAttibuuteClassMap {
+  for (NSString* className in _classes) {
+    NSString* withPrefix =
+        [NSString stringWithFormat:@"%@%@", METHOD_PREFIX, className];
+    Class theClass = NSClassFromString(withPrefix);
+    id object = [[theClass alloc] init];
+
+    NSArray* ivarNameArray = [self arrayOfIvarsFromInstance:object];
+
+    for (NSString* name in ivarNameArray) {
+      NSString* trimmedName = [self trimTrailingUnderscore:name];
+
+      if (![[_attributeClassMap allKeys] containsObject:trimmedName]) {
+        [_attributeClassMap setObject:[NSMutableSet new] forKey:trimmedName];
+      }
+
+      NSMutableSet* set = [_attributeClassMap objectForKey:trimmedName];
+      [set addObject:withPrefix];
+    }
+
+    NSLog(@" class map %@", _attributeClassMap);
+  }
+}
+
+- (NSString*)findClassNameFromAttributes:(NSArray*)attibutes {
+  NSMutableSet* topSet = [_attributeClassMap objectForKey:attibutes[0]];
+  for (NSString* att in attibutes) {
+    NSMutableSet* set = [_attributeClassMap objectForKey:att];
+    [topSet intersectSet:set];
+  }
+  return [topSet anyObject];
 }
 
 #pragma mark - aho corassic
@@ -618,7 +663,7 @@
   while (YES) {
     Class superclass = class_getSuperclass([object class]);
     id superclassObject = [[superclass alloc] init];
-    if (![superclassObject isKindOfClass:[NSObject class]]) {
+    if (![superclassObject isMemberOfClass:[NSObject class]]) {
       Ivar* ivars = class_copyIvarList([object class], &numIvars);
       for (int i = 0; i < numIvars; i++) {
         NSString* ivarName = [NSString stringWithCString:ivar_getName(ivars[i])
@@ -716,7 +761,7 @@
 
     Class superclass = class_getSuperclass([object class]);
     id superclassObject = [[superclass alloc] init];
-    if (![superclassObject isKindOfClass:[NSObject class]]) {
+    if (![superclassObject isMemberOfClass:[NSObject class]]) {
       [resultsArray
           addObjectsFromArray:[self arrayOfIvarsFromInstance:superclass]];
     }
@@ -725,6 +770,13 @@
     [_cache setObject:resultsArray forKey:object];
   }
   return resultsArray;
+}
+
+- (JavaUtilArrayList*)getArrayList:(NSString*)attributeName
+                            Object:(NSObject*)object {
+  JavaUtilArrayList* arrayList;
+  arrayList = (JavaUtilArrayList*)[self valueForKeyEx:attributeName];
+  return arrayList;
 }
 
 #pragma mark - Stack Methods

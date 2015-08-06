@@ -839,7 +839,7 @@
 		A633A99E1B5DA0970046436D /* readme.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = readme.md; sourceTree = "<group>"; };
 		A633A9C11B5DA1B70046436D /* PacoJ2OBJCTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoJ2OBJCTests.m; sourceTree = "<group>"; };
 		A6701D601B73D48C00229432 /* joda */ = {isa = PBXFileReference; lastKnownFileType = folder; path = joda; sourceTree = "<group>"; };
-		A670760F1B62F26A00017D36 /* DerivedSources */ = {isa = PBXFileReference; lastKnownFileType = folder; name = DerivedSources; path = "../../DerivedData/Paco/Build/Intermediates/Paco.build/Debug-iphonesimulator/Paco.build/DerivedSources"; sourceTree = "<group>"; };
+		A670760F1B62F26A00017D36 /* DerivedSources */ = {isa = PBXFileReference; lastKnownFileType = folder; name = DerivedSources; path = "DerivedData/Paco/Build/Intermediates/Paco.build/Debug-iphonesimulator/Paco.build/DerivedSources"; sourceTree = "<group>"; };
 		A67076171B699A9500017D36 /* NSObject+ITNDescription.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "NSObject+ITNDescription.h"; path = "../../../NSObject+ITNDescription.h"; sourceTree = "<group>"; };
 		A67076181B699A9500017D36 /* NSObject+ITNDescription.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "NSObject+ITNDescription.m"; path = "../../../NSObject+ITNDescription.m"; sourceTree = "<group>"; };
 		A676C7371B6043DE00F37572 /* Pacoj2Objc2JsonTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Pacoj2Objc2JsonTests.m; sourceTree = "<group>"; };
@@ -914,6 +914,7 @@
 			children = (
 				A678C3191B72C40E003F0D27 /* CollectionsKeyValueFiltering.h */,
 				A678C31A1B72C40E003F0D27 /* CollectionsKeyValueFiltering.m */,
+				A670760F1B62F26A00017D36 /* DerivedSources */,
 				44A8439B1ADB9C0A009C7226 /* src */,
 				319771CE163F0733000AC06B /* Paco */,
 				36B8EC3517568E40004CF035 /* PacoTests */,
@@ -1364,7 +1365,6 @@
 				44A843E61ADB9C2F009C7226 /* j2objcprefixes.properties */,
 				E480BE131896F3C700662432 /* en.lproj */,
 				36488BB418C8FB2E004517E2 /* incompatible@2x.png */,
-				A670760F1B62F26A00017D36 /* DerivedSources */,
 				36F457E21863ABA900931049 /* welcome_paco.html */,
 				367171FC183AFE33005A5058 /* help.html */,
 				36000C5817CD1AF600A8A9E7 /* Test_999999999.plist */,
