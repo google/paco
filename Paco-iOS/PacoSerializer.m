@@ -230,7 +230,9 @@
 
       [self pop];
     } else {
-      [self addToCollection:parentInfo[0] Value:parentInfo[1]];
+        
+      NSString * name =  [self trimTrailingUnderscore:parentInfo[0]];
+      [self addToCollection:name Value:parentInfo[1]];
     }
   }
 }
@@ -354,7 +356,7 @@
 
    */
 
-  NSString* clazz = [self findClassNameFromAttributes:[dictionary allKeys]];
+ 
 
   //    NSString* searchString = [self ahoCorasickMatcher:dictionary];
   //    NSDictionary* results =  [self.container findAllMatches:searchString];

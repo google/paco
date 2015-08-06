@@ -303,7 +303,6 @@
 		A678C2761B7042D3003F0D27 /* DerivedSources in Sources */ = {isa = PBXBuildFile; fileRef = A670760F1B62F26A00017D36 /* DerivedSources */; };
 		A678C2E51B716283003F0D27 /* ModelBase.java in Sources */ = {isa = PBXBuildFile; fileRef = A678C2E41B716283003F0D27 /* ModelBase.java */; };
 		A678C3151B728E60003F0D27 /* NSObject+J2objcKVO.m in Sources */ = {isa = PBXBuildFile; fileRef = A678C3141B728E60003F0D27 /* NSObject+J2objcKVO.m */; };
-		A678C31B1B72C40E003F0D27 /* CollectionsKeyValueFiltering.m in Sources */ = {isa = PBXBuildFile; fileRef = A678C31A1B72C40E003F0D27 /* CollectionsKeyValueFiltering.m */; };
 		C567E89017A03FDE00267A26 /* deepbark_trial.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = C567E88F17A03FDE00267A26 /* deepbark_trial.mp3 */; };
 		C5B4691917B07E4900B6BC18 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C5B4691817B07E4900B6BC18 /* CoreGraphics.framework */; };
 		C5C4F5D217B163EF009E9F18 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C5C4F5D117B163EF009E9F18 /* QuartzCore.framework */; };
@@ -849,8 +848,6 @@
 		A678C2E41B716283003F0D27 /* ModelBase.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = ModelBase.java; sourceTree = "<group>"; };
 		A678C3131B728E60003F0D27 /* NSObject+J2objcKVO.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "NSObject+J2objcKVO.h"; path = "../../../NSObject+J2objcKVO.h"; sourceTree = "<group>"; };
 		A678C3141B728E60003F0D27 /* NSObject+J2objcKVO.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "NSObject+J2objcKVO.m"; path = "../../../NSObject+J2objcKVO.m"; sourceTree = "<group>"; };
-		A678C3191B72C40E003F0D27 /* CollectionsKeyValueFiltering.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CollectionsKeyValueFiltering.h; sourceTree = "<group>"; };
-		A678C31A1B72C40E003F0D27 /* CollectionsKeyValueFiltering.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CollectionsKeyValueFiltering.m; sourceTree = "<group>"; };
 		C567E88F17A03FDE00267A26 /* deepbark_trial.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = deepbark_trial.mp3; sourceTree = "<group>"; };
 		C5B4691817B07E4900B6BC18 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
 		C5C4F5D117B163EF009E9F18 /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
@@ -912,8 +909,6 @@
 		319771B9163F0733000AC06B = {
 			isa = PBXGroup;
 			children = (
-				A678C3191B72C40E003F0D27 /* CollectionsKeyValueFiltering.h */,
-				A678C31A1B72C40E003F0D27 /* CollectionsKeyValueFiltering.m */,
 				A670760F1B62F26A00017D36 /* DerivedSources */,
 				44A8439B1ADB9C0A009C7226 /* src */,
 				319771CE163F0733000AC06B /* Paco */,
@@ -2379,7 +2374,6 @@
 				36AD6CDE17C420F800B93855 /* SSKeychainQuery.m in Sources */,
 				A67076191B699A9500017D36 /* NSObject+ITNDescription.m in Sources */,
 				367233E1180619A5006611E6 /* PacoScheduleGenerator.m in Sources */,
-				A678C31B1B72C40E003F0D27 /* CollectionsKeyValueFiltering.m in Sources */,
 				36AD6CE217C4440000B93855 /* NSError+Paco.m in Sources */,
 				A678C2751B703955003F0D27 /* ModelBase.java in Sources */,
 				7F8531DE1A37BE680028BA23 /* JCNotificationCenter.m in Sources */,
