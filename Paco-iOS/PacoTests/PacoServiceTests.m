@@ -240,6 +240,9 @@ static NSString* newDefinition =@"[{\r\n  \"title\" : \"My Title\",\r\n  \"descr
       NSLog(@" string %@", str);
     
     
+    NSString * endDay =  [dao valueForKeyPathEx:@"groups[0].name"];
+    
+     endDay =  [dao valueForKeyPathEx:@"groups[5].endDate"];
 
     
     

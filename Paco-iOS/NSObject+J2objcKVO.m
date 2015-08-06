@@ -2,9 +2,16 @@
 //  NSObject+J2objcKVO.m
 //  Paco
 //
-//  Created by northropo on 8/5/15.
+//  Created by northrop timothy obrien  on 8/5/15.
 //  Copyright (c) 2015 Paco. All rights reserved.
 //
+
+
+/*
+ 
+     ToDo:
+     1) bounds checking for java array
+ */
 
 #import "NSObject+J2objcKVO.h"
 #import "ModelBase.h" 
@@ -14,17 +21,35 @@
 @implementation NSObject (J2objcKVO)
 
 
--(BOOL) isJ2Objc
+#pragma mark - key methods
+- (void )setValueEx: (id)value forKey: (NSString *)key
 {
-    return [self isKindOfClass:[PAModelBase class]];
+  if([self isJ2Objc])
+  {
+      
+      [self setModalAttribute:key Object:self Argument:value];
+  }
+  else
+  {
+      [self setValue:value  forKey:key];
+  }
 }
+
 
 - (id)valueForKeyEx:(NSString *)key
 {
     id retVal=nil;
     if([self isJ2Objc])
     {
-        retVal=[self getModalAttribute:key Object:self];
+        if([self isIndexed:key])
+        {
+            int index = [self getIndex:key];
+            retVal = [self valueForKeyAndIndex:index Key:key];
+        }
+        else
+        {
+           retVal=[self getModalAttribute:key Object:self];
+        }
     }
     else
     {
@@ -33,17 +58,11 @@
     return retVal;
 }
 
-- (void )setValueEx: (id)value forKey: (NSString *)key
-{
-  if([self isJ2Objc])
-  {
-      [self setModalAttribute:key Object:self Argument:value];
-  }
-  else
-  {
-      [self setValue:value  forKey:key];
-  }
-}
+
+
+
+#pragma mark - keypath methods
+
 
 - (id)valueForKeyPathEx: (NSString *)keyPath
 {
@@ -75,7 +94,7 @@
 }
 
 
-#pragma mark - helper methods
+
 
 
 #pragma mark - helper methods
@@ -219,25 +238,93 @@
     id retVal=nil;;
     if([self isKindOfClass:[JavaUtilArrayList class]])
     {
+        int arraySize = [((JavaUtilArrayList*) self) size];
         
-        retVal =  [((JavaUtilArrayList*) self) getWithInt:index];
+        if(arraySize  > index)
+        {
+           retVal =  [((JavaUtilArrayList*) self) getWithInt:index];
+        }
         
         
     }
     else
     {
+        
+         key = [self stripIndex:key];
          NSObject* object = [self valueForKeyEx:key];
         if([object isKindOfClass:[JavaUtilArrayList class]])
         {
-            retVal =    [((JavaUtilArrayList*) object) getWithInt:index];
-
+            int arraySize = [((JavaUtilArrayList*) object) size];
+            if(arraySize  > index)
+            {
+                retVal =  [((JavaUtilArrayList*) object) getWithInt:index];
+            }
         }
+            
         
         
     }
     return   retVal;
     
 }
+
+
+-(NSString*) stripIndex:(NSString*) attributeName
+{
+    
+    NSRange r1 = [attributeName rangeOfString:@"["];
+    NSString* substring =[attributeName substringToIndex:r1.location];
+    return substring;
+    
+}
+
+-(int) getIndex:(NSString*) attributeName
+{
+    int retValue=-1;
+    NSRange r1 = [attributeName rangeOfString:@"["];
+    NSRange r2 = [attributeName rangeOfString:@"]"];
+    NSRange rSub = NSMakeRange(r1.location + r1.length, r2.location - r1.location - r1.length);
+    rSub.length+=1;
+    rSub.location-=1;
+    
+    NSString* sub = [attributeName substringWithRange:rSub];
+    sub = [sub substringFromIndex:1];
+    
+    
+    retValue = [sub intValue];
+    return retValue;
+}
+
+
+-(BOOL) isIndexed:(NSString*) attributeName
+{
+    BOOL retVal;
+    NSRange r  = [attributeName rangeOfString:@"["];
+    if (r.location == NSNotFound)
+    {
+        retVal = NO;
+    }
+    else
+    {
+        retVal = YES;
+    }
+    return retVal;
+}
+
+
+
+
+-(BOOL) isJ2Objc
+{
+    return [self isKindOfClass:[PAModelBase class]];
+}
+
+
+
+
+
+
+
 @end
 
 
