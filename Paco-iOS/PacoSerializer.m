@@ -36,6 +36,7 @@
 #include "java/util/ArrayList.h"
 #include "java/util/iterator.h"
 #import "ITAhoCorasickContainer.h"
+#import  "NSObject+J2objcKVO.h"
 
 #define METHOD_PREFIX @"PA"
 
@@ -292,75 +293,9 @@
   return methodName;
 }
 
-/*
 
 
-     set the attribute on a modal objects. reconstructs the setter name based on
-   the attribute name and attribute type.
-
-
- */
-
-- (BOOL)setModalAttribute:(NSString*)attributeName
-                   Object:(NSObject*)object
-                 Argument:(NSObject*)argument {
-  BOOL retVal = FALSE;
-  NSString* rootString =
-      [self makeCommonAttributeOperationName:attributeName Object:object];
-  if ([rootString length] != 0) {
-    NSString* methodName = [NSString stringWithFormat:@"set%@:", rootString];
-    SEL sel = NSSelectorFromString(methodName);
-    if ([object respondsToSelector:sel]) {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Warc-performSelector-leaks"
-      [object performSelector:sel withObject:argument];
-#pragma clang diagnostic pop
-      retVal = TRUE;
-    } else {
-      retVal = NO;
-    }
-  } else {
-    retVal = FALSE;
-  }
-  return retVal;
-}
-
-/*
-     genearic getter for fetching the value of of attributes
-
- */
-- (NSObject*)getModalAttribute:(NSString*)attributeName
-                        Object:(NSObject*)object {
-  NSObject* retVal = nil;
-  NSString* newAttributeName = [attributeName
-      stringByReplacingCharactersInRange:NSMakeRange(0, 1)
-                              withString:[[attributeName substringToIndex:1]
-
-                                             capitalizedString]];
-  NSString* methodName = [NSString stringWithFormat:@"get%@", newAttributeName];
-  SEL sel = NSSelectorFromString(methodName);
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Warc-performSelector-leaks"
-  retVal = [object performSelector:sel];
-#pragma clang diagnostic pop
-
-  return retVal;
-}
-
-/*
-
-    fetch the value of an attribute as JavaUtilArrayList,
-
- */
-
-- (JavaUtilArrayList*)getArrayList:(NSString*)attributeName
-                            Object:(NSObject*)object {
-  JavaUtilArrayList* arrayList;
-  arrayList =
-      (JavaUtilArrayList*)[self getModalAttribute:attributeName Object:object];
-  return arrayList;
-}
-
+ 
 /*
     adds an object to an array list
 
@@ -474,7 +409,8 @@
 
      */
     if (addList) {
-      [self setModalAttribute:attributeName Object:parent Argument:object];
+        
+        [parent setValueEx:object  forKey:attributeName];
     }
   }
 }
@@ -583,7 +519,7 @@
       _parentNode = arrayList;
     }
 
-    id al = [self getModalAttribute:attributeName Object:parent];
+      id al =  [parent valueForKeyEx:attributeName];
     if (al == nil) {
       [self push:arrayList];
     } else {
@@ -597,9 +533,10 @@
     [self pop];
 
     if ([arrayList isEmpty] != 0 && al == nil) {
-      [self setModalAttribute:attributeName
-                       Object:[self parent]
-                     Argument:arrayList];
+        
+        
+        [[self parent]  setValueEx:arrayList forKey:attributeName];
+      
     }
 
   } else  // Not a list and not a dictionary.
