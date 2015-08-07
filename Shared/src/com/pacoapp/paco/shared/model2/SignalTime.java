@@ -19,7 +19,7 @@ public class SignalTime extends ModelBase implements Validatable, Serializable {
   private Integer fixedTimeMillisFromMidnight;
   private Integer basis; // from previous scheduledTime, from previous responseTime
   private Integer offsetTimeMillis;
-  private Integer missedBasisBehavior; // skip this time, use previousScheduledTime
+  private Integer missedBasisBehavior = MISSED_BEHAVIOR_USE_SCHEDULED_TIME; // skip this time, use previousScheduledTime
   private String label;
 
   public SignalTime(Integer type, Integer basis, Integer fixedTimeMillisFromMidnight,

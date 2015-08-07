@@ -206,7 +206,9 @@ public class NonESMSignalGenerator {
 
   private SignalTimeHolder getNextTimeForFixedType(SignalTime signalTime, List<SignalTimeHolder> previousTimes,
                                                        DateTime nowMidnight) {
-    if (previousTimes.size() == 0 || signalTime.getMissedBasisBehavior() == SignalTime.MISSED_BEHAVIOR_USE_SCHEDULED_TIME) {
+    if (previousTimes.size() == 0 ||
+            signalTime.getMissedBasisBehavior() == null ||
+            signalTime.getMissedBasisBehavior() == SignalTime.MISSED_BEHAVIOR_USE_SCHEDULED_TIME) {
       return new SignalTimeHolder(null, null, nowMidnight.toDateTime().plusMillis(signalTime.getFixedTimeMillisFromMidnight()), signalTime);
     } else if (signalTime.getMissedBasisBehavior() == SignalTime.MISSED_BEHAVIOR_SKIP && previousEventHasResponse(previousTimes)) {
         return new SignalTimeHolder(null, null, nowMidnight.toDateTime().plusMillis(signalTime.getFixedTimeMillisFromMidnight()), signalTime);
