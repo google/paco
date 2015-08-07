@@ -5,7 +5,7 @@ import java.util.List;
 
 
 
-public class ExperimentQueryResult implements Serializable {
+public class ExperimentQueryResult   implements Serializable {
 
 
 

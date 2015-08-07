@@ -1,7 +1,7 @@
 package com.pacoapp.paco.shared.model2;
 
 
-public abstract class PacoAction implements Validatable, java.io.Serializable {
+public abstract class PacoAction extends ModelBase implements Validatable, java.io.Serializable {
 
   public static final int NOTIFICATION_TO_PARTICIPATE_ACTION_CODE = 1;
   public static final int NOTIFICATION_ACTION_CODE = 2;
@@ -31,6 +31,8 @@ public abstract class PacoAction implements Validatable, java.io.Serializable {
   public boolean execute() {
     return false;
   }
+    
+
 
   public Integer getActionCode() {
     return actionCode;

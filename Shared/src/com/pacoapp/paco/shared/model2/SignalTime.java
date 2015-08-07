@@ -2,7 +2,7 @@ package com.pacoapp.paco.shared.model2;
 
 import java.io.Serializable;
 
-public class SignalTime implements Validatable, Serializable {
+public class SignalTime extends ModelBase implements Validatable, Serializable {
   public static final Integer FIXED_TIME = 0;
   public static final Integer OFFSET_TIME = 1;
 
