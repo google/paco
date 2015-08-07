@@ -20,7 +20,7 @@ package com.pacoapp.paco.shared.model2;
 
 import java.io.Serializable;
 
-public class Feedback implements Validatable, Serializable {
+public class Feedback extends ModelBase implements Validatable, Serializable {
 
   public static final int FEEDBACK_TYPE_STATIC_MESSAGE = 0;
   public static final int FEEDBACK_TYPE_RETROSPECTIVE = 1;

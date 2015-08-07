@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Set;
 
 
-public class ExperimentGroup implements Validatable, java.io.Serializable {
+public class ExperimentGroup extends ModelBase implements Validatable, java.io.Serializable {
 
   private String name;
 
@@ -40,7 +40,9 @@ public class ExperimentGroup implements Validatable, java.io.Serializable {
     this.inputs = new ArrayList<Input2>();
     this.feedbackType = Feedback.FEEDBACK_TYPE_STATIC_MESSAGE;
   }
+    
 
+    
   public ExperimentGroup(String string) {
     this();
     this.name = string;
