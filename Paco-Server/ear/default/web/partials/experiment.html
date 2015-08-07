@@ -34,7 +34,7 @@
 
     <div class="md-actions" ng-controller="ListCtrl">
           <a href="#/edit/{{experiment.id}}">
-            <md-button>
+            <md-button ng-if="admin">
               Edit
             </md-button>
           </a>
@@ -51,7 +51,7 @@
             </md-button>
           </a>
           
-          <a href="" ng-click="deleteExperiment($event, experiment)">
+          <a href="" ng-click="deleteExperiment($event, experiment)" ng-if="admin">
             <md-button >
               Delete
             </md-button>

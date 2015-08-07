@@ -203,6 +203,9 @@ pacoApp.controller('ExperimentCtrl', ['$scope', '$http',
 
     $scope.$watch('experiment.groups', function(newValue, oldValue) {
       if (newValue) {
+
+        $scope.admin = ($scope.experiment.admins.indexOf($scope.user) !== -1);
+
         var groups = [];
         for (var groupId in $scope.experiment.groups) {
           var group = $scope.experiment.groups[groupId];
