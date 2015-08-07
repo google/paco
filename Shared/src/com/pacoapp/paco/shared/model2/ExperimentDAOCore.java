@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-public class ExperimentDAOCore implements Validatable, Serializable {
+public class ExperimentDAOCore extends ModelBase implements Validatable, Serializable {
 
   public static final int APP_USAGE_BROWSER_HISTORY_DATA_COLLECTION = 1;
   public static final int LOCATION_DATA_COLLECTION = 2;
@@ -16,6 +16,10 @@ public class ExperimentDAOCore implements Validatable, Serializable {
     EXTRA_DATA_COLLECTION_DECLS.add(LOCATION_DATA_COLLECTION);
     EXTRA_DATA_COLLECTION_DECLS.add(PHONE_DETAILS);
    }
+    
+    
+    
+
 
   protected String title;
   protected String description;
@@ -56,6 +60,9 @@ public class ExperimentDAOCore implements Validatable, Serializable {
     this.earliestStartDate = earliestStartDate;
     this.latestEndDate = latestEndDate;
   }
+    
+    
+
 
   /**
    *
@@ -77,6 +84,9 @@ public class ExperimentDAOCore implements Validatable, Serializable {
     return description;
   }
 
+    
+    
+    
   public void setDescription(String description) {
     this.description = description;
   }

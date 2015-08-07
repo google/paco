@@ -23,7 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class Schedule  implements Validatable, MinimumBufferable, Serializable {
+public class Schedule extends ModelBase implements Validatable, MinimumBufferable, Serializable {
 
   public static final int SATURDAY = 64;
   public static final int FRIDAY = 32;
@@ -203,14 +203,6 @@ public class Schedule  implements Validatable, MinimumBufferable, Serializable {
     return dayOfMonth;
   }
 
-  public Boolean getByDayOfWeek() {
-    return !byDayOfMonth;
-  }
-
-  public void setByDayOfWeek(Boolean byDayOfWeek) {
-    byDayOfMonth = !byDayOfWeek;
-  }
-
   public void setByDayOfMonth(Boolean byDayOfMonth) {
     this.byDayOfMonth = byDayOfMonth;
   }
@@ -233,10 +225,6 @@ public class Schedule  implements Validatable, MinimumBufferable, Serializable {
 
   public void setMinimumBuffer(Integer minimumBuffer) {
     this.minimumBuffer = minimumBuffer;
-  }
-
-  public Integer getDefaultMinimumBuffer() {
-    return MinimumBufferable.DEFAULT_MIN_BUFFER;
   }
 
   public void validateWith(Validator validator) {

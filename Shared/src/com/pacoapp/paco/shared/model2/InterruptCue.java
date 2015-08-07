@@ -1,7 +1,7 @@
 package com.pacoapp.paco.shared.model2;
 
 
-public class InterruptCue implements Validatable, java.io.Serializable {
+public class InterruptCue extends ModelBase implements Validatable, java.io.Serializable {
 
   public static final int PHONE_HANGUP = 1;
   public static final int USER_PRESENT = 2;

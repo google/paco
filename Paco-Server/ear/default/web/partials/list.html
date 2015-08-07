@@ -14,7 +14,7 @@
     <div ng-repeat="exp in experiments | orderBy: 'title'">
       <md-card>
         <md-card-content class="padded">
-          <a href="#/experiment/{{exp.id}}">{{exp.title}}
+          <a href="#/edit/{{exp.id}}">{{exp.title}}
         </a>
           <span ng-if="exp.organization" class="organization">
             administered by {{exp.organization}}
@@ -61,7 +61,7 @@
             </md-button>
           </a>
           
-          <a href="#" ng-click="joinExperiment(exp)" 
+          <a href="#" ng-click="joinExperiment($event, exp)" 
             ng-if="joinedIndex.indexOf(exp.id) === -1">
             <md-button>
               Join
@@ -119,7 +119,7 @@
             administered by {{exp.organization}}
           </span>
 
-          <md-button ng-click="joinExperiment(exp)" class="join">
+          <md-button ng-click="joinExperiment($event, exp)" class="join">
             Join
           </md-button>
         </md-card-content>
