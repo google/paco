@@ -300,8 +300,8 @@ pacoApp.controller('ExperimentCtrl', ['$scope', '$http',
 
 
 
-pacoApp.controller('ListCtrl', ['$scope', '$http', '$mdDialog', 'util',
-  function($scope, $http, $mdDialog, util) {
+pacoApp.controller('ListCtrl', ['$scope', '$http', '$mdDialog', '$location', 'util',
+  function($scope, $http, $mdDialog, $location, util) {
 
     $scope.deleteExperiment = function(ev, exp) {
       var confirm = $mdDialog.confirm()
@@ -315,6 +315,11 @@ pacoApp.controller('ListCtrl', ['$scope', '$http', '$mdDialog', 'util',
       $mdDialog.show(confirm).then(function() {
         $http.post('/experiments?delete=1&id=' + exp.id, {}).success(function(data) {
           $scope.loadList(true);
+
+           // If we're on the experiment page, change location to home
+          if ($location.path().indexOf('/experiment/') === 0) {
+            $location.path('/');
+          }
         });
       });      
     };
