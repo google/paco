@@ -82,7 +82,7 @@ pacoApp.controller('HomeCtrl', ['$scope', '$http', '$routeParams', '$location',
       $scope.loaded = true;
 
       // Make sure email isn't the dev email address
-      if (data.user && data.user !== 'yourGoogleEmail@here.com') {
+      if (data.user && data.user !== 'bobevans999@gmail.com') {
         $scope.user = data.user;
         $scope.loadJoined();
         $scope.loadAdmin();
@@ -248,18 +248,26 @@ pacoApp.controller('ExperimentCtrl', ['$scope', '$http',
     });
 
     $scope.saveExperiment = function() {
+      $scope.cancelSave = false;
+      $mdDialog.show(
+        $mdDialog.alert()
+          .title('Save Status')
+          .content('Saving to remote PACO server')
+          .ariaLabel('Save Status')
+          .ok('Cancel')
+      ).then(function() {
+        $scope.cancelSave = true;
+      });
 
       $http.post('/experiments', $scope.experiment).success(function(data) {
-
+        // Save may succeed if post request was in flight when canceled 
+        if ($scope.cancelSave) {
+          return;
+        }
+        $mdDialog.cancel();
         if (data.length > 0) {
           if (data[0].status === true) {
-            $mdDialog.show(
-              $mdDialog.alert()
-              .title('Save Status')
-              .content('Success!')
-              .ariaLabel('Success')
-              .ok('OK')
-            ).then(function() {
+
               $scope.experiment.version++;
               $scope.experiment0 = angular.copy($scope.experiment);
 
@@ -269,7 +277,6 @@ pacoApp.controller('ExperimentCtrl', ['$scope', '$http',
               if ($scope.newExperiment) {
                 $location.path('/edit/' + data[0].experimentId);
               }
-            });
           } else {
             var errorMessage = data[0].errorMessage;
             $mdDialog.show({
@@ -363,8 +370,8 @@ pacoApp.controller('ListCtrl', ['$scope', '$http', '$mdDialog', '$location', 'ut
 
 
 pacoApp.controller('CsvCtrl', ['$scope', '$http', '$mdDialog', '$timeout',
-  '$location',
-  function($scope, $http, $mdDialog, $timeout, $location) {
+  '$location', '$filter',
+  function($scope, $http, $mdDialog, $timeout, $location, $filter) {
 
     var startMarker =
       '<title>Current Status of Report Generation for job: ';
@@ -387,20 +394,14 @@ pacoApp.controller('CsvCtrl', ['$scope', '$http', '$mdDialog', '$timeout',
       $http.get($scope.jobUrl).success(
         function(data) {
 
-          $scope.result = data;
-
           if (data === 'pending\n') {
             $timeout($scope.poll, 1000);
+
           } else {
-            $scope.csv = data;
-            var rows = data.split('\n');
-            $scope.table = [];
-            for (var i = 0; i < rows.length; i++) {
-              var cells = rows[i].split(',');
-              if (cells.length > 1) {
-                $scope.table.push(cells);
-              }
-            }
+
+            $scope.csv = data.trim();
+            $scope.table = $filter('csvToObj')($scope.csv);
+
             var blob = new Blob([data], {
               type: 'text/csv'
             });

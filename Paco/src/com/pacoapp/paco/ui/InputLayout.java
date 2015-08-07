@@ -849,7 +849,7 @@ public class InputLayout extends LinearLayout implements SpeechRecognitionListen
         R.layout.open_text, this, true);
     openTextView = (AutoCompleteTextView) findViewById(R.id.open_text_answer);
     openTextView.setThreshold(1);
-    openTextView.setPadding(0, 2, 0, 16);
+    openTextView.setPadding(8, 2, 0, 16);
     // Theoretically this should allow autocorrect.  However, apparently this change is not reflected on the
     // emulator, so we need to test it on the device.
     openTextView.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_AUTO_CORRECT | InputType.TYPE_TEXT_FLAG_AUTO_COMPLETE);

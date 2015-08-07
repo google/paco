@@ -212,6 +212,7 @@ public class ExperimentServlet extends HttpServlet {
       resp.getWriter().println(ExperimentJsonUploadProcessor.toJson(outcomes));
       return;
     }
+
     if (postBodyString.equals("")) {
       List<Outcome> outcomes = createErrorOutcome("Empty Post body");
       resp.getWriter().println(ExperimentJsonUploadProcessor.toJson(outcomes));
