@@ -254,9 +254,6 @@
 		7FB660801AA8C305008D2327 /* paco32@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 7FB6607E1AA8C305008D2327 /* paco32@2x.png */; };
 		7FB660811AA8C305008D2327 /* paco32@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = 7FB6607F1AA8C305008D2327 /* paco32@3x.png */; };
 		7FB660901AA8C352008D2327 /* PacoTitleView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 7FB6608F1AA8C352008D2327 /* PacoTitleView.xib */; };
-		A61769D71B6C327D005A3918 /* ITAhoCorasickContainer.m in Sources */ = {isa = PBXBuildFile; fileRef = A61769D41B6C327D005A3918 /* ITAhoCorasickContainer.m */; };
-		A61769D81B6C327D005A3918 /* NSMutableDictionary+ITExtension.m in Sources */ = {isa = PBXBuildFile; fileRef = A61769D61B6C327D005A3918 /* NSMutableDictionary+ITExtension.m */; };
-		A620E35B1B61AF3A0018AE42 /* PacoSerializer.m in Sources */ = {isa = PBXBuildFile; fileRef = A620E35A1B61AF3A0018AE42 /* PacoSerializer.m */; };
 		A633A99F1B5DA0970046436D /* ExperimentEditOutcome.java in Sources */ = {isa = PBXBuildFile; fileRef = A633A97A1B5DA0970046436D /* ExperimentEditOutcome.java */; };
 		A633A9A01B5DA0970046436D /* Outcome.java in Sources */ = {isa = PBXBuildFile; fileRef = A633A97B1B5DA0970046436D /* Outcome.java */; };
 		A633A9A11B5DA0970046436D /* ActionTrigger.java in Sources */ = {isa = PBXBuildFile; fileRef = A633A97D1B5DA0970046436D /* ActionTrigger.java */; };
@@ -295,14 +292,16 @@
 		A6701D611B73D48C00229432 /* joda in Resources */ = {isa = PBXBuildFile; fileRef = A6701D601B73D48C00229432 /* joda */; };
 		A67076101B62F26A00017D36 /* DerivedSources in Resources */ = {isa = PBXBuildFile; fileRef = A670760F1B62F26A00017D36 /* DerivedSources */; };
 		A67076111B62F26A00017D36 /* DerivedSources in Resources */ = {isa = PBXBuildFile; fileRef = A670760F1B62F26A00017D36 /* DerivedSources */; };
-		A67076191B699A9500017D36 /* NSObject+ITNDescription.m in Sources */ = {isa = PBXBuildFile; fileRef = A67076181B699A9500017D36 /* NSObject+ITNDescription.m */; };
-		A670761A1B699A9500017D36 /* NSObject+ITNDescription.m in Sources */ = {isa = PBXBuildFile; fileRef = A67076181B699A9500017D36 /* NSObject+ITNDescription.m */; };
 		A676C7381B6043DE00F37572 /* Pacoj2Objc2JsonTests.m in Sources */ = {isa = PBXBuildFile; fileRef = A676C7371B6043DE00F37572 /* Pacoj2Objc2JsonTests.m */; };
 		A676C73C1B615AAB00F37572 /* libobjc.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = A676C73B1B615AAB00F37572 /* libobjc.dylib */; };
 		A678C2751B703955003F0D27 /* ModelBase.java in Sources */ = {isa = PBXBuildFile; fileRef = A678C2741B703955003F0D27 /* ModelBase.java */; };
 		A678C2761B7042D3003F0D27 /* DerivedSources in Sources */ = {isa = PBXBuildFile; fileRef = A670760F1B62F26A00017D36 /* DerivedSources */; };
 		A678C2E51B716283003F0D27 /* ModelBase.java in Sources */ = {isa = PBXBuildFile; fileRef = A678C2E41B716283003F0D27 /* ModelBase.java */; };
-		A678C3151B728E60003F0D27 /* NSObject+J2objcKVO.m in Sources */ = {isa = PBXBuildFile; fileRef = A678C3141B728E60003F0D27 /* NSObject+J2objcKVO.m */; };
+		A6ABFA971B742BA700F90598 /* ITAhoCorasickContainer.m in Sources */ = {isa = PBXBuildFile; fileRef = A6ABFA961B742BA700F90598 /* ITAhoCorasickContainer.m */; };
+		A6ABFAA21B742BE800F90598 /* NSMutableDictionary+ITExtension.m in Sources */ = {isa = PBXBuildFile; fileRef = A6ABFA9B1B742BE800F90598 /* NSMutableDictionary+ITExtension.m */; };
+		A6ABFAA31B742BE800F90598 /* NSObject+ITNDescription.m in Sources */ = {isa = PBXBuildFile; fileRef = A6ABFA9D1B742BE800F90598 /* NSObject+ITNDescription.m */; };
+		A6ABFAA41B742BE800F90598 /* NSObject+J2objcKVO.m in Sources */ = {isa = PBXBuildFile; fileRef = A6ABFA9F1B742BE800F90598 /* NSObject+J2objcKVO.m */; };
+		A6ABFAA51B742BE800F90598 /* PacoSerializer.m in Sources */ = {isa = PBXBuildFile; fileRef = A6ABFAA11B742BE800F90598 /* PacoSerializer.m */; };
 		C567E89017A03FDE00267A26 /* deepbark_trial.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = C567E88F17A03FDE00267A26 /* deepbark_trial.mp3 */; };
 		C5B4691917B07E4900B6BC18 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C5B4691817B07E4900B6BC18 /* CoreGraphics.framework */; };
 		C5C4F5D217B163EF009E9F18 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C5C4F5D117B163EF009E9F18 /* QuartzCore.framework */; };
@@ -796,12 +795,6 @@
 		7FB6607E1AA8C305008D2327 /* paco32@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "paco32@2x.png"; sourceTree = "<group>"; };
 		7FB6607F1AA8C305008D2327 /* paco32@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "paco32@3x.png"; sourceTree = "<group>"; };
 		7FB6608F1AA8C352008D2327 /* PacoTitleView.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = PacoTitleView.xib; sourceTree = "<group>"; };
-		A61769D31B6C327D005A3918 /* ITAhoCorasickContainer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ITAhoCorasickContainer.h; path = ../../../ITAhoCorasickContainer.h; sourceTree = "<group>"; };
-		A61769D41B6C327D005A3918 /* ITAhoCorasickContainer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = ITAhoCorasickContainer.m; path = ../../../ITAhoCorasickContainer.m; sourceTree = "<group>"; };
-		A61769D51B6C327D005A3918 /* NSMutableDictionary+ITExtension.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "NSMutableDictionary+ITExtension.h"; path = "../../../NSMutableDictionary+ITExtension.h"; sourceTree = "<group>"; };
-		A61769D61B6C327D005A3918 /* NSMutableDictionary+ITExtension.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "NSMutableDictionary+ITExtension.m"; path = "../../../NSMutableDictionary+ITExtension.m"; sourceTree = "<group>"; };
-		A620E3591B61AF3A0018AE42 /* PacoSerializer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PacoSerializer.h; path = ../../../PacoSerializer.h; sourceTree = "<group>"; };
-		A620E35A1B61AF3A0018AE42 /* PacoSerializer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = PacoSerializer.m; path = ../../../PacoSerializer.m; sourceTree = "<group>"; };
 		A633A97A1B5DA0970046436D /* ExperimentEditOutcome.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = ExperimentEditOutcome.java; sourceTree = "<group>"; };
 		A633A97B1B5DA0970046436D /* Outcome.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = Outcome.java; sourceTree = "<group>"; };
 		A633A97D1B5DA0970046436D /* ActionTrigger.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = ActionTrigger.java; sourceTree = "<group>"; };
@@ -839,15 +832,21 @@
 		A633A9C11B5DA1B70046436D /* PacoJ2OBJCTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoJ2OBJCTests.m; sourceTree = "<group>"; };
 		A6701D601B73D48C00229432 /* joda */ = {isa = PBXFileReference; lastKnownFileType = folder; path = joda; sourceTree = "<group>"; };
 		A670760F1B62F26A00017D36 /* DerivedSources */ = {isa = PBXFileReference; lastKnownFileType = folder; name = DerivedSources; path = "DerivedData/Paco/Build/Intermediates/Paco.build/Debug-iphonesimulator/Paco.build/DerivedSources"; sourceTree = "<group>"; };
-		A67076171B699A9500017D36 /* NSObject+ITNDescription.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "NSObject+ITNDescription.h"; path = "../../../NSObject+ITNDescription.h"; sourceTree = "<group>"; };
-		A67076181B699A9500017D36 /* NSObject+ITNDescription.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "NSObject+ITNDescription.m"; path = "../../../NSObject+ITNDescription.m"; sourceTree = "<group>"; };
 		A676C7371B6043DE00F37572 /* Pacoj2Objc2JsonTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Pacoj2Objc2JsonTests.m; sourceTree = "<group>"; };
 		A676C7391B615A3D00F37572 /* libobjc.A.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libobjc.A.dylib; path = usr/lib/libobjc.A.dylib; sourceTree = SDKROOT; };
 		A676C73B1B615AAB00F37572 /* libobjc.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libobjc.dylib; path = usr/lib/libobjc.dylib; sourceTree = SDKROOT; };
 		A678C2741B703955003F0D27 /* ModelBase.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = ModelBase.java; sourceTree = "<group>"; };
 		A678C2E41B716283003F0D27 /* ModelBase.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = ModelBase.java; sourceTree = "<group>"; };
-		A678C3131B728E60003F0D27 /* NSObject+J2objcKVO.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "NSObject+J2objcKVO.h"; path = "../../../NSObject+J2objcKVO.h"; sourceTree = "<group>"; };
-		A678C3141B728E60003F0D27 /* NSObject+J2objcKVO.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "NSObject+J2objcKVO.m"; path = "../../../NSObject+J2objcKVO.m"; sourceTree = "<group>"; };
+		A6ABFA951B742BA700F90598 /* ITAhoCorasickContainer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ITAhoCorasickContainer.h; sourceTree = "<group>"; };
+		A6ABFA961B742BA700F90598 /* ITAhoCorasickContainer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ITAhoCorasickContainer.m; sourceTree = "<group>"; };
+		A6ABFA9A1B742BE800F90598 /* NSMutableDictionary+ITExtension.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSMutableDictionary+ITExtension.h"; sourceTree = "<group>"; };
+		A6ABFA9B1B742BE800F90598 /* NSMutableDictionary+ITExtension.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSMutableDictionary+ITExtension.m"; sourceTree = "<group>"; };
+		A6ABFA9C1B742BE800F90598 /* NSObject+ITNDescription.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSObject+ITNDescription.h"; sourceTree = "<group>"; };
+		A6ABFA9D1B742BE800F90598 /* NSObject+ITNDescription.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSObject+ITNDescription.m"; sourceTree = "<group>"; };
+		A6ABFA9E1B742BE800F90598 /* NSObject+J2objcKVO.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSObject+J2objcKVO.h"; sourceTree = "<group>"; };
+		A6ABFA9F1B742BE800F90598 /* NSObject+J2objcKVO.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSObject+J2objcKVO.m"; sourceTree = "<group>"; };
+		A6ABFAA01B742BE800F90598 /* PacoSerializer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoSerializer.h; sourceTree = "<group>"; };
+		A6ABFAA11B742BE800F90598 /* PacoSerializer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoSerializer.m; sourceTree = "<group>"; };
 		C567E88F17A03FDE00267A26 /* deepbark_trial.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = deepbark_trial.mp3; sourceTree = "<group>"; };
 		C5B4691817B07E4900B6BC18 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
 		C5C4F5D117B163EF009E9F18 /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
@@ -1061,7 +1060,7 @@
 		36B8EB0117568DAF004CF035 /* core */ = {
 			isa = PBXGroup;
 			children = (
-				A6ABFA681B73D8DF00F90598 /* serializers */,
+				A6ABFA981B742BE800F90598 /* serializer */,
 				36AD6CDF17C443DF00B93855 /* common */,
 				36B8EB0217568DAF004CF035 /* authentication */,
 				36B8EB0517568DAF004CF035 /* client */,
@@ -1404,6 +1403,7 @@
 		36B8EC1217568E33004CF035 /* vendor */ = {
 			isa = PBXGroup;
 			children = (
+				A6ABFA941B742BA700F90598 /* aho-corasick */,
 				A6701D601B73D48C00229432 /* joda */,
 				4448BC371A808E7A0034FCE9 /* gtm-oauth2 */,
 				36C4A33618A4DEEE00D8FE59 /* lumberjack */,
@@ -1853,37 +1853,36 @@
 			name = modal2;
 			sourceTree = "<group>";
 		};
-		A6ABFA681B73D8DF00F90598 /* serializers */ = {
+		A6ABFA941B742BA700F90598 /* aho-corasick */ = {
 			isa = PBXGroup;
 			children = (
-				A6ABFA771B73D91700F90598 /* categories */,
-				A6ABFA761B73D8FD00F90598 /* helpers */,
-				A620E3591B61AF3A0018AE42 /* PacoSerializer.h */,
-				A620E35A1B61AF3A0018AE42 /* PacoSerializer.m */,
+				A6ABFA951B742BA700F90598 /* ITAhoCorasickContainer.h */,
+				A6ABFA961B742BA700F90598 /* ITAhoCorasickContainer.m */,
 			);
-			name = serializers;
+			path = "aho-corasick";
 			sourceTree = "<group>";
 		};
-		A6ABFA761B73D8FD00F90598 /* helpers */ = {
+		A6ABFA981B742BE800F90598 /* serializer */ = {
 			isa = PBXGroup;
 			children = (
-				A61769D31B6C327D005A3918 /* ITAhoCorasickContainer.h */,
-				A61769D41B6C327D005A3918 /* ITAhoCorasickContainer.m */,
-				A61769D51B6C327D005A3918 /* NSMutableDictionary+ITExtension.h */,
-				A61769D61B6C327D005A3918 /* NSMutableDictionary+ITExtension.m */,
+				A6ABFA991B742BE800F90598 /* categories */,
+				A6ABFAA01B742BE800F90598 /* PacoSerializer.h */,
+				A6ABFAA11B742BE800F90598 /* PacoSerializer.m */,
 			);
-			name = helpers;
+			path = serializer;
 			sourceTree = "<group>";
 		};
-		A6ABFA771B73D91700F90598 /* categories */ = {
+		A6ABFA991B742BE800F90598 /* categories */ = {
 			isa = PBXGroup;
 			children = (
-				A67076171B699A9500017D36 /* NSObject+ITNDescription.h */,
-				A67076181B699A9500017D36 /* NSObject+ITNDescription.m */,
-				A678C3131B728E60003F0D27 /* NSObject+J2objcKVO.h */,
-				A678C3141B728E60003F0D27 /* NSObject+J2objcKVO.m */,
+				A6ABFA9A1B742BE800F90598 /* NSMutableDictionary+ITExtension.h */,
+				A6ABFA9B1B742BE800F90598 /* NSMutableDictionary+ITExtension.m */,
+				A6ABFA9C1B742BE800F90598 /* NSObject+ITNDescription.h */,
+				A6ABFA9D1B742BE800F90598 /* NSObject+ITNDescription.m */,
+				A6ABFA9E1B742BE800F90598 /* NSObject+J2objcKVO.h */,
+				A6ABFA9F1B742BE800F90598 /* NSObject+J2objcKVO.m */,
 			);
-			name = categories;
+			path = categories;
 			sourceTree = "<group>";
 		};
 		C5C4F5D417B1738E009E9F18 /* jcnotificationbannerpresenter */ = {
@@ -2262,11 +2261,11 @@
 				365B3C2E1836EF41003D57A7 /* UIImage+Paco.m in Sources */,
 				4448BCA61A808E7A0034FCE9 /* GTMHTTPFetchHistory.m in Sources */,
 				36B8EB7D17568DAF004CF035 /* PacoExperimentDetailsViewController.m in Sources */,
+				A6ABFA971B742BA700F90598 /* ITAhoCorasickContainer.m in Sources */,
 				4448BCA11A808E7A0034FCE9 /* GTMGatherInputStream.m in Sources */,
 				36B8EB7E17568DAF004CF035 /* PacoFindMyExperimentsViewController.m in Sources */,
 				7F8531D71A37BE680028BA23 /* JCNotificationBannerPresenterIOSStyle.m in Sources */,
 				44A843D91ADB9C0A009C7226 /* ScheduleTrigger.java in Sources */,
-				A61769D81B6C327D005A3918 /* NSMutableDictionary+ITExtension.m in Sources */,
 				44A843DA1ADB9C0A009C7226 /* SignalTime.java in Sources */,
 				36B8EB8017568DAF004CF035 /* PacoMainViewController.m in Sources */,
 				36B8EB8117568DAF004CF035 /* PacoMenuButton.m in Sources */,
@@ -2275,11 +2274,10 @@
 				36B8EB8217568DAF004CF035 /* PacoQuestionScreenViewController.m in Sources */,
 				36B8EB8317568DAF004CF035 /* PacoQuestionView.m in Sources */,
 				E4E8F352183B21500022613A /* PacoContactUsViewController.m in Sources */,
-				A61769D71B6C327D005A3918 /* ITAhoCorasickContainer.m in Sources */,
 				4448BCA81A808E7A0034FCE9 /* GTMMIMEDocument.m in Sources */,
 				36B8EB8417568DAF004CF035 /* PacoRunningExperimentsViewController.m in Sources */,
 				44A843E21ADB9C0A009C7226 /* NonESMSignalGenerator.java in Sources */,
-				A620E35B1B61AF3A0018AE42 /* PacoSerializer.m in Sources */,
+				A6ABFAA31B742BE800F90598 /* NSObject+ITNDescription.m in Sources */,
 				36B8EB8517568DAF004CF035 /* PacoCheckboxView.m in Sources */,
 				4448BCA91A808E7A0034FCE9 /* GTMReadMonitorInputStream.m in Sources */,
 				36B8EB8817568DAF004CF035 /* PacoLayout.m in Sources */,
@@ -2288,6 +2286,7 @@
 				4448BCB71A808E7A0034FCE9 /* NSObject+SBJSON.m in Sources */,
 				44A843D41ADB9C0A009C7226 /* MinimumBufferable.java in Sources */,
 				44A843C71ADB9C0A009C7226 /* ActionTrigger.java in Sources */,
+				A6ABFAA21B742BE800F90598 /* NSMutableDictionary+ITExtension.m in Sources */,
 				44A843DB1ADB9C0A009C7226 /* Validatable.java in Sources */,
 				4448BCB81A808E7A0034FCE9 /* NSString+SBJSON.m in Sources */,
 				44A843CE1ADB9C0A009C7226 /* ExperimentValidator.java in Sources */,
@@ -2303,7 +2302,6 @@
 				36B8EB8C17568DAF004CF035 /* PacoTableTextCell.m in Sources */,
 				36417BE8180DCA9600335B74 /* NSCalendar+Paco.m in Sources */,
 				4448BCBD1A808E7A0034FCE9 /* GTMOAuth2SignIn.m in Sources */,
-				A678C3151B728E60003F0D27 /* NSObject+J2objcKVO.m in Sources */,
 				36B8EB8D17568DAF004CF035 /* PacoTableView.m in Sources */,
 				44A843C81ADB9C0A009C7226 /* EventInterface.java in Sources */,
 				44A843D51ADB9C0A009C7226 /* PacoAction.java in Sources */,
@@ -2325,10 +2323,12 @@
 				36946B05177A37CF005E0C04 /* PacoExperimentFeedback.m in Sources */,
 				7F8531DB1A37BE680028BA23 /* JCNotificationBannerViewIOS7Style.m in Sources */,
 				36C4A33F18A4DEEE00D8FE59 /* DDLog.m in Sources */,
+				A6ABFAA51B742BE800F90598 /* PacoSerializer.m in Sources */,
 				366F46B318CF82C200789A54 /* PacoPublicExperimentController.m in Sources */,
 				36946B08177A385A005E0C04 /* PacoExperimentInput.m in Sources */,
 				4448BCDC1A80901D0034FCE9 /* GTMOAuth2ViewControllerTouch.m in Sources */,
 				4448BCBB1A808E7A0034FCE9 /* SBJsonWriter.m in Sources */,
+				A6ABFAA41B742BE800F90598 /* NSObject+J2objcKVO.m in Sources */,
 				361A118B18F30CC9000E9CA2 /* UIColor+Paco.m in Sources */,
 				4448BCA31A808E7A0034FCE9 /* GTMHTTPFetcherLogging.m in Sources */,
 				44A843C91ADB9C0A009C7226 /* EventStore.java in Sources */,
@@ -2372,7 +2372,6 @@
 				7F8531DD1A37BE680028BA23 /* JCNotificationBannerWindow.m in Sources */,
 				44A843E41ADB9C0A009C7226 /* SchedulePrinter.java in Sources */,
 				36AD6CDE17C420F800B93855 /* SSKeychainQuery.m in Sources */,
-				A67076191B699A9500017D36 /* NSObject+ITNDescription.m in Sources */,
 				367233E1180619A5006611E6 /* PacoScheduleGenerator.m in Sources */,
 				36AD6CE217C4440000B93855 /* NSError+Paco.m in Sources */,
 				A678C2751B703955003F0D27 /* ModelBase.java in Sources */,
@@ -2403,7 +2402,6 @@
 				A676C7381B6043DE00F37572 /* Pacoj2Objc2JsonTests.m in Sources */,
 				A633A9C21B5DA1B70046436D /* PacoJ2OBJCTests.m in Sources */,
 				A633A9AD1B5DA0970046436D /* ListMaker.java in Sources */,
-				A670761A1B699A9500017D36 /* NSObject+ITNDescription.m in Sources */,
 				A633A9A31B5DA0970046436D /* EventStore.java in Sources */,
 				365D20F01820622A0097F379 /* PacoScheduleGenerator+ESM.m in Sources */,
 				3662927D1821C10800FC647A /* PacoExperimentScheduleTests.m in Sources */,

@@ -50,7 +50,7 @@ static NSString* smDefinition =
     @"\"byDayOfMonth\":true,\"dayOfMonth\":1,\"esmWeekends\":true,"
     @"\"minimumBuffer\":59,\"joinDateMillis\":0,\"id\":1436903218336,"
     @"\"onlyEditableOnJoin\":false,\"userEditable\":true,"
-    @"\"defaultMinimumBuffer\":59,\"byDayOfWeek\":false}]}],\"inputs\":[{"
+    @"\"defaultMinimumBuffer\":59}]}],\"inputs\":[{"
     @"\"name\":\"activity\",\"required\":false,\"conditional\":false,"
     @"\"responseType\":\"open text\",\"text\":\"What are you doing right "
     @"now?\",\"multiselect\":false,\"numeric\":false,\"invisible\":false},{"
@@ -123,7 +123,7 @@ static NSString* newDefinition =
     @"\"minimumBuffer\" : 59,\r\n        \"joinDateMillis\" : 0,\r\n        "
     @"\"beginDate\" : null,\r\n        \"id\" : null,\r\n        "
     @"\"onlyEditableOnJoin\" : false,\r\n        \"userEditable\" : true,\r\n "
-    @"       \"byDayOfWeek\" : false,\r\n        \"defaultMinimumBuffer\" : "
+    @"\"defaultMinimumBuffer\" : "
     @"59,\r\n        \"nameOfClass\" : "
     @"\"com.pacoapp.paco.shared.model2.Schedule\"\r\n      }, {\r\n        "
     @"\"scheduleType\" : 0,\r\n        \"esmFrequency\" : 3,\r\n        "
@@ -158,6 +158,14 @@ static NSString* newDefinition =
     @"\"com.pacoapp.paco.shared.model2.ExperimentGroup\"\r\n  } ],\r\n  "
     @"\"nameOfClass\" : "
     @"\"com.pacoapp.paco.shared.model2.ExperimentDAO\"\r\n}]";
+
+
+
+static NSString* stagingDefinition  = @"[{\"title\":\"ESM Demo\",\"description\":\"This experiment demonstrates an ESM (Experiential Sampling Method) study. It will prompt the user to respond to some questions randomly 5 times per day between 10 and 6. The notification to respond will time out in 15 minutes and record a missed signal in that case. The experiment is ongoing, as opposed to a fixed number of days, in duration. It also uses conditional branching to show some questions only when other questions answers take on certain values.\",\"creator\":\"bobevans@google.com\",\"contactEmail\":\"bobevans@google.com\",\"id\":5754435435233280,\"recordPhoneDetails\":false,\"extraDataCollectionDeclarations\":[],\"deleted\":false,\"published\":false,\"admins\":[\"bobevans@google.com\",\"elasticsearch64@gmail.com\",\"rbe5000@gmail.com\"],\"publishedUsers\":[],\"version\":4,\"groups\":[{\"name\":\"New Group\",\"customRendering\":false,\"fixedDuration\":false,\"logActions\":false,\"backgroundListen\":false,\"actionTriggers\":[{\"type\":\"scheduleTrigger\",\"actions\":[{\"actionCode\":1,\"id\":1436903218335,\"type\":\"pacoNotificationAction\",\"snoozeCount\":0,\"snoozeTime\":600000,\"timeout\":15,\"delay\":5000,\"msgText\":\"Time to participate\",\"snoozeTimeInMinutes\":10}],\"id\":1436903218334,\"schedules\":[{\"scheduleType\":4,\"esmFrequency\":5,\"esmPeriodInDays\":0,\"esmStartHour\":36000000,\"esmEndHour\":64800000,\"signalTimes\":[{\"type\":0,\"fixedTimeMillisFromMidnight\":0}],\"repeatRate\":1,\"weekDaysScheduled\":0,\"nthOfMonth\":1,\"byDayOfMonth\":true,\"dayOfMonth\":1,\"esmWeekends\":true,\"minimumBuffer\":59,\"joinDateMillis\":0,\"id\":1436903218336,\"onlyEditableOnJoin\":false,\"userEditable\":true,\"defaultMinimumBuffer\":59,\"byDayOfWeek\":false}]}],\"inputs\":[{\"name\":\"activity\",\"required\":false,\"conditional\":false,\"responseType\":\"open text\",\"text\":\"What are you doing right now?\",\"multiselect\":false,\"numeric\":false,\"invisible\":false},{\"name\":\"where\",\"required\":false,\"conditional\":false,\"responseType\":\"list\",\"text\":\"Where are you?\",\"listChoices\":[\"Home\",\"Work\",\"Other\"],\"multiselect\":false,\"numeric\":true,\"invisible\":false},{\"name\":\"other_where\",\"required\":false,\"conditional\":true,\"conditionExpression\":\"where == 3\",\"responseType\":\"open text\",\"text\":\"Please enter a name for the place you are\",\"multiselect\":false,\"numeric\":false,\"invisible\":false},{\"name\":\"photo\",\"required\":false,\"conditional\":false,\"responseType\":\"photo\",\"text\":\"Take a photo if you like\",\"multiselect\":false,\"numeric\":false,\"invisible\":true}],\"endOfDayGroup\":false,\"feedback\":{\"text\":\"Thank you for Participating!\",\"type\":0},\"feedbackType\":0}]}]";
+
+
+
+static NSString* generatedDefinition  = @"{\n  \"title\" : \"My Title\",\n  \"description\" : \"this is muy description\",\n  \"creator\" : \"tim.n.obrien@yahoo.com\",\n  \"organization\" : null,\n  \"contactEmail\" : null,\n  \"contactPhone\" : null,\n  \"joinDate\" : \"12/14/2014\",\n  \"id\" : 12345,\n  \"informedConsentForm\" : \"informed consent\",\n  \"recordPhoneDetails\" : false,\n  \"extraDataCollectionDeclarations\" : [ ],\n  \"deleted\" : false,\n  \"earliestStartDate\" : null,\n  \"latestEndDate\" : null,\n  \"modifyDate\" : null,\n  \"published\" : true,\n  \"admins\" : [ \"tim\", \"jack\", \"john\", \"mike\" ],\n  \"publishedUsers\" : [ \"tim\", \"jack\", \"john\", \"mike\" ],\n  \"version\" : 1,\n  \"groups\" : [ {\n    \"name\" : \"test experiment groups\",\n    \"customRendering\" : false,\n    \"customRenderingCode\" : null,\n    \"fixedDuration\" : false,\n    \"startDate\" : null,\n    \"endDate\" : null,\n    \"logActions\" : false,\n    \"backgroundListen\" : false,\n    \"backgroundListenSourceIdentifier\" : null,\n    \"actionTriggers\" : [ {\n      \"type\" : \"scheduleTrigger\",\n      \"actions\" : [ ],\n      \"id\" : null,\n      \"schedules\" : [ {\n        \"scheduleType\" : 0,\n        \"esmFrequency\" : 3,\n        \"esmPeriodInDays\" : 0,\n        \"esmStartHour\" : 32400000,\n        \"esmEndHour\" : 61200000,\n        \"signalTimes\" : [ ],\n        \"repeatRate\" : 1,\n        \"weekDaysScheduled\" : 0,\n        \"nthOfMonth\" : 1,\n        \"byDayOfMonth\" : true,\n        \"dayOfMonth\" : 1,\n        \"esmWeekends\" : false,\n        \"minimumBuffer\" : 59,\n        \"joinDateMillis\" : 0,\n        \"beginDate\" : null,\n        \"id\" : null,\n        \"onlyEditableOnJoin\" : false,\n        \"userEditable\" : true,\n        \"byDayOfWeek\" : false,\n        \"defaultMinimumBuffer\" : 59,\n        \"nameOfClass\" : \"com.pacoapp.paco.shared.model2.Schedule\"\n      }, {\n        \"scheduleType\" : 0,\n        \"esmFrequency\" : 3,\n        \"esmPeriodInDays\" : 0,\n        \"esmStartHour\" : 32400000,\n        \"esmEndHour\" : 61200000,\n        \"signalTimes\" : [ ],\n        \"repeatRate\" : 1,\n        \"weekDaysScheduled\" : 0,\n        \"nthOfMonth\" : 1,\n        \"byDayOfMonth\" : true,\n        \"dayOfMonth\" : 1,\n        \"esmWeekends\" : false,\n        \"minimumBuffer\" : 59,\n        \"joinDateMillis\" : 0,\n        \"beginDate\" : null,\n        \"id\" : null,\n        \"onlyEditableOnJoin\" : false,\n        \"userEditable\" : true,\n        \"byDayOfWeek\" : false,\n        \"defaultMinimumBuffer\" : 59,\n        \"nameOfClass\" : \"com.pacoapp.paco.shared.model2.Schedule\"\n      }, {\n        \"scheduleType\" : 0,\n        \"esmFrequency\" : 3,\n        \"esmPeriodInDays\" : 0,\n        \"esmStartHour\" : 32400000,\n        \"esmEndHour\" : 61200000,\n        \"signalTimes\" : [ ],\n        \"repeatRate\" : 1,\n        \"weekDaysScheduled\" : 0,\n        \"nthOfMonth\" : 1,\n        \"byDayOfMonth\" : true,\n        \"dayOfMonth\" : 1,\n        \"esmWeekends\" : false,\n        \"minimumBuffer\" : 59,\n        \"joinDateMillis\" : 0,\n        \"beginDate\" : null,\n        \"id\" : null,\n        \"onlyEditableOnJoin\" : false,\n        \"userEditable\" : true,\n        \"byDayOfWeek\" : false,\n        \"defaultMinimumBuffer\" : 59,\n        \"nameOfClass\" : \"com.pacoapp.paco.shared.model2.Schedule\"\n      } ],\n      \"nameOfClass\" : \"com.pacoapp.paco.shared.model2.ScheduleTrigger\"\n    } ],\n    \"inputs\" : [ ],\n    \"endOfDayGroup\" : false,\n    \"endOfDayReferredGroupName\" : null,\n    \"feedback\" : null,\n    \"feedbackType\" : 0,\n    \"nameOfClass\" : \"com.pacoapp.paco.shared.model2.ExperimentGroup\"\n  } ],\n  \"nameOfClass\" : \"com.pacoapp.paco.shared.model2.ExperimentDAO\"\n}";
 
 @interface Pacoj2Objc2JsonTests : XCTestCase
 
@@ -328,9 +336,11 @@ static NSString* newDefinition =
   endDay = [dao valueForKeyPathEx:@"groups[5].endDate"];
 }
 
+
+
 - (void)testBuildModelTree {
   NSError* error;
-  NSData* data = [newDefinition dataUsingEncoding:NSUTF8StringEncoding];
+  NSData* data = [generatedDefinition dataUsingEncoding:NSUTF8StringEncoding];
   id definingObject =
       [NSJSONSerialization JSONObjectWithData:data
 

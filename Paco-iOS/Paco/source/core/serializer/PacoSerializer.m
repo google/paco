@@ -350,6 +350,8 @@
 - (NSObject*)match:(NSArray*)recurseObject {
   NSString* clazzName = nil;
   NSDictionary* dictionary = recurseObject[1];
+    
+    [self findClassNameFromAttributes:[dictionary allKeys]];
 
   /*
 
@@ -594,7 +596,10 @@
     Class theClass = NSClassFromString(withPrefix);
     id object = [[theClass alloc] init];
 
-    NSArray* ivarNameArray = [self arrayOfIvarsFromInstance:object];
+      
+ 
+      
+    NSArray* ivarNameArray = [self arrayOfIvarsNamesFromInstance:object];
 
     for (NSString* name in ivarNameArray) {
       NSString* trimmedName = [self trimTrailingUnderscore:name];
@@ -611,11 +616,27 @@
   }
 }
 
-- (NSString*)findClassNameFromAttributes:(NSArray*)attibutes {
+- (NSString*)findClassNameFromAttributes:(NSMutableArray*)attibutes {
+    
+   
+    
+    
   NSMutableSet* topSet = [_attributeClassMap objectForKey:attibutes[0]];
   for (NSString* att in attibutes) {
+      
+      
+      if([att isEqualToString:_nameOfClass] || [att isEqualToString:@"byDayOfWeek"])
+          continue;
+      
+    NSLog(@"thisone -%@", att);
     NSMutableSet* set = [_attributeClassMap objectForKey:att];
     [topSet intersectSet:set];
+      
+      if([topSet count] ==0)
+      {
+           NSLog(@"problem att -%@", att);
+          
+      }
   }
   return [topSet anyObject];
 }
@@ -746,7 +767,42 @@
   return (successRatio > PACO_MATCHER_SUCCESS_RATIO);
 }
 
-#pragma mark - helper methods runtime
+#pragma mark - more  helper methods runtime
+
+
+
+/*
+ 
+ get an array of ivars from a class instance
+ 
+ */
+
+- (NSArray*)arrayOfIvarsNamesFromInstance:(id)object {
+    
+    NSMutableArray* resultsArray =[NSMutableArray new];
+    
+ 
+        
+        NSObject* interObject = object;
+        unsigned int numIvars;
+        while (![interObject isMemberOfClass:[NSObject class]]) {
+            Ivar* ivars = class_copyIvarList([interObject class], &numIvars);
+            for (int i = 0; i < numIvars; i++) {
+                NSString* ivarName =
+                [NSString stringWithCString:ivar_getName(ivars[i])
+                                   encoding:NSUTF8StringEncoding];
+                [resultsArray addObject:ivarName];
+            }
+            interObject = [[interObject.superclass alloc] init];
+            free(ivars);
+            
+        }
+        
+        
+         
+   
+    return resultsArray;
+}
 
 /*
 
