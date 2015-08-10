@@ -16,6 +16,10 @@
   margin: 0;
 }
 
+.basics md-select {
+  margin-left: 16px;
+}
+
 
 
 .upload {
