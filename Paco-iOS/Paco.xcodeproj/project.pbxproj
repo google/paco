@@ -302,6 +302,7 @@
 		A6ABFAA31B742BE800F90598 /* NSObject+ITNDescription.m in Sources */ = {isa = PBXBuildFile; fileRef = A6ABFA9D1B742BE800F90598 /* NSObject+ITNDescription.m */; };
 		A6ABFAA41B742BE800F90598 /* NSObject+J2objcKVO.m in Sources */ = {isa = PBXBuildFile; fileRef = A6ABFA9F1B742BE800F90598 /* NSObject+J2objcKVO.m */; };
 		A6ABFAA51B742BE800F90598 /* PacoSerializer.m in Sources */ = {isa = PBXBuildFile; fileRef = A6ABFAA11B742BE800F90598 /* PacoSerializer.m */; };
+		A6ABFAAF1B79227A00F90598 /* PacoSchedulerTest.m in Sources */ = {isa = PBXBuildFile; fileRef = A6ABFAAE1B79227A00F90598 /* PacoSchedulerTest.m */; };
 		C567E89017A03FDE00267A26 /* deepbark_trial.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = C567E88F17A03FDE00267A26 /* deepbark_trial.mp3 */; };
 		C5B4691917B07E4900B6BC18 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C5B4691817B07E4900B6BC18 /* CoreGraphics.framework */; };
 		C5C4F5D217B163EF009E9F18 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C5C4F5D117B163EF009E9F18 /* QuartzCore.framework */; };
@@ -847,6 +848,7 @@
 		A6ABFA9F1B742BE800F90598 /* NSObject+J2objcKVO.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSObject+J2objcKVO.m"; sourceTree = "<group>"; };
 		A6ABFAA01B742BE800F90598 /* PacoSerializer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoSerializer.h; sourceTree = "<group>"; };
 		A6ABFAA11B742BE800F90598 /* PacoSerializer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoSerializer.m; sourceTree = "<group>"; };
+		A6ABFAAE1B79227A00F90598 /* PacoSchedulerTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoSchedulerTest.m; sourceTree = "<group>"; };
 		C567E88F17A03FDE00267A26 /* deepbark_trial.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = deepbark_trial.mp3; sourceTree = "<group>"; };
 		C5B4691817B07E4900B6BC18 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
 		C5C4F5D117B163EF009E9F18 /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
@@ -1495,6 +1497,7 @@
 				3640612F18230DA700DA5EB7 /* PacoExperimentTests.m */,
 				A676C7371B6043DE00F37572 /* Pacoj2Objc2JsonTests.m */,
 				36B8EC3817568E40004CF035 /* resources */,
+				A6ABFAAE1B79227A00F90598 /* PacoSchedulerTest.m */,
 			);
 			path = PacoTests;
 			sourceTree = "<group>";
@@ -2396,6 +2399,7 @@
 				36B8EC3C17568E40004CF035 /* PacoTests.m in Sources */,
 				367233E418061FD6006611E6 /* PacoScheduleGeneratorTests.m in Sources */,
 				A678C2E51B716283003F0D27 /* ModelBase.java in Sources */,
+				A6ABFAAF1B79227A00F90598 /* PacoSchedulerTest.m in Sources */,
 				363C9A431816F4A600D806F6 /* PacoNSMutableArrayCategoryTests.m in Sources */,
 				36AD6CEB17C5977E00B93855 /* PacoEvaluatorTests.m in Sources */,
 				A633A9B21B5DA0970046436D /* Schedule.java in Sources */,

@@ -314,19 +314,18 @@ static NSString* generatedDefinition  = @"{\n  \"title\" : \"My Title\",\n  \"de
                             withNameOfClassAttribute:@"nameOfClass"];
   NSObject* resultObject =
       [serializer buildObjectHierarchyFromCollections:definingObject];
-  // NSObject* resultObject2 = [serializer
-  // buildObjectHierarchyFromJSONOBject:data];
   [serializer validate:@[ @"parent", resultObject ]];
 }
 
 - (void)testKVOCategory {
-  NSError* error;
+ 
   NSData* data = [newDefinition dataUsingEncoding:NSUTF8StringEncoding];
   PacoSerializer* serializer =
       [[PacoSerializer alloc] initWithArrayOfClasses:_classes
                             withNameOfClassAttribute:@"nameOfClass"];
+    
   id object =
-      (JavaUtilArrayList*)[serializer buildObjectHierarchyFromJSONOBject:data];
+ (JavaUtilArrayList*)[serializer buildObjectHierarchyFromJSONOBject:data];
   PAExperimentDAO* dao = [object valueForKeyAndIndex:0 Key:@""];
   [dao setValueEx:@"12/12/20012" forKey:@"modifyDate"];
   NSString* str = [dao valueForKeyEx:@"modifyDate"];
@@ -339,25 +338,20 @@ static NSString* generatedDefinition  = @"{\n  \"title\" : \"My Title\",\n  \"de
 
 
 - (void)testBuildModelTree {
-  NSError* error;
-  NSData* data = [generatedDefinition dataUsingEncoding:NSUTF8StringEncoding];
-  id definingObject =
-      [NSJSONSerialization JSONObjectWithData:data
 
-                                      options:NSJSONReadingAllowFragments
-                                        error:&error];
+  NSData* data = [newDefinition dataUsingEncoding:NSUTF8StringEncoding];
   PacoSerializer* serializer =
       [[PacoSerializer alloc] initWithArrayOfClasses:_classes
                             withNameOfClassAttribute:@"nameOfClass"];
-  // NSObject* resultObject  =  [serializer
-  // buildObjectHierarchyFromCollections:definingObject];
+
   NSObject* resultObject = [serializer buildObjectHierarchyFromJSONOBject:data];
-
-  id retObject = [serializer toJ2OBJCCollctionsHeirarchy:resultObject];
-
   NSError* error2 = nil;
+    
+    
+ NSObject * foundationObject =    [serializer toJSONobject:resultObject];
+    
   NSData* newData =
-      [serializer foundationCollectionToJSONData:resultObject Error:error2];
+      [serializer foundationCollectionToJSONData:foundationObject Error:error2];
   NSString* string =
       [[NSString alloc] initWithData:newData encoding:NSUTF8StringEncoding];
   NSLog(@"json string %@", string);
