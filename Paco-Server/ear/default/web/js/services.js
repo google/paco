@@ -14,6 +14,11 @@ pacoApp.service('config', function() {
     3: 'Phone Details (Make, Model, Carrier)'
   };
 
+  this.ringtones = [
+    'Paco Bark',
+    'Paco Alternate Alert Tone'
+  ];
+
   this.scheduleTypes = [
     'Daily',
     'Weekdays',
@@ -47,7 +52,6 @@ pacoApp.service('config', function() {
     "Experiment joined", 
     "Experiment ended", 
     "Response received"
-    
   ];
 
   this.esmPeriods = [
@@ -106,6 +110,7 @@ pacoApp.service('template', function() {
     publishedUsers: [],
     groups: [this.group],
     dataDeclarations: [],
+    ringtoneUri: '/assets/ringtone/Paco Bark'
   }
 
   this.input = {

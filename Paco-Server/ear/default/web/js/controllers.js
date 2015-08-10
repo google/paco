@@ -134,6 +134,8 @@ pacoApp.controller('ExperimentCtrl', ['$scope', '$http',
     $location) {
     $scope.ace = {};
     $scope.feedbackTypes = config.feedbackTypes;
+    $scope.ringtones = config.ringtones;
+
     $scope.tabs = config.tabs;
 
     $scope.state = {
