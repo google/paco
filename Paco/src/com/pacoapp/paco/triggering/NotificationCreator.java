@@ -308,7 +308,9 @@ public class NotificationCreator {
                          String experimentRingtone) {
     if (!Strings.isNullOrEmpty(experimentRingtone)) {
       if (experimentRingtone.equals(RingtoneUtil.ALTERNATE_RINGTONE_FILENAME)
-          || experimentRingtone.equals(RingtoneUtil.ALTERNATE_RINGTONE_TITLE)) {
+          || experimentRingtone.equals(RingtoneUtil.ALTERNATE_RINGTONE_TITLE)
+          || experimentRingtone.equals(RingtoneUtil.ALTERNATE_RINGTONE_TITLE_V2)
+          || experimentRingtone.equals(RingtoneUtil.ALTERNATE_RINGTONE_TITLE_V2_FULLPATH)) {
         // TODO massive hack for quick study. FIX with proper ringtone
         // customization per experiment
         String ringtoneUri = new UserPreferences(context).getAltRingtoneUri();

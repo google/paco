@@ -31,6 +31,8 @@ public class RingtoneUtil {
   private static final String BARK_RINGTONE_FILENAME = "deepbark_trial.mp3";
   public static final String ALTERNATE_RINGTONE_FILENAME = "PBSRingtone_2.mp3";
   public static final String ALTERNATE_RINGTONE_TITLE = "Paco Alternate Alert";
+  public static final String ALTERNATE_RINGTONE_TITLE_V2 = "Paco Alternate Alert Tone";
+  public static final String ALTERNATE_RINGTONE_TITLE_V2_FULLPATH = "/assets/ringtone/Paco Alternate Alert Tone";
   private Context context;
   private UserPreferences userPreferences;
   public static final int RINGTONE_REQUESTCODE = 945;
