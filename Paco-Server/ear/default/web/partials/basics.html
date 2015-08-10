@@ -35,6 +35,14 @@
         </div>
       </md-input-container>
       
+      <div class="padded">
+        Ringtone
+        <md-select ng-model="experiment.ringtoneUri" placeholder="Select">
+          <md-option ng-repeat="ringtone in ringtones" value="/assets/ringtone/{{ringtone}}">
+            {{ringtone}}
+          </md-option>
+        </md-select>
+      </div>
       <!-- 
       <h2>Upload an image</h2>
       <div class="padded upload" file-dropzone="[image/png, image/jpeg, image/gif]" file="image"
