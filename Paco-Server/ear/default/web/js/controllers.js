@@ -390,19 +390,47 @@ pacoApp.controller('CsvCtrl', ['$scope', '$http', '$mdDialog', '$timeout',
     }
 
     $scope.poll = function() {
+
+
+      if (!$scope.jobUrl) {
+      $http.get($scope.endpoint).success(
+        function(data) {
+          //TODO: endpoint should return report URL, not HTML
+          startPos = data.indexOf(startMarker) + startMarker.length;
+          endPos = data.indexOf(endMarker);
+          if (startPos !== -1 && endPos !== -1) {
+            $scope.jobUrl = '/jobStatus?jobId=' + data.substring(startPos,
+              endPos) + '&cmdline=1';
+            $scope.status = 'Waiting';
+            $scope.poll();
+          }
+        }).error(function(data, status, headers, config) {
+          $scope.error = "Error type " + status;
+      });
+      $timeout($scope.poll, 1000);
+      console.log("First poll");
+      return;
+    }
+
       $scope.status += '.';
 
       $http.get($scope.jobUrl).success(
         function(data) {
 
+          $scope.result = data;
+
           if (data === 'pending\n') {
             $timeout($scope.poll, 1000);
-
           } else {
-
-            $scope.csv = data.trim();
-            $scope.table = $filter('csvToObj')($scope.csv);
-
+            $scope.csv = data;
+            var rows = data.split('\n');
+            $scope.table = [];
+            for (var i = 0; i < rows.length; i++) {
+              var cells = rows[i].split(',');
+              if (cells.length > 1) {
+                $scope.table.push(cells);
+              }
+            }
             var blob = new Blob([data], {
               type: 'text/csv'
             });
@@ -426,20 +454,10 @@ pacoApp.controller('CsvCtrl', ['$scope', '$http', '$mdDialog', '$timeout',
       $scope.endpoint += '&anon=true';
     }
 
-    $http.get($scope.endpoint).success(
-      function(data) {
-        //TODO: endpoint should return report URL, not HTML
-        startPos = data.indexOf(startMarker) + startMarker.length;
-        endPos = data.indexOf(endMarker);
-        if (startPos !== -1 && endPos !== -1) {
-          $scope.jobUrl = '/jobStatus?jobId=' + data.substring(startPos,
-            endPos) + '&cmdline=1';
-          $scope.status = 'Waiting';
-          $scope.poll();
-        }
-      }).error(function(data, status, headers, config) {
-        $scope.error = "Error type " + status;
-    });
+    //$scope.poll();
+    $scope.csv = '"who","when","appId","pacoVersion","experimentId","experimentName","experimentVersion","responseTime","scheduledTime","timeZone","joined","list1","list2"\n"ispiro@google.com","2015/08/03 22:53:13+0000","webform","4","5712536552865792","hello world","4","2015/08/03 15:53:21-0700",,"-07:00",,"1",\n"ispiro@google.com","2015/06/16 20:53:19+0000","webform","1","5712536552865792","hello world","1","2015/06/16 20:52:46+0000",,"UTC","true",,\n"ispiro@google.com","2015/06/16 20:52:46+0000","webform","1","5712536552865792","hello world","1","2015/06/16 20:48:11+0000",,"UTC","true",,\n"ispiro@google.com","2015/06/08 17:57:18+0000","webform","1","5712536552865792","hello world","1","2015/06/08 13:58:09-0400",,"-04:00",,"1","1,3"\n"ispiro@google.com","2015/06/01 17:58:01+0000","webform","1","5712536552865792","hello world","1","2015/06/01 17:58:38+0000",,"UTC","true",,\n"ispiro@google.com","2015/06/01 17:33:17+0000","webform","1","5712536552865792","hello world","1","2015/06/01 17:29:09+0000",,"UTC","true",,';
+    $scope.table = $filter('csvToObj')($scope.csv);
+    $scope.csvData = 'fake';
   }
 ]);
 
