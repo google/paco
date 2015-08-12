@@ -1011,11 +1011,11 @@ paco.renderer = (function() {
       if (!input) {
         continue;
       }
-      responsesHtml += "<div class=\"row\" style=\"margin-bottom: 5px;\">";
-      responsesHtml += "<h6 class=\"left\">";
+      responsesHtml += "<div class=\"row\" style=\"margin-bottom: 8px;\">";
+      responsesHtml += "<h6 class=\"left indigo-text\">";
       responsesHtml += input.text;
       responsesHtml += "</h6><br>";
-      responsesHtml += "<p class=\"grey-text text-darken-3\">";
+      responsesHtml += "<p class=\"black-text\">";
       responsesHtml += "&nbsp;&nbsp;&nbsp;"
       if (input.responseType === "photo" && response["answer"].length > 0) {
         responsesHtml += "<img src='data:image/jpg;base64," + response["answer"] + "' width=150>";
@@ -1035,7 +1035,7 @@ paco.renderer = (function() {
       } else {
         responsesHtml += response["answer"];
       }
-      responsesHtml += "<br/></p></div>";
+      responsesHtml += "</p></div>";
     }
     element.html(responsesHtml);
   };
