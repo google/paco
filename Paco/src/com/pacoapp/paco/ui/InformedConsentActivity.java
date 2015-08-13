@@ -204,7 +204,15 @@ public class InformedConsentActivity extends ActionBarActivity implements Experi
     }
     startService(new Intent(this, ExperimentExpirationManagerService.class));
     progressBar.setVisibility(View.GONE);
-    runScheduleActivity();
+    runPostJoinInstructionsActivity();
+  }
+
+  private void runPostJoinInstructionsActivity() {
+    Intent instructionsIntent = new Intent(this, PostJoinInstructionsActivity.class);
+    instructionsIntent.putExtras(getIntent().getExtras());
+    instructionsIntent.putExtra(INFORMED_CONSENT_PAGE_EXTRA_KEY, true);
+    instructionsIntent.putExtra(ScheduleDetailFragment.USER_EDITABLE_SCHEDULE, ExperimentHelper.hasUserEditableSchedule(experiment.getExperimentDAO()));
+    startActivityForResult(instructionsIntent, FindExperimentsActivity.JOIN_REQUEST_CODE);
   }
 
   private void createJoinEvent() {
@@ -272,19 +280,6 @@ public class InformedConsentActivity extends ActionBarActivity implements Experi
 
 
 
-
-  private void runScheduleActivity() {
-    if (ExperimentHelper.hasUserEditableSchedule(experiment.getExperimentDAO())) {
-      Intent experimentIntent = new Intent(this, ScheduleListActivity.class);
-      experimentIntent.putExtras(getIntent().getExtras());
-      experimentIntent.putExtra(INFORMED_CONSENT_PAGE_EXTRA_KEY, true);
-      experimentIntent.putExtra(ScheduleDetailFragment.USER_EDITABLE_SCHEDULE, ExperimentHelper.hasUserEditableSchedule(experiment.getExperimentDAO()));
-      startActivityForResult(experimentIntent, FindExperimentsActivity.JOIN_REQUEST_CODE);
-    } else {
-      setResult(FindExperimentsActivity.JOINED_EXPERIMENT);
-      finish();
-    }
-  }
 
   private void joinExperiment() {
     experiment.setJoinDate(getTodayAsStringWithZone());

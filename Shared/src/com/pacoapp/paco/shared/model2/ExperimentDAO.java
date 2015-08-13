@@ -37,6 +37,10 @@ import java.util.List;
  */
 public class ExperimentDAO extends ExperimentDAOCore implements Serializable {
 
+  private static final String DEFAULT_POST_INSTALL_INSTRUCTIONS = "<b>You have successfully joined the experiment!</b><br/><br/>"
+          + "No need to do anything else for now.<br/><br/>"
+          + "Paco will send you a notification when it is time to participate.<br/><br/>"
+          + "Be sure your ringer/buzzer is on so you will hear the notification.";
   private String modifyDate;
   private Boolean published;
   private List<String> admins;
@@ -44,6 +48,7 @@ public class ExperimentDAO extends ExperimentDAOCore implements Serializable {
   private Integer version = 1;
   protected List<ExperimentGroup> groups;
   private String ringtoneUri;
+  private String postInstallInstructions;
 
   // Visible for testing
   public ExperimentDAO(Long id, String title, String description, String informedConsentForm,
@@ -201,6 +206,14 @@ public class ExperimentDAO extends ExperimentDAOCore implements Serializable {
 
   public void setRingtoneUri(String ringtoneUri) {
     this.ringtoneUri = ringtoneUri;
+  }
+
+  public String getPostInstallInstructions() {
+    return postInstallInstructions != null ? postInstallInstructions : DEFAULT_POST_INSTALL_INSTRUCTIONS;
+  }
+
+  public void setPostInstallInstructions(String instructions) {
+    this.postInstallInstructions = instructions;
   }
 
 }
