@@ -40,7 +40,7 @@ import android.view.Display;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.widget.CheckBox;
+import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -74,7 +74,7 @@ public class InformedConsentActivity extends ActionBarActivity implements Experi
 
   private Experiment experiment;
   private ExperimentProviderUtil experimentProviderUtil;
-  private CheckBox icCheckbox;
+  private Button icButton;
 
   private ProgressBar progressBar;
 
@@ -126,12 +126,10 @@ public class InformedConsentActivity extends ActionBarActivity implements Experi
       ic.setText(experiment.getExperimentDAO().getInformedConsentForm());
 
       if (experiment.getJoinDate() == null) {
-        icCheckbox = (CheckBox) findViewById(R.id.InformedConsentAgreementCheckBox);
-        icCheckbox.setOnClickListener(new OnClickListener() {
+        icButton = (Button) findViewById(R.id.InformedConsentAgreementButton);
+        icButton.setOnClickListener(new OnClickListener() {
           public void onClick(View v) {
-            if (icCheckbox.isChecked()) {
-              requestFullExperimentForJoining();
-            }
+            requestFullExperimentForJoining();
           }
         });
       }
@@ -415,7 +413,6 @@ public class InformedConsentActivity extends ActionBarActivity implements Experi
             saveDownloadedExperimentBeforeScheduling(experimentList.get(0));
           }
         } else {
-          icCheckbox.setChecked(false);
           showFailureDialog("Could not successfully join. Try again.");
         }
       }
