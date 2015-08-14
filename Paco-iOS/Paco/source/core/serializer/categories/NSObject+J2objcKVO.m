@@ -276,8 +276,13 @@
   return retVal;
 }
 
+
 - (BOOL)isJ2Objc {
-  return [self isKindOfClass:[PAModelBase class]];
+    
+    BOOL isSubclass;
+     isSubclass = [self isKindOfClass:[PAModelBase class]];
+         //isSubclass = ([self isKindOfClass:[PAModelBase class]] || [self isKindOfClass:[JavaUtilAbstractCollection class]])  ;
+    return isSubclass;
 }
 
 @end

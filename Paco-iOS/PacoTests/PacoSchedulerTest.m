@@ -6,7 +6,7 @@
 //  Copyright (c) 2015 Paco. All rights reserved.
 //
 
-#import <Cocoa/Cocoa.h>
+#import <UIKit/UIKit.h>
 #import <XCTest/XCTest.h>
 
 @interface PacoSchedularTest : XCTestCase

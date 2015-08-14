@@ -134,8 +134,10 @@
       [NSJSONSerialization JSONObjectWithData:data
                                       options:NSJSONReadingAllowFragments
                                         error:&error];
+    
+    
 
-  [self recurseJason:@[ PACO_OBJECT_PARENT, definitionDict ]];
+  [self recurseJason:@[ PACO_OBJECT_PARENT, @[definitionDict] ]];
   return _parentNode;
 }
 
@@ -369,6 +371,8 @@
   id object = nil;
 
   clazzName = dictionary[_nameOfClass];
+    
+  NSLog(@"class name%@", clazzName);
   NSRange r1 = [clazzName rangeOfString:@"." options:NSBackwardsSearch];
   clazzName = [clazzName substringFromIndex:r1.location + 1];
   clazzName = [NSString stringWithFormat:@"PA%@", clazzName];

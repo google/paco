@@ -330,6 +330,8 @@ static NSString* generatedDefinition  = @"{\n  \"title\" : \"My Title\",\n  \"de
   [dao setValueEx:@"12/12/20012" forKey:@"modifyDate"];
   NSString* str = [dao valueForKeyEx:@"modifyDate"];
   NSLog(@" string %@", str);
+    
+    NSNumber * number = [dao valueForKeyPathEx:@"id"];
 
   NSString* endDay = [dao valueForKeyPathEx:@"groups[0].name"];
   endDay = [dao valueForKeyPathEx:@"groups[5].endDate"];

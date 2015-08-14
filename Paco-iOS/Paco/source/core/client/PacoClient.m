@@ -627,6 +627,7 @@ typedef void(^BackgroundFetchCompletionBlock)(UIBackgroundFetchResult result);
   //create a new experiment and save it to cache
   PacoExperiment *experiment = [self.model addExperimentWithDefinition:definition
                                                               schedule:schedule];
+    
   DDLogInfo(@"Experiment Joined with schedule: %@", [experiment.schedule description]);
   //start scheduling notifications for this joined experiment
   [self.scheduler startSchedulingForExperimentIfNeeded:experiment];

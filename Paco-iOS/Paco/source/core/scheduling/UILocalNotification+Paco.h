@@ -39,7 +39,7 @@ extern NSString* const kUserInfoKeyNotificationTimeoutDate;
 @property(nonatomic, strong, readonly) NSDate* timeOutDate;
 @end
 
-
+    
 typedef void(^NotificationProcessBlock)(UILocalNotification* activeNotification,
                                         NSArray* expiredNotifications,
                                         NSArray* notFiredNotifications);

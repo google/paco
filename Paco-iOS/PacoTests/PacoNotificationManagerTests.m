@@ -216,7 +216,7 @@
  
  */
 
-- (void)XXXtestProcessCachedNotificationsWithBlock {
+- (void) testProcessCachedNotificationsWithBlock {
   NSMutableDictionary* notificationDict = [NSMutableDictionary dictionaryWithCapacity:2];
   
   //set up the first experiment
@@ -722,6 +722,7 @@
                                                fireDate:date2
                                             timeOutDate:timeout2];
   [allNotifications addObject:notification4];
+    
   
   //original notifications
   NSDate* firstFireDate = [NSDate dateWithTimeIntervalSinceNow:-10]; //active
@@ -761,14 +762,18 @@
   expect[experimentId1] = notifications1;
   expect[experimentId2] = notifications2;
   expect[experimentId3] = notifications3;
+    
   
   NSMutableDictionary* result = (NSMutableDictionary*)[self.testManager valueForKey:@"notificationDict"];
   XCTAssertEqualObjects(result, expect,
                        @"add notifications should work correctly");
+    
+    
 }
 
 
 - (void)testAddNotificationsWithDuplicates {
+    
   NSDate* now = [NSDate date];
   NSDate* date1 = [NSDate dateWithTimeInterval:10 sinceDate:now];
   NSDate* date2 = [NSDate dateWithTimeInterval:20 sinceDate:now];
@@ -953,6 +958,8 @@
   NSString* experimentId2 = @"2";
   NSString* title1 = @"title1";
   NSString* title2 = @"title2";
+    
+    
   //id:1, fireDate:date1
   UILocalNotification* notification11 =
   [UILocalNotification pacoNotificationWithExperimentId:experimentId1
@@ -984,6 +991,8 @@
                                         experimentTitle:title2
                                                fireDate:date5
                                             timeOutDate:timeout5];
+    
+    
   NSMutableDictionary* expect = [NSMutableDictionary dictionaryWithCapacity:2];
   NSMutableArray* notifications1 = [NSMutableArray arrayWithObjects:notification11, notification12, nil];
   NSMutableArray* notifications2 = [NSMutableArray arrayWithObjects:notification21, notification22,notification23, nil];
@@ -1000,6 +1009,8 @@
                                         experimentTitle:title3
                                                fireDate:date3
                                             timeOutDate:timeout3];
+    
+    
   [self.testManager handleRespondedNotification:notificationToHandle];
   XCTAssertEqualObjects(self.testManager.notificationDict, expect, @"should ignore non-existing notification");
   XCTAssertEqual((int)[self.testManager totalNumberOfActiveNotifications], 0, @"should have 0 active notifications");
@@ -1057,6 +1068,7 @@
   //schedule them all
   [UIApplication sharedApplication].scheduledLocalNotifications =
       @[notification11, notification12, notification21, notification22, notification23];
+    
   NSArray* scheduled = [UIApplication sharedApplication].scheduledLocalNotifications;
   XCTAssertEqual([scheduled count],
                  (NSUInteger)5, @"should have 5 notifications scheduled successfully");

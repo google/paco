@@ -30,6 +30,7 @@
 #import "DDASLLogger.h"
 #import "DDFileLogger.h"
 #import "DDTTYLogger.h"
+#import "ScheduleTestViewController.h"
 
 @implementation PacoAppDelegate
 
@@ -122,8 +123,16 @@
 }
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
-  // Stir!
+  
+    
+     self.testViewController   = [[ScheduleTestViewController alloc]  initWithNibName:@"ScheduleTestViewController" bundle:nil];
+    
+    
+    // Stir!
   arc4random_stir();
+    
+ 
+    
   
   [DDLog addLogger:[DDASLLogger sharedInstance]];
   [DDLog addLogger:[DDTTYLogger sharedInstance]];
@@ -150,7 +159,7 @@
     self.viewController = [[PacoMainViewController alloc] initWithNibName:nil bundle:nil];
   }
 
-  self.window.rootViewController = [[UINavigationController alloc] initWithRootViewController:self.viewController];
+  self.window.rootViewController = [[UINavigationController alloc] initWithRootViewController:self.testViewController];
   [self.window makeKeyAndVisible];
   
   
