@@ -1,3 +1,74 @@
+pacoApp.service('experimentService', ['$http', '$cacheFactory', 'util',
+  function($http, $cacheFactory, util) {
+
+  var cache = $cacheFactory.get('$http');
+
+  return ({
+    getJoined: getJoined,
+    getAdministered: getAdministered,
+    getJoinable: getJoinable,
+    getExperiment: getExperiment,
+    joinExperiment: joinExperiment,
+    saveExperiment: saveExperiment,
+    deleteExperiment: deleteExperiment
+  });
+
+  function getData() {}
+
+  function getJoined(reload) {
+    if (reload !== undefined && reload === true) {
+        cache.remove('/experiments?joined');
+    }
+    return $http.get('/experiments?joined', {cache: true});
+  }
+
+  function getAdministered() {
+    return $http.get('/experiments?admin', {cache: true});
+  }
+
+  function getJoinable() {
+    return $http.get('/experiments?mine', {cache: true});
+  }
+
+  function getExperiment(id) {
+    return $http.get('/experiments?id=' + id, {cache: true});
+  }
+
+  function joinExperiment(experiment) {
+    var obj = {};
+    obj.experimentId = exp.id;
+    obj.appId = 'webform';
+    obj.experimentVersion = exp.version;
+    obj.experimentName = exp.title;
+    obj.responses = [{"name":"joined", "answer": true}];
+    obj.responseTime = util.formatDate(new Date());
+    var json = JSON.stringify(obj);
+
+    return $http.post('/events', json);
+  }
+
+  function saveExperiment(experiment) {
+
+    // Need to clear all list caches in case title was changed
+    cache.remove('/experiments?admin');
+    cache.remove('/experiments?joined');
+    cache.remove('/experiments?joinable');
+
+    // If it's not a new experiment, clear old cached definition
+    if (experiment.id) {
+      cache.remove('/experiments?id=' + experiment.id);
+    }
+
+    return $http.post('/experiments', experiment);
+  }
+
+  function deleteExperiment(id) {
+    return $http.post('/experiments?delete=1&id=' + id);
+  }
+
+}]);
+
+
 pacoApp.service('config', function() {
 
   this.tabs = [
@@ -49,8 +120,8 @@ pacoApp.service('config', function() {
     'Missed call',
     'Call Started (in or out)',
     'Call Ended (in or out)',
-    "Experiment joined", 
-    "Experiment ended", 
+    "Experiment joined",
+    "Experiment ended",
     "Response received"
   ];
 
@@ -166,6 +237,7 @@ pacoApp.service('template', function() {
     type: 0
   };
 });
+
 
 pacoApp.service('util', ['$filter', function($filter) {
 
