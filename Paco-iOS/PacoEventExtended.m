@@ -23,24 +23,24 @@
 
 
 
-static NSString* const kPacoEventKeyWho = @"who";
-static NSString* const kPacoEventKeyWhen = @"when";
-static NSString* const kPacoEventKeyLatitude = @"lat";
-static NSString* const kPacoEventKeyLongitude = @"long";
-static NSString* const kPacoEventKeyResponseTime = @"responseTime";
-static NSString* const kPacoEventKeyAppId = @"appId";
-static NSString* const kPacoEventKeyScheduledTime = @"scheduledTime";
-static NSString* const kPacoEventKeyPacoVersion = @"pacoVersion";
-static NSString* const kPacoEventKeyExperimentId = @"experimentId";
-static NSString* const kPacoEventKeyExperimentName = @"experimentName";
-static NSString* const kPacoEventKeyExperimentVersion = @"experimentVersion";
-static NSString* const kPacoEventKeyResponses = @"responses";
+static NSString* const kPacoEventKeyWhoExtended = @"who";
+static NSString* const kPacoEventKeyWhenExtended = @"when";
+static NSString* const kPacoEventKeyLatitudeExtended = @"lat";
+static NSString* const kPacoEventKeyLongitudeExtended = @"long";
+static NSString* const kPacoEventKeyResponseTimeExtended = @"responseTime";
+static NSString* const kPacoEventKeyAppIdExtended = @"appId";
+static NSString* const kPacoEventKeyScheduledTimeExtended = @"scheduledTime";
+static NSString* const kPacoEventKeyPacoVersionExtended = @"pacoVersion";
+static NSString* const kPacoEventKeyExperimentIdExtended = @"experimentId";
+static NSString* const kPacoEventKeyExperimentNameExtended = @"experimentName";
+static NSString* const kPacoEventKeyExperimentVersionExtended = @"experimentVersion";
+static NSString* const kPacoEventKeyResponsesExtended = @"responses";
 
-NSString* const kPacoResponseKeyName = @"name";
-NSString* const kPacoResponseKeyAnswer = @"answer";
-NSString* const kPacoResponseKeyInputId = @"inputId";
+NSString* const kPacoResponseKeyNameExtended = @"name";
+NSString* const kPacoResponseKeyAnswerExtended = @"answer";
+NSString* const kPacoResponseKeyInputIdExtended= @"inputId";
 
-NSString* const kPacoResponseJoin = @"joined";
+NSString* const kPacoResponseJoinExtended = @"joined";
 
 @interface PacoEventExtended ()
 @property (nonatomic, readwrite, copy) NSString *appId;
@@ -65,7 +65,7 @@ NSString* const kPacoResponseJoin = @"joined";
     return [[PacoEventExtended alloc] init];
 }
 
-
+/*
 + (id)pacoEventFromJSON:(id)jsonObject {
     PacoEventExtended *event = [[PacoEventExtended alloc] init];
     NSDictionary *eventMembers = jsonObject;
@@ -83,12 +83,15 @@ NSString* const kPacoResponseJoin = @"joined";
     event.responses = eventMembers[kPacoEventKeyResponses];
     return event;
 }
+ 
+ */
+
 
 
 - (PacoEventTypeExtended)type {
     for (NSDictionary *response in self.responses) {
-        if ([response[kPacoResponseKeyName] isEqualToString:kPacoResponseJoin]) {
-            return [response[kPacoResponseKeyAnswer] boolValue] ? PacoEventTypeJoinExtended : PacoEventTypeStopExtended;
+        if ([response[kPacoResponseKeyNameExtended] isEqualToString:kPacoResponseJoinExtended]) {
+            return [response[kPacoResponseKeyAnswerExtended] boolValue] ? PacoEventTypeJoinExtended : PacoEventTypeStopExtended;
         }
     }
     if (self.scheduledTime && self.responseTime) {
@@ -149,29 +152,29 @@ NSString* const kPacoResponseJoin = @"joined";
 
 - (id)generateJsonObject {
     NSMutableDictionary *dictionary = [NSMutableDictionary dictionary];
-    dictionary[kPacoEventKeyExperimentId] = self.experimentId;
-    dictionary[kPacoEventKeyExperimentName] = self.experimentName;
-    dictionary[kPacoEventKeyExperimentVersion] = [NSString stringWithFormat:@"%d", self.experimentVersion];
-    dictionary[kPacoEventKeyWho] = self.who;
-    dictionary[kPacoEventKeyAppId] = self.appId;
-    dictionary[kPacoEventKeyPacoVersion] = self.pacoVersion;
+    dictionary[kPacoEventKeyExperimentIdExtended] = self.experimentId;
+    dictionary[kPacoEventKeyExperimentNameExtended] = self.experimentName;
+    dictionary[kPacoEventKeyExperimentVersionExtended] = [NSString stringWithFormat:@"%d", self.experimentVersion];
+    dictionary[kPacoEventKeyWhoExtended] = self.who;
+    dictionary[kPacoEventKeyAppIdExtended] = self.appId;
+    dictionary[kPacoEventKeyPacoVersionExtended] = self.pacoVersion;
     if (self.when) {
-        dictionary[kPacoEventKeyWhen] = [PacoDateUtility pacoStringForDate:self.when];
+        dictionary[kPacoEventKeyWhenExtended] = [PacoDateUtility pacoStringForDate:self.when];
     }
     if (self.latitude) {
-        dictionary[kPacoEventKeyLatitude] = [NSString stringWithFormat:@"%lld", self.latitude];
+        dictionary[kPacoEventKeyLatitudeExtended] = [NSString stringWithFormat:@"%lld", self.latitude];
     }
     if (self.longitude) {
-        dictionary[kPacoEventKeyLongitude] = [NSString stringWithFormat:@"%lld", self.longitude];
+        dictionary[kPacoEventKeyLongitudeExtended] = [NSString stringWithFormat:@"%lld", self.longitude];
     }
     if (self.responseTime) {
-        dictionary[kPacoEventKeyResponseTime] = [PacoDateUtility pacoStringForDate:self.responseTime];
+        dictionary[kPacoEventKeyResponseTimeExtended] = [PacoDateUtility pacoStringForDate:self.responseTime];
     }
     if (self.scheduledTime) {
-        dictionary[kPacoEventKeyScheduledTime] = [PacoDateUtility pacoStringForDate:self.scheduledTime];
+        dictionary[kPacoEventKeyScheduledTimeExtended] = [PacoDateUtility pacoStringForDate:self.scheduledTime];
     }
     if (self.responses) {
-        dictionary[kPacoEventKeyResponses] = self.responses;
+        dictionary[kPacoEventKeyResponsesExtended] = self.responses;
     }
     return [NSDictionary dictionaryWithDictionary:dictionary];
 }
@@ -188,7 +191,7 @@ NSString* const kPacoResponseJoin = @"joined";
         if (![responseDict isKindOfClass:[NSDictionary class]]) {
             continue;
         }
-        id answer = ((NSDictionary*)responseDict)[kPacoResponseKeyAnswer];
+        id answer = ((NSDictionary*)responseDict)[kPacoResponseKeyAnswerExtended];
         if (![answer isKindOfClass:[NSString class]]) {
             continue;
         }
@@ -199,13 +202,13 @@ NSString* const kPacoResponseJoin = @"joined";
         NSString* imageString = [UIImage pacoBase64StringWithImageName:imageName];
         if ([imageString length] > 0) {
             NSMutableDictionary* newResponseDict = [NSMutableDictionary dictionaryWithDictionary:responseDict];
-            newResponseDict[kPacoResponseKeyAnswer] = imageString;
+            newResponseDict[kPacoResponseKeyAnswerExtended] = imageString;
             newReponseList[index] = newResponseDict;
         }
     }
     NSMutableDictionary* jsonPayload =
     [NSMutableDictionary dictionaryWithDictionary:[self generateJsonObject]];
-    jsonPayload[kPacoEventKeyResponses] = newReponseList;
+    jsonPayload[kPacoEventKeyResponsesExtended] = newReponseList;
     return jsonPayload;
 }
 
@@ -225,56 +228,64 @@ NSString* const kPacoResponseJoin = @"joined";
     //Special response values to indicate the user is joining this experiement.
     //For now, we need to indicate inputId=-1 to avoid server exception,
     //in the future, server needs to fix and accept JOIN and STOP events without inputId
-    NSDictionary* joinResponse = @{kPacoResponseKeyName:kPacoResponseJoin,
-                                   kPacoResponseKeyAnswer:@"true",
-                                   kPacoResponseKeyInputId:@"-1"};
+    NSDictionary* joinResponse = @{kPacoResponseKeyNameExtended:kPacoResponseJoinExtended,
+                                   kPacoResponseKeyAnswerExtended:@"true",
+                                   kPacoResponseKeyInputIdExtended:@"-1"};
     NSMutableArray* responseList = [NSMutableArray arrayWithObject:joinResponse];
     
     // Adding a schedule to the join event.
     // check if the
-    if (schedule && /*[schedule isScheduled]  */  [schedule.scheduleType_ intValue] != schedule.PASchedule_SELF_REPORT ){
+    if (schedule && /*[schedule isScheduled]  */  [[schedule valueForKeyEx:@"scheduleType"]
+                                            intValue] !=  PASchedule_SELF_REPORT ){
         
         
         
-        
+        /*
+       // <><><><><><><><><>
         PacoSerializer * serializer = [PacoSerializer alloc] initWithArrayOfClasses:(NSArray *) withNameOfClassAttribute:<#(NSString *)#>
         NSDictionary* scheduleResponse = @{kPacoResponseKeyName:@"schedule",
                                            kPacoResponseKeyAnswer:[schedule jsonString],
                                            kPacoResponseKeyInputId:@"-1"};
         [responseList addObject:scheduleResponse];
+         */
+        
     }
     event.responses = responseList;
     return event;
 }
 
-+ (PacoEventExtended *)stopEventForExperiment:(PacoExperimentExtended*)experiment
++ (PacoEventExtended *)stopEventForExperiment:(PacoExperimentExtended*) experiment
 {
     //create an event for stopping the experiement.
     
     PacoEventExtended *event = [PacoEventExtended  pacoEventForIOS];
-   // event.who = [[PacoClient sharedInstance] userEmail];
-    event.experimentId = experiment.definition.experimentId;
-    event.experimentName = experiment.definition.title;
-    event.experimentVersion = experiment.definition.experimentVersion;
+   // event.who = [[PacoClient sharedInstance] userEmail];  ---<><><><>
+    event.experimentId = [experiment.definition valueForKeyPathEx:@"id"];
+    event.experimentName = [experiment.definition valueForKeyPathEx:@"title"];
+    event.experimentVersion = [experiment.definition valueForKeyPathEx:@"version"];
     event.responseTime = [NSDate dateWithTimeIntervalSinceNow:0];
+    
+    
+    
+    
     
     //For now, we need to indicate inputId=-1 to avoid server exception,
     //in the future, server needs to fix and accept JOIN and STOP events without inputId
-    NSDictionary *responsePair = @{kPacoResponseKeyName:kPacoResponseJoin,
-                                   kPacoResponseKeyAnswer:@"false",
-                                   kPacoResponseKeyInputId:@"-1"};
+    NSDictionary *responsePair = @{kPacoResponseKeyNameExtended:kPacoResponseJoinExtended,
+                                   kPacoResponseKeyAnswerExtended:@"false",
+                                   kPacoResponseKeyInputIdExtended:@"-1"};
     event.responses = @[responsePair];
     
     return event;
 }
 
-+ (PacoEvent*)genericEventForDefinition:(PacoExperimentDefinition*)definition
++ (PacoEventExtended *)genericEventForDefinition:(PAExperimentDAO*)definition
                              withInputs:(NSArray*)inputs {
-    PacoEvent *event = [PacoEvent pacoEventForIOS];
-    event.who = [[PacoClient sharedInstance] userEmail];
-    event.experimentId = definition.experimentId;
-    event.experimentName = definition.title;
-    event.experimentVersion = definition.experimentVersion;
+    PacoEventExtended *event = [PacoEventExtended pacoEventForIOS];
+   // event.who = [[PacoExtendedClient sharedInstance] userEmail]; ---<><><><>
+     event.experimentId = [definition valueForKeyPathEx:@"id"];
+     event.experimentName = [definition valueForKeyPathEx:@"title"];
+     event.experimentVersion = [definition valueForKeyPathEx:@"version"];
     
     NSMutableArray *responses = [NSMutableArray array];
     for (PacoExperimentInput *input in inputs) {
@@ -291,7 +302,7 @@ NSString* const kPacoResponseJoin = @"joined";
             response[@"answer"] = payloadObject;
         } else {
             NSString* imageName = [UIImage pacoSaveImageToDocumentDir:payloadObject
-                                                        forDefinition:definition.experimentId
+                                                        forDefinition:[definition valueForKeyPathEx:@"id"]
                                                               inputId:input.inputIdentifier];
             if ([imageName length] > 0) {
                 NSString* fullName = [UIImage pacoBoxedNameFromImageName:imageName];
@@ -308,48 +319,48 @@ NSString* const kPacoResponseJoin = @"joined";
     return event;
 }
 
-+ (PacoEventExtended *)selfReportEventForDefinition:(PacoExperimentDefinition*)definition
++ (PacoEventExtended *)selfReportEventForDefinition:(PAExperimentDAO*) definition
                                 withInputs:(NSArray*)inputs {
     NSAssert(inputs != nil, @"inputs should not be nil!");
-    PacoEvent* event = [PacoEvent genericEventForDefinition:definition withInputs:inputs];
+    PacoEventExtended* event = [PacoEventExtended genericEventForDefinition:definition withInputs:inputs];
     event.responseTime = [NSDate dateWithTimeIntervalSinceNow:0];
     event.scheduledTime = nil;
     return event;
 }
 
 
-+ (PacoEventExtended*)surveySubmittedEventForDefinition:(PacoExperimentDefinition*)definition
++ (PacoEventExtended*)surveySubmittedEventForDefinition:(PAExperimentDAO*)definition
                                      withInputs:(NSArray*)inputs
                                andScheduledTime:(NSDate*)scheduledTime {
     NSAssert(scheduledTime != nil, @"scheduledTime should not be nil!");
-    PacoEvent* event = [PacoEvent genericEventForDefinition:definition withInputs:inputs];
+    PacoEventExtended* event = [PacoEventExtended genericEventForDefinition:definition withInputs:inputs];
     event.responseTime = [NSDate dateWithTimeIntervalSinceNow:0];
     event.scheduledTime = scheduledTime;
     return event;
 }
 
 
-+ (PacoEventExtended*)surveyMissedEventForDefinition:(PacoExperimentDefinition*)definition
++ (PacoEventExtended*)surveyMissedEventForDefinition:(PAExperimentDAO*)definition
                            withScheduledTime:(NSDate*)scheduledTime {
     NSAssert(scheduledTime != nil, @"scheduledTime should be valid!");
-    PacoEvent* event = [self surveyMissedEventForDefinition:definition
+    PacoEventExtended* event = [self surveyMissedEventForDefinition:definition
                                           withScheduledTime:scheduledTime
-                                                  userEmail:[[PacoClient sharedInstance] userEmail]];
+                                                          userEmail:@"email"];// [[PacoExtendedClient sharedInstance] userEmail]];
     return event;
 }
 
 
-+ (PacoEventExtended*)surveyMissedEventForDefinition:(PacoExperimentDefinition*)definition
++ (PacoEventExtended*)surveyMissedEventForDefinition:(PAExperimentDAO*)definition
                            withScheduledTime:(NSDate*)scheduledTime
                                    userEmail:(NSString*)userEmail{
     NSAssert(definition, @"definition should be valid");
     NSAssert(scheduledTime != nil, @"scheduledTime should be valid!");
     NSAssert([userEmail length] > 0, @"userEmail should be valid!");
-    PacoEvent *event = [PacoEvent pacoEventForIOS];
+    PacoEventExtended *event = [PacoEventExtended pacoEventForIOS];
     event.who = userEmail;
-    event.experimentId = definition.experimentId;
-    event.experimentName = definition.title;
-    event.experimentVersion = definition.experimentVersion;
+    event.experimentId = [definition valueForKeyPathEx:@"id"];
+    event.experimentName = [definition valueForKeyPathEx:@"title"];
+    event.experimentVersion = [definition valueForKeyPathEx:@"version"];
     event.responseTime = nil;
     event.scheduledTime = scheduledTime;
     return event;
