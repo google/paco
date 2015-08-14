@@ -29,6 +29,7 @@ import android.widget.ArrayAdapter;
 
 import com.pacoapp.paco.R;
 import com.pacoapp.paco.model.EsmSignalColumns;
+import com.pacoapp.paco.model.Experiment;
 import com.pacoapp.paco.model.ExperimentProviderUtil;
 import com.pacoapp.paco.shared.util.TimeUtil;
 import com.pacoapp.paco.triggering.AndroidEsmSignalStore;
@@ -75,7 +76,11 @@ public class ESMSignalViewer extends ListActivity  {
     while (cursor.moveToNext()) {
       Long experimentId = cursor.getLong(experimentIdColumnIndex);
       String experimentGroupName = cursor.getString(experimentGroupColumnIndex);
-      String experimentName = experimentProviderUtil.getExperimentByServerId(experimentId).getExperimentDAO().getTitle();
+      final Experiment experimentByServerId = experimentProviderUtil.getExperimentByServerId(experimentId);
+      if (experimentByServerId == null) {
+        continue;
+      }
+      String experimentName = experimentByServerId.getExperimentDAO().getTitle();
       String signalTime = TimeUtil.formatDateTimeShortNoZone(new DateTime(cursor.getLong(timeColumnIndex)));
       nameAndTime.add(signalTime + "  " + experimentName + "/" + experimentGroupName );
     }

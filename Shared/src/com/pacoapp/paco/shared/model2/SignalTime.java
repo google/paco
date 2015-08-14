@@ -2,7 +2,7 @@ package com.pacoapp.paco.shared.model2;
 
 import java.io.Serializable;
 
-public class SignalTime implements Validatable, Serializable {
+public class SignalTime extends ModelBase implements Validatable, Serializable {
   public static final Integer FIXED_TIME = 0;
   public static final Integer OFFSET_TIME = 1;
 
@@ -19,7 +19,7 @@ public class SignalTime implements Validatable, Serializable {
   private Integer fixedTimeMillisFromMidnight;
   private Integer basis; // from previous scheduledTime, from previous responseTime
   private Integer offsetTimeMillis;
-  private Integer missedBasisBehavior; // skip this time, use previousScheduledTime
+  private Integer missedBasisBehavior = MISSED_BEHAVIOR_USE_SCHEDULED_TIME; // skip this time, use previousScheduledTime
   private String label;
 
   public SignalTime(Integer type, Integer basis, Integer fixedTimeMillisFromMidnight,

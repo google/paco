@@ -89,7 +89,7 @@ public class ScheduleDetailActivity extends ActionBarActivity implements Schedul
     if (id == android.R.id.home) {
       // See the Navigation pattern on Android Design:
       // http://developer.android.com/design/patterns/navigation.html#up-vs-back
-      saveSchedule();
+      // superseded by onPause saveSchedule();
       final Intent intent = new Intent(this, ScheduleListActivity.class);
       intent.putExtras(getIntent().getExtras());
       setResult(RESULT_OK);
@@ -97,6 +97,12 @@ public class ScheduleDetailActivity extends ActionBarActivity implements Schedul
       return true;
     }
     return super.onOptionsItemSelected(item);
+  }
+
+  @Override
+  public void onPause() {
+      saveSchedule();
+      super.onPause();
   }
 
   private void loadScheduleFromIntent() {
@@ -112,7 +118,7 @@ public class ScheduleDetailActivity extends ActionBarActivity implements Schedul
   public void saveSchedule() {
     if (schedule != null && schedule.getScheduleType().equals(Schedule.ESM)) {
       AndroidEsmSignalStore alarmStore = new AndroidEsmSignalStore(this);
-      alarmStore.deleteAllSignalsForSurvey(experiment.getId());
+      alarmStore.deleteAllSignalsForSurvey(experiment.getExperimentDAO().getId());
     }
     experimentProviderUtil.deleteNotificationsForExperiment(experiment.getId());
     experimentProviderUtil.updateJoinedExperiment(experiment);

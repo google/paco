@@ -181,7 +181,8 @@ public class ExperimentAccessManager {
       removePublishedUserAcls(/*tx,*/ ds, aclsToBeRemoved);
       return;
     } else {
-      List<String> newPublishedUsers = experiment.getPublishedUsers();
+      List<String> newPublishedUsersMixedCase = experiment.getPublishedUsers();
+      List<String> newPublishedUsers = lowerCaseEmails(newPublishedUsersMixedCase);
       if (!existingPublishedUserAcls.isEmpty()) {
         List<Key> aclsToBeRemoved = Lists.newArrayList();
         for (Entity entity : existingPublishedUserAcls) {
@@ -257,10 +258,11 @@ public class ExperimentAccessManager {
 
   private static void updateAdminTable(Transaction tx, DatastoreService ds, ExperimentDAO experiment, Key experimentKey) {
     String creator = experiment.getCreator();
-    List<String> newAdminList = experiment.getAdmins();
-    if (!newAdminList.contains(creator)) {
-      newAdminList.add(creator);
+    List<String> newAdminListMixedCase = experiment.getAdmins();
+    if (!newAdminListMixedCase.contains(creator)) {
+      newAdminListMixedCase.add(creator);
     }
+    List<String> newAdminList = lowerCaseEmails(newAdminListMixedCase);
 
 
     List<Entity> existingAdminList = getExistingAdminsForExperiment(tx, ds, experimentKey, false);
@@ -288,6 +290,14 @@ public class ExperimentAccessManager {
       ds.put(/*tx,*/ adminAccessRules);
     }
     removePublishedUserAcls(/*tx,*/ ds, toBeRemovedList);
+  }
+
+  public static List<String> lowerCaseEmails(List<String> newAdminListMixedCase) {
+    List<String> newAdminList = Lists.newArrayList();
+    for (String admin : newAdminListMixedCase) {
+      newAdminList.add(admin.toLowerCase());
+    }
+    return newAdminList;
   }
 
   public static Entity createAdminAcl(Key experimentKey, String admin) {

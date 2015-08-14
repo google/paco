@@ -8,6 +8,5 @@ public interface MinimumBufferable {
 
   Integer getMinimumBuffer();
 
-  Integer getDefaultMinimumBuffer();
 
 }
