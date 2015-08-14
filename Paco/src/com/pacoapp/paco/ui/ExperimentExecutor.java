@@ -121,7 +121,7 @@ public class ExperimentExecutor extends ActionBarActivity implements ChangeListe
     actionBar.setLogo(R.drawable.ic_launcher);
     actionBar.setDisplayUseLogoEnabled(true);
     actionBar.setDisplayShowHomeEnabled(true);
-//    actionBar.setDisplayHomeAsUpEnabled(true);
+    // actionBar.setDisplayHomeAsUpEnabled(true);
     actionBar.setDisplayShowTitleEnabled(true);
     actionBar.setBackgroundDrawable(new ColorDrawable(0xff4A53B3));
 
@@ -138,13 +138,14 @@ public class ExperimentExecutor extends ActionBarActivity implements ChangeListe
       if (scheduledTime == null || scheduledTime == 0l) {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
       }
-      inflater = (LayoutInflater)getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-      optionsMenu = new OptionsMenu(this, getExperiment().getExperimentDAO().getId(), scheduledTime != null && scheduledTime != 0L);
+      inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+      optionsMenu = new OptionsMenu(this, getExperiment().getExperimentDAO().getId(), scheduledTime != null
+                                                                                      && scheduledTime != 0L);
 
       mainLayout = (LinearLayout) inflater.inflate(R.layout.experiment_executor, null);
       setContentView(mainLayout);
 
-      inputsScrollPane = (LinearLayout)findViewById(R.id.ScrollViewChild);
+      inputsScrollPane = (LinearLayout) findViewById(R.id.ScrollViewChild);
       displayExperimentGroupTitle();
 
       ((LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE)).inflate(R.layout.experiment_web_recommended_buttons,
@@ -154,7 +155,7 @@ public class ExperimentExecutor extends ActionBarActivity implements ChangeListe
 
       warningText = (TextView) findViewById(R.id.webRecommendedWarningText);
       warningText.setText(warningText.getText() + getString(R.string.use_browser) + "http://"
-          + getString(R.string.about_weburl));
+                          + getString(R.string.about_weburl));
 
       doOnPhoneButton = (Button) findViewById(R.id.DoOnPhoneButton);
       doOnPhoneButton.setVisibility(View.GONE);
@@ -175,26 +176,25 @@ public class ExperimentExecutor extends ActionBarActivity implements ChangeListe
         }
       });
 
-//      if (experimentGroup.getEndOfDayGroup()) {
-//        renderWebRecommendedMessage();
-//      } else {
-        if (experimentGroup.getEndOfDayGroup() ||
-                (experimentGroup.getCustomRendering() != null && experimentGroup.getCustomRendering())) {
-          Intent customExecutorIntent = new Intent(this, ExperimentExecutorCustomRendering.class);
+      // if (experimentGroup.getEndOfDayGroup()) {
+      // renderWebRecommendedMessage();
+      // } else {
+      if (experimentGroup.getEndOfDayGroup() ||
+              (experimentGroup.getCustomRendering() != null && experimentGroup.getCustomRendering())) {
+        Intent customExecutorIntent = new Intent(this, ExperimentExecutorCustomRendering.class);
 
-          Bundle extras = getIntent().getExtras();
-          if (extras != null) {
-            customExecutorIntent.putExtras(extras);
-          }
-
-          startActivity(customExecutorIntent);
-          finish();
-        } else {
-          showForm();
+        Bundle extras = getIntent().getExtras();
+        if (extras != null) {
+          customExecutorIntent.putExtras(extras);
         }
-//      }
-    }
 
+        startActivity(customExecutorIntent);
+        finish();
+      } else {
+        showForm();
+      }
+      // }
+    }
 
   }
 
@@ -259,11 +259,13 @@ public class ExperimentExecutor extends ActionBarActivity implements ChangeListe
   protected void onResume() {
     super.onResume();
     registerLocationListenerIfNecessary();
-    mainLayout.clearFocus();
-    if (inputs != null && inputs.size() > 0) {
-      InputLayout firstInput = inputs.get(0);
-      if (firstInput.getInput().getResponseType().equals(Input2.OPEN_TEXT)) {
-        firstInput.requestFocus();
+    if (mainLayout != null) {
+      mainLayout.clearFocus();
+      if (inputs != null && inputs.size() > 0) {
+        InputLayout firstInput = inputs.get(0);
+        if (firstInput.getInput().getResponseType().equals(Input2.OPEN_TEXT)) {
+          firstInput.requestFocus();
+        }
       }
     }
   }
