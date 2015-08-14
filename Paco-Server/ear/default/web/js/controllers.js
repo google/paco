@@ -335,77 +335,36 @@ pacoApp.controller('ListCtrl', ['$scope', '$mdDialog', '$location',
 ]);
 
 
+pacoApp.controller('CsvCtrl', ['$scope', '$mdDialog',
+  '$location', '$filter', 'dataService',
+  function($scope, $mdDialog, $location, $filter, dataService) {
 
-pacoApp.controller('CsvCtrl', ['$scope', '$http', '$mdDialog', '$timeout',
-  '$location', '$filter',
-  function($scope, $http, $mdDialog, $timeout, $location, $filter) {
+    var user = false;
+    var anonymous = false;
 
-    var startMarker =
-      '<title>Current Status of Report Generation for job: ';
-    var endMarker = '</title>';
-
-    $scope.status = 'Idle';
-    $scope.error = false;
+    if ($scope.myData) {
+      user = $scope.user;
+    }
 
     if ($location.hash() && $location.hash() === 'anon') {
-      $scope.anon = true;
+      anonymous = true;
     }
 
-    if ($location.hash() && $location.hash() === 'mine') {
-      $scope.myData = true;
-    }
-
-    $scope.poll = function() {
-      $scope.status += '.';
-
-      $http.get($scope.jobUrl).success(
-        function(data) {
-
-          if (data === 'pending\n') {
-            $timeout($scope.poll, 1000);
-
-          } else {
-
-            $scope.csv = data.trim();
-            $scope.table = $filter('csvToObj')($scope.csv);
-
-            var blob = new Blob([data], {
-              type: 'text/csv'
-            });
-            $scope.csvData = (window.URL || window.webkitURL).createObjectURL(
-              blob);
-          }
-        }
-      )
-    };
+    dataService.getCsv($scope.csvExperimentId, user, anonymous).
+    then(function(result) {
+      if (result.data) {
+        $scope.csv = result.data;
+        $scope.table = $filter('csvToObj')($scope.csv);
+        var blob = new Blob([result.data], {
+                    type: 'text/csv'
+                    });
+        $scope.csvData = (window.URL || window.webkitURL).createObjectURL(blob);
+      } else if (result.error) {
+        $scope.error = result.error;
+      }
+    });
 
     $scope.status = 'Sending CSV request';
-    $scope.endpoint = '/events?q=\'experimentId=' + $scope.csvExperimentId;
- 
-    if ($scope.myData) {
-      $scope.endpoint += ':who=' + $scope.user;      
-    }
-
-    $scope.endpoint += '\'&csv';
-
-    if ($scope.anon) {
-      $scope.endpoint += '&anon=true';
-    }
-
-    $http.get($scope.endpoint).success(
-      function(data) {
-        //TODO: endpoint should return report URL, not HTML
-        startPos = data.indexOf(startMarker) + startMarker.length;
-        endPos = data.indexOf(endMarker);
-        if (startPos !== -1 && endPos !== -1) {
-          $scope.jobUrl = '/jobStatus?jobId=' + data.substring(startPos,
-            endPos) + '&cmdline=1';
-          $scope.status = 'Waiting';
-          $scope.poll();
-        }
-      }).error(function(data, status, headers, config) {
-        $scope.error = "Error type " + status;
-    });
   }
 ]);
 

@@ -69,6 +69,67 @@ pacoApp.service('experimentService', ['$http', '$cacheFactory', 'util',
 }]);
 
 
+pacoApp.service('dataService', ['$http', '$timeout', '$q',
+  function($http, $timeout, $q) {
+
+  return ({
+    getCsv: getCsv,
+  });
+
+  function getCsv(id, user, anonymous) {
+
+    var maxTries = 10;
+    var startMarker = '<title>Current Status of Report Generation for job: ';
+    var endMarker = '</title>';
+    var endpoint = '/events?q=\'experimentId=' + id;
+    var jobUrl;
+    var defer = $q.defer();
+    var tryCount = 0;
+
+    if (user) {
+      endpoint += ':who=' + user;
+    }
+
+    endpoint += '\'&csv';
+
+    if (anonymous) {
+      endpoint += '&anon=true';
+    }
+
+    $http.get(endpoint).success(
+      function(data) {
+        //TODO: endpoint should return report URL, not HTML
+        startPos = data.indexOf(startMarker) + startMarker.length;
+        endPos = data.indexOf(endMarker);
+        if (startPos !== -1 && endPos !== -1) {
+          jobUrl = '/jobStatus?jobId=' + data.substring(startPos,
+            endPos) + '&cmdline=1';
+          poll();
+        }
+      });
+
+    var poll = function() {
+      if (tryCount >= maxTries) {
+        defer.resolve({'error': 'Exceeded max tries'});
+        return;
+      }
+      tryCount++;
+
+      $http.get(jobUrl).success(
+        function(data) {
+          if (data === 'pending\n') {
+            $timeout(poll, 1000);
+          } else {
+            var csv = data.trim();
+            defer.resolve({'data': csv});
+          }
+        }
+      )
+    };
+    return defer.promise;
+  }
+}]);
+
 pacoApp.service('config', function() {
 
   this.tabs = [
