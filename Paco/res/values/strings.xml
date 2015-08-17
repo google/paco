@@ -278,6 +278,7 @@
     <string name="dialog_dismiss">OK</string>
     <string name="experiment_could_not_be_retrieved">Could Not Retrieve Experiment.</string>
     <string name="invalid_data">Something went wrong with retrieving experiment data.</string>
+    <string name="unable_to_save_experiment">Unable to join this experiment. Please email the researcher running this study.</string>
     <string name="server_error">Something went wrong with the server.</string>
     <string name="network_required">Network Required</string>
     <string name="need_network_connection">You will need a network connection to join the experiment. Enable connection now?</string>
