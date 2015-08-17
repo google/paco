@@ -30,6 +30,7 @@ public class NetworkUtil {
   public static final int INVALID_DATA_ERROR = 1003;
   public static final int SERVER_ERROR = 1004;
   public static final int NO_NETWORK_CONNECTION = 1005;
+  public static final int JOIN_ERROR = 1006;
   public static final int ENABLED_NETWORK = 1;
 
 }
