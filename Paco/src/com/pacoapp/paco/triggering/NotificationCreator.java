@@ -289,6 +289,11 @@ public class NotificationCreator {
 
     PendingIntent notificationIntent = PendingIntent.getActivity(context, 1, surveyIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
+    //Adding bigText style to notification enabling larger messages to be read in the notification pane
+    NotificationCompat.BigTextStyle bigStyle = new NotificationCompat.BigTextStyle();
+    bigStyle.setBigContentTitle(experimentTitle);
+    bigStyle.bigText(message);
+    
     NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(context)
             .setSmallIcon(icon)
             .setContentTitle(experimentTitle)
@@ -296,7 +301,8 @@ public class NotificationCreator {
             .setContentText(message)
             .setWhen(notificationHolder.getAlarmTime())
             .setContentIntent(notificationIntent)
-            .setAutoCancel(true);
+            .setAutoCancel(true)
+    		.setStyle(bigStyle);
 
     int defaults = Notification.DEFAULT_VIBRATE | Notification.DEFAULT_LIGHTS;
     defaults = getRingtone(context, notificationBuilder, defaults, experimentSpecificRingtone);
