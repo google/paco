@@ -155,7 +155,7 @@ public class InformedConsentActivity extends ActionBarActivity implements Experi
     if (!NetworkUtil.isConnected(this)) {
       showDialog(NetworkUtil.NO_NETWORK_CONNECTION, null);
     } else {
-      // WE are currently downloading the full experiment.
+      // WE are currently already downloading the full experiment.
             progressBar.setVisibility(View.VISIBLE);
 //      final List<ExperimentGroup> groups = experiment.getGroups();
 //      if (groups == null || groups.size() == 0) {
@@ -163,7 +163,11 @@ public class InformedConsentActivity extends ActionBarActivity implements Experi
 //                                                                                   experiment.getServerId());
 //        new PacoForegroundService(this, myExperimentsUrl).execute();
 //      } else {
-        saveDownloadedExperimentBeforeScheduling(experiment);
+     try {
+       saveDownloadedExperimentBeforeScheduling(experiment);
+     } catch (IllegalStateException ise) {
+       showDialog(NetworkUtil.JOIN_ERROR);
+     }
 //      }
     }
   }
@@ -298,6 +302,10 @@ public class InformedConsentActivity extends ActionBarActivity implements Experi
     case NetworkUtil.NO_NETWORK_CONNECTION: {
       return getNoNetworkDialog();
     }
+    case NetworkUtil.JOIN_ERROR: {
+      return getUnableToJoinDialog(getString(R.string.unable_to_save_experiment));
+    }
+
     default: {
       return null;
     }
@@ -359,6 +367,8 @@ public class InformedConsentActivity extends ActionBarActivity implements Experi
   private void showFailureDialog(String status) {
     if (status.equals(NetworkUtil.CONTENT_ERROR) || status.equals(NetworkUtil.RETRIEVAL_ERROR)) {
       showDialog(NetworkUtil.INVALID_DATA_ERROR, null);
+    } else if (status.equals(NetworkUtil.JOIN_ERROR)) {
+      showDialog(NetworkUtil.JOIN_ERROR);
     } else {
       showDialog(NetworkUtil.SERVER_ERROR, null);
     }
