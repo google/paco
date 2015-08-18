@@ -320,8 +320,8 @@ pacoApp.controller('ListCtrl', ['$scope', '$mdDialog', '$location',
 
     $scope.joinExperiment = function($event, exp) {
       experimentService.joinExperiment(exp)
-        .then(function(data) {
-          if (data[0].status === true) {
+        .then(function(result) {
+          if (result.data && result.data[0].status === true) {
             $scope.loadList(true);
 
             $mdDialog.show(
@@ -382,6 +382,36 @@ pacoApp.controller('CsvCtrl', ['$scope', '$mdDialog',
     $scope.status = 'Sending CSV request';
   }
 ]);
+
+
+pacoApp.controller('StatsCtrl', ['$scope', '$mdDialog', '$filter',
+  '$routeParams', 'dataService', 'experimentService',
+  function($scope, $mdDialog, $filter, $routeParams, dataService,
+    experimentService) {
+
+    if (angular.isDefined($routeParams.experimentId)) {
+      $scope.experimentId = parseInt($routeParams.experimentId, 10);
+    }
+
+    experimentService.getExperiment($scope.experimentId).then(
+      function(response) {
+        $scope.experiment = response.data[0];
+      });
+
+    dataService.getParticipantData($scope.experimentId).
+    then(function(result) {
+      console.log(result);
+      if (result.data) {
+        $scope.csv = result.data;
+      } else if (result.error) {
+        $scope.error = result.error;
+      }
+    });
+
+    $scope.status = 'Sending stats request';
+  }
+]);
+
 
 pacoApp.controller('GroupsCtrl', ['$scope', 'template',
   function($scope, template) {
