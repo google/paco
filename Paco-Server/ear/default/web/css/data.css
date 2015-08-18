@@ -1,3 +1,7 @@
+.csv {
+  margin: 16px;
+}
+
 .csv h2 {
   font-size: 18px;
   font-weight: 400;
@@ -30,4 +34,8 @@
 
 .csv md-card {
   overflow-x: scroll;
+}
+
+.stats {
+  margin: 16px;
 }

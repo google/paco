@@ -1,7 +1,11 @@
 body,
 html {
-  background: #F5F5F5;;
+  background: #eee;
   min-width: 1024px;
+}
+
+.home {
+  background: #F5F5F5;
 }
 
 a {
@@ -26,6 +30,11 @@ md-card-content {
 
 md-card md-card-content {
   padding: 0;
+}
+
+md-card .md-actions {
+  padding-left: 8px;
+  padding-right: 8px;
 }
 
 md-dialog ul {
@@ -78,7 +87,6 @@ md-dialog li {
 .error {
   color: red;
   font-weight: 500;
-  margin-left: 16px;
 }
 
 .notransition {
