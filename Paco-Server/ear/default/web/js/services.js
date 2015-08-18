@@ -8,7 +8,6 @@ pacoApp.service('experimentService', ['$http', '$cacheFactory', 'util',
       getAdministered: getAdministered,
       getJoinable: getJoinable,
       getJoined: getJoined,
-      getParticipantData: getParticipantData,
       getExperiment: getExperiment,
       joinExperiment: joinExperiment,
       saveExperiment: saveExperiment,
@@ -24,13 +23,19 @@ pacoApp.service('experimentService', ['$http', '$cacheFactory', 'util',
       });
     }
 
-    function getAdministered() {
+    function getAdministered(reload) {
+      if (reload !== undefined && reload === true) {
+        cache.remove('/experiments?admin');
+      }
       return $http.get('/experiments?admin', {
         cache: true
       });
     }
 
-    function getJoinable() {
+    function getJoinable(reload) {
+      if (reload !== undefined && reload === true) {
+        cache.remove('/experiments?mine');
+      }
       return $http.get('/experiments?mine', {
         cache: true
       });
@@ -44,10 +49,10 @@ pacoApp.service('experimentService', ['$http', '$cacheFactory', 'util',
 
     function joinExperiment(experiment) {
       var obj = {};
-      obj.experimentId = exp.id;
+      obj.experimentId = experiment.id;
       obj.appId = 'webform';
-      obj.experimentVersion = exp.version;
-      obj.experimentName = exp.title;
+      obj.experimentVersion = experiment.version;
+      obj.experimentName = experiment.title;
       obj.responses = [{
         "name": "joined",
         "answer": true
@@ -76,61 +81,6 @@ pacoApp.service('experimentService', ['$http', '$cacheFactory', 'util',
     function deleteExperiment(id) {
       return $http.post('/experiments?delete=1&id=' + id);
     }
-
-
-    function getParticipantData() {
-
-      return {
-        count: 5,
-        participants: [{
-          who: 'user1@mail.com',
-          todaySignalCount: 5,
-          todayResponseCount: 4,
-          todaySelfReportCount: 0,
-          totalSignalCount: 10,
-          totalResponseCount: 7,
-          totalSelfReportCount: 5
-        },
-        {
-          who: 'user2@mail.com',
-          todaySignalCount: 5,
-          todayResponseCount: 0,
-          todaySelfReportCount: 0,
-          totalSignalCount: 10,
-          totalResponseCount: 0,
-          totalSelfReportCount: 0
-        },
-        {
-          who: 'user3@mail.com',
-          todaySignalCount: 5,
-          todayResponseCount: 5,
-          todaySelfReportCount: 3,
-          totalSignalCount: 10,
-          totalResponseCount: 10,
-          totalSelfReportCount: 5
-        },
-        {
-          who: 'user4@mail.com',
-          todaySignalCount: 5,
-          todayResponseCount: 0,
-          todaySelfReportCount: 10,
-          totalSignalCount: 10,
-          totalResponseCount: 0,
-          totalSelfReportCount: 20
-        },
-        {
-          who: 'user5@mail.com',
-          todaySignalCount: 5,
-          todayResponseCount: 2,
-          todaySelfReportCount: 2,
-          totalSignalCount: 10,
-          totalResponseCount: 8,
-          totalSelfReportCount: 2
-        }],
-        nextCursor: ''
-      }
-    }
-
   }
 ]);
 
@@ -140,6 +90,7 @@ pacoApp.service('dataService', ['$http', '$timeout', '$q',
 
     return ({
       getCsv: getCsv,
+      getParticipantData: getParticipantData,
     });
 
     function getCsv(id, user, anonymous) {
@@ -197,6 +148,65 @@ pacoApp.service('dataService', ['$http', '$timeout', '$q',
         )
       };
       return defer.promise;
+    }
+
+
+    function getParticipantData(id) {
+
+      var fake = {
+        count: 5,
+        participants: [{
+          who: 'user1@mail.com',
+          todaySignalCount: 5,
+          todayResponseCount: 4,
+          todaySelfReportCount: 0,
+          totalSignalCount: 10,
+          totalResponseCount: 7,
+          totalSelfReportCount: 5
+        },
+        {
+          who: 'user2@mail.com',
+          todaySignalCount: 5,
+          todayResponseCount: 0,
+          todaySelfReportCount: 0,
+          totalSignalCount: 10,
+          totalResponseCount: 0,
+          totalSelfReportCount: 0
+        },
+        {
+          who: 'user3@mail.com',
+          todaySignalCount: 5,
+          todayResponseCount: 5,
+          todaySelfReportCount: 3,
+          totalSignalCount: 10,
+          totalResponseCount: 10,
+          totalSelfReportCount: 5
+        },
+        {
+          who: 'user4@mail.com',
+          todaySignalCount: 5,
+          todayResponseCount: 0,
+          todaySelfReportCount: 10,
+          totalSignalCount: 10,
+          totalResponseCount: 0,
+          totalSelfReportCount: 20
+        },
+        {
+          who: 'user5@mail.com',
+          todaySignalCount: 5,
+          todayResponseCount: 2,
+          todaySelfReportCount: 2,
+          totalSignalCount: 10,
+          totalResponseCount: 8,
+          totalSelfReportCount: 2
+        }],
+        nextCursor: ''
+      }
+
+      var defer = $q.defer();
+      defer.resolve({data: fake});
+      return defer.promise;
+
     }
   }
 ]);
