@@ -18,6 +18,9 @@ pacoApp.config(['$routeProvider','$locationProvider',
     when('/data/:csvExperimentId', {
       templateUrl: 'partials/data.html',
     }).
+    when('/stats/:experimentId', {
+      templateUrl: 'partials/stats.html',
+    }).
     when('/respond/:respondExperimentId', {
       templateUrl: 'partials/respond.html',
     }).
@@ -29,7 +32,7 @@ pacoApp.config(['$routeProvider','$locationProvider',
       reloadOnSearch: false,
     }).
     otherwise({
-      templateUrl: 'partials/home.html',
+      templateUrl: 'partials/welcome.html',
     });
 
     //$locationProvider.html5Mode(true);
