@@ -1,15 +1,10 @@
-.bg {
-  background: #F5F5F5;
-  display: inline-block;
-  width: 100%;
-}
-
 .main {
   left: 50%;
   margin-left: -480px;
   margin-bottom: 64px; 
   position: relative;
   width: 960px;
+  min-height: calc(100vh);
 }
 
 md-toolbar {
@@ -123,8 +118,9 @@ md-toolbar .subtitle {
 }
 
 .sitemap {
-  padding-top: 32px;
+  background: #eee;
   height: 100px;
+  padding-top: 32px;
 }
 
 .sitemap .links {

@@ -1,0 +1,24 @@
+<md-toolbar class="md-tall">
+  <a href="/?">
+    <img src="img/paco256.png" class="paco">
+  </a>
+  <span class="title">Paco</span>
+  <span class="subtitle">The Personal Analytics Companion</span>
+
+  <a href="{{loginURL}}" ng-if="loginURL">
+    <md-button class="md-raised" id="login">
+      Sign In
+    </md-button>
+  </a>
+
+  <div class="logout"  ng-if="logoutURL && !loginURL">
+    <span class="user" ng-bind="user"></span>
+    <p>
+      <a href="{{logoutURL}}">
+        <md-button class="md-raised">
+          Sign Out
+        </md-button>
+      </a>
+    </p>
+  </div>
+</md-toolbar>

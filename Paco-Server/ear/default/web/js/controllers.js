@@ -1,56 +1,20 @@
-pacoApp.controller('HomeCtrl', ['$scope', '$http', '$routeParams', '$location',
-  'experimentService', 
-  function($scope, $http, $routeParams, $location, experimentService) {
+pacoApp.controller('HomeCtrl', ['$scope', '$http', '$location',
+  'experimentService',
+  function($scope, $http, $location, experimentService) {
     $scope.newExperiment = false;
     $scope.experimentId = false;
     $scope.tabIndex = -1;
     $scope.loaded = false;
     $scope.edit = false;
 
-    $scope.loadList = function(reload) {
-      $scope.loadAdmin(reload);
-      $scope.loadJoined(reload);
-      $scope.loadJoinable(reload);
-    };
-
-    $scope.loadJoined = function(reload) {
-      experimentService.getJoined(reload).then(function(response) {
-        var data = response.data;
-        $scope.joined = data;
-        $scope.joinedIndex = [];
-        $scope.eodExperiments = {};
-        for (var i = 0; i < data.length; i++) {
-          var experiment = data[i];
-          $scope.joinedIndex.push(experiment.id);
-          for (var g = 0; g < experiment.groups.length; g++) {
-            if (experiment.groups[g].endOfDayGroup) {
-              $scope.eodExperiments[experiment.id] = true;
-            }
-          }
-        }
-      });
-    };
-
-    $scope.loadAdmin = function(reload) {
-      experimentService.getAdministered(reload).then(function(response) {
-        $scope.experiments = response.data;
-      });
-    }
-
-    $scope.loadJoinable = function(reload) {
-      experimentService.getAdministered(reload).then(function(response) {
-        $scope.joinable = response.data;
-      });
-    };
-
     $scope.forceHttps = function() {
-      var devMode = ($location.host() === 'localhost' || 
-                      $location.host() === '127.0.0.1');
+      var devMode = ($location.host() === 'localhost' ||
+        $location.host() === '127.0.0.1');
       var insecure = ($location.protocol() === 'http');
-      
+
       if (!devMode && insecure) {
         var URL = document.location;
-        document.location = URL.replace('http://','https://');
+        document.location = URL.replace('http://', 'https://');
       }
     };
 
@@ -63,7 +27,6 @@ pacoApp.controller('HomeCtrl', ['$scope', '$http', '$routeParams', '$location',
       // Make sure email isn't the dev email address
       if (data.user && data.user !== 'bobevans999@gmail.com') {
         $scope.user = data.user;
-        $scope.loadList();
       } else {
         $scope.loginURL = data.login;
       }
@@ -72,9 +35,29 @@ pacoApp.controller('HomeCtrl', ['$scope', '$http', '$routeParams', '$location',
     }).error(function(data) {
       console.log(data);
     });
+  }
+]);
 
-    if (angular.isDefined($routeParams.experimentId)) {
-      $scope.experimentId = parseInt($routeParams.experimentId, 10);
+
+pacoApp.controller('ExperimentCtrl', ['$scope', '$mdDialog', '$filter',
+  'config', 'template', '$routeParams', '$location', 'experimentService',
+  function($scope, $mdDialog, $filter, config, template, $routeParams,
+    $location, experimentService) {
+    $scope.ace = {};
+    $scope.feedbackTypes = config.feedbackTypes;
+    $scope.ringtones = config.ringtones;
+    $scope.tabs = config.tabs;
+
+    $scope.state = {
+      tabId: 0,
+      groupIndex: null
+    };
+
+    if ($location.hash()) {
+      var newTabId = config.tabs.indexOf($location.hash());
+      if (newTabId !== -1) {
+        $scope.state.tabId = newTabId;
+      }
     }
 
     if (angular.isDefined($routeParams.editId)) {
@@ -101,29 +84,9 @@ pacoApp.controller('HomeCtrl', ['$scope', '$http', '$routeParams', '$location',
       $scope.respondExperimentId = parseInt($routeParams.respondExperimentId, 10);
       $scope.experimentId = $scope.respondExperimentId;
     }
-  }
-]);
 
-
-pacoApp.controller('ExperimentCtrl', ['$scope', '$mdDialog', '$filter',
-  'config', 'template', '$location', 'experimentService',
-  function($scope, $mdDialog, $filter, config, template,
-    $location, experimentService) {
-    $scope.ace = {};
-    $scope.feedbackTypes = config.feedbackTypes;
-    $scope.ringtones = config.ringtones;
-    $scope.tabs = config.tabs;
-
-    $scope.state = {
-      tabId: 0,
-      groupIndex: null
-    };
-
-    if ($location.hash()) {
-      var newTabId = config.tabs.indexOf($location.hash());
-      if (newTabId !== -1) {
-        $scope.state.tabId = newTabId;
-      }
+    if (angular.isDefined($routeParams.experimentId)) {
+      $scope.experimentId = parseInt($routeParams.experimentId, 10);
     }
 
     if ($scope.experimentId === -1) {
@@ -155,6 +118,7 @@ pacoApp.controller('ExperimentCtrl', ['$scope', '$mdDialog', '$filter',
           }
         });
     }
+
 
     $scope.$watch('user', function(newValue, oldValue) {
       if (newValue && $scope.newExperiment && $scope.experiment) {
@@ -188,7 +152,7 @@ pacoApp.controller('ExperimentCtrl', ['$scope', '$mdDialog', '$filter',
           var group = $scope.experiment.groups[groupId];
           if (group.customRendering != true && group.inputs.length > 0) {
             groups.push(group);
-          } 
+          }
         }
         $scope.respondableGroups = groups;
         if ($scope.respondableGroups.length === 1) {
@@ -228,26 +192,26 @@ pacoApp.controller('ExperimentCtrl', ['$scope', '$mdDialog', '$filter',
       $scope.cancelSave = false;
       $mdDialog.show(
         $mdDialog.alert()
-          .title('Save Status')
-          .content('Saving to remote PACO server')
-          .ariaLabel('Save Status')
-          .ok('Cancel')
+        .title('Save Status')
+        .content('Saving to remote PACO server')
+        .ariaLabel('Save Status')
+        .ok('Cancel')
       ).then(function() {
         $scope.cancelSave = true;
       });
 
       experimentService.saveExperiment($scope.experiment)
-      .then(function(response) {
+        .then(function(response) {
 
-        var data = response.data;
+          var data = response.data;
 
-        // Save may succeed if post request was in flight when canceled 
-        if ($scope.cancelSave) {
-          return;
-        }
-        $mdDialog.cancel();
-        if (data.length > 0) {
-          if (data[0].status === true) {
+          // Save may succeed if post request was in flight when canceled 
+          if ($scope.cancelSave) {
+            return;
+          }
+          $mdDialog.cancel();
+          if (data.length > 0) {
+            if (data[0].status === true) {
 
               $scope.experiment.version++;
               $scope.experiment0 = angular.copy($scope.experiment);
@@ -255,18 +219,18 @@ pacoApp.controller('ExperimentCtrl', ['$scope', '$mdDialog', '$filter',
               if ($scope.newExperiment) {
                 $location.path('/edit/' + data[0].experimentId);
               }
-          } else {
-            var errorMessage = data[0].errorMessage;
-            $mdDialog.show({
-              templateUrl: 'partials/error.html',
-              locals: {
-                errorMessage: errorMessage
-              },
-              controller: 'ErrorCtrl'
-            });
+            } else {
+              var errorMessage = data[0].errorMessage;
+              $mdDialog.show({
+                templateUrl: 'partials/error.html',
+                locals: {
+                  errorMessage: errorMessage
+                },
+                controller: 'ErrorCtrl'
+              });
+            }
           }
-        }
-      });
+        });
     };
 
     $scope.addGroup = function() {
@@ -286,9 +250,51 @@ pacoApp.controller('ExperimentCtrl', ['$scope', '$mdDialog', '$filter',
 
 
 
-pacoApp.controller('ListCtrl', ['$scope', '$mdDialog', '$location', 
+pacoApp.controller('ListCtrl', ['$scope', '$mdDialog', '$location',
   'experimentService',
   function($scope, $mdDialog, $location, experimentService) {
+
+    $scope.$watch('user', function(newValue, oldValue) {
+      if ($scope.user) {
+        $scope.loadList();
+      }
+    });
+
+    $scope.loadList = function(reload) {
+      $scope.loadAdmin(reload);
+      $scope.loadJoined(reload);
+      $scope.loadJoinable(reload);
+    };
+
+    $scope.loadJoined = function(reload) {
+      experimentService.getJoined(reload).then(function(response) {
+        var data = response.data;
+        $scope.joined = data;
+        $scope.joinedIndex = [];
+        $scope.eodExperiments = {};
+        for (var i = 0; i < data.length; i++) {
+          var experiment = data[i];
+          $scope.joinedIndex.push(experiment.id);
+          for (var g = 0; g < experiment.groups.length; g++) {
+            if (experiment.groups[g].endOfDayGroup) {
+              $scope.eodExperiments[experiment.id] = true;
+            }
+          }
+        }
+      });
+    };
+
+    $scope.loadAdmin = function(reload) {
+      experimentService.getAdministered(reload).then(function(response) {
+        $scope.experiments = response.data;
+      });
+    }
+
+    $scope.loadJoinable = function(reload) {
+      experimentService.getAdministered(reload).then(function(response) {
+        $scope.joinable = response.data;
+      });
+    };
 
     $scope.deleteExperiment = function(ev, exp) {
       var confirm = $mdDialog.confirm()
@@ -304,18 +310,17 @@ pacoApp.controller('ListCtrl', ['$scope', '$mdDialog', '$location',
         then(function(response) {
           $scope.loadList(true);
 
-           // If we're on the experiment page, change location to home
+          // If we're on the experiment page, change location to home
           if ($location.path().indexOf('/experiment/') === 0) {
             $location.path('/');
           }
         });
-      });      
+      });
     };
 
     $scope.joinExperiment = function($event, exp) {
-
       experimentService.joinExperiment(exp)
-      .then(function(data) {
+        .then(function(data) {
           if (data[0].status === true) {
             $scope.loadList(true);
 
@@ -356,8 +361,8 @@ pacoApp.controller('CsvCtrl', ['$scope', '$mdDialog',
         $scope.csv = result.data;
         $scope.table = $filter('csvToObj')($scope.csv);
         var blob = new Blob([result.data], {
-                    type: 'text/csv'
-                    });
+          type: 'text/csv'
+        });
         $scope.csvData = (window.URL || window.webkitURL).createObjectURL(blob);
       } else if (result.error) {
         $scope.error = result.error;
@@ -383,7 +388,7 @@ pacoApp.controller('GroupsCtrl', ['$scope', 'template',
       if (index !== undefined) {
         $scope.group.inputs.splice(index, 0, input);
       } else {
-        $scope.group.inputs.push(input);        
+        $scope.group.inputs.push(input);
       }
       if (expandFn) {
         expandFn(true);
@@ -392,7 +397,7 @@ pacoApp.controller('GroupsCtrl', ['$scope', 'template',
       event.stopPropagation();
     };
 
-     $scope.swapInputs = function(event, index1, index2) {
+    $scope.swapInputs = function(event, index1, index2) {
       var temp = $scope.group.inputs[index2];
       $scope.group.inputs[index2] = $scope.group.inputs[index1];
       $scope.group.inputs[index1] = temp;
@@ -555,7 +560,7 @@ pacoApp.controller('ErrorCtrl', ['$scope', '$mdDialog', 'config',
 
     // TODO(bobevans): make server error formats consistent to avoid this special casing
     if (errorMessage.indexOf('Exception') === 0 ||
-        errorMessage.indexOf('Newer version') === 0) {
+      errorMessage.indexOf('Newer version') === 0) {
       $scope.errors = [errorMessage];
     } else {
 
