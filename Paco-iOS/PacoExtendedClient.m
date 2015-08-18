@@ -12,14 +12,14 @@
 #import "Schedule.h" 
 #import "PacoModelExtended.h"
 #import "PacoEventManagerExtended.h" 
-
+#import "PacoAuthenticator.h" 
 
 
 @interface PacoExtendedClient () <PacoSchedulerDelegate>
 
 @property (nonatomic, retain) PacoScheduler *scheduler;
 @property (nonatomic, retain) PacoModelExtended *model;
-
+@property (nonatomic, retain) PacoAuthenticator *authenticator;
 
 @end
 
@@ -41,7 +41,7 @@
     self = [super init];
     if (self) {
         
-        
+         self.authenticator = [[PacoAuthenticator alloc] initWithFirstLaunchFlag:_firstLaunch | _firstOAuth2];
          [self checkIfUserFirstLaunchPaco];
          self.scheduler = [PacoScheduler schedulerWithDelegate:self firstLaunchFlag:_firstLaunch];
          self.model = [[PacoModelExtended alloc] init];

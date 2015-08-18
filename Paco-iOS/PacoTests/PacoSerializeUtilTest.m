@@ -1,53 +1,16 @@
 //
-//  PacoClientTest.m
+//  PacoSerializeUtilTest.m
 //  Paco
 //
-//  Created by northropo on 8/12/15.
+//  Created by northropo on 8/14/15.
 //  Copyright (c) 2015 Paco. All rights reserved.
 //
 
 #import <UIKit/UIKit.h>
 #import <XCTest/XCTest.h>
+#include "ModelBase.h"
+#include "PacoSerializeUtil.h"
 #import "PacoSerializer.h" 
-#import "PacoExtendedClient.h" 
-#import "ActionScheduleGenerator.h" 
-#import "NSObject+J2objcKVO.h"
-
-
-#include "ExperimentDAO.h"
-#include "ExperimentDAOCore.h"
-#include "ExperimentGroup.h"
-#include "IOSClass.h"
-#include "J2ObjC_source.h"
-#include "ListMaker.h"
-#include "Validator.h"
-#include "java/lang/Boolean.h"
-#include "java/lang/Integer.h"
-#include "java/lang/Long.h"
-#include "java/util/ArrayList.h"
-#include "java/util/List.h"
-#import "ExperimentDAO.h"
-#import <objc/runtime.h>
-
-#include "ActionScheduleGenerator.h"
-#include "ActionSpecification.h"
-#include "ActionTrigger.h"
-#include "DateMidnight.h"
-#include "DateTime.h"
-#include "EsmGenerator2.h"
-#include "EsmSignalStore.h"
-#include "EventStore.h"
-#include "ExperimentDAO.h"
-#include "ExperimentGroup.h"
-#include "Interval.h"
-#include "J2ObjC_source.h"
-#include "NonESMSignalGenerator.h"
-#include "PacoAction.h"
-#include "PacoNotificationAction.h"
-#include "Schedule.h"
-#include "ScheduleTrigger.h"
-#include "SignalTime.h"
-#include "TimeUtil.h"
 #include "java/lang/Boolean.h"
 #include "java/lang/IllegalStateException.h"
 #include "java/lang/Integer.h"
@@ -57,17 +20,12 @@
 #include "java/util/List.h"
 #include "org/joda/time/Hours.h"
 #include "org/joda/time/Duration.h"
-#include "EsmGenerator2.h"
-#include "PacoSerializeUtil.h"
-
-
-@interface PacoClientTest : XCTestCase
+@interface PacoSerializeUtilTest : XCTestCase
 @property(strong, nonatomic) NSArray* classes;
 @end
 
+@implementation PacoSerializeUtilTest
 
-
-@implementation PacoClientTest
 
 
 static NSString *def0 =
@@ -76,29 +34,10 @@ static NSString *def0 =
 
 
 
- 
-
-- (NSArray*)getClassNames {
-    NSMutableArray* mutableArray = [NSMutableArray new];
-    NSString* path = @"/Users/northropo/Project/paco/Paco-iOS/DerivedData/Paco/"
-    @"Build/Intermediates/Paco.build/Debug-iphonesimulator/"
-    @"Paco.build/DerivedSources";
-    NSArray* dirs =
-    [[NSFileManager defaultManager] contentsOfDirectoryAtPath:path error:Nil];
-    NSArray* headers =
-    [dirs filteredArrayUsingPredicate:
-     [NSPredicate predicateWithFormat:@"self ENDSWITH '.h'"]];
-    for (NSString* fileName in headers) {
-        NSString* trimmedString = [fileName substringToIndex:[fileName length] - 2];
-        [mutableArray addObject:trimmedString];
-    }
-    return mutableArray;
-}
-
 - (void)setUp {
     [super setUp];
     
-    _classes = [self getClassNames];
+    _classes = [PacoSerializeUtil getClassNames];
     // Put setup code here. This method is called before the invocation of each test method in the class.
 }
 
@@ -107,10 +46,16 @@ static NSString *def0 =
     [super tearDown];
 }
 
- 
+- (void)testCheckAllRuntime
+{
+    PacoSerializeUtil * util = [[PacoSerializeUtil alloc] init];
+    NSLog(@" %@ ", util.classes);
+    XCTAssert( util.classes.count  >0, @"Pass");
+}
 
 
-- (void)testJoinExperiment{
+-(void) testCheckSchedule
+{
     
     NSData* data = [def0 dataUsingEncoding:NSUTF8StringEncoding];
     PacoSerializer* serializer =
@@ -119,23 +64,14 @@ static NSString *def0 =
     
     JavaUtilArrayList  *  resultArray  = (JavaUtilArrayList*) [serializer buildObjectHierarchyFromJSONOBject:data];
     IOSObjectArray * iosArray = [resultArray toArray];
-    
-   PAExperimentDAO * dao =  [iosArray objectAtIndex:0];
- 
-    
-    PacoExtendedClient* client= [PacoExtendedClient sharedInstance];
-   // PAActionScheduleGenerator * asg = [[PAActionScheduleGenerator alloc] initWithPAExperimentDAO:dao];
-    
-    PASchedule  * schedule   = [PacoSerializeUtil getScheduleAtIndex:dao GroupIndex:0 actionTriggerIndex:0 scheduleIndex:0];
-    
-   
-    
-    [client joinExperimentWithDefinition:dao  schedule:schedule completionBlock:^{
-    
-    }];
+    PAExperimentDAO * dao =  [iosArray objectAtIndex:0];
+    PASchedule  * sch = [PacoSerializeUtil getScheduleAtIndex:dao GroupIndex:0 actionTriggerIndex:0 scheduleIndex:0];
+    XCTAssert (sch  !=nil, @"Pass");
     
     
 }
+
+
 
 
 

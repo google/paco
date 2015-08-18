@@ -20,6 +20,8 @@
 #import "UIImage+Paco.h"
 #import "NSObject+J2objcKVO.h" 
 #import "PacoSerializer.h" 
+#import "PacoSerializeUtil.h" 
+
 
 
 
@@ -65,26 +67,29 @@ NSString* const kPacoResponseJoinExtended = @"joined";
     return [[PacoEventExtended alloc] init];
 }
 
-/*
+
 + (id)pacoEventFromJSON:(id)jsonObject {
     PacoEventExtended *event = [[PacoEventExtended alloc] init];
+ 
+ 
     NSDictionary *eventMembers = jsonObject;
-    event.who = eventMembers[kPacoEventKeyWho];
-    event.when = [PacoDateUtility pacoDateForString:eventMembers[kPacoEventKeyWhen]];
-    event.latitude = [eventMembers[kPacoEventKeyLatitude] longLongValue];
-    event.longitude = [eventMembers[kPacoEventKeyLongitude] longLongValue];
-    event.responseTime = [PacoDateUtility pacoDateForString:eventMembers[kPacoEventKeyResponseTime]];
-    event.scheduledTime = [PacoDateUtility pacoDateForString:eventMembers[kPacoEventKeyScheduledTime]];
-    event.appId = eventMembers[kPacoEventKeyAppId];
-    event.pacoVersion = eventMembers[kPacoEventKeyPacoVersion];
-    event.experimentId = eventMembers[kPacoEventKeyExperimentId];
-    event.experimentName = eventMembers[kPacoEventKeyExperimentName];
-    event.experimentVersion = [eventMembers[kPacoEventKeyExperimentVersion] intValue];
-    event.responses = eventMembers[kPacoEventKeyResponses];
+    event.who = eventMembers[kPacoEventKeyWhoExtended];
+    event.when = [PacoDateUtility pacoDateForString:eventMembers[kPacoEventKeyWhenExtended]];
+    event.latitude = [eventMembers[kPacoEventKeyLatitudeExtended] longLongValue];
+    event.longitude = [eventMembers[kPacoEventKeyLongitudeExtended] longLongValue];
+    event.responseTime = [PacoDateUtility pacoDateForString:eventMembers[kPacoEventKeyResponseTimeExtended]];
+    event.scheduledTime = [PacoDateUtility pacoDateForString:eventMembers[kPacoEventKeyScheduledTimeExtended]];
+    event.appId = eventMembers[kPacoEventKeyAppIdExtended];
+    event.pacoVersion = eventMembers[kPacoEventKeyPacoVersionExtended];
+    event.experimentId = eventMembers[kPacoEventKeyExperimentIdExtended];
+    event.experimentName = eventMembers[kPacoEventKeyExperimentNameExtended];
+    event.experimentVersion = [eventMembers[kPacoEventKeyExperimentVersionExtended] intValue];
+    event.responses = eventMembers[kPacoEventKeyResponsesExtended];
+ 
     return event;
 }
  
- */
+
 
 
 
@@ -219,9 +224,9 @@ NSString* const kPacoResponseJoinExtended = @"joined";
     // Setup an event for joining the experiement.
     PacoEventExtended *event = [PacoEventExtended pacoEventForIOS];
    // event.who = [[PacoExtendedClient sharedInstance] userEmail];
-    event.experimentId = [definition valueForKeyPathEx:@"experimentId"];
-    event.experimentVersion = [definition valueForKeyPathEx:@"experimentVersion"];
-    event.experimentName = [definition valueForKeyPathEx:@"title "];
+    event.experimentId = [definition valueForKeyPathEx:@"id"];
+    event.experimentVersion = [[definition valueForKeyPathEx:@"version"] intValue];
+    event.experimentName = [definition valueForKeyPathEx:@"title"];
     
     event.responseTime = [NSDate dateWithTimeIntervalSinceNow:0];
     
@@ -233,21 +238,29 @@ NSString* const kPacoResponseJoinExtended = @"joined";
                                    kPacoResponseKeyInputIdExtended:@"-1"};
     NSMutableArray* responseList = [NSMutableArray arrayWithObject:joinResponse];
     
+    
+ 
+    
     // Adding a schedule to the join event.
     // check if the
     if (schedule && /*[schedule isScheduled]  */  [[schedule valueForKeyEx:@"scheduleType"]
                                             intValue] !=  PASchedule_SELF_REPORT ){
         
-        
-        
-        /*
-       // <><><><><><><><><>
-        PacoSerializer * serializer = [PacoSerializer alloc] initWithArrayOfClasses:(NSArray *) withNameOfClassAttribute:<#(NSString *)#>
-        NSDictionary* scheduleResponse = @{kPacoResponseKeyName:@"schedule",
-                                           kPacoResponseKeyAnswer:[schedule jsonString],
-                                           kPacoResponseKeyInputId:@"-1"};
+
+        PacoSerializer* serializer =
+        [[PacoSerializer alloc] initWithArrayOfClasses:nil
+                              withNameOfClassAttribute:@"nameOfClass"];
+ 
+        NSData * scheduleData = (NSData*) [serializer toJSONobject:schedule ];
+        NSString* jsonString =
+        [[NSString alloc] initWithData:scheduleData encoding:NSUTF8StringEncoding];
+
+        NSDictionary* scheduleResponse = @{kPacoResponseKeyNameExtended:@"schedule",
+                                           kPacoResponseKeyAnswerExtended:jsonString,
+                                           kPacoResponseKeyInputIdExtended:@"-1"};
         [responseList addObject:scheduleResponse];
-         */
+      
+     
         
     }
     event.responses = responseList;

@@ -82,13 +82,15 @@
 {
   self = [super init];
   if (self) {
-    _classes = classes;
-      _nameOfClass = nameOfClass;
-    _objectTracking = [NSMutableArray new];
-    _cache = [NSCache new];
-    _container = [ITAhoCorasickContainer new];
-    _attributeClassMap = [NSMutableDictionary new];
-    [self buildAttibuuteClassMap];
+      
+         _classes = classes;
+        _nameOfClass = nameOfClass;
+        _objectTracking = [NSMutableArray new];
+        _cache = [NSCache new];
+        _container = [ITAhoCorasickContainer new];
+        _attributeClassMap = [NSMutableDictionary new];
+        [self buildAttibuuteClassMap];
+     
   }
   return self;
 }
@@ -103,7 +105,11 @@
 - (NSObject*)toJSONobject:(NSObject*)parent {
   _parentCollection = nil;
   [_objectTracking removeAllObjects];
-  [self recurseObjectHierarchy:@[ PACO_OBJECT_PARENT, parent ]];
+    
+    JavaUtilArrayList* arrayList = [[JavaUtilArrayList alloc] initWithInt:1];
+    [arrayList addWithId:parent];
+    
+  [self recurseObjectHierarchy:@[ PACO_OBJECT_PARENT, arrayList ]];
   NSError* error2 = nil;
   NSData* newData =
       [NSJSONSerialization dataWithJSONObject:_parentCollection

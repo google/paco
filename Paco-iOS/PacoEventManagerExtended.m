@@ -12,7 +12,6 @@
 #import "PacoEventExtended.h" 
 
 #import "PacoEventManager.h"
-#import "PacoEvent.h"
 #import "PacoEventUploader.h"
 #import "NSString+Paco.h"
 #import "NSError+Paco.h"
@@ -70,15 +69,15 @@ static NSString* const kAllEventsFileName = @"allEvents.plist";
     int numOfSelfReports = 0;
     NSInteger index = [events count] - 1;
     for (; index >= 0; index--) {
-        PacoEventType eventType = [(PacoEvent *)events[index] type];
-        if (eventType == PacoEventTypeJoin || eventType == PacoEventTypeStop) {
+        PacoEventTypeExtended eventType = [(PacoEventExtended *) events[index] type];
+        if (eventType == PacoEventTypeJoinExtended || eventType == PacoEventTypeStopExtended) {
             break;
         }
-        if (eventType == PacoEventTypeSurvey) {
+        if (eventType == PacoEventTypeSurveyExtended) {
             numOfParticipations++;
-        } else if (eventType == PacoEventTypeMiss) {
+        } else if (eventType == PacoEventTypeMissExtended) {
             numOfMiss++;
-        } else if (eventType == PacoEventTypeSelfReport) {
+        } else if (eventType == PacoEventTypeSelfReportExtended) {
             numOfSelfReports++;
         } else {
             NSAssert(NO, @"invalid type");
@@ -184,7 +183,7 @@ static NSString* const kAllEventsFileName = @"allEvents.plist";
     
     NSMutableArray* deserializedEvents = [NSMutableArray arrayWithCapacity:[jsonEvents count]];
     for (id eventJson in jsonEvents) {
-        PacoEvent* event = [PacoEvent pacoEventFromJSON:eventJson];
+        PacoEventExtended* event = [PacoEventExtended pacoEventFromJSON:eventJson];
         NSAssert(event != nil, @"event should not be nil!");
         [deserializedEvents addObject:event];
     }
@@ -229,7 +228,7 @@ static NSString* const kAllEventsFileName = @"allEvents.plist";
 
 - (NSMutableArray*)jsonArrayFromEvents:(NSArray*)events {
     NSMutableArray* jsonArr = [NSMutableArray arrayWithCapacity:[self.pendingEvents count]];
-    for (PacoEvent* event in events) {
+    for (PacoEventExtended* event in events) {
         id json = [event generateJsonObject];
         NSAssert(json != nil, @"json should not be nil!");
         [jsonArr addObject:json];
@@ -308,7 +307,7 @@ static NSString* const kAllEventsFileName = @"allEvents.plist";
 
 
 #pragma mark Public API
-- (void)saveEvent:(PacoEvent*)event {
+- (void)saveEvent:(PacoEventExtended*)event {
     NSAssert(event != nil, @"nil event cannot be saved!");
     [self saveEvents:@[event]];
 }
@@ -320,7 +319,7 @@ static NSString* const kAllEventsFileName = @"allEvents.plist";
         [self fetchAllEventsIfNecessary];
         [self fetchPendingEventsIfNecessary];
         
-        for (PacoEvent* event in events) {
+        for (PacoEventExtended* event in events) {
             NSString* experimentId = event.experimentId;
             NSAssert([experimentId length] > 0, @"experimentId should not be empty!");
             
@@ -338,28 +337,28 @@ static NSString* const kAllEventsFileName = @"allEvents.plist";
     }
 }
 
-- (void)saveAndUploadEvent:(PacoEvent*)event {
+- (void)saveAndUploadEvent:(PacoEventExtended*)event {
     [self saveEvent:event];
     [self startUploadingEvents];
 }
 
 - (void)saveJoinEventWithDefinition:(PacoExperimentDefinition*)definition
                        withSchedule:(PacoExperimentSchedule*)schedule {
-    PacoEvent* joinEvent = [PacoEvent joinEventForDefinition:definition withSchedule:schedule];
+    PacoEvent* joinEvent = [PacoEventExtended joinEventForDefinition:definition withSchedule:schedule];
     DDLogInfo(@"Save a join event");
     [self saveAndUploadEvent:joinEvent];
 }
 
 //YMZ:TODO: should we remove all the events for a stopped experiment?
 - (void)saveStopEventWithExperiment:(PacoExperiment*)experiment {
-    PacoEvent* event = [PacoEvent stopEventForExperiment:experiment];
+    PacoEvent* event = [PacoEventExtended stopEventForExperiment:experiment];
     DDLogInfo(@"Save a stop event");
     [self saveAndUploadEvent:event];
 }
 
 - (void)saveSelfReportEventWithDefinition:(PacoExperimentDefinition*)definition
                                 andInputs:(NSArray*)visibleInputs {
-    PacoEvent* surveyEvent = [PacoEvent selfReportEventForDefinition:definition
+    PacoEvent* surveyEvent = [PacoEventExtended selfReportEventForDefinition:definition
                                                           withInputs:visibleInputs];
     DDLogInfo(@"Save a self-report event");
     [self saveAndUploadEvent:surveyEvent];
@@ -369,7 +368,7 @@ static NSString* const kAllEventsFileName = @"allEvents.plist";
 - (void)saveSurveySubmittedEventForDefinition:(PacoExperimentDefinition*)definition
                                    withInputs:(NSArray*)inputs
                              andScheduledTime:(NSDate*)scheduledTime {
-    PacoEvent* surveyEvent = [PacoEvent surveySubmittedEventForDefinition:definition
+    PacoEvent* surveyEvent = [PacoEventExtended surveySubmittedEventForDefinition:definition
                                                                withInputs:inputs
                                                          andScheduledTime:scheduledTime];
     DDLogInfo(@"Save a survey submitted event");

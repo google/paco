@@ -41,7 +41,9 @@
         int index = [self getIndex:key];
         retVal = [self valueForKeyAndIndex:index Key:key];
       } else {
+          
         retVal = [self getModalAttribute:key Object:self];
+          
       }
     } else {
       retVal = [self valueForKey:key];
