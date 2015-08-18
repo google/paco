@@ -12,7 +12,7 @@
   <div ng-if="experiments" class="group">
     <h2>Administered Experiments</h2>
     <div ng-repeat="exp in experiments | orderBy: 'title'">
-      <md-card>
+      <md-card ng-class="{deleted: exp.deleted}">
         <md-card-content class="padded">
           <a href="#/experiment/{{exp.id}}">{{exp.title}}
         </a>

@@ -306,6 +306,7 @@ pacoApp.controller('ListCtrl', ['$scope', '$mdDialog', '$location',
         .cancel('Cancel')
         .targetEvent(ev);
       $mdDialog.show(confirm).then(function() {
+        exp.deleted = true;
         experimentService.deleteExperiment(exp.id).
         then(function(response) {
           $scope.loadList(true);
@@ -386,7 +387,7 @@ pacoApp.controller('CsvCtrl', ['$scope', '$mdDialog',
 
 pacoApp.controller('StatsCtrl', ['$scope', '$mdDialog', '$filter',
   '$routeParams', 'dataService', 'experimentService',
-  function($scope, $mdDialog, $filter, $routeParams, dataService,
+  function($scope, $mdDialog, $filter, $routeParams, dataService, 
     experimentService) {
 
     if (angular.isDefined($routeParams.experimentId)) {
