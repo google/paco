@@ -1,7 +1,10 @@
 <div ng-controller="CsvCtrl" class="csv">
   <h2>
-    <a href="#">Experiments</a> &gt 
-    <a href="#/experiment/{{csvExperimentId}}">{{csvExperimentId}}</a> 
+    <a href="#">Experiments</a> &gt
+    <a href="#/experiment/{{experimentId}}">
+      <span ng-if="!experiment">{{experimentId}}</span>
+      <span ng-if="experiment">{{experiment.title}}</span>
+    </a>
     &gt; Data
   </h2>
 

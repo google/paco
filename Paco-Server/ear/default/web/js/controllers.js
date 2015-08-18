@@ -341,8 +341,9 @@ pacoApp.controller('ListCtrl', ['$scope', '$mdDialog', '$location',
 
 
 pacoApp.controller('CsvCtrl', ['$scope', '$mdDialog',
-  '$location', '$filter', 'dataService',
-  function($scope, $mdDialog, $location, $filter, dataService) {
+  '$location', '$filter',  '$routeParams','dataService', 'experimentService',
+  function($scope, $mdDialog, $location, $filter, $routeParams, dataService, 
+    experimentService) {
 
     var user = false;
     var anonymous = false;
@@ -354,6 +355,15 @@ pacoApp.controller('CsvCtrl', ['$scope', '$mdDialog',
     if ($location.hash() && $location.hash() === 'anon') {
       anonymous = true;
     }
+
+    if (angular.isDefined($routeParams.csvExperimentId)) {
+      $scope.experimentId = parseInt($routeParams.csvExperimentId, 10);
+    }
+
+    experimentService.getExperiment($scope.experimentId).then(
+      function(response) {
+        $scope.experiment = response.data[0];
+      });
 
     dataService.getCsv($scope.csvExperimentId, user, anonymous).
     then(function(result) {
