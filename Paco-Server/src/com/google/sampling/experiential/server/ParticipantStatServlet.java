@@ -59,15 +59,17 @@ public class ParticipantStatServlet extends HttpServlet {
           return;
         }
 
+        String whoParam = req.getParameter("who");
         DateTimeZone timeZoneForClient = TimeUtil.getTimeZoneForClient(req);
-        if (!ExperimentAccessManager.isAdminForExperiment(AuthUtil.getEmailOfUser(req, user), experimentId)) {
+        if (!ExperimentAccessManager.isAdminForExperiment(AuthUtil.getEmailOfUser(req, user), experimentId) &&
+                !isQueryingOwnStats(AuthUtil.getEmailOfUser(req, user), whoParam)) {
           resp.setStatus(HttpServletResponse.SC_FORBIDDEN);
           return;
         }
         ExperimentDAO experiment = ExperimentServiceFactory.getExperimentService().getExperiment(experimentId);
 
         // TODO add who filter
-        String whoParam = req.getParameter("who");
+
         String fullQuery = "experimentId=" + experimentId;
         if (!Strings.isNullOrEmpty(whoParam)) {
           fullQuery += ":who=" + whoParam;
@@ -110,6 +112,10 @@ public class ParticipantStatServlet extends HttpServlet {
         writer.write(mapper.writeValueAsString(participationStats));
       }
     }
+  }
+
+  private boolean isQueryingOwnStats(String emailOfUser, String whoParam) {
+    return whoParam != null && whoParam.toLowerCase().equals(emailOfUser);
   }
 
 }
