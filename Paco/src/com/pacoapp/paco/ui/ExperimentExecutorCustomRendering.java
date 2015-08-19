@@ -894,7 +894,7 @@ public boolean onKeyDown(int keyCode, KeyEvent event) {
       if (extras != null) {
         extras.clear();
       }
-
+      updateAlarms();
       notifySyncService();
 
       if (experimentGroup.getFeedback().getType() != FeedbackDAO.FEEDBACK_TYPE_HIDE_FEEDBACK) {

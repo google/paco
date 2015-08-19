@@ -618,7 +618,7 @@ paco.renderer = (function() {
         chk.attr("id", input.name + "_" + step);
         chk.attr("type", "checkbox");
 //        chk.attr("value", step);
-        chk.attr("checked", (selected.indexOf(step) != -1));
+        chk.attr("checked", (selected.indexOf(step + 1) != -1));
         chk.addClass("filled-in ");
         p.append(chk);
         p.append(lbl);
@@ -629,7 +629,7 @@ paco.renderer = (function() {
             var i = 0;
             var list = $('input:checkbox[id^="' + input.name  + '_"]').each(function() {
               if (this.checked) {
-                values.push(i);
+                values.push(i + 1);
               }
               i++;
             });
