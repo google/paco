@@ -9,34 +9,30 @@ pacoApp.config(['$routeProvider','$locationProvider',
   function($routeProvider, $locationProvider) {
     $routeProvider.
     when('/edit/:editId', {
-      templateUrl: 'partials/main.html',
-      controller: 'HomeCtrl',
+      templateUrl: 'partials/edit.html',
       reloadOnSearch: false,
     }).
     when('/experiment/:experimentId', {
-      templateUrl: 'partials/main.html',
-      controller: 'HomeCtrl'
+      templateUrl: 'partials/experiment.html',
     }).
     when('/data/:csvExperimentId', {
-      templateUrl: 'partials/main.html',
-      controller: 'HomeCtrl',
+      templateUrl: 'partials/data.html',
+    }).
+    when('/stats/:experimentId', {
+      templateUrl: 'partials/stats.html',
     }).
     when('/respond/:respondExperimentId', {
-      templateUrl: 'partials/main.html',
-      controller: 'HomeCtrl',
+      templateUrl: 'partials/respond.html',
     }).
     when('/experiments', {
-      templateUrl: 'partials/main.html',
-      controller: 'HomeCtrl',
+      templateUrl: 'partials/list.html',
     }).
     when('/copy/:copyId', {
-      templateUrl: 'partials/main.html',
-      controller: 'HomeCtrl',
+      templateUrl: 'partials/edit.html',
       reloadOnSearch: false,
     }).
     otherwise({
-      templateUrl: 'partials/main.html',
-      controller: 'HomeCtrl',
+      templateUrl: 'partials/welcome.html',
     });
 
     //$locationProvider.html5Mode(true);
@@ -48,3 +44,4 @@ pacoApp.config(['$compileProvider',
   function ($compileProvider) {
     $compileProvider.aHrefSanitizationWhitelist(/^\s*(https?|mailto|file|blob):/);
 }]);
+

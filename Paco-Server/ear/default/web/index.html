@@ -38,6 +38,13 @@
   <base href="/">
 </head>
 
-<body ng-view></body>
+  <body ng-app="pacoApp" >
+    <div ng-controller="HomeCtrl" class="home">
+      <div ng-include="'partials/menu.html'"></div>
+      <div ng-view class="main"></div>
+      <div ng-include="'partials/sitemap.html'"></div>
+    </div>
+
+</body>
 
 </html>
