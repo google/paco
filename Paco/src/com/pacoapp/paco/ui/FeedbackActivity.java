@@ -55,6 +55,7 @@ import com.pacoapp.paco.js.bridge.Environment;
 import com.pacoapp.paco.js.bridge.JavascriptEmail;
 import com.pacoapp.paco.js.bridge.JavascriptEventLoader;
 import com.pacoapp.paco.js.bridge.JavascriptExperimentLoader;
+import com.pacoapp.paco.js.bridge.JavascriptSensorManager;
 import com.pacoapp.paco.model.Event;
 import com.pacoapp.paco.model.Experiment;
 import com.pacoapp.paco.model.ExperimentProviderUtil;
@@ -167,6 +168,8 @@ public class FeedbackActivity extends ActionBarActivity {
     JavascriptEventLoader javascriptEventLoader = new JavascriptEventLoader(experimentProviderUtil, experiment,
                                                                             experiment.getExperimentDAO(), experimentGroup);
     webView.addJavascriptInterface(javascriptEventLoader, "db");
+    webView.addJavascriptInterface(new JavascriptSensorManager(getApplicationContext()), "sensors");
+
   }
 
   private void loadRetrospectiveFeedbackIntoWebView() {

@@ -146,8 +146,8 @@
         </TextView>
     </ScrollView>
 
-    <CheckBox
-        android:id="@+id/InformedConsentAgreementCheckBox"
+    <Button
+        android:id="@+id/InformedConsentAgreementButton"
         android:layout_width="fill_parent"
         android:layout_height="65dip"
         android:layout_alignParentBottom="true"
@@ -157,6 +157,6 @@
             android:paddingTop="4dip"
             android:paddingBottom="4dip"
         >
-    </CheckBox>
+    </Button>
 
 </LinearLayout>

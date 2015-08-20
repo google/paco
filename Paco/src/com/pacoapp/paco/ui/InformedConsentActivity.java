@@ -40,7 +40,7 @@ import android.view.Display;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.widget.CheckBox;
+import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -74,7 +74,7 @@ public class InformedConsentActivity extends ActionBarActivity implements Experi
 
   private Experiment experiment;
   private ExperimentProviderUtil experimentProviderUtil;
-  private CheckBox icCheckbox;
+  private Button icButton;
 
   private ProgressBar progressBar;
 
@@ -126,12 +126,10 @@ public class InformedConsentActivity extends ActionBarActivity implements Experi
       ic.setText(experiment.getExperimentDAO().getInformedConsentForm());
 
       if (experiment.getJoinDate() == null) {
-        icCheckbox = (CheckBox) findViewById(R.id.InformedConsentAgreementCheckBox);
-        icCheckbox.setOnClickListener(new OnClickListener() {
+        icButton = (Button) findViewById(R.id.InformedConsentAgreementButton);
+        icButton.setOnClickListener(new OnClickListener() {
           public void onClick(View v) {
-            if (icCheckbox.isChecked()) {
-              requestFullExperimentForJoining();
-            }
+            requestFullExperimentForJoining();
           }
         });
       }
@@ -157,7 +155,7 @@ public class InformedConsentActivity extends ActionBarActivity implements Experi
     if (!NetworkUtil.isConnected(this)) {
       showDialog(NetworkUtil.NO_NETWORK_CONNECTION, null);
     } else {
-      // WE are currently downloading the full experiment.
+      // WE are currently already downloading the full experiment.
             progressBar.setVisibility(View.VISIBLE);
 //      final List<ExperimentGroup> groups = experiment.getGroups();
 //      if (groups == null || groups.size() == 0) {
@@ -165,7 +163,11 @@ public class InformedConsentActivity extends ActionBarActivity implements Experi
 //                                                                                   experiment.getServerId());
 //        new PacoForegroundService(this, myExperimentsUrl).execute();
 //      } else {
-        saveDownloadedExperimentBeforeScheduling(experiment);
+     try {
+       saveDownloadedExperimentBeforeScheduling(experiment);
+     } catch (IllegalStateException ise) {
+       showDialog(NetworkUtil.JOIN_ERROR);
+     }
 //      }
     }
   }
@@ -204,7 +206,15 @@ public class InformedConsentActivity extends ActionBarActivity implements Experi
     }
     startService(new Intent(this, ExperimentExpirationManagerService.class));
     progressBar.setVisibility(View.GONE);
-    runScheduleActivity();
+    runPostJoinInstructionsActivity();
+  }
+
+  private void runPostJoinInstructionsActivity() {
+    Intent instructionsIntent = new Intent(this, PostJoinInstructionsActivity.class);
+    instructionsIntent.putExtras(getIntent().getExtras());
+    instructionsIntent.putExtra(INFORMED_CONSENT_PAGE_EXTRA_KEY, true);
+    instructionsIntent.putExtra(ScheduleDetailFragment.USER_EDITABLE_SCHEDULE, ExperimentHelper.hasUserEditableSchedule(experiment.getExperimentDAO()));
+    startActivityForResult(instructionsIntent, FindExperimentsActivity.JOIN_REQUEST_CODE);
   }
 
   private void createJoinEvent() {
@@ -273,19 +283,6 @@ public class InformedConsentActivity extends ActionBarActivity implements Experi
 
 
 
-  private void runScheduleActivity() {
-    if (ExperimentHelper.hasUserEditableSchedule(experiment.getExperimentDAO())) {
-      Intent experimentIntent = new Intent(this, ScheduleListActivity.class);
-      experimentIntent.putExtras(getIntent().getExtras());
-      experimentIntent.putExtra(INFORMED_CONSENT_PAGE_EXTRA_KEY, true);
-      experimentIntent.putExtra(ScheduleDetailFragment.USER_EDITABLE_SCHEDULE, ExperimentHelper.hasUserEditableSchedule(experiment.getExperimentDAO()));
-      startActivityForResult(experimentIntent, FindExperimentsActivity.JOIN_REQUEST_CODE);
-    } else {
-      setResult(FindExperimentsActivity.JOINED_EXPERIMENT);
-      finish();
-    }
-  }
-
   private void joinExperiment() {
     experiment.setJoinDate(getTodayAsStringWithZone());
     experimentProviderUtil.insertFullJoinedExperiment(experiment);
@@ -305,6 +302,10 @@ public class InformedConsentActivity extends ActionBarActivity implements Experi
     case NetworkUtil.NO_NETWORK_CONNECTION: {
       return getNoNetworkDialog();
     }
+    case NetworkUtil.JOIN_ERROR: {
+      return getUnableToJoinDialog(getString(R.string.unable_to_save_experiment));
+    }
+
     default: {
       return null;
     }
@@ -366,6 +367,8 @@ public class InformedConsentActivity extends ActionBarActivity implements Experi
   private void showFailureDialog(String status) {
     if (status.equals(NetworkUtil.CONTENT_ERROR) || status.equals(NetworkUtil.RETRIEVAL_ERROR)) {
       showDialog(NetworkUtil.INVALID_DATA_ERROR, null);
+    } else if (status.equals(NetworkUtil.JOIN_ERROR)) {
+      showDialog(NetworkUtil.JOIN_ERROR);
     } else {
       showDialog(NetworkUtil.SERVER_ERROR, null);
     }
@@ -420,7 +423,6 @@ public class InformedConsentActivity extends ActionBarActivity implements Experi
             saveDownloadedExperimentBeforeScheduling(experimentList.get(0));
           }
         } else {
-          icCheckbox.setChecked(false);
           showFailureDialog("Could not successfully join. Try again.");
         }
       }

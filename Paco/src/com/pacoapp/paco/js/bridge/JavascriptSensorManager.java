@@ -19,7 +19,7 @@ public class JavascriptSensorManager {
    * @return
    */
   @JavascriptInterface
-  public Integer getStepCountFrom(int type) {
+  public int getStepCountFrom(int type) {
     StepSensor stepSensor = StepSensorFactory.getStepSensor(context, type);
     if (stepSensor != null) {
       return stepSensor.getStepCount();
@@ -32,7 +32,7 @@ public class JavascriptSensorManager {
    * @return
    */
   @JavascriptInterface
-  public Integer getStepCount() {
+  public int getStepCount() {
     StepSensor stepSensor = StepSensorFactory.getStepSensor(context, StepSensorFactory.ANDROID_STEP_SENSOR);
     if (stepSensor != null) {
       return stepSensor.getStepCount();

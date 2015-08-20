@@ -195,6 +195,7 @@ public class ExperimentProvider extends ContentProvider {
 
     switch (match) {
     case EXPERIMENTS_DATATYPE:
+      ensureJoinDate(values);
       return insertExperiment(uri, values);
     case JOINED_EXPERIMENTS_DATATYPE:
       ensureJoinDate(values);
@@ -242,14 +243,13 @@ public class ExperimentProvider extends ContentProvider {
   }
 
   private Uri insertExperiment(Uri uri, ContentValues values) {
-	long rowId = db.insert(EXPERIMENTS_TABLE_NAME, ExperimentColumns.JOIN_DATE, values);
-	if (rowId > 0) {
-	  Uri experimentUri = ContentUris.withAppendedId(ExperimentColumns.JOINED_EXPERIMENTS_CONTENT_URI,
-		  rowId);
-	  getContext().getContentResolver().notifyChange(uri, null, true);
-	  return experimentUri;
-	}
-	throw new SQLException("Failed to insert row into " + uri);
+    long rowId = db.insert(EXPERIMENTS_TABLE_NAME, ExperimentColumns.JOIN_DATE, values);
+    if (rowId > 0) {
+      Uri experimentUri = ContentUris.withAppendedId(ExperimentColumns.JOINED_EXPERIMENTS_CONTENT_URI, rowId);
+      getContext().getContentResolver().notifyChange(uri, null, true);
+      return experimentUri;
+    }
+    throw new IllegalStateException("Failed to insert row for joining experiment into " + uri);
   }
 
   @Override
