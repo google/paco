@@ -348,6 +348,14 @@ pacoApp.directive('hidable', [function() {
 }]);
 
 
+
+pacoApp.filter('percent', ['$filter', function ($filter) {
+  return function (input) {
+    return $filter('number')(input * 100, 0) + '%';
+  };
+}]);
+
+
 /** 
  * Code based on
  * http://www.bennadel.com/blog/1504-ask-ben-parsing-csv-strings-with-javascript-exec-regular-expression-command.htm

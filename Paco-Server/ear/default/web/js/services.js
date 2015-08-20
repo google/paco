@@ -68,7 +68,7 @@ pacoApp.service('experimentService', ['$http', '$cacheFactory', 'util',
       // Need to clear all list caches in case title was changed
       cache.remove('/experiments?admin');
       cache.remove('/experiments?joined');
-      cache.remove('/experiments?joinable');
+      cache.remove('/experiments?joinable'); 
 
       // If it's not a new experiment, clear old cached definition
       if (experiment.id) {
@@ -193,7 +193,7 @@ pacoApp.service('dataService', ['$http', '$timeout', '$q',
         },
         {
           who: 'user5@mail.com',
-          todaySignalCount: 5,
+          todaySignalCount: 6,
           todayResponseCount: 2,
           todaySelfReportCount: 2,
           totalSignalCount: 10,

@@ -401,9 +401,8 @@ pacoApp.controller('StatsCtrl', ['$scope', '$mdDialog', '$filter',
 
     dataService.getParticipantData($scope.experimentId).
     then(function(result) {
-      console.log(result);
       if (result.data) {
-        $scope.csv = result.data;
+        $scope.stats = result.data;
       } else if (result.error) {
         $scope.error = result.error;
       }
