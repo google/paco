@@ -22,6 +22,35 @@
   font-size: 13px;
 }
 
+.data .summary {
+  background: #d8d8d8;
+  margin-bottom: 20px;
+  padding: 40px;
+  text-align: center;
+
+}
+
+.data .summary .stat {
+  background: #eee;
+  background-image: url('/img/mail.png');
+  background-position: 50% 90px;
+  background-repeat: no-repeat;
+  box-sizing: border-box;
+  display: inline-block;
+  font-size: 12px;
+  margin: 5px;
+  padding: 20px;
+  padding-bottom: 60px;
+  text-align: center;
+  width: 160px;
+}
+
+.data .summary .stat b {
+  color: red;
+  display: block;
+  font-size: 28px;
+}
+
 .data table tr {
   border-bottom: 1px solid #e3e3e3;
   height: 48px;
