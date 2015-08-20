@@ -22,6 +22,7 @@
 
 + (NSArray*)getClassNames;
 
-
++ (NSString*) jsonFromDefinition:(PAExperimentDAO*) description;
++ (NSString*) jsonFromSchedule:(PASchedule*) shedule;
 
 @end

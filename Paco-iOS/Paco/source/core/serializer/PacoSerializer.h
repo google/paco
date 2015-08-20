@@ -54,7 +54,11 @@ typedef NS_ENUM(NSInteger, PacoParentType) {
  * classes */
 - (id)init __attribute__((unavailable("init with array of class names")));
 
-/* init with classes. This is the method that shoul be used always*/
+
+/* init with name of class only.  */
+- (instancetype) initWithArrayWithClassAttributeName: (NSString*) nameOfClass;
+
+/* init with classes and name of class matching fields.  */
 - (instancetype)initWithArrayOfClasses:(NSArray*)serializedJson withNameOfClassAttribute:(NSString*) nameOfClass;
 /* convert netst foundation collections to json data*/
 - (NSData*)foundationCollectionToJSONData:(NSObject*)collection
@@ -66,7 +70,7 @@ typedef NS_ENUM(NSInteger, PacoParentType) {
  * collections */
 - (NSObject*)buildObjectHierarchyFromJSONOBject:(id)data;
 /* create a json object from nested Foundation classes */
-- (NSObject*)toJSONobject:(NSObject*)parent;
+- (NSData *)toJSONobject:(NSObject*)parent;
 /* create a json object from nested Foundation classes */
 - (NSObject*)buildObjectHierarchyFromCollections:(id)collection;
 /* recursively call validate   */

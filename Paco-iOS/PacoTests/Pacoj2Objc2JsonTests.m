@@ -343,7 +343,7 @@ static NSString* generatedDefinition  = @"{\n  \"title\" : \"My Title\",\n  \"de
 
   NSData* data = [newDefinition dataUsingEncoding:NSUTF8StringEncoding];
   PacoSerializer* serializer =
-      [[PacoSerializer alloc] initWithArrayOfClasses:_classes
+      [[PacoSerializer alloc] initWithArrayOfClasses:nil 
                             withNameOfClassAttribute:@"nameOfClass"];
 
   NSObject* resultObject = [serializer buildObjectHierarchyFromJSONOBject:data];
@@ -357,6 +357,26 @@ static NSString* generatedDefinition  = @"{\n  \"title\" : \"My Title\",\n  \"de
   NSString* string =
       [[NSString alloc] initWithData:newData encoding:NSUTF8StringEncoding];
   NSLog(@"json string %@", string);
+}
+
+
+- (void)testBuildModelTree2 {
+    
+    NSData* data = [newDefinition dataUsingEncoding:NSUTF8StringEncoding];
+    PacoSerializer* serializer =
+    [[PacoSerializer alloc] initWithArrayWithClassAttributeName:@"nameOfClass"];
+    
+    NSObject* resultObject = [serializer buildObjectHierarchyFromJSONOBject:data];
+    NSError* error2 = nil;
+    
+    
+    NSObject * foundationObject =    [serializer toJSONobject:resultObject];
+    
+    NSData* newData =
+    [serializer foundationCollectionToJSONData:foundationObject Error:error2];
+    NSString* string =
+    [[NSString alloc] initWithData:newData encoding:NSUTF8StringEncoding];
+    NSLog(@"json string %@", string);
 }
 
 

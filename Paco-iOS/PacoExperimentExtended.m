@@ -14,6 +14,8 @@
 #import "ExperimentDAO.h"
 #import "PacoExperimentExtended.h"
 #import "NSObject+J2objcKVO.h" 
+#import "PacoDateUtility.h" 
+#import "PacoSerializeUtil.h" 
 
 
 @interface PacoExperimentExtended()
@@ -42,13 +44,29 @@
 }
 
 
-- (id)serializeToJSON
-{
-    return nil;
+- (NSString *)description {
+    return [NSString stringWithFormat:@"<PacoExperiment:%p - "
+            @"joinTime=%@\n"
+            @"schedule=%@\n"
+            @"definition=%@>",
+            self,
+            [PacoDateUtility pacoStringForDate:self.joinTime],
+            self.schedule,
+            self.definition];
 }
-- (void)deserializeFromJSON:(id)json
-{
+
+- (id)serializeToJSON {
+    id  jsonSchedule =  [PacoSerializeUtil  jsonFromSchedule:self.schedule];
+    id jsonDefinition = [PacoSerializeUtil jsonFromDefinition:self.definition];
+    id jsonJoinTime = [PacoDateUtility pacoStringForDate:self.joinTime];
     
+    return @{@"experimentId": [self.definition valueForKeyEx:@"id"],
+             @"joinTime": jsonJoinTime,
+             @"instanceId": self.instanceId,
+             @"schedule": jsonSchedule,
+             @"definition": jsonDefinition};
+  
+    return nil;
     
 }
 

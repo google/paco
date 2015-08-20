@@ -342,33 +342,33 @@ static NSString* const kAllEventsFileName = @"allEvents.plist";
     [self startUploadingEvents];
 }
 
-- (void)saveJoinEventWithDefinition:(PacoExperimentDefinition*)definition
-                       withSchedule:(PacoExperimentSchedule*)schedule {
-    PacoEvent* joinEvent = [PacoEventExtended joinEventForDefinition:definition withSchedule:schedule];
+- (void)saveJoinEventWithDefinition:(PAExperimentDAO*)definition
+                       withSchedule:(PASchedule*)schedule {
+    PacoEventExtended* joinEvent = [PacoEventExtended joinEventForDefinition:definition withSchedule:schedule];
     DDLogInfo(@"Save a join event");
     [self saveAndUploadEvent:joinEvent];
 }
 
 //YMZ:TODO: should we remove all the events for a stopped experiment?
-- (void)saveStopEventWithExperiment:(PacoExperiment*)experiment {
-    PacoEvent* event = [PacoEventExtended stopEventForExperiment:experiment];
+- (void)saveStopEventWithExperiment:(PacoExperimentExtended*)experiment {
+    PacoEventExtended* event = [PacoEventExtended stopEventForExperiment:experiment];
     DDLogInfo(@"Save a stop event");
     [self saveAndUploadEvent:event];
 }
 
-- (void)saveSelfReportEventWithDefinition:(PacoExperimentDefinition*)definition
+- (void)saveSelfReportEventWithDefinition:(PAExperimentDAO*)definition
                                 andInputs:(NSArray*)visibleInputs {
-    PacoEvent* surveyEvent = [PacoEventExtended selfReportEventForDefinition:definition
+    PacoEventExtended* surveyEvent = [PacoEventExtended selfReportEventForDefinition:definition
                                                           withInputs:visibleInputs];
     DDLogInfo(@"Save a self-report event");
     [self saveAndUploadEvent:surveyEvent];
 }
 
 
-- (void)saveSurveySubmittedEventForDefinition:(PacoExperimentDefinition*)definition
+- (void)saveSurveySubmittedEventForDefinition:(PAExperimentDAO*)definition
                                    withInputs:(NSArray*)inputs
                              andScheduledTime:(NSDate*)scheduledTime {
-    PacoEvent* surveyEvent = [PacoEventExtended surveySubmittedEventForDefinition:definition
+    PacoEventExtended* surveyEvent = [PacoEventExtended surveySubmittedEventForDefinition:definition
                                                                withInputs:inputs
                                                          andScheduledTime:scheduledTime];
     DDLogInfo(@"Save a survey submitted event");

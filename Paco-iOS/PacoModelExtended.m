@@ -11,6 +11,8 @@
 #import "PacoScheduler.h"
 #import "Schedule.h"
 #import "PacoExperimentExtended.h"
+#import "NSString+Paco.h"
+#import "NSError+Paco.h"
 
 static NSString* const kPacoKeyHasRunningExperimentsExtended = @"has_running_experiments";
 
@@ -19,8 +21,8 @@ NSString* const kPacoNotificationLoadedRunningExperimentsExtended = @"kPacoNotif
 NSString* const kPacoNotificationRefreshedMyDefinitionsExtended = @"kPacoNotificationRefreshedMyDefinitions";
 NSString* const kPacoNotificationAppBecomeActiveExtended = @"kPacoNotificationAppBecomeActive";
 
-static NSString* kPacoDefinitionPlistName = @"definitions.plist";
-static NSString* kPacoExperimentPlistName = @"instances.plist";
+static NSString* kPacoDefinitionPlistNameExtended = @"definitions.plist";
+static NSString* kPacoExperimentPlistNameExtended  = @"instances.plist";
 
 
 
@@ -57,20 +59,59 @@ static NSString* kPacoExperimentPlistName = @"instances.plist";
 }
 
 
+
+  - (BOOL)saveExperimentInstancesToFile {
+  id instanceListJson = [self makeJSONObjectFromInstances];
+  NSAssert([instanceListJson isKindOfClass:[NSArray class]],
+  @"instanceListJson should be an array!");
+  
+  NSError *jsonError = nil;
+  NSData *jsonData = [NSJSONSerialization dataWithJSONObject:instanceListJson
+  options:NSJSONWritingPrettyPrinted
+  error:&jsonError];
+  if (jsonError) {
+  NSLog (@"ERROR serializing to JSON %@", jsonError);
+  }
+  NSString *fileName = [NSString pacoDocumentDirectoryFilePathWithName:kPacoExperimentPlistNameExtended];
+  BOOL success = [[NSFileManager defaultManager] createFileAtPath:fileName contents:jsonData attributes:nil];
+  if (success) {
+   NSLog(@"Succeeded to save %@", fileName);
+  } else {
+  NSLog(@"Failed to save %@", fileName);
+  }
+  return success;
+  }
+
+
+
+
+- (id)makeJSONObjectFromInstances {
+    NSMutableArray *experiments = [[NSMutableArray alloc] init];
+    for (PacoExperimentExtended *experiment in self.runningExperiments) {
+        id json = [experiment serializeToJSON];
+        NSAssert(json, @"experiment json should not be nil");
+        [experiments addObject:json];
+    }
+    return experiments;
+}
+
+
+
+
+
+
 - (BOOL)saveExperimentDefinitionListJson:(id)definitionsJson
 {
     return TRUE;
     
 }
+
+
 - (BOOL)saveExperimentDefinitionsToFile
 {
     return TRUE;
     
 }
-- (BOOL)saveExperimentInstancesToFile
-{
-    return TRUE;
-    
-}
+
 
 @end

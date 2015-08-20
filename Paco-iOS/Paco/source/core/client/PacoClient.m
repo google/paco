@@ -647,8 +647,10 @@ typedef void(^BackgroundFetchCompletionBlock)(UIBackgroundFetchResult result);
     }
     return;
   }
+    
   DDLogInfo(@"Change schedule for changeScheduleForExperiment ...");
   [self.model configureExperiment:experiment withSchedule:newSchedule];
+    
   [self.scheduler restartNotificationSystem];
   if (completionBlock) {
     completionBlock();

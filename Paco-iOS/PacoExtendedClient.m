@@ -7,7 +7,7 @@
 //
 
 #import "PacoExtendedClient.h"
-#import "PacoScheduler.h"
+#import "PacoSchedulerExtended.h"
 #import "ExperimentDAO.h"
 #import "Schedule.h" 
 #import "PacoModelExtended.h"
@@ -17,7 +17,7 @@
 
 @interface PacoExtendedClient () <PacoSchedulerDelegate>
 
-@property (nonatomic, retain) PacoScheduler *scheduler;
+@property (nonatomic, retain) PacoSchedulerExtended *scheduler;
 @property (nonatomic, retain) PacoModelExtended *model;
 @property (nonatomic, retain) PacoAuthenticator *authenticator;
 
@@ -27,8 +27,8 @@
 
 
 + (PacoExtendedClient *)sharedInstance {
-    static PacoExtendedClient *client = nil;
     
+    static PacoExtendedClient *client = nil;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
         client = [[PacoExtendedClient alloc] init];
@@ -41,30 +41,30 @@
     self = [super init];
     if (self) {
         
-         self.authenticator = [[PacoAuthenticator alloc] initWithFirstLaunchFlag:_firstLaunch | _firstOAuth2];
-         [self checkIfUserFirstLaunchPaco];
-         self.scheduler = [PacoScheduler schedulerWithDelegate:self firstLaunchFlag:_firstLaunch];
-         self.model = [[PacoModelExtended alloc] init];
+          self.authenticator = [[PacoAuthenticator alloc] initWithFirstLaunchFlag:_firstLaunch | _firstOAuth2];
+          [self checkIfUserFirstLaunchPaco];
+          self.scheduler = [PacoSchedulerExtended schedulerWithDelegate:self firstLaunchFlag:_firstLaunch];
+          self.model = [[PacoModelExtended alloc] init];
       
     }
     return self;
 }
 
 
-- (void)joinExperimentWithDefinition:(PAExperimentDAO*)definition
+- (void) joinExperimentWithDefinition:(PAExperimentDAO*)definition
                             schedule:(PASchedule*) schedule
                      completionBlock:(void(^)())completionBlock
 {
     
      NSAssert(definition, @"definition should not be nil");
-    [self.eventManager saveJoinEventWithDefinition:definition withSchedule:schedule];
-    
-    
-    PacoExperimentExtended  *experiment = [self.model addExperimentWithDefinition:definition
+     [self.eventManager saveJoinEventWithDefinition:definition withSchedule:schedule];
+      PacoExperimentExtended  *experiment = [self.model addExperimentWithDefinition:definition
                                                                 schedule:schedule];
+
+     NSLog(@"Experiment Joined with schedule: %@", [experiment.schedule description]);
     
-    
-    NSLog(@"Experiment Joined with schedule: %@", [experiment.schedule description]);
+    //start scheduling notifications for this joined experiment
+    [self.scheduler startSchedulingForExperimentIfNeeded:experiment];
     
     
     if (completionBlock) {

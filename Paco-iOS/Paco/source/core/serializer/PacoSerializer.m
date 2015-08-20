@@ -95,6 +95,22 @@
   return self;
 }
 
+- (instancetype) initWithArrayWithClassAttributeName: (NSString*) nameOfClass
+{
+    self = [super init];
+    if (self) {
+        
+    
+        _nameOfClass = nameOfClass;
+        _objectTracking = [NSMutableArray new];
+        _cache = [NSCache new];
+        
+    }
+    return self;
+}
+
+ 
+
 - (NSObject*)toJ2OBJCCollctionsHeirarchy:(NSObject*)parent {
   _parentCollection = nil;
   [_objectTracking removeAllObjects];
@@ -102,7 +118,7 @@
   return _parentCollection;
 }
 
-- (NSObject*)toJSONobject:(NSObject*)parent {
+- (NSData *)toJSONobject:(NSObject*)parent {
   _parentCollection = nil;
   [_objectTracking removeAllObjects];
     
@@ -359,7 +375,7 @@
   NSString* clazzName = nil;
   NSDictionary* dictionary = recurseObject[1];
     
-    [self findClassNameFromAttributes:[dictionary allKeys]];
+   // [self findClassNameFromAttributes:[dictionary allKeys]];
 
   /*
 

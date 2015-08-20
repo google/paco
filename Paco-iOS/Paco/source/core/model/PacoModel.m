@@ -33,7 +33,6 @@ NSString* const kPacoNotificationLoadedMyDefinitions = @"kPacoNotificationLoaded
 NSString* const kPacoNotificationLoadedRunningExperiments = @"kPacoNotificationLoadedRunningExperiments";
 NSString* const kPacoNotificationRefreshedMyDefinitions = @"kPacoNotificationRefreshedMyDefinitions";
 NSString* const kPacoNotificationAppBecomeActive = @"kPacoNotificationAppBecomeActive";
-
 static NSString* kPacoDefinitionPlistName = @"definitions.plist";
 static NSString* kPacoExperimentPlistName = @"instances.plist";
 
@@ -55,7 +54,7 @@ static NSString* kPacoExperimentPlistName = @"instances.plist";
 
 
 - (void)applyDefinitionJSON:(id)jsonObject {
-  //NSLog(@"MODEL DEFINITION JSON = \n%@", jsonObject);
+  //NSLog(@"MODEL DEFINITION JSON = \n%@", jsonObject);  
   NSArray *jsonExperiments = jsonObject;
   NSMutableArray *definitions = [NSMutableArray array];
 

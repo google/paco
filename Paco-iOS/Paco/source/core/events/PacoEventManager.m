@@ -347,6 +347,8 @@ static NSString* const kAllEventsFileName = @"allEvents.plist";
 
 - (void)saveJoinEventWithDefinition:(PacoExperimentDefinition*)definition
                        withSchedule:(PacoExperimentSchedule*)schedule {
+    
+    
   PacoEvent* joinEvent = [PacoEvent joinEventForDefinition:definition withSchedule:schedule];
   DDLogInfo(@"Save a join event");
   [self saveAndUploadEvent:joinEvent];

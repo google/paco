@@ -87,4 +87,32 @@
       return oo;
 }
 
++ (NSString*) jsonFromDefinition:(PAExperimentDAO*) description
+{
+    
+    PacoSerializer * serializer = [[PacoSerializer alloc] initWithArrayWithClassAttributeName:@"nameOfClass"];
+    NSData * data = [serializer toJSONobject:description];
+    NSString* string =
+    [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+    
+    return string;
+    
+    
+}
+
+
+
++ (NSString*) jsonFromSchedule:(PASchedule*) schedule
+{
+    PacoSerializer * serializer = [[PacoSerializer alloc] initWithArrayWithClassAttributeName:@"nameOfClass"];
+    NSData * data = [serializer toJSONobject:schedule];
+    NSString* string =
+    [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+    
+    return string;
+    
+}
+
+
+
 @end
