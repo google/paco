@@ -366,7 +366,7 @@ pacoApp.controller('CsvCtrl', ['$scope', '$mdDialog',
         $scope.experiment = response.data[0];
       });
 
-    dataService.getCsv($scope.csvExperimentId, user, anonymous).
+    dataService.getCsv($scope.experimentId, user, anonymous).
     then(function(result) {
       if (result.data) {
         $scope.csv = result.data;
