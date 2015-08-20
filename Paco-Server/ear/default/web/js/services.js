@@ -150,66 +150,13 @@ pacoApp.service('dataService', ['$http', '$timeout', '$q',
       return defer.promise;
     }
 
-
     function getParticipantData(id) {
-
-      var fake = {
-        count: 5,
-        participants: [{
-          who: 'user1@mail.com',
-          todaySignalCount: 5,
-          todayResponseCount: 4,
-          todaySelfReportCount: 0,
-          totalSignalCount: 10,
-          totalResponseCount: 7,
-          totalSelfReportCount: 5
-        },
-        {
-          who: 'user2@mail.com',
-          todaySignalCount: 5,
-          todayResponseCount: 0,
-          todaySelfReportCount: 0,
-          totalSignalCount: 10,
-          totalResponseCount: 0,
-          totalSelfReportCount: 0
-        },
-        {
-          who: 'user3@mail.com',
-          todaySignalCount: 5,
-          todayResponseCount: 5,
-          todaySelfReportCount: 3,
-          totalSignalCount: 10,
-          totalResponseCount: 10,
-          totalSelfReportCount: 5
-        },
-        {
-          who: 'user4@mail.com',
-          todaySignalCount: 5,
-          todayResponseCount: 0,
-          todaySelfReportCount: 10,
-          totalSignalCount: 10,
-          totalResponseCount: 0,
-          totalSelfReportCount: 20
-        },
-        {
-          who: 'user5@mail.com',
-          todaySignalCount: 6,
-          todayResponseCount: 2,
-          todaySelfReportCount: 2,
-          totalSignalCount: 10,
-          totalResponseCount: 8,
-          totalSelfReportCount: 2
-        }],
-        nextCursor: ''
-      }
-
-      var defer = $q.defer();
-      defer.resolve({data: fake});
-      return defer.promise;
-
+      var url = 'participantStats?experimentId=' + id;
+      return $http.get(url);
     }
   }
 ]);
+
 
 pacoApp.service('config', function() {
 

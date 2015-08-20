@@ -39,11 +39,11 @@
     </tr>
     <tr ng-repeat="row in stats.participants">
       <td right-border>{{row["who"]}}</td>
-      <td>{{row["todayResponseCount"]/row["todaySignalCount"]|percent}}</td>
-      <td>{{row["todayResponseCount"]}}</td>
+      <td>{{row["todaySignalResponseCount"]/row["todaySignalCount"]|percent}}</td>
+      <td>{{row["todaySignalResponseCount"]}}</td>
       <td right-border>{{row["todaySelfReportCount"]}}</td>
-      <td>{{row["totalResponseCount"]/row["totalSignalCount"]|percent}}</td>
-      <td>{{row["totalResponseCount"]}}</td>
+      <td>{{row["totalSignalResponseCount"]/row["totalSignalCount"]|percent}}</td>
+      <td>{{row["totalSignalResponseCount"]}}</td>
       <td>{{row["totalSelfReportCount"]}}</td>
     </tr>
      <tfoot>
