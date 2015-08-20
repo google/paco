@@ -69,17 +69,28 @@ public class BackendReportJobExecutorServlet extends HttpServlet {
     } else if (reportFormat != null && reportFormat.equals("photozip")) {
         log.info("Backend generating photo zip file");
         dumpPhotoZip(req, resp, anon, cursor);
+    } else if (reportFormat != null && reportFormat.equals("stats")) {
+      runStats(req, resp);
     } else {
       log.info("Backend generating html report");
       showEvents(req, resp, anon, cursor);
     }
   }
 
+  private void runStats(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+      String requestorEmail = getRequestorEmail(req);
+      DateTimeZone timeZoneForClient = getTimeZoneForClient(req);
+      final String adminDomainFilter = req.getParameter("adminDomainFilter");
+      String jobId = ReportJobExecutor.getInstance().runReportJob(requestorEmail, timeZoneForClient, null, false, "stats", null, null, adminDomainFilter);
+      resp.setContentType("text/plain;charset=UTF-8");
+      resp.getWriter().println(jobId);
+  }
+
   private void dumpPhotoZip(HttpServletRequest req, HttpServletResponse resp, boolean anon, String cursor) throws IOException {
     String queryParam = getParamForQuery(req);
     List<com.google.sampling.experiential.server.Query> query = new QueryParser().parse(stripQuotes(queryParam));
     DateTimeZone timeZoneForClient = getTimeZoneForClient(req);
-    String jobId = ReportJobExecutor.getInstance().runReportJob(getRequestorEmail(req), timeZoneForClient, query, anon, "photozip", cursor, queryParam);
+    String jobId = ReportJobExecutor.getInstance().runReportJob(getRequestorEmail(req), timeZoneForClient, query, anon, "photozip", cursor, queryParam, null);
     resp.setContentType("text/plain;charset=UTF-8");
     resp.getWriter().println(jobId);
   }
@@ -94,7 +105,7 @@ public class BackendReportJobExecutorServlet extends HttpServlet {
     List<com.google.sampling.experiential.server.Query> query = new QueryParser().parse(stripQuotes(queryParam));
     String requestorEmail = getRequestorEmail(req);
     DateTimeZone timeZoneForClient = getTimeZoneForClient(req);
-    String jobId = ReportJobExecutor.getInstance().runReportJob(requestorEmail, timeZoneForClient, query, anon, "csv", cursor, queryParam);
+    String jobId = ReportJobExecutor.getInstance().runReportJob(requestorEmail, timeZoneForClient, query, anon, "csv", cursor, queryParam, null);
     resp.setContentType("text/plain;charset=UTF-8");
     resp.getWriter().println(jobId);
   }
@@ -103,7 +114,7 @@ public class BackendReportJobExecutorServlet extends HttpServlet {
     String queryParam = getParamForQuery(req);
     List<com.google.sampling.experiential.server.Query> query = new QueryParser().parse(stripQuotes(queryParam));
     DateTimeZone timeZoneForClient = getTimeZoneForClient(req);
-    String jobId = ReportJobExecutor.getInstance().runReportJob(getRequestorEmail(req), timeZoneForClient, query, anon, "html", cursor, queryParam);
+    String jobId = ReportJobExecutor.getInstance().runReportJob(getRequestorEmail(req), timeZoneForClient, query, anon, "html", cursor, queryParam, null);
     resp.setContentType("text/plain;charset=UTF-8");
     resp.getWriter().println(jobId);
 

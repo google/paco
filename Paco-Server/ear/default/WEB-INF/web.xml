@@ -60,6 +60,16 @@
   </servlet-mapping>
   
   <servlet>
+    <servlet-name>usageServlet</servlet-name>
+    <servlet-class>com.google.sampling.experiential.server.UsageServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>usageServlet</servlet-name>
+    <url-pattern>/usage</url-pattern>
+  </servlet-mapping>
+  
+  
+  <servlet>
     <servlet-name>experimentServlet</servlet-name>
     <servlet-class>com.google.sampling.experiential.server.ExperimentServlet</servlet-class>
   </servlet>
@@ -170,6 +180,7 @@
       <url-pattern>/migrate*</url-pattern>
       <url-pattern>/pacoserver/migrate*</url-pattern>
       <url-pattern>/remote_api*</url-pattern>
+      <url-pattern>/usage*</url-pattern>
     </web-resource-collection>
     <auth-constraint>
       <role-name>admin</role-name>

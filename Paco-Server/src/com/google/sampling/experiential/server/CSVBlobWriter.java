@@ -116,7 +116,7 @@ public class CSVBlobWriter {
     String BUCKETNAME = "reportbucket";
     String FILENAME = jobId;
     GcsFilename filename = new GcsFilename(BUCKETNAME, FILENAME);
-    GcsFileOptions options = new GcsFileOptions.Builder().mimeType("text/csv").acl("public-read")
+    GcsFileOptions options = new GcsFileOptions.Builder().mimeType("text/csv").acl("project-private")
                                                          .addUserMetadata("jobId", jobId).build();
 
     GcsOutputChannel writeChannel = gcsService.createOrReplace(filename, options);
