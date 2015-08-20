@@ -9,7 +9,7 @@
  * f) photoService
  */
 
-var paco = (function (init) {
+var paco2 = (function (init) {
   var obj = init || {};
   var environment = obj["environment"] || "test";
 
@@ -115,39 +115,6 @@ var paco = (function (init) {
       return true;
     }
   };
-  
-  valid = function(input, inputHtml, response) { 
-    if ((input.required && inputHtml.element[0].style.display != "none") && (!response.answer || response.answer.length === 0)) {
-      return { "succeeded" : false , "error" : "Response required for " + input.name, "name" : input.name};    
-    } else if (!validValueForResponseType(response)) {
-      return { "succeeded" : false , "error" : "Response required for " + name, "name" : name};    
-    } else {
-      return { "succeeded" : true };
-    }
-  };
-  
-  
-  obj.validate = function(experimentGroup, responseEvent, inputHtmls, errorMarkingCallback) {
-    var errors = [];
-    for (var i in experimentGroup.inputs) {
-      var input = experimentGroup.inputs[i];
-      var response = responseEvent.responses[i];
-      var visualElement = inputHtmls[i];
-      var validity = valid(input, visualElement, response);
-      if (!validity.succeeded) {
-        errors.push(validity);
-      } 
-    }
-    if (errors.length > 0) {
-      errorMarkingCallback.invalid(errors);
-    } else {
-      errorMarkingCallback.valid(responseEvent);
-    }
-  };
-
-  obj.random = function(limit) {
-    return Math.floor(Math.random() * limit);
-  };
 
   
 //--------------------------------------------------------DB FUNCTIONS----------------------------------------------------------//
@@ -199,22 +166,6 @@ var paco = (function (init) {
         getAllEvents: getAllEvents,
         getLastEvent : getLastEvent
       };
-    };
-
-    
-    /*
-     * This function checks if a given date is from today
-     * @return - true if it is else null
-     */
-    var isFromToday = function(dateStr) {
-      if (dateStr) {
-        var eventDate = new Date(dateStr);
-        var nowDate = new Date();
-        return eventDate.getYear() === nowDate.getYear() &&
-          eventDate.getMonth() === nowDate.getMonth() &&
-          eventDate.getDate() === nowDate.getDate();
-      }
-      return null;
     };
     
 
