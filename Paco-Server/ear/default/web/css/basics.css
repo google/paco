@@ -11,16 +11,13 @@
 
 .basics h2 {
   background: #e0e0e0;
-  font-weight: 300;
-  padding: 16px;
   margin: 0;
+  padding: 16px;
 }
 
 .basics md-select {
   margin-left: 16px;
 }
-
-
 
 .upload {
   position: relative;

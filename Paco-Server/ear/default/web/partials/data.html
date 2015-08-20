@@ -1,7 +1,10 @@
-<div ng-controller="CsvCtrl" class="csv">
+<div ng-controller="CsvCtrl" class="csv data">
   <h2>
-    <a href="#">Experiments</a> &gt 
-    <a href="#/experiment/{{csvExperimentId}}">{{csvExperimentId}}</a> 
+    <a href="#">Experiments</a> &gt
+    <a href="#/experiment/{{experimentId}}">
+      <span ng-if="!experiment">{{experimentId}}</span>
+      <span ng-if="experiment">{{experiment.title}}</span>
+    </a>
     &gt; Data
   </h2>
 
@@ -10,9 +13,8 @@
     <md-progress-circular md-mode="indeterminate"></md-progress-circular>
   </div>
 
-  <div ng-if="csv">
-    <md-card>
-      <md-card-content>
+  <div ng-if="csv" class="frame">
+
         <table>
           <tr ng-repeat="row in table track by $index">
             <td ng-repeat="cell in row track by $index">{{cell}}</td>
@@ -21,8 +23,7 @@
             <td>Showing {{table.length - 1}} out of {{table.length - 1}}</td>
           </tfoot>
         </table>
-      </md-card-content>
-    </md-card>
+
     <a ng-href="{{csvData}}" download="export.csv">Download CSV</a>
   </div>
 
