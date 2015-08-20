@@ -20,7 +20,7 @@
       <td right-border></td>
       <td></td>
       <td>Total</td>
-      <td right-border></td>
+      <td></td>
     </tr>
     <tr heading>
       <td right-border>Participant</td>
@@ -34,7 +34,7 @@
         <br>Rate</td>
       <td>Signal Response
         <br>Count</td>
-      <td right-border>Self-Report
+      <td>Self-Report
         <br>Count</td>
     </tr>
     <tr ng-repeat="row in stats.participants">
@@ -44,8 +44,11 @@
       <td right-border>{{row["todaySelfReportCount"]}}</td>
       <td>{{row["totalResponseCount"]/row["totalSignalCount"]|percent}}</td>
       <td>{{row["totalResponseCount"]}}</td>
-      <td right-border>{{row["totalSelfReportCount"]}}</td>
+      <td>{{row["totalSelfReportCount"]}}</td>
     </tr>
+     <tfoot>
+        <td colspan=7>Showing {{stats.participants.length}} out of {{stats.count}}</td>
+      </tfoot>
   </table>
 </div>
 

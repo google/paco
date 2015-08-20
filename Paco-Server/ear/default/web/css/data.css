@@ -26,19 +26,6 @@
   border-bottom: 1px solid #e3e3e3;
   height: 48px;
 }
-
-.data table tr[heading] td {
-  font-weight: 500;
-}
-
-.data table tr:first-of-type {
-  color: rgba(0, 0, 0, .54);
-  font-size: 12px;
-}
-.data table tr:first-of-type td {
-  text-align: center;
-}
-
 .data table td {
   padding: 0 56px 0 24px;
   text-align: center ;
@@ -49,7 +36,7 @@
   border-right: 1px solid #e3e3e3;
 }
 
-.data table td:first-of-type {
+.data table tfoot td {
   text-align: left;
 }
 
