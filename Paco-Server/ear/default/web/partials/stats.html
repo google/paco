@@ -1,7 +1,10 @@
 <div ng-controller="StatsCtrl" class="stats data">
   <h2>
     <a href="#">Experiments</a> &gt 
-    <a href="#/experiment/{{experimentId}}">{{experimentId}}</a> 
+    <a href="#/experiment/{{experimentId}}">
+      <span ng-if="!experiment">{{experimentId}}</span>
+      <span ng-if="experiment">{{experiment.title}}</span>
+    </a> 
     &gt; Participant Statistics
   </h2>
 
@@ -10,7 +13,24 @@
     <md-progress-circular md-mode="indeterminate"></md-progress-circular>
   </div>
 
+
 <div ng-if="stats" class="frame">
+
+  <div class="summary" ng-if="stats && experiment && experiment.published">
+    
+    <div class="stat">
+      <b>{{experiment.publishedUsers.length}}</b> invited
+    </div>
+    <div class="stat">
+      <b>{{stats.count}}</b> joined
+    </div>
+    <div class="stat">
+     <b>{{stats.todayParticipantCount}}</b> participated today
+    </div>
+    <div class="stat">
+      <b>{{1-(stats.todayParticipantCount/stats.count)|percent}}</b> non-responders today
+    </div>
+  </div>
 
   <table>
     <tr>

@@ -151,8 +151,33 @@ pacoApp.service('dataService', ['$http', '$timeout', '$q',
     }
 
     function getParticipantData(id) {
+
+      var defer = $q.defer();
       var url = 'participantStats?experimentId=' + id;
-      return $http.get(url);
+      $http.get(url).success(
+        function(data) {
+          console.log(data);
+          var totalParticipantCount = 0;
+          var todayParticipantCount = 0;
+          for (var i = 0; i < data.participants; i++) {
+            
+            if (data.participants[i].todaySignalResponseCount > 0) {
+              todayParticipantCount++;
+            }
+            
+            if (data.participants[i].totalSignalResponseCount > 0) {
+              totalParticipantCount++;
+            }
+          }
+          data.todayParticipantCount = todayParticipantCount;
+          data.totalParticipantCount = totalParticipantCount;
+
+          defer.resolve({
+            'data': data
+          });
+        });
+
+      return defer.promise;
     }
   }
 ]);
