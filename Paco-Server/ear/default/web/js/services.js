@@ -150,13 +150,18 @@ pacoApp.service('dataService', ['$http', '$timeout', '$q',
       return defer.promise;
     }
 
+
+    /**
+    * Gets stats data from PACO server endpoint. Iterates over data to
+    * compute the total participant count for today and all time.
+    */
+
     function getParticipantData(id) {
 
       var defer = $q.defer();
       var url = 'participantStats?experimentId=' + id;
       $http.get(url).success(
         function(data) {
-          console.log(data);
           var totalParticipantCount = 0;
           var todayParticipantCount = 0;
           for (var i = 0; i < data.participants; i++) {

@@ -72,3 +72,12 @@
 .data md-card {
   overflow-x: scroll;
 }
+
+.stats .variable-width-centered {
+  display: inline-block;
+  text-align: left;
+}
+
+.stats {
+  text-align: center;
+}
