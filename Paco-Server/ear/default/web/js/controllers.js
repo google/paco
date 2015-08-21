@@ -349,12 +349,12 @@ pacoApp.controller('CsvCtrl', ['$scope', '$mdDialog',
     var user = false;
     var anonymous = false;
 
-    if ($scope.myData) {
-      user = $scope.user;
-    }
-
     if ($location.hash() && $location.hash() === 'anon') {
       anonymous = true;
+    }
+
+    if ($location.hash() && $location.hash() === 'mine') {
+      user = $scope.user;
     }
 
     if (angular.isDefined($routeParams.csvExperimentId)) {
