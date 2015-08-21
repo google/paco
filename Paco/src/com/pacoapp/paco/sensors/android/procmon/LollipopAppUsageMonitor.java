@@ -51,7 +51,7 @@ public class LollipopAppUsageMonitor {
     return new AppChangeListener() {
 
       @Override
-      public void appOpened(AppUsageEvent event) {
+      public void appOpened(AppUsageEvent event, boolean shouldTrigger) {
         final boolean shouldLogActions = BroadcastTriggerReceiver.shouldLogActions(context);
         if (isBrowserTask(event) && shouldLogActions) {
           BroadcastTriggerReceiver.createBrowserHistoryStartSnapshot(context);
@@ -59,7 +59,9 @@ public class LollipopAppUsageMonitor {
           inBrowser = true;
         }
 
-        triggerAppUsed(event.getAppIdentifier());
+        if (shouldTrigger) {
+          triggerAppUsed(event.getAppIdentifier());
+        }
 
 
         if (shouldLogActions) {
@@ -70,13 +72,15 @@ public class LollipopAppUsageMonitor {
       }
 
       @Override
-      public void appClosed(AppUsageEvent event) {
+      public void appClosed(AppUsageEvent event, boolean shouldTrigger) {
         if (inBrowser == true && isBrowserTask(event)) {
           inBrowser = false;
           BroadcastTriggerReceiver.toggleInBrowser(context, false);
           BroadcastTriggerReceiver.createBrowserHistoryEndSnapshot(context);
         }
-        triggerAppClosed(event.getAppIdentifier());
+        if (shouldTrigger) {
+          triggerAppClosed(event.getAppIdentifier());
+        }
       }
     };
   }
