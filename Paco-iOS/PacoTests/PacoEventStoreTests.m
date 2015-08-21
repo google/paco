@@ -66,7 +66,7 @@
 }
 
 
-- (void)testFetchFromEventStore
+- (void)testFetchFromEventStore2
 {
     OrgJodaTimeDateTime *time = [[OrgJodaTimeDateTime alloc] initWithInt:2012 withInt:3 withInt:23 withInt:0 withInt:0 withInt:0 withInt:0];
     

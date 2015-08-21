@@ -309,6 +309,8 @@ typedef void(^BackgroundFetchCompletionBlock)(UIBackgroundFetchResult result);
     
    DDLogInfo(@"PacoClient-- nextNotificationsToSchedule ");
   NSUInteger numOfRunningExperiments = [self.model.runningExperiments count];
+    
+    
   NSMutableArray* allNotifications =
       [NSMutableArray arrayWithCapacity:numOfRunningExperiments * kTotalNumOfNotifications];
   
@@ -317,9 +319,13 @@ typedef void(^BackgroundFetchCompletionBlock)(UIBackgroundFetchResult result);
     if (![experiment shouldScheduleNotificationsFromNow]) {
       continue;
     }
+      
+      
     NSArray* dates = [PacoScheduleGenerator nextDatesForExperiment:experiment
                                                         numOfDates:kTotalNumOfNotifications
                                                           fromDate:now];
+      
+      
     NSArray* notifications = [UILocalNotification pacoNotificationsForExperiment:experiment
                                                                  datesToSchedule:dates];
     [allNotifications addObjectsFromArray:notifications];

@@ -133,10 +133,9 @@
     NSString *methodName = [NSString stringWithFormat:@"set%@:", rootString];
     SEL sel = NSSelectorFromString(methodName);
     if ([object respondsToSelector:sel]) {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Warc-performSelector-leaks"
+
       [object performSelector:sel withObject:argument];
-#pragma clang diagnostic pop
+
       retVal = TRUE;
     } else {
       retVal = NO;
