@@ -375,6 +375,9 @@ public class JsonConverter {
         return false;
       }
       ExperimentGroup group = experimentDAO.getGroups().get(0);
+      if (group.getCustomRendering()) {
+        return false;
+      }
       List<ActionTrigger> actionTriggers = group.getActionTriggers();
       if (actionTriggers.size() > 1) {
         log.info("actionTriggers size > 1");
@@ -389,9 +392,18 @@ public class JsonConverter {
         }
         if (at instanceof ScheduleTrigger) {
           ScheduleTrigger st = (ScheduleTrigger) at;
-          if (st.getSchedules().size() > 1) {
+          final List<Schedule> schedules = st.getSchedules();
+          if (schedules.size() > 1) {
             log.info("schedule size > 1");
             return false;
+          }
+          final List<SignalTime> signalTimes = schedules.get(0).getSignalTimes();
+          if (signalTimes != null) {
+            for (SignalTime signalTime : signalTimes) {
+              if (signalTime.getBasis() != null && signalTime.getBasis() == SignalTime.OFFSET_TIME) {
+                return false;
+              }
+            }
           }
         } else if (at instanceof InterruptTrigger) {
           InterruptTrigger it = (InterruptTrigger) at;
@@ -563,7 +575,7 @@ public class JsonConverter {
   @JsonSubTypes({ @Type(value = ScheduleTrigger.class, name = "scheduleTrigger"),
                  @Type(value = InterruptTrigger.class, name = "interruptTrigger") })
   private class ActionTriggerMixIn {
-      
+
     // Nothing to be done here. This class exists for the sake of its
     // annotations.
   }

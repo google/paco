@@ -35,20 +35,14 @@
         </div>
       </md-input-container>
       
-      <!-- 
-      <h2>Upload an image</h2>
-      <div class="padded upload" file-dropzone="[image/png, image/jpeg, image/gif]" file="image"
-      dragging="highlight" file-name="imageFileName" data-max-file-size="5">
-        <div class="dropzone" ng-style="{'background-image': image}" ng-class="{highlight: highlight}"></div>
-        <div class="x" ng-click="image=null" ng-show="image">x</div>
-        <div class="text">
-          <b>Choose an image from your computer</b>
-          <br>JPEG, PNG, or GIF, 5 MB size limit
-          <p>Choose an image that best represents your experiment, and your organization
-            for credibility.</p>
-        </div>
+      <div class="padded">
+        Ringtone
+        <md-select ng-model="experiment.ringtoneUri" placeholder="Select">
+          <md-option ng-repeat="ringtone in ringtones" value="/assets/ringtone/{{ringtone}}">
+            {{ringtone}}
+          </md-option>
+        </md-select>
       </div>
-      -->
       
     </md-card-content>
   </md-card>

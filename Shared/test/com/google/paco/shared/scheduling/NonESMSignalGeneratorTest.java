@@ -136,6 +136,14 @@ public class NonESMSignalGeneratorTest extends TestCase {
                           0, null);
   }
 
+  public static SignalTime createFixedSignalTimeUseScheduledTimeOnMissWithNullInit(DateTime twoPm) {
+    final SignalTime signalTime = new SignalTime();
+    signalTime.setType(SignalTime.FIXED_TIME);
+    signalTime.setFixedTimeMillisFromMidnight(twoPm.getMillisOfDay());
+
+    return signalTime;
+  }
+
   public static SignalTime createOffsetSignalTimeResponseBasisSkipOnMiss(int offsetMillis) {
     return new SignalTime(SignalTime.OFFSET_TIME, SignalTime.OFFSET_BASIS_RESPONSE_TIME,
                           0, SignalTime.MISSED_BEHAVIOR_SKIP,
@@ -251,6 +259,21 @@ public class NonESMSignalGeneratorTest extends TestCase {
     DateTime onePm = createDateTime_ThursdayAtHour(13);
     assertEquals(twoPm, new DateTime(generator.getNextAlarmTime(onePm)));
   }
+
+  public void testTwoFixedTimes() throws Exception {
+    List<SignalTime> times = new ArrayList<SignalTime>();
+    DateTime twelvePm = createDateTime_ThursdayAtHour(12);
+    times.add(createFixedSignalTimeUseScheduledTimeOnMissWithNullInit(twelvePm));
+    DateTime twoPm = createDateTime_ThursdayAtHour(14);
+    times.add(createFixedSignalTimeUseScheduledTimeOnMissWithNullInit(twoPm));
+    Schedule schedule = createDailyScheduleWithTimes(times, 1);
+
+    NonESMSignalGenerator generator = new NonESMSignalGenerator(schedule, NULL_EXPERIMENT_ID, null, null, null);
+
+    DateTime onePm = createDateTime_ThursdayAtHour(13);
+    assertEquals(twoPm, new DateTime(generator.getNextAlarmTime(onePm)));
+  }
+
 
   public void testTwiceDaily_12pm_2pm_At3Pm() throws Exception {
     List<SignalTime> times = new ArrayList<SignalTime>();

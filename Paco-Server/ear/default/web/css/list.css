@@ -35,6 +35,11 @@
   width: 800px;
 }
 
+.list md-card.deleted {
+  opacity: .5;
+  pointer-events: none;
+}
+
 .list .group {
   margin-top: 32px;
 }

@@ -147,7 +147,6 @@ pacoApp.directive('pacoGroup', function () {
 
   }];
 
-
   return {
     restrict: 'E',
     scope: {  'group': '=data',
@@ -162,8 +161,6 @@ pacoApp.directive('pacoGroup', function () {
     templateUrl: 'partials/group.html'
   };
 });
-
-
 
 
 /**
@@ -321,6 +318,7 @@ pacoApp.directive('expandable', ['$timeout', function($timeout) {
   }
 }]);
 
+
 pacoApp.directive('expander', function() {
   return {
     restrict: 'A',
@@ -330,6 +328,7 @@ pacoApp.directive('expander', function() {
     }
   }
 });
+
 
 pacoApp.directive('hidable', [function() {
   return {
@@ -345,6 +344,16 @@ pacoApp.directive('hidable', [function() {
       };
     }
   }
+}]);
+
+
+pacoApp.filter('percent', ['$filter', function ($filter) {
+  return function (input) {
+    if (isNaN(input)) {
+      return '-';
+    }
+    return $filter('number')(input * 100, 0) + '%';
+  };
 }]);
 
 

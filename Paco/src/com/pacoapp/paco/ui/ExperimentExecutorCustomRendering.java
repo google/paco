@@ -415,7 +415,9 @@ public class ExperimentExecutorCustomRendering extends ActionBarActivity impleme
   }
 
   private void renderWebView(Bundle savedInstanceState) {
-    webView = (WebView)findViewById(R.id.experimentExecutorView);
+    //webView = (WebView)findViewById(R.id.experimentExecutorView);
+    webView = new CustomInputWebview(this);
+    mainLayout.addView(webView);
     webView.getSettings().setJavaScriptEnabled(true);
 
     injectObjectsIntoJavascriptEnvironment();
@@ -892,7 +894,7 @@ public boolean onKeyDown(int keyCode, KeyEvent event) {
       if (extras != null) {
         extras.clear();
       }
-
+      updateAlarms();
       notifySyncService();
 
       if (experimentGroup.getFeedback().getType() != FeedbackDAO.FEEDBACK_TYPE_HIDE_FEEDBACK) {

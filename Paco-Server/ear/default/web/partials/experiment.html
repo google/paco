@@ -1,7 +1,7 @@
-<div ng-controller="ExperimentCtrl" class="experiment">
+<div ng-controller="ExperimentCtrl" class="centered experiment">
   <h2>
     <a href="#">Experiments</a> &gt 
-    <a href="#/experiment/{{experiment.id}}">{{experiment.id}}</a> 
+    <a href="#/experiment/{{experiment.id}}">{{experiment.title}}</a> 
     &gt; Description
   </h2>
 
@@ -57,7 +57,7 @@
             </md-button>
           </a>
 
-          <a href="participantStats?experimentId={{experiment.id}}" target="_new">
+          <a href="#/stats/{{experiment.id}}">
             <md-button>
               Stats
             </md-button>

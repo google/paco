@@ -1,7 +1,18 @@
-var paco = (function (init) {
+/**
+ * This javascript contains all the render functions of Paco. The functions on grouped on the following 
+ * categories
+ * a) paco createDisplay
+ * b) renderer and
+ * b) execute functions which include conditionalListener and dbSaveOutcomeCallback
+ */
+
+var paco2 = (function (init) {
   var obj = init || {};
   var environment = obj["environment"] || "test";
 
+  /*
+   * The following function creates a HTML display on the form
+   */
   obj.createDisplay = function() {
     var output = $("<div id='output'></div>");
     output.appendTo("body");
@@ -13,68 +24,6 @@ var paco = (function (init) {
         output.html(output.html() + "\n<p style=\"font-size: large;\">"+msg+"</p>");
       }
     };
-  };
-
-  obj.createResponseForInput = function(input) {
-    return { "name" : input.name, 
-             "prompt" : input.text,
-             "isMultiselect" : input.isMultiselect,
-             "answer" : input.answer, 
-             "responseType" : input.responseType
-           };
-  };
-
-  obj.createResponsesForInputs = function(inputs) {
-    var responses = [];
-    for (var experimentalInput in inputs) {
-      responses.push(obj.createResponseForInput(inputs[experimentalInput]));
-    }
-    return responses;
-  };
-
-  obj.createResponseEventForExperimentWithResponses = function(experiment, experimentGroup, responses, scheduledTime) {
-    return  {
-      "experimentId" : experiment.id,
-      "experimentVersion" : experiment.version,
-      "experimentGroupName" : experimentGroup.name,
-      "responseTime" : null, 
-      "scheduledTime" : scheduledTime,
-      "responses" : responses
-    };
-  };
-
-  obj.createResponseEventForExperiment = function(experiment, experimentGroup, scheduledTime) {
-    return obj.createResponseEventForExperimentWithResponses(experiment, experimentGroup, 
-        obj.createResponsesForInputs(experimentGroup.inputs), scheduledTime);
-  };
-
-  obj.answerHas = function(answer, value) {
-    return answer.indexOf(value) != -1;
-  };
-  
-  function isNumeric(num) {
-    return (num >=0 || num < 0);
-  };
-
-  function validNumber(val) {
-    if (!isNumeric(val)) {
-      return false;
-    }
-    try {
-      // is this necessary given the isNumeric test?
-      parseFloat(val);
-      return true;
-    } catch (e) {
-      return false;
-    }     
-  };
-
-  function validValueForResponseType(response) {
-    if (response.responseType === "number") {
-      return validNumber(response.answer);
-    } else {
-      return true;
-    }
   };
   
   valid = function(input, inputHtml, response) { 
@@ -105,326 +54,17 @@ var paco = (function (init) {
       errorMarkingCallback.valid(responseEvent);
     }
   };
-
-  obj.random = function(limit) {
-    return Math.floor(Math.random() * limit);
-  };
-
-
-  obj.db = (function() {
-    var testDb = function() { 
-      var events = [];
-      var hasLocalStorage = typeof(Storage) !== "undefined";
-      var loaded = false;
-
-      function saveEvent(event) {
-        event.responseTime = new Date();
-        getAllEvents();
-        events.unshift(event);
-        if (hasLocalStorage) {            
-          sessionStorage.events = JSON.stringify(events);
-        } 
-        return {"status" : "success"};
-      };
-
-      function getAllEvents() {
-        if (!loaded && hasLocalStorage) {
-          var eventsString = sessionStorage.events;
-          if (eventsString) {
-            events = JSON.parse(eventsString);
-          }
-          loaded = true;
-        }
-        return events;
-      };
-      
-      function getLastEvent() {
-        getAllEvents();
-        return events[events.length - 1];
-      };
-
-      return {
-        saveEvent : saveEvent,
-        getAllEvents: getAllEvents,
-        getLastEvent : getLastEvent
-      };
-    };
-
-    var realDb = function() { 
-      var events = [];
-      var loaded = false;
-
-      function saveEvent(event) {
-        event.responseTime = new Date();
-        window.db.saveEvent(JSON.stringify(event));
-        events.unshift(event);
-        return {"status" : "success"};
-      };
-
-      function getAllEvents() {
-        if (!loaded) {
-          events = JSON.parse(window.db.getAllEvents());
-          loaded = true;
-        }
-        return events;
-      }
-
-      function getLastEvent() {
-        return JSON.parse(window.db.getLastEvent());
-      };
-
-      return {
-        saveEvent : saveEvent,
-        getAllEvents: getAllEvents,
-        getLastEvent : getLastEvent
-      };
-    };
-
-    var db; 
-    if (!window.db) {
-      db = testDb();
-    } else {
-      db = realDb();
-    } 
-
-    var isFromToday = function(dateStr) {
-      if (dateStr) {
-        var eventDate = new Date(dateStr);
-        var nowDate = new Date();
-        return eventDate.getYear() === nowDate.getYear() &&
-          eventDate.getMonth() === nowDate.getMonth() &&
-          eventDate.getDate() === nowDate.getDate();
-      }
-      return null;
-    };
-    
-    var getResponseForItem = function (responses, item) {
-      if (responses == null) {
-        return null;
-      }
-      
-      for (var j =0 ; j < responses.length; j++) {
-        if (responses[j]["name"] === item) {
-          return responses[j]["answer"];
-        }
-      }
-      return null;
-    };
-
-
-    var saveEvent = function(event, callback) {
-        var status = db.saveEvent(event);
-        if (callback) {
-          callback(status);
-        }
-    };
-      
-    var getAllEvents = function() {
-        // shallow cloning of the events array
-        var newarray = new Array();
-        $.each(db.getAllEvents(), function(index, value) { newarray[index] = value });
-        return newarray;
-    };
-
-    var getResponsesForEventNTimesAgo = function (nBack) {
-        var experimentData = db.getAllEvents();
-        if (nBack > experimentData.length) {
-          return null; // todo decide whether to throw an exception instead?
-        } 
-        var event = experimentData[nBack - 1]; 
-        return event.responses;
-    };
-
-    var getAnswerNTimesAgoFor = function (item, nBack) {
-        var responses = getResponsesForEventNTimesAgo(nBack);        
-        return getResponseForItem(responses, item);
-    };
-
-    return {
-      saveEvent : saveEvent,
-      getAllEvents : getAllEvents,
-
-      getLastEvent : function() {
-        return db.getLastEvent();
-      },
-
-      getLastNEvents : function(n) {
-        var events = db.getAllEvents();
-        return events.slice(0..n);
-      },
-
-      getResponsesForEventNTimesAgo : getResponsesForEventNTimesAgo,
-
-      getAnswerNTimesAgoFor : getAnswerNTimesAgoFor,
-      getLastAnswerFor : function (item) {
-        return getAnswerNTimesAgoFor(item, 1);
-      },
-
-      getAnswerBeforeLastFor : function (item) {
-        return getAnswerNTimesAgoFor(item, 2);
-      },
-
-      getMostRecentAnswerFor : function(key) {
-        var experimentData = db.getAllEvents();
-        for(var i=0; i < experimentData.length; i++) {
-          var modelResponse = getResponseForItem(experimentData[i].responses, key);
-          if (modelResponse) {
-            return modelResponse;
-          }
-        }
-        return null;
-      },
-
-      getMostRecentAnswerTodayFor : function(key) {
-        var experimentData = db.getAllEvents();
-        for(var i=0; i < experimentData.length; i++) {
-          if (!isFromToday(experimentData[i].responseTime)) {
-            return null;
-          }
-
-          var modelResponse = getResponseForItem(experimentData[i].responses, key);
-          if (modelResponse) {
-            return modelResponse;
-          }
-        }
-        return null;
-      },
-
-      recordEvent : function recordEvent(responses) {
-        db.saveEvent({ "responses" : responses });
-      }
-
-    };
-  })();
-
-  obj.experimentService = (function() {
-    var getExperiment = function() {
-      if (!window.experimentLoader) {
-        return getTestExperiment();
-      } else {
-        return JSON.parse(window.experimentLoader.getExperiment());
-      }
-    };
-    
-    var getExperimentGroup = function() {
-      if (!window.experimentLoader) {
-        return null;
-      } else {
-        return JSON.parse(window.experimentLoader.getExperimentGroup());
-      }
-    };
-    
-    var getEndOfDayReferredExperimentGroup = function() {
-      if (!window.experimentLoader) {
-        return null;
-      } else {
-        return JSON.parse(window.experimentLoader.getgetEndOfDayReferredExperimentGroup());
-      }
-    };
-
-
-    var saveExperiment = function(experimentString) {
-      if (!window.experimentLoader) {
-        return saveTestExperiment();
-      } else {
-        return window.experimentLoader.saveExperiment(experimentString);
-      }
-    };
-
-    return {
-      getExperiment : getExperiment,
-      getExperimentGroup : getExperimentGroup,
-      getEndOfDayReferredExperimentGroup : getEndOfDayReferredExperimentGroup,
-      saveExperiment : function(experiment, callback) {
-        var result = saveExperiment(JSON.stringify(experiment), callback);
-        if (callback) {
-          callback(result);
-        }
-      }
-    };
-  })(); 
-	  
-	  
-  obj.experiment = function() {
-	  
-    if (!window.experimentLoader) {
-      return getTestExperiment();
-    } else {
-      return JSON.parse(window.experimentLoader.getExperiment());
-    } 
-  };
-
-  obj.executor = (function() {
-    if (!window.executor) {
-      window.executor = { done : function() { alert("done"); } };
-    }
-
-    return {
-      done : function() {
-        window.executor.done();
-      }
-    };
-  })();
-
-  obj.photoService = (function() {
-    var callback;
-
-    if (!window.photoService) {
-      window.photoService = { 
-        launch : function(callback) { 
-          alert("No photo support"); 
-        } 
-      };
-    }
-
-    return {
-      launch : function(callback2) {
-        callback = callback2;
-        window.photoService.launch();
-      },
-      photoResult : function(base64BitmapEncoding) {
-        //alert("Got it!");
-        if (callback) {
-          callback(base64BitmapEncoding);
-        }
-      } 
-    };
-  })();
-  
-  obj.notificationService = (function() {
-	    if (!window.notificationService) {
-	      window.notificationService = { 
-	        createNotification : function(message) { 
-	          alert("No notification support"); 
-	        },
-	        removeNotification : function(message) { 
-		          alert("No notification support"); 
-		      },
-          removeAllNotifications : function() {
-            alert("No notification support");
-          }
-	      };
-	    }
-
-	    return {
-	      createNotification : function(message) {
-	        window.notificationService.createNotification(message);
-	      }, 
-	      removeNotification : function(message) {
-	    	  window.notificationService.removeNotification(message);
-	      },
-        removeAllNotifications : function() {
-          window.notificationService.removeAllNotifications();
-        }
-	    };
-	  })();
-
-
-  return obj;
 })();
+  
+//-------------------------------------------------------RENDER FUNCTIONS------------------------------------------------//
+// The functions below are for rendering different UI elements on the form in Paco
 
-paco.renderer = (function() {
-
+paco2.renderer = (function() {
+  /*
+   * THis function renders a prompt window
+   * @parameter - input to prompt a dialog box
+   * @return - HTML element for prompt
+   */
   renderPrompt = function(input) {
     var element = $(document.createElement("span"));
     element.text(input.text);
@@ -432,6 +72,11 @@ paco.renderer = (function() {
     return element;    
   };
 
+  /*
+   * This function renders a short text provided as input and response
+   * @parameter - input and response
+   * @return - input and value in HTML format
+   */
   shortTextVisualRender = function(input, response) {
     var rawElement = document.createElement("input");
     var element = $(rawElement);
@@ -456,24 +101,34 @@ paco.renderer = (function() {
     return obj;
   };
 
+  /*
+   * Renders an element in the form 
+   */
   renderElement = function(input, response, parent, renderVisualCallback, conditionalListener) {
     var element = renderVisualCallback(input, response);
 
     element.change(function() {
       response.answer = element.val();
       conditionalListener.inputChanged();
-      
     });
-    parent.append(element);
     
+    parent.append(element);
     conditionalListener.addInput(input, response, parent);
     return element;
   };
 
+  
+  /*
+   * Renders a short text experiment, calls render element in turn
+   */
   renderShortTextExperiment = function(input, response, conditionalListener, parent) {
     return renderElement(input, response, parent, shortTextVisualRender, conditionalListener);
   };
 
+  
+  /*
+   * Renders short text
+   */
   renderTextShort = function(input, response, parent, conditionalListener) {
     var rawElement = document.createElement("input");
     var element = $(rawElement);
@@ -486,16 +141,17 @@ paco.renderer = (function() {
 
     element.change(function() {
       response.answer = element.val();
-
       conditionalListener.inputChanged();
     });
 
-
     conditionalListener.addInput(input, response, parent);
-    
     return element;
   };
 
+  
+  /*
+   * Renders a number
+   */
   renderNumber = function(input, response, parent, conditionalListener) {
     var rawElement = document.createElement("input");
     var element = $(rawElement);
@@ -515,14 +171,16 @@ paco.renderer = (function() {
       }
       conditionalListener.inputChanged();
     });
-    parent.append(element);
     
+    parent.append(element);
     conditionalListener.addInput(input, response, parent);
-
     return element;
   };
 
 
+  /*
+   * Renders a Likert scale
+   */
   renderScale = function(input, response, parent, conditionalListener) {
     var left = input.leftSideLabel || "";
     if (left) {
@@ -562,10 +220,13 @@ paco.renderer = (function() {
     }
 
     conditionalListener.addInput(input, response, parent);
-
     return element;
   };
 
+  
+  /*
+   * Renders a list with option to select multiple items
+   */
   renderList = function(input, response, parent, conditionalListener) {
     var selected;
     if (response.answer) {
@@ -606,6 +267,10 @@ paco.renderer = (function() {
     return s;
   };
 
+  
+  /*
+   * Renders a photo button
+   */
   renderPhotoButton = function(input, response, parent, conditionalListener) {
     var rawElement = document.createElement("input");
     var element = $(rawElement);
@@ -634,12 +299,14 @@ paco.renderer = (function() {
     parent.append(element);
     parent.append(imgElement);
     
-    
     conditionalListener.addInput(input, response, parent);
-
     return element;
   };
 
+  
+  /*
+   * Renders an input from a list of choices
+   */
   renderInput = function(input, response, conditionalListener) {
     var rawElement = document.createElement("div");    
     var div = $(rawElement);
@@ -662,6 +329,10 @@ paco.renderer = (function() {
     return { "element" : div, "response" : response };
   };
 
+  
+  /*
+   * Render multiple inputs
+   */
   renderInputs = function(experimentGroup, responseEvent, conditionalListener) {
     var inputHtmls = [];
     for (var i in  experimentGroup.inputs) {
@@ -672,11 +343,18 @@ paco.renderer = (function() {
     return inputHtmls;
   };
   
+  
+  /*
+   * Renders a HTML break
+   */
   renderBreak = function() {
     var br = $(document.createElement("br"));
     return br;
   };
 
+  /*
+   * Renders a HTML div
+   */
   renderExperimentTitle = function(experiment) {
     var element = $(document.createElement("div"));
     element.text(experiment.title);
@@ -684,6 +362,9 @@ paco.renderer = (function() {
     return element;
   };
 
+  /*
+   * Renders a save button 
+   */
   renderSaveButton = function() {
     var saveButton = $(document.createElement("input"));
     saveButton.attr("type", "submit");
@@ -692,6 +373,9 @@ paco.renderer = (function() {
     return saveButton;
   };
 
+  /*
+   * Renders a DONE button
+   */
   renderDoneButton = function(experiment) {
     var doneButton = document.createElement("input");
     doneButton.type="submit";
@@ -699,6 +383,9 @@ paco.renderer = (function() {
     return doneButton;
   };
 
+  /*
+   * Removes an error from the custom page
+   */
   removeErrors = function(outputs) {
     for (var i in outputs) {
       var name = outputs[i].name
@@ -709,6 +396,10 @@ paco.renderer = (function() {
     // $("p").text("SUCCESS. Data" + str);
   };
 
+  
+  /*
+   * Renders an error on the custom page
+   */
   addErrors = function(json) {
     for (var i in json) {
       var name = json[i].name
@@ -716,6 +407,10 @@ paco.renderer = (function() {
     }
   };
 
+  
+  /*
+   * Register to validate the content when the save button is clicked
+   */
   registerValidationErrorMarkingCallback = function(experimentGroup, responseEvent, inputHtmls, saveButton, mainValidationCallback) {
 
     var validResponse = function(event) {
@@ -737,6 +432,10 @@ paco.renderer = (function() {
     saveButton.click(function() { paco.validate(experimentGroup, responseEvent, inputHtmls, errorMarkingCallback) });
   };
 
+  
+  /*
+   * Register a callback when Done button is clicked
+   */
   registerDoneButtonCallback = function(doneButton) {
     doneButton.click(function() { 
       if (window.executor) {
@@ -747,6 +446,10 @@ paco.renderer = (function() {
     });
   };
 
+  
+  /*
+   * Renders form with all the HTML elements 
+   */
   renderForm = function(experiment, experimentGroup, responseEvent, rootPanel, saveCallback, conditionalListener) {
     rootPanel.append(renderExperimentTitle(experiment));
     var inputHtmls = renderInputs(experimentGroup, responseEvent, conditionalListener);
@@ -761,6 +464,10 @@ paco.renderer = (function() {
     conditionalListener.inputChanged();
   };
 
+  
+  /*
+   * Renders the custom experiment form enabling javascript
+   */
   renderCustomExperimentForm = function(experiment, experimentGroup, responseEvent, rootPanel, saveCallback, conditionalListener) {    
     var additionsDivId = $(document.createElement("div"));
 
@@ -784,6 +491,10 @@ paco.renderer = (function() {
     rootPanel.append(additionsDivId);
   };
 
+  
+  /*
+   * loads the custom experiment
+   */
   loadCustomExperiment = function(experimentGroup, rootPanel) {    
     var additionsDivId = $(document.createElement("div"));
     
@@ -795,6 +506,9 @@ paco.renderer = (function() {
   };
 
   
+  /*
+   * 
+   */
   renderOutput = function(output) {
     var element = renderPlainText(output.prompt + ": " + output.answer);
     element.addClass("output");
@@ -811,12 +525,19 @@ paco.renderer = (function() {
     return outputHtmls;
   };
 
+  /*
+   * Renders plain text on screen
+   */
   renderPlainText = function(value)  {
     var element = $(document.createElement("span"));
     element.text(value);
     return element;
   };
 
+  
+  /*
+   * Renders default feedback options
+   */
   renderDefaultFeedback = function(experimentGroup, db, element) {
     var subElement = $(document.createElement("div"));
     subElement.text("Thank you for participating!");
@@ -841,6 +562,9 @@ paco.renderer = (function() {
   };
 
 
+  /*
+   * Extracts content within javascript tags and returns it
+   */
   function scriptBody(customFeedback) {
     var scriptStartIndex = customFeedback.indexOf("<script>");
     var scriptEndIndex = customFeedback.indexOf("</"+"script>");
@@ -850,6 +574,9 @@ paco.renderer = (function() {
     return "";
   }
   
+  /*
+   * Extracts content within HTML and returns it
+   */
   function htmlBody(customFeedback) {
     var scriptEndIndex = customFeedback.indexOf("</"+"script>");
     if (scriptEndIndex != -1) {
@@ -860,6 +587,9 @@ paco.renderer = (function() {
   }
   
 
+  /*
+   * Renders custom feedback form
+   */
   renderCustomFeedback = function(experimentGroup, db, element) {
     var additionsDivId = $(document.createElement("div"));
 
@@ -911,9 +641,10 @@ paco.renderer = (function() {
 })();
 
 
-
-
-paco.execute = (function() {
+/*
+ * Executes the code within custom page
+ */
+ paco2.execute = (function() {
 
   return function(experiment, experimentGroup, form_root) {
 
@@ -952,8 +683,12 @@ paco.execute = (function() {
 
     return obj;
   })();
+  
 
 
+  /*
+   * DB callback function called when data is saved
+   */
     var dbSaveOutcomeCallback = function(status) {
       if (status["status"] === "success") {    
         form_root.html("Feedback");
@@ -979,47 +714,4 @@ paco.execute = (function() {
     }
   };
 
-  
 })();
-    
-function runCustomExperiment(s0) {
-  var form_root = $(document.createElement("div"));
-  $(document.body).append(form_root);
-  var experiment = paco.experimentService.getExperiment();
-  
-  var experimentGroupName = window.env.getValue("experimentGroupName");  
-  var experimentGroup = null;
-  for (var j = 0; j < experiment.groups.length; j++) {
-    var grp = experiment.groups[j];
-    if (grp.name === experimentGroupName) {
-      experimentGroup = grp;
-      break;
-    }
-  }
-  if (experimentGroup == null) {
-    experimentGroup = paco.experimentService.getExperimentGroup();
-  }
-  
-  var actionTriggerId = window.env.getValue("actionTriggerId");
-  var actionTriggerSpecId = window.env.getValue("actionTriggerSpecId");
-  var actionId = window.env.getValue("actionId");
-
-  paco.renderer.loadCustomExperiment(experimentGroup, form_root);
-  if (main) {
-    main(paco.experiment(), experimentGroup, form_root);
-  } else {
-    form_root.html("Could not initialize the experiment");
-  }
-};
-
-
-var getTestExperiment = function() {
-  return {"title":"CustomHtml","description":"","informedConsentForm":"","creator":"bobevans999@gmail.com","fixedDuration":false,"id":995,"questionsChange":false,"modifyDate":"2013/11/05","inputs":[{"id":998,"questionType":"question","text":"What time is it?","mandatory":false,"responseType":"likert","likertSteps":5,"name":"q1","conditional":false,"listChoices":[],"invisibleInput":false},{"id":999,"questionType":"question","text":"How do you feel?","mandatory":false,"responseType":"open text","likertSteps":5,"name":"q2","conditional":false,"listChoices":[],"invisibleInput":false}],"feedback":[{"id":1194,"feedbackType":"display","text":"Thanks for Participating!"}],"published":false,"deleted":false,"webRecommended":false,"version":27,"signalingMechanisms":[{"type":"signalSchedule","id":996,"scheduleType":0,"esmFrequency":3,"esmPeriodInDays":0,"esmStartHour":32400000,"esmEndHour":61200000,"times":[0],"repeatRate":1,"weekDaysScheduled":0,"nthOfMonth":1,"byDayOfMonth":true,"dayOfMonth":1,"esmWeekends":false,"byDayOfWeek":false}],"schedule":{"type":"signalSchedule","id":996,"scheduleType":0,"esmFrequency":3,"esmPeriodInDays":0,"esmStartHour":32400000,"esmEndHour":61200000,"times":[0],"repeatRate":1,"weekDaysScheduled":0,"nthOfMonth":1,"byDayOfMonth":true,"dayOfMonth":1,"esmWeekends":false,"byDayOfWeek":false},"customRendering":true,"customRenderingCode":"<script>\nfunction save() {\n    var experiment = paco.experiment();\n    var inputs = experiment.inputs;\n    var responses = [];\n    for (var i in inputs) {\n        var input = inputs[i];\n        var element = $('input[name='+input.name+']');\n        var value = element.val();\n        var responseObject = paco.createResponseForInput(input);\n        responseObject.answerOrder = value;   \n        responseObject.answer = value;   \n        responses.push(responseObject);\n    }\n    var event = paco.createResponseEventForExperimentWithResponses(experiment, responses);\n    \n    var dbSaveOutcomeCallback = function(status) {\n      if (status[\"status\"] === \"success\") {    \n        alert(\"Saved. \" + JSON.stringify(event));        \n        paco.executor.done();\n        // var form_root = $('#root');\n        // form_root.html(\"\");\n        // paco.renderer.renderFeedback(experiment, paco.db, form_root);        \n      } else {\n        alert(\"Could not store data. You might try again. Error: \" + status[\"error\"]);\n      }   \n    };\n\n    paco.db.saveEvent(event, dbSaveOutcomeCallback);        \n\n}\n\n\n</script>\n<div id=\"root\">\n<h1>Please answer the following</h1>\nQ1 <input type=text name=q1></br>\nQ2 <input type=text name=q2></br>\n<input type=submit name=submit onclick=\"save()\">\n</div>"};
-};
-
-var saveTestExperiment = function() {
-	return {
-		"status" : "1",
-		"error_message" : "not supported in test environment"
-	};
-};
