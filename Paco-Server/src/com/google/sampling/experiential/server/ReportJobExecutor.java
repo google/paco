@@ -46,8 +46,8 @@ public class ReportJobExecutor {
   }
 
   public String runReportJob(final String requestorEmail, final DateTimeZone timeZoneForClient,
-                             final List<Query> query, final boolean anon, final String reportFormat, final String cursor,
-                             final String originalQuery, final String adminDomainFilter) {
+                             final List<Query> query, final boolean anon, final String reportFormat, final String adminDomainFilter,
+                             final String originalQuery, final int limit, final String cursor) {
     // TODO get a real id function for jobs
 
     final String jobId = DigestUtils.md5Hex(requestorEmail + Long.toString(System.currentTimeMillis()));
@@ -61,7 +61,7 @@ public class ReportJobExecutor {
         log.info("ReportJobExecutor running");
         Thread.currentThread().setContextClassLoader(cl);
         try {
-          String location = doJob(requestorEmail, timeZoneForClient, query, anon, jobId, reportFormat, cursor, originalQuery, adminDomainFilter);
+          String location = doJob(requestorEmail, timeZoneForClient, query, anon, jobId, reportFormat, adminDomainFilter, originalQuery, limit, cursor);
           statusMgr.completeReport(requestorEmail, jobId, location);
         } catch (Throwable e) {
           statusMgr.failReport(requestorEmail, jobId, e.getClass() + "." + e.getMessage());
@@ -76,7 +76,7 @@ public class ReportJobExecutor {
   }
 
   protected String doJob(String requestorEmail, DateTimeZone timeZoneForClient, List<Query> query, boolean anon, String jobId,
-                         String reportFormat, String cursor, String originalQuery, String adminDomainFilter) throws IOException {
+                         String reportFormat, String adminDomainFilter, String originalQuery, int limit, String cursor) throws IOException {
     log.info("starting doJob");
     if (!Strings.isNullOrEmpty(reportFormat) && reportFormat.equals("stats")) {
       log.info("Running stats report for job: " + jobId);
@@ -94,9 +94,7 @@ public class ReportJobExecutor {
     if (!Strings.isNullOrEmpty(reportFormat) && reportFormat.equals("csv")) {
       // TODO - get rid of the offset and limit params and rewrite the eventretriever call to loop until all results are retrieved.
       log.info("Getting events for job: " + jobId);
-      EventQueryResultPair eventQueryResultPair = null;
-      List<Event> events = EventRetriever.getInstance().getEvents(query, requestorEmail, timeZoneForClient, 0, 20000);
-      eventQueryResultPair = new EventQueryResultPair(events, null);
+      EventQueryResultPair eventQueryResultPair = EventRetriever.getInstance().getEventsInBatches(query, requestorEmail, timeZoneForClient, limit, cursor);
       //EventRetriever.sortEvents(events);
       log.info("Got events for job: " + jobId);
 
@@ -104,7 +102,7 @@ public class ReportJobExecutor {
     } else if (!Strings.isNullOrEmpty(reportFormat) && reportFormat.equals("photozip")) {
       // TODO - get rid of the offset and limit params and rewrite the eventretriever call to loop until all results are retrieved.
       log.info("Getting events for job: " + jobId);
-      EventQueryResultPair eventQueryResultPair = EventRetriever.getInstance().getEventsInBatches(query, requestorEmail, timeZoneForClient, 0, 20000, cursor);
+      EventQueryResultPair eventQueryResultPair = EventRetriever.getInstance().getEventsInBatches(query, requestorEmail, timeZoneForClient, limit, cursor);
       //EventRetriever.sortEvents(events);
       log.info("Got events for job: " + jobId);
 
@@ -112,7 +110,7 @@ public class ReportJobExecutor {
     } else {
       // TODO - get rid of the offset and limit params and rewrite the eventretriever call to loop until all results are retrieved.
       log.info("Getting events for job: " + jobId);
-      EventQueryResultPair eventQueryResultPair = EventRetriever.getInstance().getEventsInBatches(query, requestorEmail, timeZoneForClient, 0, 20000, cursor);
+      EventQueryResultPair eventQueryResultPair = EventRetriever.getInstance().getEventsInBatches(query, requestorEmail, timeZoneForClient, limit, cursor);
       //EventRetriever.sortEvents(events);
       log.info("Got events for job: " + jobId);
 

@@ -75,11 +75,22 @@ public class ParticipantStatServlet extends HttpServlet {
           fullQuery += ":who=" + whoParam;
         }
         List<Query> queryFilters = new QueryParser().parse(fullQuery);
-        List<Event> events = EventRetriever.getInstance().getEvents( queryFilters, AuthUtil.getEmailOfUser(req, user),
-                                                                    timeZoneForClient, 0, 20000);
+        String cursor = req.getParameter("cursor");
+        String limitStr = req.getParameter("limit");
+        int limit = 0;
+        if (!Strings.isNullOrEmpty(limitStr)) {
+            try {
+              limit = Integer.parseInt(limitStr);
+            } catch (NumberFormatException e) {
+              e.printStackTrace();
+            }
+        }
+
+        EventQueryResultPair eventQueryResultPair = EventRetriever.getInstance().getEventsInBatches( queryFilters, AuthUtil.getEmailOfUser(req, user),
+                                                                     timeZoneForClient, limit, cursor);
 
         Map<String, ParticipantReport> participantReports = Maps.newConcurrentMap();
-        for (Event event : events) {
+        for (Event event : eventQueryResultPair.getEvents()) {
           ParticipantReport participantReport = participantReports.get(event.getWho());
           if (participantReport == null) {
             participantReport = new ParticipantReport(event.getWho(), timeZoneForClient);
@@ -104,8 +115,11 @@ public class ParticipantStatServlet extends HttpServlet {
         }
 
         Collections.sort(participantStats);
-        String cursor = null;
-        ParticipationStats participationStats = new ParticipationStats(participantStats, cursor);
+        String nextCursor = eventQueryResultPair.getNextCursor();
+        if (nextCursor == null || nextCursor.equals(cursor)) {
+          nextCursor = null;
+        }
+        ParticipationStats participationStats = new ParticipationStats(participantStats, nextCursor);
 
         PrintWriter writer = resp.getWriter();
         ObjectMapper mapper = JsonConverter.getObjectMapper();
