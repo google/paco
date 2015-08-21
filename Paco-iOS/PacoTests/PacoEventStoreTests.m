@@ -65,32 +65,21 @@
     XCTAssert(event !=nil, @"Pass");
 }
 
-
+/*
 - (void)testFetchFromEventStore2
 {
     OrgJodaTimeDateTime *time = [[OrgJodaTimeDateTime alloc] initWithInt:2012 withInt:3 withInt:23 withInt:0 withInt:0 withInt:0 withInt:0];
-    
     PacoEventImpl* eventImpl = [[PacoEventImpl alloc] init:time  withResponseTime:time   GroupName:@"the group" ExperimentId:[JavaLangLong valueOfWithLong:123]  ActionTriggerId:[JavaLangLong valueOfWithLong:1234]  ScheduleId:[JavaLangLong valueOfWithLong:1235] ];
-    
-    
     PacoEventStore * eventStore = [[PacoEventStore alloc] init];
     [eventStore insertEventWithPAEventInterface:eventImpl];
-    
     eventImpl.groupName=@"New Name";
     [eventStore updateEventWithPAEventInterface:eventImpl];
-    
-    
-    
     id<PAEventInterface> event = [eventStore getEventWithJavaLangLong:[JavaLangLong valueOfWithLong:123]  withOrgJodaTimeDateTime:time withNSString:@"the group" withJavaLangLong:[JavaLangLong valueOfWithLong:1234] withJavaLangLong:[JavaLangLong valueOfWithLong:1235]];
-    
-    
-    
-    
     XCTAssert(event !=nil, @"Pass");
     
     
 }
-
+*/
 - (void)testPerformanceExample {
     // This is an example of a performance test case.
     [self measureBlock:^{

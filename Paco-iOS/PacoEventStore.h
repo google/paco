@@ -12,7 +12,7 @@
 #include "EventStore.h"
 #import <Foundation/Foundation.h>
 
-@interface PacoEventStore : NSObject
+@interface PacoEventStore : NSObject<PAEventStore>
 
  
 - (id<PAEventInterface>) getEventWithJavaLangLong:(JavaLangLong  *)experimentId
