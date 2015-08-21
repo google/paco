@@ -374,27 +374,8 @@
 - (NSObject*)match:(NSArray*)recurseObject {
   NSString* clazzName = nil;
   NSDictionary* dictionary = recurseObject[1];
-    
-   // [self findClassNameFromAttributes:[dictionary allKeys]];
-
-  /*
-
-
-   */
-
- 
-
-  //    NSString* searchString = [self ahoCorasickMatcher:dictionary];
-  //    NSDictionary* results =  [self.container findAllMatches:searchString];
-  //    NSArray * array = [self.container getTestArray];
-  //    NSLog(@"\n\n patterns  %@ \n",searchString);
-  //    NSLog(@"\n\n array %@ \n",array);
-
   id object = nil;
-
   clazzName = dictionary[_nameOfClass];
-    
-  NSLog(@"class name%@", clazzName);
   NSRange r1 = [clazzName rangeOfString:@"." options:NSBackwardsSearch];
   clazzName = [clazzName substringFromIndex:r1.location + 1];
   clazzName = [NSString stringWithFormat:@"PA%@", clazzName];

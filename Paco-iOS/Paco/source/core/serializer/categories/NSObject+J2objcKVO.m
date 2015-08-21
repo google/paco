@@ -16,6 +16,7 @@
 #import "ModelBase.h"
 #import <objc/runtime.h>
 #include "java/util/ArrayList.h"
+#include "java/lang/Boolean.h"
 
 @implementation NSObject (J2objcKVO)
 
@@ -133,8 +134,23 @@
     NSString *methodName = [NSString stringWithFormat:@"set%@:", rootString];
     SEL sel = NSSelectorFromString(methodName);
     if ([object respondsToSelector:sel]) {
+        
+        if ([methodName length]!=0 && [methodName rangeOfString:@"JavaLangBoolean"].location != NSNotFound)
+        {
+            JavaLangBoolean * b = [[JavaLangBoolean alloc] initWithNSString:(NSString*)argument];
+            
+            [object performSelector:sel withObject:b];
+            
+            
+            
+        } else
+        {
+            
+            [object performSelector:sel withObject:argument];
+        }
+        
 
-      [object performSelector:sel withObject:argument];
+
 
       retVal = TRUE;
     } else {
