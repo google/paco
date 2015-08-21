@@ -392,9 +392,18 @@ public class JsonConverter {
         }
         if (at instanceof ScheduleTrigger) {
           ScheduleTrigger st = (ScheduleTrigger) at;
-          if (st.getSchedules().size() > 1) {
+          final List<Schedule> schedules = st.getSchedules();
+          if (schedules.size() > 1) {
             log.info("schedule size > 1");
             return false;
+          }
+          final List<SignalTime> signalTimes = schedules.get(0).getSignalTimes();
+          if (signalTimes != null) {
+            for (SignalTime signalTime : signalTimes) {
+              if (signalTime.getBasis() != null && signalTime.getBasis() == SignalTime.OFFSET_TIME) {
+                return false;
+              }
+            }
           }
         } else if (at instanceof InterruptTrigger) {
           InterruptTrigger it = (InterruptTrigger) at;
