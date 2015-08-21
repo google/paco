@@ -385,13 +385,19 @@ pacoApp.controller('CsvCtrl', ['$scope', '$mdDialog',
 ]);
 
 
-pacoApp.controller('StatsCtrl', ['$scope', '$mdDialog', '$filter',
+pacoApp.controller('StatsCtrl', ['$scope', '$mdDialog', '$location',
   '$routeParams', 'dataService', 'experimentService',
-  function($scope, $mdDialog, $filter, $routeParams, dataService, 
+  function($scope, $mdDialog, $location, $routeParams, dataService,
     experimentService) {
+
+    var user = false;
 
     if (angular.isDefined($routeParams.experimentId)) {
       $scope.experimentId = parseInt($routeParams.experimentId, 10);
+    }
+
+    if ($location.hash() && $location.hash() === 'mine') {
+      user = $scope.user;
     }
 
     experimentService.getExperiment($scope.experimentId).then(
@@ -399,7 +405,7 @@ pacoApp.controller('StatsCtrl', ['$scope', '$mdDialog', '$filter',
         $scope.experiment = response.data[0];
       });
 
-    dataService.getParticipantData($scope.experimentId).
+    dataService.getParticipantData($scope.experimentId, user).
     then(function(result) {
       if (result.data) {
         $scope.stats = result.data;
