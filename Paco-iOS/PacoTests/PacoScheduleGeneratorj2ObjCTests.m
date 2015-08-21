@@ -212,12 +212,12 @@ static NSString *def0 =
    OrgJodaTimeDateTime * ogTime =  [scheduleGenerator getNextAlarmTimeWithOrgJodaTimeDateTime:time  withJavaLangLong:[JavaLangLong valueOfWithLong:experimentId] withPASchedule:firstSchedules  withPAEventStore:eventStore withNSString:groupName  withJavaLangLong: [JavaLangLong valueOfWithLong:triggerId]];
     
     
-      OrgJodaTimeDateTime*   newTime  = [[OrgJodaTimeDateTime alloc] initWithInt:2015 withInt:8 withInt:22 withInt:12 withInt:30];
+      OrgJodaTimeDateTime*   newTime  = [[OrgJodaTimeDateTime alloc] initWithInt:2015 withInt:8 withInt:22 withInt:14 withInt:0];
     
     
-       OrgJodaTimeDateTime * ogTimeII =  [scheduleGenerator getNextAlarmTimeWithOrgJodaTimeDateTime:time   withJavaLangLong:[JavaLangLong valueOfWithLong:experimentId] withPASchedule:firstSchedules  withPAEventStore:eventStore withNSString:groupName  withJavaLangLong: [JavaLangLong valueOfWithLong:triggerId]];
+       OrgJodaTimeDateTime * ogTimeII =  [scheduleGenerator getNextAlarmTimeWithOrgJodaTimeDateTime:newTime   withJavaLangLong:[JavaLangLong valueOfWithLong:experimentId] withPASchedule:firstSchedules  withPAEventStore:eventStore withNSString:groupName  withJavaLangLong: [JavaLangLong valueOfWithLong:triggerId]];
     
-    NSLog(@"check ogTime");
+    NSLog(@"check ogTime %@  ogTimeII %@", ogTime,  ogTimeII );
     
     
     
