@@ -90,8 +90,27 @@ pacoApp.service('dataService', ['$http', '$timeout', '$q',
 
     return ({
       getCsv: getCsv,
+      getJson: getJson,
       getParticipantData: getParticipantData,
     });
+
+
+    function getJson(id, user, anonymous) {
+
+      var endpoint = '/events?q=\'experimentId=' + id;
+
+      if (user) {
+        endpoint += ':who=' + user;
+      }
+
+      endpoint += '\'&json';
+
+      if (anonymous) {
+        endpoint += '&anon=true';
+      }
+
+      return $http.get(endpoint);
+    };
 
     function getCsv(id, user, anonymous) {
 

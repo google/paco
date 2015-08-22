@@ -357,6 +357,127 @@ pacoApp.filter('percent', ['$filter', function ($filter) {
 }]);
 
 
+
+
+
+pacoApp.filter('jsonToTable', function() {
+  var rows = [];
+
+  return function (json, unpackResponse){
+    var order = json[0];
+    var headerRow = [];
+    var responseLookup = {};
+    var numberResponseVariables = 0;
+
+    if (unpackResponse) {
+      for (var i = 0; i < json.length; i++) {
+        var responses = json[i]['responses'];
+        if (responses) {
+          for (var id in responses) {
+            var responseName = responses[id]['name'];
+            if (responseLookup[responseName] === undefined) {
+              responseLookup[responseName] = numberResponseVariables;
+              numberResponseVariables++;
+            }
+          }
+        }
+      }
+    }
+
+    for (var i = 0; i < json.length; i++) {
+      
+      var responses;
+      var newRow = [];
+      var row = json[i];
+
+      for (var column in order) {
+
+        if (unpackResponse && column === 'responses') {
+          responses =  row['responses'];
+        }
+
+          if (i === 0) {
+            headerRow.push(column);
+          } 
+          
+          newRow.push(row[column]);
+          
+      }
+
+      var responsesStartId = newRow.length;
+
+      if (i === 0 && unpackResponse) {
+        for (var responseName in responseLookup) {
+          headerRow.push(responseName);
+        }
+      }
+
+      if (unpackResponse && responses) {
+        for (var id in responses) {
+          var responseName = responses[id]['name'];
+          var responseValue = responses[id]['answer'];
+          var responseId = responseLookup[responseName];
+          newRow[responsesStartId + responseId] = responseValue;
+         }       
+      }
+
+      rows.push(newRow);
+    }
+    rows.splice(0, 0, headerRow);
+    return rows;
+  }
+});
+
+
+pacoApp.filter('tableToCsv', function() {
+
+  return function (table){
+    var string = '';
+
+    for (var i = 0; i < table.length; i++) {
+      var row = table[i];
+      if (i > 0) {
+        string += '\n';
+      }
+      for (var j = 0; j < row.length; j++) {
+        if (j > 0) {
+          string += ',';
+        }
+        var word = '"' + row[j] + '"';
+        string += word;
+      }
+    }
+    return string;
+  }
+});
+
+
+pacoApp.filter('jsonToCsv', function() {
+  var rows = [];
+
+  return function (json){
+    var order = json[0];
+    var newRow = [];
+    var headerRow = [];
+
+    for (var i = 0; i < json.length; i++) {
+
+      for (var column in order) {
+        if (i === 0) {
+          headerRow.push(column);
+        }
+
+        newRow.push(json[i][column]);
+      }
+      if (i === 0) {
+        rows.push(headerRow);
+      }
+      rows.push(newRow);
+    }
+    return rows;
+  }
+}); 
+
 /** 
  * Code based on
  * http://www.bennadel.com/blog/1504-ask-ben-parsing-csv-strings-with-javascript-exec-regular-expression-command.htm

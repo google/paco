@@ -366,21 +366,27 @@ pacoApp.controller('CsvCtrl', ['$scope', '$mdDialog',
         $scope.experiment = response.data[0];
       });
 
-    dataService.getCsv($scope.experimentId, user, anonymous).
+    dataService.getJson($scope.experimentId, user, anonymous).
     then(function(result) {
       if (result.data) {
-        $scope.csv = result.data;
-        $scope.table = $filter('csvToObj')($scope.csv);
-        var blob = new Blob([result.data], {
+        $scope.data = result.data;
+
+        var table = $filter('jsonToTable')(result.data.events, true);
+        var csv = $filter('tableToCsv')(table);
+        $scope.csv = [];
+        $scope.table = table;
+
+        var blob = new Blob([csv], {
           type: 'text/csv'
         });
         $scope.csvData = (window.URL || window.webkitURL).createObjectURL(blob);
+
       } else if (result.error) {
         $scope.error = result.error;
       }
     });
 
-    $scope.status = 'Sending CSV request';
+    $scope.status = 'Sending JSON request';
   }
 ]);
 
