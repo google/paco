@@ -361,21 +361,36 @@ pacoApp.filter('percent', ['$filter', function ($filter) {
 
 
 pacoApp.filter('jsonToTable', function() {
-  var rows = [];
 
   return function (json, unpackResponse){
+    var rows = [];
     var order = json[0];
-    var headerRow = [];
     var responseLookup = {};
     var numberResponseVariables = 0;
 
+    // Generate fixed column order based on order of the first row
+    var headerRow = [];
+    for (var column in order) {
+
+      // Omit unpacked responses column
+      if (unpackResponse && column === 'responses') {
+        continue;
+      }
+      headerRow.push(column);
+    }
+
     if (unpackResponse) {
+
+      // Iterate over all rows' responses fields to find additional columns
       for (var i = 0; i < json.length; i++) {
         var responses = json[i]['responses'];
         if (responses) {
           for (var id in responses) {
             var responseName = responses[id]['name'];
             if (responseLookup[responseName] === undefined) {
+
+              // Add response variables to header too
+              headerRow.push(responseName);
               responseLookup[responseName] = numberResponseVariables;
               numberResponseVariables++;
             }
@@ -388,31 +403,22 @@ pacoApp.filter('jsonToTable', function() {
       
       var responses;
       var newRow = [];
-      var row = json[i];
 
       for (var column in order) {
-
         if (unpackResponse && column === 'responses') {
-          responses =  row['responses'];
+          responses =  json[i]['responses'];
+        } else {
+          newRow.push(json[i][column]);
         }
-
-          if (i === 0) {
-            headerRow.push(column);
-          } 
-          
-          newRow.push(row[column]);
-          
       }
 
       var responsesStartId = newRow.length;
 
-      if (i === 0 && unpackResponse) {
-        for (var responseName in responseLookup) {
-          headerRow.push(responseName);
-        }
-      }
+      if (responses) {
 
-      if (unpackResponse && responses) {
+        // Assign undefined to rightmost column so all rows have the same width
+        newRow[newRow.length + numberResponseVariables - 1] = undefined;
+
         for (var id in responses) {
           var responseName = responses[id]['name'];
           var responseValue = responses[id]['answer'];
@@ -423,6 +429,7 @@ pacoApp.filter('jsonToTable', function() {
 
       rows.push(newRow);
     }
+
     rows.splice(0, 0, headerRow);
     return rows;
   }
@@ -478,73 +485,6 @@ pacoApp.filter('jsonToCsv', function() {
   }
 }); 
 
-/** 
- * Code based on
- * http://www.bennadel.com/blog/1504-ask-ben-parsing-csv-strings-with-javascript-exec-regular-expression-command.htm
- *
- */
-
-pacoApp.filter('csvToObj', function() {
-    return function ( strData ){
-
-        strDelimiter = ",";
-        // Create a regular expression to parse the CSV values.
-        var objPattern = new RegExp(
-            (
-                // Delimiters.
-                "(\\" + strDelimiter + "|\\r?\\n|\\r|^)" +
-                // Quoted fields.
-                "(?:\"([^\"]*(?:\"\"[^\"]*)*)\"|" +
-                // Standard fields.
-                "([^\"\\" + strDelimiter + "\\r\\n]*))"
-            ),
-            "gi"
-            );
-        // Create an array to hold our data. Give the array
-        // a default empty first row.
-        var arrData = [[]];
-        // Create an array to hold our individual pattern
-        // matching groups.
-        var arrMatches = null;
-        // Keep looping over the regular expression matches
-        // until we can no longer find a match.
-        while (arrMatches = objPattern.exec( strData )){
-            // Get the delimiter that was found.
-            var strMatchedDelimiter = arrMatches[ 1 ];
-            // Check to see if the given delimiter has a length
-            // (is not the start of string) and if it matches
-            // field delimiter. If id does not, then we know
-            // that this delimiter is a row delimiter.
-            if (
-                strMatchedDelimiter.length &&
-                (strMatchedDelimiter != strDelimiter)
-                ){
-                // Since we have reached a new row of data,
-                // add an empty row to our data array.
-                arrData.push( [] );
-            }
-            // Now that we have our delimiter out of the way,
-            // let's check to see which kind of value we
-            // captured (quoted or unquoted).
-            if (arrMatches[ 2 ]){
-                // We found a quoted value. When we capture
-                // this value, unescape any double quotes.
-                var strMatchedValue = arrMatches[ 2 ].replace(
-                    new RegExp( "\"\"", "g" ),
-                    "\""
-                    );
-            } else {
-                // We found a non-quoted value.
-                var strMatchedValue = arrMatches[ 3 ];
-            }
-            // Now that we have our value string, let's add
-            // it to the data array.
-            arrData[ arrData.length - 1 ].push( strMatchedValue );
-        }
-        // Return the parsed data.
-        return( arrData );
-    }
-  });
 
 
 /**

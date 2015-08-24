@@ -359,41 +359,71 @@ pacoApp.controller('CsvCtrl', ['$scope', '$mdDialog',
 
     if (angular.isDefined($routeParams.csvExperimentId)) {
       $scope.experimentId = parseInt($routeParams.csvExperimentId, 10);
+
+      dataService.getJson($scope.experimentId, user, anonymous).
+      then(function(result) {
+        if (result.data) {
+
+          $scope.data = result.data;
+
+          var table = $filter('jsonToTable')(result.data.events, true);
+          var csv = $filter('tableToCsv')(table);
+          $scope.csv = [];
+          $scope.table = table;
+
+          var blob = new Blob([csv], {
+            type: 'text/csv'
+          });
+          $scope.csvData = (window.URL || window.webkitURL).createObjectURL(blob);
+
+        } else if (result.error) {
+          $scope.error = result.error;
+        }
+      });
+
+      $scope.status = 'Sending JSON request';
     }
+
+
+
+    if (angular.isDefined($routeParams.experimentId)) {
+      $scope.experimentId = parseInt($routeParams.experimentId, 10);
+
+      if ($location.hash() && $location.hash() === 'mine') {
+        user = $scope.user;
+      }
+
+      experimentService.getExperiment($scope.experimentId).then(
+        function(response) {
+          $scope.experiment = response.data[0];
+        });
+
+      dataService.getParticipantData($scope.experimentId, user).
+      then(function(result) {
+        if (result.data) {
+          $scope.stats = result.data;
+        } else if (result.error) {
+          $scope.error = result.error;
+        }
+      });
+
+      $scope.status = 'Sending stats request';
+    }
+
 
     experimentService.getExperiment($scope.experimentId).then(
       function(response) {
         $scope.experiment = response.data[0];
       });
 
-    dataService.getJson($scope.experimentId, user, anonymous).
-    then(function(result) {
-      if (result.data) {
-        $scope.data = result.data;
-
-        var table = $filter('jsonToTable')(result.data.events, true);
-        var csv = $filter('tableToCsv')(table);
-        $scope.csv = [];
-        $scope.table = table;
-
-        var blob = new Blob([csv], {
-          type: 'text/csv'
-        });
-        $scope.csvData = (window.URL || window.webkitURL).createObjectURL(blob);
-
-      } else if (result.error) {
-        $scope.error = result.error;
-      }
-    });
-
-    $scope.status = 'Sending JSON request';
-    $scope.sortColumn = 2;
+    $scope.sortColumn = 0;
     $scope.reverseSort = false;
 
     $scope.setColumn = function(columnId) {
       if ( $scope.sortColumn === columnId) {
         $scope.reverseSort = !$scope.reverseSort;
       } else {
+        $scope.reverseSort = false;
         $scope.sortColumn = columnId;
       }
     }
@@ -401,44 +431,9 @@ pacoApp.controller('CsvCtrl', ['$scope', '$mdDialog',
     $scope.columnSort = function(row) {
       return row[$scope.sortColumn];
     };
-
-
   }
 ]);
 
-
-pacoApp.controller('StatsCtrl', ['$scope', '$mdDialog', '$location',
-  '$routeParams', 'dataService', 'experimentService',
-  function($scope, $mdDialog, $location, $routeParams, dataService,
-    experimentService) {
-
-    var user = false;
-
-    if (angular.isDefined($routeParams.experimentId)) {
-      $scope.experimentId = parseInt($routeParams.experimentId, 10);
-    }
-
-    if ($location.hash() && $location.hash() === 'mine') {
-      user = $scope.user;
-    }
-
-    experimentService.getExperiment($scope.experimentId).then(
-      function(response) {
-        $scope.experiment = response.data[0];
-      });
-
-    dataService.getParticipantData($scope.experimentId, user).
-    then(function(result) {
-      if (result.data) {
-        $scope.stats = result.data;
-      } else if (result.error) {
-        $scope.error = result.error;
-      }
-    });
-
-    $scope.status = 'Sending stats request';
-  }
-]);
 
 
 pacoApp.controller('GroupsCtrl', ['$scope', 'template',

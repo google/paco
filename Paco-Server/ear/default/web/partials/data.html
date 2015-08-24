@@ -18,11 +18,14 @@
         <table>
           <tr>
             <td ng-repeat="cell in table[0] track by $index">
-              <a href=""  ng-click="setColumn($index)" ng-class="{arrow: (sortColumn == $index), down: reverseSort }">{{cell}}</a>
+              <a href=""  ng-click="setColumn($index)"
+              ng-class="{arrow: (sortColumn == $index), down: reverseSort }">
+                {{cell}}
+              </a>
             </td>
           </tr>
 
-          <tr ng-repeat="row in table | limitTo: 'Infinity': 1 | orderBy:columnSort:reverseSort">
+          <tr ng-repeat="row in table | limitTo: 'Infinity': 1 | orderBy: columnSort: reverseSort">
             <td ng-repeat="cell in row track by $index">{{cell}}</td>
           
           </tr>
