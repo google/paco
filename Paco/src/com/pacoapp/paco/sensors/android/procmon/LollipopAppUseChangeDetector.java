@@ -40,13 +40,13 @@ public class LollipopAppUseChangeDetector {
     List<AppUsageEvent> results = Lists.newArrayList();
     Lists.reverse(events);
     for (AppUsageEvent appUsageEvent : events) {
-      if (appUsageEvent.getType() == AppUsageEvent.MOVE_TO_BACKGROUND_EVENT &&
-              isAppOfInterestForClosing(appUsageEvent)) {
+      if (appUsageEvent.getType() == AppUsageEvent.MOVE_TO_BACKGROUND_EVENT) {
+
         AppUsageEvent lastClosedRecord = lastClosedMap.get(appUsageEvent.getAppIdentifier());
         if (lastClosedRecord == null || lastClosedRecord.getTimestamp() < appUsageEvent.getTimestamp()) {
           lastClosedMap.put(appUsageEvent.getAppIdentifier(), appUsageEvent);
           results.add(appUsageEvent);
-          listener.appClosed(appUsageEvent);
+          listener.appClosed(appUsageEvent, isAppOfInterestForClosing(appUsageEvent));
         }
       }
     }
@@ -57,14 +57,15 @@ public class LollipopAppUseChangeDetector {
     List<AppUsageEvent> results = Lists.newArrayList();
     Lists.reverse(events);
     for (AppUsageEvent appUsageEvent : events) {
-      if (appUsageEvent.getType() == AppUsageEvent.MOVE_TO_FOREGROUND_EVENT &&
-              isAppOfInterestForOpening(appUsageEvent)) {
+      if (appUsageEvent.getType() == AppUsageEvent.MOVE_TO_FOREGROUND_EVENT) {
+
         AppUsageEvent lastOpenedRecord = lastOpenedMap.get(appUsageEvent.getAppIdentifier());
         if (lastOpenedRecord == null || lastOpenedRecord.getTimestamp() < appUsageEvent.getTimestamp()) {
           lastOpenedMap.put(appUsageEvent.getAppIdentifier(), appUsageEvent);
           results.add(appUsageEvent);
-          listener.appOpened(appUsageEvent);
+          listener.appOpened(appUsageEvent, isAppOfInterestForOpening(appUsageEvent));
         }
+
       }
     }
     return results;

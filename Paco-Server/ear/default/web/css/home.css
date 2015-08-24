@@ -1,15 +1,20 @@
-.bg {
-  background: #F5F5F5;
-  display: inline-block;
-  width: 100%;
-}
-
-.main {
+.centered {
   left: 50%;
   margin-left: -480px;
   margin-bottom: 64px; 
   position: relative;
   width: 960px;
+  min-height: calc(100vh);
+}
+
+.main h1, .main h2 {
+  font-size: 24px;
+  font-weight: 400;
+  margin: 16px 0 16px 0;
+}
+
+.main h2 {
+  font-size: 18px;
 }
 
 md-toolbar {
@@ -65,31 +70,31 @@ md-toolbar .subtitle {
   top: 72px;
 }
 
-.home {
+.welcome {
   font-weight: 300;
 }
 
-.home a {
+.welcome a {
   text-decoration: none;
 }
 
-.home .top {
+.welcome .top {
   margin-top: 24px;
   overflow: hidden;
 }
 
-.home .top .iphone {
+.welcome .top .iphone {
   float: left;
   margin-top: 16px;
 }
 
-.home .top h2 {
+.welcome .top h2 {
   color: #ff5722;
   font-weight: 300;
   margin: 16px 0 16px 0;
 }
 
-.home .top h1 {
+.welcome .top h1 {
   color: #ff5722;
   font-weight: 100;
   font-size: 60px;
@@ -97,34 +102,35 @@ md-toolbar .subtitle {
   margin: 16px 0 0 0;
 }
 
-.home .top .apps {
+.welcome .top .apps {
   margin-top: 64px;
 }
 
-.home .top .signin button {
+.welcome .top .signin button {
   background: #5c6bc0;
   color: white;
   margin: 0 8px 0 0;
 }
 
-.home .text {
+.welcome .text {
   padding: 16px;
   padding-right: 30%;
 }
 
-.home .what {
+.welcome .what {
   background: #eceff1;
 }
 
-.home .text h1 {
+.welcome .text h1 {
   font-size: 32px;
   font-weight: 100;
   margin: 0;
 }
 
 .sitemap {
-  padding-top: 32px;
+  background: #eee;
   height: 100px;
+  padding-top: 32px;
 }
 
 .sitemap .links {
