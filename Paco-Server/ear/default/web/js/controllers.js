@@ -387,6 +387,22 @@ pacoApp.controller('CsvCtrl', ['$scope', '$mdDialog',
     });
 
     $scope.status = 'Sending JSON request';
+    $scope.sortColumn = 2;
+    $scope.reverseSort = false;
+
+    $scope.setColumn = function(columnId) {
+      if ( $scope.sortColumn === columnId) {
+        $scope.reverseSort = !$scope.reverseSort;
+      } else {
+        $scope.sortColumn = columnId;
+      }
+    }
+
+    $scope.columnSort = function(row) {
+      return row[$scope.sortColumn];
+    };
+
+
   }
 ]);
 

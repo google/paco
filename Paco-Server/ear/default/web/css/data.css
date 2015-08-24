@@ -57,8 +57,20 @@
 }
 .data table td {
   padding: 0 56px 0 24px;
+  position: relative;
   text-align: center ;
   white-space: nowrap;
+}
+
+.data table td .arrow:after {
+  content: '\2191';
+  margin-left: 16px;
+  position: absolute;
+}
+
+.data table td .down.arrow:after {
+  content: '\2193';
+  position: absolute;
 }
 
 .data table td[right-border] {
