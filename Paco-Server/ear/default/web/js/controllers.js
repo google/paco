@@ -291,7 +291,7 @@ pacoApp.controller('ListCtrl', ['$scope', '$mdDialog', '$location',
     }
 
     $scope.loadJoinable = function(reload) {
-      experimentService.getAdministered(reload).then(function(response) {
+      experimentService.getJoinable(reload).then(function(response) {
         $scope.joinable = response.data;
       });
     };
