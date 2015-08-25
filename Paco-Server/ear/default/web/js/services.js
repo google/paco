@@ -68,7 +68,7 @@ pacoApp.service('experimentService', ['$http', '$cacheFactory', 'util',
       // Need to clear all list caches in case title was changed
       cache.remove('/experiments?admin');
       cache.remove('/experiments?joined');
-      cache.remove('/experiments?joinable'); 
+      cache.remove('/experiments?mine');
 
       // If it's not a new experiment, clear old cached definition
       if (experiment.id) {
