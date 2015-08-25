@@ -86,7 +86,7 @@ public class ParticipantStatServlet extends HttpServlet {
             }
         }
 
-        EventQueryResultPair eventQueryResultPair = EventRetriever.getInstance().getEventsInBatches( queryFilters, AuthUtil.getEmailOfUser(req, user),
+        EventQueryResultPair eventQueryResultPair = EventRetriever.getInstance().getEventsInBatchesOneBatch( queryFilters, AuthUtil.getEmailOfUser(req, user),
                                                                      timeZoneForClient, limit, cursor);
 
         Map<String, ParticipantReport> participantReports = Maps.newConcurrentMap();

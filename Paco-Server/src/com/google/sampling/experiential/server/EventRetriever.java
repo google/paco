@@ -648,4 +648,9 @@ public class EventRetriever {
     return cursor != null ? cursor.toWebSafeString() : null;
   }
 
+  public EventQueryResultPair getEventsInBatchesOneBatch(List<com.google.sampling.experiential.server.Query> queryFilters,
+                                                 String loggedInuser, DateTimeZone clientTimeZone, int limit, String cursor) {
+
+    return new EventQueryResultPair(getEvents(queryFilters, loggedInuser, clientTimeZone, 0, 20000), null);
+  }
 }
