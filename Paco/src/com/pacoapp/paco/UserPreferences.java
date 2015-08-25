@@ -110,6 +110,8 @@ public class UserPreferences {
 
   private static final String WIFI_ONLY_KEY = "wifi-only";
 
+  private static final String EXPERIMENT_ENDED_KEY = "experiment-ended";
+
 
 
 
@@ -384,6 +386,15 @@ public class UserPreferences {
   public void setWifiOnly(boolean wifiOnly) {
     getAppPrefs().edit().putBoolean(WIFI_ONLY_KEY, wifiOnly).commit();
   }
+
+  public boolean alreadyFiredExperimentEnd(Long experimentId) {
+    return getAppPrefs().getBoolean(EXPERIMENT_ENDED_KEY + "_" + experimentId, false);
+  }
+
+  public void setExperimentEndedFired(Long experimentId) {
+    getAppPrefs().edit().putBoolean(EXPERIMENT_ENDED_KEY + "_" + experimentId, true).commit();
+  }
+
 
 }
 
