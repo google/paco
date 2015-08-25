@@ -502,14 +502,14 @@ public class FindMyExperimentsActivity extends ActionBarActivity implements Netw
         }
 
         if (creator != null) {
-          String organization = experiment.getExperimentDAO().getOrganization();
-          String contactEmail = experiment.getExperimentDAO().getContactEmail();
+          String contactEmail = experiment.getExperimentDAO().getOrganization();
+          if (Strings.isNullOrEmpty(contactEmail)) {
+            contactEmail = experiment.getExperimentDAO().getContactEmail();
+          }
           if (Strings.isNullOrEmpty(contactEmail)) {
             contactEmail = experiment.getExperimentDAO().getCreator();
           }
-          if (!Strings.isNullOrEmpty(organization)) {
-            contactEmail += ", " + organization;
-          }
+
 
           creator.setText(contactEmail);
           creator.setOnClickListener(myButtonListener);

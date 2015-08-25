@@ -224,7 +224,7 @@
     <string name="end_date">"End Date: "</string>
     <string name="esm_frequency">"ESM Frequency: "</string>
     <string name="scheduled_time">"Scheduled Time: "</string>
-    <string name="creator">creator</string>
+    <string name="creator">by</string>
     <string name="join_this_experiment">Join this Experiment</string>
     <string name="title">Title</string>
     <string name="edit_schedule">Edit Schedule</string>
