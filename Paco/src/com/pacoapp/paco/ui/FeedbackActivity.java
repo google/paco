@@ -99,7 +99,7 @@ public class FeedbackActivity extends ActionBarActivity {
       setContentView(R.layout.feedback);
 
       // TODO revamp this to deal with null experimentGroup (do we give a list of groups? the exploredata button in runningexperiments needs this)
-      experimentProviderUtil.loadLastEventForExperiment(experiment);
+      //experimentProviderUtil.loadLastEventForExperiment(experiment);
 
 
       rawDataButton = (Button)findViewById(R.id.rawDataButton);
