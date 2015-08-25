@@ -1,169 +1,106 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<project name="PacoTest" default="help">
-
-    <!-- The local.properties file is created and updated by the 'android' tool.
-         It contains the path to the SDK. It should *NOT* be checked into
-         Version Control Systems. -->
-    <loadproperties srcFile="local.properties" />
-
-    <!-- The ant.properties file can be created by you. It is only edited by the
-         'android' tool to add properties to it.
-         This is the place to change some Ant specific build properties.
-         Here are some properties you may want to change/update:
-
-         source.dir
-             The name of the source directory. Default is 'src'.
-         out.dir
-             The name of the output directory. Default is 'bin'.
-
-         For other overridable properties, look at the beginning of the rules
-         files in the SDK, at tools/ant/build.xml
-
-         Properties related to the SDK location or the project target should
-         be updated using the 'android' tool with the 'update' action.
-
-         This file is an integral part of the build system for your
-         application and should be checked into Version Control Systems.
-
-         -->
-    <property file="ant.properties" />
-
-    <!-- The project.properties file is created and updated by the 'android'
-         tool, as well as ADT.
-
-         This contains project specific properties such as project target, and library
-         dependencies. Lower level build properties are stored in ant.properties
-         (or in .classpath for Eclipse projects).
-
-         This file is an integral part of the build system for your
-         application and should be checked into Version Control Systems. -->
-    <loadproperties srcFile="project.properties" />
-
-    <!-- quick check on sdk.dir -->
-    <fail
-            message="sdk.dir is missing. Make sure to generate local.properties using 'android update project'"
-            unless="sdk.dir"
-    />
-
-
-<!-- extension targets. Uncomment the ones where you want to do custom work
-     in between standard targets -->
-<!--
-    <target name="-pre-build">
-    </target>
-    <target name="-pre-compile">
-    </target>
-
-    /* This is typically used for code obfuscation.
-       Compiled code location: ${out.classes.absolute.dir}
-       If this is not done in place, override ${out.dex.input.absolute.dir} */
-    <target name="-post-compile">
-    </target>
--->
-
-    <!-- Import the actual build file.
-
-         To customize existing targets, there are two options:
-         - Customize only one target:
-             - copy/paste the target into this file, *before* the
-               <import> task.
-             - customize it to your needs.
-         - Customize the whole content of build.xml
-             - copy/paste the content of the rules files (minus the top node)
-               into this file, replacing the <import> task.
-             - customize to your needs.
-
-         ***********************
-         ****** IMPORTANT ******
-         ***********************
-         In all cases you must update the value of version-tag below to read 'custom' instead of an integer,
-         in order to avoid having your file be overridden by tools such as "android update project"
-    -->
-    <!-- version-tag: 1 -->
-    <import file="${sdk.dir}/tools/ant/build.xml" />
-
-
-<!--
-  <path id="project.class.path">
-    <pathelement location="../Paco/bin/classes"/>
-    <fileset dir="${gwt.sdk}" includes="gwt-dev*.jar"/>
-    <fileset dir="../Paco/libs" includes="**/*.jar"/>
-  </path>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project basedir="." default="build" name="Shared">
+    <property environment="env"/>
+    <property name="debuglevel" value="source,lines,vars"/>
+    <property name="target" value="1.6"/>
+    <property name="source" value="1.6"/>
 
   
-  <target name="javac.tests" depends="javac" description="Compiles test code">
-    <javac srcdir="tests" includes="**" encoding="utf-8"
-      source="1.5" target="1.5" nowarn="true"
-      destdir="bin/classes"
-      debug="true" debuglevel="lines,vars,source">
-      <classpath location="libs/junit-4.10.jar"/>
-      <classpath refid="project.class.path"/>
-    </javac>
-  </target>
+    
   
-  <target name="test.dev" depends="javac.tests" description="Run plain junit tests">
-    <mkdir dir="reports/htmlunit" />
-    <junit fork="yes" printsummary="yes" haltonfailure="yes">
-      <jvmarg line="-Xmx256m" />
-      <sysproperty key="java.awt.headless" value="true" />
-      <classpath>
-        <pathelement location="tests" />
-        <path refid="project.class.path" />
-        <pathelement location="libs/junit-4.10.jar" />
-      </classpath>
-      <batchtest todir="reports/htmlunit" >
-        <fileset dir="tests" >
-          <include name="**/*Test.java" />
-        </fileset>
-      </batchtest>
-      <formatter type="plain" />
-      <formatter type="xml" />
-    </junit>
-  </target>
+  
+    <path id="Shared.classpath">
+        <pathelement location="bin"/>
+        <fileset dir="lib" includes="*.jar"/>
+    </path>
+    <target name="clean">
+        <delete dir="bin"/>
+        <delete dir="testbin"/>
+        <delete dir="reports"/>
+    </target>
+    
+    <target name="init">
+        <mkdir dir="bin"/>
+        <copy includeemptydirs="false" todir="bin">
+            <fileset dir="src">
+                <exclude name="**/*.launch"/>
+                <exclude name="**/*.java"/>
+            </fileset>
+            <fileset dir="src_non_j2objc">
+                <exclude name="**/*.launch"/>
+                <exclude name="**/*.java"/>
+            </fileset>
+        </copy>
+    </target>
+    <target name="test-init" depends="init">
+        <copy includeemptydirs="false" todir="bin">
+            <fileset dir="test">
+                <exclude name="**/*.launch"/>
+                <exclude name="**/*.java"/>
+            </fileset>
+        </copy>        
+    </target>
+    
+    <target name="build" depends="build-project">
+      <jar destfile="dist/shared.jar"
+           basedir="bin" />
+    </target>
 
+	<target name="build-project" depends="init">
+		<echo message="${ant.project.name}: ${ant.file}" />
+		<copy todir="bin">
+			<fileset dir="src">
+				<include name="**/*.java" />
+			</fileset>
+			<fileset dir="src_non_j2objc">
+				<include name="**/*.java" />
+			</fileset>
+		</copy>
 
+		<javac debug="true" debuglevel="${debuglevel}" destdir="bin"
+			source="${source}" target="${target}">
+			<src path="src" />
+            <src path="src_non_j2objc" />
+			<classpath refid="Shared.classpath" />
 
-  <target name="javatest" description="Run plain junit tests, not android tests.">
-    <antcall target="test.dev" />
-  </target>
--->
-
-  <target name="emulator" description="start an emulator for testing">
-    <exec executable ="emulator" spawn="true"> <!-- output="avd_log" incompatible with spawn but good for debugging emulator launch problems -->
-       <arg value="-sysdir"/>
-       <arg value="${basedir}/avd"/>
-       <arg value="-avd"/>
-       <arg value="4.0.3"/>
-    </exec>
-  </target>
-
-  <target name="killemu" description="kill the emulator started for unit testing">
-    <exec executable ="adb" spawn="true">
-       <arg value="emu"/>
-       <arg value="kill"/>
-    </exec>
-  </target>
-
-  <target name="killadb" description="kill the adb">
-    <exec executable ="adb" spawn="true">
-       <arg value="kill-server"/>
-    </exec>
-  </target>
-
-  <target name="startadb" description="start the adb">
-    <exec executable ="adb" spawn="true">
-       <arg value="start-server"/>
-    </exec>
-  </target>
-
-  <target name="emutest" description="start the emulator and then run the tests, all in one task">
-   <antcall target="emulator" />
-   <sleep seconds="100"/>
-   <antcall target="killadb"/>
-   <sleep seconds="5"/>
-   <antcall target="startadb"/>
-   <sleep seconds="5"/>
-   <antcall target="test"/>
-   <antcall target="killemu"/>
-  </target>
+		</javac>
+	</target>
+    
+    
+    <target name="test" depends="build-test">
+      <mkdir dir="reports/test" />
+      <junit fork="yes" printsummary="yes" haltonfailure="yes">
+        <jvmarg line="-Xmx256m" />
+        <sysproperty key="java.awt.headless" value="true" />
+        <classpath>
+          <pathelement location="src" />
+          <pathelement location="src_non_j2objc" />
+          <pathelement location="test" />
+          <path refid="Shared.classpath" />
+          <pathelement location="testbin" />
+          <pathelement location="lib/junit-4.10.jar" />
+        </classpath>
+        <batchtest todir="reports/test" >
+          <fileset dir="test" >
+            <include name="**/*Test.java" />
+          </fileset>
+        </batchtest>
+        <formatter type="plain" />
+        <formatter type="xml" />
+      </junit>
+        
+    </target>
+    
+    <target name="build-test" depends="build-project,test-init">
+        <mkdir dir="testbin"></mkdir>
+        <javac debug="true" debuglevel="${debuglevel}" destdir="testbin" source="${source}" target="${target}">
+          <src path="test"/>
+          <classpath>
+            <pathelement location="lib/junit-4.10.jar" />
+            <path refid="Shared.classpath" />
+          </classpath>            
+        </javac>
+    </target>
+    
+    
 </project>

@@ -8,6 +8,24 @@
 
 #import <Foundation/Foundation.h>
 #include "java/util/ArrayList.h"
+
+typedef NS_ENUM(NSInteger, EncodingEnumType) {
+    EncodingTypeLong,
+    EncodingTypeLongLong,
+    EncodingTypeInt,
+    EncodingTypeFloat,
+    EncodingTypeDouble,
+    EncodingTypeShort,
+    EncodingTypeBOOL,
+    EncodingTypeUnsigndChar,
+    EncodingTypeUnsigndInt,
+    EncodingTypeUnsigndShort,
+    EncodingTypeUnsigndLong,
+    EncodingTypeUnsigndLongLong,
+    EncodingTypeClass
+};
+
+
 @interface NSObject (J2objcKVO)
 
 - (id)valueForKeyEx:(NSString *)key;
@@ -15,5 +33,6 @@
 - (void)setValueEx:(id)value forKey:(NSString *)key;
 - (void)setValueEx:(id)value forKeyPath:(NSString *)keyPath;
 - (id)valueForKeyAndIndex:(int)index Key:(NSString *)key;
+
 
 @end
