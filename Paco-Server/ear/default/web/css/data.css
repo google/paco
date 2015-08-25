@@ -61,6 +61,21 @@
   white-space: nowrap;
 }
 
+.data table td a {
+  position: relative;
+}
+
+.data table td .arrow:after {
+  content: '\2191';
+  position: absolute;
+  margin-left: 10px;
+}
+
+.data table td .down.arrow:after {
+  content: '\2193';
+  position: absolute;
+}
+
 .data table td[right-border] {
   border-right: 1px solid #e3e3e3;
 }
