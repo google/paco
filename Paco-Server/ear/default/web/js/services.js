@@ -375,7 +375,8 @@ pacoApp.service('template', function() {
   };
 
   this.signalTime = {
-    fixedTimeMillisFromMidnight: 0,
+    // Set initial time to 12 PM
+    fixedTimeMillisFromMidnight: 12 * 60 * 60 * 1000,
     type: 0
   };
 });
