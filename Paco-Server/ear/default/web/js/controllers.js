@@ -214,6 +214,13 @@ pacoApp.controller('ExperimentCtrl', ['$scope', '$mdDialog', '$filter',
             if (data[0].status === true) {
 
               $scope.experiment.version++;
+
+              // Need to manually update the Ace content after version change
+              // in case the user modified the experiment via source view.
+              // Otherwise, Ace will retain a stale version number and any
+              // subsequent saves will fail.
+              $scope.prepareAce();
+
               $scope.experiment0 = angular.copy($scope.experiment);
 
               if ($scope.newExperiment) {
