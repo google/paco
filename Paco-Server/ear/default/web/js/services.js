@@ -90,8 +90,27 @@ pacoApp.service('dataService', ['$http', '$timeout', '$q',
 
     return ({
       getCsv: getCsv,
+      getJson: getJson,
       getParticipantData: getParticipantData,
     });
+
+
+    function getJson(id, user, anonymous) {
+
+      var endpoint = '/events?q=\'experimentId=' + id;
+
+      if (user) {
+        endpoint += ':who=' + user;
+      }
+
+      endpoint += '\'&json';
+
+      if (anonymous) {
+        endpoint += '&anon=true';
+      }
+
+      return $http.get(endpoint);
+    };
 
     function getCsv(id, user, anonymous) {
 
@@ -156,11 +175,15 @@ pacoApp.service('dataService', ['$http', '$timeout', '$q',
     * compute the total participant count for today and all time.
     */
 
-    function getParticipantData(id) {
+    function getParticipantData(id, user) {
 
       var defer = $q.defer();
-      var url = 'participantStats?experimentId=' + id;
-      $http.get(url).success(
+      var endpoint = 'participantStats?experimentId=' + id;
+      if (user) {
+        endpoint += '&who=' + user;
+      }
+
+      $http.get(endpoint).success(
         function(data) {
           var totalParticipantCount = 0;
           var todayParticipantCount = 0;
