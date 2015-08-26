@@ -112,6 +112,8 @@ public class UserPreferences {
 
   private static final String EXPERIMENT_ENDED_KEY = "experiment-ended";
 
+  private static final String EXPERIMENT_EDITED_KEY = "experiment-edited-via-js";
+
 
 
 
@@ -395,6 +397,12 @@ public class UserPreferences {
     getAppPrefs().edit().putBoolean(EXPERIMENT_ENDED_KEY + "_" + experimentId, true).commit();
   }
 
+  public void setExperimentEdited(Long id) {
+    getAppPrefs().edit().putBoolean(EXPERIMENT_EDITED_KEY + "_" + id, true).commit();
+  }
 
+  public boolean experimentEdited(Long experimentId) {
+    return getAppPrefs().getBoolean(EXPERIMENT_EDITED_KEY + "_" + experimentId, false);
+  }
 }
 
