@@ -103,7 +103,7 @@ pacoApp.controller('ExperimentCtrl', ['$scope', '$mdDialog', '$filter',
           var data = response.data;
           $scope.experiment = data[0];
           $scope.experiment0 = angular.copy(data[0]);
-          $scope.prepareAce();
+          $scope.prepareSourceAce();
 
           if ($scope.newExperiment) {
             $scope.experiment.title = 'Copy of ' + $scope.experiment.title;
@@ -161,11 +161,16 @@ pacoApp.controller('ExperimentCtrl', ['$scope', '$mdDialog', '$filter',
       }
     });
 
-    // Ace is loaded when the Source tab is selected so get pretty JSON here
-    $scope.prepareAce = function(editor) {
+    // Need to set blockScrolling to Infinity to supress Ace deprecation warning
+    $scope.aceInfinity = function(editor) {
       if (editor) {
         editor.$blockScrolling = 'Infinity';
       }
+    };
+
+    // Ace is loaded when the Source tab is selected so get pretty JSON here
+    $scope.prepareSourceAce = function(editor) {
+      $scope.aceInfinity(editor);
 
       $scope.ace = {
         JSON: angular.toJson($scope.experiment, true),
@@ -491,10 +496,6 @@ pacoApp.controller('GroupsCtrl', ['$scope', 'template',
       event.stopPropagation();
     };
 
-    $scope.aceLoaded = function(editor) {
-      editor.$blockScrolling = 'Infinity';
-    };
-
     $scope.$watch('group.fixedDuration', function(newVal, oldVal) {
       if (newVal && newVal == true && $scope.group.startDate ==
         undefined) {
@@ -603,9 +604,6 @@ pacoApp.controller('ActionCtrl', ['$scope', '$mdDialog', 'config', 'template',
       }
     });
 
-    $scope.aceLoaded = function(editor) {
-      editor.$blockScrolling = 'Infinity';
-    };
   }
 ]);
 
@@ -625,8 +623,6 @@ pacoApp.controller('ErrorCtrl', ['$scope', '$mdDialog', 'config',
 
     $scope.errorMessage = errorMessage;
     $scope.hide = $mdDialog.hide;
-
-    console.log(errorMessage);
 
     // TODO(bobevans): make server error formats consistent to avoid this special casing
     if (errorMessage.indexOf('Exception') === 0 ||
