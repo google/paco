@@ -208,12 +208,8 @@ static NSString *def0 =
      long long triggerId = [actionTriggerId longLongValue];
      long long experimentId = [[dao valueForKeyEx:@"id"] longLongValue];
     
-    
-    
     OrgJodaTimeDateTime* time = [[OrgJodaTimeDateTime alloc] initWithInt:2015 withInt:8 withInt:24 withInt:13 withInt:0];
-    
-    
-   OrgJodaTimeDateTime * ogTime =  [scheduleGenerator getNextAlarmTimeWithOrgJodaTimeDateTime:time  withJavaLangLong:[JavaLangLong valueOfWithLong:experimentId] withPASchedule:firstSchedules  withPAEventStore:eventStore withNSString:groupName  withJavaLangLong: [JavaLangLong valueOfWithLong:triggerId]];
+     OrgJodaTimeDateTime * ogTime =  [scheduleGenerator getNextAlarmTimeWithOrgJodaTimeDateTime:time  withJavaLangLong:[JavaLangLong valueOfWithLong:experimentId] withPASchedule:firstSchedules  withPAEventStore:eventStore withNSString:groupName  withJavaLangLong: [JavaLangLong valueOfWithLong:triggerId]];
     
     for(int i =0; i < 24; i++)
     {

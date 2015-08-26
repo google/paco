@@ -21,6 +21,7 @@
 #include "java/lang/Integer.h"
 #include "java/lang/Float.h"
 #include "java/lang/Double.h"
+#include "java/lang/Boolean.h"
 #include "J2ObjC_header.h"
 
 @implementation NSObject (J2objcKVO)
@@ -119,6 +120,12 @@
   }
 }
 
+
+
+
+
+
+
 /*
 
 
@@ -135,28 +142,14 @@
 
   NSArray *ivarInfo =
       [self makeCommonAttributeOperationName:attributeName Object:object];
+    
+    
   if ([ivarInfo[0] length] != 0) {
     NSString *methodName = [NSString stringWithFormat:@"set%@:", ivarInfo[0]];
     SEL sel = NSSelectorFromString(methodName);
     if ([object respondsToSelector:sel]) {
         
         EncodingEnumType encodingType = ivarInfo[2];
-        
-        
-        /*
-         EncodingTypeLong,
-         EncodingTypeLongLong,
-         EncodingTypeInt,
-         EncodingTypeFloat,
-         EncodingTypeDouble,
-         EncodingTypeShort,
-         EncodingTypeUnsigndChar,
-         EncodingTypeUnsigndInt,
-         EncodingTypeUnsigndShort,
-         EncodingTypeUnsigndLong,
-         EncodingTypeUnsigndLongLong,
-         EncodingTypeClass
-         */
         
         id typedArg;
         switch (encodingType) {
@@ -175,10 +168,12 @@
             case  EncodingTypeDouble:
                 typedArg = [[JavaLangDouble alloc] initWithDouble:[((NSNumber*) argument) doubleValue]];
                 break;
+            case  EncodingTypeBOOL:
+                typedArg = [[JavaLangBoolean alloc] initWithBoolean:[((NSNumber*) argument) boolValue]];
+                break;
             case  EncodingTypeClass:
                 typedArg=argument;
                 break;
-                
             default:
                 typedArg=argument;
                 break;
@@ -258,22 +253,7 @@
         sub = [ivarType substringWithRange:rSub];
       } else {
           
-        /*
-          EncodingTypeLong,
-          EncodingTypeLongLong,
-          EncodingTypeInt,
-        EncodingTypeBOOL,
-          EncodingTypeFloat,
-          EncodingTypeDouble,
-          EncodingTypeUnsigndChar,
-          EncodingTypeUnsigndInt,
-          EncodingTypeUnsigndShort,
-          EncodingTypeUnsigndLong,
-          EncodingTypeUnsigndLongLong,
-          EncodingTypeClass
-         */
-          
-          
+ 
          //handle underlying nativ type of 'long' or 'long long'
         if ((strcmp(ivar_getTypeEncoding(ivar), @encode(long long))) == 0) {
             
@@ -333,7 +313,15 @@
                                         substringToIndex:1] capitalizedString]];
     methodName = [NSString stringWithFormat:@"%@With%@", newAttributeName, sub];
   }
-  return @[methodName,sub,[NSNumber numberWithInt:encodingType]];
+    if([methodName length] !=0 )
+    {
+         return @[methodName,sub,[NSNumber numberWithInt:encodingType]];
+    }
+    else
+    {
+        
+        return nil;
+    }
 }
 
 - (id)valueForKeyAndIndex:(int)index Key:(NSString *)key {

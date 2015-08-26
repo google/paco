@@ -37,6 +37,15 @@
 #include "java/util/iterator.h"
 #import "ITAhoCorasickContainer.h"
 #import "NSObject+J2objcKVO.h"
+#include "java/util/ArrayList.h"
+#include "java/lang/Boolean.h"
+#include "java/lang/Long.h"
+#include "java/lang/Integer.h"
+#include "java/lang/Float.h"
+#include "java/lang/Double.h"
+#include "java/lang/Boolean.h"
+
+
 
 #define METHOD_PREFIX @"PA"
 
@@ -310,6 +319,54 @@
   return object;
 }
 
+
+-(EncodingEnumType) getEncoding:(Ivar) ivar
+{
+    
+    EncodingEnumType encodingType =EncodingTypeNotFound;
+    
+    if ((strcmp(ivar_getTypeEncoding(ivar), @encode(long long))) == 0) {
+        encodingType=EncodingTypeLong;
+    }
+    else if ((strcmp(ivar_getTypeEncoding(ivar), @encode(long))) == 0) {
+        encodingType=EncodingTypeLongLong;
+    }
+    else if ((strcmp(ivar_getTypeEncoding(ivar), @encode(int))) == 0) {
+        encodingType=EncodingTypeInt;
+        
+    }
+    else if ((strcmp(ivar_getTypeEncoding(ivar), @encode(float))) == 0) {
+        encodingType=EncodingTypeFloat;
+        
+    }
+    else if ((strcmp(ivar_getTypeEncoding(ivar), @encode(unsigned int))) == 0) {
+        encodingType=EncodingTypeUnsigndInt;
+        
+        
+    }
+    else if ((strcmp(ivar_getTypeEncoding(ivar), @encode(unsigned short))) == 0) {
+        encodingType=EncodingTypeUnsigndShort;
+        
+    }
+    else if ((strcmp(ivar_getTypeEncoding(ivar), @encode(unsigned long))) == 0) {
+        encodingType=EncodingTypeUnsigndLong;
+        
+        
+    }
+    else if ((strcmp(ivar_getTypeEncoding(ivar), @encode(unsigned long long))) == 0) {
+        encodingType=EncodingTypeUnsigndLongLong;
+        
+        
+    }
+    else if ((strcmp(ivar_getTypeEncoding(ivar), @encode(BOOL))) == 0) {
+        
+        encodingType=EncodingTypeBOOL;
+    }
+    
+    return encodingType;
+    
+}
+
 - (void)addToCollection:(NSString*)attributeName Value:(NSObject*)object {
   NSObject* parent = [self parent];
   /*
@@ -367,8 +424,59 @@
      coding
 
      */
-    if (addList) {
-      [parent setValueEx:object forKey:attributeName];
+      
+      
+      
+      NSArray* attributeInfo = [self makeCommonAttributeOperationName:attributeName Object:parent];
+      
+      
+    if (addList && attributeInfo ) {
+        
+        
+        
+        
+       
+       
+       
+      
+            
+         EncodingEnumType encodingType =  attributeInfo[2];
+            
+            id typedArg;
+            switch (encodingType) {
+                case EncodingTypeLong:
+                    typedArg = [[JavaLangLong alloc] initWithLong:[((NSNumber*) object) longValue]];
+                    break;
+                case  EncodingTypeLongLong:
+                    typedArg = [[JavaLangLong alloc] initWithLong:[((NSNumber*) object) longValue]];
+                    break;
+                case  EncodingTypeInt:
+                    typedArg = [[JavaLangInteger alloc] initWithInteger:[((NSNumber*) object) integerValue]];
+                    break;
+                case  EncodingTypeFloat:
+                    typedArg = [[JavaLangFloat alloc] initWithFloat:[((NSNumber*) object) floatValue]];
+                    break;
+                case  EncodingTypeDouble:
+                    typedArg = [[JavaLangDouble alloc] initWithDouble:[((NSNumber*) object) doubleValue]];
+                    break;
+                case  EncodingTypeBOOL:
+                    typedArg = [[JavaLangBoolean alloc] initWithBoolean:[((NSNumber*) object) boolValue]];
+                    break;
+                case  EncodingTypeClass:
+                    typedArg=object;
+                    break;
+                case EncodingTypeNotFound:
+                    typedArg=object;
+                    break;
+                default:
+                    typedArg=nil;
+                    break;
+                 
+            }
+            
+             [parent setValueEx:object forKey:attributeName];
+            
+         
     }
   }
 }
@@ -503,9 +611,19 @@
     NSObject* parent = [self parent];
     NSObject* object = recurseObject[1];
     NSString* attributeName = recurseObject[0];
+      
+      
+      
 
     if ([object isKindOfClass:[NSNumber class]]) {
+        
+        
       [self addItem:attributeName Parent:parent Value:object AddList:YES];
+        
+        
+        
+        
+        
     } else if ([object isKindOfClass:[NSString class]]) {
       /* (3) object is not a list and not a dictionary. It's a non list non
        dictionary  attribute on a dictionary or an element of a list

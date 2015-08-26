@@ -22,7 +22,8 @@ typedef NS_ENUM(NSInteger, EncodingEnumType) {
     EncodingTypeUnsigndShort,
     EncodingTypeUnsigndLong,
     EncodingTypeUnsigndLongLong,
-    EncodingTypeClass
+    EncodingTypeClass,
+    EncodingTypeNotFound
 };
 
 
@@ -33,6 +34,9 @@ typedef NS_ENUM(NSInteger, EncodingEnumType) {
 - (void)setValueEx:(id)value forKey:(NSString *)key;
 - (void)setValueEx:(id)value forKeyPath:(NSString *)keyPath;
 - (id)valueForKeyAndIndex:(int)index Key:(NSString *)key;
+- (NSArray *)makeCommonAttributeOperationName:(NSString *)attributeName
+                                       Object:(NSObject *)object;
+
 
 
 @end
