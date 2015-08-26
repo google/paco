@@ -4,7 +4,6 @@ import java.util.List;
 
 import org.joda.time.DateMidnight;
 import org.joda.time.DateTime;
-import org.joda.time.Days;
 
 import android.app.AlarmManager;
 import android.app.PendingIntent;
@@ -18,6 +17,7 @@ import android.util.Log;
 
 import com.google.common.collect.Lists;
 import com.pacoapp.paco.PacoConstants;
+import com.pacoapp.paco.UserPreferences;
 import com.pacoapp.paco.model.Experiment;
 import com.pacoapp.paco.model.ExperimentProviderUtil;
 import com.pacoapp.paco.os.ExperimentExpirationAlarmReceiver;
@@ -43,6 +43,9 @@ public class ExperimentExpirationManagerService extends Service {
   private AlarmManager alarmManager;
   private Context context;
 
+
+  protected UserPreferences userPreferences;
+
   @Override
   public IBinder onBind(Intent intent) {
     return null;
@@ -66,6 +69,7 @@ public class ExperimentExpirationManagerService extends Service {
         try {
           ExperimentExpirationManagerService.this.context = getApplicationContext();
           ExperimentExpirationManagerService.this.alarmManager = (AlarmManager) context.getSystemService(Service.ALARM_SERVICE);
+          ExperimentExpirationManagerService.this.userPreferences = new UserPreferences(ExperimentExpirationManagerService.this.context);
           work();
         } finally {
           wl.release();
@@ -98,8 +102,11 @@ public class ExperimentExpirationManagerService extends Service {
 
       DateTime lastEndTime = ActionScheduleGenerator.getLastEndTime(experiment.getExperimentDAO());
       if (ActionScheduleGenerator.isOver(now, experiment.getExperimentDAO()) &&
-              lastEndTime != null && Days.daysBetween(lastEndTime, now).getDays() < 2) {
-
+              lastEndTime != null &&
+              //Hours.hoursBetween(lastEndTime, now).getHours() < 24
+              !alreadyFired(experiment.getId()) // use the local id to allow repeat stop/join resets.
+              ) {
+        setFired(experiment.getId());
         Log.i(PacoConstants.TAG, "Experiment has ended. Firing event: " + experiment.getExperimentDAO().getTitle());
         PacoExperimentActionBroadcaster.sendExperimentEnded(context.getApplicationContext(), experiment);
         // TODO remove from joined and move to archived.
@@ -110,6 +117,15 @@ public class ExperimentExpirationManagerService extends Service {
       }
     }
     return stillRunning;
+  }
+
+  private void setFired(Long id) {
+    userPreferences.setExperimentEndedFired(id);
+
+  }
+
+  private boolean alreadyFired(Long experimentId) {
+    return userPreferences.alreadyFiredExperimentEnd(experimentId);
   }
 
   private void createNextAlarm() {
