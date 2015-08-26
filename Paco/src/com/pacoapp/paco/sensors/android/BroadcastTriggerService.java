@@ -86,7 +86,8 @@ public class BroadcastTriggerService extends Service {
     List<Experiment> joined = eu.getJoinedExperiments();
 
     for (Experiment experiment : joined) {
-      if (!experiment.isRunning(now) && triggerEvent != InterruptCue.PACO_EXPERIMENT_ENDED_EVENT) {
+      if (!experiment.isRunning(now) && triggerEvent != InterruptCue.PACO_EXPERIMENT_ENDED_EVENT &&
+                                         triggerEvent != InterruptCue.PACO_EXPERIMENT_JOINED_EVENT) {
         // TODO This doesn't work if the experiment for experiment ended events because the experiment is already over.
         Log.i(PacoConstants.TAG, "Skipping experiment: " + experiment.getExperimentDAO().getTitle());
         continue;

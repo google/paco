@@ -10,7 +10,6 @@ public class PacoExperimentActionBroadcaster {
 
   public static void sendJoinExperiment(Context context, Experiment experiment) {
     sendPacoExperimentBroadcast(context, experiment, BroadcastTriggerReceiver.PACO_EXPERIMENT_JOINED_ACTION);
-    sendPacoExperimentBroadcast(context, experiment, BroadcastTriggerReceiver.PACO_EXPERIMENT_JOINED_ACTION);
   }
 
   public static void sendExperimentResponseReceived(Context context, Experiment experiment) {
