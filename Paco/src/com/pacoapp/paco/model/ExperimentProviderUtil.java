@@ -1127,8 +1127,10 @@ public class ExperimentProviderUtil implements EventStore {
 
   public void deleteNotification(long notificationId) {
     NotificationHolder holder = getNotificationById(notificationId);
-    Log.i(PacoConstants.TAG, "found notificationHolder: " + holder.getId());
-    deleteNotification(holder);
+    if (holder != null) {
+      Log.i(PacoConstants.TAG, "found notificationHolder: " + holder.getId());
+      deleteNotification(holder);
+    }
 
   }
 
