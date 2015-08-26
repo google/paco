@@ -3,8 +3,8 @@ package com.pacoapp.paco.shared.model2;
 import java.io.Serializable;
 
 public class SignalTime extends ModelBase implements Validatable, Serializable {
-  public static final Integer FIXED_TIME = 0;
-  public static final Integer OFFSET_TIME = 1;
+  public static final Integer  FIXED_TIME = 0;
+  public static final Integer  OFFSET_TIME = 1;
 
   public static final Integer OFFSET_BASIS_SCHEDULED_TIME = 0;
   public static final Integer OFFSET_BASIS_RESPONSE_TIME = 1;

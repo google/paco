@@ -44,6 +44,8 @@
 #include "java/lang/Float.h"
 #include "java/lang/Double.h"
 #include "java/lang/Boolean.h"
+#import "SignalTime.h" 
+
 
 
 
@@ -237,6 +239,7 @@
     [self pop];
 
   } else {
+      /* add case for boolean*/
     if (![parentInfo[1] isKindOfClass:[NSString class]] &&
         ![parentInfo[1] isKindOfClass:[NSNumber class]]) {
       NSMutableDictionary* mutableDictionary = [NSMutableDictionary new];
@@ -425,21 +428,28 @@
 
      */
       
+     
+      if([parent isKindOfClass:[PASignalTime  class]] )
+      {
+          
+          if([attributeName isEqualToString:@"type"])
+          {
+              
+              NSLog(@"this is where to set the new values");
+              
+              
+          }
+          
+          
+      }
       
       
-      NSArray* attributeInfo = [self makeCommonAttributeOperationName:attributeName Object:parent];
+    NSArray* attributeInfo = [self makeCommonAttributeOperationName:attributeName Object:parent];
       
       
     if (addList && attributeInfo ) {
         
         
-        
-        
-       
-       
-       
-      
-            
          EncodingEnumType encodingType =  attributeInfo[2];
             
             id typedArg;

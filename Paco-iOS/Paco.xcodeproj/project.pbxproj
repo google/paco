@@ -302,6 +302,7 @@
 		A6701D611B73D48C00229432 /* joda in Resources */ = {isa = PBXBuildFile; fileRef = A6701D601B73D48C00229432 /* joda */; };
 		A67076101B62F26A00017D36 /* DerivedSources in Resources */ = {isa = PBXBuildFile; fileRef = A670760F1B62F26A00017D36 /* DerivedSources */; };
 		A67076111B62F26A00017D36 /* DerivedSources in Resources */ = {isa = PBXBuildFile; fileRef = A670760F1B62F26A00017D36 /* DerivedSources */; };
+		A670F8801B8E2D1D00BF9593 /* PacoJAVA2OBJCTest.m in Sources */ = {isa = PBXBuildFile; fileRef = A670F87F1B8E2D1D00BF9593 /* PacoJAVA2OBJCTest.m */; };
 		A676C7381B6043DE00F37572 /* Pacoj2Objc2JsonTests.m in Sources */ = {isa = PBXBuildFile; fileRef = A676C7371B6043DE00F37572 /* Pacoj2Objc2JsonTests.m */; };
 		A676C73C1B615AAB00F37572 /* libobjc.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = A676C73B1B615AAB00F37572 /* libobjc.dylib */; };
 		A678C2751B703955003F0D27 /* ModelBase.java in Sources */ = {isa = PBXBuildFile; fileRef = A678C2741B703955003F0D27 /* ModelBase.java */; };
@@ -867,6 +868,7 @@
 		A646B4BE1B7C325B00BBAABB /* org */ = {isa = PBXFileReference; lastKnownFileType = folder; name = org; path = "../../../../../Downloads/j2objc-master_save/joda_time/resources/org"; sourceTree = "<group>"; };
 		A6701D601B73D48C00229432 /* joda */ = {isa = PBXFileReference; lastKnownFileType = folder; path = joda; sourceTree = "<group>"; };
 		A670760F1B62F26A00017D36 /* DerivedSources */ = {isa = PBXFileReference; lastKnownFileType = folder; name = DerivedSources; path = "DerivedData/Paco/Build/Intermediates/Paco.build/Debug-iphonesimulator/Paco.build/DerivedSources"; sourceTree = "<group>"; };
+		A670F87F1B8E2D1D00BF9593 /* PacoJAVA2OBJCTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoJAVA2OBJCTest.m; sourceTree = "<group>"; };
 		A676C7371B6043DE00F37572 /* Pacoj2Objc2JsonTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Pacoj2Objc2JsonTests.m; sourceTree = "<group>"; };
 		A676C7391B615A3D00F37572 /* libobjc.A.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libobjc.A.dylib; path = usr/lib/libobjc.A.dylib; sourceTree = SDKROOT; };
 		A676C73B1B615AAB00F37572 /* libobjc.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libobjc.dylib; path = usr/lib/libobjc.dylib; sourceTree = SDKROOT; };
@@ -1535,6 +1537,7 @@
 				A6DCA5921B85262F007FC06D /* PacoPacoSignalStoreTests.m */,
 				A6DCA5941B853562007FC06D /* PacoScheduleGeneratorj2ObjCTests.m */,
 				A6DCA59D1B856AAF007FC06D /* PacoEventStoreTests.m */,
+				A670F87F1B8E2D1D00BF9593 /* PacoJAVA2OBJCTest.m */,
 			);
 			path = PacoTests;
 			sourceTree = "<group>";
@@ -2568,6 +2571,7 @@
 				A633A9B11B5DA0970046436D /* PacoNotificationAction.java in Sources */,
 				36D33C9717D57A5B00AC30B9 /* PacoAppDelegate.m in Sources */,
 				361A118C18F30CC9000E9CA2 /* UIColor+Paco.m in Sources */,
+				A670F8801B8E2D1D00BF9593 /* PacoJAVA2OBJCTest.m in Sources */,
 				36BC10DD17FE09E8001EA9DD /* PacoIOSLocalNotificationTests.m in Sources */,
 				A633A99F1B5DA0970046436D /* ExperimentEditOutcome.java in Sources */,
 				A633A9B51B5DA0970046436D /* Validatable.java in Sources */,
