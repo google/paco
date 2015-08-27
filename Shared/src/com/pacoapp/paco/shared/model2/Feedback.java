@@ -55,7 +55,7 @@ public class Feedback extends ModelBase implements Validatable, Serializable {
   public void validateWith(Validator validator) {
 //    System.out.println("VALIDATING Feedback");
     validator.isNotNull(type, "feedback type should be set");
-    if (getType() != null && getType() != FEEDBACK_TYPE_RETROSPECTIVE && getType() != FEEDBACK_TYPE_HIDE_FEEDBACK) {
+    if (getType() != null && !getType().equals(FEEDBACK_TYPE_RETROSPECTIVE) && !getType().equals(FEEDBACK_TYPE_HIDE_FEEDBACK)) {
       //validator.isNotNullAndNonEmptyString(text, "feedback text should not be null or empty");
       if (text != null && text.length() > 0) {
         validator.isValidHtmlOrJavascript(text, "text should be valid html or javascript");
