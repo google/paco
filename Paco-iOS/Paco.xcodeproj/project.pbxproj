@@ -303,6 +303,8 @@
 		A67076101B62F26A00017D36 /* DerivedSources in Resources */ = {isa = PBXBuildFile; fileRef = A670760F1B62F26A00017D36 /* DerivedSources */; };
 		A67076111B62F26A00017D36 /* DerivedSources in Resources */ = {isa = PBXBuildFile; fileRef = A670760F1B62F26A00017D36 /* DerivedSources */; };
 		A670F8801B8E2D1D00BF9593 /* PacoJAVA2OBJCTest.m in Sources */ = {isa = PBXBuildFile; fileRef = A670F87F1B8E2D1D00BF9593 /* PacoJAVA2OBJCTest.m */; };
+		A670F8831B8ECC2600BF9593 /* PacoIntrospectHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = A670F8821B8ECC2600BF9593 /* PacoIntrospectHelper.m */; };
+		A670F8841B8ECCEC00BF9593 /* PacoIntrospectHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = A670F8821B8ECC2600BF9593 /* PacoIntrospectHelper.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
 		A676C7381B6043DE00F37572 /* Pacoj2Objc2JsonTests.m in Sources */ = {isa = PBXBuildFile; fileRef = A676C7371B6043DE00F37572 /* Pacoj2Objc2JsonTests.m */; };
 		A676C73C1B615AAB00F37572 /* libobjc.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = A676C73B1B615AAB00F37572 /* libobjc.dylib */; };
 		A678C2751B703955003F0D27 /* ModelBase.java in Sources */ = {isa = PBXBuildFile; fileRef = A678C2741B703955003F0D27 /* ModelBase.java */; };
@@ -869,6 +871,8 @@
 		A6701D601B73D48C00229432 /* joda */ = {isa = PBXFileReference; lastKnownFileType = folder; path = joda; sourceTree = "<group>"; };
 		A670760F1B62F26A00017D36 /* DerivedSources */ = {isa = PBXFileReference; lastKnownFileType = folder; name = DerivedSources; path = "DerivedData/Paco/Build/Intermediates/Paco.build/Debug-iphonesimulator/Paco.build/DerivedSources"; sourceTree = "<group>"; };
 		A670F87F1B8E2D1D00BF9593 /* PacoJAVA2OBJCTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoJAVA2OBJCTest.m; sourceTree = "<group>"; };
+		A670F8811B8ECC2600BF9593 /* PacoIntrospectHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoIntrospectHelper.h; sourceTree = "<group>"; };
+		A670F8821B8ECC2600BF9593 /* PacoIntrospectHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoIntrospectHelper.m; sourceTree = "<group>"; };
 		A676C7371B6043DE00F37572 /* Pacoj2Objc2JsonTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Pacoj2Objc2JsonTests.m; sourceTree = "<group>"; };
 		A676C7391B615A3D00F37572 /* libobjc.A.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libobjc.A.dylib; path = usr/lib/libobjc.A.dylib; sourceTree = SDKROOT; };
 		A676C73B1B615AAB00F37572 /* libobjc.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libobjc.dylib; path = usr/lib/libobjc.dylib; sourceTree = SDKROOT; };
@@ -1949,6 +1953,8 @@
 				A6ABFA991B742BE800F90598 /* categories */,
 				A6ABFAA01B742BE800F90598 /* PacoSerializer.h */,
 				A6ABFAA11B742BE800F90598 /* PacoSerializer.m */,
+				A670F8811B8ECC2600BF9593 /* PacoIntrospectHelper.h */,
+				A670F8821B8ECC2600BF9593 /* PacoIntrospectHelper.m */,
 			);
 			path = serializer;
 			sourceTree = "<group>";
@@ -2495,6 +2501,7 @@
 				36488B8718BFDC46004517E2 /* PacoTriggerSignal.m in Sources */,
 				363E211317AF8420007DE3CE /* Reachability.m in Sources */,
 				363E211617AF88BB007DE3CE /* PacoEventUploader.m in Sources */,
+				A670F8831B8ECC2600BF9593 /* PacoIntrospectHelper.m in Sources */,
 				365D20E7181B198D0097F379 /* NSString+Paco.m in Sources */,
 				36C4A33D18A4DEEE00D8FE59 /* DDASLLogger.m in Sources */,
 				44A843E51ADB9C0A009C7226 /* TimeUtil.java in Sources */,
@@ -2522,6 +2529,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A670F8841B8ECCEC00BF9593 /* PacoIntrospectHelper.m in Sources */,
 				A678C2761B7042D3003F0D27 /* DerivedSources in Sources */,
 				A646B4BD1B7C10A500BBAABB /* PacoClientTest.m in Sources */,
 				A633A9AC1B5DA0970046436D /* InterruptTrigger.java in Sources */,

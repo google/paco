@@ -9,6 +9,8 @@
 #import <Foundation/Foundation.h>
 #include "java/util/ArrayList.h"
 
+
+/* extended type information */
 typedef NS_ENUM(NSInteger, EncodingEnumType) {
     EncodingTypeLong,
     EncodingTypeLongLong,
@@ -23,6 +25,15 @@ typedef NS_ENUM(NSInteger, EncodingEnumType) {
     EncodingTypeUnsigndLong,
     EncodingTypeUnsigndLongLong,
     EncodingTypeClass,
+    EncodingTypeJavaLangBoolean,
+    EncodingTypeJavaLangInteger,
+    EncodingTypeJavaLangBigInteger,
+    EncodingTypeJavaLangCharacter,
+    EncodingTypeJavaLangDouble,
+    EncodingTypeJavaLangFloat,
+    EncodingTypeJavaLangLong,
+    EncodingTypeJavaLangShort,
+    EncodingTypeNSString,
     EncodingTypeNotFound
 };
 
@@ -36,7 +47,9 @@ typedef NS_ENUM(NSInteger, EncodingEnumType) {
 - (id)valueForKeyAndIndex:(int)index Key:(NSString *)key;
 - (NSArray *)makeCommonAttributeOperationName:(NSString *)attributeName
                                        Object:(NSObject *)object;
-
+- (BOOL)setModalAttribute:(NSString *)attributeName
+                   Object:(NSObject *)object
+                 Argument:(NSObject *)argument;
 
 
 @end

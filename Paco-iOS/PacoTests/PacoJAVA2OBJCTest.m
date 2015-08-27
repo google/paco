@@ -33,11 +33,15 @@
 
 - (void)testIntegerEquality {
     
-    JavaLangInteger *i = [JavaLangInteger valueOfWithInt:0];
+    JavaLangInteger *i = [JavaLangInteger valueOfWithInt:3];
     
     JavaLangInteger *i2 = [JavaLangInteger valueOfWithInt:0];
     
     XCTAssert(i == i2, @"should be equal due to unboxing"); // works
+    
+    BOOL btst= (i == 3);
+
+    XCTAssert(i == 3, @"should be equal due to unboxing"); // works
     
     XCTAssert(i == PASignalTime_get_FIXED_TIME_(), @"should it work?"); // works
     
@@ -81,6 +85,8 @@
     JavaLangInteger *  pt11 = [[JavaLangInteger   alloc] initWithInt:12345];
     JavaLangInteger  * pt22 = [[JavaLangInteger  alloc]  initWithInt:12345];
     
+    char* c = [pt11 objCType];
+    char* cc = [pt1 objCType];
     
     JavaLangInteger *  pt111 = [JavaLangInteger valueOfWithInt:1234];
     JavaLangInteger  * pt222 = [JavaLangInteger valueOfWithInt:1234];
@@ -99,6 +105,10 @@
     XCTAssert(b1, @"Pass");
     XCTAssert(b2, @"Pass");
 }
+
+
+
+
 
 - (void)testPerformanceExample {
     // This is an example of a performance test case.

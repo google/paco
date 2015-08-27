@@ -22,6 +22,8 @@
 #include "java/lang/Float.h"
 #include "java/lang/Double.h"
 #include "java/lang/Boolean.h"
+#include "java/lang/Short.h"
+#include "java/lang/Character.h"
 #include "J2ObjC_header.h"
 
 @implementation NSObject (J2objcKVO)
@@ -147,9 +149,9 @@
   if ([ivarInfo[0] length] != 0) {
     NSString *methodName = [NSString stringWithFormat:@"set%@:", ivarInfo[0]];
     SEL sel = NSSelectorFromString(methodName);
-    if ([object respondsToSelector:sel]) {
+    if ([object respondsToSelector:sel] ) {
         
-        EncodingEnumType encodingType = ivarInfo[2];
+        EncodingEnumType encodingType = (EncodingEnumType) [ivarInfo[2] intValue];
         
         id typedArg;
         switch (encodingType) {
@@ -171,6 +173,31 @@
             case  EncodingTypeBOOL:
                 typedArg = [[JavaLangBoolean alloc] initWithBoolean:[((NSNumber*) argument) boolValue]];
                 break;
+            case  EncodingTypeJavaLangBoolean:
+                typedArg = [[JavaLangBoolean alloc] initWithBoolean:[((NSNumber*) argument) boolValue]];
+                break;
+            case  EncodingTypeJavaLangCharacter:
+                typedArg = [[JavaLangCharacter   alloc] initWithChar:[((NSNumber*) argument) charValue]];
+                break;
+            case  EncodingTypeJavaLangDouble:
+                typedArg = [[JavaLangDouble alloc] initWithDouble:[((NSNumber*) argument) doubleValue]];
+                break;
+            case  EncodingTypeJavaLangFloat:
+                typedArg = [[JavaLangFloat alloc] initWithFloat:[((NSNumber*) argument) floatValue]];
+                break;
+            case  EncodingTypeJavaLangLong:
+                typedArg = [[JavaLangLong alloc] initWithLong:[((NSNumber*) argument) longLongValue]];
+                break;
+            case  EncodingTypeJavaLangShort:
+                typedArg = [[JavaLangShort alloc] initWithShort:[((NSNumber*) argument) shortValue]];
+                break;
+            case  EncodingTypeJavaLangInteger:
+                typedArg = [[JavaLangInteger alloc] initWithShort:[((NSNumber*) argument) intValue]];
+                break;
+            case  EncodingTypeNSString:
+                /* already an NSString*/
+                typedArg = argument;
+                break;
             case  EncodingTypeClass:
                 typedArg=argument;
                 break;
@@ -179,9 +206,11 @@
                 break;
         }
         
+     
+        
      [object performSelector:sel withObject:typedArg];
 
-
+ 
       retVal = TRUE;
     } else {
       retVal = NO;
@@ -191,6 +220,67 @@
   }
   return retVal;
 }
+
+
+- (EncodingEnumType) encodingTypeFromSub:(NSString*) sub
+{
+    
+    EncodingEnumType encodingType= EncodingTypeNotFound;
+    
+    if([sub isEqualToString:@"JavaLangBoolean"])
+    {
+        encodingType =  EncodingTypeJavaLangBoolean;
+        
+    }
+    else if(  [sub isEqualToString:@"JavaLangInteger"])
+    {
+        encodingType =  EncodingTypeJavaLangInteger;
+        
+    }
+    else if(  [sub isEqualToString:@"JavaMathBigInteger"])
+    {
+        
+        encodingType =  EncodingTypeJavaLangBigInteger;
+    }
+    else if(  [sub isEqualToString:@"JavaLangCharacter"])
+    {
+        
+        encodingType =  EncodingTypeJavaLangCharacter;
+        
+    }
+    else if(  [sub isEqualToString:@"JavaLangDouble"])
+    {
+        
+        encodingType =  EncodingTypeJavaLangDouble;
+        
+    }
+    else if(  [sub isEqualToString:@"JavaLangFloat"])
+    {
+        
+        
+    }
+    else if(  [sub isEqualToString:@"JavaLangLong"])
+    {
+        
+        encodingType =  EncodingTypeJavaLangLong;
+    }
+    else if(  [sub isEqualToString:@"JavaLangShort"])
+    {
+        
+        encodingType =  EncodingTypeJavaLangShort;
+    }
+    else if(  [sub isEqualToString:@"NSString"])
+    {
+        
+        encodingType =  EncodingTypeNSString;
+    }
+    
+    return encodingType;
+    
+}
+
+
+ 
 
 /*
  helps  manufactures names  j2object names like setXXXWithJavaUtilInt by
@@ -251,53 +341,57 @@
         NSRange rSub = NSMakeRange(r1.location + r1.length,
                                    r2.location - r1.location - r1.length);
         sub = [ivarType substringWithRange:rSub];
+          
+          encodingType = [self encodingTypeFromSub:sub];
+          
       } else {
           
- 
+          const char* c = ivar_getTypeEncoding(ivar);
+                          
          //handle underlying nativ type of 'long' or 'long long'
-        if ((strcmp(ivar_getTypeEncoding(ivar), @encode(long long))) == 0) {
+        if ((strcmp(c, @encode(long long))) == 0) {
             
             encodingType=EncodingTypeLong;
             
           sub = @"Long";
         }
-        else if ((strcmp(ivar_getTypeEncoding(ivar), @encode(long))) == 0) {
+        else if ( (strcmp(c, @encode(long))) == 0) {
             
           sub = @"Long";
             encodingType=EncodingTypeLongLong;
             
         }
-        else if ((strcmp(ivar_getTypeEncoding(ivar), @encode(int))) == 0) {
+        else if ((strcmp(c, @encode(int))) == 0) {
             encodingType=EncodingTypeInt;
               sub = @"Integer";
               
         }
-        else if ((strcmp(ivar_getTypeEncoding(ivar), @encode(float))) == 0) {
+        else if ((strcmp(c, @encode(float))) == 0) {
             encodingType=EncodingTypeFloat;
             sub = @"Float";
             
         }
-        else if ((strcmp(ivar_getTypeEncoding(ivar), @encode(unsigned int))) == 0) {
+        else if ((strcmp(c, @encode(unsigned int))) == 0) {
             encodingType=EncodingTypeUnsigndInt;
             sub = @"Integer";
             
         }
-        else if ((strcmp(ivar_getTypeEncoding(ivar), @encode(unsigned short))) == 0) {
+        else if ((strcmp(c, @encode(unsigned short))) == 0) {
             encodingType=EncodingTypeUnsigndShort;
             sub = @"Short";
             
         }
-        else if ((strcmp(ivar_getTypeEncoding(ivar), @encode(unsigned long))) == 0) {
+        else if ((strcmp(c, @encode(unsigned long))) == 0) {
             encodingType=EncodingTypeUnsigndLong;
             sub = @"Long";
             
         }
-        else if ((strcmp(ivar_getTypeEncoding(ivar), @encode(unsigned long long))) == 0) {
+        else if ((strcmp(c, @encode(unsigned long long))) == 0) {
             encodingType=EncodingTypeUnsigndLongLong;
             sub = @"Long";
             
         }
-        else if ((strcmp(ivar_getTypeEncoding(ivar), @encode(BOOL))) == 0) {
+        else if ((strcmp(c, @encode(BOOL))) == 0) {
             encodingType=EncodingTypeBOOL;
             sub = @"Boolean";
             
