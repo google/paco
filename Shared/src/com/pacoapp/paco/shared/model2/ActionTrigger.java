@@ -76,12 +76,14 @@ public abstract class ActionTrigger extends ModelBase implements Validatable, Se
       if (!ids.add(pacoAction.getId())) {
         validator.addError("action id: " + pacoAction.getId() + " is not unique. Each action needs a unique id that is stable across edits.");
       }
-      if (pacoAction.getActionCode() == PacoAction.NOTIFICATION_TO_PARTICIPATE_ACTION_CODE && hasNotificationToParticipateAction) {
+      final Integer actionCode = pacoAction.getActionCode();
+      validator.isNotNull(actionCode, "actionCode is not properly initialized");
+      if (actionCode != null && actionCode.equals(PacoAction.NOTIFICATION_TO_PARTICIPATE_ACTION_CODE) && hasNotificationToParticipateAction) {
         validator.addError("Should only have one notification to participate action");
       } else {
         hasNotificationToParticipateAction = true;
       }
-      if (pacoAction.getActionCode() == PacoAction.NOTIFICATION_ACTION_CODE && hasNotificationMessageAction) {
+      if (actionCode != null && actionCode.equals(PacoAction.NOTIFICATION_ACTION_CODE) && hasNotificationMessageAction) {
         validator.addError("Should only have one notification message action");
       } else {
         hasNotificationMessageAction = true;

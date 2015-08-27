@@ -110,7 +110,8 @@ public class ActionScheduleGenerator {
               final List<PacoAction> actions = scheduleTrigger.getActions();
               PacoNotificationAction notificationAction = null;
               for (PacoAction pacoAction : actions) {
-                if (pacoAction.getActionCode() == PacoAction.NOTIFICATION_TO_PARTICIPATE_ACTION_CODE) {
+                if (pacoAction.getActionCode() != null && 
+                        pacoAction.getActionCode().equals(PacoAction.NOTIFICATION_TO_PARTICIPATE_ACTION_CODE)) {
                   notificationAction = (PacoNotificationAction) pacoAction;
                 }
               }
@@ -159,7 +160,7 @@ public class ActionScheduleGenerator {
           if (schedule.getScheduleType().equals(Schedule.WEEKDAY)) {
             List<SignalTime> times = schedule.getSignalTimes();
             SignalTime lastSignalTime = times.get(times.size() - 1);
-            if (lastSignalTime.getType() == SignalTime.FIXED_TIME) {
+            if (lastSignalTime.getType() != null && lastSignalTime.getType().equals(SignalTime.FIXED_TIME)) {
               // TODO actually compute the last time based on all of the rules for offset times and skip if missed rules
               DateTime lastTimeForDay = new DateTime().plus(lastSignalTime.getFixedTimeMillisFromMidnight());
               lastTimeForSignalGroup = new DateMidnight(TimeUtil.unformatDate(experimentGroup.getEndDate())).toDateTime()
@@ -296,7 +297,7 @@ public class ActionScheduleGenerator {
             if (schedule.getScheduleType().equals(Schedule.WEEKDAY)) {
               List<SignalTime> times = schedule.getSignalTimes();
               SignalTime lastSignalTime = times.get(times.size() - 1);
-              if (lastSignalTime.getType() == SignalTime.FIXED_TIME) {
+              if (lastSignalTime.getType() != null && lastSignalTime.getType().equals(SignalTime.FIXED_TIME)) {
                 // TODO actually compute the last time based on all of the rules for offset times and skip if missed rules
                 DateTime lastTimeForDay = new DateTime().plus(lastSignalTime.getFixedTimeMillisFromMidnight());
                 lastTimeForSignalGroup = new DateMidnight(TimeUtil.unformatDate(experimentGroup.getEndDate())).toDateTime()
