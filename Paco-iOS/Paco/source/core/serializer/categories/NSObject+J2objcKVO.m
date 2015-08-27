@@ -192,7 +192,7 @@
                 typedArg = [[JavaLangShort alloc] initWithShort:[((NSNumber*) argument) shortValue]];
                 break;
             case  EncodingTypeJavaLangInteger:
-                typedArg = [[JavaLangInteger alloc] initWithShort:[((NSNumber*) argument) intValue]];
+                typedArg = [[JavaLangInteger alloc] initWithInt:[((NSNumber*) argument) intValue]];
                 break;
             case  EncodingTypeNSString:
                 /* already an NSString*/
@@ -226,7 +226,11 @@
 {
     
     EncodingEnumType encodingType= EncodingTypeNotFound;
-    
+    if([sub isEqualToString:@"JavaUtilDate"])
+    {
+        encodingType =  EncodingTypeJavaUtilDate;
+        
+    }
     if([sub isEqualToString:@"JavaLangBoolean"])
     {
         encodingType =  EncodingTypeJavaLangBoolean;
@@ -325,26 +329,17 @@
   if (ivar) {
     NSString *ivarType =
         [NSString stringWithUTF8String:ivar_getTypeEncoding(ivar)];
-
-    NSRange r1 = [ivarType rangeOfString:@"<"];
-    NSRange r2 = [ivarType rangeOfString:@">"];
-
-    if (r1.length != 0 && r2.length != 0) {
-      NSRange rSub = NSMakeRange(r1.location + r1.length,
-                                 r2.location - r1.location - r1.length);
-      sub = [ivarType substringWithRange:rSub];
-    } else {
-      NSRange r1 = [ivarType rangeOfString:@"\""];
-      NSRange r2 = [ivarType rangeOfString:@"\"" options:NSBackwardsSearch];
-
-      if (r1.length != 0 && r2.length != 0) {
-        NSRange rSub = NSMakeRange(r1.location + r1.length,
-                                   r2.location - r1.location - r1.length);
-        sub = [ivarType substringWithRange:rSub];
+      
+      sub = [self getSub:ivarType];
+      
+      if([sub length] !=0)
+      {
           
-          encodingType = [self encodingTypeFromSub:sub];
-          
-      } else {
+           encodingType = [self encodingTypeFromSub:sub];
+      }
+ 
+      else
+      {
           
           const char* c = ivar_getTypeEncoding(ivar);
                           
@@ -397,7 +392,7 @@
             
         }
   
-      }
+      
     }
 
     NSString *newAttributeName = [attributeName
@@ -417,6 +412,37 @@
         return nil;
     }
 }
+
+-(NSString*) getSub:(NSString*) ivarType
+{
+    NSString* sub=nil;
+    NSRange r1 = [ivarType rangeOfString:@"<"];
+    NSRange r2 = [ivarType rangeOfString:@">"];
+    
+    if (r1.length != 0 && r2.length != 0)
+    {
+        NSRange rSub = NSMakeRange(r1.location + r1.length,
+                                   r2.location - r1.location - r1.length);
+        sub = [ivarType substringWithRange:rSub];
+    }
+    else
+    {
+        NSRange r1 = [ivarType rangeOfString:@"\""];
+        NSRange r2 = [ivarType rangeOfString:@"\"" options:NSBackwardsSearch];
+        
+        if (r1.length != 0 && r2.length != 0)
+        {
+            NSRange rSub = NSMakeRange(r1.location + r1.length,
+                                       r2.location - r1.location - r1.length);
+            sub = [ivarType substringWithRange:rSub];
+        }
+       
+    }
+    return sub;
+}
+
+
+
 
 - (id)valueForKeyAndIndex:(int)index Key:(NSString *)key {
   id retVal = nil;

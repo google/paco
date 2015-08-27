@@ -11,6 +11,6 @@
 
 @interface PacoIntrospectHelper : NSObject
 
-+(NSArray *) parseIvar:(Ivar) ivar;
++(NSArray *) parseIvar:(Ivar) ivar Parent:(NSObject*) parent;
 
 @end

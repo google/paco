@@ -19,12 +19,13 @@ typedef NS_ENUM(NSInteger, EncodingEnumType) {
     EncodingTypeDouble,
     EncodingTypeShort,
     EncodingTypeBOOL,
+    EncodingTypeClass,
+    EncodingTypeJavaUtilDate,
     EncodingTypeUnsigndChar,
     EncodingTypeUnsigndInt,
     EncodingTypeUnsigndShort,
     EncodingTypeUnsigndLong,
     EncodingTypeUnsigndLongLong,
-    EncodingTypeClass,
     EncodingTypeJavaLangBoolean,
     EncodingTypeJavaLangInteger,
     EncodingTypeJavaLangBigInteger,
@@ -51,5 +52,9 @@ typedef NS_ENUM(NSInteger, EncodingEnumType) {
                    Object:(NSObject *)object
                  Argument:(NSObject *)argument;
 
+
+/* move these methods into a helper class */
+-(NSString*) getSub:(NSString*) ivarType;
+- (EncodingEnumType) encodingTypeFromSub:(NSString*) sub;
 
 @end
