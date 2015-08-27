@@ -224,7 +224,7 @@ pacoApp.controller('ExperimentCtrl', ['$scope', '$mdDialog', '$filter',
               // in case the user modified the experiment via source view.
               // Otherwise, Ace will retain a stale version number and any
               // subsequent saves will fail.
-              $scope.prepareAce();
+              $scope.prepareSourceAce();
 
               $scope.experiment0 = angular.copy($scope.experiment);
 
