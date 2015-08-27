@@ -320,11 +320,11 @@ pacoApp.service('template', function() {
     creator: '',
     contactEmail: '',
     extraDataCollectionDeclarations: [],
+    groups: [this.group],
+    postInstallInstructions: '<b>You have successfully joined the experiment!</b><br/><br/>\nNo need to do anything else for now.<br/><br/>\nPaco will send you a notification when it is time to participate.<br/><br/>\nBe sure your ringer/buzzer is on so you will hear the notification.',
     published: false,
     publishedUsers: [],
-    groups: [this.group],
-    dataDeclarations: [],
-    ringtoneUri: '/assets/ringtone/Paco Bark'
+    ringtoneUri: '/assets/ringtone/Paco Bark',
   }
 
   this.input = {
