@@ -258,7 +258,7 @@ public class JsonConverter {
       Preconditions.checkNotNull(scheduledTrigger, "scheduledTrigger is null");
       Preconditions.checkNotNull(schedule, "schedule is null");
       List<SignalTimeDAO> signalTimesBC = null;
-      if (schedule.getScheduleType() != Schedule.ESM) {
+      if (schedule.getScheduleType() != null && !schedule.getScheduleType().equals(Schedule.ESM)) {
         signalTimesBC = getSignalTimesBC(schedule);
       }
       //Preconditions.checkArgument(signalTimesBC != null && signalTimesBC.size() > 0, "signalTimes is null or empty");
