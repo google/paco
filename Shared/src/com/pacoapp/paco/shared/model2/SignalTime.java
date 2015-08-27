@@ -87,7 +87,7 @@ public class SignalTime extends ModelBase implements Validatable, Serializable {
   public void validateWith(Validator validator) {
 //    System.out.println("VALIDATING SIGNALTIME");
     validator.isNotNull(type, "signal time type is not properly initialized");
-    if (type != null && type == FIXED_TIME) {
+    if (type != null && type.equals(FIXED_TIME)) {
       validator.isNotNull(fixedTimeMillisFromMidnight, "fixed type signal times must have fixedTimeMillisFromMidnight");
     } else {
       validator.isNotNull(offsetTimeMillis, "offset type signalTimes must have offsetMillis specified");

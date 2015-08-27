@@ -7,6 +7,7 @@ import android.webkit.JavascriptInterface;
 
 import com.google.common.collect.Lists;
 import com.pacoapp.paco.PacoConstants;
+import com.pacoapp.paco.UserPreferences;
 import com.pacoapp.paco.model.Experiment;
 import com.pacoapp.paco.model.ExperimentProviderUtil;
 import com.pacoapp.paco.sensors.android.BroadcastTriggerReceiver;
@@ -100,6 +101,8 @@ public class JavascriptExperimentLoader {
         long t2 = System.currentTimeMillis();
         Log.e(PacoConstants.TAG, "time to load from json : " + (t2 - t1));
         experimentProvider.updateExistingExperiments(Lists.newArrayList(androidExperiment), true);
+        UserPreferences userprefs = new UserPreferences(context);
+        userprefs.setExperimentEdited(androidExperiment.getId());
         long t3 = System.currentTimeMillis();
         Log.e(PacoConstants.TAG, "time to update: " + (t3 - t2));
         context.startService(new Intent(context, BeeperService.class));

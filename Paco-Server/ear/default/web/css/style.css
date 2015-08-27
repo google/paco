@@ -80,10 +80,6 @@ md-dialog li {
   width: 224px;
 }
 
-.source div[ui-ace] {
-  min-height: 600px;
-}
-
 .error {
   color: red;
   font-weight: 500;

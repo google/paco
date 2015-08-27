@@ -68,7 +68,7 @@ pacoApp.service('experimentService', ['$http', '$cacheFactory', 'util',
       // Need to clear all list caches in case title was changed
       cache.remove('/experiments?admin');
       cache.remove('/experiments?joined');
-      cache.remove('/experiments?joinable'); 
+      cache.remove('/experiments?mine');
 
       // If it's not a new experiment, clear old cached definition
       if (experiment.id) {
@@ -90,8 +90,27 @@ pacoApp.service('dataService', ['$http', '$timeout', '$q',
 
     return ({
       getCsv: getCsv,
+      getJson: getJson,
       getParticipantData: getParticipantData,
     });
+
+
+    function getJson(id, user, anonymous) {
+
+      var endpoint = '/events?q=\'experimentId=' + id;
+
+      if (user) {
+        endpoint += ':who=' + user;
+      }
+
+      endpoint += '\'&json';
+
+      if (anonymous) {
+        endpoint += '&anon=true';
+      }
+
+      return $http.get(endpoint);
+    };
 
     function getCsv(id, user, anonymous) {
 
@@ -156,11 +175,15 @@ pacoApp.service('dataService', ['$http', '$timeout', '$q',
     * compute the total participant count for today and all time.
     */
 
-    function getParticipantData(id) {
+    function getParticipantData(id, user) {
 
       var defer = $q.defer();
-      var url = 'participantStats?experimentId=' + id;
-      $http.get(url).success(
+      var endpoint = 'participantStats?experimentId=' + id;
+      if (user) {
+        endpoint += '&who=' + user;
+      }
+
+      $http.get(endpoint).success(
         function(data) {
           var totalParticipantCount = 0;
           var todayParticipantCount = 0;
@@ -201,7 +224,8 @@ pacoApp.service('config', function() {
   this.dataDeclarations = {
     1: 'App Usage and Browser History',
     2: 'Location Information',
-    3: 'Phone Details (Make, Model, Carrier)'
+    3: 'Phone Details (Make, Model, Carrier)',
+    4: 'Apps installed on the phone'
   };
 
   this.ringtones = [
@@ -296,11 +320,11 @@ pacoApp.service('template', function() {
     creator: '',
     contactEmail: '',
     extraDataCollectionDeclarations: [],
+    groups: [this.group],
+    postInstallInstructions: '<b>You have successfully joined the experiment!</b><br/><br/>\nNo need to do anything else for now.<br/><br/>\nPaco will send you a notification when it is time to participate.<br/><br/>\nBe sure your ringer/buzzer is on so you will hear the notification.',
     published: false,
     publishedUsers: [],
-    groups: [this.group],
-    dataDeclarations: [],
-    ringtoneUri: '/assets/ringtone/Paco Bark'
+    ringtoneUri: '/assets/ringtone/Paco Bark',
   }
 
   this.input = {
@@ -352,7 +376,8 @@ pacoApp.service('template', function() {
   };
 
   this.signalTime = {
-    fixedTimeMillisFromMidnight: 0,
+    // Set initial time to 12 PM
+    fixedTimeMillisFromMidnight: 12 * 60 * 60 * 1000,
     type: 0
   };
 });

@@ -99,7 +99,6 @@ public class FeedbackActivity extends ActionBarActivity {
       setContentView(R.layout.feedback);
 
       // TODO revamp this to deal with null experimentGroup (do we give a list of groups? the exploredata button in runningexperiments needs this)
-      experimentProviderUtil.loadLastEventForExperiment(experiment);
 
 
       rawDataButton = (Button)findViewById(R.id.rawDataButton);
@@ -123,7 +122,8 @@ public class FeedbackActivity extends ActionBarActivity {
       WebViewClient webViewClient = createWebViewClientThatHandlesFileLinksForCharts(feedback);
       webView.setWebViewClient(webViewClient);
 
-      if (experimentGroup.getFeedback().getType() == com.pacoapp.paco.shared.model2.Feedback.FEEDBACK_TYPE_RETROSPECTIVE) {
+      if (experimentGroup.getFeedback().getType() != null &&
+              experimentGroup.getFeedback().getType().equals(com.pacoapp.paco.shared.model2.Feedback.FEEDBACK_TYPE_RETROSPECTIVE)) {
         // TODO get rid of this and just use the customFeedback view
         loadRetrospectiveFeedbackIntoWebView();
       } else {
@@ -152,7 +152,6 @@ public class FeedbackActivity extends ActionBarActivity {
   }
   private void injectObjectsIntoJavascriptEnvironment(final com.pacoapp.paco.shared.model2.Feedback feedback) {
     final Map<String,String> map = new HashMap<String, String>();
-    map.put("lastResponse", convertLastEventToJsonString(experiment.getEvents()));
     map.put("experimentGroupName", experimentGroup.getName());
     map.put("title", experiment.getExperimentDAO().getTitle());
     map.put("test", "false");

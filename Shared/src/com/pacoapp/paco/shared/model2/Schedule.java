@@ -261,7 +261,7 @@ public class Schedule extends ModelBase implements Validatable, MinimumBufferabl
       // do nothing;
 
     }
-    if (scheduleType != ESM && scheduleType != SELF_REPORT && scheduleType != ADVANCED) {
+    if (scheduleType != null && !scheduleType.equals(ESM) && !scheduleType.equals(SELF_REPORT) && !scheduleType.equals(ADVANCED)) {
       validator.isNotNull(repeatRate, "repeatRate is not properly initialized");
       validator.isNotNullAndNonEmptyCollection(signalTimes,
                                                "For the schedule type, there must be at least one signal Time");

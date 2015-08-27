@@ -103,7 +103,7 @@ pacoApp.controller('ExperimentCtrl', ['$scope', '$mdDialog', '$filter',
           var data = response.data;
           $scope.experiment = data[0];
           $scope.experiment0 = angular.copy(data[0]);
-          $scope.prepareAce();
+          $scope.prepareSourceAce();
 
           if ($scope.newExperiment) {
             $scope.experiment.title = 'Copy of ' + $scope.experiment.title;
@@ -161,11 +161,16 @@ pacoApp.controller('ExperimentCtrl', ['$scope', '$mdDialog', '$filter',
       }
     });
 
-    // Ace is loaded when the Source tab is selected so get pretty JSON here
-    $scope.prepareAce = function(editor) {
+    // Need to set blockScrolling to Infinity to supress Ace deprecation warning
+    $scope.aceInfinity = function(editor) {
       if (editor) {
         editor.$blockScrolling = 'Infinity';
       }
+    };
+
+    // Ace is loaded when the Source tab is selected so get pretty JSON here
+    $scope.prepareSourceAce = function(editor) {
+      $scope.aceInfinity(editor);
 
       $scope.ace = {
         JSON: angular.toJson($scope.experiment, true),
@@ -214,6 +219,13 @@ pacoApp.controller('ExperimentCtrl', ['$scope', '$mdDialog', '$filter',
             if (data[0].status === true) {
 
               $scope.experiment.version++;
+
+              // Need to manually update the Ace content after version change
+              // in case the user modified the experiment via source view.
+              // Otherwise, Ace will retain a stale version number and any
+              // subsequent saves will fail.
+              $scope.prepareAce();
+
               $scope.experiment0 = angular.copy($scope.experiment);
 
               if ($scope.newExperiment) {
@@ -291,7 +303,7 @@ pacoApp.controller('ListCtrl', ['$scope', '$mdDialog', '$location',
     }
 
     $scope.loadJoinable = function(reload) {
-      experimentService.getAdministered(reload).then(function(response) {
+      experimentService.getJoinable(reload).then(function(response) {
         $scope.joinable = response.data;
       });
     };
@@ -359,58 +371,81 @@ pacoApp.controller('CsvCtrl', ['$scope', '$mdDialog',
 
     if (angular.isDefined($routeParams.csvExperimentId)) {
       $scope.experimentId = parseInt($routeParams.csvExperimentId, 10);
-    }
 
-    experimentService.getExperiment($scope.experimentId).then(
-      function(response) {
-        $scope.experiment = response.data[0];
+      dataService.getJson($scope.experimentId, user, anonymous).
+      then(function(result) {
+        if (result.data) {
+
+          $scope.data = result.data;
+
+          var table = $filter('jsonToTable')(result.data.events, true);
+          var csv = $filter('tableToCsv')(table);
+          $scope.csv = [];
+          $scope.table = table;
+
+          var blob = new Blob([csv], {
+            type: 'text/csv'
+          });
+          $scope.csvData = (window.URL || window.webkitURL).createObjectURL(blob);
+
+        } else if (result.error) {
+          $scope.error = result.error;
+        }
       });
 
-    dataService.getCsv($scope.experimentId, user, anonymous).
-    then(function(result) {
-      if (result.data) {
-        $scope.csv = result.data;
-        $scope.table = $filter('csvToObj')($scope.csv);
-        var blob = new Blob([result.data], {
-          type: 'text/csv'
-        });
-        $scope.csvData = (window.URL || window.webkitURL).createObjectURL(blob);
-      } else if (result.error) {
-        $scope.error = result.error;
-      }
-    });
-
-    $scope.status = 'Sending CSV request';
-  }
-]);
+      $scope.status = 'Sending JSON request';
+    }
 
 
-pacoApp.controller('StatsCtrl', ['$scope', '$mdDialog', '$filter',
-  '$routeParams', 'dataService', 'experimentService',
-  function($scope, $mdDialog, $filter, $routeParams, dataService, 
-    experimentService) {
 
     if (angular.isDefined($routeParams.experimentId)) {
       $scope.experimentId = parseInt($routeParams.experimentId, 10);
+
+      if ($location.hash() && $location.hash() === 'mine') {
+        user = $scope.user;
+      }
+
+      experimentService.getExperiment($scope.experimentId).then(
+        function(response) {
+          $scope.experiment = response.data[0];
+        });
+
+      dataService.getParticipantData($scope.experimentId, user).
+      then(function(result) {
+        if (result.data) {
+          $scope.stats = result.data;
+        } else if (result.error) {
+          $scope.error = result.error;
+        }
+      });
+
+      $scope.status = 'Sending stats request';
     }
+
 
     experimentService.getExperiment($scope.experimentId).then(
       function(response) {
         $scope.experiment = response.data[0];
       });
 
-    dataService.getParticipantData($scope.experimentId).
-    then(function(result) {
-      if (result.data) {
-        $scope.stats = result.data;
-      } else if (result.error) {
-        $scope.error = result.error;
-      }
-    });
+    $scope.sortColumn = 0;
+    $scope.reverseSort = false;
 
-    $scope.status = 'Sending stats request';
+    $scope.setColumn = function(columnId) {
+      if ( $scope.sortColumn === columnId) {
+        $scope.reverseSort = !$scope.reverseSort;
+      } else {
+        $scope.reverseSort = false;
+        $scope.sortColumn = columnId;
+      }
+    }
+
+    $scope.columnSort = function(row) {
+      return row[$scope.sortColumn];
+    };
   }
 ]);
+
 
 
 pacoApp.controller('GroupsCtrl', ['$scope', 'template',
@@ -459,10 +494,6 @@ pacoApp.controller('GroupsCtrl', ['$scope', 'template',
       $scope.group.actionTriggers.push(angular.copy(template.eventTrigger));
       expandFn(true);
       event.stopPropagation();
-    };
-
-    $scope.aceLoaded = function(editor) {
-      editor.$blockScrolling = 'Infinity';
     };
 
     $scope.$watch('group.fixedDuration', function(newVal, oldVal) {
@@ -573,9 +604,6 @@ pacoApp.controller('ActionCtrl', ['$scope', '$mdDialog', 'config', 'template',
       }
     });
 
-    $scope.aceLoaded = function(editor) {
-      editor.$blockScrolling = 'Infinity';
-    };
   }
 ]);
 
@@ -595,8 +623,6 @@ pacoApp.controller('ErrorCtrl', ['$scope', '$mdDialog', 'config',
 
     $scope.errorMessage = errorMessage;
     $scope.hide = $mdDialog.hide;
-
-    console.log(errorMessage);
 
     // TODO(bobevans): make server error formats consistent to avoid this special casing
     if (errorMessage.indexOf('Exception') === 0 ||

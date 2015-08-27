@@ -47,6 +47,7 @@ import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import com.pacoapp.paco.PacoConstants;
+import com.pacoapp.paco.UserPreferences;
 import com.pacoapp.paco.shared.model2.ActionTrigger;
 import com.pacoapp.paco.shared.model2.EventInterface;
 import com.pacoapp.paco.shared.model2.EventStore;
@@ -275,10 +276,14 @@ public class ExperimentProviderUtil implements EventStore {
 
   private void copyAllPropertiesToExistingJoinedExperiment(Experiment newExperiment, Experiment existingExperiment,
                                                            Boolean shouldOverrideExistingSettings) {
-    ExperimentDAO newExperimentDAO = newExperiment.getExperimentDAO();
-    ExperimentDAO existingDAO = existingExperiment.getExperimentDAO();
-    // TODO preserve any modified schedule settings if it is user-editable and different from the new
-    existingExperiment.setExperimentDAO(newExperimentDAO);
+    UserPreferences userPrefs = new UserPreferences(context);
+    if (shouldOverrideExistingSettings || !userPrefs.experimentEdited(existingExperiment.getId())) {
+      ExperimentDAO newExperimentDAO = newExperiment.getExperimentDAO();
+      ExperimentDAO existingDAO = existingExperiment.getExperimentDAO();
+      // TODO preserve any modified schedule settings if it is user-editable and different from the new
+
+      existingExperiment.setExperimentDAO(newExperimentDAO);
+    }
 
   }
 
@@ -1122,15 +1127,20 @@ public class ExperimentProviderUtil implements EventStore {
 
   public void deleteNotification(long notificationId) {
     NotificationHolder holder = getNotificationById(notificationId);
-    deleteNotification(holder);
+    if (holder != null) {
+      Log.i(PacoConstants.TAG, "found notificationHolder: " + holder.getId());
+      deleteNotification(holder);
+    }
+
   }
 
   private void deleteNotification(NotificationHolder holder) {
     if (holder != null) {
       String[] selectionArgs = new String[] {Long.toString(holder.getId())};
       String selectionClause = NotificationHolderColumns._ID + " = ?";
-      contentResolver.delete(NotificationHolderColumns.CONTENT_URI,
+      int res = contentResolver.delete(NotificationHolderColumns.CONTENT_URI,
           selectionClause, selectionArgs);
+      Log.i(PacoConstants.TAG, "resultof deleting notificationHolder: " + holder.getId() +" = " + res);
     }
   }
 
