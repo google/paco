@@ -11,6 +11,11 @@
   width: 26px;
 }
 
+.group md-input-container no-ios {
+  position: absolute;
+  right: 0px;
+}
+
 .group .removeGroup:hover {
   opacity: 1;
 }

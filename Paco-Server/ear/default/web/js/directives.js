@@ -165,6 +165,17 @@ pacoApp.directive('pacoGroup', function () {
 
 
 
+pacoApp.directive('noIos', function() {
+  return {
+    restrict: 'E',
+    scope: {  'message': '=message' },
+    template: '<div class="no-ios"><img src="img/no_ios.png"><md-tooltip md-direction="right" md-delay="200">{{message}}</md-tooltip></div>',
+    link: function(scope, element) {
+    }
+  };
+});
+
+
 
 /**
  * This directive uses two-way data filtering to convert between the time

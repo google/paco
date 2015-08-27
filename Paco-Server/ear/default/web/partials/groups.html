@@ -12,7 +12,9 @@
           </div>
           <md-input-container placeholder="Group Name" md-no-float class="group-name">
             <input ng-model="group.name" aria-label="Group name">
+            <no-ios ng-if="$index > 0" message="'iOS does not support multiple groups'"></no-ios>
           </md-input-container>
+
 
           <a href="" class="removeGroup" ng-click="remove(experiment.groups, $index)">
           </a>

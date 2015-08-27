@@ -18,6 +18,8 @@
       Add Action
     </md-button>
 
+    <no-ios ng-if="trigger.type === 'interruptTrigger'" message="'iOS does not support event triggers'"></no-ios>
+
     <a class="remove button" href="" ng-click="remove(group.actionTriggers, $index)">
     </a>
   </div>
@@ -28,9 +30,9 @@
         <md-button ng-click="showSchedule($event, schedule)">
           Edit Schedule {{$index + 1}}
         </md-button>
-        
       </div>
       <span ng-controller="SummaryCtrl" ng-bind="getScheduleSummary()"></span>
+      <no-ios ng-if="$index > 0" message="'iOS does not support multi schedule'"></no-ios>
       <a class="remove button" ng-if="trigger.schedules.length > 1" href="" ng-click="remove(trigger.schedules, $index)">
       </a>
     </div>
