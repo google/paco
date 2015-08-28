@@ -199,8 +199,13 @@
                 typedArg = argument;
                 break;
             case  EncodingTypeClass:
+                
                 typedArg=argument;
                 break;
+              case  EncodingTypeJavaUtilArrayList:
+                typedArg=(JavaUtilArrayList*) argument;
+                
+                
             default:
                 typedArg=argument;
                 break;
@@ -226,12 +231,18 @@
 {
     
     EncodingEnumType encodingType= EncodingTypeNotFound;
-    if([sub isEqualToString:@"JavaUtilDate"])
+    
+    if([sub isEqualToString:@"JavaUtilArrayList"] || [sub isEqualToString:@"JavaUtilList"])
+    {
+        encodingType =  EncodingTypeJavaUtilArrayList;
+        
+    }
+    else if([sub isEqualToString:@"JavaUtilDate"])
     {
         encodingType =  EncodingTypeJavaUtilDate;
         
     }
-    if([sub isEqualToString:@"JavaLangBoolean"])
+   else  if([sub isEqualToString:@"JavaLangBoolean"])
     {
         encodingType =  EncodingTypeJavaLangBoolean;
         

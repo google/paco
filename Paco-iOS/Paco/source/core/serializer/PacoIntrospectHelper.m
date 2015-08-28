@@ -109,8 +109,17 @@
             case EncodingTypeJavaUtilDate:
                 returnObject= (value) ?[self  toNSDate:value]:[NSNull null];
                 break;
+            case EncodingTypeJavaUtilArrayList :
+                returnObject= (value) ? value :[NSNull null];
+                break;
+            case EncodingTypeNotFound :
+                returnObject= (value) ? value :[NSNull null];
+                break;
+          
+                break;
             default:
-                returnObject = [NSNull null];
+                assert(false);
+                
                 break;
         }
         

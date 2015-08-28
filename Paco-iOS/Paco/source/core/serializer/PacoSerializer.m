@@ -279,16 +279,18 @@
               [NSString stringWithCString:ivar_getName(ivars[i])
                                  encoding:NSUTF8StringEncoding];
             
+            
+            
             NSArray* array = [PacoIntrospectHelper parseIvar:ivars[i] Parent:parentInfo[1]];
             NSObject *  oo =nil;
             
-            NSAssert([array count] > 0, @" array must contain at least one object." );
+            
             oo= array[0];
           
       
           if (oo) {
               
-            [self recurseObjectHierarchy:@[ ivarName, oo ]];
+            [self recurseObjectHierarchy:@[[self trimTrailingUnderscore:ivarName], oo ]];
           }
         }
         interObject = [[interObject.superclass alloc] init];
@@ -667,7 +669,16 @@
 - (NSString*)trimTrailingUnderscore:(NSString*)str {
   NSString* trimmed = nil;
   NSRange r1 = [str rangeOfString:@"_"];
-  trimmed = [str substringToIndex:r1.location];
+    
+    if( r1.location !=  NSNotFound)
+    {
+        trimmed = [str substringToIndex:r1.location];
+    }
+    else
+    {
+        
+        trimmed = str;
+    }
   return trimmed;
 }
 

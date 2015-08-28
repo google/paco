@@ -20,6 +20,7 @@ typedef NS_ENUM(NSInteger, EncodingEnumType) {
     EncodingTypeShort,
     EncodingTypeBOOL,
     EncodingTypeClass,
+    EncodingTypeJavaUtilArrayList,
     EncodingTypeJavaUtilDate,
     EncodingTypeUnsigndChar,
     EncodingTypeUnsigndInt,
