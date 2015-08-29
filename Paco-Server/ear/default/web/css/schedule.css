@@ -94,6 +94,11 @@ md-dialog.schedule md-dialog-content, md-dialog.action md-dialog-content {
   min-width: 300px;
 }
 
+.action .ios {
+  height: 24px;
+  margin-top: 8px;
+}
+
 .action .ace_editor {
   width: 600px;
   margin-top: 16px;

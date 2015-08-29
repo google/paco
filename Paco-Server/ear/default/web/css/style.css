@@ -106,3 +106,13 @@ md-dialog li {
   left: 0;
   border: none;
 }
+
+.no-ios {
+  display: inline-block;
+  line-height: 16px;
+  vertical-align: bottom;
+}
+
+.no-ios img {
+  width: 24px;
+}
