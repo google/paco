@@ -114,6 +114,7 @@ public class EventDAO implements Serializable {
     this.appId = appId;
     this.pacoVersion = pacoVersion;
     this.shared = shared;
+    this.experimentId = experimentId;
     this.experimentName = experimentName;
     this.experimentVersion = experimentVersion;
     this.responseTime = responseTime;

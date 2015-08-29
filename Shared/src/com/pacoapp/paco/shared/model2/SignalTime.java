@@ -19,7 +19,7 @@ public class SignalTime extends ModelBase implements Validatable, Serializable {
   private Integer fixedTimeMillisFromMidnight;
   private Integer basis; // from previous scheduledTime, from previous responseTime
   private Integer offsetTimeMillis;
-  private Integer missedBasisBehavior; // skip this time, use previousScheduledTime
+  private Integer missedBasisBehavior = MISSED_BEHAVIOR_USE_SCHEDULED_TIME; // skip this time, use previousScheduledTime
   private String label;
 
   public SignalTime(Integer type, Integer basis, Integer fixedTimeMillisFromMidnight,
@@ -87,7 +87,7 @@ public class SignalTime extends ModelBase implements Validatable, Serializable {
   public void validateWith(Validator validator) {
 //    System.out.println("VALIDATING SIGNALTIME");
     validator.isNotNull(type, "signal time type is not properly initialized");
-    if (type != null && type == FIXED_TIME) {
+    if (type != null && type.equals(FIXED_TIME)) {
       validator.isNotNull(fixedTimeMillisFromMidnight, "fixed type signal times must have fixedTimeMillisFromMidnight");
     } else {
       validator.isNotNull(offsetTimeMillis, "offset type signalTimes must have offsetMillis specified");

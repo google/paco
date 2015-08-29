@@ -108,9 +108,7 @@ public class ScheduleListActivity extends ActionBarActivity implements ScheduleL
       scheduleListFragment.setActivateOnItemClick(true);
 
     }
-    if (fromInformedConsentPage) {
-      Toast.makeText(getApplicationContext(), "Joined! You may customize the schedule of the experiment or just press back to go home.", Toast.LENGTH_LONG).show();
-    }
+
   }
 
   /**
@@ -305,11 +303,7 @@ public class ScheduleListActivity extends ActionBarActivity implements ScheduleL
     } else {
       scheduleExperiment();
 
-      if (fromInformedConsentPage) {
-        Toast.makeText(this, getString(R.string.successfully_joined_experiment), Toast.LENGTH_LONG).show();
-      } else {
-        Toast.makeText(this, getString(R.string.success), Toast.LENGTH_LONG).show();
-      }
+      Toast.makeText(this, getString(R.string.success), Toast.LENGTH_LONG).show();
     }
   }
 

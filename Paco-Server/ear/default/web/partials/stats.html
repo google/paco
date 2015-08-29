@@ -1,0 +1,85 @@
+<div ng-controller="CsvCtrl" class="stats data">
+  <div class="variable-width-centered">
+    <h2>
+      <a href="#">Experiments</a> &gt
+      <a href="#/experiment/{{experimentId}}">
+        <span ng-if="!experiment">{{experimentId}}</span>
+        <span ng-if="experiment">{{experiment.title}}</span>
+      </a> 
+      &gt; Participant Statistics
+    </h2>
+
+    <div ng-if="!stats && !error">
+      <span>{{status}}</span>
+      <md-progress-circular md-mode="indeterminate"></md-progress-circular>
+    </div>
+
+
+    <div ng-if="stats" class="frame">
+
+      <div class="summary" ng-if="stats && experiment && experiment.published">
+        
+        <div class="stat">
+          <b>{{experiment.publishedUsers.length}}</b> invited
+        </div>
+        <div class="stat">
+          <b>{{stats.count}}</b> joined
+        </div>
+        <div class="stat">
+         <b>{{stats.todayParticipantCount}}</b> participated today
+        </div>
+        <div class="stat">
+          <b>{{1-(stats.todayParticipantCount/stats.count)|percent}}</b> non-responders today
+        </div>
+      </div>
+
+      <table>
+        <tr>
+          <td right-border></td>
+          <td></td>
+          <td>Today</td>
+          <td right-border></td>
+          <td></td>
+          <td>Total</td>
+          <td></td>
+        </tr>
+        <tr heading>
+          <td right-border>
+            <a href="" ng-click="setColumn('who')" ng-class="{arrow: (sortColumn == 'who'), down: reverseSort }">Participant<br>email</a>
+          </td>
+          <td>
+            Signal Response<br>Rate
+          </td>
+          <td>
+            <a href="" ng-click="setColumn('todaySignalResponseCount')"  ng-class="{arrow: (sortColumn == 'todaySignalResponseCount'), down: reverseSort }">Signal Response<br>Count</a>
+          </td>
+          <td right-border>
+            <a href="" ng-click="setColumn('todaySelfReportCount')" ng-class="{arrow: (sortColumn == 'todaySelfReportCount'), down: reverseSort }">Self-Report<br>Count</a>
+          </td>
+          <td>Signal Response
+            <br>Rate
+          </td>
+          <td>
+            <a href="" ng-click="setColumn('totalSignalResponseCount')" ng-class="{arrow: (sortColumn == 'totalSignalResponseCount'), down: reverseSort }">Signal Response<br>Count</a>
+          </td>
+          <td>
+            <a href="" ng-click="setColumn('totalSelfReportCount')" ng-class="{arrow: (sortColumn == 'totalSelfReportCount'), down: reverseSort }">Self-Report<br>Count</a>
+          </td>
+        </tr>
+        <tr ng-repeat="row in stats.participants | orderBy: sortColumn: reverseSort">
+          <td right-border>{{row["who"]}}</td>
+          <td>{{row["todaySignalResponseCount"]/row["todaySignalCount"]|percent}}</td>
+          <td>{{row["todaySignalResponseCount"]}}</td>
+          <td right-border>{{row["todaySelfReportCount"]}}</td>
+          <td>{{row["totalSignalResponseCount"]/row["totalSignalCount"]|percent}}</td>
+          <td>{{row["totalSignalResponseCount"]}}</td>
+          <td>{{row["totalSelfReportCount"]}}</td>
+        </tr>
+         <tfoot>
+            <td colspan=7>Showing {{stats.participants.length}} out of {{stats.count}}</td>
+          </tfoot>
+      </table>
+    </div>
+    <div ng-if="error" class="error" ng-bind="error"></div>
+  </div>
+</div>

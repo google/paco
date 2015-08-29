@@ -107,10 +107,10 @@ public class LollipopAppUsageMonitorTest {
     final List<AppUsageEvent> openedApps = Lists.newArrayList();
     final List<AppUsageEvent> closedApps = Lists.newArrayList();
     AppChangeListener listener = new AppChangeListener() {
-      public void appOpened(AppUsageEvent event) {
+      public void appOpened(AppUsageEvent event, boolean shouldTrigger) {
         openedApps.add(event);
       }
-      public void appClosed(AppUsageEvent event) {
+      public void appClosed(AppUsageEvent event, boolean shouldTrigger) {
         closedApps.add(event);
       }
     };
@@ -132,10 +132,10 @@ public class LollipopAppUsageMonitorTest {
     final List<AppUsageEvent> openedApps = Lists.newArrayList();
     final List<AppUsageEvent> closedApps = Lists.newArrayList();
     AppChangeListener listener = new AppChangeListener() {
-      public void appOpened(AppUsageEvent event) {
+      public void appOpened(AppUsageEvent event, boolean shouldTrigger) {
         openedApps.add(event);
       }
-      public void appClosed(AppUsageEvent event) {
+      public void appClosed(AppUsageEvent event, boolean shouldTrigger) {
         closedApps.add(event);
       }
     };
@@ -163,10 +163,10 @@ public class LollipopAppUsageMonitorTest {
     final List<AppUsageEvent> openedApps = Lists.newArrayList();
     final List<AppUsageEvent> closedApps = Lists.newArrayList();
     AppChangeListener listener = new AppChangeListener() {
-      public void appOpened(AppUsageEvent event) {
+      public void appOpened(AppUsageEvent event, boolean shouldTrigger) {
         openedApps.add(event);
       }
-      public void appClosed(AppUsageEvent event) {
+      public void appClosed(AppUsageEvent event, boolean shouldTrigger) {
         closedApps.add(event);
       }
     };
@@ -192,10 +192,10 @@ public class LollipopAppUsageMonitorTest {
     final List<AppUsageEvent> openedApps = Lists.newArrayList();
     final List<AppUsageEvent> closedApps = Lists.newArrayList();
     AppChangeListener listener = new AppChangeListener() {
-      public void appOpened(AppUsageEvent event) {
+      public void appOpened(AppUsageEvent event, boolean shouldTrigger) {
         openedApps.add(event);
       }
-      public void appClosed(AppUsageEvent event) {
+      public void appClosed(AppUsageEvent event, boolean shouldTrigger) {
         closedApps.add(event);
       }
     };

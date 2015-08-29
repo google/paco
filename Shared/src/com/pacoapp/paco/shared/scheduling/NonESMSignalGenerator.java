@@ -180,9 +180,9 @@ public class NonESMSignalGenerator {
 
   private SignalTimeHolder getTimeForSignalType(SignalTime signalTime, List<SignalTimeHolder> previousTimes,
                                                 DateTime nowMidnight, Long experimentId) {
-    if (signalTime.getType() == SignalTime.FIXED_TIME) {
+    if (signalTime.getType() != null && signalTime.getType().equals(SignalTime.FIXED_TIME)) {
       return getNextTimeForFixedType(signalTime, previousTimes, nowMidnight);
-    } else if (signalTime.getType() == SignalTime.OFFSET_TIME) {
+    } else if (signalTime.getType() != null && signalTime.getType().equals(SignalTime.OFFSET_TIME)) {
       return getNextTimeForOffsetType(signalTime, previousTimes, experimentId);
     } else {
       return createNullSignalTimeHolder(signalTime);
@@ -206,9 +206,11 @@ public class NonESMSignalGenerator {
 
   private SignalTimeHolder getNextTimeForFixedType(SignalTime signalTime, List<SignalTimeHolder> previousTimes,
                                                        DateTime nowMidnight) {
-    if (previousTimes.size() == 0 || signalTime.getMissedBasisBehavior() == SignalTime.MISSED_BEHAVIOR_USE_SCHEDULED_TIME) {
+    if (previousTimes.size() == 0 ||
+            signalTime.getMissedBasisBehavior() == null ||
+            signalTime.getMissedBasisBehavior().equals(SignalTime.MISSED_BEHAVIOR_USE_SCHEDULED_TIME)) {
       return new SignalTimeHolder(null, null, nowMidnight.toDateTime().plusMillis(signalTime.getFixedTimeMillisFromMidnight()), signalTime);
-    } else if (signalTime.getMissedBasisBehavior() == SignalTime.MISSED_BEHAVIOR_SKIP && previousEventHasResponse(previousTimes)) {
+    } else if (signalTime.getMissedBasisBehavior().equals(SignalTime.MISSED_BEHAVIOR_SKIP) && previousEventHasResponse(previousTimes)) {
         return new SignalTimeHolder(null, null, nowMidnight.toDateTime().plusMillis(signalTime.getFixedTimeMillisFromMidnight()), signalTime);
     } else {
       return createNullSignalTimeHolder(signalTime);
@@ -239,11 +241,11 @@ public class NonESMSignalGenerator {
       // once the user responds or the event timesout, we will recalculate.
       return previousTimePair.chosenTime;
     }
-    if (signalTime.getBasis() == SignalTime.OFFSET_BASIS_SCHEDULED_TIME) {
+    if (signalTime.getBasis() != null && signalTime.getBasis().equals(SignalTime.OFFSET_BASIS_SCHEDULED_TIME)) {
       return previousTimePair.scheduledTime;
-    } else if (signalTime.getBasis() == SignalTime.OFFSET_BASIS_RESPONSE_TIME){
+    } else if (signalTime.getBasis() != null && signalTime.getBasis().equals(SignalTime.OFFSET_BASIS_RESPONSE_TIME)) {
       DateTime basis = previousTimePair.responseTime;
-      if (basis == null && signalTime.getMissedBasisBehavior() == SignalTime.MISSED_BEHAVIOR_USE_SCHEDULED_TIME) {
+      if (basis == null && signalTime.getMissedBasisBehavior() != null && signalTime.getMissedBasisBehavior().equals(SignalTime.MISSED_BEHAVIOR_USE_SCHEDULED_TIME)) {
         basis = previousTimePair.scheduledTime; // fallback to the scheduled time if we should
       }
       return basis;

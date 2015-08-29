@@ -224,7 +224,7 @@
     <string name="end_date">"End Date: "</string>
     <string name="esm_frequency">"ESM Frequency: "</string>
     <string name="scheduled_time">"Scheduled Time: "</string>
-    <string name="creator">creator</string>
+    <string name="creator">by</string>
     <string name="join_this_experiment">Join this Experiment</string>
     <string name="title">Title</string>
     <string name="edit_schedule">Edit Schedule</string>
@@ -278,6 +278,7 @@
     <string name="dialog_dismiss">OK</string>
     <string name="experiment_could_not_be_retrieved">Could Not Retrieve Experiment.</string>
     <string name="invalid_data">Something went wrong with retrieving experiment data.</string>
+    <string name="unable_to_save_experiment">Unable to join this experiment. Please email the researcher running this study.</string>
     <string name="server_error">Something went wrong with the server.</string>
     <string name="network_required">Network Required</string>
     <string name="need_network_connection">You will need a network connection to join the experiment. Enable connection now?</string>
@@ -310,6 +311,7 @@
     <string name="experiment_informed_consent">Experimenter\'s Informed Consent Statement</string>
     <string name="survey_responses_data_collected">User responses to experiment form</string>
     <string name="app_usage_and_browser_usage_data_collected">Apps and sites used during experiment</string>
+    <string name="installed_app_data_collected">Apps installed on the phone</string>
     <string name="discover_experiments_title">Discover Experiments</string>
     <!-- new ui -->
     <string name="title_schedule_detail">Schedule Detail</string>

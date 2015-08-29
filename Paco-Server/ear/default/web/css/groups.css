@@ -266,15 +266,21 @@ div[expander] {
   font-family: monospace;
 }
 
-.advanced .source {
-  padding: 0 16px 16px 16px;
+.source div[ui-ace] {
+  min-height: 600px;
+}
+
+.instructions .message{
+  color: #9E9E9E;
+  font-size: 12px;
 }
 
 .advanced select {
   margin-left: 8px;
 }
 
-.advanced .ace_editor {
+.source-frame .ace_editor {
   border: 1px solid lightgray;
+  margin-top: 8px;
   position: relative !important;
 }

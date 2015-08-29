@@ -1,33 +1,98 @@
-.csv h2 {
+.data {
+  margin: 16px;
+}
+
+.data .frame {
+  max-width: 100%;
+  overflow: scroll;
+  padding-bottom: 3px;
+  padding-right: 3px;
+}
+
+.data h2 {
   font-size: 18px;
   font-weight: 400;
 }
 
-.csv table {
+.data table {
+  background: white;
   border-collapse: collapse;
+  border-radius: 2px;
+  box-shadow: 0px 3px 1px -2px rgba(0, 0, 0, 0.2), 0px 2px 2px 0px rgba(0, 0, 0, 0.14), 0px 1px 5px 0px rgba(0, 0, 0, 0.12);
   font-size: 13px;
 }
 
-.csv table tr {
+.data .summary {
+  background: #d8d8d8;
+  margin-bottom: 20px;
+  padding: 40px;
+  text-align: center;
+
+}
+
+.data .summary .stat {
+  background: #eee;
+  background-image: url('/img/mail.png');
+  background-position: 50% 90px;
+  background-repeat: no-repeat;
+  box-sizing: border-box;
+  display: inline-block;
+  font-size: 12px;
+  margin: 5px;
+  padding: 20px;
+  padding-bottom: 60px;
+  text-align: center;
+  width: 160px;
+}
+
+.data .summary .stat b {
+  color: red;
+  display: block;
+  font-size: 28px;
+}
+
+.data table tr {
   border-bottom: 1px solid #e3e3e3;
   height: 48px;
 }
-
-.csv table tr:first-of-type {
-  color: rgba(0, 0, 0, .54);
-  font-size: 12px;
-}
-
-.csv table td {
+.data table td {
   padding: 0 56px 0 24px;
-  text-align: right;
+  text-align: center ;
   white-space: nowrap;
 }
 
-.csv table td:first-of-type {
+.data table td a {
+  position: relative;
+}
+
+.data table td .arrow:after {
+  content: '\2191';
+  position: absolute;
+  margin-left: 10px;
+}
+
+.data table td .down.arrow:after {
+  content: '\2193';
+  position: absolute;
+}
+
+.data table td[right-border] {
+  border-right: 1px solid #e3e3e3;
+}
+
+.data table tfoot td {
   text-align: left;
 }
 
-.csv md-card {
+.data md-card {
   overflow-x: scroll;
+}
+
+.stats .variable-width-centered {
+  display: inline-block;
+  text-align: left;
+}
+
+.stats {
+  text-align: center;
 }

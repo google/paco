@@ -399,7 +399,10 @@ var paco = (function (init) {
 	        },
 	        removeNotification : function(message) { 
 		          alert("No notification support"); 
-		    }
+		      },
+          removeAllNotifications : function() {
+            alert("No notification support");
+          }
 	      };
 	    }
 
@@ -407,9 +410,12 @@ var paco = (function (init) {
 	      createNotification : function(message) {
 	        window.notificationService.createNotification(message);
 	      }, 
-	      removeNotification : function() {
-	    	  window.notificationService.removeNotification();
-	      }
+	      removeNotification : function(message) {
+	    	  window.notificationService.removeNotification(message);
+	      },
+        removeAllNotifications : function() {
+          window.notificationService.removeAllNotifications();
+        }
 	    };
 	  })();
 

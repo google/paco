@@ -1,4 +1,4 @@
-<div class="list" ng-controller="ListCtrl">
+<div class="centered list" ng-controller="ListCtrl">
   <p>
     <a href="#/edit/new">
         <md-button class="md-raised">
@@ -10,9 +10,9 @@
   </md-progress-circular>
 
   <div ng-if="experiments" class="group">
-    Administered Experiments
+    <h2>Administered Experiments</h2>
     <div ng-repeat="exp in experiments | orderBy: 'title'">
-      <md-card>
+      <md-card ng-class="{deleted: exp.deleted}">
         <md-card-content class="padded">
           <a href="#/experiment/{{exp.id}}">{{exp.title}}
         </a>
@@ -43,7 +43,7 @@
             </md-button>
           </a>
 
-          <a href="participantStats?experimentId={{exp.id}}" target="_new">
+          <a href="#/stats/{{exp.id}}">
             <md-button>
               Stats
             </md-button>
@@ -74,7 +74,7 @@
   </div>
 
   <div ng-if="joined" class="group">
-    Joined Experiments
+    <h2>Joined Experiments</h2>
     <div ng-repeat="exp in joined | orderBy:'title'">
       <md-card>
         <md-card-content class="padded">
@@ -98,7 +98,7 @@
               </md-button>
             </a>
 
-            <a href="participantStats?experimentId={{exp.id}}" target="_new">
+            <a href="#/stats/{{exp.id}}#mine">
               <md-button>
                 Stats
               </md-button>
@@ -110,7 +110,7 @@
   </div>
 
   <div ng-if="joinable" class="group">
-    Joinable Experiments
+    <h2>Joinable Experiments</h2>
     <div ng-repeat="exp in joinable" ng-if="joinedIndex.indexOf(exp.id) === -1">
       <md-card>
         <md-card-content class="padded">

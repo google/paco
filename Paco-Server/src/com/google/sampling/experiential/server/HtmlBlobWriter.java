@@ -76,7 +76,7 @@ public class HtmlBlobWriter {
     String BUCKETNAME = "reportbucket";
     String FILENAME = jobId;
     GcsFilename filename = new GcsFilename(BUCKETNAME, FILENAME);
-    GcsFileOptions options = new GcsFileOptions.Builder().mimeType("text/html").acl("public-read")
+    GcsFileOptions options = new GcsFileOptions.Builder().mimeType("text/html").acl("project-private")
                                                          .addUserMetadata("jobId", jobId).build();
 
     GcsOutputChannel writeChannel = gcsService.createOrReplace(filename, options);

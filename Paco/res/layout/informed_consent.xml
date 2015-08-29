@@ -110,6 +110,20 @@
             android:paddingBottom="4dip"
         >        
     </TextView>
+
+        <TextView
+        android:id="@+id/dataCollectedInstalledAppsView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="left"
+        android:layout_marginLeft="15dip"
+        android:text="@string/installed_app_data_collected" 
+        android:visibility="gone"
+                    android:paddingLeft="8dip"
+            android:paddingTop="4dip"
+            android:paddingBottom="4dip"
+        >        
+    </TextView>
     
     <!-- Experiment informed consent content -->
 
@@ -146,8 +160,8 @@
         </TextView>
     </ScrollView>
 
-    <CheckBox
-        android:id="@+id/InformedConsentAgreementCheckBox"
+    <Button
+        android:id="@+id/InformedConsentAgreementButton"
         android:layout_width="fill_parent"
         android:layout_height="65dip"
         android:layout_alignParentBottom="true"
@@ -157,6 +171,6 @@
             android:paddingTop="4dip"
             android:paddingBottom="4dip"
         >
-    </CheckBox>
+    </Button>
 
 </LinearLayout>

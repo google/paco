@@ -66,9 +66,13 @@ public class CSVBlobWriter {
    columns.add(4, "experimentId");
    columns.add(5, "experimentName");
    columns.add(6, "experimentVersion");
-   columns.add(7, "responseTime");
-   columns.add(8, "scheduledTime");
-   columns.add(9, "timeZone");
+   columns.add(7, "experimentGroupName");
+   columns.add(8, "actionTriggerId");
+   columns.add(9, "actionId");
+   columns.add(10, "actionSpecId");
+   columns.add(11, "responseTime");
+   columns.add(12, "scheduledTime");
+   columns.add(13, "timeZone");
 
    return writeBlobUsingNewApi(jobId, columns, eventsCSV).getKeyString();
 
@@ -112,7 +116,7 @@ public class CSVBlobWriter {
     String BUCKETNAME = "reportbucket";
     String FILENAME = jobId;
     GcsFilename filename = new GcsFilename(BUCKETNAME, FILENAME);
-    GcsFileOptions options = new GcsFileOptions.Builder().mimeType("text/csv").acl("public-read")
+    GcsFileOptions options = new GcsFileOptions.Builder().mimeType("text/csv").acl("project-private")
                                                          .addUserMetadata("jobId", jobId).build();
 
     GcsOutputChannel writeChannel = gcsService.createOrReplace(filename, options);
@@ -149,7 +153,7 @@ public class CSVBlobWriter {
                         String clientTimezone) {
    log.info("converting to csv. event: " + getTimeString(event, event.getResponseTime(), clientTimezone));
      int csvIndex = 0;
-     String[] parts = new String[10 + columnNames.size()];
+     String[] parts = new String[14 + columnNames.size()];
      if (anon) {
        parts[csvIndex++] = Event.getAnonymousId(event.getWho() + Event.SALT);
      } else {
@@ -161,6 +165,10 @@ public class CSVBlobWriter {
      parts[csvIndex++] = event.getExperimentId() != null ? Long.toString(event.getExperimentId()) : null;
      parts[csvIndex++] = event.getExperimentName();
      parts[csvIndex++] = event.getExperimentVersion() != null ? Integer.toString(event.getExperimentVersion()) : "0";
+     parts[csvIndex++] = event.getExperimentGroupName();
+     parts[csvIndex++] = event.getActionTriggerId() != null ? Long.toString(event.getActionTriggerId()) : "0";
+     parts[csvIndex++] = event.getActionId() != null ? Long.toString(event.getActionId()) : "0";
+     parts[csvIndex++] = event.getActionTriggerSpecId() != null ? Long.toString(event.getActionTriggerSpecId()) : "0";
      parts[csvIndex++] = getTimeString(event, event.getResponseTime(), clientTimezone);
      parts[csvIndex++] = getTimeString(event, event.getScheduledTime(), clientTimezone);
      parts[csvIndex++] = event.getTimezone();
@@ -196,9 +204,13 @@ public class CSVBlobWriter {
    columns.add(4, "experimentId");
    columns.add(5, "experimentName");
    columns.add(6, "experimentVersion");
-   columns.add(7, "responseTime");
-   columns.add(8, "scheduledTime");
-   columns.add(9, "timeZone");
+   columns.add(7, "experimentGroupName");
+   columns.add(8, "actionTriggerId");
+   columns.add(9, "actionId");
+   columns.add(10, "actionSpecId");
+   columns.add(11, "responseTime");
+   columns.add(12, "scheduledTime");
+   columns.add(13, "timeZone");
    return writeBlobUsingNewApi(jobId, columns, eventsCSV).getKeyString();
 
 

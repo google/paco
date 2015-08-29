@@ -1,3 +1,216 @@
+pacoApp.service('experimentService', ['$http', '$cacheFactory', 'util',
+  function($http, $cacheFactory, util) {
+
+    var cache = $cacheFactory.get('$http');
+
+    return ({
+      deleteExperiment: deleteExperiment,
+      getAdministered: getAdministered,
+      getJoinable: getJoinable,
+      getJoined: getJoined,
+      getExperiment: getExperiment,
+      joinExperiment: joinExperiment,
+      saveExperiment: saveExperiment,
+    });
+
+
+    function getJoined(reload) {
+      if (reload !== undefined && reload === true) {
+        cache.remove('/experiments?joined');
+      }
+      return $http.get('/experiments?joined', {
+        cache: true
+      });
+    }
+
+    function getAdministered(reload) {
+      if (reload !== undefined && reload === true) {
+        cache.remove('/experiments?admin');
+      }
+      return $http.get('/experiments?admin', {
+        cache: true
+      });
+    }
+
+    function getJoinable(reload) {
+      if (reload !== undefined && reload === true) {
+        cache.remove('/experiments?mine');
+      }
+      return $http.get('/experiments?mine', {
+        cache: true
+      });
+    }
+
+    function getExperiment(id) {
+      return $http.get('/experiments?id=' + id, {
+        cache: true
+      });
+    }
+
+    function joinExperiment(experiment) {
+      var obj = {};
+      obj.experimentId = experiment.id;
+      obj.appId = 'webform';
+      obj.experimentVersion = experiment.version;
+      obj.experimentName = experiment.title;
+      obj.responses = [{
+        "name": "joined",
+        "answer": true
+      }];
+      obj.responseTime = util.formatDate(new Date());
+      var json = JSON.stringify(obj);
+
+      return $http.post('/events', json);
+    }
+
+    function saveExperiment(experiment) {
+
+      // Need to clear all list caches in case title was changed
+      cache.remove('/experiments?admin');
+      cache.remove('/experiments?joined');
+      cache.remove('/experiments?mine');
+
+      // If it's not a new experiment, clear old cached definition
+      if (experiment.id) {
+        cache.remove('/experiments?id=' + experiment.id);
+      }
+
+      return $http.post('/experiments', experiment);
+    }
+
+    function deleteExperiment(id) {
+      return $http.post('/experiments?delete=1&id=' + id);
+    }
+  }
+]);
+
+
+pacoApp.service('dataService', ['$http', '$timeout', '$q',
+  function($http, $timeout, $q) {
+
+    return ({
+      getCsv: getCsv,
+      getJson: getJson,
+      getParticipantData: getParticipantData,
+    });
+
+
+    function getJson(id, user, anonymous) {
+
+      var endpoint = '/events?q=\'experimentId=' + id;
+
+      if (user) {
+        endpoint += ':who=' + user;
+      }
+
+      endpoint += '\'&json';
+
+      if (anonymous) {
+        endpoint += '&anon=true';
+      }
+
+      return $http.get(endpoint);
+    };
+
+    function getCsv(id, user, anonymous) {
+
+      var maxTries = 10;
+      var startMarker = '<title>Current Status of Report Generation for job: ';
+      var endMarker = '</title>';
+      var endpoint = '/events?q=\'experimentId=' + id;
+      var jobUrl;
+      var defer = $q.defer();
+      var tryCount = 0;
+
+      if (user) {
+        endpoint += ':who=' + user;
+      }
+
+      endpoint += '\'&csv';
+
+      if (anonymous) {
+        endpoint += '&anon=true';
+      }
+
+      $http.get(endpoint).success(
+        function(data) {
+          //TODO: endpoint should return report URL, not HTML
+          startPos = data.indexOf(startMarker) + startMarker.length;
+          endPos = data.indexOf(endMarker);
+          if (startPos !== -1 && endPos !== -1) {
+            jobUrl = '/jobStatus?jobId=' + data.substring(startPos,
+              endPos) + '&cmdline=1';
+            poll();
+          }
+        });
+
+      var poll = function() {
+        if (tryCount >= maxTries) {
+          defer.resolve({
+            'error': 'Exceeded max tries'
+          });
+          return;
+        }
+        tryCount++;
+
+        $http.get(jobUrl).success(
+          function(data) {
+            if (data === 'pending\n') {
+              $timeout(poll, 1000);
+            } else {
+              var csv = data.trim();
+              defer.resolve({
+                'data': csv
+              });
+            }
+          }
+        )
+      };
+      return defer.promise;
+    }
+
+
+    /**
+    * Gets stats data from PACO server endpoint. Iterates over data to
+    * compute the total participant count for today and all time.
+    */
+
+    function getParticipantData(id, user) {
+
+      var defer = $q.defer();
+      var endpoint = 'participantStats?experimentId=' + id;
+      if (user) {
+        endpoint += '&who=' + user;
+      }
+
+      $http.get(endpoint).success(
+        function(data) {
+          var totalParticipantCount = 0;
+          var todayParticipantCount = 0;
+          for (var i = 0; i < data.participants; i++) {
+            
+            if (data.participants[i].todaySignalResponseCount > 0) {
+              todayParticipantCount++;
+            }
+            
+            if (data.participants[i].totalSignalResponseCount > 0) {
+              totalParticipantCount++;
+            }
+          }
+          data.todayParticipantCount = todayParticipantCount;
+          data.totalParticipantCount = totalParticipantCount;
+
+          defer.resolve({
+            'data': data
+          });
+        });
+
+      return defer.promise;
+    }
+  }
+]);
+
+
 pacoApp.service('config', function() {
 
   this.tabs = [
@@ -11,7 +224,8 @@ pacoApp.service('config', function() {
   this.dataDeclarations = {
     1: 'App Usage and Browser History',
     2: 'Location Information',
-    3: 'Phone Details (Make, Model, Carrier)'
+    3: 'Phone Details (Make, Model, Carrier)',
+    4: 'Apps installed on the phone'
   };
 
   this.ringtones = [
@@ -49,8 +263,8 @@ pacoApp.service('config', function() {
     'Missed call',
     'Call Started (in or out)',
     'Call Ended (in or out)',
-    "Experiment joined", 
-    "Experiment ended", 
+    "Experiment joined",
+    "Experiment ended",
     "Response received"
   ];
 
@@ -106,11 +320,11 @@ pacoApp.service('template', function() {
     creator: '',
     contactEmail: '',
     extraDataCollectionDeclarations: [],
+    groups: [this.group],
+    postInstallInstructions: '<b>You have successfully joined the experiment!</b><br/><br/>\nNo need to do anything else for now.<br/><br/>\nPaco will send you a notification when it is time to participate.<br/><br/>\nBe sure your ringer/buzzer is on so you will hear the notification.',
     published: false,
     publishedUsers: [],
-    groups: [this.group],
-    dataDeclarations: [],
-    ringtoneUri: '/assets/ringtone/Paco Bark'
+    ringtoneUri: '/assets/ringtone/Paco Bark',
   }
 
   this.input = {
@@ -162,10 +376,12 @@ pacoApp.service('template', function() {
   };
 
   this.signalTime = {
-    fixedTimeMillisFromMidnight: 0,
+    // Set initial time to 12 PM
+    fixedTimeMillisFromMidnight: 12 * 60 * 60 * 1000,
     type: 0
   };
 });
+
 
 pacoApp.service('util', ['$filter', function($filter) {
 

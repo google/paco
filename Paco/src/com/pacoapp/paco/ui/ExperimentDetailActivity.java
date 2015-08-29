@@ -41,6 +41,7 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.common.base.Strings;
 import com.pacoapp.paco.R;
 import com.pacoapp.paco.UserPreferences;
 import com.pacoapp.paco.model.Experiment;
@@ -129,7 +130,18 @@ public class ExperimentDetailActivity extends ActionBarActivity implements Exper
     final ExperimentDAO experimentDAO = experiment.getExperimentDAO();
     ((TextView)findViewById(R.id.experiment_name)).setText(experimentDAO.getTitle());
     ((TextView)findViewById(R.id.description)).setText(experimentDAO.getDescription());
-    ((TextView)findViewById(R.id.creator)).setText(experimentDAO.getCreator());
+
+    TextView organizationView = (TextView)findViewById(R.id.creator);
+    String organization = experimentDAO.getOrganization();
+    if (Strings.isNullOrEmpty(organization) || organization.equals("null")) {
+      organization = experimentDAO.getContactEmail();
+    }
+    if (Strings.isNullOrEmpty(organization) || organization.equals("null")) {
+      organization = experimentDAO.getCreator();
+    }
+
+
+    organizationView.setText(organization);
 
 //    SignalSchedule schedule = experiment.getSchedule();
 //    Trigger trigger = experiment.getTrigger();
