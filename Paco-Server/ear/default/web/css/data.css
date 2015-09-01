@@ -4,7 +4,8 @@
 
 .data .frame {
   max-width: 100%;
-  overflow: scroll;
+  overflow-x: scroll;
+  overflow-y: auto;
   padding-bottom: 3px;
   padding-right: 3px;
 }
@@ -103,10 +104,6 @@
 
 .data table tfoot td {
   text-align: left;
-}
-
-.data md-card {
-  overflow-x: scroll;
 }
 
 .data .variable-width {
