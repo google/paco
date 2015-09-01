@@ -4,7 +4,6 @@
   margin-bottom: 64px; 
   position: relative;
   width: 960px;
-  min-height: calc(100vh);
 }
 
 .main h1, .main h2 {

@@ -8,6 +8,10 @@ html {
   background: #F5F5F5;
 }
 
+.main {
+  min-height: calc(100vh - 300px)
+}
+
 a {
   color: #3e82f7;
   outline: none;
@@ -82,7 +86,6 @@ md-dialog li {
 
 .error {
   color: red;
-  font-weight: 500;
 }
 
 .notransition {
