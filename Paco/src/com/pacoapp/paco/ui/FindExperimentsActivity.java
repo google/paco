@@ -392,19 +392,19 @@ public class FindExperimentsActivity extends ActionBarActivity implements Networ
 //          existingAndNewExperimentsMap.put(experiment.getServerId(), experiment);
 //        }
 //        experiments = Lists.newArrayList(existingAndNewExperimentsMap.values());
-        Collections.sort(experiments, new Comparator<Experiment>() {
-
-          @Override
-          public int compare(Experiment lhs, Experiment rhs) {
-            return lhs.getExperimentDAO().getTitle().toLowerCase().compareTo(rhs.getExperimentDAO().getTitle().toLowerCase());
-          }
-
-        });
+//        Collections.sort(experiments, new Comparator<Experiment>() {
+//
+//          @Override
+//          public int compare(Experiment lhs, Experiment rhs) {
+//            return lhs.getExperimentDAO().getTitle().toLowerCase().compareTo(rhs.getExperimentDAO().getTitle().toLowerCase());
+//          }
+//
+//        });
 
         experimentCursor = newExperimentCursor;
         saveExperimentsToDisk();
       }
-      if (newExperiments.size() < DOWNLOAD_LIMIT || newExperimentCursor == null || oldCursor == newExperimentCursor) {
+      if (newExperimentCursor == null || newExperimentCursor.equals(oldCursor)) {
         experimentCursor = null; // we have hit the end. The next refresh starts over
         Toast.makeText(this, R.string.no_more_experiments_on_server, Toast.LENGTH_LONG).show();
       } else {
