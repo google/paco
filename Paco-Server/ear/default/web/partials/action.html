@@ -8,6 +8,10 @@
       </select>
     </div>
     
+    <div class="ios">
+      <no-ios ng-if="action.actionCode > 1" message="'iOS does not support action'"></no-ios>
+    </div>
+
     <md-input-container ng-if="triggerType === 'interruptTrigger'">
       <label>Delay between cue and action</label>
       <input type="number" ng-model="action.delay">
@@ -15,7 +19,6 @@
           <div ng-message>seconds</div>
         </div>
     </md-input-container>
-  
 
     <div ng-if="action.actionCode < 3">
       <md-input-container>
