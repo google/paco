@@ -1,43 +1,56 @@
-<div ng-controller="CsvCtrl" class="csv data">
-  <h2>
-    <a href="#">Experiments</a> &gt
-    <a href="#/experiment/{{experimentId}}">
-      <span ng-if="!experiment">{{experimentId}}</span>
-      <span ng-if="experiment">{{experiment.title}}</span>
-    </a>
-    &gt; Data
-  </h2>
+<div ng-controller="DataCtrl" class="csv data">
+  <div>
+    <div class="nav">
+      <a href="#">
+        <md-button>Experiments</md-button>
+      </a>
+      <img src="/img/ic_chevron_right_24px.svg">
 
-  <div ng-if="!csv && !error">
-    <span>{{status}}</span>
-    <md-progress-circular md-mode="indeterminate"></md-progress-circular>
+      <a href="#/experiment/{{experimentId}}">
+        <md-button>
+          <span ng-if="!experiment">{{experimentId}}</span>
+          <span ng-if="experiment">{{experiment.title}}</span>
+        </md-button>
+      </a>
+      <img src="/img/ic_chevron_right_24px.svg">
+      <a href="#/data/{{experimentId}}">
+        <md-button class="md-raised">Data</md-button>
+      </a>
+
+      <img src="/img/ic_chevron_right_24px.svg">
+      <a ng-href="{{csvData}}" download="export.csv">
+        <md-button class="md-primary">Download CSV</md-button>
+      </a>
+      <div ng-if="loading" class="status">
+        <span>{{status}}</span>
+        <md-button ng-click="loadEvents()" ng-if="loading === false && error">Reload</md-button>
+        <md-progress-linear md-mode="indeterminate" ng-if="loading === true"></md-progress-linear>
+      </div>
+    </div>
+
+    <div ng-if="table && table.length > 0" class="frame">
+      <table>
+        <tr>
+          <td ng-repeat="cell in table[0] track by $index">
+            <a href=""  ng-click="setColumn($index)"
+            ng-class="{arrow: (sortColumn == $index), down: reverseSort }">
+              {{cell}}
+            </a>
+          </td>
+        </tr>
+
+        <tr ng-repeat="row in table | limitTo: 'Infinity': 1 | orderBy: columnSort: reverseSort">
+          <td ng-repeat="cell in row track by $index">{{cell}}</td>
+
+        </tr>
+        <tfoot>
+          <td>Showing {{table.length - 1}} out of {{table.length - 1}}</td>
+        </tfoot>
+      </table>
+    </div>
+
+  <div ng-if="error" class="error">
+    Error {{error.code}}: {{error.message}}
   </div>
-
-  <div ng-if="csv" class="frame">
-
-        <table>
-          <tr>
-            <td ng-repeat="cell in table[0] track by $index">
-              <a href=""  ng-click="setColumn($index)"
-              ng-class="{arrow: (sortColumn == $index), down: reverseSort }">
-                {{cell}}
-              </a>
-            </td>
-          </tr>
-
-          <tr ng-repeat="row in table | limitTo: 'Infinity': 1 | orderBy: columnSort: reverseSort">
-            <td ng-repeat="cell in row track by $index">{{cell}}</td>
-          
-          </tr>
-          <tfoot>
-            <td>Showing {{table.length - 1}} out of {{table.length - 1}}</td>
-          </tfoot>
-        </table>
-
-    <a ng-href="{{csvData}}" download="export.csv">Download CSV</a>
-  </div>
-
-  <div ng-if="error" class="error" ng-bind="error"></div>
-
 
 </div>
