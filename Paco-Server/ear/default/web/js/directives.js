@@ -371,24 +371,40 @@ pacoApp.filter('percent', ['$filter', function ($filter) {
 
 
 
-pacoApp.filter('jsonToTable', function() {
+pacoApp.filter('jsonToTable', ['util', 'config', function(util, config) {
 
   return function (json, unpackResponse){
     var rows = [];
     var order = json[0];
     var responseLookup = {};
     var numberResponseVariables = 0;
+    var responseStartId;
+    var responseEndId;
+    var responseNames = [];
 
-    // Generate fixed column order based on order of the first row
     var headerRow = [];
-    for (var column in order) {
+    for (var id in config.dataOrder) {
+      var column = config.dataOrder[id];
+      if (column === 'responses') {
+        responseStartId = headerRow.length;
+        responseEndId = responseStartId;
+      } else if (order[column]) {
+        headerRow.push(column);
+      }
+    }
 
+    for (var column in order) {
       // Omit unpacked responses column
       if (unpackResponse && column === 'responses') {
         continue;
       }
-      headerRow.push(column);
+
+      // Add columns not already included from config data order
+      if (headerRow.indexOf(column) == -1) {
+        headerRow.push(column);
+      }
     }
+
 
     if (unpackResponse) {
 
@@ -399,52 +415,53 @@ pacoApp.filter('jsonToTable', function() {
           for (var id in responses) {
             var responseName = responses[id]['name'];
             if (responseLookup[responseName] === undefined) {
+              responseNames.push(responseName);
 
               // Add response variables to header too
-              headerRow.push(responseName);
+              headerRow.splice(responseEndId, 0, responseName);
               responseLookup[responseName] = numberResponseVariables;
               numberResponseVariables++;
+              responseEndId = responseStartId + numberResponseVariables;
+
             }
           }
         }
       }
+
     }
 
     for (var i = 0; i < json.length; i++) {
-      
       var responses;
       var newRow = [];
 
-      for (var column in order) {
-        if (unpackResponse && column === 'responses') {
-          responses =  json[i]['responses'];
+      for (var id in headerRow) {
+        var column = headerRow[id];
+
+        if (unpackResponse && id >= responseStartId && id < responseEndId) {
+          responses = json[i]['responses'];
         } else {
-          newRow.push(json[i][column]);
+          var val = json[i][column];
+          if (column === 'responseTime' || column === 'when') {
+            val = util.formatDate(val);
+          }
+          newRow[id] = val;
         }
       }
 
-      var responsesStartId = newRow.length;
-
       if (responses) {
-
-        // Assign undefined to rightmost column so all rows have the same width
-        newRow[newRow.length + numberResponseVariables - 1] = undefined;
-
         for (var id in responses) {
           var responseName = responses[id]['name'];
           var responseValue = responses[id]['answer'];
           var responseId = responseLookup[responseName];
-          newRow[responsesStartId + responseId] = responseValue;
+          newRow[responseStartId + responseId] = responseValue;
          }       
       }
-
       rows.push(newRow);
     }
 
-    rows.splice(0, 0, headerRow);
-    return rows;
+    return {header: headerRow, rows:rows, responseNames: responseNames};
   }
-});
+}]);
 
 
 pacoApp.filter('tableToCsv', function() {
@@ -452,8 +469,8 @@ pacoApp.filter('tableToCsv', function() {
   return function (table){
     var string = '';
 
-    for (var i = 0; i < table.length; i++) {
-      var row = table[i];
+    for (var i = 0; i < table.rows.length; i++) {
+      var row = table.rows[i];
       if (i > 0) {
         string += '\n';
       }

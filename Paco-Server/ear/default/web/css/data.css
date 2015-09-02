@@ -73,6 +73,16 @@
   font-size: 28px;
 }
 
+.data .options {
+  background: #d8d8d8;
+  margin-bottom: 16px;
+}
+
+.data .options md-checkbox {
+  display: inline-block;
+  width: 200px;
+}
+
 .data table tr {
   border-bottom: 1px solid #e3e3e3;
   height: 48px;

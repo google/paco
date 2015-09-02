@@ -240,6 +240,21 @@ pacoApp.service('config', function() {
     'Custom Code',
     'Disable Feedback'
   ];
+
+  this.dataOrder = [
+    'who',
+    'responseTime',
+    'experimentGroupName',
+    'responses',
+    'experimentVersion',
+    'actionTriggerId',
+    'actionId',
+    'actionTriggerSpecId',
+    'referredGroup',
+    'eodResponseTime',
+    'appId',
+    'pacoId'
+  ];
 });
 
 
