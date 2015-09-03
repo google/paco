@@ -126,7 +126,6 @@ public class ExperimentExecutor extends ActionBarActivity implements ChangeListe
     actionBar.setBackgroundDrawable(new ColorDrawable(0xff4A53B3));
 
     experimentProviderUtil = new ExperimentProviderUtil(this);
-    loadNotificationData();
     if (experiment == null || experimentGroup == null) {
       IntentExtraHelper.loadExperimentInfoFromIntent(this, getIntent(), experimentProviderUtil);
     }
@@ -134,6 +133,7 @@ public class ExperimentExecutor extends ActionBarActivity implements ChangeListe
     if (experiment == null || experimentGroup == null) {
       displayNoExperimentMessage();
     } else {
+      loadNotificationData();
       actionBar.setTitle(experiment.getExperimentDAO().getTitle());
       if (scheduledTime == null || scheduledTime == 0l) {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -207,9 +207,10 @@ public class ExperimentExecutor extends ActionBarActivity implements ChangeListe
 
   private void loadNotificationData() {
     Bundle extras = getIntent().getExtras();
+    NotificationHolder notificationHolder = null;
     if (extras != null) {
       notificationHolderId = extras.getLong(NotificationCreator.NOTIFICATION_ID);
-      NotificationHolder notificationHolder = experimentProviderUtil.getNotificationById(notificationHolderId);
+      notificationHolder = experimentProviderUtil.getNotificationById(notificationHolderId);
       Long timeoutMillis = null;
       if (notificationHolder != null) {
         experiment = experimentProviderUtil.getExperimentByServerId(notificationHolder.getExperimentId());
@@ -229,7 +230,7 @@ public class ExperimentExecutor extends ActionBarActivity implements ChangeListe
         finish();
       }
     }
-    if (notificationHolderId == null) {
+    if (notificationHolder == null) {
       lookForActiveNotificationForExperiment();
     }
   }
@@ -239,7 +240,12 @@ public class ExperimentExecutor extends ActionBarActivity implements ChangeListe
    * add its scheduleTime into this response. There should only ever be one.
    */
   private void lookForActiveNotificationForExperiment() {
-    NotificationHolder notificationHolder = experimentProviderUtil.getNotificationFor(getExperiment().getId().longValue(), experimentGroup.getName());
+    NotificationHolder notificationHolder = null;
+    List<NotificationHolder> notificationHolders = experimentProviderUtil.getNotificationsFor(getExperiment().getExperimentDAO().getId().longValue(), experimentGroup.getName());
+    if (notificationHolders != null && !notificationHolders.isEmpty()) {
+      notificationHolder = notificationHolders.get(0); // TODO can we ever have more than one for a group?
+    }
+
     if (notificationHolder != null) {
       experiment = experimentProviderUtil.getExperimentByServerId(notificationHolder.getExperimentId());
       experimentGroup = getExperiment().getExperimentDAO().getGroupByName(notificationHolder.getExperimentGroupName());
@@ -458,7 +464,7 @@ public class ExperimentExecutor extends ActionBarActivity implements ChangeListe
   }
 
   private void deleteNotification() {
-    if (notificationHolderId != null) {
+    if (notificationHolderId != null && notificationHolderId.longValue() != 0l) {
       experimentProviderUtil.deleteNotification(notificationHolderId);
     }
     if (shouldExpireNotificationHolder) {

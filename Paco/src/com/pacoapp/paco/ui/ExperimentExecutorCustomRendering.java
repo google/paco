@@ -167,8 +167,7 @@ public class ExperimentExecutorCustomRendering extends ActionBarActivity impleme
     actionBar.setDisplayShowTitleEnabled(false);
     actionBar.setBackgroundDrawable(new ColorDrawable(0xff4A53B3));
 
-    experimentProviderUtil = new ExperimentProviderUtil(this);
-    loadNotificationData();
+    experimentProviderUtil = new ExperimentProviderUtil(this);    
     if (experiment == null || experimentGroup == null) {
       IntentExtraHelper.loadExperimentInfoFromIntent(this, getIntent(), experimentProviderUtil);
     }
@@ -176,6 +175,7 @@ public class ExperimentExecutorCustomRendering extends ActionBarActivity impleme
     if (experiment == null || experimentGroup == null) {
       displayNoExperimentMessage();
     } else {
+      loadNotificationData();
       actionBar.setTitle(experiment.getExperimentDAO().getTitle());
 
       inflater = (LayoutInflater)getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -227,9 +227,10 @@ public class ExperimentExecutorCustomRendering extends ActionBarActivity impleme
 
   private void loadNotificationData() {
     Bundle extras = getIntent().getExtras();
+    NotificationHolder notificationHolder = null;
     if (extras != null) {
       notificationHolderId = extras.getLong(NotificationCreator.NOTIFICATION_ID);
-      NotificationHolder notificationHolder = experimentProviderUtil.getNotificationById(notificationHolderId);
+      notificationHolder = experimentProviderUtil.getNotificationById(notificationHolderId);
       Long timeoutMillis = null;
       if (notificationHolder != null) {
         experiment = experimentProviderUtil.getExperimentByServerId(notificationHolder.getExperimentId());
@@ -249,7 +250,7 @@ public class ExperimentExecutorCustomRendering extends ActionBarActivity impleme
         finish();
       }
     }
-    if (notificationHolderId == null) {
+    if (notificationHolder == null) {
       lookForActiveNotificationForExperiment();
     }
   }
@@ -259,7 +260,11 @@ public class ExperimentExecutorCustomRendering extends ActionBarActivity impleme
    * add its scheduleTime into this response. There should only ever be one.
    */
   private void lookForActiveNotificationForExperiment() {
-    NotificationHolder notificationHolder = experimentProviderUtil.getNotificationFor(experiment.getId().longValue(), experimentGroup.getName());
+    NotificationHolder notificationHolder = null;
+    List<NotificationHolder> notificationHolders = experimentProviderUtil.getNotificationsFor(getExperiment().getExperimentDAO().getId().longValue(), experimentGroup.getName());
+    if (notificationHolders != null && !notificationHolders.isEmpty()) {
+      notificationHolder = notificationHolders.get(0); // TODO can we ever have more than one for a group?
+    }
     if (notificationHolder != null) {
       experiment = experimentProviderUtil.getExperimentByServerId(notificationHolder.getExperimentId());
       experimentGroup = getExperiment().getExperimentDAO().getGroupByName(notificationHolder.getExperimentGroupName());
@@ -733,7 +738,7 @@ public boolean onKeyDown(int keyCode, KeyEvent event) {
   }
 
   private void deleteNotification() {
-    if (notificationHolderId != null) {
+    if (notificationHolderId != null && notificationHolderId.longValue() != 0l) {
       experimentProviderUtil.deleteNotification(notificationHolderId);
     }
     if (shouldExpireNotificationHolder) {
