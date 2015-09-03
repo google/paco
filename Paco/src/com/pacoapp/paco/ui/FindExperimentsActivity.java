@@ -506,18 +506,22 @@ public class FindExperimentsActivity extends ActionBarActivity implements Networ
         }
 
         if (creator != null) {
-          String contactEmail = experiment.getExperimentDAO().getOrganization();
-          if (Strings.isNullOrEmpty(contactEmail)) {
-            contactEmail = experiment.getExperimentDAO().getContactEmail();
+          StringBuilder buf = new StringBuilder();
+          String organizationEmail = experiment.getExperimentDAO().getOrganization();
+          if (!Strings.isNullOrEmpty(organizationEmail) && !"null".equals(organizationEmail)) {
+            buf.append(organizationEmail);
+            buf.append(", ");
           }
-          if (Strings.isNullOrEmpty(contactEmail)) {
+          String contactEmail = experiment.getExperimentDAO().getContactEmail();
+          if (Strings.isNullOrEmpty(contactEmail) || "null".equals(contactEmail)) {
             contactEmail = experiment.getExperimentDAO().getCreator();
           }
-          creator.setText(contactEmail);
+          buf.append(contactEmail);
 
-            creator.setOnClickListener(myButtonListener);
+          creator.setText(buf.toString());
+          creator.setOnClickListener(myButtonListener);
         } else {
-            creator.setText(getContext().getString(R.string.unknown_author_text));
+          creator.setText(getContext().getString(R.string.unknown_author_text));
         }
 //        ImageView iv = (ImageView) view.findViewById(R.id.experimentIconView);
 //        iv.setImageBitmap(Bitmap.create(cursor.getString(iconColumn)));
