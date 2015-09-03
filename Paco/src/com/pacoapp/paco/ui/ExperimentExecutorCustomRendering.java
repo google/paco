@@ -779,6 +779,9 @@ public boolean onKeyDown(int keyCode, KeyEvent event) {
   }
 
   private void displayNoExperimentMessage() {
+    inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+    mainLayout = (LinearLayout) inflater.inflate(R.layout.could_not_load_experiment, null);
+    setContentView(mainLayout);
 
   }
 

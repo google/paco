@@ -29,6 +29,7 @@ import org.json.JSONArray;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.drawable.ColorDrawable;
@@ -38,6 +39,7 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -47,6 +49,7 @@ import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Button;
+import android.widget.LinearLayout;
 
 import com.google.common.base.Strings;
 import com.pacoapp.paco.PacoConstants;
@@ -392,6 +395,10 @@ public class FeedbackActivity extends ActionBarActivity {
   }
 
   private void displayNoExperimentMessage() {
+    LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+    LinearLayout mainLayout = (LinearLayout) inflater.inflate(R.layout.could_not_load_experiment, null);
+    setContentView(mainLayout);
+
   }
 
 

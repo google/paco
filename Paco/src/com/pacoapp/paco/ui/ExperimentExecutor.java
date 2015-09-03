@@ -577,6 +577,10 @@ public class ExperimentExecutor extends ActionBarActivity implements ChangeListe
   }
 
   private void displayNoExperimentMessage() {
+    inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+    mainLayout = (LinearLayout) inflater.inflate(R.layout.could_not_load_experiment, null);
+    setContentView(mainLayout);
+
   }
 
   public void setExperimentGroup(ExperimentGroup group) {
