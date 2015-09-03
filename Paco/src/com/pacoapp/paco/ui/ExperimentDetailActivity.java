@@ -131,57 +131,40 @@ public class ExperimentDetailActivity extends ActionBarActivity implements Exper
     ((TextView)findViewById(R.id.experiment_name)).setText(experimentDAO.getTitle());
     ((TextView)findViewById(R.id.description)).setText(experimentDAO.getDescription());
 
-    TextView organizationView = (TextView)findViewById(R.id.creator);
+    TextView organizationView = (TextView)findViewById(R.id.organization);
     String organization = experimentDAO.getOrganization();
-    if (Strings.isNullOrEmpty(organization) || organization.equals("null")) {
-      organization = experimentDAO.getContactEmail();
+    if (!Strings.isNullOrEmpty(organization) && !organization.equals("null")) {
+      organizationView.setText(organization);
+    } else {
+      organizationView.setVisibility(View.GONE);
     }
-    if (Strings.isNullOrEmpty(organization) || organization.equals("null")) {
-      organization = experimentDAO.getCreator();
+    TextView verifiedView = (TextView)findViewById(R.id.verified);
+    verifiedView.setVisibility(View.GONE);
+
+    TextView contactView = (TextView)findViewById(R.id.contact);
+    String contact = experimentDAO.getContactEmail();
+    if (Strings.isNullOrEmpty(contact) || contact.equals("null")) {
+      contact = experimentDAO.getCreator();
     }
+    contactView.setText(contact);
+//    TextView creatorView = (TextView)findViewById(R.id.creator);
+//    String creatorEmail = experimentDAO.getCreator();
+//    creatorView.setText(creatorEmail);
 
 
-    organizationView.setText(organization);
 
-//    SignalSchedule schedule = experiment.getSchedule();
-//    Trigger trigger = experiment.getTrigger();
-//    if (schedule != null && trigger == null) {
-//      Integer scheduleType = schedule.getScheduleType();
-//      int scheduleName = SignalSchedule.SCHEDULE_TYPES_NAMES[scheduleType];
-//      ((TextView) findViewById(R.id.schedule)).setText(scheduleName);
-//    } else if (trigger != null) {
-//      String triggerDetails = Trigger.getNameForCode(trigger.getEventCode());
-//      ((TextView) findViewById(R.id.schedule)).setText(triggerDetails);
-//    }
+//    String startDate = getString(R.string.ongoing_duration);
+//    String endDate = getString(R.string.ongoing_duration);
+//    ((TextView)findViewById(R.id.startDate)).setText(startDate);
+//    ((TextView)findViewById(R.id.endDate)).setText(endDate);
 
-    // Hide the schedule panel for now (a short experiment load comes with no schedule info).
-    findViewById(R.id.scheduleDisplayPanel).setVisibility(View.GONE);
-
-    String startDate = getString(R.string.ongoing_duration);
-    String endDate = getString(R.string.ongoing_duration);
 //    if (ActionScheduleGenerator.areAllGroupsFixedDuration(experimentDAO)) {
 //      startDate = TimeUtil.formatDateTime(ActionScheduleGenerator.getEarliestStartDate(experimentDAO).toDateTime());
 //      endDate = TimeUtil.formatDateTime(ActionScheduleGenerator.getLastEndTime(experimentDAO).toDateMidnight().toDateTime());
 //      ((TextView)findViewById(R.id.startDate)).setText(startDate);
 //      ((TextView)findViewById(R.id.endDate)).setText(endDate);
 //    } else {
-      findViewById(R.id.startDatePanel).setVisibility(View.GONE);
-      findViewById(R.id.endDatePanel).setVisibility(View.GONE);
-//    }
-    ((TextView)findViewById(R.id.startDate)).setText(startDate);
-    ((TextView)findViewById(R.id.endDate)).setText(endDate);
-
-//    String esm_frequency = schedule != null && schedule.getEsmFrequency() != null
-//      ? schedule.getEsmFrequency().toString()
-//      : null;
-//    if (schedule != null && schedule.getScheduleType() == SignalSchedule.ESM && esm_frequency != null && esm_frequency.length() > 0) {
-//      findViewById(R.id.esmPanel).setVisibility(View.VISIBLE);
-//      ((TextView)findViewById(R.id.esm_frequency)).setText(esm_frequency+ "/" + getString(SignalSchedule.ESM_PERIODS_NAMES[schedule.getEsmPeriodInDays()]));
-//    }
-//    // TODO (bobevans): Update to show all the new shceduling types in a succinct readonly way
-//    if (isJoinedExperiment()) {
-//      findViewById(R.id.timePanel).setVisibility(View.VISIBLE);
-//      ((TextView)findViewById(R.id.time)).setText(toCommaSeparatedString(schedule != null ? schedule.getTimes() : null));
+//      findViewById(R.id.durationPanel).setVisibility(View.GONE);
 //    }
 
     if (!isJoinedExperiment()) {

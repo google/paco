@@ -19,26 +19,26 @@
     android:layout_width="wrap_content"
     android:layout_height="fill_parent"
     android:orientation="vertical" >
-            <ProgressBar
-                android:id="@+id/findExperimentsProgressBar"
-                style="@android:style/Widget.ProgressBar.Horizontal"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center|top"
-                android:indeterminate="true"
-                android:visibility="gone" />
-    
+
+    <ProgressBar
+        android:id="@+id/findExperimentsProgressBar"
+        style="@android:style/Widget.ProgressBar.Horizontal"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center|top"
+        android:indeterminate="true"
+        android:visibility="gone" />
+
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:paddingBottom="4dip"
+        android:paddingLeft="8dip"
+        android:paddingTop="4dip"
         android:text="@string/data_handling_title"
         android:textColor="#000000"
         android:textSize="15dip"
-        android:textStyle="bold"
-                    android:paddingLeft="8dip"
-            android:paddingTop="4dip"
-            android:paddingBottom="4dip"
-         >
+        android:textStyle="bold" >
     </TextView>
 
     <TextView
@@ -46,28 +46,26 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:fadingEdge="horizontal"
+        android:paddingBottom="4dip"
+        android:paddingLeft="8dip"
+        android:paddingTop="4dip"
         android:text="@string/informed_consent_preamble"
         android:textColor="#000000"
-        android:textSize="15dip"
-                    android:paddingLeft="8dip"
-            android:paddingTop="4dip"
-            android:paddingBottom="4dip"
-         >
+        android:textSize="15dip" >
     </TextView>
-    
+
     <!-- data collection list -->
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="left"
+        android:paddingBottom="4dip"
+        android:paddingLeft="8dip"
+        android:paddingTop="4dip"
         android:text="@string/types_of_data_collected"
         android:textColor="#000000"
-        android:textStyle="bold"
-                    android:paddingLeft="8dip"
-            android:paddingTop="4dip"
-            android:paddingBottom="4dip"
-         >
+        android:textStyle="bold" >
     </TextView>
 
     <TextView
@@ -76,68 +74,63 @@
         android:layout_height="wrap_content"
         android:layout_gravity="left"
         android:layout_marginLeft="15dip"
-        android:text="@string/survey_responses_data_collected"
-                    android:paddingLeft="8dip"
-            android:paddingTop="4dip"
-            android:paddingBottom="4dip"
-         >
-    </TextView>    
-    
+        android:paddingBottom="4dip"
+        android:paddingLeft="8dip"
+        android:paddingTop="4dip"
+        android:text="@string/survey_responses_data_collected" >
+    </TextView>
+
     <TextView
         android:id="@+id/dataCollectedAppAndBrowserUsageView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="left"
         android:layout_marginLeft="15dip"
-        android:text="@string/app_usage_and_browser_usage_data_collected" 
-        android:visibility="gone"
-                    android:paddingLeft="8dip"
-            android:paddingTop="4dip"
-            android:paddingBottom="4dip"
-        >        
-    </TextView> 
-      
+        android:paddingBottom="4dip"
+        android:paddingLeft="8dip"
+        android:paddingTop="4dip"
+        android:text="@string/app_usage_and_browser_usage_data_collected"
+        android:visibility="gone" >
+    </TextView>
+
     <TextView
         android:id="@+id/dataCollectedPhoneDetailsView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="left"
         android:layout_marginLeft="15dip"
-        android:text="Phone make, model, carrier" 
-        android:visibility="gone"
-                    android:paddingLeft="8dip"
-            android:paddingTop="4dip"
-            android:paddingBottom="4dip"
-        >        
+        android:paddingBottom="4dip"
+        android:paddingLeft="8dip"
+        android:paddingTop="4dip"
+        android:text="Phone make, model, carrier"
+        android:visibility="gone" >
     </TextView>
 
-        <TextView
+    <TextView
         android:id="@+id/dataCollectedInstalledAppsView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="left"
         android:layout_marginLeft="15dip"
-        android:text="@string/installed_app_data_collected" 
-        android:visibility="gone"
-                    android:paddingLeft="8dip"
-            android:paddingTop="4dip"
-            android:paddingBottom="4dip"
-        >        
+        android:paddingBottom="4dip"
+        android:paddingLeft="8dip"
+        android:paddingTop="4dip"
+        android:text="@string/installed_app_data_collected"
+        android:visibility="gone" >
     </TextView>
-    
+
     <!-- Experiment informed consent content -->
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="left"
-        android:textColor="#000000"
+        android:paddingBottom="4dip"
+        android:paddingLeft="8dip"
+        android:paddingTop="4dip"
         android:text="@string/experiment_informed_consent"
-        android:textStyle="bold" 
-                    android:paddingLeft="8dip"
-            android:paddingTop="4dip"
-            android:paddingBottom="4dip"
-        >
+        android:textColor="#000000"
+        android:textStyle="bold" >
     </TextView>
 
     <ScrollView
@@ -151,12 +144,11 @@
             android:id="@+id/InformedConsentTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Placeholder informed consent text"
-            android:textSize="20dip" 
-                        android:paddingLeft="8dip"
-            android:paddingTop="4dip"
             android:paddingBottom="4dip"
-            >
+            android:paddingLeft="8dip"
+            android:paddingTop="4dip"
+            android:text="Placeholder informed consent text"
+            android:textSize="20dip" >
         </TextView>
     </ScrollView>
 
@@ -165,12 +157,18 @@
         android:layout_width="fill_parent"
         android:layout_height="65dip"
         android:layout_alignParentBottom="true"
-        android:layout_gravity="center"
-        android:text="@string/consent_checkbox_text" 
-                    android:paddingLeft="8dip"
-            android:paddingTop="4dip"
-            android:paddingBottom="4dip"
-        >
+        android:layout_gravity="center_horizontal|bottom"
+        android:layout_marginBottom="4dip"
+        android:layout_marginLeft="8dip"
+        android:layout_marginRight="8dip"
+        android:layout_marginTop="4dip"
+        android:background="@color/purple_background"
+        android:textColor="#ffffff"
+        android:paddingBottom="4dip"
+        android:paddingLeft="8dip"
+        android:paddingRight="8dip"
+        android:paddingTop="4dip"
+        android:text="@string/consent_checkbox_text" >
     </Button>
 
 </LinearLayout>
