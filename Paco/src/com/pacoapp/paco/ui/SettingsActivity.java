@@ -15,8 +15,6 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.CheckBox;
-import android.widget.CompoundButton;
-import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.TextView;
 
 import com.pacoapp.paco.R;
@@ -52,15 +50,15 @@ public class SettingsActivity extends ActionBarActivity {
         RingtoneUtil.launchRingtoneChooserFor(SettingsActivity.this);
       }
     });
-
-    wifiOnlyCheckBox = (CheckBox)findViewById(R.id.wifiCheckBox);
-    wifiOnlyCheckBox.setChecked(userPrefs.getWifiOnly());
-    wifiOnlyCheckBox.setOnCheckedChangeListener(new OnCheckedChangeListener() {
-      @Override
-      public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-        userPrefs.setWifiOnly(isChecked);
-      }
-    });
+//
+//    wifiOnlyCheckBox = (CheckBox)findViewById(R.id.wifiCheckBox);
+//    wifiOnlyCheckBox.setChecked(userPrefs.getWifiOnly());
+//    wifiOnlyCheckBox.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+//      @Override
+//      public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+//        userPrefs.setWifiOnly(isChecked);
+//      }
+//    });
 
     accountTextView = (TextView)findViewById(R.id.accountTextView);
     accountTextView.setOnClickListener(new OnClickListener() {
