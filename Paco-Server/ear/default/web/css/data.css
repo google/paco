@@ -4,14 +4,25 @@
 
 .data .frame {
   max-width: 100%;
-  overflow: scroll;
+  overflow-x: scroll;
+  overflow-y: auto;
   padding-bottom: 3px;
   padding-right: 3px;
 }
 
-.data h2 {
+.data .nav {
+  display: inline-block;
   font-size: 18px;
   font-weight: 400;
+  margin-bottom: 16px;
+}
+
+.data .nav img {
+  vertical-align: middle;
+}
+
+.data button {
+  margin-right: 0;
 }
 
 .data table {
@@ -32,23 +43,44 @@
 
 .data .summary .stat {
   background: #eee;
-  background-image: url('/img/mail.png');
-  background-position: 50% 90px;
-  background-repeat: no-repeat;
   box-sizing: border-box;
   display: inline-block;
   font-size: 12px;
   margin: 5px;
   padding: 20px;
   padding-bottom: 60px;
+  position: relative;
   text-align: center;
   width: 160px;
+}
+
+.data .summary .stat:before {
+  background-color: #ddd;
+  content: '';
+  -webkit-mask-image: url('/img/ic_email_24px.svg');
+  -webkit-mask-position: 50% 90px;
+  -webkit-mask-repeat: no-repeat;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
 }
 
 .data .summary .stat b {
   color: red;
   display: block;
   font-size: 28px;
+}
+
+.data .options {
+  background: #d8d8d8;
+  margin-bottom: 16px;
+}
+
+.data .options md-checkbox {
+  display: inline-block;
+  width: 200px;
 }
 
 .data table tr {
@@ -84,13 +116,13 @@
   text-align: left;
 }
 
-.data md-card {
-  overflow-x: scroll;
-}
-
-.stats .variable-width-centered {
+.data .variable-width {
   display: inline-block;
   text-align: left;
+}
+
+.data .status {
+  margin: 16px 8px;
 }
 
 .stats {
