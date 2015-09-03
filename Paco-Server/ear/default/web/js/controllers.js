@@ -397,6 +397,12 @@ pacoApp.controller('DataCtrl', ['$scope', '$mdDialog', '$location', '$filter',
           }
 
           var table = $filter('jsonToTable')(result.data.events, true);
+          $scope.table = table;
+
+          if (table === null) {
+            $scope.loading = false;
+            return;
+          }
 
           // Toggle on all data order columns
           for (var id in config.dataOrder) {
@@ -412,7 +418,7 @@ pacoApp.controller('DataCtrl', ['$scope', '$mdDialog', '$location', '$filter',
 
           // TODO(ispiro): regenerate CSV based on column visibility
           var csv = $filter('tableToCsv')(table);
-          $scope.table = table;
+          
           $scope.csv = csv;
 
           var blob = new Blob([csv], {

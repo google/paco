@@ -382,6 +382,10 @@ pacoApp.filter('jsonToTable', ['util', 'config', function(util, config) {
     var responseEndId;
     var responseNames = [];
 
+    if (json.length === 0) {
+      return null;
+    }
+
     var headerRow = [];
     for (var id in config.dataOrder) {
       var column = config.dataOrder[id];

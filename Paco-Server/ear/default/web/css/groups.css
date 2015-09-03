@@ -232,28 +232,25 @@ div[expander] {
 .advanced .row .right {
   position: absolute;
   left: 320px;
-  top: -24px;
-}
-
-.advanced .row .right.source {
   top: 0px;
 }
 
 .advanced .row .right.source md-input-container {
   position: absolute;
-  left: 110px;
+  left: 120px;
   top: -6px;
+}
+
+.advanced .row .right md-select {
+  position: absolute;
+  left: 124px;
+  top: -26px;
 }
 
 .advanced .row no-ios {
   position: absolute;
   left: 320px;
   top: 0;
-}
-
-.advanced .row .right no-ios {
-  position: absolute;
-  top: 24px;
 }
 
 .advanced .row .right.source no-ios {

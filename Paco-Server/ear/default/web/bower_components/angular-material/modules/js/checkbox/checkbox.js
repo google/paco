@@ -2,10 +2,11 @@
  * Angular Material Design
  * https://github.com/angular/material
  * @license MIT
- * v0.9.0-rc3-master-4917a16
+ * v0.11.0-rc1-master-d74f93a
  */
-(function () {
+(function( window, angular, undefined ){
 "use strict";
+
 /**
  * @ngdoc module
  * @name material.components.checkbox
@@ -54,7 +55,7 @@ angular
  * </hljs>
  *
  */
-function MdCheckboxDirective(inputDirective, $mdInkRipple, $mdAria, $mdConstant, $mdTheming, $mdUtil, $timeout) {
+function MdCheckboxDirective(inputDirective, $mdAria, $mdConstant, $mdTheming, $mdUtil, $timeout) {
   inputDirective = inputDirective[0];
   var CHECKED_CSS = 'md-checked';
 
@@ -161,6 +162,6 @@ function MdCheckboxDirective(inputDirective, $mdInkRipple, $mdAria, $mdConstant,
     };
   }
 }
-MdCheckboxDirective.$inject = ["inputDirective", "$mdInkRipple", "$mdAria", "$mdConstant", "$mdTheming", "$mdUtil", "$timeout"];
+MdCheckboxDirective.$inject = ["inputDirective", "$mdAria", "$mdConstant", "$mdTheming", "$mdUtil", "$timeout"];
 
-})();
+})(window, window.angular);

@@ -35,13 +35,15 @@
         </div>
       </md-input-container>
 
-      <div class="padded">
+      <div layout="row">
+        <md-input-container>
         Ringtone
         <md-select ng-model="experiment.ringtoneUri" placeholder="Select">
           <md-option ng-repeat="ringtone in ringtones" value="/assets/ringtone/{{ringtone}}">
             {{ringtone}}
           </md-option>
         </md-select>
+        </md-input-container>
       </div>
 
       <div class="padded instructions">
