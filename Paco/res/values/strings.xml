@@ -323,5 +323,6 @@
     <string name="location_to_be_recorded_default_prompt">Location to be recorded</string>
     <string name="organization">Organization:</string>
     <string name="contact_">Contact:</string>
+    <string name="done_joining_button">Done</string>
 
 </resources>
