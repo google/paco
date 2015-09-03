@@ -61,11 +61,18 @@
         android:layout_width="fill_parent"
         android:layout_height="65dip"
         android:layout_alignParentBottom="true"
-        android:layout_gravity="center"
-        android:text="Done" 
-                    android:paddingLeft="8dip"
-            android:paddingTop="4dip"
-            android:paddingBottom="4dip"
+        android:layout_gravity="center_horizontal|bottom"
+        android:layout_marginBottom="4dip"
+        android:layout_marginLeft="8dip"
+        android:layout_marginRight="8dip"
+        android:layout_marginTop="4dip"
+        android:background="@color/purple_background"
+        android:textColor="#ffffff"        
+        android:text="@string/done_joining_button" 
+        android:paddingLeft="8dip"
+        android:paddingTop="4dip"
+        android:paddingBottom="4dip"
+        android:paddingRight="8dip"
         >
     </Button>
 
