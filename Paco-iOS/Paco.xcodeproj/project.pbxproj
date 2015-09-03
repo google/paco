@@ -299,6 +299,8 @@
 		A646B4BA1B7BF91300BBAABB /* PacoExperimentExtended.m in Sources */ = {isa = PBXBuildFile; fileRef = A646B4B91B7BF91300BBAABB /* PacoExperimentExtended.m */; };
 		A646B4BD1B7C10A500BBAABB /* PacoClientTest.m in Sources */ = {isa = PBXBuildFile; fileRef = A646B4BC1B7C10A500BBAABB /* PacoClientTest.m */; };
 		A646B4BF1B7C325B00BBAABB /* org in Resources */ = {isa = PBXBuildFile; fileRef = A646B4BE1B7C325B00BBAABB /* org */; };
+		A665B2731B94C86A001E0098 /* OrgJodaTimeDateTime+PacoDateHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = A665B2721B94C86A001E0098 /* OrgJodaTimeDateTime+PacoDateHelper.m */; };
+		A665B2761B969F81001E0098 /* PAActionSpecification+PacoActionSpecification.m in Sources */ = {isa = PBXBuildFile; fileRef = A665B2751B969F81001E0098 /* PAActionSpecification+PacoActionSpecification.m */; };
 		A6701D611B73D48C00229432 /* joda in Resources */ = {isa = PBXBuildFile; fileRef = A6701D601B73D48C00229432 /* joda */; };
 		A67076101B62F26A00017D36 /* DerivedSources in Resources */ = {isa = PBXBuildFile; fileRef = A670760F1B62F26A00017D36 /* DerivedSources */; };
 		A67076111B62F26A00017D36 /* DerivedSources in Resources */ = {isa = PBXBuildFile; fileRef = A670760F1B62F26A00017D36 /* DerivedSources */; };
@@ -868,6 +870,10 @@
 		A646B4B91B7BF91300BBAABB /* PacoExperimentExtended.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoExperimentExtended.m; sourceTree = "<group>"; };
 		A646B4BC1B7C10A500BBAABB /* PacoClientTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoClientTest.m; sourceTree = "<group>"; };
 		A646B4BE1B7C325B00BBAABB /* org */ = {isa = PBXFileReference; lastKnownFileType = folder; name = org; path = "../../../../../Downloads/j2objc-master_save/joda_time/resources/org"; sourceTree = "<group>"; };
+		A665B2711B94C86A001E0098 /* OrgJodaTimeDateTime+PacoDateHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "OrgJodaTimeDateTime+PacoDateHelper.h"; sourceTree = "<group>"; };
+		A665B2721B94C86A001E0098 /* OrgJodaTimeDateTime+PacoDateHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "OrgJodaTimeDateTime+PacoDateHelper.m"; sourceTree = "<group>"; };
+		A665B2741B969F81001E0098 /* PAActionSpecification+PacoActionSpecification.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "PAActionSpecification+PacoActionSpecification.h"; sourceTree = "<group>"; };
+		A665B2751B969F81001E0098 /* PAActionSpecification+PacoActionSpecification.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "PAActionSpecification+PacoActionSpecification.m"; sourceTree = "<group>"; };
 		A6701D601B73D48C00229432 /* joda */ = {isa = PBXFileReference; lastKnownFileType = folder; path = joda; sourceTree = "<group>"; };
 		A670760F1B62F26A00017D36 /* DerivedSources */ = {isa = PBXFileReference; lastKnownFileType = folder; name = DerivedSources; path = "DerivedData/Paco/Build/Intermediates/Paco.build/Debug-iphonesimulator/Paco.build/DerivedSources"; sourceTree = "<group>"; };
 		A670F87F1B8E2D1D00BF9593 /* PacoJAVA2OBJCTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoJAVA2OBJCTest.m; sourceTree = "<group>"; };
@@ -1922,6 +1928,7 @@
 		A646B4BB1B7BFE5100BBAABB /* Parallel Universe */ = {
 			isa = PBXGroup;
 			children = (
+				A665B2631B94C838001E0098 /* categories */,
 				A6DCA58B1B850729007FC06D /* j2obc */,
 				A6401F5A1B7D4CAC00ABC0AB /* event */,
 				A6ABFAC71B7BE37F00F90598 /* PacoExtendedClient.h */,
@@ -1936,6 +1943,17 @@
 				A6401F7E1B83E04900ABC0AB /* PacoSchedulerExtended.m */,
 			);
 			name = "Parallel Universe";
+			sourceTree = "<group>";
+		};
+		A665B2631B94C838001E0098 /* categories */ = {
+			isa = PBXGroup;
+			children = (
+				A665B2711B94C86A001E0098 /* OrgJodaTimeDateTime+PacoDateHelper.h */,
+				A665B2721B94C86A001E0098 /* OrgJodaTimeDateTime+PacoDateHelper.m */,
+				A665B2741B969F81001E0098 /* PAActionSpecification+PacoActionSpecification.h */,
+				A665B2751B969F81001E0098 /* PAActionSpecification+PacoActionSpecification.m */,
+			);
+			name = categories;
 			sourceTree = "<group>";
 		};
 		A6ABFA941B742BA700F90598 /* aho-corasick */ = {
@@ -2408,6 +2426,7 @@
 				E4E8F352183B21500022613A /* PacoContactUsViewController.m in Sources */,
 				4448BCA81A808E7A0034FCE9 /* GTMMIMEDocument.m in Sources */,
 				36B8EB8417568DAF004CF035 /* PacoRunningExperimentsViewController.m in Sources */,
+				A665B2731B94C86A001E0098 /* OrgJodaTimeDateTime+PacoDateHelper.m in Sources */,
 				44A843E21ADB9C0A009C7226 /* NonESMSignalGenerator.java in Sources */,
 				A6ABFAA31B742BE800F90598 /* NSObject+ITNDescription.m in Sources */,
 				36B8EB8517568DAF004CF035 /* PacoCheckboxView.m in Sources */,
@@ -2506,6 +2525,7 @@
 				36C4A33D18A4DEEE00D8FE59 /* DDASLLogger.m in Sources */,
 				44A843E51ADB9C0A009C7226 /* TimeUtil.java in Sources */,
 				363E211A17B5B13F007DE3CE /* PacoExpressionExecutor.m in Sources */,
+				A665B2761B969F81001E0098 /* PAActionSpecification+PacoActionSpecification.m in Sources */,
 				4448BCB91A808E7A0034FCE9 /* SBJsonBase.m in Sources */,
 				363E211D17B5B1F6007DE3CE /* PacoInputEvaluator.m in Sources */,
 				7F8531DC1A37BE680028BA23 /* JCNotificationBannerViewIOSStyle.m in Sources */,

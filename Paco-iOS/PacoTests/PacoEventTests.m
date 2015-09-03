@@ -147,6 +147,53 @@ static NSString *dataSource =
  
                
 }
+
+
+/*
+ 
+ @property (nonatomic, copy) NSString *who;
+ @property (nonatomic, retain) NSDate *when;
+ @property (nonatomic, assign) long long latitude;
+ @property (nonatomic, assign) long long longitude;
+ @property (nonatomic, retain) NSDate *responseTime;
+ @property (nonatomic, retain) NSDate *scheduledTime;
+ @property (nonatomic, readonly, copy) NSString *appId;
+ @property (nonatomic, readonly, copy) NSString *pacoVersion;
+ @property (nonatomic, copy) NSString *experimentId;
+ @property (nonatomic, copy) NSString *experimentName;
+ @property (nonatomic, assign) int experimentVersion;
+ @property (nonatomic, retain) NSArray *responses;  // <NSDictionary>
+ 
+ */
+-(void) testEventToJsonString
+{
+    
+     NSArray * classNames = [self getClassNames];
+     PacoSerializer* serializer = [[PacoSerializer alloc] initWithArrayOfClasses:classNames
+                          withNameOfClassAttribute:@"nameOfClass"];
+    
+    
+    PacoEventExtended * event = [[PacoEventExtended alloc] init];
+    
+    event.who =@"me";
+    event.when = [NSDate date];
+    event.latitude = 12345;
+    event.longitude = 54321;
+    event.responseTime= [NSDate date];
+    event.experimentId = @"experimentID";
+    event.experimentName = @"experimentName";
+    
+    
+    NSData*  data =  [serializer toJSONobject:event];
+    NSString *string = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+    
+    NSLog(@" this is the end %@", string);
+    
+    
+ 
+    
+    
+}
  
 
 

@@ -10,7 +10,7 @@
 #define Paco_Consts_h
 
 #define SIGNAL_DATE                                 @"signalDate"
-#define SIGNAL_PERIOD_STAART_DATE                   @"periodStart"
+#define SIGNAL_PERIOD_START_DATE                   @"periodStart"
 #define SIGNAL_EXPERIMENT_ID                        @"experimentId"
 #define SIGNAL_ALARM_TIME                           @"alarmTime"
 #define SIGNAL_GROUP_NAME                           @"groupName"

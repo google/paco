@@ -46,7 +46,11 @@
 #include "java/lang/Double.h"
 #include "java/lang/Boolean.h"
 #import "SignalTime.h" 
-#import "PacoIntrospectHelper.h"
+#import  "PacoIntrospectHelper.h"
+#import  "PacoEventExtended.h"
+#import "ActionTrigger.h" 
+#import "ScheduleTrigger.h"
+
 
 
 
@@ -218,8 +222,9 @@
 
 - (void)recurseObjectHierarchy:(NSArray*)parentInfo {
     
-    NSLog(@"   %@", parentInfo);
-    if ([parentInfo[1] isKindOfClass:[JavaUtilArrayList class]]  || [parentInfo[1] conformsToProtocol:@protocol(JavaUtilList)]   ) {
+    
+    if ([parentInfo[1] isKindOfClass:[JavaUtilArrayList class]]  || [parentInfo[1] conformsToProtocol:@protocol(JavaUtilList)]   )
+    {
     NSArray* myArray = (NSArray*)[parentInfo[1] toArray];
     NSMutableArray* mArray = [NSMutableArray new];
     [self addToCollection:parentInfo[0] Value:mArray];
@@ -248,10 +253,9 @@
     if (
         
     [ o.superclass isKindOfClass:[PAModelBase class]] ||
-    [ o isKindOfClass:[PAModelBase class]]
-        
-        
-        /*
+    [ o isKindOfClass:[PAModelBase class]] ||
+    [ o isKindOfClass:[PacoEventExtended class]]
+       /*
         ![parentInfo[1] isKindOfClass:[NSString class]] &&
         ![parentInfo[1] isMemberOfClass:[NSNumber class]] &&
         ![parentInfo[1] isMemberOfClass:[JavaLangBoolean class]] &&
@@ -273,14 +277,10 @@
       while (![interObject isMemberOfClass:[NSObject class]]) {
         Ivar* ivars = class_copyIvarList([interObject class], &numIvars);
         for (int i = 0; i < numIvars; i++) {
-            
-            
+   
           NSString* ivarName =
               [NSString stringWithCString:ivar_getName(ivars[i])
                                  encoding:NSUTF8StringEncoding];
-            
-            
-            
             NSArray* array = [PacoIntrospectHelper parseIvar:ivars[i] Parent:parentInfo[1]];
             NSObject *  oo =nil;
             
@@ -370,6 +370,21 @@
     if (_parentCollection == nil) {
       _parentCollection = object;
     } else {
+        
+        
+        if([object isKindOfClass:[NSDate class]])
+        {
+           
+            
+            NSDateFormatter *format = [[NSDateFormatter alloc] init];
+            [format setDateFormat:@"MMMM dd, yyyy (EEEE) HH:mm:ss z Z"];
+            
+            NSString *nsstr = [format stringFromDate:(NSDate*) object];
+            object = nsstr;
+            
+            
+        }
+        
       [((NSMutableArray*)parent)addObject:object];
     }
 
@@ -383,7 +398,17 @@
     } else {
         
        /* here we need to go back to the pure objective c type */
-        
+        if([object isKindOfClass:[NSDate class]])
+            {
+                
+                NSDateFormatter *format = [[NSDateFormatter alloc] init];
+                [format setDateFormat:@"yyyy/MM/dd HH:mm:ssZ"];
+                
+                NSString *nsstr = [format stringFromDate:(NSDate*) object];
+                object = nsstr;
+                
+                
+            }
       [((NSMutableDictionary*)parent)setValue:object forKey:attributeName];
         
         
@@ -391,6 +416,9 @@
     }
   }
 }
+
+
+
 
 - (void)addItem:(NSString*)attributeName
          Parent:(NSObject*)parent
@@ -409,11 +437,36 @@
      Case A: We now just add the object to the list.
 
      */
-    [((JavaUtilArrayList*)parent)addWithId:object];
+    if([object isKindOfClass:[PAActionTrigger class]])
+    {
+         if([object isKindOfClass:[PAActionTrigger class]])
+         {
+             //PAScheduleTrigger * scheduleTrigger = (
+              [((JavaUtilArrayList*)parent)addWithId:(PAScheduleTrigger*) object];
+             
+         }
+        else
+        {
+            
+             [((JavaUtilArrayList*)parent)addWithId:object];
+        }
+        
+        
+    }
+    else
+    {
+        [((JavaUtilArrayList*)parent)addWithId:object];
+    }
+      
+      
+      
   } else if ([parent isKindOfClass:[JavaUtilHashMap class]]) {
     /*
      Case B, we add the object to the parent using the key.
      */
+      
+      
+      
     [((JavaUtilHashMap*)parent)setValue:object forKey:attributeName];
   } else {
     /*
@@ -670,7 +723,7 @@
   NSString* trimmed = nil;
   NSRange r1 = [str rangeOfString:@"_"];
     
-    if( r1.location !=  NSNotFound)
+    if( r1.location !=  NSNotFound && r1.location !=0)
     {
         trimmed = [str substringToIndex:r1.location];
     }

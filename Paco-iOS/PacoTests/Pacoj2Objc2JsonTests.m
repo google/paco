@@ -160,22 +160,7 @@ static NSString* jsonString  = @"{\r\n  \"title\": \"Drink Water\",\r\n  \"descr
   return mutableArray;
 }
 
-- (void)testValidateModelTree {
-  NSError* error;
-  NSData* data = [jsonString dataUsingEncoding:NSUTF8StringEncoding];
-  id definingObject =
-      [NSJSONSerialization JSONObjectWithData:data
 
-                                      options:NSJSONReadingAllowFragments
-                                        error:&error];
-
-  PacoSerializer* serializer =
-      [[PacoSerializer alloc] initWithArrayOfClasses:_classes
-                            withNameOfClassAttribute:@"nameOfClass"];
-  NSObject* resultObject =
-      [serializer buildObjectHierarchyFromCollections:definingObject];
-  [serializer validate:@[ @"parent", resultObject ]];
-}
 
 - (void)testKVOCategory {
  

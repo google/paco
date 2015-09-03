@@ -64,6 +64,8 @@ public class ActionScheduleGenerator {
   public ActionScheduleGenerator(ExperimentDAO experiment) {
     this.experiment = experiment;
   }
+    
+    
 
   ActionSpecification getNextTimeFromNow(DateTime now, EsmSignalStore alarmStore, EventStore eventStore) {
     if (now == null || isOver(now, experiment)) {

@@ -64,7 +64,7 @@
                    withJavaLangLong:(JavaLangLong *)scheduleId
 {
      NSDictionary * dictionary
-              =     @{SIGNAL_PERIOD_STAART_DATE:date,
+              =     @{SIGNAL_PERIOD_START_DATE:date,
                       SIGNAL_EXPERIMENT_ID:experimentId,
                       SIGNAL_ALARM_TIME:alarmTime,
                       SIGNAL_GROUP_NAME:groupName,
@@ -80,15 +80,31 @@
                               withJavaLangLong:(JavaLangLong *)actionTriggerId
                               withJavaLangLong:(JavaLangLong *)scheduleId
 {
+    /*
+     
+     
+     - (instancetype)initWithJavaLangInteger:(JavaLangInteger *)type
+     withJavaLangInteger:(JavaLangInteger *)basis
+     withJavaLangInteger:(JavaLangInteger *)fixedTimeMillisFromMidnight
+     withJavaLangInteger:(JavaLangInteger *)missedBasisBehavior
+     withJavaLangInteger:(JavaLangInteger *)offsetTimeMillis
+     withNSString:(NSString *)label;
+     
+     */
+ 
  
    NSArray *filteredArray = [_signals filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"(experimentId==%@) AND (periodStart==%@) AND   (groupName LIKE %@)   AND   (actionTriggerId==%@) AND (scheduleId==%@)",experimentId,periodStart,groupName,actionTriggerId,scheduleId ]];
     
     
     JavaUtilArrayList  * arrayList = [[JavaUtilArrayList alloc] initWithInt:[filteredArray count]];
     NSDictionary * dictionary;
+    
+    // need to convert the dictionary into a signal object and store it.
     for(dictionary in filteredArray)
     {
-        [arrayList addWithId:dictionary[SIGNAL_DATE]];
+        
+        OrgJodaTimeDateTime* dateTime = [[OrgJodaTimeDateTime  alloc] initWithLong:[dictionary[SIGNAL_PERIOD_START_DATE] longLongValue]];
+        [arrayList addWithId:dateTime];
     }
     return arrayList;
 }
@@ -109,7 +125,9 @@
                               withJavaLangLong:(JavaLangLong *)actionTriggerId
                               withJavaLangLong:(JavaLangLong *)scheduleId
 {
-      NSArray *filteredArray = [_signals filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"(experimentId==%@) AND (periodStart==%@) AND  (groupName LIKE $@) AND (actionTriggerId==%@) AND  (scheduleId==%@)",experimentId,periodStart,groupName,actionTriggerId,scheduleId]];
+    
+   NSArray *filteredArray = [_signals filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"(experimentId==%@) AND (periodStart==%@) AND   (groupName LIKE %@)   AND   (actionTriggerId==%@) AND (scheduleId==%@)",experimentId,periodStart,groupName,actionTriggerId,scheduleId ]];
+    
     [_signals removeObjectsInArray:filteredArray];
     
 }
