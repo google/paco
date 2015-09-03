@@ -353,10 +353,10 @@ pacoApp.controller('ListCtrl', ['$scope', '$mdDialog', '$location',
 ]);
 
 
-pacoApp.controller('DataCtrl', ['$scope', '$mdDialog',
-  '$location', '$filter',  '$routeParams','dataService', 'experimentService',
+pacoApp.controller('DataCtrl', ['$scope', '$mdDialog', '$location', '$filter',
+    '$routeParams','dataService', 'experimentService', 'config',
   function($scope, $mdDialog, $location, $filter, $routeParams, dataService, 
-    experimentService) {
+    experimentService, config) {
 
     var user = false;
     var anonymous = false;
@@ -365,6 +365,7 @@ pacoApp.controller('DataCtrl', ['$scope', '$mdDialog',
     $scope.reverseSort = false;
     $scope.loading = null;
     $scope.table = null;
+    $scope.showColumn = {};
 
     $scope.setColumn = function(columnId) {
       if ( $scope.sortColumn === columnId) {
@@ -396,6 +397,20 @@ pacoApp.controller('DataCtrl', ['$scope', '$mdDialog',
           }
 
           var table = $filter('jsonToTable')(result.data.events, true);
+
+          // Toggle on all data order columns
+          for (var id in config.dataOrder) {
+            $scope.showColumn[config.dataOrder[id]] = true;
+          }
+
+          // Toggle on all response columns
+          if (table.responseNames) {
+            for (var id in table.responseNames) {
+              $scope.showColumn[table.responseNames[id]] = true;
+            }
+          }
+
+          // TODO(ispiro): regenerate CSV based on column visibility
           var csv = $filter('tableToCsv')(table);
           $scope.table = table;
           $scope.csv = csv;
@@ -405,7 +420,6 @@ pacoApp.controller('DataCtrl', ['$scope', '$mdDialog',
           });
           $scope.loading = false;
           $scope.csvData = (window.URL || window.webkitURL).createObjectURL(blob);
-
         }
       }, function(result) {
         $scope.loading = false;

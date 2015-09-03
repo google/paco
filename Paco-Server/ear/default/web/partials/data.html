@@ -7,7 +7,7 @@
       <img src="/img/ic_chevron_right_24px.svg">
 
       <a href="#/experiment/{{experimentId}}">
-        <md-button>
+        <md-button aria-label="experiment name">
           <span ng-if="!experiment">{{experimentId}}</span>
           <span ng-if="experiment">{{experiment.title}}</span>
         </md-button>
@@ -28,10 +28,17 @@
       </div>
     </div>
 
-    <div ng-if="table && table.length > 0" class="frame">
+    <div class="options">
+      <span ng-repeat="cell in table.header track by $index">
+        <md-checkbox ng-model="showColumn[cell]">{{cell}}</md-checkbox>
+      </span>
+    </div>
+
+
+    <div ng-if="table && table.rows.length > 0" class="frame">
       <table>
         <tr>
-          <td ng-repeat="cell in table[0] track by $index">
+          <td ng-repeat="cell in table.header track by $index" ng-show="showColumn[cell]">
             <a href=""  ng-click="setColumn($index)"
             ng-class="{arrow: (sortColumn == $index), down: reverseSort }">
               {{cell}}
@@ -39,9 +46,8 @@
           </td>
         </tr>
 
-        <tr ng-repeat="row in table | limitTo: 'Infinity': 1 | orderBy: columnSort: reverseSort">
-          <td ng-repeat="cell in row track by $index">{{cell}}</td>
-
+        <tr ng-repeat="row in table.rows | orderBy: columnSort: reverseSort">
+          <td ng-repeat="cell in row track by $index" ng-show="showColumn[table.header[$index]]">{{cell}}</td>
         </tr>
         <tfoot>
           <td>Showing {{table.length - 1}} out of {{table.length - 1}}</td>
