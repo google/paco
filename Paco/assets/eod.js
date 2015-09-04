@@ -1028,7 +1028,10 @@ paco.renderer = (function() {
         var listChoiceName = answer;
         if (answer) {
           answer = parseInt(answer);
-          var index = answer - 1;
+          var index = answer;
+          if (input.multiselect) {
+            index -= 1;
+          }
           listChoiceName = input.listChoices[index];
         }        
         responsesHtml += listChoiceName;
