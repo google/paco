@@ -2,11 +2,10 @@
  * Angular Material Design
  * https://github.com/angular/material
  * @license MIT
- * v0.9.0-rc3-master-4917a16
+ * v0.11.0-rc1-master-d74f93a
  */
-(function () {
+(function( window, angular, undefined ){
 "use strict";
-(function() {
 
 /**
  * @ngdoc module
@@ -122,6 +121,7 @@ function labelDirective() {
  * The purpose of **`md-maxlength`** is exactly to show the max length counter text. If you don't want the counter text and only need "plain" validation, you can use the "simple" `ng-maxlength` or maxlength attributes.
  * @param {string=} aria-label Aria-label is required when no label is present.  A warning message will be logged in the console if not present.
  * @param {string=} placeholder An alternative approach to using aria-label when the label is not present.  The placeholder text is copied to the aria-label attribute.
+ * @param md-no-autogrow {boolean=} When present, textareas will not grow automatically.
  *
  * @usage
  * <hljs lang="html">
@@ -130,7 +130,8 @@ function labelDirective() {
  *   <input type="text" ng-model="color" required md-maxlength="10">
  * </md-input-container>
  * </hljs>
- * <h3>With Errors (uses [ngMessages](https://docs.angularjs.org/api/ngMessages))</h3>
+ * <h3>With Errors</h3>
+ *
  * <hljs lang="html">
  * <form name="userForm">
  *   <md-input-container>
@@ -159,6 +160,7 @@ function labelDirective() {
  * </form>
  * </hljs>
  *
+ * Requires [ngMessages](https://docs.angularjs.org/api/ngMessages).
  * Behaves like the [AngularJS input directive](https://docs.angularjs.org/api/ng/directive/input).
  *
  */
@@ -173,12 +175,13 @@ function inputTextareaDirective($mdUtil, $window, $mdAria) {
   function postLink(scope, element, attr, ctrls) {
 
     var containerCtrl = ctrls[0];
+    var hasNgModel = !!ctrls[1];
     var ngModelCtrl = ctrls[1] || $mdUtil.fakeNgModel();
     var isReadonly = angular.isDefined(attr.readonly);
 
     if ( !containerCtrl ) return;
     if (containerCtrl.input) {
-      throw new Error("<md-input-container> can only have *one* <input> or <textarea> child element!");
+      throw new Error("<md-input-container> can only have *one* <input>, <textarea> or <md-select> child element!");
     }
     containerCtrl.input = element;
 
@@ -193,6 +196,13 @@ function inputTextareaDirective($mdUtil, $window, $mdAria) {
 
     if (element[0].tagName.toLowerCase() === 'textarea') {
       setupTextarea();
+    }
+
+    // If the input doesn't have an ngModel, it may have a static value. For that case,
+    // we have to do one initial check to determine if the container should be in the
+    // "has a value" state.
+    if (!hasNgModel) {
+      inputCheckValue();
     }
 
     var isErrorGetter = containerCtrl.isErrorGetter || function() {
@@ -240,7 +250,21 @@ function inputTextareaDirective($mdUtil, $window, $mdAria) {
     }
 
     function setupTextarea() {
+      if(angular.isDefined(element.attr('md-no-autogrow'))) {
+        return;
+      }
+
       var node = element[0];
+      var container = containerCtrl.element[0];
+
+      var min_rows = NaN;
+      var lineHeight = null;
+      // can't check if height was or not explicity set,
+      // so rows attribute will take precedence if present
+      if(node.hasAttribute('rows')) {
+        min_rows = parseInt(node.getAttribute('rows'));
+      }
+
       var onChangeTextarea = $mdUtil.debounce(growTextarea, 1);
 
       function pipelineListener(value) {
@@ -255,7 +279,13 @@ function inputTextareaDirective($mdUtil, $window, $mdAria) {
         onChangeTextarea();
       }
       element.on('keydown input', onChangeTextarea);
-      element.on('scroll', onScroll);
+
+      if(isNaN(min_rows)) {
+        element.attr('rows', '1');
+
+        element.on('scroll', onScroll);
+      }
+
       angular.element($window).on('resize', onChangeTextarea);
 
       scope.$on('$destroy', function() {
@@ -263,10 +293,35 @@ function inputTextareaDirective($mdUtil, $window, $mdAria) {
       });
 
       function growTextarea() {
-        node.style.height = "auto";
-        node.scrollTop = 0;
-        var height = getHeight();
-        if (height) node.style.height = height + 'px';
+        // sets the md-input-container height to avoid jumping around
+        container.style.height = container.offsetHeight + 'px';
+
+        // temporarily disables element's flex so its height 'runs free'
+        element.addClass('md-no-flex');
+
+        if(isNaN(min_rows)) {
+          node.style.height = "auto";
+          node.scrollTop = 0;
+          var height = getHeight();
+          if (height) node.style.height = height + 'px';
+        } else {
+          node.setAttribute("rows", 1);
+
+          if(!lineHeight) {
+            node.style.minHeight = '0';
+
+            lineHeight = element.prop('clientHeight');
+
+            node.style.minHeight = null;
+          }
+
+          var rows = Math.max(min_rows, Math.round(node.scrollHeight / lineHeight));
+          node.setAttribute("rows", rows);
+        }
+
+        // reset everything back to normal
+        element.removeClass('md-no-flex');
+        container.style.height = 'auto';
       }
 
       function getHeight () {
@@ -342,7 +397,7 @@ function placeholderDirective($log) {
   return {
     restrict: 'A',
     require: '^^?mdInputContainer',
-    priority:200,
+    priority: 200,
     link: postLink
   };
 
@@ -354,11 +409,13 @@ function placeholderDirective($log) {
     element.removeAttr('placeholder');
 
     if ( inputContainer.element.find('label').length == 0 ) {
-      var placeholder = '<label ng-click="delegateClick()">' + placeholderText + '</label>';
+      if (inputContainer.input && inputContainer.input[0].nodeName != 'MD-SELECT') {
+        var placeholder = '<label ng-click="delegateClick()">' + placeholderText + '</label>';
 
-      inputContainer.element.addClass('md-icon-float');
-      inputContainer.element.prepend(placeholder);
-    } else {
+        inputContainer.element.addClass('md-icon-float');
+        inputContainer.element.prepend(placeholder);
+      }
+    } else if (element[0].nodeName != 'MD-SELECT') {
       $log.warn("The placeholder='" + placeholderText + "' will be ignored since this md-input-container has a child label element.");
     }
 
@@ -366,6 +423,4 @@ function placeholderDirective($log) {
 }
 placeholderDirective.$inject = ["$log"];
 
-})();
-
-})();
+})(window, window.angular);

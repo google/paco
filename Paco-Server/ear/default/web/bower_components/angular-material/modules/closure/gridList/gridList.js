@@ -2,7 +2,7 @@
  * Angular Material Design
  * https://github.com/angular/material
  * @license MIT
- * v0.9.0-rc3-master-4917a16
+ * v0.11.0-rc1-master-d74f93a
  */
 goog.provide('ng.material.components.gridList');
 goog.require('ng.material.core');
@@ -120,7 +120,7 @@ function GridListDirective($interpolate, $mdConstant, $mdGridLayout, $mdMedia) {
 
     var invalidateLayout = angular.bind(ctrl, ctrl.invalidateLayout),
         unwatchAttrs = watchMedia();
-    scope.$on('$destroy', unwatchMedia);
+      scope.$on('$destroy', unwatchMedia);
 
     /**
      * Watches for changes in media, invalidating layout as necessary.
@@ -136,6 +136,8 @@ function GridListDirective($interpolate, $mdConstant, $mdGridLayout, $mdMedia) {
     }
 
     function unwatchMedia() {
+      ctrl.layoutDelegate = angular.noop;
+
       unwatchAttrs();
       for (var mediaName in $mdConstant.MEDIA) {
         $mdMedia.getQuery($mdConstant.MEDIA[mediaName])
@@ -418,14 +420,14 @@ function GridListDirective($interpolate, $mdConstant, $mdGridLayout, $mdMedia) {
 }
 GridListDirective.$inject = ["$interpolate", "$mdConstant", "$mdGridLayout", "$mdMedia"];
 
-/* @ngInject */
-function GridListController($timeout) {
+/* ngInject */
+function GridListController($mdUtil) {
   this.layoutInvalidated = false;
   this.tilesInvalidated = false;
-  this.$timeout_ = $timeout;
+  this.$timeout_ = $mdUtil.nextTick;
   this.layoutDelegate = angular.noop;
 }
-GridListController.$inject = ["$timeout"];
+GridListController.$inject = ["$mdUtil"];
 
 GridListController.prototype = {
   invalidateTiles: function() {
@@ -452,7 +454,7 @@ GridListController.prototype = {
 };
 
 
-/* @ngInject */
+/* ngInject */
 function GridLayoutFactory($mdUtil) {
   var defaultAnimator = GridTileAnimator;
 

@@ -2,10 +2,11 @@
  * Angular Material Design
  * https://github.com/angular/material
  * @license MIT
- * v0.9.0-rc3-master-4917a16
+ * v0.11.0-rc1-master-d74f93a
  */
-(function () {
+(function( window, angular, undefined ){
 "use strict";
+
 /**
  * @ngdoc module
  * @name material.components.divider
@@ -42,4 +43,4 @@ function MdDividerDirective($mdTheming) {
 }
 MdDividerDirective.$inject = ["$mdTheming"];
 
-})();
+})(window, window.angular);
