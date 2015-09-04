@@ -1025,15 +1025,28 @@ paco.renderer = (function() {
       } else if (input.responseType === "list") {
         
         var answer = response["answer"];
-        var listChoiceName = answer;
+        var listChoiceName = "";
         if (answer) {
-          answer = parseInt(answer);
-          var index = answer;
-//          if (input.multiselect) {
-//            index -= 1;
-//          }
-          listChoiceName = input.listChoices[index];
-        }        
+          if (!input.multiselect) {
+            answer = parseInt(answer);
+            var index = answer;
+            listChoiceName = input.listChoices[index];
+          } else {
+            var indices = answer.split(",");
+            for (var i = 0; i < indices.length; i++) {
+              if (i > 0) {
+                listChoiceName += ", ";
+              }
+              var index = indices[i]; 
+              index -= 1;
+              if (index < 0) {
+                index = 0;
+              }
+              listChoiceName += input.listChoices[index];
+            }
+          }
+          
+        }       
         responsesHtml += listChoiceName;
       } else {
         responsesHtml += response["answer"];
