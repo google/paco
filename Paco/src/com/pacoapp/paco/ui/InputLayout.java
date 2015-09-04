@@ -68,9 +68,6 @@ import com.pacoapp.paco.PacoConstants;
 import com.pacoapp.paco.R;
 import com.pacoapp.paco.UserPreferences;
 import com.pacoapp.paco.shared.model2.Input2;
-import com.pacoapp.paco.ui.autocomplete.AutocompleteDictionary;
-import com.pacoapp.paco.ui.autocomplete.AutocompleteUsageFilteringArrayAdapter;
-import com.pacoapp.paco.ui.autocomplete.PersistentAutocompleteDictionary;
 
 public class InputLayout extends LinearLayout implements SpeechRecognitionListener {
   public static final int CAMERA_REQUEST_CODE = 10001;
@@ -89,7 +86,7 @@ public class InputLayout extends LinearLayout implements SpeechRecognitionListen
   protected boolean listHasBeenSelected = false;
   protected boolean setupClickHasHappened;
   private AutoCompleteTextView openTextView;
-  private AutocompleteDictionary autocompleteDatabase;
+  //private AutocompleteDictionary autocompleteDatabase;
 
   private File file;
   private int requestCode;
@@ -411,7 +408,7 @@ public class InputLayout extends LinearLayout implements SpeechRecognitionListen
 
   private String getOpenTextValue() {
     String text = ((EditText) componentWithValue).getText().toString();
-    autocompleteDatabase.updateAutoCompleteDatabase(text);
+    //autocompleteDatabase.updateAutoCompleteDatabase(text);
     return text;
   }
 
@@ -853,14 +850,14 @@ public class InputLayout extends LinearLayout implements SpeechRecognitionListen
     // Theoretically this should allow autocorrect.  However, apparently this change is not reflected on the
     // emulator, so we need to test it on the device.
     openTextView.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_AUTO_CORRECT | InputType.TYPE_TEXT_FLAG_AUTO_COMPLETE);
-    ensureAutoCompleteDatabase();
-    openTextView.setAdapter(new AutocompleteUsageFilteringArrayAdapter(getContext(), android.R.layout.simple_dropdown_item_1line, autocompleteDatabase));
+    //ensureAutoCompleteDatabase();
+    //openTextView.setAdapter(new AutocompleteUsageFilteringArrayAdapter(getContext(), android.R.layout.simple_dropdown_item_1line, autocompleteDatabase));
     //openTextView.setTokenizer(new AutoCompleteTextView(getContext()));
     openTextView.setOnFocusChangeListener(new OnFocusChangeListener() {
 
       public void onFocusChange(View v, boolean hasFocus) {
         if (v.equals(openTextView) && !hasFocus) {
-          autocompleteDatabase.updateAutoCompleteDatabase(openTextView.getText().toString());
+          //autocompleteDatabase.updateAutoCompleteDatabase(openTextView.getText().toString());
           notifyChangeListeners();
         }
       }
@@ -877,11 +874,11 @@ public class InputLayout extends LinearLayout implements SpeechRecognitionListen
     return openTextView;
   }
 
-  private void ensureAutoCompleteDatabase() {
-    if (autocompleteDatabase == null) {
-      autocompleteDatabase = new PersistentAutocompleteDictionary(getContext());
-    }
-  }
+//  private void ensureAutoCompleteDatabase() {
+//    if (autocompleteDatabase == null) {
+//      autocompleteDatabase = new PersistentAutocompleteDictionary(getContext());
+//    }
+//  }
 
   private void launchSpeechRecognizer() {
     ((ExperimentExecutor)getContext()).startSpeechRecognition(this);
@@ -985,7 +982,7 @@ public class InputLayout extends LinearLayout implements SpeechRecognitionListen
       String bestPhrase = text.get(0);
       message += bestPhrase;
       openTextView.setText(message);
-      autocompleteDatabase.updateAutoCompleteDatabase(bestPhrase);
+      //autocompleteDatabase.updateAutoCompleteDatabase(bestPhrase);
     } else {
       Toast.makeText(getContext(), R.string.i_did_not_understand, Toast.LENGTH_SHORT).show();
     }
