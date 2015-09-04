@@ -21,19 +21,26 @@
       <a ng-href="{{csvData}}" download="export.csv">
         <md-button class="md-primary">Download CSV</md-button>
       </a>
+      
+      <md-menu md-offset="108 4">
+        <md-button aria-label="Toggle displayed columns" ng-click="$mdOpenMenu($event)">
+          Columns
+        </md-button>
+        <md-menu-content>
+          <md-menu-item ng-repeat="cell in table.header track by $index">
+            <md-checkbox ng-model="showColumn[cell]">
+              {{cell}}
+            </md-checkbox>
+          </md-menu-item>
+        </md-menu-content>
+      </md-menu>
+
       <div ng-if="loading" class="status">
         <span>{{status}}</span>
         <md-button ng-click="loadEvents()" ng-if="loading === false && error">Reload</md-button>
         <md-progress-linear md-mode="indeterminate" ng-if="loading === true"></md-progress-linear>
       </div>
     </div>
-
-    <div class="options">
-      <span ng-repeat="cell in table.header track by $index">
-        <md-checkbox ng-model="showColumn[cell]">{{cell}}</md-checkbox>
-      </span>
-    </div>
-
 
     <div ng-if="table && table.rows.length > 0" class="frame">
       <table>
