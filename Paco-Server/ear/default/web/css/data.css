@@ -73,14 +73,11 @@
   font-size: 28px;
 }
 
-.data .options {
-  background: #d8d8d8;
-  margin-bottom: 16px;
-}
-
-.data .options md-checkbox {
-  display: inline-block;
-  width: 200px;
+/* The menu is placed outside of the data DOM node so it's
+ * necessary to target this without a .data selector  */
+md-menu-item {
+  border-top: 1px solid #eee;
+  padding-left: 16px;
 }
 
 .data table tr {
