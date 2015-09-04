@@ -90,14 +90,21 @@ md-menu-item {
   white-space: nowrap;
 }
 
-.data table td a {
+.data table td .sorting {
+  display: block;
   position: relative;
 }
 
 .data table td .arrow:after {
   content: '\2191';
   position: absolute;
-  margin-left: 10px;
+  top: 0;
+  right: -16px;
+}
+
+.data table td .left.arrow:after {
+  left: -16px;
+  right: auto;
 }
 
 .data table td .down.arrow:after {
