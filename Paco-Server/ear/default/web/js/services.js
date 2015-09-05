@@ -183,12 +183,12 @@ pacoApp.service('config', function() {
     'Random sampling (ESM)'
   ];
 
-  this.actionTypes = [
-    'Create notification to participate',
-    'Create notification message',
-    'Log data',
-    'Execute script'
-  ];
+  this.actionTypes = {
+    1: 'Create notification to participate',
+    2: 'Create notification message',
+    // 3: 'Log data',
+    4: 'Execute script'
+  };
 
   this.cueTypes = [
     'HANGUP (deprecated)',
