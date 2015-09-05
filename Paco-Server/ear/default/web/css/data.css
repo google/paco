@@ -17,8 +17,17 @@
   margin-bottom: 16px;
 }
 
+.data .nav .viewSelector {
+  display: inline-block;
+}
+
 .data .nav img {
   vertical-align: middle;
+}
+
+.data .nav .download {
+  margin-left: 96px;
+  margin-right: 24px;
 }
 
 .data button {
@@ -38,7 +47,6 @@
   margin-bottom: 20px;
   padding: 40px;
   text-align: center;
-
 }
 
 .data .summary .stat {
@@ -88,6 +96,10 @@ md-menu-item {
   padding: 0 56px 0 24px;
   text-align: center ;
   white-space: nowrap;
+}
+
+.data table td a {
+  position: relative;
 }
 
 .data table td .sorting {
