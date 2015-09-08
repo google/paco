@@ -268,7 +268,7 @@ public class Schedule extends ModelBase implements Validatable, MinimumBufferabl
       long lastTime = 0;
       for (SignalTime signalTime : signalTimes) {
         signalTime.validateWith(validator);
-        if (signalTime.getBasis() != null && signalTime.getBasis() == SignalTime.FIXED_TIME) {
+        if (signalTime.getBasis() == null || signalTime.getBasis().intValue() == SignalTime.FIXED_TIME) {
           if (signalTime.getFixedTimeMillisFromMidnight() <= lastTime) {
             validator.addError("Signal Times must be in chronological order");
           }
