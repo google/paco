@@ -323,32 +323,13 @@ public class ExperimentAccessManager {
     return results;
   }
 
-  public static List<Long> getExistingExperimentsIdsForAdmin(String adminEmail) {
-    DatastoreService ds = DatastoreServiceFactory.getDatastoreService();
-    Query query = new com.google.appengine.api.datastore.Query(ADMIN_USER_KIND);
-    query.addFilter(ADMIN_ID, FilterOperator.EQUAL, adminEmail);
-    PreparedQuery preparedQuery = ds.prepare(query);
-    List<Entity> results = preparedQuery.asList(getFetchOptions());
-    List<Long> keys = Lists.newArrayList();
-    for (Entity entity : results) {
-      keys.add((Long) entity.getProperty(EXPERIMENT_ID));
-    }
-    return keys;
-  }
 
-
-
-  public static List<Long> getExistingPublishedExperimentIdsForUser(String userEmail) {
+  public static ExperimentIdQueryResult getExistingPublishedExperimentIdsForUser(String userEmail, int limit, String websafeCursor) {
     DatastoreService ds = DatastoreServiceFactory.getDatastoreService();
     Query query = new com.google.appengine.api.datastore.Query(PUBLISHED_USER_KIND);
     query.addFilter(USER_ID, FilterOperator.EQUAL, userEmail);
-    PreparedQuery preparedQuery = ds.prepare(query);
-    List<Entity> results = preparedQuery.asList(getFetchOptions());
-    List<Long> keys = Lists.newArrayList();
-    for (Entity entity : results) {
-      keys.add((Long) entity.getProperty(EXPERIMENT_ID));
-    }
-    return keys;
+    return getIdsMatchingQuery(query, limit, websafeCursor);
+
   }
 
   private static List<Entity> getExistingPublishedUsersForExperiment(/*Transaction tx,*/ DatastoreService ds, Key experimentKey, boolean keysOnly) {
@@ -494,7 +475,14 @@ public class ExperimentAccessManager {
 
   public static ExperimentIdQueryResult getExistingExperimentIdsForAdmin(String adminEmail,
                                              int limit, String websafeCursor) {
-    log.info("getExistingExperimentIdsForAdmin: websafeCursor" + websafeCursor +" limit: " + limit);
+    Query query = new Query(ADMIN_USER_KIND);
+    query.addFilter(ADMIN_ID, FilterOperator.EQUAL, adminEmail);
+
+    return getIdsMatchingQuery(query, limit, websafeCursor);
+  }
+
+  public static ExperimentIdQueryResult getIdsMatchingQuery(Query query, int limit, String websafeCursor) {
+    //log.info("getExistingExperimentIdsForAdmin: websafeCursor" + websafeCursor +" limit: " + limit);
     if (limit == 0) {
       limit = 1000;
     }
@@ -511,13 +499,11 @@ public class ExperimentAccessManager {
 
     DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
 
-    Query query = new Query(ADMIN_USER_KIND);
-    query.addFilter(ADMIN_ID, FilterOperator.EQUAL, adminEmail);
 
     PreparedQuery pq = datastore.prepare(query);
 
     QueryResultList<Entity> results = pq.asQueryResultList(fetchOptions);
-    log.info("getExistingExperimentidsForAdmin: result size: " + results.size());
+    //log.info("getExistingExperimentidsForAdmin: result size: " + results.size());
     List<Long> keys = Lists.newArrayList();
     for (Entity entity : results) {
       keys.add((Long) entity.getProperty(EXPERIMENT_ID));

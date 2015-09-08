@@ -268,8 +268,15 @@ class DefaultExperimentService implements ExperimentService {
   @Override
   public ExperimentQueryResult getMyJoinableExperiments(String email, DateTimeZone timeZoneForClient,
                                                         Integer limit, String cursor) {
-    List<Long> experimentIds = ExperimentAccessManager.getExistingExperimentsIdsForAdmin(email);
-    experimentIds.addAll(ExperimentAccessManager.getExistingPublishedExperimentIdsForUser(email));
+    // TODO figure out what to do about getting a paginated result over two tables. Right now, return everything.
+    // Actually, the experiment hub will get rid of this broad query
+    ExperimentIdQueryResult adminExperimentIdQueryResult = ExperimentAccessManager.getExistingExperimentIdsForAdmin(email, 0, null);
+    List<Long> experimentIds = Lists.newArrayList();
+    experimentIds.addAll(adminExperimentIdQueryResult.getExperiments());
+
+    ExperimentIdQueryResult existingPublishedExperimentIdsForUser = ExperimentAccessManager.getExistingPublishedExperimentIdsForUser(email, 0, null);
+    experimentIds.addAll(existingPublishedExperimentIdsForUser.getExperiments());
+
     List<ExperimentDAO> experiments = getExperimentsByIdInternal(experimentIds, email, timeZoneForClient);
     experiments = removeEnded(experiments, timeZoneForClient);
     removeNonAdminData(email, experiments);

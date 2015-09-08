@@ -162,7 +162,7 @@ public class EventRetriever {
 
     long t11 = System.currentTimeMillis();
 
-    List<Long> adminExperiments = getExperimentsForAdmin(loggedInuser, pm);
+    List<Long> adminExperiments = getExperimentsForAdmin(loggedInuser);
     log.info("Loggedin user's administered experiments: " + loggedInuser + " has ids: "
              + getIdsQuoted(adminExperiments));
 
@@ -431,8 +431,8 @@ public class EventRetriever {
   }
 
   @SuppressWarnings("unchecked")
-  private List<Long> getExperimentsForAdmin(String user, PersistenceManager pm) {
-    return ExperimentAccessManager.getExistingExperimentsIdsForAdmin(user);
+  private List<Long> getExperimentsForAdmin(String user) {
+    return ExperimentAccessManager.getExistingExperimentIdsForAdmin(user, 0, null).getExperiments();
   }
 
   @SuppressWarnings("unchecked")
@@ -557,7 +557,7 @@ public class EventRetriever {
 
     long t11 = System.currentTimeMillis();
 
-    List<Long> adminExperiments = getExperimentsForAdmin(loggedInuser, pm);
+    List<Long> adminExperiments = getExperimentsForAdmin(loggedInuser);
     log.info("Loggedin user's administered experiments: " + loggedInuser + " has ids: "
              + getIdsQuoted(adminExperiments));
 
