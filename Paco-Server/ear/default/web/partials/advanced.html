@@ -1,42 +1,61 @@
 <div class="padded advanced">
   <div class="over">
-    <md-checkbox ng-model="group.endOfDayGroup" aria-label="End of day group">
-      End of day group
-    </md-checkbox>
 
-    <div class="referred" ng-if="group.endOfDayGroup">
-      <md-select ng-model="group.endOfDayReferredGroupName" placeholder="Referred Group">
-        <md-option ng-repeat="group in experiment.groups" value="{{group.name}}">{{group.name}}
-        </md-option>
-      </md-select>
+
+    <div class="row">
+      <md-checkbox ng-model="group.endOfDayGroup" aria-label="End of day group">
+        End of day group
+      </md-checkbox>
+      
+      <div class="right" ng-if="group.endOfDayGroup">
+        Referred Group
+        <md-select ng-model="group.endOfDayReferredGroupName" placeholder="Select">
+          <md-option ng-repeat="group in experiment.groups" value="{{group.name}}">{{group.name}}
+          </md-option>
+        </md-select>
+        <no-ios ng-if="group.endOfDayGroup" message="'iOS does not support EOD groups'"></no-ios>
+      </div>
     </div>
 
-    <md-checkbox ng-model="group.backgroundListen" aria-label="Listen for other apps sending data to PACO">
-      Background Listening
-    </md-checkbox>
+    <div class="row">
+      <md-checkbox ng-model="group.backgroundListen" aria-label="Listen for other apps sending data to PACO">
+        Background Listening
+      </md-checkbox>
+    
+      <div class="right source" ng-if="group.backgroundListen">
+        Source of data
+        <md-input-container md-no-float>
+          <input type="text" ng-model="group.backgroundListenSourceIdentifier" placeholder="Identifier">
+        </md-input-container>
+        <no-ios ng-if="group.backgroundListen" message="'iOS cannot do background listening'"></no-ios>
+      </div>
 
-    <div class="identifier" ng-if="group.backgroundListen">
-      Source of data
-      <md-input-container md-no-float>
-        <input type="text" ng-model="group.backgroundListenSourceIdentifier" placeholder="Identifier">
-      </md-input-container>
     </div>
 
-    <md-checkbox ng-model="group.logActions" aria-label="Log app usage and browser history">
-      Log app usage and browser history
-    </md-checkbox>
+    <div class="row">
+      <md-checkbox ng-model="group.logActions" aria-label="Log app usage and browser history">
+        Log app usage and browser history
+      </md-checkbox>
 
-    <md-checkbox ng-model="group.customRendering" aria-label="Override form display">
-      Override form display
-    </md-checkbox>
+      <no-ios ng-if="group.logActions" message="'iOS does not support app logging'"></no-ios>
+    </div>
+
+    <div class="row">
+      <md-checkbox ng-model="group.customRendering" aria-label="Override form display">
+        Override form display
+      </md-checkbox>
+
+      <no-ios ng-if="group.customRendering" message="'iOS does not support custom display'"></no-ios>
+    </div>
+
+
   </div>
 
-  <div class="source" ng-if="group.customRendering">
+  <div class="padded source-frame" ng-if="group.customRendering">
     Enter HTML and Javascript for custom rendering of experiment
 
     <div class="ace_editor" ng-model="group.customRenderingCode" ui-ace="{
         mode: 'javascript',
-        onLoad: aceLoaded,
         rendererOptions: {
           minLines: 10,
           maxLines: 100
@@ -61,12 +80,12 @@
   </div>
 
   <!-- TODO(ispiro): clear out text when switching between type 0 and 3 -->
-  <div class="source" ng-if="group.feedback.type === 3">
+  <div class="padded source-frame" ng-if="group.feedback.type === 3">
     Enter custom feedback code
 
     <div class="ace_editor" ng-model="group.feedback.text" ui-ace="{
         mode: 'javascript',
-        onLoad: aceLoaded,
+        onLoad: aceInfinity,
         rendererOptions: {
           minLines: 10,
           maxLines: 'Infinity'

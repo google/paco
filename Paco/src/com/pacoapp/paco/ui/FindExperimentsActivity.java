@@ -392,19 +392,19 @@ public class FindExperimentsActivity extends ActionBarActivity implements Networ
 //          existingAndNewExperimentsMap.put(experiment.getServerId(), experiment);
 //        }
 //        experiments = Lists.newArrayList(existingAndNewExperimentsMap.values());
-        Collections.sort(experiments, new Comparator<Experiment>() {
-
-          @Override
-          public int compare(Experiment lhs, Experiment rhs) {
-            return lhs.getExperimentDAO().getTitle().toLowerCase().compareTo(rhs.getExperimentDAO().getTitle().toLowerCase());
-          }
-
-        });
+//        Collections.sort(experiments, new Comparator<Experiment>() {
+//
+//          @Override
+//          public int compare(Experiment lhs, Experiment rhs) {
+//            return lhs.getExperimentDAO().getTitle().toLowerCase().compareTo(rhs.getExperimentDAO().getTitle().toLowerCase());
+//          }
+//
+//        });
 
         experimentCursor = newExperimentCursor;
         saveExperimentsToDisk();
       }
-      if (newExperiments.size() < DOWNLOAD_LIMIT || newExperimentCursor == null || oldCursor == newExperimentCursor) {
+      if (newExperimentCursor == null || newExperimentCursor.equals(oldCursor)) {
         experimentCursor = null; // we have hit the end. The next refresh starts over
         Toast.makeText(this, R.string.no_more_experiments_on_server, Toast.LENGTH_LONG).show();
       } else {
@@ -506,20 +506,22 @@ public class FindExperimentsActivity extends ActionBarActivity implements Networ
         }
 
         if (creator != null) {
-          String organization = experiment.getExperimentDAO().getOrganization();
+          StringBuilder buf = new StringBuilder();
+          String organizationEmail = experiment.getExperimentDAO().getOrganization();
+          if (!Strings.isNullOrEmpty(organizationEmail) && !"null".equals(organizationEmail)) {
+            buf.append(organizationEmail);
+            buf.append(", ");
+          }
           String contactEmail = experiment.getExperimentDAO().getContactEmail();
-          if (Strings.isNullOrEmpty(contactEmail)) {
+          if (Strings.isNullOrEmpty(contactEmail) || "null".equals(contactEmail)) {
             contactEmail = experiment.getExperimentDAO().getCreator();
           }
-          if (!Strings.isNullOrEmpty(organization)) {
-            contactEmail += ", " + organization;
-          }
+          buf.append(contactEmail);
 
-          creator.setText(contactEmail);
-
-            creator.setOnClickListener(myButtonListener);
+          creator.setText(buf.toString());
+          creator.setOnClickListener(myButtonListener);
         } else {
-            creator.setText(getContext().getString(R.string.unknown_author_text));
+          creator.setText(getContext().getString(R.string.unknown_author_text));
         }
 //        ImageView iv = (ImageView) view.findViewById(R.id.experimentIconView);
 //        iv.setImageBitmap(Bitmap.create(cursor.getString(iconColumn)));

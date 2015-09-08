@@ -121,7 +121,10 @@ public class InformedConsentActivity extends ActionBarActivity implements Experi
         TextView phoneDetailsView = (TextView) findViewById(R.id.dataCollectedPhoneDetailsView);
         phoneDetailsView.setVisibility(TextView.VISIBLE);
       }
-
+      if (ExperimentHelper.declaresInstalledAppDataCollection(experiment.getExperimentDAO())) {
+        TextView appInstallLogView = (TextView) findViewById(R.id.dataCollectedInstalledAppsView);
+        appInstallLogView.setVisibility(TextView.VISIBLE);
+      }
       TextView ic = (TextView) findViewById(R.id.InformedConsentTextView);
       ic.setText(experiment.getExperimentDAO().getInformedConsentForm());
 

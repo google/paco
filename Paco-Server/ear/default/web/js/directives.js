@@ -163,6 +163,17 @@ pacoApp.directive('pacoGroup', function () {
 });
 
 
+pacoApp.directive('noIos', function() {
+  return {
+    restrict: 'E',
+    scope: {  'message': '=message' },
+    template: '<div class="no-ios"><img src="img/no_ios.png"><md-tooltip md-direction="right" md-delay="200">{{message}}</md-tooltip></div>',
+    link: function(scope, element) {
+    }
+  };
+});
+
+
 /**
  * This directive uses two-way data filtering to convert between the time
  * returned by an HTML time input (a timestamp relative to midnight, 12/31/1969) 
@@ -357,73 +368,155 @@ pacoApp.filter('percent', ['$filter', function ($filter) {
 }]);
 
 
-/** 
- * Code based on
- * http://www.bennadel.com/blog/1504-ask-ben-parsing-csv-strings-with-javascript-exec-regular-expression-command.htm
- *
- */
 
-pacoApp.filter('csvToObj', function() {
-    return function ( strData ){
 
-        strDelimiter = ",";
-        // Create a regular expression to parse the CSV values.
-        var objPattern = new RegExp(
-            (
-                // Delimiters.
-                "(\\" + strDelimiter + "|\\r?\\n|\\r|^)" +
-                // Quoted fields.
-                "(?:\"([^\"]*(?:\"\"[^\"]*)*)\"|" +
-                // Standard fields.
-                "([^\"\\" + strDelimiter + "\\r\\n]*))"
-            ),
-            "gi"
-            );
-        // Create an array to hold our data. Give the array
-        // a default empty first row.
-        var arrData = [[]];
-        // Create an array to hold our individual pattern
-        // matching groups.
-        var arrMatches = null;
-        // Keep looping over the regular expression matches
-        // until we can no longer find a match.
-        while (arrMatches = objPattern.exec( strData )){
-            // Get the delimiter that was found.
-            var strMatchedDelimiter = arrMatches[ 1 ];
-            // Check to see if the given delimiter has a length
-            // (is not the start of string) and if it matches
-            // field delimiter. If id does not, then we know
-            // that this delimiter is a row delimiter.
-            if (
-                strMatchedDelimiter.length &&
-                (strMatchedDelimiter != strDelimiter)
-                ){
-                // Since we have reached a new row of data,
-                // add an empty row to our data array.
-                arrData.push( [] );
-            }
-            // Now that we have our delimiter out of the way,
-            // let's check to see which kind of value we
-            // captured (quoted or unquoted).
-            if (arrMatches[ 2 ]){
-                // We found a quoted value. When we capture
-                // this value, unescape any double quotes.
-                var strMatchedValue = arrMatches[ 2 ].replace(
-                    new RegExp( "\"\"", "g" ),
-                    "\""
-                    );
-            } else {
-                // We found a non-quoted value.
-                var strMatchedValue = arrMatches[ 3 ];
-            }
-            // Now that we have our value string, let's add
-            // it to the data array.
-            arrData[ arrData.length - 1 ].push( strMatchedValue );
-        }
-        // Return the parsed data.
-        return( arrData );
+
+pacoApp.filter('jsonToTable', ['util', 'config', function(util, config) {
+
+  return function (json, unpackResponse){
+    var rows = [];
+    var order = json[0];
+    var responseLookup = {};
+    var numberResponseVariables = 0;
+    var responseStartId;
+    var responseEndId;
+    var responseNames = [];
+
+    if (json.length === 0) {
+      return null;
     }
-  });
+
+    var headerRow = [];
+    for (var id in config.dataOrder) {
+      var column = config.dataOrder[id];
+      if (column === 'responses') {
+        responseStartId = headerRow.length;
+        responseEndId = responseStartId;
+      } else if (order[column]) {
+        headerRow.push(column);
+      }
+    }
+
+    for (var column in order) {
+      // Omit unpacked responses column
+      if (unpackResponse && column === 'responses') {
+        continue;
+      }
+
+      // Add columns not already included from config data order
+      if (headerRow.indexOf(column) == -1) {
+        headerRow.push(column);
+      }
+    }
+
+
+    if (unpackResponse) {
+
+      // Iterate over all rows' responses fields to find additional columns
+      for (var i = 0; i < json.length; i++) {
+        var responses = json[i]['responses'];
+        if (responses) {
+          for (var id in responses) {
+            var responseName = responses[id]['name'];
+            if (responseLookup[responseName] === undefined) {
+              responseNames.push(responseName);
+
+              // Add response variables to header too
+              headerRow.splice(responseEndId, 0, responseName);
+              responseLookup[responseName] = numberResponseVariables;
+              numberResponseVariables++;
+              responseEndId = responseStartId + numberResponseVariables;
+
+            }
+          }
+        }
+      }
+
+    }
+
+    for (var i = 0; i < json.length; i++) {
+      var responses;
+      var newRow = [];
+
+      for (var id in headerRow) {
+        var column = headerRow[id];
+
+        if (unpackResponse && id >= responseStartId && id < responseEndId) {
+          responses = json[i]['responses'];
+        } else {
+          var val = json[i][column];
+          if (column === 'responseTime' || column === 'when') {
+            val = util.formatDate(val);
+          }
+          newRow[id] = val;
+        }
+      }
+
+      if (responses) {
+        for (var id in responses) {
+          var responseName = responses[id]['name'];
+          var responseValue = responses[id]['answer'];
+          var responseId = responseLookup[responseName];
+          newRow[responseStartId + responseId] = responseValue;
+         }       
+      }
+      rows.push(newRow);
+    }
+
+    return {header: headerRow, rows:rows, responseNames: responseNames};
+  }
+}]);
+
+
+pacoApp.filter('tableToCsv', function() {
+
+  return function (table){
+    var string = '';
+
+    for (var i = 0; i < table.rows.length; i++) {
+      var row = table.rows[i];
+      if (i > 0) {
+        string += '\n';
+      }
+      for (var j = 0; j < row.length; j++) {
+        if (j > 0) {
+          string += ',';
+        }
+        var word = '"' + row[j] + '"';
+        string += word;
+      }
+    }
+    return string;
+  }
+});
+
+
+pacoApp.filter('jsonToCsv', function() {
+  var rows = [];
+
+  return function (json){
+    var order = json[0];
+    var newRow = [];
+    var headerRow = [];
+
+    for (var i = 0; i < json.length; i++) {
+
+      for (var column in order) {
+        if (i === 0) {
+          headerRow.push(column);
+        }
+
+        newRow.push(json[i][column]);
+      }
+      if (i === 0) {
+        rows.push(headerRow);
+      }
+      rows.push(newRow);
+    }
+    return rows;
+  }
+}); 
+
 
 
 /**

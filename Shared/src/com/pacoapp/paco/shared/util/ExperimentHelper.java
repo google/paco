@@ -50,6 +50,11 @@ public class ExperimentHelper {
             && experiment.getExtraDataCollectionDeclarations().contains(ExperimentDAO.APP_USAGE_BROWSER_HISTORY_DATA_COLLECTION);
   }
 
+  public static boolean declaresInstalledAppDataCollection(ExperimentDAO experiment) {
+    return experiment.getExtraDataCollectionDeclarations() != null
+            && experiment.getExtraDataCollectionDeclarations().contains(ExperimentDAO.APP_INSTALL_DATA_COLLECTION);
+  }
+
   public static boolean hasUserEditableSchedule(ExperimentDAO experiment) {
     List<ExperimentGroup> experimentGroups = experiment.getGroups();
     for (ExperimentGroup experimentGroup : experimentGroups) {

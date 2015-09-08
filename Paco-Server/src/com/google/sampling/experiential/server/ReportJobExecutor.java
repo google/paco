@@ -94,7 +94,7 @@ public class ReportJobExecutor {
     if (!Strings.isNullOrEmpty(reportFormat) && reportFormat.equals("csv")) {
       // TODO - get rid of the offset and limit params and rewrite the eventretriever call to loop until all results are retrieved.
       log.info("Getting events for job: " + jobId);
-      EventQueryResultPair eventQueryResultPair = EventRetriever.getInstance().getEventsInBatches(query, requestorEmail, timeZoneForClient, limit, cursor);
+      EventQueryResultPair eventQueryResultPair = EventRetriever.getInstance().getEventsInBatchesOneBatch(query, requestorEmail, timeZoneForClient, limit, cursor);
       //EventRetriever.sortEvents(events);
       log.info("Got events for job: " + jobId);
 

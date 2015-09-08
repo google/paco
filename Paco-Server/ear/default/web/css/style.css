@@ -8,6 +8,10 @@ html {
   background: #F5F5F5;
 }
 
+.main {
+  min-height: calc(100vh - 300px)
+}
+
 a {
   color: #3e82f7;
   outline: none;
@@ -80,13 +84,8 @@ md-dialog li {
   width: 224px;
 }
 
-.source div[ui-ace] {
-  min-height: 600px;
-}
-
 .error {
   color: red;
-  font-weight: 500;
 }
 
 .notransition {
@@ -109,4 +108,14 @@ md-dialog li {
   top: 0;
   left: 0;
   border: none;
+}
+
+.no-ios {
+  display: inline-block;
+  line-height: 16px;
+  vertical-align: bottom;
+}
+
+.no-ios img {
+  width: 24px;
 }

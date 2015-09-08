@@ -68,7 +68,7 @@ pacoApp.service('experimentService', ['$http', '$cacheFactory', 'util',
       // Need to clear all list caches in case title was changed
       cache.remove('/experiments?admin');
       cache.remove('/experiments?joined');
-      cache.remove('/experiments?joinable'); 
+      cache.remove('/experiments?mine');
 
       // If it's not a new experiment, clear old cached definition
       if (experiment.id) {
@@ -89,66 +89,27 @@ pacoApp.service('dataService', ['$http', '$timeout', '$q',
   function($http, $timeout, $q) {
 
     return ({
-      getCsv: getCsv,
+      getEvents: getEvents,
       getParticipantData: getParticipantData,
     });
 
-    function getCsv(id, user, anonymous) {
 
-      var maxTries = 10;
-      var startMarker = '<title>Current Status of Report Generation for job: ';
-      var endMarker = '</title>';
+    function getEvents(id, user, anonymous) {
+
       var endpoint = '/events?q=\'experimentId=' + id;
-      var jobUrl;
-      var defer = $q.defer();
-      var tryCount = 0;
 
       if (user) {
         endpoint += ':who=' + user;
       }
 
-      endpoint += '\'&csv';
+      endpoint += '\'&json';
 
       if (anonymous) {
         endpoint += '&anon=true';
       }
 
-      $http.get(endpoint).success(
-        function(data) {
-          //TODO: endpoint should return report URL, not HTML
-          startPos = data.indexOf(startMarker) + startMarker.length;
-          endPos = data.indexOf(endMarker);
-          if (startPos !== -1 && endPos !== -1) {
-            jobUrl = '/jobStatus?jobId=' + data.substring(startPos,
-              endPos) + '&cmdline=1';
-            poll();
-          }
-        });
-
-      var poll = function() {
-        if (tryCount >= maxTries) {
-          defer.resolve({
-            'error': 'Exceeded max tries'
-          });
-          return;
-        }
-        tryCount++;
-
-        $http.get(jobUrl).success(
-          function(data) {
-            if (data === 'pending\n') {
-              $timeout(poll, 1000);
-            } else {
-              var csv = data.trim();
-              defer.resolve({
-                'data': csv
-              });
-            }
-          }
-        )
-      };
-      return defer.promise;
-    }
+      return $http.get(endpoint);
+    };
 
 
     /**
@@ -156,11 +117,15 @@ pacoApp.service('dataService', ['$http', '$timeout', '$q',
     * compute the total participant count for today and all time.
     */
 
-    function getParticipantData(id) {
+    function getParticipantData(id, user) {
 
       var defer = $q.defer();
-      var url = 'participantStats?experimentId=' + id;
-      $http.get(url).success(
+      var endpoint = 'participantStats?experimentId=' + id;
+      if (user) {
+        endpoint += '&who=' + user;
+      }
+
+      $http.get(endpoint).success(
         function(data) {
           var totalParticipantCount = 0;
           var todayParticipantCount = 0;
@@ -201,7 +166,8 @@ pacoApp.service('config', function() {
   this.dataDeclarations = {
     1: 'App Usage and Browser History',
     2: 'Location Information',
-    3: 'Phone Details (Make, Model, Carrier)'
+    3: 'Phone Details (Make, Model, Carrier)',
+    4: 'Apps installed on the phone'
   };
 
   this.ringtones = [
@@ -274,6 +240,21 @@ pacoApp.service('config', function() {
     'Custom Code',
     'Disable Feedback'
   ];
+
+  this.dataOrder = [
+    'who',
+    'responseTime',
+    'experimentGroupName',
+    'responses',
+    'experimentVersion',
+    'actionTriggerId',
+    'actionId',
+    'actionTriggerSpecId',
+    'referredGroup',
+    'eodResponseTime',
+    'appId',
+    'pacoId'
+  ];
 });
 
 
@@ -296,11 +277,11 @@ pacoApp.service('template', function() {
     creator: '',
     contactEmail: '',
     extraDataCollectionDeclarations: [],
+    groups: [this.group],
+    postInstallInstructions: '<b>You have successfully joined the experiment!</b><br/><br/>\nNo need to do anything else for now.<br/><br/>\nPaco will send you a notification when it is time to participate.<br/><br/>\nBe sure your ringer/buzzer is on so you will hear the notification.',
     published: false,
     publishedUsers: [],
-    groups: [this.group],
-    dataDeclarations: [],
-    ringtoneUri: '/assets/ringtone/Paco Bark'
+    ringtoneUri: '/assets/ringtone/Paco Bark',
   }
 
   this.input = {
@@ -352,7 +333,8 @@ pacoApp.service('template', function() {
   };
 
   this.signalTime = {
-    fixedTimeMillisFromMidnight: 0,
+    // Set initial time to 12 PM
+    fixedTimeMillisFromMidnight: 12 * 60 * 60 * 1000,
     type: 0
   };
 });
