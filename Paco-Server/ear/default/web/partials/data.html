@@ -1,6 +1,6 @@
 <div ng-controller="DataCtrl" class="csv data">
-  <div>
-    <div class="nav">
+
+<div class="nav">
       <a href="#">
         <md-button>Experiments</md-button>
       </a>
@@ -42,20 +42,28 @@
       </div>
     </div>
 
+    
+  <div class="variable-width">
+
+    
+
     <div ng-if="table && table.rows.length > 0" class="frame">
       <table>
-        <tr>
-          <td ng-repeat="cell in table.header track by $index" ng-show="showColumn[cell]">
-            <a href=""  ng-click="setColumn($index)"
-            ng-class="{arrow: (sortColumn == $index), down: reverseSort }">
-              {{cell}}
-            </a>
-          </td>
-        </tr>
-
-        <tr ng-repeat="row in table.rows | orderBy: columnSort: reverseSort">
-          <td ng-repeat="cell in row track by $index" ng-show="showColumn[table.header[$index]]">{{cell}}</td>
-        </tr>
+        <thead>
+        </thead>
+          <tbody>
+          <tr ng-repeat="copy in [1,2]">
+            <td ng-repeat="cell in table.header track by $index" ng-show="showColumn[cell]">
+              <a href=""  ng-click="setColumn($index)"
+              ng-class="{arrow: (sortColumn == $index), down: reverseSort }">
+                {{cell}}
+              </a>
+            </td>
+          </tr>
+          <tr ng-repeat="row in table.rows | orderBy: columnSort: reverseSort">
+            <td ng-repeat="cell in row track by $index" ng-show="showColumn[table.header[$index]]">{{cell}}</td>
+          </tr>
+        </tbody>
         <tfoot>
           <td>Showing {{table.length - 1}} out of {{table.length - 1}}</td>
         </tfoot>
@@ -65,5 +73,5 @@
   <div ng-if="error" class="error">
     Error {{error.code}}: {{error.message}}
   </div>
-
+</div>
 </div>

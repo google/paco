@@ -1,7 +1,6 @@
 .centered {
   left: 50%;
   margin-left: -480px;
-  margin-bottom: 64px; 
   position: relative;
   width: 960px;
 }
@@ -129,8 +128,8 @@ md-toolbar .subtitle {
 
 .sitemap {
   background: #eee;
-  height: 100px;
-  padding-top: 32px;
+  padding: 16px;
+  position: relative;
 }
 
 .sitemap .links {

@@ -2,6 +2,11 @@ body,
 html {
   background: #eee;
   min-width: 1024px;
+  overflow: hidden;
+}
+
+body.scroll {
+  overflow: scroll;
 }
 
 .home {
@@ -9,7 +14,7 @@ html {
 }
 
 .main {
-  min-height: calc(100vh - 300px)
+  min-height: calc(100vh - 236px);
 }
 
 a {

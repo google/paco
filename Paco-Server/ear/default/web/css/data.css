@@ -1,7 +1,3 @@
-.data {
-  margin: 16px;
-}
-
 .data .frame {
   max-width: 100%;
   overflow-x: scroll;
@@ -31,6 +27,7 @@
   border-radius: 2px;
   box-shadow: 0px 3px 1px -2px rgba(0, 0, 0, 0.2), 0px 2px 2px 0px rgba(0, 0, 0, 0.14), 0px 1px 5px 0px rgba(0, 0, 0, 0.12);
   font-size: 13px;
+  position: relative;
 }
 
 .data .summary {
@@ -38,7 +35,6 @@
   margin-bottom: 20px;
   padding: 40px;
   text-align: center;
-
 }
 
 .data .summary .stat {
@@ -84,9 +80,44 @@ md-menu-item {
   border-bottom: 1px solid #e3e3e3;
   height: 48px;
 }
+
+.data table thead {
+  border-bottom: 1px solid #e3e3e3;
+  display: block;
+  height: 48px;
+}
+
+.data table tbody {
+  display: block;
+}
+
+.data table tbody tr:nth-of-type(1) a {
+  position: absolute;
+  top: 16px;
+}
+
+.data table tbody tr:nth-of-type(2) a {
+  display: block;
+  height: 0px;
+  overflow: hidden;
+}
+
+.data table tbody tr:nth-of-type(1),
+.data table tbody tr:nth-of-type(2) {
+  border-bottom: none;
+  height: 0px;
+}
+
+.data table tbody {
+  display: block;
+  max-height: calc(100vh - 304px);
+  overflow: scroll;
+
+}
+
 .data table td {
-  padding: 0 56px 0 24px;
-  text-align: center ;
+  padding: 0 24px 0 24px;
+  text-align: left ;
   white-space: nowrap;
 }
 
@@ -122,6 +153,6 @@ md-menu-item {
   margin: 16px 8px;
 }
 
-.stats {
+.data {
   text-align: center;
 }
