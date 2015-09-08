@@ -28,6 +28,7 @@ import com.pacoapp.paco.shared.model.SignalTimeDAO;
 import com.pacoapp.paco.shared.model2.ActionTrigger;
 import com.pacoapp.paco.shared.model2.ExperimentDAO;
 import com.pacoapp.paco.shared.model2.ExperimentGroup;
+import com.pacoapp.paco.shared.model2.ExperimentIdQueryResult;
 import com.pacoapp.paco.shared.model2.ExperimentQueryResult;
 import com.pacoapp.paco.shared.model2.ExperimentValidator;
 import com.pacoapp.paco.shared.model2.InterruptTrigger;
@@ -379,10 +380,10 @@ class DefaultExperimentService implements ExperimentService {
   @Override
   public ExperimentQueryResult getUsersAdministeredExperiments(String email, DateTimeZone timezone, Integer limit,
                                                                String cursor) {
-    List<Long> experimentIds = ExperimentAccessManager.getExistingExperimentsIdsForAdmin(email);
+    ExperimentIdQueryResult experimentIdsQueryResult = ExperimentAccessManager.getExistingExperimentIdsForAdmin(email, limit, cursor);
     //log.info("Administered experiments for: " + email + ". Count: " + experimentIds.size() + ". ids = " + Joiner.on(",").join(experimentIds));
-    List<ExperimentDAO> experiments = getExperimentsByIdInternal(experimentIds, email, timezone);
-    return new ExperimentQueryResult(cursor, experiments); // TODO honor the limit and cursor
+    List<ExperimentDAO> experiments = getExperimentsByIdInternal(experimentIdsQueryResult.getExperiments(), email, timezone);
+    return new ExperimentQueryResult(experimentIdsQueryResult.getCursor(), experiments);
   }
 
   @Override

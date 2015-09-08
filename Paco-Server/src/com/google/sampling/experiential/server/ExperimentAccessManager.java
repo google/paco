@@ -7,6 +7,7 @@ import java.util.logging.Logger;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 
+import com.google.appengine.api.datastore.Cursor;
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Entity;
@@ -17,12 +18,15 @@ import com.google.appengine.api.datastore.Query;
 import com.google.appengine.api.datastore.Query.CompositeFilterOperator;
 import com.google.appengine.api.datastore.Query.Filter;
 import com.google.appengine.api.datastore.Query.FilterOperator;
+import com.google.appengine.api.datastore.QueryResultList;
 import com.google.appengine.api.datastore.Transaction;
 import com.google.appengine.api.datastore.TransactionOptions;
+import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.sampling.experiential.datastore.ExperimentJsonEntityManager;
 import com.google.sampling.experiential.datastore.PublicExperimentList;
 import com.pacoapp.paco.shared.model2.ExperimentDAO;
+import com.pacoapp.paco.shared.model2.ExperimentIdQueryResult;
 
 public class ExperimentAccessManager {
 
@@ -332,6 +336,8 @@ public class ExperimentAccessManager {
     return keys;
   }
 
+
+
   public static List<Long> getExistingPublishedExperimentIdsForUser(String userEmail) {
     DatastoreService ds = DatastoreServiceFactory.getDatastoreService();
     Query query = new com.google.appengine.api.datastore.Query(PUBLISHED_USER_KIND);
@@ -483,6 +489,48 @@ public class ExperimentAccessManager {
                                          Long experimentId, Date joinDate) {
     Entity userAccess = createUserJoinedAclEntity(experimentId, loggedInUserEmail, joinDate);
     ds.put(tx, userAccess);
+  }
+
+
+  public static ExperimentIdQueryResult getExistingExperimentIdsForAdmin(String adminEmail,
+                                             int limit, String websafeCursor) {
+    log.info("getExistingExperimentIdsForAdmin: websafeCursor" + websafeCursor +" limit: " + limit);
+    if (limit == 0) {
+      limit = 1000;
+    }
+    FetchOptions fetchOptions = FetchOptions.Builder.withLimit(limit);
+
+    Cursor cursor = null;
+    if (!Strings.isNullOrEmpty(websafeCursor)) {
+      cursor = Cursor.fromWebSafeString(websafeCursor);
+      if (cursor != null) {
+        fetchOptions.startCursor(cursor);
+      }
+    }
+
+
+    DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+
+    Query query = new Query(ADMIN_USER_KIND);
+    query.addFilter(ADMIN_ID, FilterOperator.EQUAL, adminEmail);
+
+    PreparedQuery pq = datastore.prepare(query);
+
+    QueryResultList<Entity> results = pq.asQueryResultList(fetchOptions);
+    log.info("getExistingExperimentidsForAdmin: result size: " + results.size());
+    List<Long> keys = Lists.newArrayList();
+    for (Entity entity : results) {
+      keys.add((Long) entity.getProperty(EXPERIMENT_ID));
+    }
+
+    cursor = results.getCursor();
+    String nextWebsafeCursor = null;
+    if (cursor != null) {
+      nextWebsafeCursor = cursor.toWebSafeString();
+    }
+
+    ExperimentIdQueryResult experimentIdQueryResult = new ExperimentIdQueryResult(nextWebsafeCursor, keys);
+    return experimentIdQueryResult;
   }
 
 }
