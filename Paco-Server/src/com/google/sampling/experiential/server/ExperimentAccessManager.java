@@ -27,6 +27,8 @@ import com.google.sampling.experiential.datastore.ExperimentJsonEntityManager;
 import com.google.sampling.experiential.datastore.PublicExperimentList;
 import com.pacoapp.paco.shared.model2.ExperimentDAO;
 import com.pacoapp.paco.shared.model2.ExperimentIdQueryResult;
+import com.pacoapp.paco.shared.model2.ExperimentJoinQueryResult;
+import com.pacoapp.paco.shared.model2.Pair;
 
 public class ExperimentAccessManager {
 
@@ -388,18 +390,45 @@ public class ExperimentAccessManager {
     return !results.isEmpty();
   }
 
-  public static List<Pair<Long, Date>> getJoinedExperimentsFor(String loggedInUserEmail) {
-    DatastoreService ds = DatastoreServiceFactory.getDatastoreService();
+  public static ExperimentJoinQueryResult getJoinedExperimentsFor(String loggedInUserEmail, int limit, String websafeCursor) {
     Query query = new com.google.appengine.api.datastore.Query(JOINED_USER_KIND);
     query.addFilter(USER_ID, FilterOperator.EQUAL, loggedInUserEmail);
-    PreparedQuery preparedQuery = ds.prepare(query);
-    List<Entity> results = preparedQuery.asList(getFetchOptions());
+
+    if (limit == 0) {
+      limit = 1000;
+    }
+    FetchOptions fetchOptions = FetchOptions.Builder.withLimit(limit);
+
+    Cursor cursor = null;
+    if (!Strings.isNullOrEmpty(websafeCursor)) {
+      cursor = Cursor.fromWebSafeString(websafeCursor);
+      if (cursor != null) {
+        fetchOptions.startCursor(cursor);
+      }
+    }
+
+
+    DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+
+
+    PreparedQuery pq = datastore.prepare(query);
+
+    QueryResultList<Entity> results = pq.asQueryResultList(fetchOptions);
     List<Pair<Long, Date>> keys = Lists.newArrayList();
     for (Entity entity : results) {
       keys.add(new Pair(entity.getProperty(EXPERIMENT_ID), entity.getProperty(JOIN_DATE)));
     }
 
-    return keys;
+
+    cursor = results.getCursor();
+    String nextWebsafeCursor = null;
+    if (cursor != null) {
+      nextWebsafeCursor = cursor.toWebSafeString();
+    }
+
+
+
+    return new ExperimentJoinQueryResult(nextWebsafeCursor, keys);
   }
 
   public static Entity createUserJoinedAclEntity(final long experimentId, String admin, Date joinDate) {

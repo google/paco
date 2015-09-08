@@ -29,11 +29,13 @@ import com.pacoapp.paco.shared.model2.ActionTrigger;
 import com.pacoapp.paco.shared.model2.ExperimentDAO;
 import com.pacoapp.paco.shared.model2.ExperimentGroup;
 import com.pacoapp.paco.shared.model2.ExperimentIdQueryResult;
+import com.pacoapp.paco.shared.model2.ExperimentJoinQueryResult;
 import com.pacoapp.paco.shared.model2.ExperimentQueryResult;
 import com.pacoapp.paco.shared.model2.ExperimentValidator;
 import com.pacoapp.paco.shared.model2.InterruptTrigger;
 import com.pacoapp.paco.shared.model2.JsonConverter;
 import com.pacoapp.paco.shared.model2.PacoAction;
+import com.pacoapp.paco.shared.model2.Pair;
 import com.pacoapp.paco.shared.model2.Schedule;
 import com.pacoapp.paco.shared.model2.ScheduleTrigger;
 import com.pacoapp.paco.shared.model2.SignalTime;
@@ -304,32 +306,33 @@ class DefaultExperimentService implements ExperimentService {
   @Override
   public ExperimentQueryResult getMyJoinedExperiments(String email, DateTimeZone timeZoneForClient,
                                                         Integer limit, String cursor) {
-    List<Pair<Long, Date>> experimentIdJoinDatePairs = ExperimentAccessManager.getJoinedExperimentsFor(email);
+    ExperimentJoinQueryResult experimentIdJoinDatePairs = ExperimentAccessManager.getJoinedExperimentsFor(email, limit, cursor);
 
-    if (experimentIdJoinDatePairs == null || experimentIdJoinDatePairs.size() == 0) {
+    if (experimentIdJoinDatePairs.getExperiments() == null ||
+            // we got zero back, so we haven't updated yet. This is true if there is no cursor. If there is a cursor, we have just exhausted the list.
+            (experimentIdJoinDatePairs.getExperiments().size() == 0 && cursor == null)) {
       List<Event> events = getJoinEventsForLoggedInUser(email, timeZoneForClient);
-      experimentIdJoinDatePairs = getUniqueExperimentIdAndJoinDates(events);
-      if (experimentIdJoinDatePairs.size() > 0) {
-        ExperimentAccessManager.addJoinedExperimentsFor(email, experimentIdJoinDatePairs);
+      List<Pair<Long, Date>> uniqueExperimentIdJoinDatePairs = getUniqueExperimentIdAndJoinDates(events);
+      if (uniqueExperimentIdJoinDatePairs.size() > 0) {
+        ExperimentAccessManager.addJoinedExperimentsFor(email, uniqueExperimentIdJoinDatePairs);
       }
+      experimentIdJoinDatePairs.setExperiments(uniqueExperimentIdJoinDatePairs);
     }
 
     List<ExperimentDAO> experimentDAOs = Lists.newArrayList();
-    if (experimentIdJoinDatePairs.size() == 0) {
-      return new ExperimentQueryResult(cursor, experimentDAOs);
+    if (experimentIdJoinDatePairs.getExperiments().size() == 0) {
+      return new ExperimentQueryResult(null, experimentDAOs);
     }
-
-
 
     Map<Long, Date> experimentIds = Maps.newHashMap();
 
-    for (Pair<Long,Date> pair: experimentIdJoinDatePairs) {
+    for (Pair<Long,Date> pair: experimentIdJoinDatePairs.getExperiments()) {
       experimentIds.put(pair.first, pair.second);
     }
     List<ExperimentDAO> experiments = getExperimentsByIdInternal(Lists.newArrayList(experimentIds.keySet()), email, timeZoneForClient);
     removeNonAdminData(email, experiments);
     addJoinDate(experiments, experimentIds);
-    return new ExperimentQueryResult(cursor, experiments); // TODO honor the limit and cursor
+    return new ExperimentQueryResult(experimentIdJoinDatePairs.getCursor(), experiments); // TODO honor the limit and cursor
   }
 
   private void addJoinDate(List<ExperimentDAO> experiments, Map<Long, Date> experimentIds) {
