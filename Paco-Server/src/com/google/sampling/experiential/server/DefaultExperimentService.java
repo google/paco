@@ -282,7 +282,29 @@ class DefaultExperimentService implements ExperimentService {
     List<ExperimentDAO> experiments = getExperimentsByIdInternal(experimentIds, email, timeZoneForClient);
     experiments = removeEnded(experiments, timeZoneForClient);
     removeNonAdminData(email, experiments);
-    return new ExperimentQueryResult(cursor, experiments); // TODO honor the limit and cursor
+
+    // for now, use the cursor as an offset to return the requested subset.
+    int offset = 0;
+    if (!Strings.isNullOrEmpty(cursor)) {
+      try {
+        offset = Integer.parseInt(cursor);
+      } catch (NumberFormatException e) {
+        offset = 0;
+      }
+    }
+    if (limit != null && limit > 0) {
+      int end = Math.min(offset + limit, experiments.size());
+      List<ExperimentDAO> experimentSubset = experiments.subList(offset, end);
+      if (end < experiments.size()) {
+        cursor = Integer.toString(end);
+      } else {
+        cursor = null;
+      }
+      return new ExperimentQueryResult(cursor, experimentSubset);
+    } else {
+      return new ExperimentQueryResult(null, experiments);
+    }
+
   }
 
   private List<ExperimentDAO> removeEnded(List<ExperimentDAO> experiments, DateTimeZone timeZoneForClient) {
