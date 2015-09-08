@@ -265,9 +265,17 @@ public class Schedule extends ModelBase implements Validatable, MinimumBufferabl
       validator.isNotNull(repeatRate, "repeatRate is not properly initialized");
       validator.isNotNullAndNonEmptyCollection(signalTimes,
                                                "For the schedule type, there must be at least one signal Time");
+      long lastTime = 0;
       for (SignalTime signalTime : signalTimes) {
         signalTime.validateWith(validator);
+        if (signalTime.getBasis() != null && signalTime.getBasis() == SignalTime.FIXED_TIME) {
+          if (signalTime.getFixedTimeMillisFromMidnight() <= lastTime) {
+            validator.addError("Signal Times must be in chronological order");
+          }
+          lastTime = signalTime.getFixedTimeMillisFromMidnight();
+        }
       }
+
     }
 
   }
