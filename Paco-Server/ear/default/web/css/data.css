@@ -17,8 +17,17 @@
   margin-bottom: 16px;
 }
 
+.data .nav .viewSelector {
+  display: inline-block;
+}
+
 .data .nav img {
   vertical-align: middle;
+}
+
+.data .nav .download {
+  margin-left: 96px;
+  margin-right: 24px;
 }
 
 .data button {
@@ -38,7 +47,6 @@
   margin-bottom: 20px;
   padding: 40px;
   text-align: center;
-
 }
 
 .data .summary .stat {
@@ -94,10 +102,21 @@ md-menu-item {
   position: relative;
 }
 
+.data table td .sorting {
+  display: block;
+  position: relative;
+}
+
 .data table td .arrow:after {
   content: '\2191';
   position: absolute;
-  margin-left: 10px;
+  top: 0;
+  right: -16px;
+}
+
+.data table td .left.arrow:after {
+  left: -16px;
+  right: auto;
 }
 
 .data table td .down.arrow:after {

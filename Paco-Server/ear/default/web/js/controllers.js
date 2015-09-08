@@ -370,6 +370,12 @@ pacoApp.controller('DataCtrl', ['$scope', '$mdDialog', '$location', '$filter',
     $scope.loading = null;
     $scope.table = null;
     $scope.showColumn = {};
+    $scope.currentView = 'data';
+
+    $scope.switchView = function() {
+      var newPath = $scope.currentView + '/' + $scope.experimentId;
+      $location.path(newPath);
+    }
 
     $scope.setColumn = function(columnId) {
       if ( $scope.sortColumn === columnId) {
@@ -477,6 +483,7 @@ pacoApp.controller('DataCtrl', ['$scope', '$mdDialog', '$location', '$filter',
     }
 
     if (angular.isDefined($routeParams.experimentId)) {
+      $scope.currentView = 'stats';
       $scope.experimentId = parseInt($routeParams.experimentId, 10);
       $scope.loadStats();
     }
