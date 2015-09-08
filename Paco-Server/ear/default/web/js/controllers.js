@@ -130,6 +130,10 @@ pacoApp.controller('ExperimentCtrl', ['$scope', '$mdDialog', '$filter',
 
     // TODO(ispiro): figure out a way to disable the default # scrolling 
     $scope.$watch('state.tabId', function(newValue, oldValue) {
+      if (config.tabs[$scope.state.tabId] === 'source') {
+        $scope.prepareSourceAce();
+      }
+
       if ($scope.state.tabId === 0) {
         $location.hash('');
       } else if ($scope.state.tabId > 0) {
