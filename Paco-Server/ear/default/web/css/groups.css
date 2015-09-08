@@ -11,6 +11,11 @@
   width: 26px;
 }
 
+.group md-input-container no-ios {
+  position: absolute;
+  right: -24px;
+}
+
 .group .removeGroup:hover {
   opacity: 1;
 }
@@ -220,17 +225,36 @@ div[expander] {
   padding-top: 0px;
 }
 
-.advanced .identifier {
-  position: absolute;
-  left: 332px;
-  top: 44px;
-  z-index: 10;
+.advanced .row {
+  position: relative;
 }
 
-.advanced .identifier md-input-container {
+.advanced .row .right {
+  position: absolute;
+  left: 320px;
+  top: 0px;
+}
+
+.advanced .row .right.source md-input-container {
   position: absolute;
   left: 120px;
-  top: -10px;
+  top: -6px;
+}
+
+.advanced .row .right md-select {
+  position: absolute;
+  left: 124px;
+  top: -26px;
+}
+
+.advanced .row no-ios {
+  position: absolute;
+  left: 320px;
+  top: 0;
+}
+
+.advanced .row .right.source no-ios {
+  top: 2px;
 }
 
 .advanced .feedback {
@@ -243,18 +267,6 @@ div[expander] {
   margin-top: -8px;
   padding-left: 16px;
   padding-right: 16px;
-}
-
-.advanced .over {
-  margin-left: 8px;
-  position: relative;
-}
-
-.advanced .referred {
-  position: absolute;
-  left: 320px;
-  top: -24px;
-  z-index: 10;
 }
 
 .advanced textarea {

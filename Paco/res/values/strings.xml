@@ -224,7 +224,7 @@
     <string name="end_date">"End Date: "</string>
     <string name="esm_frequency">"ESM Frequency: "</string>
     <string name="scheduled_time">"Scheduled Time: "</string>
-    <string name="creator">by</string>
+    <string name="creator">Creator:</string>
     <string name="join_this_experiment">Join this Experiment</string>
     <string name="title">Title</string>
     <string name="edit_schedule">Edit Schedule</string>
@@ -240,7 +240,7 @@
     <string name="load_more_experiments_from_server">Refresh Again to Load More Experiments from Server</string>
     <string name="data_handling_title">You Agree to Share Information with the Experimenters</string>
     <string name="informed_consent_preamble">By joining this experiment, you will be sharing your responses with the creator and administrators of this experiment, and they may use that information for research, product development, or other purposes.  Please read the privacy policy or data handling statement they have provided below to decide whether you want to participate in this experiment.</string>
-    <string name="consent_checkbox_text">"          I consent"</string>
+    <string name="consent_checkbox_text">"I consent"</string>
     <string name="available_experiments">Available Experiments</string>
     <string name="retrieving_location">Retrieving...</string>
     <string name="location_settings">Location Settings</string>
@@ -321,5 +321,8 @@
     <string name="title_activity_settings">Settings</string>
     <string name="hello_world">Hello world!</string>
     <string name="location_to_be_recorded_default_prompt">Location to be recorded</string>
+    <string name="organization">Organization:</string>
+    <string name="contact_">Contact:</string>
+    <string name="done_joining_button">Done</string>
 
 </resources>

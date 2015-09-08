@@ -1,21 +1,29 @@
-<div ng-controller="CsvCtrl" class="stats data">
-  <div class="variable-width-centered">
-    <h2>
-      <a href="#">Experiments</a> &gt
+<div ng-controller="DataCtrl" class="stats data">
+  <div class="variable-width">
+    <div class="nav">
+      <a href="#">
+        <md-button>Experiments</md-button>
+      </a>
+      <img src="/img/ic_chevron_right_24px.svg">
       <a href="#/experiment/{{experimentId}}">
-        <span ng-if="!experiment">{{experimentId}}</span>
-        <span ng-if="experiment">{{experiment.title}}</span>
-      </a> 
-      &gt; Participant Statistics
-    </h2>
-
-    <div ng-if="!stats && !error">
-      <span>{{status}}</span>
-      <md-progress-circular md-mode="indeterminate"></md-progress-circular>
+        <md-button>
+          <span ng-if="!experiment">{{experimentId}}</span>
+          <span ng-if="experiment">{{experiment.title}}</span>
+        </md-button>
+      </a>
+      <img src="/img/ic_chevron_right_24px.svg">
+      <a href="#/stats/{{experimentId}}">
+        <md-button class="md-raised">Stats</md-button>
+      </a>
     </div>
 
+    <div ng-if="loading" class="status">
+      <span>{{status}}</span>
+      <md-button ng-click="loadStats()" ng-if="loading === false && error">Reload</md-button>
+      <md-progress-linear md-mode="indeterminate" ng-if="loading === true"></md-progress-linear>
+    </div>
 
-    <div ng-if="stats" class="frame">
+    <div ng-show="stats" class="frame">
 
       <div class="summary" ng-if="stats && experiment && experiment.published">
         
@@ -80,6 +88,8 @@
           </tfoot>
       </table>
     </div>
-    <div ng-if="error" class="error" ng-bind="error"></div>
+    <div ng-if="error" class="error">
+      Error {{error.code}}: {{error.message}}
+    </div>
   </div>
 </div>

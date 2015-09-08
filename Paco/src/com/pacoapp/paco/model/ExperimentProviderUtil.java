@@ -992,9 +992,27 @@ public class ExperimentProviderUtil implements EventStore {
     return findEventsBy(null, null);
   }
 
-  public NotificationHolder getNotificationFor(long experimentId, String source) {
+  public NotificationHolder getNotificationForSource(long experimentId, String source) {
     String[] selectionArgs = new String[] {Long.toString(experimentId), source};
     String selectionClause = NotificationHolderColumns.EXPERIMENT_ID + " = ? and " + NotificationHolderColumns.NOTIFICATION_SOURCE + " = ?";
+    Cursor cursor = null;
+    try {
+      cursor = contentResolver.query(NotificationHolderColumns.CONTENT_URI,
+        null, selectionClause, selectionArgs, null);
+      if (cursor.moveToFirst()) {
+        return createNotification(cursor);
+      }
+    } finally {
+      if (cursor != null) {
+        cursor.close();
+      }
+    }
+    return null;
+  }
+
+  public NotificationHolder getNotificationForAction(long experimentId, Long actionId) {
+    String[] selectionArgs = new String[] {Long.toString(experimentId), Long.toString(actionId)};
+    String selectionClause = NotificationHolderColumns.EXPERIMENT_ID + " = ? and " + NotificationHolderColumns.ACTION_ID + " = ?";
     Cursor cursor = null;
     try {
       cursor = contentResolver.query(NotificationHolderColumns.CONTENT_URI,
@@ -1013,7 +1031,7 @@ public class ExperimentProviderUtil implements EventStore {
   public List<NotificationHolder> getNotificationsFor(long experimentId, String experimentGroupName) {
     List<NotificationHolder> holders = new ArrayList<NotificationHolder>();
     String[] selectionArgs = new String[] {Long.toString(experimentId), experimentGroupName};
-    String selectionClause = NotificationHolderColumns.EXPERIMENT_ID + " = ? and " + NotificationHolderColumns.NOTIFICATION_SOURCE + " = ?";
+    String selectionClause = NotificationHolderColumns.EXPERIMENT_ID + " = ? and " + NotificationHolderColumns.EXPERIMENT_GROUP_NAME + " = ?";
     Cursor cursor = null;
     try {
       cursor = contentResolver.query(NotificationHolderColumns.CONTENT_URI,

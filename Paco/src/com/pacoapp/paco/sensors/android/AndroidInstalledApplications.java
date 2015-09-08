@@ -18,7 +18,9 @@ public class AndroidInstalledApplications {
           Lists.newArrayList("Chrome", "Gmail", "Phone", "Camera", "Messaging", "Google App",
                              "Maps", "Drive", "Google Play Movies & TV", "Google+", "Google Play Store",
                              "Google Play Newsstand", "Contacts", "Calendar", "Google Play Music",
-                             "Google Play Books", "Hangouts", "Gallery", "Google Play Games", "YouTube");
+                             "Google Play Books", "Hangouts", "Gallery", "Google Play Games", "YouTube",
+                             "Keep", "Wallet", "Earth", "Calculator", "Photos", "Fit", "Google Contacts",
+                             "Clock", "Email", "News & Weather", "Slides", "Sheets", "Documents");
   private Context context;
 
   public AndroidInstalledApplications(Context context) {

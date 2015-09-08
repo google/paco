@@ -15,36 +15,225 @@
  ~ specific language governing permissions and limitations
  ~ under the License.
 -->
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/ScrollView01"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:layout_margin="0dp"
-    android:padding="0dp" >
+    android:orientation="vertical" >
 
-    <LinearLayout
+    <TextView
+        android:id="@+id/experiment_name"
         android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:orientation="vertical" >
+        android:layout_height="wrap_content"
+        android:paddingBottom="4dip"
+        android:paddingLeft="8dip"
+        android:paddingTop="4dip"
+        android:text="Name of this experiment"
+        android:textSize="25sp" >
+    </TextView>
+<!-- author details -->
+    <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="left"
+            android:orientation="horizontal" >
 
-        <include layout="@layout/experiment_detail_part" >
-        </include>
+        <TextView
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:paddingBottom="4dip"
+                android:paddingLeft="8dip"
+                android:paddingTop="4dip"
+                android:text="@string/organization"
+                android:textStyle="bold" 
+                android:textSize="16dip"/>
 
-        <Button
-            android:id="@+id/JoinExperimentButton"
+            <TextView
+                android:id="@+id/organization"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:paddingBottom="4dip"
+                android:paddingLeft="8dip"
+                android:paddingTop="4dip"
+                android:text="---------------" />
+            
+            <TextView
+                android:id="@+id/verified"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:paddingBottom="4dip"
+                android:paddingLeft="8dip"
+                android:paddingTop="4dip"
+                android:text="(unverified)" 
+                android:textStyle="bold" />
+</LinearLayout> 
+
+      <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="left"
+            android:orientation="horizontal" >
+    
+            <TextView
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:paddingBottom="4dip"
+                android:paddingLeft="8dip"
+                android:paddingTop="4dip"
+                android:text="@string/contact_"
+                android:textStyle="bold" 
+                android:textSize="16dip"/>
+
+            <TextView
+                android:id="@+id/contact"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:paddingBottom="4dip"
+                android:paddingLeft="8dip"
+                android:paddingTop="4dip"
+                android:text="---------------" />
+</LinearLayout>
+<!-- 
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="left"
+            android:orientation="horizontal" >
+      
+            <TextView
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:paddingBottom="4dip"
+                android:paddingLeft="8dip"
+                android:paddingTop="4dip"
+                android:text="@string/creator"
+                android:textStyle="bold" />
+ 
+            <TextView
+                android:id="@+id/creator"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:paddingBottom="4dip"
+                android:paddingLeft="8dip"
+                android:paddingTop="4dip"
+                android:text="" />
+ 
+ </LinearLayout>
+  -->
+<!-- author details end -->            
+            
+            <TextView
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="left"
+                android:gravity="left"
+                android:paddingBottom="4dip"
+                android:paddingLeft="8dip"
+                android:paddingTop="4dip"
+                android:text="@string/description"
+                android:textSize="16dip"
+                android:textStyle="bold" >
+            </TextView>
+
+            
+    
+    <ScrollView
+        android:id="@+id/ScrollView01"
+        android:layout_width="fill_parent"
+         android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:layout_margin="0dp"
+        android:padding="0dp" >
+
+        <LinearLayout
             android:layout_width="fill_parent"
-            android:layout_height="fill_parent"
-            android:layout_gravity="center_horizontal|bottom"
-            android:layout_marginTop="16dip"
-            android:layout_marginLeft="32dip"
-            android:layout_marginRight="32dip"
-            android:background="@color/purple_background"
-            android:paddingBottom="4dip"
-            android:paddingLeft="8dip"
-            android:paddingTop="4dip"
-            android:text="@string/join_this_experiment"
-            android:textColor="#ffffff" >
-        </Button>
-    </LinearLayout>
+            android:layout_height="wrap_content"
+            android:orientation="vertical" >
 
-</ScrollView>
+            <TextView
+                android:id="@+id/description"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:paddingBottom="4dip"
+                android:paddingLeft="8dip"
+                android:paddingTop="4dip"
+                android:text="@string/description"
+                android:textSize="16dip" />
+
+
+        </LinearLayout>
+    </ScrollView>
+    <!-- 
+             <LinearLayout
+                android:id="@+id/durationPanel"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="left"
+                android:orientation="vertical" >
+
+                <TextView
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="left"
+                    android:paddingBottom="4dip"
+                    android:paddingLeft="8dip"
+                    android:paddingTop="4dip"
+                    android:text="@string/start_date"
+                    android:textStyle="bold" >
+                </TextView>
+
+                <TextView
+                    android:id="@+id/startDate"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="left"
+                    android:paddingBottom="4dip"
+                    android:paddingLeft="8dip"
+                    android:paddingTop="4dip"
+                    android:text="@string/start_date" >
+                </TextView>
+
+                <TextView
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="left"
+                    android:paddingBottom="4dip"
+                    android:paddingLeft="8dip"
+                    android:paddingTop="4dip"
+                    android:text="@string/end_date"
+                    android:textStyle="bold" >
+                </TextView>
+
+                <TextView
+                    android:id="@+id/endDate"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="left"
+                    android:paddingBottom="4dip"
+                    android:paddingLeft="8dip"
+                    android:paddingTop="4dip"
+                    android:text="@string/end_date" >
+                </TextView>
+            </LinearLayout>
+           end -->
+    
+    <Button
+        android:id="@+id/JoinExperimentButton"
+        android:layout_width="fill_parent"
+        android:layout_height="65dip"
+        android:layout_alignParentBottom="true"
+        android:layout_gravity="center_horizontal|bottom"        
+        android:background="@color/purple_background"
+        android:paddingBottom="4dip"
+        android:paddingLeft="8dip"
+        android:paddingRight="8dip"
+        android:paddingTop="4dip"
+        android:layout_marginBottom="4dip"
+        android:layout_marginLeft="8dip"
+        android:layout_marginRight="8dip"
+        android:layout_marginTop="4dip"
+        android:text="@string/join_this_experiment"
+        android:textColor="#ffffff"        
+         >
+    </Button>
+
+</LinearLayout>
