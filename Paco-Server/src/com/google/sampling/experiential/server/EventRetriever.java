@@ -612,9 +612,10 @@ public class EventRetriever {
       extensionMap.put(JDOCursorHelper.CURSOR_EXTENSION, cursor);
       q.setExtensions(extensionMap);
       // q.getFetchPlan().addGroup("PhotoBlob").addGroup("keysList").addGroup("valuesList");
-      q.getFetchPlan().setFetchSize(limit);
-    }
+      //q.getFetchPlan().setFetchSize(limit);
 
+    }
+    q.setRange(0, limit);
     List<Event> currentResults = (List<Event>) q.executeWithArray(eventJDOQuery.getParameters().toArray());
     // log.info("Got back " + currentResults.size() + " results");
     if (currentResults != null && !currentResults.isEmpty()) {
@@ -634,7 +635,7 @@ public class EventRetriever {
 
       // log.info("Accumulated result count: " + allEvents.size());
       Cursor newCursor = JDOCursorHelper.getCursor(currentResults);
-      if (newCursor == null || (cursor != null && newCursor.toWebSafeString().equals(cursor.toWebSafeString()))) {
+      if (newCursor == null || (cursor != null && newCursor.toWebSafeString().equals(websafeCursor))) {
         cursor = null;
       } else {
         cursor = newCursor;
