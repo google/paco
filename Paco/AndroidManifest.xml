@@ -17,8 +17,8 @@
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.pacoapp.paco"
-    android:versionCode="132"
-    android:versionName="4.1.10" xmlns:tools="http://schemas.android.com/tools">
+    android:versionCode="133"
+    android:versionName="4.1.11" xmlns:tools="http://schemas.android.com/tools">
     <uses-feature android:name="android.hardware.location" android:required="false"/>
     <uses-feature android:name="android.hardware.telephony" android:required="false"/>
     <uses-feature android:name="android.hardware.camera.autofocus" android:required="false"/>
