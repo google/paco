@@ -130,6 +130,10 @@ pacoApp.controller('ExperimentCtrl', ['$scope', '$mdDialog', '$filter',
 
     // TODO(ispiro): figure out a way to disable the default # scrolling 
     $scope.$watch('state.tabId', function(newValue, oldValue) {
+      if (config.tabs[$scope.state.tabId] === 'source') {
+        $scope.prepareSourceAce();
+      }
+
       if ($scope.state.tabId === 0) {
         $location.hash('');
       } else if ($scope.state.tabId > 0) {
@@ -366,6 +370,12 @@ pacoApp.controller('DataCtrl', ['$scope', '$mdDialog', '$location', '$filter',
     $scope.loading = null;
     $scope.table = null;
     $scope.showColumn = {};
+    $scope.currentView = 'data';
+
+    $scope.switchView = function() {
+      var newPath = $scope.currentView + '/' + $scope.experimentId;
+      $location.path(newPath);
+    }
 
     $scope.setColumn = function(columnId) {
       if ( $scope.sortColumn === columnId) {
@@ -473,6 +483,7 @@ pacoApp.controller('DataCtrl', ['$scope', '$mdDialog', '$location', '$filter',
     }
 
     if (angular.isDefined($routeParams.experimentId)) {
+      $scope.currentView = 'stats';
       $scope.experimentId = parseInt($routeParams.experimentId, 10);
       $scope.loadStats();
     }

@@ -6,15 +6,17 @@
       </a>
       <img src="/img/ic_chevron_right_24px.svg">
       <a href="#/experiment/{{experimentId}}">
-        <md-button>
+        <md-button aria-label="experiment name">
           <span ng-if="!experiment">{{experimentId}}</span>
           <span ng-if="experiment">{{experiment.title}}</span>
         </md-button>
       </a>
       <img src="/img/ic_chevron_right_24px.svg">
-      <a href="#/stats/{{experimentId}}">
-        <md-button class="md-raised">Stats</md-button>
-      </a>
+      <md-input-container class="viewSelector">
+        <md-select ng-model="currentView" ng-change="switchView()" aria-label="Change view">
+          <md-option value="stats" aria-label="Stats view">Stats</md-option>
+          <md-option value="data" aria-label="Data view">Data</md-option>
+        </md-select>
     </div>
 
     <div ng-if="loading" class="status">
@@ -44,43 +46,45 @@
       <table>
         <tr>
           <td right-border></td>
-          <td></td>
-          <td>Today</td>
-          <td right-border></td>
-          <td></td>
-          <td>Total</td>
-          <td></td>
+          <td right-border colspan=2>Today</td>
+          <td colspan=2>Total</td>
         </tr>
         <tr heading>
           <td right-border>
-            <a href="" ng-click="setColumn('who')" ng-class="{arrow: (sortColumn == 'who'), down: reverseSort }">Participant<br>email</a>
+            <span class="sorting">
+              <a href="" ng-click="setColumn('who')" ng-class="{arrow: (sortColumn == 'who'), down: reverseSort }">Participant<br>email</a>
+            </span>
           </td>
           <td>
-            Signal Response<br>Rate
-          </td>
-          <td>
-            <a href="" ng-click="setColumn('todaySignalResponseCount')"  ng-class="{arrow: (sortColumn == 'todaySignalResponseCount'), down: reverseSort }">Signal Response<br>Count</a>
+            <span class="sorting">
+              <a href="" ng-click="setColumn('todaySignalResponseCount')" class="left" ng-class="{arrow: (sortColumn == 'todaySignalResponseCount'), down: reverseSort }">Response</a> /
+              <a href="" ng-click="setColumn('todaySignalCount')"  ng-class="{arrow: (sortColumn == 'todaySignalCount'), down: reverseSort }">Signal</a>
+              <br>Ratio
+            </span>
           </td>
           <td right-border>
-            <a href="" ng-click="setColumn('todaySelfReportCount')" ng-class="{arrow: (sortColumn == 'todaySelfReportCount'), down: reverseSort }">Self-Report<br>Count</a>
-          </td>
-          <td>Signal Response
-            <br>Rate
-          </td>
-          <td>
-            <a href="" ng-click="setColumn('totalSignalResponseCount')" ng-class="{arrow: (sortColumn == 'totalSignalResponseCount'), down: reverseSort }">Signal Response<br>Count</a>
+            <span class="sorting">
+              <a href="" ng-click="setColumn('todaySelfReportCount')" ng-class="{arrow: (sortColumn == 'todaySelfReportCount'), down: reverseSort }">Self-Report<br>Count</a>
+            </span>
           </td>
           <td>
-            <a href="" ng-click="setColumn('totalSelfReportCount')" ng-class="{arrow: (sortColumn == 'totalSelfReportCount'), down: reverseSort }">Self-Report<br>Count</a>
+            <span class="sorting">
+              <a href="" ng-click="setColumn('totalSignalResponseCount')" class="left" ng-class="{arrow: (sortColumn == 'totalSignalResponseCount'), down: reverseSort }">Response</a> / 
+              <a href="" ng-click="setColumn('totalSignalCount')"  ng-class="{arrow: (sortColumn == 'totalSignalCount'), down: reverseSort }">Signal</a>
+              <br>Ratio
+            </span>
+          </td>
+          <td>
+            <span class="sorting">
+              <a href="" ng-click="setColumn('totalSelfReportCount')" ng-class="{arrow: (sortColumn == 'totalSelfReportCount'), down: reverseSort }">Self-Report<br>Count</a>
+            </span>
           </td>
         </tr>
         <tr ng-repeat="row in stats.participants | orderBy: sortColumn: reverseSort">
           <td right-border>{{row["who"]}}</td>
-          <td>{{row["todaySignalResponseCount"]/row["todaySignalCount"]|percent}}</td>
-          <td>{{row["todaySignalResponseCount"]}}</td>
+          <td>{{row["todaySignalResponseCount"]}} / {{row["todaySignalCount"]}}</td>
           <td right-border>{{row["todaySelfReportCount"]}}</td>
-          <td>{{row["totalSignalResponseCount"]/row["totalSignalCount"]|percent}}</td>
-          <td>{{row["totalSignalResponseCount"]}}</td>
+          <td>{{row["totalSignalResponseCount"]}} / {{row["totalSignalCount"]}}</td>
           <td>{{row["totalSelfReportCount"]}}</td>
         </tr>
          <tfoot>
