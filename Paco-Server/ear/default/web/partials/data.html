@@ -1,6 +1,7 @@
-<div ng-controller="DataCtrl" class="csv data">
+<div ng-controller="DataCtrl" class="padded events data">
+  <div class="variable-width">
 
-<div class="nav">
+  <div class="nav">
       <a href="#">
         <md-button>Experiments</md-button>
       </a>
@@ -13,15 +14,12 @@
         </md-button>
       </a>
       <img src="/img/ic_chevron_right_24px.svg">
-      <a href="#/data/{{experimentId}}">
-        <md-button class="md-raised">Data</md-button>
-      </a>
-
-      <img src="/img/ic_chevron_right_24px.svg">
-      <a ng-href="{{csvData}}" download="export.csv">
-        <md-button class="md-primary">Download CSV</md-button>
-      </a>
-      
+      <md-input-container class="viewSelector">
+        <md-select ng-model="currentView" ng-change="switchView()" aria-label="change view">
+          <md-option value="stats" aria-label="stats view">Stats</md-option>
+          <md-option value="data" aria-label="data view">Data</md-option>
+        </md-select>
+      </md-input-container>
       <md-menu md-offset="108 4">
         <md-button aria-label="Toggle displayed columns" ng-click="$mdOpenMenu($event)">
           Columns
@@ -40,12 +38,7 @@
         <md-button ng-click="loadEvents()" ng-if="loading === false && error">Reload</md-button>
         <md-progress-linear md-mode="indeterminate" ng-if="loading === true"></md-progress-linear>
       </div>
-    </div>
-
-    
-  <div class="variable-width">
-
-    
+    </div>    
 
     <div ng-if="table && table.rows.length > 0" class="frame">
       <table>
@@ -64,14 +57,21 @@
             <td ng-repeat="cell in row track by $index" ng-show="showColumn[table.header[$index]]">{{cell}}</td>
           </tr>
         </tbody>
-        <tfoot>
-          <td>Showing {{table.length - 1}} out of {{table.length - 1}}</td>
-        </tfoot>
       </table>
     </div>
+
+    <md-card class="footer">
+      <md-card-content>
+        Showing {{table.rows.length - 1}} out of {{table.rows.length - 1}}
+        <a ng-href="{{csvData}}" download="export.csv" class="download">
+          <md-button>Download CSV</md-button>
+        </a>  
+      </md-card-content>
+    </md-card>
+  </div>
 
   <div ng-if="error" class="error">
     Error {{error.code}}: {{error.message}}
   </div>
-</div>
+
 </div>

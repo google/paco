@@ -7,18 +7,35 @@
 }
 
 .data .nav {
-  display: inline-block;
   font-size: 18px;
   font-weight: 400;
-  margin-bottom: 16px;
+  position: relative;
+  min-width: 960px;
+  text-align: center;
+}
+
+.data .nav .viewSelector {
+  display: inline-block;
 }
 
 .data .nav img {
   vertical-align: middle;
 }
 
-.data button {
-  margin-right: 0;
+.data .footer {
+  line-height: 24px;
+  margin-right: 2px;
+  padding: 16px;
+}
+
+.data .download {
+  float: right;
+}
+
+.data md-menu {
+  position: absolute;
+  top: 0;
+  right: 0;
 }
 
 .data table {
@@ -28,6 +45,7 @@
   box-shadow: 0px 3px 1px -2px rgba(0, 0, 0, 0.2), 0px 2px 2px 0px rgba(0, 0, 0, 0.14), 0px 1px 5px 0px rgba(0, 0, 0, 0.12);
   font-size: 13px;
   position: relative;
+  width: 100%;
 }
 
 .data .summary {
@@ -81,43 +99,37 @@ md-menu-item {
   height: 48px;
 }
 
-.data table thead {
+.data.events table thead {
   border-bottom: 1px solid #e3e3e3;
   display: block;
   height: 48px;
 }
 
-.data table tbody {
+.data.events table tbody {
   display: block;
+  max-height: calc(100vh - 338px);
+  overflow: scroll;
 }
 
-.data table tbody tr:nth-of-type(1) a {
+.data.events table tbody tr:nth-of-type(1) a {
   position: absolute;
   top: 16px;
 }
 
-.data table tbody tr:nth-of-type(2) a {
+.data.events table tbody tr:nth-of-type(2) a {
   display: block;
   height: 0px;
   overflow: hidden;
 }
 
-.data table tbody tr:nth-of-type(1),
-.data table tbody tr:nth-of-type(2) {
+.data.events table tbody tr:nth-of-type(1),
+.data.events table tbody tr:nth-of-type(2) {
   border-bottom: none;
   height: 0px;
 }
 
-.data table tbody {
-  display: block;
-  max-height: calc(100vh - 304px);
-  overflow: scroll;
-
-}
-
 .data table td {
   padding: 0 24px 0 24px;
-  text-align: left ;
   white-space: nowrap;
 }
 
@@ -125,10 +137,21 @@ md-menu-item {
   position: relative;
 }
 
+.data table td .sorting {
+  display: block;
+  position: relative;
+}
+
 .data table td .arrow:after {
   content: '\2191';
   position: absolute;
-  margin-left: 10px;
+  top: 0;
+  right: -16px;
+}
+
+.data table td .left.arrow:after {
+  left: -16px;
+  right: auto;
 }
 
 .data table td .down.arrow:after {
@@ -146,6 +169,8 @@ md-menu-item {
 
 .data .variable-width {
   display: inline-block;
+  max-width: 100%;
+  overflow-x: scroll;
   text-align: left;
 }
 

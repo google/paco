@@ -7,6 +7,14 @@ pacoApp.controller('HomeCtrl', ['$scope', '$http', '$location',
     $scope.loaded = false;
     $scope.edit = false;
 
+    $scope.scrolling = function(flag) {
+      if (flag) {
+        angular.element(document.body).removeClass('no-scroll');
+      } else {
+        angular.element(document.body).addClass('no-scroll');
+      }
+    };
+
     $scope.forceHttps = function() {
       var devMode = ($location.host() === 'localhost' ||
         $location.host() === '127.0.0.1');
@@ -19,6 +27,11 @@ pacoApp.controller('HomeCtrl', ['$scope', '$http', '$location',
     };
 
     $scope.forceHttps();
+
+    $scope.$on('$viewContentLoaded', 
+      function(event){ 
+        $scope.scrolling(true);
+      });
 
     $http.get('/userinfo').success(function(data) {
 
@@ -358,7 +371,7 @@ pacoApp.controller('ListCtrl', ['$scope', '$mdDialog', '$location',
 
 
 pacoApp.controller('DataCtrl', ['$scope', '$mdDialog', '$location', '$filter',
-    '$routeParams','dataService', 'experimentService', 'config',
+  '$routeParams','dataService', 'experimentService', 'config',
   function($scope, $mdDialog, $location, $filter, $routeParams, dataService, 
     experimentService, config) {
 
@@ -370,6 +383,12 @@ pacoApp.controller('DataCtrl', ['$scope', '$mdDialog', '$location', '$filter',
     $scope.loading = null;
     $scope.table = null;
     $scope.showColumn = {};
+    $scope.currentView = 'data';
+
+    $scope.switchView = function() {
+      var newPath = $scope.currentView + '/' + $scope.experimentId;
+      $location.path(newPath);
+    }
 
     $scope.setColumn = function(columnId) {
       if ( $scope.sortColumn === columnId) {
@@ -391,6 +410,8 @@ pacoApp.controller('DataCtrl', ['$scope', '$mdDialog', '$location', '$filter',
 
       dataService.getEvents($scope.experimentId, user, anonymous).
       then(function(result) {
+
+        $scope.scrolling(false);
 
         if (result.data) {
           $scope.data = result.data;
@@ -445,6 +466,7 @@ pacoApp.controller('DataCtrl', ['$scope', '$mdDialog', '$location', '$filter',
     $scope.loadStats = function() {
       $scope.loading = true;
       $scope.stats = null;
+      $scope.currentView = 'stats';
 
       dataService.getParticipantData($scope.experimentId, user).
       then(function(result) {
