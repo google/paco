@@ -295,14 +295,14 @@ public class HtmlBlobWriter {
         }
       }
       out.append("</table>");
-      if (eventQueryResultPair.getNextCursor() != null) {
+      if (eventQueryResultPair.getCursor() != null) {
         String nextCursorUrl = "/events?q=" +
                 originalQuery +
                 "&who=" + whoFromLogin +
                 "&anon=" + anon +
                 "&tz=" + clientTimezone +
                 "&reportFormat=html" +
-                "&cursor=" + eventQueryResultPair.getNextCursor();
+                "&cursor=" + eventQueryResultPair.getCursor();
         out.append("<center><font size=+4><a href=\"" + nextCursorUrl + "\">Load More Results</a></font></center>");
 
       }
