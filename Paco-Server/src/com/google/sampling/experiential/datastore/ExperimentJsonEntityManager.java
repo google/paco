@@ -18,6 +18,7 @@ import com.google.appengine.api.datastore.Query;
 import com.google.appengine.api.datastore.QueryResultList;
 import com.google.appengine.api.datastore.Text;
 import com.google.appengine.api.datastore.Transaction;
+import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.pacoapp.paco.shared.model2.ExperimentDAO;
 import com.pacoapp.paco.shared.model2.JsonConverter;
@@ -151,7 +152,7 @@ public class ExperimentJsonEntityManager {
     PreparedQuery preparedQuery = ds.prepare(query);
     FetchOptions options = null;
     Cursor fromWebSafeString = null;
-    if (cursor != null) {
+    if (!Strings.isNullOrEmpty(cursor) && !"null".equals(cursor)) {
       fromWebSafeString = Cursor.fromWebSafeString(cursor);
     }
     options = getFetchOptions(fromWebSafeString);
