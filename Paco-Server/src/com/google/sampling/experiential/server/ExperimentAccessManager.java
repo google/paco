@@ -400,7 +400,7 @@ public class ExperimentAccessManager {
     FetchOptions fetchOptions = FetchOptions.Builder.withLimit(limit);
 
     Cursor cursor = null;
-    if (!Strings.isNullOrEmpty(websafeCursor)) {
+    if (!Strings.isNullOrEmpty(websafeCursor) && !websafeCursor.equals("null")) {
       cursor = Cursor.fromWebSafeString(websafeCursor);
       if (cursor != null) {
         fetchOptions.startCursor(cursor);
@@ -518,7 +518,7 @@ public class ExperimentAccessManager {
     FetchOptions fetchOptions = FetchOptions.Builder.withLimit(limit);
 
     Cursor cursor = null;
-    if (!Strings.isNullOrEmpty(websafeCursor)) {
+    if (!Strings.isNullOrEmpty(websafeCursor) && !websafeCursor.equals("null")) {
       cursor = Cursor.fromWebSafeString(websafeCursor);
       if (cursor != null) {
         fetchOptions.startCursor(cursor);
