@@ -816,7 +816,7 @@ pacoApp.controller('SummaryCtrl', ['$scope', 'config', function($scope, config) 
   $scope.getActionSummary = function() {
     if ($scope.action.actionCode !== undefined && $scope.action.actionCode !==
       '') {
-      return config.actionTypes[$scope.action.actionCode - 1];
+      return config.actionTypes[$scope.action.actionCode];
     } else {
       return 'Undefined';
     }
