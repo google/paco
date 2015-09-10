@@ -1,6 +1,7 @@
-<div ng-controller="DataCtrl" class="csv data">
-  <div>
-    <div class="nav">
+<div ng-controller="DataCtrl" class="padded events data">
+  <div class="variable-width">
+
+  <div class="nav">
       <a href="#">
         <md-button>Experiments</md-button>
       </a>
@@ -19,11 +20,6 @@
           <md-option value="data" aria-label="data view">Data</md-option>
         </md-select>
       </md-input-container>
-
-      <a ng-href="{{csvData}}" download="export.csv" class="download">
-        <md-button>Download CSV</md-button>
-      </a>
-      
       <md-menu md-offset="108 4">
         <md-button aria-label="Toggle displayed columns" ng-click="$mdOpenMenu($event)">
           Columns
@@ -42,27 +38,37 @@
         <md-button ng-click="loadEvents()" ng-if="loading === false && error">Reload</md-button>
         <md-progress-linear md-mode="indeterminate" ng-if="loading === true"></md-progress-linear>
       </div>
-    </div>
+    </div>    
 
     <div ng-if="table && table.rows.length > 0" class="frame">
       <table>
-        <tr>
-          <td ng-repeat="cell in table.header track by $index" ng-show="showColumn[cell]">
-            <a href=""  ng-click="setColumn($index)"
-            ng-class="{arrow: (sortColumn == $index), down: reverseSort }">
-              {{cell}}
-            </a>
-          </td>
-        </tr>
-
-        <tr ng-repeat="row in table.rows | orderBy: columnSort: reverseSort">
-          <td ng-repeat="cell in row track by $index" ng-show="showColumn[table.header[$index]]">{{cell}}</td>
-        </tr>
-        <tfoot>
-          <td>Showing {{table.length - 1}} out of {{table.length - 1}}</td>
-        </tfoot>
+        <thead>
+        </thead>
+          <tbody>
+          <tr ng-repeat="copy in [1,2]">
+            <td ng-repeat="cell in table.header track by $index" ng-show="showColumn[cell]">
+              <a href=""  ng-click="setColumn($index)"
+              ng-class="{arrow: (sortColumn == $index), down: reverseSort }">
+                {{cell}}
+              </a>
+            </td>
+          </tr>
+          <tr ng-repeat="row in table.rows | orderBy: columnSort: reverseSort">
+            <td ng-repeat="cell in row track by $index" ng-show="showColumn[table.header[$index]]">{{cell}}</td>
+          </tr>
+        </tbody>
       </table>
     </div>
+
+    <md-card class="footer">
+      <md-card-content>
+        Showing {{table.rows.length - 1}} out of {{table.rows.length - 1}}
+        <a ng-href="{{csvData}}" download="export.csv" class="download">
+          <md-button>Download CSV</md-button>
+        </a>  
+      </md-card-content>
+    </md-card>
+  </div>
 
   <div ng-if="error" class="error">
     Error {{error.code}}: {{error.message}}
