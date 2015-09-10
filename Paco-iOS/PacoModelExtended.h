@@ -21,8 +21,8 @@
 @property (retain, readonly) NSArray *myDefinitions;  // <PacoExperimentDefinition>
 @property (retain, readonly) NSArray *runningExperiments;  // <PacoExperiment>
 
-- (PAExperimentDAO *)experimentDefinitionForId:(NSString *)experimentId;
-- (PacoExperimentExtended *)experimentForId:(NSString *)instanceId;
+- (PAExperimentDAO *)experimentDefinitionForId:(long) instanceId;
+
 
 - (BOOL)hasLoadedMyDefinitions;
 - (BOOL)hasLoadedRunningExperiments;
@@ -59,6 +59,8 @@
 /* delete this */
 
 - (NSArray* )loadExperimentDefinitionsFromFileWithJson;
+- (BOOL)loadExperimentDefinitionsFromFile;
+
 
 
 @end

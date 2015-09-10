@@ -105,7 +105,12 @@
         _cache = [NSCache new];
         _container = [ITAhoCorasickContainer new];
         _attributeClassMap = [NSMutableDictionary new];
-        [self buildAttibuuteClassMap];
+      
+//      if(_classes !=nil)
+//      {
+//       [self buildAttibuuteClassMap];
+//      }
+      NSLog(@"done");
      
   }
   return self;
@@ -133,6 +138,37 @@
   [self recurseObjectHierarchy:@[ PACO_OBJECT_PARENT, parent ]];
   return _parentCollection;
 }
+
+
+
+-(NSArray*) toJSonStringFromNSArrayOfDefinitionObjects:(NSArray*) definitions
+{
+ 
+     NSMutableArray* definitionsList = [[NSMutableArray alloc] init];
+    
+    for(PAExperimentDAO *definition in definitions)
+    {
+       NSData * data = [self toJSONobject:definition] ;
+       NSString * jsonString=   [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+        
+       [definitionsList addObject:jsonString];
+    }
+  
+    return definitionsList;
+}
+
+- (NSData *)toJSONobjectWithListOfDefinitions:(NSArray*) arrayList {
+    _parentCollection = nil;
+    [_objectTracking removeAllObjects];
+    
+    NSError* error2 = nil;
+    NSData* newData =
+    [NSJSONSerialization dataWithJSONObject:_parentCollection
+                                    options:NSJSONWritingPrettyPrinted
+                                      error:&error2];
+    return newData;
+}
+
 
 - (NSData *)toJSONobject:(NSObject*)parent {
   _parentCollection = nil;
@@ -165,18 +201,52 @@
   return _parentNode;
 }
 
-- (NSObject*)buildObjectHierarchyFromJSONOBject:(id)data {
-  _parentNode = nil;
-  NSError* error;
-  id definitionDict =
-      [NSJSONSerialization JSONObjectWithData:data
-                                      options:NSJSONReadingAllowFragments
-                                        error:&error];
+- (NSObject*)buildObjectHierarchyFromJSONOBject:(id) object  {
+    _parentNode = nil;
+    NSError* error;
+    id definitionDict =
+    [NSJSONSerialization JSONObjectWithData:object
+                                    options:NSJSONReadingAllowFragments
+                                      error:&error];
     
     
+    
+    [self recurseJason:@[ PACO_OBJECT_PARENT, @[definitionDict] ]];
+    return _parentNode;
+}
 
-  [self recurseJason:@[ PACO_OBJECT_PARENT, @[definitionDict] ]];
-  return _parentNode;
+
+- (NSObject*)buildObjectHierarchyFromJSONString:(id)json {
+    _parentNode = nil;
+    NSError* error;
+    id definitionDict =
+    [NSJSONSerialization JSONObjectWithData:[json dataUsingEncoding:NSUTF8StringEncoding]
+                                    options:NSJSONReadingAllowFragments
+                                      error:&error];
+    
+    
+    
+    [self recurseJason:@[ PACO_OBJECT_PARENT, @[definitionDict] ]];
+    return _parentNode;
+}
+
+
+- (NSObject*)buildSingleObjectHierarchyFromJSONString:(id)json {
+    _parentNode = nil;
+    NSObject* retObj= nil;
+    NSError* error;
+    id definitionDict =
+    [NSJSONSerialization JSONObjectWithData:[json dataUsingEncoding:NSUTF8StringEncoding]
+                                    options:NSJSONReadingAllowFragments
+                                      error:&error];
+    
+    [self recurseJason:@[ PACO_OBJECT_PARENT, @[definitionDict] ]];
+    if([((JavaUtilArrayList*) _parentNode) size] > 0)
+    {
+       retObj = [((JavaUtilArrayList*) _parentNode) getWithInt:0];
+    }
+    return retObj;
+    
 }
 
 - (void)validate:(NSArray*)parentInfo {
@@ -223,7 +293,7 @@
 - (void)recurseObjectHierarchy:(NSArray*)parentInfo {
     
     
-    if ([parentInfo[1] isKindOfClass:[JavaUtilArrayList class]]  || [parentInfo[1] conformsToProtocol:@protocol(JavaUtilList)]   )
+    if (  [parentInfo[1] isKindOfClass:[JavaUtilArrayList class]]  || [parentInfo[1] conformsToProtocol:@protocol(JavaUtilList)]   )
     {
     NSArray* myArray = (NSArray*)[parentInfo[1] toArray];
     NSMutableArray* mArray = [NSMutableArray new];
@@ -265,12 +335,26 @@
  
         )
     {
+     
+        
+       /* lets add the name of the class so we can serialize later */
+        
+        NSString* clazzName = NSStringFromClass( [o class] );
+        if ([clazzName hasPrefix:METHOD_PREFIX])
+        {
+         clazzName  = [clazzName substringFromIndex:[METHOD_PREFIX length]];
+        }
+  
+        NSString* nameOfClass =
+        [NSString stringWithFormat:@"com.pacoapp.paco.shared.model2.%@", clazzName];
         
      /* assuming this is a   object */ 
       NSMutableDictionary* mutableDictionary = [NSMutableDictionary new];
       [self addToCollection:parentInfo[0] Value:mutableDictionary];
+        
       [self push:mutableDictionary];
-      NSObject* object = parentInfo[1];
+      [mutableDictionary setObject:nameOfClass forKey:@"nameOfClass"];
+       NSObject* object = parentInfo[1];
       unsigned int numIvars = 0;
 
       NSObject* interObject = object;
@@ -361,7 +445,7 @@
 - (void)addToCollection:(NSString*)attributeName Value:(NSObject*)object {
   NSObject* parent = [self parent];
   /*
-   lets handle three cases for the parent
+   lets handle two cases for the parent
       A) parent could be a list object
       B) parent could be a dictionary object.
       */
@@ -382,10 +466,15 @@
             NSString *nsstr = [format stringFromDate:(NSDate*) object];
             object = nsstr;
             
+             [((NSMutableArray*)parent)addObject:object];
+        }
+        else
+        {
+             [((NSMutableArray*)parent)addObject:object];
             
         }
         
-      [((NSMutableArray*)parent)addObject:object];
+     
     }
 
   } else if ([parent isKindOfClass:[NSMutableDictionary class]]) {
@@ -441,7 +530,7 @@
     {
          if([object isKindOfClass:[PAActionTrigger class]])
          {
-             //PAScheduleTrigger * scheduleTrigger = (
+              /* check if logic is needed for subclasses, else remove this code */
               [((JavaUtilArrayList*)parent)addWithId:(PAScheduleTrigger*) object];
              
          }
@@ -588,6 +677,8 @@
     } else {
       /* this is the first list or parent object so we want to set it as the
        * root object */
+        
+        
       _parentNode = arrayList;
     }
 

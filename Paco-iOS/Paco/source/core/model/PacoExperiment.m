@@ -114,10 +114,13 @@
 }
 
 - (BOOL)hasESMScheduleList {
+    
   return [self.schedule.esmScheduleList count] > 0;
 }
 
 static int INVALID_INDEX = -1;
+
+
 - (NSArray*)ESMSchedulesFromDate:(NSDate*)fromDate {
   if (![self.schedule isESMSchedule] || fromDate == nil) {
     return nil;

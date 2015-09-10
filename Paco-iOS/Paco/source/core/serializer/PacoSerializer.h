@@ -73,8 +73,19 @@ typedef NS_ENUM(NSInteger, PacoParentType) {
 - (NSData *)toJSONobject:(NSObject*)parent;
 /* create a json object from nested Foundation classes */
 - (NSObject*)buildObjectHierarchyFromCollections:(id)collection;
-/* recursively call validate   */
+
+/* get a json object from an NSArray of j2objc objects */
+-(NSArray*) toJSonStringFromNSArrayOfDefinitionObjects:(NSArray*) definitions;
 
 - (void)validate:(NSArray*)parentInfo;
+
+/* convert a strong of json to a json heirarchy. */
+- (NSObject*)buildObjectHierarchyFromJSONString:(id)json;
+
+
+
+/* return a songle object after from json string*/
+- (NSObject*)buildSingleObjectHierarchyFromJSONString:(id)json;
+
 
 @end

@@ -274,6 +274,7 @@ typedef void(^BackgroundFetchCompletionBlock)(UIBackgroundFetchResult result);
   NSAssert([eventList count] == [expiredNotifications count], @"should have correct number of elements");
   DDLogInfo(@"Save %lu notification expired events", (unsigned long)[eventList count]);
   [self.eventManager saveEvents:eventList];
+    
 }
 
 //return YES if Paco finishes loading both running experiments and also notifications
@@ -325,9 +326,8 @@ typedef void(^BackgroundFetchCompletionBlock)(UIBackgroundFetchResult result);
                                                         numOfDates:kTotalNumOfNotifications
                                                           fromDate:now];
       
-      
     NSArray* notifications = [UILocalNotification pacoNotificationsForExperiment:experiment
-                                                                 datesToSchedule:dates];
+ datesToSchedule:dates];
     [allNotifications addObjectsFromArray:notifications];
   }
   
@@ -502,7 +502,8 @@ typedef void(^BackgroundFetchCompletionBlock)(UIBackgroundFetchResult result);
       completionHandler(nil);
     }
   }else{
-    [self.authenticator authenticateWithOAuth2WithCompletionHandler:^(NSError *error) {
+      
+      [self.authenticator authenticateWithOAuth2WithCompletionHandler:^(NSError *error) {
       if (!error) {
         // Authorize the service.
         self.service.authenticator = self.authenticator;
@@ -601,7 +602,11 @@ typedef void(^BackgroundFetchCompletionBlock)(UIBackgroundFetchResult result);
     NSError* error = [self.model loadExperimentInstancesFromFile];
     [[NSNotificationCenter defaultCenter] postNotificationName:kPacoNotificationLoadedRunningExperiments
                                                         object:error];
+      
     [self setUpNotificationSystem];
+      
+     
+      
     // Load the experiment definitions.
     BOOL success = [self.model loadExperimentDefinitionsFromFile];
     if (success) {

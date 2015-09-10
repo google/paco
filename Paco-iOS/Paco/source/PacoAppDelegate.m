@@ -21,7 +21,6 @@
 #import "UIColor+Paco.h"
 #import "PacoMainViewController.h"
 #import "PacoQuestionScreenViewController.h"
-#import "PacoScheduler.h"
 #import "JCNotificationCenter.h"
 #import "JCNotificationBannerPresenterSmokeStyle.h"
 #import "PacoEventManager.h"
@@ -34,11 +33,23 @@
 
 @implementation PacoAppDelegate
 
+
+/*
+ 
+   vprocess receivedNotification
+ 
+ */
 - (void)application:(UIApplication *)application didReceiveLocalNotification:(UILocalNotification *)notification {
   DDLogInfo(@"==========  Application didReceiveLocalNotification  ==========");
   [self processReceivedNotification:notification mustShowSurvey:NO];
 }
 
+/*
+ 
+     if received notification not active check if there is an active notification.
+      dray to show servuay for active notification
+ 
+ */
 - (void)processReceivedNotification:(UILocalNotification*)notification mustShowSurvey:(BOOL)mustShowSurvey {
   if (!notification) {
     DDLogWarn(@"Ignore a nil notification");
@@ -46,8 +57,11 @@
   }
   DDLogInfo(@"Detail: %@", [notification pacoDescription]);
   UILocalNotification* activeNotification = notification;
+    
+    
   if (![[PacoClient sharedInstance].scheduler isNotificationActive:activeNotification]) {
     DDLogInfo(@"Notification is not active anymore, cancelling it from the tray...");
+      
     [UILocalNotification pacoCancelLocalNotification:activeNotification];
     activeNotification =
         [[PacoClient sharedInstance].scheduler activeNotificationForExperiment:[notification pacoExperimentId]];
@@ -62,9 +76,13 @@
   if (activeNotification == nil) {
     [self showNoSurveyNeededForNotification:notification];
   } else {
+      
     if (mustShowSurvey) {
       [self showSurveyForNotification:activeNotification];
+        
     } else {
+        
+        
       if (state == UIApplicationStateInactive) {
         NSLog(@"UIApplicationStateInactive");
         [self showSurveyForNotification:activeNotification];
@@ -90,6 +108,10 @@
   [[JCNotificationCenter sharedCenter] enqueueNotification:banner];
 }
 
+
+/*
+     fetches the experiment from the modal and displays notification
+ */
 - (void)showSurveyForNotification:(UILocalNotification*)notification {
   dispatch_async(dispatch_get_main_queue(), ^{
     NSString *experimentId = [notification pacoExperimentId];
@@ -103,6 +125,10 @@
 
 }
 
+
+/*
+  ..., shows survay in async
+ */
 - (void)presentForegroundNotification:(UILocalNotification*)notification {
   NSAssert([notification pacoStatus] != PacoNotificationStatusTimeout, @"should not be timeout");
   [JCNotificationCenter sharedCenter].presenter = [JCNotificationBannerPresenterSmokeStyle new];
@@ -113,8 +139,12 @@
                                           }];
 }
 
-
+/*
+   processes the notification from launch, mustShowSurvey== YES;
+ 
+ */
 - (void)processNotificationIfNeeded {
+    
   if (self.notificationFromAppLaunch) {
     DDLogVerbose(@"Start processing notification received from app launch");
     [self processReceivedNotification:self.notificationFromAppLaunch mustShowSurvey:YES];
@@ -141,11 +171,16 @@
   logger.logFileManager.maximumNumberOfLogFiles = 7;
   [DDLog addLogger:logger];
 
+    
+    /* register for notification */
   if (floor(NSFoundationVersionNumber) > NSFoundationVersionNumber_iOS_7_1 ||
+      
       [UIApplication instancesRespondToSelector:@selector(registerUserNotificationSettings:)]) {
-    UIUserNotificationType types = UIUserNotificationTypeBadge | UIUserNotificationTypeSound | UIUserNotificationTypeAlert;
+      UIUserNotificationType types = UIUserNotificationTypeBadge | UIUserNotificationTypeSound | UIUserNotificationTypeAlert;
+      
     UIUserNotificationSettings *mySettings = [UIUserNotificationSettings settingsForTypes:types categories:nil];
     [application registerUserNotificationSettings:mySettings];
+      
   }
   
   // Override the navigation bar and item tint color globally across the app.
@@ -176,11 +211,16 @@
   return YES;
 }
 
+/*
+      simple delegate
+ */
 - (void)application:(UIApplication *)application performFetchWithCompletionHandler:(void(^)(UIBackgroundFetchResult))completionHandler {
   DDLogInfo(@"==========  Application Background Fetch Working ==========");
   
   [[PacoClient sharedInstance] backgroundFetchStartedWithBlock:completionHandler];
 }
+
+
 
 - (void)applicationDidBecomeActive:(UIApplication *)application {
   DDLogInfo(@"==========  Application applicationDidBecomeActive  ==========");
@@ -222,6 +262,11 @@
   });
 }
 
+
+/* 
+   major tasks includes scheduling new tasks.
+ 
+ */
 - (void)applicationWillEnterForeground:(UIApplication *)application {
   DDLogInfo(@"==========  Application applicationWillEnterForeground, start executing routine major task if needed  ==========");
   [[PacoClient sharedInstance] executeRoutineMajorTaskIfNeeded];

@@ -21,7 +21,6 @@
 
 #import "PacoExperimentSchedule.h"
 #import "PacoExperimentDefinition.h"
-#import "ExperimentDAO.h"
 #import "PacoEvent.h"
 #import "PacoExperiment.h"
 #import "NSString+Paco.h"
@@ -66,6 +65,7 @@ static NSString* kPacoExperimentPlistName = @"instances.plist";
   }
   self.myDefinitions = [NSArray arrayWithArray:definitions];
 }
+
 
 - (void)saveNewDefinitionList:(NSArray*)newDefinitions {
   @synchronized(self) {

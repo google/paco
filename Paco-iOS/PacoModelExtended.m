@@ -13,6 +13,13 @@
 #import "PacoExperimentExtended.h"
 #import "NSString+Paco.h"
 #import "NSError+Paco.h"
+#import "PacoSerializer.h" 
+#import "PacoSerializer.h" 
+#import "ExperimentDAO.h" 
+#import "NSObject+J2objcKVO.h"
+#import "PacoSerializeUtil.h"
+
+
 
 static NSString* const kPacoKeyHasRunningExperimentsExtended = @"has_running_experiments";
 
@@ -23,6 +30,8 @@ NSString* const kPacoNotificationAppBecomeActiveExtended = @"kPacoNotificationAp
 
 static NSString* kPacoDefinitionPlistNameExtended = @"definitions.plist";
 static NSString* kPacoExperimentPlistNameExtended  = @"instances.plist";
+
+#define kPacoDefinitionPlistName @"Experiments" 
 
 
 
@@ -57,61 +66,87 @@ static NSString* kPacoExperimentPlistNameExtended  = @"instances.plist";
     }
    
 }
+ 
 
-
-
-  - (BOOL)saveExperimentInstancesToFile {
-  id instanceListJson = [self makeJSONObjectFromInstances];
-  NSAssert([instanceListJson isKindOfClass:[NSArray class]],
-  @"instanceListJson should be an array!");
-  
-  NSError *jsonError = nil;
-  NSData *jsonData = [NSJSONSerialization dataWithJSONObject:instanceListJson
-  options:NSJSONWritingPrettyPrinted
-  error:&jsonError];
-  if (jsonError) {
-  NSLog (@"ERROR serializing to JSON %@", jsonError);
-  }
-  NSString *fileName = [NSString pacoDocumentDirectoryFilePathWithName:kPacoExperimentPlistNameExtended];
-  BOOL success = [[NSFileManager defaultManager] createFileAtPath:fileName contents:jsonData attributes:nil];
-  if (success) {
-   NSLog(@"Succeeded to save %@", fileName);
-  } else {
-  NSLog(@"Failed to save %@", fileName);
-  }
-  return success;
-  }
-
-
-
-
-- (id)makeJSONObjectFromInstances {
-    NSMutableArray *experiments = [[NSMutableArray alloc] init];
-    for (PacoExperimentExtended *experiment in self.runningExperiments) {
-        id json = [experiment serializeToJSON];
-        NSAssert(json, @"experiment json should not be nil");
-        [experiments addObject:json];
+- (void)fullyUpdateDefinitionList:(NSArray*)definitionList {
+    @synchronized(self) {
+        [self saveNewDefinitionList:definitionList];
     }
-    return experiments;
+}
+
+
+- (void)saveNewDefinitionList:(NSArray*)newDefinitions {
+    @synchronized(self) {
+        
+        self.myDefinitions = newDefinitions;
+        
+       PacoSerializer*  serializer =
+        [[PacoSerializer alloc] initWithArrayOfClasses:nil
+                              withNameOfClassAttribute:@"nameOfClass"];
+        
+        [self saveExperimentDefinitionsToFile:serializer];
+    }
 }
 
 
 
 
+- (PAExperimentDAO *)experimentDefinitionForId:(long) instanceId {
+    for (PAExperimentDAO *dao  in self.myDefinitions )
+    {
+        if ( instanceId ==  [[dao  valueForKey:@"id"] longValue] ) {
+            return dao;
+        }
+    }
+    return nil;  
+}
 
-
-- (BOOL)saveExperimentDefinitionListJson:(id)definitionsJson
+- (BOOL)saveExperimentDefinitionsToFile:(PacoSerializer*) serializer
 {
-    return TRUE;
+    BOOL methodSuccess;
+    NSArray * serializedDefinitions = [serializer toJSonStringFromNSArrayOfDefinitionObjects:_myDefinitions];
+    NSLog(@"the json %@", serializedDefinitions);
     
+    NSString *fileName = [NSString pacoDocumentDirectoryFilePathWithName:kPacoDefinitionPlistName];
+    BOOL success =  [serializedDefinitions writeToFile:fileName atomically:YES];
+    if (success) {
+        
+        methodSuccess = YES;
+    }
+    else
+    {
+        methodSuccess = NO;
+       
+    }
+    return methodSuccess;
+    }
+
+- (BOOL)loadExperimentDefinitionsFromFile {
+    
+    NSString *fileName = [NSString pacoDocumentDirectoryFilePathWithName:kPacoDefinitionPlistName];
+    NSArray* array = [PacoSerializeUtil getClassNames];
+    NSArray* definitions = [NSArray arrayWithContentsOfFile:fileName];
+    
+    NSMutableArray * serializedDefinitions  = [[NSMutableArray alloc] init];
+
+    PacoSerializer * serializer = [[PacoSerializer alloc] initWithArrayOfClasses:array withNameOfClassAttribute:@"nameOfClass"];
+    
+    for(NSString* jsonString in serializedDefinitions)
+    {
+        PAExperimentDAO* dao = ( PAExperimentDAO*) [serializer buildSingleObjectHierarchyFromJSONString:jsonString];
+        [serializedDefinitions addObject:dao];
+    }
+    
+    
+    self.myDefinitions = serializedDefinitions;
+ 
+  
+    
+    
+    return [definitions count] > 0;
 }
 
 
-- (BOOL)saveExperimentDefinitionsToFile
-{
-    return TRUE;
-    
-}
 
 
 @end

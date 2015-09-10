@@ -27,6 +27,8 @@
 //the exact time that user joins the experiment
 @property(nonatomic, retain, readonly) NSDate* joinTime;
 @property (nonatomic, assign) long long lastEventQueryTime;
+
+
 @property (nonatomic, retain) PacoExperimentSchedule *schedule;  // Override schedule from definition.
 //@property (retain) PacoExperimentSchedule *overrideSchedule;  // Override schedule from definition.
 

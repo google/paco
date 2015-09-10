@@ -60,7 +60,9 @@ int const kTotalNumOfNotifications = 60;
 }
 
 
-- (void)initializeNotifications {
+- (void)initializeNotifications
+{
+    
   BOOL success = [self.notificationManager loadNotificationsFromCache];
   if (!success) {
     DDLogInfo(@"Serious Error: failed to load notifications!");
@@ -118,6 +120,7 @@ int const kTotalNumOfNotifications = 60;
     [self.notificationManager cancelNotificationsForExperiments:experimentIds];
   }
 }
+
 
 - (void)executeRoutineMajorTask {
   @synchronized(self){
