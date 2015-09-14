@@ -392,7 +392,7 @@ pacoApp.filter('jsonToTable', ['util', 'config', function(util, config) {
       if (column === 'responses') {
         responseStartId = headerRow.length;
         responseEndId = responseStartId;
-      } else if (order[column]) {
+      } else {
         headerRow.push(column);
       }
     }

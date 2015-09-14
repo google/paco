@@ -244,6 +244,7 @@ pacoApp.service('config', function() {
   this.dataOrder = [
     'who',
     'responseTime',
+    'scheduledTime',
     'experimentGroupName',
     'responses',
     'experimentVersion',
