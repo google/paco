@@ -392,7 +392,7 @@ pacoApp.filter('jsonToTable', ['util', 'config', function(util, config) {
       if (column === 'responses') {
         responseStartId = headerRow.length;
         responseEndId = responseStartId;
-      } else if (order[column]) {
+      } else {
         headerRow.push(column);
       }
     }
@@ -445,6 +445,9 @@ pacoApp.filter('jsonToTable', ['util', 'config', function(util, config) {
           responses = json[i]['responses'];
         } else {
           var val = json[i][column];
+          if (val === undefined) {
+            val = '';
+          }
           if (column === 'responseTime' || column === 'when') {
             val = util.formatDate(val);
           }
@@ -471,10 +474,14 @@ pacoApp.filter('jsonToTable', ['util', 'config', function(util, config) {
 pacoApp.filter('tableToCsv', function() {
 
   return function (table){
+
+    var rows = table.rows;
+    rows.splice(0, 0, table.header);
+
     var string = '';
 
-    for (var i = 0; i < table.rows.length; i++) {
-      var row = table.rows[i];
+    for (var i = 0; i < rows.length; i++) {
+      var row = rows[i];
       if (i > 0) {
         string += '\n';
       }

@@ -60,7 +60,7 @@
       </table>
     </div>
 
-    <md-card class="footer">
+    <md-card class="footer" ng-if="table && table.rows.length > 0">
       <md-card-content>
         Showing {{table.rows.length - 1}} out of {{table.rows.length - 1}}
         <a ng-href="{{csvData}}" download="export.csv" class="download">
