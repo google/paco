@@ -475,7 +475,7 @@ pacoApp.filter('tableToCsv', function() {
 
   return function (table){
 
-    var rows = table.rows;
+    var rows = angular.copy(table.rows);
     rows.splice(0, 0, table.header);
 
     var string = '';
