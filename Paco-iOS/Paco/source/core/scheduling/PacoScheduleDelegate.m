@@ -7,6 +7,8 @@
 //
 
 #import "PacoScheduleDelegate.h"
+#import "PacoSchedulingUtil.h"
+#import "PacoData.h"
 
 @implementation PacoScheduleDelegate
 
@@ -20,7 +22,7 @@
 - (BOOL)isDoneInitializationForMajorTask
 {
     
-    return NO;
+    return YES;
     
 }
 - (BOOL)needsNotificationSystem
@@ -35,7 +37,12 @@
 }
 - (NSArray*)nextNotificationsToSchedule;
 {
-    return nil;
+    
+    NSArray* newActionSpecifications  = [PacoSchedulingUtil calculateActionSpecifications];
+    [PacoData sharedInstance].oldActionSpecifications  = [PacoData sharedInstance].actionSpecifications;
+    [PacoData sharedInstance].actionSpecifications = [[NSMutableArray alloc] initWithArray:newActionSpecifications];
+    return newActionSpecifications;
+    
     
 }
 

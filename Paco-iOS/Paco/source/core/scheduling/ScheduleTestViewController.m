@@ -12,6 +12,8 @@
 #import "PAActionSpecification+PacoActionSpecification.h"
 
 
+
+
 //
 //  PacoScheduleGeneratorj2ObjC.m
 //  Paco
@@ -23,7 +25,6 @@
 #import "PacoSerializer.h"
 #import "PacoExtendedClient.h"
 #import "ActionScheduleGenerator.h"
-#import "NSObject+J2objcKVO.h"
 #include "ExperimentDAO.h"
 #include "ExperimentDAOCore.h"
 #include "ExperimentGroup.h"
@@ -80,6 +81,8 @@
 #import "PacoExtendedClient.h"
 #import "UILocalNotification+Paco.h"
 #import "PacoModelExtended.h" 
+#import  "PacoSchedulingUtil.h"
+#import "PacoData.h"
 
   
 
@@ -174,12 +177,10 @@ static NSString *def0 =
     PAExperimentDAO      * dao2           =  [self experimentDAO:2];
     
     [self.model fullyUpdateDefinitionList:@[dao,dao1,dao2]];
-    
-    
-    
-    
-    
     [self.model loadExperimentDefinitionsFromFile];
+    PacoData * data = [PacoData sharedInstance];
+    
+       [self.model experimentForId:dao1->id__];
     
     NSLog(@"done");
     
@@ -188,6 +189,83 @@ static NSString *def0 =
 
 
 
+- (IBAction)loadDefinitions:(id)sender
+{
+    
+    /* initialize sample experiments */
+    PAExperimentDAO      * dao            =  [self experimentDAO:0];
+    PAExperimentDAO      * dao1           =  [self experimentDAO:1];
+    PAExperimentDAO      * dao2           =  [self experimentDAO:2];
+    [[PacoData sharedInstance].allExperiments  addObjectsFromArray:@[dao,dao1,dao2]];
+    
+}
+
+
+/* we will use the first experiment in the all experiments array  just for this test */
+
+- (IBAction)JoinExperiment:(id)sender
+{
+    
+     PAExperimentDAO * dao =  [[[PacoData sharedInstance] allExperiments]  firstObject];
+    
+     // add to the list of running experiments.
+    
+    if(! [[PacoData sharedInstance].runningExperiments containsObject:dao] && dao)
+    {
+       [[PacoData sharedInstance].runningExperiments addObject:dao];
+    }
+
+     NSArray* array =  [_schedulerDelegate nextNotificationsToSchedule];
+    
+    for(PAActionSpecification* spec in array)
+    {
+      //  BOOL hasScheduledNotifications =
+      //  [UILocalNotification hasLocalNotificationScheduledForExperiment:experiment.instanceId];
+       // NSAssert(!hasScheduledNotifications, @"There should be 0 notfications scheduled!");
+        
+        
+       // [self.scheduler  checkCorrectnessForExperiment:experiment.instanceId];
+    }
+}
+
+
+- (void)executeMajorTask:(BOOL)experimentModelChanged {
+    @synchronized(self) {
+        if (![self.schedulerDelegate isDoneInitializationForMajorTask]) {
+           
+            return;
+        }
+        
+      // DDLogInfo(@"Executing Major Task...");
+        BOOL needToScheduleNewNotifications = YES;
+        NSArray* notificationsToSchedule = nil;
+        
+//        if (!experimentModelChanged && [self.notificationManager hasMaximumScheduledNotifications]) {
+//            needToScheduleNewNotifications = NO;
+//           // DDLogInfo(@"No need to schedule new notifications, there are 60 notifications already.");
+//        }
+       // if (needToScheduleNewNotifications) {
+            notificationsToSchedule = [self.schedulerDelegate nextNotificationsToSchedule];
+        //}
+//        if (!experimentModelChanged &&
+//            needToScheduleNewNotifications &&
+//            [self.scheduler.notificationManager numOfScheduledNotifications] == [notificationsToSchedule count]) {
+//           // DDLogInfo(@"There are already %lu notifications scheduled, skip scheduling new notifications.", (unsigned long)[notificationsToSchedule count]);
+//            needToScheduleNewNotifications = NO;
+//        }
+      //  if (needToScheduleNewNotifications) {
+            
+           // DDLogInfo(@"Schedule %lu new notifications ...",(unsigned long)[notificationsToSchedule count]);
+           // [self.scheduler.notificationManager scheduleNotifications:notificationsToSchedule];
+       // } else {
+            
+           // [self.scheduler.notificationManager cleanExpiredNotifications];
+       // }
+      //  [self.delegate updateNotificationSystem];
+       // DDLogInfo(@"Finished major task.");
+    }
+    
+}
 
 
 /*
@@ -211,14 +289,14 @@ static NSString *def0 =
     
     JavaUtilArrayList* list               =  [[JavaUtilArrayList  alloc]    init];
     PacoSignalStore * signalStore         =  [[PacoSignalStore alloc] init];
-    PacoEventStore * eventStore           =  [[PacoEventStore  alloc] init];
+    PacoEventStore  * eventStore           =  [[PacoEventStore  alloc] init];
     
     
     [list addWithId:dao];
     [list addWithId:dao1];
     [list addWithId:dao2];
     
-    
+   [PacoSchedulingUtil calculateActionSpecifications];
     
      NSMutableDictionary * results = [[NSMutableDictionary alloc] init];
      [results setObject:[NSMutableArray new] forKey:[self uniqueId:dao]];
@@ -232,44 +310,23 @@ static NSString *def0 =
     [self getFireTimes:dao2 results:results SignalStore:signalStore EventStore: eventStore];
     
     
- 
+ /*
     NSArray* processedTimes = [self sortAlarmTimes:results];
-    NSArray* alarms = [self makeAlarms:processedTimes];
+    NSArray* alarms = [PacoSchedulingUtil makeAlarms:processedTimes];
     
     for (UILocalNotification *noti in alarms) {
         [[UIApplication sharedApplication] scheduleLocalNotification:noti];
     }
  
-//      NSLog(@" un-processed results %@", results);
-    
+
   
       NSLog(@" processed results %@",
                       [processedTimes subarrayWithRange:NSMakeRange(0, MIN(60, processedTimes.count))]) ;
- 
+ */ 
 }
 
  
-/*
-     action specification ->  UILocalNotification
- */
-
--(NSArray*) makeAlarms:(NSArray*) specifications
-{
-    
- NSMutableArray* alerts = [[NSMutableArray alloc] init];
- for(PAActionSpecification* specification in specifications)
- {
-     
-      NSTimeInterval timeoutInterval = 20;
-     UILocalNotification* notification  =    [UILocalNotification pacoNotificationWithExperimentId:[NSString stringWithFormat:@"%lli",[specification->experiment_->id__ longLongValue ]]
-                                                                                                experimentTitle:specification->experiment_->title_
-                                                                                                fireDate:[specification->time_ dateValue]
-                                                                                                timeOutDate:[NSDate dateWithTimeInterval:timeoutInterval sinceDate:[specification->time_ dateValue]]];
-     
-     [alerts addObject:notification];
- }
-    return alerts;
-}
+ 
 
 
 

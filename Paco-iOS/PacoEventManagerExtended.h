@@ -25,6 +25,8 @@
 @end
 
 
+@class PAActionSpecification;
+
 //YMZ:TODO: fully testing
 //YMZ:TODO: thread safe
 //YMZ:TODO: use async design
@@ -46,8 +48,6 @@
 - (void)stopUploadingEvents;
 
 
-- (void)saveJoinEventWithDefinition:(PAExperimentDAO*)definition
-                       withSchedule:(PASchedule*)schedule;
 - (void)saveStopEventWithExperiment:(PacoExperimentExtended*)experiment;
 - (void)saveSelfReportEventWithDefinition:(PAExperimentDAO*)definition
                                 andInputs:(NSArray*)visibleInputs;
@@ -57,5 +57,5 @@
 
 - (PacoParticipateStatusExtended*)statsForExperiment:(NSString*)experimentId;
 
-
+- (void)saveJoinEventWithActionSpecification:(PAActionSpecification*) actionSpecification;
 @end

@@ -18,7 +18,7 @@
 #import "ExperimentDAO.h" 
 #import "NSObject+J2objcKVO.h"
 #import "PacoSerializeUtil.h"
-
+#include "java/lang/Long.h"
 
 
 static NSString* const kPacoKeyHasRunningExperimentsExtended = @"has_running_experiments";
@@ -66,11 +66,63 @@ static NSString* kPacoExperimentPlistNameExtended  = @"instances.plist";
     }
    
 }
- 
+
+
+#pragma mark Experiment Instance operations
+- (void)addExperimentWithActionDefinition:(PAActionSpecification *) actonSpecification
+{
+    @synchronized(self) {
+        
+        //create an experiment instance
+        NSDate* nowdate = [NSDate dateWithTimeIntervalSinceNow:0];
+        
+        //add it to instances array and save the instance file
+        NSMutableArray* newInstances = [NSMutableArray arrayWithArray:self.runningExperiments];
+        [newInstances addObject:actonSpecification];
+        self.runningExperiments = [NSArray arrayWithArray:newInstances];
+        
+       // [[NSUserDefaults standardUserDefaults] setBool:YES forKey:kPacoKeyHasRunningExperiments];
+        [[NSUserDefaults standardUserDefaults] synchronize];
+        
+        [self saveExperimentInstancesToFile];
+        
+        
+    }
+}
+
 
 - (void)fullyUpdateDefinitionList:(NSArray*)definitionList {
     @synchronized(self) {
         [self saveNewDefinitionList:definitionList];
+    }
+}
+
+
+- (PAExperimentDAO *) experimentDefinitionForIdOBject:(JavaLangLong*) experimentId {
+    for (PAExperimentDAO *definition in self.myDefinitions) {
+        if ( [definition->id__ longValue]== [experimentId longValue]) {
+            return definition;
+        }
+    }
+    return nil;
+}
+
+
+- (void)partiallyUpdateDefinitionList:(NSArray*)defintionList {
+    @synchronized(self) {
+        NSMutableArray* newDefinitionList =
+        [NSMutableArray arrayWithCapacity:[self.myDefinitions count]];
+        for (PAExperimentDAO* oldDefinition in self.myDefinitions) {
+            PAExperimentDAO* definitionToBeAdded = oldDefinition;
+            for (PAExperimentDAO* newDefinition in defintionList) {
+                if ( [newDefinition->id__ longValue]  == [oldDefinition->id__ longValue] ) {
+                    definitionToBeAdded = newDefinition;
+                    break;
+                }
+            }
+            [newDefinitionList addObject:definitionToBeAdded];
+        }
+        [self saveNewDefinitionList:newDefinitionList];
     }
 }
 

@@ -21,6 +21,10 @@
 #import "NSObject+J2objcKVO.h" 
 #import "PacoSerializer.h" 
 #import "PacoSerializeUtil.h" 
+#import  "ActionSpecification.h"
+#import "java/lang/Long.h"
+#import "PAExperimentDAO+Util.h"
+
 
 
 
@@ -219,15 +223,17 @@ NSString* const kPacoResponseJoinExtended = @"joined";
 
 
 
-+ (PacoEventExtended*)joinEventForDefinition:(PAExperimentDAO*)definition
-                        withSchedule:(PASchedule*)schedule {
++ (PacoEventExtended*)joinEventForActionSpecificaton:(PAActionSpecification*) actionSpecification
+{
     // Setup an event for joining the experiement.
     PacoEventExtended *event = [PacoEventExtended pacoEventForIOS];
-   // event.who = [[PacoExtendedClient sharedInstance] userEmail];
-    event.experimentId = [definition valueForKeyPathEx:@"id"];
-    event.experimentVersion = [[definition valueForKeyPathEx:@"version"] intValue];
-    event.experimentName = [definition valueForKeyPathEx:@"title"];
     
+    
+    
+   // event.who = [[PacoExtendedClient sharedInstance] userEmail];
+    event.experimentId = [[actionSpecification valueForKeyPathEx:@"experiment_.id__"] stringValue];
+    event.experimentVersion =  [actionSpecification valueForKeyPathEx:@"experiment_.version__"];
+    event.experimentName =  [actionSpecification valueForKeyPathEx:@"experiment_.title_"];
     event.responseTime = [NSDate dateWithTimeIntervalSinceNow:0];
     
     //Special response values to indicate the user is joining this experiement.
@@ -236,32 +242,31 @@ NSString* const kPacoResponseJoinExtended = @"joined";
     NSDictionary* joinResponse = @{kPacoResponseKeyNameExtended:kPacoResponseJoinExtended,
                                    kPacoResponseKeyAnswerExtended:@"true",
                                    kPacoResponseKeyInputIdExtended:@"-1"};
+    
     NSMutableArray* responseList = [NSMutableArray arrayWithObject:joinResponse];
     
     
- 
+   
     
-    // Adding a schedule to the join event.
-    // check if the
-    if (schedule && /*[schedule isScheduled]  */  [[schedule valueForKeyEx:@"scheduleType"]
-                                            intValue] !=  PASchedule_SELF_REPORT ){
+ 
+    if ([actionSpecification ->experiment_ isSelfReport]){
         
 
         PacoSerializer* serializer =
         [[PacoSerializer alloc] initWithArrayOfClasses:nil
                               withNameOfClassAttribute:@"nameOfClass"];
  
-        NSData * scheduleData = (NSData*) [serializer toJSONobject:schedule ];
+        /* we are going to add all information about the action specification */
+        NSData * scheduleData = (NSData*) [serializer toJSONobject:actionSpecification ->experiment_ ];
         NSString* jsonString =
         [[NSString alloc] initWithData:scheduleData encoding:NSUTF8StringEncoding];
 
-        NSDictionary* scheduleResponse = @{kPacoResponseKeyNameExtended:@"schedule",
+        NSDictionary* response  = @{kPacoResponseKeyNameExtended:@"experiment",
                                            kPacoResponseKeyAnswerExtended:jsonString,
                                            kPacoResponseKeyInputIdExtended:@"-1"};
-        [responseList addObject:scheduleResponse];
-      
-     
         
+        [responseList addObject:response];
+  
     }
     event.responses = responseList;
     return event;

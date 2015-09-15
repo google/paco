@@ -30,6 +30,8 @@ typedef NS_ENUM(NSInteger, PacoEventTypeExtended) {
 };
 
 
+@class PAActionSpecification;
+
 @interface PacoEventExtended : NSObject
 
 @property (nonatomic, copy) NSString *who;
@@ -53,10 +55,9 @@ typedef NS_ENUM(NSInteger, PacoEventTypeExtended) {
 
 + (PacoEventExtended*)stopEventForExperiment:(PacoExperimentExtended*)experiment;
 
-+ (PacoEventExtended*)joinEventForDefinition:(PAExperimentDAO*)definition
-                        withSchedule:(PASchedule*)schedule;
+ 
 
-
++ (PacoEventExtended*)joinEventForActionSpecificaton:(PAActionSpecification*) actionSpecification;
 
 + (PacoEventExtended*)selfReportEventForDefinition:(PAExperimentDAO*)definition
                                 withInputs:(NSArray*)inputs;

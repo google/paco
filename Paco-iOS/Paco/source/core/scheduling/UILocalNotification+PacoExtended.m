@@ -13,14 +13,35 @@
  * limitations under the License.
  */
 
-#import "UILocalNotification+Paco.h"
+#import "UILocalNotification+PacoExteded.h"
 #import "NSMutableArray+Paco.h"
 #import "PacoExperiment.h"
 #import "PacoExperimentSchedule.h"
 #import "PacoDateUtility.h"
 #import "PacoExperimentDefinition.h"
 #import "PacoClient.h"
-#import "PacoNotificationConstants.h" 
+#import "PacoNotificationConstants.h"
+#import "PacoExtendedNotificationInfo.h"
+#import "ExperimentDAO.h"
+#import "ActionSpecification.h"
+#import "ExperimentGroup.h"
+#import "ExperimentDAO.h"
+#import "ActionTrigger.h"
+#import "PacoNotificationAction.h"
+#import "NSObject+J2objcKVO.h"
+#import "java/lang/long.h"
+#import "PAExperimentDAO+Helper.h"
+#import "OrgJodaTimeDateTime+PacoDateHelper.h"
+#import "ModelBase+PacoAssociatedId.h"
+
+
+
+extern NSString* const kNotificationGroupId;
+extern NSString* const kNotificationGroupName;
+extern NSString* const kUserInfoKeyActionTriggerId;
+extern NSString* const kUserInfoKeyNotificationActionId;
+extern NSString* const kUserInfoKeyActionTriggerSpecId;
+
 
 
 @implementation UILocalNotification (Paco)
@@ -28,9 +49,17 @@
 + (UILocalNotification*)pacoNotificationWithExperimentId:(NSString*)experimentId
                                          experimentTitle:(NSString*)experimentTitle
                                                 fireDate:(NSDate*)fireDate
-                                             timeOutDate:(NSDate*)timeOutDate {
+                                             timeOutDate:(NSDate*)timeOutDate
+                                                 groupId:(NSString*) groupId
+                                               groupName:(NSString*) groupName
+                                               triggerId:(NSString*) triggerId
+                                    notificationActionId:(NSString*) notificationActionId
+                                    actionTriggerSpecId:(NSString*) actionTriggerSpecId
+{
   if (0 == [experimentId length] || 0 == [experimentTitle length] || fireDate == nil ||
-      timeOutDate == nil ||[timeOutDate timeIntervalSinceDate:fireDate] <= 0) {
+      timeOutDate == nil ||[timeOutDate timeIntervalSinceDate:fireDate] <= 0 || [groupId length] !=0
+    ||[groupName length] !=0 || [triggerId length] != 0 || [notificationActionId length] ==0 || [actionTriggerSpecId length] ==0)
+  {
     return nil;
   }
   
@@ -41,29 +70,42 @@
   notification.alertBody = alertBody;
   notification.soundName = kNotificationSoundName;
   notification.applicationIconBadgeNumber = 1;
-  notification.userInfo = [PacoNotificationInfo userInfoDictionaryWithExperimentId:experimentId
-                                                                   experimentTitle:experimentTitle
-                                                                          fireDate:fireDate
-                                                                       timeOutDate:timeOutDate];
+  notification.userInfo = [PacoExtendedNotificationInfo userInfoDictionaryWithExperimentId:experimentId experimentTitle:experimentTitle fireDate:fireDate timeOutDate:timeOutDate groupId:groupId groupName:groupName actionTriggerId:triggerId notificationActionId:notificationActionId actionTriggerSpecId:actionTriggerSpecId];
+    
   return notification;
 }
 
 
-+ (NSArray*)pacoNotificationsForExperiment:(PacoExperiment*)experiment
-                           datesToSchedule:(NSArray*)datesToSchedule {
-  if (0 == [datesToSchedule count] || experiment == nil) {
++ (NSArray*)pacoNotificationsForExperimentSpecifications:(NSArray*) specifications
+                            {
+  if ( 0 == [specifications count]) {
     return nil;
   }
-  
-  NSTimeInterval timeoutInterval = experiment.schedule.timeout * 60;
-  NSMutableArray* notifications = [NSMutableArray arrayWithCapacity:[datesToSchedule count]];
-  for (NSDate* fireDate in datesToSchedule) {
-    NSDate* timeOutDate = [fireDate dateByAddingTimeInterval:timeoutInterval];
-    UILocalNotification* notification =
-    [UILocalNotification pacoNotificationWithExperimentId:experiment.instanceId
-                                          experimentTitle:experiment.definition.title
-                                                 fireDate:fireDate
-                                              timeOutDate:timeOutDate];
+                                
+  NSMutableArray* notifications = [NSMutableArray arrayWithCapacity:[specifications count]];
+                                
+  for (PAActionSpecification  * spec   in specifications) {
+      
+      
+      PAExperimentDAO   *   dao = [spec valueForKey:@"experiment_"];
+      PAExperimentGroup *   group = [spec valueForKey:@"experimentGroup_"];
+      PAActionTrigger*   actionTrigger = [spec valueForKey:@"actionTrigger_"];
+      PAPacoNotificationAction *   notificationAction = [spec valueForKey:@"action_"];
+      NSString* experimentId =  [dao instanceId];
+      NSString* experimentTitle = [dao valueForKeyEx:@"title"];
+      NSDate * fireDate = [[spec valueForKey:@"time_"] nsDateValue];
+      long     timeoutDate =  [[notificationAction valueForKeyEx:@"timeout"]  longValue];
+      NSDate * timeOutDate =  [fireDate dateByAddingTimeInterval:timeoutDate];
+      NSString* groupId = [group getUuid];
+      NSString* groupName = [group valueForKeyEx:@"name"];
+      NSString* triggerId = [[notificationAction valueForKeyEx:@"id"] stringValue];
+      NSString* notificationActionId = [notificationAction  getUuid];
+      NSString *   notifiationSpecId  =  [((JavaLangLong*)  [spec valueForKey:@"actionTriggerSpecId_"] ) stringValue];
+      
+
+      UILocalNotification* notification =   [UILocalNotification pacoNotificationWithExperimentId:experimentId experimentTitle:experimentTitle   fireDate:fireDate timeOutDate:timeOutDate groupId:groupId  groupName:groupName  triggerId:triggerId  notificationActionId:notificationActionId  actionTriggerSpecId:notifiationSpecId];
+      
+      
     [notifications addObject:notification];
   }
   return notifications;
@@ -73,10 +115,12 @@
   if (self.userInfo == nil) {
     return PacoNotificationStatusUnknown;
   }
-  PacoNotificationInfo* info = [PacoNotificationInfo pacoInfoWithDictionary:self.userInfo];
+    
+  PacoExtendedNotificationInfo * info = [PacoExtendedNotificationInfo pacoInfoWithDictionary:self.userInfo];
   if (info == nil) {
     return PacoNotificationStatusUnknown;
   }
+    
   return [info status];
 }
 
@@ -97,6 +141,9 @@
   }
 }
 
+
+
+
 - (NSString*)pacoDescription {
   return [NSString stringWithFormat:@"<%@,%p: fireDate=%@, status=(%@), userInfo=%@>",
           NSStringFromClass([self class]),
@@ -105,9 +152,17 @@
           [self pacoStatusDescription],
           [[PacoNotificationInfo pacoInfoWithDictionary:self.userInfo] description]
           ];
+    
+    
 }
 
+/*
+  two alerts that fire at exactly the same time and have exactly the same alert body and sound will be considered to be equal.
+   enhancement: make sure they have the same id.
+ */
 - (BOOL)pacoIsEqualTo:(UILocalNotification*)notification {
+    
+    
   if (![self.timeZone isEqualToTimeZone:notification.timeZone]) {
     return NO;
   }
@@ -120,6 +175,9 @@
   if (![self.soundName isEqualToString:notification.soundName]) {
     return NO;
   }
+    
+    
+    
   PacoNotificationInfo* info = [PacoNotificationInfo pacoInfoWithDictionary:self.userInfo];
   PacoNotificationInfo* another = [PacoNotificationInfo pacoInfoWithDictionary:notification.userInfo];
   if (![info isEqualToNotificationInfo:another]) {
@@ -130,28 +188,55 @@
 
 
 - (NSString*)pacoExperimentId {
-  PacoNotificationInfo* info = [PacoNotificationInfo pacoInfoWithDictionary:self.userInfo];
+  PacoExtendedNotificationInfo* info = [PacoExtendedNotificationInfo pacoInfoWithDictionary:self.userInfo];
   return info.experimentId;
 }
 
 - (NSString*)pacoExperimentTitle {
-  PacoNotificationInfo* info = [PacoNotificationInfo pacoInfoWithDictionary:self.userInfo];
+  PacoExtendedNotificationInfo* info = [PacoExtendedNotificationInfo pacoInfoWithDictionary:self.userInfo];
   return info.experimentTitle;
 }
 
 - (NSDate*)pacoFireDate {
-  PacoNotificationInfo* info = [PacoNotificationInfo pacoInfoWithDictionary:self.userInfo];
+  PacoExtendedNotificationInfo* info = [PacoExtendedNotificationInfo pacoInfoWithDictionary:self.userInfo];
   return info.fireDate;
 }
 
 - (NSDate*)pacoTimeoutDate {
-  PacoNotificationInfo* info = [PacoNotificationInfo pacoInfoWithDictionary:self.userInfo];
+  PacoExtendedNotificationInfo* info = [PacoExtendedNotificationInfo pacoInfoWithDictionary:self.userInfo];
   return info.timeOutDate;
 }
 
 - (long)pacoTimeoutMinutes {
-  PacoNotificationInfo* info = [PacoNotificationInfo pacoInfoWithDictionary:self.userInfo];
+  PacoExtendedNotificationInfo* info = [PacoExtendedNotificationInfo pacoInfoWithDictionary:self.userInfo];
   return [info timeoutMinutes];
+}
+
+- (long)pacoGroupId {
+    PacoExtendedNotificationInfo* info = [PacoExtendedNotificationInfo pacoInfoWithDictionary:self.userInfo];
+    return [info groupId];
+}
+
+
+- (long)pacoGroupName {
+    PacoExtendedNotificationInfo* info = [PacoExtendedNotificationInfo pacoInfoWithDictionary:self.userInfo];
+    return [info groupName];
+}
+
+- (long)pacoActionTriggerId {
+    PacoExtendedNotificationInfo* info = [PacoExtendedNotificationInfo pacoInfoWithDictionary:self.userInfo];
+    return [info actionTriggerId];
+}
+
+- (long)pacoActionNotificationActionId {
+    PacoExtendedNotificationInfo* info = [PacoExtendedNotificationInfo pacoInfoWithDictionary:self.userInfo];
+    return [info notificationActionId];
+}
+
+
+- (long)pacoActionNotificationActionSpecId{
+    PacoExtendedNotificationInfo* info = [PacoExtendedNotificationInfo pacoInfoWithDictionary:self.userInfo];
+    return [info actionTriggerSpecId];
 }
 
 
@@ -171,10 +256,80 @@
   return result;
 }
 
++ (NSArray*)scheduledLocalNotificationsForGroupId:(NSString*) groupId
+{
+    NSAssert([groupId length] > 0, @"id should be valid!");
+    
+    NSMutableArray* result = [NSMutableArray array];
+    NSArray* allScheduledNotifications = [UIApplication sharedApplication].scheduledLocalNotifications;
+    for (UILocalNotification* notification in allScheduledNotifications) {
+        PacoExtendedNotificationInfo* info = [PacoExtendedNotificationInfo pacoInfoWithDictionary:notification.userInfo];
+        NSAssert([info.groupId   length] > 0, @"experimentId should be valid!");
+        if ([info.groupId isEqualToString:groupId]) {
+            [result addObject:notification];
+        }
+    }
+    return result;
+}
+
++ (NSArray*)scheduledLocalNotificationsForTriggerId:(NSString*) actionTriggerId
+{
+    NSAssert([actionTriggerId length] > 0, @"id should be valid!");
+    
+    NSMutableArray* result = [NSMutableArray array];
+    NSArray* allScheduledNotifications = [UIApplication sharedApplication].scheduledLocalNotifications;
+    for (UILocalNotification* notification in allScheduledNotifications) {
+        PacoExtendedNotificationInfo* info = [PacoExtendedNotificationInfo pacoInfoWithDictionary:notification.userInfo];
+        NSAssert([info.actionTriggerId   length] > 0, @"experimentId should be valid!");
+        if ([info.actionTriggerId isEqualToString:actionTriggerId]) {
+            [result addObject:notification];
+        }
+    }
+    return result;
+}
+
++ (NSArray*)scheduledLocalNotificationsForNotificationActionId:(NSString*) notificationActionId
+{
+    NSAssert([notificationActionId length] > 0, @"id should be valid!");
+    
+    NSMutableArray* result = [NSMutableArray array];
+    NSArray* allScheduledNotifications = [UIApplication sharedApplication].scheduledLocalNotifications;
+    for (UILocalNotification* notification in allScheduledNotifications) {
+        PacoExtendedNotificationInfo* info = [PacoExtendedNotificationInfo pacoInfoWithDictionary:notification.userInfo];
+        NSAssert([info.notificationActionId   length] > 0, @"experimentId should be valid!");
+        if ([info.notificationActionId isEqualToString:notificationActionId]) {
+            [result addObject:notification];
+        }
+    }
+    return result;
+}
+
+
+
+
 + (BOOL)hasLocalNotificationScheduledForExperiment:(NSString*)experimentInstanceId {
   NSArray* notifications = [UILocalNotification scheduledLocalNotificationsForExperiment:experimentInstanceId];
   return 0 < [notifications count];
 }
+
+
+
++ (BOOL)hasLocalNotificationScheduledForGroup:(NSString*)groupId {
+    NSArray* notifications = [UILocalNotification scheduledLocalNotificationsForGroupId:groupId];
+    return 0 < [notifications count];
+}
+
++ (BOOL)hasLocalNotificationScheduledForTrigger:(NSString*)actionTrigger {
+    NSArray* notifications = [UILocalNotification scheduledLocalNotificationsForTriggerId:actionTrigger];
+    return 0 < [notifications count];
+}
+
+
++ (BOOL)hasLocalNotificationScheduledForNotificationActionId:(NSString*)actionId {
+    NSArray* notifications = [UILocalNotification scheduledLocalNotificationsForNotificationActionId:actionId];
+    return 0 < [notifications count];
+}
+
 
 + (void)cancelScheduledNotificationsForExperiment:(NSString*)experimentInstanceId {
   NSAssert([experimentInstanceId length] > 0, @"id should be valid!");
@@ -189,6 +344,52 @@
     }
   }
 }
+
+
++ (void)cancelScheduledNotificationsForGroupId:(NSString*)groupId {
+    NSAssert([groupId length] > 0, @"id should be valid!");
+    
+    NSArray* scheduledArr = [[UIApplication sharedApplication] scheduledLocalNotifications];
+    for (UILocalNotification* noti in scheduledArr) {
+        PacoExtendedNotificationInfo* info = [PacoExtendedNotificationInfo pacoInfoWithDictionary:noti.userInfo];
+        NSAssert([info.groupId length] > 0, @"experimentId should be valid!");
+        
+        if ([info.groupId  isEqualToString:groupId]) {
+            [UILocalNotification pacoCancelLocalNotification:noti];
+        }
+    }
+}
+
+
+
++ (void)cancelScheduledNotificationsForActionTrigger:(NSString*)actionTriggerId{
+    NSAssert([actionTriggerId length] > 0, @"id should be valid!");
+    
+    NSArray* scheduledArr = [[UIApplication sharedApplication] scheduledLocalNotifications];
+    for (UILocalNotification* noti in scheduledArr) {
+        PacoExtendedNotificationInfo* info = [PacoExtendedNotificationInfo pacoInfoWithDictionary:noti.userInfo];
+        NSAssert([info.actionTriggerId length] > 0, @"experimentId should be valid!");
+        
+        if ([info.actionTriggerId  isEqualToString:actionTriggerId]) {
+            [UILocalNotification pacoCancelLocalNotification:noti];
+        }
+    }
+}
+
++ (void)cancelScheduledNotificationsForNotificationAction:(NSString*)notificationActionId{
+    NSAssert([notificationActionId length] > 0, @"id should be valid!");
+    
+    NSArray* scheduledArr = [[UIApplication sharedApplication] scheduledLocalNotifications];
+    for (UILocalNotification* noti in scheduledArr) {
+        PacoExtendedNotificationInfo* info = [PacoExtendedNotificationInfo pacoInfoWithDictionary:noti.userInfo];
+        NSAssert([info.notificationActionId length] > 0, @"experimentId should be valid!");
+        
+        if ([info.notificationActionId  isEqualToString:notificationActionId]) {
+            [UILocalNotification pacoCancelLocalNotification:noti];
+        }
+    }
+}
+
 
 + (void)pacoCancelLocalNotification:(UILocalNotification*)notification {
   if (notification != nil) {
@@ -226,6 +427,8 @@
   if (!block) {
     return;
   }
+    
+    
   NSUInteger totalNumOfNotifications = [notifications count];
   if (0 == totalNumOfNotifications) {
     block(nil, nil, nil);
@@ -289,6 +492,7 @@
                                             NSArray* notFiredNotifications) {
     NSMutableArray *toCancel = [NSMutableArray array];
     NSMutableArray *toSchedule = [NSMutableArray array];
+      
     for (UILocalNotification *newNotification in newNotifications) {
       if (![notFiredNotifications containsObject:newNotification]) {
         [toSchedule addObject:newNotification];

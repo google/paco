@@ -21,6 +21,7 @@
 
 #import "PacoExperimentSchedule.h"
 #import "PacoExperimentDefinition.h"
+#import "ExperimentDAO.h"
 #import "PacoEvent.h"
 #import "PacoExperiment.h"
 #import "NSString+Paco.h"

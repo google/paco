@@ -13,6 +13,8 @@
 @class PASchedule;
 @class PacoEventManagerExtended;
 @class PacoAuthenticator;
+@class PAActionSpecification;
+
 
 
 @interface PacoExtendedClient : NSObject
@@ -23,9 +25,10 @@
 @property (nonatomic, retain, readonly) PacoAuthenticator *authenticator;
 @property (nonatomic, assign, readonly) BOOL firstOAuth2;
 
-- (void)joinExperimentWithDefinition:(PAExperimentDAO*)definition
-                            schedule:(PASchedule*) schedule
+- (void)joinExperimentWithDefinition:(PAActionSpecification*) specification
                      completionBlock:(void(^)())completionBlock;
+
+
 
 + (PacoExtendedClient *)sharedInstance;
 

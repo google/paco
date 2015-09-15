@@ -120,16 +120,16 @@ static NSString *def0 =
     JavaUtilArrayList  *  resultArray  = (JavaUtilArrayList*) [serializer buildObjectHierarchyFromJSONOBject:data];
     IOSObjectArray * iosArray = [resultArray toArray];
     
-   PAExperimentDAO * dao =  [iosArray objectAtIndex:0];
+    PAExperimentDAO * dao =  [iosArray objectAtIndex:0];
  
     
     PacoExtendedClient* client= [PacoExtendedClient sharedInstance];
    // PAActionScheduleGenerator * asg = [[PAActionScheduleGenerator alloc] initWithPAExperimentDAO:dao];
     
     PASchedule  * schedule   = [PacoSerializeUtil getScheduleAtIndex:dao GroupIndex:0 actionTriggerIndex:0 scheduleIndex:0];
-    [client joinExperimentWithDefinition:dao  schedule:schedule completionBlock:^{
+   // [client joinExperimentWithDefinition:dao  schedule:schedule completionBlock:^{
     
-    }];
+  //  }];
     
     
 }

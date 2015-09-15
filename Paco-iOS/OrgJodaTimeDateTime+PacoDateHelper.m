@@ -13,7 +13,7 @@
 @implementation OrgJodaTimeDateTime (PacoDateHelper)
 
 
--(NSDate*) dateValue
+-(NSDate*) nsDateValue
 {
      long ll = [self getMillis];
      /* divide by one thousand to convert to seconds since epoch*/

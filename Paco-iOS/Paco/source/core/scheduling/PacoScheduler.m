@@ -94,6 +94,8 @@ int const kTotalNumOfNotifications = 60;
   
   BOOL hasScheduledNotifications =
       [UILocalNotification hasLocalNotificationScheduledForExperiment:experiment.instanceId];
+    
+    
   NSAssert(!hasScheduledNotifications, @"There should be 0 notfications scheduled!");
   [self.notificationManager checkCorrectnessForExperiment:experiment.instanceId];
   
@@ -145,6 +147,7 @@ int const kTotalNumOfNotifications = 60;
  NO: no schedule experiment is joined or stopped
  **/
 //YMZ:TODO: this method can be improved to be more efficient
+
 - (void)executeMajorTask:(BOOL)experimentModelChanged {
   @synchronized(self) {
     if (![self.delegate isDoneInitializationForMajorTask]) {
@@ -170,9 +173,11 @@ int const kTotalNumOfNotifications = 60;
       needToScheduleNewNotifications = NO;
     }
     if (needToScheduleNewNotifications) {
+        
       DDLogInfo(@"Schedule %lu new notifications ...",(unsigned long)[notificationsToSchedule count]);
       [self.notificationManager scheduleNotifications:notificationsToSchedule];
     } else {
+        
       [self.notificationManager cleanExpiredNotifications];
     }
     [self.delegate updateNotificationSystem];

@@ -23,6 +23,8 @@
 
 - (PAExperimentDAO *)experimentDefinitionForId:(long) instanceId;
 
+- (PAExperimentDAO *)experimentForId:(NSString *)instanceId;
+- (PAExperimentDAO *)experimentForIdObject:(NSString *)instanceId;
 
 - (BOOL)hasLoadedMyDefinitions;
 - (BOOL)hasLoadedRunningExperiments;

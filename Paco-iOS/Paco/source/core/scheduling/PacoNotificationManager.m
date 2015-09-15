@@ -167,6 +167,7 @@ static NSString* kNotificationPlistName = @"notificationDictionary.plist";
 }
 
 /*
+ 
  - Keep the active notifications
 
  - For all expired notifications:
@@ -182,8 +183,12 @@ static NSString* kNotificationPlistName = @"notificationDictionary.plist";
  a. if it is in local cache, meaning it's scheduled already, don't do anything
  b. if it isn't in local cache, schedule it and save it in cache
  **/
+
+
 - (void)scheduleNotifications:(NSArray*)newNotifications {
   @synchronized (self) {
+      
+      
     NSMutableArray *allActive = [NSMutableArray array];
     NSMutableArray *allExpired = [NSMutableArray array];
     NSMutableArray *allToCancel = [NSMutableArray array];
@@ -192,8 +197,13 @@ static NSString* kNotificationPlistName = @"notificationDictionary.plist";
 
     //generate a dictionary from the new list of notifcations
     NSDictionary *newNotificationDict = [UILocalNotification pacoSortedDictionaryFromNotifications:newNotifications];
-    for (NSString* experimentId in self.notificationDict) {
+      
+    for (NSString* experimentId in self.notificationDict)
+    {
+        
       NSArray *currentNotifications = self.notificationDict[experimentId];
+        
+        
       NSArray *newNotifications = newNotificationDict[experimentId];
 
       NotificationReplaceBlock block = ^(UILocalNotification *active,
@@ -211,6 +221,9 @@ static NSString* kNotificationPlistName = @"notificationDictionary.plist";
         [allToCancel addObjectsFromArray:toBeCanceled];
         [allToSchedule addObjectsFromArray:toBeScheduled];
       };
+        
+        
+        
       [UILocalNotification pacoReplaceCurrentNotifications:currentNotifications
                                       withNewNotifications:newNotifications
                                                   andBlock:block];

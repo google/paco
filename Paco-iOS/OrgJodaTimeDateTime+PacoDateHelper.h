@@ -10,7 +10,7 @@
 
 @interface OrgJodaTimeDateTime (PacoDateHelper)
 
--(NSDate*) dateValue;
+-(NSDate*) nsDateValue;
 -(BOOL) isGreaterThan:(OrgJodaTimeDateTime*) otherTime;
 -(BOOL) isLessThan:(OrgJodaTimeDateTime*) otherTime;
 

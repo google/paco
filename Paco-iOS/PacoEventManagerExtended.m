@@ -16,6 +16,8 @@
 #import "NSString+Paco.h"
 #import "NSError+Paco.h"
 #import "PacoClient.h"
+#import  "ActionSpecification.h"
+
 
 static NSString* const kPendingEventsFileName = @"pendingEvents.plist";
 static NSString* const kAllEventsFileName = @"allEvents.plist";
@@ -120,6 +122,7 @@ static NSString* const kAllEventsFileName = @"allEvents.plist";
 
 
 #pragma mark Private methods
+
 - (id)loadJsonObjectFromFile:(NSString*)fileName {
     NSString* filePath = [NSString pacoDocumentDirectoryFilePathWithName:fileName];
     NSError* error = nil;
@@ -342,9 +345,10 @@ static NSString* const kAllEventsFileName = @"allEvents.plist";
     [self startUploadingEvents];
 }
 
-- (void)saveJoinEventWithDefinition:(PAExperimentDAO*)definition
-                       withSchedule:(PASchedule*)schedule {
-    PacoEventExtended* joinEvent = [PacoEventExtended joinEventForDefinition:definition withSchedule:schedule];
+- (void)saveJoinEventWithActionSpecification:(PAActionSpecification*) actionSpecification
+{
+    
+    PacoEventExtended* joinEvent = [PacoEventExtended joinEventForActionSpecificaton:actionSpecification];
     DDLogInfo(@"Save a join event");
     [self saveAndUploadEvent:joinEvent];
 }

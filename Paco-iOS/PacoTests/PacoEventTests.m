@@ -118,7 +118,7 @@ static NSString *dataSource =
 }
 
 
-
+/*
 - (void)testSheduleToJsonObject
 {
  
@@ -135,7 +135,7 @@ static NSString *dataSource =
 
     PASchedule * schedule =  [PacoSerializeUtil getScheduleAtIndex:dao  GroupIndex:0 actionTriggerIndex:0 scheduleIndex:0];
     
-    PacoEventExtended * event = [PacoEventExtended joinEventForDefinition:dao withSchedule:schedule];
+   // PacoEventExtended * event = [PacoEventExtended joinEventForDefinition:dao withSchedule:schedule];
     
     
     NSString * iddd   = [dao valueForKeyPathEx:@"id"];
@@ -146,7 +146,9 @@ static NSString *dataSource =
     XCTAssert([event.experimentName isEqualToString:[dao valueForKeyPathEx:@"title"]], @"Pass");
  
                
-}
+}*/
+
+
 
 
 /*

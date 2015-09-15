@@ -63,10 +63,10 @@ typedef NS_ENUM(NSInteger, PacoParentType) {
 /* convert netst foundation collections to json data*/
 - (NSData*)foundationCollectionToJSONData:(NSObject*)collection
                                     Error:(NSError*)error;
-/* create a collection hierarchy of j2obj modals from a collection of Foundation
+/* create a collection hierarchy of j2obj models from a collection of Foundation
  * collections*/
 - (NSObject*)toJ2OBJCCollctionsHeirarchy:(NSObject*)parent;
-/* create a collection hierarchy of j2obj modals from nested Foundation
+/* create a collection hierarchy of j2obj models from nested Foundation
  * collections */
 - (NSObject*)buildObjectHierarchyFromJSONOBject:(id)data;
 /* create a json object from nested Foundation classes */

@@ -14,9 +14,24 @@
  */
 
 #import <UIKit/UIKit.h>
-#import "PacoNotificationConstants.h" 
+#import "PacoNotificationConstants.h"
+#import "PacoNotificationAction.h"
+#import  "ActionSpecification.h"
+
+
+
+
 
 @class PacoExperiment;
+
+@interface NotificationData
+
+@property (strong, nonatomic) NSDate*  fireDate;
+@property (strong,nonatomic) PAActionSpecification* actionSpec;
+@property NSTimeInterval timeoutInterval;
+
+@end
+
 
 
 
@@ -34,7 +49,7 @@ typedef void(^NotificationReplaceBlock)(UILocalNotification* active,
 
 typedef void(^FetchExpiredBlock)(NSArray* expiredNotifications, NSArray* nonExpiredNotifications);
 
-@interface UILocalNotification (Paco)
+@interface UILocalNotification (PacoExtended)
 
 - (PacoNotificationStatus)pacoStatus;
 - (NSString*)pacoStatusDescription;

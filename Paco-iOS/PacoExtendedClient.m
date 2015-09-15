@@ -57,7 +57,10 @@
 {
     
      NSAssert(definition, @"definition should not be nil");
-     [self.eventManager saveJoinEventWithDefinition:definition withSchedule:schedule];
+    
+    
+   //  [self.eventManager saveJoinEventWithDefinition:definition withSchedule:schedule];
+    
       PacoExperimentExtended  *experiment = [self.model addExperimentWithDefinition:definition
                                                                 schedule:schedule];
 
