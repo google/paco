@@ -456,6 +456,12 @@ pacoApp.filter('jsonToTable', ['util', 'config', function(util, config) {
       }
 
       if (responses) {
+
+        // Explicitly set all responses to the empty string first
+        for (var j = responseStartId; j < responseEndId; j++) {
+          newRow[j] = '';
+        }
+
         for (var id in responses) {
           var responseName = responses[id]['name'];
           var responseValue = responses[id]['answer'];
@@ -475,7 +481,7 @@ pacoApp.filter('tableToCsv', function() {
 
   return function (table){
 
-    var rows = table.rows;
+    var rows = angular.copy(table.rows);
     rows.splice(0, 0, table.header);
 
     var string = '';
