@@ -449,7 +449,8 @@ pacoApp.filter('jsonToTable', ['util', 'config', function(util, config) {
             val = '';
           }
           if (config.timeColumns.indexOf(column) !== -1) {
-            val = util.formatDate(val);
+            var timezone = json[i]['timezone'];
+            val = util.formatDate(val, timezone);
           }
           newRow[id] = val;
         }
