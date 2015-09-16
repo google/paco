@@ -87,8 +87,12 @@
   margin: 0;
 }
 
-.button.remove {
+.remove.button {
   background: url('../img/ic_clear_24px.svg') no-repeat;
+}
+
+.choice .remove.button {
+  margin-top: 24px;
 }
 
 .button.add {
