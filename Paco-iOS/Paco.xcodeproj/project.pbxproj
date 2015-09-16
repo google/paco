@@ -11,8 +11,6 @@
 		3129004216DAAC9F008FF617 /* MapKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3129004116DAAC9D008FF617 /* MapKit.framework */; };
 		319771C9163F0733000AC06B /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 319771C8163F0733000AC06B /* UIKit.framework */; };
 		319771CB163F0733000AC06B /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 319771CA163F0733000AC06B /* Foundation.framework */; };
-		319771F1163F0733000AC06B /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 319771C8163F0733000AC06B /* UIKit.framework */; };
-		319771F2163F0733000AC06B /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 319771CA163F0733000AC06B /* Foundation.framework */; };
 		31977219163F2655000AC06B /* CFNetwork.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 31977218163F2655000AC06B /* CFNetwork.framework */; };
 		3197721B163F265C000AC06B /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3197721A163F265B000AC06B /* Security.framework */; };
 		3197721D163F2672000AC06B /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3197721C163F2672000AC06B /* SystemConfiguration.framework */; };
@@ -129,7 +127,6 @@
 		36B8EC2D17568E33004CF035 /* GTMNSString+URLArguments.m in Sources */ = {isa = PBXBuildFile; fileRef = 36B8EC1717568E33004CF035 /* GTMNSString+URLArguments.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
 		36B8EC3317568E33004CF035 /* GoogleAppEngineAuth.m in Sources */ = {isa = PBXBuildFile; fileRef = 36B8EC2A17568E33004CF035 /* GoogleAppEngineAuth.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
 		36B8EC3417568E33004CF035 /* GoogleClientLogin.m in Sources */ = {isa = PBXBuildFile; fileRef = 36B8EC2C17568E33004CF035 /* GoogleClientLogin.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
-		36B8EC3D17568E40004CF035 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 36B8EC3917568E40004CF035 /* InfoPlist.strings */; };
 		36BD6D15194A390D00CD50A8 /* PacoEditScheduleAfterJoinController.m in Sources */ = {isa = PBXBuildFile; fileRef = 36BD6D14194A390D00CD50A8 /* PacoEditScheduleAfterJoinController.m */; };
 		36C4A33D18A4DEEE00D8FE59 /* DDASLLogger.m in Sources */ = {isa = PBXBuildFile; fileRef = 36C4A33818A4DEEE00D8FE59 /* DDASLLogger.m */; };
 		36C4A33E18A4DEEE00D8FE59 /* DDFileLogger.m in Sources */ = {isa = PBXBuildFile; fileRef = 36C4A33A18A4DEEE00D8FE59 /* DDFileLogger.m */; };
@@ -231,6 +228,7 @@
 		A6ABFAC41B79425400F90598 /* ScheduleTestViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = A6ABFAC21B79425400F90598 /* ScheduleTestViewController.m */; };
 		A6ABFAC51B79425400F90598 /* ScheduleTestViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = A6ABFAC31B79425400F90598 /* ScheduleTestViewController.xib */; };
 		A6ABFAC91B7BE37F00F90598 /* PacoExtendedClient.m in Sources */ = {isa = PBXBuildFile; fileRef = A6ABFAC81B7BE37F00F90598 /* PacoExtendedClient.m */; };
+		A6B0329D1BA8F81700F08E5F /* DerivedSources in Resources */ = {isa = PBXBuildFile; fileRef = A6B0329C1BA8F81700F08E5F /* DerivedSources */; };
 		A6DCA58E1B8507B1007FC06D /* PacoSignalStore.m in Sources */ = {isa = PBXBuildFile; fileRef = A6DCA58D1B8507B1007FC06D /* PacoSignalStore.m */; };
 		A6DCA5981B85468D007FC06D /* PacoEventStore.m in Sources */ = {isa = PBXBuildFile; fileRef = A6DCA5971B85468D007FC06D /* PacoEventStore.m */; };
 		A6DCA59C1B854A46007FC06D /* PacoEventImpl.m in Sources */ = {isa = PBXBuildFile; fileRef = A6DCA59B1B854A46007FC06D /* PacoEventImpl.m */; };
@@ -243,8 +241,6 @@
 		A6F9575C1BA37D8200F96295 /* PacoNotificationConstants.m in Sources */ = {isa = PBXBuildFile; fileRef = A6F9575B1BA37D8200F96295 /* PacoNotificationConstants.m */; };
 		A6F957621BA3830400F96295 /* PacoExtendedNotificationInfo.m in Sources */ = {isa = PBXBuildFile; fileRef = A6F957611BA3830400F96295 /* PacoExtendedNotificationInfo.m */; };
 		A6F957651BA386A000F96295 /* ModelBase+PacoAssociatedId.m in Sources */ = {isa = PBXBuildFile; fileRef = A6F957641BA386A000F96295 /* ModelBase+PacoAssociatedId.m */; };
-		A6F957681BA8DCC000F96295 /* PacoScheduleGeneratorTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 367233E318061FD6006611E6 /* PacoScheduleGeneratorTests.m */; };
-		A6F957691BA8DD1D00F96295 /* PacoNotificationCategoryExtendedTests.m in Sources */ = {isa = PBXBuildFile; fileRef = A6F957661BA8968200F96295 /* PacoNotificationCategoryExtendedTests.m */; };
 		A6F957B41BA8E06A00F96295 /* ActionScheduleGenerator.m in Sources */ = {isa = PBXBuildFile; fileRef = A6F957711BA8E06A00F96295 /* ActionScheduleGenerator.m */; };
 		A6F957B51BA8E06A00F96295 /* ActionSpecification.m in Sources */ = {isa = PBXBuildFile; fileRef = A6F957731BA8E06A00F96295 /* ActionSpecification.m */; };
 		A6F957B61BA8E06A00F96295 /* ActionTrigger.m in Sources */ = {isa = PBXBuildFile; fileRef = A6F957751BA8E06A00F96295 /* ActionTrigger.m */; };
@@ -282,7 +278,6 @@
 		C567E89017A03FDE00267A26 /* deepbark_trial.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = C567E88F17A03FDE00267A26 /* deepbark_trial.mp3 */; };
 		C5B4691917B07E4900B6BC18 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C5B4691817B07E4900B6BC18 /* CoreGraphics.framework */; };
 		C5C4F5D217B163EF009E9F18 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C5C4F5D117B163EF009E9F18 /* QuartzCore.framework */; };
-		C5C4F5D317B163EF009E9F18 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C5C4F5D117B163EF009E9F18 /* QuartzCore.framework */; };
 		E43DA21D185ADDD2007F04F9 /* PacoWebViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = E43DA21C185ADDD2007F04F9 /* PacoWebViewController.m */; };
 		E440AB3B19140E0800D6FD09 /* PacoOpenSourceLibViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = E440AB3A19140E0800D6FD09 /* PacoOpenSourceLibViewController.m */; };
 		E462379218F9F1E900610F56 /* PacoDatePickerView.m in Sources */ = {isa = PBXBuildFile; fileRef = E462379118F9F1E900610F56 /* PacoDatePickerView.m */; };
@@ -306,27 +301,9 @@
 			);
 			script = "../Shared/j2objc/j2objc -d ${DERIVED_FILE_DIR} -classpath ../Shared/lib/joda-time-2.5.jar -sourcepath ../Shared/src  --prefixes ../Shared/j2objcprefixes.properties --no-package-directories -use-arc ${INPUT_FILE_PATH};";
 		};
-		A6D9AA8F1B59AA5C00595C06 /* PBXBuildRule */ = {
-			isa = PBXBuildRule;
-			compilerSpec = com.apple.compilers.proxy.script;
-			fileType = sourcecode.java;
-			isEditable = 1;
-			outputFiles = (
-				"$(DERIVED_FILE_DIR)/${INPUT_FILE_BASE}.m",
-				"$(DERIVED_FILE_DIR)/${INPUT_FILE_BASE}.h",
-			);
-			script = "../Shared/j2objc/j2objc -d ${DERIVED_FILE_DIR} -classpath ../Shared/lib/joda-time-2.5.jar -sourcepath ../Shared/src  --prefixes ../Shared/j2objcprefixes.properties --no-package-directories -use-arc ${INPUT_FILE_PATH};";
-		};
 /* End PBXBuildRule section */
 
 /* Begin PBXContainerItemProxy section */
-		319771F3163F0733000AC06B /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 319771BB163F0733000AC06B /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 319771C3163F0733000AC06B;
-			remoteInfo = Paco;
-		};
 		36000C2117C6AEA900A8A9E7 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 36000C1517C6AEA900A8A9E7 /* ParseKit.xcodeproj */;
@@ -426,7 +403,6 @@
 		319771C4163F0733000AC06B /* Paco.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Paco.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		319771C8163F0733000AC06B /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		319771CA163F0733000AC06B /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
-		319771EE163F0733000AC06B /* PacoTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PacoTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		31977218163F2655000AC06B /* CFNetwork.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CFNetwork.framework; path = System/Library/Frameworks/CFNetwork.framework; sourceTree = SDKROOT; };
 		3197721A163F265B000AC06B /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
 		3197721C163F2672000AC06B /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
@@ -851,6 +827,7 @@
 		A6ABFAC31B79425400F90598 /* ScheduleTestViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = ScheduleTestViewController.xib; sourceTree = "<group>"; };
 		A6ABFAC71B7BE37F00F90598 /* PacoExtendedClient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoExtendedClient.h; sourceTree = "<group>"; };
 		A6ABFAC81B7BE37F00F90598 /* PacoExtendedClient.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoExtendedClient.m; sourceTree = "<group>"; };
+		A6B0329C1BA8F81700F08E5F /* DerivedSources */ = {isa = PBXFileReference; lastKnownFileType = folder; name = DerivedSources; path = "DerivedData/Paco/Build/Intermediates/Paco.build/Debug-iphonesimulator/Paco.build/DerivedSources"; sourceTree = "<group>"; };
 		A6DCA58C1B8507B1007FC06D /* PacoSignalStore.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoSignalStore.h; sourceTree = "<group>"; };
 		A6DCA58D1B8507B1007FC06D /* PacoSignalStore.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoSignalStore.m; sourceTree = "<group>"; };
 		A6DCA5921B85262F007FC06D /* PacoPacoSignalStoreTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoPacoSignalStoreTests.m; sourceTree = "<group>"; };
@@ -993,22 +970,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		319771EA163F0733000AC06B /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				319771F1163F0733000AC06B /* UIKit.framework in Frameworks */,
-				319771F2163F0733000AC06B /* Foundation.framework in Frameworks */,
-				C5C4F5D317B163EF009E9F18 /* QuartzCore.framework in Frameworks */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
 		319771B9163F0733000AC06B = {
 			isa = PBXGroup;
 			children = (
+				A6B0329C1BA8F81700F08E5F /* DerivedSources */,
 				A6ABFAC61B7BC79500F90598 /* working */,
 				44A8439B1ADB9C0A009C7226 /* src */,
 				319771CE163F0733000AC06B /* Paco */,
@@ -1024,7 +992,6 @@
 			isa = PBXGroup;
 			children = (
 				319771C4163F0733000AC06B /* Paco.app */,
-				319771EE163F0733000AC06B /* PacoTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -2264,26 +2231,6 @@
 			productReference = 319771C4163F0733000AC06B /* Paco.app */;
 			productType = "com.apple.product-type.application";
 		};
-		319771ED163F0733000AC06B /* PacoTests */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = 31977203163F0733000AC06B /* Build configuration list for PBXNativeTarget "PacoTests" */;
-			buildPhases = (
-				319771E9163F0733000AC06B /* Sources */,
-				319771EA163F0733000AC06B /* Frameworks */,
-				319771EB163F0733000AC06B /* Resources */,
-				319771EC163F0733000AC06B /* ShellScript */,
-			);
-			buildRules = (
-				A6D9AA8F1B59AA5C00595C06 /* PBXBuildRule */,
-			);
-			dependencies = (
-				319771F4163F0733000AC06B /* PBXTargetDependency */,
-			);
-			name = PacoTests;
-			productName = PacoTests;
-			productReference = 319771EE163F0733000AC06B /* PacoTests.xctest */;
-			productType = "com.apple.product-type.bundle.unit-test";
-		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -2296,9 +2243,6 @@
 				TargetAttributes = {
 					319771C3163F0733000AC06B = {
 						DevelopmentTeam = 7JRXRM6LRK;
-					};
-					319771ED163F0733000AC06B = {
-						DevelopmentTeam = J7M7JW942W;
 					};
 				};
 			};
@@ -2331,7 +2275,6 @@
 			projectRoot = "";
 			targets = (
 				319771C3163F0733000AC06B /* Paco */,
-				319771ED163F0733000AC06B /* PacoTests */,
 			);
 		};
 /* End PBXProject section */
@@ -2457,6 +2400,7 @@
 				36B8EBE817568E29004CF035 /* find_experiments_normal.png in Resources */,
 				36B8EBE917568E29004CF035 /* find_experiments_pressed.png in Resources */,
 				E480BE161896F3C700662432 /* InfoPlist.strings in Resources */,
+				A6B0329D1BA8F81700F08E5F /* DerivedSources in Resources */,
 				36B8EBF217568E29004CF035 /* paco32.png in Resources */,
 				367171FD183AFE33005A5058 /* help.html in Resources */,
 				A6ABFAC51B79425400F90598 /* ScheduleTestViewController.xib in Resources */,
@@ -2483,31 +2427,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		319771EB163F0733000AC06B /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				36B8EC3D17568E40004CF035 /* InfoPlist.strings in Resources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXResourcesBuildPhase section */
-
-/* Begin PBXShellScriptBuildPhase section */
-		319771EC163F0733000AC06B /* ShellScript */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "# Run the unit tests in this test bundle.\n\"${SYSTEM_DEVELOPER_DIR}/Tools/RunUnitTests\"\n";
-		};
-/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		319771C0163F0733000AC06B /* Sources */ = {
@@ -2729,23 +2649,9 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		319771E9163F0733000AC06B /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				A6F957691BA8DD1D00F96295 /* PacoNotificationCategoryExtendedTests.m in Sources */,
-				A6F957681BA8DCC000F96295 /* PacoScheduleGeneratorTests.m in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
-		319771F4163F0733000AC06B /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 319771C3163F0733000AC06B /* Paco */;
-			targetProxy = 319771F3163F0733000AC06B /* PBXContainerItemProxy */;
-		};
 		36000C3617C6B0A800A8A9E7 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			name = libParseKitMobile;
@@ -2815,7 +2721,7 @@
 				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "6FF1CA60-7E74-4967-9810-F69E1FEC48AB";
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				USER_HEADER_SEARCH_PATHS = "ParseKit/include/** ../Shared/j2objc/include/** ${DERIVED_FILE_DIR}";
+				USER_HEADER_SEARCH_PATHS = "ParseKit/include/** ../Shared/j2objc/include/** ${DERIVED_FILE_DIR}/**";
 			};
 			name = Debug;
 		};
@@ -2875,7 +2781,7 @@
 				PROVISIONING_PROFILE = "5bc68275-45ab-4004-bb18-abf78da5fbdb";
 				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "5bc68275-45ab-4004-bb18-abf78da5fbdb";
 				TARGETED_DEVICE_FAMILY = 1;
-				USER_HEADER_SEARCH_PATHS = "ParseKit/include/** ../Shared/j2objc/include/** ${DERIVED_FILE_DIR}/**";
+				USER_HEADER_SEARCH_PATHS = "ParseKit/include/** ../Shared/j2objc/include/**";
 				WRAPPER_EXTENSION = app;
 			};
 			name = Debug;
@@ -2904,72 +2810,8 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "5bc68275-45ab-4004-bb18-abf78da5fbdb";
 				TARGETED_DEVICE_FAMILY = 1;
-				USER_HEADER_SEARCH_PATHS = "ParseKit/include/** ../Shared/j2objc/include/** ${DERIVED_FILE_DIR}/**";
+				USER_HEADER_SEARCH_PATHS = "ParseKit/include/** ../Shared/j2objc/include/**";
 				WRAPPER_EXTENSION = app;
-			};
-			name = Release;
-		};
-		31977204163F0733000AC06B /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				BUNDLE_LOADER = "$(BUILT_PRODUCTS_DIR)/Paco.app/Paco";
-				CODE_SIGN_IDENTITY = "iPhone Developer";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
-				FRAMEWORK_SEARCH_PATHS = (
-					"\"$(SDKROOT)/Developer/Library/Frameworks\"",
-					"\"$(DEVELOPER_LIBRARY_DIR)/Frameworks\"",
-					"$(inherited)",
-				);
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "Paco/source/Paco-Prefix.pch";
-				HEADER_SEARCH_PATHS = (
-					"$(inherited)",
-					"/Users/northropo/Project/paco/Paco-iOS/DerivedData",
-				);
-				INFOPLIST_FILE = "PacoTests/resources/PacoTests-Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
-				LIBRARY_SEARCH_PATHS = "$(inherited)";
-				OTHER_LDFLAGS = (
-					"-framework",
-					XCTest,
-				);
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE = "";
-				TEST_HOST = "$(BUNDLE_LOADER)";
-				USER_HEADER_SEARCH_PATHS = "$(inherited)/**";
-			};
-			name = Debug;
-		};
-		31977205163F0733000AC06B /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				BUNDLE_LOADER = "$(BUILT_PRODUCTS_DIR)/Paco.app/Paco";
-				CODE_SIGN_IDENTITY = "iPhone Developer";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
-				FRAMEWORK_SEARCH_PATHS = (
-					"\"$(SDKROOT)/Developer/Library/Frameworks\"",
-					"\"$(DEVELOPER_LIBRARY_DIR)/Frameworks\"",
-					"$(inherited)",
-				);
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "Paco/source/Paco-Prefix.pch";
-				HEADER_SEARCH_PATHS = (
-					"$(inherited)",
-					"/Users/northropo/Project/paco/Paco-iOS/DerivedData",
-				);
-				INFOPLIST_FILE = "PacoTests/resources/PacoTests-Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
-				LIBRARY_SEARCH_PATHS = "$(inherited)";
-				OTHER_LDFLAGS = (
-					"-framework",
-					XCTest,
-				);
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE = "";
-				TEST_HOST = "$(BUNDLE_LOADER)";
-				USER_HEADER_SEARCH_PATHS = "$(inherited)/**";
 			};
 			name = Release;
 		};
@@ -2990,15 +2832,6 @@
 			buildConfigurations = (
 				31977201163F0733000AC06B /* Debug */,
 				31977202163F0733000AC06B /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		31977203163F0733000AC06B /* Build configuration list for PBXNativeTarget "PacoTests" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				31977204163F0733000AC06B /* Debug */,
-				31977205163F0733000AC06B /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
