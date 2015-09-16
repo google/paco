@@ -349,8 +349,12 @@ pacoApp.service('template', function() {
 
 pacoApp.service('util', ['$filter', function($filter) {
 
-  this.formatDate = function(date) {
-    return $filter('date')(date, 'yyyy/MM/dd HH:mm:ssZ');
+  this.formatDate = function(date, timezone) {
+    var tz = null;
+    if (timezone !== undefined) {
+      tz = timezone;
+    }
+    return $filter('date')(date, 'yyyy/MM/dd HH:mm:ssZ', tz);
   };
 
 }]);

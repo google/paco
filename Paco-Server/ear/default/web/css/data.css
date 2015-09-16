@@ -181,6 +181,11 @@ md-menu-item {
   text-align: center;
 }
 
+.data .error {
+  margin: 16px;
+  text-align: left;
+}
+
 .data md-chips {
   display: inline-block;
   position: relative;

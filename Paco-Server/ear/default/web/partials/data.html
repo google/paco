@@ -22,7 +22,7 @@
 
       <md-chips ng-if="restrict" ng-model="userChips" md-on-remove="removeUserChip()"></md-chips>
 
-      <md-menu md-offset="108 4">
+      <md-menu md-offset="108 4" ng-if="table">
         <md-button aria-label="Toggle displayed columns" ng-click="$mdOpenMenu($event)">
           Columns
         </md-button>
@@ -65,7 +65,7 @@
       </table>
     </div>
 
-    <md-card class="footer" ng-if="table && table.rows.length > 0">
+    <md-card class="footer" ng-if="table">
       <md-card-content>
         Showing {{table.rows.length}} out of {{table.rows.length}}
         <a ng-href="{{csvData}}" download="export.csv" class="download">
