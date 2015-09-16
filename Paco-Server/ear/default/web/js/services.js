@@ -256,6 +256,12 @@ pacoApp.service('config', function() {
     'appId',
     'pacoId'
   ];
+
+  this.timeColumns = [
+    'responseTime',
+    'scheduledTime',
+    'when'
+  ];
 });
 
 
