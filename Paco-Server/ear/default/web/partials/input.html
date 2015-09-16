@@ -10,8 +10,6 @@
       ng-if="$index > 0"></a>
     <a class="down button" href="" ng-click="swapInputs($event, $index + 1, $index)" 
       ng-if="$index < group.inputs.length - 1"></a>
-
-
   </div>
 
   <div class="padded">
@@ -73,14 +71,14 @@
           <input ng-model="input.rightSideLabel">
         </md-input-container>
       </div>
-
       <div class="list" ng-if="input.responseType === 'list'">
-        <div class="choice" ng-repeat="choice in input.listChoices track by $index">
-          <md-input-container>
+        <div class="choice" ng-repeat="choice in input.listChoices track by $index"  layout="row">
+          <md-input-container flex>
             <label>Choice {{$index + 1}}</label>
             <input ng-model="input.listChoices[$index]">
           </md-input-container>
-          <a href="" class="remove button" ng-click="remove(input.listChoices, $index)"></a>
+          <a href="" class="remove button" ng-click="remove(input.listChoices, $index)" 
+            ng-if="input.listChoices.length > 1"></a>
         </div>
 
         <md-button add-icon ng-click="addChoice()">Choice</md-button>
