@@ -16,6 +16,9 @@
         <md-input-container ng-if="schedule.scheduleType === 4">
           <label>Minimum between</label>
           <input type="number" ng-model="schedule.minimumBuffer">
+          <div ng-messages>
+            <div ng-message>minutes</div>
+          </div>
         </md-input-container>
 
         <md-input-container ng-if="schedule.snoozeCount" ng-init="schedule.snoozeTimeInMinutes = 10">
