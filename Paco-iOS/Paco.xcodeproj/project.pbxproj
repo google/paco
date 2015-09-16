@@ -218,6 +218,7 @@
 		A646B4BF1B7C325B00BBAABB /* org in Resources */ = {isa = PBXBuildFile; fileRef = A646B4BE1B7C325B00BBAABB /* org */; };
 		A665B2731B94C86A001E0098 /* OrgJodaTimeDateTime+PacoDateHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = A665B2721B94C86A001E0098 /* OrgJodaTimeDateTime+PacoDateHelper.m */; };
 		A665B2761B969F81001E0098 /* PAActionSpecification+PacoActionSpecification.m in Sources */ = {isa = PBXBuildFile; fileRef = A665B2751B969F81001E0098 /* PAActionSpecification+PacoActionSpecification.m */; };
+		A66E306B1BA8F0C400A067EA /* libParseKitMobile.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 36000C2817C6AEA900A8A9E7 /* libParseKitMobile.a */; };
 		A6701D611B73D48C00229432 /* joda in Resources */ = {isa = PBXBuildFile; fileRef = A6701D601B73D48C00229432 /* joda */; };
 		A670F8831B8ECC2600BF9593 /* PacoIntrospectHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = A670F8821B8ECC2600BF9593 /* PacoIntrospectHelper.m */; };
 		A676C73C1B615AAB00F37572 /* libobjc.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = A676C73B1B615AAB00F37572 /* libobjc.dylib */; };
@@ -278,8 +279,6 @@
 		A6F957D31BA8E06A00F96295 /* Validatable.m in Sources */ = {isa = PBXBuildFile; fileRef = A6F957AF1BA8E06A00F96295 /* Validatable.m */; };
 		A6F957D41BA8E06A00F96295 /* ValidationMessage.m in Sources */ = {isa = PBXBuildFile; fileRef = A6F957B11BA8E06A00F96295 /* ValidationMessage.m */; };
 		A6F957D51BA8E06A00F96295 /* Validator.m in Sources */ = {isa = PBXBuildFile; fileRef = A6F957B31BA8E06A00F96295 /* Validator.m */; };
-		A6F957D71BA8E35300F96295 /* PKToken.m in Sources */ = {isa = PBXBuildFile; fileRef = A6F957D61BA8E35200F96295 /* PKToken.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
-		A6F957D91BA8E38100F96295 /* PKToken.h in Sources */ = {isa = PBXBuildFile; fileRef = A6F957D81BA8E38100F96295 /* PKToken.h */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
 		C567E89017A03FDE00267A26 /* deepbark_trial.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = C567E88F17A03FDE00267A26 /* deepbark_trial.mp3 */; };
 		C5B4691917B07E4900B6BC18 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C5B4691817B07E4900B6BC18 /* CoreGraphics.framework */; };
 		C5C4F5D217B163EF009E9F18 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C5C4F5D117B163EF009E9F18 /* QuartzCore.framework */; };
@@ -949,8 +948,6 @@
 		A6F957B11BA8E06A00F96295 /* ValidationMessage.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ValidationMessage.m; sourceTree = "<group>"; };
 		A6F957B21BA8E06A00F96295 /* Validator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Validator.h; sourceTree = "<group>"; };
 		A6F957B31BA8E06A00F96295 /* Validator.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Validator.m; sourceTree = "<group>"; };
-		A6F957D61BA8E35200F96295 /* PKToken.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = PKToken.m; path = ParseKit/src/PKToken.m; sourceTree = "<group>"; };
-		A6F957D81BA8E38100F96295 /* PKToken.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = PKToken.h; path = ParseKit/include/ParseKit/PKToken.h; sourceTree = "<group>"; };
 		C567E88F17A03FDE00267A26 /* deepbark_trial.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = deepbark_trial.mp3; sourceTree = "<group>"; };
 		C5B4691817B07E4900B6BC18 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
 		C5C4F5D117B163EF009E9F18 /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
@@ -985,6 +982,7 @@
 				319771C9163F0733000AC06B /* UIKit.framework in Frameworks */,
 				319771CB163F0733000AC06B /* Foundation.framework in Frameworks */,
 				C5B4691917B07E4900B6BC18 /* CoreGraphics.framework in Frameworks */,
+				A66E306B1BA8F0C400A067EA /* libParseKitMobile.a in Frameworks */,
 				36000C3817C6B34000A8A9E7 /* libicucore.dylib in Frameworks */,
 				31D5575116DAD33200C7D1BE /* MobileCoreServices.framework in Frameworks */,
 				3129004216DAAC9F008FF617 /* MapKit.framework in Frameworks */,
@@ -1011,8 +1009,6 @@
 		319771B9163F0733000AC06B = {
 			isa = PBXGroup;
 			children = (
-				A6F957D81BA8E38100F96295 /* PKToken.h */,
-				A6F957D61BA8E35200F96295 /* PKToken.m */,
 				A6ABFAC61B7BC79500F90598 /* working */,
 				44A8439B1ADB9C0A009C7226 /* src */,
 				319771CE163F0733000AC06B /* Paco */,
@@ -2730,8 +2726,6 @@
 				A6401F6D1B7D4D2800ABC0AB /* PacoEventManagerExtended.m in Sources */,
 				44A843D21ADB9C0A009C7226 /* InterruptTrigger.java in Sources */,
 				361AB05617DA77000053C313 /* PacoNotificationManager.m in Sources */,
-				A6F957D91BA8E38100F96295 /* PKToken.h in Sources */,
-				A6F957D71BA8E35300F96295 /* PKToken.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
