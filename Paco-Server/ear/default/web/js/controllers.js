@@ -457,7 +457,7 @@ pacoApp.controller('DataCtrl', ['$scope', '$mdDialog', '$location', '$filter',
       }, function(result) {
         $scope.loading = false;
         $scope.error = {  code: result.status,
-                          message: result.statusText
+                          message: result.message
                         };
       });
 
