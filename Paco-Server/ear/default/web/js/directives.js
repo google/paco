@@ -448,7 +448,7 @@ pacoApp.filter('jsonToTable', ['util', 'config', function(util, config) {
           if (val === undefined) {
             val = '';
           }
-          if (column === 'responseTime' || column === 'when') {
+          if (column === 'responseTime' || column === 'scheduledTime' || column === 'when') {
             val = util.formatDate(val);
           }
           newRow[id] = val;
