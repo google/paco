@@ -11,7 +11,6 @@
   font-weight: 400;
   position: relative;
   min-width: 960px;
-  text-align: center;
 }
 
 .data .nav .viewSelector {
@@ -180,4 +179,20 @@ md-menu-item {
 
 .data {
   text-align: center;
+}
+
+.data md-chips {
+  display: inline-block;
+  position: relative;
+}
+
+.data md-chips md-chips-wrap {
+  box-shadow: none !important;
+  position: absolute;
+  left: 0;
+  top: -30px;
+}
+
+.data md-chips .md-chips.md-focused {
+  box-shadow: none;
 }

@@ -375,18 +375,20 @@ pacoApp.controller('DataCtrl', ['$scope', '$mdDialog', '$location', '$filter',
   function($scope, $mdDialog, $location, $filter, $routeParams, dataService, 
     experimentService, config) {
 
-    var user = false;
-    var anonymous = false;
-
     $scope.sortColumn = 0;
     $scope.reverseSort = false;
     $scope.loading = null;
     $scope.table = null;
     $scope.showColumn = {};
     $scope.currentView = 'data';
+    $scope.restrict = null;
+    $scope.anon = false;
 
     $scope.switchView = function() {
       var newPath = $scope.currentView + '/' + $scope.experimentId;
+      if ($scope.restrict) {
+        newPath += '/' + $scope.user;
+      }
       $location.path(newPath);
     }
 
@@ -408,7 +410,7 @@ pacoApp.controller('DataCtrl', ['$scope', '$mdDialog', '$location', '$filter',
       $scope.loading = true;
       $scope.table = null;
 
-      dataService.getEvents($scope.experimentId, user, anonymous).
+      dataService.getEvents($scope.experimentId, $scope.restrict, $scope.anon).
       then(function(result) {
 
         $scope.scrolling(false);
@@ -468,7 +470,7 @@ pacoApp.controller('DataCtrl', ['$scope', '$mdDialog', '$location', '$filter',
       $scope.stats = null;
       $scope.currentView = 'stats';
 
-      dataService.getParticipantData($scope.experimentId, user).
+      dataService.getParticipantData($scope.experimentId, $scope.restrict).
       then(function(result) {
         if (result.data) {
           $scope.stats = result.data;
@@ -484,13 +486,22 @@ pacoApp.controller('DataCtrl', ['$scope', '$mdDialog', '$location', '$filter',
       $scope.status = 'Sending stats request';
     }
 
+    $scope.removeUserChip = function() {
+      var newPath = $scope.currentView + '/' + $scope.experimentId;
+      $location.path(newPath);
+    };
 
     if ($location.hash() && $location.hash() === 'anon') {
-      anonymous = true;
+      $scope.anon = true;
     }
 
     if ($location.hash() && $location.hash() === 'mine') {
-      user = $scope.user;
+      $scope.restrict = $scope.user;
+    }
+
+    if (angular.isDefined($routeParams.who)) {
+      $scope.restrict = $routeParams.who;
+      $scope.userChips = [$routeParams.who];
     }
 
     if (angular.isDefined($routeParams.csvExperimentId)) {
