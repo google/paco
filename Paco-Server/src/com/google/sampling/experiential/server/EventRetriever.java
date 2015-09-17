@@ -63,7 +63,7 @@ import com.google.sampling.experiential.shared.EventDAO;
  */
 public class EventRetriever {
 
-  private static final int DEFAULT_FETCH_LIMIT = 100;
+  private static final int DEFAULT_FETCH_LIMIT = 20000;
   private static EventRetriever instance;
   private static final Logger log = Logger.getLogger(EventRetriever.class.getName());
 
