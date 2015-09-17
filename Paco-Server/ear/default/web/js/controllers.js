@@ -210,6 +210,14 @@ pacoApp.controller('ExperimentCtrl', ['$scope', '$mdDialog', '$filter',
       $scope.ace.height = $scope.lineCount(newValue) * 16;
     });
 
+    $scope.discardChanges = function() {
+      if ($scope.newExperiment) {
+        $location.path('/experiments/');
+      } else {
+        $scope.experiment = angular.copy($scope.experiment0);
+      }
+    }
+
     $scope.saveExperiment = function() {
       $scope.cancelSave = false;
       $mdDialog.show(
@@ -340,8 +348,9 @@ pacoApp.controller('ListCtrl', ['$scope', '$mdDialog', '$location',
         then(function(response) {
           $scope.loadList(true);
 
-          // If we're on the experiment page, change location to home
-          if ($location.path().indexOf('/experiment/') === 0) {
+          // If we're on the experiment or edit page, change location to home
+          if ($location.path().indexOf('/experiment/') === 0 ||
+              $location.path().indexOf('/edit/') === 0) {
             $location.path('/');
           }
         });
