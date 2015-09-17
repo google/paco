@@ -130,11 +130,11 @@ public class ExperimentExecutor extends ActionBarActivity implements ChangeListe
       IntentExtraHelper.loadExperimentInfoFromIntent(this, getIntent(), experimentProviderUtil);
     }
     loadNotificationData();
-    
+
     if (experiment == null || experimentGroup == null) {
       displayNoExperimentMessage();
     } else {
-      
+
       actionBar.setTitle(experiment.getExperimentDAO().getTitle());
       if (scheduledTime == null || scheduledTime == 0l) {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -242,7 +242,11 @@ public class ExperimentExecutor extends ActionBarActivity implements ChangeListe
    */
   private void lookForActiveNotificationForExperiment() {
     NotificationHolder notificationHolder = null;
-    List<NotificationHolder> notificationHolders = experimentProviderUtil.getNotificationsFor(getExperiment().getExperimentDAO().getId().longValue(), experimentGroup.getName());
+    if (getExperiment() == null) {
+      return;
+    }
+    final long experimentServerId = getExperiment().getExperimentDAO().getId().longValue();
+    List<NotificationHolder> notificationHolders = experimentProviderUtil.getNotificationsFor(experimentServerId, experimentGroup.getName());
     if (notificationHolders != null && !notificationHolders.isEmpty()) {
       notificationHolder = notificationHolders.get(0); // TODO can we ever have more than one for a group?
     }
