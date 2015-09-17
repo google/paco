@@ -44,12 +44,12 @@
     </div>
 
     <div ng-if="action.actionCode == 4" class="ace_editor" ng-model="action.customScript"
-    ui-ace="{
+      ui-ace="{
         mode: 'javascript',
         onLoad: aceLoaded,
         rendererOptions: {
-          minLines: 10,
-          maxLines: 20
+          minLines: 20,
+          maxLines: 30
         }
       }">
     </div>

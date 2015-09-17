@@ -100,7 +100,7 @@ md-dialog.schedule md-dialog-content, md-dialog.action md-dialog-content {
 }
 
 .action .ace_editor {
-  width: 600px;
+  width: 800px;
   margin-top: 16px;
   border: 1px solid lightgray;
 }

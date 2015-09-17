@@ -368,9 +368,6 @@ pacoApp.filter('percent', ['$filter', function ($filter) {
 }]);
 
 
-
-
-
 pacoApp.filter('jsonToTable', ['util', 'config', function(util, config) {
 
   return function (json, unpackResponse){
