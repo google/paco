@@ -395,7 +395,7 @@ pacoApp.controller('DataCtrl', ['$scope', '$mdDialog', '$location', '$filter',
 
     $scope.switchView = function() {
       var newPath = $scope.currentView + '/' + $scope.experimentId;
-      if ($scope.restrict) {
+      if ($scope.userChips) {
         newPath += '/' + $scope.user;
       }
       $location.path(newPath);
