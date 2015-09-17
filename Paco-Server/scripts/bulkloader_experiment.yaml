@@ -33,66 +33,11 @@ transformers:
       external_name: key
       export_transform: transform.key_id_or_name_as_string
 
-    - property: admins
-      external_name: admins
-      # Type: String Stats: 256 properties of this type in this kind.
-
-    - property: creator
-      external_name: creator
-      # Type: User Stats: 146 properties of this type in this kind.
-      import_transform: transform.none_if_empty(users.User)  # Assumes email address
-
-    - property: deleted
-      external_name: deleted
-      # Type: Boolean Stats: 146 properties of this type in this kind.
-      import_transform: transform.regexp_bool('true', re.IGNORECASE)
-
-    - property: description
-      external_name: description
-      # Type: String Stats: 146 properties of this type in this kind.
-
-    - property: endDate
-      external_name: endDate
-      # Type: Date/Time Stats: 20 properties of this type in this kind.
-      import_transform: transform.import_date_time('%Y-%m-%dT%H:%M:%S')
-      export_transform: transform.export_date_time('%Y-%m-%dT%H:%M:%S')
-
-    - property: fixedDuration
-      external_name: fixedDuration
-      # Type: Boolean Stats: 146 properties of this type in this kind.
-      import_transform: transform.regexp_bool('true', re.IGNORECASE)
-
-    - property: informedConsentFormText
-      external_name: informedConsentFormText
-      # Type: Text Stats: 146 properties of this type in this kind.
-      import_transform: db.Text
-
-    - property: modifyDate
-      external_name: modifyDate
-      # Type: Date/Time Stats: 146 properties of this type in this kind.
-      import_transform: transform.import_date_time('%Y-%m-%dT%H:%M:%S')
-      export_transform: transform.export_date_time('%Y-%m-%dT%H:%M:%S')
-
-    - property: publishedUsers
-      external_name: publishedUsers
-      # Type: String Stats: 241 properties of this type in this kind.
-
-    - property: published
-      external_name: published
-      # Type: Boolean Stats: 146 properties of this type in this kind.
-      import_transform: transform.regexp_bool('true', re.IGNORECASE)
-
-    - property: questionsChange
-      external_name: questionsChange
-      # Type: Boolean Stats: 146 properties of this type in this kind.
-      import_transform: transform.regexp_bool('true', re.IGNORECASE)
-
-    - property: startDate
-      external_name: startDate
-      # Type: Date/Time Stats: 20 properties of this type in this kind.
-      import_transform: transform.import_date_time('%Y-%m-%dT%H:%M:%S')
-      export_transform: transform.export_date_time('%Y-%m-%dT%H:%M:%S')
+    - property: definition
+      external_name: definition
 
     - property: title
       external_name: title
-      # Type: String Stats: 146 properties of this type in this kind.
+
+    - property: version
+      external_name: version

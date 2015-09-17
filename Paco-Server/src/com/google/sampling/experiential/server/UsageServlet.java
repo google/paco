@@ -36,6 +36,7 @@ import org.joda.time.DateTimeZone;
 import com.google.appengine.api.modules.ModulesService;
 import com.google.appengine.api.modules.ModulesServiceFactory;
 import com.google.appengine.api.users.User;
+import com.google.appengine.api.users.UserServiceFactory;
 import com.google.common.collect.Lists;
 
 /**
@@ -61,14 +62,17 @@ public class UsageServlet extends HttpServlet {
   }
 
   private void dumpStats(HttpServletResponse resp, HttpServletRequest req) throws IOException {
-    String loggedInuser = AuthUtil.getWhoFromLogin().getEmail().toLowerCase();
-    if (loggedInuser != null && adminUsers.contains(loggedInuser)) {
-      loggedInuser = defaultAdmin; //TODO this is dumb. It should just be the value, loggedInuser.
+    final User whoFromLogin = AuthUtil.getWhoFromLogin();
+    boolean isSystemAdmin = UserServiceFactory.getUserService().isUserAdmin();
+    if (!isSystemAdmin) {
+      resp.sendError(HttpServletResponse.SC_FORBIDDEN);
+      return;
     }
+
 
     DateTimeZone timeZoneForClient = TimeUtil.getTimeZoneForClient(req);
     String adminDomainFilter = req.getParameter("adminDomainFilter");
-    String jobId = runReportJob(loggedInuser, timeZoneForClient, req, "stats", adminDomainFilter);
+    String jobId = runReportJob(AuthUtil.getEmailOfUser(req, whoFromLogin), timeZoneForClient, req, "stats", adminDomainFilter);
     // Give the backend time to startup and register the job.
     try {
       Thread.sleep(100);
