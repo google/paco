@@ -129,7 +129,7 @@ pacoApp.service('dataService', ['$http', '$timeout', '$q',
         function(data) {
           var totalParticipantCount = 0;
           var todayParticipantCount = 0;
-          for (var i = 0; i < data.participants; i++) {
+          for (var i = 0; i < data.participants.length; i++) {
             
             if (data.participants[i].todaySignalResponseCount > 0) {
               todayParticipantCount++;
