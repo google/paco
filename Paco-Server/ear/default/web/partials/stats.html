@@ -19,7 +19,7 @@
         </md-select>
       </md-input-container>
   
-      <md-chips ng-if="restrict" ng-model="userChips" md-on-remove="removeUserChip()"></md-chips>
+      <md-chips ng-if="userChips" ng-model="userChips" md-on-remove="removeUserChip()"></md-chips>
     </div>
 
     <div ng-if="loading" class="status">
