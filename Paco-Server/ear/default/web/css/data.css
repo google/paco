@@ -198,6 +198,10 @@ md-menu-item {
   top: -30px;
 }
 
+.data md-chips .md-chip-input-container {
+  display: none;
+}
+
 .data md-chips .md-chips.md-focused {
   box-shadow: none;
 }
