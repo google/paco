@@ -500,17 +500,16 @@ pacoApp.controller('DataCtrl', ['$scope', '$mdDialog', '$location', '$filter',
       $location.path(newPath);
     };
 
-    if ($location.hash() && $location.hash() === 'anon') {
-      $scope.anon = true;
-    }
+    if (angular.isDefined($routeParams.filter)) {
 
-    if ($location.hash() && $location.hash() === 'mine') {
-      $scope.restrict = $scope.user;
-    }
-
-    if (angular.isDefined($routeParams.who)) {
-      $scope.restrict = $routeParams.who;
-      $scope.userChips = [$routeParams.who];
+      if ($routeParams.filter === 'anonymous') {
+        $scope.anon = true;
+      } else if ($routeParams.filter === 'mine') {
+        $scope.restrict = $scope.user;
+      } else {
+        $scope.restrict = $routeParams.filter;
+        $scope.userChips = [$routeParams.filter];
+      }
     }
 
     if (angular.isDefined($routeParams.csvExperimentId)) {
