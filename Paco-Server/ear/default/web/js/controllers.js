@@ -534,7 +534,6 @@ pacoApp.controller('DataCtrl', ['$scope', '$mdDialog', '$location', '$filter',
 
     $scope.$watchCollection('showColumn', function(newVal, oldVal) {
       var columnString = '';
-      console.log($scope.showColumn);
       for (var key in $scope.showColumn) {
         if ($scope.showColumn[key] && key !== 'responses') {
           if (columnString !== '') {
