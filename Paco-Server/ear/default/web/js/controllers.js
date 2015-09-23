@@ -502,7 +502,6 @@ pacoApp.controller('DataCtrl', ['$scope', '$mdDialog', '$location', '$filter',
 
     if ($location.hash()) {
       $scope.columnOverride = $location.hash().split(',');
-      console.log($scope.columnOverride);
     }
 
     if (angular.isDefined($routeParams.filter)) {
