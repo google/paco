@@ -506,7 +506,7 @@ pacoApp.controller('DataCtrl', ['$scope', '$mdDialog', '$location', '$filter',
 
     if (angular.isDefined($routeParams.filter)) {
 
-      if ($routeParams.filter === 'anon') {
+      if ($routeParams.filter === 'anonymous') {
         $scope.anon = true;
       } else if ($routeParams.filter === 'mine') {
         $scope.restrict = $scope.user;
