@@ -414,6 +414,11 @@ pacoApp.controller('DataCtrl', ['$scope', '$mdDialog', '$location', '$filter',
       return row[$scope.sortColumn];
     };
 
+    enableColumns = function(columns) {
+      for (var id in columns) {
+        $scope.showColumn[columns[id]] = true;
+      }
+    };
 
     $scope.loadEvents = function() {
       $scope.loading = true;
@@ -440,16 +445,11 @@ pacoApp.controller('DataCtrl', ['$scope', '$mdDialog', '$location', '$filter',
             return;
           }
 
-          // Toggle on all data order columns
-          for (var id in config.dataOrder) {
-            $scope.showColumn[config.dataOrder[id]] = true;
-          }
-
-          // Toggle on all response columns
-          if (table.responseNames) {
-            for (var id in table.responseNames) {
-              $scope.showColumn[table.responseNames[id]] = true;
-            }
+          if ($scope.columnOverride) {
+            enableColumns($scope.columnOverride);
+          } else {
+            enableColumns(config.dataOrder);
+            enableColumns(table.responseNames);
           }
 
           // TODO(ispiro): regenerate CSV based on column visibility
@@ -500,9 +500,14 @@ pacoApp.controller('DataCtrl', ['$scope', '$mdDialog', '$location', '$filter',
       $location.path(newPath);
     };
 
+    if ($location.hash()) {
+      $scope.columnOverride = $location.hash().split(',');
+      console.log($scope.columnOverride);
+    }
+
     if (angular.isDefined($routeParams.filter)) {
 
-      if ($routeParams.filter === 'anonymous') {
+      if ($routeParams.filter === 'anon') {
         $scope.anon = true;
       } else if ($routeParams.filter === 'mine') {
         $scope.restrict = $scope.user;
@@ -526,6 +531,20 @@ pacoApp.controller('DataCtrl', ['$scope', '$mdDialog', '$location', '$filter',
       function(response) {
         $scope.experiment = response.data[0];
       });
+
+    $scope.$watchCollection('showColumn', function(newVal, oldVal) {
+      var columnString = '';
+      console.log($scope.showColumn);
+      for (var key in $scope.showColumn) {
+        if ($scope.showColumn[key] && key !== 'responses') {
+          if (columnString !== '') {
+            columnString += ',';
+          }
+          columnString += key;
+        }
+      }
+      $scope.columnString = columnString;
+    });
   }
 ]);
 

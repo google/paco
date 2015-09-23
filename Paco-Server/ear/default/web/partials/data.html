@@ -44,9 +44,8 @@
 
     <div ng-if="table && table.rows.length > 0" class="frame">
       <table>
-        <thead>
-        </thead>
-          <tbody>
+        <thead></thead>
+        <tbody>
           <tr ng-repeat="copy in [1,2]">
             <td ng-repeat="cell in table.header track by $index" ng-show="showColumn[cell]">
               <a href=""  ng-click="setColumn($index)"
@@ -58,7 +57,8 @@
           <tr ng-repeat="row in table.rows | orderBy: columnSort: reverseSort">
             <td ng-repeat="cell in row track by $index" ng-show="showColumn[table.header[$index]]">
               <a href="#/data/{{experiment.id}}/{{cell}}" ng-if="table.header[$index]=='who' && !users && !anon">{{cell}}</a>
-              <span ng-if="table.header[$index]!='who' || users || anon">{{cell}}</span>
+              <span ng-if="table.header[$index]!='who' || users || anon">{{cell}}&nbsp;</span>
+
             </td>
           </tr>
         </tbody>
@@ -68,9 +68,14 @@
     <md-card class="footer" ng-if="table">
       <md-card-content>
         Showing {{table.rows.length}} out of {{table.rows.length}}
-        <a ng-href="{{csvData}}" download="export.csv" class="download">
-          <md-button>Download CSV</md-button>
-        </a>  
+        <div class="actions">
+          <a ng-href="#/data/{{experiment.id}}/#{{columnString}}">
+            <md-button>Column View</md-button>
+          </a>
+          <a ng-href="{{csvData}}" download="export.csv" class="download">
+            <md-button>Download CSV</md-button>
+          </a>
+        </div>
       </md-card-content>
     </md-card>
   </div>
