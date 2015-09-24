@@ -8,3 +8,8 @@
   font-size: 18px;
   font-weight: 400;
 }
+
+.nav button.md-button {
+  max-width: 360px;
+  text-overflow: ellipsis;
+}
