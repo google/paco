@@ -13,4 +13,15 @@
 
 +(NSArray*) calculateActionSpecifications;
 
+
+- (void)handleExpiredNotifications:(NSArray*)expiredNotifications;
+
+- (BOOL)isDoneInitializationForMajorTask;
+
+- (BOOL)needsNotificationSystem;
+
+- (void)updateNotificationSystem;
+
+- (NSArray*)nextNotificationsToSchedule;
+
 @end

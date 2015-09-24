@@ -8,17 +8,17 @@
 
 #import <UIKit/UIKit.h>
 #import "PacoNotificationManager.h"
-#import "PacoScheduleDelegate.h"
+#import "PacoSchedulingUtil.h"
 
 @class PacoScheduler;
-@class PacoScheduleDelegate;
+@class PacoSchedulingUtil;
 @class PacoExtendedClient;
 
 @interface ScheduleTestViewController : UIViewController<PacoNotificationManagerDelegate>
 @property (weak, nonatomic) IBOutlet UITextField *firstTime;
 @property (weak, nonatomic) IBOutlet UITextField *secondTime;
 @property (nonatomic, retain) PacoScheduler *scheduler;
-@property (nonatomic, retain) PacoScheduleDelegate* schedulerDelegate;
+@property (nonatomic, retain) PacoSchedulingUtil* schedulerDelegate;
 @property (nonatomic, retain) PacoExtendedClient*   client;
 
 

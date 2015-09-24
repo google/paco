@@ -6,7 +6,7 @@
 //  Copyright (c) 2015 Paco. All rights reserved.
 //
 
-#import "PacoData.h"
+#import "PacoMediator.h"
 #import "PacoSignalStore.h"
 #import "PacoEventStore.h"
 #import "ExperimentDAO.h" 
@@ -18,7 +18,7 @@
 #import "PacoExperimentWillStopVerificatonProtocol.h"
 
 
-@interface PacoData ()
+@interface PacoMediator ()
 
 @property (strong,nonatomic ) NSMutableArray* allExperiments;
 @property (strong,nonatomic)   NSMutableArray* runningExperiments;
@@ -37,7 +37,8 @@
 static dispatch_queue_t serialQueue;
 
 
-@implementation PacoData
+@implementation PacoMediator
+
 
 
 - (instancetype)init
@@ -60,10 +61,10 @@ static dispatch_queue_t serialQueue;
 }
 
 
-+ (PacoData*)sharedInstance
++ (PacoMediator*)sharedInstance
 {
     static dispatch_once_t once;
-    static PacoData *sharedInstance;
+    static PacoMediator *sharedInstance;
     dispatch_once(&once, ^ {
         
         
@@ -244,5 +245,33 @@ static dispatch_queue_t serialQueue;
       });
     
 }
+
+-(void) registerWillStartValidator:(id<PacoExerimentDidStartVerificationProtocol>) validator
+{
+    [self.willStartVerifiers addObject:validator];
+    
+}
+
+-(void) registerDidStartNotifier:(id<PacoExerimentDidStartVerificationProtocol>) notifier
+{
+    [self.didStartNotifiers addObject:notifier];
+    
+}
+
+
+-(void) registerWillStopValidator:(id<PacoExperimentWillStopVerificatonProtocol>) notifier
+{
+    [self.willStopVerifiers addObject:notifier];
+    
+}
+
+-(void) registerDidStopNotifier:(id<PacoExperimentDidStopVerificatonProtocol>) notifier
+{
+    [self.didStopNotifiers addObject:notifier];
+    
+}
+
+
+
 
 @end

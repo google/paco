@@ -8,7 +8,7 @@
 
 #import "PacoScheduleDelegate.h"
 #import "PacoSchedulingUtil.h"
-#import "PacoData.h"
+#import "PacoMediator.h"
 
 @implementation PacoScheduleDelegate
 
@@ -43,7 +43,7 @@
 {
     
     NSArray* newActionSpecifications  = [PacoSchedulingUtil calculateActionSpecifications];
-   [[PacoData sharedInstance] updateActionSpecifications:newActionSpecifications];
+   [[PacoMediator sharedInstance] updateActionSpecifications:newActionSpecifications];
     return newActionSpecifications;
   
 }

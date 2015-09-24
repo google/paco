@@ -40,27 +40,16 @@
 #import "PacoNotificationConstants.h"
 #import "PacoExtendedNotificationInfo.h"
 #import "UILocalNotification+PacoExteded.h"
-#import "PacoData.h"
-#import "PacoScheduler.h" 
-#import "PacoScheduleDelegate.h"
+#import "PacoMediator.h"
+#import "PacoScheduler.h"
 #import "ActionSpecification.h"
 #import "PacoDateUtility.h"
-#import "PacoData.h" 
+#import "PacoMediator.h" 
 #import "PAExperimentDAO+Helper.h"
+#import "PacoSchedulingUtil.h"
 
 
-/*
-extern NSString* const kNotificationSoundName;
-extern NSString* const kUserInfoKeyExperimentId;
-extern NSString* const kUserInfoKeyExperimentTitle;
-extern NSString* const kUserInfoKeyNotificationFireDate;
-extern NSString* const kUserInfoKeyNotificationTimeoutDate;
-extern NSString* const kNotificationGroupId;
-extern NSString* const kNotificationGroupName;
-extern NSString* const kUserInfoKeyActionTriggerId;
-extern NSString* const kUserInfoKeyNotificationActionId;
-extern NSString* const kUserInfoKeyActionTriggerSpecId;
- */
+
 
 @interface PacoNotificationCategoryExtendedTests : XCTestCase
 
@@ -77,19 +66,19 @@ extern NSString* const kUserInfoKeyActionTriggerSpecId;
 @property(nonatomic, strong) NSString* notificationActionId;
 @property(nonatomic, strong) NSString* triggerSpecId;
 @property (nonatomic, retain) PacoScheduler *scheduler;
-@property (nonatomic, retain) PacoScheduleDelegate *schedulerDelegate;
+@property (nonatomic, retain) PacoSchedulingUtil *schedulerDelegate;
 @property (nonatomic, retain) NSArray *specifications;
 @property (nonatomic, retain) PAExperimentDAO *dao;
 @property long timeoutVal;
 @end
 
 
-static NSString* def3 = @"{\r\n  \"title\": \"Only One Event Today (rolling)\",\r\n  \"creator\": \"northropo@google.com\",\r\n  \"contactEmail\": \"northropo@google.com\",\r\n  \"id\": 5682121540632576,\r\n  \"recordPhoneDetails\": false,\r\n  \"extraDataCollectionDeclarations\": [],\r\n  \"deleted\": false,\r\n  \"modifyDate\": \"2015\/09\/22\",\r\n  \"published\": false,\r\n  \"admins\": [\r\n    \"northropo@google.com\"\r\n  ],\r\n  \"publishedUsers\": [],\r\n  \"version\": 20,\r\n  \"groups\": [\r\n    {\r\n      \"name\": \"New Group\",\r\n      \"customRendering\": false,\r\n      \"fixedDuration\": true,\r\n      \"startDate\": \"2015\/9\/23\",\r\n      \"endDate\": \"2015\/9\/23\",\r\n      \"logActions\": false,\r\n      \"backgroundListen\": false,\r\n      \"actionTriggers\": [\r\n        {\r\n          \"type\": \"scheduleTrigger\",\r\n          \"actions\": [\r\n            {\r\n              \"actionCode\": 1,\r\n              \"id\": 1442592233059,\r\n              \"type\": \"pacoNotificationAction\",\r\n              \"snoozeCount\": 0,\r\n              \"snoozeTime\": 600000,\r\n              \"timeout\": 15,\r\n              \"delay\": 5000,\r\n              \"msgText\": \"Time to participate\",\r\n              \"snoozeTimeInMinutes\": 10,\r\n              \"nameOfClass\": \"com.pacoapp.paco.shared.model2.PacoNotificationAction\"\r\n            }\r\n          ],\r\n          \"id\": 1442592233058,\r\n          \"schedules\": [\r\n            {\r\n              \"scheduleType\": 0,\r\n              \"esmFrequency\": 3,\r\n              \"esmPeriodInDays\": 0,\r\n              \"esmStartHour\": 32400000,\r\n              \"esmEndHour\": 61200000,\r\n              \"signalTimes\": [\r\n                {\r\n                  \"type\": 0,\r\n                  \"fixedTimeMillisFromMidnight\": 46800000,\r\n                  \"missedBasisBehavior\": 1,\r\n                  \"nameOfClass\": \"com.pacoapp.paco.shared.model2.SignalTime\"\r\n                }\r\n              ],\r\n              \"repeatRate\": 1,\r\n              \"weekDaysScheduled\": 0,\r\n              \"nthOfMonth\": 1,\r\n              \"byDayOfMonth\": true,\r\n              \"dayOfMonth\": 1,\r\n              \"esmWeekends\": false,\r\n              \"minimumBuffer\": 59,\r\n              \"joinDateMillis\": 0,\r\n              \"id\": 1442592233060,\r\n              \"onlyEditableOnJoin\": false,\r\n              \"userEditable\": true,\r\n              \"nameOfClass\": \"com.pacoapp.paco.shared.model2.Schedule\"\r\n            }\r\n          ],\r\n          \"nameOfClass\": \"com.pacoapp.paco.shared.model2.ScheduleTrigger\"\r\n        }\r\n      ],\r\n      \"inputs\": [],\r\n      \"endOfDayGroup\": false,\r\n      \"feedback\": {\r\n        \"text\": \"Thanks for Participating!\",\r\n        \"type\": 0,\r\n        \"nameOfClass\": \"com.pacoapp.paco.shared.model2.Feedback\"\r\n      },\r\n      \"feedbackType\": 0,\r\n      \"nameOfClass\": \"com.pacoapp.paco.shared.model2.ExperimentGroup\"\r\n    }\r\n  ],\r\n  \"ringtoneUri\": \"\/assets\/ringtone\/Paco Bark\",\r\n  \"postInstallInstructions\": \"<b>You have successfully joined the experiment!<\/b><br\/><br\/>No need to do anything else for now.<br\/><br\/>Paco will send you a notification when it is time to participate.<br\/><br\/>Be sure your ringer\/buzzer is on so you will hear the notification.\",\r\n  \"nameOfClass\": \"com.pacoapp.paco.shared.model2.ExperimentDAO\"\r\n}";
+static NSString* def3 = @"{\r\n  \"title\": \"Only One Event Today (rolling)\",\r\n  \"creator\": \"northropo@google.com\",\r\n  \"contactEmail\": \"northropo@google.com\",\r\n  \"id\": 5682121540632576,\r\n  \"recordPhoneDetails\": false,\r\n  \"extraDataCollectionDeclarations\": [],\r\n  \"deleted\": false,\r\n  \"modifyDate\": \"2015\/09\/24\",\r\n  \"published\": false,\r\n  \"admins\": [\r\n    \"northropo@google.com\"\r\n  ],\r\n  \"publishedUsers\": [],\r\n  \"version\": 21,\r\n  \"groups\": [\r\n    {\r\n      \"name\": \"New Group\",\r\n      \"customRendering\": false,\r\n      \"fixedDuration\": true,\r\n      \"startDate\": \"2015\/9\/24\",\r\n      \"endDate\": \"2015\/9\/24\",\r\n      \"logActions\": false,\r\n      \"backgroundListen\": false,\r\n      \"actionTriggers\": [\r\n        {\r\n          \"type\": \"scheduleTrigger\",\r\n          \"actions\": [\r\n            {\r\n              \"actionCode\": 1,\r\n              \"id\": 1442592233059,\r\n              \"type\": \"pacoNotificationAction\",\r\n              \"snoozeCount\": 0,\r\n              \"snoozeTime\": 600000,\r\n              \"timeout\": 15,\r\n              \"delay\": 5000,\r\n              \"msgText\": \"Time to participate\",\r\n              \"snoozeTimeInMinutes\": 10,\r\n              \"nameOfClass\": \"com.pacoapp.paco.shared.model2.PacoNotificationAction\"\r\n            }\r\n          ],\r\n          \"id\": 1442592233058,\r\n          \"schedules\": [\r\n            {\r\n              \"scheduleType\": 0,\r\n              \"esmFrequency\": 3,\r\n              \"esmPeriodInDays\": 0,\r\n              \"esmStartHour\": 32400000,\r\n              \"esmEndHour\": 61200000,\r\n              \"signalTimes\": [\r\n                {\r\n                  \"type\": 0,\r\n                  \"fixedTimeMillisFromMidnight\": 46800000,\r\n                  \"missedBasisBehavior\": 1,\r\n                  \"nameOfClass\": \"com.pacoapp.paco.shared.model2.SignalTime\"\r\n                }\r\n              ],\r\n              \"repeatRate\": 1,\r\n              \"weekDaysScheduled\": 0,\r\n              \"nthOfMonth\": 1,\r\n              \"byDayOfMonth\": true,\r\n              \"dayOfMonth\": 1,\r\n              \"esmWeekends\": false,\r\n              \"minimumBuffer\": 59,\r\n              \"joinDateMillis\": 0,\r\n              \"id\": 1442592233060,\r\n              \"onlyEditableOnJoin\": false,\r\n              \"userEditable\": true,\r\n              \"nameOfClass\": \"com.pacoapp.paco.shared.model2.Schedule\"\r\n            }\r\n          ],\r\n          \"nameOfClass\": \"com.pacoapp.paco.shared.model2.ScheduleTrigger\"\r\n        }\r\n      ],\r\n      \"inputs\": [],\r\n      \"endOfDayGroup\": false,\r\n      \"feedback\": {\r\n        \"text\": \"Thanks for Participating!\",\r\n        \"type\": 0,\r\n        \"nameOfClass\": \"com.pacoapp.paco.shared.model2.Feedback\"\r\n      },\r\n      \"feedbackType\": 0,\r\n      \"nameOfClass\": \"com.pacoapp.paco.shared.model2.ExperimentGroup\"\r\n    }\r\n  ],\r\n  \"ringtoneUri\": \"\/assets\/ringtone\/Paco Bark\",\r\n  \"postInstallInstructions\": \"<b>You have successfully joined the experiment!<\/b><br\/><br\/>No need to do anything else for now.<br\/><br\/>Paco will send you a notification when it is time to participate.<br\/><br\/>Be sure your ringer\/buzzer is on so you will hear the notification.\",\r\n  \"nameOfClass\": \"com.pacoapp.paco.shared.model2.ExperimentDAO\"\r\n}";
 
 
 
 
-@interface PacoData ()
+@interface PacoMediator ()
 
 @property (strong,nonatomic ) NSMutableArray* allExperiments;
 @property (strong,nonatomic)   NSMutableArray* runningExperiments;
@@ -112,60 +101,11 @@ static NSString* def3 = @"{\r\n  \"title\": \"Only One Event Today (rolling)\",\
     
     
     
-    
+    static dispatch_once_t once;
   
-    
-        PacoSignalStore * signalStore          =  [[PacoSignalStore alloc] init];
-        PacoEventStore  * eventStore           =  [[PacoEventStore  alloc] init];
-        PAExperimentDAO*  experiment  = [self experimentDAO:3];
-    
-    
-    
-    [[PacoData sharedInstance] clearRunningExperiments];
-    
-    
-         [[PacoData sharedInstance] addExperimentToAvailableStore:experiment];
-    
-         [[PacoData sharedInstance] startRunningExperiment:[experiment instanceId]];
-    
-    
-         NSMutableDictionary * results  = [[NSMutableDictionary alloc] init];
-        [results setObject:[NSMutableArray new] forKey:[self uniqueId:experiment]];
-        [self getFireTimes:experiment  results:results SignalStore:signalStore EventStore:eventStore];
-        NSArray* definitions  = [results objectForKey:[self uniqueId:experiment]];
-        PAActionSpecification*  spec = [definitions firstObject];
-        
-        _fireTimes = definitions;
-    
-        self.testID =              [[experiment valueForKeyEx:@"id"] stringValue];
-        self.testTitle =           [experiment valueForKeyEx:@"title"]  ;
-        self.testFireDate =        [[spec valueForKey:@"time_"]  nsDateValue];
-        long  timeoutVal =         [ [experiment valueForKeyPathEx:@"groups[0].actionTriggers[0].actions[0].timeout"] longValue];
-        self.testTimeoutDate =      [NSDate dateWithTimeInterval:timeoutVal  sinceDate:self.testFireDate];
-        self.groupId =               [experiment valueForKeyPathEx:@"groups[0].name"] ;
-        self.groupName =             [experiment valueForKeyPathEx:@"groups[0].name"]  ;
-        self.actionTriggerId=        [[experiment valueForKeyPathEx:@"groups[0].actionTriggers[0].id"] stringValue];
-        
-        
-        self.notificationActionId  =   self.notificationActionId  = [[experiment valueForKeyPathEx:@"groups[0].actionTriggers[0].actions[0].id"] stringValue];
-        self.triggerSpecId = @"trigger spec id";
-    
-    
-    
-
-        _schedulerDelegate = [[PacoScheduleDelegate alloc] init];
-    
-    
-    
-    
-          
-          
-          
-        _specifications = [_schedulerDelegate nextNotificationsToSchedule];
-        _dao = experiment;
-        
-        /* do this just to remove notfications */
-        [UIApplication sharedApplication].scheduledLocalNotifications = [NSArray new];
+    //dispatch_once(&once, ^{
+        [self setup];
+   // });
         
     
     
@@ -173,6 +113,67 @@ static NSString* def3 = @"{\r\n  \"title\": \"Only One Event Today (rolling)\",\
  
 }
 
+
+
+-(void) setup
+{
+    
+    
+    
+    PacoSignalStore * signalStore          =  [[PacoSignalStore alloc] init];
+    PacoEventStore  * eventStore           =  [[PacoEventStore  alloc] init];
+    PAExperimentDAO*  experiment  = [self experimentDAO:3];
+    
+    
+    
+    [[PacoMediator sharedInstance] clearRunningExperiments];
+    
+    
+    [[PacoMediator sharedInstance] addExperimentToAvailableStore:experiment];
+    
+    [[PacoMediator sharedInstance] startRunningExperiment:[experiment instanceId]];
+    
+    
+    NSMutableDictionary * results  = [[NSMutableDictionary alloc] init];
+    [results setObject:[NSMutableArray new] forKey:[self uniqueId:experiment]];
+    [self getFireTimes:experiment  results:results SignalStore:signalStore EventStore:eventStore];
+    NSArray* definitions  = [results objectForKey:[self uniqueId:experiment]];
+    PAActionSpecification*  spec = [definitions firstObject];
+    
+    _fireTimes = definitions;
+    
+    self.testID =              [[experiment valueForKeyEx:@"id"] stringValue];
+    self.testTitle =           [experiment valueForKeyEx:@"title"]  ;
+    self.testFireDate =        [[spec valueForKey:@"time_"]  nsDateValue];
+    long  timeoutVal =         [ [experiment valueForKeyPathEx:@"groups[0].actionTriggers[0].actions[0].timeout"] longValue];
+    self.testTimeoutDate =      [NSDate dateWithTimeInterval:timeoutVal  sinceDate:self.testFireDate];
+    self.groupId =               [experiment valueForKeyPathEx:@"groups[0].name"] ;
+    self.groupName =             [experiment valueForKeyPathEx:@"groups[0].name"]  ;
+    self.actionTriggerId=        [[experiment valueForKeyPathEx:@"groups[0].actionTriggers[0].id"] stringValue];
+    
+    
+    self.notificationActionId  =   self.notificationActionId  = [[experiment valueForKeyPathEx:@"groups[0].actionTriggers[0].actions[0].id"] stringValue];
+    self.triggerSpecId = @"trigger spec id";
+    
+    
+    
+    
+    _schedulerDelegate = [[PacoSchedulingUtil alloc] init];
+    
+    
+    
+    
+    
+    
+    
+    _specifications = [_schedulerDelegate nextNotificationsToSchedule];
+    _dao = experiment;
+    
+    /* do this just to remove notfications */
+    [UIApplication sharedApplication].scheduledLocalNotifications = [NSArray new];
+    
+    
+}
 
 
 

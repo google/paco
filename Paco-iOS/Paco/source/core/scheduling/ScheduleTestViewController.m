@@ -77,12 +77,11 @@
 #import  "NSObject+J2objcKVO.h"
 #import  "OrgJodaTimeDateTime+PacoDateHelper.h"
 #import  "PacoScheduler.h" 
-#import "PacoScheduleDelegate.h"
 #import "PacoExtendedClient.h"
 #import "UILocalNotification+Paco.h"
 #import "PacoModelExtended.h" 
 #import  "PacoSchedulingUtil.h"
-#import "PacoData.h"
+#import "PacoMediator.h"
 
   
 
@@ -119,7 +118,7 @@ static NSString *def0 =
     [super viewDidLoad];
     
       _processing  = [[NSMutableDictionary  alloc] init];
-      _schedulerDelegate = [[PacoScheduleDelegate alloc] init];
+      _schedulerDelegate = [[PacoSchedulingUtil alloc] init];
       self.scheduler = [PacoScheduler schedulerWithDelegate:_schedulerDelegate  firstLaunchFlag:YES];
       self.client   = [[PacoExtendedClient alloc] init];
       self.model = [[PacoModelExtended alloc] init];
@@ -178,7 +177,7 @@ static NSString *def0 =
     
     [self.model fullyUpdateDefinitionList:@[dao,dao1,dao2]];
     [self.model loadExperimentDefinitionsFromFile];
-    PacoData * data = [PacoData sharedInstance];
+    PacoMediator * data = [PacoMediator sharedInstance];
     
        [self.model experimentForId:dao1->id__];
     
@@ -196,9 +195,9 @@ static NSString *def0 =
     PAExperimentDAO      * dao            =  [self experimentDAO:0];
     PAExperimentDAO      * dao1           =  [self experimentDAO:1];
     PAExperimentDAO      * dao2           =  [self experimentDAO:2];
-    [[PacoData sharedInstance] addExperimentToAvailableStore:dao];
-    [[PacoData sharedInstance] addExperimentToAvailableStore:dao1];
-    [[PacoData sharedInstance] addExperimentToAvailableStore:dao2];
+    [[PacoMediator sharedInstance] addExperimentToAvailableStore:dao];
+    [[PacoMediator sharedInstance] addExperimentToAvailableStore:dao1];
+    [[PacoMediator sharedInstance] addExperimentToAvailableStore:dao2];
     
 }
 

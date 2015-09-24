@@ -30,6 +30,9 @@
 #import "DDFileLogger.h"
 #import "DDTTYLogger.h"
 #import "ScheduleTestViewController.h"
+#import "PacoScheduler.h"
+
+
 
 @implementation PacoAppDelegate
 

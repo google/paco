@@ -16,7 +16,7 @@
 #include "EsmSignalStore.h"
 #include "EventStore.h"
 #import "ActionScheduleGenerator.h" 
-#import "PacoData.h" 
+#import "PacoMediator.h" 
 #include "EsmSignalStore.h"
 #include "EventStore.h"
 #import  "PacoSignalStore.h"
@@ -92,9 +92,9 @@
 +(NSArray*) calculateActionSpecifications
 {
  
-    NSArray* runningExperiments =   [PacoData sharedInstance].runningExperiments;
-    PacoSignalStore* signalStore = [PacoData sharedInstance].signalStore;
-    PacoEventStore* eventStore = [PacoData sharedInstance].eventStore;
+    NSArray* runningExperiments =   [PacoMediator sharedInstance].runningExperiments;
+    PacoSignalStore* signalStore = [PacoMediator sharedInstance].signalStore;
+    PacoEventStore* eventStore = [PacoMediator sharedInstance].eventStore;
     
     
     NSMutableDictionary * specifications = [[NSMutableDictionary alloc] initWithCapacity:[runningExperiments count]];
@@ -154,6 +154,46 @@
 +(NSValue*) uniqueId:(NSObject*) actionSpecification
 {
     return [NSValue valueWithPointer:(__bridge const void *)(actionSpecification)];
+}
+
+
+#pragma mark -  notification handelers
+
+
+
+- (void)handleExpiredNotifications:(NSArray*)expiredNotifications
+{
+    
+    
+    
+}
+- (BOOL)isDoneInitializationForMajorTask
+{
+    
+    return YES;
+    
+}
+- (BOOL)needsNotificationSystem
+{
+    return NO;
+}
+
+
+- (void)updateNotificationSystem
+{
+    
+    
+}
+
+
+
+- (NSArray*)nextNotificationsToSchedule;
+{
+    
+    NSArray* newActionSpecifications  = [PacoSchedulingUtil calculateActionSpecifications];
+    [[PacoMediator sharedInstance] updateActionSpecifications:newActionSpecifications];
+    return newActionSpecifications;
+    
 }
 
 @end

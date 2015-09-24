@@ -1,5 +1,5 @@
 //
-//  PacoData.h
+//  PacoMediator.h
 //  Paco
 //
 //  Created by northropo on 9/10/15.
@@ -15,7 +15,7 @@
 
 
 
-@interface PacoData : NSObject
+@interface PacoMediator : NSObject
 
 
 
@@ -23,13 +23,12 @@
 @property (strong,nonatomic) PacoEventStore * eventStore;
 
 
-+ (PacoData*) sharedInstance;
++ (PacoMediator*) sharedInstance;
 
 -(NSArray*) runningExperiments;
 -(void) clearRunningExperiments;
 -(void) updateActionSpecifications:(NSArray*) newActionSpecifications;
 -(BOOL) addExperimentToAvailableStore:(PAExperimentDAO*) experiment;
-
 
 
 /* join & unjoin */
