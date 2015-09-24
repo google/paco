@@ -38,27 +38,26 @@ NSString* const kUserInfoKeyActionTriggerSpecId      =@"actionTriggerSpecId";
 
 @implementation PacoNotificationInfo
 
-+ (PacoNotificationInfo*)pacoInfoWithDictionary:(NSDictionary*)infoDict {
-    if ([[infoDict allKeys] count] != kNumOfKeysInUserInfo) {
-        return nil;
-    }
-    
-    NSString* experimentId = infoDict[kUserInfoKeyExperimentId];
-    NSString* experimentTitle = infoDict[kUserInfoKeyExperimentTitle];
-    NSDate* fireDate = infoDict[kUserInfoKeyNotificationFireDate];
-    NSDate* timeOutDate = infoDict[kUserInfoKeyNotificationTimeoutDate];
-    if (0 == [experimentId length] || 0 == [experimentTitle length] ||
-        fireDate == nil || timeOutDate == nil || [timeOutDate timeIntervalSinceDate:fireDate] <= 0) {
-        return nil;
-    }
-    
-    PacoNotificationInfo* info = [[PacoNotificationInfo alloc] init];
-    info.experimentId = experimentId;
-    info.experimentTitle = experimentTitle;
-    info.fireDate = fireDate;
-    info.timeOutDate = timeOutDate;
-    return info;
-}
+ 
+
+
+/*
+NSString* experimentId = infoDict[kUserInfoKeyExperimentId];
+NSString* experimentTitle = infoDict[kUserInfoKeyExperimentTitle];
+NSDate* fireDate = infoDict[kUserInfoKeyNotificationFireDate];
+NSDate* timeOutDate = infoDict[kUserInfoKeyNotificationTimeoutDate];
+NSString* groupId = infoDict[kNotificationGroupId];
+NSString* groupName = infoDict[kNotificationGroupName];
+NSString* triggerId = infoDict[kUserInfoKeyActionTriggerId];
+NSString* actionTriggerId = infoDict[kUserInfoKeyActionTriggerId];
+NSString* notificationActionId =infoDict[kUserInfoKeyNotificationActionId];
+ */
+
+
+
+
+
+
 
 + (NSDictionary*) userInfoDictionaryWithExperimentId:(NSString*)experimentId
                                     experimentTitle:(NSString*)experimentTitle

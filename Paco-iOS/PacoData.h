@@ -11,19 +11,29 @@
 
 @class PacoSignalStore;
 @class PacoEventStore;
+@class PAExperimentDAO;
+
 
 
 @interface PacoData : NSObject
 
-@property (strong,nonatomic) NSMutableArray* allExperiments;
-@property (strong,nonatomic) NSMutableArray* runningExperiments;
-@property (strong,nonatomic) NSMutableArray* actionSpecifications;
-@property (strong,nonatomic) NSMutableArray* oldActionSpecifications;
+
 
 @property (strong,nonatomic) PacoSignalStore * signalStore;
 @property (strong,nonatomic) PacoEventStore * eventStore;
 
-+ (PacoData*)sharedInstance;
 
++ (PacoData*) sharedInstance;
+
+-(NSArray*) runningExperiments;
+-(void) clearRunningExperiments;
+-(void) updateActionSpecifications:(NSArray*) newActionSpecifications;
+-(BOOL) addExperimentToAvailableStore:(PAExperimentDAO*) experiment;
+
+
+
+/* join & unjoin */
+-(void) stopRiunningExperiment:(NSString*) experimentI;
+-(void) startRunningExperiment:(NSString*) experimentIdId;
 
 @end

@@ -15,6 +15,7 @@
 
 #import "NSMutableArray+Paco.h"
 #import "UILocalNotification+Paco.h"
+#import "UILocalNotification+PacoExteded.h"
 #import "PacoDateUtility.h"
 #import "NSDate+Paco.h"
 #import "PacoClient.h"
@@ -39,8 +40,8 @@
              [second isKindOfClass:[UILocalNotification class]],
              @"obj1 and obj2 should be UILocalNotification");
     
-    NSDate* firstFireDate = [first pacoFireDate];
-    NSDate* secondFireDate = [second pacoFireDate];
+    NSDate* firstFireDate = [first pacoFireDateExt];
+    NSDate* secondFireDate = [second pacoFireDateExt];
     NSAssert(firstFireDate && secondFireDate, @"fire date should be valid");
     return [firstFireDate compare:secondFireDate];
   }];

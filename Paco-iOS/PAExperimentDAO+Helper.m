@@ -18,7 +18,7 @@
     
     if(self->id__ !=nil)
     {
-       [self->id__ stringValue];
+      retValue = [self->id__ stringValue];
     }
     
     return  retValue;

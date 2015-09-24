@@ -196,37 +196,16 @@ static NSString *def0 =
     PAExperimentDAO      * dao            =  [self experimentDAO:0];
     PAExperimentDAO      * dao1           =  [self experimentDAO:1];
     PAExperimentDAO      * dao2           =  [self experimentDAO:2];
-    [[PacoData sharedInstance].allExperiments  addObjectsFromArray:@[dao,dao1,dao2]];
+    [[PacoData sharedInstance] addExperimentToAvailableStore:dao];
+    [[PacoData sharedInstance] addExperimentToAvailableStore:dao1];
+    [[PacoData sharedInstance] addExperimentToAvailableStore:dao2];
     
 }
 
 
 /* we will use the first experiment in the all experiments array  just for this test */
 
-- (IBAction)JoinExperiment:(id)sender
-{
-    
-     PAExperimentDAO * dao =  [[[PacoData sharedInstance] allExperiments]  firstObject];
-    
-     // add to the list of running experiments.
-    
-    if(! [[PacoData sharedInstance].runningExperiments containsObject:dao] && dao)
-    {
-       [[PacoData sharedInstance].runningExperiments addObject:dao];
-    }
 
-     NSArray* array =  [_schedulerDelegate nextNotificationsToSchedule];
-    
-    for(PAActionSpecification* spec in array)
-    {
-      //  BOOL hasScheduledNotifications =
-      //  [UILocalNotification hasLocalNotificationScheduledForExperiment:experiment.instanceId];
-       // NSAssert(!hasScheduledNotifications, @"There should be 0 notfications scheduled!");
-        
-        
-       // [self.scheduler  checkCorrectnessForExperiment:experiment.instanceId];
-    }
-}
 
 
 - (void)executeMajorTask:(BOOL)experimentModelChanged {

@@ -78,6 +78,12 @@
 
 
 #pragma mark join an experiment
+
+
+
+
+
+
 /*
 - (void)joinExperimentWithDefinition:(PacoExperimentDefinition*)definition
                             schedule:(PacoExperimentSchedule*)schedule
@@ -85,6 +91,9 @@
     
     DDLogInfo(@"PacoClient-- Refresh joinExperimentWithDefinition ");
     NSAssert(definition, @"definition should not be nil");
+    
+    
+    
     [self.eventManager saveJoinEventWithDefinition:definition withSchedule:schedule];
     //create a new experiment and save it to cache
     PacoExperiment *experiment = [self.model addExperimentWithDefinition:definition
@@ -96,9 +105,10 @@
     if (completionBlock) {
         completionBlock();
     }
-}
+} */
 
-*/
+
+
 
 
 - (void)checkIfUserFirstLaunchPaco {

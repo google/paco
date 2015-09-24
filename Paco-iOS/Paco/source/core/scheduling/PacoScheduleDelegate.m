@@ -28,22 +28,24 @@
 - (BOOL)needsNotificationSystem
 {
     return NO;
-    
 }
+
+ 
 - (void)updateNotificationSystem
 {
  
     
 }
+
+
+
 - (NSArray*)nextNotificationsToSchedule;
 {
     
     NSArray* newActionSpecifications  = [PacoSchedulingUtil calculateActionSpecifications];
-    [PacoData sharedInstance].oldActionSpecifications  = [PacoData sharedInstance].actionSpecifications;
-    [PacoData sharedInstance].actionSpecifications = [[NSMutableArray alloc] initWithArray:newActionSpecifications];
+   [[PacoData sharedInstance] updateActionSpecifications:newActionSpecifications];
     return newActionSpecifications;
-    
-    
+  
 }
 
 @end

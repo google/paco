@@ -21,8 +21,12 @@
 
 
 
-
+@class PacoScheduleDelegate;
 @class PacoExperiment;
+@class PAExperimentDAO;
+
+
+
 
 @interface NotificationData
 
@@ -35,7 +39,9 @@
 
 
 
-
+typedef void(^NotificationProcessBlock)(UILocalNotification* activeNotification,
+                                        NSArray* expiredNotifications,
+                                        NSArray* notFiredNotifications);
 
     
 typedef void(^NotificationProcessBlock)(UILocalNotification* activeNotification,
@@ -51,43 +57,56 @@ typedef void(^FetchExpiredBlock)(NSArray* expiredNotifications, NSArray* nonExpi
 
 @interface UILocalNotification (PacoExtended)
 
-- (PacoNotificationStatus)pacoStatus;
-- (NSString*)pacoStatusDescription;
-- (NSString*)pacoDescription;
+- (PacoNotificationStatus)pacoStatusExt;
+- (NSString*)pacoStatusDescriptionExt;
+- (NSString*)pacoDescriptionExt;
 
-+ (UILocalNotification*)pacoNotificationWithExperimentId:(NSString*)experimentId
-                                         experimentTitle:(NSString*)experimentTitle
-                                                fireDate:(NSDate*)fireDate
-                                             timeOutDate:(NSDate*)timeOutDate;
+
++ (NSArray*)pacoNotificationsForExperimentSpecifications:(NSArray*) specifications;
+
++ (UILocalNotification*) pacoNotificationWithExperimentId:(NSString*)experimentId
+                                          experimentTitle:(NSString*)experimentTitle
+                                                 fireDate:(NSDate*)fireDate
+                                              timeOutDate:(NSDate*)timeOutDate
+                                                  groupId:(NSString*) groupId
+                                                groupName:(NSString*) groupName
+                                                triggerId:(NSString*) triggerId
+                                     notificationActionId:(NSString*) notificationActionId
+                                      actionTriggerSpecId:(NSString*) actionTriggerSpecId;
+
+
++ (NSArray*) pacoNotificationsForExperiment:(PAExperimentDAO * ) experiment  Delegate:(PacoScheduleDelegate*) schedulerDelegate;
+
+
 
 //datesToSchedule Must be sorted already
 + (NSArray*)pacoNotificationsForExperiment:(PacoExperiment*)experiment
                            datesToSchedule:(NSArray*)datesToSchedule;
 
-- (NSString*)pacoExperimentId;
-- (NSString*)pacoExperimentTitle;
-- (NSDate*)pacoFireDate;
-- (NSDate*)pacoTimeoutDate;
-- (long)pacoTimeoutMinutes;
+- (NSString*)pacoExperimentIdExt;
+- (NSString*)pacoExperimentTitleExt;
+- (NSDate*)pacoFireDateExt;
+- (NSDate*)pacoTimeoutDateExt;
+- (long)pacoTimeoutMinutesExt;
 
-+ (NSArray*)scheduledLocalNotificationsForExperiment:(NSString*)experimentInstanceId;
-+ (BOOL)hasLocalNotificationScheduledForExperiment:(NSString*)experimentInstanceId;
-+ (void)cancelScheduledNotificationsForExperiment:(NSString*)experimentInstanceId;
++ (NSArray*)scheduledLocalNotificationsForExperimentExt:(NSString*)experimentInstanceId;
++ (BOOL)hasLocalNotificationScheduledForExperimentExt:(NSString*)experimentInstanceId;
++ (void)cancelScheduledNotificationsForExperimentExt:(NSString*)experimentInstanceId;
 
-+ (void)pacoCancelLocalNotification:(UILocalNotification*)notification;
-+ (void)pacoCancelNotifications:(NSArray*)notifications;
-+ (void)pacoScheduleNotifications:(NSArray*)notifications;
++ (void)pacoCancelLocalNotificationExt:(UILocalNotification*)notification;
++ (void)pacoCancelNotificationsExt:(NSArray*)notifications;
++ (void)pacoScheduleNotificationsExt:(NSArray*)notifications;
 
 //notifications MUST be sorted already
-+ (void)pacoProcessNotifications:(NSArray*)notifications withBlock:(NotificationProcessBlock)block;
++ (void)pacoProcessNotificationsExt:(NSArray*)notifications withBlock:(NotificationProcessBlock)block;
 + (void)pacoFetchExpiredNotificationsFrom:(NSArray*)notifications withBlock:(FetchExpiredBlock)block;
 
 //{ NSString : NSMutableArray }
-+ (NSDictionary*)pacoSortedDictionaryFromNotifications:(NSArray*)notifications;
++ (NSDictionary*)pacoSortedDictionaryFromNotificationsExt:(NSArray*)notifications;
 
-- (BOOL)pacoIsEqualTo:(UILocalNotification*)notification;
+- (BOOL)pacoIsSame:(UILocalNotification*)notification;
 
-+ (void)pacoReplaceCurrentNotifications:(NSArray*)currentNotifications
++ (void)pacoReplaceCurrentNotificationsExt:(NSArray*)currentNotifications
                    withNewNotifications:(NSArray*)newNotifications
                                andBlock:(NotificationReplaceBlock)block;
 

@@ -10,6 +10,7 @@
 #import "ModelBase+PacoAssociatedId.m"
 #import "PacoNotificationConstants.h" 
 
+#define kNumOfKeysInUserInfoExtended kNumOfKeysInUserInfo+4
 
 @interface PacoExtendedNotificationInfo ()
 
@@ -33,7 +34,7 @@
 
 
 + (PacoExtendedNotificationInfo*)pacoInfoWithDictionary:(NSDictionary*)infoDict {
-    if ([[infoDict allKeys] count] != kNumOfKeysInUserInfo) {
+    if ([[infoDict allKeys] count] != kNumOfKeysInUserInfoExtended) {
         return nil;
     }
     
@@ -44,11 +45,12 @@
     NSString* groupId = infoDict[kNotificationGroupId];
     NSString* groupName = infoDict[kNotificationGroupName];
     NSString* triggerId = infoDict[kUserInfoKeyActionTriggerId];
-    NSString* actionTriggerId = infoDict[kUserInfoKeyNotificationActionId];
-    NSString* specId  = infoDict[kUserInfoKeyActionTriggerSpecId];
+    NSString* actionTriggerId = infoDict[kUserInfoKeyActionTriggerId];
+    NSString* notificationActionId =infoDict[kUserInfoKeyNotificationActionId];
+   /* NSString* specId  = infoDict[kUserInfoKeyActionTriggerSpecId]; */ 
  
-    if ( 0== [groupId length] || [groupName length] ==0 || [triggerId length] ==0 || [actionTriggerId length] ==0 || [specId length] ==0  ||  0 == [experimentId length] || 0 == [experimentTitle length] ||
-        fireDate == nil || timeOutDate == nil || [timeOutDate timeIntervalSinceDate:fireDate] <= 0) {
+    if ( 0== [groupId length] || [groupName length] ==0 || [triggerId length] ==0 || [actionTriggerId length] ==0 || /*[specId length] ==0  ||*/   0 == [experimentId length] || 0 == [experimentTitle length] ||
+        fireDate == nil || timeOutDate == nil || [notificationActionId length] ==0/*|| [timeOutDate timeIntervalSinceDate:fireDate] <= 0*/) {
         return nil;
     }
     
@@ -60,8 +62,10 @@
     info.groupId = groupId;
     info.groupName = groupName;
     info.actionTriggerId = actionTriggerId;
-    info.actionTriggerSpecId = specId;
+    info.notificationActionId=notificationActionId;
+   /* info.actionTriggerSpecId = specId*/
     
+ 
     
     return info;
 }
@@ -104,7 +108,7 @@
     userInfo[kNotificationGroupName] = groupName;
     userInfo[kUserInfoKeyActionTriggerId] = actionTriggerId;
     userInfo[kUserInfoKeyNotificationActionId] = notificationActionId;
-    userInfo[kUserInfoKeyActionTriggerSpecId] = actionTriggerSpecId;
+    /*userInfo[kUserInfoKeyActionTriggerSpecId] = actionTriggerSpecId; */
     [userInfo  addEntriesFromDictionary:superInfo];
     return userInfo;
 
@@ -118,8 +122,8 @@
         [self.timeOutDate isEqualToDate:info.timeOutDate] &&
         [self.groupId isEqualToString:info.groupId]  &&
         [self.groupName isEqualToString:info.groupName] &&
-        [self.actionTriggerId isEqualToString:info.actionTriggerId] &&
-        [self.actionTriggerSpecId   isEqualToString:info.actionTriggerSpecId]
+        [self.actionTriggerId isEqualToString:info.actionTriggerId]  
+
         )
     {
         return YES;

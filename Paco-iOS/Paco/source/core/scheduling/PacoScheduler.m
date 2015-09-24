@@ -151,6 +151,8 @@ int const kTotalNumOfNotifications = 60;
 - (void)executeMajorTask:(BOOL)experimentModelChanged {
   @synchronized(self) {
     if (![self.delegate isDoneInitializationForMajorTask]) {
+        
+        
       DDLogInfo(@"Skip executing major task: PacoClient isn't ready");
       return;
     }
