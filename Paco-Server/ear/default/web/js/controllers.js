@@ -7,6 +7,10 @@ pacoApp.controller('HomeCtrl', ['$scope', '$http', '$location',
     $scope.loaded = false;
     $scope.edit = false;
 
+    $scope.home = function() {
+       document.location = '/';
+    };
+
     $scope.scrolling = function(flag) {
       if (flag) {
         angular.element(document.body).removeClass('no-scroll');
