@@ -89,10 +89,12 @@
 }
 
 
-+(NSArray*) calculateActionSpecifications
+
+
++(NSArray*) buildActionSpecifications:(NSArray*) experiments IsDryRun:(BOOL) isTryRun
 {
  
-    NSArray* runningExperiments =   [PacoMediator sharedInstance].runningExperiments;
+    NSArray* runningExperiments =   experiments;
     PacoSignalStore* signalStore = [PacoMediator sharedInstance].signalStore;
     PacoEventStore* eventStore = [PacoMediator sharedInstance].eventStore;
     
@@ -187,10 +189,10 @@
 
 
 
-- (NSArray*)nextNotificationsToSchedule;
+- (NSArray*) fetchNotifications;
 {
-    
-    NSArray* newActionSpecifications  = [PacoSchedulingUtil calculateActionSpecifications];
+    NSArray * runningExperiments =  [[PacoMediator sharedInstance] runningExperiments];
+    NSArray* newActionSpecifications  = [PacoSchedulingUtil buildActionSpecifications:runningExperiments  IsDryRun:NO];
     [[PacoMediator sharedInstance] updateActionSpecifications:newActionSpecifications];
     return newActionSpecifications;
     

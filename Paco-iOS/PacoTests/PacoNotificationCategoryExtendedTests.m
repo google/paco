@@ -165,9 +165,12 @@ static NSString* def3 = @"{\r\n  \"title\": \"Only One Event Today (rolling)\",\
     
     
     
+   // buildActionSpecifications:(NSArray*) experiments IsDryRun:(BOOL) isTryRun;
     
-    _specifications = [_schedulerDelegate nextNotificationsToSchedule];
+
     _dao = experiment;
+    
+    
     
     /* do this just to remove notfications */
     [UIApplication sharedApplication].scheduledLocalNotifications = [NSArray new];
@@ -359,7 +362,7 @@ static NSString* def3 = @"{\r\n  \"title\": \"Only One Event Today (rolling)\",\
     XCTAssertNil(notifications, @"should return nil if experiment is nil");
 }
 
-
+/*
 - (void)testPacoNotificationsForExperiment
 {
  
@@ -396,8 +399,7 @@ static NSString* def3 = @"{\r\n  \"title\": \"Only One Event Today (rolling)\",\
     
    
 }
-
-
+*/
 
 
 - (void)testPacoNotificationsForEmptyDates {

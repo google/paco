@@ -97,6 +97,8 @@ int const kTotalNumOfNotifications = 60;
     
     
   NSAssert(!hasScheduledNotifications, @"There should be 0 notfications scheduled!");
+    
+    
   [self.notificationManager checkCorrectnessForExperiment:experiment.instanceId];
   
   [self executeMajorTaskForChangedExperimentModel];

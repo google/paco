@@ -7,9 +7,10 @@
 //
 
 #import <Foundation/Foundation.h>
+#import "ValidatorConsts.h"
 
 @protocol PacoExperimentWillStopVerificatonProtocol <NSObject>
 
--(BOOL) shouldStop:(PAExperimentDAO*) experiment;
+-(ValidatorExecutionStatus) shouldStop:(PAExperimentDAO*) experiment;
 
 @end

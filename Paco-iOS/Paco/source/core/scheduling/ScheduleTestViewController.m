@@ -223,7 +223,11 @@ static NSString *def0 =
 //           // DDLogInfo(@"No need to schedule new notifications, there are 60 notifications already.");
 //        }
        // if (needToScheduleNewNotifications) {
-            notificationsToSchedule = [self.schedulerDelegate nextNotificationsToSchedule];
+        
+        NSArray * runningExperiments =  [[PacoMediator sharedInstance] runningExperiments];
+        notificationsToSchedule  = [PacoSchedulingUtil buildActionSpecifications:runningExperiments  IsDryRun:NO];
+      
+             
         //}
 //        if (!experimentModelChanged &&
 //            needToScheduleNewNotifications &&
@@ -274,7 +278,7 @@ static NSString *def0 =
     [list addWithId:dao1];
     [list addWithId:dao2];
     
-   [PacoSchedulingUtil calculateActionSpecifications];
+ 
     
      NSMutableDictionary * results = [[NSMutableDictionary alloc] init];
      [results setObject:[NSMutableArray new] forKey:[self uniqueId:dao]];

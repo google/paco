@@ -7,12 +7,13 @@
 //
 
 #import <Foundation/Foundation.h>
+#import "ValidatorConsts.h"
 
 
 @class PAExperimentDAO;
 @protocol PacoExerimentWillStartVerificationProtocol <NSObject>
 
--(BOOL) shouldStart:(PAExperimentDAO*) experiment;
+-(ValidatorExecutionStatus) shouldStart:(PAExperimentDAO*) experiment Specifications:(NSArray*) specifications;
 
 @end
- 
+ #import "ValidatorConsts.h"

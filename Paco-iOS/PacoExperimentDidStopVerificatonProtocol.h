@@ -7,7 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
-
+ 
 @protocol PacoExperimentDidStopVerificatonProtocol <NSObject>
 
 -(void) notifyDidStop:(PAExperimentDAO*) experiment;

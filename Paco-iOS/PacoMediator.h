@@ -7,7 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
-
+#import "ValidatorConsts.h"
 
 @class PacoSignalStore;
 @class PacoEventStore;
@@ -32,7 +32,7 @@
 
 
 /* join & unjoin */
--(void) stopRiunningExperiment:(NSString*) experimentI;
--(void) startRunningExperiment:(NSString*) experimentIdId;
+-(ValidatorExecutionStatus) stopRiunningExperiment:(NSString*) experimentI;
+-(ValidatorExecutionStatus) startRunningExperiment:(NSString*) experimentIdId;
 
 @end

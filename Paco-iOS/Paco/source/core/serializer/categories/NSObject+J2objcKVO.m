@@ -49,7 +49,21 @@
       if ([self isIndexed:key]) {
         int index = [self getIndex:key];
         retVal = [self valueForKeyAndIndex:index Key:key];
-      } else {
+      }
+      else if ([self isCount:key])
+      {
+          if ([self isKindOfClass:[JavaUtilArrayList class]])
+          {
+              
+              
+              int arraySize = [((JavaUtilArrayList *)self)size];
+              retVal = [NSNumber numberWithInt:arraySize];
+          }
+          
+          
+      }
+      
+      else {
           
         retVal = [self getModalAttribute:key Object:self];
           
@@ -509,6 +523,18 @@
     retVal = YES;
   }
   return retVal;
+}
+
+
+- (BOOL)isCount:(NSString *)attributeName {
+    BOOL retVal;
+    NSRange r = [attributeName rangeOfString:@"#"];
+    if (r.location == NSNotFound) {
+        retVal = NO;
+    } else {
+        retVal = YES;
+    }
+    return retVal;
 }
 
 

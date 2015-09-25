@@ -11,7 +11,7 @@
 @interface PacoSchedulingUtil : NSObject
 
 
-+(NSArray*) calculateActionSpecifications;
+ 
 
 
 - (void)handleExpiredNotifications:(NSArray*)expiredNotifications;
@@ -22,6 +22,6 @@
 
 - (void)updateNotificationSystem;
 
-- (NSArray*)nextNotificationsToSchedule;
++(NSArray*) buildActionSpecifications:(NSArray*) experiments IsDryRun:(BOOL) isTryRun;
 
 @end

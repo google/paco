@@ -16,7 +16,8 @@
 #import "PacoExerimentWillStartVerificationProtocol.h"
 #import "PacoExperimentDidStopVerificatonProtocol.h"
 #import "PacoExperimentWillStopVerificatonProtocol.h"
-
+#import "PacoSchedulingUtil.h"
+#import "ValidatorConsts.h"
 
 @interface PacoMediator ()
 
@@ -86,41 +87,58 @@ static dispatch_queue_t serialQueue;
 }
 
 
--(void) startRunningExperiment:(NSString*) experimentId
+-(ValidatorExecutionStatus) startRunningExperiment:(NSString*) experimentId
 {
+   __block  ValidatorExecutionStatus runStatus = ValidatorExecutionStatusFail;
+    
+    
      dispatch_sync(serialQueue, ^{
+         
+         
+   
          
                 PAExperimentDAO * experiment  = [self.allExperiments findExperiment:experimentId];
                  if(experiment)
                  {
                      
-                    BOOL shouldRun = [self willStartRunningExperiment:experiment];
-                     if(shouldRun)
+                     
+                     NSArray* array = [PacoSchedulingUtil buildActionSpecifications:@[experiment]  IsDryRun:YES];
+                     runStatus = [self willStartRunningExperiment:experiment  Specificatons:array];
+                     if( runStatus & ValidatorExecutionStatusSuccess )
                      {
                          
                          [_runningExperiments addObject:experiment];
-                          [self didStartStartRunningExperiment:experiment];
+                         [self didStartStartRunningExperiment:experiment];
                          
                      }
                    
                  }
                 
-        
+         
     });
+    
+    return runStatus;
 }
 
 
 
--(void) stopRiunningExperiment:(NSString*) experimentId
+-(ValidatorExecutionStatus) stopRiunningExperiment:(NSString*) experimentId
 {
-   
+    __block  ValidatorExecutionStatus runStatus = ValidatorExecutionStatusFail;
     dispatch_sync(serialQueue, ^{
             PAExperimentDAO * experiment  = [self.allExperiments findExperiment:experimentId];
             if(experiment)
             {
-                [self willStopRunningExperiment:experiment];
                 
-                // do work here
+                
+                
+              runStatus =   [self willStopRunningExperiment:experiment];
+                
+              if(runStatus & ValidatorExecutionStatusSuccess  )
+              {
+                  
+                  // do work here.
+              }
                 
                 
                 [self didStopRunningExperiment:experiment];
@@ -167,14 +185,14 @@ static dispatch_queue_t serialQueue;
 
 #pragma mark - will start
 
--(BOOL) willStartRunningExperiment:(PAExperimentDAO*) experiment
+-(ValidatorExecutionStatus) willStartRunningExperiment:(PAExperimentDAO*) experiment Specificatons:(NSArray*) specifications
 {
     
     BOOL shouldStartExperiment =YES;
     
     for(id<PacoExerimentWillStartVerificationProtocol> validator in  self.willStartVerifiers)
     {
-        BOOL shouldStart =  [validator shouldStart:experiment];
+        BOOL shouldStart =  [validator shouldStart:experiment Specifications:specifications];
         if(!shouldStart)
         {
                                 
@@ -200,7 +218,7 @@ static dispatch_queue_t serialQueue;
     }
 }
 
--(BOOL) willStopRunningExperiment:(PAExperimentDAO*) experiment
+-(ValidatorExecutionStatus) willStopRunningExperiment:(PAExperimentDAO*) experiment
 {
     
     
@@ -258,6 +276,19 @@ static dispatch_queue_t serialQueue;
     
 }
 
+-(void) registerDidStartNotifiers:(NSArray*) notifiers
+{
+    [self.didStartNotifiers addObjectsFromArray:notifiers];
+    
+}
+
+
+-(void) registerWillStopValidators:(NSArray*) validators
+{
+    
+    [self.didStartNotifiers addObjectsFromArray:validators];
+}
+
 
 -(void) registerWillStopValidator:(id<PacoExperimentWillStopVerificatonProtocol>) notifier
 {
@@ -271,7 +302,11 @@ static dispatch_queue_t serialQueue;
     
 }
 
-
+-(void) registerDidStopNotifiers:(NSArray*) notifiers
+{
+    [self.didStopNotifiers addObjectsFromArray:notifiers];
+    
+}
 
 
 @end
