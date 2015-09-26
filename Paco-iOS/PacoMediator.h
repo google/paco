@@ -8,6 +8,12 @@
 
 #import <Foundation/Foundation.h>
 #import "ValidatorConsts.h"
+#import "PacoExerimentDidStartVerificationProtocol.h"
+#import "PacoExerimentWillStartVerificationProtocol.h"
+#import "PacoExperimentDidStopVerificatonProtocol.h"
+#import "PacoExperimentWillStopVerificatonProtocol.h"
+
+
 
 @class PacoSignalStore;
 @class PacoEventStore;
@@ -25,14 +31,27 @@
 
 + (PacoMediator*) sharedInstance;
 
--(NSArray*) runningExperiments;
+
 -(void) clearRunningExperiments;
 -(void) updateActionSpecifications:(NSArray*) newActionSpecifications;
 -(BOOL) addExperimentToAvailableStore:(PAExperimentDAO*) experiment;
+-(BOOL) isExperimentIdLive:(NSString*) experimentId;
+-(BOOL) isExperimentLive:(PAExperimentDAO*) experiment;
+
 
 
 /* join & unjoin */
 -(ValidatorExecutionStatus) stopRiunningExperiment:(NSString*) experimentI;
 -(ValidatorExecutionStatus) startRunningExperiment:(NSString*) experimentIdId;
 
+
+
+/* registration methods*/
+ 
+-(void) registerWillStartValidators:(NSArray*) validators;
+-(void) registerDidStopNotifier:(id<PacoExperimentDidStopVerificatonProtocol>) notifier;
+-(void) registerWillStopValidator:(id<PacoExperimentWillStopVerificatonProtocol>) notifier;
+-(void) registerDidStartNotifiers:(NSArray*) notifiers;
+-(void) registerDidStartNotifier:(id<PacoExerimentDidStartVerificationProtocol>) notifier;
+-(void) registerWillStartValidator:(id<PacoExerimentDidStartVerificationProtocol>) validator;
 @end

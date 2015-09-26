@@ -215,8 +215,12 @@ static NSString *def0 =
         }
         
       // DDLogInfo(@"Executing Major Task...");
+        
+        
         BOOL needToScheduleNewNotifications = YES;
         NSArray* notificationsToSchedule = nil;
+        
+        
         
 //        if (!experimentModelChanged && [self.notificationManager hasMaximumScheduledNotifications]) {
 //            needToScheduleNewNotifications = NO;
@@ -224,8 +228,8 @@ static NSString *def0 =
 //        }
        // if (needToScheduleNewNotifications) {
         
-        NSArray * runningExperiments =  [[PacoMediator sharedInstance] runningExperiments];
-        notificationsToSchedule  = [PacoSchedulingUtil buildActionSpecifications:runningExperiments  IsDryRun:NO];
+       // NSArray * runningExperiments =  [[PacoMediator sharedInstance] runningExperiments];
+       // notificationsToSchedule  = [PacoSchedulingUtil buildActionSpecifications:runningExperiments  IsDryRun:NO];
       
              
         //}

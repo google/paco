@@ -52,15 +52,12 @@
       }
       else if ([self isCount:key])
       {
-          if ([self isKindOfClass:[JavaUtilArrayList class]])
+          if ( [ [self valueForKey:[self trimCount:key]]  isKindOfClass:[JavaUtilArrayList class]])
           {
-              
-              
-              int arraySize = [((JavaUtilArrayList *)self)size];
+              JavaUtilArrayList*   list =  [self valueForKey:[self trimCount:key]];
+              int arraySize = [list  size];
               retVal = [NSNumber numberWithInt:arraySize];
           }
-          
-          
       }
       
       else {
@@ -535,6 +532,14 @@
         retVal = YES;
     }
     return retVal;
+}
+
+
+- (NSString*)trimCount:(NSString *)str {
+    
+   NSString * subString =  [str  substringToIndex:str.length-(str.length>0)];
+   return subString;
+   
 }
 
 

@@ -9,6 +9,9 @@
 #import "PacoHasRelevantActionSpecifications.h"
 #import "ValidatorConsts.h"
 #include "ExperimentDAO.h"
+#include "PacoMediator.h"
+
+
 
 @implementation PacoHasRelevantActionSpecifications
 
@@ -16,7 +19,9 @@
 -(ValidatorExecutionStatus) shouldStart:(PAExperimentDAO*) experiment Specifications:(NSArray*) specifications
 {
     ValidatorExecutionStatus retVal = ValidatorExecutionStatusSuccess ;
-    if([specifications count] ==0)
+    BOOL isLive =[[PacoMediator sharedInstance] isExperimentLive:experiment];
+    
+    if([specifications count] ==0 &&  !isLive)
     {
         retVal = ValidatorExecutionStatusFail & ValidatorExecutionStatusNoApplicableSpecifications;
     }

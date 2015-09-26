@@ -251,26 +251,26 @@ static NSString *def0 =
 {
     PAExperimentDAO      * dao  = [self experimentDAO];
     PAActionScheduleGenerator* scheduleGenerator = [[PAActionScheduleGenerator alloc] initWithPAExperimentDAO:dao];
-    
-    // OrgJodaTimeDateTime  * time = [OrgJodaTimeDateTime now];
-    //  PacoSignalStore * signalStore = [[PacoSignalStore alloc] init];
     PacoEventStore * eventStore =  [[PacoEventStore alloc] init];
     
     PASchedule * firstSchedules= [dao valueForKeyPathEx:@"groups[0].actionTriggers[0].schedules[0]"];
     NSNumber* actionTriggerId = [dao valueForKeyPathEx:@"groups[0].actionTriggers[0].id"];
     NSString* groupName        =  [dao valueForKeyPathEx:@"groups[0].name"];
+    NSNumber* numberOfGroups        =  [dao valueForKeyPathEx:@"groups#"];
     long long triggerId = [actionTriggerId longLongValue];
     long long experimentId = [[dao valueForKeyEx:@"id"] longLongValue];
     
     OrgJodaTimeDateTime* time =  [OrgJodaTimeDateTime  now];
-  
     OrgJodaTimeDateTime * ogTime =  [scheduleGenerator getNextAlarmTimeWithOrgJodaTimeDateTime:time  withJavaLangLong:[JavaLangLong valueOfWithLong:experimentId] withPASchedule:firstSchedules  withPAEventStore:eventStore withNSString:groupName  withJavaLangLong: [JavaLangLong valueOfWithLong:triggerId]];
     
   
-    
-    NSLog(@"Done" );
-    
-    
+     XCTAssertTrue(groupName !=nil);
+     XCTAssertTrue(actionTriggerId !=nil);
+     XCTAssertTrue(numberOfGroups !=nil);
+     XCTAssertTrue(firstSchedules !=nil);
+     XCTAssertTrue(firstSchedules !=nil);
+     XCTAssertTrue(ogTime !=nil);
+     XCTAssertTrue(time !=nil);
     
 }
 
@@ -320,62 +320,7 @@ static NSString *def0 =
     
 }
 
-/*
-    + (id<JavaUtilList>)arrangeExperimentsByNextTimeWithJavaUtilList:(id<JavaUtilList>)experiments
-withPAEsmSignalStore:(id<PAEsmSignalStore>)alarmStore
-withPAEventStore:(id<PAEventStore>)eventStore;
-*.
-    
-    
-}
-- (void)testExample {
-    
-    
-    
-    PAExperimentDAO * dao  = [self experimentDAO];
-    
-    PacoSignalStore * signalStore = [[PacoSignalStore alloc] init];
-    
-    [signalStore storeSignalWithJavaLangLong:[JavaLangLong valueOfWithLong:123]  withJavaLangLong:[JavaLangLong valueOfWithLong:123]  withJavaLangLong:[JavaLangLong valueOfWithLong:123] withNSString:@"hello"  withJavaLangLong:[JavaLangLong valueOfWithLong:123] withJavaLangLong:[JavaLangLong valueOfWithLong:123]];
-    
-    [signalStore storeSignalWithJavaLangLong:[JavaLangLong valueOfWithLong:1234567]  withJavaLangLong:[JavaLangLong valueOfWithLong:123]  withJavaLangLong:[JavaLangLong valueOfWithLong:123] withNSString:@"hello"  withJavaLangLong:[JavaLangLong valueOfWithLong:123] withJavaLangLong:[JavaLangLong valueOfWithLong:123]];
-    
-    JavaUtilArrayList * list =  (JavaUtilArrayList*)  [signalStore getSignalsWithJavaLangLong:[JavaLangLong valueOfWithLong:123]  withJavaLangLong:[JavaLangLong valueOfWithLong:123] withNSString:@"hello"  withJavaLangLong:[JavaLangLong valueOfWithLong:123] withJavaLangLong:[JavaLangLong valueOfWithLong:123]];
-    
-    
-    PAActionScheduleGenerator * scheduleGenerator = [[PAActionScheduleGenerator alloc] initWithPAExperimentDAO:dao];
-    
-    /*
-    + (id<JavaUtilList>)arrangeExperimentsByNextTimeWithJavaUtilList:(id<JavaUtilList>)experiments
-withPAEsmSignalStore:(id<PAEsmSignalStore>)alarmStore
-withPAEventStore:(id<PAEventStore>)eventStore;
-     */
-    
-    //JavaUtilArrayList * list2   =  [[JavaUtilArrayList alloc] initWithInt:1];
-    //[list addWithId:dao];
-    /*
-    - (instancetype)initWithInt:(jint)year
-withInt:(jint)monthOfYear
-withInt:(jint)dayOfMonth
-withInt:(jint)hourOfDay
-withInt:(jint)minuteOfHour;
-     */
-    
-    
-    //OrgJodaTimeDateTime      * time = [[OrgJodaTimeDateTime alloc] initWithInt:2015 withInt:8 withInt:19 withInt:18 withInt:30];
-    
-    
-   // [PAActionScheduleGenerator arrangeExperimentsByNextTimeFromWithJavaUtilList:list  withOrgJodaTimeDateTime:time withPAEsmSignalStore:signalStore withPAEventStore:(id<PAEventStore>)
-     
-     
-   // XCTAssert(TRUE, @"Pass");
-//}
 
-- (void)testPerformanceExample {
-    // This is an example of a performance test case.
-    [self measureBlock:^{
-        // Put the code you want to measure the time of here.
-    }];
-}
+
 
 @end

@@ -35,4 +35,16 @@
     
 }
 
+
+
+-(BOOL) hasExperiment:(NSString*) experimentId;
+{
+    
+   id found  =  [self findExperiment:experimentId];
+    
+    return ( found !=nil );
+    
+    
+}
+
 @end

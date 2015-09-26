@@ -25,7 +25,21 @@
 
  
 
+@interface PacoMediator ()
 
+@property (strong,nonatomic ) NSMutableArray* allExperiments;
+@property (strong,nonatomic)   NSMutableArray* runningExperiments;
+@property (strong,nonatomic)  NSMutableArray* actionSpecifications;
+@property (strong,nonatomic ) NSMutableArray* oldActionSpecifications;
+
+
+/* verifitcation protocols */
+@property (strong,nonatomic ) NSMutableArray* willStartVerifiers;
+@property (strong,nonatomic ) NSMutableArray*  didStartNotifiers;
+@property (strong,nonatomic ) NSMutableArray*  willStopVerifiers;
+@property (strong,nonatomic ) NSMutableArray*  didStopNotifiers;
+
+@end
 
 @implementation PacoSchedulingUtil
 

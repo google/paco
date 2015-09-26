@@ -137,6 +137,9 @@ static dispatch_queue_t serialQueue;
               if(runStatus & ValidatorExecutionStatusSuccess  )
               {
                   
+                  
+                  [self.runningExperiments removeObject:experiment];
+                  
                   // do work here.
               }
                 
@@ -239,6 +242,21 @@ static dispatch_queue_t serialQueue;
 }
 
 
+-(BOOL) isExperimentIdLive:(NSString*) experimentId
+{
+    
+    BOOL hasExperiment = [self.runningExperiments  hasExperiment:experimentId];
+    return hasExperiment;
+}
+
+
+-(BOOL) isExperimentLive:(PAExperimentDAO*) experiment
+{
+    NSString* experimentId = [experiment instanceId];
+    BOOL hasExperiment = [self.runningExperiments  hasExperiment:experimentId];
+    return hasExperiment;
+}
+
 -(void) didStopRunningExperiment:(PAExperimentDAO*) experiment
 {
     
@@ -283,10 +301,10 @@ static dispatch_queue_t serialQueue;
 }
 
 
--(void) registerWillStopValidators:(NSArray*) validators
+-(void) registerWillStartValidators:(NSArray*) validators
 {
     
-    [self.didStartNotifiers addObjectsFromArray:validators];
+    [self.willStartVerifiers addObjectsFromArray:validators];
 }
 
 
