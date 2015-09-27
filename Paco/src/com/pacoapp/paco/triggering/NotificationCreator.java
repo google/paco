@@ -106,7 +106,7 @@ public class NotificationCreator {
           if (notificationHolder.isCustomNotification()) {
             message = notificationHolder.getMessage();
           }
-          fireNotification(context, notificationHolder, experiment.getExperimentDAO().getTitle(), message, experiment.getExperimentDAO().getRingtoneUri(), experiment.getExperimentDAO().getColor());
+          fireNotification(context, notificationHolder, experiment.getExperimentDAO().getTitle(), message, experiment.getExperimentDAO().getRingtoneUri(), experiment.getExperimentDAO().getColor(), experiment.getExperimentDAO().getDismissible());
 
           createAlarmToCancelNotificationAtTimeout(context, notificationHolder);
           if (notificationHolder.getSnoozeCount() != null && (notificationHolder.getSnoozeCount() > PacoNotificationAction.SNOOZE_COUNT_DEFAULT)) {
@@ -130,7 +130,7 @@ public class NotificationCreator {
     if (notificationHolder.isActive(now)) {
         Experiment experiment = experimentProviderUtil.getExperimentByServerId(notificationHolder.getExperimentId());
         cancelNotification(context, notificationHolder.getId());  // in case this exists on the status bar, blow it away (this happens on package_replace calls).
-        fireNotification(context, notificationHolder, experiment.getExperimentDAO().getTitle(),  context.getString(R.string.time_to_participate_notification_text), experiment.getExperimentDAO().getRingtoneUri(), experiment.getExperimentDAO().getColor());
+        fireNotification(context, notificationHolder, experiment.getExperimentDAO().getTitle(),  context.getString(R.string.time_to_participate_notification_text), experiment.getExperimentDAO().getRingtoneUri(), experiment.getExperimentDAO().getColor(), experiment.getExperimentDAO().getDismissible());
     }
     // TODO
     // Optionally create another snooze alarm if the snoozeCount says it should happen and there is time left
@@ -213,7 +213,7 @@ public class NotificationCreator {
     Log.i(PacoConstants.TAG, "CreateNewNotificationForExperiment done");
   }
 
-  private void createNewCustomNotificationForExperiment(Context context, DateTime time, ExperimentDAO experiment, String groupName, long expirationTimeInMillis, String message, Integer color) {
+  private void createNewCustomNotificationForExperiment(Context context, DateTime time, ExperimentDAO experiment, String groupName, long expirationTimeInMillis, String message, Integer color, Boolean dismissible) {
     NotificationHolder notificationHolder = new NotificationHolder(time.getMillis(),
                                                                    experiment.getId(),
                                                                    0,
@@ -228,7 +228,7 @@ public class NotificationCreator {
 
 
     experimentProviderUtil.insertNotification(notificationHolder);
-    fireNotification(context, notificationHolder, experiment.getTitle(), message, experiment.getRingtoneUri(), color);
+    fireNotification(context, notificationHolder, experiment.getTitle(), message, experiment.getRingtoneUri(), color, dismissible);
     createAlarmToCancelNotificationAtTimeout(context, notificationHolder);
   }
 
@@ -256,17 +256,17 @@ public class NotificationCreator {
                                                                      : context.getString(R.string.time_to_participate_notification_text),
                                                                      timeExperiment.actionTriggerSpecId);
     experimentProviderUtil.insertNotification(notificationHolder);
-    fireNotification(context, notificationHolder, timeExperiment.experiment.getTitle(), action.getMsgText(), timeExperiment.experiment.getRingtoneUri(), action.getColor());
+    fireNotification(context, notificationHolder, timeExperiment.experiment.getTitle(), action.getMsgText(), timeExperiment.experiment.getRingtoneUri(), action.getColor(), action.getDismissible());
     return notificationHolder;
   }
 
-  private void fireNotification(Context context, NotificationHolder notificationHolder, String experimentTitle, String message, String experimentSpecificRingtone, Integer color) {
+  private void fireNotification(Context context, NotificationHolder notificationHolder, String experimentTitle, String message, String experimentSpecificRingtone, Integer color, Boolean dismissible) {
     Log.i(PacoConstants.TAG, "Creating notification for experiment: " + experimentTitle
             + ". source: " + notificationHolder.getNotificationSource()
             + ". alarmTime: " + notificationHolder.getAlarmTime().toString()
             + ", holderId = " + notificationHolder.getId());
 
-    Notification notification = createAndroidNotification(context, notificationHolder, experimentTitle, message, experimentSpecificRingtone, color);
+    Notification notification = createAndroidNotification(context, notificationHolder, experimentTitle, message, experimentSpecificRingtone, color, dismissible);
     //NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
     NotificationManagerCompat notificationManager = NotificationManagerCompat.from(context);
 
@@ -274,7 +274,7 @@ public class NotificationCreator {
 
   }
 
-  private Notification createAndroidNotification(Context context, NotificationHolder notificationHolder, String experimentTitle, String message, String experimentSpecificRingtone, Integer color) {
+  private Notification createAndroidNotification(Context context, NotificationHolder notificationHolder, String experimentTitle, String message, String experimentSpecificRingtone, Integer color, Boolean dismissible) {
     int icon = R.drawable.paco32;
 
     String tickerText = context.getString(R.string.time_for_notification_title) + experimentTitle;
@@ -300,7 +300,7 @@ public class NotificationCreator {
             .setContentText(message)
             .setWhen(notificationHolder.getAlarmTime())
             .setContentIntent(notificationIntent)
-            .setAutoCancel(true) //@todo @marios
+            .setAutoCancel(dismissible)
             .setColor(color)
     		.setStyle(bigStyle);
 

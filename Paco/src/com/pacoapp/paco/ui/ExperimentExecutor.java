@@ -474,7 +474,7 @@ public class ExperimentExecutor extends ActionBarActivity implements ChangeListe
     }
     if (shouldExpireNotificationHolder) {
       NotificationManager notificationManager = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
-      notificationManager.cancel(new Long(notificationHolderId).intValue());
+      notificationManager.cancel(new Long(notificationHolderId).intValue()); //This should cancel the notification even if it's non-dismissible
       shouldExpireNotificationHolder = false;
     }
   }
