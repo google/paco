@@ -51,3 +51,11 @@
   right: 0px;
   z-index: 1;
 }
+
+.list .show-more button {
+  width: 100%;
+}
+
+.list md-progress-circular {
+  margin-left: calc(50% - 50px);
+}

@@ -117,7 +117,7 @@ pacoApp.controller('ExperimentCtrl', ['$scope', '$mdDialog', '$filter',
     } else if ($scope.experimentId) {
       experimentService.getExperiment($scope.experimentId).then(
         function(response) {
-          var data = response.data;
+          var data = response.data.results;
           $scope.experiment = data[0];
           $scope.experiment0 = angular.copy(data[0]);
           $scope.prepareSourceAce();
@@ -295,6 +295,10 @@ pacoApp.controller('ListCtrl', ['$scope', '$mdDialog', '$location',
   'experimentService',
   function($scope, $mdDialog, $location, experimentService) {
 
+    $scope.cursor = {};
+    $scope.list = {};
+    $scope.loading = {};
+
     $scope.$watch('user', function(newValue, oldValue) {
       if ($scope.user) {
         $scope.loadList();
@@ -308,9 +312,11 @@ pacoApp.controller('ListCtrl', ['$scope', '$mdDialog', '$location',
     };
 
     $scope.loadJoined = function(reload) {
-      experimentService.getJoined(reload).then(function(response) {
-        var data = response.data;
-        $scope.joined = data;
+      $scope.loading.joined = true;
+      experimentService.getExperimentList('joined', reload).then(function(response) {
+        var data = response.data.results;
+        $scope.cursor.joined = response.data.cursor;
+        $scope.list.joined = data;
         $scope.joinedIndex = [];
         $scope.eodExperiments = {};
         for (var i = 0; i < data.length; i++) {
@@ -322,20 +328,41 @@ pacoApp.controller('ListCtrl', ['$scope', '$mdDialog', '$location',
             }
           }
         }
+        $scope.loading.joined = false;
       });
     };
 
     $scope.loadAdmin = function(reload) {
-      experimentService.getAdministered(reload).then(function(response) {
-        $scope.experiments = response.data;
+      $scope.loading.admin = true;
+      experimentService.getExperimentList('admin', reload).then(function(response) {
+        $scope.cursor.admin = response.data.cursor;
+        $scope.list.admin = response.data.results;
+        $scope.loading.admin = false;
       });
     }
 
     $scope.loadJoinable = function(reload) {
-      experimentService.getJoinable(reload).then(function(response) {
-        $scope.joinable = response.data;
+      $scope.loading.mine = true;
+      experimentService.getExperimentList('mine', reload).then(function(response) {
+        $scope.cursor.mine = response.data.cursor;
+        $scope.list.mine = response.data.results;
+        $scope.loading.mine = false;
       });
     };
+
+    $scope.loadMore = function(listName) {
+      var cursor = $scope.cursor[listName];
+      experimentService.getExperimentList(listName, false, cursor).then(function(response) {
+
+        if (response.data.results.length < response.data.limit) {
+          $scope.cursor[listName] = null;
+        } else {
+          $scope.cursor[listName] = response.data.cursor;
+        }
+
+        $scope.list[listName] = $scope.list[listName].concat(response.data.results)
+      });
+    }
 
     $scope.deleteExperiment = function(ev, exp) {
       var confirm = $mdDialog.confirm()
@@ -532,7 +559,7 @@ pacoApp.controller('DataCtrl', ['$scope', '$mdDialog', '$location', '$filter',
 
     experimentService.getExperiment($scope.experimentId).then(
       function(response) {
-        $scope.experiment = response.data[0];
+        $scope.experiment = response.results[0];
       });
 
     $scope.$watchCollection('showColumn', function(newVal, oldVal) {
