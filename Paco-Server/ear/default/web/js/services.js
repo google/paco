@@ -1,45 +1,58 @@
-pacoApp.service('experimentService', ['$http', '$cacheFactory', 'util',
-  function($http, $cacheFactory, util) {
+pacoApp.service('experimentService', ['$http', '$cacheFactory', 'config', 'util',
+  function($http, $cacheFactory, config, util) {
+
+    // Set this header here and it applies to all http requests
+    $http.defaults.headers.common['pacoProtocol'] = 4;
 
     var cache = $cacheFactory.get('$http');
 
     return ({
       deleteExperiment: deleteExperiment,
-      getAdministered: getAdministered,
-      getJoinable: getJoinable,
-      getJoined: getJoined,
+      getExperimentList: getExperimentList,
       getExperiment: getExperiment,
       joinExperiment: joinExperiment,
       saveExperiment: saveExperiment,
     });
 
+    function getExperimentList(listType, reload, cursor) {
+      var endpoint = '/experiments?' + listType;
 
-    function getJoined(reload) {
       if (reload !== undefined && reload === true) {
-        cache.remove('/experiments?joined');
+        cache.remove(endpoint);
       }
-      return $http.get('/experiments?joined', {
+
+      endpoint += '&limit=' + config.listPageSize;
+
+      if (cursor !== undefined) {
+        endpoint += '&cursor=' + cursor;
+      }
+
+      return $http.get(endpoint, {
         cache: true
       });
     }
 
-    function getAdministered(reload) {
-      if (reload !== undefined && reload === true) {
-        cache.remove('/experiments?admin');
-      }
-      return $http.get('/experiments?admin', {
-        cache: true
-      });
-    }
+    // function getJoined(reload) {
+    
+    // }
 
-    function getJoinable(reload) {
-      if (reload !== undefined && reload === true) {
-        cache.remove('/experiments?mine');
-      }
-      return $http.get('/experiments?mine', {
-        cache: true
-      });
-    }
+    // function getAdministered(reload) {
+    //   if (reload !== undefined && reload === true) {
+    //     cache.remove('/experiments?admin');
+    //   }
+    //   return $http.get('/experiments?admin&limit=3', {
+    //     cache: true
+    //   });
+    // }
+
+    // function getJoinable(reload) {
+    //   if (reload !== undefined && reload === true) {
+    //     cache.remove('/experiments?mine');
+    //   }
+    //   return $http.get('/experiments?mine', {
+    //     cache: true
+    //   });
+    // }
 
     function getExperiment(id) {
       return $http.get('/experiments?id=' + id, {
@@ -66,9 +79,9 @@ pacoApp.service('experimentService', ['$http', '$cacheFactory', 'util',
     function saveExperiment(experiment) {
 
       // Need to clear all list caches in case title was changed
-      cache.remove('/experiments?admin');
-      cache.remove('/experiments?joined');
-      cache.remove('/experiments?mine');
+      // cache.remove('/experiments?admin');
+      // cache.remove('/experiments?joined');
+      // cache.remove('/experiments?mine');
 
       // If it's not a new experiment, clear old cached definition
       if (experiment.id) {
@@ -262,6 +275,8 @@ pacoApp.service('config', function() {
     'scheduledTime',
     'when'
   ];
+
+  this.listPageSize = 5;
 });
 
 
