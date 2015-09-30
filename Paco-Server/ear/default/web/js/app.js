@@ -32,6 +32,7 @@ pacoApp.config(['$routeProvider','$locationProvider',
     }).
     when('/experiments', {
       templateUrl: 'partials/list.html',
+      reloadOnSearch: false,
     }).
     when('/copy/:copyId', {
       templateUrl: 'partials/edit.html',
@@ -39,12 +40,13 @@ pacoApp.config(['$routeProvider','$locationProvider',
     }).
     otherwise({
       templateUrl: 'partials/welcome.html',
+      reloadOnSearch: false,
     });
-
-    //$locationProvider.html5Mode(true);
   }
 ]);
 
+// Prevents a change in the hash parameter from jumping to internal anchors
+pacoApp.value('$anchorScroll', angular.noop);
 
 pacoApp.config(['$compileProvider',
   function ($compileProvider) {

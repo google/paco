@@ -63,7 +63,7 @@ pacoApp.controller('ExperimentCtrl', ['$scope', '$mdDialog', '$filter',
     $scope.ace = {};
     $scope.feedbackTypes = config.feedbackTypes;
     $scope.ringtones = config.ringtones;
-    $scope.tabs = config.tabs;
+    $scope.tabs = config.editTabs;
 
     $scope.state = {
       tabId: 0,
@@ -71,7 +71,7 @@ pacoApp.controller('ExperimentCtrl', ['$scope', '$mdDialog', '$filter',
     };
 
     if ($location.hash()) {
-      var newTabId = config.tabs.indexOf($location.hash());
+      var newTabId = config.editTabs.indexOf($location.hash());
       if (newTabId !== -1) {
         $scope.state.tabId = newTabId;
       }
@@ -145,16 +145,15 @@ pacoApp.controller('ExperimentCtrl', ['$scope', '$mdDialog', '$filter',
       }
     });
 
-    // TODO(ispiro): figure out a way to disable the default # scrolling 
     $scope.$watch('state.tabId', function(newValue, oldValue) {
-      if (config.tabs[$scope.state.tabId] === 'source') {
+      if (config.editTabs[$scope.state.tabId] === 'source') {
         $scope.prepareSourceAce();
       }
 
       if ($scope.state.tabId === 0) {
         $location.hash('');
       } else if ($scope.state.tabId > 0) {
-        $location.hash(config.tabs[$scope.state.tabId]);
+        $location.hash(config.editTabs[$scope.state.tabId]);
       }
     });
 
@@ -292,12 +291,29 @@ pacoApp.controller('ExperimentCtrl', ['$scope', '$mdDialog', '$filter',
 
 
 pacoApp.controller('ListCtrl', ['$scope', '$mdDialog', '$location',
-  'experimentService',
-  function($scope, $mdDialog, $location, experimentService) {
+  'experimentService', 'config',
+  function($scope, $mdDialog, $location, experimentService, config) {
 
     $scope.cursor = {};
     $scope.list = {};
     $scope.loading = {};
+    $scope.state = {};
+
+    if ($location.hash()) {
+      var newTabId = config.listTabs.indexOf($location.hash());
+      if (newTabId !== -1) {
+        $scope.state.listTab = newTabId;
+      }
+    }
+
+    $scope.$watch('state.listTab', function(newValue, oldValue) {
+      if ($scope.state.listTab === 0) {
+        $location.hash('');
+      } else if ($scope.state.listTab > 0) {
+        $location.url('/experiments');
+        $location.hash(config.listTabs[$scope.state.listTab]);
+      }
+    });
 
     $scope.$watch('user', function(newValue, oldValue) {
       if ($scope.user) {
@@ -305,17 +321,16 @@ pacoApp.controller('ListCtrl', ['$scope', '$mdDialog', '$location',
       }
     });
 
-    $scope.loadList = function(reload) {
-      $scope.loadAdmin(reload);
-      $scope.loadJoined(reload);
-      $scope.loadJoinable(reload);
+    $scope.loadList = function() {
+      $scope.loadAdmin();
+      $scope.loadJoined();
+      $scope.loadJoinable();
     };
 
-    $scope.loadJoined = function(reload) {
+    $scope.loadJoined = function() {
       $scope.loading.joined = true;
-      experimentService.getExperimentList('joined', reload).then(function(response) {
+      experimentService.getExperimentList('joined', false).then(function(response) {
         var data = response.data.results;
-        $scope.cursor.joined = response.data.cursor;
         $scope.list.joined = data;
         $scope.joinedIndex = [];
         $scope.eodExperiments = {};
@@ -332,18 +347,18 @@ pacoApp.controller('ListCtrl', ['$scope', '$mdDialog', '$location',
       });
     };
 
-    $scope.loadAdmin = function(reload) {
+    $scope.loadAdmin = function() {
       $scope.loading.admin = true;
-      experimentService.getExperimentList('admin', reload).then(function(response) {
+      experimentService.getExperimentList('admin', true).then(function(response) {
         $scope.cursor.admin = response.data.cursor;
         $scope.list.admin = response.data.results;
         $scope.loading.admin = false;
       });
     }
 
-    $scope.loadJoinable = function(reload) {
+    $scope.loadJoinable = function() {
       $scope.loading.mine = true;
-      experimentService.getExperimentList('mine', reload).then(function(response) {
+      experimentService.getExperimentList('mine', true).then(function(response) {
         $scope.cursor.mine = response.data.cursor;
         $scope.list.mine = response.data.results;
         $scope.loading.mine = false;
@@ -352,7 +367,7 @@ pacoApp.controller('ListCtrl', ['$scope', '$mdDialog', '$location',
 
     $scope.loadMore = function(listName) {
       var cursor = $scope.cursor[listName];
-      experimentService.getExperimentList(listName, false, cursor).then(function(response) {
+      experimentService.getExperimentList(listName, true, cursor).then(function(response) {
 
         if (response.data.results.length < response.data.limit) {
           $scope.cursor[listName] = null;
@@ -377,7 +392,8 @@ pacoApp.controller('ListCtrl', ['$scope', '$mdDialog', '$location',
         exp.deleted = true;
         experimentService.deleteExperiment(exp.id).
         then(function(response) {
-          $scope.loadList(true);
+          experimentService.invalidateCachedLists();
+          $scope.loadList();
 
           // If we're on the experiment or edit page, change location to home
           if ($location.path().indexOf('/experiment/') === 0 ||
@@ -392,7 +408,8 @@ pacoApp.controller('ListCtrl', ['$scope', '$mdDialog', '$location',
       experimentService.joinExperiment(exp)
         .then(function(result) {
           if (result.data && result.data[0].status === true) {
-            $scope.loadList(true);
+            experimentService.invalidateCachedList('joined');
+            $scope.loadJoined();
 
             $mdDialog.show(
               $mdDialog.alert()
@@ -559,7 +576,7 @@ pacoApp.controller('DataCtrl', ['$scope', '$mdDialog', '$location', '$filter',
 
     experimentService.getExperiment($scope.experimentId).then(
       function(response) {
-        $scope.experiment = response.results[0];
+        $scope.experiment = response.data.results[0];
       });
 
     $scope.$watchCollection('showColumn', function(newVal, oldVal) {

@@ -1,5 +1,5 @@
-pacoApp.service('experimentService', ['$http', '$cacheFactory', 'config', 'util',
-  function($http, $cacheFactory, config, util) {
+pacoApp.service('experimentService', ['$http', '$cacheFactory', 'util', 'config',
+  function($http, $cacheFactory, util, config) {
 
     // Set this header here and it applies to all http requests
     $http.defaults.headers.common['pacoProtocol'] = 4;
@@ -9,19 +9,19 @@ pacoApp.service('experimentService', ['$http', '$cacheFactory', 'config', 'util'
     return ({
       deleteExperiment: deleteExperiment,
       getExperimentList: getExperimentList,
+      invalidateCachedList: invalidateCachedList,
+      invalidateCachedLists: invalidateCachedLists,
       getExperiment: getExperiment,
       joinExperiment: joinExperiment,
       saveExperiment: saveExperiment,
     });
 
-    function getExperimentList(listType, reload, cursor) {
+    function getExperimentList(listType, limit, cursor) {
       var endpoint = '/experiments?' + listType;
 
-      if (reload !== undefined && reload === true) {
-        cache.remove(endpoint);
+      if (limit) {
+        endpoint += '&limit=' + config.listPageSize;
       }
-
-      endpoint += '&limit=' + config.listPageSize;
 
       if (cursor !== undefined) {
         endpoint += '&cursor=' + cursor;
@@ -32,27 +32,21 @@ pacoApp.service('experimentService', ['$http', '$cacheFactory', 'config', 'util'
       });
     }
 
-    // function getJoined(reload) {
-    
-    // }
+    function invalidateCachedLists() {
+      invalidateCachedList('admin', true);
+      invalidateCachedList('joined');
+      invalidateCachedList('mine', true);
+    }
 
-    // function getAdministered(reload) {
-    //   if (reload !== undefined && reload === true) {
-    //     cache.remove('/experiments?admin');
-    //   }
-    //   return $http.get('/experiments?admin&limit=3', {
-    //     cache: true
-    //   });
-    // }
+    function invalidateCachedList(listType, limit) {
+      var endpoint = '/experiments?' + listType;
 
-    // function getJoinable(reload) {
-    //   if (reload !== undefined && reload === true) {
-    //     cache.remove('/experiments?mine');
-    //   }
-    //   return $http.get('/experiments?mine', {
-    //     cache: true
-    //   });
-    // }
+      if (limit) {
+        endpoint += '&limit=' + config.listPageSize;
+      }
+
+      cache.remove(endpoint);
+    }
 
     function getExperiment(id) {
       return $http.get('/experiments?id=' + id, {
@@ -78,14 +72,21 @@ pacoApp.service('experimentService', ['$http', '$cacheFactory', 'config', 'util'
 
     function saveExperiment(experiment) {
 
-      // Need to clear all list caches in case title was changed
+      // The cache needs to be cleared here if the experiment title changes but
+      // that feels overly aggressive to me.
       // cache.remove('/experiments?admin');
       // cache.remove('/experiments?joined');
       // cache.remove('/experiments?mine');
 
-      // If it's not a new experiment, clear old cached definition
+      // If it's not a new experiment, clear old cached definition.
       if (experiment.id) {
         cache.remove('/experiments?id=' + experiment.id);
+
+      // If it's a new experiment, clear the cached admin list so the new
+      // experiment appears.
+      } else {
+        var endpoint = '/experiments?admin&limit=' + config.listPageSize;
+        cache.remove(endpoint);
       }
 
       return $http.post('/experiments', experiment);
@@ -168,12 +169,18 @@ pacoApp.service('dataService', ['$http', '$timeout', '$q',
 
 pacoApp.service('config', function() {
 
-  this.tabs = [
+  this.editTabs = [
     'basics',
     'groups',
     'admin',
     'source',
     'preview'
+  ];
+
+  this.listTabs = [
+    'administered',
+    'joined',
+    'invited'
   ];
 
   this.dataDeclarations = {
