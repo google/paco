@@ -52,7 +52,7 @@
   z-index: 1;
 }
 
-.list .show-more button {
+.list button.show-more {
   width: 100%;
 }
 

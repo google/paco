@@ -57,8 +57,7 @@
       </div>
 
       <md-tabs md-selected="state.tabId">
-        <!-- There is an error if md-on-select/deselect are not defined. -->
-        <md-tab ng-repeat="tab in tabs" md-on-select="" md-on-deselect="">
+        <md-tab ng-repeat="tab in tabs">
           <md-tab-label>
             {{tab}}
           </md-tab-label>
