@@ -23,7 +23,11 @@
 - (void)updateNotificationSystem;
 
 + (NSArray*) buildActionSpecifications:(NSArray*) experiments IsDryRun:(BOOL) isTryRun  ActionSpecificationsDictionary:(NSMutableDictionary*) specificationsDictionary;
-+ (void)  updateNotifications:(NSArray*) experimentsToRun ActionSpecificationsDictionary:(NSMutableDictionary*) actionSpecificationsDictionary;
+
+
++ (void)  updateNotifications:(NSArray*) experimentsToRun
+ActionSpecificationsDictionary:(NSMutableDictionary*) actionSpecificationsDictionary
+ ShouldCancelAllNotifications:(BOOL) shouldCancellAllNotifications;
 
 
 

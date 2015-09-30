@@ -182,8 +182,7 @@
 
 
 /*
- 
- return a unique id for an object
+    return a unique id for an object
  */
 +(NSString*) uniqueId:(PAActionSpecification*) actionSpecification
 {
@@ -222,10 +221,12 @@
       resets the notifications dictionary; updates action specification array and restst the notifications.
  
  */
-+ (void)  updateNotifications:(NSArray*) experimentsToRun ActionSpecificationsDictionary:(NSMutableDictionary*) actionSpecificationsDictionary
++ (void)  updateNotifications:(NSArray*) experimentsToRun
+             ActionSpecificationsDictionary:(NSMutableDictionary*) actionSpecificationsDictionary
+ ShouldCancelAllNotifications:(BOOL) shouldCancellAllNotifications
 {
     NSArray* newActionSpecifications  = [PacoSchedulingUtil buildActionSpecifications:experimentsToRun  IsDryRun:NO ActionSpecificationsDictionary:actionSpecificationsDictionary];
-    [[PacoMediator sharedInstance] updateActionSpecifications:newActionSpecifications];
+    [[PacoMediator sharedInstance] updateActionSpecifications:newActionSpecifications RemoveAllNotifications:shouldCancellAllNotifications];
 }
 
 @end

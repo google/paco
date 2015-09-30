@@ -1373,6 +1373,21 @@ UILocalNotification* scheduledNoti1 =  [UILocalNotification pacoNotificationWith
     
 }
 
-
+- (void)testPerformanceExample {
+    // This is an example of a performance test case.
+    
+    
+    PacoSignalStore * signalStore          =  [[PacoSignalStore alloc] init];
+    PacoEventStore  * eventStore           =  [[PacoEventStore  alloc] init];
+    NSMutableDictionary * results  = [[NSMutableDictionary alloc] init];
+    [results setObject:[NSMutableArray new] forKey:[self uniqueId:_dao]];
+    
+    [self measureBlock:^{
+        for(int i =0; i < 1000; i++)
+        {
+           [self getFireTimes:_dao  results:results SignalStore:signalStore EventStore:eventStore];
+        }
+    }];
+}
 
 @end

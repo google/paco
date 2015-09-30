@@ -22,8 +22,6 @@
 #import "PacoNotificationManager.h"
 
 
-
-
 @interface PacoMediator ()
 
 @property (strong,nonatomic ) NSMutableArray* allExperiments;
@@ -95,14 +93,45 @@ static dispatch_group_t group;
 /*
     need to recalculate most of the experiments
  */
--(void)  recalculateExperiments
+-(void)  recalculateExperiments:(BOOL) shouldCancelAllExperiments
 {
     dispatch_async(serialQueue, ^{
     
-        [PacoSchedulingUtil    updateNotifications:self.runningExperiments ActionSpecificationsDictionary:self.actionDefinitionsDictionary];
+        [PacoSchedulingUtil    updateNotifications:self.runningExperiments ActionSpecificationsDictionary:self.actionDefinitionsDictionary ShouldCancelAllNotifications:shouldCancelAllExperiments];
     });
 }
 
+
+
+/*
+calculate the action specifications and reset the based upon the most recent
+*/
+-(ValidatorExecutionStatus) startRunningExperimentRegenerate:(NSString*) experimentId
+{
+    __block  ValidatorExecutionStatus runStatus = ValidatorExecutionStatusFail;
+    
+    /* locate the experiment */
+    PAExperimentDAO * experiment  = [self.allExperiments findExperiment:experimentId];
+    if(experiment)
+    {
+        
+        /* buld the actionSpecifications for this one experiment, this will help us  perform validation on the experiment*/
+        NSArray* array = [PacoSchedulingUtil buildActionSpecifications:@[experiment]  IsDryRun:YES ActionSpecificationsDictionary:self.actionDefinitionsDictionary] ;
+        
+        runStatus = [self willStartRunningExperiment:experiment  Specificatons:array];
+        if( runStatus & ValidatorExecutionStatusSuccess )
+        {
+            [self.runningExperiments addObject:experiment];
+            [self recalculateExperiments:YES];
+            /* synchronous*/
+            [self didStartStartRunningExperiment:experiment];
+        }
+    }
+    
+    
+    
+    return runStatus;
+}
 
 
 /*
@@ -200,25 +229,52 @@ static dispatch_group_t group;
 
 
 
--(BOOL) addExperimentToAvailableStore:(PAExperimentDAO*) experiment
+-(ValidatorExecutionStatus) stopRunningExperimentRegenerate:(NSString*) experimentId
 {
-    BOOL retVal = YES;
+    __block  ValidatorExecutionStatus runStatus = ValidatorExecutionStatusFail;
     
+    
+    PAExperimentDAO * experiment  = [self.allExperiments findExperiment:experimentId];
+    if(experiment)
+    {
+        
+        runStatus =   [self willStopRunningExperiment:experiment];
+        
+        if(runStatus & ValidatorExecutionStatusSuccess  )
+        {
+           
+                
+                
+            [self.runningExperiments removeObject:experiment];
+            [self recalculateExperiments:YES];
+            [self didStopRunningExperiment:experiment];
+                
+          
+            
+        }
+        
+        /* should run inside or outside the asynch thread?*/
+    
+        
+        
+    }
+    
+    
+    return runStatus;
+    
+}
+
+
+
+
+
+-(void) addExperimentToAvailableStore:(PAExperimentDAO*) experiment
+{
     [_allExperiments addObject:experiment];
-    
-    return retVal;
-    
 }
 
 
--(BOOL) removeRunningExperiment:(PAExperimentDAO*) experiment
-{
-    
-    NSString* instanceId = [experiment instanceId];
-    
-    
-    
-}
+
 
 
 -(void) clearRunningExperiments
@@ -233,7 +289,7 @@ static dispatch_group_t group;
 }
 
 
--(void) updateActionSpecifications:(NSArray*) newActionSpecifications
+-(void) updateActionSpecifications:(NSArray*) newActionSpecifications RemoveAllNotifications:(BOOL) remveAll
 {
       dispatch_sync(serialQueue, ^{
           
@@ -241,8 +297,8 @@ static dispatch_group_t group;
           _actionSpecifications= [[NSMutableArray alloc] initWithArray:newActionSpecifications];
           NSArray* notifications = [UILocalNotification pacoNotificationsForExperimentSpecifications:_actionSpecifications];
           
-          /*  now lets rebuild all the action specifications */
-          PacoNotificationManager* manager =   [PacoNotificationManager managerWithDelegate:self firstLaunchFlag:NO];
+          /*  now lets rebuild all the notifications  */
+          PacoNotificationManager* manager =   [PacoNotificationManager managerWithDelegate:self firstLaunchFlag:remveAll];
           [manager scheduleNotifications:notifications];
    
       });

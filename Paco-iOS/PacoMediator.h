@@ -35,8 +35,8 @@
 
 
 -(void) clearRunningExperiments;
--(void) updateActionSpecifications:(NSArray*) newActionSpecifications;
--(BOOL) addExperimentToAvailableStore:(PAExperimentDAO*) experiment;
+-(void) updateActionSpecifications:(NSArray*) newActionSpecifications RemoveAllNotifications:(BOOL) remveAll;
+-(void) addExperimentToAvailableStore:(PAExperimentDAO*) experiment;
 -(BOOL) isExperimentIdLive:(NSString*) experimentId;
 -(BOOL) isExperimentLive:(PAExperimentDAO*) experiment;
 
@@ -46,7 +46,7 @@
 -(ValidatorExecutionStatus) stopRunningExperiment:(NSString*) experimentId;
 -(ValidatorExecutionStatus) startRunningExperiment:(NSString*) experimentIdId;
 
-
+-(ValidatorExecutionStatus) startRunningExperimentRegenerate:(NSString*) experimentId;
 
 /* registration methods*/
  
