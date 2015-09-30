@@ -7,6 +7,8 @@
 //
 
 #import <Foundation/Foundation.h>
+
+@class PAExperimentDAO;
  
 @protocol PacoExperimentDidStopVerificatonProtocol <NSObject>
 

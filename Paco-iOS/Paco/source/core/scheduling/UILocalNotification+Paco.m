@@ -190,9 +190,17 @@
   }
 }
 
+
+
+
 + (void)pacoCancelLocalNotification:(UILocalNotification*)notification {
   if (notification != nil) {
-    //NSLog(@"UIApplication is cancelling a notification: %@", [notification pacoDescription]);
+      
+      
+     NSDictionary * dict = notification.userInfo;
+      
+      
+   
     [[UIApplication sharedApplication] cancelLocalNotification:notification];
   }
 }
@@ -220,6 +228,9 @@
     [[UIApplication sharedApplication] scheduleLocalNotification:notification];
   }
 }
+
+
+
 
 
 + (void)pacoProcessNotifications:(NSArray*)notifications withBlock:(NotificationProcessBlock)block {
@@ -280,6 +291,12 @@
   
   block(activeNotication, expiredNotifications, notFiredNotifications);
 }
+
+
+
+
+
+
 
 + (void)pacoReplaceCurrentNotifications:(NSArray*)currentNotifications
                    withNewNotifications:(NSArray*)newNotifications

@@ -79,6 +79,8 @@ extern NSString* const kUserInfoKeyActionTriggerSpecId;
 }
 
 
+
+
 +  (NSArray*)  filterSpecifications:(NSArray*) specifications ExperimentId:(NSString*) experimentId
 {
     
@@ -148,26 +150,29 @@ extern NSString* const kUserInfoKeyActionTriggerSpecId;
      {
          [notifications addObject:notification];
      }
-      
   }
   return notifications;
 }
+
+
 
 - (PacoNotificationStatus)pacoStatusExt {
   if (self.userInfo == nil) {
     return PacoNotificationStatusUnknown;
   }
     
-  PacoExtendedNotificationInfo * info = [PacoExtendedNotificationInfo pacoInfoWithDictionary:self.userInfo];
+    
+    
+PacoExtendedNotificationInfo * info = [PacoExtendedNotificationInfo pacoInfoWithDictionary:self.userInfo];
   if (info == nil) {
     return PacoNotificationStatusUnknown;
   }
-    
   return [info status];
 }
 
 
 - (NSString*)pacoStatusDescriptioneExt {
+    
   switch ([self pacoStatus]) {
     case PacoNotificationStatusFiredNotTimeout:
       return @"Fired, Not Timeout";
@@ -297,6 +302,7 @@ extern NSString* const kUserInfoKeyActionTriggerSpecId;
   }
   return result;
 }
+
 
 + (NSArray*)scheduledLocalNotificationsForGroupIdExt:(NSString*) groupId
 {
@@ -441,7 +447,8 @@ extern NSString* const kUserInfoKeyActionTriggerSpecId;
 }
 
 + (void)pacoCancelNotificationsExt:(NSArray*)notifications {
-  DDLogInfo(@"iOS Cancelling %lu notifications.", (unsigned long)[notifications count]);
+ 
+    DDLogInfo(@"iOS Cancelling %lu notifications.", (unsigned long)[notifications count]);
   for (UILocalNotification* notification in notifications) {
     NSAssert([notification isKindOfClass:[UILocalNotification class]],
              @"should be a UILocalNotification!");
@@ -526,6 +533,8 @@ extern NSString* const kUserInfoKeyActionTriggerSpecId;
   block(activeNotication, expiredNotifications, notFiredNotifications);
 }
 
+
+
 + (void)pacoReplaceCurrentNotificationsExt:(NSArray*)currentNotifications
                    withNewNotifications:(NSArray*)newNotifications
                                andBlock:(NotificationReplaceBlock)block{
@@ -549,6 +558,7 @@ extern NSString* const kUserInfoKeyActionTriggerSpecId;
   };
 
   [UILocalNotification pacoProcessNotifications:currentNotifications withBlock:processBlock];
+    
 }
 
 
@@ -556,6 +566,8 @@ extern NSString* const kUserInfoKeyActionTriggerSpecId;
   if (!block) {
     return;
   }
+    
+    
   [self pacoProcessNotifications:notifications withBlock:^(UILocalNotification* activeNotification,
                                                            NSArray* expiredNotifications,
                                                            NSArray* notFiredNotifications) {

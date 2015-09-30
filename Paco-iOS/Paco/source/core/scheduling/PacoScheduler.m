@@ -95,9 +95,10 @@ int const kTotalNumOfNotifications = 60;
   BOOL hasScheduledNotifications =
       [UILocalNotification hasLocalNotificationScheduledForExperiment:experiment.instanceId];
     
-    
+  /* no need to check here, this can be checked in a unit test */
   NSAssert(!hasScheduledNotifications, @"There should be 0 notfications scheduled!");
     
+  // checking again if notifications exist, assumption is no notifications exist */
     
   [self.notificationManager checkCorrectnessForExperiment:experiment.instanceId];
   
@@ -152,6 +153,8 @@ int const kTotalNumOfNotifications = 60;
 
 - (void)executeMajorTask:(BOOL)experimentModelChanged {
   @synchronized(self) {
+      
+      
     if (![self.delegate isDoneInitializationForMajorTask]) {
         
         

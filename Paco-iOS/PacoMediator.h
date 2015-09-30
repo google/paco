@@ -12,16 +12,18 @@
 #import "PacoExerimentWillStartVerificationProtocol.h"
 #import "PacoExperimentDidStopVerificatonProtocol.h"
 #import "PacoExperimentWillStopVerificatonProtocol.h"
-
+#import "PacoNotificationManager.h"
 
 
 @class PacoSignalStore;
+
+
 @class PacoEventStore;
 @class PAExperimentDAO;
 
 
 
-@interface PacoMediator : NSObject
+@interface PacoMediator : NSObject<PacoNotificationManagerDelegate>
 
 
 
@@ -41,7 +43,7 @@
 
 
 /* join & unjoin */
--(ValidatorExecutionStatus) stopRiunningExperiment:(NSString*) experimentI;
+-(ValidatorExecutionStatus) stopRunningExperiment:(NSString*) experimentId;
 -(ValidatorExecutionStatus) startRunningExperiment:(NSString*) experimentIdId;
 
 

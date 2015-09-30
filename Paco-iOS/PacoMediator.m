@@ -18,6 +18,11 @@
 #import "PacoExperimentWillStopVerificatonProtocol.h"
 #import "PacoSchedulingUtil.h"
 #import "ValidatorConsts.h"
+#import "UILocalNotification+PacoExteded.h"
+#import "PacoNotificationManager.h"
+
+
+
 
 @interface PacoMediator ()
 
@@ -25,18 +30,19 @@
 @property (strong,nonatomic)   NSMutableArray* runningExperiments;
 @property (strong,nonatomic)  NSMutableArray* actionSpecifications;
 @property (strong,nonatomic ) NSMutableArray* oldActionSpecifications;
-
+@property (strong,nonatomic)  NSMutableDictionary * actionDefinitionsDictionary;
 
 /* verifitcation protocols */
-@property (strong,nonatomic ) NSMutableArray* willStartVerifiers;
+@property (strong,nonatomic ) NSMutableArray*  willStartVerifiers;
 @property (strong,nonatomic ) NSMutableArray*  didStartNotifiers;
 @property (strong,nonatomic ) NSMutableArray*  willStopVerifiers;
 @property (strong,nonatomic ) NSMutableArray*  didStopNotifiers;
-    
+
+
 @end
  
 static dispatch_queue_t serialQueue;
-
+static dispatch_group_t group;
 
 @implementation PacoMediator
 
@@ -57,6 +63,7 @@ static dispatch_queue_t serialQueue;
         self.didStopNotifiers             = [[NSMutableArray alloc] init];
         self.signalStore                  = [[PacoSignalStore alloc] init];
         self.eventStore                   = [[PacoEventStore alloc] init];
+        self.actionDefinitionsDictionary  = [NSMutableDictionary new];
     }
     return self;
 }
@@ -68,88 +75,126 @@ static dispatch_queue_t serialQueue;
     static PacoMediator *sharedInstance;
     dispatch_once(&once, ^ {
         
-        
         serialQueue = dispatch_queue_create("org.paco.SerialQueue", NULL);
         sharedInstance = [[self alloc] init];
-    
-    
+        
     });
+    
     return sharedInstance;
 }
 
 
-
 -(NSArray*) runningExperiments
 {
-    
     return  _runningExperiments;
-    
 }
 
 
+
+
+/*
+    need to recalculate most of the experiments
+ */
+-(void)  recalculateExperiments
+{
+    dispatch_async(serialQueue, ^{
+    
+        [PacoSchedulingUtil    updateNotifications:self.runningExperiments ActionSpecificationsDictionary:self.actionDefinitionsDictionary];
+    });
+}
+
+
+
+/*
+    calculate the action specifications and reset the based upon the most recent
+ */
 -(ValidatorExecutionStatus) startRunningExperiment:(NSString*) experimentId
 {
    __block  ValidatorExecutionStatus runStatus = ValidatorExecutionStatusFail;
     
-    
-     dispatch_sync(serialQueue, ^{
-         
-         
-   
-         
+                /* locate the experiment */
                 PAExperimentDAO * experiment  = [self.allExperiments findExperiment:experimentId];
                  if(experiment)
                  {
                      
-                     
-                     NSArray* array = [PacoSchedulingUtil buildActionSpecifications:@[experiment]  IsDryRun:YES];
+                     /* buld the actionSpecifications for this one experiment, this will help us  perform validation on the experiment*/
+                     NSArray* array = [PacoSchedulingUtil buildActionSpecifications:@[experiment]  IsDryRun:YES ActionSpecificationsDictionary:self.actionDefinitionsDictionary] ;
                      runStatus = [self willStartRunningExperiment:experiment  Specificatons:array];
                      if( runStatus & ValidatorExecutionStatusSuccess )
                      {
                          
-                         [_runningExperiments addObject:experiment];
-                         [self didStartStartRunningExperiment:experiment];
+                           dispatch_async(serialQueue, ^{
+                               
+                          /* add the experiment new experiment to the list of running experiments */
+                          [_runningExperiments addObject:experiment];
+                               
                          
+                           /*  now lets rebuild all the action specifications */
+                            PacoNotificationManager* manager =   [PacoNotificationManager managerWithDelegate:self firstLaunchFlag:NO];
+                               
+                               
+                            /* now lets get all action specifications accross all experiments */
+                            NSArray* actionSpecifications  = [PacoSchedulingUtil buildActionSpecifications:self.runningExperiments
+                                                                                                  IsDryRun:NO ActionSpecificationsDictionary:[PacoMediator sharedInstance].actionDefinitionsDictionary];
+                         
+                             NSArray* notifications = [UILocalNotification pacoNotificationsForExperimentSpecifications:actionSpecifications];
+                               
+                             [manager scheduleNotifications:notifications]; 
+                         
+                              /* add object to running experiments */
+                               
+                           });
+                         
+                          /* synchronous*/
+                          [self didStartStartRunningExperiment:experiment];
                      }
-                   
                  }
-                
-         
-    });
+  
+   
     
     return runStatus;
 }
 
 
 
--(ValidatorExecutionStatus) stopRiunningExperiment:(NSString*) experimentId
+
+
+-(ValidatorExecutionStatus) stopRunningExperiment:(NSString*) experimentId
 {
     __block  ValidatorExecutionStatus runStatus = ValidatorExecutionStatusFail;
-    dispatch_sync(serialQueue, ^{
+    
+    
             PAExperimentDAO * experiment  = [self.allExperiments findExperiment:experimentId];
             if(experiment)
             {
-                
-                
                 
               runStatus =   [self willStopRunningExperiment:experiment];
                 
               if(runStatus & ValidatorExecutionStatusSuccess  )
               {
+                  dispatch_async(serialQueue, ^{
+                      
                   
+                      [self.runningExperiments removeObject:experiment];
+                      
+                      /*  now lets rebuild all the action specifications */
+                       PacoNotificationManager* manager =   [PacoNotificationManager managerWithDelegate:self firstLaunchFlag:NO];
+                      
+                      /* cancell the notifications for this exeriment */
+                      [manager  cancelNotificationsForExperiment:experimentId];
+                      
+                       });
                   
-                  [self.runningExperiments removeObject:experiment];
-                  
-                  // do work here.
               }
                 
-                
-                [self didStopRunningExperiment:experiment];
+             /* should run inside or outside the asynch thread?*/
+             [self didStopRunningExperiment:experiment];
              
              
              }
-    });
+   
     
+    return runStatus;
   
 }
 
@@ -165,11 +210,25 @@ static dispatch_queue_t serialQueue;
     
 }
 
+
+-(BOOL) removeRunningExperiment:(PAExperimentDAO*) experiment
+{
+    
+    NSString* instanceId = [experiment instanceId];
+    
+    
+    
+}
+
+
 -(void) clearRunningExperiments
 {
      dispatch_sync(serialQueue, ^{
          
-    [_runningExperiments removeAllObjects];
+         PacoNotificationManager* manager =   [PacoNotificationManager managerWithDelegate:self firstLaunchFlag:NO];
+         [manager cancelAllPacoNotifications];
+         [self.runningExperiments removeAllObjects];
+         
       });
 }
 
@@ -178,16 +237,19 @@ static dispatch_queue_t serialQueue;
 {
       dispatch_sync(serialQueue, ^{
           
+          _oldActionSpecifications= _actionSpecifications;
+          _actionSpecifications= [[NSMutableArray alloc] initWithArray:newActionSpecifications];
+          NSArray* notifications = [UILocalNotification pacoNotificationsForExperimentSpecifications:_actionSpecifications];
           
-    _oldActionSpecifications= _actionSpecifications;
-    _actionSpecifications= [[NSMutableArray alloc] initWithArray:newActionSpecifications];
+          /*  now lets rebuild all the action specifications */
+          PacoNotificationManager* manager =   [PacoNotificationManager managerWithDelegate:self firstLaunchFlag:NO];
+          [manager scheduleNotifications:notifications];
+   
       });
 }
 
 
-
 #pragma mark - will start
-
 -(ValidatorExecutionStatus) willStartRunningExperiment:(PAExperimentDAO*) experiment Specificatons:(NSArray*) specifications
 {
     
@@ -208,6 +270,14 @@ static dispatch_queue_t serialQueue;
                             
     return shouldStartExperiment;
     
+    
+}
+
+
+- (void)handleExpiredNotifications:(NSArray*)expiredNotifications
+{
+    
+    NSLog(@"handle expried notfications");
     
 }
 

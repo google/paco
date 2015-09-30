@@ -22,8 +22,13 @@
 #import  "PacoSignalStore.h"
 #import   "PacoEventStore.h"
 #import  "OrgJodaTimeDateTime+PacoDateHelper.h"
+#import "NSObject+J2objcKVO.h"
+#include "ActionSpecification.h"
+#import "PAExperimentDAO+Helper.h"
+#import "NSArray+PacoModel.h"
 
- 
+
+
 
 @interface PacoMediator ()
 
@@ -45,7 +50,9 @@
 
 
 
-+(NSArray*) makeAlarms:(NSArray*) specifications
+
+/*
++(NSArray*) makeAlarmsd:(NSArray*) specifications
 {
     
     NSMutableArray* alerts = [[NSMutableArray alloc] init];
@@ -56,13 +63,20 @@
         UILocalNotification* notification  =    [UILocalNotification pacoNotificationWithExperimentId:[NSString stringWithFormat:@"%lli",[specification->experiment_->id__ longLongValue]]
                                                                                       experimentTitle:specification->experiment_->title_
                                                                                              fireDate:[specification->time_ nsDateValue]
-                                                                                          timeOutDate:[NSDate dateWithTimeInterval:timeoutInterval sinceDate:[specification->time_ nsDateValue]]];
+                                                                                           timeOutDate:[NSDate dateWithTimeInterval:timeoutInterval sinceDate:[specification->time_ nsDateValue]]];
         
         [alerts addObject:notification];
     }
     return alerts;
 }
+ */
 
+-(void) purgeActionSpecificationsArray:(NSArray*) actionSpecifications
+{
+    
+    
+    
+}
 
 
 /*
@@ -105,31 +119,35 @@
 
 
 
-+(NSArray*) buildActionSpecifications:(NSArray*) experiments IsDryRun:(BOOL) isTryRun
++(NSArray*) buildActionSpecifications:(NSArray*) experiments IsDryRun:(BOOL) isTryRun  ActionSpecificationsDictionary:(NSMutableDictionary*) specificationsDictionary;
 {
  
-    NSArray* runningExperiments =   experiments;
+  
     PacoSignalStore* signalStore = [PacoMediator sharedInstance].signalStore;
     PacoEventStore* eventStore = [PacoMediator sharedInstance].eventStore;
-    
-    
-    NSMutableDictionary * specifications = [[NSMutableDictionary alloc] initWithCapacity:[runningExperiments count]];
+  //  NSMutableDictionary * specifications = [[NSMutableDictionary alloc] initWithCapacity:[runningExperiments count]];
    
-    
-    for(PAExperimentDAO* dao in runningExperiments)
+    for(PAExperimentDAO* dao in experiments)
     {
-        [specifications setObject:[NSMutableArray new] forKey:[self uniqueId:dao]];
+        
+        if(![[PacoMediator sharedInstance].runningExperiments hasExperiment:[dao instanceId]])
+        {
+          [specificationsDictionary setObject:[NSMutableArray new] forKey:[dao instanceId]];
+        }
+        else
+        {
+            // remove all existing specifications for this object  as they will be recalculated
+            [[specificationsDictionary objectForKey:[dao instanceId]] removeAllObjects];
+            
+        }
+    }
+    for(PAExperimentDAO* dao in experiments)
+    {
+        [self  getFireTimes:dao results:specificationsDictionary SignalStore:signalStore   EventStore:eventStore];
     }
     
-
-    
-    for(PAExperimentDAO* dao in runningExperiments)
-    {
-        [self  getFireTimes:dao results:specifications SignalStore:signalStore   EventStore:eventStore];
-         
-    }
-    NSArray* results = [PacoSchedulingUtil sortAlarmTimes:specifications];
-     return   [results subarrayWithRange:NSMakeRange(0, MIN(60, results.count))]  ;
+       NSArray* results = [PacoSchedulingUtil sortAlarmTimes:specificationsDictionary];
+       return   [results subarrayWithRange:NSMakeRange(0, MIN(60, results.count))]  ;
 }
 
 
@@ -151,7 +169,7 @@
         {
             
             nextTime = [actionSpecification->time_ plusMinutesWithInt:1];
-            NSMutableArray* mArray =[results objectForKey:[self uniqueId:definition]];
+            NSMutableArray* mArray =[results objectForKey:[definition instanceId]];
             [mArray  addObject:actionSpecification];
             NSLog(@" added  %@", nextTime);
         }
@@ -167,49 +185,47 @@
  
  return a unique id for an object
  */
-+(NSValue*) uniqueId:(NSObject*) actionSpecification
++(NSString*) uniqueId:(PAActionSpecification*) actionSpecification
 {
-    return [NSValue valueWithPointer:(__bridge const void *)(actionSpecification)];
+    
+     NSString * actionId =  [[actionSpecification       valueForKeyEx:@"experiment_.id"] stringValue];
+     NSString * groupId =  [[actionSpecification        valueForKeyEx:@"experimentGroup_.name"] stringValue];
+     NSString * triggerId =  [[actionSpecification      valueForKeyEx:@"actionTrigger_.id"] stringValue];
+     NSString * triggerSpecId =  [[actionSpecification  valueForKeyEx:@"actionTriggerSpecId_"] stringValue];
+     NSDate   * time  = [actionSpecification  valueForKeyEx:@"time_"];
+     NSString* idStr =  [NSString stringWithFormat:@"%@-%@-%@-%@-%@",actionId,groupId,triggerId,triggerSpecId , time ];
+    return idStr;
 }
 
 
 #pragma mark -  notification handelers
-
-
-
 - (void)handleExpiredNotifications:(NSArray*)expiredNotifications
 {
     
     
     
 }
+
+
 - (BOOL)isDoneInitializationForMajorTask
 {
-    
     return YES;
-    
 }
+
+
 - (BOOL)needsNotificationSystem
 {
     return NO;
 }
 
-
-- (void)updateNotificationSystem
+/* 
+      resets the notifications dictionary; updates action specification array and restst the notifications.
+ 
+ */
++ (void)  updateNotifications:(NSArray*) experimentsToRun ActionSpecificationsDictionary:(NSMutableDictionary*) actionSpecificationsDictionary
 {
-    
-    
-}
-
-
-
-- (NSArray*) fetchNotifications;
-{
-    NSArray * runningExperiments =  [[PacoMediator sharedInstance] runningExperiments];
-    NSArray* newActionSpecifications  = [PacoSchedulingUtil buildActionSpecifications:runningExperiments  IsDryRun:NO];
+    NSArray* newActionSpecifications  = [PacoSchedulingUtil buildActionSpecifications:experimentsToRun  IsDryRun:NO ActionSpecificationsDictionary:actionSpecificationsDictionary];
     [[PacoMediator sharedInstance] updateActionSpecifications:newActionSpecifications];
-    return newActionSpecifications;
-    
 }
 
 @end

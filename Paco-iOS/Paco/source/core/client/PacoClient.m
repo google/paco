@@ -366,6 +366,7 @@ typedef void(^BackgroundFetchCompletionBlock)(UIBackgroundFetchResult result);
   
   //if the setup finishes during Paco launch caused by background fetch API,
   //then need to trigger the background fetch completion handler to finish up
+    
   if (self.backgroundFetchBlock) {
     [self.eventManager startUploadingEventsInBackgroundWithBlock:self.backgroundFetchBlock];
     self.backgroundFetchBlock = nil;
