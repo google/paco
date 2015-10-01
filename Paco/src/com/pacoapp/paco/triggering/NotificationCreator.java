@@ -119,8 +119,10 @@ public class NotificationCreator {
           }
 
           int color = getColorForNotification(experiment, notificationHolder);
+          boolean dismissible = getDismissibleForNotification(experiment, notificationHolder);
+          
           fireNotification(context, notificationHolder, experiment.getExperimentDAO().getTitle(), message,
-                           experiment.getExperimentDAO().getRingtoneUri(), color);
+                           experiment.getExperimentDAO().getRingtoneUri(), color, dismissible);
 
           createAlarmToCancelNotificationAtTimeout(context, notificationHolder);
           if (notificationHolder.getSnoozeCount() != null
@@ -159,6 +161,30 @@ public class NotificationCreator {
 
     return PacoNotificationAction.DEFAULT_COLOR;
   }
+  
+  private boolean getDismissibleForNotification(Experiment experiment, NotificationHolder notificationHolder){
+    String groupName = notificationHolder.getExperimentGroupName();
+    Long actionTriggerId = notificationHolder.getActionTriggerId();
+    Long actionId = notificationHolder.getActionId();
+    ExperimentGroup group = experiment.getExperimentDAO().getGroupByName(groupName);
+    if (group != null && actionTriggerId != null && actionId != null) {
+      ActionTrigger actionTrigger = group.getActionTriggerById(actionTriggerId);
+      if (actionTrigger != null) {
+        long actionIdl = actionId;
+        if (actionIdl < Integer.MAX_VALUE && actionId > Integer.MIN_VALUE) {
+          PacoAction action = actionTrigger.getActionById((int)actionIdl);
+          if (action != null && action instanceof PacoNotificationAction) {
+            Boolean dismissible = ((PacoNotificationAction)action).getDismissible();
+            if (dismissible != null) {
+              return dismissible;
+            }
+          }
+        }
+      }
+    }
+
+    return PacoNotificationAction.DEFAULT_DISMISSIBLE;
+  }
 
   public void createSnoozeWakeupNotification(long notificationId) {
     NotificationHolder notificationHolder = experimentProviderUtil.getNotificationById(notificationId);
@@ -179,7 +205,7 @@ public class NotificationCreator {
       fireNotification(context, notificationHolder, experiment.getExperimentDAO().getTitle(),
                        context.getString(R.string.time_to_participate_notification_text), experiment.getExperimentDAO()
                                                                                                     .getRingtoneUri(),
-                       getColorForNotification(experiment, notificationHolder));
+                       getColorForNotification(experiment, notificationHolder), getDismissibleForNotification(experiment, notificationHolder));
     }
     // TODO
     // Optionally create another snooze alarm if the snoozeCount says it should
@@ -274,14 +300,14 @@ public class NotificationCreator {
 
   private void createNewCustomNotificationForExperiment(Context context, DateTime time, ExperimentDAO experiment,
                                                         String groupName, long expirationTimeInMillis, String message,
-                                                        Integer color) {
+                                                        Integer color, Boolean dismissible) {
     NotificationHolder notificationHolder = new NotificationHolder(time.getMillis(), experiment.getId(), 0,
                                                                    expirationTimeInMillis, groupName, null, null,
                                                                    NotificationHolder.CUSTOM_GENERATED_NOTIFICATION,
                                                                    message, null);
 
     experimentProviderUtil.insertNotification(notificationHolder);
-    fireNotification(context, notificationHolder, experiment.getTitle(), message, experiment.getRingtoneUri(), color);
+    fireNotification(context, notificationHolder, experiment.getTitle(), message, experiment.getRingtoneUri(), color, dismissible);
     createAlarmToCancelNotificationAtTimeout(context, notificationHolder);
   }
 
@@ -308,19 +334,19 @@ public class NotificationCreator {
                                                                    timeExperiment.actionTriggerSpecId);
     experimentProviderUtil.insertNotification(notificationHolder);
     fireNotification(context, notificationHolder, timeExperiment.experiment.getTitle(), action.getMsgText(),
-                     timeExperiment.experiment.getRingtoneUri(), action.getColor());
+                     timeExperiment.experiment.getRingtoneUri(), action.getColor(), action.getDismissible());
     return notificationHolder;
   }
 
   private void fireNotification(Context context, NotificationHolder notificationHolder, String experimentTitle,
-                                String message, String experimentSpecificRingtone, Integer color) {
+                                String message, String experimentSpecificRingtone, Integer color, Boolean dismissible) {
     Log.i(PacoConstants.TAG,
           "Creating notification for experiment: " + experimentTitle + ". source: "
                   + notificationHolder.getNotificationSource() + ". alarmTime: "
                   + notificationHolder.getAlarmTime().toString() + ", holderId = " + notificationHolder.getId());
 
     Notification notification = createAndroidNotification(context, notificationHolder, experimentTitle, message,
-                                                          experimentSpecificRingtone, color);
+                                                          experimentSpecificRingtone, color, dismissible);
     // NotificationManager notificationManager = (NotificationManager)
     // context.getSystemService(Context.NOTIFICATION_SERVICE);
     NotificationManagerCompat notificationManager = NotificationManagerCompat.from(context);
@@ -331,7 +357,7 @@ public class NotificationCreator {
 
   private Notification createAndroidNotification(Context context, NotificationHolder notificationHolder,
                                                  String experimentTitle, String message,
-                                                 String experimentSpecificRingtone, Integer color) {
+                                                 String experimentSpecificRingtone, Integer color, Boolean dismissible) {
     int icon = R.drawable.paco32;
 
     String tickerText = context.getString(R.string.time_for_notification_title) + experimentTitle;
@@ -351,6 +377,16 @@ public class NotificationCreator {
     NotificationCompat.BigTextStyle bigStyle = new NotificationCompat.BigTextStyle();
     bigStyle.setBigContentTitle(experimentTitle);
     bigStyle.bigText(message);
+    
+    // Make sure we have a color, or use the default
+    if(color == null){
+    	color = PacoNotificationAction.DEFAULT_COLOR;
+    }
+    
+    //Make sure we know whether the notification is dismissible/not, or use default
+    if(dismissible == null){
+    	dismissible = PacoNotificationAction.DEFAULT_DISMISSIBLE;
+    }
 
     NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(context).setSmallIcon(icon)
                                                                                             .setContentTitle(experimentTitle)
@@ -358,9 +394,7 @@ public class NotificationCreator {
                                                                                             .setContentText(message)
                                                                                             .setWhen(notificationHolder.getAlarmTime())
                                                                                             .setContentIntent(notificationIntent)
-                                                                                            .setAutoCancel(true)
-                                                                                            // @todo
-                                                                                            // @marios
+                                                                                            .setAutoCancel(dismissible)
                                                                                             .setColor(color)
                                                                                             .setStyle(bigStyle);
 
@@ -463,7 +497,7 @@ public class NotificationCreator {
       return;
     }
     createNewCustomNotificationForExperiment(context, DateTime.now(), experiment, experimentGroup.getName(),
-                                             timeoutMillis, message, null);
+                                             timeoutMillis, message, null, null);
   }
 
   private boolean activeNotificationForTrigger(List<NotificationHolder> notificationsForGroup,
