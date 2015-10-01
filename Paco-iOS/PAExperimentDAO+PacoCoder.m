@@ -19,16 +19,19 @@
 
 - (id)initWithCoder:(NSCoder *)decoder
 {
+    /* super does not support  initWithCoder so we don't try to invoke it */
     
-    NSData* data = [decoder decodeObjectForKey:JsonKey];
-    PacoSerializer* serializer =
-    [[PacoSerializer alloc] initWithArrayOfClasses:nil
-                          withNameOfClassAttribute:@"nameOfClass"];
-    JavaUtilArrayList  *  resultArray  = (JavaUtilArrayList*) [serializer buildObjectHierarchyFromJSONOBject:data];
-    IOSObjectArray * iosArray = [resultArray toArray];
-    PAExperimentDAO * experiment  =  [iosArray objectAtIndex:0];
-    self =experiment;
+        NSData* data = [decoder decodeObjectForKey:JsonKey];
+        PacoSerializer* serializer =
+        [[PacoSerializer alloc] initWithArrayOfClasses:nil
+                              withNameOfClassAttribute:@"nameOfClass"];
+        JavaUtilArrayList  *  resultArray  = (JavaUtilArrayList*) [serializer buildObjectHierarchyFromJSONOBject:data];
+        IOSObjectArray * iosArray = [resultArray toArray];
+        PAExperimentDAO * experiment  =  [iosArray objectAtIndex:0];
+        self =experiment;
+    
     return self;
+ 
     
     
 }

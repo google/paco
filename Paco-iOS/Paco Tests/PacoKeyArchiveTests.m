@@ -153,7 +153,7 @@ static NSString * JSON_DATA2= @"{\r\n  \"title\": \"Drink Water\",\r\n  \"descri
 }
 
 
-
+/*
 
 -(void) testArchiver
 {
@@ -200,22 +200,15 @@ static NSString * JSON_DATA2= @"{\r\n  \"title\": \"Drink Water\",\r\n  \"descri
     [archiver encodeObject:@[dao,dao2]  forKey:@"keyData"];
     [archiver finishEncoding];
     
-    
+
     NSKeyedUnarchiver *defaults = [[NSKeyedUnarchiver alloc] initForReadingWithData:data];
-    
     NSArray * array = [defaults decodeObjectForKey:@"keyData"];
- 
- 
-    
     XCTAssertTrue( [array count] ==2 );
  
-    
-    
    
-    
 }
 
-
+*/
 
 #pragma mark - helper methods
 -(PAExperimentDAO*) buildExpeiment:(NSString*) json
