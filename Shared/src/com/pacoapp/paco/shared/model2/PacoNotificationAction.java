@@ -35,7 +35,7 @@ public class PacoNotificationAction extends PacoAction {
   }
 
   public PacoNotificationAction() {
-    this(SNOOZE_COUNT_DEFAULT, SNOOZE_TIME_DEFAULT, Integer.parseInt(ESM_SIGNAL_TIMEOUT), DEFAULT_NOTIFICATION_DELAY, "Time to participate", DEFAULT_COLOR);
+    this(SNOOZE_COUNT_DEFAULT, SNOOZE_TIME_DEFAULT, Integer.parseInt(ESM_SIGNAL_TIMEOUT), DEFAULT_NOTIFICATION_DELAY, "Time to participate", DEFAULT_COLOR, DEFAULT_DISMISSIBLE);
   }
 
   public Integer getTimeout() {

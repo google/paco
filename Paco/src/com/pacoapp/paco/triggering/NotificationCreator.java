@@ -377,6 +377,16 @@ public class NotificationCreator {
     NotificationCompat.BigTextStyle bigStyle = new NotificationCompat.BigTextStyle();
     bigStyle.setBigContentTitle(experimentTitle);
     bigStyle.bigText(message);
+    
+    // Make sure we have a color, or use the default
+    if(color == null){
+    	color = PacoNotificationAction.DEFAULT_COLOR;
+    }
+    
+    //Make sure we know whether the notification is dismissible/not, or use default
+    if(dismissible == null){
+    	dismissible = PacoNotificationAction.DEFAULT_DISMISSIBLE;
+    }
 
     NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(context).setSmallIcon(icon)
                                                                                             .setContentTitle(experimentTitle)
