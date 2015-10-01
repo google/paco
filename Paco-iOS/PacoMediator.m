@@ -10,7 +10,7 @@
 #import "PacoSignalStore.h"
 #import "PacoEventStore.h"
 #import "ExperimentDAO.h" 
-#import "NSArray+PacoModel.h"
+#import "NSMutableArray+PacoModel.h"
 #import "PAExperimentDAO+Helper.h" 
 #import "PacoExerimentDidStartVerificationProtocol.h"
 #import "PacoExerimentWillStartVerificationProtocol.h"
@@ -20,6 +20,12 @@
 #import "ValidatorConsts.h"
 #import "UILocalNotification+PacoExteded.h"
 #import "PacoNotificationManager.h"
+#import "PacoExperimentWillBeModifiedProtocol.h" 
+#import "PacoExperimentHasBeenModified.h" 
+
+
+
+
 
 
 @interface PacoMediator ()
@@ -33,9 +39,12 @@
 /* verifitcation protocols */
 @property (strong,nonatomic ) NSMutableArray*  willStartVerifiers;
 @property (strong,nonatomic ) NSMutableArray*  didStartNotifiers;
+
 @property (strong,nonatomic ) NSMutableArray*  willStopVerifiers;
 @property (strong,nonatomic ) NSMutableArray*  didStopNotifiers;
 
+@property (strong,nonatomic ) NSMutableArray*  willModifyVerifiers;
+@property (strong,nonatomic ) NSMutableArray*  didModifyNotifiers;
 
 @end
  
@@ -102,13 +111,50 @@ static dispatch_group_t group;
 }
 
 
+-(ValidatorExecutionStatus) modifyExperimentRegenerate:(NSString*) experimentId
+{
+    
+    ValidatorExecutionStatus runStatus = ValidatorExecutionStatusFail;
+    
+    /* locate the experiment */
+    PAExperimentDAO * experiment  = [self.allExperiments findExperiment:experimentId];
+    if(experiment)
+    {
+       
+        
+        /* buld the actionSpecifications for this one experiment, this will help us  perform validation on the experiment*/
+        NSArray* array = [PacoSchedulingUtil buildActionSpecifications:@[experiment]  IsDryRun:YES ActionSpecificationsDictionary:self.actionDefinitionsDictionary] ;
+        
+        runStatus = [self willModifyRunningExperiment:experiment  Specificatons:array];
+        if( runStatus & ValidatorExecutionStatusSuccess )
+        {
+            
+            [self.runningExperiments removeExperiment:experimentId];
+            [self.runningExperiments addObject:experiment];
+            [self recalculateExperiments:YES];
+            /* synchronous*/
+            [self didModifyExperiment:experiment];
+            
+        }
+    }
+    
+    
+    
+    return runStatus;
+    
+    
+    
+}
+
 
 /*
+ 
 calculate the action specifications and reset the based upon the most recent
+ 
 */
 -(ValidatorExecutionStatus) startRunningExperimentRegenerate:(NSString*) experimentId
 {
-    __block  ValidatorExecutionStatus runStatus = ValidatorExecutionStatusFail;
+     ValidatorExecutionStatus runStatus = ValidatorExecutionStatusFail;
     
     /* locate the experiment */
     PAExperimentDAO * experiment  = [self.allExperiments findExperiment:experimentId];
@@ -139,7 +185,7 @@ calculate the action specifications and reset the based upon the most recent
  */
 -(ValidatorExecutionStatus) startRunningExperiment:(NSString*) experimentId
 {
-   __block  ValidatorExecutionStatus runStatus = ValidatorExecutionStatusFail;
+    ValidatorExecutionStatus runStatus = ValidatorExecutionStatusFail;
     
                 /* locate the experiment */
                 PAExperimentDAO * experiment  = [self.allExperiments findExperiment:experimentId];
@@ -190,7 +236,7 @@ calculate the action specifications and reset the based upon the most recent
 
 -(ValidatorExecutionStatus) stopRunningExperiment:(NSString*) experimentId
 {
-    __block  ValidatorExecutionStatus runStatus = ValidatorExecutionStatusFail;
+    ValidatorExecutionStatus runStatus = ValidatorExecutionStatusFail;
     
     
             PAExperimentDAO * experiment  = [self.allExperiments findExperiment:experimentId];
@@ -231,37 +277,27 @@ calculate the action specifications and reset the based upon the most recent
 
 -(ValidatorExecutionStatus) stopRunningExperimentRegenerate:(NSString*) experimentId
 {
-    __block  ValidatorExecutionStatus runStatus = ValidatorExecutionStatusFail;
+    ValidatorExecutionStatus runStatus = ValidatorExecutionStatusFail;
     
     
     PAExperimentDAO * experiment  = [self.allExperiments findExperiment:experimentId];
     if(experiment)
     {
-        
+
         runStatus =   [self willStopRunningExperiment:experiment];
         
         if(runStatus & ValidatorExecutionStatusSuccess  )
         {
-           
-                
-                
             [self.runningExperiments removeObject:experiment];
             [self recalculateExperiments:YES];
             [self didStopRunningExperiment:experiment];
-                
-          
             
         }
         
         /* should run inside or outside the asynch thread?*/
-    
-        
-        
     }
     
-    
     return runStatus;
-    
 }
 
 
@@ -305,19 +341,19 @@ calculate the action specifications and reset the based upon the most recent
 }
 
 
-#pragma mark - will start
+#pragma mark -  validator methods 
+
 -(ValidatorExecutionStatus) willStartRunningExperiment:(PAExperimentDAO*) experiment Specificatons:(NSArray*) specifications
 {
     
-    BOOL shouldStartExperiment =YES;
+    ValidatorExecutionStatus  shouldStartExperiment =YES;
     
     for(id<PacoExerimentWillStartVerificationProtocol> validator in  self.willStartVerifiers)
     {
-        BOOL shouldStart =  [validator shouldStart:experiment Specifications:specifications];
-        if(!shouldStart)
+        ValidatorExecutionStatus  shouldStart =  [validator shouldStart:experiment Specifications:specifications];
+        if( shouldStart & ValidatorExecutionStatusSuccess)
         {
-                                
-            shouldStartExperiment =NO;
+            
             break;
             
         }
@@ -329,6 +365,7 @@ calculate the action specifications and reset the based upon the most recent
     
 }
 
+/* need to create notifications. replicate the logic in PacoClient */
 
 - (void)handleExpiredNotifications:(NSArray*)expiredNotifications
 {
@@ -351,14 +388,14 @@ calculate the action specifications and reset the based upon the most recent
 {
     
     
-    BOOL shouldStartExperiment =YES;
+    ValidatorExecutionStatus shouldStartExperiment =YES;
     
     for(id<PacoExperimentWillStopVerificatonProtocol> validator in  self.willStopVerifiers)
     {
-        BOOL shouldStart =  [validator shouldStop:experiment];
-        if(!shouldStart)
+       ValidatorExecutionStatus shouldStart =  [validator shouldStop:experiment];
+        if( shouldStart && ValidatorExecutionStatusSuccess)
         {
-            shouldStartExperiment =NO;
+            shouldStartExperiment  = shouldStart;
             break;
         }
         
@@ -395,6 +432,34 @@ calculate the action specifications and reset the based upon the most recent
     
 }
 
+
+-(void) didModifyExperiment:(PAExperimentDAO*) experiment
+{
+    for(id<PacoExperimentHasBeenModified> notifier  in  self.didStartNotifiers)
+    {
+        [notifier notifyWasModified:experiment];
+    }
+}
+
+
+
+
+-(ValidatorExecutionStatus) willModifyRunningExperiment:(PAExperimentDAO*) experiment Specificatons:(NSArray*) specifications
+{
+    
+     BOOL shouldModifyExperiment =YES;
+    for(id<PacoExperimentWillBeModifiedProtocol> notifier  in  self.didModifyNotifiers)
+    {
+        shouldModifyExperiment = [notifier shouldModify:experiment  Specifications:specifications];
+        shouldModifyExperiment =NO;
+        break;
+    }
+    
+    return shouldModifyExperiment;
+    
+}
+
+
 -(void) clearVerifiersAndNotifieer
 {
      dispatch_sync(serialQueue, ^{
@@ -407,6 +472,9 @@ calculate the action specifications and reset the based upon the most recent
       });
     
 }
+
+
+#pragma mark = registration methods 
 
 -(void) registerWillStartValidator:(id<PacoExerimentDidStartVerificationProtocol>) validator
 {
@@ -425,6 +493,20 @@ calculate the action specifications and reset the based upon the most recent
     [self.didStartNotifiers addObjectsFromArray:notifiers];
     
 }
+
+-(void) registerWillModifyValidators:(NSArray*) validators
+{
+    [self.didModifyNotifiers addObjectsFromArray:validators];
+    
+}
+
+
+-(void) registerDidModifyVNotifiers:(NSArray*) notifiers
+{
+    [self.didModifyNotifiers addObjectsFromArray:notifiers];
+    
+}
+
 
 
 -(void) registerWillStartValidators:(NSArray*) validators

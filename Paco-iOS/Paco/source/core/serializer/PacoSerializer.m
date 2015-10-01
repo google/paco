@@ -50,6 +50,7 @@
 #import  "PacoEventExtended.h"
 #import "ActionTrigger.h" 
 #import "ScheduleTrigger.h"
+#import  "ActionSpecification.h" 
 
 
 
@@ -81,6 +82,9 @@
 @property(nonatomic, strong) id parentNode;
 /* collection object */
 @property(nonatomic, strong) id parentCollection;
+
+
+
 @end
 
 @implementation PacoSerializer
@@ -324,7 +328,9 @@
         
     [ o.superclass isKindOfClass:[PAModelBase class]] ||
     [ o isKindOfClass:[PAModelBase class]] ||
-    [ o isKindOfClass:[PacoEventExtended class]]
+    [ o isKindOfClass:[PacoEventExtended class]] ||
+    [ o isKindOfClass:[PAActionSpecification class]]
+      
        /*
         ![parentInfo[1] isKindOfClass:[NSString class]] &&
         ![parentInfo[1] isMemberOfClass:[NSNumber class]] &&

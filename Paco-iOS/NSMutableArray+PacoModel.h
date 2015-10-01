@@ -10,11 +10,11 @@
 @class PAExperimentDAO;
 
 
-@interface NSArray (PacoModel)
+@interface NSMutableArray (PacoModel)
 
 -(PAExperimentDAO*) findExperiment:(NSString*) experimentId;
 -(BOOL) hasExperiment:(NSString*) experimentId;
-
+-(PAExperimentDAO*) removeExperiment:(NSString*) experimentId;
  
 
 

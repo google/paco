@@ -25,7 +25,7 @@
 #import "NSObject+J2objcKVO.h"
 #include "ActionSpecification.h"
 #import "PAExperimentDAO+Helper.h"
-#import "NSArray+PacoModel.h"
+#import "NSMutableArray+PacoModel.h"
 
 
 

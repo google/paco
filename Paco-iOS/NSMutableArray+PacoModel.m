@@ -6,14 +6,14 @@
 //  Copyright (c) 2015 Paco. All rights reserved.
 //
 
-#import "NSArray+PacoModel.h"
+#import "NSMutableArray+PacoModel.h"
 #import "ExperimentDAO.h"
 #import "NSObject+J2objcKVO.h"
 
 
 
 
-@implementation NSArray (PacoModel)
+@implementation NSMutableArray (PacoModel)
 
 
 -(PAExperimentDAO*) findExperiment:(NSString*) experimentId
@@ -35,7 +35,14 @@
     
 }
 
-
+-(PAExperimentDAO*) removeExperiment:(NSString*) experimentId
+{
+ 
+     PAExperimentDAO* experiment = [self findExperiment:experimentId];
+     [self  removeObject:experiment];
+     return experiment;
+    
+}
 
 -(BOOL) hasExperiment:(NSString*) experimentId;
 {
