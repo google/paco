@@ -283,7 +283,7 @@ pacoApp.service('config', function() {
     'when'
   ];
 
-  this.listPageSize = 5;
+  this.listPageSize = 10;
 });
 
 
