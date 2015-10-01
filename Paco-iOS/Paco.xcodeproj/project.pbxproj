@@ -223,6 +223,8 @@
 		A6651BAB1BBCD29A0058E295 /* PacoScheduleGeneratorj2ObjCTests.m in Sources */ = {isa = PBXBuildFile; fileRef = A6DCA5941B853562007FC06D /* PacoScheduleGeneratorj2ObjCTests.m */; };
 		A6651BAC1BBCD29D0058E295 /* PacoNotificationCategoryExtendedTests.m in Sources */ = {isa = PBXBuildFile; fileRef = A6F957661BA8968200F96295 /* PacoNotificationCategoryExtendedTests.m */; };
 		A6651BAD1BBCD29F0058E295 /* PacoNotificationCategoryTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 367233DD1803AEE9006611E6 /* PacoNotificationCategoryTests.m */; };
+		A6651BE41BBDD3CF0058E295 /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A6651BE31BBDD3CF0058E295 /* CoreData.framework */; };
+		A6651BE51BBDD3D90058E295 /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A6651BE31BBDD3CF0058E295 /* CoreData.framework */; };
 		A665B2731B94C86A001E0098 /* OrgJodaTimeDateTime+PacoDateHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = A665B2721B94C86A001E0098 /* OrgJodaTimeDateTime+PacoDateHelper.m */; };
 		A665B2761B969F81001E0098 /* PAActionSpecification+PacoActionSpecification.m in Sources */ = {isa = PBXBuildFile; fileRef = A665B2751B969F81001E0098 /* PAActionSpecification+PacoActionSpecification.m */; };
 		A66E306B1BA8F0C400A067EA /* libParseKitMobile.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 36000C2817C6AEA900A8A9E7 /* libParseKitMobile.a */; };
@@ -795,6 +797,7 @@
 		A646B4B91B7BF91300BBAABB /* PacoExperimentExtended.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoExperimentExtended.m; sourceTree = "<group>"; };
 		A646B4BC1B7C10A500BBAABB /* PacoClientTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoClientTest.m; sourceTree = "<group>"; };
 		A646B4BE1B7C325B00BBAABB /* org */ = {isa = PBXFileReference; lastKnownFileType = folder; name = org; path = "../../../../../Downloads/j2objc-master_save/joda_time/resources/org"; sourceTree = "<group>"; };
+		A6651BE31BBDD3CF0058E295 /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = System/Library/Frameworks/CoreData.framework; sourceTree = SDKROOT; };
 		A665B2711B94C86A001E0098 /* OrgJodaTimeDateTime+PacoDateHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "OrgJodaTimeDateTime+PacoDateHelper.h"; sourceTree = "<group>"; };
 		A665B2721B94C86A001E0098 /* OrgJodaTimeDateTime+PacoDateHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "OrgJodaTimeDateTime+PacoDateHelper.m"; sourceTree = "<group>"; };
 		A665B2741B969F81001E0098 /* PAActionSpecification+PacoActionSpecification.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "PAActionSpecification+PacoActionSpecification.h"; sourceTree = "<group>"; };
@@ -984,6 +987,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A6651BE41BBDD3CF0058E295 /* CoreData.framework in Frameworks */,
 				A676C73C1B615AAB00F37572 /* libobjc.dylib in Frameworks */,
 				44F9DDF91ADB5EA50098BECB /* libz.dylib in Frameworks */,
 				E4D5DE861837DE9A00E5446A /* MessageUI.framework in Frameworks */,
@@ -1006,6 +1010,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A6651BE51BBDD3D90058E295 /* CoreData.framework in Frameworks */,
 				A6AFCCED1BB5F09F002BA7FC /* Foundation.framework in Frameworks */,
 				A6651BA51BBCCF6D0058E295 /* UIKit.framework in Frameworks */,
 				A6651BA41BBCCF540058E295 /* MessageUI.framework in Frameworks */,
@@ -1044,6 +1049,7 @@
 		319771C7163F0733000AC06B /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				A6651BE31BBDD3CF0058E295 /* CoreData.framework */,
 				A676C73B1B615AAB00F37572 /* libobjc.dylib */,
 				A676C7391B615A3D00F37572 /* libobjc.A.dylib */,
 				44F9DDF81ADB5EA50098BECB /* libz.dylib */,

@@ -74,6 +74,8 @@
     [_signals addObject:dictionary];
 }
 
+
+
 - (id<JavaUtilList>)getSignalsWithJavaLangLong:(JavaLangLong *)experimentId
                               withJavaLangLong:(JavaLangLong *)periodStart
                                   withNSString:(NSString *)groupName

@@ -14,7 +14,7 @@
  */
 
 #import <UIKit/UIKit.h>
-
+#import <CoreData/CoreData.h>
 @class PacoMainViewController;
 
 /* 888 */
@@ -30,7 +30,20 @@
 
 @property (strong, nonatomic) UILocalNotification* notificationFromAppLaunch;
 
-@property(nonatomic,copy) NSArray *scheduledLocalNotifications NS_AVAILABLE_IOS(4_0);   
+@property(nonatomic,copy) NSArray *scheduledLocalNotifications NS_AVAILABLE_IOS(4_0);
+
+
+
+
+/* core data */
+ 
+ @property (readonly, strong, nonatomic) NSManagedObjectContext *managedObjectContext;
+ @property (readonly, strong, nonatomic) NSManagedObjectModel *managedObjectModel;
+ @property (readonly, strong, nonatomic) NSPersistentStoreCoordinator *persistentStoreCoordinator;
+ 
+ - (void)saveContext;
+ - (NSURL *)applicationDocumentsDirectory;
+
 
 - (void)processNotificationIfNeeded;
 
