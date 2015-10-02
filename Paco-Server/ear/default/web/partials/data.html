@@ -34,12 +34,6 @@
           </md-menu-item>
         </md-menu-content>
       </md-menu>
-
-      <div ng-if="loading" class="status">
-        <span>{{status}}</span>
-        <md-button ng-click="loadEvents()" ng-if="loading === false && error">Reload</md-button>
-        <md-progress-linear md-mode="indeterminate" ng-if="loading === true"></md-progress-linear>
-      </div>
     </div>    
 
     <div ng-if="table && table.rows.length > 0" class="frame">
@@ -58,16 +52,24 @@
             <td ng-repeat="cell in row track by $index" ng-show="showColumn[table.header[$index]]">
               <a href="#/data/{{experiment.id}}/{{cell}}" ng-if="table.header[$index]=='who' && !users && !anon">{{cell}}</a>
               <span ng-if="table.header[$index]!='who' || users || anon">{{cell}}&nbsp;</span>
-
             </td>
           </tr>
         </tbody>
       </table>
     </div>
+      
+    <div ng-if="loading" class="status">
+      <span>{{status}}</span>
+      <md-button ng-click="loadEvents()" ng-if="loading === false && error">Reload</md-button>
+      <md-progress-linear md-mode="indeterminate" ng-if="loading === true"></md-progress-linear>
+    </div>
 
     <md-card class="footer" ng-if="table">
       <md-card-content>
-        Showing {{table.rows.length}} out of {{table.rows.length}}
+        Showing {{table.rows.length}} events
+        <md-button ng-if="eventCursor" ng-click="loadEvents()">
+          Show More
+        </md-button>
         <div class="actions">
           <a ng-href="#/data/{{experiment.id}}/#{{columnString}}">
             <md-button>Column View</md-button>
