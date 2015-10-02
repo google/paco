@@ -49,7 +49,7 @@ typedef NS_ENUM(NSInteger, EncodingEnumType) {
 - (id)valueForKeyAndIndex:(int)index Key:(NSString *)key;
 - (NSArray *)makeCommonAttributeOperationName:(NSString *)attributeName
                                        Object:(NSObject *)object;
-- (BOOL)setModalAttribute:(NSString *)attributeName
+- (BOOL)setModelAttribute:(NSString *)attributeName
                    Object:(NSObject *)object
                  Argument:(NSObject *)argument;
 

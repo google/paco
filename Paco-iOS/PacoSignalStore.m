@@ -35,7 +35,8 @@
 #include "java/util/Collections.h"
 #include "java/util/List.h"
 #include  "Consts.h"
-
+#import "PacoAppDelegate.h" 
+#import "PacoSignal.h"
 
 
 
@@ -43,6 +44,8 @@
 @interface PacoSignalStore()
 
 @property(nonatomic, retain, readwrite) NSMutableArray* signals;
+@property(nonatomic, retain, readwrite) PacoAppDelegate* appDelegate;
+@property(nonatomic, retain, readwrite) NSManagedObjectContext * context;
 
 @end
 
@@ -53,9 +56,13 @@
     self = [super init];
     if (self) {
         _signals =  [NSMutableArray array];
+         _appDelegate  = (PacoAppDelegate *) [UIApplication sharedApplication].delegate;
+         _context =  _appDelegate.managedObjectContext;
     }
     return self;
 }
+
+
 - (void)storeSignalWithJavaLangLong:(JavaLangLong *)date
                    withJavaLangLong:(JavaLangLong *)experimentId
                    withJavaLangLong:(JavaLangLong *)alarmTime
@@ -63,6 +70,35 @@
                    withJavaLangLong:(JavaLangLong *)actionTriggerId
                    withJavaLangLong:(JavaLangLong *)scheduleId
 {
+    
+    
+       PacoSignal*  pacoSignal = [NSEntityDescription
+                       insertNewObjectForEntityForName:@"PacoSignal"
+                       inManagedObjectContext:[self.appDelegate managedObjectContext]];
+    
+  
+    
+    
+     pacoSignal.date  =   date;
+     pacoSignal.experimentId = experimentId;
+     pacoSignal.groupName =groupName;
+     pacoSignal.actionTriggerId =actionTriggerId;
+     pacoSignal.scheduleId = scheduleId;
+     pacoSignal.alarmTime = alarmTime;
+    
+    
+    NSError *error;
+    if (![self.context save:&error])
+    {
+        NSLog(@"fail: %@", [error localizedDescription]);
+        assert(NO);
+    }
+    
+
+    
+    
+    
+  /*
      NSDictionary * dictionary
               =     @{SIGNAL_PERIOD_START_DATE:date,
                       SIGNAL_EXPERIMENT_ID:experimentId,
@@ -72,7 +108,49 @@
                       SIGNAL_SCHEDULE_ID:scheduleId};
     
     [_signals addObject:dictionary];
+   */
+    
+    
 }
+
+
+-(NSArray*)  matchRecords:(JavaLangLong *)date
+  withJavaLangLong:(JavaLangLong *)experimentId
+  withJavaLangLong:(JavaLangLong *)alarmTime
+      withNSString:(NSString *)groupName
+  withJavaLangLong:(JavaLangLong *)actionTriggerId
+  withJavaLangLong:(JavaLangLong *)scheduleId
+{
+
+    NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
+    NSEntityDescription *entity = [NSEntityDescription entityForName:@"PacoSignal" inManagedObjectContext:self.context];
+    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"(experimentId==%@) AND (date==%@) AND   (alarmTime == %@)  AND  (groupName LIKE %@)   AND   (actionTriggerId==%@) AND (scheduleId==%@)",experimentId,date, alarmTime,groupName,actionTriggerId,scheduleId];
+    [fetchRequest setEntity:entity];
+    [fetchRequest setPredicate:predicate];
+    
+    
+    NSError *error;
+    NSArray *result = [self.context executeFetchRequest:fetchRequest error:&error];
+    
+    if (error) {
+        
+               NSLog(@"%@, %@", error, error.localizedDescription);
+        
+           } else
+           {
+               assert([result count] < 2);
+               
+               if([result count] ==1)
+               {
+               
+                   
+               }
+            }
+    
+ 
+    return result;
+}
+
 
 
 
@@ -82,31 +160,98 @@
                               withJavaLangLong:(JavaLangLong *)actionTriggerId
                               withJavaLangLong:(JavaLangLong *)scheduleId
 {
- 
-   NSArray *filteredArray = [_signals filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"(experimentId==%@) AND (periodStart==%@) AND   (groupName LIKE %@)   AND   (actionTriggerId==%@) AND (scheduleId==%@)",experimentId,periodStart,groupName,actionTriggerId,scheduleId ]];
- 
-    JavaUtilArrayList  * arrayList = [[JavaUtilArrayList alloc] initWithInt:[filteredArray count]];
-    NSDictionary * dictionary;
- 
-    // need to convert the dictionary into a signal object and store it.
-    for(dictionary in filteredArray)
-    {
+    
+    
+    JavaUtilArrayList  * arrayList = [[JavaUtilArrayList alloc] init];
+    NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
+    NSEntityDescription *entity = [NSEntityDescription entityForName:@"PacoSignal" inManagedObjectContext:self.context];
+    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"(experimentId==%@) AND (date==%@) AND   (alarmTime == %@)  AND  (groupName LIKE %@)   AND   (actionTriggerId==%@) AND (scheduleId==%@)",experimentId, periodStart,groupName,actionTriggerId,scheduleId];
+    
+    [fetchRequest setEntity:entity];
+    [fetchRequest setPredicate:predicate];
+    
+    
+    NSError *error;
+    NSArray *signals = [self.context executeFetchRequest:fetchRequest error:&error];
+    if (error) {
         
-        OrgJodaTimeDateTime* dateTime = [[OrgJodaTimeDateTime  alloc] initWithLong:[dictionary[SIGNAL_ALARM_TIME] longLongValue]];
-        [arrayList addWithId:dateTime];
+        NSLog(@"%@, %@", error, error.localizedDescription);
+        
+    } else
+    {
+        for(PacoSignal* signal in signals)
+        {
+            OrgJodaTimeDateTime* dateTime = [[OrgJodaTimeDateTime  alloc] initWithLong:signal.alarmTime];
+         [  arrayList addWithId:dateTime];
+        }
+        
     }
+        
     return arrayList;
 }
 
-- (void)deleteAll
+
+- (void)deleteAllObjectsWithEntityName:(NSString *)entityName
+                             inContext:(NSManagedObjectContext *)context
 {
-    [_signals removeAllObjects];
+    NSFetchRequest *fetchRequest =
+    [NSFetchRequest fetchRequestWithEntityName:entityName];
+    fetchRequest.includesPropertyValues = NO;
+    fetchRequest.includesSubentities = NO;
+    
+    NSError *error;
+    NSArray *items = [context executeFetchRequest:fetchRequest error:&error];
+    
+    for (NSManagedObject *managedObject in items) {
+        [context deleteObject:managedObject];
+        NSLog(@"Deleted %@", entityName);
+    }
 }
+
+- (void) deleteAll
+{
+    
+     NSFetchRequest *fetchRequest =
+    [NSFetchRequest fetchRequestWithEntityName:@"PacoSignal"];
+    fetchRequest.includesPropertyValues = NO;
+    fetchRequest.includesSubentities = NO;
+    
+    NSError *error;
+    NSArray *items = [self.context executeFetchRequest:fetchRequest error:&error];
+    
+    for (NSManagedObject *managedObject in items)
+    {
+        [self.context deleteObject:managedObject];
+         NSLog(@"Deleted %@", @"PacoSignal");
+    }
+    
+   
+}
+
+
+
 
 - (void)deleteAllSignalsForSurveyWithJavaLangLong:(JavaLangLong *)experimentId
 {
-    [_signals removeAllObjects];
+    NSFetchRequest *fetchRequest =
+    [NSFetchRequest fetchRequestWithEntityName:@"PacoSignal"];
+    fetchRequest.includesPropertyValues = NO;
+    fetchRequest.includesSubentities = NO;
+    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"(experimentId==%@)",experimentId];
+    [fetchRequest setPredicate:predicate];
+    
+    NSError *error;
+    NSArray *pacoSignals = [self.context executeFetchRequest:fetchRequest error:&error];
+    
+    for (NSManagedObject *managedObject in pacoSignals)
+    {
+        [self.context deleteObject:managedObject];
+        NSLog(@"Deleted %@", @"PacoSignal");
+    }
 }
+
+
+
 
 - (void)deleteSignalsForPeriodWithJavaLangLong:(JavaLangLong *)experimentId
                               withJavaLangLong:(JavaLangLong *)periodStart
@@ -115,9 +260,21 @@
                               withJavaLangLong:(JavaLangLong *)scheduleId
 {
     
-   NSArray *filteredArray = [_signals filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"(experimentId==%@) AND (periodStart==%@) AND   (groupName LIKE %@)   AND   (actionTriggerId==%@) AND (scheduleId==%@)",experimentId,periodStart,groupName,actionTriggerId,scheduleId ]];
+    NSFetchRequest *fetchRequest =
+    [NSFetchRequest fetchRequestWithEntityName:@"PacoSignal"];
+    fetchRequest.includesPropertyValues = NO;
+    fetchRequest.includesSubentities = NO;
+    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"(experimentId==%@) AND (date==%@) AND   (alarmTime == %@)  AND  (groupName LIKE %@)   AND   (actionTriggerId==%@) AND (scheduleId==%@)",experimentId, periodStart,groupName,actionTriggerId,scheduleId];
+    [fetchRequest setPredicate:predicate];
     
-    [_signals removeObjectsInArray:filteredArray];
+    NSError *error;
+    NSArray *pacoSignals = [self.context executeFetchRequest:fetchRequest error:&error];
+    
+    for (NSManagedObject *managedObject in pacoSignals)
+    {
+        [self.context deleteObject:managedObject];
+        NSLog(@"Deleted %@", @"PacoSignal");
+    }
     
 }
 

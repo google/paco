@@ -32,7 +32,7 @@
 - (void)setValueEx:(id)value forKey:(NSString *)key {
   @try {
     if ([self isJ2Objc]) {
-      [self setModalAttribute:key Object:self Argument:value];
+      [self setModelAttribute:key Object:self Argument:value];
     } else {
       [self setValue:value forKey:key];
     }
@@ -62,7 +62,7 @@
       
       else {
           
-        retVal = [self getModalAttribute:key Object:self];
+        retVal = [self getModelAttribute:key Object:self];
           
       }
     } else {
@@ -109,7 +109,7 @@
 
 #pragma mark - helper methods
 
-- (NSObject *)getModalAttribute:(NSString *)attributeName
+- (NSObject *)getModelAttribute:(NSString *)attributeName
                          Object:(NSObject *)object {
   NSObject *retVal = nil;
 
@@ -142,13 +142,13 @@
 /*
 
 
- set the attribute on a modal objects. reconstructs the setter name based on the
+ set the attribute on a model objects. reconstructs the setter name based on the
  attribute name and attribute type.
 
 
  */
 
-- (BOOL)setModalAttribute:(NSString *)attributeName
+- (BOOL)setModelAttribute:(NSString *)attributeName
                    Object:(NSObject *)object
                  Argument:(NSObject *)argument {
   BOOL retVal = FALSE;
