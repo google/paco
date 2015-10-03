@@ -8,6 +8,6 @@
 
 #import "ExperimentDAO.h"
 
-@interface PAExperimentDAO (PacoCoder)
+@interface PAExperimentDAO (PacoCoder)<NSCopying,NSCoding>
 
 @end

@@ -42,7 +42,8 @@
 #import "PAExperimentDAO+Helper.h"
 #import "PacoSerializeUtil.h"
 #import "PAActionSpecification+PacoCoder.h"
-
+#import "PAExperimentDAO+PacoCoder.h"
+#import "NSObject+J2objcKVO.h"
 /* validators */
 
 #import "PacoHasRelevantActionSpecifications.h"
@@ -224,6 +225,29 @@ static NSString * JSON_DATA2= @"{\r\n  \"title\": \"Drink Water\",\r\n  \"descri
     IOSObjectArray * iosArray = [resultArray toArray];
     PAExperimentDAO * dao =  [iosArray objectAtIndex:0];
     return dao;
+    
+}
+
+
+-(void) testCopy
+{
+    
+    PAExperimentDAO* dao = [self buildExpeiment:JSON_DATA];
+    
+    PAExperimentDAO*  copyDao = [dao copy];
+                    
+    NSString * title1 =  [dao valueForKeyEx:@"title"];
+    NSString * title2 =  [copyDao valueForKeyEx:@"title"];
+    
+    XCTAssert([title1 isEqualToString:title2] , @"success");
+    
+    
+    [copyDao setValueEx:@"newTitle" forKey:@"title"];
+    
+     title1 =  [dao valueForKeyEx:@"title"];
+     title2 =  [copyDao valueForKeyEx:@"title"];
+    
+     XCTAssert(![title1 isEqualToString:title2] , @"titles not equal ");
     
 }
 

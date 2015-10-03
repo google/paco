@@ -45,4 +45,18 @@
     NSData* json = [serializer toJSONobject:self];
     [encoder encodeObject:json  forKey:JsonKey];
 }
+
+
+- (id)copyWithZone:(NSZone *)zone {
+    
+    NSArray* array = [PacoSerializeUtil getClassNames];
+    PacoSerializer * serializer = [[PacoSerializer alloc] initWithArrayOfClasses:array withNameOfClassAttribute:@"nameOfClass"];
+    NSData* json = [serializer toJSONobject:self];
+    
+    JavaUtilArrayList  *  resultArray  = (JavaUtilArrayList*) [serializer buildObjectHierarchyFromJSONOBject:json];
+    IOSObjectArray * iosArray = [resultArray toArray];
+    PAExperimentDAO  * experimentCopy =  [iosArray objectAtIndex:0];
+    return experimentCopy;
+    
+}
 @end

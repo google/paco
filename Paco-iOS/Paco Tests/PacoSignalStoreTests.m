@@ -187,14 +187,12 @@
       [_signalStore deleteAllSignalsForSurveyWithJavaLangLong:jll];
     
     
-    
     JavaUtilHashMap* times =  [_signalStore getSignalsWithJavaLangLong:jll
                                                       withJavaLangLong:[JavaLangLong valueOfWithLong:12345]
                                                           withNSString:@"Group One"
                                                       withJavaLangLong:[JavaLangLong valueOfWithLong:12345]
                                                       withJavaLangLong:[JavaLangLong valueOfWithLong:12345]];
-      XCTAssert( [times size]==0, @"success");
-    
+    XCTAssert( [times size]==0, @"success");
     
      times =  [_signalStore getSignalsWithJavaLangLong:jll2
                                                       withJavaLangLong:[JavaLangLong valueOfWithLong:12345]

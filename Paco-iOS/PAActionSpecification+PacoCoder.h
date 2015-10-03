@@ -8,6 +8,6 @@
 
 #import "ActionSpecification.h"
 
-@interface PAActionSpecification (PacoCoder)
+@interface PAActionSpecification (PacoCoder)<NSCopying,NSCoding>
 
 @end
