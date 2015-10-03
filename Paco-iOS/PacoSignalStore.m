@@ -148,7 +148,8 @@
     JavaUtilArrayList  * arrayList = [[JavaUtilArrayList alloc] init];
     NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
     NSEntityDescription *entity = [NSEntityDescription entityForName:@"PacoSignal" inManagedObjectContext:self.context];
-    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"(experimentId==%@) AND (date==%@) AND   (alarmTime == %@)  AND  (groupName LIKE %@)   AND   (actionTriggerId==%@) AND (scheduleId==%@)",experimentId, periodStart,groupName,actionTriggerId,scheduleId];
+    
+    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"(experimentId==%@) AND (date==%@) AND   (groupName LIKE %@)   AND   (actionTriggerId==%@) AND (scheduleId==%@)",experimentId, periodStart,groupName,actionTriggerId,scheduleId];
     
     [fetchRequest setEntity:entity];
     [fetchRequest setPredicate:predicate];
@@ -246,7 +247,7 @@
     [NSFetchRequest fetchRequestWithEntityName:@"PacoSignal"];
     fetchRequest.includesPropertyValues = NO;
     fetchRequest.includesSubentities = NO;
-    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"(experimentId==%@) AND (date==%@) AND   (alarmTime == %@)  AND  (groupName LIKE %@)   AND   (actionTriggerId==%@) AND (scheduleId==%@)",experimentId, periodStart,groupName,actionTriggerId,scheduleId];
+    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"(experimentId==%@) AND (date==%@) AND   (groupName LIKE %@)   AND   (actionTriggerId==%@) AND (scheduleId==%@)",experimentId, periodStart,groupName,actionTriggerId,scheduleId];
     [fetchRequest setPredicate:predicate];
     
     NSError *error;

@@ -11,6 +11,8 @@
 #import "PacoSignalStore.h"
 #import "java/lang/Long.h"
 #include <stdlib.h>
+#include "java/util/HashMap.h"
+
 
 
 
@@ -32,18 +34,6 @@
 
 
 
-
-/*
- 
- -(NSArray*)  matchRecords:(JavaLangLong *)date
- withJavaLangLong:(JavaLangLong *)experimentId
- withJavaLangLong:(JavaLangLong *)alarmTime
- withNSString:(NSString *)groupName
- withJavaLangLong:(JavaLangLong *)actionTriggerId
- withJavaLangLong:(JavaLangLong *)scheduleId;
- 
- 
- */
 
 -(void) testCreateRecord
 {
@@ -98,19 +88,130 @@
     XCTAssert([signals count] ==0 , @"Fail");
 }
 
--(void) testDeleteAllSignalsWithExperimentId
+
+
+
+-(void) testGetSignals
 {
     
+    JavaLangLong* jll =  [JavaLangLong valueOfWithLong:arc4random_uniform(74)];
+    
+    [_signalStore   storeSignalWithJavaLangLong:[JavaLangLong valueOfWithLong:12345]  withJavaLangLong:jll withJavaLangLong:[JavaLangLong valueOfWithLong:12345] withNSString:@"Group One"  withJavaLangLong:[JavaLangLong valueOfWithLong:12345] withJavaLangLong:[JavaLangLong valueOfWithLong:12345]];
+    
+    [_signalStore   storeSignalWithJavaLangLong:[JavaLangLong valueOfWithLong:12345]   withJavaLangLong:jll withJavaLangLong:[JavaLangLong valueOfWithLong:12345] withNSString:@"Group One"  withJavaLangLong:[JavaLangLong valueOfWithLong:12345] withJavaLangLong:[JavaLangLong valueOfWithLong:12345]];
+    
+    
+   JavaUtilHashMap* times =  [_signalStore getSignalsWithJavaLangLong:jll
+                                withJavaLangLong:[JavaLangLong valueOfWithLong:12345]
+                                                         withNSString:@"Group One"
+                               withJavaLangLong:[JavaLangLong valueOfWithLong:12345]
+                               withJavaLangLong:[JavaLangLong valueOfWithLong:12345]];
+    
+    
+ 
+      XCTAssert( [times size]==2, @"success");
     
     
 }
 
--(void) tearDown
+/*
+ 
+ - (void)deleteSignalsForPeriodWithJavaLangLong:(JavaLangLong *)experimentId
+ withJavaLangLong:(JavaLangLong *)periodStart
+ withNSString:(NSString *)groupName
+ withJavaLangLong:(JavaLangLong *)actionTriggerId
+ withJavaLangLong:(JavaLangLong *)scheduleId;
+ 
+ */
+
+
+-(void) testDeleteSignalsForePeriodWithJavaLangLong
+{
+    
+    [_signalStore deleteAll];
+    JavaLangLong* jll =  [JavaLangLong valueOfWithLong:arc4random_uniform(74)];
+    
+        [_signalStore   storeSignalWithJavaLangLong:[JavaLangLong valueOfWithLong:12345]  withJavaLangLong:jll withJavaLangLong:[JavaLangLong valueOfWithLong:12345] withNSString:@"Group One"  withJavaLangLong:[JavaLangLong valueOfWithLong:12345] withJavaLangLong:[JavaLangLong valueOfWithLong:12345]];
+    
+           [_signalStore   storeSignalWithJavaLangLong:[JavaLangLong valueOfWithLong:12345]  withJavaLangLong:jll withJavaLangLong:[JavaLangLong valueOfWithLong:12345] withNSString:@"Group Two"  withJavaLangLong:[JavaLangLong valueOfWithLong:12345] withJavaLangLong:[JavaLangLong valueOfWithLong:12345]];
+    
+ 
+    
+    [_signalStore deleteSignalsForPeriodWithJavaLangLong:jll  withJavaLangLong:[JavaLangLong valueOfWithLong:12345] withNSString:@"Group One"  withJavaLangLong:[JavaLangLong valueOfWithLong:12345] withJavaLangLong:[JavaLangLong valueOfWithLong:12345]];
+     
+     JavaUtilHashMap* times =  [_signalStore getSignalsWithJavaLangLong:jll
+                                                       withJavaLangLong:[JavaLangLong valueOfWithLong:12345]
+                                                           withNSString:@"Group One"
+                                                       withJavaLangLong:[JavaLangLong valueOfWithLong:12345]
+                                                       withJavaLangLong:[JavaLangLong valueOfWithLong:12345]];
+    
+     XCTAssert( [times size]==0, @"success");
+    
+    
+     times =  [_signalStore getSignalsWithJavaLangLong:jll
+                                                      withJavaLangLong:[JavaLangLong valueOfWithLong:12345]
+                                                          withNSString:@"Group Two"
+                                                      withJavaLangLong:[JavaLangLong valueOfWithLong:12345]
+                                                      withJavaLangLong:[JavaLangLong valueOfWithLong:12345]];
+     XCTAssert( [times size]==1, @"success");
+}
+
+
+
+-(void) testDeleteAllSignalsForSurveyWithJavaLangLong
 {
     
     [_signalStore deleteAll];
     
     
+    JavaLangLong* jll =  [JavaLangLong valueOfWithLong:arc4random_uniform(74)];
+    JavaLangLong* jll2 =  [JavaLangLong valueOfWithLong:arc4random_uniform(74)];
+    
+    [_signalStore   storeSignalWithJavaLangLong:[JavaLangLong valueOfWithLong:12345]
+                               withJavaLangLong:jll
+                               withJavaLangLong:[JavaLangLong valueOfWithLong:12345]
+                                   withNSString:@"Group One"
+                               withJavaLangLong:[JavaLangLong valueOfWithLong:12345]
+                               withJavaLangLong:[JavaLangLong valueOfWithLong:12345]];
+    
+    
+    
+    
+    [_signalStore   storeSignalWithJavaLangLong:[JavaLangLong valueOfWithLong:12345]
+                               withJavaLangLong:jll2
+                               withJavaLangLong:[JavaLangLong valueOfWithLong:12345]
+                                   withNSString:@"Group One"
+                               withJavaLangLong:[JavaLangLong valueOfWithLong:12345]
+                               withJavaLangLong:[JavaLangLong valueOfWithLong:12345]];
+    
+      [_signalStore deleteAllSignalsForSurveyWithJavaLangLong:jll];
+    
+    
+    
+    JavaUtilHashMap* times =  [_signalStore getSignalsWithJavaLangLong:jll
+                                                      withJavaLangLong:[JavaLangLong valueOfWithLong:12345]
+                                                          withNSString:@"Group One"
+                                                      withJavaLangLong:[JavaLangLong valueOfWithLong:12345]
+                                                      withJavaLangLong:[JavaLangLong valueOfWithLong:12345]];
+      XCTAssert( [times size]==0, @"success");
+    
+    
+     times =  [_signalStore getSignalsWithJavaLangLong:jll2
+                                                      withJavaLangLong:[JavaLangLong valueOfWithLong:12345]
+                                                          withNSString:@"Group One"
+                                                      withJavaLangLong:[JavaLangLong valueOfWithLong:12345]
+                                                      withJavaLangLong:[JavaLangLong valueOfWithLong:12345]];
+     XCTAssert( [times size]==1, @"success");
+}
+
+
+
+-(void) tearDown
+{
+    [_signalStore deleteAll];
+ 
+ 
+ 
 }
 
 
