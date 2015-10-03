@@ -94,24 +94,9 @@
         assert(NO);
     }
     
-
-    
-    
-    
-  /*
-     NSDictionary * dictionary
-              =     @{SIGNAL_PERIOD_START_DATE:date,
-                      SIGNAL_EXPERIMENT_ID:experimentId,
-                      SIGNAL_ALARM_TIME:alarmTime,
-                      SIGNAL_GROUP_NAME:groupName,
-                      SIGNAL_ACTION_TRIGGER_ID:actionTriggerId,
-                      SIGNAL_SCHEDULE_ID:scheduleId};
-    
-    [_signals addObject:dictionary];
-   */
-    
-    
 }
+
+
 
 
 -(NSArray*)  matchRecords:(JavaLangLong *)date
@@ -130,7 +115,7 @@
     
     
     NSError *error;
-    NSArray *result = [self.context executeFetchRequest:fetchRequest error:&error];
+    NSArray *signals  = [self.context executeFetchRequest:fetchRequest error:&error];
     
     if (error) {
         
@@ -138,17 +123,15 @@
         
            } else
            {
-               assert([result count] < 2);
+         
                
-               if([result count] ==1)
-               {
+              
                
-                   
-               }
-            }
+           }
+    
     
  
-    return result;
+    return signals;
 }
 
 
@@ -225,7 +208,6 @@
          NSLog(@"Deleted %@", @"PacoSignal");
     }
     
-   
 }
 
 

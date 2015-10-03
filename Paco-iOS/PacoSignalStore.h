@@ -38,4 +38,11 @@
                               withJavaLangLong:(JavaLangLong *)actionTriggerId
                               withJavaLangLong:(JavaLangLong *)scheduleId;
 
+-(NSArray*)  matchRecords:(JavaLangLong *)date
+         withJavaLangLong:(JavaLangLong *)experimentId
+         withJavaLangLong:(JavaLangLong *)alarmTime
+             withNSString:(NSString *)groupName
+         withJavaLangLong:(JavaLangLong *)actionTriggerId
+         withJavaLangLong:(JavaLangLong *)scheduleId;
+
 @end
