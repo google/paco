@@ -180,6 +180,7 @@ public class EventJsonUploadProcessor {
 
     log.info("Retrieving experimentId, experimentName for event posting: " + experimentIdStr + ", " + experimentName);
     if (experimentIdStr == null) {
+      log.info("Could not find experiment for event posting. experimentId, experimentName: " + experimentIdStr + ", " + experimentName);
       outcome.setError("No experiment ID for this event: " + eventId);
       return outcome;
     }
