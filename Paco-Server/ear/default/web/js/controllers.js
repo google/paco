@@ -470,7 +470,7 @@ pacoApp.controller('DataCtrl', ['$scope', '$mdDialog', '$location', '$filter',
       }
     };
 
-    $scope.loadEvents = function(more) {
+    $scope.loadEvents = function() {
       $scope.loading = true;
 
       dataService.getEvents($scope.experimentId, $scope.restrict, $scope.anon, $scope.eventCursor).
