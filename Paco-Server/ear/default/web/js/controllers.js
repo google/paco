@@ -440,6 +440,8 @@ pacoApp.controller('DataCtrl', ['$scope', '$mdDialog', '$location', '$filter',
     $scope.currentView = 'data';
     $scope.restrict = null;
     $scope.anon = false;
+    $scope.eventCursor = null;
+    $scope.events = null;
 
     $scope.switchView = function() {
       var newPath = $scope.currentView + '/' + $scope.experimentId;
@@ -470,22 +472,33 @@ pacoApp.controller('DataCtrl', ['$scope', '$mdDialog', '$location', '$filter',
 
     $scope.loadEvents = function() {
       $scope.loading = true;
-      $scope.table = null;
 
-      dataService.getEvents($scope.experimentId, $scope.restrict, $scope.anon).
-      then(function(result) {
+      dataService.getEvents($scope.experimentId, $scope.restrict, $scope.anon, $scope.eventCursor).
+      then(function(response) {
 
         $scope.scrolling(false);
+        if (response.data) {
 
-        if (result.data) {
-          $scope.data = result.data;
+          if (response.data.cursor) {
+            $scope.eventCursor = response.data.cursor;
+          }
 
-          if (!result.data.events) {
+          if (response.data.events.length < config.dataPageSize) {
+            $scope.eventCursor = null;
+          }
+
+          if ($scope.events) {
+            $scope.events = $scope.events.concat(response.data.events);
+          } else {
+            $scope.events = response.data.events;
+          }
+
+          if (!$scope.events) {
             $scope.csv = [];
             return;
           }
 
-          var table = $filter('jsonToTable')(result.data.events, true);
+          var table = $filter('jsonToTable')($scope.events, true);
           $scope.table = table;
 
           if (table === null) {
@@ -520,7 +533,6 @@ pacoApp.controller('DataCtrl', ['$scope', '$mdDialog', '$location', '$filter',
 
       $scope.status = 'Requesting response data';
     };
-
 
     $scope.loadStats = function() {
       $scope.loading = true;
