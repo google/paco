@@ -99,8 +99,8 @@ pacoApp.service('experimentService', ['$http', '$cacheFactory', 'util', 'config'
 ]);
 
 
-pacoApp.service('dataService', ['$http', '$timeout', '$q',
-  function($http, $timeout, $q) {
+pacoApp.service('dataService', ['$http', '$timeout', '$q', 'config',
+  function($http, $timeout, $q, config) {
 
     return ({
       getEvents: getEvents,
@@ -108,7 +108,7 @@ pacoApp.service('dataService', ['$http', '$timeout', '$q',
     });
 
 
-    function getEvents(id, user, anonymous) {
+    function getEvents(id, user, anonymous, cursor) {
 
       var endpoint = '/events?q=\'experimentId=' + id;
 
@@ -120,6 +120,12 @@ pacoApp.service('dataService', ['$http', '$timeout', '$q',
 
       if (anonymous) {
         endpoint += '&anon=true';
+      }
+
+      endpoint += '&limit=' + config.dataPageSize;      
+
+      if (cursor !== undefined) {
+        endpoint += '&cursor=' + cursor;
       }
 
       return $http.get(endpoint);
@@ -284,6 +290,7 @@ pacoApp.service('config', function() {
   ];
 
   this.listPageSize = 10;
+  this.dataPageSize = 10;
 });
 
 
