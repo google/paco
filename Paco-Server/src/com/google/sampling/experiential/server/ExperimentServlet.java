@@ -94,9 +94,9 @@ public class ExperimentServlet extends HttpServlet {
         } catch (NumberFormatException e) {
         }
       }
-      if (limit != null && (limit <= 0 || limit >= EXPERIMENT_LIMIT_MAX)) {
-        throw new IllegalArgumentException("Invalid limit. must be greater than 0 and less than or equal to 50");
-      }
+//      if (limit != null && (limit <= 0 || limit >= EXPERIMENT_LIMIT_MAX)) {
+//        throw new IllegalArgumentException("Invalid limit. must be greater than 0 and less than or equal to 50");
+//      }
       String cursor = req.getParameter("cursor");
 
       String experimentsJson = null;
