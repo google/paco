@@ -129,7 +129,7 @@ pacoApp.service('dataService', ['$http', '$timeout', '$q',
         function(data) {
           var totalParticipantCount = 0;
           var todayParticipantCount = 0;
-          for (var i = 0; i < data.participants; i++) {
+          for (var i = 0; i < data.participants.length; i++) {
             
             if (data.participants[i].todaySignalResponseCount > 0) {
               todayParticipantCount++;
@@ -183,12 +183,12 @@ pacoApp.service('config', function() {
     'Random sampling (ESM)'
   ];
 
-  this.actionTypes = [
-    'Create notification to participate',
-    'Create notification message',
-    'Log data',
-    'Execute script'
-  ];
+  this.actionTypes = {
+    1: 'Create notification to participate',
+    2: 'Create notification message',
+    // 3: 'Log data',
+    4: 'Execute script'
+  };
 
   this.cueTypes = [
     'HANGUP (deprecated)',
@@ -244,6 +244,7 @@ pacoApp.service('config', function() {
   this.dataOrder = [
     'who',
     'responseTime',
+    'scheduledTime',
     'experimentGroupName',
     'responses',
     'experimentVersion',
@@ -254,6 +255,12 @@ pacoApp.service('config', function() {
     'eodResponseTime',
     'appId',
     'pacoId'
+  ];
+
+  this.timeColumns = [
+    'responseTime',
+    'scheduledTime',
+    'when'
   ];
 });
 
@@ -342,8 +349,12 @@ pacoApp.service('template', function() {
 
 pacoApp.service('util', ['$filter', function($filter) {
 
-  this.formatDate = function(date) {
-    return $filter('date')(date, 'yyyy/MM/dd HH:mm:ssZ');
+  this.formatDate = function(date, timezone) {
+    var tz = null;
+    if (timezone !== undefined) {
+      tz = timezone;
+    }
+    return $filter('date')(date, 'yyyy/MM/dd HH:mm:ssZ', tz);
   };
 
 }]);

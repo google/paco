@@ -368,9 +368,6 @@ pacoApp.filter('percent', ['$filter', function ($filter) {
 }]);
 
 
-
-
-
 pacoApp.filter('jsonToTable', ['util', 'config', function(util, config) {
 
   return function (json, unpackResponse){
@@ -392,7 +389,7 @@ pacoApp.filter('jsonToTable', ['util', 'config', function(util, config) {
       if (column === 'responses') {
         responseStartId = headerRow.length;
         responseEndId = responseStartId;
-      } else if (order[column]) {
+      } else {
         headerRow.push(column);
       }
     }
@@ -445,14 +442,24 @@ pacoApp.filter('jsonToTable', ['util', 'config', function(util, config) {
           responses = json[i]['responses'];
         } else {
           var val = json[i][column];
-          if (column === 'responseTime' || column === 'when') {
-            val = util.formatDate(val);
+          if (val === undefined) {
+            val = '';
+          }
+          if (config.timeColumns.indexOf(column) !== -1) {
+            var timezone = json[i]['timezone'];
+            val = util.formatDate(val, timezone);
           }
           newRow[id] = val;
         }
       }
 
       if (responses) {
+
+        // Explicitly set all responses to the empty string first
+        for (var j = responseStartId; j < responseEndId; j++) {
+          newRow[j] = '';
+        }
+
         for (var id in responses) {
           var responseName = responses[id]['name'];
           var responseValue = responses[id]['answer'];
@@ -471,10 +478,14 @@ pacoApp.filter('jsonToTable', ['util', 'config', function(util, config) {
 pacoApp.filter('tableToCsv', function() {
 
   return function (table){
+
+    var rows = angular.copy(table.rows);
+    rows.splice(0, 0, table.header);
+
     var string = '';
 
-    for (var i = 0; i < table.rows.length; i++) {
-      var row = table.rows[i];
+    for (var i = 0; i < rows.length; i++) {
+      var row = rows[i];
       if (i > 0) {
         string += '\n';
       }

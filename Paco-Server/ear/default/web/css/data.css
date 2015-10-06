@@ -1,7 +1,3 @@
-.data {
-  margin: 16px;
-}
-
 .data .frame {
   max-width: 100%;
   overflow-x: scroll;
@@ -11,18 +7,34 @@
 }
 
 .data .nav {
-  display: inline-block;
   font-size: 18px;
   font-weight: 400;
-  margin-bottom: 16px;
+  position: relative;
+  min-width: 960px;
 }
 
-.data .nav img {
+.data .nav .viewSelector {
+  display: inline-block;
+}
+
+.nav img {
   vertical-align: middle;
 }
 
-.data button {
-  margin-right: 0;
+.data .footer {
+  line-height: 24px;
+  margin-right: 2px;
+  padding: 16px;
+}
+
+.data .download {
+  float: right;
+}
+
+.data md-menu {
+  position: absolute;
+  top: 0;
+  right: 0;
 }
 
 .data table {
@@ -31,6 +43,8 @@
   border-radius: 2px;
   box-shadow: 0px 3px 1px -2px rgba(0, 0, 0, 0.2), 0px 2px 2px 0px rgba(0, 0, 0, 0.14), 0px 1px 5px 0px rgba(0, 0, 0, 0.12);
   font-size: 13px;
+  position: relative;
+  width: 100%;
 }
 
 .data .summary {
@@ -38,7 +52,6 @@
   margin-bottom: 20px;
   padding: 40px;
   text-align: center;
-
 }
 
 .data .summary .stat {
@@ -84,9 +97,38 @@ md-menu-item {
   border-bottom: 1px solid #e3e3e3;
   height: 48px;
 }
+
+.data.events table thead {
+  border-bottom: 1px solid #e3e3e3;
+  display: block;
+  height: 48px;
+}
+
+.data.events table tbody {
+  display: block;
+  max-height: calc(100vh - 338px);
+  overflow: scroll;
+}
+
+.data.events table tbody tr:nth-of-type(1) a {
+  position: absolute;
+  top: 16px;
+}
+
+.data.events table tbody tr:nth-of-type(2) a {
+  display: block;
+  height: 0px;
+  overflow: hidden;
+}
+
+.data.events table tbody tr:nth-of-type(1),
+.data.events table tbody tr:nth-of-type(2) {
+  border-bottom: none;
+  height: 0px;
+}
+
 .data table td {
-  padding: 0 56px 0 24px;
-  text-align: center ;
+  padding: 0 24px 0 24px;
   white-space: nowrap;
 }
 
@@ -94,10 +136,21 @@ md-menu-item {
   position: relative;
 }
 
+.data table td .sorting {
+  display: block;
+  position: relative;
+}
+
 .data table td .arrow:after {
   content: '\2191';
   position: absolute;
-  margin-left: 10px;
+  top: 0;
+  right: -16px;
+}
+
+.data table td .left.arrow:after {
+  left: -16px;
+  right: auto;
 }
 
 .data table td .down.arrow:after {
@@ -115,6 +168,8 @@ md-menu-item {
 
 .data .variable-width {
   display: inline-block;
+  max-width: 100%;
+  overflow-x: scroll;
   text-align: left;
 }
 
@@ -122,6 +177,27 @@ md-menu-item {
   margin: 16px 8px;
 }
 
-.stats {
+.data {
   text-align: center;
+}
+
+.data .error {
+  margin: 16px;
+  text-align: left;
+}
+
+.data md-chips {
+  display: inline-block;
+  position: relative;
+}
+
+.data md-chips md-chips-wrap {
+  box-shadow: none !important;
+  position: absolute;
+  left: 0;
+  top: -30px;
+}
+
+.data md-chips .md-chips.md-focused {
+  box-shadow: none;
 }

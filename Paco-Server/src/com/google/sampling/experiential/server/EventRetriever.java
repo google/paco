@@ -63,7 +63,7 @@ import com.google.sampling.experiential.shared.EventDAO;
  */
 public class EventRetriever {
 
-  private static final int DEFAULT_FETCH_LIMIT = 100;
+  private static final int DEFAULT_FETCH_LIMIT = 20000;
   private static EventRetriever instance;
   private static final Logger log = Logger.getLogger(EventRetriever.class.getName());
 
@@ -162,7 +162,7 @@ public class EventRetriever {
 
     long t11 = System.currentTimeMillis();
 
-    List<Long> adminExperiments = getExperimentsForAdmin(loggedInuser, pm);
+    List<Long> adminExperiments = getExperimentsForAdmin(loggedInuser);
     log.info("Loggedin user's administered experiments: " + loggedInuser + " has ids: "
              + getIdsQuoted(adminExperiments));
 
@@ -431,8 +431,8 @@ public class EventRetriever {
   }
 
   @SuppressWarnings("unchecked")
-  private List<Long> getExperimentsForAdmin(String user, PersistenceManager pm) {
-    return ExperimentAccessManager.getExistingExperimentsIdsForAdmin(user);
+  private List<Long> getExperimentsForAdmin(String user) {
+    return ExperimentAccessManager.getExistingExperimentIdsForAdmin(user, 0, null).getExperiments();
   }
 
   @SuppressWarnings("unchecked")
@@ -557,7 +557,7 @@ public class EventRetriever {
 
     long t11 = System.currentTimeMillis();
 
-    List<Long> adminExperiments = getExperimentsForAdmin(loggedInuser, pm);
+    List<Long> adminExperiments = getExperimentsForAdmin(loggedInuser);
     log.info("Loggedin user's administered experiments: " + loggedInuser + " has ids: "
              + getIdsQuoted(adminExperiments));
 
@@ -612,9 +612,10 @@ public class EventRetriever {
       extensionMap.put(JDOCursorHelper.CURSOR_EXTENSION, cursor);
       q.setExtensions(extensionMap);
       // q.getFetchPlan().addGroup("PhotoBlob").addGroup("keysList").addGroup("valuesList");
-      q.getFetchPlan().setFetchSize(limit);
-    }
+      //q.getFetchPlan().setFetchSize(limit);
 
+    }
+    q.setRange(0, limit);
     List<Event> currentResults = (List<Event>) q.executeWithArray(eventJDOQuery.getParameters().toArray());
     // log.info("Got back " + currentResults.size() + " results");
     if (currentResults != null && !currentResults.isEmpty()) {
@@ -634,7 +635,7 @@ public class EventRetriever {
 
       // log.info("Accumulated result count: " + allEvents.size());
       Cursor newCursor = JDOCursorHelper.getCursor(currentResults);
-      if (newCursor == null || (cursor != null && newCursor.toWebSafeString().equals(cursor.toWebSafeString()))) {
+      if (newCursor == null || (cursor != null && newCursor.toWebSafeString().equals(websafeCursor))) {
         cursor = null;
       } else {
         cursor = newCursor;

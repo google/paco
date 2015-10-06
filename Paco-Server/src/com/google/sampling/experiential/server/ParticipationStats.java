@@ -107,15 +107,15 @@ public class ParticipationStats implements java.io.Serializable {
 
 
     List<ParticipantParticipationStat> participants = Lists.newArrayList();
-    String nextCursor;
+    String cursor;
 
-    public ParticipationStats(List<ParticipantParticipationStat> participants, String nextCursor) {
+    public ParticipationStats(List<ParticipantParticipationStat> participants, String cursor) {
       super();
       if (participants != null) {
         this.participants = participants;
       }
-      if (nextCursor != null) {
-        this.nextCursor = nextCursor;
+      if (cursor != null) {
+        this.cursor = cursor;
       }
     }
 
@@ -131,12 +131,12 @@ public class ParticipationStats implements java.io.Serializable {
       this.participants = participants;
     }
 
-    public String getNextCursor() {
-      return nextCursor;
+    public String getCursor() {
+      return cursor;
     }
 
-    public void setNextCursor(String nextCursor) {
-      this.nextCursor = nextCursor;
+    public void setCursor(String cursor) {
+      this.cursor = cursor;
     }
 
 

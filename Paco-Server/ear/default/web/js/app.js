@@ -18,7 +18,13 @@ pacoApp.config(['$routeProvider','$locationProvider',
     when('/data/:csvExperimentId', {
       templateUrl: 'partials/data.html',
     }).
+    when('/data/:csvExperimentId/:who', {
+      templateUrl: 'partials/data.html',
+    }).
     when('/stats/:experimentId', {
+      templateUrl: 'partials/stats.html',
+    }).
+    when('/stats/:experimentId/:who', {
       templateUrl: 'partials/stats.html',
     }).
     when('/respond/:respondExperimentId', {

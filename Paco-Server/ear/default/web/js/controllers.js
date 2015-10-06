@@ -7,6 +7,14 @@ pacoApp.controller('HomeCtrl', ['$scope', '$http', '$location',
     $scope.loaded = false;
     $scope.edit = false;
 
+    $scope.scrolling = function(flag) {
+      if (flag) {
+        angular.element(document.body).removeClass('no-scroll');
+      } else {
+        angular.element(document.body).addClass('no-scroll');
+      }
+    };
+
     $scope.forceHttps = function() {
       var devMode = ($location.host() === 'localhost' ||
         $location.host() === '127.0.0.1');
@@ -19,6 +27,11 @@ pacoApp.controller('HomeCtrl', ['$scope', '$http', '$location',
     };
 
     $scope.forceHttps();
+
+    $scope.$on('$viewContentLoaded', 
+      function(event){ 
+        $scope.scrolling(true);
+      });
 
     $http.get('/userinfo').success(function(data) {
 
@@ -130,6 +143,10 @@ pacoApp.controller('ExperimentCtrl', ['$scope', '$mdDialog', '$filter',
 
     // TODO(ispiro): figure out a way to disable the default # scrolling 
     $scope.$watch('state.tabId', function(newValue, oldValue) {
+      if (config.tabs[$scope.state.tabId] === 'source') {
+        $scope.prepareSourceAce();
+      }
+
       if ($scope.state.tabId === 0) {
         $location.hash('');
       } else if ($scope.state.tabId > 0) {
@@ -192,6 +209,14 @@ pacoApp.controller('ExperimentCtrl', ['$scope', '$mdDialog', '$filter',
       $scope.ace.error = false;
       $scope.ace.height = $scope.lineCount(newValue) * 16;
     });
+
+    $scope.discardChanges = function() {
+      if ($scope.newExperiment) {
+        $location.path('/experiments/');
+      } else {
+        $scope.experiment = angular.copy($scope.experiment0);
+      }
+    }
 
     $scope.saveExperiment = function() {
       $scope.cancelSave = false;
@@ -323,8 +348,9 @@ pacoApp.controller('ListCtrl', ['$scope', '$mdDialog', '$location',
         then(function(response) {
           $scope.loadList(true);
 
-          // If we're on the experiment page, change location to home
-          if ($location.path().indexOf('/experiment/') === 0) {
+          // If we're on the experiment or edit page, change location to home
+          if ($location.path().indexOf('/experiment/') === 0 ||
+              $location.path().indexOf('/edit/') === 0) {
             $location.path('/');
           }
         });
@@ -354,18 +380,26 @@ pacoApp.controller('ListCtrl', ['$scope', '$mdDialog', '$location',
 
 
 pacoApp.controller('DataCtrl', ['$scope', '$mdDialog', '$location', '$filter',
-    '$routeParams','dataService', 'experimentService', 'config',
+  '$routeParams','dataService', 'experimentService', 'config',
   function($scope, $mdDialog, $location, $filter, $routeParams, dataService, 
     experimentService, config) {
-
-    var user = false;
-    var anonymous = false;
 
     $scope.sortColumn = 0;
     $scope.reverseSort = false;
     $scope.loading = null;
     $scope.table = null;
     $scope.showColumn = {};
+    $scope.currentView = 'data';
+    $scope.restrict = null;
+    $scope.anon = false;
+
+    $scope.switchView = function() {
+      var newPath = $scope.currentView + '/' + $scope.experimentId;
+      if ($scope.userChips) {
+        newPath += '/' + $scope.user;
+      }
+      $location.path(newPath);
+    }
 
     $scope.setColumn = function(columnId) {
       if ( $scope.sortColumn === columnId) {
@@ -385,8 +419,10 @@ pacoApp.controller('DataCtrl', ['$scope', '$mdDialog', '$location', '$filter',
       $scope.loading = true;
       $scope.table = null;
 
-      dataService.getEvents($scope.experimentId, user, anonymous).
+      dataService.getEvents($scope.experimentId, $scope.restrict, $scope.anon).
       then(function(result) {
+
+        $scope.scrolling(false);
 
         if (result.data) {
           $scope.data = result.data;
@@ -430,7 +466,7 @@ pacoApp.controller('DataCtrl', ['$scope', '$mdDialog', '$location', '$filter',
       }, function(result) {
         $scope.loading = false;
         $scope.error = {  code: result.status,
-                          message: result.statusText
+                          message: result.message
                         };
       });
 
@@ -441,8 +477,9 @@ pacoApp.controller('DataCtrl', ['$scope', '$mdDialog', '$location', '$filter',
     $scope.loadStats = function() {
       $scope.loading = true;
       $scope.stats = null;
+      $scope.currentView = 'stats';
 
-      dataService.getParticipantData($scope.experimentId, user).
+      dataService.getParticipantData($scope.experimentId, $scope.restrict).
       then(function(result) {
         if (result.data) {
           $scope.stats = result.data;
@@ -458,13 +495,22 @@ pacoApp.controller('DataCtrl', ['$scope', '$mdDialog', '$location', '$filter',
       $scope.status = 'Sending stats request';
     }
 
+    $scope.removeUserChip = function() {
+      var newPath = $scope.currentView + '/' + $scope.experimentId;
+      $location.path(newPath);
+    };
 
     if ($location.hash() && $location.hash() === 'anon') {
-      anonymous = true;
+      $scope.anon = true;
     }
 
     if ($location.hash() && $location.hash() === 'mine') {
-      user = $scope.user;
+      $scope.restrict = $scope.user;
+    }
+
+    if (angular.isDefined($routeParams.who)) {
+      $scope.restrict = $routeParams.who;
+      $scope.userChips = [$routeParams.who];
     }
 
     if (angular.isDefined($routeParams.csvExperimentId)) {
@@ -790,7 +836,7 @@ pacoApp.controller('SummaryCtrl', ['$scope', 'config', function($scope, config) 
   $scope.getActionSummary = function() {
     if ($scope.action.actionCode !== undefined && $scope.action.actionCode !==
       '') {
-      return config.actionTypes[$scope.action.actionCode - 1];
+      return config.actionTypes[$scope.action.actionCode];
     } else {
       return 'Undefined';
     }

@@ -20,6 +20,7 @@ import com.google.appengine.api.datastore.Query.Filter;
 import com.google.appengine.api.datastore.Query.FilterOperator;
 import com.google.appengine.api.datastore.QueryResultList;
 import com.google.appengine.api.datastore.Transaction;
+import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.sampling.experiential.model.Experiment;
 import com.google.sampling.experiential.server.TimeUtil;
@@ -153,7 +154,7 @@ public class PublicExperimentList {
     if (limit != null) {
       options.limit(limit);
     }
-    if (cursor != null) {
+    if (!Strings.isNullOrEmpty(cursor) && !"null".equals(cursor)) {
       options.startCursor(Cursor.fromWebSafeString(cursor));
     }
     QueryResultList<Entity> result = ds.prepare(query).asQueryResultList(options);

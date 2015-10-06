@@ -28,11 +28,14 @@ import com.pacoapp.paco.shared.model.SignalTimeDAO;
 import com.pacoapp.paco.shared.model2.ActionTrigger;
 import com.pacoapp.paco.shared.model2.ExperimentDAO;
 import com.pacoapp.paco.shared.model2.ExperimentGroup;
+import com.pacoapp.paco.shared.model2.ExperimentIdQueryResult;
+import com.pacoapp.paco.shared.model2.ExperimentJoinQueryResult;
 import com.pacoapp.paco.shared.model2.ExperimentQueryResult;
 import com.pacoapp.paco.shared.model2.ExperimentValidator;
 import com.pacoapp.paco.shared.model2.InterruptTrigger;
 import com.pacoapp.paco.shared.model2.JsonConverter;
 import com.pacoapp.paco.shared.model2.PacoAction;
+import com.pacoapp.paco.shared.model2.Pair;
 import com.pacoapp.paco.shared.model2.Schedule;
 import com.pacoapp.paco.shared.model2.ScheduleTrigger;
 import com.pacoapp.paco.shared.model2.SignalTime;
@@ -267,12 +270,41 @@ class DefaultExperimentService implements ExperimentService {
   @Override
   public ExperimentQueryResult getMyJoinableExperiments(String email, DateTimeZone timeZoneForClient,
                                                         Integer limit, String cursor) {
-    List<Long> experimentIds = ExperimentAccessManager.getExistingExperimentsIdsForAdmin(email);
-    experimentIds.addAll(ExperimentAccessManager.getExistingPublishedExperimentIdsForUser(email));
+    // TODO figure out what to do about getting a paginated result over two tables. Right now, return everything.
+    // Actually, the experiment hub will get rid of this broad query
+    ExperimentIdQueryResult adminExperimentIdQueryResult = ExperimentAccessManager.getExistingExperimentIdsForAdmin(email, 0, null);
+    List<Long> experimentIds = Lists.newArrayList();
+    experimentIds.addAll(adminExperimentIdQueryResult.getExperiments());
+
+    ExperimentIdQueryResult existingPublishedExperimentIdsForUser = ExperimentAccessManager.getExistingPublishedExperimentIdsForUser(email, 0, null);
+    experimentIds.addAll(existingPublishedExperimentIdsForUser.getExperiments());
+
     List<ExperimentDAO> experiments = getExperimentsByIdInternal(experimentIds, email, timeZoneForClient);
     experiments = removeEnded(experiments, timeZoneForClient);
     removeNonAdminData(email, experiments);
-    return new ExperimentQueryResult(cursor, experiments); // TODO honor the limit and cursor
+
+    // for now, use the cursor as an offset to return the requested subset.
+    int offset = 0;
+    if (!Strings.isNullOrEmpty(cursor)) {
+      try {
+        offset = Integer.parseInt(cursor);
+      } catch (NumberFormatException e) {
+        offset = 0;
+      }
+    }
+    if (limit != null && limit > 0) {
+      int end = Math.min(offset + limit, experiments.size());
+      List<ExperimentDAO> experimentSubset = experiments.subList(offset, end);
+      if (end < experiments.size()) {
+        cursor = Integer.toString(end);
+      } else {
+        cursor = null;
+      }
+      return new ExperimentQueryResult(cursor, experimentSubset);
+    } else {
+      return new ExperimentQueryResult(null, experiments);
+    }
+
   }
 
   private List<ExperimentDAO> removeEnded(List<ExperimentDAO> experiments, DateTimeZone timeZoneForClient) {
@@ -296,32 +328,33 @@ class DefaultExperimentService implements ExperimentService {
   @Override
   public ExperimentQueryResult getMyJoinedExperiments(String email, DateTimeZone timeZoneForClient,
                                                         Integer limit, String cursor) {
-    List<Pair<Long, Date>> experimentIdJoinDatePairs = ExperimentAccessManager.getJoinedExperimentsFor(email);
+    ExperimentJoinQueryResult experimentIdJoinDatePairs = ExperimentAccessManager.getJoinedExperimentsFor(email, limit == null ? 1000 : limit, cursor);
 
-    if (experimentIdJoinDatePairs == null || experimentIdJoinDatePairs.size() == 0) {
+    if (experimentIdJoinDatePairs.getExperiments() == null ||
+            // we got zero back, so we haven't updated yet. This is true if there is no cursor. If there is a cursor, we have just exhausted the list.
+            (experimentIdJoinDatePairs.getExperiments().size() == 0 && cursor == null)) {
       List<Event> events = getJoinEventsForLoggedInUser(email, timeZoneForClient);
-      experimentIdJoinDatePairs = getUniqueExperimentIdAndJoinDates(events);
-      if (experimentIdJoinDatePairs.size() > 0) {
-        ExperimentAccessManager.addJoinedExperimentsFor(email, experimentIdJoinDatePairs);
+      List<Pair<Long, Date>> uniqueExperimentIdJoinDatePairs = getUniqueExperimentIdAndJoinDates(events);
+      if (uniqueExperimentIdJoinDatePairs.size() > 0) {
+        ExperimentAccessManager.addJoinedExperimentsFor(email, uniqueExperimentIdJoinDatePairs);
       }
+      experimentIdJoinDatePairs.setExperiments(uniqueExperimentIdJoinDatePairs);
     }
 
     List<ExperimentDAO> experimentDAOs = Lists.newArrayList();
-    if (experimentIdJoinDatePairs.size() == 0) {
-      return new ExperimentQueryResult(cursor, experimentDAOs);
+    if (experimentIdJoinDatePairs.getExperiments().size() == 0) {
+      return new ExperimentQueryResult(null, experimentDAOs);
     }
-
-
 
     Map<Long, Date> experimentIds = Maps.newHashMap();
 
-    for (Pair<Long,Date> pair: experimentIdJoinDatePairs) {
+    for (Pair<Long,Date> pair: experimentIdJoinDatePairs.getExperiments()) {
       experimentIds.put(pair.first, pair.second);
     }
     List<ExperimentDAO> experiments = getExperimentsByIdInternal(Lists.newArrayList(experimentIds.keySet()), email, timeZoneForClient);
     removeNonAdminData(email, experiments);
     addJoinDate(experiments, experimentIds);
-    return new ExperimentQueryResult(cursor, experiments); // TODO honor the limit and cursor
+    return new ExperimentQueryResult(experimentIdJoinDatePairs.getCursor(), experiments); // TODO honor the limit and cursor
   }
 
   private void addJoinDate(List<ExperimentDAO> experiments, Map<Long, Date> experimentIds) {
@@ -379,10 +412,10 @@ class DefaultExperimentService implements ExperimentService {
   @Override
   public ExperimentQueryResult getUsersAdministeredExperiments(String email, DateTimeZone timezone, Integer limit,
                                                                String cursor) {
-    List<Long> experimentIds = ExperimentAccessManager.getExistingExperimentsIdsForAdmin(email);
+    ExperimentIdQueryResult experimentIdsQueryResult = ExperimentAccessManager.getExistingExperimentIdsForAdmin(email, limit == null ? limit = 0 : 1000, cursor);
     //log.info("Administered experiments for: " + email + ". Count: " + experimentIds.size() + ". ids = " + Joiner.on(",").join(experimentIds));
-    List<ExperimentDAO> experiments = getExperimentsByIdInternal(experimentIds, email, timezone);
-    return new ExperimentQueryResult(cursor, experiments); // TODO honor the limit and cursor
+    List<ExperimentDAO> experiments = getExperimentsByIdInternal(experimentIdsQueryResult.getExperiments(), email, timezone);
+    return new ExperimentQueryResult(experimentIdsQueryResult.getCursor(), experiments);
   }
 
   @Override

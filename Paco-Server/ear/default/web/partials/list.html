@@ -37,11 +37,9 @@
             </md-button>
           </a>
           
-          <a href="" ng-click="deleteExperiment($event, exp)">
-            <md-button >
-              Delete
-            </md-button>
-          </a>
+          <md-button ng-click="deleteExperiment($event, exp)">
+            Delete
+          </md-button>
 
           <a href="#/stats/{{exp.id}}">
             <md-button>
@@ -61,13 +59,10 @@
             </md-button>
           </a>
           
-          <a href="#" ng-click="joinExperiment($event, exp)" 
+          <md-button ng-click="joinExperiment($event, exp)" 
             ng-if="joinedIndex.indexOf(exp.id) === -1">
-            <md-button>
-              Join
-            </md-button>
-          </a>
-
+            Join
+          </md-button>
         </div>
       </md-card>
     </div>
