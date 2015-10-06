@@ -24,7 +24,7 @@ abstract class ExperimentServletHandler {
     } else {
       this.timezone = DateTimeZone.getDefault();
     }
-    this.limit = limit != null ? limit : 0;
+    this.limit = limit;
     this.cursor = cursor;
     this.pacoProtocol = pacoProtocol;
   }
