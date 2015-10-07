@@ -2,7 +2,7 @@
 //  PacoSignalStore.h
 //  Paco
 //
-//  Created by northropo on 8/19/15.
+//  Authored by  Tim N. O'Brien on 8/19/15.
 //  Copyright (c) 2015 Paco. All rights reserved.
 //
 
@@ -19,9 +19,6 @@
                    withJavaLangLong:(JavaLangLong *)actionTriggerId
                    withJavaLangLong:(JavaLangLong *)scheduleId;
 
-
-
-
 - (id<JavaUtilList>)getSignalsWithJavaLangLong:(JavaLangLong *)experimentId
                               withJavaLangLong:(JavaLangLong *)periodStart
                                   withNSString:(NSString *)groupName
@@ -29,9 +26,7 @@
                               withJavaLangLong:(JavaLangLong *)scheduleId;
 
 - (void)deleteAll;
-
 - (void)deleteAllSignalsForSurveyWithJavaLangLong:(JavaLangLong *)experimentId;
-
 - (void)deleteSignalsForPeriodWithJavaLangLong:(JavaLangLong *)experimentId
                               withJavaLangLong:(JavaLangLong *)periodStart
                                   withNSString:(NSString *)groupName

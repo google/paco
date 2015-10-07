@@ -2,7 +2,7 @@
 //  PacoPrintReporter.h
 //  Paco
 //
-//  Created by northropo on 9/25/15.
+//  Authored by  Tim N. O'Brien on 9/25/15.
 //  Copyright (c) 2015 Paco. All rights reserved.
 //
 

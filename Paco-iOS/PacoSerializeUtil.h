@@ -2,7 +2,7 @@
 //  PacoSerializeUtil.h
 //  Paco
 //
-//  Created by northropo on 8/14/15.
+//  Authored by  Tim N. O'Brien on 8/14/15.
 //  Copyright (c) 2015 Paco. All rights reserved.
 //
 

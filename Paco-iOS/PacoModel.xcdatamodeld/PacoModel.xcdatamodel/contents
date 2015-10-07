@@ -1,5 +1,13 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <model userDefinedModelVersionIdentifier="" type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="7701" systemVersion="14F27" minimumToolsVersion="Xcode 4.3" macOSVersion="Automatic" iOSVersion="Automatic">
+    <entity name="PacoEventRecord" representedClassName="PacoEvent" syncable="YES">
+        <attribute name="actionTriggerId" optional="YES" attributeType="Integer 64" defaultValueString="0" syncable="YES"/>
+        <attribute name="event" optional="YES" attributeType="Binary" syncable="YES"/>
+        <attribute name="experimentId" optional="YES" attributeType="Integer 64" defaultValueString="0" syncable="YES"/>
+        <attribute name="groupName" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="scheduledTime" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="scheduleId" optional="YES" attributeType="Integer 64" defaultValueString="0" syncable="YES"/>
+    </entity>
     <entity name="PacoSignal" representedClassName="PacoSignal" syncable="YES">
         <attribute name="actionTriggerId" optional="YES" attributeType="Integer 64" defaultValueString="0" syncable="YES"/>
         <attribute name="alarmTime" optional="YES" attributeType="Integer 64" defaultValueString="0" syncable="YES"/>
@@ -9,6 +17,7 @@
         <attribute name="scheduleId" optional="YES" attributeType="Integer 64" defaultValueString="0" syncable="YES"/>
     </entity>
     <elements>
-        <element name="PacoSignal" positionX="-63" positionY="-18" width="128" height="135"/>
+        <element name="PacoEventRecord" positionX="-261" positionY="27" width="128" height="135"/>
+        <element name="PacoSignal" positionX="-488" positionY="-45" width="128" height="135"/>
     </elements>
 </model>

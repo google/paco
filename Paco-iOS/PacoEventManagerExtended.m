@@ -2,7 +2,7 @@
 //  PacoEventManagerExtended.m
 //  Paco
 //
-//  Created by northropo on 8/13/15.
+//  Authored by  Tim N. O'Brien on 8/13/15.
 //  Copyright (c) 2015 Paco. All rights reserved.
 //
 
@@ -341,6 +341,7 @@ static NSString* const kAllEventsFileName = @"allEvents.plist";
 }
 
 - (void)saveAndUploadEvent:(PacoEventExtended*)event {
+    
     [self saveEvent:event];
     [self startUploadingEvents];
 }
@@ -405,6 +406,7 @@ static NSString* const kAllEventsFileName = @"allEvents.plist";
 }
 
 
+
 - (void)startUploadingEventsInBackgroundWithBlock:(void(^)(UIBackgroundFetchResult))completionBlock {
     @synchronized(self) {
         NSArray* pendingEvents = [self allPendingEvents];
@@ -435,9 +437,11 @@ static NSString* const kAllEventsFileName = @"allEvents.plist";
     }
 }
 
+
 - (void)stopUploadingEvents {
     [self.uploader stopUploading];
 }
+
 
 
 #pragma mark participation stats

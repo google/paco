@@ -2,7 +2,7 @@
 //  NSObject+J2objcKVO.h
 //  Paco
 //
-//  Created by northropo on 8/5/15.
+//  Authored by  Tim N. O'Brien on 8/5/15.
 //  Copyright (c) 2015 Paco. All rights reserved.
 //
 

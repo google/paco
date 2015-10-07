@@ -80,10 +80,13 @@
 @property(strong, nonatomic) ITAhoCorasickContainer* container;
 /* The first or parent node  */
 @property(nonatomic, strong) id parentNode;
+
 /* collection object */
 @property(nonatomic, strong) id parentCollection;
 
+/* classes that we don't need to augment with the pre-fixes such as 'PA' */
 
+@property(nonatomic, strong) NSMutableArray*  outOfDomainClasseNames;
 
 @end
 
@@ -109,23 +112,31 @@
         _cache = [NSCache new];
         _container = [ITAhoCorasickContainer new];
         _attributeClassMap = [NSMutableDictionary new];
+        _outOfDomainClasseNames = [NSMutableArray new];
+        _timeZone =  [NSTimeZone localTimeZone];
       
 //      if(_classes !=nil)
 //      {
 //       [self buildAttibuuteClassMap];
 //      }
-      NSLog(@"done");
+     
      
   }
   return self;
 }
 
+-(void) addNonDomainClass:(NSObject*) object
+{
+     NSString* clazzName = NSStringFromClass( [object class] );
+     [_outOfDomainClasseNames addObject:clazzName];
+}
+
+
 - (instancetype) initWithArrayWithClassAttributeName: (NSString*) nameOfClass
 {
     self = [super init];
     if (self) {
-        
-    
+
         _nameOfClass = nameOfClass;
         _objectTracking = [NSMutableArray new];
         _cache = [NSCache new];
@@ -439,7 +450,10 @@
   clazzName = dictionary[_nameOfClass];
   NSRange r1 = [clazzName rangeOfString:@"." options:NSBackwardsSearch];
   clazzName = [clazzName substringFromIndex:r1.location + 1];
-  clazzName = [NSString stringWithFormat:@"PA%@", clazzName];
+  if([_outOfDomainClasseNames containsObject:clazzName])
+   {
+      clazzName = [NSString stringWithFormat:@"PA%@", clazzName];
+   }
   Class theClass = NSClassFromString(clazzName);
   object = [[theClass alloc] init];
   assert(object);
@@ -467,6 +481,7 @@
            
             
             NSDateFormatter *format = [[NSDateFormatter alloc] init];
+            [format setTimeZone:_timeZone];
             [format setDateFormat:@"MMMM dd, yyyy (EEEE) HH:mm:ss z Z"];
             
             NSString *nsstr = [format stringFromDate:(NSDate*) object];
@@ -497,7 +512,8 @@
             {
                 
                 NSDateFormatter *format = [[NSDateFormatter alloc] init];
-                [format setDateFormat:@"yyyy/MM/dd HH:mm:ssZ"];
+                [format setTimeZone:_timeZone];
+               [format setDateFormat:@"MMMM dd, yyyy (EEEE) HH:mm:ss z Z"];
                 
                 NSString *nsstr = [format stringFromDate:(NSDate*) object];
                 object = nsstr;
@@ -520,10 +536,11 @@
           Value:(NSObject*)object
         AddList:(BOOL)addList {
   /*
-   lets handle three cases for the parent
+   lets handle four cases for the parent
    A) parent could be a list object
    B) parent could be a dictionary object.
    C) parent could be a model object.
+  
 
    */
 
@@ -585,6 +602,7 @@
 /*
 
     parses the colection tree in order, building the model tree.
+    does not know
 
 
  */
@@ -679,7 +697,7 @@
      we might be as good chaning this so it checks if parent object is nil
      */
     if (![recurseObject[0] isEqualToString:PACO_OBJECT_PARENT]) {
-      [self addItem:attributeName Parent:parent Value:arrayList AddList:NO];
+      [self addItem:attributeName Parent:parent Value:arrayList AddList:YES];
     } else {
       /* this is the first list or parent object so we want to set it as the
        * root object */
@@ -724,7 +742,7 @@
      // [self addItem:attributeName Parent:parent Value:object AddList:YES];
         
         
-        
+        // no difference
         
         
     } else if ([object isKindOfClass:[NSString class]]) {
@@ -733,6 +751,8 @@
        requires converting to a new value */
 
       //[self addItem:attributeName Parent:parent Value:object AddList:YES];
+        
+        // no difference
     }
 
     NSLog(@"Setting value %@ for key %@ on class %@", recurseObject[1],

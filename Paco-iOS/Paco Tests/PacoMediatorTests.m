@@ -2,7 +2,7 @@
 //  PacoMediatorTests.m
 //  Paco
 //
-//  Created by northropo on 9/25/15.
+//  Authored by  Tim N. O'Brien on 9/25/15.
 //  Copyright (c) 2015 Paco. All rights reserved.
 //
 
@@ -162,9 +162,6 @@ static NSString * JSON_DATA= @"{\r\n  \"title\": \"EG^2\",\r\n  \"creator\": \"n
     [[PacoMediator sharedInstance] startRunningExperiment:[self.experiment instanceId]];
     
     XCTAssertTrue( [[PacoMediator sharedInstance] isExperimentIdLive:[self.experiment instanceId]]);
- 
-    
-    
 }
 
 -(void) testStopRunningExperiment

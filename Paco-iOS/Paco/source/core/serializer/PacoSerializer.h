@@ -55,6 +55,10 @@ typedef NS_ENUM(NSInteger, PacoParentType) {
 - (id)init __attribute__((unavailable("init with array of class names")));
 
 
+/* timezone used for data conversions*/
+@property(nonatomic,strong) NSTimeZone* timeZone;
+
+
 /* init with name of class only.  */
 - (instancetype) initWithArrayWithClassAttributeName: (NSString*) nameOfClass;
 
@@ -82,7 +86,8 @@ typedef NS_ENUM(NSInteger, PacoParentType) {
 /* convert a strong of json to a json heirarchy. */
 - (NSObject*)buildObjectHierarchyFromJSONString:(id)json;
 
-
+/* add class that does not support domain prefix, i.e., 'PA' */
+-(void) addNonDomainClass:(NSObject*) object;
 
 /* return a songle object after from json string*/
 - (NSObject*)buildSingleObjectHierarchyFromJSONString:(id)json;

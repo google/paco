@@ -2,7 +2,7 @@
 //  PacoExtendedClient.h
 //  Paco
 //
-//  Created by northropo on 8/12/15.
+//  Authored by  Tim N. O'Brien on 8/12/15.
 //  Copyright (c) 2015 Paco. All rights reserved.
 //
 
@@ -19,7 +19,7 @@
 
 @interface PacoExtendedClient : NSObject
 
-
+ 
 @property (nonatomic, assign, readonly) BOOL firstLaunch;
 @property (nonatomic, strong, readonly) PacoEventManagerExtended* eventManager;
 @property (nonatomic, retain, readonly) PacoAuthenticator *authenticator;
@@ -28,9 +28,8 @@
 - (void)joinExperimentWithDefinition:(PAActionSpecification*) specification
                      completionBlock:(void(^)())completionBlock;
 
-
-
 + (PacoExtendedClient *)sharedInstance;
+- (NSString*)userEmail;
 
 
 @end

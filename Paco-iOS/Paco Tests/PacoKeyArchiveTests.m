@@ -2,7 +2,7 @@
 //  PacoMediatorTests.m
 //  Paco
 //
-//  Created by northropo on 9/25/15.
+//  Authored by  Tim N. O'Brien on 9/25/15.
 //  Copyright (c) 2015 Paco. All rights reserved.
 //
 
@@ -217,7 +217,6 @@ static NSString * JSON_DATA2= @"{\r\n  \"title\": \"Drink Water\",\r\n  \"descri
     
     NSData* data =nil;
     data=  [json dataUsingEncoding:NSUTF8StringEncoding];
-
     PacoSerializer* serializer =
     [[PacoSerializer alloc] initWithArrayOfClasses:nil
                           withNameOfClassAttribute:@"nameOfClass"];
@@ -233,7 +232,6 @@ static NSString * JSON_DATA2= @"{\r\n  \"title\": \"Drink Water\",\r\n  \"descri
 {
     
     PAExperimentDAO* dao = [self buildExpeiment:JSON_DATA];
-    
     PAExperimentDAO*  copyDao = [dao copy];
                     
     NSString * title1 =  [dao valueForKeyEx:@"title"];
@@ -241,6 +239,7 @@ static NSString * JSON_DATA2= @"{\r\n  \"title\": \"Drink Water\",\r\n  \"descri
     
     XCTAssert([title1 isEqualToString:title2] , @"success");
     
+    /* lets change a value on the coppied experiment */
     
     [copyDao setValueEx:@"newTitle" forKey:@"title"];
     

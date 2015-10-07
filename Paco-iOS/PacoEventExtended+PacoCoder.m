@@ -1,37 +1,37 @@
 //
-//  PAExperimentDAO+PacoCoder.m
+//  PacoEventExtended+PacoCoder.m
 //  Paco
 //
-//  Authored by  Tim N. O'Brien on 9/30/15.
+//  Authored by  Tim N. O'Brien on 10/6/15.
 //  Copyright (c) 2015 Paco. All rights reserved.
 //
 
-#import "PAExperimentDAO+PacoCoder.h"
-
+#import "PacoEventExtended+PacoCoder.h"
 #import  "PacoSerializer.h"
 #import  "java/util/ArrayList.h"
 #import  "PacoSerializeUtil.h"
-#import  "ExperimentDAO.h"
+#import  "PacoEventExtended.h"
 
-#define JsonKey @"kjsonPrsistanceKey"
+#define JsonKey @"kjsonPrsistanceKey/ForPacoEvent"
 
-@implementation PAExperimentDAO (PacoCoder)
+@implementation PacoEventExtended (PacoCoder)
 
 - (id)initWithCoder:(NSCoder *)decoder
 {
+    
     /* super does not support  initWithCoder so we don't try to invoke it */
     
-        NSData* data = [decoder decodeObjectForKey:JsonKey];
-        PacoSerializer* serializer =
-        [[PacoSerializer alloc] initWithArrayOfClasses:nil
-                              withNameOfClassAttribute:@"nameOfClass"];
-        JavaUtilArrayList  *  resultArray  = (JavaUtilArrayList*) [serializer buildObjectHierarchyFromJSONOBject:data];
-        IOSObjectArray * iosArray = [resultArray toArray];
-        PAExperimentDAO * experiment  =  [iosArray objectAtIndex:0];
-        self =experiment;
+    NSData* data = [decoder decodeObjectForKey:JsonKey];
+    PacoSerializer* serializer =
+    [[PacoSerializer alloc] initWithArrayOfClasses:nil
+                          withNameOfClassAttribute:@"nameOfClass"];
+    JavaUtilArrayList  *  resultArray  = (JavaUtilArrayList*) [serializer buildObjectHierarchyFromJSONOBject:data];
+    IOSObjectArray * iosArray = [resultArray toArray];
+    PacoEventExtended * event  =  [iosArray objectAtIndex:0];
+    self =event;
     
     return self;
- 
+    
     
     
 }
@@ -54,10 +54,15 @@
     PacoSerializer * serializer = [[PacoSerializer alloc] initWithArrayOfClasses:array withNameOfClassAttribute:@"nameOfClass"];
     NSData* json = [serializer toJSONobject:self];
     
+    NSString* str =  [[NSString alloc] initWithData:json encoding:NSUTF8StringEncoding];
+    
+    NSLog(@"%@",str );
+    
     JavaUtilArrayList  *  resultArray  = (JavaUtilArrayList*) [serializer buildObjectHierarchyFromJSONOBject:json];
     IOSObjectArray * iosArray = [resultArray toArray];
-    PAExperimentDAO  * experimentCopy =  [iosArray objectAtIndex:0];
-    return experimentCopy;
+    PacoEventExtended  * event =  [iosArray objectAtIndex:0];
+    return event;
     
 }
+
 @end

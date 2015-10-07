@@ -206,6 +206,9 @@
 		7FB660801AA8C305008D2327 /* paco32@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 7FB6607E1AA8C305008D2327 /* paco32@2x.png */; };
 		7FB660811AA8C305008D2327 /* paco32@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = 7FB6607F1AA8C305008D2327 /* paco32@3x.png */; };
 		7FB660901AA8C352008D2327 /* PacoTitleView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 7FB6608F1AA8C352008D2327 /* PacoTitleView.xib */; };
+		A62A15621BC4A8B800FF20C1 /* NSDate+PacoTimeZoneHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = A62A15611BC4A8B800FF20C1 /* NSDate+PacoTimeZoneHelper.m */; };
+		A62A157A1BC4B87600FF20C1 /* JavaUtilArrayList+PacoConversion.m in Sources */ = {isa = PBXBuildFile; fileRef = A62A15791BC4B87600FF20C1 /* JavaUtilArrayList+PacoConversion.m */; };
+		A62A157B1BC4B87600FF20C1 /* JavaUtilArrayList+PacoConversion.m in Sources */ = {isa = PBXBuildFile; fileRef = A62A15791BC4B87600FF20C1 /* JavaUtilArrayList+PacoConversion.m */; };
 		A6401F6A1B7D4D1300ABC0AB /* PacoEventExtended.m in Sources */ = {isa = PBXBuildFile; fileRef = A6401F691B7D4D1300ABC0AB /* PacoEventExtended.m */; };
 		A6401F6D1B7D4D2800ABC0AB /* PacoEventManagerExtended.m in Sources */ = {isa = PBXBuildFile; fileRef = A6401F6C1B7D4D2800ABC0AB /* PacoEventManagerExtended.m */; };
 		A6401F731B7EAB6600ABC0AB /* PacoSerializeUtil.m in Sources */ = {isa = PBXBuildFile; fileRef = A6401F721B7EAB6600ABC0AB /* PacoSerializeUtil.m */; };
@@ -232,6 +235,9 @@
 		A6651BF01BBDE1CB0058E295 /* PacoCoreDataTests.m in Sources */ = {isa = PBXBuildFile; fileRef = A6651BEF1BBDE1CB0058E295 /* PacoCoreDataTests.m */; };
 		A6651BF11BBDEDD80058E295 /* PacoAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 36B8EB1A17568DAF004CF035 /* PacoAppDelegate.m */; };
 		A6651BFB1BBF3CD40058E295 /* PacoSignalStoreTests.m in Sources */ = {isa = PBXBuildFile; fileRef = A6651BFA1BBF3CD40058E295 /* PacoSignalStoreTests.m */; };
+		A6651C0F1BC35CB10058E295 /* PacoEventPersistenceHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = A6651C0E1BC35CB10058E295 /* PacoEventPersistenceHelper.m */; };
+		A6651C121BC47B8F0058E295 /* PacoEventExtended+PacoCoder.m in Sources */ = {isa = PBXBuildFile; fileRef = A6651C111BC47B8F0058E295 /* PacoEventExtended+PacoCoder.m */; };
+		A6651C131BC482080058E295 /* PacoEventTests.m in Sources */ = {isa = PBXBuildFile; fileRef = A6401F6F1B7E6E9200ABC0AB /* PacoEventTests.m */; };
 		A665B2731B94C86A001E0098 /* OrgJodaTimeDateTime+PacoDateHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = A665B2721B94C86A001E0098 /* OrgJodaTimeDateTime+PacoDateHelper.m */; };
 		A665B2761B969F81001E0098 /* PAActionSpecification+PacoActionSpecification.m in Sources */ = {isa = PBXBuildFile; fileRef = A665B2751B969F81001E0098 /* PAActionSpecification+PacoActionSpecification.m */; };
 		A66E306B1BA8F0C400A067EA /* libParseKitMobile.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 36000C2817C6AEA900A8A9E7 /* libParseKitMobile.a */; };
@@ -264,7 +270,6 @@
 		A6B0329D1BA8F81700F08E5F /* DerivedSources in Resources */ = {isa = PBXBuildFile; fileRef = A6B0329C1BA8F81700F08E5F /* DerivedSources */; };
 		A6DCA58E1B8507B1007FC06D /* PacoSignalStore.m in Sources */ = {isa = PBXBuildFile; fileRef = A6DCA58D1B8507B1007FC06D /* PacoSignalStore.m */; };
 		A6DCA5981B85468D007FC06D /* PacoEventStore.m in Sources */ = {isa = PBXBuildFile; fileRef = A6DCA5971B85468D007FC06D /* PacoEventStore.m */; };
-		A6DCA59C1B854A46007FC06D /* PacoEventImpl.m in Sources */ = {isa = PBXBuildFile; fileRef = A6DCA59B1B854A46007FC06D /* PacoEventImpl.m */; };
 		A6F9574D1BA108D400F96295 /* PacoSchedulingUtil.m in Sources */ = {isa = PBXBuildFile; fileRef = A6F9574C1BA108D400F96295 /* PacoSchedulingUtil.m */; };
 		A6F957501BA2276200F96295 /* PAExperimentDAO+Util.m in Sources */ = {isa = PBXBuildFile; fileRef = A6F9574F1BA2276200F96295 /* PAExperimentDAO+Util.m */; };
 		A6F957531BA236F400F96295 /* PacoMediator.m in Sources */ = {isa = PBXBuildFile; fileRef = A6F957521BA236F400F96295 /* PacoMediator.m */; };
@@ -752,6 +757,10 @@
 		7FB6607E1AA8C305008D2327 /* paco32@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "paco32@2x.png"; sourceTree = "<group>"; };
 		7FB6607F1AA8C305008D2327 /* paco32@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "paco32@3x.png"; sourceTree = "<group>"; };
 		7FB6608F1AA8C352008D2327 /* PacoTitleView.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = PacoTitleView.xib; sourceTree = "<group>"; };
+		A62A15601BC4A8B800FF20C1 /* NSDate+PacoTimeZoneHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSDate+PacoTimeZoneHelper.h"; sourceTree = "<group>"; };
+		A62A15611BC4A8B800FF20C1 /* NSDate+PacoTimeZoneHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSDate+PacoTimeZoneHelper.m"; sourceTree = "<group>"; };
+		A62A15781BC4B87600FF20C1 /* JavaUtilArrayList+PacoConversion.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "JavaUtilArrayList+PacoConversion.h"; path = "Paco/source/core/serializer/categories/JavaUtilArrayList+PacoConversion.h"; sourceTree = "<group>"; };
+		A62A15791BC4B87600FF20C1 /* JavaUtilArrayList+PacoConversion.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "JavaUtilArrayList+PacoConversion.m"; path = "Paco/source/core/serializer/categories/JavaUtilArrayList+PacoConversion.m"; sourceTree = "<group>"; };
 		A633A97A1B5DA0970046436D /* ExperimentEditOutcome.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = ExperimentEditOutcome.java; sourceTree = "<group>"; };
 		A633A97B1B5DA0970046436D /* Outcome.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = Outcome.java; sourceTree = "<group>"; };
 		A633A97D1B5DA0970046436D /* ActionTrigger.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = ActionTrigger.java; sourceTree = "<group>"; };
@@ -791,7 +800,7 @@
 		A6401F691B7D4D1300ABC0AB /* PacoEventExtended.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoEventExtended.m; sourceTree = "<group>"; };
 		A6401F6B1B7D4D2800ABC0AB /* PacoEventManagerExtended.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoEventManagerExtended.h; sourceTree = "<group>"; };
 		A6401F6C1B7D4D2800ABC0AB /* PacoEventManagerExtended.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoEventManagerExtended.m; sourceTree = "<group>"; };
-		A6401F6F1B7E6E9200ABC0AB /* PacoEventTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoEventTests.m; sourceTree = "<group>"; };
+		A6401F6F1B7E6E9200ABC0AB /* PacoEventTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = PacoEventTests.m; path = ../PacoTests/PacoEventTests.m; sourceTree = "<group>"; };
 		A6401F711B7EAB6600ABC0AB /* PacoSerializeUtil.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoSerializeUtil.h; sourceTree = "<group>"; };
 		A6401F721B7EAB6600ABC0AB /* PacoSerializeUtil.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoSerializeUtil.m; sourceTree = "<group>"; };
 		A6401F741B7EB04B00ABC0AB /* PacoSerializeUtilTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoSerializeUtilTest.m; sourceTree = "<group>"; };
@@ -810,6 +819,10 @@
 		A6651BEC1BBDE0250058E295 /* PacoSignal.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoSignal.m; sourceTree = "<group>"; };
 		A6651BEF1BBDE1CB0058E295 /* PacoCoreDataTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoCoreDataTests.m; sourceTree = "<group>"; };
 		A6651BFA1BBF3CD40058E295 /* PacoSignalStoreTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoSignalStoreTests.m; sourceTree = "<group>"; };
+		A6651C0D1BC35CB10058E295 /* PacoEventPersistenceHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoEventPersistenceHelper.h; sourceTree = "<group>"; };
+		A6651C0E1BC35CB10058E295 /* PacoEventPersistenceHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoEventPersistenceHelper.m; sourceTree = "<group>"; };
+		A6651C101BC47B8F0058E295 /* PacoEventExtended+PacoCoder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "PacoEventExtended+PacoCoder.h"; sourceTree = "<group>"; };
+		A6651C111BC47B8F0058E295 /* PacoEventExtended+PacoCoder.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "PacoEventExtended+PacoCoder.m"; sourceTree = "<group>"; };
 		A665B2711B94C86A001E0098 /* OrgJodaTimeDateTime+PacoDateHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "OrgJodaTimeDateTime+PacoDateHelper.h"; sourceTree = "<group>"; };
 		A665B2721B94C86A001E0098 /* OrgJodaTimeDateTime+PacoDateHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "OrgJodaTimeDateTime+PacoDateHelper.m"; sourceTree = "<group>"; };
 		A665B2741B969F81001E0098 /* PAActionSpecification+PacoActionSpecification.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "PAActionSpecification+PacoActionSpecification.h"; sourceTree = "<group>"; };
@@ -884,8 +897,6 @@
 		A6DCA5961B85468D007FC06D /* PacoEventStore.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoEventStore.h; sourceTree = "<group>"; };
 		A6DCA5971B85468D007FC06D /* PacoEventStore.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoEventStore.m; sourceTree = "<group>"; };
 		A6DCA5991B854707007FC06D /* Consts.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Consts.h; sourceTree = "<group>"; };
-		A6DCA59A1B854A46007FC06D /* PacoEventImpl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoEventImpl.h; sourceTree = "<group>"; };
-		A6DCA59B1B854A46007FC06D /* PacoEventImpl.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoEventImpl.m; sourceTree = "<group>"; };
 		A6DCA59D1B856AAF007FC06D /* PacoEventStoreTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoEventStoreTests.m; sourceTree = "<group>"; };
 		A6F9574B1BA108D400F96295 /* PacoSchedulingUtil.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PacoSchedulingUtil.h; path = Paco/source/core/scheduling/PacoSchedulingUtil.h; sourceTree = "<group>"; };
 		A6F9574C1BA108D400F96295 /* PacoSchedulingUtil.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = PacoSchedulingUtil.m; path = Paco/source/core/scheduling/PacoSchedulingUtil.m; sourceTree = "<group>"; };
@@ -1602,7 +1613,6 @@
 				A633A9C11B5DA1B70046436D /* PacoJ2OBJCTests.m */,
 				A676C7371B6043DE00F37572 /* Pacoj2Objc2JsonTests.m */,
 				A646B4BC1B7C10A500BBAABB /* PacoClientTest.m */,
-				A6401F6F1B7E6E9200ABC0AB /* PacoEventTests.m */,
 				36B8EC3817568E40004CF035 /* resources */,
 				A6401F741B7EB04B00ABC0AB /* PacoSerializeUtilTest.m */,
 				A6401F781B82A50800ABC0AB /* PacoEventManagerTests.m */,
@@ -2016,7 +2026,13 @@
 			children = (
 				A6651BEB1BBDE0250058E295 /* PacoSignal.h */,
 				A6651BEC1BBDE0250058E295 /* PacoSignal.m */,
+				A6DCA58C1B8507B1007FC06D /* PacoSignalStore.h */,
+				A6DCA58D1B8507B1007FC06D /* PacoSignalStore.m */,
+				A6DCA5961B85468D007FC06D /* PacoEventStore.h */,
+				A6DCA5971B85468D007FC06D /* PacoEventStore.m */,
 				A6651BE71BBDD7430058E295 /* PacoModel.xcdatamodeld */,
+				A6651C0D1BC35CB10058E295 /* PacoEventPersistenceHelper.h */,
+				A6651C0E1BC35CB10058E295 /* PacoEventPersistenceHelper.m */,
 			);
 			name = database;
 			sourceTree = "<group>";
@@ -2045,6 +2061,12 @@
 				A6AFCD071BBCA55F002BA7FC /* PAActionSpecification+PacoCoder.m */,
 				A6AFCD091BBCB80E002BA7FC /* PAExperimentDAO+PacoCoder.h */,
 				A6AFCD0A1BBCB80E002BA7FC /* PAExperimentDAO+PacoCoder.m */,
+				A6651C101BC47B8F0058E295 /* PacoEventExtended+PacoCoder.h */,
+				A6651C111BC47B8F0058E295 /* PacoEventExtended+PacoCoder.m */,
+				A62A15601BC4A8B800FF20C1 /* NSDate+PacoTimeZoneHelper.h */,
+				A62A15611BC4A8B800FF20C1 /* NSDate+PacoTimeZoneHelper.m */,
+				A62A15781BC4B87600FF20C1 /* JavaUtilArrayList+PacoConversion.h */,
+				A62A15791BC4B87600FF20C1 /* JavaUtilArrayList+PacoConversion.m */,
 			);
 			name = categories;
 			sourceTree = "<group>";
@@ -2196,6 +2218,7 @@
 				A6AFCCEB1BB5F061002BA7FC /* PacoTestBase.m */,
 				A6AFCCFC1BBB7BF7002BA7FC /* PacoPerformanceTestScheduler.m */,
 				A6651BEF1BBDE1CB0058E295 /* PacoCoreDataTests.m */,
+				A6401F6F1B7E6E9200ABC0AB /* PacoEventTests.m */,
 				A6651BFA1BBF3CD40058E295 /* PacoSignalStoreTests.m */,
 				A6B032B91BA8FE7A00F08E5F /* Supporting Files */,
 			);
@@ -2213,13 +2236,7 @@
 		A6DCA58B1B850729007FC06D /* j2obc */ = {
 			isa = PBXGroup;
 			children = (
-				A6DCA58C1B8507B1007FC06D /* PacoSignalStore.h */,
-				A6DCA58D1B8507B1007FC06D /* PacoSignalStore.m */,
-				A6DCA5961B85468D007FC06D /* PacoEventStore.h */,
-				A6DCA5971B85468D007FC06D /* PacoEventStore.m */,
 				A6DCA5991B854707007FC06D /* Consts.h */,
-				A6DCA59A1B854A46007FC06D /* PacoEventImpl.h */,
-				A6DCA59B1B854A46007FC06D /* PacoEventImpl.m */,
 			);
 			name = j2obc;
 			sourceTree = "<group>";
@@ -2642,6 +2659,7 @@
 				7F8531D91A37BE680028BA23 /* JCNotificationBannerView.m in Sources */,
 				36B8EB6D17568DAF004CF035 /* PacoDateUtility.m in Sources */,
 				36B8EB6E17568DAF004CF035 /* main.m in Sources */,
+				A62A157A1BC4B87600FF20C1 /* JavaUtilArrayList+PacoConversion.m in Sources */,
 				44A843DE1ADB9C0A009C7226 /* ActionScheduleGenerator.java in Sources */,
 				36B8EB6F17568DAF004CF035 /* PacoAppDelegate.m in Sources */,
 				36B8EB7017568DAF004CF035 /* PacoEditScheduleViewController.m in Sources */,
@@ -2729,6 +2747,7 @@
 				44A843C51ADB9C0A009C7226 /* ExperimentEditOutcome.java in Sources */,
 				A6ABFAC41B79425400F90598 /* ScheduleTestViewController.m in Sources */,
 				7F8531DA1A37BE680028BA23 /* JCNotificationBannerViewController.m in Sources */,
+				A6651C121BC47B8F0058E295 /* PacoEventExtended+PacoCoder.m in Sources */,
 				A681F4841BB3518600EC8599 /* NSMutableArray+PacoModel.m in Sources */,
 				E462379218F9F1E900610F56 /* PacoDatePickerView.m in Sources */,
 				4448BCA21A808E7A0034FCE9 /* GTMHTTPFetcher.m in Sources */,
@@ -2783,6 +2802,7 @@
 				A6AFCCF21BB6078A002BA7FC /* PacoPrintGroupNamesReporter.m in Sources */,
 				36488BBE18CA598C004517E2 /* PacoPublicDefinitionLoader.m in Sources */,
 				A6651BED1BBDE0250058E295 /* PacoSignal.m in Sources */,
+				A62A15621BC4A8B800FF20C1 /* NSDate+PacoTimeZoneHelper.m in Sources */,
 				36A8201818B556CC00FE83A5 /* PacoScheduleGenerator+Daily.m in Sources */,
 				36488BCC18CA6BAF004517E2 /* PacoEnumerator.m in Sources */,
 				44A843D61ADB9C0A009C7226 /* PacoActionAllOthers.java in Sources */,
@@ -2799,6 +2819,7 @@
 				365D20E7181B198D0097F379 /* NSString+Paco.m in Sources */,
 				36C4A33D18A4DEEE00D8FE59 /* DDASLLogger.m in Sources */,
 				44A843E51ADB9C0A009C7226 /* TimeUtil.java in Sources */,
+				A6651C0F1BC35CB10058E295 /* PacoEventPersistenceHelper.m in Sources */,
 				363E211A17B5B13F007DE3CE /* PacoExpressionExecutor.m in Sources */,
 				A665B2761B969F81001E0098 /* PAActionSpecification+PacoActionSpecification.m in Sources */,
 				4448BCB91A808E7A0034FCE9 /* SBJsonBase.m in Sources */,
@@ -2812,7 +2833,6 @@
 				367233E1180619A5006611E6 /* PacoScheduleGenerator.m in Sources */,
 				36AD6CE217C4440000B93855 /* NSError+Paco.m in Sources */,
 				A678C2751B703955003F0D27 /* ModelBase.java in Sources */,
-				A6DCA59C1B854A46007FC06D /* PacoEventImpl.m in Sources */,
 				7F8531DE1A37BE680028BA23 /* JCNotificationCenter.m in Sources */,
 				A6401F6D1B7D4D2800ABC0AB /* PacoEventManagerExtended.m in Sources */,
 				A6AFCCF81BBB58E4002BA7FC /* PacoDidStopManageActionSpecifications.m in Sources */,
@@ -2833,11 +2853,13 @@
 				A6651BAB1BBCD29A0058E295 /* PacoScheduleGeneratorj2ObjCTests.m in Sources */,
 				A6651BA71BBCD28F0058E295 /* PacoPerformanceTestScheduler.m in Sources */,
 				A6651BA81BBCD2920058E295 /* PacoTestBase.m in Sources */,
+				A6651C131BC482080058E295 /* PacoEventTests.m in Sources */,
 				A6651BAC1BBCD29D0058E295 /* PacoNotificationCategoryExtendedTests.m in Sources */,
 				A6651BAD1BBCD29F0058E295 /* PacoNotificationCategoryTests.m in Sources */,
 				A6651BEE1BBDE0250058E295 /* PacoSignal.m in Sources */,
 				A6651B961BBCCEA80058E295 /* PacoNotificationManager.m in Sources */,
 				A6AFCD0B1BBCB80E002BA7FC /* PAExperimentDAO+PacoCoder.m in Sources */,
+				A62A157B1BC4B87600FF20C1 /* JavaUtilArrayList+PacoConversion.m in Sources */,
 				A6651BEA1BBDD7430058E295 /* PacoModel.xcdatamodeld in Sources */,
 				A6651BA91BBCD2940058E295 /* PacoKeyArchiveTests.m in Sources */,
 				A6651BF01BBDE1CB0058E295 /* PacoCoreDataTests.m in Sources */,

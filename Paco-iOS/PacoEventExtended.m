@@ -2,7 +2,7 @@
 //  PacoEventExtended.m
 //  Paco
 //
-//  Created by northropo on 8/13/15.
+//  Authored by  Tim N. O'Brien on 8/13/15.
 //  Copyright (c) 2015 Paco. All rights reserved.
 //
 
@@ -24,34 +24,41 @@
 #import  "ActionSpecification.h"
 #import "java/lang/Long.h"
 #import "PAExperimentDAO+Util.h"
+#import "JavaUtilArrayList+PacoConversion.h"
 
 
 
 
+#define JsonKey @"kjsonPrsistanceKey/ForPacoEvent"
 
-static NSString* const kPacoEventKeyWhoExtended = @"who";
-static NSString* const kPacoEventKeyWhenExtended = @"when";
-static NSString* const kPacoEventKeyLatitudeExtended = @"lat";
-static NSString* const kPacoEventKeyLongitudeExtended = @"long";
-static NSString* const kPacoEventKeyResponseTimeExtended = @"responseTime";
-static NSString* const kPacoEventKeyAppIdExtended = @"appId";
-static NSString* const kPacoEventKeyScheduledTimeExtended = @"scheduledTime";
-static NSString* const kPacoEventKeyPacoVersionExtended = @"pacoVersion";
-static NSString* const kPacoEventKeyExperimentIdExtended = @"experimentId";
-static NSString* const kPacoEventKeyExperimentNameExtended = @"experimentName";
-static NSString* const kPacoEventKeyExperimentVersionExtended = @"experimentVersion";
+
+
+
+//static NSString* const kPacoEventKeyWhoExtended = @"who";
+//static NSString* const kPacoEventKeyWhenExtended = @"when";
+//static NSString* const kPacoEventKeyLatitudeExtended = @"lat";
+//static NSString* const kPacoEventKeyLongitudeExtended = @"long";
+//static NSString* const kPacoEventKeyResponseTimeExtended = @"responseTime";
+//static NSString* const kPacoEventKeyAppIdExtended = @"appId";
+//static NSString* const kPacoEventKeyScheduledTimeExtended = @"scheduledTime";
+//static NSString* const kPacoEventKeyPacoVersionExtended = @"pacoVersion";
+//static NSString* const kPacoEventKeyExperimentIdExtended = @"experimentId";
+//static NSString* const kPacoEventKeyExperimentNameExtended = @"experimentName";
+//static NSString* const kPacoEventKeyExperimentVersionExtended = @"experimentVersion";
+
+
 static NSString* const kPacoEventKeyResponsesExtended = @"responses";
-
 NSString* const kPacoResponseKeyNameExtended = @"name";
 NSString* const kPacoResponseKeyAnswerExtended = @"answer";
 NSString* const kPacoResponseKeyInputIdExtended= @"inputId";
-
 NSString* const kPacoResponseJoinExtended = @"joined";
 
 @interface PacoEventExtended ()
 @property (nonatomic, readwrite, copy) NSString *appId;
 @property (nonatomic, readwrite, copy) NSString *pacoVersion;
 @end
+
+
 
 @implementation PacoEventExtended
 
@@ -72,26 +79,7 @@ NSString* const kPacoResponseJoinExtended = @"joined";
 }
 
 
-+ (id)pacoEventFromJSON:(id)jsonObject {
-    PacoEventExtended *event = [[PacoEventExtended alloc] init];
- 
- 
-    NSDictionary *eventMembers = jsonObject;
-    event.who = eventMembers[kPacoEventKeyWhoExtended];
-    event.when = [PacoDateUtility pacoDateForString:eventMembers[kPacoEventKeyWhenExtended]];
-    event.latitude = [eventMembers[kPacoEventKeyLatitudeExtended] longLongValue];
-    event.longitude = [eventMembers[kPacoEventKeyLongitudeExtended] longLongValue];
-    event.responseTime = [PacoDateUtility pacoDateForString:eventMembers[kPacoEventKeyResponseTimeExtended]];
-    event.scheduledTime = [PacoDateUtility pacoDateForString:eventMembers[kPacoEventKeyScheduledTimeExtended]];
-    event.appId = eventMembers[kPacoEventKeyAppIdExtended];
-    event.pacoVersion = eventMembers[kPacoEventKeyPacoVersionExtended];
-    event.experimentId = eventMembers[kPacoEventKeyExperimentIdExtended];
-    event.experimentName = eventMembers[kPacoEventKeyExperimentNameExtended];
-    event.experimentVersion = [eventMembers[kPacoEventKeyExperimentVersionExtended] intValue];
-    event.responses = eventMembers[kPacoEventKeyResponsesExtended];
- 
-    return event;
-}
+
  
 
 
@@ -116,7 +104,7 @@ NSString* const kPacoResponseJoinExtended = @"joined";
 
 - (NSString*)description {
     NSString* responseStr = @"[";
-    NSUInteger numOfResponse = [self.responses count];
+    NSUInteger numOfResponse = [self.responses size];
     int index = 0;
     for (NSDictionary* responseDict in self.responses) {
         responseStr = [responseStr stringByAppendingString:@"{"];
@@ -158,7 +146,7 @@ NSString* const kPacoResponseJoinExtended = @"joined";
             responseStr];
 }
 
-
+/*
 - (id)generateJsonObject {
     NSMutableDictionary *dictionary = [NSMutableDictionary dictionary];
     dictionary[kPacoEventKeyExperimentIdExtended] = self.experimentId;
@@ -187,16 +175,21 @@ NSString* const kPacoResponseJoinExtended = @"joined";
     }
     return [NSDictionary dictionaryWithDictionary:dictionary];
 }
+ 
+ */
+
+
 
 
 - (id)payloadJsonWithImageString {
-    if (0 == [self.responses count]) {
+    if (0 == [self.responses size]) {
         return [self generateJsonObject];
     }
     
-    NSMutableArray* newReponseList = [NSMutableArray arrayWithArray:self.responses];
-    for (int index=0; index<[self.responses count]; index++) {
-        id responseDict = (self.responses)[index];
+    NSArray* localResponses = [self.responses toNSArray];
+    NSMutableArray* newReponseList = [NSMutableArray arrayWithArray:localResponses];
+    for (int index=0; index<[localResponses count]; index++) {
+        id responseDict = (localResponses )[index];
         if (![responseDict isKindOfClass:[NSDictionary class]]) {
             continue;
         }
@@ -297,10 +290,16 @@ NSString* const kPacoResponseJoinExtended = @"joined";
     return event;
 }
 
-+ (PacoEventExtended *)genericEventForDefinition:(PAExperimentDAO*)definition
+
+/*
+     creates and event
+ 
+ */
+
++ (PacoEventExtended *) genericEventForDefinition:(PAExperimentDAO*)definition
                              withInputs:(NSArray*)inputs {
     PacoEventExtended *event = [PacoEventExtended pacoEventForIOS];
-   // event.who = [[PacoExtendedClient sharedInstance] userEmail]; ---<><><><>
+     event.who = [[PacoExtendedClient sharedInstance] userEmail]; 
      event.experimentId = [definition valueForKeyPathEx:@"id"];
      event.experimentName = [definition valueForKeyPathEx:@"title"];
      event.experimentVersion = [definition valueForKeyPathEx:@"version"];
@@ -312,7 +311,7 @@ NSString* const kPacoResponseJoinExtended = @"joined";
         if (payloadObject == nil) {
             continue;
         }
-        NSLog(@"INPUT RESPONSE NAME = %@", input.name);
+       
         response[@"name"] = input.name;
         response[@"inputId"] = input.inputIdentifier;
         
@@ -358,6 +357,12 @@ NSString* const kPacoResponseJoinExtended = @"joined";
 }
 
 
+/*
+    
+    Survay for missed event,  includes scheduled time in the event
+ 
+ */
+
 + (PacoEventExtended*)surveyMissedEventForDefinition:(PAExperimentDAO*)definition
                            withScheduledTime:(NSDate*)scheduledTime {
     NSAssert(scheduledTime != nil, @"scheduledTime should be valid!");
@@ -367,7 +372,11 @@ NSString* const kPacoResponseJoinExtended = @"joined";
     return event;
 }
 
-
+/*
+     
+  Creates an experiment definition for survay missed.
+ 
+ */
 + (PacoEventExtended*)surveyMissedEventForDefinition:(PAExperimentDAO*)definition
                            withScheduledTime:(NSDate*)scheduledTime
                                    userEmail:(NSString*)userEmail{
@@ -385,6 +394,53 @@ NSString* const kPacoResponseJoinExtended = @"joined";
 }
 
 
+
+
+
+#pragma mark - NSCoder & NSCopy methods 
+
+- (id)initWithCoder:(NSCoder *)decoder
+{
+    
+    /* super does not support  initWithCoder so we don't try to invoke it */
+    
+     NSData* data = [decoder decodeObjectForKey:JsonKey];
+     PacoSerializer* serializer =
+    [[PacoSerializer alloc] initWithArrayOfClasses:nil
+                          withNameOfClassAttribute:@"nameOfClass"];
+    JavaUtilArrayList  *  resultArray  = (JavaUtilArrayList*) [serializer buildObjectHierarchyFromJSONOBject:data];
+    IOSObjectArray * iosArray = [resultArray toArray];
+    PacoEventExtended * event  =  [iosArray objectAtIndex:0];
+    self =event;
+    return self;
+ 
+}
+
+
+- (void) encodeWithCoder:(NSCoder *)encoder
+{
+    
+    NSArray* array = [PacoSerializeUtil getClassNames];
+    PacoSerializer * serializer = [[PacoSerializer alloc] initWithArrayOfClasses:array withNameOfClassAttribute:@"nameOfClass"];
+    NSData* json = [serializer toJSONobject:self];
+    [encoder encodeObject:json  forKey:JsonKey];
+}
+
+
+
+- (id)copyWithZone:(NSZone *)zone {
+  
+    NSArray* array = [PacoSerializeUtil getClassNames];
+    PacoSerializer * serializer = [[PacoSerializer alloc] initWithArrayOfClasses:array withNameOfClassAttribute:@"nameOfClass"];
+    [serializer addNonDomainClass:self];
+    NSData* json = [serializer toJSONobject:self];
+    
+    JavaUtilArrayList  *  resultArray  = (JavaUtilArrayList*) [serializer buildObjectHierarchyFromJSONOBject:json];
+    IOSObjectArray * iosArray = [resultArray toArray];
+    PacoEventExtended  * event =  [iosArray objectAtIndex:0];
+    return event;
+    
+}
 
 @end
 

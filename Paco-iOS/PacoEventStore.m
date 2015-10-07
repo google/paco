@@ -2,7 +2,7 @@
 //  PacoEventStore.m
 //  Paco
 //
-//  Created by northropo on 8/19/15.
+//  Authored by  Tim N. O'Brien on 8/19/15.
 //  Copyright (c) 2015 Paco. All rights reserved.
 //
 
@@ -36,7 +36,7 @@
 #include "EventInterface.h"
 #include "EventStore.h"
 #import  "Consts.h"
-#import  "PacoEventImpl.h"
+
 
 @interface PacoEventStore()<PAEventStore>
 @property (strong,nonatomic) NSMutableArray* events;
@@ -78,11 +78,12 @@
 - (void)updateEventWithPAEventInterface:(id<PAEventInterface>)correspondingEvent
 {
     //needs to be unique. How do we fetch the corresponding event
-    
+ /*
     PacoEventImpl * e = (PacoEventImpl*)correspondingEvent;
     id<PAEventInterface> event = [self getEventWithJavaLangLong:e.experimentId withOrgJodaTimeDateTime:e.scheduled_time  withNSString:e.groupName withJavaLangLong:e.actionTriggerId   withJavaLangLong:e.scheduleId];
     int index = [_events  indexOfObject:event];
     [_events replaceObjectAtIndex:index withObject:correspondingEvent];
+  */
     
 }
 

@@ -2,7 +2,7 @@
 //  PacoIntrospectHelper.m
 //  Paco
 //
-//  Created by northropo on 8/26/15.
+//  Authored by  Tim N. O'Brien on 8/26/15.
 //  Copyright (c) 2015 Paco. All rights reserved.
 //
 
@@ -127,6 +127,10 @@
         
     }else
     {
+        
+        /* using object_getIvar with primatives can cause sig failure,  EXC_BAD_ACCESS rumored to be caused by ARC
+         */
+        
         if ([ivarType length] == 1 )
         {
             
@@ -141,7 +145,6 @@
                     break;
                 }
 
-                 
                 case 'i':
                 {
                     

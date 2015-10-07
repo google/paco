@@ -2,7 +2,7 @@
 //  PacoEventTests.m
 //  Paco
 //
-//  Created by northropo on 8/14/15.
+//  Authored by  Tim N. O'Brien on 8/14/15.
 //  Copyright (c) 2015 Paco. All rights reserved.
 //
 
@@ -67,6 +67,8 @@
 #include "org/joda/time/Hours.h"
 #include "org/joda/time/Duration.h"
 #include "EsmGenerator2.h"
+#include "NSDate+PacoTimeZoneHelper.h"
+
 
 
 
@@ -167,9 +169,11 @@ static NSString *dataSource =
  @property (nonatomic, retain) NSArray *responses;  // <NSDictionary>
  
  */
+
+
 -(void) testEventToJsonString
 {
-    
+
      NSArray * classNames = [self getClassNames];
      PacoSerializer* serializer = [[PacoSerializer alloc] initWithArrayOfClasses:classNames
                           withNameOfClassAttribute:@"nameOfClass"];
@@ -179,9 +183,9 @@ static NSString *dataSource =
     
     event.who =@"me";
     event.when = [NSDate date];
-    event.latitude = 12345;
-    event.longitude = 54321;
-    event.responseTime= [NSDate date];
+   // event.latitude = 12345;
+   // event.longitude = 54321;
+   // event.responseTime= [NSDate date];
     event.experimentId = @"experimentID";
     event.experimentName = @"experimentName";
     
@@ -191,10 +195,57 @@ static NSString *dataSource =
     
     NSLog(@" this is the end %@", string);
     
+}
+
+
+/*
+@property (nonatomic, assign) int experimentVersion;
+@property (nonatomic, retain) NSArray *responses;  // <NSDictionary>
+@property (nonatomic,strong)  NSString* scheduleId;
+@property (nonatomic,strong)  NSString* actionTriggerId;
+@property (nonatomic,strong)  NSString* groupName;
+
+*/
+
+
+
+
+-(void) testEncoder
+{
     
- 
+        PacoEventExtended * event = [[PacoEventExtended alloc] init];
+        event.who =@"me";
+        event.when = [[NSDate date] dateToStringLocalTimezone];
+        event.latitude = [NSNumber numberWithInt:12345];
+        event.longitude = [NSNumber numberWithInt:765432];
+        event.responseTime= [[NSDate date] dateToStringLocalTimezone];
+        event.experimentId = @"experimentID";
+        event.experimentName = @"experimentName";
+        event.experimentVersion = [NSNumber numberWithInt:5];
+    
+        JavaUtilArrayList* arrayList = [[JavaUtilArrayList alloc] init];
+        [arrayList addWithId:@"One"];
+        [arrayList addWithId:@"Two"];
+        [arrayList addWithId:@"Three"];
+    
+        event.responses =arrayList;
+        event.actionTriggerId =@"actionGTriggerId";
+        event.scheduleId =@"scheduleId";
     
     
+       /* this is the one */
+      PacoEventExtended * eventII = [event copy];
+    
+      XCTAssertTrue(   [event.who isEqualToString:eventII.who] );
+      XCTAssertTrue(   [event.experimentId isEqualToString:eventII.experimentId]);
+      XCTAssertTrue(   [event.experimentName isEqualToString:eventII.experimentName]);
+      XCTAssertTrue(   [event.experimentVersion isEqual:eventII.experimentVersion]);
+      XCTAssertTrue(   [event.actionTriggerId isEqualToString:eventII.actionTriggerId]);
+      XCTAssertTrue(   [event.scheduleId isEqualToString:eventII.scheduleId]);
+      XCTAssertTrue(   [event.when isEqual:eventII.when]);
+      XCTAssertTrue(   [event.longitude isEqual:eventII.longitude]);
+      XCTAssertTrue(   [event.latitude isEqual:eventII.latitude]);
+      XCTAssertTrue(   [event.responses isEqual:eventII.responses]);
 }
  
 

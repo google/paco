@@ -2,7 +2,7 @@
 //  PacoJ2OBJCTests.m
 //  Paco
 //
-//  Created by northropo on 7/20/15.
+//  Authored by  Tim N. O'Brien on 7/20/15.
 //  Copyright (c) 2015 Paco. All rights reserved.
 //
 

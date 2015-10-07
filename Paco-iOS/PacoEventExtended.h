@@ -2,13 +2,16 @@
 //  PacoEventExtended.h
 //  Paco
 //
-//  Created by northropo on 8/13/15.
+//  Authored by  Tim N. O'Brien on 8/13/15.
 //  Copyright (c) 2015 Paco. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
 #import "Schedule.h" 
 #import "ExperimentDAO.h"
+#import "EventInterface.h" 
+#import "java/util/ArrayList.h"
+
 
 @class PacoScheduler;
 @class PAExperimentDAO;
@@ -30,22 +33,31 @@ typedef NS_ENUM(NSInteger, PacoEventTypeExtended) {
 };
 
 
-@class PAActionSpecification;
 
-@interface PacoEventExtended : NSObject
+@class PAActionSpecification;
+@interface PacoEventExtended : NSObject<PAEventInterface,NSCopying,NSCoding>
+
+
 
 @property (nonatomic, copy) NSString *who;
-@property (nonatomic, retain) NSDate *when;
-@property (nonatomic, assign) long long latitude;
-@property (nonatomic, assign) long long longitude;
-@property (nonatomic, retain) NSDate *responseTime;
-@property (nonatomic, retain) NSDate *scheduledTime;
+@property (nonatomic, retain) NSString  *when;
+@property (nonatomic, assign) NSNumber* latitude;
+@property (nonatomic, assign) NSNumber*  longitude;
+@property (nonatomic, retain) NSString  *responseTime;
+@property (nonatomic, retain) NSString  *scheduledTime;
 @property (nonatomic, readonly, copy) NSString *appId;
 @property (nonatomic, readonly, copy) NSString *pacoVersion;
-@property (nonatomic, copy) NSString *experimentId;
-@property (nonatomic, copy) NSString *experimentName;
-@property (nonatomic, assign) int experimentVersion;
-@property (nonatomic, retain) NSArray *responses;  // <NSDictionary>
+@property (nonatomic, copy)   NSString *experimentId;
+@property (nonatomic, copy)   NSString *experimentName;
+@property (nonatomic, copy)   NSNumber*   experimentVersion;
+@property (nonatomic, retain) JavaUtilArrayList  *responses;
+@property (nonatomic,strong)  NSString* scheduleId;
+@property (nonatomic,strong)  NSString* actionTriggerId;
+@property (nonatomic,strong)  NSString* groupName;
+
+
+
+
 + (id)pacoEventForIOS;
 + (id)pacoEventFromJSON:(id)jsonObject;
 - (id)generateJsonObject;

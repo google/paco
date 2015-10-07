@@ -50,7 +50,6 @@ typedef void(^LoginCompletionBlock)(NSError* error);
 @interface PacoClient : NSObject
 
 @property (nonatomic, retain, readonly) PacoAuthenticator *authenticator;
-@property (nonatomic, retain, readonly) PacoLocation *location;
 @property (nonatomic, retain, readonly) PacoModel *model;
 @property (nonatomic, strong, readonly) PacoEventManager* eventManager;
 @property (nonatomic, retain, readonly) PacoScheduler *scheduler;

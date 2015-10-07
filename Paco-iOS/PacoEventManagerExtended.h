@@ -2,7 +2,7 @@
 //  PacoEventManagerExtended.h
 //  Paco
 //
-//  Created by northropo on 8/13/15.
+//  Authored by  Tim N. O'Brien on 8/13/15.
 //  Copyright (c) 2015 Paco. All rights reserved.
 //
 
@@ -32,13 +32,13 @@
 //YMZ:TODO: use async design
 //YMZ:TODO: use core data
 //YMZ:TODO: error handling of file operation
+
 @interface PacoEventManagerExtended : NSObject
 
 + (PacoEventManagerExtended*)defaultManager;
 
 - (void)saveEvent:(PacoEventExtended*)event;
 - (void)saveEvents:(NSArray*)events;
-
 - (void)startUploadingEvents;
 
 //When background fetch API triggers or location significantly changes, call this method
@@ -54,8 +54,7 @@
 - (void)saveSurveySubmittedEventForDefinition:(PAExperimentDAO*)definition
                                    withInputs:(NSArray*)inputs
                              andScheduledTime:(NSDate*)scheduledTime;
-
 - (PacoParticipateStatusExtended*)statsForExperiment:(NSString*)experimentId;
-
 - (void)saveJoinEventWithActionSpecification:(PAActionSpecification*) actionSpecification;
+
 @end

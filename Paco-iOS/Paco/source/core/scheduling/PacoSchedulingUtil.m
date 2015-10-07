@@ -2,7 +2,7 @@
 //  PacoSchedulingUtil.m
 //  Paco
 //
-//  Created by northropo on 9/9/15.
+//  Authored by  Tim N. O'Brien on 9/9/15.
 //  Copyright (c) 2015 Paco. All rights reserved.
 //
 
@@ -12,7 +12,6 @@
 #include "java/lang/Long.h"
 #include "DateTime.h"
 #import "OrgJodaTimeDateTime+PacoDateHelper.h"
-#import "UILocalNotification+Paco.h"
 #include "EsmSignalStore.h"
 #include "EventStore.h"
 #import "ActionScheduleGenerator.h" 
@@ -69,7 +68,7 @@
     }
     return alerts;
 }
- */
+
 
 -(void) purgeActionSpecificationsArray:(NSArray*) actionSpecifications
 {
@@ -77,6 +76,9 @@
     
     
 }
+ */
+
+
 
 
 /*
@@ -117,7 +119,10 @@
 }
 
 
-
+/*
+ 
+    iterates over array of Experiments to build dictionary of ActionSpecificatioins.
+ */
 
 +(NSArray*) buildActionSpecifications:(NSArray*) experiments IsDryRun:(BOOL) isTryRun  ActionSpecificationsDictionary:(NSMutableDictionary*) specificationsDictionary;
 {
@@ -150,7 +155,9 @@
        return   [results subarrayWithRange:NSMakeRange(0, MIN(60, results.count))]  ;
 }
 
-
+/*
+    builds list of actionDefinitions add add to the results dictionary.
+ */
 
 +(void ) getFireTimes:(PAExperimentDAO*)  definition  results:(NSMutableDictionary*) results  SignalStore:( id<PAEsmSignalStore>)signalStore EventStore:( id<PAEventStore>)eventStore
 {
@@ -187,6 +194,9 @@
 +(NSString*) uniqueId:(PAActionSpecification*) actionSpecification
 {
     
+    /* get experiment id */
+    
+    
      NSString * actionId =  [[actionSpecification       valueForKeyEx:@"experiment_.id"] stringValue];
      NSString * groupId =  [[actionSpecification        valueForKeyEx:@"experimentGroup_.name"] stringValue];
      NSString * triggerId =  [[actionSpecification      valueForKeyEx:@"actionTrigger_.id"] stringValue];
@@ -198,6 +208,8 @@
 
 
 #pragma mark -  notification handelers
+
+
 - (void)handleExpiredNotifications:(NSArray*)expiredNotifications
 {
     

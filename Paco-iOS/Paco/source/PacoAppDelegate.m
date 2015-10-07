@@ -23,7 +23,6 @@
 #import "PacoQuestionScreenViewController.h"
 #import "JCNotificationCenter.h"
 #import "JCNotificationBannerPresenterSmokeStyle.h"
-#import "PacoEventManager.h"
 #import "UILocalNotification+Paco.h"
 #import "DDLog.h"
 #import "DDASLLogger.h"
