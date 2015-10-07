@@ -412,7 +412,7 @@ class DefaultExperimentService implements ExperimentService {
   @Override
   public ExperimentQueryResult getUsersAdministeredExperiments(String email, DateTimeZone timezone, Integer limit,
                                                                String cursor) {
-    ExperimentIdQueryResult experimentIdsQueryResult = ExperimentAccessManager.getExistingExperimentIdsForAdmin(email, limit == null ? limit = 0 : 1000, cursor);
+    ExperimentIdQueryResult experimentIdsQueryResult = ExperimentAccessManager.getExistingExperimentIdsForAdmin(email, limit == null ? 0 : limit, cursor);
     //log.info("Administered experiments for: " + email + ". Count: " + experimentIds.size() + ". ids = " + Joiner.on(",").join(experimentIds));
     List<ExperimentDAO> experiments = getExperimentsByIdInternal(experimentIdsQueryResult.getExperiments(), email, timezone);
     return new ExperimentQueryResult(experimentIdsQueryResult.getCursor(), experiments);
