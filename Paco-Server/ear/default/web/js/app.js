@@ -18,13 +18,13 @@ pacoApp.config(['$routeProvider','$locationProvider',
     when('/data/:csvExperimentId', {
       templateUrl: 'partials/data.html',
     }).
-    when('/data/:csvExperimentId/:who', {
+    when('/data/:csvExperimentId/:filter', {
       templateUrl: 'partials/data.html',
     }).
     when('/stats/:experimentId', {
       templateUrl: 'partials/stats.html',
     }).
-    when('/stats/:experimentId/:who', {
+    when('/stats/:experimentId/:filter', {
       templateUrl: 'partials/stats.html',
     }).
     when('/respond/:respondExperimentId', {
@@ -32,6 +32,7 @@ pacoApp.config(['$routeProvider','$locationProvider',
     }).
     when('/experiments', {
       templateUrl: 'partials/list.html',
+      reloadOnSearch: false,
     }).
     when('/copy/:copyId', {
       templateUrl: 'partials/edit.html',
@@ -39,12 +40,13 @@ pacoApp.config(['$routeProvider','$locationProvider',
     }).
     otherwise({
       templateUrl: 'partials/welcome.html',
+      reloadOnSearch: false,
     });
-
-    //$locationProvider.html5Mode(true);
   }
 ]);
 
+// Prevents a change in the hash parameter from jumping to internal anchors
+pacoApp.value('$anchorScroll', angular.noop);
 
 pacoApp.config(['$compileProvider',
   function ($compileProvider) {

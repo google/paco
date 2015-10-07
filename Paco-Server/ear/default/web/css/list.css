@@ -31,10 +31,6 @@
   text-decoration: none;
 }
 
-.list md-card {
-  width: 800px;
-}
-
 .list md-card.deleted {
   opacity: .5;
   pointer-events: none;
@@ -42,4 +38,24 @@
 
 .list .group {
   margin-top: 32px;
+}
+
+.list.centered {
+  width: 800px;
+  margin-left: -400px;
+}
+
+.list .new-experiment {
+  position: absolute;
+  top: 10px;
+  right: 0px;
+  z-index: 1;
+}
+
+.list button.show-more {
+  width: 100%;
+}
+
+.list md-progress-circular {
+  margin-left: calc(50% - 50px);
 }

@@ -9,16 +9,20 @@ public class PacoNotificationAction extends PacoAction {
   public static final String ESM_SIGNAL_TIMEOUT = "59";
   public static final String FIXED_SCHEDULE_TIMEOUT = "479";
   public static final int DEFAULT_NOTIFICATION_DELAY = 5000;
+  public static final int DEFAULT_COLOR = 0; 
+  public static final boolean DEFAULT_DISMISSIBLE = true;
 
 
   protected Integer snoozeCount = SNOOZE_COUNT_DEFAULT;
   protected Integer snoozeTime = SNOOZE_TIME_DEFAULT;
   private Integer timeout;  //min? TODO findout
   private long delay = DEFAULT_NOTIFICATION_DELAY; // ms
+  private Integer color = DEFAULT_COLOR;
+  private Boolean dismissible = DEFAULT_DISMISSIBLE;
 
   private String msgText;
-
-  public PacoNotificationAction(Integer snoozeCount, Integer snoozeTime, Integer timeout, long delay, String msgText) {
+  
+  public PacoNotificationAction(Integer snoozeCount, Integer snoozeTime, Integer timeout, long delay, String msgText, Integer color, Boolean dismissible) {
     super();
     this.type = "pacoNotificationAction";
     this.timeout = timeout;
@@ -26,10 +30,12 @@ public class PacoNotificationAction extends PacoAction {
     this.snoozeCount = (snoozeCount != null) ? snoozeCount : PacoNotificationAction.SNOOZE_COUNT_DEFAULT;
     this.snoozeTime = (snoozeTime != null) ? snoozeTime : PacoNotificationAction.SNOOZE_TIME_DEFAULT;
     this.msgText = msgText;
+    this.color = color;
+    this.dismissible = dismissible;
   }
 
   public PacoNotificationAction() {
-    this(SNOOZE_COUNT_DEFAULT, SNOOZE_TIME_DEFAULT, Integer.parseInt(ESM_SIGNAL_TIMEOUT), DEFAULT_NOTIFICATION_DELAY, "Time to participate");
+    this(SNOOZE_COUNT_DEFAULT, SNOOZE_TIME_DEFAULT, Integer.parseInt(ESM_SIGNAL_TIMEOUT), DEFAULT_NOTIFICATION_DELAY, "Time to participate", DEFAULT_COLOR, DEFAULT_DISMISSIBLE);
   }
 
   public Integer getTimeout() {
@@ -78,6 +84,22 @@ public class PacoNotificationAction extends PacoAction {
 
   public void setDelay(long delay) {
     this.delay = delay;
+  }
+  
+  public Integer getColor(){
+	  return color;
+  }
+
+  public void setColor(Integer color){
+    this.color = color;
+  }
+
+  public Boolean getDismissible(){
+    return dismissible;
+  }
+
+  public void setDismissible(Boolean dismissible){
+    this.dismissible = dismissible;
   }
 
   public void validateWith(Validator validator) {
