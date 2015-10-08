@@ -7,6 +7,7 @@
 //
 
 #import "NSDate+PacoTimeZoneHelper.h"
+#import "DateTime.h"
 
 @implementation NSDate (PacoTimeZoneHelper)
 
@@ -24,7 +25,7 @@
     
 }
 
--(NSString*) dateToStringLocalTimezone:(NSTimeZone*) timeZone
+-(NSString*) dateToStringWithTimeZone:(NSTimeZone*) timeZone
 {
     
     NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
@@ -55,6 +56,23 @@
     [dateFormatter setTimeZone:[NSTimeZone localTimeZone]];
     NSDate *date = [dateFormatter dateFromString:dateStr];
     return date;
+    
+}
+
+-(OrgJodaTimeDateTime*) joda
+{
+
+    NSTimeInterval ll = [self timeIntervalSince1970];
+    OrgJodaTimeDateTime* jud = [[OrgJodaTimeDateTime alloc] initWithLong:ll*1000];
+    return jud;
+    
+ 
+}
+
++(OrgJodaTimeDateTime*) jodaFromString:(NSString*) dateStr
+{
+    NSDate* date = [NSDate stringToDateLocalTimeZone:dateStr];
+    return [date joda];
     
 }
 

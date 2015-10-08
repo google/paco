@@ -25,6 +25,8 @@
 #import "java/lang/Long.h"
 #import "PAExperimentDAO+Util.h"
 #import "JavaUtilArrayList+PacoConversion.h"
+#import "PacoEventPersistenceHelper.h"
+
 
 
 
@@ -74,9 +76,7 @@ NSString* const kPacoResponseJoinExtended = @"joined";
     return self;
 }
 
-+ (id)pacoEventForIOS {
-    return [[PacoEventExtended alloc] init];
-}
+
 
 
 
@@ -440,6 +440,34 @@ NSString* const kPacoResponseJoinExtended = @"joined";
     PacoEventExtended  * event =  [iosArray objectAtIndex:0];
     return event;
     
+}
+
+
+#pragma mark - PAEventInterface methods
+
+- (id<PAEventInterface>)getEventWithJavaLangLong:(JavaLangLong *)experimentId
+                         withOrgJodaTimeDateTime:(OrgJodaTimeDateTime *)scheduledTime
+                                    withNSString:(NSString *)groupName
+                                withJavaLangLong:(JavaLangLong *)actionTriggerId
+                                withJavaLangLong:(JavaLangLong *)scheduleId
+{
+   PacoEventPersistenceHelper* helper = [[PacoEventPersistenceHelper alloc] init];
+    
+    id<PAEventInterface> retVal = [helper getEventWithJavaLangLong:experimentId withOrgJodaTimeDateTime:scheduledTime withNSString:groupName withJavaLangLong:actionTriggerId withJavaLangLong:scheduleId];
+    return retVal;
+}
+
+- (void)updateEventWithPAEventInterface:(id<PAEventInterface>)correspondingEvent
+{
+      PacoEventPersistenceHelper* helper = [[PacoEventPersistenceHelper alloc] init];
+    [helper updateEventWithPAEventInterface:correspondingEvent];
+    
+}
+
+- (void)insertEventWithPAEventInterface:(id<PAEventInterface>)event
+{
+      PacoEventPersistenceHelper* helper = [[PacoEventPersistenceHelper alloc] init];
+    [helper  insertEventWithPAEventInterface:event];
 }
 
 @end

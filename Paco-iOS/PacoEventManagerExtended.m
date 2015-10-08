@@ -8,7 +8,6 @@
 
 #import "PacoEventManagerExtended.h"
 #import "ExperimentDAO.h"
-#import "ExperimentDAO.h"
 #import "PacoEventExtended.h" 
 
 #import "PacoEventManager.h"
@@ -17,7 +16,7 @@
 #import "NSError+Paco.h"
 #import "PacoClient.h"
 #import  "ActionSpecification.h"
-
+#import "PacoEventPersistenceHelper.h"
 
 static NSString* const kPendingEventsFileName = @"pendingEvents.plist";
 static NSString* const kAllEventsFileName = @"allEvents.plist";
@@ -30,7 +29,13 @@ static NSString* const kAllEventsFileName = @"allEvents.plist";
 @property(nonatomic) float percentageOfParticipation;
 @property(nonatomic, copy) NSString *percentageText;
 
+
 @end
+
+
+
+
+
 
 @implementation PacoParticipateStatusExtended
 
@@ -42,6 +47,7 @@ static NSString* const kAllEventsFileName = @"allEvents.plist";
         _numberOfNotifications = numOfNotifications;
         _numberOfParticipations = numOfParticipations;
         _numberOfSelfReports = numOfSelfReports;
+ 
         
         if (_numberOfNotifications > 0) {
             _percentageOfParticipation = (float)_numberOfParticipations / (float)_numberOfNotifications;
@@ -103,6 +109,8 @@ static NSString* const kAllEventsFileName = @"allEvents.plist";
 
 @property(atomic, strong) PacoEventUploader* uploader;
 
+
+@property(nonatomic, strong) PacoEventPersistenceHelper *persistenceHelper;
 @end
 
 
@@ -112,6 +120,7 @@ static NSString* const kAllEventsFileName = @"allEvents.plist";
     self = [super init];
     if (self) {
         _uploader = [PacoEventUploader uploaderWithDelegate:self];
+        _persistenceHelper = [PacoEventPersistenceHelper new];
     }
     return self;
 }
@@ -262,9 +271,18 @@ static NSString* const kAllEventsFileName = @"allEvents.plist";
     if (self.pendingEvents == nil) {
         return;
     }
+    
+    for(PacoEventExtended* event in self.pendingEvents)
+    {
+        
+        [self.persistenceHelper updateEventWithPAEventInterface:event];
+        
+        
+    }
+    
     DDLogInfo(@"Saving %lu pending events", (unsigned long)[self.pendingEvents count]);
-    NSMutableArray* jsonArr = [self jsonArrayFromEvents:self.pendingEvents];
-    [self saveJsonObject:jsonArr toFile:kPendingEventsFileName];
+    //NSMutableArray* jsonArr = [self jsonArrayFromEvents:self.pendingEvents];
+    //[self saveJsonObject:jsonArr toFile:kPendingEventsFileName];
 }
 
 
@@ -272,8 +290,11 @@ static NSString* const kAllEventsFileName = @"allEvents.plist";
 #pragma mark PacoEventUploaderDelegate
 - (BOOL)hasPendingEvents {
     @synchronized(self) {
-        [self fetchPendingEventsIfNecessary];
-        return [self.pendingEvents count] > 0;
+        
+        
+        return ([[self.persistenceHelper eventsForUpload] count] >0);
+       // [self fetchPendingEventsIfNecessary];
+       // return [self.pendingEvents count] > 0;
     }
 }
 
@@ -293,12 +314,16 @@ static NSString* const kAllEventsFileName = @"allEvents.plist";
     
     @synchronized(self) {
         NSAssert(self.pendingEvents != nil, @"pending events should have already loaded!");
-        for (PacoEvent* event in events) {
+        for (PacoEventExtended* event in events) {
             NSUInteger index = [self.pendingEvents indexOfObject:event];
             if (index == NSNotFound) {
                 DDLogError(@"[ERROR]: Can't mark event complete since it's not in the pending events list!");
             }
-            [self.pendingEvents removeObject:event];
+            
+            
+            //[self.pendingEvents removeObject:event];
+            
+            [self.persistenceHelper markUploaded:event];
         }
         
         [self savePendingEventsToFile];
@@ -312,7 +337,10 @@ static NSString* const kAllEventsFileName = @"allEvents.plist";
 #pragma mark Public API
 - (void)saveEvent:(PacoEventExtended*)event {
     NSAssert(event != nil, @"nil event cannot be saved!");
-    [self saveEvents:@[event]];
+    
+    [self.persistenceHelper insertEventWithPAEventInterface:event];
+    
+   // [self saveEvents:@[event]];
 }
 
 - (void)saveEvents:(NSArray*)events {
@@ -323,6 +351,12 @@ static NSString* const kAllEventsFileName = @"allEvents.plist";
         [self fetchPendingEventsIfNecessary];
         
         for (PacoEventExtended* event in events) {
+            
+            [self.persistenceHelper updateEventWithPAEventInterface:event];
+            
+            
+            
+            /*
             NSString* experimentId = event.experimentId;
             NSAssert([experimentId length] > 0, @"experimentId should not be empty!");
             
@@ -335,6 +369,8 @@ static NSString* const kAllEventsFileName = @"allEvents.plist";
             
             //add this event to pendingEvent list too
             [self.pendingEvents addObject:event];
+            */
+            
         }
         [self saveDataToFile];
     }

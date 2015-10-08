@@ -7,12 +7,15 @@
 //
 
 #import <Foundation/Foundation.h>
+#import "DateTime.h"
+
 
 @interface NSDate (PacoTimeZoneHelper)
 
-+(NSDate*) dateToStringLocalTimeZone:(NSString*) dateStr;
-+(NSDate*) dateToStringWithTimeZone:(NSString*) dateStr TimeZone:(NSTimeZone*) timeZone;
--(NSString*) dateToStringLocalTimezone:(NSTimeZone*) timeZone;
++(NSDate*) stringToDateLocalTimeZone:(NSString*) dateStr;
++(NSDate*) stringToDateWithTimeZone:(NSString*) dateStr TimeZone:(NSTimeZone*) timeZone;
+-(NSString*) dateToStringWithTimezone:(NSTimeZone*) timeZone;
 -(NSString*) dateToStringLocalTimezone;
-
+-(OrgJodaTimeDateTime*) joda;
++(OrgJodaTimeDateTime*) jodaFromString:(NSString*) dateStr;
 @end

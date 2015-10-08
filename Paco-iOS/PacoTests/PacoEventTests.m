@@ -68,6 +68,10 @@
 #include "org/joda/time/Duration.h"
 #include "EsmGenerator2.h"
 #include "NSDate+PacoTimeZoneHelper.h"
+#include "PacoEventPersistenceHelper.h"
+#include "NSNumber+PacoJ2OBCType.h" 
+#include "DateTime.h"
+#include "NSDate+PacoTimeZoneHelper.h"
 
 
 
@@ -215,11 +219,11 @@ static NSString *dataSource =
     
         PacoEventExtended * event = [[PacoEventExtended alloc] init];
         event.who =@"me";
-        event.when = [[NSDate date] dateToStringLocalTimezone];
+        event.when =  [[NSDate date] dateToStringLocalTimezone] ;
         event.latitude = [NSNumber numberWithInt:12345];
         event.longitude = [NSNumber numberWithInt:765432];
         event.responseTime= [[NSDate date] dateToStringLocalTimezone];
-        event.experimentId = @"experimentID";
+        event.experimentId =  [NSNumber numberWithInt:1234];
         event.experimentName = @"experimentName";
         event.experimentVersion = [NSNumber numberWithInt:5];
     
@@ -229,25 +233,190 @@ static NSString *dataSource =
         [arrayList addWithId:@"Three"];
     
         event.responses =arrayList;
-        event.actionTriggerId =@"actionGTriggerId";
-        event.scheduleId =@"scheduleId";
+        event.actionTriggerId =[NSNumber numberWithInt:12347];[NSNumber numberWithInt:1234];
+        event.scheduleId =[NSNumber numberWithInt:12345];
     
     
        /* this is the one */
       PacoEventExtended * eventII = [event copy];
     
       XCTAssertTrue(   [event.who isEqualToString:eventII.who] );
-      XCTAssertTrue(   [event.experimentId isEqualToString:eventII.experimentId]);
+      XCTAssertTrue(   [event.experimentId isEqual:eventII.experimentId]);
       XCTAssertTrue(   [event.experimentName isEqualToString:eventII.experimentName]);
       XCTAssertTrue(   [event.experimentVersion isEqual:eventII.experimentVersion]);
-      XCTAssertTrue(   [event.actionTriggerId isEqualToString:eventII.actionTriggerId]);
-      XCTAssertTrue(   [event.scheduleId isEqualToString:eventII.scheduleId]);
-      XCTAssertTrue(   [event.when isEqual:eventII.when]);
+      XCTAssertTrue(   [event.actionTriggerId isEqual: eventII.actionTriggerId]);
+      XCTAssertTrue(   [event.scheduleId isEqual:eventII.scheduleId]);
+      XCTAssertTrue(   [event.when isEqualToString:eventII.when]);
       XCTAssertTrue(   [event.longitude isEqual:eventII.longitude]);
       XCTAssertTrue(   [event.latitude isEqual:eventII.latitude]);
       XCTAssertTrue(   [event.responses isEqual:eventII.responses]);
 }
+
+/*
  
+ - (id<PAEventInterface>)getEventWithJavaLangLong:(JavaLangLong *)experimentId
+ withOrgJodaTimeDateTime:(OrgJodaTimeDateTime *)scheduledTime
+ withNSString:(NSString *)groupName
+ withJavaLangLong:(JavaLangLong *)actionTriggerId
+ withJavaLangLong:(JavaLangLong *)scheduleId;
+ 
+ 
+ */
+-(void) testPacoEventPersistenceHelperStoreAndFetch
+{
+    
+    PacoEventPersistenceHelper * helper  = [PacoEventPersistenceHelper new];
+    [helper deleteAllEvents];
+    
+    NSString* schedledTime = [[NSDate date] dateToStringLocalTimezone]  ;
+    PacoEventExtended * event = [[PacoEventExtended alloc] init];
+    event.who =@"me";
+    event.when = schedledTime; ;
+    event.latitude = [NSNumber numberWithInt:12345];
+    event.longitude = [NSNumber numberWithInt:765432];
+    event.responseTime= [[NSDate date] dateToStringLocalTimezone];
+    event.experimentId =  [NSNumber numberWithInt:1234];
+    event.experimentName = @"experimentName";
+    event.experimentVersion = [NSNumber numberWithInt:5];
+    event.groupName=@"GroupAAA";
+    event.scheduleId =[NSNumber numberWithInt:3];
+    event.actionTriggerId =[NSNumber numberWithInt:3];
+    event.scheduledTime =schedledTime;
+    JavaUtilArrayList* arrayList = [[JavaUtilArrayList alloc] init];
+    [arrayList addWithId:@"One"];
+    [arrayList addWithId:@"Two"];
+    [arrayList addWithId:@"Three"];
+    event.responses = arrayList;
+    [helper insertEventWithPAEventInterface:event];
+    
+    PacoEventExtended * eventII = (id<PAEventInterface> ) [helper getEventWithJavaLangLong:[event.experimentId toJLL]
+                                                                   withOrgJodaTimeDateTime:[NSDate jodaFromString:event.scheduledTime]
+                                                                              withNSString:event.groupName withJavaLangLong:[event.actionTriggerId toJLL]
+                                                                              withJavaLangLong:[event.scheduleId  toJLL]];
+    
+    XCTAssertTrue(   [event.who isEqualToString:eventII.who] );
+    XCTAssertTrue(   [event.experimentId isEqual:eventII.experimentId]);
+    XCTAssertTrue(   [event.experimentName isEqualToString:eventII.experimentName]);
+    XCTAssertTrue(   [event.experimentVersion isEqual:eventII.experimentVersion]);
+    XCTAssertTrue(   [event.actionTriggerId isEqual: eventII.actionTriggerId]);
+    XCTAssertTrue(   [event.scheduleId isEqual:eventII.scheduleId]);
+    XCTAssertTrue(   [event.when isEqual:eventII.when]);
+    XCTAssertTrue(   [event.longitude isEqual:eventII.longitude]);
+    XCTAssertTrue(   [event.latitude isEqual:eventII.latitude]);
+    XCTAssertTrue(   [event.responses isEqual:eventII.responses]);
+ 
+    
+    
+    
+    
+    
+}
+
+
+-(void) testPacoEventPersistenceHelperUpdate
+{
+    
+    PacoEventPersistenceHelper * helper  = [PacoEventPersistenceHelper new];
+    [helper deleteAllEvents];
+    
+    NSString* schedledTime = [[NSDate date] dateToStringLocalTimezone]  ;
+    PacoEventExtended * event = [[PacoEventExtended alloc] init];
+    event.who =@"me";
+    event.when = schedledTime; ;
+    event.latitude = [NSNumber numberWithInt:12345];
+    event.longitude = [NSNumber numberWithInt:765432];
+    event.responseTime= [[NSDate date] dateToStringLocalTimezone];
+    event.experimentId =  [NSNumber numberWithInt:1234];
+    event.experimentName = @"experimentName";
+    event.experimentVersion = [NSNumber numberWithInt:5];
+    event.groupName=@"GroupAAA";
+    event.scheduleId =[NSNumber numberWithInt:3];
+    event.actionTriggerId =[NSNumber numberWithInt:3];
+    event.scheduledTime =schedledTime;
+    JavaUtilArrayList* arrayList = [[JavaUtilArrayList alloc] init];
+    [arrayList addWithId:@"One"];
+    [arrayList addWithId:@"Two"];
+    [arrayList addWithId:@"Three"];
+    event.responses = arrayList;
+    [helper insertEventWithPAEventInterface:event];
+    
+    PacoEventExtended * modifiedEvent = [event clone];
+    
+    
+    modifiedEvent.who = @"not me";
+    
+    
+    [helper updateEventWithPAEventInterface:modifiedEvent];
+    
+    
+    PacoEventExtended * eventII = (id<PAEventInterface> ) [helper getEventWithJavaLangLong:[event.experimentId toJLL]
+                                                                   withOrgJodaTimeDateTime:[NSDate jodaFromString:event.scheduledTime]
+                                                                              withNSString:event.groupName withJavaLangLong:[event.actionTriggerId toJLL]
+                                                                          withJavaLangLong:[event.scheduleId  toJLL]];
+    
+    
+    XCTAssertFalse(  [event.who isEqualToString:eventII.who] );
+    XCTAssertTrue(   [event.experimentId isEqual:eventII.experimentId]);
+    XCTAssertTrue(   [event.experimentName isEqualToString:eventII.experimentName]);
+    XCTAssertTrue(   [event.experimentVersion isEqual:eventII.experimentVersion]);
+    XCTAssertTrue(   [event.actionTriggerId isEqual: eventII.actionTriggerId]);
+    XCTAssertTrue(   [event.scheduleId isEqual:eventII.scheduleId]);
+    XCTAssertTrue(   [event.when isEqual:eventII.when]);
+    XCTAssertTrue(   [event.longitude isEqual:eventII.longitude]);
+    XCTAssertTrue(   [event.latitude isEqual:eventII.latitude]);
+    XCTAssertTrue(   [event.responses isEqual:eventII.responses]);
+    
+    
+    
+    
+    
+}
+
+
+-(void) testPacoEventPersistenceHelperAllEvents
+{
+    
+    PacoEventPersistenceHelper * helper  = [PacoEventPersistenceHelper new];
+    [helper deleteAllEvents];
+    
+    NSString* schedledTime = [[NSDate date] dateToStringLocalTimezone]  ;
+    PacoEventExtended * event = [[PacoEventExtended alloc] init];
+    event.who =@"me";
+    event.when = schedledTime; ;
+    event.latitude = [NSNumber numberWithInt:12345];
+    event.longitude = [NSNumber numberWithInt:765432];
+    event.responseTime= [[NSDate date] dateToStringLocalTimezone];
+    event.experimentId =  [NSNumber numberWithInt:1234];
+    event.experimentName = @"experimentName";
+    event.experimentVersion = [NSNumber numberWithInt:5];
+    event.groupName=@"GroupAAA";
+    event.scheduleId =[NSNumber numberWithInt:3];
+    event.actionTriggerId =[NSNumber numberWithInt:3];
+    event.scheduledTime =schedledTime;
+    JavaUtilArrayList* arrayList = [[JavaUtilArrayList alloc] init];
+    [arrayList addWithId:@"One"];
+    [arrayList addWithId:@"Two"];
+    [arrayList addWithId:@"Three"];
+    event.responses = arrayList;
+    [helper insertEventWithPAEventInterface:event];
+    
+    NSArray * eventsArray  = [helper  eventsForUpload];
+    XCTAssertTrue([eventsArray count]==1,@"exactly one event for upload");
+
+    PacoEventExtended * singelEvent =  [eventsArray firstObject];
+    [helper markUploaded:singelEvent];
+    
+    eventsArray  = [helper  eventsForUpload];
+    XCTAssertTrue([eventsArray count]==0,@"exactly zero event for upload");
+    
+    
+    
+    
+    
+    
+}
+// updateEventWithPAEventInterface
+
 
 
 @end

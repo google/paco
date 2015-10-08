@@ -43,7 +43,7 @@
 
 @interface PacoSignalStore()
 
-@property(nonatomic, retain, readwrite) NSMutableArray* signals;
+
 @property(nonatomic, retain, readwrite) PacoAppDelegate* appDelegate;
 @property(nonatomic, retain, readwrite) NSManagedObjectContext * context;
 
@@ -55,7 +55,7 @@
 {
     self = [super init];
     if (self) {
-        _signals =  [NSMutableArray array];
+ 
          _appDelegate  = (PacoAppDelegate *) [UIApplication sharedApplication].delegate;
          _context =  _appDelegate.managedObjectContext;
     }
@@ -91,7 +91,7 @@
     if (![self.context save:&error])
     {
         NSLog(@"fail: %@", [error localizedDescription]);
-        assert(NO);
+        assert(FALSE);
     }
     
 }

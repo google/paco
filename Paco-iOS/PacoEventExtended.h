@@ -47,12 +47,12 @@ typedef NS_ENUM(NSInteger, PacoEventTypeExtended) {
 @property (nonatomic, retain) NSString  *scheduledTime;
 @property (nonatomic, readonly, copy) NSString *appId;
 @property (nonatomic, readonly, copy) NSString *pacoVersion;
-@property (nonatomic, copy)   NSString *experimentId;
+@property (nonatomic, copy)   NSNumber  *experimentId;
 @property (nonatomic, copy)   NSString *experimentName;
 @property (nonatomic, copy)   NSNumber*   experimentVersion;
 @property (nonatomic, retain) JavaUtilArrayList  *responses;
-@property (nonatomic,strong)  NSString* scheduleId;
-@property (nonatomic,strong)  NSString* actionTriggerId;
+@property (nonatomic,strong)  NSNumber* scheduleId;
+@property (nonatomic,strong)  NSNumber* actionTriggerId;
 @property (nonatomic,strong)  NSString* groupName;
 
 

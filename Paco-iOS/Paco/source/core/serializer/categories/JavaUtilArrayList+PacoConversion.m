@@ -19,7 +19,7 @@
     
     for(NSObject* o in self)
     {
-        [mutableArray addObject:o];
+        [mutableArray addObject:[o copy]];
     }
     return mutableArray;
     

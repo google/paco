@@ -1,21 +1,22 @@
 //
-//  PacoSignal.m
+//  EventRecord.m
 //  Paco
 //
 //  Created by northropo on 10/7/15.
 //  Copyright (c) 2015 Paco. All rights reserved.
 //
 
-#import "PacoSignal.h"
+#import "EventRecord.h"
 
 
-@implementation PacoSignal
+@implementation EventRecord
 
 @dynamic actionTriggerId;
-@dynamic alarmTime;
-@dynamic date;
+@dynamic eventBlob;
 @dynamic experimentId;
 @dynamic groupName;
+@dynamic scheduledTime;
 @dynamic scheduleId;
+@dynamic isUploaded;
 
 @end

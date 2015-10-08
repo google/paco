@@ -1,5 +1,5 @@
 //
-//  PacoSignal.h
+//  EventRecord.h
 //  Paco
 //
 //  Created by northropo on 10/7/15.
@@ -10,13 +10,14 @@
 #import <CoreData/CoreData.h>
 
 
-@interface PacoSignal : NSManagedObject
+@interface EventRecord : NSManagedObject
 
 @property (nonatomic, retain) NSNumber * actionTriggerId;
-@property (nonatomic, retain) NSNumber * alarmTime;
-@property (nonatomic, retain) NSNumber * date;
+@property (nonatomic, retain) NSData * eventBlob;
 @property (nonatomic, retain) NSNumber * experimentId;
 @property (nonatomic, retain) NSString * groupName;
+@property (nonatomic, retain) NSString * scheduledTime;
 @property (nonatomic, retain) NSNumber * scheduleId;
+@property (nonatomic, retain) NSNumber * isUploaded;
 
 @end
