@@ -20,7 +20,7 @@
         </md-select>
       </md-input-container>
 
-      <md-chips ng-if="userChips" ng-model="userChips" md-on-remove="removeUserChip()"></md-chips>
+      <md-chips ng-if="userChips" ng-model="userChips" md-on-remove="removeUserChip()" placeholder=""></md-chips>
 
       <md-menu md-offset="108 4" ng-if="table">
         <md-button aria-label="Toggle displayed columns" ng-click="$mdOpenMenu($event)">
