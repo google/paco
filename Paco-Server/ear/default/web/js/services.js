@@ -108,7 +108,6 @@ pacoApp.service('dataService', ['$http', '$timeout', '$q', 'config',
       getParticipantData: getParticipantData,
     });
 
-
     function getEvents(id, user, anonymous, cursor) {
 
       var endpoint = '/events?q=\'experimentId=' + id;
@@ -192,9 +191,6 @@ pacoApp.service('dataService', ['$http', '$timeout', '$q', 'config',
         };
         return defer.promise;
       }
-    }]);
-
-
 
     /**
     * Gets stats data from PACO server endpoint. Iterates over data to
@@ -233,6 +229,7 @@ pacoApp.service('dataService', ['$http', '$timeout', '$q', 'config',
 
       return defer.promise;
     }
+}]);
 
 
 pacoApp.service('config', function() {
