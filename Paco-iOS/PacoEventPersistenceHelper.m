@@ -231,6 +231,33 @@
 }
 
 
+-(NSArray*) allEvents
+{
+    NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
+    NSEntityDescription *entity = [NSEntityDescription entityForName:@"EventRecord" inManagedObjectContext:self.context];
+   [fetchRequest setEntity:entity];
+    NSError *error;
+    NSArray *eventRecords = [self.context executeFetchRequest:fetchRequest error:&error];
+    NSMutableArray* mutableArray = [NSMutableArray new];
+    NSArray* array = [PacoSerializeUtil getClassNames];
+    for(EventRecord* eventRecord in  eventRecords)
+    {
+        
+        NSData* data  =  eventRecord.eventBlob;
+        PacoSerializer * serializer = [[PacoSerializer alloc] initWithArrayOfClasses:array withNameOfClassAttribute:@"nameOfClass"];
+        NSString* str =  [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+        JavaUtilArrayList  *  resultArray  = (JavaUtilArrayList*) [serializer buildObjectHierarchyFromJSONOBject:data];
+        IOSObjectArray * iosArray = [resultArray toArray];
+        PacoEventExtended  * event =  [iosArray objectAtIndex:0];
+        [mutableArray addObject:event];
+        
+    }
+    return mutableArray;
+    
+    
+}
+
+
 - (void)insertEventWithPAEventInterface:(id<PAEventInterface>)event
 {
     [self insertRecord:event];
