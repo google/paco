@@ -85,6 +85,7 @@ public class EventServlet extends HttpServlet {
       if (includePhotosParam != null) {
         includePhotos = Boolean.parseBoolean(includePhotosParam);
       }
+      boolean cmdline = req.getParameter("cmdline") != null;
       String cursor = req.getParameter("cursor");
       String limitStr = req.getParameter("limit");
       int limit = 0;
@@ -100,13 +101,13 @@ public class EventServlet extends HttpServlet {
         dumpUserIdMapping(req, resp, limit, cursor);
       } else if (req.getParameter("json") != null) {
         resp.setContentType("application/json;charset=UTF-8");
-        dumpEventsJson(resp, req, anon, includePhotos, limit, cursor);
+        dumpEventsJson(resp, req, anon, includePhotos, limit, cursor, cmdline);
       } else if (req.getParameter("photozip") != null) {
-        dumpPhotosZip(resp, req, anon, limit, cursor);
+        dumpPhotosZip(resp, req, anon, limit, cursor, cmdline);
       } else if (req.getParameter("csv") != null) {
-        dumpEventsCSV(resp, req, anon, limit, cursor);
+        dumpEventsCSV(resp, req, anon, limit, cursor, cmdline);
       } else {
-        dumpEventsHtml(resp, req, anon, limit, cursor);
+        dumpEventsHtml(resp, req, anon, limit, cursor, cmdline);
       }
     }
   }
@@ -133,7 +134,7 @@ public class EventServlet extends HttpServlet {
   }
 
 
-  private void dumpEventsJson(HttpServletResponse resp, HttpServletRequest req, boolean anon, boolean includePhotos, int limit, String cursor) throws IOException {
+  private void dumpEventsJson(HttpServletResponse resp, HttpServletRequest req, boolean anon, boolean includePhotos, int limit, String cursor, boolean cmdline) throws IOException {
     List<com.google.sampling.experiential.server.Query> query = new QueryParser().parse(stripQuotes(HttpUtil.getParam(req, "q")));
     EventQueryResultPair eventQueryPair = getEventsWithQuery(req, query, limit, cursor);
     List<Event> events = eventQueryPair.getEvents();
@@ -224,7 +225,7 @@ public class EventServlet extends HttpServlet {
     return "Error could not retrieve events as json";
   }
 
-  private void dumpEventsCSV(HttpServletResponse resp, HttpServletRequest req, boolean anon, int limit, String cursor) throws IOException {
+  private void dumpEventsCSV(HttpServletResponse resp, HttpServletRequest req, boolean anon, int limit, String cursor, boolean cmdline) throws IOException {
     String loggedInuser = AuthUtil.getWhoFromLogin().getEmail().toLowerCase();
     if (loggedInuser != null && adminUsers.contains(loggedInuser)) {
       loggedInuser = defaultAdmin; //TODO this is dumb. It should just be the value, loggedInuser.
@@ -237,12 +238,16 @@ public class EventServlet extends HttpServlet {
       Thread.sleep(100);
     } catch (InterruptedException e) {
     }
-    resp.sendRedirect("/jobStatus?jobId=" + jobId);
+    if (cmdline) {
+      resp.getWriter().println(jobId);
+    } else {
+      resp.sendRedirect("/jobStatus?jobId=" + jobId);
+    }
 
   }
 
 
-  private void dumpEventsHtml(HttpServletResponse resp, HttpServletRequest req, boolean anon, int limit, String cursor) throws IOException {
+  private void dumpEventsHtml(HttpServletResponse resp, HttpServletRequest req, boolean anon, int limit, String cursor, boolean cmdline) throws IOException {
     String loggedInuser = AuthUtil.getWhoFromLogin().getEmail().toLowerCase();
     if (loggedInuser != null && adminUsers.contains(loggedInuser)) {
       loggedInuser = defaultAdmin; //TODO this is dumb. It should just be the value, loggedInuser.
@@ -255,10 +260,14 @@ public class EventServlet extends HttpServlet {
       Thread.sleep(100);
     } catch (InterruptedException e) {
     }
-    resp.sendRedirect("/jobStatus?jobId=" + jobId);
+    if (cmdline) {
+      resp.getWriter().println(jobId);
+    } else {
+      resp.sendRedirect("/jobStatus?jobId=" + jobId);
+    }
   }
 
-  private void dumpPhotosZip(HttpServletResponse resp, HttpServletRequest req, boolean anon, int limit, String cursor) throws IOException {
+  private void dumpPhotosZip(HttpServletResponse resp, HttpServletRequest req, boolean anon, int limit, String cursor, boolean cmdline) throws IOException {
     String loggedInuser = AuthUtil.getWhoFromLogin().getEmail().toLowerCase();
     if (loggedInuser != null && adminUsers.contains(loggedInuser)) {
       loggedInuser = defaultAdmin; //TODO this is dumb. It should just be the value, loggedInuser.
@@ -272,7 +281,11 @@ public class EventServlet extends HttpServlet {
       Thread.sleep(100);
     } catch (InterruptedException e) {
     }
-    resp.sendRedirect("/jobStatus?jobId=" + jobId);
+    if (cmdline) {
+      resp.getWriter().println(jobId);
+    } else {
+      resp.sendRedirect("/jobStatus?jobId=" + jobId);
+    }
   }
 
 
