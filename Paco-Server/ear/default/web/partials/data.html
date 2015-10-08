@@ -57,7 +57,7 @@
         </tbody>
       </table>
     </div>
-      
+
     <div ng-if="loading" class="status">
       <span>{{status}}</span>
       <md-button ng-click="loadEvents()" ng-if="loading === false && error">Reload</md-button>
@@ -67,6 +67,9 @@
     <md-card class="footer" ng-if="table">
       <md-card-content>
         Showing {{table.rows.length}} events
+        <a ng-href="{{screenData}}" download="table.csv">
+          <md-button>Table CSV</md-button>
+        </a>
         <md-button ng-if="eventCursor" ng-click="loadEvents()">
           Show More
         </md-button>
@@ -74,9 +77,15 @@
           <a ng-href="#/data/{{experiment.id}}/#{{columnString}}">
             <md-button>Column View</md-button>
           </a>
-          <a ng-href="{{csvData}}" download="export.csv" class="download">
-            <md-button>Download CSV</md-button>
+          <a ng-href="" ng-click="showReportOptions(experiment)" class="download">
+            <md-button>Report Options</md-button>
           </a>
+
+        <a class="button" id="downloadButton" download="report.{{reportType}}" href="{{reportData}}" ng-if="reportData">
+          <md-button class="md-raised md-primary">
+            Download {{reportType}}
+          </md-button>
+        </a>
         </div>
       </md-card-content>
     </md-card>
