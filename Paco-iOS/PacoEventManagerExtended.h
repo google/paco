@@ -35,7 +35,7 @@
 
 @interface PacoEventManagerExtended : NSObject
 
-+ (PacoEventManagerExtended*)defaultManager;
++ (PacoEventManagerExtended*) defaultManager;
 
 - (void)saveEvent:(PacoEventExtended*)event;
 - (void)saveEvents:(NSArray*)events;
@@ -46,9 +46,13 @@
 - (void)startUploadingEventsInBackgroundWithBlock:(void(^)(UIBackgroundFetchResult))completionBlock;
 
 - (void)stopUploadingEvents;
+- (void)markEventsComplete:(NSArray*)events;
+
 
 
 - (void)saveStopEventWithExperiment:(PacoExperimentExtended*)experiment;
+
+
 - (void)saveSelfReportEventWithDefinition:(PAExperimentDAO*)definition
                                 andInputs:(NSArray*)visibleInputs;
 - (void)saveSurveySubmittedEventForDefinition:(PAExperimentDAO*)definition

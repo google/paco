@@ -139,8 +139,8 @@ static NSString* const kAllEventsFileName = @"allEvents.plist";
     return self;
 }
 
-+ (PacoEventManager*)defaultManager {
-    return [[PacoEventManager alloc] init];
++ (PacoEventManagerExtended*)defaultManager {
+    return [[PacoEventManagerExtended alloc] init];
 }
 
 
@@ -253,15 +253,9 @@ static NSString* const kAllEventsFileName = @"allEvents.plist";
     
     @synchronized(self) {
         NSAssert(self.pendingEvents != nil, @"pending events should have already loaded!");
-        for (PacoEventExtended* event in events) {
-            NSUInteger index = [self.pendingEvents indexOfObject:event];
-            if (index == NSNotFound) {
-                DDLogError(@"[ERROR]: Can't mark event complete since it's not in the pending events list!");
-            }
-            else
-            {
-               [self.persistenceHelper markUploaded:event];
-            }
+        for (PacoEventExtended* event in events)
+        {
+            [self.persistenceHelper markUploaded:event];
         }
         
      
@@ -319,8 +313,9 @@ static NSString* const kAllEventsFileName = @"allEvents.plist";
                                 andInputs:(NSArray*)visibleInputs {
     PacoEventExtended* surveyEvent = [PacoEventExtended selfReportEventForDefinition:definition
                                                           withInputs:visibleInputs];
-    DDLogInfo(@"Save a self-report event");
     [self saveAndUploadEvent:surveyEvent];
+    
+    
 }
 
 
