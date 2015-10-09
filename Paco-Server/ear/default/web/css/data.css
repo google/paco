@@ -205,3 +205,23 @@ md-menu-item {
 .data md-chips .md-chips.md-focused {
   box-shadow: none;
 }
+
+.report  {
+  width: 600px;
+}
+
+.report md-select {
+  display: inline-block;
+}
+
+.report md-progress-circular {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+}
+
+.report .switches {
+  position: absolute;
+  left: 50%;
+  top: 24px;
+}
