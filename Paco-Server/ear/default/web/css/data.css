@@ -132,6 +132,28 @@ md-menu-item {
   white-space: nowrap;
 }
 
+.data table td.content {
+  overflow: hidden;
+  position: relative;
+}
+
+.data table td.content div img {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+}
+
+.data table td.content:hover {
+  overflow: visible;
+}
+
+.data table td.content:hover div img {
+  border: 1px solid gray;
+  width: 200px;
+  z-index: 100;
+}
+
 .data table td a {
   position: relative;
 }
@@ -224,4 +246,11 @@ md-menu-item {
   position: absolute;
   left: 50%;
   top: 24px;
+}
+
+.report .error {
+  position: absolute;
+  left: 16px;
+  bottom: 16px;
+  color: red;
 }
