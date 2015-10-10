@@ -27,9 +27,11 @@
 
 
 
-
 @interface PacoMediator ()
 
+
+
+@property (strong,nonatomic )  PacoNotificationManager* notificationManager;
 @property (strong,nonatomic ) NSMutableArray* allExperiments;
 @property (strong,nonatomic)   NSMutableArray* runningExperiments;
 @property (strong,nonatomic)  NSMutableArray* actionSpecifications;
@@ -71,11 +73,20 @@ static dispatch_group_t group;
         self.signalStore                  = [[PacoSignalStore alloc] init];
         self.eventStore                   = [[PacoEventStore alloc] init];
         self.actionDefinitionsDictionary  = [NSMutableDictionary new];
+        self.notificationManager =   [PacoNotificationManager managerWithDelegate:self firstLaunchFlag:NO];
+        
     }
     return self;
 }
 
 
+
+/* 
+ 
+  PacoMediator is a singleton instnace and should only use sharedInstance
+  to create/fetch  and instance
+ 
+ */
 + (PacoMediator*)sharedInstance
 {
     static dispatch_once_t once;
@@ -91,16 +102,29 @@ static dispatch_group_t group;
 }
 
 
--(NSArray*) runningExperiments
+/*
+     fetch all the experiments that are currently running
+ */
+
+
+-(NSMutableArray*) startedExperiments
 {
     return  _runningExperiments;
 }
 
 
+/*
+   return all running experiments.
+ 
+ */
+-(NSMutableArray*) experiments
+{
+    return  _allExperiments;
+}
 
 
 /*
-    need to recalculate most of the experiments
+    need to recalculate  experiments
  */
 -(void)  recalculateExperiments:(BOOL) shouldCancelAllExperiments
 {
@@ -110,7 +134,10 @@ static dispatch_group_t group;
     });
 }
 
-
+/*
+      modify the
+ 
+ */
 -(ValidatorExecutionStatus) modifyExperimentRegenerate:(NSString*) experimentId
 {
     
@@ -149,7 +176,7 @@ static dispatch_group_t group;
 
 /*
  
-calculate the action specifications and reset the based upon the most recent
+calculate the action specifications and reset the based upon the most recent version
  
 */
 -(ValidatorExecutionStatus) startRunningExperimentRegenerate:(NSString*) experimentId
@@ -181,7 +208,7 @@ calculate the action specifications and reset the based upon the most recent
 
 
 /*
-    calculate the action specifications and reset the based upon the most recent
+    calculate the action specifications and reset the based upon the most recent experiment added
  */
 -(ValidatorExecutionStatus) startRunningExperiment:(NSString*) experimentId
 {
@@ -204,8 +231,7 @@ calculate the action specifications and reset the based upon the most recent
                           [_runningExperiments addObject:experiment];
                                
                          
-                           /*  now lets rebuild all the action specifications */
-                            PacoNotificationManager* manager =   [PacoNotificationManager managerWithDelegate:self firstLaunchFlag:NO];
+                         
                                
                                
                             /* now lets get all action specifications accross all experiments */
@@ -214,7 +240,7 @@ calculate the action specifications and reset the based upon the most recent
                          
                              NSArray* notifications = [UILocalNotification pacoNotificationsForExperimentSpecifications:actionSpecifications];
                                
-                             [manager scheduleNotifications:notifications]; 
+                             [self.notificationManager scheduleNotifications:notifications];
                          
                               /* add object to running experiments */
                                
@@ -252,11 +278,10 @@ calculate the action specifications and reset the based upon the most recent
                   
                       [self.runningExperiments removeObject:experiment];
                       
-                      /*  now lets rebuild all the action specifications */
-                       PacoNotificationManager* manager =   [PacoNotificationManager managerWithDelegate:self firstLaunchFlag:NO];
+                      
                       
                       /* cancell the notifications for this exeriment */
-                      [manager  cancelNotificationsForExperiment:experimentId];
+                      [self.notificationManager  cancelNotificationsForExperiment:experimentId];
                       
                        });
                   
@@ -317,8 +342,8 @@ calculate the action specifications and reset the based upon the most recent
 {
      dispatch_sync(serialQueue, ^{
          
-         PacoNotificationManager* manager =   [PacoNotificationManager managerWithDelegate:self firstLaunchFlag:NO];
-         [manager cancelAllPacoNotifications];
+        
+         [self.notificationManager cancelAllPacoNotifications];
          [self.runningExperiments removeAllObjects];
          
       });
@@ -333,9 +358,8 @@ calculate the action specifications and reset the based upon the most recent
           _actionSpecifications= [[NSMutableArray alloc] initWithArray:newActionSpecifications];
           NSArray* notifications = [UILocalNotification pacoNotificationsForExperimentSpecifications:_actionSpecifications];
           
-          /*  now lets rebuild all the notifications  */
-          PacoNotificationManager* manager =   [PacoNotificationManager managerWithDelegate:self firstLaunchFlag:remveAll];
-          [manager scheduleNotifications:notifications];
+       
+          [self.notificationManager scheduleNotifications:notifications];
    
       });
 }
@@ -353,11 +377,8 @@ calculate the action specifications and reset the based upon the most recent
         ValidatorExecutionStatus  shouldStart =  [validator shouldStart:experiment Specifications:specifications];
         if( shouldStart & ValidatorExecutionStatusSuccess)
         {
-            
             break;
-            
         }
-        
     }
                             
     return shouldStartExperiment;

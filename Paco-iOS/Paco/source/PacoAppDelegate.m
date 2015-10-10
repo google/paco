@@ -30,6 +30,8 @@
 #import "DDTTYLogger.h"
 #import "ScheduleTestViewController.h"
 #import "PacoScheduler.h"
+#import "PacoTableExperimentsController.h" 
+
 
 
 
@@ -158,7 +160,7 @@
   
     
      self.testViewController   = [[ScheduleTestViewController alloc]  initWithNibName:@"ScheduleTestViewController" bundle:nil];
-    
+     self.testTableViewController = [[PacoTableExperimentsController alloc] initWithNibName:@"PacoTableExperimentsController" bundle:nil];
     
     // Stir!
   arc4random_stir();
@@ -196,7 +198,7 @@
     self.viewController = [[PacoMainViewController alloc] initWithNibName:nil bundle:nil];
   }
 
-  self.window.rootViewController = [[UINavigationController alloc] initWithRootViewController:self.testViewController];
+  self.window.rootViewController = [[UINavigationController alloc] initWithRootViewController:self.testTableViewController];
   [self.window makeKeyAndVisible];
   
   

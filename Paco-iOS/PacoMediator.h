@@ -26,12 +26,16 @@
 @interface PacoMediator : NSObject<PacoNotificationManagerDelegate>
 
 
-
+@property (strong,readonly )  PacoNotificationManager* notificationManager;
 @property (strong,nonatomic) PacoSignalStore * signalStore;
 @property (strong,nonatomic) PacoEventStore * eventStore;
 
 
 + (PacoMediator*) sharedInstance;
+
+
+-(NSMutableArray*) experiments;
+-(NSMutableArray*) startedExperiments;
 
 
 -(void) clearRunningExperiments;
@@ -47,6 +51,9 @@
 -(ValidatorExecutionStatus) startRunningExperiment:(NSString*) experimentIdId;
 
 -(ValidatorExecutionStatus) startRunningExperimentRegenerate:(NSString*) experimentId;
+-(ValidatorExecutionStatus) stopRunningExperimentRegenerate:(NSString*) experimentId;
+
+
 
 /* registration methods*/
  

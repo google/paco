@@ -7,8 +7,7 @@
     <objects>
         <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="ScheduleTestViewController">
             <connections>
-                <outlet property="firstTime" destination="7eT-e7-XoA" id="fRl-Gq-MUY"/>
-                <outlet property="secondTime" destination="OQO-3T-Wzv" id="hx9-Dj-rez"/>
+                <outlet property="jsonField" destination="jTb-Nf-Dag" id="Vk7-Sr-0Mi"/>
                 <outlet property="view" destination="i5M-Pr-FkT" id="sfx-zR-JGt"/>
             </connections>
         </placeholder>
@@ -17,65 +16,40 @@
             <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
             <subviews>
-                <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="0uf-8U-PFO">
-                    <rect key="frame" x="123" y="237" width="43" height="30"/>
-                    <state key="normal" title="Fire .5">
+                <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="jTb-Nf-Dag">
+                    <rect key="frame" x="7" y="121" width="305" height="434"/>
+                    <color key="backgroundColor" cocoaTouchSystemColor="groupTableViewBackgroundColor"/>
+                    <color key="textColor" red="1" green="0.44745192806132672" blue="0.38229634270196022" alpha="1" colorSpace="calibratedRGB"/>
+                    <fontDescription key="fontDescription" type="system" pointSize="9"/>
+                    <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
+                </textView>
+                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="dHS-2c-dyT">
+                    <rect key="frame" x="112" y="71" width="110" height="30"/>
+                    <state key="normal" title="Add Experiment">
                         <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
                     </state>
                     <connections>
-                        <action selector="firePointFive:" destination="-1" eventType="touchUpInside" id="ikB-zd-cD7"/>
-                    </connections>
-                </button>
-                <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="First Time" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="7eT-e7-XoA">
-                    <rect key="frame" x="96" y="159" width="112" height="30"/>
-                    <fontDescription key="fontDescription" type="system" pointSize="14"/>
-                    <textInputTraits key="textInputTraits"/>
-                </textField>
-                <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="Second Time" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="OQO-3T-Wzv">
-                    <rect key="frame" x="96" y="197" width="112" height="30"/>
-                    <fontDescription key="fontDescription" type="system" pointSize="14"/>
-                    <textInputTraits key="textInputTraits"/>
-                </textField>
-                <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Niu-q5-E0h">
-                    <rect key="frame" x="110" y="297" width="30" height="30"/>
-                    <state key="normal" title="Test">
-                        <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
-                    </state>
-                    <connections>
-                        <action selector="Test:" destination="-1" eventType="touchUpInside" id="DqL-K4-lkd"/>
-                    </connections>
-                </button>
-                <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Tfq-BZ-pTo">
-                    <rect key="frame" x="73" y="397" width="94" height="30"/>
-                    <state key="normal" title="readAndWrite">
-                        <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
-                    </state>
-                    <connections>
-                        <action selector="readAndWrite:" destination="-1" eventType="touchUpInside" id="2cc-pv-72i"/>
-                    </connections>
-                </button>
-                <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="SUy-jB-JL6">
-                    <rect key="frame" x="73" y="435" width="107" height="30"/>
-                    <state key="normal" title="LoadDefinitions">
-                        <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
-                    </state>
-                    <connections>
-                        <action selector="loadDefinitions:" destination="-1" eventType="touchUpInside" id="bsh-Hc-1Y0"/>
-                    </connections>
-                </button>
-                <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="plH-2N-glN">
-                    <rect key="frame" x="65" y="459" width="111" height="30"/>
-                    <state key="normal" title="Join Experiment">
-                        <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
-                    </state>
-                    <connections>
-                        <action selector="JoinExperiment:" destination="-1" eventType="touchUpInside" id="6r4-ZF-rmx"/>
+                        <action selector="AddExperiment:" destination="-1" eventType="touchUpInside" id="Ibk-Up-j3s"/>
                     </connections>
                 </button>
             </subviews>
             <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
+            <constraints>
+                <constraint firstAttribute="trailing" secondItem="jTb-Nf-Dag" secondAttribute="trailing" id="3lv-ch-4sm"/>
+                <constraint firstAttribute="trailing" secondItem="jTb-Nf-Dag" secondAttribute="trailing" constant="8" id="5et-kv-6Dv"/>
+                <constraint firstItem="jTb-Nf-Dag" firstAttribute="top" secondItem="dHS-2c-dyT" secondAttribute="bottom" constant="20" id="CcG-rx-RKL"/>
+                <constraint firstItem="jTb-Nf-Dag" firstAttribute="leading" secondItem="i5M-Pr-FkT" secondAttribute="leading" constant="7" id="EpZ-2Y-wNK"/>
+                <constraint firstAttribute="centerX" secondItem="dHS-2c-dyT" secondAttribute="centerX" constant="-7" id="UM5-NX-79V"/>
+                <constraint firstItem="dHS-2c-dyT" firstAttribute="top" secondItem="i5M-Pr-FkT" secondAttribute="top" constant="71" id="ZYD-5p-Oh5"/>
+                <constraint firstAttribute="bottom" secondItem="jTb-Nf-Dag" secondAttribute="bottom" constant="13" id="xNw-i6-Hsi"/>
+            </constraints>
             <simulatedScreenMetrics key="simulatedDestinationMetrics" type="retina4"/>
-            <point key="canvasLocation" x="366" y="79"/>
+            <variation key="default">
+                <mask key="constraints">
+                    <exclude reference="3lv-ch-4sm"/>
+                </mask>
+            </variation>
+            <point key="canvasLocation" x="291" y="107"/>
         </view>
     </objects>
 </document>

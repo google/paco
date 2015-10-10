@@ -77,7 +77,6 @@ static NSString* def3 = @"{\r\n  \"title\": \"Only One Event Today (rolling)\",\
 
 
 
-
 @interface PacoMediator ()
 
 @property (strong,nonatomic ) NSMutableArray* allExperiments;
@@ -98,19 +97,9 @@ static NSString* def3 = @"{\r\n  \"title\": \"Only One Event Today (rolling)\",\
 
 - (void)setUp {
     [super setUp];
-    
-    
-    
-    static dispatch_once_t once;
-  
-    //dispatch_once(&once, ^{
+
         [self setup];
-   // });
-        
     
-    
-  
- 
 }
 
 
@@ -123,48 +112,29 @@ static NSString* def3 = @"{\r\n  \"title\": \"Only One Event Today (rolling)\",\
     PacoSignalStore * signalStore          =  [[PacoSignalStore alloc] init];
     PacoEventStore  * eventStore           =  [[PacoEventStore  alloc] init];
     PAExperimentDAO*  experiment  = [self experimentDAO:3];
-    
-    
-    
+
     [[PacoMediator sharedInstance] clearRunningExperiments];
-    
-    
     [[PacoMediator sharedInstance] addExperimentToAvailableStore:experiment];
-    
     [[PacoMediator sharedInstance] startRunningExperiment:[experiment instanceId]];
-    
     
     NSMutableDictionary * results  = [[NSMutableDictionary alloc] init];
     [results setObject:[NSMutableArray new] forKey:[self uniqueId:experiment]];
     [self getFireTimes:experiment  results:results SignalStore:signalStore EventStore:eventStore];
     NSArray* definitions  = [results objectForKey:[self uniqueId:experiment]];
     PAActionSpecification*  spec = [definitions firstObject];
-    
     _fireTimes = definitions;
-    
     self.testID =              [[experiment valueForKeyEx:@"id"] stringValue];
     self.testTitle =           [experiment valueForKeyEx:@"title"]  ;
-    self.testFireDate =        [[spec valueForKey:@"time_"]  nsDateValue];
+    self.testFireDate =        [[spec valueForKey:@"time"]  nsDateValue];
     long  timeoutVal =         [ [experiment valueForKeyPathEx:@"groups[0].actionTriggers[0].actions[0].timeout"] longValue];
     self.testTimeoutDate =      [NSDate dateWithTimeInterval:timeoutVal  sinceDate:self.testFireDate];
     self.groupId =               [experiment valueForKeyPathEx:@"groups[0].name"] ;
     self.groupName =             [experiment valueForKeyPathEx:@"groups[0].name"]  ;
     self.actionTriggerId=        [[experiment valueForKeyPathEx:@"groups[0].actionTriggers[0].id"] stringValue];
-    
-    
     self.notificationActionId  =   self.notificationActionId  = [[experiment valueForKeyPathEx:@"groups[0].actionTriggers[0].actions[0].id"] stringValue];
     self.triggerSpecId = @"trigger spec id";
-    
-    
-    
-    
+
     _schedulerDelegate = [[PacoSchedulingUtil alloc] init];
-    
-    
-    
-    
-    
-    
    // buildActionSpecifications:(NSArray*) experiments IsDryRun:(BOOL) isTryRun;
     
 

@@ -226,7 +226,7 @@
     
     
     
-    [self recurseJason:@[ PACO_OBJECT_PARENT, @[definitionDict] ]];
+    [self recurseJason:@[PACO_OBJECT_PARENT, @[definitionDict] ]];
     return _parentNode;
 }
 
@@ -450,7 +450,7 @@
   clazzName = dictionary[_nameOfClass];
   NSRange r1 = [clazzName rangeOfString:@"." options:NSBackwardsSearch];
   clazzName = [clazzName substringFromIndex:r1.location + 1];
-  if([_outOfDomainClasseNames containsObject:clazzName])
+  if(_outOfDomainClasseNames==nil || ![_outOfDomainClasseNames containsObject:clazzName])
    {
       clazzName = [NSString stringWithFormat:@"PA%@", clazzName];
    }

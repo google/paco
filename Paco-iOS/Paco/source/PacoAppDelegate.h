@@ -19,12 +19,13 @@
 
 /* 888 */
 @class ScheduleTestViewController;
-
+@class PacoTableExperimentsController;
 @interface PacoAppDelegate : UIResponder <UIApplicationDelegate>
 
 @property (strong, nonatomic) UIWindow *window;
 
 @property (strong, nonatomic) ScheduleTestViewController *testViewController;
+@property (strong, nonatomic) PacoTableExperimentsController *testTableViewController;
 
 @property (strong, nonatomic) PacoMainViewController *viewController;
 

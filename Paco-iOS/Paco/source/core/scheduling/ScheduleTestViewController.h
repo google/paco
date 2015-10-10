@@ -14,12 +14,9 @@
 @class PacoSchedulingUtil;
 @class PacoExtendedClient;
 
-@interface ScheduleTestViewController : UIViewController<PacoNotificationManagerDelegate>
-@property (weak, nonatomic) IBOutlet UITextField *firstTime;
-@property (weak, nonatomic) IBOutlet UITextField *secondTime;
-@property (nonatomic, retain) PacoScheduler *scheduler;
-@property (nonatomic, retain) PacoSchedulingUtil* schedulerDelegate;
-@property (nonatomic, retain) PacoExtendedClient*   client;
+@interface ScheduleTestViewController : UIViewController
 
+@property (weak, nonatomic) IBOutlet UITextView *jsonField;
+@property (strong,nonatomic) NSMutableArray* mutableArray;
 
 @end

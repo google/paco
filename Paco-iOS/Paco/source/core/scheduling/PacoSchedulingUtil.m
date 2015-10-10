@@ -169,8 +169,17 @@
         
         PAActionScheduleGenerator *actionScheduleGenerator = [[PAActionScheduleGenerator alloc] initWithPAExperimentDAO:definition];
         
-        
+        // po [definition valueForKeyPathEx:@"groups[0].actionTriggers[0].actions[0].timeout"]
+        /*  
+          seems to return nil for action
+         */
         actionSpecification   = [actionScheduleGenerator getNextTimeFromNowWithOrgJodaTimeDateTime:nextTime withPAEsmSignalStore:signalStore withPAEventStore:eventStore];
+        
+        if(actionSpecification->action_ == nil)
+        {
+            
+            NSLog(@"this is an exeption");
+        }
         
         if( actionSpecification )
         {
@@ -238,6 +247,7 @@
  ShouldCancelAllNotifications:(BOOL) shouldCancellAllNotifications
 {
     NSArray* newActionSpecifications  = [PacoSchedulingUtil buildActionSpecifications:experimentsToRun  IsDryRun:NO ActionSpecificationsDictionary:actionSpecificationsDictionary];
+    
     [[PacoMediator sharedInstance] updateActionSpecifications:newActionSpecifications RemoveAllNotifications:shouldCancellAllNotifications];
 }
 

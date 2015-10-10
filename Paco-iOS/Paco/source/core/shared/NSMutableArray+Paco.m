@@ -14,7 +14,6 @@
  */
 
 #import "NSMutableArray+Paco.h"
-#import "UILocalNotification+Paco.h"
 #import "UILocalNotification+PacoExteded.h"
 #import "PacoDateUtility.h"
 #import "NSDate+Paco.h"
@@ -68,8 +67,8 @@
              [current isKindOfClass:[UILocalNotification class]],
              @"all elements should be UILocalNotification object");
     
-    NSDate* prevFireDate = [prev pacoFireDate];
-    NSDate* currentFireDate = [current pacoFireDate];
+    NSDate* prevFireDate = [prev pacoFireDateExt];
+    NSDate* currentFireDate = [current pacoFireDateExt];
     NSAssert([prevFireDate pacoNoLaterThanDate:currentFireDate],
              @"previous should be earlier than or equal to current after sorting");
     if (![currentFireDate isEqualToDate:prevFireDate]) {
@@ -161,7 +160,7 @@
   for (id object in self) {
     UILocalNotification* notification = (UILocalNotification*)object;
     NSAssert([notification isKindOfClass:[UILocalNotification class]], @"every element should be UILocalNotification");
-    descript = [descript stringByAppendingString:[notification pacoDescription]];
+    descript = [descript stringByAppendingString:[notification pacoDescriptionExt]];
     descript = [descript stringByAppendingString:@"\n"];
   }
   descript = [descript stringByAppendingString:@")"];
