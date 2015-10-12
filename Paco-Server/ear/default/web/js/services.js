@@ -390,7 +390,9 @@ pacoApp.service('template', function() {
 
   this.defaultAction = {
     type: 'pacoNotificationAction',
-    timeout: 15
+    timeout: 15,
+    color: 0,
+    dismissible: true
   };
 
   this.schedule = {
