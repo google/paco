@@ -443,11 +443,13 @@ pacoApp.controller('DataCtrl', ['$scope', '$mdDialog', '$location', '$filter',
     $scope.eventCursor = null;
     $scope.events = null;
     $scope.screenData = null;
+    $scope.photoHeader = 'data:image/jpeg;base64,';
+    $scope.photoMarker = '/9j/';
 
     $scope.switchView = function() {
       var newPath = $scope.currentView + '/' + $scope.experimentId;
       if ($scope.userChips) {
-        newPath += '/' + $scope.user;
+        newPath += '/' + $scope.userChips[0];
       }
       $location.path(newPath);
     }
@@ -573,6 +575,11 @@ pacoApp.controller('DataCtrl', ['$scope', '$mdDialog', '$location', '$filter',
       $scope.status = 'Sending stats request';
     }
 
+    $scope.isPhotoData = function(data) {
+      return (typeof(data) === 'string' &&
+                data.indexOf($scope.photoMarker) === 0);
+    }
+
     $scope.removeUserChip = function() {
       var newPath = $scope.currentView + '/' + $scope.experimentId;
       $location.path(newPath);
@@ -630,15 +637,27 @@ pacoApp.controller('ReportCtrl', ['$scope', '$mdDialog', 'dataService',
   function($scope, $mdDialog, dataService, config, experiment, anonymous) {
     $scope.reportTypes = ['csv','html','json'];
     $scope.hide = $mdDialog.hide;
-    $scope.anonymous = anonymous;
     $scope.reportURL = '/events?q=\'experimentId=' + experiment.id + '\'&csv&cmdline=1';
     $scope.csvData = null;
     $scope.loading = false;
+    $scope.options = {
+      photos: false,
+      anonymous: false,
+    }
 
     $scope.getReport = function() {
       $scope.loading = true;
-      dataService.getReport(experiment.id, null, $scope.reportType, $scope.anonymous, $scope.photos)
+      $scope.error = null;
+      dataService.getReport(experiment.id, null, $scope.reportType,
+          $scope.options.anonymous, $scope.options.photos)
         .then(function(result) {
+
+          if (result.error) {
+            $scope.loading = false;
+            $scope.error = result.error;
+            return;
+          }
+
           var blob = new Blob([result.data], {
             type: 'text/' + $scope.reportType
           });

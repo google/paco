@@ -20,7 +20,7 @@
         </md-select>
       </md-input-container>
 
-      <md-chips ng-if="userChips" ng-model="userChips" md-on-remove="removeUserChip()"></md-chips>
+      <md-chips ng-if="userChips" ng-model="userChips" md-on-remove="removeUserChip()" placeholder=""></md-chips>
 
       <md-menu md-offset="108 4" ng-if="table">
         <md-button aria-label="Toggle displayed columns" ng-click="$mdOpenMenu($event)">
@@ -34,7 +34,7 @@
           </md-menu-item>
         </md-menu-content>
       </md-menu>
-    </div>    
+    </div>
 
     <div ng-if="table && table.rows.length > 0" class="frame">
       <table>
@@ -49,9 +49,14 @@
             </td>
           </tr>
           <tr ng-repeat="row in table.rows | orderBy: columnSort: reverseSort">
-            <td ng-repeat="cell in row track by $index" ng-show="showColumn[table.header[$index]]">
+            <td ng-repeat="cell in row track by $index" ng-show="showColumn[table.header[$index]]" class="content">
               <a href="#/data/{{experiment.id}}/{{cell}}" ng-if="table.header[$index]=='who' && !users && !anon">{{cell}}</a>
-              <span ng-if="table.header[$index]!='who' || users || anon">{{cell}}&nbsp;</span>
+
+              <div ng-if="table.header[$index]!='who' || users || anon"
+                ng-switch="isPhotoData(cell)">
+                <img ng-switch-when="true" ng-src="{{photoHeader}}{{cell}}">
+                <span ng-switch-when="false">{{cell}}&nbsp;</span>
+              </div>
             </td>
           </tr>
         </tbody>

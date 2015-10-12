@@ -116,7 +116,7 @@ pacoApp.service('dataService', ['$http', '$timeout', '$q', 'config',
         endpoint += ':who=' + user;
       }
 
-      endpoint += '\'&json';
+      endpoint += '\'&json&includePhotos=true';
 
       if (anonymous) {
         endpoint += '&anon=true';
@@ -181,7 +181,7 @@ pacoApp.service('dataService', ['$http', '$timeout', '$q', 'config',
           $http.get(jobUrl).success(
             function(data) {
               if (data === 'pending\n') {
-                $timeout(poll, 1000);
+                $timeout(poll, 3000);
               } else {
                 var csv = data.trim();
                 defer.resolve({'data': csv});
