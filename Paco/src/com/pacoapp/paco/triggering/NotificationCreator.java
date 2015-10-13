@@ -394,7 +394,8 @@ public class NotificationCreator {
                                                                                             .setContentText(message)
                                                                                             .setWhen(notificationHolder.getAlarmTime())
                                                                                             .setContentIntent(notificationIntent)
-                                                                                            .setAutoCancel(dismissible)
+                                                                                            .setOngoing(!dismissible) //whether it's dismissible
+                                                                                            .setAutoCancel(dismissible) //whether it should disappear on user click
                                                                                             .setLights(color,PacoNotificationAction.DEFAULT_NOTIFICATION_DELAY,PacoNotificationAction.DEFAULT_NOTIFICATION_DELAY)
                                                                                             .setStyle(bigStyle);
 
