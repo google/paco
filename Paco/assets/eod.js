@@ -1126,19 +1126,31 @@ paco.executeEod = (function() {
       return paco.db.getResponseForItem(responses, item);
     }
     
+    function isActive(eventDate, now, triggerTime, timeout) { 
+      return eventDate.getDate() == now.getDate() || 
+             eventDate.getDate() == (now.getDate() - 1)  && 
+                 now.getTime() <= new Date(eventDate.getFullYear(), 
+                                           eventDate.getMonth(), 
+                                           eventDate.getDate()).getTime() + triggerTime + timeout; 
+    };
+    
     var getActiveEventsWithoutEod = function(referredExperimentGroup, experimentGroup, db) {      
       var dailyEvents = []; // responseTime, event
       var eodEvents = {}; // eodResponseTime, event
-      var timeout = experimentGroup.actionTriggers[0].actions[0].timeout * 60 * 1000; // in millis
-      var now = new Date().getTime();
-      var cutoffDateTimeMs = now - timeout;
+      var trigger = experimentGroup.actionTriggers[0];
+      var triggerTime = trigger.schedules[0].signalTimes[0];
+      var timeout = trigger.actions[0].timeout * 60 * 1000; // in millis
+      
+      var now = new Date();
+      
       var allEvents = db.getAllEvents();
       for (var i = 0; i < allEvents.length; i++) {
         var event = allEvents[i];
         if (!event.responseTime) {
           continue;
         } 
-        if (new Date(event.responseTime).getTime() < cutoffDateTimeMs) {
+        var eventDateTime = new Date(event.responseTime);
+        if (!isActive(eventDateTime, now, triggerTime, timeout)) {
           // maybe build the list of already expired events to show as well.
           break;
         }

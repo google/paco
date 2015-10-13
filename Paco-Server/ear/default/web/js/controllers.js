@@ -7,6 +7,10 @@ pacoApp.controller('HomeCtrl', ['$scope', '$http', '$location',
     $scope.loaded = false;
     $scope.edit = false;
 
+    $scope.home = function() {
+       document.location = '/';
+    };
+
     $scope.scrolling = function(flag) {
       if (flag) {
         angular.element(document.body).removeClass('no-scroll');
@@ -28,8 +32,8 @@ pacoApp.controller('HomeCtrl', ['$scope', '$http', '$location',
 
     $scope.forceHttps();
 
-    $scope.$on('$viewContentLoaded', 
-      function(event){ 
+    $scope.$on('$viewContentLoaded',
+      function(event){
         $scope.scrolling(true);
       });
 
@@ -59,7 +63,7 @@ pacoApp.controller('ExperimentCtrl', ['$scope', '$mdDialog', '$filter',
     $scope.ace = {};
     $scope.feedbackTypes = config.feedbackTypes;
     $scope.ringtones = config.ringtones;
-    $scope.tabs = config.tabs;
+    $scope.tabs = config.editTabs;
 
     $scope.state = {
       tabId: 0,
@@ -67,7 +71,7 @@ pacoApp.controller('ExperimentCtrl', ['$scope', '$mdDialog', '$filter',
     };
 
     if ($location.hash()) {
-      var newTabId = config.tabs.indexOf($location.hash());
+      var newTabId = config.editTabs.indexOf($location.hash());
       if (newTabId !== -1) {
         $scope.state.tabId = newTabId;
       }
@@ -113,7 +117,7 @@ pacoApp.controller('ExperimentCtrl', ['$scope', '$mdDialog', '$filter',
     } else if ($scope.experimentId) {
       experimentService.getExperiment($scope.experimentId).then(
         function(response) {
-          var data = response.data;
+          var data = response.data.results;
           $scope.experiment = data[0];
           $scope.experiment0 = angular.copy(data[0]);
           $scope.prepareSourceAce();
@@ -141,16 +145,15 @@ pacoApp.controller('ExperimentCtrl', ['$scope', '$mdDialog', '$filter',
       }
     });
 
-    // TODO(ispiro): figure out a way to disable the default # scrolling 
     $scope.$watch('state.tabId', function(newValue, oldValue) {
-      if (config.tabs[$scope.state.tabId] === 'source') {
+      if (config.editTabs[$scope.state.tabId] === 'source') {
         $scope.prepareSourceAce();
       }
 
       if ($scope.state.tabId === 0) {
         $location.hash('');
       } else if ($scope.state.tabId > 0) {
-        $location.hash(config.tabs[$scope.state.tabId]);
+        $location.hash(config.editTabs[$scope.state.tabId]);
       }
     });
 
@@ -235,7 +238,7 @@ pacoApp.controller('ExperimentCtrl', ['$scope', '$mdDialog', '$filter',
 
           var data = response.data;
 
-          // Save may succeed if post request was in flight when canceled 
+          // Save may succeed if post request was in flight when canceled
           if ($scope.cancelSave) {
             return;
           }
@@ -288,8 +291,29 @@ pacoApp.controller('ExperimentCtrl', ['$scope', '$mdDialog', '$filter',
 
 
 pacoApp.controller('ListCtrl', ['$scope', '$mdDialog', '$location',
-  'experimentService',
-  function($scope, $mdDialog, $location, experimentService) {
+  'experimentService', 'config',
+  function($scope, $mdDialog, $location, experimentService, config) {
+
+    $scope.cursor = {};
+    $scope.list = {};
+    $scope.loading = {};
+    $scope.state = {};
+
+    if ($location.hash()) {
+      var newTabId = config.listTabs.indexOf($location.hash());
+      if (newTabId !== -1) {
+        $scope.state.listTab = newTabId;
+      }
+    }
+
+    $scope.$watch('state.listTab', function(newValue, oldValue) {
+      if ($scope.state.listTab === 0) {
+        $location.hash('');
+      } else if ($scope.state.listTab > 0) {
+        $location.url('/experiments');
+        $location.hash(config.listTabs[$scope.state.listTab]);
+      }
+    });
 
     $scope.$watch('user', function(newValue, oldValue) {
       if ($scope.user) {
@@ -297,16 +321,17 @@ pacoApp.controller('ListCtrl', ['$scope', '$mdDialog', '$location',
       }
     });
 
-    $scope.loadList = function(reload) {
-      $scope.loadAdmin(reload);
-      $scope.loadJoined(reload);
-      $scope.loadJoinable(reload);
+    $scope.loadList = function() {
+      $scope.loadAdmin();
+      $scope.loadJoined();
+      $scope.loadJoinable();
     };
 
-    $scope.loadJoined = function(reload) {
-      experimentService.getJoined(reload).then(function(response) {
-        var data = response.data;
-        $scope.joined = data;
+    $scope.loadJoined = function() {
+      $scope.loading.joined = true;
+      experimentService.getExperimentList('joined', false).then(function(response) {
+        var data = response.data.results;
+        $scope.list.joined = data;
         $scope.joinedIndex = [];
         $scope.eodExperiments = {};
         for (var i = 0; i < data.length; i++) {
@@ -318,20 +343,41 @@ pacoApp.controller('ListCtrl', ['$scope', '$mdDialog', '$location',
             }
           }
         }
+        $scope.loading.joined = false;
       });
     };
 
-    $scope.loadAdmin = function(reload) {
-      experimentService.getAdministered(reload).then(function(response) {
-        $scope.experiments = response.data;
+    $scope.loadAdmin = function() {
+      $scope.loading.admin = true;
+      experimentService.getExperimentList('admin', true).then(function(response) {
+        $scope.cursor.admin = response.data.cursor;
+        $scope.list.admin = response.data.results;
+        $scope.loading.admin = false;
       });
     }
 
-    $scope.loadJoinable = function(reload) {
-      experimentService.getJoinable(reload).then(function(response) {
-        $scope.joinable = response.data;
+    $scope.loadJoinable = function() {
+      $scope.loading.mine = true;
+      experimentService.getExperimentList('mine', true).then(function(response) {
+        $scope.cursor.mine = response.data.cursor;
+        $scope.list.mine = response.data.results;
+        $scope.loading.mine = false;
       });
     };
+
+    $scope.loadMore = function(listName) {
+      var cursor = $scope.cursor[listName];
+      experimentService.getExperimentList(listName, true, cursor).then(function(response) {
+
+        if (response.data.results.length < response.data.limit) {
+          $scope.cursor[listName] = null;
+        } else {
+          $scope.cursor[listName] = response.data.cursor;
+        }
+
+        $scope.list[listName] = $scope.list[listName].concat(response.data.results)
+      });
+    }
 
     $scope.deleteExperiment = function(ev, exp) {
       var confirm = $mdDialog.confirm()
@@ -346,7 +392,8 @@ pacoApp.controller('ListCtrl', ['$scope', '$mdDialog', '$location',
         exp.deleted = true;
         experimentService.deleteExperiment(exp.id).
         then(function(response) {
-          $scope.loadList(true);
+          experimentService.invalidateCachedLists();
+          $scope.loadList();
 
           // If we're on the experiment or edit page, change location to home
           if ($location.path().indexOf('/experiment/') === 0 ||
@@ -361,7 +408,8 @@ pacoApp.controller('ListCtrl', ['$scope', '$mdDialog', '$location',
       experimentService.joinExperiment(exp)
         .then(function(result) {
           if (result.data && result.data[0].status === true) {
-            $scope.loadList(true);
+            experimentService.invalidateCachedList('joined');
+            $scope.loadJoined();
 
             $mdDialog.show(
               $mdDialog.alert()
@@ -381,7 +429,7 @@ pacoApp.controller('ListCtrl', ['$scope', '$mdDialog', '$location',
 
 pacoApp.controller('DataCtrl', ['$scope', '$mdDialog', '$location', '$filter',
   '$routeParams','dataService', 'experimentService', 'config',
-  function($scope, $mdDialog, $location, $filter, $routeParams, dataService, 
+  function($scope, $mdDialog, $location, $filter, $routeParams, dataService,
     experimentService, config) {
 
     $scope.sortColumn = 0;
@@ -392,11 +440,16 @@ pacoApp.controller('DataCtrl', ['$scope', '$mdDialog', '$location', '$filter',
     $scope.currentView = 'data';
     $scope.restrict = null;
     $scope.anon = false;
+    $scope.eventCursor = null;
+    $scope.events = null;
+    $scope.screenData = null;
+    $scope.photoHeader = 'data:image/jpeg;base64,';
+    $scope.photoMarker = '/9j/';
 
     $scope.switchView = function() {
       var newPath = $scope.currentView + '/' + $scope.experimentId;
       if ($scope.userChips) {
-        newPath += '/' + $scope.user;
+        newPath += '/' + $scope.userChips[0];
       }
       $location.path(newPath);
     }
@@ -422,22 +475,33 @@ pacoApp.controller('DataCtrl', ['$scope', '$mdDialog', '$location', '$filter',
 
     $scope.loadEvents = function() {
       $scope.loading = true;
-      $scope.table = null;
 
-      dataService.getEvents($scope.experimentId, $scope.restrict, $scope.anon).
-      then(function(result) {
+      dataService.getEvents($scope.experimentId, $scope.restrict, $scope.anon, $scope.eventCursor).
+      then(function(response) {
 
         $scope.scrolling(false);
+        if (response.data) {
 
-        if (result.data) {
-          $scope.data = result.data;
+          if (response.data.cursor) {
+            $scope.eventCursor = response.data.cursor;
+          }
 
-          if (!result.data.events) {
+          if (response.data.events.length < config.dataPageSize) {
+            $scope.eventCursor = null;
+          }
+
+          if ($scope.events) {
+            $scope.events = $scope.events.concat(response.data.events);
+          } else {
+            $scope.events = response.data.events;
+          }
+
+          if (!$scope.events) {
             $scope.csv = [];
             return;
           }
 
-          var table = $filter('jsonToTable')(result.data.events, true);
+          var table = $filter('jsonToTable')($scope.events, true);
           $scope.table = table;
 
           if (table === null) {
@@ -454,14 +518,14 @@ pacoApp.controller('DataCtrl', ['$scope', '$mdDialog', '$location', '$filter',
 
           // TODO(ispiro): regenerate CSV based on column visibility
           var csv = $filter('tableToCsv')(table);
-          
+
           $scope.csv = csv;
 
           var blob = new Blob([csv], {
             type: 'text/csv'
           });
           $scope.loading = false;
-          $scope.csvData = (window.URL || window.webkitURL).createObjectURL(blob);
+          $scope.screenData = (window.URL || window.webkitURL).createObjectURL(blob);
         }
       }, function(result) {
         $scope.loading = false;
@@ -473,6 +537,22 @@ pacoApp.controller('DataCtrl', ['$scope', '$mdDialog', '$location', '$filter',
       $scope.status = 'Requesting response data';
     };
 
+    $scope.showReportOptions = function(experiment) {
+      var promise = $mdDialog.show({
+        templateUrl: 'partials/report.html',
+        preserveScope: true,
+        locals: {
+          experiment: experiment,
+          anonymous: $scope.anon,
+        },
+        clickOutsideToClose: true,
+        controller: 'ReportCtrl'
+      });
+      promise.then(function(result) {
+        $scope.reportData = result.data;
+        $scope.reportType = result.type;
+      });
+    };
 
     $scope.loadStats = function() {
       $scope.loading = true;
@@ -484,7 +564,7 @@ pacoApp.controller('DataCtrl', ['$scope', '$mdDialog', '$location', '$filter',
         if (result.data) {
           $scope.stats = result.data;
           $scope.loading = false;
-        } 
+        }
       }, function(result) {
         $scope.loading = false;
         $scope.error = {  code: result.status,
@@ -493,6 +573,11 @@ pacoApp.controller('DataCtrl', ['$scope', '$mdDialog', '$location', '$filter',
       });
 
       $scope.status = 'Sending stats request';
+    }
+
+    $scope.isPhotoData = function(data) {
+      return (typeof(data) === 'string' &&
+                data.indexOf($scope.photoMarker) === 0);
     }
 
     $scope.removeUserChip = function() {
@@ -528,7 +613,7 @@ pacoApp.controller('DataCtrl', ['$scope', '$mdDialog', '$location', '$filter',
 
     experimentService.getExperiment($scope.experimentId).then(
       function(response) {
-        $scope.experiment = response.data[0];
+        $scope.experiment = response.data.results[0];
       });
 
     $scope.$watchCollection('showColumn', function(newVal, oldVal) {
@@ -547,6 +632,40 @@ pacoApp.controller('DataCtrl', ['$scope', '$mdDialog', '$location', '$filter',
 ]);
 
 
+pacoApp.controller('ReportCtrl', ['$scope', '$mdDialog', 'dataService',
+    'config', 'experiment', 'anonymous',
+  function($scope, $mdDialog, dataService, config, experiment, anonymous) {
+    $scope.reportTypes = ['csv','html','json'];
+    $scope.hide = $mdDialog.hide;
+    $scope.reportURL = '/events?q=\'experimentId=' + experiment.id + '\'&csv&cmdline=1';
+    $scope.csvData = null;
+    $scope.loading = false;
+    $scope.options = {
+      photos: false,
+      anonymous: false,
+    }
+
+    $scope.getReport = function() {
+      $scope.loading = true;
+      $scope.error = null;
+      dataService.getReport(experiment.id, null, $scope.reportType,
+          $scope.options.anonymous, $scope.options.photos)
+        .then(function(result) {
+
+          if (result.error) {
+            $scope.loading = false;
+            $scope.error = result.error;
+            return;
+          }
+
+          var blob = new Blob([result.data], {
+            type: 'text/' + $scope.reportType
+          });
+          var csvData = (window.URL || window.webkitURL).createObjectURL(blob);
+          $mdDialog.hide({data: csvData, type: $scope.reportType});
+        });
+    }
+  }]);
 
 pacoApp.controller('GroupsCtrl', ['$scope', 'template',
   function($scope, template) {

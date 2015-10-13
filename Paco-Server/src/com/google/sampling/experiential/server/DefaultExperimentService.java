@@ -328,7 +328,7 @@ class DefaultExperimentService implements ExperimentService {
   @Override
   public ExperimentQueryResult getMyJoinedExperiments(String email, DateTimeZone timeZoneForClient,
                                                         Integer limit, String cursor) {
-    ExperimentJoinQueryResult experimentIdJoinDatePairs = ExperimentAccessManager.getJoinedExperimentsFor(email, limit, cursor);
+    ExperimentJoinQueryResult experimentIdJoinDatePairs = ExperimentAccessManager.getJoinedExperimentsFor(email, limit == null ? 1000 : limit, cursor);
 
     if (experimentIdJoinDatePairs.getExperiments() == null ||
             // we got zero back, so we haven't updated yet. This is true if there is no cursor. If there is a cursor, we have just exhausted the list.
@@ -412,7 +412,7 @@ class DefaultExperimentService implements ExperimentService {
   @Override
   public ExperimentQueryResult getUsersAdministeredExperiments(String email, DateTimeZone timezone, Integer limit,
                                                                String cursor) {
-    ExperimentIdQueryResult experimentIdsQueryResult = ExperimentAccessManager.getExistingExperimentIdsForAdmin(email, limit, cursor);
+    ExperimentIdQueryResult experimentIdsQueryResult = ExperimentAccessManager.getExistingExperimentIdsForAdmin(email, limit == null ? 0 : limit, cursor);
     //log.info("Administered experiments for: " + email + ". Count: " + experimentIds.size() + ". ids = " + Joiner.on(",").join(experimentIds));
     List<ExperimentDAO> experiments = getExperimentsByIdInternal(experimentIdsQueryResult.getExperiments(), email, timezone);
     return new ExperimentQueryResult(experimentIdsQueryResult.getCursor(), experiments);

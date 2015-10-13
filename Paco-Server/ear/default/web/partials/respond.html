@@ -1,11 +1,25 @@
 <div ng-controller="ExperimentCtrl" class="centered">
   
-  <div class="padded">
-    <a href="#">Experiments</a> &gt
-    <a href="#/experiment/{{respondExperimentId}}">{{experiment.title}}</a> &gt; 
-    Respond    
+  <div class="nav">
+    <a href="#/experiments">
+      <md-button>
+        Experiments
+      </md-button>
+    </a>
 
+    <img src="/img/ic_chevron_right_24px.svg">
+
+    <a href="#/experiment/{{respondExperimentId}}">
+      <md-button>{{experiment.title}}</md-button>
+    </a>
+
+    <img src="/img/ic_chevron_right_24px.svg">
+
+    <a href="#/respond/{{respondExperimentId}}">
+      <md-button>Respond</md-button>
+    </a>
   </div>
+
    <div ng-if="respondableGroups.length > 1" class="group-select">
     <label>Select Group:</label>
     <md-select ng-model="state.groupIndex">
