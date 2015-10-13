@@ -2,9 +2,12 @@
 
 <!--  <application>quantifiedself</application> -->
   <module>mapreduce</module>
-  <version>113</version>
+  <version>153</version>
   <threadsafe>true</threadsafe>
-
+    <ssl-enabled>true</ssl-enabled>
+  <sessions-enabled>true</sessions-enabled>
+  <precompilation-enabled>true</precompilation-enabled>
+  
   <!-- Larger / higher memory instances are useful for their improved sorting performance -->
   <instance-class>F4</instance-class>
   <automatic-scaling>

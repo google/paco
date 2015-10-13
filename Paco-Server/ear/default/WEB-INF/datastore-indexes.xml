@@ -104,6 +104,11 @@
         <property name="valuesList" direction="asc"/>
         <property name="when" direction="desc"/>
     </datastore-index>
+    <datastore-index kind="Event" ancestor="false" source="manual">
+        <property name="experimentId" direction="asc"/>
+        <property name="keysList" direction="asc"/>
+        <property name="when" direction="desc"/>
+    </datastore-index>
     <datastore-index kind="joined_user" ancestor="false">
     <property name="user_id" direction="asc" />
     <property name="experimentId" direction="asc" />
