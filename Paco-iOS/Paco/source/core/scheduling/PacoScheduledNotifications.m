@@ -87,6 +87,8 @@
     if (cell == nil) {
         cell =  [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier] ;
         cell.textLabel.text = [NSString   stringWithFormat:@" %@, %@", fireTimeStr,  title];
+        
+        cell.textLabel.font= [UIFont fontWithName:@"Helvetica" size:12.0];
     }
     
    
