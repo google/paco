@@ -23,7 +23,8 @@
 #import "PacoQuestionScreenViewController.h"
 #import "JCNotificationCenter.h"
 #import "JCNotificationBannerPresenterSmokeStyle.h"
-#import "UILocalNotification+Paco.h"
+#import "UILocalNotification+PacoExteded.h"
+
 #import "DDLog.h"
 #import "DDASLLogger.h"
 #import "DDFileLogger.h"
@@ -31,6 +32,7 @@
 #import "ScheduleTestViewController.h"
 #import "PacoScheduler.h"
 #import "PacoTableExperimentsController.h" 
+#import "PacoMediator.h" 
 
 
 
@@ -59,18 +61,24 @@
     DDLogWarn(@"Ignore a nil notification");
     return;
   }
-  DDLogInfo(@"Detail: %@", [notification pacoDescription]);
+    
+  DDLogInfo(@"Detail: %@", [notification pacoDescriptionExt]);
   UILocalNotification* activeNotification = notification;
     
     
-  if (![[PacoClient sharedInstance].scheduler isNotificationActive:activeNotification]) {
+  if (![[PacoMediator sharedInstance].notificationManager isNotificationActive:activeNotification])
+  {
+      
+      
+      
     DDLogInfo(@"Notification is not active anymore, cancelling it from the tray...");
       
-    [UILocalNotification pacoCancelLocalNotification:activeNotification];
+    [UILocalNotification pacoCancelLocalNotificationExt:activeNotification];
     activeNotification =
-        [[PacoClient sharedInstance].scheduler activeNotificationForExperiment:[notification pacoExperimentId]];
+        [[PacoMediator sharedInstance].notificationManager activeNotificationForExperiment:[notification pacoExperimentIdExt]];
+      
     if (activeNotification) {
-      DDLogInfo(@"Active Notification Detected: %@", [activeNotification pacoDescription]);
+      DDLogInfo(@"Active Notification Detected: %@", [activeNotification pacoDescriptionExt]);
     } else {
       DDLogInfo(@"No Active Notification Detected. ");
     }
@@ -78,14 +86,17 @@
   
   UIApplicationState state = [[UIApplication sharedApplication] applicationState];
   if (activeNotification == nil) {
+      
     [self showNoSurveyNeededForNotification:notification];
+      
+      
   } else {
       
     if (mustShowSurvey) {
+        
       [self showSurveyForNotification:activeNotification];
         
     } else {
-        
         
       if (state == UIApplicationStateInactive) {
         NSLog(@"UIApplicationStateInactive");
@@ -104,8 +115,8 @@
   [JCNotificationCenter sharedCenter].presenter = [JCNotificationBannerPresenterSmokeStyle new];
   NSString* format = @"This notification has expired.\n"
                      @"(It's notifications expire after %d minutes.)";
-  NSString* message = [NSString stringWithFormat:format, [notification pacoTimeoutMinutes]];
-  JCNotificationBanner* banner = [[JCNotificationBanner alloc] initWithTitle:[notification pacoExperimentTitle]
+  NSString* message = [NSString stringWithFormat:format, [notification pacoTimeoutMinutesExt]];
+  JCNotificationBanner* banner = [[JCNotificationBanner alloc] initWithTitle:[notification pacoExperimentTitleExt]
                                                                      message:message
                                                                      timeout:7.
                                                                   tapHandler:nil];
@@ -118,7 +129,7 @@
  */
 - (void)showSurveyForNotification:(UILocalNotification*)notification {
   dispatch_async(dispatch_get_main_queue(), ^{
-    NSString *experimentId = [notification pacoExperimentId];
+    NSString *experimentId = [notification pacoExperimentIdExt];
     NSAssert(experimentId.length > 0, @"experimentId should be a valid string!");
     PacoExperiment *experiment = [[PacoClient sharedInstance].model experimentForId:experimentId];
     PacoQuestionScreenViewController *questions =
@@ -134,7 +145,7 @@
   ..., shows survay in async
  */
 - (void)presentForegroundNotification:(UILocalNotification*)notification {
-  NSAssert([notification pacoStatus] != PacoNotificationStatusTimeout, @"should not be timeout");
+  NSAssert([notification pacoStatusExt] != PacoNotificationStatusTimeout, @"should not be timeout");
   [JCNotificationCenter sharedCenter].presenter = [JCNotificationBannerPresenterSmokeStyle new];
   [JCNotificationCenter enqueueNotificationWithTitle:@""
                                              message:notification.alertBody
@@ -206,7 +217,7 @@
   if (notification) {
     DDLogInfo(@"==========  Application didFinishLaunchingWithOptions: One Notification ==========");
     DDLogVerbose(@"The following notification will be processed after notification system is initialized:\n%@",
-                 [notification pacoDescription]);
+                 [notification pacoDescriptionExt]);
     self.notificationFromAppLaunch = notification;
   } else {
     DDLogInfo(@"==========  Application didFinishLaunchingWithOptions: No Notification ==========");

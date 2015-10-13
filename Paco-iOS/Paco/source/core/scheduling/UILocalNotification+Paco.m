@@ -195,12 +195,6 @@
 
 + (void)pacoCancelLocalNotification:(UILocalNotification*)notification {
   if (notification != nil) {
-      
-      
-     NSDictionary * dict = notification.userInfo;
-      
-      
-   
     [[UIApplication sharedApplication] cancelLocalNotification:notification];
   }
 }

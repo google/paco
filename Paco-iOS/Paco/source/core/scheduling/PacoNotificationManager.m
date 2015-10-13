@@ -411,19 +411,25 @@ static NSString* kNotificationPlistName = @"notificationDictionary.plist";
 }
 
 - (BOOL)isNotificationActive:(UILocalNotification*)notification {
+    
   @synchronized(self) {
     if (notification == nil) {
       return NO;
     }
+
     if ([notification pacoStatusExt] == PacoNotificationStatusTimeout) {
       return NO;
     }
+      
     NSString* experimentId = [notification pacoExperimentIdExt];
     NSAssert([experimentId length] > 0, @"experimentId should be nil");
     UILocalNotification* activeNotification = [self activeNotificationForExperiment:experimentId];
     BOOL isActive = activeNotification && [activeNotification pacoIsSame:notification];
     return isActive;
   }
+    
+    
+    
 }
 
 - (void)checkCorrectnessForExperiment:(NSString*)instanceIdToCheck {
