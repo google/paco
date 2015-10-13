@@ -395,7 +395,7 @@ public class NotificationCreator {
                                                                                             .setWhen(notificationHolder.getAlarmTime())
                                                                                             .setContentIntent(notificationIntent)
                                                                                             .setAutoCancel(dismissible)
-                                                                                            .setColor(color)
+                                                                                            .setLights(color,PacoNotificationAction.DEFAULT_NOTIFICATION_DELAY,PacoNotificationAction.DEFAULT_NOTIFICATION_DELAY)
                                                                                             .setStyle(bigStyle);
 
     int defaults = Notification.DEFAULT_VIBRATE | Notification.DEFAULT_LIGHTS;
