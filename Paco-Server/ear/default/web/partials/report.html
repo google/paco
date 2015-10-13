@@ -1,0 +1,33 @@
+<md-dialog aria-label="Report options" class="report">
+  <md-dialog-content>
+    Report format<br>
+      <md-select ng-model="reportType" aria-label="Report format">
+        <md-option value="" disabled selected>Select</md-option>
+        <md-option ng-selected="$index === 0" ng-repeat="type in reportTypes track by $index"
+          value="{{type}}">{{type | uppercase}}</md-option>
+      </md-select>
+
+      <div class="switches">
+        Options
+        <md-switch ng-model="options.anonymous" aria-label="Anonymize report">
+          Anonymous report
+        </md-switch>
+        <md-switch ng-model="options.photos" aria-label="Include photos" 
+          ng-if="reportType === 'json'">
+          Include photos in report
+        </md-switch>
+      </div>
+  </md-dialog-content>
+
+  <div class="md-actions">
+    <div class="error" ng-if="error">Error: {{error}}</div>
+    <md-progress-circular md-mode="indeterminate" ng-if="loading">
+    </md-progress-circular>
+
+    <md-button class="md-primary button" id="exportButton" 
+      ng-click="getReport()" ng-if="!loading">
+      Generate Report
+    </md-button>
+  </div>
+
+</md-dialog>

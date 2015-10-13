@@ -104,9 +104,9 @@ pacoApp.service('dataService', ['$http', '$timeout', '$q', 'config',
 
     return ({
       getEvents: getEvents,
+      getReport: getReport,
       getParticipantData: getParticipantData,
     });
-
 
     function getEvents(id, user, anonymous, cursor) {
 
@@ -116,13 +116,13 @@ pacoApp.service('dataService', ['$http', '$timeout', '$q', 'config',
         endpoint += ':who=' + user;
       }
 
-      endpoint += '\'&json';
+      endpoint += '\'&json&includePhotos=true';
 
       if (anonymous) {
         endpoint += '&anon=true';
       }
 
-      endpoint += '&limit=' + config.dataPageSize;      
+      endpoint += '&limit=' + config.dataPageSize;
 
       if (cursor !== undefined) {
         endpoint += '&cursor=' + cursor;
@@ -131,6 +131,66 @@ pacoApp.service('dataService', ['$http', '$timeout', '$q', 'config',
       return $http.get(endpoint);
     };
 
+
+    function getReport(id, user, type, anonymous, photos) {
+
+        var maxTries = 10;
+        var startMarker = '<title>Current Status of Report Generation for job: ';
+        var endMarker = '</title>';
+        var endpoint = '/events?q=\'experimentId=' + id;
+        var jobUrl;
+        var defer = $q.defer();
+        var tryCount = 0;
+
+        if (user) {
+          endpoint += ':who=' + user;
+        }
+
+        endpoint += '\'&' + type + '&cmdline=1';
+
+        if (anonymous) {
+          endpoint += '&anon=true';
+        }
+
+        if (photos) {
+          endpoint += '&includePhotos=true';
+        }
+
+        $http.get(endpoint).success(
+          function(data) {
+
+            // JSON endpoint directly returns data. No need to ping for
+            // job status.
+            if (type === 'json') {
+              var json = JSON.stringify(data.events);
+              defer.resolve({'data': json});
+            } else {
+              jobUrl = '/jobStatus?jobId=' + data + '&cmdline=1';
+              poll();
+            }
+          }
+        );
+
+        var poll = function() {
+          if (tryCount >= maxTries) {
+            defer.resolve({'error': 'Exceeded max tries'});
+            return;
+          }
+          tryCount++;
+
+          $http.get(jobUrl).success(
+            function(data) {
+              if (data === 'pending\n') {
+                $timeout(poll, 3000);
+              } else {
+                var csv = data.trim();
+                defer.resolve({'data': csv});
+              }
+            }
+          )
+        };
+        return defer.promise;
+      }
 
     /**
     * Gets stats data from PACO server endpoint. Iterates over data to
@@ -150,11 +210,11 @@ pacoApp.service('dataService', ['$http', '$timeout', '$q', 'config',
           var totalParticipantCount = 0;
           var todayParticipantCount = 0;
           for (var i = 0; i < data.participants.length; i++) {
-            
+
             if (data.participants[i].todaySignalResponseCount > 0) {
               todayParticipantCount++;
             }
-            
+
             if (data.participants[i].totalSignalResponseCount > 0) {
               totalParticipantCount++;
             }
@@ -169,8 +229,7 @@ pacoApp.service('dataService', ['$http', '$timeout', '$q', 'config',
 
       return defer.promise;
     }
-  }
-]);
+}]);
 
 
 pacoApp.service('config', function() {
@@ -331,7 +390,9 @@ pacoApp.service('template', function() {
 
   this.defaultAction = {
     type: 'pacoNotificationAction',
-    timeout: 15
+    timeout: 15,
+    color: 0,
+    dismissible: true
   };
 
   this.schedule = {

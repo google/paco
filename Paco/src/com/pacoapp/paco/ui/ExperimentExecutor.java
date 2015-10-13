@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Locale;
 
 import org.joda.time.DateTime;
+import org.joda.time.Seconds;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -81,6 +82,7 @@ import com.pacoapp.paco.utils.IntentExtraHelper;
 
 public class ExperimentExecutor extends ActionBarActivity implements ChangeListener, LocationListener, ExperimentLoadingActivity  {
 
+  public static final String FORM_DURATION_IN_SECONDS = "Form Duration";
   private Experiment experiment;
   private ExperimentGroup experimentGroup;
   private Long actionTriggerId;
@@ -112,6 +114,7 @@ public class ExperimentExecutor extends ActionBarActivity implements ChangeListe
   public static final int RESULT_SPEECH = 3;
 
   private LinearLayout inputsScrollPane;
+  private DateTime formOpenTime;
 
 
   @Override
@@ -277,6 +280,7 @@ public class ExperimentExecutor extends ActionBarActivity implements ChangeListe
         if (firstInput.getInput().getResponseType().equals(Input2.OPEN_TEXT)) {
           firstInput.requestFocus();
         }
+        formOpenTime = DateTime.now();
       }
     }
   }
@@ -443,6 +447,7 @@ public class ExperimentExecutor extends ActionBarActivity implements ChangeListe
       Event event = EventUtil.createEvent(getExperiment(), experimentGroup.getName(),
                                           actionTriggerId, actionId, actionTriggerSpecId, scheduledTime);
       gatherResponses(event);
+      addTiming(event);
       experimentProviderUtil.insertEvent(event);
 
 
@@ -461,6 +466,18 @@ public class ExperimentExecutor extends ActionBarActivity implements ChangeListe
       .setIcon(R.drawable.paco64)
       .setTitle(R.string.required_answers_missing)
       .setMessage(ise.getMessage()).show();
+    }
+  }
+
+  private void addTiming(Event event) {
+    if (formOpenTime != null) {
+      DateTime formFinishTime = DateTime.now();
+      Seconds duration = Seconds.secondsBetween(formOpenTime, formFinishTime);
+
+      Output durationResponse = new Output();
+      durationResponse.setAnswer(Integer.toString(duration.getSeconds()));
+      durationResponse.setName(FORM_DURATION_IN_SECONDS);
+      event.addResponse(durationResponse);
     }
   }
 

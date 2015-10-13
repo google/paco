@@ -18,8 +18,8 @@
           <md-option value="data" aria-label="Data view">Data</md-option>
         </md-select>
       </md-input-container>
-  
-      <md-chips ng-if="userChips" ng-model="userChips" md-on-remove="removeUserChip()"></md-chips>
+
+      <md-chips ng-if="userChips" ng-model="userChips" md-on-remove="removeUserChip()" placeholder=""></md-chips>
     </div>
 
     <div ng-if="loading" class="status">
@@ -31,7 +31,7 @@
     <div ng-show="stats" class="frame">
 
       <div class="summary" ng-if="stats && experiment && experiment.published">
-        
+
         <div class="stat">
           <b>{{experiment.publishedUsers.length}}</b> invited
         </div>
