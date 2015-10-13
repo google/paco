@@ -175,14 +175,16 @@
          */
         actionSpecification   = [actionScheduleGenerator getNextTimeFromNowWithOrgJodaTimeDateTime:nextTime withPAEsmSignalStore:signalStore withPAEventStore:eventStore];
         
-        if(actionSpecification->action_ == nil)
-        {
-            
-            NSLog(@"this is an exeption");
-        }
+  
         
         if( actionSpecification )
         {
+            
+            if(actionSpecification->action_ == nil)
+            {
+                
+                NSLog(@"this is an exeption");
+            }
             
             nextTime = [actionSpecification->time_ plusMinutesWithInt:1];
             NSMutableArray* mArray =[results objectForKey:[definition instanceId]];

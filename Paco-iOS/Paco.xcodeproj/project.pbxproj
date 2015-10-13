@@ -221,6 +221,10 @@
 		A63BD26C1BC899E000707A3A /* PacoNortificationsForExperiment.m in Sources */ = {isa = PBXBuildFile; fileRef = A63BD2681BC8964900707A3A /* PacoNortificationsForExperiment.m */; };
 		A63BD26D1BC89A5300707A3A /* PacoNortificationsForExperiment.xib in Resources */ = {isa = PBXBuildFile; fileRef = A63BD2691BC8964900707A3A /* PacoNortificationsForExperiment.xib */; };
 		A63BD26F1BC89B2700707A3A /* PacoNilActionTests.m in Sources */ = {isa = PBXBuildFile; fileRef = A63BD26E1BC89B2700707A3A /* PacoNilActionTests.m */; };
+		A63BD2731BCC610700707A3A /* PacoScheduledNotifications.m in Sources */ = {isa = PBXBuildFile; fileRef = A63BD2711BCC610700707A3A /* PacoScheduledNotifications.m */; };
+		A63BD2741BCC610700707A3A /* PacoScheduledNotifications.xib in Resources */ = {isa = PBXBuildFile; fileRef = A63BD2721BCC610700707A3A /* PacoScheduledNotifications.xib */; };
+		A63BD2751BCC69A900707A3A /* PacoScheduledNotifications.m in Sources */ = {isa = PBXBuildFile; fileRef = A63BD2711BCC610700707A3A /* PacoScheduledNotifications.m */; };
+		A63BD2761BCC69AF00707A3A /* PacoScheduledNotifications.xib in Resources */ = {isa = PBXBuildFile; fileRef = A63BD2721BCC610700707A3A /* PacoScheduledNotifications.xib */; };
 		A6401F6A1B7D4D1300ABC0AB /* PacoEventExtended.m in Sources */ = {isa = PBXBuildFile; fileRef = A6401F691B7D4D1300ABC0AB /* PacoEventExtended.m */; };
 		A6401F6D1B7D4D2800ABC0AB /* PacoEventManagerExtended.m in Sources */ = {isa = PBXBuildFile; fileRef = A6401F6C1B7D4D2800ABC0AB /* PacoEventManagerExtended.m */; };
 		A6401F731B7EAB6600ABC0AB /* PacoSerializeUtil.m in Sources */ = {isa = PBXBuildFile; fileRef = A6401F721B7EAB6600ABC0AB /* PacoSerializeUtil.m */; };
@@ -825,6 +829,9 @@
 		A63BD2681BC8964900707A3A /* PacoNortificationsForExperiment.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoNortificationsForExperiment.m; sourceTree = "<group>"; };
 		A63BD2691BC8964900707A3A /* PacoNortificationsForExperiment.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = PacoNortificationsForExperiment.xib; sourceTree = "<group>"; };
 		A63BD26E1BC89B2700707A3A /* PacoNilActionTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoNilActionTests.m; sourceTree = "<group>"; };
+		A63BD2701BCC610700707A3A /* PacoScheduledNotifications.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoScheduledNotifications.h; sourceTree = "<group>"; };
+		A63BD2711BCC610700707A3A /* PacoScheduledNotifications.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoScheduledNotifications.m; sourceTree = "<group>"; };
+		A63BD2721BCC610700707A3A /* PacoScheduledNotifications.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = PacoScheduledNotifications.xib; sourceTree = "<group>"; };
 		A6401F681B7D4D1300ABC0AB /* PacoEventExtended.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoEventExtended.h; sourceTree = "<group>"; };
 		A6401F691B7D4D1300ABC0AB /* PacoEventExtended.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoEventExtended.m; sourceTree = "<group>"; };
 		A6401F6B1B7D4D2800ABC0AB /* PacoEventManagerExtended.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoEventManagerExtended.h; sourceTree = "<group>"; };
@@ -2204,6 +2211,9 @@
 				A63BD2671BC8964900707A3A /* PacoNortificationsForExperiment.h */,
 				A63BD2681BC8964900707A3A /* PacoNortificationsForExperiment.m */,
 				A63BD2691BC8964900707A3A /* PacoNortificationsForExperiment.xib */,
+				A63BD2701BCC610700707A3A /* PacoScheduledNotifications.h */,
+				A63BD2711BCC610700707A3A /* PacoScheduledNotifications.m */,
+				A63BD2721BCC610700707A3A /* PacoScheduledNotifications.xib */,
 			);
 			name = TestView;
 			path = Paco/source/core/scheduling;
@@ -2675,6 +2685,7 @@
 				36B8EC0017568E29004CF035 /* smile_icon5.png in Resources */,
 				36B8EC0117568E29004CF035 /* smile_icon5_re.png in Resources */,
 				36B8EC1017568E29004CF035 /* uicheckbox_checked.png in Resources */,
+				A63BD2761BCC69AF00707A3A /* PacoScheduledNotifications.xib in Resources */,
 				36B8EC1117568E29004CF035 /* uicheckbox_unchecked.png in Resources */,
 				C567E89017A03FDE00267A26 /* deepbark_trial.mp3 in Resources */,
 				4448BCC11A808E7A0034FCE9 /* ReleaseNotes.txt in Resources */,
@@ -2688,6 +2699,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				A63BD26B1BC8964900707A3A /* PacoNortificationsForExperiment.xib in Resources */,
+				A63BD2741BCC610700707A3A /* PacoScheduledNotifications.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2715,6 +2727,7 @@
 				36B8EB6F17568DAF004CF035 /* PacoAppDelegate.m in Sources */,
 				36B8EB7017568DAF004CF035 /* PacoEditScheduleViewController.m in Sources */,
 				36B8EB7117568DAF004CF035 /* PacoByWeekOrMonthSelectionView.m in Sources */,
+				A63BD2751BCC69A900707A3A /* PacoScheduledNotifications.m in Sources */,
 				36B8EB7217568DAF004CF035 /* PacoDayOfMonthSelectionView.m in Sources */,
 				36B8EB7317568DAF004CF035 /* PacoDayOfWeekSelectionView.m in Sources */,
 				A63BD2581BC7457500707A3A /* TempStorage.m in Sources */,
@@ -2903,6 +2916,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				A6AFCD0E1BBCC143002BA7FC /* PacoPersistanceManager.m in Sources */,
+				A63BD2731BCC610700707A3A /* PacoScheduledNotifications.m in Sources */,
 				A6651BAA1BBCD2970058E295 /* PacoMediatorTests.m in Sources */,
 				A6651BFB1BBF3CD40058E295 /* PacoSignalStoreTests.m in Sources */,
 				A6AFCD081BBCA55F002BA7FC /* PAActionSpecification+PacoCoder.m in Sources */,

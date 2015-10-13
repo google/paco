@@ -34,7 +34,8 @@
 #import "PAExperimentDAO+Helper.h"
 #import "OrgJodaTimeDateTime+PacoDateHelper.h"
 #import "ModelBase+PacoAssociatedId.h"
-#import "PacoScheduleDelegate.h" 
+#import "PacoScheduleDelegate.h"
+#import "PacoExtendedNotificationInfo.h" 
 
 
 
@@ -393,7 +394,7 @@ PacoExtendedNotificationInfo * info = [PacoExtendedNotificationInfo pacoInfoWith
 
   NSArray* scheduledArr = [[UIApplication sharedApplication] scheduledLocalNotifications];
   for (UILocalNotification* noti in scheduledArr) {
-    PacoNotificationInfo* info = [PacoNotificationInfo pacoInfoWithDictionary:noti.userInfo];
+    PacoExtendedNotificationInfo* info = [PacoExtendedNotificationInfo pacoInfoWithDictionary:noti.userInfo];
     NSAssert([info.experimentId length] > 0, @"experimentId should be valid!");
 
     if ([info.experimentId isEqualToString:experimentInstanceId]) {

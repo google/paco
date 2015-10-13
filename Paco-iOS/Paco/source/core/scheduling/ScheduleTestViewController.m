@@ -121,7 +121,6 @@
             IOSObjectArray * iosArray = [resultArray toArray];
             PAExperimentDAO * dao =  [iosArray objectAtIndex:0];
             
-            
             [[PacoMediator sharedInstance] addExperimentToAvailableStore:dao];
            
             

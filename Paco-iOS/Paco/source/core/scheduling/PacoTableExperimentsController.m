@@ -15,6 +15,8 @@
 #import  "PacoMediator.h"
 #import "PacoNotificationManager.h"
 #import "PacoNortificationsForExperiment.h"
+#import "PacoScheduledNotifications.h" 
+
 
 @interface PacoNotificationManager()
 
@@ -38,16 +40,18 @@
                                                   target:self  action:@selector(addExperiment:)];
       self.navigationItem.rightBarButtonItem = addExperiment;
     
+    
+    UIBarButtonItem * showNotifications =  [[UIBarButtonItem alloc] initWithTitle:@"Notifications" style:UIBarButtonItemStylePlain target:self  action:@selector(showNotifications:)];
+                                            
+    
+    
+    
+    self.navigationItem.rightBarButtonItem = addExperiment;
+    self.navigationItem.leftBarButtonItem =showNotifications;
  
     
     [self.tableView registerNib:[UINib nibWithNibName:@"PacoExperimentTableCellTableViewCell"  bundle:nil] forCellReuseIdentifier:@"ExperimentCell"];
-    
-    
-    // Uncomment the following line to preserve selection between presentations.
-    // self.clearsSelectionOnViewWillAppear = NO;
-    
-    // Uncomment the following line to display an Edit button in the navigation bar for this view controller.
-    // self.navigationItem.rightBarButtonItem = self.editButtonItem;
+
 }
 
 -(void) refresh
@@ -63,7 +67,19 @@
 
 #pragma mark - Table view data source
 
-
+-(IBAction) showNotifications:(id) sender
+{
+    
+    PacoScheduledNotifications * pacoNotifications = [[PacoScheduledNotifications alloc] initWithNibName:@"PacoScheduledNotifications"                                                                                      bundle:nil];
+    
+    UINavigationController * navController = [[UINavigationController alloc] initWithRootViewController:pacoNotifications];
+ 
+    [self presentViewController:navController animated:YES completion:nil];
+    
+ 
+    
+    
+}
 -(IBAction)addExperiment:(id)sender
 {
     ScheduleTestViewController* addExperiment = [[ScheduleTestViewController alloc] initWithNibName:@"ScheduleTestViewController" bundle:nil];
@@ -71,9 +87,7 @@
     [self presentViewController:addExperiment animated:YES completion:nil];
     
     
-   
-    //[self.navigationController pushViewController:addExperiment animated:YES];
-    NSLog(@"add experiment");
+ 
     
 }
 

@@ -25,6 +25,9 @@
 }
 - (IBAction)removeExperiment:(id)sender
 {
+    [self.parent leaveExperiment:self.dao];
+    
+    [NSThread sleepForTimeInterval:2];
     [[PacoMediator sharedInstance].experiments removeObject:self.dao];
     [self.parent refresh];
 }

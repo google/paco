@@ -102,6 +102,10 @@ static NSString * JSON_DATA= @"{\r\n  \"title\": \"EG^2\",\r\n  \"creator\": \"n
         {
             
             NSLog(@"FAIL FAIL FAIL");
+            // But hey the action does exist and we can fetch the timeout
+            NSLog(@"action timout %@",
+                   [actionSpecification->experiment_ valueForKeyPathEx:@"groups[0].actionTriggers[0].actions[0].timeout"] );
+           
         }
     
     
