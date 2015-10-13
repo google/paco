@@ -80,7 +80,6 @@
   margin-left: 16px;
 }
 
-
 .section {
   font-weight: 300;
   padding: 12px;
@@ -95,19 +94,19 @@
   margin-top: 24px;
 }
 
-.button.add {
+.header .button.add {
   background: url('../img/ic_add_circle_outline_24px.svg') no-repeat;
 }
 
-.button.up {
+.header .button.up {
   background: url('../img/ic_arrow_up_24.svg') no-repeat;
 }
 
-.button.down {
+.header .button.down {
   background: url('../img/ic_arrow_down_24.svg') no-repeat;
 }
 
-.button {
+.header .button {
   float: right;
   height: 24px;
   margin-left: 8px;
@@ -115,11 +114,9 @@
   width: 24px;
 }
 
-.button:hover {
+.header .button:hover {
   opacity: 1;
 }
-
-
 
 md-card .section {
   background: white;

@@ -32,8 +32,8 @@ pacoApp.controller('HomeCtrl', ['$scope', '$http', '$location',
 
     $scope.forceHttps();
 
-    $scope.$on('$viewContentLoaded', 
-      function(event){ 
+    $scope.$on('$viewContentLoaded',
+      function(event){
         $scope.scrolling(true);
       });
 
@@ -238,7 +238,7 @@ pacoApp.controller('ExperimentCtrl', ['$scope', '$mdDialog', '$filter',
 
           var data = response.data;
 
-          // Save may succeed if post request was in flight when canceled 
+          // Save may succeed if post request was in flight when canceled
           if ($scope.cancelSave) {
             return;
           }
@@ -429,7 +429,7 @@ pacoApp.controller('ListCtrl', ['$scope', '$mdDialog', '$location',
 
 pacoApp.controller('DataCtrl', ['$scope', '$mdDialog', '$location', '$filter',
   '$routeParams','dataService', 'experimentService', 'config',
-  function($scope, $mdDialog, $location, $filter, $routeParams, dataService, 
+  function($scope, $mdDialog, $location, $filter, $routeParams, dataService,
     experimentService, config) {
 
     $scope.sortColumn = 0;
@@ -442,11 +442,14 @@ pacoApp.controller('DataCtrl', ['$scope', '$mdDialog', '$location', '$filter',
     $scope.anon = false;
     $scope.eventCursor = null;
     $scope.events = null;
+    $scope.screenData = null;
+    $scope.photoHeader = 'data:image/jpeg;base64,';
+    $scope.photoMarker = '/9j/';
 
     $scope.switchView = function() {
       var newPath = $scope.currentView + '/' + $scope.experimentId;
       if ($scope.userChips) {
-        newPath += '/' + $scope.user;
+        newPath += '/' + $scope.userChips[0];
       }
       $location.path(newPath);
     }
@@ -515,14 +518,14 @@ pacoApp.controller('DataCtrl', ['$scope', '$mdDialog', '$location', '$filter',
 
           // TODO(ispiro): regenerate CSV based on column visibility
           var csv = $filter('tableToCsv')(table);
-          
+
           $scope.csv = csv;
 
           var blob = new Blob([csv], {
             type: 'text/csv'
           });
           $scope.loading = false;
-          $scope.csvData = (window.URL || window.webkitURL).createObjectURL(blob);
+          $scope.screenData = (window.URL || window.webkitURL).createObjectURL(blob);
         }
       }, function(result) {
         $scope.loading = false;
@@ -532,6 +535,23 @@ pacoApp.controller('DataCtrl', ['$scope', '$mdDialog', '$location', '$filter',
       });
 
       $scope.status = 'Requesting response data';
+    };
+
+    $scope.showReportOptions = function(experiment) {
+      var promise = $mdDialog.show({
+        templateUrl: 'partials/report.html',
+        preserveScope: true,
+        locals: {
+          experiment: experiment,
+          anonymous: $scope.anon,
+        },
+        clickOutsideToClose: true,
+        controller: 'ReportCtrl'
+      });
+      promise.then(function(result) {
+        $scope.reportData = result.data;
+        $scope.reportType = result.type;
+      });
     };
 
     $scope.loadStats = function() {
@@ -544,7 +564,7 @@ pacoApp.controller('DataCtrl', ['$scope', '$mdDialog', '$location', '$filter',
         if (result.data) {
           $scope.stats = result.data;
           $scope.loading = false;
-        } 
+        }
       }, function(result) {
         $scope.loading = false;
         $scope.error = {  code: result.status,
@@ -553,6 +573,11 @@ pacoApp.controller('DataCtrl', ['$scope', '$mdDialog', '$location', '$filter',
       });
 
       $scope.status = 'Sending stats request';
+    }
+
+    $scope.isPhotoData = function(data) {
+      return (typeof(data) === 'string' &&
+                data.indexOf($scope.photoMarker) === 0);
     }
 
     $scope.removeUserChip = function() {
@@ -607,6 +632,40 @@ pacoApp.controller('DataCtrl', ['$scope', '$mdDialog', '$location', '$filter',
 ]);
 
 
+pacoApp.controller('ReportCtrl', ['$scope', '$mdDialog', 'dataService',
+    'config', 'experiment', 'anonymous',
+  function($scope, $mdDialog, dataService, config, experiment, anonymous) {
+    $scope.reportTypes = ['csv','html','json'];
+    $scope.hide = $mdDialog.hide;
+    $scope.reportURL = '/events?q=\'experimentId=' + experiment.id + '\'&csv&cmdline=1';
+    $scope.csvData = null;
+    $scope.loading = false;
+    $scope.options = {
+      photos: false,
+      anonymous: false,
+    }
+
+    $scope.getReport = function() {
+      $scope.loading = true;
+      $scope.error = null;
+      dataService.getReport(experiment.id, null, $scope.reportType,
+          $scope.options.anonymous, $scope.options.photos)
+        .then(function(result) {
+
+          if (result.error) {
+            $scope.loading = false;
+            $scope.error = result.error;
+            return;
+          }
+
+          var blob = new Blob([result.data], {
+            type: 'text/' + $scope.reportType
+          });
+          var csvData = (window.URL || window.webkitURL).createObjectURL(blob);
+          $mdDialog.hide({data: csvData, type: $scope.reportType});
+        });
+    }
+  }]);
 
 pacoApp.controller('GroupsCtrl', ['$scope', 'template',
   function($scope, template) {
