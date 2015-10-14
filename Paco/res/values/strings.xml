@@ -132,6 +132,7 @@
     <string name="experiment_refresh">Experiment Refresh</string>
     <string name="checking_server_for_new_and_updated_experiment_definitions">Checking Server for New and Updated Experiment Definitions</string>
     <string name="selected_experiment_not_on_phone_refresh">Selected Experiment does not exist on the phone. Refresh Experiments from Server?</string>
+    <string name="link_wrong">Make sure you are using the right link.</string>
     <string name="ongoing_duration">ongoing</string>
     <string name="day_esm_period">Day</string>
     <string name="week_esm_period">Week</string>

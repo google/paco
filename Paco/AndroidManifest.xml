@@ -84,6 +84,12 @@
 
                 <data android:mimeType="vnd.android.cursor.dir/vnd.google.paco.experiment" />
             </intent-filter>
+            <intent-filter>
+                <data android:scheme="pacoapp" />
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <action android:name="android.intent.action.BROWSABLE" />
+            </intent-filter>
         </activity>
         
         <activity
