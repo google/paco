@@ -15,9 +15,9 @@
 
 #import "PacoPublicDefinitionLoader.h"
 #import "PacoEnumerator.h"
-#import "PacoClient.h"
-#import "PacoService.h"
 
+#import "PacoService.h"
+#import "PacoNetwork.h"
 
 
 @interface PacoPublicDefinitionLoader ()
@@ -63,7 +63,7 @@
     }
   };
 
-  [[PacoClient sharedInstance].service loadPublicDefinitionListWithCursor:self.enumerator.cursor
+  [[PacoNetwork sharedInstance].service loadPublicDefinitionListWithCursor:self.enumerator.cursor
                                                                     limit:self.enumerator.limit
                                                                     block:responseBlock];
 }

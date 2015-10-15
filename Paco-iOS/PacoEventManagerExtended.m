@@ -9,12 +9,10 @@
 #import "PacoEventManagerExtended.h"
 #import "ExperimentDAO.h"
 #import "PacoEventExtended.h" 
-
-#import "PacoEventManager.h"
 #import "PacoEventUploader.h"
 #import "NSString+Paco.h"
 #import "NSError+Paco.h"
-#import "PacoClient.h"
+ 
 #import  "ActionSpecification.h"
 #import "PacoEventPersistenceHelper.h"
 
@@ -140,7 +138,16 @@ static NSString* const kAllEventsFileName = @"allEvents.plist";
 }
 
 + (PacoEventManagerExtended*)defaultManager {
-    return [[PacoEventManagerExtended alloc] init];
+    
+        static dispatch_once_t once;
+        static PacoEventManagerExtended *sharedInstance;
+        dispatch_once(&once, ^ {
+            
+            sharedInstance = [[self alloc] init];
+            
+        });
+        
+        return sharedInstance;
 }
 
 
@@ -305,7 +312,7 @@ static NSString* const kAllEventsFileName = @"allEvents.plist";
 //YMZ:TODO: should we remove all the events for a stopped experiment?
 - (void)saveStopEventWithExperiment:(PacoExperimentExtended*)experiment {
     PacoEventExtended* event = [PacoEventExtended stopEventForExperiment:experiment];
-    DDLogInfo(@"Save a stop event");
+    NSLog(@"Save a stop event");
     [self saveAndUploadEvent:event];
 }
 
@@ -325,7 +332,7 @@ static NSString* const kAllEventsFileName = @"allEvents.plist";
     PacoEventExtended* surveyEvent = [PacoEventExtended surveySubmittedEventForDefinition:definition
                                                                withInputs:inputs
                                                          andScheduledTime:scheduledTime];
-    DDLogInfo(@"Save a survey submitted event");
+    NSLog(@"Save a survey submitted event");
     [self saveAndUploadEvent:surveyEvent];
 }
 
@@ -341,15 +348,15 @@ static NSString* const kAllEventsFileName = @"allEvents.plist";
     @synchronized(self) {
         NSArray* pendingEvents = [self allPendingEvents];
         if ([pendingEvents count] == 0) {
-            DDLogInfo(@"No pending events to upload.");
+            NSLog(@"No pending events to upload.");
             return;
         }
         UIApplicationState state = [[UIApplication sharedApplication] applicationState];
         if (state == UIApplicationStateActive) {
-            DDLogInfo(@"There are %lu pending events to upload.", (unsigned long)[pendingEvents count]);
+            NSLog(@"There are %lu pending events to upload.", (unsigned long)[pendingEvents count]);
             [self.uploader startUploadingWithBlock:nil];
         } else {
-            DDLogInfo(@"Won't upload %lu pending events since app is inactive.", (unsigned long)[pendingEvents count]);
+            NSLog(@"Won't upload %lu pending events since app is inactive.", (unsigned long)[pendingEvents count]);
         }
     }
 }
@@ -360,27 +367,27 @@ static NSString* const kAllEventsFileName = @"allEvents.plist";
     @synchronized(self) {
         NSArray* pendingEvents = [self allPendingEvents];
         if ([pendingEvents count] == 0) {
-            DDLogInfo(@"No pending events to upload.");
+            NSLog(@"No pending events to upload.");
             if (completionBlock) {
                 completionBlock(UIBackgroundFetchResultNewData);
-                DDLogInfo(@"Background fetch finished!");
+                NSLog(@"Background fetch finished!");
             }
             return;
         }
         
-        DDLogInfo(@"There are %lu pending events to upload.", (unsigned long)[pendingEvents count]);
+        NSLog(@"There are %lu pending events to upload.", (unsigned long)[pendingEvents count]);
         UIApplicationState state = [[UIApplication sharedApplication] applicationState];
         if (state == UIApplicationStateActive) {
-            DDLogInfo(@"App State:UIApplicationStateActive");
+            NSLog(@"App State:UIApplicationStateActive");
         } else if (state == UIApplicationStateBackground) {
-            DDLogInfo(@"App State:UIApplicationStateBackground");
+            NSLog(@"App State:UIApplicationStateBackground");
         } else {
-            DDLogInfo(@"App State:UIApplicationStateInActive");
+            NSLog(@"App State:UIApplicationStateInActive");
         }
         [self.uploader startUploadingWithBlock:^(BOOL success) {
             if (completionBlock) {
                 completionBlock(UIBackgroundFetchResultNewData);
-                DDLogInfo(@"Background fetch finished!");
+                NSLog(@"Background fetch finished!");
             }
         }];
     }

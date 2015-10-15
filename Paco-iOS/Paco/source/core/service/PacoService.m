@@ -21,12 +21,14 @@
 #import "GTMOAuth2Authentication.h"
 #import "PacoAuthenticator.h"
 #import "PacoDateUtility.h"
-#import "PacoModel.h"
-#import "PacoClient.h"
+#import "PacoExtendedClient.h"
 #import "PacoExperimentInput.h"
 #import "PacoExperimentSchedule.h"
 #import "PacoExperimentDefinition.h"
-#import "PacoEvent.h"
+#import "PacoEventExtended.h"
+#import "PacoNetwork.h" 
+
+
 
 @implementation PacoService
 
@@ -40,6 +42,8 @@
   free(dst);
   return converted;
 }
+
+
 
 - (void)authenticateRequest:(NSMutableURLRequest *)request
                 withFetcher:(GTMHTTPFetcher *)fetcher {
@@ -80,7 +84,7 @@
           DDLogError(@"JSON PARSE ERROR = %@\n", jsonError);
           DDLogError(@"PROBABLY AN AUTH ERROR");
           
-          [[PacoClient sharedInstance] invalidateUserAccount];
+          [[PacoExtendedClient sharedInstance] invalidateUserAccount];
         }
       }
       if (completionHandler) {
@@ -96,7 +100,7 @@
   NSAssert(endPointString.length > 0, @"endpoint string should be valid!");
   
   NSURL *url = [NSURL URLWithString:
-                   [NSString stringWithFormat:@"%@/%@",[PacoClient sharedInstance].serverDomain,endPointString]];
+                   [NSString stringWithFormat:@"%@/%@",[PacoExtendedClient sharedInstance].serverDomain,endPointString]];
   NSMutableURLRequest *request =
     [NSMutableURLRequest requestWithURL:url
                           cachePolicy:NSURLRequestReloadIgnoringLocalCacheData
@@ -229,7 +233,7 @@
   NSAssert([eventList count] > 0, @"eventList should have more than one item!");
   
   // Setup our request.
-  NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:@"%@/events", [PacoClient sharedInstance].serverDomain]];
+  NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:@"%@/events", [PacoNetwork sharedInstance].serverDomain]];
   NSMutableURLRequest *request =
   [NSMutableURLRequest requestWithURL:url
                           cachePolicy:NSURLRequestReloadIgnoringLocalCacheData
@@ -238,7 +242,7 @@
   
   // Serialize to JSON for the request body.
   NSMutableArray* body = [NSMutableArray arrayWithCapacity:[eventList count]];
-  for (PacoEvent* event in eventList) {
+  for (PacoEventExtended* event in eventList) {
     id jsonObject = [event payloadJsonWithImageString];
     NSAssert(jsonObject != nil, @"jsonObject should NOT be nil!");
     [body addObject:jsonObject];
@@ -282,9 +286,9 @@
   // Setup our request.
   NSString *urlString =
       [NSString stringWithFormat:@"%@/events?json&q='experimentId=%@:who=%@'",
-           [PacoClient sharedInstance].serverDomain,
+           [PacoExtendedClient sharedInstance].serverDomain,
            experiment.experimentId,
-           [[PacoClient sharedInstance] userEmail]];//self.authenticator.auth.userEmail];
+           [[PacoNetwork sharedInstance] userEmail]];//self.authenticator.auth.userEmail];
   NSLog(@"******\n\t%@\n******", urlString);
   NSURL *url = [NSURL URLWithString:urlString];
   NSMutableURLRequest *request =

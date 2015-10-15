@@ -22,7 +22,13 @@
 #import "PacoNotificationManager.h"
 #import "PacoExperimentWillBeModifiedProtocol.h" 
 #import "PacoExperimentHasBeenModified.h" 
+#import "NSMutableArray+PacoPersistence.h"
+#import "NSMutableArray+PacoPersistence.h"
 
+
+
+
+#define KEY_RUNNING_EXERIMENTS @"running_experiments"
 
 
 
@@ -62,7 +68,7 @@ static dispatch_group_t group;
     self = [super init];
     
     if (self) {
-        
+
         self.allExperiments               = [[NSMutableArray alloc] init];
         self.runningExperiments           = [[NSMutableArray alloc] init];
         self.actionSpecifications         = [[NSMutableArray alloc] init];
@@ -74,10 +80,14 @@ static dispatch_group_t group;
         self.eventStore                   = [[PacoEventStore alloc] init];
         self.actionDefinitionsDictionary  = [NSMutableDictionary new];
         self.notificationManager =   [PacoNotificationManager managerWithDelegate:self firstLaunchFlag:NO];
+
+        [self refreshRunningExperiments];
         
     }
     return self;
 }
+
+
 
 
 
@@ -554,6 +564,29 @@ calculate the action specifications and reset the based upon the most recent ver
     [self.didStopNotifiers addObjectsFromArray:notifiers];
     
 }
+
+
+-(void) saveRunningExperiments
+{
+    [self.runningExperiments store:KEY_RUNNING_EXERIMENTS];
+}
+
+
+-(void) refreshRunningExperiments
+{
+    [self.runningExperiments refreshFromStore:KEY_RUNNING_EXERIMENTS];
+    
+}
+
+
+-(void) cleanup
+{
+    
+    [self saveRunningExperiments];
+    
+}
+    
+ 
 
 
 @end

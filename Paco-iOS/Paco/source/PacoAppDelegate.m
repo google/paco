@@ -17,20 +17,15 @@
 
 #import "GoogleAppEngineAuth.h"
 #import "GTMOAuth2ViewControllerTouch.h"
-#import "PacoClient.h"
-#import "UIColor+Paco.h"
-#import "PacoMainViewController.h"
-#import "PacoQuestionScreenViewController.h"
+#import "PacoExtendedClient.h"
 #import "JCNotificationCenter.h"
 #import "JCNotificationBannerPresenterSmokeStyle.h"
 #import "UILocalNotification+PacoExteded.h"
-
 #import "DDLog.h"
 #import "DDASLLogger.h"
 #import "DDFileLogger.h"
 #import "DDTTYLogger.h"
 #import "ScheduleTestViewController.h"
-#import "PacoScheduler.h"
 #import "PacoTableExperimentsController.h" 
 #import "PacoMediator.h" 
 
@@ -41,13 +36,10 @@
 
 
 /*
- 
-   vprocess receivedNotification
- 
+    Process ReceivedNotification
  */
 - (void)application:(UIApplication *)application didReceiveLocalNotification:(UILocalNotification *)notification {
-  DDLogInfo(@"==========  Application didReceiveLocalNotification  ==========");
-  [self processReceivedNotification:notification mustShowSurvey:NO];
+    [self processReceivedNotification:notification mustShowSurvey:NO];
 }
 
 /*
@@ -58,9 +50,7 @@
  */
 - (void)processReceivedNotification:(UILocalNotification*)notification mustShowSurvey:(BOOL)mustShowSurvey {
   if (!notification) {
-    DDLogWarn(@"Ignore a nil notification");
-    return;
-  }
+      }
     
   DDLogInfo(@"Detail: %@", [notification pacoDescriptionExt]);
   UILocalNotification* activeNotification = notification;
@@ -68,9 +58,7 @@
     
   if (![[PacoMediator sharedInstance].notificationManager isNotificationActive:activeNotification])
   {
-      
-      
-      
+ 
     DDLogInfo(@"Notification is not active anymore, cancelling it from the tray...");
       
     [UILocalNotification pacoCancelLocalNotificationExt:activeNotification];
@@ -129,13 +117,18 @@
  */
 - (void)showSurveyForNotification:(UILocalNotification*)notification {
   dispatch_async(dispatch_get_main_queue(), ^{
-    NSString *experimentId = [notification pacoExperimentIdExt];
+
+      
+      // Defer to GUI implimentations.
+      /*
+           NSString *experimentId = [notification pacoExperimentIdExt];
     NSAssert(experimentId.length > 0, @"experimentId should be a valid string!");
     PacoExperiment *experiment = [[PacoClient sharedInstance].model experimentForId:experimentId];
     PacoQuestionScreenViewController *questions =
         [PacoQuestionScreenViewController controllerWithExperiment:experiment andNotification:notification];
     UINavigationController* navi = self.viewController.navigationController;
     [navi pushViewController:questions animated:NO];
+       */
   });
 
 }
@@ -168,61 +161,51 @@
 }
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
-  
     
+    
+    
+  
+   
+
      self.testViewController   = [[ScheduleTestViewController alloc]  initWithNibName:@"ScheduleTestViewController" bundle:nil];
      self.testTableViewController = [[PacoTableExperimentsController alloc] initWithNibName:@"PacoTableExperimentsController" bundle:nil];
     
-    // Stir!
-  arc4random_stir();
+  // per documents stir it is not required to inoke stir.
+  // arc4random_stir();
     
- 
-    
-  
   [DDLog addLogger:[DDASLLogger sharedInstance]];
   [DDLog addLogger:[DDTTYLogger sharedInstance]];
   DDFileLogger* logger = [[DDFileLogger alloc] init];
   logger.rollingFrequency = 2 * 24 * 60 * 60; //48 hours rolling
   logger.logFileManager.maximumNumberOfLogFiles = 7;
   [DDLog addLogger:logger];
-
+    
+   _isFirstLaunch = [self markIsFirstLoaunched];
+    
     
     /* register for notification */
   if (floor(NSFoundationVersionNumber) > NSFoundationVersionNumber_iOS_7_1 ||
       
-      [UIApplication instancesRespondToSelector:@selector(registerUserNotificationSettings:)]) {
-      UIUserNotificationType types = UIUserNotificationTypeBadge | UIUserNotificationTypeSound | UIUserNotificationTypeAlert;
+        [UIApplication instancesRespondToSelector:@selector(registerUserNotificationSettings:)]) {
+        UIUserNotificationType types = UIUserNotificationTypeBadge | UIUserNotificationTypeSound | UIUserNotificationTypeAlert;
       
-    UIUserNotificationSettings *mySettings = [UIUserNotificationSettings settingsForTypes:types categories:nil];
-    [application registerUserNotificationSettings:mySettings];
+        UIUserNotificationSettings *mySettings = [UIUserNotificationSettings settingsForTypes:types categories:nil];
+        [application registerUserNotificationSettings:mySettings];
       
   }
   
-  // Override the navigation bar and item tint color globally across the app.
-  [[UINavigationBar appearance] setTintColor:[UIColor pacoBlue]];
-
   self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
-  // Override point for customization after application launch.
-  if ([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPhone) {
-    self.viewController = [[PacoMainViewController alloc] initWithNibName:nil bundle:nil];
-  } else {
-    self.viewController = [[PacoMainViewController alloc] initWithNibName:nil bundle:nil];
-  }
-
   self.window.rootViewController = [[UINavigationController alloc] initWithRootViewController:self.testTableViewController];
   [self.window makeKeyAndVisible];
   
   
   UILocalNotification *notification = launchOptions[UIApplicationLaunchOptionsLocalNotificationKey];
+
   if (notification) {
-    DDLogInfo(@"==========  Application didFinishLaunchingWithOptions: One Notification ==========");
-    DDLogVerbose(@"The following notification will be processed after notification system is initialized:\n%@",
-                 [notification pacoDescriptionExt]);
+      
+      /*  save notification to be handled later */
     self.notificationFromAppLaunch = notification;
-  } else {
-    DDLogInfo(@"==========  Application didFinishLaunchingWithOptions: No Notification ==========");
   }
-  
   return YES;
 }
 
@@ -230,32 +213,36 @@
       simple delegate
  */
 - (void)application:(UIApplication *)application performFetchWithCompletionHandler:(void(^)(UIBackgroundFetchResult))completionHandler {
-  DDLogInfo(@"==========  Application Background Fetch Working ==========");
-  
-  [[PacoClient sharedInstance] backgroundFetchStartedWithBlock:completionHandler];
+   
+ // [[PacoExtendedClient sharedInstance] backgroundFetchStartedWithBlock:completionHandler];
 }
 
 
 
 - (void)applicationDidBecomeActive:(UIApplication *)application {
   DDLogInfo(@"==========  Application applicationDidBecomeActive  ==========");
-  [[PacoClient sharedInstance] uploadPendingEventsInBackground];
+ // [[PacoClient sharedInstance] uploadPendingEventsInBackground];
   
-  [[NSNotificationCenter defaultCenter] postNotificationName:kPacoNotificationAppBecomeActive
-                                                      object:nil];
+  // [[NSNotificationCenter defaultCenter] postNotificationName:kPacoNotificationAppBecomeActive
+      //                                                object:nil];
+    
+  // it doesn;t apper that didbecome active is used.
 }
 
 - (void)applicationWillResignActive:(UIApplication *)application {
-  DDLogInfo(@"==========  Application applicationWillResignActive  ==========");
-}
+    
+    [[PacoMediator sharedInstance] cleanup];
+    
+   }
 
 - (void)applicationWillTerminate:(UIApplication *)application {
-  DDLogInfo(@"==========  Application applicationWillTerminate  ==========");
+ 
 }
 
+
+// start background tasks
 - (void)applicationDidEnterBackground:(UIApplication *)application {
-  DDLogInfo(@"==========  Application applicationDidEnterBackground  ==========");
-  
+    
   //http request will time out in 20 seconds, we need to request a little bit more time to allow
   //it finish, so we use UIBackgroundTaskIdentifier to request some more time to finish up
   __block UIBackgroundTaskIdentifier bgTask =
@@ -275,6 +262,9 @@
     [[UIApplication sharedApplication] endBackgroundTask:bgTask];
     bgTask = UIBackgroundTaskInvalid;
   });
+    
+    
+    
 }
 
 
@@ -283,8 +273,9 @@
  
  */
 - (void)applicationWillEnterForeground:(UIApplication *)application {
-  DDLogInfo(@"==========  Application applicationWillEnterForeground, start executing routine major task if needed  ==========");
-  [[PacoClient sharedInstance] executeRoutineMajorTaskIfNeeded];
+    
+    
+ // [[PacoClient sharedInstance] executeRoutineMajorTaskIfNeeded];
 }
 
 
@@ -365,6 +356,39 @@
             NSLog(@"Unresolved error %@, %@", error, [error userInfo]);
             abort();
         }
+    }
+}
+
+
+#pragma mark - run before flags 
+
+- (BOOL) markIsFirstLoaunched  {
+    
+    BOOL retVal = NO;
+    NSString* launchedKey = @"paco_launched";
+    id value = [[NSUserDefaults standardUserDefaults] objectForKey:launchedKey];
+    if (value == nil) {
+        [[NSUserDefaults standardUserDefaults] setObject:@YES forKey:launchedKey];
+        [[NSUserDefaults standardUserDefaults] synchronize];
+        retVal = YES;
+    }
+    
+    return retVal;
+}
+
+- (void)markIsFirstAuth2
+{
+    
+    
+    DDLogInfo(@"PacoClient-- checkIfUserFirstLaunchOAuth2 ");
+    NSString* launchedKey = @"oauth2_launched";
+    id value = [[NSUserDefaults standardUserDefaults] objectForKey:launchedKey];
+    if (value == nil) { //first launch
+        [[NSUserDefaults standardUserDefaults] setObject:@YES forKey:launchedKey];
+        [[NSUserDefaults standardUserDefaults] synchronize];
+        _isFirstOAuth2 = YES;
+    } else {
+        _isFirstOAuth2 = NO;
     }
 }
 

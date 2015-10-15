@@ -9,6 +9,10 @@
         <attribute name="scheduledTime" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="scheduleId" optional="YES" attributeType="Integer 64" defaultValueString="0" syncable="YES"/>
     </entity>
+    <entity name="GenericArray" representedClassName="GenericArray" syncable="YES">
+        <attribute name="blob" optional="YES" attributeType="Binary" syncable="YES"/>
+        <attribute name="type" optional="YES" attributeType="String" syncable="YES"/>
+    </entity>
     <entity name="PacoSignal" representedClassName="PacoSignal" syncable="YES">
         <attribute name="actionTriggerId" optional="YES" attributeType="Integer 64" defaultValueString="0" syncable="YES"/>
         <attribute name="alarmTime" optional="YES" attributeType="Integer 64" defaultValueString="0" syncable="YES"/>
@@ -20,5 +24,6 @@
     <elements>
         <element name="PacoSignal" positionX="-488" positionY="-45" width="128" height="135"/>
         <element name="EventRecord" positionX="-378" positionY="36" width="128" height="150"/>
+        <element name="GenericArray" positionX="-423" positionY="54" width="128" height="75"/>
     </elements>
 </model>

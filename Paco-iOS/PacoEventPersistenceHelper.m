@@ -143,6 +143,13 @@
 {
     NSAssert([event isKindOfClass:[PacoEventExtended class]], @"event should be of type PacoEventClass" );
     
+    EventRecord* record = [self fetchRecord:event];
+    NSAssert(record ==nil , @"Tried to insert multiple events with the same compound key");
+        
+    
+    
+    
+    
     
     PacoEventExtended* theEvent = (PacoEventExtended*) event;
     

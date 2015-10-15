@@ -34,7 +34,6 @@
 #import "PacoExtendedNotificationInfo.h"
 #import "UILocalNotification+PacoExteded.h"
 #import "PacoMediator.h"
-#import "PacoScheduler.h"
 #import "ActionSpecification.h"
 #import "PacoDateUtility.h"
 #import "PacoMediator.h"

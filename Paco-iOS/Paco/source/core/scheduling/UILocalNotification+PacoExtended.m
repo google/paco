@@ -16,11 +16,9 @@
 
 #import "UILocalNotification+PacoExteded.h"
 #import "NSMutableArray+Paco.h"
-#import "PacoExperiment.h"
 #import "PacoExperimentSchedule.h"
 #import "PacoDateUtility.h"
 #import "PacoExperimentDefinition.h"
-#import "PacoClient.h"
 #import "PacoNotificationConstants.h"
 #import "PacoExtendedNotificationInfo.h"
 #import "ExperimentDAO.h"
@@ -458,7 +456,7 @@ PacoExtendedNotificationInfo * info = [PacoExtendedNotificationInfo pacoInfoWith
 
 + (void)pacoCancelNotificationsExt:(NSArray*)notifications {
  
-    DDLogInfo(@"iOS Cancelling %lu notifications.", (unsigned long)[notifications count]);
+ 
   for (UILocalNotification* notification in notifications) {
     NSAssert([notification isKindOfClass:[UILocalNotification class]],
              @"should be a UILocalNotification!");
@@ -475,7 +473,7 @@ PacoExtendedNotificationInfo * info = [PacoExtendedNotificationInfo pacoInfoWith
   but also clear all notifications in the notification center:
  **/
 + (void)pacoScheduleNotificationsExt:(NSArray*)notifications {
-  DDLogInfo(@"iOS Scheduling %lu notifications.", (unsigned long)[notifications count]);
+ 
   for (UILocalNotification* notification in notifications) {
     [[UIApplication sharedApplication] scheduleLocalNotification:notification];
   }

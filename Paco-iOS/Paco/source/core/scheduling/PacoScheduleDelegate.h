@@ -7,11 +7,11 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "PacoScheduler.h" 
 
 
 
-@interface PacoScheduleDelegate: NSObject<PacoSchedulerDelegate>
+
+@interface PacoScheduleDelegate: NSObject
 
 - (void)handleExpiredNotifications:(NSArray*)expiredNotifications;
 

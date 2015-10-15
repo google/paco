@@ -56,11 +56,20 @@
 
 
 /* registration methods*/
- 
 -(void) registerWillStartValidators:(NSArray*) validators;
 -(void) registerDidStopNotifier:(id<PacoExperimentDidStopVerificatonProtocol>) notifier;
 -(void) registerWillStopValidator:(id<PacoExperimentWillStopVerificatonProtocol>) notifier;
 -(void) registerDidStartNotifiers:(NSArray*) notifiers;
 -(void) registerDidStartNotifier:(id<PacoExerimentDidStartVerificationProtocol>) notifier;
 -(void) registerWillStartValidator:(id<PacoExerimentDidStartVerificationProtocol>) validator;
+
+
+/* state management methods */
+
+-(void) refreshRunningExperiments;
+-(void) cleanup;
+
+
+
+
 @end

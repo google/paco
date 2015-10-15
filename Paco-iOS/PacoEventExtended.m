@@ -11,7 +11,7 @@
 #import "PacoEventExtended.h"
 #import "PacoDateUtility.h"
 #import "PacoExtendedClient.h"
-#import "PacoExperimentExtended.h"
+
 
 #import "Schedule.h"
 #import "PacoExperimentInput.h"
@@ -26,6 +26,8 @@
 #import "PAExperimentDAO+Util.h"
 #import "JavaUtilArrayList+PacoConversion.h"
 #import "PacoEventPersistenceHelper.h"
+#import "ExperimentDAO.h" 
+
 
 
 
@@ -265,15 +267,15 @@ NSString* const kPacoResponseJoinExtended = @"joined";
     return event;
 }
 
-+ (PacoEventExtended *)stopEventForExperiment:(PacoExperimentExtended*) experiment
++ (PacoEventExtended *)stopEventForExperiment:(PAExperimentDAO*) experiment
 {
     //create an event for stopping the experiement.
     
     PacoEventExtended *event = [PacoEventExtended  pacoEventForIOS];
    // event.who = [[PacoClient sharedInstance] userEmail];  ---<><><><>
-    event.experimentId = [experiment.definition valueForKeyPathEx:@"id"];
-    event.experimentName = [experiment.definition valueForKeyPathEx:@"title"];
-    event.experimentVersion = [experiment.definition valueForKeyPathEx:@"version"];
+    event.experimentId = [experiment  valueForKeyPathEx:@"id"];
+    event.experimentName = [experiment valueForKeyPathEx:@"title"];
+    event.experimentVersion = [experiment valueForKeyPathEx:@"version"];
     event.responseTime = [NSDate dateWithTimeIntervalSinceNow:0];
     
     

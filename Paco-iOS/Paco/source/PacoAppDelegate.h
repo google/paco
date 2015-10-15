@@ -23,17 +23,14 @@
 @interface PacoAppDelegate : UIResponder <UIApplicationDelegate>
 
 @property (strong, nonatomic) UIWindow *window;
-
 @property (strong, nonatomic) ScheduleTestViewController *testViewController;
 @property (strong, nonatomic) PacoTableExperimentsController *testTableViewController;
-
 @property (strong, nonatomic) PacoMainViewController *viewController;
-
 @property (strong, nonatomic) UILocalNotification* notificationFromAppLaunch;
-
 @property(nonatomic,copy) NSArray *scheduledLocalNotifications NS_AVAILABLE_IOS(4_0);
 
-
+@property (nonatomic, assign, readonly) BOOL isFirstLaunch;
+@property (nonatomic, assign, readonly) BOOL isFirstOAuth2;
 
 
 /* core data */

@@ -41,7 +41,6 @@
 #import "PacoExtendedNotificationInfo.h"
 #import "UILocalNotification+PacoExteded.h"
 #import "PacoMediator.h"
-#import "PacoScheduler.h"
 #import "ActionSpecification.h"
 #import "PacoDateUtility.h"
 #import "PacoMediator.h" 
@@ -65,7 +64,6 @@
 @property(nonatomic, strong) NSString* actionTriggerId;
 @property(nonatomic, strong) NSString* notificationActionId;
 @property(nonatomic, strong) NSString* triggerSpecId;
-@property (nonatomic, retain) PacoScheduler *scheduler;
 @property (nonatomic, retain) PacoSchedulingUtil *schedulerDelegate;
 @property (nonatomic, retain) NSArray *specifications;
 @property (nonatomic, retain) PAExperimentDAO *dao;

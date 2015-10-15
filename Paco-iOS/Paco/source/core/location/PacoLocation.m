@@ -17,7 +17,9 @@
 
 #import <CoreLocation/CoreLocation.h>
 #import "PacoDateUtility.h"
-#import "PacoClient.h"
+#import "PacoExtendedClient.h"
+
+
 
 @interface PacoLocation () <CLLocationManagerDelegate>
 @property (nonatomic, copy, readwrite) CLLocation *location;

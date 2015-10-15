@@ -76,10 +76,8 @@
 #import   "DateTime.h"
 #import  "NSObject+J2objcKVO.h"
 #import  "OrgJodaTimeDateTime+PacoDateHelper.h"
-#import  "PacoScheduler.h" 
 #import "PacoExtendedClient.h"
 #import "UILocalNotification+Paco.h"
-#import "PacoModelExtended.h" 
 #import  "PacoSchedulingUtil.h"
 #import "PacoMediator.h"
 #import "TempStorage.h"
@@ -93,7 +91,7 @@
 @interface ScheduleTestViewController ()
 
 @property (nonatomic,strong)   NSMutableDictionary* processing;
-@property (nonatomic,strong)   PacoModelExtended * model;
+
 
 
 @end
