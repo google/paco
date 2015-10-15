@@ -23,6 +23,13 @@
         <input type="text" ng-model="experiment.id" ng-disabled="true"></input>
       </md-input-container>
     </div>
+    
+    <div layout="row" layout-margin>
+        <md-input-container flex>
+            <label>Smartphone Shareable Link</label>
+            <textarea ng-disabled="true">pacoapp://experiment/{{ experiment.id }}</textarea>
+        </md-input-container>
+    </div>
 
     <div layout="column" layout-margin>
 
