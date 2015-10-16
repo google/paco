@@ -162,11 +162,6 @@
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     
-    
-    
-  
-   
-
      self.testViewController   = [[ScheduleTestViewController alloc]  initWithNibName:@"ScheduleTestViewController" bundle:nil];
      self.testTableViewController = [[PacoTableExperimentsController alloc] initWithNibName:@"PacoTableExperimentsController" bundle:nil];
     
@@ -191,7 +186,6 @@
       
         UIUserNotificationSettings *mySettings = [UIUserNotificationSettings settingsForTypes:types categories:nil];
         [application registerUserNotificationSettings:mySettings];
-      
   }
   
   self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];

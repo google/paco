@@ -16,7 +16,6 @@
 #import "PacoExerimentWillStartVerificationProtocol.h"
 #import "PacoExperimentDidStopVerificatonProtocol.h"
 #import "PacoExperimentWillStopVerificatonProtocol.h"
-#import "PacoSchedulingUtil.h"
 #import "ValidatorConsts.h"
 #import "UILocalNotification+PacoExteded.h"
 #import "PacoNotificationManager.h"
@@ -24,7 +23,7 @@
 #import "PacoExperimentHasBeenModified.h" 
 #import "NSMutableArray+PacoPersistence.h"
 #import "NSMutableArray+PacoPersistence.h"
-
+#import "PacoSchedulingUtil.h"
 
 
 

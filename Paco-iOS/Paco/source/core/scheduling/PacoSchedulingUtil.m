@@ -51,37 +51,6 @@
 
 
 /*
-+(NSArray*) makeAlarmsd:(NSArray*) specifications
-{
-    
-    NSMutableArray* alerts = [[NSMutableArray alloc] init];
-    for(PAActionSpecification* specification in specifications)
-    {
-        
-        NSTimeInterval timeoutInterval = 20;
-        UILocalNotification* notification  =    [UILocalNotification pacoNotificationWithExperimentId:[NSString stringWithFormat:@"%lli",[specification->experiment_->id__ longLongValue]]
-                                                                                      experimentTitle:specification->experiment_->title_
-                                                                                             fireDate:[specification->time_ nsDateValue]
-                                                                                           timeOutDate:[NSDate dateWithTimeInterval:timeoutInterval sinceDate:[specification->time_ nsDateValue]]];
-        
-        [alerts addObject:notification];
-    }
-    return alerts;
-}
-
-
--(void) purgeActionSpecificationsArray:(NSArray*) actionSpecifications
-{
-    
-    
-    
-}
- */
-
-
-
-
-/*
  
  merge action specification for each active experiment. take top 60.
  Note that the actions specification for each active experiment must be sorted
@@ -199,23 +168,7 @@
 }
 
 
-/*
-    return a unique id for an object
- */
-+(NSString*) uniqueId:(PAActionSpecification*) actionSpecification
-{
-    
-    /* get experiment id */
-    
-    
-     NSString * actionId =  [[actionSpecification       valueForKeyEx:@"experiment_.id"] stringValue];
-     NSString * groupId =  [[actionSpecification        valueForKeyEx:@"experimentGroup_.name"] stringValue];
-     NSString * triggerId =  [[actionSpecification      valueForKeyEx:@"actionTrigger_.id"] stringValue];
-     NSString * triggerSpecId =  [[actionSpecification  valueForKeyEx:@"actionTriggerSpecId_"] stringValue];
-     NSDate   * time  = [actionSpecification  valueForKeyEx:@"time_"];
-     NSString* idStr =  [NSString stringWithFormat:@"%@-%@-%@-%@-%@",actionId,groupId,triggerId,triggerSpecId , time ];
-    return idStr;
-}
+
 
 
 #pragma mark -  notification handelers
@@ -229,10 +182,7 @@
 }
 
 
-- (BOOL)isDoneInitializationForMajorTask
-{
-    return YES;
-}
+ 
 
 
 - (BOOL)needsNotificationSystem

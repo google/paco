@@ -39,8 +39,7 @@ static const int ddLogLevel = LOG_LEVEL_VERBOSE;
 
 #define IS_IOS_7 ([[[UIDevice currentDevice] systemVersion] floatValue] >= 7.0)
 
-typedef void(^PacoRefreshCompletionBlock)(NSError* error);
-typedef void(^LoginCompletionBlock)(NSError* error);
+
 
 @interface PacoExtendedClient : NSObject
 

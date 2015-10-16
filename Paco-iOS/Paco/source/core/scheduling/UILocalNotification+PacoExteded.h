@@ -44,9 +44,7 @@ typedef void(^NotificationProcessBlock)(UILocalNotification* activeNotification,
                                         NSArray* notFiredNotifications);
 
     
-typedef void(^NotificationProcessBlock)(UILocalNotification* activeNotification,
-                                        NSArray* expiredNotifications,
-                                        NSArray* notFiredNotifications);
+ 
 
 typedef void(^NotificationReplaceBlock)(UILocalNotification* active,
                                         NSArray* expired,

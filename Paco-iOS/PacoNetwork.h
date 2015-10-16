@@ -15,8 +15,6 @@
 @class PacoService;
 @class Reachability;
 
-
-
 typedef void(^PacoRefreshCompletionBlock)(NSError* error);
 typedef void(^LoginCompletionBlock)(NSError* error);
 #define SERVER_DOMAIN_FLAG 2
@@ -35,13 +33,8 @@ typedef void(^LoginCompletionBlock)(NSError* error);
 
 + (PacoNetwork*)sharedInstance;
 
-- (void)backgroundFetchStartedWithBlock:(void(^)(UIBackgroundFetchResult))completionBlock;
 - (void)loginWithCompletionBlock:(LoginCompletionBlock)block;
-
 - (void)loginWithOAuth2CompletionHandler:(void (^)(NSError *))completionHandler;
-
-- (void)prefetchInBackground;
-
 - (void)uploadPendingEventsInBackground;
 - (void)configurePacoServerAddress:(NSString *)serverAddress;
 

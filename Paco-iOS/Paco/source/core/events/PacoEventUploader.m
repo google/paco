@@ -127,6 +127,9 @@ static int const kMaxNumOfEventsToUpload = 50;
 
 
 #pragma mark Public API
+
+
+
 - (void)startUploadingWithBlock:(UploadCompletionBlock)completionBlock {
   @synchronized(self) {
     if (self.isWorking) {

@@ -7,7 +7,11 @@
 //
 
 #import <Foundation/Foundation.h>
+#include "ExperimentDAO.h"
+#import  "ValidatorConsts.h"
 
 @interface PacoWillStopManageActionSpecifications : NSObject
+
+
 
 @end

@@ -36,8 +36,6 @@ static NSString* const kPacoStagingServerAddress = @"quantifiedself-staging.apps
 @implementation PacoNetwork
 
 
-
-
 - (id)init {
     self = [super init];
     if (self) {
@@ -166,10 +164,110 @@ static NSString* const kPacoStagingServerAddress = @"quantifiedself-staging.apps
     }
 }
 
-- (void)uploadPendingEventsInBackground {
+
+- (void)loginWithCompletionBlock:(LoginCompletionBlock)block {
+    if ([self isLoggedIn]) {
+        if (block) {
+            block(nil);
+        }
+        return;
+    }
     
+    if (![self isUserAccountStored]) {
+        [self showLoginScreenWithCompletionBlock:block];
+    } else {
+        [self reAuthenticateUserWithBlock:block];
+    }
+}
+
+
+- (void)reAuthenticateUserWithBlock:(LoginCompletionBlock)block {
+    //If there is an account stored, and the internet is offline, then we should allow user to use
+    //our app, so we need to prefetch definitions and experiments. When the internet is reacheable,
+    //we will re-authenticate user
+    
+    
+  
+    if (!self.reachability.isReachable) {
+        
+        
+       // [self prefetchInBackground]; we assume the experiments are available when the app exists.
+        
+        if (block != nil) {
+            block(nil);
+        }
+        [[NSNotificationCenter defaultCenter] addObserver:self
+                                                 selector:@selector(reachabilityChanged:)
+                                                     name:kReachabilityChangedNotification
+                                                   object:nil];
+    } else {
+        [self.authenticator reAuthenticateWithBlock:^(NSError* error) {
+            if (error == nil) {
+                [self startWorkingAfterLogIn];
+                if (block != nil) {
+                    block(nil);
+                }
+            } else {
+                [self showLoginScreenWithCompletionBlock:block];
+            }
+        }];
+    }
+}
+
+
+- (void)startWorkingAfterLogIn {
+    // Authorize the service.
+    self.service.authenticator = self.authenticator;
+    
+    // Fetch the experiment definitions and the events of joined experiments.
+    //[self prefetchInBackground];
+    [self uploadPendingEventsInBackground];
+}
+
+
+
+- (void)showLoginScreenWithCompletionBlock:(LoginCompletionBlock)block {
+    [self loginWithOAuth2CompletionHandler:block];
+}
+
+
+
+- (void)loginWithOAuth2CompletionHandler:(void (^)(NSError *))completionHandler {
+    if ([self isLoggedIn]) {
+        
+        NSLog(@"PacoClient-- loginWithOAuth2CompletionHandler ");
+        if (completionHandler != nil) {
+            completionHandler(nil);
+        }
+    }else{
+        [self.authenticator authenticateWithOAuth2WithCompletionHandler:^(NSError *error) {
+            if (!error) {
+                // Authorize the service.
+                self.service.authenticator = self.authenticator;
+                // Fetch the experiment definitions and the events of joined experiments.
+               // [self prefetchInBackground];
+                completionHandler(nil);
+            } else {
+                completionHandler(error);
+            }
+        }];
+    }
+}
+
+
+- (void)uploadPendingEventsInBackground {
     [self.eventManager startUploadingEvents];
 }
+
+
+
+
+#pragma mark Private methods
+
+
+
+
+
 
 - (NSString*)serverAddress {
     NSString* endOfPrefix = @"//";

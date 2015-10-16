@@ -101,7 +101,7 @@
     NSString *key = [keyPath substringToIndex:range.location];
     NSString *rest = [keyPath substringFromIndex:NSMaxRange(range)];
     id next = [self valueForKeyEx:key];
-    [next setValueEx:value forKeyPath:rest];
+    [next setValueForKeyPathEx:value forKeyPath:rest];
   } @catch (NSException *exception) {
     NSLog(@"error excoeption %@", exception.reason);
   }

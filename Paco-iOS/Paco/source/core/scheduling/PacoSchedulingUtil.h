@@ -11,16 +11,11 @@
 @interface PacoSchedulingUtil : NSObject
 
 
- 
-
-
 - (void)handleExpiredNotifications:(NSArray*)expiredNotifications;
 
-- (BOOL)isDoneInitializationForMajorTask;
 
-- (BOOL)needsNotificationSystem;
+ 
 
-- (void)updateNotificationSystem;
 
 + (NSArray*) buildActionSpecifications:(NSArray*) experiments IsDryRun:(BOOL) isTryRun  ActionSpecificationsDictionary:(NSMutableDictionary*) specificationsDictionary;
 

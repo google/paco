@@ -9,16 +9,17 @@
 #import  "PacoWillStopManageActionSpecifications.h"
 #include "ExperimentDAO.h"
 #import  "ValidatorConsts.h"
-#import  "PacoSchedulingUtil.h"
+ 
 
 @implementation PacoWillStopManageActionSpecifications
 
--(ValidatorExecutionStatus) shouldStop:(PAExperimentDAO*) experiment
+
+ -(ValidatorExecutionStatus) shouldStop:(PAExperimentDAO*) experiment
 {
     
-   // PacoSchedulingUtil
-    
+    return ValidatorExecutionStatusSuccess;
     
 }
+
 
 @end

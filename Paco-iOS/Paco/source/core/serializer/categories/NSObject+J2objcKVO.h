@@ -45,7 +45,7 @@ typedef NS_ENUM(NSInteger, EncodingEnumType) {
 - (id)valueForKeyEx:(NSString *)key;
 - (id)valueForKeyPathEx:(NSString *)keyPath;
 - (void)setValueEx:(id)value forKey:(NSString *)key;
-- (void)setValueEx:(id)value forKeyPath:(NSString *)keyPath;
+- (void)setValueForKeyPathEx:(id)value forKeyPath:(NSString *)keyPath;
 - (id)valueForKeyAndIndex:(int)index Key:(NSString *)key;
 - (NSArray *)makeCommonAttributeOperationName:(NSString *)attributeName
                                        Object:(NSObject *)object;
