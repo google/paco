@@ -348,8 +348,8 @@ pacoApp.service('config', function() {
     'when'
   ];
 
-  this.listPageSize = 10;
-  this.dataPageSize = 10;
+  this.listPageSize = 50;
+  this.dataPageSize = 100;
 });
 
 
