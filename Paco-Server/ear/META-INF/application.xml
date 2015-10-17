@@ -4,7 +4,7 @@
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://java.sun.com/xml/ns/javaee
                       http://java.sun.com/xml/ns/javaee/application_5.xsd"
-  version="152">
+  version="153">
 
   <description>Paco</description>
   <display-name>Paco</display-name>
@@ -23,12 +23,12 @@
     </web>
   </module>
 
-<!--
+
   <module>
     <web>
       <web-uri>mapreduce</web-uri>
       <context-root>mapreduce</context-root>
     </web>
   </module>
--->
+
 </application>
