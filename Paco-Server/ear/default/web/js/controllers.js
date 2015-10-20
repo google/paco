@@ -295,7 +295,7 @@ pacoApp.controller('ListCtrl', ['$scope', '$mdDialog', '$location',
   function($scope, $mdDialog, $location, experimentService, config) {
 
     $scope.cursor = {};
-    $scope.list = {};
+    $scope.list = {'admin':[], 'joined':[], 'mine':[]};
     $scope.loading = {};
     $scope.state = {};
 
@@ -317,56 +317,20 @@ pacoApp.controller('ListCtrl', ['$scope', '$mdDialog', '$location',
 
     $scope.$watch('user', function(newValue, oldValue) {
       if ($scope.user) {
-        $scope.loadList();
+        $scope.loadLists();
       }
     });
 
-    $scope.loadList = function() {
-      $scope.loadAdmin();
-      $scope.loadJoined();
-      $scope.loadJoinable();
+    $scope.loadLists = function() {
+      $scope.loadAdminList();
+      $scope.loadJoinedList();
+      $scope.loadJoinableList();
     };
 
-    $scope.loadJoined = function() {
-      $scope.loading.joined = true;
-      experimentService.getExperimentList('joined', false).then(function(response) {
-        var data = response.data.results;
-        $scope.list.joined = data;
-        $scope.joinedIndex = [];
-        $scope.eodExperiments = {};
-        for (var i = 0; i < data.length; i++) {
-          var experiment = data[i];
-          $scope.joinedIndex.push(experiment.id);
-          for (var g = 0; g < experiment.groups.length; g++) {
-            if (experiment.groups[g].endOfDayGroup) {
-              $scope.eodExperiments[experiment.id] = true;
-            }
-          }
-        }
-        $scope.loading.joined = false;
-      });
-    };
-
-    $scope.loadAdmin = function() {
-      $scope.loading.admin = true;
-      experimentService.getExperimentList('admin', true).then(function(response) {
-        $scope.cursor.admin = response.data.cursor;
-        $scope.list.admin = response.data.results;
-        $scope.loading.admin = false;
-      });
-    }
-
-    $scope.loadJoinable = function() {
-      $scope.loading.mine = true;
-      experimentService.getExperimentList('mine', true).then(function(response) {
-        $scope.cursor.mine = response.data.cursor;
-        $scope.list.mine = response.data.results;
-        $scope.loading.mine = false;
-      });
-    };
-
-    $scope.loadMore = function(listName) {
+    $scope.loadList = function(listName) {
       var cursor = $scope.cursor[listName];
+
+      $scope.loading[listName] = true;
       experimentService.getExperimentList(listName, true, cursor).then(function(response) {
 
         if (response.data.results.length < response.data.limit) {
@@ -375,9 +339,31 @@ pacoApp.controller('ListCtrl', ['$scope', '$mdDialog', '$location',
           $scope.cursor[listName] = response.data.cursor;
         }
 
-        $scope.list[listName] = $scope.list[listName].concat(response.data.results)
+        $scope.list[listName] = $scope.list[listName].concat(response.data.results);
+
+        if (listName === 'joined') {
+          $scope.joinedIndex = [];
+          for (var i = 0; i < $scope.list['joined'].length; i++) {
+            var experiment = $scope.list['joined'][i];
+            $scope.joinedIndex.push(experiment.id);
+          }
+        }
+
+        $scope.loading[listName] = false;
       });
     }
+
+    $scope.loadJoinedList = function() {
+      $scope.loadList('joined');
+    };
+
+    $scope.loadAdminList = function() {
+      $scope.loadList('admin');
+    }
+
+    $scope.loadJoinableList = function() {
+      $scope.loadList('mine');
+    };
 
     $scope.deleteExperiment = function(ev, exp) {
       var confirm = $mdDialog.confirm()
@@ -393,7 +379,7 @@ pacoApp.controller('ListCtrl', ['$scope', '$mdDialog', '$location',
         experimentService.deleteExperiment(exp.id).
         then(function(response) {
           experimentService.invalidateCachedLists();
-          $scope.loadList();
+          $scope.loadLists();
 
           // If we're on the experiment or edit page, change location to home
           if ($location.path().indexOf('/experiment/') === 0 ||
@@ -409,7 +395,7 @@ pacoApp.controller('ListCtrl', ['$scope', '$mdDialog', '$location',
         .then(function(result) {
           if (result.data && result.data[0].status === true) {
             experimentService.invalidateCachedList('joined');
-            $scope.loadJoined();
+            $scope.loadJoinedList();
 
             $mdDialog.show(
               $mdDialog.alert()
