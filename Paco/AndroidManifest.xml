@@ -17,8 +17,8 @@
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.pacoapp.paco"
-    android:versionCode="134"
-    android:versionName="4.1.12" xmlns:tools="http://schemas.android.com/tools">
+    android:versionCode="135"
+    android:versionName="4.1.13" xmlns:tools="http://schemas.android.com/tools">
     <uses-feature android:name="android.hardware.location" android:required="false"/>
     <uses-feature android:name="android.hardware.telephony" android:required="false"/>
     <uses-feature android:name="android.hardware.camera.autofocus" android:required="false"/>
@@ -83,6 +83,12 @@
                 <category android:name="android.intent.category.DEFAULT" />
 
                 <data android:mimeType="vnd.android.cursor.dir/vnd.google.paco.experiment" />
+            </intent-filter>
+            <intent-filter>
+                <data android:scheme="pacoapp" />
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <action android:name="android.intent.action.BROWSABLE" />
             </intent-filter>
         </activity>
         

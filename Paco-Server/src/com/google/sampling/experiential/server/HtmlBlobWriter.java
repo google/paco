@@ -295,17 +295,17 @@ public class HtmlBlobWriter {
         }
       }
       out.append("</table>");
-      if (eventQueryResultPair.getCursor() != null) {
-        String nextCursorUrl = "/events?q=" +
-                originalQuery +
-                "&who=" + whoFromLogin +
-                "&anon=" + anon +
-                "&tz=" + clientTimezone +
-                "&reportFormat=html" +
-                "&cursor=" + eventQueryResultPair.getCursor();
-        out.append("<center><font size=+4><a href=\"" + nextCursorUrl + "\">Load More Results</a></font></center>");
-
-      }
+//      if (eventQueryResultPair.getCursor() != null) {
+//        String nextCursorUrl = "/events?q=" +
+//                originalQuery +
+//                "&who=" + whoFromLogin +
+//                "&anon=" + anon +
+//                "&tz=" + clientTimezone +
+//                "&reportFormat=html" +
+//                "&cursor=" + eventQueryResultPair.getCursor();
+//        out.append("<center><font size=+4><a href=\"" + nextCursorUrl + "\">Load More Results</a></font></center>");
+//
+//      }
       out.append("</body></html>");
       return out.toString();
     }

@@ -58,7 +58,7 @@ public class Event {
 
   public static final List<String> eventProperties = Lists.newArrayList("who",
       "lat", "lon", "when", "appId", "experimentId", "experimentName", "responseTime",
-      "scheduledTime");
+      "scheduledTime", "experimentGroupName", "actionTriggerId", "actionTriggerSpecId", "actionId");
 
   @PrimaryKey
   @Persistent(valueStrategy = IdGeneratorStrategy.IDENTITY)
