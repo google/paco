@@ -505,16 +505,8 @@ pacoApp.controller('DataCtrl', ['$scope', '$mdDialog', '$location', '$filter',
             }
           }
 
-          // TODO(ispiro): regenerate CSV based on column visibility
-          var csv = $filter('tableToCsv')(table);
-
-          $scope.csv = csv;
-
-          var blob = new Blob([csv], {
-            type: 'text/csv'
-          });
+          $scope.csv = $filter('tableToCsv')(table);
           $scope.loading = false;
-          $scope.screenData = (window.URL || window.webkitURL).createObjectURL(blob);
         }
       }, function(result) {
         $scope.loading = false;

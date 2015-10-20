@@ -72,9 +72,6 @@
     <md-card class="footer" ng-if="table">
       <md-card-content>
         Showing {{table.rows.length}} events
-        <a ng-href="{{screenData}}" download="table.csv">
-          <md-button>Table CSV</md-button>
-        </a>
         <md-button ng-if="eventCursor" ng-click="loadEvents()">
           Show More
         </md-button>
