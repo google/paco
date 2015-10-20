@@ -31,7 +31,7 @@
   text-decoration: none;
 }
 
-.list md-card.deleted {
+.list md-card.deleting {
   opacity: .5;
   pointer-events: none;
 }
