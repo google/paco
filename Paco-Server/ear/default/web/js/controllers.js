@@ -475,6 +475,7 @@ pacoApp.controller('DataCtrl', ['$scope', '$mdDialog', '$location', '$filter',
 
     $scope.loadEvents = function() {
       $scope.loading = true;
+      var loadingMore = ($scope.eventCursor !== null);
 
       dataService.getEvents($scope.experimentId, $scope.restrict, $scope.anon, $scope.eventCursor).
       then(function(response) {
@@ -509,11 +510,13 @@ pacoApp.controller('DataCtrl', ['$scope', '$mdDialog', '$location', '$filter',
             return;
           }
 
-          if ($scope.columnOverride) {
-            enableColumns($scope.columnOverride);
-          } else {
-            enableColumns(config.dataOrder);
-            enableColumns(table.responseNames);
+          if (!loadingMore) {
+            if ($scope.columnOverride) {
+              enableColumns($scope.columnOverride);
+            } else {
+              enableColumns(config.dataOrder);
+              enableColumns(table.responseNames);
+            }
           }
 
           // TODO(ispiro): regenerate CSV based on column visibility
