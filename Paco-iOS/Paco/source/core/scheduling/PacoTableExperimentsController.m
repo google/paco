@@ -16,25 +16,42 @@
 #import "PacoNotificationManager.h"
 #import "PacoNortificationsForExperiment.h"
 #import "PacoScheduledNotifications.h" 
+#import "PacoNetwork.h" 
+#import "PacoService.h" 
+#import "PacoPublicDefinitionLoader.h" 
+#import "PacoEnumerator.h" 
+
+
 
 
 @interface PacoNotificationManager()
 
-@property (atomic, retain) NSMutableDictionary* notificationDict;
+@property (nonatomic, strong) NSMutableDictionary* notificationDict;
 @property (readwrite) BOOL isJoin;
+
+
+
 @end
 
 
 
 @interface PacoTableExperimentsController ()
 
+@property (nonatomic,strong) PacoPublicDefinitionLoader* definitionLoader;
+@property(nonatomic, strong) id<PacoEnumerator> enumerator;
+
+
 @end
 
 @implementation PacoTableExperimentsController
 
 - (void)viewDidLoad {
+    
     [super viewDidLoad];
     
+    
+       //self.definitionLoader = [PacoPublicDefinitionLoader new];
+         _enumerator = [PacoPublicDefinitionLoader enumerator];
     
       UIBarButtonItem * addExperiment =  [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAdd
                                                   target:self  action:@selector(addExperiment:)];
@@ -54,6 +71,54 @@
 
 }
 
+
+-(void) viewWillAppear:(BOOL)animated
+{
+    
+   
+    PacoNetwork * network = [PacoNetwork sharedInstance];
+    [network loginWithCompletionBlock:^(NSError* error) {
+        
+        if (error) {
+            
+            NSLog(@"NO NO NO NO NO NO NO");
+            
+        } else {
+            
+            
+            
+            
+            
+            [network.service loadMyFullDefinitionListWithBlock:^(NSArray* definitions, NSError* error) {
+                if (!error) {
+                    
+                     NSLog(@" YES THIS ONE IS IT ");
+                    
+                } else
+                {
+                    NSLog(@" YES THIS ONE IS IT ");
+                    
+                }
+             
+            }];
+            
+            
+            
+            NSLog(@"YES YES YES YES YES ");
+            
+        }
+    }];
+    
+    
+    [self.enumerator loadNextPage:^(NSArray* items, NSError* error) {
+       
+        NSLog(@"YES YES YES YES YES ");
+        
+    }];
+     [self.tableView reloadData];
+    
+}
+
 -(void) refresh
 {
     [self.tableView reloadData];
@@ -64,6 +129,9 @@
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
 }
+
+
+
 
 #pragma mark - Table view data source
 
@@ -111,12 +179,7 @@
 }
 
 
--(void) viewWillAppear:(BOOL)animated
-{
-    
-    [self.tableView reloadData];
-    
-}
+
 
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {

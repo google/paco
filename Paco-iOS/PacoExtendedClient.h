@@ -53,8 +53,7 @@ static const int ddLogLevel = LOG_LEVEL_VERBOSE;
 @property (nonatomic, retain, readonly) NSString *serverDomain;
 
 
-- (void)joinExperimentWithDefinition:(PAActionSpecification*) specification
-                     completionBlock:(void(^)())completionBlock;
+
 
 + (PacoExtendedClient *)sharedInstance;
 - (NSString*)userEmail;

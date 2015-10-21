@@ -78,8 +78,7 @@ typedef void(^FetchExpiredBlock)(NSArray* expiredNotifications, NSArray* nonExpi
 
 
 //datesToSchedule Must be sorted already
-+ (NSArray*)pacoNotificationsForExperiment:(PacoExperiment*)experiment
-                           datesToSchedule:(NSArray*)datesToSchedule;
+
 
 - (NSString*)pacoExperimentIdExt;
 - (NSString*)pacoExperimentTitleExt;
@@ -97,7 +96,7 @@ typedef void(^FetchExpiredBlock)(NSArray* expiredNotifications, NSArray* nonExpi
 
 //notifications MUST be sorted already
 + (void)pacoProcessNotificationsExt:(NSArray*)notifications withBlock:(NotificationProcessBlock)block;
-+ (void)pacoFetchExpiredNotificationsFrom:(NSArray*)notifications withBlock:(FetchExpiredBlock)block;
++ (void)pacoFetchExpiredNotificationsFromExt:(NSArray*)notifications withBlock:(FetchExpiredBlock)block;
 
 //{ NSString : NSMutableArray }
 + (NSDictionary*)pacoSortedDictionaryFromNotificationsExt:(NSArray*)notifications;

@@ -15,7 +15,11 @@
 
 #import <UIKit/UIKit.h>
 #import <CoreData/CoreData.h>
+
+@class PacoMainSwiftViewController;
 @class PacoMainViewController;
+@class PacoListOfExperimentsTableViewController;
+@class PacoMyExperiments;
 
 /* 888 */
 @class ScheduleTestViewController;
@@ -25,7 +29,12 @@
 @property (strong, nonatomic) UIWindow *window;
 @property (strong, nonatomic) ScheduleTestViewController *testViewController;
 @property (strong, nonatomic) PacoTableExperimentsController *testTableViewController;
-@property (strong, nonatomic) PacoMainViewController *viewController;
+
+@property (strong, nonatomic) PacoMainSwiftViewController *swiftViewController;
+
+@property (strong,nonatomic) PacoListOfExperimentsTableViewController* experimentsListController;
+@property (strong,nonatomic) PacoMyExperiments* myExperiments;
+
 @property (strong, nonatomic) UILocalNotification* notificationFromAppLaunch;
 @property(nonatomic,copy) NSArray *scheduledLocalNotifications NS_AVAILABLE_IOS(4_0);
 
@@ -38,6 +47,7 @@
  @property (readonly, strong, nonatomic) NSManagedObjectContext *managedObjectContext;
  @property (readonly, strong, nonatomic) NSManagedObjectModel *managedObjectModel;
  @property (readonly, strong, nonatomic) NSPersistentStoreCoordinator *persistentStoreCoordinator;
+
  
  - (void)saveContext;
  - (NSURL *)applicationDocumentsDirectory;

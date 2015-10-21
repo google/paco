@@ -39,10 +39,6 @@
     self = [super init];
     if (self) {
         
-        
-    
-        
-      
     }
     return self;
 }
@@ -50,22 +46,9 @@
 
 
 
-
-#pragma mark join an experiment
-
-
-
-
-
-
-
-
-
 - (NSString*)userEmail {
     return [self.authenticator userEmail];
 }
-
-
 
 
 

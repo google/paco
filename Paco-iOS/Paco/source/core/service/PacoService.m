@@ -24,9 +24,13 @@
 #import "PacoExtendedClient.h"
 #import "PacoExperimentInput.h"
 #import "PacoExperimentSchedule.h"
-#import "PacoExperimentDefinition.h"
+#import "ExperimentDAO.h" 
+#import "PacoSerializer.h"
 #import "PacoEventExtended.h"
 #import "PacoNetwork.h" 
+#import "PacoSerializeUtil.h" 
+#import "PacoNetwork.h" 
+
 
 
 
@@ -61,8 +65,8 @@
   NSString *version = [[NSBundle mainBundle] infoDictionary][(NSString*)kCFBundleVersionKey];
   NSAssert([version length] > 0, @"version number is not valid!");
   [request setValue:@"iOS" forHTTPHeaderField:@"http.useragent"];
-  [request setValue:version forHTTPHeaderField:@"paco.version"];
-  [request setValue:@"3.0" forHTTPHeaderField:@"pacoProtocol"];
+ //[request setValue:version forHTTPHeaderField:@"paco.version"];
+ // [request setValue:@"3.0" forHTTPHeaderField:@"pacoProtocol"];
 
   // Authenticate
     [GTMHTTPFetcher setLoggingEnabled:YES];
@@ -79,6 +83,8 @@
       id jsonObj = nil;
       NSError *jsonError = nil;
       if ([data length]) {
+          
+        NSString* jsonString =   [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
         jsonObj = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingAllowFragments error:&jsonError];
         if (jsonError) {
           DDLogError(@"JSON PARSE ERROR = %@\n", jsonError);
@@ -93,6 +99,7 @@
     }];
 }
 
+
 //http request to load paginated experiment definitions
 - (void)sendGetHTTPRequestWithEndPoint:(NSString*)endPointString andBlock:(PacoPaginatedResponseBlock)block {
     
@@ -100,7 +107,7 @@
   NSAssert(endPointString.length > 0, @"endpoint string should be valid!");
   
   NSURL *url = [NSURL URLWithString:
-                   [NSString stringWithFormat:@"%@/%@",[PacoExtendedClient sharedInstance].serverDomain,endPointString]];
+                   [NSString stringWithFormat:@"%@/%@",[PacoNetwork sharedInstance].serverDomain,endPointString]];
   NSMutableURLRequest *request =
     [NSMutableURLRequest requestWithURL:url
                           cachePolicy:NSURLRequestReloadIgnoringLocalCacheData
@@ -109,11 +116,12 @@
   
   [self executePacoServiceCall:request completionHandler:^(id jsonData, NSError *error) {
     if (!error) {
-      NSAssert([jsonData isKindOfClass:[NSDictionary class]], @"paginated response should be a dictionary");
+    //  NSAssert([jsonData isKindOfClass:[NSDictionary class]], @"paginated response should be a dictionary");
       if (block) {
-        NSString* cursor = jsonData[@"cursor"];
-        NSArray* results = jsonData[@"results"];
-        block(results, cursor, nil);
+       // NSString* cursor = jsonData[@"cursor"];
+       // NSArray* results = jsonData[@"results"];
+          
+        block(jsonData, nil, nil);
       }
     } else {
       if (block) {
@@ -149,15 +157,33 @@
 
 - (void)loadFullDefinitionListWithIDs:(NSArray*)idList andBlock:(void (^)(NSArray*, NSError*))completionBlock {
   NSAssert([idList count] > 0, @"idList should have more than one id inside!");
+    
+    
   NSString* endPointString = [NSString stringWithFormat:@"experiments?id=%@&tz=%@",[idList componentsJoinedByString:@","], [PacoDateUtility escapedNameForSystemTimeZone]];
   [self sendGetHTTPRequestWithEndPoint:endPointString andBlock:^(NSArray* items, NSString* cursor, NSError* error) {
     if (completionBlock) {
       NSMutableArray* definitionList = [NSMutableArray arrayWithCapacity:[items count]];
       for (id definitionJson in items) {
+          
         NSAssert([definitionJson isKindOfClass:[NSDictionary class]], @"a full definition should be a dictionary ");
-        PacoExperimentDefinition* definition = [PacoExperimentDefinition pacoExperimentDefinitionFromJSON:definitionJson];
-        NSAssert(definition, @"definition should be valid");
-        [definitionList addObject:definition];
+          
+          NSArray* array = [PacoSerializeUtil getClassNames];
+          PacoSerializer * serializer = [[PacoSerializer alloc] initWithArrayOfClasses:array withNameOfClassAttribute:@"nameOfClass"];
+          
+          
+         PAExperimentDAO * dao =  [serializer buildModelObject:definitionJson];
+          
+          
+          NSLog(@" this is the log object ");
+          
+          
+      //  PacoExperimentDefinition* definition = [PacoExperimentDefinition pacoExperimentDefinitionFromJSON:definitionJson];
+          
+          
+       // NSAssert(definition, @"definition should be valid");
+         [definitionList addObject:dao];
+          
+          
       }
       completionBlock([NSArray arrayWithArray:definitionList], error);
     }
@@ -281,6 +307,8 @@
              }];
 }
 
+
+/*
 - (void)loadEventsForExperiment:(PacoExperimentDefinition *)experiment
     withCompletionHandler:(void (^)(NSArray *, NSError *))completionHandler {
   // Setup our request.
@@ -307,6 +335,8 @@
       }
   }];
 }
+ */
+
 
 
 @end

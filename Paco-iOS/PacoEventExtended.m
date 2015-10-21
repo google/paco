@@ -62,7 +62,15 @@ NSString* const kPacoResponseJoinExtended = @"joined";
 @property (nonatomic, readwrite, copy) NSString *pacoVersion;
 @end
 
+/*
+ 
+ 
+ eventRetriever.postEvent(who, null, null, whenDate, appId, pacoVersion, whats, false, experimentIdStr,
+ experimentName, experimentVersion, responseTime, scheduledTime, blobs,
+ groupName, actionTriggerId, actionTriggerSpecId, actionId);
 
+
+*/
 
 @implementation PacoEventExtended
 
@@ -134,22 +142,41 @@ NSString* const kPacoResponseJoinExtended = @"joined";
     
     NSDateFormatter* dateFormatter = [[NSDateFormatter alloc] init];
     [dateFormatter setDateFormat:@"yyyy/MM/dd HH:mm:ssZ"];
-    NSString* formattedTime = [dateFormatter stringFromDate:self.responseTime];
+ 
     return [NSString stringWithFormat:@"<%@, %p: id=%@,name=%@,version=%d,responseTime=%@,"
             "who=%@,when=%@,response=\r%@>",
             NSStringFromClass([self class]),
             self,
             self.experimentId,
             self.experimentName,
-            self.experimentVersion,
-            formattedTime,
+            [self.experimentVersion intValue],
+            self.responseTime,
             self.who,
             self.when,
             responseStr];
 }
 
-/*
+
 - (id)generateJsonObject {
+    
+    
+    
+    NSArray* array = [PacoSerializeUtil getClassNames];
+    PacoSerializer * serializer = [[PacoSerializer alloc] initWithArrayOfClasses:array withNameOfClassAttribute:@"nameOfClass"];
+    NSData* json = [serializer toJSONobject:self];
+    
+   
+    
+    
+     NSError* error;
+    id definitionDict =
+    [NSJSONSerialization JSONObjectWithData:json
+                                    options:NSJSONReadingAllowFragments
+                                      error:&error];
+    return definitionDict;
+    
+   /*
+    
     NSMutableDictionary *dictionary = [NSMutableDictionary dictionary];
     dictionary[kPacoEventKeyExperimentIdExtended] = self.experimentId;
     dictionary[kPacoEventKeyExperimentNameExtended] = self.experimentName;
@@ -176,9 +203,11 @@ NSString* const kPacoResponseJoinExtended = @"joined";
         dictionary[kPacoEventKeyResponsesExtended] = self.responses;
     }
     return [NSDictionary dictionaryWithDictionary:dictionary];
+    */
 }
  
- */
+
+ 
 
 
 
@@ -210,6 +239,7 @@ NSString* const kPacoResponseJoinExtended = @"joined";
             newReponseList[index] = newResponseDict;
         }
     }
+    
     NSMutableDictionary* jsonPayload =
     [NSMutableDictionary dictionaryWithDictionary:[self generateJsonObject]];
     jsonPayload[kPacoEventKeyResponsesExtended] = newReponseList;
@@ -434,7 +464,7 @@ NSString* const kPacoResponseJoinExtended = @"joined";
   
     NSArray* array = [PacoSerializeUtil getClassNames];
     PacoSerializer * serializer = [[PacoSerializer alloc] initWithArrayOfClasses:array withNameOfClassAttribute:@"nameOfClass"];
-    [serializer addNonDomainClass:self];
+    [serializer addNoneDomainClass:self];
     NSData* json = [serializer toJSONobject:self];
     
     JavaUtilArrayList  *  resultArray  = (JavaUtilArrayList*) [serializer buildObjectHierarchyFromJSONOBject:json];

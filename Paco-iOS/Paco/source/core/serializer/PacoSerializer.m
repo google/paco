@@ -35,7 +35,7 @@
 #include "java/util/HashMap.h"
 #include "java/util/ArrayList.h"
 #include "java/util/iterator.h"
-#import "ITAhoCorasickContainer.h"
+
 #import "NSObject+J2objcKVO.h"
 #include "java/util/ArrayList.h"
 #include "java/util/List.h"
@@ -76,8 +76,7 @@
 
 /* serilized json */
 @property(nonatomic, strong) NSMutableDictionary* attributeClassMap;
-/* aho corasic matching algorithm */
-@property(strong, nonatomic) ITAhoCorasickContainer* container;
+
 /* The first or parent node  */
 @property(nonatomic, strong) id parentNode;
 
@@ -110,22 +109,22 @@
         _nameOfClass = nameOfClass;
         _objectTracking = [NSMutableArray new];
         _cache = [NSCache new];
-        _container = [ITAhoCorasickContainer new];
+        //_container = [ITAhoCorasickContainer new];
         _attributeClassMap = [NSMutableDictionary new];
         _outOfDomainClasseNames = [NSMutableArray new];
         _timeZone =  [NSTimeZone localTimeZone];
       
-//      if(_classes !=nil)
-//      {
-//       [self buildAttibuuteClassMap];
-//      }
+    /*  if(_classes !=nil)
+     {
+       [self buildAttibuuteClassMap];
+     }*/
      
      
   }
   return self;
 }
 
--(void) addNonDomainClass:(NSObject*) object
+-(void) addNoneDomainClass:(NSObject*) object
 {
      NSString* clazzName = NSStringFromClass( [object class] );
      [_outOfDomainClasseNames addObject:clazzName];
@@ -156,7 +155,7 @@
 
 
 
--(NSArray*) toJSonStringFromNSArrayOfDefinitionObjects:(NSArray*) definitions
+-(NSArray*) experimentToJSonStringFromNSArrayOfDefinitionObjects:(NSArray*) definitions
 {
  
      NSMutableArray* definitionsList = [[NSMutableArray alloc] init];
@@ -263,6 +262,22 @@
     return retObj;
     
 }
+
+
+-(NSObject*) buildModelObject:(NSDictionary*) dictionary
+{
+    NSObject* retObj= nil;
+    [self recurseJason:@[ PACO_OBJECT_PARENT, @[dictionary] ]];
+    if([((JavaUtilArrayList*) _parentNode) size] > 0)
+    {
+        retObj = [((JavaUtilArrayList*) _parentNode) getWithInt:0];
+    }
+    return retObj;
+
+    
+    
+}
+
 
 - (void)validate:(NSArray*)parentInfo {
   if ([parentInfo[1] isKindOfClass:[JavaUtilArrayList class]]) {
@@ -829,7 +844,7 @@
         [NSString stringWithFormat:@"%@%@", METHOD_PREFIX, className];
     Class theClass = NSClassFromString(withPrefix);
     id object = [[theClass alloc] init];
-    [self.container addStringPattern:[self toMatchString:object]];
+   // [self.container addStringPattern:[self toMatchString:object]];
   }
 }
 

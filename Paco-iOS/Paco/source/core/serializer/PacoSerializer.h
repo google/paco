@@ -5,7 +5,7 @@
 //  Created by Timothy  Northrop O'Brien on 7/23/15.
 //
 //
-//  Parses the collection heirarchy created by a json parser to produce a modal
+//  Parses the collection heirarchy created by a json parser to produce a model
 //  tree
 //
 //
@@ -79,7 +79,7 @@ typedef NS_ENUM(NSInteger, PacoParentType) {
 - (NSObject*)buildObjectHierarchyFromCollections:(id)collection;
 
 /* get a json object from an NSArray of j2objc objects */
--(NSArray*) toJSonStringFromNSArrayOfDefinitionObjects:(NSArray*) definitions;
+-(NSArray*) experimentToJSonStringFromNSArrayOfDefinitionObjects:(NSArray*) definitions;
 
 - (void)validate:(NSArray*)parentInfo;
 
@@ -87,10 +87,14 @@ typedef NS_ENUM(NSInteger, PacoParentType) {
 - (NSObject*)buildObjectHierarchyFromJSONString:(id)json;
 
 /* add class that does not support domain prefix, i.e., 'PA' */
--(void) addNonDomainClass:(NSObject*) object;
+-(void) addNoneDomainClass:(NSObject*) object;
 
-/* return a songle object after from json string*/
+/* return a songle object after from json string */
 - (NSObject*)buildSingleObjectHierarchyFromJSONString:(id)json;
+
+/* crate a medel object from dictionary */
+-(NSObject*) buildModelObject:(NSDictionary*) dictionary;
+
 
 
 @end

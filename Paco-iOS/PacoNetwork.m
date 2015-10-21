@@ -260,6 +260,42 @@ static NSString* const kPacoStagingServerAddress = @"quantifiedself-staging.apps
 }
 
 
+- (void)prefetchInBackground {
+    NSLog(@"PacoClient-- Refresh prefetchInBackground");
+    @synchronized(self) {
+        
+        
+       /// NSError* error = [self.model loadExperimentInstancesFromFile];
+        
+       // [[NSNotificationCenter defaultCenter] postNotificationName:kPacoNotificationLoadedRunningExperiments
+                                                            //object:error];
+//[self setUpNotificationSystem];
+        // Load the experiment definitions.
+//BOOL success = [self.model loadExperimentDefinitionsFromFile];
+        //if (success) {
+         //   [[NSNotificationCenter defaultCenter] postNotificationName:kPacoNotificationLoadedMyDefinitions
+                                                               // object:nil];
+        // else {
+        
+        
+            [self.service loadMyFullDefinitionListWithBlock:^(NSArray* definitions, NSError* error) {
+                if (!error) {
+                    
+                    NSLog(@"definistions %@", definitions);
+                    
+                    
+                    //[self.model fullyUpdateDefinitionList:definitions];
+                } else {
+                    
+                  
+                   // DDLogError(@"Failed to prefetch definitions: %@", [error description]);
+                }
+                
+                //[[NSNotificationCenter defaultCenter] postNotificationName:kPacoNotificationLoadedMyDefinitions
+                                                                  //  object:error];
+            }];
+        }
+}
 
 
 #pragma mark Private methods

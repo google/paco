@@ -28,6 +28,9 @@
 #import "ScheduleTestViewController.h"
 #import "PacoTableExperimentsController.h" 
 #import "PacoMediator.h" 
+#import "Paco-Swift.h" 
+
+
 
 
 
@@ -188,8 +191,21 @@
         [application registerUserNotificationSettings:mySettings];
   }
   
+    //PacoListOfExperimentsTableViewController* experimentsListController
+    
+     self.experimentsListController = [[PacoListOfExperimentsTableViewController alloc]  initWithNibName:@"PacoListOfExperimentsTableViewController" bundle:nil];
+    
+    self.myExperiments =[[PacoMyExperiments alloc] initWithNibName:@"PacoMyExperiments" bundle:nil];
+    
+    
+    
+    
+    
+    self.swiftViewController = [[PacoMainSwiftViewController alloc] initWithNibName:@"PacoMainSwiftViewController" bundle:nil];
   self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
-  self.window.rootViewController = [[UINavigationController alloc] initWithRootViewController:self.testTableViewController];
+//  self.window.rootViewController = [[UINavigationController alloc] initWithRootViewController:self.testTableViewController];
+     self.window.rootViewController = [[UINavigationController alloc] initWithRootViewController:self.myExperiments];
+    
   [self.window makeKeyAndVisible];
   
   

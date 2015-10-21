@@ -138,7 +138,7 @@ extern NSString* const kUserInfoKeyActionTriggerSpecId;
       
 #warning needs fixing
       /*
-         FIX: the notificationAction on the specification is nill whine it should not be. 
+         FIX: the notificationAction on the specification is nill when it should not be.
                for now  we will assume there is only one action and fetch this action.
        
        */

@@ -35,7 +35,7 @@ typedef NS_ENUM(NSInteger, PacoEventTypeExtended) {
 
 
 @class PAActionSpecification;
-@interface PacoEventExtended : NSObject<PAEventInterface,NSCopying,NSCoding>
+@interface PacoEventExtended : NSObject<NSCopying,NSCoding>
 
 
 
@@ -59,8 +59,6 @@ typedef NS_ENUM(NSInteger, PacoEventTypeExtended) {
 
 
 + (id)pacoEventForIOS;
-+ (id)pacoEventFromJSON:(id)jsonObject;
-- (id)generateJsonObject;
 - (id)payloadJsonWithImageString;
 
 - (PacoEventTypeExtended)type;
