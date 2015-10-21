@@ -134,7 +134,7 @@ pacoApp.service('dataService', ['$http', '$timeout', '$q', 'config',
 
     function getReport(id, user, type, anonymous, photos) {
 
-        var maxTries = 10;
+        var maxTries = 1000; // never give up!
         var startMarker = '<title>Current Status of Report Generation for job: ';
         var endMarker = '</title>';
         var endpoint = '/events?q=\'experimentId=' + id;
@@ -348,8 +348,8 @@ pacoApp.service('config', function() {
     'when'
   ];
 
-  this.listPageSize = 10;
-  this.dataPageSize = 10;
+  this.listPageSize = 50;
+  this.dataPageSize = 100;
 });
 
 
