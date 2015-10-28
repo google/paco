@@ -56,6 +56,6 @@
   width: 100%;
 }
 
-.list md-progress-circular {
-  margin-left: calc(50% - 50px);
+.list .status {
+  margin: 16px 8px;
 }
