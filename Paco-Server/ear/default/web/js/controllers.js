@@ -361,16 +361,16 @@ pacoApp.controller('ListCtrl', ['$scope', '$mdDialog', '$location',
       });
     }
 
-    $scope.loadJoinedList = function(append) {
-      $scope.loadList('joined', append);
+    $scope.loadJoinedList = function(reset) {
+      $scope.loadList('joined', reset);
     };
 
-    $scope.loadAdminList = function(append) {
-      $scope.loadList('admin', append);
+    $scope.loadAdminList = function(reset) {
+      $scope.loadList('admin', reset);
     }
 
-    $scope.loadJoinableList = function(append) {
-      $scope.loadList('mine', append);
+    $scope.loadJoinableList = function(reset) {
+      $scope.loadList('mine', reset);
     };
 
     $scope.deleteExperiment = function(ev, exp) {
