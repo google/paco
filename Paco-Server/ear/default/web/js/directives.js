@@ -19,8 +19,8 @@ pacoApp.directive('pacoGroup', function () {
     });
 
     $scope.$watchCollection('responses', function(newValue, oldValue) {
-        
-        if (angular.isDefined(newValue) && 
+
+        if (angular.isDefined(newValue) &&
             angular.isDefined($scope.group)) {
 
           for ( var inputIdx in $scope.group.inputs) {
@@ -53,7 +53,7 @@ pacoApp.directive('pacoGroup', function () {
         };
         post.responses.push(pair);
       }
-      
+
       if ($scope.events) {
 
         var event = $scope.events[$scope.activeIdx];
@@ -186,7 +186,7 @@ pacoApp.directive('milli', function() {
     require: 'ngModel',
     link: function(scope, element, attr, ngModel) {
 
-      /* 
+      /*
        * Since the time input is relative to 12/31/1969, it will never
        * include daylight savings time. So to compute the millisecond delta, we
        * make a date in January, which will be in the current system timezone,
@@ -213,8 +213,8 @@ pacoApp.directive('milli', function() {
 
 /**
  * Directive for two-way filtering numbers and booleans. The various select
- * elements use stringified numbers or bools for their values, a constraint of 
- * Angular. Add this directive to a select and it will properly handle 
+ * elements use stringified numbers or bools for their values, a constraint of
+ * Angular. Add this directive to a select and it will properly handle
  * numbers and bools by converting back and forth to stringified versions.
  * Use the ng-selected directive on each option inside the select to get it to
  * properly show the selected value on initial load.
@@ -465,7 +465,7 @@ pacoApp.filter('jsonToTable', ['util', 'config', function(util, config) {
           var responseValue = responses[id]['answer'];
           var responseId = responseLookup[responseName];
           newRow[responseStartId + responseId] = responseValue;
-         }       
+         }
       }
       rows.push(newRow);
     }
@@ -526,7 +526,7 @@ pacoApp.filter('jsonToCsv', function() {
     }
     return rows;
   }
-}); 
+});
 
 
 
