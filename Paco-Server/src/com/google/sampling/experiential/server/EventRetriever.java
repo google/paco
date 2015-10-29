@@ -712,7 +712,7 @@ public class EventRetriever {
         extensionMap.put(JDOCursorHelper.CURSOR_EXTENSION, cursor);
         q.setExtensions(extensionMap);
       }
-      q.setRange(0, 1000);
+      q.setRange(0, 20000);
       List<Event> currentResults = (List<Event>) q.executeWithArray(eventJDOQuery.getParameters().toArray());
       log.info("Got back " + currentResults.size() + " results");
       if (currentResults != null && !currentResults.isEmpty()) {
