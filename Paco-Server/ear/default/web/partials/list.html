@@ -11,7 +11,7 @@
       <md-tab-body>
         <div ng-if="list.admin" class="group">
           <div ng-repeat="exp in list.admin">
-            <md-card ng-class="{deleted: exp.deleted}">
+            <md-card ng-class="{deleting: exp.deleting}">
               <md-card-content class="padded">
                 <a href="#/experiment/{{exp.id}}">{{exp.title}}
                 </a>
