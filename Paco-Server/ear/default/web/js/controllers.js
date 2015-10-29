@@ -317,21 +317,29 @@ pacoApp.controller('ListCtrl', ['$scope', '$mdDialog', '$location',
 
     $scope.$watch('user', function(newValue, oldValue) {
       if ($scope.user) {
-        $scope.loadLists();
+        $scope.loadLists(true);
       }
     });
 
-    $scope.loadLists = function() {
-      $scope.loadAdminList();
-      $scope.loadJoinedList();
-      $scope.loadJoinableList();
+    $scope.loadLists = function(reset) {
+      $scope.loadAdminList(reset);
+      $scope.loadJoinedList(reset);
+      $scope.loadJoinableList(reset);
     };
 
-    $scope.loadList = function(listName) {
+    $scope.loadList = function(listName, reset) {
       var cursor = $scope.cursor[listName];
+      if (reset === undefined) {
+        reset = false;
+      }
 
       $scope.loading[listName] = true;
       experimentService.getExperimentList(listName, true, cursor).then(function(response) {
+
+      if (reset) {
+        $scope.cursor[listName] = null;
+        $scope.list[listName] = [];
+      }
 
         if (response.data.results.length < response.data.limit) {
           $scope.cursor[listName] = null;
@@ -353,16 +361,16 @@ pacoApp.controller('ListCtrl', ['$scope', '$mdDialog', '$location',
       });
     }
 
-    $scope.loadJoinedList = function() {
-      $scope.loadList('joined');
+    $scope.loadJoinedList = function(append) {
+      $scope.loadList('joined', append);
     };
 
-    $scope.loadAdminList = function() {
-      $scope.loadList('admin');
+    $scope.loadAdminList = function(append) {
+      $scope.loadList('admin', append);
     }
 
-    $scope.loadJoinableList = function() {
-      $scope.loadList('mine');
+    $scope.loadJoinableList = function(append) {
+      $scope.loadList('mine', append);
     };
 
     $scope.deleteExperiment = function(ev, exp) {
@@ -378,8 +386,8 @@ pacoApp.controller('ListCtrl', ['$scope', '$mdDialog', '$location',
         exp.deleting = true;
         experimentService.deleteExperiment(exp.id).
         then(function(response) {
-          experimentService.invalidateCachedLists();
-          $scope.loadLists();
+          $scope.cursor = {};
+          $scope.loadLists(true);
 
           // If we're on the experiment or edit page, change location to home
           if ($location.path().indexOf('/experiment/') === 0 ||
