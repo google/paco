@@ -173,6 +173,30 @@ pacoApp.directive('noIos', function() {
   };
 });
 
+pacoApp.directive('pacoTip', function() {
+  return {
+    restrict: 'E',
+    scope: {  'message': '=message' },
+    template: '<div class="paco-tip"><img src="img/ic_info_black_24px.svg"><md-tooltip md-direction="bottom" md-delay="200">{{message}}</md-tooltip></div>',
+    link: function(scope, element) {
+    }
+  };
+});
+
+pacoApp.directive('pacoHelp', function() {
+  return {
+    restrict: 'E',
+    transclude: true,
+    scope: true,
+    template: '<div class="paco-help"><img src="img/ic_info_black_24px.svg"><div class="text" ng-transclude></div></div>',
+    link: function(scope, element) {
+      element.bind('click', function() {
+        element.toggleClass('show');
+      });
+    }
+  };
+});
+
 
 /**
  * This directive uses two-way data filtering to convert between the time

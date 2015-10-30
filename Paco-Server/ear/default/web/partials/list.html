@@ -5,9 +5,32 @@
     </md-button>
   </a>
 
+  <paco-help>
+    The portal shows 3 categories of experiment.
+    <ul>
+    <li>
+      <b>Administrator:</b>
+      Experiments you have created or are listed as an administrator.
+    </li>
+    <li>
+      <b>Joined:</b>
+      Experiments you are or have participated in.
+    </li>
+    <li>
+      <b>Invited:</b>
+       Experiments that you may join. Created by you or published to you.
+    </li>
+    </ul>
+  </paco-help>
+
   <md-tabs md-selected="state.listTab" md-dynamic-height md-center-tabs>
     <md-tab id="admin">
-      <md-tab-label>Administered</md-tab-label>
+      <md-tab-label>
+        Administered
+        <md-tooltip md-direction="bottom" md-delay="1000">
+          Experiments you have created or are listed as an administrator.
+        </md-tooltip>
+      </md-tab-label>
       <md-tab-body>
         <div ng-if="list.admin" class="group">
           <div ng-repeat="exp in list.admin">
@@ -71,7 +94,12 @@
     </md-tab>
 
     <md-tab id="joined">
-      <md-tab-label>Joined</md-tab-label>
+      <md-tab-label>
+        Joined
+        <md-tooltip md-direction="bottom" md-delay="1000">
+          Experiments you are or have participated in.
+        </md-tooltip>
+      </md-tab-label>
       <md-tab-body>
         <div ng-if="list.joined" class="group">
           <div ng-repeat="exp in list.joined">
@@ -117,7 +145,12 @@
     </md-tab>
 
     <md-tab id="joinable">
-      <md-tab-label>Invited</md-tab-label>
+      <md-tab-label>
+        Invited
+        <md-tooltip md-direction="bottom" md-delay="1000">
+          Experiments that you may join. Created by you or published to you.
+        </md-tooltip>
+      </md-tab-label>
       <md-tab-body>
         <div ng-if="list.mine" class="group">
           <div ng-repeat="exp in list.mine">
@@ -150,3 +183,4 @@
   </md-tabs>
 
 </div>
+

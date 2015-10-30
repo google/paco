@@ -115,12 +115,60 @@ md-dialog li {
   border: none;
 }
 
-.no-ios {
+.no-ios, .paco-tip  {
   display: inline-block;
   line-height: 16px;
   vertical-align: bottom;
 }
 
-.no-ios img {
+.no-ios img, 
+.no-ios .paco-tip {
   width: 24px;
+}
+
+.paco-help {
+  position: absolute;
+  cursor: pointer;
+  right: -36px;
+  top: 12px;
+  z-index: 2;
+}
+
+.paco-help img {
+  opacity: .5;
+  -webkit-transition: opacity .25s;
+}
+
+.paco-help:hover img {
+  opacity: 1;
+}
+
+.paco-help .text {
+  font-size: 14px;
+  line-height: 16px;
+  opacity: 0;
+  position: absolute;
+  pointer-events: none;
+  top: 4px;
+  left: 32px;
+  width: 300px;
+  -webkit-transition: opacity .25s;
+}
+
+.paco-help .text ul {
+  list-style: none;
+  padding-left: 0;
+}
+
+
+.paco-help .text li {
+  padding-bottom: 8px;
+}
+
+.paco-help.show {
+  opacity: 1;
+}
+
+paco-help.show .paco-help .text {
+  opacity: 1;
 }
