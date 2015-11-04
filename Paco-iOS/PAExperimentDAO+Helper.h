@@ -7,9 +7,15 @@
 //
 
 #import "ExperimentDAO.h"
-
+@class OrgJodaTimeDateTime;
 @interface PAExperimentDAO (Helper)
 
 -(NSString*) instanceId;
+-(NSString*) scheduleString;
+-(BOOL) isSelfReport;
+-(NSString*) earliestStartDate;
+-(NSString*) lastEndDate;
+
+
 
 @end

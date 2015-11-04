@@ -25,13 +25,35 @@
         NSString* experimentStringId  =    [[experiment valueForKeyEx:@"id"] stringValue];
         
         if([experimentStringId isEqualToString:experimentId])
+        {
         
             retVal = experiment;
-        break;
+            break;
+        }
+      
         
     }
     
     return retVal;
+    
+}
+
+/*
+ 
+  optimize if time available.  Else probably ok because the number or experiemts removed will be the running
+  experiments which will be 'small"
+ 
+ */
+
+
+-(void) removeExperiments:(NSArray*) experiments
+{
+    
+    for(  PAExperimentDAO*  experiment in experiments)
+    {
+        NSString* experimentStringId  =    [[experiment  valueForKeyEx:@"id"] stringValue];
+        [self removeExperiment:experimentStringId];
+    }
     
 }
 

@@ -27,6 +27,9 @@ typedef void(^LoginCompletionBlock)(NSError* error);
 @property (nonatomic,strong) NSString* serverDomain;
 @property (nonatomic, retain, readonly) PacoService *service;
 @property (nonatomic, strong, readonly) Reachability* reachability;
+@property  BOOL isFetching;
+
+
 
 - (BOOL)isLoggedIn;
 - (NSString*)userEmail;
@@ -37,7 +40,8 @@ typedef void(^LoginCompletionBlock)(NSError* error);
 - (void)loginWithOAuth2CompletionHandler:(void (^)(NSError *))completionHandler;
 - (void)uploadPendingEventsInBackground;
 - (void)configurePacoServerAddress:(NSString *)serverAddress;
-- (BOOL)isLoggedIn;
+-(void) update;
+
 
 
 @end

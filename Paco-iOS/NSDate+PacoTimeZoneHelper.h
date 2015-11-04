@@ -12,6 +12,9 @@
 
 @interface NSDate (PacoTimeZoneHelper)
 
+
+
++(NSString*) dateToStringLocalTimezonePrettyPrint;
 +(NSDate*) stringToDateLocalTimeZone:(NSString*) dateStr;
 +(NSDate*) stringToDateWithTimeZone:(NSString*) dateStr TimeZone:(NSTimeZone*) timeZone;
 -(NSString*) dateToStringWithTimezone:(NSTimeZone*) timeZone;

@@ -152,9 +152,11 @@
             if(actionSpecification->action_ == nil)
             {
                 
-                NSLog(@"this is an exeption");
+                NSLog(@"actionSpecification->action+ == nil");
             }
             
+            
+            // ----> should store time then increment
             nextTime = [actionSpecification->time_ plusMinutesWithInt:1];
             NSMutableArray* mArray =[results objectForKey:[definition instanceId]];
             [mArray  addObject:actionSpecification];

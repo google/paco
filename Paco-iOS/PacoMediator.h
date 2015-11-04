@@ -43,7 +43,7 @@
 -(void) addExperimentToAvailableStore:(PAExperimentDAO*) experiment;
 -(BOOL) isExperimentIdLive:(NSString*) experimentId;
 -(BOOL) isExperimentLive:(PAExperimentDAO*) experiment;
-
+-(void) replaceAllExperiments:(NSArray*) experiments;
 
 
 /* join & unjoin */
@@ -65,10 +65,8 @@
 
 
 /* state management methods */
-
 -(void) refreshRunningExperiments;
 -(void) cleanup;
-
 
 
 

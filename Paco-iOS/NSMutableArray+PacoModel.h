@@ -15,7 +15,10 @@
 -(PAExperimentDAO*) findExperiment:(NSString*) experimentId;
 -(BOOL) hasExperiment:(NSString*) experimentId;
 -(PAExperimentDAO*) removeExperiment:(NSString*) experimentId;
- 
+-(void) removeExperiments:(NSArray*) experiments;
+
+
+
 
 
 @end

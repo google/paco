@@ -18,12 +18,15 @@
 
 @class PacoMainSwiftViewController;
 @class PacoMainViewController;
-@class PacoListOfExperimentsTableViewController;
+
 @class PacoMyExperiments;
 
 /* 888 */
 @class ScheduleTestViewController;
 @class PacoTableExperimentsController;
+@class PacoJoinedExperimentsController;
+@class PacoConfigController;
+
 @interface PacoAppDelegate : UIResponder <UIApplicationDelegate>
 
 @property (strong, nonatomic) UIWindow *window;
@@ -32,8 +35,11 @@
 
 @property (strong, nonatomic) PacoMainSwiftViewController *swiftViewController;
 
-@property (strong,nonatomic) PacoListOfExperimentsTableViewController* experimentsListController;
+ 
 @property (strong,nonatomic) PacoMyExperiments* myExperiments;
+@property (strong,nonatomic) PacoJoinedExperimentsController* joinedExperiment;
+@property (strong,nonatomic) PacoConfigController* configController;
+@property (strong,nonatomic)  UITabBarController *tabBar;
 
 @property (strong, nonatomic) UILocalNotification* notificationFromAppLaunch;
 @property(nonatomic,copy) NSArray *scheduledLocalNotifications NS_AVAILABLE_IOS(4_0);

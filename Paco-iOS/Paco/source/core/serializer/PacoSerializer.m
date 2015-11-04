@@ -465,14 +465,20 @@
   clazzName = dictionary[_nameOfClass];
   NSRange r1 = [clazzName rangeOfString:@"." options:NSBackwardsSearch];
   clazzName = [clazzName substringFromIndex:r1.location + 1];
-  if(_outOfDomainClasseNames==nil || ![_outOfDomainClasseNames containsObject:clazzName])
-   {
-      clazzName = [NSString stringWithFormat:@"PA%@", clazzName];
-   }
-  Class theClass = NSClassFromString(clazzName);
-  object = [[theClass alloc] init];
-  assert(object);
-  return object;
+    
+  if(clazzName !=nil)
+  {
+    
+      if(   _outOfDomainClasseNames==nil || ![_outOfDomainClasseNames containsObject:clazzName])
+      {
+          clazzName = [NSString stringWithFormat:@"PA%@", clazzName];
+      }
+      
+      Class theClass = NSClassFromString(clazzName);
+      object = [[theClass alloc] init];
+      assert(object);
+  }
+    return object;
 }
 
 

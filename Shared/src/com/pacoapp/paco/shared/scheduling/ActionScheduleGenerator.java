@@ -127,6 +127,7 @@ public class ActionScheduleGenerator {
 
     }
     return nextTimeActionSpecification;
+      
 //
 //// Old: method for old model
 //    for (SignalingMechanism signalingMechanism : getSignalingMechanisms()) {

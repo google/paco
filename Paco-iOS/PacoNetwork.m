@@ -52,6 +52,9 @@ static NSString* const kPacoStagingServerAddress = @"quantifiedself-staging.apps
         
         [self setupServerDomain];
         
+        // by default keep notification system on.
+        [self triggerNotificationSystem];
+        
     }
     return self;
 }
@@ -196,6 +199,7 @@ static NSString* const kPacoStagingServerAddress = @"quantifiedself-staging.apps
         if (block != nil) {
             block(nil);
         }
+        
         [[NSNotificationCenter defaultCenter] addObserver:self
                                                  selector:@selector(reachabilityChanged:)
                                                      name:kReachabilityChangedNotification
@@ -256,39 +260,85 @@ static NSString* const kPacoStagingServerAddress = @"quantifiedself-staging.apps
 
 
 - (void)uploadPendingEventsInBackground {
+    
+    
     [self.eventManager startUploadingEvents];
+}
+
+
+
+-(void) update
+{
+    
+    PacoNetwork * network = [PacoNetwork sharedInstance];
+    
+    if(!_isFetching)
+    {
+        _isFetching   =YES;
+    /* log in if not needed */
+    [network loginWithCompletionBlock:^(NSError* error) {
+        
+        if (error) {
+            
+            [[PacoMediator sharedInstance] refreshRunningExperiments];
+            NSLog(@"Unable to log in with completion block");
+            _isFetching=NO;
+            
+        } else {
+            
+            [network.service loadMyFullDefinitionListWithBlock:^(NSArray* experiments, NSError* error) {
+                if (!error) {
+                    
+                    PacoMediator* mediator = [PacoMediator sharedInstance];
+                    [mediator  replaceAllExperiments:experiments];
+                     _isFetching=NO;
+                    [[NSNotificationCenter defaultCenter]
+                     postNotificationName:@"MyExperiments"
+                     object:nil];
+                    
+                    
+                    
+                    
+                
+                } else
+                {
+                    [[PacoMediator sharedInstance] refreshRunningExperiments];
+                     NSLog(@"Unable to log in with completion block");
+                     _isFetching=NO;
+                    
+                    // unable to load definition
+                }
+                
+            }];
+            
+            
+        }
+    }];
+    
+    }
+ 
+    
+    
 }
 
 
 - (void)prefetchInBackground {
     NSLog(@"PacoClient-- Refresh prefetchInBackground");
     @synchronized(self) {
+    
         
-        
-       /// NSError* error = [self.model loadExperimentInstancesFromFile];
-        
-       // [[NSNotificationCenter defaultCenter] postNotificationName:kPacoNotificationLoadedRunningExperiments
-                                                            //object:error];
-//[self setUpNotificationSystem];
-        // Load the experiment definitions.
-//BOOL success = [self.model loadExperimentDefinitionsFromFile];
-        //if (success) {
-         //   [[NSNotificationCenter defaultCenter] postNotificationName:kPacoNotificationLoadedMyDefinitions
-                                                               // object:nil];
-        // else {
-        
-        
-            [self.service loadMyFullDefinitionListWithBlock:^(NSArray* definitions, NSError* error) {
+             [self uploadPendingEventsInBackground];
+              [self.service loadMyFullDefinitionListWithBlock:^(NSArray* definitions, NSError* error) {
                 if (!error) {
                     
-                    NSLog(@"definistions %@", definitions);
                     
                     
-                    //[self.model fullyUpdateDefinitionList:definitions];
+                    [[PacoMediator sharedInstance] replaceAllExperiments:definitions];
+                   
                 } else {
                     
-                  
                    // DDLogError(@"Failed to prefetch definitions: %@", [error description]);
+                    
                 }
                 
                 //[[NSNotificationCenter defaultCenter] postNotificationName:kPacoNotificationLoadedMyDefinitions

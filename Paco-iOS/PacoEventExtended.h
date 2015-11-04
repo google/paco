@@ -35,7 +35,7 @@ typedef NS_ENUM(NSInteger, PacoEventTypeExtended) {
 
 
 @class PAActionSpecification;
-@interface PacoEventExtended : NSObject<NSCopying,NSCoding>
+@interface PacoEventExtended : NSObject<NSCopying,NSCoding,PAEventInterface>
 
 
 
@@ -53,12 +53,14 @@ typedef NS_ENUM(NSInteger, PacoEventTypeExtended) {
 @property (nonatomic, retain) JavaUtilArrayList  *responses;
 @property (nonatomic,strong)  NSNumber* scheduleId;
 @property (nonatomic,strong)  NSNumber* actionTriggerId;
+@property (nonatomic,strong)  NSNumber* actionId;
+@property (nonatomic,strong)  NSNumber* actionTriggerSpecId;
 @property (nonatomic,strong)  NSString* groupName;
+@property (nonatomic,strong)  NSString* serverExperimentId;
 
 
 
 
-+ (id)pacoEventForIOS;
 - (id)payloadJsonWithImageString;
 
 - (PacoEventTypeExtended)type;
@@ -66,7 +68,7 @@ typedef NS_ENUM(NSInteger, PacoEventTypeExtended) {
 + (PacoEventExtended*)stopEventForExperiment:(PacoExperimentExtended*)experiment;
 
  
-
++ (PacoEventExtended*)joinEventForActionSpecificatonWithServerExperimentId:(PAExperimentDAO*) actionSpecification serverExperimentId:(NSString*) serverExperimentId;
 + (PacoEventExtended*)joinEventForActionSpecificaton:(PAActionSpecification*) actionSpecification;
 
 + (PacoEventExtended*)selfReportEventForDefinition:(PAExperimentDAO*)definition

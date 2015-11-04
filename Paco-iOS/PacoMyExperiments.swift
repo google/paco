@@ -8,19 +8,34 @@
 
 import UIKit
 
-class PacoMyExperiments: UITableViewController {
+class PacoMyExperiments: UITableViewController,PacoExperimentProtocol {
+    
+     var  myExpriments:Array<PAExperimentDAO>?;
+    
+      var cells:NSArray = []
+      let cellId = "ExperimenCellID"
+      let simpleCellId = "ExperimenSimpleCellID"
     
     
+     
     
-    let cellId = "ExperimenCellID"
     
+  
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
-    
+        //title = "My Experiments"
+      tableView.tableFooterView = UIView()
         
+        
+       NSNotificationCenter.defaultCenter().addObserver(self, selector:"experimentsRefreshed:", name:"MyExperiments", object: nil)
+      
         self.tableView.registerNib(UINib(nibName: "PacoTableViewCell", bundle: nil), forCellReuseIdentifier:cellId)
+        
+         self.tableView.registerNib(UINib(nibName: "PacoMyExpermementTitleCellTableViewCell", bundle: nil), forCellReuseIdentifier:simpleCellId)
+        
+        
               let swiftColor = UIColor(red:0.96, green:0.96, blue:0.96, alpha:1.0)
         self.tableView.backgroundColor = swiftColor
 
@@ -29,6 +44,11 @@ class PacoMyExperiments: UITableViewController {
 
         // Uncomment the following line to display an Edit button in the navigation bar for this view controller.
         // self.navigationItem.rightBarButtonItem = self.editButtonItem()
+        
+        
+        var networkHelper = PacoNetwork .sharedInstance()
+        networkHelper.update()
+        
     }
 
     override func didReceiveMemoryWarning() {
@@ -47,64 +67,122 @@ class PacoMyExperiments: UITableViewController {
     override func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         // #warning Incomplete method implementation.
         // Return the number of rows in the section.
-        return 30
+        var retVal:Int = 0
+        if myExpriments  != nil
+        {
+          retVal =  myExpriments!.count
+            
+        }
+        return retVal
     }
 
  
     override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCellWithIdentifier(self.cellId, forIndexPath: indexPath) as! PacoTableViewCell
+        
+        
+        let cell = tableView.dequeueReusableCellWithIdentifier(self.simpleCellId, forIndexPath: indexPath) as! PacoMyExpermementTitleCellTableViewCell
 
-        // Configure the cell...
+        
+        var dao:PAExperimentDAO = myExpriments![indexPath.row]
+        var title:String?
+        var organization:String?
+         var email:String?
+        var description:String?
+ 
+       if  dao.valueForKeyEx("title") != nil
+       {
+           title = (dao.valueForKeyEx("title")  as? String)!
+        }
+        if  dao.valueForKeyEx("description")  != nil
+        {
+          description = (dao.valueForKeyEx("description")  as? String)!
+        }
+        if  dao.valueForKeyEx("organization") != nil
+        {
+            organization = (dao.valueForKeyEx("organization")  as? String)!
+        }
+        else
+        {
+            organization = " "
+        }
+        if  dao.valueForKeyEx("contactEmail") != nil
+        {
+            email = (dao.valueForKeyEx("contactEmail")  as? String)!
+        }
+        else
+        {
+            email = " "
+            
+        }
 
-       // cell.label.text = "\(indexPath.row)"
+        cell.parent = self;
+        cell.experiment = dao
+        cell.experimentTitle.text = title
+        cell.subtitle.text = "\(organization!), \(email!)"
+        cell.selectionStyle  = UITableViewCellSelectionStyle.None
+        
         return cell;
         
     }
+    
+ 
   
-
-    /*
-    // Override to support conditional editing of the table view.
-    override func tableView(tableView: UITableView, canEditRowAtIndexPath indexPath: NSIndexPath) -> Bool {
-        // Return NO if you do not want the specified item to be editable.
-        return true
+    override func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
+        let cell = tableView.cellForRowAtIndexPath(indexPath) as! PacoMyExpermementTitleCellTableViewCell
+        
+                didSelect(cell.experiment!)
+                print("did select \(cell.experimentTitle.text) \n")
+        }
+    
+    
+ 
+    
+    
+    func email(experiment:PAExperimentDAO){}
+    func editTime(experiment:PAExperimentDAO){}
+    
+    
+    func experimentsRefreshed(notification: NSNotification){
+        
+      var mediator =  PacoMediator.sharedInstance();
+      var  mArray:NSMutableArray  = mediator.experiments();
+       myExpriments = mArray as AnyObject  as? [PAExperimentDAO]
+        
+        PacoMediator.sharedInstance().replaceAllExperiments(myExpriments)
+        
+        println("print the notificatins \(myExpriments)");
+        self.tableView.reloadData()
     }
-    */
-
-    /*
-    // Override to support editing the table view.
-    override func tableView(tableView: UITableView, commitEditingStyle editingStyle: UITableViewCellEditingStyle, forRowAtIndexPath indexPath: NSIndexPath) {
-        if editingStyle == .Delete {
-            // Delete the row from the data source
-            tableView.deleteRowsAtIndexPaths([indexPath], withRowAnimation: .Fade)
-        } else if editingStyle == .Insert {
-            // Create a new instance of the appropriate class, insert it into the array, and add a new row to the table view
-        }    
+    
+    
+    
+    func didSelect(experiment:PAExperimentDAO)
+    {
+        var detailController =  PacoExperimentDetailController(nibName:"PacoExperimentDetailController",bundle:nil)
+        
+        if  experiment.valueForKeyEx("title") != nil
+        {
+            detailController.title   = (experiment.valueForKeyEx("title")  as? String)!
+        }
+        
+        detailController.experiment = experiment;
+        self.navigationController?.pushViewController(detailController, animated: true)
     }
-    */
-
-    /*
-    // Override to support rearranging the table view.
-    override func tableView(tableView: UITableView, moveRowAtIndexPath fromIndexPath: NSIndexPath, toIndexPath: NSIndexPath) {
-
+    
+    func didClose(experiment: PAExperimentDAO)
+    {
+        
+        
+        
     }
-    */
-
-    /*
-    // Override to support conditional rearranging of the table view.
-    override func tableView(tableView: UITableView, canMoveRowAtIndexPath indexPath: NSIndexPath) -> Bool {
-        // Return NO if you do not want the item to be re-orderable.
-        return true
+  
+    override func viewWillAppear(animated: Bool) {
+        
+        var mediator =  PacoMediator.sharedInstance()
+        var  mArray:NSMutableArray  = mediator.experiments()
+        myExpriments = mArray as AnyObject as? [PAExperimentDAO]
+        
+        self.tableView.reloadData()
     }
-    */
-
-    /*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
-        // Get the new view controller using [segue destinationViewController].
-        // Pass the selected object to the new view controller.
-    }
-    */
     
 }

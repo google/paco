@@ -222,7 +222,7 @@ public class InformedConsentActivity extends ActionBarActivity implements Experi
 
   private void createJoinEvent() {
     Event event = new Event();
-    event.setExperimentId(experiment.getId());
+    event.setExperimentId(CXZ§.getId());
     event.setServerExperimentId(experiment.getServerId());
     event.setExperimentName(experiment.getExperimentDAO().getTitle());
     event.setExperimentGroupName(null);

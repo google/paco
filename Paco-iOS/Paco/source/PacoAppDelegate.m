@@ -29,6 +29,7 @@
 #import "PacoTableExperimentsController.h" 
 #import "PacoMediator.h" 
 #import "Paco-Swift.h" 
+#import "PacoNetwork.h" 
 
 
 
@@ -164,11 +165,16 @@
 }
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
+
+      [[PacoNetwork sharedInstance] update];
+    
+    
+    
     
      self.testViewController   = [[ScheduleTestViewController alloc]  initWithNibName:@"ScheduleTestViewController" bundle:nil];
      self.testTableViewController = [[PacoTableExperimentsController alloc] initWithNibName:@"PacoTableExperimentsController" bundle:nil];
     
-  // per documents stir it is not required to inoke stir.
+  // per documents stir it is not required to invoke stir
   // arc4random_stir();
     
   [DDLog addLogger:[DDASLLogger sharedInstance]];
@@ -191,20 +197,22 @@
         [application registerUserNotificationSettings:mySettings];
   }
   
-    //PacoListOfExperimentsTableViewController* experimentsListController
     
-     self.experimentsListController = [[PacoListOfExperimentsTableViewController alloc]  initWithNibName:@"PacoListOfExperimentsTableViewController" bundle:nil];
     
-    self.myExperiments =[[PacoMyExperiments alloc] initWithNibName:@"PacoMyExperiments" bundle:nil];
+    
+    
+     self.myExperiments =[[PacoMyExperiments alloc] initWithNibName:@"PacoMyExperiments" bundle:nil];
     
     
     
     
     
     self.swiftViewController = [[PacoMainSwiftViewController alloc] initWithNibName:@"PacoMainSwiftViewController" bundle:nil];
-  self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
-//  self.window.rootViewController = [[UINavigationController alloc] initWithRootViewController:self.testTableViewController];
-     self.window.rootViewController = [[UINavigationController alloc] initWithRootViewController:self.myExperiments];
+    self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
+    
+     [self makeTabBar];
+    
+     self.window.rootViewController = self.tabBar ;
     
   [self.window makeKeyAndVisible];
   
@@ -219,18 +227,58 @@
   return YES;
 }
 
+
+
+
+
 /*
-      simple delegate
- */
+     perform backgroun action. 
+ 
+ 
+*/
+
 - (void)application:(UIApplication *)application performFetchWithCompletionHandler:(void(^)(UIBackgroundFetchResult))completionHandler {
-   
- // [[PacoExtendedClient sharedInstance] backgroundFetchStartedWithBlock:completionHandler];
+
+    [[PacoNetwork sharedInstance] update];
+
 }
 
+- (void) makeTabBar {
+    
+    
+    
+    
+    self.joinedExperiment =
+         [[PacoJoinedExperimentsController alloc] initWithNibName:@"PacoJoinedExperimentsController" bundle:nil];
 
+    self.configController = [[PacoConfigController alloc] initWithNibName:@"PacoConfigController" bundle:nil];
+    
+    
+     NSMutableArray *tabViewControllers = [[NSMutableArray alloc] init];
+    [tabViewControllers addObject:[[UINavigationController alloc] initWithRootViewController:self.myExperiments]];
+    [tabViewControllers addObject:[[UINavigationController alloc] initWithRootViewController:self.joinedExperiment]];
+    [tabViewControllers addObject:[[UINavigationController alloc] initWithRootViewController:self.configController]];
+    self.tabBar = [[UITabBarController alloc] init];
+    
+    self.myExperiments.title = @"Invitations";
+    self.joinedExperiment.title =@"Joined Experiment";
+    self.configController.title =@"Configuration";
+    
+    [self.tabBar addChildViewController:[[UINavigationController alloc] initWithRootViewController:self.myExperiments]];
+    [self.tabBar addChildViewController:[[UINavigationController alloc] initWithRootViewController:self.joinedExperiment]];
+      
+    [self.tabBar addChildViewController:[[UINavigationController alloc] initWithRootViewController:self.configController]];
+    
+ 
+    
+    
+    
+}
 
 - (void)applicationDidBecomeActive:(UIApplication *)application {
   DDLogInfo(@"==========  Application applicationDidBecomeActive  ==========");
+    
+    
  // [[PacoClient sharedInstance] uploadPendingEventsInBackground];
   
   // [[NSNotificationCenter defaultCenter] postNotificationName:kPacoNotificationAppBecomeActive

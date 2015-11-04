@@ -23,32 +23,17 @@
 #import "PacoSerializeUtil.h" 
 #import  "ActionSpecification.h"
 #import "java/lang/Long.h"
-#import "PAExperimentDAO+Util.h"
 #import "JavaUtilArrayList+PacoConversion.h"
 #import "PacoEventPersistenceHelper.h"
 #import "ExperimentDAO.h" 
-
-
-
-
+#import "PAExperimentDAO+Helper.h"
+#import "NSDate+PacoTimeZoneHelper.h"
+#import "PacoEventExtended+PacoCoder.h"
 
 
 #define JsonKey @"kjsonPrsistanceKey/ForPacoEvent"
 
 
-
-
-//static NSString* const kPacoEventKeyWhoExtended = @"who";
-//static NSString* const kPacoEventKeyWhenExtended = @"when";
-//static NSString* const kPacoEventKeyLatitudeExtended = @"lat";
-//static NSString* const kPacoEventKeyLongitudeExtended = @"long";
-//static NSString* const kPacoEventKeyResponseTimeExtended = @"responseTime";
-//static NSString* const kPacoEventKeyAppIdExtended = @"appId";
-//static NSString* const kPacoEventKeyScheduledTimeExtended = @"scheduledTime";
-//static NSString* const kPacoEventKeyPacoVersionExtended = @"pacoVersion";
-//static NSString* const kPacoEventKeyExperimentIdExtended = @"experimentId";
-//static NSString* const kPacoEventKeyExperimentNameExtended = @"experimentName";
-//static NSString* const kPacoEventKeyExperimentVersionExtended = @"experimentVersion";
 
 
 static NSString* const kPacoEventKeyResponsesExtended = @"responses";
@@ -62,15 +47,6 @@ NSString* const kPacoResponseJoinExtended = @"joined";
 @property (nonatomic, readwrite, copy) NSString *pacoVersion;
 @end
 
-/*
- 
- 
- eventRetriever.postEvent(who, null, null, whenDate, appId, pacoVersion, whats, false, experimentIdStr,
- experimentName, experimentVersion, responseTime, scheduledTime, blobs,
- groupName, actionTriggerId, actionTriggerSpecId, actionId);
-
-
-*/
 
 @implementation PacoEventExtended
 
@@ -165,9 +141,6 @@ NSString* const kPacoResponseJoinExtended = @"joined";
     PacoSerializer * serializer = [[PacoSerializer alloc] initWithArrayOfClasses:array withNameOfClassAttribute:@"nameOfClass"];
     NSData* json = [serializer toJSONobject:self];
     
-   
-    
-    
      NSError* error;
     id definitionDict =
     [NSJSONSerialization JSONObjectWithData:json
@@ -248,68 +221,75 @@ NSString* const kPacoResponseJoinExtended = @"joined";
 
 
 
-+ (PacoEventExtended*)joinEventForActionSpecificaton:(PAActionSpecification*) actionSpecification
++(void)  populateBasicAttributes:(PAExperimentDAO*) experiment Event:(PacoEventExtended*) event
 {
+    // event.who = [[PacoNetwork  sharedInstance] userEmail];
+    event.experimentId =  [experiment valueForKeyPathEx:@"id"]  ;
+    event.experimentVersion =  [experiment valueForKeyPathEx:@"eversion"];
+    event.experimentName =  [experiment valueForKeyPathEx:@"title"];
+    
+
+   
+    
+}
+
+
++ (PacoEventExtended*)joinEventForActionSpecificatonWithServerExperimentId:(PAExperimentDAO*) experiment  serverExperimentId:(NSString*) serverExperimentId
+{
+    
     // Setup an event for joining the experiement.
-    PacoEventExtended *event = [PacoEventExtended pacoEventForIOS];
+    PacoEventExtended *event = [PacoEventExtended new];
+ 
     
-    
-    
-   // event.who = [[PacoExtendedClient sharedInstance] userEmail];
-    event.experimentId = [[actionSpecification valueForKeyPathEx:@"experiment_.id__"] stringValue];
-    event.experimentVersion =  [actionSpecification valueForKeyPathEx:@"experiment_.version__"];
-    event.experimentName =  [actionSpecification valueForKeyPathEx:@"experiment_.title_"];
-    event.responseTime = [NSDate dateWithTimeIntervalSinceNow:0];
+    [PacoEventExtended populateBasicAttributes:experiment Event:event];
+    event.responseTime = [[NSDate dateWithTimeIntervalSinceNow:0] dateToStringLocalTimezone];
+
+    JavaUtilArrayList * responses = [[JavaUtilArrayList alloc] init];
     
     //Special response values to indicate the user is joining this experiement.
     //For now, we need to indicate inputId=-1 to avoid server exception,
     //in the future, server needs to fix and accept JOIN and STOP events without inputId
-    NSDictionary* joinResponse = @{kPacoResponseKeyNameExtended:kPacoResponseJoinExtended,
+    
+     NSDictionary* joinResponse = @{kPacoResponseKeyNameExtended:kPacoResponseJoinExtended,
                                    kPacoResponseKeyAnswerExtended:@"true",
                                    kPacoResponseKeyInputIdExtended:@"-1"};
     
-    NSMutableArray* responseList = [NSMutableArray arrayWithObject:joinResponse];
-    
-    
-   
-    
- 
-    if ([actionSpecification ->experiment_ isSelfReport]){
-        
 
-        PacoSerializer* serializer =
-        [[PacoSerializer alloc] initWithArrayOfClasses:nil
-                              withNameOfClassAttribute:@"nameOfClass"];
- 
-        /* we are going to add all information about the action specification */
-        NSData * scheduleData = (NSData*) [serializer toJSONobject:actionSpecification ->experiment_ ];
-        NSString* jsonString =
-        [[NSString alloc] initWithData:scheduleData encoding:NSUTF8StringEncoding];
-
-        NSDictionary* response  = @{kPacoResponseKeyNameExtended:@"experiment",
-                                           kPacoResponseKeyAnswerExtended:jsonString,
-                                           kPacoResponseKeyInputIdExtended:@"-1"};
-        
-        [responseList addObject:response];
-  
-    }
-    event.responses = responseList;
-    return event;
+      [responses addWithId:joinResponse];
+       NSString * scheduleString =  [experiment scheduleString];
+    
+      NSDictionary* scheduledResponse = @{kPacoResponseKeyNameExtended:kPacoEventKeyResponsesExtended,
+                                   @"schedule":scheduleString,
+                                   kPacoResponseKeyInputIdExtended:@"-1"};
+    
+      [responses addWithId:scheduledResponse];
+    
+    
+    NSDictionary* systemInfo = @{kPacoResponseKeyNameExtended:kPacoEventKeyResponsesExtended,
+                                    [[UIDevice currentDevice] systemName] :[[UIDevice currentDevice] systemVersion] ,
+                                    kPacoResponseKeyInputIdExtended:@"-1"};
+    
+    
+      [responses addWithId:systemInfo];
+    
+      event.responses = responses;
+      [event save];
+      return event;
+    
+    
 }
 
 + (PacoEventExtended *)stopEventForExperiment:(PAExperimentDAO*) experiment
 {
     //create an event for stopping the experiement.
     
-    PacoEventExtended *event = [PacoEventExtended  pacoEventForIOS];
+    PacoEventExtended *event = [PacoEventExtended  new];
    // event.who = [[PacoClient sharedInstance] userEmail];  ---<><><><>
-    event.experimentId = [experiment  valueForKeyPathEx:@"id"];
-    event.experimentName = [experiment valueForKeyPathEx:@"title"];
-    event.experimentVersion = [experiment valueForKeyPathEx:@"version"];
-    event.responseTime = [NSDate dateWithTimeIntervalSinceNow:0];
+   [PacoEventExtended populateBasicAttributes:experiment Event:event];
+    event.responseTime = [[NSDate dateWithTimeIntervalSinceNow:0] dateToStringLocalTimezone];
     
     
-    
+    JavaUtilArrayList * responses = [[JavaUtilArrayList alloc] init];
     
     
     //For now, we need to indicate inputId=-1 to avoid server exception,
@@ -317,7 +297,7 @@ NSString* const kPacoResponseJoinExtended = @"joined";
     NSDictionary *responsePair = @{kPacoResponseKeyNameExtended:kPacoResponseJoinExtended,
                                    kPacoResponseKeyAnswerExtended:@"false",
                                    kPacoResponseKeyInputIdExtended:@"-1"};
-    event.responses = @[responsePair];
+ 
     
     return event;
 }
@@ -330,7 +310,7 @@ NSString* const kPacoResponseJoinExtended = @"joined";
 
 + (PacoEventExtended *) genericEventForDefinition:(PAExperimentDAO*)definition
                              withInputs:(NSArray*)inputs {
-    PacoEventExtended *event = [PacoEventExtended pacoEventForIOS];
+    PacoEventExtended *event = [PacoEventExtended new];
      event.who = [[PacoExtendedClient sharedInstance] userEmail]; 
      event.experimentId = [definition valueForKeyPathEx:@"id"];
      event.experimentName = [definition valueForKeyPathEx:@"title"];
@@ -383,8 +363,8 @@ NSString* const kPacoResponseJoinExtended = @"joined";
                                andScheduledTime:(NSDate*)scheduledTime {
     NSAssert(scheduledTime != nil, @"scheduledTime should not be nil!");
     PacoEventExtended* event = [PacoEventExtended genericEventForDefinition:definition withInputs:inputs];
-    event.responseTime = [NSDate dateWithTimeIntervalSinceNow:0];
-    event.scheduledTime = scheduledTime;
+    event.responseTime = [[NSDate dateWithTimeIntervalSinceNow:0] dateToStringLocalTimezone];
+    event.scheduledTime = [scheduledTime dateToStringLocalTimezone];
     return event;
 }
 
@@ -415,13 +395,13 @@ NSString* const kPacoResponseJoinExtended = @"joined";
     NSAssert(definition, @"definition should be valid");
     NSAssert(scheduledTime != nil, @"scheduledTime should be valid!");
     NSAssert([userEmail length] > 0, @"userEmail should be valid!");
-    PacoEventExtended *event = [PacoEventExtended pacoEventForIOS];
+    PacoEventExtended *event = [PacoEventExtended new];
     event.who = userEmail;
     event.experimentId = [definition valueForKeyPathEx:@"id"];
     event.experimentName = [definition valueForKeyPathEx:@"title"];
     event.experimentVersion = [definition valueForKeyPathEx:@"version"];
     event.responseTime = nil;
-    event.scheduledTime = scheduledTime;
+    event.scheduledTime = [scheduledTime dateToStringLocalTimezone];
     return event;
 }
 

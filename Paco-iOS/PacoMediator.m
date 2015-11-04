@@ -24,8 +24,8 @@
 #import "NSMutableArray+PacoPersistence.h"
 #import "NSMutableArray+PacoPersistence.h"
 #import "PacoSchedulingUtil.h"
-
-
+#import "PacoGenerateEventValidator.h"
+#import "NSMutableArray+PacoModel.h"
 
 #define KEY_RUNNING_EXERIMENTS @"running_experiments"
 
@@ -79,6 +79,12 @@ static dispatch_group_t group;
         self.eventStore                   = [[PacoEventStore alloc] init];
         self.actionDefinitionsDictionary  = [NSMutableDictionary new];
         self.notificationManager =   [PacoNotificationManager managerWithDelegate:self firstLaunchFlag:NO];
+        
+        
+        PacoGenerateEventValidator* verifyer =  [PacoGenerateEventValidator new];
+        [self.willStartVerifiers addObject:verifyer];
+        
+        
 
         [self refreshRunningExperiments];
         
@@ -111,6 +117,9 @@ static dispatch_group_t group;
 }
 
 
+ 
+
+
 /*
      fetch all the experiments that are currently running
  */
@@ -118,9 +127,11 @@ static dispatch_group_t group;
 
 -(NSMutableArray*) startedExperiments
 {
-    return  _runningExperiments;
+    return   _runningExperiments ;
 }
 
+
+ 
 
 /*
    return all running experiments.
@@ -128,7 +139,9 @@ static dispatch_group_t group;
  */
 -(NSMutableArray*) experiments
 {
-    return  _allExperiments;
+    NSMutableArray*  returnedExperiments = [[NSMutableArray alloc] initWithArray:_allExperiments copyItems:NO];
+    [returnedExperiments  removeExperiments:_runningExperiments];
+    return   returnedExperiments ;
 }
 
 
@@ -144,7 +157,7 @@ static dispatch_group_t group;
 }
 
 /*
-      modify the
+      modify the experiments with id
  
  */
 -(ValidatorExecutionStatus) modifyExperimentRegenerate:(NSString*) experimentId
@@ -261,7 +274,7 @@ calculate the action specifications and reset the based upon the most recent ver
                  }
   
    
-    
+     
     return runStatus;
 }
 
@@ -274,7 +287,14 @@ calculate the action specifications and reset the based upon the most recent ver
     ValidatorExecutionStatus runStatus = ValidatorExecutionStatusFail;
     
     
-            PAExperimentDAO * experiment  = [self.allExperiments findExperiment:experimentId];
+            PAExperimentDAO * experiment  = [self.runningExperiments findExperiment:experimentId];
+           [self.runningExperiments removeExperiment:experimentId];
+            [self addExperimentToAvailableStore:experiment];
+    
+    
+           [self saveRunningExperiments];
+    
+    
             if(experiment)
             {
                 
@@ -285,9 +305,7 @@ calculate the action specifications and reset the based upon the most recent ver
                   dispatch_async(serialQueue, ^{
                       
                   
-                      [self.runningExperiments removeObject:experiment];
-                      
-                      
+                    
                       
                       /* cancell the notifications for this exeriment */
                       [self.notificationManager  cancelNotificationsForExperiment:experimentId];
@@ -335,9 +353,6 @@ calculate the action specifications and reset the based upon the most recent ver
 }
 
 
-
-
-
 -(void) addExperimentToAvailableStore:(PAExperimentDAO*) experiment
 {
     [_allExperiments addObject:experiment];
@@ -345,6 +360,12 @@ calculate the action specifications and reset the based upon the most recent ver
 
 
 
+
+-(void) replaceAllExperiments:(NSArray*) experiments
+{
+        _allExperiments  = [[NSMutableArray alloc] initWithArray:experiments];
+    
+}
 
 
 -(void) clearRunningExperiments
@@ -361,16 +382,13 @@ calculate the action specifications and reset the based upon the most recent ver
 
 -(void) updateActionSpecifications:(NSArray*) newActionSpecifications RemoveAllNotifications:(BOOL) remveAll
 {
-      dispatch_sync(serialQueue, ^{
-          
+    
           _oldActionSpecifications= _actionSpecifications;
           _actionSpecifications= [[NSMutableArray alloc] initWithArray:newActionSpecifications];
           NSArray* notifications = [UILocalNotification pacoNotificationsForExperimentSpecifications:_actionSpecifications];
-          
-       
           [self.notificationManager scheduleNotifications:notifications];
    
-      });
+   
 }
 
 

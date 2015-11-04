@@ -12,6 +12,20 @@
 @implementation NSDate (PacoTimeZoneHelper)
 
 
+-(NSString*) dateToStringLocalTimezonePrettyPrint
+{
+    
+    NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
+    [dateFormatter setDateFormat:@"YYYY, MM-dd HH:mm"];
+    
+  
+    [dateFormatter setTimeZone:[NSTimeZone localTimeZone]];
+    
+    NSString* dateStr = [dateFormatter  stringFromDate:self];
+    return dateStr;
+    
+}
+
 
 -(NSString*) dateToStringLocalTimezone
 {

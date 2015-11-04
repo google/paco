@@ -143,8 +143,9 @@
 {
     NSAssert([event isKindOfClass:[PacoEventExtended class]], @"event should be of type PacoEventClass" );
     
-    EventRecord* record = [self fetchRecord:event];
-    NSAssert(record ==nil , @"Tried to insert multiple events with the same compound key");
+    
+   // EventRecord* record = [self fetchRecord:event];
+   // NSAssert(record ==nil , @"Tried to insert multiple events with the same compound key");
         
     
     
@@ -194,6 +195,9 @@
 {
     PacoEventExtended* theEvent = ( PacoEventExtended* )  correspondingEvent;
     
+    
+    
+    
     NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
     NSEntityDescription *entity = [NSEntityDescription entityForName:@"EventRecord" inManagedObjectContext:self.context];
     NSPredicate* predicate =  [NSPredicate predicateWithFormat:@"(experimentId==%@) AND (scheduledTime==%@) AND   (groupName LIKE %@)   AND   (actionTriggerId==%@) AND (scheduleId==%@)",theEvent.experimentId,theEvent.scheduledTime ,theEvent.groupName,theEvent.actionTriggerId,theEvent.scheduleId];
@@ -222,12 +226,14 @@
     NSMutableArray* mutableArray = [NSMutableArray new];
     
      NSArray* array = [PacoSerializeUtil getClassNames];
+    PacoSerializer * serializer = [[PacoSerializer alloc] initWithArrayOfClasses:array withNameOfClassAttribute:@"nameOfClass"];
+    
+    [serializer addNoneDomainClass:[PacoEventExtended new]];
+    
     for(EventRecord* eventRecord in  eventRecords)
     {
         
         NSData* data  =  eventRecord.eventBlob;
-        PacoSerializer * serializer = [[PacoSerializer alloc] initWithArrayOfClasses:array withNameOfClassAttribute:@"nameOfClass"];
-        NSString* str =  [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
         JavaUtilArrayList  *  resultArray  = (JavaUtilArrayList*) [serializer buildObjectHierarchyFromJSONOBject:data];
         IOSObjectArray * iosArray = [resultArray toArray];
         PacoEventExtended  * event =  [iosArray objectAtIndex:0];

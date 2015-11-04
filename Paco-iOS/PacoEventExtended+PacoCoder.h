@@ -10,6 +10,6 @@
 
 @interface PacoEventExtended (PacoCoder)<NSCopying,NSCoding>
 
-
+-(void) save;
 
 @end

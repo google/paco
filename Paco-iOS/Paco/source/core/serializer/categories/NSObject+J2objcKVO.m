@@ -338,7 +338,7 @@
     EncodingEnumType  encodingType =EncodingTypeClass;
   NSString *stringWithUnderscore = nil;
   if ([attributeName isEqualToString:@"id"] ||
-      [attributeName isEqualToString:@"idescription"]) {
+      [attributeName isEqualToString:@"description"]) {
     stringWithUnderscore = [NSString stringWithFormat:@"%@__", attributeName];
   } else {
     stringWithUnderscore = [NSString stringWithFormat:@"%@_", attributeName];

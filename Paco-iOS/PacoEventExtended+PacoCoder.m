@@ -11,6 +11,9 @@
 #import  "java/util/ArrayList.h"
 #import  "PacoSerializeUtil.h"
 #import  "PacoEventExtended.h"
+#import  "PacoEventPersistenceHelper.h"
+
+
 
 #define JsonKey @"kjsonPrsistanceKey/ForPacoEvent"
 
@@ -62,6 +65,14 @@
     IOSObjectArray * iosArray = [resultArray toArray];
     PacoEventExtended  * event =  [iosArray objectAtIndex:0];
     return event;
+    
+}
+
+
+-(void) save
+{
+    PacoEventPersistenceHelper * persistanceHelper = [PacoEventPersistenceHelper new];
+    [persistanceHelper insertEventWithPAEventInterface:self];
     
 }
 
