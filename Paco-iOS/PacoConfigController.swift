@@ -59,8 +59,7 @@ class PacoConfigController: UITableViewController {
         let cell = tableView.dequeueReusableCellWithIdentifier("reuseIdentifier", forIndexPath: indexPath) as! UITableViewCell
 
         cell.textLabel!.text = (cells[indexPath.row] as! String)
-        
-
+        cell.textLabel!.textColor = UIColor(red:0.00, green:0.60, blue:1.00, alpha:1.0)
         return cell
     }
   
