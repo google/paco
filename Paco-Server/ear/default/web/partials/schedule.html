@@ -26,13 +26,22 @@
           <input type="number" ng-model="schedule.snoozeTimeInMinutes">
         </md-input-container>
 
-        <md-checkbox ng-model="schedule.userEditable" aria-label="User editable">
+        <div>
+          <md-checkbox ng-model="schedule.userEditable" aria-label="User editable">
           User editable
-        </md-checkbox>
-
-        <md-checkbox ng-model="schedule.onlyEditableOnJoin" aria-label="User editable on join">
+          </md-checkbox>
+          <md-tooltip md-delay="1000">
+            Controls whether the participants can customize the schedule for themselves.
+          </md-tooltip>
+        </div>
+        <div>
+          <md-checkbox ng-model="schedule.onlyEditableOnJoin" aria-label="User editable on join">
           Editable on Join
-        </md-checkbox>
+          </md-checkbox>
+          <md-tooltip md-delay="1000">
+            When checked, this restricts schedule editing to only when they join the experiment.
+          </md-tooltip>
+        </div>
       </div>
     </div>
 

@@ -177,7 +177,7 @@ pacoApp.directive('pacoTip', function() {
   return {
     restrict: 'E',
     scope: {  'message': '=message' },
-    template: '<div class="paco-tip"><img src="img/ic_info_black_24px.svg"><md-tooltip md-direction="bottom" md-delay="200">{{message}}</md-tooltip></div>',
+    template: '<div class="paco-tip">x<md-tooltip md-direction="bottom" md-delay="200">{{message}}</md-tooltip></div>',
     link: function(scope, element) {
     }
   };

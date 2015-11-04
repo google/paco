@@ -1,3 +1,4 @@
+Define surveys, data collection and tasks in your experiment
 <div class="groups">
 
   <div class="group" ng-repeat="group in experiment.groups track by $index" ng-controller="GroupsCtrl">
@@ -29,6 +30,9 @@
         <div class="duration section" layout="row">
           <div class="title">
             Duration
+            <md-tooltip md-delay="1000">
+              When this experiment will start and end
+            </md-tooltip>
           </div>
           <md-radio-group ng-model="group.fixedDuration" layout="row" as-string>
             <md-radio-button value="false">Ongoing</md-radio-button>
@@ -55,17 +59,32 @@
 
         <div class="section" ng-click="toggleExpand()">
           <div class="title">
-            <span ng-if="experiment.groups.length > 1">Group {{$parent.$parent.$index + 1}}</span>            
-            Triggers 
+            <span ng-if="experiment.groups.length > 1">
+              Group {{$parent.$parent.$index + 1}}
+            </span>
+            Triggers
+            <md-tooltip md-delay="1000">
+              Define a moment when your experiment will run and what it will do when it runs.
+            </md-tooltip>
             <span class="light">({{group.actionTriggers.length}})</span>
           </div>
           <md-button ng-click="addScheduleTrigger($event, toggleExpand)">
             Add Scheduled Trigger
+            <md-tooltip md-delay="1000">
+              Enter a schedule for your experiment and the actions to take at the scheduled times.
+            </md-tooltip>
           </md-button>
           <md-button ng-click="addEventTrigger($event, toggleExpand)">
             Add Event Trigger
+            <md-tooltip md-delay="1000">
+              Define the sensor events that will cause your experiment to run and the actions to take at those events.
+            </md-tooltip>
           </md-button>
         </div>
+
+        <paco-help>
+          Define one or more schedules at which action(s) will be performed. When any of the schedules transpires the action(s) will be performed in the order they are defined. The schedules should not overlap.
+        </paco-help>
 
         <div expander>
           <div ng-repeat="trigger in group.actionTriggers track by $index" ng-include="'partials/trigger.html'">
