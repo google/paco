@@ -46,7 +46,7 @@
   margin-left: 4px;
 }
 
-.choice {
+.choice, .time {
   position: relative;
 }
 
@@ -54,6 +54,12 @@
   position: absolute;
   top: 32px;
   right: -40px;
+}
+
+.time .remove.button {
+  position: absolute;
+  top: 28px;
+  right: 0px;
 }
 
 .light {
@@ -94,19 +100,19 @@
   margin-top: 24px;
 }
 
-.header .button.add {
+.button.add {
   background: url('../img/ic_add_circle_outline_24px.svg') no-repeat;
 }
 
-.header .button.up {
+.button.up {
   background: url('../img/ic_arrow_up_24.svg') no-repeat;
 }
 
-.header .button.down {
+.button.down {
   background: url('../img/ic_arrow_down_24.svg') no-repeat;
 }
 
-.header .button {
+.button {
   float: right;
   height: 24px;
   margin-left: 8px;
@@ -114,7 +120,7 @@
   width: 24px;
 }
 
-.header .button:hover {
+.button:hover {
   opacity: 1;
 }
 
