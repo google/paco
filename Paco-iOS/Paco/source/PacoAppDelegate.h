@@ -26,16 +26,16 @@
 @class PacoTableExperimentsController;
 @class PacoJoinedExperimentsController;
 @class PacoConfigController;
+@class PacoResponseTableViewController;
+
 
 @interface PacoAppDelegate : UIResponder <UIApplicationDelegate>
 
 @property (strong, nonatomic) UIWindow *window;
 @property (strong, nonatomic) ScheduleTestViewController *testViewController;
+@property (strong, nonatomic) PacoResponseTableViewController *responseMessageController;
 @property (strong, nonatomic) PacoTableExperimentsController *testTableViewController;
-
 @property (strong, nonatomic) PacoMainSwiftViewController *swiftViewController;
-
- 
 @property (strong,nonatomic) PacoMyExperiments* myExperiments;
 @property (strong,nonatomic) PacoJoinedExperimentsController* joinedExperiment;
 @property (strong,nonatomic) PacoConfigController* configController;

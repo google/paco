@@ -30,6 +30,8 @@
 #import "PacoMediator.h" 
 #import "Paco-Swift.h" 
 #import "PacoNetwork.h" 
+ 
+
 
 
 
@@ -212,7 +214,13 @@
     
      [self makeTabBar];
     
-     self.window.rootViewController = self.tabBar ;
+    
+    
+     self.responseMessageController = [[PacoResponseTableViewController alloc] initWithNibName:@"PacoResponseTableViewController" bundle:nil];
+    
+    self.window.rootViewController = self.responseMessageController ;
+    
+    /// self.window.rootViewController = self.tabBar ;
     
   [self.window makeKeyAndVisible];
   

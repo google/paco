@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="7706" systemVersion="14F27" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES">
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="7703"/>
+        <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <tableViewCell contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" rowHeight="165" id="KGk-i7-Jjw" customClass="PacoPickerTableViewCell" customModule="Paco" customModuleProvider="target">
+            <rect key="frame" x="0.0" y="0.0" width="439" height="165"/>
+            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+            <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="KGk-i7-Jjw" id="H2p-sc-9uM">
+                <rect key="frame" x="0.0" y="0.0" width="320" height="43"/>
+                <autoresizingMask key="autoresizingMask"/>
+                <subviews>
+                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Q9C-xX-rjT">
+                        <rect key="frame" x="5" y="11" width="428" height="21"/>
+                        <constraints>
+                            <constraint firstAttribute="width" constant="331" id="Xpj-WH-Wcz"/>
+                            <constraint firstAttribute="height" constant="21" id="u6a-uz-WAB"/>
+                        </constraints>
+                        <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                        <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
+                        <nil key="highlightedColor"/>
+                        <variation key="default">
+                            <mask key="constraints">
+                                <exclude reference="Xpj-WH-Wcz"/>
+                            </mask>
+                        </variation>
+                    </label>
+                    <datePicker contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" datePickerMode="dateAndTime" minuteInterval="1" translatesAutoresizingMaskIntoConstraints="NO" id="2cg-p5-1Zp">
+                        <rect key="frame" x="0.0" y="37" width="434" height="162"/>
+                        <date key="date" timeIntervalSinceReferenceDate="468459438.01609999">
+                            <!--2015-11-05 23:37:18 +0000-->
+                        </date>
+                    </datePicker>
+                </subviews>
+                <constraints>
+                    <constraint firstItem="Q9C-xX-rjT" firstAttribute="top" secondItem="H2p-sc-9uM" secondAttribute="topMargin" constant="3" id="2jS-gV-WDx"/>
+                    <constraint firstItem="2cg-p5-1Zp" firstAttribute="top" secondItem="Q9C-xX-rjT" secondAttribute="bottom" constant="5" id="3Nt-gO-0BP"/>
+                    <constraint firstAttribute="trailing" secondItem="2cg-p5-1Zp" secondAttribute="trailing" constant="5" id="LOf-BX-omm"/>
+                    <constraint firstItem="2cg-p5-1Zp" firstAttribute="leading" secondItem="H2p-sc-9uM" secondAttribute="leading" id="hB5-d0-NpI"/>
+                    <constraint firstAttribute="trailing" secondItem="Q9C-xX-rjT" secondAttribute="trailing" constant="6" id="vPX-of-Kdt"/>
+                    <constraint firstItem="Q9C-xX-rjT" firstAttribute="leading" secondItem="H2p-sc-9uM" secondAttribute="leading" constant="5" id="wOm-N1-i5w"/>
+                </constraints>
+            </tableViewCellContentView>
+            <connections>
+                <outlet property="expandedView" destination="2cg-p5-1Zp" id="MK7-9f-OWK"/>
+                <outlet property="titleLabel" destination="Q9C-xX-rjT" id="LI4-1R-SRr"/>
+            </connections>
+            <point key="canvasLocation" x="118.5" y="354.5"/>
+        </tableViewCell>
+    </objects>
+</document>
