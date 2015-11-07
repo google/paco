@@ -290,6 +290,9 @@
 		A6DC6E5A1BEC210700D38D68 /* PacoStringSelectorTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = A6DC6E581BEC210700D38D68 /* PacoStringSelectorTableViewCell.xib */; };
 		A6DC6E6C1BEC244500D38D68 /* PacoTableViewExpandingCellBase.swift in Sources */ = {isa = PBXBuildFile; fileRef = A6DC6E6A1BEC244500D38D68 /* PacoTableViewExpandingCellBase.swift */; };
 		A6DC6E6D1BEC244500D38D68 /* PacoTableViewExpandingCellBase.xib in Resources */ = {isa = PBXBuildFile; fileRef = A6DC6E6B1BEC244500D38D68 /* PacoTableViewExpandingCellBase.xib */; };
+		A6DC6E701BED758100D38D68 /* PacoBoxControl.swift in Sources */ = {isa = PBXBuildFile; fileRef = A6DC6E6F1BED758100D38D68 /* PacoBoxControl.swift */; };
+		A6DC6E731BED8F3300D38D68 /* PacoTextTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = A6DC6E711BED8F3300D38D68 /* PacoTextTableViewCell.swift */; };
+		A6DC6E741BED8F3300D38D68 /* PacoTextTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = A6DC6E721BED8F3300D38D68 /* PacoTextTableViewCell.xib */; };
 		A6DCA58E1B8507B1007FC06D /* PacoSignalStore.m in Sources */ = {isa = PBXBuildFile; fileRef = A6DCA58D1B8507B1007FC06D /* PacoSignalStore.m */; };
 		A6DCA5981B85468D007FC06D /* PacoEventStore.m in Sources */ = {isa = PBXBuildFile; fileRef = A6DCA5971B85468D007FC06D /* PacoEventStore.m */; };
 		A6F7348F1BD9BA3E00DCE716 /* NSDate+PacoTimeZoneHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = A62A15611BC4A8B800FF20C1 /* NSDate+PacoTimeZoneHelper.m */; };
@@ -886,6 +889,9 @@
 		A6DC6E581BEC210700D38D68 /* PacoStringSelectorTableViewCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = PacoStringSelectorTableViewCell.xib; sourceTree = "<group>"; };
 		A6DC6E6A1BEC244500D38D68 /* PacoTableViewExpandingCellBase.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PacoTableViewExpandingCellBase.swift; sourceTree = "<group>"; };
 		A6DC6E6B1BEC244500D38D68 /* PacoTableViewExpandingCellBase.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = PacoTableViewExpandingCellBase.xib; sourceTree = "<group>"; };
+		A6DC6E6F1BED758100D38D68 /* PacoBoxControl.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PacoBoxControl.swift; sourceTree = "<group>"; };
+		A6DC6E711BED8F3300D38D68 /* PacoTextTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PacoTextTableViewCell.swift; sourceTree = "<group>"; };
+		A6DC6E721BED8F3300D38D68 /* PacoTextTableViewCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = PacoTextTableViewCell.xib; sourceTree = "<group>"; };
 		A6DCA58C1B8507B1007FC06D /* PacoSignalStore.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoSignalStore.h; sourceTree = "<group>"; };
 		A6DCA58D1B8507B1007FC06D /* PacoSignalStore.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoSignalStore.m; sourceTree = "<group>"; };
 		A6DCA5921B85262F007FC06D /* PacoPacoSignalStoreTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoPacoSignalStoreTests.m; sourceTree = "<group>"; };
@@ -1959,6 +1965,7 @@
 				A652BB4C1BD5B3EE000237A7 /* Paco-Swift.h */,
 				A622632E1BEA97BD000698AD /* PacoSwiftHelper.h */,
 				A622632F1BEA97BD000698AD /* PacoSwiftHelper.m */,
+				A6DC6E6F1BED758100D38D68 /* PacoBoxControl.swift */,
 			);
 			name = UI;
 			sourceTree = "<group>";
@@ -2169,6 +2176,7 @@
 		A6DC6E301BEC115600D38D68 /* TableCells */ = {
 			isa = PBXGroup;
 			children = (
+				A6DC6E6E1BED73F600D38D68 /* text response */,
 				A6DC6E691BEC211E00D38D68 /* date picker */,
 				A6DC6E681BEC210E00D38D68 /* string selector */,
 				A6DC6E6A1BEC244500D38D68 /* PacoTableViewExpandingCellBase.swift */,
@@ -2202,6 +2210,15 @@
 				A6DC6E501BEC1ACC00D38D68 /* PacoPickerTableViewCell.xib */,
 			);
 			name = "date picker";
+			sourceTree = "<group>";
+		};
+		A6DC6E6E1BED73F600D38D68 /* text response */ = {
+			isa = PBXGroup;
+			children = (
+				A6DC6E711BED8F3300D38D68 /* PacoTextTableViewCell.swift */,
+				A6DC6E721BED8F3300D38D68 /* PacoTextTableViewCell.xib */,
+			);
+			name = "text response";
 			sourceTree = "<group>";
 		};
 		A6F734931BD9BD6000DCE716 /* bridging */ = {
@@ -2624,6 +2641,7 @@
 				A64F1DE21BD70F8500DCE6C3 /* Roboto-Black.ttf in Resources */,
 				A63BD2621BC74D9000707A3A /* PacoExperimentTableCellTableViewCell.xib in Resources */,
 				A64F1DF31BD70F8500DCE6C3 /* RobotoCondensed-Regular.ttf in Resources */,
+				A6DC6E741BED8F3300D38D68 /* PacoTextTableViewCell.xib in Resources */,
 				36B8EBFE17568E29004CF035 /* smile_icon4.png in Resources */,
 				36B8EBFF17568E29004CF035 /* smile_icon4_re.png in Resources */,
 				36B8EC0017568E29004CF035 /* smile_icon5.png in Resources */,
@@ -2768,6 +2786,7 @@
 				A6F734921BD9BA8A00DCE716 /* OrgJodaTimeDateMidnight+PacoDateHelper.m in Sources */,
 				36C4A33F18A4DEEE00D8FE59 /* DDLog.m in Sources */,
 				A6ABFAA51B742BE800F90598 /* PacoSerializer.m in Sources */,
+				A6DC6E731BED8F3300D38D68 /* PacoTextTableViewCell.swift in Sources */,
 				36946B08177A385A005E0C04 /* PacoExperimentInput.m in Sources */,
 				4448BCDC1A80901D0034FCE9 /* GTMOAuth2ViewControllerTouch.m in Sources */,
 				A6ABFAC91B7BE37F00F90598 /* PacoExtendedClient.m in Sources */,
@@ -2821,6 +2840,7 @@
 				36AD6CE217C4440000B93855 /* NSError+Paco.m in Sources */,
 				A6DC6E4D1BEC184000D38D68 /* PacoResponseTableViewController.swift in Sources */,
 				A678C2751B703955003F0D27 /* ModelBase.java in Sources */,
+				A6DC6E701BED758100D38D68 /* PacoBoxControl.swift in Sources */,
 				7F8531DE1A37BE680028BA23 /* JCNotificationCenter.m in Sources */,
 				A6401F6D1B7D4D2800ABC0AB /* PacoEventManagerExtended.m in Sources */,
 				A6AFCCF81BBB58E4002BA7FC /* PacoDidStopManageActionSpecifications.m in Sources */,

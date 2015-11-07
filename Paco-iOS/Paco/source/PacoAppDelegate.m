@@ -217,12 +217,11 @@
     
     
      self.responseMessageController = [[PacoResponseTableViewController alloc] initWithNibName:@"PacoResponseTableViewController" bundle:nil];
+       //ZAZAZAZA
+      /// self.window.rootViewController = self.responseMessageController ;
+     self.window.rootViewController = self.tabBar ;
     
-    self.window.rootViewController = self.responseMessageController ;
-    
-    /// self.window.rootViewController = self.tabBar ;
-    
-  [self.window makeKeyAndVisible];
+     [self.window makeKeyAndVisible];
   
   
   UILocalNotification *notification = launchOptions[UIApplicationLaunchOptionsLocalNotificationKey];

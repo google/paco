@@ -10,7 +10,6 @@ import UIKit
 
 class PacoStringSelectorTableViewCell: PacoTableViewExpandingCellBase,UIPickerViewDataSource,UIPickerViewDelegate {
     
-    
     @IBOutlet weak var titleLabel: UILabel!
     @IBOutlet weak var expandedView: UIPickerView!
     class var expandedHeight: CGFloat { get { return 200 } }
