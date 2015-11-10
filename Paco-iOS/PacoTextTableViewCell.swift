@@ -8,7 +8,25 @@
 
 import UIKit
 
-class PacoTextTableViewCell: UITableViewCell {
+class PacoTextTableViewCell:PacoTableViewExpandingCellBase {
+    
+    
+    class var expandedHeight: CGFloat { get { return 230 } }
+    class var defaultHeight: CGFloat  { get { return 44  } }
+    
+    
+    override func getHeight() -> CGFloat
+    {
+        return PacoPickerTableViewCell.expandedHeight
+    }
+    
+    override func getNoneExpandedHeight() -> CGFloat
+    {
+        return PacoPickerTableViewCell.defaultHeight
+    }
+    
+    
+    
 
     override func awakeFromNib() {
         super.awakeFromNib()

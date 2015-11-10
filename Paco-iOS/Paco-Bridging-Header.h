@@ -10,7 +10,7 @@
 #define Paco_Paco_Bridging_Header_h
 
 
-#import "PacoSwiftHelper.h"
+//#import "PacoSwiftHelper.h"
 #import "ExperimentDAO.h" 
 #import "NSObject+J2objcKVO.h"
 #import "PacoNetwork.h" 

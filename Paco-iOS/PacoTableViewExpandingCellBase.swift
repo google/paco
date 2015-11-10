@@ -25,6 +25,12 @@ class PacoTableViewExpandingCellBase: UITableViewCell {
     }
     
     
+    func getNoneExpandedHeight() -> CGFloat
+    {
+        return 0
+    }
+    
+    
     func checkHeight() {
        getView().hidden = (frame.size.height < getHeight())
     }

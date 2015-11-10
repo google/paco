@@ -19,6 +19,17 @@ class PacoStringSelectorTableViewCell: PacoTableViewExpandingCellBase,UIPickerVi
         return expandedView
     }
     
+    override func getHeight() -> CGFloat
+    {
+        return PacoStringSelectorTableViewCell.expandedHeight;
+    }
+    
+    
+    override func getNoneExpandedHeight() -> CGFloat
+    {
+        return PacoStringSelectorTableViewCell.defaultHeight;
+    }
+    
     override func awakeFromNib() {
         
         expandedView.delegate = self;
@@ -29,14 +40,11 @@ class PacoStringSelectorTableViewCell: PacoTableViewExpandingCellBase,UIPickerVi
         self.pickerView(self.expandedView, didSelectRow: 0, inComponent: 0)
     }
     
-    override func getHeight() -> CGFloat
-    {
-        return PacoStringSelectorTableViewCell.expandedHeight
-    }
+
     
     
-    //MARK: - Delegates and data sources
-    //MARK: Data Sources
+    
+  
     func numberOfComponentsInPickerView(pickerView: UIPickerView) -> Int {
         return 1
     }

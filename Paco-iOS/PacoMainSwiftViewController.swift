@@ -13,12 +13,12 @@ class PacoMainSwiftViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        
+       /*
         var helper:PacoSwiftHelper = PacoSwiftHelper();
         var  dao:PAExperimentDAO  = helper.getDao();
         var title:String  =   (dao.valueForKeyEx("title") as? String)!
         message.text = title // helper.testString();
-        
+        */
         
         
         

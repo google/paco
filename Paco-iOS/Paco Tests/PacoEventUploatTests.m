@@ -19,6 +19,8 @@
 #import "PacoEventExtended.h"
 #import "PacoEventManagerExtended.h"
 #import "PacoEventExtended+PacoCoder.h"
+#import "ExperimentHelper.h"
+
 
 @interface PacoEventUploatTests : XCTestCase
 

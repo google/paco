@@ -23,8 +23,8 @@
                         <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
                         <nil key="highlightedColor"/>
                     </label>
-                    <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="zq2-bR-s46">
-                        <rect key="frame" x="10" y="43" width="305" height="106"/>
+                    <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="zq2-bR-s46">
+                        <rect key="frame" x="10" y="38" width="305" height="112"/>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <string key="text">Lorem ipsum dolor sit er elit lamet, consectetaur cillium adipisicing pecu, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Nam liber te conscient to factor tum poen legum odioque civiuda.</string>
                         <fontDescription key="fontDescription" type="system" pointSize="14"/>
@@ -36,7 +36,8 @@
                     <constraint firstAttribute="bottom" secondItem="zq2-bR-s46" secondAttribute="bottom" constant="22" id="OZP-gY-38w"/>
                     <constraint firstAttribute="trailing" secondItem="zq2-bR-s46" secondAttribute="trailing" constant="10" id="Oa8-54-mxd"/>
                     <constraint firstAttribute="centerY" secondItem="opS-DY-qI0" secondAttribute="centerY" constant="61" id="Yu2-Pn-qSO"/>
-                    <constraint firstItem="zq2-bR-s46" firstAttribute="top" secondItem="opS-DY-qI0" secondAttribute="bottom" constant="14" id="jaj-J0-0nB"/>
+                    <constraint firstItem="zq2-bR-s46" firstAttribute="top" secondItem="opS-DY-qI0" secondAttribute="bottom" constant="3" id="jaj-J0-0nB"/>
+                    <constraint firstItem="opS-DY-qI0" firstAttribute="top" secondItem="H2p-sc-9uM" secondAttribute="top" constant="14" id="rLn-MC-e4I"/>
                     <constraint firstItem="zq2-bR-s46" firstAttribute="leading" secondItem="H2p-sc-9uM" secondAttribute="leading" constant="10" id="udW-I7-j6s"/>
                 </constraints>
             </tableViewCellContentView>

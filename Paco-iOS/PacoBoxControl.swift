@@ -8,14 +8,15 @@
 
 import UIKit
 
-class PacoBoxControl: UIView, UITableViewDataSource,UITableViewDelegate
+class PacoBoxControl: UIView, UITableViewDataSource,UITableViewDelegate,UIGestureRecognizerDelegate
 {
     
 
  
     var table:UITableView
     let cellId = "ExperimenCellID"
-    
+    let CHECKED = "\u{2705}"
+    let  UNCHECKED = "\u{2B1C}"
     
     
     override init(frame: CGRect)
@@ -26,8 +27,19 @@ class PacoBoxControl: UIView, UITableViewDataSource,UITableViewDelegate
     
     required init(coder aDecoder: NSCoder)
     {
-         table = UITableView(coder: aDecoder)
-         super.init(coder:aDecoder)
+        table = UITableView(coder: aDecoder)
+        super.init(coder:aDecoder)
+        
+        self.backgroundColor = UIColor.whiteColor()
+  
+        table.dataSource = self
+        table.delegate = self
+        table.allowsSelection = false
+        
+        table.registerNib(UINib(nibName:"PacoCheckCell", bundle: nil), forCellReuseIdentifier:self.cellId)
+        self.addSubview(table)
+        table.reloadData()
+       
     }
 
     
@@ -38,10 +50,26 @@ class PacoBoxControl: UIView, UITableViewDataSource,UITableViewDelegate
         
     }
     
-
+   func tableView(tableView: UITableView, heightForRowAtIndexPath indexPath: NSIndexPath) -> CGFloat {
+    
+    return 40
+    
+    }
+    
+    
+    
     func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell
     {
-             let cell = tableView.dequeueReusableCellWithIdentifier(self.cellId, forIndexPath: indexPath) as! PacoMyExpermementTitleCellTableViewCell
+             let cell = tableView.dequeueReusableCellWithIdentifier(self.cellId, forIndexPath: indexPath) as! PacoCheckCell
+        cell.checkboxLabel.text  = "\(CHECKED) and checked"
+        cell.checkboxLabel.userInteractionEnabled = true
+        
+        cell.checkboxLabel!.tag = 1
+        let   recognizer  =  UITapGestureRecognizer(target: self,action: Selector("checkOrUncheck:"))
+        recognizer.delegate = self
+        recognizer.numberOfTapsRequired = 1
+        cell.checkboxLabel.addGestureRecognizer(recognizer)
+    
         return cell
     }
     
@@ -52,6 +80,28 @@ class PacoBoxControl: UIView, UITableViewDataSource,UITableViewDelegate
     
         return retVal
     
+    }
+    
+    func checkOrUncheck(recognizer:UITapGestureRecognizer )
+    {
+        
+        let label = recognizer.view as! UILabel
+         if label.tag == 1
+         {
+            
+            label.text = "\(UNCHECKED) and unchecked"
+            label.tag  = 0
+          }
+        else
+         {
+            
+            label.text = "\(CHECKED) and checked"
+            label.tag  = 1
+            
+        }
+        
+        
+        
     }
     
     func numberOfSectionsInTableView(tableView: UITableView) -> Int

@@ -26,6 +26,12 @@ class PacoPickerTableViewCell: PacoTableViewExpandingCellBase {
     {
         return PacoPickerTableViewCell.expandedHeight
     }
+    
+    override func getNoneExpandedHeight() -> CGFloat
+    {
+        return PacoPickerTableViewCell.defaultHeight
+    }
+    
   
    
 }
