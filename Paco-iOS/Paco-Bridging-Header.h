@@ -9,8 +9,6 @@
 #ifndef Paco_Paco_Bridging_Header_h
 #define Paco_Paco_Bridging_Header_h
 
-
-//#import "PacoSwiftHelper.h"
 #import "ExperimentDAO.h" 
 #import "NSObject+J2objcKVO.h"
 #import "PacoNetwork.h" 
@@ -18,8 +16,10 @@
 #import "ActionScheduleGenerator.h"
 #import "PAExperimentDAO+Helper.h"
 #import "PacoJoinedExperimentTableCell.h"
-
-
-
+#import "ExperimentHelper.h"
+#import "java/util/ArrayList.h"
+#import "java/util/List.h"
+#include "java/lang/Boolean.h"
+#import "Input2.h"
 
 #endif

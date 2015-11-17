@@ -9,12 +9,15 @@
 import UIKit
 
 class PacoCheckCell: UITableViewCell {
+    
+    
+   
 
     override func awakeFromNib() {
         super.awakeFromNib()
         // Initialization code
     }
-    @IBOutlet weak var checkboxLabel: UILabel!
+    @IBOutlet weak var checkboxLabel: PacoLabel!
  
     @IBOutlet weak var checkboxTextLabel: UILabel!
     

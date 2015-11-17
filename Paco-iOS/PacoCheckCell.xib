@@ -14,19 +14,25 @@
                 <rect key="frame" x="0.0" y="0.0" width="320" height="43"/>
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
-                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="lwY-Eq-gAH">
-                        <rect key="frame" x="8" y="11" width="200" height="21"/>
+                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="lwY-Eq-gAH" customClass="PacoLabel" customModule="Paco" customModuleProvider="target">
+                        <rect key="frame" x="8" y="11" width="308" height="21"/>
                         <constraints>
                             <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="42" id="UsW-7U-5wP"/>
                             <constraint firstAttribute="width" constant="200" id="qzG-Gs-bjt"/>
                         </constraints>
                         <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                        <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
+                        <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                         <nil key="highlightedColor"/>
+                        <variation key="default">
+                            <mask key="constraints">
+                                <exclude reference="qzG-Gs-bjt"/>
+                            </mask>
+                        </variation>
                     </label>
                 </subviews>
                 <constraints>
                     <constraint firstItem="lwY-Eq-gAH" firstAttribute="top" secondItem="H2p-sc-9uM" secondAttribute="top" constant="11" id="5Dw-Da-Dsj"/>
+                    <constraint firstAttribute="trailing" secondItem="lwY-Eq-gAH" secondAttribute="trailing" constant="4" id="5Kl-gR-JUN"/>
                     <constraint firstItem="lwY-Eq-gAH" firstAttribute="leading" secondItem="H2p-sc-9uM" secondAttribute="leading" constant="8" id="OyN-TZ-71s"/>
                     <constraint firstAttribute="bottom" secondItem="lwY-Eq-gAH" secondAttribute="bottom" constant="11" id="eX2-ah-emK"/>
                 </constraints>

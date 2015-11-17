@@ -10,7 +10,9 @@ import UIKit
 
 class PacoTableViewExpandingCellBase: UITableViewCell {
     
-
+    var   input:PAInput2?
+    var indexPath:NSIndexPath?
+    
     var frameAdded = false
     func getView() -> UIView {
         
@@ -18,6 +20,15 @@ class PacoTableViewExpandingCellBase: UITableViewCell {
         
     }
     
+    func getResuts() -> PacoOutput
+    {
+        
+       preconditionFailure("This method must be overridden")
+    
+    
+    }
+    
+   
     
     func getHeight() -> CGFloat
     {

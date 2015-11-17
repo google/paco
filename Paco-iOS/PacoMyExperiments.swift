@@ -19,7 +19,11 @@ class PacoMyExperiments: UITableViewController,PacoExperimentProtocol {
     
      
     
-    
+    func showEditView(experiment:PAExperimentDAO,indexPath:NSIndexPath)
+        {
+            
+            
+        }
   
     
     override func viewDidLoad() {

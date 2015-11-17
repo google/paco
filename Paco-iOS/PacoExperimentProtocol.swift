@@ -15,6 +15,6 @@ protocol PacoExperimentProtocol
     func didClose(experiment:PAExperimentDAO)
     func email(experiment:PAExperimentDAO)
     func editTime(experiment:PAExperimentDAO)
-    
+    func showEditView(experiment:PAExperimentDAO,indexPath:NSIndexPath)
     
 }

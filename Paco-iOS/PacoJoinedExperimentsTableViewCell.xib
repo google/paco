@@ -57,14 +57,8 @@
                             <action selector="email:" destination="KGk-i7-Jjw" eventType="touchUpInside" id="eRz-oA-4Iz"/>
                         </connections>
                     </button>
-                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="edit" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="e4s-Cl-bHX">
-                        <rect key="frame" x="302" y="16" width="20" height="78"/>
-                        <fontDescription key="fontDescription" type="system" pointSize="11"/>
-                        <color key="textColor" red="0.12941176469999999" green="0.58823529409999997" blue="0.95294117649999999" alpha="1" colorSpace="calibratedRGB"/>
-                        <nil key="highlightedColor"/>
-                    </label>
-                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" misplaced="YES" text="by " lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="wN8-4e-Z7i" userLabel="Owner">
-                        <rect key="frame" x="29" y="58" width="277" height="12"/>
+                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="by " lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="wN8-4e-Z7i" userLabel="Owner">
+                        <rect key="frame" x="29" y="58" width="277" height="10"/>
                         <fontDescription key="fontDescription" name="Roboto-Regular" family="Roboto" pointSize="8"/>
                         <color key="textColor" red="0.12941176469999999" green="0.58823529409999997" blue="0.95294117649999999" alpha="1" colorSpace="calibratedRGB"/>
                         <nil key="highlightedColor"/>
@@ -83,37 +77,55 @@
                             <action selector="changeSchedule:" destination="KGk-i7-Jjw" eventType="touchUpInside" id="sLR-1q-E65"/>
                         </connections>
                     </button>
+                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="4MT-LM-i3z">
+                        <rect key="frame" x="277" y="41" width="40" height="30"/>
+                        <constraints>
+                            <constraint firstAttribute="width" constant="40" id="SRb-dp-JN3"/>
+                        </constraints>
+                        <state key="normal" title="edit">
+                            <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                        </state>
+                        <connections>
+                            <action selector="edit:" destination="KGk-i7-Jjw" eventType="touchUpInside" id="lmA-Nn-JMM"/>
+                        </connections>
+                    </button>
                 </subviews>
                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                 <constraints>
                     <constraint firstAttribute="trailing" secondItem="IqG-T7-3ju" secondAttribute="trailing" constant="30" id="16K-fa-MTi"/>
-                    <constraint firstAttribute="trailing" secondItem="e4s-Cl-bHX" secondAttribute="trailing" constant="14" id="23g-gk-wzr"/>
                     <constraint firstItem="wN8-4e-Z7i" firstAttribute="top" secondItem="IqG-T7-3ju" secondAttribute="bottom" constant="1" id="4K5-fr-yIY"/>
                     <constraint firstItem="5Ma-py-qg0" firstAttribute="top" secondItem="3fL-T0-yeZ" secondAttribute="top" id="7Mc-i5-vl6"/>
+                    <constraint firstAttribute="trailing" secondItem="4MT-LM-i3z" secondAttribute="trailing" constant="19" id="EAg-vY-5sa"/>
                     <constraint firstAttribute="centerX" secondItem="IqG-T7-3ju" secondAttribute="centerX" id="FN6-7S-5My"/>
                     <constraint firstItem="5Ma-py-qg0" firstAttribute="bottom" secondItem="3CR-UK-3FN" secondAttribute="bottom" id="FcP-h0-Mov"/>
+                    <constraint firstAttribute="trailing" secondItem="4MT-LM-i3z" secondAttribute="trailing" constant="19" id="HJu-uZ-bjA"/>
                     <constraint firstItem="5Ma-py-qg0" firstAttribute="bottom" secondItem="3fL-T0-yeZ" secondAttribute="bottom" id="HZv-Xf-UIh"/>
                     <constraint firstAttribute="bottom" secondItem="3CR-UK-3FN" secondAttribute="bottom" id="KSZ-fM-QTZ"/>
                     <constraint firstItem="3fL-T0-yeZ" firstAttribute="leading" secondItem="H2p-sc-9uM" secondAttribute="leading" constant="26" id="Kmb-Ag-gAw"/>
                     <constraint firstItem="5Ma-py-qg0" firstAttribute="top" secondItem="3CR-UK-3FN" secondAttribute="top" id="LiC-qT-GBe"/>
+                    <constraint firstItem="4MT-LM-i3z" firstAttribute="top" secondItem="H2p-sc-9uM" secondAttribute="top" constant="33" id="OFq-yG-1In"/>
                     <constraint firstItem="IqG-T7-3ju" firstAttribute="trailing" secondItem="wN8-4e-Z7i" secondAttribute="trailing" id="X2z-H0-o5I"/>
-                    <constraint firstItem="e4s-Cl-bHX" firstAttribute="top" secondItem="H2p-sc-9uM" secondAttribute="top" constant="16" id="dNT-0P-4DY"/>
-                    <constraint firstAttribute="bottom" secondItem="e4s-Cl-bHX" secondAttribute="bottom" constant="17" id="gPQ-yY-cDN"/>
+                    <constraint firstItem="wN8-4e-Z7i" firstAttribute="top" secondItem="4MT-LM-i3z" secondAttribute="bottom" constant="-5" id="Zhk-yu-l0r"/>
                     <constraint firstItem="IqG-T7-3ju" firstAttribute="leading" secondItem="wN8-4e-Z7i" secondAttribute="leading" id="j7t-DA-3MA"/>
                     <constraint firstAttribute="centerY" secondItem="IqG-T7-3ju" secondAttribute="centerY" constant="7" id="jJ5-cB-peQ"/>
                     <constraint firstItem="3CR-UK-3FN" firstAttribute="top" secondItem="H2p-sc-9uM" secondAttribute="top" constant="50" id="kL1-AT-VfS"/>
                     <constraint firstAttribute="trailing" secondItem="3CR-UK-3FN" secondAttribute="trailing" constant="14" id="pr8-tA-PTY"/>
+                    <constraint firstAttribute="centerY" secondItem="4MT-LM-i3z" secondAttribute="centerY" id="qdm-mv-7KY"/>
                     <constraint firstItem="5Ma-py-qg0" firstAttribute="leading" secondItem="3fL-T0-yeZ" secondAttribute="trailing" constant="35" id="zJk-dt-2eF"/>
                 </constraints>
                 <variation key="default">
                     <mask key="constraints">
+                        <exclude reference="Zhk-yu-l0r"/>
                         <exclude reference="KSZ-fM-QTZ"/>
+                        <exclude reference="EAg-vY-5sa"/>
+                        <exclude reference="OFq-yG-1In"/>
                     </mask>
                 </variation>
             </tableViewCellContentView>
             <connections>
                 <outlet property="close" destination="3CR-UK-3FN" id="oFr-1f-KiS"/>
                 <outlet property="creator" destination="wN8-4e-Z7i" id="68p-CA-z3i"/>
+                <outlet property="edit" destination="4MT-LM-i3z" id="Wxk-bh-J2I"/>
                 <outlet property="email" destination="5Ma-py-qg0" id="EaA-Px-7I9"/>
                 <outlet property="experimentTitle" destination="IqG-T7-3ju" id="IOc-ee-7md"/>
             </connections>

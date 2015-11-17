@@ -14,7 +14,16 @@ class PacoStringSelectorTableViewCell: PacoTableViewExpandingCellBase,UIPickerVi
     @IBOutlet weak var expandedView: UIPickerView!
     class var expandedHeight: CGFloat { get { return 200 } }
     class var defaultHeight: CGFloat  { get { return 44  } }
+    
+    
  
+    var listChoices:JavaUtilList?
+    var isExpanded:Bool?
+    var parent:PacoInputTable?
+    var index:PacoInputTable?
+    @IBOutlet weak var selectionLabel: UILabel!
+    
+   
     override func getView() -> UIView {
         return expandedView
     }
@@ -32,55 +41,70 @@ class PacoStringSelectorTableViewCell: PacoTableViewExpandingCellBase,UIPickerVi
     
     override func awakeFromNib() {
         
+        
+        
         expandedView.delegate = self;
         expandedView.dataSource = self;
         
         
-        self.expandedView.selectRow(3, inComponent: 0, animated: false)
-        self.pickerView(self.expandedView, didSelectRow: 0, inComponent: 0)
+        
+        
+        
+        
     }
-    
-
+ 
     
     
     
   
     func numberOfComponentsInPickerView(pickerView: UIPickerView) -> Int {
-        return 1
+        
+        
+                return 1
     }
     func pickerView(pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
-        return 5
+        
+        var listSize:Int
+        
+       if (listChoices != nil)
+       {
+          var  index:Int32  = Int32(listChoices!.size())
+          listSize = Int(index)
+          // self.pickerView(self.expandedView, didSelectRow:listSize-1 , inComponent: 0)
+        }
+        else
+       {
+         listSize = 0
+        
+        }
+        return listSize
     }
-    //MARK: Delegates
+    
+    
+    
+  
     func pickerView(pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
         return  "hello"
     }
     
     func pickerView(pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
         
-        titleLabel.text = "hello changed"
+        var selectedString = listChoices?.getWithInt(Int32(row)) as? String
+        selectionLabel.text = selectedString
+        parent?.selected( indexPath!.row , selected: selectedString!)
     }
     
     func pickerView(pickerView: UIPickerView, attributedTitleForRow row: Int, forComponent component: Int) -> NSAttributedString? {
+        
+        
+        
         let titleData = "One"
         let myTitle = NSAttributedString(string: titleData, attributes: [NSFontAttributeName:UIFont(name: "Georgia", size: 26.0)!,NSForegroundColorAttributeName:UIColor.blueColor()])
         return myTitle
     }
-    /* less conservative memory version
-    func pickerView(pickerView: UIPickerView, viewForRow row: Int, forComponent component: Int, reusingView view: UIView?) -> UIView {
-    let pickerLabel = UILabel()
-    let titleData = pickerData[row]
-    let myTitle = NSAttributedString(string: titleData, attributes: [NSFontAttributeName:UIFont(name: "Georgia", size: 26.0)!,NSForegroundColorAttributeName:UIColor.blackColor()])
-    pickerLabel.attributedText = myTitle
-    //color  and center the label's background
-    let hue = CGFloat(row)/CGFloat(pickerData.count)
-    pickerLabel.backgroundColor = UIColor(hue: hue, saturation: 1.0, brightness:1.0, alpha: 1.0)
-    pickerLabel.textAlignment = .Center
-    return pickerLabel
-    }
-    */
+ 
     
-    /* better memory management version */
+ 
     func pickerView(pickerView: UIPickerView, viewForRow row: Int, forComponent component: Int, reusingView view: UIView?) -> UIView {
         var pickerLabel = view as! UILabel!
         if view == nil {  //if no label there yet
@@ -89,7 +113,11 @@ class PacoStringSelectorTableViewCell: PacoTableViewExpandingCellBase,UIPickerVi
             let hue = CGFloat(row)/CGFloat(4)
             //pickerLabel.backgroundColor = UIColor(hue: hue, saturation: 1.0, brightness: 1.0, alpha: 1.0)
         }
-        let titleData = "data one"
+        
+        
+        
+        
+        let titleData = listChoices?.getWithInt(Int32(row)) as! String
         let myTitle = NSAttributedString(string: titleData, attributes: [NSFontAttributeName:UIFont(name: "Georgia", size: 26.0)!,NSForegroundColorAttributeName:UIColor.blackColor()])
         pickerLabel!.attributedText = myTitle
         pickerLabel!.textAlignment = .Center
@@ -101,12 +129,7 @@ class PacoStringSelectorTableViewCell: PacoTableViewExpandingCellBase,UIPickerVi
     func pickerView(pickerView: UIPickerView, rowHeightForComponent component: Int) -> CGFloat {
         return 44.0
     }
-    // for best use with multitasking , dont use a constant here.
-    //this is for demonstration purposes only.
-  /*  func pickerView(pickerView: UIPickerView, widthForComponent component: Int) -> CGFloat {
-        return 200
-    }*/
-    
+ 
     
     
     

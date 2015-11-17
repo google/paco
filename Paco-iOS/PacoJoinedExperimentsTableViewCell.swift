@@ -11,8 +11,11 @@ import UIKit
 class PacoJoinedExperimentsTableViewCell: UITableViewCell  {
     
     
+    @IBOutlet weak var editBtn: UILabel!
     var  experiment:PAExperimentDAO?
     var  parent:PacoExperimentProtocol?
+    var  indexPath:NSIndexPath?
+    
     
    // @IBOutlet weak var subtitle: UILabel!
     @IBOutlet weak var experimentTitle: UILabel!
@@ -23,15 +26,23 @@ class PacoJoinedExperimentsTableViewCell: UITableViewCell  {
         self.clipsToBounds = true
         
         close.clipsToBounds = true
-        // Initialization code
-        
- 
         
         
-    
+        
         
     }
-  
+    @IBOutlet weak var edit: UIButton!
+    
+    
+    
+    @IBAction func edit(sender: AnyObject)
+    {
+        parent!.showEditView(self.experiment!,indexPath:indexPath!)
+       
+    }
+    
+    
+
     
     @IBOutlet weak var creator: UILabel!
     

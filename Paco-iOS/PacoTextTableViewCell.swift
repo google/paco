@@ -7,13 +7,31 @@
 //
 
 import UIKit
+import QuartzCore
 
-class PacoTextTableViewCell:PacoTableViewExpandingCellBase {
+class PacoTextTableViewCell:PacoTableViewExpandingCellBase, UITextViewDelegate  {
     
-    
+
+    var parent:PacoInputTable?
     class var expandedHeight: CGFloat { get { return 230 } }
     class var defaultHeight: CGFloat  { get { return 44  } }
     
+    @IBOutlet weak var inputLabel: UILabel!
+    @IBOutlet weak var inputTexInput: UITextView!
+    
+    
+    
+    override func getResuts() -> PacoOutput
+    {
+      
+        var output  =  PacoOutput()
+        output.input = input
+        output.val = inputTexInput.text
+        output.type = InputType.OpenText
+        return output
+  
+        
+    }
     
     override func getHeight() -> CGFloat
     {
@@ -25,12 +43,17 @@ class PacoTextTableViewCell:PacoTableViewExpandingCellBase {
         return PacoPickerTableViewCell.defaultHeight
     }
     
+    func textViewDidChange(textView: UITextView) {
+        
+         parent?.textChanged(indexPath!.row, text: textView.text)
+    }
     
-    
-
+ 
     override func awakeFromNib() {
         super.awakeFromNib()
-        // Initialization code
+        
+        inputTexInput.layer.cornerRadius = 5
+        inputTexInput.delegate = self
     }
 
     @IBOutlet weak var titleLabel: UILabel!

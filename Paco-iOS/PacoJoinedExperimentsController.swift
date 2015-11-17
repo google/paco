@@ -17,7 +17,7 @@ class PacoJoinedExperimentsController: UITableViewController,PacoExperimentProto
     var  myExpriments:Array<PAExperimentDAO>?
     let cellId = "ExperimenJoinedCellID"
     var selectedIndex = -1;
-    
+    var controller:PacoResponseTableViewController?
     
     
     override func viewDidLoad() {
@@ -134,15 +134,34 @@ class PacoJoinedExperimentsController: UITableViewController,PacoExperimentProto
     override func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
         let cell = tableView.cellForRowAtIndexPath(indexPath) as! PacoJoinedExperimentsTableViewCell
         
+
+        var   inputs:JavaUtilList =   PAExperimentHelper.getInputsWithPAExperimentDAO(cell.experiment)
+         controller  =  PacoResponseTableViewController(nibName: "PacoResponseTableViewController", bundle: nil, input:inputs)
+        self.navigationController?.pushViewController(controller!, animated: true)
+     
+        
+    }
+    
+    
+    func showEditView(experiment:PAExperimentDAO,indexPath:NSIndexPath)
+    {
+            
+           println("the index is \(indexPath.row)")
+        
+        let cell = tableView.dequeueReusableCellWithIdentifier(self.cellId, forIndexPath: indexPath) as! PacoJoinedExperimentsTableViewCell
+        
         
         if(selectedIndex == indexPath.row)
         {
             selectedIndex = -1;
+            
+           cell.edit.setTitle("edit", forState: .Normal)
+         
         }
         else
         {
             selectedIndex = indexPath.row;
-          
+            cell.edit.setTitle("close", forState: .Normal)
             
         }
         
@@ -152,10 +171,10 @@ class PacoJoinedExperimentsController: UITableViewController,PacoExperimentProto
         
         self.tableView.deselectRowAtIndexPath(indexPath, animated: false)
         self.tableView.reloadRowsAtIndexPaths([indexPath],  withRowAnimation:UITableViewRowAnimation.None)
-        
-        
+            
+            
+            
     }
-    
     
     
     override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
@@ -186,7 +205,7 @@ class PacoJoinedExperimentsController: UITableViewController,PacoExperimentProto
             cell.creator.text  = "by \(creator!)"
         }
         
-        
+        cell.indexPath = indexPath
         cell.parent = self;
         cell.experiment = dao
         cell.experimentTitle.text = title
