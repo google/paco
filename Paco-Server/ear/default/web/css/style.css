@@ -28,7 +28,7 @@ b {
 }
 
 md-card {
-  overflow: hidden;
+  /*overflow: hidden;*/
   margin: 16px 0 16px 0;
 }
 
@@ -126,6 +126,11 @@ md-dialog li {
   width: 24px;
 }
 
+paco-help {
+  position: absolute;
+  right: 0px;
+}
+
 .paco-help {
   position: absolute;
   cursor: pointer;
@@ -160,15 +165,17 @@ md-dialog li {
   padding-left: 0;
 }
 
-
-.paco-help .text li {
-  padding-bottom: 8px;
+.help {
+  left: 50%;
+  margin-left: -480px;
+  width: 960px;
+  position: absolute;
+  height: calc(100% - 236px);
 }
 
-.paco-help.show {
-  opacity: 1;
+.help iframe {
+  border: none;
+  height: 100%;
+  width: 960px;
 }
 
-paco-help.show .paco-help .text {
-  opacity: 1;
-}

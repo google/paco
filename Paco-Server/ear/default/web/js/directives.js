@@ -173,27 +173,12 @@ pacoApp.directive('noIos', function() {
   };
 });
 
-pacoApp.directive('pacoTip', function() {
-  return {
-    restrict: 'E',
-    scope: {  'message': '=message' },
-    template: '<div class="paco-tip"><img src="img/ic_info_black_24px.svg"><md-tooltip md-direction="bottom" md-delay="200">{{message}}</md-tooltip></div>',
-    link: function(scope, element) {
-    }
-  };
-});
-
 pacoApp.directive('pacoHelp', function() {
   return {
     restrict: 'E',
-    transclude: true,
-    scope: true,
-    template: '<div class="paco-help"><img src="img/ic_info_black_24px.svg"><div class="text" ng-transclude></div></div>',
-    link: function(scope, element) {
-      element.bind('click', function() {
-        element.toggleClass('show');
-      });
-    }
+    scope: {  'tip': '@tip' },
+    template: '<a class="paco-help" href="#/help/{{tip}}" target="_new"><img src="img/ic_info_black_24px.svg"></div>',
+    link: function(scope, element) {}
   };
 });
 
@@ -234,6 +219,12 @@ pacoApp.directive('milli', function() {
   };
 });
 
+
+pacoApp.filter('trusted', ['$sce', function ($sce) {
+    return function(url) {
+        return $sce.trustAsResourceUrl(url);
+    };
+}]);
 
 /**
  * Directive for two-way filtering numbers and booleans. The various select

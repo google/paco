@@ -348,6 +348,14 @@ pacoApp.service('config', function() {
     'when'
   ];
 
+  this.helpLinkBase = 'https://docs.google.com/a/google.com/document/d/1f_kkTtvb4TKWIoseYfbOuX6D-8TOiZ3pIkjJ_sI6eGM/pub?embedded=true';
+
+  this.helpLinks = {
+    'title': 'h.egdrba1gdnfm',
+    'contact': 'h.npn5r8mj3e8a',
+    'organization': 'h.pesmb63905u'
+  }
+
   this.listPageSize = 50;
   this.dataPageSize = 100;
 });

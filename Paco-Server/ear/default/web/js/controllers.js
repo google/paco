@@ -620,6 +620,20 @@ pacoApp.controller('DataCtrl', ['$scope', '$mdDialog', '$location', '$filter',
   }
 ]);
 
+pacoApp.controller('HelpCtrl', ['$scope', '$routeParams', 'config',
+  function($scope, $routeParams, config) {
+
+    $scope.helpLink = config.helpLinkBase;
+
+    if (angular.isDefined($routeParams.helpId)) {
+      var link = config.helpLinks[$routeParams.helpId];
+      if (angular.isDefined(link)) {
+        $scope.helpLink = config.helpLinkBase + '#' + link;
+      }
+    }
+
+}]);
+
 
 pacoApp.controller('ReportCtrl', ['$scope', '$mdDialog', 'dataService',
     'config', 'experiment', 'anonymous',
@@ -654,7 +668,7 @@ pacoApp.controller('ReportCtrl', ['$scope', '$mdDialog', 'dataService',
           $mdDialog.hide({data: csvData, type: $scope.reportType});
         });
     }
-  }]);
+}]);
 
 pacoApp.controller('GroupsCtrl', ['$scope', 'template',
   function($scope, template) {
