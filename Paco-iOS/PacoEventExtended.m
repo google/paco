@@ -11,6 +11,7 @@
 #import "PacoEventExtended.h"
 #import "PacoDateUtility.h"
 #import "PacoExtendedClient.h"
+#import "PacoMediator.h"
 
 
 #import "Schedule.h"
@@ -29,6 +30,11 @@
 #import "PAExperimentDAO+Helper.h"
 #import "NSDate+PacoTimeZoneHelper.h"
 #import "PacoEventExtended+PacoCoder.h"
+#import "Input2.h"
+#import "PacoNetwork.h"
+#import "PacoAuthenticator.h"
+
+
 
 
 #define JsonKey @"kjsonPrsistanceKey/ForPacoEvent"
@@ -308,16 +314,20 @@ NSString* const kPacoResponseJoinExtended = @"joined";
  
  */
 
+ 
+ 
+
+ /*
 + (PacoEventExtended *) genericEventForDefinition:(PAExperimentDAO*)definition
                              withInputs:(NSArray*)inputs {
     PacoEventExtended *event = [PacoEventExtended new];
-     event.who = [[PacoExtendedClient sharedInstance] userEmail]; 
+     event.who = [PacoNetwork sharedInstance].authenticator.userEmail;
      event.experimentId = [definition valueForKeyPathEx:@"id"];
      event.experimentName = [definition valueForKeyPathEx:@"title"];
      event.experimentVersion = [definition valueForKeyPathEx:@"version"];
     
     NSMutableArray *responses = [NSMutableArray array];
-    for (PacoExperimentInput *input in inputs) {
+    for (PAInput2 *input in inputs) {
         NSMutableDictionary *response = [NSMutableDictionary dictionary];
         id payloadObject = [input payloadObject];
         if (payloadObject == nil) {
@@ -347,6 +357,15 @@ NSString* const kPacoResponseJoinExtended = @"joined";
     event.responses = responses;
     return event;
 }
+
+*/
+
+
+
+
+
+
+
 
 + (PacoEventExtended *)selfReportEventForDefinition:(PAExperimentDAO*) definition
                                 withInputs:(NSArray*)inputs {

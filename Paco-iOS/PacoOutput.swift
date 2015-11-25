@@ -22,5 +22,5 @@ class PacoOutput: NSObject {
     var   input:PAInput2?
     var   val:AnyObject?
     var   type:InputType?
-   
+    var   complete:Bool?
 }

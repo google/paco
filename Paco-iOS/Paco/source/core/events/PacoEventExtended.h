@@ -3,7 +3,7 @@
 //  Paco
 //
 //  Authored by  Tim N. O'Brien on 8/13/15.
-//  Copyright (c) 2015 Paco.nn All rights reserved.
+//  Copyright (c) 2015 Paco. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -63,11 +63,8 @@ typedef NS_ENUM(NSInteger, PacoEventTypeExtended) {
 
 - (PacoEventTypeExtended)type;
 
-
 + (PacoEventExtended*)stopEventForExperiment:(PacoExperimentExtended*)experiment;
 
-+ (PacoEventExtended*) genericEventForDefinition:(PAExperimentDAO*)definition
-                             withInputs:(NSArray*)inputs;
  
 + (PacoEventExtended*)joinEventForActionSpecificatonWithServerExperimentId:(PAExperimentDAO*) actionSpecification serverExperimentId:(NSString*) serverExperimentId;
 + (PacoEventExtended*)joinEventForActionSpecificaton:(PAActionSpecification*) actionSpecification;

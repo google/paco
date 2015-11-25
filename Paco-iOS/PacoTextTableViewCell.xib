@@ -29,9 +29,17 @@
                         <fontDescription key="fontDescription" type="system" pointSize="14"/>
                         <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
                     </textView>
+                    <label hidden="YES" opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="*" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="0xH-5P-GVL">
+                        <rect key="frame" x="313" y="9" width="7" height="21"/>
+                        <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                        <color key="textColor" red="1" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
+                        <nil key="highlightedColor"/>
+                    </label>
                 </subviews>
                 <constraints>
+                    <constraint firstAttribute="trailing" secondItem="0xH-5P-GVL" secondAttribute="trailing" constant="5" id="1bO-zH-PHd"/>
                     <constraint firstAttribute="centerX" secondItem="opS-DY-qI0" secondAttribute="centerX" constant="10.5" id="4kL-CM-IXA"/>
+                    <constraint firstItem="0xH-5P-GVL" firstAttribute="top" secondItem="H2p-sc-9uM" secondAttribute="top" constant="9" id="EYe-4j-lQr"/>
                     <constraint firstAttribute="bottom" secondItem="zq2-bR-s46" secondAttribute="bottom" constant="22" id="OZP-gY-38w"/>
                     <constraint firstAttribute="trailing" secondItem="zq2-bR-s46" secondAttribute="trailing" constant="10" id="Oa8-54-mxd"/>
                     <constraint firstAttribute="centerY" secondItem="opS-DY-qI0" secondAttribute="centerY" constant="61" id="Yu2-Pn-qSO"/>
@@ -43,6 +51,7 @@
             <connections>
                 <outlet property="inputLabel" destination="opS-DY-qI0" id="hsg-VU-nsw"/>
                 <outlet property="inputTexInput" destination="zq2-bR-s46" id="AvV-Mc-1ua"/>
+                <outlet property="showValidateStar" destination="0xH-5P-GVL" id="Juo-mk-3Zf"/>
             </connections>
             <point key="canvasLocation" x="383.5" y="492.5"/>
         </tableViewCell>

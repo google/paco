@@ -19,6 +19,7 @@
 #import "ExperimentHelper.h"
 #import "java/util/ArrayList.h"
 #import "java/util/List.h"
+#import "java/lang/Integer.h"
 #include "java/lang/Boolean.h"
 #import "Input2.h"
 

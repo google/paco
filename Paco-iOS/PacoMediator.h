@@ -20,7 +20,8 @@
 
 @class PacoEventStore;
 @class PAExperimentDAO;
-
+@class PacoEventManagerExtended;
+ 
 
 
 @interface PacoMediator : NSObject<PacoNotificationManagerDelegate>
@@ -29,7 +30,7 @@
 @property (strong,readonly )  PacoNotificationManager* notificationManager;
 @property (strong,nonatomic) PacoSignalStore * signalStore;
 @property (strong,nonatomic) PacoEventStore * eventStore;
-
+@property (strong,nonatomic) PacoEventManagerExtended * eventManager;
 
 + (PacoMediator*) sharedInstance;
 
@@ -44,6 +45,13 @@
 -(BOOL) isExperimentIdLive:(NSString*) experimentId;
 -(BOOL) isExperimentLive:(PAExperimentDAO*) experiment;
 -(void) replaceAllExperiments:(NSArray*) experiments;
+
+
+- (void)submitSurveyWithDefinition:(PAExperimentDAO*) definition
+                      surveyInputs:(NSArray*)surveyInputs
+                      notification:(UILocalNotification*)notification;
+ 
+
 
 
 /* join & unjoin */

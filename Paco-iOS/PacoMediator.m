@@ -26,6 +26,14 @@
 #import "PacoSchedulingUtil.h"
 #import "PacoGenerateEventValidator.h"
 #import "NSMutableArray+PacoModel.h"
+#import "UILocalNotification+PacoExteded.h"
+#import "PacoEventManagerExtended.h"
+
+
+
+
+
+
 
 #define KEY_RUNNING_EXERIMENTS @"running_experiments"
 
@@ -552,6 +560,29 @@ calculate the action specifications and reset the based upon the most recent ver
 -(void) registerDidModifyVNotifiers:(NSArray*) notifiers
 {
     [self.didModifyNotifiers addObjectsFromArray:notifiers];
+    
+}
+
+
+
+- (void)submitSurveyWithDefinition:(PAExperimentDAO*) definition
+                      surveyInputs:(NSArray*)surveyInputs
+                      notification:(UILocalNotification*)notification
+{
+    
+    if (notification) {
+        
+        [self.eventManager saveSurveySubmittedEventForDefinition:definition
+                                                      withInputs:surveyInputs
+                                                andScheduledTime:[notification pacoFireDateExt]];
+
+        [self.notificationManager handleRespondedNotification:notification];
+        
+    } else
+    {
+        
+        [self.eventManager saveSelfReportEventWithDefinition:definition andInputs:surveyInputs];
+    }
     
 }
 

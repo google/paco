@@ -20,12 +20,26 @@ class PacoTableViewExpandingCellBase: UITableViewCell {
         
     }
     
+    
+    func displayValidationIndicator()
+    {
+      preconditionFailure("This method must be overridden")
+        
+    }
+    
     func getResuts() -> PacoOutput
     {
         
        preconditionFailure("This method must be overridden")
     
     
+    }
+    
+    
+    func isValid() -> Bool
+    {
+        preconditionFailure("This method must be overridden")
+        
     }
     
    

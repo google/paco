@@ -20,12 +20,61 @@ class PacoMultipleChoiceCellTableViewCell: PacoTableViewExpandingCellBase {
     @IBOutlet weak var selectLabel: UILabel!
     
     
+    
+    
+    override func isValid() -> Bool
+    {
+        
+        var  retVal:Bool
+        
+        if(input?.getRequired().booleanValue() == true)
+        {
+            if( !checkboxTable.checks.keys.isEmpty )
+            {
+                retVal = true
+            }
+            else
+            {
+                retVal = false
+            }
+ 
+        }
+        else
+        {
+           retVal = true
+            
+        }
+        
+        return retVal
+        
+    }
+    
+    @IBOutlet weak var showValidateStar: UILabel!
+    
+    
+    
+    
+    override func displayValidationIndicator()
+    {
+        if(isValid() == false)
+        {
+            showValidateStar.hidden = false
+        }
+        else
+        {
+             showValidateStar.hidden = true
+        }
+        
+    }
+    
+    
+    
     override func getResuts() -> PacoOutput
     {
         
         var output  =  PacoOutput()
         output.input = input
-        output.val = listChoices
+        output.val = checkboxTable.checks
         if checkboxTable.singleSelect
         {
             output.type = InputType.SingleSelect
@@ -36,10 +85,9 @@ class PacoMultipleChoiceCellTableViewCell: PacoTableViewExpandingCellBase {
             
         }
         
-        
+        output.complete = isValid()
         return output
-        
-        
+
     }
     
     

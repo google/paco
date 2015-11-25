@@ -12,20 +12,22 @@ import Foundation
 
 class PacoResponseTableViewController: UITableViewController,PacoInputTable {
     
-      var selectedIndexPath : NSIndexPath?
-    
+      var selectedIndexPath :NSIndexPath?
+      var validationOn:Bool?
       var  inputs:JavaUtilList!
     
-    var    selectedString:String!
+      var    selectedString:String!
     
-       var   cells = [Int:PacoTableViewExpandingCellBase]()
-       var   inputValues = [Int:String]()
+      var   cells = [Int:PacoTableViewExpandingCellBase]()
+      var   inputValues = [Int:String]()
     
     
       let cellID         = "cellDate"
       let cellSelectId   = "cellSelect"
       let cellText       = "cellText"
       let cellMC   = "cellMultipleChoice"
+      let cellLikert   = "cellLikeArt"
+    
     
     enum InputType {
         case OpenText
@@ -33,7 +35,8 @@ class PacoResponseTableViewController: UITableViewController,PacoInputTable {
         case MultipleSelect
         case Photo
         case Location
-        case LikeT
+        case Likert
+        case LikertSmiley
         case Unknown
     }
     
@@ -71,10 +74,25 @@ class PacoResponseTableViewController: UITableViewController,PacoInputTable {
         super.viewDidLoad()
         
         
+        var backBtn = UIBarButtonItem(title: "Save", style: UIBarButtonItemStyle.Plain, target: self, action: "btnBack:")
+        
+        
+        var cancelBtn = UIBarButtonItem(title: "Cancel", style: UIBarButtonItemStyle.Plain, target: self, action: "btnCancel:")
+ 
+        navigationItem.leftBarButtonItem  = backBtn
+        navigationItem.rightBarButtonItem = cancelBtn
+        
+        
+       // self.navigationController!.navigationItem.leftBarButtonItem = backBtn
+        
+        
         self.tableView.registerNib(UINib(nibName:"PacoPickerTableViewCell", bundle: nil), forCellReuseIdentifier:self.cellID)
         self.tableView.registerNib(UINib(nibName:"PacoStringSelectorTableViewCell", bundle: nil), forCellReuseIdentifier:self.cellSelectId)
         self.tableView.registerNib(UINib(nibName:"PacoTextTableViewCell", bundle: nil), forCellReuseIdentifier:self.cellText)
+
         self.tableView.registerNib(UINib(nibName:"PacoMultipleChoiceCellTableViewCell", bundle: nil), forCellReuseIdentifier:self.cellMC)
+        
+        self.tableView.registerNib(UINib(nibName:"PacoLikertCell", bundle: nil), forCellReuseIdentifier:self.cellLikert)
 
     }
 
@@ -82,8 +100,56 @@ class PacoResponseTableViewController: UITableViewController,PacoInputTable {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
     }
+    
+    
+    
+    func registerTableCells()
+    {
+ 
+     
+    }
 
-    // MARK: - Table view data source
+    
+    
+    
+    @IBAction func btnBack(btn:AnyObject)
+    {
+
+        
+        
+       self.navigationController?.popViewControllerAnimated(true)
+
+    }
+    
+    
+    @IBAction func btnCancel(btn:AnyObject)
+    {
+        
+        
+        for(index,cell) in cells {
+            
+            
+            var isValid:Bool =  cell.isValid()
+            var ouput:PacoOutput = cell.getResuts()
+            validationOn = false
+            if(isValid == false)
+            {
+                validationOn = true
+                self.tableView.reloadData()
+                break
+            }
+       
+            
+         
+            println("   \(index)   -- \(cell)  ")
+            
+            
+            
+        }
+        
+       // self.navigationController?.popViewControllerAnimated(true)
+        
+    }
 
     override func numberOfSectionsInTableView(tableView: UITableView) -> Int {
         return 1
@@ -119,7 +185,7 @@ class PacoResponseTableViewController: UITableViewController,PacoInputTable {
         case "open text": inputTypeResponse = InputType.OpenText
         case "photo": inputTypeResponse = InputType.Photo
         case "location": inputTypeResponse = InputType.Location
-        case "likert": inputTypeResponse = InputType.LikeT
+        case "likert": inputTypeResponse = InputType.Likert
         default: inputTypeResponse = InputType.Unknown
             
         }
@@ -133,8 +199,13 @@ class PacoResponseTableViewController: UITableViewController,PacoInputTable {
         
         var  index = Int32(indexPath.row)
         var input:PAInput2 =  inputs.getWithInt(index) as! PAInput2
-        var    cell:PacoTableViewExpandingCellBase?
-        var t = getInputType(input)
+        
+        var steps:JavaLangInteger   =   input.valueForKeyEx("likertSteps") as!  JavaLangInteger
+        var numSteps = steps.integerValue
+        
+        
+         var    cell:PacoTableViewExpandingCellBase?
+         var t = getInputType(input)
         
             switch t
             {
@@ -172,15 +243,34 @@ class PacoResponseTableViewController: UITableViewController,PacoInputTable {
                 
                 cell = c
                 
+                
+            case InputType.Likert:
+                
+                let   c:PacoLikertCell
+                
+                c = tableView.dequeueReusableCellWithIdentifier(self.cellLikert, forIndexPath: indexPath) as! PacoLikertCell
+                
+                c.likertLabel.text =  input.getName()
+                c.input = input;
+                 c.numberOfCheckmarks = numSteps
+                c.arraingeLabels()
+                cell = c
+                
             default:
                 
                 let   c:PacoTextTableViewCell
                 c  = tableView.dequeueReusableCellWithIdentifier(self.cellText, forIndexPath: indexPath) as! PacoTextTableViewCell
                 c.titleLabel.text = "Unknown type"
+             
                 cell = c
                 
             }
-            
+      
+            if( validationOn == true )
+            {
+                 cell!.displayValidationIndicator()
+             }
+        
             cell!.input = input
             
              cells[indexPath.row] = cell;
@@ -254,19 +344,16 @@ class PacoResponseTableViewController: UITableViewController,PacoInputTable {
             
    
         case InputType.SingleSelect:
-           /*
-            if indexPath == selectedIndexPath {
-                return PacoPickerTableViewCell.expandedHeight
-            } else {
-                return PacoPickerTableViewCell.defaultHeight
-            }
-            */
-            
-            
+
             input.getListChoices().size();
             var count  = inputs.size() as Int32
             height  = CGFloat(count*55 ) + 100
-        default:
+   
+            
+         case InputType.Likert:
+            height = 80
+            
+         default:
             height = 40
 
             

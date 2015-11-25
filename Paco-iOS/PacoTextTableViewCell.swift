@@ -21,17 +21,67 @@ class PacoTextTableViewCell:PacoTableViewExpandingCellBase, UITextViewDelegate  
     
     
     
+    @IBOutlet weak var showValidateStar: UILabel!
+    
+    
+    
+    override func displayValidationIndicator()
+    {
+        if(isValid() == false)
+        {
+            showValidateStar.hidden = false
+        }
+        else
+        {
+            showValidateStar.hidden = true
+        }
+        
+    }
+ 
+    
+    override func isValid() -> Bool
+    {
+        var retVal:Bool
+        
+        if(input?.getRequired().booleanValue() == true)
+        {
+            if(count(inputTexInput.text) > 1)
+            {
+               retVal = true
+            }
+            else
+            {
+                
+                retVal = false
+            }
+            
+            
+            
+        }
+        else
+        {
+           retVal = true
+            
+        }
+        
+        return retVal
+        
+    }
+    
     override func getResuts() -> PacoOutput
     {
       
         var output  =  PacoOutput()
+        output.complete = isValid()
         output.input = input
         output.val = inputTexInput.text
         output.type = InputType.OpenText
         return output
-  
-        
+    
     }
+    
+    
+    
     
     override func getHeight() -> CGFloat
     {

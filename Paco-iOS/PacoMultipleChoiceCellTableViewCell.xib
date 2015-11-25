@@ -28,12 +28,20 @@
                         <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                         <nil key="highlightedColor"/>
                     </label>
+                    <label hidden="YES" opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" misplaced="YES" text="*" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="CfN-Tp-jGx">
+                        <rect key="frame" x="300" y="15" width="7" height="21"/>
+                        <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                        <color key="textColor" red="1" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
+                        <nil key="highlightedColor"/>
+                    </label>
                 </subviews>
                 <constraints>
                     <constraint firstItem="Lbn-gs-TGy" firstAttribute="top" secondItem="4ud-uz-QUa" secondAttribute="bottom" constant="3" id="5T9-0C-NBo"/>
                     <constraint firstItem="Lbn-gs-TGy" firstAttribute="top" secondItem="H2p-sc-9uM" secondAttribute="top" constant="49" id="ACg-Hz-hXt"/>
+                    <constraint firstAttribute="trailing" secondItem="CfN-Tp-jGx" secondAttribute="trailing" constant="10" id="Hl8-eG-4hI"/>
                     <constraint firstItem="4ud-uz-QUa" firstAttribute="top" secondItem="H2p-sc-9uM" secondAttribute="top" constant="5" id="KMx-LB-FMt"/>
                     <constraint firstAttribute="trailing" secondItem="4ud-uz-QUa" secondAttribute="trailing" id="SAG-ke-2Cm"/>
+                    <constraint firstItem="CfN-Tp-jGx" firstAttribute="top" secondItem="H2p-sc-9uM" secondAttribute="top" constant="12" id="XaR-v6-h4L"/>
                     <constraint firstItem="4ud-uz-QUa" firstAttribute="leading" secondItem="H2p-sc-9uM" secondAttribute="leading" constant="8" id="bMS-at-XPQ"/>
                     <constraint firstAttribute="trailing" secondItem="Lbn-gs-TGy" secondAttribute="trailing" id="ibc-iD-Uby"/>
                     <constraint firstItem="Lbn-gs-TGy" firstAttribute="leading" secondItem="H2p-sc-9uM" secondAttribute="leading" id="k0k-lT-zZv"/>
@@ -43,6 +51,7 @@
             <connections>
                 <outlet property="checkboxTable" destination="Lbn-gs-TGy" id="sLu-ez-y2H"/>
                 <outlet property="selectLabel" destination="4ud-uz-QUa" id="KEX-Wb-heg"/>
+                <outlet property="showValidateStar" destination="CfN-Tp-jGx" id="xGL-1t-WNU"/>
             </connections>
             <point key="canvasLocation" x="298.5" y="356.5"/>
         </tableViewCell>
