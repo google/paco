@@ -69,10 +69,10 @@ static NSString * JSON_DATA = @"{\r\n  \"title\": \"Drink Water Required\",\r\n 
 - (void)testInput {
     
     PacoInputEvaluator * evaluator = [PacoInputEvaluator evaluatorWithExperimentGroup:self.group];
-    [evaluator evaluateAllInputs];
+    NSArray * array =  [evaluator evaluateAllInputs];
+ 
     
-    
-    
+ 
     XCTAssert(YES, @"Pass");
 }
 

@@ -37,6 +37,7 @@
 @property (strong, nonatomic) PacoTableExperimentsController *testTableViewController;
 @property (strong, nonatomic) PacoMainSwiftViewController *swiftViewController;
 @property (strong,nonatomic) PacoMyExperiments* myExperiments;
+@property (strong,nonatomic) PacoMyExperiments* hub;
 @property (strong,nonatomic) PacoJoinedExperimentsController* joinedExperiment;
 @property (strong,nonatomic) PacoConfigController* configController;
 @property (strong,nonatomic)  UITabBarController *tabBar;

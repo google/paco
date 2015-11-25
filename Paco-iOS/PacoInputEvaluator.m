@@ -29,7 +29,6 @@
 
 @property(nonatomic, strong) PAExperimentDAO* experiment;
 @property(nonatomic, strong) PAExperimentGroup* group;
-
 @property(nonatomic, strong) NSArray* visibleInputs;
 // key: "inputName", value: inputValue
 @property(nonatomic, strong) NSMutableDictionary* inputValueDict;
@@ -140,7 +139,6 @@
                      }else {
                          
                          
-                         
             dict[[input getName]] = predicate;
           }
           [self tagInputsAsDependency:dependencyVariables];
@@ -153,6 +151,9 @@
   self.expressionDict = dict;
   
 }
+
+
+
 
 //run time: 2 * N
 - (NSArray*)evaluateAllInputs {
@@ -208,13 +209,9 @@
   }
   @catch (NSException *exception) {
       
-      
-      
     satisfied = YES;
-   
   }
   @finally {
-      
       
     if (satisfied) {
       //NSLog(@"[Satisfied]InputName:%@, Expression:%@", input.name, input.conditionalExpression);

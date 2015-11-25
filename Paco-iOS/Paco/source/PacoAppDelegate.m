@@ -181,7 +181,10 @@ static NSString *dataSource = @"{\r\n  \"title\": \"For Inputing\",\r\n  \"descr
     
     
      self.testViewController   = [[ScheduleTestViewController alloc]  initWithNibName:@"ScheduleTestViewController" bundle:nil];
+    
      self.testTableViewController = [[PacoTableExperimentsController alloc] initWithNibName:@"PacoTableExperimentsController" bundle:nil];
+    
+    
     
   // per documents stir it is not required to invoke stir
   // arc4random_stir();
@@ -211,7 +214,7 @@ static NSString *dataSource = @"{\r\n  \"title\": \"For Inputing\",\r\n  \"descr
     
     
      self.myExperiments =[[PacoMyExperiments alloc] initWithNibName:@"PacoMyExperiments" bundle:nil];
-    
+     self.hub  = [[PacoMyExperiments alloc] initWithNibName:@"PacoMyExperiments" bundle:nil];
     
     
     
@@ -222,6 +225,10 @@ static NSString *dataSource = @"{\r\n  \"title\": \"For Inputing\",\r\n  \"descr
      [self makeTabBar];
  
     PAExperimentDAO * experiment =  [TestUtil buildExperiment:dataSource];
+
+    
+    
+    
     id<JavaUtilList>  inputs =  [PAExperimentHelper getInputsWithPAExperimentDAO:experiment];
     PAInput2* input;
     for(input in inputs)
@@ -230,6 +237,10 @@ static NSString *dataSource = @"{\r\n  \"title\": \"For Inputing\",\r\n  \"descr
         NSLog(@" name : %@", [input getResponseType]);
         
     }
+    
+    
+   // PAExperimentGroup  group = experiment
+    
     
     self.responseMessageController = [[PacoResponseTableViewController alloc] initWithNibName:@"PacoResponseTableViewController" bundle:nil  input:inputs];
    
@@ -281,19 +292,38 @@ static NSString *dataSource = @"{\r\n  \"title\": \"For Inputing\",\r\n  \"descr
     [tabViewControllers addObject:[[UINavigationController alloc] initWithRootViewController:self.myExperiments]];
     [tabViewControllers addObject:[[UINavigationController alloc] initWithRootViewController:self.joinedExperiment]];
     [tabViewControllers addObject:[[UINavigationController alloc] initWithRootViewController:self.configController]];
+    
+    
+    
+    
     self.tabBar = [[UITabBarController alloc] init];
     
+
+    
+    
     self.myExperiments.title = @"Invitations";
-    self.joinedExperiment.title =@"Joined Experiment";
-    self.configController.title =@"Configuration";
+    self.joinedExperiment.title =@"Joined";
+    self.configController.title =@"Config";
+     self.hub.title =@"Hub";
     
     [self.tabBar addChildViewController:[[UINavigationController alloc] initWithRootViewController:self.myExperiments]];
+        [self.tabBar addChildViewController:[[UINavigationController alloc] initWithRootViewController:self.hub]];
+    
+    
     [self.tabBar addChildViewController:[[UINavigationController alloc] initWithRootViewController:self.joinedExperiment]];
       
     [self.tabBar addChildViewController:[[UINavigationController alloc] initWithRootViewController:self.configController]];
     
+    
+    
  
     
+    self.myExperiments.tabBarItem.image = [UIImage imageNamed:@"animal-element-7.png" ];
+    
+    self.joinedExperiment.tabBarItem.image = [UIImage imageNamed:@"business-target-7.png" ];
+     self.hub.tabBarItem.image = [UIImage imageNamed:@"gift-7.png" ];
+ 
+    self.configController.tabBarItem.image =[UIImage imageNamed:@"gear-7.png" ];
     
     
 }

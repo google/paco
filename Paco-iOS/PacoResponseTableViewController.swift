@@ -93,6 +93,11 @@ class PacoResponseTableViewController: UITableViewController,PacoInputTable {
         self.tableView.registerNib(UINib(nibName:"PacoMultipleChoiceCellTableViewCell", bundle: nil), forCellReuseIdentifier:self.cellMC)
         
         self.tableView.registerNib(UINib(nibName:"PacoLikertCell", bundle: nil), forCellReuseIdentifier:self.cellLikert)
+        
+        
+        
+        
+        
 
     }
 
