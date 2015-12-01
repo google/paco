@@ -33,6 +33,7 @@ import com.google.appengine.tools.cloudstorage.GcsService;
 import com.google.appengine.tools.cloudstorage.GcsServiceFactory;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.sampling.experiential.datastore.ExperimentServiceFactory;
 import com.google.sampling.experiential.model.Event;
 import com.google.sampling.experiential.model.PhotoBlob;
 import com.google.sampling.experiential.shared.EventDAO;

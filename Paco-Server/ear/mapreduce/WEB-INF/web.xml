@@ -28,8 +28,6 @@
     <url-pattern>/mapreduce/*</url-pattern>
   </servlet-mapping>
 
-  <!-- In this example we put an admin constraint on everything, since MapReduce
-    can use a significant amount of resources. -->
   <security-constraint>
     <web-resource-collection>
       <url-pattern>/*</url-pattern>

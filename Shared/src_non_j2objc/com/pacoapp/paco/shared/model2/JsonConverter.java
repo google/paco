@@ -103,10 +103,24 @@ public class JsonConverter {
     for (ExperimentDAOCore experimentDAOCore : experiments) {
       if (!isExperimentBackwardCompatible(experimentDAOCore) ) {
         log.info("Experiment is not backward compat: "+ experimentDAOCore.getTitle() + ", " + experimentDAOCore.getId());
+//        com.pacoapp.paco.shared.model.ExperimentDAOCore bcExperiment =
+//                new com.pacoapp.paco.shared.model.ExperimentDAOCore(experimentDAOCore.getId(),
+//                                                                    experimentDAOCore.getTitle() + " - iOS Incompatible Experiment",
+//                                                                           "This experiment is not usable on iOS",
+//                                                                           "",
+//                                                                           experimentDAOCore.getCreator(),
+//                                                                           false,
+//                                                                           "",
+//                                                                           "",
+//                                                                           null,
+//                                                                           false,
+//                                                                           null,
+//                                                                           false,
+//                                                                           false,
+//                                                                           Collections.EMPTY_LIST);
+//        backwardCompatibleExperiments.add(bcExperiment);
         continue;
-      }
-
-      if (experimentDAOCore instanceof ExperimentDAO) {
+      } else if (experimentDAOCore instanceof ExperimentDAO) {
         ExperimentDAO experimentDAO = (ExperimentDAO)experimentDAOCore;
         final ExperimentGroup experimentGroup = experimentDAO.getGroups().get(0);
         com.pacoapp.paco.shared.model.ExperimentDAO bcExperiment = new com.pacoapp.paco.shared.model.ExperimentDAO(experimentDAO.getId(),

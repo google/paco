@@ -1,4 +1,4 @@
-package com.google.sampling.experiential.server;
+package com.google.sampling.experiential.datastore;
 
 import java.util.Date;
 import java.util.List;
@@ -20,10 +20,13 @@ import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import com.google.sampling.experiential.datastore.ExperimentJsonEntityManager;
-import com.google.sampling.experiential.datastore.PublicExperimentList;
 import com.google.sampling.experiential.datastore.PublicExperimentList.CursorExerimentIdListPair;
 import com.google.sampling.experiential.model.Event;
+import com.google.sampling.experiential.server.EventRetriever;
+import com.google.sampling.experiential.server.ExperimentAccessManager;
+import com.google.sampling.experiential.server.ExperimentService;
+import com.google.sampling.experiential.server.QueryParser;
+import com.google.sampling.experiential.server.TimeUtil;
 import com.pacoapp.paco.shared.model.SignalTimeDAO;
 import com.pacoapp.paco.shared.model2.ActionTrigger;
 import com.pacoapp.paco.shared.model2.ExperimentDAO;
@@ -426,14 +429,14 @@ class DefaultExperimentService implements ExperimentService {
     return new ExperimentQueryResult(cursorIdPair.cursor, experiments);
   }
 
-  public void removeNonAdminData(String email, List<ExperimentDAO> experiments) {
+  public static void removeNonAdminData(String email, List<ExperimentDAO> experiments) {
     removeOtherPublished(experiments, email);
     removeAdmins(experiments, email);
     removeCreator(experiments, email);
   }
 
 
-  private void removeOtherPublished(List<ExperimentDAO> experiments, String email) {
+  private static void removeOtherPublished(List<ExperimentDAO> experiments, String email) {
     for (ExperimentDAO experimentDAO : experiments) {
       if (!experimentDAO.getAdmins().contains(email)) {
         List<String> empty = Lists.newArrayList();
@@ -442,7 +445,7 @@ class DefaultExperimentService implements ExperimentService {
     }
   }
 
-  private void removeCreator(List<ExperimentDAO> experiments, String email) {
+  private static void removeCreator(List<ExperimentDAO> experiments, String email) {
     for (ExperimentDAO experimentDAO : experiments) {
       if (!experimentDAO.getAdmins().contains(email)) {
         String contact = experimentDAO.getContactEmail();
@@ -455,7 +458,7 @@ class DefaultExperimentService implements ExperimentService {
     }
   }
 
-  private void removeAdmins(List<ExperimentDAO> experiments ,String email) {
+  private static void removeAdmins(List<ExperimentDAO> experiments ,String email) {
     for (ExperimentDAO experimentDAO : experiments) {
       if (!experimentDAO.getAdmins().contains(email)) {
         List<String> empty = Lists.newArrayList();

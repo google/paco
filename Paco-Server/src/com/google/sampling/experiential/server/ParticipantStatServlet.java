@@ -20,6 +20,7 @@ import com.google.appengine.api.users.UserService;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.sampling.experiential.datastore.ExperimentServiceFactory;
 import com.google.sampling.experiential.model.Event;
 import com.google.sampling.experiential.server.ParticipationStats.ParticipantParticipationStat;
 import com.pacoapp.paco.shared.model2.ExperimentDAO;

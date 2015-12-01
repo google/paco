@@ -137,7 +137,42 @@ public class PublicExperimentList {
       this.cursor = cursor;
       this.ids = ids;
     }
+  }
 
+  public static class PublicExperimentEndDatePair {
+    long experimentId;
+    Date endDate;
+
+    public PublicExperimentEndDatePair(long experimentId, Date endDate) {
+      this.experimentId = experimentId;
+      this.endDate = endDate;
+    }
+  }
+
+  public static List<Long> getAllPublicExperiments() {
+    DatastoreService ds = DatastoreServiceFactory.getDatastoreService();
+    Query query = new Query(PUBLIC_EXPERIMENT_KIND);
+    query.setKeysOnly();
+    QueryResultList<Entity> result = ds.prepare(query).asQueryResultList(FetchOptions.Builder.withDefaults());
+    List<Long> experimentIds = Lists.newArrayList();
+    for (Entity entity : result) {
+      experimentIds.add(entity.getKey().getId());
+    }
+    return experimentIds;
+  }
+
+  public static List<PublicExperimentEndDatePair> getAllPublicExperimentsWithEndDate() {
+    DatastoreService ds = DatastoreServiceFactory.getDatastoreService();
+    Query query = new Query(PUBLIC_EXPERIMENT_KIND);
+    QueryResultList<Entity> result = ds.prepare(query).asQueryResultList(FetchOptions.Builder.withDefaults());
+    List<PublicExperimentEndDatePair> experimentIds = Lists.newArrayList();
+    for (Entity entity : result) {
+      Date endDateProperty = (Date)entity.getProperty(END_DATE_PROPERTY);
+      final long id = entity.getKey().getId();
+
+      experimentIds.add(new PublicExperimentEndDatePair(id, endDateProperty));
+    }
+    return experimentIds;
   }
 
   public static CursorExerimentIdListPair getPublicExperiments(String timezone, Integer limit, String cursor) {
@@ -150,6 +185,7 @@ public class PublicExperimentList {
                                                      FilterOperator.GREATER_THAN,
                                                      nowInUserTimezone.toDate());
     query.setFilter(endDateFilter);
+
     FetchOptions options = FetchOptions.Builder.withDefaults();
     if (limit != null) {
       options.limit(limit);
