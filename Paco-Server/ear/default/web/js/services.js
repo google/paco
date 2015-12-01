@@ -23,7 +23,7 @@ pacoApp.service('experimentService', ['$http', '$cacheFactory', 'util', 'config'
         endpoint += '&limit=' + config.listPageSize;
       }
 
-      if (cursor !== undefined) {
+      if (cursor !== undefined && cursor !== null) {
         endpoint += '&cursor=' + cursor;
       }
 
@@ -93,6 +93,7 @@ pacoApp.service('experimentService', ['$http', '$cacheFactory', 'util', 'config'
     }
 
     function deleteExperiment(id) {
+      invalidateCachedLists();
       return $http.post('/experiments?delete=1&id=' + id);
     }
   }

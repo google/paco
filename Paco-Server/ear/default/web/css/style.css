@@ -74,7 +74,11 @@ md-dialog li {
 
 .column1 .remove-button {
   position: relative;
-  top: 26px;
+  bottom: 26px;
+}
+
+.schedule .remove.button {
+  bottom: 0px;
 }
 
 .short {
