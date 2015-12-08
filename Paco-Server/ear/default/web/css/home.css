@@ -21,6 +21,11 @@ md-toolbar {
   color: white !important;
 }
 
+md-toolbar a {
+  color: white;
+  font-weight: bold;
+}
+
 md-toolbar .paco-home {
   background: white;
   border-radius: 50%;
@@ -55,7 +60,7 @@ md-toolbar .logout {
 }
 
 md-toolbar .logout .user {
-  margin-right: 8px;
+  margin-right: 20px;
 }
 
 md-toolbar .previous {

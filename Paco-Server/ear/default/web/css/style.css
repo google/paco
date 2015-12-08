@@ -125,7 +125,7 @@ md-dialog li {
   vertical-align: bottom;
 }
 
-.no-ios img, 
+.no-ios img,
 .no-ios .paco-tip {
   width: 24px;
 }
@@ -133,18 +133,22 @@ md-dialog li {
 paco-help {
   position: absolute;
   right: 0px;
-  top: 18px;
 }
 
 .paco-help {
   position: absolute;
   cursor: pointer;
   right: -36px;
+  top: 18px;
   z-index: 2;
 }
 
 md-dialog paco-help {
   position: relative;
+  top: 0px;
+}
+
+md-dialog .paco-help {
   top: 0px;
 }
 
@@ -154,6 +158,26 @@ md-dialog paco-help {
 }
 
 .paco-help:hover img {
+  opacity: 1;
+}
+
+.paco-help .tip-text {
+  background: rgba(0, 0, 0, .75);
+  border-radius: 2px;
+  color: white;
+  font-size: 12px;
+  height: 18px;
+  opacity: 0;
+  padding: 4px 8px 4px 8px;
+  pointer-events: none;
+  position: absolute;
+  left: 28px;
+  top: -2px;
+  -webkit-transition: opacity .5s;
+  white-space: nowrap;
+}
+
+.paco-help:hover .tip-text {
   opacity: 1;
 }
 

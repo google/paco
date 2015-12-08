@@ -178,11 +178,13 @@ pacoApp.directive('pacoHelp', function() {
     restrict: 'E',
     transclude: true,
     scope: {  'tip': '@tip' },
-    template: '<a class="paco-help" href="#/help/{{tip}}" target="_new"><img src="img/ic_help_outline_black_24px.svg"><md-tooltip md-direction="right" md-delay="500"><div ng-transclude></div></md-tooltip></a>',
+//    template: '<a class="paco-help" href="#/help/{{tip}}" target="_new"><img src="img/ic_help_outline_black_24px.svg"></a>',
+    template: '<a class="paco-help" href="#/help/{{tip}}" target="_new"><img src="img/ic_help_outline_black_24px.svg"><span class="tip-text" ng-transclude></span></a>',
     link: function(scope, element) {}
   };
 });
 
+//
 
 /**
  * This directive uses two-way data filtering to convert between the time
