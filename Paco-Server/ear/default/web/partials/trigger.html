@@ -37,7 +37,7 @@
       </a>
     </div>
   </div>
-  
+
   <div class="section" ng-if="trigger.type === 'interruptTrigger'">
     <div class="subsub">Buffer</div>
     Minimum minutes between signals
@@ -52,7 +52,7 @@
         <md-button ng-click="showCue($event, cue)">
           Edit Cue {{$index + 1}}
         </md-button>
-        
+
       </div>
       <span ng-controller="SummaryCtrl" ng-bind="getCueSummary()"></span>
       <a class="remove button" ng-if="trigger.cues.length > 1" href="" ng-click="remove(trigger.cues, $index)">
@@ -66,7 +66,7 @@
         <md-button ng-click="showAction($event, action, trigger.type)">
           Edit Action {{$index + 1}}
         </md-button>
-        
+
       </div>
       <span ng-controller="SummaryCtrl" ng-bind="getActionSummary()"></span>
       <a class="remove button" ng-if="trigger.actions.length > 1" href="" ng-click="remove(trigger.actions, $index)"></a>

@@ -133,14 +133,19 @@ md-dialog li {
 paco-help {
   position: absolute;
   right: 0px;
+  top: 18px;
 }
 
 .paco-help {
   position: absolute;
   cursor: pointer;
   right: -36px;
-  top: 24px;
   z-index: 2;
+}
+
+md-dialog paco-help {
+  position: relative;
+  top: 0px;
 }
 
 .paco-help img {
