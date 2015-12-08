@@ -7,7 +7,9 @@
 
   <md-tabs md-selected="state.listTab" md-dynamic-height md-center-tabs>
     <md-tab id="admin">
-      <md-tab-label>Administered</md-tab-label>
+      <md-tab-label>
+        Administered
+      </md-tab-label>
       <md-tab-body>
         <div ng-if="list.admin" class="group">
           <div ng-repeat="exp in list.admin">
@@ -31,9 +33,11 @@
                     Copy
                   </md-button>
                 </a>
-                <md-button ng-click="deleteExperiment($event, exp)">
-                  Delete
-                </md-button>
+                <a href="">
+                  <md-button ng-click="deleteExperiment($event, exp)">
+                    Delete
+                  </md-button>
+                </a>
                 <a href="#/stats/{{exp.id}}">
                   <md-button>
                     Stats
@@ -71,7 +75,9 @@
     </md-tab>
 
     <md-tab id="joined">
-      <md-tab-label>Joined</md-tab-label>
+      <md-tab-label>
+        Joined
+      </md-tab-label>
       <md-tab-body>
         <div ng-if="list.joined" class="group">
           <div ng-repeat="exp in list.joined">
@@ -117,7 +123,9 @@
     </md-tab>
 
     <md-tab id="joinable">
-      <md-tab-label>Invited</md-tab-label>
+      <md-tab-label>
+        Invited
+      </md-tab-label>
       <md-tab-body>
         <div ng-if="list.mine" class="group">
           <div ng-repeat="exp in list.mine">
@@ -150,3 +158,4 @@
   </md-tabs>
 
 </div>
+

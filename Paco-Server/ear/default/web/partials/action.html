@@ -7,7 +7,7 @@
         value="{{id}}">{{type}}</option>
       </select>
     </div>
-    
+
     <div class="ios">
       <no-ios ng-if="action.actionCode > 1" message="'iOS does not support action'"></no-ios>
     </div>
@@ -28,7 +28,7 @@
           <div ng-message>minutes</div>
         </div>
       </md-input-container>
-      
+
       <md-input-container>
         <label>Snooze repeats</label>
         <input type="number" ng-model="action.snoozeCount">

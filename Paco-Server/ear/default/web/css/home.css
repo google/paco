@@ -21,11 +21,18 @@ md-toolbar {
   color: white !important;
 }
 
-md-toolbar .paco {
+md-toolbar a {
+  color: white;
+  font-weight: bold;
+}
+
+md-toolbar .paco-home {
   background: white;
   border-radius: 50%;
+  cursor: pointer;
   height: 96px;
   margin: 16px;
+  outline-style: none;
   padding: 16px;
   width: 96px;
 }
@@ -53,7 +60,7 @@ md-toolbar .logout {
 }
 
 md-toolbar .logout .user {
-  margin-right: 8px;
+  margin-right: 20px;
 }
 
 md-toolbar .previous {
