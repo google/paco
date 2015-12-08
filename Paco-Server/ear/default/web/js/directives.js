@@ -19,8 +19,8 @@ pacoApp.directive('pacoGroup', function () {
     });
 
     $scope.$watchCollection('responses', function(newValue, oldValue) {
-        
-        if (angular.isDefined(newValue) && 
+
+        if (angular.isDefined(newValue) &&
             angular.isDefined($scope.group)) {
 
           for ( var inputIdx in $scope.group.inputs) {
@@ -53,7 +53,7 @@ pacoApp.directive('pacoGroup', function () {
         };
         post.responses.push(pair);
       }
-      
+
       if ($scope.events) {
 
         var event = $scope.events[$scope.activeIdx];
@@ -173,6 +173,16 @@ pacoApp.directive('noIos', function() {
   };
 });
 
+pacoApp.directive('pacoHelp', function() {
+  return {
+    restrict: 'E',
+    transclude: true,
+    scope: {  'tip': '@tip' },
+    template: '<a class="paco-help" href="#/help/{{tip}}" target="_new"><img src="img/ic_help_outline_black_24px.svg"><md-tooltip md-direction="right" md-delay="500"><div ng-transclude></div></md-tooltip></a>',
+    link: function(scope, element) {}
+  };
+});
+
 
 /**
  * This directive uses two-way data filtering to convert between the time
@@ -186,7 +196,7 @@ pacoApp.directive('milli', function() {
     require: 'ngModel',
     link: function(scope, element, attr, ngModel) {
 
-      /* 
+      /*
        * Since the time input is relative to 12/31/1969, it will never
        * include daylight savings time. So to compute the millisecond delta, we
        * make a date in January, which will be in the current system timezone,
@@ -211,10 +221,16 @@ pacoApp.directive('milli', function() {
 });
 
 
+pacoApp.filter('trusted', ['$sce', function ($sce) {
+    return function(url) {
+        return $sce.trustAsResourceUrl(url);
+    };
+}]);
+
 /**
  * Directive for two-way filtering numbers and booleans. The various select
- * elements use stringified numbers or bools for their values, a constraint of 
- * Angular. Add this directive to a select and it will properly handle 
+ * elements use stringified numbers or bools for their values, a constraint of
+ * Angular. Add this directive to a select and it will properly handle
  * numbers and bools by converting back and forth to stringified versions.
  * Use the ng-selected directive on each option inside the select to get it to
  * properly show the selected value on initial load.
@@ -276,24 +292,20 @@ pacoApp.directive('expandable', ['$timeout', function($timeout) {
     restrict: 'A',
     scope: true,
     link: function(scope, element, attributes) {
-      scope.expand = true;
+      scope.state = { expand: true };
       scope.container = element;
 
       scope.fixHeight = function() {
-        scope.toggleExpand(!scope.expand, true);
-        scope.toggleExpand(!scope.expand, true);
+        scope.toggleExpand(!scope.state.expand, true);
+        scope.toggleExpand(!scope.state.expand, true);
       };
 
       scope.toggleExpand = function(flag, skipAnimation) {
 
-        if (attributes['expandable'] === 'false') {
-          return;
-        }
-
         if (flag === undefined) {
-          scope.expand = !scope.expand;
+          scope.state.expand = !scope.state.expand;
         } else {
-          scope.expand = flag;
+          scope.state.expand = flag;
         }
 
         if (angular.isDefined(skipAnimation) && skipAnimation === true) {
@@ -302,25 +314,23 @@ pacoApp.directive('expandable', ['$timeout', function($timeout) {
           angular.element(scope.expander).removeClass('notransition');
         }
 
-        if (scope.expand) {
+        if (scope.state.expand) {
           scope.expander.style.marginBottom = 0;
-          scope.expander.style.opacity = 1;
           element.addClass('expand');
         } else {
           var ht = element[0].clientHeight;
           scope.expander.style.marginBottom = -ht + 'px';
-          scope.expander.style.opacity = 0;
           element.removeClass('expand');
         }
       };
 
       if (attributes['expanded'] === 'false') {
-        scope.expand = false;
+        scope.state.expand = false;
       }
 
       $timeout(function() {
-        scope.toggleExpand(scope.expand, true);
-      }, 250);
+        scope.toggleExpand(scope.state.expand, true);
+      }, 0);
 
       $timeout(function() {
         scope.fixHeight();
@@ -465,7 +475,7 @@ pacoApp.filter('jsonToTable', ['util', 'config', function(util, config) {
           var responseValue = responses[id]['answer'];
           var responseId = responseLookup[responseName];
           newRow[responseStartId + responseId] = responseValue;
-         }       
+         }
       }
       rows.push(newRow);
     }
@@ -526,7 +536,7 @@ pacoApp.filter('jsonToCsv', function() {
     }
     return rows;
   }
-}); 
+});
 
 
 
