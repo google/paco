@@ -135,7 +135,7 @@ paco-help {
   position: absolute;
   cursor: pointer;
   right: -36px;
-  top: 12px;
+  top: 24px;
   z-index: 2;
 }
 
@@ -146,23 +146,6 @@ paco-help {
 
 .paco-help:hover img {
   opacity: 1;
-}
-
-.paco-help .text {
-  font-size: 14px;
-  line-height: 16px;
-  opacity: 0;
-  position: absolute;
-  pointer-events: none;
-  top: 4px;
-  left: 32px;
-  width: 300px;
-  -webkit-transition: opacity .25s;
-}
-
-.paco-help .text ul {
-  list-style: none;
-  padding-left: 0;
 }
 
 .help {

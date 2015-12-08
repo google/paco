@@ -182,7 +182,7 @@ md-card .section .subsub {
   min-height: 58px;
 }
 
-md-card-content[expandable=true]::after {
+md-card-content[expandable=true] > .section::after {
   background: url('../img/ic_unfoldMore.svg') no-repeat;
   content: "";
   height: 24px;
@@ -194,9 +194,22 @@ md-card-content[expandable=true]::after {
   width: 24px;
 }
 
-md-card-content[expandable=true]:hover::after {
+md-card-content[expandable=true] > .section:hover::after {
   opacity: 1;
 }
+
+div[expander] {
+  opacity: 0;
+  pointer-events: none;
+  -webkit-transition: opacity ease-in-out .5s, margin-bottom ease-in-out .5s .25s;
+}
+
+.expand div[expander] {
+  opacity: 1;
+  pointer-events: all;
+  -webkit-transition: opacity ease-in-out .5s .25s, margin-bottom ease-in-out .5s;
+}
+
 
 md-card-content.expand::after  {
   background: url('../img/ic_unfoldLess.svg') no-repeat;
@@ -216,10 +229,6 @@ md-card-content.expand::after  {
   left: 0;
   width: 28px;
   height: 100%;
-}
-
-div[expander] {
-  -webkit-transition: opacity ease-in-out .5s, margin-bottom ease-in-out .5s;
 }
 
 .advanced.padded {

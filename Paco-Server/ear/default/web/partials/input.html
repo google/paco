@@ -42,6 +42,11 @@
         </md-input-container>
 
         <div flex>
+          <paco-help tip="conditional" ng-if="input.conditional">
+            Help: Conditional Logic
+          </paco-help>
+
+
           <md-input-container ng-if="input.conditional">
             <label>Condition</label>
             <input ng-model="input.conditionExpression">

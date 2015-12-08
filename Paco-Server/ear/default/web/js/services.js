@@ -351,9 +351,9 @@ pacoApp.service('config', function() {
   this.helpLinkBase = 'https://docs.google.com/a/google.com/document/d/1f_kkTtvb4TKWIoseYfbOuX6D-8TOiZ3pIkjJ_sI6eGM/pub?embedded=true';
 
   this.helpLinks = {
-    'title': 'h.egdrba1gdnfm',
-    'contact': 'h.npn5r8mj3e8a',
-    'organization': 'h.pesmb63905u'
+    'conditional': 'h.p8esi25lpyip',
+    'advanced': 'h.le5i22y0oxrv',
+    'triggers': 'h.ax1l2jwvrkxo'
   }
 
   this.listPageSize = 50;

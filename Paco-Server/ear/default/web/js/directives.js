@@ -176,8 +176,9 @@ pacoApp.directive('noIos', function() {
 pacoApp.directive('pacoHelp', function() {
   return {
     restrict: 'E',
+    transclude: true,
     scope: {  'tip': '@tip' },
-    template: '<a class="paco-help" href="#/help/{{tip}}" target="_new"><img src="img/ic_info_black_24px.svg"></div>',
+    template: '<a class="paco-help" href="#/help/{{tip}}" target="_new"><img src="img/ic_help_outline_black_24px.svg"><md-tooltip md-direction="right" md-delay="500"><div ng-transclude></div></md-tooltip></a>',
     link: function(scope, element) {}
   };
 });
@@ -291,24 +292,20 @@ pacoApp.directive('expandable', ['$timeout', function($timeout) {
     restrict: 'A',
     scope: true,
     link: function(scope, element, attributes) {
-      scope.expand = true;
+      scope.state = { expand: true };
       scope.container = element;
 
       scope.fixHeight = function() {
-        scope.toggleExpand(!scope.expand, true);
-        scope.toggleExpand(!scope.expand, true);
+        scope.toggleExpand(!scope.state.expand, true);
+        scope.toggleExpand(!scope.state.expand, true);
       };
 
       scope.toggleExpand = function(flag, skipAnimation) {
 
-        if (attributes['expandable'] === 'false') {
-          return;
-        }
-
         if (flag === undefined) {
-          scope.expand = !scope.expand;
+          scope.state.expand = !scope.state.expand;
         } else {
-          scope.expand = flag;
+          scope.state.expand = flag;
         }
 
         if (angular.isDefined(skipAnimation) && skipAnimation === true) {
@@ -317,25 +314,23 @@ pacoApp.directive('expandable', ['$timeout', function($timeout) {
           angular.element(scope.expander).removeClass('notransition');
         }
 
-        if (scope.expand) {
+        if (scope.state.expand) {
           scope.expander.style.marginBottom = 0;
-          scope.expander.style.opacity = 1;
           element.addClass('expand');
         } else {
           var ht = element[0].clientHeight;
           scope.expander.style.marginBottom = -ht + 'px';
-          scope.expander.style.opacity = 0;
           element.removeClass('expand');
         }
       };
 
       if (attributes['expanded'] === 'false') {
-        scope.expand = false;
+        scope.state.expand = false;
       }
 
       $timeout(function() {
-        scope.toggleExpand(scope.expand, true);
-      }, 250);
+        scope.toggleExpand(scope.state.expand, true);
+      }, 0);
 
       $timeout(function() {
         scope.fixHeight();
