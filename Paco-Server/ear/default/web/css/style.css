@@ -15,6 +15,7 @@ body.no-scroll {
 .main {
   margin: 16px;
   min-height: calc(100vh - 236px);
+  overflow: hidden;
 }
 
 a {
