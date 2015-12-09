@@ -674,14 +674,34 @@ pacoApp.controller('GroupsCtrl', ['$scope', 'template',
   function($scope, template) {
     $scope.hiding = false;
     $scope.defaultFeedback = 'Thanks for Participating!';
+    $scope.minInputId = 1;
 
     $scope.dateToString = function(d) {
       var s = d.getUTCFullYear() + '/' + (d.getMonth() + 1) + '/' + d.getDate();
       return s;
     };
 
+    $scope.findInputName = function(findName) {
+      var result = $scope.group.inputs.filter(function (obj) {
+        return obj.name === findName;
+      });
+      return (result.length > 0);
+    }
+
+    $scope.newInputName = function() {
+      var safeId = $scope.group.inputs.length + 1;
+      var newName = 'input' + safeId;
+
+      while ($scope.findInputName(newName)) {
+        safeId++;
+        newName = 'input' + safeId;
+      }
+      return 'input' + safeId;
+    }
+
     $scope.addInput = function(event, expandFn, index) {
       var input = angular.copy(template.input);
+      input.name = $scope.newInputName();
 
       if (index !== undefined) {
         $scope.group.inputs.splice(index, 0, input);
