@@ -106,8 +106,9 @@ md-menu-item {
 
 .data.events table tbody {
   display: block;
-  max-height: calc(100vh - 338px);
-  overflow: scroll;
+  max-height: calc(100vh - 372px);
+  overflow-x: hidden;
+  overflow-y: auto;
 }
 
 .data.events table tbody tr:nth-of-type(1) a {
@@ -119,6 +120,10 @@ md-menu-item {
   display: block;
   height: 0px;
   overflow: hidden;
+}
+
+::-webkit-scrollbar-track  {
+  min-height: 24px;
 }
 
 .data.events table tbody tr:nth-of-type(1),
@@ -191,7 +196,6 @@ md-menu-item {
 .data .variable-width {
   display: inline-block;
   max-width: 100%;
-  overflow-x: scroll;
   text-align: left;
 }
 
