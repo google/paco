@@ -673,6 +673,7 @@ pacoApp.controller('ReportCtrl', ['$scope', '$mdDialog', 'dataService',
 pacoApp.controller('GroupsCtrl', ['$scope', 'template',
   function($scope, template) {
     $scope.hiding = false;
+    $scope.defaultFeedback = 'Thanks for Participating!';
 
     $scope.dateToString = function(d) {
       var s = d.getUTCFullYear() + '/' + (d.getMonth() + 1) + '/' + d.getDate();

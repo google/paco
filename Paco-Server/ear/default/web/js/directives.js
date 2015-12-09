@@ -166,8 +166,8 @@ pacoApp.directive('pacoGroup', function () {
 pacoApp.directive('noIos', function() {
   return {
     restrict: 'E',
-    scope: {  'message': '=message' },
-    template: '<div class="no-ios"><img src="img/no_ios.png"><md-tooltip md-direction="right" md-delay="200">{{message}}</md-tooltip></div>',
+    transclude: true,
+    template: '<div class="no-ios"><img src="img/no_ios.png"><span class="tip-text" ng-transclude></span></div>',
     link: function(scope, element) {
     }
   };
