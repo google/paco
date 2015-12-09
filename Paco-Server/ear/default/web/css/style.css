@@ -131,6 +131,10 @@ md-dialog li {
   width: 24px;
 }
 
+no-ios {
+  position: relative;
+}
+
 paco-help {
   position: absolute;
   right: 0px;
@@ -162,7 +166,7 @@ md-dialog .paco-help {
   opacity: 1;
 }
 
-.paco-help .tip-text {
+.paco-help .tip-text, .no-ios .tip-text {
   background: rgba(0, 0, 0, .75);
   border-radius: 2px;
   color: white;
@@ -172,13 +176,19 @@ md-dialog .paco-help {
   padding: 4px 8px 4px 8px;
   pointer-events: none;
   position: absolute;
-  left: 28px;
-  top: -2px;
+  left: 48px;
   -webkit-transition: opacity .5s;
   white-space: nowrap;
 }
 
-.paco-help:hover .tip-text {
+
+
+.paco-help .tip-text {
+  top: -2px;
+  left: 28px;
+}
+
+.paco-help:hover .tip-text, .no-ios:hover .tip-text {
   opacity: 1;
 }
 

@@ -9,7 +9,7 @@
     </div>
 
     <div class="ios">
-      <no-ios ng-if="action.actionCode > 1" message="'iOS does not support action'"></no-ios>
+      <no-ios ng-if="action.actionCode > 1">iOS does not support this action</no-ios>
     </div>
 
     <md-input-container ng-if="triggerType === 'interruptTrigger'">
