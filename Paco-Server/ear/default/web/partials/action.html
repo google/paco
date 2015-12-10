@@ -55,7 +55,7 @@
         <div flex>
           <md-input-container ng-if="action.snoozeCount > 0">
             <label>Snooze time</label>
-            <input type="number" ng-model="action.snoozeTimeInMinutes">
+            <input type="number" ng-model="action.snoozeTimeInMinutes" min="0">
             <div ng-messages>
               <div ng-message>minutes</div>
             </div>
