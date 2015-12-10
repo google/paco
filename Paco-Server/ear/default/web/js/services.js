@@ -376,7 +376,7 @@ pacoApp.service('template', function() {
       type: 0,
       text: 'Thanks for Participating!',
     },
-    fixedDuration: 'false'
+    fixedDuration: false
   };
 
   this.experiment = {
