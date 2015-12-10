@@ -4,7 +4,7 @@
   overflow-y: hidden;
 }
 
-.basics md-input-container div[ng-message] {
+md-input-container div[ng-message] {
   color: #9E9E9E;
   line-height: 1.2em;
 }
