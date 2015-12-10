@@ -404,6 +404,7 @@ pacoApp.service('template', function() {
     type: 'pacoNotificationAction',
     timeout: 15,
     color: 0,
+    delay: 0,
     dismissible: true
   };
 
