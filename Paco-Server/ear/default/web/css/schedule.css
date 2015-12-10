@@ -24,7 +24,7 @@
 }
 
 md-dialog.schedule md-dialog-content, md-dialog.action md-dialog-content {
-  min-height: 240px;
+  min-height: 280px;
 }
 
 .days {
@@ -83,7 +83,7 @@ md-dialog.schedule md-dialog-content, md-dialog.action md-dialog-content {
 
 .snooze label {
   display: inline-block;
-  width: 20 0px;
+  width: 200px;
 }
 
 .snooze input {
@@ -91,12 +91,22 @@ md-dialog.schedule md-dialog-content, md-dialog.action md-dialog-content {
 }
 
 .action {
-  min-width: 300px;
+  min-width: 540px;
+}
+
+.action md-input-container {
+  padding-right: 16px;
+}
+
+.action md-checkbox {
+  left: -6px;
+  position: relative;
+  top: 20px;
 }
 
 .action .ios {
   height: 24px;
-  margin-top: 8px;
+  margin-left: 16px;
 }
 
 .action .ace_editor {
