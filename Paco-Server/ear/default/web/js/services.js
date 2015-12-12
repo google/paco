@@ -310,14 +310,14 @@ pacoApp.service('config', function() {
     'Fifth'
   ];
 
-  this.responseTypes = [
-    'likert',
-    'likert_smileys',
-    'open text',
-    'list',
-    'photo',
-    'location'
-  ];
+  this.responseTypes = {
+    'likert': 'Scale',
+    'likert_smileys': '5 Point Smiley Scale',
+    'open text': 'Open Text',
+    'list': 'List',
+    'photo': 'Photo',
+    'location': 'Location'
+  };
 
   this.feedbackTypes = [
     'Static Message',
