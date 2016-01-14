@@ -70,6 +70,10 @@ pacoApp.controller('ExperimentCtrl', ['$scope', '$mdDialog', '$filter',
       groupIndex: null
     };
 
+    if ($scope.user === undefined) {
+      $location.path('/');
+    }
+
     if ($location.hash()) {
       var newTabId = config.editTabs.indexOf($location.hash());
       if (newTabId !== -1) {
