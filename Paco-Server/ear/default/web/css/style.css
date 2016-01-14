@@ -80,6 +80,7 @@ md-dialog li {
 
 .schedule .remove.button {
   bottom: 0px;
+  width: 24px;
 }
 
 .short {
