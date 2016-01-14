@@ -93,6 +93,10 @@ md-menu-item {
   padding-left: 16px;
 }
 
+md-menu-content {
+  max-height: calc(100vh - 250px);
+}
+
 .data table tr {
   border-bottom: 1px solid #e3e3e3;
   height: 48px;
