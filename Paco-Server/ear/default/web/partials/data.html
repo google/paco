@@ -27,7 +27,7 @@
           Columns
         </md-button>
         <md-menu-content>
-          <md-menu-item ng-repeat="cell in table.header track by $index">
+          <md-menu-item ng-repeat="cell in table.header| orderBy:'toString()' track by $index">
             <md-checkbox ng-model="showColumn[cell]">
               {{cell}}
             </md-checkbox>
