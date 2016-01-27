@@ -520,9 +520,7 @@ public class FindExperimentsActivity extends ActionBarActivity implements Networ
 
           creator.setText(buf.toString());
           creator.setOnClickListener(myButtonListener);
-        } else {
-          creator.setText(getContext().getString(R.string.unknown_author_text));
-        }
+        } 
 //        ImageView iv = (ImageView) view.findViewById(R.id.experimentIconView);
 //        iv.setImageBitmap(Bitmap.create(cursor.getString(iconColumn)));
       }

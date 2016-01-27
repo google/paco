@@ -442,7 +442,7 @@ public class MyExperimentsActivity extends ActionBarActivity implements
       return getUnableToJoinDialog(getString(R.string.invalid_data));
     }
     case NetworkUtil.SERVER_ERROR: {
-      return getUnableToJoinDialog(getString(R.string.dialog_dismiss));
+      return getUnableToJoinDialog(getString(R.string.ok));
     }
     case NetworkUtil.NO_NETWORK_CONNECTION: {
       return getNoNetworkDialog();
@@ -466,7 +466,7 @@ public class MyExperimentsActivity extends ActionBarActivity implements
   private AlertDialog getUnableToJoinDialog(String message) {
     AlertDialog.Builder unableToJoinBldr = new AlertDialog.Builder(this);
     unableToJoinBldr.setTitle(R.string.experiment_could_not_be_retrieved).setMessage(message)
-                    .setPositiveButton(R.string.dialog_dismiss, new DialogInterface.OnClickListener() {
+                    .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
                       public void onClick(DialogInterface dialog, int which) {
                         setResult(FindExperimentsActivity.JOINED_EXPERIMENT);
                         finish();

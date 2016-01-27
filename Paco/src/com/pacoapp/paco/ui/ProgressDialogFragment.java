@@ -68,7 +68,7 @@ public class ProgressDialogFragment extends DialogFragment {
         dialog = getUnableToJoinDialog(getString(R.string.invalid_data));
         break;
       } case NetworkUtil.SERVER_ERROR: {
-        dialog = getUnableToJoinDialog(getString(R.string.dialog_dismiss));
+        dialog = getUnableToJoinDialog(getString(R.string.ok));
         break;
       } case NetworkUtil.NO_NETWORK_CONNECTION: {
         dialog = getNoNetworkDialog();
@@ -98,7 +98,7 @@ public class ProgressDialogFragment extends DialogFragment {
     AlertDialog.Builder unableToJoinBldr = new AlertDialog.Builder(getActivity());
     unableToJoinBldr.setTitle(R.string.experiment_could_not_be_retrieved)
                     .setMessage(message)
-                    .setPositiveButton(R.string.dialog_dismiss, new DialogInterface.OnClickListener() {
+                    .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
                          public void onClick(DialogInterface dialog, int which) {
                            getActivity().setResult(FindExperimentsActivity.JOINED_EXPERIMENT);
                            getActivity().finish();

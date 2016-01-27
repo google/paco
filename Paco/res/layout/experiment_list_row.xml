@@ -51,7 +51,7 @@
             android:paddingBottom="4dip"
             android:paddingLeft="8dip"
             android:paddingTop="0dip"
-            android:text="@string/title"
+            android:text=""
             android:textSize="16dip" />
 
         <TextView
@@ -63,7 +63,7 @@
             android:paddingBottom="4dip"
             android:paddingLeft="8dip"
             android:paddingTop="4dip"
-            android:text="@string/title"
+            android:text=""
             android:textSize="12dip" />
     </LinearLayout>
 
