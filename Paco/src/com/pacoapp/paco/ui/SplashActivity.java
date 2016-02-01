@@ -74,7 +74,7 @@ public class SplashActivity extends Activity implements NetworkClient {
               changingExistingAccount = false; // unset so that we don't loop in the picker forever
               authenticateUser();
           } else if (resultCode == RESULT_CANCELED) {
-              Toast.makeText(this, "You must pick an account", Toast.LENGTH_SHORT).show();
+              Toast.makeText(this, R.string.you_must_pick_an_account, Toast.LENGTH_SHORT).show();
           }
       } else if ((requestCode == REQUEST_CODE_RECOVER_FROM_AUTH_ERROR ||
               requestCode == REQUEST_CODE_RECOVER_FROM_PLAY_SERVICES_ERROR)
@@ -119,7 +119,7 @@ public class SplashActivity extends Activity implements NetworkClient {
         finish(); // TODO handler errors
       }
     } else {
-      Toast.makeText(this, "You must pick an account", Toast.LENGTH_SHORT).show();
+      Toast.makeText(this, R.string.you_must_pick_an_account, Toast.LENGTH_SHORT).show();
     }
   }
 
@@ -198,7 +198,7 @@ public class SplashActivity extends Activity implements NetworkClient {
                                                       dialog.show();
       } catch (ClassNotFoundException e) {
         Toast.makeText(getApplicationContext(),
-                       "GooglePlayServices are not available. ERROR:\n" + getGooglePlayConnectionErrorString(resultCode),
+                       "GooglePlayServices " + getString(R.string.are_not_available_) + " " + getString(R.string.error) + ":\n" + getGooglePlayConnectionErrorString(resultCode),
                        Toast.LENGTH_LONG).show();
       }
     } else {
@@ -215,7 +215,7 @@ public class SplashActivity extends Activity implements NetworkClient {
       if (isDeviceOnline()) {
         getTask(this).execute();
       } else {
-        Toast.makeText(this, "No network connection available", Toast.LENGTH_LONG).show();
+        Toast.makeText(this, getString(R.string.network_required), Toast.LENGTH_LONG).show();
       }
     }
   }
@@ -299,7 +299,7 @@ public class SplashActivity extends Activity implements NetworkClient {
                 } catch (ClassNotFoundException e) {
                   String gpsError = getGooglePlayConnectionErrorString(statusCode);
                   Toast.makeText(getApplicationContext(),
-                               "Login ERROR: " + gpsError,
+                               getString(R.string.error) + ": " + gpsError,
                                Toast.LENGTH_LONG).show();
                 }
 

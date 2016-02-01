@@ -26,13 +26,13 @@
         android:id="@+id/webRecommendedWarningText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/webRecommendedWarning"
+        android:text=""
         android:textAppearance="?android:attr/textAppearanceLarge" />
         
-        <Button android:text="@string/do_on_phone_anyway" android:id="@+id/DoOnPhoneButton"
+        <Button android:text="" android:id="@+id/DoOnPhoneButton"
             android:layout_width="fill_parent" android:layout_height="50dip"
             android:layout_gravity="center|top" />
-        <Button android:text="@string/do_on_web" android:id="@+id/DoOnWebButtonButton"
+        <Button android:text="" android:id="@+id/DoOnWebButtonButton"
             android:layout_width="fill_parent"
             android:layout_height="50dip" android:layout_gravity="center|bottom" />
     </LinearLayout>

@@ -79,6 +79,7 @@ var paco = (function (init) {
   
   valid = function(input, inputHtml, response) { 
     if ((input.required && inputHtml.element[0].style.display != "none") && (!response.answer || response.answer.length === 0)) {
+    	// TODO i18n
       return { "succeeded" : false , "error" : "Response required for " + input.name, "name" : input.name};    
     } else if (!validValueForResponseType(response)) {
       return { "succeeded" : false , "error" : "Response required for " + name, "name" : name};    
@@ -356,6 +357,7 @@ var paco = (function (init) {
 
   obj.executor = (function() {
     if (!window.executor) {
+    	// TODO i18n
       window.executor = { done : function() { alert("done"); } };
     }
 
@@ -372,6 +374,7 @@ var paco = (function (init) {
     if (!window.photoService) {
       window.photoService = { 
         launch : function(callback) { 
+        	// TODO i18n
           alert("No photo support"); 
         } 
       };
@@ -395,6 +398,7 @@ var paco = (function (init) {
 	    if (!window.notificationService) {
 	      window.notificationService = { 
 	        createNotification : function(message) { 
+	        	// TODO i18n
 	          alert("No notification support"); 
 	        },
 	        removeNotification : function(message) { 
@@ -511,6 +515,7 @@ paco.renderer = (function() {
         element.removeClass("outlineElement");
       } catch (e) {
         element.addClass("outlineElement");
+    	// TODO i18n
         alert("bad value: " + e);            
       }
       conditionalListener.inputChanged();
@@ -577,6 +582,7 @@ paco.renderer = (function() {
     var s = $('<select name="' + input.name + '" ' + (input.multiselect ? 'multiple' : '') + '/>');
     var startIndex = 0;
     if (!input.multiselect) {
+    	// TODO i18n default_list_item
       $("<option />", {value: 0, text: "Please select"}).appendTo(s);
       startIndex = 1;
     }
@@ -687,6 +693,7 @@ paco.renderer = (function() {
   renderSaveButton = function() {
     var saveButton = $(document.createElement("input"));
     saveButton.attr("type", "submit");
+    // TODO i18n
     saveButton.attr("value", "Save Response");
     saveButton.css({"margin-top":".5em", "margin-bottom" : "0.5em"});
     return saveButton;
@@ -695,6 +702,7 @@ paco.renderer = (function() {
   renderDoneButton = function(experiment) {
     var doneButton = document.createElement("input");
     doneButton.type="submit";
+	//TODO i18n
     doneButton.value = "Done";
     return doneButton;
   };
@@ -742,6 +750,7 @@ paco.renderer = (function() {
       if (window.executor) {
         window.executor.done();
       } else {
+    	  // TODO i18n default_list_item
         alert("All Done!");
       }
     });
@@ -819,11 +828,13 @@ paco.renderer = (function() {
 
   renderDefaultFeedback = function(experimentGroup, db, element) {
     var subElement = $(document.createElement("div"));
+    // TODO i18n
     subElement.text("Thank you for participating!");
     subElement.addClass("title");
     element.append(subElement);
 
     var lastEvent = db.getLastEvent();
+    // TODO i18n
     element.append(renderPlainText("Scheduled Time: " + lastEvent.scheduledTime));
     element.append(renderBreak());
     element.append(renderPlainText("Response Time: " + lastEvent.responseTime));
@@ -956,9 +967,11 @@ paco.execute = (function() {
 
     var dbSaveOutcomeCallback = function(status) {
       if (status["status"] === "success") {    
+    	  // TODO i18n
         form_root.html("Feedback");
         paco.renderer.renderFeedback(experiment, experimentGroup, paco.db, form_root);
       } else {
+    	// TODO i18n
         alert("Could not store data. You might try again. Error: " + status["error"]);
       }   
     };
@@ -1008,6 +1021,7 @@ function runCustomExperiment(s0) {
   if (main) {
     main(paco.experiment(), experimentGroup, form_root);
   } else {
+	// TODO i18n
     form_root.html("Could not initialize the experiment");
   }
 };

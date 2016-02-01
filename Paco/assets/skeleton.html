@@ -45,6 +45,7 @@
           } catch(err) {
             var additionsDivID = document.getElementById("additionsdiv");
             var newSpan = document.createElement('span');
+            // TODO i18n
             newSpan.innerHTML = '<br><br>No data was found.';
             additionsDivID.appendChild(newSpan);  
             return;
@@ -52,6 +53,7 @@
           for (var i=0;i < responses.length;i++) {
             var response = responses[i];
             if (response.answer == null || response.answer.length == 0) {
+            // TODO i18n
               response.answer = "No Answer";
             }
             
@@ -64,12 +66,14 @@
               responsesHtml += "<img src='data:image/jpg;base64," + response["answer"]  +"' width=150>";
             } else {
               responsesHtml += response["answer"];
+              // TODO i18n
               responsesHtml += "&nbsp;&nbsp;&nbsp;<a href='file:///android_asset/time.html?inputId=" + response["name"] + "'>Chart</a>";
             }      
             responsesHtml += "</div><br/></div>";
           } 
           if (responsesHtml == "") {
-            responsesHtml = "No responses found!";
+          // TODO i18n
+            responsesHtml = "No data was found!";
           }
         }
  	    $("#responses").html(responsesHtml);

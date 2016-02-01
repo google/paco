@@ -136,7 +136,6 @@ public class ExperimentExecutorCustomRendering extends ActionBarActivity impleme
   private View buttonView;
   private Button doOnPhoneButton;
   private Button doOnWebButton;
-  private TextView warningText;
 
   private List<SpeechRecognitionListener> speechRecognitionListeners = new ArrayList<SpeechRecognitionListener>();
 
@@ -191,9 +190,6 @@ public class ExperimentExecutorCustomRendering extends ActionBarActivity impleme
       buttonView = findViewById(R.id.ExecutorButtonLayout);
       buttonView.setVisibility(View.GONE);
 
-      warningText = (TextView) findViewById(R.id.webRecommendedWarningText);
-      warningText.setText(warningText.getText() + getString(R.string.use_browser) + "http://"
-          + getString(R.string.about_weburl));
 
       doOnPhoneButton = (Button) findViewById(R.id.DoOnPhoneButton);
       doOnPhoneButton.setVisibility(View.GONE);

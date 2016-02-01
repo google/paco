@@ -35,7 +35,7 @@
             android:id="@+id/experiment_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/experiment_title"
+            android:text=""
             android:textSize="25dip" >
         </TextView>
 

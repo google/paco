@@ -90,20 +90,32 @@ public class EventCsvUploadProcessor {
   }
 
   private void saveCSV(String fileContents, User loggedInWho) throws ParseException {
-    CSVReader reader = new CSVReader(new BufferedReader(new StringReader("yourfile.csv")));
-    List<String[]> rows;
+    CSVReader reader = null;
+    
     try {
-      rows = reader.readAll();
-    } catch (IOException e) {
-      throw new IllegalArgumentException("Error reading CSV. Check your file if this is incorrect.");
-    }
-    if (rows == null || rows.size() == 0) {
-      log.info("No rows in uploaded CSV");
-      throw new IllegalArgumentException("No rows in uploaded CSV. Check your file if this is incorrect.");
-    }
-    String[] header = rows.get(0);
-    for (int i = 1; i < rows.size(); i++) {
-      postEventFromRowAsHash(convertToHashMap(header, rows.get(i)), i, loggedInWho);
+      reader = new CSVReader(new BufferedReader(new StringReader("yourfile.csv")));
+      List<String[]> rows;
+      try {
+        rows = reader.readAll();
+      } catch (IOException e) {
+        throw new IllegalArgumentException("Error reading CSV. Check your file if this is incorrect.");
+      }
+      if (rows == null || rows.size() == 0) {
+        log.info("No rows in uploaded CSV");
+        throw new IllegalArgumentException("No rows in uploaded CSV. Check your file if this is incorrect.");
+      }
+      String[] header = rows.get(0);
+      for (int i = 1; i < rows.size(); i++) {
+        postEventFromRowAsHash(convertToHashMap(header, rows.get(i)), i, loggedInWho);
+      }
+    } finally {
+      if (reader != null) {
+        try {
+          reader.close();
+        } catch (IOException e) {
+          e.printStackTrace();
+        }
+      }
     }
 
   }
