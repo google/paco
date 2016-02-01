@@ -247,5 +247,43 @@
     <string name="contact_" description="Label for the field showing the contact email address for the experiment">Contact:</string>
     <string name="done_joining_button" description="Label for button to complete the experiment join process">Done</string>
     <string name="save_response" description="Button label for survey form to save answers">Save Response</string>
+    <string name="email_subject_paco_feedback" description="This is the subject line inserted into the email message when a user chooses Email Paco Team">Paco Feedback</string>
+    <string name="could_not_successfully_join_try_again_" description="Error message on joining experiment. This is transient so ask them to try again.">Could not successfully join. Try again.</string>
+    <string name="experiment_list_download_complete" description="Message shown to users when all experiments have been retrieved from server.">Download complete</string>
+    <string name="could_not_retrieve_experiments_try_again_" description="Error message shown to user when experiment list could not be retrieved.">Could not retrieve experiments. Try again.</string>
+    <string name="by" description="connector for showing the organization that is offering this experiment, e.g, 'by Google'">by</string>
+    <string name="joined_on" description="Text shown in experiment card that lists when the user joined the experiment, e.g., 'Joined on August 5th'">Joined on</string>
+    <string name="you_must_pick_an_account" description="Message to user that they must choose a Google account to proceed.">You must pick an account</string>
+    <string name="are_not_available_" description="Appended to message about necessary 3rd party components, e.g., 'GooglePlayServices are not available'">are not available.</string>
+    <string name="error" description="Label for an error message that is appended, e.g., 'ERROR: service not installed'">ERROR</string>
 
+<!--  embedded web ui -->
+    <string name="no_photo_support" description="error message shown in survey form when the platform does not support photos">No photo support</string>
+    <string name="no_notification_support" description="error message shown when the platform running the experiment does not provide notification facilities">No notification support</string>
+    <string name="thank_you_for_participating" decription="Message shown when user submits form">Thank you for participating</string>
+    <string name="maps_button_label" description="label for button to see maps">Maps</string>
+    <string name="data_storage_error" description="error message shown responses could not be stored.">Could not store data. You might try again. Or contact the researcher running the study. </string>
+    
+    <!--  end of day html -->
+    <string name="empty_response_error" decription="error message shown when user submits without answering any questions">You cannot submit an empty response.</string>
+    <string name="already_replied" description="Message shown to user when they have already followed up on a daily response">Already replied</string>
+    <string name="exit_with_unsubmitted_work_confirmation" description="Message shown to confirm that user wants to leave unfinished work">You have not submitted the work on this page. Are you sure to leave this page?</string>
+    <string name="exit_with_unreviewed_work">You have not submitted responses for all daily events. Are you sure you want to leave?</string>
+    <string name="no_active_responses" description="Message shown when user has no work to do">No active daily responses</string>
+    <!--  eodskeleton.html -->
+    <string name="exit" description="button label to exit work flow">Exit</string>
+    <string name="submit" description="button label to submit current part of work">Submit</string>
+    
+    <!--  custom_base.js -->
+    <string name="bad_value" description="error message shown when entering a non-numerical value into a number field">Bad value</string>
+    <string name="could_not_initialize_experiment" decsription="Status message shown when an experimnt is malformed - should only show up for researchers">Could not initialize the experiment</string>
+    
+    <!-- skeleton.html -->
+    <string name="chart_button_label" description="Label for button to go see charts of data for a variable">Chart</string>
+    <string name="no_answer_label" description="Label for data presentation field when no answer was recorded in the data set">No Answer</string>
+    <string name="no_data_found" description="Shown when trying to plot data but there is no data recorded">No data was found</string>
+    
+    <!--  map.html -->
+    <string name="responses_at_location_title" description="Title for list of responses for a given lat/long location">Responses at this Location</string>
+    <string name="unchartable_error" description="message shown when the data type is not a location">Unchartable</string>
 </resources>

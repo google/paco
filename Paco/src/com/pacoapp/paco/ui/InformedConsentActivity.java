@@ -426,7 +426,7 @@ public class InformedConsentActivity extends ActionBarActivity implements Experi
             saveDownloadedExperimentBeforeScheduling(experimentList.get(0));
           }
         } else {
-          showFailureDialog("Could not successfully join. Try again.");
+          showFailureDialog(getString(R.string.could_not_successfully_join_try_again_));
         }
       }
     });

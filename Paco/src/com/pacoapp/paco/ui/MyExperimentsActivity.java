@@ -522,12 +522,12 @@ public class MyExperimentsActivity extends ActionBarActivity implements
       if (Strings.isNullOrEmpty(organization) || organization.equals("null")) {
         organization = experiment.getExperimentDAO().getContactEmail();
       }
-      organizationView.setText(experiment != null ? "by " + organization : "");
+      organizationView.setText(experiment != null ? getString(R.string.by) + " " + organization : "");
       organizationView.setTag(experiment.getExperimentDAO().getId());
       organizationView.setOnClickListener(myButtonListener);
 
       TextView joinDateView = (TextView) view.findViewById(R.id.experimentListRowJoinDate);
-      joinDateView.setText(experiment != null ? "Joined on " + formatJoinDate(experiment) : "");
+      joinDateView.setText(experiment != null ? getString(R.string.joined_on) + " " + formatJoinDate(experiment) : "");
       joinDateView.setTag(experiment.getExperimentDAO().getId());
       joinDateView.setOnClickListener(myButtonListener);
 
@@ -792,7 +792,7 @@ public class MyExperimentsActivity extends ActionBarActivity implements
     Intent emailIntent = new Intent(android.content.Intent.ACTION_SEND);
     String aEmailList[] = { emailAddress };
     emailIntent.putExtra(android.content.Intent.EXTRA_EMAIL, aEmailList);
-    emailIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, "Paco Feedback");
+    emailIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, getString(R.string.email_subject_paco_feedback));
     emailIntent.setType("plain/text");
     startActivity(emailIntent);
   }
@@ -854,12 +854,12 @@ public class MyExperimentsActivity extends ActionBarActivity implements
       public void run() {
         progressBar.setVisibility(View.GONE);
         if (msg != null) {
-          Toast.makeText(MyExperimentsActivity.this, "Download complete", Toast.LENGTH_LONG).show();
+          Toast.makeText(MyExperimentsActivity.this, getString(R.string.experiment_list_download_complete), Toast.LENGTH_LONG).show();
           saveDownloadedExperiments(experimentProviderUtil, msg);
           userPrefs.setJoinedExperimentListRefreshTime(new Date().getTime());
           reloadAdapter();
         } else {
-          Toast.makeText(MyExperimentsActivity.this, "No experiment data retrieved. Try again.", Toast.LENGTH_LONG).show();
+          Toast.makeText(MyExperimentsActivity.this, getString(R.string.could_not_retrieve_experiments_try_again_), Toast.LENGTH_LONG).show();
         }
       }
     });

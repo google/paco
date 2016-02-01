@@ -373,7 +373,7 @@ public class ExperimentDetailActivity extends ActionBarActivity implements Exper
             ExperimentDetailActivity.this.finish();
           }
         } else {
-          showFailureDialog("Could not successfully join. Try again.");
+          showFailureDialog(getString(R.string.could_not_successfully_join_try_again_));
         }
       }
     });
