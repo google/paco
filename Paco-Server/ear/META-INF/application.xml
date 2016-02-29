@@ -23,12 +23,12 @@
     </web>
   </module>
 
-
+<!-- 
   <module>
     <web>
       <web-uri>mapreduce</web-uri>
       <context-root>mapreduce</context-root>
     </web>
   </module>
-
+-->
 </application>
