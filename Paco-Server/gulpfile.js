@@ -1,10 +1,11 @@
 /* Installation
- * 
+ *
  * The following will install the necessary npm modules for this gulpfile:
- 
+ *
+
  % npm install gulp gulp-ruby-sass gulp-autoprefixer gulp-minify-css \
     gulp-jshint gulp-concat gulp-uglify gulp-imagemin gulp-notify gulp-rename \
-    del gulp-util gulp-html-replace --save-dev
+    del gulp-util gulp-html-replace es6-promise --save-dev
 
  *
  */
@@ -23,6 +24,8 @@ var notify = require('gulp-notify');
 var htmlreplace = require('gulp-html-replace');
 var del = require('del');
 
+var Promise = require('es6-promise').Promise;
+
 // Source path
 var srcPath = 'ear/default/web/';
 
@@ -33,7 +36,7 @@ var distPath = 'build/default/web/';
 // Styles
 gulp.task('styles', function() {
   return gulp.src([srcPath + 'bower_components/angular/angular-csp.css', srcPath + 'bower_components/angular-material/angular-material.css', srcPath + 'bower_components/angular-material/default-theme.css', srcPath + 'css/*.css'])
-    .pipe(autoprefixer('last 2 version', 'safari 5', 'ie 8', 'ie 9', 'opera 12.1', 'ios 6', 'android 4'))
+    .pipe(autoprefixer({browsers: ['last 2 versions'], cascade: false}))
     .pipe(concat('styles.css'))
     .pipe(gulp.dest(distPath + 'css'))
     .pipe(rename({
@@ -123,6 +126,6 @@ gulp.task('clean', function(cb) {
 
 
 // Default task
-gulp.task('default', ['clean'], function() {
+gulp.task('default', [], function() {
   gulp.start('styles', 'scripts', 'ng-scripts', 'images', 'partials', 'favicon', 'index');
 });
