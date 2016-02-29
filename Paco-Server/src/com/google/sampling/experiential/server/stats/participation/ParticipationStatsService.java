@@ -1,8 +1,12 @@
 package com.google.sampling.experiential.server.stats.participation;
 
+import java.util.Date;
 import java.util.List;
+import java.util.logging.Logger;
 
 import org.joda.time.DateTime;
+
+import com.google.sampling.experiential.model.Event;
 
 /**
  * This class is a frontend to all the stats requests about participation and the
@@ -14,6 +18,32 @@ import org.joda.time.DateTime;
  */
 public class ParticipationStatsService {
   
+  private static final Logger log = Logger.getLogger(ParticipationStatsService.class.getName());
+                                                     
+  public void updateResponseCountWithEvent(Event event) {
+    Date schedTime = event.getScheduledTime();
+    Date responseTime = event.getResponseTime();
+    if (schedTime != null && responseTime != null) {
+      updateScheduledResponseCountForWho(Long.parseLong(event.getExperimentId()), 
+                                         event.getExperimentGroupName(), 
+                                         event.getWho(), 
+                                         new DateTime(event.getScheduledTime()));
+    } else if (schedTime == null && responseTime != null) {
+      updateSelfResponseCountForWho(Long.parseLong(event.getExperimentId()), 
+                                         event.getExperimentGroupName(), 
+                                         event.getWho(), 
+                                         new DateTime(event.getResponseTime()));
+    } else if (schedTime != null && responseTime == null) {
+      updateMissedResponseCountForWho(Long.parseLong(event.getExperimentId()), 
+                                         event.getExperimentGroupName(), 
+                                         event.getWho(), 
+                                         new DateTime(event.getScheduledTime()));
+    } else {
+      log.warning("Sched time and response time are null. Cannot update a stat");
+    }
+  }
+
+
 
   /**
    * Increment the scheduled responses count for an individual in an experiment on a particular date.
@@ -138,6 +168,5 @@ public class ParticipationStatsService {
   public List<ResponseStat> getDailyTotalsForParticipantForGroup(long experimentId, String experimentGroupName, String who) {
     return new ResponseStatEntityManager().getResponseStatsForParticipantForGroup(experimentId, experimentGroupName, who);
   }
-
 
 }

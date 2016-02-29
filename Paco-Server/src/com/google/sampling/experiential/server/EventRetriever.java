@@ -53,6 +53,7 @@ import com.google.sampling.experiential.model.Event;
 import com.google.sampling.experiential.model.Experiment;
 import com.google.sampling.experiential.model.PhotoBlob;
 import com.google.sampling.experiential.model.What;
+import com.google.sampling.experiential.server.stats.participation.ParticipationStatsService;
 import com.google.sampling.experiential.shared.EventDAO;
 
 /**
@@ -121,6 +122,8 @@ public class EventRetriever {
       pm.makePersistent(event);
       if (isJoinEvent) {
         ExperimentAccessManager.addJoinedExperimentFor(who, Long.valueOf(experimentId), responseTime);
+      } else {
+        new ParticipationStatsService().updateResponseCountWithEvent(event);
       }
       tx.commit();
       log.info("Event saved");
