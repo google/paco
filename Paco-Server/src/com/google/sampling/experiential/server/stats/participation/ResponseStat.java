@@ -11,7 +11,7 @@ public class ResponseStat implements Comparable<ResponseStat> {
   public int schedR;
   public int missedR;
   public int selfR;
-  DateTime date;
+  public DateTime date;
   
   
   public ResponseStat(long experimentId, String experimentGroupName, String who, int schedR, int missedR, int selfR) {
