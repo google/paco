@@ -28,7 +28,61 @@
       <md-progress-linear md-mode="indeterminate" ng-if="loading === true"></md-progress-linear>
     </div>
 
-    <div ng-show="stats" class="frame">
+    <div ng-show="stats && userChips" class="frame">
+<!-- 
+      <div class="summary" ng-if="stats && experiment && experiment.published">
+
+        <div class="stat">
+          <b>{{experiment.publishedUsers.length}}</b> invited
+        </div>
+        <div class="stat">
+          <b>{{stats.count}}</b> joined
+        </div>
+        <div class="stat">
+         <b>{{stats.todayParticipantCount}}</b> participated today
+        </div>
+        <div class="stat">
+          <b>{{1-(stats.todayParticipantCount/stats.count)|percent}}</b> non-responders today
+        </div>
+      </div>
+-->
+      <table>
+        
+        <tr >
+          <td right-border>
+            <span class="sorting">
+              <a href="" ng-click="setColumn('date')" ng-class="{arrow: (sortColumn == 'date'), down: reverseSort }">
+                Date
+              </a>
+            </span>
+          </td>
+          <td>
+            <span class="sorting">
+              <a href="" ng-click="setColumn('schedR')" class="left" ng-class="{arrow: (sortColumn == 'schedR'), down: reverseSort }">Response</a> /
+              <a href="" ng-click="setColumn('missedR')"  ng-class="{arrow: (sortColumn == 'missedR'), down: reverseSort }">Signal</a>
+              <br>Ratio
+            </span>
+          </td>
+          <td right-border>
+            <span class="sorting">
+              <a href="" ng-click="setColumn('selfR')" ng-class="{arrow: (sortColumn == 'selfR'), down: reverseSort }">Self-Report</a><br>Count
+            </span>
+          </td>
+        </tr>
+        <tr ng-repeat="row in stats | orderBy: sortColumn: reverseSort">
+          <td right-border>
+            {{row["date"]}}
+          </td>
+          <td>{{row["schedR"]}} / {{row["schedR"] + row["missedR"]}}</td>
+          <td right-border>{{row["selfR"]}}</td>
+        </tr>
+         <tfoot>
+            <td colspan=7>Showing {{stats.length}} out of {{stats.length}}</td>
+          </tfoot>
+      </table>
+    </div>
+    
+      <div ng-show="stats && !userChips" class="frame">
 
       <div class="summary" ng-if="stats && experiment && experiment.published">
 
