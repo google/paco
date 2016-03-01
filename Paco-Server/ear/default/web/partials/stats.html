@@ -29,23 +29,24 @@
     </div>
 
     <div ng-show="stats && userChips" class="frame">
-<!-- 
-      <div class="summary" ng-if="stats && experiment && experiment.published">
 
+      <div class="summary" ng-if="stats && experiment">
         <div class="stat">
-          <b>{{experiment.publishedUsers.length}}</b> invited
+          <b>{{stats.responseRate|percent}}</b> Overall Response Rate
+        </div>
+        
+        <div class="stat">
+          <b>{{stats.signaledResponseCount}}</b> Signaled Responses
         </div>
         <div class="stat">
-          <b>{{stats.count}}</b> joined
+         <b>{{(stats.totalSignalCount)}}</b> Total Signals
         </div>
         <div class="stat">
-         <b>{{stats.todayParticipantCount}}</b> participated today
+          <b>{{stats.selfReportResponseCount}}</b> Self Reports 
         </div>
-        <div class="stat">
-          <b>{{1-(stats.todayParticipantCount/stats.count)|percent}}</b> non-responders today
-        </div>
+                
       </div>
--->
+
       <table>
         
         <tr >

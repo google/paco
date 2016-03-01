@@ -223,6 +223,22 @@ pacoApp.service('dataService', ['$http', '$timeout', '$q', 'config',
 	          }
 	          data.todayParticipantCount = todayParticipantCount;
 	          data.totalParticipantCount = totalParticipantCount;
+          } else {
+        	  data.responseRate = 0;
+        	  data.signaledResponseCount = 0;
+        	  data.missedResponseCount = 0;
+        	  data.selfReportResponseCount = 0;
+        	  for (var i = 0; i < data.length; i++) {
+        		  data.signaledResponseCount += data[i].schedR;
+        		  data.missedResponseCount += data[i].missedR;
+        		  data.selfReportResponseCount += data[i].selfR;
+        	  }
+        	  data.totalSignalCount = data.signaledResponseCount + data.missedResponseCount;
+        	  if ((data.totalSignalCount) > 0) {        		  
+        		  data.responseRate = data.signaledResponseCount / data.totalSignalCount;        		  
+        	  } else {
+        		  data.responseRate = 0;
+        	  }        	  
           }
           defer.resolve({
             'data': data
