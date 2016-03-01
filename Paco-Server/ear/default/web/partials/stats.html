@@ -31,17 +31,17 @@
     <div ng-show="stats && userChips" class="frame">
 
       <div class="summary" ng-if="stats && experiment">
-        <div class="stat">
+        <div class="individual-stat">
           <b>{{stats.responseRate|percent}}</b> Overall Response Rate
         </div>
         
-        <div class="stat">
+        <div class="individual-stat">
           <b>{{stats.signaledResponseCount}}</b> Signaled Responses
         </div>
-        <div class="stat">
+        <div class="individual-stat">
          <b>{{(stats.totalSignalCount)}}</b> Total Signals
         </div>
-        <div class="stat">
+        <div class="individual-stat">
           <b>{{stats.selfReportResponseCount}}</b> Self Reports 
         </div>
                 
