@@ -11,6 +11,8 @@ public class ResponseStat implements Comparable<ResponseStat> {
   public int schedR;
   public int missedR;
   public int selfR;
+  
+  // jackson 2 @JsonFormat(shape=JsonFormat.Shape.STRING, pattern="yyyy/MM/dd", timezone="UTC")
   public DateTime date;
   
   
@@ -49,4 +51,10 @@ public class ResponseStat implements Comparable<ResponseStat> {
     }
     return 0;
   }
+
+  public String getDate() {
+    return date.toString(com.pacoapp.paco.shared.util.TimeUtil.dateFormatter);
+  }
+
+  
 }
