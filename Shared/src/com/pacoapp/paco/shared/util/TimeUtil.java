@@ -23,6 +23,9 @@ import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
 
+import com.google.common.base.Strings;
+
+
 public class TimeUtil {
 
   private static DateTimeFormatter timeFormatter = ISODateTimeFormat.time();
@@ -125,5 +128,16 @@ public class TimeUtil {
       return plusDays.plusDays(1);
     }
     return plusDays;
+  }
+
+  public static DateTime parseDateWithoutZone(String dateParam) {
+    if (Strings.isNullOrEmpty(dateParam)) {
+      return null;
+    }
+    try {
+      return dateFormatter.parseDateTime(dateParam);
+    } catch (Exception e) {
+      return null;
+    }
   }
 }
