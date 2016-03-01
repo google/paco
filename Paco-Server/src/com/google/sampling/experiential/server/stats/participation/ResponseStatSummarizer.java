@@ -224,7 +224,7 @@ public class ResponseStatSummarizer {
       }
       
       if (sumResponseStat == null) {
-        sumResponseStat = new ResponseStat(experimentId, responseStat.experimentGroupName, who, dateTime, responseStat.schedR, responseStat.missedR, responseStat.selfR);        
+        sumResponseStat = new ResponseStat(experimentId, null, who, dateTime, responseStat.schedR, responseStat.missedR, responseStat.selfR);        
       } else {
         sumResponseStat.schedR +=  responseStat.schedR;
         sumResponseStat.missedR += responseStat.missedR;
