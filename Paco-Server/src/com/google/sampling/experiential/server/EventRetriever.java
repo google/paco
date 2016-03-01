@@ -110,6 +110,18 @@ public class EventRetriever {
         isJoinEvent = true;
       }
     }
+    boolean isStopEvent = false;
+    for (What whatItem : what) {
+      if (whatItem.getName().toLowerCase().equals("joined") && whatItem.getValue().equals("false")) {
+        isStopEvent = true;
+      }
+    }
+    boolean isScheduleEvent = false;
+    for (What whatItem : what) {
+      if (whatItem.getName().toLowerCase().equals("schedule") && !Strings.isNullOrEmpty(whatItem.getValue())) {
+        isScheduleEvent = true;
+      }
+    }
 
     PersistenceManager pm = PMF.get().getPersistenceManager();
     Event event = new Event(who, lat, lon, whenDate, appId, pacoVersion, what, shared,
@@ -122,7 +134,7 @@ public class EventRetriever {
       pm.makePersistent(event);
       if (isJoinEvent) {
         ExperimentAccessManager.addJoinedExperimentFor(who, Long.valueOf(experimentId), responseTime);
-      } else {
+      } else if (!isScheduleEvent && !isStopEvent) {
         new ParticipationStatsService().updateResponseCountWithEvent(event);
       }
       tx.commit();
