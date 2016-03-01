@@ -83,13 +83,53 @@ public class ParticipantStatServlet extends HttpServlet {
     }
   }
 
-  private void computeStatsFromCounters(HttpServletRequest req, HttpServletResponse resp, User user, Long experimentId,
+  private void computeStatsFromCounters(HttpServletRequest req, HttpServletResponse resp, User user, Long experimentId, 
                                         String whoParam, DateTimeZone timeZoneForClient) throws IOException {
-    ParticipationStatsService ps = new ParticipationStatsService();
-    List<ResponseStat> participationStats = ps.getTotalByParticipantOnDate(experimentId, new DateTime());
+    String experimentGroupName = req.getParameter("experimentGroupName");
+    String reportType = req.getParameter("reportType");
+    String dateParam = req.getParameter("date"); // 
+    DateTime date = null;
+    if (!Strings.isNullOrEmpty(dateParam)) {
+      date = com.pacoapp.paco.shared.util.TimeUtil.parseDateWithoutZone(dateParam);
+    }
+    
+    ParticipationStatsService ps =  new ParticipationStatsService();
+    List<ResponseStat> participationStats = null;
+    if (Strings.isNullOrEmpty(reportType) || reportType.equals("today")) {
+      if (!Strings.isNullOrEmpty(experimentGroupName)) {
+        participationStats = ps.getTotalByParticipantOnDateForGroup(experimentId, experimentGroupName, new DateTime());
+      } else {
+        participationStats = ps.getTotalByParticipantOnDate(experimentId, new DateTime());
+      }
+    } else if (reportType.equals("date")) {
+      if (date == null) {
+        throw new IllegalArgumentException("Must specify date correctly for reportType=date.");
+      }
+      if (!Strings.isNullOrEmpty(experimentGroupName)) {
+        participationStats = ps.getTotalByParticipantOnDateForGroup(experimentId, experimentGroupName, date);
+      } else {
+        participationStats = ps.getTotalByParticipantOnDate(experimentId, date);
+      }
+    } else if (reportType.equals("total")) {
+      if (!Strings.isNullOrEmpty(experimentGroupName)) {
+        participationStats = ps.getTotalByParticipantForGroup(experimentId, experimentGroupName);
+      } else {
+        participationStats = ps.getTotalByParticipant(experimentId);
+      }
+    } else if (reportType.equals("who") || !Strings.isNullOrEmpty(whoParam)) {
+      if (!Strings.isNullOrEmpty(experimentGroupName)) {
+        participationStats = ps.getDailyTotalsForParticipantForGroup(experimentId, experimentGroupName, whoParam);
+      } else {
+        participationStats = ps.getDailyTotalsForParticipant(experimentId, whoParam);
+      }
+    }
     PrintWriter writer = resp.getWriter();
     ObjectMapper mapper = JsonConverter.getObjectMapper();
-    writer.write(mapper.writeValueAsString(participationStats));
+    if (participationStats != null) {
+      writer.write(mapper.writeValueAsString(participationStats));
+    } else {
+      writer.write("Could not compute stats. Please check server for errors.");
+    }
   }
 
   private void computeStatsFromEventsTable(HttpServletRequest req, HttpServletResponse resp, User user,
