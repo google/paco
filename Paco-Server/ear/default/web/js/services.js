@@ -349,7 +349,7 @@ pacoApp.service('config', function() {
     'when'
   ];
 
-  this.helpLinkBase = 'https://docs.google.com/a/google.com/document/d/1f_kkTtvb4TKWIoseYfbOuX6D-8TOiZ3pIkjJ_sI6eGM/pub?embedded=true';
+  this.helpLinkBase = 'https://docs.google.com/a/google.com/document/d/1o81ps90gGT3SYEKS1meHfqee-A8c65-Jailz3A1Uwmg/pub?embedded=true';
 
   this.helpLinks = {
     'advanced': 'h.le5i22y0oxrv',
