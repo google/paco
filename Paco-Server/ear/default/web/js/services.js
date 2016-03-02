@@ -208,15 +208,15 @@ pacoApp.service('dataService', ['$http', '$timeout', '$q', 'config',
 
       $http.get(endpoint).success(
         function(data) {
-          if (!user) {	
+          if (!user) {
 	          var totalParticipantCount = 0;
 	          var todayParticipantCount = 0;
 	          for (var i = 0; i < data.participants.length; i++) {
-	
+
 	            if (data.participants[i].todaySignalResponseCount > 0) {
 	              todayParticipantCount++;
 	            }
-	
+
 	            if (data.participants[i].totalSignalResponseCount > 0) {
 	              totalParticipantCount++;
 	            }
@@ -234,11 +234,11 @@ pacoApp.service('dataService', ['$http', '$timeout', '$q', 'config',
         		  data.selfReportResponseCount += data[i].selfR;
         	  }
         	  data.totalSignalCount = data.signaledResponseCount + data.missedResponseCount;
-        	  if ((data.totalSignalCount) > 0) {        		  
-        		  data.responseRate = data.signaledResponseCount / data.totalSignalCount;        		  
+        	  if ((data.totalSignalCount) > 0) {
+        		  data.responseRate = data.signaledResponseCount / data.totalSignalCount;
         	  } else {
         		  data.responseRate = 0;
-        	  }        	  
+        	  }
           }
           defer.resolve({
             'data': data
