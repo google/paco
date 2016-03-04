@@ -220,4 +220,27 @@
   </security-constraint>
  -->
  
+   <servlet>   
+    <servlet-name>eventStatMigrationQueueServlet</servlet-name>
+    <servlet-class>com.google.sampling.experiential.server.migration.jobs.EventStatMigrateServlet</servlet-class>
+  </servlet>    
+  <servlet-mapping>
+    <servlet-name>eventStatMigrationQueueServlet</servlet-name>
+    <url-pattern>/_ah/queue/migration</url-pattern>
+  </servlet-mapping>
+ 
+    <security-constraint>
+    <web-resource-collection>
+      <url-pattern>/_ah/queue/*</url-pattern>
+    </web-resource-collection>
+    <auth-constraint>
+      <role-name>admin</role-name>
+    </auth-constraint>
+    <user-data-constraint>
+      <transport-guarantee>CONFIDENTIAL</transport-guarantee>
+    </user-data-constraint>
+    
+  </security-constraint>
+  
+ 
 </web-app>

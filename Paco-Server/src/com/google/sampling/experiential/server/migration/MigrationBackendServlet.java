@@ -47,6 +47,7 @@ public class MigrationBackendServlet extends HttpServlet {
   protected void doGet(final HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
     final String requestorEmail = getRequestorEmail(req);
     final String migrationJobName = HttpUtil.getParam(req, "migrationName");
+    final String useTaskQueue = HttpUtil.getParam(req, "queue");
 
     final String jobId = migrationJobName + "_" +
             DigestUtils.md5Hex(requestorEmail +

@@ -344,6 +344,7 @@ public class ResponseStatEntityManager {
       LOG.log(Level.WARNING, e.toString(), e);
     } finally {
       if (tx.isActive()) {
+        LOG.severe("Rolling Back transaction updating ResponseStatEntity for event: " + experimentId + ", " + experimentGroupName + ", " + who + ", " + date.toString() + ", " + prop);
         tx.rollback();
       }
     }
