@@ -624,6 +624,22 @@ pacoApp.controller('DataCtrl', ['$scope', '$mdDialog', '$location', '$filter',
   }
 ]);
 
+
+pacoApp.controller('DashboardCtrl', ['$scope','dataService','config',
+  function($scope, dataService, config) {
+    $scope.stats = null;
+
+    $scope.loadDashboardStats = function() {
+      dataService.getDashboardStats().then(function(response) {
+        $scope.stats = response;
+      });
+
+    };
+
+    $scope.loadDashboardStats();
+  }]);
+
+
 pacoApp.controller('HelpCtrl', ['$scope', '$routeParams', 'config',
   function($scope, $routeParams, config) {
 

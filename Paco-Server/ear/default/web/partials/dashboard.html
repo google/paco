@@ -1,0 +1,37 @@
+<div ng-controller="DashboardCtrl" class="padded stats data">
+  <div class="variable-width">
+
+    <div ng-if="loading" class="status">
+      <span>{{status}}</span>
+      <md-progress-linear md-mode="indeterminate" ng-if="loading === true"></md-progress-linear>
+    </div>
+
+    <div class="summary">
+      <h2>Experiments administered by google.com</h2>
+      <div class="individual-stat">
+          <b>{{stats.domainExperimentCount}}</b> Total Experiments
+      </div>
+      <div class="individual-stat">
+          <b>{{stats.domainOngoingExperimentCount}}</b> Ongoing Experiments
+      </div>
+      <div class="individual-stat">
+          <b>{{(stats.domainPastExperimentCount)}}</b> Past Experiments
+      </div>
+      <div class="individual-stat">
+          <b>{{stats.domainFutureExperimentCount}}</b> Future Experiments
+      </div>
+    </div><br>
+
+    <div class="summary">
+      <h2>All Paco experiments </h2>
+      <div class="individual-stat">
+          <b>{{stats.experimentTotalCount}}</b> Total Experiments
+      </div>
+    </div>
+
+
+    <div ng-if="error" class="error">
+      Error {{error.code}}: {{error.message}}
+    </div>
+  </div>
+</div>
