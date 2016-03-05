@@ -75,14 +75,15 @@
           }
         }
 
-        var experimentData = paco.db.getAllEvents();                
+        var experimentData = paco.db.getAllEvents();     
+                   
         //experimentData = experimentData.sort(function(a,b) {
         //  return a.responseTime - b.responseTime;
         //});
   
       var d=[];
       var inputid = window.env.getValue("inputId");
-  
+      
       var responseType = null;
       var chartTitle = null;
       var sampleAnswer;
@@ -90,7 +91,7 @@
       
       var experiment = paco.experimentService.getExperiment();        
       var inputsByName = mapInputs(experiment);
-      
+            
       
       for (var j = 0; j < experimentData.length; j++) {
         if (foundAMatch) {
@@ -109,29 +110,31 @@
       }  
   
       if (responseType == "number" ||
-        (responseType == "open text" && sampleAnswer != null && sampleAnswer != "" && !isNaN(sampleAnswer))
-         || 
-        responseType == "likert" ||
-        responseType == "likert_smileys") {
+        (responseType == "open text" && 
+        sampleAnswer != null && 
+        sampleAnswer != "" && !isNaN(sampleAnswer))) {
 
         var trendD = [];
         var previousTrend = null;  
+        
         for (var j = 0; j < experimentData.length; j++) {
           var responses = experimentData[j].responses;
-      
+          
           for (var r = 0; r < responses.length; r++) {
-            if (responses[r].name == inputid) {
+            if (responses[r].name === inputid) {
               if (!responses[r].answer) {
                 continue;
-              }
+              }              
               try {
                 new Number(responses[r].answer);
-                }
-              catch (err) {
-                continue;
+              } catch (err) {
+                continue; // be forgiving because we accept opentype responses that started out as numbers
               }
-              var answer = responses[r].answer-0;
-              d.push([experimentData[j].responseTime, answer]);
+              var answer = responses[r].answer - 0;
+              var responseTime = experimentData[j].responseTime;
+              
+              var responseTimeMillis = new Date(responseTime).getTime();
+              d.push([responseTimeMillis, answer]);
               if (previousTrend != null) {
                 var SMOOTHING_FACTOR = 0.1;
                 previousTrend = (answer * SMOOTHING_FACTOR) + ( 1 - SMOOTHING_FACTOR) * previousTrend;
@@ -147,7 +150,9 @@
           document.location.href = "file:///android_asset/default_feedback.html";
           return;
         }
-        $.plot($("#placeholder"), [{label : "time", data : d}], { xaxis: { mode: "time" }, 
+        
+        //alert("Data: " + JSON.stringify(d, null, 2));
+        $.plot($("#placeholder"), [{label : "time", data : d}], { xaxis: { mode: "time", timezone: "browser" }, 
           yaxis : {min: 0, max: maxCount, minTickSize : 1, tickDecimals : 0 },
           "lines" : {"show": "true"}, "points" : {"show": "true"}});
         
@@ -156,26 +161,38 @@
         $("#trend").click(function () {
           var dataToPlot;
           if (!trendShowing) {
-            dataToPlot = [{ label : "time", data : d, lines : {show: true}, points : {show: true}}, 
-            				{ label : "trend", data : trendD, lines: { show: true }}];
+            dataToPlot = [{ label : "time", 
+                            data : d, 
+                            lines : {show: true}, 
+                            points : {show: true}}, 
+            				      { label : "trend", 
+            				        data : trendD, 
+            				        lines: { show: true }}
+            				        ];
+            $("#trend").html("No Trend"); 				
           } else {
-            dataToPlot = [{ label : "time", data : d, lines : {show: true}, points : {show: true}}];
+            dataToPlot = [{ label : "time", 
+                            data : d, 
+                            lines : {show: true}, 
+                            points : {show: true}}];
+            $("#trend").html("Trend");
           }
           trendShowing = !trendShowing;
           $.plot($("#placeholder"), dataToPlot, {
-            xaxis: {mode: "time"},
+            xaxis: {mode: "time", timezone: "browser"},
             yaxis : {min: 0, max: maxCount, minTickSize : 1, tickDecimals : 0 }
           });
         });
       } else if (responseType == "list") {
-        var countForChoice = []; // counts for each answer 
-		var input = inputsByName[inputid];
+        var countForChoice = {}; // counts for each answer 
+		    var input = inputsByName[inputid];
         for (var j = 0; j < experimentData.length; j++) {
           var responses = experimentData[j].responses;
           for (var r = 0; r < responses.length; r++) {
+          
             var response = responses[r];
             if (response.name === inputid) {
-
+              
               var answer = response.answer;
               var answers = [];
               if (input.isMultiselect) {                
@@ -196,15 +213,16 @@
               } 
             }
           }
-        }
-    
+        } 
+      
         var ticks = [];
         var maxCount = 0;
      
         // need to assign numbers to each key and store stuff by that number
-        for (var i = 0; i < input.listChoices.length; i++) {
+        for (var i = 1; i < input.listChoices.length; i++) {
           var choice = input.listChoices[i];
-          var count = countForChoice[choice];
+          var count = countForChoice[i];
+          
           if (!count) {
             count = 0;
           }
@@ -218,6 +236,7 @@
           document.location.href = "file:///android_asset/default_feedback.html";
           return;
         }
+        //alert("Data: " + JSON.stringify(d, null, 2));
         var data = [ {label: 'count', data : d} ]; 
         var options = {series : {
                      lines: {show: false, steps: false },
@@ -227,6 +246,66 @@
                    yaxis : {min: 0, max: maxCount + 1, minTickSize : 1, tickDecimals : 0 }
                    };  
         $.plot($("#placeholder"), data, options);      
+      } else if (responseType == "likert" || responseType == "likert_smileys") {
+        var countForChoice = {}; // counts for each answer 
+        var input = inputsByName[inputid];
+        for (var j = 0; j < experimentData.length; j++) {
+          var responses = experimentData[j].responses;
+          for (var r = 0; r < responses.length; r++) {          
+            var response = responses[r];
+            if (response.name === inputid) {              
+              var answer = response.answer;                    
+              var currentCount = countForChoice[answer];
+              if (currentCount) {
+                 countForChoice[answer] = currentCount + 1;
+              } else {
+                 countForChoice[answer] = 1;
+              }
+            } 
+          }
+        }
+      
+        var ticks = [];
+        var maxCount = 0;
+     
+        for (var i = 1; i < input.likertSteps + 1; i++) {
+          var count = countForChoice[i];
+          
+          if (!count) {
+            count = 0;
+          }
+          
+          d.push([i, count]);
+          
+          
+          scaleStepLabel = i;
+          if (i == 1 && input.leftSideLabel) {
+            scaleStepLabel = input.leftSideLabel;
+          } else if (i == input.likertSteps && input.rightSideLabel) {
+            scaleStepLabel = input.rightSideLabel;
+          }
+          ticks.push([i, truncString(scaleStepLabel, 8)]);  
+          if (count > maxCount) {
+            maxCount = count;
+          }
+        }
+        
+      
+        if (!(checkChartData(d))){
+          document.location.href = "file:///android_asset/default_feedback.html";
+          return;
+        }
+        
+        var data = [ {label: 'count', data : d} ]; 
+        var options = {series : {
+                     lines: {show: false, steps: false },
+                     bars: {show: true, barWidth: 0.7, align: 'center',},
+                   },
+                   xaxis: {ticks: ticks},
+                   yaxis : {min: 0, max: maxCount + 1, minTickSize : 1, tickDecimals : 0 }
+                   };  
+        $.plot($("#placeholder"), data, options);      
+      
       } else if (responseType == "open text") {
         var tableData = "<table><tr><th>Time</th><th>Answer</th></tr>";
         for (var j = 0; j < experimentData.length; j++) {
