@@ -200,6 +200,8 @@ public class Input2 extends ModelBase implements Validatable, Serializable {
     if (responseType != null) {
       if (responseType.equals(LIKERT)) {
         validator.isNotNull(likertSteps, "scales need a number of steps specified");
+        validator.isTrue(likertSteps >= 2, "scaled need at least 2 steps");
+        validator.isTrue(likertSteps <= 9, "scaled need 9 or less steps");
         //validator.isNotNull(leftSideLabel, "no left label is specified for scale");
         //validator.isNotNull(rightSideLabel, "no right label is specified for scale");
       } else if (responseType.equals(LIST)) {
