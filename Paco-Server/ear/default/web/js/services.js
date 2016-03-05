@@ -313,6 +313,7 @@ pacoApp.service('config', function() {
   this.responseTypes = {
     'likert': 'Scale',
     'likert_smileys': '5 Point Smiley Scale',
+    'number': 'Number',
     'open text': 'Open Text',
     'list': 'List',
     'photo': 'Photo',
