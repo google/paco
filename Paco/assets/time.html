@@ -21,7 +21,7 @@
           winH = winH * 0.9 ;
           winW = Math.min(winW * 0.9, winH / 2);        
         }
-        var scale= 0.5;
+        var scale= 0.9;
         winH = winH * scale;
         winW = winW * scale;
         $("#placeholder").width=winW;  
@@ -33,7 +33,7 @@
     <div id="charttitle"> 
     <h1>Chart</h1></div>
 
-    <div id="placeholder" style="width:300px;height:150px;"></div>
+    <div id="placeholder" style="height:300px;"></div>
     <div id="buttons"></div>
     <script id="source">
       $(function () {
@@ -142,7 +142,7 @@
                 previousTrend = answer;
               }
               //alert("Answer " + j + ": " + answer + ", trend = " + previousTrend +", responseTime = " + experimentData[j].responseTime);
-              trendD.push([experimentData[j].responseTime, new Number(previousTrend)]);           
+              trendD.push([responseTimeMillis, new Number(previousTrend)]);           
             }
           }
         }
