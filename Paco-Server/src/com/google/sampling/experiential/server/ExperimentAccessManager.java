@@ -59,7 +59,7 @@ public class ExperimentAccessManager {
 
     List<Filter> filters = Lists.newArrayList();
     filters.add(new com.google.appengine.api.datastore.Query.FilterPredicate(EXPERIMENT_ID, FilterOperator.EQUAL, experimentId));
-    filters.add(new com.google.appengine.api.datastore.Query.FilterPredicate(ADMIN_ID, FilterOperator.EQUAL, loggedInUserEmail));
+    filters.add(new com.google.appengine.api.datastore.Query.FilterPredicate(ADMIN_ID, FilterOperator.EQUAL, loggedInUserEmail.toLowerCase()));
 
     Filter filter = new com.google.appengine.api.datastore.Query.CompositeFilter(CompositeFilterOperator.AND, filters);
     Query query = new com.google.appengine.api.datastore.Query(ADMIN_USER_KIND);
@@ -298,10 +298,10 @@ public class ExperimentAccessManager {
     removePublishedUserAcls(/*tx,*/ ds, toBeRemovedList);
   }
 
-  public static List<String> lowerCaseEmails(List<String> newAdminListMixedCase) {
+  public static List<String> lowerCaseEmails(List<String> emailListMixedCase) {
     List<String> newAdminList = Lists.newArrayList();
-    for (String admin : newAdminListMixedCase) {
-      newAdminList.add(admin.toLowerCase());
+    for (String email : emailListMixedCase) {
+      newAdminList.add(email.toLowerCase());
     }
     return newAdminList;
   }

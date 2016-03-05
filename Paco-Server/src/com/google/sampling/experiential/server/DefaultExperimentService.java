@@ -115,9 +115,11 @@ class DefaultExperimentService implements ExperimentService {
   public List<ValidationMessage> saveExperiment(ExperimentDAO experiment,
                                                 String loggedInUserEmail,
                                                 DateTimeZone timezone) {
+    
     if (ExperimentAccessManager.isUserAllowedToSaveExperiment(experiment.getId(), loggedInUserEmail)) {
       ensureIdsOnActionTriggerObjects(experiment);
-
+      lowercaseAllEmailAddresses(experiment);
+      
       ExperimentValidator validator = new ExperimentValidator();
       experiment.validateWith(validator);
       List<ValidationMessage> results = validator.getResults();
@@ -166,6 +168,15 @@ class DefaultExperimentService implements ExperimentService {
     }
     throw new IllegalStateException(loggedInUserEmail + " does not have permission to edit " + experiment.getTitle());
 
+  }
+
+
+  private void lowercaseAllEmailAddresses(ExperimentDAO experiment) {
+    experiment.setAdmins(ExperimentAccessManager.lowerCaseEmails(experiment.getAdmins()));
+    if (experiment.getPublishedUsers() != null && !experiment.getPublishedUsers().isEmpty()) {
+      experiment.setPublishedUsers(ExperimentAccessManager.lowerCaseEmails(experiment.getPublishedUsers()));
+    }
+    experiment.setCreator(experiment.getCreator().toLowerCase());
   }
 
   private void ensureIdsOnActionTriggerObjects(ExperimentDAO experiment) {
