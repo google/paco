@@ -42,6 +42,15 @@
               </div>
             </div>
 
+            <div ng-if="input.responseType === 'number'" class="input">
+              <div>
+                <md-input-container md-no-float>
+                  <input type="number" placeholder="answer" 
+                    ng-model="responses[input.name]" ng-disabled="readonly"></input>
+                </md-input-container>
+              </div>
+            </div>
+
             <div ng-if="input.responseType === 'list' && !input.multiselect" class="input">
               <md-select placeholder="Select" ng-model="responses[input.name]" ng-disabled="readonly">
                 <md-option ng-repeat="choice in input.listChoices" value="{{$index + 1}}">
