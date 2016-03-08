@@ -56,6 +56,11 @@
   right: -40px;
 }
 
+.choice .buttons {
+  margin-top: 24px;
+  width: 130px;
+}
+
 .time .remove.button {
   position: absolute;
   top: 28px;
@@ -93,10 +98,6 @@
 
 .remove.button {
   background: url('../img/ic_clear_24px.svg') no-repeat;
-}
-
-.choice .remove.button {
-  margin-top: 24px;
 }
 
 .button.add {

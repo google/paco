@@ -281,8 +281,14 @@ pacoApp.controller('ExperimentCtrl', ['$scope', '$mdDialog', '$filter',
       $scope.experiment.groups.push(angular.copy(template.group));
     };
 
-    $scope.remove = function(arr, idx) {
-      arr.splice(idx, 1);
+    $scope.remove = function(arr, index) {
+      arr.splice(index, 1);
+    };
+
+    $scope.swap = function(arr, index1, index2) {
+      var temp = arr[index2];
+      arr[index2] = arr[index1];
+      arr[index1] = temp;
     };
 
     $scope.convertBack = function(event) {
@@ -718,12 +724,6 @@ pacoApp.controller('GroupsCtrl', ['$scope', 'template',
       event.stopPropagation();
     };
 
-    $scope.swapInputs = function(event, index1, index2) {
-      var temp = $scope.group.inputs[index2];
-      $scope.group.inputs[index2] = $scope.group.inputs[index1];
-      $scope.group.inputs[index1] = temp;
-    };
-
     $scope.toggleGroup = function($event) {
       $scope.hiding = !$scope.hiding;
     };
@@ -767,8 +767,12 @@ pacoApp.controller('InputCtrl', ['$scope', 'config', function($scope, config) {
     }
   });
 
-  $scope.addChoice = function() {
-    $scope.input.listChoices.push('');
+  $scope.addChoice = function(index) {
+    if (index !== undefined) {
+      $scope.input.listChoices.splice(index, 0, '');
+    } else {
+      $scope.input.listChoices.push('');
+    }
   }
 }]);
 
