@@ -19,6 +19,7 @@
 // http://tools.ietf.org/html/draft-ietf-oauth-v2
 
 #import <Foundation/Foundation.h>
+#import <GoogleSignIn/GoogleSignIn.h>
 
 #if GTM_USE_SESSION_FETCHER
   #import "GTMSessionFetcher.h"

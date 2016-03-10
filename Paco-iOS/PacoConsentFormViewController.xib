@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="7706" systemVersion="14F27" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="9532" systemVersion="15D21" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES">
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="7703"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="9530"/>
     </dependencies>
     <objects>
         <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="PacoConsentFormViewController" customModule="Paco" customModuleProvider="target">
@@ -18,10 +18,10 @@
             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
             <subviews>
                 <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="0tH-xa-0MX">
-                    <rect key="frame" x="92" y="379" width="51" height="30"/>
+                    <rect key="frame" x="68" y="379" width="100" height="30"/>
                     <constraints>
                         <constraint firstAttribute="width" constant="51" id="4mF-Cg-tF8"/>
-                        <constraint firstAttribute="width" constant="51" id="cV6-qH-PgT"/>
+                        <constraint firstAttribute="width" constant="100" id="cV6-qH-PgT"/>
                     </constraints>
                     <state key="normal" title="Decline">
                         <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
@@ -36,7 +36,7 @@
                     </connections>
                 </button>
                 <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="tNi-oi-eex">
-                    <rect key="frame" x="232" y="379" width="51" height="30"/>
+                    <rect key="frame" x="208" y="379" width="100" height="30"/>
                     <constraints>
                         <constraint firstAttribute="width" constant="49" id="uvt-cc-Z4n"/>
                     </constraints>

@@ -2,7 +2,7 @@
 //  PacoPacoSerializer.h
 //  Paco
 //
-//  Created by Timothy  Northrop O'Brien on 7/23/15.
+//  Created by Timothy  Tim O'Brien on 7/23/15.
 //
 //
 //  Parses the collection heirarchy created by a json parser to produce a model

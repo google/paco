@@ -2,7 +2,7 @@
 //  PacoMyExperiments.swift
 //  Paco
 //
-//  Created by northropo on 10/20/15.
+//  Created by Timo on 10/20/15.
 //  Copyright (c) 2015 Paco. All rights reserved.
 //
 
@@ -10,8 +10,7 @@ import UIKit
 
 class PacoMyExperiments: UITableViewController,PacoExperimentProtocol {
     
-     var  myExpriments:Array<PAExperimentDAO>?;
-    
+      var  myExpriments:Array<PAExperimentDAO>?;
       var cells:NSArray = []
       let cellId = "ExperimenCellID"
       let simpleCellId = "ExperimenSimpleCellID"
@@ -29,18 +28,18 @@ class PacoMyExperiments: UITableViewController,PacoExperimentProtocol {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        //title = "My Experiments"
+  
       tableView.tableFooterView = UIView()
         
         
-       NSNotificationCenter.defaultCenter().addObserver(self, selector:"experimentsRefreshed:", name:"MyExperiments", object: nil)
+        NSNotificationCenter.defaultCenter().addObserver(self, selector:"experimentsRefreshed:", name:"MyExperiments", object: nil)
       
         self.tableView.registerNib(UINib(nibName: "PacoTableViewCell", bundle: nil), forCellReuseIdentifier:cellId)
         
-         self.tableView.registerNib(UINib(nibName: "PacoMyExpermementTitleCellTableViewCell", bundle: nil), forCellReuseIdentifier:simpleCellId)
+        self.tableView.registerNib(UINib(nibName: "PacoMyExpermementTitleCellTableViewCell", bundle: nil), forCellReuseIdentifier:simpleCellId)
         
         
-              let swiftColor = UIColor(red:0.96, green:0.96, blue:0.96, alpha:1.0)
+        let swiftColor = UIColor(red:0.96, green:0.96, blue:0.96, alpha:1.0)
         self.tableView.backgroundColor = swiftColor
 
         // Uncomment the following line to preserve selection between presentations
@@ -153,7 +152,7 @@ class PacoMyExperiments: UITableViewController,PacoExperimentProtocol {
         
         PacoMediator.sharedInstance().replaceAllExperiments(myExpriments)
         
-        println("print the notificatins \(myExpriments)");
+        print("print the notificatins \(myExpriments)");
         self.tableView.reloadData()
     }
     

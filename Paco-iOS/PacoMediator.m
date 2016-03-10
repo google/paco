@@ -28,7 +28,7 @@
 #import "NSMutableArray+PacoModel.h"
 #import "UILocalNotification+PacoExteded.h"
 #import "PacoEventManagerExtended.h"
-
+#import "PacoPublicDefinitionLoader.h"
 
 
 
@@ -43,8 +43,9 @@
 @interface PacoMediator ()
 
 
-
+@property (strong,nonatomic)   PacoPublicDefinitionLoader * definitionsLoader;
 @property (strong,nonatomic )  PacoNotificationManager* notificationManager;
+@property (strong,nonatomic ) NSMutableArray*  hubExperiments;
 @property (strong,nonatomic ) NSMutableArray* allExperiments;
 @property (strong,nonatomic)   NSMutableArray* runningExperiments;
 @property (strong,nonatomic)  NSMutableArray* actionSpecifications;
@@ -60,6 +61,7 @@
 
 @property (strong,nonatomic ) NSMutableArray*  willModifyVerifiers;
 @property (strong,nonatomic ) NSMutableArray*  didModifyNotifiers;
+@property(nonatomic, strong) id<PacoEnumerator> publicExperimentIterator;
 
 @end
  
@@ -75,7 +77,8 @@ static dispatch_group_t group;
     self = [super init];
     
     if (self) {
-
+        
+        self.hubExperiments               = [[NSMutableArray alloc] init];
         self.allExperiments               = [[NSMutableArray alloc] init];
         self.runningExperiments           = [[NSMutableArray alloc] init];
         self.actionSpecifications         = [[NSMutableArray alloc] init];
@@ -92,13 +95,31 @@ static dispatch_group_t group;
         PacoGenerateEventValidator* verifyer =  [PacoGenerateEventValidator new];
         [self.willStartVerifiers addObject:verifyer];
         
+        _publicExperimentIterator =  [PacoPublicDefinitionLoader  publicExperimentsEnumerator];
         
+        
+      
 
         [self refreshRunningExperiments];
         
     }
     return self;
 }
+
+
+
+-(void) reloadHud
+{
+    
+    
+    
+    
+  
+    
+    
+    
+}
+
 
 
 
@@ -150,6 +171,23 @@ static dispatch_group_t group;
     NSMutableArray*  returnedExperiments = [[NSMutableArray alloc] initWithArray:_allExperiments copyItems:NO];
     [returnedExperiments  removeExperiments:_runningExperiments];
     return   returnedExperiments ;
+}
+
+
+
+-(void) setHudExperiments:(NSMutableArray*) newArray
+{
+    _hubExperiments    = newArray;
+    
+}
+
+-(NSMutableArray*) hubExperiments
+{
+    
+    
+    return _hubExperiments;
+    
+    
 }
 
 

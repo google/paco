@@ -2,7 +2,7 @@
 //  ArrayStore.m
 //  Paco
 //
-//  Created by northropo on 10/13/15.
+//  Created by Timo on 10/13/15.
 //  Copyright (c) 2015 Paco. All rights reserved.
 //
 
@@ -124,7 +124,7 @@
      GenericArray * ga = [records firstObject];
     
     NSData* data = ga.blob;
-      NSArray* array = [NSKeyedUnarchiver unarchiveObjectWithData:data];
+    NSArray* array = [NSKeyedUnarchiver unarchiveObjectWithData:data];
 
     return array;
 }

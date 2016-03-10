@@ -2,7 +2,7 @@
 //  PacoNetwork.h
 //  Paco
 //
-//  Created by northropo on 10/15/15.
+//  Created by Timo on 10/15/15.
 //  Copyright (c) 2015 Paco. All rights reserved.
 //
 
@@ -17,7 +17,7 @@
 
 typedef void(^PacoRefreshCompletionBlock)(NSError* error);
 typedef void(^LoginCompletionBlock)(NSError* error);
-#define SERVER_DOMAIN_FLAG 2
+#define SERVER_DOMAIN_FLAG 0
 
 
 @interface PacoNetwork : NSObject
@@ -40,7 +40,10 @@ typedef void(^LoginCompletionBlock)(NSError* error);
 - (void)loginWithOAuth2CompletionHandler:(void (^)(NSError *))completionHandler;
 - (void)uploadPendingEventsInBackground;
 - (void)configurePacoServerAddress:(NSString *)serverAddress;
--(void) update;
+- (void) update;
+- (void) hudReload;
+
+
 
 
 

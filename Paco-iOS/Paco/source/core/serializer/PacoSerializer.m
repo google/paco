@@ -2,7 +2,7 @@
 //  PacoPacoSerializer.m
 //  Paco
 //
-//  Created by Timothy  Northrop O'Brien on 7/23/15.
+//  Created by Timothy  Tim O'Brien on 7/23/15.
 //
 //
 //
@@ -218,6 +218,7 @@
 - (NSObject*)buildObjectHierarchyFromJSONOBject:(id) object  {
     _parentNode = nil;
     NSError* error;
+    
     id definitionDict =
     [NSJSONSerialization JSONObjectWithData:object
                                     options:NSJSONReadingAllowFragments
@@ -287,7 +288,7 @@
     }
 
   } else if ([parentInfo[1] isKindOfClass:[JavaUtilHashMap class]]) {
-    NSArray* myArray = (NSArray*)[[parentInfo[1] keySet] toArray];
+      NSArray* myArray = nil;//  (NSArray*)[[parentInfo[1] keySet] toArray];
     for (NSString* str in myArray) {
       [self validate:@[ str, [parentInfo[1] valueForKey:str] ]];
     }
@@ -340,7 +341,7 @@
     [self addToCollection:parentInfo[0] Value:mutableDictionary];
     [self push:mutableDictionary];
 
-    NSArray* myArray = (NSArray*)[[parentInfo[1] keySet] toArray];
+      NSArray* myArray = nil;// (NSArray*)[[parentInfo[1] keySet] toArray];
     for (NSString* str in myArray) {
       [self recurseObjectHierarchy:@[ str, [parentInfo[1] valueForKey:str] ]];
     }

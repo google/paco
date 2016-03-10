@@ -2,18 +2,19 @@
 //  PacoMyExpermementTitleCellTableViewCell.swift
 //  Paco
 //
-//  Created by northropo on 10/22/15.
+//  Created by Timo on 10/22/15.
 //  Copyright (c) 2015 Paco. All rights reserved.
 //
 
 import UIKit
 
-class PacoMyExpermementTitleCellTableViewCell: UITableViewCell {
+@objc public class PacoMyExpermementTitleCellTableViewCell: UITableViewCell {
 
  
 
-    var  experiment:PAExperimentDAO?
-    var  parent:PacoExperimentProtocol?
+    public var  experiment:PAExperimentDAO?
+    public var  jsonDict:NSDictionary?
+    public var  parent:PacoExperimentProtocol?
     
     
     public var expanded = false
@@ -22,7 +23,7 @@ class PacoMyExpermementTitleCellTableViewCell: UITableViewCell {
     @IBOutlet weak var subtitle: UILabel!
     @IBOutlet weak var experimentTitle: UILabel!
     
-    override func awakeFromNib() {
+    override public func awakeFromNib() {
         super.awakeFromNib()
      /*   self.contentView.backgroundColor = UIColor.clearColor();
         

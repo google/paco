@@ -2,7 +2,7 @@
 //  PacoBoxControl.swift
 //  Paco
 //
-//  Created by northropo on 11/6/15.
+//  Created by Timo on 11/6/15.
 //  Copyright (c) 2015 Paco. All rights reserved.
 //
 
@@ -40,8 +40,8 @@ class PacoBoxControl: UIView, UITableViewDataSource,UITableViewDelegate,UIGestur
     
     required init(coder aDecoder: NSCoder)
     {
-        table = UITableView(coder: aDecoder)
-        super.init(coder:aDecoder)
+        table = UITableView(coder: aDecoder)!
+        super.init(coder:aDecoder)!
         
         table.scrollEnabled = false
         self.backgroundColor = UIColor.whiteColor()
@@ -82,7 +82,7 @@ class PacoBoxControl: UIView, UITableViewDataSource,UITableViewDelegate,UIGestur
         var  itemName:String =  (listChoices?.getWithInt(index) as? String)!
         
    
-        println(" \(checks) ")
+        print(" \(checks) ")
         
         
         if(   checks[indexPath.row] == true)
@@ -132,8 +132,8 @@ class PacoBoxControl: UIView, UITableViewDataSource,UITableViewDelegate,UIGestur
     
     func checkOrUncheck(recognizer:UITapGestureRecognizer )
     {
-        println( "\(checkLabels) ")
-         println( "\(checks) ")
+        print( "\(checkLabels) ")
+         print( "\(checks) ")
         let label = recognizer.view as! PacoLabel
          if checks[label.index] == true
          {
@@ -165,7 +165,7 @@ class PacoBoxControl: UIView, UITableViewDataSource,UITableViewDelegate,UIGestur
             
             
         }
-           println( "\(checks) ")
+           print( "\(checks) ")
         table.reloadData();
         
         

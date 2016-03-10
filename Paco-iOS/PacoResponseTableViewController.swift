@@ -2,7 +2,7 @@
 //  PacoResponseTableViewController.swift
 //  Paco
 //
-//  Created by northropo on 11/5/15.
+//  Created by Timo on 11/5/15.
 //  Copyright (c) 2015 Paco. All rights reserved.
 //
 
@@ -146,7 +146,7 @@ class PacoResponseTableViewController: UITableViewController,PacoInputTable {
        
             
          
-            println("   \(index)   -- \(cell)  ")
+            print("   \(index)   -- \(cell)  ")
             
             
             
@@ -316,12 +316,12 @@ class PacoResponseTableViewController: UITableViewController,PacoInputTable {
     override func viewWillDisappear(animated: Bool) {
         super.viewWillDisappear(animated)
         
-        for cell  in tableView.visibleCells()
+        for cell  in tableView.visibleCells
         {
             
             if cell is PacoTableViewExpandingCellBase
             {
-                 cell.ignoreFrameChanges()
+               //  cell.ignoreFrameChanges()
             }
         }
     }

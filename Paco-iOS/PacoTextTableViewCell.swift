@@ -2,7 +2,7 @@
 //  PacoTextTableViewCell.swift
 //  Paco
 //
-//  Created by northropo on 11/6/15.
+//  Created by Timo on 11/6/15.
 //  Copyright (c) 2015 Paco. All rights reserved.
 //
 
@@ -45,7 +45,7 @@ class PacoTextTableViewCell:PacoTableViewExpandingCellBase, UITextViewDelegate  
         
         if(input?.getRequired().booleanValue() == true)
         {
-            if(count(inputTexInput.text) > 1)
+            if( inputTexInput.text.characters.count > 1 )
             {
                retVal = true
             }

@@ -2,7 +2,7 @@
 //  PacoNetwork.m
 //  Paco
 //
-//  Created by northropo on 10/15/15.
+//  Created by Timo on 10/15/15.
 //  Copyright (c) 2015 Paco. All rights reserved.
 //
 
@@ -13,6 +13,10 @@
 #import "PacoAppDelegate.h" 
 #import "Reachability.h" 
 #import "PacoEventManagerExtended.h"
+#import "PacoSerializeUtil.h"
+#import "PacoSerializer.h" 
+
+
 
 
 static NSString* const kPacoNotificationSystemTurnedOn = @"paco_notification_system_turned_on";
@@ -23,7 +27,12 @@ static NSString* const kPacoStagingServerAddress = @"quantifiedself-staging.apps
 
 @interface PacoNetwork()
 
+
+@property (nonatomic,strong) id<PacoEnumerator> publicExperimentIterator;
 @property (nonatomic, strong) PacoEventManagerExtended* eventManager;
+
+
+
 @end
 
 
@@ -51,6 +60,9 @@ static NSString* const kPacoStagingServerAddress = @"quantifiedself-staging.apps
         
         // by default keep notification system on.
         [self triggerNotificationSystem];
+        
+        
+          _publicExperimentIterator =  [PacoPublicDefinitionLoader  publicExperimentsEnumerator];
         
     }
     return self;
@@ -264,6 +276,71 @@ static NSString* const kPacoStagingServerAddress = @"quantifiedself-staging.apps
 
 
 
+
+/*
+    move this method. to much higher level logic in class for lower level logic.
+ 
+ 
+ */
+-(void) hudReload
+{
+    
+    PacoNetwork * network = [PacoNetwork sharedInstance];
+    NSMutableArray  * mutableArray = [NSMutableArray new];
+    
+    if(!_isFetching)
+    {
+        [network loginWithCompletionBlock:^(NSError* error) {
+            
+            
+            
+            [_publicExperimentIterator loadNextPage:^(NSArray * array, NSError * error) {
+                
+                
+                NSArray* classNames = [PacoSerializeUtil getClassNames];
+                PacoSerializer * serializer = [[PacoSerializer alloc] initWithArrayOfClasses:classNames withNameOfClassAttribute:@"nameOfClass"];
+                
+                
+                PAExperimentDAO * dao;
+                for(NSDictionary* dict in array)
+                {
+                     dao  = (PAExperimentDAO*)  [serializer buildModelObject:dict];
+                    
+                    [mutableArray addObject:dao];
+                }
+
+                PacoMediator * mediator =  [PacoMediator sharedInstance];
+                [mediator setHudExperiments:mutableArray];
+ 
+                
+            }];
+            
+            
+            
+            
+            [[NSNotificationCenter defaultCenter]
+             postNotificationName:@"HudUpdated"
+             object:self];
+            
+            
+            
+         }];
+
+        
+        
+        
+        
+        
+    }
+    
+    
+    
+    
+    
+    
+}
+
+
 -(void) update
 {
     
@@ -283,7 +360,7 @@ static NSString* const kPacoStagingServerAddress = @"quantifiedself-staging.apps
             
         } else {
             
-            [network.service loadMyFullDefinitionListWithBlock:^(NSArray* experiments, NSError* error) {
+            [network.service loadMyFullDefinitionListWithBlock:^(NSDictionary * experiments, NSError* error) {
                 if (!error) {
                     
                     PacoMediator* mediator = [PacoMediator sharedInstance];
@@ -292,11 +369,7 @@ static NSString* const kPacoStagingServerAddress = @"quantifiedself-staging.apps
                     [[NSNotificationCenter defaultCenter]
                      postNotificationName:@"MyExperiments"
                      object:nil];
-                    
-                    
-                    
-                    
-                
+
                 } else
                 {
                     [[PacoMediator sharedInstance] refreshRunningExperiments];
@@ -325,7 +398,7 @@ static NSString* const kPacoStagingServerAddress = @"quantifiedself-staging.apps
     
         
              [self uploadPendingEventsInBackground];
-              [self.service loadMyFullDefinitionListWithBlock:^(NSArray* definitions, NSError* error) {
+              [self.service loadMyFullDefinitionListWithBlock:^(NSDictionary* definitions, NSError* error) {
                 if (!error) {
                     
                     

@@ -2,7 +2,7 @@
 //  PacoTableExperimentsController.m
 //  Paco
 //
-//  Created by northropo on 10/8/15.
+//  Created by Timo on 10/8/15.
 //  Copyright (c) 2015 Paco. All rights reserved.
 //
 
@@ -51,7 +51,7 @@
     
     
        //self.definitionLoader = [PacoPublicDefinitionLoader new];
-         _enumerator = [PacoPublicDefinitionLoader enumerator];
+         _enumerator = [PacoPublicDefinitionLoader publicExperimentsEnumerator];
     
       UIBarButtonItem * addExperiment =  [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAdd
                                                   target:self  action:@selector(addExperiment:)];
@@ -89,7 +89,7 @@
             
             
             
-            [network.service loadMyFullDefinitionListWithBlock:^(NSArray* definitions, NSError* error) {
+            [network.service loadMyFullDefinitionListWithBlock:^(NSDictionary* definitions, NSError* error) {
                 if (!error) {
                     
                      NSLog(@" YES THIS ONE IS IT ");

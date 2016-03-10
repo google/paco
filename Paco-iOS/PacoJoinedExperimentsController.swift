@@ -2,7 +2,7 @@
 //  PacoJoinedExperimentsController.swift
 //  Paco
 //
-//  Created by northropo on 10/29/15.
+//  Created by Timo on 10/29/15.
 //  Copyright (c) 2015 Paco. All rights reserved.
 //
 
@@ -85,7 +85,7 @@ class PacoJoinedExperimentsController: UITableViewController,PacoExperimentProto
     var mediator =  PacoMediator.sharedInstance();
     var  mArray:NSMutableArray  = mediator.startedExperiments();
     myExpriments = mArray as AnyObject  as? [PAExperimentDAO]
-    println("print the notificatins \(myExpriments)");
+    print("print the notificatins \(myExpriments)");
     self.tableView.reloadData()
     
     
@@ -146,7 +146,7 @@ class PacoJoinedExperimentsController: UITableViewController,PacoExperimentProto
     func showEditView(experiment:PAExperimentDAO,indexPath:NSIndexPath)
     {
             
-           println("the index is \(indexPath.row)")
+           print("the index is \(indexPath.row)")
         
         let cell = tableView.dequeueReusableCellWithIdentifier(self.cellId, forIndexPath: indexPath) as! PacoJoinedExperimentsTableViewCell
         

@@ -47,6 +47,10 @@
 -(void) replaceAllExperiments:(NSArray*) experiments;
 
 
+
+-(NSMutableArray*) hubExperiments;
+-(void) setHudExperiments:(NSMutableArray*) newArray;
+
 - (void)submitSurveyWithDefinition:(PAExperimentDAO*) definition
                       surveyInputs:(NSArray*)surveyInputs
                       notification:(UILocalNotification*)notification;

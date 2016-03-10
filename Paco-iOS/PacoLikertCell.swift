@@ -2,13 +2,13 @@
 //  PacoLikertCell.swift
 //  Paco
 //
-//  Created by northropo on 11/20/15.
+//  Created by Timo on 11/20/15.
 //  Copyright (c) 2015 Paco. All rights reserved.
 //
 
 import UIKit
 
-class PacoLikertCell: PacoTableViewExpandingCellBase,UIGestureRecognizerDelegate {
+class PacoLikertCell: PacoTableViewExpandingCellBase {
     
     
     @IBOutlet weak var likertLabel: UILabel!
@@ -101,7 +101,7 @@ class PacoLikertCell: PacoTableViewExpandingCellBase,UIGestureRecognizerDelegate
         labels[index].text = "\(CHECKED)"
         
         
-         println("selected label \(label.tag)")
+         print("selected label \(label.tag)")
         
         
     }

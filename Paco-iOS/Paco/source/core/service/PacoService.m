@@ -18,7 +18,6 @@
 
 #import "GTMHTTPFetcher.h"
 #import "GTMHTTPFetcherLogging.h"
-#import "GTMOAuth2Authentication.h"
 #import "PacoAuthenticator.h"
 #import "PacoDateUtility.h"
 #import "PacoExtendedClient.h"
@@ -64,9 +63,9 @@
              completionHandler:(void (^)(id, NSError *))completionHandler {
   NSString *version = [[NSBundle mainBundle] infoDictionary][(NSString*)kCFBundleVersionKey];
   NSAssert([version length] > 0, @"version number is not valid!");
-  [request setValue:@"iOS" forHTTPHeaderField:@"http.useragent"];
- //[request setValue:version forHTTPHeaderField:@"paco.version"];
- // [request setValue:@"3.0" forHTTPHeaderField:@"pacoProtocol"];
+   [request setValue:@"iOS" forHTTPHeaderField:@"http.useragent"];
+    [request setValue:@"4.0" forHTTPHeaderField:@"paco.version"];
+    [request setValue:@"4.0" forHTTPHeaderField:@"pacoProtocol"];
 
   // Authenticate
     [GTMHTTPFetcher setLoggingEnabled:YES];
@@ -84,13 +83,13 @@
       NSError *jsonError = nil;
       if ([data length]) {
           
-        NSString* jsonString =   [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+    
         jsonObj = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingAllowFragments error:&jsonError];
         if (jsonError) {
           DDLogError(@"JSON PARSE ERROR = %@\n", jsonError);
           DDLogError(@"PROBABLY AN AUTH ERROR");
           
-          [[PacoExtendedClient sharedInstance] invalidateUserAccount];
+         // [[PacoExtendedClient sharedInstance] invalidateUserAccount];
         }
       }
       if (completionHandler) {
@@ -118,8 +117,8 @@
     if (!error) {
     //  NSAssert([jsonData isKindOfClass:[NSDictionary class]], @"paginated response should be a dictionary");
       if (block) {
-       // NSString* cursor = jsonData[@"cursor"];
-       // NSArray* results = jsonData[@"results"];
+        // NSString* cursor = jsonData[@"cursor"];
+        // NSArray* results = jsonData[@"results"];
           
         block(jsonData, nil, nil);
       }
@@ -132,6 +131,27 @@
 }
 
 
+- (void)loadPublicDefinitionListWithCursorAndEndpoint:(NSString*) endPoint cursor:(NSString*)cursor   limit:(NSUInteger)limit block:(PacoPaginatedResponseBlock)block {
+  
+    if ([cursor length] > 0) {
+        endPoint = [endPoint stringByAppendingFormat:@"&cursor=%@", cursor];
+    }
+    else
+    {
+        cursor = [NSString new];
+        
+    }
+    if (limit > 0) {
+        endPoint = [endPoint stringByAppendingFormat:@"&limit=%lu", (unsigned long)limit];
+    }
+    endPoint = [endPoint stringByAppendingFormat:@"&tz=%@", [PacoDateUtility escapedNameForSystemTimeZone]];
+    [self sendGetHTTPRequestWithEndPoint:endPoint andBlock:block];
+}
+
+
+
+
+/*
 - (void)loadPublicDefinitionListWithCursor:(NSString*)cursor limit:(NSUInteger)limit block:(PacoPaginatedResponseBlock)block {
   NSString* endPoint = @"/experiments?public";
   if ([cursor length] > 0) {
@@ -142,28 +162,29 @@
   }
     endPoint = [endPoint stringByAppendingFormat:@"&tz=%@", [PacoDateUtility escapedNameForSystemTimeZone]];
   [self sendGetHTTPRequestWithEndPoint:endPoint andBlock:block];
-}
+}*/
 
 
-- (void)loadMyShortDefinitionListWithBlock:(void (^)(NSArray*, NSError*))completionBlock {
+
+- (void)loadMyShortDefinitionListWithBlock:(void (^)(NSDictionary * dictionary , NSError*))completionBlock {
   NSString *endPoint = [@"experiments?mine" stringByAppendingFormat:@"&tz=%@",
                         [PacoDateUtility escapedNameForSystemTimeZone]];
-  [self sendGetHTTPRequestWithEndPoint:endPoint andBlock:^(NSArray *items, NSString *cursor, NSError *error) {
+  [self sendGetHTTPRequestWithEndPoint:endPoint andBlock:^(NSDictionary  *items, NSString *cursor, NSError *error) {
     if (completionBlock) {
       completionBlock(items, error);
     }
   }];
 }
 
-- (void)loadFullDefinitionListWithIDs:(NSArray*)idList andBlock:(void (^)(NSArray*, NSError*))completionBlock {
+- (void)loadFullDefinitionListWithIDs:(NSArray  *)idList andBlock:(void (^)(NSDictionary*, NSError*))completionBlock {
   NSAssert([idList count] > 0, @"idList should have more than one id inside!");
     
     
   NSString* endPointString = [NSString stringWithFormat:@"experiments?id=%@&tz=%@",[idList componentsJoinedByString:@","], [PacoDateUtility escapedNameForSystemTimeZone]];
-  [self sendGetHTTPRequestWithEndPoint:endPointString andBlock:^(NSArray* items, NSString* cursor, NSError* error) {
+  [self sendGetHTTPRequestWithEndPoint:endPointString andBlock:^(NSDictionary* items, NSString* cursor, NSError* error) {
     if (completionBlock) {
-      NSMutableArray* definitionList = [NSMutableArray arrayWithCapacity:[items count]];
-      for (id definitionJson in items) {
+      NSMutableArray* definitionList = [NSMutableArray arrayWithCapacity:[items[@"results"]  count]];
+      for (id definitionJson in items[@"results"]) {
           
         NSAssert([definitionJson isKindOfClass:[NSDictionary class]], @"a full definition should be a dictionary ");
           
@@ -191,10 +212,10 @@
 }
 
 - (void)loadFullDefinitionWithID:(NSString*)definitionID andBlock:(void (^)(PacoExperimentDefinition*, NSError*))completionBlock {
-  [self loadFullDefinitionListWithIDs:@[definitionID] andBlock:^(NSArray* definitionList, NSError* error) {
+  [self loadFullDefinitionListWithIDs:@[definitionID] andBlock:^(NSDictionary* definitionList, NSError* error) {
     PacoExperimentDefinition* definition = nil;
     if (!error) {
-      definition = [definitionList firstObject];
+      definition = [[definitionList allValues] firstObject];
       if (!definition) {
         DDLogWarn(@"Warning: No full definition is found for id=%@, the experiment could expire already", definitionID);
         NSDictionary* userInfo = @{NSLocalizedDescriptionKey : @"No full definition is found on server! "
@@ -210,12 +231,19 @@
   }];
 }
 
-- (void)loadMyDefinitionIDListWithBlock:(void (^)(NSArray*, NSError*))completionBlock {
-  [self loadMyShortDefinitionListWithBlock:^(NSArray* definitionList, NSError* error) {
+- (void)loadMyDefinitionIDListWithBlock:(void (^)(NSDictionary *, NSError*))completionBlock {
+  [self loadMyShortDefinitionListWithBlock:^(NSDictionary* definitionList, NSError* error) {
     if (error == nil) {
-      NSMutableArray* result = [NSMutableArray arrayWithCapacity:[definitionList count]];
-      for (NSDictionary* dict in definitionList) {
-        NSNumber* idNum = dict[@"id"];
+      NSMutableArray* result = [NSMutableArray arrayWithCapacity:[[definitionList allValues ] count]];
+        
+      for (NSDictionary* dictionary   in  definitionList[@"results"])
+      {
+          
+ 
+          
+    
+          
+        NSNumber* idNum = dictionary[@"id"];
         NSAssert(idNum != nil && [idNum isKindOfClass:[NSNumber class]], @"idNum should be valid!");
         NSString* definitionId = [NSString stringWithFormat:@"%lld", [idNum longLongValue]];
         [result addObject:definitionId];
@@ -232,15 +260,15 @@
 }
 
 //YMZ:TODO: there should be a single endpoint for this API
-- (void)loadMyFullDefinitionListWithBlock:(void (^)(NSArray*, NSError*))completionBlock {
+- (void)loadMyFullDefinitionListWithBlock:(void (^)(NSDictionary*, NSError*))completionBlock {
   NSAssert(completionBlock != nil, @"a completion block has to be passed in");
   
-  [self loadMyDefinitionIDListWithBlock:^(NSArray* idList, NSError* error) {
+  [self loadMyDefinitionIDListWithBlock:^(NSArray * idList, NSError* error) {
     if (!error) {
       if (0 == [idList count]) {
         completionBlock(idList, nil);
       } else {
-        [self loadFullDefinitionListWithIDs:idList andBlock:^(NSArray* fullList, NSError* error) {
+        [self loadFullDefinitionListWithIDs:idList andBlock:^(NSDictionary * fullList, NSError* error) {
           if (!error) {
             completionBlock(fullList, nil);
           } else {

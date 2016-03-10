@@ -2,7 +2,7 @@
 //  PacoTableViewExpandingCellBase.swift
 //  Paco
 //
-//  Created by northropo on 11/5/15.
+//  Created by Timo on 11/5/15.
 //  Copyright (c) 2015 Paco. All rights reserved.
 //
 
@@ -62,7 +62,7 @@ class PacoTableViewExpandingCellBase: UITableViewCell {
     
     func watchFrameChanges() {
         if(!frameAdded){
-            addObserver(self, forKeyPath: "frame", options: NSKeyValueObservingOptions.New|NSKeyValueObservingOptions.Initial, context: nil)
+           // addObserver(self, forKeyPath: "frame", options: NSKeyValueObservingOptions.New|NSKeyValueObservingOptions.Initial, context: nil)
             frameAdded = true
         }
     }
@@ -74,7 +74,8 @@ class PacoTableViewExpandingCellBase: UITableViewCell {
         }
     }
     
-    override func observeValueForKeyPath(keyPath: String, ofObject object: AnyObject, change: [NSObject : AnyObject], context: UnsafeMutablePointer<Void>) {
+    /*
+     func observeValueForKeyPath(keyPath: String, ofObject object: AnyObject, change: [NSObject : AnyObject], context: UnsafeMutablePointer<Void>) {
         if keyPath == "frame" {
             checkHeight()
         }
@@ -82,6 +83,6 @@ class PacoTableViewExpandingCellBase: UITableViewCell {
     deinit {
         
         ignoreFrameChanges()
-    }
+    }*/
  
 }

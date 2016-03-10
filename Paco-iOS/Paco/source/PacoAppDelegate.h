@@ -15,10 +15,13 @@
 
 #import <UIKit/UIKit.h>
 #import <CoreData/CoreData.h>
+#import "Paco-Swift.h"
+
+
 
 @class PacoMainSwiftViewController;
 @class PacoMainViewController;
-
+@class PacoTestingControllerTableViewController;
 @class PacoMyExperiments;
 
 /* 888 */
@@ -27,7 +30,8 @@
 @class PacoJoinedExperimentsController;
 @class PacoConfigController;
 @class PacoResponseTableViewController;
-
+@class   PacoTestViewer;
+@class  HubPaginatedTableViewController;
 
 @interface PacoAppDelegate : UIResponder <UIApplicationDelegate>
 
@@ -40,7 +44,17 @@
 @property (strong,nonatomic) PacoMyExperiments* hub;
 @property (strong,nonatomic) PacoJoinedExperimentsController* joinedExperiment;
 @property (strong,nonatomic) PacoConfigController* configController;
+@property (strong,nonatomic) PacoHubExperiments* publicExperiments;
+
+@property (strong,nonatomic) PacoTestViewer* testPagination;
+@property (strong,nonatomic) HubPaginatedTableViewController* pg;
+
+
+@property (strong,nonatomic) PacoTestingControllerTableViewController*  swiftTest;
+
+
 @property (strong,nonatomic)  UITabBarController *tabBar;
+
 
 @property (strong, nonatomic) UILocalNotification* notificationFromAppLaunch;
 @property(nonatomic,copy) NSArray *scheduledLocalNotifications NS_AVAILABLE_IOS(4_0);

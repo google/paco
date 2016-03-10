@@ -2,7 +2,7 @@
 //  PacoConsentFormViewController.swift
 //  Paco
 //
-//  Created by northropo on 10/23/15.
+//  Created by Timo on 10/23/15.
 //  Copyright (c) 2015 Paco. All rights reserved.
 //
 
@@ -63,7 +63,7 @@ class PacoConsentFormViewController: UIViewController {
     
     @IBAction func decline(sender: AnyObject)
     {
-        println("declined")
+        print("declined")
         
         backTwo()
         
@@ -72,7 +72,7 @@ class PacoConsentFormViewController: UIViewController {
     
     @IBAction func accept(sender: AnyObject)
     {
-        println("accepted")
+        print("accepted")
         
         
        var mediator =  PacoMediator.sharedInstance()
