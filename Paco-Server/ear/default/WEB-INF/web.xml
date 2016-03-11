@@ -24,30 +24,6 @@
     <filter-class>com.google.sampling.experiential.server.AuthenticatedServletFilter</filter-class>
   </filter>
   
-  <!-- 
-  <filter>
-    <filter-name>dbQuotaFilter</filter-name>
-    <filter-class>com.google.sampling.experiential.server.DBQuotaFilter</filter-class>
-  </filter>
-  <filter-mapping>
-    <filter-name>dbQuotaFilter</filter-name>
-    <url-pattern>/events*</url-pattern>
-  </filter-mapping>
-
-  <filter>
-  <filter-name>appstats</filter-name>
-  <filter-class>com.google.appengine.tools.appstats.AppstatsFilter</filter-class>
-  <init-param>
-    <param-name>calculateRpcCosts</param-name>
-    <param-value>true</param-value>
-  </init-param>
-</filter>
-  <filter-mapping>
-    <filter-name>appstats</filter-name>
-    <url-pattern>/*</url-pattern>
-  </filter-mapping>
-  -->
-
   <!-- Servlets -->
   <!--  model & report endpoints -->
   <servlet>
@@ -68,6 +44,7 @@
     <url-pattern>/usage</url-pattern>
   </servlet-mapping>
   
+  <!--  
  <servlet>
         <servlet-name>bshservlet</servlet-name>
         <servlet-class>bsh.servlet.BshServlet</servlet-class>
@@ -77,6 +54,7 @@
         <servlet-name>bshservlet</servlet-name>
         <url-pattern>/eval</url-pattern>
     </servlet-mapping>
+  -->
   
   <servlet>
     <servlet-name>experimentServlet</servlet-name>
@@ -140,16 +118,6 @@
   
   
   <servlet>
-    <servlet-name>eventStatMigrationMR</servlet-name>
-    <servlet-class> com.google.sampling.experiential.server.migration.mr.Event2ResponseStatsMRServlet</servlet-class>
-  </servlet>
-  <servlet-mapping>
-    <servlet-name>eventStatMigrationMR</servlet-name>
-    <url-pattern>/mrjob</url-pattern>
-  </servlet-mapping>
-  
-  
-  <servlet>
     <display-name>Remote API Servlet</display-name>
     <servlet-name>RemoteApiServlet</servlet-name>
     <servlet-class>com.google.apphosting.utils.remoteapi.RemoteApiServlet</servlet-class>
@@ -181,20 +149,6 @@
 
 
   <!-- gwt-only client endpoints use UserService with https -->
-  <security-constraint>
-    <web-resource-collection>
-      <url-pattern>/pacoserver/maps*</url-pattern>
-      <url-pattern>/pacoserver/logging*</url-pattern>
-      <url-pattern>/join*</url-pattern>
-    </web-resource-collection>
-    <auth-constraint>
-      <role-name>*</role-name>
-    </auth-constraint>
-    <user-data-constraint>
-      <transport-guarantee>CONFIDENTIAL</transport-guarantee>
-    </user-data-constraint>
-  </security-constraint>
-
   <!-- admin only endpoints use UserService, https, and admin role -->
   <security-constraint>
     <web-resource-collection>
@@ -203,7 +157,6 @@
       <url-pattern>/remote_api*</url-pattern>
       <url-pattern>/usage*</url-pattern>
       <url-pattern>/eval*</url-pattern>
-      <url-pattern>/mrjob*</url-pattern>
     </web-resource-collection>
     <auth-constraint>
       <role-name>admin</role-name>
@@ -214,46 +167,6 @@
 
   </security-constraint>
 
-  <!-- 
-  <servlet>
-    <servlet-name>appstats</servlet-name>
-    <servlet-class>com.google.appengine.tools.appstats.AppstatsServlet</servlet-class>
-  </servlet>
-  <servlet-mapping>
-    <servlet-name>appstats</servlet-name>
-    <url-pattern>/appstats/*</url-pattern>
-  </servlet-mapping>
-  <security-constraint>
-    <web-resource-collection>
-      <url-pattern>/appstats/*</url-pattern>
-    </web-resource-collection>
-    <auth-constraint>
-      <role-name>admin</role-name>
-    </auth-constraint>
-  </security-constraint>
- -->
- 
-   <servlet>   
-    <servlet-name>eventStatMigrationQueueServlet</servlet-name>
-    <servlet-class>com.google.sampling.experiential.server.migration.jobs.EventStatMigrateServlet</servlet-class>
-  </servlet>    
-  <servlet-mapping>
-    <servlet-name>eventStatMigrationQueueServlet</servlet-name>
-    <url-pattern>/_ah/queue/migration</url-pattern>
-  </servlet-mapping>
-
-     <security-constraint>
-    <web-resource-collection>
-      <url-pattern>/_ah/queue/*</url-pattern>
-    </web-resource-collection>
-    <auth-constraint>
-      <role-name>admin</role-name>
-    </auth-constraint>
-    <user-data-constraint>
-      <transport-guarantee>CONFIDENTIAL</transport-guarantee>
-    </user-data-constraint>
-    
-  </security-constraint>
   
  
 </web-app>
