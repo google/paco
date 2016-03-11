@@ -197,6 +197,7 @@ public class FeedbackActivity extends ActionBarActivity {
         }
 
         JSONArray results = new JSONArray();
+        experimentProviderUtil.loadEventsForExperiment(experiment); 
         for (Event event : experiment.getEvents()) {
           JSONArray eventJson = new JSONArray();
           DateTime responseTime = event.getResponseTime();

@@ -32,6 +32,7 @@ import javax.servlet.http.HttpServletResponse;
 import com.google.appengine.api.modules.ModulesService;
 import com.google.appengine.api.modules.ModulesServiceFactory;
 import com.google.appengine.api.users.User;
+import com.google.appengine.api.utils.SystemProperty;
 import com.google.sampling.experiential.server.AuthUtil;
 
 /**
@@ -95,7 +96,13 @@ public class MigrationFrontendServlet extends HttpServlet {
   }
 
   private BufferedReader sendToBackend(String backendAddress, String jobName) throws MalformedURLException, IOException {
-    URL url = new URL("https://" + backendAddress + "/migrateBackend?who=" + AuthUtil.getWhoFromLogin().getEmail().toLowerCase() +
+    
+    
+    String scheme = "https";
+    if (SystemProperty.environment.value() == SystemProperty.Environment.Value.Development) {
+      scheme = "http";
+    }
+    URL url = new URL(scheme + "://" + backendAddress + "/migrateBackend?who=" + AuthUtil.getWhoFromLogin().getEmail().toLowerCase() +
                       "&migrationName=" + jobName );
     log.info("URL to backend = " + url.toString());
     InputStreamReader inputStreamReader = new InputStreamReader(url.openStream());
