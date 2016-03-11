@@ -137,6 +137,18 @@
     <url-pattern>/migrate</url-pattern>
   </servlet-mapping>
 
+  
+  
+  <servlet>
+    <servlet-name>eventStatMigrationMR</servlet-name>
+    <servlet-class> com.google.sampling.experiential.server.migration.mr.Event2ResponseStatsMRServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>eventStatMigrationMR</servlet-name>
+    <url-pattern>/mrjob</url-pattern>
+  </servlet-mapping>
+  
+  
   <servlet>
     <display-name>Remote API Servlet</display-name>
     <servlet-name>RemoteApiServlet</servlet-name>
@@ -191,6 +203,7 @@
       <url-pattern>/remote_api*</url-pattern>
       <url-pattern>/usage*</url-pattern>
       <url-pattern>/eval*</url-pattern>
+      <url-pattern>/mrjob*</url-pattern>
     </web-resource-collection>
     <auth-constraint>
       <role-name>admin</role-name>
@@ -228,8 +241,8 @@
     <servlet-name>eventStatMigrationQueueServlet</servlet-name>
     <url-pattern>/_ah/queue/migration</url-pattern>
   </servlet-mapping>
- 
-    <security-constraint>
+
+     <security-constraint>
     <web-resource-collection>
       <url-pattern>/_ah/queue/*</url-pattern>
     </web-resource-collection>

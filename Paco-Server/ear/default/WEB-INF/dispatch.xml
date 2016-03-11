@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<dispatch-entries>
+  <!-- <dispatch>
+      <url>www.pacoapp.com/</url>
+      <module>default</module>
+  </dispatch> -->
+  <dispatch>
+      <url>*/_ah/pipeline*</url>
+      <module>mapreduce</module>
+  </dispatch>
+</dispatch-entries>
