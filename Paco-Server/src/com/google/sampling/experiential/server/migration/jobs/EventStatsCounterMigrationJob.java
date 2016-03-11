@@ -231,10 +231,15 @@ public class EventStatsCounterMigrationJob implements MigrationJob {
     return true;
   }
 
+  public boolean doMigrationWithMapReduce() {
+    
+    return true;
+  }
 
   @Override
   public boolean doMigration() {
-    return doMigrationInLoopForLatestOnly();
+    return doMigrationWithMapReduce();
+    //return doMigrationInLoopForLatestOnly();
   }
 
 }

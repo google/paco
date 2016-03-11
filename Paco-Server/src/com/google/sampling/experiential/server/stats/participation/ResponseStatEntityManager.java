@@ -42,16 +42,16 @@ import com.google.common.collect.Lists;
 public class ResponseStatEntityManager {
   private static final Logger LOG = Logger.getLogger(ResponseStatEntityManager.class.getName());
 
-  static final String KIND = "response_stats";
+  public static final String KIND = "response_stats";
   
-  static final String EXPERIMENT_ID_PROPERTY = "experimentId";
-  static final String EXPERIMENT_GROUP_NAME_PROPERTY = "experimentGroupName";
-  static final String WHO_PROPERTY = "who";
-  static final String SCHED_R_PROPERTY = "schedR";
-  static final String MISSED_R_PROPERTY = "missedR";
-  static final String SELF_R_PROPERTY = "selfR";
-  static final String DATE_PROPERTY = "date";
-  static final String LAST_CONTACT_DATE_TIME_PROPERTY = "lastContact";
+  public static final String EXPERIMENT_ID_PROPERTY = "experimentId";
+  public static final String EXPERIMENT_GROUP_NAME_PROPERTY = "experimentGroupName";
+  public static final String WHO_PROPERTY = "who";
+  public static final String SCHED_R_PROPERTY = "schedR";
+  public static final String MISSED_R_PROPERTY = "missedR";
+  public static final String SELF_R_PROPERTY = "selfR";
+  public static final String DATE_PROPERTY = "date";
+  public static final String LAST_CONTACT_DATE_TIME_PROPERTY = "lastContact";
   
   /**
    * Increment the scheduled responses count for an individual in an experiment on a particular date.

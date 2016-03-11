@@ -74,10 +74,12 @@ public class ParticipantStatServlet extends HttpServlet {
           return;
         }
         ExperimentDAO experiment = ExperimentServiceFactory.getExperimentService().getExperiment(experimentId);
+        
+        
         String v2Stats = req.getParameter("statv2");
         if (Strings.isNullOrEmpty(v2Stats)) {
-          //computeStatsFromEventsTable(req, resp, user, experimentId, whoParam, timeZoneForClient);
           if (Strings.isNullOrEmpty(whoParam)) {
+              
             computeOldStatsFromCounters(req, resp, user, experimentId, whoParam, timeZoneForClient);
           } else {
             // inline of the reportType = who in computeStatsFromCounters below
@@ -92,6 +94,7 @@ public class ParticipantStatServlet extends HttpServlet {
               writer.write("Could not compute stats. Please check server for errors.");
             }
           }
+ 
         } else {
           computeStatsFromCounters(req, resp, user, experimentId, whoParam, timeZoneForClient);
         }
@@ -142,10 +145,12 @@ public class ParticipantStatServlet extends HttpServlet {
     }
     PrintWriter writer = resp.getWriter();
     ObjectMapper mapper = JsonConverter.getObjectMapper();
-    if (participationStats != null) {
+    if (participationStats != null && !participationStats.isEmpty()) {
       writer.write(mapper.writeValueAsString(participationStats));
+    } else if (participationStats != null && participationStats.isEmpty()) { 
+      writer.write("{ \"message\" : \"No data\"}");
     } else {
-      writer.write("Could not compute stats. Please check server for errors.");
+      writer.write("{ \"message\" : \"Could not compute stats. Please check server for errors.\"}");
     }
   }
 

@@ -53,7 +53,11 @@ public class ResponseStat implements Comparable<ResponseStat> {
   }
 
   public String getDate() {
-    return date.toString(com.pacoapp.paco.shared.util.TimeUtil.dateFormatter);
+    if (date != null) {
+      return date.toString(com.pacoapp.paco.shared.util.TimeUtil.dateFormatter);
+    } else {
+      return null;
+    }
   }
 
   
