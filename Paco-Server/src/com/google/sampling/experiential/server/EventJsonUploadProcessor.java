@@ -190,6 +190,7 @@ public class EventJsonUploadProcessor {
     try {
       experimentIdLong = Long.parseLong(experimentIdStr);
     } catch (NumberFormatException e) {
+      log.info("experimentID , " + experimentIdStr + ", not a number for this event: " + eventId);
       outcome.setError("experimentId, " + experimentIdStr + ", not a number for this event: " + eventId);
       return outcome;
     }
@@ -203,6 +204,7 @@ public class EventJsonUploadProcessor {
 
     if (!experiment.isWhoAllowedToPostToExperiment(who)) {
       // don't give differentiated error messages in case someone is trying to discover experiment ids
+      log.info("User not allowed to post to this experiment " + experimentIdStr + " .Event: " + eventId);
       outcome.setError("No existing experiment for this event: " + eventId);
       return outcome;
     }
@@ -246,6 +248,8 @@ public class EventJsonUploadProcessor {
         whats.add(new What(name, answer));
 
       }
+    } else {
+      log.info("There is no responses section for this event");
     }
 
     DateTimeFormatter df = org.joda.time.format.DateTimeFormat.forPattern(TimeUtil.DATETIME_FORMAT).withOffsetParsed();

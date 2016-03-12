@@ -5,7 +5,7 @@
 # Read the stored refresh token. Get a new access token with it. Then, finally, doing something with a Paco endpoint.
 refresh_token=`cat ~/.qs_paco`
 # it's late and I can't seem to reliably cut out wrapping quotes above. Make sure they are gone here on reload. TODO fix the storage to begin with.
-export refresh_token=`sed -e 's/^"//' -e 's/"$//' <<< $refresh_token`
+#export refresh_token=`sed -e 's/^"//' -e 's/"$//' <<< $refresh_token`
 
 # get a new access token from the refresh token
 export new_access_token_response=`curl https://www.googleapis.com/oauth2/v3/token \

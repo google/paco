@@ -54,6 +54,7 @@ import com.google.sampling.experiential.model.Experiment;
 import com.google.sampling.experiential.model.PhotoBlob;
 import com.google.sampling.experiential.model.What;
 import com.google.sampling.experiential.shared.EventDAO;
+import com.google.sampling.experiential.stats.ParticipationStatistician;
 
 /**
  * Retrieve Event objects from the JDO store.
@@ -121,6 +122,8 @@ public class EventRetriever {
       pm.makePersistent(event);
       if (isJoinEvent) {
         ExperimentAccessManager.addJoinedExperimentFor(who, Long.valueOf(experimentId), responseTime);
+      } else {
+        ParticipationStatistician.updateEventStats(event);
       }
       tx.commit();
       log.info("Event saved");

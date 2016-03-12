@@ -62,8 +62,9 @@ public class ParticipantStatServlet extends HttpServlet {
 
         String whoParam = req.getParameter("who");
         DateTimeZone timeZoneForClient = TimeUtil.getTimeZoneForClient(req);
-        if (!ExperimentAccessManager.isAdminForExperiment(AuthUtil.getEmailOfUser(req, user), experimentId) &&
-                !isQueryingOwnStats(AuthUtil.getEmailOfUser(req, user), whoParam)) {
+        final String emailOfRequestingUser = AuthUtil.getEmailOfUser(req, user);
+        if (!ExperimentAccessManager.isAdminForExperiment(emailOfRequestingUser, experimentId) &&
+                !isQueryingOwnStats(emailOfRequestingUser, whoParam)) {
           resp.setStatus(HttpServletResponse.SC_FORBIDDEN);
           return;
         }
@@ -87,46 +88,55 @@ public class ParticipantStatServlet extends HttpServlet {
             }
         }
 
-        EventQueryResultPair eventQueryResultPair = EventRetriever.getInstance().getEventsInBatchesOneBatch( queryFilters, AuthUtil.getEmailOfUser(req, user),
-                                                                     timeZoneForClient, limit, cursor);
-
-        Map<String, ParticipantReport> participantReports = Maps.newConcurrentMap();
-        for (Event event : eventQueryResultPair.getEvents()) {
-          ParticipantReport participantReport = participantReports.get(event.getWho());
-          if (participantReport == null) {
-            participantReport = new ParticipantReport(event.getWho(), timeZoneForClient);
-            participantReports.put(event.getWho(), participantReport);
-          }
-          participantReport.addEvent(event);
-        }
-
-
-        List<ParticipantParticipationStat> participantStats = Lists.newArrayList();
-
-        List<ParticipantReport> participantReportValues = Lists.newArrayList(participantReports.values());
-        for (ParticipantReport report : participantReportValues) {
-          report.computeStats();
-          participantStats.add(new ParticipationStats.ParticipantParticipationStat(report.getWho(),
-                                                                report.getTodaysScheduledCount(),
-                                                                report.getTodaysSignaledResponseCount(),
-                                                                report.getTodaysSelfReportResponseCount(),
-                                                                report.getScheduledCount(),
-                                                                report.getSignaledResponseCount(),
-                                                                report.getSelfReportResponseCount()));
-        }
-
-        Collections.sort(participantStats);
-        String nextCursor = eventQueryResultPair.getCursor();
-        if (nextCursor == null || nextCursor.equals(cursor)) {
-          nextCursor = null;
-        }
-        ParticipationStats participationStats = new ParticipationStats(participantStats, nextCursor);
+        ParticipationStats participationStats = buildParticipationStatsFromEvents(timeZoneForClient,
+                                                                                  emailOfRequestingUser, queryFilters,
+                                                                                  cursor, limit);
 
         PrintWriter writer = resp.getWriter();
         ObjectMapper mapper = JsonConverter.getObjectMapper();
         writer.write(mapper.writeValueAsString(participationStats));
       }
     }
+  }
+
+  public ParticipationStats buildParticipationStatsFromEvents(DateTimeZone timeZoneForClient,
+                                                              final String emailOfRequestingUser,
+                                                              List<Query> queryFilters, String cursor, int limit) {
+    EventQueryResultPair eventQueryResultPair = EventRetriever.getInstance().getEventsInBatchesOneBatch( queryFilters, emailOfRequestingUser,
+                                                                 timeZoneForClient, limit, cursor);
+
+    Map<String, ParticipantReport> participantReports = Maps.newConcurrentMap();
+    for (Event event : eventQueryResultPair.getEvents()) {
+      ParticipantReport participantReport = participantReports.get(event.getWho());
+      if (participantReport == null) {
+        participantReport = new ParticipantReport(event.getWho(), timeZoneForClient);
+        participantReports.put(event.getWho(), participantReport);
+      }
+      participantReport.addEvent(event);
+    }
+
+
+    List<ParticipantParticipationStat> participantStats = Lists.newArrayList();
+
+    List<ParticipantReport> participantReportValues = Lists.newArrayList(participantReports.values());
+    for (ParticipantReport report : participantReportValues) {
+      report.computeStats();
+      participantStats.add(new ParticipationStats.ParticipantParticipationStat(report.getWho(),
+                                                            report.getTodaysScheduledCount(),
+                                                            report.getTodaysSignaledResponseCount(),
+                                                            report.getTodaysSelfReportResponseCount(),
+                                                            report.getScheduledCount(),
+                                                            report.getSignaledResponseCount(),
+                                                            report.getSelfReportResponseCount()));
+    }
+
+    Collections.sort(participantStats);
+    String nextCursor = eventQueryResultPair.getCursor();
+    if (nextCursor == null || nextCursor.equals(cursor)) {
+      nextCursor = null;
+    }
+    ParticipationStats participationStats = new ParticipationStats(participantStats, nextCursor);
+    return participationStats;
   }
 
   private boolean isQueryingOwnStats(String emailOfUser, String whoParam) {
