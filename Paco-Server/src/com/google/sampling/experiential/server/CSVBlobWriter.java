@@ -151,7 +151,7 @@ public class CSVBlobWriter {
 
  private String[] toCSV(EventDAO event, List<String> columnNames, boolean anon,
                         String clientTimezone) {
-   log.info("converting to csv. event: " + getTimeString(event, event.getResponseTime(), clientTimezone));
+//   log.info("converting to csv. event: " + getTimeString(event, event.getResponseTime(), clientTimezone));
      int csvIndex = 0;
      String[] parts = new String[14 + columnNames.size()];
      if (anon) {
