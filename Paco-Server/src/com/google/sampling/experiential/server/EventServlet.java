@@ -380,6 +380,7 @@ public class EventServlet extends HttpServlet {
 
   @Override
   public void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+    
     setCharacterEncoding(req, resp);
     User who = AuthUtil.getWhoFromLogin();
     if (who == null) {

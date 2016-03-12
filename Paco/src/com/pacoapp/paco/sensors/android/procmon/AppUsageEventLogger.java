@@ -14,6 +14,7 @@ import com.pacoapp.paco.model.Event;
 import com.pacoapp.paco.model.Experiment;
 import com.pacoapp.paco.model.Output;
 import com.pacoapp.paco.shared.model2.EventStore;
+import com.pacoapp.paco.shared.model2.ExperimentGroup;
 
 /**
  * Logs apps used as Paco Events
@@ -73,6 +74,9 @@ public class AppUsageEventLogger {
     event.setExperimentId(experiment.getId());
     event.setServerExperimentId(experiment.getServerId());
     event.setExperimentName(experiment.getExperimentDAO().getTitle());
+    
+        
+    event.setExperimentName(experimentGroupFor(experiment));
     event.setExperimentVersion(experiment.getExperimentDAO().getVersion());
     event.setResponseTime(new DateTime());
 
@@ -85,7 +89,28 @@ public class AppUsageEventLogger {
     usedAppsNamesResponse.setAnswer(usedAppsTaskNamesString);
     usedAppsNamesResponse.setName("apps_used_raw");
     event.addResponse(usedAppsNamesResponse);
+    
+    Output startResponse = new Output();
+    startResponse.setAnswer("true");
+    startResponse.setName("foreground");
+    event.addResponse(startResponse);
+    
     return event;
+  }
+
+  /**
+   * This takes the first group because there really should only be one.
+   * @param experiment
+   * @return
+   */
+  private String experimentGroupFor(Experiment experiment) {
+    List<ExperimentGroup> groups = experiment.getExperimentDAO().getGroups();
+    for (ExperimentGroup experimentGroup : groups) {
+      if (experimentGroup.getLogActions() != null && experimentGroup.getLogActions() == true) {
+        return experimentGroup.getName();
+      }
+    }
+    return null;
   }
 
 

@@ -23,6 +23,9 @@ import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
 
+import com.google.common.base.Strings;
+
+
 public class TimeUtil {
 
   private static DateTimeFormatter timeFormatter = ISODateTimeFormat.time();
@@ -40,7 +43,7 @@ public class TimeUtil {
   public static DateTimeFormatter dateTimeNoZoneShortFormatter = DateTimeFormat.forPattern(DATETIME_NOZONE_SHORT_FORMAT);
 
   public static final String DATE_FORMAT = "yyyy/MM/dd";
-  private static DateTimeFormatter dateFormatter = DateTimeFormat.forPattern(DATE_FORMAT);
+  public static DateTimeFormatter dateFormatter = DateTimeFormat.forPattern(DATE_FORMAT);
 
   public static final String DATE_WITH_ZONE_FORMAT = "yyyy/MM/ddZ";
   private static DateTimeFormatter dateZoneFormatter = DateTimeFormat.forPattern(DATE_WITH_ZONE_FORMAT);
@@ -125,5 +128,16 @@ public class TimeUtil {
       return plusDays.plusDays(1);
     }
     return plusDays;
+  }
+
+  public static DateTime parseDateWithoutZone(String dateParam) {
+    if (Strings.isNullOrEmpty(dateParam)) {
+      return null;
+    }
+    try {
+      return dateFormatter.parseDateTime(dateParam);
+    } catch (Exception e) {
+      return null;
+    }
   }
 }
