@@ -219,7 +219,12 @@
         var maxCount = 0;
      
         // need to assign numbers to each key and store stuff by that number
-        for (var i = 1; i < input.listChoices.length; i++) {
+        var start = 0;
+        if (!input.isMultiselect) {
+          start = 1;
+        }
+          
+        for (var i = start; i < input.listChoices.length; i++) {
           var choice = input.listChoices[i];
           var count = countForChoice[i];
           
