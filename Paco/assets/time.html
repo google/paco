@@ -186,6 +186,7 @@
       } else if (responseType == "list") {
         var countForChoice = {}; // counts for each answer 
 		    var input = inputsByName[inputid];
+		    
         for (var j = 0; j < experimentData.length; j++) {
           var responses = experimentData[j].responses;
           for (var r = 0; r < responses.length; r++) {
@@ -195,7 +196,7 @@
               
               var answer = response.answer;
               var answers = [];
-              if (input.isMultiselect) {                
+              if (input.multiselect && answer) {                
                 answers = answer.split(',');                                
               } else {
                 answers.push(answer);
@@ -219,14 +220,18 @@
         var maxCount = 0;
      
         // need to assign numbers to each key and store stuff by that number
-        var start = 0;
-        if (!input.isMultiselect) {
+        var start = 0;  
+        if (!input.multiselect) {
           start = 1;
         }
-          
         for (var i = start; i < input.listChoices.length; i++) {
           var choice = input.listChoices[i];
-          var count = countForChoice[i];
+          var count = 0
+          if (input.multiselect) {
+            count = countForChoice[i + 1];
+          } else {
+             count = countForChoice[i];
+             }
           
           if (!count) {
             count = 0;
@@ -237,6 +242,7 @@
             maxCount = count;
           }
         }
+        
         if (!(checkChartData(d))){
           document.location.href = "file:///android_asset/default_feedback.html";
           return;
