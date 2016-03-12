@@ -21,5 +21,9 @@
 	<classpathentry kind="lib" path="/Users/bobevans/git/paco/tools/appengine-java-sdk-1.9.0/lib/impl/appengine-api-labs.jar"/>
 	<classpathentry kind="lib" path="ear/default/WEB-INF/lib/json-1.5.jar"/>
 	<classpathentry kind="lib" path="ear/default/WEB-INF/lib/appengine-gcs-client-0.4.4.jar"/>
+	<classpathentry kind="lib" path="ear/default/WEB-INF/lib/appengine-mapreduce.jar"/>
+	<classpathentry kind="lib" path="ear/default/WEB-INF/lib/appengine-pipeline-0.2.13.jar"/>
+	<classpathentry kind="lib" path="ear/default/WEB-INF/lib/protobuf-java-2.6.0.jar"/>
+	<classpathentry kind="lib" path="ear/default/WEB-INF/lib/fastutil-6.5.16.jar"/>
 	<classpathentry kind="output" path="ear/default/WEB-INF/classes"/>
 </classpath>

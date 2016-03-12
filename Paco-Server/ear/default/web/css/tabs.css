@@ -16,7 +16,6 @@ md-tab-item.md-active {
 }
 
 .md-button {
-  color: #212121;
   margin-bottom: -4px;
   margin-left: 0px;
   margin-top: -4px;
@@ -26,7 +25,7 @@ md-tab-item.md-active {
   position: absolute;
   right: 0;
   top: 72px;
-  z-index: 100;
+  z-index: 10;
 }
 
 .edit .actions {

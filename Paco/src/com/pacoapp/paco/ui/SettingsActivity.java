@@ -124,7 +124,7 @@ public class SettingsActivity extends ActionBarActivity {
 
   private void createEmailIntent(String log) {
     Intent emailIntent = new Intent(android.content.Intent.ACTION_SEND);
-    emailIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, "Paco Feedback");
+    emailIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, getString(R.string.email_subject_paco_feedback));
     emailIntent.setType("plain/text");
     emailIntent.putExtra(android.content.Intent.EXTRA_TEXT, log);
     startActivity(emailIntent);

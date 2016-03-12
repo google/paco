@@ -94,6 +94,7 @@ var paco = (function (init) {
     }
   };
   
+  // TODO i18n
   valid = function(input, inputHtml, response) { 
     if ((input.mandatory && inputHtml.element[0].style.display != "none") && (!response.answer || response.answer.length === 0)) {
       return { "succeeded" : false , "error" : "Response mandatory for " + input.name, "name" : input.name};    
@@ -390,6 +391,7 @@ var paco = (function (init) {
     if (!window.photoService) {
       window.photoService = { 
         launch : function(callback) { 
+        	//TODO i18n
           alert("No photo support"); 
         } 
       };
@@ -786,6 +788,7 @@ paco.renderer = (function() {
   renderDoneButton = function(experiment) {
     var doneButton = document.createElement("input");
     doneButton.type="submit";
+    // TODO i18n
     doneButton.value = "Done";
     return doneButton;
   };
@@ -840,6 +843,7 @@ paco.renderer = (function() {
       if (window.executor) {
         window.executor.done();
       } else {
+    	  // TODO i18n 
         alert("All Done!");
       }
     });
@@ -919,6 +923,7 @@ paco.renderer = (function() {
 
   renderDefaultFeedback = function(experimentGroup, db, element) {
     var subElement = $(document.createElement("div"));
+    // TODO i18n
     subElement.text("Thank you for participating!");
     subElement.addClass("title");
     element.append(subElement);
@@ -1021,6 +1026,7 @@ paco.renderer = (function() {
         responsesHtml += "<img src='data:image/jpg;base64," + response["answer"] + "' width=150>";
       } else if (input.responseType === "location") {
         responsesHtml += response["answer"];
+        // TODO i18n
         responsesHtml += "&nbsp;&nbsp;&nbsp;<a href='file:///android_asset/map.html?inputId=" + response["name"] + "'>Maps</a>";
       } else if (input.responseType === "list") {
         
@@ -1056,6 +1062,7 @@ paco.renderer = (function() {
     element.html(responsesHtml);
   };
 
+  // TODO i18n
   var days = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
   
   renderDailyPingResponsesPanel = function(referredExperimentGroupInputs, 
@@ -1216,6 +1223,7 @@ paco.executeEod = (function() {
           renderEvent();
         }
       } else {
+    	  // TODO i18n
         alert("Could not store data. You might try again. Or contact the researcher running the study. Error: " + status["error"]);
       }   
     };
@@ -1237,6 +1245,7 @@ paco.executeEod = (function() {
       if (atLeastOneAnswer) {
         paco.db.saveEvent(event, dbSaveOutcomeCallback);
       } else {
+    	  //TODO i18n
         alert("You cannot submit an empty response.");
       } 
     };
@@ -1252,6 +1261,7 @@ paco.executeEod = (function() {
       form_root.append(paco.renderer.renderDailyPingResponsesPanel(referredExperimentGroup.inputs, 
           currentEvent, currentPingIndex, pingCount));
       if (submitted.indexOf(currentEvent.responseTime) != -1) {
+    	  // TODO i18n
         $("#eod-questions").html("<b>Already replied</b>");
       } else {
        // prepare response collector
@@ -1319,6 +1329,7 @@ paco.executeEod = (function() {
         $("#ping-left-nav").off("click");
         $("#ping-left-nav").on("click", function() {
           if (unsavedEdits) {
+        	  // TODO i18n
             var r = confirm("You have not submitted the work on this page. Are you sure to leave this page?");
             if (r == true) {
               currentPingIndex -= 1;
@@ -1338,6 +1349,7 @@ paco.executeEod = (function() {
         $("#ping-right-nav").off("click");
         $("#ping-right-nav").on("click", function() {
           if (unsavedEdits) {
+        	  // TODO i18n
             var r = confirm("You have not submitted the work on this page. Are you sure to leave this page?");
             if (r == true) {
               currentPingIndex += 1;
@@ -1355,6 +1367,7 @@ paco.executeEod = (function() {
     
     function exit() {
       if (unsavedEdits || submitted.length < unfinishedDailyEvents.length) {
+    	  // TODO i18n
         var answer = confirm("You have not submitted responses for all daily events. Are you sure you want to leave?");
         if (answer) {
             paco.executor.done();
@@ -1369,6 +1382,7 @@ paco.executeEod = (function() {
     if (unfinishedDailyEvents.length > 0 && submitted.length < unfinishedDailyEvents.length) {      
       renderEvent();      
     } else {
+    	// TODO i18n
       $("#response-banner").html(paco.renderer.renderPlainText("No active daily responses"));
       $("#submit-button").prop("disabled", true);
     }

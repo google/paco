@@ -7,11 +7,13 @@
 
   <md-tabs md-selected="state.listTab" md-dynamic-height md-center-tabs>
     <md-tab id="admin">
-      <md-tab-label>Administered</md-tab-label>
+      <md-tab-label>
+        Administered
+      </md-tab-label>
       <md-tab-body>
         <div ng-if="list.admin" class="group">
           <div ng-repeat="exp in list.admin">
-            <md-card ng-class="{deleted: exp.deleted}">
+            <md-card ng-class="{deleting: exp.deleting}">
               <md-card-content class="padded">
                 <a href="#/experiment/{{exp.id}}">{{exp.title}}
                 </a>
@@ -31,9 +33,11 @@
                     Copy
                   </md-button>
                 </a>
-                <md-button ng-click="deleteExperiment($event, exp)">
-                  Delete
-                </md-button>
+                <a href="">
+                  <md-button ng-click="deleteExperiment($event, exp)">
+                    Delete
+                  </md-button>
+                </a>
                 <a href="#/stats/{{exp.id}}">
                   <md-button>
                     Stats
@@ -49,7 +53,8 @@
                     Anon Data
                   </md-button>
                 </a>
-                <md-button ng-click="joinExperiment($event, exp)" ng-if="joinedIndex.indexOf(exp.id) === -1">
+                <md-button ng-click="joinExperiment($event, exp)" 
+                  ng-if="joinedIndex.indexOf(exp.id) === -1">
                   Join
                 </md-button>
               </div>
@@ -57,16 +62,22 @@
           </div>
         </div>
 
-        <md-progress-circular md-mode="indeterminate" ng-if="loading.admin">
-        </md-progress-circular>
-        <md-button class="show-more" ng-if="cursor.admin" ng-click="loadMore('admin')">
+        <div ng-if="loading.admin" class="status">
+          <span>Loading administered experiments</span>
+          <md-progress-linear md-mode="indeterminate"></md-progress-linear>
+        </div>
+
+        <md-button class="show-more" ng-if="cursor.admin"
+          ng-click="loadAdminList()">
           Show More
         </md-button>
       </md-tab-body>
     </md-tab>
 
     <md-tab id="joined">
-      <md-tab-label>Joined</md-tab-label>
+      <md-tab-label>
+        Joined
+      </md-tab-label>
       <md-tab-body>
         <div ng-if="list.joined" class="group">
           <div ng-repeat="exp in list.joined">
@@ -99,17 +110,22 @@
           </div>
         </div>
 
-        <md-progress-circular md-mode="indeterminate" ng-if="loading.joined">
-        </md-progress-circular>
-        <md-button class="show-more" ng-if="cursor.joined" 
-          ng-click="loadMore('joined')">
+        <div ng-if="loading.joined" class="status">
+          <span>Loading joined experiments</span>
+          <md-progress-linear md-mode="indeterminate"></md-progress-linear>
+        </div>
+
+        <md-button class="show-more" ng-if="cursor.joined"
+          ng-click="loadJoinedList()">
           Show More
         </md-button>
       </md-tab-body>
     </md-tab>
 
     <md-tab id="joinable">
-      <md-tab-label>Invited</md-tab-label>
+      <md-tab-label>
+        Invited
+      </md-tab-label>
       <md-tab-body>
         <div ng-if="list.mine" class="group">
           <div ng-repeat="exp in list.mine">
@@ -128,10 +144,13 @@
           </div>
         </div>
 
-        <md-progress-circular md-mode="indeterminate" ng-if="loading.mine">
-        </md-progress-circular>
+        <div ng-if="loading.mine" class="status">
+          <span>Loading joinable experiments</span>
+          <md-progress-linear md-mode="indeterminate"></md-progress-linear>
+        </div>
 
-        <md-button ng-if="cursor.mine" class="show-more" ng-click="loadMore('mine')">
+        <md-button ng-if="cursor.mine" class="show-more"
+          ng-click="loadJoinableList()">
           Show More
         </md-button>
       </md-tab-body>
@@ -139,3 +158,4 @@
   </md-tabs>
 
 </div>
+

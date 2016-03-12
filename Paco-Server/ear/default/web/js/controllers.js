@@ -70,6 +70,10 @@ pacoApp.controller('ExperimentCtrl', ['$scope', '$mdDialog', '$filter',
       groupIndex: null
     };
 
+    if ($scope.user === undefined) {
+      $location.path('/');
+    }
+
     if ($location.hash()) {
       var newTabId = config.editTabs.indexOf($location.hash());
       if (newTabId !== -1) {
@@ -277,8 +281,14 @@ pacoApp.controller('ExperimentCtrl', ['$scope', '$mdDialog', '$filter',
       $scope.experiment.groups.push(angular.copy(template.group));
     };
 
-    $scope.remove = function(arr, idx) {
-      arr.splice(idx, 1);
+    $scope.remove = function(arr, index) {
+      arr.splice(index, 1);
+    };
+
+    $scope.swap = function(arr, index1, index2) {
+      var temp = arr[index2];
+      arr[index2] = arr[index1];
+      arr[index1] = temp;
     };
 
     $scope.convertBack = function(event) {
@@ -295,7 +305,7 @@ pacoApp.controller('ListCtrl', ['$scope', '$mdDialog', '$location',
   function($scope, $mdDialog, $location, experimentService, config) {
 
     $scope.cursor = {};
-    $scope.list = {};
+    $scope.list = {'admin':[], 'joined':[], 'mine':[]};
     $scope.loading = {};
     $scope.state = {};
 
@@ -317,57 +327,29 @@ pacoApp.controller('ListCtrl', ['$scope', '$mdDialog', '$location',
 
     $scope.$watch('user', function(newValue, oldValue) {
       if ($scope.user) {
-        $scope.loadList();
+        $scope.loadLists(true);
       }
     });
 
-    $scope.loadList = function() {
-      $scope.loadAdmin();
-      $scope.loadJoined();
-      $scope.loadJoinable();
+    $scope.loadLists = function(reset) {
+      $scope.loadAdminList(reset);
+      $scope.loadJoinedList(reset);
+      $scope.loadJoinableList(reset);
     };
 
-    $scope.loadJoined = function() {
-      $scope.loading.joined = true;
-      experimentService.getExperimentList('joined', false).then(function(response) {
-        var data = response.data.results;
-        $scope.list.joined = data;
-        $scope.joinedIndex = [];
-        $scope.eodExperiments = {};
-        for (var i = 0; i < data.length; i++) {
-          var experiment = data[i];
-          $scope.joinedIndex.push(experiment.id);
-          for (var g = 0; g < experiment.groups.length; g++) {
-            if (experiment.groups[g].endOfDayGroup) {
-              $scope.eodExperiments[experiment.id] = true;
-            }
-          }
-        }
-        $scope.loading.joined = false;
-      });
-    };
-
-    $scope.loadAdmin = function() {
-      $scope.loading.admin = true;
-      experimentService.getExperimentList('admin', true).then(function(response) {
-        $scope.cursor.admin = response.data.cursor;
-        $scope.list.admin = response.data.results;
-        $scope.loading.admin = false;
-      });
-    }
-
-    $scope.loadJoinable = function() {
-      $scope.loading.mine = true;
-      experimentService.getExperimentList('mine', true).then(function(response) {
-        $scope.cursor.mine = response.data.cursor;
-        $scope.list.mine = response.data.results;
-        $scope.loading.mine = false;
-      });
-    };
-
-    $scope.loadMore = function(listName) {
+    $scope.loadList = function(listName, reset) {
       var cursor = $scope.cursor[listName];
+      if (reset === undefined) {
+        reset = false;
+      }
+
+      $scope.loading[listName] = true;
       experimentService.getExperimentList(listName, true, cursor).then(function(response) {
+
+      if (reset) {
+        $scope.cursor[listName] = null;
+        $scope.list[listName] = [];
+      }
 
         if (response.data.results.length < response.data.limit) {
           $scope.cursor[listName] = null;
@@ -375,9 +357,31 @@ pacoApp.controller('ListCtrl', ['$scope', '$mdDialog', '$location',
           $scope.cursor[listName] = response.data.cursor;
         }
 
-        $scope.list[listName] = $scope.list[listName].concat(response.data.results)
+        $scope.list[listName] = $scope.list[listName].concat(response.data.results);
+
+        if (listName === 'joined') {
+          $scope.joinedIndex = [];
+          for (var i = 0; i < $scope.list['joined'].length; i++) {
+            var experiment = $scope.list['joined'][i];
+            $scope.joinedIndex.push(experiment.id);
+          }
+        }
+
+        $scope.loading[listName] = false;
       });
     }
+
+    $scope.loadJoinedList = function(reset) {
+      $scope.loadList('joined', reset);
+    };
+
+    $scope.loadAdminList = function(reset) {
+      $scope.loadList('admin', reset);
+    }
+
+    $scope.loadJoinableList = function(reset) {
+      $scope.loadList('mine', reset);
+    };
 
     $scope.deleteExperiment = function(ev, exp) {
       var confirm = $mdDialog.confirm()
@@ -389,11 +393,11 @@ pacoApp.controller('ListCtrl', ['$scope', '$mdDialog', '$location',
         .cancel('Cancel')
         .targetEvent(ev);
       $mdDialog.show(confirm).then(function() {
-        exp.deleted = true;
+        exp.deleting = true;
         experimentService.deleteExperiment(exp.id).
         then(function(response) {
-          experimentService.invalidateCachedLists();
-          $scope.loadList();
+          $scope.cursor = {};
+          $scope.loadLists(true);
 
           // If we're on the experiment or edit page, change location to home
           if ($location.path().indexOf('/experiment/') === 0 ||
@@ -409,7 +413,7 @@ pacoApp.controller('ListCtrl', ['$scope', '$mdDialog', '$location',
         .then(function(result) {
           if (result.data && result.data[0].status === true) {
             experimentService.invalidateCachedList('joined');
-            $scope.loadJoined();
+            $scope.loadJoinedList();
 
             $mdDialog.show(
               $mdDialog.alert()
@@ -475,6 +479,7 @@ pacoApp.controller('DataCtrl', ['$scope', '$mdDialog', '$location', '$filter',
 
     $scope.loadEvents = function() {
       $scope.loading = true;
+      var loadingMore = ($scope.eventCursor !== null);
 
       dataService.getEvents($scope.experimentId, $scope.restrict, $scope.anon, $scope.eventCursor).
       then(function(response) {
@@ -509,23 +514,17 @@ pacoApp.controller('DataCtrl', ['$scope', '$mdDialog', '$location', '$filter',
             return;
           }
 
-          if ($scope.columnOverride) {
-            enableColumns($scope.columnOverride);
-          } else {
-            enableColumns(config.dataOrder);
-            enableColumns(table.responseNames);
+          if (!loadingMore) {
+            if ($scope.columnOverride) {
+              enableColumns($scope.columnOverride);
+            } else {
+              enableColumns(config.dataOrder);
+              enableColumns(table.responseNames);
+            }
           }
 
-          // TODO(ispiro): regenerate CSV based on column visibility
-          var csv = $filter('tableToCsv')(table);
-
-          $scope.csv = csv;
-
-          var blob = new Blob([csv], {
-            type: 'text/csv'
-          });
+          $scope.csv = $filter('tableToCsv')(table);
           $scope.loading = false;
-          $scope.screenData = (window.URL || window.webkitURL).createObjectURL(blob);
         }
       }, function(result) {
         $scope.loading = false;
@@ -631,6 +630,20 @@ pacoApp.controller('DataCtrl', ['$scope', '$mdDialog', '$location', '$filter',
   }
 ]);
 
+pacoApp.controller('HelpCtrl', ['$scope', '$routeParams', 'config',
+  function($scope, $routeParams, config) {
+
+    $scope.helpLink = config.helpLinkBase;
+
+    if (angular.isDefined($routeParams.helpId)) {
+      var link = config.helpLinks[$routeParams.helpId];
+      if (angular.isDefined(link)) {
+        $scope.helpLink = config.helpLinkBase + '#' + link;
+      }
+    }
+
+}]);
+
 
 pacoApp.controller('ReportCtrl', ['$scope', '$mdDialog', 'dataService',
     'config', 'experiment', 'anonymous',
@@ -665,19 +678,39 @@ pacoApp.controller('ReportCtrl', ['$scope', '$mdDialog', 'dataService',
           $mdDialog.hide({data: csvData, type: $scope.reportType});
         });
     }
-  }]);
+}]);
 
 pacoApp.controller('GroupsCtrl', ['$scope', 'template',
   function($scope, template) {
     $scope.hiding = false;
+    $scope.defaultFeedback = 'Thanks for Participating!';
 
     $scope.dateToString = function(d) {
       var s = d.getUTCFullYear() + '/' + (d.getMonth() + 1) + '/' + d.getDate();
       return s;
     };
 
+    $scope.findInputName = function(findName) {
+      var result = $scope.group.inputs.filter(function (obj) {
+        return obj.name === findName;
+      });
+      return (result.length > 0);
+    }
+
+    $scope.newInputName = function() {
+      var safeId = $scope.group.inputs.length + 1;
+      var newName = 'input' + safeId;
+
+      while ($scope.findInputName(newName)) {
+        safeId++;
+        newName = 'input' + safeId;
+      }
+      return 'input' + safeId;
+    }
+
     $scope.addInput = function(event, expandFn, index) {
       var input = angular.copy(template.input);
+      input.name = $scope.newInputName();
 
       if (index !== undefined) {
         $scope.group.inputs.splice(index, 0, input);
@@ -689,12 +722,6 @@ pacoApp.controller('GroupsCtrl', ['$scope', 'template',
       }
 
       event.stopPropagation();
-    };
-
-    $scope.swapInputs = function(event, index1, index2) {
-      var temp = $scope.group.inputs[index2];
-      $scope.group.inputs[index2] = $scope.group.inputs[index1];
-      $scope.group.inputs[index1] = temp;
     };
 
     $scope.toggleGroup = function($event) {
@@ -740,8 +767,12 @@ pacoApp.controller('InputCtrl', ['$scope', 'config', function($scope, config) {
     }
   });
 
-  $scope.addChoice = function() {
-    $scope.input.listChoices.push('');
+  $scope.addChoice = function(index) {
+    if (index !== undefined) {
+      $scope.input.listChoices.splice(index, 0, '');
+    } else {
+      $scope.input.listChoices.push('');
+    }
   }
 }]);
 

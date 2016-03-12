@@ -6,9 +6,9 @@
 
     <a class="remove button" href="" ng-click="remove(group.inputs, $index)"></a>
     <a class="add button" href="" ng-click="addInput($event, null, $index + 1)"></a>
-    <a class="up button" href="" ng-click="swapInputs($event, $index - 1, $index)"
+    <a class="up button" href="" ng-click="swap(group.inputs, $index - 1, $index)"
       ng-if="$index > 0"></a>
-    <a class="down button" href="" ng-click="swapInputs($event, $index + 1, $index)" 
+    <a class="down button" href="" ng-click="swap(group.inputs, $index + 1, $index)"
       ng-if="$index < group.inputs.length - 1"></a>
   </div>
 
@@ -16,8 +16,8 @@
     <div class="column0">
       <select ng-model="input.responseType">
         <option value="" disabled selected>Response Type</option>
-        <option ng-selected="{{type === input.responseType}}" ng-repeat="type in responseTypes"
-        value="{{type}}">{{type}}</option>
+        <option ng-selected="{{id === input.responseType}}" ng-repeat="(id, type) in responseTypes"
+        value="{{id}}">{{type}}</option>
       </select>
 
       <md-checkbox ng-model="input.required" aria-label="Required">
@@ -42,6 +42,11 @@
         </md-input-container>
 
         <div flex>
+          <paco-help tip="conditional" ng-if="input.conditional">
+            Help: Conditional Logic
+          </paco-help>
+
+
           <md-input-container ng-if="input.conditional">
             <label>Condition</label>
             <input ng-model="input.conditionExpression">
@@ -58,7 +63,7 @@
       <div class="likert" ng-if="input.responseType === 'likert'" layout="row">
         <md-input-container flex>
           <label>Likert Steps</label>
-          <input ng-model="input.likertSteps" type="number">
+          <input ng-model="input.likertSteps" type="number" min="1" max="9">
         </md-input-container>
 
         <md-input-container flex>
@@ -77,8 +82,16 @@
             <label>Choice {{$index + 1}}</label>
             <input ng-model="input.listChoices[$index]">
           </md-input-container>
-          <a href="" class="remove button" ng-click="remove(input.listChoices, $index)" 
-            ng-if="input.listChoices.length > 1"></a>
+
+          <div class="buttons">
+            <a class="remove button" href="" ng-click="remove(input.listChoices, $index)"
+              ng-if="input.listChoices.length > 1"></a>
+            <a class="add button" href="" ng-click="addChoice($index + 1)"></a>
+            <a class="up button" href="" ng-click="swap(input.listChoices, $index - 1, $index)"
+              ng-if="$index > 0"></a>
+            <a class="down button" href="" ng-click="swap(input.listChoices, $index + 1, $index)"
+              ng-if="$index < input.listChoices.length - 1"></a>
+          </div>
         </div>
 
         <md-button add-icon ng-click="addChoice()">Choice</md-button>

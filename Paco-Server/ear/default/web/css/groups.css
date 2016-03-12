@@ -46,7 +46,7 @@
   margin-left: 4px;
 }
 
-.choice {
+.choice, .time {
   position: relative;
 }
 
@@ -54,6 +54,17 @@
   position: absolute;
   top: 32px;
   right: -40px;
+}
+
+.choice .buttons {
+  margin-top: 24px;
+  width: 130px;
+}
+
+.time .remove.button {
+  position: absolute;
+  top: 28px;
+  right: 0px;
 }
 
 .light {
@@ -72,7 +83,6 @@
 }
 
 .trigger .minBuffer {
-  
   width: 300px !important;
 }
 
@@ -90,23 +100,19 @@
   background: url('../img/ic_clear_24px.svg') no-repeat;
 }
 
-.choice .remove.button {
-  margin-top: 24px;
-}
-
-.header .button.add {
+.button.add {
   background: url('../img/ic_add_circle_outline_24px.svg') no-repeat;
 }
 
-.header .button.up {
+.button.up {
   background: url('../img/ic_arrow_up_24.svg') no-repeat;
 }
 
-.header .button.down {
+.button.down {
   background: url('../img/ic_arrow_down_24.svg') no-repeat;
 }
 
-.header .button {
+.groups .button {
   float: right;
   height: 24px;
   margin-left: 8px;
@@ -114,7 +120,7 @@
   width: 24px;
 }
 
-.header .button:hover {
+.button:hover {
   opacity: 1;
 }
 
@@ -182,7 +188,7 @@ md-card .section .subsub {
   min-height: 58px;
 }
 
-md-card-content[expandable=true]::after {
+md-card-content[expandable=true] > .section::after {
   background: url('../img/ic_unfoldMore.svg') no-repeat;
   content: "";
   height: 24px;
@@ -194,9 +200,22 @@ md-card-content[expandable=true]::after {
   width: 24px;
 }
 
-md-card-content[expandable=true]:hover::after {
+md-card-content[expandable=true] > .section:hover::after {
   opacity: 1;
 }
+
+div[expander] {
+  opacity: 0;
+  pointer-events: none;
+  -webkit-transition: opacity ease-in-out .5s, margin-bottom ease-in-out .5s .25s;
+}
+
+.expand div[expander] {
+  opacity: 1;
+  pointer-events: all;
+  -webkit-transition: opacity ease-in-out .5s .25s, margin-bottom ease-in-out .5s;
+}
+
 
 md-card-content.expand::after  {
   background: url('../img/ic_unfoldLess.svg') no-repeat;
@@ -216,10 +235,6 @@ md-card-content.expand::after  {
   left: 0;
   width: 28px;
   height: 100%;
-}
-
-div[expander] {
-  -webkit-transition: opacity ease-in-out .5s, margin-bottom ease-in-out .5s;
 }
 
 .advanced.padded {
@@ -260,7 +275,7 @@ div[expander] {
 
 .advanced .feedback {
   margin-bottom: 8px;
-  margin-left: 16px;
+  margin-left: 8px;
   position: relative;
 }
 

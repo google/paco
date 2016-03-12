@@ -30,6 +30,9 @@ pacoApp.config(['$routeProvider','$locationProvider',
     when('/respond/:respondExperimentId', {
       templateUrl: 'partials/respond.html',
     }).
+    when('/help/:helpId?', {
+      templateUrl: 'partials/help.html',
+    }).
     when('/experiments', {
       templateUrl: 'partials/list.html',
       reloadOnSearch: false,

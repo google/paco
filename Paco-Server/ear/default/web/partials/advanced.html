@@ -6,7 +6,7 @@
       <md-checkbox ng-model="group.endOfDayGroup" aria-label="End of day group">
         End of day group
       </md-checkbox>
-      
+
       <div class="right" ng-if="group.endOfDayGroup">
         Referred Group
         <md-select ng-model="group.endOfDayReferredGroupName" placeholder="Select">
@@ -21,13 +21,13 @@
       <md-checkbox ng-model="group.backgroundListen" aria-label="Listen for other apps sending data to PACO">
         Background Listening
       </md-checkbox>
-    
+
       <div class="right source" ng-if="group.backgroundListen">
         Source of data
         <md-input-container md-no-float>
           <input type="text" ng-model="group.backgroundListenSourceIdentifier" placeholder="Identifier">
         </md-input-container>
-        <no-ios ng-if="group.backgroundListen" message="'iOS cannot do background listening'"></no-ios>
+        <no-ios ng-if="group.backgroundListen">iOS cannot do background listening</no-ios>
       </div>
 
     </div>
@@ -45,7 +45,7 @@
         Override form display
       </md-checkbox>
 
-      <no-ios ng-if="group.customRendering" message="'iOS does not support custom display'"></no-ios>
+      <no-ios ng-if="group.customRendering">iOS does not support custom display</no-ios>
     </div>
 
 
@@ -68,17 +68,17 @@
 
     Feedback
     <select ng-model="group.feedback.type" as-string>
-      <option ng-selected="$index === group.feedback.type" ng-repeat="type in feedbackTypes" 
+      <option ng-selected="$index === group.feedback.type" ng-repeat="type in feedbackTypes"
         value="{{$index}}">{{type}}</option>
     </select>
 
     <div class="message" flex>
-      <md-input-container md-no-float ng-if="group.feedback.type === 0">
+      <md-input-container md-no-float ng-if="group.feedback.type === 0" ng-enabled="">
         <input type="text" ng-model="group.feedback.text" placeholder="Message">
       </md-input-container>
+      <no-ios ng-if="group.feedback.type === 0 && group.feedback.text !== defaultFeedback">iOS does not support custom messages</no-ios>
     </div>
   </div>
-
   <!-- TODO(ispiro): clear out text when switching between type 0 and 3 -->
   <div class="padded source-frame" ng-if="group.feedback.type === 3">
     Enter custom feedback code

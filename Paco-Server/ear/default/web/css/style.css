@@ -15,6 +15,7 @@ body.no-scroll {
 .main {
   margin: 16px;
   min-height: calc(100vh - 236px);
+  overflow: hidden;
 }
 
 a {
@@ -28,7 +29,7 @@ b {
 }
 
 md-card {
-  overflow: hidden;
+  /*overflow: hidden;*/
   margin: 16px 0 16px 0;
 }
 
@@ -68,13 +69,17 @@ md-dialog li {
 .column1 {
   display: inline-block;
   vertical-align: top;
-  margin-right: 24px;
-  width: 600px;
+  width: 732px;
 }
 
 .column1 .remove-button {
   position: relative;
-  top: 26px;
+  bottom: 26px;
+}
+
+.schedule .remove.button {
+  bottom: 0px;
+  width: 24px;
 }
 
 .short {
@@ -115,12 +120,89 @@ md-dialog li {
   border: none;
 }
 
-.no-ios {
+.no-ios, .paco-tip  {
   display: inline-block;
   line-height: 16px;
   vertical-align: bottom;
 }
 
-.no-ios img {
+.no-ios img,
+.no-ios .paco-tip {
   width: 24px;
 }
+
+no-ios {
+  position: relative;
+}
+
+paco-help {
+  position: absolute;
+  right: 0px;
+}
+
+.paco-help {
+  position: absolute;
+  cursor: pointer;
+  right: -36px;
+  top: 18px;
+  z-index: 2;
+}
+
+md-dialog paco-help {
+  position: relative;
+  top: 0px;
+}
+
+md-dialog .paco-help {
+  top: 0px;
+}
+
+.paco-help img {
+  opacity: .5;
+  -webkit-transition: opacity .25s;
+}
+
+.paco-help:hover img {
+  opacity: 1;
+}
+
+.paco-help .tip-text, .no-ios .tip-text {
+  background: rgba(0, 0, 0, .75);
+  border-radius: 2px;
+  color: white;
+  font-size: 12px;
+  height: 18px;
+  opacity: 0;
+  padding: 4px 8px 4px 8px;
+  pointer-events: none;
+  position: absolute;
+  left: 48px;
+  -webkit-transition: opacity .5s;
+  white-space: nowrap;
+}
+
+
+
+.paco-help .tip-text {
+  top: -2px;
+  left: 28px;
+}
+
+.paco-help:hover .tip-text, .no-ios:hover .tip-text {
+  opacity: 1;
+}
+
+.help {
+  left: 50%;
+  margin-left: -480px;
+  width: 960px;
+  position: absolute;
+  height: calc(100% - 236px);
+}
+
+.help iframe {
+  border: none;
+  height: 100%;
+  width: 960px;
+}
+

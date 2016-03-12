@@ -268,7 +268,7 @@ public class FindMyExperimentsActivity extends ActionBarActivity implements Netw
     Intent emailIntent = new Intent(android.content.Intent.ACTION_SEND);
     String aEmailList[] = { getString(R.string.contact_email) };
     emailIntent.putExtra(android.content.Intent.EXTRA_EMAIL, aEmailList);
-    emailIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, "Paco Feedback");
+    emailIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, getString(R.string.email_subject_paco_feedback));
     emailIntent.setType("plain/text");
     startActivity(emailIntent);
   }
@@ -301,7 +301,7 @@ public class FindMyExperimentsActivity extends ActionBarActivity implements Netw
   private TextView createListHeader() {
     TextView listHeader = (TextView) findViewById(R.id.ExperimentListTitle);
     String header = null;
-    header = getString(R.string.find_my_experiments_list_title);
+    header = getString(R.string.find_my_experiments);
     listHeader.setText(header);
     listHeader.setTextSize(25);
     return listHeader;
@@ -516,9 +516,7 @@ public class FindMyExperimentsActivity extends ActionBarActivity implements Netw
 
           creator.setText(buf.toString());
           creator.setOnClickListener(myButtonListener);
-        } else {
-          creator.setText(getContext().getString(R.string.unknown_author_text));
-        }
+        } 
         // ImageView iv = (ImageView)
         // view.findViewById(R.id.experimentIconView);
         // iv.setImageBitmap(Bitmap.create(cursor.getString(iconColumn)));
@@ -592,11 +590,11 @@ public class FindMyExperimentsActivity extends ActionBarActivity implements Netw
       public void run() {
         progressBar.setVisibility(View.GONE);
         if (msg != null) {
-          Toast.makeText(FindMyExperimentsActivity.this, "Download complete", Toast.LENGTH_LONG);
+          Toast.makeText(FindMyExperimentsActivity.this, getString(R.string.experiment_list_download_complete), Toast.LENGTH_LONG);
           updateDownloadedExperiments(msg);
           saveRefreshTime();
         } else {
-          showFailureDialog("No experiment data retrieved. Try again.");
+          showFailureDialog(getString(R.string.could_not_retrieve_experiments_try_again_));
         }
       }
     });

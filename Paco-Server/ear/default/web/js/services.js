@@ -23,7 +23,7 @@ pacoApp.service('experimentService', ['$http', '$cacheFactory', 'util', 'config'
         endpoint += '&limit=' + config.listPageSize;
       }
 
-      if (cursor !== undefined) {
+      if (cursor !== undefined && cursor !== null) {
         endpoint += '&cursor=' + cursor;
       }
 
@@ -93,6 +93,7 @@ pacoApp.service('experimentService', ['$http', '$cacheFactory', 'util', 'config'
     }
 
     function deleteExperiment(id) {
+      invalidateCachedLists();
       return $http.post('/experiments?delete=1&id=' + id);
     }
   }
@@ -207,21 +208,38 @@ pacoApp.service('dataService', ['$http', '$timeout', '$q', 'config',
 
       $http.get(endpoint).success(
         function(data) {
-          var totalParticipantCount = 0;
-          var todayParticipantCount = 0;
-          for (var i = 0; i < data.participants.length; i++) {
-
-            if (data.participants[i].todaySignalResponseCount > 0) {
-              todayParticipantCount++;
-            }
-
-            if (data.participants[i].totalSignalResponseCount > 0) {
-              totalParticipantCount++;
-            }
+          if (!user) {	
+	          var totalParticipantCount = 0;
+	          var todayParticipantCount = 0;
+	          for (var i = 0; i < data.participants.length; i++) {
+	
+	            if (data.participants[i].todaySignalResponseCount > 0) {
+	              todayParticipantCount++;
+	            }
+	
+	            if (data.participants[i].totalSignalResponseCount > 0) {
+	              totalParticipantCount++;
+	            }
+	          }
+	          data.todayParticipantCount = todayParticipantCount;
+	          data.totalParticipantCount = totalParticipantCount;
+          } else {
+        	  data.responseRate = 0;
+        	  data.signaledResponseCount = 0;
+        	  data.missedResponseCount = 0;
+        	  data.selfReportResponseCount = 0;
+        	  for (var i = 0; i < data.length; i++) {
+        		  data.signaledResponseCount += data[i].schedR;
+        		  data.missedResponseCount += data[i].missedR;
+        		  data.selfReportResponseCount += data[i].selfR;
+        	  }
+        	  data.totalSignalCount = data.signaledResponseCount + data.missedResponseCount;
+        	  if ((data.totalSignalCount) > 0) {        		  
+        		  data.responseRate = data.signaledResponseCount / data.totalSignalCount;        		  
+        	  } else {
+        		  data.responseRate = 0;
+        	  }        	  
           }
-          data.todayParticipantCount = todayParticipantCount;
-          data.totalParticipantCount = totalParticipantCount;
-
           defer.resolve({
             'data': data
           });
@@ -309,14 +327,15 @@ pacoApp.service('config', function() {
     'Fifth'
   ];
 
-  this.responseTypes = [
-    'likert',
-    'likert_smileys',
-    'open text',
-    'list',
-    'photo',
-    'location'
-  ];
+  this.responseTypes = {
+    'likert': 'Scale',
+    'likert_smileys': '5 Point Smiley Scale',
+    'number': 'Number',
+    'open text': 'Open Text',
+    'list': 'List',
+    'photo': 'Photo',
+    'location': 'Location'
+  };
 
   this.feedbackTypes = [
     'Static Message',
@@ -347,6 +366,17 @@ pacoApp.service('config', function() {
     'scheduledTime',
     'when'
   ];
+
+  this.helpLinkBase = 'https://docs.google.com/a/google.com/document/d/1o81ps90gGT3SYEKS1meHfqee-A8c65-Jailz3A1Uwmg/pub?embedded=true';
+
+  this.helpLinks = {
+    'advanced': 'h.le5i22y0oxrv',
+    'app-triggers': 'h.roauu5tvawhu',
+    'conditional': 'h.p8esi25lpyip',
+    'experiment-groups': 'h.3xccjkfufpig',
+    'inputs': 'h.rfj5zaiuklqq',
+    'triggers': 'h.ax1l2jwvrkxo'
+  }
 
   this.listPageSize = 50;
   this.dataPageSize = 100;
@@ -392,6 +422,7 @@ pacoApp.service('template', function() {
     type: 'pacoNotificationAction',
     timeout: 15,
     color: 0,
+    delay: 0,
     dismissible: true
   };
 

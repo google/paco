@@ -105,6 +105,7 @@ function initialize() {
       if (experimentData[event].joinEvent != true) {
         
         var responses = experimentData[event].responses;
+        // TODO i18n
         var tempInfo = "Responses at this Location: ";       
         for (var r = 0; r < responses.length; r++) {
           if (responses[r].name == chosenInputId) {
@@ -139,6 +140,7 @@ function initialize() {
     var bounds = new google.maps.LatLngBounds(southWest,northEast);
     map.fitBounds(bounds);
   } else {
+  // TODO i18n
     alert("UNCHARTABLE: " + responseType);
   }
 }; 

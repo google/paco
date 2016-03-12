@@ -3,7 +3,7 @@
     <a href="#/experiments">
       <md-button>Experiments</md-button>
     </a>
-    
+
     <img src="/img/ic_chevron_right_24px.svg">
 
     <a href="#/experiment/{{experiment.id}}">
@@ -16,7 +16,7 @@
       <div class="padded">
 
         <h1>{{experiment.title}}</h1>
-        
+
         <div ng-if="experiment.organization">
           by {{experiment.organization}}
         </div>
@@ -28,7 +28,7 @@
            {{experiment.description}}
            </p>
         </div>
-    
+
         <div ng-if="experiment.informedConsentForm">
           <h2>Informed Consent</h2>
           <p>
@@ -56,9 +56,9 @@
               Copy
             </md-button>
           </a>
-          
+
           <a href="" ng-click="deleteExperiment($event, experiment)" ng-if="admin">
-            <md-button >
+            <md-button>
               Delete
             </md-button>
           </a>
@@ -81,11 +81,12 @@
             </md-button>
           </a>
 
-          <md-button ng-click="joinExperiment($event, experiment)" 
-            ng-if="joinedIndex.indexOf(experiment.id) === -1">
-            Join
-          </md-button>
-
+          <a href="" ng-click="joinExperiment($event, experiment)" 
+              ng-if="joinedIndex.indexOf(experiment.id) === -1">
+            <md-button>
+              Join
+            </md-button>
+          </a>
         </div>
   </md-card>
 </div>

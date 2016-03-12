@@ -16,9 +16,9 @@ public class NetworkUtil {
     if (!basicNetworkOn) {
       return false;
     }
-    if (new UserPreferences(context.getApplicationContext()).getWifiOnly()) {
-      return !ConnectivityManagerCompat.isActiveNetworkMetered(cm);
-    }
+//    if (new UserPreferences(context.getApplicationContext()).getWifiOnly()) {
+//      return !ConnectivityManagerCompat.isActiveNetworkMetered(cm);
+//    }
     return true;
   }
 

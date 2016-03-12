@@ -293,6 +293,7 @@ var paco = (function (init) {
 	    if (!notificationService) {
 	      notificationService = { 
 	        createNotification : function(message) { 
+	        	// TODO i18n
 	          alert("No notification support"); 
 	        },
 	        removeNotification : function(message) { 

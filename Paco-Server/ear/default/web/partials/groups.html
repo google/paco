@@ -4,6 +4,9 @@
 
     <md-card hidable>
       <md-card-content ng-if="experiment.groups.length > 1 || hiding">
+          <paco-help tip="experiment-groups" ng-if="$index > 0">
+            Help: Experiment Groups
+          </paco-help>
         <div class="section">
 
           <div class="title" ng-click="toggleHide()">
@@ -12,7 +15,7 @@
           </div>
           <md-input-container placeholder="Group Name" md-no-float class="group-name">
             <input ng-model="group.name" aria-label="Group name">
-            <no-ios ng-if="$index > 0" message="'iOS does not support multiple groups'"></no-ios>
+            <no-ios ng-if="$index > 0">iOS does not support multiple groups</no-ios>
           </md-input-container>
 
 
@@ -55,8 +58,8 @@
 
         <div class="section" ng-click="toggleExpand()">
           <div class="title">
-            <span ng-if="experiment.groups.length > 1">Group {{$parent.$parent.$index + 1}}</span>            
-            Triggers 
+            <span ng-if="experiment.groups.length > 1">Group {{$parent.$parent.$index + 1}}</span>
+            Triggers
             <span class="light">({{group.actionTriggers.length}})</span>
           </div>
           <md-button ng-click="addScheduleTrigger($event, toggleExpand)">
@@ -68,6 +71,7 @@
         </div>
 
         <div expander>
+          <paco-help tip="triggers" ng-if="group.actionTriggers.length > 0">Help: Triggers</paco-help>
           <div ng-repeat="trigger in group.actionTriggers track by $index" ng-include="'partials/trigger.html'">
           </div>
         </div>
@@ -85,12 +89,14 @@
           </md-button>
         </div>
         <div expander ng-show="group.inputs.length > 0">
+          <paco-help tip="inputs" ng-if="group.inputs.length > 0">Help: Inputs</paco-help>
           <div ng-repeat="input in group.inputs track by $index" ng-include="'partials/input.html'">
           </div>
         </div>
       </md-card-content>
 
-      <md-card-content ng-hide="hiding" expandable=true>
+      <md-card-content ng-hide="hiding" expandable=true expanded=false>
+        <paco-help tip="advanced" ng-if="state.expand">Help: Advanced</paco-help>
         <md-divider></md-divider>
         <div class="section" ng-click="toggleExpand()">
           <div class="title">
@@ -99,6 +105,7 @@
           </div>
           <i>End of day, background listening, logging, custom rendering, feedback</i>
         </div>
+
         <div expander>
           <div ng-include="'partials/advanced.html'"></div>
         </div>

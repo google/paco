@@ -86,11 +86,34 @@
   font-size: 28px;
 }
 
+.data .summary .individual-stat {
+  background: #eee;
+  box-sizing: border-box;
+  display: inline-block;
+  font-size: 12px;
+  margin: 5px;
+  padding: 20px;
+  padding-bottom: 60px;
+  position: relative;
+  text-align: center;
+  width: 160px;
+}
+
+.data .summary .individual-stat b {
+  color: red;
+  display: block;
+  font-size: 28px;
+}
+
 /* The menu is placed outside of the data DOM node so it's
  * necessary to target this without a .data selector  */
 md-menu-item {
   border-top: 1px solid #eee;
   padding-left: 16px;
+}
+
+md-menu-content {
+  max-height: calc(100vh - 250px);
 }
 
 .data table tr {
@@ -106,8 +129,9 @@ md-menu-item {
 
 .data.events table tbody {
   display: block;
-  max-height: calc(100vh - 338px);
-  overflow: scroll;
+  max-height: calc(100vh - 372px);
+  overflow-x: hidden;
+  overflow-y: auto;
 }
 
 .data.events table tbody tr:nth-of-type(1) a {
@@ -119,6 +143,10 @@ md-menu-item {
   display: block;
   height: 0px;
   overflow: hidden;
+}
+
+::-webkit-scrollbar-track  {
+  min-height: 24px;
 }
 
 .data.events table tbody tr:nth-of-type(1),
@@ -191,7 +219,6 @@ md-menu-item {
 .data .variable-width {
   display: inline-block;
   max-width: 100%;
-  overflow-x: scroll;
   text-align: left;
 }
 
