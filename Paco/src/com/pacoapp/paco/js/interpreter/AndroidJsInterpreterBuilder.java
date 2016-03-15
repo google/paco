@@ -17,6 +17,7 @@ import com.pacoapp.paco.js.bridge.JavascriptLogger;
 import com.pacoapp.paco.js.bridge.JavascriptNotificationService;
 import com.pacoapp.paco.js.bridge.JavascriptPackageManager;
 import com.pacoapp.paco.js.bridge.JavascriptSensorManager;
+import com.pacoapp.paco.js.bridge.JavascriptStringResources;
 import com.pacoapp.paco.model.Experiment;
 import com.pacoapp.paco.model.ExperimentProviderUtil;
 import com.pacoapp.paco.shared.model2.ExperimentDAO;
@@ -40,6 +41,7 @@ public class AndroidJsInterpreterBuilder {
     interpreter.newBind("packageManager", new JavascriptPackageManager(context));
     interpreter.newBind("log", new JavascriptLogger());
     interpreter.newBind("sensors", new JavascriptSensorManager(context));
+    interpreter.newBind("strings", new JavascriptStringResources(context));
     return interpreter;
 
   }

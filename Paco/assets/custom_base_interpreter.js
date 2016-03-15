@@ -318,6 +318,28 @@ var paco = (function (init) {
 	    };
 	  })();
 
+  obj.stringService = (function() {
+	    if (!strings) {
+	      strings = { 
+	        getString: function(stringId) { 
+	        	// TODO i18n
+	          alert("No strings support"); 
+	        },
+	        getString : function(stringId, formatArgs) { 
+		          alert("No strings support"); 
+		      }
+	        };
+	    }
+
+	    return {
+	      getString : function(stringId) {
+	        return strings.getString(stringId);
+	      }, 
+	      getStringFormatted : function(stringId, formatArgs) {
+		    return strings.getString(stringId, formatArgs);
+		  }
+	    };
+	  })();
 
   return obj;
 })();
