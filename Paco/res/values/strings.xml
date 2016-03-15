@@ -207,6 +207,7 @@
     <string name="unable_to_save_experiment" description="Body of message informing user that something prevented them from joining the experiment.">Unable to join this experiment. Please email the researcher running this study.</string>
     <string name="server_error" description="Catch-all for server side error during network communication">Something went wrong with the server.</string>
     <string name="network_required" description="Title of dialog that tells the user that some form of networking is necessary to complete the operation">Network Required</string>
+    <string name="unknown_host" description="Title of dialog that tells the user that Server address is not reachable">Unknown or unreachable server address. Check your Paco settings.</string>
     <string name="need_network_connection" description="body of dialog telling the user network connection is necessary to complete the operation">You will need a network connection to join the experiment. Enable connection now?</string>
     <string name="no_thanks" description="Choice in dialogs to not pursue options presented.">No, Thanks.</string>
     <string name="go_to_network_settings" description="Button label to jump to OS settings for networking">Network Settings</string>
