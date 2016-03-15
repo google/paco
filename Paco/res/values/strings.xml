@@ -287,4 +287,21 @@
     <!--  map.html -->
     <string name="responses_at_location_title" description="Title for list of responses for a given lat/long location">Responses at this Location</string>
     <string name="unchartable_error" description="message shown when the data type is not a location">Unchartable</string>
+    
+    <!--  eos.html -->
+    <string name="end_of_study_prompt" description="text shown to prompt user to do end of study activity">Please do the End of Study Sorting Activity sometime in the next 24 hours</string>
+    <string name="eos_early_exit_warning" description="warn user that they might lose unfinished work if the exit now">If you have not submitted, you may lose data. Are you sure you want to leave?</string>
+    <string name="eos_no_active_daily_responses">No active daily responses</string>
+    <string name="eos_could_not_save" description="message shown when user's responses in end of study activity could not be saved">Could not store your response. You might try again. Or contact the researcher running the study. Error: </string>
+    <string name="eos_instructions" description="Text instructing user to sort activities into groups">Please group info needs into higher-level activities</string>
+    <string name="eos_check_related_needs_instruction">Check related info needs</string>
+    <string name="eos_enter_label_and_group_instruction">Enter a label for the larger activity and press Group</string>
+    <string name="eos_repeat_until_done_instruction">Repeat until all info needs that were part of a bigger activity have been grouped</string>
+    <string name="eos_activity_field_label" description="label for text field where user gives group a name">Activity</string>
+    <string name="eos_group_button_label" description="button label for group button to group activities under new name">Group</string>
+    <string name="eos_created_activity_group_section_header" description="Label for list of activity groups created by the user">Activity Groups</string>
+    
+        
+                
+                
 </resources>
