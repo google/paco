@@ -73,6 +73,9 @@ public class ProgressDialogFragment extends DialogFragment {
       } case NetworkUtil.NO_NETWORK_CONNECTION: {
         dialog = getNoNetworkDialog();
         break;
+      } case NetworkUtil.UNKNOWN_HOST_ERROR: {
+        dialog = getUnknownHostDialog();
+        break;
       } default: {
         dialog = null;
       }
@@ -122,6 +125,20 @@ public class ProgressDialogFragment extends DialogFragment {
                             getActivity().finish();
                           }
                     });
+    return noNetworkBldr.create();
+  }
+  
+  private AlertDialog getUnknownHostDialog() {
+    AlertDialog.Builder noNetworkBldr = new AlertDialog.Builder(getActivity());
+    noNetworkBldr.setTitle(R.string.experiment_could_not_be_retrieved)
+                 .setMessage(getString(R.string.unknown_host))
+                 .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                   public void onClick(DialogInterface dialog, int which) {
+                           getActivity().setResult(FindExperimentsActivity.JOINED_EXPERIMENT);
+                           getActivity().finish();
+                         }
+                       });
+
     return noNetworkBldr.create();
   }
 
