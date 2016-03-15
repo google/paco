@@ -30,7 +30,11 @@ public class JavascriptStringResources {
     if (Strings.isNullOrEmpty(stringName)) {
       return "";
     }
-    return context.getString(getIdForStringResourceName(stringName));
+    int idForStringResourceName = getIdForStringResourceName(stringName);
+    if (idForStringResourceName == 0) {
+      return "";
+    }
+    return context.getString(idForStringResourceName);
   }
   
   @JavascriptInterface

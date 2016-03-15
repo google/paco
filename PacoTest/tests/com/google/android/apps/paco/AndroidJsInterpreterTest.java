@@ -27,7 +27,7 @@ public class AndroidJsInterpreterTest extends AndroidTestCase {
     Experiment experiment = new Experiment();
     JsInterpreter interpreter = AndroidJsInterpreterBuilder.createInterpreter(context, experiment, null, null);
     assertTrue((Boolean)interpreter.eval("paco.stringService !== null") == true);
-    assertEquals("Paco", interpreter.eval("paco.stringService.getString(\"R.strings.app_name\""));
+    assertEquals("Paco", interpreter.eval("paco.stringService.getString(\"app_name\""));
   }
 
 }
