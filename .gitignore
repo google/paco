@@ -1,5 +1,6 @@
 local.properties
 .settings
+.settings/*
 .DS_Store
 *.keystore
 AndroidCompatSupport/v7/appcompat/bin/res/crunch
