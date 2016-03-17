@@ -31,13 +31,22 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.codehaus.jackson.JsonGenerationException;
+import org.codehaus.jackson.map.JsonMappingException;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 
 import com.google.appengine.api.modules.ModulesService;
 import com.google.appengine.api.modules.ModulesServiceFactory;
 import com.google.appengine.api.users.User;
 import com.google.appengine.api.users.UserServiceFactory;
+import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
+import com.google.sampling.experiential.server.stats.usage.UsageStat;
+import com.google.sampling.experiential.server.stats.usage.UsageStatsEntityManager;
+import com.google.sampling.experiential.server.stats.usage.UsageStatsReport;
+import com.pacoapp.paco.shared.model2.JsonConverter;
 
 /**
  * Servlet that answers queries for paco Usage
@@ -47,8 +56,7 @@ import com.google.common.collect.Lists;
 public class UsageServlet extends HttpServlet {
 
   public static final Logger log = Logger.getLogger(UsageServlet.class.getName());
-  private String defaultAdmin = "bobevans@google.com";
-  private List<String> adminUsers = Lists.newArrayList(defaultAdmin);
+  public static String ADMIN_DOMAIN_FILTER = "google.com";  
 
   @Override
   protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
@@ -56,10 +64,47 @@ public class UsageServlet extends HttpServlet {
     User user = AuthUtil.getWhoFromLogin();
     if (user == null) {
       AuthUtil.redirectUserToLogin(req, resp);
-    } else {
-      dumpStats(resp, req);
+    } else {      
+      if (req.getParameter("gen") != null) {
+        dumpStats(resp, req); 
+      } else {
+        String adminDomainFilter = null;
+        String email = AuthUtil.getEmailOfUser(req, user);
+        if (email.split("@")[1].equals(ADMIN_DOMAIN_FILTER)) {
+          adminDomainFilter = ADMIN_DOMAIN_FILTER;
+        }
+          
+        String json = readStats(email, adminDomainFilter);
+        resp.getWriter().write(json);
+      }
     }
   }
+  
+  
+  private String readStats(String requestorEmail, String adminDomainFilter) {
+    UsageStatsEntityManager usageStatsManager = UsageStatsEntityManager.getInstance();
+    UsageStatsReport usageStatsReport = usageStatsManager.getStatsReport(adminDomainFilter);
+    return jsonifyEvents(usageStatsReport);
+  }
+  
+  private String jsonifyEvents(UsageStatsReport report) {
+    ObjectMapper mapper = JsonConverter.getObjectMapper();
+
+    try {
+      return mapper.writeValueAsString(report);
+    } catch (JsonGenerationException e) {
+      e.printStackTrace();
+      log.severe(e.getMessage());
+    } catch (JsonMappingException e) {
+      e.printStackTrace();
+      log.severe(e.getMessage());
+    } catch (IOException e) {
+      e.printStackTrace();
+      log.severe(e.getMessage());
+    }
+    return "Error could not write stats report as json";
+  }
+
 
   private void dumpStats(HttpServletResponse resp, HttpServletRequest req) throws IOException {
     final User whoFromLogin = AuthUtil.getWhoFromLogin();
@@ -71,8 +116,7 @@ public class UsageServlet extends HttpServlet {
 
 
     DateTimeZone timeZoneForClient = TimeUtil.getTimeZoneForClient(req);
-    String adminDomainFilter = req.getParameter("adminDomainFilter");
-    String jobId = runReportJob(AuthUtil.getEmailOfUser(req, whoFromLogin), timeZoneForClient, req, "stats", adminDomainFilter);
+    String jobId = runReportJob(AuthUtil.getEmailOfUser(req, whoFromLogin), timeZoneForClient, req, "stats");
     // Give the backend time to startup and register the job.
     try {
       Thread.sleep(100);
@@ -95,21 +139,21 @@ public class UsageServlet extends HttpServlet {
    * @throws IOException
    */
   private String runReportJob(String loggedInuser, DateTimeZone timeZoneForClient,
-                                 HttpServletRequest req, String reportFormat, String adminDomainFilter) throws IOException {
+                                 HttpServletRequest req, String reportFormat) throws IOException {
     ModulesService modulesApi = ModulesServiceFactory.getModulesService();
     String backendAddress = modulesApi.getVersionHostname("reportworker", modulesApi.getDefaultVersion("reportworker"));
      try {
 
       BufferedReader reader = null;
       try {
-        reader = sendToBackend(timeZoneForClient, req, backendAddress, reportFormat, adminDomainFilter);
+        reader = sendToBackend(timeZoneForClient, req, backendAddress, reportFormat);
       } catch (SocketTimeoutException se) {
         log.info("Timed out sending to backend. Trying again...");
         try {
           Thread.sleep(100);
         } catch (InterruptedException e) {
         }
-        reader = sendToBackend(timeZoneForClient, req, backendAddress, reportFormat, adminDomainFilter);
+        reader = sendToBackend(timeZoneForClient, req, backendAddress, reportFormat);
       }
       if (reader != null) {
         StringBuilder buf = new StringBuilder();
@@ -127,7 +171,7 @@ public class UsageServlet extends HttpServlet {
   }
 
   private BufferedReader sendToBackend(DateTimeZone timeZoneForClient, HttpServletRequest req,
-                                       String backendAddress, String reportFormat, String adminDomainFilter) throws MalformedURLException, IOException {
+                                       String backendAddress, String reportFormat) throws MalformedURLException, IOException {
     String httpScheme = "https";
     String localAddr = req.getLocalAddr();
     if (localAddr != null && localAddr.matches("127.0.0.1")) {
@@ -137,8 +181,7 @@ public class UsageServlet extends HttpServlet {
             req.getParameter("q") +
             "&who="+AuthUtil.getWhoFromLogin().getEmail().toLowerCase() +
             "&tz=" + timeZoneForClient +
-            "&reportFormat=" + reportFormat +
-            "&adminDomainFilter=" + adminDomainFilter);
+            "&reportFormat=" + reportFormat);
     log.info("URL to backend = " + url.toString());
     HttpURLConnection connection = (HttpURLConnection) url.openConnection();
     connection.setInstanceFollowRedirects(false);
