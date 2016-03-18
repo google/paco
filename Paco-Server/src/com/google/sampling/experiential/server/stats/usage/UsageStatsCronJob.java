@@ -9,6 +9,12 @@ import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
+import com.google.appengine.api.datastore.DatastoreService;
+import com.google.appengine.api.datastore.DatastoreServiceFactory;
+import com.google.appengine.api.datastore.Entity;
+import com.google.appengine.api.datastore.Query;
+import com.google.appengine.api.datastore.Query.FilterOperator;
+import com.google.appengine.api.datastore.Query.FilterPredicate;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.sampling.experiential.server.ExperimentServiceFactory;
@@ -38,6 +44,10 @@ public class UsageStatsCronJob {
     log.info("writing usage stats");    
     loadAdminDomainSetting();
     
+    //TODO split out query of events to compute sub score for domain-specific count
+    // currently we only show the total;
+    int numberOfEvents = getTotalEventCount();
+    
     ExperimentQueryResult experimentsQueryResults = ExperimentServiceFactory.getExperimentService().getAllExperiments(null);    
     List<ExperimentDAO> experimentList = experimentsQueryResults.getExperiments();
     
@@ -64,15 +74,30 @@ public class UsageStatsCronJob {
           nonDomainExperimentsList.add(experimentDAO);
         }
       }
-      
-      UsageStat nonDomainExperimentStats = computeStats(dateTime, nonDomainExperimentsList);
-      UsageStat domainExperimentStats = computeStats(dateTime, domainExperimentsList);
+            
+      UsageStat nonDomainExperimentStats = computeStats(dateTime, nonDomainExperimentsList, numberOfEvents);
+      UsageStat domainExperimentStats = computeStats(dateTime, domainExperimentsList, 0); 
       domainExperimentStats.setAdminDomainFilter(adminDomainSystemSetting);
       
       UsageStatsEntityManager usageStatsMgr = UsageStatsEntityManager.getInstance();
       usageStatsMgr.addStats(nonDomainExperimentStats, domainExperimentStats);
 
     }
+  }
+
+  private int getTotalEventCount() {
+    int numberOfEvents = 0;
+    
+    DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+    Query query = new Query("__Stat_Kind__");
+    query.setFilter(new FilterPredicate("kind_name", FilterOperator.EQUAL, "Event"));
+    Entity eventTotalStat = datastore.prepare(query).asSingleEntity();
+    if (eventTotalStat != null) {
+      numberOfEvents = (int) eventTotalStat.getProperty("count");
+    } else {
+      log.info("could not stat entity count of events");
+    }
+    return numberOfEvents;
   }
 
   private void loadAdminDomainSetting() {
@@ -82,29 +107,30 @@ public class UsageStatsCronJob {
     }
   }
     
-  private UsageStat computeStats(DateTime dateTime, List<ExperimentDAO> experiments) {
+  private UsageStat computeStats(DateTime dateTime, List<ExperimentDAO> experiments, int numberOfEvents) {
     UsageStat usageStats = new UsageStat(dateTime);
     usageStats.setExperimentCountTotal(experiments.size());
+    usageStats.setNumberOfEvents(numberOfEvents);
 
-    int unpublishedExperimentCountTotal = 0; //
-    int publishedExperimentCountTotal = 0;   //    
-    int publishedExperimentPublicCountTotal = 0; //    
-    int publishedExperimentPrivateCountTotal = 0; //    
-    int publishedExperimentFutureCountTotal = 0; //    
-    int publishedExperimentPastCountTotal = 0; //  
+    int unpublishedExperimentCountTotal = 0; 
+    int publishedExperimentCountTotal = 0;       
+    int publishedExperimentPublicCountTotal = 0;     
+    int publishedExperimentPrivateCountTotal = 0;     
+    int publishedExperimentFutureCountTotal = 0;     
+    int publishedExperimentPastCountTotal = 0;   
     
-    int publishedExperimentPresentCountTotal = 0; //
-    int publishedExperimentOngoingCountTotal = 0; //
+    int publishedExperimentPresentCountTotal = 0; 
+    int publishedExperimentOngoingCountTotal = 0; 
     
-    List<Integer> publishedExperimentPrivateUserCountsTotal = Lists.newArrayList(); //
+    List<Integer> publishedExperimentPrivateUserCountsTotal = Lists.newArrayList(); 
     
-    int publishedExperimentPublicCountNonPilotTotal = 0; //
-    int publishedExperimentPrivateCountNonPilot = 0;    //
-    int publishedExperimentFutureCountNonPilot = 0; //
-    int publishedExperimentPastCountNonPilot = 0; //
-    int publishedExperimentPresentCountNonPilot = 0; //
-    int publishedExperimentOngoingCountNonPilot = 0; //
-    List<Integer> publishedExperimentPrivateUserCountsNonPilot = Lists.newArrayList(); //
+    int publishedExperimentPublicCountNonPilotTotal = 0; 
+    int publishedExperimentPrivateCountNonPilot = 0;    
+    int publishedExperimentFutureCountNonPilot = 0; 
+    int publishedExperimentPastCountNonPilot = 0; 
+    int publishedExperimentPresentCountNonPilot = 0; 
+    int publishedExperimentOngoingCountNonPilot = 0; 
+    List<Integer> publishedExperimentPrivateUserCountsNonPilot = Lists.newArrayList(); 
     
     for (ExperimentDAO experimentDAO : experiments) {
       boolean isNonPilot = isNonPilotExperiment(experimentDAO);
