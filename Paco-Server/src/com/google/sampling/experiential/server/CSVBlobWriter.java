@@ -75,37 +75,6 @@ public class CSVBlobWriter {
    columns.add(13, "timeZone");
 
    return writeBlobUsingNewApi(jobId, columns, eventsCSV).getKeyString();
-
-
-//   FileService fileService = FileServiceFactory.getFileService();
-//   AppEngineFile file = fileService.createNewBlobFile("text/csv", jobId);
-//
-//   // Open a channel to write to it
-//   boolean lock = true;
-//   FileWriteChannel writeChannel = fileService.openWriteChannel(file, lock);
-//
-//   // Different standard Java ways of writing to the channel
-//   // are possible. Here we use a PrintWriter:
-//   PrintWriter out = new PrintWriter(Channels.newWriter(writeChannel, "UTF8"));
-//
-//   CSVWriter csvWriter = null;
-//   try {
-//     csvWriter = new CSVWriter(out);
-//     String[] columnsArray = columns.toArray(new String[0]);
-//     csvWriter.writeNext(columnsArray);
-//     for (String[] eventCSV : eventsCSV) {
-//       csvWriter.writeNext(eventCSV);
-//     }
-//     csvWriter.flush();
-//   } finally {
-//     if (csvWriter != null) {
-//       csvWriter.close();
-//     }
-//   }
-//   out.close();
-//   writeChannel.closeFinally();
-//   BlobKey blobKey = fileService.getBlobKey(file);
-//   return blobKey.getKeyString();
  }
 
   private BlobKey writeBlobUsingNewApi(String jobId, List<String> columns, 
