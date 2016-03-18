@@ -36,10 +36,7 @@ public class UsageStatsCronJob {
 
   public void run() throws IOException {
     log.info("writing usage stats");    
-    adminDomainSystemSetting = System.getProperty("com.pacoapp.adminDomain");
-    if (Strings.isNullOrEmpty(adminDomainSystemSetting)) {
-      adminDomainSystemSetting = "";
-    }
+    loadAdminDomainSetting();
     
     ExperimentQueryResult experimentsQueryResults = ExperimentServiceFactory.getExperimentService().getAllExperiments(null);    
     List<ExperimentDAO> experimentList = experimentsQueryResults.getExperiments();
@@ -75,6 +72,13 @@ public class UsageStatsCronJob {
       UsageStatsEntityManager usageStatsMgr = UsageStatsEntityManager.getInstance();
       usageStatsMgr.addStats(nonDomainExperimentStats, domainExperimentStats);
 
+    }
+  }
+
+  private void loadAdminDomainSetting() {
+    adminDomainSystemSetting = System.getProperty("com.pacoapp.adminDomain");
+    if (Strings.isNullOrEmpty(adminDomainSystemSetting)) {
+      adminDomainSystemSetting = "";
     }
   }
     
