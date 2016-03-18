@@ -43,7 +43,7 @@ public class UsageStat implements java.io.Serializable {
   // non experiment stats
   private int numberOfParticipants; // total number of participants in all experiments
   
-  private int numberOfEvents; // total number of non-join, non-schedule-edit response sets across all experiments
+  private long numberOfEvents; // total number of non-join, non-schedule-edit response sets across all experiments
   
   public UsageStat() {
 
@@ -242,11 +242,11 @@ public class UsageStat implements java.io.Serializable {
     this.numberOfParticipants = numberOfParticipants;
   }
 
-  public int getNumberOfEvents() {
+  public long getNumberOfEvents() {
     return numberOfEvents;
   }
 
-  public void setNumberOfEvents(int numberOfEvents) {
+  public void setNumberOfEvents(long numberOfEvents) {
     this.numberOfEvents = numberOfEvents;
   }
 

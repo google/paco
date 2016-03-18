@@ -46,7 +46,7 @@ public class UsageStatsCronJob {
     
     //TODO split out query of events to compute sub score for domain-specific count
     // currently we only show the total;
-    int numberOfEvents = getTotalEventCount();
+    Long numberOfEvents = getTotalEventCount(); 
     
     ExperimentQueryResult experimentsQueryResults = ExperimentServiceFactory.getExperimentService().getAllExperiments(null);    
     List<ExperimentDAO> experimentList = experimentsQueryResults.getExperiments();
@@ -85,15 +85,15 @@ public class UsageStatsCronJob {
     }
   }
 
-  private int getTotalEventCount() {
-    int numberOfEvents = 0;
+  private long getTotalEventCount() {
+    long numberOfEvents = 0;
     
     DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
     Query query = new Query("__Stat_Kind__");
     query.setFilter(new FilterPredicate("kind_name", FilterOperator.EQUAL, "Event"));
     Entity eventTotalStat = datastore.prepare(query).asSingleEntity();
     if (eventTotalStat != null) {
-      numberOfEvents = (int) eventTotalStat.getProperty("count");
+      numberOfEvents = (long) eventTotalStat.getProperty("count");
     } else {
       log.info("could not stat entity count of events");
     }
@@ -107,7 +107,7 @@ public class UsageStatsCronJob {
     }
   }
     
-  private UsageStat computeStats(DateTime dateTime, List<ExperimentDAO> experiments, int numberOfEvents) {
+  private UsageStat computeStats(DateTime dateTime, List<ExperimentDAO> experiments, long numberOfEvents) {
     UsageStat usageStats = new UsageStat(dateTime);
     usageStats.setExperimentCountTotal(experiments.size());
     usageStats.setNumberOfEvents(numberOfEvents);
