@@ -9,6 +9,7 @@ import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
+import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.sampling.experiential.server.ExperimentServiceFactory;
 import com.google.sampling.experiential.shared.TimeUtil;
@@ -28,13 +29,17 @@ public class UsageStatsCronJob {
 
   private static final Logger log = Logger.getLogger(UsageStatsCronJob.class.getName());
   private DateTimeFormatter jodaFormatter = DateTimeFormat.forPattern(TimeUtil.DATETIME_FORMAT).withOffsetParsed();
-  public static String adminDomainFilter = "google.com";
+  private String adminDomainSystemSetting;
 
   public UsageStatsCronJob() {
   }
 
   public void run() throws IOException {
     log.info("writing usage stats");    
+    adminDomainSystemSetting = System.getProperty("com.pacoapp.adminDomain");
+    if (Strings.isNullOrEmpty(adminDomainSystemSetting)) {
+      adminDomainSystemSetting = "";
+    }
     
     ExperimentQueryResult experimentsQueryResults = ExperimentServiceFactory.getExperimentService().getAllExperiments(null);    
     List<ExperimentDAO> experimentList = experimentsQueryResults.getExperiments();
@@ -51,7 +56,7 @@ public class UsageStatsCronJob {
         List<String> admins = experimentDAO.getAdmins();
         for (String admin : admins) {
           
-          if (admin.indexOf("@" + adminDomainFilter) != -1) {
+          if (admin.indexOf("@" + adminDomainSystemSetting) != -1) {
             domainAdmin = true;
             break;
           } 
@@ -65,7 +70,7 @@ public class UsageStatsCronJob {
       
       UsageStat nonDomainExperimentStats = computeStats(dateTime, nonDomainExperimentsList);
       UsageStat domainExperimentStats = computeStats(dateTime, domainExperimentsList);
-      domainExperimentStats.setAdminDomainFilter(adminDomainFilter);
+      domainExperimentStats.setAdminDomainFilter(adminDomainSystemSetting);
       
       UsageStatsEntityManager usageStatsMgr = UsageStatsEntityManager.getInstance();
       usageStatsMgr.addStats(nonDomainExperimentStats, domainExperimentStats);

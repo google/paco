@@ -27,6 +27,7 @@ import java.net.URL;
 import java.util.List;
 import java.util.logging.Logger;
 
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -56,8 +57,10 @@ import com.pacoapp.paco.shared.model2.JsonConverter;
 public class UsageServlet extends HttpServlet {
 
   public static final Logger log = Logger.getLogger(UsageServlet.class.getName());
-  public static String ADMIN_DOMAIN_FILTER = "google.com";  
+  public String adminDomainSystemSetting;  
 
+  
+  
   @Override
   protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
     setCharacterEncoding(req, resp);
@@ -70,8 +73,8 @@ public class UsageServlet extends HttpServlet {
       } else {
         String adminDomainFilter = null;
         String email = AuthUtil.getEmailOfUser(req, user);
-        if (email.split("@")[1].equals(ADMIN_DOMAIN_FILTER)) {
-          adminDomainFilter = ADMIN_DOMAIN_FILTER;
+        if (email.split("@")[1].equals(adminDomainSystemSetting)) {
+          adminDomainFilter = adminDomainSystemSetting;
         }
           
         String json = readStats(email, adminDomainFilter);
@@ -207,5 +210,15 @@ public class UsageServlet extends HttpServlet {
       throws UnsupportedEncodingException {
     req.setCharacterEncoding("UTF-8");
     resp.setCharacterEncoding("UTF-8");
+  }
+
+
+  @Override
+  public void init() throws ServletException {
+    super.init();
+    adminDomainSystemSetting = System.getProperty("com.pacoapp.adminDomain");
+    if (Strings.isNullOrEmpty(adminDomainSystemSetting)) {
+      adminDomainSystemSetting = "";
+    }
   }
 }
