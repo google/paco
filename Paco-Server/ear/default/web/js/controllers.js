@@ -631,9 +631,9 @@ pacoApp.controller('DashboardCtrl', ['$scope','dataService','config',
 
     $scope.loadDashboardStats = function() {
       dataService.getDashboardStats().then(function(response) {
-        $scope.stats = response;
+        $scope.domainStats = response.domainExperimentStats;
+        $scope.allStats = response.allExperimentStats;
       });
-
     };
 
     $scope.loadDashboardStats();

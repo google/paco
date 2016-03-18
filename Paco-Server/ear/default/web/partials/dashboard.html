@@ -6,28 +6,100 @@
       <md-progress-linear md-mode="indeterminate" ng-if="loading === true"></md-progress-linear>
     </div>
 
-    <div class="summary">
-      <h2>Experiments administered by google.com</h2>
-      <div class="individual-stat">
-          <b>{{stats.domainExperimentCount}}</b> Total Experiments
-      </div>
-      <div class="individual-stat">
-          <b>{{stats.domainOngoingExperimentCount}}</b> Ongoing Experiments
-      </div>
-      <div class="individual-stat">
-          <b>{{(stats.domainPastExperimentCount)}}</b> Past Experiments
-      </div>
-      <div class="individual-stat">
-          <b>{{stats.domainFutureExperimentCount}}</b> Future Experiments
-      </div>
-    </div><br>
+
+    <div  ng-repeat="stats in [domainStats,allStats]">
 
     <div class="summary">
-      <h2>All Paco experiments </h2>
+      <h2 ng-if="stats[0].adminDomainFilter">Experiments administered by {{stats[0].adminDomainFilter}}</h2>
+      <h2 ng-if="!stats[0].adminDomainFilter">All experiments</h2>
       <div class="individual-stat">
-          <b>{{stats.experimentTotalCount}}</b> Total Experiments
+          <b>{{stats[0].experimentCountTotal}}</b>
+          Total Experiments
+      </div>
+      <div class="individual-stat">
+          <b>{{stats[0].publishedExperimentOngoingCountTotal}}</b>
+          Ongoing Experiments
+      </div>
+      <div class="individual-stat">
+          <b>{{stats[0].publishedExperimentPastCountTotal}}</b>
+          Past Experiments
+      </div>
+      <div class="individual-stat">
+          <b>{{stats[0].publishedExperimentFutureCountTotal}}</b>
+          Future Experiments
       </div>
     </div>
+
+     <table>
+
+        <tr >
+          <td right-border>
+            <span class="sorting">
+              <a href="">
+                Date
+              </a>
+            </span>
+          </td>
+          <td>
+            <span class="sorting">
+              <a href="">Past</a>
+            </span>
+          </td>
+          <td>
+            <span class="sorting">
+              <a href="">Future</a>
+            </span>
+          </td>
+          <td>
+            <span class="sorting">
+              <a href="">Ongoing</a>
+            </span>
+          </td>
+          <td>
+            <span class="sorting">
+              <a href="">Total</a>
+            </span>
+          </td>
+        </tr>
+
+
+        <tr ng-repeat="row in stats | orderBy: date">
+          <td right-border>
+            {{row["date"]|date:'medium'}}
+          </td>
+          <td>{{row["publishedExperimentPastCountTotal"]}}</td>
+          <td>{{row["publishedExperimentFutureCountTotal"]}}</td>
+          <td>{{row["publishedExperimentOngoingCountTotal"]}}</td>
+          <td>{{row["experimentCountTotal"]}}</td>
+        </tr>
+         <tfoot>
+            <td colspan=4>Showing {{stats.length}} of {{stats.length}}</td>
+          </tfoot>
+      </table>
+      <br><br>
+    </div>
+<!-- 'date': 1458201805140,
+      'experimentCountTotal': 5,
+      'unpublishedExperimentCountTotal': 4,
+      'publishedExperimentCountTotal': 1,
+      'publishedExperimentPublicCountTotal': 1,
+      'publishedExperimentPrivateCountTotal': 0,
+      'publishedExperimentFutureCountTotal': 0,
+      'publishedExperimentPastCountTotal': 0,
+      'publishedExperimentPresentCountTotal': 0,
+      'publishedExperimentOngoingCountTotal': 1,
+      'publishedExperimentPrivateUserCountsTotal': [],
+      'publishedExperimentPublicCountNonPilotTotal': 0,
+      'publishedExperimentPrivateCountNonPilot': 0,
+      'publishedExperimentFutureCountNonPilot': 0,
+      'publishedExperimentPastCountNonPilot': 0,
+      'publishedExperimentPresentCountNonPilot': 0,
+      'publishedExperimentOngoingCountNonPilot': 0,
+      'publishedExperimentPrivateUserCountsNonPilot': [],
+      'numberOfParticipants': 0,
+      'numberOfEvents': 0,
+      'dateAsString': '2016/03/17 08:03:25+0000' -->
+
 
 
     <div ng-if="error" class="error">
