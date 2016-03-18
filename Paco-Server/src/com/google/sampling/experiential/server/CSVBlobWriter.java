@@ -108,22 +108,21 @@ public class CSVBlobWriter {
 //   return blobKey.getKeyString();
  }
 
-  private BlobKey writeBlobUsingNewApi(String jobId, List<String> columns, List<String[]> eventsCSV) throws IOException,
-                                                                               FileNotFoundException {
-    log.info("Writing csv using new api");
-
+  private BlobKey writeBlobUsingNewApi(String jobId, List<String> columns, 
+                                       List<String[]> eventsCSV) throws IOException,
+                                                                     FileNotFoundException {
     GcsService gcsService = GcsServiceFactory.createGcsService();
-    String bucketName = System.getProperty("com.pacoapp.reportbucketname");
-    
-    log.info("Using report bucket: " + bucketName);
+    String bucketName = System.getProperty("com.pacoapp.reportbucketname");    
     String fileName = jobId;
     GcsFilename filename = new GcsFilename(bucketName, fileName);
-    GcsFileOptions options = new GcsFileOptions.Builder().mimeType("text/csv").acl("project-private")
-                                                         .addUserMetadata("jobId", jobId).build();
+    GcsFileOptions options = new GcsFileOptions.Builder()
+        .mimeType("text/csv")
+        .acl("project-private")
+        .addUserMetadata("jobId", jobId)
+        .build();
 
     GcsOutputChannel writeChannel = gcsService.createOrReplace(filename, options);
     PrintWriter writer = new PrintWriter(Channels.newWriter(writeChannel, "UTF8"));
-    log.info("got writer");
     CSVWriter csvWriter = null;
     try {
       csvWriter = new CSVWriter(writer);
@@ -143,7 +142,6 @@ public class CSVBlobWriter {
     }
 
     writeChannel.close();
-    log.info("wrote to cloud store");
     BlobstoreService blobstoreService = BlobstoreServiceFactory.getBlobstoreService();
     BlobKey blobKey = blobstoreService.createGsBlobKey("/gs/" + bucketName + "/" + fileName);
     return blobKey;

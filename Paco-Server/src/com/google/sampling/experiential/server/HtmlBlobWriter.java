@@ -76,8 +76,11 @@ public class HtmlBlobWriter {
     String bucketName = System.getProperty("com.pacoapp.reportbucketname");
     String fileName = jobId;
     GcsFilename filename = new GcsFilename(bucketName, fileName);
-    GcsFileOptions options = new GcsFileOptions.Builder().mimeType("text/html").acl("project-private")
-                                                         .addUserMetadata("jobId", jobId).build();
+    GcsFileOptions options = new GcsFileOptions.Builder()
+            .mimeType("text/html")
+            .acl("project-private")
+            .addUserMetadata("jobId", jobId)
+            .build();
 
     GcsOutputChannel writeChannel = gcsService.createOrReplace(filename, options);
     PrintWriter writer = new PrintWriter(Channels.newWriter(writeChannel, "UTF8"));
@@ -91,71 +94,7 @@ public class HtmlBlobWriter {
 
     writeChannel.close();
     BlobstoreService blobstoreService = BlobstoreServiceFactory.getBlobstoreService();
-    BlobKey blobKey = blobstoreService.createGsBlobKey(
-        "/gs/" + bucketName + "/" + fileName);
-    return blobKey;
-  }
-
-  private BlobKey writeBlobUsingOldApi(EventQueryResultPair eventQueryResultPair, String jobId, String timeZone,
-                                       ExperimentDAO experiment, String eventPage) throws IOException,
-                                                                               FileNotFoundException,
-                                                                               FinalizationException, LockException {
-    FileService fileService = FileServiceFactory.getFileService();
-    AppEngineFile file;
-    try {
-      file = fileService.createNewBlobFile("text/html;charset=UTF-8", jobId);
-    } catch (IOException e) {
-      log.severe("Could not create blob file. " + e.getMessage());
-      e.printStackTrace();
-      throw e;
-    }
-
-    // Open a channel to write to it
-    boolean lock = true;
-    FileWriteChannel writeChannel;
-    try {
-      writeChannel = fileService.openWriteChannel(file, lock);
-    } catch (FileNotFoundException e) {
-      log.severe("Could not open write channel. " + e.getMessage());
-      e.printStackTrace();
-      throw e;
-    } catch (FinalizationException e) {
-      log.severe("Could not finalize. " + e.getMessage());
-      e.printStackTrace();
-      throw e;
-    } catch (LockException e) {
-      log.severe("Lock Exception " + e.getMessage());
-      e.printStackTrace();
-      throw e;
-    } catch (IOException e) {
-      log.severe("IOException: " + e.getMessage());
-      e.printStackTrace();
-      throw e;
-    }
-
-    // Different standard Java ways of writing to the channel
-    // are possible. Here we use a PrintWriter:
-    PrintWriter out = new PrintWriter(Channels.newWriter(writeChannel, "UTF8"));
-
-
-
-    out.println(printHeader(eventQueryResultPair.getEvents().size(), getExperimentTitle(experiment), timeZone));
-    out.println(eventPage);
-    out.flush();
-    out.close();
-    try {
-      writeChannel.closeFinally();
-    } catch (IllegalStateException e) {
-      log.severe("Could not closeFinally on channel. " + e.getMessage());
-      e.printStackTrace();
-      throw e;
-    } catch (IOException e) {
-      log.severe("IOException on closeFinally. " + e.getMessage());
-      e.printStackTrace();
-      throw e;
-    }
-
-    BlobKey blobKey = fileService.getBlobKey(file);
+    BlobKey blobKey = blobstoreService.createGsBlobKey("/gs/" + bucketName + "/" + fileName);
     return blobKey;
   }
 
