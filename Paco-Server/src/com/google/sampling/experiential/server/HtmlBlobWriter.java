@@ -71,7 +71,6 @@ public class HtmlBlobWriter {
   private BlobKey writeBlobUsingNewApi(EventQueryResultPair eventQueryResultPair, String jobId, String timeZone,
                                        ExperimentDAO experiment, String eventPage) throws IOException,
                                                                                FileNotFoundException {
-
     GcsService gcsService = GcsServiceFactory.createGcsService();
     String bucketName = System.getProperty("com.pacoapp.reportbucketname");
     String fileName = jobId;
@@ -84,7 +83,8 @@ public class HtmlBlobWriter {
 
     GcsOutputChannel writeChannel = gcsService.createOrReplace(filename, options);
     PrintWriter writer = new PrintWriter(Channels.newWriter(writeChannel, "UTF8"));
-    writer.println(printHeader(eventQueryResultPair.getEvents().size(), getExperimentTitle(experiment), timeZone));
+    writer.println(printHeader(eventQueryResultPair.getEvents().size(), 
+                               getExperimentTitle(experiment), timeZone));
     writer.println(eventPage);
     writer.flush();
 
