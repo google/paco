@@ -113,9 +113,11 @@ public class CSVBlobWriter {
     log.info("Writing csv using new api");
 
     GcsService gcsService = GcsServiceFactory.createGcsService();
-    String BUCKETNAME = "reportbucket";
-    String FILENAME = jobId;
-    GcsFilename filename = new GcsFilename(BUCKETNAME, FILENAME);
+    String bucketName = System.getProperty("com.pacoapp.reportbucketname");
+    
+    log.info("Using report bucket: " + bucketName);
+    String fileName = jobId;
+    GcsFilename filename = new GcsFilename(bucketName, fileName);
     GcsFileOptions options = new GcsFileOptions.Builder().mimeType("text/csv").acl("project-private")
                                                          .addUserMetadata("jobId", jobId).build();
 
@@ -143,8 +145,7 @@ public class CSVBlobWriter {
     writeChannel.close();
     log.info("wrote to cloud store");
     BlobstoreService blobstoreService = BlobstoreServiceFactory.getBlobstoreService();
-    BlobKey blobKey = blobstoreService.createGsBlobKey(
-        "/gs/" + BUCKETNAME + "/" + FILENAME);
+    BlobKey blobKey = blobstoreService.createGsBlobKey("/gs/" + bucketName + "/" + fileName);
     return blobKey;
   }
 

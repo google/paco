@@ -40,9 +40,9 @@ public class UsageStatsBlobWriter {
                                        FileNotFoundException {
 
     GcsService gcsService = GcsServiceFactory.createGcsService();
-    String BUCKETNAME = "reportbucket";
-    String FILENAME = jobId;
-    GcsFilename filename = new GcsFilename(BUCKETNAME, FILENAME);
+    String bucketName = System.getProperty("com.pacoapp.reportbucketname");
+    String fileName = jobId;
+    GcsFilename filename = new GcsFilename(bucketName, fileName);
     GcsFileOptions options = new GcsFileOptions.Builder().mimeType("application/json").acl("project-private")
                                                          .addUserMetadata("jobId", jobId).build();
 
@@ -56,7 +56,7 @@ public class UsageStatsBlobWriter {
     writeChannel.close();
     BlobstoreService blobstoreService = BlobstoreServiceFactory.getBlobstoreService();
     BlobKey blobKey = blobstoreService.createGsBlobKey(
-        "/gs/" + BUCKETNAME + "/" + FILENAME);
+        "/gs/" + bucketName + "/" + fileName);
     return blobKey;
   }
 
