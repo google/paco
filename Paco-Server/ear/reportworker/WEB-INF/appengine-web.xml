@@ -24,6 +24,9 @@
   <!-- Configure java.util.logging -->
   <system-properties>
     <property value='WEB-INF/logging.properties' name='java.util.logging.config.file'/> 
+    <property name="com.pacoapp.reportbucketname" value="reportbucket" />
+    <property name="com.pacoapp.adminDomain" value="google.com" />
+    
   </system-properties>
   
   <ssl-enabled>true</ssl-enabled>
