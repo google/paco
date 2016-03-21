@@ -16,15 +16,8 @@
  */
 package com.google.sampling.experiential.server;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.SocketTimeoutException;
-import java.net.URL;
-import java.util.List;
 import java.util.logging.Logger;
 
 import javax.servlet.ServletException;
@@ -35,16 +28,9 @@ import javax.servlet.http.HttpServletResponse;
 import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
 
-import com.google.appengine.api.modules.ModulesService;
-import com.google.appengine.api.modules.ModulesServiceFactory;
 import com.google.appengine.api.users.User;
-import com.google.appengine.api.users.UserServiceFactory;
 import com.google.common.base.Strings;
-import com.google.common.collect.Lists;
-import com.google.sampling.experiential.server.stats.usage.UsageStat;
 import com.google.sampling.experiential.server.stats.usage.UsageStatsEntityManager;
 import com.google.sampling.experiential.server.stats.usage.UsageStatsReport;
 import com.pacoapp.paco.shared.model2.JsonConverter;
@@ -67,19 +53,15 @@ public class UsageServlet extends HttpServlet {
     User user = AuthUtil.getWhoFromLogin();
     if (user == null) {
       AuthUtil.redirectUserToLogin(req, resp);
-    } else {      
-      if (req.getParameter("gen") != null) {
-        dumpStats(resp, req); 
-      } else {
-        String adminDomainFilter = null;
-        String email = AuthUtil.getEmailOfUser(req, user);
-        if (email.split("@")[1].equals(adminDomainSystemSetting)) {
-          adminDomainFilter = adminDomainSystemSetting;
-        }
-          
-        String json = readStats(email, adminDomainFilter);
-        resp.getWriter().write(json);
+    } else {
+      String adminDomainFilter = null;
+      String email = AuthUtil.getEmailOfUser(req, user);
+      if (email.split("@")[1].equals(adminDomainSystemSetting)) {
+        adminDomainFilter = adminDomainSystemSetting;
       }
+
+      String json = readStats(email, adminDomainFilter);
+      resp.getWriter().write(json);
     }
   }
   
@@ -106,104 +88,6 @@ public class UsageServlet extends HttpServlet {
       log.severe(e.getMessage());
     }
     return "Error could not write stats report as json";
-  }
-
-
-  private void dumpStats(HttpServletResponse resp, HttpServletRequest req) throws IOException {
-    final User whoFromLogin = AuthUtil.getWhoFromLogin();
-    boolean isSystemAdmin = UserServiceFactory.getUserService().isUserAdmin();
-    if (!isSystemAdmin) {
-      resp.sendError(HttpServletResponse.SC_FORBIDDEN);
-      return;
-    }
-
-
-    DateTimeZone timeZoneForClient = TimeUtil.getTimeZoneForClient(req);
-    String jobId = runReportJob(AuthUtil.getEmailOfUser(req, whoFromLogin), timeZoneForClient, req, "stats");
-    // Give the backend time to startup and register the job.
-    try {
-      Thread.sleep(100);
-    } catch (InterruptedException e) {
-    }
-    resp.sendRedirect("/jobStatus?jobId=" + jobId);
-
-  }
-
-  /**
-   * Triggers a backend instance call to start the potentially-long-running job
-   *
-   * @param anon
-   * @param loggedInuser
-   * @param timeZoneForClient
-   * @param req
-   * @param reportFormat
-   * @param adminDomainFilter
-   * @return the jobId to check in on the status of this background job
-   * @throws IOException
-   */
-  private String runReportJob(String loggedInuser, DateTimeZone timeZoneForClient,
-                                 HttpServletRequest req, String reportFormat) throws IOException {
-    ModulesService modulesApi = ModulesServiceFactory.getModulesService();
-    String backendAddress = modulesApi.getVersionHostname("reportworker", modulesApi.getDefaultVersion("reportworker"));
-     try {
-
-      BufferedReader reader = null;
-      try {
-        reader = sendToBackend(timeZoneForClient, req, backendAddress, reportFormat);
-      } catch (SocketTimeoutException se) {
-        log.info("Timed out sending to backend. Trying again...");
-        try {
-          Thread.sleep(100);
-        } catch (InterruptedException e) {
-        }
-        reader = sendToBackend(timeZoneForClient, req, backendAddress, reportFormat);
-      }
-      if (reader != null) {
-        StringBuilder buf = new StringBuilder();
-        String line;
-        while ((line = reader.readLine()) != null) {
-          buf.append(line);
-        }
-        reader.close();
-        return buf.toString();
-      }
-    } catch (MalformedURLException e) {
-      log.severe("MalformedURLException: " + e.getMessage());
-    }
-    return null;
-  }
-
-  private BufferedReader sendToBackend(DateTimeZone timeZoneForClient, HttpServletRequest req,
-                                       String backendAddress, String reportFormat) throws MalformedURLException, IOException {
-    String httpScheme = "https";
-    String localAddr = req.getLocalAddr();
-    if (localAddr != null && localAddr.matches("127.0.0.1")) {
-      httpScheme = "http";
-    }
-    URL url = new URL(httpScheme + "://" + backendAddress + "/backendReportJobExecutor?q=" +
-            req.getParameter("q") +
-            "&who="+AuthUtil.getWhoFromLogin().getEmail().toLowerCase() +
-            "&tz=" + timeZoneForClient +
-            "&reportFormat=" + reportFormat);
-    log.info("URL to backend = " + url.toString());
-    HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-    connection.setInstanceFollowRedirects(false);
-    InputStreamReader inputStreamReader = new InputStreamReader(connection.getInputStream());
-    BufferedReader reader = new BufferedReader(inputStreamReader);
-    return reader;
-  }
-
-  private String stripQuotes(String parameter) {
-    if (parameter == null) {
-      return null;
-    }
-    if (parameter.startsWith("'") || parameter.startsWith("\"")) {
-      parameter = parameter.substring(1);
-    }
-    if (parameter.endsWith("'") || parameter.endsWith("\"")) {
-      parameter = parameter.substring(0, parameter.length() - 1);
-    }
-    return parameter;
   }
 
   private void setCharacterEncoding(HttpServletRequest req, HttpServletResponse resp)

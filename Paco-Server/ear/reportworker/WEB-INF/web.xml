@@ -40,11 +40,22 @@
     <url-pattern>/migrateBackend</url-pattern>
   </servlet-mapping>
   
+    <servlet>
+    <servlet-name>usageCronJobServlet</servlet-name>
+    <servlet-class>com.google.sampling.experiential.server.UsageCronJobServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>usageCronJobServlet</servlet-name>
+    <url-pattern>/usage_cron</url-pattern>
+  </servlet-mapping>
+  
+  
   
   <!--  workers are only called internally should not be accessible by others -->
   <security-constraint>
     <web-resource-collection>
       <url-pattern>/backendReportJobExecutor*</url-pattern>
+      <url-pattern>/usage_cron*</url-pattern>
     </web-resource-collection>
     <auth-constraint>
       <role-name>admin</role-name> 
