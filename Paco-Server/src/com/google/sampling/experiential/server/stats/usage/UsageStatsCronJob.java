@@ -17,6 +17,7 @@ import com.google.appengine.api.datastore.Query.FilterOperator;
 import com.google.appengine.api.datastore.Query.FilterPredicate;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
+import com.google.sampling.experiential.server.ExperimentAccessManager;
 import com.google.sampling.experiential.server.ExperimentServiceFactory;
 import com.google.sampling.experiential.shared.TimeUtil;
 import com.pacoapp.paco.shared.model2.ExperimentDAO;
@@ -34,7 +35,6 @@ import com.pacoapp.paco.shared.util.ExperimentHelper;
 public class UsageStatsCronJob {
 
   private static final Logger log = Logger.getLogger(UsageStatsCronJob.class.getName());
-  private DateTimeFormatter jodaFormatter = DateTimeFormat.forPattern(TimeUtil.DATETIME_FORMAT).withOffsetParsed();
   private String adminDomainSystemSetting;
 
   public UsageStatsCronJob() {
@@ -44,10 +44,16 @@ public class UsageStatsCronJob {
     log.info("writing usage stats");    
     loadAdminDomainSetting();
     
+    // part 1 = event stats
+    
     //TODO split out query of events to compute sub score for domain-specific count
     // currently we only show the total;
     Long numberOfEvents = getTotalEventCount(); 
     
+    //part 3 participant stats
+    Long totalParticipantsJoined = ExperimentAccessManager.getTotalJoinedParticipantsCount();
+    
+    // part 2 experiment stats
     ExperimentQueryResult experimentsQueryResults = ExperimentServiceFactory.getExperimentService().getAllExperiments(null);    
     List<ExperimentDAO> experimentList = experimentsQueryResults.getExperiments();
     
@@ -75,8 +81,8 @@ public class UsageStatsCronJob {
         }
       }
             
-      UsageStat nonDomainExperimentStats = computeStats(dateTime, nonDomainExperimentsList, numberOfEvents);
-      UsageStat domainExperimentStats = computeStats(dateTime, domainExperimentsList, 0); 
+      UsageStat nonDomainExperimentStats = computeStats(dateTime, nonDomainExperimentsList, numberOfEvents, totalParticipantsJoined);
+      UsageStat domainExperimentStats = computeStats(dateTime, domainExperimentsList, 0, 0l); 
       domainExperimentStats.setAdminDomainFilter(adminDomainSystemSetting);
       
       UsageStatsEntityManager usageStatsMgr = UsageStatsEntityManager.getInstance();
@@ -107,10 +113,11 @@ public class UsageStatsCronJob {
     }
   }
     
-  private UsageStat computeStats(DateTime dateTime, List<ExperimentDAO> experiments, long numberOfEvents) {
+  private UsageStat computeStats(DateTime dateTime, List<ExperimentDAO> experiments, long numberOfEvents, Long numberOfParticipants) {
     UsageStat usageStats = new UsageStat(dateTime);
     usageStats.setExperimentCountTotal(experiments.size());
     usageStats.setNumberOfEvents(numberOfEvents);
+    usageStats.setNumberOfParticipants(numberOfParticipants);
 
     int unpublishedExperimentCountTotal = 0; 
     int publishedExperimentCountTotal = 0;       

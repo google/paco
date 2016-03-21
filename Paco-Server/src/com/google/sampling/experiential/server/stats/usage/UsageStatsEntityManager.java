@@ -31,6 +31,19 @@ import com.google.common.collect.Lists;
 import com.pacoapp.paco.shared.model2.ExperimentDAO;
 import com.pacoapp.paco.shared.model2.JsonConverter;
 
+/**
+ * Manages the entity storage and retrieval for usage stats data.
+ * 
+ * This class is used by the cron job that runs weekly to update stats
+ * and by the usage report generator driven through UsageStatsServlet.
+ * 
+ * The structure of usage stats rows is two for each week:
+ * non domain specific stats to track other experiment aggregate stats.
+ * domain specific stats to track our domain's experiments.
+ * 
+ * To get total stats, allExperimentStats, the two rows for a given week are added together.
+ * 
+ */
 public class UsageStatsEntityManager {
 
   private static final String KIND = "experiment_usage_stat";

@@ -548,4 +548,24 @@ public class ExperimentAccessManager {
     return experimentIdQueryResult;
   }
 
+  /**
+   *  Method used by Usage statistics cron job
+   *  
+   * @return total number of joined rows
+   */
+  public static Long getTotalJoinedParticipantsCount() {
+    Query query = new com.google.appengine.api.datastore.Query(JOINED_USER_KIND);
+    FetchOptions fetchOptions = FetchOptions.Builder.withDefaults();
+    DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+
+    List<Entity> joinEntities = datastore.prepare(query).asList(fetchOptions);
+    if (joinEntities != null) {
+      return (long) joinEntities.size();
+    } else {
+      log.info("retrieved 0 joined entities");
+      return 0l;
+    }
+    
+  }
+
 }
