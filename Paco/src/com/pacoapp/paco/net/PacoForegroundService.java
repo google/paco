@@ -6,6 +6,7 @@ import java.io.OutputStreamWriter;
 import java.net.ConnectException;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.UnknownHostException;
 import java.util.List;
 
 import org.json.JSONException;
@@ -17,6 +18,7 @@ import com.google.android.gms.auth.GoogleAuthUtil;
 import com.google.common.collect.Lists;
 import com.pacoapp.paco.PacoConstants;
 import com.pacoapp.paco.os.AndroidUtils;
+import com.pacoapp.paco.ui.ProgressDialogFragment;
 
 public class PacoForegroundService extends GetAuthTokenInForeground {
 
@@ -79,6 +81,10 @@ public class PacoForegroundService extends GetAuthTokenInForeground {
       sc = urlConnection.getResponseCode();
     } catch (ConnectException e) {
       sc = 503;
+    } catch (UnknownHostException e) {
+      Log.i(PacoConstants.TAG, "Exception loading data");
+      onError(Integer.toString(NetworkUtil.UNKNOWN_HOST_ERROR), null);
+      return;
     }
     if (sc == 200) {
       InputStream is = urlConnection.getInputStream();

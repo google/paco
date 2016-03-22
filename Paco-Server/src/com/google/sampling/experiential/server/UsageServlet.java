@@ -16,28 +16,24 @@
  */
 package com.google.sampling.experiential.server;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.SocketTimeoutException;
-import java.net.URL;
-import java.util.List;
 import java.util.logging.Logger;
 
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.joda.time.DateTimeZone;
+import org.codehaus.jackson.JsonGenerationException;
+import org.codehaus.jackson.map.JsonMappingException;
+import org.codehaus.jackson.map.ObjectMapper;
 
-import com.google.appengine.api.modules.ModulesService;
-import com.google.appengine.api.modules.ModulesServiceFactory;
 import com.google.appengine.api.users.User;
-import com.google.appengine.api.users.UserServiceFactory;
-import com.google.common.collect.Lists;
+import com.google.common.base.Strings;
+import com.google.sampling.experiential.server.stats.usage.UsageStatsEntityManager;
+import com.google.sampling.experiential.server.stats.usage.UsageStatsReport;
+import com.pacoapp.paco.shared.model2.JsonConverter;
 
 /**
  * Servlet that answers queries for paco Usage
@@ -47,9 +43,10 @@ import com.google.common.collect.Lists;
 public class UsageServlet extends HttpServlet {
 
   public static final Logger log = Logger.getLogger(UsageServlet.class.getName());
-  private String defaultAdmin = "bobevans@google.com";
-  private List<String> adminUsers = Lists.newArrayList(defaultAdmin);
+  public String adminDomainSystemSetting;  
 
+  
+  
   @Override
   protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
     setCharacterEncoding(req, resp);
@@ -57,112 +54,55 @@ public class UsageServlet extends HttpServlet {
     if (user == null) {
       AuthUtil.redirectUserToLogin(req, resp);
     } else {
-      dumpStats(resp, req);
+      String adminDomainFilter = null;
+      String email = AuthUtil.getEmailOfUser(req, user);
+      if (email.split("@")[1].equals(adminDomainSystemSetting)) {
+        adminDomainFilter = adminDomainSystemSetting;
+      }
+
+      String json = readStats(email, adminDomainFilter);
+      resp.getWriter().write(json);
     }
   }
+  
+  
+  private String readStats(String requestorEmail, String adminDomainFilter) {
+    UsageStatsEntityManager usageStatsManager = UsageStatsEntityManager.getInstance();
+    UsageStatsReport usageStatsReport = usageStatsManager.getStatsReport(adminDomainFilter);
+    return jsonifyEvents(usageStatsReport);
+  }
+  
+  private String jsonifyEvents(UsageStatsReport report) {
+    ObjectMapper mapper = JsonConverter.getObjectMapper();
 
-  private void dumpStats(HttpServletResponse resp, HttpServletRequest req) throws IOException {
-    final User whoFromLogin = AuthUtil.getWhoFromLogin();
-    boolean isSystemAdmin = UserServiceFactory.getUserService().isUserAdmin();
-    if (!isSystemAdmin) {
-      resp.sendError(HttpServletResponse.SC_FORBIDDEN);
-      return;
-    }
-
-
-    DateTimeZone timeZoneForClient = TimeUtil.getTimeZoneForClient(req);
-    String adminDomainFilter = req.getParameter("adminDomainFilter");
-    String jobId = runReportJob(AuthUtil.getEmailOfUser(req, whoFromLogin), timeZoneForClient, req, "stats", adminDomainFilter);
-    // Give the backend time to startup and register the job.
     try {
-      Thread.sleep(100);
-    } catch (InterruptedException e) {
+      return mapper.writeValueAsString(report);
+    } catch (JsonGenerationException e) {
+      e.printStackTrace();
+      log.severe(e.getMessage());
+    } catch (JsonMappingException e) {
+      e.printStackTrace();
+      log.severe(e.getMessage());
+    } catch (IOException e) {
+      e.printStackTrace();
+      log.severe(e.getMessage());
     }
-    resp.sendRedirect("/jobStatus?jobId=" + jobId);
-
-  }
-
-  /**
-   * Triggers a backend instance call to start the potentially-long-running job
-   *
-   * @param anon
-   * @param loggedInuser
-   * @param timeZoneForClient
-   * @param req
-   * @param reportFormat
-   * @param adminDomainFilter
-   * @return the jobId to check in on the status of this background job
-   * @throws IOException
-   */
-  private String runReportJob(String loggedInuser, DateTimeZone timeZoneForClient,
-                                 HttpServletRequest req, String reportFormat, String adminDomainFilter) throws IOException {
-    ModulesService modulesApi = ModulesServiceFactory.getModulesService();
-    String backendAddress = modulesApi.getVersionHostname("reportworker", modulesApi.getDefaultVersion("reportworker"));
-     try {
-
-      BufferedReader reader = null;
-      try {
-        reader = sendToBackend(timeZoneForClient, req, backendAddress, reportFormat, adminDomainFilter);
-      } catch (SocketTimeoutException se) {
-        log.info("Timed out sending to backend. Trying again...");
-        try {
-          Thread.sleep(100);
-        } catch (InterruptedException e) {
-        }
-        reader = sendToBackend(timeZoneForClient, req, backendAddress, reportFormat, adminDomainFilter);
-      }
-      if (reader != null) {
-        StringBuilder buf = new StringBuilder();
-        String line;
-        while ((line = reader.readLine()) != null) {
-          buf.append(line);
-        }
-        reader.close();
-        return buf.toString();
-      }
-    } catch (MalformedURLException e) {
-      log.severe("MalformedURLException: " + e.getMessage());
-    }
-    return null;
-  }
-
-  private BufferedReader sendToBackend(DateTimeZone timeZoneForClient, HttpServletRequest req,
-                                       String backendAddress, String reportFormat, String adminDomainFilter) throws MalformedURLException, IOException {
-    String httpScheme = "https";
-    String localAddr = req.getLocalAddr();
-    if (localAddr != null && localAddr.matches("127.0.0.1")) {
-      httpScheme = "http";
-    }
-    URL url = new URL(httpScheme + "://" + backendAddress + "/backendReportJobExecutor?q=" +
-            req.getParameter("q") +
-            "&who="+AuthUtil.getWhoFromLogin().getEmail().toLowerCase() +
-            "&tz=" + timeZoneForClient +
-            "&reportFormat=" + reportFormat +
-            "&adminDomainFilter=" + adminDomainFilter);
-    log.info("URL to backend = " + url.toString());
-    HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-    connection.setInstanceFollowRedirects(false);
-    InputStreamReader inputStreamReader = new InputStreamReader(connection.getInputStream());
-    BufferedReader reader = new BufferedReader(inputStreamReader);
-    return reader;
-  }
-
-  private String stripQuotes(String parameter) {
-    if (parameter == null) {
-      return null;
-    }
-    if (parameter.startsWith("'") || parameter.startsWith("\"")) {
-      parameter = parameter.substring(1);
-    }
-    if (parameter.endsWith("'") || parameter.endsWith("\"")) {
-      parameter = parameter.substring(0, parameter.length() - 1);
-    }
-    return parameter;
+    return "Error could not write stats report as json";
   }
 
   private void setCharacterEncoding(HttpServletRequest req, HttpServletResponse resp)
       throws UnsupportedEncodingException {
     req.setCharacterEncoding("UTF-8");
     resp.setCharacterEncoding("UTF-8");
+  }
+
+
+  @Override
+  public void init() throws ServletException {
+    super.init();
+    adminDomainSystemSetting = System.getProperty("com.pacoapp.adminDomain");
+    if (Strings.isNullOrEmpty(adminDomainSystemSetting)) {
+      adminDomainSystemSetting = "";
+    }
   }
 }

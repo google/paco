@@ -75,53 +75,23 @@ public class CSVBlobWriter {
    columns.add(13, "timeZone");
 
    return writeBlobUsingNewApi(jobId, columns, eventsCSV).getKeyString();
-
-
-//   FileService fileService = FileServiceFactory.getFileService();
-//   AppEngineFile file = fileService.createNewBlobFile("text/csv", jobId);
-//
-//   // Open a channel to write to it
-//   boolean lock = true;
-//   FileWriteChannel writeChannel = fileService.openWriteChannel(file, lock);
-//
-//   // Different standard Java ways of writing to the channel
-//   // are possible. Here we use a PrintWriter:
-//   PrintWriter out = new PrintWriter(Channels.newWriter(writeChannel, "UTF8"));
-//
-//   CSVWriter csvWriter = null;
-//   try {
-//     csvWriter = new CSVWriter(out);
-//     String[] columnsArray = columns.toArray(new String[0]);
-//     csvWriter.writeNext(columnsArray);
-//     for (String[] eventCSV : eventsCSV) {
-//       csvWriter.writeNext(eventCSV);
-//     }
-//     csvWriter.flush();
-//   } finally {
-//     if (csvWriter != null) {
-//       csvWriter.close();
-//     }
-//   }
-//   out.close();
-//   writeChannel.closeFinally();
-//   BlobKey blobKey = fileService.getBlobKey(file);
-//   return blobKey.getKeyString();
  }
 
-  private BlobKey writeBlobUsingNewApi(String jobId, List<String> columns, List<String[]> eventsCSV) throws IOException,
-                                                                               FileNotFoundException {
-    log.info("Writing csv using new api");
-
+  private BlobKey writeBlobUsingNewApi(String jobId, List<String> columns, 
+                                       List<String[]> eventsCSV) throws IOException,
+                                                                     FileNotFoundException {
     GcsService gcsService = GcsServiceFactory.createGcsService();
-    String BUCKETNAME = "reportbucket";
-    String FILENAME = jobId;
-    GcsFilename filename = new GcsFilename(BUCKETNAME, FILENAME);
-    GcsFileOptions options = new GcsFileOptions.Builder().mimeType("text/csv").acl("project-private")
-                                                         .addUserMetadata("jobId", jobId).build();
+    String bucketName = System.getProperty("com.pacoapp.reportbucketname");    
+    String fileName = jobId;
+    GcsFilename filename = new GcsFilename(bucketName, fileName);
+    GcsFileOptions options = new GcsFileOptions.Builder()
+        .mimeType("text/csv")
+        .acl("project-private")
+        .addUserMetadata("jobId", jobId)
+        .build();
 
     GcsOutputChannel writeChannel = gcsService.createOrReplace(filename, options);
     PrintWriter writer = new PrintWriter(Channels.newWriter(writeChannel, "UTF8"));
-    log.info("got writer");
     CSVWriter csvWriter = null;
     try {
       csvWriter = new CSVWriter(writer);
@@ -141,17 +111,15 @@ public class CSVBlobWriter {
     }
 
     writeChannel.close();
-    log.info("wrote to cloud store");
     BlobstoreService blobstoreService = BlobstoreServiceFactory.getBlobstoreService();
-    BlobKey blobKey = blobstoreService.createGsBlobKey(
-        "/gs/" + BUCKETNAME + "/" + FILENAME);
+    BlobKey blobKey = blobstoreService.createGsBlobKey("/gs/" + bucketName + "/" + fileName);
     return blobKey;
   }
 
 
  private String[] toCSV(EventDAO event, List<String> columnNames, boolean anon,
                         String clientTimezone) {
-   log.info("converting to csv. event: " + getTimeString(event, event.getResponseTime(), clientTimezone));
+//   log.info("converting to csv. event: " + getTimeString(event, event.getResponseTime(), clientTimezone));
      int csvIndex = 0;
      String[] parts = new String[14 + columnNames.size()];
      if (anon) {

@@ -10,6 +10,7 @@ import org.joda.time.DateTimeZone;
 import com.google.appengine.api.ThreadManager;
 import com.google.common.base.Strings;
 import com.google.sampling.experiential.model.Event;
+import com.google.sampling.experiential.server.stats.usage.UsageStatsBlobWriter;
 import com.google.sampling.experiential.shared.EventDAO;
 import com.pacoapp.paco.shared.model2.ExperimentDAO;
 
@@ -46,7 +47,7 @@ public class ReportJobExecutor {
   }
 
   public String runReportJob(final String requestorEmail, final DateTimeZone timeZoneForClient,
-                             final List<Query> query, final boolean anon, final String reportFormat, final String adminDomainFilter,
+                             final List<Query> query, final boolean anon, final String reportFormat,
                              final String originalQuery, final int limit, final String cursor) {
     // TODO get a real id function for jobs
 
@@ -61,7 +62,7 @@ public class ReportJobExecutor {
         log.info("ReportJobExecutor running");
         Thread.currentThread().setContextClassLoader(cl);
         try {
-          String location = doJob(requestorEmail, timeZoneForClient, query, anon, jobId, reportFormat, adminDomainFilter, originalQuery, limit, cursor);
+          String location = doJob(requestorEmail, timeZoneForClient, query, anon, jobId, reportFormat,originalQuery, limit, cursor);
           statusMgr.completeReport(requestorEmail, jobId, location);
         } catch (Throwable e) {
           statusMgr.failReport(requestorEmail, jobId, e.getClass() + "." + e.getMessage());
@@ -76,11 +77,11 @@ public class ReportJobExecutor {
   }
 
   protected String doJob(String requestorEmail, DateTimeZone timeZoneForClient, List<Query> query, boolean anon, String jobId,
-                         String reportFormat, String adminDomainFilter, String originalQuery, int limit, String cursor) throws IOException {
+                         String reportFormat, String originalQuery, int limit, String cursor) throws IOException {
     log.info("starting doJob");
     if (!Strings.isNullOrEmpty(reportFormat) && reportFormat.equals("stats")) {
       log.info("Running stats report for job: " + jobId);
-      return runStatsReport(jobId, timeZoneForClient, requestorEmail, adminDomainFilter);
+      return runStatsReport(jobId, timeZoneForClient, requestorEmail);
     }
 
     String experimentId = null;
@@ -118,9 +119,9 @@ public class ReportJobExecutor {
     }
   }
 
-  private String runStatsReport(String jobId, DateTimeZone timeZoneForClient, String requestorEmail, String adminDomainFilter) throws IOException {
+  private String runStatsReport(String jobId, DateTimeZone timeZoneForClient, String requestorEmail) throws IOException {
     String tz = timeZoneForClient != null ? timeZoneForClient.getID() : null;
-    return new UsageStatsBlobWriter().writeStatsAsJson(jobId, tz, requestorEmail, adminDomainFilter);
+    return new UsageStatsBlobWriter().writeStatsAsJson(jobId, tz, requestorEmail);
   }
 
   private String generatePhotoZip(String jobId, String experimentId, EventQueryResultPair eventQueryResultPair, boolean anon, DateTimeZone timeZoneForClient) {
