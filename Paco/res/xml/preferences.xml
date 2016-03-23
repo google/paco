@@ -1,0 +1,12 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+ 
+<PreferenceCategory android:title="Language">
+
+<im.delight.android.languages.LanguagePreference
+    android:key="customLanguageKey"
+    android:title="@string/preference_screen_title"
+    android:enabled="true"
+    android:selectable="true" />
+</PreferenceCategory>
+
+</PreferenceScreen>
