@@ -39,7 +39,7 @@
 
         <activity android:name="com.pacoapp.paco.ui.MyExperimentsActivity" 
             android:label="Paco"
-            android:icon="@drawable/ic_launcher">
+            android:icon="@drawable/ic_launcher" android:configChanges="locale|layoutDirection">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
