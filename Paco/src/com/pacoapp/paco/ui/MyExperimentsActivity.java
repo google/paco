@@ -693,6 +693,9 @@ public class MyExperimentsActivity extends ActionBarActivity implements
     } else if (id == R.id.action_settings) {
       launchSettings();
       return true;
+    } else if (id == R.id.action_preferences) {
+      launchPreferences();
+      return true;
     } else if (id == R.id.action_about) {
        launchAbout();
       return true;
@@ -767,6 +770,10 @@ public class MyExperimentsActivity extends ActionBarActivity implements
 
   private void launchSettings() {
     startActivity(new Intent(this, SettingsActivity.class));
+  }
+  
+  private void launchPreferences() {
+    startActivity(new Intent(this, PreferencesActivity.class));
   }
 
   private void launchEula() {
