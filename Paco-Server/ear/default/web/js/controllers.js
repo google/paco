@@ -449,6 +449,7 @@ pacoApp.controller('DataCtrl', ['$scope', '$mdDialog', '$location', '$filter',
     $scope.screenData = null;
     $scope.photoHeader = 'data:image/jpeg;base64,';
     $scope.photoMarker = '/9j/';
+    $scope.statsDate = new Date();
 
     $scope.switchView = function() {
       var newPath = $scope.currentView + '/' + $scope.experimentId;
@@ -553,13 +554,21 @@ pacoApp.controller('DataCtrl', ['$scope', '$mdDialog', '$location', '$filter',
       });
     };
 
+    $scope.$watch('statsDate', function(newVal, oldVal) {
+      if(oldVal !== newVal) {
+        dataService.updateParticipantDateStats($scope.experimentId, $scope.statsDate, $scope.stats);
+      };
+    });
+
+
     $scope.loadStats = function() {
       $scope.loading = true;
       $scope.stats = null;
       $scope.currentView = 'stats';
 
-      dataService.getParticipantData($scope.experimentId, $scope.restrict).
+      dataService.getParticipantStats($scope.experimentId, $scope.statsDate, $scope.restrict).
       then(function(result) {
+
         if (result.data) {
           $scope.stats = result.data;
           $scope.loading = false;

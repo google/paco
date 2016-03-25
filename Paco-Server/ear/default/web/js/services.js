@@ -106,7 +106,8 @@ pacoApp.service('dataService', ['$http', '$timeout', '$q', 'config',
     return ({
       getEvents: getEvents,
       getReport: getReport,
-      getParticipantData: getParticipantData,
+      getParticipantStats: getParticipantStats,
+      updateParticipantDateStats: updateParticipantDateStats,
     });
 
     function getEvents(id, user, anonymous, cursor) {
@@ -193,30 +194,116 @@ pacoApp.service('dataService', ['$http', '$timeout', '$q', 'config',
         return defer.promise;
       }
 
+
+    function unpackTotalStats(data, stats) {
+
+      if (!stats.order) {
+        stats.order = {};
+        stats.data = [];
+      }
+      for (var i = 0; i < data.length; i++) {
+        stats.order[data[i].who] = i;
+        stats.data[i] = {'who': data[i].who};
+        stats.data[i]['totalSignalResponseCount'] = data[i]['schedR'];
+        stats.data[i]['totalSelfReportCount'] = data[i]['selfR'];
+        stats.data[i]['totalSignalCount'] = data[i]['schedR'] + data[i]['missedR'];
+        stats.data[i]['daySignalResponseCount'] = 0;
+        stats.data[i]['daySelfReportCount'] = 0;
+        stats.data[i]['daySignalCount'] = 0;
+
+      }
+    }
+
+    function unpackDayStats(data, stats) {
+      for (var i = 0; i < data.length; i++) {
+        var row = data[i];
+        var who = data[i]['who'];
+        var colId = stats.order[who];
+
+        stats.date = data[i].date;
+        stats.data[colId]['daySignalResponseCount'] = data[i]['schedR'];
+        stats.data[colId]['daySelfReportCount'] = data[i]['selfR'];
+        stats.data[colId]['daySignalCount'] = data[i]['schedR'] + data[i]['missedR'];
+      }
+    }
+
+
+    function statsDate(d) {
+      var statsDateString = d.getFullYear() + '/' + (1 + d.getMonth()) + '/' + d.getDate();
+      return statsDateString;
+    }
+
+    function zeroDateStats(stats) {
+      for (var i = 0; i < stats.data.length; i++) {
+        stats.data[i]['daySignalResponseCount'] = 0;
+        stats.data[i]['daySelfReportCount'] = 0;
+        stats.data[i]['daySignalCount'] = 0;
+      }
+    }
+
+    function updateParticipantDateStats(id, date, stats) {
+      var defer = $q.defer();
+      var endpoint = 'participantStats?experimentId=' + id + '&statv2=1&reportType=date&date=' + statsDate(date);
+      $http.get(endpoint).then(
+        function(data) {
+          zeroDateStats(stats);
+          unpackDayStats(data.data, stats);
+        });
+    }
+
+    function getParticipantStats(id, date, user) {
+      if (user) {
+        return getUserStats(id, user);
+      }
+
+      var defer = $q.defer();
+      var endpoint1 = 'participantStats?experimentId=' + id + '&statv2=1&reportType=date&date=' + statsDate(date);
+      var endpoint2 = 'participantStats?experimentId=' + id + '&statv2=1&reportType=total';
+
+      var stats = {};
+      stats.data = [];
+
+      var p1 = $http.get(endpoint1);
+      var p2 = $http.get(endpoint2);
+
+      $q.all([p1, p2]).then(
+        function(datas) {
+
+          unpackTotalStats(datas[1].data, stats);
+          unpackDayStats(datas[0].data, stats);
+
+          defer.resolve({'data': stats});
+        });
+
+      return defer.promise;
+    }
+
     /**
     * Gets stats data from PACO server endpoint. Iterates over data to
     * compute the total participant count for today and all time.
     */
-
-    function getParticipantData(id, user) {
+    function getUserStats(id, user) {
 
       var defer = $q.defer();
       var endpoint = 'participantStats?experimentId=' + id;
       if (user) {
         endpoint += '&who=' + user;
+      } else {
+        endpoint += '';
       }
 
       $http.get(endpoint).success(
         function(data) {
-          if (!user) {	
-	          var totalParticipantCount = 0;
+
+          if (!user) {
+            var totalParticipantCount = 0;
 	          var todayParticipantCount = 0;
 	          for (var i = 0; i < data.participants.length; i++) {
-	
+
 	            if (data.participants[i].todaySignalResponseCount > 0) {
 	              todayParticipantCount++;
 	            }
-	
+
 	            if (data.participants[i].totalSignalResponseCount > 0) {
 	              totalParticipantCount++;
 	            }
@@ -234,11 +321,11 @@ pacoApp.service('dataService', ['$http', '$timeout', '$q', 'config',
         		  data.selfReportResponseCount += data[i].selfR;
         	  }
         	  data.totalSignalCount = data.signaledResponseCount + data.missedResponseCount;
-        	  if ((data.totalSignalCount) > 0) {        		  
-        		  data.responseRate = data.signaledResponseCount / data.totalSignalCount;        		  
+        	  if ((data.totalSignalCount) > 0) {
+        		  data.responseRate = data.signaledResponseCount / data.totalSignalCount;
         	  } else {
         		  data.responseRate = 0;
-        	  }        	  
+        	  }
           }
           defer.resolve({
             'data': data
