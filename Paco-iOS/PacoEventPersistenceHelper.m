@@ -16,6 +16,9 @@
 #import "PacoSerializer.h"
 #import "OrgJodaTimeDateTime+PacoDateHelper.h"
 #import "NSDate+PacoTimeZoneHelper.h"
+#import "EventRecord+CoreDataProperties.h" 
+#import "EventRecord.h"
+
 
 @interface PacoEventPersistenceHelper()
 
@@ -143,30 +146,30 @@
 {
     NSAssert([event isKindOfClass:[PacoEventExtended class]], @"event should be of type PacoEventClass" );
     
-    
-   // EventRecord* record = [self fetchRecord:event];
-   // NSAssert(record ==nil , @"Tried to insert multiple events with the same compound key");
-        
-    
-    
-    
-    
-    
+
     PacoEventExtended* theEvent = (PacoEventExtended*) event;
     
     EventRecord*  eventRecord = [NSEntityDescription
                                  insertNewObjectForEntityForName:@"EventRecord"
                                  inManagedObjectContext:[self.appDelegate managedObjectContext]];
-    
-    NSString* timeDate = theEvent.scheduledTime;
-    
     eventRecord.experimentId  = theEvent.experimentId;
     eventRecord.scheduledTime = theEvent.scheduledTime;
     eventRecord.groupName =theEvent.groupName;
     eventRecord.actionTriggerId = theEvent.actionTriggerId;
     eventRecord.scheduleId  = theEvent.scheduleId;
     eventRecord.isUploaded =[NSNumber numberWithBool:NO];
+    eventRecord.type = [NSNumber numberWithInt:theEvent.type];
     
+    if([theEvent.guid length] == 0 )
+    {
+        NSString *uuid = [[NSUUID UUID] UUIDString];
+        theEvent.guid = uuid;
+    }
+    
+  
+    eventRecord.guid = theEvent.guid;
+
+    // refactor - should only fetch class names once. 
     NSArray* array = [PacoSerializeUtil getClassNames];
     PacoSerializer * serializer = [[PacoSerializer alloc] initWithArrayOfClasses:array withNameOfClassAttribute:@"nameOfClass"];
     NSData* data = [serializer toJSONobject:theEvent];
@@ -185,7 +188,20 @@
     
 }
 
+-(NSArray*) fetchJoinEvents
+{
+    
+    
+    
+}
 
+-(NSArray*) fetchStopEvents
+{
+    
+    
+    
+    
+}
 
 
 
@@ -194,19 +210,59 @@
 -(EventRecord*) fetchRecord:(id<PAEventInterface>) correspondingEvent
 {
     PacoEventExtended* theEvent = ( PacoEventExtended* )  correspondingEvent;
+    NSFetchRequest *fetchRequest;
+    NSEntityDescription *entity;
+    NSPredicate* predicate;
+    
+   /*
+    
+    if([theEvent.groupName length] == 0   )
+    {
+        if(theEvent.type == PacoEventTypeJoinExtended)
+        {
+            
+             fetchRequest = [[NSFetchRequest alloc] init];
+             entity = [NSEntityDescription entityForName:@"EventRecord" inManagedObjectContext:self.context];
+             predicate =  [NSPredicate predicateWithFormat:@"(experimentId==%@) &&   (isUploaded=%@) && type=%@",theEvent.experimentId,  [NSNumber numberWithBool:NO], theEvent.type ];
+            
+            
+           
+            
+        }
+        
+        
+        
+        
+    }
+    else
+    {
+    
+         fetchRequest = [[NSFetchRequest alloc] init];
+          entity = [NSEntityDescription entityForName:@"EventRecord" inManagedObjectContext:self.context];
+           predicate =  [NSPredicate predicateWithFormat:@"(experimentId==%@) AND (scheduledTime==%@) AND   (groupName LIKE %@)   AND   (actionTriggerId==%@) AND (scheduleId==%@) && (isUploaded=%@)",theEvent.experimentId,theEvent.scheduledTime ,theEvent.groupName,theEvent.actionTriggerId,theEvent.scheduleId, [NSNumber numberWithBool:NO]];
+    }
+    
+    */
     
     
     
     
-    NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
-    NSEntityDescription *entity = [NSEntityDescription entityForName:@"EventRecord" inManagedObjectContext:self.context];
-    NSPredicate* predicate =  [NSPredicate predicateWithFormat:@"(experimentId==%@) AND (scheduledTime==%@) AND   (groupName LIKE %@)   AND   (actionTriggerId==%@) AND (scheduleId==%@)",theEvent.experimentId,theEvent.scheduledTime ,theEvent.groupName,theEvent.actionTriggerId,theEvent.scheduleId];
     
+  /*   NSPredicate* predicate =  [NSPredicate predicateWithFormat:@"(experimentId==%@) AND (scheduledTime==%@) AND   (groupName LIKE %@)   AND   (actionTriggerId==%@) AND (scheduleId==%@)",theEvent.experimentId,theEvent.scheduledTime ,@"no-name-needed",[NSNumber nuthe    Event.scheduleId];
+   */
+    
+    
+    
+    fetchRequest = [[NSFetchRequest alloc] init];
+    entity = [NSEntityDescription entityForName:@"EventRecord" inManagedObjectContext:self.context];
+    predicate =  [NSPredicate predicateWithFormat:@"guid==%@", theEvent.guid];
+
     [fetchRequest setPredicate:predicate];
     [fetchRequest setEntity:entity];
     NSError *error;
     NSArray *arrayWithEvent  = [self.context executeFetchRequest:fetchRequest error:&error];
     EventRecord*  record   = [arrayWithEvent firstObject];
+   
     return record;
 }
 

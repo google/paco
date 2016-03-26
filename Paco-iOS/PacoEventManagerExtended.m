@@ -275,6 +275,10 @@ static NSString* const kAllEventsFileName = @"allEvents.plist";
 - (void)saveEvent:(PacoEventExtended*)event {
     NSAssert(event != nil, @"nil event cannot be saved!");
     
+    
+  
+    
+    
     [self.persistenceHelper insertEventWithPAEventInterface:event];
     
     

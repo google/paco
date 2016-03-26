@@ -8,7 +8,7 @@
 
 import UIKit
 
-class PacoHubExperiments: UITableViewController,PacoExperimentProtocol {
+@objc class PacoHubExperiments: UITableViewController,PacoExperimentProtocol {
     
       var  allExperiments:Array<PAExperimentDAO>?;
     

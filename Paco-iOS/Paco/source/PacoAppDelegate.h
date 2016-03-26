@@ -19,6 +19,7 @@
 
 
 
+
 @class PacoMainSwiftViewController;
 @class PacoMainViewController;
 @class PacoTestingControllerTableViewController;
@@ -32,6 +33,9 @@
 @class PacoResponseTableViewController;
 @class   PacoTestViewer;
 @class  HubPaginatedTableViewController;
+@class ScheduleEditor;
+@class PacoHubExperiments;
+@class PacoViewController;
 
 @interface PacoAppDelegate : UIResponder <UIApplicationDelegate>
 
@@ -45,6 +49,8 @@
 @property (strong,nonatomic) PacoJoinedExperimentsController* joinedExperiment;
 @property (strong,nonatomic) PacoConfigController* configController;
 @property (strong,nonatomic) PacoHubExperiments* publicExperiments;
+@property (strong,nonatomic) ScheduleEditor* scheduleEditor;
+@property (strong,nonatomic) PacoViewController* goController;
 
 @property (strong,nonatomic) PacoTestViewer* testPagination;
 @property (strong,nonatomic) HubPaginatedTableViewController* pg;

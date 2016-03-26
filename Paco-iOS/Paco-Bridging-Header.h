@@ -26,5 +26,5 @@
 #import "Input2.h"
 #import "PacoHubPaginator.h"
 #import "NMPaginator.h" 
-
+#import "PacoTimeCellModel.h"
 #endif

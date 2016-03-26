@@ -2,22 +2,21 @@
 //  EventRecord.h
 //  Paco
 //
-//  Created by Timo on 10/7/15.
-//  Copyright (c) 2015 Paco. All rights reserved.
+//  Created by Northrop O'brien on 3/25/16.
+//  Copyright © 2016 Paco. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
 #import <CoreData/CoreData.h>
 
+NS_ASSUME_NONNULL_BEGIN
 
 @interface EventRecord : NSManagedObject
 
-@property (nonatomic, retain) NSNumber * actionTriggerId;
-@property (nonatomic, retain) NSData * eventBlob;
-@property (nonatomic, retain) NSNumber * experimentId;
-@property (nonatomic, retain) NSString * groupName;
-@property (nonatomic, retain) NSString * scheduledTime;
-@property (nonatomic, retain) NSNumber * scheduleId;
-@property (nonatomic, retain) NSNumber * isUploaded;
+// Insert code here to declare functionality of your managed object subclass
 
 @end
+
+NS_ASSUME_NONNULL_END
+
+#import "EventRecord+CoreDataProperties.h"

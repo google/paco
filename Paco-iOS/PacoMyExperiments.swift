@@ -146,8 +146,8 @@ class PacoMyExperiments: UITableViewController,PacoExperimentProtocol {
     
     func experimentsRefreshed(notification: NSNotification){
         
-      var mediator =  PacoMediator.sharedInstance();
-      var  mArray:NSMutableArray  = mediator.experiments();
+      let   mediator =  PacoMediator.sharedInstance();
+      let   mArray:NSMutableArray  = mediator.experiments();
        myExpriments = mArray as AnyObject  as? [PAExperimentDAO]
         
         PacoMediator.sharedInstance().replaceAllExperiments(myExpriments)
@@ -160,7 +160,7 @@ class PacoMyExperiments: UITableViewController,PacoExperimentProtocol {
     
     func didSelect(experiment:PAExperimentDAO)
     {
-        var detailController =  PacoExperimentDetailController(nibName:"PacoExperimentDetailController",bundle:nil)
+        let  detailController =  PacoExperimentDetailController(nibName:"PacoExperimentDetailController",bundle:nil)
         
         if  experiment.valueForKeyEx("title") != nil
         {
@@ -180,8 +180,8 @@ class PacoMyExperiments: UITableViewController,PacoExperimentProtocol {
   
     override func viewWillAppear(animated: Bool) {
         
-        var mediator =  PacoMediator.sharedInstance()
-        var  mArray:NSMutableArray  = mediator.experiments()
+        let  mediator =  PacoMediator.sharedInstance()
+        let mArray:NSMutableArray  = mediator.experiments()
         myExpriments = mArray as AnyObject as? [PAExperimentDAO]
         
         self.tableView.reloadData()

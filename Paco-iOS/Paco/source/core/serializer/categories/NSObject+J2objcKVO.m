@@ -16,6 +16,7 @@
 #import "ModelBase.h"
 #import <objc/runtime.h>
 #include "java/util/ArrayList.h"
+#include "java/util/Iterator.h"
 #include "java/lang/Boolean.h"
 #include "java/lang/Long.h"
 #include "java/lang/Integer.h"
@@ -54,7 +55,26 @@
       {
           if ( [ [self valueForKey:[self trimCount:key]]  isKindOfClass:[JavaUtilArrayList class]])
           {
-              JavaUtilArrayList*   list =  [self valueForKey:[self trimCount:key]];
+              JavaUtilArrayList*   list =  [self valueForKeyEx:[self trimCount:key]];
+              
+              
+              //id<JavaUtilIterator>) terator = list.ite
+              
+              id<JavaUtilIterator> iter = list.iterator;
+              
+              int count =[list size];
+              
+              while([iter hasNext])
+              {
+                 NSObject*  obj =  [iter next];
+                  
+                  NSString* name = [obj valueForKeyEx:@"name"];
+                  count++;
+    
+              }
+              
+              
+              
               int arraySize = [list  size];
               retVal = [NSNumber numberWithInt:arraySize];
           }
@@ -167,10 +187,18 @@
         id typedArg;
         switch (encodingType) {
             case EncodingTypeLong :
-                typedArg = [[JavaLangLong alloc] initWithLongLong:[((NSNumber*) argument) longLongValue]];
+                
+                
+               // typedArg = [[JavaLangLong alloc] initWithLongLong:[((NSNumber*) argument) longLongValue]];
+                
+                typedArg = create_JavaLangLong_initWithLong_([((NSNumber*) argument) longLongValue]);
+                
+                
                 break;
             case  EncodingTypeLongLong:
-                typedArg = [[JavaLangLong alloc] initWithLongLong:[((NSNumber*) argument) longValue]];
+                
+                typedArg = create_JavaLangLong_initWithLong_([((NSNumber*) argument) longLongValue]);
+                //typedArg = [[JavaLangLong alloc] initWithLongLong:[((NSNumber*) argument) longValue]];
                 break;
             case  EncodingTypeInt:
                 typedArg = [[JavaLangInteger alloc] initWithInteger:[((NSNumber*) argument) integerValue]];

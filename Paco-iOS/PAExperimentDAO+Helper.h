@@ -15,7 +15,6 @@
 -(BOOL) isSelfReport;
 -(NSString*) earliestStartDate;
 -(NSString*) lastEndDate;
-
-
+-(NSArray*) getTableCellModelObjects;
 
 @end

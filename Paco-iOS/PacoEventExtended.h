@@ -56,6 +56,7 @@ typedef NS_ENUM(NSInteger, PacoEventTypeExtended) {
 @property (nonatomic,strong)  NSNumber* actionTriggerSpecId;
 @property (nonatomic,strong)  NSString* groupName;
 @property (nonatomic,strong)  NSString* serverExperimentId;
+@property (nonatomic,strong)  NSString* guid;
 @property (nonatomic,strong)  PAActionSpecification* actionSpecification;
 
 

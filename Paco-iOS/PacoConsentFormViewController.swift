@@ -66,36 +66,45 @@ class PacoConsentFormViewController: UIViewController {
         print("declined")
         
         backTwo()
-        
+       
     }
     
     
     @IBAction func accept(sender: AnyObject)
     {
-        print("accepted")
-        
-        
-       var mediator =  PacoMediator.sharedInstance()
-        var experimentId:String
-        if  experiment?.instanceId()  != nil
-        {
-             experimentId =  experiment!.instanceId()
-             mediator.startRunningExperimentRegenerate(experimentId);
-        }
-        
-        
-        
        
         
         
-        backTwo()
+        let  arrayOfCells  = experiment?.getTableCellModelObjects()
+
+        if   arrayOfCells != nil && arrayOfCells?.isEmpty == false   {
         
+            let  editor =  ScheduleEditor(nibName:"ScheduleEditor",bundle:nil)
+            
+            editor.cells = arrayOfCells!
+            editor.experiment = experiment
+            self.navigationController?.pushViewController(editor, animated: true)
+            
+        }
+        else {
+
+           let  mediator =  PacoMediator.sharedInstance()
+           var experimentId:String
+           if  experiment?.instanceId()  != nil
+           {
+              experimentId =  experiment!.instanceId()
+              mediator.startRunningExperimentRegenerate(experimentId);
+           }
+            
+             backTwo()
+        }
+  
     }
     
     
     func backTwo() {
         
-        let viewControllers: [UIViewController] = self.navigationController!.viewControllers as! [UIViewController];
+        let viewControllers: [UIViewController] = self.navigationController!.viewControllers
         self.navigationController!.popToViewController(viewControllers[viewControllers.count - 3], animated: true);
         
     }

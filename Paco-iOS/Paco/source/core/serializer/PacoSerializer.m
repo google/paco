@@ -573,6 +573,8 @@
      */
     if([object isKindOfClass:[PAActionTrigger class]])
     {
+        
+        /* duplicate check remove */
          if([object isKindOfClass:[PAActionTrigger class]])
          {
               /* check if logic is needed for subclasses, else remove this code */
@@ -599,9 +601,9 @@
      Case B, we add the object to the parent using the key.
      */
       
-      
-      
     [((JavaUtilHashMap*)parent)setValue:object forKey:attributeName];
+      
+      
   } else {
     /*
      Case C, we set the attribute on  the parent using the key and key value
@@ -719,7 +721,13 @@
      we might be as good chaning this so it checks if parent object is nil
      */
     if (![recurseObject[0] isEqualToString:PACO_OBJECT_PARENT]) {
+        
+        
+    NSLog(@" adding %@ to parent %@", attributeName, parent);
+        
       [self addItem:attributeName Parent:parent Value:arrayList AddList:YES];
+        
+        
     } else {
       /* this is the first list or parent object so we want to set it as the
        * root object */
@@ -727,8 +735,13 @@
         
       _parentNode = arrayList;
     }
+      
+      /*
+       
+       
+       */
 
-    id al = [parent valueForKeyEx:attributeName];
+    id al = [[self parent] valueForKeyEx:attributeName];
     if (al == nil) {
       [self push:arrayList];
     } else {
@@ -777,8 +790,8 @@
         // no difference
     }
 
-    NSLog(@"Setting value %@ for key %@ on class %@", recurseObject[1],
-          recurseObject[0], [[self parent] class]);
+  // this log  NSLog(@"Setting value %@ for key %@ on class %@", recurseObject[1],
+   //       recurseObject[0], [[self parent] class]);
   }
 }
 

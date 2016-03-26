@@ -32,9 +32,7 @@ class PacoJoinedExperimentsController: UITableViewController,PacoExperimentProto
      var  mArray:NSMutableArray  = mediator.startedExperiments();
      myExpriments = mArray as AnyObject  as? [PAExperimentDAO]
       NSNotificationCenter.defaultCenter().addObserver(self, selector:"eventJoined:", name:"JoinEvent", object: nil)
-     
-        
-        tableView.tableFooterView = UIView()
+      tableView.tableFooterView = UIView()
     
         self.tableView.registerNib(UINib(nibName:"PacoJoinedExperimentsTableViewCell", bundle: nil), forCellReuseIdentifier:cellId)
             let swiftColor = UIColor(red:0.96, green:0.96, blue:0.96, alpha:1.0)

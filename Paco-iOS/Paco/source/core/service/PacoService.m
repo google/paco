@@ -302,7 +302,7 @@
     [body addObject:jsonObject];
   }
   
-  //YMZ:TODO: error handling here
+   
   NSError *jsonError = nil;
   NSData *jsonData = [NSJSONSerialization dataWithJSONObject:body
                                                      options:NSJSONWritingPrettyPrinted
@@ -313,7 +313,7 @@
  forHTTPHeaderField:@"Content-Length"];
   [request setHTTPBody:jsonData];
   
-  // Make the network call.
+  // make the network call.
   [self executePacoServiceCall:request
              completionHandler:^(id jsonData, NSError *error) {
                DDLogInfo(@"Event Upload RESPONSE = %@", jsonData);
@@ -330,7 +330,9 @@
                  }
                }
                if (completionBlock) {
+                   
                  completionBlock(successEventIndexes, error);
+                   
                }
              }];
 }

@@ -14,7 +14,15 @@
 #import "NSDate+PacoTimeZoneHelper.h"
 #import "OrgJodaTimeDateMidnight+PacoDateHelper.h"
 #import "PacoScheduleUtil.h"
-
+//
+#import "NSObject+J2objcKVO.h"
+#include "ScheduleTrigger.h"
+#include  "Schedule.h"
+#include "SignalTime.h"
+#include "ExperimentGroup.h"
+#import "Paco-Swift.h"
+#import "PacoTimeCellModel.h"
+#import "SchedulePrinter.h"
 
 @implementation PAExperimentDAO (Helper)
 
@@ -59,6 +67,142 @@
     NSDate* date = [joda nsDateValue];
     NSString* dateString = [date dateToStringLocalTimezone];
     return dateString;
+    
+}
+
+
+-(NSArray*) getTableCellModelObjects
+{
+    NSNumber   * numberOfGroups    = [self  valueForKeyPathEx:@"groups#"];
+    int count = [numberOfGroups intValue];
+    
+    NSMutableArray* groupArray = [[NSMutableArray alloc] init];
+    
+    for( int i =0;  i < count; i++)
+    {
+        
+        
+        
+        
+        NSString* str = [NSString stringWithFormat: @"groups[%i]",i ];
+        PAExperimentGroup*  group  =  [self  valueForKeyPathEx:str];
+        
+        
+        
+        
+        
+        
+        NSNumber*  numberOfActionTriggers =
+        [group  valueForKeyEx:@"actionTriggers#"];
+        int actionTriggerCount = [numberOfActionTriggers intValue];
+        
+        for(int ii =0; ii < actionTriggerCount; ii++)
+        {
+            
+            NSString* str = [NSString stringWithFormat: @"actionTriggers[%i]",ii ];
+            PAScheduleTrigger  *trigger = [group valueForKeyEx:str];
+            
+            
+            
+            NSNumber* numberOfSchedules = [trigger  valueForKeyEx:@"schedules#"];
+            int schedulesCount = [numberOfSchedules intValue];
+            
+            
+            
+            
+            for(int iii=0; iii < schedulesCount; iii++)
+            {
+                NSString* str = [NSString stringWithFormat: @"schedules[%i]",iii ];
+                PASchedule * schedule  = [trigger valueForKeyEx:str];
+                
+                NSMutableArray * cellModelsForGroup = [[NSMutableArray alloc] init];
+                
+                if([[schedule getScheduleType] intValue] == 4)
+                {
+                         DatePickerCell*  startTimeCell =  [[DatePickerCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:nil];
+                    
+                    startTimeCell.groupName = [group valueForKeyEx:@"name"];
+                    startTimeCell.timeLabelStr = @"Start";
+                    
+                    
+                    DatePickerCell*  endTimeCell =  [[DatePickerCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:nil];
+                    
+                    endTimeCell.timeLabelStr = @"End";
+                    endTimeCell.groupName =[group valueForKeyEx:@"name"];
+                    
+                    
+                    NSString*  startTime = [PASchedulePrinter getHourOffsetAsTimeStringWithJavaLangLong:[schedule getEsmStartHour]];
+                    
+                    startTimeCell.timeOfDayString = startTime;
+                    
+                    NSString*  endTime = [PASchedulePrinter getHourOffsetAsTimeStringWithJavaLangLong:[schedule getEsmEndHour]];
+                    
+                    
+                    endTimeCell.timeOfDayString= endTime; 
+                    
+                    
+                    
+                    [endTimeCell setup];
+                    [startTimeCell setup];
+                    [cellModelsForGroup addObject:startTimeCell];
+                    [cellModelsForGroup addObject:endTimeCell];
+                    
+                }
+                else if([[schedule getScheduleType] intValue] ==0)
+                {
+                        NSNumber*  numberOfActionTriggers =
+                        [schedule valueForKeyEx:@"signalTimes#"];
+                        
+                        int signalTimesCount = [numberOfActionTriggers intValue];
+                        
+                    
+                        
+                        
+                        
+                        for( int iiii =0;  iiii< signalTimesCount; iiii++)
+                        {
+                            
+                            
+                            
+                           DatePickerCell*  datePickerCell =  [[DatePickerCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:nil];
+                            
+                    
+                            datePickerCell.groupName = [group valueForKeyEx:@"name"];
+                            NSString* str = [NSString stringWithFormat: @"signalTimes[%i]",iiii ];
+                            PASignalTime * signalTime =  [schedule valueForKeyEx:str];
+                            NSString* timeOfDayStr =  [PASchedulePrinter getHourOffsetAsTimeStringWithPASignalTime:signalTime]  ;
+                            NSString* label= [signalTime getLabel];
+                            datePickerCell.signalTime = signalTime;
+                            datePickerCell.timeLabelStr = label;
+                            datePickerCell.timeOfDayString = timeOfDayStr;
+                            
+                        
+                            
+                             NSLog(@" ----type %i", [[schedule getScheduleType] intValue] );
+                             datePickerCell.theType = @"first";
+                            
+                            
+                            
+                            [datePickerCell setup];
+                            [cellModelsForGroup addObject:datePickerCell];
+                            
+                        }
+                }
+
+                
+                [groupArray addObject:cellModelsForGroup];
+                
+                
+            }
+            
+            
+            
+        }
+        
+    }
+    
+    
+    return groupArray;
     
 }
 

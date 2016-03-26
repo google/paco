@@ -1,13 +1,15 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<model userDefinedModelVersionIdentifier="" type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="7701" systemVersion="14F27" minimumToolsVersion="Xcode 4.3" macOSVersion="Automatic" iOSVersion="Automatic">
+<model userDefinedModelVersionIdentifier="" type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="9525" systemVersion="15D21" minimumToolsVersion="Xcode 4.3">
     <entity name="EventRecord" representedClassName="EventRecord" syncable="YES">
         <attribute name="actionTriggerId" optional="YES" attributeType="Integer 64" defaultValueString="0" syncable="YES"/>
         <attribute name="eventBlob" optional="YES" attributeType="Binary" syncable="YES"/>
         <attribute name="experimentId" optional="YES" attributeType="Integer 64" defaultValueString="0" syncable="YES"/>
         <attribute name="groupName" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="guid" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="isUploaded" optional="YES" attributeType="Boolean" syncable="YES"/>
         <attribute name="scheduledTime" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="scheduleId" optional="YES" attributeType="Integer 64" defaultValueString="0" syncable="YES"/>
+        <attribute name="type" optional="YES" attributeType="Integer 64" defaultValueString="0" syncable="YES"/>
     </entity>
     <entity name="GenericArray" representedClassName="GenericArray" syncable="YES">
         <attribute name="blob" optional="YES" attributeType="Binary" syncable="YES"/>
@@ -22,8 +24,8 @@
         <attribute name="scheduleId" optional="YES" attributeType="Integer 64" defaultValueString="0" syncable="YES"/>
     </entity>
     <elements>
-        <element name="PacoSignal" positionX="-488" positionY="-45" width="128" height="135"/>
-        <element name="EventRecord" positionX="-378" positionY="36" width="128" height="150"/>
+        <element name="EventRecord" positionX="-378" positionY="36" width="128" height="180"/>
         <element name="GenericArray" positionX="-423" positionY="54" width="128" height="75"/>
+        <element name="PacoSignal" positionX="-488" positionY="-45" width="128" height="135"/>
     </elements>
 </model>

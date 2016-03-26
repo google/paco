@@ -27,11 +27,7 @@
 
 @class PAActionSpecification;
 
-//YMZ:TODO: fully testing
-//YMZ:TODO: thread safe
-//YMZ:TODO: use async design
-//YMZ:TODO: use core data
-//YMZ:TODO: error handling of file operation
+
 
 @interface PacoEventManagerExtended : NSObject
 

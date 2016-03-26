@@ -41,12 +41,15 @@
 
 
 
-
 static NSString* const kPacoEventKeyResponsesExtended = @"responses";
 NSString* const kPacoResponseKeyNameExtended = @"name";
 NSString* const kPacoResponseKeyAnswerExtended = @"answer";
 NSString* const kPacoResponseKeyInputIdExtended= @"inputId";
 NSString* const kPacoResponseJoinExtended = @"joined";
+
+
+
+
 
 @interface PacoEventExtended ()
 @property (nonatomic, readwrite, copy) NSString *appId;
@@ -68,11 +71,6 @@ NSString* const kPacoResponseJoinExtended = @"joined";
     return self;
 }
 
-
-
-
-
- 
 
 
 
@@ -153,36 +151,7 @@ NSString* const kPacoResponseJoinExtended = @"joined";
                                     options:NSJSONReadingAllowFragments
                                       error:&error];
     return definitionDict;
-    
-   /*
-    
-    NSMutableDictionary *dictionary = [NSMutableDictionary dictionary];
-    dictionary[kPacoEventKeyExperimentIdExtended] = self.experimentId;
-    dictionary[kPacoEventKeyExperimentNameExtended] = self.experimentName;
-    dictionary[kPacoEventKeyExperimentVersionExtended] = [NSString stringWithFormat:@"%d", self.experimentVersion];
-    dictionary[kPacoEventKeyWhoExtended] = self.who;
-    dictionary[kPacoEventKeyAppIdExtended] = self.appId;
-    dictionary[kPacoEventKeyPacoVersionExtended] = self.pacoVersion;
-    if (self.when) {
-        dictionary[kPacoEventKeyWhenExtended] = [PacoDateUtility pacoStringForDate:self.when];
-    }
-    if (self.latitude) {
-        dictionary[kPacoEventKeyLatitudeExtended] = [NSString stringWithFormat:@"%lld", self.latitude];
-    }
-    if (self.longitude) {
-        dictionary[kPacoEventKeyLongitudeExtended] = [NSString stringWithFormat:@"%lld", self.longitude];
-    }
-    if (self.responseTime) {
-        dictionary[kPacoEventKeyResponseTimeExtended] = [PacoDateUtility pacoStringForDate:self.responseTime];
-    }
-    if (self.scheduledTime) {
-        dictionary[kPacoEventKeyScheduledTimeExtended] = [PacoDateUtility pacoStringForDate:self.scheduledTime];
-    }
-    if (self.responses) {
-        dictionary[kPacoEventKeyResponsesExtended] = self.responses;
-    }
-    return [NSDictionary dictionaryWithDictionary:dictionary];
-    */
+
 }
  
 
@@ -230,8 +199,10 @@ NSString* const kPacoResponseJoinExtended = @"joined";
 +(void)  populateBasicAttributes:(PAExperimentDAO*) experiment Event:(PacoEventExtended*) event
 {
     // event.who = [[PacoNetwork  sharedInstance] userEmail];
-    event.experimentId =  [experiment valueForKeyPathEx:@"id"]  ;
-    event.experimentVersion =  [experiment valueForKeyPathEx:@"eversion"];
+    event.experimentId =  [experiment valueForKeyPathEx:@"id"] ;
+    
+    event.experimentVersion =  (NSNumber*)  [experiment getVersion];
+    
     event.experimentName =  [experiment valueForKeyPathEx:@"title"];
     
 
@@ -304,7 +275,7 @@ NSString* const kPacoResponseJoinExtended = @"joined";
                                    kPacoResponseKeyAnswerExtended:@"false",
                                    kPacoResponseKeyInputIdExtended:@"-1"};
  
-    
+  
     return event;
 }
 
