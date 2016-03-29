@@ -216,8 +216,6 @@ pacoApp.service('dataService', ['$http', '$timeout', '$q', 'config',
 
     function unpackDayStats(data, stats) {
 
-      console.log(data);
-
       stats.dayParticipantCount = 0;
 
       for (var i = 0; i < data.length; i++) {
@@ -231,7 +229,6 @@ pacoApp.service('dataService', ['$http', '$timeout', '$q', 'config',
         stats.data[colId]['daySelfReportCount'] = data[i]['selfR'];
         stats.data[colId]['daySignalCount'] = data[i]['schedR'] + data[i]['missedR'];
       }
-      console.log(stats);
     }
 
 
