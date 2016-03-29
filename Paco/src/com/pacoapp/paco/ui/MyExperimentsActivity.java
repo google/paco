@@ -171,7 +171,7 @@ public class MyExperimentsActivity extends ActionBarActivity implements
     invitationExperimentName = (TextView)findViewById(R.id.invitationExperimentNameTextView);
     invitationContactTextView = (TextView)findViewById(R.id.invitationContactTextView);
     invitationCloseButton = (ImageButton)findViewById(R.id.invitationAnnouncementCloseButton);
-
+ 
     experimentProviderUtil = new ExperimentProviderUtil(this);
     registerForContextMenu(list);
   }
@@ -708,6 +708,9 @@ public class MyExperimentsActivity extends ActionBarActivity implements
     } else if (id == R.id.action_open_source_libs) {
       launchOpenSourceLibs();
       return true;
+    } else if (id == R.id.action_troubleshooting) {
+      launchTroubleshooting();
+      return true;
     } else if (id == R.id.action_email_paco_team) {
       launchEmailPacoTeam();
       return true;
@@ -775,6 +778,11 @@ public class MyExperimentsActivity extends ActionBarActivity implements
   private void launchPreferences() {
     startActivity(new Intent(this, PreferencesActivity.class));
   }
+  
+  private void launchTroubleshooting() {
+    startActivity(new Intent(this, TroubleshootingActivity.class));
+  }
+
 
   private void launchEula() {
     Intent eulaIntent = new Intent(this, EulaDisplayActivity.class);
