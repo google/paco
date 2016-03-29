@@ -313,7 +313,7 @@ public class ResponseStatEntityManager {
         whoResult.setProperty(EXPERIMENT_GROUP_NAME_PROPERTY, experimentGroupName);
         whoResult.setProperty(WHO_PROPERTY, who);
         whoResult.setProperty(DATE_PROPERTY, dateMidnightUtcMillis);
-        whoResult.setUnindexedProperty(LAST_CONTACT_DATE_TIME_PROPERTY, date.withZone(DateTimeZone.UTC));
+        whoResult.setUnindexedProperty(LAST_CONTACT_DATE_TIME_PROPERTY, date.withZone(DateTimeZone.UTC).toDate());
         value = 1;
       } else {
         Long property = (Long) whoResult.getProperty(prop);
