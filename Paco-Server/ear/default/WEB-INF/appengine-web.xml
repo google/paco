@@ -19,7 +19,7 @@
 <appengine-web-app xmlns='http://appengine.google.com/ns/1.0'>
 <application>quantifiedself</application>
   <module>default</module>
-  <version>162</version>
+  <version>164</version>
 
   <public-root>/web</public-root>
 
@@ -33,8 +33,11 @@
   <!-- Configure java.util.logging -->
   <system-properties>
     <property value='WEB-INF/logging.properties' name='java.util.logging.config.file'/> 
+    <property name="com.pacoapp.reportbucketname" value="reportbucket" />
+    <property name="com.pacoapp.adminDomain" value="google.com" />
   </system-properties>
-  <ssl-enabled>true</ssl-enabled>
+
+	<ssl-enabled>true</ssl-enabled>
   <sessions-enabled>true</sessions-enabled>
   <precompilation-enabled>true</precompilation-enabled>
   <threadsafe>true</threadsafe>

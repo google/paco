@@ -14,6 +14,7 @@ public class ResponseStat implements Comparable<ResponseStat> {
   
   // jackson 2 @JsonFormat(shape=JsonFormat.Shape.STRING, pattern="yyyy/MM/dd", timezone="UTC")
   public DateTime date;
+  private DateTime lastContactDateTime;
   
   
   public ResponseStat(long experimentId, String experimentGroupName, String who, int schedR, int missedR, int selfR) {
@@ -29,6 +30,12 @@ public class ResponseStat implements Comparable<ResponseStat> {
   public ResponseStat(long experimentId, String experimentGroupName, String who, DateTime dateOfInterest, int schedR, int missedR, int selfR) {
     this(experimentId, experimentGroupName, who, schedR, missedR, selfR);
     this.date = dateOfInterest;  
+  }
+
+  public ResponseStat(Long experimentId, String experimentGroupName, String who, DateTime dateOfInterest, int schedR,
+                      int missedR, int selfR, DateTime lastContactDateTime) {
+    this(experimentId, experimentGroupName, who, dateOfInterest, schedR, missedR, selfR);
+    this.lastContactDateTime = lastContactDateTime;
   }
 
   /**
@@ -58,6 +65,14 @@ public class ResponseStat implements Comparable<ResponseStat> {
     } else {
       return null;
     }
+  }
+
+  public DateTime getLastContactDateTime() {
+    return lastContactDateTime;
+  }
+
+  public void setLastContactDateTime(DateTime lastContactDateTime) {
+    this.lastContactDateTime = lastContactDateTime;
   }
 
   

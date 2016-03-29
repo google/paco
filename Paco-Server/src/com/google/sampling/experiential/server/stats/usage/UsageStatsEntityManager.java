@@ -31,6 +31,19 @@ import com.google.common.collect.Lists;
 import com.pacoapp.paco.shared.model2.ExperimentDAO;
 import com.pacoapp.paco.shared.model2.JsonConverter;
 
+/**
+ * Manages the entity storage and retrieval for usage stats data.
+ * 
+ * This class is used by the cron job that runs weekly to update stats
+ * and by the usage report generator driven through UsageStatsServlet.
+ * 
+ * The structure of usage stats rows is two for each week:
+ * non domain specific stats to track other experiment aggregate stats.
+ * domain specific stats to track our domain's experiments.
+ * 
+ * To get total stats, allExperimentStats, the two rows for a given week are added together.
+ * 
+ */
 public class UsageStatsEntityManager {
 
   private static final String KIND = "experiment_usage_stat";
@@ -39,25 +52,6 @@ public class UsageStatsEntityManager {
   
   private String DATE_PROPERTY = "date";
   private String ADMIN_DOMAIN_FILTER_PROPERTY = "adminDomainFilter";
-//  private String NUMBER_OF_PARTICIPANTS_PROPERTY = "numberOfParticipants";   
-//  private String EXPERIMENT_COUNT_TOTAL_PROPERTY = "experimentCountTotal";  
-//  private String UNPUBLISHED_EXPERIMENT_COUNT_TOTAL_PROPERTY = "unpublishedExperimentCountTotal";
-//  private String PUBLISHED_EXPERIMENT_COUNT_TOTAL_PROPERTY = "publishedExperimentCountTotal";
-//  private String PUBLISHED_EXPERIMENT_PUBLIC_COUNT_TOTAL_PROPERTY = "publishedExperimentPublicCountTotal";
-//  private String PUBLISHED_EXPERIMENT_PRIVATE_COUNT_TOTAL_PROPERTY = "publishedExperimentPrivateCountTotal";
-//  private String PUBLISHED_EXPERIMENT_FUTURE_COUNT_TOTAL_PROPERTY = "publishedExperimentFutureCountTotal";
-//  private String PUBLISHED_EXPERIMENT_PAST_COUNT_TOTAL_PROPERTY   = "publishedExperimentPastCountTotal"; 
-//  private String PUBLISHED_EXPERIMENT_PRESENT_COUNT_TOTAL_PROPERTY = "publishedExperimentPresentCountTotal";
-//  private String PUBLISHED_EXPERIMENT_ONGOING_COUNT_TOTAL_PROPERTY = "publishedExperimentOngoingCountTotal";
-//  private String PUBLISHED_EXPERIMENT_PRIVATE_USERCOUNT_STOTAL_PROPERTY  = "publishedExperimentPrivateUserCountsTotal"; 
-//  private String PUBLISHED_EXPERIMENT_FUTURE_COUNT_NONPILOT_PROPERTY = "publishedExperimentFutureCountNonPilot";
-//  private String PUBLISHED_EXPERIMENT_PAST_COUNT_NONPILOT_PROPERTY  = "publishedExperimentPastCountNonPilot"; 
-//  private String PUBLISHED_EXPERIMENT_PRESENT_COUNT_NONPILOT_PROPERTY = "publishedExperimentPresentCountNonPilot"; 
-//  private String PUBLISHED_EXPERIMENT_ONGOING_COUNT_NONPILOT_PROPERTY = "publishedExperimentOngoingCountNonPilot"; 
-//  private String PUBLISHED_EXPERIMENT_PRIVATE_USER_COUNT_NONPILOT_PROPERTY = "publishedExperimentPrivateUserCountsNonPilot";
-//  
-//  private String NUMBER_OF_EVENTS_PROPERTY = "numberOfEvents";
-
   
   private static UsageStatsEntityManager instance;
 

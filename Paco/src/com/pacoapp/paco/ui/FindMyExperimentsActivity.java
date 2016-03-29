@@ -208,6 +208,9 @@ public class FindMyExperimentsActivity extends ActionBarActivity implements Netw
     } else if (id == R.id.action_settings) {
       launchSettings();
       return true;
+    } else if (id == R.id.action_preferences) {
+      launchPreferences();
+      return true;
     } else if (id == R.id.action_about) {
       launchAbout();
       return true;
@@ -250,6 +253,10 @@ public class FindMyExperimentsActivity extends ActionBarActivity implements Netw
     startActivity(new Intent(this, SettingsActivity.class));
   }
 
+  private void launchPreferences() {
+    startActivity(new Intent(this, PreferencesActivity.class));
+  }
+  
   private void launchEula() {
     Intent eulaIntent = new Intent(this, EulaDisplayActivity.class);
     startActivity(eulaIntent);

@@ -181,7 +181,7 @@ public class EventJsonUploadProcessor {
     log.info("Retrieving experimentId, experimentName for event posting: " + experimentIdStr + ", " + experimentName);
     if (experimentIdStr == null) {
       log.info("Could not find experiment for event posting. experimentId, experimentName: " + experimentIdStr + ", " + experimentName);
-      outcome.setError("No experiment ID for this event: " + eventId);
+      //outcome.setError("No experiment ID for this event: " + eventId);
       return outcome;
     }
 
@@ -190,21 +190,21 @@ public class EventJsonUploadProcessor {
       experimentIdLong = Long.parseLong(experimentIdStr);
     } catch (NumberFormatException e) {
       log.info("experimentId, " + experimentIdStr + ", not a number for this event: " + eventId);
-      outcome.setError("experimentId, " + experimentIdStr + ", not a number for this event: " + eventId);
+      //outcome.setError("experimentId, " + experimentIdStr + ", not a number for this event: " + eventId);
       return outcome;
     }
 
     ExperimentDAO experiment = experimentRetriever.getExperiment(experimentIdLong);
 
     if (experiment == null) {
-      outcome.setError("No existing experiment for this event: " + eventId);
+      //outcome.setError("No existing experiment for this event: " + eventId);
       return outcome;
     }
 
     if (!experiment.isWhoAllowedToPostToExperiment(who)) {
       // don't give differentiated error messages in case someone is trying to discover experiment ids
-      log.info("User not allowed to post to this experiment " + experimentIdStr + " .Event: " + eventId);
-      outcome.setError("No existing experiment for this event: " + eventId);
+      log.info("User not allowed to post to this experiment " + experimentIdStr + " .Event: " + eventId + " user: " + who);
+      //outcome.setError("No existing experiment for this event: " + eventId);
       return outcome;
     }
 

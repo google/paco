@@ -89,9 +89,8 @@ public class BackendReportJobExecutorServlet extends HttpServlet {
   }
 
   private void runStats(HttpServletRequest req, HttpServletResponse resp, int limit) throws IOException {
-      String requestorEmail = getRequestorEmail(req);
+      String requestorEmail = "cron"; // bypass the admins check since it can only be launched by cron or an admin
       DateTimeZone timeZoneForClient = getTimeZoneForClient(req);
-      final String adminDomainFilter = req.getParameter("adminDomainFilter");
       String jobId = ReportJobExecutor.getInstance().runReportJob(requestorEmail, timeZoneForClient, null, false, "stats", null, limit, null);
       resp.setContentType("text/plain;charset=UTF-8");
       resp.getWriter().println(jobId);

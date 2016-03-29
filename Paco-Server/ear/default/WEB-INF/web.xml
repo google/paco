@@ -141,6 +141,7 @@
       <url-pattern>/participantStats*</url-pattern>
       <url-pattern>/jobStatus*</url-pattern>
       <url-pattern>/simon*</url-pattern>      
+      <url-pattern>/usage*</url-pattern>      
     </web-resource-collection>
     <user-data-constraint>
       <transport-guarantee>CONFIDENTIAL</transport-guarantee>
@@ -155,7 +156,6 @@
       <url-pattern>/migrate*</url-pattern>
       <url-pattern>/pacoserver/migrate*</url-pattern>
       <url-pattern>/remote_api*</url-pattern>
-      <url-pattern>/usage*</url-pattern>
       <url-pattern>/eval*</url-pattern>
     </web-resource-collection>
     <auth-constraint>

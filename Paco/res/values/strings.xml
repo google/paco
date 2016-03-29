@@ -220,6 +220,7 @@
     <string name="gallery" description="Label for button to choose the Photo Gallery app as the source for inputing a photo into a survey">Gallery</string>
     <string name="action_find_experiments" decsription="Label for button to go to find experiments screen">Find Experiments</string>
     <string name="action_settings" description="Label for Menu/Toolbar action to go to Settings screen">Settings</string>
+    <string name="action_language_preference" description="Label for Menu/Toolbar action to go to Language Preferences screen">Language Preference</string>
     <string name="action_user_guide" description="Label for Menu/Toolbar action to go to User Guide screen">User Guide</string>
     <string name="action_email_paco_team"  description="Label for Menu/Toolbar action to go email Paco team">Email Paco Team</string>
     <string name="action_about" description="Label for Menu/Toolbar action to go to About screen">About Paco</string>
@@ -257,6 +258,9 @@
     <string name="you_must_pick_an_account" description="Message to user that they must choose a Google account to proceed.">You must pick an account</string>
     <string name="are_not_available_" description="Appended to message about necessary 3rd party components, e.g., 'GooglePlayServices are not available'">are not available.</string>
     <string name="error" description="Label for an error message that is appended, e.g., 'ERROR: service not installed'">ERROR</string>
+    
+    <!--  preferences screens -->
+    <string name="preference_screen_title" description="Header for preferences screen">Paco Settings</string>
 
 <!--  embedded web ui -->
     <string name="no_photo_support" description="error message shown in survey form when the platform does not support photos">No photo support</string>
