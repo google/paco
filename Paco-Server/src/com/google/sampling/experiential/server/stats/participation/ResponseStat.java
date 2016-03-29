@@ -14,7 +14,7 @@ public class ResponseStat implements Comparable<ResponseStat> {
   
   // jackson 2 @JsonFormat(shape=JsonFormat.Shape.STRING, pattern="yyyy/MM/dd", timezone="UTC")
   public DateTime date;
-  private DateTime lastContactDateTime;
+  public DateTime lastContactDateTime;
   
   
   public ResponseStat(long experimentId, String experimentGroupName, String who, int schedR, int missedR, int selfR) {
