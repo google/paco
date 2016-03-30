@@ -313,7 +313,7 @@ public class ResponseStatEntityManager {
         whoResult.setProperty(EXPERIMENT_GROUP_NAME_PROPERTY, experimentGroupName);
         whoResult.setProperty(WHO_PROPERTY, who);
         whoResult.setProperty(DATE_PROPERTY, dateMidnightUtcMillis);
-        whoResult.setUnindexedProperty(LAST_CONTACT_DATE_TIME_PROPERTY, date.toDate());
+        whoResult.setUnindexedProperty(LAST_CONTACT_DATE_TIME_PROPERTY, date.withZone(DateTimeZone.UTC).toDate());
         value = 1;
       } else {
         Long property = (Long) whoResult.getProperty(prop);
@@ -388,7 +388,8 @@ public class ResponseStatEntityManager {
         getDateProperty(grpDateWhoStat),
         convertToInt((Long)grpDateWhoStat.getProperty(SCHED_R_PROPERTY)),
         convertToInt((Long) grpDateWhoStat.getProperty(MISSED_R_PROPERTY)),
-        convertToInt((Long) grpDateWhoStat.getProperty(SELF_R_PROPERTY)));
+        convertToInt((Long) grpDateWhoStat.getProperty(SELF_R_PROPERTY)),
+        getLastContactDateTime(grpDateWhoStat));
   }
 
   private int convertToInt(Long long1) {
@@ -401,7 +402,7 @@ public class ResponseStatEntityManager {
   private DateTime getLastContactDateTime(Entity whoResult) {
     Date property = (Date)whoResult.getProperty(LAST_CONTACT_DATE_TIME_PROPERTY);
     if (property != null) {
-      return new DateTime(property);
+      return new DateTime(property, DateTimeZone.UTC);
     }
     return null;
   }
@@ -415,7 +416,7 @@ public class ResponseStatEntityManager {
       return new DateMidnight(property, DateTimeZone.UTC).toDateTime();
     }
     return null;
-  }  
+  }
   
 //private List<FilterPredicate> createFiltersBoundingDate(DateTime utcLocalDate) {
 //DateMidnight dateMidnight = utcLocalDate.toDateMidnight();

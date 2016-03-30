@@ -385,13 +385,12 @@ public class EventServlet extends HttpServlet {
     User who = AuthUtil.getWhoFromLogin();
     if (who == null) {
       AuthUtil.redirectUserToLogin(req, resp);
-    }
-
-    // TODO(bobevans): Add security check, and length check for DoS
-    if (ServletFileUpload.isMultipartContent(req)) {
-      processCsvUpload(req, resp);
     } else {
-      processJsonUpload(req, resp);
+      if (ServletFileUpload.isMultipartContent(req)) {
+        processCsvUpload(req, resp);
+      } else {
+        processJsonUpload(req, resp);
+      }
     }
   }
 
