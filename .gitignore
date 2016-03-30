@@ -1,5 +1,6 @@
 local.properties
 .settings
+.settings/*
 .DS_Store
 *.keystore
 AndroidCompatSupport/v7/appcompat/bin/res/crunch
@@ -8,6 +9,7 @@ AndroidCompatSupport/v7/appcompat/gen/*
 google_play_services_lib/*
 Paco/bin/*
 Paco/gen/*
+Paco/.settings
 PacoAndroidLib/bin/*
 PacoAndroidLib/gen/*
 Paco-Server/ear/reports/*
@@ -30,6 +32,7 @@ Paco-Server/ear/reportworker/pacoserver/*
 Paco-Server/www-test/*
 PacoTest/local.properties
 PacoTest/bin/*
+PacoTest/.settings
 PacoTest/testbin/*
 PacoTest/gen/*
 PacoTest/libs/js.jar

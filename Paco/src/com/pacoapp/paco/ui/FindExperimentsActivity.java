@@ -225,12 +225,20 @@ public class FindExperimentsActivity extends ActionBarActivity implements Networ
     } else if (id == R.id.action_email_paco_team) {
       launchEmailPacoTeam();
       return true;
+    }  else if (id == R.id.action_troubleshooting) {
+      launchTroubleshooting();
+      return true;
     } else if (id == android.R.id.home) {
       finish();
       return true;
     }
     return super.onOptionsItemSelected(item);
   }
+
+  private void launchTroubleshooting() {
+    startActivity(new Intent(this, TroubleshootingActivity.class));
+  }
+
 
   private void launchFindExperiments() {
     startActivity(new Intent(this, FindMyOrAllExperimentsChooserActivity.class));
