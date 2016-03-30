@@ -221,6 +221,7 @@
     <string name="action_find_experiments" decsription="Label for button to go to find experiments screen">Find Experiments</string>
     <string name="action_settings" description="Label for Menu/Toolbar action to go to Settings screen">Settings</string>
     <string name="action_language_preference" description="Label for Menu/Toolbar action to go to Language Preferences screen">Language Preference</string>
+    <string name="action_troubleshooting" description="Label for Menu/Toolbar action to go to troubleshooting screen">Troubleshooting</string>
     <string name="action_user_guide" description="Label for Menu/Toolbar action to go to User Guide screen">User Guide</string>
     <string name="action_email_paco_team"  description="Label for Menu/Toolbar action to go email Paco team">Email Paco Team</string>
     <string name="action_about" description="Label for Menu/Toolbar action to go to About screen">About Paco</string>
@@ -304,6 +305,46 @@
     <string name="eos_activity_field_label" description="label for text field where user gives group a name">Activity</string>
     <string name="eos_group_button_label" description="button label for group button to group activities under new name">Group</string>
     <string name="eos_created_activity_group_section_header" description="Label for list of activity groups created by the user">Activity Groups</string>
+    <string name="send_diagnostics_report_button_label">Email Report</string>
+    <string name="force_upload_events_button_label">Sync Events</string>
+    <string name="check_setup_button_label">Test</string>
+    <string name="title_troubleshooting">Troubleshooting</string>
+    <string name="title_results">Results</string>
+    <string name="diagnostics_account_label">account</string>
+    <string name="diagnostics_app_usage_access_label">App usage access</string>
+    <string name="diagnostics_localtime_label">localTime</string>
+    <string name="diagnostics_report_generated_label">Report generated</string>
+    <string name="diagnostics_network_connected_label">connected</string>
+    <string name="diagnostics_network_type_label">type</string>
+    <string name="diagnostics_experiment_count_label">count</string>
+    <string name="diagnostics_experiment_label">experiment</string>
+    <string name="diagnostic_server_label">server</string>
+    <string name="diagnostic_reachable_label">reachable</string>
+    <string name="diagnostic_no_network_label">no network</string>
+    <string name="diagnostic_phone_display_label">display</string>
+    <string name="diagnostic_phone_make_label">make</string>
+    <string name="diagnostic_phone_model_label">model</string>
+    <string name="diagnostic_phone_android_label">android</string>
+    <string name="diagnostic_phone_carrier_label">carrier</string>
+    <string name="diagnostic_phone_unavailable_label">unavailable</string>
+    <string name="diagnostic_ringer_ringer_mode_label">ringer mode</string>
+    <string name="diagnostic_ringer_normal_label">normal</string>
+    <string name="diagnostic_ringer_silent_label">silent</string>
+    <string name="diagnostic_ringer_vibrate_label">vibrate</string>
+    <string name="diagnostic_ringer_notification_volume_label">notification volume</string>
+    <string name="diagnostic_ringer_notification_volume_max_label">notification volume max</string>
+    <string name="diagnostic_events_unsynced_label">unsynced</string>
+    <string name="diagnostic_account_type">account</string>
+    <string name="diagnostic_app_usage_access_type">app usage access</string>
+    <string name="diagnostic_clock_type">clock</string>
+    <string name="diagnostic_esm_alarms_type">esm alarms</string>
+    <string name="diagnostic_ringer_type">ringer</string>
+    <string name="diagnostic_unsynced_events_type">unsynced events</string>
+    <string name="diagnostic_joined_experiments_type">joined experiments</string>
+    <string name="diagnostic_paco_reach_type">paco reach</string>
+    <string name="diagnostic_phone_type">phone</string>
+    <string name="diagnostic_network_type">network</string>
+    <string name="troubleshooting_no_diagnostics_report_message">no diagnostics report</string>
     
         
                 
