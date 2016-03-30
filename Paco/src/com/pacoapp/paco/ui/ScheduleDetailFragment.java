@@ -522,7 +522,7 @@ public class ScheduleDetailFragment extends Fragment implements ExperimentLoadin
       TextView label = (TextView) convertView.findViewById(R.id.textView1);
       String labelText = schedule.getSignalTimes().get(position).getLabel();
       if (Strings.isNullOrEmpty(labelText)) {
-        labelText = "Time " + Integer.toString(position + 1);
+        labelText = getContext().getString(R.string.time_schedule_edit_label) + " " + Integer.toString(position + 1);
       }
       label.setText(labelText + ": ");
       Button btn = (Button) convertView.findViewById(R.id.timePickerLabel);

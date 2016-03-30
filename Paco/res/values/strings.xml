@@ -260,8 +260,6 @@
     <string name="are_not_available_" description="Appended to message about necessary 3rd party components, e.g., 'GooglePlayServices are not available'">are not available.</string>
     <string name="error" description="Label for an error message that is appended, e.g., 'ERROR: service not installed'">ERROR</string>
     
-    <!--  preferences screens -->
-    <string name="preference_screen_title" description="Header for preferences screen">Paco Settings</string>
 
 <!--  embedded web ui -->
     <string name="no_photo_support" description="error message shown in survey form when the platform does not support photos">No photo support</string>
@@ -305,6 +303,7 @@
     <string name="eos_activity_field_label" description="label for text field where user gives group a name">Activity</string>
     <string name="eos_group_button_label" description="button label for group button to group activities under new name">Group</string>
     <string name="eos_created_activity_group_section_header" description="Label for list of activity groups created by the user">Activity Groups</string>
+    
     <string name="send_diagnostics_report_button_label">Email Report</string>
     <string name="force_upload_events_button_label">Sync Events</string>
     <string name="check_setup_button_label">Test</string>
@@ -345,7 +344,21 @@
     <string name="diagnostic_phone_type">phone</string>
     <string name="diagnostic_network_type">network</string>
     <string name="troubleshooting_no_diagnostics_report_message">no diagnostics report</string>
-    
+    <string name="new_invitation_title">You have new invitations</string>
+    <string name="ringtone_for_alerts_label">Ringtone for alerts</string>
+    <string name="server_address_label">Server Address</string>
+    <string name="google_email_address_label">Google Email Address</string>
+    <string name="libraries_used_by_paco_label">Libraries used by Paco</string>
+    <string name="we_are_grateful_for_their_contributions_label">We are grateful for their contributions.</string>
+    <string name="no_groups_in_experiment_message">No groups in experiment</string>
+    <string name="error_loading_experiment_message">Something happened.\\nWe could not load the experiment.\\nPlease exit and email the researcher running the experiment</string>
+    <string name="_unverified_label">(unverified)</string>
+    <string name="ic_phone_make_model_carrier_label">Phone make, model, carrier</string>
+    <string name="review_schedule_button_label">Review Schedule</string>
+    <string name="the_personal_analytics_companion_subtitle">The Personal Analytics COmpanion</string>
+    <string name="login_with_your_google_email_to_join_experiments_message">Login with your Google email to join experiments</string>
+    <string name="login_button_label">Login</string>
+    <string name="time_schedule_edit_label">Time</string>
         
                 
                 
