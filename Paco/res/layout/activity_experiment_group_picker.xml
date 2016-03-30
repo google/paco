@@ -23,5 +23,5 @@
         android:layout_height="match_parent" android:id="@+id/groupList"
         android:layout_gravity="center"></ListView>
     <TextView android:id="@id/android:empty" android:layout_width="match_parent"
-        android:layout_height="match_parent" android:text="No groups in experiment" />
+        android:layout_height="match_parent" android:text="@string/no_groups_in_experiment_message" />
 </LinearLayout>

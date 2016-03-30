@@ -61,7 +61,7 @@
             android:id="@android:id/empty"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:text="Could not load experiments" />
+            android:text="@string/could_not_retrieve_experiments_try_again_" />
 
     </LinearLayout>
 </LinearLayout>
