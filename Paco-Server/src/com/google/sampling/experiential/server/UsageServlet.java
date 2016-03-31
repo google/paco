@@ -63,9 +63,10 @@ public class UsageServlet extends HttpServlet {
     User user = AuthUtil.getWhoFromLogin();
     if (user == null) {
       AuthUtil.redirectUserToLogin(req, resp);
-    } else if (req.getParameter("creator") != null) {
+    } // keep this around for handy one-off jobs  
+    /* else if (req.getParameter("creator") != null) {
       dumpStats(resp,req);
-    } else {
+    }*/ else {
       String adminDomainFilter = null;
       String email = AuthUtil.getEmailOfUser(req, user);
       if (email.split("@")[1].equals(adminDomainSystemSetting)) {
