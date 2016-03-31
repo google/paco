@@ -27,6 +27,10 @@
         android:title="@string/action_user_guide"
         android:orderInCategory="100"
         app:showAsAction="never" />
+    <item android:id="@+id/action_troubleshooting"
+        android:title="@string/action_troubleshooting"
+        android:orderInCategory="100"
+        app:showAsAction="never" />
     <item android:id="@+id/action_email_paco_team"
         android:title="@string/action_email_paco_team"
         android:orderInCategory="100"
