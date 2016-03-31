@@ -9,7 +9,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:text="Something happened.\nWe could not load the experiment.\nPlease exit and email the researcher running the experiment"
+        android:text="@string/error_loading_experiment_message"
         android:textAppearance="?android:attr/textAppearanceLarge" />
 
 </LinearLayout>

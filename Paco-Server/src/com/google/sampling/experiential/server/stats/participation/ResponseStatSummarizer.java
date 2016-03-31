@@ -93,12 +93,17 @@ public class ResponseStatSummarizer {
       
       ResponseStat existingStatForWho = statsByWho.get(who);
       if (existingStatForWho == null) {
-        responseStat = new ResponseStat(experimentId, experimentGroup, who, dateTime, responseStat.schedR, responseStat.missedR, responseStat.selfR);
+        responseStat = new ResponseStat(experimentId, experimentGroup, who, dateTime, responseStat.schedR, responseStat.missedR, responseStat.selfR, responseStat.getLastContactDateTime());
         statsByWho.put(who, responseStat);
       } else {
         existingStatForWho.schedR +=  responseStat.schedR;
         existingStatForWho.missedR += responseStat.missedR;
         existingStatForWho.selfR += responseStat.selfR;
+        if (existingStatForWho.getLastContactDateTime() != null &&
+                responseStat.getLastContactDateTime() != null &&
+                        responseStat.getLastContactDateTime().isAfter(existingStatForWho.getLastContactDateTime())) {
+          existingStatForWho.setLastContactDateTime(responseStat.getLastContactDateTime());
+        }
       }      
     }
     
@@ -224,11 +229,18 @@ public class ResponseStatSummarizer {
       }
       
       if (sumResponseStat == null) {
-        sumResponseStat = new ResponseStat(experimentId, null, who, dateTime, responseStat.schedR, responseStat.missedR, responseStat.selfR);        
+        sumResponseStat = new ResponseStat(experimentId, null, who, dateTime, responseStat.schedR, responseStat.missedR, responseStat.selfR, responseStat.getLastContactDateTime());        
       } else {
         sumResponseStat.schedR +=  responseStat.schedR;
         sumResponseStat.missedR += responseStat.missedR;
         sumResponseStat.selfR += responseStat.selfR;
+        if (sumResponseStat.getLastContactDateTime() != null &&
+                responseStat.getLastContactDateTime() != null &&
+                        responseStat.getLastContactDateTime().isAfter(sumResponseStat.getLastContactDateTime())) {
+          sumResponseStat.setLastContactDateTime(
+                                                 
+                                             responseStat.getLastContactDateTime());
+        }
       }      
       if (existingStatsForWho == null) {
         existingStatsForWho = Maps.newConcurrentMap();

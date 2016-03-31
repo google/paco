@@ -91,7 +91,7 @@
                 android:id="@+id/invitationTextView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="YOU HAVE A NEW INVITATION"
+                android:text="@string/new_invitation_title"
                 android:textAppearance="?android:attr/textAppearanceLarge"
                 android:textColor="#ffffff" />
 
@@ -99,7 +99,7 @@
                 android:id="@+id/invitationExperimentNameTextView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Experiment Name"
+                android:text="@string/experiment_name"
                 android:textAppearance="?android:attr/textAppearanceLarge"
                 android:textColor="#ffffff" />
 
@@ -107,7 +107,7 @@
                 android:id="@+id/invitationContactTextView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Organization Contact"
+                android:text="@string/organization"
                 android:textAppearance="?android:attr/textAppearanceSmall"
                 android:textColor="#ffffff" />
         </LinearLayout>

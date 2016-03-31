@@ -13,7 +13,8 @@ public class UsageStatsBlobWriter {
 
   public String writeStatsAsJson(String jobId, String timeZone, String requestorEmail) {
     log.info("writing usage stats report");
-    UsageStatsCronJob job = new UsageStatsCronJob();
+//    UsageStatsBackfillJob job = new UsageStatsBackfillJob();
+    UsageStatsCreatorStatsJob job = new UsageStatsCreatorStatsJob();
     try {
       job.run();
     } catch (IOException e) {
