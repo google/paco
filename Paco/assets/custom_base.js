@@ -756,6 +756,7 @@ paco.renderer = (function() {
     };
 
     var invalidResponse = function(event) {
+    	//confirm("Here. invalid: " + JSON.stringify(event, null, 2));
       addErrors(event);
     };
 
@@ -764,7 +765,10 @@ paco.renderer = (function() {
       "valid" : validResponse
     };
 
-    saveButton.click(function() { paco.validate(experimentGroup, responseEvent, inputHtmls, errorMarkingCallback) });
+    saveButton.click(function() {    	
+    	paco.validate(experimentGroup, responseEvent, inputHtmls, errorMarkingCallback) 
+    	}
+    );
   };
 
   registerDoneButtonCallback = function(doneButton) {
