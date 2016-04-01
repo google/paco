@@ -49,10 +49,12 @@ static NSString *dataSource = @" {\r\n  \"title\": \"my new experiment\",\r\n  \
 - (IBAction)go:(id)sender {
     
     PAExperimentDAO * experiment =  [TestUtil buildExperiment:dataSource];
-   // PacoEventExtended* event = [PacoEventExtended joinEventForActionSpecificatonWithServerExperimentId:experiment serverExperimentId:@"not applicable"];
+    
+    
+    PacoEventExtended* event = [PacoEventExtended joinEventForActionSpecificatonWithServerExperimentId:experiment serverExperimentId:@"not applicable"];
  
     
-    PacoEventExtended* event = [PacoEventExtended stopEventForExperiment:experiment];
+  //  PacoEventExtended* event = [PacoEventExtended stopEventForExperiment:experiment];
     
     
     [_eventManager startUploadingEventsInBackgroundWithBlock:^(UIBackgroundFetchResult result ) {

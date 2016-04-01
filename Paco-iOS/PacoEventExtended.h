@@ -11,7 +11,7 @@
 #import "ExperimentDAO.h"
 #import "EventInterface.h" 
 #import "java/util/ArrayList.h"
-
+#include "J2ObjC_header.h"
 
 @class PacoScheduler;
 @class PAExperimentDAO;
@@ -42,7 +42,7 @@ typedef NS_ENUM(NSInteger, PacoEventTypeExtended) {
 @property (nonatomic, retain) NSString  *when;
 @property (nonatomic, assign) NSNumber* latitude;
 @property (nonatomic, assign) NSNumber*  longitude;
-@property (nonatomic, retain) NSString  *responseTime;
+@property (nonatomic, retain) NSDate   *responseTime;
 @property (nonatomic, retain) NSString  *scheduledTime;
 @property (nonatomic, readonly, copy) NSString *appId;
 @property (nonatomic, readonly, copy) NSString *pacoVersion;
@@ -56,6 +56,7 @@ typedef NS_ENUM(NSInteger, PacoEventTypeExtended) {
 @property (nonatomic,strong)  NSNumber* actionTriggerSpecId;
 @property (nonatomic,strong)  NSString* groupName;
 @property (nonatomic,strong)  NSString* serverExperimentId;
+
 @property (nonatomic,strong)  NSString* guid;
 @property (nonatomic,strong)  PAActionSpecification* actionSpecification;
 

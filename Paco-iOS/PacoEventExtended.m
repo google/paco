@@ -140,6 +140,7 @@ NSString* const kPacoResponseJoinExtended = @"joined";
 - (id)generateJsonObject {
     
     
+    /* refactor load classes only once on initialization */
     
     NSArray* array = [PacoSerializeUtil getClassNames];
     PacoSerializer * serializer = [[PacoSerializer alloc] initWithArrayOfClasses:array withNameOfClassAttribute:@"nameOfClass"];
@@ -216,30 +217,34 @@ NSString* const kPacoResponseJoinExtended = @"joined";
     
     // Setup an event for joining the experiement.
     PacoEventExtended *event = [PacoEventExtended new];
- 
     
-    [PacoEventExtended populateBasicAttributes:experiment Event:event];
-    event.responseTime = [[NSDate dateWithTimeIntervalSinceNow:0] dateToStringLocalTimezone];
-
-    JavaUtilArrayList * responses = [[JavaUtilArrayList alloc] init];
     
-    //Special response values to indicate the user is joining this experiement.
-    //For now, we need to indicate inputId=-1 to avoid server exception,
-    //in the future, server needs to fix and accept JOIN and STOP events without inputId
     
-     NSDictionary* joinResponse = @{kPacoResponseKeyNameExtended:kPacoResponseJoinExtended,
+    event.who = [PacoNetwork sharedInstance].userEmail;
+    event.experimentId      = [experiment valueForKeyEx:@"id"];
+    event.experimentVersion = [experiment valueForKeyEx:@"version"];
+    event.experimentName    =  [experiment valueForKeyEx:@"title"];
+    event.responseTime = [NSDate dateWithTimeIntervalSinceNow:0];
+    
+    
+    NSDictionary* joinResponse = @{kPacoResponseKeyNameExtended:kPacoResponseJoinExtended,
                                    kPacoResponseKeyAnswerExtended:@"true",
                                    kPacoResponseKeyInputIdExtended:@"-1"};
     
-
-      [responses addWithId:joinResponse];
-       NSString * scheduleString =  [experiment scheduleString];
+     [PacoEventExtended populateBasicAttributes:experiment Event:event];
+      JavaUtilArrayList * responseList = [[JavaUtilArrayList alloc] init];
+    
+    // NSMutableArray* responseList = [NSMutableArray new];
+    [responseList addWithId:joinResponse];
+    
+    
+      NSString * scheduleString =  [experiment scheduleString];
     
       NSDictionary* scheduledResponse = @{kPacoResponseKeyNameExtended:kPacoEventKeyResponsesExtended,
                                    @"schedule":scheduleString,
                                    kPacoResponseKeyInputIdExtended:@"-1"};
     
-      [responses addWithId:scheduledResponse];
+      [responseList addWithId:scheduledResponse];
     
     
     NSDictionary* systemInfo = @{kPacoResponseKeyNameExtended:kPacoEventKeyResponsesExtended,
@@ -247,9 +252,9 @@ NSString* const kPacoResponseJoinExtended = @"joined";
                                     kPacoResponseKeyInputIdExtended:@"-1"};
     
     
-      [responses addWithId:systemInfo];
+      //[responses addWithId:systemInfo];
     
-      event.responses = responses;
+      event.responses = responseList;
       [event save];
       return event;
     
@@ -275,7 +280,7 @@ NSString* const kPacoResponseJoinExtended = @"joined";
                                    kPacoResponseKeyAnswerExtended:@"false",
                                    kPacoResponseKeyInputIdExtended:@"-1"};
  
-  
+    event.responses = @[responsePair];
     return event;
 }
 

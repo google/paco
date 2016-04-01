@@ -10,7 +10,7 @@
 #import "Schedule.h" 
 #import "ExperimentDAO.h"
 #import "EventInterface.h" 
-#import "java/util/ArrayList.h"
+ 
 
 
 @class PacoScheduler;
@@ -42,7 +42,7 @@ typedef NS_ENUM(NSInteger, PacoEventTypeExtended) {
 @property (nonatomic, retain) NSString  *when;
 @property (nonatomic, assign) NSNumber* latitude;
 @property (nonatomic, assign) NSNumber*  longitude;
-@property (nonatomic, retain) NSString  *responseTime;
+@property (nonatomic, retain) NSDate   *responseTime;
 @property (nonatomic, retain) NSString  *scheduledTime;
 @property (nonatomic, readonly, copy) NSString *appId;
 @property (nonatomic, readonly, copy) NSString *pacoVersion;

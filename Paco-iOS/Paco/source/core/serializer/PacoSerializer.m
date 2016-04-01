@@ -364,7 +364,7 @@
         ![parentInfo[1] isMemberOfClass:[JavaLangBoolean class]] &&
         ![parentInfo[1] isMemberOfClass:[JavaLangInteger class]] &&
          ![parentInfo[1] isMemberOfClass:[JavaLangLong class]] &&
-         */
+        */
  
         )
     {
@@ -410,14 +410,22 @@
             [self recurseObjectHierarchy:@[[self trimTrailingUnderscore:ivarName], oo ]];
           }
         }
-        interObject = [[interObject.superclass alloc] init];
-        ;
+           interObject = [[interObject.superclass alloc] init];
+         
       }
 
       [self pop];
     } else {
         
       NSString * name =  [self trimTrailingUnderscore:parentInfo[0]];
+        
+         
+     if( [name characterAtIndex:0] == '_')
+     {
+         name = [name substringFromIndex:1];
+         
+     }
+        
       [self addToCollection:name Value:parentInfo[1]];
     }
   }

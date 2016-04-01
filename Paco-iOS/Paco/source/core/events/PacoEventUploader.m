@@ -93,6 +93,7 @@ static int const kMaxNumOfEventsToUpload = 50;
           DDLogError(@"[Error]%lu events successfully uploaded, %lu events failed!",
                      (unsigned long)[successEventIndexes count], (unsigned long)([events count] - [successEventIndexes count]));
         } else {
+            
           DDLogInfo(@"%lu events successfully uploaded!", (unsigned long)[successEventIndexes count]);
         }
         
