@@ -427,6 +427,28 @@ var paco2 = (function (init) {
 	    };
 	  })();
 
+  obj.stringService = (function() {
+	    if (!window.strings) {
+	      window.strings = { 
+	        getString: function(stringId) { 
+	        	// TODO i18n
+	          alert("No strings support"); 
+	        },
+	        getString : function(stringId, formatArgs) { 
+		          alert("No strings support"); 
+		      }
+	        };
+	    }
+
+	    return {
+	      getString : function(stringId) {
+	        return window.strings.getString(stringId);
+	      }, 
+	      getStringFormatted : function(stringId, formatArgs) {
+		    return window.strings.getString(stringId, formatArgs);
+		  }
+	    };
+	  })();
 
   return obj;
 })();
