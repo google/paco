@@ -255,14 +255,20 @@ pacoApp.service('dataService', ['$http', '$timeout', '$q', 'config',
         });
     }
 
-    function getParticipantStats(id, date, user) {
+    function getParticipantStats(id, date, user, group) {
       if (user) {
-        return getUserStats(id, user);
+        return getUserStats(id, user, group);
       }
 
       var defer = $q.defer();
-      var endpoint1 = 'participantStats?experimentId=' + id + '&statv2=1&reportType=date&date=' + statsDate(date);
-      var endpoint2 = 'participantStats?experimentId=' + id + '&statv2=1&reportType=total';
+      var endpointBase = 'participantStats?experimentId=' + id + '&statv2=1';
+
+      if (group != 'all') {
+        endpointBase += '&experimentGroupName=' + escape(group);
+      }
+
+      var endpoint1 = endpointBase + '&reportType=date&date=' + statsDate(date);
+      var endpoint2 = endpointBase + '&reportType=total';
 
       var stats = {};
       stats.data = [];
@@ -286,7 +292,7 @@ pacoApp.service('dataService', ['$http', '$timeout', '$q', 'config',
     * Gets stats data from PACO server endpoint. Iterates over data to
     * compute the total participant count for today and all time.
     */
-    function getUserStats(id, user) {
+    function getUserStats(id, user, group) {
 
       var defer = $q.defer();
       var endpoint = 'participantStats?experimentId=' + id;

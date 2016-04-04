@@ -19,6 +19,16 @@
         </md-select>
       </md-input-container>
 
+      <span>
+        <img src="/img/ic_chevron_right_24px.svg">
+        <md-input-container class="viewSelector">
+          <md-select ng-model="showGroup" aria-label="Filter stats by group" ng-change="loadStats()" >
+            <md-option value="all">All Groups</md-option>
+            <md-option ng-repeat="group in groupNames" value="{{group}}">{{group}}</md-option>
+          </md-select>
+        </md-input-container>
+      </span>
+
       <md-chips ng-if="userChips" ng-model="userChips" md-on-remove="removeUserChip()" placeholder=""></md-chips>
     </div>
 
