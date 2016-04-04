@@ -60,24 +60,16 @@
   display: inline-block;
   font-size: 12px;
   margin: 5px;
+  min-height: 100px;
   padding: 20px;
-  padding-bottom: 60px;
   position: relative;
   text-align: center;
   width: 160px;
 }
 
-.data .summary .stat:before {
-  background-color: #ddd;
-  content: '';
-  -webkit-mask-image: url('/img/ic_email_24px.svg');
-  -webkit-mask-position: 50% 90px;
-  -webkit-mask-repeat: no-repeat;
-  height: 100%;
+.data .summary .stat div {
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
+  width: 75%;
 }
 
 .data .summary .stat b {
@@ -93,7 +85,6 @@
   font-size: 12px;
   margin: 5px;
   padding: 20px;
-  padding-bottom: 60px;
   position: relative;
   text-align: center;
   width: 160px;

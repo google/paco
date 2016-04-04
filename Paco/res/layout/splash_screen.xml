@@ -15,7 +15,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:text="PACO"
+        android:text="Paco"
         android:textAppearance="?android:attr/textAppearanceLarge" 
         android:textColor="#ffffff"/>
 
@@ -24,7 +24,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:text="The Personal Analytics COmpanion"
+        android:text="@string/the_personal_analytics_companion_subtitle"
         android:textAppearance="?android:attr/textAppearanceMedium" 
         android:textColor="#ffffff"/>
 
@@ -39,7 +39,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:text="Login with your Google email to join experiments" 
+        android:text="@string/login_with_your_google_email_to_join_experiments_message" 
         android:textColor="#ffffff"/>
 
     <Button
@@ -47,7 +47,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:text="Login" 
+        android:text="@string/login_button_label" 
         android:textColor="#000000"/>
 
 </LinearLayout>

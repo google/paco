@@ -1,5 +1,7 @@
 package com.google.sampling.experiential.server.stats.usage;
 
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import org.joda.time.DateTime;
@@ -12,6 +14,23 @@ import org.joda.time.DateTime;
  */
 public class UsageStatsReport {
   
+  private final class UsageStatComparator implements Comparator<UsageStat> {
+    @Override
+    public int compare(UsageStat o1, UsageStat o2) {
+      DateTime o1Date = o1.getDate();
+      DateTime o2Date = o2.getDate();
+      if (o1Date == null && o2Date == null) {
+        return 0;
+      } else if (o1Date != null && o2Date == null) {
+        return -1;
+      } else if (o1Date == null && o2Date != null) {
+        return 1;
+      } else {
+        return o1Date.compareTo(o2Date);
+      }
+    }
+  }
+
   /**
    * Time series of stats for the whole server
    */
@@ -31,7 +50,14 @@ public class UsageStatsReport {
                           DateTime generationDate) {
     super();
     this.allExperimentStats = allExperimentStats;
+    if (this.allExperimentStats != null) {
+      Collections.sort(this.allExperimentStats, new UsageStatComparator());
+    }
+    
     this.domainExperimentStats = domainExperimentStats;
+    if (this.domainExperimentStats != null) {
+      Collections.sort(this.domainExperimentStats, new UsageStatComparator());
+    }
     this.generationDate = generationDate;
   }
 

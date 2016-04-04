@@ -4,7 +4,7 @@
 
 <im.delight.android.languages.LanguagePreference
     android:key="customLanguageKey"
-    android:title="@string/preference_screen_title"
+    android:title="@string/action_settings"
     android:enabled="true"
     android:selectable="true" />
 </PreferenceCategory>

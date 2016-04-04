@@ -9,6 +9,10 @@
         android:title="@string/action_language_preference"
         android:orderInCategory="100"
         app:showAsAction="never" />
+    <item android:id="@+id/action_troubleshooting"
+        android:title="@string/action_troubleshooting"
+        android:orderInCategory="100"
+        app:showAsAction="never" />
     
     <item android:id="@+id/action_user_guide"
         android:title="@string/action_user_guide"

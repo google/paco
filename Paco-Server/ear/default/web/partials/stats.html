@@ -88,16 +88,20 @@
       <div class="summary" ng-if="stats && experiment && experiment.published">
 
         <div class="stat">
-          <b>{{experiment.publishedUsers.length}}</b> invited
+          <b>{{experiment.publishedUsers.length}}</b>
+          <div>invited</div>
         </div>
         <div class="stat">
-          <b>{{stats.count}}</b> joined
+          <b>{{stats.data.length}}</b>
+          <div>joined</div>
         </div>
         <div class="stat">
-         <b>{{stats.todayParticipantCount}}</b> participated today
+         <b>{{stats.dayParticipantCount}}</b>
+         <div>participated on {{statsDate | date:'MM/dd/yy' }}</div>
         </div>
         <div class="stat">
-          <b>{{1-(stats.todayParticipantCount/stats.count)|percent}}</b> non-responders today
+          <b>{{1-(stats.dayParticipantCount/stats.data.length)|percent}}</b>
+          <div> non-responders on {{statsDate | date:'MM/dd/yy' }}</div>
         </div>
       </div>
 
