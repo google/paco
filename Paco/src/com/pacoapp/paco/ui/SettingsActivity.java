@@ -82,22 +82,22 @@ public class SettingsActivity extends ActionBarActivity {
 
 
 
-    Button sendLogButton = (Button)findViewById(R.id.sendPacoLogButton);
-    sendLogButton.setOnClickListener(new OnClickListener() {
-      @Override
-      public void onClick(View v) {
-        launchLogSender();
-      }
-    });
-
-    Button debugEmsButton = (Button)findViewById(R.id.debugButton);
-    debugEmsButton.setOnClickListener(new OnClickListener() {
-
-      @Override
-      public void onClick(View v) {
-        launchDebug();
-      }
-    });
+//    Button sendLogButton = (Button)findViewById(R.id.sendPacoLogButton);
+//    sendLogButton.setOnClickListener(new OnClickListener() {
+//      @Override
+//      public void onClick(View v) {
+//        launchLogSender();
+//      }
+//    });
+//
+//    Button debugEmsButton = (Button)findViewById(R.id.debugButton);
+//    debugEmsButton.setOnClickListener(new OnClickListener() {
+//
+//      @Override
+//      public void onClick(View v) {
+//        launchDebug();
+//      }
+//    });
   }
 
 
@@ -111,40 +111,40 @@ public class SettingsActivity extends ActionBarActivity {
       return super.onOptionsItemSelected(item);
   }
 
-  protected void launchDebug() {
-    Intent startIntent = new Intent(this, ESMSignalViewer.class);
-    startActivity(startIntent);
-  }
+//  protected void launchDebug() {
+//    Intent startIntent = new Intent(this, ESMSignalViewer.class);
+//    startActivity(startIntent);
+//  }
 
-  private void launchLogSender() {
-    String log = readLog();
-    createEmailIntent(log);
-  }
+//  private void launchLogSender() {
+//    String log = readLog();
+//    createEmailIntent(log);
+//  }
+//
+//
+//  private void createEmailIntent(String log) {
+//    Intent emailIntent = new Intent(android.content.Intent.ACTION_SEND);
+//    emailIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, getString(R.string.email_subject_paco_feedback));
+//    emailIntent.setType("plain/text");
+//    emailIntent.putExtra(android.content.Intent.EXTRA_TEXT, log);
+//    startActivity(emailIntent);
+//  }
 
-
-  private void createEmailIntent(String log) {
-    Intent emailIntent = new Intent(android.content.Intent.ACTION_SEND);
-    emailIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, getString(R.string.email_subject_paco_feedback));
-    emailIntent.setType("plain/text");
-    emailIntent.putExtra(android.content.Intent.EXTRA_TEXT, log);
-    startActivity(emailIntent);
-  }
-
-  private String readLog() {
-    StringBuilder log = new StringBuilder();
-    try {
-      Process process = Runtime.getRuntime().exec("logcat -d");
-      BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-
-      String line;
-      while ((line = bufferedReader.readLine()) != null) {
-        log.append(line).append("\n");
-      }
-    } catch (IOException e) {
-      return null;
-    }
-    return log.toString();
-  }
+//  private String readLog() {
+//    StringBuilder log = new StringBuilder();
+//    try {
+//      Process process = Runtime.getRuntime().exec("logcat -d");
+//      BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+//
+//      String line;
+//      while ((line = bufferedReader.readLine()) != null) {
+//        log.append(line).append("\n");
+//      }
+//    } catch (IOException e) {
+//      return null;
+//    }
+//    return log.toString();
+//  }
 
   @SuppressLint("NewApi")
   private void launchAccountChooser() {

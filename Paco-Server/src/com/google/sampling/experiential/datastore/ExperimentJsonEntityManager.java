@@ -156,17 +156,28 @@ public class ExperimentJsonEntityManager {
       fromWebSafeString = Cursor.fromWebSafeString(cursor);
     }
     options = getFetchOptions(fromWebSafeString);
+    //options.chunkSize(2000);
 
     // preparedQuery.countEntities(getFetchOptions(cursor));
+    List<Pair<Long, String>> idJsons = Lists.newArrayList();
     QueryResultList<Entity> iterable = preparedQuery.asQueryResultList(options);
+    log.info("reading retrieved entity jsons");
     for (Entity experiment : iterable) {
       Text json = (Text) experiment.getProperty(DEFINITION_COLUMN);
       if (json != null) {
-        entities.add(json.getValue());
+        String value = json.getValue();
+        idJsons.add(new Pair<Long, String>(experiment.getKey().getId(), value));
       }
     }
-
     String newCursor = iterable.getCursor().toWebSafeString();
+    
+    log.info("repairing any missing ids");
+    for (Pair<Long, String> idJson : idJsons) {
+      String value = idJson.second;
+      value = reapplyIdIfFirstTime(value, idJson.first);
+      entities.add(value);
+    }
+    log.info("returning experiment jsons");
     Pair<String, List<String>> res = new Pair<String, List<String>>(newCursor, entities);
     return res;
   }

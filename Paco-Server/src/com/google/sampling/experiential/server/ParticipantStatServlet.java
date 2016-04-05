@@ -87,7 +87,7 @@ public class ParticipantStatServlet extends HttpServlet {
             List<ResponseStat> participationStats = ps.getDailyTotalsForParticipant(experimentId, whoParam);
             PrintWriter writer = resp.getWriter();
             ObjectMapper mapper = JsonConverter.getObjectMapper();
-            mapper.setDateFormat(new SimpleDateFormat("yyyy/MM/dd"));
+            //mapper.setDateFormat(new SimpleDateFormat("yyyy/MM/dd"));
             if (participationStats != null) {
               writer.write(mapper.writeValueAsString(participationStats));
             } else {
