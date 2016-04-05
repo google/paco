@@ -165,7 +165,7 @@ public class MyExperimentsActivity extends ActionBarActivity implements
 
     list = (ListView) findViewById(R.id.find_experiments_list);
     list.setBackgroundColor(333);
-    createListHeader();
+    
 
     invitationLayout = (LinearLayout)findViewById(R.id.announcementLayout);
     invitationExperimentName = (TextView)findViewById(R.id.invitationExperimentNameTextView);
@@ -339,6 +339,7 @@ public class MyExperimentsActivity extends ActionBarActivity implements
 //      this.startActivity(acctChooser);
     } else {
       reloadAdapter();
+      setListHeader();
       if (invitationLayout.getVisibility() == View.VISIBLE) {
         List<Experiment> unseen = removeJoinedExperiments(invitations);
         unseen = removeSeenInvitations(unseen);
@@ -410,7 +411,7 @@ public class MyExperimentsActivity extends ActionBarActivity implements
     }
   }
 
-  private TextView createListHeader() {
+  private TextView setListHeader() {
     TextView listHeader = (TextView) findViewById(R.id.ExperimentListTitle);
     String header = getString(R.string.your_current_experiments);
     listHeader.setText(header);
