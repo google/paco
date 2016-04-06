@@ -320,6 +320,11 @@ public class NotificationCreator {
       expirationTimeInMillis = Integer.parseInt(PacoNotificationAction.ESM_SIGNAL_TIMEOUT);
     }
 
+    String messageText = action.getMsgText() != null ? action.getMsgText() : null;
+    if (Strings.isNullOrEmpty(messageText) || (!Strings.isNullOrEmpty(messageText) && messageText.equals(PacoNotificationAction.DEFAULT_NOTIFICATION_MSG))) {
+      messageText = context.getString(R.string.time_to_participate_notification_text);
+    }
+                                
     NotificationHolder notificationHolder = new NotificationHolder(
                                                                    timeExperiment.time.getMillis(),
                                                                    timeExperiment.experiment.getId(),
@@ -329,11 +334,10 @@ public class NotificationCreator {
                                                                    timeExperiment.actionTrigger.getId(),
                                                                    action.getId(),
                                                                    null,
-                                                                   action.getMsgText() != null ? action.getMsgText()
-                                                                                              : context.getString(R.string.time_to_participate_notification_text),
+                                                                   messageText,
                                                                    timeExperiment.actionTriggerSpecId);
     experimentProviderUtil.insertNotification(notificationHolder);
-    fireNotification(context, notificationHolder, timeExperiment.experiment.getTitle(), action.getMsgText(),
+    fireNotification(context, notificationHolder, timeExperiment.experiment.getTitle(), messageText,
                      timeExperiment.experiment.getRingtoneUri(), action.getColor(), action.getDismissible());
     return notificationHolder;
   }

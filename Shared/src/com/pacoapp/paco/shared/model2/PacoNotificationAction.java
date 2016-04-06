@@ -3,6 +3,7 @@ package com.pacoapp.paco.shared.model2;
 
 public class PacoNotificationAction extends PacoAction {
 
+  public static final String DEFAULT_NOTIFICATION_MSG = "Time to participate";
   public static final int SNOOZE_TIME_DEFAULT = 600000; // 10 minutes (10min * 60sec * 1000ms)
   public static final int SNOOZE_COUNT_DEFAULT = 0;
   public static final String TRIGGER_SIGNAL_TIMEOUT = "59";
@@ -35,7 +36,7 @@ public class PacoNotificationAction extends PacoAction {
   }
 
   public PacoNotificationAction() {
-    this(SNOOZE_COUNT_DEFAULT, SNOOZE_TIME_DEFAULT, Integer.parseInt(ESM_SIGNAL_TIMEOUT), DEFAULT_NOTIFICATION_DELAY, "Time to participate", DEFAULT_COLOR, DEFAULT_DISMISSIBLE);
+    this(SNOOZE_COUNT_DEFAULT, SNOOZE_TIME_DEFAULT, Integer.parseInt(ESM_SIGNAL_TIMEOUT), DEFAULT_NOTIFICATION_DELAY, DEFAULT_NOTIFICATION_MSG, DEFAULT_COLOR, DEFAULT_DISMISSIBLE);
   }
 
   public Integer getTimeout() {
