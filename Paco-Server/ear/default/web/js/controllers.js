@@ -450,6 +450,8 @@ pacoApp.controller('DataCtrl', ['$scope', '$mdDialog', '$location', '$filter',
     $scope.photoHeader = 'data:image/jpeg;base64,';
     $scope.photoMarker = '/9j/';
     $scope.statsDate = new Date();
+    $scope.groupNames = [];
+    $scope.showGroup = 'all';
 
     $scope.switchView = function() {
       var newPath = $scope.currentView + '/' + $scope.experimentId;
@@ -566,7 +568,7 @@ pacoApp.controller('DataCtrl', ['$scope', '$mdDialog', '$location', '$filter',
       $scope.stats = null;
       $scope.currentView = 'stats';
 
-      dataService.getParticipantStats($scope.experimentId, $scope.statsDate, $scope.restrict).
+      dataService.getParticipantStats($scope.experimentId, $scope.statsDate, $scope.restrict, $scope.showGroup).
       then(function(result) {
 
         if (result.data) {
@@ -622,6 +624,9 @@ pacoApp.controller('DataCtrl', ['$scope', '$mdDialog', '$location', '$filter',
     experimentService.getExperiment($scope.experimentId).then(
       function(response) {
         $scope.experiment = response.data.results[0];
+        for (var i = 0; i < $scope.experiment.groups.length; i++) {
+          $scope.groupNames.push($scope.experiment.groups[i].name);
+        }
       });
 
     $scope.$watchCollection('showColumn', function(newVal, oldVal) {
