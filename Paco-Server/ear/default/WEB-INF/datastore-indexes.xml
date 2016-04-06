@@ -113,6 +113,12 @@
     <property name="user_id" direction="asc" />
     <property name="experimentId" direction="asc" />
   </datastore-index>
+  <datastore-index kind="Event" ancestor="false" source="manual">
+        <property name="experimentGroupName" direction="asc"/>
+        <property name="experimentId" direction="asc"/>
+        <property name="when" direction="desc"/>
+    </datastore-index>
+    
 </datastore-indexes>
 
 
