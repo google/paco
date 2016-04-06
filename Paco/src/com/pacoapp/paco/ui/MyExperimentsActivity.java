@@ -37,7 +37,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
-import android.content.res.Configuration;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -152,7 +151,9 @@ public class MyExperimentsActivity extends ActionBarActivity implements
     userPrefs = new UserPreferences(this);
     progressBar = (ProgressBar)findViewById(R.id.findExperimentsProgressBar);
 
-
+    FragmentManager supportFragmentManager = getSupportFragmentManager();
+    mNavigationDrawerFragment = (NavigationDrawerFragment) supportFragmentManager.findFragmentById(R.id.navigation_drawer);
+    
 
     list = (ListView) findViewById(R.id.find_experiments_list);
     list.setBackgroundColor(333);
@@ -336,8 +337,6 @@ public class MyExperimentsActivity extends ActionBarActivity implements
       actionBar.setDisplayShowHomeEnabled(true);
       actionBar.setBackgroundDrawable(new ColorDrawable(0xff4A53B3));
 
-      FragmentManager supportFragmentManager = getSupportFragmentManager();
-      mNavigationDrawerFragment = (NavigationDrawerFragment) supportFragmentManager.findFragmentById(R.id.navigation_drawer);
       
       mNavigationDrawerFragment.setUp(R.id.navigation_drawer, (DrawerLayout) findViewById(R.id.drawer_layout));
       navDrawerList = (ListView)mNavigationDrawerFragment.getView().findViewById(R.id.navDrawerList);
