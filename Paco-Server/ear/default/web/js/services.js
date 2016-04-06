@@ -204,13 +204,15 @@ pacoApp.service('dataService', ['$http', '$timeout', '$q', 'config',
       for (var i = 0; i < data.length; i++) {
         stats.order[data[i].who] = i;
         stats.data[i] = {'who': data[i].who};
+        stats.data[i]['totalSignalMissCount'] = data[i]['missedR'];
         stats.data[i]['totalSignalResponseCount'] = data[i]['schedR'];
         stats.data[i]['totalSelfReportCount'] = data[i]['selfR'];
         stats.data[i]['totalSignalCount'] = data[i]['schedR'] + data[i]['missedR'];
+        stats.data[i]['daySignalMissCount'] = 0;
         stats.data[i]['daySignalResponseCount'] = 0;
         stats.data[i]['daySelfReportCount'] = 0;
         stats.data[i]['daySignalCount'] = 0;
-
+        stats.data[i]['lastContactDateTime'] = data[i]['lastContactDateTime'];
       }
     }
 
@@ -225,6 +227,8 @@ pacoApp.service('dataService', ['$http', '$timeout', '$q', 'config',
         var colId = stats.order[who];
 
         stats.date = data[i].date;
+
+        stats.data[colId]['daySignalMissCount'] = data[i]['missedR'];
         stats.data[colId]['daySignalResponseCount'] = data[i]['schedR'];
         stats.data[colId]['daySelfReportCount'] = data[i]['selfR'];
         stats.data[colId]['daySignalCount'] = data[i]['schedR'] + data[i]['missedR'];
@@ -255,14 +259,20 @@ pacoApp.service('dataService', ['$http', '$timeout', '$q', 'config',
         });
     }
 
-    function getParticipantStats(id, date, user) {
+    function getParticipantStats(id, date, user, group) {
       if (user) {
-        return getUserStats(id, user);
+        return getUserStats(id, user, group);
       }
 
       var defer = $q.defer();
-      var endpoint1 = 'participantStats?experimentId=' + id + '&statv2=1&reportType=date&date=' + statsDate(date);
-      var endpoint2 = 'participantStats?experimentId=' + id + '&statv2=1&reportType=total';
+      var endpointBase = 'participantStats?experimentId=' + id + '&statv2=1';
+
+      if (group != 'all') {
+        endpointBase += '&experimentGroupName=' + escape(group);
+      }
+
+      var endpoint1 = endpointBase + '&reportType=date&date=' + statsDate(date);
+      var endpoint2 = endpointBase + '&reportType=total';
 
       var stats = {};
       stats.data = [];
@@ -286,14 +296,16 @@ pacoApp.service('dataService', ['$http', '$timeout', '$q', 'config',
     * Gets stats data from PACO server endpoint. Iterates over data to
     * compute the total participant count for today and all time.
     */
-    function getUserStats(id, user) {
+    function getUserStats(id, user, group) {
 
       var defer = $q.defer();
-      var endpoint = 'participantStats?experimentId=' + id;
+      var endpoint = 'participantStats?experimentId=' + id + '&reportType=user&statv2=1'
       if (user) {
         endpoint += '&who=' + user;
-      } else {
-        endpoint += '';
+      }
+
+      if (group != 'all') {
+        endpoint += '&experimentGroupName=' + escape(group);
       }
 
       $http.get(endpoint).success(
@@ -323,6 +335,7 @@ pacoApp.service('dataService', ['$http', '$timeout', '$q', 'config',
         		  data.signaledResponseCount += data[i].schedR;
         		  data.missedResponseCount += data[i].missedR;
         		  data.selfReportResponseCount += data[i].selfR;
+              data[i].signals = data[i].missedR + data[i].schedR;
         	  }
         	  data.totalSignalCount = data.signaledResponseCount + data.missedResponseCount;
         	  if ((data.totalSignalCount) > 0) {
