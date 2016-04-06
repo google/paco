@@ -37,10 +37,12 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.content.res.Configuration;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.provider.Settings;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
@@ -143,37 +145,27 @@ public class MyExperimentsActivity extends ActionBarActivity implements
     setContentView(mainLayout);
 
 
-    ActionBar actionBar = getSupportActionBar();
-    actionBar.setLogo(R.drawable.ic_launcher);
-    actionBar.setDisplayUseLogoEnabled(true);
-    actionBar.setDisplayShowHomeEnabled(true);
-    actionBar.setBackgroundDrawable(new ColorDrawable(0xff4A53B3));
-
-
-    // Set up the drawer.
-    mNavigationDrawerFragment = (NavigationDrawerFragment) getSupportFragmentManager().findFragmentById(R.id.navigation_drawer);
-    mNavigationDrawerFragment.setUp(R.id.navigation_drawer, (DrawerLayout) findViewById(R.id.drawer_layout));
-
-    navDrawerList = (ListView)mNavigationDrawerFragment.getView().findViewById(R.id.navDrawerList);
-    progressBar = (ProgressBar)findViewById(R.id.findExperimentsProgressBar);
-
 
     // TODO would this work if it is in the Systemchangereceiver ?
     new RingtoneUtil(this).installPacoBarkRingtone();
 
     userPrefs = new UserPreferences(this);
+    progressBar = (ProgressBar)findViewById(R.id.findExperimentsProgressBar);
+
+
 
     list = (ListView) findViewById(R.id.find_experiments_list);
     list.setBackgroundColor(333);
-    createListHeader();
+    experimentProviderUtil = new ExperimentProviderUtil(this);
+    
+    // Set up the drawer.
+    
+    
 
     invitationLayout = (LinearLayout)findViewById(R.id.announcementLayout);
     invitationExperimentName = (TextView)findViewById(R.id.invitationExperimentNameTextView);
     invitationContactTextView = (TextView)findViewById(R.id.invitationContactTextView);
-    invitationCloseButton = (ImageButton)findViewById(R.id.invitationAnnouncementCloseButton);
- 
-    experimentProviderUtil = new ExperimentProviderUtil(this);
-    registerForContextMenu(list);
+    invitationCloseButton = (ImageButton)findViewById(R.id.invitationAnnouncementCloseButton);    
   }
 
   @Override
@@ -338,16 +330,37 @@ public class MyExperimentsActivity extends ActionBarActivity implements
 //      Intent acctChooser = new Intent(this, AccountChooser.class);
 //      this.startActivity(acctChooser);
     } else {
+      ActionBar actionBar = getSupportActionBar();
+      actionBar.setLogo(R.drawable.ic_launcher);
+      actionBar.setDisplayUseLogoEnabled(true);
+      actionBar.setDisplayShowHomeEnabled(true);
+      actionBar.setBackgroundDrawable(new ColorDrawable(0xff4A53B3));
+
+      FragmentManager supportFragmentManager = getSupportFragmentManager();
+      mNavigationDrawerFragment = (NavigationDrawerFragment) supportFragmentManager.findFragmentById(R.id.navigation_drawer);
+      
+      mNavigationDrawerFragment.setUp(R.id.navigation_drawer, (DrawerLayout) findViewById(R.id.drawer_layout));
+      navDrawerList = (ListView)mNavigationDrawerFragment.getView().findViewById(R.id.navDrawerList);
+      
       reloadAdapter();
+      setListHeader();
       if (invitationLayout.getVisibility() == View.VISIBLE) {
         List<Experiment> unseen = removeJoinedExperiments(invitations);
         unseen = removeSeenInvitations(unseen);
         invitations = unseen;
         showInvitations(unseen);
       }
+      registerForContextMenu(list);
     }
   }
 
+
+  @Override
+  protected void onPause() {
+    super.onPause();
+    unregisterForContextMenu(list);
+  }
+  
   private void showDataForExperiment(Experiment experiment, List<ExperimentGroup> groups) {
     Intent experimentIntent = null;
     if (groups.size() > 1) {
@@ -410,7 +423,7 @@ public class MyExperimentsActivity extends ActionBarActivity implements
     }
   }
 
-  private TextView createListHeader() {
+  private TextView setListHeader() {
     TextView listHeader = (TextView) findViewById(R.id.ExperimentListTitle);
     String header = getString(R.string.your_current_experiments);
     listHeader.setText(header);
