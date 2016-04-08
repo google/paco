@@ -247,7 +247,7 @@ public class ScheduleListActivity extends ActionBarActivity implements ScheduleL
 
     //event.addResponse(createOutput("joined", "true"));
 
-    event.addResponse(createOutput("schedule", createSchedulesString()));
+    event.addResponse(createOutput("schedule", SchedulePrinter.createStringOfAllSchedules(experiment.getExperimentDAO())));
 
     if (experiment.getExperimentDAO().getRecordPhoneDetails()) {
       Display defaultDisplay = getWindowManager().getDefaultDisplay();
@@ -263,30 +263,6 @@ public class ScheduleListActivity extends ActionBarActivity implements ScheduleL
     }
 
     experimentProviderUtil.insertEvent(event);
-  }
-
-  public String createSchedulesString() {
-    StringBuffer buf = new StringBuffer();
-    List<ExperimentGroup> groups = experiment.getExperimentDAO().getGroups();
-    boolean firstItem = true;
-    for (ExperimentGroup experimentGroup : groups) {
-      List<ActionTrigger> actionTriggers = experimentGroup.getActionTriggers();
-      for (ActionTrigger actionTrigger : actionTriggers) {
-        if (actionTrigger instanceof ScheduleTrigger) {
-          List<Schedule> schedules = ((ScheduleTrigger)actionTrigger).getSchedules();
-
-          for (Schedule schedule : schedules) {
-            if (firstItem) {
-              firstItem = false;
-            } else {
-              buf.append("; ");
-            }
-            buf.append(SchedulePrinter.toString(schedule));
-          }
-        }
-      }
-    }
-    return buf.toString();
   }
 
   private Output createOutput(String key, String answer) {

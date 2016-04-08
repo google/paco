@@ -186,7 +186,7 @@ public class ScheduleListFragment extends ListFragment {
             ScheduleTrigger scheduleTrigger = (ScheduleTrigger) actionTrigger;
             List<Schedule> schedules = scheduleTrigger.getSchedules();
             for (Schedule schedule : schedules) {
-              final String scheduleDescription = SchedulePrinter.toString(schedule);
+              final String scheduleDescription = SchedulePrinter.toPrettyString(schedule);
               ScheduleBundle sb = new ScheduleBundle(experimentGroup2, scheduleTrigger, schedule);
               scheduleMap.put(scheduleDescription, sb);
               scheduleDescriptions.add(scheduleDescription);

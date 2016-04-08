@@ -1,18 +1,66 @@
 package com.pacoapp.paco.shared.util;
 
+import java.util.List;
+
 import org.joda.time.DateMidnight;
 import org.joda.time.DateTime;
 
+import com.google.common.base.Joiner;
+import com.google.common.collect.Lists;
+import com.pacoapp.paco.shared.model2.ActionTrigger;
+import com.pacoapp.paco.shared.model2.ExperimentDAO;
+import com.pacoapp.paco.shared.model2.ExperimentGroup;
 import com.pacoapp.paco.shared.model2.Schedule;
+import com.pacoapp.paco.shared.model2.ScheduleTrigger;
 import com.pacoapp.paco.shared.model2.SignalTime;
 
 public class SchedulePrinter {
 
   public static final String[] DAYS_SHORT_NAMES = new String[] { "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat" };
 
-  public static String toString(Schedule schedule) {
-    StringBuilder buf = new StringBuilder();
+  public static String createStringOfAllSchedules(ExperimentDAO experiment) {
+    List<String> groupStrings = Lists.newArrayList();
+    
+    List<ExperimentGroup> groups = experiment.getGroups();    
+    for (ExperimentGroup experimentGroup : groups) {      
+      List<String> triggerStrings = Lists.newArrayList();
+      List<ActionTrigger> actionTriggers = experimentGroup.getActionTriggers();
+      for (ActionTrigger actionTrigger : actionTriggers) {
+        if (actionTrigger instanceof ScheduleTrigger) {          
+          ScheduleTrigger scheduleTrigger = (ScheduleTrigger)actionTrigger;
+          
+          List<String> scheduleStrings = Lists.newArrayList();
+          List<Schedule> schedules = scheduleTrigger.getSchedules();
+          for (Schedule schedule : schedules) {
+            scheduleStrings.add(SchedulePrinter.toString(schedule));
+          }
+          String concatenatedStrings = Joiner.on(", ").skipNulls().join(scheduleStrings);          
+          triggerStrings.add(scheduleTrigger.getId() +  
+                                                ":(" + 
+                  concatenatedStrings + 
+                  ")");
+        }
+      }
+      String concatenatedTriggers = Joiner.on(" | ").skipNulls().join(triggerStrings);
+      groupStrings.add(experimentGroup.getName() + 
+                       ":[" +
+              concatenatedTriggers + "]");         
+    }
+    return Joiner.on(", ").skipNulls().join(groupStrings);
+  }
 
+  
+  public static String toString(Schedule schedule) {
+    return buildString(schedule, true);
+  }
+
+
+  private static String buildString(Schedule schedule, boolean includeIds) {
+    StringBuilder buf = new StringBuilder();
+    if (includeIds) {
+      buf.append(schedule.getId());
+      buf.append(":");
+    }
     if (schedule.getScheduleType().equals(Schedule.WEEKDAY)
             || schedule.getScheduleType().equals(Schedule.DAILY)) {
       dailyScheduleToString(buf, schedule);
@@ -25,6 +73,11 @@ public class SchedulePrinter {
     }
     return buf.toString();
   }
+  
+  public static String toPrettyString(Schedule schedule) {
+    return buildString(schedule, false);
+  }
+
 
   private static void dailyScheduleToString(StringBuilder buf, Schedule schedule) {
     final Integer repeatRate = schedule.getRepeatRate();
