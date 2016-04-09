@@ -79,7 +79,7 @@ class PacoConsentFormViewController: UIViewController {
 
         if   arrayOfCells != nil && arrayOfCells?.isEmpty == false   {
         
-            let  editor =  ScheduleEditor(nibName:"ScheduleEditor",bundle:nil)
+        let  editor =  ScheduleEditor(nibName:"ScheduleEditor",bundle:nil)
             
             editor.cells = arrayOfCells!
             editor.experiment = experiment

@@ -7,7 +7,10 @@
 //
 
 #import <UIKit/UIKit.h>
+@class PAExperimentDAO;
 
 @interface PacoViewController : UIViewController
+@property (weak, nonatomic) IBOutlet UITextView *summary;
+@property (strong, nonatomic)  PAExperimentDAO *experiment;
 
 @end

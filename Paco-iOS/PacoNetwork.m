@@ -23,7 +23,7 @@
 static NSString* const kPacoNotificationSystemTurnedOn = @"paco_notification_system_turned_on";
 static NSString* const kPacoServerConfigAddress = @"paco_server_configuration_address";
 static NSString* const kPacoProductionServerAddress = @"quantifiedself.appspot.com";
-static NSString* const kPacoLocalServerAddress = @"127.0.0.1";
+static NSString* const kPacoLocalServerAddress = @"127.0.0.1:8888";  //@"127.0.0.1";
 static NSString* const kPacoStagingServerAddress = @"quantifiedself-staging.appspot.com";
 
 @interface PacoNetwork()

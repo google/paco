@@ -69,7 +69,14 @@
 
   // Authenticate
     [GTMHTTPFetcher setLoggingEnabled:YES];
-  GTMHTTPFetcher *fetcher = [[GTMHTTPFetcher alloc] initWithRequest:request];
+   GTMHTTPFetcher *fetcher = [[GTMHTTPFetcher alloc] initWithRequest:request];
+    fetcher.allowLocalhostRequest = YES;
+    
+    
+    fetcher.allowedInsecureSchemes = @[ @"http"];
+    
+    
+    
   [self authenticateRequest:request withFetcher:fetcher];
   fetcher.delegateQueue = [NSOperationQueue mainQueue];
 
@@ -297,16 +304,101 @@
   // Serialize to JSON for the request body.
   NSMutableArray* body = [NSMutableArray arrayWithCapacity:[eventList count]];
   for (PacoEventExtended* event in eventList) {
-    id jsonObject = [event payloadJsonWithImageString];
+      id jsonObject = event; //  [event payloadJsonWithImageString];
+      
+      
     NSAssert(jsonObject != nil, @"jsonObject should NOT be nil!");
-    [body addObject:jsonObject];
+    NSAssert( [NSJSONSerialization isValidJSONObject:jsonObject], @"must be valid json object" );
+      
+      
+      NSMutableDictionary* parsedDictionary = [[NSMutableDictionary alloc] init];
+      
+      
+      
+      for (NSString* key in jsonObject) {
+          id object = [jsonObject objectForKey:key];
+          
+          if(![object isEqual:[NSNull null]])
+          {
+              
+              /* remove leading underscore if there is one */
+              
+              NSString *jsnName = nil;
+              if( [key characterAtIndex:0] == '_')
+              {
+               
+                  jsnName = [key substringFromIndex:1];
+              }
+              else
+              {
+                  
+                  jsnName  = key;
+                  
+              }
+              
+              
+              if(![jsnName isEqualToString:@"responseTime"])
+              {
+                  [parsedDictionary setObject:object  forKey:jsnName];
+              }
+              else
+              {
+                  
+                  NSDate *today = [NSDate date];
+                  NSDateFormatter *dateFormat = [[NSDateFormatter alloc] init];
+                  [dateFormat setDateFormat:@"yyyy/MM/dd HH:mm:ssZ"];
+                  NSString *dateString = [dateFormat stringFromDate:today];
+                  [parsedDictionary setObject:dateString  forKey:jsnName];
+      
+                  
+              }
+              
+              
+          }
+      }
+      
+      
+ 
+
+      
+      /* delete this
+      [jsonObject removeObjectForKey:@"_responses"];
+       [jsonObject removeObjectForKey:@"responses"];
+       [jsonObject removeObjectForKey:@"actionSpecification"];
+       [jsonObject removeObjectForKey:@"actionTriggerId"];
+       [jsonObject removeObjectForKey:@"actionId"];
+       [jsonObject removeObjectForKey:@"latitude"];
+       [jsonObject removeObjectForKey:@"longitude"];
+      [jsonObject removeObjectForKey:@"actionId"];
+      [jsonObject removeObjectForKey:@"scheduleId"];
+      [jsonObject removeObjectForKey:@"scheduleId"];
+      [jsonObject removeObjectForKey:@"when"];
+      [jsonObject removeObjectForKey:@"responseTime"];
+      */
+      
+      /* delete this */
+      
+    [body addObject:parsedDictionary];
   }
   
    
   NSError *jsonError = nil;
-  NSData *jsonData = [NSJSONSerialization dataWithJSONObject:body
+    
+    
+   BOOL isValid =  [NSJSONSerialization isValidJSONObject:body];
+   NSData *jsonData = [NSJSONSerialization dataWithJSONObject:body
                                                      options:NSJSONWritingPrettyPrinted
                                                        error:&jsonError];
+    
+    
+    
+    
+    NSError *e = nil;
+    id   json = [NSJSONSerialization JSONObjectWithData:jsonData options:NSJSONReadingMutableContainers error:&e];
+    NSLog(@"%@", json);
+    
+    
+    
   
   [request setValue:@"application/json" forHTTPHeaderField:@"Content-Type"];
   [request setValue:[NSString stringWithFormat:@"%lu", (unsigned long)[jsonData length]]

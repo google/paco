@@ -14,4 +14,8 @@
 -(BOOL) isGreaterThan:(OrgJodaTimeDateTime*) otherTime;
 -(BOOL) isLessThan:(OrgJodaTimeDateTime*) otherTime;
 
+-(NSString*) dateTimeFormated;
+
+
+
 @end

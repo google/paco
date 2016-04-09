@@ -7,6 +7,7 @@
     <objects>
         <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="PacoViewController">
             <connections>
+                <outlet property="summary" destination="Fbx-Nv-nct" id="4QE-3e-V3d"/>
                 <outlet property="view" destination="i5M-Pr-FkT" id="sfx-zR-JGt"/>
             </connections>
         </placeholder>
@@ -15,44 +16,31 @@
             <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
             <subviews>
-                <stackView opaque="NO" contentMode="scaleToFill" fixedFrame="YES" axis="vertical" translatesAutoresizingMaskIntoConstraints="NO" id="hC8-p4-5ZO">
-                    <rect key="frame" x="267" y="251" width="30" height="30"/>
-                    <subviews>
-                        <stackView opaque="NO" contentMode="scaleToFill" ambiguous="YES" axis="vertical" translatesAutoresizingMaskIntoConstraints="NO" id="QUb-lE-Sim">
-                            <rect key="frame" x="0.0" y="0.0" width="30" height="30"/>
-                            <subviews>
-                                <stackView opaque="NO" contentMode="scaleToFill" ambiguous="YES" axis="vertical" translatesAutoresizingMaskIntoConstraints="NO" id="4Cr-xA-ZZb">
-                                    <rect key="frame" x="0.0" y="0.0" width="30" height="30"/>
-                                    <subviews>
-                                        <stackView opaque="NO" contentMode="scaleToFill" ambiguous="YES" axis="vertical" translatesAutoresizingMaskIntoConstraints="NO" id="gbW-8V-3IO">
-                                            <rect key="frame" x="0.0" y="0.0" width="30" height="30"/>
-                                            <subviews>
-                                                <stackView opaque="NO" contentMode="scaleToFill" ambiguous="YES" axis="vertical" translatesAutoresizingMaskIntoConstraints="NO" id="0NH-o2-7Ss">
-                                                    <rect key="frame" x="0.0" y="0.0" width="30" height="30"/>
-                                                    <subviews>
-                                                        <button opaque="NO" contentMode="scaleToFill" ambiguous="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="vqP-WC-fG6">
-                                                            <rect key="frame" x="0.0" y="0.0" width="30" height="30"/>
-                                                            <state key="normal" title="Go"/>
-                                                            <connections>
-                                                                <action selector="go:" destination="-1" eventType="touchUpInside" id="1fH-aD-OUW"/>
-                                                            </connections>
-                                                        </button>
-                                                    </subviews>
-                                                    <constraints>
-                                                        <constraint firstItem="vqP-WC-fG6" firstAttribute="centerX" secondItem="0NH-o2-7Ss" secondAttribute="centerX" id="CVN-6u-UIR"/>
-                                                        <constraint firstItem="vqP-WC-fG6" firstAttribute="centerY" secondItem="0NH-o2-7Ss" secondAttribute="centerY" id="czU-Rz-mnK"/>
-                                                    </constraints>
-                                                </stackView>
-                                            </subviews>
-                                        </stackView>
-                                    </subviews>
-                                </stackView>
-                            </subviews>
-                        </stackView>
-                    </subviews>
-                </stackView>
+                <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="vqP-WC-fG6">
+                    <rect key="frame" x="285" y="19" width="30" height="30"/>
+                    <state key="normal" title="Go"/>
+                    <connections>
+                        <action selector="go:" destination="-1" eventType="touchUpInside" id="1fH-aD-OUW"/>
+                    </connections>
+                </button>
+                <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" textAlignment="natural" translatesAutoresizingMaskIntoConstraints="NO" id="Fbx-Nv-nct">
+                    <rect key="frame" x="150" y="73" width="300" height="478"/>
+                    <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                    <constraints>
+                        <constraint firstAttribute="height" constant="478" id="6Td-fD-Ikl"/>
+                        <constraint firstAttribute="width" constant="300" id="mzl-yU-px9"/>
+                    </constraints>
+                    <string key="text">Lorem ipsum dolor sit er elit lamet, consectetaur cillium adipisicing pecu, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Nam liber te conscient to factor tum poen legum odioque civiuda.</string>
+                    <fontDescription key="fontDescription" type="system" pointSize="12"/>
+                    <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
+                </textView>
             </subviews>
             <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
+            <constraints>
+                <constraint firstItem="Fbx-Nv-nct" firstAttribute="centerY" secondItem="i5M-Pr-FkT" secondAttribute="centerY" constant="12" id="BTQ-Oc-ttz"/>
+                <constraint firstItem="Fbx-Nv-nct" firstAttribute="centerX" secondItem="i5M-Pr-FkT" secondAttribute="centerX" id="Udi-CC-3GH"/>
+            </constraints>
+            <point key="canvasLocation" x="-8" y="236"/>
         </view>
     </objects>
 </document>

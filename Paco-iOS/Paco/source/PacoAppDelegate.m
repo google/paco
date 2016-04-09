@@ -276,7 +276,9 @@ static NSString * const kClientID =
     
     
        // self.window.rootViewController = self.responseMessageController ;
-        self.window.rootViewController = self.goController ;
+      //  self.window.rootViewController = self.goController ;
+    
+     self.window.rootViewController = self.tabBar ;
        [self.window makeKeyAndVisible];
     
     

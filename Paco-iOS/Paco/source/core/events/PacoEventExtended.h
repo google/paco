@@ -67,6 +67,7 @@ typedef NS_ENUM(NSInteger, PacoEventTypeExtended) {
 
  
 + (PacoEventExtended*)joinEventForActionSpecificatonWithServerExperimentId:(PAExperimentDAO*) actionSpecification serverExperimentId:(NSString*) serverExperimentId;
+
 + (PacoEventExtended*)joinEventForActionSpecificaton:(PAActionSpecification*) actionSpecification;
 
 + (PacoEventExtended*)selfReportEventForDefinition:(PAExperimentDAO*)definition
@@ -74,8 +75,11 @@ typedef NS_ENUM(NSInteger, PacoEventTypeExtended) {
 + (PacoEventExtended*)surveySubmittedEventForDefinition:(PAExperimentDAO*)definition
                                      withInputs:(NSArray*)inputs
                                andScheduledTime:(NSDate*)scheduledTime;
+
 + (PacoEventExtended*)surveyMissedEventForDefinition:(PAExperimentDAO*)definition
                            withScheduledTime:(NSDate*)scheduledTime;
+
+
 + (PacoEventExtended*)surveyMissedEventForDefinition:(PAExperimentDAO*)definition
                            withScheduledTime:(NSDate*)scheduledTime
                                    userEmail:(NSString*)userEmail;

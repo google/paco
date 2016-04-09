@@ -610,6 +610,7 @@ finishedRefreshWithFetcher:(GTMOAuth2Fetcher *)fetcher
       userInfo = [NSDictionary dictionaryWithObject:request
                                              forKey:kGTMOAuth2ErrorRequestKey];
     }
+      
     NSInteger code = (isAuthorizableRequest ?
                       kGTMOAuth2ErrorAuthorizationFailed :
                       kGTMOAuth2ErrorUnauthorizableRequest);

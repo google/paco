@@ -11,6 +11,7 @@ import UIKit
     
     
    public  override func viewDidLoad() {
+    
         self.tableView.rowHeight = UITableViewAutomaticDimension
         self.tableView.estimatedRowHeight = 44
     
@@ -18,16 +19,37 @@ import UIKit
      let n: Int! = self.navigationController?.viewControllers.count
     
     if  n == 4 {
+        
+        
+        let  leftAddBarButtonItem:UIBarButtonItem = UIBarButtonItem(title: "Cancel", style: UIBarButtonItemStyle.Plain, target: self, action:"doneButton:")
+        
+        
+        let  rightAddBarButtonItem:UIBarButtonItem = UIBarButtonItem(title: "Next", style: UIBarButtonItemStyle.Plain, target: self, action:"nextTaped:")
+        
+        //IBarButtonItem(image:UIImage(named:"key.png"), style:.Plain, target:self, action:#selector(navigate))
+        
+        self.navigationItem.setRightBarButtonItems([rightAddBarButtonItem], animated: true)
+        self.navigationItem.setLeftBarButtonItems([leftAddBarButtonItem], animated: true)
+        
+        
      isWizard = true
+        
+        /*
         
         let  doneButton = UIBarButtonItem(title: "Done", style: UIBarButtonItemStyle.Plain, target: self, action: "doneButton:")
         navigationItem.rightBarButtonItem = doneButton
         
         let  cancelButton = UIBarButtonItem(title: "Cancel", style: UIBarButtonItemStyle.Plain, target: self, action: "cancelButton:")
         navigationItem.leftBarButtonItem = cancelButton
+      */
+        
+        
         
     }
     else {
+        
+        
+        
      isWizard = false
     }
     
@@ -37,6 +59,29 @@ import UIKit
     
  
     }
+    
+    
+    
+    
+     func backTaped(sender:UIBarButtonItem!)
+    {
+        print ("back taped super")
+    }
+    
+    
+     func nextTaped(sender:UIBarButtonItem!)
+    {
+        
+        var  pacoViewController:PacoViewController  = PacoViewController(nibName: "PacoViewController", bundle: nil)
+        pacoViewController.experiment = self.experiment
+        self.navigationController!.pushViewController(pacoViewController, animated: false)
+        
+        
+    }
+    
+    
+    
+    
     
     
     func backThree() {

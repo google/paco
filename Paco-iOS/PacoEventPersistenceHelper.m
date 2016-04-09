@@ -18,7 +18,7 @@
 #import "NSDate+PacoTimeZoneHelper.h"
 #import "EventRecord+CoreDataProperties.h" 
 #import "EventRecord.h"
-
+ 
 
 @interface PacoEventPersistenceHelper()
 
@@ -97,11 +97,14 @@
 }
 
 
--(void) markUploaded:(id<PAEventInterface>)correspondingEvent
+-(void) markUploaded:(NSDictionary* )correspondingEvent
 {
      EventRecord*  record   = [self fetchRecord:correspondingEvent];
-     record.isUploaded = [NSNumber numberWithBool:YES];
     
+    
+     record.isUploaded = [NSNumber numberWithBool:YES];
+    NSError* error;
+    [_context save:&error];
     
 }
 
@@ -255,7 +258,7 @@
     
     fetchRequest = [[NSFetchRequest alloc] init];
     entity = [NSEntityDescription entityForName:@"EventRecord" inManagedObjectContext:self.context];
-    predicate =  [NSPredicate predicateWithFormat:@"guid==%@", theEvent.guid];
+    predicate =  [NSPredicate predicateWithFormat:@"guid==%@", correspondingEvent[@"_guid"]];
 
     [fetchRequest setPredicate:predicate];
     [fetchRequest setEntity:entity];
@@ -269,7 +272,7 @@
 -(NSArray*) eventsForUpload
 {
     
- 
+    
     
     NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
     NSEntityDescription *entity = [NSEntityDescription entityForName:@"EventRecord" inManagedObjectContext:self.context];
@@ -280,8 +283,8 @@
     NSError *error;
     NSArray *eventRecords = [self.context executeFetchRequest:fetchRequest error:&error];
     NSMutableArray* mutableArray = [NSMutableArray new];
-    
-     NSArray* array = [PacoSerializeUtil getClassNames];
+    /* refactor we don't want to init the class names more than once */
+    NSArray* array = [PacoSerializeUtil getClassNames];
     PacoSerializer * serializer = [[PacoSerializer alloc] initWithArrayOfClasses:array withNameOfClassAttribute:@"nameOfClass"];
     
     [serializer addNoneDomainClass:[PacoEventExtended new]];
@@ -294,6 +297,45 @@
         IOSObjectArray * iosArray = [resultArray toArray];
         PacoEventExtended  * event =  [iosArray objectAtIndex:0];
         [mutableArray addObject:event];
+        
+    }
+    return mutableArray;
+}
+
+-(NSArray*) eventsForUploadNative
+{
+    
+ 
+    
+    NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
+    NSEntityDescription *entity = [NSEntityDescription entityForName:@"EventRecord" inManagedObjectContext:self.context];
+    NSPredicate* predicate =  [NSPredicate predicateWithFormat:@"isUploaded==NO"];
+    
+    [fetchRequest setPredicate:predicate];
+    [fetchRequest setEntity:entity];
+    NSError *error;
+    NSArray *eventRecords = [self.context executeFetchRequest:fetchRequest error:&error];
+    NSMutableArray* mutableArray = [NSMutableArray new];
+    /* refactor we don't want to init the class names more than once */
+     NSArray* array = [PacoSerializeUtil getClassNames];
+    PacoSerializer * serializer = [[PacoSerializer alloc] initWithArrayOfClasses:array withNameOfClassAttribute:@"nameOfClass"];
+    
+    [serializer addNoneDomainClass:[PacoEventExtended new]];
+    
+    
+    
+ 
+    
+    for(EventRecord* eventRecord in  eventRecords)
+    {
+        
+        NSData* data  =  eventRecord.eventBlob;
+        
+        id definitionDict =
+        [NSJSONSerialization JSONObjectWithData:data
+                                        options:NSJSONReadingAllowFragments
+                                  error:&error];
+        [mutableArray addObject:definitionDict];
         
     }
     return mutableArray;

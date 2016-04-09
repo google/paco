@@ -190,7 +190,7 @@ static NSString* const kAllEventsFileName = @"allEvents.plist";
 - (void)fetchPendingEventsIfNecessary {
     @synchronized(self) {
         if (self.pendingEvents == nil) {
-            self.pendingEvents =  [[NSMutableArray  alloc] initWithArray:[self.persistenceHelper eventsForUpload]];
+            self.pendingEvents =  [[NSMutableArray  alloc] initWithArray:[self.persistenceHelper eventsForUploadNative]];
         }
     }
 }
@@ -247,9 +247,12 @@ static NSString* const kAllEventsFileName = @"allEvents.plist";
 
 - (NSArray*)allPendingEvents {
     @synchronized(self) {
+        
+        
         [self fetchPendingEventsIfNecessary];
         NSArray* result = [NSArray arrayWithArray:self.pendingEvents];
         return result;
+        
     }
 }
 
@@ -260,7 +263,7 @@ static NSString* const kAllEventsFileName = @"allEvents.plist";
     
     @synchronized(self) {
         NSAssert(self.pendingEvents != nil, @"pending events should have already loaded!");
-        for (PacoEventExtended* event in events)
+        for (NSDictionary * event in events)
         {
             [self.persistenceHelper markUploaded:event];
         }
@@ -370,6 +373,8 @@ static NSString* const kAllEventsFileName = @"allEvents.plist";
 - (void)startUploadingEventsInBackgroundWithBlock:(void(^)(UIBackgroundFetchResult))completionBlock {
     @synchronized(self) {
         NSArray* pendingEvents = [self allPendingEvents];
+        
+        
         if ([pendingEvents count] == 0) {
             NSLog(@"No pending events to upload.");
             if (completionBlock) {

@@ -27,4 +27,7 @@
 #import "PacoHubPaginator.h"
 #import "NMPaginator.h" 
 #import "PacoTimeCellModel.h"
+#import "PacoViewController.h" 
+
+
 #endif

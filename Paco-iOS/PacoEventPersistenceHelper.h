@@ -25,8 +25,8 @@
 
 - (void)updateEventWithPAEventInterface:(id<PAEventInterface>)correspondingEvent;
 -(NSArray*) eventsForUpload;
--(void) markUploaded:(id<PAEventInterface>)correspondingEvent;
+-(void) markUploaded:(NSDictionary* )correspondingEvent;
 -(NSArray*) allEvents;
-
+-(NSArray*) eventsForUploadNative;
 
 @end

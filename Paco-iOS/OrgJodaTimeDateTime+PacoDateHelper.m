@@ -13,6 +13,17 @@
 @implementation OrgJodaTimeDateTime (PacoDateHelper)
 
 
+
+-(NSString* ) dateTimeFormatted
+{
+    NSDate *date = [self nsDateValue];
+    NSDateFormatter *dateFormat = [[NSDateFormatter alloc] init];
+    [dateFormat setDateFormat:@"yyyy/MM/dd HH:mm:ssZ"];
+    NSString *dateString = [dateFormat stringFromDate:date];
+    return dateString;
+    
+}
+
 -(NSDate*) nsDateValue
 {
      long ll = [self getMillis];

@@ -32,7 +32,9 @@
 #import "PacoEventExtended+PacoCoder.h"
 #import "Input2.h"
 #import "PacoNetwork.h"
- 
+#import "OrgJodaTimeDateTime+PacoDateHelper.h" 
+
+
 
 
 
@@ -191,6 +193,7 @@ NSString* const kPacoResponseJoinExtended = @"joined";
     
     NSMutableDictionary* jsonPayload =
     [NSMutableDictionary dictionaryWithDictionary:[self generateJsonObject]];
+    
     jsonPayload[kPacoEventKeyResponsesExtended] = newReponseList;
     return jsonPayload;
 }
@@ -211,6 +214,53 @@ NSString* const kPacoResponseJoinExtended = @"joined";
     
 }
 
++ (PacoEventExtended*) stopEventForActionSpecificatonWithServerExperimentId:(PAExperimentDAO*) experiment  serverExperimentId:(NSString*) serverExperimentId
+{
+    
+    // Setup an event for joining the experiement.
+    PacoEventExtended *event = [PacoEventExtended new];
+    
+    
+    
+    event.who = [PacoNetwork sharedInstance].userEmail;
+    event.experimentId      =  [experiment valueForKeyEx:@"id"];
+    event.experimentVersion =  [experiment valueForKeyEx:@"version"];
+    event.experimentName    =  [experiment valueForKeyEx:@"title"];
+    event.responseTime = [NSDate new];
+    
+    
+    NSDictionary* joinResponse = @{kPacoResponseKeyNameExtended:kPacoResponseJoinExtended,
+                                   kPacoResponseKeyAnswerExtended:@"false",
+                                   kPacoResponseKeyInputIdExtended:@"-1"};
+    
+    [PacoEventExtended populateBasicAttributes:experiment Event:event];
+    JavaUtilArrayList * responseList = [[JavaUtilArrayList alloc] init];
+    
+    
+    [responseList addWithId:joinResponse];
+    
+    
+    NSString * scheduleString =  [experiment scheduleString];
+    
+    NSDictionary* scheduledResponse = @{kPacoResponseKeyNameExtended:kPacoEventKeyResponsesExtended,
+                                        @"schedule":scheduleString,
+                                        kPacoResponseKeyInputIdExtended:@"-1"};
+    
+    [responseList addWithId:scheduledResponse];
+    
+    
+    NSDictionary* systemInfo = @{kPacoResponseKeyNameExtended:kPacoEventKeyResponsesExtended,
+                                 [[UIDevice currentDevice] systemName] :[[UIDevice currentDevice] systemVersion] ,
+                                 kPacoResponseKeyInputIdExtended:@"-1"};
+    
+    [responseList addWithId:systemInfo];
+    event.responses = responseList;
+    [event save];
+    return event;
+    
+    
+}
+
 
 + (PacoEventExtended*)joinEventForActionSpecificatonWithServerExperimentId:(PAExperimentDAO*) experiment  serverExperimentId:(NSString*) serverExperimentId
 {
@@ -221,10 +271,10 @@ NSString* const kPacoResponseJoinExtended = @"joined";
     
     
     event.who = [PacoNetwork sharedInstance].userEmail;
-    event.experimentId      = [experiment valueForKeyEx:@"id"];
-    event.experimentVersion = [experiment valueForKeyEx:@"version"];
+    event.experimentId      =  [experiment valueForKeyEx:@"id"];
+    event.experimentVersion =  [experiment valueForKeyEx:@"version"];
     event.experimentName    =  [experiment valueForKeyEx:@"title"];
-    event.responseTime = [NSDate dateWithTimeIntervalSinceNow:0];
+    event.responseTime = [NSDate new];
     
     
     NSDictionary* joinResponse = @{kPacoResponseKeyNameExtended:kPacoResponseJoinExtended,
@@ -234,7 +284,7 @@ NSString* const kPacoResponseJoinExtended = @"joined";
      [PacoEventExtended populateBasicAttributes:experiment Event:event];
       JavaUtilArrayList * responseList = [[JavaUtilArrayList alloc] init];
     
-    // NSMutableArray* responseList = [NSMutableArray new];
+ 
     [responseList addWithId:joinResponse];
     
     
@@ -250,61 +300,39 @@ NSString* const kPacoResponseJoinExtended = @"joined";
     NSDictionary* systemInfo = @{kPacoResponseKeyNameExtended:kPacoEventKeyResponsesExtended,
                                     [[UIDevice currentDevice] systemName] :[[UIDevice currentDevice] systemVersion] ,
                                     kPacoResponseKeyInputIdExtended:@"-1"};
-    
-    
-      //[responses addWithId:systemInfo];
-    
+
+     [responseList addWithId:systemInfo];
       event.responses = responseList;
-      [event save];
+     [event save];
       return event;
     
     
 }
 
-+ (PacoEventExtended *)stopEventForExperiment:(PAExperimentDAO*) experiment
-{
-    //create an event for stopping the experiement.
-    
-    PacoEventExtended *event = [PacoEventExtended  new];
-   // event.who = [[PacoClient sharedInstance] userEmail];  ---<><><><>
-   [PacoEventExtended populateBasicAttributes:experiment Event:event];
-    event.responseTime = [[NSDate dateWithTimeIntervalSinceNow:0] dateToStringLocalTimezone];
-    
-    
-    JavaUtilArrayList * responses = [[JavaUtilArrayList alloc] init];
-    
-    
-    //For now, we need to indicate inputId=-1 to avoid server exception,
-    //in the future, server needs to fix and accept JOIN and STOP events without inputId
-    NSDictionary *responsePair = @{kPacoResponseKeyNameExtended:kPacoResponseJoinExtended,
-                                   kPacoResponseKeyAnswerExtended:@"false",
-                                   kPacoResponseKeyInputIdExtended:@"-1"};
+
+
+
+
+
  
-    event.responses = @[responsePair];
-    return event;
-}
-
-
+ 
 /*
-     creates and event
- 
- */
 
- 
- 
-
- /*
 + (PacoEventExtended *) genericEventForDefinition:(PAExperimentDAO*)definition
                              withInputs:(NSArray*)inputs {
-    PacoEventExtended *event = [PacoEventExtended new];
-     event.who = [PacoNetwork sharedInstance].authenticator.userEmail;
+    
+    
+     PacoEventExtended *event = [PacoEventExtended new];
+     event.who = [PacoNetwork sharedInstance].userEmail;
      event.experimentId = [definition valueForKeyPathEx:@"id"];
      event.experimentName = [definition valueForKeyPathEx:@"title"];
      event.experimentVersion = [definition valueForKeyPathEx:@"version"];
+   
     
     NSMutableArray *responses = [NSMutableArray array];
     for (PAInput2 *input in inputs) {
         NSMutableDictionary *response = [NSMutableDictionary dictionary];
+        
         id payloadObject = [input payloadObject];
         if (payloadObject == nil) {
             continue;
@@ -335,6 +363,10 @@ NSString* const kPacoResponseJoinExtended = @"joined";
 }
 
 */
+
+
+
+
 
 
 

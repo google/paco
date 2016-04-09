@@ -85,6 +85,7 @@ typedef NS_ENUM(NSInteger, PacoEventTypeExtended) {
                            withScheduledTime:(NSDate*)scheduledTime
                                    userEmail:(NSString*)userEmail;
 
++ (PacoEventExtended*) stopEventForActionSpecificatonWithServerExperimentId:(PAExperimentDAO*) experiment  serverExperimentId:(NSString*) serverExperimentId;
 
 
 @end

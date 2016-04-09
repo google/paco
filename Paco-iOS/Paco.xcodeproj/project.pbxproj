@@ -662,6 +662,7 @@
 		A68EFA821C7BE4E400D7FD50 /* splash_ios_tablet_1024x768@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = A68EFA7B1C7BE4E400D7FD50 /* splash_ios_tablet_1024x768@2x.png */; };
 		A68EFA831C7BE4E400D7FD50 /* splash_ios_tablet_768x1024.png in Resources */ = {isa = PBXBuildFile; fileRef = A68EFA7C1C7BE4E400D7FD50 /* splash_ios_tablet_768x1024.png */; };
 		A68EFA841C7BE4E400D7FD50 /* splash_ios_tablet_768x1024@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = A68EFA7D1C7BE4E400D7FD50 /* splash_ios_tablet_768x1024@2x.png */; };
+		A69580081CB82D5D00B89E7F /* PacoEditorJoinflowViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A69580071CB82D5D00B89E7F /* PacoEditorJoinflowViewController.swift */; };
 		A6ABFAA41B742BE800F90598 /* NSObject+J2objcKVO.m in Sources */ = {isa = PBXBuildFile; fileRef = A6ABFA9F1B742BE800F90598 /* NSObject+J2objcKVO.m */; settings = {COMPILER_FLAGS = " "; }; };
 		A6ABFAA51B742BE800F90598 /* PacoSerializer.m in Sources */ = {isa = PBXBuildFile; fileRef = A6ABFAA11B742BE800F90598 /* PacoSerializer.m */; settings = {COMPILER_FLAGS = " "; }; };
 		A6ABFAC51B79425400F90598 /* ScheduleTestViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = A6ABFAC31B79425400F90598 /* ScheduleTestViewController.xib */; };
@@ -1491,6 +1492,7 @@
 		A68EFA7B1C7BE4E400D7FD50 /* splash_ios_tablet_1024x768@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "splash_ios_tablet_1024x768@2x.png"; sourceTree = "<group>"; };
 		A68EFA7C1C7BE4E400D7FD50 /* splash_ios_tablet_768x1024.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = splash_ios_tablet_768x1024.png; sourceTree = "<group>"; };
 		A68EFA7D1C7BE4E400D7FD50 /* splash_ios_tablet_768x1024@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "splash_ios_tablet_768x1024@2x.png"; sourceTree = "<group>"; };
+		A69580071CB82D5D00B89E7F /* PacoEditorJoinflowViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PacoEditorJoinflowViewController.swift; sourceTree = "<group>"; };
 		A6ABFA9E1B742BE800F90598 /* NSObject+J2objcKVO.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSObject+J2objcKVO.h"; sourceTree = "<group>"; };
 		A6ABFA9F1B742BE800F90598 /* NSObject+J2objcKVO.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSObject+J2objcKVO.m"; sourceTree = "<group>"; };
 		A6ABFAA01B742BE800F90598 /* PacoSerializer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PacoSerializer.h; path = Paco/source/core/serializer/PacoSerializer.h; sourceTree = "<group>"; };
@@ -2789,6 +2791,7 @@
 				A636E9091CA32BBC00FAF055 /* PacoViewController.h */,
 				A636E90A1CA32BBC00FAF055 /* PacoViewController.m */,
 				A636E90B1CA32BBC00FAF055 /* PacoViewController.xib */,
+				A69580071CB82D5D00B89E7F /* PacoEditorJoinflowViewController.swift */,
 			);
 			name = TimeScheduler;
 			sourceTree = "<group>";
@@ -4184,6 +4187,7 @@
 				A6DCA5981B85468D007FC06D /* PacoEventStore.m in Sources */,
 				A63BD26C1BC899E000707A3A /* PacoNortificationsForExperiment.m in Sources */,
 				A6F318E31C7BD28D0072DAE4 /* Schedule.m in Sources */,
+				A69580081CB82D5D00B89E7F /* PacoEditorJoinflowViewController.swift in Sources */,
 				A681F49F1BB4B29600EC8599 /* PacoWasAbleToSaveState.m in Sources */,
 				36417BE8180DCA9600335B74 /* NSCalendar+Paco.m in Sources */,
 				A6F318D51C7BD28D0072DAE4 /* ExperimentQueryResult.m in Sources */,

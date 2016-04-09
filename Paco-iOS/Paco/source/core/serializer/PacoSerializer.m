@@ -197,6 +197,11 @@
       [NSJSONSerialization dataWithJSONObject:_parentCollection
                                       options:NSJSONWritingPrettyPrinted
                                         error:&error2];
+    /* debug */
+    NSError *error;
+    NSDictionary *jsonDict = [NSJSONSerialization JSONObjectWithData:newData options:0 error:&error];
+    NSLog(@"%@", jsonDict);
+    
   return newData;
 }
 
@@ -227,6 +232,8 @@
     
     
     [self recurseJason:@[PACO_OBJECT_PARENT, @[definitionDict] ]];
+    
+    
     return _parentNode;
 }
 
@@ -418,13 +425,6 @@
     } else {
         
       NSString * name =  [self trimTrailingUnderscore:parentInfo[0]];
-        
-         
-     if( [name characterAtIndex:0] == '_')
-     {
-         name = [name substringFromIndex:1];
-         
-     }
         
       [self addToCollection:name Value:parentInfo[1]];
     }
@@ -687,10 +687,61 @@
     } else {
       // bona fide dictionary
       // push dictionary map.
-      /*
-       for( key in array of keys_
-        [self recurseJason:@[key,newObject]   Block:block];
-       */
+       
+//        
+//        NSObject*  o =  recurseObject[1];
+//        
+//    /* if(  [o isKindOfClass:[NSArray class]] )
+//        {
+//             NSString* attributeName = recurseObject[0];
+//             NSObject* parent = [self parent];
+//             NSMutableArray * mutableArray = [NSMutableArray new];
+//        
+//             [self addItem:attributeName Parent:parent Value:mutableArray AddList:YES];
+//              [self push:mutableArray];
+//             [self recurseJason:@[recurseObject[0],o]];
+//        }*/
+//              
+//              
+//        if( [o  isKindOfClass:[NSDictionary class]]  )
+//        {
+//                NSObject* parent = [self parent];
+//                NSString* attributeName = recurseObject[0];
+//                NSMutableDictionary * mutableDictionary = [NSMutableDictionary new];
+//            
+//            NSArray* arrayOfKeys = [recurseObject[1] allKeys];
+//       
+//            for (NSString* key in arrayOfKeys) {
+//                id newObject = [recurseObject[1] objectForKey:key];
+//                if (newObject != [NSNull null]) {
+//                    
+//                    [mutableDictionary setObject:newObject forKey:key];
+//                }
+//            }
+//            
+//             [self addItem:attributeName Parent:parent Value:mutableDictionary AddList:YES];
+// 
+//                 [self recurseJason:@[ attributeName, mutableDictionary ]];
+//        }
+//        
+//       /*
+//        
+//        NSMutableDictionary * mutableDictionary = [NSMutableDictionary new];
+//        
+//  
+//    
+//        NSArray* arrayOfKeys = [recurseObject[1] allKeys];
+//          loop over all keys and recursively this method.
+//        for (NSString* key in arrayOfKeys) {
+//            id newObject = [recurseObject[1] objectForKey:key];
+//            if (newObject != [NSNull null]) {
+//                
+//                
+//                [self recurseJason:@[ key, newObject ]];
+//            }
+//        }
+//      
+            
     }
 
     /*
@@ -711,6 +762,8 @@
       // lets pop the object.
       [self pop];
     } else {
+        
+          [self pop];
       // bona fide ditionary
       // pop
     }

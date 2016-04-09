@@ -113,6 +113,7 @@ static int const kMaxNumOfEventsToUpload = 50;
         BOOL success = (numOfSuccessUploading > 0) ? YES : NO;
         if (self.completionBlock) {
           self.completionBlock(success);
+       
         }
       }
     };
