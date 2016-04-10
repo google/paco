@@ -438,7 +438,8 @@ pacoApp.service('config', function() {
     'open text': 'Open Text',
     'list': 'List',
     'photo': 'Photo',
-    'location': 'Location'
+    'location': 'Location',
+    'audio': 'Audio'
   };
 
   this.feedbackTypes = [
