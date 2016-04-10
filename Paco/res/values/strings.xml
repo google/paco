@@ -359,6 +359,12 @@
     <string name="login_with_your_google_email_to_join_experiments_message">Login with your Google email to join experiments</string>
     <string name="login_button_label">Login</string>
     <string name="time_schedule_edit_label">Time</string>
+    <string name="title_audio_recorder">Audio Recorder</string>
+    <string name="record_audio_label">Record audio</string>
+    <string name="could_not_encode_audio">Could not encode the audio file</string>
+    <string name="play_audio_label">Play</string>
+    <string name="delete_audio_label">Delete</string>
+        
         
                 
                 

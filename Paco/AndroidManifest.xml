@@ -23,6 +23,7 @@
     <uses-feature android:name="android.hardware.telephony" android:required="false"/>
     <uses-feature android:name="android.hardware.camera.autofocus" android:required="false"/>
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
     
     <application
         android:name="com.pacoapp.paco.PacoApplication"
@@ -214,6 +215,7 @@
             android:name="com.pacoapp.paco.ui.TroubleshootingActivity"
             android:label="@string/title_troubleshooting" >
         </activity>
+
            
      <!--  end new ui -->   
         <!-- services -->

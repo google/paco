@@ -112,6 +112,7 @@ public class ExperimentExecutor extends ActionBarActivity implements ChangeListe
   private List<SpeechRecognitionListener> speechRecognitionListeners = new ArrayList<SpeechRecognitionListener>();
   public static final int RESULT_SPEECH = 3;
 
+
   private LinearLayout inputsScrollPane;
   private DateTime formOpenTime;
 
@@ -283,6 +284,9 @@ public class ExperimentExecutor extends ActionBarActivity implements ChangeListe
   @Override
   protected void onPause() {
     super.onPause();
+    for (InputLayout  layout : inputs) {
+      layout.onPause();
+    }
     unregisterLocationListenerIfNecessary();
   }
 
@@ -726,11 +730,11 @@ public class ExperimentExecutor extends ActionBarActivity implements ChangeListe
       } else {
         speechRecognitionListeners.clear();
       }
-    } else if (requestCode >= InputLayout.CAMERA_REQUEST_CODE && resultCode == RESULT_OK) {
+    } else if (requestCode >= InputLayout.CAMERA_REQUEST_CODE && resultCode == RESULT_OK) { // camera picture
       for (InputLayout inputLayout : inputs) {
         inputLayout.cameraPictureTaken(requestCode);
       }
-    } else if (resultCode == RESULT_OK) {
+    } else if (resultCode == RESULT_OK) {   //gallery picture
       Uri selectedImage = data.getData();
       String[] filePathColumn = { MediaStore.Images.Media.DATA };
 
@@ -749,7 +753,7 @@ public class ExperimentExecutor extends ActionBarActivity implements ChangeListe
         e.printStackTrace();
       }
 
-    }
+    } 
   }
 
   private void handleSpeechRecognitionActivityResult(int resultCode, Intent data) {

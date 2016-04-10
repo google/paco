@@ -54,7 +54,14 @@
 
               <div ng-if="table.header[$index]!='who' || users || anon"
                 ng-switch="isPhotoData(cell)">
-                <img ng-switch-when="true" ng-src="{{photoHeader}}{{cell}}">
+                <img ng-switch-when="true" ng-src="{{photoHeader}}{{cell}}">                
+              </div>
+              <div ng-if="table.header[$index]!='who' || users || anon"
+                ng-switch="isAudioData(cell)">
+                <audio controls class="audio" ng-switch-when="true" ng-src="{{makeAudioSrc(cell)}}">                
+              </div>
+              <div ng-if="table.header[$index]!='who' || users || anon"
+                ng-switch="isPhotoData(cell) || isAudioData(cell)">
                 <span ng-switch-when="false">{{cell}}&nbsp;</span>
               </div>
             </td>

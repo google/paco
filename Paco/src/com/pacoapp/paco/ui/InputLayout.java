@@ -21,6 +21,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -37,6 +38,9 @@ import android.graphics.Bitmap.CompressFormat;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.location.Location;
+import android.media.MediaPlayer;
+import android.media.MediaPlayer.OnCompletionListener;
+import android.media.MediaRecorder;
 import android.media.SoundPool;
 import android.net.Uri;
 import android.os.Environment;
@@ -64,6 +68,7 @@ import android.widget.Toast;
 
 import com.google.android.apps.paco.questioncondparser.ExpressionEvaluator;
 import com.google.common.base.Strings;
+import com.google.common.io.Files;
 import com.pacoapp.paco.PacoConstants;
 import com.pacoapp.paco.R;
 import com.pacoapp.paco.UserPreferences;
@@ -91,7 +96,13 @@ public class InputLayout extends LinearLayout implements SpeechRecognitionListen
   private File file;
   private int requestCode;
   private ImageView photoView;
+  protected String audioFileName;
   private static int code = 1200;
+  private MediaRecorder audioRecorder = null;
+  private MediaPlayer   audioPlayer = null;
+  boolean mStartRecording = true;
+  boolean mStartPlaying = true;
+
 
   public InputLayout(ExperimentExecutor context, Input2 input2) {
     super(context);
@@ -102,6 +113,11 @@ public class InputLayout extends LinearLayout implements SpeechRecognitionListen
     componentWithValue = getInputResponseTypeView(input2);
     inputChangeListeners = new ArrayList<ChangeListener>();
     setVisible(input2.getConditional() == null || !input2.getConditional());
+  }
+
+  private void createAudioFileName() {
+    audioFileName = Environment.getExternalStorageDirectory().getAbsolutePath();
+    audioFileName += "/audio_"+System.currentTimeMillis() + ".mp3";
   }
 
   public View getComponentWithValue() {
@@ -128,6 +144,18 @@ public class InputLayout extends LinearLayout implements SpeechRecognitionListen
     }
   }
 
+  public void onPause() {
+    if (audioRecorder != null) {
+      audioRecorder.release();
+      audioRecorder = null;
+    }
+
+    if (audioPlayer != null) {
+      audioPlayer.release();
+      audioPlayer = null;
+    }
+  }
+  
   @Override
   protected Parcelable onSaveInstanceState() {
     Parcelable saveState = super.onSaveInstanceState();
@@ -185,6 +213,8 @@ public class InputLayout extends LinearLayout implements SpeechRecognitionListen
       return getNumberValue();
     } else if (input.getResponseType().equals(Input2.PHOTO)) {
       return getPhotoValue();
+    } else if (input.getResponseType().equals(Input2.AUDIO)) {
+      return getAudioValue();
     }
     return null;
   }
@@ -207,6 +237,8 @@ public class InputLayout extends LinearLayout implements SpeechRecognitionListen
       return intToString(getNumberValue());
     } else if (input.getResponseType().equals(Input2.PHOTO)) {
       return getPhotoValue();
+    } else if (input.getResponseType().equals(Input2.AUDIO)) {
+      return getAudioValue();
     }
     return null;
   }
@@ -256,6 +288,21 @@ public class InputLayout extends LinearLayout implements SpeechRecognitionListen
     return input.getName();
   }
 
+  private String getAudioValue() {
+    if (audioFileName != null) {
+      try {
+        byte[] bytes = Files.toByteArray(new File(audioFileName));
+        return Base64.encodeToString(bytes, Base64.DEFAULT);
+      } catch (IOException e) {
+        e.printStackTrace();
+        Toast.makeText(getContext(), R.string.could_not_encode_audio, Toast.LENGTH_LONG).show();
+      }
+      
+    }
+    return "";
+  }
+
+  
   private String getPhotoValue() {
     // Load data from this.file if it is non-null
     // Base64 encode the data and return it
@@ -291,7 +338,7 @@ public class InputLayout extends LinearLayout implements SpeechRecognitionListen
       o2.inSampleSize = scale;
       b = BitmapFactory.decodeStream(new FileInputStream(f), null, o2);
     } catch (FileNotFoundException e) {
-      Toast.makeText(getContext(), R.string.missing_image_warning, Toast.LENGTH_LONG);
+      Toast.makeText(getContext(), R.string.missing_image_warning, Toast.LENGTH_LONG).show();
     }
     return b;
   }
@@ -440,6 +487,8 @@ public class InputLayout extends LinearLayout implements SpeechRecognitionListen
       return renderNumber(input2);
     } else if (questionType.equals(Input2.PHOTO)) {
       return renderPhotoButton(input2);
+    } else if (questionType.equals(Input2.AUDIO)) {
+      return renderAudioRecorder(input2);
     }
     return null;
   }
@@ -499,8 +548,7 @@ public class InputLayout extends LinearLayout implements SpeechRecognitionListen
       file = null;
     } // otherwise leave as it was previously
   }
-
-
+  
   private void startCameraForResult() {
     try {
       Intent i = new Intent("android.media.action.IMAGE_CAPTURE");
@@ -993,6 +1041,138 @@ public class InputLayout extends LinearLayout implements SpeechRecognitionListen
     if (this.requestCode == requestCode - CAMERA_REQUEST_CODE) {
       photoView.setImageBitmap(decodeFileAndScaleToThumb(file));
     }
+  }
+  
+  private View renderAudioRecorder(Input2 input2) {
+    View audioInputView = ((LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(
+        R.layout.audio_input, this, true);
+    audioInputView.setPadding(0, 2, 0, 8);
+    final Button recordButton = (Button) findViewById(R.id.AudioRecordButton);
+    final Button playButton = (Button) findViewById(R.id.AudioPlayButton);
+    final Button deleteButton = (Button) findViewById(R.id.AudioDeleteButton);
+    toggleOtherButtons(playButton, deleteButton, file != null);      
+    
+    recordButton.setOnClickListener(new View.OnClickListener() {
+      public void onClick(View v) {        
+        onRecord(mStartRecording);
+        if (mStartRecording) {
+            recordButton.setText("Stop");
+        } else {
+          recordButton.setText("Record");
+        }
+        toggleOtherButtons(playButton, deleteButton, !mStartRecording);
+        mStartRecording = !mStartRecording;
+      }
+    });
+    
+    final OnCompletionListener completionListener = new OnCompletionListener() {      
+      @Override
+      public void onCompletion(MediaPlayer mp) {        
+        playButton.setText("Play");
+        mStartPlaying = true;
+        toggleOtherButtons(recordButton, deleteButton, true);       
+      }
+    };
+    
+    playButton.setOnClickListener(new View.OnClickListener() {
+      @Override
+      public void onClick(View v) {        
+        onPlay(mStartPlaying, completionListener);
+        if (mStartPlaying) {
+          playButton.setText("Stop");
+        } else {
+          playButton.setText("Play");
+        }
+        toggleOtherButtons(recordButton, deleteButton, !mStartPlaying);
+        mStartPlaying = !mStartPlaying;        
+      }
+    });
+    
+    deleteButton.setOnClickListener(new View.OnClickListener() {      
+      @Override
+      public void onClick(View v) {
+        if (audioFileName != null) {
+          deleteAudioFile();          
+        }
+        toggleOtherButtons(playButton, deleteButton, false);
+      }
+    });
+    return audioInputView;
+  }
+
+  private void toggleOtherButtons(Button playButton, Button deleteButton, boolean enabled) {
+    playButton.setEnabled(enabled);
+    deleteButton.setEnabled(enabled);
+  }
+  
+  
+
+
+  private void onRecord(boolean start) {
+    if (start) {
+      startRecording();
+    } else {
+      stopRecording();
+    }
+  }
+
+  private void onPlay(boolean start, OnCompletionListener listener) {
+    if (start) {
+      startPlaying(listener);
+    } else {
+      stopPlaying();
+    }
+  }
+
+  private void startPlaying(OnCompletionListener listener) {
+    audioPlayer = new MediaPlayer();
+    try {
+      audioPlayer.setDataSource(audioFileName);
+      audioPlayer.prepare();
+      audioPlayer.start();
+      audioPlayer.setOnCompletionListener(listener);
+    } catch (IOException e) {
+      Log.e(PacoConstants.TAG, "prepare() failed");
+    }
+  }
+
+  private void stopPlaying() {
+    audioPlayer.release();
+    audioPlayer = null;
+  }
+
+  private void startRecording() {
+    if (audioFileName != null) {
+      deleteAudioFile();
+    }
+    createAudioFileName();
+    audioRecorder = new MediaRecorder();
+    audioRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
+    audioRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4/* THREE_GPP */);
+    audioRecorder.setOutputFile(audioFileName);
+    audioRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC/* AMR_NB */);
+
+    try {
+      audioRecorder.prepare();
+    } catch (IOException e) {
+      Log.e(PacoConstants.TAG, "prepare() failed");
+    }
+
+    audioRecorder.start();
+  }
+
+  private void stopRecording() {
+    audioRecorder.stop();
+    audioRecorder.release();
+    audioRecorder = null;
+  }
+
+  private void deleteAudioFile() {
+    File f = new File(audioFileName);
+    if (f.exists()) {
+      f.delete();
+    }
+    audioFileName = null;
   }
 
 }
