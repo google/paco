@@ -226,6 +226,10 @@ md-menu-content {
   text-align: left;
 }
 
+.data .audio {
+	width:45px;
+}
+
 .data md-chips {
   display: inline-block;
   position: relative;

@@ -4,6 +4,11 @@ var pacoApp = angular.module('pacoApp', [
   'ui.ace'
 ]);
 
+pacoApp.config(['$sceDelegateProvider', function($sceDelegateProvider) {
+    // Angular doesn't deal well with audio src=data: this lets us load local data. 
+    // TODO remove when port to Google Cloud Storage for Audio and Image data is complete
+	$sceDelegateProvider.resourceUrlWhitelist(['data:audio/mpeg;base64,**','self']);
+}]);
 
 pacoApp.config(['$routeProvider','$locationProvider',
   function($routeProvider, $locationProvider) {

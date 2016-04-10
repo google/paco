@@ -46,7 +46,7 @@ public class EventUploader {
 
     int uploadGroupSize = UPLOAD_EVENT_GROUP_SIZE;
     int uploaded = 0;
-    while (uploaded < allEvents.size() && !hasErrorOcurred) {
+    while (uploaded < allEvents.size() && !hasErrorOcurred && NetworkUtil.isConnected(context)) {
       int groupSize = Math.min(allEvents.size() - uploaded, uploadGroupSize);
       int end = uploaded + groupSize;
       List<Event> events = allEvents.subList(uploaded, end);
