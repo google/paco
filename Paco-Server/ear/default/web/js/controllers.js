@@ -449,6 +449,7 @@ pacoApp.controller('DataCtrl', ['$scope', '$mdDialog', '$location', '$filter',
     $scope.screenData = null;
     $scope.photoHeader = 'data:image/jpeg;base64,';
     $scope.photoMarker = '/9j/';
+    $scope.audioMarker = 'AAAAGGZ0eXBtc';
     $scope.statsDate = new Date();
     $scope.groupNames = [];
     $scope.showGroup = 'all';
@@ -589,7 +590,16 @@ pacoApp.controller('DataCtrl', ['$scope', '$mdDialog', '$location', '$filter',
       return (typeof(data) === 'string' &&
                 data.indexOf($scope.photoMarker) === 0);
     }
+    
+    $scope.isAudioData = function(data) {
+        return (typeof(data) === 'string' &&
+                  data.indexOf($scope.audioMarker) === 0);
+      }
 
+    $scope.makeAudioSrc = function(cell) {        
+      return "data:audio/mpeg;base64," + cell;	
+    }
+    
     $scope.removeUserChip = function() {
       var newPath = $scope.currentView + '/' + $scope.experimentId;
       $location.path(newPath);

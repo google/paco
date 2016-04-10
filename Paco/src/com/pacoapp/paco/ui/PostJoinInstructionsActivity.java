@@ -113,30 +113,6 @@ public class PostJoinInstructionsActivity extends ActionBarActivity implements E
     }
   }
 
-  public String createSchedulesString() {
-    StringBuffer buf = new StringBuffer();
-    List<ExperimentGroup> groups = experiment.getExperimentDAO().getGroups();
-    boolean firstItem = true;
-    for (ExperimentGroup experimentGroup : groups) {
-      List<ActionTrigger> actionTriggers = experimentGroup.getActionTriggers();
-      for (ActionTrigger actionTrigger : actionTriggers) {
-        if (actionTrigger instanceof ScheduleTrigger) {
-          List<Schedule> schedules = ((ScheduleTrigger)actionTrigger).getSchedules();
-
-          for (Schedule schedule : schedules) {
-            if (firstItem) {
-              firstItem = false;
-            } else {
-              buf.append("; ");
-            }
-            buf.append(SchedulePrinter.toString(schedule));
-          }
-        }
-      }
-    }
-    return buf.toString();
-  }
-
   private void runScheduleActivity() {
     if (ExperimentHelper.hasUserEditableSchedule(experiment.getExperimentDAO())) {
       Intent experimentIntent = new Intent(this, ScheduleListActivity.class);

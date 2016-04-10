@@ -286,6 +286,9 @@ public class ExperimentExecutorCustomRendering extends ActionBarActivity impleme
   @Override
   protected void onPause() {
     super.onPause();
+    for (InputLayout inputLayout : inputs) {
+      inputLayout.onPause();
+    }
     unregisterLocationListenerIfNecessary();
   }
 

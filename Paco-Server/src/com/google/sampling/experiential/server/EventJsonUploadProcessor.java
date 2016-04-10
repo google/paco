@@ -238,6 +238,11 @@ public class EventJsonUploadProcessor {
           PhotoBlob photoBlob = new PhotoBlob(name, Base64.decodeBase64(answer.getBytes()));
           blobs.add(photoBlob);
           answer = "blob";
+        } else if (input != null && input.getResponseType() != null && input.getResponseType().equals(Input2.AUDIO) && !Strings.isNullOrEmpty(answer)) {
+          // TODO Store audio in Google Cloud Storage
+          PhotoBlob photoBlob = new PhotoBlob(name, Base64.decodeBase64(answer.getBytes()));
+          blobs.add(photoBlob);
+          answer = "audioblob";
         } else if (answer != null && answer.length() >= 500) {
           log.info("The response was too long for: " + name + ".");
           log.info("Response was " + answer);
