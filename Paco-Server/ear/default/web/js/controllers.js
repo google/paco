@@ -481,11 +481,15 @@ pacoApp.controller('DataCtrl', ['$scope', '$mdDialog', '$location', '$filter',
       }
     };
 
-    $scope.loadEvents = function() {
+    $scope.loadEvents = function(forceReload) {
+      forecReload = typeof forceReload !== 'undefined' ? forceReload : false;
       $scope.loading = true;
-      var loadingMore = ($scope.eventCursor !== null);
+      var loadingMore = ($scope.eventCursor !== null && !forceReload);
+      if (forceReload) {
+        $scope.eventCursor = null;
+      }
 
-      dataService.getEvents($scope.experimentId, $scope.restrict, $scope.anon, $scope.eventCursor).
+      dataService.getEvents($scope.experimentId, $scope.restrict, $scope.anon, $scope.showGroup, $scope.eventCursor).
       then(function(response) {
 
         $scope.scrolling(false);
@@ -499,7 +503,7 @@ pacoApp.controller('DataCtrl', ['$scope', '$mdDialog', '$location', '$filter',
             $scope.eventCursor = null;
           }
 
-          if ($scope.events) {
+          if ($scope.events && !forceReload) {
             $scope.events = $scope.events.concat(response.data.events);
           } else {
             $scope.events = response.data.events;

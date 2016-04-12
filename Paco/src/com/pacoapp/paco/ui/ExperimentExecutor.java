@@ -276,7 +276,7 @@ public class ExperimentExecutor extends ActionBarActivity implements ChangeListe
         if (firstInput.getInput().getResponseType().equals(Input2.OPEN_TEXT)) {
           firstInput.requestFocus();
         }
-        formOpenTime = DateTime.now();
+        
       }
     }
   }
@@ -416,6 +416,7 @@ public class ExperimentExecutor extends ActionBarActivity implements ChangeListe
   private void showForm() {
     renderInputs();
     renderSaveButton();
+    formOpenTime = DateTime.now();
   }
 
   private void renderSaveButton() {

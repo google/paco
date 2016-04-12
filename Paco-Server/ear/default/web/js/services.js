@@ -110,9 +110,13 @@ pacoApp.service('dataService', ['$http', '$timeout', '$q', 'config',
       updateParticipantDateStats: updateParticipantDateStats,
     });
 
-    function getEvents(id, user, anonymous, cursor) {
+    function getEvents(id, user, anonymous, group, cursor) {
 
       var endpoint = '/events?q=\'experimentId=' + id;
+
+      if (group && group !== 'all') {
+        endpoint += ':experimentGroupName=' + group;
+      }
 
       if (user) {
         endpoint += ':who=' + user;
