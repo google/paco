@@ -481,7 +481,8 @@ pacoApp.controller('DataCtrl', ['$scope', '$mdDialog', '$location', '$filter',
       }
     };
 
-    $scope.loadEvents = function(forceReload = false) {
+    $scope.loadEvents = function(forceReload) {
+      forecReload = typeof forceReload !== 'undefined' ? forceReload : false;
       $scope.loading = true;
       var loadingMore = ($scope.eventCursor !== null && !forceReload);
       if (forceReload) {
