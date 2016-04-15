@@ -7,7 +7,7 @@
 # hint: use the installed app option (Other under API/Credentials in Google dev console)
 
 echo "enter client id from Google developer console"
-read client_id_REMOVE
+read client_id
 
 open "https://accounts.google.com/o/oauth2/auth?response_type=code&scope=email&redirect_uri=urn:ietf:wg:oauth:2.0:oob&client_id=$client_id"
 
@@ -15,7 +15,7 @@ echo "enter authcode from browser authentication page"
 read auth_code
 
 echo "enter client secret from Google Developer console"
-read client_secret_REMOVE
+read client_secret
 
 # instead of the all-in-one-line approach here, we might want to capture the response then slice and dice in case there was an error
 export refresh_token=`curl https://www.googleapis.com/oauth2/v3/token \
