@@ -77,7 +77,6 @@ import android.webkit.WebViewClient;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.apps.paco.questioncondparser.Binding;
@@ -755,7 +754,15 @@ public boolean onKeyDown(int keyCode, KeyEvent event) {
 
   void showFeedback() {
     Intent intent = new Intent(this, FeedbackActivity.class);
-    intent.putExtras(getIntent().getExtras());
+    final Bundle extras = getIntent().getExtras();
+
+    if (!extras.containsKey(Experiment.EXPERIMENT_SERVER_ID_EXTRA_KEY)) {
+      extras.putLong(Experiment.EXPERIMENT_SERVER_ID_EXTRA_KEY, experiment.getExperimentDAO().getId());
+    }
+    if (!extras.containsKey(Experiment.EXPERIMENT_GROUP_NAME_EXTRA_KEY)) {
+      extras.putString(Experiment.EXPERIMENT_GROUP_NAME_EXTRA_KEY, experimentGroup.getName());
+    }
+    intent.putExtras(extras);
     startActivity(intent);
   }
 
