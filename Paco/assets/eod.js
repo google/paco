@@ -439,6 +439,18 @@ var paco = (function (init) {
 
 paco.renderer = (function() {
 
+  function escapeHtml(text) {
+    var map = {
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      '"': '&quot;',
+      "'": '&#39;'
+    };
+
+    return text.replace(/[&<>"']/g, function(m) { return map[m]; });
+  }
+  
   renderPrompt = function(input) {
     var element = $(document.createElement("h6"));
     element.addClass("left light");
@@ -1050,15 +1062,18 @@ paco.renderer = (function() {
               }
               listChoiceName += input.listChoices[index];
             }
-          }
+          } 
           
         }       
         responsesHtml += listChoiceName;
       } else {
-        responsesHtml += response["answer"];
+        var escapedResponse = escapeHtml(response["answer"]);
+        //confirm("escaped response = |" + escapedResponse +"|");
+        responsesHtml += escapedResponse;
       }
       responsesHtml += "</p></div>";
     }
+
     element.html(responsesHtml);
   };
 
