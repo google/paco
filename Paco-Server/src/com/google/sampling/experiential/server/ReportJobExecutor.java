@@ -48,7 +48,7 @@ public class ReportJobExecutor {
 
   public String runReportJob(final String requestorEmail, final DateTimeZone timeZoneForClient,
                              final List<Query> query, final boolean anon, final String reportFormat,
-                             final String originalQuery, final int limit, final String cursor) {
+                             final String originalQuery, final int limit, final String cursor, final boolean includePhotos) {
     // TODO get a real id function for jobs
 
     final String jobId = DigestUtils.md5Hex(requestorEmail + Long.toString(System.currentTimeMillis()));
@@ -62,7 +62,7 @@ public class ReportJobExecutor {
         log.info("ReportJobExecutor running");
         Thread.currentThread().setContextClassLoader(cl);
         try {
-          String location = doJob(requestorEmail, timeZoneForClient, query, anon, jobId, reportFormat,originalQuery, limit, cursor);
+          String location = doJob(requestorEmail, timeZoneForClient, query, anon, jobId, reportFormat, originalQuery, limit, cursor, includePhotos);
           statusMgr.completeReport(requestorEmail, jobId, location);
         } catch (Throwable e) {
           statusMgr.failReport(requestorEmail, jobId, e.getClass() + "." + e.getMessage());
@@ -77,7 +77,7 @@ public class ReportJobExecutor {
   }
 
   protected String doJob(String requestorEmail, DateTimeZone timeZoneForClient, List<Query> query, boolean anon, String jobId,
-                         String reportFormat, String originalQuery, int limit, String cursor) throws IOException {
+                         String reportFormat, String originalQuery, int limit, String cursor, boolean includePhotos) throws IOException {
     log.info("starting doJob");
     if (!Strings.isNullOrEmpty(reportFormat) && reportFormat.equals("stats")) {
       log.info("Running stats report for job: " + jobId);
@@ -100,6 +100,14 @@ public class ReportJobExecutor {
       log.info("Got events for job: " + jobId);
 
       return generateCSVReport(anon, jobId, experimentId, eventQueryResultPair, timeZoneForClient);
+    } else if (!Strings.isNullOrEmpty(reportFormat) && reportFormat.equals("json")) {
+      // TODO - get rid of the offset and limit params and rewrite the eventretriever call to loop until all results are retrieved.
+      log.info("Getting events for job: " + jobId);
+      EventQueryResultPair eventQueryResultPair = EventRetriever.getInstance().getEventsInBatchesOneBatch(query, requestorEmail, timeZoneForClient, limit, cursor);
+      //EventRetriever.sortEvents(events);
+      log.info("Got events for job: " + jobId);
+
+      return generateJsonReport(anon, jobId, experimentId, eventQueryResultPair, timeZoneForClient, includePhotos);
     } else if (!Strings.isNullOrEmpty(reportFormat) && reportFormat.equals("photozip")) {
       // TODO - get rid of the offset and limit params and rewrite the eventretriever call to loop until all results are retrieved.
       log.info("Getting events for job: " + jobId);
@@ -118,6 +126,22 @@ public class ReportJobExecutor {
       return generateHtmlReport(timeZoneForClient, anon, jobId, experimentId, eventQueryResultPair, originalQuery, requestorEmail);
     }
   }
+
+  private String generateJsonReport(boolean anon, String jobId, String experimentId,
+                                    EventQueryResultPair eventQueryResultPair, DateTimeZone timeZoneForClient,
+                                    boolean includePhotos) throws IOException {
+    return new JSONBlobWriter().writeEventsAsJSON(anon, eventQueryResultPair, jobId, timeZoneForClient, includePhotos);
+
+  }
+
+  // for json query - dup of frontend version
+//  private EventQueryResultPair getEventsWithQuery(HttpServletRequest req,
+//                                                  List<com.google.sampling.experiential.server.Query> queries,
+//                                                  int limit, String cursor) {
+//    User whoFromLogin = AuthUtil.getWhoFromLogin();
+//    return EventRetriever.getInstance().getEventsInBatches(queries, whoFromLogin.getEmail().toLowerCase(),
+//                                                           TimeUtil.getTimeZoneForClient(req), limit, cursor);
+//  }
 
   private String runStatsReport(String jobId, DateTimeZone timeZoneForClient, String requestorEmail) throws IOException {
     String tz = timeZoneForClient != null ? timeZoneForClient.getID() : null;
