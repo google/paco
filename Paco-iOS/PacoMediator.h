@@ -21,7 +21,7 @@
 @class PacoEventStore;
 @class PAExperimentDAO;
 @class PacoEventManagerExtended;
- 
+@class PAExperimentDAO;
 
 
 @interface PacoMediator : NSObject<PacoNotificationManagerDelegate>
@@ -54,8 +54,9 @@
 - (void)submitSurveyWithDefinition:(PAExperimentDAO*) definition
                       surveyInputs:(NSArray*)surveyInputs
                       notification:(UILocalNotification*)notification;
- 
 
+/* return experiment object for the id */
+-(PAExperimentDAO *) experimentForId:(NSString*) experimentId;
 
 
 /* join & unjoin */

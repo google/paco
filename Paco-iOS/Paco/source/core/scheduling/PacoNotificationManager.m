@@ -416,7 +416,7 @@ static NSString* kNotificationPlistName = @"notificationDictionary.plist";
     }
       
     NSString* experimentId = [notification pacoExperimentIdExt];
-    NSAssert([experimentId length] > 0, @"experimentId should be nil");
+    NSAssert([experimentId length] != 0, @"experimentId should not be nil");
     UILocalNotification* activeNotification = [self activeNotificationForExperiment:experimentId];
     BOOL isActive = activeNotification && [activeNotification pacoIsSame:notification];
     return isActive;

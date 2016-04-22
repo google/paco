@@ -34,17 +34,7 @@ import UIKit
         
      isWizard = true
         
-        /*
-        
-        let  doneButton = UIBarButtonItem(title: "Done", style: UIBarButtonItemStyle.Plain, target: self, action: "doneButton:")
-        navigationItem.rightBarButtonItem = doneButton
-        
-        let  cancelButton = UIBarButtonItem(title: "Cancel", style: UIBarButtonItemStyle.Plain, target: self, action: "cancelButton:")
-        navigationItem.leftBarButtonItem = cancelButton
-      */
-        
-        
-        
+     
     }
     else {
         
@@ -72,8 +62,10 @@ import UIKit
      func nextTaped(sender:UIBarButtonItem!)
     {
         
-        var  pacoViewController:PacoViewController  = PacoViewController(nibName: "PacoViewController", bundle: nil)
+        let   pacoViewController:PacoJoinSummary   = PacoJoinSummary(nibName: "PacoJoinSummary", bundle: nil)
         pacoViewController.experiment = self.experiment
+        
+        
         self.navigationController!.pushViewController(pacoViewController, animated: false)
         
         
@@ -100,8 +92,11 @@ import UIKit
             mediator.startRunningExperimentRegenerate(experimentId);
         }
         
+        
+        
           backThree()
     }
+    
     
     func cancelButton(sender: UIBarButtonItem) {
        

@@ -9,7 +9,7 @@
 #import <UIKit/UIKit.h>
 @class PAExperimentDAO;
 
-@interface PacoViewController : UIViewController
+@interface PacoJoinSummary : UIViewController
 @property (weak, nonatomic) IBOutlet UITextView *summary;
 @property (strong, nonatomic)  PAExperimentDAO *experiment;
 

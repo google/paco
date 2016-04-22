@@ -10,7 +10,7 @@
 #import "PacoNotificationManager.h"
 #import "UILocalNotification+Paco.h"
 #import "PAActionSpecification+PacoActionSpecification.h"
-
+#import "PAExperimentDAO+Helper.h"
 
 
 
@@ -107,6 +107,8 @@
     
     @try {
         
+        
+        
         if([self.jsonField.text length] !=0)
         {
             
@@ -118,9 +120,9 @@
             IOSObjectArray * iosArray = [resultArray toArray];
             PAExperimentDAO * dao =  [iosArray objectAtIndex:0];
             
-            [[PacoMediator sharedInstance] addExperimentToAvailableStore:dao];
+            [[PacoMediator sharedInstance] replaceAllExperiments:@[dao]];
            
-            
+            [[PacoMediator sharedInstance] startRunningExperiment:[dao instanceId]];
             NSString* strTitle = [NSString stringWithFormat:@"You have successfully added experiment %@", [dao valueForKeyEx:@"title"]];
             
         

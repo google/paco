@@ -351,6 +351,12 @@ import UIKit
     
     // Action for the datePicker ValueChanged event.
     func datePicked() {
-        date = datePicker.date
+        
+         let milliseconds:Int   = NSDate.millisecondsSinceMidnight(datePicker.date) as Int
+         let millsSinceMidnight:JavaLangInteger  = JavaLangInteger(int :  jint(milliseconds) )
+        
+        
+         self .signalTime?.setFixedTimeMillisFromMidnightWithJavaLangInteger(millsSinceMidnight)
+         date = datePicker.date
     }
 }

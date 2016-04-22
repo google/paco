@@ -23,6 +23,8 @@
 #import "Paco-Swift.h"
 #import "PacoTimeCellModel.h"
 #import "SchedulePrinter.h"
+#import "PAExperimentDAO+Helper.h"
+
 
 @implementation PAExperimentDAO (Helper)
 
@@ -67,6 +69,33 @@
     NSDate* date = [joda nsDateValue];
     NSString* dateString = [date dateToStringLocalTimezone];
     return dateString;
+    
+}
+
+
+
+-(NSDictionary* ) inputs
+{
+    
+    NSMutableDictionary* dictionaryOfInputArray  = [NSMutableDictionary new];
+    NSNumber   * numberOfGroups    = [self  valueForKeyPathEx:@"groups#"];
+    int count = [numberOfGroups intValue];
+    
+    NSMutableArray* groupArray = [[NSMutableArray alloc] init];
+    
+    for( int i =0;  i < count; i++)
+    {
+        NSString* str = [NSString stringWithFormat: @"groups[%i]",i ];
+        PAExperimentGroup*  group  =  [self  valueForKeyPathEx:str];
+        NSString * groupName = [group  valueForKeyPathEx:@"name"];
+        JavaUtilArrayList*  list =    (JavaUtilArrayList*)   [group getInputs] ;
+        IOSObjectArray * inputArray =  [list toArray];
+        [dictionaryOfInputArray setObject:inputArray forKey:groupName];
+        
+    
+    }
+
+    return dictionaryOfInputArray;
     
 }
 

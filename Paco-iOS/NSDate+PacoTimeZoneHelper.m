@@ -9,6 +9,7 @@
 #import "NSDate+PacoTimeZoneHelper.h"
 #import "DateTime.h"
 
+
 @implementation NSDate (PacoTimeZoneHelper)
 
 
@@ -72,6 +73,66 @@
     return date;
     
 }
+
+
++(long)  millisecondsSinceMidnight:(NSDate *)date
+{
+    NSCalendar *gregorian = [[NSCalendar alloc]
+                             initWithCalendarIdentifier:NSGregorianCalendar];
+    
+    
+    
+   [gregorian setTimeZone:[NSTimeZone localTimeZone]];
+    
+    
+    unsigned unitFlags =  NSHourCalendarUnit | NSMinuteCalendarUnit | NSCalendarUnitSecond;
+    NSDateComponents *components = [gregorian components:unitFlags fromDate:date];
+    
+    
+    
+   
+    NSTimeZone *timeZone = [NSTimeZone localTimeZone];
+    NSString *tzName = [timeZone name];
+    
+ 
+    
+    int secondsSinceMidnightGMT = ((60 * [components hour] + [components minute])*60 + [components second])*1000;
+    
+    long  millisecondsFromGMT =  [timeZone secondsFromGMTForDate:date]*1000;
+     
+    
+    long millisecondsFromMidnight = ((60 *  [components hour] + [components minute])*60 + [components second])*1000;
+    
+    return millisecondsFromMidnight;
+}
+
+
++(int)  secondsSinceMidnight:(NSDate *)date
+{
+    NSCalendar *gregorian = [[NSCalendar alloc]
+                             initWithCalendarIdentifier:NSGregorianCalendar];
+    unsigned unitFlags =  NSHourCalendarUnit | NSMinuteCalendarUnit | NSCalendarUnitSecond;
+    NSDateComponents *components = [gregorian components:unitFlags fromDate:date];
+    
+    return (60 * [components hour] + [components minute])*60 + [components second];
+}
+
++(int)  minutesSinceMidnight:(NSDate *)date
+{
+    NSCalendar *gregorian = [[NSCalendar alloc]
+                             initWithCalendarIdentifier:NSGregorianCalendar];
+    unsigned unitFlags =  NSHourCalendarUnit | NSMinuteCalendarUnit;
+    
+    
+    
+    
+    NSDateComponents *components = [gregorian components:unitFlags fromDate:date];
+    
+    return 60 * [components hour] + [components minute];
+}
+
+
+
 
 -(OrgJodaTimeDateTime*) joda
 {

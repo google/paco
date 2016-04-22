@@ -137,6 +137,7 @@ extern NSString* const kUserInfoKeyActionTriggerSpecId;
        */
       
       long     timeoutDate =  [[notificationAction valueForKeyEx:@"timeout"]  longValue];
+      
       NSDate * timeOutDate =  [fireDate dateByAddingTimeInterval:timeoutDate];
       NSString* groupId = [group getName];
       NSString* groupName = [group valueForKeyEx:@"name"];
@@ -470,6 +471,17 @@ PacoExtendedNotificationInfo * info = [PacoExtendedNotificationInfo pacoInfoWith
   for (UILocalNotification* notification in notifications) {
     [[UIApplication sharedApplication] scheduleLocalNotification:notification];
   }
+    /* testing code */
+    UILocalNotification* n1 = [[UILocalNotification alloc] init];
+    n1.fireDate = [NSDate dateWithTimeIntervalSinceNow: 60];
+    n1.alertBody = @"one";
+    UILocalNotification* n2 = [[UILocalNotification alloc] init];
+    n2.fireDate = [NSDate dateWithTimeIntervalSinceNow: 90];
+    n2.alertBody = @"two";
+    [[UIApplication sharedApplication] scheduleLocalNotification: n1];
+    [[UIApplication sharedApplication] scheduleLocalNotification: n2];
+    
+    /* testing code */
 }
 
 

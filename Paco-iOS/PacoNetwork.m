@@ -16,6 +16,8 @@
 #import "PacoSerializeUtil.h"
 #import "PacoSerializer.h" 
 #import "PacoEnumerator.h" 
+#import "PacoPublicDefinitionLoader.h"
+
 
 
 
@@ -63,7 +65,11 @@ static NSString* const kPacoStagingServerAddress = @"quantifiedself-staging.apps
         [self triggerNotificationSystem];
         
         
-          _publicExperimentIterator =  [PacoPublicDefinitionLoader  publicExperimentsEnumerator];
+        
+        
+        
+        
+        _publicExperimentIterator =  [PacoPublicDefinitionLoader  publicExperimentsEnumerator];
         
     }
     return self;

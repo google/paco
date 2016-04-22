@@ -241,6 +241,15 @@ static dispatch_group_t group;
     
 }
 
+-(PAExperimentDAO *) experimentForId:(NSString*) experimentId
+{
+    
+    PAExperimentDAO * experiment  = [self.allExperiments findExperiment:experimentId];
+    return experiment;
+    
+}
+
+
 
 /*
  

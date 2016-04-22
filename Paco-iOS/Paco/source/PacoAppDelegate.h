@@ -24,6 +24,7 @@
 @class PacoMainViewController;
 @class PacoTestingControllerTableViewController;
 @class PacoMyExperiments;
+@class PacoNotificationTester;
 
 /* 888 */
 @class ScheduleTestViewController;
@@ -36,6 +37,8 @@
 @class ScheduleEditor;
 @class PacoHubExperiments;
 @class PacoViewController;
+
+static NSString *dataSource;
 
 @interface PacoAppDelegate : UIResponder <UIApplicationDelegate>
 
@@ -51,12 +54,17 @@
 @property (strong,nonatomic) PacoHubExperiments* publicExperiments;
 @property (strong,nonatomic) ScheduleEditor* scheduleEditor;
 @property (strong,nonatomic) PacoViewController* goController;
+@property (strong,nonatomic) PacoNotificationTester* alertTester;
+
+
 
 @property (strong,nonatomic) PacoTestViewer* testPagination;
 @property (strong,nonatomic) HubPaginatedTableViewController* pg;
 
 
 @property (strong,nonatomic) PacoTestingControllerTableViewController*  swiftTest;
+
+@property (strong,nonatomic) UIViewController*  viewController;
 
 
 @property (strong,nonatomic)  UITabBarController *tabBar;
@@ -78,8 +86,11 @@
  
  - (void)saveContext;
  - (NSURL *)applicationDocumentsDirectory;
-
-
+/* process received notificaiton */
+- (void)processReceivedNotification:(UILocalNotification*)notification mustShowSurvey:(BOOL)mustShowSurvey;
 - (void)processNotificationIfNeeded;
+/*   can be hidden */
+- (void)showNoSurveyNeededForNotification:(UILocalNotification*)notification;
+- (void)showSurveyForNotification:(UILocalNotification*)notification;
 
 @end

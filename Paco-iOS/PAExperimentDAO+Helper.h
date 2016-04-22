@@ -16,5 +16,5 @@
 -(NSString*) earliestStartDate;
 -(NSString*) lastEndDate;
 -(NSArray*) getTableCellModelObjects;
-
+-(NSDictionary* ) inputs;
 @end
