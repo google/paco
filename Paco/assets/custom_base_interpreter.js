@@ -341,5 +341,21 @@ var paco = (function (init) {
 	    };
 	  })();
 
+  obj.calendarService = (function() {
+    if (!calendar) {
+      calendar = { 
+        listEventInstances : function(String startMillis, String endMillis) { 
+          // TODO i18n
+          alert("No calendar support"); 
+        }
+      };
+    }
+
+    return {
+      listEventInstances : function(String startMillis, String endMillis) {
+        return calendar.listEventInstances(startMillis, endMillis);
+      }
+    };
+  })();
   return obj;
 })();

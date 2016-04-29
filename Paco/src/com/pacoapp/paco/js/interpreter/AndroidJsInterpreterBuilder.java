@@ -11,6 +11,7 @@ import android.util.Log;
 
 import com.google.common.base.Strings;
 import com.pacoapp.paco.PacoConstants;
+import com.pacoapp.paco.js.bridge.JavascriptCalendarManager;
 import com.pacoapp.paco.js.bridge.JavascriptEventLoader;
 import com.pacoapp.paco.js.bridge.JavascriptExperimentLoader;
 import com.pacoapp.paco.js.bridge.JavascriptLogger;
@@ -42,6 +43,7 @@ public class AndroidJsInterpreterBuilder {
     interpreter.newBind("log", new JavascriptLogger());
     interpreter.newBind("sensors", new JavascriptSensorManager(context));
     interpreter.newBind("strings", new JavascriptStringResources(context));
+    interpreter.newBind("calendar", new JavascriptCalendarManager(context));
     return interpreter;
 
   }
