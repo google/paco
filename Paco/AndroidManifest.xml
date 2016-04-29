@@ -333,8 +333,9 @@
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
     <uses-permission android:name="android.permission.GET_TASKS"/>
     <uses-permission android:name="com.android.browser.permission.READ_HISTORY_BOOKMARKS" />
-     <uses-permission android:name="android.permission.PACKAGE_USAGE_STATS"
+    <uses-permission android:name="android.permission.PACKAGE_USAGE_STATS"
         tools:ignore="ProtectedPermissions" />
+    <uses-permission android:name="android.permission.READ_CALENDAR" />
 
     <uses-feature android:name="android.hardware.camera" android:required="false"/>
     <uses-sdk android:minSdkVersion="11"  android:targetSdkVersion="22"></uses-sdk>

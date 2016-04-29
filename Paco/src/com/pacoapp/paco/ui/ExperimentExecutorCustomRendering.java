@@ -85,6 +85,7 @@ import com.google.common.base.Strings;
 import com.pacoapp.paco.PacoConstants;
 import com.pacoapp.paco.R;
 import com.pacoapp.paco.js.bridge.Environment;
+import com.pacoapp.paco.js.bridge.JavascriptCalendarManager;
 import com.pacoapp.paco.js.bridge.JavascriptEmail;
 import com.pacoapp.paco.js.bridge.JavascriptEventLoader;
 import com.pacoapp.paco.js.bridge.JavascriptExperimentLoader;
@@ -475,6 +476,7 @@ private void injectObjectsIntoJavascriptEnvironment() {
   // deprecated name - use "db" in all new experiments
   webView.addJavascriptInterface(javascriptEventLoader, "eventLoader");
 
+  webView.addJavascriptInterface(new JavascriptCalendarManager(this), "calendar");
   webView.addJavascriptInterface(new JavascriptEmail(this), "email");
   webView.addJavascriptInterface(new JavascriptNotificationService(this, experiment.getExperimentDAO(), experimentGroup), "notificationService");
   webView.addJavascriptInterface(new JavascriptPhotoService(this), "photoService");
