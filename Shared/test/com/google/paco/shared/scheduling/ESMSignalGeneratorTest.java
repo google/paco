@@ -262,6 +262,28 @@ public class ESMSignalGeneratorTest extends TestCase {
         endHourMillis, startHourMillis, signals, esmWeekends);
   }
 
+  public void test8xPerDayForThreeDays() throws Exception {
+    DateTime startDate = new DateTime(2016, 4, 27, 0, 0, 0, 0);
+
+    long endHourMillis = Hours.hours(22).toStandardDuration().getMillis();
+    long startHourMillis = Hours.hours(9).toStandardDuration().getMillis();
+    int esmFrequency = 8;
+    int esmPeriod = Schedule.ESM_PERIOD_DAY;
+    boolean esmWeekends = true;
+
+    Schedule schedule = getScheduleWith(startDate, startHourMillis, endHourMillis,
+        esmPeriod, esmFrequency, esmWeekends);
+
+    EsmGenerator2 esmGen = new EsmGenerator2();
+    List<DateTime> signals = esmGen.generateForSchedule(startDate, schedule);
+
+    assertEquals(8, signals.size());
+    assertAllSignalsAreValid(createDayInterval(startDate, endHourMillis, startHourMillis), endHourMillis, startHourMillis, signals, esmWeekends);
+    Minutes minimumBufferInMinutes = Minutes.minutes(schedule.getMinimumBuffer());
+    assertSignalsRespectMinimumBuffer(signals, minimumBufferInMinutes);
+  }
+
+
   public void test10xPerWeekNoWeekends() throws Exception {
     DateTime startDate = new DateTime(2010, 12, 20, 0, 0, 0, 0);
 

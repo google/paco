@@ -1,20 +1,30 @@
 package com.google.paco.shared.scheduling;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
+import org.joda.time.DateMidnight;
 import org.joda.time.DateTime;
 import org.junit.Test;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.pacoapp.paco.shared.model2.ActionTrigger;
+import com.pacoapp.paco.shared.model2.EventInterface;
+import com.pacoapp.paco.shared.model2.EventStore;
+import com.pacoapp.paco.shared.model2.ExperimentDAO;
 import com.pacoapp.paco.shared.model2.ExperimentGroup;
 import com.pacoapp.paco.shared.model2.Schedule;
 import com.pacoapp.paco.shared.model2.ScheduleTrigger;
 import com.pacoapp.paco.shared.model2.SignalTime;
 import com.pacoapp.paco.shared.scheduling.ActionScheduleGenerator;
+import com.pacoapp.paco.shared.scheduling.EsmSignalStore;
 import com.pacoapp.paco.shared.util.TimeUtil;
 
 public class ActionScheduleGeneratorTest {
@@ -338,6 +348,130 @@ public class ActionScheduleGeneratorTest {
                ActionScheduleGenerator.isExperimentGroupOver(experimentGroup));
   }
 
+  @Test
+  public void testEsmFiveDays() {
+    ExperimentDAO experiment = new ExperimentDAO();
+    ExperimentGroup experimentGroup = new ExperimentGroup();
+    experiment.setGroups(Lists.newArrayList(experimentGroup));
+    experimentGroup.setFixedDuration(true);
+    final DateTime day1 = DateTime.now();
+    experimentGroup.setStartDate(TimeUtil.formatDate(day1.minusDays(3).getMillis()));
+    experimentGroup.setEndDate(TimeUtil.formatDate(day1.plusDays(2).getMillis()));
+    List<ActionTrigger> actionTriggers = Lists.newArrayList();
+    List<Schedule> schedules = Lists.newArrayList();
+    Schedule schedule = new Schedule(Schedule.ESM, (Boolean)null,
+                                     (Integer)null,
+                                     22 * 60 * 60 * 1000l,
+                                     8,
+                                     Schedule.ESM_PERIOD_DAY,
+                                     9 * 60 * 60 * 1000l,
+                                     null,
+                                     null,
+                                     null,
+                                     null,
+                                     true,
+                                     15,
+                                     59,
+                                     0,
+                                     0);
+    schedules.add(schedule);
+    ScheduleTrigger actionTrigger = new ScheduleTrigger(schedules);
+    actionTriggers.add(actionTrigger);
+    experimentGroup.setActionTriggers(actionTriggers);
+
+    final Map<Long, List<DateTime>> store = Maps.newConcurrentMap();
+    EsmSignalStore alarmStore = new EsmSignalStore() {
+
+      // date, list of times
+
+
+      @Override
+      public void storeSignal(Long date, Long experimentId, Long alarmTime, String groupName, Long actionTriggerId,
+                              Long scheduleId) {
+        List<DateTime> existing = store.get(date);
+        if (existing == null) {
+          existing = Lists.newArrayList();
+          store.put(date, existing);
+        }
+        existing.add(new DateTime(alarmTime));
+
+      }
+
+      @Override
+      public List<DateTime> getSignals(Long experimentId, Long periodStart, String groupName, Long actionTriggerId,
+                                       Long scheduleId) {
+        List<DateTime> list = store.get(periodStart);
+        if (list != null) {
+          return list;
+        } else {
+          return Lists.newArrayList();
+        }
+      }
+
+      @Override
+      public void deleteAll() {
+        store.clear();
+
+      }
+
+      @Override
+      public void deleteAllSignalsForSurvey(Long experimentId) {
+        store.clear();
+
+      }
+
+      @Override
+      public void deleteSignalsForPeriod(Long experimentId, Long periodStart, String groupName, Long actionTriggerId,
+                                         Long scheduleId) {
+        store.remove(periodStart);
+
+      }
+
+    };
+
+    EventStore eventStore = new EventStore() {
+
+      @Override
+      public EventInterface getEvent(Long experimentId, DateTime scheduledTime, String groupName, Long actionTriggerId,
+                                     Long scheduleId) {
+        // TODO Auto-generated method stub
+        return null;
+      }
+
+      @Override
+      public void updateEvent(EventInterface correspondingEvent) {
+        // TODO Auto-generated method stub
+
+      }
+
+      @Override
+      public void insertEvent(EventInterface event) {
+        // TODO Auto-generated method stub
+
+      }
+
+    };
+
+    final ArrayList<ExperimentDAO> experiments = Lists.newArrayList(experiment);
+
+    ActionScheduleGenerator.arrangeExperimentsByNextTimeFrom(experiments, day1.minusDays(3), alarmStore, eventStore);
+    ActionScheduleGenerator.arrangeExperimentsByNextTimeFrom(experiments, day1.minusDays(2), alarmStore, eventStore);
+    ActionScheduleGenerator.arrangeExperimentsByNextTimeFrom(experiments, day1.minusDays(1), alarmStore, eventStore);
+    ActionScheduleGenerator.arrangeExperimentsByNextTimeFrom(experiments, day1, alarmStore, eventStore);
+    ActionScheduleGenerator.arrangeExperimentsByNextTimeFrom(experiments, day1.plusDays(1), alarmStore, eventStore);
+    ActionScheduleGenerator.arrangeExperimentsByNextTimeFrom(experiments, day1.plusDays(2), alarmStore, eventStore);
+
+
+    for (Entry<Long, List<DateTime>> key : store.entrySet()) {
+      System.out.println("Date: " + new DateMidnight(key.getKey()));
+      List<DateTime> values = key.getValue();
+      for (DateTime dateTime : values) {
+        System.out.println("  time: " + dateTime.toString());
+      }
+
+    }
+    assertEquals("should not be null", 32, store.values().size());
+  }
 
 
 
