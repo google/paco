@@ -41,7 +41,7 @@ public class ActionScheduleGenerator {
     return arrangeExperimentsByNextTimeFrom(experiments, new DateTime(), alarmStore, eventStore);
   }
 
-  static List<ActionSpecification> arrangeExperimentsByNextTimeFrom(List<ExperimentDAO> experiments,
+  public static List<ActionSpecification> arrangeExperimentsByNextTimeFrom(List<ExperimentDAO> experiments,
                                                                        DateTime now,
                                                                        EsmSignalStore alarmStore,
                                                                        EventStore eventStore) {
@@ -110,7 +110,7 @@ public class ActionScheduleGenerator {
               final List<PacoAction> actions = scheduleTrigger.getActions();
               PacoNotificationAction notificationAction = null;
               for (PacoAction pacoAction : actions) {
-                if (pacoAction.getActionCode() != null && 
+                if (pacoAction.getActionCode() != null &&
                         pacoAction.getActionCode().equals(PacoAction.NOTIFICATION_TO_PARTICIPATE_ACTION_CODE)) {
                   notificationAction = (PacoNotificationAction) pacoAction;
                 }

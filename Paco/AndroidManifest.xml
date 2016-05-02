@@ -17,8 +17,8 @@
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.pacoapp.paco"
-    android:versionCode="141"
-    android:versionName="4.2.4" xmlns:tools="http://schemas.android.com/tools">
+    android:versionCode="143"
+    android:versionName="4.2.6" xmlns:tools="http://schemas.android.com/tools">
     <uses-feature android:name="android.hardware.location" android:required="false"/>
     <uses-feature android:name="android.hardware.telephony" android:required="false"/>
     <uses-feature android:name="android.hardware.camera.autofocus" android:required="false"/>
@@ -333,8 +333,9 @@
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
     <uses-permission android:name="android.permission.GET_TASKS"/>
     <uses-permission android:name="com.android.browser.permission.READ_HISTORY_BOOKMARKS" />
-     <uses-permission android:name="android.permission.PACKAGE_USAGE_STATS"
+    <uses-permission android:name="android.permission.PACKAGE_USAGE_STATS"
         tools:ignore="ProtectedPermissions" />
+    <uses-permission android:name="android.permission.READ_CALENDAR" />
 
     <uses-feature android:name="android.hardware.camera" android:required="false"/>
     <uses-sdk android:minSdkVersion="11"  android:targetSdkVersion="22"></uses-sdk>
