@@ -314,7 +314,11 @@ var paco = (function (init) {
 	        	// TODO i18n
 	          alert("No notification support"); 
 	        },
-	        removeNotification : function(message) { 
+	        createNotification : function(message, timeout) { 
+            // TODO i18n
+            alert("No notification support"); 
+          },
+          removeNotification : function(message) { 
 		          alert("No notification support"); 
 		    },
 		      removeAllNotifications : function() {
@@ -327,7 +331,10 @@ var paco = (function (init) {
 	      createNotification : function(message) {
 	        notificationService.createNotification(message);
 	      }, 
-	      removeNotification : function(message) {
+	      createNotification : function(message, timeout) {
+          notificationService.createNotification(message, timeout);
+        },
+        removeNotification : function(message) {
 	    	  notificationService.removeNotification(message);
 	      },
         removeAllNotifications : function() {

@@ -62,7 +62,7 @@ public class JavascriptEventLoader {
 
   @JavascriptInterface
   public String getEventsForExperimentGroup() {
-    List<Event> events = experimentProviderUtil.loadEventsForExperimentGroup(experiment.getId(), experimentGroup.getName());
+    List<Event> events = experimentProviderUtil.loadEventsForExperimentGroup(androidExperiment.getId(), experimentGroup.getName());
     return FeedbackActivity.convertEventsToJsonString(events);
   }
 
