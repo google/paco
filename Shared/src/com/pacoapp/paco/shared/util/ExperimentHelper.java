@@ -159,7 +159,9 @@ public class ExperimentHelper {
               continue;
             }
 
-            boolean usesSourceId = interruptCue.getCueCode() == InterruptCue.PACO_ACTION_EVENT || interruptCue.getCueCode() == InterruptCue.APP_USAGE;
+            boolean usesSourceId = interruptCue.getCueCode() == InterruptCue.PACO_ACTION_EVENT
+                    || interruptCue.getCueCode() == InterruptCue.APP_USAGE
+                    || interruptCue.getCueCode() == InterruptCue.APP_CLOSED;
             boolean sourceIdsMatch;
             boolean isExperimentActionTrigger = interruptCue.getCueCode() == InterruptCue.PACO_EXPERIMENT_JOINED_EVENT
                     || interruptCue.getCueCode() == InterruptCue.PACO_EXPERIMENT_ENDED_EVENT

@@ -12,6 +12,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.database.Cursor;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.PowerManager;
@@ -357,7 +358,9 @@ public class BroadcastTriggerReceiver extends BroadcastReceiver {
     String[] selArgs = new String[] { String.valueOf(startTimeMillis) };
     Cursor mCur = null;
     try {
-      mCur = context.getContentResolver().query(Browser.BOOKMARKS_URI, proj, sel, selArgs, Browser.BookmarkColumns.DATE + " ASC");
+      Uri bookmarksUri = Browser.BOOKMARKS_URI;
+      //Uri chromeBookmarksUri = Uri.parse("content://com.android.chrome.browser/bookmarks");
+      mCur = context.getContentResolver().query(bookmarksUri, proj, sel, selArgs, Browser.BookmarkColumns.DATE + " ASC");
       mCur.moveToFirst();
 
       String title = "";
@@ -379,6 +382,9 @@ public class BroadcastTriggerReceiver extends BroadcastReceiver {
           }
       }
       return results;
+    } catch (Exception e) {
+      Log.e(PacoConstants.TAG, "bookmark lookup failed. Must be Marshmallow or latest Chrome. bookmark uri is being removed permanently.", e);
+      return Lists.newArrayList();
     } finally {
       if (mCur != null) {
         mCur.close();
