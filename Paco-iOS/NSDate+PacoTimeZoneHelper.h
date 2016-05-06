@@ -7,8 +7,8 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "DateTime.h"
 
+@class OrgJodaTimeDateTime;
 
 @interface NSDate (PacoTimeZoneHelper)
 

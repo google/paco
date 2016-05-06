@@ -10,7 +10,7 @@
 #import "Schedule.h" 
 #import "ExperimentDAO.h"
 #import "EventInterface.h" 
- 
+#import "java/util/ArrayList.h"
 
 
 @class PacoScheduler;

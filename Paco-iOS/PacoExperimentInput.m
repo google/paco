@@ -16,7 +16,7 @@
 #import "PacoExperimentInput.h"
 #import <CoreLocation/CoreLocation.h>
 #import "Input2.h"
-
+#import "NSObject+J2objcKVO.h"
 
 
 static NSString* const INPUT_CONDITIONAL = @"conditional";

@@ -6,7 +6,7 @@
 //  Copyright (c) 2015 Paco. All rights reserved.
 //
 
-#import "ArrayList.h"
+#include "java/util/ArrayList.h"
 
 @interface JavaUtilArrayList (PacoConversion)
 

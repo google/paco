@@ -86,7 +86,7 @@ class PacoLikertCell: PacoTableViewExpandingCellBase {
     
     @IBAction func checkOrUncheck(recognizer:AnyObject)
     {
-        let label = recognizer.view as! UILabel
+       /* let label = recognizer.view as! UILabel
         let index:Int = label.tag
         checkedIndex = index
         
@@ -102,7 +102,7 @@ class PacoLikertCell: PacoTableViewExpandingCellBase {
         
         
          print("selected label \(label.tag)")
-        
+        */
         
     }
 

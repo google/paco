@@ -127,7 +127,7 @@ extern NSString* const kUserInfoKeyActionTriggerSpecId;
       [spec->experiment_ valueForKeyPathEx:@"groups[0].actionTriggers[0].actions[0]"];
       NSString* experimentId =  [[dao valueForKeyEx:@"id"] stringValue];
       NSString* experimentTitle = [dao valueForKeyEx:@"title"];
-      NSDate * fireDate = [[spec valueForKey:@"time_"] nsDateValue];
+     NSDate * fireDate = [[spec valueForKey:@"time_"] nsDateValue];
       
 #warning needs fixing
       /*

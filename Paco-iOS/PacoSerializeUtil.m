@@ -22,7 +22,7 @@
 #include "java/util/List.h"
 #include "org/joda/time/Hours.h"
 #include "org/joda/time/Duration.h"
-
+#import "NSObject+J2objcKVO.h"
 
 
 
