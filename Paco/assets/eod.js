@@ -1174,7 +1174,7 @@ paco.executeEod = (function() {
         var eventDateTime = new Date(event.responseTime);
         if (!isActive(eventDateTime, now, triggerTime, timeout)) {
           // maybe build the list of already expired events to show as well.
-          break;
+          continue;
         }
         var eventGroupName = event.experimentGroupName;
         if (!eventGroupName) {
