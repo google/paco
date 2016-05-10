@@ -79,7 +79,7 @@ typedef void(^LoginCompletionBlock)(NSError* error);
 
 - (void)prefetchInBackground;
 
-- (void)backgroundFetchStartedWithBlock:(void(^)(UIBackgroundFetchResult))completionBlock;
+//- (void)backgroundFetchStartedWithBlock:(void(^)(UIBackgroundFetchResult))completionBlock;
 
 - (void)executeRoutineMajorTaskIfNeeded;
 - (void)uploadPendingEventsInBackground;
@@ -94,9 +94,9 @@ typedef void(^LoginCompletionBlock)(NSError* error);
 
 - (void)stopExperiment:(PacoExperiment*)experiment withBlock:(void(^)())completionBlock;
 
-- (void)submitSurveyWithDefinition:(PacoExperimentDefinition*)definition
-                      surveyInputs:(NSArray*)surveyInputs
-                      notification:(UILocalNotification*)notification;
+//- (void)submitSurveyWithDefinition:(PacoExperimentDefinition*)definition
+//                      surveyInputs:(NSArray*)surveyInputs
+//                      notification:(UILocalNotification*)notification;
 
 //refresh definitions published to the current user
 - (void)refreshMyDefinitionsWithBlock:(PacoRefreshCompletionBlock)completionBlock;

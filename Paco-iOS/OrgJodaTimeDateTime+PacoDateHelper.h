@@ -6,17 +6,18 @@
 //  Copyright (c) 2015 Paco. All rights reserved.
 //
 
-#import "DateTime.h" 
+#import "org/joda/time/DateTime.h"
 
 
 @interface OrgJodaTimeDateTime (PacoDateHelper)
 
+ 
 -(NSDate*) nsDateValue;
 -(BOOL) isGreaterThan:(OrgJodaTimeDateTime*) otherTime;
 -(BOOL) isLessThan:(OrgJodaTimeDateTime*) otherTime;
 
 -(NSString*) dateTimeFormated;
 
-
+ 
 
 @end

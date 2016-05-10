@@ -11,6 +11,8 @@
 #import "ExperimentDAO.h"
 #include "java/lang/Long.h"
 #include "DateTime.h"
+#include "DateTimeZone.h" 
+
 #import "OrgJodaTimeDateTime+PacoDateHelper.h"
 #include "EsmSignalStore.h"
 #include "EventStore.h"
@@ -132,6 +134,9 @@
 {
     
     OrgJodaTimeDateTime *  nextTime =  [OrgJodaTimeDateTime  now];
+    
+    
+    
     PAActionSpecification *actionSpecification ;
     int count  =0;
     do {
@@ -143,6 +148,11 @@
           seems to return nil for action
          */
         actionSpecification   = [actionScheduleGenerator getNextTimeFromNowWithOrgJodaTimeDateTime:nextTime withPAEsmSignalStore:signalStore withPAEventStore:eventStore];
+        
+        id<JavaUtilSet> set =  [OrgJodaTimeDateTimeZone getAvailableIDs];
+        
+        
+      //  OrgJodaTimeDateTimeZone *  tz = [OrgJodaTimeDateTimeZone forIDWithNSString:@"America/Los_Angeles"];
         
   
         
@@ -183,8 +193,6 @@
     
 }
 
-
- 
 
 
 - (BOOL)needsNotificationSystem

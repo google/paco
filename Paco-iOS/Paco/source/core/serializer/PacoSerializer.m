@@ -784,7 +784,7 @@
     if (![recurseObject[0] isEqualToString:PACO_OBJECT_PARENT]) {
         
         
-    NSLog(@" adding %@ to parent %@", attributeName, parent);
+   // NSLog(@" adding %@ to parent %@", attributeName, parent);
         
       [self addItem:attributeName Parent:parent Value:arrayList AddList:YES];
         

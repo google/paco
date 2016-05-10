@@ -185,9 +185,9 @@ NSString *kCellIdQuestion = @"question";
 
   [self processAttachedNotificationIfNeeded];
 
-  [[PacoClient sharedInstance] submitSurveyWithDefinition:self.evaluator.experiment.definition
-                                             surveyInputs:self.evaluator.visibleInputs
-                                             notification:self.notification];
+  //[[PacoClient sharedInstance] submitSurveyWithDefinition:self.evaluator.experiment.definition
+  //                                           surveyInputs:self.evaluator.visibleInputs
+  //                                           notification:self.notification];
 
   //clear all inputs' submitted responseObject for the definition
   [self.evaluator.experiment.definition clearInputs];
