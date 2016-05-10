@@ -258,7 +258,11 @@ public class ExperimentExecutorCustomRendering extends ActionBarActivity impleme
    */
   private void lookForActiveNotificationForExperiment() {
     NotificationHolder notificationHolder = null;
-    List<NotificationHolder> notificationHolders = experimentProviderUtil.getNotificationsFor(getExperiment().getExperimentDAO().getId().longValue(), experimentGroup.getName());
+    if (getExperiment() == null) {
+      return;
+    }
+    final long experimentId = getExperiment().getExperimentDAO().getId().longValue();
+    List<NotificationHolder> notificationHolders = experimentProviderUtil.getNotificationsFor(experimentId, experimentGroup.getName());
     if (notificationHolders != null && !notificationHolders.isEmpty()) {
       notificationHolder = notificationHolders.get(0); // TODO can we ever have more than one for a group?
     }
