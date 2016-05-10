@@ -412,21 +412,28 @@ public class ActionScheduleGenerator {
     }
   }
 
-  private void generateNextPeriod(DateMidnight generatingPeriodStart, EsmSignalStore alarmStore,
+  private synchronized void generateNextPeriod(DateMidnight generatingPeriodStart, EsmSignalStore alarmStore,
                                   Schedule schedule, Long experimentId, String groupName, Long actionTriggerId) {
     if (isOver(generatingPeriodStart.toDateTime(), experiment)) {
       return;
     }
+    List<DateTime> signalTimes = generateSignalTimesForPeriod(generatingPeriodStart, schedule,
+                                                              experimentId, groupName, actionTriggerId);
+    System.out.println("Generated " + signalTimes.size() + " esm signals for period start: " + generatingPeriodStart.getMillis());
+
     System.out.println("PRE-deleteSignals " + Thread.currentThread().getName());
+
     alarmStore.deleteSignalsForPeriod(experimentId,
                                       generatingPeriodStart.getMillis(),
                                       groupName, actionTriggerId, schedule.getId());
+
     System.out.println("POST-deleteSignals " + Thread.currentThread().getName());
-    List<DateTime> signalTimes = generateSignalTimesForPeriod(generatingPeriodStart, schedule,
-                                                              experimentId, groupName, actionTriggerId);
+
     System.out.println("PRE-storeSignals " + Thread.currentThread().getName());
+
     storeSignalTimes(generatingPeriodStart, signalTimes, alarmStore,
                      experimentId, groupName, actionTriggerId, schedule.getId());
+
     System.out.println("POST-storeSignals " + Thread.currentThread().getName());
   }
 
