@@ -1149,11 +1149,17 @@ paco.executeEod = (function() {
     }
     
     function isActive(eventDate, now, triggerTime, timeout) { 
+      var nt = now.getTime(); 
+			var eventDateMidnight = new Date(eventDate.getFullYear(), 
+                                           eventDate.getMonth(), 
+                                           eventDate.getDate()).getTime();
+      var ft = eventDateMidnight + triggerTime.fixedTimeMillisFromMidnight + timeout;
+      //var active = nt <= ft;
+      //alert("nt = " + nt + ", edt = " + edt + ", ft = " + ft + ", active = " + active );
+      
       return eventDate.getDate() == now.getDate() || 
              eventDate.getDate() == (now.getDate() - 1)  && 
-                 now.getTime() <= new Date(eventDate.getFullYear(), 
-                                           eventDate.getMonth(), 
-                                           eventDate.getDate()).getTime() + triggerTime + timeout; 
+                 now.getTime() <= ft; 
     };
     
     var getActiveEventsWithoutEod = function(referredExperimentGroup, experimentGroup, db) {      
