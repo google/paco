@@ -19,6 +19,10 @@ package com.google.paco.shared.scheduling;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.RunnableFuture;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import junit.framework.AssertionFailedError;
 import junit.framework.TestCase;
@@ -36,6 +40,43 @@ import com.pacoapp.paco.shared.scheduling.EsmGenerator2;
 import com.pacoapp.paco.shared.util.TimeUtil;
 
 public class ESMSignalGeneratorTest extends TestCase {
+
+  private final class EsmRunnable<V> implements RunnableFuture<V> {
+    @Override
+    public void run() {
+      runGeneration();
+    }
+
+    @Override
+    public boolean cancel(boolean mayInterruptIfRunning) {
+      // TODO Auto-generated method stub
+      return false;
+    }
+
+    @Override
+    public boolean isCancelled() {
+      // TODO Auto-generated method stub
+      return false;
+    }
+
+    @Override
+    public boolean isDone() {
+      // TODO Auto-generated method stub
+      return false;
+    }
+
+    @Override
+    public V get() throws InterruptedException, ExecutionException {
+      // TODO Auto-generated method stub
+      return null;
+    }
+
+    @Override
+    public V get(long timeout, TimeUnit unit) throws InterruptedException, ExecutionException, TimeoutException {
+      // TODO Auto-generated method stub
+      return null;
+    }
+  }
 
   public void test1xPerDay() throws Exception {
     DateTime startDate = new DateTime(2010, 12, 20, 0, 0, 0, 0);
@@ -175,6 +216,45 @@ public class ESMSignalGeneratorTest extends TestCase {
     Minutes minimumBufferInMinutes = Minutes.minutes(schedule.getMinimumBuffer());
     assertSignalsRespectMinimumBuffer(signals, minimumBufferInMinutes);
   }
+
+  public void test8xPerDayEqualBuffer() throws Exception {
+    final EsmRunnable r1 = new EsmRunnable();
+    final EsmRunnable r2 = new EsmRunnable();
+    final EsmRunnable r3 = new EsmRunnable();
+    final EsmRunnable r4 = new EsmRunnable();
+    final EsmRunnable r5 = new EsmRunnable();
+//    new Thread(r1).run();
+//    new Thread(r2).run();
+//    new Thread(r3).run();
+//    new Thread(r4).run();
+//    new Thread(r5).run();
+    for(int i=0; i< 2; i++) {
+      runGeneration();
+    }
+    //r1.get();r2.get();r3.get();r4.get();r5.get();
+  }
+
+  public void runGeneration() {
+    DateTime startDate = new DateTime(2010, 12, 20, 0, 0, 0, 0);
+
+    long endHourMillis = Hours.hours(22).toStandardDuration().getMillis();
+    long startHourMillis = Hours.hours(9).toStandardDuration().getMillis();
+    int esmFrequency = 8;
+    int esmPeriod = Schedule.ESM_PERIOD_DAY;
+    boolean esmWeekends = false;
+
+    Schedule schedule = getScheduleWith(startDate, startHourMillis, endHourMillis,
+        esmPeriod, esmFrequency, esmWeekends);
+
+    EsmGenerator2 esmGen = new EsmGenerator2();
+    List<DateTime> signals = esmGen.generateForSchedule(startDate, schedule);
+
+    assertEquals(8, signals.size());
+    assertAllSignalsAreValid(createDayInterval(startDate, endHourMillis, startHourMillis), endHourMillis, startHourMillis, signals, esmWeekends);
+    Minutes minimumBufferInMinutes = Minutes.minutes(schedule.getMinimumBuffer());
+    assertSignalsRespectMinimumBuffer(signals, minimumBufferInMinutes);
+  }
+
 
   public void testMinimumBufferAssertion() throws Exception {
     List<DateTime> badSignals = new ArrayList<DateTime>();

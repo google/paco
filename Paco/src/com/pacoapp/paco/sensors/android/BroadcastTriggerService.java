@@ -72,7 +72,8 @@ public class BroadcastTriggerService extends Service {
     final String sourceIdentifier = extras.getString(Experiment.TRIGGER_SOURCE_IDENTIFIER);
     final String timeStr = extras.getString(Experiment.TRIGGERED_TIME);
 
-    // TODO pass the duration along to the experiment somehow (either log it at the moment it happened, or, pass it in the notification (yuck)?
+    // TODO pass the duration along to the experiment somehow (either log it at
+    // the moment it happened, or, pass it in the notification (yuck)?
     final long duration = extras.getLong(Experiment.TRIGGER_PHONE_CALL_DURATION);
 
     DateTime time = null;
@@ -86,50 +87,49 @@ public class BroadcastTriggerService extends Service {
     List<Experiment> joined = eu.getJoinedExperiments();
 
     for (Experiment experiment : joined) {
-      if (!experiment.isRunning(now) && triggerEvent != InterruptCue.PACO_EXPERIMENT_ENDED_EVENT &&
-                                         triggerEvent != InterruptCue.PACO_EXPERIMENT_JOINED_EVENT) {
-        // TODO This doesn't work if the experiment for experiment ended events because the experiment is already over.
+      if (!experiment.isRunning(now) && triggerEvent != InterruptCue.PACO_EXPERIMENT_ENDED_EVENT
+          && triggerEvent != InterruptCue.PACO_EXPERIMENT_JOINED_EVENT) {
+        // TODO This doesn't work if the experiment for experiment ended events
+        // because the experiment is already over.
         Log.i(PacoConstants.TAG, "Skipping experiment: " + experiment.getExperimentDAO().getTitle());
         continue;
       }
       Log.i(PacoConstants.TAG, "We have an experiment that is running");
-      List<ExperimentGroup> groupsListening = ExperimentHelper.isBackgroundListeningForSourceId(experiment.getExperimentDAO(), sourceIdentifier);
+      List<ExperimentGroup> groupsListening = ExperimentHelper.isBackgroundListeningForSourceId(experiment.getExperimentDAO(),
+                                                                                                sourceIdentifier);
       persistBroadcastData(eu, experiment, groupsListening, extras);
 
-      List<Pair<ExperimentGroup, InterruptTrigger>> triggersThatMatch = ExperimentHelper.shouldTriggerBy(experiment.getExperimentDAO(), triggerEvent, sourceIdentifier);
+      List<Pair<ExperimentGroup, InterruptTrigger>> triggersThatMatch = ExperimentHelper.shouldTriggerBy(experiment.getExperimentDAO(),
+                                                                                                         triggerEvent,
+                                                                                                         sourceIdentifier);
       Log.i(PacoConstants.TAG, "triggers that match count: " + triggersThatMatch.size());
       for (Pair<ExperimentGroup, InterruptTrigger> triggerInfo : triggersThatMatch) {
         final InterruptTrigger actionTrigger = triggerInfo.second;
-        List<PacoAction> actions = actionTrigger.getActions();
-        for (PacoAction pacoAction : actions) {
-          final ExperimentGroup group = triggerInfo.first;
-          if (pacoAction.getActionCode() == pacoAction.NOTIFICATION_TO_PARTICIPATE_ACTION_CODE) {
-            String uniqueStringForTrigger = createUniqueStringForTrigger(experiment, triggerInfo);
-            if (!recentlyTriggered(experiment, uniqueStringForTrigger, actionTrigger.getMinimumBuffer())) {
-              setRecentlyTriggered(now, uniqueStringForTrigger);
-              ActionSpecification timeExperiment = new ActionSpecification(time,
-                                                                           experiment.getExperimentDAO(),
-                                                                           group,
+
+        String uniqueStringForTrigger = createUniqueStringForTrigger(experiment, triggerInfo);
+        if (!recentlyTriggered(experiment, uniqueStringForTrigger, actionTrigger.getMinimumBuffer())) {
+          setRecentlyTriggered(now, uniqueStringForTrigger);
+
+          List<PacoAction> actions = actionTrigger.getActions();
+          for (PacoAction pacoAction : actions) {
+            final ExperimentGroup group = triggerInfo.first;
+            if (pacoAction.getActionCode() == pacoAction.NOTIFICATION_TO_PARTICIPATE_ACTION_CODE) {
+              ActionSpecification timeExperiment = new ActionSpecification(time, experiment.getExperimentDAO(), group,
                                                                            actionTrigger,
-                                                                           (PacoNotificationAction)pacoAction,
-                                                                           (Long)null);
+                                                                           (PacoNotificationAction) pacoAction,
+                                                                           (Long) null);
               Log.i(PacoConstants.TAG, "creating a notification");
-              final long delay = ((PacoNotificationAction)pacoAction).getDelay();
-              notificationCreator.createNotificationsForTrigger(experiment,
-                                                                triggerInfo,
-                                                                delay,
-                                                                time,
-                                                                triggerEvent,
-                                                                sourceIdentifier,
-                                                                timeExperiment);
+              final long delay = ((PacoNotificationAction) pacoAction).getDelay();
+              notificationCreator.createNotificationsForTrigger(experiment, triggerInfo, delay, time, triggerEvent,
+                                                                sourceIdentifier, timeExperiment);
               Log.i(PacoConstants.TAG, "created a notification");
+            } else if (pacoAction.getActionCode() == PacoAction.EXECUTE_SCRIPT_ACTION_CODE) {
+              AndroidActionExecutor.runAction(getApplicationContext(), pacoAction, experiment,
+                                              experiment.getExperimentDAO(), group);
             }
-          } else if (pacoAction.getActionCode() == PacoAction.EXECUTE_SCRIPT_ACTION_CODE) {
-            AndroidActionExecutor.runAction(getApplicationContext(), pacoAction, experiment, experiment.getExperimentDAO(), group);
           }
         }
       }
-
     }
   }
 

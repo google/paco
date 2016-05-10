@@ -281,7 +281,8 @@ public class NotificationCreator {
     event.setExperimentName(experiment.getExperimentDAO().getTitle());
     event.setExperimentGroupName(notificationHolder.getExperimentGroupName());
     event.setActionTriggerId(notificationHolder.getActionTriggerId());
-    event.setActionTriggerSpecId(notificationHolder.getActionId());
+    event.setActionTriggerSpecId(notificationHolder.getActionTriggerSpecId());
+    event.setActionId(notificationHolder.getActionId());
     event.setExperimentVersion(experiment.getExperimentDAO().getVersion());
     event.setScheduledTime(new DateTime(notificationHolder.getAlarmTime()));
     experimentProviderUtil.insertEvent(event);
