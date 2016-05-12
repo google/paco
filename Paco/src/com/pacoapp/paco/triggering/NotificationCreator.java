@@ -47,12 +47,13 @@ import com.pacoapp.paco.os.RingtoneUtil;
 import com.pacoapp.paco.shared.model2.ActionTrigger;
 import com.pacoapp.paco.shared.model2.ExperimentDAO;
 import com.pacoapp.paco.shared.model2.ExperimentGroup;
+import com.pacoapp.paco.shared.model2.InterruptCue;
 import com.pacoapp.paco.shared.model2.InterruptTrigger;
 import com.pacoapp.paco.shared.model2.PacoAction;
 import com.pacoapp.paco.shared.model2.PacoNotificationAction;
 import com.pacoapp.paco.shared.scheduling.ActionScheduleGenerator;
 import com.pacoapp.paco.shared.scheduling.ActionSpecification;
-import com.pacoapp.paco.shared.util.ExperimentHelper.Pair;
+import com.pacoapp.paco.shared.util.ExperimentHelper.Trio;
 import com.pacoapp.paco.ui.ExperimentExecutor;
 
 public class NotificationCreator {
@@ -308,11 +309,11 @@ public class NotificationCreator {
 
   private void createNewCustomNotificationForExperiment(Context context, DateTime time, ExperimentDAO experiment,
                                                         String groupName, long expirationTimeInMillis, String message,
-                                                        Integer color, Boolean dismissible) {
+                                                        Integer color, Boolean dismissible, Long actionTriggerSpecId, Long actionTriggerId, Long actionId) {
     NotificationHolder notificationHolder = new NotificationHolder(time.getMillis(), experiment.getId(), 0,
-                                                                   expirationTimeInMillis, groupName, null, null,
+                                                                   expirationTimeInMillis, groupName, actionTriggerId, actionId,
                                                                    NotificationHolder.CUSTOM_GENERATED_NOTIFICATION,
-                                                                   message, null);
+                                                                   message, actionTriggerSpecId);
 
     experimentProviderUtil.insertNotification(notificationHolder);
     fireNotification(context, notificationHolder, experiment.getTitle(), message, experiment.getRingtoneUri(), color, dismissible);
@@ -468,7 +469,7 @@ public class NotificationCreator {
     alarmManager.set(AlarmManager.RTC_WAKEUP, elapsedDurationInMillis, intent);
   }
 
-  public void createNotificationsForTrigger(Experiment experiment, Pair<ExperimentGroup, InterruptTrigger> triggerInfo,
+  public void createNotificationsForTrigger(Experiment experiment, Trio<ExperimentGroup, InterruptTrigger, InterruptCue> triggerInfo,
                                             long delayTime, DateTime triggeredDateTime, int triggerEvent,
                                             String sourceIdentifier, ActionSpecification timeExperiment) {
     Log.i(PacoConstants.TAG, "entering createNotificationsForTrigger");
@@ -505,14 +506,14 @@ public class NotificationCreator {
 
   public void createNotificationsForCustomGeneratedScript(ExperimentDAO experiment, ExperimentGroup experimentGroup,
                                                           String message, boolean makeSound, boolean makeVibrate,
-                                                          long timeoutMillis) {
+                                                          long timeoutMillis, Long actionTriggerSpecId, Long actionTriggerId, Long actionId) {
     List<NotificationHolder> notifications = experimentProviderUtil.getAllNotificationsFor(experiment.getId());
 
     if (activeNotificationForCustomGeneratedScript(notifications, message)) {
       return;
     }
     createNewCustomNotificationForExperiment(context, DateTime.now(), experiment, experimentGroup.getName(),
-                                             timeoutMillis, message, null, null);
+                                             timeoutMillis, message, null, null, actionTriggerSpecId, actionTriggerId, actionId);
   }
 
   private boolean activeNotificationForTrigger(List<NotificationHolder> notificationsForGroup,

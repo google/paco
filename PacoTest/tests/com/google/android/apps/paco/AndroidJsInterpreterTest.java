@@ -17,15 +17,15 @@ public class AndroidJsInterpreterTest extends AndroidTestCase {
   public void testAndroidJsObjects() throws Exception {
     Context context = new MockContext();
     Experiment experiment = new Experiment();
-    JsInterpreter interpreter = AndroidJsInterpreterBuilder.createInterpreter(context, experiment, null, null);
+    JsInterpreter interpreter = AndroidJsInterpreterBuilder.createInterpreter(context, experiment, null, null, null, null, null);
     assertTrue((Boolean)interpreter.eval("paco.notificationService !== null") == true);
   }
-  
+
   @Test
   public void testStringBundle() {
     Context context = new MockContext();
     Experiment experiment = new Experiment();
-    JsInterpreter interpreter = AndroidJsInterpreterBuilder.createInterpreter(context, experiment, null, null);
+    JsInterpreter interpreter = AndroidJsInterpreterBuilder.createInterpreter(context, experiment, null, null, null, null, null);
     assertTrue((Boolean)interpreter.eval("paco.stringService !== null") == true);
     assertEquals("Paco", interpreter.eval("paco.stringService.getString(\"app_name\""));
   }

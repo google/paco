@@ -41,6 +41,7 @@ public class InterruptCue extends ModelBase implements Validatable, java.io.Seri
 
   private Integer cueCode;
   private String cueSource;
+  private Long id;
 
   public InterruptCue() {
     super();
@@ -70,5 +71,14 @@ public class InterruptCue extends ModelBase implements Validatable, java.io.Seri
       validator.isNotNullAndNonEmptyString(cueSource,
                                            "cuesource must be valid for cuecode: " + CUE_EVENT_NAMES[cueCode - 1]);
     }
+  }
+
+
+  public Long getId() {
+    return id;
+  }
+
+  public void setId(Long id) {
+    this.id = id;
   }
 }

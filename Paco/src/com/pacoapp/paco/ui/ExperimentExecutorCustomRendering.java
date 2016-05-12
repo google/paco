@@ -482,7 +482,7 @@ private void injectObjectsIntoJavascriptEnvironment() {
 
   webView.addJavascriptInterface(new JavascriptCalendarManager(this), "calendar");
   webView.addJavascriptInterface(new JavascriptEmail(this), "email");
-  webView.addJavascriptInterface(new JavascriptNotificationService(this, experiment.getExperimentDAO(), experimentGroup), "notificationService");
+  webView.addJavascriptInterface(new JavascriptNotificationService(this, experiment.getExperimentDAO(), experimentGroup, actionTriggerSpecId, actionTriggerId, actionId), "notificationService");
   webView.addJavascriptInterface(new JavascriptPhotoService(this), "photoService");
   webView.addJavascriptInterface(new JavascriptExecutorListener(experiment), "executor");
   webView.addJavascriptInterface(new JavascriptPackageManager(this), "packageManager");

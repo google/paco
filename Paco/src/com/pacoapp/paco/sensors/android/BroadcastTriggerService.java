@@ -28,7 +28,7 @@ import com.pacoapp.paco.shared.model2.PacoAction;
 import com.pacoapp.paco.shared.model2.PacoNotificationAction;
 import com.pacoapp.paco.shared.scheduling.ActionSpecification;
 import com.pacoapp.paco.shared.util.ExperimentHelper;
-import com.pacoapp.paco.shared.util.ExperimentHelper.Pair;
+import com.pacoapp.paco.shared.util.ExperimentHelper.Trio;
 import com.pacoapp.paco.shared.util.TimeUtil;
 import com.pacoapp.paco.triggering.AndroidActionExecutor;
 import com.pacoapp.paco.triggering.NotificationCreator;
@@ -99,11 +99,11 @@ public class BroadcastTriggerService extends Service {
                                                                                                 sourceIdentifier);
       persistBroadcastData(eu, experiment, groupsListening, extras);
 
-      List<Pair<ExperimentGroup, InterruptTrigger>> triggersThatMatch = ExperimentHelper.shouldTriggerBy(experiment.getExperimentDAO(),
+      List<Trio<ExperimentGroup, InterruptTrigger, InterruptCue>> triggersThatMatch = ExperimentHelper.shouldTriggerBy(experiment.getExperimentDAO(),
                                                                                                          triggerEvent,
                                                                                                          sourceIdentifier);
       Log.i(PacoConstants.TAG, "triggers that match count: " + triggersThatMatch.size());
-      for (Pair<ExperimentGroup, InterruptTrigger> triggerInfo : triggersThatMatch) {
+      for (Trio<ExperimentGroup, InterruptTrigger, InterruptCue> triggerInfo : triggersThatMatch) {
         final InterruptTrigger actionTrigger = triggerInfo.second;
 
         String uniqueStringForTrigger = createUniqueStringForTrigger(experiment, triggerInfo);
@@ -113,11 +113,12 @@ public class BroadcastTriggerService extends Service {
           List<PacoAction> actions = actionTrigger.getActions();
           for (PacoAction pacoAction : actions) {
             final ExperimentGroup group = triggerInfo.first;
+            final Long actionTriggerSpecId = triggerInfo.third != null ? triggerInfo.third.getId() : null;
             if (pacoAction.getActionCode() == pacoAction.NOTIFICATION_TO_PARTICIPATE_ACTION_CODE) {
               ActionSpecification timeExperiment = new ActionSpecification(time, experiment.getExperimentDAO(), group,
                                                                            actionTrigger,
                                                                            (PacoNotificationAction) pacoAction,
-                                                                           (Long) null);
+                                                                           actionTriggerSpecId);
               Log.i(PacoConstants.TAG, "creating a notification");
               final long delay = ((PacoNotificationAction) pacoAction).getDelay();
               notificationCreator.createNotificationsForTrigger(experiment, triggerInfo, delay, time, triggerEvent,
@@ -125,7 +126,7 @@ public class BroadcastTriggerService extends Service {
               Log.i(PacoConstants.TAG, "created a notification");
             } else if (pacoAction.getActionCode() == PacoAction.EXECUTE_SCRIPT_ACTION_CODE) {
               AndroidActionExecutor.runAction(getApplicationContext(), pacoAction, experiment,
-                                              experiment.getExperimentDAO(), group);
+                                              experiment.getExperimentDAO(), group, actionTriggerSpecId, actionTrigger.getId());
             }
           }
         }
@@ -145,10 +146,12 @@ public class BroadcastTriggerService extends Service {
     return recentlyTriggered != null && recentlyTriggered.plusMinutes(minimumBuffer).isAfterNow();
   }
 
-  public String createUniqueStringForTrigger(Experiment experiment, Pair<ExperimentGroup, InterruptTrigger> pair) {
+  public String createUniqueStringForTrigger(Experiment experiment, Trio<ExperimentGroup, InterruptTrigger, InterruptCue> triggerInfo) {
+    Long actionSpecId = triggerInfo.third != null ? triggerInfo.third.getId() : null;
     return experiment.getId() + ":"
-            + pair.first.getName() + ":"
-            + pair.second.getId();
+            + triggerInfo.first.getName() + ":"
+            + triggerInfo.second.getId() + ":"
+            + actionSpecId;
   }
 
   /*
