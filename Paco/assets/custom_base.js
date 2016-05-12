@@ -814,7 +814,7 @@ paco.renderer = (function() {
       if (window.executor) {
         window.executor.done();
       } else {
-    	  // TODO i18n default_list_item
+    	  // TODO i18n All Done
         alert("All Done!");
       }
     });
