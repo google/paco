@@ -581,6 +581,7 @@ public class ExperimentProviderUtil implements EventStore {
 
             trigger.setMinimumBuffer(signalingMechanismNode.path("minimumBuffer").getIntValue());
             InterruptCue cue = new InterruptCue();
+            cue.setId(1l);
             if (signalingMechanismNode.has("eventCode")) {
               cue.setCueCode(signalingMechanismNode.path("eventCode").getIntValue());
             }

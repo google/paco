@@ -20,6 +20,7 @@ import com.pacoapp.paco.js.interpreter.AndroidJsInterpreterBuilder;
 import com.pacoapp.paco.js.interpreter.JsInterpreter;
 import com.pacoapp.paco.model.Experiment;
 import com.pacoapp.paco.model.ExperimentProviderUtil;
+import com.pacoapp.paco.shared.model2.ActionTrigger;
 import com.pacoapp.paco.shared.model2.ExperimentDAO;
 import com.pacoapp.paco.shared.model2.ExperimentGroup;
 import com.pacoapp.paco.shared.model2.PacoAction;
@@ -60,16 +61,17 @@ public class AndroidActionExecutor {
       if (timeExperiment.action != null) {
         continue; // skip notification actions
       }
-      List<PacoAction> actions = timeExperiment.actionTrigger.getActions();
+      final ActionTrigger actionTrigger = timeExperiment.actionTrigger;
+      List<PacoAction> actions = actionTrigger.getActions();
       Experiment experiment = experimentDAOtoExperimentMap.get(timeExperiment.experiment);
       for (PacoAction pacoAction : actions) {
-        runAction(context, pacoAction, experiment, timeExperiment.experiment, timeExperiment.experimentGroup);
+        runAction(context, pacoAction, experiment, timeExperiment.experiment, timeExperiment.experimentGroup, timeExperiment.actionTriggerSpecId, timeExperiment.actionTrigger.getId());
       }
   }
 
 }
 
-  public static void runAction(Context context, PacoAction pacoAction, Experiment experiment, ExperimentDAO experimentDAO, ExperimentGroup experimentGroup) {
+  public static void runAction(Context context, PacoAction pacoAction, Experiment experiment, ExperimentDAO experimentDAO, ExperimentGroup experimentGroup, Long actionTriggerSpecId, Long actionTriggerId) {
     int actionCode = pacoAction.getActionCode();
     switch (actionCode) {
     case PacoAction.NOTIFICATION_ACTION_CODE:
@@ -80,7 +82,10 @@ public class AndroidActionExecutor {
     case PacoAction.EXECUTE_SCRIPT_ACTION_CODE:
       JsInterpreter interpreter = AndroidJsInterpreterBuilder.createInterpreter(context, experiment,
                                                                                 experimentDAO,
-                                                                                experimentGroup);
+                                                                                experimentGroup,
+                                                                                actionTriggerSpecId,
+                                                                                actionTriggerId,
+                                                                                pacoAction.getId());
       String customScript = ((PacoActionAllOthers) pacoAction).getCustomScript();
       if (customScript != null) {
         // TODO - Either sanitize the code here, or, when it is uploaded to the

@@ -12,11 +12,17 @@ public class JavascriptNotificationService {
   private Context context;
   private ExperimentDAO experiment;
   private ExperimentGroup experimentGroup;
+  private Long actionTriggerSpecId;
+  private Long actionTriggerId;
+  private Long actionId;
 
-  public JavascriptNotificationService(Context context, ExperimentDAO experiment2, ExperimentGroup experimentGroup) {
+  public JavascriptNotificationService(Context context, ExperimentDAO experiment2, ExperimentGroup experimentGroup, Long actionTriggerSpecId, Long actionTriggerId, Long actionId) {
     this.context = context;
     this.experiment = experiment2;
     this.experimentGroup = experimentGroup;
+    this.actionTriggerSpecId = actionTriggerSpecId;
+    this.actionTriggerId = actionTriggerId;
+    this.actionId = actionId;
   }
 
   @JavascriptInterface
@@ -31,7 +37,7 @@ public class JavascriptNotificationService {
 
 
   private void createNotification(String message, boolean makeSound, boolean makeVibrate, long timeoutMillis) {
-    NotificationCreator.create(context).createNotificationsForCustomGeneratedScript(experiment, experimentGroup, message, makeSound, makeVibrate, timeoutMillis);
+    NotificationCreator.create(context).createNotificationsForCustomGeneratedScript(experiment, experimentGroup, message, makeSound, makeVibrate, timeoutMillis, actionTriggerSpecId, actionTriggerId, actionId);
   }
 
   @JavascriptInterface
