@@ -123,13 +123,17 @@ extern NSString* const kUserInfoKeyActionTriggerSpecId;
       PAExperimentDAO   *   dao = [spec valueForKey:@"experiment_"];
       PAExperimentGroup *   group = [spec valueForKey:@"experimentGroup_"];
       PAActionTrigger*   actionTrigger = [spec valueForKey:@"actionTrigger_"];
+      
+      
       PAPacoNotificationAction *   notificationAction =
       [spec->experiment_ valueForKeyPathEx:@"groups[0].actionTriggers[0].actions[0]"];
+      
+      
       NSString* experimentId =  [[dao valueForKeyEx:@"id"] stringValue];
       NSString* experimentTitle = [dao valueForKeyEx:@"title"];
      NSDate * fireDate = [[spec valueForKey:@"time_"] nsDateValue];
       
-#warning needs fixing
+#warning needs fixing NNNNNNNNN
       /*
          FIX: the notificationAction on the specification is nill when it should not be.
                for now  we will assume there is only one action and fetch this action.
@@ -471,17 +475,7 @@ PacoExtendedNotificationInfo * info = [PacoExtendedNotificationInfo pacoInfoWith
   for (UILocalNotification* notification in notifications) {
     [[UIApplication sharedApplication] scheduleLocalNotification:notification];
   }
-    /* testing code */
-    UILocalNotification* n1 = [[UILocalNotification alloc] init];
-    n1.fireDate = [NSDate dateWithTimeIntervalSinceNow: 60];
-    n1.alertBody = @"one";
-    UILocalNotification* n2 = [[UILocalNotification alloc] init];
-    n2.fireDate = [NSDate dateWithTimeIntervalSinceNow: 90];
-    n2.alertBody = @"two";
-    [[UIApplication sharedApplication] scheduleLocalNotification: n1];
-    [[UIApplication sharedApplication] scheduleLocalNotification: n2];
-    
-    /* testing code */
+  
 }
 
 

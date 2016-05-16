@@ -80,7 +80,7 @@
 /* state management methods */
 -(void) refreshRunningExperiments;
 -(void) cleanup;
-
+-(void) clearRunningExperimentsSynchronous;
 
 
 @end

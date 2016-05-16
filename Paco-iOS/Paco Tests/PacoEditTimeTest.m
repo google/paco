@@ -112,11 +112,10 @@ static NSString *dataSource = @"}";
                     
                     NSString* str = [NSString stringWithFormat: @"signalTimes[%i]",iiii ];
                     PASignalTime * signalTime =  [schedule valueForKeyEx:str];
-                    NSString* timeOfDayStr =  [PASchedulePrinter getHourOffsetAsTimeStringWithPASignalTime:signalTime]  ;
-                    model.signalTime = signalTime;
-                    model.millisecondsSinceMidnight =[[signalTime getFixedTimeMillisFromMidnight] intValue];
-                    model.timeLabelStr = timeOfDayStr;
-                    [cellModelsForGroup addObject:model];
+                    
+                    
+                    [NSDate time
+               
                     [signalTime setFixedTimeMillisFromMidnightWithJavaLangInteger:[JavaLangInteger valueOfWithInt:-1]];
                     
                 }

@@ -29,7 +29,7 @@
 #import "UILocalNotification+PacoExteded.h"
 #import "PacoEventManagerExtended.h"
 #import "PacoPublicDefinitionLoader.h"
-
+#import "PAExperimentDAO+Helper.h"
 
 
 
@@ -262,6 +262,8 @@ calculate the action specifications and reset the based upon the most recent ver
     
     /* locate the experiment */
     PAExperimentDAO * experiment  = [self.allExperiments findExperiment:experimentId];
+    
+    NSLog(@"%@",experiment);
     if(experiment)
     {
         
@@ -421,6 +423,18 @@ calculate the action specifications and reset the based upon the most recent ver
 -(void) replaceAllExperiments:(NSArray*) experiments
 {
         _allExperiments  = [[NSMutableArray alloc] initWithArray:experiments];
+    
+}
+
+/* this method should only be used for testing */
+-(void) clearRunningExperimentsSynchronous
+{
+ 
+        
+        
+        [self.notificationManager cancelAllPacoNotifications];
+        [self.runningExperiments removeAllObjects];
+        [self.allExperiments removeAllObjects];
     
 }
 

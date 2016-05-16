@@ -28,7 +28,7 @@
 #import "PacoEvent.h"
 #import "PacoEventManager.h"
 #import "PacoInputEvaluatorEx.h"
-
+#import "PacoMediator.h"
 #import "UILocalNotification+Paco.h"
 
 NSString *kCellIdQuestion = @"question";
@@ -54,6 +54,7 @@ NSString *kCellIdQuestion = @"question";
     [[UIBarButtonItem alloc] initWithTitle:NSLocalizedString(@"Submit", nil)
                                      style:UIBarButtonItemStyleDone
                                     target:self
+     
                                     action:@selector(onDone)];
     self.navigationItem.leftBarButtonItem =
         [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemCancel
@@ -157,6 +158,7 @@ NSString *kCellIdQuestion = @"question";
       NSLog(@"Cancelling current notification from the tray");
       [UILocalNotification pacoCancelLocalNotification:self.notification];
     }
+      
     NSString* experimentId = self.evaluator.experiment.instanceId;
     NSAssert([experimentId length] > 0, @"experiementId should be valid");
     self.notification =
@@ -175,6 +177,7 @@ NSString *kCellIdQuestion = @"question";
 - (void)onDone {
   NSError* error = [self.evaluator validateVisibleInputs];
   if (error) {
+      
     [[[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Required Answer Missing:", nil)
                                 message:error.localizedDescription
                                delegate:nil
@@ -183,11 +186,17 @@ NSString *kCellIdQuestion = @"question";
     return;
   }
 
-  [self processAttachedNotificationIfNeeded];
+   [self processAttachedNotificationIfNeeded];
+    
 
-  //[[PacoClient sharedInstance] submitSurveyWithDefinition:self.evaluator.experiment.definition
-  //                                           surveyInputs:self.evaluator.visibleInputs
-  //                                           notification:self.notification];
+    
+    [[PacoMediator sharedInstance] submitSurveyWithDefinition:self.evaluator.experiment.experimentDao   surveyInputs:self.evaluator.visibleInputs  notification:self.notification];
+
+  /* [[PacoClient sharedInstance] submitSurveyWithDefinition:self.evaluator.experiment.definition
+                                              surveyInputs:self.evaluator.visibleInputs
+                                              notification:self.notification];*/
+    
+    
 
   //clear all inputs' submitted responseObject for the definition
   [self.evaluator.experiment.definition clearInputs];

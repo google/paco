@@ -12,8 +12,12 @@
 #import "PacoAppDelegate.h" 
 #import "TestUtil.h"
 #import "PacoMediator.h"
-
-
+#import "SignalTime.h" 
+#import "ExperimentGroup.h" 
+#import "ScheduleTrigger.h"
+#import "SchedulePrinter.h" 
+#import "Schedule.h" 
+#import "PAExperimentDAO+Helper.h"
 
 
 @interface PacoNotificationTester ()
@@ -25,7 +29,7 @@
 
 
 
-static NSString *dataSource = @"{\r\n  \"title\": \"Everything Demo New\",\r\n  \"description\": \"\",\r\n  \"creator\": \"bobevans999@gmail.com\",\r\n  \"contactEmail\": \"bobevans999@gmail.com\",\r\n  \"id\": 6139552436584448,\r\n  \"recordPhoneDetails\": false,\r\n  \"extraDataCollectionDeclarations\": [],\r\n  \"deleted\": false,\r\n  \"modifyDate\": \"2016\/04\/21\",\r\n  \"published\": false,\r\n  \"admins\": [\r\n    \"bobevans999@gmail.com\",\r\n    \"rbe5000@gmail.com\",\r\n    \"northropo@google.com\"\r\n  ],\r\n  \"publishedUsers\": [],\r\n  \"version\": 5,\r\n  \"groups\": [\r\n    {\r\n      \"name\": \"default\",\r\n      \"customRendering\": false,\r\n      \"fixedDuration\": false,\r\n      \"logActions\": false,\r\n      \"backgroundListen\": false,\r\n      \"actionTriggers\": [\r\n        {\r\n          \"type\": \"scheduleTrigger\",\r\n          \"actions\": [\r\n            {\r\n              \"actionCode\": 1,\r\n              \"id\": 1,\r\n              \"type\": \"pacoNotificationAction\",\r\n              \"snoozeCount\": 0,\r\n              \"snoozeTime\": 1640220000,\r\n              \"timeout\": 59,\r\n              \"delay\": 5000,\r\n              \"color\": 0,\r\n              \"dismissible\": true,\r\n              \"msgText\": \"Time to participate\",\r\n              \"snoozeTimeInMinutes\": 27337,\r\n              \"nameOfClass\": \"com.pacoapp.paco.shared.model2.PacoNotificationAction\"\r\n            }\r\n          ],\r\n          \"id\": 1,\r\n          \"schedules\": [\r\n            {\r\n              \"scheduleType\": 0,\r\n              \"esmFrequency\": 3,\r\n              \"esmPeriodInDays\": 0,\r\n              \"esmStartHour\": 32400000,\r\n              \"esmEndHour\": 61200000,\r\n              \"signalTimes\": [\r\n                {\r\n                  \"type\": 0,\r\n                  \"fixedTimeMillisFromMidnight\": 43200000,\r\n                  \"basis\": 0,\r\n                  \"offsetTimeMillis\": 1800000,\r\n                  \"missedBasisBehavior\": 1,\r\n                  \"nameOfClass\": \"com.pacoapp.paco.shared.model2.SignalTime\"\r\n                }\r\n              ],\r\n              \"repeatRate\": 1,\r\n              \"weekDaysScheduled\": 0,\r\n              \"nthOfMonth\": 1,\r\n              \"byDayOfMonth\": true,\r\n              \"dayOfMonth\": 1,\r\n              \"esmWeekends\": false,\r\n              \"minimumBuffer\": 59,\r\n              \"joinDateMillis\": 0,\r\n              \"id\": 1,\r\n              \"onlyEditableOnJoin\": false,\r\n              \"userEditable\": true,\r\n              \"nameOfClass\": \"com.pacoapp.paco.shared.model2.Schedule\"\r\n            }\r\n          ],\r\n          \"nameOfClass\": \"com.pacoapp.paco.shared.model2.ScheduleTrigger\"\r\n        }\r\n      ],\r\n      \"inputs\": [\r\n        {\r\n          \"name\": \"smiley\",\r\n          \"required\": false,\r\n          \"conditional\": false,\r\n          \"responseType\": \"likert_smileys\",\r\n          \"text\": \"How happy are you?\",\r\n          \"multiselect\": false,\r\n          \"numeric\": false,\r\n          \"invisible\": false,\r\n          \"nameOfClass\": \"com.pacoapp.paco.shared.model2.Input2\"\r\n        },\r\n        {\r\n          \"name\": \"likert\",\r\n          \"required\": false,\r\n          \"conditional\": false,\r\n          \"responseType\": \"likert\",\r\n          \"text\": \"How frequently do you feel this way?\",\r\n          \"likertSteps\": 5,\r\n          \"leftSideLabel\": \"Never\",\r\n          \"rightSideLabel\": \"Always\",\r\n          \"multiselect\": false,\r\n          \"numeric\": true,\r\n          \"invisible\": false,\r\n          \"nameOfClass\": \"com.pacoapp.paco.shared.model2.Input2\"\r\n        },\r\n        {\r\n          \"name\": \"color\",\r\n          \"required\": false,\r\n          \"conditional\": false,\r\n          \"responseType\": \"open text\",\r\n          \"text\": \"What is your favorite color?\",\r\n          \"multiselect\": false,\r\n          \"numeric\": false,\r\n          \"invisible\": false,\r\n          \"nameOfClass\": \"com.pacoapp.paco.shared.model2.Input2\"\r\n        },\r\n        {\r\n          \"name\": \"slist\",\r\n          \"required\": false,\r\n          \"conditional\": false,\r\n          \"responseType\": \"list\",\r\n          \"text\": \"Choose one\",\r\n          \"listChoices\": [\r\n            \"Almond\",\r\n            \"Macadamia\",\r\n            \"Pecan\"\r\n          ],\r\n          \"multiselect\": false,\r\n          \"numeric\": true,\r\n          \"invisible\": false,\r\n          \"nameOfClass\": \"com.pacoapp.paco.shared.model2.Input2\"\r\n        },\r\n        {\r\n          \"name\": \"multi\",\r\n          \"required\": false,\r\n          \"conditional\": false,\r\n          \"responseType\": \"list\",\r\n          \"text\": \"Choose 1 or more\",\r\n          \"listChoices\": [\r\n            \"Vodka\",\r\n            \"Beer\",\r\n            \"Wine\"\r\n          ],\r\n          \"multiselect\": true,\r\n          \"numeric\": true,\r\n          \"invisible\": false,\r\n          \"nameOfClass\": \"com.pacoapp.paco.shared.model2.Input2\"\r\n        },\r\n        {\r\n          \"name\": \"num\",\r\n          \"required\": false,\r\n          \"conditional\": false,\r\n          \"responseType\": \"number\",\r\n          \"text\": \"Pick a number\",\r\n          \"multiselect\": false,\r\n          \"numeric\": true,\r\n          \"invisible\": false,\r\n          \"nameOfClass\": \"com.pacoapp.paco.shared.model2.Input2\"\r\n        },\r\n        {\r\n          \"name\": \"location\",\r\n          \"required\": false,\r\n          \"conditional\": false,\r\n          \"responseType\": \"location\",\r\n          \"text\": \"\",\r\n          \"multiselect\": false,\r\n          \"numeric\": false,\r\n          \"invisible\": true,\r\n          \"nameOfClass\": \"com.pacoapp.paco.shared.model2.Input2\"\r\n        },\r\n        {\r\n          \"name\": \"photo\",\r\n          \"required\": false,\r\n          \"conditional\": false,\r\n          \"responseType\": \"photo\",\r\n          \"text\": \"Take a photo\",\r\n          \"multiselect\": false,\r\n          \"numeric\": false,\r\n          \"invisible\": true,\r\n          \"nameOfClass\": \"com.pacoapp.paco.shared.model2.Input2\"\r\n        },\r\n        {\r\n          \"name\": \"scale_for_conditional\",\r\n          \"required\": false,\r\n          \"conditional\": false,\r\n          \"responseType\": \"likert\",\r\n          \"text\": \"This is a scale. Pick a value > 3 to trigger conditional question.\",\r\n          \"likertSteps\": 5,\r\n          \"leftSideLabel\": \"Not at all\",\r\n          \"rightSideLabel\": \"totally\",\r\n          \"multiselect\": false,\r\n          \"numeric\": true,\r\n          \"invisible\": false,\r\n          \"nameOfClass\": \"com.pacoapp.paco.shared.model2.Input2\"\r\n        },\r\n        {\r\n          \"name\": \"conditioned_on_scale\",\r\n          \"required\": false,\r\n          \"conditional\": true,\r\n          \"conditionExpression\": \"scale_for_conditional > 3\",\r\n          \"responseType\": \"open text\",\r\n          \"text\": \"Why did you pick a value greater than 3?\",\r\n          \"likertSteps\": 5,\r\n          \"multiselect\": false,\r\n          \"numeric\": false,\r\n          \"invisible\": false,\r\n          \"nameOfClass\": \"com.pacoapp.paco.shared.model2.Input2\"\r\n        }\r\n      ],\r\n      \"endOfDayGroup\": false,\r\n      \"feedback\": {\r\n        \"text\": \"Thanks for Participating!\",\r\n        \"type\": 1,\r\n        \"nameOfClass\": \"com.pacoapp.paco.shared.model2.Feedback\"\r\n      },\r\n      \"feedbackType\": 1,\r\n      \"nameOfClass\": \"com.pacoapp.paco.shared.model2.ExperimentGroup\"\r\n    }\r\n  ],\r\n  \"postInstallInstructions\": \"<b>You have successfully joined the experiment!<\/b><br\/><br\/>No need to do anything else for now.<br\/><br\/>Paco will send you a notification when it is time to participate.<br\/><br\/>Be sure your ringer\/buzzer is on so you will hear the notification.\",\r\n  \"nameOfClass\": \"com.pacoapp.paco.shared.model2.ExperimentDAO\"\r\n}";
+static NSString *dataSource = @"{\r\n  \"title\": \"my new experiment\",\r\n  \"creator\": \"testingpacotoday@gmail.com\",\r\n  \"contactEmail\": \"testingpacotoday@gmail.com\",\r\n  \"id\": 5866608721395712,\r\n  \"recordPhoneDetails\": false,\r\n  \"extraDataCollectionDeclarations\": [],\r\n  \"deleted\": false,\r\n  \"modifyDate\": \"2016\/05\/09\",\r\n  \"published\": false,\r\n  \"admins\": [\r\n    \"testingpacotoday@gmail.com\"\r\n  ],\r\n  \"publishedUsers\": [],\r\n  \"version\": 13,\r\n  \"groups\": [\r\n    {\r\n      \"name\": \"GroupAd\",\r\n      \"customRendering\": false,\r\n      \"fixedDuration\": false,\r\n      \"logActions\": false,\r\n      \"backgroundListen\": false,\r\n      \"actionTriggers\": [\r\n        {\r\n          \"type\": \"scheduleTrigger\",\r\n          \"actions\": [\r\n            {\r\n              \"actionCode\": 1,\r\n              \"id\": 1457994166570,\r\n              \"type\": \"pacoNotificationAction\",\r\n              \"snoozeCount\": 0,\r\n              \"snoozeTime\": 600000,\r\n              \"timeout\": 15,\r\n              \"delay\": 0,\r\n              \"color\": 0,\r\n              \"dismissible\": true,\r\n              \"msgText\": \"Time to participate\",\r\n              \"snoozeTimeInMinutes\": 10,\r\n              \"nameOfClass\": \"com.pacoapp.paco.shared.model2.PacoNotificationAction\"\r\n            }\r\n          ],\r\n          \"id\": 1457994166569,\r\n          \"schedules\": [\r\n            {\r\n              \"scheduleType\": 0,\r\n              \"esmFrequency\": 3,\r\n              \"esmPeriodInDays\": 0,\r\n              \"esmStartHour\": 32400000,\r\n              \"esmEndHour\": 61200000,\r\n              \"signalTimes\": [\r\n                {\r\n                  \"type\": 0,\r\n                  \"fixedTimeMillisFromMidnight\": 61200000,\r\n                  \"missedBasisBehavior\": 1,\r\n                  \"label\": \"start layer\",\r\n                  \"nameOfClass\": \"com.pacoapp.paco.shared.model2.SignalTime\"\r\n                },\r\n                {\r\n                  \"type\": 0,\r\n                  \"fixedTimeMillisFromMidnight\": 64800000,\r\n                  \"missedBasisBehavior\": 1,\r\n                  \"label\": \"hidden layer\",\r\n                  \"nameOfClass\": \"com.pacoapp.paco.shared.model2.SignalTime\"\r\n                },\r\n                {\r\n                  \"type\": 0,\r\n                  \"fixedTimeMillisFromMidnight\": 75600000,\r\n                  \"missedBasisBehavior\": 1,\r\n                  \"label\": \"hidden layer II\",\r\n                  \"nameOfClass\": \"com.pacoapp.paco.shared.model2.SignalTime\"\r\n                },\r\n                {\r\n                  \"type\": 0,\r\n                  \"fixedTimeMillisFromMidnight\": 79200000,\r\n                  \"missedBasisBehavior\": 1,\r\n                  \"label\": \"Telos\",\r\n                  \"nameOfClass\": \"com.pacoapp.paco.shared.model2.SignalTime\"\r\n                }\r\n              ],\r\n              \"repeatRate\": 1,\r\n              \"weekDaysScheduled\": 0,\r\n              \"nthOfMonth\": 1,\r\n              \"byDayOfMonth\": true,\r\n              \"dayOfMonth\": 1,\r\n              \"esmWeekends\": false,\r\n              \"minimumBuffer\": 59,\r\n              \"joinDateMillis\": 0,\r\n              \"id\": 1457994166571,\r\n              \"onlyEditableOnJoin\": true,\r\n              \"userEditable\": true,\r\n              \"nameOfClass\": \"com.pacoapp.paco.shared.model2.Schedule\"\r\n            }\r\n          ],\r\n          \"nameOfClass\": \"com.pacoapp.paco.shared.model2.ScheduleTrigger\"\r\n        }\r\n      ],\r\n      \"inputs\": [\r\n        {\r\n          \"name\": \"input1\",\r\n          \"required\": false,\r\n          \"conditional\": false,\r\n          \"responseType\": \"open text\",\r\n          \"text\": \"this is my question\",\r\n          \"likertSteps\": 5,\r\n          \"multiselect\": false,\r\n          \"numeric\": false,\r\n          \"invisible\": false,\r\n          \"nameOfClass\": \"com.pacoapp.paco.shared.model2.Input2\"\r\n        },\r\n        {\r\n          \"name\": \"input2\",\r\n          \"required\": false,\r\n          \"conditional\": false,\r\n          \"responseType\": \"list\",\r\n          \"text\": \"this is my list\",\r\n          \"likertSteps\": 5,\r\n          \"listChoices\": [\r\n            \"choice one\",\r\n            \"choice thriee\"\r\n          ],\r\n          \"multiselect\": false,\r\n          \"numeric\": true,\r\n          \"invisible\": false,\r\n          \"nameOfClass\": \"com.pacoapp.paco.shared.model2.Input2\"\r\n        }\r\n      ],\r\n      \"endOfDayGroup\": false,\r\n      \"feedback\": {\r\n        \"text\": \"Thanks for Participating!\",\r\n        \"type\": 0,\r\n        \"nameOfClass\": \"com.pacoapp.paco.shared.model2.Feedback\"\r\n      },\r\n      \"feedbackType\": 0,\r\n      \"nameOfClass\": \"com.pacoapp.paco.shared.model2.ExperimentGroup\"\r\n    }\r\n  ],\r\n  \"ringtoneUri\": \"\/assets\/ringtone\/Paco Bark\",\r\n  \"postInstallInstructions\": \"<b>You have successfully joined the experiment!<\/b><br\/><br\/>\\nNo need to do anything else for now.<br\/><br\/>\\nPaco will send you a notification when it is time to participate.<br\/><br\/>\\nBe sure your ringer\/buzzer is on so you will hear the notification.\",\r\n  \"nameOfClass\": \"com.pacoapp.paco.shared.model2.ExperimentDAO\"\r\n}";
 
 
 
@@ -48,18 +52,143 @@ static NSString *dataSource = @"{\r\n  \"title\": \"Everything Demo New\",\r\n  
 }
 
 
+-(void) setSignalTimes:(PAExperimentDAO *) experiment
+{
+    NSNumber   * numberOfGroups    = [experiment valueForKeyPathEx:@"groups#"];
+    int count = [numberOfGroups intValue];
+    
+    NSMutableArray* signalTimes = [[NSMutableArray alloc] init];
+    
+    for( int i =0;  i < count; i++)
+    {
+        
+        
+        
+        NSString* str = [NSString stringWithFormat: @"groups[%i]",i ];
+        PAExperimentGroup*  group  =  [experiment valueForKeyPathEx:str];
+        
+        
+        NSNumber*  numberOfActionTriggers =
+        [group  valueForKeyEx:@"actionTriggers#"];
+        int actionTriggerCount = [numberOfActionTriggers intValue];
+        
+        for(int ii =0; ii < actionTriggerCount; ii++)
+        {
+            
+            NSString* str = [NSString stringWithFormat: @"actionTriggers[%i]",ii ];
+            PAScheduleTrigger  *trigger = [group valueForKeyEx:str];
+            
+            
+            
+            NSNumber* numberOfSchedules = [trigger  valueForKeyEx:@"schedules#"];
+            int schedulesCount = [numberOfSchedules intValue];
+            
+            for(int iii=0; iii < schedulesCount; iii++)
+            {
+                NSString* str = [NSString stringWithFormat: @"schedules[%i]",iii ];
+                PASchedule * schedule  = [trigger valueForKeyEx:str];
+                
+                NSNumber*  numberOfActionTriggers =
+                [schedule valueForKeyEx:@"signalTimes#"];
+                
+                int signalTimesCount = [numberOfActionTriggers intValue];
+                
+             
+                NSDate * date = [NSDate date];
+                int count=0;
+                int plus_seconds = 10;
+               
+                
+                
+                for( int iiii =0;  iiii< signalTimesCount; iiii++)
+                {
+                    
+                    long  milliseconds   = [NSDate  millisecondsSinceMidnight:[NSDate date]];
+                    
+                    
+                    
+                  //  let milliseconds:Int   = NSDate.millisecondsSinceMidnight(datePicker.date) as Int
+                  //  let millsSinceMidnight:JavaLangInteger  = JavaLangInteger(int :  jint(milliseconds) )
+                    
+                    
+                   // self .signalTime?.setFixedTimeMillisFromMidnightWithJavaLangInteger(millsSinceMidnight)
+                    
+                    
+                    long  millisecondsSinceMidnight  = [NSDate millisecondsSinceMidnight:[NSDate new]];
+                    
+                    JavaLangInteger * distantce = [JavaLangInteger valueOfWithInt:(int) millisecondsSinceMidnight+ count * 10000];
+                    
+                    //self .signalTime?.setFixedTimeMillisFromMidnightWithJavaLangInteger(millsSinceMidnight)
+                    
+                    
+                    
+                    
+                     NSString* str = [NSString stringWithFormat: @"signalTimes[%i]",iiii ];
+                    PASignalTime * signalTime =  [schedule valueForKeyEx:str];
+                    
+                    int seconds = [self secondsSinceMidnight];
+                    
+                    
+                    int adjustedSeceondsSinceMidnight = seconds + count*plus_seconds;
+                    count++;
+                    
+                    [signalTime setFixedTimeMillisFromMidnightWithJavaLangInteger:distantce];
+                    
+                    
+                }
+   
+            }
+ 
+        }
+        
+    }
+    
+    
+  
+    
+}
+
+-(int) secondsSinceMidnight
+{
+    
+ 
+
+    NSDate * date = [NSDate date];
+    
+    NSCalendar *gregorian = [[NSCalendar alloc]
+                             initWithCalendarIdentifier:NSGregorianCalendar];
+    unsigned unitFlags =  NSHourCalendarUnit | NSMinuteCalendarUnit | NSSecondCalendarUnit;
+    NSDateComponents *components = [gregorian components:unitFlags fromDate:date];
+    
+    return    (60 * [components hour] + [components minute])* 60 + [components second]  ;
+}
+
+
 - (IBAction)test2:(id)sender {
     
       PacoAppDelegate*  appDelegate  = (PacoAppDelegate *) [UIApplication sharedApplication].delegate;
     
     
      PAExperimentDAO * dao =  [TestUtil buildExperiment:dataSource];
+    
+    NSLog(@" %@", dao);
+    
+    
+     [self setSignalTimes:dao];
+    
+    
+      NSLog(@" %@", dao);
+    
+     [[PacoMediator sharedInstance] clearRunningExperimentsSynchronous];
      [[PacoMediator sharedInstance] addExperimentToAvailableStore:dao];
-     [[PacoMediator sharedInstance] startRunningExperiment:[dao instanceId]];
+    
+    [NSThread sleepForTimeInterval:3];
+    
+     [[PacoMediator sharedInstance] startRunningExperimentRegenerate:[dao instanceId]];
    
 
  
-    
+    /*
     
     NSDate *fireDate = [NSDate dateWithTimeInterval:0.1 sinceDate:[NSDate new]];
     //NSDate *timeOutDate  = [NSDate date :120.0 sinceDate:[NSDate new]];
@@ -73,6 +202,7 @@ static NSString *dataSource = @"{\r\n  \"title\": \"Everything Demo New\",\r\n  
     
     
     [appDelegate showSurveyForNotification:notification];
+     */
   
 }
 
