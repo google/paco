@@ -15,24 +15,30 @@ import UIKit
         self.tableView.rowHeight = UITableViewAutomaticDimension
         self.tableView.estimatedRowHeight = 44
     
-    
+
      let n: Int! = self.navigationController?.viewControllers.count
     
     if  n == 4 {
         
         
-        let  leftAddBarButtonItem:UIBarButtonItem = UIBarButtonItem(title: "Cancel", style: UIBarButtonItemStyle.Plain, target: self, action:"doneButton:")
+        let  leftAddBarButtonItem:UIBarButtonItem = UIBarButtonItem(title: "Cancel", style: UIBarButtonItemStyle.Done, target: self, action:"doneButton:")
         
         
         let  rightAddBarButtonItem:UIBarButtonItem = UIBarButtonItem(title: "Next", style: UIBarButtonItemStyle.Plain, target: self, action:"nextTaped:")
         
+       
         //IBarButtonItem(image:UIImage(named:"key.png"), style:.Plain, target:self, action:#selector(navigate))
         
-        self.navigationItem.setRightBarButtonItems([rightAddBarButtonItem], animated: true)
-        self.navigationItem.setLeftBarButtonItems([leftAddBarButtonItem], animated: true)
         
         
-     isWizard = true
+        navigationController!.navigationItem.setRightBarButtonItems([rightAddBarButtonItem], animated: true)
+        navigationController!.navigationItem.setLeftBarButtonItems([leftAddBarButtonItem], animated: true)
+        
+        
+        self.navigationItem.leftBarButtonItem  = leftAddBarButtonItem;
+        self.navigationItem.rightBarButtonItem = rightAddBarButtonItem
+        
+       isWizard = true
         
      
     }
@@ -43,15 +49,11 @@ import UIKit
      isWizard = false
     }
     
-    
-    
-    
-    
+
  
     }
     
-    
-    
+
     
      func backTaped(sender:UIBarButtonItem!)
     {
@@ -72,9 +74,7 @@ import UIKit
     }
     
     
-    
-    
-    
+
     
     func backThree() {
         

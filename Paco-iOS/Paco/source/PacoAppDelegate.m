@@ -302,11 +302,11 @@ static NSString * const kClientID =
     // self.window.rootViewController = self.tabBar ;
     
       // self.window.rootViewController = self.testViewController;
-     self.window.rootViewController = [[UINavigationController alloc] initWithRootViewController:self.alertTester];
+    self.window.rootViewController =  self.tabBar; // [[UINavigationController alloc] initWithRootViewController:self.tabBar];
     
    
     
-     self.viewController =  self.alertTester;
+     self.viewController =  self.tabBar;
     
     
     [self.window makeKeyAndVisible];
