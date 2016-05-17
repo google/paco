@@ -53,7 +53,7 @@
                     Anon Data
                   </md-button>
                 </a>
-                <md-button ng-click="joinExperiment($event, exp)" 
+                <md-button ng-click="joinExperiment($event, exp)"
                   ng-if="joinedIndex.indexOf(exp.id) === -1">
                   Join
                 </md-button>
@@ -155,7 +155,39 @@
         </md-button>
       </md-tab-body>
     </md-tab>
+    <md-tab id="public">
+      <md-tab-label>
+        Experiment Hub
+      </md-tab-label>
+      <md-tab-body>
+        <div ng-if="list.public" class="group">
+          <div ng-repeat="exp in list.public">
+            <md-card>
+              <md-card-content class="padded">
+                <a href="#/experiment/{{exp.id}}">{{exp.title}}</a>
+                <span ng-if="exp.organization" class="organization">
+                  administered by {{exp.organization}}
+                </span>
+                <md-button ng-click="joinExperiment($event, exp)" class="join"
+                  ng-disabled="joinedIndex.indexOf(exp.id) != -1">
+                  Join
+                </md-button>
+              </md-card-content>
+            </md-card>
+          </div>
+        </div>
+
+        <div ng-if="loading.public" class="status">
+          <span>Loading available experiments</span>
+          <md-progress-linear md-mode="indeterminate"></md-progress-linear>
+        </div>
+
+        <md-button ng-if="cursor.public" class="show-more"
+          ng-click="loadPublicList()">
+          Show More
+        </md-button>
+      </md-tab-body>
+    </md-tab>
   </md-tabs>
 
 </div>
-

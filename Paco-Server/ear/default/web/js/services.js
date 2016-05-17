@@ -36,6 +36,7 @@ pacoApp.service('experimentService', ['$http', '$cacheFactory', 'util', 'config'
       invalidateCachedList('admin', true);
       invalidateCachedList('joined');
       invalidateCachedList('mine', true);
+      invalidateCachedList('public', true);
     }
 
     function invalidateCachedList(listType, limit) {

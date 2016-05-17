@@ -305,7 +305,7 @@ pacoApp.controller('ListCtrl', ['$scope', '$mdDialog', '$location',
   function($scope, $mdDialog, $location, experimentService, config) {
 
     $scope.cursor = {};
-    $scope.list = {'admin':[], 'joined':[], 'mine':[]};
+    $scope.list = {'admin':[], 'joined':[], 'mine':[], 'public':[]};
     $scope.loading = {};
     $scope.state = {};
 
@@ -335,6 +335,7 @@ pacoApp.controller('ListCtrl', ['$scope', '$mdDialog', '$location',
       $scope.loadAdminList(reset);
       $scope.loadJoinedList(reset);
       $scope.loadJoinableList(reset);
+      $scope.loadPublicList(reset);
     };
 
     $scope.loadList = function(listName, reset) {
@@ -381,6 +382,10 @@ pacoApp.controller('ListCtrl', ['$scope', '$mdDialog', '$location',
 
     $scope.loadJoinableList = function(reset) {
       $scope.loadList('mine', reset);
+    };
+
+    $scope.loadPublicList = function(reset) {
+      $scope.loadList('public', reset);
     };
 
     $scope.deleteExperiment = function(ev, exp) {
@@ -594,16 +599,16 @@ pacoApp.controller('DataCtrl', ['$scope', '$mdDialog', '$location', '$filter',
       return (typeof(data) === 'string' &&
                 data.indexOf($scope.photoMarker) === 0);
     }
-    
+
     $scope.isAudioData = function(data) {
         return (typeof(data) === 'string' &&
                   data.indexOf($scope.audioMarker) === 0);
       }
 
-    $scope.makeAudioSrc = function(cell) {        
-      return "data:audio/mpeg;base64," + cell;	
+    $scope.makeAudioSrc = function(cell) {
+      return "data:audio/mpeg;base64," + cell;
     }
-    
+
     $scope.removeUserChip = function() {
       var newPath = $scope.currentView + '/' + $scope.experimentId;
       $location.path(newPath);
