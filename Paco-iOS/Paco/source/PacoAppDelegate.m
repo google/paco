@@ -302,7 +302,7 @@ static NSString * const kClientID =
     // self.window.rootViewController = self.tabBar ;
     
       // self.window.rootViewController = self.testViewController;
-    self.window.rootViewController =  self.tabBar; // [[UINavigationController alloc] initWithRootViewController:self.tabBar];
+     self.window.rootViewController = [[UINavigationController alloc] initWithRootViewController:self.tabBar];
     
    
     

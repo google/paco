@@ -39,6 +39,10 @@
     UIBarButtonItem * doneBtn = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemSave target:self action:@selector(donePressed:)];
     
     
+    self.tabBarController.navigationItem.leftBarButtonItem  = doneBtn;
+    self.tabBarController.navigationItem.rightBarButtonItems  = nil;
+    
+    
     
     
     self.navigationItem.rightBarButtonItem = doneBtn;

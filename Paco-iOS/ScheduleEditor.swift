@@ -29,14 +29,16 @@ import UIKit
        
         //IBarButtonItem(image:UIImage(named:"key.png"), style:.Plain, target:self, action:#selector(navigate))
         
+     
+        
+        //navigationController!.navigationItem.setRightBarButtonItems([rightAddBarButtonItem], animated: true)
+        //navigationController!.navigationItem.setLeftBarButtonItems([leftAddBarButtonItem], animated: true)
         
         
-        navigationController!.navigationItem.setRightBarButtonItems([rightAddBarButtonItem], animated: true)
-        navigationController!.navigationItem.setLeftBarButtonItems([leftAddBarButtonItem], animated: true)
+         self.tabBarController!.navigationItem.leftBarButtonItem  = leftAddBarButtonItem;
+         self.tabBarController!.navigationItem.rightBarButtonItem = rightAddBarButtonItem
         
-        
-        self.navigationItem.leftBarButtonItem  = leftAddBarButtonItem;
-        self.navigationItem.rightBarButtonItem = rightAddBarButtonItem
+         self.tabBarController!.navigationController!.navigationBar.barTintColor = UIColor.greenColor()
         
        isWizard = true
         

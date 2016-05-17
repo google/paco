@@ -90,7 +90,7 @@ static dispatch_group_t group;
         self.eventStore                   = [[PacoEventStore alloc] init];
         self.actionDefinitionsDictionary  = [NSMutableDictionary new];
         self.notificationManager =   [PacoNotificationManager managerWithDelegate:self firstLaunchFlag:NO];
-        
+        self.eventManager  = [PacoEventManagerExtended defaultManager];
         
         PacoGenerateEventValidator* verifyer =  [PacoGenerateEventValidator new];
         [self.willStartVerifiers addObject:verifyer];

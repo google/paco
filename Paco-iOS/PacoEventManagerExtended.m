@@ -336,6 +336,8 @@ static NSString* const kAllEventsFileName = @"allEvents.plist";
 - (void)saveSurveySubmittedEventForDefinition:(PAExperimentDAO*)definition
                                    withInputs:(NSArray*)inputs
                              andScheduledTime:(NSDate*)scheduledTime {
+    
+    
     PacoEventExtended* surveyEvent = [PacoEventExtended surveySubmittedEventForDefinition:definition
                                                                withInputs:inputs
                                                          andScheduledTime:scheduledTime];

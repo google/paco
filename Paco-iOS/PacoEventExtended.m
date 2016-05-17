@@ -316,7 +316,7 @@ NSString* const kPacoResponseJoinExtended = @"joined";
 
  
  
-/*
+
 
 + (PacoEventExtended *) genericEventForDefinition:(PAExperimentDAO*)definition
                              withInputs:(NSArray*)inputs {
@@ -327,12 +327,12 @@ NSString* const kPacoResponseJoinExtended = @"joined";
      event.experimentId = [definition valueForKeyPathEx:@"id"];
      event.experimentName = [definition valueForKeyPathEx:@"title"];
      event.experimentVersion = [definition valueForKeyPathEx:@"version"];
-   
+     NSDictionary  * inputs2 = [definition inputs];
     
     NSMutableArray *responses = [NSMutableArray array];
-    for (PAInput2 *input in inputs) {
+    for (PAInput2 *input in inputs2) {
         NSMutableDictionary *response = [NSMutableDictionary dictionary];
-        
+    /*
         id payloadObject = [input payloadObject];
         if (payloadObject == nil) {
             continue;
@@ -354,6 +354,9 @@ NSString* const kPacoResponseJoinExtended = @"joined";
                 response[@"answer"] = @"Failed to save image";
             }
         }
+     */
+        response[@"name"] = @"name";
+        response[@"answer"] = @"the answer";
         
         [responses addObject:response];
     }
@@ -362,7 +365,7 @@ NSString* const kPacoResponseJoinExtended = @"joined";
     return event;
 }
 
-*/
+ 
 
 
 
