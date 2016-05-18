@@ -48,7 +48,9 @@ public class EventJsonUploadProcessor {
 
   public String processJsonEvents(String postBodyString, String whoFromLogin, String appIdHeader, String pacoVersion) {
     try {
-      if (postBodyString.startsWith("[")) {
+        if (postBodyString.startsWith("[") || postBodyString.startsWith("(")
+            ) {
+            
         final JSONArray events = new JSONArray(postBodyString);
         return toJson(processJsonArray(events, whoFromLogin, appIdHeader, pacoVersion));
       } else {
