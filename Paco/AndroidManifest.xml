@@ -284,7 +284,7 @@
             android:authorities="com.google.android.apps.paco.ExperimentProvider"
             android:exported="false" />
 
-        <receiver android:name="com.pacoapp.paco.sensors.android.BroadcastTriggerReceiver" >
+        <receiver android:name="com.pacoapp.paco.sensors.android.BroadcastTriggerReceiver" android:enabled="true">
             <intent-filter>
                 <action android:name="android.intent.action.PHONE_STATE_CHANGED" />
                 <action android:name="android.intent.action.PHONE_STATE" />
