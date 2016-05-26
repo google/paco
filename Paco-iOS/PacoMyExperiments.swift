@@ -150,6 +150,8 @@ class PacoMyExperiments: UITableViewController,PacoExperimentProtocol {
       let   mArray:NSMutableArray  = mediator.experiments();
        myExpriments = mArray as AnyObject  as? [PAExperimentDAO]
         
+        
+        
         PacoMediator.sharedInstance().replaceAllExperiments(myExpriments)
         
         print("print the notificatins \(myExpriments)");
@@ -168,7 +170,8 @@ class PacoMyExperiments: UITableViewController,PacoExperimentProtocol {
         }
         
         detailController.experiment = experiment;
-        self.navigationController?.pushViewController(detailController, animated: true)
+        self.tabBarController?.navigationController?.pushViewController(detailController, animated:  true)
+        //self.tabnavigationController?.pushViewController(detailController, animated: true)
     }
     
     func didClose(experiment: PAExperimentDAO)

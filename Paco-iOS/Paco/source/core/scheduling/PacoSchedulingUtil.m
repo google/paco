@@ -151,8 +151,7 @@
         
         id<JavaUtilSet> set =  [OrgJodaTimeDateTimeZone getAvailableIDs];
         
-        
-      //  OrgJodaTimeDateTimeZone *  tz = [OrgJodaTimeDateTimeZone forIDWithNSString:@"America/Los_Angeles"];
+ 
         
   
         

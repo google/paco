@@ -102,6 +102,9 @@ NSString *kCellIdQuestion = @"question";
 - (void)viewWillAppear:(BOOL)animated {
   [super viewWillAppear:animated];
   NSLog(@"Survey shows up:");
+    
+    self.tabBarController.navigationController.navigationBarHidden = NO;
+    
   [self processAttachedNotificationIfNeeded];
 
   if (self.evaluator.experiment.definition.webReccommended) {

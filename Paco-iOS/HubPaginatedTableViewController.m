@@ -16,6 +16,8 @@
 #import "PacoSerializeUtil.h"
 #import "NSObject+J2objcKVO.h" 
 #import "Paco-Swift.h"
+#import "PacoMediator.h"
+#import "NSMutableArray+PacoModel.h"
 
 
 
@@ -27,6 +29,8 @@
 @property(nonatomic, strong) id<PacoEnumerator> myExperimentsIterator;
 @property(nonatomic, strong) id<PacoEnumerator> publicExperimentIterator;
 @property(nonatomic, strong) PacoService* service;
+
+
 
 
 @property(nonatomic, strong) NSMutableArray* experiments;
@@ -44,7 +48,7 @@
     
     
 
-    
+    self.tabBarController.navigationController.delegate  = self;
     
     _experiments = [NSMutableArray new];
     _publicExperimentIterator =  [PacoPublicDefinitionLoader  publicExperimentsEnumerator];
@@ -59,14 +63,56 @@
     
     [_publicExperimentIterator loadNextPage:^(NSArray *array, NSError * error) {
         
-        
+      
         [self.experiments addObjectsFromArray:array];
+        
+        
+        NSArray* startedExperiments =    [PacoMediator sharedInstance].startedExperiments;
+        [self.experiments removeObjectsInArray:startedExperiments];
+        
+        
+        
+        [[PacoMediator sharedInstance].hubExperiments addObjectsFromArray:array];
+        
+        
         [self.tableView reloadData];
         
     }];
     
     
  
+}
+
+
+- (void)navigationController:(UINavigationController *)navigationController
+      willShowViewController:(UIViewController *)viewController animated:(BOOL)animated {
+    
+    
+    long  viewCount  = [[self.tabBarController.navigationController viewControllers] count];
+    
+    
+    if(viewCount ==1)
+    {
+        
+        [self viewWillAppear:YES];
+        
+    }
+    
+    NSLog(@" will show delegeate %lu",  viewCount) ;
+ 
+}
+
+
+-(void) viewDidAppear:(BOOL)animated
+{
+    
+      NSArray* startedExperiments =    [PacoMediator sharedInstance].startedExperiments;
+      [self.experiments removeObjectsInArray:startedExperiments];
+      [self.experiments removeExperiments:startedExperiments];
+      [self.tableView reloadData];
+    
+
+    
 }
 
 - (void)didReceiveMemoryWarning {
@@ -244,8 +290,7 @@
     }
     
     detailViewController.experiment = cell.experiment;
-    
-    [self.navigationController pushViewController:detailViewController animated:TRUE];
+    [self.tabBarController.navigationController pushViewController:detailViewController animated:TRUE];
   
 }
 

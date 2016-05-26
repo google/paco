@@ -161,6 +161,10 @@
 		A62263281BE9AB4B000698AD /* PacoConsentFormViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = A62263271BE9AB4B000698AD /* PacoConsentFormViewController.xib */; };
 		A622632B1BEA9278000698AD /* PacoAboutPacoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A62263291BEA9278000698AD /* PacoAboutPacoViewController.swift */; settings = {COMPILER_FLAGS = " "; }; };
 		A622632C1BEA9278000698AD /* PacoAboutPacoViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = A622632A1BEA9278000698AD /* PacoAboutPacoViewController.xib */; };
+		A624A5BC1CF54B970092EA8E /* PacoConfigurationViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = A624A5BA1CF54B970092EA8E /* PacoConfigurationViewController.m */; };
+		A624A5BD1CF54B970092EA8E /* PacoConfigurationViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = A624A5BB1CF54B970092EA8E /* PacoConfigurationViewController.xib */; };
+		A624A5D31CF6521C0092EA8E /* PacoConfigDetailController.m in Sources */ = {isa = PBXBuildFile; fileRef = A624A5D11CF6521C0092EA8E /* PacoConfigDetailController.m */; };
+		A624A5D41CF6521C0092EA8E /* PacoConfigDetailController.xib in Resources */ = {isa = PBXBuildFile; fileRef = A624A5D21CF6521C0092EA8E /* PacoConfigDetailController.xib */; };
 		A62A157A1BC4B87600FF20C1 /* JavaUtilArrayList+PacoConversion.m in Sources */ = {isa = PBXBuildFile; fileRef = A62A15791BC4B87600FF20C1 /* JavaUtilArrayList+PacoConversion.m */; settings = {COMPILER_FLAGS = " "; }; };
 		A62A157B1BC4B87600FF20C1 /* JavaUtilArrayList+PacoConversion.m in Sources */ = {isa = PBXBuildFile; fileRef = A62A15791BC4B87600FF20C1 /* JavaUtilArrayList+PacoConversion.m */; };
 		A636E90C1CA32BBC00FAF055 /* PacoJoinSummary.m in Sources */ = {isa = PBXBuildFile; fileRef = A636E90A1CA32BBC00FAF055 /* PacoJoinSummary.m */; };
@@ -601,6 +605,7 @@
 		A6401F6A1B7D4D1300ABC0AB /* PacoEventExtended.m in Sources */ = {isa = PBXBuildFile; fileRef = A6401F691B7D4D1300ABC0AB /* PacoEventExtended.m */; settings = {COMPILER_FLAGS = " "; }; };
 		A6401F6D1B7D4D2800ABC0AB /* PacoEventManagerExtended.m in Sources */ = {isa = PBXBuildFile; fileRef = A6401F6C1B7D4D2800ABC0AB /* PacoEventManagerExtended.m */; settings = {COMPILER_FLAGS = " "; }; };
 		A6401F731B7EAB6600ABC0AB /* PacoSerializeUtil.m in Sources */ = {isa = PBXBuildFile; fileRef = A6401F721B7EAB6600ABC0AB /* PacoSerializeUtil.m */; settings = {COMPILER_FLAGS = " "; }; };
+		A6424DE21CF4DCE600257B26 /* PacoExperiment.m in Sources */ = {isa = PBXBuildFile; fileRef = A6424DE11CF4DCE600257B26 /* PacoExperiment.m */; };
 		A649F6C21BF58D5B00124096 /* PacoTableCellProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = A649F6C11BF58D5B00124096 /* PacoTableCellProtocol.swift */; settings = {COMPILER_FLAGS = " "; }; };
 		A649F6C41BF9381700124096 /* PacoLabel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A649F6C31BF9381700124096 /* PacoLabel.swift */; settings = {COMPILER_FLAGS = " "; }; };
 		A649F6C81BF9927400124096 /* PacoOutput.swift in Sources */ = {isa = PBXBuildFile; fileRef = A649F6C71BF9927400124096 /* PacoOutput.swift */; settings = {COMPILER_FLAGS = " "; }; };
@@ -670,7 +675,6 @@
 		A66E306B1BA8F0C400A067EA /* libParseKitMobile.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 36000C2817C6AEA900A8A9E7 /* libParseKitMobile.a */; };
 		A670F8831B8ECC2600BF9593 /* PacoIntrospectHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = A670F8821B8ECC2600BF9593 /* PacoIntrospectHelper.m */; settings = {COMPILER_FLAGS = " "; }; };
 		A6750DDD1CD28043000882B1 /* Config.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = A6750DDC1CD28043000882B1 /* Config.xcconfig */; };
-		A67528E81CD6E2EA000882B1 /* PacoExperiment.m in Sources */ = {isa = PBXBuildFile; fileRef = A67528E71CD6E2EA000882B1 /* PacoExperiment.m */; };
 		A67528F91CD6E74E000882B1 /* OrgJodaTimeDateTime+PacoDateHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = A67528F81CD6E74E000882B1 /* OrgJodaTimeDateTime+PacoDateHelper.m */; };
 		A676C73C1B615AAB00F37572 /* libobjc.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = A676C73B1B615AAB00F37572 /* libobjc.dylib */; };
 		A681F4841BB3518600EC8599 /* NSMutableArray+PacoModel.m in Sources */ = {isa = PBXBuildFile; fileRef = A681F4831BB3518600EC8599 /* NSMutableArray+PacoModel.m */; settings = {COMPILER_FLAGS = " "; }; };
@@ -1160,6 +1164,12 @@
 		A62263271BE9AB4B000698AD /* PacoConsentFormViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = PacoConsentFormViewController.xib; sourceTree = "<group>"; };
 		A62263291BEA9278000698AD /* PacoAboutPacoViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PacoAboutPacoViewController.swift; sourceTree = "<group>"; };
 		A622632A1BEA9278000698AD /* PacoAboutPacoViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = PacoAboutPacoViewController.xib; sourceTree = "<group>"; };
+		A624A5B91CF54B970092EA8E /* PacoConfigurationViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoConfigurationViewController.h; sourceTree = "<group>"; };
+		A624A5BA1CF54B970092EA8E /* PacoConfigurationViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoConfigurationViewController.m; sourceTree = "<group>"; };
+		A624A5BB1CF54B970092EA8E /* PacoConfigurationViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = PacoConfigurationViewController.xib; sourceTree = "<group>"; };
+		A624A5D01CF6521C0092EA8E /* PacoConfigDetailController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoConfigDetailController.h; sourceTree = "<group>"; };
+		A624A5D11CF6521C0092EA8E /* PacoConfigDetailController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoConfigDetailController.m; sourceTree = "<group>"; };
+		A624A5D21CF6521C0092EA8E /* PacoConfigDetailController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = PacoConfigDetailController.xib; sourceTree = "<group>"; };
 		A62A15601BC4A8B800FF20C1 /* NSDate+PacoTimeZoneHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSDate+PacoTimeZoneHelper.h"; sourceTree = "<group>"; };
 		A62A15611BC4A8B800FF20C1 /* NSDate+PacoTimeZoneHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSDate+PacoTimeZoneHelper.m"; sourceTree = "<group>"; };
 		A62A15781BC4B87600FF20C1 /* JavaUtilArrayList+PacoConversion.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "JavaUtilArrayList+PacoConversion.h"; path = "Paco/source/core/serializer/categories/JavaUtilArrayList+PacoConversion.h"; sourceTree = "<group>"; };
@@ -1451,6 +1461,8 @@
 		A6401F721B7EAB6600ABC0AB /* PacoSerializeUtil.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoSerializeUtil.m; sourceTree = "<group>"; };
 		A6401F741B7EB04B00ABC0AB /* PacoSerializeUtilTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoSerializeUtilTest.m; sourceTree = "<group>"; };
 		A6401F781B82A50800ABC0AB /* PacoEventManagerTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoEventManagerTests.m; sourceTree = "<group>"; };
+		A6424DE01CF4DCE600257B26 /* PacoExperiment.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoExperiment.h; sourceTree = "<group>"; };
+		A6424DE11CF4DCE600257B26 /* PacoExperiment.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoExperiment.m; sourceTree = "<group>"; };
 		A646B4BC1B7C10A500BBAABB /* PacoClientTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoClientTest.m; sourceTree = "<group>"; };
 		A649F6C11BF58D5B00124096 /* PacoTableCellProtocol.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PacoTableCellProtocol.swift; sourceTree = "<group>"; };
 		A649F6C31BF9381700124096 /* PacoLabel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PacoLabel.swift; sourceTree = "<group>"; };
@@ -1491,7 +1503,6 @@
 		A65890EE1C923196007FEF4C /* PacoTimeSchedulerController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PacoTimeSchedulerController.swift; sourceTree = "<group>"; };
 		A65890F01C9231CD007FEF4C /* DatePickerCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DatePickerCell.swift; sourceTree = "<group>"; };
 		A65890F21C9233DB007FEF4C /* ScheduleEditor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ScheduleEditor.swift; sourceTree = "<group>"; };
-		A65890F41C9234D1007FEF4C /* DatePickerCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DatePickerCell.h; sourceTree = "<group>"; };
 		A65890F51C9239CA007FEF4C /* ScheduleEditor.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = ScheduleEditor.xib; sourceTree = "<group>"; };
 		A65E5C4F1C04032A00EE2405 /* PacoInputEvaluator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoInputEvaluator.h; sourceTree = "<group>"; };
 		A65E5C501C04032A00EE2405 /* PacoInputEvaluator.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoInputEvaluator.m; sourceTree = "<group>"; };
@@ -1520,8 +1531,6 @@
 		A670F8811B8ECC2600BF9593 /* PacoIntrospectHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PacoIntrospectHelper.h; path = Paco/source/core/serializer/PacoIntrospectHelper.h; sourceTree = "<group>"; };
 		A670F8821B8ECC2600BF9593 /* PacoIntrospectHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = PacoIntrospectHelper.m; path = Paco/source/core/serializer/PacoIntrospectHelper.m; sourceTree = "<group>"; };
 		A6750DDC1CD28043000882B1 /* Config.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = Config.xcconfig; sourceTree = "<group>"; };
-		A67528E71CD6E2EA000882B1 /* PacoExperiment.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = PacoExperiment.m; path = "../../../proj/baw/paco/Paco-iOS/PacoExperiment.m"; sourceTree = "<group>"; };
-		A67528E91CD6E2F5000882B1 /* PacoExperiment.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = PacoExperiment.h; path = "../../../proj/baw/paco/Paco-iOS/PacoExperiment.h"; sourceTree = "<group>"; };
 		A67528F71CD6E74E000882B1 /* OrgJodaTimeDateTime+PacoDateHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "OrgJodaTimeDateTime+PacoDateHelper.h"; path = "/Users/northropo/Projects/paco/Paco-iOS/PacoUtil/PacoUtil/../../OrgJodaTimeDateTime+PacoDateHelper.h"; sourceTree = "<absolute>"; };
 		A67528F81CD6E74E000882B1 /* OrgJodaTimeDateTime+PacoDateHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "OrgJodaTimeDateTime+PacoDateHelper.m"; path = "/Users/northropo/Projects/paco/Paco-iOS/PacoUtil/PacoUtil/../../OrgJodaTimeDateTime+PacoDateHelper.m"; sourceTree = "<absolute>"; };
 		A67528FA1CD6EC2E000882B1 /* Paco-Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "Paco-Prefix.pch"; path = "Paco/source/Paco-Prefix.pch"; sourceTree = SOURCE_ROOT; };
@@ -1781,14 +1790,11 @@
 		319771B9163F0733000AC06B = {
 			isa = PBXGroup;
 			children = (
+				A6DF7C1D1CED23B800EF4B68 /* Container Objects */,
 				A6954E971CE27F8E0052C9F0 /* resources */,
-				A602D2EC1CDEDD3900A9AA50 /* PacoClient.h */,
-				A602D2ED1CDEDD3900A9AA50 /* PacoClient.m */,
 				A602D2E81CDECEFC00A9AA50 /* libJodaCompile.a */,
 				A602D2EA1CDED25600A9AA50 /* libJ2ObjcLib.a */,
 				A6D61B2C1CD82F7100650FC1 /* include */,
-				A67528E91CD6E2F5000882B1 /* PacoExperiment.h */,
-				A67528E71CD6E2EA000882B1 /* PacoExperiment.m */,
 				A6750DDC1CD28043000882B1 /* Config.xcconfig */,
 				A61461121CC05165007554F7 /* UI */,
 				A6B56C5A1C7E758A00E81C3F /* GoogleSignIn.bundle */,
@@ -2266,35 +2272,31 @@
 		A60350931BE2CD30008D842A /* activeControls */ = {
 			isa = PBXGroup;
 			children = (
-				A6FE84C71BE94970001F45A1 /* joined */,
 				A6FE84C81BE94985001F45A1 /* Invitations */,
 			);
 			name = activeControls;
 			sourceTree = "<group>";
 		};
-		A603509E1BE2E547008D842A /* config */ = {
+		A603509E1BE2E547008D842A /* join */ = {
 			isa = PBXGroup;
 			children = (
+				A624A5CE1CF650E50092EA8E /* configuration */,
 				A62263161BE9A1D0000698AD /* PacoExperimentDetailController.swift */,
 				A62263181BE9A1F0000698AD /* PacoExperimentDetailController.xib */,
 				A62263141BE991D7000698AD /* PacoExperimentProtocol.swift */,
 				A603509F1BE2E582008D842A /* PacoConfigController.swift */,
 				A60350A01BE2E582008D842A /* PacoConfigController.xib */,
 			);
-			name = config;
+			name = join;
 			sourceTree = "<group>";
 		};
 		A61461121CC05165007554F7 /* UI */ = {
 			isa = PBXGroup;
 			children = (
 				A61461291CC16280007554F7 /* ResponseUI */,
-				A652BB351BD581FE000237A7 /* Swift */,
+				A652BB351BD581FE000237A7 /* Mostly Swift */,
 				A61461201CC051AB007554F7 /* PacoNotificationTester.h */,
 				A61461211CC051AB007554F7 /* PacoNotificationTester.m */,
-				A61461821CC6CDB4007554F7 /* PacoExperimentInput.h */,
-				A61461831CC6CDB4007554F7 /* PacoExperimentInput.m */,
-				A67528F71CD6E74E000882B1 /* OrgJodaTimeDateTime+PacoDateHelper.h */,
-				A67528F81CD6E74E000882B1 /* OrgJodaTimeDateTime+PacoDateHelper.m */,
 				A61461221CC051AB007554F7 /* PacoNotificationTester.xib */,
 			);
 			name = UI;
@@ -2353,8 +2355,6 @@
 		A61461621CC165A9007554F7 /* ProxyObjects */ = {
 			isa = PBXGroup;
 			children = (
-				A614616F1CC16852007554F7 /* UILocalNotification+Paco.h */,
-				A61461701CC1689C007554F7 /* UILocalNotification+Paco.m */,
 				A61461751CC16BB1007554F7 /* PacoInputEvaluatorEx.h */,
 				A61461761CC16BB1007554F7 /* PacoInputEvaluatorEx.m */,
 			);
@@ -2377,6 +2377,27 @@
 				A622632A1BEA9278000698AD /* PacoAboutPacoViewController.xib */,
 			);
 			name = about;
+			sourceTree = "<group>";
+		};
+		A624A5CE1CF650E50092EA8E /* configuration */ = {
+			isa = PBXGroup;
+			children = (
+				A624A5CF1CF651B40092EA8E /* ConfigDetails */,
+				A624A5B91CF54B970092EA8E /* PacoConfigurationViewController.h */,
+				A624A5BA1CF54B970092EA8E /* PacoConfigurationViewController.m */,
+				A624A5BB1CF54B970092EA8E /* PacoConfigurationViewController.xib */,
+			);
+			name = configuration;
+			sourceTree = "<group>";
+		};
+		A624A5CF1CF651B40092EA8E /* ConfigDetails */ = {
+			isa = PBXGroup;
+			children = (
+				A624A5D01CF6521C0092EA8E /* PacoConfigDetailController.h */,
+				A624A5D11CF6521C0092EA8E /* PacoConfigDetailController.m */,
+				A624A5D21CF6521C0092EA8E /* PacoConfigDetailController.xib */,
+			);
+			name = ConfigDetails;
 			sourceTree = "<group>";
 		};
 		A633A9741B5DA0970046436D /* src */ = {
@@ -2828,24 +2849,23 @@
 			path = ../..;
 			sourceTree = "<group>";
 		};
-		A652BB351BD581FE000237A7 /* Swift */ = {
+		A652BB351BD581FE000237A7 /* Mostly Swift */ = {
 			isa = PBXGroup;
 			children = (
 				A6F734931BD9BD6000DCE716 /* bridging */,
 				A652BB3B1BD59A8A000237A7 /* UI */,
 			);
-			name = Swift;
+			name = "Mostly Swift";
 			sourceTree = "<group>";
 		};
 		A652BB3B1BD59A8A000237A7 /* UI */ = {
 			isa = PBXGroup;
 			children = (
+				A6DF7C2E1CED2E1400EF4B68 /* joinflow */,
 				A65F68A01C865E25009AAEF4 /* testing */,
 				A6DC6E3E1BEC116E00D38D68 /* FormResponse */,
 				A6DC6E301BEC115600D38D68 /* TableCells */,
 				A622632D1BEA9357000698AD /* about */,
-				A62263201BE9A874000698AD /* conset */,
-				A603509E1BE2E547008D842A /* config */,
 				A60350931BE2CD30008D842A /* activeControls */,
 				A652BB5C1BD6DB4B000237A7 /* controls */,
 				A652BB481BD5B2DA000237A7 /* PacoMainSwiftViewController.swift */,
@@ -2866,16 +2886,9 @@
 		A65890ED1C923154007FEF4C /* TimeScheduler */ = {
 			isa = PBXGroup;
 			children = (
-				A65890F41C9234D1007FEF4C /* DatePickerCell.h */,
-				A65890F21C9233DB007FEF4C /* ScheduleEditor.swift */,
-				A65890F51C9239CA007FEF4C /* ScheduleEditor.xib */,
-				A65890F01C9231CD007FEF4C /* DatePickerCell.swift */,
 				A68888141C9B2E120003C8DC /* PacoTimeCellModel.h */,
 				A68888151C9B2E120003C8DC /* PacoTimeCellModel.m */,
 				A65890EE1C923196007FEF4C /* PacoTimeSchedulerController.swift */,
-				A636E9091CA32BBC00FAF055 /* PacoJoinSummary.h */,
-				A636E90A1CA32BBC00FAF055 /* PacoJoinSummary.m */,
-				A636E90B1CA32BBC00FAF055 /* PacoJoinSummary.xib */,
 				A69580071CB82D5D00B89E7F /* PacoEditorJoinflowViewController.swift */,
 			);
 			name = TimeScheduler;
@@ -2954,6 +2967,10 @@
 		A665B2631B94C838001E0098 /* categories */ = {
 			isa = PBXGroup;
 			children = (
+				A67528F71CD6E74E000882B1 /* OrgJodaTimeDateTime+PacoDateHelper.h */,
+				A67528F81CD6E74E000882B1 /* OrgJodaTimeDateTime+PacoDateHelper.m */,
+				A614616F1CC16852007554F7 /* UILocalNotification+Paco.h */,
+				A61461701CC1689C007554F7 /* UILocalNotification+Paco.m */,
 				A6954C941CE260EF0052C9F0 /* OrgJodaTimeDateTime+PacoDateHelper.h */,
 				A6954C921CE2608A0052C9F0 /* OrgJodaTimeDateTime+PacoDateHelper.m */,
 				A6F734901BD9BA8A00DCE716 /* OrgJodaTimeDateMidnight+PacoDateHelper.h */,
@@ -3244,6 +3261,51 @@
 				A649F6C31BF9381700124096 /* PacoLabel.swift */,
 			);
 			name = "cell ";
+			sourceTree = "<group>";
+		};
+		A6DF7C1D1CED23B800EF4B68 /* Container Objects */ = {
+			isa = PBXGroup;
+			children = (
+				A61461821CC6CDB4007554F7 /* PacoExperimentInput.h */,
+				A61461831CC6CDB4007554F7 /* PacoExperimentInput.m */,
+				A6424DE01CF4DCE600257B26 /* PacoExperiment.h */,
+				A6424DE11CF4DCE600257B26 /* PacoExperiment.m */,
+				A602D2EC1CDEDD3900A9AA50 /* PacoClient.h */,
+				A602D2ED1CDEDD3900A9AA50 /* PacoClient.m */,
+			);
+			name = "Container Objects";
+			sourceTree = "<group>";
+		};
+		A6DF7C2E1CED2E1400EF4B68 /* joinflow */ = {
+			isa = PBXGroup;
+			children = (
+				A603509E1BE2E547008D842A /* join */,
+				A62263201BE9A874000698AD /* conset */,
+				A6FE84C71BE94970001F45A1 /* joined */,
+				A6DF7C2F1CED2F5E00EF4B68 /* editor */,
+				A6DF7C301CED309900EF4B68 /* summary */,
+			);
+			name = joinflow;
+			sourceTree = "<group>";
+		};
+		A6DF7C2F1CED2F5E00EF4B68 /* editor */ = {
+			isa = PBXGroup;
+			children = (
+				A65890F01C9231CD007FEF4C /* DatePickerCell.swift */,
+				A65890F21C9233DB007FEF4C /* ScheduleEditor.swift */,
+				A65890F51C9239CA007FEF4C /* ScheduleEditor.xib */,
+			);
+			name = editor;
+			sourceTree = "<group>";
+		};
+		A6DF7C301CED309900EF4B68 /* summary */ = {
+			isa = PBXGroup;
+			children = (
+				A636E9091CA32BBC00FAF055 /* PacoJoinSummary.h */,
+				A636E90A1CA32BBC00FAF055 /* PacoJoinSummary.m */,
+				A636E90B1CA32BBC00FAF055 /* PacoJoinSummary.xib */,
+			);
+			name = summary;
 			sourceTree = "<group>";
 		};
 		A6F734931BD9BD6000DCE716 /* bridging */ = {
@@ -3703,6 +3765,7 @@
 				A60350A41BE2E76C008D842A /* PacoConfigController.xib in Resources */,
 				A63A82021C0677B600ACBC0A /* plant-element-7.png in Resources */,
 				A63A819A1C0677B600ACBC0A /* layout-arrange-04-7.png in Resources */,
+				A624A5BD1CF54B970092EA8E /* PacoConfigurationViewController.xib in Resources */,
 				36B8EBD817568E29004CF035 /* current_experiments_focused.png in Resources */,
 				A6DC6E4E1BEC184000D38D68 /* PacoResponseTableViewController.xib in Resources */,
 				A63A81D01C0677B600ACBC0A /* number-5-7.png in Resources */,
@@ -3881,6 +3944,7 @@
 				A63A82081C0677B600ACBC0A /* pushpin-7.png in Resources */,
 				A63A81441C0677B600ACBC0A /* crown-7.png in Resources */,
 				A63A814A1C0677B600ACBC0A /* dumbbell-7.png in Resources */,
+				A624A5D41CF6521C0092EA8E /* PacoConfigDetailController.xib in Resources */,
 				A61461591CC16320007554F7 /* PacoTitleView.xib in Resources */,
 				A63A81EE1C0677B600ACBC0A /* paper-piece-tick-7.png in Resources */,
 				A63A815A1C0677B600ACBC0A /* file-document-7.png in Resources */,
@@ -4248,6 +4312,7 @@
 				A6DC6E511BEC1ACC00D38D68 /* PacoPickerTableViewCell.swift in Sources */,
 				A61461551CC16320007554F7 /* PacoTableCell.m in Sources */,
 				A62263261BE9AB41000698AD /* PacoConsentFormViewController.swift in Sources */,
+				A624A5D31CF6521C0092EA8E /* PacoConfigDetailController.m in Sources */,
 				363C99F11815FF8200D806F6 /* NSMutableArray+Paco.m in Sources */,
 				A6401F6A1B7D4D1300ABC0AB /* PacoEventExtended.m in Sources */,
 				A6FE84BC1BE82DA9001F45A1 /* PacoMyExpermementTitleCellTableViewCell.swift in Sources */,
@@ -4296,7 +4361,9 @@
 				7F8531DB1A37BE680028BA23 /* JCNotificationBannerViewIOS7Style.m in Sources */,
 				A65890EF1C923196007FEF4C /* PacoTimeSchedulerController.swift in Sources */,
 				A6F734921BD9BA8A00DCE716 /* OrgJodaTimeDateMidnight+PacoDateHelper.m in Sources */,
+				A6424DE21CF4DCE600257B26 /* PacoExperiment.m in Sources */,
 				36C4A33F18A4DEEE00D8FE59 /* DDLog.m in Sources */,
+				A624A5BC1CF54B970092EA8E /* PacoConfigurationViewController.m in Sources */,
 				A65890F31C9233DB007FEF4C /* ScheduleEditor.swift in Sources */,
 				A6FD7BBB1BFEBB5100B6140F /* PAInput2+PacoAggrigator.m in Sources */,
 				A6ABFAA51B742BE800F90598 /* PacoSerializer.m in Sources */,
@@ -4358,7 +4425,6 @@
 				A65F68BB1C87EA35009AAEF4 /* PacoHubPaginator.m in Sources */,
 				A61461811CC6B3B4007554F7 /* PAInput2+Helper.m in Sources */,
 				361AB05617DA77000053C313 /* PacoNotificationManager.m in Sources */,
-				A67528E81CD6E2EA000882B1 /* PacoExperiment.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

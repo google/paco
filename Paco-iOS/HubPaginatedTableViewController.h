@@ -8,6 +8,6 @@
 
 #import <UIKit/UIKit.h>
 
-@interface HubPaginatedTableViewController : UITableViewController
+@interface HubPaginatedTableViewController : UITableViewController <UINavigationControllerDelegate>
 
 @end

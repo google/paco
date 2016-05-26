@@ -28,7 +28,12 @@
 
 @implementation PacoJoinSummary
 
-
+-(void) viewWillDisappear:(BOOL)animated
+{
+    
+ 
+    
+}
 
 - (void)viewDidLoad {
     [super viewDidLoad];

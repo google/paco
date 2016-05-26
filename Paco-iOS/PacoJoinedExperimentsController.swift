@@ -18,7 +18,7 @@ class PacoJoinedExperimentsController: UITableViewController,PacoExperimentProto
     let cellId = "ExperimenJoinedCellID"
     var selectedIndex = -1;
     var controller:PacoResponseTableViewController?
-    
+    var picker:MFMailComposeViewController?
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -29,7 +29,7 @@ class PacoJoinedExperimentsController: UITableViewController,PacoExperimentProto
         
         
      let mediator = PacoMediator.sharedInstance();
-     var  mArray:NSMutableArray  = mediator.startedExperiments();
+     let  mArray:NSMutableArray  = mediator.startedExperiments();
      myExpriments = mArray as AnyObject  as? [PAExperimentDAO]
       NSNotificationCenter.defaultCenter().addObserver(self, selector:"eventJoined:", name:"JoinEvent", object: nil)
       tableView.tableFooterView = UIView()
@@ -130,13 +130,39 @@ class PacoJoinedExperimentsController: UITableViewController,PacoExperimentProto
     
     
     override func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
+        
+        /*
         let cell = tableView.cellForRowAtIndexPath(indexPath) as! PacoJoinedExperimentsTableViewCell
         
 
         var   inputs:JavaUtilList =   PAExperimentHelper.getInputsWithPAExperimentDAO(cell.experiment)
          controller  =  PacoResponseTableViewController(nibName: "PacoResponseTableViewController", bundle: nil, input:inputs)
         self.navigationController?.pushViewController(controller!, animated: true)
-     
+         
+         
+         PacoExperiment * experiment =  [PacoExperiment experimentWithExperimentDao:dao];
+         
+         // [PacoExperiment experimentWithExperimentDao:dao];
+         //  PacoExperiment *experiment = [[PacoClient sharedInstance].model experimentForId:experimentId];
+         
+         
+         
+         PacoQuestionScreenViewController *questions =
+         [PacoQuestionScreenViewController controllerWithExperiment:experiment andNotification:notification];
+         
+         
+         
+         
+ */
+        
+            let dao:PAExperimentDAO!  =  myExpriments![indexPath.row]
+            let experiment:PacoExperiment =    PacoExperiment.init(experimentDao:dao!)
+            let ctrler   = PacoQuestionScreenViewController.controllerWithExperiment(experiment)
+        
+        
+        
+        
+            self.tabBarController!.navigationController?.pushViewController(  ctrler as! UIViewController  , animated: true)
         
     }
     
@@ -221,10 +247,7 @@ class PacoJoinedExperimentsController: UITableViewController,PacoExperimentProto
     
     
     func email(experiment:PAExperimentDAO){
-        
-        
-        
-        
+
          sendMail(experiment)
     }
     
@@ -232,31 +255,58 @@ class PacoJoinedExperimentsController: UITableViewController,PacoExperimentProto
     func sendMail(experiment:PAExperimentDAO) {
         
         
-        var picker = MFMailComposeViewController()
-        picker.mailComposeDelegate = self
+        self.picker  = MFMailComposeViewController()
+        self.picker!.mailComposeDelegate = self
        
         if  experiment.valueForKeyEx("contactEmail")  != nil
         {
            var  email  = (experiment.valueForKeyEx("contactEmail")  as? String)!
             var toRecipents = [email]
-            picker.setToRecipients(toRecipents)
+            self.picker!.setToRecipients(toRecipents)
             
         }
         
     
      
-        picker.setSubject("subject")
-        picker.setMessageBody("body", isHTML: true)
-        presentViewController(picker, animated: true, completion: nil)
+        picker!.setSubject("subject")
+        picker!.setMessageBody("body", isHTML: true)
+        presentViewController(picker!, animated: true, completion: nil)
+        
+        
     }
     
     
     func mailComposeController(controller: MFMailComposeViewController!, didFinishWithResult result: MFMailComposeResult, error: NSError!) {
+        
         dismissViewControllerAnimated(true, completion: nil)
     }
     
     
-    func editTime(experiment:PAExperimentDAO){}
+  func editTime(experiment:PAExperimentDAO){
+        
+        
+        
+        
+        let  arrayOfCells  = experiment.getTableCellModelObjects()
+        
+        if   arrayOfCells != nil && arrayOfCells?.isEmpty == false   {
+            
+            let  editor =  ScheduleEditor(nibName:"ScheduleEditor",bundle:nil)
+            
+            editor.cells = arrayOfCells!
+            editor.experiment = experiment
+            
+            
+            
+                self.tabBarController?.navigationController?.pushViewController(editor, animated: true)
+                
+            
+            
+             }
+    
+    
+    
+    }
 
     /*
     // Override to support conditional editing of the table view.

@@ -37,6 +37,9 @@
 @class ScheduleEditor;
 @class PacoHubExperiments;
 @class PacoViewController;
+@class PacoConfigurationViewController;
+
+
 
 static NSString *dataSource;
 
@@ -55,7 +58,7 @@ static NSString *dataSource;
 @property (strong,nonatomic) ScheduleEditor* scheduleEditor;
 @property (strong,nonatomic) PacoViewController* goController;
 @property (strong,nonatomic) PacoNotificationTester* alertTester;
-
+@property (strong,nonatomic) PacoConfigurationViewController* configurationManager;
 
 
 @property (strong,nonatomic) PacoTestViewer* testPagination;

@@ -89,7 +89,7 @@ typedef NS_ENUM(NSInteger, PacoParentType) {
 /* add class that does not support domain prefix, i.e., 'PA' */
 -(void) addNoneDomainClass:(NSObject*) object;
 
-/* return a songle object after from json string */
+/* return a single object after from json string */
 - (NSObject*)buildSingleObjectHierarchyFromJSONString:(id)json;
 
 /* crate a medel object from dictionary */

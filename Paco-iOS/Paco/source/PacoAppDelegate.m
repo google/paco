@@ -35,10 +35,11 @@
 #import "Input2.h"
 #import "TestUtil.h"
 #import "PacoTestViewer.h"
- #import "PacoNotificationTester.h"
+#import "PacoNotificationTester.h"
 #import  "PacoQuestionScreenViewController.h"
 #import "PacoMediator.h"
-#import "PacoExperiment.h"
+#import "PacoConfigurationViewController.h"
+
 
 
 //#import <GoogleSignIn/GoogleSignIn.h>
@@ -356,12 +357,12 @@ static NSString * const kClientID =
 
     
     self.configController = [[PacoConfigController alloc] initWithNibName:@"PacoConfigController" bundle:nil];
-    
+    self.configurationManager = [[PacoConfigurationViewController  alloc] initWithNibName:@"PacoConfigurationViewController" bundle:nil];
     
      NSMutableArray *tabViewControllers = [[NSMutableArray alloc] init];
     [tabViewControllers addObject:[[UINavigationController alloc] initWithRootViewController:self.myExperiments]];
     [tabViewControllers addObject:[[UINavigationController alloc] initWithRootViewController:self.joinedExperiment]];
-    [tabViewControllers addObject:[[UINavigationController alloc] initWithRootViewController:self.configController]];
+    [tabViewControllers addObject:[[UINavigationController alloc] initWithRootViewController:self.configurationManager]];
     
     
     
@@ -375,7 +376,7 @@ static NSString * const kClientID =
     self.configController.title =@"Config";
     self.hub.title =@"Hub";
     self.testPagination.title=@"pagination";
-    
+    self.configurationManager.title == @"Config";
     self.swiftTest.title  =@"THE HUB";
     
     [self.tabBar addChildViewController:[[UINavigationController alloc] initWithRootViewController:self.myExperiments]];
@@ -383,7 +384,7 @@ static NSString * const kClientID =
     
     
     [self.tabBar addChildViewController:[[UINavigationController alloc] initWithRootViewController:self.joinedExperiment]];
-    [self.tabBar addChildViewController:[[UINavigationController alloc] initWithRootViewController:self.configController]];
+    [self.tabBar addChildViewController:[[UINavigationController alloc] initWithRootViewController:self.configurationManager]];
     
     
     
@@ -394,7 +395,7 @@ static NSString * const kClientID =
     self.joinedExperiment.tabBarItem.image = [UIImage imageNamed:@"business-target-7.png" ];
      self.pg.tabBarItem.image = [UIImage imageNamed:@"gift-7.png" ];
  
-    self.configController.tabBarItem.image =[UIImage imageNamed:@"gear-7.png" ];
+    self.configurationManager.tabBarItem.image =[UIImage imageNamed:@"gear-7.png" ];
     
     
 }

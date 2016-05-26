@@ -30,8 +30,8 @@
 #import "PacoEventManagerExtended.h"
 #import "PacoPublicDefinitionLoader.h"
 #import "PAExperimentDAO+Helper.h"
-
-
+#import "PacoSerializer.h"
+#import "PacoSerializeUtil.h"
 
 
 
@@ -179,6 +179,7 @@ static dispatch_group_t group;
 {
     _hubExperiments    = newArray;
     
+    
 }
 
 -(NSMutableArray*) hubExperiments
@@ -213,6 +214,13 @@ static dispatch_group_t group;
     
     /* locate the experiment */
     PAExperimentDAO * experiment  = [self.allExperiments findExperiment:experimentId];
+    
+    if(!experiment)
+    {
+        experiment = [self.hubExperiments findExperiment:experimentId];
+        
+        
+    }
     if(experiment)
     {
        
@@ -262,6 +270,22 @@ calculate the action specifications and reset the based upon the most recent ver
     
     /* locate the experiment */
     PAExperimentDAO * experiment  = [self.allExperiments findExperiment:experimentId];
+    if(experiment==nil)
+    {
+        
+        // need to refactor to only get class names onece and use appropreate types. 
+         NSDictionary * dao  = (NSDictionary*) [self.hubExperiments findExperiment:experimentId];
+        
+        NSArray* classNames = [PacoSerializeUtil getClassNames];
+        PacoSerializer * serializer = [[PacoSerializer alloc] initWithArrayOfClasses:classNames withNameOfClassAttribute:@"nameOfClass"];
+        
+     
+            experiment  = (PAExperimentDAO*)  [serializer buildModelObject:dao];
+      
+        
+        
+        
+    }
     
     NSLog(@"%@",experiment);
     if(experiment)
@@ -295,6 +319,20 @@ calculate the action specifications and reset the based upon the most recent ver
     
                 /* locate the experiment */
                 PAExperimentDAO * experiment  = [self.allExperiments findExperiment:experimentId];
+               if( experiment == nil)
+               {
+                   NSDictionary * dao = (NSDictionary*)   [self.hubExperiments findExperiment:experimentId];
+                   NSArray* classNames = [PacoSerializeUtil getClassNames];
+                   PacoSerializer * serializer = [[PacoSerializer alloc] initWithArrayOfClasses:classNames withNameOfClassAttribute:@"nameOfClass"];
+                   
+                   
+                   experiment  = (PAExperimentDAO*)  [serializer buildModelObject:dao];
+                   
+                  
+                   
+               }
+    
+    
                  if(experiment)
                  {
                      
@@ -415,6 +453,7 @@ calculate the action specifications and reset the based upon the most recent ver
 -(void) addExperimentToAvailableStore:(PAExperimentDAO*) experiment
 {
     [_allExperiments addObject:experiment];
+   
 }
 
 
@@ -422,6 +461,8 @@ calculate the action specifications and reset the based upon the most recent ver
 
 -(void) replaceAllExperiments:(NSArray*) experiments
 {
+    
+ 
         _allExperiments  = [[NSMutableArray alloc] initWithArray:experiments];
     
 }

@@ -8,14 +8,13 @@
 
 import UIKit
 
-@objc class PacoHubExperiments: UITableViewController,PacoExperimentProtocol {
+@objc class PacoHubExperiments: UITableViewController,PacoExperimentProtocol,UINavigationControllerDelegate {
     
       var  allExperiments:Array<PAExperimentDAO>?;
     
       var cells:NSArray = []
       let cellId = "ExperimenCellID"
       let simpleCellId = "ExperimenSimpleCellID"
-    
       var publicIterator = PacoPublicDefinitionLoader.publicExperimentsEnumerator();
     
     
@@ -33,11 +32,8 @@ import UIKit
        
             publicIterator.loadNextPage { ( nsArray  , err  ) -> Void in
             let  counter:Int   =  nsArray.count;
-            
-        
-                
             print(counter);
-            print(counter);
+          
                 
                 
                 var dao:PAExperimentDAO = self.allExperiments![1]
@@ -95,8 +91,7 @@ import UIKit
         // self.navigationItem.rightBarButtonItem = self.editButtonItem()
         
         
-        var networkHelper = PacoNetwork .sharedInstance()
-        networkHelper.update()
+ 
         
     }
 
@@ -214,7 +209,8 @@ import UIKit
         }
         
         detailController.experiment = experiment;
-        self.navigationController?.pushViewController(detailController, animated: true)
+          self.tabBarController?.navigationController?.pushViewController(detailController, animated:  true)
+       // self.navigationController?.pushViewController(detailController, animated: true)
     }
     
     func didClose(experiment: PAExperimentDAO)
@@ -225,6 +221,7 @@ import UIKit
     }
   
     override func viewWillAppear(animated: Bool) {
+        super.viewWillAppear(animated)
         
         var mediator =  PacoMediator.sharedInstance()
         var  mArray:NSMutableArray  = mediator.experiments()

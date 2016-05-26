@@ -38,6 +38,16 @@ class PacoExperimentDetailController: UIViewController {
     {
         super.viewDidLoad()
         
+        self.tabBarController?.navigationController?.navigationBarHidden = true;
+        
+        
+        var backBtn = UIBarButtonItem(title: "Cancel", style: UIBarButtonItemStyle.Plain, target: self, action: "btnBack:")
+        
+     
+        
+        navigationItem.leftBarButtonItem  = backBtn
+   
+        
    
     
         
@@ -89,6 +99,15 @@ class PacoExperimentDetailController: UIViewController {
    
         self.experiment = nil
         
+        
+    }
+    
+    
+    
+    @IBAction func btnBack(btn:AnyObject)
+    {
+        
+        navigationController?.popToRootViewControllerAnimated(true)
         
     }
     

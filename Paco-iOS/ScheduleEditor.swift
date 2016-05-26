@@ -15,36 +15,47 @@ import UIKit
         self.tableView.rowHeight = UITableViewAutomaticDimension
         self.tableView.estimatedRowHeight = 44
     
+    
+    
+
+    
+    
+    
+    
+ 
+    
 
      let n: Int! = self.navigationController?.viewControllers.count
     
     if  n == 4 {
         
-        
+    
         let  leftAddBarButtonItem:UIBarButtonItem = UIBarButtonItem(title: "Cancel", style: UIBarButtonItemStyle.Done, target: self, action:"doneButton:")
-        
-        
         let  rightAddBarButtonItem:UIBarButtonItem = UIBarButtonItem(title: "Next", style: UIBarButtonItemStyle.Plain, target: self, action:"nextTaped:")
         
+        
+        
+        navigationItem.leftBarButtonItem  = leftAddBarButtonItem;
+        navigationItem.rightBarButtonItem = rightAddBarButtonItem
+        
        
-        //IBarButtonItem(image:UIImage(named:"key.png"), style:.Plain, target:self, action:#selector(navigate))
         
-     
-        
-        //navigationController!.navigationItem.setRightBarButtonItems([rightAddBarButtonItem], animated: true)
-        //navigationController!.navigationItem.setLeftBarButtonItems([leftAddBarButtonItem], animated: true)
-        
-        
-         self.tabBarController!.navigationItem.leftBarButtonItem  = leftAddBarButtonItem;
-         self.tabBarController!.navigationItem.rightBarButtonItem = rightAddBarButtonItem
-        
-         self.tabBarController!.navigationController!.navigationBar.barTintColor = UIColor.greenColor()
+         //self.tabBarController!.navigationController!.navigationBar.barTintColor = UIColor.greenColor()
         
        isWizard = true
         
      
     }
     else {
+        
+        
+        
+      //  let  leftAddBarButtonItem:UIBarButtonItem = UIBarButtonItem(title: "Cancel", style: UIBarButtonItemStyle.Done, target: self, action:"doneButton:")
+        let  rightAddBarButtonItem:UIBarButtonItem = UIBarButtonItem(title: "Done", style: UIBarButtonItemStyle.Plain, target: self, action:"nextTaped:")
+     
+        
+         navigationItem.hidesBackButton = true;
+        navigationItem.rightBarButtonItem = rightAddBarButtonItem
         
         
         
@@ -69,8 +80,15 @@ import UIKit
         let   pacoViewController:PacoJoinSummary   = PacoJoinSummary(nibName: "PacoJoinSummary", bundle: nil)
         pacoViewController.experiment = self.experiment
         
-        
-        self.navigationController!.pushViewController(pacoViewController, animated: false)
+        if(isWizard==true)
+        {
+            self.navigationController!.pushViewController(pacoViewController, animated: false)
+        }
+        else
+        {
+            
+            self.navigationController!.popViewControllerAnimated(true)
+        }
         
         
     }
@@ -84,19 +102,30 @@ import UIKit
         self.navigationController!.popToViewController(viewControllers[viewControllers.count - 4], animated: true);
         
     }
+    
+    
     func doneButton(sender: UIBarButtonItem) {
         
-        let  mediator =  PacoMediator.sharedInstance()
+         self.tabBarController?.navigationController?.navigationBarHidden = true;
+        
+       /* let  mediator =  PacoMediator.sharedInstance()
         var experimentId:String
         if  experiment?.instanceId()  != nil
         {
             experimentId =  experiment!.instanceId()
             mediator.startRunningExperimentRegenerate(experimentId);
+        }*/
+        
+        
+        if(isWizard == true)
+        {
+            backThree()
         }
-        
-        
-        
-          backThree()
+        else
+        {
+            self.navigationController?.popViewControllerAnimated(true)
+            
+        }
     }
     
     
