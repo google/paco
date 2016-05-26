@@ -71,6 +71,7 @@ public class AndroidKitKatStepSensor implements StepSensor {
             sensorManager.unregisterListener(this);
             onResult(f);
           } else {
+            onResult(-1);
             Log.d(PacoConstants.TAG, "Unknown sensor type");
           }
         }
