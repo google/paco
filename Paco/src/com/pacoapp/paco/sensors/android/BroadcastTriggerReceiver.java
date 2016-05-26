@@ -71,6 +71,8 @@ public class BroadcastTriggerReceiver extends BroadcastReceiver {
       triggerPacoExperimentEndedEvent(context ,intent);
     } else if (intent.getAction().equals(PACO_EXPERIMENT_RESPONSE_RECEIVED_ACTION)) {
       triggerPacoExperimentResponseReceivedEvent(context ,intent);
+    } else if (isPackageRemoved(context, intent)) {
+      triggerPackageRemovedEvent(context, intent);
     }
 
     PowerManager pm = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
@@ -106,7 +108,21 @@ public class BroadcastTriggerReceiver extends BroadcastReceiver {
     (new Thread(runnable)).start();
   }
 
-	private void triggerPacoExperimentEndedEvent(Context context, Intent intent) {
+	private void triggerPackageRemovedEvent(Context context, Intent intent) {
+    Log.i(PacoConstants.TAG, "App removed trigger");
+
+    Uri data = intent.getData();
+    String packageName = data.getEncodedSchemeSpecificPart();
+    if (!packageName.equals("com.pacoapp.paco")) {
+      triggerEvent(context, InterruptCue.APP_REMOVED, packageName, null);
+    }
+  }
+
+  private boolean isPackageRemoved(Context context, Intent intent) {
+	  return intent.getAction().equals(Intent.ACTION_PACKAGE_REMOVED);
+  }
+
+  private void triggerPacoExperimentEndedEvent(Context context, Intent intent) {
     long experimentServerId = intent.getLongExtra(EXPERIMENT_SERVER_ID_EXTRA_KEY, -10l);
     if (experimentServerId == -10l) {
       Log.d(PacoConstants.TAG, "No experimentServerId specified for PACO_EXPERIMENT_ENDED_ACTION");
