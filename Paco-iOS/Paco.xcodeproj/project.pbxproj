@@ -712,6 +712,8 @@
 		A6B56C611C7E82B600E81C3F /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = A6B56C601C7E82B600E81C3F /* GoogleService-Info.plist */; };
 		A6B56C621C7E82E700E81C3F /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = A6B56C601C7E82B600E81C3F /* GoogleService-Info.plist */; };
 		A6B56C641C7F856600E81C3F /* GoogleSignIn.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A6B56C631C7F856600E81C3F /* GoogleSignIn.framework */; };
+		A6D3EEBD1CF7D86D00086F33 /* PacoConfirmationViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = A6D3EEBB1CF7D86D00086F33 /* PacoConfirmationViewController.m */; };
+		A6D3EEBE1CF7D86D00086F33 /* PacoConfirmationViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = A6D3EEBC1CF7D86D00086F33 /* PacoConfirmationViewController.xib */; };
 		A6DC6E4D1BEC184000D38D68 /* PacoResponseTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A6DC6E4B1BEC184000D38D68 /* PacoResponseTableViewController.swift */; settings = {COMPILER_FLAGS = " "; }; };
 		A6DC6E4E1BEC184000D38D68 /* PacoResponseTableViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = A6DC6E4C1BEC184000D38D68 /* PacoResponseTableViewController.xib */; };
 		A6DC6E511BEC1ACC00D38D68 /* PacoPickerTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = A6DC6E4F1BEC1ACC00D38D68 /* PacoPickerTableViewCell.swift */; settings = {COMPILER_FLAGS = " "; }; };
@@ -1601,6 +1603,9 @@
 		A6B56C631C7F856600E81C3F /* GoogleSignIn.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GoogleSignIn.framework; path = J2ObjcLibrary/JodaCompile/GoogleSignIn.framework; sourceTree = "<group>"; };
 		A6B56C671C7F8B0C00E81C3F /* GoogleSignIn.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GoogleSignIn.framework; path = frameworks/GoogleSignIn.framework; sourceTree = "<group>"; };
 		A6B672E21C88A849006AF06F /* Paco-Bridging-Header.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "Paco-Bridging-Header.h"; sourceTree = "<group>"; };
+		A6D3EEBA1CF7D86D00086F33 /* PacoConfirmationViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoConfirmationViewController.h; sourceTree = "<group>"; };
+		A6D3EEBB1CF7D86D00086F33 /* PacoConfirmationViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoConfirmationViewController.m; sourceTree = "<group>"; };
+		A6D3EEBC1CF7D86D00086F33 /* PacoConfirmationViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = PacoConfirmationViewController.xib; sourceTree = "<group>"; };
 		A6D61B2D1CD82F9100650FC1 /* IOSArray.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IOSArray.h; sourceTree = "<group>"; };
 		A6D61B2E1CD82F9100650FC1 /* IOSClass.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IOSClass.h; sourceTree = "<group>"; };
 		A6D61B2F1CD82F9100650FC1 /* IOSObjectArray.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IOSObjectArray.h; sourceTree = "<group>"; };
@@ -3167,6 +3172,16 @@
 			name = "Supporting Files";
 			sourceTree = "<group>";
 		};
+		A6D3EEA91CF7D29100086F33 /* confirmation */ = {
+			isa = PBXGroup;
+			children = (
+				A6D3EEBA1CF7D86D00086F33 /* PacoConfirmationViewController.h */,
+				A6D3EEBB1CF7D86D00086F33 /* PacoConfirmationViewController.m */,
+				A6D3EEBC1CF7D86D00086F33 /* PacoConfirmationViewController.xib */,
+			);
+			name = confirmation;
+			sourceTree = "<group>";
+		};
 		A6D61B2C1CD82F7100650FC1 /* include */ = {
 			isa = PBXGroup;
 			children = (
@@ -3282,6 +3297,7 @@
 				A603509E1BE2E547008D842A /* join */,
 				A62263201BE9A874000698AD /* conset */,
 				A6FE84C71BE94970001F45A1 /* joined */,
+				A6D3EEA91CF7D29100086F33 /* confirmation */,
 				A6DF7C2F1CED2F5E00EF4B68 /* editor */,
 				A6DF7C301CED309900EF4B68 /* summary */,
 			);
@@ -4003,6 +4019,7 @@
 				A64F1DE91BD70F8500DCE6C3 /* Roboto-Medium.ttf in Resources */,
 				A63A82341C0677B600ACBC0A /* tennis-7.png in Resources */,
 				A63A81E81C0677B600ACBC0A /* paper-piece-minus-7.png in Resources */,
+				A6D3EEBE1CF7D86D00086F33 /* PacoConfirmationViewController.xib in Resources */,
 				A63A80E61C0677B600ACBC0A /* bell-7.png in Resources */,
 				A63A80DC1C0677B600ACBC0A /* animal-element-7.png in Resources */,
 				A63A82281C0677B600ACBC0A /* table-tennis-7.png in Resources */,
@@ -4319,6 +4336,7 @@
 				A614612F1CC162F6007554F7 /* PacoQuestionView.m in Sources */,
 				A6DC6E7A1BF17D3100D38D68 /* PacoMultipleChoiceCellTableViewCell.swift in Sources */,
 				A63BD2601BC74CEB00707A3A /* PacoExperimentTableCellTableViewCell.m in Sources */,
+				A6D3EEBD1CF7D86D00086F33 /* PacoConfirmationViewController.m in Sources */,
 				A63BD2AF1BD0823A00707A3A /* PacoSchedulingUtil.m in Sources */,
 				36417BEA180DCA9600335B74 /* NSDate+Paco.m in Sources */,
 				A636E91E1CA5E76D00FAF055 /* EventRecord.m in Sources */,

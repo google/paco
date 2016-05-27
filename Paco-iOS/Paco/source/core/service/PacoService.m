@@ -386,18 +386,23 @@
     
     
    BOOL isValid =  [NSJSONSerialization isValidJSONObject:body];
+    
    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:body
                                                      options:NSJSONWritingPrettyPrinted
                                                        error:&jsonError];
     
     
+    /*lets turn json dataobject  back to json */
+    
+   // NSError *e = nil;
+   // id   json = [NSJSONSerialization JSONObjectWithData:jsonData options:NSJSONWritingPrettyPrinted  error:&e];
     
     
-    NSError *e = nil;
-    id   json = [NSJSONSerialization JSONObjectWithData:jsonData options:NSJSONReadingMutableContainers error:&e];
-    NSLog(@"%@", json);
+    NSString *jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
+    NSLog(@"%@", jsonString);
     
-    
+  
+
     
   
   [request setValue:@"application/json" forHTTPHeaderField:@"Content-Type"];
@@ -430,34 +435,6 @@
 }
 
 
-/*
-- (void)loadEventsForExperiment:(PacoExperimentDefinition *)experiment
-    withCompletionHandler:(void (^)(NSArray *, NSError *))completionHandler {
-  // Setup our request.
-  NSString *urlString =
-      [NSString stringWithFormat:@"%@/events?json&q='experimentId=%@:who=%@'",
-           [PacoExtendedClient sharedInstance].serverDomain,
-           experiment.experimentId,
-           [[PacoNetwork sharedInstance] userEmail]];//self.authenticator.auth.userEmail];
-  NSLog(@"******\n\t%@\n******", urlString);
-  NSURL *url = [NSURL URLWithString:urlString];
-  NSMutableURLRequest *request =
-      [NSMutableURLRequest requestWithURL:url
-                              cachePolicy:NSURLRequestReloadIgnoringLocalCacheData
-                          timeoutInterval:120];
-  [request setHTTPMethod:@"GET"];
-
-  // Make the network call.
-  [self executePacoServiceCall:request
-             completionHandler:^(id jsonData, NSError *error) {
-      if (completionHandler) {
-        NSLog(@"_+_+_+_EVENT RESPONSE _+_+_+_\n%@", jsonData);
-
-        completionHandler(jsonData, error);
-      }
-  }];
-}
- */
 
 
 
