@@ -66,9 +66,12 @@
     
     PacoMediator* mediator = [PacoMediator sharedInstance];
     [mediator startRunningExperiment:[self.experiment instanceId]];
+    
+    
+    
     [self backByN:5];
     
-     PacoEventExtended* event = [PacoEventExtended joinEventForActionSpecificatonWithServerExperimentId:self.experiment  serverExperimentId:@"not applicable"];
+   //  PacoEventExtended* event = [PacoEventExtended joinEventForActionSpecificatonWithServerExperimentId:self.experiment  serverExperimentId:@"not applicable"];
     
     
     

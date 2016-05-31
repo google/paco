@@ -8,6 +8,12 @@
 
 #import <UIKit/UIKit.h>
 
+
+@class PAExperimentDAO;
+
 @interface PacoConfirmationViewController : UIViewController
+
+@property(strong,nonatomic) PAExperimentDAO*  experiment;
+
 
 @end

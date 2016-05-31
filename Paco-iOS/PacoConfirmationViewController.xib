@@ -19,6 +19,9 @@
                 <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="zvD-Sp-rKt">
                     <rect key="frame" x="106" y="363" width="109" height="30"/>
                     <state key="normal" title="Edit Alert Times"/>
+                    <connections>
+                        <action selector="editSchedule:" destination="-1" eventType="touchUpInside" id="kwa-EP-1ad"/>
+                    </connections>
                 </button>
                 <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" editable="NO" text="Experiment Joined " textAlignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="IDz-cR-2VU">
                     <rect key="frame" x="25" y="79" width="287" height="239"/>

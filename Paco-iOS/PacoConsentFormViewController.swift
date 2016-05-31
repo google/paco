@@ -79,11 +79,13 @@ class PacoConsentFormViewController: UIViewController {
 
         if   arrayOfCells != nil && arrayOfCells?.isEmpty == false   {
         
-        let  editor =  ScheduleEditor(nibName:"ScheduleEditor",bundle:nil)
+        //let  editor =  ScheduleEditor(nibName:"ScheduleEditor",bundle:nil)
+        let nextController = PacoConfirmationViewController(nibName: "PacoConfirmationViewController", bundle: nil)
+            nextController.experiment = experiment;
             
-            editor.cells = arrayOfCells!
-            editor.experiment = experiment
-            self.navigationController?.pushViewController(editor, animated: true)
+            //editor.cells = arrayOfCells!
+           // editor.experiment = experiment
+            self.navigationController?.pushViewController(nextController , animated: true)
             
         }
         else {

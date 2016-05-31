@@ -6,7 +6,7 @@ import UIKit
 @objc public class ScheduleEditor: UITableViewController {
 
     var cells:NSArray = []
-    var isWizard:Bool?
+    var isWizard:Bool = false
     var  experiment:PAExperimentDAO?
     
     
@@ -25,24 +25,23 @@ import UIKit
  
     
 
-     let n: Int! = self.navigationController?.viewControllers.count
     
-    if  n == 4 {
+    
+    if isWizard == true {
         
     
-        let  leftAddBarButtonItem:UIBarButtonItem = UIBarButtonItem(title: "Cancel", style: UIBarButtonItemStyle.Done, target: self, action:"doneButton:")
-        let  rightAddBarButtonItem:UIBarButtonItem = UIBarButtonItem(title: "Next", style: UIBarButtonItemStyle.Plain, target: self, action:"nextTaped:")
+        let  leftAddBarButtonItem:UIBarButtonItem = UIBarButtonItem(title: "Cancel", style: UIBarButtonItemStyle.Done, target: self, action:#selector(doneButton))
+        let  rightAddBarButtonItem:UIBarButtonItem = UIBarButtonItem(title: "Done", style: UIBarButtonItemStyle.Plain, target: self, action:#selector(nextTaped))
         
         
         
-        navigationItem.leftBarButtonItem  = leftAddBarButtonItem;
+       // navigationItem.leftBarButtonItem  = leftAddBarButtonItem;
         navigationItem.rightBarButtonItem = rightAddBarButtonItem
         
        
+        //self.tabBarController!.navigationController!.navigationBar.barTintColor = UIColor.greenColor()
         
-         //self.tabBarController!.navigationController!.navigationBar.barTintColor = UIColor.greenColor()
-        
-       isWizard = true
+     
         
      
     }
@@ -55,11 +54,10 @@ import UIKit
      
         
          navigationItem.hidesBackButton = true;
-        navigationItem.rightBarButtonItem = rightAddBarButtonItem
+         navigationItem.rightBarButtonItem = rightAddBarButtonItem
         
         
-        
-     isWizard = false
+  
     }
     
 
@@ -82,7 +80,9 @@ import UIKit
         
         if(isWizard==true)
         {
-            self.navigationController!.pushViewController(pacoViewController, animated: false)
+            self .dismissViewControllerAnimated(true, completion: {
+                
+        })
         }
         else
         {
@@ -119,7 +119,9 @@ import UIKit
         
         if(isWizard == true)
         {
-            backThree()
+            self .dismissViewControllerAnimated(true, completion: {
+                
+            })
         }
         else
         {
