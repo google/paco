@@ -17,8 +17,8 @@
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.pacoapp.paco"
-    android:versionCode="148"
-    android:versionName="4.2.10" xmlns:tools="http://schemas.android.com/tools">
+    android:versionCode="149"
+    android:versionName="4.2.11" xmlns:tools="http://schemas.android.com/tools">
     <uses-feature android:name="android.hardware.location" android:required="false"/>
     <uses-feature android:name="android.hardware.telephony" android:required="false"/>
     <uses-feature android:name="android.hardware.camera.autofocus" android:required="false"/>
@@ -284,7 +284,7 @@
             android:authorities="com.google.android.apps.paco.ExperimentProvider"
             android:exported="false" />
 
-        <receiver android:name="com.pacoapp.paco.sensors.android.BroadcastTriggerReceiver" >
+        <receiver android:name="com.pacoapp.paco.sensors.android.BroadcastTriggerReceiver" android:enabled="true">
             <intent-filter>
                 <action android:name="android.intent.action.PHONE_STATE_CHANGED" />
                 <action android:name="android.intent.action.PHONE_STATE" />
@@ -295,7 +295,11 @@
                 <action android:name="com.pacoapp.paco.action.PACO_TRIGGER" />
                 <action android:name="com.pacoapp.paco.action.PACO_EXPERIMENT_JOINED_ACTION" />
                 <action android:name="com.pacoapp.paco.action.PACO_EXPERIMENT_ENDED_ACTION" />
-                <action android:name="com.pacoapp.paco.action.PACO_EXPERIMENT_RESPONSE_RECEIVED_ACTION" />
+                <action android:name="com.pacoapp.paco.action.PACO_EXPERIMENT_RESPONSE_RECEIVED_ACTION" />                
+            </intent-filter>            
+            <intent-filter>
+                <action android:name="android.intent.action.PACKAGE_REMOVED" />
+                <data android:scheme="package" />
             </intent-filter>
         </receiver>
         

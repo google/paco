@@ -8,12 +8,12 @@
           <option ng-selected="($index + 1) === cue.cueCode" ng-repeat="type in cueTypes" value="{{$index + 1}}">{{type}}</option>
         </select>
 
-        <paco-help tip="app-triggers" ng-if="cue.cueCode === 4 || cue.cueCode === 5">
+        <paco-help tip="app-triggers" ng-if="cue.cueCode === 4 || cue.cueCode === 5 || cue.cueCode === 18">
           Help: App Triggers
         </paco-help>
       </div>
 
-      <md-input-container ng-if="cue.cueCode === 3 || cue.cueCode === 4 || cue.cueCode === 5">
+      <md-input-container ng-if="cue.cueCode === 3 || cue.cueCode === 4 || cue.cueCode === 5 || cue.cueCode === 18">
         <label>Source of Paco Action</label>
         <input type="text" ng-model="cue.cueSource">
       </md-input-container>
