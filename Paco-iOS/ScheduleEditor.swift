@@ -30,8 +30,8 @@ import UIKit
     if isWizard == true {
         
     
-        let  leftAddBarButtonItem:UIBarButtonItem = UIBarButtonItem(title: "Cancel", style: UIBarButtonItemStyle.Done, target: self, action:#selector(doneButton))
-        let  rightAddBarButtonItem:UIBarButtonItem = UIBarButtonItem(title: "Done", style: UIBarButtonItemStyle.Plain, target: self, action:#selector(nextTaped))
+     //   let  leftAddBarButtonItem:UIBarButtonItem = UIBarButtonItem(title: "Cancel", style: UIBarButtonItemStyle.Done, target: self, action:#selector(doneButton))
+       let  rightAddBarButtonItem:UIBarButtonItem = UIBarButtonItem(title: "Done", style: UIBarButtonItemStyle.Plain, target: self, action:"doneButton:")
         
         
         
@@ -50,7 +50,7 @@ import UIKit
         
         
       //  let  leftAddBarButtonItem:UIBarButtonItem = UIBarButtonItem(title: "Cancel", style: UIBarButtonItemStyle.Done, target: self, action:"doneButton:")
-        let  rightAddBarButtonItem:UIBarButtonItem = UIBarButtonItem(title: "Done", style: UIBarButtonItemStyle.Plain, target: self, action:"nextTaped:")
+        let  rightAddBarButtonItem:UIBarButtonItem = UIBarButtonItem(title: "Done", style: UIBarButtonItemStyle.Plain, target: self, action:"doneButton:")
      
         
          navigationItem.hidesBackButton = true;
@@ -108,13 +108,13 @@ import UIKit
         
          self.tabBarController?.navigationController?.navigationBarHidden = true;
         
-       /* let  mediator =  PacoMediator.sharedInstance()
+       let  mediator =  PacoMediator.sharedInstance()
         var experimentId:String
         if  experiment?.instanceId()  != nil
         {
             experimentId =  experiment!.instanceId()
             mediator.startRunningExperimentRegenerate(experimentId);
-        }*/
+        }
         
         
         if(isWizard == true)

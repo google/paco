@@ -25,7 +25,7 @@
 #import "PacoExperimentDefinition.h"
 #import "PacoExperiment.h"
 #import "PacoAlertView.h"
-#import "PacoEvent.h"
+
 #import "PacoEventManager.h"
 #import "PacoInputEvaluatorEx.h"
 #import "PacoMediator.h"
@@ -193,16 +193,14 @@ NSString *kCellIdQuestion = @"question";
     
 
     
-    [[PacoMediator sharedInstance] submitSurveyWithDefinition:self.evaluator.experiment.experimentDao   surveyInputs:self.evaluator.visibleInputs  notification:self.notification];
+ [[PacoMediator sharedInstance] submitSurveyWithDefinition:self.evaluator.experiment.experimentDao   surveyInputs:self.evaluator.visibleInputs  notification:self.notification];
 
-  /* [[PacoClient sharedInstance] submitSurveyWithDefinition:self.evaluator.experiment.definition
-                                              surveyInputs:self.evaluator.visibleInputs
-                                              notification:self.notification];*/
+ 
     
     
 
   //clear all inputs' submitted responseObject for the definition
-  [self.evaluator.experiment.definition clearInputs];
+  //[self.evaluator.experiment.definition clearInputs];
 
   NSString* title = NSLocalizedString(@"Nice", nil);
   NSString* message = NSLocalizedString(@"Your survey was successfully submitted!", nil);
@@ -260,24 +258,6 @@ NSString *kCellIdQuestion = @"question";
 
 
 
-#pragma mark - UITableViewDataSource
-//- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-//  return [self.experiment.definition.inputs count];
-//}
-//
-//- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
-//  PacoExperimentInput *question = [self.experiment.definition.inputs objectAtIndex:indexPath.row];
-//  PacoQuestionView *cell = [tableView dequeueReusableCellWithIdentifier:kCellIdQuestion];
-//  if (!cell) {
-//    cell = [[PacoQuestionView alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:kCellIdQuestion];
-//  }
-//  cell.question = question;
-//  return cell;
-//}
-//
-#pragma mark - UITableViewDelegate
 
-//- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
-//}
 
 @end

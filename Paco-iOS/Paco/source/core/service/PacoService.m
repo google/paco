@@ -292,6 +292,11 @@
 
 - (void)submitEventList:(NSArray*)eventList withCompletionBlock:(void (^)(NSArray*, NSError*))completionBlock {
   NSAssert([eventList count] > 0, @"eventList should have more than one item!");
+    
+    
+ 
+   
+    
   
   // Setup our request.
   NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:@"%@/events", [PacoNetwork sharedInstance].serverDomain]];

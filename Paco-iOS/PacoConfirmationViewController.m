@@ -46,6 +46,7 @@
         PacoMediator* mediator = [PacoMediator sharedInstance];
         [mediator startRunningExperiment:[self.experiment instanceId]];
         PacoEventExtended* event = [PacoEventExtended joinEventForActionSpecificatonWithServerExperimentId:self.experiment  serverExperimentId:@"not applicable"];
+        
         [mediator.eventManager startUploadingEvents];
         
         
@@ -66,6 +67,8 @@
      NSArray * cells = [_experiment getTableCellModelObjects];
      scheduleEditor.cells = cells;
      scheduleEditor.isWizard = true;
+     scheduleEditor.experiment = self.experiment;
+    
      UINavigationController * controller = [[UINavigationController alloc] initWithRootViewController:scheduleEditor];
     [self presentModalViewController:controller  animated:TRUE];
     

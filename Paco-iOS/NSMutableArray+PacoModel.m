@@ -6,10 +6,10 @@
 //  Copyright (c) 2015 Paco. All rights reserved.
 //
 
-#import "NSMutableArray+PacoModel.h"
-#import "ExperimentDAO.h"
-#import "NSObject+J2objcKVO.h"
-
+#import  "NSMutableArray+PacoModel.h"
+#import  "ExperimentDAO.h"
+#import  "NSObject+J2objcKVO.h"
+#import  "PAExperimentDAO+Helper.h"
 
 
 
@@ -35,6 +35,21 @@
     }
     
     return retVal;
+    
+}
+
+
+
+-(void) addUniqueExperiemnt:(PAExperimentDAO*) experiment
+{
+    
+    if([self hasExperiment:[experiment instanceId]])
+    {
+        [self removeExperiment:[experiment  instanceId]];
+  
+    }
+    
+    [self addObject:experiment];
     
 }
 

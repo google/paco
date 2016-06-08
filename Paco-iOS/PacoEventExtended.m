@@ -204,9 +204,7 @@ NSString* const kPacoResponseJoinExtended = @"joined";
 {
     // event.who = [[PacoNetwork  sharedInstance] userEmail];
     event.experimentId =  [experiment valueForKeyPathEx:@"id"] ;
-    
     event.experimentVersion =  (NSNumber*)  [experiment getVersion];
-    
     event.experimentName =  [experiment valueForKeyPathEx:@"title"];
     
 
@@ -246,16 +244,16 @@ NSString* const kPacoResponseJoinExtended = @"joined";
                                         @"schedule":scheduleString,
                                         kPacoResponseKeyInputIdExtended:@"-1"};
     
-    [responseList addWithId:scheduledResponse];
+   // [responseList addWithId:scheduledResponse];
     
     
     NSDictionary* systemInfo = @{kPacoResponseKeyNameExtended:kPacoEventKeyResponsesExtended,
                                  [[UIDevice currentDevice] systemName] :[[UIDevice currentDevice] systemVersion] ,
                                  kPacoResponseKeyInputIdExtended:@"-1"};
     
-    [responseList addWithId:systemInfo];
+   // [responseList addWithId:systemInfo];
     event.responses = responseList;
-    [event save];
+
     return event;
     
     
@@ -303,7 +301,7 @@ NSString* const kPacoResponseJoinExtended = @"joined";
 
      [responseList addWithId:systemInfo];
       event.responses = responseList;
-     [event save];
+ 
       return event;
     
     
@@ -327,12 +325,12 @@ NSString* const kPacoResponseJoinExtended = @"joined";
      event.experimentId = [definition valueForKeyPathEx:@"id"];
      event.experimentName = [definition valueForKeyPathEx:@"title"];
      event.experimentVersion = [definition valueForKeyPathEx:@"version"];
-     NSDictionary  * inputs2 = [definition inputs];
+    
     
     NSMutableArray *responses = [NSMutableArray array];
-    for (PAInput2 *input in inputs2) {
+    for (PacoExperimentInput *input in inputs) {
         NSMutableDictionary *response = [NSMutableDictionary dictionary];
-    /*
+   
         id payloadObject = [input payloadObject];
         if (payloadObject == nil) {
             continue;
@@ -354,9 +352,7 @@ NSString* const kPacoResponseJoinExtended = @"joined";
                 response[@"answer"] = @"Failed to save image";
             }
         }
-     */
-        response[@"name"] = @"name";
-        response[@"answer"] = @"the answer";
+
         
         [responses addObject:response];
     }
@@ -366,15 +362,6 @@ NSString* const kPacoResponseJoinExtended = @"joined";
 }
 
  
-
-
-
-
-
-
-
-
-
 
 
 

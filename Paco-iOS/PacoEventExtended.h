@@ -81,6 +81,7 @@ typedef NS_ENUM(NSInteger, PacoEventTypeExtended) {
                                andScheduledTime:(NSDate*)scheduledTime;
 + (PacoEventExtended*)surveyMissedEventForDefinition:(PAExperimentDAO*)definition
                            withScheduledTime:(NSDate*)scheduledTime;
+
 + (PacoEventExtended*)surveyMissedEventForDefinition:(PAExperimentDAO*)definition
                            withScheduledTime:(NSDate*)scheduledTime
                                    userEmail:(NSString*)userEmail;

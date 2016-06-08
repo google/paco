@@ -32,7 +32,7 @@
 #import "PAExperimentDAO+Helper.h"
 #import "PacoSerializer.h"
 #import "PacoSerializeUtil.h"
-
+#import "NSMutaBleArray+PacoModel.h"
 
 
 #define KEY_RUNNING_EXERIMENTS @"running_experiments"
@@ -100,23 +100,23 @@ static dispatch_group_t group;
         
       
 
-        [self refreshRunningExperiments];
+       // [self refreshRunningExperiments];
+        
+       // [NSTimer scheduledTimerWithTimeInterval:5.0
+       //                                  target:self
+       //                             selector:@selector(refreshNotifications:)
+       //                                userInfo:nil
+       //                                 repeats:YES];
         
     }
     return self;
 }
 
 
-
--(void) reloadHud
+-(IBAction) refreshNotifications:(id) object
 {
     
-    
-    
-    
-  
-    
-    
+    [self cleanExpiredNotifications];
     
 }
 
@@ -232,8 +232,8 @@ static dispatch_group_t group;
         if( runStatus & ValidatorExecutionStatusSuccess )
         {
             
-            [self.runningExperiments removeExperiment:experimentId];
-            [self.runningExperiments addObject:experiment];
+            
+            [self.runningExperiments addUniqueExperiemnt:experiment];
             [self recalculateExperiments:YES];
             /* synchronous*/
             [self didModifyExperiment:experiment];
@@ -245,6 +245,14 @@ static dispatch_group_t group;
     
     return runStatus;
     
+    
+    
+}
+
+
+- (PacoEventManagerExtended*) fetchEventManager:(NSString*) str;
+{
+    return _eventManager;
     
     
 }
@@ -267,6 +275,7 @@ calculate the action specifications and reset the based upon the most recent ver
 -(ValidatorExecutionStatus) startRunningExperimentRegenerate:(NSString*) experimentId
 {
      ValidatorExecutionStatus runStatus = ValidatorExecutionStatusFail;
+    [self cleanExpiredNotifications];
     
     /* locate the experiment */
     PAExperimentDAO * experiment  = [self.allExperiments findExperiment:experimentId];
@@ -297,7 +306,8 @@ calculate the action specifications and reset the based upon the most recent ver
         runStatus = [self willStartRunningExperiment:experiment  Specificatons:array];
         if( runStatus & ValidatorExecutionStatusSuccess )
         {
-            [self.runningExperiments addObject:experiment];
+      
+            [self.runningExperiments addUniqueExperiemnt:experiment];
             [self recalculateExperiments:YES];
             /* synchronous*/
             [self didStartStartRunningExperiment:experiment];
@@ -316,6 +326,7 @@ calculate the action specifications and reset the based upon the most recent ver
 -(ValidatorExecutionStatus) startRunningExperiment:(NSString*) experimentId
 {
     ValidatorExecutionStatus runStatus = ValidatorExecutionStatusFail;
+    [self cleanExpiredNotifications];
     
                 /* locate the experiment */
                 PAExperimentDAO * experiment  = [self.allExperiments findExperiment:experimentId];
@@ -384,6 +395,9 @@ calculate the action specifications and reset the based upon the most recent ver
     ValidatorExecutionStatus runStatus = ValidatorExecutionStatusFail;
     
     
+    [self cleanExpiredNotifications];
+    
+    
             PAExperimentDAO * experiment  = [self.runningExperiments findExperiment:experimentId];
            [self.runningExperiments removeExperiment:experimentId];
             [self addExperimentToAvailableStore:experiment];
@@ -427,7 +441,7 @@ calculate the action specifications and reset the based upon the most recent ver
 -(ValidatorExecutionStatus) stopRunningExperimentRegenerate:(NSString*) experimentId
 {
     ValidatorExecutionStatus runStatus = ValidatorExecutionStatusFail;
-    
+     // [self cleanExpiredNotifications];
     
     PAExperimentDAO * experiment  = [self.allExperiments findExperiment:experimentId];
     if(experiment)
@@ -456,7 +470,12 @@ calculate the action specifications and reset the based upon the most recent ver
    
 }
 
-
+-(void) cleanExpiredNotifications
+{
+    
+    [_notificationManager cleanExpiredNotifications];
+    
+}
 
 
 -(void) replaceAllExperiments:(NSArray*) experiments

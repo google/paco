@@ -43,7 +43,6 @@ static NSString* kNotificationPlistName = @"notificationDictionary.plist";
 
 
 
-
 - (void)adjustBadgeNumber {
   [self updateBadgeNumber:[self totalNumberOfActiveNotifications]];
 }

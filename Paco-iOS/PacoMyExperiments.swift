@@ -41,13 +41,7 @@ class PacoMyExperiments: UITableViewController,PacoExperimentProtocol {
         
         let swiftColor = UIColor(red:0.96, green:0.96, blue:0.96, alpha:1.0)
         self.tableView.backgroundColor = swiftColor
-
-        // Uncomment the following line to preserve selection between presentations
-        // self.clearsSelectionOnViewWillAppear = false
-
-        // Uncomment the following line to display an Edit button in the navigation bar for this view controller.
-        // self.navigationItem.rightBarButtonItem = self.editButtonItem()
-        
+ 
         
         var networkHelper = PacoNetwork .sharedInstance()
         networkHelper.update()

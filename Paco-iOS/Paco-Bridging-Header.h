@@ -12,8 +12,6 @@
 #import "ExperimentDAO.h"
 #import "NSObject+J2objcKVO.h"
 #import "PacoNetwork.h" 
-#import "PacoMediator.h" 
-
 #import "PacoMediator.h"
 #import "ActionScheduleGenerator.h"
 #import "PAExperimentDAO+Helper.h"
@@ -34,6 +32,9 @@
 #import "PacoExperiment.h" 
 #import "PacoQuestionScreenViewController.h"
 #import "PacoConfirmationViewController.h"
+#import "PacoEventExtended.h" 
+#import "PacoEventManagerExtended.h" 
+
 
 
 

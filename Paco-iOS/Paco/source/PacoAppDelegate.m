@@ -159,24 +159,17 @@ static NSString * const kClientID =
        NSString *experimentId = [notification pacoExperimentIdExt];
        NSAssert(experimentId.length > 0, @"experimentId should be a valid string!");
 
-      [[PacoMediator sharedInstance] refreshRunningExperiments];
+     // [[PacoMediator sharedInstance] refreshRunningExperiments];
       
-     PAExperimentDAO* dao =  [[PacoMediator sharedInstance ] experimentForId:experimentId];
- 
-      
-     PacoExperiment * experiment =  [PacoExperiment experimentWithExperimentDao:dao];
- 
-     // [PacoExperiment experimentWithExperimentDao:dao];
-     //  PacoExperiment *experiment = [[PacoClient sharedInstance].model experimentForId:experimentId];
-      
-      
-      
-    PacoQuestionScreenViewController *questions =
+      PAExperimentDAO* dao =  [[PacoMediator sharedInstance ] experimentForId:experimentId];
+      PacoExperiment * experiment =  [PacoExperiment experimentWithExperimentDao:dao];
+
+      PacoQuestionScreenViewController *questions =
         [PacoQuestionScreenViewController controllerWithExperiment:experiment andNotification:notification];
       
-    UINavigationController* navi = self.viewController.navigationController;
+      UINavigationController* navi = self.viewController.navigationController;
       
-    [navi  pushViewController:questions animated:NO];
+      [navi  pushViewController:questions animated:NO];
       
   });
 

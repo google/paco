@@ -16,7 +16,7 @@
 -(BOOL) hasExperiment:(NSString*) experimentId;
 -(PAExperimentDAO*) removeExperiment:(NSString*) experimentId;
 -(void) removeExperiments:(NSArray*) experiments;
-
+-(void) addUniqueExperiemnt:(PAExperimentDAO*) experiment;
 
 
 

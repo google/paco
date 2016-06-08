@@ -22,15 +22,12 @@ class PacoJoinedExperimentsController: UITableViewController,PacoExperimentProto
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        
-  
- 
-        
-        
+
      let mediator = PacoMediator.sharedInstance();
      let  mArray:NSMutableArray  = mediator.startedExperiments();
      myExpriments = mArray as AnyObject  as? [PAExperimentDAO]
+        
+        
       NSNotificationCenter.defaultCenter().addObserver(self, selector:"eventJoined:", name:"JoinEvent", object: nil)
       tableView.tableFooterView = UIView()
     
@@ -64,15 +61,18 @@ class PacoJoinedExperimentsController: UITableViewController,PacoExperimentProto
     func didClose(experiment: PAExperimentDAO)
     {
         
-        var  mediator =   PacoMediator.sharedInstance()
-        var  experimentId  =   experiment.instanceId()
+         let  m:PacoMediator =   PacoMediator.sharedInstance()
+         let  experimentId  =   experiment.instanceId()
+         myExpriments  = myExpriments!.filter() { $0 != experiment }
+         m.stopRunningExperimentRegenerate(experimentId)
+        var event:PacoEventExtended  = PacoEventExtended.stopEventForActionSpecificatonWithServerExperimentId(experiment, serverExperimentId: "not applicable")
+                m.eventManager.startUploadingEvents()
         
-        myExpriments  = myExpriments!.filter() { $0 != experiment }
-       // self.tabBarController?.selectedIndex=0
         
-        mediator.stopRunningExperiment(experimentId)
+  
+        
         self.tableView.reloadData()
-      ///  refreshTable()
+   
         
     }
     
@@ -125,43 +125,12 @@ class PacoJoinedExperimentsController: UITableViewController,PacoExperimentProto
         return  returnValue;
     }
  
-    
-    
-    
-    
+  
     override func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
-        
-        /*
-        let cell = tableView.cellForRowAtIndexPath(indexPath) as! PacoJoinedExperimentsTableViewCell
-        
-
-        var   inputs:JavaUtilList =   PAExperimentHelper.getInputsWithPAExperimentDAO(cell.experiment)
-         controller  =  PacoResponseTableViewController(nibName: "PacoResponseTableViewController", bundle: nil, input:inputs)
-        self.navigationController?.pushViewController(controller!, animated: true)
-         
-         
-         PacoExperiment * experiment =  [PacoExperiment experimentWithExperimentDao:dao];
-         
-         // [PacoExperiment experimentWithExperimentDao:dao];
-         //  PacoExperiment *experiment = [[PacoClient sharedInstance].model experimentForId:experimentId];
-         
-         
-         
-         PacoQuestionScreenViewController *questions =
-         [PacoQuestionScreenViewController controllerWithExperiment:experiment andNotification:notification];
-         
-         
-         
-         
- */
         
             let dao:PAExperimentDAO!  =  myExpriments![indexPath.row]
             let experiment:PacoExperiment =    PacoExperiment.init(experimentDao:dao!)
             let ctrler   = PacoQuestionScreenViewController.controllerWithExperiment(experiment)
-        
-        
-        
-        
             self.tabBarController!.navigationController?.pushViewController(  ctrler as! UIViewController  , animated: true)
         
     }
@@ -308,49 +277,6 @@ class PacoJoinedExperimentsController: UITableViewController,PacoExperimentProto
     
     }
 
-    /*
-    // Override to support conditional editing of the table view.
-    override func tableView(tableView: UITableView, canEditRowAtIndexPath indexPath: NSIndexPath) -> Bool {
-        // Return NO if you do not want the specified item to be editable.
-        return true
-    }
-    */
-
-    /*
-    // Override to support editing the table view.
-    override func tableView(tableView: UITableView, commitEditingStyle editingStyle: UITableViewCellEditingStyle, forRowAtIndexPath indexPath: NSIndexPath) {
-        if editingStyle == .Delete {
-            // Delete the row from the data source
-            tableView.deleteRowsAtIndexPaths([indexPath], withRowAnimation: .Fade)
-        } else if editingStyle == .Insert {
-            // Create a new instance of the appropriate class, insert it into the array, and add a new row to the table view
-        }    
-    }
-    */
-
-    /*
-    // Override to support rearranging the table view.
-    override func tableView(tableView: UITableView, moveRowAtIndexPath fromIndexPath: NSIndexPath, toIndexPath: NSIndexPath) {
-
-    }
-    */
-
-    /*
-    // Override to support conditional rearranging of the table view.
-    override func tableView(tableView: UITableView, canMoveRowAtIndexPath indexPath: NSIndexPath) -> Bool {
-        // Return NO if you do not want the item to be re-orderable.
-        return true
-    }
-    */
-
-    /*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
-        // Get the new view controller using [segue destinationViewController].
-        // Pass the selected object to the new view controller.
-    }
-    */
+ 
     
 }

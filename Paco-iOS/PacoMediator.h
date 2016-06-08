@@ -46,7 +46,7 @@
 -(BOOL) isExperimentLive:(PAExperimentDAO*) experiment;
 -(void) replaceAllExperiments:(NSArray*) experiments;
 
-
+- (PacoEventManagerExtended*) fetchEventManager:(NSString*) str;
 
 -(NSMutableArray*) hubExperiments;
 -(void) setHudExperiments:(NSMutableArray*) newArray;
@@ -81,6 +81,9 @@
 -(void) refreshRunningExperiments;
 -(void) cleanup;
 -(void) clearRunningExperimentsSynchronous;
+-(void) cleanExpiredNotifications;
+
+
 
 
 @end
