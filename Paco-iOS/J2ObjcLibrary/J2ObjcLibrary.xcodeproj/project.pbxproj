@@ -228,7 +228,7 @@
 			children = (
 				A6FF59261CDC01D90049A27F /* JodaCompile.xcodeproj */,
 				A6FF5CF81CDD06F10049A27F /* include */,
-				A61D821A1CD14156009983B6 /* com */,
+				A692884F1D09E771008630D2 /* New Group */,
 				A61D82181CD14111009983B6 /* Security.framework */,
 				A61D82131CD13F8F009983B6 /* Config.xcconfig */,
 				A605CAF21C778D1E00770A4E /* J2ObjcLibrary */,
@@ -360,6 +360,14 @@
 				A61D82731CD14344009983B6 /* J2ObjcLib.m */,
 			);
 			path = J2ObjcLib;
+			sourceTree = "<group>";
+		};
+		A692884F1D09E771008630D2 /* New Group */ = {
+			isa = PBXGroup;
+			children = (
+				A61D821A1CD14156009983B6 /* com */,
+			);
+			name = "New Group";
 			sourceTree = "<group>";
 		};
 		A6FF59271CDC01D90049A27F /* Products */ = {
