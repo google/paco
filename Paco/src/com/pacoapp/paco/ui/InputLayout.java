@@ -68,6 +68,7 @@ import android.widget.Toast;
 
 import com.google.android.apps.paco.questioncondparser.ExpressionEvaluator;
 import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
 import com.google.common.io.Files;
 import com.pacoapp.paco.PacoConstants;
 import com.pacoapp.paco.R;
@@ -155,7 +156,7 @@ public class InputLayout extends LinearLayout implements SpeechRecognitionListen
       audioPlayer = null;
     }
   }
-  
+
   @Override
   protected Parcelable onSaveInstanceState() {
     Parcelable saveState = super.onSaveInstanceState();
@@ -297,12 +298,12 @@ public class InputLayout extends LinearLayout implements SpeechRecognitionListen
         e.printStackTrace();
         Toast.makeText(getContext(), R.string.could_not_encode_audio, Toast.LENGTH_LONG).show();
       }
-      
+
     }
     return "";
   }
 
-  
+
   private String getPhotoValue() {
     // Load data from this.file if it is non-null
     // Base64 encode the data and return it
@@ -548,7 +549,7 @@ public class InputLayout extends LinearLayout implements SpeechRecognitionListen
       file = null;
     } // otherwise leave as it was previously
   }
-  
+
   private void startCameraForResult() {
     try {
       Intent i = new Intent("android.media.action.IMAGE_CAPTURE");
@@ -780,16 +781,17 @@ public class InputLayout extends LinearLayout implements SpeechRecognitionListen
     listView.setPadding(0, 2, 0, 8);
     final Spinner findViewById = (Spinner) findViewById(R.id.list);
     // Formerly android.R.layout.simple_spinner_item
-    final List<String> listChoicesList = input.getListChoices();
+    final List<String> listChoicesList = Lists.newArrayList(input.getListChoices());
 
+    String defaultListItem = getResources().getString(R.string.default_list_item);
+    if (!listChoicesList.get(0).equals(defaultListItem)) {
+      listChoicesList.add(0, defaultListItem);       // "No selection" list item.
+    }
     ArrayAdapter<String> choices = new ArrayAdapter<String>(getContext(),
             //android.R.layout.simple_spinner_dropdown_item,
             R.layout.multiline_spinner_item,
             listChoicesList);
-    String defaultListItem = getResources().getString(R.string.default_list_item);
-    if (!choices.getItem(0).equals(defaultListItem)) {
-      choices.insert(defaultListItem, 0);       // "No selection" list item.
-    }
+
 
     findViewById.setAdapter(choices);
 
@@ -1042,7 +1044,7 @@ public class InputLayout extends LinearLayout implements SpeechRecognitionListen
       photoView.setImageBitmap(decodeFileAndScaleToThumb(file));
     }
   }
-  
+
   private View renderAudioRecorder(Input2 input2) {
     View audioInputView = ((LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(
         R.layout.audio_input, this, true);
@@ -1050,10 +1052,10 @@ public class InputLayout extends LinearLayout implements SpeechRecognitionListen
     final Button recordButton = (Button) findViewById(R.id.AudioRecordButton);
     final Button playButton = (Button) findViewById(R.id.AudioPlayButton);
     final Button deleteButton = (Button) findViewById(R.id.AudioDeleteButton);
-    toggleOtherButtons(playButton, deleteButton, file != null);      
-    
+    toggleOtherButtons(playButton, deleteButton, file != null);
+
     recordButton.setOnClickListener(new View.OnClickListener() {
-      public void onClick(View v) {        
+      public void onClick(View v) {
         onRecord(mStartRecording);
         if (mStartRecording) {
             recordButton.setText("Stop");
@@ -1064,19 +1066,19 @@ public class InputLayout extends LinearLayout implements SpeechRecognitionListen
         mStartRecording = !mStartRecording;
       }
     });
-    
-    final OnCompletionListener completionListener = new OnCompletionListener() {      
+
+    final OnCompletionListener completionListener = new OnCompletionListener() {
       @Override
-      public void onCompletion(MediaPlayer mp) {        
+      public void onCompletion(MediaPlayer mp) {
         playButton.setText("Play");
         mStartPlaying = true;
-        toggleOtherButtons(recordButton, deleteButton, true);       
+        toggleOtherButtons(recordButton, deleteButton, true);
       }
     };
-    
+
     playButton.setOnClickListener(new View.OnClickListener() {
       @Override
-      public void onClick(View v) {        
+      public void onClick(View v) {
         onPlay(mStartPlaying, completionListener);
         if (mStartPlaying) {
           playButton.setText("Stop");
@@ -1084,15 +1086,15 @@ public class InputLayout extends LinearLayout implements SpeechRecognitionListen
           playButton.setText("Play");
         }
         toggleOtherButtons(recordButton, deleteButton, !mStartPlaying);
-        mStartPlaying = !mStartPlaying;        
+        mStartPlaying = !mStartPlaying;
       }
     });
-    
-    deleteButton.setOnClickListener(new View.OnClickListener() {      
+
+    deleteButton.setOnClickListener(new View.OnClickListener() {
       @Override
       public void onClick(View v) {
         if (audioFileName != null) {
-          deleteAudioFile();          
+          deleteAudioFile();
         }
         toggleOtherButtons(playButton, deleteButton, false);
       }
@@ -1104,8 +1106,8 @@ public class InputLayout extends LinearLayout implements SpeechRecognitionListen
     playButton.setEnabled(enabled);
     deleteButton.setEnabled(enabled);
   }
-  
-  
+
+
 
 
   private void onRecord(boolean start) {

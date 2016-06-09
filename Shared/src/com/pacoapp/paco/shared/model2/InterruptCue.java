@@ -20,19 +20,21 @@ public class InterruptCue extends ModelBase implements Validatable, java.io.Seri
   public static final int PACO_EXPERIMENT_JOINED_EVENT = 15;
   public static final int PACO_EXPERIMENT_ENDED_EVENT = 16;
   public static final int PACO_EXPERIMENT_RESPONSE_RECEIVED_EVENT = 17;
+  public static final int APP_REMOVED = 18;
 
   public static final int[] CUE_EVENTS = new int[] {PHONE_HANGUP, USER_PRESENT, PACO_ACTION_EVENT, APP_USAGE, APP_CLOSED, MUSIC_STARTED, MUSIC_STOPPED,
                                                 PHONE_INCOMING_CALL_STARTED, PHONE_INCOMING_CALL_ENDED,
                                                 PHONE_OUTGOING_CALL_STARTED, PHONE_OUTGOING_CALL_ENDED, PHONE_MISSED_CALL, PHONE_CALL_STARTED, PHONE_CALL_ENDED,
                                                 PACO_EXPERIMENT_JOINED_EVENT,
-                                                PACO_EXPERIMENT_ENDED_EVENT, PACO_EXPERIMENT_RESPONSE_RECEIVED_EVENT};
+                                                PACO_EXPERIMENT_ENDED_EVENT, PACO_EXPERIMENT_RESPONSE_RECEIVED_EVENT, APP_REMOVED};
   public static final String[] CUE_EVENT_NAMES = new String[] {"HANGUP (deprecated)", "USER_PRESENT", "Paco Action",
                                                            "App Started", "App Stopped",
                                                            "Music Started", "Music Stopped",
                                                            "Incoming call started", "Incoming call ended",
                                                            "Outgoing call started", "Outgoing call ended",
                                                            "Missed call", "Call started (in or out)", "Call ended (in or out)",
-                                                           "Experiment joined", "Experiment ended", "Response received"};
+                                                           "Experiment joined", "Experiment ended", "Response received", "App Removed"};
+
 
 
 
@@ -41,6 +43,7 @@ public class InterruptCue extends ModelBase implements Validatable, java.io.Seri
 
   private Integer cueCode;
   private String cueSource;
+  private Long id;
 
   public InterruptCue() {
     super();
@@ -70,5 +73,14 @@ public class InterruptCue extends ModelBase implements Validatable, java.io.Seri
       validator.isNotNullAndNonEmptyString(cueSource,
                                            "cuesource must be valid for cuecode: " + CUE_EVENT_NAMES[cueCode - 1]);
     }
+  }
+
+
+  public Long getId() {
+    return id;
+  }
+
+  public void setId(Long id) {
+    this.id = id;
   }
 }

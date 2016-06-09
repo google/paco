@@ -1,12 +1,14 @@
 package com.pacoapp.paco.sensors.android.diagnostics;
 
 import java.util.List;
+
+import android.content.Context;
+
 import com.google.common.collect.Lists;
 import com.pacoapp.paco.R;
 import com.pacoapp.paco.model.Experiment;
 import com.pacoapp.paco.model.ExperimentProviderUtil;
 import com.pacoapp.paco.shared.model2.ExperimentDAO;
-import android.content.Context;
 
 public class PacoJoinedExperimentDiagnostic extends ListDiagnostic {
 
@@ -25,8 +27,9 @@ public class PacoJoinedExperimentDiagnostic extends ListDiagnostic {
         Experiment experiment = joined.get(i);
         ExperimentDAO experimentDAO = experiment.getExperimentDAO();
         String title = experimentDAO.getTitle();
+        Integer experimentVersion = experimentDAO.getVersion();
         //String joinDate = experimentDAO.getJoinDate();
-        results.add((i + 1) + ": " + title /*+ ", " + joinDate*/);
+        results.add((i + 1) + ": " + title + " (" + experimentVersion + ")" /*+ ", " + joinDate*/);
       }
     }
     setValue(results);

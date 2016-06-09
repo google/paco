@@ -581,6 +581,7 @@ public class ExperimentProviderUtil implements EventStore {
 
             trigger.setMinimumBuffer(signalingMechanismNode.path("minimumBuffer").getIntValue());
             InterruptCue cue = new InterruptCue();
+            cue.setId(1l);
             if (signalingMechanismNode.has("eventCode")) {
               cue.setCueCode(signalingMechanismNode.path("eventCode").getIntValue());
             }
@@ -1528,10 +1529,15 @@ public class ExperimentProviderUtil implements EventStore {
   }
 
   public void loadEventsForExperimentGroup(Experiment experiment, ExperimentGroup experimentGroup) {
-    String[] args = new String[]{ Long.toString(experiment.getId()), experimentGroup.getName()};
+    final Long id = experiment.getId();
+    final String name = experimentGroup.getName();
+    experiment.setEvents(loadEventsForExperimentGroup(id, name));
+  }
+
+  public List<Event> loadEventsForExperimentGroup(final Long experimentId, final String experimentGroupName) {
+    String[] args = new String[]{ Long.toString(experimentId), experimentGroupName};
     final String select = EventColumns.EXPERIMENT_ID + " = ? and " + EventColumns.GROUP_NAME + " = ?";
-    List<Event> eventSingleEntryList = findEventsBy(select, args, EventColumns._ID + " DESC");
-    experiment.setEvents(eventSingleEntryList);
+    return findEventsBy(select, args, EventColumns._ID + " DESC");
   }
 
   private List<Event> findEventsBy(String select, String[] args, String sortOrder) {

@@ -85,6 +85,7 @@ import com.google.common.base.Strings;
 import com.pacoapp.paco.PacoConstants;
 import com.pacoapp.paco.R;
 import com.pacoapp.paco.js.bridge.Environment;
+import com.pacoapp.paco.js.bridge.JavascriptCalendarManager;
 import com.pacoapp.paco.js.bridge.JavascriptEmail;
 import com.pacoapp.paco.js.bridge.JavascriptEventLoader;
 import com.pacoapp.paco.js.bridge.JavascriptExperimentLoader;
@@ -257,7 +258,11 @@ public class ExperimentExecutorCustomRendering extends ActionBarActivity impleme
    */
   private void lookForActiveNotificationForExperiment() {
     NotificationHolder notificationHolder = null;
-    List<NotificationHolder> notificationHolders = experimentProviderUtil.getNotificationsFor(getExperiment().getExperimentDAO().getId().longValue(), experimentGroup.getName());
+    if (getExperiment() == null) {
+      return;
+    }
+    final long experimentId = getExperiment().getExperimentDAO().getId().longValue();
+    List<NotificationHolder> notificationHolders = experimentProviderUtil.getNotificationsFor(experimentId, experimentGroup.getName());
     if (notificationHolders != null && !notificationHolders.isEmpty()) {
       notificationHolder = notificationHolders.get(0); // TODO can we ever have more than one for a group?
     }
@@ -475,8 +480,9 @@ private void injectObjectsIntoJavascriptEnvironment() {
   // deprecated name - use "db" in all new experiments
   webView.addJavascriptInterface(javascriptEventLoader, "eventLoader");
 
+  webView.addJavascriptInterface(new JavascriptCalendarManager(this), "calendar");
   webView.addJavascriptInterface(new JavascriptEmail(this), "email");
-  webView.addJavascriptInterface(new JavascriptNotificationService(this, experiment.getExperimentDAO(), experimentGroup), "notificationService");
+  webView.addJavascriptInterface(new JavascriptNotificationService(this, experiment.getExperimentDAO(), experimentGroup, actionTriggerSpecId, actionTriggerId, actionId), "notificationService");
   webView.addJavascriptInterface(new JavascriptPhotoService(this), "photoService");
   webView.addJavascriptInterface(new JavascriptExecutorListener(experiment), "executor");
   webView.addJavascriptInterface(new JavascriptPackageManager(this), "packageManager");

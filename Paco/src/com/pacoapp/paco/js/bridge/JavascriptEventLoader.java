@@ -60,6 +60,12 @@ public class JavascriptEventLoader {
     return FeedbackActivity.convertLastEventToJsonString(events);
   }
 
+  @JavascriptInterface
+  public String getEventsForExperimentGroup() {
+    List<Event> events = experimentProviderUtil.loadEventsForExperimentGroup(androidExperiment.getId(), experimentGroup.getName());
+    return FeedbackActivity.convertEventsToJsonString(events);
+  }
+
   /**
    * Backward compatible alias for saveEvent
    * @param json

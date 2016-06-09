@@ -106,8 +106,8 @@ public class ExperimentDetailActivity extends ActionBarActivity implements Exper
   }
 
 
-  private boolean isLaunchedFromLink(){ 
-	return uri != null && uri.getScheme().equalsIgnoreCase("pacoapp"); 
+  private boolean isLaunchedFromLink(){
+	  return uri != null && uri.getScheme().equalsIgnoreCase("pacoapp");
   }
 
   private boolean isLaunchedFromQRCode() {
@@ -265,8 +265,8 @@ public class ExperimentDetailActivity extends ActionBarActivity implements Exper
   @Override
   protected void onResume() {
     if ((isLaunchedFromLink() || isLaunchedFromQRCode()) && userPrefs.getAccessToken() == null) {
-        Intent splash = new Intent(this, SplashActivity.class);
-        this.startActivity(splash);
+      Intent splash = new Intent(this, SplashActivity.class);
+      this.startActivity(splash);
     } else {
       if (!isLaunchedFromQRCode() && !isLaunchedFromLink()) {
         IntentExtraHelper.loadExperimentInfoFromIntent(this, getIntent(), experimentProviderUtil);
@@ -274,40 +274,38 @@ public class ExperimentDetailActivity extends ActionBarActivity implements Exper
         experiment = experimentProviderUtil.getExperimentFromDisk(experimentId, useMyExperimentsDiskFile);
       }
 
-      if(isLaunchedFromLink()){
-    	  //Get experiment id from link/uri
-    	  //example: pacoapp://experiment/1234567
-    	  String[] uriSegments = this.uri.getSchemeSpecificPart().toString().replace("//", "").split("/");
-    	  if(uriSegments.length == 2 && uriSegments[0].equalsIgnoreCase("experiment")){ //Got the right URI format, check whether to download experiment
-    		  this.receivedExperimentId = Long.parseLong(uriSegments[1]);
-    		  this.experiment = this.experimentProviderUtil.getExperimentFromDisk(this.receivedExperimentId, this.useMyExperimentsDiskFile);
-    		  
-    		  if(this.experiment == null){ //Experiment NOT found locally, load from server
-    			  this.retrieveExperimentFromServer( uriSegments[1] );
-    		  }else{//experiment found, show it
-    			  this.showExperiment();
-    		  }
-    	  }else{ //If the URI is wrong, show message and then go to MyExperimentsActivity
-    		  new AlertDialog.Builder(this)
-    		  .setMessage(R.string.link_wrong)
-    		  .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-					public void onClick(DialogInterface dialog, int which) {
-						startActivity(new Intent (getContext(), MyExperimentsActivity.class));
-					}
-    		  	})
-    		  .show();
-    	  }
-      }
-      else if (isLaunchedFromQRCode() && experiment == null) {
-        new AlertDialog.Builder(this)
-          .setMessage(R.string.selected_experiment_not_on_phone_refresh)
-          .setPositiveButton(R.string.accept, new DialogInterface.OnClickListener() {
+      if (isLaunchedFromLink()) {
+        // Get experiment id from link/uri
+        // example: pacoapp://experiment/1234567
+        String[] uriSegments = this.uri.getSchemeSpecificPart().toString().replace("//", "").split("/");
+        if (uriSegments.length == 2 && uriSegments[0].equalsIgnoreCase("experiment")) {
+          // Got the right URI format, check whether to download experiment
+          this.receivedExperimentId = Long.parseLong(uriSegments[1]);
+          this.experiment = this.experimentProviderUtil.getExperimentFromDisk(this.receivedExperimentId,
+                                                                              this.useMyExperimentsDiskFile);
+
+          if (this.experiment == null) { // Experiment NOT found locally, load  from server
+            this.retrieveExperimentFromServer(uriSegments[1]);
+          } else { // experiment found, show it
+            this.showExperiment();
+          }
+        } else {
+          // If the URI is wrong, show message and then go to MyExperimentsActivity
+          new AlertDialog.Builder(this).setMessage(R.string.link_wrong)
+                                       .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                                         public void onClick(DialogInterface dialog, int which) {
+                                           startActivity(new Intent(getContext(), MyExperimentsActivity.class));
+                                         }
+                                       }).show();
+        }
+      } else if (isLaunchedFromQRCode() && experiment == null) {
+        new AlertDialog.Builder(this).setMessage(R.string.selected_experiment_not_on_phone_refresh)
+                                     .setPositiveButton(R.string.accept, new DialogInterface.OnClickListener() {
                                        public void onClick(DialogInterface dialog, int which) {
                                          String realServerId = uri.getLastPathSegment().substring(4);
                                          retrieveExperimentFromServer(realServerId);
                                        }
-                                     })
-          .show();
+                                     }).show();
       } else {
         showExperiment();
       }

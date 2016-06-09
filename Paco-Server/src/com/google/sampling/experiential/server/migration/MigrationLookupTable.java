@@ -9,6 +9,7 @@ import com.google.sampling.experiential.server.migration.jobs.EventStatsCounterM
 import com.google.sampling.experiential.server.migration.jobs.ExperimentJDOToDatastoreMigration;
 import com.google.sampling.experiential.server.migration.jobs.FeedbackTypeRepairMigration;
 import com.google.sampling.experiential.server.migration.jobs.TestJDODSCompat;
+import com.google.sampling.experiential.server.stats.usage.UsageStatsBackfillJob;
 
 public class MigrationLookupTable {
   private static final Logger log = Logger.getLogger(MigrationLookupTable.class.getName());
@@ -20,6 +21,7 @@ public class MigrationLookupTable {
     migrations.put("97", FeedbackTypeRepairMigration.class);
     migrations.put("965", TestJDODSCompat.class);
     migrations.put("98", EventStatsCounterMigrationJob.class);
+    migrations.put("99", UsageStatsBackfillJob.class);
   }
   public static MigrationJob getMigrationByName(String name) {
     if (Strings.isNullOrEmpty(name)) {

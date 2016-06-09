@@ -140,12 +140,25 @@ public class ExperimentHelper {
       this.first = first;
       this.second = second;
     }
-
-
   }
 
-  public static List<Pair<ExperimentGroup, InterruptTrigger>> shouldTriggerBy(ExperimentDAO experiment, int event, String sourceIdentifier) {
-    List<Pair<ExperimentGroup, InterruptTrigger>> groupsThatTrigger = new ArrayList();
+  public static class Trio<S, T, U> {
+    public S first;
+    public T second;
+    public U third;
+
+    public Trio(S first, T second, U third) {
+      super();
+      this.first = first;
+      this.second = second;
+      this.third = third;
+    }
+  }
+
+
+  @SuppressWarnings("unchecked")
+  public static List<Trio<ExperimentGroup, InterruptTrigger, InterruptCue>> shouldTriggerBy(ExperimentDAO experiment, int event, String sourceIdentifier) {
+    List<Trio<ExperimentGroup, InterruptTrigger, InterruptCue>> groupsThatTrigger = new ArrayList();
     List<ExperimentGroup> groups = experiment.getGroups();
     for (ExperimentGroup experimentGroup : groups) {
       List<ActionTrigger> triggers = experimentGroup.getActionTriggers();
@@ -159,7 +172,9 @@ public class ExperimentHelper {
               continue;
             }
 
-            boolean usesSourceId = interruptCue.getCueCode() == InterruptCue.PACO_ACTION_EVENT || interruptCue.getCueCode() == InterruptCue.APP_USAGE;
+            boolean usesSourceId = interruptCue.getCueCode() == InterruptCue.PACO_ACTION_EVENT
+                    || interruptCue.getCueCode() == InterruptCue.APP_USAGE
+                    || interruptCue.getCueCode() == InterruptCue.APP_CLOSED;
             boolean sourceIdsMatch;
             boolean isExperimentActionTrigger = interruptCue.getCueCode() == InterruptCue.PACO_EXPERIMENT_JOINED_EVENT
                     || interruptCue.getCueCode() == InterruptCue.PACO_EXPERIMENT_ENDED_EVENT
@@ -178,7 +193,7 @@ public class ExperimentHelper {
               sourceIdsMatch = true;
             }
             if (cueCodeMatches && sourceIdsMatch) {
-              groupsThatTrigger.add(new Pair(experimentGroup, trigger));
+              groupsThatTrigger.add(new Trio<ExperimentGroup, InterruptTrigger, InterruptCue>(experimentGroup, trigger, interruptCue));
             }
           }
         }

@@ -107,6 +107,20 @@ public class EventUploader {
         }
       }
 
+      @Override
+      public void show(String msg) {
+        super.show(msg);
+        latch.countDown();
+      }
+
+      @Override
+      public void handleException(Exception exception) {
+        super.handleException(exception);
+        latch.countDown();
+      }
+
+
+
     };
 
     Log.i("" + this, "Preparing to post.");

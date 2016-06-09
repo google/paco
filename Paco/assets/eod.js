@@ -1028,9 +1028,10 @@ paco.renderer = (function() {
       if (!input) {
         continue;
       }
+      
       responsesHtml += "<div class=\"row\" style=\"margin-bottom: 8px;\">";
-      responsesHtml += "<h6 class=\"left indigo-text\">";
-      responsesHtml += input.text;
+      responsesHtml += "<h6 class=\"left indigo-text\">";      
+      responsesHtml += input.text;      
       responsesHtml += "</h6><br>";
       responsesHtml += "<p class=\"black-text\">";
       responsesHtml += "&nbsp;&nbsp;&nbsp;"
@@ -1048,14 +1049,14 @@ paco.renderer = (function() {
           if (!input.multiselect) {
             answer = parseInt(answer);
             var index = answer;
-            listChoiceName = input.listChoices[index];
+            listChoiceName = input.listChoices[index - 1];
           } else {
             var indices = answer.split(",");
-            for (var i = 0; i < indices.length; i++) {
-              if (i > 0) {
+            for (var j = 0; j < indices.length; j++) {
+              if (j > 0) {
                 listChoiceName += ", ";
               }
-              var index = indices[i]; 
+              var index = indices[j]; 
               index -= 1;
               if (index < 0) {
                 index = 0;
@@ -1149,11 +1150,17 @@ paco.executeEod = (function() {
     }
     
     function isActive(eventDate, now, triggerTime, timeout) { 
+      var nt = now.getTime(); 
+			var eventDateMidnight = new Date(eventDate.getFullYear(), 
+                                           eventDate.getMonth(), 
+                                           eventDate.getDate()).getTime();
+      var ft = eventDateMidnight + triggerTime.fixedTimeMillisFromMidnight + timeout;
+      //var active = nt <= ft;
+      //alert("nt = " + nt + ", edt = " + edt + ", ft = " + ft + ", active = " + active );
+      
       return eventDate.getDate() == now.getDate() || 
              eventDate.getDate() == (now.getDate() - 1)  && 
-                 now.getTime() <= new Date(eventDate.getFullYear(), 
-                                           eventDate.getMonth(), 
-                                           eventDate.getDate()).getTime() + triggerTime + timeout; 
+                 now.getTime() <= ft; 
     };
     
     var getActiveEventsWithoutEod = function(referredExperimentGroup, experimentGroup, db) {      
@@ -1174,7 +1181,7 @@ paco.executeEod = (function() {
         var eventDateTime = new Date(event.responseTime);
         if (!isActive(eventDateTime, now, triggerTime, timeout)) {
           // maybe build the list of already expired events to show as well.
-          break;
+          continue;
         }
         var eventGroupName = event.experimentGroupName;
         if (!eventGroupName) {
@@ -1273,6 +1280,7 @@ paco.executeEod = (function() {
     var renderEvent = function() {
       unsavedEdits = false;
       var currentEvent = unfinishedDailyEvents[currentPingIndex];
+      
       form_root.append(paco.renderer.renderDailyPingResponsesPanel(referredExperimentGroup.inputs, 
           currentEvent, currentPingIndex, pingCount));
       if (submitted.indexOf(currentEvent.responseTime) != -1) {

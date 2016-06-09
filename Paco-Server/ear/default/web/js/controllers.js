@@ -70,9 +70,12 @@ pacoApp.controller('ExperimentCtrl', ['$scope', '$mdDialog', '$filter',
       groupIndex: null
     };
 
-    if ($scope.user === undefined) {
-      $location.path('/');
-    }
+    // temporarily comment this because it prevents loading experiments directly
+    // fix for bug https://github.com/google/paco/issues/1448
+    // regresses bug https://github.com/google/paco/issues/1272
+    // if ($scope.user === undefined) {
+    //   $location.path('/');
+    // }
 
     if ($location.hash()) {
       var newTabId = config.editTabs.indexOf($location.hash());

@@ -364,6 +364,7 @@
     <string name="could_not_encode_audio">Could not encode the audio file</string>
     <string name="play_audio_label">Play</string>
     <string name="delete_audio_label">Delete</string>
+    <string name="diagnostic_paco_version">Paco version</string>
         
         
                 

@@ -12,6 +12,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.database.Cursor;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.PowerManager;
@@ -70,6 +71,8 @@ public class BroadcastTriggerReceiver extends BroadcastReceiver {
       triggerPacoExperimentEndedEvent(context ,intent);
     } else if (intent.getAction().equals(PACO_EXPERIMENT_RESPONSE_RECEIVED_ACTION)) {
       triggerPacoExperimentResponseReceivedEvent(context ,intent);
+    } else if (isPackageRemoved(context, intent)) {
+      triggerPackageRemovedEvent(context, intent);
     }
 
     PowerManager pm = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
@@ -105,7 +108,21 @@ public class BroadcastTriggerReceiver extends BroadcastReceiver {
     (new Thread(runnable)).start();
   }
 
-	private void triggerPacoExperimentEndedEvent(Context context, Intent intent) {
+	private void triggerPackageRemovedEvent(Context context, Intent intent) {
+    Log.i(PacoConstants.TAG, "App removed trigger");
+
+    Uri data = intent.getData();
+    String packageName = data.getEncodedSchemeSpecificPart();
+    if (!packageName.equals("com.pacoapp.paco")) {
+      triggerEvent(context, InterruptCue.APP_REMOVED, packageName, null);
+    }
+  }
+
+  private boolean isPackageRemoved(Context context, Intent intent) {
+	  return intent.getAction().equals(Intent.ACTION_PACKAGE_REMOVED);
+  }
+
+  private void triggerPacoExperimentEndedEvent(Context context, Intent intent) {
     long experimentServerId = intent.getLongExtra(EXPERIMENT_SERVER_ID_EXTRA_KEY, -10l);
     if (experimentServerId == -10l) {
       Log.d(PacoConstants.TAG, "No experimentServerId specified for PACO_EXPERIMENT_ENDED_ACTION");
@@ -357,7 +374,9 @@ public class BroadcastTriggerReceiver extends BroadcastReceiver {
     String[] selArgs = new String[] { String.valueOf(startTimeMillis) };
     Cursor mCur = null;
     try {
-      mCur = context.getContentResolver().query(Browser.BOOKMARKS_URI, proj, sel, selArgs, Browser.BookmarkColumns.DATE + " ASC");
+      Uri bookmarksUri = Browser.BOOKMARKS_URI;
+      //Uri chromeBookmarksUri = Uri.parse("content://com.android.chrome.browser/bookmarks");
+      mCur = context.getContentResolver().query(bookmarksUri, proj, sel, selArgs, Browser.BookmarkColumns.DATE + " ASC");
       mCur.moveToFirst();
 
       String title = "";
@@ -379,6 +398,9 @@ public class BroadcastTriggerReceiver extends BroadcastReceiver {
           }
       }
       return results;
+    } catch (Exception e) {
+      Log.e(PacoConstants.TAG, "bookmark lookup failed. Must be Marshmallow or latest Chrome. bookmark uri is being removed permanently.", e);
+      return Lists.newArrayList();
     } finally {
       if (mCur != null) {
         mCur.close();
