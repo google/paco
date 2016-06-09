@@ -1,0 +1,7 @@
+//
+//  Config.xcconfig
+//  J2ObjcLibrary
+//
+//   All rights reserved.
+//
+J2OBJC_HOME = ../../../j2objc/dist

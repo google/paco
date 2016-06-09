@@ -344,17 +344,33 @@
               
               if(![jsnName isEqualToString:@"responseTime"])
               {
-                  [parsedDictionary setObject:object  forKey:jsnName];
+                 /* if([jsnName isEqualToString:@"scheduledTime"])
+                  {
+                      NSDate *today =  (NSDate*) object;
+                      NSDateFormatter *dateFormat = [[NSDateFormatter alloc] init];
+                      [dateFormat setDateFormat:@"yyyy/MM/dd HH:mm:ssZ"];
+                      NSString *dateString = [dateFormat stringFromDate:today];
+                      [parsedDictionary setObject:dateString  forKey:jsnName];
+                      
+                  }
+                  else
+                  {*/
+                  
+                  
+                     [parsedDictionary setObject:object  forKey:jsnName];
+                  
+                 /* }*/
+                  
               }
               else
               {
                   
-                  NSDate *today = [NSDate date];
-                  NSDateFormatter *dateFormat = [[NSDateFormatter alloc] init];
-                  [dateFormat setDateFormat:@"yyyy/MM/dd HH:mm:ssZ"];
-                  NSString *dateString = [dateFormat stringFromDate:today];
-                  [parsedDictionary setObject:dateString  forKey:jsnName];
-      
+                      NSDate *today = [NSDate date];
+                      NSDateFormatter *dateFormat = [[NSDateFormatter alloc] init];
+                      [dateFormat setDateFormat:@"yyyy/MM/dd HH:mm:ssZ"];
+                      NSString *dateString = [dateFormat stringFromDate:today];
+                      [parsedDictionary setObject:dateString  forKey:jsnName];
+ 
                   
               }
               

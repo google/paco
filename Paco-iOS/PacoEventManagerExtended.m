@@ -387,6 +387,7 @@ static NSString* const kAllEventsFileName = @"allEvents.plist";
         }
         
         NSLog(@"There are %lu pending events to upload.", (unsigned long)[pendingEvents count]);
+        
         UIApplicationState state = [[UIApplication sharedApplication] applicationState];
         if (state == UIApplicationStateActive) {
             NSLog(@"App State:UIApplicationStateActive");
