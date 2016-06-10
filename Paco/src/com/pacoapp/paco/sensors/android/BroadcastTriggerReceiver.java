@@ -92,16 +92,11 @@ public class BroadcastTriggerReceiver extends BroadcastReceiver {
           } else if (isScreenOn(intent) && !isKeyGuardOn(context) && shouldPoll) {
             createScreenOnPacoEvents(context);
             startProcessService(context);
-          } else if (isScreenOff(intent)) {
+          } /*else if (isScreenOff(intent)) {
             stopProcessService(context);
-            if (shouldPoll) {
-              createScreenOffPacoEvents(context);
-            }
-//            if (BroadcastTriggerReceiver.shouldLogActions(context)) {
-//              createBrowserHistoryEndSnapshot(context);
-//            }
-
-          }
+            createScreenOffPacoEvents(context);
+          }*/ // Android never fires the screen off intent.
+          // Instead we detect screen activity in the process monitor
           if (isPhoneShutdown(context, intent)) {
             createShutdownLogEvents(context);
           }
@@ -320,33 +315,6 @@ public class BroadcastTriggerReceiver extends BroadcastReceiver {
       }
     }
   }
-
-  protected void createScreenOffPacoEvents(Context context) {
-    ExperimentProviderUtil experimentProviderUtil = new ExperimentProviderUtil(context);
-    List<Experiment> experimentsNeedingEvent = initializeExperimentsWatchingAppUsage(experimentProviderUtil);
-
-    for (Experiment experiment : experimentsNeedingEvent) {
-      Event event = createScreenOnPacoEvent(experiment);
-      experimentProviderUtil.insertEvent(event);
-    }
-  }
-
-  protected Event createScreenOffPacoEvent(Experiment experiment) {
-    Event event = new Event();
-    event.setExperimentId(experiment.getId());
-    event.setServerExperimentId(experiment.getServerId());
-    event.setExperimentName(experiment.getExperimentDAO().getTitle());
-    event.setExperimentVersion(experiment.getExperimentDAO().getVersion());
-    event.setResponseTime(new DateTime());
-
-    Output responseForInput = new Output();
-
-    responseForInput.setAnswer(new DateTime().toString());
-    responseForInput.setName("userNotPresent");
-    event.addResponse(responseForInput);
-    return event;
-}
-
 
   protected void createScreenOnPacoEvents(Context context) {
     ExperimentProviderUtil experimentProviderUtil = new ExperimentProviderUtil(context);

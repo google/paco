@@ -110,12 +110,10 @@ public class ProcessService extends Service {
                 }
               }
             }
-            // if (!pm.isScreenOn()) {
-            // BroadcastTriggerReceiver.createBrowserHistoryEndSnapshot(getApplicationContext());
-            // //testIfUserHasResponded
-            // //createNotificationIfNotResponded
+            if (!pm.isScreenOn() && BroadcastTriggerReceiver.shouldWatchProcesses(getApplicationContext())) {
+              createScreenOffPacoEvents(getApplicationContext());
+            }
             //
-            // }
             Log.i(PacoConstants.TAG, "polling stopping: instance = " + ProcessService.this.toString());
           } finally {
             previousTaskNames = null;
@@ -375,5 +373,44 @@ public class ProcessService extends Service {
   public void onDestroy() {
     Log.i(PacoConstants.TAG, "Paco App Usage poller.onDestroy()");
   }
+
+  protected void createScreenOffPacoEvents(Context context) {
+    ExperimentProviderUtil experimentProviderUtil = new ExperimentProviderUtil(context);
+    List<Experiment> experimentsNeedingEvent = initializeExperimentsWatchingAppUsage(experimentProviderUtil);
+
+    for (Experiment experiment : experimentsNeedingEvent) {
+      Event event = createScreenOffPacoEvent(experiment);
+      experimentProviderUtil.insertEvent(event);
+    }
+  }
+
+  protected Event createScreenOffPacoEvent(Experiment experiment) {
+    Event event = new Event();
+    event.setExperimentId(experiment.getId());
+    event.setServerExperimentId(experiment.getServerId());
+    event.setExperimentName(experiment.getExperimentDAO().getTitle());
+    event.setExperimentVersion(experiment.getExperimentDAO().getVersion());
+    event.setResponseTime(new DateTime());
+
+    Output responseForInput = new Output();
+
+    responseForInput.setAnswer(new DateTime().toString());
+    responseForInput.setName("userNotPresent");
+    event.addResponse(responseForInput);
+    return event;
+}
+
+  private static List<Experiment> initializeExperimentsWatchingAppUsage(ExperimentProviderUtil experimentProviderUtil) {
+    List<Experiment> joined = experimentProviderUtil.getJoinedExperiments();
+    List<Experiment> experimentsNeedingEvent = Lists.newArrayList();
+    DateTime now = DateTime.now();
+    for (Experiment experiment2 : joined) {
+      if (!ActionScheduleGenerator.isOver(now, experiment2.getExperimentDAO()) && ExperimentHelper.isLogActions(experiment2.getExperimentDAO())) {
+        experimentsNeedingEvent.add(experiment2);
+      }
+    }
+    return experimentsNeedingEvent;
+  }
+
 
 }
