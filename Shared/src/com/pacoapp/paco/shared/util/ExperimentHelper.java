@@ -115,6 +115,15 @@ public class ExperimentHelper {
     return false;
   }
 
+  public static boolean isLogShutdown(ExperimentDAO experiment) {
+    List<ExperimentGroup> groups = experiment.getGroups();
+    for (ExperimentGroup experimentGroup : groups) {
+      if (experimentGroup.getLogShutdown()) {
+        return true;
+      }
+    }
+    return false;
+  }
 
 
   public static boolean isLogActions(ExperimentDAO experiment) {

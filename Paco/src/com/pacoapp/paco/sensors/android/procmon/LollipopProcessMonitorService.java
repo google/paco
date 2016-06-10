@@ -2,6 +2,8 @@ package com.pacoapp.paco.sensors.android.procmon;
 
 import java.util.List;
 
+import org.joda.time.DateTime;
+
 import android.annotation.SuppressLint;
 import android.app.Service;
 import android.app.usage.UsageStatsManager;
@@ -11,10 +13,15 @@ import android.os.IBinder;
 import android.os.PowerManager;
 import android.util.Log;
 
+import com.google.common.collect.Lists;
 import com.pacoapp.paco.PacoConstants;
+import com.pacoapp.paco.model.Event;
 import com.pacoapp.paco.model.Experiment;
 import com.pacoapp.paco.model.ExperimentProviderUtil;
+import com.pacoapp.paco.model.Output;
 import com.pacoapp.paco.sensors.android.BroadcastTriggerReceiver;
+import com.pacoapp.paco.shared.scheduling.ActionScheduleGenerator;
+import com.pacoapp.paco.shared.util.ExperimentHelper;
 
 // TODO refactor this to compute increased foreground time for an app from it's previous foreground time.
 
@@ -66,12 +73,9 @@ public class LollipopProcessMonitorService extends Service {
                 }
               }
             }
-            // if (!pm.isScreenOn()) {
-            // BroadcastTriggerReceiver.createBrowserHistoryEndSnapshot(getApplicationContext());
-            // //testIfUserHasResponded
-            // //createNotificationIfNotResponded
-            //
-            // }
+            if (!pm.isScreenOn() && BroadcastTriggerReceiver.shouldWatchProcesses(getApplicationContext())) {
+              createScreenOffPacoEvents(getApplicationContext());
+            }
             Log.i(PacoConstants.TAG, "polling stopping: instance = " + LollipopProcessMonitorService.this.toString());
           } finally {
             wl.release();
@@ -102,8 +106,47 @@ public class LollipopProcessMonitorService extends Service {
       };
       (new Thread(runnable)).start();
     }
+
+
   }
 
+  protected void createScreenOffPacoEvents(Context context) {
+    ExperimentProviderUtil experimentProviderUtil = new ExperimentProviderUtil(context);
+    List<Experiment> experimentsNeedingEvent = initializeExperimentsWatchingAppUsage(experimentProviderUtil);
+
+    for (Experiment experiment : experimentsNeedingEvent) {
+      Event event = createScreenOffPacoEvent(experiment);
+      experimentProviderUtil.insertEvent(event);
+    }
+  }
+
+  protected Event createScreenOffPacoEvent(Experiment experiment) {
+    Event event = new Event();
+    event.setExperimentId(experiment.getId());
+    event.setServerExperimentId(experiment.getServerId());
+    event.setExperimentName(experiment.getExperimentDAO().getTitle());
+    event.setExperimentVersion(experiment.getExperimentDAO().getVersion());
+    event.setResponseTime(new DateTime());
+
+    Output responseForInput = new Output();
+
+    responseForInput.setAnswer(new DateTime().toString());
+    responseForInput.setName("userNotPresent");
+    event.addResponse(responseForInput);
+    return event;
+}
+
+  private static List<Experiment> initializeExperimentsWatchingAppUsage(ExperimentProviderUtil experimentProviderUtil) {
+    List<Experiment> joined = experimentProviderUtil.getJoinedExperiments();
+    List<Experiment> experimentsNeedingEvent = Lists.newArrayList();
+    DateTime now = DateTime.now();
+    for (Experiment experiment2 : joined) {
+      if (!ActionScheduleGenerator.isOver(now, experiment2.getExperimentDAO()) && ExperimentHelper.isLogActions(experiment2.getExperimentDAO())) {
+        experimentsNeedingEvent.add(experiment2);
+      }
+    }
+    return experimentsNeedingEvent;
+  }
 
   @Override
   public IBinder onBind(Intent intent) {
