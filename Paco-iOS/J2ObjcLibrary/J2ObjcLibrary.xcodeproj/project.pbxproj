@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		44BB28E81D0A557800680037 /* libJodaCompile.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 44BB28E71D0A557800680037 /* libJodaCompile.a */; };
 		A605CAF41C778D1E00770A4E /* J2ObjcLibrary.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = A605CAF31C778D1E00770A4E /* J2ObjcLibrary.h */; };
 		A605CAF61C778D1F00770A4E /* J2ObjcLibrary.m in Sources */ = {isa = PBXBuildFile; fileRef = A605CAF51C778D1F00770A4E /* J2ObjcLibrary.m */; };
 		A61D82191CD14111009983B6 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A61D82181CD14111009983B6 /* Security.framework */; };
@@ -93,7 +94,7 @@
 				"$(DERIVED_FILE_DIR)/${INPUT_FILE_BASE}.h",
 				"$(DERIVED_FILE_DIR)/${INPUT_FILE_BASE}.m",
 			);
-			script = "../../Shared/j2objc/j2objc -d ${DERIVED_FILE_DIR} -classpath ../../Shared/lib/joda-time-2.5.jar -sourcepath ../../Shared/src  --prefixes ../../Shared/j2objcprefixes.properties --no-package-directories -use-arc ${INPUT_FILE_PATH};\n\n\n../../Shared/j2objc/j2objc -d ../Derived -classpath ../../Shared/lib/joda-time-2.5.jar -sourcepath ../../Shared/src  --prefixes ../../Shared/j2objcprefixes.properties --no-package-directories -use-arc ${INPUT_FILE_PATH};";
+			script = "${J2OBJC_HOME}/j2objc -d ${DERIVED_FILE_DIR} -sourcepath ../../Shared/src  --prefixes ../../Shared/j2objcprefixes.properties --no-package-directories -use-arc ${INPUT_FILE_PATH};";
 		};
 		A61D829A1CD157D5009983B6 /* PBXBuildRule */ = {
 			isa = PBXBuildRule;
@@ -104,23 +105,23 @@
 				"$(DERIVED_FILE_DIR)/${INPUT_FILE_BASE}.h",
 				"$(DERIVED_FILE_DIR)/${INPUT_FILE_BASE}.m",
 			);
-			script = "../../Shared/j2objc/j2objc -d ${DERIVED_FILE_DIR} -classpath ../../Shared/lib/joda-time-2.5.jar -sourcepath ../../Shared/src  --prefixes ../../Shared/j2objcprefixes.properties --no-package-directories -use-arc ${INPUT_FILE_PATH};\n\n\n../../Shared/j2objc/j2objc -d ../transpiled_java -classpath ../../Shared/lib/joda-time-2.5.jar -sourcepath ../../Shared/src  --prefixes ../../Shared/j2objcprefixes.properties --no-package-directories -use-arc ${INPUT_FILE_PATH};";
+			script = "${J2OBJC_HOME}/j2objc -d ${DERIVED_FILE_DIR} -classpath ../../Shared/lib/joda-time-2.9.2.jar -sourcepath ../../Shared/src  --prefixes ../../Shared/j2objcprefixes.properties --no-package-directories -use-arc ${INPUT_FILE_PATH};";
 		};
 /* End PBXBuildRule section */
 
 /* Begin PBXContainerItemProxy section */
+		44BB28EA1D0A567B00680037 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = A6FF59261CDC01D90049A27F /* JodaCompile.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = A605D5DF1C77AA0700770A4E;
+			remoteInfo = JodaCompile;
+		};
 		A6FF592A1CDC01D90049A27F /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = A6FF59261CDC01D90049A27F /* JodaCompile.xcodeproj */;
 			proxyType = 2;
 			remoteGlobalIDString = A605D5E01C77AA0700770A4E;
-			remoteInfo = JodaCompile;
-		};
-		A6FF592C1CDC01EC0049A27F /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = A6FF59261CDC01D90049A27F /* JodaCompile.xcodeproj */;
-			proxyType = 1;
-			remoteGlobalIDString = A605D5DF1C77AA0700770A4E;
 			remoteInfo = JodaCompile;
 		};
 /* End PBXContainerItemProxy section */
@@ -149,6 +150,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		44BB28E71D0A557800680037 /* libJodaCompile.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libJodaCompile.a; path = "../DerivedData/Paco/Build/Intermediates/JodaCompile.build/Debug-iphonesimulator/JodaCompile.build/Objects-normal/x86_64/libJodaCompile.a"; sourceTree = "<group>"; };
 		A605CAF01C778D1E00770A4E /* libJ2ObjcLibrary.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libJ2ObjcLibrary.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		A605CAF31C778D1E00770A4E /* J2ObjcLibrary.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = J2ObjcLibrary.h; sourceTree = "<group>"; };
 		A605CAF51C778D1F00770A4E /* J2ObjcLibrary.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = J2ObjcLibrary.m; sourceTree = "<group>"; };
@@ -209,6 +211,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				A61D82191CD14111009983B6 /* Security.framework in Frameworks */,
+				44BB28E81D0A557800680037 /* libJodaCompile.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -226,6 +229,7 @@
 		A605CAE71C778D1E00770A4E = {
 			isa = PBXGroup;
 			children = (
+				44BB28E71D0A557800680037 /* libJodaCompile.a */,
 				A6FF59261CDC01D90049A27F /* JodaCompile.xcodeproj */,
 				A6FF5CF81CDD06F10049A27F /* include */,
 				A692884F1D09E771008630D2 /* New Group */,
@@ -428,7 +432,7 @@
 				A61D829A1CD157D5009983B6 /* PBXBuildRule */,
 			);
 			dependencies = (
-				A6FF592D1CDC01EC0049A27F /* PBXTargetDependency */,
+				44BB28EB1D0A567B00680037 /* PBXTargetDependency */,
 			);
 			name = J2ObjcLib;
 			productName = J2ObjcLib;
@@ -574,10 +578,10 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
-		A6FF592D1CDC01EC0049A27F /* PBXTargetDependency */ = {
+		44BB28EB1D0A567B00680037 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			name = JodaCompile;
-			targetProxy = A6FF592C1CDC01EC0049A27F /* PBXContainerItemProxy */;
+			targetProxy = 44BB28EA1D0A567B00680037 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -622,6 +626,7 @@
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
+				USER_HEADER_SEARCH_PATHS = ../JodaCompile/JodaCompile;
 			};
 			name = Debug;
 		};
@@ -658,6 +663,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 9.2;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = iphoneos;
+				USER_HEADER_SEARCH_PATHS = ../JodaCompile/JodaCompile;
 				VALIDATE_PRODUCT = YES;
 			};
 			name = Release;
@@ -665,26 +671,32 @@
 		A605CAFA1C778D1F00770A4E /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				HEADER_SEARCH_PATHS = "../JodaCompile/JodaCompile/**";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)",
+					"${J2OBJC_HOME}/lib",
 				);
 				OTHER_LDFLAGS = "-ljire_emul";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
+				USER_HEADER_SEARCH_PATHS = "../../../j2objc/include ../JodaCompile/JodaCompile/**";
 			};
 			name = Debug;
 		};
 		A605CAFB1C778D1F00770A4E /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				HEADER_SEARCH_PATHS = "../JodaCompile/JodaCompile/**";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)",
+					"${J2OBJC_HOME}/lib",
 				);
 				OTHER_LDFLAGS = "-ljire_emul";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
+				USER_HEADER_SEARCH_PATHS = "../../../j2objc/include ../JodaCompile/JodaCompile/**";
 			};
 			name = Release;
 		};
@@ -694,13 +706,17 @@
 			buildSettings = {
 				HEADER_SEARCH_PATHS = (
 					"${J2OBJC_HOME}/include",
-					"../../../../joda/build/**",
+					"JodaCompile/JodaCompile/**",
 				);
-				LIBRARY_SEARCH_PATHS = "$(PROJECT_DIR)";
+				LIBRARY_SEARCH_PATHS = (
+					"$(PROJECT_DIR)",
+					"${J2OBJC_HOME}/lib",
+				);
 				ONLY_ACTIVE_ARCH = NO;
-				OTHER_LDFLAGS = "";
+				OTHER_LDFLAGS = "-ljre_emul";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
+				USER_HEADER_SEARCH_PATHS = "${J2OBJC_HOME}/include ${DERIVED_FILES_DIR} ../JodaCompile/JodaCompile";
 			};
 			name = Debug;
 		};
@@ -710,13 +726,17 @@
 			buildSettings = {
 				HEADER_SEARCH_PATHS = (
 					"${J2OBJC_HOME}/include",
-					"../../../../joda/build/**",
+					"JodaCompile/JodaCompile/**",
 				);
-				LIBRARY_SEARCH_PATHS = "$(PROJECT_DIR)";
+				LIBRARY_SEARCH_PATHS = (
+					"$(PROJECT_DIR)",
+					"${J2OBJC_HOME}/lib",
+				);
 				ONLY_ACTIVE_ARCH = NO;
-				OTHER_LDFLAGS = "";
+				OTHER_LDFLAGS = "-ljre_emul";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
+				USER_HEADER_SEARCH_PATHS = "${J2OBJC_HOME}/include ${DERIVED_FILES_DIR} ../JodaCompile/JodaCompile";
 			};
 			name = Release;
 		};

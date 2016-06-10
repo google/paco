@@ -99,6 +99,11 @@
 		4448BCDC1A80901D0034FCE9 /* GTMOAuth2ViewControllerTouch.m in Sources */ = {isa = PBXBuildFile; fileRef = 4448BCDA1A80901D0034FCE9 /* GTMOAuth2ViewControllerTouch.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
 		4448BCDD1A80901D0034FCE9 /* GTMOAuth2ViewTouch.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4448BCDB1A80901D0034FCE9 /* GTMOAuth2ViewTouch.xib */; };
 		44A843E71ADB9C2F009C7226 /* j2objcprefixes.properties in Resources */ = {isa = PBXBuildFile; fileRef = 44A843E61ADB9C2F009C7226 /* j2objcprefixes.properties */; };
+		44BB28FE1D0A608A00680037 /* GoogleSignIn.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 44BB28FD1D0A608A00680037 /* GoogleSignIn.bundle */; };
+		44BB29001D0A619400680037 /* org in Resources */ = {isa = PBXBuildFile; fileRef = 44BB28FF1D0A619400680037 /* org */; };
+		44BB29011D0A63CB00680037 /* GoogleSignIn.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A6B56C671C7F8B0C00E81C3F /* GoogleSignIn.framework */; };
+		44BB29041D0A64C800680037 /* OrgJodaTimeDateTime+PacoDateHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = 44BB29031D0A64C800680037 /* OrgJodaTimeDateTime+PacoDateHelper.m */; };
+		44BB29061D0A673700680037 /* PacoExtendedClient.m in Sources */ = {isa = PBXBuildFile; fileRef = 44BB29051D0A673700680037 /* PacoExtendedClient.m */; };
 		44F9DDF91ADB5EA50098BECB /* libz.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 44F9DDF81ADB5EA50098BECB /* libz.dylib */; };
 		7F8531D41A37BE680028BA23 /* JCNotificationBanner.m in Sources */ = {isa = PBXBuildFile; fileRef = 7F8531BE1A37BE680028BA23 /* JCNotificationBanner.m */; settings = {COMPILER_FLAGS = " "; }; };
 		7F8531D51A37BE680028BA23 /* JCNotificationBannerPresenter.m in Sources */ = {isa = PBXBuildFile; fileRef = 7F8531C11A37BE680028BA23 /* JCNotificationBannerPresenter.m */; settings = {COMPILER_FLAGS = " "; }; };
@@ -675,7 +680,6 @@
 		A66E306B1BA8F0C400A067EA /* libParseKitMobile.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 36000C2817C6AEA900A8A9E7 /* libParseKitMobile.a */; };
 		A670F8831B8ECC2600BF9593 /* PacoIntrospectHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = A670F8821B8ECC2600BF9593 /* PacoIntrospectHelper.m */; settings = {COMPILER_FLAGS = " "; }; };
 		A6750DDD1CD28043000882B1 /* Config.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = A6750DDC1CD28043000882B1 /* Config.xcconfig */; };
-		A67528F91CD6E74E000882B1 /* OrgJodaTimeDateTime+PacoDateHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = A67528F81CD6E74E000882B1 /* OrgJodaTimeDateTime+PacoDateHelper.m */; };
 		A676C73C1B615AAB00F37572 /* libobjc.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = A676C73B1B615AAB00F37572 /* libobjc.dylib */; };
 		A681F4841BB3518600EC8599 /* NSMutableArray+PacoModel.m in Sources */ = {isa = PBXBuildFile; fileRef = A681F4831BB3518600EC8599 /* NSMutableArray+PacoModel.m */; settings = {COMPILER_FLAGS = " "; }; };
 		A681F49C1BB4AD7A00EC8599 /* PacoHasRelevantActionSpecifications.m in Sources */ = {isa = PBXBuildFile; fileRef = A681F49B1BB4AD7A00EC8599 /* PacoHasRelevantActionSpecifications.m */; settings = {COMPILER_FLAGS = " "; }; };
@@ -694,7 +698,6 @@
 		A68EFA831C7BE4E400D7FD50 /* splash_ios_tablet_768x1024.png in Resources */ = {isa = PBXBuildFile; fileRef = A68EFA7C1C7BE4E400D7FD50 /* splash_ios_tablet_768x1024.png */; };
 		A68EFA841C7BE4E400D7FD50 /* splash_ios_tablet_768x1024@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = A68EFA7D1C7BE4E400D7FD50 /* splash_ios_tablet_768x1024@2x.png */; };
 		A6954C931CE2608A0052C9F0 /* OrgJodaTimeDateTime+PacoDateHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = A6954C921CE2608A0052C9F0 /* OrgJodaTimeDateTime+PacoDateHelper.m */; };
-		A695533D1CE2828F0052C9F0 /* org in Resources */ = {isa = PBXBuildFile; fileRef = A695533C1CE2828F0052C9F0 /* org */; };
 		A69580081CB82D5D00B89E7F /* PacoEditorJoinflowViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A69580071CB82D5D00B89E7F /* PacoEditorJoinflowViewController.swift */; };
 		A6ABFAA41B742BE800F90598 /* NSObject+J2objcKVO.m in Sources */ = {isa = PBXBuildFile; fileRef = A6ABFA9F1B742BE800F90598 /* NSObject+J2objcKVO.m */; settings = {COMPILER_FLAGS = " "; }; };
 		A6ABFAA51B742BE800F90598 /* PacoSerializer.m in Sources */ = {isa = PBXBuildFile; fileRef = A6ABFAA11B742BE800F90598 /* PacoSerializer.m */; settings = {COMPILER_FLAGS = " "; }; };
@@ -707,11 +710,9 @@
 		A6AFCCFB1BBB5A3E002BA7FC /* PacoWillStopManageActionSpecifications.m in Sources */ = {isa = PBXBuildFile; fileRef = A6AFCCFA1BBB5A3E002BA7FC /* PacoWillStopManageActionSpecifications.m */; settings = {COMPILER_FLAGS = " "; }; };
 		A6AFCD081BBCA55F002BA7FC /* PAActionSpecification+PacoCoder.m in Sources */ = {isa = PBXBuildFile; fileRef = A6AFCD071BBCA55F002BA7FC /* PAActionSpecification+PacoCoder.m */; };
 		A6AFCD0B1BBCB80E002BA7FC /* PAExperimentDAO+PacoCoder.m in Sources */ = {isa = PBXBuildFile; fileRef = A6AFCD0A1BBCB80E002BA7FC /* PAExperimentDAO+PacoCoder.m */; };
-		A6B56C5B1C7E758A00E81C3F /* GoogleSignIn.bundle in Resources */ = {isa = PBXBuildFile; fileRef = A6B56C5A1C7E758A00E81C3F /* GoogleSignIn.bundle */; };
 		A6B56C5D1C7E75C700E81C3F /* AddressBook.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A6B56C5C1C7E75C700E81C3F /* AddressBook.framework */; };
 		A6B56C611C7E82B600E81C3F /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = A6B56C601C7E82B600E81C3F /* GoogleService-Info.plist */; };
 		A6B56C621C7E82E700E81C3F /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = A6B56C601C7E82B600E81C3F /* GoogleService-Info.plist */; };
-		A6B56C641C7F856600E81C3F /* GoogleSignIn.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A6B56C631C7F856600E81C3F /* GoogleSignIn.framework */; };
 		A6D3EEBD1CF7D86D00086F33 /* PacoConfirmationViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = A6D3EEBB1CF7D86D00086F33 /* PacoConfirmationViewController.m */; };
 		A6D3EEBE1CF7D86D00086F33 /* PacoConfirmationViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = A6D3EEBC1CF7D86D00086F33 /* PacoConfirmationViewController.xib */; };
 		A6DC6E4D1BEC184000D38D68 /* PacoResponseTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A6DC6E4B1BEC184000D38D68 /* PacoResponseTableViewController.swift */; settings = {COMPILER_FLAGS = " "; }; };
@@ -732,7 +733,6 @@
 		A6DC6E811BF19E6300D38D68 /* PacoCheckCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = A6DC6E7F1BF19E6300D38D68 /* PacoCheckCell.xib */; };
 		A6DCA58E1B8507B1007FC06D /* PacoSignalStore.m in Sources */ = {isa = PBXBuildFile; fileRef = A6DCA58D1B8507B1007FC06D /* PacoSignalStore.m */; settings = {COMPILER_FLAGS = " "; }; };
 		A6DCA5981B85468D007FC06D /* PacoEventStore.m in Sources */ = {isa = PBXBuildFile; fileRef = A6DCA5971B85468D007FC06D /* PacoEventStore.m */; settings = {COMPILER_FLAGS = " "; }; };
-		A6F319051C7BD9A60072DAE4 /* PacoExtendedClient.m in Sources */ = {isa = PBXBuildFile; fileRef = A6F319041C7BD9A60072DAE4 /* PacoExtendedClient.m */; };
 		A6F7348F1BD9BA3E00DCE716 /* NSDate+PacoTimeZoneHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = A62A15611BC4A8B800FF20C1 /* NSDate+PacoTimeZoneHelper.m */; settings = {COMPILER_FLAGS = " "; }; };
 		A6F734921BD9BA8A00DCE716 /* OrgJodaTimeDateMidnight+PacoDateHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = A6F734911BD9BA8A00DCE716 /* OrgJodaTimeDateMidnight+PacoDateHelper.m */; settings = {COMPILER_FLAGS = " "; }; };
 		A6F957531BA236F400F96295 /* PacoMediator.m in Sources */ = {isa = PBXBuildFile; fileRef = A6F957521BA236F400F96295 /* PacoMediator.m */; settings = {COMPILER_FLAGS = " "; }; };
@@ -1073,6 +1073,12 @@
 		4448BCDA1A80901D0034FCE9 /* GTMOAuth2ViewControllerTouch.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GTMOAuth2ViewControllerTouch.m; sourceTree = "<group>"; };
 		4448BCDB1A80901D0034FCE9 /* GTMOAuth2ViewTouch.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = GTMOAuth2ViewTouch.xib; sourceTree = "<group>"; };
 		44A843E61ADB9C2F009C7226 /* j2objcprefixes.properties */ = {isa = PBXFileReference; lastKnownFileType = text; name = j2objcprefixes.properties; path = ../../../Shared/j2objcprefixes.properties; sourceTree = "<group>"; };
+		44BB28FC1D0A5F5400680037 /* PacoExtendedClient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoExtendedClient.h; sourceTree = SOURCE_ROOT; };
+		44BB28FD1D0A608A00680037 /* GoogleSignIn.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; name = GoogleSignIn.bundle; path = frameworks/GoogleSignIn.bundle; sourceTree = "<group>"; };
+		44BB28FF1D0A619400680037 /* org */ = {isa = PBXFileReference; lastKnownFileType = folder; path = org; sourceTree = "<group>"; };
+		44BB29021D0A64C800680037 /* OrgJodaTimeDateTime+PacoDateHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "OrgJodaTimeDateTime+PacoDateHelper.h"; sourceTree = "<group>"; };
+		44BB29031D0A64C800680037 /* OrgJodaTimeDateTime+PacoDateHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "OrgJodaTimeDateTime+PacoDateHelper.m"; sourceTree = "<group>"; };
+		44BB29051D0A673700680037 /* PacoExtendedClient.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoExtendedClient.m; sourceTree = SOURCE_ROOT; };
 		44F9DDF81ADB5EA50098BECB /* libz.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libz.dylib; path = usr/lib/libz.dylib; sourceTree = SDKROOT; };
 		7F8531BD1A37BE680028BA23 /* JCNotificationBanner.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = JCNotificationBanner.h; path = jcnotificationbannerpresenter/Library/JCNotificationBanner.h; sourceTree = "<group>"; };
 		7F8531BE1A37BE680028BA23 /* JCNotificationBanner.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = JCNotificationBanner.m; path = jcnotificationbannerpresenter/Library/JCNotificationBanner.m; sourceTree = "<group>"; };
@@ -1533,8 +1539,6 @@
 		A670F8811B8ECC2600BF9593 /* PacoIntrospectHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PacoIntrospectHelper.h; path = Paco/source/core/serializer/PacoIntrospectHelper.h; sourceTree = "<group>"; };
 		A670F8821B8ECC2600BF9593 /* PacoIntrospectHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = PacoIntrospectHelper.m; path = Paco/source/core/serializer/PacoIntrospectHelper.m; sourceTree = "<group>"; };
 		A6750DDC1CD28043000882B1 /* Config.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = Config.xcconfig; sourceTree = "<group>"; };
-		A67528F71CD6E74E000882B1 /* OrgJodaTimeDateTime+PacoDateHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "OrgJodaTimeDateTime+PacoDateHelper.h"; path = "/Users/northropo/Projects/paco/Paco-iOS/PacoUtil/PacoUtil/../../OrgJodaTimeDateTime+PacoDateHelper.h"; sourceTree = "<absolute>"; };
-		A67528F81CD6E74E000882B1 /* OrgJodaTimeDateTime+PacoDateHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "OrgJodaTimeDateTime+PacoDateHelper.m"; path = "/Users/northropo/Projects/paco/Paco-iOS/PacoUtil/PacoUtil/../../OrgJodaTimeDateTime+PacoDateHelper.m"; sourceTree = "<absolute>"; };
 		A67528FA1CD6EC2E000882B1 /* Paco-Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "Paco-Prefix.pch"; path = "Paco/source/Paco-Prefix.pch"; sourceTree = SOURCE_ROOT; };
 		A676C7371B6043DE00F37572 /* Pacoj2Objc2JsonTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Pacoj2Objc2JsonTests.m; sourceTree = "<group>"; };
 		A676C7391B615A3D00F37572 /* libobjc.A.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libobjc.A.dylib; path = usr/lib/libobjc.A.dylib; sourceTree = SDKROOT; };
@@ -1596,7 +1600,6 @@
 		A6AFCD0A1BBCB80E002BA7FC /* PAExperimentDAO+PacoCoder.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "PAExperimentDAO+PacoCoder.m"; sourceTree = "<group>"; };
 		A6B032B71BA8FE7900F08E5F /* Paco Tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Paco Tests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		A6B032BA1BA8FE7A00F08E5F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		A6B56C5A1C7E758A00E81C3F /* GoogleSignIn.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; name = GoogleSignIn.bundle; path = J2ObjcLibrary/JodaCompile/GoogleSignIn.bundle; sourceTree = "<group>"; };
 		A6B56C5C1C7E75C700E81C3F /* AddressBook.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AddressBook.framework; path = System/Library/Frameworks/AddressBook.framework; sourceTree = SDKROOT; };
 		A6B56C5E1C7E75D600E81C3F /* StoreKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = StoreKit.framework; path = System/Library/Frameworks/StoreKit.framework; sourceTree = SDKROOT; };
 		A6B56C601C7E82B600E81C3F /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
@@ -1639,10 +1642,6 @@
 		A6DCA5971B85468D007FC06D /* PacoEventStore.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoEventStore.m; sourceTree = "<group>"; };
 		A6DCA5991B854707007FC06D /* Consts.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Consts.h; sourceTree = "<group>"; };
 		A6DCA59D1B856AAF007FC06D /* PacoEventStoreTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoEventStoreTests.m; sourceTree = "<group>"; };
-		A6F319031C7BD9A60072DAE4 /* PacoExtendedClient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PacoExtendedClient.h; path = "../../../../../../../paco/Paco-iOS/PacoExtendedClient.h"; sourceTree = "<group>"; };
-		A6F319041C7BD9A60072DAE4 /* PacoExtendedClient.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = PacoExtendedClient.m; path = "../../../../../../../paco/Paco-iOS/PacoExtendedClient.m"; sourceTree = "<group>"; };
-		A6F319061C7BDC0E0072DAE4 /* PacoPublicDefinitionLoader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PacoPublicDefinitionLoader.h; path = "../../../../../../../paco/Paco-iOS/Paco/source/core/model/PacoPublicDefinitionLoader.h"; sourceTree = "<group>"; };
-		A6F319071C7BDC0E0072DAE4 /* PacoPublicDefinitionLoader.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = PacoPublicDefinitionLoader.m; path = "../../../../../../../paco/Paco-iOS/Paco/source/core/model/PacoPublicDefinitionLoader.m"; sourceTree = "<group>"; };
 		A6F734901BD9BA8A00DCE716 /* OrgJodaTimeDateMidnight+PacoDateHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "OrgJodaTimeDateMidnight+PacoDateHelper.h"; sourceTree = "<group>"; };
 		A6F734911BD9BA8A00DCE716 /* OrgJodaTimeDateMidnight+PacoDateHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "OrgJodaTimeDateMidnight+PacoDateHelper.m"; sourceTree = "<group>"; };
 		A6F957511BA236F400F96295 /* PacoMediator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoMediator.h; sourceTree = "<group>"; };
@@ -1753,6 +1752,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				44BB29011D0A63CB00680037 /* GoogleSignIn.framework in Frameworks */,
 				A602D2EF1CDEE17300A9AA50 /* StoreKit.framework in Frameworks */,
 				319771C9163F0733000AC06B /* UIKit.framework in Frameworks */,
 				3197721B163F265C000AC06B /* Security.framework in Frameworks */,
@@ -1760,7 +1760,6 @@
 				A6B56C5D1C7E75C700E81C3F /* AddressBook.framework in Frameworks */,
 				A6651BE41BBDD3CF0058E295 /* CoreData.framework in Frameworks */,
 				A676C73C1B615AAB00F37572 /* libobjc.dylib in Frameworks */,
-				A6B56C641C7F856600E81C3F /* GoogleSignIn.framework in Frameworks */,
 				44F9DDF91ADB5EA50098BECB /* libz.dylib in Frameworks */,
 				E4D5DE861837DE9A00E5446A /* MessageUI.framework in Frameworks */,
 				C5C4F5D217B163EF009E9F18 /* QuartzCore.framework in Frameworks */,
@@ -1795,6 +1794,8 @@
 		319771B9163F0733000AC06B = {
 			isa = PBXGroup;
 			children = (
+				44BB28FF1D0A619400680037 /* org */,
+				44BB28FD1D0A608A00680037 /* GoogleSignIn.bundle */,
 				A6DF7C1D1CED23B800EF4B68 /* Container Objects */,
 				A6954E971CE27F8E0052C9F0 /* resources */,
 				A602D2E81CDECEFC00A9AA50 /* libJodaCompile.a */,
@@ -1802,7 +1803,6 @@
 				A6D61B2C1CD82F7100650FC1 /* include */,
 				A6750DDC1CD28043000882B1 /* Config.xcconfig */,
 				A61461121CC05165007554F7 /* UI */,
-				A6B56C5A1C7E758A00E81C3F /* GoogleSignIn.bundle */,
 				A65F68B21C87E954009AAEF4 /* paginator */,
 				A6ABFAC61B7BC79500F90598 /* working */,
 				319771CE163F0733000AC06B /* Paco */,
@@ -1969,10 +1969,8 @@
 		36B8EB0517568DAF004CF035 /* client */ = {
 			isa = PBXGroup;
 			children = (
-				A6F319031C7BD9A60072DAE4 /* PacoExtendedClient.h */,
-				A6F319041C7BD9A60072DAE4 /* PacoExtendedClient.m */,
-				A6F319061C7BDC0E0072DAE4 /* PacoPublicDefinitionLoader.h */,
-				A6F319071C7BDC0E0072DAE4 /* PacoPublicDefinitionLoader.m */,
+				44BB29051D0A673700680037 /* PacoExtendedClient.m */,
+				44BB28FC1D0A5F5400680037 /* PacoExtendedClient.h */,
 			);
 			path = client;
 			sourceTree = "<group>";
@@ -2972,8 +2970,8 @@
 		A665B2631B94C838001E0098 /* categories */ = {
 			isa = PBXGroup;
 			children = (
-				A67528F71CD6E74E000882B1 /* OrgJodaTimeDateTime+PacoDateHelper.h */,
-				A67528F81CD6E74E000882B1 /* OrgJodaTimeDateTime+PacoDateHelper.m */,
+				44BB29021D0A64C800680037 /* OrgJodaTimeDateTime+PacoDateHelper.h */,
+				44BB29031D0A64C800680037 /* OrgJodaTimeDateTime+PacoDateHelper.m */,
 				A614616F1CC16852007554F7 /* UILocalNotification+Paco.h */,
 				A61461701CC1689C007554F7 /* UILocalNotification+Paco.m */,
 				A6954C941CE260EF0052C9F0 /* OrgJodaTimeDateTime+PacoDateHelper.h */,
@@ -3745,8 +3743,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				A6B56C5B1C7E758A00E81C3F /* GoogleSignIn.bundle in Resources */,
-				A695533D1CE2828F0052C9F0 /* org in Resources */,
 				A63A821C1C0677B600ACBC0A /* shop-7.png in Resources */,
 				A63A811C1C0677B600ACBC0A /* clock-7.png in Resources */,
 				A63A811A1C0677B600ACBC0A /* circle-x-7.png in Resources */,
@@ -3758,6 +3754,7 @@
 				A63A81221C0677B600ACBC0A /* clock-timer-7.png in Resources */,
 				A63A81601C0677B600ACBC0A /* file-minus-7.png in Resources */,
 				4448BCDD1A80901D0034FCE9 /* GTMOAuth2ViewTouch.xib in Resources */,
+				44BB28FE1D0A608A00680037 /* GoogleSignIn.bundle in Resources */,
 				A61461241CC051AB007554F7 /* PacoNotificationTester.xib in Resources */,
 				36B8EBD617568E29004CF035 /* calculator.png in Resources */,
 				A63A82041C0677B600ACBC0A /* plus-simple-7.png in Resources */,
@@ -3871,6 +3868,7 @@
 				36F457E31863ABA900931049 /* welcome_paco.html in Resources */,
 				A63A82221C0677B600ACBC0A /* speaker-7.png in Resources */,
 				36B8EBE417568E29004CF035 /* feedback_normal.png in Resources */,
+				44BB29001D0A619400680037 /* org in Resources */,
 				A65F68C01C888BD5009AAEF4 /* PacoTestViewer.xib in Resources */,
 				A63A81261C0677B600ACBC0A /* cloud-upload-7.png in Resources */,
 				A68EFA801C7BE4E400D7FD50 /* splash_ios_mobile_640x960.png in Resources */,
@@ -4307,6 +4305,7 @@
 				7F8531D61A37BE680028BA23 /* JCNotificationBannerPresenterIOS7Style.m in Sources */,
 				A61461541CC16320007554F7 /* PacoSliderView.m in Sources */,
 				365B3C2E1836EF41003D57A7 /* UIImage+Paco.m in Sources */,
+				44BB29041D0A64C800680037 /* OrgJodaTimeDateTime+PacoDateHelper.m in Sources */,
 				4448BCA61A808E7A0034FCE9 /* GTMHTTPFetchHistory.m in Sources */,
 				A636E90C1CA32BBC00FAF055 /* PacoJoinSummary.m in Sources */,
 				A6651BE91BBDD7430058E295 /* PacoModel.xcdatamodeld in Sources */,
@@ -4319,7 +4318,6 @@
 				4448BCA81A808E7A0034FCE9 /* GTMMIMEDocument.m in Sources */,
 				A60350A31BE2E58B008D842A /* PacoConfigController.swift in Sources */,
 				4448BCA91A808E7A0034FCE9 /* GTMReadMonitorInputStream.m in Sources */,
-				A67528F91CD6E74E000882B1 /* OrgJodaTimeDateTime+PacoDateHelper.m in Sources */,
 				4448BCBC1A808E7A0034FCE9 /* GTMOAuth2Authentication.m in Sources */,
 				A649F6C21BF58D5B00124096 /* PacoTableCellProtocol.swift in Sources */,
 				A6AFCCFB1BBB5A3E002BA7FC /* PacoWillStopManageActionSpecifications.m in Sources */,
@@ -4363,11 +4361,11 @@
 				A61461231CC051AB007554F7 /* PacoNotificationTester.m in Sources */,
 				A602D2EE1CDEDD3900A9AA50 /* PacoClient.m in Sources */,
 				A65E5C511C04032A00EE2405 /* PacoInputEvaluator.m in Sources */,
-				A6F319051C7BD9A60072DAE4 /* PacoExtendedClient.m in Sources */,
 				A65890F11C9231CD007FEF4C /* DatePickerCell.swift in Sources */,
 				A61461711CC1689C007554F7 /* UILocalNotification+Paco.m in Sources */,
 				365D20FA1820695E0097F379 /* PacoUtility.m in Sources */,
 				A6F957531BA236F400F96295 /* PacoMediator.m in Sources */,
+				44BB29061D0A673700680037 /* PacoExtendedClient.m in Sources */,
 				A68888161C9B2E120003C8DC /* PacoTimeCellModel.m in Sources */,
 				A61461841CC6CDB4007554F7 /* PacoExperimentInput.m in Sources */,
 				A614614F1CC16320007554F7 /* UIFont+Paco.m in Sources */,
@@ -4570,14 +4568,14 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				HEADER_SEARCH_PATHS = "ParseKit/include/**";
 				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
-				LIBRARY_SEARCH_PATHS = "../Shared/j2objc/lib/**";
+				LIBRARY_SEARCH_PATHS = "../../j2objc/dist/lib/**";
 				ONLY_ACTIVE_ARCH = YES;
-				OTHER_LDFLAGS = "";
+				OTHER_LDFLAGS = "-ljre_emul";
 				PROVISIONING_PROFILE = "6FF1CA60-7E74-4967-9810-F69E1FEC48AB";
 				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "6FF1CA60-7E74-4967-9810-F69E1FEC48AB";
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				USER_HEADER_SEARCH_PATHS = "ParseKit/include/** ../Shared/j2objc/include/** ${DERIVED_FILE_DIR}/**";
+				USER_HEADER_SEARCH_PATHS = "ParseKit/include/** ../../j2objc/dist/j2objc/include/** ${DERIVED_FILE_DIR}/**";
 			};
 			name = Debug;
 		};
@@ -4601,14 +4599,14 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				HEADER_SEARCH_PATHS = "ParseKit/include/**";
 				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
-				LIBRARY_SEARCH_PATHS = "../Shared/j2objc/lib/**";
+				LIBRARY_SEARCH_PATHS = "../../j2objc/dist/lib/**";
 				OTHER_CFLAGS = "-DNS_BLOCK_ASSERTIONS=1";
-				OTHER_LDFLAGS = "";
+				OTHER_LDFLAGS = "-ljre_emul";
 				PROVISIONING_PROFILE = "6FF1CA60-7E74-4967-9810-F69E1FEC48AB";
 				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "6FF1CA60-7E74-4967-9810-F69E1FEC48AB";
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				USER_HEADER_SEARCH_PATHS = "ParseKit/include/** ../Shared/j2objc/include/** ${DERIVED_FILE_DIR}";
+				USER_HEADER_SEARCH_PATHS = "ParseKit/include/** ../../j2objc/dist/j2objc/include/** ${DERIVED_FILE_DIR}";
 				VALIDATE_PRODUCT = YES;
 			};
 			name = Release;
@@ -4627,19 +4625,21 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					./J2ObjcLibrary/JodaCompile,
+					"$(PROJECT_DIR)/frameworks",
 				);
 				GCC_NO_COMMON_BLOCKS = NO;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				HEADER_SEARCH_PATHS = (
 					"ParseKit/include/**",
 					"${DERIVED_FILE_DIR}",
+					"${PROJECT_DIR}/J2ObjcLibrary/JodaCompile/JodaCompile/**",
 					transpiled_java,
 				);
 				INFOPLIST_FILE = "Paco/config/Paco-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 9.2;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = (
-					../../j2objc/dist/lib,
+					"${J2OBJC_HOME}/lib",
 					"${DERIVED_FILE_DIR}",
 					"$(PROJECT_DIR)/DerivedData/Paco/Build/Intermediates/JodaCompile.build/Debug-iphonesimulator/JodaCompile.build/Objects-normal/x86_64",
 					"$(PROJECT_DIR)/DerivedData/Paco/Build/Products/Debug-iphonesimulator",
@@ -4659,7 +4659,7 @@
 				SWIFT_OBJC_BRIDGING_HEADER = "Paco-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				TARGETED_DEVICE_FAMILY = 1;
-				USER_HEADER_SEARCH_PATHS = "../Shared/j2objc/include/**";
+				USER_HEADER_SEARCH_PATHS = "${J2OBJC_HOME}/include/**";
 				VALID_ARCHS = "armv7 armv7s arm64";
 				WRAPPER_EXTENSION = app;
 			};
@@ -4679,6 +4679,7 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					./J2ObjcLibrary/JodaCompile,
+					"$(PROJECT_DIR)/frameworks",
 				);
 				GCC_NO_COMMON_BLOCKS = NO;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
@@ -4707,7 +4708,7 @@
 				PROVISIONING_PROFILE = "5bc68275-45ab-4004-bb18-abf78da5fbdb";
 				SWIFT_OBJC_BRIDGING_HEADER = "Paco-Bridging-Header.h";
 				TARGETED_DEVICE_FAMILY = 1;
-				USER_HEADER_SEARCH_PATHS = "../Shared/j2objc/include/**";
+				USER_HEADER_SEARCH_PATHS = "${J2OBJC_HOME}/include/**";
 				VALID_ARCHS = "armv7 armv7s arm64";
 				WRAPPER_EXTENSION = app;
 			};

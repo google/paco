@@ -483,13 +483,13 @@
 		A67515DE1CD6BF20000882B1 /* TestFile.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TestFile.h; sourceTree = "<group>"; };
 		A67515DF1CD6BF20000882B1 /* TestFile.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TestFile.m; sourceTree = "<group>"; };
 		A6751C5D1CD6C0EC000882B1 /* Config.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Config.xcconfig; sourceTree = "<group>"; };
-		A6751C651CD6C0EC000882B1 /* dgph */ = {isa = PBXFileReference; lastKnownFileType = file; path = dgph; sourceTree = "<group>"; };
+		A6751C651CD6C0EC000882B1 /* dgph */ = {isa = PBXFileReference; lastKnownFileType = text; path = dgph; sourceTree = "<group>"; };
 		A6751C661CD6C0EC000882B1 /* JodaCompile.hmap */ = {isa = PBXFileReference; lastKnownFileType = file; path = JodaCompile.hmap; sourceTree = "<group>"; };
 		A6751C691CD6C0EC000882B1 /* BasePartial.d */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.dtrace; path = BasePartial.d; sourceTree = "<group>"; };
 		A6751C6A1CD6C0EC000882B1 /* BasePartial.dia */ = {isa = PBXFileReference; lastKnownFileType = file; path = BasePartial.dia; sourceTree = "<group>"; };
 		A6751C6B1CD6C0EC000882B1 /* JodaCompile.LinkFileList */ = {isa = PBXFileReference; lastKnownFileType = text; path = JodaCompile.LinkFileList; sourceTree = "<group>"; };
 		A6751C6D1CD6C0EC000882B1 /* JodaCompile.LinkFileList */ = {isa = PBXFileReference; lastKnownFileType = text; path = JodaCompile.LinkFileList; sourceTree = "<group>"; };
-		A6751C701CD6C0EC000882B1 /* dgph */ = {isa = PBXFileReference; lastKnownFileType = file; path = dgph; sourceTree = "<group>"; };
+		A6751C701CD6C0EC000882B1 /* dgph */ = {isa = PBXFileReference; lastKnownFileType = text; path = dgph; sourceTree = "<group>"; };
 		A6751C721CD6C0EC000882B1 /* info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = info.plist; sourceTree = "<group>"; };
 		A6751C751CD6C0EC000882B1 /* 04F74AF0-D6A0-45D1-9B57-D14992D696B1.xcactivitylog */ = {isa = PBXFileReference; lastKnownFileType = file; path = "04F74AF0-D6A0-45D1-9B57-D14992D696B1.xcactivitylog"; sourceTree = "<group>"; };
 		A6751C761CD6C0EC000882B1 /* 1A3A0CCF-E8F1-4C10-88FB-3DC272DB2241.xcactivitylog */ = {isa = PBXFileReference; lastKnownFileType = file; path = "1A3A0CCF-E8F1-4C10-88FB-3DC272DB2241.xcactivitylog"; sourceTree = "<group>"; };
@@ -3927,7 +3927,7 @@
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
-				USER_HEADER_SEARCH_PATHS = "\"${PROJECT_DIR} ./J2ObjcLibrary/JodaCompile/JodaCompile/";
+				USER_HEADER_SEARCH_PATHS = "${J2OBJC_HOME}/include \"${PROJECT_DIR} ./J2ObjcLibrary/JodaCompile/JodaCompile/ ";
 			};
 			name = Debug;
 		};
@@ -3954,7 +3954,7 @@
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
-				USER_HEADER_SEARCH_PATHS = "\"${PROJECT_DIR} ./J2ObjcLibrary/JodaCompile/JodaCompile/";
+				USER_HEADER_SEARCH_PATHS = "${J2OBJC_HOME}/include \"${PROJECT_DIR} ./J2ObjcLibrary/JodaCompile/JodaCompile/ ";
 			};
 			name = Release;
 		};

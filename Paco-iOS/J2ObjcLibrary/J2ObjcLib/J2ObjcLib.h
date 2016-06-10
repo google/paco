@@ -7,7 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "org/joda/time/DateTime.h"
+#import "DateTime.h"
 
 @interface J2ObjcLib : NSObject
 

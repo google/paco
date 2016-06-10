@@ -7,8 +7,8 @@
 //
 
 #import "J2ObjcLib.h"
-#include "org/joda/time/base/BaseDateTime.h"
-#import "org/joda/time/DateTime.h"
+#include "BaseDateTime.h"
+#import "DateTime.h"
 
 @implementation J2ObjcLib
 
