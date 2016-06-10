@@ -451,6 +451,9 @@ public class ExperimentProviderUtil implements EventStore {
     if (rootNode.has("logActions")) {
       defaultExperimentGroup.setLogActions(rootNode.path("logActions").getBooleanValue());
     }
+    if (rootNode.has("logShutdown")) {
+      defaultExperimentGroup.setLogShutdown(rootNode.path("logShutdown").getBooleanValue());
+    }
 
     if (rootNode.has("backgroundListen")) {
       defaultExperimentGroup.setBackgroundListen(rootNode.path("backgroundListen").getBooleanValue());

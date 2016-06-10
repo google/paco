@@ -99,6 +99,9 @@ public class BroadcastTriggerReceiver extends BroadcastReceiver {
 //            }
 
           }
+          if (isPhoneShutdown(context, intent)) {
+            createShutdownLogEvents(context);
+          }
 
         } finally {
           wl.release();
@@ -108,7 +111,51 @@ public class BroadcastTriggerReceiver extends BroadcastReceiver {
     (new Thread(runnable)).start();
   }
 
-	private void triggerPackageRemovedEvent(Context context, Intent intent) {
+	protected void createShutdownLogEvents(Context context) {
+    ExperimentProviderUtil experimentProviderUtil = new ExperimentProviderUtil(context);
+    List<Experiment> experimentsNeedingEvent = getExperimentsLoggingShutdownEvent(experimentProviderUtil);
+
+    for (Experiment experiment : experimentsNeedingEvent) {
+      Event event = createPhoneShutdownPacoEvent(experiment);
+      experimentProviderUtil.insertEvent(event);
+    }
+
+  }
+
+  private List<Experiment> getExperimentsLoggingShutdownEvent(ExperimentProviderUtil experimentProviderUtil) {
+    List<Experiment> joined = experimentProviderUtil.getJoinedExperiments();
+    List<Experiment> experimentsNeedingEvent = Lists.newArrayList();
+    DateTime now = DateTime.now();
+    for (Experiment experiment2 : joined) {
+      if (!ActionScheduleGenerator.isOver(now, experiment2.getExperimentDAO())
+          && ExperimentHelper.isLogShutdown(experiment2.getExperimentDAO())) {
+        experimentsNeedingEvent.add(experiment2);
+      }
+    }
+    return experimentsNeedingEvent;
+  }
+
+  protected Event createPhoneShutdownPacoEvent(Experiment experiment) {
+    Event event = new Event();
+    event.setExperimentId(experiment.getId());
+    event.setServerExperimentId(experiment.getServerId());
+    event.setExperimentName(experiment.getExperimentDAO().getTitle());
+    event.setExperimentVersion(experiment.getExperimentDAO().getVersion());
+    event.setResponseTime(new DateTime());
+
+    Output responseForInput = new Output();
+
+    responseForInput.setAnswer(new DateTime().toString());
+    responseForInput.setName("phoneShutdown");
+    event.addResponse(responseForInput);
+    return event;
+  }
+
+  private boolean isPhoneShutdown(Context context, Intent intent) {
+	  return intent.getAction().equals(Intent.ACTION_SHUTDOWN);
+  }
+
+  private void triggerPackageRemovedEvent(Context context, Intent intent) {
     Log.i(PacoConstants.TAG, "App removed trigger");
 
     Uri data = intent.getData();
