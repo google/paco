@@ -295,7 +295,8 @@
                 <action android:name="com.pacoapp.paco.action.PACO_TRIGGER" />
                 <action android:name="com.pacoapp.paco.action.PACO_EXPERIMENT_JOINED_ACTION" />
                 <action android:name="com.pacoapp.paco.action.PACO_EXPERIMENT_ENDED_ACTION" />
-                <action android:name="com.pacoapp.paco.action.PACO_EXPERIMENT_RESPONSE_RECEIVED_ACTION" />                
+                <action android:name="com.pacoapp.paco.action.PACO_EXPERIMENT_RESPONSE_RECEIVED_ACTION" />     
+                <action android:name="android.intent.action.ACTION_SHUTDOWN" />
             </intent-filter>            
             <intent-filter>
                 <action android:name="android.intent.action.PACKAGE_REMOVED" />
