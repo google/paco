@@ -276,32 +276,21 @@ static NSString* const kAllEventsFileName = @"allEvents.plist";
 
 #pragma mark Public API
 - (void)saveEvent:(PacoEventExtended*)event {
-    NSAssert(event != nil, @"nil event cannot be saved!");
-    
-    
-  
-    
-    
-    [self.persistenceHelper insertEventWithPAEventInterface:event];
-    
-    
+  NSAssert(event != nil, @"nil event cannot be saved!");
+  [self.persistenceHelper insertEventWithPAEventInterface:event];
+  //add this event to pendingEvent list too
+  [self.pendingEvents addObject:event];
 }
 
-- (void)saveEvents:(NSArray*)events {
-    @synchronized(self) {
-        NSAssert([events count] > 0, @"events should have more than one element");
- 
-        for (PacoEventExtended* event in events) {
-            
-            [self.persistenceHelper updateEventWithPAEventInterface:event];
-            
-            
-  
-            
-        }
-        [self saveDataToFile];
-    }
-}
+//- (void)saveEvents:(NSArray*)events {
+//  @synchronized(self) {
+//    NSAssert([events count] > 0, @"events should have more than one element");
+//    for (PacoEventExtended* event in events) {
+//      [self.persistenceHelper updateEventWithPAEventInterface:event];
+//    }
+//    [self saveDataToFile];
+//  }
+//}
 
 - (void)saveAndUploadEvent:(PacoEventExtended*)event {
     

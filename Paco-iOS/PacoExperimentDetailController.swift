@@ -79,7 +79,7 @@ class PacoExperimentDetailController: UIViewController {
         
         if  experiment!.valueForKeyEx("creator")  != nil
         {
-             organization.text   = (experiment!.valueForKeyEx("creator")  as? String)!
+             creator.text   = (experiment!.valueForKeyEx("creator")  as? String)!
         }
         
         if  experiment!.valueForKeyEx("organization")  != nil
