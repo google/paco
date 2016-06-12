@@ -36,7 +36,7 @@ pacoApp.service('experimentService', ['$http', '$cacheFactory', 'util', 'config'
       invalidateCachedList('admin', true);
       invalidateCachedList('joined');
       invalidateCachedList('mine', true);
-      invalidateCachedList('public', true);
+      invalidateCachedList('hub', true);
     }
 
     function invalidateCachedList(listType, limit) {
@@ -576,6 +576,13 @@ pacoApp.service('template', function() {
     fixedTimeMillisFromMidnight: 12 * 60 * 60 * 1000,
     type: 0
   };
+
+  this.hubQuery = {
+      keywords: [],
+      admins: [],
+      creator: '',
+      contactEmail: ''
+    };
 });
 
 

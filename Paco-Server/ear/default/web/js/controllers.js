@@ -308,7 +308,7 @@ pacoApp.controller('ListCtrl', ['$scope', '$mdDialog', '$location',
   function($scope, $mdDialog, $location, experimentService, config) {
 
     $scope.cursor = {};
-    $scope.list = {'admin':[], 'joined':[], 'mine':[], 'public':[]};
+    $scope.list = {'admin':[], 'joined':[], 'mine':[], 'hub':[]};
     $scope.loading = {};
     $scope.state = {};
 
@@ -338,7 +338,7 @@ pacoApp.controller('ListCtrl', ['$scope', '$mdDialog', '$location',
       $scope.loadAdminList(reset);
       $scope.loadJoinedList(reset);
       $scope.loadJoinableList(reset);
-      $scope.loadPublicList(reset);
+      $scope.loadHubList(reset);
     };
 
     $scope.loadList = function(listName, reset) {
@@ -387,8 +387,8 @@ pacoApp.controller('ListCtrl', ['$scope', '$mdDialog', '$location',
       $scope.loadList('mine', reset);
     };
 
-    $scope.loadPublicList = function(reset) {
-      $scope.loadList('public', reset);
+    $scope.loadHubList = function(reset) {
+      $scope.loadList('hub', reset);
     };
 
     $scope.deleteExperiment = function(ev, exp) {
@@ -435,6 +435,18 @@ pacoApp.controller('ListCtrl', ['$scope', '$mdDialog', '$location',
 
       $event.stopPropagation();
     };
+
+    $scope.clearHubFilter = function($event) {
+      $scope.loadHubList(true);
+      $event.stopPropagation();
+    };
+
+    $scope.applyHubFilter = function($event) {
+      //TODO Query Server with parameters
+      $scope.list['hub'] = {};
+      $event.stopPropagation();
+    };
+
   }
 ]);
 
