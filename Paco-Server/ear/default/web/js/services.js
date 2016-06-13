@@ -375,6 +375,13 @@ pacoApp.service('config', function() {
     'invited'
   ];
 
+  this.hubTabs = [
+      'popular',
+      'featured',
+      'discover',
+      'browse'
+  ];
+
   this.dataDeclarations = {
     1: 'App Usage and Browser History',
     2: 'Location Information',
