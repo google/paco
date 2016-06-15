@@ -6,11 +6,20 @@ import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.sampling.experiential.model.Event;
+import com.google.sampling.experiential.server.stats.participation.ParticipationStatsService;
+import com.google.sampling.experiential.server.stats.participation.ResponseStat;
+import com.google.sampling.experiential.server.stats.usage.UsageStat;
+import com.google.sampling.experiential.server.stats.usage.UsageStatsEntityManager;
+import com.google.sampling.experiential.server.stats.usage.UsageStatsReport;
 import com.pacoapp.paco.shared.model2.JsonConverter;
 import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.joda.time.DateTimeZone;
+
+//TODO
+//Temporary
+import java.util.ArrayList;
 
 import com.pacoapp.paco.shared.model2.ExperimentDAO;
 import com.pacoapp.paco.shared.model2.ExperimentQueryResult;
@@ -24,74 +33,36 @@ public class ExperimentServletExperimentsPopularLoadHandler extends ExperimentSe
 
     protected List<ExperimentDAO> getAllExperimentsAvailableToUser() {
         ExperimentQueryResult result = ExperimentServiceFactory.getExperimentService().getExperimentsPublishedPublicly(timezone, limit, cursor, email);
-        //MARIOS TODO RETURN POPULAR ONLY
+        //TODO
+        //MARIOS FIX NAIVE APPROACH!
+        ParticipationStatsService ps =  new ParticipationStatsService();
+        List<ExperimentDAO> experiments = result.getExperiments();
+        ArrayList<Integer> participantsCount = new ArrayList<Integer>();
+
+        //No "pair" collection as in C++, so "manually" sort for now
+
+        for(ExperimentDAO e : experiments){
+            List<ResponseStat> totalParticipationStats = ps.getTotalByParticipant(e.getId());
+            participantsCount.add(totalParticipationStats.size());
+        }
+        //using bubble sort due to simple code/fewer lines --- NEEDS FIXING, URGENTLY
+        for(int i = 0; i < participantsCount.size() - 1 ; i++){
+            for(int j = i+1; j < participantsCount.size(); j++){
+                if(participantsCount.get(i) < participantsCount.get(j)){
+                    ExperimentDAO tmpExp = experiments.get(i);
+                    experiments.set(i, experiments.get(j));
+                    experiments.set(j, tmpExp);
+
+                    Integer tmp = participantsCount.get(i);
+                    participantsCount.set(i, participantsCount.get(j));
+                    participantsCount.set(j, tmp);
+                }
+            }
+        }
+
         cursor = result.getCursor();
-        return result.getExperiments();
+
+        //return result.getExperiments();
+        return experiments;
     }
-/*
-    private void computeStatsFromEventsTable(HttpServletRequest req, HttpServletResponse resp, User user,
-                                             Long experimentId, String whoParam, DateTimeZone timeZoneForClient)
-            throws IOException,
-            JsonGenerationException,
-            JsonMappingException {
-        String fullQuery = "experimentId=" + experimentId;
-        if (!Strings.isNullOrEmpty(whoParam)) {
-            fullQuery += ":who=" + whoParam;
-        }
-        List<Query> queryFilters = new QueryParser().parse(fullQuery);
-        String cursor = req.getParameter("cursor");
-        String limitStr = req.getParameter("limit");
-        int limit = 0;
-        if (!Strings.isNullOrEmpty(limitStr)) {
-            try {
-                limit = Integer.parseInt(limitStr);
-            } catch (NumberFormatException e) {
-                e.printStackTrace();
-            }
-        }
-
-        EventQueryResultPair eventQueryResultPair = EventRetriever.getInstance()
-                .getEventsInBatchesOneBatch(queryFilters,
-                        AuthUtil.getEmailOfUser(req,
-                                user),
-                        timeZoneForClient, limit,
-                        cursor);
-
-        Map<String, ParticipantReport> participantReports = Maps.newConcurrentMap();
-        for (Event event : eventQueryResultPair.getEvents()) {
-            ParticipantReport participantReport = participantReports.get(event.getWho());
-            if (participantReport == null) {
-                participantReport = new ParticipantReport(event.getWho(), timeZoneForClient);
-                participantReports.put(event.getWho(), participantReport);
-            }
-            participantReport.addEvent(event);
-        }
-
-        List<ParticipationStats.ParticipantParticipationStat> participantStats = Lists.newArrayList();
-
-        List<ParticipantReport> participantReportValues = Lists.newArrayList(participantReports.values());
-        for (ParticipantReport report : participantReportValues) {
-            report.computeStats();
-            participantStats.add(new ParticipationStats.ParticipantParticipationStat(
-                    report.getWho(),
-                    report.getTodaysScheduledCount(),
-                    report.getTodaysSignaledResponseCount(),
-                    report.getTodaysSelfReportResponseCount(),
-                    report.getScheduledCount(),
-                    report.getSignaledResponseCount(),
-                    report.getSelfReportResponseCount()));
-        }
-
-        Collections.sort(participantStats);
-        String nextCursor = eventQueryResultPair.getCursor();
-        if (nextCursor == null || nextCursor.equals(cursor)) {
-            nextCursor = null;
-        }
-        ParticipationStats participationStats = new ParticipationStats(participantStats, nextCursor);
-
-        PrintWriter writer = resp.getWriter();
-        ObjectMapper mapper = JsonConverter.getObjectMapper();
-        writer.write(mapper.writeValueAsString(participationStats));
-    }
-*/
 }

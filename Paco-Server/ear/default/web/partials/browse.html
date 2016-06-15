@@ -1,4 +1,4 @@
-<div ng-controller="ListCtrl" class="popular">
+<div ng-controller="ListCtrl">
     <p>Here are all the public experiments on Paco</p>
     <div ng-repeat="exp in list.hub">
         <md-card>
@@ -14,4 +14,13 @@
             </md-card-content>
         </md-card>
     </div>
+    <div ng-if="loading.hub" class="status">
+        <span>Loading public experiments</span>
+        <md-progress-linear md-mode="indeterminate"></md-progress-linear>
+    </div>
+
+    <md-button ng-if="cursor.hub" class="show-more"
+               ng-click="loadHubList()">
+        Show More
+    </md-button>
 </div>

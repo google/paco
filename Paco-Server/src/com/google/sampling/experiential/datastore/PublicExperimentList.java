@@ -32,6 +32,8 @@ public class PublicExperimentList {
   public static final Logger log = Logger.getLogger(PublicExperimentList.class.getName());
 
   private static final String END_DATE_PROPERTY = "end_date";
+  //TODO MARIOS
+  //private static final String MODIFY_DATE_PROPERTY = "modifyDate";
 
   // if we are still running in the year 5000, I will be happy for this to break.
   // Appengine datastore queries are a bummer.
@@ -150,6 +152,39 @@ public class PublicExperimentList {
                                                      FilterOperator.GREATER_THAN,
                                                      nowInUserTimezone.toDate());
     query.setFilter(endDateFilter);
+    FetchOptions options = FetchOptions.Builder.withDefaults();
+    if (limit != null) {
+      options.limit(limit);
+    }
+    if (!Strings.isNullOrEmpty(cursor) && !"null".equals(cursor)) {
+      options.startCursor(Cursor.fromWebSafeString(cursor));
+    }
+    QueryResultList<Entity> result = ds.prepare(query).asQueryResultList(options);
+    List<Long> experimentIds = Lists.newArrayList();
+    for (Entity entity : result) {
+      Date endDateProperty = (Date)entity.getProperty(END_DATE_PROPERTY);
+      if (!expired(endDateProperty, nowInUserTimezone)) {
+        experimentIds.add(entity.getKey().getId());
+      }
+    }
+    return new CursorExerimentIdListPair(result.getCursor().toWebSafeString(), experimentIds);
+  }
+
+  public static CursorExerimentIdListPair getPublicExperimentsSortDesc(String timezone, Integer limit, String cursor) {
+    DatastoreService ds = DatastoreServiceFactory.getDatastoreService();
+    Query query = new Query(PUBLIC_EXPERIMENT_KIND);
+
+    DateTime nowInUserTimezone = TimeUtil.getNowInUserTimezone(DateTimeZone.forID(timezone));
+    String dateString = toDateString(nowInUserTimezone);
+    Filter endDateFilter = new Query.FilterPredicate(END_DATE_PROPERTY,
+            FilterOperator.GREATER_THAN,
+            nowInUserTimezone.toDate());
+    query.setFilter(endDateFilter);
+
+    query.addSort(END_DATE_PROPERTY, Query.SortDirection.ASCENDING);
+    //TODO MARIOS
+    //query.addSort(MODIFY_DATE_PROPERTY, Query.SortDirection.DESCENDING);
+
     FetchOptions options = FetchOptions.Builder.withDefaults();
     if (limit != null) {
       options.limit(limit);

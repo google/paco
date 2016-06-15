@@ -377,7 +377,7 @@ pacoApp.service('config', function() {
 
   this.hubTabs = [
       'popular',
-      'featured',
+      'new',
       'discover',
       'browse'
   ];

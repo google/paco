@@ -446,6 +446,13 @@ class DefaultExperimentService implements ExperimentService {
     return new ExperimentQueryResult(cursorIdPair.cursor, experiments);
   }
 
+  public ExperimentQueryResult getExperimentsPublishedPubliclySortDesc(DateTimeZone timezone, Integer limit, String cursor, String email) {
+    CursorExerimentIdListPair cursorIdPair = PublicExperimentList.getPublicExperimentsSortDesc(timezone.getID(), limit, cursor);
+    List<ExperimentDAO> experiments = getExperimentsByIdInternal(cursorIdPair.ids, null, timezone);
+    removeNonAdminData(email, experiments);
+    return new ExperimentQueryResult(cursorIdPair.cursor, experiments);
+  }
+
   public void removeNonAdminData(String email, List<ExperimentDAO> experiments) {
     removeOtherPublished(experiments, email);
     removeAdmins(experiments, email);

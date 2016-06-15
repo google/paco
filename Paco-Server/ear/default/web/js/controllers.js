@@ -339,6 +339,7 @@ pacoApp.controller('ListCtrl', ['$scope', '$mdDialog', '$location',
       $scope.loadJoinedList(reset);
       $scope.loadJoinableList(reset);
       $scope.loadPopularList(reset);
+      $scope.loadNewList(reset);
       $scope.loadHubList(reset);
     };
 
@@ -394,6 +395,10 @@ pacoApp.controller('ListCtrl', ['$scope', '$mdDialog', '$location',
 
     $scope.loadPopularList = function(reset) {
       $scope.loadList('popular', reset);
+    };
+
+    $scope.loadNewList = function(reset){
+      $scope.loadList('new', reset);
     };
 
     $scope.deleteExperiment = function(ev, exp) {
