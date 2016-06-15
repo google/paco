@@ -241,16 +241,28 @@ public class ScheduleDetailFragment extends Fragment implements ExperimentLoadin
                                 new DialogInterface.OnClickListener() {
 
                                   public void onClick(DialogInterface dialog, int which) {
-                                    schedule.setEsmEndHour(getHourOffsetFromPicker());
+                                    Long endHourOffsetFromPicker = getHourOffsetFromPicker();
+                                    if (timePicker.getCurrentHour() == 0 && timePicker.getCurrentMinute() == 0) {
+                                      setToElevenFiftyNine();
+                                      endHourOffsetFromPicker = getHourOffsetFromPicker();
+                                    }
+                                    schedule.setEsmEndHour(endHourOffsetFromPicker);
                                     endHourField.setText(getTextFromPicker(schedule.getEsmEndHour()
                                                                                      .intValue()));
                                   }
+
+
 
                                 });
         endHourDialog.show();
       }
     });
 
+  }
+
+  private void setToElevenFiftyNine() {
+    timePicker.setCurrentHour(23);
+    timePicker.setCurrentMinute(59);
   }
 
   private Long getHourOffsetFromPicker() {
