@@ -25,6 +25,7 @@ public class SettingsActivity extends ActionBarActivity {
   private UserPreferences userPrefs;
   private TextView accountTextView;
   private TextView serverAddressTextView;
+  protected AlertDialog emailChangeAlertDialog;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -82,8 +83,8 @@ public class SettingsActivity extends ActionBarActivity {
                 }
             });
 
-        AlertDialog alertDialog = alertDialogBuilder.create();
-        alertDialog.show();
+        emailChangeAlertDialog = alertDialogBuilder.create();
+        emailChangeAlertDialog.show();
 
       }
     });
@@ -205,6 +206,10 @@ public class SettingsActivity extends ActionBarActivity {
     super.onPause();
     if (!serverAddressTextView.getText().equals(userPrefs.getServerAddress())) {
       userPrefs.setServerAddress(serverAddressTextView.getText().toString());
+    }
+    if (emailChangeAlertDialog != null) {
+      emailChangeAlertDialog.dismiss();
+      emailChangeAlertDialog = null;
     }
   }
 
