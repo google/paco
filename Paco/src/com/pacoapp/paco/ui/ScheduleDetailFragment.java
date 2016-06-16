@@ -217,7 +217,12 @@ public class ScheduleDetailFragment extends Fragment implements ExperimentLoadin
                          new DialogInterface.OnClickListener() {
 
                            public void onClick(DialogInterface dialog, int which) {
-                             schedule.setEsmStartHour(getHourOffsetFromPicker());
+                             final Long hourOffsetFromPicker = getHourOffsetFromPicker();
+                             if (hourOffsetFromPicker >= schedule.getEsmEndHour()) {
+                               alertUserToInvertedTimes();
+                               return;
+                             }
+                            schedule.setEsmStartHour(hourOffsetFromPicker);
                              startHourField.setText(getTextFromPicker(schedule.getEsmStartHour()
                                                                                 .intValue()));
                            }
