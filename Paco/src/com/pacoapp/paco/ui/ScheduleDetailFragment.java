@@ -222,6 +222,10 @@ public class ScheduleDetailFragment extends Fragment implements ExperimentLoadin
                                alertUserToInvertedTimes();
                                return;
                              }
+                             if (windowIsTooShortForSignals(hourOffsetFromPicker, schedule.getEsmEndHour())) {
+                               alertUserToTooShortScheduleWindow();
+                               return;
+                             }
                             schedule.setEsmStartHour(hourOffsetFromPicker);
                              startHourField.setText(getTextFromPicker(schedule.getEsmStartHour()
                                                                                 .intValue()));
@@ -259,6 +263,10 @@ public class ScheduleDetailFragment extends Fragment implements ExperimentLoadin
                                       alertUserToInvertedTimes();
                                       return;
                                     }
+                                    if (windowIsTooShortForSignals(schedule.getEsmStartHour(), endHourOffsetFromPicker)) {
+                                      alertUserToTooShortScheduleWindow();
+                                      return;
+                                    }
                                     schedule.setEsmEndHour(endHourOffsetFromPicker);
                                     endHourField.setText(getTextFromPicker(schedule.getEsmEndHour()
                                                                                      .intValue()));
@@ -271,6 +279,32 @@ public class ScheduleDetailFragment extends Fragment implements ExperimentLoadin
         endHourDialog.show();
       }
     });
+
+  }
+
+  private boolean windowIsTooShortForSignals(Long esmStartHour, Long esmEndHour) {
+    if (schedule.getEsmPeriodInDays().equals(Schedule.ESM_PERIOD_DAY)) {
+      long duration = esmEndHour - esmStartHour ;
+      long minimunTime = schedule.getMinimumBuffer() * 60 * 1000 * schedule.getEsmFrequency();
+      return duration < minimunTime;
+    }
+    return false;
+  }
+
+  private void alertUserToTooShortScheduleWindow() {
+    AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
+    alertDialogBuilder.setMessage(R.string.start_and_end_time_too_short);
+    alertDialogBuilder.setCancelable(true);
+
+    alertDialogBuilder.setPositiveButton(
+        R.string.ok,
+        new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+              dialog.cancel();
+            }
+        });
+    endTimeBeforeStartDialog = alertDialogBuilder.create();
+    endTimeBeforeStartDialog.show();
 
   }
 
