@@ -99,6 +99,8 @@ public class ScheduleDetailFragment extends Fragment implements ExperimentLoadin
     }
   };
 
+  private AlertDialog endTimeBeforeStartDialog;
+
   public static final String SCHEDULE_TRIGGER_ID = "schedule_trigger";
 
   public static final String SCHEDULE_ID = "schedule_id";
@@ -125,6 +127,10 @@ public class ScheduleDetailFragment extends Fragment implements ExperimentLoadin
   public void onDetach() {
     super.onDetach();
     callbacks = sDummyCallbacks;
+    if (endTimeBeforeStartDialog != null) {
+      endTimeBeforeStartDialog.dismiss();
+      endTimeBeforeStartDialog = null;
+    }
   }
 
   @Override
@@ -148,11 +154,10 @@ public class ScheduleDetailFragment extends Fragment implements ExperimentLoadin
     timePicker = (TimePicker) timesScheduleLayout.findViewById(R.id.DailyScheduleTimePicker);
     timePicker.setIs24HourView(false);
 
-    createSelections();
-
     if (schedule.getScheduleType().equals(Schedule.WEEKDAY) || schedule.getScheduleType().equals(Schedule.DAILY)) {
       showDailyScheduleConfiguration(container);
     } else if (schedule.getScheduleType().equals(Schedule.WEEKLY)) {
+      createSelections();
       showWeeklyScheduleConfiguration(container);
     } else if (schedule.getScheduleType().equals(Schedule.MONTHLY)) {
       showMonthlyScheduleConfiguration(container);
@@ -245,6 +250,9 @@ public class ScheduleDetailFragment extends Fragment implements ExperimentLoadin
                                     if (timePicker.getCurrentHour() == 0 && timePicker.getCurrentMinute() == 0) {
                                       setToElevenFiftyNine();
                                       endHourOffsetFromPicker = getHourOffsetFromPicker();
+                                    } else if (endHourOffsetFromPicker <= schedule.getEsmStartHour()) {
+                                      alertUserToInvertedTimes();
+                                      return;
                                     }
                                     schedule.setEsmEndHour(endHourOffsetFromPicker);
                                     endHourField.setText(getTextFromPicker(schedule.getEsmEndHour()
@@ -253,10 +261,28 @@ public class ScheduleDetailFragment extends Fragment implements ExperimentLoadin
 
 
 
+
                                 });
         endHourDialog.show();
       }
     });
+
+  }
+
+  private void alertUserToInvertedTimes() {
+    AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
+    alertDialogBuilder.setMessage(R.string.end_time_must_be_after_start_time_warning_label);
+    alertDialogBuilder.setCancelable(true);
+
+    alertDialogBuilder.setPositiveButton(
+        R.string.ok,
+        new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+              dialog.cancel();
+            }
+        });
+    endTimeBeforeStartDialog = alertDialogBuilder.create();
+    endTimeBeforeStartDialog.show();
 
   }
 

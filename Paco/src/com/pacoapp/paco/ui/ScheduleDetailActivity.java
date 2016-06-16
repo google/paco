@@ -1,7 +1,5 @@
 package com.pacoapp.paco.ui;
 
-import java.util.List;
-
 import org.joda.time.DateTime;
 
 import android.content.Context;
@@ -23,7 +21,6 @@ import com.pacoapp.paco.model.ExperimentProviderUtil;
 import com.pacoapp.paco.model.Output;
 import com.pacoapp.paco.net.SyncService;
 import com.pacoapp.paco.sensors.android.BroadcastTriggerReceiver;
-import com.pacoapp.paco.shared.model2.ActionTrigger;
 import com.pacoapp.paco.shared.model2.ExperimentGroup;
 import com.pacoapp.paco.shared.model2.Schedule;
 import com.pacoapp.paco.shared.model2.ScheduleTrigger;
@@ -53,8 +50,13 @@ public class ScheduleDetailActivity extends ActionBarActivity implements Schedul
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
+
+    experimentProviderUtil = new ExperimentProviderUtil(this);
+    IntentExtraHelper.loadExperimentInfoFromIntent(this, getIntent(), experimentProviderUtil);
+    loadScheduleFromIntent();
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_schedule_detail);
+
 
     // Show the Up button in the action bar.
     getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -63,6 +65,7 @@ public class ScheduleDetailActivity extends ActionBarActivity implements Schedul
     actionBar.setDisplayUseLogoEnabled(true);
     actionBar.setDisplayShowHomeEnabled(true);
     actionBar.setBackgroundDrawable(new ColorDrawable(0xff4A53B3));
+
 
     // savedInstanceState is non-null when there is fragment state
     // saved from previous configurations of this activity
@@ -73,14 +76,13 @@ public class ScheduleDetailActivity extends ActionBarActivity implements Schedul
     //
     // http://developer.android.com/guide/components/fragments.html
     //
+
     if (savedInstanceState == null) {
       ScheduleDetailFragment fragment = new ScheduleDetailFragment();
       fragment.setArguments(getIntent().getExtras());
       getSupportFragmentManager().beginTransaction().add(R.id.schedule_detail_container, fragment).commit();
     }
-    experimentProviderUtil = new ExperimentProviderUtil(this);
-    IntentExtraHelper.loadExperimentInfoFromIntent(this, getIntent(), experimentProviderUtil);
-    loadScheduleFromIntent();
+
   }
 
   @Override
