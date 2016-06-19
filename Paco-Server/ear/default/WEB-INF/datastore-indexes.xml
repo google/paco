@@ -122,7 +122,13 @@
         <property name="appId" direction="asc"/>
         <property name="experimentId" direction="asc"/>
         <property name="when" direction="desc"/>
-    </datastore-index>    
+    </datastore-index>
+  <datastore-index kind="public_experiment" ancestor="false" source="manual">
+        <property name="stats_participants" direction="desc" />
+  </datastore-index>
+  <datastore-index kind="public_experiment" ancestor="false" source="manual">
+    <property name="modify_date" direction="desc" />
+  </datastore-index>
 </datastore-indexes>
 
 

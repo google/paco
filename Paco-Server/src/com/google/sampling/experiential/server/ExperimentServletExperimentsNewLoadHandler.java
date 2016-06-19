@@ -32,7 +32,8 @@ public class ExperimentServletExperimentsNewLoadHandler extends ExperimentServle
     }
 
     protected List<ExperimentDAO> getAllExperimentsAvailableToUser() {
-        ExperimentQueryResult result = ((DefaultExperimentService)ExperimentServiceFactory.getExperimentService()).getExperimentsPublishedPubliclySortDesc(timezone, limit, cursor, email);
+        //TODO
+        ExperimentQueryResult result = ((DefaultExperimentService)ExperimentServiceFactory.getExperimentService()).getExperimentsPublishedPubliclyNew(timezone, limit, cursor, email);
 
         cursor = result.getCursor();
 

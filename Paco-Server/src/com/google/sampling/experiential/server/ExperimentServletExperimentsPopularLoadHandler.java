@@ -32,14 +32,17 @@ public class ExperimentServletExperimentsPopularLoadHandler extends ExperimentSe
     }
 
     protected List<ExperimentDAO> getAllExperimentsAvailableToUser() {
-        ExperimentQueryResult result = ExperimentServiceFactory.getExperimentService().getExperimentsPublishedPublicly(timezone, limit, cursor, email);
-        //TODO
-        //MARIOS FIX NAIVE APPROACH!
+        ExperimentQueryResult result =((DefaultExperimentService)ExperimentServiceFactory.getExperimentService()).getExperimentsPublishedPubliclyPopular(timezone, limit, cursor, email);
+        cursor = result.getCursor();
+        return result.getExperiments();
+        /*//TODO GET RID OF
+        //NAIVE APPROACH (non-scaleable)
         ParticipationStatsService ps =  new ParticipationStatsService();
         List<ExperimentDAO> experiments = result.getExperiments();
         ArrayList<Integer> participantsCount = new ArrayList<Integer>();
 
         //No "pair" collection as in C++, so "manually" sort for now
+        //UPDATE: There is indeed a pair structure in Paco :)
 
         for(ExperimentDAO e : experiments){
             List<ResponseStat> totalParticipationStats = ps.getTotalByParticipant(e.getId());
@@ -63,6 +66,6 @@ public class ExperimentServletExperimentsPopularLoadHandler extends ExperimentSe
         cursor = result.getCursor();
 
         //return result.getExperiments();
-        return experiments;
+        return experiments;*/
     }
 }

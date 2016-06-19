@@ -31,6 +31,8 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.joda.time.DateTimeZone;
 
+import com.google.appengine.api.ThreadManager;
+
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 

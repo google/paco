@@ -308,7 +308,7 @@ pacoApp.controller('ListCtrl', ['$scope', '$mdDialog', '$location',
   function($scope, $mdDialog, $location, experimentService, config) {
 
     $scope.cursor = {};
-    $scope.list = {'admin':[], 'joined':[], 'mine':[], 'popular':[], 'hub':[]};
+    $scope.list = {'admin':[], 'joined':[], 'mine':[], 'popular':[], 'hub':[], 'new':[]};
     $scope.loading = {};
     $scope.state = {};
 
