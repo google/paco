@@ -12,9 +12,11 @@
 #import "PacoEventUploader.h"
 #import "NSString+Paco.h"
 #import "NSError+Paco.h"
- 
+#import "PacoSerializer.h"
 #import  "ActionSpecification.h"
 #import "PacoEventPersistenceHelper.h"
+#import "PacoSerializeUtil.h" 
+
 
 static NSString* const kPendingEventsFileName = @"pendingEvents.plist";
 static NSString* const kAllEventsFileName = @"allEvents.plist";
@@ -277,10 +279,23 @@ static NSString* const kAllEventsFileName = @"allEvents.plist";
 #pragma mark Public API
 - (void)saveEvent:(PacoEventExtended*)event {
   NSAssert(event != nil, @"nil event cannot be saved!");
+   
+   
+    NSDictionary* dictionary =   [event generateJsonObject];
+    NSLog(@" dictionary %@", dictionary);
+    
+    
+    
+  //
   [self.persistenceHelper insertEventWithPAEventInterface:event];
-  //add this event to pendingEvent list too
-  [self.pendingEvents addObject:event];
+    
+  //add this event to pendingEvent list  as well
+  [self.pendingEvents addObject:dictionary ];
+    
 }
+
+
+
 
 //- (void)saveEvents:(NSArray*)events {
 //  @synchronized(self) {

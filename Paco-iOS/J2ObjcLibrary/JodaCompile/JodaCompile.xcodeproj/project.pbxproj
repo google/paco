@@ -3915,7 +3915,7 @@
 					"$(PROJECT_DIR)",
 				);
 				HEADER_SEARCH_PATHS = (
-					"${J2OBJC_HOME}/include",
+					"${J2OBJC_HOME}/dist/include",
 					"${PROJECT_DIR}",
 				);
 				LIBRARY_SEARCH_PATHS = "${J2OBJC_HOME}/lib";
@@ -3942,7 +3942,7 @@
 					"$(PROJECT_DIR)",
 				);
 				HEADER_SEARCH_PATHS = (
-					"${J2OBJC_HOME}/include",
+					"${J2OBJC_HOME}/dist/include",
 					"${PROJECT_DIR}",
 				);
 				LIBRARY_SEARCH_PATHS = "${J2OBJC_HOME}/lib";

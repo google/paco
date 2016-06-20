@@ -87,6 +87,9 @@ typedef NS_ENUM(NSInteger, PacoEventTypeExtended) {
                                    userEmail:(NSString*)userEmail;
 
 + (PacoEventExtended*) stopEventForActionSpecificatonWithServerExperimentId:(PAExperimentDAO*) experiment  serverExperimentId:(NSString*) serverExperimentId;
+/* generate an NSDictionary of attribute value pairs. */
+
+- (id)generateJsonObject;
 
 
 @end

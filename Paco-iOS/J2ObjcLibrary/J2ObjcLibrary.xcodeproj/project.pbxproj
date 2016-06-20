@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		44BB28E81D0A557800680037 /* libJodaCompile.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 44BB28E71D0A557800680037 /* libJodaCompile.a */; };
 		A605CAF41C778D1E00770A4E /* J2ObjcLibrary.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = A605CAF31C778D1E00770A4E /* J2ObjcLibrary.h */; };
 		A605CAF61C778D1F00770A4E /* J2ObjcLibrary.m in Sources */ = {isa = PBXBuildFile; fileRef = A605CAF51C778D1F00770A4E /* J2ObjcLibrary.m */; };
 		A61D82191CD14111009983B6 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A61D82181CD14111009983B6 /* Security.framework */; };
@@ -94,7 +93,7 @@
 				"$(DERIVED_FILE_DIR)/${INPUT_FILE_BASE}.h",
 				"$(DERIVED_FILE_DIR)/${INPUT_FILE_BASE}.m",
 			);
-			script = "${J2OBJC_HOME}/j2objc -d ${DERIVED_FILE_DIR} -sourcepath ../../Shared/src  --prefixes ../../Shared/j2objcprefixes.properties --no-package-directories -use-arc ${INPUT_FILE_PATH};";
+			script = "${J2OBJC_HOME}/dist  -d ${DERIVED_FILE_DIR} -sourcepath ../../Shared/src  --prefixes ../../Shared/j2objcprefixes.properties --no-package-directories -use-arc ${INPUT_FILE_PATH};";
 		};
 		A61D829A1CD157D5009983B6 /* PBXBuildRule */ = {
 			isa = PBXBuildRule;
@@ -105,7 +104,7 @@
 				"$(DERIVED_FILE_DIR)/${INPUT_FILE_BASE}.h",
 				"$(DERIVED_FILE_DIR)/${INPUT_FILE_BASE}.m",
 			);
-			script = "${J2OBJC_HOME}/j2objc -d ${DERIVED_FILE_DIR} -classpath ../../Shared/lib/joda-time-2.9.2.jar -sourcepath ../../Shared/src  --prefixes ../../Shared/j2objcprefixes.properties --no-package-directories -use-arc ${INPUT_FILE_PATH};";
+			script = "${J2OBJC_HOME}/dist/j2objc -d ${DERIVED_FILE_DIR} -classpath ../../Shared/lib/joda-time-2.9.2.jar -sourcepath ../../Shared/src  --prefixes ../../Shared/j2objcprefixes.properties --no-package-directories -use-arc ${INPUT_FILE_PATH};";
 		};
 /* End PBXBuildRule section */
 
@@ -150,7 +149,6 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		44BB28E71D0A557800680037 /* libJodaCompile.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libJodaCompile.a; path = "../DerivedData/Paco/Build/Intermediates/JodaCompile.build/Debug-iphonesimulator/JodaCompile.build/Objects-normal/x86_64/libJodaCompile.a"; sourceTree = "<group>"; };
 		A605CAF01C778D1E00770A4E /* libJ2ObjcLibrary.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libJ2ObjcLibrary.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		A605CAF31C778D1E00770A4E /* J2ObjcLibrary.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = J2ObjcLibrary.h; sourceTree = "<group>"; };
 		A605CAF51C778D1F00770A4E /* J2ObjcLibrary.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = J2ObjcLibrary.m; sourceTree = "<group>"; };
@@ -211,7 +209,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				A61D82191CD14111009983B6 /* Security.framework in Frameworks */,
-				44BB28E81D0A557800680037 /* libJodaCompile.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -229,7 +226,6 @@
 		A605CAE71C778D1E00770A4E = {
 			isa = PBXGroup;
 			children = (
-				44BB28E71D0A557800680037 /* libJodaCompile.a */,
 				A6FF59261CDC01D90049A27F /* JodaCompile.xcodeproj */,
 				A6FF5CF81CDD06F10049A27F /* include */,
 				A692884F1D09E771008630D2 /* New Group */,
@@ -671,6 +667,10 @@
 		A605CAFA1C778D1F00770A4E /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)",
+				);
 				HEADER_SEARCH_PATHS = "../JodaCompile/JodaCompile/**";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
@@ -687,6 +687,10 @@
 		A605CAFB1C778D1F00770A4E /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)",
+				);
 				HEADER_SEARCH_PATHS = "../JodaCompile/JodaCompile/**";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
@@ -704,13 +708,18 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = A61D82131CD13F8F009983B6 /* Config.xcconfig */;
 			buildSettings = {
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)",
+					"${J2OBJC_HOME}/dist/frameworks",
+				);
 				HEADER_SEARCH_PATHS = (
-					"${J2OBJC_HOME}/include",
+					"${J2OBJC_HOME}/dist/include",
 					"JodaCompile/JodaCompile/**",
 				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(PROJECT_DIR)",
-					"${J2OBJC_HOME}/lib",
+					"${J2OBJC_HOME}/dist/lib",
 				);
 				ONLY_ACTIVE_ARCH = NO;
 				OTHER_LDFLAGS = "-ljre_emul";
@@ -724,13 +733,18 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = A61D82131CD13F8F009983B6 /* Config.xcconfig */;
 			buildSettings = {
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)",
+					"${J2OBJC_HOME}/dist/frameworks",
+				);
 				HEADER_SEARCH_PATHS = (
-					"${J2OBJC_HOME}/include",
+					"${J2OBJC_HOME}/dist/include",
 					"JodaCompile/JodaCompile/**",
 				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(PROJECT_DIR)",
-					"${J2OBJC_HOME}/lib",
+					"${J2OBJC_HOME}/dist/lib",
 				);
 				ONLY_ACTIVE_ARCH = NO;
 				OTHER_LDFLAGS = "-ljre_emul";

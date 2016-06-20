@@ -3,4 +3,4 @@
 //
 //   All rights reserved.
 //
-J2OBJC_HOME = ../../../j2objc
+J2OBJC_HOME = ${PROJECT_DIR}/../../../j2objc

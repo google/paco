@@ -92,7 +92,7 @@ typedef NS_ENUM(NSInteger, PacoParentType) {
 /* return a single object after from json string */
 - (NSObject*)buildSingleObjectHierarchyFromJSONString:(id)json;
 
-/* crate a medel object from dictionary */
+/* crate a  object from dictionary */
 -(NSObject*) buildModelObject:(NSDictionary*) dictionary;
 
 

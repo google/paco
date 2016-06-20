@@ -29,6 +29,7 @@ Paco-Server/www-test/*
 PacoTest/local.properties
 PacoTest/bin/*
 PacoTest/testbin/*
+Paco-iOS/vendor/*
 PacoTest/gen/*
 PacoTest/libs/js.jar
 PacoTest/reports/*
