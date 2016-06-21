@@ -163,6 +163,12 @@
     eventRecord.isUploaded =[NSNumber numberWithBool:NO];
     eventRecord.type = [NSNumber numberWithInt:theEvent.type];
     
+     NSLog(@"%@", [[NSUUID UUID] UUIDString]);
+     NSLog(@"%@", [[NSUUID UUID] UUIDString]);
+     NSLog(@"%@", [[NSUUID UUID] UUIDString]);
+     NSLog(@"%@", [[NSUUID UUID] UUIDString]);
+     NSLog(@"%@", [[NSUUID UUID] UUIDString]);
+    
     if([theEvent.guid length] == 0 )
     {
         NSString *uuid = [[NSUUID UUID] UUIDString];

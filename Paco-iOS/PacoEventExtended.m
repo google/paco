@@ -208,7 +208,7 @@ NSString* const kPacoResponseJoinExtended = @"joined";
     event.experimentId =  [experiment valueForKeyPathEx:@"id"] ;
     event.experimentVersion =  (NSNumber*)  [experiment getVersion];
     event.experimentName =  [experiment valueForKeyPathEx:@"title"];
-    
+    event.guid = [[NSUUID UUID] UUIDString];
 
    
     
@@ -275,7 +275,7 @@ NSString* const kPacoResponseJoinExtended = @"joined";
     event.experimentVersion =  [experiment valueForKeyEx:@"version"];
     event.experimentName    =  [experiment valueForKeyEx:@"title"];
     event.responseTime = [NSDate new];
-    
+    event.guid = [[NSUUID UUID] UUIDString];
     
     NSDictionary* joinResponse = @{kPacoResponseKeyNameExtended:kPacoResponseJoinExtended,
                                    kPacoResponseKeyAnswerExtended:@"true",
@@ -327,6 +327,7 @@ NSString* const kPacoResponseJoinExtended = @"joined";
      event.experimentId = [definition valueForKeyPathEx:@"id"];
      event.experimentName = [definition valueForKeyPathEx:@"title"];
      event.experimentVersion = [definition valueForKeyPathEx:@"version"];
+     event.guid = [[NSUUID UUID] UUIDString];
     
     
     NSMutableArray *responses = [NSMutableArray array];

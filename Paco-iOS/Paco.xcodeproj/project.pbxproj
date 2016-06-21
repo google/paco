@@ -733,6 +733,7 @@
 		A6DCA5981B85468D007FC06D /* PacoEventStore.m in Sources */ = {isa = PBXBuildFile; fileRef = A6DCA5971B85468D007FC06D /* PacoEventStore.m */; settings = {COMPILER_FLAGS = " "; }; };
 		A6E1D05B1D13B83800C20B10 /* libJodaCompile.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A6E1D05A1D13B83800C20B10 /* libJodaCompile.a */; };
 		A6E1D06D1D13B86D00C20B10 /* libJ2ObjcLib.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A6E1D06C1D13B86D00C20B10 /* libJ2ObjcLib.a */; };
+		A6E1D0701D19EE5900C20B10 /* NSMutableArray+PacoEvent.m in Sources */ = {isa = PBXBuildFile; fileRef = A6E1D06F1D19EE5900C20B10 /* NSMutableArray+PacoEvent.m */; };
 		A6F7348F1BD9BA3E00DCE716 /* NSDate+PacoTimeZoneHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = A62A15611BC4A8B800FF20C1 /* NSDate+PacoTimeZoneHelper.m */; settings = {COMPILER_FLAGS = " "; }; };
 		A6F734921BD9BA8A00DCE716 /* OrgJodaTimeDateMidnight+PacoDateHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = A6F734911BD9BA8A00DCE716 /* OrgJodaTimeDateMidnight+PacoDateHelper.m */; settings = {COMPILER_FLAGS = " "; }; };
 		A6F957531BA236F400F96295 /* PacoMediator.m in Sources */ = {isa = PBXBuildFile; fileRef = A6F957521BA236F400F96295 /* PacoMediator.m */; settings = {COMPILER_FLAGS = " "; }; };
@@ -1643,6 +1644,8 @@
 		A6E1D0511D13B6AF00C20B10 /* libJodaCompile.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libJodaCompile.a; path = "../../../Library/Developer/Xcode/DerivedData/Paco-hihvuddeybywdperozfqlmrnjwer/Build/Products/Debug/libJodaCompile.a"; sourceTree = "<group>"; };
 		A6E1D05A1D13B83800C20B10 /* libJodaCompile.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libJodaCompile.a; path = frameworks/GoogleSignIn.bundle/libJodaCompile.a; sourceTree = "<group>"; };
 		A6E1D06C1D13B86D00C20B10 /* libJ2ObjcLib.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libJ2ObjcLib.a; path = "../../../Library/Developer/Xcode/DerivedData/Paco-hihvuddeybywdperozfqlmrnjwer/Build/Products/Debug-iphonesimulator/libJ2ObjcLib.a"; sourceTree = "<group>"; };
+		A6E1D06E1D19EE5900C20B10 /* NSMutableArray+PacoEvent.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSMutableArray+PacoEvent.h"; sourceTree = "<group>"; };
+		A6E1D06F1D19EE5900C20B10 /* NSMutableArray+PacoEvent.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSMutableArray+PacoEvent.m"; sourceTree = "<group>"; };
 		A6F734901BD9BA8A00DCE716 /* OrgJodaTimeDateMidnight+PacoDateHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "OrgJodaTimeDateMidnight+PacoDateHelper.h"; sourceTree = "<group>"; };
 		A6F734911BD9BA8A00DCE716 /* OrgJodaTimeDateMidnight+PacoDateHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "OrgJodaTimeDateMidnight+PacoDateHelper.m"; sourceTree = "<group>"; };
 		A6F957511BA236F400F96295 /* PacoMediator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoMediator.h; sourceTree = "<group>"; };
@@ -3015,6 +3018,8 @@
 				A6FD7BBA1BFEBB5100B6140F /* PAInput2+PacoAggrigator.m */,
 				A614617F1CC6B3B3007554F7 /* PAInput2+Helper.h */,
 				A61461801CC6B3B4007554F7 /* PAInput2+Helper.m */,
+				A6E1D06E1D19EE5900C20B10 /* NSMutableArray+PacoEvent.h */,
+				A6E1D06F1D19EE5900C20B10 /* NSMutableArray+PacoEvent.m */,
 			);
 			name = categories;
 			sourceTree = "<group>";
@@ -4398,6 +4403,7 @@
 				36946B0E177A55BA005E0C04 /* PacoExperimentDefinition.m in Sources */,
 				A65F68B01C865E64009AAEF4 /* PacoTestingControllerTableViewController.swift in Sources */,
 				A6AFCCF51BB60BAB002BA7FC /* PacoExperimentTitleReporter.m in Sources */,
+				A6E1D0701D19EE5900C20B10 /* NSMutableArray+PacoEvent.m in Sources */,
 				7F8531D51A37BE680028BA23 /* JCNotificationBannerPresenter.m in Sources */,
 				A6F957621BA3830400F96295 /* PacoExtendedNotificationInfo.m in Sources */,
 				A6AFCCF21BB6078A002BA7FC /* PacoPrintGroupNamesReporter.m in Sources */,

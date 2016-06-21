@@ -16,7 +16,7 @@
 #import  "ActionSpecification.h"
 #import "PacoEventPersistenceHelper.h"
 #import "PacoSerializeUtil.h" 
-
+#import "NSMutableArray+PacoEvent.h"
 
 static NSString* const kPendingEventsFileName = @"pendingEvents.plist";
 static NSString* const kAllEventsFileName = @"allEvents.plist";
@@ -135,6 +135,7 @@ static NSString* const kAllEventsFileName = @"allEvents.plist";
     if (self) {
         _uploader = [PacoEventUploader uploaderWithDelegate:self];
         _persistenceHelper = [PacoEventPersistenceHelper new];
+        _pendingEvents = [NSMutableArray new];
     }
     return self;
 }
@@ -268,6 +269,7 @@ static NSString* const kAllEventsFileName = @"allEvents.plist";
         for (NSDictionary * event in events)
         {
             [self.persistenceHelper markUploaded:event];
+            [self.pendingEvents removeEvent:event];
         }
         
      
