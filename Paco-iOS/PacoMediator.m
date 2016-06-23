@@ -9,8 +9,7 @@
 #import "PacoMediator.h"
 #import "PacoSignalStore.h"
 #import "PacoEventStore.h"
-#import "ExperimentDAO.h" 
-#import "NSMutableArray+PacoModel.h"
+#import "ExperimentDAO.h"
 #import "PAExperimentDAO+Helper.h" 
 #import "PacoExerimentDidStartVerificationProtocol.h"
 #import "PacoExerimentWillStartVerificationProtocol.h"
@@ -25,7 +24,6 @@
 #import "NSMutableArray+PacoPersistence.h"
 #import "PacoSchedulingUtil.h"
 #import "PacoGenerateEventValidator.h"
-#import "NSMutableArray+PacoModel.h"
 #import "UILocalNotification+PacoExteded.h"
 #import "PacoEventManagerExtended.h"
 #import "PacoPublicDefinitionLoader.h"
@@ -33,6 +31,12 @@
 #import "PacoSerializer.h"
 #import "PacoSerializeUtil.h"
 #import "NSMutaBleArray+PacoModel.h"
+#import "PacoEventExtended.h"
+#import  "NSMutableArray+PacoModel.h"
+#import "PacoNetwork.h" 
+#import "PacoAuthenticator.h" 
+#import "PacoEventManagerExtended.h"
+#import "PacoNetwork.h" 
 
 
 #define KEY_RUNNING_EXERIMENTS @"running_experiments"
@@ -100,13 +104,13 @@ static dispatch_group_t group;
         
       
 
-       // [self refreshRunningExperiments];
+         [self refreshRunningExperiments];
         
-       // [NSTimer scheduledTimerWithTimeInterval:5.0
-       //                                  target:self
-       //                             selector:@selector(refreshNotifications:)
-       //                                userInfo:nil
-       //                                 repeats:YES];
+         [NSTimer scheduledTimerWithTimeInterval:5.0
+                                          target:self
+                                    selector:@selector(refreshNotifications:)
+                                        userInfo:nil
+                                         repeats:YES];
         
     }
     return self;
@@ -546,10 +550,63 @@ calculate the action specifications and reset the based upon the most recent ver
 
 /* need to create notifications. replicate the logic in PacoClient */
 
+
+/*
+ 
+ 
+ 
+ + (PacoEventExtended*)surveyMissedEventForDefinition:(PAExperimentDAO*)definition
+ withScheduledTime:(NSDate*)scheduledTime
+ groupName:(NSString*) groupName
+ actionTriggerId:(NSString*) actionTri
+ 
+ */
+
+
 - (void)handleExpiredNotifications:(NSArray*)expiredNotifications
 {
+ 
+ 
+ 
+     if([expiredNotifications count]>0)
+     {
+         
+        
+            for (UILocalNotification* notification in expiredNotifications) {
+                NSDictionary* userInfo = notification.userInfo;
+                NSString* groupName = userInfo[@"groupName"];
+                NSString* actionTriggerId = userInfo[@"actionTriggerId"];
+                
+             NSString* experimentId = [notification pacoExperimentIdExt];
+             PAExperimentDAO * experiment  = [self.allExperiments findExperiment:experimentId];
+             NSDate * fireDate =  [notification fireDate];
+          
+                NSString* actionTriggerSpecId =@"dummy";
+                NSString* email =   [[PacoNetwork sharedInstance].authenticator userEmail];
+             
+                PacoEventExtended* eventExtended =   [PacoEventExtended surveyMissedEventForDefinition:experiment
+                                                                                    withScheduledTime:fireDate
+                                                                                    groupName:groupName
+                                                                                    actionId:@"myactionId"
+                                                                                    actionTriggerId:actionTriggerId
+                                                                                    actionTriggerSpecId:actionTriggerSpecId
+                                                                                    userEmail:email ];
+                
+                
+                
+                
+                
+                
+                
+                [[PacoEventManagerExtended defaultManager] saveEvent:eventExtended];
+               
+            }
+            
+            
+             [[PacoEventManagerExtended defaultManager] startUploadingEvents];
+     }
     
-    NSLog(@"handle expried notfications");
+ 
     
 }
 
@@ -695,9 +752,25 @@ calculate the action specifications and reset the based upon the most recent ver
     
     if (notification) {
         
-        [self.eventManager saveSurveySubmittedEventForDefinition:definition
+        NSDictionary * dict  = notification.userInfo;
+        
+        
+        NSString* actionTriggerId = dict[@"actionTriggerId"];
+        NSString* groupId = dict[@"groupId"];
+        NSString* groupName = dict[@"groupName"];
+        NSString* notificationActionId = dict[@"notificationActionId"];
+        
+        
+          NSString* email =   [[PacoNetwork sharedInstance].authenticator userEmail];
+        
+        [self.eventManager saveSurveySubmittedEventForDefinition:definition  withInputs:surveyInputs  andScheduledTime:[notification pacoFireDateExt] groupName:groupName  actionTriggerId:actionTriggerId actionId:@"todo actionId" actionTriggerSpecId:@"todo actionTriggerSecId" userEmail:email];
+        
+        
+        
+       /* [self.eventManager saveSurveySubmittedEventForDefinition:definition
                                                       withInputs:surveyInputs
-                                                andScheduledTime:[notification pacoFireDateExt]];
+                                                andScheduledTime:[notification pacoFireDateExt]];*/
+        
 
         [self.notificationManager handleRespondedNotification:notification];
         

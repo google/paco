@@ -157,7 +157,7 @@
                                  inManagedObjectContext:[self.appDelegate managedObjectContext]];
     eventRecord.experimentId  = theEvent.experimentId;
     eventRecord.scheduledTime = theEvent.scheduledTime;
-    eventRecord.groupName =theEvent.groupName;
+    eventRecord.groupName =theEvent.experimentGroupName;
     eventRecord.actionTriggerId = theEvent.actionTriggerId;
     eventRecord.scheduleId  = theEvent.scheduleId;
     eventRecord.isUploaded =[NSNumber numberWithBool:NO];

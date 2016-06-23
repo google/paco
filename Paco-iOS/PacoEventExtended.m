@@ -380,11 +380,21 @@ NSString* const kPacoResponseJoinExtended = @"joined";
 
 + (PacoEventExtended*)surveySubmittedEventForDefinition:(PAExperimentDAO*)definition
                                      withInputs:(NSArray*)inputs
-                               andScheduledTime:(NSDate*)scheduledTime {
-    NSAssert(scheduledTime != nil, @"scheduledTime should not be nil!");
+                                     ScheduledTime:(NSDate*)scheduledTime
+                                     groupName:(NSString*) groupName
+                                     actionTriggerId:(NSString*) actionTriggerId
+                                     actionId:(NSString*) actionId
+                                     actionTriggerSpecId:(NSString*) actionTriggerSpecId
+                                     userEmail:(NSString*)userEmail
+{
+  
     PacoEventExtended* event = [PacoEventExtended genericEventForDefinition:definition withInputs:inputs];
-    event.responseTime = [[NSDate dateWithTimeIntervalSinceNow:0] dateToStringLocalTimezone];
-    event.scheduledTime = [scheduledTime dateToStringLocalTimezone];
+    event.responseTime = [[NSDate dateWithTimeIntervalSinceNow:0]  toPacoFormatedString];
+    event.scheduledTime = [scheduledTime toPacoFormatedString];
+    event.guid = [[NSUUID UUID] UUIDString];
+    event.who = userEmail;
+    event.experimentGroupName = groupName;
+    event.actionTriggerId = @([actionTriggerId intValue]);
     return event;
 }
 
@@ -394,7 +404,7 @@ NSString* const kPacoResponseJoinExtended = @"joined";
     Survay for missed event,  includes scheduled time in the event
  
  */
-
+/*
 + (PacoEventExtended*)surveyMissedEventForDefinition:(PAExperimentDAO*)definition
                            withScheduledTime:(NSDate*)scheduledTime {
     NSAssert(scheduledTime != nil, @"scheduledTime should be valid!");
@@ -402,7 +412,7 @@ NSString* const kPacoResponseJoinExtended = @"joined";
                                           withScheduledTime:scheduledTime
                                                           userEmail:@"email"];// [[PacoExtendedClient sharedInstance] userEmail]];
     return event;
-}
+}*/
 
 /*
      
@@ -410,18 +420,34 @@ NSString* const kPacoResponseJoinExtended = @"joined";
  
  */
 + (PacoEventExtended*)surveyMissedEventForDefinition:(PAExperimentDAO*)definition
-                           withScheduledTime:(NSDate*)scheduledTime
-                                   userEmail:(NSString*)userEmail{
+                                   withScheduledTime:(NSDate*)scheduledTime
+                                           groupName:(NSString*) groupName
+                                            actionId:(NSString*) actionId
+                                     actionTriggerId:(NSString*) actionTriggerId
+                                     actionTriggerSpecId:(NSString*) actionTriggerSpecId
+                                           userEmail:(NSString*)userEmail
+
+{
     NSAssert(definition, @"definition should be valid");
     NSAssert(scheduledTime != nil, @"scheduledTime should be valid!");
     NSAssert([userEmail length] > 0, @"userEmail should be valid!");
     PacoEventExtended *event = [PacoEventExtended new];
     event.who = userEmail;
+    //event.actionId =
+    event.actionTriggerId = @([actionTriggerId intValue]);
+    event.experimentGroupName = groupName;
+
     event.experimentId = [definition valueForKeyPathEx:@"id"];
     event.experimentName = [definition valueForKeyPathEx:@"title"];
     event.experimentVersion = [definition valueForKeyPathEx:@"version"];
     event.responseTime = nil;
-    event.scheduledTime = [scheduledTime dateToStringLocalTimezone];
+    event.guid = [[NSUUID UUID] UUIDString];
+    
+   // NSDateFormatter *dateFormat = [[NSDateFormatter alloc] init];
+   // [dateFormat setDateFormat:@"yyyy/MM/dd HH:mm:ssZ"];
+   // NSString *dateString = [dateFormat stringFromDate:scheduledTime];
+    
+    event.scheduledTime = [scheduledTime toPacoFormatedString];// [scheduledTime dateToStringLocalTimezonePrettyPrint];
     return event;
 }
 

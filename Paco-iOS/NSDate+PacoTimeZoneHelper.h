@@ -19,9 +19,11 @@
 +(NSDate*) stringToDateWithTimeZone:(NSString*) dateStr TimeZone:(NSTimeZone*) timeZone;
 -(NSString*) dateToStringWithTimezone:(NSTimeZone*) timeZone;
 -(NSString*) dateToStringLocalTimezone;
+-(NSString*) dateToStringLocalTimezonePrettyPrint;
 +(int)  minutesSinceMidnight:(NSDate *)date;
 +(long)  millisecondsSinceMidnight:(NSDate *)date;
 +(int)  secondsSinceMidnight:(NSDate *)date;
+-(NSString*) toPacoFormatedString;
 
 -(OrgJodaTimeDateTime*) joda;
 +(OrgJodaTimeDateTime*) jodaFromString:(NSString*) dateStr;

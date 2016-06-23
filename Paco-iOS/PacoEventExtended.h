@@ -54,7 +54,7 @@ typedef NS_ENUM(NSInteger, PacoEventTypeExtended) {
 @property (nonatomic,strong)  NSNumber* actionTriggerId;
 @property (nonatomic,strong)  NSNumber* actionId;
 @property (nonatomic,strong)  NSNumber* actionTriggerSpecId;
-@property (nonatomic,strong)  NSString* groupName;
+@property (nonatomic,strong)  NSString* experimentGroupName;
 @property (nonatomic,strong)  NSString* serverExperimentId;
 
 @property (nonatomic,strong)  NSString* guid;
@@ -76,15 +76,40 @@ typedef NS_ENUM(NSInteger, PacoEventTypeExtended) {
 
 + (PacoEventExtended*)selfReportEventForDefinition:(PAExperimentDAO*)definition
                                 withInputs:(NSArray*)inputs;
+
+
+
++ (PacoEventExtended*)surveySubmittedEventForDefinition:(PAExperimentDAO*)definition
+                                             withInputs:(NSArray*)inputs
+                                          ScheduledTime:(NSDate*)scheduledTime
+                                              groupName:(NSString*) groupName
+                                        actionTriggerId:(NSString*) actionTriggerId
+                                               actionId:(NSString*) actionId
+                                           actionTriggerSpecId:(NSString*) actionTriggerSpecId
+                                              userEmail:(NSString*)userEmail;
+
+
+/*
 + (PacoEventExtended*)surveySubmittedEventForDefinition:(PAExperimentDAO*)definition
                                      withInputs:(NSArray*)inputs
                                andScheduledTime:(NSDate*)scheduledTime;
-+ (PacoEventExtended*)surveyMissedEventForDefinition:(PAExperimentDAO*)definition
-                           withScheduledTime:(NSDate*)scheduledTime;
+ */
 
+
+
++ (PacoEventExtended*)surveyMissedEventForDefinition:(PAExperimentDAO*)definition
+                                   withScheduledTime:(NSDate*)scheduledTime
+                                           groupName:(NSString*) groupName
+                                        actionId:(NSString*) actionId
+                                     actionTriggerId:(NSString*) actionTriggerId
+                                     actionTriggerSpecId:(NSString*) actionTriggerSpecId
+                                           userEmail:(NSString*)userEmail;
+/*
 + (PacoEventExtended*)surveyMissedEventForDefinition:(PAExperimentDAO*)definition
                            withScheduledTime:(NSDate*)scheduledTime
                                    userEmail:(NSString*)userEmail;
+ */
+
 
 + (PacoEventExtended*) stopEventForActionSpecificatonWithServerExperimentId:(PAExperimentDAO*) experiment  serverExperimentId:(NSString*) serverExperimentId;
 /* generate an NSDictionary of attribute value pairs. */

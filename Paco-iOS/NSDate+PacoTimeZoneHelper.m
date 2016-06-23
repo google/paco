@@ -27,6 +27,16 @@
     
 }
 
+-(NSString*) toPacoFormatedString
+{
+    
+    NSDateFormatter *dateFormat = [[NSDateFormatter alloc] init];
+    [dateFormat setDateFormat:@"yyyy/MM/dd HH:mm:ssZ"];
+     NSString *dateString = [dateFormat stringFromDate:self];
+    return dateString;
+    
+}
+
 
 -(NSString*) dateToStringLocalTimezone
 {

@@ -54,7 +54,17 @@
                                 andInputs:(NSArray*)visibleInputs;
 - (void)saveSurveySubmittedEventForDefinition:(PAExperimentDAO*)definition
                                    withInputs:(NSArray*)inputs
-                             andScheduledTime:(NSDate*)scheduledTime;
+                             andScheduledTime:(NSDate*)scheduledTime
+                                    groupName:(NSString*) groupName
+                              actionTriggerId:(NSString*) actionTriggerId
+                                     actionId:(NSString*) actionId
+                          actionTriggerSpecId:(NSString*) actionTriggerSpecId
+                                    userEmail:(NSString*)userEmail;
+
+
+
+
+
 - (PacoParticipateStatusExtended*)statsForExperiment:(NSString*)experimentId;
 - (void)saveJoinEventWithActionSpecification:(PAActionSpecification*) actionSpecification;
 

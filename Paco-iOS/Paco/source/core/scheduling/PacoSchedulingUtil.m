@@ -187,7 +187,11 @@
 
 - (void)handleExpiredNotifications:(NSArray*)expiredNotifications
 {
-    
+
+    if([expiredNotifications count] > 0)
+    {
+        NSLog(@"Handle Expired Notifications Alert");
+    }
     
     
 }
