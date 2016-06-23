@@ -365,6 +365,10 @@
     <string name="play_audio_label">Play</string>
     <string name="delete_audio_label">Delete</string>
     <string name="diagnostic_paco_version">Paco version</string>
+    <string name="dialog_change_email_warning">Changing your email address may prevent you from finding experiments or uploading data on existing experiments</string>
+    <string name="change_email_address_button">Change Email Address</string>
+    <string name="end_time_must_be_after_start_time_warning_label">End time must be after start time</string>
+    <string name="start_and_end_time_too_short">Start and End time window is too short</string>
         
         
                 

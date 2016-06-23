@@ -33,11 +33,19 @@
     </div>
 
     <div class="row">
-      <md-checkbox ng-model="group.logActions" aria-label="Log app usage and browser history">
-        Log app usage and browser history
+      <md-checkbox ng-model="group.logActions" aria-label="Log app usage">
+        Log app usage
       </md-checkbox>
 
       <no-ios ng-if="group.logActions" message="'iOS does not support app logging'"></no-ios>
+    </div>
+
+    <div class="row">
+      <md-checkbox ng-model="group.logShutdown" aria-label="Log phone shutdown">
+        Log phone shutdowns
+      </md-checkbox>
+
+      <no-ios ng-if="group.logShutdown" message="'iOS does not support phone shutdown logging'"></no-ios>
     </div>
 
     <div class="row">
