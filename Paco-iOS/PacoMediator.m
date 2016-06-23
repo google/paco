@@ -592,12 +592,6 @@ calculate the action specifications and reset the based upon the most recent ver
                                                                                     actionTriggerSpecId:actionTriggerSpecId
                                                                                     userEmail:email ];
                 
-                
-                
-                
-                
-                
-                
                 [[PacoEventManagerExtended defaultManager] saveEvent:eventExtended];
                
             }
@@ -759,11 +753,12 @@ calculate the action specifications and reset the based upon the most recent ver
         NSString* groupId = dict[@"groupId"];
         NSString* groupName = dict[@"groupName"];
         NSString* notificationActionId = dict[@"notificationActionId"];
+        NSString* actionTriggerSpecId = dict[@"actionTriggerSpecId"];
         
         
           NSString* email =   [[PacoNetwork sharedInstance].authenticator userEmail];
         
-        [self.eventManager saveSurveySubmittedEventForDefinition:definition  withInputs:surveyInputs  andScheduledTime:[notification pacoFireDateExt] groupName:groupName  actionTriggerId:actionTriggerId actionId:@"todo actionId" actionTriggerSpecId:@"todo actionTriggerSecId" userEmail:email];
+        [self.eventManager saveSurveySubmittedEventForDefinition:definition  withInputs:surveyInputs  andScheduledTime:[notification pacoFireDateExt] groupName:groupName  actionTriggerId:actionTriggerId actionId:notificationActionId actionTriggerSpecId:actionTriggerSpecId  userEmail:email];
         
         
         

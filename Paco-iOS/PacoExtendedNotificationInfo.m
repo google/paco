@@ -10,7 +10,7 @@
 #import "ModelBase+PacoAssociatedId.m"
 #import "PacoNotificationConstants.h" 
 
-#define kNumOfKeysInUserInfoExtended kNumOfKeysInUserInfo+4
+#define kNumOfKeysInUserInfoExtended kNumOfKeysInUserInfo+5
 
 @interface PacoExtendedNotificationInfo ()
 
@@ -47,7 +47,7 @@
     NSString* triggerId = infoDict[kUserInfoKeyActionTriggerId];
     NSString* actionTriggerId = infoDict[kUserInfoKeyActionTriggerId];
     NSString* notificationActionId =infoDict[kUserInfoKeyNotificationActionId];
-   /* NSString* specId  = infoDict[kUserInfoKeyActionTriggerSpecId]; */ 
+    NSString* specId  = infoDict[kUserInfoKeyActionTriggerSpecId];
  
     if ( 0== [groupId length] || [groupName length] ==0 || [triggerId length] ==0 || [actionTriggerId length] ==0 || /*[specId length] ==0  ||*/   0 == [experimentId length] || 0 == [experimentTitle length] ||
         fireDate == nil || timeOutDate == nil || [notificationActionId length] ==0/*|| [timeOutDate timeIntervalSinceDate:fireDate] <= 0*/) {
@@ -63,7 +63,7 @@
     info.groupName = groupName;
     info.actionTriggerId = actionTriggerId;
     info.notificationActionId=notificationActionId;
-   /* info.actionTriggerSpecId = specId*/
+    info.actionTriggerSpecId = specId;
     
  
     
@@ -108,7 +108,7 @@
     userInfo[kNotificationGroupName] = groupName;
     userInfo[kUserInfoKeyActionTriggerId] = actionTriggerId;
     userInfo[kUserInfoKeyNotificationActionId] = notificationActionId;
-    /*userInfo[kUserInfoKeyActionTriggerSpecId] = actionTriggerSpecId; */
+    userInfo[kUserInfoKeyActionTriggerSpecId] = actionTriggerSpecId;
     [userInfo  addEntriesFromDictionary:superInfo];
     return userInfo;
 

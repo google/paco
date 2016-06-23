@@ -90,6 +90,7 @@ NSString* notificationActionId =infoDict[kUserInfoKeyNotificationActionId];
 }
 
 - (long)timeoutMinutes {
+    
     return [self.timeOutDate timeIntervalSinceDate:self.fireDate] / 60;
 }
 

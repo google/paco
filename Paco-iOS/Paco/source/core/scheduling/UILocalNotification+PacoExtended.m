@@ -55,6 +55,7 @@ extern NSString* const kUserInfoKeyActionTriggerSpecId;
       timeOutDate == nil ||[timeOutDate timeIntervalSinceDate:fireDate] <= 0 || [groupId length] ==0
     ||[groupName length] ==0 || [triggerId length] == 0 ||  [notificationActionId length] ==0  /* ||  [actionTriggerSpecId length] ==0 */)
   {
+      
     return nil;
   }
   
@@ -116,22 +117,22 @@ extern NSString* const kUserInfoKeyActionTriggerSpecId;
                                 
   NSMutableArray* notifications = [NSMutableArray arrayWithCapacity:[specifications count]];
                                 
-  for (PAActionSpecification  * spec   in specifications) {
+  for (PAActionSpecification  * spec   in specifications)
+  {
       
       
  
       PAExperimentDAO   *   dao = [spec valueForKey:@"experiment_"];
       PAExperimentGroup *   group = [spec valueForKey:@"experimentGroup_"];
       PAActionTrigger*   actionTrigger = [spec valueForKey:@"actionTrigger_"];
+      PAPacoNotificationAction *   notificationAction = [spec valueForKeyEx:@"action_"];
       
-      
-      PAPacoNotificationAction *   notificationAction =
-      [spec->experiment_ valueForKeyPathEx:@"groups[0].actionTriggers[0].actions[0]"];
+      //[spec->experiment_ valueForKeyPathEx:@"groups[0].actionTriggers[0].actions[0]"];
       
       
       NSString* experimentId =  [[dao valueForKeyEx:@"id"] stringValue];
       NSString* experimentTitle = [dao valueForKeyEx:@"title"];
-     NSDate * fireDate = [[spec valueForKey:@"time_"] nsDateValue];
+      NSDate * fireDate = [[spec valueForKey:@"time_"] nsDateValue];
       
 #warning needs fixing NNNNNNNNN
       /*
@@ -141,10 +142,11 @@ extern NSString* const kUserInfoKeyActionTriggerSpecId;
        */
       
       long     timeoutDate =  [[notificationAction valueForKeyEx:@"timeout"]  longValue];
-      
       NSDate * timeOutDate =  [fireDate dateByAddingTimeInterval:timeoutDate];
+      /* group id not found in group*/
       NSString* groupId = [group getName];
       NSString* groupName = [group valueForKeyEx:@"name"];
+      
       NSString* triggerId = [[actionTrigger valueForKeyEx:@"id"] stringValue];
       NSString* notificationActionId = [[notificationAction valueForKeyEx:@"id"] stringValue];
       NSString *   notifiationSpecId  =  [((JavaLangLong*)  [spec valueForKey:@"actionTriggerSpecId_"] ) stringValue];

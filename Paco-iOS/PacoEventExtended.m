@@ -395,6 +395,8 @@ NSString* const kPacoResponseJoinExtended = @"joined";
     event.who = userEmail;
     event.experimentGroupName = groupName;
     event.actionTriggerId = @([actionTriggerId intValue]);
+    event.actionTriggerSpecId = @([actionTriggerSpecId intValue]);
+    event.actionId  =  @([actionId intValue]);
     return event;
 }
 
