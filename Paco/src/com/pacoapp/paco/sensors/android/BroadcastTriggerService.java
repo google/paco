@@ -147,11 +147,10 @@ public class BroadcastTriggerService extends Service {
   }
 
   public String createUniqueStringForTrigger(Experiment experiment, Trio<ExperimentGroup, InterruptTrigger, InterruptCue> triggerInfo) {
-    Long actionSpecId = triggerInfo.third != null ? triggerInfo.third.getId() : null;
+    // only create a key down to the trigger -
     return experiment.getId() + ":"
             + triggerInfo.first.getName() + ":"
-            + triggerInfo.second.getId() + ":"
-            + actionSpecId;
+            + triggerInfo.second.getId();
   }
 
   /*
