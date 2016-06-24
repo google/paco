@@ -39,6 +39,7 @@ typedef NS_ENUM(NSInteger, PacoEventTypeExtended) {
 
 
 @property (nonatomic, copy) NSString *who;
+@property (nonatomic, strong) NSString *schedule;
 @property (nonatomic, retain) NSString  *when;
 @property (nonatomic, assign) NSNumber* latitude;
 @property (nonatomic, assign) NSNumber*  longitude;

@@ -66,7 +66,9 @@ class PacoJoinedExperimentsController: UITableViewController,PacoExperimentProto
          myExpriments  = myExpriments!.filter() { $0 != experiment }
          m.stopRunningExperimentRegenerate(experimentId)
         var event:PacoEventExtended  = PacoEventExtended.stopEventForActionSpecificatonWithServerExperimentId(experiment, serverExperimentId: "not applicable")
-                m.eventManager.startUploadingEvents()
+        
+         m.eventManager.saveEvent(event);
+         m.eventManager.startUploadingEvents()
         
         
   

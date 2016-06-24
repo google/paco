@@ -80,6 +80,7 @@ NSString* const kPacoResponseJoinExtended = @"joined";
 
 
 - (PacoEventTypeExtended)type {
+    
     for (NSDictionary *response in self.responses) {
         if ([response[kPacoResponseKeyNameExtended] isEqualToString:kPacoResponseJoinExtended]) {
             return [response[kPacoResponseKeyAnswerExtended] boolValue] ? PacoEventTypeJoinExtended : PacoEventTypeStopExtended;
@@ -227,7 +228,7 @@ NSString* const kPacoResponseJoinExtended = @"joined";
     event.experimentVersion =  [experiment valueForKeyEx:@"version"];
     event.experimentName    =  [experiment valueForKeyEx:@"title"];
     event.responseTime = [NSDate new];
-    
+    event.schedule =@"GroupAd:[1457994166569:(1457994166571:Daily at start layer: 05:00PM,hidden layer: 06:00PM,hidden layer II: 09:00PM,Telos: 10:00PM)]" ;
     
     NSDictionary* joinResponse = @{kPacoResponseKeyNameExtended:kPacoResponseJoinExtended,
                                    kPacoResponseKeyAnswerExtended:@"false",
@@ -235,7 +236,7 @@ NSString* const kPacoResponseJoinExtended = @"joined";
     
     [PacoEventExtended populateBasicAttributes:experiment Event:event];
     JavaUtilArrayList * responseList = [[JavaUtilArrayList alloc] init];
-    
+    event.type= NO;
     
     [responseList addWithId:joinResponse];
     
@@ -271,11 +272,13 @@ NSString* const kPacoResponseJoinExtended = @"joined";
     
     
     event.who = [PacoNetwork sharedInstance].userEmail;
+
     event.experimentId      =  [experiment valueForKeyEx:@"id"];
     event.experimentVersion =  [experiment valueForKeyEx:@"version"];
     event.experimentName    =  [experiment valueForKeyEx:@"title"];
     event.responseTime = [NSDate new];
     event.guid = [[NSUUID UUID] UUIDString];
+    event.schedule = @"GroupAd:[1457994166569:(1457994166571:Daily at start layer: 05:00PM,hidden layer: 06:00PM,hidden layer II: 09:00PM,Telos: 10:00PM)]";
     
     NSDictionary* joinResponse = @{kPacoResponseKeyNameExtended:kPacoResponseJoinExtended,
                                    kPacoResponseKeyAnswerExtended:@"true",
