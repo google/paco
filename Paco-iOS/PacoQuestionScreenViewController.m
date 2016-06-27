@@ -94,8 +94,6 @@ NSString *kCellIdQuestion = @"question";
    self.view = table;
   [self reloadTable];
     
-    
-    
 }
 
 
@@ -253,8 +251,8 @@ NSString *kCellIdQuestion = @"question";
     
     NSArray* inputs   = [self.evaluator evaluateAllInputs];
    table.data = [self boxInputs:inputs];
-   NSLog(@" did I reach here");
-}
+    
+  }
 
 
 

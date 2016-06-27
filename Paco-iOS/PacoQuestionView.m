@@ -713,11 +713,24 @@ didFinishPickingMediaWithInfo:(NSDictionary *)info {
 
 - (BOOL)textView:(UITextView *)textView shouldChangeTextInRange:(NSRange)range
  replacementText:(NSString *)text {
+    
+    self.question.responseObject = text;  
+    
   if ([text rangeOfCharacterFromSet:[NSCharacterSet newlineCharacterSet]].location == NSNotFound) {
     return YES;
   }
   [textView endEditing:YES];
   return NO;
+}
+
+
+- (void)textViewDidChange:(UITextView *)textView
+{
+    self.question.responseObject = textView.text;
+    
+    NSLog(@" text did change %@",self.question.responseObject);
+    
+    
 }
 
 #pragma mark - PacoCheckboxViewDelegate
