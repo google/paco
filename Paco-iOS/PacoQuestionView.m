@@ -196,6 +196,10 @@ UIImagePickerControllerDelegate>
   assert(buttonIndex != NSNotFound);
   [self selectNumberButton:buttonIndex];
   self.question.responseObject = @(buttonIndex);
+    
+    
+    [self.tableView reloadData];
+    
   [self updateConditionals];
 }
 
@@ -321,13 +325,27 @@ UIImagePickerControllerDelegate>
     }
     // Number Steps
     NSMutableArray *buttons = [NSMutableArray array];
+    
+    
+      
     for (NSInteger i = 0; i < self.question.likertSteps; ++i) {
+        
+        
         
       UIButton *button = [UIButton buttonWithType:UIButtonTypeCustom];
      [button setBackgroundImage:[UIImage imageNamed:@"radiobtn_off"] forState:UIControlStateNormal];
       [buttons addObject:button];
       [self addSubview:button];
       [button sizeToFit];
+      NSNumber  * index  = self.question.responseObject;
+
+       if(index != nil && [index intValue] == i)
+        {
+            [button setBackgroundImage:[UIImage imageNamed:@"radiobtn_on"] forState:UIControlStateNormal];
+               
+            NSLog(@" the number is %ld", (long)i);
+        }
+        
       [button addTarget:self action:@selector(onNumber:) forControlEvents:UIControlEventTouchUpInside];
     }
     self.numberButtons = buttons;

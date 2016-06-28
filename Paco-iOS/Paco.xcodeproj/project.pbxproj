@@ -734,6 +734,8 @@
 		A6E1D05B1D13B83800C20B10 /* libJodaCompile.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A6E1D05A1D13B83800C20B10 /* libJodaCompile.a */; };
 		A6E1D06D1D13B86D00C20B10 /* libJ2ObjcLib.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A6E1D06C1D13B86D00C20B10 /* libJ2ObjcLib.a */; };
 		A6E1D0701D19EE5900C20B10 /* NSMutableArray+PacoEvent.m in Sources */ = {isa = PBXBuildFile; fileRef = A6E1D06F1D19EE5900C20B10 /* NSMutableArray+PacoEvent.m */; };
+		A6E1D0821D231F3F00C20B10 /* radiobtn_on.png in Resources */ = {isa = PBXBuildFile; fileRef = A6E1D0801D231F3F00C20B10 /* radiobtn_on.png */; };
+		A6E1D0841D23211100C20B10 /* radiobtn_off.png in Resources */ = {isa = PBXBuildFile; fileRef = A6E1D0831D23211100C20B10 /* radiobtn_off.png */; };
 		A6F7348F1BD9BA3E00DCE716 /* NSDate+PacoTimeZoneHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = A62A15611BC4A8B800FF20C1 /* NSDate+PacoTimeZoneHelper.m */; settings = {COMPILER_FLAGS = " "; }; };
 		A6F734921BD9BA8A00DCE716 /* OrgJodaTimeDateMidnight+PacoDateHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = A6F734911BD9BA8A00DCE716 /* OrgJodaTimeDateMidnight+PacoDateHelper.m */; settings = {COMPILER_FLAGS = " "; }; };
 		A6F957531BA236F400F96295 /* PacoMediator.m in Sources */ = {isa = PBXBuildFile; fileRef = A6F957521BA236F400F96295 /* PacoMediator.m */; settings = {COMPILER_FLAGS = " "; }; };
@@ -1646,6 +1648,9 @@
 		A6E1D06C1D13B86D00C20B10 /* libJ2ObjcLib.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libJ2ObjcLib.a; path = "../../../Library/Developer/Xcode/DerivedData/Paco-hihvuddeybywdperozfqlmrnjwer/Build/Products/Debug-iphonesimulator/libJ2ObjcLib.a"; sourceTree = "<group>"; };
 		A6E1D06E1D19EE5900C20B10 /* NSMutableArray+PacoEvent.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSMutableArray+PacoEvent.h"; sourceTree = "<group>"; };
 		A6E1D06F1D19EE5900C20B10 /* NSMutableArray+PacoEvent.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSMutableArray+PacoEvent.m"; sourceTree = "<group>"; };
+		A6E1D07F1D231F3F00C20B10 /* radiobtn_off.jpeg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = radiobtn_off.jpeg; sourceTree = "<group>"; };
+		A6E1D0801D231F3F00C20B10 /* radiobtn_on.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = radiobtn_on.png; sourceTree = "<group>"; };
+		A6E1D0831D23211100C20B10 /* radiobtn_off.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = radiobtn_off.png; sourceTree = "<group>"; };
 		A6F734901BD9BA8A00DCE716 /* OrgJodaTimeDateMidnight+PacoDateHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "OrgJodaTimeDateMidnight+PacoDateHelper.h"; sourceTree = "<group>"; };
 		A6F734911BD9BA8A00DCE716 /* OrgJodaTimeDateMidnight+PacoDateHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "OrgJodaTimeDateMidnight+PacoDateHelper.m"; sourceTree = "<group>"; };
 		A6F957511BA236F400F96295 /* PacoMediator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoMediator.h; sourceTree = "<group>"; };
@@ -1799,6 +1804,7 @@
 			isa = PBXGroup;
 			children = (
 				A6E1D05A1D13B83800C20B10 /* libJodaCompile.a */,
+				A6E1D0831D23211100C20B10 /* radiobtn_off.png */,
 				A6E1D06C1D13B86D00C20B10 /* libJ2ObjcLib.a */,
 				44BB28FF1D0A619400680037 /* org */,
 				44BB28FD1D0A608A00680037 /* GoogleSignIn.bundle */,
@@ -2860,6 +2866,8 @@
 		A652BB351BD581FE000237A7 /* Mostly Swift */ = {
 			isa = PBXGroup;
 			children = (
+				A6E1D07F1D231F3F00C20B10 /* radiobtn_off.jpeg */,
+				A6E1D0801D231F3F00C20B10 /* radiobtn_on.png */,
 				A6F734931BD9BD6000DCE716 /* bridging */,
 				A652BB3B1BD59A8A000237A7 /* UI */,
 			);
@@ -3845,6 +3853,7 @@
 				A63A82181C0677B600ACBC0A /* share-connect-7.png in Resources */,
 				A6DC6E521BEC1ACC00D38D68 /* PacoPickerTableViewCell.xib in Resources */,
 				36B8EBE017568E29004CF035 /* experiment_normal.png in Resources */,
+				A6E1D0821D231F3F00C20B10 /* radiobtn_on.png in Resources */,
 				A63A80FE1C0677B600ACBC0A /* bright-7.png in Resources */,
 				A63A81C41C0677B600ACBC0A /* night-7.png in Resources */,
 				A63A814E1C0677B600ACBC0A /* electric-7.png in Resources */,
@@ -3977,6 +3986,7 @@
 				A65F68B11C865E64009AAEF4 /* PacoTestingControllerTableViewController.xib in Resources */,
 				36B8EBFC17568E29004CF035 /* smile_icon3.png in Resources */,
 				A63A825A1C0677B600ACBC0A /* window-7.png in Resources */,
+				A6E1D0841D23211100C20B10 /* radiobtn_off.png in Resources */,
 				A63A81EA1C0677B600ACBC0A /* paper-piece-plus-7.png in Resources */,
 				A63A81F81C0677B600ACBC0A /* photo-abstract-7.png in Resources */,
 				A63A82101C0677B600ACBC0A /* ruler-7.png in Resources */,
