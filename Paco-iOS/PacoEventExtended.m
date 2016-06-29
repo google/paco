@@ -376,6 +376,8 @@ NSString* const kPacoResponseJoinExtended = @"joined";
     NSAssert(inputs != nil, @"inputs should not be nil!");
     PacoEventExtended* event = [PacoEventExtended genericEventForDefinition:definition withInputs:inputs];
     event.responseTime = [NSDate dateWithTimeIntervalSinceNow:0];
+    event.guid = [[NSUUID UUID] UUIDString];
+    event.who = @"useremail";
     event.scheduledTime = nil;
     return event;
 }
@@ -392,7 +394,7 @@ NSString* const kPacoResponseJoinExtended = @"joined";
 {
   
     PacoEventExtended* event = [PacoEventExtended genericEventForDefinition:definition withInputs:inputs];
-    event.responseTime = [[NSDate dateWithTimeIntervalSinceNow:0]  toPacoFormatedString];
+    event.responseTime =  [NSDate dateWithTimeIntervalSinceNow:0];
     event.scheduledTime = [scheduledTime toPacoFormatedString];
     event.guid = [[NSUUID UUID] UUIDString];
     event.who = userEmail;
