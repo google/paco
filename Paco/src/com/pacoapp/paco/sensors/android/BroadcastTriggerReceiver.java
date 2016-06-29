@@ -180,7 +180,12 @@ public class BroadcastTriggerReceiver extends BroadcastReceiver {
   }
 
   private boolean isPackageAdded(Context context, Intent intent) {
-    return (intent.getAction().equals(Intent.ACTION_PACKAGE_INSTALL) || intent.getAction().equals(Intent.ACTION_PACKAGE_ADDED));
+    if (!intent.getAction().equals(Intent.ACTION_PACKAGE_ADDED)) {
+      return false;
+    }
+    // Check whether the package replaces a previous version (i.e. is an update)
+    boolean isUpdate = intent.getBooleanExtra(Intent.EXTRA_REPLACING, false);
+    return !isUpdate;
   }
 
   private void triggerPacoExperimentEndedEvent(Context context, Intent intent) {
