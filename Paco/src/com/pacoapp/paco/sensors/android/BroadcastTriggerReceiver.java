@@ -73,6 +73,8 @@ public class BroadcastTriggerReceiver extends BroadcastReceiver {
       triggerPacoExperimentResponseReceivedEvent(context ,intent);
     } else if (isPackageRemoved(context, intent)) {
       triggerPackageRemovedEvent(context, intent);
+    } else if (isPackageAdded(context, intent)) {
+      triggerPackageAddedEvent(context, intent);
     }
 
     PowerManager pm = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
@@ -163,8 +165,22 @@ public class BroadcastTriggerReceiver extends BroadcastReceiver {
     }
   }
 
+  private void triggerPackageAddedEvent(Context context, Intent intent) {
+    Log.i(PacoConstants.TAG, "App installed trigger");
+
+    Uri data = intent.getData();
+    String packageName = data.getEncodedSchemeSpecificPart();
+    if (!packageName.equals("com.pacoapp.paco")) {
+      triggerEvent(context, InterruptCue.APP_ADDED, packageName, null);
+    }
+  }
+
   private boolean isPackageRemoved(Context context, Intent intent) {
 	  return intent.getAction().equals(Intent.ACTION_PACKAGE_REMOVED);
+  }
+
+  private boolean isPackageAdded(Context context, Intent intent) {
+    return (intent.getAction().equals(Intent.ACTION_PACKAGE_INSTALL) || intent.getAction().equals(Intent.ACTION_PACKAGE_ADDED));
   }
 
   private void triggerPacoExperimentEndedEvent(Context context, Intent intent) {
