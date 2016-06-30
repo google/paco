@@ -57,6 +57,9 @@ var paco = (function (init) {
   };
 
   function validNumber(val) {
+    if (!val) {
+      return true;
+    }
     if (!isNumeric(val)) {
       return false;
     }
@@ -1123,9 +1126,7 @@ paco.execute = (function() {
 
     var dbSaveOutcomeCallback = function(status) {
       if (status["status"] === "success") {    
-    	  // TODO i18n
-        form_root.html("Feedback");
-        paco.renderer.renderFeedback(experiment, experimentGroup, paco.db, form_root);
+    	  paco.executor.done();
       } else {
     	// TODO i18n
         alert("Could not store data. You might try again. Error: " + status["error"]);
