@@ -14,7 +14,21 @@ public class CustomInputWebview extends WebView {
   @Override
   public InputConnection onCreateInputConnection(EditorInfo outAttrs) {
     InputConnection inputConnection = super.onCreateInputConnection(outAttrs);
-    outAttrs.imeOptions = outAttrs.imeOptions | EditorInfo.IME_ACTION_DONE;
+    outAttrs.imeOptions |= EditorInfo.IME_ACTION_DONE;
     return inputConnection;
   }
+
+//  @Override
+//  public boolean onKeyUp(int keyCode, KeyEvent event) {
+//    if (keyCode == KeyEvent.KEYCODE_ENTER) {
+//      InputMethodManager imm = (InputMethodManager)getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+//      imm.hideSoftInputFromWindow(getApplicationWindowToken(), 0);
+//      return true;
+//    } else {
+//      return super.onKeyUp(keyCode, event);
+//    }
+//  }
+
+
+
 }
