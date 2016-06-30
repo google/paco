@@ -184,14 +184,9 @@ public class PublicExperimentList {
 
     DateTime nowInUserTimezone = TimeUtil.getNowInUserTimezone(DateTimeZone.forID(timezone));
     String dateString = toDateString(nowInUserTimezone);
-    Filter endDateFilter = new Query.FilterPredicate(END_DATE_PROPERTY,
-            FilterOperator.GREATER_THAN,
-            nowInUserTimezone.toDate());
-    query.setFilter(endDateFilter);
 
-    //TODO MARIOS
     //Sort by modifyDate or some other field that specifies the "newness"
-    query.addSort(END_DATE_PROPERTY, Query.SortDirection.ASCENDING);
+    query.addSort(MODIFY_DATE_PROPERTY, Query.SortDirection.DESCENDING);
 
     FetchOptions options = FetchOptions.Builder.withDefaults();
     if (limit != null) {

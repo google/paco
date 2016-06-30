@@ -61,7 +61,6 @@ public class BackendHubStatsExecutorServlet extends HttpServlet {
     }
 
     private void runStats(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        HubStatsCronJob.getInstance().run();
         resp.setContentType("text/plain;charset=UTF-8");
 
         log.info("In runStats for hub");
