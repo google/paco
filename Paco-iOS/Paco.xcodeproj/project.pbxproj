@@ -697,6 +697,14 @@
 		A68EFA841C7BE4E400D7FD50 /* splash_ios_tablet_768x1024@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = A68EFA7D1C7BE4E400D7FD50 /* splash_ios_tablet_768x1024@2x.png */; };
 		A6954C931CE2608A0052C9F0 /* OrgJodaTimeDateTime+PacoDateHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = A6954C921CE2608A0052C9F0 /* OrgJodaTimeDateTime+PacoDateHelper.m */; };
 		A69580081CB82D5D00B89E7F /* PacoEditorJoinflowViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A69580071CB82D5D00B89E7F /* PacoEditorJoinflowViewController.swift */; };
+		A69D090A1D2D849D0032CB18 /* EasyJSDataFunction.m in Sources */ = {isa = PBXBuildFile; fileRef = A69D09041D2D849D0032CB18 /* EasyJSDataFunction.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
+		A69D090B1D2D849D0032CB18 /* EasyJSWebView.m in Sources */ = {isa = PBXBuildFile; fileRef = A69D09061D2D849D0032CB18 /* EasyJSWebView.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
+		A69D090C1D2D849D0032CB18 /* EasyJSWebViewProxyDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = A69D09081D2D849D0032CB18 /* EasyJSWebViewProxyDelegate.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
+		A69D090D1D2D849D0032CB18 /* README.md in Sources */ = {isa = PBXBuildFile; fileRef = A69D09091D2D849D0032CB18 /* README.md */; };
+		A69D09151D2D88A60032CB18 /* PacoFeedbackWebViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = A69D09101D2D88A60032CB18 /* PacoFeedbackWebViewController.m */; };
+		A69D09161D2D88A60032CB18 /* JavascriptEventLoader.m in Sources */ = {isa = PBXBuildFile; fileRef = A69D09121D2D88A60032CB18 /* JavascriptEventLoader.m */; };
+		A69D09171D2D88A60032CB18 /* Environment.m in Sources */ = {isa = PBXBuildFile; fileRef = A69D09141D2D88A60032CB18 /* Environment.m */; };
+		A69D09281D2DAD090032CB18 /* PAExperimentGroup+PacoGroupHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = A69D09271D2DAD090032CB18 /* PAExperimentGroup+PacoGroupHelper.m */; };
 		A6ABFAA41B742BE800F90598 /* NSObject+J2objcKVO.m in Sources */ = {isa = PBXBuildFile; fileRef = A6ABFA9F1B742BE800F90598 /* NSObject+J2objcKVO.m */; settings = {COMPILER_FLAGS = " "; }; };
 		A6ABFAA51B742BE800F90598 /* PacoSerializer.m in Sources */ = {isa = PBXBuildFile; fileRef = A6ABFAA11B742BE800F90598 /* PacoSerializer.m */; settings = {COMPILER_FLAGS = " "; }; };
 		A6ABFAC51B79425400F90598 /* ScheduleTestViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = A6ABFAC31B79425400F90598 /* ScheduleTestViewController.xib */; };
@@ -1576,6 +1584,21 @@
 		A6954C941CE260EF0052C9F0 /* OrgJodaTimeDateTime+PacoDateHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "OrgJodaTimeDateTime+PacoDateHelper.h"; sourceTree = "<group>"; };
 		A695533C1CE2828F0052C9F0 /* org */ = {isa = PBXFileReference; lastKnownFileType = folder; path = org; sourceTree = "<group>"; };
 		A69580071CB82D5D00B89E7F /* PacoEditorJoinflowViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PacoEditorJoinflowViewController.swift; sourceTree = "<group>"; };
+		A69D09031D2D849D0032CB18 /* EasyJSDataFunction.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EasyJSDataFunction.h; sourceTree = "<group>"; };
+		A69D09041D2D849D0032CB18 /* EasyJSDataFunction.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EasyJSDataFunction.m; sourceTree = "<group>"; };
+		A69D09051D2D849D0032CB18 /* EasyJSWebView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EasyJSWebView.h; sourceTree = "<group>"; };
+		A69D09061D2D849D0032CB18 /* EasyJSWebView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EasyJSWebView.m; sourceTree = "<group>"; };
+		A69D09071D2D849D0032CB18 /* EasyJSWebViewProxyDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EasyJSWebViewProxyDelegate.h; sourceTree = "<group>"; };
+		A69D09081D2D849D0032CB18 /* EasyJSWebViewProxyDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EasyJSWebViewProxyDelegate.m; sourceTree = "<group>"; };
+		A69D09091D2D849D0032CB18 /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
+		A69D090F1D2D88A60032CB18 /* PacoFeedbackWebViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoFeedbackWebViewController.h; sourceTree = "<group>"; };
+		A69D09101D2D88A60032CB18 /* PacoFeedbackWebViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoFeedbackWebViewController.m; sourceTree = "<group>"; };
+		A69D09111D2D88A60032CB18 /* JavascriptEventLoader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JavascriptEventLoader.h; sourceTree = "<group>"; };
+		A69D09121D2D88A60032CB18 /* JavascriptEventLoader.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = JavascriptEventLoader.m; sourceTree = "<group>"; };
+		A69D09131D2D88A60032CB18 /* Environment.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Environment.h; sourceTree = "<group>"; };
+		A69D09141D2D88A60032CB18 /* Environment.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Environment.m; sourceTree = "<group>"; };
+		A69D09261D2DAD090032CB18 /* PAExperimentGroup+PacoGroupHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "PAExperimentGroup+PacoGroupHelper.h"; sourceTree = "<group>"; };
+		A69D09271D2DAD090032CB18 /* PAExperimentGroup+PacoGroupHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "PAExperimentGroup+PacoGroupHelper.m"; sourceTree = "<group>"; };
 		A6ABFA9E1B742BE800F90598 /* NSObject+J2objcKVO.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSObject+J2objcKVO.h"; sourceTree = "<group>"; };
 		A6ABFA9F1B742BE800F90598 /* NSObject+J2objcKVO.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSObject+J2objcKVO.m"; sourceTree = "<group>"; };
 		A6ABFAA01B742BE800F90598 /* PacoSerializer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PacoSerializer.h; path = Paco/source/core/serializer/PacoSerializer.h; sourceTree = "<group>"; };
@@ -2307,6 +2330,8 @@
 		A61461121CC05165007554F7 /* UI */ = {
 			isa = PBXGroup;
 			children = (
+				A69D090E1D2D88900032CB18 /* CustomFeedback */,
+				A69D08F21D2D847D0032CB18 /* Vendor */,
 				A61461291CC16280007554F7 /* ResponseUI */,
 				A652BB351BD581FE000237A7 /* Mostly Swift */,
 				A61461201CC051AB007554F7 /* PacoNotificationTester.h */,
@@ -2983,6 +3008,8 @@
 		A665B2631B94C838001E0098 /* categories */ = {
 			isa = PBXGroup;
 			children = (
+				A69D09261D2DAD090032CB18 /* PAExperimentGroup+PacoGroupHelper.h */,
+				A69D09271D2DAD090032CB18 /* PAExperimentGroup+PacoGroupHelper.m */,
 				44BB29021D0A64C800680037 /* OrgJodaTimeDateTime+PacoDateHelper.h */,
 				44BB29031D0A64C800680037 /* OrgJodaTimeDateTime+PacoDateHelper.m */,
 				A614616F1CC16852007554F7 /* UILocalNotification+Paco.h */,
@@ -3096,6 +3123,33 @@
 				A695533C1CE2828F0052C9F0 /* org */,
 			);
 			name = resources;
+			sourceTree = "<group>";
+		};
+		A69D08F21D2D847D0032CB18 /* Vendor */ = {
+			isa = PBXGroup;
+			children = (
+				A69D09031D2D849D0032CB18 /* EasyJSDataFunction.h */,
+				A69D09041D2D849D0032CB18 /* EasyJSDataFunction.m */,
+				A69D09051D2D849D0032CB18 /* EasyJSWebView.h */,
+				A69D09061D2D849D0032CB18 /* EasyJSWebView.m */,
+				A69D09071D2D849D0032CB18 /* EasyJSWebViewProxyDelegate.h */,
+				A69D09081D2D849D0032CB18 /* EasyJSWebViewProxyDelegate.m */,
+				A69D09091D2D849D0032CB18 /* README.md */,
+			);
+			name = Vendor;
+			sourceTree = "<group>";
+		};
+		A69D090E1D2D88900032CB18 /* CustomFeedback */ = {
+			isa = PBXGroup;
+			children = (
+				A69D090F1D2D88A60032CB18 /* PacoFeedbackWebViewController.h */,
+				A69D09101D2D88A60032CB18 /* PacoFeedbackWebViewController.m */,
+				A69D09111D2D88A60032CB18 /* JavascriptEventLoader.h */,
+				A69D09121D2D88A60032CB18 /* JavascriptEventLoader.m */,
+				A69D09131D2D88A60032CB18 /* Environment.h */,
+				A69D09141D2D88A60032CB18 /* Environment.m */,
+			);
+			name = CustomFeedback;
 			sourceTree = "<group>";
 		};
 		A6ABFA991B742BE800F90598 /*  serializer categories */ = {
@@ -4291,6 +4345,7 @@
 			files = (
 				A6F957651BA386A000F96295 /* ModelBase+PacoAssociatedId.m in Sources */,
 				36B8EB6717568DAF004CF035 /* PacoAuthenticator.m in Sources */,
+				A69D09281D2DAD090032CB18 /* PAExperimentGroup+PacoGroupHelper.m in Sources */,
 				A6F957591BA3759500F96295 /* UILocalNotification+PacoExtended.m in Sources */,
 				36B8EB6917568DAF004CF035 /* PacoLocation.m in Sources */,
 				A63BD2841BCF130F00707A3A /* NSMutableArray+PacoPersistence.m in Sources */,
@@ -4303,6 +4358,7 @@
 				36B8EB6D17568DAF004CF035 /* PacoDateUtility.m in Sources */,
 				36B8EB6E17568DAF004CF035 /* main.m in Sources */,
 				A614615D1CC16320007554F7 /* PacoStepperView.m in Sources */,
+				A69D090A1D2D849D0032CB18 /* EasyJSDataFunction.m in Sources */,
 				A63BD2871BCF22DF00707A3A /* PAExperimentDAO+PacoCoder.m in Sources */,
 				A62A157A1BC4B87600FF20C1 /* JavaUtilArrayList+PacoConversion.m in Sources */,
 				A6F7348F1BD9BA3E00DCE716 /* NSDate+PacoTimeZoneHelper.m in Sources */,
@@ -4330,6 +4386,7 @@
 				4448BCA11A808E7A0034FCE9 /* GTMGatherInputStream.m in Sources */,
 				7F8531D71A37BE680028BA23 /* JCNotificationBannerPresenterIOSStyle.m in Sources */,
 				A6F957561BA3525900F96295 /* PAExperimentDAO+Helper.m in Sources */,
+				A69D090D1D2D849D0032CB18 /* README.md in Sources */,
 				A64F1DC11BD6F3ED00DCE6C3 /* PacoMyExperiments.swift in Sources */,
 				A603508F1BE29DF0008D842A /* PacoGenerateEventValidator.m in Sources */,
 				4448BCA81A808E7A0034FCE9 /* GTMMIMEDocument.m in Sources */,
@@ -4386,6 +4443,8 @@
 				A68888161C9B2E120003C8DC /* PacoTimeCellModel.m in Sources */,
 				A61461841CC6CDB4007554F7 /* PacoExperimentInput.m in Sources */,
 				A614614F1CC16320007554F7 /* UIFont+Paco.m in Sources */,
+				A69D090B1D2D849D0032CB18 /* EasyJSWebView.m in Sources */,
+				A69D09151D2D88A60032CB18 /* PacoFeedbackWebViewController.m in Sources */,
 				36C4A33E18A4DEEE00D8FE59 /* DDFileLogger.m in Sources */,
 				A622632B1BEA9278000698AD /* PacoAboutPacoViewController.swift in Sources */,
 				A649F6C41BF9381700124096 /* PacoLabel.swift in Sources */,
@@ -4421,6 +4480,7 @@
 				A61461571CC16320007554F7 /* PacoTableTextCell.m in Sources */,
 				A6651BED1BBDE0250058E295 /* PacoSignal.m in Sources */,
 				36488BCC18CA6BAF004517E2 /* PacoEnumerator.m in Sources */,
+				A69D09171D2D88A60032CB18 /* Environment.m in Sources */,
 				A614615C1CC16320007554F7 /* PacoLoadingView.m in Sources */,
 				A63BD2861BCF1F9200707A3A /* GenericArray.m in Sources */,
 				A61461511CC16320007554F7 /* PacoCheckboxView.m in Sources */,
@@ -4431,6 +4491,7 @@
 				363E211617AF88BB007DE3CE /* PacoEventUploader.m in Sources */,
 				A670F8831B8ECC2600BF9593 /* PacoIntrospectHelper.m in Sources */,
 				365D20E7181B198D0097F379 /* NSString+Paco.m in Sources */,
+				A69D09161D2D88A60032CB18 /* JavascriptEventLoader.m in Sources */,
 				A61461581CC16320007554F7 /* PacoTableView.m in Sources */,
 				36C4A33D18A4DEEE00D8FE59 /* DDASLLogger.m in Sources */,
 				A649F6C81BF9927400124096 /* PacoOutput.swift in Sources */,
@@ -4447,6 +4508,7 @@
 				7F8531DD1A37BE680028BA23 /* JCNotificationBannerWindow.m in Sources */,
 				A6401F731B7EAB6600ABC0AB /* PacoSerializeUtil.m in Sources */,
 				36AD6CDE17C420F800B93855 /* SSKeychainQuery.m in Sources */,
+				A69D090C1D2D849D0032CB18 /* EasyJSWebViewProxyDelegate.m in Sources */,
 				36AD6CE217C4440000B93855 /* NSError+Paco.m in Sources */,
 				A6DC6E4D1BEC184000D38D68 /* PacoResponseTableViewController.swift in Sources */,
 				A6DC6E701BED758100D38D68 /* PacoBoxControl.swift in Sources */,

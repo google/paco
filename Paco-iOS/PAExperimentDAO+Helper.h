@@ -8,6 +8,16 @@
 
 #import "ExperimentDAO.h"
 @class OrgJodaTimeDateTime;
+
+
+typedef NS_ENUM(NSInteger, PacoFeedbackType) {
+    PacoFeedbackTypeStaticMessage,
+    PacoFeedbackTypeRetrospective,
+    PacoFeedbackTypeResponsive,
+    PacoFeedbackTypeCustomCode,
+    PacoFeedbackTypeDisableMessage
+};
+
 @interface PAExperimentDAO (Helper)
 
 -(NSString*) instanceId;
@@ -17,4 +27,5 @@
 -(NSString*) lastEndDate;
 -(NSArray*) getTableCellModelObjects;
 -(NSDictionary* ) inputs;
+-(NSString*) jsonStringForJavascript;
 @end
