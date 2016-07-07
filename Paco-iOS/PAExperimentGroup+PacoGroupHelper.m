@@ -24,7 +24,7 @@ typedef NS_ENUM(NSInteger, PacoFeedbackType) {
 
 
 
--(int) feedbackType
+-(PacoFeedbackType) feedbackType
 {
     
   
@@ -45,31 +45,38 @@ typedef NS_ENUM(NSInteger, PacoFeedbackType) {
 
 
 
-- (BOOL)isGroupIsTriggered{
+- (BOOL)isGroupTriggered
+{
     
     BOOL isGroupTriggered = NO;
-    
     NSNumber*  numberOfActionTriggers =  [self   valueForKeyEx:@"actionTriggers#"];
     int actionTriggerCount = [numberOfActionTriggers intValue];
-    
-    
+
     for(int ii =0; ii < actionTriggerCount; ii++)
     {
         NSString* str = [NSString stringWithFormat: @"actionTriggers[%i]",ii ];
-        PAScheduleTrigger  *trigger = [self  valueForKeyEx:str];
-        
-        
-        
-        
-        
+        NSObject   *trigger = [self  valueForKeyEx:str];
+        if( ![trigger isKindOfClass:[PAScheduleTrigger class]])
+        {
+            isGroupTriggered =  YES;
+            break;
+        }
         
     }
     
+    if(!isGroupTriggered)
+    {
+        NSObject * cues    = [self valueForKeyPathEx:@"cues"];
+        
+        if(cues)
+        {
+            isGroupTriggered = YES;
+            
+        }
+    }
     
+    return isGroupTriggered;
     
-     NSString* feedback   = [self valueForKeyPathEx:@"cues"];
- 
-   // return [[self.signalMechanismList firstObject] isKindOfClass:[PacoTriggerSignal class]];
 }
 
 
