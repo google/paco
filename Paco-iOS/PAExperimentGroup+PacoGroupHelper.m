@@ -14,22 +14,14 @@
 @implementation PAExperimentGroup (PacoGroupHelper)
 
 
-typedef NS_ENUM(NSInteger, PacoFeedbackType) {
-    PacoFeedbackTypeStaticMessage,
-    PacoFeedbackTypeRetrospective,
-    PacoFeedbackTypeResponsive,
-    PacoFeedbackTypeCustomCode,
-    PacoFeedbackTypeDisableMessage
-};
+
 
 
 
 -(PacoFeedbackType) feedbackType
 {
-    
-  
     NSNumber* feedbackType   = [self valueForKeyEx:@"feedbackType"];
-    int type = [feedbackType intValue];
+    PacoFeedbackType type = [feedbackType intValue];
 
     return type;
     
@@ -37,10 +29,8 @@ typedef NS_ENUM(NSInteger, PacoFeedbackType) {
 
 -(NSString*) jsonStringForJavascript
 {
-
     NSString* feedback   = [self valueForKeyPathEx:@"feedback.text"];
     return feedback;
-    
 }
 
 
@@ -78,6 +68,14 @@ typedef NS_ENUM(NSInteger, PacoFeedbackType) {
     return isGroupTriggered;
     
 }
+
+
+- (BOOL)isCompatibleWithIOS {
+    
+    return ![self isGroupTriggered] && [self isFeedbackCompatibleWithIOS];
+}
+
+
 
 
 - (BOOL)isFeedbackCompatibleWithIOS {

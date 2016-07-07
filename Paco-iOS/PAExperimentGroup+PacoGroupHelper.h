@@ -10,11 +10,18 @@
 
 
 
+typedef NS_ENUM(NSInteger, PacoFeedbackType) {
+    PacoFeedbackTypeStaticMessage,
+    PacoFeedbackTypeRetrospective,
+    PacoFeedbackTypeResponsive,
+    PacoFeedbackTypeCustomCode,
+    PacoFeedbackTypeDisableMessage
+};
 
 
 @interface PAExperimentGroup (PacoGroupHelper)
 /* get the feedback type */ 
--(int) feedbackType;
+-(PacoFeedbackType) feedbackType;
 -(NSString*) jsonStringForJavascript;
 
 

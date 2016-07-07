@@ -8,6 +8,9 @@
 
 #import "ActionSpecification.h"
 
+
 @interface PAActionSpecification (PacoIdentity)
+
++(NSString*) uniqueId;
 
 @end

@@ -129,20 +129,13 @@
         
         NSString* str = [NSString stringWithFormat: @"groups[%i]",i ];
         PAExperimentGroup*  group  =  [self  valueForKeyPathEx:str];
-        
-        
+
         NSString * groupName = [group  valueForKeyPathEx:@"name"];
       
         [mutableString appendString:@" Group Name: "];
         [mutableString appendString:groupName];
         [mutableString appendString:@"\n"];
-        
-        
-        
-        
-        
-        
-        
+
         NSNumber*  numberOfActionTriggers =
         [group  valueForKeyEx:@"actionTriggers#"];
         int actionTriggerCount = [numberOfActionTriggers intValue];

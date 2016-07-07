@@ -705,6 +705,7 @@
 		A69D09161D2D88A60032CB18 /* JavascriptEventLoader.m in Sources */ = {isa = PBXBuildFile; fileRef = A69D09121D2D88A60032CB18 /* JavascriptEventLoader.m */; };
 		A69D09171D2D88A60032CB18 /* Environment.m in Sources */ = {isa = PBXBuildFile; fileRef = A69D09141D2D88A60032CB18 /* Environment.m */; };
 		A69D09281D2DAD090032CB18 /* PAExperimentGroup+PacoGroupHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = A69D09271D2DAD090032CB18 /* PAExperimentGroup+PacoGroupHelper.m */; };
+		A69D093B1D2EDF690032CB18 /* PAActionTrigger+PacoHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = A69D093A1D2EDF690032CB18 /* PAActionTrigger+PacoHelper.m */; };
 		A6ABFAA41B742BE800F90598 /* NSObject+J2objcKVO.m in Sources */ = {isa = PBXBuildFile; fileRef = A6ABFA9F1B742BE800F90598 /* NSObject+J2objcKVO.m */; settings = {COMPILER_FLAGS = " "; }; };
 		A6ABFAA51B742BE800F90598 /* PacoSerializer.m in Sources */ = {isa = PBXBuildFile; fileRef = A6ABFAA11B742BE800F90598 /* PacoSerializer.m */; settings = {COMPILER_FLAGS = " "; }; };
 		A6ABFAC51B79425400F90598 /* ScheduleTestViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = A6ABFAC31B79425400F90598 /* ScheduleTestViewController.xib */; };
@@ -1599,6 +1600,8 @@
 		A69D09141D2D88A60032CB18 /* Environment.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Environment.m; sourceTree = "<group>"; };
 		A69D09261D2DAD090032CB18 /* PAExperimentGroup+PacoGroupHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "PAExperimentGroup+PacoGroupHelper.h"; sourceTree = "<group>"; };
 		A69D09271D2DAD090032CB18 /* PAExperimentGroup+PacoGroupHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "PAExperimentGroup+PacoGroupHelper.m"; sourceTree = "<group>"; };
+		A69D09391D2EDF690032CB18 /* PAActionTrigger+PacoHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "PAActionTrigger+PacoHelper.h"; sourceTree = "<group>"; };
+		A69D093A1D2EDF690032CB18 /* PAActionTrigger+PacoHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "PAActionTrigger+PacoHelper.m"; sourceTree = "<group>"; };
 		A6ABFA9E1B742BE800F90598 /* NSObject+J2objcKVO.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSObject+J2objcKVO.h"; sourceTree = "<group>"; };
 		A6ABFA9F1B742BE800F90598 /* NSObject+J2objcKVO.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSObject+J2objcKVO.m"; sourceTree = "<group>"; };
 		A6ABFAA01B742BE800F90598 /* PacoSerializer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PacoSerializer.h; path = Paco/source/core/serializer/PacoSerializer.h; sourceTree = "<group>"; };
@@ -3010,6 +3013,8 @@
 			children = (
 				A69D09261D2DAD090032CB18 /* PAExperimentGroup+PacoGroupHelper.h */,
 				A69D09271D2DAD090032CB18 /* PAExperimentGroup+PacoGroupHelper.m */,
+				A69D09391D2EDF690032CB18 /* PAActionTrigger+PacoHelper.h */,
+				A69D093A1D2EDF690032CB18 /* PAActionTrigger+PacoHelper.m */,
 				44BB29021D0A64C800680037 /* OrgJodaTimeDateTime+PacoDateHelper.h */,
 				44BB29031D0A64C800680037 /* OrgJodaTimeDateTime+PacoDateHelper.m */,
 				A614616F1CC16852007554F7 /* UILocalNotification+Paco.h */,
@@ -4398,6 +4403,7 @@
 				A65890D21C8D3960007FEF4C /* HubPaginatedTableViewController.m in Sources */,
 				A681F4A21BB4B2EB00EC8599 /* PacoExperimentIsNotNil.m in Sources */,
 				A6DCA58E1B8507B1007FC06D /* PacoSignalStore.m in Sources */,
+				A69D093B1D2EDF690032CB18 /* PAActionTrigger+PacoHelper.m in Sources */,
 				A6DC6E511BEC1ACC00D38D68 /* PacoPickerTableViewCell.swift in Sources */,
 				A61461551CC16320007554F7 /* PacoTableCell.m in Sources */,
 				A62263261BE9AB41000698AD /* PacoConsentFormViewController.swift in Sources */,

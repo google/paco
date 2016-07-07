@@ -8,6 +8,7 @@
 
 #import "PAActionSpecification+PacoIdentity.h"
 #import "NSObject+J2objcKVO.h"
+#import "ActionSpecification.h" 
 
 
 
