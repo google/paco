@@ -7,8 +7,6 @@
 //
 
 #import "PacoEventExtended.h"
-
-#import "PacoEventExtended.h"
 #import "PacoDateUtility.h"
 #import "PacoExtendedClient.h"
 #import "PacoMediator.h"
@@ -35,7 +33,7 @@
 #import "NSDate+PacoTimeZoneHelper.h" 
 #import "JavaUtilArrayList+PacoConversion.h"
 #import "SchedulePrinter.h" 
-
+#import "PAExperimentDAO+Helper.h"
 
 
 
@@ -281,6 +279,9 @@ NSString* const kPacoResponseJoinExtended = @"joined";
     
     //event.schedule =@"GroupAd:[1457994166569:(1457994166571:Daily at start layer: 05:00PM,hidden layer: 06:00PM,hidden layer II: 09:00PM,Telos: 10:00PM)]" ;
     
+    
+    event.schedule = [experiment scheduleString];
+    
     NSDictionary* joinResponse = @{kPacoResponseKeyNameExtended:kPacoResponseJoinExtended,
                                    kPacoResponseKeyAnswerExtended:@"false",
                                    kPacoResponseKeyInputIdExtended:@"-1"};
@@ -334,6 +335,9 @@ NSString* const kPacoResponseJoinExtended = @"joined";
     //event.schedule =
     
     // @"GroupAd:[1457994166569:(1457994166571:Daily at start layer: 05:00PM,hidden layer: 06:00PM,hidden layer II: 09:00PM,Telos: 10:00PM)]";
+    
+    
+    
     
     NSDictionary* joinResponse = @{kPacoResponseKeyNameExtended:kPacoResponseJoinExtended,
                                    kPacoResponseKeyAnswerExtended:@"true",
