@@ -9,13 +9,10 @@
 #import "PAExperimentGroup+PacoGroupHelper.h"
 #import "NSObject+J2objcKVO.h"
 #import "ScheduleTrigger.h"
+#import "PAActionTrigger+PacoHelper.h" 
 
 
 @implementation PAExperimentGroup (PacoGroupHelper)
-
-
-
-
 
 
 -(PacoFeedbackType) feedbackType
@@ -31,6 +28,32 @@
 {
     NSString* feedback   = [self valueForKeyPathEx:@"feedback.text"];
     return feedback;
+}
+
+
+
+-(BOOL) isContainsAllOthers
+{
+    BOOL isContainsAllOthers = NO;
+    NSNumber*  numberOfActionTriggers =  [self   valueForKeyEx:@"actionTriggers#"];
+    int actionTriggerCount = [numberOfActionTriggers intValue];
+    
+    for(int ii =0; ii < actionTriggerCount; ii++)
+    {
+        NSString* str = [NSString stringWithFormat: @"actionTriggers[%i]",ii ];
+        PAActionTrigger  *actionTrigger = [self  valueForKeyEx:str];
+        
+        if( [actionTrigger containsAllOthers])
+        {
+            isContainsAllOthers = YES;
+            break;
+            
+        }
+        
+        
+    }
+    return isContainsAllOthers;
+    
 }
 
 

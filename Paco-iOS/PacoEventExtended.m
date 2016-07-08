@@ -12,8 +12,7 @@
 #import "PacoDateUtility.h"
 #import "PacoExtendedClient.h"
 #import "PacoMediator.h"
-
-
+#import "JavaUtilArrayList+PacoConversion.h"
 #import "Schedule.h"
 #import "PacoExperimentInput.h"
 #import <CoreLocation/CoreLocation.h>
@@ -34,7 +33,8 @@
 #import "PacoNetwork.h"
 #import "OrgJodaTimeDateTime+PacoDateHelper.h" 
 #import "NSDate+PacoTimeZoneHelper.h" 
-
+#import "JavaUtilArrayList+PacoConversion.h"
+#import "SchedulePrinter.h" 
 
 
 
@@ -95,6 +95,55 @@ NSString* const kPacoResponseJoinExtended = @"joined";
         return PacoEventTypeSelfReportExtended;
     }
 }
+
+
+- (NSArray*)responseListWithImageString {
+    
+    NSMutableArray* newReponseList = [[NSMutableArray alloc] initWithArray:[self.responses toNSArray] ];
+  
+    int size = [self.responses size];
+
+    for (int index=0; index< size; index++) {
+        
+        id responseDict =[self.responses getWithInt:index];
+        if (![responseDict isKindOfClass:[NSDictionary class]]) {
+            continue;
+        }
+        
+        id answer = ((NSDictionary*)responseDict)[kPacoResponseKeyAnswerExtended];
+        if (![answer isKindOfClass:[NSString class]]) {
+            continue;
+        }
+        NSString* imageName = [UIImage pacoImageNameFromBoxedName:(NSString*)answer];
+        if (!imageName) {
+            continue;
+        }
+        NSString* imageString = [UIImage pacoBase64StringWithImageName:imageName];
+        if ([imageString length] > 0) {
+            NSMutableDictionary* newResponseDict = [NSMutableDictionary dictionaryWithDictionary:responseDict];
+            newResponseDict[kPacoResponseKeyAnswerExtended] = imageString;
+            newReponseList[index] = newResponseDict;
+        }
+    }
+    
+    return [NSArray arrayWithArray:newReponseList];
+}
+
+
+- (id)payloadJsonWithImageString
+{
+    if (0 == [self.responses size]) {
+        return [self generateJsonObject];
+    }
+    
+     NSMutableDictionary* jsonPayload =
+    [NSMutableDictionary dictionaryWithDictionary:[self generateJsonObject]];
+ 
+    jsonPayload[kPacoEventKeyResponsesExtended] = [self responseListWithImageString];
+    return jsonPayload;
+}
+
+
 
 
 - (NSString*)description {
@@ -166,7 +215,7 @@ NSString* const kPacoResponseJoinExtended = @"joined";
 
 
 
-- (id)payloadJsonWithImageString {
+- (id)payloadJsonWithImageStringInline {
     if (0 == [self.responses size]) {
         return [self generateJsonObject];
     }
@@ -220,15 +269,17 @@ NSString* const kPacoResponseJoinExtended = @"joined";
     
     // Setup an event for joining the experiement.
     PacoEventExtended *event = [PacoEventExtended new];
-    
-    
-    
+
     event.who = [PacoNetwork sharedInstance].userEmail;
     event.experimentId      =  [experiment valueForKeyEx:@"id"];
     event.experimentVersion =  [experiment valueForKeyEx:@"version"];
     event.experimentName    =  [experiment valueForKeyEx:@"title"];
     event.responseTime = [NSDate new];
-    event.schedule =@"GroupAd:[1457994166569:(1457994166571:Daily at start layer: 05:00PM,hidden layer: 06:00PM,hidden layer II: 09:00PM,Telos: 10:00PM)]" ;
+    
+   // NSString* schedule = PASchedulePrinter toStringWithPASchedule:(PASchedule *)
+    
+    
+    //event.schedule =@"GroupAd:[1457994166569:(1457994166571:Daily at start layer: 05:00PM,hidden layer: 06:00PM,hidden layer II: 09:00PM,Telos: 10:00PM)]" ;
     
     NSDictionary* joinResponse = @{kPacoResponseKeyNameExtended:kPacoResponseJoinExtended,
                                    kPacoResponseKeyAnswerExtended:@"false",
@@ -278,7 +329,11 @@ NSString* const kPacoResponseJoinExtended = @"joined";
     event.experimentName    =  [experiment valueForKeyEx:@"title"];
     event.responseTime = [NSDate new];
     event.guid = [[NSUUID UUID] UUIDString];
-    event.schedule = @"GroupAd:[1457994166569:(1457994166571:Daily at start layer: 05:00PM,hidden layer: 06:00PM,hidden layer II: 09:00PM,Telos: 10:00PM)]";
+    
+     // NSString* schedule = PASchedulePrinter toStringWithPASchedule:(PASchedule *)
+    //event.schedule =
+    
+    // @"GroupAd:[1457994166569:(1457994166571:Daily at start layer: 05:00PM,hidden layer: 06:00PM,hidden layer II: 09:00PM,Telos: 10:00PM)]";
     
     NSDictionary* joinResponse = @{kPacoResponseKeyNameExtended:kPacoResponseJoinExtended,
                                    kPacoResponseKeyAnswerExtended:@"true",

@@ -13,9 +13,11 @@
  * limitations under the License.
  */
 
+
 #import <UIKit/UIKit.h>
 
-@class PacoExperiment;
+@class PAExperimentGroup;
+@class PAExperiment;
 @class EasyJSWebView;
 
 typedef void(^PacoFeedbackWebViewDismissBlock)();
@@ -23,9 +25,12 @@ typedef void(^PacoFeedbackWebViewDismissBlock)();
 @interface PacoFeedbackWebViewController : UIViewController
 
 @property(nonatomic, strong, readonly) EasyJSWebView* webView;
-@property(nonatomic, strong, readonly) PacoExperiment* experiment;
+@property(nonatomic, strong, readonly) PAExperimentGroup* group;
+@property(nonatomic, strong, readonly) PAExperiment* experiment;
 
-+ (id)controllerWithExperiment:(PacoExperiment*)experiment
+
++ (id)controllerWithExperimentGroup:(PAExperimentGroup*) group
+                              title:(NSString*) title
                       htmlName:(NSString*)htmlName
                   dismissBlock:(PacoFeedbackWebViewDismissBlock)dismissBlock;
 

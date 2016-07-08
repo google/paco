@@ -20,49 +20,57 @@
 #import "JavascriptEventLoader.h"
 #import "PacoExperimentDefinition.h"
 #import "Environment.h"
+#import "PAExperimentGroup+PacoGroupHelper.h" 
+
+
 
 @interface JavascriptExperimentLoader : NSObject
-@property(nonatomic, strong) PacoExperiment* experiment;
+@property(nonatomic, strong) PAExperimentGroup* group;
 @end
 
 @implementation JavascriptExperimentLoader
 
-- (id)initWithExperiment:(PacoExperiment*)experiment {
+- (id)initWithExperiment:(PAExperimentGroup*)group {
   self = [super init];
   if (self) {
-    _experiment = experiment;
+      
+   self.group   = group;
   }
   return self;
 }
 
-+ (instancetype)loaderWithExperiment:(PacoExperiment*)experiment {
-  return [[[self class] alloc] initWithExperiment:experiment];
++ (instancetype)loaderWithExperiment:(PAExperimentGroup*) group {
+  return [[[self class] alloc] initWithExperiment:group];
 }
 
-- (NSString*)getExperiment {
-  return [self.experiment jsonStringForJavascript];
+- (NSString*) getJavascript  {
+    
+  return [self.group jsonStringForJavascript];
 }
 @end
 
 
 @interface PacoFeedbackWebViewController ()
 @property(nonatomic, strong) EasyJSWebView* webView;
-@property(nonatomic, strong) PacoExperiment* experiment;
+@property(nonatomic, strong) PAExperimentGroup* group;
 @property(nonatomic, strong) Environment* env;
 @property(nonatomic, copy) NSString* htmlName;
+@property(nonatomic, copy) NSString* experimentTitle;
 @property(nonatomic, copy) PacoFeedbackWebViewDismissBlock dismissBlock;
 @end
 
 
 @implementation PacoFeedbackWebViewController
-+ (id)controllerWithExperiment:(PacoExperiment*)experiment
-                      htmlName:(NSString*)htmlName
-                  dismissBlock:(PacoFeedbackWebViewDismissBlock)dismissBlock {
++ (id)controllerWithExperimentGroup:(PAExperimentGroup*) group
+                              title:(NSString*) title
+                           htmlName:(NSString*)htmlName
+                       dismissBlock:(PacoFeedbackWebViewDismissBlock)dismissBlock {
     
   PacoFeedbackWebViewController* controller =
       [[PacoFeedbackWebViewController alloc] initWithNibName:nil bundle:nil];
-  controller.experiment = experiment;
+  controller.group  = group;
   controller.htmlName = htmlName;
+  controller.experimentTitle = title;
   controller.dismissBlock = dismissBlock;
   return controller;
     
@@ -99,24 +107,27 @@
   // Dispose of any resources that can be recreated.
 }
 
-- (void)injectObjectsToJavascriptEnvironment {  
+- (void)injectObjectsToJavascriptEnvironment
+{
+    
   //db/eventLoader(deprecated)
-  JavascriptEventLoader* eventLoader = [JavascriptEventLoader loaderForExperiment:self.experiment];
+  JavascriptEventLoader* eventLoader = [JavascriptEventLoader loaderForExperiment:self.group];
   [self.webView addJavascriptInterfaces:eventLoader WithName:@"eventLoader"];
   [self.webView addJavascriptInterfaces:eventLoader WithName:@"db"];
 
-  JavascriptExperimentLoader *experimentLoader = [JavascriptExperimentLoader loaderWithExperiment:self.experiment];
+  JavascriptExperimentLoader *experimentLoader = [JavascriptExperimentLoader loaderWithExperiment:self.group];
   [self.webView addJavascriptInterfaces:experimentLoader WithName:@"experimentLoader"];
 
   //env
   NSMutableDictionary* dict = [NSMutableDictionary dictionary];
-  dict[@"title"] = self.experiment.definition.title;
-  dict[@"experiment"] = [self.experiment jsonStringForJavascript];
+  dict[@"title"] = _experimentTitle;
+  dict[@"experiment"] = [self.group jsonStringForJavascript];
   dict[@"lastResponse"] = [eventLoader jsonStringForLastEvent];
   dict[@"test"] = @"false";
-  //insert feedback string into env, since addJavascriptInterfaces will add it as an object,
-  //instead of string
-  dict[@"additions"] = [self.experiment feedback].text;
+    
+   //insert feedback string into env, since addJavascriptInterfaces will add it as an object,
+   //instead of string
+   dict[@"additions"] = [self.group feedback].text;
   self.env = [Environment environmentWithDictionary:dict];
   [self.webView addJavascriptInterfaces:self.env WithName:@"env"];
 }

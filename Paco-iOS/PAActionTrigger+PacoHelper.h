@@ -10,4 +10,6 @@
 
 @interface PAActionTrigger (PacoHelper)
 
+-(BOOL) containsAllOthers;
+
 @end
