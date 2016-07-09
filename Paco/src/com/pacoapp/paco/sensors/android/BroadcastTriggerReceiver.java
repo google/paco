@@ -165,6 +165,14 @@ public class BroadcastTriggerReceiver extends BroadcastReceiver {
     }
   }
 
+  /**
+   * Broadcasts an intent destined for the BroadcastTriggerService containing
+   * the package name and time of the event as extra data.
+   * This method is called by the onReceive() method when it received an
+   * ACTION_PACKAGE_ADDED broadcast.
+   * @param context The Android app context
+   * @param intent The received broadcast intent
+   */
   private void triggerPackageAddedEvent(Context context, Intent intent) {
     Log.i(PacoConstants.TAG, "App installed trigger");
 
@@ -179,6 +187,13 @@ public class BroadcastTriggerReceiver extends BroadcastReceiver {
 	  return intent.getAction().equals(Intent.ACTION_PACKAGE_REMOVED);
   }
 
+  /**
+   * Checks whether an intent contains information about a *new* app being
+   * installed. Updates of existing packages are not considered as new installs.
+   * @param context The Android app context
+   * @param intent The received broadcast intent
+   * @return Whether the intent shows a new package was installed
+   */
   private boolean isPackageAdded(Context context, Intent intent) {
     if (!intent.getAction().equals(Intent.ACTION_PACKAGE_ADDED)) {
       return false;
