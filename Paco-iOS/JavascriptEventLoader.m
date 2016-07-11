@@ -24,6 +24,9 @@
 #import "PAExperimentDAO+Helper.h"
 #import "NSObject+J2objcKVO.h"
 #import "NSDate+Paco.h"
+#import "PacoMediator.h" 
+#import "PacoEventManagerExtended.h" 
+
 
 
 @interface JavascriptEventLoader()
@@ -114,9 +117,12 @@
 - (void)loadEventsIfNeeded {
   @synchronized(self) {
     if (!self.events) {
-      NSArray* events =
-          [[PacoClient sharedInstance].eventManager eventsForExperiment:self.experiment.instanceId];
-      self.events = (events != nil) ? events : [NSArray array];
+        
+        
+        
+        NSNumber * experimentId  =  [self.experiment valueForKeyEx:@"id"];
+        NSArray* events = [[PacoMediator sharedInstance].eventManager allEventsForExperiment:experimentId]
+        self.events = (events != nil) ? events : [NSArray array];
     }
   }
 }

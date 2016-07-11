@@ -63,6 +63,7 @@
 
 
 
+-(NSArray*) allEventsForExperiment:(NSNumber*) experimentId;
 
 
 - (PacoParticipateStatusExtended*)statsForExperiment:(NSString*)experimentId;

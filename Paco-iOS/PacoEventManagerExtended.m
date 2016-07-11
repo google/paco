@@ -386,6 +386,28 @@ static NSString* const kAllEventsFileName = @"allEvents.plist";
 }
 
 
+-(NSArray*) allEventsForExperiment:(NSNumber*) experimentId
+{
+    
+    NSMutableArray*  eventsToReturn  = [NSMutableArray new];
+    NSArray* pendingEvents = [self allPendingEvents];
+    
+    for(PacoEventExtended * event in pendingEvents)
+    {
+        
+        if( [event.experimentId isEqualToNumber:experimentId] )
+        {
+            [eventsToReturn addObject:event];
+            
+        }
+        
+    }
+    
+    return eventsToReturn;
+    
+}
+
+
 
 - (void)startUploadingEventsInBackgroundWithBlock:(void(^)(UIBackgroundFetchResult))completionBlock {
     @synchronized(self) {
