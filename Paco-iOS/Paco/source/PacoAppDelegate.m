@@ -39,7 +39,7 @@
 #import  "PacoQuestionScreenViewController.h"
 #import "PacoMediator.h"
 #import "PacoConfigurationViewController.h"
-
+#import "PacoTestCustomFeedBackViewController.h" 
 
 
 //#import <GoogleSignIn/GoogleSignIn.h>
@@ -296,11 +296,19 @@ static NSString * const kClientID =
     // self.window.rootViewController = self.tabBar ;
     
       // self.window.rootViewController = self.testViewController;
-     self.window.rootViewController = [[UINavigationController alloc] initWithRootViewController:self.tabBar];
     
-   
     
-     self.viewController =  self.tabBar;
+    self.custumFeedback = [[PacoTestCustomFeedBackViewController alloc] initWithNibName:@"PacoTestCustomFeedBackViewController" bundle:nil];
+    
+    
+    self.window.rootViewController =  self.custumFeedback;
+    
+    
+    // self.window.rootViewController = [[UINavigationController alloc] initWithRootViewController:self.tabBar];
+    
+    self.viewController = self.custumFeedback;
+    
+     //self.viewController =  self.tabBar;
     
     
     [self.window makeKeyAndVisible];

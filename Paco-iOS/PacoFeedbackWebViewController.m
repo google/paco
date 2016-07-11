@@ -127,8 +127,8 @@
     
    //insert feedback string into env, since addJavascriptInterfaces will add it as an object,
    //instead of string
-   dict[@"additions"] = [self.group feedback].text;
-  self.env = [Environment environmentWithDictionary:dict];
+   dict[@"additions"] = [self.group jsonStringForJavascript];
+   self.env = [Environment environmentWithDictionary:dict];
   [self.webView addJavascriptInterfaces:self.env WithName:@"env"];
 }
 

@@ -706,6 +706,8 @@
 		A69D09171D2D88A60032CB18 /* Environment.m in Sources */ = {isa = PBXBuildFile; fileRef = A69D09141D2D88A60032CB18 /* Environment.m */; };
 		A69D09281D2DAD090032CB18 /* PAExperimentGroup+PacoGroupHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = A69D09271D2DAD090032CB18 /* PAExperimentGroup+PacoGroupHelper.m */; };
 		A69D093B1D2EDF690032CB18 /* PAActionTrigger+PacoHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = A69D093A1D2EDF690032CB18 /* PAActionTrigger+PacoHelper.m */; };
+		A69D09431D3322270032CB18 /* PacoTestCustomFeedBackViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = A69D09411D3322270032CB18 /* PacoTestCustomFeedBackViewController.m */; };
+		A69D09441D3322270032CB18 /* PacoTestCustomFeedBackViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = A69D09421D3322270032CB18 /* PacoTestCustomFeedBackViewController.xib */; };
 		A6ABFAA41B742BE800F90598 /* NSObject+J2objcKVO.m in Sources */ = {isa = PBXBuildFile; fileRef = A6ABFA9F1B742BE800F90598 /* NSObject+J2objcKVO.m */; settings = {COMPILER_FLAGS = " "; }; };
 		A6ABFAA51B742BE800F90598 /* PacoSerializer.m in Sources */ = {isa = PBXBuildFile; fileRef = A6ABFAA11B742BE800F90598 /* PacoSerializer.m */; settings = {COMPILER_FLAGS = " "; }; };
 		A6ABFAC51B79425400F90598 /* ScheduleTestViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = A6ABFAC31B79425400F90598 /* ScheduleTestViewController.xib */; };
@@ -1602,6 +1604,9 @@
 		A69D09271D2DAD090032CB18 /* PAExperimentGroup+PacoGroupHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "PAExperimentGroup+PacoGroupHelper.m"; sourceTree = "<group>"; };
 		A69D09391D2EDF690032CB18 /* PAActionTrigger+PacoHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "PAActionTrigger+PacoHelper.h"; sourceTree = "<group>"; };
 		A69D093A1D2EDF690032CB18 /* PAActionTrigger+PacoHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "PAActionTrigger+PacoHelper.m"; sourceTree = "<group>"; };
+		A69D09401D3322270032CB18 /* PacoTestCustomFeedBackViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoTestCustomFeedBackViewController.h; sourceTree = "<group>"; };
+		A69D09411D3322270032CB18 /* PacoTestCustomFeedBackViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoTestCustomFeedBackViewController.m; sourceTree = "<group>"; };
+		A69D09421D3322270032CB18 /* PacoTestCustomFeedBackViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = PacoTestCustomFeedBackViewController.xib; sourceTree = "<group>"; };
 		A6ABFA9E1B742BE800F90598 /* NSObject+J2objcKVO.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSObject+J2objcKVO.h"; sourceTree = "<group>"; };
 		A6ABFA9F1B742BE800F90598 /* NSObject+J2objcKVO.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSObject+J2objcKVO.m"; sourceTree = "<group>"; };
 		A6ABFAA01B742BE800F90598 /* PacoSerializer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PacoSerializer.h; path = Paco/source/core/serializer/PacoSerializer.h; sourceTree = "<group>"; };
@@ -2333,6 +2338,7 @@
 		A61461121CC05165007554F7 /* UI */ = {
 			isa = PBXGroup;
 			children = (
+				A69D093C1D331AE50032CB18 /* Testing */,
 				A69D090E1D2D88900032CB18 /* CustomFeedback */,
 				A69D08F21D2D847D0032CB18 /* Vendor */,
 				A61461291CC16280007554F7 /* ResponseUI */,
@@ -3157,6 +3163,16 @@
 			name = CustomFeedback;
 			sourceTree = "<group>";
 		};
+		A69D093C1D331AE50032CB18 /* Testing */ = {
+			isa = PBXGroup;
+			children = (
+				A69D09401D3322270032CB18 /* PacoTestCustomFeedBackViewController.h */,
+				A69D09411D3322270032CB18 /* PacoTestCustomFeedBackViewController.m */,
+				A69D09421D3322270032CB18 /* PacoTestCustomFeedBackViewController.xib */,
+			);
+			name = Testing;
+			sourceTree = "<group>";
+		};
 		A6ABFA991B742BE800F90598 /*  serializer categories */ = {
 			isa = PBXGroup;
 			children = (
@@ -3928,6 +3944,7 @@
 				A63A82581C0677B600ACBC0A /* wifi-signal-7.png in Resources */,
 				A63A82001C0677B600ACBC0A /* pin-map-off-7.png in Resources */,
 				A63A811E1C0677B600ACBC0A /* clock-alarm-7.png in Resources */,
+				A69D09441D3322270032CB18 /* PacoTestCustomFeedBackViewController.xib in Resources */,
 				A6DC6E7B1BF17D3100D38D68 /* PacoMultipleChoiceCellTableViewCell.xib in Resources */,
 				36B8EBE317568E29004CF035 /* feedback_focused.png in Resources */,
 				A63A82241C0677B600ACBC0A /* square-individual-nine-7.png in Resources */,
@@ -4483,6 +4500,7 @@
 				A6F957621BA3830400F96295 /* PacoExtendedNotificationInfo.m in Sources */,
 				A6AFCCF21BB6078A002BA7FC /* PacoPrintGroupNamesReporter.m in Sources */,
 				36488BBE18CA598C004517E2 /* PacoPublicDefinitionLoader.m in Sources */,
+				A69D09431D3322270032CB18 /* PacoTestCustomFeedBackViewController.m in Sources */,
 				A61461571CC16320007554F7 /* PacoTableTextCell.m in Sources */,
 				A6651BED1BBDE0250058E295 /* PacoSignal.m in Sources */,
 				36488BCC18CA6BAF004517E2 /* PacoEnumerator.m in Sources */,

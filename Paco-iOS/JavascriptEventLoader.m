@@ -14,13 +14,17 @@
  */
 
 #import "JavascriptEventLoader.h"
-#import "PacoExperiment.h"
 #import "PacoClient.h"
 #import "PacoEventManager.h"
-#import "PacoEvent.h"
+#import "PacoEventExtended.h"
 #import "NSDate+Paco.h"
 #import "PacoExperimentInput.h"
 #import "PacoExperimentFeedback.h"
+#import "ExperimentDAO.h"
+#import "PAExperimentDAO+Helper.h"
+#import "NSObject+J2objcKVO.h"
+#import "NSDate+Paco.h"
+
 
 @interface JavascriptEventLoader()
 
@@ -29,7 +33,7 @@
 
 @implementation JavascriptEventLoader
 
-- (id)initWithExperiment:(PacoExperiment*)experiment {
+- (id)initWithExperiment:(PAExperimentDAO*)experiment {
   self = [super init];
   if (self) {
     _experiment = experiment;
@@ -37,29 +41,35 @@
   return self;
 }
 
-+ (instancetype)loaderForExperiment:(PacoExperiment*)experiment {
++ (instancetype)loaderForExperiment:(PAExperimentDAO*) experiment {
   return [[[self class] alloc] initWithExperiment:experiment];
 }
 
-+ (NSString*)convertEventsToJsonString:(NSArray*)events experiment:(PacoExperiment*)experiment{
++ (NSString*)convertEventsToJsonString:(NSArray*)events experiment:(PAExperimentDAO*)experiment{
   NSMutableArray* eventJsonList = [NSMutableArray arrayWithCapacity:[events count]];
-  for (PacoEvent* event in events) {
+  for (PacoEventExtended * event in events) {
     NSArray* responseListWithImageString = [event responseListWithImageString];
     NSMutableArray* newResponses = [NSMutableArray array];
-    for (NSDictionary* responseDict in responseListWithImageString) {
-      PacoExperimentInput* input = [experiment inputWithId:responseDict[@"inputId"]];
+      
+    for (NSDictionary* responseDict in responseListWithImageString)
+    {
+        
+      PAInput2 * input = [experiment inputWithId:responseDict[@"inputId"]];
       if (!input) { //join, stop event
         continue;
+      
       }
+        
+        
       NSMutableDictionary* newDict = [NSMutableDictionary dictionary];
-      newDict[@"inputId"] = input.inputIdentifier;
+        newDict[@"inputId"] = [input valueForKeyEx:@"id"];//input.inputIdentifier;
       // deprecate inputName in favor of name. Some experiments still use it though
-      newDict[@"inputName"] = input.name;
-      newDict[@"name"] = input.name;
-      newDict[@"responseType"] = input.responseType;
-      newDict[@"isMultiselect"] = @(input.multiSelect);
-      if (input.text) {
-        newDict[@"prompt"] = input.text;
+        newDict[@"inputName"] = [input valueForKeyEx:@"name"];
+      newDict[@"name"] = [input valueForKeyEx:@"name"];
+      newDict[@"responseType"] = [input valueForKeyEx:@"responsetype"];
+      newDict[@"isMultiselect"] = @([(NSNumber*)[input valueForKeyEx:@"multiselect"] intValue]);
+      if ([input valueForKeyEx:@"text"]) {
+        newDict[@"prompt"] = [input valueForKeyEx:@"text"];
       }
       id answer = responseDict[@"answer"];
       NSAssert([answer isKindOfClass:[NSString class]] || [answer isKindOfClass:[NSNumber class]],
@@ -82,7 +92,7 @@
     }
     eventJson[@"isSelfReport"] = @(event.scheduledTime == nil);
     if (event.scheduledTime) {
-      eventJson[@"scheduleTime"] = @([event.scheduledTime pacoGetMilliSeconds]);
+        eventJson[@"scheduleTime"]=event.scheduledTime ;//= @([event.scheduledTime pacoGetMilliSeconds]);
     }
     [eventJsonList addObject:eventJson];
   }

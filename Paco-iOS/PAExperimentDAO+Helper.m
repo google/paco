@@ -75,7 +75,41 @@
 
 
 
-
+-(PAInput2*) inputWithId:(NSString*) inputID
+{
+    PAInput2* retValue;
+     NSNumber   * numberOfGroups    = [self  valueForKeyPathEx:@"groups#"];
+     int count = [numberOfGroups intValue];
+    
+     for( int i =0;  i < count; i++)
+     {
+          NSString* str = [NSString stringWithFormat: @"groups[%i]",i ];
+          PAExperimentGroup*  group  =  [self  valueForKeyPathEx:str];
+          JavaUtilArrayList*  list =    (JavaUtilArrayList*)   [group getInputs] ;
+          IOSObjectArray * inputArray =  [list toArray];
+         
+         for(PAInput2 * input in inputArray)
+         {
+             
+             NSString* theId = [input  valueForKeyEx:@"id"];
+             if([inputID isEqualToString:theId])
+             {
+                 
+                 retValue = input;
+                 break;
+             }
+             
+         }
+         
+         
+         return retValue;
+     }
+    
+         
+         
+    
+    
+}
 
 
 -(NSDictionary* ) inputs

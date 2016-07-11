@@ -24,6 +24,13 @@ static NSUInteger kSaturdayIndex = 7;
 
 @implementation NSDate (Paco)
 
+
+- (long long)pacoGetMilliSeconds {
+    NSDate* midnight = [self pacoCurrentDayAtMidnight];
+    NSTimeInterval interval = [self timeIntervalSinceDate:midnight];
+    return interval * 1000;
+}
+
 - (BOOL)pacoEarlierThanDate:(NSDate*)another {
   return ([self timeIntervalSinceDate:another] < 0);
 }

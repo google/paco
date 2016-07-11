@@ -8,7 +8,7 @@
 
 #import "ExperimentDAO.h"
 @class OrgJodaTimeDateTime;
-
+@class PAInput2;
 
 typedef NS_ENUM(NSInteger, PacoFeedbackType) {
     PacoFeedbackTypeStaticMessage,
@@ -28,4 +28,5 @@ typedef NS_ENUM(NSInteger, PacoFeedbackType) {
 -(NSArray*) getTableCellModelObjects;
 -(NSDictionary* ) inputs;
 -(NSString*) jsonStringForJavascript;
+-(PAInput2*) inputWithId:(NSString*) inputID;
 @end

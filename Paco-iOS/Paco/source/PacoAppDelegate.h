@@ -39,7 +39,7 @@
 @class PacoViewController;
 @class PacoConfigurationViewController;
 
-
+@class PacoTestCustomFeedBackViewController;
 
 static NSString *dataSource;
 
@@ -59,7 +59,7 @@ static NSString *dataSource;
 @property (strong,nonatomic) PacoViewController* goController;
 @property (strong,nonatomic) PacoNotificationTester* alertTester;
 @property (strong,nonatomic) PacoConfigurationViewController* configurationManager;
-
+@property (strong,nonatomic) PacoTestCustomFeedBackViewController* custumFeedback;
 
 @property (strong,nonatomic) PacoTestViewer* testPagination;
 @property (strong,nonatomic) HubPaginatedTableViewController* pg;

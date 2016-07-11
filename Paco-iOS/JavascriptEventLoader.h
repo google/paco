@@ -14,15 +14,15 @@
  */
 
 #import <Foundation/Foundation.h>
-@class PacoExperiment;
+@class PAExperimentDAO;
 
 @interface JavascriptEventLoader : NSObject
 
-@property(nonatomic, strong, readonly) PacoExperiment* experiment;
+@property(nonatomic, strong, readonly) PAExperimentDAO* experiment;
 
-+ (instancetype)loaderForExperiment:(PacoExperiment*)experiment;
++ (instancetype)loaderForExperiment:(PAExperimentDAO*)experiment;
 
-+ (NSString*)convertEventsToJsonString:(NSArray*)events experiment:(PacoExperiment*)experiment;
++ (NSString*)convertEventsToJsonString:(NSArray*)events experiment:(PAExperimentDAO*)experiment;
 
 - (NSString*)getAllEvents;
 

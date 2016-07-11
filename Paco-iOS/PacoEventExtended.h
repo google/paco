@@ -118,6 +118,6 @@ typedef NS_ENUM(NSInteger, PacoEventTypeExtended) {
 /* generate an NSDictionary of attribute value pairs. */
 
 - (id)generateJsonObject;
-
+- (NSArray*)responseListWithImageString;
 
 @end
