@@ -708,6 +708,7 @@
 		A69D093B1D2EDF690032CB18 /* PAActionTrigger+PacoHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = A69D093A1D2EDF690032CB18 /* PAActionTrigger+PacoHelper.m */; };
 		A69D09431D3322270032CB18 /* PacoTestCustomFeedBackViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = A69D09411D3322270032CB18 /* PacoTestCustomFeedBackViewController.m */; };
 		A69D09441D3322270032CB18 /* PacoTestCustomFeedBackViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = A69D09421D3322270032CB18 /* PacoTestCustomFeedBackViewController.xib */; };
+		A69D094A1D34450E0032CB18 /* skeleton.html in Resources */ = {isa = PBXBuildFile; fileRef = A69D09491D34450E0032CB18 /* skeleton.html */; };
 		A6ABFAA41B742BE800F90598 /* NSObject+J2objcKVO.m in Sources */ = {isa = PBXBuildFile; fileRef = A6ABFA9F1B742BE800F90598 /* NSObject+J2objcKVO.m */; settings = {COMPILER_FLAGS = " "; }; };
 		A6ABFAA51B742BE800F90598 /* PacoSerializer.m in Sources */ = {isa = PBXBuildFile; fileRef = A6ABFAA11B742BE800F90598 /* PacoSerializer.m */; settings = {COMPILER_FLAGS = " "; }; };
 		A6ABFAC51B79425400F90598 /* ScheduleTestViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = A6ABFAC31B79425400F90598 /* ScheduleTestViewController.xib */; };
@@ -1607,6 +1608,7 @@
 		A69D09401D3322270032CB18 /* PacoTestCustomFeedBackViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoTestCustomFeedBackViewController.h; sourceTree = "<group>"; };
 		A69D09411D3322270032CB18 /* PacoTestCustomFeedBackViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoTestCustomFeedBackViewController.m; sourceTree = "<group>"; };
 		A69D09421D3322270032CB18 /* PacoTestCustomFeedBackViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = PacoTestCustomFeedBackViewController.xib; sourceTree = "<group>"; };
+		A69D09491D34450E0032CB18 /* skeleton.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = skeleton.html; sourceTree = "<group>"; };
 		A6ABFA9E1B742BE800F90598 /* NSObject+J2objcKVO.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSObject+J2objcKVO.h"; sourceTree = "<group>"; };
 		A6ABFA9F1B742BE800F90598 /* NSObject+J2objcKVO.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSObject+J2objcKVO.m"; sourceTree = "<group>"; };
 		A6ABFAA01B742BE800F90598 /* PacoSerializer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PacoSerializer.h; path = Paco/source/core/serializer/PacoSerializer.h; sourceTree = "<group>"; };
@@ -1837,6 +1839,7 @@
 				A6E1D05A1D13B83800C20B10 /* libJodaCompile.a */,
 				A6E1D0831D23211100C20B10 /* radiobtn_off.png */,
 				A6E1D06C1D13B86D00C20B10 /* libJ2ObjcLib.a */,
+				A69D09491D34450E0032CB18 /* skeleton.html */,
 				44BB28FF1D0A619400680037 /* org */,
 				44BB28FD1D0A608A00680037 /* GoogleSignIn.bundle */,
 				A6DF7C1D1CED23B800EF4B68 /* Container Objects */,
@@ -4126,6 +4129,7 @@
 				A63A81CE1C0677B600ACBC0A /* number-4-7.png in Resources */,
 				A63A81D41C0677B600ACBC0A /* number-7-7.png in Resources */,
 				36000C5917CD1AF600A8A9E7 /* Test_999999999.plist in Resources */,
+				A69D094A1D34450E0032CB18 /* skeleton.html in Resources */,
 				A63A81281C0677B600ACBC0A /* command-7.png in Resources */,
 				A65890E41C8D3B98007FEF4C /* PacoHubExperiments.xib in Resources */,
 				A63A81541C0677B600ACBC0A /* emoticon-smile-7.png in Resources */,

@@ -49,7 +49,7 @@
 
 //When background fetch API triggers or location significantly changes, call this method
 //to upload events in a limited time frame, we are allowed to finish our tasks in 30 seconds.
-- (void)startUploadingEventsInBackgroundWithBlock:(void(^)(UIBackgroundFetchResult))completionBlock;
+//- (void)startUploadingEventsInBackgroundWithBlock:(void(^)(UIBackgroundFetchResult))completionBlock;
 
 - (void)stopUploadingEvents;
 

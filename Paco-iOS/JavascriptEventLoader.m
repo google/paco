@@ -121,7 +121,7 @@
         
         
         NSNumber * experimentId  =  [self.experiment valueForKeyEx:@"id"];
-        NSArray* events = [[PacoMediator sharedInstance].eventManager allEventsForExperiment:experimentId]
+        NSArray* events = [[PacoMediator sharedInstance].eventManager allEventsForExperiment:experimentId];
         self.events = (events != nil) ? events : [NSArray array];
     }
   }
