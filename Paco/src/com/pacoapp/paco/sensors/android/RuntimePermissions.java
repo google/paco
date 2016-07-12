@@ -58,8 +58,10 @@ public class RuntimePermissions extends AccessibilityService {
         int eventType = accessibilityEvent.getEventType();
         switch (eventType) {
             case AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED:
+                // TODO: check what other kinds of windows this can be by logging
                 // For our purposes, this means: a dialog requesting a runtime permission is shown,
                 // or the user navigated to the 'App info' screen for a specific app
+                Log.v(PacoConstants.TAG, "New accessibility event: window state changed (we are capturing this)");
                 if (isAppInfoScreen(accessibilityEvent.getSource())) {
                     Log.v(PacoConstants.TAG, "We seem to be inside the app info screen");
                     // Find the package name in this view, and store it for future use
