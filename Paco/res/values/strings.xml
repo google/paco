@@ -239,7 +239,8 @@
     <string name="experiment_informed_consent" description="Label above experimenter-provided informed consent information">Experimenter\'s Informed Consent Statement</string>
     <string name="survey_responses_data_collected" description="List choice for type of data that will be collected in an experiment corresponding to their survey responses">User responses to experiment form</string>
     <string name="app_usage_and_browser_usage_data_collected"  description="List choice for type of data that will be collected in an experiment corresponding to the collection of the names of the apps they use and the websites they visit while in the experiment">Apps and sites used during experiment</string>
-    <string name="installed_app_data_collected"  description="List choice for type of data that will be collected in an experiment corresponding to names of the apps installed on their phone">Apps installed on the phone</string>
+    <string name="installed_app_data_collected"  description="List choice for type of dta that will be collected in an experiment corresponding to names of the apps installed on their phone">Apps installed on the phone</string>
+    <string name="accessibility_rationale" description="Message shown to the user when toggling the accessibility permission for Paco">This permission is needed for Paco experiments to be able to see when other apps are given certain permissions (such as access to your location). Using this permission, Paco will be able to query you when you grant or deny one of these permissions to another app. No other data will be collected.</string>
     <!-- new ui -->
     <string name="navigation_drawer_open" description="Accessibility label for Navigation Drawer indicating that it can be opened">Open navigation drawer</string>
     <string name="navigation_drawer_close" description="Accessibility label for Navigation Drawer indicating that it can be closed">Close navigation drawer</string>
