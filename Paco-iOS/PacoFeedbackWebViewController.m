@@ -21,6 +21,8 @@
 #import "PacoExperimentDefinition.h"
 #import "Environment.h"
 #import "PAExperimentGroup+PacoGroupHelper.h" 
+#import "NSObject+J2objcKVO.h"
+#import "ExperimentDAO.h" 
 
 
 
@@ -53,25 +55,25 @@
 @interface PacoFeedbackWebViewController ()
 @property(nonatomic, strong) EasyJSWebView* webView;
 @property(nonatomic, strong) PAExperimentGroup* group;
+@property(nonatomic, strong)  PAExperimentDAO* experiment;
 @property(nonatomic, strong) Environment* env;
 @property(nonatomic, copy) NSString* htmlName;
-@property(nonatomic, copy) NSString* experimentTitle;
 @property(nonatomic, copy) PacoFeedbackWebViewDismissBlock dismissBlock;
 @end
 
 
 @implementation PacoFeedbackWebViewController
 + (id)controllerWithExperimentGroup:(PAExperimentGroup*) group
-                              title:(NSString*) title
-                           htmlName:(NSString*)htmlName
-                       dismissBlock:(PacoFeedbackWebViewDismissBlock)dismissBlock {
+                              withExperiment:(PAExperimentDAO*) experiment
+                              htmlName:(NSString*)htmlName
+                              dismissBlock:(PacoFeedbackWebViewDismissBlock)dismissBlock {
     
   PacoFeedbackWebViewController* controller =
       [[PacoFeedbackWebViewController alloc] initWithNibName:nil bundle:nil];
-  controller.group  = group;
-  controller.htmlName = htmlName;
-  controller.experimentTitle = title;
-  controller.dismissBlock = dismissBlock;
+       controller.group  = group;
+       controller.experiment = experiment;
+       controller.htmlName = htmlName;
+       controller.dismissBlock = dismissBlock;
   return controller;
     
 }
@@ -111,7 +113,7 @@
 {
     
   //db/eventLoader(deprecated)
-  JavascriptEventLoader* eventLoader = [JavascriptEventLoader loaderForExperiment:self.group];
+  JavascriptEventLoader* eventLoader = [JavascriptEventLoader loaderForExperiment:self.experiment];
   [self.webView addJavascriptInterfaces:eventLoader WithName:@"eventLoader"];
   [self.webView addJavascriptInterfaces:eventLoader WithName:@"db"];
 
@@ -120,7 +122,7 @@
 
   //env
   NSMutableDictionary* dict = [NSMutableDictionary dictionary];
-  dict[@"title"] = _experimentTitle;
+  dict[@"title"] = [self.experiment valueForKeyEx:@"title"];
   dict[@"experiment"] = [self.group jsonStringForJavascript];
   dict[@"lastResponse"] = [eventLoader jsonStringForLastEvent];
   dict[@"test"] = @"false";

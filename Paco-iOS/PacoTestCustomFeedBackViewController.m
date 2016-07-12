@@ -42,13 +42,17 @@ static NSString* dataSource = @"{\r\n  \"title\": \"Sneezy 3\",\r\n  \"descripti
     
     PAExperimentGroup* group =  [experiment valueForKeyPathEx:@"groups[0]"];
     
-    PacoFeedbackWebViewController * controller = [PacoFeedbackWebViewController controllerWithExperimentGroup:group title:@"this is my title"  htmlName:@"skeleton" dismissBlock:^{
+    PacoFeedbackWebViewController * controller = [PacoFeedbackWebViewController controllerWithExperimentGroup:group  withExperiment:experiment  htmlName:@"skeleton" dismissBlock:^{
         
-        NSLog(@"dismissing");
+        NSLog(@"skeleton");
+        
     }];
+        
+        
+ 
     
-    UINavigationController* navigation = [[UINavigationController alloc] initWithRootViewController:controller];
-    [self.view addSubview:navigation.view];
+   self.navigation = [[UINavigationController alloc] initWithRootViewController:controller];
+    [self.view addSubview:self.navigation.view];
     
     
    

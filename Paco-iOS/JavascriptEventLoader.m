@@ -29,6 +29,8 @@
 
 
 
+@class PAExperimentGroup;
+
 @interface JavascriptEventLoader()
 
 @property(nonatomic, strong) NSArray* events;

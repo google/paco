@@ -15,6 +15,8 @@
 
 #import <Foundation/Foundation.h>
 @class PAExperimentDAO;
+@class PAExperimentGroup;
+
 
 @interface JavascriptEventLoader : NSObject
 

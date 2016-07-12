@@ -10,4 +10,6 @@
 
 @interface PacoTestCustomFeedBackViewController : UIViewController
 
+@property (nonatomic, strong)  UINavigationController* navigation;
+
 @end

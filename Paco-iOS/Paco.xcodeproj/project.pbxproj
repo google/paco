@@ -676,6 +676,12 @@
 		A6651C131BC482080058E295 /* PacoEventTests.m in Sources */ = {isa = PBXBuildFile; fileRef = A6401F6F1B7E6E9200ABC0AB /* PacoEventTests.m */; };
 		A665B2761B969F81001E0098 /* PAActionSpecification+PacoActionSpecification.m in Sources */ = {isa = PBXBuildFile; fileRef = A665B2751B969F81001E0098 /* PAActionSpecification+PacoActionSpecification.m */; settings = {COMPILER_FLAGS = " "; }; };
 		A66E306B1BA8F0C400A067EA /* libParseKitMobile.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 36000C2817C6AEA900A8A9E7 /* libParseKitMobile.a */; };
+		A670679C1D347116002C52F2 /* conditional_parser.js in Resources */ = {isa = PBXBuildFile; fileRef = A67067961D347116002C52F2 /* conditional_parser.js */; };
+		A670679D1D347116002C52F2 /* custom_base.js in Resources */ = {isa = PBXBuildFile; fileRef = A67067971D347116002C52F2 /* custom_base.js */; };
+		A670679E1D347116002C52F2 /* jquery.flot.js in Resources */ = {isa = PBXBuildFile; fileRef = A67067981D347116002C52F2 /* jquery.flot.js */; };
+		A670679F1D347116002C52F2 /* jquery.flot.stack.js in Resources */ = {isa = PBXBuildFile; fileRef = A67067991D347116002C52F2 /* jquery.flot.stack.js */; };
+		A67067A01D347116002C52F2 /* jquery.js in Resources */ = {isa = PBXBuildFile; fileRef = A670679A1D347116002C52F2 /* jquery.js */; };
+		A67067A11D347116002C52F2 /* peg-0.8.0.min.js in Resources */ = {isa = PBXBuildFile; fileRef = A670679B1D347116002C52F2 /* peg-0.8.0.min.js */; };
 		A670F8831B8ECC2600BF9593 /* PacoIntrospectHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = A670F8821B8ECC2600BF9593 /* PacoIntrospectHelper.m */; settings = {COMPILER_FLAGS = " "; }; };
 		A6750DDD1CD28043000882B1 /* Config.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = A6750DDC1CD28043000882B1 /* Config.xcconfig */; };
 		A676C73C1B615AAB00F37572 /* libobjc.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = A676C73B1B615AAB00F37572 /* libobjc.dylib */; };
@@ -1548,6 +1554,12 @@
 		A6651C111BC47B8F0058E295 /* PacoEventExtended+PacoCoder.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "PacoEventExtended+PacoCoder.m"; sourceTree = "<group>"; };
 		A665B2741B969F81001E0098 /* PAActionSpecification+PacoActionSpecification.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "PAActionSpecification+PacoActionSpecification.h"; sourceTree = "<group>"; };
 		A665B2751B969F81001E0098 /* PAActionSpecification+PacoActionSpecification.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "PAActionSpecification+PacoActionSpecification.m"; sourceTree = "<group>"; };
+		A67067961D347116002C52F2 /* conditional_parser.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = conditional_parser.js; sourceTree = "<group>"; };
+		A67067971D347116002C52F2 /* custom_base.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = custom_base.js; sourceTree = "<group>"; };
+		A67067981D347116002C52F2 /* jquery.flot.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = jquery.flot.js; sourceTree = "<group>"; };
+		A67067991D347116002C52F2 /* jquery.flot.stack.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = jquery.flot.stack.js; sourceTree = "<group>"; };
+		A670679A1D347116002C52F2 /* jquery.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = jquery.js; sourceTree = "<group>"; };
+		A670679B1D347116002C52F2 /* peg-0.8.0.min.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "peg-0.8.0.min.js"; sourceTree = "<group>"; };
 		A670F87F1B8E2D1D00BF9593 /* PacoJAVA2OBJCTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoJAVA2OBJCTest.m; sourceTree = "<group>"; };
 		A670F8811B8ECC2600BF9593 /* PacoIntrospectHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PacoIntrospectHelper.h; path = Paco/source/core/serializer/PacoIntrospectHelper.h; sourceTree = "<group>"; };
 		A670F8821B8ECC2600BF9593 /* PacoIntrospectHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = PacoIntrospectHelper.m; path = Paco/source/core/serializer/PacoIntrospectHelper.m; sourceTree = "<group>"; };
@@ -1836,10 +1848,10 @@
 		319771B9163F0733000AC06B = {
 			isa = PBXGroup;
 			children = (
+				A67067851D34701B002C52F2 /* web_resources */,
 				A6E1D05A1D13B83800C20B10 /* libJodaCompile.a */,
 				A6E1D0831D23211100C20B10 /* radiobtn_off.png */,
 				A6E1D06C1D13B86D00C20B10 /* libJ2ObjcLib.a */,
-				A69D09491D34450E0032CB18 /* skeleton.html */,
 				44BB28FF1D0A619400680037 /* org */,
 				44BB28FD1D0A608A00680037 /* GoogleSignIn.bundle */,
 				A6DF7C1D1CED23B800EF4B68 /* Container Objects */,
@@ -3073,6 +3085,20 @@
 			name = categories;
 			sourceTree = "<group>";
 		};
+		A67067851D34701B002C52F2 /* web_resources */ = {
+			isa = PBXGroup;
+			children = (
+				A67067961D347116002C52F2 /* conditional_parser.js */,
+				A67067971D347116002C52F2 /* custom_base.js */,
+				A67067981D347116002C52F2 /* jquery.flot.js */,
+				A67067991D347116002C52F2 /* jquery.flot.stack.js */,
+				A670679A1D347116002C52F2 /* jquery.js */,
+				A670679B1D347116002C52F2 /* peg-0.8.0.min.js */,
+				A69D09491D34450E0032CB18 /* skeleton.html */,
+			);
+			name = web_resources;
+			sourceTree = "<group>";
+		};
 		A681F4961BB3657100EC8599 /* protocols */ = {
 			isa = PBXGroup;
 			children = (
@@ -3886,6 +3912,7 @@
 				A63A81101C0677B600ACBC0A /* character-c-7.png in Resources */,
 				A63A816C1C0677B600ACBC0A /* filing-7.png in Resources */,
 				A63A821E1C0677B600ACBC0A /* shopping-cart-7.png in Resources */,
+				A670679D1D347116002C52F2 /* custom_base.js in Resources */,
 				A63A80F21C0677B600ACBC0A /* book-cover-star-7.png in Resources */,
 				A63A82301C0677B600ACBC0A /* tag-plus-7.png in Resources */,
 				A68EFA831C7BE4E400D7FD50 /* splash_ios_tablet_768x1024.png in Resources */,
@@ -4009,6 +4036,7 @@
 				A6FE84BF1BE82E7E001F45A1 /* PacoJoinedExperimentsController.xib in Resources */,
 				A63A81121C0677B600ACBC0A /* character-d-7.png in Resources */,
 				A68EFA841C7BE4E400D7FD50 /* splash_ios_tablet_768x1024@2x.png in Resources */,
+				A670679E1D347116002C52F2 /* jquery.flot.js in Resources */,
 				A6FE84BB1BE82DA9001F45A1 /* PacoMyExpermementTitleCellTableViewCell.xib in Resources */,
 				A63A81901C0677B600ACBC0A /* keyboard-7.png in Resources */,
 				A63A81DA1C0677B600ACBC0A /* number-10-7.png in Resources */,
@@ -4086,6 +4114,7 @@
 				A64F1DF31BD70F8500DCE6C3 /* RobotoCondensed-Regular.ttf in Resources */,
 				A68EFA7E1C7BE4E400D7FD50 /* Contents.json in Resources */,
 				A63A81801C0677B600ACBC0A /* gear-7.png in Resources */,
+				A67067A01D347116002C52F2 /* jquery.js in Resources */,
 				A6DC6E741BED8F3300D38D68 /* PacoTextTableViewCell.xib in Resources */,
 				36B8EBFE17568E29004CF035 /* smile_icon4.png in Resources */,
 				A63A813C1C0677B600ACBC0A /* connect-arrow-up-left-7.png in Resources */,
@@ -4115,6 +4144,8 @@
 				A63A81E81C0677B600ACBC0A /* paper-piece-minus-7.png in Resources */,
 				A6D3EEBE1CF7D86D00086F33 /* PacoConfirmationViewController.xib in Resources */,
 				A63A80E61C0677B600ACBC0A /* bell-7.png in Resources */,
+				A670679C1D347116002C52F2 /* conditional_parser.js in Resources */,
+				A670679F1D347116002C52F2 /* jquery.flot.stack.js in Resources */,
 				A63A80DC1C0677B600ACBC0A /* animal-element-7.png in Resources */,
 				A63A82281C0677B600ACBC0A /* table-tennis-7.png in Resources */,
 				A63A81461C0677B600ACBC0A /* dot-more-7.png in Resources */,
@@ -4139,6 +4170,7 @@
 				A64F1DE41BD70F8500DCE6C3 /* Roboto-Bold.ttf in Resources */,
 				A63A81741C0677B600ACBC0A /* folder-minus-7.png in Resources */,
 				A63A81621C0677B600ACBC0A /* file-plus-7.png in Resources */,
+				A67067A11D347116002C52F2 /* peg-0.8.0.min.js in Resources */,
 				A63A81E21C0677B600ACBC0A /* paper-clip-7.png in Resources */,
 				A63A81EC1C0677B600ACBC0A /* paper-piece-star-7.png in Resources */,
 				A63A81AE1C0677B600ACBC0A /* list-fat-7.png in Resources */,

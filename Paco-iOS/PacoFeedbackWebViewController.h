@@ -17,7 +17,7 @@
 #import <UIKit/UIKit.h>
 
 @class PAExperimentGroup;
-@class PAExperiment;
+@class PAExperimentDAO;
 @class EasyJSWebView;
 
 typedef void(^PacoFeedbackWebViewDismissBlock)();
@@ -26,11 +26,11 @@ typedef void(^PacoFeedbackWebViewDismissBlock)();
 
 @property(nonatomic, strong, readonly) EasyJSWebView* webView;
 @property(nonatomic, strong, readonly) PAExperimentGroup* group;
-@property(nonatomic, strong, readonly) PAExperiment* experiment;
+@property(nonatomic, strong, readonly) PAExperimentDAO* experiment;
 
 
 + (id)controllerWithExperimentGroup:(PAExperimentGroup*) group
-                              title:(NSString*) title
+                     withExperiment:(PAExperimentDAO*) experiment
                       htmlName:(NSString*)htmlName
                   dismissBlock:(PacoFeedbackWebViewDismissBlock)dismissBlock;
 
