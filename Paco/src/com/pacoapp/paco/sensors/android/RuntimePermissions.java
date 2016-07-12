@@ -19,6 +19,7 @@ import com.pacoapp.paco.shared.util.TimeUtil;
 import org.joda.time.DateTime;
 
 import java.util.List;
+import java.util.Locale;
 
 /**
  * This class handles monitoring of runtime permission changes, by implementing an accessibility
@@ -33,6 +34,7 @@ import java.util.List;
  * support runtime permissions.
  * TODO: implement a check for the locale somewhere
  */
+@TargetApi(Build.VERSION_CODES.LOLLIPOP) // TODO: update to Marshmallow when project SDK changes
 public class RuntimePermissions extends AccessibilityService {
     // Used to keep track of which app we are changing settings for. Needed because
     // AccessibilityEvents will only show us what information is currently being interacted with
@@ -41,7 +43,6 @@ public class RuntimePermissions extends AccessibilityService {
     // so we remember it when the user actually clicked allow/deny
     private static CharSequence currentlyHandledPermission;
 
-    @TargetApi(Build.VERSION_CODES.LOLLIPOP) // TODO: update to Marshmallow when project SDK changes
     // TODO: check if the previous annotation is sufficient to make sure this won't be called on pre-lollipop devices
     @Override
     public void onAccessibilityEvent(AccessibilityEvent accessibilityEvent) {
@@ -57,10 +58,8 @@ public class RuntimePermissions extends AccessibilityService {
         int eventType = accessibilityEvent.getEventType();
         switch (eventType) {
             case AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED:
-                // TODO: check what other kinds of windows this can be by logging
                 // For our purposes, this means: a dialog requesting a runtime permission is shown,
                 // or the user navigated to the 'App info' screen for a specific app
-                Log.v(PacoConstants.TAG, "New accessibility event: window state changed (we are capturing this)");
                 if (isAppInfoScreen(accessibilityEvent.getSource())) {
                     Log.v(PacoConstants.TAG, "We seem to be inside the app info screen");
                     // Find the package name in this view, and store it for future use
@@ -68,14 +67,23 @@ public class RuntimePermissions extends AccessibilityService {
                 } else if (isPermissionsDialog(accessibilityEvent.getSource())) {
                     Log.v(PacoConstants.TAG, "We seem to be inside a runtime permissions dialog");
                     extractInformationFromPermissionDialog(accessibilityEvent);
+                } else {
+                    Log.v(PacoConstants.TAG, "Ignoring window state changed accessibility event, since it was not an app info screen or a permissions dialog.");
                 }
                 break;
             case AccessibilityEvent.CONTENT_CHANGE_TYPE_SUBTREE:
                 // For our purposes, this means: permission change via switch button (in settings),
                 // or clicking 'allow/deny' in a runtime permission dialog
                 // TODO: do the same checks as in the previous case: check whether this is an actual configuration change, or clicking allow/deny
-                Log.v(PacoConstants.TAG, "New accessibility event: content change type subtree");
-                processPermissionConfigurationChange(accessibilityEvent);
+                if (isPermissionsDialogAction(accessibilityEvent.getSource())) {
+                    Log.v(PacoConstants.TAG, "Action taken in permissions dialog");
+                    processPermissionDialogAction(accessibilityEvent.getSource());
+                } else if (isSettingsPermissionChange(accessibilityEvent.getSource())) {
+                    Log.v(PacoConstants.TAG, "Action taken in permission settings activity");
+                    processPermissionConfigurationChange(accessibilityEvent);
+                } else {
+                    Log.v(PacoConstants.TAG, "Ignoring content change type subtree, since it was not in a permission dialog or a settings screen.");
+                }
                 break;
         }
     }
@@ -84,7 +92,6 @@ public class RuntimePermissions extends AccessibilityService {
         return (nodeInfo.findAccessibilityNodeInfosByViewId("com.android.packageinstaller:id/permission_deny_button").size() > 0);
     }
 
-    @TargetApi(Build.VERSION_CODES.LOLLIPOP) // TODO: update to Marshmallow when project SDK changes
     private boolean isAppInfoScreen(AccessibilityNodeInfo nodeInfo) {
         // TODO: check if this is sufficient, and whether these operations are not too costly
         return (nodeInfo.findAccessibilityNodeInfosByViewId("com.android.settings:id/all_details").size() > 0 &&
@@ -92,7 +99,17 @@ public class RuntimePermissions extends AccessibilityService {
         );
     }
 
-    @TargetApi(Build.VERSION_CODES.LOLLIPOP) // TODO: update to Marshmallow when project SDK changes
+    private boolean isPermissionsDialogAction(AccessibilityNodeInfo nodeInfo) {
+        return (nodeInfo.getClassName().equals("android.widget.Button") &&
+                (nodeInfo.getText().equals("Deny") || nodeInfo.getText().equals("Allow")));
+    }
+
+    private boolean isSettingsPermissionChange(AccessibilityNodeInfo nodeInfo) {
+        // TODO: check if this is sufficient, and whether these operations are not too costly
+        return (nodeInfo.findAccessibilityNodeInfosByViewId("com.android.packageinstaller:id/switchWidget").size() > 0 &&
+                nodeInfo.getClassName().equals("android.widget.LinearLayout"));
+    }
+
     private void extractAppPackageNameFromAppInfoScreen(AccessibilityNodeInfo rootNodeInfo) {
         // "com.android.settings:id/widget_text2" is the id for the text string which contains the
         // package name on the "App info" screen. You'll find it right underneath the version number
@@ -101,6 +118,7 @@ public class RuntimePermissions extends AccessibilityService {
         for (AccessibilityNodeInfo nodeInfo : matchingNodeInfos) {
             if (nodeInfo.getText() != null) {
                 setCurrentlyHandledAppPackage(nodeInfo.getText());
+                return;
             }
         }
     }
@@ -108,6 +126,16 @@ public class RuntimePermissions extends AccessibilityService {
     private void setCurrentlyHandledAppPackage(CharSequence packageName) {
         currentlyHandledAppPackage = packageName;
         Log.v(PacoConstants.TAG, "Set 'currently handled package' name to " + currentlyHandledAppPackage);
+    }
+
+    private void processPermissionDialogAction(AccessibilityNodeInfo nodeInfo) {
+        if (nodeInfo.getText().equals("Allow")) {
+            triggerBroadcastTriggerService(currentlyHandledPermission, true, false);
+        } else if (nodeInfo.getText().equals("Deny")) {
+            triggerBroadcastTriggerService(currentlyHandledPermission, false, false);
+        } else {
+            Log.e(PacoConstants.TAG, "Dialog action in runtime permissions dialog was not 'Allow' nor 'Deny'. This should never happen");
+        }
     }
 
     private void processPermissionConfigurationChange(AccessibilityEvent accessibilityEvent) {
@@ -118,7 +146,7 @@ public class RuntimePermissions extends AccessibilityService {
         }
         CharSequence permission = textFields.get(0);
         boolean isAllowed = textFields.get(1).equals("ON");
-        triggerBroadcastTriggerService(permission, isAllowed);
+        triggerBroadcastTriggerService(permission, isAllowed, true);
     }
 
     private void extractInformationFromPermissionDialog(AccessibilityEvent accessibilityEvent) {
@@ -136,7 +164,7 @@ public class RuntimePermissions extends AccessibilityService {
         Log.v(PacoConstants.TAG, "Set 'currently handled permission' to " + currentlyHandledPermission);
     }
 
-    private void triggerBroadcastTriggerService(CharSequence permission, boolean isAllowed) {
+    private void triggerBroadcastTriggerService(CharSequence permission, boolean isAllowed, boolean initiatedByUser) {
         Context context = getApplicationContext();
         Log.d(PacoConstants.TAG, "Broadcasting permission change for " + currentlyHandledAppPackage + ": " + permission + " set to " + isAllowed);
 
@@ -187,6 +215,25 @@ public class RuntimePermissions extends AccessibilityService {
     @Override
     protected void onServiceConnected() {
         Log.d(PacoConstants.TAG, "Connected to the accessibility service");
+        if (!Locale.getDefault().equals(Locale.ENGLISH)) {
+            // We don't really need to signal this to the user, as it is the experiment provider who
+            // is responsible for checking this should not be a problem for the experiment.
+            // TODO: add a disclaimer in the web interface when enabling this?
+            Log.w(PacoConstants.TAG, "Detected locale is " + Locale.getDefault().toString() +
+                    ". RuntimePermissions triggering does not support non-English languages; " +
+                    "permissions might not always be interpreted correctly");
+        }
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {  // TODO: update to Marshmallow when project SDK changes
+            // TODO: think about how we should inform the user about this
+            Log.e(PacoConstants.TAG, "RuntimePermissions triggering should not be used on pre-Marshmallow. Stopping service.");
+            stopSelf();
+        }
+    }
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        // TODO: open accessibility settings if we don't have accessibility permission
     }
 
     @Override

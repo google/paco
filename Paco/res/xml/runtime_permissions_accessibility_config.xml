@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- Makes sure that the com.pacoapp.paco.sensors.android.RuntimePermissions
      service will only listen for accessibility events from the packageinstaller
-     and that it can retrieve the contents on screen -->
+     and that it can retrieve the contents on screen.
+     We pass on the flagReportViewIds flag to make it easier to identify the
+     parts of the interface that contain the information we need -->
 <accessibility-service xmlns:android="http://schemas.android.com/apk/res/android"
     android:packageNames="com.google.android.packageinstaller,com.android.packageinstaller,com.android.settings"
     android:accessibilityEventTypes="typeAllMask"

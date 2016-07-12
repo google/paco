@@ -234,7 +234,6 @@
             </intent-filter>
         </service>
         <!-- TODO: check why description is not picked up by Android -->
-        <!-- TODO: only enable this service on Android M and up -->
         <service android:name="com.pacoapp.paco.sensors.android.RuntimePermissions"
             android:label="@string/app_name"
             android:description="@string/accessibility_rationale"
