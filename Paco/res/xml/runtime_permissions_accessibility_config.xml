@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Makes sure that the com.pacoapp.paco.sensors.android.RuntimePermissions
+     service will only listen for accessibility events from the packageinstaller
+     and that it can retrieve the contents on screen -->
+<accessibility-service xmlns:android="http://schemas.android.com/apk/res/android"
+    android:packageNames="com.google.android.packageinstaller,com.android.packageinstaller,com.android.settings"
+    android:accessibilityEventTypes="typeAllMask"
+    android:accessibilityFlags="flagDefault|flagReportViewIds"
+    android:accessibilityFeedbackType="feedbackGeneric"
+    android:canRetrieveWindowContent="true"
+    />
