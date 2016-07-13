@@ -419,7 +419,8 @@ pacoApp.service('config', function() {
     "Experiment joined",
     "Experiment ended",
     "Response received",
-    "App removed"
+    "App removed",
+    "App installed"
   ];
 
   this.esmPeriods = [
