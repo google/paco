@@ -43,7 +43,6 @@ public class RuntimePermissions extends AccessibilityService {
     // so we remember it when the user actually clicked allow/deny
     private static CharSequence currentlyHandledPermission;
 
-    // TODO: check if the previous annotation is sufficient to make sure this won't be called on pre-lollipop devices
     @Override
     public void onAccessibilityEvent(AccessibilityEvent accessibilityEvent) {
         // Assert that we're handling events only for the package installer
@@ -58,7 +57,6 @@ public class RuntimePermissions extends AccessibilityService {
         int eventType = accessibilityEvent.getEventType();
         switch (eventType) {
             case AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED:
-                // TODO: check what other kinds of windows this can be by logging
                 // For our purposes, this means: a dialog requesting a runtime permission is shown,
                 // or the user navigated to the 'App info' screen for a specific app
                 Log.v(PacoConstants.TAG, "New accessibility event: window state changed (we are capturing this)");
@@ -76,7 +74,6 @@ public class RuntimePermissions extends AccessibilityService {
             case AccessibilityEvent.CONTENT_CHANGE_TYPE_SUBTREE:
                 // For our purposes, this means: permission change via switch button (in settings),
                 // or clicking 'allow/deny' in a runtime permission dialog
-                // TODO: do the same checks as in the previous case: check whether this is an actual configuration change, or clicking allow/deny
                 if (isPermissionsDialogAction(accessibilityEvent.getSource())) {
                     Log.v(PacoConstants.TAG, "Action taken in permissions dialog");
                     processPermissionDialogAction(accessibilityEvent.getSource());
@@ -107,7 +104,8 @@ public class RuntimePermissions extends AccessibilityService {
     }
 
     private boolean isSettingsPermissionChange(AccessibilityNodeInfo nodeInfo) {
-        // TODO: check if this is sufficient, and whether these operations are not too costly
+        // This will most certainly be too broad, but we ignore this for now until we can get some
+        // real experiment data
         return (nodeInfo.findAccessibilityNodeInfosByViewId("com.android.packageinstaller:id/switchWidget").size() > 0 &&
                 nodeInfo.getClassName().equals("android.widget.LinearLayout"));
     }
@@ -115,7 +113,6 @@ public class RuntimePermissions extends AccessibilityService {
     private void extractAppPackageNameFromAppInfoScreen(AccessibilityNodeInfo rootNodeInfo) {
         // "com.android.settings:id/widget_text2" is the id for the text string which contains the
         // package name on the "App info" screen. You'll find it right underneath the version number
-        // TODO: check that this works on all Android versions >= 6.0
         List<AccessibilityNodeInfo> matchingNodeInfos = rootNodeInfo.findAccessibilityNodeInfosByViewId("com.android.settings:id/widget_text2");
         for (AccessibilityNodeInfo nodeInfo : matchingNodeInfos) {
             if (nodeInfo.getText() != null) {
@@ -159,7 +156,6 @@ public class RuntimePermissions extends AccessibilityService {
 
         // Extract the requested permission from the text in the dialog. This should always be the
         // last word in the dialog. TODO: check if this is actually the case
-        // TODO: safety checks for array size etc.
         String displayText = accessibilityEvent.getText().get(0).toString();
         // Get the latest word and trip off the '?' at the end
         currentlyHandledPermission = displayText.subSequence(displayText.lastIndexOf(' ') + 1, displayText.length() - 1);
@@ -187,10 +183,10 @@ public class RuntimePermissions extends AccessibilityService {
     // TODO: maybe move this code to the pacoapp.paco.asensors.android.procmon package. Ask Bob what he would like the place for this code to be
     private String getPreviousApp() {
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            UsageStatsManager mUsageStatsManager = (UsageStatsManager)getSystemService(Context.USAGE_STATS_SERVICE);
-            long time = System.currentTimeMillis();
+            UsageStatsManager usageStatsManager = (UsageStatsManager) getSystemService(Context.USAGE_STATS_SERVICE);
+            long now = System.currentTimeMillis();
             // We get usage stats for the last 5 seconds
-            List<UsageStats> stats = mUsageStatsManager.queryUsageStats(UsageStatsManager.INTERVAL_DAILY, time - 1000*5, time);
+            List<UsageStats> stats = usageStatsManager.queryUsageStats(UsageStatsManager.INTERVAL_DAILY, now - 1000*5, now);
             // Get the next-to-last app from this list.
             String lastUsedApp = null;
             long lastUsedTime = 0;
@@ -235,7 +231,7 @@ public class RuntimePermissions extends AccessibilityService {
     @Override
     public void onCreate() {
         super.onCreate();
-        // TODO: open accessibility settings if we don't have accessibility permission
+        // TODO: open accessibility settings if we don't have accessibility permission. In API level 22 it seems like the only way to check is whether onServiceConnected() got called
     }
 
     @Override
