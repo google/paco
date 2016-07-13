@@ -25,7 +25,7 @@
 #import "PacoExperimentDefinition.h"
 #import "PacoExperiment.h"
 #import "PacoAlertView.h"
-
+#import "PacoFeedbackWebViewController.h"
 #import "PacoEventManager.h"
 #import "PacoInputEvaluatorEx.h"
 #import "PacoMediator.h"
@@ -63,7 +63,7 @@ NSString *kCellIdQuestion = @"question";
     _evaluator = [PacoInputEvaluatorEx evaluatorWithExperiment:experiment];
     _notification = notification;
   }
-  return self;
+   return self;
 }
 
 
@@ -85,6 +85,7 @@ NSString *kCellIdQuestion = @"question";
   if ([self respondsToSelector:@selector(edgesForExtendedLayout)]) {
     self.edgesForExtendedLayout = UIRectEdgeNone;
   }
+    
 
   PacoTableView *table = [[PacoTableView alloc] initWithFrame:CGRectZero];
   table.delegate = self;
@@ -118,6 +119,7 @@ NSString *kCellIdQuestion = @"question";
 
 
 - (void)dismiss {
+    
   [self.navigationController popViewControllerAnimated:YES];
 }
 
@@ -247,9 +249,8 @@ NSString *kCellIdQuestion = @"question";
 
 - (void)reloadTable {
   PacoTableView *table = (PacoTableView *)self.view;
-    
-    
-    NSArray* inputs   = [self.evaluator evaluateAllInputs];
+
+   NSArray* inputs   = [self.evaluator evaluateAllInputs];
    table.data = [self boxInputs:inputs];
     
   }

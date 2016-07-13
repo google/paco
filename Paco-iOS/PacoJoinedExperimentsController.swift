@@ -133,10 +133,11 @@ class PacoJoinedExperimentsController: UITableViewController,PacoExperimentProto
             let dao:PAExperimentDAO!  =  myExpriments![indexPath.row]
             let experiment:PacoExperiment =    PacoExperiment.init(experimentDao:dao!)
             let ctrler   = PacoQuestionScreenViewController.controllerWithExperiment(experiment)
+        
             self.tabBarController!.navigationController?.pushViewController(  ctrler as! UIViewController  , animated: true)
         
     }
-    
+ 
     
     func showEditView(experiment:PAExperimentDAO,indexPath:NSIndexPath)
     {
@@ -178,7 +179,7 @@ class PacoJoinedExperimentsController: UITableViewController,PacoExperimentProto
         let cell = tableView.dequeueReusableCellWithIdentifier(self.cellId, forIndexPath: indexPath) as! PacoJoinedExperimentsTableViewCell
         
         
-        var dao:PAExperimentDAO = myExpriments![indexPath.row]
+        let dao:PAExperimentDAO = myExpriments![indexPath.row]
         var title:String?
         var description:String?
         var creator:String?

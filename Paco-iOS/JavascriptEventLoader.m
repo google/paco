@@ -149,6 +149,8 @@
     NSArray* arrayWithLastEvent = [NSArray arrayWithObject:[self.events lastObject]];
     return [JavascriptEventLoader convertEventsToJsonString:arrayWithLastEvent
                                                  experiment:self.experiment];
+      
+      
   }
 }
 

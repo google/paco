@@ -273,6 +273,25 @@
     
 }
 
+-(NSArray*) groups
+{
+    NSMutableArray* retVal  = [NSMutableArray new];
+    NSNumber   * numberOfGroups    = [self  valueForKeyPathEx:@"groups#"];
+    int count = [numberOfGroups intValue];
+    for( int i =0;  i < count; i++)
+    {
+        NSString* str = [NSString stringWithFormat: @"groups[%i]",i ];
+        PAExperimentGroup*  group  =  [self  valueForKeyPathEx:str];
+        [retVal addObject:group];
+        
+    }
+    
+    return retVal;
+    
+}
+
+
+
 
 
 -(NSArray*) getTableCellModelObjects

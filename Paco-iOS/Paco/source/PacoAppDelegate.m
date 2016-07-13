@@ -154,8 +154,6 @@ static NSString * const kClientID =
     
   dispatch_async(dispatch_get_main_queue(), ^{
       
-      // Defer to GUI implimentations.
-     
        NSString *experimentId = [notification pacoExperimentIdExt];
        NSAssert(experimentId.length > 0, @"experimentId should be a valid string!");
 
@@ -301,14 +299,14 @@ static NSString * const kClientID =
     self.custumFeedback = [[PacoTestCustomFeedBackViewController alloc] initWithNibName:@"PacoTestCustomFeedBackViewController" bundle:nil];
     
     
-    self.window.rootViewController =  self.custumFeedback;
+   /// self.window.rootViewController =  self.custumFeedback;
     
     
-    // self.window.rootViewController = [[UINavigationController alloc] initWithRootViewController:self.tabBar];
+    self.window.rootViewController = [[UINavigationController alloc] initWithRootViewController:self.tabBar];
     
-    self.viewController = self.custumFeedback;
+    //self.viewController = self.custumFeedback;
     
-     //self.viewController =  self.tabBar;
+     self.viewController =  self.tabBar;
     
     
     [self.window makeKeyAndVisible];

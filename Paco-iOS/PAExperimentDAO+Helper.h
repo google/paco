@@ -29,4 +29,5 @@ typedef NS_ENUM(NSInteger, PacoFeedbackType) {
 -(NSDictionary* ) inputs;
 -(NSString*) jsonStringForJavascript;
 -(PAInput2*) inputWithId:(NSString*) inputID;
+-(NSArray*) groups;
 @end
