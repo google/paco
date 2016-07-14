@@ -45,6 +45,7 @@ import android.media.SoundPool;
 import android.net.Uri;
 import android.os.Environment;
 import android.os.Parcelable;
+import android.text.Html;
 import android.text.InputType;
 import android.util.Base64;
 import android.util.Log;
@@ -732,9 +733,9 @@ public class InputLayout extends LinearLayout implements SpeechRecognitionListen
     for (int i = 0; i < count; i++) {
       checkedChoicesBoolArray[i] = checkedChoices.contains(input.getListChoices().get(i));
     }
-    List<String> listChoices = input.getListChoices();
-    String[] listChoiceArray = new String[listChoices.size()];
-    listChoices.toArray(listChoiceArray );
+    List<CharSequence> listChoices = convertHtmlChoicesToTextChoices(input.getListChoices());
+    CharSequence[] listChoiceArray = new CharSequence[listChoices.size()];
+    listChoices.toArray(listChoiceArray);
     builder.setMultiChoiceItems(listChoiceArray, checkedChoicesBoolArray, multiselectListDialogListener);
     builder.setPositiveButton(R.string.done_button, new Dialog.OnClickListener() {
 
@@ -755,6 +756,14 @@ public class InputLayout extends LinearLayout implements SpeechRecognitionListen
     });
 
     return multiSelectListDialog.getListView();
+  }
+
+  public List<CharSequence> convertHtmlChoicesToTextChoices(List<String> rawListChoices) {
+    List<CharSequence> listChoices = Lists.newArrayList();
+    for (String currentChoice : rawListChoices) {
+      listChoices.add(Html.fromHtml(currentChoice));
+    }
+    return listChoices;
   }
 
   private View renderMultiSelectListDialog() {
@@ -781,13 +790,13 @@ public class InputLayout extends LinearLayout implements SpeechRecognitionListen
     listView.setPadding(0, 2, 0, 8);
     final Spinner findViewById = (Spinner) findViewById(R.id.list);
     // Formerly android.R.layout.simple_spinner_item
-    final List<String> listChoicesList = Lists.newArrayList(input.getListChoices());
+    List<CharSequence> listChoicesList = convertHtmlChoicesToTextChoices(input.getListChoices());
 
     String defaultListItem = getResources().getString(R.string.default_list_item);
     if (!listChoicesList.get(0).equals(defaultListItem)) {
       listChoicesList.add(0, defaultListItem);       // "No selection" list item.
     }
-    ArrayAdapter<String> choices = new ArrayAdapter<String>(getContext(),
+    ArrayAdapter<CharSequence> choices = new ArrayAdapter<CharSequence>(getContext(),
             //android.R.layout.simple_spinner_dropdown_item,
             R.layout.multiline_spinner_item,
             listChoicesList);
@@ -827,12 +836,12 @@ public class InputLayout extends LinearLayout implements SpeechRecognitionListen
     String leftSideLabel = input2.getLeftSideLabel();
     if (leftSideLabel != null) {
       TextView leftSideView = (TextView) findViewById(R.id.LeftText);
-      leftSideView.setText(leftSideLabel);
+      leftSideView.setText(Html.fromHtml(leftSideLabel));
     }
     String rightSideLabel = input2.getRightSideLabel();
     if (rightSideLabel != null) {
       TextView rightSideView = (TextView) findViewById(R.id.RightText);
-      rightSideView.setText(rightSideLabel);
+      rightSideView.setText(Html.fromHtml(rightSideLabel));
     }
     RadioGroup radioGroup = (RadioGroup) findViewById(R.id.LikertRadioGroup);
     radioGroup.setOnCheckedChangeListener(new OnCheckedChangeListener() {
@@ -941,7 +950,7 @@ public class InputLayout extends LinearLayout implements SpeechRecognitionListen
     if (input.getResponseType().equals(Input2.LOCATION) && Strings.isNullOrEmpty(text)) {
       text = getContext().getString(R.string.location_to_be_recorded_default_prompt);
     }
-    inputTextView.setText(text);
+    inputTextView.setText(Html.fromHtml(text));
     inputTextView.setTextSize(18);
     if (!Strings.isNullOrEmpty(text)) {
       inputTextView.setBackgroundColor(Color.argb(40, 200, 200, 250));
