@@ -6,6 +6,8 @@ import android.app.usage.UsageStats;
 import android.app.usage.UsageStatsManager;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
 import android.os.Build;
 import android.util.Log;
 import android.view.accessibility.AccessibilityEvent;
@@ -33,6 +35,7 @@ import java.util.Locale;
  * This class should only be used on devices running Android 6.0 and up, since older versions don't
  * support runtime permissions.
  * TODO: implement a check for the locale somewhere
+ * TODO: use 2 spaces indent
  */
 @TargetApi(Build.VERSION_CODES.LOLLIPOP) // TODO: update to Marshmallow when project SDK changes
 public class RuntimePermissions extends AccessibilityService {
@@ -61,9 +64,14 @@ public class RuntimePermissions extends AccessibilityService {
                 // or the user navigated to the 'App info' screen for a specific app
                 Log.v(PacoConstants.TAG, "New accessibility event: window state changed (we are capturing this)");
                 if (isAppInfoScreen(accessibilityEvent.getSource())) {
-                    Log.v(PacoConstants.TAG, "We seem to be inside the app info screen");
-                    // Find the package name in this view, and store it for future use
-                    extractAppPackageNameFromAppInfoScreen(accessibilityEvent.getSource());
+                  // TODO: check if we will eventually be using this (since it seems to be platform dependent)
+                  Log.v(PacoConstants.TAG, "We seem to be inside the app info screen");
+                  // Find the package name in this view, and store it for future use
+                  extractAppPackageNameFromAppInfoScreen(accessibilityEvent.getSource());
+                } else if (isAppPermissionsScreen(accessibilityEvent.getSource())) {
+                  // Find the package name in this view, and store it for future use
+                  Log.v(PacoConstants.TAG, "We seem to be inside the app permissions screen");
+                  extractAppPackageNameFromAppPermissionsScreen(accessibilityEvent.getSource());
                 } else if (isPermissionsDialog(accessibilityEvent.getSource())) {
                     Log.v(PacoConstants.TAG, "We seem to be inside a runtime permissions dialog");
                     extractInformationFromPermissionDialog(accessibilityEvent);
@@ -98,6 +106,13 @@ public class RuntimePermissions extends AccessibilityService {
         );
     }
 
+    private boolean isAppPermissionsScreen(AccessibilityNodeInfo nodeInfo) {
+      // TODO: check if this is sufficient, and whether these operations are not too costly
+      return (nodeInfo.findAccessibilityNodeInfosByViewId("com.android.packageinstaller:id/name").size() > 0 &&
+              nodeInfo.findAccessibilityNodeInfosByViewId("com.android.packageinstaller:id/switchWidget").size() > 0
+      );
+    }
+
     private boolean isPermissionsDialogAction(AccessibilityNodeInfo nodeInfo) {
         return (nodeInfo.getClassName().equals("android.widget.Button") &&
                 (nodeInfo.getText().equals("Deny") || nodeInfo.getText().equals("Allow")));
@@ -120,6 +135,21 @@ public class RuntimePermissions extends AccessibilityService {
                 return;
             }
         }
+    }
+
+    private void extractAppPackageNameFromAppPermissionsScreen(AccessibilityNodeInfo rootNodeInfo) {
+      // "com.android.settings:id/widget_text2" is the id for the text string which contains the
+      // app *label*. You'll find it on top of the screen.
+      List<AccessibilityNodeInfo> matchingNodeInfos = rootNodeInfo.findAccessibilityNodeInfosByViewId("com.android.packageinstaller:id/name");
+      for (AccessibilityNodeInfo nodeInfo : matchingNodeInfos) {
+        if (nodeInfo.getText() != null) {
+          CharSequence appLabel = nodeInfo.getText();
+          CharSequence packageName = getPackageNameFromAppLabel(appLabel);
+          setCurrentlyHandledAppPackage(packageName);
+          // TODO: also keep the app label
+          return;
+        }
+      }
     }
 
     private void setCurrentlyHandledAppPackage(CharSequence packageName) {
@@ -208,6 +238,21 @@ public class RuntimePermissions extends AccessibilityService {
             return nextToLastUsedApp;
         }
         return null;
+    }
+
+    // TODO: maybe move this code to the pacoapp.paco.asensors.android.procmon package. Ask Bob what he would like the place for this code to be
+    private String getPackageNameFromAppLabel(CharSequence appLabel) {
+      PackageManager packageManager = getPackageManager();
+      // The only way to do this is to traverse all applications, and see which ones have the label we want
+      // TODO: check if we need the GET_META_DATA call here
+      for (ApplicationInfo appInfo : packageManager.getInstalledApplications(PackageManager.GET_META_DATA)) {
+        CharSequence currentAppLabel = appInfo.loadLabel(packageManager);
+        if (currentAppLabel.equals(appLabel)) {
+          // TODO: do not just return here, create a list instead
+          return appInfo.packageName;
+        }
+      }
+      return null;
     }
 
     @Override
