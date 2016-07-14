@@ -166,13 +166,12 @@ static NSString * const kClientID =
        NSString* groupName = notification.userInfo[kNotificationGroupName];
       
       
-      
+       PAExperimentGroup* group =  [dao getGroupByNameWithNSString:groupName];
 
-      PacoQuestionScreenViewController *questions =
-        [PacoQuestionScreenViewController controllerWithExperiment:experiment  group:notification. andNotification:<#(UILocalNotification *)#>
+       PacoQuestionScreenViewController *questions =
+       [PacoQuestionScreenViewController controllerWithExperiment:experiment  group:group andNotification:notification];
       
        UINavigationController* navi = self.viewController.navigationController;
-      
        [navi  pushViewController:questions animated:NO];
       
   });
