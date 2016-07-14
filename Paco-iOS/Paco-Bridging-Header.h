@@ -35,6 +35,8 @@
 #import "PacoEventExtended.h" 
 #import "PacoEventManagerExtended.h"
 #import "ExperimentGroup.h"
+#import "PacoGroupSelectionController.h" 
+
 
 
 

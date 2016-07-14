@@ -144,7 +144,10 @@ class PacoJoinedExperimentsController: UITableViewController,PacoExperimentProto
            else
            {
             
-               // use group picker
+            
+               let allGroups = dao.fetchExperimentGroupDictionary()
+               let ctrler = PacoGroupSelectionController.init(nibNameAndGroups:allGroups , experiment: dao , nibName:"PacoGroupSelectionController")
+               self.tabBarController!.navigationController?.pushViewController(  ctrler as! UIViewController  , animated: true)
             
            }
         
