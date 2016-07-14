@@ -45,13 +45,16 @@ public class RuntimePermissions extends AccessibilityService {
   // so we remember it when the user actually clicked allow/deny
   private static CharSequence currentlyHandledPermission;
 
+  /**
+   * Called only for accessibility events coming from Android's packageinstaller.
+   * {@inheritDoc}
+   */
   @Override
   public void onAccessibilityEvent(AccessibilityEvent accessibilityEvent) {
     // Assert that we're handling events only for the package installer
     CharSequence packageName = accessibilityEvent.getPackageName();
     if (!packageName.equals("com.google.android.packageinstaller") &&
-            !packageName.equals("com.android.packageinstaller") &&
-            !packageName.equals("com.android.settings")) {
+            !packageName.equals("com.android.packageinstaller")) {
       Log.e(PacoConstants.TAG, "Not expecting to receive accessibility events for " + packageName + ". Ignoring.");
       return;
     }
@@ -62,18 +65,21 @@ public class RuntimePermissions extends AccessibilityService {
         // For our purposes, this means: a dialog requesting a runtime permission is shown,
         // or the user navigated to the 'App info' screen for a specific app
         Log.v(PacoConstants.TAG, "New accessibility event: window state changed (we are capturing this)");
-        if (isAppInfoScreen(accessibilityEvent.getSource())) {
-          // TODO: check if we will eventually be using this (since it seems to be platform dependent)
-          Log.v(PacoConstants.TAG, "We seem to be inside the app info screen");
-          // Find the package name in this view, and store it for future use
-          extractAppPackageNameFromAppInfoScreen(accessibilityEvent.getSource());
-        } else if (isAppPermissionsScreen(accessibilityEvent.getSource())) {
+        if (isAppPermissionsScreen(accessibilityEvent.getSource())) {
           // Find the package name in this view, and store it for future use
           Log.v(PacoConstants.TAG, "We seem to be inside the app permissions screen");
           extractAppPackageNameFromAppPermissionsScreen(accessibilityEvent.getSource());
         } else if (isPermissionsDialog(accessibilityEvent.getSource())) {
           Log.v(PacoConstants.TAG, "We seem to be inside a runtime permissions dialog");
           extractInformationFromPermissionDialog(accessibilityEvent);
+        } else if (isAppInfoScreen(accessibilityEvent.getSource())) {
+          Log.e(PacoConstants.TAG, "We're not using tags from the app info screen anymore");
+          // We can use the following call to get the package name from this screen on supported
+          // platforms, but it doesn't seem to be available in stock android.
+          // If you re-enable this, make sure to add com.android.settings to the packageNames in the
+          // runtime_permissions_accessibility_config.xml document, and to allow this package in the
+          // check at the start of this function
+          // extractAppPackageNameFromAppInfoScreen(accessibilityEvent.getSource());
         } else {
           Log.v(PacoConstants.TAG, "Ignoring window state changed accessibility event, since it was not an app info screen or a permissions dialog.");
         }
@@ -94,17 +100,34 @@ public class RuntimePermissions extends AccessibilityService {
     }
   }
 
+  /**
+   * Checks if the system is showing a runtime permissions dialog, spawned by an app to ask for a
+   * runtime permission.
+   * @param nodeInfo The source of the accessibility event
+   * @return
+   */
   private boolean isPermissionsDialog(AccessibilityNodeInfo nodeInfo) {
     return (nodeInfo.findAccessibilityNodeInfosByViewId("com.android.packageinstaller:id/permission_deny_button").size() > 0);
   }
 
+  /**
+   * Checks if the user is in the settings menu, showing the info for a specific app. This is the
+   * screen containing info on storage, data usage, etc. used by the app.
+   * @param nodeInfo The source of the accessibility event
+   * @return
+   */
   private boolean isAppInfoScreen(AccessibilityNodeInfo nodeInfo) {
-    // TODO: check if this is sufficient, and whether these operations are not too costly
     return (nodeInfo.findAccessibilityNodeInfosByViewId("com.android.settings:id/all_details").size() > 0 &&
             nodeInfo.findAccessibilityNodeInfosByViewId("com.android.settings:id/widget_text2").size() > 0
     );
   }
 
+  /**
+   * Checks if the user is in the permissions screen for an app. This activity shows switch buttons
+   * for every permission the user can grant to the app.
+   * @param nodeInfo The source of the accessibility event
+   * @return
+   */
   private boolean isAppPermissionsScreen(AccessibilityNodeInfo nodeInfo) {
     // TODO: check if this is sufficient, and whether these operations are not too costly
     return (nodeInfo.findAccessibilityNodeInfosByViewId("com.android.packageinstaller:id/name").size() > 0 &&
@@ -144,9 +167,10 @@ public class RuntimePermissions extends AccessibilityService {
       if (nodeInfo.getText() != null) {
         CharSequence appLabel = nodeInfo.getText();
         CharSequence packageName = getPackageNameFromAppLabel(appLabel);
-        setCurrentlyHandledAppPackage(packageName);
-        // TODO: also keep the app label
-        return;
+        if (packageName != null) {
+          setCurrentlyHandledAppPackage(packageName);
+          return;
+        }
       }
     }
   }
@@ -243,8 +267,7 @@ public class RuntimePermissions extends AccessibilityService {
   private String getPackageNameFromAppLabel(CharSequence appLabel) {
     PackageManager packageManager = getPackageManager();
     // The only way to do this is to traverse all applications, and see which ones have the label we want
-    // TODO: check if we need the GET_META_DATA call here
-    for (ApplicationInfo appInfo : packageManager.getInstalledApplications(PackageManager.GET_META_DATA)) {
+    for (ApplicationInfo appInfo : packageManager.getInstalledApplications(0)) {
       CharSequence currentAppLabel = appInfo.loadLabel(packageManager);
       if (currentAppLabel.equals(appLabel)) {
         // TODO: do not just return here, create a list instead
