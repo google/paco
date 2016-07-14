@@ -49,7 +49,7 @@
 #import "Paco-Swift.h"
 
 #import "PacoJoinSummary.h"
-
+#import "NSObject+J2objcKVO.h"
 
 
 
@@ -161,13 +161,19 @@ static NSString * const kClientID =
       
       PAExperimentDAO* dao =  [[PacoMediator sharedInstance ] experimentForId:experimentId];
       PacoExperiment * experiment =  [PacoExperiment experimentWithExperimentDao:dao];
+      
+      
+       NSString* groupName = notification.userInfo[kNotificationGroupName];
+      
+      
+      
 
       PacoQuestionScreenViewController *questions =
-        [PacoQuestionScreenViewController controllerWithExperiment:experiment andNotification:notification];
+        [PacoQuestionScreenViewController controllerWithExperiment:experiment  group:notification. andNotification:<#(UILocalNotification *)#>
       
-      UINavigationController* navi = self.viewController.navigationController;
+       UINavigationController* navi = self.viewController.navigationController;
       
-      [navi  pushViewController:questions animated:NO];
+       [navi  pushViewController:questions animated:NO];
       
   });
 
@@ -299,7 +305,7 @@ static NSString * const kClientID =
     self.custumFeedback = [[PacoTestCustomFeedBackViewController alloc] initWithNibName:@"PacoTestCustomFeedBackViewController" bundle:nil];
     
     
-   /// self.window.rootViewController =  self.custumFeedback;
+    self.window.rootViewController =  self.custumFeedback;
     
     
     self.window.rootViewController = [[UINavigationController alloc] initWithRootViewController:self.tabBar];

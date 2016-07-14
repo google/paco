@@ -682,6 +682,8 @@
 		A670679F1D347116002C52F2 /* jquery.flot.stack.js in Resources */ = {isa = PBXBuildFile; fileRef = A67067991D347116002C52F2 /* jquery.flot.stack.js */; };
 		A67067A01D347116002C52F2 /* jquery.js in Resources */ = {isa = PBXBuildFile; fileRef = A670679A1D347116002C52F2 /* jquery.js */; };
 		A67067A11D347116002C52F2 /* peg-0.8.0.min.js in Resources */ = {isa = PBXBuildFile; fileRef = A670679B1D347116002C52F2 /* peg-0.8.0.min.js */; };
+		A67067AA1D36E29F002C52F2 /* PacoGroupSelectionController.m in Sources */ = {isa = PBXBuildFile; fileRef = A67067A81D36E29F002C52F2 /* PacoGroupSelectionController.m */; };
+		A67067AB1D36E29F002C52F2 /* PacoGroupSelectionController.xib in Resources */ = {isa = PBXBuildFile; fileRef = A67067A91D36E29F002C52F2 /* PacoGroupSelectionController.xib */; };
 		A670F8831B8ECC2600BF9593 /* PacoIntrospectHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = A670F8821B8ECC2600BF9593 /* PacoIntrospectHelper.m */; settings = {COMPILER_FLAGS = " "; }; };
 		A6750DDD1CD28043000882B1 /* Config.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = A6750DDC1CD28043000882B1 /* Config.xcconfig */; };
 		A676C73C1B615AAB00F37572 /* libobjc.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = A676C73B1B615AAB00F37572 /* libobjc.dylib */; };
@@ -1560,6 +1562,9 @@
 		A67067991D347116002C52F2 /* jquery.flot.stack.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = jquery.flot.stack.js; sourceTree = "<group>"; };
 		A670679A1D347116002C52F2 /* jquery.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = jquery.js; sourceTree = "<group>"; };
 		A670679B1D347116002C52F2 /* peg-0.8.0.min.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "peg-0.8.0.min.js"; sourceTree = "<group>"; };
+		A67067A71D36E29F002C52F2 /* PacoGroupSelectionController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoGroupSelectionController.h; sourceTree = "<group>"; };
+		A67067A81D36E29F002C52F2 /* PacoGroupSelectionController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoGroupSelectionController.m; sourceTree = "<group>"; };
+		A67067A91D36E29F002C52F2 /* PacoGroupSelectionController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = PacoGroupSelectionController.xib; sourceTree = "<group>"; };
 		A670F87F1B8E2D1D00BF9593 /* PacoJAVA2OBJCTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoJAVA2OBJCTest.m; sourceTree = "<group>"; };
 		A670F8811B8ECC2600BF9593 /* PacoIntrospectHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PacoIntrospectHelper.h; path = Paco/source/core/serializer/PacoIntrospectHelper.h; sourceTree = "<group>"; };
 		A670F8821B8ECC2600BF9593 /* PacoIntrospectHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = PacoIntrospectHelper.m; path = Paco/source/core/serializer/PacoIntrospectHelper.m; sourceTree = "<group>"; };
@@ -2926,6 +2931,7 @@
 		A652BB3B1BD59A8A000237A7 /* UI */ = {
 			isa = PBXGroup;
 			children = (
+				A67067A21D36DDFE002C52F2 /* survey */,
 				A6DF7C2E1CED2E1400EF4B68 /* joinflow */,
 				A65F68A01C865E25009AAEF4 /* testing */,
 				A6DC6E3E1BEC116E00D38D68 /* FormResponse */,
@@ -3097,6 +3103,16 @@
 				A69D09491D34450E0032CB18 /* skeleton.html */,
 			);
 			name = web_resources;
+			sourceTree = "<group>";
+		};
+		A67067A21D36DDFE002C52F2 /* survey */ = {
+			isa = PBXGroup;
+			children = (
+				A67067A71D36E29F002C52F2 /* PacoGroupSelectionController.h */,
+				A67067A81D36E29F002C52F2 /* PacoGroupSelectionController.m */,
+				A67067A91D36E29F002C52F2 /* PacoGroupSelectionController.xib */,
+			);
+			name = survey;
 			sourceTree = "<group>";
 		};
 		A681F4961BB3657100EC8599 /* protocols */ = {
@@ -4180,6 +4196,7 @@
 				A63A81421C0677B600ACBC0A /* credit-card-7.png in Resources */,
 				A63A817A1C0677B600ACBC0A /* folder-tick-7.png in Resources */,
 				A63A80FA1C0677B600ACBC0A /* box-incoming-7.png in Resources */,
+				A67067AB1D36E29F002C52F2 /* PacoGroupSelectionController.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -4487,6 +4504,7 @@
 				A681F4841BB3518600EC8599 /* NSMutableArray+PacoModel.m in Sources */,
 				4448BCA21A808E7A0034FCE9 /* GTMHTTPFetcher.m in Sources */,
 				A6954C931CE2608A0052C9F0 /* OrgJodaTimeDateTime+PacoDateHelper.m in Sources */,
+				A67067AA1D36E29F002C52F2 /* PacoGroupSelectionController.m in Sources */,
 				A652BB5E1BD6DB66000237A7 /* PacoCardView.swift in Sources */,
 				4448BCA41A808E7A0034FCE9 /* GTMHTTPFetcherLogViewController.m in Sources */,
 				36B8EC2D17568E33004CF035 /* GTMNSString+URLArguments.m in Sources */,

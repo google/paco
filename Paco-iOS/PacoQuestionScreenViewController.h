@@ -16,12 +16,15 @@
 #import <UIKit/UIKit.h>
 
 @class PacoExperiment;
+@class PAExperimentGroup;
+
+
 
 @interface PacoQuestionScreenViewController : UIViewController
 
-+ (id)controllerWithExperiment:(PacoExperiment*)experiment;
++ (id)controllerWithExperiment:(PacoExperiment*)experiment  group:(PAExperimentGroup*) group;
 
 + (id)controllerWithExperiment:(PacoExperiment*)experiment
-               andNotification:(UILocalNotification*)notification;
+                         group:(PAExperimentGroup*) group  andNotification:(UILocalNotification*)notification;
 
 @end

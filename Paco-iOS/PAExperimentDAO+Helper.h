@@ -9,6 +9,7 @@
 #import "ExperimentDAO.h"
 @class OrgJodaTimeDateTime;
 @class PAInput2;
+@class PAExperimentGroup;
 
 typedef NS_ENUM(NSInteger, PacoFeedbackType) {
     PacoFeedbackTypeStaticMessage,
@@ -29,5 +30,10 @@ typedef NS_ENUM(NSInteger, PacoFeedbackType) {
 -(NSDictionary* ) inputs;
 -(NSString*) jsonStringForJavascript;
 -(PAInput2*) inputWithId:(NSString*) inputID;
--(NSArray*) groups;
+-(NSArray*) fetchAllExperimentGroups;
+-(NSDictionary*) fetchExperimentGroupDictionary;
+-(int) numberOfGroups;
+-(PAExperimentGroup*) soloGroup;
+-(PAExperimentGroup*) groupWithName:(NSString*) groupName;
+
 @end

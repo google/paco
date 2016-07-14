@@ -12,6 +12,7 @@
 #import <Foundation/Foundation.h>
 @class PacoExperiment;
 @class PacoExperimentInput;
+@class PAExperimentGroup;
 
 /*
  NOTE: The evaluation of conditions assumes:
@@ -23,9 +24,9 @@
 @property(nonatomic, strong, readonly) PacoExperiment* experiment;
 @property(nonatomic, strong, readonly) NSArray* visibleInputs;
 
-+ (PacoInputEvaluatorEx*)evaluatorWithExperiment:(PacoExperiment*)experiment;
++ (PacoInputEvaluatorEx*)evaluatorWithExperiment:(PacoExperiment*)experiment andGroup:(PAExperimentGroup*) group;
 - (NSError*)validateVisibleInputs;
 - (NSArray*)evaluateAllInputs;
-
+- (id)initWithExperimentAndGroup:(PacoExperiment*)experiment group:(PAExperimentGroup*) group;
 
 @end

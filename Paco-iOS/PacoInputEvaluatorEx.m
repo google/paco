@@ -13,13 +13,16 @@
 #import "Input2.h" 
 #import "PacoExperimentInput.h" 
 #import "PacoExpressionExecutor.h"
-
+#import "ExperimentGroup.h"
 
 
 
 @interface PacoInputEvaluatorEx  ()
 
 @property(nonatomic, strong) PacoExperiment* experiment;
+@property(nonatomic,strong) PAExperimentGroup* group;
+
+
 @property(nonatomic, strong) NSArray* visibleInputs;
 // key: "inputName", value: inputValue
 @property(nonatomic, strong) NSMutableDictionary* inputValueDict;
@@ -35,14 +38,16 @@
 
 @implementation PacoInputEvaluatorEx
 
-- (id)initWithExperiment:(PacoExperiment*)experiment {
+- (id)initWithExperimentAndGroup:(PacoExperiment*)experiment group:(PAExperimentGroup*) group;
+{
     self = [super init];
     if (self) {
-        _experiment = experiment;
-        _inputValueDict = [_experiment.experimentDao inputs];
-        [self buildIndex];
         
-   
+        _experiment = experiment;
+        _group = group;
+        _inputValueDict =  [[NSMutableDictionary alloc] initWithDictionary:[_experiment.experimentDao inputs]];
+        [self buildIndex];
+
     }
     return self;
 }
@@ -282,10 +287,9 @@
 
 
 
-+ (PacoInputEvaluatorEx*)evaluatorWithExperiment:(PacoExperiment*)experiment
++ (PacoInputEvaluatorEx*)evaluatorWithExperiment:(PacoExperiment*)experiment andGroup:(PAExperimentGroup*) group
 {
-    PacoInputEvaluatorEx* inputEvaluator = [[PacoInputEvaluatorEx alloc] initWithExperiment:experiment];
-    
+    PacoInputEvaluatorEx* inputEvaluator = [[PacoInputEvaluatorEx alloc] initWithExperimentAndGroup:experiment  group:group];
     return inputEvaluator;
     
 }

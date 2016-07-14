@@ -42,11 +42,10 @@ class PacoJoinedExperimentsController: UITableViewController,PacoExperimentProto
         // Dispose of any resources that can be recreated.
     }
 
-    // MARK: - Table view data source
+
 
     override func numberOfSectionsInTableView(tableView: UITableView) -> Int {
-        // #warning Potentially incomplete method implementation.
-        // Return the number of sections.
+
         return 1
     }
     
@@ -65,7 +64,7 @@ class PacoJoinedExperimentsController: UITableViewController,PacoExperimentProto
          let  experimentId  =   experiment.instanceId()
          myExpriments  = myExpriments!.filter() { $0 != experiment }
          m.stopRunningExperimentRegenerate(experimentId)
-        var event:PacoEventExtended  = PacoEventExtended.stopEventForActionSpecificatonWithServerExperimentId(experiment, serverExperimentId: "not applicable")
+         let event:PacoEventExtended  = PacoEventExtended.stopEventForActionSpecificatonWithServerExperimentId(experiment, serverExperimentId: "not applicable")
         
          m.eventManager.saveEvent(event);
          m.eventManager.startUploadingEvents()
@@ -131,10 +130,27 @@ class PacoJoinedExperimentsController: UITableViewController,PacoExperimentProto
     override func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
         
             let dao:PAExperimentDAO!  =  myExpriments![indexPath.row]
-            let experiment:PacoExperiment =    PacoExperiment.init(experimentDao:dao!)
-            let ctrler   = PacoQuestionScreenViewController.controllerWithExperiment(experiment)
         
-            self.tabBarController!.navigationController?.pushViewController(  ctrler as! UIViewController  , animated: true)
+            let experiment:PacoExperiment =    PacoExperiment.init(experimentDao:dao!)
+        
+            let numberOfGroups   =   dao.numberOfGroups()
+        
+           if(numberOfGroups == 1)
+           {
+               let group  = dao.soloGroup();
+               let ctrler   = PacoQuestionScreenViewController.controllerWithExperiment(experiment,group:group)
+               self.tabBarController!.navigationController?.pushViewController(  ctrler as! UIViewController  , animated: true)
+            }
+           else
+           {
+            
+               // use group picker
+            
+           }
+        
+        
+           // let ctrler   = PacoQuestionScreenViewController.controllerWithExperiment(experiment)
+           // self.tabBarController!.navigationController?.pushViewController(  ctrler as! UIViewController  , animated: true)
         
     }
  

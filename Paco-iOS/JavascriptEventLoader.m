@@ -120,7 +120,7 @@
   @synchronized(self) {
     if (!self.events) {
         
-        
+   
         
         NSNumber * experimentId  =  [self.experiment valueForKeyEx:@"id"];
         NSArray* events = [[PacoMediator sharedInstance].eventManager allEventsForExperiment:experimentId];

@@ -24,7 +24,7 @@
 #import "PacoTimeCellModel.h"
 #import "SchedulePrinter.h"
 #import "PAExperimentDAO+Helper.h"
-
+#import "NSObject+J2objcKVO.h"
 
 @implementation PAExperimentDAO (Helper)
 
@@ -40,7 +40,6 @@
     return  retValue;
     
 }
-
 
 
 -(NSString*) scheduleString
@@ -102,14 +101,17 @@
          }
          
          
-         return retValue;
+        
      }
     
          
-         
+         return retValue;
     
     
 }
+
+
+
 
 
 -(NSDictionary* ) inputs
@@ -118,8 +120,6 @@
     NSMutableDictionary* dictionaryOfInputArray  = [NSMutableDictionary new];
     NSNumber   * numberOfGroups    = [self  valueForKeyPathEx:@"groups#"];
     int count = [numberOfGroups intValue];
-    
-    NSMutableArray* groupArray = [[NSMutableArray alloc] init];
     
     for( int i =0;  i < count; i++)
     {
@@ -273,20 +273,88 @@
     
 }
 
--(NSArray*) groups
+
+
+-(NSDictionary*) fetchExperimentGroupDictionary
 {
-    NSMutableArray* retVal  = [NSMutableArray new];
+    
+    NSMutableDictionary * dict = [NSMutableDictionary new];
+    NSArray * groups = [self fetchAllExperimentGroups];
+    
+    for(PAExperimentGroup*  group in groups)
+    {
+        NSString* name = [group valueForKeyEx:@"name"];
+        dict[name] = group;
+    }
+    
+    return dict;
+}
+
+
+
+
+-(PAExperimentGroup*) groupWithName:(NSString*) groupName
+{
+    PAExperimentGroup* foundGroup;
     NSNumber   * numberOfGroups    = [self  valueForKeyPathEx:@"groups#"];
     int count = [numberOfGroups intValue];
     for( int i =0;  i < count; i++)
     {
         NSString* str = [NSString stringWithFormat: @"groups[%i]",i ];
         PAExperimentGroup*  group  =  [self  valueForKeyPathEx:str];
-        [retVal addObject:group];
+        
+        NSString* currName = [group  valueForKey:@"name"];
+        
+        if([groupName isEqualToString:currName])
+        {
+            
+            foundGroup = group;
+        }
+    }
+    return foundGroup;
+    
+   
+   
+}
+
+
+
+-(PAExperimentGroup*) soloGroup
+{
+    NSNumber   * numberOfGroups    = [self  valueForKeyPathEx:@"groups#"];
+    int numGroups = [numberOfGroups intValue];
+    assert(numGroups ==1);
+    
+    PAExperimentGroup*  group;
+    group  =  [self  valueForKeyPathEx:@"groups[0]"];
+    return group;
+  
+}
+
+-(int) numberOfGroups
+{
+    
+    NSNumber   * numberOfGroups    = [self  valueForKeyPathEx:@"groups#"];
+    return numberOfGroups;
+    
+    
+}
+
+
+-(NSArray*) fetchAllExperimentGroups
+{
+    NSMutableArray* allGroups   = [NSMutableArray new];
+    NSNumber   * numberOfGroups    = [self  valueForKeyPathEx:@"groups#"];
+    int count = [numberOfGroups intValue];
+    for( int i =0;  i < count; i++)
+    {
+        NSString* str = [NSString stringWithFormat: @"groups[%i]",i ];
+        PAExperimentGroup*  group  =  [self  valueForKeyPathEx:str];
+        [allGroups  addObject:group];
         
     }
     
-    return retVal;
+    return allGroups;
     
 }
 
@@ -436,7 +504,7 @@
  */
 -(BOOL) isSelfReport
 {
-    
+    // ToDo
     return NO;
     
 }

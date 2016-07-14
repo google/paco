@@ -45,6 +45,7 @@ NSString *kCellIdQuestion = @"question";
 - (id)initWithNibName:(NSString *)nibNameOrNil
                bundle:(NSBundle *)nibBundleOrNil
            experiment:(PacoExperiment*)experiment
+                group:(PAExperimentGroup*) group
       andNotification:(UILocalNotification*)notification{
   self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
   if (self) {
@@ -60,23 +61,35 @@ NSString *kCellIdQuestion = @"question";
         [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemCancel
                                                       target:self
                                                       action:@selector(onCancel:)];
-    _evaluator = [PacoInputEvaluatorEx evaluatorWithExperiment:experiment];
+      
+      _evaluator = [PacoInputEvaluatorEx evaluatorWithExperiment:experiment  andGroup:group];
+      
+      
     _notification = notification;
   }
    return self;
 }
 
 
-+ (id)controllerWithExperiment:(PacoExperiment*)experiment {
-  return [PacoQuestionScreenViewController controllerWithExperiment:experiment andNotification:nil];
++ (id)controllerWithExperiment:(PacoExperiment*)experiment  group:(PAExperimentGroup*) group
+{
+    
+  ///return [PacoQuestionScreenViewController controllerWithExperiment:experiment andNotification:nil];
+    
+     return [[PacoQuestionScreenViewController alloc] initWithNibName:nil  bundle:nil  experiment:experiment  group:group  andNotification:nil];
+    
+    
 }
 
+
+
+
+
+
 + (id)controllerWithExperiment:(PacoExperiment*)experiment
-               andNotification:(UILocalNotification*)notification{
-  return [[PacoQuestionScreenViewController alloc] initWithNibName:nil
-                                                            bundle:nil
-                                                        experiment:experiment
-                                                   andNotification:notification];
+                         group:(PAExperimentGroup*) group  andNotification:(UILocalNotification*)notification{
+    
+    return [[PacoQuestionScreenViewController alloc] initWithNibName:nil  bundle:nil  experiment:experiment  group:group  andNotification:notification ];
 }
 
 - (void)viewDidLoad {
@@ -188,6 +201,16 @@ NSString *kCellIdQuestion = @"question";
                       otherButtonTitles:nil] show];
     return;
   }
+    
+    
+    /*
+     
+        is this a self report--- check if notification is nil 
+     
+     
+     
+     */
+    
 
    [self processAttachedNotificationIfNeeded];
     
@@ -251,6 +274,8 @@ NSString *kCellIdQuestion = @"question";
   PacoTableView *table = (PacoTableView *)self.view;
 
    NSArray* inputs   = [self.evaluator evaluateAllInputs];
+    
+    
    table.data = [self boxInputs:inputs];
     
   }
