@@ -167,17 +167,7 @@ public class BroadcastTriggerService extends Service {
 
       Event event = EventUtil.createEvent(experiment, experimentGroup.getName(), nowMillis, null, null, null);
       Bundle payload = extras.getBundle(BroadcastTriggerReceiver.PACO_ACTION_PAYLOAD);
-      for (String key : payload.keySet()) {
-        if (payload.get(key) == null) {
-          continue;
-        }
-        Output output = new Output();
-        output.setEventId(event.getId());
-        output.setName(key);
-        output.setAnswer(payload.get(key).toString());
-        event.addResponse(output);
-      }
-      eu.insertEvent(event);
+      persistEventBundle(eu, event, payload);
     }
     notifySyncService();
   }
@@ -199,11 +189,22 @@ public class BroadcastTriggerService extends Service {
     Log.v(PacoConstants.TAG, "Persisting accessibility data for experiment " + experiment.getExperimentDAO().getTitle());
     long nowMillis = new DateTime().getMillis();
     Event event = EventUtil.createEvent(experiment, null, nowMillis, null, null, null);
+    persistEventBundle(experimentProviderUtil, event, payload);
+    notifySyncService();
+  }
+
+  /**
+   * Helper function for persistAccessibilityData() and persistBroadcastData().
+   * Stores all information in a Bundle in a given Event
+   * @param experimentProviderUtil an initialized ExperimentProviderUtil
+   * @param event Event for which the data should be stored
+   * @param payload The data, as key-value pairs
+   */
+  private void persistEventBundle(ExperimentProviderUtil experimentProviderUtil, Event event, Bundle payload) {
     for (String key : payload.keySet()) {
       if (payload.get(key) == null) {
         continue;
       }
-      Log.v(PacoConstants.TAG, "Persisting key " + key);
       Output output = new Output();
       output.setEventId(event.getId());
       output.setName(key);
@@ -211,11 +212,9 @@ public class BroadcastTriggerService extends Service {
       event.addResponse(output);
     }
     experimentProviderUtil.insertEvent(event);
-    notifySyncService();
   }
 
   private void notifySyncService() {
     startService(new Intent(this, SyncService.class));
   }
-
 }
