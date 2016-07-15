@@ -1,9 +1,5 @@
 package com.pacoapp.paco.net;
 
-import android.util.Log;
-
-import com.pacoapp.paco.PacoConstants;
-
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
