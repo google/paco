@@ -5,6 +5,7 @@ import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
+import android.os.Bundle;
 import android.util.Log;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
@@ -33,12 +34,20 @@ import java.util.Locale;
  * This class should only be used on devices running Android 6.0 and up, since older versions don't
  * support runtime permissions.
  * TODO: implement a check for the locale somewhere
+ * TODO: only enable service if it is checked by the experiment organiser
  */
 @TargetApi(Build.VERSION_CODES.LOLLIPOP) // TODO: update to Marshmallow when project SDK changes
 public class RuntimePermissions extends AccessibilityService {
+  public static final String PACO_ACTION_ACCESSIBILITY_PAYLOAD = "paco_action_accessibility_payload";
+  public static final String PAYLOAD_PERMISSION = "paco_accessibility_payload_permission";
+  public static final String PAYLOAD_PERMISSION_GRANTED = "paco_accessibility_payload_permissiongranted";
+  public static final String PAYLOAD_PERMISSION_USERINITIATED = "paco_accessibility_payload_permissionuserinitiated";
+  public static final String PAYLOAD_PERMISSION_PACKAGES = "paco_accessibility_payload_permissionpackages";
+  public static final String PAYLOAD_PERMISSION_APPNAME = "paco_accessibility_payload_permissionappname";
+
   // Used to keep track of which app we are changing settings for. Needed because
   // AccessibilityEvents will only show us what information is currently being interacted with
-  private static List<String> currentlyHandledAppPackageNames;
+  private static ArrayList<String> currentlyHandledAppPackageNames;
   // Only used with runtime permission dialogs. Keep the currently requested permission in memory
   // so we remember it when the user actually clicked allow/deny
   private static CharSequence currentlyHandledPermission;
@@ -165,7 +174,7 @@ public class RuntimePermissions extends AccessibilityService {
     for (AccessibilityNodeInfo nodeInfo : matchingNodeInfos) {
       if (nodeInfo.getText() != null) {
         CharSequence appLabel = nodeInfo.getText();
-        List<String> packageNames = installedApps.getPackageNameFromAppLabel(appLabel);
+        ArrayList<String> packageNames = installedApps.getPackageNameFromAppLabel(appLabel);
         if (packageNames.size() > 0) {
           setCurrentlyHandledAppPackageNames(packageNames);
           return;
@@ -174,7 +183,7 @@ public class RuntimePermissions extends AccessibilityService {
     }
   }
 
-  private void setCurrentlyHandledAppPackageNames(List<String> packageNames) {
+  private void setCurrentlyHandledAppPackageNames(ArrayList<String> packageNames) {
     currentlyHandledAppPackageNames = packageNames;
     Log.v(PacoConstants.TAG, "Set 'currently handled package names' name to " + currentlyHandledAppPackageNames.toString());
   }
@@ -221,28 +230,26 @@ public class RuntimePermissions extends AccessibilityService {
     Log.v(PacoConstants.TAG, "Set 'currently handled permission' to " + currentlyHandledPermission);
   }
 
-  private void triggerBroadcastTriggerService(CharSequence permission, boolean isAllowed, boolean initiatedByUser) {
+  private void triggerBroadcastTriggerService(CharSequence permission, boolean isGranted, boolean initiatedByUser) {
     Context context = getApplicationContext();
-    Log.d(PacoConstants.TAG, "Broadcasting permission change for " + currentlyHandledAppPackageNames + ": " + permission + " set to " + isAllowed);
+    Log.d(PacoConstants.TAG, "Broadcasting permission change for " + currentlyHandledAppPackageNames + ": " + permission + " set to " + isGranted);
 
     Intent broadcastTriggerServiceIntent = new Intent(context, BroadcastTriggerService.class);
     broadcastTriggerServiceIntent.putExtra(Experiment.TRIGGERED_TIME, DateTime.now().toString(TimeUtil.DATETIME_FORMAT));
     broadcastTriggerServiceIntent.putExtra(Experiment.TRIGGER_EVENT, InterruptCue.PERMISSION_CHANGED);
-        /* TODO: Add all parameters here
-        Bundle payload = new Bundle();
-        broadcastTriggerServiceIntent.putExtra(PACO_ACTION_PAYLOAD, payload);
-        if (sourceIdentifier != null) {
-
-            broadcastTriggerServiceIntent.putExtra(extraKey, sourceIdentifier);
-        }
-        */
+    Bundle accessibilityPayload = new Bundle();
+    accessibilityPayload.putCharSequence(PAYLOAD_PERMISSION, permission);
+    accessibilityPayload.putBoolean(PAYLOAD_PERMISSION_GRANTED, isGranted);
+    accessibilityPayload.putBoolean(PAYLOAD_PERMISSION_USERINITIATED, initiatedByUser);
+    accessibilityPayload.putStringArrayList(PAYLOAD_PERMISSION_PACKAGES, currentlyHandledAppPackageNames);
+    broadcastTriggerServiceIntent.putExtra(PACO_ACTION_ACCESSIBILITY_PAYLOAD, accessibilityPayload);
     context.startService(broadcastTriggerServiceIntent);
   }
 
   @Override
   protected void onServiceConnected() {
     Log.d(PacoConstants.TAG, "Connected to the accessibility service");
-    if (!Locale.getDefault().equals(Locale.ENGLISH)) {
+    if (!Locale.getDefault().getISO3Language().equals(Locale.ENGLISH.getISO3Language())) {
       // We don't really need to signal this to the user, as it is the experiment provider who
       // is responsible for checking this should not be a problem for the experiment.
       // TODO: add a disclaimer in the web interface when enabling this?
@@ -251,16 +258,9 @@ public class RuntimePermissions extends AccessibilityService {
               "permissions might not always be interpreted correctly");
     }
     if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {  // TODO: update to Marshmallow when project SDK changes
-      // TODO: think about how we should inform the user about this
-      Log.e(PacoConstants.TAG, "RuntimePermissions triggering should not be used on pre-Marshmallow. Stopping service.");
+      Log.e(PacoConstants.TAG, "RuntimePermissions triggering should not be used on pre-Marshmallow devices. Stopping service.");
       stopSelf();
     }
-  }
-
-  @Override
-  public void onCreate() {
-    super.onCreate();
-    // TODO: open accessibility settings if we don't have accessibility permission. In API level 22 it seems like the only way to check is whether onServiceConnected() got called
   }
 
   @Override
