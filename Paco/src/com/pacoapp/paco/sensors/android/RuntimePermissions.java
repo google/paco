@@ -2,8 +2,6 @@ package com.pacoapp.paco.sensors.android;
 
 import android.accessibilityservice.AccessibilityService;
 import android.annotation.TargetApi;
-import android.app.usage.UsageStats;
-import android.app.usage.UsageStatsManager;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
@@ -13,6 +11,7 @@ import android.view.accessibility.AccessibilityNodeInfo;
 
 import com.pacoapp.paco.PacoConstants;
 import com.pacoapp.paco.model.Experiment;
+import com.pacoapp.paco.sensors.android.procmon.RuntimePermissionsAppUtil;
 import com.pacoapp.paco.shared.model2.InterruptCue;
 import com.pacoapp.paco.shared.util.TimeUtil;
 
@@ -211,7 +210,8 @@ public class RuntimePermissions extends AccessibilityService {
     // The app for which the permission is requested will be the one which was last in the
     // foreground. Since background services are not able to call requestPermissions(), the last
     // visible activity should always belong to the requesting app.
-    setCurrentlyHandledAppPackageName(getPreviousApp());
+    RuntimePermissionsAppUtil runtimeUtil = new RuntimePermissionsAppUtil(getApplicationContext());
+    setCurrentlyHandledAppPackageName(runtimeUtil.getPreviousApp());
 
     // Extract the requested permission from the text in the dialog. This should always be the
     // last word in the dialog. TODO: check if this is actually the case
@@ -237,36 +237,6 @@ public class RuntimePermissions extends AccessibilityService {
         }
         */
     context.startService(broadcastTriggerServiceIntent);
-  }
-
-  // TODO: maybe move this code to the pacoapp.paco.asensors.android.procmon package. Ask Bob what he would like the place for this code to be
-  private String getPreviousApp() {
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-      UsageStatsManager usageStatsManager = (UsageStatsManager) getSystemService(Context.USAGE_STATS_SERVICE);
-      long now = System.currentTimeMillis();
-      // We get usage stats for the last 5 seconds
-      List<UsageStats> stats = usageStatsManager.queryUsageStats(UsageStatsManager.INTERVAL_DAILY, now - 1000 * 5, now);
-      // Get the next-to-last app from this list.
-      String lastUsedApp = null;
-      long lastUsedTime = 0;
-      String nextToLastUsedApp = null;
-      long nextToLastUsedTime = 0;
-      for (UsageStats appStats : stats) {
-        if (appStats.getLastTimeUsed() > nextToLastUsedTime) {
-          if (appStats.getLastTimeUsed() > lastUsedTime) {
-            nextToLastUsedTime = lastUsedTime;
-            nextToLastUsedApp = lastUsedApp;
-            lastUsedTime = appStats.getLastTimeUsed();
-            lastUsedApp = appStats.getPackageName();
-          } else {
-            nextToLastUsedTime = appStats.getLastTimeUsed();
-            nextToLastUsedApp = appStats.getPackageName();
-          }
-        }
-      }
-      return nextToLastUsedApp;
-    }
-    return null;
   }
 
   @Override
