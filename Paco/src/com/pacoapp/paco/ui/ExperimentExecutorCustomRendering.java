@@ -92,6 +92,7 @@ import com.pacoapp.paco.js.bridge.JavascriptExperimentLoader;
 import com.pacoapp.paco.js.bridge.JavascriptNotificationService;
 import com.pacoapp.paco.js.bridge.JavascriptPackageManager;
 import com.pacoapp.paco.js.bridge.JavascriptPhotoService;
+import com.pacoapp.paco.js.bridge.JavascriptSensorManager;
 import com.pacoapp.paco.js.bridge.JavascriptStringResources;
 import com.pacoapp.paco.model.Event;
 import com.pacoapp.paco.model.EventUtil;
@@ -486,6 +487,7 @@ private void injectObjectsIntoJavascriptEnvironment() {
   webView.addJavascriptInterface(new JavascriptPhotoService(this), "photoService");
   webView.addJavascriptInterface(new JavascriptExecutorListener(experiment), "executor");
   webView.addJavascriptInterface(new JavascriptPackageManager(this), "packageManager");
+  webView.addJavascriptInterface(new JavascriptSensorManager(this), "sensors");
   webView.addJavascriptInterface(new JavascriptStringResources(getApplicationContext()), "strings");
 
 }
