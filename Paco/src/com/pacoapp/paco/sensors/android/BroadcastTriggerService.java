@@ -185,14 +185,33 @@ public class BroadcastTriggerService extends Service {
   /**
    * Persist data related to accessibility events, sent along as part of the
    * PACO_ACTION_ACCESSIBILITY_PAYLOAD bundle.
+   * TODO: merge this with the persistBroadcastData() method
    * @param experimentProviderUtil an initialized ExperimentProviderUtil
    * @param experiment the experiment for which to save the events
    * @param payload the PACO_ACTION_ACCESSIBILITY_PAYLOAD bundle
    */
   private void persistAccessibilityData(ExperimentProviderUtil experimentProviderUtil,
                                         Experiment experiment, Bundle payload) {
+    if (payload == null) {
+      Log.v(PacoConstants.TAG, "No accessibility data for this trigger.");
+      return;
+    }
     Log.v(PacoConstants.TAG, "Persisting accessibility data for experiment " + experiment.getExperimentDAO().getTitle());
-    //Event event = EventUtil.createEvent()
+    long nowMillis = new DateTime().getMillis();
+    Event event = EventUtil.createEvent(experiment, null, nowMillis, null, null, null);
+    for (String key : payload.keySet()) {
+      if (payload.get(key) == null) {
+        continue;
+      }
+      Log.v(PacoConstants.TAG, "Persisting key " + key);
+      Output output = new Output();
+      output.setEventId(event.getId());
+      output.setName(key);
+      output.setAnswer(payload.get(key).toString());
+      event.addResponse(output);
+    }
+    experimentProviderUtil.insertEvent(event);
+    notifySyncService();
   }
 
   private void notifySyncService() {
