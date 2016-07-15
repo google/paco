@@ -6,8 +6,6 @@ import android.app.usage.UsageStats;
 import android.app.usage.UsageStatsManager;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.ApplicationInfo;
-import android.content.pm.PackageManager;
 import android.os.Build;
 import android.util.Log;
 import android.view.accessibility.AccessibilityEvent;
@@ -20,6 +18,7 @@ import com.pacoapp.paco.shared.util.TimeUtil;
 
 import org.joda.time.DateTime;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
@@ -40,7 +39,7 @@ import java.util.Locale;
 public class RuntimePermissions extends AccessibilityService {
   // Used to keep track of which app we are changing settings for. Needed because
   // AccessibilityEvents will only show us what information is currently being interacted with
-  private static CharSequence currentlyHandledAppPackage;
+  private static List<String> currentlyHandledAppPackageNames;
   // Only used with runtime permission dialogs. Keep the currently requested permission in memory
   // so we remember it when the user actually clicked allow/deny
   private static CharSequence currentlyHandledPermission;
@@ -68,7 +67,7 @@ public class RuntimePermissions extends AccessibilityService {
         if (isAppPermissionsScreen(accessibilityEvent.getSource())) {
           // Find the package name in this view, and store it for future use
           Log.v(PacoConstants.TAG, "We seem to be inside the app permissions screen");
-          extractAppPackageNameFromAppPermissionsScreen(accessibilityEvent.getSource());
+          extractAppPackageNamesFromAppPermissionsScreen(accessibilityEvent.getSource());
         } else if (isPermissionsDialog(accessibilityEvent.getSource())) {
           Log.v(PacoConstants.TAG, "We seem to be inside a runtime permissions dialog");
           extractInformationFromPermissionDialog(accessibilityEvent);
@@ -153,13 +152,13 @@ public class RuntimePermissions extends AccessibilityService {
     List<AccessibilityNodeInfo> matchingNodeInfos = rootNodeInfo.findAccessibilityNodeInfosByViewId("com.android.settings:id/widget_text2");
     for (AccessibilityNodeInfo nodeInfo : matchingNodeInfos) {
       if (nodeInfo.getText() != null) {
-        setCurrentlyHandledAppPackage(nodeInfo.getText());
+        setCurrentlyHandledAppPackageName(nodeInfo.getText());
         return;
       }
     }
   }
 
-  private void extractAppPackageNameFromAppPermissionsScreen(AccessibilityNodeInfo rootNodeInfo) {
+  private void extractAppPackageNamesFromAppPermissionsScreen(AccessibilityNodeInfo rootNodeInfo) {
     AndroidInstalledApplications installedApps = new AndroidInstalledApplications(getApplicationContext());
     // "com.android.settings:id/widget_text2" is the id for the text string which contains the
     // app *label*. You'll find it on top of the screen.
@@ -167,18 +166,24 @@ public class RuntimePermissions extends AccessibilityService {
     for (AccessibilityNodeInfo nodeInfo : matchingNodeInfos) {
       if (nodeInfo.getText() != null) {
         CharSequence appLabel = nodeInfo.getText();
-        CharSequence packageName = installedApps.getPackageNameFromAppLabel(appLabel);
-        if (packageName != null) {
-          setCurrentlyHandledAppPackage(packageName);
+        List<String> packageNames = installedApps.getPackageNameFromAppLabel(appLabel);
+        if (packageNames.size() > 0) {
+          setCurrentlyHandledAppPackageNames(packageNames);
           return;
         }
       }
     }
   }
 
-  private void setCurrentlyHandledAppPackage(CharSequence packageName) {
-    currentlyHandledAppPackage = packageName;
-    Log.v(PacoConstants.TAG, "Set 'currently handled package' name to " + currentlyHandledAppPackage);
+  private void setCurrentlyHandledAppPackageNames(List<String> packageNames) {
+    currentlyHandledAppPackageNames = packageNames;
+    Log.v(PacoConstants.TAG, "Set 'currently handled package names' name to " + currentlyHandledAppPackageNames.toString());
+  }
+
+  private void setCurrentlyHandledAppPackageName(CharSequence packageName) {
+    ArrayList packageList = new ArrayList();
+    packageList.add(packageName);
+    setCurrentlyHandledAppPackageNames(packageList);
   }
 
   private void processPermissionDialogAction(AccessibilityNodeInfo nodeInfo) {
@@ -206,7 +211,7 @@ public class RuntimePermissions extends AccessibilityService {
     // The app for which the permission is requested will be the one which was last in the
     // foreground. Since background services are not able to call requestPermissions(), the last
     // visible activity should always belong to the requesting app.
-    setCurrentlyHandledAppPackage(getPreviousApp());
+    setCurrentlyHandledAppPackageName(getPreviousApp());
 
     // Extract the requested permission from the text in the dialog. This should always be the
     // last word in the dialog. TODO: check if this is actually the case
@@ -218,7 +223,7 @@ public class RuntimePermissions extends AccessibilityService {
 
   private void triggerBroadcastTriggerService(CharSequence permission, boolean isAllowed, boolean initiatedByUser) {
     Context context = getApplicationContext();
-    Log.d(PacoConstants.TAG, "Broadcasting permission change for " + currentlyHandledAppPackage + ": " + permission + " set to " + isAllowed);
+    Log.d(PacoConstants.TAG, "Broadcasting permission change for " + currentlyHandledAppPackageNames + ": " + permission + " set to " + isAllowed);
 
     Intent broadcastTriggerServiceIntent = new Intent(context, BroadcastTriggerService.class);
     broadcastTriggerServiceIntent.putExtra(Experiment.TRIGGERED_TIME, DateTime.now().toString(TimeUtil.DATETIME_FORMAT));
