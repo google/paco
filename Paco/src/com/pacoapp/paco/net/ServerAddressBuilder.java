@@ -1,5 +1,9 @@
 package com.pacoapp.paco.net;
 
+import android.util.Log;
+
+import com.pacoapp.paco.PacoConstants;
+
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -17,7 +21,7 @@ public class ServerAddressBuilder {
   }
 
   public static boolean isLocalDevelopmentServerAddress(String serverAddress) {
-    return serverAddress.contains("10.0.2.2");
+    return serverAddress.contains("10.0.2.2") || serverAddress.contains("127.0.0.1");
   }
 
   public static HttpURLConnection getConnection(URL u) throws IOException {
