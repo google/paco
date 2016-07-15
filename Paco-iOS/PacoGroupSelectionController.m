@@ -9,6 +9,10 @@
 #import "PacoGroupSelectionController.h"
 #import "PacoFeedbackWebViewController.h" 
 #import "ExperimentDAO.h" 
+#import "PacoQuestionScreenViewController.h" 
+#import "PacoExperiment.h" 
+
+
 
 
 
@@ -121,12 +125,18 @@ static NSString *CellIdentifier = @"Cell";
 
     NSString * name =  self.groupNames[indexPath.row];
     PAExperimentGroup* group =  [self.groups objectForKey:name];
-    _feedback  = [PacoFeedbackWebViewController controllerWithExperimentGroup:group  withExperiment:self.experiment  htmlName:@"skeleton" dismissBlock:^{
+    
+    
+    
+    PacoExperiment * experiment = [PacoExperiment experimentWithExperimentDao:_experiment];
+    _questions  = [PacoQuestionScreenViewController controllerWithExperiment:experiment   group:group];
+    
+    /*_feedback  = [PacoFeedbackWebViewController controllerWithExperimentGroup:group  withExperiment:self.experiment  htmlName:@"skeleton" dismissBlock:^{
         
         
-    }];
+    }];*/
  
-    [self.navigationController pushViewController:_feedback animated:YES];
+    [self.navigationController pushViewController:_questions   animated:YES];
 }
 
 

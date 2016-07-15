@@ -10,7 +10,7 @@
 #import "NSObject+J2objcKVO.h"
 #import "ScheduleTrigger.h"
 #import "PAActionTrigger+PacoHelper.h" 
-
+#import "JavaUtilArrayList+PacoConversion.h"
 
 @implementation PAExperimentGroup (PacoGroupHelper)
 
@@ -53,6 +53,16 @@
         
     }
     return isContainsAllOthers;
+    
+}
+
+
+-(NSArray* ) allInputs
+{
+    
+    JavaUtilArrayList*  list =    (JavaUtilArrayList*)   [self  getInputs] ;
+    NSArray * inputArray =  [list toNSArray];
+    return inputArray;
     
 }
 

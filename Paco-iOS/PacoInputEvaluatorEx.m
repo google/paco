@@ -14,6 +14,8 @@
 #import "PacoExperimentInput.h" 
 #import "PacoExpressionExecutor.h"
 #import "ExperimentGroup.h"
+#import "NSObject+J2objcKVO.h"
+#import "PAExperimentGroup+PacoGroupHelper.h" 
 
 
 
@@ -45,7 +47,28 @@
         
         _experiment = experiment;
         _group = group;
-        _inputValueDict =  [[NSMutableDictionary alloc] initWithDictionary:[_experiment.experimentDao inputs]];
+        
+        NSArray* inputs = [_group allInputs];
+        NSString* name  = [_group  valueForKeyEx:@"name"];
+        _inputValueDict =   [[NSMutableDictionary alloc] initWithObjectsAndKeys:name,inputs, nil];
+        
+
+        
+        //[[NSMutableDictionary alloc] initWithDictionary:[_experiment.experimentDao inputs]];
+        
+     
+        
+     
+        
+      
+        
+        
+        
+        
+        
+        
+        
+        
         [self buildIndex];
 
     }
@@ -249,10 +272,6 @@
            
      }
         
-   
-        
-        
-   
     return self.visibleInputs;
 }
 

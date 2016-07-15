@@ -133,7 +133,7 @@ class PacoJoinedExperimentsController: UITableViewController,PacoExperimentProto
         
             let experiment:PacoExperiment =    PacoExperiment.init(experimentDao:dao!)
         
-            let numberOfGroups   =   dao.numberOfGroups()
+            let numberOfGroups:Int32  =   dao.numberOfGroups()
         
            if(numberOfGroups == 1)
            {

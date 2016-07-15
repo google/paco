@@ -10,11 +10,14 @@
 
 @class  PacoFeedbackWebViewController;
 @class  PAExperimentDAO;
+@class  PacoQuestionScreenViewController;
 
 @interface PacoGroupSelectionController : UITableViewController
 
 @property (nonatomic, strong)   PacoFeedbackWebViewController * feedback;
+@property (nonatomic, strong)   PacoQuestionScreenViewController* questions;
 @property (nonatomic, strong)   PAExperimentDAO * experiment;
+
 
 -(id) initWithNibNameAndGroups:(NSDictionary*) groups  experiment:(PAExperimentDAO*) experiment  nibName:(NSString*) nibName;
 

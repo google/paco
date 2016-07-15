@@ -89,7 +89,7 @@
          
          for(PAInput2 * input in inputArray)
          {
-             
+             // should be by name not by id"
              NSString* theId = [input  valueForKeyEx:@"id"];
              if([inputID isEqualToString:theId])
              {
@@ -104,7 +104,6 @@
         
      }
     
-         
          return retValue;
     
     
@@ -335,7 +334,7 @@
 {
     
     NSNumber   * numberOfGroups    = [self  valueForKeyPathEx:@"groups#"];
-    return numberOfGroups;
+    return [numberOfGroups intValue];
     
     
 }

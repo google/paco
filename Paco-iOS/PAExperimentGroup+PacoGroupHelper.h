@@ -23,7 +23,7 @@ typedef NS_ENUM(NSInteger, PacoFeedbackType) {
 /* get the feedback type */ 
 -(PacoFeedbackType) feedbackType;
 -(NSString*) jsonStringForJavascript;
-
+-(NSArray* ) allInputs;
 
 
 @end
