@@ -111,7 +111,7 @@ public class RuntimePermissions extends AccessibilityService {
    * Checks if the system is showing a runtime permissions dialog, spawned by an app to ask for a
    * runtime permission.
    * @param nodeInfo The source of the accessibility event
-   * @return
+   * @return true if the user is in the permissions dialog
    */
   private boolean isPermissionsDialog(AccessibilityNodeInfo nodeInfo) {
     return (nodeInfo.findAccessibilityNodeInfosByViewId("com.android.packageinstaller:id/permission_deny_button").size() > 0);
@@ -121,7 +121,7 @@ public class RuntimePermissions extends AccessibilityService {
    * Checks if the user is in the settings menu, showing the info for a specific app. This is the
    * screen containing info on storage, data usage, etc. used by the app.
    * @param nodeInfo The source of the accessibility event
-   * @return
+   * @return true if the user is in the app info screen
    */
   private boolean isAppInfoScreen(AccessibilityNodeInfo nodeInfo) {
     return (nodeInfo.findAccessibilityNodeInfosByViewId("com.android.settings:id/all_details").size() > 0 &&
@@ -133,7 +133,7 @@ public class RuntimePermissions extends AccessibilityService {
    * Checks if the user is in the permissions screen for an app. This activity shows switch buttons
    * for every permission the user can grant to the app.
    * @param nodeInfo The source of the accessibility event
-   * @return
+   * @return true if the user is in the app permissions screen
    */
   private boolean isAppPermissionsScreen(AccessibilityNodeInfo nodeInfo) {
     // TODO: check if this is sufficient, and whether these operations are not too costly
@@ -142,11 +142,21 @@ public class RuntimePermissions extends AccessibilityService {
     );
   }
 
+  /**
+   * Checks if the user pressed the 'Deny' or 'Allow' button in a permissions dialog.
+   * @param nodeInfo The source of the accessibility event
+   * @return true if the user performed an action in the permissions dialog
+   */
   private boolean isPermissionsDialogAction(AccessibilityNodeInfo nodeInfo) {
     return (nodeInfo.getClassName().equals("android.widget.Button") &&
             (nodeInfo.getText().equals("Deny") || nodeInfo.getText().equals("Allow")));
   }
 
+  /**
+   * Checks if the user pressed the switch on any of the permissions in the app permissions screen.
+   * @param nodeInfo The source of the accessibility event
+   * @return true if the user changed a permission on the permissions screen
+   */
   private boolean isSettingsPermissionChange(AccessibilityNodeInfo nodeInfo) {
     // This will most certainly be too broad, but we ignore this for now until we can get some
     // real experiment data
@@ -154,6 +164,15 @@ public class RuntimePermissions extends AccessibilityService {
             nodeInfo.getClassName().equals("android.widget.LinearLayout"));
   }
 
+
+  /**
+   * Extracts the name of the app package from the app info screen for that package, and stores it
+   * in memory.
+   * This method is not used anymore, as not every Android OEM skin displays this info. Instead,
+   * we extract this information by reverse engineering the name from the app permissions screen
+   * (see method extractAppPackageNamesFromAppPermissionsScreen())
+   * @param rootNodeInfo The root node in the tree for the accessibility event
+   */
   private void extractAppPackageNameFromAppInfoScreen(AccessibilityNodeInfo rootNodeInfo) {
     // "com.android.settings:id/widget_text2" is the id for the text string which contains the
     // package name on the "App info" screen. You'll find it right underneath the version number
@@ -166,6 +185,12 @@ public class RuntimePermissions extends AccessibilityService {
     }
   }
 
+  /**
+   * Extracts the name of the app package from the app permissions screen for that package, and
+   * stores it in memory.
+   * We extract this information by reverse engineering the name from the app permissions screen.
+   * @param rootNodeInfo The root node in the tree for the accessibility event
+   */
   private void extractAppPackageNamesFromAppPermissionsScreen(AccessibilityNodeInfo rootNodeInfo) {
     AndroidInstalledApplications installedApps = new AndroidInstalledApplications(getApplicationContext());
     // "com.android.settings:id/widget_text2" is the id for the text string which contains the
@@ -183,17 +208,31 @@ public class RuntimePermissions extends AccessibilityService {
     }
   }
 
+  /**
+   * Set the name of the package for which the user is currently changing permissions.
+   * @param packageNames a list of possible package names. Not just one string, because an app name
+   *                     may correspond to multiple package names
+   */
   private void setCurrentlyHandledAppPackageNames(ArrayList<String> packageNames) {
     currentlyHandledAppPackageNames = packageNames;
     Log.v(PacoConstants.TAG, "Set 'currently handled package names' name to " + currentlyHandledAppPackageNames.toString());
   }
 
+  /**
+   * Set the name of the package for which the user is currently changing permissions.
+   * @param packageName package name for the app
+   */
   private void setCurrentlyHandledAppPackageName(CharSequence packageName) {
     ArrayList packageList = new ArrayList();
     packageList.add(packageName);
     setCurrentlyHandledAppPackageNames(packageList);
   }
 
+  /**
+   * Called when the user accepts or denies a runtime permission request. Fires a broadcast event
+   * making note of whether the user accepted or denied the permission.
+   * @param nodeInfo The source of the accessibility event
+   */
   private void processPermissionDialogAction(AccessibilityNodeInfo nodeInfo) {
     if (nodeInfo.getText().equals("Allow")) {
       triggerBroadcastTriggerService(currentlyHandledPermission, true, false);
@@ -204,6 +243,11 @@ public class RuntimePermissions extends AccessibilityService {
     }
   }
 
+  /**
+   * Called when the user changes a runtime permission from the app permissions screen. Fires a
+   * broadcast event making note of whether the user accepted or denied the permission.
+   * @param accessibilityEvent accessibility event corresponding to the permission change
+   */
   private void processPermissionConfigurationChange(AccessibilityEvent accessibilityEvent) {
     List<CharSequence> textFields = accessibilityEvent.getText();
     if (textFields.size() != 2) {
@@ -215,6 +259,11 @@ public class RuntimePermissions extends AccessibilityService {
     triggerBroadcastTriggerService(permission, isAllowed, true);
   }
 
+  /**
+   * Extracts information (app package name, requested permission) from the dialog requesting a
+   * runtime permission, and stores it in memory.
+   * @param accessibilityEvent accessibility event corresponding to the permission request
+   */
   private void extractInformationFromPermissionDialog(AccessibilityEvent accessibilityEvent) {
     // The app for which the permission is requested will be the one which was last in the
     // foreground. Since background services are not able to call requestPermissions(), the last
@@ -230,6 +279,14 @@ public class RuntimePermissions extends AccessibilityService {
     Log.v(PacoConstants.TAG, "Set 'currently handled permission' to " + currentlyHandledPermission);
   }
 
+  /**
+   * Calls the BroadcastTriggerService with an intent containing all information of the permission
+   * change.
+   * @param permission Name of the permission that changed
+   * @param isGranted Whether the permission was granted (true) or denied (false)
+   * @param initiatedByUser Whether the user actively initiated the permission change. False if the
+   *                        permission change was the result of a permission request by the system.
+   */
   private void triggerBroadcastTriggerService(CharSequence permission, boolean isGranted, boolean initiatedByUser) {
     Context context = getApplicationContext();
     Log.d(PacoConstants.TAG, "Broadcasting permission change for " + currentlyHandledAppPackageNames + ": " + permission + " set to " + isGranted);
@@ -246,6 +303,10 @@ public class RuntimePermissions extends AccessibilityService {
     context.startService(broadcastTriggerServiceIntent);
   }
 
+  /**
+   * Called by the Android system when it connects the accessibility service. We use this to keep
+   * track of whether we have the accessibility permission.
+   */
   @Override
   protected void onServiceConnected() {
     Log.d(PacoConstants.TAG, "Connected to the accessibility service");
