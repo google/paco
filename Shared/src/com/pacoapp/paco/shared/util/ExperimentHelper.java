@@ -55,6 +55,17 @@ public class ExperimentHelper {
             && experiment.getExtraDataCollectionDeclarations().contains(ExperimentDAO.APP_INSTALL_DATA_COLLECTION);
   }
 
+  /**
+   * Returns whether the experiment has the accessibility logging flag set by the experiment
+   * organiser.
+   * @param experiment The running experiment
+   * @return Whether accessibility logging is enabled for the experiment.
+   */
+  public static boolean declaresAccessibilityLogging(ExperimentDAO experiment) {
+    return experiment.getExtraDataCollectionDeclarations() != null
+            && experiment.getExtraDataCollectionDeclarations().contains(ExperimentDAO.ACCESSIBILITY_LOGGING);
+  }
+
   public static boolean hasUserEditableSchedule(ExperimentDAO experiment) {
     List<ExperimentGroup> experimentGroups = experiment.getGroups();
     for (ExperimentGroup experimentGroup : experimentGroups) {
