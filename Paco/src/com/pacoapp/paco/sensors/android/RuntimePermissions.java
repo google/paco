@@ -160,13 +160,14 @@ public class RuntimePermissions extends AccessibilityService {
   }
 
   private void extractAppPackageNameFromAppPermissionsScreen(AccessibilityNodeInfo rootNodeInfo) {
+    AndroidInstalledApplications installedApps = new AndroidInstalledApplications(getApplicationContext());
     // "com.android.settings:id/widget_text2" is the id for the text string which contains the
     // app *label*. You'll find it on top of the screen.
     List<AccessibilityNodeInfo> matchingNodeInfos = rootNodeInfo.findAccessibilityNodeInfosByViewId("com.android.packageinstaller:id/name");
     for (AccessibilityNodeInfo nodeInfo : matchingNodeInfos) {
       if (nodeInfo.getText() != null) {
         CharSequence appLabel = nodeInfo.getText();
-        CharSequence packageName = getPackageNameFromAppLabel(appLabel);
+        CharSequence packageName = installedApps.getPackageNameFromAppLabel(appLabel);
         if (packageName != null) {
           setCurrentlyHandledAppPackage(packageName);
           return;
@@ -259,20 +260,6 @@ public class RuntimePermissions extends AccessibilityService {
         }
       }
       return nextToLastUsedApp;
-    }
-    return null;
-  }
-
-  // TODO: maybe move this code to the pacoapp.paco.asensors.android.procmon package. Ask Bob what he would like the place for this code to be
-  private String getPackageNameFromAppLabel(CharSequence appLabel) {
-    PackageManager packageManager = getPackageManager();
-    // The only way to do this is to traverse all applications, and see which ones have the label we want
-    for (ApplicationInfo appInfo : packageManager.getInstalledApplications(0)) {
-      CharSequence currentAppLabel = appInfo.loadLabel(packageManager);
-      if (currentAppLabel.equals(appLabel)) {
-        // TODO: do not just return here, create a list instead
-        return appInfo.packageName;
-      }
     }
     return null;
   }

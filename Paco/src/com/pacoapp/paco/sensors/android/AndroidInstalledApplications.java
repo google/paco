@@ -52,5 +52,18 @@ public class AndroidInstalledApplications {
     return appNames;
   }
 
+  public String getPackageNameFromAppLabel(CharSequence appLabel) {
+    PackageManager packageManager = context.getPackageManager();
+    // The only way to do this is to traverse all applications, and see which ones have the label we want
+    for (ApplicationInfo appInfo : packageManager.getInstalledApplications(0)) {
+      CharSequence currentAppLabel = appInfo.loadLabel(packageManager);
+      if (currentAppLabel.equals(appLabel)) {
+        // TODO: do not just return here, create a list instead
+        return appInfo.packageName;
+      }
+    }
+    return null;
+  }
+
 
 }
