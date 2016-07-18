@@ -44,7 +44,7 @@
     <!-- Provide the user with a direct link to the accessibility preferences, so he/she can enable
     the accessibility preference for Paco -->
     <Button
-        android:id="@+id/openAccessibilityPreferences"
+        android:id="@+id/openAccessibilitySettings"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
