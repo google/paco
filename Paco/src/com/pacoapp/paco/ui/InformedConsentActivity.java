@@ -46,7 +46,6 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.pacoapp.paco.PacoConstants;
 import com.pacoapp.paco.R;
 import com.pacoapp.paco.model.Event;
 import com.pacoapp.paco.model.Experiment;
@@ -127,8 +126,8 @@ public class InformedConsentActivity extends ActionBarActivity implements Experi
         TextView appInstallLogView = (TextView) findViewById(R.id.dataCollectedInstalledAppsView);
         appInstallLogView.setVisibility(TextView.VISIBLE);
       }
+      // Show the user if accessibility services are used by this experiment
       if (ExperimentHelper.declaresAccessibilityLogging(experiment.getExperimentDAO())) {
-        Log.v(PacoConstants.TAG, "Making accessibility consent message visible");
         TextView accessibilityView = (TextView) findViewById(R.id.dataCollectedAccessibilityView);
         accessibilityView.setVisibility(TextView.VISIBLE);
       }

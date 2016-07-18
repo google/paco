@@ -41,6 +41,8 @@
         </TextView>
     </ScrollView>
 
+    <!-- Provide the user with a direct link to the accessibility preferences, so he/she can enable
+    the accessibility preference for Paco -->
     <Button
         android:id="@+id/openAccessibilityPreferences"
         android:layout_width="wrap_content"
