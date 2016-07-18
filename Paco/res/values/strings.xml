@@ -337,6 +337,7 @@
     <string name="diagnostic_events_unsynced_label">unsynced</string>
     <string name="diagnostic_account_type">account</string>
     <string name="diagnostic_app_usage_access_type">app usage access</string>
+    <string name="diagnostic_accessibility_type">accessibility access</string>
     <string name="diagnostic_clock_type">clock</string>
     <string name="diagnostic_esm_alarms_type">esm alarms</string>
     <string name="diagnostic_ringer_type">ringer</string>

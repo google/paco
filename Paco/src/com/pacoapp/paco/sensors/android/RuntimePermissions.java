@@ -45,6 +45,8 @@ public class RuntimePermissions extends AccessibilityService {
   public static final String PAYLOAD_PERMISSION_PACKAGES = "paco_accessibility_payload_permissionpackages";
   public static final String PAYLOAD_PERMISSION_APPNAME = "paco_accessibility_payload_permissionappname";
 
+  // Keeps whether the service is connected
+  public static boolean running = false;
   // Used to keep track of which app we are changing settings for. Needed because
   // AccessibilityEvents will only show us what information is currently being interacted with
   private static ArrayList<String> currentlyHandledAppPackageNames;
@@ -106,6 +108,12 @@ public class RuntimePermissions extends AccessibilityService {
         break;
     }
   }
+
+  /**
+   * Returns whether the service is running and connected.
+   * @return true if we have accessibility permissions and the service is connected
+   */
+  public static boolean isRunning() {return running;}
 
   /**
    * Checks if the system is showing a runtime permissions dialog, spawned by an app to ask for a
@@ -309,6 +317,7 @@ public class RuntimePermissions extends AccessibilityService {
    */
   @Override
   protected void onServiceConnected() {
+    running = true;
     Log.d(PacoConstants.TAG, "Connected to the accessibility service");
     if (!Locale.getDefault().getISO3Language().equals(Locale.ENGLISH.getISO3Language())) {
       // We don't really need to signal this to the user, as it is the experiment provider who
@@ -324,8 +333,21 @@ public class RuntimePermissions extends AccessibilityService {
     }
   }
 
+  /**
+   * Called by the Android system when the accessibility service is stopped (e.g. because the user
+   * disables accessibility permissions for the app)
+   */
+  @Override
+  public void onDestroy() {
+    Log.d(PacoConstants.TAG, "Accessibility service destroyed");
+    running = false;
+  }
+
+  /**
+   * Called by the Android system when it wants to interrupt feedback
+   */
   @Override
   public void onInterrupt() {
-
+    // Ignore, since we are not actually a screen reader.
   }
 }
