@@ -12,7 +12,7 @@
 
 
 
--(NSArray*) toNSArray
+-(NSArray*) toNSArrayCopy
 {
     
     NSMutableArray* mutableArray = [[NSMutableArray alloc] init];
@@ -20,6 +20,20 @@
     for(NSObject* o in self)
     {
         [mutableArray addObject:[o copy]];
+    }
+    return mutableArray;
+    
+}
+
+
+-(NSArray*) toNSArray
+{
+    
+    NSMutableArray* mutableArray = [[NSMutableArray alloc] init];
+    
+    for(NSObject* o in self)
+    {
+        [mutableArray addObject:o];
     }
     return mutableArray;
     

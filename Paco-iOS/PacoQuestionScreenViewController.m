@@ -219,9 +219,6 @@ NSString *kCellIdQuestion = @"question";
  [[PacoMediator sharedInstance] submitSurveyWithDefinition:self.evaluator.experiment.experimentDao   surveyInputs:self.evaluator.visibleInputs  notification:self.notification];
 
  
-    
-    
-
   //clear all inputs' submitted responseObject for the definition
   //[self.evaluator.experiment.definition clearInputs];
 
@@ -272,11 +269,13 @@ NSString *kCellIdQuestion = @"question";
 
 - (void)reloadTable {
     
-  PacoTableView *table = (PacoTableView *)self.view;
-
+    // NB if inputs is empty we need to display a message.
+    
+    
+    
+    
+   PacoTableView *table = (PacoTableView *)self.view;
    NSArray* inputs   = [self.evaluator evaluateAllInputs];
-    
-    
    table.data = [self boxInputs:inputs];
     
   }

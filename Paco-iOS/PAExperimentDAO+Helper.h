@@ -7,17 +7,14 @@
 //
 
 #import "ExperimentDAO.h"
+#import "PAExperimentGroup+PacoGroupHelper.h" 
+
 @class OrgJodaTimeDateTime;
 @class PAInput2;
 @class PAExperimentGroup;
 
-typedef NS_ENUM(NSInteger, PacoFeedbackType) {
-    PacoFeedbackTypeStaticMessage,
-    PacoFeedbackTypeRetrospective,
-    PacoFeedbackTypeResponsive,
-    PacoFeedbackTypeCustomCode,
-    PacoFeedbackTypeDisableMessage
-};
+
+
 
 @interface PAExperimentDAO (Helper)
 

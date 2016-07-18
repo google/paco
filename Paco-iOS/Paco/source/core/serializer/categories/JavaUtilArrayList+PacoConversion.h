@@ -11,5 +11,6 @@
 @interface JavaUtilArrayList (PacoConversion)
 
 -(NSArray*) toNSArray;
+-(NSArray*) toNSArrayCopy;
 
 @end

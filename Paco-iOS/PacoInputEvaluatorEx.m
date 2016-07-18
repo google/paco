@@ -16,7 +16,7 @@
 #import "ExperimentGroup.h"
 #import "NSObject+J2objcKVO.h"
 #import "PAExperimentGroup+PacoGroupHelper.h" 
-
+#import "NSObject+J2objcKVO.h"
 
 
 @interface PacoInputEvaluatorEx  ()
@@ -136,6 +136,28 @@
     }
 }
 
+
+
+-(NSDictionary*) makeInputDictionary
+{
+    
+    NSArray * inputs = [self.group  allInputs];
+    NSString * groupName = [self.group getName];
+    
+    NSDictionary * dict = [[NSDictionary alloc]  initWithObjectsAndKeys:inputs,groupName, nil];
+    return dict;
+    
+    
+}
+
+
+
+
+
+
+
+
+
 //run time: 2 * N
 - (void)buildExpressionDictionaryIfNecessary {
     
@@ -150,9 +172,17 @@
     NSMutableDictionary* dict = [NSMutableDictionary dictionary];
     
     NSMutableDictionary* variableDict = [NSMutableDictionary dictionary];
-    NSDictionary* inputDictionary =  [self.experiment.experimentDao inputs];
+   // NSDictionary* inputDictionary =  [self.experiment.experimentDao inputs];
+    
+   // NSArray * inputs  = [self.group allInputs];
+    //NSString * name  = [self.group getName];
+    
+    
+    NSDictionary* inputDictionary = [self makeInputDictionary];
+    
     NSArray * keys = [inputDictionary allKeys];
     for (NSString* key in keys  ) {
+        
         
         NSArray * arrayOfInput = [inputDictionary objectForKey:key];
         for (PAInput2* basicInput in arrayOfInput)
@@ -173,7 +203,7 @@
     //run time: N
    
     
-    inputDictionary =  [self.experiment.experimentDao inputs];
+    inputDictionary = [self makeInputDictionary];
     keys = [inputDictionary allKeys];
     for ( NSString* key in keys)
     {
@@ -227,7 +257,7 @@
     
     
     
-    NSDictionary * dictionary = [self.experiment.experimentDao inputs];
+    NSDictionary * dictionary = [self makeInputDictionary];
     NSArray*  keys = [dictionary allKeys];
     
     
@@ -249,7 +279,7 @@
     
     //run time: N
     NSMutableArray *questions = [NSMutableArray array];
-    NSDictionary* tempDict = [self.experiment.experimentDao inputs];
+    NSDictionary* tempDict = [self makeInputDictionary];
      keys = [tempDict allKeys];
     
     for ( NSString* key in keys )
