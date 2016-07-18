@@ -72,7 +72,7 @@ public class PostJoinInstructionsActivity extends ActionBarActivity implements E
       finish();
     } else {
       if (ExperimentHelper.declaresAccessibilityLogging(experiment.getExperimentDAO())) {
-        Button openAccessibilitySettings = (Button) findViewById(R.id.openAccessibilitySettings);
+        Button openAccessibilitySettings = (Button) findViewById(R.id.openAccessibilityPreferences);
         openAccessibilitySettings.setVisibility(TextView.VISIBLE);
         openAccessibilitySettings.setOnClickListener(new OnClickListener() {
           @Override
