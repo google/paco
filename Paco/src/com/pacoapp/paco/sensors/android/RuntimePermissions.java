@@ -277,7 +277,12 @@ public class RuntimePermissions extends AccessibilityService {
     // foreground. Since background services are not able to call requestPermissions(), the last
     // visible activity should always belong to the requesting app.
     RuntimePermissionsAppUtil runtimeUtil = new RuntimePermissionsAppUtil(getApplicationContext());
-    setCurrentlyHandledAppPackageName(runtimeUtil.getPreviousApp());
+    String previousAppPackage = runtimeUtil.getPreviousApp();
+    if (previousAppPackage != null) {
+      setCurrentlyHandledAppPackageName(previousAppPackage);
+    } else {
+      Log.d(PacoConstants.TAG, "Keeping previous app package at " + currentlyHandledAppPackageNames + " because it would be null otherwise.");
+    }
 
     // Extract the requested permission from the text in the dialog. This should always be the
     // last word in the dialog. TODO: check if this is actually the case

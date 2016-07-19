@@ -25,11 +25,11 @@ public class RuntimePermissionsAppUtil {
   /**
    * Get the package name of the app that was previously active. This is *not* the currently
    * visible app, but the one before that in the list of active applications.
-   * This function will only return an app if it was active in the past 5 seconds.
+   * This function will only return an app if it was active in the past 60 seconds.
    * @return The package name of the previously active app
    */
   public String getPreviousApp() {
-    return getPreviousApp(5000);
+    return getPreviousApp(60000);
   }
 
   /**
