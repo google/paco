@@ -17,6 +17,12 @@
 #import "PacoEventPersistenceHelper.h"
 #import "PacoSerializeUtil.h" 
 #import "NSMutableArray+PacoEvent.h"
+#import "PacoSerializer.h" 
+#include "java/util/ArrayList.h"
+#import "JavaUtilArrayList+PacoConversion.h" 
+#import "PacoEventPersistenceHelper.h"
+
+
 
 static NSString* const kPendingEventsFileName = @"pendingEvents.plist";
 static NSString* const kAllEventsFileName = @"allEvents.plist";
@@ -392,7 +398,28 @@ static NSString* const kAllEventsFileName = @"allEvents.plist";
     NSMutableArray*  eventsToReturn  = [NSMutableArray new];
     NSArray* pendingEvents = [self allPendingEvents];
     
-    for(PacoEventExtended * event in pendingEvents)
+    
+    PacoEventPersistenceHelper* helper =  [[PacoEventPersistenceHelper alloc] init];
+    
+    NSArray * all_events =  [helper eventsForExperimentId:[experimentId longValue]];
+    
+  /*
+    NSArray* array = [PacoSerializeUtil getClassNames];
+    PacoSerializer * serializer = [[PacoSerializer alloc] initWithArrayOfClasses:array withNameOfClassAttribute:@"nameOfClass"];
+    [serializer addNoneDomainClass:[PacoEventExtended new]];
+    
+    JavaUtilArrayList * pendingevents  =  [JavaUtilArrayList arrayListWithValues:pendingEvents];
+  
+    
+    JavaUtilArrayList*  pending  = (JavaUtilArrayList*)  [serializer toJ2OBJCCollctionsHeirarchy:pendingevents];
+    
+    NSArray*  pendingEventsList = [pending toNSArray];*/
+    
+    
+    
+    
+    //eventsForUpload
+    for(PacoEventExtended * event in all_events)
     {
         
         if( [event.experimentId isEqualToNumber:experimentId] )

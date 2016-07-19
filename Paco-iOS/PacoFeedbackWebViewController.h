@@ -29,7 +29,7 @@ typedef void(^PacoFeedbackWebViewDismissBlock)();
 @property(nonatomic, strong, readonly) PAExperimentDAO* experiment;
 
 
-+ (id)controllerWithExperimentGroup:(PAExperimentGroup*) group
++ (id )controllerWithExperimentGroup:(PAExperimentGroup*) group
                      withExperiment:(PAExperimentDAO*) experiment
                       htmlName:(NSString*)htmlName
                   dismissBlock:(PacoFeedbackWebViewDismissBlock)dismissBlock;

@@ -22,7 +22,9 @@
 
 @interface PacoInputEvaluatorEx : NSObject
 @property(nonatomic, strong, readonly) PacoExperiment* experiment;
+@property(nonatomic, strong, readonly) PAExperimentGroup* group;
 @property(nonatomic, strong, readonly) NSArray* visibleInputs;
+
 
 + (PacoInputEvaluatorEx*)evaluatorWithExperiment:(PacoExperiment*)experiment andGroup:(PAExperimentGroup*) group;
 - (NSError*)validateVisibleInputs;

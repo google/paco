@@ -12,6 +12,15 @@
 
 
 
++ (instancetype) arrayListWithValues:(NSArray*) arrayOfValues
+{
+    
+    JavaUtilArrayList * arrayList = [[JavaUtilArrayList alloc] init];
+    [arrayList addArrayElements:arrayOfValues];
+    return arrayList;
+
+}
+
 -(NSArray*) toNSArrayCopy
 {
     
@@ -38,4 +47,19 @@
     return mutableArray;
     
 }
+
+
+
+-(void) addArrayElements:(NSArray*) array
+{
+   
+    for(id ob in array)
+    {
+         [self addWithId:ob];
+    }
+   
+}
+
+
+
 @end

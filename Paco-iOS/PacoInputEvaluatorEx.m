@@ -22,7 +22,6 @@
 @interface PacoInputEvaluatorEx  ()
 
 @property(nonatomic, strong) PacoExperiment* experiment;
-@property(nonatomic,strong) PAExperimentGroup* group;
 
 
 @property(nonatomic, strong) NSArray* visibleInputs;
@@ -345,6 +344,8 @@
 
 - (NSError*) validateVisibleInputs
 {
+    
+    /* TODO implement */ 
     return Nil;
     
 }

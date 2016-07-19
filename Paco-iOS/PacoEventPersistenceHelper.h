@@ -28,5 +28,7 @@
 -(void) markUploaded:(NSDictionary* )correspondingEvent;
 -(NSArray*) allEvents;
 -(NSArray*) eventsForUploadNative;
+-(NSArray*) eventsForExperimentId:(long) experimentId;
+
 
 @end

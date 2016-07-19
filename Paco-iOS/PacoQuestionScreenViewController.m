@@ -30,6 +30,11 @@
 #import "PacoInputEvaluatorEx.h"
 #import "PacoMediator.h"
 #import "UILocalNotification+Paco.h"
+#import "PacoGroupSelectionController.h"
+#import "PacoFeedbackWebViewController.h"
+#import "ExperimentDAO.h" 
+
+
 
 NSString *kCellIdQuestion = @"question";
 
@@ -82,7 +87,11 @@ NSString *kCellIdQuestion = @"question";
 }
 
 
-
+- (PAExperimentDAO*)  getExperimentDAO
+{
+    
+    return self.evaluator.experiment.experimentDao;
+}
 
 
 
@@ -203,14 +212,18 @@ NSString *kCellIdQuestion = @"question";
   }
     
     
-    /*
-     
-        is this a self report--- check if notification is nil 
-     
-     
-     
-     */
     
+ 
+        
+    PacoFeedbackWebViewController   * feedbackController =     [PacoFeedbackWebViewController controllerWithExperimentGroup:self.evaluator.group   withExperiment:[self getExperimentDAO]
+                                                               htmlName:@"skeleton" dismissBlock:^{}];
+    
+    
+    [self.navigationController pushViewController:feedbackController animated:TRUE];
+        
+  
+    
+  
 
    [self processAttachedNotificationIfNeeded];
     
@@ -222,6 +235,7 @@ NSString *kCellIdQuestion = @"question";
   //clear all inputs' submitted responseObject for the definition
   //[self.evaluator.experiment.definition clearInputs];
 
+    /*
   NSString* title = NSLocalizedString(@"Nice", nil);
   NSString* message = NSLocalizedString(@"Your survey was successfully submitted!", nil);
   [PacoAlertView showAlertWithTitle:title
@@ -231,6 +245,8 @@ NSString *kCellIdQuestion = @"question";
                        }
                   cancelButtonTitle:@"OK"
                   otherButtonTitles:nil];
+     */
+    
 }
 
 

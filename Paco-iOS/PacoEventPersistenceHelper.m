@@ -270,6 +270,39 @@
     return record;
 }
 
+
+
+-(NSArray*) eventsForExperimentId:(long) experimentId
+{
+    
+    
+    NSFetchRequest *fetchRequest    =       [[NSFetchRequest alloc] init];
+    NSEntityDescription *entity     =       [NSEntityDescription entityForName:@"EventRecord" inManagedObjectContext:self.context];
+    NSPredicate* predicate          =       [NSPredicate predicateWithFormat:@"experimentId==%ld",experimentId];
+    [fetchRequest setPredicate:predicate];
+    [fetchRequest setEntity:entity];
+    
+    NSError *error;
+    NSArray *eventRecords = [self.context executeFetchRequest:fetchRequest error:&error];
+    NSMutableArray* mutableArray = [NSMutableArray new];
+    /* refactor we don't want to init the class names more than once */
+    NSArray* array = [PacoSerializeUtil getClassNames];
+    PacoSerializer * serializer = [[PacoSerializer alloc] initWithArrayOfClasses:array withNameOfClassAttribute:@"nameOfClass"];
+    [serializer addNoneDomainClass:[PacoEventExtended new]];
+    for(EventRecord* eventRecord in  eventRecords)
+    {
+        
+        NSData* data  =  eventRecord.eventBlob;
+        JavaUtilArrayList  *  resultArray  = (JavaUtilArrayList*) [serializer buildObjectHierarchyFromJSONOBject:data];
+        IOSObjectArray * iosArray = [resultArray toArray];
+        PacoEventExtended  * event =  [iosArray objectAtIndex:0];
+        [mutableArray addObject:event];
+        
+    }
+    
+      return mutableArray;
+}
+
 -(NSArray*) eventsForUpload
 {
     

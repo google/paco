@@ -28,7 +28,9 @@
     PacoSerializer* serializer =
     [[PacoSerializer alloc] initWithArrayOfClasses:nil
                           withNameOfClassAttribute:@"nameOfClass"];
+    
     JavaUtilArrayList  *  resultArray  = (JavaUtilArrayList*) [serializer buildObjectHierarchyFromJSONOBject:data];
+    
     IOSObjectArray * iosArray = [resultArray toArray];
     PacoEventExtended * event  =  [iosArray objectAtIndex:0];
     self =event;
@@ -71,6 +73,7 @@
 
 -(void) save
 {
+    
     PacoEventPersistenceHelper * persistanceHelper = [PacoEventPersistenceHelper new];
     [persistanceHelper insertEventWithPAEventInterface:self];
     

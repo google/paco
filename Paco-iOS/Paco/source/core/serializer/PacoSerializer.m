@@ -364,7 +364,7 @@
     [ o isKindOfClass:[PAModelBase class]] ||
     [ o isKindOfClass:[PacoEventExtended class]] ||
     [ o isKindOfClass:[PAActionSpecification class]]
-      
+    
        /*
         ![parentInfo[1] isKindOfClass:[NSString class]] &&
         ![parentInfo[1] isMemberOfClass:[NSNumber class]] &&
@@ -474,6 +474,7 @@
   clazzName = dictionary[_nameOfClass];
   NSRange r1 = [clazzName rangeOfString:@"." options:NSBackwardsSearch];
   clazzName = [clazzName substringFromIndex:r1.location + 1];
+  
     
   if(clazzName !=nil)
   {
@@ -485,6 +486,7 @@
       
       Class theClass = NSClassFromString(clazzName);
       object = [[theClass alloc] init];
+
       assert(object);
   }
     return object;

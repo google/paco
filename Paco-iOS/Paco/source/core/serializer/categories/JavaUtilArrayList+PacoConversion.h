@@ -12,5 +12,8 @@
 
 -(NSArray*) toNSArray;
 -(NSArray*) toNSArrayCopy;
+-(void) addArrayElements:(NSArray*) array;
++ (instancetype) arrayListWithValues:(NSArray*) arrayOfValues;
+
 
 @end
