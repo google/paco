@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.v4.view.accessibility.AccessibilityEventCompat;
 import android.util.Log;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
@@ -50,6 +51,7 @@ public class RuntimePermissions extends AccessibilityService {
   // Used to keep track of which app we are changing settings for. Needed because
   // AccessibilityEvents will only show us what information is currently being interacted with
   private static ArrayList<String> currentlyHandledAppPackageNames;
+  private static CharSequence currentlyHandledAppName;
   // Only used with runtime permission dialogs. Keep the currently requested permission in memory
   // so we remember it when the user actually clicked allow/deny
   private static CharSequence currentlyHandledPermission;
@@ -92,6 +94,14 @@ public class RuntimePermissions extends AccessibilityService {
         } else {
           Log.v(PacoConstants.TAG, "Ignoring window state changed accessibility event, since it was not an app info screen or a permissions dialog.");
         }
+        break;
+      case AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED:
+      case AccessibilityEvent.TYPE_ANNOUNCEMENT: // TODO check this
+        // For our purposes, this means: a dialog requesting a runtime permission changed to request
+        // the next required permission (e.g. during user onboarding, a few permissions are
+        // requested in sequence)
+        Log.v(PacoConstants.TAG, "This might be a changed permissions dialog, try to extract info");
+        extractInformationFromEventText(accessibilityEvent.getText());
         break;
       case AccessibilityEvent.CONTENT_CHANGE_TYPE_SUBTREE:
         // For our purposes, this means: permission change via switch button (in settings),
@@ -173,6 +183,19 @@ public class RuntimePermissions extends AccessibilityService {
   }
 
 
+  private void extractInformationFromEventText(List<CharSequence> eventText) {
+    for (CharSequence eventSubText : eventText) {
+      Pattern permissionRegex = Pattern.compile("Allow (.*) to (.*)\\?");
+      Matcher permissionMatcher = permissionRegex.matcher(eventSubText);
+      if (permissionMatcher.find()) {
+        setCurrentlyHandledAppName(permissionMatcher.group(1));
+        setCurrentlyHandledPermission(permissionMatcher.group(2));
+      } else {
+        Log.v(PacoConstants.TAG, "Could not extract andy information from string " + eventSubText);
+      }
+    }
+  }
+
   /**
    * Extracts the name of the app package from the app info screen for that package, and stores it
    * in memory.
@@ -216,6 +239,16 @@ public class RuntimePermissions extends AccessibilityService {
     }
   }
 
+  private void setCurrentlyHandledPermission(CharSequence permission) {
+    currentlyHandledPermission = permission;
+    Log.v(PacoConstants.TAG, "Set 'currently handled permission'to " + currentlyHandledPermission.toString());
+  }
+
+  private void setCurrentlyHandledAppName(CharSequence appName) {
+    currentlyHandledAppName = appName;
+    Log.v(PacoConstants.TAG, "Set 'currently handled app name'to " + currentlyHandledAppName.toString());
+  }
+
   /**
    * Set the name of the package for which the user is currently changing permissions.
    * @param packageNames a list of possible package names. Not just one string, because an app name
@@ -223,7 +256,7 @@ public class RuntimePermissions extends AccessibilityService {
    */
   private void setCurrentlyHandledAppPackageNames(ArrayList<String> packageNames) {
     currentlyHandledAppPackageNames = packageNames;
-    Log.v(PacoConstants.TAG, "Set 'currently handled package names' name to " + currentlyHandledAppPackageNames.toString());
+    Log.v(PacoConstants.TAG, "Set 'currently handled package names' to " + currentlyHandledAppPackageNames.toString());
   }
 
   /**
@@ -277,19 +310,19 @@ public class RuntimePermissions extends AccessibilityService {
     // foreground. Since background services are not able to call requestPermissions(), the last
     // visible activity should always belong to the requesting app.
     RuntimePermissionsAppUtil runtimeUtil = new RuntimePermissionsAppUtil(getApplicationContext());
-    String previousAppPackage = runtimeUtil.getPreviousApp();
+    String previousAppPackage = runtimeUtil.getAppSpawningRuntimepermissionsDialog();
     if (previousAppPackage != null) {
       setCurrentlyHandledAppPackageName(previousAppPackage);
     } else {
       Log.d(PacoConstants.TAG, "Keeping previous app package at " + currentlyHandledAppPackageNames + " because it would be null otherwise.");
     }
 
-    // Extract the requested permission from the text in the dialog. This should always be the
-    // last word in the dialog. TODO: check if this is actually the case
+    // Extract the requested permission from the text in the dialog. This should always be the part
+    // after the 'to' in the string.
     String displayText = accessibilityEvent.getText().get(0).toString();
-    // Get the latest word and trip off the '?' at the end
-    currentlyHandledPermission = displayText.subSequence(displayText.lastIndexOf(' ') + 1, displayText.length() - 1);
-    Log.v(PacoConstants.TAG, "Set 'currently handled permission' to " + currentlyHandledPermission);
+    Log.v(PacoConstants.TAG, "Extracting information from string " + displayText);
+    // Get the permission string and strip off the '?' at the end
+    setCurrentlyHandledPermission(displayText.subSequence(displayText.indexOf(" to ") + 4, displayText.length() - 1));
   }
 
   /**

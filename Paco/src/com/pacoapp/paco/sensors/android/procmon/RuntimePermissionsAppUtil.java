@@ -5,6 +5,7 @@ import android.app.usage.UsageStatsManager;
 import android.content.Context;
 import android.os.Build;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -23,22 +24,26 @@ public class RuntimePermissionsAppUtil {
   }
   
   /**
-   * Get the package name of the app that was previously active. This is *not* the currently
-   * visible app, but the one before that in the list of active applications.
+   * Get the package name of the app that was last active, excluding the package manager.
    * This function will only return an app if it was active in the past 60 seconds.
    * @return The package name of the previously active app
    */
-  public String getPreviousApp() {
-    return getPreviousApp(60000);
+  public String getAppSpawningRuntimepermissionsDialog() {
+    List<CharSequence> packagesToExclude = new ArrayList();
+    packagesToExclude.add("com.google.android.packageinstaller");
+    packagesToExclude.add("com.android.packageinstaller");
+    return getLastActiveApp(packagesToExclude, 60000);
   }
 
   /**
-   * Get the package name of the app that was previously active. This is *not* the currently
-   * visible app, but the one before that in the list of active applications.
+   * Get the package name of the last app that was active. This is the currently
+   * visible app, unless it was excluded in the excludedPackages list.
+   * @param excludedPackages List of package names to exclude
    * @param historyMillis The number of milliseconds to go back in time to find an app
-   * @return The package name of the previously active app
+   * @return The package name of the last active app that does not have a package name in the
+   *          excludedPackages list
    */
-  public String getPreviousApp(long historyMillis) {
+  public String getLastActiveApp(List<CharSequence> excludedPackages, long historyMillis) {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
       UsageStatsManager usageStatsManager = (UsageStatsManager) context.getSystemService(Context.USAGE_STATS_SERVICE);
       long now = System.currentTimeMillis();
@@ -47,22 +52,14 @@ public class RuntimePermissionsAppUtil {
       // Get the next-to-last app from this list.
       String lastUsedApp = null;
       long lastUsedTime = 0;
-      String nextToLastUsedApp = null;
-      long nextToLastUsedTime = 0;
       for (UsageStats appStats : stats) {
-        if (appStats.getLastTimeUsed() > nextToLastUsedTime) {
-          if (appStats.getLastTimeUsed() > lastUsedTime) {
-            nextToLastUsedTime = lastUsedTime;
-            nextToLastUsedApp = lastUsedApp;
+        if (appStats.getLastTimeUsed() > lastUsedTime &&
+                !excludedPackages.contains(appStats.getPackageName())) {
             lastUsedTime = appStats.getLastTimeUsed();
             lastUsedApp = appStats.getPackageName();
-          } else {
-            nextToLastUsedTime = appStats.getLastTimeUsed();
-            nextToLastUsedApp = appStats.getPackageName();
-          }
         }
       }
-      return nextToLastUsedApp;
+      return lastUsedApp;
     }
     return null;
   }
