@@ -12,6 +12,7 @@ import android.view.accessibility.AccessibilityNodeInfo;
 
 import com.pacoapp.paco.PacoConstants;
 import com.pacoapp.paco.model.Experiment;
+import com.pacoapp.paco.sensors.android.procmon.EncounteredPermissionRequest;
 import com.pacoapp.paco.sensors.android.procmon.RuntimePermissionsAppUtil;
 import com.pacoapp.paco.shared.model2.InterruptCue;
 import com.pacoapp.paco.shared.util.TimeUtil;
@@ -48,17 +49,17 @@ public class RuntimePermissions extends AccessibilityService {
   public static final String PAYLOAD_PERMISSION_USERINITIATED = "paco_accessibility_payload_permissionuserinitiated";
   public static final String PAYLOAD_PERMISSION_PACKAGES = "paco_accessibility_payload_permissionpackages";
   public static final String PAYLOAD_PERMISSION_APPNAME = "paco_accessibility_payload_permissionappname";
+  // Number of milliseconds before a permission request is considered stale
+  private static final long PERMISSION_REQUEST_HISTORY_MILLIS = 60000;
 
   // Keeps whether the service is connected
-  public static boolean running = false;
+  private static boolean running = false;
   // Used to keep track of which app we are changing settings for. Needed because
   // AccessibilityEvents will only show us what information is currently being interacted with
   private static ArrayList<String> currentlyHandledAppPackageNames;
   // Only used with runtime permission dialogs. Keep the currently requested permission in memory
   // so we remember it when the user actually clicked allow/deny
-  // TODO: create a separate object and include a timestamp and some extra info; might even use this
-  // TODO: to automatically parse the permission strings
-  private static Queue<CharSequence> previouslyEncounteredPermissionRequests;
+  private static Queue<EncounteredPermissionRequest> previouslyEncounteredPermissionRequests;
 
   /**
    * Called only for accessibility events coming from Android's packageinstaller.
@@ -192,7 +193,7 @@ public class RuntimePermissions extends AccessibilityService {
       Pattern permissionRegex = Pattern.compile("Allow (.*) to (.*)\\?");
       Matcher permissionMatcher = permissionRegex.matcher(eventSubText);
       if (permissionMatcher.find()) {
-        addEncounteredPermission(permissionMatcher.group(2));
+        addEncounteredPermission(permissionMatcher.group(2), permissionMatcher.group(1));
       } else {
         Log.v(PacoConstants.TAG, "Could not extract andy information from string " + eventSubText);
       }
@@ -242,8 +243,11 @@ public class RuntimePermissions extends AccessibilityService {
     }
   }
 
-  private void addEncounteredPermission(CharSequence permission) {
-    previouslyEncounteredPermissionRequests.add(permission);
+  private void addEncounteredPermission(CharSequence permission, CharSequence appName) {
+
+    EncounteredPermissionRequest newPermissionRequest = new EncounteredPermissionRequest(permission,
+            System.currentTimeMillis(), appName);
+    previouslyEncounteredPermissionRequests.add(newPermissionRequest);
     Log.v(PacoConstants.TAG, "Added previously handled permission " + permission.toString());
   }
 
@@ -273,11 +277,25 @@ public class RuntimePermissions extends AccessibilityService {
    * @param nodeInfo The source of the accessibility event
    */
   private void processPermissionDialogAction(AccessibilityNodeInfo nodeInfo) {
-    CharSequence currentlyHandledPermission = previouslyEncounteredPermissionRequests.poll();
+    if (previouslyEncounteredPermissionRequests.size() < 1) {
+      Log.w(PacoConstants.TAG, "We got a dialog action on a permission request, but we never saw" +
+            "the permission request in the first place");
+      return;
+    }
+    EncounteredPermissionRequest currentlyHandledPermission = previouslyEncounteredPermissionRequests.poll();
+    // Drop stale permission requests older than PERMISSION_REQUEST_HISTORY_MILLIS, *unless* it was
+    // the last one still in the queue
+    while (currentlyHandledPermission.getTimestamp() < System.currentTimeMillis() - PERMISSION_REQUEST_HISTORY_MILLIS &&
+            previouslyEncounteredPermissionRequests.size() > 0) {
+      Log.w(PacoConstants.TAG, "Not considering permission request " +
+              currentlyHandledPermission.getPermissionString() + " for app " +
+              currentlyHandledPermission.getAppName() + " because it was too old.");
+      currentlyHandledPermission = previouslyEncounteredPermissionRequests.poll();
+    }
     if (nodeInfo.getText().equals("Allow")) {
-      triggerBroadcastTriggerService(currentlyHandledPermission, true, false);
+      triggerBroadcastTriggerService(currentlyHandledPermission.getPermissionString(), true, false);
     } else if (nodeInfo.getText().equals("Deny")) {
-      triggerBroadcastTriggerService(currentlyHandledPermission, false, false);
+      triggerBroadcastTriggerService(currentlyHandledPermission.getPermissionString(), false, false);
     } else {
       Log.e(PacoConstants.TAG, "Dialog action in runtime permissions dialog was not 'Allow' nor 'Deny'. This should never happen");
     }
@@ -316,12 +334,9 @@ public class RuntimePermissions extends AccessibilityService {
       Log.d(PacoConstants.TAG, "Keeping previous app package at " + currentlyHandledAppPackageNames + " because it would be null otherwise.");
     }
 
-    // Extract the requested permission from the text in the dialog. This should always be the part
-    // after the 'to' in the string.
+    // Extract the requested permission from the text in the dialog.
+    extractInformationFromEventText(accessibilityEvent.getText());
     String displayText = accessibilityEvent.getText().get(0).toString();
-    Log.v(PacoConstants.TAG, "Extracting information from string " + displayText);
-    // Get the permission string and strip off the '?' at the end
-    addEncounteredPermission(displayText.subSequence(displayText.indexOf(" to ") + 4, displayText.length() - 1));
   }
 
   /**
