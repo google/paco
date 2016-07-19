@@ -6,7 +6,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.v4.view.accessibility.AccessibilityEventCompat;
 import android.util.Log;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
@@ -22,6 +21,10 @@ import org.joda.time.DateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Queue;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * This class handles monitoring of runtime permission changes, by implementing an accessibility
@@ -51,10 +54,11 @@ public class RuntimePermissions extends AccessibilityService {
   // Used to keep track of which app we are changing settings for. Needed because
   // AccessibilityEvents will only show us what information is currently being interacted with
   private static ArrayList<String> currentlyHandledAppPackageNames;
-  private static CharSequence currentlyHandledAppName;
   // Only used with runtime permission dialogs. Keep the currently requested permission in memory
   // so we remember it when the user actually clicked allow/deny
-  private static CharSequence currentlyHandledPermission;
+  // TODO: create a separate object and include a timestamp and some extra info; might even use this
+  // TODO: to automatically parse the permission strings
+  private static Queue<CharSequence> previouslyEncounteredPermissionRequests;
 
   /**
    * Called only for accessibility events coming from Android's packageinstaller.
@@ -188,8 +192,7 @@ public class RuntimePermissions extends AccessibilityService {
       Pattern permissionRegex = Pattern.compile("Allow (.*) to (.*)\\?");
       Matcher permissionMatcher = permissionRegex.matcher(eventSubText);
       if (permissionMatcher.find()) {
-        setCurrentlyHandledAppName(permissionMatcher.group(1));
-        setCurrentlyHandledPermission(permissionMatcher.group(2));
+        addEncounteredPermission(permissionMatcher.group(2));
       } else {
         Log.v(PacoConstants.TAG, "Could not extract andy information from string " + eventSubText);
       }
@@ -239,14 +242,9 @@ public class RuntimePermissions extends AccessibilityService {
     }
   }
 
-  private void setCurrentlyHandledPermission(CharSequence permission) {
-    currentlyHandledPermission = permission;
-    Log.v(PacoConstants.TAG, "Set 'currently handled permission'to " + currentlyHandledPermission.toString());
-  }
-
-  private void setCurrentlyHandledAppName(CharSequence appName) {
-    currentlyHandledAppName = appName;
-    Log.v(PacoConstants.TAG, "Set 'currently handled app name'to " + currentlyHandledAppName.toString());
+  private void addEncounteredPermission(CharSequence permission) {
+    previouslyEncounteredPermissionRequests.add(permission);
+    Log.v(PacoConstants.TAG, "Added previously handled permission " + permission.toString());
   }
 
   /**
@@ -275,6 +273,7 @@ public class RuntimePermissions extends AccessibilityService {
    * @param nodeInfo The source of the accessibility event
    */
   private void processPermissionDialogAction(AccessibilityNodeInfo nodeInfo) {
+    CharSequence currentlyHandledPermission = previouslyEncounteredPermissionRequests.poll();
     if (nodeInfo.getText().equals("Allow")) {
       triggerBroadcastTriggerService(currentlyHandledPermission, true, false);
     } else if (nodeInfo.getText().equals("Deny")) {
@@ -322,7 +321,7 @@ public class RuntimePermissions extends AccessibilityService {
     String displayText = accessibilityEvent.getText().get(0).toString();
     Log.v(PacoConstants.TAG, "Extracting information from string " + displayText);
     // Get the permission string and strip off the '?' at the end
-    setCurrentlyHandledPermission(displayText.subSequence(displayText.indexOf(" to ") + 4, displayText.length() - 1));
+    addEncounteredPermission(displayText.subSequence(displayText.indexOf(" to ") + 4, displayText.length() - 1));
   }
 
   /**
@@ -355,6 +354,7 @@ public class RuntimePermissions extends AccessibilityService {
    */
   @Override
   protected void onServiceConnected() {
+    previouslyEncounteredPermissionRequests = new LinkedBlockingQueue();
     running = true;
     Log.d(PacoConstants.TAG, "Connected to the accessibility service");
     if (!Locale.getDefault().getISO3Language().equals(Locale.ENGLISH.getISO3Language())) {
