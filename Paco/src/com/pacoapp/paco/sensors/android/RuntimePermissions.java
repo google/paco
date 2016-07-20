@@ -54,11 +54,17 @@ public class RuntimePermissions extends AccessibilityService {
 
   // Keeps whether the service is connected
   private static boolean running = false;
-  // Used to keep track of which app we are changing settings for. Needed because
-  // AccessibilityEvents will only show us what information is currently being interacted with
+  /**
+   * Used to keep track of which app we are changing settings for. Needed because
+   * AccessibilityEvents will only show us what information is currently being interacted with
+   */
   private static ArrayList<String> currentlyHandledAppPackageNames;
-  // Only used with runtime permission dialogs. Keep the currently requested permission in memory
-  // so we remember it when the user actually clicked allow/deny
+  /**
+   * Only used with runtime permission dialogs. Keep the currently requested permission in memory
+   * so we remember it when the user actually clicked allow/deny. This is a queue because
+   * accessibility events might be interleaved (i.e., the next permission request may be triggering
+   * an accessibility event even before the action of the user on the previous request triggers one
+   */
   private static Queue<EncounteredPermissionRequest> previouslyEncounteredPermissionRequests;
 
   /**
@@ -188,6 +194,13 @@ public class RuntimePermissions extends AccessibilityService {
   }
 
 
+  /**
+   * Parses an the event text from an accessibility event in order to extract information pertaining
+   * to runtime permissions. Currently only handles strings of the form
+   * "Allow <app> to <permission>?".
+   * @param eventText All event texts from an accessibility event, as returned by the getText()
+   *                  method.
+   */
   private void extractInformationFromEventText(List<CharSequence> eventText) {
     for (CharSequence eventSubText : eventText) {
       Pattern permissionRegex = Pattern.compile("Allow (.*) to (.*)\\?");
@@ -243,8 +256,13 @@ public class RuntimePermissions extends AccessibilityService {
     }
   }
 
+  /**
+   * Adds a permission to the queue of permission requests that still need to be handled by the user
+   * See {@link #previouslyEncounteredPermissionRequests} for more info.
+   * @param permission The requested permission, as the string shown in the user interface
+   * @param appName The application name (title), if available (null otherwise).
+   */
   private void addEncounteredPermission(CharSequence permission, CharSequence appName) {
-
     EncounteredPermissionRequest newPermissionRequest = new EncounteredPermissionRequest(permission,
             System.currentTimeMillis(), appName);
     previouslyEncounteredPermissionRequests.add(newPermissionRequest);
