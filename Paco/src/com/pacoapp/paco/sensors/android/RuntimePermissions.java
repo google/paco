@@ -241,7 +241,7 @@ public class RuntimePermissions extends AccessibilityService {
    */
   private void extractAppPackageNamesFromAppPermissionsScreen(AccessibilityNodeInfo rootNodeInfo) {
     AndroidInstalledApplications installedApps = new AndroidInstalledApplications(getApplicationContext());
-    // "com.android.settings:id/widget_text2" is the id for the text string which contains the
+    // "com.android.packageinstaller:id/name" is the id for the text string which contains the
     // app *label*. You'll find it on top of the screen.
     List<AccessibilityNodeInfo> matchingNodeInfos = rootNodeInfo.findAccessibilityNodeInfosByViewId("com.android.packageinstaller:id/name");
     for (AccessibilityNodeInfo nodeInfo : matchingNodeInfos) {
