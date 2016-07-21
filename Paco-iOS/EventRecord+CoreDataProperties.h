@@ -2,7 +2,7 @@
 //  EventRecord+CoreDataProperties.h
 //  Paco
 //
-//  Created by Northrop O'brien on 3/25/16.
+//  Created by Northrop O'brien on 7/20/16.
 //  Copyright © 2016 Paco. All rights reserved.
 //
 //  Choose "Create NSManagedObject Subclass…" from the Core Data editor menu
@@ -19,11 +19,12 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nullable, nonatomic, retain) NSData *eventBlob;
 @property (nullable, nonatomic, retain) NSNumber *experimentId;
 @property (nullable, nonatomic, retain) NSString *groupName;
+@property (nullable, nonatomic, retain) NSString *guid;
 @property (nullable, nonatomic, retain) NSNumber *isUploaded;
 @property (nullable, nonatomic, retain) NSString *scheduledTime;
 @property (nullable, nonatomic, retain) NSNumber *scheduleId;
 @property (nullable, nonatomic, retain) NSNumber *type;
-@property (nullable, nonatomic, retain) NSString *guid;
+@property (nullable, nonatomic, retain) NSData *pacoExperimentBlog;
 
 @end
 

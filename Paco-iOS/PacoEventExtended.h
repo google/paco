@@ -13,6 +13,7 @@
 #import "java/util/ArrayList.h"
 #include "J2ObjC_header.h"
 
+
 @class PacoScheduler;
 @class PAExperimentDAO;
 @class PASchedule;
@@ -34,7 +35,7 @@ typedef NS_ENUM(NSInteger, PacoEventTypeExtended) {
 
 
 @class PAActionSpecification;
-@interface PacoEventExtended : NSObject<NSCopying,NSCoding,PAEventInterface>
+@interface PacoEventExtended : NSObject <NSCopying,NSCoding,PAEventInterface>
 
 
 

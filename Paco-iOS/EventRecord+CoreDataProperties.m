@@ -2,7 +2,7 @@
 //  EventRecord+CoreDataProperties.m
 //  Paco
 //
-//  Created by Northrop O'brien on 3/25/16.
+//  Created by Northrop O'brien on 7/20/16.
 //  Copyright © 2016 Paco. All rights reserved.
 //
 //  Choose "Create NSManagedObject Subclass…" from the Core Data editor menu
@@ -17,10 +17,11 @@
 @dynamic eventBlob;
 @dynamic experimentId;
 @dynamic groupName;
+@dynamic guid;
 @dynamic isUploaded;
 @dynamic scheduledTime;
 @dynamic scheduleId;
 @dynamic type;
-@dynamic guid;
+@dynamic pacoExperimentBlog;
 
 @end

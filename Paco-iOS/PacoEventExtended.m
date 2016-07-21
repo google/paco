@@ -34,6 +34,8 @@
 #import "JavaUtilArrayList+PacoConversion.h"
 #import "SchedulePrinter.h" 
 #import "PAExperimentDAO+Helper.h"
+#import "JavaUtilArrayList+PacoConversion.h"
+#include "java/util/ArrayList.h"
 
 
 
@@ -74,6 +76,101 @@ NSString* const kPacoResponseJoinExtended = @"joined";
 }
 
 
+
+/*
+ 
+ 
+ @property (nonatomic, copy) NSString *who;
+ @property (nonatomic, retain) NSString  *when;
+ @property (nonatomic, assign) NSNumber* latitude;
+ @property (nonatomic, assign) NSNumber*  longitude;
+ @property (nonatomic, retain) NSDate   *responseTime;
+ @property (nonatomic, retain) NSString  *scheduledTime;
+ @property (nonatomic, readonly, copy) NSString *appId;
+ @property (nonatomic, readonly, copy) NSString *pacoVersion;
+ @property (nonatomic, copy)   NSNumber  *experimentId;
+ @property (nonatomic, copy)   NSString *experimentName;
+ @property (nonatomic, copy)   NSNumber*   experimentVersion;
+ @property (nonatomic, retain) JavaUtilArrayList  *responses;
+ @property (nonatomic,strong)  NSNumber* scheduleId;
+ @property (nonatomic,strong)  NSNumber* actionTriggerId;
+ @property (nonatomic,strong)  NSNumber* actionId;
+ @property (nonatomic,strong)  NSNumber* actionTriggerSpecId;
+ @property (nonatomic,strong)  NSString* experimentGroupName;
+ @property (nonatomic,strong)  NSString* serverExperimentId;
+ @property (nonatomic,strong)  NSString* schedule;
+ @property (nonatomic,strong)  NSString* guid;
+ @property (readwrite)  BOOL  type;
+ 
+ 
+ 
+ */
+
+
+
+- (void)encodeWithCoder:(NSCoder *)encoder
+{
+    [encoder encodeObject:_who forKey:@"who"];
+    [encoder encodeObject:_when forKey:@"when"];
+    [encoder encodeObject:_latitude  forKey:@"latitude"];
+    [encoder encodeObject:_longitude forKey:@"longitude"];
+    [encoder encodeObject:_responseTime forKey:@"responseTime"];
+    [encoder encodeObject:_scheduledTime forKey:@"scheduleTime"];
+    [encoder encodeObject:_appId forKey:@"appId"];
+    [encoder encodeObject:_pacoVersion forKey:@"pacoVersion"];
+    [encoder encodeObject:_experimentId forKey:@"experimentId"];
+    [encoder encodeObject:_experimentName forKey:@"experimentName"];
+    [encoder encodeObject:_experimentVersion forKey:@"experimentVersion"];
+     NSArray * responses = [_responses toNSArray];
+    [encoder encodeObject:responses forKey:@"responses"];
+    [encoder encodeObject:_scheduleId forKey:@"scheduleId"];
+    [encoder encodeObject:_actionTriggerId  forKey:@"actionTriggerId"];
+    [encoder encodeObject:_actionId  forKey:@"actionId"];
+    [encoder encodeObject:_actionTriggerSpecId  forKey:@"actionTriggerSpecId"];
+    [encoder encodeObject:_experimentGroupName  forKey:@"experimentGroupName"];
+    [encoder encodeObject:_serverExperimentId  forKey:@"serverExperimentId"];
+    [encoder encodeObject:_schedule   forKey:@"schedule"];
+    [encoder encodeObject:_guid    forKey:@"guid"];
+    [encoder encodeBool:_type forKey:@"type"];
+}
+
+- (id)initWithCoder:(NSCoder *)decoder
+{
+    if (self = [super init])
+    {
+        
+        self.who = [decoder decodeObjectForKey:@"who"];
+        self.when = [decoder decodeObjectForKey:@"when"];
+        self.latitude  = [decoder decodeObjectForKey:@"latitude"];
+        self.longitude  = [decoder decodeObjectForKey:@"longitude"];
+        self.responseTime  = [decoder decodeObjectForKey:@"responseTime"];
+        self.scheduledTime   = [decoder decodeObjectForKey:@"scheduleTime"];
+        self.appId           = [decoder decodeObjectForKey:@"appId"];
+        self.pacoVersion           = [decoder decodeObjectForKey:@"pacoVersion"];
+        self.experimentId            = [decoder decodeObjectForKey:@"experimentId"];
+        self.experimentName           = [decoder decodeObjectForKey:@"experimentName"];
+        self.experimentVersion          = [decoder decodeObjectForKey:@"experimentVersion"];
+        
+        NSArray * responses =  [decoder decodeObjectForKey:@"responses"];
+        self.responses  = [JavaUtilArrayList arrayListWithValues:responses];
+        
+        self.scheduleId                         = [decoder decodeObjectForKey:@"scheduleId"];
+        self.actionTriggerId                    = [decoder decodeObjectForKey:@"actionTriggerId"];
+        self.actionId                           = [decoder decodeObjectForKey:@"actionId"];
+        self.actionTriggerId                    = [decoder decodeObjectForKey:@"actionTriggerId"];
+        self.actionTriggerSpecId                = [decoder decodeObjectForKey:@"actionTriggerSpecId"];
+        self.experimentGroupName                = [decoder decodeObjectForKey:@"experimentGroupName"];
+        self.serverExperimentId                 = [decoder decodeObjectForKey:@"serverExperimentId"];
+        self.schedule                           = [decoder decodeObjectForKey:@"schedule"];
+        self.guid                               = [decoder decodeObjectForKey:@"guid"];
+        self.type                               = [decoder decodeObjectForKey:@"type"];
+        
+    }
+    
+    
+    return self;
+    
+}
 
 
 
@@ -145,6 +242,8 @@ NSString* const kPacoResponseJoinExtended = @"joined";
 
 
 - (NSString*)description {
+    
+    /*
     NSString* responseStr = @"[";
     NSUInteger numOfResponse = [self.responses size];
     int index = 0;
@@ -171,9 +270,10 @@ NSString* const kPacoResponseJoinExtended = @"joined";
         }
     }
     responseStr = [responseStr stringByAppendingString:@"]"];
+    */
     
-    NSDateFormatter* dateFormatter = [[NSDateFormatter alloc] init];
-    [dateFormatter setDateFormat:@"yyyy/MM/dd HH:mm:ssZ"];
+    NSString *responseStr = @" response string " ;
+   
  
     return [NSString stringWithFormat:@"<%@, %p: id=%@,name=%@,version=%d,responseTime=%@,"
             "who=%@,when=%@,response=\r%@>",
@@ -422,7 +522,7 @@ NSString* const kPacoResponseJoinExtended = @"joined";
         [responses addObject:response];
     }
     
-    event.responses = responses;
+    event.responses = [JavaUtilArrayList arrayListWithValues:responses];
     return event;
 }
 
@@ -523,32 +623,34 @@ NSString* const kPacoResponseJoinExtended = @"joined";
 
 #pragma mark - NSCoder & NSCopy methods 
 
-- (id)initWithCoder:(NSCoder *)decoder
-{
-    
-    /* super does not support  initWithCoder so we don't try to invoke it */
-    
-     NSData* data = [decoder decodeObjectForKey:JsonKey];
-     PacoSerializer* serializer =
-    [[PacoSerializer alloc] initWithArrayOfClasses:nil
-                          withNameOfClassAttribute:@"nameOfClass"];
-    JavaUtilArrayList  *  resultArray  = (JavaUtilArrayList*) [serializer buildObjectHierarchyFromJSONOBject:data];
-    IOSObjectArray * iosArray = [resultArray toArray];
-    PacoEventExtended * event  =  [iosArray objectAtIndex:0];
-    self =event;
-    return self;
- 
-}
 
-
-- (void) encodeWithCoder:(NSCoder *)encoder
-{
-    
-    NSArray* array = [PacoSerializeUtil getClassNames];
-    PacoSerializer * serializer = [[PacoSerializer alloc] initWithArrayOfClasses:array withNameOfClassAttribute:@"nameOfClass"];
-    NSData* json = [serializer toJSONobject:self];
-    [encoder encodeObject:json  forKey:JsonKey];
-}
+///
+//- (id)initWithCoder:(NSCoder *)decoder
+//{
+//    
+//    /* super does not support  initWithCoder so we don't try to invoke it */
+//    
+//     NSData* data = [decoder decodeObjectForKey:JsonKey];
+//     PacoSerializer* serializer =
+//    [[PacoSerializer alloc] initWithArrayOfClasses:nil
+//                          withNameOfClassAttribute:@"nameOfClass"];
+//    JavaUtilArrayList  *  resultArray  = (JavaUtilArrayList*) [serializer buildObjectHierarchyFromJSONOBject:data];
+//    IOSObjectArray * iosArray = [resultArray toArray];
+//    PacoEventExtended * event  =  [iosArray objectAtIndex:0];
+//    self =event;
+//    return self;
+// 
+//}
+//
+//
+//- (void) encodeWithCoder:(NSCoder *)encoder
+//{
+//    
+//    NSArray* array = [PacoSerializeUtil getClassNames];
+//    PacoSerializer * serializer = [[PacoSerializer alloc] initWithArrayOfClasses:array withNameOfClassAttribute:@"nameOfClass"];
+//    NSData* json = [serializer toJSONobject:self];
+//    [encoder encodeObject:json  forKey:JsonKey];
+//}
 
 
 

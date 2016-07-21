@@ -162,7 +162,9 @@
     eventRecord.scheduleId  = theEvent.scheduleId;
     eventRecord.isUploaded =[NSNumber numberWithBool:NO];
     eventRecord.type = [NSNumber numberWithInt:theEvent.type];
- 
+    
+    
+    eventRecord.pacoExperimentBlog = [NSKeyedArchiver archivedDataWithRootObject:theEvent];
     
     if([theEvent.guid length] == 0 )
     {
@@ -292,10 +294,10 @@
     for(EventRecord* eventRecord in  eventRecords)
     {
         
-        NSData* data  =  eventRecord.eventBlob;
-        JavaUtilArrayList  *  resultArray  = (JavaUtilArrayList*) [serializer buildObjectHierarchyFromJSONOBject:data];
-        IOSObjectArray * iosArray = [resultArray toArray];
-        PacoEventExtended  * event =  [iosArray objectAtIndex:0];
+        
+        
+        NSData* data  =  eventRecord.pacoExperimentBlog;
+        PacoEventExtended*  event  = [NSKeyedUnarchiver unarchiveObjectWithData:eventRecord.pacoExperimentBlog];
         [mutableArray addObject:event];
         
     }

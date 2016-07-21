@@ -19,37 +19,39 @@
 
 @implementation PacoEventExtended (PacoCoder)
 
-- (id)initWithCoder:(NSCoder *)decoder
-{
-    
-    /* super does not support  initWithCoder so we don't try to invoke it */
-    
-    NSData* data = [decoder decodeObjectForKey:JsonKey];
-    PacoSerializer* serializer =
-    [[PacoSerializer alloc] initWithArrayOfClasses:nil
-                          withNameOfClassAttribute:@"nameOfClass"];
-    
-    JavaUtilArrayList  *  resultArray  = (JavaUtilArrayList*) [serializer buildObjectHierarchyFromJSONOBject:data];
-    
-    IOSObjectArray * iosArray = [resultArray toArray];
-    PacoEventExtended * event  =  [iosArray objectAtIndex:0];
-    self =event;
-    
-    return self;
-    
-    
-    
-}
 
 
-- (void) encodeWithCoder:(NSCoder *)encoder
-{
-    
-    NSArray* array = [PacoSerializeUtil getClassNames];
-    PacoSerializer * serializer = [[PacoSerializer alloc] initWithArrayOfClasses:array withNameOfClassAttribute:@"nameOfClass"];
-    NSData* json = [serializer toJSONobject:self];
-    [encoder encodeObject:json  forKey:JsonKey];
-}
+//- (id)initWithCoder:(NSCoder *)decoder
+//{
+//    
+//    /* super does not support  initWithCoder so we don't try to invoke it */
+//    
+//    NSData* data = [decoder decodeObjectForKey:JsonKey];
+//    PacoSerializer* serializer =
+//    [[PacoSerializer alloc] initWithArrayOfClasses:nil
+//                          withNameOfClassAttribute:@"nameOfClass"];
+//    
+//    JavaUtilArrayList  *  resultArray  = (JavaUtilArrayList*) [serializer buildObjectHierarchyFromJSONOBject:data];
+//    
+//    IOSObjectArray * iosArray = [resultArray toArray];
+//    PacoEventExtended * event  =  [iosArray objectAtIndex:0];
+//    self =event;
+//    
+//    return self;
+//    
+//    
+//    
+//}
+//
+//
+//- (void) encodeWithCoder:(NSCoder *)encoder
+//{
+//    
+//    NSArray* array = [PacoSerializeUtil getClassNames];
+//    PacoSerializer * serializer = [[PacoSerializer alloc] initWithArrayOfClasses:array withNameOfClassAttribute:@"nameOfClass"];
+//    NSData* json = [serializer toJSONobject:self];
+//    [encoder encodeObject:json  forKey:JsonKey];
+//}
 
 
 

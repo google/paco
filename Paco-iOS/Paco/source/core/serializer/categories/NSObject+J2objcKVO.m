@@ -35,6 +35,16 @@
     if ([self isJ2Objc]) {
       [self setModelAttribute:key Object:self Argument:value];
     } else {
+        
+        
+        /* for some reason an '_' is added to non j2OBJC object attributes when persiting to the database. 
+           idealy we would like to trim the '_' when writing to the database. For now lets here and fix later. 
+         */
+       
+        if ([key hasPrefix:@"_"] && [key length] > 1) {
+            key = [key substringFromIndex:1];
+        }
+        
       [self setValue:value forKey:key];
     }
   } @catch (NSException *exception) {
