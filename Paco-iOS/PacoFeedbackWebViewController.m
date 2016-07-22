@@ -99,9 +99,13 @@
 }
 
 - (void)goBack:(id)sender {
-  if (self.dismissBlock) {
+  /*if (self.dismissBlock) {
     self.dismissBlock();
-  }
+  }*/
+    
+    [self.navigationController popToRootViewControllerAnimated:YES];
+    
+    
 }
 
 - (void)didReceiveMemoryWarning {
