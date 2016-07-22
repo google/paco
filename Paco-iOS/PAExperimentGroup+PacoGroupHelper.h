@@ -8,6 +8,7 @@
 
 #import "ExperimentGroup.h"
 
+@class PAInput2;
 
 
 typedef NS_ENUM(NSInteger, PacoFeedbackType) {
@@ -24,6 +25,7 @@ typedef NS_ENUM(NSInteger, PacoFeedbackType) {
 -(PacoFeedbackType) feedbackType;
 -(NSString*) jsonStringForJavascript;
 -(NSArray* ) allInputs;
+-(PAInput2*) inputWithId:(NSString*) inputID;
 
 
 @end

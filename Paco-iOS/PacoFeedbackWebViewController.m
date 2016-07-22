@@ -113,7 +113,7 @@
 {
     
   //db/eventLoader(deprecated)
-  JavascriptEventLoader* eventLoader = [JavascriptEventLoader loaderForExperiment:self.experiment];
+    JavascriptEventLoader* eventLoader = [JavascriptEventLoader loaderForExperiment:self.experiment group:_group];
   [self.webView addJavascriptInterfaces:eventLoader WithName:@"eventLoader"];
   [self.webView addJavascriptInterfaces:eventLoader WithName:@"db"];
 

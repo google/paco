@@ -21,10 +21,11 @@
 @interface JavascriptEventLoader : NSObject
 
 @property(nonatomic, strong, readonly) PAExperimentDAO* experiment;
+@property(nonatomic, strong, readonly) PAExperimentGroup* group;
 
-+ (instancetype)loaderForExperiment:(PAExperimentDAO*)experiment;
++ (instancetype)loaderForExperiment:(PAExperimentDAO*)experiment group:(PAExperimentGroup*) group;
 
-+ (NSString*)convertEventsToJsonString:(NSArray*)events experiment:(PAExperimentDAO*)experiment;
++ (NSString*)convertEventsToJsonString:(NSArray*)events experiment:(PAExperimentDAO*)experiment group:(PAExperimentGroup*) group;
 
 - (NSString*)getAllEvents;
 

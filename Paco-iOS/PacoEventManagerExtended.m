@@ -394,43 +394,12 @@ static NSString* const kAllEventsFileName = @"allEvents.plist";
 
 -(NSArray*) allEventsForExperiment:(NSNumber*) experimentId
 {
-    
-    NSMutableArray*  eventsToReturn  = [NSMutableArray new];
-    NSArray* pendingEvents = [self allPendingEvents];
-    
-    
+ 
+
     PacoEventPersistenceHelper* helper =  [[PacoEventPersistenceHelper alloc] init];
-    
     NSArray * all_events =  [helper eventsForExperimentId:[experimentId longValue]];
     
-  /*
-    NSArray* array = [PacoSerializeUtil getClassNames];
-    PacoSerializer * serializer = [[PacoSerializer alloc] initWithArrayOfClasses:array withNameOfClassAttribute:@"nameOfClass"];
-    [serializer addNoneDomainClass:[PacoEventExtended new]];
-    
-    JavaUtilArrayList * pendingevents  =  [JavaUtilArrayList arrayListWithValues:pendingEvents];
-  
-    
-    JavaUtilArrayList*  pending  = (JavaUtilArrayList*)  [serializer toJ2OBJCCollctionsHeirarchy:pendingevents];
-    
-    NSArray*  pendingEventsList = [pending toNSArray];*/
-    
-    
-    
-    
-    //eventsForUpload
-    for(PacoEventExtended * event in all_events)
-    {
-        
-        if( [event.experimentId isEqualToNumber:experimentId] )
-        {
-            [eventsToReturn addObject:event];
-            
-        }
-        
-    }
-    
-    return eventsToReturn;
+    return all_events;
     
 }
 

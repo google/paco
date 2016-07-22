@@ -36,6 +36,8 @@
 #import "PAExperimentDAO+Helper.h"
 #import "JavaUtilArrayList+PacoConversion.h"
 #include "java/util/ArrayList.h"
+#import "PacoAuthenticator.h" 
+
 
 
 
@@ -536,7 +538,7 @@ NSString* const kPacoResponseJoinExtended = @"joined";
     PacoEventExtended* event = [PacoEventExtended genericEventForDefinition:definition withInputs:inputs];
     event.responseTime = [NSDate dateWithTimeIntervalSinceNow:0];
     event.guid = [[NSUUID UUID] UUIDString];
-    event.who = @"useremail";
+    event.who =     [[PacoNetwork sharedInstance].authenticator userEmail];
     event.scheduledTime = nil;
     return event;
 }

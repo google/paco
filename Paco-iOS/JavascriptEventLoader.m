@@ -25,9 +25,8 @@
 #import "NSObject+J2objcKVO.h"
 #import "NSDate+Paco.h"
 #import "PacoMediator.h" 
-#import "PacoEventManagerExtended.h" 
-
-
+#import "PacoEventManagerExtended.h"
+#import "java/lang/Boolean.h"
 
 @class PAExperimentGroup;
 
@@ -38,41 +37,73 @@
 
 @implementation JavascriptEventLoader
 
-- (id)initWithExperiment:(PAExperimentDAO*)experiment {
+- (id)initWithExperiment:(PAExperimentDAO*)experiment  andGroup:(PAExperimentGroup*) group
+{
   self = [super init];
   if (self) {
+      
     _experiment = experiment;
+    _group = group;
   }
   return self;
 }
 
-+ (instancetype)loaderForExperiment:(PAExperimentDAO*) experiment {
-  return [[[self class] alloc] initWithExperiment:experiment];
++ (instancetype)loaderForExperiment:(PAExperimentDAO*)experiment group:(PAExperimentGroup*) group {
+    return [[[self class] alloc] initWithExperiment:experiment andGroup:group];
 }
 
-+ (NSString*)convertEventsToJsonString:(NSArray*)events experiment:(PAExperimentDAO*)experiment{
+
+
+
+
+
+
+
+
+
++ (NSString*)convertEventsToJsonString:(NSArray*)events experiment:(PAExperimentDAO*)experiment group:(PAExperimentGroup*) group
+{
   NSMutableArray* eventJsonList = [NSMutableArray arrayWithCapacity:[events count]];
+  
   for (PacoEventExtended * event in events) {
     NSArray* responseListWithImageString = [event responseListWithImageString];
+      
     NSMutableArray* newResponses = [NSMutableArray array];
       
     for (NSDictionary* responseDict in responseListWithImageString)
     {
+   
         
-      PAInput2 * input = [experiment inputWithId:responseDict[@"inputId"]];
-      if (!input) { //join, stop event
+ 
+    PAInput2 * input = [group inputWithId:responseDict[@"name"]];
+      if (!input) { //join, stop events when we
         continue;
       
       }
-        
-        
+    
+    
       NSMutableDictionary* newDict = [NSMutableDictionary dictionary];
-        newDict[@"inputId"] = [input valueForKeyEx:@"id"];//input.inputIdentifier;
+        newDict[@"inputId"] = [input valueForKeyEx:@"name"];//input.inputIdentifier;
       // deprecate inputName in favor of name. Some experiments still use it though
         newDict[@"inputName"] = [input valueForKeyEx:@"name"];
       newDict[@"name"] = [input valueForKeyEx:@"name"];
-      newDict[@"responseType"] = [input valueForKeyEx:@"responsetype"];
-      newDict[@"isMultiselect"] = @([(NSNumber*)[input valueForKeyEx:@"multiselect"] intValue]);
+      newDict[@"responseType"] = [input valueForKeyEx:@"responseType"];
+        
+        JavaLangBoolean*  boolVal =  [input valueForKeyEx:@"multiselect"];
+        int b = [boolVal booleanValue];
+        
+        if(b)
+        {
+            newDict[@"isMultiselect"]  = [NSNumber numberWithBool:YES];
+            
+        }
+        else
+        {
+            
+             newDict[@"isMultiselect"]  = [NSNumber numberWithBool:NO];
+        }
+ 
+     //  newDict[@"isMultiselect"] =  [NSNumber numberWithBool:[[input valueForKeyEx:@"multiselect"]  ];
       if ([input valueForKeyEx:@"text"]) {
         newDict[@"prompt"] = [input valueForKeyEx:@"text"];
       }
@@ -136,7 +167,7 @@
 - (NSString*)loadAllEvents {
   @synchronized(self) {
     [self loadEventsIfNeeded];
-    return [JavascriptEventLoader convertEventsToJsonString:self.events experiment:self.experiment];
+      return [JavascriptEventLoader convertEventsToJsonString:self.events experiment:self.experiment group:_group];
   }
 }
 
@@ -147,8 +178,9 @@
       return @"[]";
     }
     NSArray* arrayWithLastEvent = [NSArray arrayWithObject:[self.events lastObject]];
+      
     return [JavascriptEventLoader convertEventsToJsonString:arrayWithLastEvent
-                                                 experiment:self.experiment];
+                                                 experiment:self.experiment group:_group];
       
       
   }

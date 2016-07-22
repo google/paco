@@ -280,7 +280,9 @@
     
     NSFetchRequest *fetchRequest    =       [[NSFetchRequest alloc] init];
     NSEntityDescription *entity     =       [NSEntityDescription entityForName:@"EventRecord" inManagedObjectContext:self.context];
-    NSPredicate* predicate          =       [NSPredicate predicateWithFormat:@"experimentId==%ld",experimentId];
+    NSPredicate* predicate          =       [NSPredicate predicateWithFormat:@"(experimentId==%ld) AND (type!=%d) AND (type!=%d) ",experimentId,PacoEventTypeJoinExtended,PacoEventTypeStopExtended];
+    
+    
     [fetchRequest setPredicate:predicate];
     [fetchRequest setEntity:entity];
     

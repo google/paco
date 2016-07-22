@@ -11,6 +11,10 @@
 #import "ScheduleTrigger.h"
 #import "PAActionTrigger+PacoHelper.h" 
 #import "JavaUtilArrayList+PacoConversion.h"
+#import "Input2.h" 
+#include "java/util/ArrayList.h"
+#include "java/util/List.h"
+
 
 @implementation PAExperimentGroup (PacoGroupHelper)
 
@@ -23,6 +27,36 @@
     return type;
     
 }
+
+
+
+-(PAInput2*) inputWithId:(NSString*) inputID
+{
+    PAInput2* retValue;
+ 
+    
+    JavaUtilArrayList*  list =    (JavaUtilArrayList*)   [self getInputs] ;
+    IOSObjectArray * inputArray =  [list toArray];
+    
+        for(PAInput2 * input in inputArray)
+        {
+            // should be by name not by id"
+            NSString* theId = [input  valueForKeyEx:@"name"];
+            if([inputID isEqualToString:theId])
+            {
+                
+                retValue = input;
+                break;
+            }
+            
+        }
+        
+  
+    return retValue;
+    
+}
+
+
 
 -(NSString*) jsonStringForJavascript
 {
