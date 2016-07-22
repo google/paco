@@ -133,6 +133,7 @@ public class JsonConverter {
                                                           experimentGroup.getFeedbackType(),
                                                           experimentGroup.getBackgroundListen(),
                                                           experimentGroup.getBackgroundListenSourceIdentifier(),
+                                                          experimentGroup.getAccessibilityListen(),
                                                           experimentGroup.getLogActions(),
                                                           experimentDAO.getRecordPhoneDetails(),
                                                           experimentDAO.getExtraDataCollectionDeclarations());
@@ -187,6 +188,7 @@ public class JsonConverter {
                                                                            null,
                                                                            getBackgroundListen(experimentDAOCore),
                                                                            getBackgroundListenSourceId(experimentDAOCore),
+                                                                           getAccessibilityListen(experimentDAOCore),
                                                                            getLogActions(experimentDAOCore),
                                                                            experimentDAOCore.getRecordPhoneDetails(),
                                                                            experimentDAOCore.getExtraDataCollectionDeclarations());
@@ -205,6 +207,10 @@ public class JsonConverter {
   private static Boolean getBackgroundListen(ExperimentDAOCore experimentDAOCore) {
  // TODO populate this until the new clients are out.
     return false; // almost certainly false
+  }
+
+  private static Boolean getAccessibilityListen(ExperimentDAOCore experimentDAOCore) {
+    return false; // TODO following the examples before
   }
 
   private static Boolean getLogActions(ExperimentDAOCore experimentDAOCore) {

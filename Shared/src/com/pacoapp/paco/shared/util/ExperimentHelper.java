@@ -243,4 +243,21 @@ public class ExperimentHelper {
     return listeningExperimentGroups;
   }
 
+  /**
+   * Returns all experiment groups listening for accessibility events. If Paco gets extended to
+   * capture multiple accessibility events (apart from just permission events), this method could
+   * be extended to include a source identifier.
+   * @param experiment The experiment for which to get matching experiment groups
+   * @return A list of experiment groups listening for accessibility events
+   */
+  public static List<ExperimentGroup> isListeningForAccessibilityEvents(ExperimentDAO experiment) {
+    List<ExperimentGroup> listeningExperimentGroups = new ArrayList();
+    List<ExperimentGroup> experimentGroups = experiment.getGroups();
+    for (ExperimentGroup experimentGroup : experimentGroups) {
+      if (experimentGroup.getAccessibilityListen()) {
+        listeningExperimentGroups.add(experimentGroup);
+      }
+    }
+    return listeningExperimentGroups;
+  }
 }

@@ -461,6 +461,9 @@ public class ExperimentProviderUtil implements EventStore {
     if (rootNode.has("backgroundListenSourceIdentifier")) {
       defaultExperimentGroup.setBackgroundListenSourceIdentifier(rootNode.path("backgroundListenSourceIdentifier").getTextValue());
     }
+    if (rootNode.has("accessibilityListen")) {
+      defaultExperimentGroup.setAccessibilityListen(rootNode.path("accessibilityListen").getBooleanValue());
+    }
     if (rootNode.has("inputs")) {
       List<Input2> inputs = Lists.newArrayList();
       ArrayNode inputsNode = (ArrayNode)rootNode.path("inputs");

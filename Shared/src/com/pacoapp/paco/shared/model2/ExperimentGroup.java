@@ -23,6 +23,8 @@ public class ExperimentGroup extends ModelBase implements Validatable, java.io.S
   private Boolean backgroundListen = false;
   private String backgroundListenSourceIdentifier;
 
+  private Boolean accessibilityListen = false;
+
   private List<ActionTrigger> actionTriggers;
   private List<Input2> inputs;
   private Boolean endOfDayGroup = false;
@@ -141,6 +143,12 @@ public class ExperimentGroup extends ModelBase implements Validatable, java.io.S
     this.backgroundListenSourceIdentifier = backgroundListenSourceIdentifier;
   }
 
+  public Boolean getAccessibilityListen() { return accessibilityListen; }
+
+  public void setAccessibilityListen(Boolean accessibilityListen) {
+    this.accessibilityListen = accessibilityListen;
+  }
+
   public String getEndDate() {
     return endDate;
   }
@@ -180,6 +188,7 @@ public class ExperimentGroup extends ModelBase implements Validatable, java.io.S
     validateActionTriggers(validator);
 
     validator.isNotNull(backgroundListen, "backgroundListen not initialized");
+    validator.isNotNull(accessibilityListen, "accessibilityListen not initialized");
     validator.isNotNull(logActions, "logActions not initialized");
     validator.isNotNull(logShutdown, "logShutdown not initialized");
     if (backgroundListen != null && backgroundListen) {

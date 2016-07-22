@@ -103,7 +103,8 @@ public class BroadcastTriggerService extends Service {
                                                                                                          triggerEvent,
                                                                                                          sourceIdentifier);
       if (ExperimentHelper.declaresAccessibilityLogging(experiment.getExperimentDAO())) {
-        persistAccessibilityData(eu, experiment, extras.getBundle(RuntimePermissions.PACO_ACTION_ACCESSIBILITY_PAYLOAD));
+        List<ExperimentGroup> accessibilityGroupsListening = ExperimentHelper.isListeningForAccessibilityEvents(experiment.getExperimentDAO());
+        persistAccessibilityData(eu, experiment, accessibilityGroupsListening, extras.getBundle(RuntimePermissions.PACO_ACTION_ACCESSIBILITY_PAYLOAD));
       }
 
       Log.i(PacoConstants.TAG, "triggers that match count: " + triggersThatMatch.size());
@@ -180,15 +181,18 @@ public class BroadcastTriggerService extends Service {
    * @param payload the PACO_ACTION_ACCESSIBILITY_PAYLOAD bundle
    */
   private void persistAccessibilityData(ExperimentProviderUtil experimentProviderUtil,
-                                        Experiment experiment, Bundle payload) {
+                                        Experiment experiment, List<ExperimentGroup> groupsListening,
+                                        Bundle payload) {
     if (payload == null) {
       Log.v(PacoConstants.TAG, "No accessibility data for this trigger.");
       return;
     }
     Log.v(PacoConstants.TAG, "Persisting accessibility data for experiment " + experiment.getExperimentDAO().getTitle());
     long nowMillis = new DateTime().getMillis();
-    Event event = EventUtil.createEvent(experiment, null, nowMillis, null, null, null);
-    persistEventBundle(experimentProviderUtil, event, payload);
+    for (ExperimentGroup experimentGroup : groupsListening) {
+      Event event = EventUtil.createEvent(experiment, experimentGroup.getName(), nowMillis, null, null, null);
+      persistEventBundle(experimentProviderUtil, event, payload);
+    }
     notifySyncService();
   }
 
