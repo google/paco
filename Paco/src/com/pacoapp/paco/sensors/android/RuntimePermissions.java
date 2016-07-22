@@ -21,8 +21,10 @@ import org.joda.time.DateTime;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.regex.Matcher;
@@ -79,7 +81,20 @@ public class RuntimePermissions extends AccessibilityService {
     "Calendar",
     "SMS"
   );
-
+  // List of the names of the PERMISSION_GROUPS as they appear in the en_us localization of the
+  // runtime permission dialogs
+  public static final Map<String, String> PERMISSION_DIALOG_STRINGS = new HashMap<String,String>();;
+  static {
+    PERMISSION_DIALOG_STRINGS.put("take pictures and record video", "Camera");
+    PERMISSION_DIALOG_STRINGS.put("access your contacts", "Contacts");
+    PERMISSION_DIALOG_STRINGS.put("access this device's location", "Location");
+    PERMISSION_DIALOG_STRINGS.put("record audio", "Microphone");
+    PERMISSION_DIALOG_STRINGS.put("make and manage phone calls", "Phone");
+    PERMISSION_DIALOG_STRINGS.put("access photos, media, and files on your device", "Storage");
+    PERMISSION_DIALOG_STRINGS.put("", "Body Sensors"); // TODO: find the permissions string for body sensors
+    PERMISSION_DIALOG_STRINGS.put("access your calendar", "Calendar");
+    PERMISSION_DIALOG_STRINGS.put("send and view SMS messages", "SMS");
+  }
 
   // Keeps whether the service is connected
   private static boolean running = false;
@@ -253,9 +268,15 @@ public class RuntimePermissions extends AccessibilityService {
       Pattern permissionRegex = Pattern.compile("Allow (.*) to (.*)\\?");
       Matcher permissionMatcher = permissionRegex.matcher(eventSubText);
       if (permissionMatcher.find()) {
-        addEncounteredPermission(permissionMatcher.group(2), permissionMatcher.group(1));
+        String permissionText = permissionMatcher.group(2);
+        String permissionString = PERMISSION_DIALOG_STRINGS.get(permissionText);
+        if (permissionString == null) {
+          Log.w(PacoConstants.TAG, "Unknown permission string encountered: " + permissionText);
+          permissionString = permissionText;
+        }
+        addEncounteredPermission(permissionString, permissionMatcher.group(1));
       } else {
-        Log.v(PacoConstants.TAG, "Could not extract andy information from string " + eventSubText);
+        Log.v(PacoConstants.TAG, "Could not extract any information from string " + eventSubText);
       }
     }
   }
