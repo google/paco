@@ -79,36 +79,43 @@ NSString* const kPacoResponseJoinExtended = @"joined";
 
 
 
-/*
  
- 
- @property (nonatomic, copy) NSString *who;
- @property (nonatomic, retain) NSString  *when;
- @property (nonatomic, assign) NSNumber* latitude;
- @property (nonatomic, assign) NSNumber*  longitude;
- @property (nonatomic, retain) NSDate   *responseTime;
- @property (nonatomic, retain) NSString  *scheduledTime;
- @property (nonatomic, readonly, copy) NSString *appId;
- @property (nonatomic, readonly, copy) NSString *pacoVersion;
- @property (nonatomic, copy)   NSNumber  *experimentId;
- @property (nonatomic, copy)   NSString *experimentName;
- @property (nonatomic, copy)   NSNumber*   experimentVersion;
- @property (nonatomic, retain) JavaUtilArrayList  *responses;
- @property (nonatomic,strong)  NSNumber* scheduleId;
- @property (nonatomic,strong)  NSNumber* actionTriggerId;
- @property (nonatomic,strong)  NSNumber* actionId;
- @property (nonatomic,strong)  NSNumber* actionTriggerSpecId;
- @property (nonatomic,strong)  NSString* experimentGroupName;
- @property (nonatomic,strong)  NSString* serverExperimentId;
- @property (nonatomic,strong)  NSString* schedule;
- @property (nonatomic,strong)  NSString* guid;
- @property (readwrite)  BOOL  type;
- 
- 
- 
- */
 
+#pragma mark - NSCoder & NSCopy methods
 
+-(id) copyWithZone: (NSZone *) zone
+{
+    PacoEventExtended *event  = [[[self class] allocWithZone:zone] init];
+    if (event ) {
+        
+        [event setWho:_who];
+        [event setWhen:_when];
+        [event setLongitude:_longitude];
+        [event setLatitude:_latitude];
+        [event setResponseTime:_responseTime];
+        [event setScheduledTime:_scheduledTime];
+        [event setAppId:_appId];
+        [event setPacoVersion:_pacoVersion];
+        [event setExperimentId:_experimentId];
+        [event setExperimentName:_experimentName];
+        [event setExperimentVersion:_experimentVersion];
+        [event setResponses:_responses];
+        [event setScheduleId:_scheduleId];
+        [event setActionTriggerId:_actionTriggerId];
+        [event setActionId:_actionId];
+        [event setActionTriggerSpecId:_actionTriggerSpecId];
+        [event setExperimentGroupName:_experimentGroupName];
+        [event setServerExperimentId:_serverExperimentId];
+        [event setSchedule:_schedule];
+        [event setGuid:_guid];
+        [event setType:_type];
+        
+        
+        
+    }
+    
+    return event;
+}
 
 - (void)encodeWithCoder:(NSCoder *)encoder
 {
@@ -623,52 +630,13 @@ NSString* const kPacoResponseJoinExtended = @"joined";
 
 
 
-#pragma mark - NSCoder & NSCopy methods 
-
-
-///
-//- (id)initWithCoder:(NSCoder *)decoder
-//{
-//    
-//    /* super does not support  initWithCoder so we don't try to invoke it */
-//    
-//     NSData* data = [decoder decodeObjectForKey:JsonKey];
-//     PacoSerializer* serializer =
-//    [[PacoSerializer alloc] initWithArrayOfClasses:nil
-//                          withNameOfClassAttribute:@"nameOfClass"];
-//    JavaUtilArrayList  *  resultArray  = (JavaUtilArrayList*) [serializer buildObjectHierarchyFromJSONOBject:data];
-//    IOSObjectArray * iosArray = [resultArray toArray];
-//    PacoEventExtended * event  =  [iosArray objectAtIndex:0];
-//    self =event;
-//    return self;
-// 
-//}
-//
-//
-//- (void) encodeWithCoder:(NSCoder *)encoder
-//{
-//    
-//    NSArray* array = [PacoSerializeUtil getClassNames];
-//    PacoSerializer * serializer = [[PacoSerializer alloc] initWithArrayOfClasses:array withNameOfClassAttribute:@"nameOfClass"];
-//    NSData* json = [serializer toJSONobject:self];
-//    [encoder encodeObject:json  forKey:JsonKey];
-//}
 
 
 
-- (id)copyWithZone:(NSZone *)zone {
-  
-    NSArray* array = [PacoSerializeUtil getClassNames];
-    PacoSerializer * serializer = [[PacoSerializer alloc] initWithArrayOfClasses:array withNameOfClassAttribute:@"nameOfClass"];
-    [serializer addNoneDomainClass:self];
-    NSData* json = [serializer toJSONobject:self];
-    
-    JavaUtilArrayList  *  resultArray  = (JavaUtilArrayList*) [serializer buildObjectHierarchyFromJSONOBject:json];
-    IOSObjectArray * iosArray = [resultArray toArray];
-    PacoEventExtended  * event =  [iosArray objectAtIndex:0];
-    return event;
-    
-}
+
+
+
+
 
 
 #pragma mark - PAEventInterface methods
