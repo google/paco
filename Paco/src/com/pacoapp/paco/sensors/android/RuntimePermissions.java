@@ -4,6 +4,8 @@ import android.accessibilityservice.AccessibilityService;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
@@ -41,7 +43,6 @@ import java.util.regex.Pattern;
  * if we want it to be used in international studies.
  * This class should only be used on devices running Android 6.0 and up, since older versions don't
  * support runtime permissions.
- * TODO: implement a check for the locale somewhere
  * TODO: only enable service if it is checked by the experiment organiser
  */
 @TargetApi(Build.VERSION_CODES.LOLLIPOP) // TODO: update to Marshmallow when project SDK changes
@@ -385,13 +386,24 @@ public class RuntimePermissions extends AccessibilityService {
   }
 
   /**
-   * Set the name of the package for which the user is currently changing permissions.
+   * Set the name of the package for which the user is currently changing permissions. Contrary to
+   * setCurrentlyHandledAppPackageNames(), this method will also resolve the package name to the app
+   * name.
    * @param packageName package name for the app
    */
   private void setCurrentlyHandledAppPackageName(CharSequence packageName) {
     ArrayList packageList = new ArrayList();
     packageList.add(packageName);
     setCurrentlyHandledAppPackageNames(packageList);
+    // Resolve app name
+    try {
+      PackageManager packageManager = getPackageManager();
+      ApplicationInfo appInfo = packageManager.getApplicationInfo(packageName.toString(), 0);
+      currentlyHandledAppName = packageManager.getApplicationLabel(appInfo).toString();
+      Log.v(PacoConstants.TAG, "Also set app name to " + currentlyHandledAppName);
+    } catch (PackageManager.NameNotFoundException e) {
+      Log.w(PacoConstants.TAG, "Could not find app info for package " + packageName);
+    }
   }
 
   /**
@@ -493,6 +505,7 @@ public class RuntimePermissions extends AccessibilityService {
     accessibilityPayload.putBoolean(PAYLOAD_PERMISSION_GRANTED, isGranted);
     accessibilityPayload.putBoolean(PAYLOAD_PERMISSION_USERINITIATED, initiatedByUser);
     accessibilityPayload.putStringArrayList(PAYLOAD_PERMISSION_PACKAGES, currentlyHandledAppPackageNames);
+    accessibilityPayload.putString(PAYLOAD_PERMISSION_APPNAME, currentlyHandledAppName);
     broadcastTriggerServiceIntent.putExtra(PACO_ACTION_ACCESSIBILITY_PAYLOAD, accessibilityPayload);
     context.startService(broadcastTriggerServiceIntent);
   }
@@ -509,7 +522,7 @@ public class RuntimePermissions extends AccessibilityService {
     if (!Locale.getDefault().getISO3Language().equals(Locale.ENGLISH.getISO3Language())) {
       // We don't really need to signal this to the user, as it is the experiment provider who
       // is responsible for checking this should not be a problem for the experiment.
-      // TODO: add a disclaimer in the web interface when enabling this?
+      // TODO: maybe add this information to the troubleshooting screen
       Log.w(PacoConstants.TAG, "Detected locale is " + Locale.getDefault().toString() +
               ". RuntimePermissions triggering does not support non-English languages; " +
               "permissions might not always be interpreted correctly");
