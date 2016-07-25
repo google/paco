@@ -25,6 +25,8 @@
 #import "SchedulePrinter.h"
 #import "PAExperimentDAO+Helper.h"
 #import "NSObject+J2objcKVO.h"
+#import "PacoExperimentSchedule.h" 
+
 
 @implementation PAExperimentDAO (Helper)
 
@@ -72,7 +74,33 @@
 }
 
 
-
+- (BOOL)isCompatibleWithIOS
+{
+    BOOL retVal = YES;
+    
+    NSNumber   * numberOfGroups    = [self  valueForKeyPathEx:@"groups#"];
+    int count = [numberOfGroups intValue];
+    
+    for( int i =0;  i < count; i++)
+    {
+        NSString* str = [NSString stringWithFormat: @"groups[%i]",i ];
+        PAExperimentGroup*  group  =  [self  valueForKeyPathEx:str];
+        
+        if(![group isCompatibleWithIOS])
+        {
+            
+            retVal = NO;
+            break;
+            
+        }
+    }
+    
+    
+    
+    return retVal;
+    
+    
+}
 
 -(PAInput2*) inputWithId:(NSString*) inputID
 {
@@ -355,7 +383,11 @@
 
 
 
-
+/* 
+ 
+  consider refactorying this method. the experiment should not need to know how its schedule is rendered. 
+ 
+ */
 
 -(NSArray*) getTableCellModelObjects
 {
@@ -403,7 +435,7 @@
                 
                 NSMutableArray * cellModelsForGroup = [[NSMutableArray alloc] init];
                 
-                if([[schedule getScheduleType] intValue] == 4)
+                if([[schedule getScheduleType] intValue] == kPacoScheduleTypeESM )
                 {
                          DatePickerCell*  startTimeCell =  [[DatePickerCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:nil];
                     
@@ -434,7 +466,13 @@
                     [cellModelsForGroup addObject:endTimeCell];
                     
                 }
-                else if([[schedule getScheduleType] intValue] ==0)
+                else if( [[schedule getScheduleType] intValue] ==kPacoScheduleTypeDaily
+                        || [[schedule getScheduleType] intValue] ==kPacoScheduleTypeWeekday
+                        || [[schedule getScheduleType] intValue] ==kPacoScheduleTypeWeekly
+                        || [[schedule getScheduleType] intValue] == kPacoScheduleTypeMonthly 
+                        
+                        
+                      /* need to add more types here */ )
                 {
                         NSNumber*  numberOfActionTriggers =
                         [schedule valueForKeyEx:@"signalTimes#"];

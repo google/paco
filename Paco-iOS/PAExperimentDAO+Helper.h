@@ -32,5 +32,7 @@
 -(int) numberOfGroups;
 -(PAExperimentGroup*) soloGroup;
 -(PAExperimentGroup*) groupWithName:(NSString*) groupName;
+- (BOOL)isCompatibleWithIOS;
+
 
 @end

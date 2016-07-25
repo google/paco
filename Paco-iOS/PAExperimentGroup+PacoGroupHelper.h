@@ -26,6 +26,7 @@ typedef NS_ENUM(NSInteger, PacoFeedbackType) {
 -(NSString*) jsonStringForJavascript;
 -(NSArray* ) allInputs;
 -(PAInput2*) inputWithId:(NSString*) inputID;
+- (BOOL)isCompatibleWithIOS;
 
 
 @end
