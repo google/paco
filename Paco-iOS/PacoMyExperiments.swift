@@ -32,7 +32,7 @@ class PacoMyExperiments: UITableViewController,PacoExperimentProtocol {
       tableView.tableFooterView = UIView()
         
         
-        NSNotificationCenter.defaultCenter().addObserver(self, selector:"experimentsRefreshed:", name:"MyExperiments", object: nil)
+        NSNotificationCenter.defaultCenter().addObserver(self, selector:#selector(PacoMyExperiments.experimentsRefreshed(_:)), name:"MyExperiments", object: nil)
       
         self.tableView.registerNib(UINib(nibName: "PacoTableViewCell", bundle: nil), forCellReuseIdentifier:cellId)
         
@@ -43,7 +43,7 @@ class PacoMyExperiments: UITableViewController,PacoExperimentProtocol {
         self.tableView.backgroundColor = swiftColor
  
         
-        var networkHelper = PacoNetwork .sharedInstance()
+        let  networkHelper = PacoNetwork .sharedInstance()
         networkHelper.update()
         
     }
@@ -93,6 +93,12 @@ class PacoMyExperiments: UITableViewController,PacoExperimentProtocol {
         {
           description = (dao.valueForKeyEx("description")  as? String)!
         }
+        if !dao.isCompatibleWithIOS()
+        {
+            
+            
+            
+        }
         if  dao.valueForKeyEx("organization") != nil
         {
             organization = (dao.valueForKeyEx("organization")  as? String)!
@@ -110,12 +116,33 @@ class PacoMyExperiments: UITableViewController,PacoExperimentProtocol {
             email = " "
             
         }
+        
+        
+        
+        let isCompatible =  dao.isCompatibleWithIOS()
+        var compatibilityText:NSString;
+        
+        
+        if isCompatible == true
+        {
+          compatibilityText  = "Y"
+        }
+        else
+        {
+           compatibilityText = "N"
+        }
+        
+        
+        
 
         cell.parent = self;
         cell.experiment = dao
         cell.experimentTitle.text = title
         cell.subtitle.text = "\(organization!), \(email!)"
         cell.selectionStyle  = UITableViewCellSelectionStyle.None
+        cell.isIOSCompatible.text = compatibilityText as String
+        
+        
         
         return cell;
         

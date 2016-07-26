@@ -391,6 +391,9 @@
 
 -(NSArray*) getTableCellModelObjects
 {
+    
+    
+    
     NSNumber   * numberOfGroups    = [self  valueForKeyPathEx:@"groups#"];
     int count = [numberOfGroups intValue];
     

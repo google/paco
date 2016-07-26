@@ -201,14 +201,8 @@
           
          PAExperimentDAO * dao =  [serializer buildModelObject:definitionJson];
           
-          
-          NSLog(@" this is the log object ");
-          
-          
-      //  PacoExperimentDefinition* definition = [PacoExperimentDefinition pacoExperimentDefinitionFromJSON:definitionJson];
-          
-          
-       // NSAssert(definition, @"definition should be valid");
+     
+ 
          [definitionList addObject:dao];
           
           
@@ -238,42 +232,50 @@
   }];
 }
 
-- (void)loadMyDefinitionIDListWithBlock:(void (^)(NSDictionary *, NSError*))completionBlock {
+
+ 
+
+- (void)loadMyDefinitionIDListWithBlock:(void (^)(NSArray *, NSError*))completionBlock {
+    
   [self loadMyShortDefinitionListWithBlock:^(NSDictionary* definitionList, NSError* error) {
     if (error == nil) {
       NSMutableArray* result = [NSMutableArray arrayWithCapacity:[[definitionList allValues ] count]];
         
       for (NSDictionary* dictionary   in  definitionList[@"results"])
       {
-          
- 
-          
-    
-          
+     
         NSNumber* idNum = dictionary[@"id"];
         NSAssert(idNum != nil && [idNum isKindOfClass:[NSNumber class]], @"idNum should be valid!");
         NSString* definitionId = [NSString stringWithFormat:@"%lld", [idNum longLongValue]];
-        [result addObject:definitionId];
+       [result addObject:definitionId];
+          
+          
+          
+          
       }
       if (completionBlock) {
         completionBlock(result, error);
       }
     } else {
+        
+       
       if (completionBlock) {
         completionBlock(nil, error);
       }
     }
   }];
 }
+ 
+ 
 
 //YMZ:TODO: there should be a single endpoint for this API
-- (void)loadMyFullDefinitionListWithBlock:(void (^)(NSDictionary*, NSError*))completionBlock {
+- (void)loadMyFullDefinitionListWithBlock:(void (^)(NSArray *, NSError*))completionBlock {
   NSAssert(completionBlock != nil, @"a completion block has to be passed in");
   
   [self loadMyDefinitionIDListWithBlock:^(NSArray * idList, NSError* error) {
     if (!error) {
       if (0 == [idList count]) {
-        completionBlock(idList, nil);
+         completionBlock(idList, nil);
       } else {
         [self loadFullDefinitionListWithIDs:idList andBlock:^(NSDictionary * fullList, NSError* error) {
           if (!error) {

@@ -36,11 +36,11 @@ import UIKit
           
                 
                 
-                var dao:PAExperimentDAO = self.allExperiments![1]
-                var title:String?
-                var organization:String?
-                var email:String?
-                var description:String?
+                let dao:PAExperimentDAO = self.allExperiments![1]
+                let  title:String?
+                let  organization:String?
+                let  email:String?
+                let  description:String?
                 
                 if  dao.valueForKeyEx("title") != nil
                 {
@@ -187,8 +187,8 @@ import UIKit
     
     func experimentsRefreshed(notification: NSNotification){
         
-      var mediator =  PacoMediator.sharedInstance();
-      var  mArray:NSMutableArray  = mediator.experiments();
+      let mediator =  PacoMediator.sharedInstance();
+      let   mArray:NSMutableArray  = mediator.experiments();
        allExperiments = mArray as AnyObject  as? [PAExperimentDAO]
         
         PacoMediator.sharedInstance().replaceAllExperiments(allExperiments)
@@ -201,7 +201,7 @@ import UIKit
     
     func didSelect(experiment:PAExperimentDAO)
     {
-        var detailController =  PacoExperimentDetailController(nibName:"PacoExperimentDetailController",bundle:nil)
+        let  detailController =  PacoExperimentDetailController(nibName:"PacoExperimentDetailController",bundle:nil)
         
         if  experiment.valueForKeyEx("title") != nil
         {
@@ -223,8 +223,8 @@ import UIKit
     override func viewWillAppear(animated: Bool) {
         super.viewWillAppear(animated)
         
-        var mediator =  PacoMediator.sharedInstance()
-        var  mArray:NSMutableArray  = mediator.experiments()
+        let mediator =  PacoMediator.sharedInstance()
+        let   mArray:NSMutableArray  = mediator.experiments()
         allExperiments = mArray as AnyObject as? [PAExperimentDAO]
         
         

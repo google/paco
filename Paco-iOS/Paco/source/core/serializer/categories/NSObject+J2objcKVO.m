@@ -199,7 +199,7 @@
             case EncodingTypeLong :
                 
                 
-               // typedArg = [[JavaLangLong alloc] initWithLongLong:[((NSNumber*) argument) longLongValue]];
+                
                 
                 typedArg = create_JavaLangLong_initWithLong_([((NSNumber*) argument) longLongValue]);
                 

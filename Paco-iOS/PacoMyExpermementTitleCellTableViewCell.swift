@@ -15,8 +15,10 @@ import UIKit
     public var  experiment:PAExperimentDAO?
     public var  jsonDict:NSDictionary?
     public var  parent:PacoExperimentProtocol?
+    @IBOutlet weak var isIOSCompatible: UILabel!
+ 
     
-    
+  
     public var expanded = false
     var unexpandedHeight = CGFloat(44)
  
