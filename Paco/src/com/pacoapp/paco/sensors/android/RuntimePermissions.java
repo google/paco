@@ -43,7 +43,9 @@ import java.util.regex.Pattern;
  * if we want it to be used in international studies.
  * This class should only be used on devices running Android 6.0 and up, since older versions don't
  * support runtime permissions.
- * TODO: only enable service if it is checked by the experiment organiser
+ * This service is enabled when Paco is granted the Accessibility permission. The
+ * BroadcastTriggerService will make sure that only experiments enabling accessibility logging will
+ * receive accessibility events.
  */
 @TargetApi(Build.VERSION_CODES.LOLLIPOP) // TODO: update to Marshmallow when project SDK changes
 public class RuntimePermissions extends AccessibilityService {
@@ -56,19 +58,6 @@ public class RuntimePermissions extends AccessibilityService {
   // Number of milliseconds before a permission request is considered stale
   private static final long PERMISSION_REQUEST_HISTORY_MILLIS = 60000;
 
-  // List of all the possible permission groups in Android
-  // TODO: rewrite permission dialog parsing in function of these (just a mapping would be sufficient)
-  public enum PERMISSION_GROUPS {
-    CAMERA,
-    CONTACTS,
-    LOCATION,
-    MICROPHONE,
-    PHONE,
-    STORAGE,
-    BODY_SENSORS,
-    CALENDAR,
-    SMS
-  }
   // List of the names of the PERMISSION_GROUPS as they appear in the en_us localization of the
   // PackageInstaller settings
   public static final List<String> PERMISSION_SETTINGS_STRINGS = Arrays.asList(
@@ -83,7 +72,8 @@ public class RuntimePermissions extends AccessibilityService {
     "SMS"
   );
   // List of the names of the PERMISSION_GROUPS as they appear in the en_us localization of the
-  // runtime permission dialogs
+  // runtime permission dialogs. These are mapped to the list of strings in the
+  // PERMISSION_SETTINGS_STRINGS list
   public static final Map<String, String> PERMISSION_DIALOG_STRINGS = new HashMap<String,String>();;
   static {
     PERMISSION_DIALOG_STRINGS.put("take pictures and record video", "Camera");
@@ -92,7 +82,7 @@ public class RuntimePermissions extends AccessibilityService {
     PERMISSION_DIALOG_STRINGS.put("record audio", "Microphone");
     PERMISSION_DIALOG_STRINGS.put("make and manage phone calls", "Phone");
     PERMISSION_DIALOG_STRINGS.put("access photos, media, and files on your device", "Storage");
-    PERMISSION_DIALOG_STRINGS.put("", "Body Sensors"); // TODO: find the permissions string for body sensors
+    PERMISSION_DIALOG_STRINGS.put("", "Body Sensors"); // TODO: if we encounter this string, add it here
     PERMISSION_DIALOG_STRINGS.put("access your calendar", "Calendar");
     PERMISSION_DIALOG_STRINGS.put("send and view SMS messages", "SMS");
   }
@@ -156,8 +146,10 @@ public class RuntimePermissions extends AccessibilityService {
           Log.v(PacoConstants.TAG, "Ignoring window state changed accessibility event, since it was not a permission settings screen or a permissions dialog.");
         }
         break;
-      case AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED:
-      case AccessibilityEvent.TYPE_ANNOUNCEMENT: // TODO check this
+      // We used to use the next case in a similar way to TYPE_ANNOUNCEMENT, but it seems that
+      // TYPE_ANNOUNCEMENT captures all needed events in this case
+      //case AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED:
+      case AccessibilityEvent.TYPE_ANNOUNCEMENT:
         // For our purposes, this means: a dialog requesting a runtime permission changed to request
         // the next required permission (e.g. during user onboarding, a few permissions are
         // requested in sequence)
@@ -228,7 +220,6 @@ public class RuntimePermissions extends AccessibilityService {
    * @return true if the user is in the app permissions screen
    */
   private boolean isAppPermissionsScreen(AccessibilityEvent event) {
-    // TODO: check if this is sufficient, and whether these operations are not too costly
     return (event.getSource().findAccessibilityNodeInfosByViewId("com.android.packageinstaller:id/name").size() > 0 &&
              event.getSource().findAccessibilityNodeInfosByViewId("com.android.packageinstaller:id/switchWidget").size() > 0
     );
