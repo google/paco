@@ -96,6 +96,7 @@ public class RuntimePermissions extends AccessibilityService {
   private static ArrayList<String> currentlyHandledAppPackageNames;
   private static String currentlyHandledAppName;
   private static String currentlyHandledPermission;
+
   /**
    * Only used with runtime permission dialogs. Keep the currently requested permission in memory
    * so we remember it when the user actually clicked allow/deny. This is a queue because
@@ -170,6 +171,15 @@ public class RuntimePermissions extends AccessibilityService {
         }
         break;
     }
+  }
+
+  /**
+   * Get the information from the latest permission request dialog that popped up. Makes sure that
+   * other classes can peek at this element without allowing them to alter the queue.
+   * @return An object containing that permission's name, app's name, and package
+   */
+  public static EncounteredPermissionRequest getLastEncounteredPermissionRequest() {
+    return previouslyEncounteredPermissionRequests.peek();
   }
 
   /**
@@ -293,6 +303,11 @@ public class RuntimePermissions extends AccessibilityService {
     }
   }
 
+  /**
+   * Extracts the permission string from a screen listing all apps that requested a certain
+   * permission. The name of this permission is at the top of the screen.
+   * @param rootNodeInfo The root node in the tree for the accessibility event
+   */
   private void extractInformationFromAppListingForPermission(AccessibilityNodeInfo rootNodeInfo) {
     // The only way to get the information we need is by completely traversing the tree, since
     // the element containing the actual permission does not have an id
