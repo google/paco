@@ -53,17 +53,15 @@ class PacoMyExperiments: UITableViewController,PacoExperimentProtocol {
         // Dispose of any resources that can be recreated.
     }
 
-    // MARK: - Table view data source
+ 
 
     override func numberOfSectionsInTableView(tableView: UITableView) -> Int {
-        // #warning Potentially incomplete method implementation.
-        // Return the number of sections.
+ 
         return 1
     }
 
     override func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        // #warning Incomplete method implementation.
-        // Return the number of rows in the section.
+ 
         var retVal:Int = 0
         if myExpriments  != nil
         {
@@ -78,11 +76,10 @@ class PacoMyExperiments: UITableViewController,PacoExperimentProtocol {
         
         let cell = tableView.dequeueReusableCellWithIdentifier(self.simpleCellId, forIndexPath: indexPath) as! PacoMyExpermementTitleCellTableViewCell
 
-        
         var dao:PAExperimentDAO = myExpriments![indexPath.row]
         var title:String?
         var organization:String?
-         var email:String?
+        var email:String?
         var description:String?
  
        if  dao.valueForKeyEx("title") != nil

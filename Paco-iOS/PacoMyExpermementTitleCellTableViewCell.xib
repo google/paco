@@ -19,7 +19,7 @@
             <rect key="frame" x="0.0" y="0.0" width="316" height="70"/>
             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
             <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="KGk-i7-Jjw" id="H2p-sc-9uM">
-                <rect key="frame" x="0.0" y="0.0" width="316" height="69.5"/>
+                <rect key="frame" x="0.0" y="0.0" width="316" height="70"/>
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" lineBreakMode="tailTruncation" numberOfLines="3" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="pvT-9n-7Fu">
@@ -38,10 +38,10 @@
                         <nil key="highlightedColor"/>
                     </label>
                     <stackView opaque="NO" contentMode="scaleToFill" ambiguous="YES" misplaced="YES" axis="vertical" translatesAutoresizingMaskIntoConstraints="NO" id="vmP-Su-PgD">
-                        <rect key="frame" x="260" y="0.0" width="50" height="52"/>
+                        <rect key="frame" x="260" y="0.0" width="50" height="54"/>
                         <subviews>
                             <stackView opaque="NO" contentMode="scaleToFill" ambiguous="YES" misplaced="YES" axis="vertical" translatesAutoresizingMaskIntoConstraints="NO" id="4Gk-EW-7eY">
-                                <rect key="frame" x="0.0" y="0.0" width="50" height="52"/>
+                                <rect key="frame" x="0.0" y="0.0" width="50" height="54"/>
                             </stackView>
                         </subviews>
                         <constraints>

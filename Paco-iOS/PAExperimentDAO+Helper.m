@@ -521,14 +521,11 @@
                 
                 
             }
-            
-            
-            
+
         }
         
     }
-    
-    
+
     return groupArray;
     
 }
