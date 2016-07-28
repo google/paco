@@ -14,7 +14,7 @@
  */
 
 #import "PacoScheduleGenerator.h"
-#import "PacoExperiment.h"
+
 #import "PacoExperimentSchedule.h"
 #import "PacoDateUtility.h"
 #import "NSDate+Paco.h"

@@ -18,7 +18,6 @@
 #import "GTMOAuth2Authentication.h"
 #import "GTMOAuth2SignIn.h"
 #import "GTMOAuth2ViewControllerTouch.h"
-#import "PacoClient.h"
 #import "SSKeychain.h"
 
 

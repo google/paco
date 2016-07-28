@@ -24,11 +24,13 @@
   static PKTokenizer* pacoTokenizer = nil;
   static dispatch_once_t onceToken;
   dispatch_once(&onceToken, ^{
+      
     pacoTokenizer = [PKTokenizer tokenizer];
     [pacoTokenizer.symbolState add:@"=="];
     [pacoTokenizer.symbolState add:@"&&"];
     [pacoTokenizer.symbolState add:@"||"];
     [pacoTokenizer.symbolState add:@"!="];
+      
   });
   return pacoTokenizer;
 }

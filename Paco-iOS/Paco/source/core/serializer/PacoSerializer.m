@@ -2,7 +2,7 @@
 //  PacoPacoSerializer.m
 //  Paco
 //
-//  Created by Timothy  Northrop O'Brien on 7/23/15.
+//  Created by Timothy  Tim O'Brien on 7/23/15.
 //
 //
 //
@@ -35,8 +35,25 @@
 #include "java/util/HashMap.h"
 #include "java/util/ArrayList.h"
 #include "java/util/iterator.h"
-#import "ITAhoCorasickContainer.h"
+
 #import "NSObject+J2objcKVO.h"
+#include "java/util/ArrayList.h"
+#include "java/util/List.h"
+#include "java/lang/Boolean.h"
+#include "java/lang/Long.h"
+#include "java/lang/Integer.h"
+#include "java/lang/Float.h"
+#include "java/lang/Double.h"
+#include "java/lang/Boolean.h"
+#import "SignalTime.h" 
+#import  "PacoIntrospectHelper.h"
+#import  "PacoEventExtended.h"
+#import "ActionTrigger.h" 
+#import "ScheduleTrigger.h"
+#import  "ActionSpecification.h" 
+
+
+
 
 #define METHOD_PREFIX @"PA"
 
@@ -59,12 +76,17 @@
 
 /* serilized json */
 @property(nonatomic, strong) NSMutableDictionary* attributeClassMap;
-/* aho corasic matching algorithm */
-@property(strong, nonatomic) ITAhoCorasickContainer* container;
+
 /* The first or parent node  */
 @property(nonatomic, strong) id parentNode;
+
 /* collection object */
 @property(nonatomic, strong) id parentCollection;
+
+/* classes that we don't need to augment with the pre-fixes such as 'PA' */
+
+@property(nonatomic, strong) NSMutableArray*  outOfDomainClasseNames;
+
 @end
 
 @implementation PacoSerializer
@@ -82,16 +104,47 @@
 {
   self = [super init];
   if (self) {
-    _classes = classes;
-      _nameOfClass = nameOfClass;
-    _objectTracking = [NSMutableArray new];
-    _cache = [NSCache new];
-    _container = [ITAhoCorasickContainer new];
-    _attributeClassMap = [NSMutableDictionary new];
-    [self buildAttibuuteClassMap];
+      
+         _classes = classes;
+        _nameOfClass = nameOfClass;
+        _objectTracking = [NSMutableArray new];
+        _cache = [NSCache new];
+        //_container = [ITAhoCorasickContainer new];
+        _attributeClassMap = [NSMutableDictionary new];
+        _outOfDomainClasseNames = [NSMutableArray new];
+        _timeZone =  [NSTimeZone localTimeZone];
+      
+    /*  if(_classes !=nil)
+     {
+       [self buildAttibuuteClassMap];
+     }*/
+     
+     
   }
   return self;
 }
+
+-(void) addNoneDomainClass:(NSObject*) object
+{
+     NSString* clazzName = NSStringFromClass( [object class] );
+     [_outOfDomainClasseNames addObject:clazzName];
+}
+
+
+- (instancetype) initWithArrayWithClassAttributeName: (NSString*) nameOfClass
+{
+    self = [super init];
+    if (self) {
+
+        _nameOfClass = nameOfClass;
+        _objectTracking = [NSMutableArray new];
+        _cache = [NSCache new];
+        
+    }
+    return self;
+}
+
+ 
 
 - (NSObject*)toJ2OBJCCollctionsHeirarchy:(NSObject*)parent {
   _parentCollection = nil;
@@ -100,15 +153,55 @@
   return _parentCollection;
 }
 
-- (NSObject*)toJSONobject:(NSObject*)parent {
+
+
+-(NSArray*) experimentToJSonStringFromNSArrayOfDefinitionObjects:(NSArray*) definitions
+{
+ 
+     NSMutableArray* definitionsList = [[NSMutableArray alloc] init];
+    
+    for(PAExperimentDAO *definition in definitions)
+    {
+       NSData * data = [self toJSONobject:definition] ;
+       NSString * jsonString=   [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+        
+       [definitionsList addObject:jsonString];
+    }
+  
+    return definitionsList;
+}
+
+- (NSData *)toJSONobjectWithListOfDefinitions:(NSArray*) arrayList {
+    _parentCollection = nil;
+    [_objectTracking removeAllObjects];
+    
+    NSError* error2 = nil;
+    NSData* newData =
+    [NSJSONSerialization dataWithJSONObject:_parentCollection
+                                    options:NSJSONWritingPrettyPrinted
+                                      error:&error2];
+    return newData;
+}
+
+
+- (NSData *)toJSONobject:(NSObject*)parent {
   _parentCollection = nil;
   [_objectTracking removeAllObjects];
-  [self recurseObjectHierarchy:@[ PACO_OBJECT_PARENT, parent ]];
+    
+    JavaUtilArrayList* arrayList = [[JavaUtilArrayList alloc] initWithInt:1];
+    [arrayList addWithId:parent];
+    
+  [self recurseObjectHierarchy:@[ PACO_OBJECT_PARENT, arrayList ]];
   NSError* error2 = nil;
   NSData* newData =
       [NSJSONSerialization dataWithJSONObject:_parentCollection
                                       options:NSJSONWritingPrettyPrinted
                                         error:&error2];
+    /* debug */
+    NSError *error;
+    NSDictionary *jsonDict = [NSJSONSerialization JSONObjectWithData:newData options:0 error:&error];
+    NSLog(@"%@", jsonDict);
+    
   return newData;
 }
 
@@ -127,17 +220,72 @@
   return _parentNode;
 }
 
-- (NSObject*)buildObjectHierarchyFromJSONOBject:(id)data {
-  _parentNode = nil;
-  NSError* error;
-  id definitionDict =
-      [NSJSONSerialization JSONObjectWithData:data
-                                      options:NSJSONReadingAllowFragments
-                                        error:&error];
-
-  [self recurseJason:@[ PACO_OBJECT_PARENT, definitionDict ]];
-  return _parentNode;
+- (NSObject*)buildObjectHierarchyFromJSONOBject:(id) object  {
+    _parentNode = nil;
+    NSError* error;
+    
+    id definitionDict =
+    [NSJSONSerialization JSONObjectWithData:object
+                                    options:NSJSONReadingAllowFragments
+                                      error:&error];
+    
+    
+    
+    [self recurseJason:@[PACO_OBJECT_PARENT, @[definitionDict] ]];
+    
+    
+    return _parentNode;
 }
+
+
+- (NSObject*)buildObjectHierarchyFromJSONString:(id)json {
+    _parentNode = nil;
+    NSError* error;
+    id definitionDict =
+    [NSJSONSerialization JSONObjectWithData:[json dataUsingEncoding:NSUTF8StringEncoding]
+                                    options:NSJSONReadingAllowFragments
+                                      error:&error];
+    
+    
+    
+    [self recurseJason:@[ PACO_OBJECT_PARENT, @[definitionDict] ]];
+    return _parentNode;
+}
+
+
+- (NSObject*)buildSingleObjectHierarchyFromJSONString:(id)json {
+    _parentNode = nil;
+    NSObject* retObj= nil;
+    NSError* error;
+    id definitionDict =
+    [NSJSONSerialization JSONObjectWithData:[json dataUsingEncoding:NSUTF8StringEncoding]
+                                    options:NSJSONReadingAllowFragments
+                                      error:&error];
+    
+    [self recurseJason:@[ PACO_OBJECT_PARENT, @[definitionDict] ]];
+    if([((JavaUtilArrayList*) _parentNode) size] > 0)
+    {
+       retObj = [((JavaUtilArrayList*) _parentNode) getWithInt:0];
+    }
+    return retObj;
+    
+}
+
+
+-(NSObject*) buildModelObject:(NSDictionary*) dictionary
+{
+    NSObject* retObj= nil;
+    [self recurseJason:@[ PACO_OBJECT_PARENT, @[dictionary] ]];
+    if([((JavaUtilArrayList*) _parentNode) size] > 0)
+    {
+        retObj = [((JavaUtilArrayList*) _parentNode) getWithInt:0];
+    }
+    return retObj;
+
+    
+    
+}
+
 
 - (void)validate:(NSArray*)parentInfo {
   if ([parentInfo[1] isKindOfClass:[JavaUtilArrayList class]]) {
@@ -147,7 +295,7 @@
     }
 
   } else if ([parentInfo[1] isKindOfClass:[JavaUtilHashMap class]]) {
-    NSArray* myArray = (NSArray*)[[parentInfo[1] keySet] toArray];
+      NSArray* myArray = nil;//  (NSArray*)[[parentInfo[1] keySet] toArray];
     for (NSString* str in myArray) {
       [self validate:@[ str, [parentInfo[1] valueForKey:str] ]];
     }
@@ -181,7 +329,10 @@
  */
 
 - (void)recurseObjectHierarchy:(NSArray*)parentInfo {
-  if ([parentInfo[1] isKindOfClass:[JavaUtilArrayList class]]) {
+    
+    
+    if (  [parentInfo[1] isKindOfClass:[JavaUtilArrayList class]]  || [parentInfo[1] conformsToProtocol:@protocol(JavaUtilList)]   )
+    {
     NSArray* myArray = (NSArray*)[parentInfo[1] toArray];
     NSMutableArray* mArray = [NSMutableArray new];
     [self addToCollection:parentInfo[0] Value:mArray];
@@ -197,122 +348,91 @@
     [self addToCollection:parentInfo[0] Value:mutableDictionary];
     [self push:mutableDictionary];
 
-    NSArray* myArray = (NSArray*)[[parentInfo[1] keySet] toArray];
+      NSArray* myArray = nil;// (NSArray*)[[parentInfo[1] keySet] toArray];
     for (NSString* str in myArray) {
       [self recurseObjectHierarchy:@[ str, [parentInfo[1] valueForKey:str] ]];
     }
     [self pop];
 
   } else {
-    if (![parentInfo[1] isKindOfClass:[NSString class]] &&
-        ![parentInfo[1] isKindOfClass:[NSNumber class]]) {
+      
+      NSObject *o =parentInfo[1];
+      /* add case for boolean*/
+    if (
+        
+    [ o.superclass isKindOfClass:[PAModelBase class]] ||
+    [ o isKindOfClass:[PAModelBase class]] ||
+    [ o isKindOfClass:[PacoEventExtended class]] ||
+    [ o isKindOfClass:[PAActionSpecification class]]
+    
+       /*
+        ![parentInfo[1] isKindOfClass:[NSString class]] &&
+        ![parentInfo[1] isMemberOfClass:[NSNumber class]] &&
+        ![parentInfo[1] isMemberOfClass:[JavaLangBoolean class]] &&
+        ![parentInfo[1] isMemberOfClass:[JavaLangInteger class]] &&
+         ![parentInfo[1] isMemberOfClass:[JavaLangLong class]] &&
+        */
+ 
+        )
+    {
+     
+        
+       /* lets add the name of the class so we can serialize later */
+        
+        NSString* clazzName = NSStringFromClass( [o class] );
+        if ([clazzName hasPrefix:METHOD_PREFIX])
+        {
+         clazzName  = [clazzName substringFromIndex:[METHOD_PREFIX length]];
+        }
+  
+        NSString* nameOfClass =
+        [NSString stringWithFormat:@"com.pacoapp.paco.shared.model2.%@", clazzName];
+        
+     /* assuming this is a   object */ 
       NSMutableDictionary* mutableDictionary = [NSMutableDictionary new];
       [self addToCollection:parentInfo[0] Value:mutableDictionary];
+        
       [self push:mutableDictionary];
-      NSObject* object = parentInfo[1];
+      [mutableDictionary setObject:nameOfClass forKey:@"nameOfClass"];
+       NSObject* object = parentInfo[1];
       unsigned int numIvars = 0;
 
       NSObject* interObject = object;
       while (![interObject isMemberOfClass:[NSObject class]]) {
         Ivar* ivars = class_copyIvarList([interObject class], &numIvars);
         for (int i = 0; i < numIvars; i++) {
+   
           NSString* ivarName =
               [NSString stringWithCString:ivar_getName(ivars[i])
                                  encoding:NSUTF8StringEncoding];
-          NSObject* o = object_getIvar(object, ivars[i]);
-          if (o) {
-            [self recurseObjectHierarchy:@[ ivarName, o ]];
+            NSArray* array = [PacoIntrospectHelper parseIvar:ivars[i] Parent:parentInfo[1]];
+            NSObject *  oo =nil;
+            
+            
+            oo= array[0];
+          
+      
+          if (oo) {
+              
+            [self recurseObjectHierarchy:@[[self trimTrailingUnderscore:ivarName], oo ]];
           }
         }
-        interObject = [[interObject.superclass alloc] init];
-        ;
+           interObject = [[interObject.superclass alloc] init];
+         
       }
 
       [self pop];
     } else {
         
       NSString * name =  [self trimTrailingUnderscore:parentInfo[0]];
+        
       [self addToCollection:name Value:parentInfo[1]];
     }
   }
 }
 
-/*
-    helps  manufactures names  j2object names like setXXXWithJavaUtilInt by
-  creating
-    the end part such as WithJavaUtilInt.
-
-    Handle various sepcial cases e.g
-    attribute name might end with '_' or '__'
-
-    Attribute type format might be;
-   a) enclosed in angular bracketts  "<type>"
-   b) enclosed by escaped string     "\"type\"
-   c) a simple string
-   d) match the encoding for a primative type such as long long or long
 
 
-  The method will likely be incomplete as it does not handle primative types for
-  in, bool, float...
-  So far these primatives have not appeared in j2obc generated code.
-
-
- */
-- (NSString*)makeCommonAttributeOperationName:(NSString*)attributeName
-                                       Object:(NSObject*)object {
-  NSString* methodName = nil;
-  NSString* stringWithUnderscore = nil;
-  if ([attributeName isEqualToString:@"id"] ||
-      [attributeName isEqualToString:@"description"]) {
-    stringWithUnderscore = [NSString stringWithFormat:@"%@__", attributeName];
-  } else {
-    stringWithUnderscore = [NSString stringWithFormat:@"%@_", attributeName];
-  }
-
-  Ivar ivar = class_getInstanceVariable(
-      [object class],
-      [stringWithUnderscore
-          cStringUsingEncoding:[NSString defaultCStringEncoding]]);
-  if (ivar) {
-    NSString* ivarType =
-        [NSString stringWithUTF8String:ivar_getTypeEncoding(ivar)];
-    NSString* sub;
-
-    NSRange r1 = [ivarType rangeOfString:@"<"];
-    NSRange r2 = [ivarType rangeOfString:@">"];
-
-    if (r1.length != 0 && r2.length != 0) {
-      NSRange rSub = NSMakeRange(r1.location + r1.length,
-                                 r2.location - r1.location - r1.length);
-      sub = [ivarType substringWithRange:rSub];
-    } else {
-      NSRange r1 = [ivarType rangeOfString:@"\""];
-      NSRange r2 = [ivarType rangeOfString:@"\"" options:NSBackwardsSearch];
-
-      if (r1.length != 0 && r2.length != 0) {
-        NSRange rSub = NSMakeRange(r1.location + r1.length,
-                                   r2.location - r1.location - r1.length);
-        sub = [ivarType substringWithRange:rSub];
-      } else {
-        if ((strcmp(ivar_getTypeEncoding(ivar), @encode(long long))) == 0) {
-          sub = @"Long";
-        }
-        if ((strcmp(ivar_getTypeEncoding(ivar), @encode(long))) == 0) {
-          sub = @"Long";
-        }
-      }
-    }
-
-    NSString* newAttributeName = [attributeName
-        stringByReplacingCharactersInRange:NSMakeRange(0, 1)
-                                withString:
-                                    [[attributeName
-                                        substringToIndex:1] capitalizedString]];
-
-    methodName = [NSString stringWithFormat:@"%@With%@", newAttributeName, sub];
-  }
-  return methodName;
-}
 
 /*
     adds an object to an array list
@@ -350,38 +470,34 @@
 - (NSObject*)match:(NSArray*)recurseObject {
   NSString* clazzName = nil;
   NSDictionary* dictionary = recurseObject[1];
-    
-    [self findClassNameFromAttributes:[dictionary allKeys]];
-
-  /*
-
-
-   */
-
- 
-
-  //    NSString* searchString = [self ahoCorasickMatcher:dictionary];
-  //    NSDictionary* results =  [self.container findAllMatches:searchString];
-  //    NSArray * array = [self.container getTestArray];
-  //    NSLog(@"\n\n patterns  %@ \n",searchString);
-  //    NSLog(@"\n\n array %@ \n",array);
-
   id object = nil;
-
   clazzName = dictionary[_nameOfClass];
   NSRange r1 = [clazzName rangeOfString:@"." options:NSBackwardsSearch];
   clazzName = [clazzName substringFromIndex:r1.location + 1];
-  clazzName = [NSString stringWithFormat:@"PA%@", clazzName];
-  Class theClass = NSClassFromString(clazzName);
-  object = [[theClass alloc] init];
-  assert(object);
-  return object;
+  
+    
+  if(clazzName !=nil)
+  {
+    
+      if(   _outOfDomainClasseNames==nil || ![_outOfDomainClasseNames containsObject:clazzName])
+      {
+          clazzName = [NSString stringWithFormat:@"PA%@", clazzName];
+      }
+      
+      Class theClass = NSClassFromString(clazzName);
+      object = [[theClass alloc] init];
+
+      assert(object);
+  }
+    return object;
 }
+
+
 
 - (void)addToCollection:(NSString*)attributeName Value:(NSObject*)object {
   NSObject* parent = [self parent];
   /*
-   lets handle three cases for the parent
+   lets handle two cases for the parent
       A) parent could be a list object
       B) parent could be a dictionary object.
       */
@@ -390,7 +506,28 @@
     if (_parentCollection == nil) {
       _parentCollection = object;
     } else {
-      [((NSMutableArray*)parent)addObject:object];
+        
+        
+        if([object isKindOfClass:[NSDate class]])
+        {
+           
+            
+            NSDateFormatter *format = [[NSDateFormatter alloc] init];
+            [format setTimeZone:_timeZone];
+            [format setDateFormat:@"MMMM dd, yyyy (EEEE) HH:mm:ss z Z"];
+            
+            NSString *nsstr = [format stringFromDate:(NSDate*) object];
+            object = nsstr;
+            
+             [((NSMutableArray*)parent)addObject:object];
+        }
+        else
+        {
+             [((NSMutableArray*)parent)addObject:object];
+            
+        }
+        
+     
     }
 
   } else if ([parent isKindOfClass:[NSMutableDictionary class]]) {
@@ -401,20 +538,41 @@
     if (_parentCollection == nil) {
       _parentCollection = object;
     } else {
+        
+       /* here we need to go back to the pure objective c type */
+        if([object isKindOfClass:[NSDate class]])
+            {
+                
+                NSDateFormatter *format = [[NSDateFormatter alloc] init];
+                [format setTimeZone:_timeZone];
+               [format setDateFormat:@"MMMM dd, yyyy (EEEE) HH:mm:ss z Z"];
+                
+                NSString *nsstr = [format stringFromDate:(NSDate*) object];
+                object = nsstr;
+                
+                
+            }
       [((NSMutableDictionary*)parent)setValue:object forKey:attributeName];
+        
+        
+        
     }
   }
 }
+
+
+
 
 - (void)addItem:(NSString*)attributeName
          Parent:(NSObject*)parent
           Value:(NSObject*)object
         AddList:(BOOL)addList {
   /*
-   lets handle three cases for the parent
+   lets handle four cases for the parent
    A) parent could be a list object
    B) parent could be a dictionary object.
    C) parent could be a model object.
+  
 
    */
 
@@ -423,20 +581,54 @@
      Case A: We now just add the object to the list.
 
      */
-    [((JavaUtilArrayList*)parent)addWithId:object];
+    if([object isKindOfClass:[PAActionTrigger class]])
+    {
+        
+        /* duplicate check remove */
+         if([object isKindOfClass:[PAActionTrigger class]])
+         {
+              /* check if logic is needed for subclasses, else remove this code */
+              [((JavaUtilArrayList*)parent)addWithId:(PAScheduleTrigger*) object];
+             
+         }
+        else
+        {
+            
+             [((JavaUtilArrayList*)parent)addWithId:object];
+        }
+        
+        
+    }
+    else
+    {
+        [((JavaUtilArrayList*)parent)addWithId:object];
+    }
+      
+      
+      
   } else if ([parent isKindOfClass:[JavaUtilHashMap class]]) {
     /*
      Case B, we add the object to the parent using the key.
      */
+      
     [((JavaUtilHashMap*)parent)setValue:object forKey:attributeName];
+      
+      
   } else {
     /*
      Case C, we set the attribute on  the parent using the key and key value
      coding
 
      */
-    if (addList) {
-      [parent setValueEx:object forKey:attributeName];
+      
+     
+   
+      
+         
+      
+    if (addList ) {
+        
+             [parent setValueEx:object forKey:attributeName];
     }
   }
 }
@@ -444,6 +636,7 @@
 /*
 
     parses the colection tree in order, building the model tree.
+    does not know
 
 
  */
@@ -496,10 +689,61 @@
     } else {
       // bona fide dictionary
       // push dictionary map.
-      /*
-       for( key in array of keys_
-        [self recurseJason:@[key,newObject]   Block:block];
-       */
+       
+//        
+//        NSObject*  o =  recurseObject[1];
+//        
+//    /* if(  [o isKindOfClass:[NSArray class]] )
+//        {
+//             NSString* attributeName = recurseObject[0];
+//             NSObject* parent = [self parent];
+//             NSMutableArray * mutableArray = [NSMutableArray new];
+//        
+//             [self addItem:attributeName Parent:parent Value:mutableArray AddList:YES];
+//              [self push:mutableArray];
+//             [self recurseJason:@[recurseObject[0],o]];
+//        }*/
+//              
+//              
+//        if( [o  isKindOfClass:[NSDictionary class]]  )
+//        {
+//                NSObject* parent = [self parent];
+//                NSString* attributeName = recurseObject[0];
+//                NSMutableDictionary * mutableDictionary = [NSMutableDictionary new];
+//            
+//            NSArray* arrayOfKeys = [recurseObject[1] allKeys];
+//       
+//            for (NSString* key in arrayOfKeys) {
+//                id newObject = [recurseObject[1] objectForKey:key];
+//                if (newObject != [NSNull null]) {
+//                    
+//                    [mutableDictionary setObject:newObject forKey:key];
+//                }
+//            }
+//            
+//             [self addItem:attributeName Parent:parent Value:mutableDictionary AddList:YES];
+// 
+//                 [self recurseJason:@[ attributeName, mutableDictionary ]];
+//        }
+//        
+//       /*
+//        
+//        NSMutableDictionary * mutableDictionary = [NSMutableDictionary new];
+//        
+//  
+//    
+//        NSArray* arrayOfKeys = [recurseObject[1] allKeys];
+//          loop over all keys and recursively this method.
+//        for (NSString* key in arrayOfKeys) {
+//            id newObject = [recurseObject[1] objectForKey:key];
+//            if (newObject != [NSNull null]) {
+//                
+//                
+//                [self recurseJason:@[ key, newObject ]];
+//            }
+//        }
+//      
+            
     }
 
     /*
@@ -520,6 +764,8 @@
       // lets pop the object.
       [self pop];
     } else {
+        
+          [self pop];
       // bona fide ditionary
       // pop
     }
@@ -538,14 +784,27 @@
      we might be as good chaning this so it checks if parent object is nil
      */
     if (![recurseObject[0] isEqualToString:PACO_OBJECT_PARENT]) {
-      [self addItem:attributeName Parent:parent Value:arrayList AddList:NO];
+        
+        
+   // NSLog(@" adding %@ to parent %@", attributeName, parent);
+        
+      [self addItem:attributeName Parent:parent Value:arrayList AddList:YES];
+        
+        
     } else {
       /* this is the first list or parent object so we want to set it as the
        * root object */
+        
+        
       _parentNode = arrayList;
     }
+      
+      /*
+       
+       
+       */
 
-    id al = [parent valueForKeyEx:attributeName];
+    id al = [[self parent] valueForKeyEx:attributeName];
     if (al == nil) {
       [self push:arrayList];
     } else {
@@ -571,19 +830,31 @@
     NSObject* parent = [self parent];
     NSObject* object = recurseObject[1];
     NSString* attributeName = recurseObject[0];
+      
+      
+      [self addItem:attributeName Parent:parent Value:object AddList:YES];
 
     if ([object isKindOfClass:[NSNumber class]]) {
-      [self addItem:attributeName Parent:parent Value:object AddList:YES];
+        
+        
+     // [self addItem:attributeName Parent:parent Value:object AddList:YES];
+        
+        
+        // no difference
+        
+        
     } else if ([object isKindOfClass:[NSString class]]) {
       /* (3) object is not a list and not a dictionary. It's a non list non
        dictionary  attribute on a dictionary or an element of a list
        requires converting to a new value */
 
-      [self addItem:attributeName Parent:parent Value:object AddList:YES];
+      //[self addItem:attributeName Parent:parent Value:object AddList:YES];
+        
+        // no difference
     }
 
-    NSLog(@"Setting value %@ for key %@ on class %@", recurseObject[1],
-          recurseObject[0], [[self parent] class]);
+  // this log  NSLog(@"Setting value %@ for key %@ on class %@", recurseObject[1],
+   //       recurseObject[0], [[self parent] class]);
   }
 }
 
@@ -656,7 +927,7 @@
         [NSString stringWithFormat:@"%@%@", METHOD_PREFIX, className];
     Class theClass = NSClassFromString(withPrefix);
     id object = [[theClass alloc] init];
-    [self.container addStringPattern:[self toMatchString:object]];
+   // [self.container addStringPattern:[self toMatchString:object]];
   }
 }
 
@@ -666,7 +937,16 @@
 - (NSString*)trimTrailingUnderscore:(NSString*)str {
   NSString* trimmed = nil;
   NSRange r1 = [str rangeOfString:@"_"];
-  trimmed = [str substringToIndex:r1.location];
+    
+    if( r1.location !=  NSNotFound && r1.location !=0)
+    {
+        trimmed = [str substringToIndex:r1.location];
+    }
+    else
+    {
+        
+        trimmed = str;
+    }
   return trimmed;
 }
 

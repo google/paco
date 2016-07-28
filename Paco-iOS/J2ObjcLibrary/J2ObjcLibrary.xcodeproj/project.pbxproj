@@ -1,0 +1,790 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		A605CAF41C778D1E00770A4E /* J2ObjcLibrary.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = A605CAF31C778D1E00770A4E /* J2ObjcLibrary.h */; };
+		A605CAF61C778D1F00770A4E /* J2ObjcLibrary.m in Sources */ = {isa = PBXBuildFile; fileRef = A605CAF51C778D1F00770A4E /* J2ObjcLibrary.m */; };
+		A61D82191CD14111009983B6 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A61D82181CD14111009983B6 /* Security.framework */; };
+		A61D82441CD14156009983B6 /* ExperimentEditOutcome.java in Sources */ = {isa = PBXBuildFile; fileRef = A61D821F1CD14156009983B6 /* ExperimentEditOutcome.java */; };
+		A61D82451CD14156009983B6 /* Outcome.java in Sources */ = {isa = PBXBuildFile; fileRef = A61D82201CD14156009983B6 /* Outcome.java */; };
+		A61D82461CD14156009983B6 /* ActionTrigger.java in Sources */ = {isa = PBXBuildFile; fileRef = A61D82221CD14156009983B6 /* ActionTrigger.java */; };
+		A61D82471CD14156009983B6 /* EventInterface.java in Sources */ = {isa = PBXBuildFile; fileRef = A61D82231CD14156009983B6 /* EventInterface.java */; };
+		A61D82481CD14156009983B6 /* EventStore.java in Sources */ = {isa = PBXBuildFile; fileRef = A61D82241CD14156009983B6 /* EventStore.java */; };
+		A61D82491CD14156009983B6 /* ExperimentDAO.java in Sources */ = {isa = PBXBuildFile; fileRef = A61D82251CD14156009983B6 /* ExperimentDAO.java */; };
+		A61D824A1CD14156009983B6 /* ExperimentDAOCore.java in Sources */ = {isa = PBXBuildFile; fileRef = A61D82261CD14156009983B6 /* ExperimentDAOCore.java */; };
+		A61D824B1CD14156009983B6 /* ExperimentGroup.java in Sources */ = {isa = PBXBuildFile; fileRef = A61D82271CD14156009983B6 /* ExperimentGroup.java */; };
+		A61D824C1CD14156009983B6 /* ExperimentQueryResult.java in Sources */ = {isa = PBXBuildFile; fileRef = A61D82281CD14156009983B6 /* ExperimentQueryResult.java */; };
+		A61D824D1CD14156009983B6 /* ExperimentValidator.java in Sources */ = {isa = PBXBuildFile; fileRef = A61D82291CD14156009983B6 /* ExperimentValidator.java */; };
+		A61D824E1CD14156009983B6 /* Feedback.java in Sources */ = {isa = PBXBuildFile; fileRef = A61D822A1CD14156009983B6 /* Feedback.java */; };
+		A61D824F1CD14156009983B6 /* Input2.java in Sources */ = {isa = PBXBuildFile; fileRef = A61D822B1CD14156009983B6 /* Input2.java */; };
+		A61D82501CD14156009983B6 /* InterruptCue.java in Sources */ = {isa = PBXBuildFile; fileRef = A61D822C1CD14156009983B6 /* InterruptCue.java */; };
+		A61D82511CD14156009983B6 /* InterruptTrigger.java in Sources */ = {isa = PBXBuildFile; fileRef = A61D822D1CD14156009983B6 /* InterruptTrigger.java */; };
+		A61D82521CD14156009983B6 /* ListMaker.java in Sources */ = {isa = PBXBuildFile; fileRef = A61D822E1CD14156009983B6 /* ListMaker.java */; };
+		A61D82531CD14156009983B6 /* MinimumBufferable.java in Sources */ = {isa = PBXBuildFile; fileRef = A61D822F1CD14156009983B6 /* MinimumBufferable.java */; };
+		A61D82541CD14156009983B6 /* ModelBase.java in Sources */ = {isa = PBXBuildFile; fileRef = A61D82301CD14156009983B6 /* ModelBase.java */; };
+		A61D82551CD14156009983B6 /* PacoAction.java in Sources */ = {isa = PBXBuildFile; fileRef = A61D82311CD14156009983B6 /* PacoAction.java */; };
+		A61D82561CD14156009983B6 /* PacoActionAllOthers.java in Sources */ = {isa = PBXBuildFile; fileRef = A61D82321CD14156009983B6 /* PacoActionAllOthers.java */; };
+		A61D82571CD14156009983B6 /* PacoNotificationAction.java in Sources */ = {isa = PBXBuildFile; fileRef = A61D82331CD14156009983B6 /* PacoNotificationAction.java */; };
+		A61D82581CD14156009983B6 /* Schedule.java in Sources */ = {isa = PBXBuildFile; fileRef = A61D82341CD14156009983B6 /* Schedule.java */; };
+		A61D82591CD14156009983B6 /* ScheduleTrigger.java in Sources */ = {isa = PBXBuildFile; fileRef = A61D82351CD14156009983B6 /* ScheduleTrigger.java */; };
+		A61D825A1CD14156009983B6 /* SignalTime.java in Sources */ = {isa = PBXBuildFile; fileRef = A61D82361CD14156009983B6 /* SignalTime.java */; };
+		A61D825B1CD14156009983B6 /* Validatable.java in Sources */ = {isa = PBXBuildFile; fileRef = A61D82371CD14156009983B6 /* Validatable.java */; };
+		A61D825C1CD14156009983B6 /* ValidationMessage.java in Sources */ = {isa = PBXBuildFile; fileRef = A61D82381CD14156009983B6 /* ValidationMessage.java */; };
+		A61D825D1CD14156009983B6 /* Validator.java in Sources */ = {isa = PBXBuildFile; fileRef = A61D82391CD14156009983B6 /* Validator.java */; };
+		A61D825E1CD14156009983B6 /* ActionScheduleGenerator.java in Sources */ = {isa = PBXBuildFile; fileRef = A61D823B1CD14156009983B6 /* ActionScheduleGenerator.java */; };
+		A61D825F1CD14156009983B6 /* ActionSpecification.java in Sources */ = {isa = PBXBuildFile; fileRef = A61D823C1CD14156009983B6 /* ActionSpecification.java */; };
+		A61D82601CD14156009983B6 /* EsmGenerator2.java in Sources */ = {isa = PBXBuildFile; fileRef = A61D823D1CD14156009983B6 /* EsmGenerator2.java */; };
+		A61D82611CD14156009983B6 /* EsmSignalStore.java in Sources */ = {isa = PBXBuildFile; fileRef = A61D823E1CD14156009983B6 /* EsmSignalStore.java */; };
+		A61D82621CD14156009983B6 /* NonESMSignalGenerator.java in Sources */ = {isa = PBXBuildFile; fileRef = A61D823F1CD14156009983B6 /* NonESMSignalGenerator.java */; };
+		A61D82631CD14156009983B6 /* ExperimentHelper.java in Sources */ = {isa = PBXBuildFile; fileRef = A61D82411CD14156009983B6 /* ExperimentHelper.java */; };
+		A61D82641CD14156009983B6 /* SchedulePrinter.java in Sources */ = {isa = PBXBuildFile; fileRef = A61D82421CD14156009983B6 /* SchedulePrinter.java */; };
+		A61D82651CD14156009983B6 /* TimeUtil.java in Sources */ = {isa = PBXBuildFile; fileRef = A61D82431CD14156009983B6 /* TimeUtil.java */; };
+		A61D82721CD14344009983B6 /* J2ObjcLib.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = A61D82711CD14344009983B6 /* J2ObjcLib.h */; };
+		A61D82741CD14344009983B6 /* J2ObjcLib.m in Sources */ = {isa = PBXBuildFile; fileRef = A61D82731CD14344009983B6 /* J2ObjcLib.m */; };
+		A61D82781CD143DC009983B6 /* ExperimentEditOutcome.java in Sources */ = {isa = PBXBuildFile; fileRef = A61D821F1CD14156009983B6 /* ExperimentEditOutcome.java */; };
+		A61D82791CD143DE009983B6 /* Outcome.java in Sources */ = {isa = PBXBuildFile; fileRef = A61D82201CD14156009983B6 /* Outcome.java */; };
+		A61D827A1CD143E6009983B6 /* ActionTrigger.java in Sources */ = {isa = PBXBuildFile; fileRef = A61D82221CD14156009983B6 /* ActionTrigger.java */; };
+		A61D827B1CD143E6009983B6 /* EventInterface.java in Sources */ = {isa = PBXBuildFile; fileRef = A61D82231CD14156009983B6 /* EventInterface.java */; };
+		A61D827C1CD143E6009983B6 /* EventStore.java in Sources */ = {isa = PBXBuildFile; fileRef = A61D82241CD14156009983B6 /* EventStore.java */; };
+		A61D827D1CD143E6009983B6 /* ExperimentDAO.java in Sources */ = {isa = PBXBuildFile; fileRef = A61D82251CD14156009983B6 /* ExperimentDAO.java */; };
+		A61D827E1CD143E6009983B6 /* ExperimentDAOCore.java in Sources */ = {isa = PBXBuildFile; fileRef = A61D82261CD14156009983B6 /* ExperimentDAOCore.java */; };
+		A61D827F1CD143E6009983B6 /* ExperimentGroup.java in Sources */ = {isa = PBXBuildFile; fileRef = A61D82271CD14156009983B6 /* ExperimentGroup.java */; };
+		A61D82801CD143E6009983B6 /* ExperimentQueryResult.java in Sources */ = {isa = PBXBuildFile; fileRef = A61D82281CD14156009983B6 /* ExperimentQueryResult.java */; };
+		A61D82811CD143E6009983B6 /* ExperimentValidator.java in Sources */ = {isa = PBXBuildFile; fileRef = A61D82291CD14156009983B6 /* ExperimentValidator.java */; };
+		A61D82821CD143E6009983B6 /* Feedback.java in Sources */ = {isa = PBXBuildFile; fileRef = A61D822A1CD14156009983B6 /* Feedback.java */; };
+		A61D82831CD143E6009983B6 /* Input2.java in Sources */ = {isa = PBXBuildFile; fileRef = A61D822B1CD14156009983B6 /* Input2.java */; };
+		A61D82841CD143E6009983B6 /* InterruptCue.java in Sources */ = {isa = PBXBuildFile; fileRef = A61D822C1CD14156009983B6 /* InterruptCue.java */; };
+		A61D82851CD143E6009983B6 /* InterruptTrigger.java in Sources */ = {isa = PBXBuildFile; fileRef = A61D822D1CD14156009983B6 /* InterruptTrigger.java */; };
+		A61D82861CD143E6009983B6 /* ListMaker.java in Sources */ = {isa = PBXBuildFile; fileRef = A61D822E1CD14156009983B6 /* ListMaker.java */; };
+		A61D82871CD143E6009983B6 /* MinimumBufferable.java in Sources */ = {isa = PBXBuildFile; fileRef = A61D822F1CD14156009983B6 /* MinimumBufferable.java */; };
+		A61D82881CD143E6009983B6 /* ModelBase.java in Sources */ = {isa = PBXBuildFile; fileRef = A61D82301CD14156009983B6 /* ModelBase.java */; };
+		A61D82891CD143E6009983B6 /* PacoAction.java in Sources */ = {isa = PBXBuildFile; fileRef = A61D82311CD14156009983B6 /* PacoAction.java */; };
+		A61D828A1CD143E6009983B6 /* PacoActionAllOthers.java in Sources */ = {isa = PBXBuildFile; fileRef = A61D82321CD14156009983B6 /* PacoActionAllOthers.java */; };
+		A61D828B1CD143E6009983B6 /* PacoNotificationAction.java in Sources */ = {isa = PBXBuildFile; fileRef = A61D82331CD14156009983B6 /* PacoNotificationAction.java */; };
+		A61D828C1CD143E6009983B6 /* Schedule.java in Sources */ = {isa = PBXBuildFile; fileRef = A61D82341CD14156009983B6 /* Schedule.java */; };
+		A61D828D1CD143E6009983B6 /* ScheduleTrigger.java in Sources */ = {isa = PBXBuildFile; fileRef = A61D82351CD14156009983B6 /* ScheduleTrigger.java */; };
+		A61D828E1CD143E6009983B6 /* SignalTime.java in Sources */ = {isa = PBXBuildFile; fileRef = A61D82361CD14156009983B6 /* SignalTime.java */; };
+		A61D828F1CD143E6009983B6 /* Validatable.java in Sources */ = {isa = PBXBuildFile; fileRef = A61D82371CD14156009983B6 /* Validatable.java */; };
+		A61D82901CD143E6009983B6 /* ValidationMessage.java in Sources */ = {isa = PBXBuildFile; fileRef = A61D82381CD14156009983B6 /* ValidationMessage.java */; };
+		A61D82911CD143E6009983B6 /* Validator.java in Sources */ = {isa = PBXBuildFile; fileRef = A61D82391CD14156009983B6 /* Validator.java */; };
+		A61D82921CD143F4009983B6 /* ActionScheduleGenerator.java in Sources */ = {isa = PBXBuildFile; fileRef = A61D823B1CD14156009983B6 /* ActionScheduleGenerator.java */; };
+		A61D82931CD143F4009983B6 /* ActionSpecification.java in Sources */ = {isa = PBXBuildFile; fileRef = A61D823C1CD14156009983B6 /* ActionSpecification.java */; };
+		A61D82941CD143F4009983B6 /* EsmGenerator2.java in Sources */ = {isa = PBXBuildFile; fileRef = A61D823D1CD14156009983B6 /* EsmGenerator2.java */; };
+		A61D82951CD143F4009983B6 /* EsmSignalStore.java in Sources */ = {isa = PBXBuildFile; fileRef = A61D823E1CD14156009983B6 /* EsmSignalStore.java */; };
+		A61D82961CD143F4009983B6 /* NonESMSignalGenerator.java in Sources */ = {isa = PBXBuildFile; fileRef = A61D823F1CD14156009983B6 /* NonESMSignalGenerator.java */; };
+		A61D82971CD143FA009983B6 /* ExperimentHelper.java in Sources */ = {isa = PBXBuildFile; fileRef = A61D82411CD14156009983B6 /* ExperimentHelper.java */; };
+		A61D82981CD143FA009983B6 /* SchedulePrinter.java in Sources */ = {isa = PBXBuildFile; fileRef = A61D82421CD14156009983B6 /* SchedulePrinter.java */; };
+		A61D82991CD143FA009983B6 /* TimeUtil.java in Sources */ = {isa = PBXBuildFile; fileRef = A61D82431CD14156009983B6 /* TimeUtil.java */; };
+		A61D829C1CD15A06009983B6 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A61D82181CD14111009983B6 /* Security.framework */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXBuildRule section */
+		A61D82111CD13E88009983B6 /* PBXBuildRule */ = {
+			isa = PBXBuildRule;
+			compilerSpec = com.apple.compilers.proxy.script;
+			fileType = sourcecode.java;
+			isEditable = 1;
+			outputFiles = (
+				"$(DERIVED_FILE_DIR)/${INPUT_FILE_BASE}.h",
+				"$(DERIVED_FILE_DIR)/${INPUT_FILE_BASE}.m",
+			);
+			script = "${J2OBJC_HOME}/dist  -d ${DERIVED_FILE_DIR} -sourcepath ../../Shared/src  --prefixes ../../Shared/j2objcprefixes.properties --no-package-directories -use-arc ${INPUT_FILE_PATH};";
+		};
+		A61D829A1CD157D5009983B6 /* PBXBuildRule */ = {
+			isa = PBXBuildRule;
+			compilerSpec = com.apple.compilers.proxy.script;
+			fileType = sourcecode.java;
+			isEditable = 1;
+			outputFiles = (
+				"$(DERIVED_FILE_DIR)/${INPUT_FILE_BASE}.h",
+				"$(DERIVED_FILE_DIR)/${INPUT_FILE_BASE}.m",
+			);
+			script = "${J2OBJC_HOME}/dist/j2objc -d ${DERIVED_FILE_DIR} -classpath ../../Shared/lib/joda-time-2.9.2.jar -sourcepath ../../Shared/src  --prefixes ../../Shared/j2objcprefixes.properties --no-package-directories -use-arc ${INPUT_FILE_PATH};";
+		};
+/* End PBXBuildRule section */
+
+/* Begin PBXContainerItemProxy section */
+		44BB28EA1D0A567B00680037 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = A6FF59261CDC01D90049A27F /* JodaCompile.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = A605D5DF1C77AA0700770A4E;
+			remoteInfo = JodaCompile;
+		};
+		A6FF592A1CDC01D90049A27F /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = A6FF59261CDC01D90049A27F /* JodaCompile.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = A605D5E01C77AA0700770A4E;
+			remoteInfo = JodaCompile;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		A605CAEE1C778D1E00770A4E /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "include/$(PRODUCT_NAME)";
+			dstSubfolderSpec = 16;
+			files = (
+				A605CAF41C778D1E00770A4E /* J2ObjcLibrary.h in CopyFiles */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A61D826D1CD14344009983B6 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "include/$(PRODUCT_NAME)";
+			dstSubfolderSpec = 16;
+			files = (
+				A61D82721CD14344009983B6 /* J2ObjcLib.h in CopyFiles */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		A605CAF01C778D1E00770A4E /* libJ2ObjcLibrary.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libJ2ObjcLibrary.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		A605CAF31C778D1E00770A4E /* J2ObjcLibrary.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = J2ObjcLibrary.h; sourceTree = "<group>"; };
+		A605CAF51C778D1F00770A4E /* J2ObjcLibrary.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = J2ObjcLibrary.m; sourceTree = "<group>"; };
+		A61D82131CD13F8F009983B6 /* Config.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Config.xcconfig; sourceTree = "<group>"; };
+		A61D82181CD14111009983B6 /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
+		A61D821F1CD14156009983B6 /* ExperimentEditOutcome.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = ExperimentEditOutcome.java; sourceTree = "<group>"; };
+		A61D82201CD14156009983B6 /* Outcome.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = Outcome.java; sourceTree = "<group>"; };
+		A61D82221CD14156009983B6 /* ActionTrigger.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = ActionTrigger.java; sourceTree = "<group>"; };
+		A61D82231CD14156009983B6 /* EventInterface.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = EventInterface.java; sourceTree = "<group>"; };
+		A61D82241CD14156009983B6 /* EventStore.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = EventStore.java; sourceTree = "<group>"; };
+		A61D82251CD14156009983B6 /* ExperimentDAO.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = ExperimentDAO.java; sourceTree = "<group>"; };
+		A61D82261CD14156009983B6 /* ExperimentDAOCore.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = ExperimentDAOCore.java; sourceTree = "<group>"; };
+		A61D82271CD14156009983B6 /* ExperimentGroup.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = ExperimentGroup.java; sourceTree = "<group>"; };
+		A61D82281CD14156009983B6 /* ExperimentQueryResult.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = ExperimentQueryResult.java; sourceTree = "<group>"; };
+		A61D82291CD14156009983B6 /* ExperimentValidator.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = ExperimentValidator.java; sourceTree = "<group>"; };
+		A61D822A1CD14156009983B6 /* Feedback.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = Feedback.java; sourceTree = "<group>"; };
+		A61D822B1CD14156009983B6 /* Input2.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = Input2.java; sourceTree = "<group>"; };
+		A61D822C1CD14156009983B6 /* InterruptCue.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = InterruptCue.java; sourceTree = "<group>"; };
+		A61D822D1CD14156009983B6 /* InterruptTrigger.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = InterruptTrigger.java; sourceTree = "<group>"; };
+		A61D822E1CD14156009983B6 /* ListMaker.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = ListMaker.java; sourceTree = "<group>"; };
+		A61D822F1CD14156009983B6 /* MinimumBufferable.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = MinimumBufferable.java; sourceTree = "<group>"; };
+		A61D82301CD14156009983B6 /* ModelBase.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = ModelBase.java; sourceTree = "<group>"; };
+		A61D82311CD14156009983B6 /* PacoAction.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = PacoAction.java; sourceTree = "<group>"; };
+		A61D82321CD14156009983B6 /* PacoActionAllOthers.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = PacoActionAllOthers.java; sourceTree = "<group>"; };
+		A61D82331CD14156009983B6 /* PacoNotificationAction.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = PacoNotificationAction.java; sourceTree = "<group>"; };
+		A61D82341CD14156009983B6 /* Schedule.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = Schedule.java; sourceTree = "<group>"; };
+		A61D82351CD14156009983B6 /* ScheduleTrigger.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = ScheduleTrigger.java; sourceTree = "<group>"; };
+		A61D82361CD14156009983B6 /* SignalTime.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = SignalTime.java; sourceTree = "<group>"; };
+		A61D82371CD14156009983B6 /* Validatable.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = Validatable.java; sourceTree = "<group>"; };
+		A61D82381CD14156009983B6 /* ValidationMessage.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = ValidationMessage.java; sourceTree = "<group>"; };
+		A61D82391CD14156009983B6 /* Validator.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = Validator.java; sourceTree = "<group>"; };
+		A61D823B1CD14156009983B6 /* ActionScheduleGenerator.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = ActionScheduleGenerator.java; sourceTree = "<group>"; };
+		A61D823C1CD14156009983B6 /* ActionSpecification.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = ActionSpecification.java; sourceTree = "<group>"; };
+		A61D823D1CD14156009983B6 /* EsmGenerator2.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = EsmGenerator2.java; sourceTree = "<group>"; };
+		A61D823E1CD14156009983B6 /* EsmSignalStore.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = EsmSignalStore.java; sourceTree = "<group>"; };
+		A61D823F1CD14156009983B6 /* NonESMSignalGenerator.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = NonESMSignalGenerator.java; sourceTree = "<group>"; };
+		A61D82411CD14156009983B6 /* ExperimentHelper.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = ExperimentHelper.java; sourceTree = "<group>"; };
+		A61D82421CD14156009983B6 /* SchedulePrinter.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = SchedulePrinter.java; sourceTree = "<group>"; };
+		A61D82431CD14156009983B6 /* TimeUtil.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = TimeUtil.java; sourceTree = "<group>"; };
+		A61D826F1CD14344009983B6 /* libJ2ObjcLib.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libJ2ObjcLib.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		A61D82711CD14344009983B6 /* J2ObjcLib.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = J2ObjcLib.h; sourceTree = "<group>"; };
+		A61D82731CD14344009983B6 /* J2ObjcLib.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = J2ObjcLib.m; sourceTree = "<group>"; };
+		A6FF59261CDC01D90049A27F /* JodaCompile.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = JodaCompile.xcodeproj; path = JodaCompile/JodaCompile.xcodeproj; sourceTree = SOURCE_ROOT; };
+		A6FF5CEF1CDD06F10049A27F /* IOSArray.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IOSArray.h; sourceTree = "<group>"; };
+		A6FF5CF01CDD06F10049A27F /* IOSClass.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IOSClass.h; sourceTree = "<group>"; };
+		A6FF5CF11CDD06F10049A27F /* IOSObjectArray.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IOSObjectArray.h; sourceTree = "<group>"; };
+		A6FF5CF21CDD06F10049A27F /* IOSPrimitiveArray.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IOSPrimitiveArray.h; sourceTree = "<group>"; };
+		A6FF5CF31CDD06F10049A27F /* IOSReflection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IOSReflection.h; sourceTree = "<group>"; };
+		A6FF5CF41CDD06F10049A27F /* J2ObjC_common.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = J2ObjC_common.h; sourceTree = "<group>"; };
+		A6FF5CF51CDD06F10049A27F /* J2ObjC_header.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = J2ObjC_header.h; sourceTree = "<group>"; };
+		A6FF5CF61CDD06F10049A27F /* J2ObjC_source.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = J2ObjC_source.h; sourceTree = "<group>"; };
+		A6FF5CF71CDD06F10049A27F /* J2ObjC_types.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = J2ObjC_types.h; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		A605CAED1C778D1E00770A4E /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A61D82191CD14111009983B6 /* Security.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A61D826C1CD14344009983B6 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A61D829C1CD15A06009983B6 /* Security.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		A605CAE71C778D1E00770A4E = {
+			isa = PBXGroup;
+			children = (
+				A6FF59261CDC01D90049A27F /* JodaCompile.xcodeproj */,
+				A6FF5CF81CDD06F10049A27F /* include */,
+				A692884F1D09E771008630D2 /* New Group */,
+				A61D82181CD14111009983B6 /* Security.framework */,
+				A61D82131CD13F8F009983B6 /* Config.xcconfig */,
+				A605CAF21C778D1E00770A4E /* J2ObjcLibrary */,
+				A61D82701CD14344009983B6 /* J2ObjcLib */,
+				A605CAF11C778D1E00770A4E /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		A605CAF11C778D1E00770A4E /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				A605CAF01C778D1E00770A4E /* libJ2ObjcLibrary.a */,
+				A61D826F1CD14344009983B6 /* libJ2ObjcLib.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		A605CAF21C778D1E00770A4E /* J2ObjcLibrary */ = {
+			isa = PBXGroup;
+			children = (
+				A605CAF31C778D1E00770A4E /* J2ObjcLibrary.h */,
+				A605CAF51C778D1F00770A4E /* J2ObjcLibrary.m */,
+			);
+			path = J2ObjcLibrary;
+			sourceTree = "<group>";
+		};
+		A61D821A1CD14156009983B6 /* com */ = {
+			isa = PBXGroup;
+			children = (
+				A61D821B1CD14156009983B6 /* pacoapp */,
+			);
+			name = com;
+			path = ../../Shared/src/com;
+			sourceTree = "<group>";
+		};
+		A61D821B1CD14156009983B6 /* pacoapp */ = {
+			isa = PBXGroup;
+			children = (
+				A61D821C1CD14156009983B6 /* paco */,
+			);
+			path = pacoapp;
+			sourceTree = "<group>";
+		};
+		A61D821C1CD14156009983B6 /* paco */ = {
+			isa = PBXGroup;
+			children = (
+				A61D821D1CD14156009983B6 /* shared */,
+			);
+			path = paco;
+			sourceTree = "<group>";
+		};
+		A61D821D1CD14156009983B6 /* shared */ = {
+			isa = PBXGroup;
+			children = (
+				A61D821E1CD14156009983B6 /* comm */,
+				A61D82211CD14156009983B6 /* model2 */,
+				A61D823A1CD14156009983B6 /* scheduling */,
+				A61D82401CD14156009983B6 /* util */,
+			);
+			path = shared;
+			sourceTree = "<group>";
+		};
+		A61D821E1CD14156009983B6 /* comm */ = {
+			isa = PBXGroup;
+			children = (
+				A61D821F1CD14156009983B6 /* ExperimentEditOutcome.java */,
+				A61D82201CD14156009983B6 /* Outcome.java */,
+			);
+			path = comm;
+			sourceTree = "<group>";
+		};
+		A61D82211CD14156009983B6 /* model2 */ = {
+			isa = PBXGroup;
+			children = (
+				A61D82221CD14156009983B6 /* ActionTrigger.java */,
+				A61D82231CD14156009983B6 /* EventInterface.java */,
+				A61D82241CD14156009983B6 /* EventStore.java */,
+				A61D82251CD14156009983B6 /* ExperimentDAO.java */,
+				A61D82261CD14156009983B6 /* ExperimentDAOCore.java */,
+				A61D82271CD14156009983B6 /* ExperimentGroup.java */,
+				A61D82281CD14156009983B6 /* ExperimentQueryResult.java */,
+				A61D82291CD14156009983B6 /* ExperimentValidator.java */,
+				A61D822A1CD14156009983B6 /* Feedback.java */,
+				A61D822B1CD14156009983B6 /* Input2.java */,
+				A61D822C1CD14156009983B6 /* InterruptCue.java */,
+				A61D822D1CD14156009983B6 /* InterruptTrigger.java */,
+				A61D822E1CD14156009983B6 /* ListMaker.java */,
+				A61D822F1CD14156009983B6 /* MinimumBufferable.java */,
+				A61D82301CD14156009983B6 /* ModelBase.java */,
+				A61D82311CD14156009983B6 /* PacoAction.java */,
+				A61D82321CD14156009983B6 /* PacoActionAllOthers.java */,
+				A61D82331CD14156009983B6 /* PacoNotificationAction.java */,
+				A61D82341CD14156009983B6 /* Schedule.java */,
+				A61D82351CD14156009983B6 /* ScheduleTrigger.java */,
+				A61D82361CD14156009983B6 /* SignalTime.java */,
+				A61D82371CD14156009983B6 /* Validatable.java */,
+				A61D82381CD14156009983B6 /* ValidationMessage.java */,
+				A61D82391CD14156009983B6 /* Validator.java */,
+			);
+			path = model2;
+			sourceTree = "<group>";
+		};
+		A61D823A1CD14156009983B6 /* scheduling */ = {
+			isa = PBXGroup;
+			children = (
+				A61D823B1CD14156009983B6 /* ActionScheduleGenerator.java */,
+				A61D823C1CD14156009983B6 /* ActionSpecification.java */,
+				A61D823D1CD14156009983B6 /* EsmGenerator2.java */,
+				A61D823E1CD14156009983B6 /* EsmSignalStore.java */,
+				A61D823F1CD14156009983B6 /* NonESMSignalGenerator.java */,
+			);
+			path = scheduling;
+			sourceTree = "<group>";
+		};
+		A61D82401CD14156009983B6 /* util */ = {
+			isa = PBXGroup;
+			children = (
+				A61D82411CD14156009983B6 /* ExperimentHelper.java */,
+				A61D82421CD14156009983B6 /* SchedulePrinter.java */,
+				A61D82431CD14156009983B6 /* TimeUtil.java */,
+			);
+			path = util;
+			sourceTree = "<group>";
+		};
+		A61D82701CD14344009983B6 /* J2ObjcLib */ = {
+			isa = PBXGroup;
+			children = (
+				A61D82711CD14344009983B6 /* J2ObjcLib.h */,
+				A61D82731CD14344009983B6 /* J2ObjcLib.m */,
+			);
+			path = J2ObjcLib;
+			sourceTree = "<group>";
+		};
+		A692884F1D09E771008630D2 /* New Group */ = {
+			isa = PBXGroup;
+			children = (
+				A61D821A1CD14156009983B6 /* com */,
+			);
+			name = "New Group";
+			sourceTree = "<group>";
+		};
+		A6FF59271CDC01D90049A27F /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				A6FF592B1CDC01D90049A27F /* libJodaCompile.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		A6FF5CF81CDD06F10049A27F /* include */ = {
+			isa = PBXGroup;
+			children = (
+				A6FF5CEF1CDD06F10049A27F /* IOSArray.h */,
+				A6FF5CF01CDD06F10049A27F /* IOSClass.h */,
+				A6FF5CF11CDD06F10049A27F /* IOSObjectArray.h */,
+				A6FF5CF21CDD06F10049A27F /* IOSPrimitiveArray.h */,
+				A6FF5CF31CDD06F10049A27F /* IOSReflection.h */,
+				A6FF5CF41CDD06F10049A27F /* J2ObjC_common.h */,
+				A6FF5CF51CDD06F10049A27F /* J2ObjC_header.h */,
+				A6FF5CF61CDD06F10049A27F /* J2ObjC_source.h */,
+				A6FF5CF71CDD06F10049A27F /* J2ObjC_types.h */,
+			);
+			name = include;
+			path = ..;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		A605CAEF1C778D1E00770A4E /* J2ObjcLibrary */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A605CAF91C778D1F00770A4E /* Build configuration list for PBXNativeTarget "J2ObjcLibrary" */;
+			buildPhases = (
+				A605CAEC1C778D1E00770A4E /* Sources */,
+				A605CAED1C778D1E00770A4E /* Frameworks */,
+				A605CAEE1C778D1E00770A4E /* CopyFiles */,
+			);
+			buildRules = (
+				A61D82111CD13E88009983B6 /* PBXBuildRule */,
+			);
+			dependencies = (
+			);
+			name = J2ObjcLibrary;
+			productName = J2ObjcLibrary;
+			productReference = A605CAF01C778D1E00770A4E /* libJ2ObjcLibrary.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+		A61D826E1CD14344009983B6 /* J2ObjcLib */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A61D82771CD14344009983B6 /* Build configuration list for PBXNativeTarget "J2ObjcLib" */;
+			buildPhases = (
+				A61D826B1CD14344009983B6 /* Sources */,
+				A61D826C1CD14344009983B6 /* Frameworks */,
+				A61D826D1CD14344009983B6 /* CopyFiles */,
+			);
+			buildRules = (
+				A61D829A1CD157D5009983B6 /* PBXBuildRule */,
+			);
+			dependencies = (
+				44BB28EB1D0A567B00680037 /* PBXTargetDependency */,
+			);
+			name = J2ObjcLib;
+			productName = J2ObjcLib;
+			productReference = A61D826F1CD14344009983B6 /* libJ2ObjcLib.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		A605CAE81C778D1E00770A4E /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0720;
+				ORGANIZATIONNAME = "Northrop O'brien";
+				TargetAttributes = {
+					A605CAEF1C778D1E00770A4E = {
+						CreatedOnToolsVersion = 7.2.1;
+					};
+					A61D826E1CD14344009983B6 = {
+						CreatedOnToolsVersion = 7.2.1;
+					};
+				};
+			};
+			buildConfigurationList = A605CAEB1C778D1E00770A4E /* Build configuration list for PBXProject "J2ObjcLibrary" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = A605CAE71C778D1E00770A4E;
+			productRefGroup = A605CAF11C778D1E00770A4E /* Products */;
+			projectDirPath = "";
+			projectReferences = (
+				{
+					ProductGroup = A6FF59271CDC01D90049A27F /* Products */;
+					ProjectRef = A6FF59261CDC01D90049A27F /* JodaCompile.xcodeproj */;
+				},
+			);
+			projectRoot = "";
+			targets = (
+				A605CAEF1C778D1E00770A4E /* J2ObjcLibrary */,
+				A61D826E1CD14344009983B6 /* J2ObjcLib */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXReferenceProxy section */
+		A6FF592B1CDC01D90049A27F /* libJodaCompile.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libJodaCompile.a;
+			remoteRef = A6FF592A1CDC01D90049A27F /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+/* End PBXReferenceProxy section */
+
+/* Begin PBXSourcesBuildPhase section */
+		A605CAEC1C778D1E00770A4E /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A61D82461CD14156009983B6 /* ActionTrigger.java in Sources */,
+				A61D82491CD14156009983B6 /* ExperimentDAO.java in Sources */,
+				A61D82451CD14156009983B6 /* Outcome.java in Sources */,
+				A61D82561CD14156009983B6 /* PacoActionAllOthers.java in Sources */,
+				A61D825A1CD14156009983B6 /* SignalTime.java in Sources */,
+				A61D824D1CD14156009983B6 /* ExperimentValidator.java in Sources */,
+				A61D82541CD14156009983B6 /* ModelBase.java in Sources */,
+				A61D824B1CD14156009983B6 /* ExperimentGroup.java in Sources */,
+				A61D824C1CD14156009983B6 /* ExperimentQueryResult.java in Sources */,
+				A61D82581CD14156009983B6 /* Schedule.java in Sources */,
+				A61D82591CD14156009983B6 /* ScheduleTrigger.java in Sources */,
+				A61D82471CD14156009983B6 /* EventInterface.java in Sources */,
+				A61D825C1CD14156009983B6 /* ValidationMessage.java in Sources */,
+				A61D824A1CD14156009983B6 /* ExperimentDAOCore.java in Sources */,
+				A605CAF61C778D1F00770A4E /* J2ObjcLibrary.m in Sources */,
+				A61D825F1CD14156009983B6 /* ActionSpecification.java in Sources */,
+				A61D82601CD14156009983B6 /* EsmGenerator2.java in Sources */,
+				A61D82651CD14156009983B6 /* TimeUtil.java in Sources */,
+				A61D82571CD14156009983B6 /* PacoNotificationAction.java in Sources */,
+				A61D82481CD14156009983B6 /* EventStore.java in Sources */,
+				A61D82641CD14156009983B6 /* SchedulePrinter.java in Sources */,
+				A61D82521CD14156009983B6 /* ListMaker.java in Sources */,
+				A61D825E1CD14156009983B6 /* ActionScheduleGenerator.java in Sources */,
+				A61D82551CD14156009983B6 /* PacoAction.java in Sources */,
+				A61D824F1CD14156009983B6 /* Input2.java in Sources */,
+				A61D825B1CD14156009983B6 /* Validatable.java in Sources */,
+				A61D82531CD14156009983B6 /* MinimumBufferable.java in Sources */,
+				A61D824E1CD14156009983B6 /* Feedback.java in Sources */,
+				A61D82441CD14156009983B6 /* ExperimentEditOutcome.java in Sources */,
+				A61D82611CD14156009983B6 /* EsmSignalStore.java in Sources */,
+				A61D82511CD14156009983B6 /* InterruptTrigger.java in Sources */,
+				A61D82501CD14156009983B6 /* InterruptCue.java in Sources */,
+				A61D82631CD14156009983B6 /* ExperimentHelper.java in Sources */,
+				A61D825D1CD14156009983B6 /* Validator.java in Sources */,
+				A61D82621CD14156009983B6 /* NonESMSignalGenerator.java in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A61D826B1CD14344009983B6 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A61D827A1CD143E6009983B6 /* ActionTrigger.java in Sources */,
+				A61D827D1CD143E6009983B6 /* ExperimentDAO.java in Sources */,
+				A61D82791CD143DE009983B6 /* Outcome.java in Sources */,
+				A61D828A1CD143E6009983B6 /* PacoActionAllOthers.java in Sources */,
+				A61D828E1CD143E6009983B6 /* SignalTime.java in Sources */,
+				A61D82811CD143E6009983B6 /* ExperimentValidator.java in Sources */,
+				A61D82881CD143E6009983B6 /* ModelBase.java in Sources */,
+				A61D827F1CD143E6009983B6 /* ExperimentGroup.java in Sources */,
+				A61D82801CD143E6009983B6 /* ExperimentQueryResult.java in Sources */,
+				A61D828C1CD143E6009983B6 /* Schedule.java in Sources */,
+				A61D828D1CD143E6009983B6 /* ScheduleTrigger.java in Sources */,
+				A61D827B1CD143E6009983B6 /* EventInterface.java in Sources */,
+				A61D82901CD143E6009983B6 /* ValidationMessage.java in Sources */,
+				A61D827E1CD143E6009983B6 /* ExperimentDAOCore.java in Sources */,
+				A61D82741CD14344009983B6 /* J2ObjcLib.m in Sources */,
+				A61D82931CD143F4009983B6 /* ActionSpecification.java in Sources */,
+				A61D82941CD143F4009983B6 /* EsmGenerator2.java in Sources */,
+				A61D82991CD143FA009983B6 /* TimeUtil.java in Sources */,
+				A61D828B1CD143E6009983B6 /* PacoNotificationAction.java in Sources */,
+				A61D827C1CD143E6009983B6 /* EventStore.java in Sources */,
+				A61D82981CD143FA009983B6 /* SchedulePrinter.java in Sources */,
+				A61D82861CD143E6009983B6 /* ListMaker.java in Sources */,
+				A61D82921CD143F4009983B6 /* ActionScheduleGenerator.java in Sources */,
+				A61D82891CD143E6009983B6 /* PacoAction.java in Sources */,
+				A61D82831CD143E6009983B6 /* Input2.java in Sources */,
+				A61D828F1CD143E6009983B6 /* Validatable.java in Sources */,
+				A61D82871CD143E6009983B6 /* MinimumBufferable.java in Sources */,
+				A61D82821CD143E6009983B6 /* Feedback.java in Sources */,
+				A61D82781CD143DC009983B6 /* ExperimentEditOutcome.java in Sources */,
+				A61D82951CD143F4009983B6 /* EsmSignalStore.java in Sources */,
+				A61D82851CD143E6009983B6 /* InterruptTrigger.java in Sources */,
+				A61D82841CD143E6009983B6 /* InterruptCue.java in Sources */,
+				A61D82971CD143FA009983B6 /* ExperimentHelper.java in Sources */,
+				A61D82911CD143E6009983B6 /* Validator.java in Sources */,
+				A61D82961CD143F4009983B6 /* NonESMSignalGenerator.java in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		44BB28EB1D0A567B00680037 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = JodaCompile;
+			targetProxy = 44BB28EA1D0A567B00680037 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		A605CAF71C778D1F00770A4E /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.2;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				USER_HEADER_SEARCH_PATHS = ../JodaCompile/JodaCompile;
+			};
+			name = Debug;
+		};
+		A605CAF81C778D1F00770A4E /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.2;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				SDKROOT = iphoneos;
+				USER_HEADER_SEARCH_PATHS = ../JodaCompile/JodaCompile;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		A605CAFA1C778D1F00770A4E /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)",
+				);
+				HEADER_SEARCH_PATHS = "../JodaCompile/JodaCompile/**";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)",
+					"${J2OBJC_HOME}/lib",
+				);
+				OTHER_LDFLAGS = "-ljire_emul";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				USER_HEADER_SEARCH_PATHS = "../../../j2objc/include ../JodaCompile/JodaCompile/**";
+			};
+			name = Debug;
+		};
+		A605CAFB1C778D1F00770A4E /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)",
+				);
+				HEADER_SEARCH_PATHS = "../JodaCompile/JodaCompile/**";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)",
+					"${J2OBJC_HOME}/lib",
+				);
+				OTHER_LDFLAGS = "-ljire_emul";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				USER_HEADER_SEARCH_PATHS = "../../../j2objc/include ../JodaCompile/JodaCompile/**";
+			};
+			name = Release;
+		};
+		A61D82751CD14344009983B6 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = A61D82131CD13F8F009983B6 /* Config.xcconfig */;
+			buildSettings = {
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)",
+					"${J2OBJC_HOME}/dist/frameworks",
+				);
+				HEADER_SEARCH_PATHS = (
+					"${J2OBJC_HOME}/dist/include",
+					"JodaCompile/JodaCompile/**",
+				);
+				LIBRARY_SEARCH_PATHS = (
+					"$(PROJECT_DIR)",
+					"${J2OBJC_HOME}/dist/lib",
+				);
+				ONLY_ACTIVE_ARCH = NO;
+				OTHER_LDFLAGS = "-ljre_emul";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				USER_HEADER_SEARCH_PATHS = "${J2OBJC_HOME}/include ${DERIVED_FILES_DIR} ../JodaCompile/JodaCompile";
+			};
+			name = Debug;
+		};
+		A61D82761CD14344009983B6 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = A61D82131CD13F8F009983B6 /* Config.xcconfig */;
+			buildSettings = {
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)",
+					"${J2OBJC_HOME}/dist/frameworks",
+				);
+				HEADER_SEARCH_PATHS = (
+					"${J2OBJC_HOME}/dist/include",
+					"JodaCompile/JodaCompile/**",
+				);
+				LIBRARY_SEARCH_PATHS = (
+					"$(PROJECT_DIR)",
+					"${J2OBJC_HOME}/dist/lib",
+				);
+				ONLY_ACTIVE_ARCH = NO;
+				OTHER_LDFLAGS = "-ljre_emul";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				USER_HEADER_SEARCH_PATHS = "${J2OBJC_HOME}/include ${DERIVED_FILES_DIR} ../JodaCompile/JodaCompile";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		A605CAEB1C778D1E00770A4E /* Build configuration list for PBXProject "J2ObjcLibrary" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A605CAF71C778D1F00770A4E /* Debug */,
+				A605CAF81C778D1F00770A4E /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		A605CAF91C778D1F00770A4E /* Build configuration list for PBXNativeTarget "J2ObjcLibrary" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A605CAFA1C778D1F00770A4E /* Debug */,
+				A605CAFB1C778D1F00770A4E /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		A61D82771CD14344009983B6 /* Build configuration list for PBXNativeTarget "J2ObjcLib" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A61D82751CD14344009983B6 /* Debug */,
+				A61D82761CD14344009983B6 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = A605CAE81C778D1E00770A4E /* Project object */;
+}

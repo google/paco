@@ -153,6 +153,9 @@ static NSString *const kCallbackError = @"error";
   self = [super init];
   if (self) {
     request_ = [request mutableCopy];
+      
+      
+      
 
     if (gGTMFetcherStaticCookieStorage != nil) {
       // The user has compiled with the cookie storage class available;
@@ -277,7 +280,8 @@ static NSString *const kCallbackError = @"error";
     NSAssert(request_ != nil, @"beginFetchWithDelegate requires a request with a URL");
     goto CannotBeginFetch;
   }
-
+// ALLOW INSECURE REQUESTS //
+    
 #if !GTM_ALLOW_INSECURE_REQUESTS
   if (requestURL != nil) {
     // Allow https only for requests, unless overridden by the client.
@@ -289,6 +293,8 @@ static NSString *const kCallbackError = @"error";
     // explicitly whitelist them.
     NSString *requestScheme = [requestURL scheme];
     BOOL isSecure = ([requestScheme caseInsensitiveCompare:@"https"] == NSOrderedSame);
+      
+       
     if (!isSecure) {
       BOOL allowRequest = NO;
       NSString *host = [requestURL host];
@@ -309,6 +315,8 @@ static NSString *const kCallbackError = @"error";
 #endif
         }
       } else {
+          
+          
         // Not localhost; check schemes.
         for (NSString *allowedScheme in allowedInsecureSchemes_) {
           if ([requestScheme caseInsensitiveCompare:allowedScheme] == NSOrderedSame) {
@@ -316,6 +324,8 @@ static NSString *const kCallbackError = @"error";
             break;
           }
         }
+          
+        allowRequest=YES;
         if (!allowRequest) {
           // To make a request other than https:, the client must specify an array for the
           // allowedInsecureSchemes property.

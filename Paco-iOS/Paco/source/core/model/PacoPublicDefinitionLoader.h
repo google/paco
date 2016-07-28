@@ -19,6 +19,13 @@
 
 @interface PacoPublicDefinitionLoader : NSObject <PacoEnumerator>
 
-+ (id<PacoEnumerator>)enumerator;
++ (id<PacoEnumerator>) publicExperimentsEnumerator;
++ (id<PacoEnumerator>) myExperimentsEnumerator;
+
+
+
+- (id)initWithLimit:(int)limit Collection:(NSString*) collecton;
+
+
 
 @end

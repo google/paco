@@ -1,0 +1,21 @@
+//
+//  PacoEventUtil.h
+//  Paco
+//
+//  Created by Timo on 10/28/15.
+//  Copyright (c) 2015 Paco. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+#import <UIKit/UIKit.h>
+
+
+
+@class PAExperimentDAO;
+
+@interface PacoScheduleUtil : NSObject
+
++(NSString*) buildScheduleString:(PAExperimentDAO*) experiment;
+
+
+@end

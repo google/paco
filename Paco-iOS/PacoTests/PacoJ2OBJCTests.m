@@ -2,7 +2,7 @@
 //  PacoJ2OBJCTests.m
 //  Paco
 //
-//  Created by northropo on 7/20/15.
+//  Authored by  Tim N. O'Brien on 7/20/15.
 //  Copyright (c) 2015 Paco. All rights reserved.
 //
 
@@ -74,70 +74,15 @@
 
 
 
-
--(void) testRemanemMethod
-{
-       JavaUtilArrayList * arrayList = [[ JavaUtilArrayList alloc] initWithInt:20];
-       PAExperimentGroup   * group = [[PAExperimentGroup alloc] init];
-    
-   
-    
-        Ivar ivar = class_getInstanceVariable( [group class] , "logActions_");
-        NSString * ivarName = [NSString stringWithCString:ivar_getName(ivar) encoding:NSUTF8StringEncoding];
-        NSString * ivarType = [NSString stringWithCString:ivar_getTypeEncoding(ivar)  encoding:NSUTF8StringEncoding];
-    
-    //object_setIvar(id obj, Ivar ivar, id value)
-    
-    JavaLangBoolean * b = [[JavaLangBoolean alloc] initWithBoolean:TRUE];
-    
-    object_setIvar(group,ivar,b);
-    
-    
-    NSLog(@"stop");
-    
-      JavaLangBoolean * f = [[JavaLangBoolean alloc] initWithBoolean:FALSE];
-    object_setIvar(group,ivar,f);
-    
-      NSLog(@"stop");
-    
-    
-    
-    //
-   // [eGroup setValue:arrayList forKey:@"groupsWithJavaUtilList"];
-    
-    
-   
-    
-}
-
-
-
-/*-(void) testUsingModels
-{
-    
-    PAExperimentDAOCore  * experiment = [PAExperimentDAOCore new];
-    
-  
-    [experiment getCreator];
-    [experiment  validateWithWithPAValidator:(id<PAValidator>)
-    
-    
-    
-}*/
-
-
 -(void) testDayIncrement
 {
     
     OrgJodaTimeDateTime *startDate = [[OrgJodaTimeDateTime alloc] initWithInt:2012 withInt:3 withInt:23 withInt:0 withInt:0 withInt:0 withInt:0];
  
     OrgJodaTimeDateTime * newTime  = [startDate plusDaysWithInt:1];
-    
     long mills = [startDate getMillis];
     long mills2 = [newTime getMillis];
-    
-    
-    
+
     NSLog(@"mills %li", mills2-mills);
     
     
@@ -148,10 +93,7 @@
 {
     
     OrgJodaTimeDateTime *startDate = [[OrgJodaTimeDateTime alloc] initWithInt:2010 withInt:12 withInt:20 withInt:0 withInt:0 withInt:0 withInt:0];
-    
-    
-    
-    
+
     OrgJodaTimeHours * hours        = [OrgJodaTimeHours hoursWithInt:17];
     OrgJodaTimeDuration * duration  = [hours toStandardDuration];
     long endHourMIlls               = [duration  getStandardSeconds]*1000;

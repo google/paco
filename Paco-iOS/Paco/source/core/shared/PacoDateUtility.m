@@ -15,9 +15,9 @@
 
 #import "PacoDateUtility.h"
 
-#import "PacoModel.h"
+
 #import "PacoExperimentSchedule.h"
-#import "PacoExperiment.h"
+ 
 
 @implementation PacoDateUtility
 
@@ -29,8 +29,11 @@
   
   static dispatch_once_t onceToken;
   dispatch_once(&onceToken, ^{
+      
     dateFormatter = [[NSDateFormatter alloc] init];
-    [dateFormatter setDateFormat:@"yyyy/MM/dd HH:mm:ssZ"];
+    [dateFormatter setDateFormat:@"yyyy/MM/dd HH:mm:ssZZZZZ"];
+      
+      
   });
   
   return dateFormatter;

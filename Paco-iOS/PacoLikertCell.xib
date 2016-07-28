@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="7706" systemVersion="14F27" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES">
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="7703"/>
+    </dependencies>
+    <customFonts key="customFonts">
+        <mutableArray key="Roboto-Medium.ttf">
+            <string>Roboto-Medium</string>
+        </mutableArray>
+    </customFonts>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <tableViewCell contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" rowHeight="70" id="KGk-i7-Jjw" customClass="PacoLikertCell" customModule="Paco" customModuleProvider="target">
+            <rect key="frame" x="0.0" y="0.0" width="321" height="70"/>
+            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+            <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="KGk-i7-Jjw" id="H2p-sc-9uM">
+                <rect key="frame" x="0.0" y="0.0" width="320" height="43"/>
+                <autoresizingMask key="autoresizingMask"/>
+                <subviews>
+                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" misplaced="YES" text="Label" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="2" baselineAdjustment="alignBaselines" minimumFontSize="6" translatesAutoresizingMaskIntoConstraints="NO" id="tEc-b2-vvw">
+                        <rect key="frame" x="0.0" y="2" width="323" height="26"/>
+                        <constraints>
+                            <constraint firstAttribute="height" constant="40" id="GDX-ve-A8m"/>
+                        </constraints>
+                        <fontDescription key="fontDescription" name="Roboto-Medium" family="Roboto" pointSize="11"/>
+                        <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
+                        <nil key="highlightedColor"/>
+                    </label>
+                </subviews>
+                <constraints>
+                    <constraint firstItem="tEc-b2-vvw" firstAttribute="leading" secondItem="H2p-sc-9uM" secondAttribute="leading" id="CF6-kY-F3Y"/>
+                    <constraint firstAttribute="trailing" secondItem="tEc-b2-vvw" secondAttribute="trailing" id="OiF-ka-Vav"/>
+                    <constraint firstItem="tEc-b2-vvw" firstAttribute="top" secondItem="H2p-sc-9uM" secondAttribute="top" constant="2" id="mYs-yY-Yx9"/>
+                </constraints>
+            </tableViewCellContentView>
+            <connections>
+                <outlet property="likertLabel" destination="tEc-b2-vvw" id="XmP-w3-QEy"/>
+            </connections>
+            <point key="canvasLocation" x="233.5" y="318"/>
+        </tableViewCell>
+    </objects>
+</document>

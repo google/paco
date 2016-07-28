@@ -1,0 +1,8 @@
+//
+//  Config.xcconfig
+//  Paco
+//
+//  Created by Northrop O'brien on 4/28/16.
+//  Copyright © 2016 Paco. All rights reserved.
+//
+J2OBJC_HOME = ${PROJECT_DIR}/../../j2objc

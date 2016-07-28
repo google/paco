@@ -15,33 +15,53 @@
 
 #import "PacoPublicDefinitionLoader.h"
 #import "PacoEnumerator.h"
-#import "PacoClient.h"
 #import "PacoService.h"
+#import "PacoNetwork.h"
 
 
+NSString * const PublicExperimentsID = @"/experiments?public";
+NSString * const MyxperimentsID = @"experiments?mine";
 
 @interface PacoPublicDefinitionLoader ()
 
 @property(nonatomic, strong) PacoEnumerator* enumerator;
+@property(nonatomic, strong) NSString* collectionID;
 
 @end
 
 
 @implementation PacoPublicDefinitionLoader
 
-- (id)initWithLimit:(int)limit {
+- (id)initWithLimit:(int)limit Collection:(NSString*) collectonID  {
+    
   self = [super init];
   if (self) {
-    _enumerator = [[PacoEnumerator alloc] initWithLimit:limit];
+      
+      self.collectionID=collectonID;
+     _enumerator = [[PacoEnumerator alloc] initWithLimit:limit];
+      
   }
   return self;
 }
 
-+ (id<PacoEnumerator>)enumerator {
-  PacoPublicDefinitionLoader* loader = [[PacoPublicDefinitionLoader alloc] initWithLimit:0];
++ (id<PacoEnumerator>)enumeratorWithFetchLimit:(int) limit Collection:(NSString*) collection {
+  PacoPublicDefinitionLoader* loader = [[PacoPublicDefinitionLoader alloc] initWithLimit:0 Collection:collection];
   return loader;
 }
 
++ (id<PacoEnumerator>) publicExperimentsEnumerator {
+    
+    PacoPublicDefinitionLoader* loader =
+            [[PacoPublicDefinitionLoader alloc] initWithLimit:0 Collection:PublicExperimentsID];
+    return loader;
+}
+
++ (id<PacoEnumerator>) myExperimentsEnumerator {
+ 
+    PacoPublicDefinitionLoader* loader =
+    [[PacoPublicDefinitionLoader alloc] initWithLimit:0 Collection:PublicExperimentsID];
+    return loader;
+}
 
 #pragma mark PacoEnumerator protocol
 - (BOOL)hasMoreItems {
@@ -54,19 +74,26 @@
     return;
   }
   
-  void(^responseBlock)(NSArray*, NSString*, NSError*) = ^(NSArray* items, NSString* cursor, NSError* error){
+  void(^responseBlock)(NSDictionary*, NSString*, NSError*) = ^(NSDictionary* items, NSString* cursor, NSError* error){
     if (!error) {
-      [self.enumerator updateCursor:cursor numOfResults:(int)[items count]];
-      block(items, nil);
+        [self.enumerator updateCursor:items[@"cursor"] numOfResults:(int)[items[@"results"] count]];
+      block(items[@"results"], nil);
     } else {
       block(nil, error);
     }
   };
 
-  [[PacoClient sharedInstance].service loadPublicDefinitionListWithCursor:self.enumerator.cursor
+    [[PacoNetwork sharedInstance].service loadPublicDefinitionListWithCursorAndEndpoint:self.collectionID cursor:self.enumerator.cursor
                                                                     limit:self.enumerator.limit
                                                                     block:responseBlock];
 }
+
+/*
+ 
+ 
+ 
+ - (void)loadPublicDefinitionListWithCursorAndEndpoint:(NSString*) endPoint cursor:(NSString*)cursor   limit:(NSUInteger)limit block:(PacoPaginatedResponseBlock)block;
+ */
 
 
 @end

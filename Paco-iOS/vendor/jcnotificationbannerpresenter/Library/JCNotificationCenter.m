@@ -79,6 +79,13 @@
   return notification;
 }
 
+
+/*
+ 
+ appears to be used to prevent multiple alerts being show at the same time.
+ 
+ 
+ */
 - (void) beginPresentingNotifications {
   dispatch_async(dispatch_get_main_queue(), ^{
     if ([isPresentingMutex tryLock]) {
@@ -110,7 +117,7 @@
     }
   });
 }
-
+/* release mutex to allow another notificaiton */
 - (void) donePresentingNotification:(JCNotificationBanner*)notification {
   // Process any notifications enqueued during this one's presentation.
   [isPresentingMutex unlock];
@@ -124,5 +131,8 @@
 - (JCNotificationBannerPresenter*) presenter {
   return _nextPresenter;
 }
+
+
+
 
 @end

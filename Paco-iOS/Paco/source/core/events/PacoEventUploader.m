@@ -15,12 +15,13 @@
 
 #import "PacoEventUploader.h"
 #import "Reachability.h"
-#import "PacoClient.h"
+#import "PacoExtendedClient.h"
 #import "PacoService.h"
 #import "NSError+Paco.h"
 #import "NSString+Paco.h"
-#import "PacoEvent.h"
+#import "PacoEventExtended.h"
 #import "UIImage+Paco.h"
+#import "PacoNetwork.h" 
 
 static int const kMaxNumOfEventsToUpload = 50;
 
@@ -48,7 +49,7 @@ static int const kMaxNumOfEventsToUpload = 50;
 
 - (void)uploadEvents {
   @synchronized(self) {
-    if (![[PacoClient sharedInstance].reachability isReachable]) {
+    if (![[PacoNetwork sharedInstance].reachability isReachable]) {
       DDLogWarn(@"[Reachable]: Offline Now, won't upload events.");
       if (self.completionBlock) {
         self.completionBlock(NO);
@@ -92,6 +93,7 @@ static int const kMaxNumOfEventsToUpload = 50;
           DDLogError(@"[Error]%lu events successfully uploaded, %lu events failed!",
                      (unsigned long)[successEventIndexes count], (unsigned long)([events count] - [successEventIndexes count]));
         } else {
+            
           DDLogInfo(@"%lu events successfully uploaded!", (unsigned long)[successEventIndexes count]);
         }
         
@@ -111,11 +113,12 @@ static int const kMaxNumOfEventsToUpload = 50;
         BOOL success = (numOfSuccessUploading > 0) ? YES : NO;
         if (self.completionBlock) {
           self.completionBlock(success);
+       
         }
       }
     };
     
-    [[PacoClient sharedInstance].service submitEventList:events
+    [[PacoNetwork sharedInstance].service submitEventList:events
                                      withCompletionBlock:finalBlock];
     
     start += size;
@@ -126,6 +129,9 @@ static int const kMaxNumOfEventsToUpload = 50;
 
 
 #pragma mark Public API
+
+
+
 - (void)startUploadingWithBlock:(UploadCompletionBlock)completionBlock {
   @synchronized(self) {
     if (self.isWorking) {

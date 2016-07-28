@@ -14,10 +14,10 @@
  */
 
 #import "NSMutableArray+Paco.h"
-#import "UILocalNotification+Paco.h"
+#import "UILocalNotification+PacoExteded.h"
 #import "PacoDateUtility.h"
 #import "NSDate+Paco.h"
-#import "PacoClient.h"
+
 
 @implementation NSMutableArray (Paco)
 
@@ -39,8 +39,8 @@
              [second isKindOfClass:[UILocalNotification class]],
              @"obj1 and obj2 should be UILocalNotification");
     
-    NSDate* firstFireDate = [first pacoFireDate];
-    NSDate* secondFireDate = [second pacoFireDate];
+    NSDate* firstFireDate = [first pacoFireDateExt];
+    NSDate* secondFireDate = [second pacoFireDateExt];
     NSAssert(firstFireDate && secondFireDate, @"fire date should be valid");
     return [firstFireDate compare:secondFireDate];
   }];
@@ -67,15 +67,15 @@
              [current isKindOfClass:[UILocalNotification class]],
              @"all elements should be UILocalNotification object");
     
-    NSDate* prevFireDate = [prev pacoFireDate];
-    NSDate* currentFireDate = [current pacoFireDate];
+    NSDate* prevFireDate = [prev pacoFireDateExt];
+    NSDate* currentFireDate = [current pacoFireDateExt];
     NSAssert([prevFireDate pacoNoLaterThanDate:currentFireDate],
              @"previous should be earlier than or equal to current after sorting");
     if (![currentFireDate isEqualToDate:prevFireDate]) {
       [nonDuplicateArray addObject:current];
       prevIndex = currentIndex;
     } else {
-      DDLogError(@"Error: duplicate notification date: %@", [PacoDateUtility pacoStringForDate:currentFireDate]);
+ 
     }
     currentIndex++;
   }
@@ -160,7 +160,7 @@
   for (id object in self) {
     UILocalNotification* notification = (UILocalNotification*)object;
     NSAssert([notification isKindOfClass:[UILocalNotification class]], @"every element should be UILocalNotification");
-    descript = [descript stringByAppendingString:[notification pacoDescription]];
+    descript = [descript stringByAppendingString:[notification pacoDescriptionExt]];
     descript = [descript stringByAppendingString:@"\n"];
   }
   descript = [descript stringByAppendingString:@")"];

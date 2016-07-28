@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="10117" systemVersion="15F34" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES">
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="10085"/>
+    </dependencies>
+    <customFonts key="customFonts">
+        <mutableArray key="Roboto-Light.ttf">
+            <string>Roboto-Light</string>
+        </mutableArray>
+        <mutableArray key="Roboto-Medium.ttf">
+            <string>Roboto-Medium</string>
+        </mutableArray>
+    </customFonts>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <tableViewCell contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" rowHeight="80" id="KGk-i7-Jjw" customClass="PacoMyExpermementTitleCellTableViewCell" customModule="Paco" customModuleProvider="target">
+            <rect key="frame" x="0.0" y="0.0" width="316" height="70"/>
+            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+            <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="KGk-i7-Jjw" id="H2p-sc-9uM">
+                <rect key="frame" x="0.0" y="0.0" width="316" height="69.5"/>
+                <autoresizingMask key="autoresizingMask"/>
+                <subviews>
+                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" lineBreakMode="tailTruncation" numberOfLines="3" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="pvT-9n-7Fu">
+                        <rect key="frame" x="19" y="30" width="278" height="0.0"/>
+                        <fontDescription key="fontDescription" name="Roboto-Medium" family="Roboto" pointSize="12"/>
+                        <color key="textColor" red="0.12941176469999999" green="0.58823529409999997" blue="0.95294117649999999" alpha="1" colorSpace="calibratedRGB"/>
+                        <color key="highlightedColor" red="0.12941176469999999" green="0.58823529409999997" blue="0.95294117649999999" alpha="1" colorSpace="calibratedRGB"/>
+                    </label>
+                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" ambiguous="YES" text=" " lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="RBf-6W-6Sk">
+                        <rect key="frame" x="19" y="50" width="292" height="16"/>
+                        <constraints>
+                            <constraint firstAttribute="height" constant="16" id="2wK-9i-Sdu"/>
+                        </constraints>
+                        <fontDescription key="fontDescription" name="Roboto-Light" family="Roboto" pointSize="10"/>
+                        <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
+                        <nil key="highlightedColor"/>
+                    </label>
+                    <stackView opaque="NO" contentMode="scaleToFill" ambiguous="YES" misplaced="YES" axis="vertical" translatesAutoresizingMaskIntoConstraints="NO" id="vmP-Su-PgD">
+                        <rect key="frame" x="260" y="0.0" width="50" height="57"/>
+                        <subviews>
+                            <stackView opaque="NO" contentMode="scaleToFill" ambiguous="YES" misplaced="YES" axis="vertical" translatesAutoresizingMaskIntoConstraints="NO" id="4Gk-EW-7eY">
+                                <rect key="frame" x="0.0" y="0.0" width="50" height="57"/>
+                            </stackView>
+                        </subviews>
+                        <constraints>
+                            <constraint firstItem="4Gk-EW-7eY" firstAttribute="centerY" secondItem="vmP-Su-PgD" secondAttribute="centerY" id="PBk-77-ldz"/>
+                            <constraint firstItem="4Gk-EW-7eY" firstAttribute="centerX" secondItem="vmP-Su-PgD" secondAttribute="centerX" id="hus-cz-69a"/>
+                        </constraints>
+                    </stackView>
+                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" misplaced="YES" text="IOS" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="ubd-Bk-NVT">
+                        <rect key="frame" x="156" y="30" width="18" height="12"/>
+                        <fontDescription key="fontDescription" type="system" pointSize="10"/>
+                        <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
+                        <nil key="highlightedColor"/>
+                    </label>
+                </subviews>
+                <constraints>
+                    <constraint firstAttribute="trailing" secondItem="pvT-9n-7Fu" secondAttribute="trailing" constant="19" id="0dL-pP-Hqc"/>
+                    <constraint firstAttribute="bottom" relation="greaterThanOrEqual" secondItem="RBf-6W-6Sk" secondAttribute="bottom" constant="3" id="1Z5-Sk-SHW"/>
+                    <constraint firstAttribute="bottom" secondItem="pvT-9n-7Fu" secondAttribute="bottom" constant="8" id="BVe-oJ-2cu"/>
+                    <constraint firstItem="RBf-6W-6Sk" firstAttribute="leading" secondItem="H2p-sc-9uM" secondAttribute="leading" constant="19" id="CZe-Wa-unQ"/>
+                    <constraint firstAttribute="trailing" secondItem="RBf-6W-6Sk" secondAttribute="trailing" constant="5" id="ETb-Lw-t17"/>
+                    <constraint firstAttribute="centerY" secondItem="pvT-9n-7Fu" secondAttribute="centerY" constant="5" id="Jsh-UG-YrP"/>
+                    <constraint firstItem="pvT-9n-7Fu" firstAttribute="leading" secondItem="H2p-sc-9uM" secondAttribute="leading" constant="19" id="QtM-sh-ux7"/>
+                    <constraint firstItem="vmP-Su-PgD" firstAttribute="centerX" secondItem="H2p-sc-9uM" secondAttribute="centerX" constant="116" id="Qyc-tB-h9u"/>
+                    <constraint firstItem="ubd-Bk-NVT" firstAttribute="centerY" secondItem="H2p-sc-9uM" secondAttribute="centerY" id="V4a-IP-3QX"/>
+                    <constraint firstItem="vmP-Su-PgD" firstAttribute="centerY" secondItem="H2p-sc-9uM" secondAttribute="centerY" constant="-24.5" id="Y7v-XN-2U9"/>
+                    <constraint firstItem="RBf-6W-6Sk" firstAttribute="top" secondItem="pvT-9n-7Fu" secondAttribute="bottom" constant="2" id="ZPI-K8-DQF"/>
+                    <constraint firstAttribute="trailing" secondItem="pvT-9n-7Fu" secondAttribute="trailing" constant="19" id="gKL-MT-yCj"/>
+                    <constraint firstItem="ubd-Bk-NVT" firstAttribute="centerX" secondItem="H2p-sc-9uM" secondAttribute="centerX" id="hb4-5t-HbN"/>
+                    <constraint firstItem="pvT-9n-7Fu" firstAttribute="top" secondItem="H2p-sc-9uM" secondAttribute="top" constant="8" id="q21-4g-IlO"/>
+                    <constraint firstItem="pvT-9n-7Fu" firstAttribute="leading" secondItem="H2p-sc-9uM" secondAttribute="leading" constant="19" id="ww0-lt-XRq"/>
+                </constraints>
+                <variation key="default">
+                    <mask key="constraints">
+                        <exclude reference="0dL-pP-Hqc"/>
+                        <exclude reference="BVe-oJ-2cu"/>
+                        <exclude reference="q21-4g-IlO"/>
+                        <exclude reference="ww0-lt-XRq"/>
+                        <exclude reference="ZPI-K8-DQF"/>
+                    </mask>
+                </variation>
+            </tableViewCellContentView>
+            <connections>
+                <outlet property="experimentTitle" destination="pvT-9n-7Fu" id="Jam-bj-CCX"/>
+                <outlet property="isIOSCompatible" destination="ubd-Bk-NVT" id="4Uv-ZO-zkn"/>
+                <outlet property="subtitle" destination="RBf-6W-6Sk" id="mPp-9h-K4k"/>
+            </connections>
+            <point key="canvasLocation" x="355" y="418"/>
+        </tableViewCell>
+    </objects>
+</document>

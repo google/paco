@@ -2,10 +2,10 @@
 //  PacoPacoSerializer.h
 //  Paco
 //
-//  Created by Timothy  Northrop O'Brien on 7/23/15.
+//  Created by Timothy  Tim O'Brien on 7/23/15.
 //
 //
-//  Parses the collection heirarchy created by a json parser to produce a modal
+//  Parses the collection heirarchy created by a json parser to produce a model
 //  tree
 //
 //
@@ -54,23 +54,47 @@ typedef NS_ENUM(NSInteger, PacoParentType) {
  * classes */
 - (id)init __attribute__((unavailable("init with array of class names")));
 
-/* init with classes. This is the method that shoul be used always*/
+
+/* timezone used for data conversions*/
+@property(nonatomic,strong) NSTimeZone* timeZone;
+
+
+/* init with name of class only.  */
+- (instancetype) initWithArrayWithClassAttributeName: (NSString*) nameOfClass;
+
+/* init with classes and name of class matching fields.  */
 - (instancetype)initWithArrayOfClasses:(NSArray*)serializedJson withNameOfClassAttribute:(NSString*) nameOfClass;
 /* convert netst foundation collections to json data*/
 - (NSData*)foundationCollectionToJSONData:(NSObject*)collection
                                     Error:(NSError*)error;
-/* create a collection hierarchy of j2obj modals from a collection of Foundation
+/* create a collection hierarchy of j2obj models from a collection of Foundation
  * collections*/
 - (NSObject*)toJ2OBJCCollctionsHeirarchy:(NSObject*)parent;
-/* create a collection hierarchy of j2obj modals from nested Foundation
+/* create a collection hierarchy of j2obj models from nested Foundation
  * collections */
 - (NSObject*)buildObjectHierarchyFromJSONOBject:(id)data;
 /* create a json object from nested Foundation classes */
-- (NSObject*)toJSONobject:(NSObject*)parent;
+- (NSData *)toJSONobject:(NSObject*)parent;
 /* create a json object from nested Foundation classes */
 - (NSObject*)buildObjectHierarchyFromCollections:(id)collection;
-/* recursively call validate   */
+
+/* get a json object from an NSArray of j2objc objects */
+-(NSArray*) experimentToJSonStringFromNSArrayOfDefinitionObjects:(NSArray*) definitions;
 
 - (void)validate:(NSArray*)parentInfo;
+
+/* convert a strong of json to a json heirarchy. */
+- (NSObject*)buildObjectHierarchyFromJSONString:(id)json;
+
+/* add class that does not support domain prefix, i.e., 'PA' */
+-(void) addNoneDomainClass:(NSObject*) object;
+
+/* return a single object after from json string */
+- (NSObject*)buildSingleObjectHierarchyFromJSONString:(id)json;
+
+/* crate a  object from dictionary */
+-(NSObject*) buildModelObject:(NSDictionary*) dictionary;
+
+
 
 @end

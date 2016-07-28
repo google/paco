@@ -29,14 +29,18 @@ static const int kPacoDefaultEnumeratorLimit = 20;
 - (id)initWithLimit:(NSUInteger)limit {
   self = [super init];
   if (self) {
+     _cursor = [NSString new];
     _limit = (limit > 0 ? limit : kPacoDefaultEnumeratorLimit);
   }
   return self;
 }
 
 - (void)updateCursor:(NSString*)cursor numOfResults:(int)numOfResults {
-  if (!cursor || numOfResults < self.limit || 0 == numOfResults) { //last page
+    
+    if (!cursor || numOfResults < self.limit || 0 == numOfResults) {
+        //last page
     self.cursor = (NSString*)[NSNull null];
+        
   } else {
     NSAssert([cursor length] > 0, @"cursor should be valid");
     self.cursor = cursor;
@@ -45,7 +49,10 @@ static const int kPacoDefaultEnumeratorLimit = 20;
 
 
 - (BOOL)hasMoreItems {
-  return ![self.cursor isEqual:[NSNull null]];
+    
+    bool retVal = ![self.cursor isEqual:[NSNull null]];
+    
+    return retVal;
 }
 
 

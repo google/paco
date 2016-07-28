@@ -1,4 +1,4 @@
-/* Copyright 2013 Google Inc. All Rights Reserved.
+/*
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,8 @@
 @class PacoExperimentSchedule;
 
 
-typedef void(^PacoPaginatedResponseBlock)(NSArray* items, NSString* cursor, NSError* error);
+
+typedef void(^PacoPaginatedResponseBlock)(NSDictionary* items, NSString* cursor, NSError* error);
 
 
 @interface PacoService : NSObject
@@ -29,17 +30,24 @@ typedef void(^PacoPaginatedResponseBlock)(NSArray* items, NSString* cursor, NSEr
 @property (nonatomic, retain) PacoAuthenticator *authenticator;
 
 
-- (void)loadPublicDefinitionListWithCursor:(NSString*)cursor limit:(NSUInteger)limit block:(PacoPaginatedResponseBlock)block;
 
+// load full definition with id
 - (void)loadFullDefinitionWithID:(NSString*)definitionID andBlock:(void (^)(PacoExperimentDefinition*, NSError*))completionBlock;
 
 //completionBlock takes an array of NSString
-- (void)loadFullDefinitionListWithIDs:(NSArray*)idList andBlock:(void (^)(NSArray*, NSError*))completionBlock;
+- (void)loadFullDefinitionListWithIDs:(NSArray*)idList andBlock:(void (^)(NSDictionary *, NSError*))completionBlock;
 
 //completionBlock takes an array of PacoExperimentDefinition
-- (void)loadMyFullDefinitionListWithBlock:(void (^)(NSArray*, NSError*))completionBlock;
+- (void)loadMyFullDefinitionListWithBlock:(void (^)(NSDictionary *, NSError*))completionBlock;
 
 // Batch submit a list of events
-- (void)submitEventList:(NSArray*)eventList withCompletionBlock:(void (^)(NSArray*, NSError*))completionBlock;
+- (void)submitEventList:(NSArray*)eventList withCompletionBlock:(void (^)(NSArray *, NSError*))completionBlock;
+
+// load difinition ids.
+- (void)loadMyDefinitionIDListWithBlock:(void (^)(NSArray*, NSError*))completionBlock;
+
+
+
+- (void)loadPublicDefinitionListWithCursorAndEndpoint:(NSString*) endPoint cursor:(NSString*)cursor   limit:(NSUInteger)limit block:(PacoPaginatedResponseBlock)block;
 
 @end
