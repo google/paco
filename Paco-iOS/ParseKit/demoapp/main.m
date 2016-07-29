@@ -7,7 +7,10 @@
 //
 
 #import <Cocoa/Cocoa.h>
+//#import <PixateFreestyle/PixateFreestyle.h>
 
 int main(int argc, char *argv[]) {
+    
+   // [PixateFreestyle initializePixateFreestyle];
     return NSApplicationMain(argc,  (const char **) argv);
 }

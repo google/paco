@@ -696,6 +696,8 @@
 		A68888131C98BC3A0003C8DC /* PacoJ2ObjCTest.m in Sources */ = {isa = PBXBuildFile; fileRef = A68888121C98BC3A0003C8DC /* PacoJ2ObjCTest.m */; };
 		A68888161C9B2E120003C8DC /* PacoTimeCellModel.m in Sources */ = {isa = PBXBuildFile; fileRef = A68888151C9B2E120003C8DC /* PacoTimeCellModel.m */; };
 		A68888171C9B53300003C8DC /* PacoTimeCellModel.m in Sources */ = {isa = PBXBuildFile; fileRef = A68888151C9B2E120003C8DC /* PacoTimeCellModel.m */; };
+		A689C6C41D4B18CC00B3AD73 /* PixateFreestyle.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A689C6C31D4B18CC00B3AD73 /* PixateFreestyle.framework */; };
+		A689C6C71D4BD9ED00B3AD73 /* default.css in Resources */ = {isa = PBXBuildFile; fileRef = A689C6C61D4BD9ED00B3AD73 /* default.css */; };
 		A68EFA7E1C7BE4E400D7FD50 /* Contents.json in Resources */ = {isa = PBXBuildFile; fileRef = A68EFA771C7BE4E400D7FD50 /* Contents.json */; };
 		A68EFA7F1C7BE4E400D7FD50 /* splash_ios_mobile_640x1136.png in Resources */ = {isa = PBXBuildFile; fileRef = A68EFA781C7BE4E400D7FD50 /* splash_ios_mobile_640x1136.png */; };
 		A68EFA801C7BE4E400D7FD50 /* splash_ios_mobile_640x960.png in Resources */ = {isa = PBXBuildFile; fileRef = A68EFA791C7BE4E400D7FD50 /* splash_ios_mobile_640x960.png */; };
@@ -1594,6 +1596,8 @@
 		A68888121C98BC3A0003C8DC /* PacoJ2ObjCTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoJ2ObjCTest.m; sourceTree = "<group>"; };
 		A68888141C9B2E120003C8DC /* PacoTimeCellModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoTimeCellModel.h; sourceTree = "<group>"; };
 		A68888151C9B2E120003C8DC /* PacoTimeCellModel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoTimeCellModel.m; sourceTree = "<group>"; };
+		A689C6C31D4B18CC00B3AD73 /* PixateFreestyle.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = PixateFreestyle.framework; path = frameworks/PixateFreestyle.framework; sourceTree = "<group>"; };
+		A689C6C61D4BD9ED00B3AD73 /* default.css */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.css; path = default.css; sourceTree = "<group>"; };
 		A68EFA771C7BE4E400D7FD50 /* Contents.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = Contents.json; sourceTree = "<group>"; };
 		A68EFA781C7BE4E400D7FD50 /* splash_ios_mobile_640x1136.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = splash_ios_mobile_640x1136.png; sourceTree = "<group>"; };
 		A68EFA791C7BE4E400D7FD50 /* splash_ios_mobile_640x960.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = splash_ios_mobile_640x960.png; sourceTree = "<group>"; };
@@ -1605,6 +1609,7 @@
 		A6954C941CE260EF0052C9F0 /* OrgJodaTimeDateTime+PacoDateHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "OrgJodaTimeDateTime+PacoDateHelper.h"; sourceTree = "<group>"; };
 		A695533C1CE2828F0052C9F0 /* org */ = {isa = PBXFileReference; lastKnownFileType = folder; path = org; sourceTree = "<group>"; };
 		A69580071CB82D5D00B89E7F /* PacoEditorJoinflowViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PacoEditorJoinflowViewController.swift; sourceTree = "<group>"; };
+		A69B27911D4ABB170024D1EA /* PixateFreestyle.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = PixateFreestyle.framework; path = ../../../Downloads/PixateFreestyle.framework; sourceTree = "<group>"; };
 		A69D09031D2D849D0032CB18 /* EasyJSDataFunction.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EasyJSDataFunction.h; sourceTree = "<group>"; };
 		A69D09041D2D849D0032CB18 /* EasyJSDataFunction.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EasyJSDataFunction.m; sourceTree = "<group>"; };
 		A69D09051D2D849D0032CB18 /* EasyJSWebView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EasyJSWebView.h; sourceTree = "<group>"; };
@@ -1811,6 +1816,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C5B4691917B07E4900B6BC18 /* CoreGraphics.framework in Frameworks */,
 				44BB29011D0A63CB00680037 /* GoogleSignIn.framework in Frameworks */,
 				A602D2EF1CDEE17300A9AA50 /* StoreKit.framework in Frameworks */,
 				319771C9163F0733000AC06B /* UIKit.framework in Frameworks */,
@@ -1823,7 +1829,7 @@
 				E4D5DE861837DE9A00E5446A /* MessageUI.framework in Frameworks */,
 				C5C4F5D217B163EF009E9F18 /* QuartzCore.framework in Frameworks */,
 				319771CB163F0733000AC06B /* Foundation.framework in Frameworks */,
-				C5B4691917B07E4900B6BC18 /* CoreGraphics.framework in Frameworks */,
+				A689C6C41D4B18CC00B3AD73 /* PixateFreestyle.framework in Frameworks */,
 				A6E1D05B1D13B83800C20B10 /* libJodaCompile.a in Frameworks */,
 				A6E1D06D1D13B86D00C20B10 /* libJ2ObjcLib.a in Frameworks */,
 				A66E306B1BA8F0C400A067EA /* libParseKitMobile.a in Frameworks */,
@@ -1855,6 +1861,7 @@
 			children = (
 				A67067851D34701B002C52F2 /* web_resources */,
 				A6E1D05A1D13B83800C20B10 /* libJodaCompile.a */,
+				A69B27911D4ABB170024D1EA /* PixateFreestyle.framework */,
 				A6E1D0831D23211100C20B10 /* radiobtn_off.png */,
 				A6E1D06C1D13B86D00C20B10 /* libJ2ObjcLib.a */,
 				44BB28FF1D0A619400680037 /* org */,
@@ -1888,6 +1895,7 @@
 		319771C7163F0733000AC06B /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				A689C6C31D4B18CC00B3AD73 /* PixateFreestyle.framework */,
 				A6E1D0511D13B6AF00C20B10 /* libJodaCompile.a */,
 				A6FF589E1CDBC0550049A27F /* J2ObjcLibrary.xcodeproj */,
 				A6B56C671C7F8B0C00E81C3F /* GoogleSignIn.framework */,
@@ -3159,6 +3167,14 @@
 			name = validators;
 			sourceTree = "<group>";
 		};
+		A689C6C51D4BD96400B3AD73 /* css */ = {
+			isa = PBXGroup;
+			children = (
+				A689C6C61D4BD9ED00B3AD73 /* default.css */,
+			);
+			name = css;
+			sourceTree = "<group>";
+		};
 		A68EFA761C7BE4E400D7FD50 /* LaunchImage.launchimage */ = {
 			isa = PBXGroup;
 			children = (
@@ -3176,6 +3192,7 @@
 		A6954E971CE27F8E0052C9F0 /* resources */ = {
 			isa = PBXGroup;
 			children = (
+				A689C6C51D4BD96400B3AD73 /* css */,
 				A695533C1CE2828F0052C9F0 /* org */,
 			);
 			name = resources;
@@ -3917,6 +3934,7 @@
 				36B8EBD817568E29004CF035 /* current_experiments_focused.png in Resources */,
 				A6DC6E4E1BEC184000D38D68 /* PacoResponseTableViewController.xib in Resources */,
 				A63A81D01C0677B600ACBC0A /* number-5-7.png in Resources */,
+				A689C6C71D4BD9ED00B3AD73 /* default.css in Resources */,
 				A63A82441C0677B600ACBC0A /* torch-light-7.png in Resources */,
 				A63A81001C0677B600ACBC0A /* business-bag-7.png in Resources */,
 				A64F1DE61BD70F8500DCE6C3 /* Roboto-Italic.ttf in Resources */,

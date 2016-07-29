@@ -108,13 +108,16 @@
     BOOL isGroupTriggered = NO;
     NSNumber*  numberOfActionTriggers =  [self   valueForKeyEx:@"actionTriggers#"];
     int actionTriggerCount = [numberOfActionTriggers intValue];
-
+    PAActionTrigger   *trigger ;
     for(int ii =0; ii < actionTriggerCount; ii++)
     {
         NSString* str = [NSString stringWithFormat: @"actionTriggers[%i]",ii ];
-        NSObject   *trigger = [self  valueForKeyEx:str];
+        trigger = [self  valueForKeyEx:str];
         if( ![trigger isKindOfClass:[PAScheduleTrigger class]])
         {
+            
+           
+            
             isGroupTriggered =  YES;
             break;
         }
@@ -123,7 +126,7 @@
     
     if(!isGroupTriggered)
     {
-        NSObject * cues    = [self valueForKeyPathEx:@"cues"];
+        NSObject * cues    = [trigger  valueForKeyPathEx:@"cues"];
         
         if(cues)
         {

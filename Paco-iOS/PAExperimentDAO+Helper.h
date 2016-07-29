@@ -14,8 +14,6 @@
 @class PAExperimentGroup;
 
 
-
-
 @interface PAExperimentDAO (Helper)
 
 -(NSString*) instanceId;
