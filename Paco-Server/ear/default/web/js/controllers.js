@@ -64,6 +64,8 @@ pacoApp.controller('ExperimentCtrl', ['$scope', '$mdDialog', '$filter',
     $scope.feedbackTypes = config.feedbackTypes;
     $scope.ringtones = config.ringtones;
     $scope.tabs = config.editTabs;
+    $scope.dataDeclarations = config.dataDeclarations;
+    $scope.declared = [];
 
     $scope.state = {
       tabId: 0,
@@ -298,6 +300,39 @@ pacoApp.controller('ExperimentCtrl', ['$scope', '$mdDialog', '$filter',
       var json = event.target.value;
       $scope.experiment = JSON.parse(json);
     };
+
+
+
+$scope.inList = function(item, list) {
+    if ($scope.experiment && $scope.experiment.extraDataCollectionDeclarations) {
+      var id = parseInt(item);
+      if ($scope.experiment.extraDataCollectionDeclarations.indexOf(id) !==
+        -1) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  $scope.toggleDeclaration = function(item, list) {
+    var id = parseInt(item);
+    var find = $scope.experiment.extraDataCollectionDeclarations.indexOf(
+      id);
+
+    if (find === -1) {
+      $scope.experiment.extraDataCollectionDeclarations.push(id);
+    } else {
+      $scope.experiment.extraDataCollectionDeclarations.splice(find, 1);
+    }
+  };
+
+
+
+
+
+
+
+
   }
 ]);
 
@@ -1004,31 +1039,7 @@ pacoApp.controller('ScheduleCtrl', ['$scope', '$mdDialog', 'config', 'template',
 
 pacoApp.controller('AdminCtrl', ['$scope', 'config', function($scope, config) {
 
-  $scope.dataDeclarations = config.dataDeclarations;
-  $scope.declared = [];
 
-  $scope.inList = function(item, list) {
-    if ($scope.experiment && $scope.experiment.extraDataCollectionDeclarations) {
-      var id = parseInt(item);
-      if ($scope.experiment.extraDataCollectionDeclarations.indexOf(id) !==
-        -1) {
-        return true;
-      }
-    }
-    return false;
-  }
-
-  $scope.toggleDeclaration = function(item, list) {
-    var id = parseInt(item);
-    var find = $scope.experiment.extraDataCollectionDeclarations.indexOf(
-      id);
-
-    if (find === -1) {
-      $scope.experiment.extraDataCollectionDeclarations.push(id);
-    } else {
-      $scope.experiment.extraDataCollectionDeclarations.splice(find, 1);
-    }
-  };
 }]);
 
 

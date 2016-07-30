@@ -4,6 +4,8 @@
     <md-card-content>
       <h2>Experiment Listing</h2>
 
+      <div layout="column" layout-padding layout-margin>
+
       <md-input-container>
         <label>Title</label>
         <input ng-model="experiment.title">
@@ -35,16 +37,48 @@
         </div>
       </md-input-container>
 
-      <div layout="row">
+      <md-input-container>
+        <label>Informed Consent</label>
+        <textarea ng-model="experiment.informedConsentForm"></textarea>
+      </md-input-container>
+
+     <div layout="row">
+        <div flex=40>        Ringtone
+
         <md-input-container>
-        Ringtone
         <md-select ng-model="experiment.ringtoneUri" placeholder="Select">
           <md-option ng-repeat="ringtone in ringtones" value="/assets/ringtone/{{ringtone}}">
             {{ringtone}}
           </md-option>
         </md-select>
         </md-input-container>
+        </div>
+
+        <div flex=10>
+        </div>
+
+        <div flex>
+          Phone details
+          <div>
+            <label>
+              <md-checkbox ng-model="experiment.recordPhoneDetails">
+              Record phone details in the "Join" event</md-checkbox>
+            </label>
+          </div>
+        </div>
       </div>
+
+
+    <div>
+    Advanced: Disclose Data Collected by Custom Scripts
+          <div ng-repeat="(id, declare) in dataDeclarations">
+
+            <label>
+              <md-checkbox ng-checked="inList(id)" value="{{id}}"
+                ng-click="toggleDeclaration(id)"> {{declare}}</md-checkbox>
+            </label>
+          </div>
+    </div>
 
       <div class="padded instructions">
         Instructions
