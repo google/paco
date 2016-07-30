@@ -1,18 +1,15 @@
-package com.google.android.apps.paco;
+package com.google.android.apps.paco.test;
+
+import java.lang.reflect.Method;
 
 import org.junit.Test;
 
-import android.content.Intent;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.Intent;
 import android.net.Uri;
-import android.net.Uri.Builder;
-import android.os.PowerManager;
-
 import android.test.AndroidTestCase;
 import android.test.mock.MockContext;
-
-import java.lang.reflect.Method;
 
 import com.pacoapp.paco.sensors.android.BroadcastTriggerReceiver;
 
@@ -25,7 +22,7 @@ import com.pacoapp.paco.sensors.android.BroadcastTriggerReceiver;
 public class BroadcastTriggerReceiverTest extends AndroidTestCase {
   class FakeContext extends MockContext {
     private Intent startedService;
-    
+
     @Override
     public String getPackageName() {
       return "com.pacoapp.paco";
@@ -51,7 +48,7 @@ public class BroadcastTriggerReceiverTest extends AndroidTestCase {
     isPackageAdded.setAccessible(true);
     assertEquals(isPackageAdded.invoke(broadcastTriggerReceiver, context, installIntent), true);
   }
-  
+
   @Test
   public void testAppUpdate() throws Exception {
     Context context = new FakeContext();

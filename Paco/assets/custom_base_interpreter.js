@@ -314,7 +314,7 @@ var paco = (function (init) {
 	        	// TODO i18n
 	          alert("No notification support"); 
 	        },
-	        createNotification : function(message, timeout) { 
+	        createNotificationWithTimeout : function(message, timeout) { 
             // TODO i18n
             alert("No notification support"); 
           },
@@ -331,8 +331,8 @@ var paco = (function (init) {
 	      createNotification : function(message) {
 	        notificationService.createNotification(message);
 	      }, 
-	      createNotification : function(message, timeout) {
-          notificationService.createNotification(message, timeout);
+	      createNotificationWithTimeout : function(message, timeout) {
+          notificationService.createNotificationWithTimeout(message, timeout);
         },
         removeNotification : function(message) {
 	    	  notificationService.removeNotification(message);
@@ -382,5 +382,30 @@ var paco = (function (init) {
       }
     };
   })();
+  
+  obj.locationService = (function() {
+    if (!locationService) {
+      locationService = { 
+        getLastKnownLocation: function() { 
+          // TODO i18n
+          alert("No locationService support"); 
+        },
+        getDistanceFrom : function(location) { 
+          alert("No locationService support"); 
+        }
+      };
+    }
+
+    return {
+      getLastKnownLocation: function() { 
+        return JSON.parse(locationService.getLastKnownLocation());
+         
+      },
+      getDistanceFrom : function(location) { 
+        return JSON.parse(locationService.getDistanceFrom(location)); 
+      }
+    };
+  })();
+
   return obj;
 })();
