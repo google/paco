@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Semaphore;
 
 import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.JsonNode;
@@ -72,6 +73,11 @@ public class ExperimentProviderUtil implements EventStore {
   public static final String AUTHORITY = "com.google.android.apps.paco.ExperimentProvider";
   private static final String PUBLIC_EXPERIMENTS_FILENAME = "experiments";
   private static final String MY_EXPERIMENTS_FILENAME = "my_experiments";
+  // The next semaphore is used to make sure that all event inserts/retrievals happen atomically
+  // with regards to each other, to ensure that no incomplete events can get synced to the server
+  // (and, by extension, to ensure that a thread trying to access an event has to wait until the
+  // event has been fully inserted).
+  private static Semaphore eventStorageDbMutex = new Semaphore(1);
 
   DateTimeFormatter endDateFormatter = DateTimeFormat.forPattern(TimeUtil.DATE_FORMAT);
 
@@ -738,14 +744,25 @@ public class ExperimentProviderUtil implements EventStore {
 
 
   public Uri insertEvent(Event event) {
-    Uri uri = contentResolver.insert(EventColumns.CONTENT_URI, createContentValues(event));
-    long rowId = Long.parseLong(uri.getLastPathSegment());
-    event.setId(rowId);
-    for (Output response : event.getResponses()) {
-      response.setEventId(rowId);
-      insertResponse(response);
+    try {
+      eventStorageDbMutex.acquire();
+    } catch (InterruptedException e) {
+      Log.w(ExperimentProvider.TAG, "Interrupted while acquiring eventStorageDbMutex in insertEvent.", e);
     }
-    return uri;
+    try {
+      Uri uri = contentResolver.insert(EventColumns.CONTENT_URI, createContentValues(event));
+      long rowId = Long.parseLong(uri.getLastPathSegment());
+      event.setId(rowId);
+      for (Output response : event.getResponses()) {
+        response.setEventId(rowId);
+        insertResponse(response);
+      }
+      eventStorageDbMutex.release();
+      return uri;
+    } catch (RuntimeException e) {
+      eventStorageDbMutex.release();
+      throw e;
+    }
   }
 
   public void insertEvent(EventInterface eventI) {
@@ -870,11 +887,18 @@ public class ExperimentProviderUtil implements EventStore {
     List<Output> responses = new ArrayList<Output>();
     Cursor cursor = null;
     try {
+      // TODO: the use of this mutex should probably be moved to the parent findEvent() method after
+      // it is refactored.
+      eventStorageDbMutex.acquire();
+    } catch (InterruptedException e) {
+      Log.w(ExperimentProvider.TAG, "eventStorageDbMutex was interrupted in findResponsesFor.", e);
+    }
+    try {
       cursor = contentResolver.query(OutputColumns.CONTENT_URI,
-          null,
-          OutputColumns.EVENT_ID + "=" + event.getId(),
-          null,
-          OutputColumns.INPUT_SERVER_ID + " ASC"); // TODO (bobevans) module the conditional questions, this ordering should be OK to get questions in order.
+              null,
+              OutputColumns.EVENT_ID + "=" + event.getId(),
+              null,
+              OutputColumns.INPUT_SERVER_ID + " ASC"); // TODO (bobevans) module the conditional questions, this ordering should be OK to get questions in order.
       if (cursor != null) {
         while (cursor.moveToNext()) {
           responses.add(createResponse(cursor));
@@ -886,6 +910,7 @@ public class ExperimentProviderUtil implements EventStore {
       if (cursor != null) {
         cursor.close();
       }
+      eventStorageDbMutex.release();
     }
     return responses;
   }
