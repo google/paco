@@ -88,6 +88,10 @@
       willShowViewController:(UIViewController *)viewController animated:(BOOL)animated {
     
     
+    
+    
+    
+    
     long  viewCount  = [[self.tabBarController.navigationController viewControllers] count];
     
     
@@ -103,8 +107,24 @@
 }
 
 
+-(void) viewWillDisappear:(BOOL)animated
+{
+ 
+    
+}
+
+
+-(void) viewWillAppear:(BOOL)animated
+{
+    
+   self.tabBarController.navigationItem.title = @"Hub";
+    
+}
+
+
 -(void) viewDidAppear:(BOOL)animated
 {
+  
     
       NSArray* startedExperiments =    [PacoMediator sharedInstance].startedExperiments;
       [self.experiments removeObjectsInArray:startedExperiments];

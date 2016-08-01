@@ -25,10 +25,19 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
+    
    
     [self.tableView registerClass:[UITableViewCell class] forCellReuseIdentifier:@"identifier"];
     _cellNames = @[@"Refresh Experiments",@"Settings",@"User Guide", @"Email Paco Team", @"About Paco", @"User Agreement", @"Open Source Libraries"];
 
+}
+
+
+-(void) viewWillAppear:(BOOL)animated
+{
+    
+    self.tabBarController.navigationItem.title =@"Configurations";
+    
 }
 
 - (void)didReceiveMemoryWarning {

@@ -81,9 +81,11 @@ class PacoJoinedExperimentsController: UITableViewController,PacoExperimentProto
     
  func refreshTable()
 {
-    var mediator =  PacoMediator.sharedInstance();
-    var  mArray:NSMutableArray  = mediator.startedExperiments();
+    let  mediator =  PacoMediator.sharedInstance();
+    let  mArray:NSMutableArray  = mediator.startedExperiments();
+    
     myExpriments = mArray as AnyObject  as? [PAExperimentDAO]
+    
     print("print the notificatins \(myExpriments)");
     self.tableView.reloadData()
     
@@ -93,6 +95,8 @@ class PacoJoinedExperimentsController: UITableViewController,PacoExperimentProto
     
     
     override func viewWillAppear(animated: Bool) {
+        
+        self.tabBarController?.navigationItem.title = "Joined"
         
         refreshTable()
     }

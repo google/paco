@@ -219,6 +219,11 @@ import UIKit
         
         
     }
+    
+    override func viewWillDisappear(animated: Bool) {
+        
+       // self.tabBarController?.navigationController?.setNavigationBarHidden(false, animated: false)
+    }
   
     override func viewWillAppear(animated: Bool) {
         super.viewWillAppear(animated)
@@ -227,7 +232,7 @@ import UIKit
         let   mArray:NSMutableArray  = mediator.experiments()
         allExperiments = mArray as AnyObject as? [PAExperimentDAO]
         
-        
+      //  self.tabBarController?.navigationController!.setNavigationBarHidden(true, animated: false)
         
         self.tableView.reloadData()
     }

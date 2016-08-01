@@ -81,7 +81,7 @@
         
         if (error) {
             
-            NSLog(@"NO NO NO NO NO NO NO");
+            NSLog(@"error");
             
         } else {
             
@@ -89,14 +89,14 @@
             
             
             
-            [network.service loadMyFullDefinitionListWithBlock:^(NSDictionary* definitions, NSError* error) {
+            [network.service loadMyFullDefinitionListWithBlock:^(NSArray* definitions, NSError* error) {
                 if (!error) {
                     
-                     NSLog(@" YES THIS ONE IS IT ");
+                     NSLog(@" Y1");
                     
                 } else
                 {
-                    NSLog(@" YES THIS ONE IS IT ");
+                    NSLog(@" 2 ");
                     
                 }
              
@@ -104,7 +104,7 @@
             
             
             
-            NSLog(@"YES YES YES YES YES ");
+            NSLog(@"3 ");
             
         }
     }];
@@ -112,7 +112,7 @@
     
     [self.enumerator loadNextPage:^(NSArray* items, NSError* error) {
        
-        NSLog(@"YES YES YES YES YES ");
+        NSLog(@"4 ");
         
     }];
      [self.tableView reloadData];

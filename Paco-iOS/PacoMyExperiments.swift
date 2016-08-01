@@ -29,7 +29,9 @@ class PacoMyExperiments: UITableViewController,PacoExperimentProtocol {
         super.viewDidLoad()
         
   
-      tableView.tableFooterView = UIView()
+  
+        
+      
         
         
         NSNotificationCenter.defaultCenter().addObserver(self, selector:#selector(PacoMyExperiments.experimentsRefreshed(_:)), name:"MyExperiments", object: nil)
@@ -199,13 +201,21 @@ class PacoMyExperiments: UITableViewController,PacoExperimentProtocol {
         
     }
   
-    override func viewWillAppear(animated: Bool) {
+    override func viewDidAppear(animated: Bool) {
+        
+          self.tabBarController?.navigationItem.title = "Invitations"
+ 
         
         let  mediator =  PacoMediator.sharedInstance()
         let mArray:NSMutableArray  = mediator.experiments()
         myExpriments = mArray as AnyObject as? [PAExperimentDAO]
         
         self.tableView.reloadData()
+    }
+    
+    
+    override func viewWillDisappear(animated: Bool) {
+  
     }
     
 }

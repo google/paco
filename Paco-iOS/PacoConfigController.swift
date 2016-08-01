@@ -50,7 +50,7 @@ class PacoConfigController: UITableViewController {
     override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
         
         
-        let cell = tableView.dequeueReusableCellWithIdentifier("reuseIdentifier", forIndexPath: indexPath) as! UITableViewCell
+        let cell = tableView.dequeueReusableCellWithIdentifier("reuseIdentifier", forIndexPath: indexPath)
 
         cell.textLabel!.text = (cells[indexPath.row] as! String)
         cell.textLabel!.textColor = UIColor(red:0.00, green:0.60, blue:1.00, alpha:1.0)
@@ -76,6 +76,18 @@ class PacoConfigController: UITableViewController {
             print("not first")
         }
        
+    }
+    
+    
+    
+    override func viewWillAppear(animated: Bool) {
+        self.tabBarController?.navigationController?.setNavigationBarHidden(true, animated: false)
+    }
+    
+    override func viewWillDisappear(animated: Bool) {
+        
+        self.tabBarController?.navigationController?.setNavigationBarHidden(false, animated: false)
+        
     }
   
 

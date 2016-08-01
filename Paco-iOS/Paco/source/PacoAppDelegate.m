@@ -40,6 +40,7 @@
 #import "PacoMediator.h"
 #import "PacoConfigurationViewController.h"
 #import "PacoTestCustomFeedBackViewController.h" 
+#import "PacoExperiment.h" 
 
 
 //#import <GoogleSignIn/GoogleSignIn.h>
@@ -249,22 +250,21 @@ static NSString * const kClientID =
     
     
     
-     self.myExperiments =[[PacoMyExperiments alloc] initWithNibName:@"PacoMyExperiments" bundle:nil];
-     self.publicExperiments  =[[PacoHubExperiments alloc] initWithNibName:@"PacoHubExperiments" bundle:nil];
+ //    self.myExperiments =[[PacoMyExperiments alloc] initWithNibName:@"PacoMyExperiments" bundle:nil];
+  //   self.publicExperiments  =[[PacoHubExperiments alloc] initWithNibName:@"PacoHubExperiments" bundle:nil];
     
     
-     self.hub  = [[PacoMyExperiments alloc] initWithNibName:@"PacoMyExperiments" bundle:nil];
+  //   self.hub  = [[PacoMyExperiments alloc] initWithNibName:@"PacoMyExperiments" bundle:nil];
     
-      self.pg = [[HubPaginatedTableViewController alloc] initWithNibName:@"HubPaginatedTableViewController" bundle:nil];
+//      self.pg = [[HubPaginatedTableViewController alloc] initWithNibName:@"HubPaginatedTableViewController" bundle:nil];
     
-   self.alertTester = [[PacoNotificationTester alloc] initWithNibName:@"PacoNotificationTester" bundle:nil];
+    self.alertTester = [[PacoNotificationTester alloc] initWithNibName:@"PacoNotificationTester" bundle:nil];
     
     
     self.swiftViewController = [[PacoMainSwiftViewController alloc] initWithNibName:@"PacoMainSwiftViewController" bundle:nil];
     
     self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
-    
-     [self makeTabBar];
+    [self makeTabBar];
     
     
    
@@ -277,9 +277,11 @@ static NSString * const kClientID =
     
     self.viewController =  self.tabBar;
     
+ //   [self.viewController.navigationController setNavigationBarHidden:YES animated:NO];
+    
+    
     
     [self.window makeKeyAndVisible];
-
     [[PacoNetwork sharedInstance] update];
   
   
@@ -318,43 +320,32 @@ static NSString * const kClientID =
     
     self.configController = [[PacoConfigController alloc] initWithNibName:@"PacoConfigController" bundle:nil];
     self.configurationManager = [[PacoConfigurationViewController  alloc] initWithNibName:@"PacoConfigurationViewController" bundle:nil];
+    self.hub  = [[PacoMyExperiments alloc] initWithNibName:@"PacoMyExperiments" bundle:nil];
+    self.pg = [[HubPaginatedTableViewController alloc] initWithNibName:@"HubPaginatedTableViewController" bundle:nil];
     
-     NSMutableArray *tabViewControllers = [[NSMutableArray alloc] init];
-    [tabViewControllers addObject:[[UINavigationController alloc] initWithRootViewController:self.myExperiments]];
-    [tabViewControllers addObject:[[UINavigationController alloc] initWithRootViewController:self.joinedExperiment]];
-    [tabViewControllers addObject:[[UINavigationController alloc] initWithRootViewController:self.configurationManager]];
-    
-    
+    self.myExperiments =[[PacoMyExperiments alloc] initWithNibName:@"PacoMyExperiments" bundle:nil];
+    self.publicExperiments  =[[PacoHubExperiments alloc] initWithNibName:@"PacoHubExperiments" bundle:nil];
     
     
-    self.tabBar = [[UITabBarController alloc] init];
+     self.tabBar = [[UITabBarController alloc] init];
+
+    [self.tabBar addChildViewController:self.myExperiments];
+    [self.tabBar addChildViewController:self.pg];
+    [self.tabBar addChildViewController:self.joinedExperiment];
+    [self.tabBar addChildViewController:self.configurationManager];
+    
+    
+    self.myExperiments.tabBarItem.title = @"Invitations";
+    self.joinedExperiment.tabBarItem.title = @"Joined";
+    self.configurationManager.tabBarItem.title = @"Config";
+    self.pg.tabBarItem.title = @"Hub";
     
 
-    self.pg.title = @"Hub";
-    self.myExperiments.title = @"Invitations";
-    self.joinedExperiment.title =@"Joined";
-    self.configController.title =@"Config";
-    self.hub.title =@"Hub";
-    self.testPagination.title=@"pagination";
-    self.configurationManager.title == @"Config";
-    self.swiftTest.title  =@"THE HUB";
-    
-    [self.tabBar addChildViewController:[[UINavigationController alloc] initWithRootViewController:self.myExperiments]];
-    [self.tabBar addChildViewController:[[UINavigationController alloc] initWithRootViewController:self.pg]];
-    
-    
-    [self.tabBar addChildViewController:[[UINavigationController alloc] initWithRootViewController:self.joinedExperiment]];
-    [self.tabBar addChildViewController:[[UINavigationController alloc] initWithRootViewController:self.configurationManager]];
-    
-    
-    
  
     
     self.myExperiments.tabBarItem.image = [UIImage imageNamed:@"animal-element-7.png" ];
-    
     self.joinedExperiment.tabBarItem.image = [UIImage imageNamed:@"business-target-7.png" ];
-     self.pg.tabBarItem.image = [UIImage imageNamed:@"gift-7.png" ];
- 
+    self.pg.tabBarItem.image = [UIImage imageNamed:@"gift-7.png" ];
     self.configurationManager.tabBarItem.image =[UIImage imageNamed:@"gear-7.png" ];
     
     
@@ -363,13 +354,7 @@ static NSString * const kClientID =
 - (void)applicationDidBecomeActive:(UIApplication *)application {
   DDLogInfo(@"==========  Application applicationDidBecomeActive  ==========");
     
-    
- // [[PacoClient sharedInstance] uploadPendingEventsInBackground];
-  
-  // [[NSNotificationCenter defaultCenter] postNotificationName:kPacoNotificationAppBecomeActive
-      //                                                object:nil];
-    
-  // it doesn;t apper that didbecome active is used.
+ 
 }
 
 - (void)applicationWillResignActive:(UIApplication *)application {

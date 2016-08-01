@@ -200,12 +200,10 @@
           
           
          PAExperimentDAO * dao =  [serializer buildModelObject:definitionJson];
-          
-     
+
  
          [definitionList addObject:dao];
-          
-          
+  
       }
       completionBlock([NSArray arrayWithArray:definitionList], error);
     }

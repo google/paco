@@ -38,7 +38,7 @@ typedef void(^PacoPaginatedResponseBlock)(NSDictionary* items, NSString* cursor,
 - (void)loadFullDefinitionListWithIDs:(NSArray*)idList andBlock:(void (^)(NSDictionary *, NSError*))completionBlock;
 
 //completionBlock takes an array of PacoExperimentDefinition
-- (void)loadMyFullDefinitionListWithBlock:(void (^)(NSDictionary *, NSError*))completionBlock;
+- (void)loadMyFullDefinitionListWithBlock:(void (^)(NSArray  *, NSError*))completionBlock;
 
 // Batch submit a list of events
 - (void)submitEventList:(NSArray*)eventList withCompletionBlock:(void (^)(NSArray *, NSError*))completionBlock;

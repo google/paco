@@ -367,7 +367,7 @@ static NSString* const kPacoStagingServerAddress = @"quantifiedself-staging.apps
             
         } else {
             
-            [network.service loadMyFullDefinitionListWithBlock:^(NSDictionary * experiments, NSError* error) {
+            [network.service loadMyFullDefinitionListWithBlock:^(NSArray  * experiments, NSError* error) {
                 if (!error) {
                     
                     PacoMediator* mediator = [PacoMediator sharedInstance];
@@ -405,7 +405,7 @@ static NSString* const kPacoStagingServerAddress = @"quantifiedself-staging.apps
     
         
              [self uploadPendingEventsInBackground];
-              [self.service loadMyFullDefinitionListWithBlock:^(NSDictionary* definitions, NSError* error) {
+              [self.service loadMyFullDefinitionListWithBlock:^(NSArray * definitions, NSError* error) {
                 if (!error) {
                     
                     

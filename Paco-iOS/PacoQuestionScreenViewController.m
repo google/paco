@@ -33,7 +33,9 @@
 #import "PacoGroupSelectionController.h"
 #import "PacoFeedbackWebViewController.h"
 #import "ExperimentDAO.h" 
+#import "ExperimentGroup.h" 
 
+#import "NSObject+J2objcKVO.h"
 
 
 NSString *kCellIdQuestion = @"question";
@@ -55,7 +57,13 @@ NSString *kCellIdQuestion = @"question";
   self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
   if (self) {
       
-    self.navigationItem.title = NSLocalizedString(@"Participate!", nil);
+      
+    NSString* name =    [group valueForKeyEx:@"name"];
+    
+      
+  //  [self.navigationController setNavigationBarHidden:NO animated:NO];
+      
+    self.navigationItem.title = NSLocalizedString(name, nil);
     self.navigationItem.rightBarButtonItem =
     [[UIBarButtonItem alloc] initWithTitle:NSLocalizedString(@"Submit", nil)
                                      style:UIBarButtonItemStyleDone
@@ -73,6 +81,13 @@ NSString *kCellIdQuestion = @"question";
     _notification = notification;
   }
    return self;
+}
+
+-(void) viewWillDisappear:(BOOL)animated
+{
+    
+ //    [self.navigationController setNavigationBarHidden:YES animated:NO];
+    
 }
 
 
