@@ -82,7 +82,7 @@ public class RuntimePermissions extends AccessibilityService {
     PERMISSION_DIALOG_STRINGS.put("record audio", "Microphone");
     PERMISSION_DIALOG_STRINGS.put("make and manage phone calls", "Phone");
     PERMISSION_DIALOG_STRINGS.put("access photos, media, and files on your device", "Storage");
-    PERMISSION_DIALOG_STRINGS.put("", "Body Sensors"); // TODO: if we encounter this string, add it here
+    PERMISSION_DIALOG_STRINGS.put("access sensor data about your vital signs", "Body Sensors");
     PERMISSION_DIALOG_STRINGS.put("access your calendar", "Calendar");
     PERMISSION_DIALOG_STRINGS.put("send and view SMS messages", "SMS");
   }
