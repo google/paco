@@ -757,9 +757,10 @@ public class ExperimentProviderUtil implements EventStore {
       }
       writeLock.unlock();
       return uri;
-    } catch (RuntimeException e) {
+    } catch (Exception e) {
       writeLock.unlock();
-      throw e;
+      Log.w(ExperimentProvider.TAG, "Caught unexpected exception.", e);
+      return null;
     }
   }
 
