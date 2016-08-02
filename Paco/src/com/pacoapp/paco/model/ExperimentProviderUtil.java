@@ -22,7 +22,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Semaphore;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.concurrent.locks.Lock;
 
 import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.JsonNode;
@@ -77,7 +78,7 @@ public class ExperimentProviderUtil implements EventStore {
   // with regards to each other, to ensure that no incomplete events can get synced to the server
   // (and, by extension, to ensure that a thread trying to access an event has to wait until the
   // event has been fully inserted).
-  private static Semaphore eventStorageDbMutex = new Semaphore(1);
+  private static final ReentrantReadWriteLock eventStorageDbLock = new ReentrantReadWriteLock();
 
   DateTimeFormatter endDateFormatter = DateTimeFormat.forPattern(TimeUtil.DATE_FORMAT);
 
@@ -744,11 +745,8 @@ public class ExperimentProviderUtil implements EventStore {
 
 
   public Uri insertEvent(Event event) {
-    try {
-      eventStorageDbMutex.acquire();
-    } catch (InterruptedException e) {
-      Log.w(ExperimentProvider.TAG, "Interrupted while acquiring eventStorageDbMutex in insertEvent.", e);
-    }
+    Lock writeLock = eventStorageDbLock.writeLock();
+    writeLock.lock();
     try {
       Uri uri = contentResolver.insert(EventColumns.CONTENT_URI, createContentValues(event));
       long rowId = Long.parseLong(uri.getLastPathSegment());
@@ -757,10 +755,10 @@ public class ExperimentProviderUtil implements EventStore {
         response.setEventId(rowId);
         insertResponse(response);
       }
-      eventStorageDbMutex.release();
+      writeLock.unlock();
       return uri;
     } catch (RuntimeException e) {
-      eventStorageDbMutex.release();
+      writeLock.unlock();
       throw e;
     }
   }
@@ -886,13 +884,10 @@ public class ExperimentProviderUtil implements EventStore {
   private List<Output> findResponsesFor(Event event) {
     List<Output> responses = new ArrayList<Output>();
     Cursor cursor = null;
-    try {
-      // TODO: the use of this mutex should probably be moved to the parent findEvent() method after
-      // it is refactored.
-      eventStorageDbMutex.acquire();
-    } catch (InterruptedException e) {
-      Log.w(ExperimentProvider.TAG, "eventStorageDbMutex was interrupted in findResponsesFor.", e);
-    }
+    Lock readLock = eventStorageDbLock.readLock();
+    // TODO: the use of this lock should probably be moved to the parent findEvent() method after
+    // it is refactored.
+    readLock.lock();
     try {
       cursor = contentResolver.query(OutputColumns.CONTENT_URI,
               null,
@@ -910,7 +905,7 @@ public class ExperimentProviderUtil implements EventStore {
       if (cursor != null) {
         cursor.close();
       }
-      eventStorageDbMutex.release();
+      readLock.unlock();
     }
     return responses;
   }
