@@ -15,7 +15,8 @@
 
         <md-input-container ng-if="schedule.scheduleType === 4">
           <label>Minimum between</label>
-          <input type="number" ng-model="schedule.minimumBuffer">
+          <input type="number" ng-model="schedule.minimumBuffer"
+            ng-pattern="/^[0-9]*$/">
           <div ng-messages>
             <div ng-message>minutes</div>
           </div>
@@ -23,7 +24,8 @@
 
         <md-input-container ng-if="schedule.snoozeCount" ng-init="schedule.snoozeTimeInMinutes = 10">
           <label>Snooze time</label>
-          <input type="number" ng-model="schedule.snoozeTimeInMinutes">
+          <input type="number" ng-model="schedule.snoozeTimeInMinutes"
+            ng-pattern="/^[0-9]*$/">
         </md-input-container>
 
         <md-checkbox ng-model="schedule.userEditable" aria-label="User editable">
@@ -129,7 +131,7 @@
         <div layout="row">
           <md-input-container flex="33">
             <label>Frequency</label>
-            <input type="number" min="0" max="100" ng-model="schedule.esmFrequency">
+            <input type="number" min="0" max="100" ng-model="schedule.esmFrequency"  ng-pattern="/^[0-9]*$/">
           </md-input-container>
 
           <select ng-model="schedule.esmPeriodInDays" flex="33" class="period" as-string>
