@@ -423,7 +423,7 @@ var paco = (function (init) {
 	        	// TODO i18n
 	          alert("No notification support"); 
 	        },
-	        createNotification : function(message, timeout) { 
+	        createNotificationWithTimeout : function(message, timeout) { 
             // TODO i18n
             alert("No notification support"); 
           },
@@ -440,8 +440,8 @@ var paco = (function (init) {
 	      createNotification : function(message) {
 	        window.notificationService.createNotification(message);
 	      }, 
-	      createNotification : function(message, timeout) {
-          notificationService.createNotification(message, timeout);
+	      createNotificationWithTimeout : function(message, timeout) {
+          notificationService.createNotificationWithTimeout(message, timeout);
         },
         removeNotification : function(message) {
 	    	  window.notificationService.removeNotification(message);
