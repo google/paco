@@ -7,6 +7,15 @@ md-input-container div[ng-message] {
   line-height: 1.2em;
 }
 
+.basics .disclosures {
+  display: block;
+  min-height: 58px;
+}
+
+.basics .disclosures .padded {
+  padding-top: 0;
+}
+
 .basics h2 {
   background: #e0e0e0;
   margin: 0;
