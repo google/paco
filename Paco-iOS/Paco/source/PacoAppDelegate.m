@@ -1,16 +1,16 @@
-/* Copyright 2013 Google Inc. All Rights Reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+/* Copyright 2015  Google
+ 
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+ 
+ http://www.apache.org/licenses/LICENSE-2.0
+ 
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
  */
 
 #import "PacoAppDelegate.h"
@@ -220,8 +220,7 @@ static NSString * const kClientID =
     
     
     
-  // per documents stir it is not required to invoke stir
-  // arc4random_stir();
+ 
     
   [DDLog addLogger:[DDASLLogger sharedInstance]];
   [DDLog addLogger:[DDTTYLogger sharedInstance]];
@@ -231,6 +230,12 @@ static NSString * const kClientID =
   [DDLog addLogger:logger];
     
    _isFirstLaunch = [self markIsFirstLoaunched];
+    
+    
+   
+    
+    
+    
     
     
     /* register for notification */
@@ -250,13 +255,7 @@ static NSString * const kClientID =
     
     
     
- //    self.myExperiments =[[PacoMyExperiments alloc] initWithNibName:@"PacoMyExperiments" bundle:nil];
-  //   self.publicExperiments  =[[PacoHubExperiments alloc] initWithNibName:@"PacoHubExperiments" bundle:nil];
-    
-    
-  //   self.hub  = [[PacoMyExperiments alloc] initWithNibName:@"PacoMyExperiments" bundle:nil];
-    
-//      self.pg = [[HubPaginatedTableViewController alloc] initWithNibName:@"HubPaginatedTableViewController" bundle:nil];
+ 
     
     self.alertTester = [[PacoNotificationTester alloc] initWithNibName:@"PacoNotificationTester" bundle:nil];
     
@@ -267,9 +266,13 @@ static NSString * const kClientID =
     [self makeTabBar];
     
     
-   
-    self.window.rootViewController =  self.custumFeedback;
+    _pacoView = [[UIImageView alloc] init];
     
+ 
+    
+   // let height = UIApplication.sharedApplication().statusBarFrame.height +
+   // self.navigationController!.navigationBar.frame.height;
+ 
     
     self.window.rootViewController = [[UINavigationController alloc] initWithRootViewController: self.tabBar];
     
@@ -277,12 +280,24 @@ static NSString * const kClientID =
     
     self.viewController =  self.tabBar;
     
- //   [self.viewController.navigationController setNavigationBarHidden:YES animated:NO];
+
     
     
     
     [self.window makeKeyAndVisible];
     [[PacoNetwork sharedInstance] update];
+    
+    
+    _pacoView.image =  [UIImage imageNamed:@"paco32"];
+    
+    
+    CGRect rect =  CGRectMake(32+43,  20+ (44-32)/2 , 32, 32);
+    _pacoView.frame = rect;
+    
+    //_pacoView.center = self.viewController.navigationController.view.center;
+    
+    
+    [self.window addSubview:_pacoView];
   
   
   UILocalNotification *notification = launchOptions[UIApplicationLaunchOptionsLocalNotificationKey];
@@ -343,10 +358,23 @@ static NSString * const kClientID =
 
  
     
-    self.myExperiments.tabBarItem.image = [UIImage imageNamed:@"animal-element-7.png" ];
-    self.joinedExperiment.tabBarItem.image = [UIImage imageNamed:@"business-target-7.png" ];
+   // self.myExperiments.tabBarItem.image = [UIImage imageNamed:@"animal-element-7.png" ];
+    
+    //self.myExperiments.tabBarItem.image = [UIImage imageNamed:@"animal-element-7.png" ];
+    
+    
+     self.myExperiments.tabBarItem.image = [UIImage imageNamed:@"invitations.png" ];
+     self.joinedExperiment.tabBarItem.image = [UIImage imageNamed:@"joined.png" ];
+    
+    // self.joinedExperiment.tabBarItem.image = [UIImage imageNamed:@"business-target-7.png" ];
+    
+    self.joinedExperiment.tabBarItem.image = [UIImage imageNamed:@"joined.png" ];
     self.pg.tabBarItem.image = [UIImage imageNamed:@"gift-7.png" ];
-    self.configurationManager.tabBarItem.image =[UIImage imageNamed:@"gear-7.png" ];
+    
+    self.pg.tabBarItem.image = [UIImage imageNamed:@"hub.png" ];
+   // self.configurationManager.tabBarItem.image =[UIImage imageNamed:@"gear-7.png" ];
+    
+    self.configurationManager.tabBarItem.image =[UIImage imageNamed:@"configuration.png" ];
     
     
 }

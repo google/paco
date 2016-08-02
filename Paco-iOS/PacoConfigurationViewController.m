@@ -36,7 +36,7 @@
 -(void) viewWillAppear:(BOOL)animated
 {
     
-    self.tabBarController.navigationItem.title =@"Configurations";
+    self.tabBarController.navigationItem.title =@"Config";
     
 }
 

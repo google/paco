@@ -698,6 +698,11 @@
 		A68888171C9B53300003C8DC /* PacoTimeCellModel.m in Sources */ = {isa = PBXBuildFile; fileRef = A68888151C9B2E120003C8DC /* PacoTimeCellModel.m */; };
 		A689C6C41D4B18CC00B3AD73 /* PixateFreestyle.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A689C6C31D4B18CC00B3AD73 /* PixateFreestyle.framework */; };
 		A689C6C71D4BD9ED00B3AD73 /* default.css in Resources */ = {isa = PBXBuildFile; fileRef = A689C6C61D4BD9ED00B3AD73 /* default.css */; };
+		A689C6C91D5042F400B3AD73 /* configuration.png in Resources */ = {isa = PBXBuildFile; fileRef = A689C6C81D5042F400B3AD73 /* configuration.png */; };
+		A689C6CB1D50482E00B3AD73 /* invitations.png in Resources */ = {isa = PBXBuildFile; fileRef = A689C6CA1D50482E00B3AD73 /* invitations.png */; };
+		A689C6CD1D504C5F00B3AD73 /* hub.png in Resources */ = {isa = PBXBuildFile; fileRef = A689C6CC1D504C5F00B3AD73 /* hub.png */; };
+		A689C6CF1D504D6E00B3AD73 /* joined.png in Resources */ = {isa = PBXBuildFile; fileRef = A689C6CE1D504D6E00B3AD73 /* joined.png */; };
+		A689C6D11D51254600B3AD73 /* joined@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = A689C6D01D51254600B3AD73 /* joined@2x.png */; };
 		A68EFA7E1C7BE4E400D7FD50 /* Contents.json in Resources */ = {isa = PBXBuildFile; fileRef = A68EFA771C7BE4E400D7FD50 /* Contents.json */; };
 		A68EFA7F1C7BE4E400D7FD50 /* splash_ios_mobile_640x1136.png in Resources */ = {isa = PBXBuildFile; fileRef = A68EFA781C7BE4E400D7FD50 /* splash_ios_mobile_640x1136.png */; };
 		A68EFA801C7BE4E400D7FD50 /* splash_ios_mobile_640x960.png in Resources */ = {isa = PBXBuildFile; fileRef = A68EFA791C7BE4E400D7FD50 /* splash_ios_mobile_640x960.png */; };
@@ -758,6 +763,9 @@
 		A6E1D0701D19EE5900C20B10 /* NSMutableArray+PacoEvent.m in Sources */ = {isa = PBXBuildFile; fileRef = A6E1D06F1D19EE5900C20B10 /* NSMutableArray+PacoEvent.m */; };
 		A6E1D0821D231F3F00C20B10 /* radiobtn_on.png in Resources */ = {isa = PBXBuildFile; fileRef = A6E1D0801D231F3F00C20B10 /* radiobtn_on.png */; };
 		A6E1D0841D23211100C20B10 /* radiobtn_off.png in Resources */ = {isa = PBXBuildFile; fileRef = A6E1D0831D23211100C20B10 /* radiobtn_off.png */; };
+		A6ED054C1D513CD3000D7CBB /* invitations@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = A6ED054B1D513CD3000D7CBB /* invitations@2x.png */; };
+		A6ED054E1D513CDE000D7CBB /* configuration@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = A6ED054D1D513CDE000D7CBB /* configuration@2x.png */; };
+		A6ED05501D513DBE000D7CBB /* hub@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = A6ED054F1D513DBE000D7CBB /* hub@2x.png */; };
 		A6F7348F1BD9BA3E00DCE716 /* NSDate+PacoTimeZoneHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = A62A15611BC4A8B800FF20C1 /* NSDate+PacoTimeZoneHelper.m */; settings = {COMPILER_FLAGS = " "; }; };
 		A6F734921BD9BA8A00DCE716 /* OrgJodaTimeDateMidnight+PacoDateHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = A6F734911BD9BA8A00DCE716 /* OrgJodaTimeDateMidnight+PacoDateHelper.m */; settings = {COMPILER_FLAGS = " "; }; };
 		A6F957531BA236F400F96295 /* PacoMediator.m in Sources */ = {isa = PBXBuildFile; fileRef = A6F957521BA236F400F96295 /* PacoMediator.m */; settings = {COMPILER_FLAGS = " "; }; };
@@ -1598,6 +1606,11 @@
 		A68888151C9B2E120003C8DC /* PacoTimeCellModel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoTimeCellModel.m; sourceTree = "<group>"; };
 		A689C6C31D4B18CC00B3AD73 /* PixateFreestyle.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = PixateFreestyle.framework; path = frameworks/PixateFreestyle.framework; sourceTree = "<group>"; };
 		A689C6C61D4BD9ED00B3AD73 /* default.css */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.css; path = default.css; sourceTree = "<group>"; };
+		A689C6C81D5042F400B3AD73 /* configuration.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = configuration.png; sourceTree = "<group>"; };
+		A689C6CA1D50482E00B3AD73 /* invitations.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = invitations.png; sourceTree = "<group>"; };
+		A689C6CC1D504C5F00B3AD73 /* hub.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = hub.png; sourceTree = "<group>"; };
+		A689C6CE1D504D6E00B3AD73 /* joined.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = joined.png; sourceTree = "<group>"; };
+		A689C6D01D51254600B3AD73 /* joined@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "joined@2x.png"; sourceTree = "<group>"; };
 		A68EFA771C7BE4E400D7FD50 /* Contents.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = Contents.json; sourceTree = "<group>"; };
 		A68EFA781C7BE4E400D7FD50 /* splash_ios_mobile_640x1136.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = splash_ios_mobile_640x1136.png; sourceTree = "<group>"; };
 		A68EFA791C7BE4E400D7FD50 /* splash_ios_mobile_640x960.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = splash_ios_mobile_640x960.png; sourceTree = "<group>"; };
@@ -1706,6 +1719,9 @@
 		A6E1D07F1D231F3F00C20B10 /* radiobtn_off.jpeg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = radiobtn_off.jpeg; sourceTree = "<group>"; };
 		A6E1D0801D231F3F00C20B10 /* radiobtn_on.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = radiobtn_on.png; sourceTree = "<group>"; };
 		A6E1D0831D23211100C20B10 /* radiobtn_off.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = radiobtn_off.png; sourceTree = "<group>"; };
+		A6ED054B1D513CD3000D7CBB /* invitations@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "invitations@2x.png"; sourceTree = "<group>"; };
+		A6ED054D1D513CDE000D7CBB /* configuration@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "configuration@2x.png"; sourceTree = "<group>"; };
+		A6ED054F1D513DBE000D7CBB /* hub@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "hub@2x.png"; sourceTree = "<group>"; };
 		A6F734901BD9BA8A00DCE716 /* OrgJodaTimeDateMidnight+PacoDateHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "OrgJodaTimeDateMidnight+PacoDateHelper.h"; sourceTree = "<group>"; };
 		A6F734911BD9BA8A00DCE716 /* OrgJodaTimeDateMidnight+PacoDateHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "OrgJodaTimeDateMidnight+PacoDateHelper.m"; sourceTree = "<group>"; };
 		A6F957511BA236F400F96295 /* PacoMediator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoMediator.h; sourceTree = "<group>"; };
@@ -3102,6 +3118,14 @@
 		A67067851D34701B002C52F2 /* web_resources */ = {
 			isa = PBXGroup;
 			children = (
+				A689C6C81D5042F400B3AD73 /* configuration.png */,
+				A6ED054D1D513CDE000D7CBB /* configuration@2x.png */,
+				A689C6CC1D504C5F00B3AD73 /* hub.png */,
+				A6ED054F1D513DBE000D7CBB /* hub@2x.png */,
+				A689C6CE1D504D6E00B3AD73 /* joined.png */,
+				A689C6D01D51254600B3AD73 /* joined@2x.png */,
+				A689C6CA1D50482E00B3AD73 /* invitations.png */,
+				A6ED054B1D513CD3000D7CBB /* invitations@2x.png */,
 				A67067961D347116002C52F2 /* conditional_parser.js */,
 				A67067971D347116002C52F2 /* custom_base.js */,
 				A67067981D347116002C52F2 /* jquery.flot.js */,
@@ -3897,6 +3921,7 @@
 			files = (
 				A63A821C1C0677B600ACBC0A /* shop-7.png in Resources */,
 				A63A811C1C0677B600ACBC0A /* clock-7.png in Resources */,
+				A689C6CD1D504C5F00B3AD73 /* hub.png in Resources */,
 				A63A811A1C0677B600ACBC0A /* circle-x-7.png in Resources */,
 				A64F1DEA1BD70F8500DCE6C3 /* Roboto-MediumItalic.ttf in Resources */,
 				A63A81CA1C0677B600ACBC0A /* number-2-7.png in Resources */,
@@ -3958,6 +3983,7 @@
 				36B8EBDE17568E29004CF035 /* experiment_disabled.png in Resources */,
 				A63A81A01C0677B600ACBC0A /* layout-arrange-07-7.png in Resources */,
 				A63A80E01C0677B600ACBC0A /* barcode-7.png in Resources */,
+				A6ED054C1D513CD3000D7CBB /* invitations@2x.png in Resources */,
 				A63A820E1C0677B600ACBC0A /* rss-7.png in Resources */,
 				A63A80D41C0677B600ACBC0A /* 24-around-7.png in Resources */,
 				A63A81301C0677B600ACBC0A /* connect-arrow-down-right-7.png in Resources */,
@@ -3997,6 +4023,7 @@
 				A63A81C41C0677B600ACBC0A /* night-7.png in Resources */,
 				A63A814E1C0677B600ACBC0A /* electric-7.png in Resources */,
 				A63A82061C0677B600ACBC0A /* presentation-7.png in Resources */,
+				A6ED054E1D513CDE000D7CBB /* configuration@2x.png in Resources */,
 				A63A80EC1C0677B600ACBC0A /* book-cover-7.png in Resources */,
 				36B8EBE117568E29004CF035 /* experiment_pressed.png in Resources */,
 				A63A81C01C0677B600ACBC0A /* new-sign-badge-7.png in Resources */,
@@ -4034,6 +4061,7 @@
 				A63A818C1C0677B600ACBC0A /* house-7.png in Resources */,
 				A63A822A1C0677B600ACBC0A /* tablet-7.png in Resources */,
 				A63A82621C0677B600ACBC0A /* write-simple-7.png in Resources */,
+				A6ED05501D513DBE000D7CBB /* hub@2x.png in Resources */,
 				A63A81961C0677B600ACBC0A /* layout-arrange-02-7.png in Resources */,
 				A63A822C1C0677B600ACBC0A /* tag-7.png in Resources */,
 				A63A82141C0677B600ACBC0A /* server-7.png in Resources */,
@@ -4060,6 +4088,7 @@
 				A63A81B61C0677B600ACBC0A /* man-7.png in Resources */,
 				36B8EBE917568E29004CF035 /* find_experiments_pressed.png in Resources */,
 				A63A81BE1C0677B600ACBC0A /* music-7.png in Resources */,
+				A689C6CF1D504D6E00B3AD73 /* joined.png in Resources */,
 				A63A81661C0677B600ACBC0A /* file-three-7.png in Resources */,
 				A63A81061C0677B600ACBC0A /* calendar-7.png in Resources */,
 				A63A824E1C0677B600ACBC0A /* vase-plant-7.png in Resources */,
@@ -4137,6 +4166,7 @@
 				A63A82381C0677B600ACBC0A /* text-align-justify-7.png in Resources */,
 				36B8EBFD17568E29004CF035 /* smile_icon3_re.png in Resources */,
 				A63A80F81C0677B600ACBC0A /* bookmark-7.png in Resources */,
+				A689C6C91D5042F400B3AD73 /* configuration.png in Resources */,
 				A63A81941C0677B600ACBC0A /* layout-arrange-01-7.png in Resources */,
 				A63A81781C0677B600ACBC0A /* folder-star-7.png in Resources */,
 				A63A81A21C0677B600ACBC0A /* layout-arrange-08-7.png in Resources */,
@@ -4183,11 +4213,13 @@
 				A63A80DC1C0677B600ACBC0A /* animal-element-7.png in Resources */,
 				A63A82281C0677B600ACBC0A /* table-tennis-7.png in Resources */,
 				A63A81461C0677B600ACBC0A /* dot-more-7.png in Resources */,
+				A689C6D11D51254600B3AD73 /* joined@2x.png in Resources */,
 				A64F1DE31BD70F8500DCE6C3 /* Roboto-BlackItalic.ttf in Resources */,
 				A63A80F61C0677B600ACBC0A /* book-simple-7.png in Resources */,
 				36B8EC1117568E29004CF035 /* uicheckbox_unchecked.png in Resources */,
 				A63A81821C0677B600ACBC0A /* gift-7.png in Resources */,
 				A6DC6E6D1BEC244500D38D68 /* PacoTableViewExpandingCellBase.xib in Resources */,
+				A689C6CB1D50482E00B3AD73 /* invitations.png in Resources */,
 				A64F1DEE1BD70F8500DCE6C3 /* RobotoCondensed-Bold.ttf in Resources */,
 				C567E89017A03FDE00267A26 /* deepbark_trial.mp3 in Resources */,
 				4448BCC11A808E7A0034FCE9 /* ReleaseNotes.txt in Resources */,
