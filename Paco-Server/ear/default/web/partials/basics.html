@@ -5,14 +5,20 @@
       <h2>Experiment Listing</h2>
 
       <div layout="column" layout-padding layout-margin>
-
-        <md-input-container>
-          <label>Title</label>
-          <input ng-model="experiment.title">
-          <div ng-messages>
-            <div ng-message>Your experiment title should be simple, specific and memorable.</div>
-          </div>
-        </md-input-container>
+        <div layout="row">
+          <md-input-container flex=85>
+            <label>Title</label>
+            <input ng-model="experiment.title">
+            <div ng-messages>
+              <div ng-message>Your experiment title should be simple, specific and memorable.</div>
+            </div>
+          </md-input-container>
+          <div flex></div>
+          <md-input-container flex=10>
+            <label>Version</label>
+            <input type="text" ng-model="experiment.version" ng-disabled="true"></input>
+          </md-input-container>
+        </div>
 
         <md-input-container>
           <label>Contact Email</label>
