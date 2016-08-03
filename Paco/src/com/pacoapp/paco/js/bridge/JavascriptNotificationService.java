@@ -31,7 +31,7 @@ public class JavascriptNotificationService {
   }
 
   @JavascriptInterface
-  public void createNotification(String message, long timeoutMillis) {
+  public void createNotificationWithTimeout(String message, long timeoutMillis) {
     createNotification(message, true, true, timeoutMillis);
   }
 

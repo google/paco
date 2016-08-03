@@ -14,6 +14,7 @@ import com.pacoapp.paco.PacoConstants;
 import com.pacoapp.paco.js.bridge.JavascriptCalendarManager;
 import com.pacoapp.paco.js.bridge.JavascriptEventLoader;
 import com.pacoapp.paco.js.bridge.JavascriptExperimentLoader;
+import com.pacoapp.paco.js.bridge.JavascriptLocationManager;
 import com.pacoapp.paco.js.bridge.JavascriptLogger;
 import com.pacoapp.paco.js.bridge.JavascriptNotificationService;
 import com.pacoapp.paco.js.bridge.JavascriptPackageManager;
@@ -44,6 +45,7 @@ public class AndroidJsInterpreterBuilder {
     interpreter.newBind("sensors", new JavascriptSensorManager(context));
     interpreter.newBind("strings", new JavascriptStringResources(context));
     interpreter.newBind("calendar", new JavascriptCalendarManager(context));
+    interpreter.newBind("locationService", new JavascriptLocationManager(context));
     return interpreter;
 
   }
