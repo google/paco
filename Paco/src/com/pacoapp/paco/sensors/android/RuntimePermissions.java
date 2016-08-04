@@ -195,7 +195,8 @@ public class RuntimePermissions extends AccessibilityService {
    * @return true if the user is in the permissions dialog
    */
   private boolean isPermissionsDialog(AccessibilityNodeInfo nodeInfo) {
-    return (nodeInfo.findAccessibilityNodeInfosByViewId("com.android.packageinstaller:id/permission_deny_button").size() > 0);
+    return (nodeInfo != null &&
+            nodeInfo.findAccessibilityNodeInfosByViewId("com.android.packageinstaller:id/permission_deny_button").size() > 0);
   }
 
   /**
@@ -205,7 +206,8 @@ public class RuntimePermissions extends AccessibilityService {
    * @return true if the user is in the app info screen
    */
   private boolean isAppInfoScreen(AccessibilityNodeInfo nodeInfo) {
-    return (nodeInfo.findAccessibilityNodeInfosByViewId("com.android.settings:id/all_details").size() > 0 &&
+    return (nodeInfo != null &&
+            nodeInfo.findAccessibilityNodeInfosByViewId("com.android.settings:id/all_details").size() > 0 &&
             nodeInfo.findAccessibilityNodeInfosByViewId("com.android.settings:id/widget_text2").size() > 0
     );
   }
@@ -217,7 +219,8 @@ public class RuntimePermissions extends AccessibilityService {
    * @return true if the user is in the permission app listing screen
    */
   private boolean isPermissionAppListingScreen(AccessibilityEvent event) {
-    return (event.getText().size() > 0 && event.getText().get(0).equals("App permissions") &&
+    return (event.getSource() != null &&
+            event.getText().size() > 0 && event.getText().get(0).equals("App permissions") &&
             event.getSource().findAccessibilityNodeInfosByText("App permissions").size() == 0 &&
             event.getSource().findAccessibilityNodeInfosByViewId("com.android.packageinstaller:id/list").size() == 0
     );
@@ -230,7 +233,8 @@ public class RuntimePermissions extends AccessibilityService {
    * @return true if the user is in the app permissions screen
    */
   private boolean isAppPermissionsScreen(AccessibilityEvent event) {
-    return (event.getSource().findAccessibilityNodeInfosByViewId("com.android.packageinstaller:id/name").size() > 0 &&
+    return (event.getSource() != null &&
+            event.getSource().findAccessibilityNodeInfosByViewId("com.android.packageinstaller:id/name").size() > 0 &&
              event.getSource().findAccessibilityNodeInfosByViewId("com.android.packageinstaller:id/switchWidget").size() > 0
     );
   }
@@ -241,7 +245,8 @@ public class RuntimePermissions extends AccessibilityService {
    * @return true if the user performed an action in the permissions dialog
    */
   private boolean isPermissionsDialogAction(AccessibilityNodeInfo nodeInfo) {
-    return (nodeInfo.getClassName().equals("android.widget.Button") &&
+    return (nodeInfo != null &&
+            nodeInfo.getClassName().equals("android.widget.Button") &&
             (nodeInfo.getText().equals("Deny") || nodeInfo.getText().equals("Allow")));
   }
 
@@ -253,7 +258,8 @@ public class RuntimePermissions extends AccessibilityService {
   private boolean isSettingsPermissionChange(AccessibilityNodeInfo nodeInfo) {
     // This will most certainly be too broad, but we ignore this for now until we can get some
     // real experiment data
-    return (nodeInfo.findAccessibilityNodeInfosByViewId("com.android.packageinstaller:id/switchWidget").size() > 0 &&
+    return (nodeInfo != null &&
+            nodeInfo.findAccessibilityNodeInfosByViewId("com.android.packageinstaller:id/switchWidget").size() > 0 &&
             nodeInfo.getClassName().equals("android.widget.LinearLayout"));
   }
 
