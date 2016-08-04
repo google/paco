@@ -234,8 +234,16 @@ public class RuntimePermissions extends AccessibilityService {
    */
   private boolean isAppPermissionsScreen(AccessibilityEvent event) {
     return (event.getSource() != null &&
-            event.getSource().findAccessibilityNodeInfosByViewId("com.android.packageinstaller:id/name").size() > 0 &&
-             event.getSource().findAccessibilityNodeInfosByViewId("com.android.packageinstaller:id/switchWidget").size() > 0
+            (
+                    event.getSource().findAccessibilityNodeInfosByViewId("com.android.packageinstaller:id/name").size() > 0 ||
+                    // This changed in Android N
+                    event.getSource().findAccessibilityNodeInfosByViewId("android:id/title").size() > 0
+            ) &&
+            (
+                    event.getSource().findAccessibilityNodeInfosByViewId("com.android.packageinstaller:id/switchWidget").size() > 0 ||
+                    // This changed in Android N
+                    event.getSource().findAccessibilityNodeInfosByViewId("android:id/switch_widget").size() > 0
+            )
     );
   }
 
@@ -245,9 +253,15 @@ public class RuntimePermissions extends AccessibilityService {
    * @return true if the user performed an action in the permissions dialog
    */
   private boolean isPermissionsDialogAction(AccessibilityNodeInfo nodeInfo) {
+    if (nodeInfo.getText() == null) {
+      return false;
+    }
+    // Lower case because depending on Android version, the string may be all capitals or just
+    // capitalized
+    String nodeTextLowercase = nodeInfo.getText().toString().toLowerCase();
     return (nodeInfo != null &&
             nodeInfo.getClassName().equals("android.widget.Button") &&
-            (nodeInfo.getText().equals("Deny") || nodeInfo.getText().equals("Allow")));
+            (nodeTextLowercase.equals("deny") ||nodeTextLowercase.equals("allow")));
   }
 
   /**
@@ -259,7 +273,12 @@ public class RuntimePermissions extends AccessibilityService {
     // This will most certainly be too broad, but we ignore this for now until we can get some
     // real experiment data
     return (nodeInfo != null &&
-            nodeInfo.findAccessibilityNodeInfosByViewId("com.android.packageinstaller:id/switchWidget").size() > 0 &&
+            (
+                    nodeInfo.findAccessibilityNodeInfosByViewId("com.android.packageinstaller:id/switchWidget").size() > 0 ||
+                    // This changed in Android N
+                    nodeInfo.findAccessibilityNodeInfosByViewId("android:id/switch_widget").size() > 0
+            )
+            &&
             nodeInfo.getClassName().equals("android.widget.LinearLayout"));
   }
 
@@ -467,12 +486,16 @@ public class RuntimePermissions extends AccessibilityService {
     }
     setCurrentlyHandledPermission(encounteredPermission.getPermissionString().toString());
     setCurrentlyHandledAppName(encounteredPermission.getAppName());
-    if (nodeInfo.getText().equals("Allow")) {
+    // Lower case because depending on Android version, the string may be all capitals or just
+    // capitalized
+    String actionTextLower = nodeInfo.getText().toString().toLowerCase();
+    if (actionTextLower.equals("allow")) {
       triggerBroadcastTriggerService(true, false);
-    } else if (nodeInfo.getText().equals("Deny")) {
+    } else if (actionTextLower.equals("deny")) {
       triggerBroadcastTriggerService(false, false);
     } else {
-      Log.e(PacoConstants.TAG, "Dialog action in runtime permissions dialog was not 'Allow' nor 'Deny'. This should never happen");
+      Log.e(PacoConstants.TAG, "Dialog action in runtime permissions dialog was not 'allow' nor 'deny'. This should never happen");
+      Log.e(PacoConstants.TAG, "Dialog action in runtime permissions dialog was not 'allow' nor 'deny'. This should never happen");
     }
   }
 
