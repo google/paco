@@ -183,8 +183,20 @@ public class BroadcastTriggerReceiver extends BroadcastReceiver {
     }
   }
 
+  /**
+   * Helper function for isPackageRemoved and isPackageAdded, checking whether the package removal/
+   * installation is actually part of an update (i.e. if a removal will be / was followed by an
+   * installation for the same package
+   * @param intent The ACTION_PACKAGE_REMOVED or ACTION_PACKAGE_ADDED event
+   * @return Whether this event is part of an update
+   */
+  private boolean isPackageUpdate(Intent intent) {
+    // If EXTRA_REPLACING is not present (or if it is present but false), return false.
+    return intent.getBooleanExtra(Intent.EXTRA_REPLACING, false);
+  }
+
   private boolean isPackageRemoved(Context context, Intent intent) {
-	  return intent.getAction().equals(Intent.ACTION_PACKAGE_REMOVED);
+    return (intent.getAction().equals(Intent.ACTION_PACKAGE_REMOVED) && !isPackageUpdate(intent));
   }
 
   /**
@@ -195,12 +207,7 @@ public class BroadcastTriggerReceiver extends BroadcastReceiver {
    * @return Whether the intent shows a new package was installed
    */
   private boolean isPackageAdded(Context context, Intent intent) {
-    if (!intent.getAction().equals(Intent.ACTION_PACKAGE_ADDED)) {
-      return false;
-    }
-    // Check whether the package replaces a previous version (i.e. is an update)
-    boolean isUpdate = intent.getBooleanExtra(Intent.EXTRA_REPLACING, false);
-    return !isUpdate;
+    return (intent.getAction().equals(Intent.ACTION_PACKAGE_ADDED) && !isPackageUpdate(intent));
   }
 
   private void triggerPacoExperimentEndedEvent(Context context, Intent intent) {
