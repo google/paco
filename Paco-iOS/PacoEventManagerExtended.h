@@ -20,6 +20,8 @@
 @class PASchedule;
 @class PacoEventExtended;
 @class PacoExperimentExtended;
+@class PAExperimentGroup;
+
 
 
 @interface PacoParticipateStatusExtended : NSObject
@@ -56,9 +58,19 @@
 
 - (void)saveStopEventWithExperiment:(PacoExperimentExtended*)experiment;
 
-
+/*
 - (void)saveSelfReportEventWithDefinition:(PAExperimentDAO*)definition
                                 andInputs:(NSArray*)visibleInputs;
+ */
+
+
+
+- (void)saveSelfReportEventWithDefinition:(PAExperimentDAO*)definition
+                                    group:(PAExperimentGroup*) group
+                                andInputs:(NSArray*)visibleInputs;
+
+
+
 - (void)saveSurveySubmittedEventForDefinition:(PAExperimentDAO*)definition
                                    withInputs:(NSArray*)inputs
                              andScheduledTime:(NSDate*)scheduledTime

@@ -20,7 +20,7 @@
 int main(int argc, char *argv[])
 {
   @autoreleasepool {
-      [PixateFreestyle initializePixateFreestyle];
+    //  [PixateFreestyle initializePixateFreestyle];
       return UIApplicationMain(argc, argv, nil, NSStringFromClass([PacoAppDelegate class]));
   }
 }

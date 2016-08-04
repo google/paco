@@ -79,15 +79,28 @@ typedef NS_ENUM(NSInteger, PacoEventTypeExtended) {
 
 + (PacoEventExtended*)stopEventForExperiment:(PacoExperimentExtended*)experiment;
 
+
+
+/*
 + (PacoEventExtended*) genericEventForDefinition:(PAExperimentDAO*)definition
                              withInputs:(NSArray*)inputs;
+ */
+
+
++ (PacoEventExtended *)selfReportEventForDefinition:(PAExperimentDAO*) definition
+                                              group:(PAExperimentGroup*) group
+                                         withInputs:(NSArray*)inputs;
+
+
  
 + (PacoEventExtended*)joinEventForActionSpecificatonWithServerExperimentId:(PAExperimentDAO*) actionSpecification serverExperimentId:(NSString*) serverExperimentId;
 + (PacoEventExtended*)joinEventForActionSpecificaton:(PAActionSpecification*) actionSpecification;
 
+
+/*
 + (PacoEventExtended*)selfReportEventForDefinition:(PAExperimentDAO*)definition
                                 withInputs:(NSArray*)inputs;
-
+*/
 
 
 + (PacoEventExtended*)surveySubmittedEventForDefinition:(PAExperimentDAO*)definition

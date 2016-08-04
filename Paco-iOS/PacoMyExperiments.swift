@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import Foundation
 
 class PacoMyExperiments: UITableViewController,PacoExperimentProtocol {
     
@@ -14,6 +15,9 @@ class PacoMyExperiments: UITableViewController,PacoExperimentProtocol {
       var cells:NSArray = []
       let cellId = "ExperimenCellID"
       let simpleCellId = "ExperimenSimpleCellID"
+      var  isRefreshed = false;
+    
+    
     
     
      
@@ -65,9 +69,14 @@ class PacoMyExperiments: UITableViewController,PacoExperimentProtocol {
     override func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
  
         var retVal:Int = 0
-        if myExpriments  != nil
+        if isRefreshed
         {
-            retVal =  myExpriments!.count
+            retVal =  myExpriments!.count;
+        }
+        else
+        {
+            retVal = 1;
+            
         }
         return retVal
     }
@@ -75,73 +84,87 @@ class PacoMyExperiments: UITableViewController,PacoExperimentProtocol {
  
     override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
         
-        
         let cell = tableView.dequeueReusableCellWithIdentifier(self.simpleCellId, forIndexPath: indexPath) as! PacoMyExpermementTitleCellTableViewCell
+        
+        if( !isRefreshed ) {
+            
+            
+             cell.textLabel!.text = "Loading...";
+            
+            
+        }
+        else
+        {
+       
+         cell.textLabel!.text = nil 
+        
+     //   let cell = tableView.dequeueReusableCellWithIdentifier(self.simpleCellId, forIndexPath: indexPath) as! PacoMyExpermementTitleCellTableViewCell
 
-        var dao:PAExperimentDAO = myExpriments![indexPath.row]
-        var title:String?
-        var organization:String?
-        var email:String?
-        var description:String?
- 
-       if  dao.valueForKeyEx("title") != nil
-       {
-           title = (dao.valueForKeyEx("title")  as? String)!
-        }
-        if  dao.valueForKeyEx("description")  != nil
-        {
-          description = (dao.valueForKeyEx("description")  as? String)!
-        }
-        if !dao.isCompatibleWithIOS()
-        {
+                var dao:PAExperimentDAO = myExpriments![indexPath.row]
+                var title:String?
+                var organization:String?
+                var email:String?
+                var description:String?
+         
+               if  dao.valueForKeyEx("title") != nil
+               {
+                   title = (dao.valueForKeyEx("title")  as? String)!
+                }
+                if  dao.valueForKeyEx("description")  != nil
+                {
+                  description = (dao.valueForKeyEx("description")  as? String)!
+                }
+                if !dao.isCompatibleWithIOS()
+                {
+                    
+                    
+                    
+                }
+                if  dao.valueForKeyEx("organization") != nil
+                {
+                    organization = (dao.valueForKeyEx("organization")  as? String)!
+                }
+                else
+                {
+                    organization = " "
+                }
+                if  dao.valueForKeyEx("contactEmail") != nil
+                {
+                    email = (dao.valueForKeyEx("contactEmail")  as? String)!
+                }
+                else
+                {
+                    email = " "
+                    
+                }
+                
+                
+                
+                let isCompatible =  dao.isCompatibleWithIOS()
+                var compatibilityText:NSString;
+                
+                
+                if isCompatible == true
+                {
+                  compatibilityText  = "Y"
+                }
+                else
+                {
+                   compatibilityText = "N"
+                }
+                
+                
             
             
-            
-        }
-        if  dao.valueForKeyEx("organization") != nil
-        {
-            organization = (dao.valueForKeyEx("organization")  as? String)!
-        }
-        else
-        {
-            organization = " "
-        }
-        if  dao.valueForKeyEx("contactEmail") != nil
-        {
-            email = (dao.valueForKeyEx("contactEmail")  as? String)!
-        }
-        else
-        {
-            email = " "
-            
-        }
-        
-        
-        
-        let isCompatible =  dao.isCompatibleWithIOS()
-        var compatibilityText:NSString;
-        
-        
-        if isCompatible == true
-        {
-          compatibilityText  = "Y"
-        }
-        else
-        {
-           compatibilityText = "N"
-        }
-        
-        
-        
 
-        cell.parent = self;
-        cell.experiment = dao
-        cell.experimentTitle.text = title
-        cell.subtitle.text = "\(organization!), \(email!)"
-        cell.selectionStyle  = UITableViewCellSelectionStyle.None
-        cell.isIOSCompatible.text = compatibilityText as String
+                cell.parent = self;
+                cell.experiment = dao
+                cell.experimentTitle.text = title
+                cell.subtitle.text = "\(organization!), \(email!)"
+                cell.selectionStyle  = UITableViewCellSelectionStyle.None
+                cell.isIOSCompatible.text = compatibilityText as String
         
-        
+        }
         
         return cell;
         
@@ -166,6 +189,8 @@ class PacoMyExperiments: UITableViewController,PacoExperimentProtocol {
     
     func experimentsRefreshed(notification: NSNotification){
         
+        
+      isRefreshed = true;
       let   mediator =  PacoMediator.sharedInstance();
       let   mArray:NSMutableArray  = mediator.experiments();
        myExpriments = mArray as AnyObject  as? [PAExperimentDAO]
@@ -175,7 +200,12 @@ class PacoMyExperiments: UITableViewController,PacoExperimentProtocol {
         PacoMediator.sharedInstance().replaceAllExperiments(myExpriments)
         
         print("print the notificatins \(myExpriments)");
-        self.tableView.reloadData()
+       
+        dispatch_async(dispatch_get_main_queue(), { self.tableView.reloadData()
+                                                    self.tableView.setNeedsDisplay()})
+        
+        
+      
     }
     
     

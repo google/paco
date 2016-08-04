@@ -342,10 +342,12 @@ static NSString* const kAllEventsFileName = @"allEvents.plist";
 }
 
 - (void)saveSelfReportEventWithDefinition:(PAExperimentDAO*)definition
+                                    group:(PAExperimentGroup*) group
                                 andInputs:(NSArray*)visibleInputs {
     
     PacoEventExtended* surveyEvent = [PacoEventExtended selfReportEventForDefinition:definition
-                                                          withInputs:visibleInputs];
+                                                                               group:group
+                                                           withInputs:visibleInputs];
     [self saveAndUploadEvent:surveyEvent];
     
     

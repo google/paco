@@ -18,6 +18,7 @@
 @class PASchedule;
 @class PacoExperimentExtended;
 
+@class PAExperimentGroup;
 
 
 extern NSString* const kPacoResponseKeyNameExtended;
@@ -73,6 +74,12 @@ typedef NS_ENUM(NSInteger, PacoEventTypeExtended) {
 
 + (PacoEventExtended*)selfReportEventForDefinition:(PAExperimentDAO*)definition
                                 withInputs:(NSArray*)inputs;
+
++ (PacoEventExtended*)selfReportEventForDefinition:(PAExperimentDAO*)definition
+                                             group:(PAExperimentGroup*) group
+                                        withInputs:(NSArray*)inputs;
+
+
 + (PacoEventExtended*)surveySubmittedEventForDefinition:(PAExperimentDAO*)definition
                                      withInputs:(NSArray*)inputs
                                andScheduledTime:(NSDate*)scheduledTime;

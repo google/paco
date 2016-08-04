@@ -748,6 +748,7 @@ calculate the action specifications and reset the based upon the most recent ver
 
 - (void)submitSurveyWithDefinition:(PAExperimentDAO*) definition
                       surveyInputs:(NSArray*)surveyInputs
+                             group:(PAExperimentGroup*) group
                       notification:(UILocalNotification*)notification
 {
     
@@ -779,7 +780,7 @@ calculate the action specifications and reset the based upon the most recent ver
     } else
     {
         
-        [self.eventManager saveSelfReportEventWithDefinition:definition andInputs:surveyInputs];
+        [self.eventManager saveSelfReportEventWithDefinition:definition group:group andInputs:surveyInputs];
     }
     
 }

@@ -29,6 +29,8 @@
 @class PAExperimentDAO;
 @class PacoEventManagerExtended;
 @class PAExperimentDAO;
+@class PAExperimentGroup;
+
 
 
 @interface PacoMediator : NSObject<PacoNotificationManagerDelegate>
@@ -58,9 +60,16 @@
 -(NSMutableArray*) hubExperiments;
 -(void) setHudExperiments:(NSMutableArray*) newArray;
 
+
+
+
 - (void)submitSurveyWithDefinition:(PAExperimentDAO*) definition
                       surveyInputs:(NSArray*)surveyInputs
+                             group:(PAExperimentGroup*) group
                       notification:(UILocalNotification*)notification;
+
+
+
 
 /* return experiment object for the id */
 -(PAExperimentDAO *) experimentForId:(NSString*) experimentId;

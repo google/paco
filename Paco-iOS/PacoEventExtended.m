@@ -39,12 +39,10 @@
 #import "OrgJodaTimeDateTime+PacoDateHelper.h" 
 #import "NSDate+PacoTimeZoneHelper.h" 
 #import "JavaUtilArrayList+PacoConversion.h"
-#import "SchedulePrinter.h" 
-#import "PAExperimentDAO+Helper.h"
+#import "SchedulePrinter.h"
 #import "JavaUtilArrayList+PacoConversion.h"
 #include "java/util/ArrayList.h"
 #import "PacoAuthenticator.h" 
-
 
 
 
@@ -446,6 +444,14 @@ NSString* const kPacoResponseJoinExtended = @"joined";
     event.experimentName    =  [experiment valueForKeyEx:@"title"];
     event.responseTime = [NSDate new];
     event.guid = [[NSUUID UUID] UUIDString];
+    event.schedule = [experiment scheduleString];
+ 
+   // event.scheduledTime = [experiment scheduleString];
+    
+    
+    
+    
+    
     
      // NSString* schedule = PASchedulePrinter toStringWithPASchedule:(PASchedule *)
     //event.schedule =
@@ -547,10 +553,12 @@ NSString* const kPacoResponseJoinExtended = @"joined";
 
 
 + (PacoEventExtended *)selfReportEventForDefinition:(PAExperimentDAO*) definition
+                                              group:(PAExperimentGroup*) group
                                 withInputs:(NSArray*)inputs {
     NSAssert(inputs != nil, @"inputs should not be nil!");
     PacoEventExtended* event = [PacoEventExtended genericEventForDefinition:definition withInputs:inputs];
     event.responseTime = [NSDate dateWithTimeIntervalSinceNow:0];
+    event.experimentGroupName = [group valueForKeyEx:@"name"];
     event.guid = [[NSUUID UUID] UUIDString];
     event.who =     [[PacoNetwork sharedInstance].authenticator userEmail];
     event.scheduledTime = nil;
