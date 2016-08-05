@@ -19,7 +19,7 @@
 <appengine-web-app xmlns='http://appengine.google.com/ns/1.0'>
 <application>quantifiedself</application>
   <module>default</module>
-  <version>180</version>
+  <version>181</version>
 
   <public-root>/web</public-root>
 
