@@ -22,6 +22,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.concurrent.locks.Lock;
 
 import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.JsonNode;
@@ -72,6 +74,14 @@ public class ExperimentProviderUtil implements EventStore {
   public static final String AUTHORITY = "com.google.android.apps.paco.ExperimentProvider";
   private static final String PUBLIC_EXPERIMENTS_FILENAME = "experiments";
   private static final String MY_EXPERIMENTS_FILENAME = "my_experiments";
+  // The next semaphore is used to make sure that all event inserts/retrievals happen atomically
+  // with regards to each other, to ensure that no incomplete events can get synced to the server
+  // (and, by extension, to ensure that a thread trying to access an event has to wait until the
+  // event has been fully inserted).
+  // The lock is used in the parent insert/getEvent methods.
+  private static final ReentrantReadWriteLock eventStorageDbLock = new ReentrantReadWriteLock();
+  private static final Lock eventStorageReadLock = eventStorageDbLock.readLock();
+  private static final Lock eventStorageWriteLock = eventStorageDbLock.writeLock();
 
   DateTimeFormatter endDateFormatter = DateTimeFormat.forPattern(TimeUtil.DATE_FORMAT);
 
@@ -738,14 +748,23 @@ public class ExperimentProviderUtil implements EventStore {
 
 
   public Uri insertEvent(Event event) {
-    Uri uri = contentResolver.insert(EventColumns.CONTENT_URI, createContentValues(event));
-    long rowId = Long.parseLong(uri.getLastPathSegment());
-    event.setId(rowId);
-    for (Output response : event.getResponses()) {
-      response.setEventId(rowId);
-      insertResponse(response);
+    eventStorageWriteLock.lock();
+    try {
+      Uri uri = contentResolver.insert(EventColumns.CONTENT_URI, createContentValues(event));
+      long rowId = Long.parseLong(uri.getLastPathSegment());
+      event.setId(rowId);
+      for (Output response : event.getResponses()) {
+        response.setEventId(rowId);
+        insertResponse(response);
+      }
+      return uri;
+    } catch (Exception e) {
+      Log.w(ExperimentProvider.TAG, "Caught unexpected exception.", e);
+      return null;
+    } finally {
+      // Will get called even with return statements before
+      eventStorageWriteLock.unlock();
     }
-    return uri;
   }
 
   public void insertEvent(EventInterface eventI) {
@@ -824,6 +843,7 @@ public class ExperimentProviderUtil implements EventStore {
 
   private Event findEventBy(String select, String[] selectionArgs, String sortOrder) {
     Cursor cursor = null;
+    eventStorageReadLock.lock();
     try {
       cursor = contentResolver.query(EventColumns.CONTENT_URI,
           null, select, selectionArgs, sortOrder);
@@ -838,6 +858,7 @@ public class ExperimentProviderUtil implements EventStore {
       if (cursor != null) {
         cursor.close();
       }
+      eventStorageReadLock.unlock();
     }
     return null;
   }
@@ -845,6 +866,7 @@ public class ExperimentProviderUtil implements EventStore {
   private List<Event> findEventsBy(String select, String sortOrder) {
     List<Event> events = new ArrayList<Event>();
     Cursor cursor = null;
+    eventStorageReadLock.lock();
     try {
       cursor = contentResolver.query(EventColumns.CONTENT_URI,
           null, select, null, sortOrder);
@@ -862,6 +884,7 @@ public class ExperimentProviderUtil implements EventStore {
       if (cursor != null) {
         cursor.close();
       }
+      eventStorageReadLock.unlock();
     }
     return events;
   }
@@ -980,8 +1003,16 @@ public class ExperimentProviderUtil implements EventStore {
   public void updateEvent(EventInterface eventI) {
     if (eventI instanceof Event) {
       Event event = (Event)eventI;
-      contentResolver.update(EventColumns.CONTENT_URI,
-          createContentValues(event), "_id=" + event.getId(), null);
+
+      eventStorageWriteLock.lock();
+      try {
+        contentResolver.update(EventColumns.CONTENT_URI,
+                createContentValues(event), "_id=" + event.getId(), null);
+      } catch (Exception e) {
+        Log.e(PacoConstants.TAG, "Unexpected exception when updating event: " + e);
+      } finally {
+        eventStorageWriteLock.unlock();
+      }
     } else {
       throw new IllegalArgumentException("I only know how to deal with Android objects!");
     }
@@ -1372,6 +1403,7 @@ public class ExperimentProviderUtil implements EventStore {
     List<Event> events = new ArrayList<Event>();
     Cursor cursor = null;
     try {
+      eventStorageReadLock.lock();
       cursor = contentResolver.query(EventColumns.CONTENT_URI, null, select, null, sortOrder);
       if (cursor != null) {
         if (cursor.moveToFirst()) {
@@ -1387,6 +1419,7 @@ public class ExperimentProviderUtil implements EventStore {
       if (cursor != null) {
         cursor.close();
       }
+      eventStorageReadLock.unlock();
     }
   }
 
@@ -1547,6 +1580,7 @@ public class ExperimentProviderUtil implements EventStore {
     List<Event> events = new ArrayList<Event>();
     Cursor cursor = null;
     try {
+      eventStorageReadLock.lock();
       cursor = contentResolver.query(EventColumns.CONTENT_URI,
           null, select, args, sortOrder);
       if (cursor != null) {
@@ -1563,6 +1597,7 @@ public class ExperimentProviderUtil implements EventStore {
       if (cursor != null) {
         cursor.close();
       }
+      eventStorageReadLock.unlock();
     }
     return events;
   }
