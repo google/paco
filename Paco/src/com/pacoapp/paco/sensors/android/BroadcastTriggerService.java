@@ -104,7 +104,7 @@ public class BroadcastTriggerService extends Service {
                                                                                                          sourceIdentifier);
       if (ExperimentHelper.declaresAccessibilityLogging(experiment.getExperimentDAO())) {
         List<ExperimentGroup> accessibilityGroupsListening = ExperimentHelper.isListeningForAccessibilityEvents(experiment.getExperimentDAO());
-        persistAccessibilityData(eu, experiment, accessibilityGroupsListening, extras.getBundle(RuntimePermissions.PACO_ACTION_ACCESSIBILITY_PAYLOAD));
+        persistAccessibilityData(eu, experiment, accessibilityGroupsListening, extras.getBundle(RuntimePermissionMonitorService.PACO_ACTION_ACCESSIBILITY_PAYLOAD));
       }
 
       Log.i(PacoConstants.TAG, "triggers that match count: " + triggersThatMatch.size());

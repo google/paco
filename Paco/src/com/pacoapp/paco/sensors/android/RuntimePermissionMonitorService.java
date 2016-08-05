@@ -48,7 +48,7 @@ import java.util.regex.Pattern;
  * receive accessibility events.
  */
 @TargetApi(Build.VERSION_CODES.LOLLIPOP) // TODO: update to Marshmallow when project SDK changes
-public class RuntimePermissions extends AccessibilityService {
+public class RuntimePermissionMonitorService extends AccessibilityService {
   public static final String PACO_ACTION_ACCESSIBILITY_PAYLOAD = "paco_action_accessibility_payload";
   public static final String PAYLOAD_PERMISSION = "paco_accessibility_payload_permission";
   public static final String PAYLOAD_PERMISSION_GRANTED = "paco_accessibility_payload_permissiongranted";
@@ -557,7 +557,6 @@ public class RuntimePermissions extends AccessibilityService {
     if (!Locale.getDefault().getISO3Language().equals(Locale.ENGLISH.getISO3Language())) {
       // We don't really need to signal this to the user, as it is the experiment provider who
       // is responsible for checking this should not be a problem for the experiment.
-      // TODO: maybe add this information to the troubleshooting screen
       Log.w(PacoConstants.TAG, "Detected locale is " + Locale.getDefault().toString() +
               ". RuntimePermissions triggering does not support non-English languages; " +
               "permissions might not always be interpreted correctly");
