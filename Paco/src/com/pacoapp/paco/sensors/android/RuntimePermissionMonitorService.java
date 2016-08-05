@@ -45,7 +45,13 @@ import java.util.regex.Pattern;
  * support runtime permissions.
  * This service is enabled when Paco is granted the Accessibility permission. The
  * BroadcastTriggerService will make sure that only experiments enabling accessibility logging will
- * receive accessibility events.
+ * receive accessibility events. Furthermore, when this service is killed (i.e., because the user
+ * switched off Paco's accessibility permission), the onDestroy() method will get called, which sets
+ * running to false. The previously encountered permissions should not be persisted, as these are
+ * used only to keep state within the runtime permission dialogs themselves. In other words, on boot
+ * (or when the service is restarted by allowing accessibility permissions again), there is no
+ * possibility of a runtime permissions dialog still being visible. When a new one pops up,
+ * the queue of previouslyEncounteredPermissionRequests will get filled again.
  */
 @TargetApi(Build.VERSION_CODES.LOLLIPOP) // TODO: update to Marshmallow when project SDK changes
 public class RuntimePermissionMonitorService extends AccessibilityService {
