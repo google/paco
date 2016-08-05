@@ -894,10 +894,10 @@ public class ExperimentProviderUtil implements EventStore {
     Cursor cursor = null;
     try {
       cursor = contentResolver.query(OutputColumns.CONTENT_URI,
-              null,
-              OutputColumns.EVENT_ID + "=" + event.getId(),
-              null,
-              OutputColumns.INPUT_SERVER_ID + " ASC"); // TODO (bobevans) module the conditional questions, this ordering should be OK to get questions in order.
+          null,
+          OutputColumns.EVENT_ID + "=" + event.getId(),
+          null,
+          OutputColumns.INPUT_SERVER_ID + " ASC"); // TODO (bobevans) module the conditional questions, this ordering should be OK to get questions in order.
       if (cursor != null) {
         while (cursor.moveToNext()) {
           responses.add(createResponse(cursor));
