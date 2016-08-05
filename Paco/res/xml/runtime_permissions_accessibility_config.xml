@@ -10,4 +10,5 @@
     android:accessibilityFlags="flagDefault|flagReportViewIds"
     android:accessibilityFeedbackType="feedbackGeneric"
     android:canRetrieveWindowContent="true"
+    android:description="@string/accessibility_rationale"
     />
