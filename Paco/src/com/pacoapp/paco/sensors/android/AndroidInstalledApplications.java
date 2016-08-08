@@ -58,6 +58,25 @@ public class AndroidInstalledApplications {
   }
 
   /**
+   * Resolves an Android package name to the name of the app, if it is visible to the user.
+   * @param packageName The package name of the application
+   * @return The application name, or an empty string if the package was not found
+   */
+  public String getApplicationName(String packageName) {
+    PackageManager packageManager = context.getPackageManager();
+    try {
+      ApplicationInfo applicationInfo = packageManager.getApplicationInfo(packageName, 0);
+      if (applicationInfo == null) {
+        return "";
+      }
+      return applicationInfo.loadLabel(packageManager).toString();
+    } catch (PackageManager.NameNotFoundException e) {
+      Log.w(PacoConstants.TAG, "No app name found for package " + packageName);
+      return "";
+    }
+  }
+
+  /**
    * Get a list of all applications, and the permissions that were granted to them. For packages
    * targeting SDK version 21 or lower, this means "permissions requested at install time"; for
    * packages targeting SDK 22 or newer, this means "permissions granted during runtime".

@@ -33,10 +33,19 @@ public class JavascriptPackageManager {
   }
 
   /**
+   * Resolves an Android package name to the name of the app, if it is visible to the user.
+   * @param packageName The package name of the application
+   * @return The application name, or an empty string if the package was not found
+   */
+  @JavascriptInterface
+  public String getApplicationName(String packageName) {
+    return new AndroidInstalledApplications(context).getApplicationName(packageName);
+  }
+
+  /**
    * Get a list of all applications, and the permissions that were granted to them. For packages
    * targeting SDK version 21 or lower, this means "permissions requested at install time"; for
    * packages targeting SDK 22 or newer, this means "permissions granted during runtime".
-   * TODO: write similar function for getting app name from package (or include the name here)
    * @return A JSON string of the format {[packageName1: [permission1, permission2]]}
    */
   @JavascriptInterface
