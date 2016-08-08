@@ -71,6 +71,10 @@ public class AndroidInstalledApplications {
 
     Map<String, List<String>> result = new HashMap();
     for (PackageInfo packageInfo : installedPackages) {
+      if (packageInfo.requestedPermissions == null) {
+        // This package didn't request any permissions
+        continue;
+      }
       List<String> grantedPermissions = new ArrayList();
       // Traverse list of requested permissions for package
       for (int i = 0; i < packageInfo.requestedPermissions.length; i++) {
