@@ -1,12 +1,17 @@
 package com.pacoapp.paco.sensors.android;
 
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.os.Build;
 import android.util.Log;
 
 import com.google.common.collect.Lists;
@@ -50,6 +55,35 @@ public class AndroidInstalledApplications {
     }
     Collections.sort(appNames);
     return appNames;
+  }
+
+  /**
+   * Get a list of all applications, and the permissions that were granted to them. For packages
+   * targeting SDK version 21 or lower, this means "permissions requested at install time"; for
+   * packages targeting SDK 22 or newer, this means "permissions granted during runtime".
+   * @return A map with the names of installed packages as keys, and a list of the granted
+   *         permissions as values
+   */
+  @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
+  public Map<String, List<String>> getGrantedPermissions() {
+    PackageManager packageManager = context.getPackageManager();
+    List<PackageInfo> installedPackages = packageManager.getInstalledPackages(PackageManager.GET_PERMISSIONS);
+
+    Map<String, List<String>> result = new HashMap();
+    for (PackageInfo packageInfo : installedPackages) {
+      List<String> grantedPermissions = new ArrayList();
+      // Traverse list of requested permissions for package
+      for (int i = 0; i < packageInfo.requestedPermissions.length; i++) {
+        // Check if permission was granted (in case of pre-Marshmallow apps: if permission was
+        // requested at install time.
+        if ((packageInfo.requestedPermissionsFlags[i] & PackageInfo.REQUESTED_PERMISSION_GRANTED) != 0) {
+          grantedPermissions.add(packageInfo.requestedPermissions[i]);
+        }
+      }
+      result.put(packageInfo.packageName, grantedPermissions);
+    }
+
+    return result;
   }
 
 

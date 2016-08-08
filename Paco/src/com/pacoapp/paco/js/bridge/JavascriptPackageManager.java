@@ -2,6 +2,7 @@ package com.pacoapp.paco.js.bridge;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.map.JsonMappingException;
@@ -34,6 +35,30 @@ public class JavascriptPackageManager {
       json = mapper.writeValueAsString(namesOfInstalledApplications);
     } catch (JsonGenerationException e) {
 
+      e.printStackTrace();
+    } catch (JsonMappingException e) {
+      e.printStackTrace();
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+    return json;
+  }
+
+  /**
+   * Get a list of all applications, and the permissions that were granted to them. For packages
+   * targeting SDK version 21 or lower, this means "permissions requested at install time"; for
+   * packages targeting SDK 22 or newer, this means "permissions granted during runtime".
+   * @return A JSON string of the format {[packageName1: [permission1, permission2]]}
+   */
+  @JavascriptInterface
+  public String getGrantedPermissions() {
+    final Map<String, List<String>> grantedPermissions = new AndroidInstalledApplications(context).getGrantedPermissions();
+    // TODO: extract method for both of these JS functions
+    ObjectMapper mapper = JsonConverter.getObjectMapper();
+    String json = null;
+    try {
+      json = mapper.writeValueAsString(grantedPermissions);
+    } catch (JsonGenerationException e) {
       e.printStackTrace();
     } catch (JsonMappingException e) {
       e.printStackTrace();
