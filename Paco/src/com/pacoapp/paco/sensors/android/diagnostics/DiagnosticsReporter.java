@@ -19,6 +19,7 @@ public class DiagnosticsReporter {
     getJoinedExperiments(report, context);
     getUnsyncedEventCount(report, context);
     checkAppUsageAccess(report, context);
+    checkAccessibilityAccess(report, context);
     checkEsmAlarms(report, context);
     report.run(context);
     return report;
@@ -37,6 +38,10 @@ public class DiagnosticsReporter {
 
   private void checkAppUsageAccess(DiagnosticReport report2, Context context) {
     report.add(new AppUsageAccessDiagnostic(context));
+  }
+
+  private void checkAccessibilityAccess(DiagnosticReport report, Context context) {
+    report.add(new AccessibilityDiagnostic(context));
   }
 
   private void checkRingerVolume(DiagnosticReport report, Context context) {

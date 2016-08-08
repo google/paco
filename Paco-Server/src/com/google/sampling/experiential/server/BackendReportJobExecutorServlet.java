@@ -72,7 +72,11 @@ public class BackendReportJobExecutorServlet extends HttpServlet {
     String reportFormat = req.getParameter("reportFormat");
     String cursor = req.getParameter("cursor");
     boolean includePhotos = getParam(req, "includePhotos") != null;
-    if (reportFormat != null && reportFormat.equals("csv")) {
+    
+    if (reportFormat != null && reportFormat.equals("csv2")) {
+      log.info("Backend generating csv experimental report");
+      dumpEventsCSVExperimental(resp, req, anon);
+    } else if (reportFormat != null && reportFormat.equals("csv")) {
       log.info("Backend generating csv report");
       dumpEventsCSV(resp, req, anon, cursor, limit);
     } else if (reportFormat != null && reportFormat.equals("json")) {
@@ -121,6 +125,16 @@ public class BackendReportJobExecutorServlet extends HttpServlet {
     resp.getWriter().println(jobId);
   }
 
+  
+  private void dumpEventsCSVExperimental(HttpServletResponse resp, HttpServletRequest req, boolean anon) throws IOException {
+    String queryParam = getParamForQuery(req);
+    List<com.google.sampling.experiential.server.Query> query = new QueryParser().parse(stripQuotes(queryParam));
+    String requestorEmail = getRequestorEmail(req);
+    DateTimeZone timeZoneForClient = getTimeZoneForClient(req);
+    String jobId = ReportJobExecutor.getInstance().runReportJobExperimental(requestorEmail, timeZoneForClient, query, anon, "csv", queryParam, false);
+    resp.setContentType("text/plain;charset=UTF-8");
+    resp.getWriter().println(jobId);
+  }
   private void showEvents(HttpServletRequest req, HttpServletResponse resp, boolean anon, String cursor, int limit) throws IOException {
     String queryParam = getParamForQuery(req);
     List<com.google.sampling.experiential.server.Query> query = new QueryParser().parse(stripQuotes(queryParam));

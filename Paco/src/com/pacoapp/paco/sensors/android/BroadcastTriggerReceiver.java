@@ -73,6 +73,8 @@ public class BroadcastTriggerReceiver extends BroadcastReceiver {
       triggerPacoExperimentResponseReceivedEvent(context ,intent);
     } else if (isPackageRemoved(context, intent)) {
       triggerPackageRemovedEvent(context, intent);
+    } else if (isPackageAdded(context, intent)) {
+      triggerPackageAddedEvent(context, intent);
     }
 
     PowerManager pm = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
@@ -163,8 +165,49 @@ public class BroadcastTriggerReceiver extends BroadcastReceiver {
     }
   }
 
+  /**
+   * Broadcasts an intent destined for the BroadcastTriggerService containing
+   * the package name and time of the event as extra data.
+   * This method is called by the onReceive() method when it received an
+   * ACTION_PACKAGE_ADDED broadcast.
+   * @param context The Android app context
+   * @param intent The received broadcast intent
+   */
+  private void triggerPackageAddedEvent(Context context, Intent intent) {
+    Log.i(PacoConstants.TAG, "App installed trigger");
+
+    Uri data = intent.getData();
+    String packageName = data.getEncodedSchemeSpecificPart();
+    if (!packageName.equals("com.pacoapp.paco")) {
+      triggerEvent(context, InterruptCue.APP_ADDED, packageName, null);
+    }
+  }
+
+  /**
+   * Helper function for isPackageRemoved and isPackageAdded, checking whether the package removal/
+   * installation is actually part of an update (i.e. if a removal will be / was followed by an
+   * installation for the same package
+   * @param intent The ACTION_PACKAGE_REMOVED or ACTION_PACKAGE_ADDED event
+   * @return Whether this event is part of an update
+   */
+  private boolean isPackageUpdate(Intent intent) {
+    // If EXTRA_REPLACING is not present (or if it is present but false), return false.
+    return intent.getBooleanExtra(Intent.EXTRA_REPLACING, false);
+  }
+
   private boolean isPackageRemoved(Context context, Intent intent) {
-	  return intent.getAction().equals(Intent.ACTION_PACKAGE_REMOVED);
+    return (intent.getAction().equals(Intent.ACTION_PACKAGE_REMOVED) && !isPackageUpdate(intent));
+  }
+
+  /**
+   * Checks whether an intent contains information about a *new* app being
+   * installed. Updates of existing packages are not considered as new installs.
+   * @param context The Android app context
+   * @param intent The received broadcast intent
+   * @return Whether the intent shows a new package was installed
+   */
+  private boolean isPackageAdded(Context context, Intent intent) {
+    return (intent.getAction().equals(Intent.ACTION_PACKAGE_ADDED) && !isPackageUpdate(intent));
   }
 
   private void triggerPacoExperimentEndedEvent(Context context, Intent intent) {

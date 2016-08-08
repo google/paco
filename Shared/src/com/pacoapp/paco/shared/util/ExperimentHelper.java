@@ -55,6 +55,17 @@ public class ExperimentHelper {
             && experiment.getExtraDataCollectionDeclarations().contains(ExperimentDAO.APP_INSTALL_DATA_COLLECTION);
   }
 
+  /**
+   * Returns whether the experiment has the accessibility logging flag set by the experiment
+   * organiser.
+   * @param experiment The running experiment
+   * @return Whether accessibility logging is enabled for the experiment.
+   */
+  public static boolean declaresAccessibilityLogging(ExperimentDAO experiment) {
+    return experiment.getExtraDataCollectionDeclarations() != null
+            && experiment.getExtraDataCollectionDeclarations().contains(ExperimentDAO.ACCESSIBILITY_LOGGING);
+  }
+
   public static boolean hasUserEditableSchedule(ExperimentDAO experiment) {
     List<ExperimentGroup> experimentGroups = experiment.getGroups();
     for (ExperimentGroup experimentGroup : experimentGroups) {
@@ -232,4 +243,21 @@ public class ExperimentHelper {
     return listeningExperimentGroups;
   }
 
+  /**
+   * Returns all experiment groups listening for accessibility events. If Paco gets extended to
+   * capture multiple accessibility events (apart from just permission events), this method could
+   * be extended to include a source identifier.
+   * @param experiment The experiment for which to get matching experiment groups
+   * @return A list of experiment groups listening for accessibility events
+   */
+  public static List<ExperimentGroup> isListeningForAccessibilityEvents(ExperimentDAO experiment) {
+    List<ExperimentGroup> listeningExperimentGroups = new ArrayList();
+    List<ExperimentGroup> experimentGroups = experiment.getGroups();
+    for (ExperimentGroup experimentGroup : experimentGroups) {
+      if (experimentGroup.getAccessibilityListen()) {
+        listeningExperimentGroups.add(experimentGroup);
+      }
+    }
+    return listeningExperimentGroups;
+  }
 }

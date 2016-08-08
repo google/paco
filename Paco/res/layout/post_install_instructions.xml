@@ -41,6 +41,22 @@
         </TextView>
     </ScrollView>
 
+    <!-- Provide the user with a direct link to the accessibility preferences, so he/she can enable
+    the accessibility preference for Paco -->
+    <Button
+        android:id="@+id/openAccessibilitySettings"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_margin="15dip"
+        android:text="@string/review_accessibility_button_label"
+        android:visibility="gone"
+        android:paddingLeft="8dip"
+        android:paddingTop="4dip"
+        android:paddingBottom="4dip"
+        >
+    </Button>
+
     <Button
         android:id="@+id/reviewSchedule"
         android:layout_width="wrap_content"

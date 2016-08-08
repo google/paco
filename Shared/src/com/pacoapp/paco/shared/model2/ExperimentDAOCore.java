@@ -11,12 +11,14 @@ public class ExperimentDAOCore extends ModelBase implements Validatable, Seriali
   public static final int LOCATION_DATA_COLLECTION = 2;
   public static final int PHONE_DETAILS = 3;
   public static final int APP_INSTALL_DATA_COLLECTION = 4;
+  public static final int ACCESSIBILITY_LOGGING = 5;
   public static final List<Integer> EXTRA_DATA_COLLECTION_DECLS = new ArrayList<Integer>();
   static {
     EXTRA_DATA_COLLECTION_DECLS.add(APP_USAGE_BROWSER_HISTORY_DATA_COLLECTION);
     EXTRA_DATA_COLLECTION_DECLS.add(LOCATION_DATA_COLLECTION);
     EXTRA_DATA_COLLECTION_DECLS.add(PHONE_DETAILS);
     EXTRA_DATA_COLLECTION_DECLS.add(APP_INSTALL_DATA_COLLECTION);
+    EXTRA_DATA_COLLECTION_DECLS.add(ACCESSIBILITY_LOGGING);
    }
 
 
