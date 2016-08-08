@@ -29,35 +29,32 @@ public class JavascriptPackageManager {
   @JavascriptInterface
   public String getNamesOfInstalledApplications() {
     final List<String> namesOfInstalledApplications = new AndroidInstalledApplications(context).getNamesOfInstalledApplications();
-    ObjectMapper mapper = JsonConverter.getObjectMapper();
-    String json = null;
-    try {
-      json = mapper.writeValueAsString(namesOfInstalledApplications);
-    } catch (JsonGenerationException e) {
-
-      e.printStackTrace();
-    } catch (JsonMappingException e) {
-      e.printStackTrace();
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
-    return json;
+    return convertToJsonString(namesOfInstalledApplications);
   }
 
   /**
    * Get a list of all applications, and the permissions that were granted to them. For packages
    * targeting SDK version 21 or lower, this means "permissions requested at install time"; for
    * packages targeting SDK 22 or newer, this means "permissions granted during runtime".
+   * TODO: write similar function for getting app name from package (or include the name here)
    * @return A JSON string of the format {[packageName1: [permission1, permission2]]}
    */
   @JavascriptInterface
   public String getGrantedPermissions() {
     final Map<String, List<String>> grantedPermissions = new AndroidInstalledApplications(context).getGrantedPermissions();
-    // TODO: extract method for both of these JS functions
+    return convertToJsonString(grantedPermissions);
+  }
+
+  /**
+   * Helper function that converts any object to a JSON string
+   * @param object The object we want to convert
+   * @return A string containing a JSON representation of the object
+   */
+  private String convertToJsonString(Object object) {
     ObjectMapper mapper = JsonConverter.getObjectMapper();
     String json = null;
     try {
-      json = mapper.writeValueAsString(grantedPermissions);
+      json = mapper.writeValueAsString(object);
     } catch (JsonGenerationException e) {
       e.printStackTrace();
     } catch (JsonMappingException e) {
