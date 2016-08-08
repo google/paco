@@ -33,6 +33,14 @@
     </div>
 
     <div class="row">
+      <md-checkbox ng-model="group.accessibilityListen" aria-label="Log accessibility events">
+        Log accessibility events
+      </md-checkbox>
+
+      <no-ios ng-if="group.accessibilityListen" message="'iOS does not support accessibility logging'"></no-ios>
+    </div>
+
+    <div class="row">
       <md-checkbox ng-model="group.logActions" aria-label="Log app usage">
         Log app usage
       </md-checkbox>

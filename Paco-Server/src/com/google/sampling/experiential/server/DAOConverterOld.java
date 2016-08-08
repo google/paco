@@ -111,6 +111,7 @@ public class DAOConverterOld {
                                           version, experiment.isCustomRendering(), customRenderingCode, feedbackType,
                                           experiment.isBackgroundListen(),
                                           experiment.getBackgroundListenSourceIdentifier(),
+                                          experiment.isAccessibilityListen(),
                                           experiment.shouldLogActions(), recordPhoneDetails,
                                           extraDataCollectionDeclarations);
     List<Input> inputs = experiment.getInputs();
@@ -271,6 +272,8 @@ public class DAOConverterOld {
     experiment.setRecordPhoneDetails(experimentDAO.isRecordPhoneDetails());
     experiment.setBackgroundListen(experimentDAO.isBackgroundListen());
     experiment.setBackgroundListenSourceIdentifier(experimentDAO.getBackgroundListenSourceIdentifier());
+
+    experiment.setAccessibilityListen(experimentDAO.isAccessibilityListen());
 
     experiment.setExtraDataCollectionDeclarations(experimentDAO.getExtraDataCollectionDeclarations());
 

@@ -102,6 +102,11 @@ public class BroadcastTriggerService extends Service {
       List<Trio<ExperimentGroup, InterruptTrigger, InterruptCue>> triggersThatMatch = ExperimentHelper.shouldTriggerBy(experiment.getExperimentDAO(),
                                                                                                          triggerEvent,
                                                                                                          sourceIdentifier);
+      if (ExperimentHelper.declaresAccessibilityLogging(experiment.getExperimentDAO())) {
+        List<ExperimentGroup> accessibilityGroupsListening = ExperimentHelper.isListeningForAccessibilityEvents(experiment.getExperimentDAO());
+        persistAccessibilityData(eu, experiment, accessibilityGroupsListening, extras.getBundle(RuntimePermissionMonitorService.PACO_ACTION_ACCESSIBILITY_PAYLOAD));
+      }
+
       Log.i(PacoConstants.TAG, "triggers that match count: " + triggersThatMatch.size());
       for (Trio<ExperimentGroup, InterruptTrigger, InterruptCue> triggerInfo : triggersThatMatch) {
         final InterruptTrigger actionTrigger = triggerInfo.second;
@@ -163,23 +168,56 @@ public class BroadcastTriggerService extends Service {
 
       Event event = EventUtil.createEvent(experiment, experimentGroup.getName(), nowMillis, null, null, null);
       Bundle payload = extras.getBundle(BroadcastTriggerReceiver.PACO_ACTION_PAYLOAD);
-      for (String key : payload.keySet()) {
-        if (payload.get(key) == null) {
-          continue;
-        }
-        Output output = new Output();
-        output.setEventId(event.getId());
-        output.setName(key);
-        output.setAnswer(payload.get(key).toString());
-        event.addResponse(output);
-      }
-      eu.insertEvent(event);
+      persistEventBundle(eu, event, payload);
     }
     notifySyncService();
+  }
+
+  /**
+   * Persist data related to accessibility events, sent along as part of the
+   * PACO_ACTION_ACCESSIBILITY_PAYLOAD bundle.
+   * @param experimentProviderUtil an initialized ExperimentProviderUtil
+   * @param experiment the experiment for which to save the events
+   * @param payload the PACO_ACTION_ACCESSIBILITY_PAYLOAD bundle
+   */
+  private void persistAccessibilityData(ExperimentProviderUtil experimentProviderUtil,
+                                        Experiment experiment, List<ExperimentGroup> groupsListening,
+                                        Bundle payload) {
+    if (payload == null) {
+      Log.v(PacoConstants.TAG, "No accessibility data for this trigger.");
+      return;
+    }
+    Log.v(PacoConstants.TAG, "Persisting accessibility data for experiment " + experiment.getExperimentDAO().getTitle());
+    long nowMillis = new DateTime().getMillis();
+    for (ExperimentGroup experimentGroup : groupsListening) {
+      Event event = EventUtil.createEvent(experiment, experimentGroup.getName(), nowMillis, null, null, null);
+      persistEventBundle(experimentProviderUtil, event, payload);
+    }
+    notifySyncService();
+  }
+
+  /**
+   * Helper function for persistAccessibilityData() and persistBroadcastData().
+   * Stores all information in a Bundle in a given Event
+   * @param experimentProviderUtil an initialized ExperimentProviderUtil
+   * @param event Event for which the data should be stored
+   * @param payload The data, as key-value pairs
+   */
+  private void persistEventBundle(ExperimentProviderUtil experimentProviderUtil, Event event, Bundle payload) {
+    for (String key : payload.keySet()) {
+      if (payload.get(key) == null) {
+        continue;
+      }
+      Output output = new Output();
+      output.setEventId(event.getId());
+      output.setName(key);
+      output.setAnswer(payload.get(key).toString());
+      event.addResponse(output);
+    }
+    experimentProviderUtil.insertEvent(event);
   }
 
   private void notifySyncService() {
     startService(new Intent(this, SyncService.class));
   }
-
 }

@@ -21,6 +21,7 @@ import java.util.List;
 import android.content.Intent;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.text.Html;
@@ -70,6 +71,16 @@ public class PostJoinInstructionsActivity extends ActionBarActivity implements E
       Toast.makeText(this, R.string.cannot_find_the_experiment_warning, Toast.LENGTH_SHORT).show();
       finish();
     } else {
+      if (ExperimentHelper.declaresAccessibilityLogging(experiment.getExperimentDAO())) {
+        Button openAccessibilitySettings = (Button) findViewById(R.id.openAccessibilitySettings);
+        openAccessibilitySettings.setVisibility(TextView.VISIBLE);
+        openAccessibilitySettings.setOnClickListener(new OnClickListener() {
+          @Override
+          public void onClick(View view) {
+            runAccessibilityActivity();
+          }
+        });
+      }
       boolean userEditableSchedule = ExperimentHelper.hasUserEditableSchedule(experiment.getExperimentDAO());
       if (userEditableSchedule) {
         Button reviewScheduleButton = (Button) findViewById(R.id.reviewSchedule);
@@ -111,6 +122,11 @@ public class PostJoinInstructionsActivity extends ActionBarActivity implements E
     if (requestCode == FindExperimentsActivity.JOIN_REQUEST_CODE) {
       setResult(FindExperimentsActivity.JOINED_EXPERIMENT);
     }
+  }
+
+  private void runAccessibilityActivity() {
+    Intent accessibilityActivityIntent = new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS);
+    startActivity(accessibilityActivityIntent);
   }
 
   private void runScheduleActivity() {

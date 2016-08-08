@@ -1,5 +1,6 @@
 package com.pacoapp.paco.sensors.android;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -50,6 +51,29 @@ public class AndroidInstalledApplications {
     }
     Collections.sort(appNames);
     return appNames;
+  }
+
+  /**
+   * Return the package names for all installed applications whose name corresponds to the appLabel,
+   * e.g. if the user has Google & Facebook messenger installed, this function will return
+   * ["com.facebook.orca","com.google.android.apps.messaging"] for name "Messenger".
+   * This function only does exact matching, not partial matching.
+   * @param appLabel The full name of the app as it is displayed in the settings
+   * @return A list of package names for apps having the specified name, or an empty list if none
+   *    are found
+   */
+  public ArrayList<String> getPackageNameFromAppLabel(CharSequence appLabel) {
+    ArrayList<String> matchingPackages = new ArrayList();
+
+    PackageManager packageManager = context.getPackageManager();
+    // The only way to do this is to traverse all applications, and see which ones have the label we want
+    for (ApplicationInfo appInfo : packageManager.getInstalledApplications(0)) {
+      CharSequence currentAppLabel = appInfo.loadLabel(packageManager);
+      if (currentAppLabel.equals(appLabel)) {
+        matchingPackages.add(appInfo.packageName);
+      }
+    }
+    return matchingPackages;
   }
 
 
