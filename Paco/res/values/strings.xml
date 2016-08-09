@@ -358,6 +358,7 @@
     <string name="_unverified_label">(unverified)</string>
     <string name="ic_phone_make_model_carrier_label">Phone make, model, carrier</string>
     <string name="review_accessibility_button_label">Make sure Paco has accessibility permissions by clicking here</string>
+    <string name="review_usageaccess_button_label">Make sure Paco has app usage access by clicking here</string>
     <string name="review_schedule_button_label">Review Schedule</string>
     <string name="the_personal_analytics_companion_subtitle">The Personal Analytics COmpanion</string>
     <string name="login_with_your_google_email_to_join_experiments_message">Login with your Google email to join experiments</string>

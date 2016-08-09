@@ -81,6 +81,16 @@ public class PostJoinInstructionsActivity extends ActionBarActivity implements E
           }
         });
       }
+      if (ExperimentHelper.declaresLogAppUsageAndBrowserCollection(experiment.getExperimentDAO())) {
+        Button openUsageAccessSettings = (Button) findViewById(R.id.openUsageAccessSettings);
+        openUsageAccessSettings.setVisibility(TextView.VISIBLE);
+        openUsageAccessSettings.setOnClickListener(new OnClickListener() {
+          @Override
+          public void onClick(View view) {
+            runUsageAccessActivity();
+          }
+        });
+      }
       boolean userEditableSchedule = ExperimentHelper.hasUserEditableSchedule(experiment.getExperimentDAO());
       if (userEditableSchedule) {
         Button reviewScheduleButton = (Button) findViewById(R.id.reviewSchedule);
@@ -124,9 +134,20 @@ public class PostJoinInstructionsActivity extends ActionBarActivity implements E
     }
   }
 
+  /**
+   * Show the user an activity allowing to provide accessibility permissions to Paco
+   */
   private void runAccessibilityActivity() {
     Intent accessibilityActivityIntent = new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS);
     startActivity(accessibilityActivityIntent);
+  }
+
+  /*
+   * Show the user an activity allowing to provide app usage access to Paco
+   */
+  private void runUsageAccessActivity() {
+    Intent intent = new Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS);
+    startActivity(intent);
   }
 
   private void runScheduleActivity() {
