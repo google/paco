@@ -29,7 +29,7 @@ public class JavascriptPackageManager {
   @JavascriptInterface
   public String getNamesOfInstalledApplications() {
     final List<String> namesOfInstalledApplications = new AndroidInstalledApplications(context).getNamesOfInstalledApplications();
-    return convertToJsonString(namesOfInstalledApplications);
+    return JsonConverter.convertToJsonString(namesOfInstalledApplications);
   }
 
   /**
@@ -51,27 +51,6 @@ public class JavascriptPackageManager {
   @JavascriptInterface
   public String getGrantedPermissions() {
     final Map<String, List<String>> grantedPermissions = new AndroidInstalledApplications(context).getGrantedPermissions();
-    return convertToJsonString(grantedPermissions);
+    return JsonConverter.convertToJsonString(grantedPermissions);
   }
-
-  /**
-   * Helper function that converts any object to a JSON string
-   * @param object The object we want to convert
-   * @return A string containing a JSON representation of the object
-   */
-  private String convertToJsonString(Object object) {
-    ObjectMapper mapper = JsonConverter.getObjectMapper();
-    String json = null;
-    try {
-      json = mapper.writeValueAsString(object);
-    } catch (JsonGenerationException e) {
-      e.printStackTrace();
-    } catch (JsonMappingException e) {
-      e.printStackTrace();
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
-    return json;
-  }
-
 }
