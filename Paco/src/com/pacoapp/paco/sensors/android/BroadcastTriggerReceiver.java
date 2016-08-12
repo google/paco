@@ -160,8 +160,11 @@ public class BroadcastTriggerReceiver extends BroadcastReceiver {
 
     Uri data = intent.getData();
     String packageName = data.getEncodedSchemeSpecificPart();
+    Bundle payload = new Bundle();
+    payload.putString(AndroidInstalledApplications.PACKAGE_NAME, packageName);
+
     if (!packageName.equals("com.pacoapp.paco")) {
-      triggerEvent(context, InterruptCue.APP_REMOVED, packageName, null);
+      triggerEvent(context, InterruptCue.APP_REMOVED, packageName, payload);
     }
   }
 
@@ -178,8 +181,13 @@ public class BroadcastTriggerReceiver extends BroadcastReceiver {
 
     Uri data = intent.getData();
     String packageName = data.getEncodedSchemeSpecificPart();
+    String appName = (new AndroidInstalledApplications(context)).getApplicationName(packageName);
+    Bundle payload = new Bundle();
+    payload.putString(AndroidInstalledApplications.PACKAGE_NAME, packageName);
+    payload.putString(AndroidInstalledApplications.APP_NAME, appName);
+
     if (!packageName.equals("com.pacoapp.paco")) {
-      triggerEvent(context, InterruptCue.APP_ADDED, packageName, null);
+      triggerEvent(context, InterruptCue.APP_ADDED, packageName, payload);
     }
   }
 

@@ -68,6 +68,7 @@ public class BroadcastTriggerService extends Service {
 
   protected synchronized void propagateToExperimentsThatCare(Bundle extras) {
 
+    // TODO: add triggerEvent to extras bundle before passing it on
     final int triggerEvent = extras.getInt(Experiment.TRIGGER_EVENT);
     final String sourceIdentifier = extras.getString(Experiment.TRIGGER_SOURCE_IDENTIFIER);
     final String timeStr = extras.getString(Experiment.TRIGGERED_TIME);

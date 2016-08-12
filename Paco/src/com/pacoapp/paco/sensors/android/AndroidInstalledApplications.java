@@ -19,6 +19,9 @@ import com.pacoapp.paco.PacoConstants;
 
 public class AndroidInstalledApplications {
 
+  public static final String PACKAGE_NAME = "packageName";
+  public static final String APP_NAME = "appName";
+
   private static final List<String> whitelist =
           Lists.newArrayList("Chrome", "Gmail", "Phone", "Camera", "Messaging", "Google App",
                              "Maps", "Drive", "Google Play Movies & TV", "Google+", "Google Play Store",
