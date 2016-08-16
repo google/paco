@@ -163,7 +163,7 @@ public class RuntimePermissionMonitorService extends AccessibilityService {
         Log.v(PacoConstants.TAG, "This might be a changed permissions dialog, try to extract info");
         extractInformationFromEventText(accessibilityEvent.getText());
         break;
-      case AccessibilityEvent.CONTENT_CHANGE_TYPE_SUBTREE:
+      case AccessibilityEvent.TYPE_VIEW_CLICKED:
         // For our purposes, this means: permission change via switch button (in settings),
         // or clicking 'allow/deny' in a runtime permission dialog
         if (isPermissionsDialogAction(accessibilityEvent.getSource())) {
@@ -395,7 +395,17 @@ public class RuntimePermissionMonitorService extends AccessibilityService {
       // Will also resolve package names
       setCurrentlyHandledAppName(switchName);
     }
-    boolean isAllowed = textFields.get(1).equals("ON");
+    // Get the switch button, and check whether it is enabled
+    AccessibilityNodeInfo source = accessibilityEvent.getSource();
+    List<AccessibilityNodeInfo> switchButtons = source.findAccessibilityNodeInfosByViewId("com.android.packageinstaller:id/switchWidget");
+    if (switchButtons.size() == 0) {
+      switchButtons = source.findAccessibilityNodeInfosByViewId("android:id/switch_widget");
+    }
+    if (switchButtons.size() == 0) {
+      Log.e(PacoConstants.TAG, "We couldn't find the switch button in the permissions activity!");
+      return;
+    }
+    boolean isAllowed = switchButtons.get(0).isChecked();
     triggerBroadcastTriggerService(isAllowed, true);
   }
 
