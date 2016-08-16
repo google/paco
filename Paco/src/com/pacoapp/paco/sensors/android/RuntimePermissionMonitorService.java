@@ -173,7 +173,7 @@ public class RuntimePermissionMonitorService extends AccessibilityService {
           Log.v(PacoConstants.TAG, "Action taken in permission settings activity");
           processPermissionConfigurationChange(accessibilityEvent);
         } else {
-          Log.v(PacoConstants.TAG, "Ignoring content change type subtree, since it was not in a permission dialog or a settings screen.");
+          Log.v(PacoConstants.TAG, "Ignoring TYPE_VIEW_CLICKED, since it was not in a permission dialog or a settings screen.");
         }
         break;
     }
