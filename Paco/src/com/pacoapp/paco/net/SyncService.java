@@ -85,6 +85,8 @@ public class SyncService extends Service {
       EventUploader eventUploader = new EventUploader(this, userPrefs.getServerAddress(),
                         experimentProviderUtil);
       try {
+        // For all events, check whether they belong to an experiment that provides a key, and
+        // encrypt their answers accordingly
         List<Event> encryptedEvents = new Crypto(this.getApplicationContext()).encryptAnswers(allEvents);
         eventUploader.uploadEvents(encryptedEvents);
       } catch (NoSuchAlgorithmException e) {
