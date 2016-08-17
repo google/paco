@@ -84,18 +84,10 @@ public class SyncService extends Service {
       List<Event> allEvents = experimentProviderUtil.getEventsNeedingUpload();
       EventUploader eventUploader = new EventUploader(this, userPrefs.getServerAddress(),
                         experimentProviderUtil);
-      try {
-        // For all events, check whether they belong to an experiment that provides a key, and
-        // encrypt their answers accordingly
-        List<Event> encryptedEvents = new Crypto(this.getApplicationContext()).encryptAnswers(allEvents);
-        eventUploader.uploadEvents(encryptedEvents);
-      } catch (NoSuchAlgorithmException e) {
-        Log.e(PacoConstants.TAG, "Crypto algorithm not supported!" + e);
-        eventUploader.uploadEvents(allEvents);
-      } catch (NoSuchPaddingException e) {
-        Log.e(PacoConstants.TAG, "Padding not supported!" + e);
-        eventUploader.uploadEvents(allEvents);
-      }
+      // For all events, check whether they belong to an experiment that provides a key, and
+      // encrypt their answers accordingly
+      List<Event> encryptedEvents = new Crypto(this.getApplicationContext()).encryptAnswers(allEvents);
+      eventUploader.uploadEvents(encryptedEvents);
     }
   }
 }

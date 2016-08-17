@@ -14,6 +14,7 @@ import java.security.InvalidKeyException;
 import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
+import java.security.spec.InvalidKeySpecException;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.ArrayList;
 import java.util.List;
@@ -48,10 +49,15 @@ public class Crypto {
    * @throws NoSuchAlgorithmException If the RSA algorithm is not supported on the device
    * @throws NoSuchPaddingException If padding is not supported for RSA on the device
    */
-  public List<Event> encryptAnswers(List<Event> events) throws NoSuchAlgorithmException, NoSuchPaddingException {
+  public List<Event> encryptAnswers(List<Event> events) {
     ArrayList<Event> encryptedEvents = new ArrayList();
     for (Event event : events) {
-      encryptedEvents.add(encryptAnswers(event));
+      try {
+        encryptedEvents.add(encryptAnswers(event));
+      } catch (Exception e) {
+        Log.e(PacoConstants.TAG, "Exception while trying to encrypt event. Falling back to unencrypted. " + e);
+        encryptedEvents.add(event);
+      }
     }
     return encryptedEvents;
   }
@@ -64,7 +70,7 @@ public class Crypto {
    * @throws NoSuchAlgorithmException If the RSA algorithm is not supported on the device
    * @throws NoSuchPaddingException If padding is not supported for RSA on the device
    */
-  public Event encryptAnswers(Event event) throws NoSuchPaddingException, NoSuchAlgorithmException {
+  public Event encryptAnswers(Event event) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeySpecException {
     long experimentId = event.getExperimentServerId();
     Experiment experiment = experimentProviderUtil.getExperimentByServerId(experimentId);
     String publicKeyString = experiment.getExperimentDAO().getPublicKey();
@@ -117,18 +123,11 @@ public class Crypto {
    * @param publicKeyString A BASE64 encoded public key
    * @return A RSA Public Key
    */
-  private PublicKey base64ToPublicKey(String publicKeyString) {
-    try{
-      byte[] byteKey = Base64.decode(publicKeyString.getBytes(), Base64.DEFAULT);
-      X509EncodedKeySpec X509publicKey = new X509EncodedKeySpec(byteKey);
-      KeyFactory kf = KeyFactory.getInstance("RSA");
+  private PublicKey base64ToPublicKey(String publicKeyString) throws NoSuchAlgorithmException, InvalidKeySpecException {
+    byte[] decoded = Base64.decode(publicKeyString.getBytes(), Base64.DEFAULT);
+    X509EncodedKeySpec X509publicKey = new X509EncodedKeySpec(decoded);
 
-      return kf.generatePublic(X509publicKey);
-    }
-    catch(Exception e){
-      e.printStackTrace();
-    }
-
-    return null;
+    KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+    return keyFactory.generatePublic(X509publicKey);
   }
 }
