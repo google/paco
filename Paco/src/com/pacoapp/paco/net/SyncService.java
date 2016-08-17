@@ -17,8 +17,10 @@
 package com.pacoapp.paco.net;
 
 
+import java.security.NoSuchAlgorithmException;
 import java.util.List;
 
+import com.pacoapp.paco.PacoConstants;
 import com.pacoapp.paco.UserPreferences;
 import com.pacoapp.paco.model.Event;
 import com.pacoapp.paco.model.ExperimentProviderUtil;
@@ -28,6 +30,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.IBinder;
 import android.os.PowerManager;
+import android.util.Log;
+
+import javax.crypto.NoSuchPaddingException;
 
 public class SyncService extends Service {
 
@@ -79,7 +84,16 @@ public class SyncService extends Service {
       List<Event> allEvents = experimentProviderUtil.getEventsNeedingUpload();
       EventUploader eventUploader = new EventUploader(this, userPrefs.getServerAddress(),
                         experimentProviderUtil);
-      eventUploader.uploadEvents(allEvents);
+      try {
+        List<Event> encryptedEvents = new Crypto(this.getApplicationContext()).encryptAnswers(allEvents);
+        eventUploader.uploadEvents(encryptedEvents);
+      } catch (NoSuchAlgorithmException e) {
+        Log.e(PacoConstants.TAG, "Crypto algorithm not supported!" + e);
+        eventUploader.uploadEvents(allEvents);
+      } catch (NoSuchPaddingException e) {
+        Log.e(PacoConstants.TAG, "Padding not supported!" + e);
+        eventUploader.uploadEvents(allEvents);
+      }
     }
   }
 }
