@@ -51,6 +51,7 @@ public class DAOConverterOld {
     String description = experiment.getDescription();
     String informedConsentForm = experiment.getInformedConsentFormText();
     String email = experiment.getCreator().getEmail();
+    String publicKey = null;
 
     Boolean published = experiment.getPublished();
 
@@ -105,7 +106,7 @@ public class DAOConverterOld {
       List<Integer> jdoDetachedList = Lists.newArrayList(extraDataCollectionDeclarations);
       extraDataCollectionDeclarations = jdoDetachedList;
     }
-    ExperimentDAO dao = new ExperimentDAO(id, title, description, informedConsentForm, email, signalingMechanisms,
+    ExperimentDAO dao = new ExperimentDAO(id, title, description, informedConsentForm, email, publicKey, signalingMechanisms,
                                           fixedDuration, questionsChange, startDate, endDate, hash, joinDate,
                                           modifyDate, published, adminStrArray, userEmailsStrArray, deleted, null,
                                           version, experiment.isCustomRendering(), customRenderingCode, feedbackType,

@@ -114,6 +114,7 @@ public class JsonConverter {
                                                           experimentDAO.getDescription(),
                                                           experimentDAO.getInformedConsentForm(),
                                                           experimentDAO.getCreator(),
+                                                          experimentDAO.getPublicKey(),
                                                           getSignalingMechanismsBC(experimentDAO),
                                                           experimentGroup.getFixedDuration(),
                                                           false,
@@ -182,6 +183,7 @@ public class JsonConverter {
                                                                            experimentDAOCore.getDescription(),
                                                                            experimentDAOCore.getInformedConsentForm(),
                                                                            experimentDAOCore.getCreator(),
+                                                                           experimentDAOCore.getPublicKey(),
                                                                            experimentDAOCore.getEarliestStartDate() != null,
                                                                            TimeUtil.formatDate(experimentDAOCore.getEarliestStartDate().getTime()),
                                                                            TimeUtil.formatDate(experimentDAOCore.getLatestEndDate().getTime()),
@@ -467,7 +469,7 @@ public class JsonConverter {
       endDate = lastEndTime.toDateMidnight().toDate();
     }
     return new ExperimentDAOCore(experiment.getId(), experiment.getTitle(), experiment.getDescription(),
-                                 experiment.getInformedConsentForm(), experiment.getCreator(),
+                                 experiment.getInformedConsentForm(), experiment.getCreator(), experiment.getPublicKey(),
                                  experiment.getJoinDate(), experiment.getRecordPhoneDetails(), experiment.getDeleted(),
                                  experiment.getExtraDataCollectionDeclarations(), experiment.getOrganization(),
                                  experiment.getContactPhone(), experiment.getContactEmail(), earliestStartDate, endDate);

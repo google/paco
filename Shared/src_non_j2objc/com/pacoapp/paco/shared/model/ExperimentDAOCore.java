@@ -31,9 +31,10 @@ public class ExperimentDAOCore implements Serializable {
   private Boolean logActions;
   private Boolean recordPhoneDetails;
   protected List<Integer> extraDataCollectionDeclarations;
+  protected String publicKey;
 
   public ExperimentDAOCore(Long id, String title, String description, String informedConsentForm,
-                           String email, Boolean fixedDuration,
+                           String email, String publicKey, Boolean fixedDuration,
                            String startDate, String endDate, String joinDate, Boolean backgroundListen,
                            String backgroundListenSourceIdentifier, Boolean accessibilityListen,
                            Boolean logActions, Boolean recordPhoneDetails,
@@ -58,6 +59,7 @@ public class ExperimentDAOCore implements Serializable {
     } else {
       this.extraDataCollectionDeclarations = extraDataCollectionDeclarations;
     }
+    this.publicKey = publicKey;
   }
 
   /**
@@ -186,6 +188,13 @@ public class ExperimentDAOCore implements Serializable {
     this.extraDataCollectionDeclarations = extraDataDeclarations;
   }
 
+  public String getPublicKey() {
+    return publicKey;
+  }
+
+  public void setPublicKey(String publicKey) {
+    this.publicKey = publicKey;
+  }
 
 
 }
