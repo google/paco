@@ -10,6 +10,7 @@ import com.pacoapp.paco.model.Experiment;
 import com.pacoapp.paco.model.ExperimentProviderUtil;
 import com.pacoapp.paco.model.Output;
 
+import java.io.UnsupportedEncodingException;
 import java.security.InvalidKeyException;
 import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
@@ -70,7 +71,7 @@ public class Crypto {
    * @throws NoSuchAlgorithmException If the RSA algorithm is not supported on the device
    * @throws NoSuchPaddingException If padding is not supported for RSA on the device
    */
-  public Event encryptAnswers(Event event) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeySpecException {
+  public Event encryptAnswers(Event event) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeySpecException, UnsupportedEncodingException, BadPaddingException, InvalidKeyException, IllegalBlockSizeException {
     long experimentId = event.getExperimentServerId();
     Experiment experiment = experimentProviderUtil.getExperimentByServerId(experimentId);
     String publicKeyString = experiment.getExperimentDAO().getPublicKey();
@@ -96,25 +97,15 @@ public class Crypto {
    * @param response The response for which to encrypt the answer
    * @param publicKey The corresponding experiment's public key
    * @return The same response as was passed to the function
-   * @throws NoSuchPaddingException
-   * @throws NoSuchAlgorithmException
    */
-  private Output encryptAnswer(Output response, PublicKey publicKey) throws NoSuchPaddingException, NoSuchAlgorithmException {
+  private Output encryptAnswer(Output response, PublicKey publicKey) throws NoSuchPaddingException, NoSuchAlgorithmException, UnsupportedEncodingException, InvalidKeyException, BadPaddingException, IllegalBlockSizeException {
     Cipher cipher = Cipher.getInstance("RSA");
-    try {
-      cipher.init(Cipher.ENCRYPT_MODE, publicKey);
-      String answer = response.getAnswer();
-      String encryptedAnswer = cipher.doFinal(answer.getBytes()).toString();
-      response.setAnswer(encryptedAnswer);
-    } catch (InvalidKeyException e) {
-      // TODO: inform the experiment organizer about the key being invalid
-      Log.e(PacoConstants.TAG, "Invalid key for experiment " + e);
-      // Return unencrypted
-    } catch (BadPaddingException e) {
-      Log.e(PacoConstants.TAG, "Bad padding for answer " + e);
-    } catch (IllegalBlockSizeException e) {
-      Log.e(PacoConstants.TAG, "Illegal block size for answer " + e);
-    }
+    cipher.init(Cipher.ENCRYPT_MODE, publicKey);
+    String answer = response.getAnswer();
+    byte[] answerBytes = answer.getBytes("UTF-8");
+    byte[] encryptedBytes = cipher.doFinal(answerBytes);
+    String encryptedAnswer = Base64.encodeToString(encryptedBytes, Base64.DEFAULT);
+    response.setAnswer(encryptedAnswer);
     return response;
   }
 
@@ -124,10 +115,11 @@ public class Crypto {
    * @return A RSA Public Key
    */
   private PublicKey base64ToPublicKey(String publicKeyString) throws NoSuchAlgorithmException, InvalidKeySpecException {
-    byte[] decoded = Base64.decode(publicKeyString.getBytes(), Base64.DEFAULT);
-    X509EncodedKeySpec X509publicKey = new X509EncodedKeySpec(decoded);
+    byte[] decoded = Base64.decode(publicKeyString, Base64.DEFAULT);
+    X509EncodedKeySpec x509publicKey = new X509EncodedKeySpec(decoded);
 
     KeyFactory keyFactory = KeyFactory.getInstance("RSA");
-    return keyFactory.generatePublic(X509publicKey);
+    Log.v(PacoConstants.TAG, "Created key from " + publicKeyString + ": " + x509publicKey);
+    return keyFactory.generatePublic(x509publicKey);
   }
 }
