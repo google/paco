@@ -20,8 +20,6 @@ import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
-import java.util.ArrayList;
-import java.util.List;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
@@ -48,7 +46,7 @@ public class CryptoTest extends AndroidTestCase {
     KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
     keyGen.initialize(2048);
     byte[] publicKey = keyGen.genKeyPair().getPublic().getEncoded();
-    String encoded64 = Base64.encodeToString(publicKey, Base64.DEFAULT);
+    String encoded64 = Base64.encodeToString(publicKey, Base64.NO_WRAP);
 
     PublicKey decoded = (PublicKey) base64ToPublicKey.invoke(crypto, encoded64);
 
@@ -72,10 +70,10 @@ public class CryptoTest extends AndroidTestCase {
       fail("Exception when trying to encrypt: " + e);
     }
 
-    Cipher cipher = Cipher.getInstance("RSA");
+    Cipher cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");
     cipher.init(Cipher.DECRYPT_MODE, keyPair.getPrivate());
     String encryptedAnswer = encryptedOutput.getAnswer();
-    byte[] encryptedBytes = Base64.decode(encryptedAnswer, Base64.DEFAULT);
+    byte[] encryptedBytes = Base64.decode(encryptedAnswer, Base64.NO_WRAP);
     byte[] decryptedBytes = cipher.doFinal(encryptedBytes);
     String decryptedAnswer = new String(decryptedBytes, "UTF-8");
 

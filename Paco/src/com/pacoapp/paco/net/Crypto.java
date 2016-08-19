@@ -14,6 +14,7 @@ import java.io.UnsupportedEncodingException;
 import java.security.InvalidKeyException;
 import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
 import java.security.PublicKey;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.X509EncodedKeySpec;
@@ -99,12 +100,14 @@ public class Crypto {
    * @return The same response as was passed to the function
    */
   private Output encryptAnswer(Output response, PublicKey publicKey) throws NoSuchPaddingException, NoSuchAlgorithmException, UnsupportedEncodingException, InvalidKeyException, BadPaddingException, IllegalBlockSizeException {
-    Cipher cipher = Cipher.getInstance("RSA");
+    Cipher cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");
     cipher.init(Cipher.ENCRYPT_MODE, publicKey);
     String answer = response.getAnswer();
     byte[] answerBytes = answer.getBytes("UTF-8");
     byte[] encryptedBytes = cipher.doFinal(answerBytes);
-    String encryptedAnswer = Base64.encodeToString(encryptedBytes, Base64.DEFAULT);
+    // NO_WRAP is used for compatibility with apache's BASE64 encoder
+    String encryptedAnswer = Base64.encodeToString(encryptedBytes, Base64.NO_WRAP);
+    Log.v(PacoConstants.TAG, "Encrypted answer for " + answer + ": " + encryptedAnswer);
     response.setAnswer(encryptedAnswer);
     return response;
   }
@@ -114,12 +117,12 @@ public class Crypto {
    * @param publicKeyString A BASE64 encoded public key
    * @return A RSA Public Key
    */
-  private PublicKey base64ToPublicKey(String publicKeyString) throws NoSuchAlgorithmException, InvalidKeySpecException {
-    byte[] decoded = Base64.decode(publicKeyString, Base64.DEFAULT);
+  private PublicKey base64ToPublicKey(String publicKeyString) throws NoSuchAlgorithmException, InvalidKeySpecException, UnsupportedEncodingException {
+    // NO_WRAP is used for compatibility with apache's BASE64 encoder
+    byte[] decoded = Base64.decode(publicKeyString.getBytes("UTF-8"), Base64.NO_WRAP);
     X509EncodedKeySpec x509publicKey = new X509EncodedKeySpec(decoded);
 
     KeyFactory keyFactory = KeyFactory.getInstance("RSA");
-    Log.v(PacoConstants.TAG, "Created key from " + publicKeyString + ": " + x509publicKey);
     return keyFactory.generatePublic(x509publicKey);
   }
 }
