@@ -11,11 +11,12 @@ import com.pacoapp.paco.model.ExperimentProviderUtil;
 import com.pacoapp.paco.model.Output;
 
 import java.io.UnsupportedEncodingException;
+import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
-import java.security.NoSuchProviderException;
 import java.security.PublicKey;
+import java.security.SecureRandom;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.ArrayList;
@@ -24,7 +25,10 @@ import java.util.List;
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.KeyGenerator;
 import javax.crypto.NoSuchPaddingException;
+import javax.crypto.SecretKey;
+import javax.crypto.spec.IvParameterSpec;
 
 /**
  * This class provides all end-to-end crypto functionality in Paco. It allows an experiment provider
@@ -72,11 +76,11 @@ public class Crypto {
    * @throws NoSuchAlgorithmException If the RSA algorithm is not supported on the device
    * @throws NoSuchPaddingException If padding is not supported for RSA on the device
    */
-  public Event encryptAnswers(Event event) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeySpecException, UnsupportedEncodingException, BadPaddingException, InvalidKeyException, IllegalBlockSizeException {
+  public Event encryptAnswers(Event event) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeySpecException, UnsupportedEncodingException, BadPaddingException, InvalidKeyException, IllegalBlockSizeException, InvalidAlgorithmParameterException {
     long experimentId = event.getExperimentServerId();
     Experiment experiment = experimentProviderUtil.getExperimentByServerId(experimentId);
     String publicKeyString = experiment.getExperimentDAO().getPublicKey();
-    if (publicKeyString == "") {
+    if (publicKeyString == null || publicKeyString == "") {
       Log.v(PacoConstants.TAG, "No public key for experiment " + experiment.getExperimentDAO().getTitle());
       return event;
     }
@@ -84,24 +88,72 @@ public class Crypto {
     Log.v(PacoConstants.TAG, "Using public key for experiment " + experiment.getExperimentDAO().getTitle() + ". Key string is " + publicKeyString);
     PublicKey publicKey = base64ToPublicKey(publicKeyString);
 
+    // Generate symmetric key that will be used to encrypt the answers
+    SecretKey secretKey = generateSymmetricKey();
+    // We use a single IV for all answers. This should be sufficient for our security guarantees to hold.
+    IvParameterSpec iv = generateIv();
+    Log.v(PacoConstants.TAG, "Symmetric key in BASE64: " + Base64.encodeToString(secretKey.getEncoded(), Base64.NO_WRAP));
+    Log.v(PacoConstants.TAG, "IV in BASE64: " + Base64.encodeToString(iv.getIV(), Base64.NO_WRAP));
+
     ArrayList<Output> encryptedResponses = new ArrayList();
     for (Output answer : event.getResponses()) {
-      encryptedResponses.add(encryptAnswer(answer, publicKey));
+      encryptedResponses.add(encryptAnswer(answer, secretKey, iv));
     }
+
+    addKeyResponses(encryptedResponses, secretKey, iv, publicKey);
+
     event.setResponses(encryptedResponses);
 
     return event;
   }
 
   /**
-   * Encrypt a single response's answer using the provided public key
-   * @param response The response for which to encrypt the answer
-   * @param publicKey The corresponding experiment's public key
-   * @return The same response as was passed to the function
+   * Add answers containing an encrypted version of the secret key and the IV.
+   * @param responses The list of responses to append our own information to
+   * @param secretKey The symmetric key used to encrypt all answers
+   * @param iv The initialization vector for encryption
+   * @param publicKey The public key of the recipient
    */
-  private Output encryptAnswer(Output response, PublicKey publicKey) throws NoSuchPaddingException, NoSuchAlgorithmException, UnsupportedEncodingException, InvalidKeyException, BadPaddingException, IllegalBlockSizeException {
+  private void addKeyResponses(List<Output> responses, SecretKey secretKey, IvParameterSpec iv, PublicKey publicKey) throws IllegalBlockSizeException, InvalidKeyException, BadPaddingException, NoSuchAlgorithmException, NoSuchPaddingException {
+    // Add the symmetric key as a response, encrypted with the public key of the experiment organizer
+    Output keyResponse = new Output();
+    keyResponse.setName("encryptionKey");
+    byte[] secretKeyBytes = secretKey.getEncoded();
+    keyResponse.setAnswer(encryptWithPublic(secretKeyBytes, publicKey));
+    responses.add(keyResponse);
+
+    // Add the IV
+    Output ivResponse = new Output();
+    keyResponse.setName("encryptionIv");
+    byte[] ivBytes = iv.getIV();
+    keyResponse.setAnswer(encryptWithPublic(ivBytes, publicKey));
+  }
+
+  /**
+   * Encrypt a given byte array (e.g. the secret key or IV) using the public key of the recipient.
+   * @param plainText The bytes to be encrypted
+   * @param publicKey The public key of the recipient
+   * @return A BASE64 encoded String containing the encrypted version of the symmetric key
+   */
+  private String encryptWithPublic(byte[] plainText, PublicKey publicKey) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, BadPaddingException, IllegalBlockSizeException {
     Cipher cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");
     cipher.init(Cipher.ENCRYPT_MODE, publicKey);
+    byte[] encryptedBytes = cipher.doFinal(plainText);
+    // NO_WRAP is used for compatibility with apache's BASE64 encoder
+    String encryptedAnswer = Base64.encodeToString(encryptedBytes, Base64.NO_WRAP);
+    return encryptedAnswer;
+  }
+
+  /**
+   * Encrypt a single response's answer using the provided public key
+   * @param response The response for which to encrypt the answer
+   * @param secretKey A symmetric AES key to encrypt the answer with
+   * @param iv The initialization vector for encryption
+   * @return The same response as was passed to the function
+   */
+  private Output encryptAnswer(Output response, SecretKey secretKey, IvParameterSpec iv) throws NoSuchPaddingException, NoSuchAlgorithmException, UnsupportedEncodingException, InvalidKeyException, BadPaddingException, IllegalBlockSizeException, InvalidAlgorithmParameterException {
+    Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+    cipher.init(Cipher.ENCRYPT_MODE, secretKey, iv);
     String answer = response.getAnswer();
     byte[] answerBytes = answer.getBytes("UTF-8");
     byte[] encryptedBytes = cipher.doFinal(answerBytes);
@@ -124,5 +176,20 @@ public class Crypto {
 
     KeyFactory keyFactory = KeyFactory.getInstance("RSA");
     return keyFactory.generatePublic(x509publicKey);
+  }
+
+  private SecretKey generateSymmetricKey() throws NoSuchAlgorithmException {
+    KeyGenerator keyGenerator = KeyGenerator.getInstance("AES");
+    keyGenerator.init(192);
+    return keyGenerator.generateKey();
+  }
+
+  private IvParameterSpec generateIv() throws NoSuchAlgorithmException {
+    SecureRandom secureRandom = SecureRandom.getInstance("SHA1PRNG");
+    // AES IV size is 128
+    byte[] iv = new byte[16];
+    secureRandom.nextBytes(iv);
+
+    return new IvParameterSpec(iv);
   }
 }
