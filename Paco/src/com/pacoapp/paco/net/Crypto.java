@@ -41,10 +41,10 @@ public class Crypto {
 
   /**
    * Constructor
-   * @param context The application context
+   * @param experimentProviderUtil An experimentProviderUtil initialized with the current app context
    */
-  public Crypto(Context context) {
-    experimentProviderUtil = new ExperimentProviderUtil(context);
+  public Crypto(ExperimentProviderUtil experimentProviderUtil) {
+    this.experimentProviderUtil = experimentProviderUtil;
   }
 
   /**
@@ -124,9 +124,10 @@ public class Crypto {
 
     // Add the IV
     Output ivResponse = new Output();
-    keyResponse.setName("encryptionIv");
+    ivResponse.setName("encryptionIv");
     byte[] ivBytes = iv.getIV();
-    keyResponse.setAnswer(encryptWithPublic(ivBytes, publicKey));
+    ivResponse.setAnswer(encryptWithPublic(ivBytes, publicKey));
+    responses.add(ivResponse);
   }
 
   /**

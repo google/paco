@@ -86,7 +86,7 @@ public class SyncService extends Service {
                         experimentProviderUtil);
       // For all events, check whether they belong to an experiment that provides a key, and
       // encrypt their answers accordingly
-      List<Event> encryptedEvents = new Crypto(this.getApplicationContext()).encryptAnswers(allEvents);
+      List<Event> encryptedEvents = new Crypto(experimentProviderUtil).encryptAnswers(allEvents);
       eventUploader.uploadEvents(encryptedEvents);
     }
   }
