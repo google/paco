@@ -37,6 +37,9 @@ import javax.crypto.spec.IvParameterSpec;
  */
 
 public class Crypto {
+  public static final String ENCRYPTION_KEY = "encryptionKey";
+  public static final String ENCRYPTION_IV = "encryptionIv";
+
   private ExperimentProviderUtil experimentProviderUtil;
 
   /**
@@ -117,14 +120,14 @@ public class Crypto {
   private void addKeyResponses(List<Output> responses, SecretKey secretKey, IvParameterSpec iv, PublicKey publicKey) throws IllegalBlockSizeException, InvalidKeyException, BadPaddingException, NoSuchAlgorithmException, NoSuchPaddingException {
     // Add the symmetric key as a response, encrypted with the public key of the experiment organizer
     Output keyResponse = new Output();
-    keyResponse.setName("encryptionKey");
+    keyResponse.setName(ENCRYPTION_KEY);
     byte[] secretKeyBytes = secretKey.getEncoded();
     keyResponse.setAnswer(encryptWithPublic(secretKeyBytes, publicKey));
     responses.add(keyResponse);
 
     // Add the IV
     Output ivResponse = new Output();
-    ivResponse.setName("encryptionIv");
+    ivResponse.setName(ENCRYPTION_IV);
     byte[] ivBytes = iv.getIV();
     ivResponse.setAnswer(encryptWithPublic(ivBytes, publicKey));
     responses.add(ivResponse);

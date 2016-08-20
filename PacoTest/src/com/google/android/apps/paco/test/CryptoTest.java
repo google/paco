@@ -126,9 +126,9 @@ public class CryptoTest extends AndroidTestCase {
     String encryptionIvEncrypted = null;
     String answerEncrypted = null;
     for (Output response: encryptedEvent.getResponses()) {
-      if (response.getName().equals("encryptionKey"))
+      if (response.getName().equals(Crypto.ENCRYPTION_KEY))
         encryptionKeyEncrypted = response.getAnswer();
-      else if (response.getName().equals("encryptionIv"))
+      else if (response.getName().equals(Crypto.ENCRYPTION_IV))
         encryptionIvEncrypted = response.getAnswer();
       else if (response.getName().equals("name"))
         answerEncrypted = response.getAnswer();
