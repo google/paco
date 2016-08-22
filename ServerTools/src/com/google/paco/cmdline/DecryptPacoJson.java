@@ -4,6 +4,7 @@ import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
@@ -50,6 +51,8 @@ class DecryptPacoJson {
     JSONArray input = jsonFromFile(inputFilename);
 
     decryptJson(input, privateKey);
+
+    jsonToFile(input, outputFilename);
   }
 
   /**
@@ -58,20 +61,21 @@ class DecryptPacoJson {
    * @param privateKey The private key of the experiment organizer
    */
   public static void decryptJson(JSONArray input, PrivateKey privateKey) throws JSONException {
-
     for (int i = 0; i < input.length(); i++) {
       JSONObject event = input.getJSONObject(i);
+      JSONArray responses = null;
       try {
-        JSONArray responses = event.getJSONArray("responses");
+        responses = event.getJSONArray("responses");
         SymmetricParameters eventKey = getEventSecretKey(responses, privateKey);
         if (eventKey != null) {
-          System.out.println("I'm gonna decrypt some " + responses.toString());
-          decryptAnswers(responses, eventKey);
-          System.out.println("I just decrypted these! " + responses.toString());
+          responses = decryptAnswers(responses, eventKey);
         }
       } catch (JSONException e) {
         System.out.println("Found event without responses, ignoring.");
       }
+      // Replace the responses with the decrypted version, if available
+      if (responses != null)
+        event.put("responses", responses);
     }
   }
 
@@ -94,7 +98,15 @@ class DecryptPacoJson {
     return new String[] {pubString, privString};
   }
 
-  private static void decryptAnswers(JSONArray responses, SymmetricParameters key) throws JSONException {
+  /**
+   * Decrypts all answers in a JSONArray with a given key and IV
+   * @param responses The encrypted responses
+   * @param key The symmetric parameters used for encryption
+   * @return A JSONArray containing the decrypted responses (or unchanged in case we were unable
+   *          to decrypt).
+   */
+  private static JSONArray decryptAnswers(JSONArray responses, SymmetricParameters key) throws JSONException {
+    JSONArray result = new JSONArray();
     for (int i = 0; i < responses.length(); i++) {
       JSONObject response = responses.getJSONObject(i);
       if (!response.getString("name").equals("encryptionKey") && !response.getString("name").equals("encryptionIv")) {
@@ -102,7 +114,7 @@ class DecryptPacoJson {
         try {
           encryptedAnswer = response.getString("answer");
           String decryptedAnswer = decryptSymmetric(encryptedAnswer, key);
-          System.out.println("A decrypted answer for you: " + decryptedAnswer + " -- from " + encryptedAnswer);
+          //System.out.println("A decrypted answer for you: " + decryptedAnswer + " -- from " + encryptedAnswer);
           response.put("answer", decryptedAnswer);
         } catch (JSONException e) {
           System.out.println("Scary. Response " + response.getString("name") + " has no answer. Ignoring.");
@@ -110,8 +122,11 @@ class DecryptPacoJson {
           System.out.println("Exception when trying to decrypt " + response.getString("name") + ": " + e);
           e.printStackTrace();
         }
+        // Add the (either unchanged or decrypted) response to the result set
+        result.put(response);
       }
     }
+    return result;
   }
 
   /**
@@ -221,4 +236,14 @@ class DecryptPacoJson {
     return new JSONArray(builder.toString());
   }
 
+  /**
+   * Writes a (decrypted) JSON array to a file
+   * @param input The JSON array
+   * @param outputFilename The filename of the file to write to
+   */
+  private static void jsonToFile(JSONArray input, String outputFilename) throws IOException {
+    FileWriter writer = new FileWriter(outputFilename);
+    writer.write(input.toString());
+    writer.close();
+  }
 }
