@@ -164,10 +164,14 @@ public class BroadcastTriggerService extends Service {
   private void persistBroadcastData(ExperimentProviderUtil eu, Experiment experiment,
                                     List<ExperimentGroup> groupsListening, Bundle extras) {
     long nowMillis = new DateTime().getMillis();
+    Bundle payload = extras.getBundle(BroadcastTriggerReceiver.PACO_ACTION_PAYLOAD);
+    if (payload == null) {
+      Log.v(PacoConstants.TAG, "Not persisting broadcast data without payload");
+      return;
+    }
     for (ExperimentGroup experimentGroup : groupsListening) {
 
       Event event = EventUtil.createEvent(experiment, experimentGroup.getName(), nowMillis, null, null, null);
-      Bundle payload = extras.getBundle(BroadcastTriggerReceiver.PACO_ACTION_PAYLOAD);
       persistEventBundle(eu, event, payload);
     }
     notifySyncService();
