@@ -183,6 +183,12 @@ public class CryptoTest extends AndroidTestCase {
     }
   }
 
+  /**
+   * Decrypt a byte array using a given private RSA key.
+   * @param encrypted The byte array that was encrypted using the corresponding RSA public key
+   * @param privateKey A private RSA key.
+   * @return The unencrypted byte array.
+   */
   private byte[] decryptAsymmetric(String encrypted, PrivateKey privateKey) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, BadPaddingException, IllegalBlockSizeException {
     Cipher cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");
     cipher.init(Cipher.DECRYPT_MODE, privateKey);
