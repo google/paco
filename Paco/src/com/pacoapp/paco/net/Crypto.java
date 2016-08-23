@@ -64,7 +64,7 @@ public class Crypto {
       try {
         encryptedEvents.add(encryptAnswers(event));
       } catch (Exception e) {
-        Log.e(PacoConstants.TAG, "Exception while trying to encrypt event. Falling back to unencrypted. " + e);
+        Log.e(PacoConstants.TAG, "Exception while trying to encrypt event. Falling back to unencrypted. ", e);
         encryptedEvents.add(event);
       }
     }
@@ -159,7 +159,12 @@ public class Crypto {
     Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
     cipher.init(Cipher.ENCRYPT_MODE, secretKey, iv);
     String answer = response.getAnswer();
-    byte[] answerBytes = answer.getBytes("UTF-8");
+    byte[] answerBytes = new byte[0]; // Cater for possible NULL answers
+    if (answer != null) {
+      answerBytes = answer.getBytes("UTF-8");
+    } else {
+      Log.w(PacoConstants.TAG, "Answer was null for " + response.getName());
+    }
     byte[] encryptedBytes = cipher.doFinal(answerBytes);
     // NO_WRAP is used for compatibility with apache's BASE64 encoder
     String encryptedAnswer = Base64.encodeToString(encryptedBytes, Base64.NO_WRAP);
