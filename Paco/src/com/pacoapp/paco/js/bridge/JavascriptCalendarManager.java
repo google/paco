@@ -78,6 +78,8 @@ public class JavascriptCalendarManager {
    *                      Options: "confidential", "default", "private", "public".
    *     "attendees_accepted", "attendees_declined", "attendees_tentative" - Number of attendees by RSVP status.
    *     "attendees_rooms" - The number of rooms booked for the event.
+   *     "has_attendee_data" - Whether the event has data on event attendees.
+   *                           (However, Android's response for this field appears to be unreliable.)
    *
    * Only events on the user's primary calendar will be included.
    *
@@ -118,6 +120,7 @@ public class JavascriptCalendarManager {
       event.put("end_day", cursor.getString(cursor.getColumnIndexOrThrow(Instances.END_DAY)));
       event.put("start_minute", cursor.getString(cursor.getColumnIndexOrThrow(Instances.START_MINUTE)));
       event.put("end_minute", cursor.getString(cursor.getColumnIndexOrThrow(Instances.END_MINUTE)));
+      event.put("has_attendee_data", cursor.getString(cursor.getColumnIndexOrThrow(Instances.HAS_ATTENDEE_DATA)));
       event.put("is_organizer", cursor.getInt(cursor.getColumnIndexOrThrow(Instances.IS_ORGANIZER)) > 0);
 
       // An event is recurring if it is an "exception" event (ie. it references its original event id),
@@ -154,13 +157,21 @@ public class JavascriptCalendarManager {
       // and these will all be set to zero (or one if the PACO user is an attendee)
       Integer numAccepted = 0, numDeclined = 0, numTentative = 0, numRooms = 0;
       long eventId = cursor.getLong(cursor.getColumnIndexOrThrow(Instances.EVENT_ID));
-      Cursor attendees = Attendees.query(cr, eventId, new String[] {});
+      Cursor attendees = Attendees.query(cr, eventId, new String[] {
+        Attendees.ATTENDEE_TYPE, Attendees.ATTENDEE_STATUS, Attendees.ATTENDEE_EMAIL,
+      });
       while (attendees.moveToNext()) {
         int attendeeType = attendees.getInt(attendees.getColumnIndexOrThrow(Attendees.ATTENDEE_TYPE));
         int attendeeStatus = attendees.getInt(attendees.getColumnIndexOrThrow(Attendees.ATTENDEE_STATUS));
+        String attendeeEmail = attendees.getString(attendees.getColumnIndexOrThrow(Attendees.ATTENDEE_EMAIL));
 
-        if (attendeeType == Attendees.TYPE_RESOURCE) {
+        // The result returned Android for attendeeType appears to be
+        // unreliable. So we also check the attendee's email to determinte
+        // whether they're a resource.
+        if (attendeeType == Attendees.TYPE_RESOURCE ||
+            attendeeEmail.endsWith("@resource.calendar.google.com")) {
           numRooms += 1;
+
         } else {
           switch (attendeeStatus) {
             case Attendees.ATTENDEE_STATUS_ACCEPTED:
