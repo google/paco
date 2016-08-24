@@ -44,6 +44,7 @@ public class BroadcastTriggerReceiver extends BroadcastReceiver {
 
   public static final String PACO_TRIGGER_INTENT = "com.pacoapp.paco.action.PACO_TRIGGER";
   public static final String PACO_ACTION_PAYLOAD = "paco_action_payload";
+  public static final String TRIGGER_TYPE = "triggerType";
 
   public static final String PACO_EXPERIMENT_JOINED_ACTION =  "com.pacoapp.paco.action.PACO_EXPERIMENT_JOINED_ACTION";
   public static final String PACO_EXPERIMENT_ENDED_ACTION = "com.pacoapp.paco.action.PACO_EXPERIMENT_ENDED_ACTION";
@@ -193,6 +194,7 @@ public class BroadcastTriggerReceiver extends BroadcastReceiver {
     Bundle payload = new Bundle();
     payload.putString(AndroidInstalledApplications.PACKAGE_NAME, packageName);
     payload.putString(AndroidInstalledApplications.APP_NAME, appName);
+    payload.putString(TRIGGER_TYPE, InterruptCue.CUE_EVENT_NAMES[type]);
 
     if (!packageName.equals("com.pacoapp.paco")) {
       triggerEvent(context, type, packageName, payload);
