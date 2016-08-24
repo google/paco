@@ -75,13 +75,13 @@ public class AndroidInstalledApplications {
     try {
       ApplicationInfo applicationInfo = packageManager.getApplicationInfo(packageName, 0);
       if (applicationInfo == null) {
-        // Try to get it from cache, return empty string if not found
-        return sharedPreferences.getString(packageName, "");
+        throw new PackageManager.NameNotFoundException();
       }
       return applicationInfo.loadLabel(packageManager).toString();
     } catch (PackageManager.NameNotFoundException e) {
-      Log.w(PacoConstants.TAG, "No app name found for package " + packageName);
-      return "";
+      Log.v(PacoConstants.TAG, "No app name found for package " + packageName + ", trying cache");
+      // Try to get it from cache, return empty string if not found
+      return sharedPreferences.getString(packageName, "");
     }
   }
 
