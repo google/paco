@@ -195,7 +195,7 @@ public class BroadcastTriggerReceiver extends BroadcastReceiver {
     payload.putString(AndroidInstalledApplications.PACKAGE_NAME, packageName);
     payload.putString(AndroidInstalledApplications.APP_NAME, appName);
     // Cue event names are off by one.
-    payload.putString(TRIGGER_TYPE, InterruptCue.CUE_EVENT_NAMES[type+1]);
+    payload.putString(TRIGGER_TYPE, InterruptCue.CUE_EVENT_NAMES[type-1]);
 
     if (!packageName.equals("com.pacoapp.paco")) {
       triggerEvent(context, type, packageName, payload);
