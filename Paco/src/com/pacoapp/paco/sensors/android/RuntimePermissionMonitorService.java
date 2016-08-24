@@ -547,6 +547,7 @@ public class RuntimePermissionMonitorService extends AccessibilityService {
     accessibilityPayload.putBoolean(PAYLOAD_PERMISSION_USERINITIATED, initiatedByUser);
     accessibilityPayload.putStringArrayList(PAYLOAD_PERMISSION_PACKAGES, currentlyHandledAppPackageNames);
     accessibilityPayload.putString(PAYLOAD_PERMISSION_APPNAME, currentlyHandledAppName);
+    accessibilityPayload.putString(BroadcastTriggerReceiver.TRIGGER_TYPE, InterruptCue.CUE_EVENT_NAMES[InterruptCue.PERMISSION_CHANGED]);
     broadcastTriggerServiceIntent.putExtra(PACO_ACTION_ACCESSIBILITY_PAYLOAD, accessibilityPayload);
     context.startService(broadcastTriggerServiceIntent);
   }
