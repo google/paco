@@ -155,17 +155,18 @@ public class BroadcastTriggerReceiver extends BroadcastReceiver {
 	  return intent.getAction().equals(Intent.ACTION_SHUTDOWN);
   }
 
+  /**
+   * Broadcasts an intent destined for the BroadcastTriggerService containing
+   * the package name and time of the event as extra data.
+   * This method is called by the onReceive() method when it received an
+   * ACTION_PACKAGE_REMOVED broadcast.
+   * @param context The Android app context
+   * @param intent The received broadcast intent
+   */
   private void triggerPackageRemovedEvent(Context context, Intent intent) {
     Log.i(PacoConstants.TAG, "App removed trigger");
 
-    Uri data = intent.getData();
-    String packageName = data.getEncodedSchemeSpecificPart();
-    Bundle payload = new Bundle();
-    payload.putString(AndroidInstalledApplications.PACKAGE_NAME, packageName);
-
-    if (!packageName.equals("com.pacoapp.paco")) {
-      triggerEvent(context, InterruptCue.APP_REMOVED, packageName, payload);
-    }
+    triggerPackageEvent(context, intent, InterruptCue.APP_REMOVED);
   }
 
   /**
@@ -179,6 +180,12 @@ public class BroadcastTriggerReceiver extends BroadcastReceiver {
   private void triggerPackageAddedEvent(Context context, Intent intent) {
     Log.i(PacoConstants.TAG, "App installed trigger");
 
+    triggerPackageEvent(context, intent, InterruptCue.APP_ADDED);
+    // Make sure that this new app is in the cache too by caching in the background
+    (new AndroidInstalledApplications(context)).cacheApplicationNames();
+  }
+
+  private void triggerPackageEvent(Context context, Intent intent, int type) {
     Uri data = intent.getData();
     String packageName = data.getEncodedSchemeSpecificPart();
     AndroidInstalledApplications androidInstalledApplications = new AndroidInstalledApplications(context);
@@ -188,10 +195,9 @@ public class BroadcastTriggerReceiver extends BroadcastReceiver {
     payload.putString(AndroidInstalledApplications.APP_NAME, appName);
 
     if (!packageName.equals("com.pacoapp.paco")) {
-      triggerEvent(context, InterruptCue.APP_ADDED, packageName, payload);
+      triggerEvent(context, type, packageName, payload);
     }
-    // Make sure that this new app is in the cache too by caching in the background
-    androidInstalledApplications.cacheApplicationNames();
+
   }
 
   /**
