@@ -8,6 +8,7 @@ import java.util.Map;
 
 import android.annotation.TargetApi;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
@@ -22,6 +23,8 @@ public class AndroidInstalledApplications {
   public static final String PACKAGE_NAME = "packageName";
   public static final String APP_NAME = "appName";
 
+  public static final String SHARED_PREFERENCES_KEY = "InstalledApplications";
+
   private static final List<String> whitelist =
           Lists.newArrayList("Chrome", "Gmail", "Phone", "Camera", "Messaging", "Google App",
                              "Maps", "Drive", "Google Play Movies & TV", "Google+", "Google Play Store",
@@ -29,23 +32,24 @@ public class AndroidInstalledApplications {
                              "Google Play Books", "Hangouts", "Gallery", "Google Play Games", "YouTube",
                              "Keep", "Wallet", "Earth", "Calculator", "Photos", "Fit", "Google Contacts",
                              "Clock", "Email", "News & Weather", "Slides", "Sheets", "Documents");
-  private Context context;
+  private PackageManager packageManager;
+  private SharedPreferences sharedPreferences;
 
   public AndroidInstalledApplications(Context context) {
     super();
-    this.context = context;
+    this.packageManager = context.getPackageManager();
+    this.sharedPreferences = context.getSharedPreferences(SHARED_PREFERENCES_KEY, Context.MODE_PRIVATE);
   }
 
   public List<String> getNamesOfInstalledApplications() {
-    PackageManager pm = context.getPackageManager();
     List<String> appNames = Lists.newArrayList();
-    List<PackageInfo> installed = pm.getInstalledPackages(0);
+    List<PackageInfo> installed = packageManager.getInstalledPackages(0);
     for (PackageInfo packageInfo : installed) {
       if (packageInfo.versionName == null) {
         continue;
       }
       final ApplicationInfo applicationInfo = packageInfo.applicationInfo;
-      String appname = applicationInfo.loadLabel(pm).toString();
+      String appname = applicationInfo.loadLabel(packageManager).toString();
 
       if ((applicationInfo.flags & ApplicationInfo.FLAG_SYSTEM) == 1 &&
               !whitelist.contains(appname)) {
@@ -61,16 +65,18 @@ public class AndroidInstalledApplications {
   }
 
   /**
-   * Resolves an Android package name to the name of the app, if it is visible to the user.
+   * Resolves an Android package name to the name of the app, if it is visible to the user. This
+   * will also work for packages that were uninstalled, as long as they were cached before by
+   * calling the cacheApplicationNames() method.
    * @param packageName The package name of the application
    * @return The application name, or an empty string if the package was not found
    */
   public String getApplicationName(String packageName) {
-    PackageManager packageManager = context.getPackageManager();
     try {
       ApplicationInfo applicationInfo = packageManager.getApplicationInfo(packageName, 0);
       if (applicationInfo == null) {
-        return "";
+        // Try to get it from cache, return empty string if not found
+        return sharedPreferences.getString(packageName, "");
       }
       return applicationInfo.loadLabel(packageManager).toString();
     } catch (PackageManager.NameNotFoundException e) {
@@ -88,7 +94,6 @@ public class AndroidInstalledApplications {
    */
   @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
   public Map<String, List<String>> getGrantedPermissions() {
-    PackageManager packageManager = context.getPackageManager();
     List<PackageInfo> installedPackages = packageManager.getInstalledPackages(PackageManager.GET_PERMISSIONS);
 
     Map<String, List<String>> result = new HashMap();
@@ -124,7 +129,6 @@ public class AndroidInstalledApplications {
   public ArrayList<String> getPackageNameFromAppLabel(CharSequence appLabel) {
     ArrayList<String> matchingPackages = new ArrayList();
 
-    PackageManager packageManager = context.getPackageManager();
     // The only way to do this is to traverse all applications, and see which ones have the label we want
     for (ApplicationInfo appInfo : packageManager.getInstalledApplications(0)) {
       CharSequence currentAppLabel = appInfo.loadLabel(packageManager);
@@ -135,5 +139,19 @@ public class AndroidInstalledApplications {
     return matchingPackages;
   }
 
+  /**
+   * Cache pairs of all package names and their corresponding app names in the shared preferences
+   * store, so we can query even for application names of packages that have been uninstalled.
+   */
+  public void cacheApplicationNames() {
+    Log.v(PacoConstants.TAG, "Caching names of installed applications");
+    SharedPreferences.Editor preferencesEditor = sharedPreferences.edit();
 
+    for (ApplicationInfo appInfo : packageManager.getInstalledApplications(0)) {
+      String packageName = appInfo.packageName.toString();
+      String appName = appInfo.loadLabel(packageManager).toString();
+      preferencesEditor.putString(packageName, appName);
+    }
+    preferencesEditor.commit();
+  }
 }

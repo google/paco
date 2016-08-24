@@ -181,7 +181,8 @@ public class BroadcastTriggerReceiver extends BroadcastReceiver {
 
     Uri data = intent.getData();
     String packageName = data.getEncodedSchemeSpecificPart();
-    String appName = (new AndroidInstalledApplications(context)).getApplicationName(packageName);
+    AndroidInstalledApplications androidInstalledApplications = new AndroidInstalledApplications(context);
+    String appName = androidInstalledApplications.getApplicationName(packageName);
     Bundle payload = new Bundle();
     payload.putString(AndroidInstalledApplications.PACKAGE_NAME, packageName);
     payload.putString(AndroidInstalledApplications.APP_NAME, appName);
@@ -189,6 +190,8 @@ public class BroadcastTriggerReceiver extends BroadcastReceiver {
     if (!packageName.equals("com.pacoapp.paco")) {
       triggerEvent(context, InterruptCue.APP_ADDED, packageName, payload);
     }
+    // Make sure that this new app is in the cache too by caching in the background
+    androidInstalledApplications.cacheApplicationNames();
   }
 
   /**

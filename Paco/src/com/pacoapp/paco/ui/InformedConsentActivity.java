@@ -54,6 +54,7 @@ import com.pacoapp.paco.model.Output;
 import com.pacoapp.paco.net.NetworkClient;
 import com.pacoapp.paco.net.NetworkUtil;
 import com.pacoapp.paco.net.SyncService;
+import com.pacoapp.paco.sensors.android.AndroidInstalledApplications;
 import com.pacoapp.paco.sensors.android.BroadcastTriggerReceiver;
 import com.pacoapp.paco.shared.model2.ActionTrigger;
 import com.pacoapp.paco.shared.model2.ExperimentGroup;
@@ -214,6 +215,10 @@ public class InformedConsentActivity extends ActionBarActivity implements Experi
       BroadcastTriggerReceiver.startProcessService(this);
     }
     startService(new Intent(this, ExperimentExpirationManagerService.class));
+    if (ExperimentHelper.declaresInstalledAppDataCollection(experiment.getExperimentDAO())) {
+      // Cache installed app names at the start of the experiment
+      (new AndroidInstalledApplications(getContext())).cacheApplicationNames();
+    }
     progressBar.setVisibility(View.GONE);
     runPostJoinInstructionsActivity();
   }
