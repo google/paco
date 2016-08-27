@@ -89,6 +89,8 @@ public class AndroidInstalledApplications {
    * Get a list of all applications, and the permissions that were granted to them. For packages
    * targeting SDK version 21 or lower, this means "permissions requested at install time"; for
    * packages targeting SDK 22 or newer, this means "permissions granted during runtime".
+   * Packages that do not have a launchable activity (i.e. are not visible in the launcher) will not
+   * be returned. Similarly, system apps not in the whitelist are not returned.
    * @return A map with the names of installed packages as keys, and a list of the granted
    *         permissions as values
    */
@@ -100,6 +102,15 @@ public class AndroidInstalledApplications {
     for (PackageInfo packageInfo : installedPackages) {
       if (packageInfo.requestedPermissions == null) {
         // This package didn't request any permissions
+        continue;
+      }
+      if (packageManager.getLaunchIntentForPackage(packageInfo.packageName) == null) {
+        // This package has no launchable activities
+        continue;
+      }
+      if ((packageInfo.applicationInfo.flags & ApplicationInfo.FLAG_SYSTEM) == 1 &&
+              !whitelist.contains(getApplicationName(packageInfo.packageName))) {
+        // This is a system app not in the Paco whitelist
         continue;
       }
       List<String> grantedPermissions = new ArrayList();
