@@ -114,6 +114,7 @@ public class JsonConverter {
                                                           experimentDAO.getDescription(),
                                                           experimentDAO.getInformedConsentForm(),
                                                           experimentDAO.getCreator(),
+                                                          experimentDAO.getPublicKey(),
                                                           getSignalingMechanismsBC(experimentDAO),
                                                           experimentGroup.getFixedDuration(),
                                                           false,
@@ -133,6 +134,7 @@ public class JsonConverter {
                                                           experimentGroup.getFeedbackType(),
                                                           experimentGroup.getBackgroundListen(),
                                                           experimentGroup.getBackgroundListenSourceIdentifier(),
+                                                          experimentGroup.getAccessibilityListen(),
                                                           experimentGroup.getLogActions(),
                                                           experimentDAO.getRecordPhoneDetails(),
                                                           experimentDAO.getExtraDataCollectionDeclarations());
@@ -181,12 +183,14 @@ public class JsonConverter {
                                                                            experimentDAOCore.getDescription(),
                                                                            experimentDAOCore.getInformedConsentForm(),
                                                                            experimentDAOCore.getCreator(),
+                                                                           experimentDAOCore.getPublicKey(),
                                                                            experimentDAOCore.getEarliestStartDate() != null,
                                                                            TimeUtil.formatDate(experimentDAOCore.getEarliestStartDate().getTime()),
                                                                            TimeUtil.formatDate(experimentDAOCore.getLatestEndDate().getTime()),
                                                                            null,
                                                                            getBackgroundListen(experimentDAOCore),
                                                                            getBackgroundListenSourceId(experimentDAOCore),
+                                                                           getAccessibilityListen(experimentDAOCore),
                                                                            getLogActions(experimentDAOCore),
                                                                            experimentDAOCore.getRecordPhoneDetails(),
                                                                            experimentDAOCore.getExtraDataCollectionDeclarations());
@@ -205,6 +209,10 @@ public class JsonConverter {
   private static Boolean getBackgroundListen(ExperimentDAOCore experimentDAOCore) {
  // TODO populate this until the new clients are out.
     return false; // almost certainly false
+  }
+
+  private static Boolean getAccessibilityListen(ExperimentDAOCore experimentDAOCore) {
+    return false; // TODO following the examples before
   }
 
   private static Boolean getLogActions(ExperimentDAOCore experimentDAOCore) {
@@ -461,7 +469,7 @@ public class JsonConverter {
       endDate = lastEndTime.toDateMidnight().toDate();
     }
     return new ExperimentDAOCore(experiment.getId(), experiment.getTitle(), experiment.getDescription(),
-                                 experiment.getInformedConsentForm(), experiment.getCreator(),
+                                 experiment.getInformedConsentForm(), experiment.getCreator(), experiment.getPublicKey(),
                                  experiment.getJoinDate(), experiment.getRecordPhoneDetails(), experiment.getDeleted(),
                                  experiment.getExtraDataCollectionDeclarations(), experiment.getOrganization(),
                                  experiment.getContactPhone(), experiment.getContactEmail(), earliestStartDate, endDate);
@@ -570,6 +578,27 @@ public class JsonConverter {
     mapper.getDeserializationConfig().addMixInAnnotations(PacoAction.class, PacoActionMixIn.class);
     return mapper;
   }
+
+  /**
+   * Helper function that converts any object to a JSON string
+   * @param object The object we want to convert
+   * @return A string containing a JSON representation of the object
+   */
+  public static String convertToJsonString(Object object) {
+    ObjectMapper mapper = getObjectMapper();
+    String json = null;
+    try {
+      json = mapper.writeValueAsString(object);
+    } catch (JsonGenerationException e) {
+      e.printStackTrace();
+    } catch (JsonMappingException e) {
+      e.printStackTrace();
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+    return json;
+  }
+
 
   @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
   @JsonSubTypes({ @Type(value = ScheduleTrigger.class, name = "scheduleTrigger"),

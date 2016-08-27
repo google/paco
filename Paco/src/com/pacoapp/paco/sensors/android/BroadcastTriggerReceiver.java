@@ -44,6 +44,7 @@ public class BroadcastTriggerReceiver extends BroadcastReceiver {
 
   public static final String PACO_TRIGGER_INTENT = "com.pacoapp.paco.action.PACO_TRIGGER";
   public static final String PACO_ACTION_PAYLOAD = "paco_action_payload";
+  public static final String TRIGGER_TYPE = "triggerType";
 
   public static final String PACO_EXPERIMENT_JOINED_ACTION =  "com.pacoapp.paco.action.PACO_EXPERIMENT_JOINED_ACTION";
   public static final String PACO_EXPERIMENT_ENDED_ACTION = "com.pacoapp.paco.action.PACO_EXPERIMENT_ENDED_ACTION";
@@ -155,14 +156,18 @@ public class BroadcastTriggerReceiver extends BroadcastReceiver {
 	  return intent.getAction().equals(Intent.ACTION_SHUTDOWN);
   }
 
+  /**
+   * Broadcasts an intent destined for the BroadcastTriggerService containing
+   * the package name and time of the event as extra data.
+   * This method is called by the onReceive() method when it received an
+   * ACTION_PACKAGE_REMOVED broadcast.
+   * @param context The Android app context
+   * @param intent The received broadcast intent
+   */
   private void triggerPackageRemovedEvent(Context context, Intent intent) {
     Log.i(PacoConstants.TAG, "App removed trigger");
 
-    Uri data = intent.getData();
-    String packageName = data.getEncodedSchemeSpecificPart();
-    if (!packageName.equals("com.pacoapp.paco")) {
-      triggerEvent(context, InterruptCue.APP_REMOVED, packageName, null);
-    }
+    triggerPackageEvent(context, intent, InterruptCue.APP_REMOVED);
   }
 
   /**
@@ -176,15 +181,42 @@ public class BroadcastTriggerReceiver extends BroadcastReceiver {
   private void triggerPackageAddedEvent(Context context, Intent intent) {
     Log.i(PacoConstants.TAG, "App installed trigger");
 
+    triggerPackageEvent(context, intent, InterruptCue.APP_ADDED);
+    // Make sure that this new app is in the cache too by caching in the background
+    (new AndroidInstalledApplications(context)).cacheApplicationNames();
+  }
+
+  private void triggerPackageEvent(Context context, Intent intent, int type) {
     Uri data = intent.getData();
     String packageName = data.getEncodedSchemeSpecificPart();
+    AndroidInstalledApplications androidInstalledApplications = new AndroidInstalledApplications(context);
+    String appName = androidInstalledApplications.getApplicationName(packageName);
+    Bundle payload = new Bundle();
+    payload.putString(AndroidInstalledApplications.PACKAGE_NAME, packageName);
+    payload.putString(AndroidInstalledApplications.APP_NAME, appName);
+    // Cue event names are off by one.
+    payload.putString(TRIGGER_TYPE, InterruptCue.CUE_EVENT_NAMES[type-1]);
+
     if (!packageName.equals("com.pacoapp.paco")) {
-      triggerEvent(context, InterruptCue.APP_ADDED, packageName, null);
+      triggerEvent(context, type, packageName, payload);
     }
+
+  }
+
+  /**
+   * Helper function for isPackageRemoved and isPackageAdded, checking whether the package removal/
+   * installation is actually part of an update (i.e. if a removal will be / was followed by an
+   * installation for the same package
+   * @param intent The ACTION_PACKAGE_REMOVED or ACTION_PACKAGE_ADDED event
+   * @return Whether this event is part of an update
+   */
+  private boolean isPackageUpdate(Intent intent) {
+    // If EXTRA_REPLACING is not present (or if it is present but false), return false.
+    return intent.getBooleanExtra(Intent.EXTRA_REPLACING, false);
   }
 
   private boolean isPackageRemoved(Context context, Intent intent) {
-	  return intent.getAction().equals(Intent.ACTION_PACKAGE_REMOVED);
+    return (intent.getAction().equals(Intent.ACTION_PACKAGE_REMOVED) && !isPackageUpdate(intent));
   }
 
   /**
@@ -195,12 +227,7 @@ public class BroadcastTriggerReceiver extends BroadcastReceiver {
    * @return Whether the intent shows a new package was installed
    */
   private boolean isPackageAdded(Context context, Intent intent) {
-    if (!intent.getAction().equals(Intent.ACTION_PACKAGE_ADDED)) {
-      return false;
-    }
-    // Check whether the package replaces a previous version (i.e. is an update)
-    boolean isUpdate = intent.getBooleanExtra(Intent.EXTRA_REPLACING, false);
-    return !isUpdate;
+    return (intent.getAction().equals(Intent.ACTION_PACKAGE_ADDED) && !isPackageUpdate(intent));
   }
 
   private void triggerPacoExperimentEndedEvent(Context context, Intent intent) {

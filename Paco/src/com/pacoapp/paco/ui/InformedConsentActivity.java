@@ -36,6 +36,7 @@ import android.provider.Settings;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.telephony.TelephonyManager;
+import android.util.Log;
 import android.view.Display;
 import android.view.MenuItem;
 import android.view.View;
@@ -53,6 +54,7 @@ import com.pacoapp.paco.model.Output;
 import com.pacoapp.paco.net.NetworkClient;
 import com.pacoapp.paco.net.NetworkUtil;
 import com.pacoapp.paco.net.SyncService;
+import com.pacoapp.paco.sensors.android.AndroidInstalledApplications;
 import com.pacoapp.paco.sensors.android.BroadcastTriggerReceiver;
 import com.pacoapp.paco.shared.model2.ActionTrigger;
 import com.pacoapp.paco.shared.model2.ExperimentGroup;
@@ -124,6 +126,11 @@ public class InformedConsentActivity extends ActionBarActivity implements Experi
       if (ExperimentHelper.declaresInstalledAppDataCollection(experiment.getExperimentDAO())) {
         TextView appInstallLogView = (TextView) findViewById(R.id.dataCollectedInstalledAppsView);
         appInstallLogView.setVisibility(TextView.VISIBLE);
+      }
+      // Show the user if accessibility services are used by this experiment
+      if (ExperimentHelper.declaresAccessibilityLogging(experiment.getExperimentDAO())) {
+        TextView accessibilityView = (TextView) findViewById(R.id.dataCollectedAccessibilityView);
+        accessibilityView.setVisibility(TextView.VISIBLE);
       }
       TextView ic = (TextView) findViewById(R.id.InformedConsentTextView);
       ic.setText(experiment.getExperimentDAO().getInformedConsentForm());
@@ -208,6 +215,10 @@ public class InformedConsentActivity extends ActionBarActivity implements Experi
       BroadcastTriggerReceiver.startProcessService(this);
     }
     startService(new Intent(this, ExperimentExpirationManagerService.class));
+    if (ExperimentHelper.declaresInstalledAppDataCollection(experiment.getExperimentDAO())) {
+      // Cache installed app names at the start of the experiment
+      (new AndroidInstalledApplications(getContext())).cacheApplicationNames();
+    }
     progressBar.setVisibility(View.GONE);
     runPostJoinInstructionsActivity();
   }
