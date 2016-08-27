@@ -31,6 +31,7 @@ public class ExperimentDAOCore extends ModelBase implements Validatable, Seriali
   protected String organization;
   protected String contactEmail;
   protected String contactPhone;
+  private String publicKey;
   protected String joinDate;
   protected Long id;
   protected String informedConsentForm;
@@ -41,7 +42,7 @@ public class ExperimentDAOCore extends ModelBase implements Validatable, Seriali
   private Date latestEndDate;
 
   public ExperimentDAOCore(Long id, String title, String description, String informedConsentForm,
-                           String creatorEmail,
+                           String creatorEmail, String publicKey,
                            String joinDate, Boolean recordPhoneDetails, Boolean deleted2,
                            List<Integer> extraDataCollectionDeclarationsList,
                            String organization, String contactPhone, String contactEmail,
@@ -55,6 +56,7 @@ public class ExperimentDAOCore extends ModelBase implements Validatable, Seriali
     this.organization = organization;
     this.contactEmail = contactEmail;
     this.contactPhone = contactPhone;
+    this.publicKey = publicKey;
     this.joinDate = joinDate;
     this.setRecordPhoneDetails(recordPhoneDetails);
     this.deleted = deleted != null ? deleted : false;
@@ -217,4 +219,11 @@ public class ExperimentDAOCore extends ModelBase implements Validatable, Seriali
   }
 
 
+  public String getPublicKey() {
+    return publicKey;
+  }
+
+  public void setPublicKey(String publicKey) {
+    this.publicKey = publicKey;
+  }
 }

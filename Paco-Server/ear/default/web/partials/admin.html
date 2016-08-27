@@ -86,5 +86,13 @@
         <textarea ng-model="experiment.informedConsentForm"></textarea>
       </md-input-container>
 
+      <md-input-container layout-margin>
+        <label>RSA Public key</label>
+        <textarea ng-model="experiment.publicKey"></textarea>
+        <div ng-messages>
+          <div ng-message>Leave empty for no end-to-end encryption.</div>
+        </div>
+      </md-input-container>
+
   </md-card-content>
 </md-card>
