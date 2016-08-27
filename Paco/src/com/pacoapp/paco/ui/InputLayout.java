@@ -761,6 +761,9 @@ public class InputLayout extends LinearLayout implements SpeechRecognitionListen
   public List<CharSequence> convertHtmlChoicesToTextChoices(List<String> rawListChoices) {
     List<CharSequence> listChoices = Lists.newArrayList();
     for (String currentChoice : rawListChoices) {
+      if (currentChoice == null) {
+        currentChoice = "";
+      }
       listChoices.add(Html.fromHtml(currentChoice));
     }
     return listChoices;
@@ -949,6 +952,8 @@ public class InputLayout extends LinearLayout implements SpeechRecognitionListen
     String text = input.getText();
     if (input.getResponseType().equals(Input2.LOCATION) && Strings.isNullOrEmpty(text)) {
       text = getContext().getString(R.string.location_to_be_recorded_default_prompt);
+    } else if (Strings.isNullOrEmpty(text)) {
+      text = "";
     }
     inputTextView.setText(Html.fromHtml(text));
     inputTextView.setTextSize(18);

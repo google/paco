@@ -16,8 +16,6 @@
  */
 package com.pacoapp.paco.ui;
 
-import java.util.List;
-
 import android.content.Intent;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
@@ -32,15 +30,12 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.common.base.Strings;
 import com.pacoapp.paco.R;
 import com.pacoapp.paco.model.Experiment;
 import com.pacoapp.paco.model.ExperimentProviderUtil;
-import com.pacoapp.paco.shared.model2.ActionTrigger;
 import com.pacoapp.paco.shared.model2.ExperimentGroup;
-import com.pacoapp.paco.shared.model2.Schedule;
-import com.pacoapp.paco.shared.model2.ScheduleTrigger;
 import com.pacoapp.paco.shared.util.ExperimentHelper;
-import com.pacoapp.paco.shared.util.SchedulePrinter;
 import com.pacoapp.paco.utils.IntentExtraHelper;
 
 public class PostJoinInstructionsActivity extends ActionBarActivity implements ExperimentLoadingActivity {
@@ -106,7 +101,9 @@ public class PostJoinInstructionsActivity extends ActionBarActivity implements E
 
       TextView ic = (TextView) findViewById(R.id.instructionsTextView);
       final String postInstallInstructions = experiment.getExperimentDAO().getPostInstallInstructions();
-      ic.setText(Html.fromHtml(postInstallInstructions));
+      if (!Strings.isNullOrEmpty(postInstallInstructions)) {
+        ic.setText(Html.fromHtml(postInstallInstructions));
+      }
 
       Button closeButton = (Button) findViewById(R.id.instructionsCloseButton);
       closeButton.setOnClickListener(new OnClickListener() {

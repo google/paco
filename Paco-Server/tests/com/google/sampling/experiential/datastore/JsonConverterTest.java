@@ -25,7 +25,7 @@ public class JsonConverterTest extends TestCase {
     ArrayList publishedAdmins = new java.util.ArrayList();
     publishedAdmins.add("example@example.com");
     experimentList.add(new ExperimentDAO(new Long(1), "1title", "1descr", "1consent", "1email",
-                                         null, null, null,
+                                         (String)null /*pk*/, null, null, false,
                                          publishedAdmins, publishedAdmins,
                                          false, 1, false, null, null));
   }
