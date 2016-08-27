@@ -577,6 +577,27 @@ public class JsonConverter {
     return mapper;
   }
 
+  /**
+   * Helper function that converts any object to a JSON string
+   * @param object The object we want to convert
+   * @return A string containing a JSON representation of the object
+   */
+  public static String convertToJsonString(Object object) {
+    ObjectMapper mapper = getObjectMapper();
+    String json = null;
+    try {
+      json = mapper.writeValueAsString(object);
+    } catch (JsonGenerationException e) {
+      e.printStackTrace();
+    } catch (JsonMappingException e) {
+      e.printStackTrace();
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+    return json;
+  }
+
+
   @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
   @JsonSubTypes({ @Type(value = ScheduleTrigger.class, name = "scheduleTrigger"),
                  @Type(value = InterruptTrigger.class, name = "interruptTrigger") })

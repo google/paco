@@ -236,8 +236,11 @@ public class ExperimentHelper {
     List<ExperimentGroup> listeningExperimentGroups  = new ArrayList();
     List<ExperimentGroup> experimentGroups = experiment.getGroups();
     for (ExperimentGroup experimentGroup : experimentGroups) {
-      if (experimentGroup.getBackgroundListen() && experimentGroup.getBackgroundListenSourceIdentifier().equals(sourceIdentifier)) {
-        listeningExperimentGroups.add(experimentGroup);
+      if (experimentGroup.getBackgroundListen()) {
+        String sourceFilter = experimentGroup.getBackgroundListenSourceIdentifier();
+        if (sourceFilter.equals("*") || sourceFilter.equals(sourceIdentifier)) {
+          listeningExperimentGroups.add(experimentGroup);
+        }
       }
     }
     return listeningExperimentGroups;
