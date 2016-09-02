@@ -14,7 +14,7 @@ class PacoTimeSchedulerController: UITableViewController {
     
     
     
-    var cells:NSArray = []
+      var cells   = [[]];
     
     override func viewDidLoad() {
         

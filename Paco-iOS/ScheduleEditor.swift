@@ -5,7 +5,7 @@ import UIKit
 
 @objc public class ScheduleEditor: UITableViewController {
 
-    var cells:NSArray = []
+    var cells  = [ ]
     var isWizard:Bool = false
     var  experiment:PAExperimentDAO?
     
@@ -177,7 +177,7 @@ import UIKit
     
     public override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
         
-        return cells[indexPath.section][indexPath.row] as! DatePickerCell
+        return (cells[indexPath.section] as! NSArray )[indexPath.row] as! DatePickerCell
     }
     
     

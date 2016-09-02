@@ -423,6 +423,7 @@
 				A61D826B1CD14344009983B6 /* Sources */,
 				A61D826C1CD14344009983B6 /* Frameworks */,
 				A61D826D1CD14344009983B6 /* CopyFiles */,
+				A61163AE1D77949D0066C715 /* ShellScript */,
 			);
 			buildRules = (
 				A61D829A1CD157D5009983B6 /* PBXBuildRule */,
@@ -485,6 +486,22 @@
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 /* End PBXReferenceProxy section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		A61163AE1D77949D0066C715 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "cp $BUILT_PRODUCTS_DIR'/'$EXECUTABLE_NAME $SRCROOT'/'..'/'../libs";
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		A605CAEC1C778D1E00770A4E /* Sources */ = {

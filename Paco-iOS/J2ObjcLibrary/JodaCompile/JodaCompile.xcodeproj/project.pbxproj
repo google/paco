@@ -1527,7 +1527,6 @@
 		A675209C1CD6C0ED000882B1 /* ZoneInfoLogger.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ZoneInfoLogger.m; sourceTree = "<group>"; };
 		A675209D1CD6C0ED000882B1 /* ZoneInfoProvider.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ZoneInfoProvider.h; sourceTree = "<group>"; };
 		A675209E1CD6C0ED000882B1 /* ZoneInfoProvider.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ZoneInfoProvider.m; sourceTree = "<group>"; };
-		A6B56C4A1C7E74A700E81C3F /* GoogleSignIn.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = GoogleSignIn.bundle; sourceTree = "<group>"; };
 		A6FF5B9B1CDD00A50049A27F /* AbstractConverter.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = AbstractConverter.m; path = JodaCompile/org/joda/time/convert/AbstractConverter.m; sourceTree = "<group>"; };
 		A6FF5B9C1CDD00A50049A27F /* AbstractDateTime.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = AbstractDateTime.m; path = JodaCompile/org/joda/time/base/AbstractDateTime.m; sourceTree = "<group>"; };
 		A6FF5B9D1CDD00A50049A27F /* AbstractDuration.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = AbstractDuration.m; path = JodaCompile/org/joda/time/base/AbstractDuration.m; sourceTree = "<group>"; };
@@ -1889,7 +1888,6 @@
 				A67514331CD6BDFB000882B1 /* transpiled */,
 				A67504D51CD1677E000882B1 /* Foundation.framework */,
 				A605DDAF1C7A8E8200770A4E /* Config.xcconfig */,
-				A6B56C4A1C7E74A700E81C3F /* GoogleSignIn.bundle */,
 				A605DD5E1C77AECC00770A4E /* Security.framework */,
 				A605DD521C77AD6100770A4E /* special */,
 				A605D5E11C77AA0700770A4E /* Products */,
@@ -3600,6 +3598,7 @@
 				A605D5DC1C77AA0700770A4E /* Sources */,
 				A605D5DD1C77AA0700770A4E /* Frameworks */,
 				A605D5DE1C77AA0700770A4E /* CopyFiles */,
+				A61163AD1D7761B00066C715 /* ShellScript */,
 			);
 			buildRules = (
 			);
@@ -3640,6 +3639,22 @@
 			);
 		};
 /* End PBXProject section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		A61163AD1D7761B00066C715 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "cp $BUILT_PRODUCTS_DIR'/'$EXECUTABLE_NAME $SRCROOT'/'..'/'..'/'../libs";
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		A605D5DC1C77AA0700770A4E /* Sources */ = {
@@ -3928,6 +3943,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				USER_HEADER_SEARCH_PATHS = "${J2OBJC_HOME}/include \"${PROJECT_DIR} ./J2ObjcLibrary/JodaCompile/JodaCompile/ ";
+				VALID_ARCHS = "arm64 armv7 armv7s";
 			};
 			name = Debug;
 		};
@@ -3955,6 +3971,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				USER_HEADER_SEARCH_PATHS = "${J2OBJC_HOME}/include \"${PROJECT_DIR} ./J2ObjcLibrary/JodaCompile/JodaCompile/ ";
+				VALID_ARCHS = "arm64 armv7 armv7s";
 			};
 			name = Release;
 		};
