@@ -64,8 +64,8 @@ public class Crypto {
       try {
         encryptedEvents.add(encryptAnswers(event));
       } catch (Exception e) {
-        Log.e(PacoConstants.TAG, "Exception while trying to encrypt event. Falling back to unencrypted. " + e);
-        encryptedEvents.add(event);
+        Log.e(PacoConstants.TAG, "Exception while trying to encrypt event. There is no safe fallback! This event will not be uploaded!", e);
+        // This event is not added to the list
       }
     }
     return encryptedEvents;
@@ -79,9 +79,13 @@ public class Crypto {
    * @throws NoSuchAlgorithmException If the RSA algorithm is not supported on the device
    * @throws NoSuchPaddingException If padding is not supported for RSA on the device
    */
-  public Event encryptAnswers(Event event) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeySpecException, UnsupportedEncodingException, BadPaddingException, InvalidKeyException, IllegalBlockSizeException, InvalidAlgorithmParameterException {
+  public Event encryptAnswers(Event event) throws NoSuchAlgorithmException, UnsupportedEncodingException, InvalidKeySpecException, InvalidKeyException, BadPaddingException, NoSuchPaddingException, IllegalBlockSizeException {
     long experimentId = event.getExperimentServerId();
     Experiment experiment = experimentProviderUtil.getExperimentByServerId(experimentId);
+    if (experiment == null) {
+      Log.w(PacoConstants.TAG, "Event had no corresponding experiment. Not encrypting. Event has ID " + event.getId() + " and server ID " + event.getExperimentServerId());
+      return event;
+    }
     String publicKeyString = experiment.getExperimentDAO().getPublicKey();
     if (publicKeyString == null || publicKeyString == "") {
       Log.v(PacoConstants.TAG, "No public key for experiment " + experiment.getExperimentDAO().getTitle());
@@ -100,7 +104,13 @@ public class Crypto {
 
     ArrayList<Output> encryptedResponses = new ArrayList();
     for (Output answer : event.getResponses()) {
-      encryptedResponses.add(encryptAnswer(answer, secretKey, iv));
+      try {
+        encryptedResponses.add(encryptAnswer(answer, secretKey, iv));
+      } catch (Exception e) {
+        Log.e(PacoConstants.TAG, "Exception while trying to encrypt answer. There is no safe fallback! This answer will not be uploaded!", e);
+        answer.setAnswer("BAD_ENCRYPTION");
+        encryptedResponses.add(answer);
+      }
     }
 
     addKeyResponses(encryptedResponses, secretKey, iv, publicKey);
@@ -159,7 +169,12 @@ public class Crypto {
     Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
     cipher.init(Cipher.ENCRYPT_MODE, secretKey, iv);
     String answer = response.getAnswer();
-    byte[] answerBytes = answer.getBytes("UTF-8");
+    byte[] answerBytes = new byte[0]; // Cater for possible NULL answers
+    if (answer != null) {
+      answerBytes = answer.getBytes("UTF-8");
+    } else {
+      Log.w(PacoConstants.TAG, "Answer was null for " + response.getName());
+    }
     byte[] encryptedBytes = cipher.doFinal(answerBytes);
     // NO_WRAP is used for compatibility with apache's BASE64 encoder
     String encryptedAnswer = Base64.encodeToString(encryptedBytes, Base64.NO_WRAP);

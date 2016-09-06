@@ -42,6 +42,11 @@ import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
 public class CryptoTest extends AndroidTestCase {
+  private static final long ENCRYPTED_EXPERIMENT_ID = 1L;
+  private static final long UNENCRYPTED_EXPERIMENT_ID = 2L;
+  private static final long BADKEY_EXPERIMENT_ID = 3L;
+  private static final long NONEXISTENT_EXPERIMENT_ID = 4L;
+
   private Crypto crypto;
   private Method base64ToPublicKey;
   private Method encryptAnswer;
@@ -78,7 +83,7 @@ public class CryptoTest extends AndroidTestCase {
     dao.setPublicKey(Base64.encodeToString(keyPair.getPublic().getEncoded(), Base64.NO_WRAP));
     Experiment experiment = new Experiment();
     experiment.setExperimentDAO(dao);
-    experiment.setServerId(42L);
+    experiment.setServerId(ENCRYPTED_EXPERIMENT_ID);
     experimentProviderUtil.insertFullJoinedExperiment(experiment);
 
     // Make necessary methods accessible
@@ -119,7 +124,7 @@ public class CryptoTest extends AndroidTestCase {
   public void testCompleteEncryption() throws NoSuchPaddingException, BadPaddingException, InvalidAlgorithmParameterException, NoSuchAlgorithmException, IllegalBlockSizeException, UnsupportedEncodingException, InvalidKeyException, InvalidKeySpecException {
     Event event = new Event();
     event.setResponses(outputList);
-    event.setServerExperimentId(42L);
+    event.setServerExperimentId(ENCRYPTED_EXPERIMENT_ID);
 
     Event encryptedEvent = crypto.encryptAnswers(event);
     String encryptionKeyEncrypted = null;
@@ -144,6 +149,76 @@ public class CryptoTest extends AndroidTestCase {
     assertEquals(decryptedAnswer, "answer");
   }
 
+  @Test
+  public void testDontEncryptIfNoKey() throws NoSuchPaddingException, BadPaddingException, InvalidAlgorithmParameterException, NoSuchAlgorithmException, IllegalBlockSizeException, UnsupportedEncodingException, InvalidKeyException, InvalidKeySpecException {
+    ExperimentDAO daoUnencrypted = new ExperimentDAO();
+    Experiment experimentUnencrypted = new Experiment();
+    experimentUnencrypted.setExperimentDAO(daoUnencrypted);
+    experimentUnencrypted.setServerId(UNENCRYPTED_EXPERIMENT_ID);
+    experimentProviderUtil.insertFullJoinedExperiment(experimentUnencrypted);
+
+    Event event = new Event();
+    event.setResponses(outputList);
+    event.setServerExperimentId(UNENCRYPTED_EXPERIMENT_ID);
+
+    Event encryptedEvent = crypto.encryptAnswers(event);
+
+    boolean nameStillThere = false;
+    for (Output response: encryptedEvent.getResponses()) {
+      if (response.getName().equals("name")) {
+        // Make sure the answer was not encrypted
+        assertEquals(response.getAnswer(), "answer");
+        nameStillThere = true;
+      }
+    }
+    assert(nameStillThere);
+  }
+
+  @Test
+  public void testDontEncryptIfNoCorrespondingExperiment() throws NoSuchPaddingException, BadPaddingException, InvalidAlgorithmParameterException, NoSuchAlgorithmException, IllegalBlockSizeException, UnsupportedEncodingException, InvalidKeyException, InvalidKeySpecException {
+    Event event = new Event();
+    event.setResponses(outputList);
+    // Experiment ID does not exist in DB, will return null.
+    event.setServerExperimentId(NONEXISTENT_EXPERIMENT_ID);
+
+    Event encryptedEvent = crypto.encryptAnswers(event);
+
+    boolean nameStillThere = false;
+    for (Output response : encryptedEvent.getResponses()) {
+      if (response.getName().equals("name")) {
+        // Make sure the answer was not encrypted
+        assertEquals(response.getAnswer(), "answer");
+        nameStillThere = true;
+      }
+    }
+    assert (nameStillThere);
+  }
+
+  @Test
+  public void testDontFallbackIfException() throws NoSuchPaddingException, BadPaddingException, InvalidAlgorithmParameterException, NoSuchAlgorithmException, IllegalBlockSizeException, UnsupportedEncodingException, InvalidKeyException, InvalidKeySpecException {
+    ExperimentDAO daoBadKey = new ExperimentDAO();
+    daoBadKey.setPublicKey("badkey");
+    Experiment experimentBadKey = new Experiment();
+    experimentBadKey.setExperimentDAO(daoBadKey);
+    experimentBadKey.setServerId(BADKEY_EXPERIMENT_ID);
+    experimentProviderUtil.insertFullJoinedExperiment(experimentBadKey);
+
+    Event event = new Event();
+    event.setResponses(outputList);
+    event.setServerExperimentId(BADKEY_EXPERIMENT_ID);
+
+    Event eventEncrypted = new Event();
+    eventEncrypted.setResponses(outputList);
+    eventEncrypted.setServerExperimentId(ENCRYPTED_EXPERIMENT_ID);
+
+    List<Event> events = Arrays.asList(event, eventEncrypted);
+    List<Event> encryptedEvents = crypto.encryptAnswers(events);
+
+    // Make sure the experiment with the bad key got ignored
+    assertEquals(encryptedEvents.size(), 1);
+    assertEquals(encryptedEvents.get(0).getExperimentServerId(), ENCRYPTED_EXPERIMENT_ID);
+  }
+
   /**
    * This test makes sure that encrypting the same string twice would yield a different result for
    * different Events. This is important, as we don't want information to leak about two answers
@@ -154,14 +229,14 @@ public class CryptoTest extends AndroidTestCase {
     try {
       Event event1 = new Event();
       event1.setResponses(outputList);
-      event1.setServerExperimentId(42L);
+      event1.setServerExperimentId(ENCRYPTED_EXPERIMENT_ID);
 
       Event event2 = new Event();
       Output output2 = new Output();
       output2.setName(output.getName());
       output2.setAnswer(output.getAnswer());
       event2.setResponses(Arrays.asList(output2));
-      event2.setServerExperimentId(42L);
+      event2.setServerExperimentId(ENCRYPTED_EXPERIMENT_ID);
 
       Event encryptedEvent1 = crypto.encryptAnswers(event1);
       Event encryptedEvent2 = crypto.encryptAnswers(event2);
