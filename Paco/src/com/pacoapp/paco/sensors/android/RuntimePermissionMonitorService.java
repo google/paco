@@ -23,11 +23,13 @@ import org.joda.time.DateTime;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Deque;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Queue;
+import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -107,9 +109,12 @@ public class RuntimePermissionMonitorService extends AccessibilityService {
    * Only used with runtime permission dialogs. Keep the currently requested permission in memory
    * so we remember it when the user actually clicked allow/deny. This is a queue because
    * accessibility events might be interleaved (i.e., the next permission request may be triggering
-   * an accessibility event even before the action of the user on the previous request triggers one
+   * an accessibility event even before the action of the user on the previous request triggers one)
+   * The reason we are using a Deque is for being able to peek at the last element in the queue, to
+   * make sure we're not adding any duplicates because we got two WINDOW_STATE_CHANGE events
+   * announcing the same permission in quick succession.
    */
-  private static Queue<EncounteredPermissionRequest> previouslyEncounteredPermissionRequests;
+  private static Deque<EncounteredPermissionRequest> previouslyEncounteredPermissionRequests;
 
   /**
    * Called only for accessibility events coming from Android's packageinstaller.
@@ -185,7 +190,7 @@ public class RuntimePermissionMonitorService extends AccessibilityService {
    * @return An object containing that permission's name, app's name, and package
    */
   public static EncounteredPermissionRequest getLastEncounteredPermissionRequest() {
-    return previouslyEncounteredPermissionRequests.peek();
+    return previouslyEncounteredPermissionRequests.peekLast();
   }
 
   /**
@@ -412,14 +417,25 @@ public class RuntimePermissionMonitorService extends AccessibilityService {
   /**
    * Adds a permission to the queue of permission requests that still need to be handled by the user
    * See {@link #previouslyEncounteredPermissionRequests} for more info.
+   * The permission request will not be added if it is the same as the last request already in the
+   * list.
    * @param permission The requested permission, as the string shown in the user interface
    * @param appName The application name (title), if available (null otherwise).
+   * @return true if the permission was added, false if it was already at the end of the queue
    */
-  private void addEncounteredPermission(CharSequence permission, CharSequence appName) {
+  private boolean addEncounteredPermission(CharSequence permission, CharSequence appName) {
+    EncounteredPermissionRequest lastPermissionRequest = getLastEncounteredPermissionRequest();
+    if (lastPermissionRequest != null &&
+            lastPermissionRequest.getPermissionString().equals(permission) &&
+            lastPermissionRequest.getAppName().equals(appName)) {
+      Log.w(PacoConstants.TAG, "Not adding the same permisison request twice!");
+      return false;
+    }
     EncounteredPermissionRequest newPermissionRequest = new EncounteredPermissionRequest(permission,
             System.currentTimeMillis(), appName);
-    previouslyEncounteredPermissionRequests.add(newPermissionRequest);
+    previouslyEncounteredPermissionRequests.addLast(newPermissionRequest);
     Log.v(PacoConstants.TAG, "Added previously handled permission " + permission.toString());
+    return true;
   }
 
   /**
@@ -490,7 +506,7 @@ public class RuntimePermissionMonitorService extends AccessibilityService {
             "the permission request in the first place");
       return;
     }
-    EncounteredPermissionRequest encounteredPermission = previouslyEncounteredPermissionRequests.poll();
+    EncounteredPermissionRequest encounteredPermission = previouslyEncounteredPermissionRequests.pollFirst();
     // Drop stale permission requests older than PERMISSION_REQUEST_HISTORY_MILLIS, *unless* it was
     // the last one still in the queue
     while (encounteredPermission.getTimestamp() < System.currentTimeMillis() - PERMISSION_REQUEST_HISTORY_MILLIS &&
@@ -498,7 +514,7 @@ public class RuntimePermissionMonitorService extends AccessibilityService {
       Log.w(PacoConstants.TAG, "Not considering permission request " +
               encounteredPermission.getPermissionString() + " for app " +
               encounteredPermission.getAppName() + " because it was too old.");
-      encounteredPermission = previouslyEncounteredPermissionRequests.poll();
+      encounteredPermission = previouslyEncounteredPermissionRequests.pollFirst();
     }
     setCurrentlyHandledPermission(encounteredPermission.getPermissionString().toString());
     setCurrentlyHandledAppName(encounteredPermission.getAppName());
@@ -569,7 +585,7 @@ public class RuntimePermissionMonitorService extends AccessibilityService {
    */
   @Override
   protected void onServiceConnected() {
-    previouslyEncounteredPermissionRequests = new LinkedBlockingQueue();
+    previouslyEncounteredPermissionRequests = new LinkedBlockingDeque();
     running = true;
     Log.d(PacoConstants.TAG, "Connected to the accessibility service");
     if (!Locale.getDefault().getISO3Language().equals(Locale.ENGLISH.getISO3Language())) {
