@@ -48,7 +48,7 @@
       </admin-console>
   -->
 
-  <instance-class>F2</instance-class>
+  <instance-class>F4</instance-class>
   <automatic-scaling>
     <max-idle-instances>830</max-idle-instances>
     <max-pending-latency>14.8s</max-pending-latency>
