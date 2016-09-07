@@ -138,8 +138,6 @@ public class ExperimentServlet extends HttpServlet {
   }
 
 
-
-
   private void logPacoClientVersion(HttpServletRequest req) {
     String pacoVersion = req.getHeader("paco.version");
     if (pacoVersion != null) {

@@ -227,12 +227,14 @@ public class PublicExperimentList {
     }
     QueryResultList<Entity> result = ds.prepare(query).asQueryResultList(options);
     List<Long> experimentIds = Lists.newArrayList();
+
     for (Entity entity : result) {
-      Date endDateProperty = (Date)entity.getProperty(END_DATE_PROPERTY);
+      Date endDateProperty = (Date) entity.getProperty(END_DATE_PROPERTY);
       if (!expired(endDateProperty, nowInUserTimezone)) {
         experimentIds.add(entity.getKey().getId());
       }
     }
+
     return new CursorExerimentIdListPair(result.getCursor().toWebSafeString(), experimentIds);
   }
 

@@ -34,38 +34,7 @@ public class ExperimentServletExperimentsPopularLoadHandler extends ExperimentSe
     protected List<ExperimentDAO> getAllExperimentsAvailableToUser() {
         ExperimentQueryResult result =((DefaultExperimentService)ExperimentServiceFactory.getExperimentService()).getExperimentsPublishedPubliclyPopular(timezone, limit, cursor, email);
         cursor = result.getCursor();
+        List<ExperimentDAO> e = result.getExperiments();
         return result.getExperiments();
-        /*//TODO GET RID OF
-        //NAIVE APPROACH (non-scaleable)
-        ParticipationStatsService ps =  new ParticipationStatsService();
-        List<ExperimentDAO> experiments = result.getExperiments();
-        ArrayList<Integer> participantsCount = new ArrayList<Integer>();
-
-        //No "pair" collection as in C++, so "manually" sort for now
-        //UPDATE: There is indeed a pair structure in Paco :)
-
-        for(ExperimentDAO e : experiments){
-            List<ResponseStat> totalParticipationStats = ps.getTotalByParticipant(e.getId());
-            participantsCount.add(totalParticipationStats.size());
-        }
-        //using bubble sort due to simple code/fewer lines --- NEEDS FIXING, URGENTLY
-        for(int i = 0; i < participantsCount.size() - 1 ; i++){
-            for(int j = i+1; j < participantsCount.size(); j++){
-                if(participantsCount.get(i) < participantsCount.get(j)){
-                    ExperimentDAO tmpExp = experiments.get(i);
-                    experiments.set(i, experiments.get(j));
-                    experiments.set(j, tmpExp);
-
-                    Integer tmp = participantsCount.get(i);
-                    participantsCount.set(i, participantsCount.get(j));
-                    participantsCount.set(j, tmp);
-                }
-            }
-        }
-
-        cursor = result.getCursor();
-
-        //return result.getExperiments();
-        return experiments;*/
     }
 }
