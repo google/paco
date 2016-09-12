@@ -43,6 +43,15 @@
     <servlet-name>usageServlet</servlet-name>
     <url-pattern>/usage</url-pattern>
   </servlet-mapping>
+
+    <servlet>
+    <servlet-name>participantJoinStatsServlet</servlet-name>
+    <servlet-class>com.google.sampling.experiential.server.ParticipantJoinStatServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>participantJoinStatsServlet</servlet-name>
+    <url-pattern>/participantJoinStats</url-pattern>
+  </servlet-mapping>
   
   <!--  
  <servlet>
@@ -157,6 +166,7 @@
       <url-pattern>/pacoserver/migrate*</url-pattern>
       <url-pattern>/remote_api*</url-pattern>
       <url-pattern>/eval*</url-pattern>
+      <url-pattern>/participantJoinStats*</url-pattern>
     </web-resource-collection>
     <auth-constraint>
       <role-name>admin</role-name>
