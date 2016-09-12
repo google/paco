@@ -1,0 +1,373 @@
+<!--
+ ~ Copyright 2011 Google Inc. All Rights Reserved.
+ ~
+ ~ Licensed under the Apache License, Version 2.0 (the "License");
+ ~ you may not use this file except in compliance  with the License.  
+ ~ You may obtain a copy of the License at
+ ~
+ ~    http://www.apache.org/licenses/LICENSE-2.0
+ ~
+ ~ Unless required by applicable law or agreed to in writing,
+ ~ software distributed under the License is distributed on an
+ ~ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ ~ KIND, either express or implied.  See the License for the
+ ~ specific language governing permissions and limitations
+ ~ under the License.
+--><resources>
+
+    <string description="Name of the Paco app used on the Home Screen and other places [No Translation]" name="app_name">"Paco"</string>
+    <string description="default server address for Paco[No Translation]" name="server">"www.pacoapp.com"</string>
+    <string description="unique Android package name[No Translation]" name="app_package">"com.pacoapp.paco"</string>
+    <string description="contact email address [No Translation]" name="contact_email">"paco-users@googlegroups.com"</string>
+    <string description="user group email address [No Translation]" name="about_googlegroups">"paco-users@googlegroups.com"</string>
+    <string description="Website for user group [No Translation]" name="usergroup_website">"https://groups.google.com/group/paco-users"</string>
+    <string name="about_support">"Destek:"</string>
+    <string description="Home page url [No Translation]" name="about_weburl">"pacoapp.com"</string>
+    <string description="[No Translation]" name="about_bob">"Bob Evans"</string>
+    <string description="[No Translation]" name="about_alberto">"Alberto Savoia"</string>
+    <string description="[No Translation]" name="about_arun">"Arun Saigal"</string>
+    <string description="[No Translation]" name="about_cp">"CP Lim"</string>
+    <string description="[No Translation]" name="about_stephen">"Stephen Uhler"</string>
+    <string description="[No Translation]" name="about_tina">"Tina Malm"</string>
+    <string description="[No Translation]" name="about_brian">"Brian Ong"</string>
+    <string description="[No Translation]" name="about_kanwal">"Kanwal Safdar"</string>
+    <string description="Label for list of team members" name="about_team">"Takım:"</string>
+    <string description="Detail label for Paco version" name="about_version">"Sürüm:"</string>
+        <string description="button label to go to Paco version information" name="welcome_about">"Paco Sürümü"</string>
+    
+
+    <!-- End User License Agreement -->
+    <string description="Title in screen showing EULA" name="eula_title">"Son Kullanıcı Lisans Anlaşması"</string>
+    <string description="Shown to user to decline the EULA" name="decline">"Reddet"</string>
+
+    <string description="Dialog Button Label" name="no">"Hayır"</string>
+    <string description="Dialog Button Label to agree with presented content" name="yes">"Evet"</string>
+    <string description="Dialog Button Label to accept presented content" name="ok">"Tamam"</string>
+    <string description="Confirmation text usually shown in brief messages after user action completes." name="success">"Başarılı"</string>
+
+    <string-array description="List selection choices for number of days between repeating schedules" name="repeat_range">
+        <item>"1"</item>
+        <item>"2"</item>
+        <item>"3"</item>
+        <item>"4"</item>
+        <item>"5"</item>
+        <item>"6"</item>
+        <item>"7"</item>
+        <item>"8"</item>
+        <item>"9"</item>
+        <item>"10"</item>
+        <item>"11"</item>
+        <item>"12"</item>
+        <item>"13"</item>
+        <item>"14"</item>
+        <item>"15"</item>
+        <item>"16"</item>
+        <item>"17"</item>
+        <item>"18"</item>
+        <item>"19"</item>
+        <item>"20"</item>
+        <item>"21"</item>
+        <item>"22"</item>
+        <item>"23"</item>
+        <item>"24"</item>
+        <item>"25"</item>
+        <item>"26"</item>
+        <item>"27"</item>
+        <item>"28"</item>
+        <item>"29"</item>
+        <item>"30"</item>
+    </string-array>
+    <string-array description="Days of week used in schedule editor" name="days_of_week">
+        <item>"Pazar"</item>
+        <item>"Pazartesi"</item>
+        <item>"Salı"</item>
+        <item>"Çarşamba"</item>
+        <item>"Perşembe"</item>
+        <item>"Cuma"</item>
+        <item>"Cumartesi"</item>
+    </string-array>
+    <string-array description="Ordinal numbers for which week of the month in schedule editing" name="nth_of_month">
+        <item>"İlk"</item>
+        <item>"İkinci"</item>
+        <item>"Üçüncü"</item>
+        <item>"Dördüncü"</item>
+        <item>"Beşinci"</item>
+    </string-array>
+
+    <string description="Label for menu item to see recorded data" name="explore_data">"Veri keşfi"</string>
+    <string description="Label for value of user's currently chosen Google Account" name="current_account">"Mevcut Hesap"</string>
+    <string description="Menu item to cause refresh of the definitions of running experiments from the server." name="experiment_refresh">"Deneyleri Güncelle"</string>
+    <string description="Message about current work of app, namely checking for new and updated experiment definitions" name="checking_server_for_new_and_updated_experiment_definitions">"Yeni ve Güncellenmiş Deney Tanımları Sunucudan Kontrol Ediliyor"</string>
+    <string description="Message shown to user trying to join an experiment that is not known to the phone but that might be on the server." name="selected_experiment_not_on_phone_refresh">"Seçilen Deney telefonda yok. Deneyler Sunucudan Güncellensin mi?"</string>
+    <string description="Message shown to user trying to join experiment from a link in another app but it is not a Paco link" name="link_wrong">"Doğru bağlantıyı kullandığınızdan emin olun."</string>
+    <string description="Label for a schedule that runs in perpetuity" name="ongoing_duration">"devam eden"</string>
+    <string description="List choice for schedule signal period - randomly every day" name="day_esm_period">"Gün"</string>
+    <string description="List choice for schedule signal period - randomly every week" name="week_esm_period">"Hafta"</string>
+    <string description="List choice for schedule signal period - randomly very month" name="month_esm_period">"Ay"</string>
+    <string description="List choice for schedule that signals - fixed time every day" name="daily_schedule_type">"Günlük"</string>
+    <string description="List choice for schedule that signals - fixed time on weekdays" name="weekdays_schedule_type">"Hafta İçi"</string>
+    <string description="List choice for schedule that signals - fixed time every week" name="weekly_schedule_type">"Haftalık"</string>
+    <string description="List choice for schedule that signals - fixed time every month" name="monthly_schedule_type">"Aylık"</string>
+    <string description="List choice for schedule type  - random signaling (ESM=Experiential Sampling Method)" name="random_sampling_esm_schedule_type">"Rasgele örnekleme (Experiment Sampling Model)"</string>
+    <string description="List choice for schedule that does not signal. User initiates response." name="self_report_only_schedule_type">"Yalnızca kendi kendine rapor etme (self-report)"</string>
+    <string description="List choice for schedule that signals in custom, advanced ways" name="advanced_schedule_type">"Gelişmiş"</string>
+    <string description="Message to user that the signal to which they were responding has expired and there is no work to be done." name="survey_expired">"Bu anket isteğinin süresi doldu. Yanıt girmenize gerek yok"</string>
+    <string description="Message to user to enable GPS location, but only when outside." name="gps_message">"Daha iyi konum almak için GPS kullanılsın mı (yalnızca dışarıda)? "</string>
+    <string description="Dialog Button label to enable GPS" name="enable_button">"Etkinleştir"</string>
+    <string description="Dialog Button label to cancel GPS" name="cancel_button">"İptal"</string>
+    <string description="Message to user about need to enable location services" name="need_location">"Konum verilerini dahil etmek istiyorsanız Konum Hizmetini etkinleştirmeniz gerekir. "</string>
+    <string description="Message shown to user submitting a form without filling in required fields." name="required_answers_missing">"Gerekli Yanıtlar Eksik"</string>
+    <string description="Label for error dialog listing which fields are required" name="must_answer">"Yanıtlanmalı: "</string>
+    <string description="Menu Item text for About screens" name="about_paco_menu_item">"Paco Hakkında"</string>
+    <string description="Menu Item to see user agreement text" name="eula_menu_item">"Kullanıcı Sözleşmesi"</string>
+    <string description="Menu Item to debug app" name="debug_menu_item">"Hata Ayıklama"</string>
+    <string description="Title of dialog box letting user select the Signaling Audio tone for Paco notifications" name="select_signal_tone">"Sinyal Tonu Seçin"</string>
+    <string description="Error message shown to users when trying to load a specific experiment" name="cannot_find_the_experiment_warning">"Deney bulunamıyor!"</string>
+    <string description="Label on button shown to user on survey form" name="save_button">"Kaydet"</string>
+    <string description="Label for schedule editing field that sets the start of the window for scheduling" name="start_time_title">"Başlama Zamanı"</string>
+    <string description="Label for schedule editing field that sets the end of the window for scheduling" name="end_time_title">"Bitiş Zamanı"</string>
+    <string description="Dialog Box title for editing a schedule time" name="modify_time_title">"Zamanı Değiştir"</string>
+    <string description="Dialog Box title for editing days of the week to schedule" name="days_of_week_title">"Haftanın Günleri"</string>
+    <string description="Error message when edited start time is after end time" name="start_hour_must_be_before_end_hour_warning">"Başlangıç ​​saati bitiş saatinden önce olmalıdır"</string>
+    <string description="Button label for chart that turns on a trend line " name="show_trends_button">"  Eğilimleri Göster  "</string>
+    <string description="Button label for list questionss that allow multiple selections" name="make_selections">"Seçimleri yap"</string>
+    <string description="Menu Item to edit schedule" name="edit_schedule_menu_item">"Programı Düzenle"</string>
+    <string description="Menu Item to stop an experiment" name="stop_experiment_menu_item">"Deneyi Durdur"</string>
+    <string description="Menu Item to explore data collected for an experiment" name="explore_data_menu_item">"Verileri keşfet"</string>
+    <string description="Nav Drawer label for Running Experiments (Main) Screen" name="running_experiments_title">"Güncel Deneylerim"</string>
+    <string description="Nav Drawer label for Finished Experiments Screen" name="completed_experiments_title">"Tamamlanan Deneyler"</string>
+    <string description="Nav Drawer label for Experiment Hub Screen (publicly available experiments)" name="find_public_experiments_title">"Deney Merkezi"</string>
+    <string description="Title of dialog confirming that user wants to stop the experiment" name="stop_the_experiment_dialog_title">"Deney Durdurulsun mu?"</string>
+    <string description="Body of dialog confirming that user wants to stop the experiment" name="stop_experiment_dialog_body">"Deneyi durdurmak istediğinizden emin misiniz?"</string>
+    <string description="Default text in experiment definition when author of experiment is unspecified" name="unknown_author_text">"bilinmeyen yazar"</string>
+    <string description="Placeholder label in survey form while retrieving lat/lon coordinates" name="retrieving_lat_lon">"Alınıyor"</string>
+    <string description="Error message when the camera app did not produce a file." name="missing_image_warning">"Kameradan görüntü dosyası bulunamıyor!"</string>
+    <string description="Label used in survey form when a location is unavailable" name="unknown_location">"Bilinmeyen"</string>
+    <string description="Error message when survey cannot open the Camera app" name="cannot_open_camera_warning">"Kamera Açılamıyor"</string>
+    <string description="Button label in dialog where user selects multiple options from a list. Signifies that they are done and closes dialog." name="done_button">"Tamamlandı"</string>
+    <string description="Default message for Experiment Notifications" name="time_to_participate_notification_text">"Katılma zamanı!"</string>
+    <string description="Default ticker text for Experiment Notification. Experiment name is appended to this." name="time_for_notification_title">"Zaman:  "</string>
+    <string description="Menu item to refresh running experiments" name="refresh_experiment_menu_item">"Çalışan Deneyleri Yenile"</string>
+    <string description="Menu item to return to the main screen." name="main_page_menu_item">"Ana Sayfa"</string>
+    <string description="Label for signaled response that was not answered before it timed out." name="missed_signal_value">"Yanıtsız"</string>
+    <string description="Instruction text for choosing a Google Account to use in Paco" name="choose_account">"Paco İle Kullanmak İçin Hesap Seçiniz"</string>
+    <string description="Prefix title for screen that shows daily scheduled times for an experiment. Experiment name is appended." name="daily_scheduled_times_for">"Günlük Planlanmış Zamanlar: "</string>
+    <string description="Label for list of scheduled times in experiment" name="scheduled_times">"Planlanmış Tekrarlar"</string>
+    <string description="Default placeholder for Experiment name while loading real data" name="experiment_name">"Deney Adı"</string>
+    <string description="Label for screen for editing default schedule" name="suggested_signalling_schedule">"Önerilen sinyal programı:"</string>
+    <string description="Label for choosing ESM schedule period (day, week, month)" name="schedule_period">"Program Dönemi:  "</string>
+    <string description="Label for entering integer value for frequency of ESM signals (# of times per day, wk, mo)" name="times_per_period">"Periyot başına tekrar:"</string>
+    <string description="Label for checkbox to configure whether signaling happens on weekends as well as weekdays." name="weekends">"Hafta sonları?"</string>
+    <string description="Label for time picker that sets the starting time of day for an esm schedule" name="start_hour">"Başlangıç ​​Saati"</string>
+    <string description="String value of default start time for esm schedule" name="default_start_time">"09:30"</string>
+    <string description="Label for time picker that sets the ending time of day for an esm schedule" name="end_hour">"Bitiş Saati:   "</string>
+    <string description="String value of default end time for esm schedule" name="default_end_hour">"17:30"</string>
+    <string description="Label for table of users' survey responses" name="responses">"Yanıtlar"</string>
+    <string description="Default list value for ui elements that show lists of data" name="no_data">"Veri Yok"</string>
+    <string description="Label for field showing experiment's description on Experiment details page." name="description">"Açıklama:"</string>
+    <string description="Label for showing a schedule summary in Experiment details page" name="schedule">"Program: "</string>
+    <string description="Label for experiment start date in experiment details page" name="start_date">"Başlangıç ​​Tarihi: "</string>
+    <string description="Label for experiment end date in experiment details page" name="end_date">"Bitiş Tarihi: "</string>
+    <string description="Label for esm frequency in experiment details page" name="esm_frequency">"ESM Sıklığı: "</string>
+    <string description="Label for list of scheduled times in experiment details page" name="scheduled_time">"Planlanmış Zaman: "</string>
+    <string description="Label for creator of experiment in experiment details page" name="creator">"Oluşturan:"</string>
+    <string description="Label for button to join experiment in experiment details page" name="join_this_experiment">"Bu Deneye Katıl"</string>
+    <string description="Label for button to go to view of raw data collected" name="raw_data_button_text">"Ham Verilere Git"</string>
+    <string description="Title for list of currently running experiments" name="your_current_experiments">"Güncel Deneylerim"</string>
+    <string description="Popup message telling user how to load more experiments into a list" name="load_more_experiments_from_server">"Sunucudan Daha Fazla Deney İndirmek İçin Tekrar Yenile"</string>
+    <string description="Title of Informed Consent Screen" name="data_handling_title">"Deneycilerle Bilgi Paylaşmayı Kabul Ediyorsunuz"</string>
+    <string description="Text on infomrmed consent screen instruction to the participant to read the experimenter-provided data handling policy" name="informed_consent_preamble">"Bu deneye katılarak bu deneyi oluşturanlar ve bu deneyin yöneticileriyle yanıtlarınızı paylaşacaksınız. Bu bilgileri araştırma, ürün geliştirme ya da diğer amaçlarla kullanabilirler. Bu deneye katılmaya karar vermek için lütfen aşağıda sundukları gizlilik politikası ve veri işleme bildirimini okuyunuz."</string>
+    <string description="Label for button to consent to experiment's data policies." name="consent_checkbox_text">"İzin Veriyorum"</string>
+    <string description="Title for list of experiments (retrieved from server) that can be joined by user" name="available_experiments">"Mevcut Deneyler"</string>
+    <string description="Status message for retrieving location" name="retrieving_location">"Alınıyor..."</string>
+    <string description="Label for button to take user to system location settings" name="location_settings">"Konum Ayarları"</string>
+    <string description="Title for list of daily times in schedule edit screen" name="daily_scheduled_time_for">"Günlük Zamanlama: "</string>
+    <string description="List choice for monthly schedule type (choose by day of the month)" name="by_day_of_month">"          Ayın Gününe Göre"</string>
+    <string description="List choice for monthly schedule type (choose by day of the week)" name="by_day_of_week">"          Haftanın Günü"</string>
+    <string description="Label for list picker of day of month (1..31)" name="day_of_month">"Ayın Günü:"</string>
+    <string description="Label for widget to pick day of week (smtwrfs)" name="day_of_week">"Haftanın Günü:"</string>
+    <string description="Button label for taking a picture with the camera app as part of a survey" name="take_picture">"Resim Ekle"</string>
+    <string description="Label for list to pick how many days between signal repeats on a schedule" name="repeat_every_">"Tekrarlama Sıklığı "</string>
+    <string description="List choice for period of ESM schedule" name="days">"Gün"</string>
+    <string description="List choice for period of ESM schedule" name="months">"Ay"</string>
+    <string description="List choice for period of ESM schedule" name="weeks">"Hafta"</string>
+    <string description="Label for schedule edit for weekly schedule" name="days_of_week">"Haftanın Günleri"</string>
+    <string description="Message to let user know that this experiment is self-report or signals upon a trigger. There is no schedule for them to configure." name="this_experiment_is_self_reporting_only">"Bu deney planlanmış değildir. Kendi kendine raporlamadır ya da tetiklenerek çalışır."</string>
+    <string description="Warning message to user about modifying server address setting" name="server_address_warning">"UYARI: Bunu yalnızca ne yaptığınızı biliyorsanız değiştirin."</string>
+    <string description="Label for text field to edit server address for Paco" name="enter_server_address">"Sunucu Adresini Girin"</string>
+    <string description="Error message to help user login to Paco." name="no_accounts_found">"Bu telefonda Google hesabı mevcut değil. Eklemek için Ayarlar/Hesap bölümüne gidin."</string>
+    <string description="Initial choice in a survey list question. Instructs the user to pick one of the subsequent choices." name="default_list_item">"Lütfen bir seçenek seçin"</string>
+    <string description="Message about status of fully loading an experiment once user has consented to join." name="retrieving_your_joined_experiment_from_the_server">"Katıldığınız Deney Sunucudan Alınıyor"</string>
+    <string description="Title for a dialog while downloading an experiment" name="experiment_retrieval">"Deney Alınıyor"</string>
+    <string description="Title for dialog informing user that experiment requested could not be retrieved." name="experiment_could_not_be_retrieved">"Deney Alınamadı."</string>
+    <string description="Error message that experiment requested could not be retrieved." name="invalid_data">"Deney verilerini alırken bir şeyler yanlış gitti."</string>
+    <string description="Body of message informing user that something prevented them from joining the experiment." name="unable_to_save_experiment">"Bu deneye katılınamıyor. Lütfen bu deneyi yapan deneyciye e-posta gönderin."</string>
+    <string description="Catch-all for server side error during network communication" name="server_error">"Sunucuda bir sıkıntı oldu."</string>
+    <string description="Title of dialog that tells the user that some form of networking is necessary to complete the operation" name="network_required">"Ağ Gerekli"</string>
+    <string description="Title of dialog that tells the user that Server address is not reachable" name="unknown_host">"Bilinmeyen veya ulaşılamaz sunucu adresi. Paco ayarlarınızı kontrol edin."</string>
+    <string description="body of dialog telling the user network connection is necessary to complete the operation" name="need_network_connection">"Denemeyi katılmak için bir ağ bağlantısı gereklidir. Bağlantı açılsın mı?"</string>
+    <string description="Choice in dialogs to not pursue options presented." name="no_thanks">"Hayır, teşekkürler."</string>
+    <string description="Button label to jump to OS settings for networking" name="go_to_network_settings">"Ağ Ayarları"</string>
+    <string description="Label for timestamp indicating when experiment lists were last loaded from server." name="last_refreshed">"Son Yenilenme Zamanı"</string>
+    <string description="Assistive popup text for microphone button" name="answer_by_speaking">"Konuşarak yanıtlayın"</string>
+    <string description="Error message shown to user in dialog when Speech to text is unavailable on their phone" name="oops_your_device_doesn_t_support_speech_to_text">"Aaa! Cihazınız konuşmayı yazamıyor"</string>
+    <string description="Dialog message showing progress refreshing running (joined) experiments from the server" name="updating_your_joined_experiments_from_the_server">"Katıldığınız Deneyler Sunucudan Güncelleniyor"</string>
+    <string description="Prompt text for photo input survey item indicating that user should choose from Camera or Gallery as the source" name="please_choose_the_source_of_your_image">"Lütfen görüntünün kaynağını seçin"</string>
+    <string description="Label for button to choose the Camera as the source for inputing a photo into a survey" name="camera">"Kamera"</string>
+    <string description="Label for button to choose the Photo Gallery app as the source for inputing a photo into a survey" name="gallery">"Galeri"</string>
+    <string decsription="Label for button to go to find experiments screen" name="action_find_experiments">"Deney Bul"</string>
+    <string description="Label for Menu/Toolbar action to go to Settings screen" name="action_settings">"Ayarlar"</string>
+    <string description="Label for Menu/Toolbar action to go to Language Preferences screen" name="action_language_preference">"Dil Tercihi"</string>
+    <string description="Label for Menu/Toolbar action to go to troubleshooting screen" name="action_troubleshooting">"Sorun Giderme"</string>
+    <string description="Label for Menu/Toolbar action to go to User Guide screen" name="action_user_guide">"Kullanıcı Kılavuzu"</string>
+    <string description="Label for Menu/Toolbar action to go email Paco team" name="action_email_paco_team">"Paco Takımına E-posta Gönder"</string>
+    <string description="Label for Menu/Toolbar action to go to About screen" name="action_about">"Paco Hakkında"</string>
+    <string description="Label for Menu/Toolbar action to go to User Agreement screen" name="action_user_agreement">"Kullanıcı Sözleşmesi"</string>
+    <string description="Label for Menu/Toolbar action to go to Open source libraries screen" name="action_open_source_libs">"Açık kaynak kütüphaneler"</string>
+    <string description="Nav Drawer label for Experiments Invitations Screen" name="find_my_experiments">"Deney Davetlerim"</string>
+    <string description="Label for button to go to Find Public Experiment screen" name="find_all_public_experiments">"Bütün Açık Deneyleri Bul"</string>
+    <string description="Error message for retrieving the full definition of an experiment when trying to join" name="could_not_load_full_experiment_">"Tam deney yüklenemedi."</string>
+    <string description="Progress dialog message indicating that the user has loaded all the experiments available on the server" name="no_more_experiments_on_server">"Sunucudan yüklenen tüm deneyler"</string>
+    <string description="Status message to indicate to user entering the Edit Schedule screens that this experiment's schedule is not editable." name="this_experiment_schedule_is_not_editable">"Bu deney programı düzenlenebilir değildir"</string>
+    <string description="Label for multi-select list button indicating that more than one item is currently chosen" name="multiselectListManyItemsChosen">"seçili öğeler"</string>
+    <string description="Label for multi-select list button indicating that one item is currently chosen" name="multiselectListOneItemChosen">"seçili öğe"</string>
+    <string description="Error message shown to user in dialog box when speech to text failed" name="i_did_not_understand">"Anlamadım"</string>
+    <string description="Section label above a list of data types that the experiment collects" name="types_of_data_collected">"Toplanan Veri Türleri"</string>
+    <string description="Label above experimenter-provided informed consent information" name="experiment_informed_consent">"Deneycinin Bilgilendirilmiş Onam Bildirimi"</string>
+    <string description="List choice for type of data that will be collected in an experiment corresponding to their survey responses" name="survey_responses_data_collected">"Kullanıcı yanıtları şu deneye gider"</string>
+    <string description="List choice for type of data that will be collected in an experiment corresponding to the collection of the names of the apps they use and the websites they visit while in the experiment" name="app_usage_and_browser_usage_data_collected">"Deney sırasında kullanılan uygulamalar ve siteler"</string>
+    <string description="List choice for type of data that will be collected in an experiment corresponding to names of the apps installed on their phone" name="installed_app_data_collected">"Telefonda yüklü uygulamalar"</string>
+    <!-- new ui -->
+    <string description="Accessibility label for Navigation Drawer indicating that it can be opened" name="navigation_drawer_open">"Gezinme çekmecesini aç"</string>
+    <string description="Accessibility label for Navigation Drawer indicating that it can be closed" name="navigation_drawer_close">"Gezinme çekmecesini kapat"</string>
+    <string description="Label over a list of experiment groups (different surveys) within an experiment prompting user to pick one to respond to its survey items" name="choose_experiment_group">"Yanıtlayacak Bir Deney Grubu Seçin"</string>
+    <string description="Title lable for the Settings screen" name="title_activity_settings">"Ayarlar"</string>
+    <string description="Default prompt text for a location input survey item. This is shown next to the lat/long retrieved and the button to modify location settings" name="location_to_be_recorded_default_prompt">"Konum kaydedilecek"</string>
+    <string description="Label for field showing the organization that is offering the experiment" name="organization">"Organizasyon:"</string>
+    <string description="Label for the field showing the contact email address for the experiment" name="contact_">"İletişim:"</string>
+    <string description="Label for button to complete the experiment join process" name="done_joining_button">"Tamam"</string>
+    <string description="Button label for survey form to save answers" name="save_response">"Yanıtı Kaydet"</string>
+    <string description="This is the subject line inserted into the email message when a user chooses Email Paco Team" name="email_subject_paco_feedback">"Paco Görüşleri"</string>
+    <string description="Error message on joining experiment. This is transient so ask them to try again." name="could_not_successfully_join_try_again_">"Katılamadık. Tekrar deneyin."</string>
+    <string description="Message shown to users when all experiments have been retrieved from server." name="experiment_list_download_complete">"İndirme tamamlandı"</string>
+    <string description="Error message shown to user when experiment list could not be retrieved." name="could_not_retrieve_experiments_try_again_">"Deneyler alınamadı. Tekrar deneyin."</string>
+    <string description="connector for showing the organization that is offering this experiment, e.g, 'by Google'" name="by">"Yapan"</string>
+    <string description="Text shown in experiment card that lists when the user joined the experiment, e.g., 'Joined on August 5th'" name="joined_on">"Katılma tarihi"</string>
+    <string description="Message to user that they must choose a Google account to proceed." name="you_must_pick_an_account">"Hesap seçmelisiniz"</string>
+    <string description="Appended to message about necessary 3rd party components, e.g., 'GooglePlayServices are not available'" name="are_not_available_">"mevcut değil."</string>
+    <string description="Label for an error message that is appended, e.g., 'ERROR: service not installed'" name="error">"HATA"</string>
+    
+
+<!--  embedded web ui -->
+    <string description="error message shown in survey form when the platform does not support photos" name="no_photo_support">"Fotoğraf desteği yok"</string>
+    <string description="error message shown when the platform running the experiment does not provide notification facilities" name="no_notification_support">"Bildirim desteği yok"</string>
+    <string decription="Message shown when user submits form" name="thank_you_for_participating">"Katılımınız için teşekkür ederiz"</string>
+    <string description="label for button to see maps" name="maps_button_label">"Haritalar"</string>
+    <string description="error message shown responses could not be stored." name="data_storage_error">"Verileriniz kaydedilemedi. Tekrar deneyebilirsiniz ya da çalışmayı yürüten araştırmacıyla iletişime geçebilirsiniz. "</string>
+    
+    <!--  end of day html -->
+    <string decription="error message shown when user submits without answering any questions" name="empty_response_error">"Boş yanıt gönderemezsiniz."</string>
+    <string description="Message shown to user when they have already followed up on a daily response" name="already_replied">"Önceden yanıtlanmış"</string>
+    <string description="Message shown to confirm that user wants to leave unfinished work" name="exit_with_unsubmitted_work_confirmation">"Bu sayfadadaki yanıtları göndermediniz. Sayfadan çıkmak istediğinize emin misiniz?"</string>
+    <string name="exit_with_unreviewed_work">"Tüm günlük olaylar için yanıtlarınızı göndermediniz. Çıkmak istediğinize emin misin?"</string>
+    <string description="Message shown when user has no work to do" name="no_active_responses">"Etkin günlük yanıt yok"</string>
+    <!--  eodskeleton.html -->
+    <string description="button label to exit work flow" name="exit">"Çıkış"</string>
+    <string description="button label to submit current part of work" name="submit">"Gönder"</string>
+    
+    <!--  custom_base.js -->
+    <string description="error message shown when entering a non-numerical value into a number field" name="bad_value">"Hatalı değer"</string>
+    <string decsription="Status message shown when an experimnt is malformed - should only show up for researchers" name="could_not_initialize_experiment">"Deney başlatılamadı"</string>
+    
+    <!-- skeleton.html -->
+    <string description="Label for button to go see charts of data for a variable" name="chart_button_label">"Grafik"</string>
+    <string description="Label for data presentation field when no answer was recorded in the data set" name="no_answer_label">"Yanıt yok"</string>
+    <string description="Shown when trying to plot data but there is no data recorded" name="no_data_found">"Hiçbir veri bulunamadı"</string>
+    
+    <!--  map.html -->
+    <string description="Title for list of responses for a given lat/long location" name="responses_at_location_title">"Bu Konumdaki Yanıtlar"</string>
+    <string description="message shown when the data type is not a location" name="unchartable_error">"Grafiklenemiyor"</string>
+    
+    <!--  eos.html -->
+    <string description="text shown to prompt user to do end of study activity" name="end_of_study_prompt">"Lütfen önümüzdeki 24 saat içinde Çalışma Sonu Sıralama Faaliyetini gerçekleştirin"</string>
+    <string description="warn user that they might lose unfinished work if the exit now" name="eos_early_exit_warning">"Göndermemişseniz, veri kaybedebilirsiniz. Çıkmak istediğinizden emin misiniz?"</string>
+    <string name="eos_no_active_daily_responses">"Etkin günlük yanıt yok"</string>
+    <string description="message shown when user's responses in end of study activity could not be saved" name="eos_could_not_save">"Yanıtınız kaydedilemedi. Tekrar deneyebilirsiniz ya da çalışmayı yürüten araştırmacıyla iletişime geçebilirsiniz. "</string>
+    <string description="Text instructing user to sort activities into groups" name="eos_instructions">"Lütfen bilgi ihtiyaçlarını daha üst düzey etkinliklere gruplayın"</string>
+    <string name="eos_check_related_needs_instruction">"İlgili bilgi ihtiyaçlarını kontrol et"</string>
+    <string name="eos_enter_label_and_group_instruction">"Daha büyük etkinliğe etiket girin ve Grupla düğmesine basın"</string>
+    <string name="eos_repeat_until_done_instruction">"Daha büyük etkinliğin parçası olan bütün bilgi ihtiyaçları gruplanana kadar tekrar edin"</string>
+    <string description="label for text field where user gives group a name" name="eos_activity_field_label">"Etkinlik"</string>
+    <string description="button label for group button to group activities under new name" name="eos_group_button_label">"Grup"</string>
+    <string description="Label for list of activity groups created by the user" name="eos_created_activity_group_section_header">"Etkinlik Grupları"</string>
+    
+    <string name="send_diagnostics_report_button_label">"E-posta Raporu"</string>
+    <string name="force_upload_events_button_label">"Etkinlikleri Senkronize Et"</string>
+    <string name="check_setup_button_label">"Sınama"</string>
+    <string name="title_troubleshooting">"Sorun Giderme"</string>
+    <string name="title_results">"Sonuçlar"</string>
+    <string name="diagnostics_account_label">"hesap"</string>
+    <string name="diagnostics_app_usage_access_label">"Uygulama kullanım erişimi"</string>
+    <string name="diagnostics_localtime_label">"yerelZaman"</string>
+    <string name="diagnostics_report_generated_label">"Rapor oluşturuldu"</string>
+    <string name="diagnostics_network_connected_label">"bağlı"</string>
+    <string name="diagnostics_network_type_label">"tip"</string>
+    <string name="diagnostics_experiment_count_label">"sayı"</string>
+    <string name="diagnostics_experiment_label">"deney"</string>
+    <string name="diagnostic_server_label">"sunucu"</string>
+    <string name="diagnostic_reachable_label">"ulaşılabilir"</string>
+    <string name="diagnostic_no_network_label">"ağ yok"</string>
+    <string name="diagnostic_phone_display_label">"ekran"</string>
+    <string name="diagnostic_phone_make_label">"marka"</string>
+    <string name="diagnostic_phone_model_label">"model"</string>
+    <string name="diagnostic_phone_android_label">"android"</string>
+    <string name="diagnostic_phone_carrier_label">"taşıyıcı"</string>
+    <string name="diagnostic_phone_unavailable_label">"kullanım dışı"</string>
+    <string name="diagnostic_ringer_ringer_mode_label">"zil modu"</string>
+    <string name="diagnostic_ringer_normal_label">"normal"</string>
+    <string name="diagnostic_ringer_silent_label">"sessiz"</string>
+    <string name="diagnostic_ringer_vibrate_label">"titreşim"</string>
+    <string name="diagnostic_ringer_notification_volume_label">"bildirim sesi yüksekliği"</string>
+    <string name="diagnostic_ringer_notification_volume_max_label">"maksimum bildirim sesi yüksekliği"</string>
+    <string name="diagnostic_events_unsynced_label">"senkronize edilmemiş"</string>
+    <string name="diagnostic_account_type">"hesap"</string>
+    <string name="diagnostic_app_usage_access_type">"uygulama kullanımı erişim"</string>
+    <string name="diagnostic_clock_type">"saat"</string>
+    <string name="diagnostic_esm_alarms_type">"esm alarmları"</string>
+    <string name="diagnostic_ringer_type">"zil"</string>
+    <string name="diagnostic_unsynced_events_type">"senkronize edilmemiş etkinlikler"</string>
+    <string name="diagnostic_joined_experiments_type">"katılınan deneyler"</string>
+    <string name="diagnostic_paco_reach_type">"paco erişimi"</string>
+    <string name="diagnostic_phone_type">"telefon"</string>
+    <string name="diagnostic_network_type">"ağ"</string>
+    <string name="troubleshooting_no_diagnostics_report_message">"tanılama raporu yok"</string>
+    <string name="new_invitation_title">"Yeni davetiyeleriniz var"</string>
+    <string name="ringtone_for_alerts_label">"Uyarılar için zil sesi"</string>
+    <string name="server_address_label">"Sunucu Adresi"</string>
+    <string name="google_email_address_label">"Google E-posta Adresi"</string>
+    <string name="libraries_used_by_paco_label">"Paco'nun Kullandığı Kütüphaneler"</string>
+    <string name="we_are_grateful_for_their_contributions_label">"Katkılarından dolayı minnettarız."</string>
+    <string name="no_groups_in_experiment_message">"Deneyde grup yok"</string>
+    <string name="error_loading_experiment_message">"Bir sorun oldu.\\nDeney yüklenemedi\\nLütfen çıkış yapın ve bu deneyi yapan deneyciye e-posta gönderin."</string>
+    <string name="_unverified_label">"(doğrulanmamış)"</string>
+    <string name="ic_phone_make_model_carrier_label">"Telefon markası, modeli, taşıyıcı"</string>
+    <string name="review_schedule_button_label">"Programı Gözden Geçir"</string>
+    <string name="the_personal_analytics_companion_subtitle">"The Personal Analytics COmpanion (Kişisel Analiz Eşlikçisi)"</string>
+    <string name="login_with_your_google_email_to_join_experiments_message">"Deneylere katılmak için Google e-posta adresinizle oturum açın"</string>
+    <string name="login_button_label">"Oturum Aç"</string>
+    <string name="time_schedule_edit_label">"Zaman"</string>
+    <string name="title_audio_recorder">"Ses Kaydedici"</string>
+    <string name="record_audio_label">"Ses kaydet"</string>
+    <string name="could_not_encode_audio">"Ses dosyası yazılamadı"</string>
+    <string name="play_audio_label">"Çal"</string>
+    <string name="delete_audio_label">"Sil"</string>
+    <string name="diagnostic_paco_version">"Paco sürümü"</string>
+    <string name="dialog_change_email_warning">"E-posta adresinizi değiştirmek, varolan deneylerin verilerini bulmanızı ve mevcut deneylerin verilerini karşıya yüklemenizi engelleyebilir."</string>
+    <string name="change_email_address_button">"E-posta Adresini Değiştir"</string>
+    <string name="end_time_must_be_after_start_time_warning_label">"Bitiş zamanı başlangıç zamanından sonra olmalıdır"</string>
+    <string name="start_and_end_time_too_short">"Başlangıç ​​ve Bitiş Zamanı arası çok kısa"</string>
+        
+        
+                
+                
+</resources>
