@@ -308,7 +308,7 @@ pacoApp.controller('ListCtrl', ['$scope', '$mdDialog', '$location',
   function($scope, $mdDialog, $location, experimentService, config) {
 
     $scope.cursor = {};
-    $scope.list = {'admin':[], 'joined':[], 'mine':[], 'popular':[], 'hub':[], 'new':[]};
+    $scope.list = {'admin':[], 'joined':[], 'mine':[], 'popular':[], 'new':[]};
     $scope.loading = {};
     $scope.state = {};
 
@@ -340,7 +340,7 @@ pacoApp.controller('ListCtrl', ['$scope', '$mdDialog', '$location',
       $scope.loadJoinableList(reset);
       $scope.loadPopularList(reset);
       $scope.loadNewList(reset);
-      $scope.loadHubList(reset);
+      $scope.loadAllPublicList(reset);
     };
 
     $scope.loadList = function(listName, reset) {
@@ -389,8 +389,8 @@ pacoApp.controller('ListCtrl', ['$scope', '$mdDialog', '$location',
       $scope.loadList('mine', reset);
     };
 
-    $scope.loadHubList = function(reset) {
-      $scope.loadList('hub', reset);
+    $scope.loadAllPublicList = function(reset) {
+      $scope.loadList('public', reset);
     };
 
     $scope.loadPopularList = function(reset) {
@@ -445,18 +445,6 @@ pacoApp.controller('ListCtrl', ['$scope', '$mdDialog', '$location',
 
       $event.stopPropagation();
     };
-
-    $scope.clearHubFilter = function($event) {
-      $scope.loadHubList(true);
-      $event.stopPropagation();
-    };
-
-    $scope.applyHubFilter = function($event) {
-      //TODO Query Server with parameters
-      $scope.list['hub'] = {};
-      $event.stopPropagation();
-    };
-
   }
 ]);
 

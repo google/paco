@@ -36,7 +36,9 @@ pacoApp.service('experimentService', ['$http', '$cacheFactory', 'util', 'config'
       invalidateCachedList('admin', true);
       invalidateCachedList('joined');
       invalidateCachedList('mine', true);
-      invalidateCachedList('hub', true);
+      invalidateCachedList('public', true);
+      invalidateCachedList('popular', true);
+      invalidateCachedList('new', true);
     }
 
     function invalidateCachedList(listType, limit) {
@@ -378,7 +380,6 @@ pacoApp.service('config', function() {
   this.hubTabs = [
       'popular',
       'new',
-      'discover',
       'browse'
   ];
 
@@ -584,12 +585,6 @@ pacoApp.service('template', function() {
     type: 0
   };
 
-  this.hubQuery = {
-      keywords: [],
-      admins: [],
-      creator: '',
-      contactEmail: ''
-    };
 });
 
 

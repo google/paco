@@ -4,27 +4,11 @@ import java.util.Date;
 import java.util.List;
 import java.util.logging.Logger;
 
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
-
-import com.google.appengine.api.datastore.Cursor;
-import com.google.appengine.api.datastore.DatastoreService;
-import com.google.appengine.api.datastore.DatastoreServiceFactory;
-import com.google.appengine.api.datastore.Entity;
-import com.google.appengine.api.datastore.EntityNotFoundException;
-import com.google.appengine.api.datastore.FetchOptions;
-import com.google.appengine.api.datastore.Key;
-import com.google.appengine.api.datastore.KeyFactory;
-import com.google.appengine.api.datastore.Query;
-import com.google.appengine.api.datastore.Query.CompositeFilterOperator;
-import com.google.appengine.api.datastore.Query.Filter;
-import com.google.appengine.api.datastore.Query.FilterOperator;
-import com.google.appengine.api.datastore.QueryResultList;
-import com.google.appengine.api.datastore.Transaction;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.sampling.experiential.model.Experiment;
 import com.google.sampling.experiential.server.TimeUtil;
+import com.google.sampling.experiential.server.stats.participation.ParticipationStatsService;
 import com.pacoapp.paco.shared.model2.ExperimentDAO;
 import com.pacoapp.paco.shared.scheduling.ActionScheduleGenerator;
 
@@ -49,6 +33,8 @@ public class PublicExperimentList {
       throw new IllegalArgumentException("Experiments must have an id to be in the public experiments list");
     }
 
+    ParticipationStatsService ps = new ParticipationStatsService(); //Used to count number of participants (then updated through a cron job)
+
     Key existingKey = KeyFactory.createKey(PUBLIC_EXPERIMENT_KIND, experimentKey.getId());
     Entity existingPublicAcl = null;
     try {
@@ -57,7 +43,7 @@ public class PublicExperimentList {
     }
     Entity entity = new Entity(PUBLIC_EXPERIMENT_KIND, experimentKey.getId());
     entity.setProperty(END_DATE_PROPERTY, getEndDateColumn(experiment));
-    entity.setProperty(STATS_PARTICIPANTS_PROPERTY, 0L); //Initialize with 0 - will be filled in by the stats Cron
+    entity.setProperty(STATS_PARTICIPANTS_PROPERTY, ps.getTotalByParticipant( experiment.getId() ).size());
     entity.setProperty(MODIFY_DATE_PROPERTY, com.pacoapp.paco.shared.util.TimeUtil.formatDate(new Date().getTime())); //Update the modify date - used for experiment hub - "new"
 
 
@@ -92,10 +78,12 @@ public class PublicExperimentList {
       throw new IllegalArgumentException("Experiments must have an id to be in the public experiments list");
     }
 
+    ParticipationStatsService ps = new ParticipationStatsService(); //Used to count number of participants (then updated through a cron job)
+
     Key key = KeyFactory.createKey(PUBLIC_EXPERIMENT_KIND, experiment.getId());
     Entity entity = new Entity(key);
     entity.setProperty(END_DATE_PROPERTY, getEndDateColumn(experiment));
-    entity.setProperty(STATS_PARTICIPANTS_PROPERTY, 0L); //Initialize with 0 - will be filled in by the stats Cron
+    entity.setProperty(STATS_PARTICIPANTS_PROPERTY, ps.getTotalByParticipant( experiment.getId() ).size());
     entity.setProperty(MODIFY_DATE_PROPERTY, com.pacoapp.paco.shared.util.TimeUtil.formatDate(new Date().getTime())); //Update the modify date - used for experiment hub - "new"
 
     if (!experiment.isOver(dateTime) && experiment.isPublic()) {
@@ -114,10 +102,12 @@ public class PublicExperimentList {
         throw new IllegalArgumentException("Experiments must have an id to be in the public experiments list");
       }
 
+      ParticipationStatsService ps = new ParticipationStatsService(); //Used to count number of participants (then updated through a cron job)
+
       Key key = KeyFactory.createKey(PUBLIC_EXPERIMENT_KIND, experiment.getId());
       Entity entity = new Entity(key);
       entity.setProperty(END_DATE_PROPERTY, getEndDateColumn(experiment));
-      entity.setProperty(STATS_PARTICIPANTS_PROPERTY, 0L); //Initialize with 0 - will be filled in by the stats Cron
+      entity.setProperty(STATS_PARTICIPANTS_PROPERTY, ps.getTotalByParticipant( experiment.getId() ).size());
       entity.setProperty(MODIFY_DATE_PROPERTY, com.pacoapp.paco.shared.util.TimeUtil.formatDate(new Date().getTime())); //Update the modify date - used for experiment hub - "new"
 
       if (!experiment.isOver(dateTime) && experiment.isPublic()) {
@@ -185,7 +175,7 @@ public class PublicExperimentList {
     DateTime nowInUserTimezone = TimeUtil.getNowInUserTimezone(DateTimeZone.forID(timezone));
     String dateString = toDateString(nowInUserTimezone);
 
-    //Sort by modifyDate or some other field that specifies the "newness"
+    //Sort by modifyDate DESC (specifies the "newness")
     query.addSort(MODIFY_DATE_PROPERTY, Query.SortDirection.DESCENDING);
 
     FetchOptions options = FetchOptions.Builder.withDefaults();
@@ -214,9 +204,9 @@ public class PublicExperimentList {
 
     Filter popularityFilter = new Query.FilterPredicate(STATS_PARTICIPANTS_PROPERTY,
             FilterOperator.GREATER_THAN,
-            0L);
+            0L); //At least 1 participant!
     query.setFilter(popularityFilter);
-    query.addSort(STATS_PARTICIPANTS_PROPERTY, Query.SortDirection.DESCENDING);
+    query.addSort(STATS_PARTICIPANTS_PROPERTY, Query.SortDirection.DESCENDING); //Sort DESC by participants
 
     FetchOptions options = FetchOptions.Builder.withDefaults();
     if (limit != null) {
