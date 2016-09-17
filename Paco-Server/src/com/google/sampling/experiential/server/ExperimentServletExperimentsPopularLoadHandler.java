@@ -17,10 +17,6 @@ import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.joda.time.DateTimeZone;
 
-//TODO
-//Temporary
-import java.util.ArrayList;
-
 import com.pacoapp.paco.shared.model2.ExperimentDAO;
 import com.pacoapp.paco.shared.model2.ExperimentQueryResult;
 

@@ -101,12 +101,6 @@ public class HubStatsCronJob {
                     tx = ds.beginTransaction(options);
                 }
             }
-
-            /*Key key = KeyFactory.createKey(PUBLIC_EXPERIMENT_KIND, Long.parseLong("6526701022478336"));
-            Entity entity = ds.get(key);
-            entity.setProperty(STATS_PARTICIPANTS_PROPERTY, 100);
-            ds.put(entity);*/
-
             tx.commit();
         } catch (Exception e) {
             e.printStackTrace();

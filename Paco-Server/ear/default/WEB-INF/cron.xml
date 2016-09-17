@@ -9,8 +9,8 @@
   </cron>
   <cron>
     <url>/hub_cron</url>
-    <description>Run daily hub stats calculator</description>
-    <schedule>daily 23:00</schedule>
+    <description>Run weekly hub stats calculator</description>
+    <schedule>every saturday 23:00</schedule>
     <timezone>America/Los_Angeles</timezone>
     <target>reportworker</target>
   </cron>
