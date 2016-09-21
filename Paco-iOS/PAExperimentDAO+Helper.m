@@ -399,8 +399,7 @@
 -(NSArray*) getTableCellModelObjects
 {
     
-    
-    
+
     NSNumber   * numberOfGroups    = [self  valueForKeyPathEx:@"groups#"];
     int count = [numberOfGroups intValue];
     
@@ -408,17 +407,11 @@
     
     for( int i =0;  i < count; i++)
     {
-        
-        
-        
+
         
         NSString* str = [NSString stringWithFormat: @"groups[%i]",i ];
         PAExperimentGroup*  group  =  [self  valueForKeyPathEx:str];
-        
-        
-        
-        
-        
+
         
         NSNumber*  numberOfActionTriggers =
         [group  valueForKeyEx:@"actionTriggers#"];
@@ -435,9 +428,7 @@
             NSNumber* numberOfSchedules = [trigger  valueForKeyEx:@"schedules#"];
             int schedulesCount = [numberOfSchedules intValue];
             
-            
-            
-            
+
             for(int iii=0; iii < schedulesCount; iii++)
             {
                 NSString* str = [NSString stringWithFormat: @"schedules[%i]",iii ];
@@ -451,6 +442,8 @@
                     
                     startTimeCell.groupName = [group valueForKeyEx:@"name"];
                     startTimeCell.timeLabelStr = @"Start";
+                    startTimeCell.schedule = schedule;
+              
                     
                     
                     DatePickerCell*  endTimeCell =  [[DatePickerCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:nil];
@@ -458,8 +451,13 @@
                     endTimeCell.timeLabelStr = @"End";
                     endTimeCell.groupName =[group valueForKeyEx:@"name"];
                     
+                    endTimeCell.schedule = schedule;
+                    
+                    
                     
                     NSString*  startTime = [PASchedulePrinter getHourOffsetAsTimeStringWithJavaLangLong:[schedule getEsmStartHour]];
+                    
+                    
                     
                     startTimeCell.timeOfDayString = startTime;
                     

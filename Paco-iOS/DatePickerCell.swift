@@ -2,18 +2,26 @@
 import Foundation
 import UIKit
  
+ 
+ 
+ 
+ 
 /**
 *  Inline/Expanding date picker for table views.
 */
 @objc public class DatePickerCell: UITableViewCell {
     
+
     
+    var  isESM:Bool?
     var  groupName:String?
     var  timeLabelStr:String?
     var  timeOfDayString:String?
     var  theType:String?
     var  millisecondsSinceMidnight:Int?
     var  signalTime:PASignalTime?
+    var  schedule:PASchedule?
+    
     
     
     
@@ -349,14 +357,37 @@ import UIKit
         tableView.endUpdates()
     }
     
-    // Action for the datePicker ValueChanged event.
+ 
     func datePicked() {
         
-         let milliseconds:Int   = NSDate.millisecondsSinceMidnight(datePicker.date) as Int
-         let millsSinceMidnight:JavaLangInteger  = JavaLangInteger(int :  jint(milliseconds) )
         
         
-         self .signalTime?.setFixedTimeMillisFromMidnightWithJavaLangInteger(millsSinceMidnight)
-         date = datePicker.date
+         if leftLabel.text == "Start"{
+            
+            let milliseconds:Int   = NSDate.millisecondsSinceMidnight(datePicker.date) as Int
+           // let millsSinceMidnight:JavaLangInteger  = JavaLangInteger(int :  jint(milliseconds) )
+            
+            
+            
+            self.schedule?.setESMSStartTime( jint(milliseconds) )
+             date = datePicker.date
+ 
+        }
+        else if leftLabel.text == "End"{
+            
+            let milliseconds:Int   = NSDate.millisecondsSinceMidnight(datePicker.date) as Int
+            self.schedule?.setESMSEndime(jint(milliseconds) )
+             date = datePicker.date
+        }
+         else{
+        
+          let milliseconds:Int   = NSDate.millisecondsSinceMidnight(datePicker.date) as Int
+          let millsSinceMidnight:JavaLangInteger  = JavaLangInteger(int :  jint(milliseconds) )
+
+        
+          self .signalTime?.setFixedTimeMillisFromMidnightWithJavaLangInteger(millsSinceMidnight)
+          date = datePicker.date
+        }
+        
     }
 }

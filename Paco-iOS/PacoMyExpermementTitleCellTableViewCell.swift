@@ -11,7 +11,9 @@ import UIKit
 @objc public class PacoMyExpermementTitleCellTableViewCell: UITableViewCell {
 
  
-
+ 
+    
+    @IBOutlet weak var isIos: UIImageView!
     public var  experiment:PAExperimentDAO?
     public var  jsonDict:NSDictionary?
     public var  parent:PacoExperimentProtocol?

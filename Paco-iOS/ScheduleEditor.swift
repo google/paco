@@ -106,6 +106,8 @@ import UIKit
     
     func doneButton(sender: UIBarButtonItem) {
         
+        
+        
          self.tabBarController?.navigationController?.navigationBarHidden = true;
         
        let  mediator =  PacoMediator.sharedInstance()
@@ -152,12 +154,20 @@ import UIKit
     override public func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
         // Deselect automatically if the cell is a DatePickerCell.
         let cell = self.tableView(tableView, cellForRowAtIndexPath: indexPath)
+        
+        
         if (cell.isKindOfClass(DatePickerCell)) {
+            
+            
             let datePickerTableViewCell = cell as! DatePickerCell
             datePickerTableViewCell.selectedInTableView(tableView)
             self.tableView.deselectRowAtIndexPath(indexPath, animated: true)
+            
+            
         }
     }
+    
+    
     
     public override func tableView(tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
         

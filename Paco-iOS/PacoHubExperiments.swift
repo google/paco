@@ -18,6 +18,21 @@ import UIKit
       var publicIterator = PacoPublicDefinitionLoader.publicExperimentsEnumerator();
     
     
+    override func viewDidLayoutSubviews() {
+        let   lengthis:CGFloat    = self.bottomLayoutGuide.length
+        
+        let lengththat:CGFloat = self.topLayoutGuide.length
+        
+        self.tableView.contentInset = UIEdgeInsetsMake(lengththat, 0, lengthis, 0);
+        
+        
+        
+    }
+    
+    
+    
+
+    
     func showEditView(experiment:PAExperimentDAO,indexPath:NSIndexPath)
         {
             

@@ -290,7 +290,7 @@ NSString* const kPacoResponseJoinExtended = @"joined";
    
  
     return [NSString stringWithFormat:@"<%@, %p: id=%@,name=%@,version=%d,responseTime=%@,"
-            "who=%@,when=%@,response=\r%@>",
+            "who=%@,when=%@,version=%li, response=\r%@ >",
             NSStringFromClass([self class]),
             self,
             self.experimentId,
@@ -371,6 +371,7 @@ NSString* const kPacoResponseJoinExtended = @"joined";
     event.experimentVersion =  (NSNumber*)  [experiment getVersion];
     event.experimentName =  [experiment valueForKeyPathEx:@"title"];
     event.guid = [[NSUUID UUID] UUIDString];
+    event.experimentVersion = [experiment valueForKeyPathEx:@"version"];
 
    
     
@@ -379,7 +380,7 @@ NSString* const kPacoResponseJoinExtended = @"joined";
 + (PacoEventExtended*) stopEventForActionSpecificatonWithServerExperimentId:(PAExperimentDAO*) experiment  serverExperimentId:(NSString*) serverExperimentId
 {
     
-    // Setup an event for joining the experiement.
+  
     PacoEventExtended *event = [PacoEventExtended new];
 
     event.who = [PacoNetwork sharedInstance].userEmail;
@@ -396,31 +397,33 @@ NSString* const kPacoResponseJoinExtended = @"joined";
     
     event.schedule = [experiment scheduleString];
     
-    NSDictionary* joinResponse = @{kPacoResponseKeyNameExtended:kPacoResponseJoinExtended,
-                                   kPacoResponseKeyAnswerExtended:@"false",
-                                   kPacoResponseKeyInputIdExtended:@"-1"};
+ 
+    
     
     [PacoEventExtended populateBasicAttributes:experiment Event:event];
     JavaUtilArrayList * responseList = [[JavaUtilArrayList alloc] init];
     event.type= NO;
     
-    [responseList addWithId:joinResponse];
+
+//    
+//    NSString * scheduleString =  [experiment scheduleString];
+//   NSDictionary* scheduledResponse = @{kPacoResponseKeyNameExtended:kPacoEventKeyResponsesExtended,
+//                                        @"schedule":scheduleString,
+//                                        kPacoResponseKeyInputIdExtended:@"-1"};
+//    
+//   // [responseList addWithId:scheduledResponse];
+//    
+//    
+//    NSDictionary* systemInfo = @{kPacoResponseKeyNameExtended:kPacoEventKeyResponsesExtended,
+//                                 [[UIDevice currentDevice] systemName] :[[UIDevice currentDevice] systemVersion] ,
+//                                 kPacoResponseKeyInputIdExtended:@"-1"};
+//    
+//    [responseList addWithId:systemInfo];
     
     
-    NSString * scheduleString =  [experiment scheduleString];
-    
-    NSDictionary* scheduledResponse = @{kPacoResponseKeyNameExtended:kPacoEventKeyResponsesExtended,
-                                        @"schedule":scheduleString,
-                                        kPacoResponseKeyInputIdExtended:@"-1"};
-    
-   // [responseList addWithId:scheduledResponse];
     
     
-    NSDictionary* systemInfo = @{kPacoResponseKeyNameExtended:kPacoEventKeyResponsesExtended,
-                                 [[UIDevice currentDevice] systemName] :[[UIDevice currentDevice] systemVersion] ,
-                                 kPacoResponseKeyInputIdExtended:@"-1"};
     
-   // [responseList addWithId:systemInfo];
     event.responses = responseList;
 
     return event;
@@ -445,7 +448,6 @@ NSString* const kPacoResponseJoinExtended = @"joined";
     event.responseTime = [NSDate new];
     event.guid = [[NSUUID UUID] UUIDString];
     event.schedule = [experiment scheduleString];
- 
    // event.scheduledTime = [experiment scheduleString];
     
     
@@ -459,7 +461,7 @@ NSString* const kPacoResponseJoinExtended = @"joined";
     // @"GroupAd:[1457994166569:(1457994166571:Daily at start layer: 05:00PM,hidden layer: 06:00PM,hidden layer II: 09:00PM,Telos: 10:00PM)]";
     
     
-    
+    // {type = Daily,times = [12:00pm],repeatRate = 1,daysOfWeek = None,nthOfMonth = 1,byDayOfMonth = true,dayOfMonth = 1}
     
     NSDictionary* joinResponse = @{kPacoResponseKeyNameExtended:kPacoResponseJoinExtended,
                                    kPacoResponseKeyAnswerExtended:@"true",
@@ -468,17 +470,16 @@ NSString* const kPacoResponseJoinExtended = @"joined";
      [PacoEventExtended populateBasicAttributes:experiment Event:event];
       JavaUtilArrayList * responseList = [[JavaUtilArrayList alloc] init];
     
- 
-    [responseList addWithId:joinResponse];
+      [responseList addWithId:joinResponse];
     
     
-      NSString * scheduleString =  [experiment scheduleString];
+       NSString * scheduleString =  [experiment scheduleString];
+       NSDictionary* scheduledResponse = @{kPacoResponseKeyNameExtended:@"schedule",
+                                   kPacoResponseKeyAnswerExtended:scheduleString,
+                                           kPacoResponseKeyInputIdExtended:@"-1"};
     
-      NSDictionary* scheduledResponse = @{kPacoResponseKeyNameExtended:kPacoEventKeyResponsesExtended,
-                                   @"schedule":scheduleString,
-                                   kPacoResponseKeyInputIdExtended:@"-1"};
     
-      [responseList addWithId:scheduledResponse];
+       [responseList addWithId:scheduledResponse];
     
     
     NSDictionary* systemInfo = @{kPacoResponseKeyNameExtended:kPacoEventKeyResponsesExtended,
@@ -561,6 +562,7 @@ NSString* const kPacoResponseJoinExtended = @"joined";
     event.experimentGroupName = [group valueForKeyEx:@"name"];
     event.guid = [[NSUUID UUID] UUIDString];
     event.who =     [[PacoNetwork sharedInstance].authenticator userEmail];
+    event.experimentVersion = [definition valueForKeyPathEx:@"version"];
     event.scheduledTime = nil;
     return event;
 }
@@ -585,6 +587,7 @@ NSString* const kPacoResponseJoinExtended = @"joined";
     event.actionTriggerId = @([actionTriggerId intValue]);
     event.actionTriggerSpecId = @([actionTriggerSpecId intValue]);
     event.actionId  =  @([actionId intValue]);
+    event.experimentVersion = [definition valueForKeyPathEx:@"version"];
     return event;
 }
 
@@ -626,7 +629,7 @@ NSString* const kPacoResponseJoinExtended = @"joined";
     //event.actionId =
     event.actionTriggerId = @([actionTriggerId intValue]);
     event.experimentGroupName = groupName;
-
+    event.experimentVersion = [definition valueForKeyPathEx:@"version"];
     event.experimentId = [definition valueForKeyPathEx:@"id"];
     event.experimentName = [definition valueForKeyPathEx:@"title"];
     event.experimentVersion = [definition valueForKeyPathEx:@"version"];

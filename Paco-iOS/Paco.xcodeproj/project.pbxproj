@@ -100,7 +100,6 @@
 		4448BCDD1A80901D0034FCE9 /* GTMOAuth2ViewTouch.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4448BCDB1A80901D0034FCE9 /* GTMOAuth2ViewTouch.xib */; };
 		44A843E71ADB9C2F009C7226 /* j2objcprefixes.properties in Resources */ = {isa = PBXBuildFile; fileRef = 44A843E61ADB9C2F009C7226 /* j2objcprefixes.properties */; };
 		44BB28FE1D0A608A00680037 /* GoogleSignIn.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 44BB28FD1D0A608A00680037 /* GoogleSignIn.bundle */; };
-		44BB29001D0A619400680037 /* org in Resources */ = {isa = PBXBuildFile; fileRef = 44BB28FF1D0A619400680037 /* org */; };
 		44BB29011D0A63CB00680037 /* GoogleSignIn.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A6B56C671C7F8B0C00E81C3F /* GoogleSignIn.framework */; };
 		44BB29041D0A64C800680037 /* OrgJodaTimeDateTime+PacoDateHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = 44BB29031D0A64C800680037 /* OrgJodaTimeDateTime+PacoDateHelper.m */; };
 		44BB29061D0A673700680037 /* PacoExtendedClient.m in Sources */ = {isa = PBXBuildFile; fileRef = 44BB29051D0A673700680037 /* PacoExtendedClient.m */; };
@@ -172,6 +171,7 @@
 		A624A5D41CF6521C0092EA8E /* PacoConfigDetailController.xib in Resources */ = {isa = PBXBuildFile; fileRef = A624A5D21CF6521C0092EA8E /* PacoConfigDetailController.xib */; };
 		A62A157A1BC4B87600FF20C1 /* JavaUtilArrayList+PacoConversion.m in Sources */ = {isa = PBXBuildFile; fileRef = A62A15791BC4B87600FF20C1 /* JavaUtilArrayList+PacoConversion.m */; settings = {COMPILER_FLAGS = " "; }; };
 		A62A157B1BC4B87600FF20C1 /* JavaUtilArrayList+PacoConversion.m in Sources */ = {isa = PBXBuildFile; fileRef = A62A15791BC4B87600FF20C1 /* JavaUtilArrayList+PacoConversion.m */; };
+		A63483C51D90FA900083F5AE /* PASchedule+PacoSecheduleHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = A63483C41D90FA900083F5AE /* PASchedule+PacoSecheduleHelper.m */; };
 		A636E90C1CA32BBC00FAF055 /* PacoJoinSummary.m in Sources */ = {isa = PBXBuildFile; fileRef = A636E90A1CA32BBC00FAF055 /* PacoJoinSummary.m */; };
 		A636E90D1CA32BBC00FAF055 /* PacoJoinSummary.xib in Resources */ = {isa = PBXBuildFile; fileRef = A636E90B1CA32BBC00FAF055 /* PacoJoinSummary.xib */; };
 		A636E90E1CA474F200FAF055 /* PacoPublicDefinitionLoader.m in Sources */ = {isa = PBXBuildFile; fileRef = 36488BBD18CA598C004517E2 /* PacoPublicDefinitionLoader.m */; };
@@ -763,6 +763,7 @@
 		A6E1D0701D19EE5900C20B10 /* NSMutableArray+PacoEvent.m in Sources */ = {isa = PBXBuildFile; fileRef = A6E1D06F1D19EE5900C20B10 /* NSMutableArray+PacoEvent.m */; };
 		A6E1D0821D231F3F00C20B10 /* radiobtn_on.png in Resources */ = {isa = PBXBuildFile; fileRef = A6E1D0801D231F3F00C20B10 /* radiobtn_on.png */; };
 		A6E1D0841D23211100C20B10 /* radiobtn_off.png in Resources */ = {isa = PBXBuildFile; fileRef = A6E1D0831D23211100C20B10 /* radiobtn_off.png */; };
+		A6E31B1C1D8770B400917E68 /* no_ios.png in Resources */ = {isa = PBXBuildFile; fileRef = A6E31B1B1D8770B400917E68 /* no_ios.png */; };
 		A6ED054C1D513CD3000D7CBB /* invitations@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = A6ED054B1D513CD3000D7CBB /* invitations@2x.png */; };
 		A6ED054E1D513CDE000D7CBB /* configuration@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = A6ED054D1D513CDE000D7CBB /* configuration@2x.png */; };
 		A6ED05501D513DBE000D7CBB /* hub@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = A6ED054F1D513DBE000D7CBB /* hub@2x.png */; };
@@ -1108,7 +1109,6 @@
 		44A843E61ADB9C2F009C7226 /* j2objcprefixes.properties */ = {isa = PBXFileReference; lastKnownFileType = text; name = j2objcprefixes.properties; path = ../../../Shared/j2objcprefixes.properties; sourceTree = "<group>"; };
 		44BB28FC1D0A5F5400680037 /* PacoExtendedClient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoExtendedClient.h; sourceTree = SOURCE_ROOT; };
 		44BB28FD1D0A608A00680037 /* GoogleSignIn.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; name = GoogleSignIn.bundle; path = frameworks/GoogleSignIn.bundle; sourceTree = "<group>"; };
-		44BB28FF1D0A619400680037 /* org */ = {isa = PBXFileReference; lastKnownFileType = folder; path = org; sourceTree = "<group>"; };
 		44BB29021D0A64C800680037 /* OrgJodaTimeDateTime+PacoDateHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "OrgJodaTimeDateTime+PacoDateHelper.h"; sourceTree = "<group>"; };
 		44BB29031D0A64C800680037 /* OrgJodaTimeDateTime+PacoDateHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "OrgJodaTimeDateTime+PacoDateHelper.m"; sourceTree = "<group>"; };
 		44BB29051D0A673700680037 /* PacoExtendedClient.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoExtendedClient.m; sourceTree = SOURCE_ROOT; };
@@ -1250,6 +1250,8 @@
 		A633A99D1B5DA0970046436D /* TimeUtil.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; path = TimeUtil.java; sourceTree = "<group>"; };
 		A633A99E1B5DA0970046436D /* readme.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = readme.md; sourceTree = "<group>"; };
 		A633A9C11B5DA1B70046436D /* PacoJ2OBJCTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoJ2OBJCTests.m; sourceTree = "<group>"; };
+		A63483C31D90FA900083F5AE /* PASchedule+PacoSecheduleHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "PASchedule+PacoSecheduleHelper.h"; sourceTree = "<group>"; };
+		A63483C41D90FA900083F5AE /* PASchedule+PacoSecheduleHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "PASchedule+PacoSecheduleHelper.m"; sourceTree = "<group>"; };
 		A636E9091CA32BBC00FAF055 /* PacoJoinSummary.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoJoinSummary.h; sourceTree = "<group>"; };
 		A636E90A1CA32BBC00FAF055 /* PacoJoinSummary.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoJoinSummary.m; sourceTree = "<group>"; };
 		A636E90B1CA32BBC00FAF055 /* PacoJoinSummary.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = PacoJoinSummary.xib; sourceTree = "<group>"; };
@@ -1622,7 +1624,6 @@
 		A68EFA7D1C7BE4E400D7FD50 /* splash_ios_tablet_768x1024@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "splash_ios_tablet_768x1024@2x.png"; sourceTree = "<group>"; };
 		A6954C921CE2608A0052C9F0 /* OrgJodaTimeDateTime+PacoDateHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "OrgJodaTimeDateTime+PacoDateHelper.m"; sourceTree = "<group>"; };
 		A6954C941CE260EF0052C9F0 /* OrgJodaTimeDateTime+PacoDateHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "OrgJodaTimeDateTime+PacoDateHelper.h"; sourceTree = "<group>"; };
-		A695533C1CE2828F0052C9F0 /* org */ = {isa = PBXFileReference; lastKnownFileType = folder; path = org; sourceTree = "<group>"; };
 		A69580071CB82D5D00B89E7F /* PacoEditorJoinflowViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PacoEditorJoinflowViewController.swift; sourceTree = "<group>"; };
 		A69B27911D4ABB170024D1EA /* PixateFreestyle.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = PixateFreestyle.framework; path = ../../../Downloads/PixateFreestyle.framework; sourceTree = "<group>"; };
 		A69D09031D2D849D0032CB18 /* EasyJSDataFunction.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EasyJSDataFunction.h; sourceTree = "<group>"; };
@@ -1720,6 +1721,7 @@
 		A6E1D07F1D231F3F00C20B10 /* radiobtn_off.jpeg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = radiobtn_off.jpeg; sourceTree = "<group>"; };
 		A6E1D0801D231F3F00C20B10 /* radiobtn_on.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = radiobtn_on.png; sourceTree = "<group>"; };
 		A6E1D0831D23211100C20B10 /* radiobtn_off.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = radiobtn_off.png; sourceTree = "<group>"; };
+		A6E31B1B1D8770B400917E68 /* no_ios.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = no_ios.png; sourceTree = "<group>"; };
 		A6ED054B1D513CD3000D7CBB /* invitations@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "invitations@2x.png"; sourceTree = "<group>"; };
 		A6ED054D1D513CDE000D7CBB /* configuration@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "configuration@2x.png"; sourceTree = "<group>"; };
 		A6ED054F1D513DBE000D7CBB /* hub@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "hub@2x.png"; sourceTree = "<group>"; };
@@ -1879,8 +1881,8 @@
 				A67067851D34701B002C52F2 /* web_resources */,
 				A69B27911D4ABB170024D1EA /* PixateFreestyle.framework */,
 				A6E1D0831D23211100C20B10 /* radiobtn_off.png */,
+				A6E31B1B1D8770B400917E68 /* no_ios.png */,
 				A6E1D06C1D13B86D00C20B10 /* libJ2ObjcLib.a */,
-				44BB28FF1D0A619400680037 /* org */,
 				44BB28FD1D0A608A00680037 /* GoogleSignIn.bundle */,
 				A6DF7C1D1CED23B800EF4B68 /* Container Objects */,
 				A6954E971CE27F8E0052C9F0 /* resources */,
@@ -3113,6 +3115,8 @@
 				A61461801CC6B3B4007554F7 /* PAInput2+Helper.m */,
 				A6E1D06E1D19EE5900C20B10 /* NSMutableArray+PacoEvent.h */,
 				A6E1D06F1D19EE5900C20B10 /* NSMutableArray+PacoEvent.m */,
+				A63483C31D90FA900083F5AE /* PASchedule+PacoSecheduleHelper.h */,
+				A63483C41D90FA900083F5AE /* PASchedule+PacoSecheduleHelper.m */,
 			);
 			name = categories;
 			sourceTree = "<group>";
@@ -3219,7 +3223,6 @@
 			isa = PBXGroup;
 			children = (
 				A689C6C51D4BD96400B3AD73 /* css */,
-				A695533C1CE2828F0052C9F0 /* org */,
 			);
 			name = resources;
 			sourceTree = "<group>";
@@ -4053,7 +4056,6 @@
 				36F457E31863ABA900931049 /* welcome_paco.html in Resources */,
 				A63A82221C0677B600ACBC0A /* speaker-7.png in Resources */,
 				36B8EBE417568E29004CF035 /* feedback_normal.png in Resources */,
-				44BB29001D0A619400680037 /* org in Resources */,
 				A65F68C01C888BD5009AAEF4 /* PacoTestViewer.xib in Resources */,
 				A63A81261C0677B600ACBC0A /* cloud-upload-7.png in Resources */,
 				A68EFA801C7BE4E400D7FD50 /* splash_ios_mobile_640x960.png in Resources */,
@@ -4164,6 +4166,7 @@
 				A63A82101C0677B600ACBC0A /* ruler-7.png in Resources */,
 				A63A813A1C0677B600ACBC0A /* connect-arrow-up-down-7.png in Resources */,
 				A63A81B41C0677B600ACBC0A /* lock-7.png in Resources */,
+				A6E31B1C1D8770B400917E68 /* no_ios.png in Resources */,
 				A63A81401C0677B600ACBC0A /* connectivity-bar-7.png in Resources */,
 				A63A82381C0677B600ACBC0A /* text-align-justify-7.png in Resources */,
 				36B8EBFD17568E29004CF035 /* smile_icon3_re.png in Resources */,
@@ -4546,6 +4549,7 @@
 				A61461521CC16320007554F7 /* PacoLayout.m in Sources */,
 				36417BE8180DCA9600335B74 /* NSCalendar+Paco.m in Sources */,
 				4448BCBD1A808E7A0034FCE9 /* GTMOAuth2SignIn.m in Sources */,
+				A63483C51D90FA900083F5AE /* PASchedule+PacoSecheduleHelper.m in Sources */,
 				7F8531DA1A37BE680028BA23 /* JCNotificationBannerViewController.m in Sources */,
 				A6651C121BC47B8F0058E295 /* PacoEventExtended+PacoCoder.m in Sources */,
 				A61461531CC16320007554F7 /* PacoLoadingTableCell.m in Sources */,
@@ -4862,6 +4866,7 @@
 					"-lguava",
 					"-ObjC",
 				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.pacoapp.Paco;
 				PRODUCT_MODULE_NAME = Paco;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
@@ -4912,6 +4917,7 @@
 					"-lguava",
 					"-ObjC",
 				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.pacoapp.Paco;
 				PRODUCT_MODULE_NAME = Paco;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";

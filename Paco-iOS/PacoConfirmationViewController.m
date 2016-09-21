@@ -47,6 +47,7 @@
         [mediator startRunningExperiment:[self.experiment instanceId]];
         PacoEventExtended* event = [PacoEventExtended joinEventForActionSpecificatonWithServerExperimentId:self.experiment  serverExperimentId:@"not applicable"];
         [mediator.eventManager saveEvent:event];
+        
         [mediator.eventManager startUploadingEvents];
      
     });

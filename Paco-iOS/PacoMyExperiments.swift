@@ -20,7 +20,17 @@ class PacoMyExperiments: UITableViewController,PacoExperimentProtocol {
     
     
     
-     
+    override func viewDidLayoutSubviews() {
+         let   lengthis:CGFloat    = self.bottomLayoutGuide.length
+        
+         let lengththat:CGFloat = self.topLayoutGuide.length
+        
+         self.tableView.contentInset = UIEdgeInsetsMake(lengththat, 0, lengthis, 0);
+        
+        
+        
+    }
+    
     
     func showEditView(experiment:PAExperimentDAO,indexPath:NSIndexPath)
         {
@@ -98,7 +108,7 @@ class PacoMyExperiments: UITableViewController,PacoExperimentProtocol {
        
          cell.textLabel!.text = nil 
         
-     //   let cell = tableView.dequeueReusableCellWithIdentifier(self.simpleCellId, forIndexPath: indexPath) as! PacoMyExpermementTitleCellTableViewCell
+     
 
                 var dao:PAExperimentDAO = myExpriments![indexPath.row]
                 var title:String?
@@ -146,13 +156,9 @@ class PacoMyExperiments: UITableViewController,PacoExperimentProtocol {
                 
                 if isCompatible == true
                 {
-                  compatibilityText  = "Y"
+                    cell.isIos.hidden = true;
                 }
-                else
-                {
-                   compatibilityText = "N"
-                }
-                
+            
                 
             
             
@@ -162,7 +168,7 @@ class PacoMyExperiments: UITableViewController,PacoExperimentProtocol {
                 cell.experimentTitle.text = title
                 cell.subtitle.text = "\(organization!), \(email!)"
                 cell.selectionStyle  = UITableViewCellSelectionStyle.None
-                cell.isIOSCompatible.text = compatibilityText as String
+                //cell.isIOSCompatible.text = compatibilityText as String
         
         }
         

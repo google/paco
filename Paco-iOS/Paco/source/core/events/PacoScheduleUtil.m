@@ -51,10 +51,20 @@
                         int numberOfSchedules = [[actionTrigger valueForKeyEx:@"schedules#"] intValue];
                         for(int i =0; i < numberOfSchedules; i ++)
                         {
+                           NSString* name =  [group valueForKeyEx:@"name"];
+                           [mutableString appendString:@" :"];
+                         
+                             [mutableString appendString:name];
                             
                             NSString* actionString = [NSString stringWithFormat:@"schedules[%i]",i];
                             PASchedule  * schedule    = [actionTrigger valueForKeyEx:actionString];
                             [mutableString appendString:[PASchedulePrinter toStringWithPASchedule:schedule]];
+                            
+                            
+                              
+                            [mutableString appendString:@", "];
+                            
+                            
                         }
   
                     }
