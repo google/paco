@@ -45,12 +45,11 @@ typedef NS_ENUM(NSInteger, PacoEventTypeExtended) {
 @interface PacoEventExtended : NSObject <NSCopying,NSCoding,PAEventInterface>
 
 
-
 @property (nonatomic, copy) NSString *who;
 @property (nonatomic, retain) NSString  *when;
 @property (nonatomic, assign) NSNumber* latitude;
 @property (nonatomic, assign) NSNumber*  longitude;
-@property (nonatomic, retain) NSDate   *responseTime;
+@property (nonatomic, retain) NSNumber    *responseTime;
 @property (nonatomic, retain) NSString  *scheduledTime;
 @property (nonatomic, readonly, copy) NSString *appId;
 @property (nonatomic, readonly, copy) NSString *pacoVersion;
@@ -110,7 +109,8 @@ typedef NS_ENUM(NSInteger, PacoEventTypeExtended) {
                                         actionTriggerId:(NSString*) actionTriggerId
                                                actionId:(NSString*) actionId
                                            actionTriggerSpecId:(NSString*) actionTriggerSpecId
-                                              userEmail:(NSString*)userEmail;
+                                              userEmail:(NSString*)userEmail
+                                              responseTime:(NSNumber*) responseTime;
 
 
 /*

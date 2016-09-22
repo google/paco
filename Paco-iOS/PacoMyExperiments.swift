@@ -246,6 +246,9 @@ class PacoMyExperiments: UITableViewController,PacoExperimentProtocol {
         let mArray:NSMutableArray  = mediator.experiments()
         myExpriments = mArray as AnyObject as? [PAExperimentDAO]
         
+        
+        
+        
         self.tableView.reloadData()
     }
     

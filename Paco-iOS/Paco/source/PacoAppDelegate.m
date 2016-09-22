@@ -247,8 +247,8 @@ static NSString * const kClientID =
         UIUserNotificationSettings *mySettings = [UIUserNotificationSettings settingsForTypes:types categories:nil];
         [application registerUserNotificationSettings:mySettings];
   }
-  
- 
+    
+    
     
      self.testPagination = [[PacoTestViewer alloc] initWithNibName:@"PacoTestViewer" bundle:nil];
      self.swiftTest = [[PacoTestingControllerTableViewController alloc] initWithNibName:@"PacoTestingControllerTableViewController" bundle:nil];
@@ -298,6 +298,18 @@ static NSString * const kClientID =
     
     
     [self.window addSubview:_pacoView];
+    
+   int existingCount = [PacoMediator sharedInstance].startedExperiments.count;
+    
+    if(existingCount > 0)
+    {
+        
+        [self.tabBar setSelectedIndex:2];
+        
+    }
+    
+    
+    
   
   
   UILocalNotification *notification = launchOptions[UIApplicationLaunchOptionsLocalNotificationKey];

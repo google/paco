@@ -11,10 +11,9 @@
 #import     "Paco-Swift.h"
 #import     "PacoMediator.h"
 #import     "PacoMediator.h"
-#import    "PacoEventExtended.h" 
-#import    "PacoEventManagerExtended.h"
-
-
+#import     "PacoEventExtended.h"
+#import     "PacoEventManagerExtended.h"
+#import     "PacoAppDelegate.h"
 
 
 
@@ -81,6 +80,12 @@
 -(IBAction)experimentAdded:(id)sender
 {
   //  int numberOfControllers =  [self.navigationController.viewControllers count];
+    
+    PacoAppDelegate* appDelegate =  (PacoAppDelegate*) [[UIApplication sharedApplication] delegate];
+    
+    [appDelegate.tabBar setSelectedIndex:2];
+  
+  
     [self.navigationController popToRootViewControllerAnimated:YES];
     
 }

@@ -78,7 +78,8 @@
                               actionTriggerId:(NSString*) actionTriggerId
                                      actionId:(NSString*) actionId
                           actionTriggerSpecId:(NSString*) actionTriggerSpecId
-                                    userEmail:(NSString*)userEmail;
+                                    userEmail:(NSString*)userEmail
+                                 responseTime:(NSNumber*) responseTime;
 
 
 

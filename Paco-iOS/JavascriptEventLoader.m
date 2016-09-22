@@ -124,7 +124,7 @@
     eventJson[@"responses"] = newResponses;
     eventJson[@"isMissedSignal"] = @(event.responseTime == nil);
     if (event.responseTime) {
-      eventJson[@"responseTime"] = @([event.responseTime pacoGetMilliSeconds]);
+        eventJson[@"responseTime"] =  event.responseTime;
     }
     eventJson[@"isSelfReport"] = @(event.scheduledTime == nil);
     if (event.scheduledTime) {

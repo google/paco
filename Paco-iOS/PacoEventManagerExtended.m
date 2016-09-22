@@ -357,16 +357,19 @@ static NSString* const kAllEventsFileName = @"allEvents.plist";
 - (void)saveSurveySubmittedEventForDefinition:(PAExperimentDAO*)definition
                                    withInputs:(NSArray*)inputs
                              andScheduledTime:(NSDate*)scheduledTime
+                                 responseTime:(int) secondsToResponse
                                     groupName:(NSString*) groupName
                               actionTriggerId:(NSString*) actionTriggerId
                                      actionId:(NSString*) actionId
                           actionTriggerSpecId:(NSString*) actionTriggerSpecId
                                     userEmail:(NSString*)userEmail
+                                 responseTime:(NSNumber*) responseTime
+
 
 {
     
     
-    PacoEventExtended* surveyEvent = [PacoEventExtended surveySubmittedEventForDefinition:definition  withInputs:inputs  ScheduledTime:scheduledTime  groupName:groupName actionTriggerId:actionTriggerId actionId:actionId actionTriggerSpecId:actionTriggerSpecId userEmail:userEmail];
+    PacoEventExtended* surveyEvent = [PacoEventExtended surveySubmittedEventForDefinition:definition  withInputs:inputs  ScheduledTime:scheduledTime  groupName:groupName actionTriggerId:actionTriggerId actionId:actionId actionTriggerSpecId:actionTriggerSpecId userEmail:userEmail responseTime:responseTime];
     
     
     

@@ -1,4 +1,4 @@
-/* Copyright 2015  Google
+  /* Copyright 2015  Google
  
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -757,6 +757,14 @@ calculate the action specifications and reset the based upon the most recent ver
         NSDictionary * dict  = notification.userInfo;
         
         
+        NSDate * fireDate  = notification.fireDate;
+        NSDate * now = [NSDate date];
+        
+        NSTimeInterval secs = [now timeIntervalSinceDate:fireDate];
+       int secondsAsInt = (int) secs;
+        
+        
+        
         NSString* actionTriggerId = dict[@"actionTriggerId"];
         NSString* groupId = dict[@"groupId"];
         NSString* groupName = dict[@"groupName"];
@@ -766,7 +774,7 @@ calculate the action specifications and reset the based upon the most recent ver
         
           NSString* email =   [[PacoNetwork sharedInstance].authenticator userEmail];
         
-        [self.eventManager saveSurveySubmittedEventForDefinition:definition  withInputs:surveyInputs  andScheduledTime:[notification pacoFireDateExt] groupName:groupName  actionTriggerId:actionTriggerId actionId:notificationActionId actionTriggerSpecId:actionTriggerSpecId  userEmail:email];
+        [self.eventManager saveSurveySubmittedEventForDefinition:definition  withInputs:surveyInputs  andScheduledTime:[notification pacoFireDateExt] groupName:groupName  actionTriggerId:actionTriggerId actionId:notificationActionId actionTriggerSpecId:actionTriggerSpecId  userEmail:email responseTime:[NSNumber numberWithInt:secondsAsInt]];
         
         
         

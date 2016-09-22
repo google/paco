@@ -576,10 +576,12 @@ NSString* const kPacoResponseJoinExtended = @"joined";
                                      actionId:(NSString*) actionId
                                      actionTriggerSpecId:(NSString*) actionTriggerSpecId
                                      userEmail:(NSString*)userEmail
+                                     responseTime:(NSNumber*) responseTime
+
 {
   
     PacoEventExtended* event = [PacoEventExtended genericEventForDefinition:definition withInputs:inputs];
-    event.responseTime =  [NSDate dateWithTimeIntervalSinceNow:0];
+    event.responseTime = responseTime;
     event.scheduledTime = [scheduledTime toPacoFormatedString];
     event.guid = [[NSUUID UUID] UUIDString];
     event.who = userEmail;
