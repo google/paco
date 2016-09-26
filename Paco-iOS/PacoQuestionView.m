@@ -87,9 +87,11 @@ UIImagePickerControllerDelegate>
 }
 
 - (void)updateConditionals {
-  if (self.question.isADependencyForOthers) {
-    [self.tableDelegate reloadTable];
-  }
+    
+     [self.tableDelegate reloadTable];
+// if (self.question.isADependencyForOthers) {
+   // [self.tableDelegate reloadTable];
+ // }
 }
 
 - (void)setQuestion:(PacoExperimentInput *)question {

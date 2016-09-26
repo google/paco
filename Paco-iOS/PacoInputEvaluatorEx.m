@@ -29,7 +29,7 @@
 @interface PacoInputEvaluatorEx  ()
 
 @property(nonatomic, strong) PacoExperiment* experiment;
-
+@property(nonatomic, strong) NSDictionary * questions;
 
 @property(nonatomic, strong) NSArray* visibleInputs;
 // key: "inputName", value: inputValue
@@ -38,6 +38,9 @@
 @property(nonatomic, strong) NSDictionary* expressionDict;
 // key: "inputName", value: PacoExperimentInput object
 @property(nonatomic, strong) NSDictionary* indexDict;
+
+
+@property(nonatomic,strong) NSDictionary *  inputDict;
 
 // key: "inputName", value: PacoExperimentInput object @property(nonatomic, strong) NSDictionary* inputValueDict;
 @end
@@ -58,22 +61,8 @@
         NSString* name  = [_group  valueForKeyEx:@"name"];
         _inputValueDict =   [[NSMutableDictionary alloc] initWithObjectsAndKeys:name,inputs, nil];
         
-
-        
+ 
         //[[NSMutableDictionary alloc] initWithDictionary:[_experiment.experimentDao inputs]];
-        
-     
-        
-     
-        
-      
-        
-        
-        
-        
-        
-        
-        
         
         [self buildIndex];
 
@@ -143,14 +132,36 @@
 }
 
 
+/* fetch all inputs accross all groups*/
 
 -(NSDictionary*) makeInputDictionary
 {
     
-    NSArray * inputs = [self.group  allInputs];
-    NSString * groupName = [self.group getName];
+    if(self.questions)
+        return self.questions;
+        
     
-    NSDictionary * dict = [[NSDictionary alloc]  initWithObjectsAndKeys:inputs,groupName, nil];
+    NSArray * inputs = [self.group  allInputs];
+    NSMutableArray* pacoExperiments = [NSMutableArray new];
+    
+    
+    for ( PAInput2* questionInput in inputs)
+    {
+        PacoExperimentInput *question
+                = [PacoExperimentInput pacoExperimentInputFromInput2:questionInput];
+        [pacoExperiments addObject:question];
+    }
+
+    NSString * groupName = [self.group getName];
+    NSDictionary * dict = [[NSDictionary alloc]  initWithObjectsAndKeys:pacoExperiments,groupName, nil];
+    
+
+    
+    
+    
+    
+    self.questions = dict;
+    
     return dict;
     
     
@@ -176,27 +187,38 @@
     //run time: N
     
     NSMutableDictionary* dict = [NSMutableDictionary dictionary];
-    
     NSMutableDictionary* variableDict = [NSMutableDictionary dictionary];
+    
    // NSDictionary* inputDictionary =  [self.experiment.experimentDao inputs];
     
    // NSArray * inputs  = [self.group allInputs];
     //NSString * name  = [self.group getName];
     
     
-    NSDictionary* inputDictionary = [self makeInputDictionary];
     
-    NSArray * keys = [inputDictionary allKeys];
+    
+    /* fetch the inputs for the var group */
+    
+    if([[_inputDict allKeys] count] == 0)
+      _inputDict = [self makeInputDictionary];
+    
+    
+    NSArray * arrayOfInput;
+    
+    NSArray * keys = [_inputDict allKeys];
+    /* actually only loops once because there should only be one key. refactor later*/
     for (NSString* key in keys  ) {
         
         
-        NSArray * arrayOfInput = [inputDictionary objectForKey:key];
-        for (PAInput2* basicInput in arrayOfInput)
+     arrayOfInput = [_inputDict objectForKey:key];
+        
+        
+        /* process array of inputs */
+        for (PacoExperimentInput* input in arrayOfInput)
         {
+            /* we basically do a conversion so we can use existing code */
             
-            
-            
-            PacoExperimentInput* input  = [PacoExperimentInput pacoExperimentInputFromInput2:basicInput];
+           // PacoExperimentInput* input  = [PacoExperimentInput pacoExperimentInputFromInput2:basicInput];
             
             NSAssert([input.name length] > 0, @"input name should non empty!");
             BOOL isMultiSelectedList = (input.responseEnumType == ResponseEnumTypeList && input.multiSelect);
@@ -208,19 +230,23 @@
     
     //run time: N
    
+//    
+//    inputDictionary = [self makeInputDictionary];
+//    keys = [inputDictionary allKeys];
+//    for ( NSString* key in keys)
+//    {
+//        
+        /* we can reuse the basic we hve here. */
     
-    inputDictionary = [self makeInputDictionary];
-    keys = [inputDictionary allKeys];
-    for ( NSString* key in keys)
-    {
+        //NSArray * arrayOfInput = [inputDictionary objectForKey:key];
+    
+    
+    
         
-        
-        NSArray * arrayOfInput = [inputDictionary objectForKey:key];
-        
-        for (PAInput2* basicInput in arrayOfInput)
+        for (PacoExperimentInput* input in arrayOfInput)
         {
         
-                PacoExperimentInput* input  = [PacoExperimentInput pacoExperimentInputFromInput2:basicInput];
+                //PacoExperimentInput* input  = [PacoExperimentInput pacoExperimentInputFromInput2:basicInput];
                 
                 if (!input.conditional) {
                     continue;
@@ -244,25 +270,28 @@
                     }
                     [self tagInputsAsDependency:dependencyVariables];
                 };
-                
+            
+            NSLog(@" raw expression %@ \n varables %@", rawExpression, variableDict);
+            
                 
                 [PacoExpressionExecutor predicateWithRawExpression:rawExpression
                                             withVariableDictionary:variableDict
                                                           andBlock:completionBlock];
         }
-    }
+//    }
     
     self.expressionDict = dict;
   
 }
 
+
+
+
 //run time: 2 * N
 - (NSArray*)evaluateAllInputs {
     
     [self buildExpressionDictionaryIfNecessary];
-    
-    
-    
+
     NSDictionary * dictionary = [self makeInputDictionary];
     NSArray*  keys = [dictionary allKeys];
     
@@ -270,18 +299,14 @@
     //run time: N
     for ( NSString*  key  in keys  )
     {
-        
         NSArray* array =   [dictionary objectForKey:key];
-        
-        for ( PAInput2* questionInput in array)
+        for ( PacoExperimentInput* question in array)
         {
-             PacoExperimentInput *question  = [PacoExperimentInput pacoExperimentInputFromInput2:questionInput];
              (self.inputValueDict)[question.name] = [question valueForValidation];
         }
-  
-    
-        
     }
+    
+    
     
     //run time: N
     NSMutableArray *questions = [NSMutableArray array];
@@ -290,12 +315,16 @@
     
     for ( NSString* key in keys )
     {
+        /* get the Inputs for respective group name */
         NSArray*  array =   [dictionary objectForKey:key];
-        for ( PAInput2* questionInput  in array)
+        for ( PacoExperimentInput* question   in array)
         {
             
-            PacoExperimentInput *question  = [PacoExperimentInput pacoExperimentInputFromInput2:questionInput];
+            /* convert PacoExperimentInput to PacoExperimentInput and get reuse of previous codebase */
+      
             BOOL visible =  [self evaluateSingleInput:question];
+            
+            
             if (visible) {
                 [questions addObject:question];
             } else {

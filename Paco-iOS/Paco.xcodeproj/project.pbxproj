@@ -2388,7 +2388,7 @@
 			children = (
 				A69D093C1D331AE50032CB18 /* Testing */,
 				A69D090E1D2D88900032CB18 /* CustomFeedback */,
-				A69D08F21D2D847D0032CB18 /* Vendor */,
+				A69D08F21D2D847D0032CB18 /* Web View */,
 				A61461291CC16280007554F7 /* ResponseUI */,
 				A652BB351BD581FE000237A7 /* Mostly Swift */,
 				A61461201CC051AB007554F7 /* PacoNotificationTester.h */,
@@ -3227,7 +3227,7 @@
 			name = resources;
 			sourceTree = "<group>";
 		};
-		A69D08F21D2D847D0032CB18 /* Vendor */ = {
+		A69D08F21D2D847D0032CB18 /* Web View */ = {
 			isa = PBXGroup;
 			children = (
 				A69D09031D2D849D0032CB18 /* EasyJSDataFunction.h */,
@@ -3238,7 +3238,7 @@
 				A69D09081D2D849D0032CB18 /* EasyJSWebViewProxyDelegate.m */,
 				A69D09091D2D849D0032CB18 /* README.md */,
 			);
-			name = Vendor;
+			name = "Web View";
 			sourceTree = "<group>";
 		};
 		A69D090E1D2D88900032CB18 /* CustomFeedback */ = {

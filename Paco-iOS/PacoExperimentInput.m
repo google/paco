@@ -17,6 +17,7 @@
 #import <CoreLocation/CoreLocation.h>
 #import "Input2.h"
 #import "NSObject+J2objcKVO.h"
+#include "java/lang/Boolean.h"
 
 
 static NSString* const INPUT_CONDITIONAL = @"conditional";
@@ -58,19 +59,23 @@ static NSString* const INPUT_TEXT = @"text";
 }
 
 
+
+
 + (id)pacoExperimentInputFromInput2:(PAInput2*) input2 {
     
+ 
+    
     PacoExperimentInput *input = [[PacoExperimentInput alloc] init];
-    input.conditional =  [input2 valueForKeyEx:@"conditional"];
-    input.conditionalExpression =  [input2 valueForKeyEx:@"conditionExpr"];
+    input.conditional =  [[input2 valueForKeyEx:@"conditional"] booleanValue];
+    input.conditionalExpression =  [input2 valueForKeyEx:@"conditionExpression"];
     //input.inputIdentifier = [NSString stringWithFormat:@"%lld", [inputMembers[INPUT_ID] longLongValue]];
     
    // input.invisibleInput = [inputMembers[INPUT_INVISIBLE_INPUT] boolValue];
     input.leftSideLabel =       [input2 valueForKeyEx:@"leftSideLabel"];
     input.likertSteps =         [[input2 valueForKeyEx:@"likertSteps"] integerValue];
     input.listChoices =         [[input2 valueForKeyEx:@"listChoices"] toArray] ;
-    input.mandatory =           [input2 valueForKeyEx:@"required"];
-    input.multiSelect =         [input2 valueForKeyEx:@"multiselect"];
+    input.mandatory =           [[input2 valueForKeyEx:@"required"] booleanValue];
+    input.multiSelect =         [[input2 valueForKeyEx:@"multiselect"] booleanValue];
     input.name =                [input2 valueForKeyEx:@"name"];
     input.questionType =        @"question";     //inputMembers[INPUT_QUESTION_TYPE];
     input.responseType =        [input2 valueForKeyEx:@"responseType"];

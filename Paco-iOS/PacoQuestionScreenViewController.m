@@ -307,8 +307,12 @@ NSString *kCellIdQuestion = @"question";
     
     
    PacoTableView *table = (PacoTableView *)self.view;
+    
    NSArray* inputs   = [self.evaluator evaluateAllInputs];
    table.data = [self boxInputs:inputs];
+    [table.tableView reloadData];
+    
+
     
   }
 
