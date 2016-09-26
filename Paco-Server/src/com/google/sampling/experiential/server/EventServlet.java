@@ -113,6 +113,8 @@ public class EventServlet extends HttpServlet {
         dumpEventsCSV(resp, req, anon, limit, cursor, cmdline);
       } else if (req.getParameter("csv2") != null) {
         dumpEventsCSVExperimental(resp, req, anon, limit, cursor, cmdline);
+      } else if (req.getParameter("json2") != null) {
+        dumpEventsJsonExperimental(resp, req, anon, limit, cursor, cmdline);
       } else {
         dumpEventsHtml(resp, req, anon, limit, cursor, cmdline);
       }
@@ -274,7 +276,7 @@ public class EventServlet extends HttpServlet {
     }
 
   }
-  
+
   private void dumpEventsCSVExperimental(HttpServletResponse resp, HttpServletRequest req, boolean anon, int limit, String cursor, boolean cmdline) throws IOException {
     String loggedInuser = AuthUtil.getWhoFromLogin().getEmail().toLowerCase();
     if (loggedInuser != null && adminUsers.contains(loggedInuser)) {
@@ -295,6 +297,28 @@ public class EventServlet extends HttpServlet {
     }
 
   }
+
+  private void dumpEventsJsonExperimental(HttpServletResponse resp, HttpServletRequest req, boolean anon, int limit, String cursor, boolean cmdline) throws IOException {
+    String loggedInuser = AuthUtil.getWhoFromLogin().getEmail().toLowerCase();
+    if (loggedInuser != null && adminUsers.contains(loggedInuser)) {
+      loggedInuser = defaultAdmin; //TODO this is dumb. It should just be the value, loggedInuser.
+    }
+
+    DateTimeZone timeZoneForClient = TimeUtil.getTimeZoneForClient(req);
+    String jobId = runReportJob(anon, loggedInuser, timeZoneForClient, req, "json2", limit, cursor);
+    // Give the backend time to startup and register the job.
+    try {
+      Thread.sleep(100);
+    } catch (InterruptedException e) {
+    }
+    if (cmdline) {
+      resp.getWriter().println(jobId);
+    } else {
+      resp.sendRedirect("/jobStatus?jobId=" + jobId);
+    }
+
+  }
+
 
 
 
