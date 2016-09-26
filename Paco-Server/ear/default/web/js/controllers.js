@@ -64,6 +64,8 @@ pacoApp.controller('ExperimentCtrl', ['$scope', '$mdDialog', '$filter',
     $scope.feedbackTypes = config.feedbackTypes;
     $scope.ringtones = config.ringtones;
     $scope.tabs = config.editTabs;
+    $scope.dataDeclarations = config.dataDeclarations;
+    $scope.declared = [];
 
     $scope.state = {
       tabId: 0,
@@ -298,6 +300,39 @@ pacoApp.controller('ExperimentCtrl', ['$scope', '$mdDialog', '$filter',
       var json = event.target.value;
       $scope.experiment = JSON.parse(json);
     };
+
+
+
+$scope.inList = function(item, list) {
+    if ($scope.experiment && $scope.experiment.extraDataCollectionDeclarations) {
+      var id = parseInt(item);
+      if ($scope.experiment.extraDataCollectionDeclarations.indexOf(id) !==
+        -1) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  $scope.toggleDeclaration = function(item, list) {
+    var id = parseInt(item);
+    var find = $scope.experiment.extraDataCollectionDeclarations.indexOf(
+      id);
+
+    if (find === -1) {
+      $scope.experiment.extraDataCollectionDeclarations.push(id);
+    } else {
+      $scope.experiment.extraDataCollectionDeclarations.splice(find, 1);
+    }
+  };
+
+
+
+
+
+
+
+
   }
 ]);
 
@@ -597,16 +632,16 @@ pacoApp.controller('DataCtrl', ['$scope', '$mdDialog', '$location', '$filter',
       return (typeof(data) === 'string' &&
                 data.indexOf($scope.photoMarker) === 0);
     }
-    
+
     $scope.isAudioData = function(data) {
         return (typeof(data) === 'string' &&
                   data.indexOf($scope.audioMarker) === 0);
       }
 
-    $scope.makeAudioSrc = function(cell) {        
-      return "data:audio/mpeg;base64," + cell;	
+    $scope.makeAudioSrc = function(cell) {
+      return "data:audio/mpeg;base64," + cell;
     }
-    
+
     $scope.removeUserChip = function() {
       var newPath = $scope.currentView + '/' + $scope.experimentId;
       $location.path(newPath);
@@ -774,13 +809,17 @@ pacoApp.controller('GroupsCtrl', ['$scope', 'template',
     };
 
     $scope.$watch('group.fixedDuration', function(newVal, oldVal) {
-      if (newVal && newVal == true && $scope.group.startDate ==
+      if (newVal && newVal === true && $scope.group.startDate ==
         undefined) {
-        var today = new Date();
         var today = new Date();
         var tomorrow = new Date(today.getTime() + (24 * 60 * 60 * 1000));
         $scope.group.startDate = $scope.dateToString(today);;
         $scope.group.endDate = $scope.dateToString(tomorrow);
+      }
+
+      if (newVal === false) {
+        $scope.group.startDate = null;
+        $scope.group.endDate = null;
       }
     });
   }
@@ -1000,31 +1039,7 @@ pacoApp.controller('ScheduleCtrl', ['$scope', '$mdDialog', 'config', 'template',
 
 pacoApp.controller('AdminCtrl', ['$scope', 'config', function($scope, config) {
 
-  $scope.dataDeclarations = config.dataDeclarations;
-  $scope.declared = [];
 
-  $scope.inList = function(item, list) {
-    if ($scope.experiment && $scope.experiment.extraDataCollectionDeclarations) {
-      var id = parseInt(item);
-      if ($scope.experiment.extraDataCollectionDeclarations.indexOf(id) !==
-        -1) {
-        return true;
-      }
-    }
-    return false;
-  }
-
-  $scope.toggleDeclaration = function(item, list) {
-    var id = parseInt(item);
-    var find = $scope.experiment.extraDataCollectionDeclarations.indexOf(
-      id);
-
-    if (find === -1) {
-      $scope.experiment.extraDataCollectionDeclarations.push(id);
-    } else {
-      $scope.experiment.extraDataCollectionDeclarations.splice(find, 1);
-    }
-  };
 }]);
 
 
