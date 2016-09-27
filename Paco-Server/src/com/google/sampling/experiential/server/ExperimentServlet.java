@@ -78,6 +78,8 @@ public class ExperimentServlet extends HttpServlet {
       String experimentsPublishedPubliclyParam = req.getParameter("public");
       String experimentsAdministeredByUserParam = req.getParameter("admin");
       String experimentsJoinedByMeParam = req.getParameter("joined");
+      String experimentsPopularParam = req.getParameter("popular");
+      String experimentsNewParam = req.getParameter("new");
 
       String pacoProtocol = req.getHeader("pacoProtocol");
       if (pacoProtocol == null) {
@@ -114,6 +116,10 @@ public class ExperimentServlet extends HttpServlet {
       }
       else if (experimentsAdministeredByUserParam != null) {
         handler = new ExperimentServletAdminExperimentsFullLoadHandler(email, timezone, limit, cursor, pacoProtocol);
+      } else if (experimentsPopularParam != null){
+        handler = new ExperimentServletExperimentsPopularLoadHandler(email, timezone, limit, cursor, pacoProtocol);
+      } else if (experimentsNewParam != null){
+        handler = new ExperimentServletExperimentsNewLoadHandler(email, timezone, limit, cursor, pacoProtocol);
       } else {
         handler = null; //new ExperimentServletAllExperimentsFullLoadHandler(email, timezone, limit, cursor, pacoProtocol);
       }
@@ -127,8 +133,6 @@ public class ExperimentServlet extends HttpServlet {
 
     }
   }
-
-
 
 
   private void logPacoClientVersion(HttpServletRequest req) {

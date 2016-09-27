@@ -343,7 +343,7 @@ pacoApp.controller('ListCtrl', ['$scope', '$mdDialog', '$location',
   function($scope, $mdDialog, $location, experimentService, config) {
 
     $scope.cursor = {};
-    $scope.list = {'admin':[], 'joined':[], 'mine':[]};
+    $scope.list = {'admin':[], 'joined':[], 'mine':[], 'popular':[], 'new':[], 'public':[] };
     $scope.loading = {};
     $scope.state = {};
 
@@ -373,6 +373,9 @@ pacoApp.controller('ListCtrl', ['$scope', '$mdDialog', '$location',
       $scope.loadAdminList(reset);
       $scope.loadJoinedList(reset);
       $scope.loadJoinableList(reset);
+      $scope.loadPopularList(reset);
+      $scope.loadNewList(reset);
+      $scope.loadAllPublicList(reset);
     };
 
     $scope.loadList = function(listName, reset) {
@@ -419,6 +422,18 @@ pacoApp.controller('ListCtrl', ['$scope', '$mdDialog', '$location',
 
     $scope.loadJoinableList = function(reset) {
       $scope.loadList('mine', reset);
+    };
+
+    $scope.loadAllPublicList = function(reset) {
+      $scope.loadList('public', reset);
+    };
+
+    $scope.loadPopularList = function(reset) {
+      $scope.loadList('popular', reset);
+    };
+
+    $scope.loadNewList = function(reset){
+      $scope.loadList('new', reset);
     };
 
     $scope.deleteExperiment = function(ev, exp) {
@@ -1121,3 +1136,48 @@ pacoApp.controller('SummaryCtrl', ['$scope', 'config', function($scope, config) 
     return str;
   };
 }]);
+
+
+pacoApp.controller('HubCtrl', ['$scope', '$mdDialog', '$filter',
+  'config', 'template', '$routeParams', '$location', 'experimentService',
+  function($scope, $mdDialog, $filter, config, template, $routeParams,
+    $location, experimentService) {
+
+    $scope.tabs = config.hubTabs;
+
+    $scope.state = {
+      tabId: 0,
+      groupIndex: null
+    };
+
+    // temporarily comment this because it prevents loading experiments directly
+    // fix for bug https://github.com/google/paco/issues/1448
+    // regresses bug https://github.com/google/paco/issues/1272
+    // if ($scope.user === undefined) {
+    //   $location.path('/');
+    // }
+
+    if ($location.hash()) {
+      var newTabId = config.editTabs.indexOf($location.hash());
+      if (newTabId !== -1) {
+        $scope.state.tabId = newTabId;
+      }
+    }
+
+    $scope.$watch('user', function(newValue, oldValue) {
+      if (newValue && $scope.newExperiment && $scope.experiment) {
+        $scope.experiment.creator = $scope.user;
+        $scope.experiment.contactEmail = $scope.user;
+        $scope.experiment.admins = [$scope.user];
+      }
+    });
+
+    $scope.$watch('state.tabId', function(newValue, oldValue) {
+      if ($scope.state.tabId === 0) {
+        $location.hash('');
+      } else if ($scope.state.tabId > 0) {
+        $location.hash($scope.tabs[$scope.state.tabId]);
+      }
+    });
+  }
+]);
