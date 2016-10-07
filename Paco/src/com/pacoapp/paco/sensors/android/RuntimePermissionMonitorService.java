@@ -1,5 +1,25 @@
 package com.pacoapp.paco.sensors.android;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Deque;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.concurrent.LinkedBlockingDeque;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import org.joda.time.DateTime;
+
+import com.pacoapp.paco.PacoConstants;
+import com.pacoapp.paco.model.Experiment;
+import com.pacoapp.paco.sensors.android.procmon.EncounteredPermissionRequest;
+import com.pacoapp.paco.sensors.android.procmon.RuntimePermissionsAppUtil;
+import com.pacoapp.paco.shared.model2.InterruptCue;
+import com.pacoapp.paco.shared.util.TimeUtil;
+
 import android.accessibilityservice.AccessibilityService;
 import android.annotation.TargetApi;
 import android.content.Context;
@@ -11,28 +31,6 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
-
-import com.pacoapp.paco.PacoConstants;
-import com.pacoapp.paco.model.Experiment;
-import com.pacoapp.paco.sensors.android.procmon.EncounteredPermissionRequest;
-import com.pacoapp.paco.sensors.android.procmon.RuntimePermissionsAppUtil;
-import com.pacoapp.paco.shared.model2.InterruptCue;
-import com.pacoapp.paco.shared.util.TimeUtil;
-
-import org.joda.time.DateTime;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Deque;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Queue;
-import java.util.concurrent.LinkedBlockingDeque;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * This class handles monitoring of runtime permission changes, by implementing an accessibility
@@ -124,7 +122,8 @@ public class RuntimePermissionMonitorService extends AccessibilityService {
   public void onAccessibilityEvent(AccessibilityEvent accessibilityEvent) {
     // Assert that we're handling events only for the package installer
     CharSequence packageName = accessibilityEvent.getPackageName();
-    if (!packageName.equals("com.google.android.packageinstaller") &&
+    Log.e(PacoConstants.TAG, "Event received: " + accessibilityEvent.toString());
+    if (packageName != null && !packageName.equals("com.google.android.packageinstaller") &&
             !packageName.equals("com.android.packageinstaller")) {
       Log.e(PacoConstants.TAG, "Not expecting to receive accessibility events for " + packageName + ". Ignoring.");
       return;
@@ -583,6 +582,7 @@ public class RuntimePermissionMonitorService extends AccessibilityService {
    * Called by the Android system when it connects the accessibility service. We use this to keep
    * track of whether we have the accessibility permission.
    */
+  @SuppressWarnings({ "unchecked", "rawtypes" })
   @Override
   protected void onServiceConnected() {
     previouslyEncounteredPermissionRequests = new LinkedBlockingDeque();
