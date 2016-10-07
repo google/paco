@@ -10,5 +10,7 @@
 	<classpathentry exported="true" kind="lib" path="lib/js.jar"/>
 	<classpathentry kind="lib" path="lib/guava-16.0.1.jar"/>
 	<classpathentry kind="lib" path="lib/joda-time-2.9.3.jar"/>
+	<classpathentry kind="lib" path="src/com/pacoapp/paco/shared/comm/ExperimentEditOutcome.java"/>
+	<classpathentry kind="lib" path="src/com/pacoapp/paco/shared/comm/Outcome.java"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
