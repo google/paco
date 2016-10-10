@@ -27,6 +27,37 @@ import java.util.List;
 import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.joda.time.DateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
+import com.pacoapp.paco.R;
+import com.pacoapp.paco.UserPreferences;
+import com.pacoapp.paco.model.Event;
+import com.pacoapp.paco.model.Experiment;
+import com.pacoapp.paco.model.ExperimentProviderUtil;
+import com.pacoapp.paco.model.Output;
+import com.pacoapp.paco.net.ExperimentUrlBuilder;
+import com.pacoapp.paco.net.MyExperimentsFetchService;
+import com.pacoapp.paco.net.MyExperimentsFetchService.ExperimentFetchListener;
+import com.pacoapp.paco.net.MyExperimentsFetchService.LocalBinder;
+import com.pacoapp.paco.net.NetworkClient;
+import com.pacoapp.paco.net.NetworkUtil;
+import com.pacoapp.paco.net.PacoBackgroundService;
+import com.pacoapp.paco.net.SyncService;
+import com.pacoapp.paco.os.RingtoneUtil;
+import com.pacoapp.paco.sensors.android.BroadcastTriggerReceiver;
+import com.pacoapp.paco.shared.model2.ActionTrigger;
+import com.pacoapp.paco.shared.model2.ExperimentGroup;
+import com.pacoapp.paco.shared.model2.Schedule;
+import com.pacoapp.paco.shared.model2.ScheduleTrigger;
+import com.pacoapp.paco.shared.util.ExperimentHelper;
+import com.pacoapp.paco.shared.util.TimeUtil;
+import com.pacoapp.paco.triggering.AndroidEsmSignalStore;
+import com.pacoapp.paco.triggering.BeeperService;
+import com.pacoapp.paco.triggering.ExperimentExpirationManagerService;
+import com.pacoapp.paco.triggering.NotificationCreator;
 
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
@@ -60,35 +91,6 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.common.base.Strings;
-import com.google.common.collect.Lists;
-import com.pacoapp.paco.R;
-import com.pacoapp.paco.UserPreferences;
-import com.pacoapp.paco.model.Event;
-import com.pacoapp.paco.model.Experiment;
-import com.pacoapp.paco.model.ExperimentProviderUtil;
-import com.pacoapp.paco.model.Output;
-import com.pacoapp.paco.net.ExperimentUrlBuilder;
-import com.pacoapp.paco.net.MyExperimentsFetchService;
-import com.pacoapp.paco.net.MyExperimentsFetchService.ExperimentFetchListener;
-import com.pacoapp.paco.net.MyExperimentsFetchService.LocalBinder;
-import com.pacoapp.paco.net.NetworkClient;
-import com.pacoapp.paco.net.NetworkUtil;
-import com.pacoapp.paco.net.PacoBackgroundService;
-import com.pacoapp.paco.net.SyncService;
-import com.pacoapp.paco.os.RingtoneUtil;
-import com.pacoapp.paco.sensors.android.BroadcastTriggerReceiver;
-import com.pacoapp.paco.shared.model2.ActionTrigger;
-import com.pacoapp.paco.shared.model2.ExperimentGroup;
-import com.pacoapp.paco.shared.model2.Schedule;
-import com.pacoapp.paco.shared.model2.ScheduleTrigger;
-import com.pacoapp.paco.shared.util.ExperimentHelper;
-import com.pacoapp.paco.shared.util.TimeUtil;
-import com.pacoapp.paco.triggering.AndroidEsmSignalStore;
-import com.pacoapp.paco.triggering.BeeperService;
-import com.pacoapp.paco.triggering.ExperimentExpirationManagerService;
-import com.pacoapp.paco.triggering.NotificationCreator;
-
 /**
  *
  */
@@ -97,6 +99,8 @@ public class MyExperimentsActivity extends ActionBarActivity implements
 
   private static final int RINGTONE_REQUESTCODE = 945;
   public static final int REFRESHING_EXPERIMENTS_DIALOG_ID = 1001;
+
+  private Logger log = LoggerFactory.getLogger(this.getClass());
 
   private ExperimentProviderUtil experimentProviderUtil;
   private ListView list;
@@ -139,6 +143,7 @@ public class MyExperimentsActivity extends ActionBarActivity implements
   @SuppressLint("NewApi")
   @Override
   protected void onCreate(Bundle savedInstanceState) {
+    log.info("Entering onCreate");
     super.onCreate(savedInstanceState);
     mainLayout = (ViewGroup) getLayoutInflater().inflate(R.layout.activity_current_experiments, null);
     setContentView(mainLayout);
@@ -153,20 +158,20 @@ public class MyExperimentsActivity extends ActionBarActivity implements
 
     FragmentManager supportFragmentManager = getSupportFragmentManager();
     mNavigationDrawerFragment = (NavigationDrawerFragment) supportFragmentManager.findFragmentById(R.id.navigation_drawer);
-    
+
 
     list = (ListView) findViewById(R.id.find_experiments_list);
     list.setBackgroundColor(333);
     experimentProviderUtil = new ExperimentProviderUtil(this);
-    
+
     // Set up the drawer.
-    
-    
+
+
 
     invitationLayout = (LinearLayout)findViewById(R.id.announcementLayout);
     invitationExperimentName = (TextView)findViewById(R.id.invitationExperimentNameTextView);
     invitationContactTextView = (TextView)findViewById(R.id.invitationContactTextView);
-    invitationCloseButton = (ImageButton)findViewById(R.id.invitationAnnouncementCloseButton);    
+    invitationCloseButton = (ImageButton)findViewById(R.id.invitationAnnouncementCloseButton);
   }
 
   @Override
@@ -324,6 +329,7 @@ public class MyExperimentsActivity extends ActionBarActivity implements
 
   @Override
   protected void onResume() {
+    log.info("Entering onResume");
     super.onResume();
     if (userPrefs.getAccessToken() == null) {
       Intent splash = new Intent(this, SplashActivity.class);
@@ -337,10 +343,10 @@ public class MyExperimentsActivity extends ActionBarActivity implements
       actionBar.setDisplayShowHomeEnabled(true);
       actionBar.setBackgroundDrawable(new ColorDrawable(0xff4A53B3));
 
-      
+
       mNavigationDrawerFragment.setUp(R.id.navigation_drawer, (DrawerLayout) findViewById(R.id.drawer_layout));
       navDrawerList = (ListView)mNavigationDrawerFragment.getView().findViewById(R.id.navDrawerList);
-      
+
       reloadAdapter();
       setListHeader();
       if (invitationLayout.getVisibility() == View.VISIBLE) {
@@ -356,10 +362,11 @@ public class MyExperimentsActivity extends ActionBarActivity implements
 
   @Override
   protected void onPause() {
+    log.info("Entering onPause");
     super.onPause();
     unregisterForContextMenu(list);
   }
-  
+
   private void showDataForExperiment(Experiment experiment, List<ExperimentGroup> groups) {
     Intent experimentIntent = null;
     if (groups.size() > 1) {
@@ -786,11 +793,11 @@ public class MyExperimentsActivity extends ActionBarActivity implements
   private void launchSettings() {
     startActivity(new Intent(this, SettingsActivity.class));
   }
-  
+
   private void launchPreferences() {
     startActivity(new Intent(this, PreferencesActivity.class));
   }
-  
+
   private void launchTroubleshooting() {
     startActivity(new Intent(this, TroubleshootingActivity.class));
   }
@@ -842,6 +849,7 @@ public class MyExperimentsActivity extends ActionBarActivity implements
 
   @Override
   protected void onStop() {
+    log.info("Entering onStop");
     super.onStop();
     if (bound) {
       unbindService(mConnection);

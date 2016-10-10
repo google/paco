@@ -20,17 +20,6 @@ import java.util.List;
 
 import org.joda.time.DateTime;
 
-import android.app.AlarmManager;
-import android.app.Notification;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
-import android.content.Context;
-import android.content.Intent;
-import android.net.Uri;
-import android.support.v4.app.NotificationCompat;
-import android.support.v4.app.NotificationManagerCompat;
-import android.util.Log;
-
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.pacoapp.paco.PacoConstants;
@@ -55,6 +44,18 @@ import com.pacoapp.paco.shared.scheduling.ActionScheduleGenerator;
 import com.pacoapp.paco.shared.scheduling.ActionSpecification;
 import com.pacoapp.paco.shared.util.ExperimentHelper.Trio;
 import com.pacoapp.paco.ui.ExperimentExecutor;
+
+import android.annotation.SuppressLint;
+import android.app.AlarmManager;
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.content.Context;
+import android.content.Intent;
+import android.net.Uri;
+import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.NotificationManagerCompat;
+import android.util.Log;
 
 public class NotificationCreator {
 
@@ -446,6 +447,7 @@ public class NotificationCreator {
     return defaults;
   }
 
+  @SuppressLint("NewApi")
   private void createAlarmToCancelNotificationAtTimeout(Context context, NotificationHolder notificationHolder) {
     DateTime alarmTime = new DateTime(notificationHolder.getAlarmTime());
     int timeoutMinutes = (int) (notificationHolder.getTimeoutMillis() / MILLIS_IN_MINUTE);
@@ -466,7 +468,12 @@ public class NotificationCreator {
 
     AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
     alarmManager.cancel(intent);
-    alarmManager.set(AlarmManager.RTC_WAKEUP, elapsedDurationInMillis, intent);
+    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.KITKAT) {
+      alarmManager.setExact(AlarmManager.RTC_WAKEUP, elapsedDurationInMillis, intent);
+    } else {
+      alarmManager.set(AlarmManager.RTC_WAKEUP, elapsedDurationInMillis, intent);
+    }
+
   }
 
   public void createNotificationsForTrigger(Experiment experiment, Trio<ExperimentGroup, InterruptTrigger, InterruptCue> triggerInfo,
@@ -541,6 +548,7 @@ public class NotificationCreator {
     return false;
   }
 
+  @SuppressLint("NewApi")
   private void createAlarmForSnooze(Context context, NotificationHolder notificationHolder) {
     DateTime alarmTime = new DateTime(notificationHolder.getAlarmTime());
     Experiment experiment = experimentProviderUtil.getExperimentByServerId(notificationHolder.getExperimentId());
@@ -568,7 +576,12 @@ public class NotificationCreator {
 
     AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
     alarmManager.cancel(intent);
-    alarmManager.set(AlarmManager.RTC_WAKEUP, snoozeDurationInMillis, intent);
+    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.KITKAT) {
+      alarmManager.setExact(AlarmManager.RTC_WAKEUP, snoozeDurationInMillis, intent);
+    } else {
+      alarmManager.set(AlarmManager.RTC_WAKEUP, snoozeDurationInMillis, intent);
+    }
+
   }
 
   public void removeNotificationsForCustomGeneratedScript(ExperimentDAO experiment, ExperimentGroup experimentGroup,
