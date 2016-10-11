@@ -100,7 +100,7 @@ public class MyExperimentsActivity extends ActionBarActivity implements
   private static final int RINGTONE_REQUESTCODE = 945;
   public static final int REFRESHING_EXPERIMENTS_DIALOG_ID = 1001;
 
-  private Logger log = LoggerFactory.getLogger(this.getClass());
+  private Logger LOG = LoggerFactory.getLogger(this.getClass());
 
   private ExperimentProviderUtil experimentProviderUtil;
   private ListView list;
@@ -143,7 +143,7 @@ public class MyExperimentsActivity extends ActionBarActivity implements
   @SuppressLint("NewApi")
   @Override
   protected void onCreate(Bundle savedInstanceState) {
-    log.info("Entering onCreate");
+    LOG.info("Entering onCreate");
     super.onCreate(savedInstanceState);
     mainLayout = (ViewGroup) getLayoutInflater().inflate(R.layout.activity_current_experiments, null);
     setContentView(mainLayout);
@@ -329,7 +329,7 @@ public class MyExperimentsActivity extends ActionBarActivity implements
 
   @Override
   protected void onResume() {
-    log.info("Entering onResume");
+    LOG.info("Entering onResume");
     super.onResume();
     if (userPrefs.getAccessToken() == null) {
       Intent splash = new Intent(this, SplashActivity.class);
@@ -362,7 +362,7 @@ public class MyExperimentsActivity extends ActionBarActivity implements
 
   @Override
   protected void onPause() {
-    log.info("Entering onPause");
+    LOG.info("Entering onPause");
     super.onPause();
     unregisterForContextMenu(list);
   }
@@ -849,7 +849,7 @@ public class MyExperimentsActivity extends ActionBarActivity implements
 
   @Override
   protected void onStop() {
-    log.info("Entering onStop");
+    LOG.info("Entering onStop");
     super.onStop();
     if (bound) {
       unbindService(mConnection);

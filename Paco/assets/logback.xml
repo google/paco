@@ -9,7 +9,7 @@
     </encoder>
   </appender>
   
-  <property name="LOG_DIR" value="/data/data/com.pacoapp.paco/files/log" />
+  <property name="LOG_DIR" value="/data/data/com.pacoapp.paco/files" />
 
   <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
     <file>${LOG_DIR}/log.txt</file>

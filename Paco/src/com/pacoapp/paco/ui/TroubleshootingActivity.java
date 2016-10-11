@@ -1,9 +1,28 @@
 package com.pacoapp.paco.ui;
 
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.List;
+import java.util.regex.Pattern;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.common.base.Strings;
+import com.pacoapp.paco.R;
+import com.pacoapp.paco.UserPreferences;
+import com.pacoapp.paco.model.Event;
+import com.pacoapp.paco.model.Experiment;
+import com.pacoapp.paco.model.ExperimentProviderUtil;
+import com.pacoapp.paco.net.NetworkUtil;
+import com.pacoapp.paco.net.SyncService;
+import com.pacoapp.paco.sensors.android.diagnostics.DiagnosticReport;
+import com.pacoapp.paco.sensors.android.diagnostics.DiagnosticsReporter;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
@@ -15,31 +34,17 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
-import android.widget.CheckBox;
 import android.widget.TextView;
-
-import com.google.common.base.Strings;
-import com.google.common.collect.Lists;
-import com.pacoapp.paco.R;
-import com.pacoapp.paco.UserPreferences;
-import com.pacoapp.paco.model.Event;
-import com.pacoapp.paco.model.Experiment;
-import com.pacoapp.paco.model.ExperimentProviderUtil;
-import com.pacoapp.paco.net.NetworkUtil;
-import com.pacoapp.paco.net.SyncService;
-import com.pacoapp.paco.os.RingtoneUtil;
-import com.pacoapp.paco.sensors.android.diagnostics.DiagnosticReport;
-import com.pacoapp.paco.sensors.android.diagnostics.DiagnosticsReporter;
-import com.pacoapp.paco.sensors.android.diagnostics.UnsyncedEventDiagnostic;
 
 public class TroubleshootingActivity extends ActionBarActivity {
 
+  private Logger LOG = LoggerFactory.getLogger(getClass());
   private UserPreferences userPrefs;
   private DiagnosticReport diagnosticsReport;
   private TextView resultsTextView;
   private Button forceSyncButton;
   private ExperimentProviderUtil experimentProviderUtil;
-  
+
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
@@ -76,7 +81,7 @@ public class TroubleshootingActivity extends ActionBarActivity {
 
     forceSyncButton = (Button)findViewById(R.id.forceSyncButton);
     forceSyncButton.setEnabled(false);
-    
+
     forceSyncButton.setOnClickListener(new OnClickListener() {
 
       @Override
@@ -84,8 +89,8 @@ public class TroubleshootingActivity extends ActionBarActivity {
         startService(new Intent(TroubleshootingActivity.this, SyncService.class));
       }
     });
-    
-    
+
+
   }
 
 
@@ -93,10 +98,10 @@ public class TroubleshootingActivity extends ActionBarActivity {
   protected void runTests() {
     diagnosticsReport = new DiagnosticsReporter().runTests(this);
     String res = diagnosticsReport.toString();
-    resultsTextView.setText(res);    
-    
+    resultsTextView.setText(res);
+
     forceSyncButton.setEnabled(NetworkUtil.isConnected(this) && hasUnsyncedEvents());
-      
+
   }
 
 
@@ -130,8 +135,9 @@ public class TroubleshootingActivity extends ActionBarActivity {
     if (diagnosticsReport != null) {
       res = diagnosticsReport.toString();
     }
-    
-    String log = readLog();
+
+    String syslog = readSystemLog();
+    syslog += "\n=======\nPaco File Log\n======\n" + readFileLog();
     experimentProviderUtil = new ExperimentProviderUtil(this);
     List<Experiment> experiments = experimentProviderUtil.getJoinedExperiments();
     String email = null;
@@ -141,8 +147,58 @@ public class TroubleshootingActivity extends ActionBarActivity {
         email = experiments.get(0).getExperimentDAO().getCreator();
       }
     }
-    createEmailIntent(res + "\n\n" + log, email);
+    createEmailIntent(res + "\n\n" + syslog, email);
   }
+
+
+  private String readFileLog() {
+    //final String filesDirPath = getFilesDir().getPath();
+    //String logDir = filesDirPath + "/LOG"; //."/data/data/com.pacoapp.paco/files/LOG";
+    File logFileDir = getFilesDir(); //logDir, Context.MODE_PRIVATE);
+    //File logFileDir = new File(fileDir, "log");
+    if (logFileDir.exists()) {
+      File[] logFiles = logFileDir.listFiles(new FilenameFilter() {
+        private Pattern logFilePattern = Pattern.compile("log[.]?[\\d]?.txt");
+        @Override
+        public boolean accept(File dir, String name) {
+          return logFilePattern.matcher(name).matches();
+        }
+
+      });
+      if (logFiles != null) {
+        StringBuilder buf = new StringBuilder();
+        File fileName = null;
+        for (int i = 0; i < logFiles.length; i++) {
+          fileName = logFiles[i];
+          buf.append("Log file named: ");
+          buf.append(fileName);
+          buf.append("\n");
+          try {
+            final String currentLogFilePath = fileName.getName();
+            FileInputStream file = openFileInput(currentLogFilePath);
+            InputStreamReader isr = new InputStreamReader(file);
+            BufferedReader bufferedReader = new BufferedReader(isr);
+            String line;
+            while ((line = bufferedReader.readLine()) != null) {
+                buf.append(line);
+                buf.append("\n");
+            }
+          } catch (FileNotFoundException e) {
+            LOG.error("could not read LOG file "+ fileName, e);
+            e.printStackTrace();
+          } catch (IOException e) {
+            LOG.error("could not read LOG file "+ fileName, e);
+            e.printStackTrace();
+          }
+
+        }
+        return buf.toString();
+      }
+    }
+
+    return null;
+  }
+
 
 
   private void createEmailIntent(String log, String email) {
@@ -156,7 +212,7 @@ public class TroubleshootingActivity extends ActionBarActivity {
     startActivity(emailIntent);
   }
 
-  private String readLog() {
+  private String readSystemLog() {
     StringBuilder log = new StringBuilder();
     try {
       Process process = Runtime.getRuntime().exec("logcat -d");
@@ -181,7 +237,7 @@ public class TroubleshootingActivity extends ActionBarActivity {
 
   @Override
   protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-    super.onActivityResult(requestCode, resultCode, data);    
+    super.onActivityResult(requestCode, resultCode, data);
   }
 
 
