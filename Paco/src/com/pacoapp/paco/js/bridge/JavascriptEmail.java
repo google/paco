@@ -1,17 +1,19 @@
 package com.pacoapp.paco.js.bridge;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.common.base.Strings;
+
 import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
-import android.util.Log;
 import android.webkit.JavascriptInterface;
 
-import com.google.common.base.Strings;
-import com.pacoapp.paco.PacoConstants;
-
 public class JavascriptEmail {
+  private static Logger Log = LoggerFactory.getLogger(JavascriptEmail.class);
 
   private Context context;
 
@@ -30,7 +32,7 @@ public class JavascriptEmail {
   private boolean sendEmailInner(String body, String subject, String userEmail) {
     userEmail = findAccount(userEmail);
     if (Strings.isNullOrEmpty(userEmail)) {
-      Log.e(PacoConstants.TAG, "No Google email address found with which to send email.");
+      Log.error("No Google email address found with which to send email.");
       return false;
     }
     Intent emailIntent = new Intent(android.content.Intent.ACTION_SEND);
@@ -43,7 +45,7 @@ public class JavascriptEmail {
       context.startActivity(emailIntent);
       return true;
     } catch (ActivityNotFoundException anf) {
-      Log.i(PacoConstants.TAG, "No email client configured");
+      Log.info("No email client configured");
       return false;
     }
   }

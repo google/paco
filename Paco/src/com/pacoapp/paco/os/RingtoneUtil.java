@@ -7,6 +7,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.pacoapp.paco.R;
+import com.pacoapp.paco.UserPreferences;
+
 import android.app.Activity;
 import android.content.ContentResolver;
 import android.content.ContentValues;
@@ -18,13 +24,10 @@ import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Build;
 import android.provider.MediaStore;
-import android.util.Log;
-
-import com.pacoapp.paco.PacoConstants;
-import com.pacoapp.paco.R;
-import com.pacoapp.paco.UserPreferences;
 
 public class RingtoneUtil {
+
+  private static Logger Log = LoggerFactory.getLogger(RingtoneUtil.class);
 
   private static final String RINGTONE_TITLE_COLUMN_NAME = "title";
   private static final String PACO_BARK_RINGTONE_TITLE = "Paco Bark";
@@ -132,23 +135,23 @@ public class RingtoneUtil {
       }
       return f;
     } catch (FileNotFoundException e) {
-      Log.e(PacoConstants.TAG, "Could not create ringtone file on sd card. Error = " + e.getMessage());
+      Log.error("Could not create ringtone file on sd card. Error = " + e.getMessage());
     } catch (IOException e) {
-      Log.e(PacoConstants.TAG, "Either Could not open ringtone from assets. Or could not write to sd card. Error = " + e.getMessage());
+      Log.error("Either Could not open ringtone from assets. Or could not write to sd card. Error = " + e.getMessage());
       return null;
     } finally {
       if (fos != null) {
         try {
           fos.close();
         } catch (IOException e) {
-          Log.e(PacoConstants.TAG, "could not close sd card file handle. Error = " + e.getMessage());
+          Log.error("could not close sd card file handle. Error = " + e.getMessage());
         }
       }
       if (fis != null) {
         try {
           fis.close();
         } catch (IOException e) {
-          Log.e(PacoConstants.TAG, "could not close asset file handle. Error = " + e.getMessage());
+          Log.error("could not close asset file handle. Error = " + e.getMessage());
         }
       }
     }
@@ -204,7 +207,7 @@ public class RingtoneUtil {
                 values.put(MediaStore.MediaColumns.TITLE, PACO_BARK_RINGTONE_TITLE);
 
                 if (context.getContentResolver().update(toneUri, values, null, null) < 1) {
-                    Log.e(PacoConstants.TAG, "could not update ringtome metadata");
+                    Log.error("could not update ringtome metadata");
                 }
 
                 // Apparently this is best practice, although I have no idea what the Media Scanner

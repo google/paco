@@ -1,5 +1,19 @@
 package com.pacoapp.paco.ui;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.android.apps.paco.AccountChooser;
+import com.google.android.gms.auth.GooglePlayServicesAvailabilityException;
+import com.google.android.gms.auth.UserRecoverableAuthException;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GooglePlayServicesUtil;
+import com.pacoapp.paco.R;
+import com.pacoapp.paco.UserPreferences;
+import com.pacoapp.paco.net.AbstractAuthTokenTask;
+import com.pacoapp.paco.net.GetAuthTokenInForeground;
+import com.pacoapp.paco.net.NetworkClient;
+
 import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.accounts.AccountManagerCallback;
@@ -14,24 +28,13 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Build;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
-import com.google.android.apps.paco.AccountChooser;
-import com.google.android.gms.auth.GooglePlayServicesAvailabilityException;
-import com.google.android.gms.auth.UserRecoverableAuthException;
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.GooglePlayServicesUtil;
-import com.pacoapp.paco.PacoConstants;
-import com.pacoapp.paco.R;
-import com.pacoapp.paco.UserPreferences;
-import com.pacoapp.paco.net.AbstractAuthTokenTask;
-import com.pacoapp.paco.net.GetAuthTokenInForeground;
-import com.pacoapp.paco.net.NetworkClient;
-
 public class SplashActivity extends Activity implements NetworkClient {
+
+  private static Logger Log = LoggerFactory.getLogger(SplashActivity.class);
 
   public static final String EXTRA_ACCOUNTNAME = "extra_accountname";
   public static final String EXTRA_CHANGING_EXISTING_ACCOUNT = "extra_changing_existing_account";
@@ -91,7 +94,7 @@ public class SplashActivity extends Activity implements NetworkClient {
         return;
     }
     if (resultCode == RESULT_OK) {
-        Log.i(PacoConstants.TAG, "Retrying");
+        Log.info("Retrying");
         getTask(this).execute();
         return;
     }
@@ -137,21 +140,21 @@ public class SplashActivity extends Activity implements NetworkClient {
 
     String accessToken = getAccessToken();
     if (accessToken != null) {
-      Log.i(PacoConstants.TAG, "Invalidating previous OAuth2 access token: " + accessToken);
+      Log.info("Invalidating previous OAuth2 access token: " + accessToken);
       accountManager.invalidateAuthToken(account.type, accessToken);
       setAccessToken(null);
     }
 
     String authTokenType = AbstractAuthTokenTask.AUTH_TOKEN_TYPE_USERINFO_EMAIL;
 
-    Log.i(PacoConstants.TAG, "Get access token for " + accountName + " using authTokenType " + authTokenType);
+    Log.info("Get access token for " + accountName + " using authTokenType " + authTokenType);
     accountManager.getAuthToken(account, authTokenType, null, this,
         new AccountManagerCallback<Bundle>() {
           @Override
           public void run(AccountManagerFuture<Bundle> future) {
             try {
               String accessToken = future.getResult().getString(AccountManager.KEY_AUTHTOKEN);
-              Log.i(PacoConstants.TAG, "Got OAuth2 access token: " + accessToken);
+              Log.info("Got OAuth2 access token: " + accessToken);
               setAccessToken(accessToken);
 //
 //              Intent result = new Intent();
@@ -161,10 +164,10 @@ public class SplashActivity extends Activity implements NetworkClient {
 //              finish();
 
             } catch (OperationCanceledException e) {
-              Log.e(PacoConstants.TAG, "The user has denied you access to the API");
+              Log.error("The user has denied you access to the API");
             } catch (Exception e) {
-              Log.e(PacoConstants.TAG, e.getMessage());
-              Log.w("Exception: ", e);
+              Log.error(e.getMessage());
+              Log.error("Exception: ", e);
             }
           }
         }, null);

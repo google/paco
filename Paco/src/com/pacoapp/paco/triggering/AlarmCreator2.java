@@ -19,9 +19,10 @@ package com.pacoapp.paco.triggering;
 import java.util.List;
 
 import org.joda.time.DateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Lists;
-import com.pacoapp.paco.PacoConstants;
 import com.pacoapp.paco.model.Experiment;
 import com.pacoapp.paco.model.ExperimentProviderUtil;
 import com.pacoapp.paco.os.AlarmReceiver;
@@ -35,7 +36,6 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
-import android.util.Log;
 
 /**
  * Class that is responsible for keeping the alarm schedule.
@@ -50,6 +50,8 @@ import android.util.Log;
  *
  */
 public class AlarmCreator2 {
+
+  private static Logger Log = LoggerFactory.getLogger(AlarmCreator2.class);
 
   private static final int ALARM_RECEIVER_INTENT_REQUEST_CODE = 1;
 
@@ -93,7 +95,7 @@ public class AlarmCreator2 {
       experimentDAOs.add(experiment.getExperimentDAO());
     }
     if (experiments.isEmpty()) {
-      Log.i(PacoConstants.TAG, "No joined experiments. Not creating alarms.");
+      Log.info("No joined experiments. Not creating alarms.");
       return;
     }
 
@@ -101,7 +103,7 @@ public class AlarmCreator2 {
                                                                                                      new AndroidEsmSignalStore(pendingIntentContext),
                                                                                                      experimentProviderUtil);
     if (experimentTimes.isEmpty()) {
-      Log.i(PacoConstants.TAG, "No experiments with a next time to signal.");
+      Log.info("No experiments with a next time to signal.");
       return;
     }
     ActionSpecification nextNearestAlarmTime = experimentTimes.get(0);
@@ -110,7 +112,7 @@ public class AlarmCreator2 {
 
   @SuppressLint("NewApi")
   private void createAlarm(DateTime alarmTime, ExperimentDAO experiment) {
-    Log.i(PacoConstants.TAG, "Creating alarm: " + alarmTime.toString() +" for experiment: " + experiment.getTitle());
+    Log.info("Creating alarm: " + alarmTime.toString() +" for experiment: " + experiment.getTitle());
     PendingIntent intent = createAlarmReceiverIntentForExperiment(alarmTime);
     alarmManager.cancel(intent);
     if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.KITKAT) {

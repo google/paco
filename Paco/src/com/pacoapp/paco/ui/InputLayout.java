@@ -27,6 +27,17 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.android.apps.paco.questioncondparser.ExpressionEvaluator;
+import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
+import com.google.common.io.Files;
+import com.pacoapp.paco.R;
+import com.pacoapp.paco.UserPreferences;
+import com.pacoapp.paco.shared.model2.Input2;
+
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -48,7 +59,6 @@ import android.os.Parcelable;
 import android.text.Html;
 import android.text.InputType;
 import android.util.Base64;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AdapterView;
@@ -67,16 +77,10 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.apps.paco.questioncondparser.ExpressionEvaluator;
-import com.google.common.base.Strings;
-import com.google.common.collect.Lists;
-import com.google.common.io.Files;
-import com.pacoapp.paco.PacoConstants;
-import com.pacoapp.paco.R;
-import com.pacoapp.paco.UserPreferences;
-import com.pacoapp.paco.shared.model2.Input2;
-
 public class InputLayout extends LinearLayout implements SpeechRecognitionListener {
+
+  private static Logger Log = LoggerFactory.getLogger(InputLayout.class);
+
   public static final int CAMERA_REQUEST_CODE = 10001;
   // TODO Bob  refactor into separate classes because not every input can receive text from speech recognition
 
@@ -586,7 +590,7 @@ public class InputLayout extends LinearLayout implements SpeechRecognitionListen
       // Create the storage directory if it does not exist
       if (! mediaStorageDir.exists()){
           if (! mediaStorageDir.mkdirs()){
-              Log.d(PacoConstants.TAG, "failed to create directory");
+              Log.debug("failed to create directory");
               return null;
           }
       }
@@ -897,7 +901,7 @@ public class InputLayout extends LinearLayout implements SpeechRecognitionListen
     case 10:
       return R.layout.radio_group_10;
     default:
-      Log.e(PacoConstants.TAG, "Steps unknown or too big: " + steps);
+      Log.error("Steps unknown or too big: " + steps);
       return R.layout.radio_group_error;
     }
 
@@ -969,7 +973,7 @@ public class InputLayout extends LinearLayout implements SpeechRecognitionListen
       try {
         match = interpreter.parse(input.getConditionExpression());
       } catch (IllegalArgumentException iae) {
-        Log.e(PacoConstants.TAG, "Parsing problem: " + iae.getMessage());
+        Log.error("Parsing problem: " + iae.getMessage());
         match = false;
       }
       setVisible(match);
@@ -1148,7 +1152,7 @@ public class InputLayout extends LinearLayout implements SpeechRecognitionListen
       audioPlayer.start();
       audioPlayer.setOnCompletionListener(listener);
     } catch (IOException e) {
-      Log.e(PacoConstants.TAG, "prepare() failed");
+      Log.error("prepare() failed");
     }
   }
 
@@ -1171,7 +1175,7 @@ public class InputLayout extends LinearLayout implements SpeechRecognitionListen
     try {
       audioRecorder.prepare();
     } catch (IOException e) {
-      Log.e(PacoConstants.TAG, "prepare() failed");
+      Log.error("prepare() failed");
     }
 
     audioRecorder.start();

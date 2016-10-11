@@ -12,8 +12,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.joda.time.DateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import com.pacoapp.paco.PacoConstants;
 import com.pacoapp.paco.model.Experiment;
 import com.pacoapp.paco.sensors.android.procmon.EncounteredPermissionRequest;
 import com.pacoapp.paco.sensors.android.procmon.RuntimePermissionsAppUtil;
@@ -28,7 +29,6 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
 
@@ -63,6 +63,8 @@ public class RuntimePermissionMonitorService extends AccessibilityService {
   public static final String PAYLOAD_PERMISSION_APPNAME = "paco_accessibility_payload_permissionappname";
   // Number of milliseconds before a permission request is considered stale
   private static final long PERMISSION_REQUEST_HISTORY_MILLIS = 60000;
+
+  private static Logger Log = LoggerFactory.getLogger(RuntimePermissionMonitorService.class);
 
   // List of the names of the PERMISSION_GROUPS as they appear in the en_us localization of the
   // PackageInstaller settings
@@ -122,10 +124,10 @@ public class RuntimePermissionMonitorService extends AccessibilityService {
   public void onAccessibilityEvent(AccessibilityEvent accessibilityEvent) {
     // Assert that we're handling events only for the package installer
     CharSequence packageName = accessibilityEvent.getPackageName();
-    Log.e(PacoConstants.TAG, "Event received: " + accessibilityEvent.toString());
+    Log.error("Event received: " + accessibilityEvent.toString());
     if (packageName != null && !packageName.equals("com.google.android.packageinstaller") &&
             !packageName.equals("com.android.packageinstaller")) {
-      Log.e(PacoConstants.TAG, "Not expecting to receive accessibility events for " + packageName + ". Ignoring.");
+      Log.error("Not expecting to receive accessibility events for " + packageName + ". Ignoring.");
       return;
     }
 
@@ -134,19 +136,19 @@ public class RuntimePermissionMonitorService extends AccessibilityService {
       case AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED:
         // For our purposes, this means: a dialog requesting a runtime permission is shown,
         // or the user navigated to the 'App info' screen for a specific app
-        Log.v(PacoConstants.TAG, "New accessibility event: window state changed (we are capturing this)");
+        Log.info("New accessibility event: window state changed (we are capturing this)");
         if (isAppPermissionsScreen(accessibilityEvent)) {
           // Find the package name in this view, and store it for future use
-          Log.v(PacoConstants.TAG, "We seem to be inside the app permissions screen");
+          Log.info("We seem to be inside the app permissions screen");
           extractInformationFromAppPermissionsScreen(accessibilityEvent.getSource());
         } else if (isPermissionAppListingScreen(accessibilityEvent)) {
-          Log.v(PacoConstants.TAG, "We seem to be inside the screen showing apps for a permission");
+          Log.info("We seem to be inside the screen showing apps for a permission");
           extractInformationFromAppListingForPermission(accessibilityEvent.getSource());
         } else if (isPermissionsDialog(accessibilityEvent.getSource())) {
-          Log.v(PacoConstants.TAG, "We seem to be inside a runtime permissions dialog");
+          Log.info("We seem to be inside a runtime permissions dialog");
           extractInformationFromPermissionDialog(accessibilityEvent);
         } else if (isAppInfoScreen(accessibilityEvent.getSource())) {
-          Log.e(PacoConstants.TAG, "We're not using tags from the app info screen anymore");
+          Log.error("We're not using tags from the app info screen anymore");
           // We can use the following call to get the package name from this screen on supported
           // platforms, but it doesn't seem to be available in stock android.
           // If you re-enable this, make sure to add com.android.settings to the packageNames in the
@@ -154,7 +156,7 @@ public class RuntimePermissionMonitorService extends AccessibilityService {
           // check at the start of this function
           // extractAppPackageNameFromAppInfoScreen(accessibilityEvent.getSource());
         } else {
-          Log.v(PacoConstants.TAG, "Ignoring window state changed accessibility event, since it was not a permission settings screen or a permissions dialog.");
+          Log.info("Ignoring window state changed accessibility event, since it was not a permission settings screen or a permissions dialog.");
         }
         break;
       // We used to use the next case in a similar way to TYPE_ANNOUNCEMENT, but it seems that
@@ -164,20 +166,20 @@ public class RuntimePermissionMonitorService extends AccessibilityService {
         // For our purposes, this means: a dialog requesting a runtime permission changed to request
         // the next required permission (e.g. during user onboarding, a few permissions are
         // requested in sequence)
-        Log.v(PacoConstants.TAG, "This might be a changed permissions dialog, try to extract info");
+        Log.info("This might be a changed permissions dialog, try to extract info");
         extractInformationFromEventText(accessibilityEvent.getText());
         break;
       case AccessibilityEvent.TYPE_VIEW_CLICKED:
         // For our purposes, this means: permission change via switch button (in settings),
         // or clicking 'allow/deny' in a runtime permission dialog
         if (isPermissionsDialogAction(accessibilityEvent.getSource())) {
-          Log.v(PacoConstants.TAG, "Action taken in permissions dialog");
+          Log.info("Action taken in permissions dialog");
           processPermissionDialogAction(accessibilityEvent.getSource());
         } else if (isSettingsPermissionChange(accessibilityEvent.getSource())) {
-          Log.v(PacoConstants.TAG, "Action taken in permission settings activity");
+          Log.info("Action taken in permission settings activity");
           processPermissionConfigurationChange(accessibilityEvent);
         } else {
-          Log.v(PacoConstants.TAG, "Ignoring TYPE_VIEW_CLICKED, since it was not in a permission dialog or a settings screen.");
+          Log.info("Ignoring TYPE_VIEW_CLICKED, since it was not in a permission dialog or a settings screen.");
         }
         break;
     }
@@ -308,12 +310,12 @@ public class RuntimePermissionMonitorService extends AccessibilityService {
         String permissionText = permissionMatcher.group(2);
         String permissionString = PERMISSION_DIALOG_STRINGS.get(permissionText);
         if (permissionString == null) {
-          Log.w(PacoConstants.TAG, "Unknown permission string encountered: " + permissionText);
+          Log.warn("Unknown permission string encountered: " + permissionText);
           permissionString = permissionText;
         }
         addEncounteredPermission(permissionString, permissionMatcher.group(1));
       } else {
-        Log.v(PacoConstants.TAG, "Could not extract any information from string " + eventSubText);
+        Log.info("Could not extract any information from string " + eventSubText);
       }
     }
   }
@@ -357,7 +359,7 @@ public class RuntimePermissionMonitorService extends AccessibilityService {
         return;
       }
     }
-    Log.w(PacoConstants.TAG, "We failed to extract the permission string from the settings screen");
+    Log.warn("We failed to extract the permission string from the settings screen");
   }
 
   /**
@@ -389,7 +391,7 @@ public class RuntimePermissionMonitorService extends AccessibilityService {
   private void processPermissionConfigurationChange(AccessibilityEvent accessibilityEvent) {
     List<CharSequence> textFields = accessibilityEvent.getText();
     if (textFields.size() != 2) {
-      Log.e(PacoConstants.TAG, "Unexpected length for text array on permission configuration change: " + textFields);
+      Log.error("Unexpected length for text array on permission configuration change: " + textFields);
       return;
     }
     String switchName = textFields.get(0).toString();
@@ -406,7 +408,7 @@ public class RuntimePermissionMonitorService extends AccessibilityService {
       switchButtons = source.findAccessibilityNodeInfosByViewId("android:id/switch_widget");
     }
     if (switchButtons.size() == 0) {
-      Log.e(PacoConstants.TAG, "We couldn't find the switch button in the permissions activity!");
+      Log.error("We couldn't find the switch button in the permissions activity!");
       return;
     }
     boolean isAllowed = switchButtons.get(0).isChecked();
@@ -427,13 +429,13 @@ public class RuntimePermissionMonitorService extends AccessibilityService {
     if (lastPermissionRequest != null &&
             lastPermissionRequest.getPermissionString().equals(permission) &&
             lastPermissionRequest.getAppName().equals(appName)) {
-      Log.w(PacoConstants.TAG, "Not adding the same permisison request twice!");
+      Log.warn("Not adding the same permisison request twice!");
       return false;
     }
     EncounteredPermissionRequest newPermissionRequest = new EncounteredPermissionRequest(permission,
             System.currentTimeMillis(), appName);
     previouslyEncounteredPermissionRequests.addLast(newPermissionRequest);
-    Log.v(PacoConstants.TAG, "Added previously handled permission " + permission.toString());
+    Log.info("Added previously handled permission " + permission.toString());
     return true;
   }
 
@@ -444,7 +446,7 @@ public class RuntimePermissionMonitorService extends AccessibilityService {
    */
   private void setCurrentlyHandledAppPackageNames(ArrayList<String> packageNames) {
     currentlyHandledAppPackageNames = packageNames;
-    Log.v(PacoConstants.TAG, "Set 'currently handled package names' to " + currentlyHandledAppPackageNames.toString());
+    Log.info("Set 'currently handled package names' to " + currentlyHandledAppPackageNames.toString());
   }
 
   /**
@@ -462,9 +464,9 @@ public class RuntimePermissionMonitorService extends AccessibilityService {
       PackageManager packageManager = getPackageManager();
       ApplicationInfo appInfo = packageManager.getApplicationInfo(packageName.toString(), 0);
       currentlyHandledAppName = packageManager.getApplicationLabel(appInfo).toString();
-      Log.v(PacoConstants.TAG, "Also set app name to " + currentlyHandledAppName);
+      Log.info("Also set app name to " + currentlyHandledAppName);
     } catch (PackageManager.NameNotFoundException e) {
-      Log.w(PacoConstants.TAG, "Could not find app info for package " + packageName);
+      Log.warn("Could not find app info for package " + packageName);
     }
   }
 
@@ -475,7 +477,7 @@ public class RuntimePermissionMonitorService extends AccessibilityService {
    */
   private void setCurrentlyHandledAppName(CharSequence appName) {
     currentlyHandledAppName = appName.toString();
-    Log.v(PacoConstants.TAG, "Set 'currently handled app name' to " + currentlyHandledAppName);
+    Log.info("Set 'currently handled app name' to " + currentlyHandledAppName);
     // Resolve the possible package names for this app
     AndroidInstalledApplications installedApps = new AndroidInstalledApplications(getApplicationContext());
     ArrayList<String> packageNames = installedApps.getPackageNameFromAppLabel(appName);
@@ -491,7 +493,7 @@ public class RuntimePermissionMonitorService extends AccessibilityService {
    */
   private void setCurrentlyHandledPermission(String permission) {
     currentlyHandledPermission = permission;
-    Log.v(PacoConstants.TAG, "Set 'currently handled permission' to " + currentlyHandledPermission);
+    Log.info("Set 'currently handled permission' to " + currentlyHandledPermission);
   }
 
   /**
@@ -501,7 +503,7 @@ public class RuntimePermissionMonitorService extends AccessibilityService {
    */
   private void processPermissionDialogAction(AccessibilityNodeInfo nodeInfo) {
     if (previouslyEncounteredPermissionRequests.size() < 1) {
-      Log.w(PacoConstants.TAG, "We got a dialog action on a permission request, but we never saw" +
+      Log.warn("We got a dialog action on a permission request, but we never saw" +
             "the permission request in the first place");
       return;
     }
@@ -510,7 +512,7 @@ public class RuntimePermissionMonitorService extends AccessibilityService {
     // the last one still in the queue
     while (encounteredPermission.getTimestamp() < System.currentTimeMillis() - PERMISSION_REQUEST_HISTORY_MILLIS &&
             previouslyEncounteredPermissionRequests.size() > 0) {
-      Log.w(PacoConstants.TAG, "Not considering permission request " +
+      Log.warn("Not considering permission request " +
               encounteredPermission.getPermissionString() + " for app " +
               encounteredPermission.getAppName() + " because it was too old.");
       encounteredPermission = previouslyEncounteredPermissionRequests.pollFirst();
@@ -525,8 +527,8 @@ public class RuntimePermissionMonitorService extends AccessibilityService {
     } else if (actionTextLower.equals("deny")) {
       triggerBroadcastTriggerService(false, false);
     } else {
-      Log.e(PacoConstants.TAG, "Dialog action in runtime permissions dialog was not 'allow' nor 'deny'. This should never happen");
-      Log.e(PacoConstants.TAG, "Dialog action in runtime permissions dialog was not 'allow' nor 'deny'. This should never happen");
+      Log.error("Dialog action in runtime permissions dialog was not 'allow' nor 'deny'. This should never happen");
+      Log.error("Dialog action in runtime permissions dialog was not 'allow' nor 'deny'. This should never happen");
     }
   }
 
@@ -544,7 +546,7 @@ public class RuntimePermissionMonitorService extends AccessibilityService {
     if (previousAppPackage != null) {
       setCurrentlyHandledAppPackageName(previousAppPackage);
     } else {
-      Log.d(PacoConstants.TAG, "Keeping previous app package at " + currentlyHandledAppPackageNames + " because it would be null otherwise.");
+      Log.debug("Keeping previous app package at " + currentlyHandledAppPackageNames + " because it would be null otherwise.");
     }
 
     // Extract the requested permission from the text in the dialog.
@@ -561,7 +563,7 @@ public class RuntimePermissionMonitorService extends AccessibilityService {
    */
   private void triggerBroadcastTriggerService(boolean isGranted, boolean initiatedByUser) {
     Context context = getApplicationContext();
-    Log.d(PacoConstants.TAG, "Broadcasting permission change for " + currentlyHandledAppPackageNames + ": " + currentlyHandledPermission + " set to " + isGranted);
+    Log.debug("Broadcasting permission change for " + currentlyHandledAppPackageNames + ": " + currentlyHandledPermission + " set to " + isGranted);
 
     Intent broadcastTriggerServiceIntent = new Intent(context, BroadcastTriggerService.class);
     broadcastTriggerServiceIntent.putExtra(Experiment.TRIGGERED_TIME, DateTime.now().toString(TimeUtil.DATETIME_FORMAT));
@@ -587,16 +589,16 @@ public class RuntimePermissionMonitorService extends AccessibilityService {
   protected void onServiceConnected() {
     previouslyEncounteredPermissionRequests = new LinkedBlockingDeque();
     running = true;
-    Log.d(PacoConstants.TAG, "Connected to the accessibility service");
+    Log.debug("Connected to the accessibility service");
     if (!Locale.getDefault().getISO3Language().equals(Locale.ENGLISH.getISO3Language())) {
       // We don't really need to signal this to the user, as it is the experiment provider who
       // is responsible for checking this should not be a problem for the experiment.
-      Log.w(PacoConstants.TAG, "Detected locale is " + Locale.getDefault().toString() +
+      Log.warn("Detected locale is " + Locale.getDefault().toString() +
               ". RuntimePermissions triggering does not support non-English languages; " +
               "permissions might not always be interpreted correctly");
     }
     if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {  // TODO: update to Marshmallow when project SDK changes
-      Log.e(PacoConstants.TAG, "RuntimePermissions triggering should not be used on pre-Marshmallow devices. Stopping service.");
+      Log.error("RuntimePermissions triggering should not be used on pre-Marshmallow devices. Stopping service.");
       stopSelf();
     }
   }
@@ -607,7 +609,7 @@ public class RuntimePermissionMonitorService extends AccessibilityService {
    */
   @Override
   public void onDestroy() {
-    Log.d(PacoConstants.TAG, "Accessibility service destroyed");
+    Log.debug("Accessibility service destroyed");
     running = false;
   }
 

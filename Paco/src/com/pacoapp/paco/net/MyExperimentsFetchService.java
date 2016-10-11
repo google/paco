@@ -18,17 +18,21 @@ package com.pacoapp.paco.net;
 
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.pacoapp.paco.model.Experiment;
+
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Binder;
 import android.os.IBinder;
 import android.os.PowerManager;
-import android.util.Log;
-
-import com.pacoapp.paco.model.Experiment;
 
 public class MyExperimentsFetchService extends Service {
+
+  private static Logger Log = LoggerFactory.getLogger(MyExperimentsFetchService.class);
   private static MyExperimentsFetcher fetcherInstance;
   private final IBinder mBinder = new LocalBinder();
 
@@ -50,7 +54,7 @@ public class MyExperimentsFetchService extends Service {
 
   @Override
   public boolean onUnbind(Intent intent) {
-      Log.d(this.getClass().getName(), "UNBIND");
+      Log.debug("UNBIND");
       return true;
   }
 

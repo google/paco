@@ -38,7 +38,7 @@ import android.widget.TextView;
 
 public class TroubleshootingActivity extends ActionBarActivity {
 
-  private Logger LOG = LoggerFactory.getLogger(getClass());
+  private static Logger Log = LoggerFactory.getLogger(TroubleshootingActivity.class);
   private UserPreferences userPrefs;
   private DiagnosticReport diagnosticsReport;
   private TextView resultsTextView;
@@ -153,7 +153,7 @@ public class TroubleshootingActivity extends ActionBarActivity {
 
   private String readFileLog() {
     //final String filesDirPath = getFilesDir().getPath();
-    //String logDir = filesDirPath + "/LOG"; //."/data/data/com.pacoapp.paco/files/LOG";
+    //String logDir = filesDirPath + "/Log"; //."/data/data/com.pacoapp.paco/files/Log";
     File logFileDir = getFilesDir(); //logDir, Context.MODE_PRIVATE);
     //File logFileDir = new File(fileDir, "log");
     if (logFileDir.exists()) {
@@ -184,10 +184,10 @@ public class TroubleshootingActivity extends ActionBarActivity {
                 buf.append("\n");
             }
           } catch (FileNotFoundException e) {
-            LOG.error("could not read LOG file "+ fileName, e);
+            Log.error("could not read Log file "+ fileName, e);
             e.printStackTrace();
           } catch (IOException e) {
-            LOG.error("could not read LOG file "+ fileName, e);
+            Log.error("could not read Log file "+ fileName, e);
             e.printStackTrace();
           }
 

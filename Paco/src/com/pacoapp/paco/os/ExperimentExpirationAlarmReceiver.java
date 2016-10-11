@@ -1,19 +1,21 @@
 package com.pacoapp.paco.os;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.pacoapp.paco.triggering.ExperimentExpirationManagerService;
+
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.util.Log;
-
-import com.pacoapp.paco.PacoConstants;
-import com.pacoapp.paco.triggering.ExperimentExpirationManagerService;
 
 public class ExperimentExpirationAlarmReceiver extends BroadcastReceiver {
 
+  private static Logger Log = LoggerFactory.getLogger(ExperimentExpirationAlarmReceiver.class);
 
   @Override
   public void onReceive(Context context, Intent intent) {
-    Log.i(PacoConstants.TAG, "Receiving alarm");
+    Log.info("Receiving alarm");
     Intent expiryManager = new Intent(context, ExperimentExpirationManagerService.class);
     context.startService(expiryManager);
   }

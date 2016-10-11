@@ -19,10 +19,11 @@ package com.pacoapp.paco.triggering;
 import java.util.List;
 
 import org.joda.time.DateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
-import com.pacoapp.paco.PacoConstants;
 import com.pacoapp.paco.R;
 import com.pacoapp.paco.UserPreferences;
 import com.pacoapp.paco.model.Event;
@@ -55,9 +56,10 @@ import android.content.Intent;
 import android.net.Uri;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
-import android.util.Log;
 
 public class NotificationCreator {
+
+  private static Logger Log = LoggerFactory.getLogger(NotificationCreator.class);
 
   private static final int DEFAULT_SNOOZE_10_MINUTES = 600000;
   public static final String SNOOZE_REPEATER_EXTRA_KEY = "SNOOZE REPEATER";
@@ -220,8 +222,8 @@ public class NotificationCreator {
 
   private void createAllNotificationsForLastMinute(long alarmTime) {
     DateTime alarmAsDateTime = new DateTime(alarmTime);
-    Log.i(PacoConstants.TAG,
-          "Creating All notifications for last minute from signaled alarmTime: " + alarmAsDateTime.toString());
+    Log.info("Creating All notifications for last minute from signaled alarmTime: "
+            + alarmAsDateTime.toString());
 
     List<ExperimentDAO> experimentDAOs = Lists.newArrayList();
     for (Experiment experiment : experimentProviderUtil.getJoinedExperiments()) {
@@ -261,7 +263,7 @@ public class NotificationCreator {
   // So, this notification has not been responded to and should be canceled.
   public void timeoutNotification(NotificationHolder notificationHolder) {
     if (notificationHolder != null) {
-      Log.i(PacoConstants.TAG, "Timing out notification. Holder = " + notificationHolder.getId() + ", experiment = "
+      Log.info("Timing out notification. Holder = " + notificationHolder.getId() + ", experiment = "
                                + notificationHolder.getExperimentId());
       cancelNotification(context, notificationHolder.getId());
       createMissedPacot(context, notificationHolder);
@@ -297,7 +299,7 @@ public class NotificationCreator {
 
   private void createNewNotificationForExperiment(Context context, ActionSpecification timeExperiment,
                                                   boolean customGenerated) {
-    Log.i(PacoConstants.TAG, "CreateNewNotificationForExperiment start");
+    Log.info("CreateNewNotificationForExperiment start");
     NotificationHolder notificationHolder = createNewNotificationWithDetails(context, timeExperiment);
 
     createAlarmToCancelNotificationAtTimeout(context, notificationHolder);
@@ -305,7 +307,7 @@ public class NotificationCreator {
     if (timeExperiment.action.getSnoozeCount() > PacoNotificationAction.SNOOZE_COUNT_DEFAULT) {
       createAlarmForSnooze(context, notificationHolder);
     }
-    Log.i(PacoConstants.TAG, "CreateNewNotificationForExperiment done");
+    Log.info("CreateNewNotificationForExperiment done");
   }
 
   private void createNewCustomNotificationForExperiment(Context context, DateTime time, ExperimentDAO experiment,
@@ -354,8 +356,7 @@ public class NotificationCreator {
 
   private void fireNotification(Context context, NotificationHolder notificationHolder, String experimentTitle,
                                 String message, String experimentSpecificRingtone, Integer color, Boolean dismissible) {
-    Log.i(PacoConstants.TAG,
-          "Creating notification for experiment: " + experimentTitle + ". source: "
+    Log.info("Creating notification for experiment: " + experimentTitle + ". source: "
                   + notificationHolder.getNotificationSource() + ". alarmTime: "
                   + notificationHolder.getAlarmTime().toString() + ", holderId = " + notificationHolder.getId());
 
@@ -454,7 +455,7 @@ public class NotificationCreator {
     DateTime timeoutTime = new DateTime(alarmTime).plusMinutes(timeoutMinutes);
     long elapsedDurationInMillis = timeoutTime.getMillis();
 
-    Log.i(PacoConstants.TAG, "Creating cancel alarm to timeout notification for holder: " + notificationHolder.getId()
+    Log.info("Creating cancel alarm to timeout notification for holder: " + notificationHolder.getId()
                              + ". experiment = " + notificationHolder.getExperimentId() + ". alarmtime = "
                              + new DateTime(alarmTime).toString() + " timing out in " + timeoutMinutes + " minutes");
 
@@ -479,12 +480,12 @@ public class NotificationCreator {
   public void createNotificationsForTrigger(Experiment experiment, Trio<ExperimentGroup, InterruptTrigger, InterruptCue> triggerInfo,
                                             long delayTime, DateTime triggeredDateTime, int triggerEvent,
                                             String sourceIdentifier, ActionSpecification timeExperiment) {
-    Log.i(PacoConstants.TAG, "entering createNotificationsForTrigger");
+    Log.info("entering createNotificationsForTrigger");
     ExperimentGroup experimentGroup = triggerInfo.first;
     List<NotificationHolder> notificationsForGroup = experimentProviderUtil.getNotificationsFor(experiment.getId(),
                                                                                                 experimentGroup.getName());
 
-    Log.i(PacoConstants.TAG, "Got notificationsForGroup: " + notificationsForGroup.size());
+    Log.info("Got notificationsForGroup: " + notificationsForGroup.size());
     // Approach 1 for triggers, mark old triggers notification as missed, cancel
     // them, and install notification for new trigger.
     // we cannot catch the notification before the user can click it. Thus they
@@ -494,11 +495,11 @@ public class NotificationCreator {
     // Alternate approach, ignore new trigger if there is already an active
     // notification for this trigger
     if (activeNotificationForTrigger(notificationsForGroup, timeExperiment)) {
-      Log.i(PacoConstants.TAG, "ACtive notification for trigger exists. not notifying");
+      Log.info("ACtive notification for trigger exists. not notifying");
       return;
     }
 
-    Log.i(PacoConstants.TAG, "delaytime in notificaiton action: " + delayTime);
+    Log.info("delaytime in notificaiton action: " + delayTime);
     try {
       if (delayTime >= 5000) { // temporary bug in the default value
         delayTime /= 1000;
@@ -506,7 +507,7 @@ public class NotificationCreator {
       Thread.sleep(delayTime * 1000);
     } catch (InterruptedException e) {
     }
-    Log.i(PacoConstants.TAG, "timeout and createNew");
+    Log.info("timeout and createNew");
     timeoutNotifications(notificationsForGroup);
     createNewNotificationForExperiment(context, timeExperiment, false);
   }
@@ -528,7 +529,7 @@ public class NotificationCreator {
     DateTime now = new DateTime();
     for (NotificationHolder notificationHolder : notificationsForGroup) {
       if (notificationHolder.isActive(now) && notificationHolder.matches(timeExperiment)) {
-        Log.d(PacoConstants.TAG, "There is already a live notification for this trigger.");
+        Log.debug("There is already a live notification for this trigger.");
         return true;
       }
     }
@@ -541,7 +542,7 @@ public class NotificationCreator {
       if (notificationHolder.isCustomNotification() && notificationHolder.getMessage() != null
           && notificationHolder.getMessage().equals(message)
           && notificationHolder.getNotificationSource().equals(NotificationHolder.CUSTOM_GENERATED_NOTIFICATION)) {
-        Log.d(PacoConstants.TAG, "There is already a live custom-generated notification for this experiment.");
+        Log.debug("There is already a live custom-generated notification for this experiment.");
         return true;
       }
     }
@@ -560,7 +561,7 @@ public class NotificationCreator {
     DateTime timeoutMinutes = new DateTime(alarmTime).plusMinutes(snoozeMinutes);
     long snoozeDurationInMillis = timeoutMinutes.getMillis();
 
-    Log.i(PacoConstants.TAG, "Creating snooze alarm to resound notification for holder: " + notificationHolder.getId()
+    Log.info("Creating snooze alarm to resound notification for holder: " + notificationHolder.getId()
                              + ". experiment = " + notificationHolder.getExperimentId() + ". alarmtime = "
                              + new DateTime(alarmTime).toString() + " waking up from snooze in " + timeoutMinutes
                              + " minutes");

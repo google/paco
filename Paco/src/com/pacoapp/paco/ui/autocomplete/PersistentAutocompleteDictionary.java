@@ -11,14 +11,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import android.content.Context;
-import android.util.Log;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
-import com.pacoapp.paco.PacoConstants;
+
+import android.content.Context;
 
 public class PersistentAutocompleteDictionary extends AutocompleteDictionary {
+
+  private static Logger Log = LoggerFactory.getLogger(PersistentAutocompleteDictionary.class);
 
   private static final String AUTOCOMPLETE_DATA_FILE_NAME = "autocompleteData";
 
@@ -102,9 +105,9 @@ public class PersistentAutocompleteDictionary extends AutocompleteDictionary {
         }
       }
     } catch (FileNotFoundException e) {
-      Log.d(PacoConstants.TAG, "No autocomplete database found yet", e);
+      Log.debug("No autocomplete database found yet", e);
     } catch (IOException e) {
-      Log.d(PacoConstants.TAG, "Could not talk to autocomplete database", e);
+      Log.debug("Could not talk to autocomplete database", e);
     } finally {
       try {
         if (buf != null) {

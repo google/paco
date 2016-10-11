@@ -8,6 +8,11 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.pacoapp.paco.R;
+
 import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.accounts.AccountManagerCallback;
@@ -16,15 +21,13 @@ import android.accounts.OperationCanceledException;
 import android.app.Activity;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.util.Log;
 import android.util.Pair;
 import android.widget.TextView;
 
-import com.pacoapp.paco.R;
-
 public class LoginActivity extends Activity {
 
-  private static final String TAG = LoginActivity.class.getName();
+  private static Logger Log = LoggerFactory.getLogger(LoginActivity.class);
+
 
   private static final String UTF_8 = "UTF-8";
   private static final String APP_ENGINE_ORIGIN = "https://www.pacoapp.com/";
@@ -80,7 +83,7 @@ public class LoginActivity extends Activity {
               setStatus("The user has denied you access to the API");
             } catch (Exception e) {
               setStatus(e.getMessage());
-              Log.w("Exception: ", e);
+              Log.warn("Exception: ", e);
             }
           }
         }, null);
@@ -130,9 +133,9 @@ public class LoginActivity extends Activity {
 //          String body = getSyncPayload();
 //          post(url, body, headers);
           String result = get(url + "experiments?admin", headers);
-          Log.d("TEST", "RESULT = " + result);
+          Log.debug("TEST", "RESULT = " + result);
         } catch (Exception e) {
-          Log.w("EXCEPTION", e);
+          Log.warn("EXCEPTION", e);
           //publishProgress("EXECPTION  " + e);
         }
         return null;
@@ -177,7 +180,7 @@ public class LoginActivity extends Activity {
           urlConnection.disconnect();
           return result;
         } catch (Exception e) {
-          Log.w(TAG, "EXECPTION" + e);
+          Log.warn("EXECPTION" + e);
           throw new RuntimeException(e);
         }
       }
@@ -187,7 +190,7 @@ public class LoginActivity extends Activity {
   }
 
   private void setStatus(String msg) {
-    Log.i(TAG, msg);
+    Log.info(msg);
     statusTextView.setText(statusTextView.getText() + "\n" + msg);
   }
 

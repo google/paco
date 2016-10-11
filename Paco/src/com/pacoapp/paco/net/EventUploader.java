@@ -10,9 +10,8 @@ import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
-
-import android.content.Context;
-import android.util.Log;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.pacoapp.paco.PacoConstants;
 import com.pacoapp.paco.model.Event;
@@ -20,9 +19,13 @@ import com.pacoapp.paco.shared.comm.Outcome;
 import com.pacoapp.paco.shared.model2.EventStore;
 import com.pacoapp.paco.shared.model2.JsonConverter;
 
+import android.content.Context;
+
 public class EventUploader {
 
   private static final int UPLOAD_EVENT_GROUP_SIZE = 50;
+
+  private Logger LOG = LoggerFactory.getLogger(EventUploader.class);
 
   private EventStore eventStore;
   private String serverAddress;
@@ -38,11 +41,11 @@ public class EventUploader {
 
   public void uploadEvents(List<Event> allEvents) {
     if (allEvents.size() == 0) {
-      Log.d(PacoConstants.TAG, "Nothing to sync");
+      LOG.debug(PacoConstants.TAG, "Nothing to sync");
       return;
     }
     boolean hasErrorOcurred = false;
-    Log.d(PacoConstants.TAG, "Tasks found in db");
+    LOG.debug(PacoConstants.TAG, "Tasks found in db");
 
     int uploadGroupSize = UPLOAD_EVENT_GROUP_SIZE;
     int uploaded = 0;
@@ -64,9 +67,9 @@ public class EventUploader {
     }
 
     if (!hasErrorOcurred) {
-      Log.d(PacoConstants.TAG, "syncing complete");
+      LOG.debug(PacoConstants.TAG, "syncing complete");
     } else {
-      Log.d(PacoConstants.TAG, "could not complete upload of events");
+      LOG.debug(PacoConstants.TAG, "could not complete upload of events");
     }
   }
 
@@ -123,14 +126,14 @@ public class EventUploader {
 
     };
 
-    Log.i("" + this, "Preparing to post.");
+    LOG.info("" + this, "Preparing to post.");
     final String completeServerUrl = ServerAddressBuilder.createServerUrl(serverAddress, "/events");
     new PacoBackgroundService(networkClient, completeServerUrl, json).execute()  ;
 
     try {
       latch.await();
     } catch (InterruptedException e) {
-      Log.e(PacoConstants.TAG, "exception waiting for post of events", e);
+      LOG.error(PacoConstants.TAG, "exception waiting for post of events", e);
       responsePair.overallCode = 500;
     }
     return responsePair;
@@ -142,13 +145,13 @@ public class EventUploader {
       try {
         responsePair.outcomes = mapper2.readValue(contentAsString, new TypeReference<List<Outcome>>() {});
       } catch (JsonParseException e) {
-        Log.e(PacoConstants.TAG, e.getMessage(), e);
+        LOG.error(PacoConstants.TAG, e.getMessage(), e);
         responsePair.overallCode = 500;
       } catch (JsonMappingException e) {
-        Log.e(PacoConstants.TAG, e.getMessage(), e);
+        LOG.error(PacoConstants.TAG, e.getMessage(), e);
         responsePair.overallCode = 500;
       } catch (IOException e) {
-        Log.e(PacoConstants.TAG, e.getMessage(), e);
+        LOG.error(PacoConstants.TAG, e.getMessage(), e);
         responsePair.overallCode = 500;
       }
     }
@@ -157,17 +160,17 @@ public class EventUploader {
   private String toJson(List<Event> events, ResponsePair responsePair) {
     ObjectMapper mapper = JsonConverter.getObjectMapper();
     StringWriter stringWriter = new StringWriter();
-    Log.d(PacoConstants.TAG, "syncing events");
+    LOG.debug(PacoConstants.TAG, "syncing events");
     try {
       mapper.writeValue(stringWriter, events);
     } catch (JsonGenerationException e) {
-      Log.e(PacoConstants.TAG, e.getMessage(), e);
+      LOG.error(PacoConstants.TAG, e.getMessage(), e);
       responsePair.overallCode = 500;
     } catch (JsonMappingException e) {
-      Log.e(PacoConstants.TAG, e.getMessage(), e);
+      LOG.error(PacoConstants.TAG, e.getMessage(), e);
       responsePair.overallCode = 500;
     } catch (IOException e) {
-      Log.e(PacoConstants.TAG, e.getMessage(), e);
+      LOG.error(PacoConstants.TAG, e.getMessage(), e);
       responsePair.overallCode = 500;
     }
     return stringWriter.toString();

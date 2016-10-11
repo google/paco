@@ -6,6 +6,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.common.collect.Lists;
+
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -13,12 +18,10 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.os.Build;
-import android.util.Log;
-
-import com.google.common.collect.Lists;
-import com.pacoapp.paco.PacoConstants;
 
 public class AndroidInstalledApplications {
+
+  private static Logger Log = LoggerFactory.getLogger(AndroidInstalledApplications.class);
 
   public static final String PACKAGE_NAME = "packageName";
   public static final String APP_NAME = "appName";
@@ -53,7 +56,7 @@ public class AndroidInstalledApplications {
 
       if ((applicationInfo.flags & ApplicationInfo.FLAG_SYSTEM) == 1 &&
               !whitelist.contains(appname)) {
-        Log.i(PacoConstants.TAG, "Skipping: " + appname);
+        Log.info("Skipping: " + appname);
         continue;
       }
 
@@ -79,7 +82,7 @@ public class AndroidInstalledApplications {
       }
       return applicationInfo.loadLabel(packageManager).toString();
     } catch (PackageManager.NameNotFoundException e) {
-      Log.v(PacoConstants.TAG, "No app name found for package " + packageName + ", trying cache");
+      Log.info("No app name found for package " + packageName + ", trying cache");
       // Try to get it from cache, return empty string if not found
       return sharedPreferences.getString(packageName, "");
     }
@@ -155,7 +158,7 @@ public class AndroidInstalledApplications {
    * store, so we can query even for application names of packages that have been uninstalled.
    */
   public void cacheApplicationNames() {
-    Log.v(PacoConstants.TAG, "Caching names of installed applications");
+    Log.info("Caching names of installed applications");
     SharedPreferences.Editor preferencesEditor = sharedPreferences.edit();
 
     for (ApplicationInfo appInfo : packageManager.getInstalledApplications(0)) {
