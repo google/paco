@@ -44,7 +44,7 @@ public class EventUploader {
       return;
     }
     boolean hasErrorOcurred = false;
-    Log.debug("Tasks found in db");
+    Log.debug("Tasks (" + allEvents.size() + ") found in db");
 
     int uploadGroupSize = UPLOAD_EVENT_GROUP_SIZE;
     int uploaded = 0;
