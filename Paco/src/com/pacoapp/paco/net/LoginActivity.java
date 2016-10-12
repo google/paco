@@ -42,7 +42,7 @@ public class LoginActivity extends Activity {
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-
+    Log.debug("LoginActivity onCreate");
     Bundle extras = getIntent().getExtras();
     if (extras != null) {
       date_yyyyMMdd = (String) extras.get("date");

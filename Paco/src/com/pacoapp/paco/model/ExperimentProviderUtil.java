@@ -292,8 +292,9 @@ public class ExperimentProviderUtil implements EventStore {
       ExperimentDAO newExperimentDAO = newExperiment.getExperimentDAO();
       ExperimentDAO existingDAO = existingExperiment.getExperimentDAO();
       // TODO preserve any modified schedule settings if it is user-editable and different from the new
-
+      newExperimentDAO.setJoinDate(existingDAO.getJoinDate());
       existingExperiment.setExperimentDAO(newExperimentDAO);
+      existingExperiment.setJoinDate(existingExperiment.getJoinDate());
     }
 
   }
@@ -684,10 +685,10 @@ public class ExperimentProviderUtil implements EventStore {
     if (experiment.getExperimentDAO().getTitle() != null) {
       values.put(ExperimentColumns.TITLE, experiment.getExperimentDAO().getTitle());
     }
-    if (experiment.getJoinDate() != null) {
-      values.put(ExperimentColumns.JOIN_DATE, experiment.getJoinDate());
-    } else if (experiment.getExperimentDAO().getJoinDate() != null) {
+    if (experiment.getExperimentDAO().getJoinDate() != null) {
       values.put(ExperimentColumns.JOIN_DATE, experiment.getExperimentDAO().getJoinDate());
+    } else if (experiment.getJoinDate() != null) {
+      values.put(ExperimentColumns.JOIN_DATE, experiment.getJoinDate());
     }
 
     long t1 = System.currentTimeMillis();

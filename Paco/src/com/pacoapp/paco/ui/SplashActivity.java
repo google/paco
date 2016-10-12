@@ -53,6 +53,7 @@ public class SplashActivity extends Activity implements NetworkClient {
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.splash_screen);
+    Log.debug("SplashActivity onCreate()");
 
     changingExistingAccount = getIntent().getBooleanExtra(EXTRA_CHANGING_EXISTING_ACCOUNT, false);
 

@@ -57,6 +57,7 @@ public class SyncService extends Service {
   @Override
   public void onStart(Intent intent, int startId) {
     super.onStart(intent, startId);
+    Log.debug("SyncService onStart");
     userPrefs = new UserPreferences(getApplicationContext());
     PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
     final PowerManager.WakeLock wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "Paco SyncService wakelock");
@@ -77,11 +78,11 @@ public class SyncService extends Service {
 
   private void syncData() {
     if (!NetworkUtil.isConnected(this)) {
-      Log.info("No network. Not syncing.");
+      Log.debug("No network. Not syncing.");
       return;
     }
     synchronized (SyncService.class) {
-      Log.info("Sync service working");
+      Log.debug("Sync service working");
       experimentProviderUtil = new ExperimentProviderUtil(this);
       List<Event> allEvents = experimentProviderUtil.getEventsNeedingUpload();
       EventUploader eventUploader = new EventUploader(this, userPrefs.getServerAddress(),
@@ -90,6 +91,7 @@ public class SyncService extends Service {
       // encrypt their answers accordingly
       List<Event> encryptedEvents = new Crypto(experimentProviderUtil).encryptAnswers(allEvents);
       eventUploader.uploadEvents(encryptedEvents);
+      Log.debug("SyncService done");
     }
   }
 }

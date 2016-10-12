@@ -87,6 +87,8 @@ public class FeedbackActivity extends ActionBarActivity {
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
+    Log.debug("FeedbackActivity onCreate");
+
     ActionBar actionBar = getSupportActionBar();
     actionBar.setLogo(R.drawable.ic_launcher);
     actionBar.setDisplayUseLogoEnabled(true);
@@ -100,6 +102,7 @@ public class FeedbackActivity extends ActionBarActivity {
     loadExperimentInfoFromIntent();
 
     if (experiment == null || experimentGroup == null) {
+      Log.error("FeedbackActivity experiment is null");
       displayNoExperimentMessage();
     } else {
       setContentView(R.layout.feedback);
@@ -121,8 +124,6 @@ public class FeedbackActivity extends ActionBarActivity {
       final com.pacoapp.paco.shared.model2.Feedback feedback = experimentGroup.getFeedback();
 
       injectObjectsIntoJavascriptEnvironment(feedback);
-
-
       setWebChromeClientThatHandlesAlertsAsDialogs();
 
       WebViewClient webViewClient = createWebViewClientThatHandlesFileLinksForCharts(feedback);
@@ -179,10 +180,12 @@ public class FeedbackActivity extends ActionBarActivity {
   }
 
   private void loadRetrospectiveFeedbackIntoWebView() {
+    Log.debug("FeedbackActivity loadRetrospectiveFeedbackIntoWebView");
     webView.loadUrl("file:///android_asset/retrospective_feedback.html");
   }
 
   private void loadCustomFeedbackIntoWebView() {
+    Log.debug("FeedbackActivity loadCustomFeedbackIntoWebView");
     webView.loadUrl("file:///android_asset/skeleton.html");
   }
 
@@ -410,6 +413,7 @@ public class FeedbackActivity extends ActionBarActivity {
   @Override
   protected void onStop() {
     super.onStop();
+    Log.debug("FeedbackActivity onStop");
     //finish();
   }
 

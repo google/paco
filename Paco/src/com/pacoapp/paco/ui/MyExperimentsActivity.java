@@ -100,7 +100,7 @@ public class MyExperimentsActivity extends ActionBarActivity implements
   private static final int RINGTONE_REQUESTCODE = 945;
   public static final int REFRESHING_EXPERIMENTS_DIALOG_ID = 1001;
 
-  private Logger LOG = LoggerFactory.getLogger(this.getClass());
+  private Logger Log = LoggerFactory.getLogger(this.getClass());
 
   private ExperimentProviderUtil experimentProviderUtil;
   private ListView list;
@@ -143,7 +143,7 @@ public class MyExperimentsActivity extends ActionBarActivity implements
   @SuppressLint("NewApi")
   @Override
   protected void onCreate(Bundle savedInstanceState) {
-    LOG.info("Entering onCreate");
+    Log.info("MyExperimentsActivity onCreate");
     super.onCreate(savedInstanceState);
     mainLayout = (ViewGroup) getLayoutInflater().inflate(R.layout.activity_current_experiments, null);
     setContentView(mainLayout);
@@ -329,7 +329,7 @@ public class MyExperimentsActivity extends ActionBarActivity implements
 
   @Override
   protected void onResume() {
-    LOG.info("Entering onResume");
+    Log.info("MyExperimentsActivity onResume");
     super.onResume();
     if (userPrefs.getAccessToken() == null) {
       Intent splash = new Intent(this, SplashActivity.class);
@@ -362,7 +362,7 @@ public class MyExperimentsActivity extends ActionBarActivity implements
 
   @Override
   protected void onPause() {
-    LOG.info("Entering onPause");
+    Log.info("MyExperimentsActivity onPause");
     super.onPause();
     unregisterForContextMenu(list);
   }
@@ -747,6 +747,7 @@ public class MyExperimentsActivity extends ActionBarActivity implements
   }
 
   private void refreshList() {
+    Log.debug("MyExperimentsActivity refreshList");
     List<Long> joinedExperimentServerIds = experimentProviderUtil.getJoinedExperimentServerIds();
     if (joinedExperimentServerIds != null && joinedExperimentServerIds.size() > 0) {
       progressBar.setVisibility(View.VISIBLE);
@@ -849,7 +850,7 @@ public class MyExperimentsActivity extends ActionBarActivity implements
 
   @Override
   protected void onStop() {
-    LOG.info("Entering onStop");
+    Log.info("MyExperimentsActivity onStop");
     super.onStop();
     if (bound) {
       unbindService(mConnection);
@@ -860,8 +861,10 @@ public class MyExperimentsActivity extends ActionBarActivity implements
   @Override
   protected void onStart() {
     super.onStart();
+    Log.debug("MyExperimentsActivity onStart");
     // Bind to LocalService
     if (userPrefs.getAccessToken() != null) {
+      Log.debug("MyExperimentsActivity fetching new experiments");
       Intent intent = new Intent(this, MyExperimentsFetchService.class);
       bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
     }

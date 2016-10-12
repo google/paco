@@ -118,10 +118,13 @@ public class ExperimentExecutor extends ActionBarActivity implements ChangeListe
   private LinearLayout inputsScrollPane;
   private DateTime formOpenTime;
 
+  private Long timeoutMillis;
+
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
+    Log.debug("ExperimentExecutor onCreate");
     ActionBar actionBar = getSupportActionBar();
     actionBar.setLogo(R.drawable.ic_launcher);
     actionBar.setDisplayUseLogoEnabled(true);
@@ -132,6 +135,7 @@ public class ExperimentExecutor extends ActionBarActivity implements ChangeListe
 
     experimentProviderUtil = new ExperimentProviderUtil(this);
     if (experiment == null || experimentGroup == null) {
+      Log.debug("ExperimentExecutor experiment or group null. Loading from Intent");
       IntentExtraHelper.loadExperimentInfoFromIntent(this, getIntent(), experimentProviderUtil);
     }
     loadNotificationData();
@@ -213,7 +217,7 @@ public class ExperimentExecutor extends ActionBarActivity implements ChangeListe
     if (extras != null) {
       notificationHolderId = extras.getLong(NotificationCreator.NOTIFICATION_ID);
       notificationHolder = experimentProviderUtil.getNotificationById(notificationHolderId);
-      Long timeoutMillis = null;
+      timeoutMillis = null;
       if (notificationHolder != null) {
         experiment = experimentProviderUtil.getExperimentByServerId(notificationHolder.getExperimentId());
         experimentGroup = getExperiment().getExperimentDAO().getGroupByName(notificationHolder.getExperimentGroupName());
@@ -228,6 +232,7 @@ public class ExperimentExecutor extends ActionBarActivity implements ChangeListe
       }
 
       if (isExpiredEsmPing(timeoutMillis)) {
+        Log.debug("ExperimentExecutor loadNotificationData ping is alread expired");
         Toast.makeText(this, R.string.survey_expired, Toast.LENGTH_LONG).show();
         finish();
       }
@@ -260,8 +265,9 @@ public class ExperimentExecutor extends ActionBarActivity implements ChangeListe
         notificationHolderId = notificationHolder.getId();
         scheduledTime = notificationHolder.getAlarmTime();
         shouldExpireNotificationHolder = true;
-        Log.info("ExperimentExecutor: Self report, but found signal still active : " + getExperiment().getExperimentDAO().getTitle() +". alarmTime: " + new DateTime(scheduledTime).toString());
+        Log.info("ExperimentExecutor: Self reporting but found active notification: " + getExperiment().getExperimentDAO().getTitle() +". alarmTime: " + new DateTime(scheduledTime).toString());
       } else {
+        Log.debug("Timing out notification that has expired.");
         NotificationCreator.create(this).timeoutNotification(notificationHolder);
       }
     }
@@ -270,6 +276,7 @@ public class ExperimentExecutor extends ActionBarActivity implements ChangeListe
   @Override
   protected void onResume() {
     super.onResume();
+    Log.debug("ExperimentExecutor onResume");
     registerLocationListenerIfNecessary();
     if (mainLayout != null) {
       mainLayout.clearFocus();
@@ -286,6 +293,7 @@ public class ExperimentExecutor extends ActionBarActivity implements ChangeListe
   @Override
   protected void onPause() {
     super.onPause();
+    Log.debug("ExperimentExecutor onPause");
     for (InputLayout  layout : inputs) {
       layout.onPause();
     }
@@ -439,8 +447,9 @@ public class ExperimentExecutor extends ActionBarActivity implements ChangeListe
   }
 
   private void save() {
+    Log.debug("ExperimentExecutor save");
     try {
-      if (notificationHolderId == null) {
+      if (notificationHolderId == null || isExpiredEsmPing(timeoutMillis)) {
         // workaround the bug with re-launching and stale scheduleTime.
         // How - if there isn't a notificationHolder waiting, then this is not a response
         // to a notification.
@@ -451,7 +460,6 @@ public class ExperimentExecutor extends ActionBarActivity implements ChangeListe
       gatherResponses(event);
       addTiming(event);
       experimentProviderUtil.insertEvent(event);
-
 
       deleteNotification();
 

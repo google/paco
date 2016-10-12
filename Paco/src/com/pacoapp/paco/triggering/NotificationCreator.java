@@ -86,6 +86,8 @@ public class NotificationCreator {
   }
 
   public void timeoutNotification(long notificationId) {
+    Log.debug("timeoutNotification: " + notificationId);
+
     try {
       NotificationHolder notificationHolder = experimentProviderUtil.getNotificationById(notificationId);
       timeoutNotification(notificationHolder);
@@ -100,6 +102,7 @@ public class NotificationCreator {
   }
 
   public void recreateActiveNotifications() {
+    Log.debug("recreateActiveNotifications");
     try {
       List<NotificationHolder> allNotifications = experimentProviderUtil.getAllNotifications();
       DateTime now = new DateTime();
@@ -191,6 +194,7 @@ public class NotificationCreator {
   }
 
   public void createSnoozeWakeupNotification(long notificationId) {
+    Log.debug("createSnoozeWakeupNotification " + notificationId);
     NotificationHolder notificationHolder = experimentProviderUtil.getNotificationById(notificationId);
     if (notificationHolder == null) {
       return;

@@ -88,6 +88,7 @@ public class AlarmCreator2 {
    * @param regenerateAlarms
    */
   public void updateAlarm() {
+    Log.debug("AlarmCreator updateAlarm");
     ExperimentProviderUtil experimentProviderUtil = new ExperimentProviderUtil(pendingIntentContext);
     List<Experiment> experiments = experimentProviderUtil.getJoinedExperiments();
     List<ExperimentDAO> experimentDAOs = Lists.newArrayList();

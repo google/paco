@@ -34,6 +34,7 @@ import java.util.Locale;
 import java.util.Map;
 
 import org.joda.time.DateTime;
+import org.joda.time.Seconds;
 import org.json.JSONArray;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -159,10 +160,15 @@ public class ExperimentExecutorCustomRendering extends ActionBarActivity impleme
   private String notificationMessage;
   private String notificationSource;
 
+  private DateTime formOpenTime;
+
+  private Long timeoutMillis;
+
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
+    Log.debug("ExperimentExecutorCustomRendering onCreate");
     ActionBar actionBar = getSupportActionBar();
     actionBar.setLogo(R.drawable.ic_launcher);
     actionBar.setDisplayUseLogoEnabled(true);
@@ -231,7 +237,7 @@ public class ExperimentExecutorCustomRendering extends ActionBarActivity impleme
     if (extras != null) {
       notificationHolderId = extras.getLong(NotificationCreator.NOTIFICATION_ID);
       notificationHolder = experimentProviderUtil.getNotificationById(notificationHolderId);
-      Long timeoutMillis = null;
+      timeoutMillis = null;
       if (notificationHolder != null) {
         experiment = experimentProviderUtil.getExperimentByServerId(notificationHolder.getExperimentId());
         experimentGroup = experiment.getExperimentDAO().getGroupByName(notificationHolder.getExperimentGroupName());
@@ -287,12 +293,14 @@ public class ExperimentExecutorCustomRendering extends ActionBarActivity impleme
   @Override
   protected void onResume() {
     super.onResume();
+    Log.debug("ExperimentExecutorCustomRendering onResume");
     registerLocationListenerIfNecessary();
   }
 
   @Override
   protected void onPause() {
     super.onPause();
+    Log.debug("ExperimentExecutorCustomRendering onPause");
     for (InputLayout inputLayout : inputs) {
       inputLayout.onPause();
     }
@@ -446,6 +454,7 @@ public class ExperimentExecutorCustomRendering extends ActionBarActivity impleme
         showDialog = true;
       }
     }
+    formOpenTime = DateTime.now();
   }
 
 private void injectObjectsIntoJavascriptEnvironment() {
@@ -712,8 +721,9 @@ public boolean onKeyDown(int keyCode, KeyEvent event) {
 
 /// saving and external service callouts
   private void save() {
+    Log.debug("ExperimentExecutorCustomRendering save");
     try {
-      if (notificationHolderId == null) {
+      if (notificationHolderId == null || isExpiredEsmPing(timeoutMillis)) {
         // workaround the bug with re-launching and stale scheduleTime.
         // How - if there isn't a notificationHolder waiting, then this is not a response
         // to a notification.
@@ -722,6 +732,7 @@ public boolean onKeyDown(int keyCode, KeyEvent event) {
       Event event = EventUtil.createEvent(getExperiment(), experimentGroup.getName(),
                                           actionTriggerId, actionId, actionTriggerSpecId, scheduledTime);
       gatherResponses(event);
+      addTiming(event);
       experimentProviderUtil.insertEvent(event);
 
 
@@ -743,6 +754,17 @@ public boolean onKeyDown(int keyCode, KeyEvent event) {
     }
   }
 
+  private void addTiming(Event event) {
+    if (formOpenTime != null) {
+      DateTime formFinishTime = DateTime.now();
+      Seconds duration = Seconds.secondsBetween(formOpenTime, formFinishTime);
+
+      Output durationResponse = new Output();
+      durationResponse.setAnswer(Integer.toString(duration.getSeconds()));
+      durationResponse.setName(ExperimentExecutor.FORM_DURATION_IN_SECONDS);
+      event.addResponse(durationResponse);
+    }
+  }
   private void updateAlarms() {
     startService(new Intent(this, BeeperService.class));
   }
@@ -1113,6 +1135,7 @@ public boolean onKeyDown(int keyCode, KeyEvent event) {
   }
 
   public void stopExperiment() {
+    Log.debug("ExperimentExecutorCustomRendering stopExperiment");
     deleteExperiment();
     finish();
   }
