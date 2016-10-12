@@ -105,16 +105,12 @@ public class EventServlet extends HttpServlet {
           resp.setContentType("application/json;charset=UTF-8");
           dumpEventsJson(resp, req, anon, includePhotos, limit, cursor, cmdline);
         } else {
-          dumpEventJsonUsingBackend(resp, req, anon, includePhotos, limit, cursor, cmdline);
+          dumpEventsJsonExperimental(resp, req, anon, limit, cursor, cmdline);
         }
       } else if (req.getParameter("photozip") != null) {
         dumpPhotosZip(resp, req, anon, limit, cursor, cmdline);
       } else if (req.getParameter("csv") != null) {
-        dumpEventsCSV(resp, req, anon, limit, cursor, cmdline);
-      } else if (req.getParameter("csv2") != null) {
         dumpEventsCSVExperimental(resp, req, anon, limit, cursor, cmdline);
-      } else if (req.getParameter("json2") != null) {
-        dumpEventsJsonExperimental(resp, req, anon, limit, cursor, cmdline);
       } else {
         dumpEventsHtml(resp, req, anon, limit, cursor, cmdline);
       }
