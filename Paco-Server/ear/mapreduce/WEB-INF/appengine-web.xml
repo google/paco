@@ -2,7 +2,7 @@
 
  <application>quantifiedself</application>
   <module>mapreduce</module>
-  <version>184</version>
+  <version>185</version>
   <threadsafe>true</threadsafe>
     <ssl-enabled>true</ssl-enabled>
   <sessions-enabled>true</sessions-enabled>
