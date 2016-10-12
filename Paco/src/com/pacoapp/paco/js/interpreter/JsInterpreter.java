@@ -13,13 +13,14 @@ import org.mozilla.javascript.JavaScriptException;
 import org.mozilla.javascript.RhinoException;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.ScriptableObject;
-
-import android.util.Log;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.ImmutableSet;
-import com.pacoapp.paco.PacoConstants;
 
 public class JsInterpreter {
+
+  private static Logger Log = LoggerFactory.getLogger(JsInterpreter.class);
 
   public static class RestrictedContextFactory extends ContextFactory {
     private static final Set<String> ALLOWED_CLASS_NAMES =
@@ -89,11 +90,11 @@ public class JsInterpreter {
 //      context.setOptimizationLevel(-1);
       return context.evaluateString(rootScope, code, "doit:", 1, securityDomain);
     } catch (JavaScriptException jse) {
-      Log.e(PacoConstants.TAG, "JSE: " + jse.getMessage() + ". " + jse.getScriptStackTrace());
+      Log.error("JSE: " + jse.getMessage() + ". " + jse.getScriptStackTrace());
       throw jse;
     } catch (RhinoException re) {
       // log
-      Log.e(PacoConstants.TAG, "JSE: " + re.getMessage() + ". "  + re.getScriptStackTrace());
+      Log.error("JSE: " + re.getMessage() + ". "  + re.getScriptStackTrace());
       throw new IllegalStateException(re);
 //    } finally {
 //      context.exit();

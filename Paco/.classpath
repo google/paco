@@ -9,5 +9,7 @@
 	<classpathentry exported="true" kind="con" path="com.android.ide.eclipse.adt.DEPENDENCIES"/>
 	<classpathentry kind="lib" path="libs/antlr-runtime-3.2.jar"/>
 	<classpathentry kind="lib" path="libs/joda-time-2.9.3.jar"/>
+	<classpathentry kind="lib" path="libs/slf4j-api-1.7.21.jar"/>
+	<classpathentry kind="lib" path="libs/logback-android-1.1.1-6.jar"/>
 	<classpathentry kind="output" path="bin/classes"/>
 </classpath>

@@ -5,12 +5,10 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 
-import android.content.Context;
-import android.content.res.AssetManager;
-import android.util.Log;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Strings;
-import com.pacoapp.paco.PacoConstants;
 import com.pacoapp.paco.js.bridge.JavascriptCalendarManager;
 import com.pacoapp.paco.js.bridge.JavascriptEventLoader;
 import com.pacoapp.paco.js.bridge.JavascriptExperimentLoader;
@@ -25,8 +23,11 @@ import com.pacoapp.paco.model.ExperimentProviderUtil;
 import com.pacoapp.paco.shared.model2.ExperimentDAO;
 import com.pacoapp.paco.shared.model2.ExperimentGroup;
 
-public class AndroidJsInterpreterBuilder {
+import android.content.Context;
+import android.content.res.AssetManager;
 
+public class AndroidJsInterpreterBuilder {
+  private static Logger Log = LoggerFactory.getLogger(AndroidJsInterpreterBuilder.class);
 
   private AndroidJsInterpreterBuilder() {
 
@@ -70,9 +71,9 @@ public class AndroidJsInterpreterBuilder {
       jsFile = assets.open(libFileNameInAssets);
       return readBytes(jsFile);
     } catch (FileNotFoundException e) {
-      Log.e(PacoConstants.TAG, "File not found for " + libFileNameInAssets, e);
+      Log.error("File not found for " + libFileNameInAssets, e);
     } catch (IOException e) {
-      Log.e(PacoConstants.TAG, "IO Error loading " + libFileNameInAssets, e);
+      Log.error("IO Error loading " + libFileNameInAssets, e);
     } finally {
       if (jsFile != null) {
         try {

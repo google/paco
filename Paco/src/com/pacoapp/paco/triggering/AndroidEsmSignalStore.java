@@ -21,15 +21,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.joda.time.DateTime;
-
-import android.content.ContentValues;
-import android.content.Context;
-import android.database.Cursor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Strings;
 import com.pacoapp.paco.model.EsmSignalColumns;
 import com.pacoapp.paco.model.EsmSignalProvider;
 import com.pacoapp.paco.shared.scheduling.EsmSignalStore;
+
+import android.content.ContentValues;
+import android.content.Context;
+import android.database.Cursor;
 
 /**
  * Non-Android-specific interface for storing and retrieving geneated ESM signals.
@@ -39,6 +41,8 @@ import com.pacoapp.paco.shared.scheduling.EsmSignalStore;
  *
  */
 public class AndroidEsmSignalStore implements EsmSignalStore {
+
+  private static Logger Log = LoggerFactory.getLogger(AndroidEsmSignalStore.class);
 
   private Context context;
 
@@ -52,6 +56,7 @@ public class AndroidEsmSignalStore implements EsmSignalStore {
   @Override
   public void storeSignal(Long date, Long experimentId, Long alarmTime,
                 String groupName, Long actionTriggerId, Long scheduleId) {
+    Log.debug("storeEsmSignal");
     assertAllSelectionParams(experimentId, date, groupName, actionTriggerId, scheduleId);
 
     ContentValues values = new ContentValues();
@@ -84,6 +89,7 @@ public class AndroidEsmSignalStore implements EsmSignalStore {
       while (cursor.moveToNext()) {
         dateTimes.add(new DateTime(cursor.getLong(timeIndex)));
       }
+      Log.debug("getEsmSignals returning " + ((dateTimes != null) ? dateTimes.size() : "null"));
       return dateTimes;
     } finally {
       cursor.close();
@@ -115,6 +121,7 @@ public class AndroidEsmSignalStore implements EsmSignalStore {
    */
   @Override
   public void deleteAllSignalsForSurvey(Long experimentId) {
+    Log.debug("deleteAllSignalsForSurvey");
     if (experimentId == null) {
       return;
     }
@@ -130,6 +137,7 @@ public class AndroidEsmSignalStore implements EsmSignalStore {
   public void deleteSignalsForPeriod(Long experimentId,
                                      Long periodStart,
                                      String groupName, Long actionTriggerId, Long scheduleId) {
+    Log.debug("deleteAllSignalsForPeriod");
     if (experimentId == null) {
       return;
     }

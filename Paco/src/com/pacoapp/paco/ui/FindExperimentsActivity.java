@@ -27,6 +27,19 @@ import java.util.Map;
 
 import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.map.JsonMappingException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
+import com.pacoapp.paco.R;
+import com.pacoapp.paco.UserPreferences;
+import com.pacoapp.paco.model.Experiment;
+import com.pacoapp.paco.model.ExperimentProviderUtil;
+import com.pacoapp.paco.net.ExperimentUrlBuilder;
+import com.pacoapp.paco.net.NetworkClient;
+import com.pacoapp.paco.net.NetworkUtil;
+import com.pacoapp.paco.net.PacoForegroundService;
 
 import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
@@ -55,17 +68,6 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.common.base.Strings;
-import com.google.common.collect.Lists;
-import com.pacoapp.paco.R;
-import com.pacoapp.paco.UserPreferences;
-import com.pacoapp.paco.model.Experiment;
-import com.pacoapp.paco.model.ExperimentProviderUtil;
-import com.pacoapp.paco.net.ExperimentUrlBuilder;
-import com.pacoapp.paco.net.NetworkClient;
-import com.pacoapp.paco.net.NetworkUtil;
-import com.pacoapp.paco.net.PacoForegroundService;
-
 
 /**
  *
@@ -77,6 +79,8 @@ public class FindExperimentsActivity extends ActionBarActivity implements Networ
   public static final int JOIN_REQUEST_CODE = 1;
   public static final int JOINED_EXPERIMENT = 1;
   static final Integer DOWNLOAD_LIMIT = 20;
+
+  private static Logger Log = LoggerFactory.getLogger(FindExperimentsActivity.class);
 
   private ExperimentProviderUtil experimentProviderUtil;
   private ListView list;
@@ -94,6 +98,7 @@ public class FindExperimentsActivity extends ActionBarActivity implements Networ
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
+    Log.debug("FindExperimentsActivity onCreate");
     mainLayout = (ViewGroup) getLayoutInflater().inflate(R.layout.find_experiments, null);
     setContentView(mainLayout);
 
@@ -263,7 +268,7 @@ public class FindExperimentsActivity extends ActionBarActivity implements Networ
   private void launchSettings() {
     startActivity(new Intent(this, SettingsActivity.class));
   }
-  
+
   private void launchPreferences() {
     startActivity(new Intent(this, PreferencesActivity.class));
   }
@@ -294,6 +299,7 @@ public class FindExperimentsActivity extends ActionBarActivity implements Networ
   @Override
   protected void onResume() {
     super.onResume();
+    Log.debug("FindExperimentsActivity onResume");
     if (userPrefs.getAccessToken() == null) {
       Intent acctChooser = new Intent(this, SplashActivity.class);
       this.startActivity(acctChooser);
@@ -535,7 +541,7 @@ public class FindExperimentsActivity extends ActionBarActivity implements Networ
 
           creator.setText(buf.toString());
           creator.setOnClickListener(myButtonListener);
-        } 
+        }
 //        ImageView iv = (ImageView) view.findViewById(R.id.experimentIconView);
 //        iv.setImageBitmap(Bitmap.create(cursor.getString(iconColumn)));
       }

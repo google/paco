@@ -4,16 +4,9 @@ import java.util.List;
 
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import android.app.Service;
-import android.content.Context;
-import android.content.Intent;
-import android.os.Bundle;
-import android.os.IBinder;
-import android.os.PowerManager;
-import android.util.Log;
-
-import com.pacoapp.paco.PacoConstants;
 import com.pacoapp.paco.UserPreferences;
 import com.pacoapp.paco.model.Event;
 import com.pacoapp.paco.model.EventUtil;
@@ -33,7 +26,16 @@ import com.pacoapp.paco.shared.util.TimeUtil;
 import com.pacoapp.paco.triggering.AndroidActionExecutor;
 import com.pacoapp.paco.triggering.NotificationCreator;
 
+import android.app.Service;
+import android.content.Context;
+import android.content.Intent;
+import android.os.Bundle;
+import android.os.IBinder;
+import android.os.PowerManager;
+
 public class BroadcastTriggerService extends Service {
+
+  private static Logger Log = LoggerFactory.getLogger(BroadcastTriggerService.class);
 
   @Override
   public IBinder onBind(Intent intent) {
@@ -43,7 +45,7 @@ public class BroadcastTriggerService extends Service {
   public void onStart(Intent intent, int startId) {
     super.onStart(intent, startId);
     if (intent == null) {
-      Log.e(PacoConstants.TAG, "Null intent on broadcast trigger!");
+      Log.error("Null intent on broadcast trigger!");
       return;
     }
     final Bundle extras = intent.getExtras();
@@ -91,10 +93,10 @@ public class BroadcastTriggerService extends Service {
           && triggerEvent != InterruptCue.PACO_EXPERIMENT_JOINED_EVENT) {
         // TODO This doesn't work if the experiment for experiment ended events
         // because the experiment is already over.
-        Log.i(PacoConstants.TAG, "Skipping experiment: " + experiment.getExperimentDAO().getTitle());
+        Log.info("Skipping experiment: " + experiment.getExperimentDAO().getTitle());
         continue;
       }
-      Log.i(PacoConstants.TAG, "We have an experiment that is running");
+      Log.info("We have an experiment that is running");
       List<ExperimentGroup> groupsListening = ExperimentHelper.isBackgroundListeningForSourceId(experiment.getExperimentDAO(),
                                                                                                 sourceIdentifier);
       persistBroadcastData(eu, experiment, groupsListening, extras);
@@ -107,7 +109,7 @@ public class BroadcastTriggerService extends Service {
         persistAccessibilityData(eu, experiment, accessibilityGroupsListening, extras.getBundle(RuntimePermissionMonitorService.PACO_ACTION_ACCESSIBILITY_PAYLOAD));
       }
 
-      Log.i(PacoConstants.TAG, "triggers that match count: " + triggersThatMatch.size());
+      Log.info("triggers that match count: " + triggersThatMatch.size());
       for (Trio<ExperimentGroup, InterruptTrigger, InterruptCue> triggerInfo : triggersThatMatch) {
         final InterruptTrigger actionTrigger = triggerInfo.second;
 
@@ -124,11 +126,11 @@ public class BroadcastTriggerService extends Service {
                                                                            actionTrigger,
                                                                            (PacoNotificationAction) pacoAction,
                                                                            actionTriggerSpecId);
-              Log.i(PacoConstants.TAG, "creating a notification");
+              Log.info("creating a notification");
               final long delay = ((PacoNotificationAction) pacoAction).getDelay();
               notificationCreator.createNotificationsForTrigger(experiment, triggerInfo, delay, time, triggerEvent,
                                                                 sourceIdentifier, timeExperiment);
-              Log.i(PacoConstants.TAG, "created a notification");
+              Log.info("created a notification");
             } else if (pacoAction.getActionCode() == PacoAction.EXECUTE_SCRIPT_ACTION_CODE) {
               AndroidActionExecutor.runAction(getApplicationContext(), pacoAction, experiment,
                                               experiment.getExperimentDAO(), group, actionTriggerSpecId, actionTrigger.getId());
@@ -166,7 +168,7 @@ public class BroadcastTriggerService extends Service {
     long nowMillis = new DateTime().getMillis();
     Bundle payload = extras.getBundle(BroadcastTriggerReceiver.PACO_ACTION_PAYLOAD);
     if (payload == null) {
-      Log.v(PacoConstants.TAG, "Not persisting broadcast data without payload");
+      Log.info("Not persisting broadcast data without payload");
       return;
     }
     for (ExperimentGroup experimentGroup : groupsListening) {
@@ -188,10 +190,10 @@ public class BroadcastTriggerService extends Service {
                                         Experiment experiment, List<ExperimentGroup> groupsListening,
                                         Bundle payload) {
     if (payload == null) {
-      Log.v(PacoConstants.TAG, "No accessibility data for this trigger.");
+      Log.info("No accessibility data for this trigger.");
       return;
     }
-    Log.v(PacoConstants.TAG, "Persisting accessibility data for experiment " + experiment.getExperimentDAO().getTitle());
+    Log.info("Persisting accessibility data for experiment " + experiment.getExperimentDAO().getTitle());
     long nowMillis = new DateTime().getMillis();
     for (ExperimentGroup experimentGroup : groupsListening) {
       Event event = EventUtil.createEvent(experiment, experimentGroup.getName(), nowMillis, null, null, null);

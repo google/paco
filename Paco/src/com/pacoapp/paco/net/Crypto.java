@@ -1,15 +1,5 @@
 package com.pacoapp.paco.net;
 
-import android.content.Context;
-import android.util.Base64;
-import android.util.Log;
-
-import com.pacoapp.paco.PacoConstants;
-import com.pacoapp.paco.model.Event;
-import com.pacoapp.paco.model.Experiment;
-import com.pacoapp.paco.model.ExperimentProviderUtil;
-import com.pacoapp.paco.model.Output;
-
 import java.io.UnsupportedEncodingException;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
@@ -30,6 +20,16 @@ import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.IvParameterSpec;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.pacoapp.paco.model.Event;
+import com.pacoapp.paco.model.Experiment;
+import com.pacoapp.paco.model.ExperimentProviderUtil;
+import com.pacoapp.paco.model.Output;
+
+import android.util.Base64;
+
 /**
  * This class provides all end-to-end crypto functionality in Paco. It allows an experiment provider
  * to store all data on the server encrypted with their own public RSA key, so we are not able to
@@ -37,6 +37,9 @@ import javax.crypto.spec.IvParameterSpec;
  */
 
 public class Crypto {
+
+  private static Logger Log = LoggerFactory.getLogger(Crypto.class);
+
   public static final String ENCRYPTION_KEY = "encryptionKey";
   public static final String ENCRYPTION_IV = "encryptionIv";
 
@@ -64,7 +67,7 @@ public class Crypto {
       try {
         encryptedEvents.add(encryptAnswers(event));
       } catch (Exception e) {
-        Log.e(PacoConstants.TAG, "Exception while trying to encrypt event. There is no safe fallback! This event will not be uploaded!", e);
+        Log.error("Exception while trying to encrypt event. There is no safe fallback! This event will not be uploaded!", e);
         // This event is not added to the list
       }
     }
@@ -83,31 +86,31 @@ public class Crypto {
     long experimentId = event.getExperimentServerId();
     Experiment experiment = experimentProviderUtil.getExperimentByServerId(experimentId);
     if (experiment == null) {
-      Log.w(PacoConstants.TAG, "Event had no corresponding experiment. Not encrypting. Event has ID " + event.getId() + " and server ID " + event.getExperimentServerId());
+      Log.warn("Event had no corresponding experiment. Not encrypting. Event has ID " + event.getId() + " and server ID " + event.getExperimentServerId());
       return event;
     }
     String publicKeyString = experiment.getExperimentDAO().getPublicKey();
     if (publicKeyString == null || publicKeyString == "") {
-      Log.v(PacoConstants.TAG, "No public key for experiment " + experiment.getExperimentDAO().getTitle());
+      Log.info("No public key for experiment " + experiment.getExperimentDAO().getTitle());
       return event;
     }
 
-    Log.v(PacoConstants.TAG, "Using public key for experiment " + experiment.getExperimentDAO().getTitle() + ". Key string is " + publicKeyString);
+    Log.info("Using public key for experiment " + experiment.getExperimentDAO().getTitle() + ". Key string is " + publicKeyString);
     PublicKey publicKey = base64ToPublicKey(publicKeyString);
 
     // Generate symmetric key that will be used to encrypt the answers
     SecretKey secretKey = generateSymmetricKey();
     // We use a single IV for all answers. This should be sufficient for our security guarantees to hold.
     IvParameterSpec iv = generateIv();
-    Log.v(PacoConstants.TAG, "Symmetric key in BASE64: " + Base64.encodeToString(secretKey.getEncoded(), Base64.NO_WRAP));
-    Log.v(PacoConstants.TAG, "IV in BASE64: " + Base64.encodeToString(iv.getIV(), Base64.NO_WRAP));
+    Log.info("Symmetric key in BASE64: " + Base64.encodeToString(secretKey.getEncoded(), Base64.NO_WRAP));
+    Log.info("IV in BASE64: " + Base64.encodeToString(iv.getIV(), Base64.NO_WRAP));
 
     ArrayList<Output> encryptedResponses = new ArrayList();
     for (Output answer : event.getResponses()) {
       try {
         encryptedResponses.add(encryptAnswer(answer, secretKey, iv));
       } catch (Exception e) {
-        Log.e(PacoConstants.TAG, "Exception while trying to encrypt answer. There is no safe fallback! This answer will not be uploaded!", e);
+        Log.error("Exception while trying to encrypt answer. There is no safe fallback! This answer will not be uploaded!", e);
         answer.setAnswer("BAD_ENCRYPTION");
         encryptedResponses.add(answer);
       }
@@ -173,12 +176,12 @@ public class Crypto {
     if (answer != null) {
       answerBytes = answer.getBytes("UTF-8");
     } else {
-      Log.w(PacoConstants.TAG, "Answer was null for " + response.getName());
+      Log.warn("Answer was null for " + response.getName());
     }
     byte[] encryptedBytes = cipher.doFinal(answerBytes);
     // NO_WRAP is used for compatibility with apache's BASE64 encoder
     String encryptedAnswer = Base64.encodeToString(encryptedBytes, Base64.NO_WRAP);
-    Log.v(PacoConstants.TAG, "Encrypted answer for " + answer + ": " + encryptedAnswer);
+    Log.info("Encrypted answer for " + answer + ": " + encryptedAnswer);
     response.setAnswer(encryptedAnswer);
     return response;
   }
