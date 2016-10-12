@@ -5,7 +5,7 @@ import android.annotation.TargetApi;
 import android.os.Build;
 import android.test.AndroidTestCase;
 
-import com.pacoapp.paco.sensors.android.RuntimePermissionMonitorService;
+import com.pacoapp.paco.sensors.android.AccessibilityEventMonitorService;
 import com.pacoapp.paco.sensors.android.procmon.EncounteredPermissionRequest;
 
 import org.junit.Before;
@@ -22,14 +22,14 @@ import static org.hamcrest.CoreMatchers.not;
 import static org.junit.Assert.assertThat;
 
 public class RuntimePermissionMonitorServiceTest extends AndroidTestCase {
-  RuntimePermissionMonitorService runtimePermissionMonitorService;
+  AccessibilityEventMonitorService runtimePermissionMonitorService;
   Method extractInformationFromEventText;
   Method setCurrentlyHandledAppName;
   Field previouslyEncounteredPermissionRequests;
 
   @Before
   public void setUp() throws Exception {
-    runtimePermissionMonitorService = new RuntimePermissionMonitorService();
+    runtimePermissionMonitorService = new AccessibilityEventMonitorService();
     // Initialize variables
     Method init = runtimePermissionMonitorService.getClass().getDeclaredMethod("onServiceConnected");
     init.setAccessible(true);
