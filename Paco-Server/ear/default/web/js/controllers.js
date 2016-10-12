@@ -64,6 +64,8 @@ pacoApp.controller('ExperimentCtrl', ['$scope', '$mdDialog', '$filter',
     $scope.feedbackTypes = config.feedbackTypes;
     $scope.ringtones = config.ringtones;
     $scope.tabs = config.editTabs;
+    $scope.dataDeclarations = config.dataDeclarations;
+    $scope.declared = [];
 
     $scope.state = {
       tabId: 0,
@@ -298,6 +300,39 @@ pacoApp.controller('ExperimentCtrl', ['$scope', '$mdDialog', '$filter',
       var json = event.target.value;
       $scope.experiment = JSON.parse(json);
     };
+
+
+
+$scope.inList = function(item, list) {
+    if ($scope.experiment && $scope.experiment.extraDataCollectionDeclarations) {
+      var id = parseInt(item);
+      if ($scope.experiment.extraDataCollectionDeclarations.indexOf(id) !==
+        -1) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  $scope.toggleDeclaration = function(item, list) {
+    var id = parseInt(item);
+    var find = $scope.experiment.extraDataCollectionDeclarations.indexOf(
+      id);
+
+    if (find === -1) {
+      $scope.experiment.extraDataCollectionDeclarations.push(id);
+    } else {
+      $scope.experiment.extraDataCollectionDeclarations.splice(find, 1);
+    }
+  };
+
+
+
+
+
+
+
+
   }
 ]);
 
@@ -308,7 +343,7 @@ pacoApp.controller('ListCtrl', ['$scope', '$mdDialog', '$location',
   function($scope, $mdDialog, $location, experimentService, config) {
 
     $scope.cursor = {};
-    $scope.list = {'admin':[], 'joined':[], 'mine':[]};
+    $scope.list = {'admin':[], 'joined':[], 'mine':[], 'popular':[], 'new':[], 'public':[] };
     $scope.loading = {};
     $scope.state = {};
 
@@ -338,6 +373,9 @@ pacoApp.controller('ListCtrl', ['$scope', '$mdDialog', '$location',
       $scope.loadAdminList(reset);
       $scope.loadJoinedList(reset);
       $scope.loadJoinableList(reset);
+      $scope.loadPopularList(reset);
+      $scope.loadNewList(reset);
+      $scope.loadAllPublicList(reset);
     };
 
     $scope.loadList = function(listName, reset) {
@@ -384,6 +422,18 @@ pacoApp.controller('ListCtrl', ['$scope', '$mdDialog', '$location',
 
     $scope.loadJoinableList = function(reset) {
       $scope.loadList('mine', reset);
+    };
+
+    $scope.loadAllPublicList = function(reset) {
+      $scope.loadList('public', reset);
+    };
+
+    $scope.loadPopularList = function(reset) {
+      $scope.loadList('popular', reset);
+    };
+
+    $scope.loadNewList = function(reset){
+      $scope.loadList('new', reset);
     };
 
     $scope.deleteExperiment = function(ev, exp) {
@@ -597,16 +647,16 @@ pacoApp.controller('DataCtrl', ['$scope', '$mdDialog', '$location', '$filter',
       return (typeof(data) === 'string' &&
                 data.indexOf($scope.photoMarker) === 0);
     }
-    
+
     $scope.isAudioData = function(data) {
         return (typeof(data) === 'string' &&
                   data.indexOf($scope.audioMarker) === 0);
       }
 
-    $scope.makeAudioSrc = function(cell) {        
-      return "data:audio/mpeg;base64," + cell;	
+    $scope.makeAudioSrc = function(cell) {
+      return "data:audio/mpeg;base64," + cell;
     }
-    
+
     $scope.removeUserChip = function() {
       var newPath = $scope.currentView + '/' + $scope.experimentId;
       $location.path(newPath);
@@ -774,13 +824,17 @@ pacoApp.controller('GroupsCtrl', ['$scope', 'template',
     };
 
     $scope.$watch('group.fixedDuration', function(newVal, oldVal) {
-      if (newVal && newVal == true && $scope.group.startDate ==
+      if (newVal && newVal === true && $scope.group.startDate ==
         undefined) {
-        var today = new Date();
         var today = new Date();
         var tomorrow = new Date(today.getTime() + (24 * 60 * 60 * 1000));
         $scope.group.startDate = $scope.dateToString(today);;
         $scope.group.endDate = $scope.dateToString(tomorrow);
+      }
+
+      if (newVal === false) {
+        $scope.group.startDate = null;
+        $scope.group.endDate = null;
       }
     });
   }
@@ -1000,31 +1054,7 @@ pacoApp.controller('ScheduleCtrl', ['$scope', '$mdDialog', 'config', 'template',
 
 pacoApp.controller('AdminCtrl', ['$scope', 'config', function($scope, config) {
 
-  $scope.dataDeclarations = config.dataDeclarations;
-  $scope.declared = [];
 
-  $scope.inList = function(item, list) {
-    if ($scope.experiment && $scope.experiment.extraDataCollectionDeclarations) {
-      var id = parseInt(item);
-      if ($scope.experiment.extraDataCollectionDeclarations.indexOf(id) !==
-        -1) {
-        return true;
-      }
-    }
-    return false;
-  }
-
-  $scope.toggleDeclaration = function(item, list) {
-    var id = parseInt(item);
-    var find = $scope.experiment.extraDataCollectionDeclarations.indexOf(
-      id);
-
-    if (find === -1) {
-      $scope.experiment.extraDataCollectionDeclarations.push(id);
-    } else {
-      $scope.experiment.extraDataCollectionDeclarations.splice(find, 1);
-    }
-  };
 }]);
 
 
@@ -1106,3 +1136,48 @@ pacoApp.controller('SummaryCtrl', ['$scope', 'config', function($scope, config) 
     return str;
   };
 }]);
+
+
+pacoApp.controller('HubCtrl', ['$scope', '$mdDialog', '$filter',
+  'config', 'template', '$routeParams', '$location', 'experimentService',
+  function($scope, $mdDialog, $filter, config, template, $routeParams,
+    $location, experimentService) {
+
+    $scope.tabs = config.hubTabs;
+
+    $scope.state = {
+      tabId: 0,
+      groupIndex: null
+    };
+
+    // temporarily comment this because it prevents loading experiments directly
+    // fix for bug https://github.com/google/paco/issues/1448
+    // regresses bug https://github.com/google/paco/issues/1272
+    // if ($scope.user === undefined) {
+    //   $location.path('/');
+    // }
+
+    if ($location.hash()) {
+      var newTabId = config.editTabs.indexOf($location.hash());
+      if (newTabId !== -1) {
+        $scope.state.tabId = newTabId;
+      }
+    }
+
+    $scope.$watch('user', function(newValue, oldValue) {
+      if (newValue && $scope.newExperiment && $scope.experiment) {
+        $scope.experiment.creator = $scope.user;
+        $scope.experiment.contactEmail = $scope.user;
+        $scope.experiment.admins = [$scope.user];
+      }
+    });
+
+    $scope.$watch('state.tabId', function(newValue, oldValue) {
+      if ($scope.state.tabId === 0) {
+        $location.hash('');
+      } else if ($scope.state.tabId > 0) {
+        $location.hash($scope.tabs[$scope.state.tabId]);
+      }
+    });
+  }
+]);

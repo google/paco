@@ -13,6 +13,13 @@ import java.util.concurrent.TimeoutException;
 
 import javax.net.ssl.HttpsURLConnection;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.common.collect.Lists;
+import com.pacoapp.paco.UserPreferences;
+import com.pacoapp.paco.os.AndroidUtils;
+
 import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.accounts.AccountManagerCallback;
@@ -20,15 +27,11 @@ import android.accounts.AccountManagerFuture;
 import android.accounts.OperationCanceledException;
 import android.content.Context;
 import android.os.Bundle;
-import android.util.Log;
 import android.util.Pair;
 
-import com.google.common.collect.Lists;
-import com.pacoapp.paco.PacoConstants;
-import com.pacoapp.paco.UserPreferences;
-import com.pacoapp.paco.os.AndroidUtils;
-
 public class PacoService {
+
+  private static Logger Log = LoggerFactory.getLogger(PacoService.class);
 
   private Context context;
   private UserPreferences userPrefs;
@@ -62,9 +65,9 @@ public class PacoService {
       addAccessTokenBearerHeader(token, headers);
       return makeCall(httpMethod, url, body, headers);
     } catch (InterruptedException e) {
-      Log.e(PacoConstants.TAG, "InterruptedException", e);
+      Log.error("InterruptedException", e);
     } catch (ExecutionException e) {
-      Log.e(PacoConstants.TAG, "ExecutionException", e);
+      Log.error("ExecutionException", e);
       e.printStackTrace();
     }
     setStatus(500);
@@ -73,7 +76,7 @@ public class PacoService {
   }
 
   public String makeCall(String httpMethod, String url, String body, List<Pair<String, String>> headers) {
-    Log.i(PacoConstants.TAG, "Making the call to " + url + " accessToken = " + userPrefs.getAccessToken() +"\nBody: \n" + body);
+    Log.info("Making the call to " + url + " accessToken = " + userPrefs.getAccessToken() +"\nBody: \n" + body);
 
     HttpsURLConnection urlConnection = null;
     try {
@@ -98,7 +101,7 @@ public class PacoService {
       //Log.d(PacoConstants.TAG, "RESULT = " + result);
       return result;
     } catch (Exception e) {
-      Log.w(PacoConstants.TAG, "Exception: " + e);
+      Log.warn("Exception: " + e);
       setStatus(500);
     } finally {
       urlConnection.disconnect();
@@ -211,14 +214,14 @@ public class PacoService {
 
         String accessToken = userPrefs.getAccessToken();
         if (accessToken != null) {
-          Log.i(PacoConstants.TAG, "Invalidating previous OAuth2 access token: " + accessToken);
+          Log.info("Invalidating previous OAuth2 access token: " + accessToken);
           accountManager.invalidateAuthToken(account.type, accessToken);
           userPrefs.setAccessToken(null);
         }
 
         String authTokenType = AbstractAuthTokenTask.AUTH_TOKEN_TYPE_USERINFO_EMAIL;
 
-        Log.i(PacoConstants.TAG, "Get access token for " + accountName + " using authTokenType " + authTokenType);
+        Log.info("Get access token for " + accountName + " using authTokenType " + authTokenType);
         accountManager.getAuthToken(account, authTokenType, true,
             new AccountManagerCallback<Bundle>() {
               @Override
@@ -226,13 +229,13 @@ public class PacoService {
                 try {
                   String accessToken = future.getResult().getString(AccountManager.KEY_AUTHTOKEN);
                   onResult(accessToken);
-                  Log.i(PacoConstants.TAG, "Got OAuth2 access token: " + accessToken);
+                  Log.info("Got OAuth2 access token: " + accessToken);
                 } catch (OperationCanceledException e) {
-                  Log.e(PacoConstants.TAG, "TokenError: The user has denied you access to the API");
+                  Log.error("TokenError: The user has denied you access to the API");
                   cancel(false);
                 } catch (Exception e) {
-                  Log.e(PacoConstants.TAG, "TokenError: " + e.getMessage());
-                  Log.w("Exception: ", e);
+                  Log.error("TokenError: " + e.getMessage());
+                  Log.error("Exception: ", e);
                   cancel(false);
                 }
               }

@@ -5,10 +5,7 @@ import java.util.logging.Logger;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
-import com.google.sampling.experiential.server.migration.jobs.EventStatsCounterMigrationJob;
-import com.google.sampling.experiential.server.migration.jobs.ExperimentJDOToDatastoreMigration;
-import com.google.sampling.experiential.server.migration.jobs.FeedbackTypeRepairMigration;
-import com.google.sampling.experiential.server.migration.jobs.TestJDODSCompat;
+import com.google.sampling.experiential.server.migration.jobs.*;
 import com.google.sampling.experiential.server.stats.usage.UsageStatsBackfillJob;
 
 public class MigrationLookupTable {
@@ -17,6 +14,7 @@ public class MigrationLookupTable {
 
   private static Map<String, Class> migrations = Maps.newHashMap();
   static {
+    migrations.put("95", ExperimentHubMigrationJob.class);
     migrations.put("96", ExperimentJDOToDatastoreMigration.class);
     migrations.put("97", FeedbackTypeRepairMigration.class);
     migrations.put("965", TestJDODSCompat.class);

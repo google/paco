@@ -16,6 +16,9 @@
 */
 package com.pacoapp.paco.triggering;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.pacoapp.paco.model.Experiment;
 
 import android.app.Service;
@@ -26,6 +29,9 @@ import android.os.IBinder;
 import android.os.PowerManager;
 
 public class NotificationCreatorService extends Service {
+
+  private static Logger Log  = LoggerFactory.getLogger(NotificationCreatorService.class);
+
 
   @Override
   public IBinder onBind(Intent intent) {
@@ -46,6 +52,7 @@ public class NotificationCreatorService extends Service {
   @Override
   public void onStart(Intent intent, int startId) {
     super.onStart(intent, startId);
+    Log.debug("NotificationCreatorService onStart");
     final Bundle extras = (intent != null) ? intent.getExtras() : null;
 
     PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);

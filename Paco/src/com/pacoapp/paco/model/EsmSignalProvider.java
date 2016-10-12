@@ -17,6 +17,9 @@
 package com.pacoapp.paco.model;
 
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import android.content.ContentProvider;
 import android.content.ContentUris;
 import android.content.ContentValues;
@@ -25,9 +28,10 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.net.Uri;
-import android.util.Log;
 
 public class EsmSignalProvider extends ContentProvider {
+
+  private static Logger Log = LoggerFactory.getLogger(EsmSignalProvider.class);
 
   public static final Uri CONTENT_URI =
       Uri.parse("content://com.google.android.apps.paco.signal");
@@ -107,7 +111,7 @@ public class EsmSignalProvider extends ContentProvider {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-      Log.w(DatabaseHelper.class.getName(), "Upgrading database from version " + oldVersion
+      Log.warn("Upgrading database from version " + oldVersion
           + " to " + newVersion + ", which will destroy all old data");
       dropTable(db);
       onCreate(db);

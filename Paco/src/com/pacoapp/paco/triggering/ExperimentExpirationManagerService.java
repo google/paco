@@ -4,6 +4,15 @@ import java.util.List;
 
 import org.joda.time.DateMidnight;
 import org.joda.time.DateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.common.collect.Lists;
+import com.pacoapp.paco.UserPreferences;
+import com.pacoapp.paco.model.Experiment;
+import com.pacoapp.paco.model.ExperimentProviderUtil;
+import com.pacoapp.paco.os.ExperimentExpirationAlarmReceiver;
+import com.pacoapp.paco.shared.scheduling.ActionScheduleGenerator;
 
 import android.app.AlarmManager;
 import android.app.PendingIntent;
@@ -13,15 +22,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.PowerManager;
-import android.util.Log;
-
-import com.google.common.collect.Lists;
-import com.pacoapp.paco.PacoConstants;
-import com.pacoapp.paco.UserPreferences;
-import com.pacoapp.paco.model.Experiment;
-import com.pacoapp.paco.model.ExperimentProviderUtil;
-import com.pacoapp.paco.os.ExperimentExpirationAlarmReceiver;
-import com.pacoapp.paco.shared.scheduling.ActionScheduleGenerator;
 
 /**
  * Class that is responsible for keeping the alarm schedule.
@@ -36,6 +36,8 @@ import com.pacoapp.paco.shared.scheduling.ActionScheduleGenerator;
  *
  */
 public class ExperimentExpirationManagerService extends Service {
+
+  private static Logger Log = LoggerFactory.getLogger(ExperimentExpirationManagerService.class);
 
   private static final int ALARM_RECEIVER_INTENT_REQUEST_CODE = 1;
 
@@ -54,7 +56,7 @@ public class ExperimentExpirationManagerService extends Service {
   public void onStart(Intent intent, int startId) {
     super.onStart(intent, startId);
     if (intent == null) {
-      Log.e(PacoConstants.TAG, "Null intent on broadcast trigger!");
+      Log.error("Null intent on broadcast trigger!");
       return;
     }
     final Bundle extras = intent.getExtras();
@@ -85,7 +87,7 @@ public class ExperimentExpirationManagerService extends Service {
     ExperimentProviderUtil experimentProviderUtil = new ExperimentProviderUtil(context);
     List<Experiment> experiments = experimentProviderUtil.getJoinedExperiments();
     if (experiments.isEmpty()) {
-      Log.i(PacoConstants.TAG, "No joined experiments. Not creating alarms.");
+      Log.info("No joined experiments. Not creating alarms.");
       return;
     }
 
@@ -107,7 +109,7 @@ public class ExperimentExpirationManagerService extends Service {
               !alreadyFired(experiment.getId()) // use the local id to allow repeat stop/join resets.
               ) {
         setFired(experiment.getId());
-        Log.i(PacoConstants.TAG, "Experiment has ended. Firing event: " + experiment.getExperimentDAO().getTitle());
+        Log.info("Experiment has ended. Firing event: " + experiment.getExperimentDAO().getTitle());
         PacoExperimentActionBroadcaster.sendExperimentEnded(context.getApplicationContext(), experiment);
         // TODO remove from joined and move to archived.
         // TODO only fire experiment over broadcast once.
@@ -131,7 +133,7 @@ public class ExperimentExpirationManagerService extends Service {
   private void createNextAlarm() {
 
     DateTime alarmTime = new DateMidnight().plusDays(1).toDateTime().plusHours(10); // 10am // TODO make this a userpref in settings
-    Log.i(PacoConstants.TAG, "Creating wakeup alarm for experiment expiration " + alarmTime.toString());
+    Log.info("Creating wakeup alarm for experiment expiration " + alarmTime.toString());
     PendingIntent intent = createAlarmReceiverIntentForExperiment(alarmTime);
     alarmManager.cancel(intent);
     alarmManager.set(AlarmManager.RTC_WAKEUP, alarmTime.getMillis(), intent);

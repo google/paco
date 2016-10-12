@@ -3,7 +3,6 @@ package com.google.sampling.experiential.datastore;
 import java.util.Date;
 import java.util.List;
 import java.util.logging.Logger;
-
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 
@@ -16,6 +15,7 @@ import com.google.appengine.api.datastore.FetchOptions;
 import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.KeyFactory;
 import com.google.appengine.api.datastore.Query;
+import com.google.appengine.api.datastore.Query.CompositeFilterOperator;
 import com.google.appengine.api.datastore.Query.Filter;
 import com.google.appengine.api.datastore.Query.FilterOperator;
 import com.google.appengine.api.datastore.QueryResultList;
@@ -24,6 +24,7 @@ import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.sampling.experiential.model.Experiment;
 import com.google.sampling.experiential.server.TimeUtil;
+import com.google.sampling.experiential.server.stats.participation.ParticipationStatsService;
 import com.pacoapp.paco.shared.model2.ExperimentDAO;
 import com.pacoapp.paco.shared.scheduling.ActionScheduleGenerator;
 
@@ -32,6 +33,8 @@ public class PublicExperimentList {
   public static final Logger log = Logger.getLogger(PublicExperimentList.class.getName());
 
   private static final String END_DATE_PROPERTY = "end_date";
+  private static final String STATS_PARTICIPANTS_PROPERTY ="stats_participants";
+  private static final String MODIFY_DATE_PROPERTY = "modify_date";
 
   // if we are still running in the year 5000, I will be happy for this to break.
   // Appengine datastore queries are a bummer.
@@ -46,6 +49,8 @@ public class PublicExperimentList {
       throw new IllegalArgumentException("Experiments must have an id to be in the public experiments list");
     }
 
+    ParticipationStatsService ps = new ParticipationStatsService(); //Used to count number of participants (then updated through a cron job)
+
     Key existingKey = KeyFactory.createKey(PUBLIC_EXPERIMENT_KIND, experimentKey.getId());
     Entity existingPublicAcl = null;
     try {
@@ -54,6 +59,9 @@ public class PublicExperimentList {
     }
     Entity entity = new Entity(PUBLIC_EXPERIMENT_KIND, experimentKey.getId());
     entity.setProperty(END_DATE_PROPERTY, getEndDateColumn(experiment));
+    entity.setProperty(STATS_PARTICIPANTS_PROPERTY, ps.getTotalByParticipant( experiment.getId() ).size());
+    entity.setProperty(MODIFY_DATE_PROPERTY, com.pacoapp.paco.shared.util.TimeUtil.formatDate(new Date().getTime())); //Update the modify date - used for experiment hub - "new"
+
 
     if (!ActionScheduleGenerator.isOver(dateTime, experiment) && experiment.getPublished() && experiment.getPublishedUsers().isEmpty()) {
       ds.put(/*tx, */entity);
@@ -86,9 +94,13 @@ public class PublicExperimentList {
       throw new IllegalArgumentException("Experiments must have an id to be in the public experiments list");
     }
 
+    ParticipationStatsService ps = new ParticipationStatsService(); //Used to count number of participants (then updated through a cron job)
+
     Key key = KeyFactory.createKey(PUBLIC_EXPERIMENT_KIND, experiment.getId());
     Entity entity = new Entity(key);
     entity.setProperty(END_DATE_PROPERTY, getEndDateColumn(experiment));
+    entity.setProperty(STATS_PARTICIPANTS_PROPERTY, ps.getTotalByParticipant( experiment.getId() ).size());
+    entity.setProperty(MODIFY_DATE_PROPERTY, com.pacoapp.paco.shared.util.TimeUtil.formatDate(new Date().getTime())); //Update the modify date - used for experiment hub - "new"
 
     if (!experiment.isOver(dateTime) && experiment.isPublic()) {
       ds.put(entity);
@@ -106,9 +118,13 @@ public class PublicExperimentList {
         throw new IllegalArgumentException("Experiments must have an id to be in the public experiments list");
       }
 
+      ParticipationStatsService ps = new ParticipationStatsService(); //Used to count number of participants (then updated through a cron job)
+
       Key key = KeyFactory.createKey(PUBLIC_EXPERIMENT_KIND, experiment.getId());
       Entity entity = new Entity(key);
       entity.setProperty(END_DATE_PROPERTY, getEndDateColumn(experiment));
+      entity.setProperty(STATS_PARTICIPANTS_PROPERTY, ps.getTotalByParticipant( experiment.getId() ).size());
+      entity.setProperty(MODIFY_DATE_PROPERTY, com.pacoapp.paco.shared.util.TimeUtil.formatDate(new Date().getTime())); //Update the modify date - used for experiment hub - "new"
 
       if (!experiment.isOver(dateTime) && experiment.isPublic()) {
         ds.put(entity);
@@ -165,6 +181,66 @@ public class PublicExperimentList {
         experimentIds.add(entity.getKey().getId());
       }
     }
+    return new CursorExerimentIdListPair(result.getCursor().toWebSafeString(), experimentIds);
+  }
+
+  public static CursorExerimentIdListPair getPublicExperimentsNew(String timezone, Integer limit, String cursor) {
+    DatastoreService ds = DatastoreServiceFactory.getDatastoreService();
+    Query query = new Query(PUBLIC_EXPERIMENT_KIND);
+
+    DateTime nowInUserTimezone = TimeUtil.getNowInUserTimezone(DateTimeZone.forID(timezone));
+    String dateString = toDateString(nowInUserTimezone);
+
+    //Sort by modifyDate DESC (specifies the "newness")
+    query.addSort(MODIFY_DATE_PROPERTY, Query.SortDirection.DESCENDING);
+
+    FetchOptions options = FetchOptions.Builder.withDefaults();
+    if (limit != null) {
+      options.limit(limit);
+    }
+    if (!Strings.isNullOrEmpty(cursor) && !"null".equals(cursor)) {
+      options.startCursor(Cursor.fromWebSafeString(cursor));
+    }
+    QueryResultList<Entity> result = ds.prepare(query).asQueryResultList(options);
+    List<Long> experimentIds = Lists.newArrayList();
+    for (Entity entity : result) {
+      Date endDateProperty = (Date)entity.getProperty(END_DATE_PROPERTY);
+      if (!expired(endDateProperty, nowInUserTimezone)) {
+        experimentIds.add(entity.getKey().getId());
+      }
+    }
+    return new CursorExerimentIdListPair(result.getCursor().toWebSafeString(), experimentIds);
+  }
+
+  public static CursorExerimentIdListPair getPublicExperimentsPopular(String timezone, Integer limit, String cursor) {
+    DatastoreService ds = DatastoreServiceFactory.getDatastoreService();
+    Query query = new Query(PUBLIC_EXPERIMENT_KIND);
+
+    DateTime nowInUserTimezone = TimeUtil.getNowInUserTimezone(DateTimeZone.forID(timezone));
+
+    Filter popularityFilter = new Query.FilterPredicate(STATS_PARTICIPANTS_PROPERTY,
+            FilterOperator.GREATER_THAN,
+            0L); //At least 1 participant!
+    query.setFilter(popularityFilter);
+    query.addSort(STATS_PARTICIPANTS_PROPERTY, Query.SortDirection.DESCENDING); //Sort DESC by participants
+
+    FetchOptions options = FetchOptions.Builder.withDefaults();
+    if (limit != null) {
+      options.limit(limit);
+    }
+    if (!Strings.isNullOrEmpty(cursor) && !"null".equals(cursor)) {
+      options.startCursor(Cursor.fromWebSafeString(cursor));
+    }
+    QueryResultList<Entity> result = ds.prepare(query).asQueryResultList(options);
+    List<Long> experimentIds = Lists.newArrayList();
+
+    for (Entity entity : result) {
+      Date endDateProperty = (Date) entity.getProperty(END_DATE_PROPERTY);
+      if (!expired(endDateProperty, nowInUserTimezone)) {
+        experimentIds.add(entity.getKey().getId());
+      }
+    }
+
     return new CursorExerimentIdListPair(result.getCursor().toWebSafeString(), experimentIds);
   }
 

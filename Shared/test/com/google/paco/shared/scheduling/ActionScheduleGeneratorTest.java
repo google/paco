@@ -13,7 +13,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.FutureTask;
 
-import org.eclipse.jetty.util.log.Log;
 import org.joda.time.DateMidnight;
 import org.joda.time.DateTime;
 import org.junit.Test;
@@ -534,7 +533,7 @@ public class ActionScheduleGeneratorTest {
           store.put(date, existing);
         }
         final DateTime at = new DateTime(alarmTime);
-        Log.info("Adding new signal time: " + at.toString() );
+//        Log.info("Adding new signal time: " + at.toString() );
 //        Log.info("Thread = " + Thread.currentThread().toString());
         existing.add(at);
 
@@ -618,7 +617,7 @@ public class ActionScheduleGeneratorTest {
 
     int count = countDatesInStoreForAllDays(store);
 
-    Log.info("Ready to assert");
+//    Log.info("Ready to assert");
     assertEquals("should not be null", 16, count);
   }
 

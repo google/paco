@@ -27,6 +27,20 @@ import java.util.Map;
 
 import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.map.JsonMappingException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
+import com.pacoapp.paco.R;
+import com.pacoapp.paco.UserPreferences;
+import com.pacoapp.paco.model.Experiment;
+import com.pacoapp.paco.model.ExperimentColumns;
+import com.pacoapp.paco.model.ExperimentProviderUtil;
+import com.pacoapp.paco.net.ExperimentUrlBuilder;
+import com.pacoapp.paco.net.NetworkClient;
+import com.pacoapp.paco.net.NetworkUtil;
+import com.pacoapp.paco.net.PacoForegroundService;
 
 import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
@@ -55,18 +69,6 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.common.base.Strings;
-import com.google.common.collect.Lists;
-import com.pacoapp.paco.R;
-import com.pacoapp.paco.UserPreferences;
-import com.pacoapp.paco.model.Experiment;
-import com.pacoapp.paco.model.ExperimentColumns;
-import com.pacoapp.paco.model.ExperimentProviderUtil;
-import com.pacoapp.paco.net.ExperimentUrlBuilder;
-import com.pacoapp.paco.net.NetworkClient;
-import com.pacoapp.paco.net.NetworkUtil;
-import com.pacoapp.paco.net.PacoForegroundService;
-
 /**
  *
  */
@@ -76,6 +78,8 @@ public class FindMyExperimentsActivity extends ActionBarActivity implements Netw
   static final int REFRESHING_EXPERIMENTS_DIALOG_ID = 1001;
   static final int JOIN_REQUEST_CODE = 1;
   static final int JOINED_EXPERIMENT = 1;
+
+  private static Logger Log = LoggerFactory.getLogger(FindMyExperimentsActivity.class);
 
   private ExperimentProviderUtil experimentProviderUtil;
   private ListView list;
@@ -93,6 +97,7 @@ public class FindMyExperimentsActivity extends ActionBarActivity implements Netw
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
+    Log.debug("FindMyExperimentsActivity onCreate");
     mainLayout = (ViewGroup) getLayoutInflater().inflate(R.layout.find_experiments, null);
     setContentView(mainLayout);
 
@@ -235,7 +240,7 @@ public class FindMyExperimentsActivity extends ActionBarActivity implements Netw
     }
     return super.onOptionsItemSelected(item);
   }
-  
+
   private void launchTroubleshooting() {
     startActivity(new Intent(this, TroubleshootingActivity.class));
   }
@@ -265,7 +270,7 @@ public class FindMyExperimentsActivity extends ActionBarActivity implements Netw
   private void launchPreferences() {
     startActivity(new Intent(this, PreferencesActivity.class));
   }
-  
+
   private void launchEula() {
     Intent eulaIntent = new Intent(this, EulaDisplayActivity.class);
     startActivity(eulaIntent);
@@ -292,6 +297,7 @@ public class FindMyExperimentsActivity extends ActionBarActivity implements Netw
   @Override
   protected void onResume() {
     super.onResume();
+    Log.debug("FindMyExperimentsActivity onResume");
     dialogable = true;
     if (userPrefs.getAccessToken() == null) {
       Intent acctChooser = new Intent(this, SplashActivity.class);
@@ -409,7 +415,7 @@ public class FindMyExperimentsActivity extends ActionBarActivity implements Netw
             // the new batch to the existing.
           }
         }
-        
+
         Collections.sort(experiments, new Comparator<Experiment>() {
 
           @Override
@@ -445,6 +451,7 @@ public class FindMyExperimentsActivity extends ActionBarActivity implements Netw
   }
 
   private void saveExperimentsToDisk() {
+    Log.debug("FindMyExperimentsActivity saveExperimentsToDisk");
     try {
       String contentAsString = ExperimentProviderUtil.getJson(experiments);
       experimentProviderUtil.saveMyExperimentsToDisk(contentAsString);
@@ -461,6 +468,7 @@ public class FindMyExperimentsActivity extends ActionBarActivity implements Netw
 
   // Visible for testing
   public void reloadAdapter() {
+    Log.debug("FindMyExperimentsActivity reloadAdapter");
     if (experiments == null || experiments.isEmpty()) {
       experiments = experimentProviderUtil.loadMyExperimentsFromDisk();
     }
@@ -539,7 +547,7 @@ public class FindMyExperimentsActivity extends ActionBarActivity implements Netw
 
           creator.setText(buf.toString());
           creator.setOnClickListener(myButtonListener);
-        } 
+        }
         // ImageView iv = (ImageView)
         // view.findViewById(R.id.experimentIconView);
         // iv.setImageBitmap(Bitmap.create(cursor.getString(iconColumn)));
@@ -587,6 +595,7 @@ public class FindMyExperimentsActivity extends ActionBarActivity implements Netw
 
   @Override
   protected void onPause() {
+    Log.debug("FindMyExperimentsActivity onPause");
     dialogable = false;
     super.onPause();
   }

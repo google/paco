@@ -45,7 +45,7 @@
         Log app usage
       </md-checkbox>
 
-      <no-ios ng-if="group.logActions" message="'iOS does not support app logging'"></no-ios>
+      <no-ios ng-if="group.logActions">iOS does not support app logging</no-ios>
     </div>
 
     <div class="row">
@@ -53,7 +53,7 @@
         Log phone shutdowns
       </md-checkbox>
 
-      <no-ios ng-if="group.logShutdown" message="'iOS does not support phone shutdown logging'"></no-ios>
+      <no-ios ng-if="group.logShutdown">iOS does not support phone shutdown logging</no-ios>
     </div>
 
     <div class="row">

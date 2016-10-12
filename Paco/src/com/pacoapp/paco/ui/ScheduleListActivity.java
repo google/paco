@@ -3,19 +3,8 @@ package com.pacoapp.paco.ui;
 import java.util.List;
 
 import org.joda.time.DateTime;
-
-import android.content.Context;
-import android.content.Intent;
-import android.graphics.drawable.ColorDrawable;
-import android.os.Build;
-import android.os.Bundle;
-import android.support.v4.app.NavUtils;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.ActionBarActivity;
-import android.telephony.TelephonyManager;
-import android.view.Display;
-import android.view.MenuItem;
-import android.widget.Toast;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.pacoapp.paco.R;
 import com.pacoapp.paco.model.Event;
@@ -33,6 +22,19 @@ import com.pacoapp.paco.shared.util.SchedulePrinter;
 import com.pacoapp.paco.triggering.AndroidEsmSignalStore;
 import com.pacoapp.paco.triggering.BeeperService;
 import com.pacoapp.paco.utils.IntentExtraHelper;
+
+import android.content.Context;
+import android.content.Intent;
+import android.graphics.drawable.ColorDrawable;
+import android.os.Build;
+import android.os.Bundle;
+import android.support.v4.app.NavUtils;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.ActionBarActivity;
+import android.telephony.TelephonyManager;
+import android.view.Display;
+import android.view.MenuItem;
+import android.widget.Toast;
 
 /**
  * An activity representing a list of Schedules. This activity has different
@@ -53,6 +55,8 @@ import com.pacoapp.paco.utils.IntentExtraHelper;
 public class ScheduleListActivity extends ActionBarActivity implements ScheduleListFragment.Callbacks,
                                                            ExperimentLoadingActivity {
 
+  private static Logger Log = LoggerFactory.getLogger(ScheduleListActivity.class);
+
   private static final int SCHEDULE_DETAIL_REQUEST = 998;
   private Experiment experiment;
   private ExperimentProviderUtil experimentProviderUtil;
@@ -68,6 +72,7 @@ public class ScheduleListActivity extends ActionBarActivity implements ScheduleL
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
+    Log.debug("ScheduleListActivity onCreate");
     experimentProviderUtil = new ExperimentProviderUtil(this);
     fromInformedConsentPage = getIntent().getExtras() != null ? getIntent().getExtras()
                                                                            .getBoolean(InformedConsentActivity.INFORMED_CONSENT_PAGE_EXTRA_KEY)
@@ -208,6 +213,7 @@ public class ScheduleListActivity extends ActionBarActivity implements ScheduleL
   }
 
   private void saveExperimentRegistration() {
+    Log.debug("saveExperimentRegistration");
     boolean hasEsm = false;
     for (ExperimentGroup experimentGroup : experiment.getExperimentDAO().getGroups()) {
       List<ActionTrigger> actionTriggers = experimentGroup.getActionTriggers();
@@ -273,6 +279,7 @@ public class ScheduleListActivity extends ActionBarActivity implements ScheduleL
   }
 
   private void save() {
+    Log.debug("save");
     if (!userCanEditAtLeastOneSchedule()) {
       setResult(FindExperimentsActivity.JOINED_EXPERIMENT);
       finish();

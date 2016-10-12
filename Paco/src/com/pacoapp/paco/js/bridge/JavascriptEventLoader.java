@@ -5,13 +5,11 @@ import java.util.List;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import android.util.Log;
-import android.webkit.JavascriptInterface;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
-import com.pacoapp.paco.PacoConstants;
 import com.pacoapp.paco.model.Event;
 import com.pacoapp.paco.model.EventUtil;
 import com.pacoapp.paco.model.Experiment;
@@ -21,7 +19,12 @@ import com.pacoapp.paco.shared.model2.ExperimentDAO;
 import com.pacoapp.paco.shared.model2.ExperimentGroup;
 import com.pacoapp.paco.ui.FeedbackActivity;
 
+import android.webkit.JavascriptInterface;
+
 public class JavascriptEventLoader {
+
+  private Logger Log = LoggerFactory.getLogger(JavascriptEventLoader.class);
+
   private ExperimentProviderUtil experimentProviderUtil;
   private ExperimentDAO experiment;
   private ExperimentGroup experimentGroup;
@@ -49,7 +52,7 @@ public class JavascriptEventLoader {
     List<Event> events = experimentProviderUtil.loadEventsForExperimentByServerId(experiment.getId());
     String convertExperimentResultsToJsonString = FeedbackActivity.convertEventsToJsonString(events);
     long t2= System.currentTimeMillis();
-    Log.e(PacoConstants.TAG, "time for loadAllEvents: " + (t2 - t1));
+    Log.error("time for loadAllEvents: " + (t2 - t1));
     return convertExperimentResultsToJsonString;
   }
 
@@ -142,10 +145,10 @@ public class JavascriptEventLoader {
       event.setResponses(responses);
       experimentProviderUtil.insertEvent(event);
     } catch (NumberFormatException e) {
-      Log.e(PacoConstants.TAG, "NumberFormatException: ", e);
+      Log.error("NumberFormatException: ", e);
       e.printStackTrace();
     } catch (JSONException e) {
-      Log.e(PacoConstants.TAG, "JSONException: ", e);
+      Log.error("JSONException: ", e);
     }
   }
 }

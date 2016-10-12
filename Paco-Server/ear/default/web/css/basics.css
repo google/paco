@@ -1,12 +1,19 @@
 .basics md-input-container {
-  margin: 16px;
-  max-width: 600px;
   overflow-y: hidden;
 }
 
 md-input-container div[ng-message] {
   color: #9E9E9E;
   line-height: 1.2em;
+}
+
+.basics .disclosures {
+  display: block;
+  min-height: 58px;
+}
+
+.basics .disclosures .padded {
+  padding-top: 0;
 }
 
 .basics h2 {

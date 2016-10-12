@@ -1,5 +1,10 @@
 package com.pacoapp.paco.ui;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.pacoapp.paco.R;
+
 import android.content.Intent;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
@@ -8,9 +13,9 @@ import android.support.v7.app.ActionBarActivity;
 import android.view.MenuItem;
 import android.view.View;
 
-import com.pacoapp.paco.R;
-
 public class FindMyOrAllExperimentsChooserActivity extends ActionBarActivity {
+
+  private static Logger Log = LoggerFactory.getLogger(FindMyOrAllExperimentsChooserActivity.class);
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {

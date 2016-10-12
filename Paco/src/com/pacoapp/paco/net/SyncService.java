@@ -17,10 +17,11 @@
 package com.pacoapp.paco.net;
 
 
-import java.security.NoSuchAlgorithmException;
 import java.util.List;
 
-import com.pacoapp.paco.PacoConstants;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.pacoapp.paco.UserPreferences;
 import com.pacoapp.paco.model.Event;
 import com.pacoapp.paco.model.ExperimentProviderUtil;
@@ -30,12 +31,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.IBinder;
 import android.os.PowerManager;
-import android.util.Log;
 
-import javax.crypto.NoSuchPaddingException;
 
 public class SyncService extends Service {
 
+  private static Logger Log = LoggerFactory.getLogger(SyncService.class);
 
   private static final String AUTH_TOKEN_PREFERENCE = null;
   private static final String AUTH_TOKEN_PREFERENCE_NAME_KEY = null;
@@ -57,6 +57,7 @@ public class SyncService extends Service {
   @Override
   public void onStart(Intent intent, int startId) {
     super.onStart(intent, startId);
+    Log.debug("SyncService onStart");
     userPrefs = new UserPreferences(getApplicationContext());
     PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
     final PowerManager.WakeLock wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "Paco SyncService wakelock");
@@ -77,9 +78,11 @@ public class SyncService extends Service {
 
   private void syncData() {
     if (!NetworkUtil.isConnected(this)) {
+      Log.debug("No network. Not syncing.");
       return;
     }
     synchronized (SyncService.class) {
+      Log.debug("Sync service working");
       experimentProviderUtil = new ExperimentProviderUtil(this);
       List<Event> allEvents = experimentProviderUtil.getEventsNeedingUpload();
       EventUploader eventUploader = new EventUploader(this, userPrefs.getServerAddress(),
@@ -88,6 +91,7 @@ public class SyncService extends Service {
       // encrypt their answers accordingly
       List<Event> encryptedEvents = new Crypto(experimentProviderUtil).encryptAnswers(allEvents);
       eventUploader.uploadEvents(encryptedEvents);
+      Log.debug("SyncService done");
     }
   }
 }

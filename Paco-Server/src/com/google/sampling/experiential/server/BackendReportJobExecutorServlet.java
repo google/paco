@@ -31,6 +31,8 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.joda.time.DateTimeZone;
 
+import com.google.appengine.api.ThreadManager;
+
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 
@@ -72,13 +74,16 @@ public class BackendReportJobExecutorServlet extends HttpServlet {
     String reportFormat = req.getParameter("reportFormat");
     String cursor = req.getParameter("cursor");
     boolean includePhotos = getParam(req, "includePhotos") != null;
-    
+
     if (reportFormat != null && reportFormat.equals("csv2")) {
       log.info("Backend generating csv experimental report");
       dumpEventsCSVExperimental(resp, req, anon);
     } else if (reportFormat != null && reportFormat.equals("csv")) {
       log.info("Backend generating csv report");
       dumpEventsCSV(resp, req, anon, cursor, limit);
+    } else if (reportFormat != null && reportFormat.equals("json2")) {
+      log.info("Backend generating json report");
+      dumpEventsJsonExperimental(resp, req, anon, includePhotos);
     } else if (reportFormat != null && reportFormat.equals("json")) {
       log.info("Backend generating json report");
       dumpEventsJson(resp, req, anon, includePhotos, limit, cursor);
@@ -125,16 +130,27 @@ public class BackendReportJobExecutorServlet extends HttpServlet {
     resp.getWriter().println(jobId);
   }
 
-  
+
   private void dumpEventsCSVExperimental(HttpServletResponse resp, HttpServletRequest req, boolean anon) throws IOException {
     String queryParam = getParamForQuery(req);
     List<com.google.sampling.experiential.server.Query> query = new QueryParser().parse(stripQuotes(queryParam));
     String requestorEmail = getRequestorEmail(req);
     DateTimeZone timeZoneForClient = getTimeZoneForClient(req);
-    String jobId = ReportJobExecutor.getInstance().runReportJobExperimental(requestorEmail, timeZoneForClient, query, anon, "csv", queryParam, false);
+    String jobId = ReportJobExecutor.getInstance().runReportJobExperimental(requestorEmail, timeZoneForClient, query, anon, "csv2", queryParam, false);
     resp.setContentType("text/plain;charset=UTF-8");
     resp.getWriter().println(jobId);
   }
+
+  private void dumpEventsJsonExperimental(HttpServletResponse resp, HttpServletRequest req, boolean anon, boolean includePhotos) throws IOException {
+    String queryParam = getParamForQuery(req);
+    List<com.google.sampling.experiential.server.Query> query = new QueryParser().parse(stripQuotes(queryParam));
+    String requestorEmail = getRequestorEmail(req);
+    DateTimeZone timeZoneForClient = getTimeZoneForClient(req);
+    String jobId = ReportJobExecutor.getInstance().runReportJobExperimental(requestorEmail, timeZoneForClient, query, anon, "json2", queryParam, includePhotos);
+    resp.setContentType("text/plain;charset=UTF-8");
+    resp.getWriter().println(jobId);
+  }
+
   private void showEvents(HttpServletRequest req, HttpServletResponse resp, boolean anon, String cursor, int limit) throws IOException {
     String queryParam = getParamForQuery(req);
     List<com.google.sampling.experiential.server.Query> query = new QueryParser().parse(stripQuotes(queryParam));

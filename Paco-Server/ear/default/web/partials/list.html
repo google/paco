@@ -53,7 +53,7 @@
                     Anon Data
                   </md-button>
                 </a>
-                <md-button ng-click="joinExperiment($event, exp)" 
+                <md-button ng-click="joinExperiment($event, exp)"
                   ng-if="joinedIndex.indexOf(exp.id) === -1">
                   Join
                 </md-button>
@@ -103,6 +103,11 @@
                 <a href="#/stats/{{exp.id}}/mine">
                   <md-button>
                     Stats
+                  </md-button>
+                </a>
+                <a href="#/copy/{{exp.id}}">
+                  <md-button>
+                    Copy
                   </md-button>
                 </a>
               </div>
@@ -158,4 +163,3 @@
   </md-tabs>
 
 </div>
-

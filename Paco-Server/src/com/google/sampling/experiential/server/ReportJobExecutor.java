@@ -127,7 +127,7 @@ public class ReportJobExecutor {
       return generateHtmlReport(timeZoneForClient, anon, jobId, experimentId, eventQueryResultPair, originalQuery, requestorEmail);
     }
   }
-  
+
   public String runReportJobExperimental(final String requestorEmail, final DateTimeZone timeZoneForClient,
                              final List<Query> query, final boolean anon, final String reportFormat,
                              final String originalQuery, final boolean includePhotos) {
@@ -173,8 +173,12 @@ public class ReportJobExecutor {
       //EventRetriever.sortEvents(events);
       log.info("Got events for job: " + jobId);
 
-      return generateCSVReport(anon, jobId, experimentId, eventQueryResultPair, timeZoneForClient);
-
+      if (!Strings.isNullOrEmpty(reportFormat) && reportFormat.equals("csv2")) {
+        return generateCSVReport(anon, jobId, experimentId, eventQueryResultPair, timeZoneForClient);
+      } else if (!Strings.isNullOrEmpty(reportFormat) && reportFormat.equals("json2")) {
+        return generateJsonReport(anon, jobId, experimentId, eventQueryResultPair, timeZoneForClient, includePhotos);
+      }
+      return null;
 
   }
 

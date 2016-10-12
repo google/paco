@@ -17,8 +17,8 @@
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.pacoapp.paco"
-    android:versionCode="155"
-    android:versionName="4.2.17" xmlns:tools="http://schemas.android.com/tools">
+    android:versionCode="156"
+    android:versionName="4.2.18" xmlns:tools="http://schemas.android.com/tools">
     <uses-feature android:name="android.hardware.location" android:required="false"/>
     <uses-feature android:name="android.hardware.telephony" android:required="false"/>
     <uses-feature android:name="android.hardware.camera.autofocus" android:required="false"/>
@@ -355,5 +355,5 @@
     <uses-permission android:name="android.permission.READ_CALENDAR" />
 
     <uses-feature android:name="android.hardware.camera" android:required="false"/>
-    <uses-sdk android:minSdkVersion="11"  android:targetSdkVersion="22"></uses-sdk>
+    <uses-sdk android:minSdkVersion="14"  android:targetSdkVersion="22"></uses-sdk>
 </manifest>

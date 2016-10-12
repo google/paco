@@ -4,23 +4,12 @@ import java.util.Collections;
 import java.util.List;
 
 import org.joda.time.DateTime;
-
-import android.app.ActivityManager;
-import android.app.ActivityManager.RecentTaskInfo;
-import android.app.Service;
-import android.content.Context;
-import android.content.Intent;
-import android.content.pm.ApplicationInfo;
-import android.content.pm.PackageManager;
-import android.content.pm.PackageManager.NameNotFoundException;
-import android.os.IBinder;
-import android.os.PowerManager;
-import android.util.Log;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
-import com.pacoapp.paco.PacoConstants;
 import com.pacoapp.paco.model.Event;
 import com.pacoapp.paco.model.Experiment;
 import com.pacoapp.paco.model.ExperimentProviderUtil;
@@ -35,7 +24,20 @@ import com.pacoapp.paco.shared.scheduling.ActionScheduleGenerator;
 import com.pacoapp.paco.shared.util.ExperimentHelper;
 import com.pacoapp.paco.shared.util.TimeUtil;
 
+import android.app.ActivityManager;
+import android.app.ActivityManager.RecentTaskInfo;
+import android.app.Service;
+import android.content.Context;
+import android.content.Intent;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
+import android.content.pm.PackageManager.NameNotFoundException;
+import android.os.IBinder;
+import android.os.PowerManager;
+
 public class ProcessService extends Service {
+
+  private static Logger Log = LoggerFactory.getLogger(ProcessService.class);
 
   private ActivityManager am;
   private ExperimentProviderUtil experimentProviderUtil;
@@ -46,10 +48,10 @@ public class ProcessService extends Service {
   public void onStart(Intent intent, int startId) {
     super.onStart(intent, startId);
     if (running) {
-      Log.i(PacoConstants.TAG, "Paco App Usage Poller.onStart() -- Already running");
+      Log.info("Paco App Usage Poller.onStart() -- Already running");
       return;
     } else {
-      Log.i(PacoConstants.TAG, "Paco App Usage Poller.onStart()");
+      Log.info("Paco App Usage Poller.onStart()");
 
       am = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
 
@@ -75,7 +77,7 @@ public class ProcessService extends Service {
             while (pm.isScreenOn() && BroadcastTriggerReceiver.shouldWatchProcesses(getApplicationContext())) {
               synchronized (this) {
                 try {
-                  Log.i(PacoConstants.TAG, "polling on: runnable instance = " + this.toString());
+                  Log.info("polling on: runnable instance = " + this.toString());
                   List<String> recentTaskNames = getRecentTaskNames();
 
                   List<String> newlyUsedTasks = checkForNewlyUsedTasks(previousTaskNames, tasksOfInterest,
@@ -104,7 +106,7 @@ public class ProcessService extends Service {
 
                   previousTaskNames = recentTaskNames;
                   int sleepTime = BroadcastTriggerReceiver.getFrequency(ProcessService.this) * 1000;
-                  Log.i(PacoConstants.TAG, "sleepTime = " + sleepTime);
+                  Log.info("sleepTime = " + sleepTime);
                   wait(sleepTime);
                 } catch (Exception e) {
                 }
@@ -114,7 +116,7 @@ public class ProcessService extends Service {
               createScreenOffPacoEvents(getApplicationContext());
             }
             //
-            Log.i(PacoConstants.TAG, "polling stopping: instance = " + ProcessService.this.toString());
+            Log.info("polling stopping: instance = " + ProcessService.this.toString());
           } finally {
             previousTaskNames = null;
             wl.release();
@@ -248,12 +250,12 @@ public class ProcessService extends Service {
         }
 
         private void triggerAppUsed(String appIdentifier) {
-          Log.i(PacoConstants.TAG, "Paco App Usage poller trigger app used: " + appIdentifier);
+          Log.info("Paco App Usage poller trigger app used: " + appIdentifier);
           triggerCodeForAppTrigger(appIdentifier, InterruptCue.APP_USAGE);
         }
 
         private void triggerAppClosed(String appIdentifier) {
-            Log.i(PacoConstants.TAG, "Paco App Usage poller trigger app used: " + appIdentifier);
+            Log.info("Paco App Usage poller trigger app used: " + appIdentifier);
             triggerCodeForAppTrigger(appIdentifier, InterruptCue.APP_CLOSED);
           }
 
@@ -371,7 +373,7 @@ public class ProcessService extends Service {
 
   @Override
   public void onDestroy() {
-    Log.i(PacoConstants.TAG, "Paco App Usage poller.onDestroy()");
+    Log.info("Paco App Usage poller.onDestroy()");
   }
 
   protected void createScreenOffPacoEvents(Context context) {

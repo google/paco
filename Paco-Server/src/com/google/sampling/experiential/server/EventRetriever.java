@@ -36,6 +36,7 @@ import org.datanucleus.store.appengine.query.JDOCursorHelper;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 
+import com.google.appengine.api.datastore.Blob;
 import com.google.appengine.api.datastore.Cursor;
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
@@ -43,7 +44,6 @@ import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.FetchOptions;
 import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.PreparedQuery;
-import com.google.appengine.api.datastore.Query.Filter;
 import com.google.appengine.api.datastore.Query.FilterOperator;
 import com.google.appengine.api.datastore.Query.FilterPredicate;
 import com.google.appengine.api.datastore.QueryResultList;
@@ -316,16 +316,16 @@ public class EventRetriever {
       for (Entity entity : results) {
         Event event = createEventFromEntity(entity);
         Key key = entity.getKey();
-        
+
         //todo async
         // already done with the keyslist and valueslist
 //        Set<What> whats = fetchWhats(datastore,  key);
 //        event.setWhat(whats);
-//        
+//
       //todo async
         List<PhotoBlob> blobs = fetchBlobs(datastore, key);
         event.setBlobs(blobs);
-        
+
         allEvents.add(event);
       }
       cursor = results.getCursor();
@@ -338,22 +338,22 @@ public class EventRetriever {
   }
 
   private Set<What> fetchWhats(DatastoreService datastore, Key key) {
-    com.google.appengine.api.datastore.Query whatQuery = new com.google.appengine.api.datastore.Query("What", key);        
+    com.google.appengine.api.datastore.Query whatQuery = new com.google.appengine.api.datastore.Query("What", key);
     PreparedQuery whatPreparedQuery = datastore.prepare(whatQuery);
     //log.info("execute what query");
-    QueryResultList<Entity> whatResults = whatPreparedQuery.asQueryResultList(FetchOptions.Builder.withDefaults());        
+    QueryResultList<Entity> whatResults = whatPreparedQuery.asQueryResultList(FetchOptions.Builder.withDefaults());
     Set<What> whats = Sets.newHashSet();
     for (Entity whatEntity : whatResults) {
       whats.add(createWhatFromEntity(whatEntity));
     }
     return whats;
   }
-  
+
   private List<PhotoBlob> fetchBlobs(DatastoreService datastore, Key key) {
-    com.google.appengine.api.datastore.Query whatQuery = new com.google.appengine.api.datastore.Query("PhotoBlob", key);        
+    com.google.appengine.api.datastore.Query whatQuery = new com.google.appengine.api.datastore.Query("PhotoBlob", key);
     PreparedQuery whatPreparedQuery = datastore.prepare(whatQuery);
     //log.info("execute blob query");
-    QueryResultList<Entity> whatResults = whatPreparedQuery.asQueryResultList(FetchOptions.Builder.withDefaults());        
+    QueryResultList<Entity> whatResults = whatPreparedQuery.asQueryResultList(FetchOptions.Builder.withDefaults());
     List<PhotoBlob> whats = Lists.newArrayList();
     for (Entity whatEntity : whatResults) {
       whats.add(createPhotoBlobFromEntity(whatEntity));
@@ -366,9 +366,15 @@ public class EventRetriever {
   private What createWhatFromEntity(Entity whatEntity) {
     return new What((String)whatEntity.getProperty("name"), (String)whatEntity.getProperty("value"));
   }
-  
+
   private PhotoBlob createPhotoBlobFromEntity(Entity entity) {
-    return new PhotoBlob((String)entity.getProperty("name"), (byte[])entity.getProperty("value"));
+    final Object blobProperty = entity.getProperty("value");
+    if (blobProperty instanceof Blob) {
+      return new PhotoBlob((String)entity.getProperty("name"), ((Blob)blobProperty).getBytes());
+    } else if (blobProperty instanceof byte[]) {
+      return new PhotoBlob((String)entity.getProperty("name"), (byte[])blobProperty);
+    }
+    return null;
   }
 
 
@@ -582,8 +588,8 @@ public class EventRetriever {
     List<Long> adminExperiments = getExperimentsForAdmin(requestorEmail);
     log.info("Loggedin user's administered experiments: " + requestorEmail + " has ids: "
              + getIdsQuoted(adminExperiments));
-    
-    
+
+
     if (isDevMode() || isUserQueryingTheirOwnData(requestorEmail, eventDSQuery)) {
       log.info("dev mode or user querying self data");
       executeQuery(allEvents, eventDSQuery);
@@ -607,7 +613,7 @@ public class EventRetriever {
     } else {
       return new EventQueryResultPair(Collections.EMPTY_LIST, null);
     }
-    
+
 
 
     long t12 = System.currentTimeMillis();
