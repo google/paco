@@ -122,7 +122,7 @@ public class RuntimePermissionMonitorService extends AccessibilityService {
   public void onAccessibilityEvent(AccessibilityEvent accessibilityEvent) {
     // Assert that we're handling events only for the package installer
     CharSequence packageName = accessibilityEvent.getPackageName();
-    Log.e(PacoConstants.TAG, "Event received: " + accessibilityEvent.toString());
+    //Log.e(PacoConstants.TAG, "Event received: " + accessibilityEvent.toString());
     if (packageName != null && !packageName.equals("com.google.android.packageinstaller") &&
             !packageName.equals("com.android.packageinstaller")) {
       Log.e(PacoConstants.TAG, "Not expecting to receive accessibility events for " + packageName + ". Ignoring.");
