@@ -26,7 +26,7 @@ import com.pacoapp.paco.shared.model2.Pair;
 
 public class ExperimentHubMigrationJob implements MigrationJob {
 
-    public static final Logger log = Logger.getLogger(EventStatsCounterMigrationJob.class.getName());
+    public static final Logger log = Logger.getLogger(ExperimentHubMigrationJob.class.getName());
 
     public static String PUBLIC_EXPERIMENT_KIND = "public_experiment";
     private static final String MODIFY_DATE_PROPERTY ="modify_date";
@@ -36,8 +36,10 @@ public class ExperimentHubMigrationJob implements MigrationJob {
 
         ExperimentQueryResult experimentsQueryResults = ExperimentServiceFactory.getExperimentService().getAllExperiments(null);
         List<ExperimentDAO> experimentList = experimentsQueryResults.getExperiments();
+        log.fine("HbMigration retrieved " + experimentList.size() + "experiments");
 
         if (experimentList != null) {
+            int modifiedExperimentCount = 0;
             DateFormat df = new SimpleDateFormat(TimeUtil.DATE_FORMAT);
             List<Pair<Long, Date>> experimentsWithModifyDates = Lists.newArrayList();
 
@@ -49,6 +51,7 @@ public class ExperimentHubMigrationJob implements MigrationJob {
                     }catch(ParseException ex){
                         log.info("Could not parse date for " + e.getId() + " " + ex.toString());
                         date = new Date(); //fallback to "now"
+                        modifiedExperimentCount++;
                     }
 
                     experimentsWithModifyDates.add(
@@ -56,7 +59,7 @@ public class ExperimentHubMigrationJob implements MigrationJob {
                     );
                 }
             }
-
+            log.fine("Added modifyDates to " + modifiedExperimentCount + " experiments");
             updateDatastore(experimentsWithModifyDates);
         }
 
@@ -72,6 +75,7 @@ public class ExperimentHubMigrationJob implements MigrationJob {
     }
 
     private void updateDatastore(List<Pair<Long, Date>> experimentsWithModifyDates){
+      log.fine("Updating modified experiments");
         DatastoreService ds = DatastoreServiceFactory.getDatastoreService();
         TransactionOptions options = TransactionOptions.Builder.withXG(true);
 
@@ -99,6 +103,7 @@ public class ExperimentHubMigrationJob implements MigrationJob {
                 tx.rollback();
             }
         }
+        log.fine("Finished ExperimentHub migration");
     }
 
     @Override
