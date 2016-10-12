@@ -77,7 +77,7 @@ public class ExperimentHubMigrationJob implements MigrationJob {
 
         final int bucketSize = 5;
         int count = 0;
-        Transaction tx = tx = ds.beginTransaction(options);
+        Transaction tx = ds.beginTransaction(options);
         try {
             for (Pair<Long, Date> curExp : experimentsWithModifyDates) {
                 count++;

@@ -93,11 +93,13 @@
           Show More
         </md-button>
         <div class="actions">
+        <!-- 
           <a ng-href="#/data/{{experiment.id}}/#{{columnString}}">
             <md-button>Column View</md-button>
           </a>
+           -->
           <a ng-href="" ng-click="showReportOptions(experiment)" class="download">
-            <md-button>Report Options</md-button>
+            <md-button>Generate Report</md-button>
           </a>
 
         <a class="button" id="downloadButton" download="report.{{reportType}}" href="{{reportData}}" ng-if="reportData">
