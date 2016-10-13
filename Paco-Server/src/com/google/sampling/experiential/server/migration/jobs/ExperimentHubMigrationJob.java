@@ -8,6 +8,15 @@ import java.text.DateFormat;
 import java.util.List;
 import java.util.logging.Logger;
 
+import com.google.appengine.api.datastore.DatastoreService;
+import com.google.appengine.api.datastore.DatastoreServiceFactory;
+import com.google.appengine.api.datastore.Key;
+import com.google.appengine.api.datastore.KeyFactory;
+import com.google.appengine.api.datastore.Entity;
+import com.google.appengine.api.datastore.Transaction;
+import com.google.appengine.api.datastore.TransactionOptions;
+
+
 import com.google.sampling.experiential.server.ExperimentServiceFactory;
 import com.pacoapp.paco.shared.model2.*;
 
@@ -25,8 +34,7 @@ public class ExperimentHubMigrationJob implements MigrationJob {
 
     public boolean doMigrationPublicExperiments(){
         //1. Loop through public experiments and fill in "modify_date"
-
-        ExperimentQueryResult experimentsQueryResults = ExperimentServiceFactory.getExperimentService().getAllExperiments(null);
+        ExperimentQueryResult experimentsQueryResults = ExperimentServiceFactory.getExperimentService().getExperimentsPublishedPublicly(null, null, null, null);
         List<ExperimentDAO> experimentList = experimentsQueryResults.getExperiments();
 
         if (experimentList != null) {
@@ -34,19 +42,20 @@ public class ExperimentHubMigrationJob implements MigrationJob {
             List<Pair<Long, Date>> experimentsWithModifyDates = Lists.newArrayList();
 
             for (ExperimentDAO e : experimentList) {
-                if (e.getPublished()) {
-                    Date date;
-                    try{
-                        date = df.parse(e.getModifyDate());
-                    }catch(ParseException ex){
-                        log.info("Could not parse date for " + e.getId() + " " + ex.toString());
-                        date = new Date(); //fallback to "now"
-                    }
-
-                    experimentsWithModifyDates.add(
-                            new Pair<Long, Date>(e.getId(), date)
-                    );
+                Date date;
+                try{
+                    date = df.parse(e.getModifyDate());
+                }catch(ParseException ex){
+                    log.info("Could not parse date for " + e.getId() + " " + ex.toString());
+                    date = new Date(); //fallback to "now"
+                }catch(NullPointerException ex){
+                    log.info("Could not parse date (npe) for " + e.getId() + " " + ex.toString());
+                    date = new Date(); //fallback to "now"
                 }
+
+                experimentsWithModifyDates.add(
+                        new Pair<Long, Date>(e.getId(), date)
+                );
             }
 
             updateDatastore(experimentsWithModifyDates);
