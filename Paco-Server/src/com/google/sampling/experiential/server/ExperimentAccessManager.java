@@ -1,7 +1,12 @@
 package com.google.sampling.experiential.server;
 
+import java.io.Serializable;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.logging.Logger;
 
 import org.joda.time.DateTime;
@@ -23,6 +28,9 @@ import com.google.appengine.api.datastore.Transaction;
 import com.google.appengine.api.datastore.TransactionOptions;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
+import com.google.common.collect.Sets.SetView;
 import com.google.sampling.experiential.datastore.ExperimentJsonEntityManager;
 import com.google.sampling.experiential.datastore.PublicExperimentList;
 import com.pacoapp.paco.shared.model2.ExperimentDAO;
@@ -550,7 +558,7 @@ public class ExperimentAccessManager {
 
   /**
    *  Method used by Usage statistics cron job
-   *  
+   *
    * @return total number of joined rows
    */
   public static Long getTotalJoinedParticipantsCount() {
@@ -558,14 +566,191 @@ public class ExperimentAccessManager {
     FetchOptions fetchOptions = FetchOptions.Builder.withDefaults();
     DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
 
-    List<Entity> joinEntities = datastore.prepare(query).asList(fetchOptions);
-    if (joinEntities != null) {
-      return (long) joinEntities.size();
+    final PreparedQuery prepare = datastore.prepare(query);
+    int countEntities = prepare.countEntities(fetchOptions);
+    if (countEntities > 0) {
+      return (long) countEntities;
     } else {
       log.info("retrieved 0 joined entities");
       return 0l;
     }
-    
+
+  }
+
+  static class JoinEvent implements Serializable{
+    DateTime date;
+    String userId;
+    Long experimentId;
+
+    JoinEvent(DateTime date, String userId, Long experimentId) {
+      this.date = date;
+      this.userId = userId;
+      this.experimentId = experimentId;
+    }
+  }
+
+  static class DateCount implements Serializable{
+    String date;
+    Integer count;
+    public DateCount(String date, Integer count) {
+      super();
+      this.date = date;
+      this.count = count;
+    }
+    public String getDate() {
+      return date;
+    }
+    public void setDate(String date) {
+      this.date = date;
+    }
+    public Integer getCount() {
+      return count;
+    }
+    public void setCount(Integer count) {
+      this.count = count;
+    }
+
+
+  }
+
+  public static List<DateCount>[] getTotalJoinedParticipantsCountsByMonth() {
+    Query query = new com.google.appengine.api.datastore.Query(JOINED_USER_KIND);
+    FetchOptions fetchOptions = FetchOptions.Builder.withDefaults();
+    DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+    List<Entity> joinEntities = Lists.newArrayList();
+
+
+    QueryResultList<Entity> results = datastore.prepare(query).asQueryResultList(fetchOptions);
+    while (!results.isEmpty()) {
+      joinEntities.addAll(results);
+      Cursor newCursor = results.getCursor();
+      if (newCursor != null) {
+        results.clear();
+        results = datastore.prepare(query).asQueryResultList(fetchOptions.startCursor(newCursor));
+      }
+    }
+
+    if (joinEntities != null) {
+      log.info("Retrieved join entities count: " + joinEntities.size());
+      return computeJoinStats(joinEntities);
+    } else {
+      log.info("retrieved 0 joined entities");
+      return null;
+    }
+
+  }
+
+  private static List<DateCount>[] computeJoinStats(List<Entity> joinEntities) {
+    List<JoinEvent> joinList = buildJoinEventList(joinEntities);
+    Map<Integer, Map<Integer, List<JoinEvent>>> countMap = groupByYearAndMonth(joinList);
+    List<DateCount> listOfUniqueCountsByYearAndMonth = getUniqueParticipantCountByYearMonth(countMap);
+    List<DateCount> listOfCountsByYearAndMonth = getParticipantJoinCountByYearMonth(countMap);
+    return  new List[] {listOfCountsByYearAndMonth, listOfUniqueCountsByYearAndMonth};
+  }
+
+  private static List<JoinEvent> buildJoinEventList(List<Entity> joinEntities) {
+    List<JoinEvent> joinList = Lists.newArrayList();
+    for (Entity entity : joinEntities) {
+      Date joinDate = (Date)entity.getProperty("join_date");
+      String userId = (String)entity.getProperty("user_id");
+      Long experimentId = (Long)entity.getProperty("experimentId");
+      joinList.add(new JoinEvent(new DateTime(joinDate), userId, experimentId));
+    }
+    Collections.sort(joinList, new Comparator<JoinEvent>() {
+
+      @Override
+      public int compare(JoinEvent o1, JoinEvent o2) {
+        return o1.date.compareTo(o2.date);
+      }
+    });
+    return joinList;
+  }
+
+  private static Map<Integer, Map<Integer, List<JoinEvent>>> groupByYearAndMonth(List<JoinEvent> joinList) {
+    Map<Integer, Map<Integer, List<JoinEvent>>> countMap = Maps.newConcurrentMap();
+    for (JoinEvent joinEvent : joinList) {
+      int year = joinEvent.date.getYear();
+      int month = joinEvent.date.getMonthOfYear();
+      Map<Integer, List<JoinEvent>> yearMap = countMap.get(year);
+      if (yearMap == null) {
+        yearMap = Maps.newConcurrentMap();
+        countMap.put(year, yearMap);
+      }
+      List<JoinEvent> monthCount = yearMap.get(month);
+      if (monthCount == null) {
+        monthCount = Lists.newArrayList();
+      }
+      monthCount.add(joinEvent);
+      yearMap.put(month, monthCount);
+      if (year > 2016) {
+        log.info("Future YEAR: " + year);
+        log.info("event " + joinEvent.date +", " + joinEvent.userId + ", " + joinEvent.experimentId);
+
+      }
+    }
+    return countMap;
+  }
+
+  /**
+   * Note this does not break it out by experiment so we may get duplicate join events within an experiment for a person.
+   * If we broke it out by experiment and then unique'ed on each person, then we would just get the unique people joins per experiment.
+   * It is just noise as the population grows so not worth the effort.
+   *
+   * @param countMap
+   * @return
+   */
+  private static List<DateCount> getParticipantJoinCountByYearMonth(Map<Integer, Map<Integer, List<JoinEvent>>> countMap) {
+    List<DateCount> listOfCountsByYearAndMonth = Lists.newArrayList();
+    List<Integer> yearKeys = Lists.newArrayList(countMap.keySet());
+    Collections.sort(yearKeys);
+    for (Integer yearKey : yearKeys) {
+      Map<Integer, List<JoinEvent>> monthMap = countMap.get(yearKey);
+      List<Integer> months = Lists.newArrayList(monthMap.keySet());
+      Collections.sort(months);
+      for (Integer monthKey : months) {
+        final List<JoinEvent> joinEventList = monthMap.get(monthKey);
+        int count = joinEventList.size();
+        listOfCountsByYearAndMonth.add(new DateCount(yearKey +":" + monthKey, count));
+      }
+    }
+    return listOfCountsByYearAndMonth;
+  }
+
+  private static List<DateCount> getUniqueParticipantCountByYearMonth(Map<Integer, Map<Integer, List<JoinEvent>>> countMap) {
+    Set<String> lastParticipants = Sets.newConcurrentHashSet();
+    List<DateCount> listOfUniqueCountsByYearAndMonth = Lists.newArrayList();
+    List<Integer> yearKeysUnique = Lists.newArrayList(countMap.keySet());
+    Collections.sort(yearKeysUnique);
+    for (Integer yearKey : yearKeysUnique) {
+      Map<Integer, List<JoinEvent>> monthMapUnique = countMap.get(yearKey);
+      List<Integer> months = Lists.newArrayList(monthMapUnique.keySet());
+      Collections.sort(months);
+      for (Integer monthKey : months) {
+        Set<String> participants = Sets.newConcurrentHashSet();
+        List<JoinEvent> participantList = monthMapUnique.get(monthKey);
+        for (JoinEvent joinEvent : participantList) {
+          participants.add(joinEvent.userId +":" + joinEvent.experimentId);
+        }
+        int uniqueCountThisMonth = 0;
+        if (lastParticipants.size() == 0) {
+          uniqueCountThisMonth = participants.size();
+          lastParticipants = participants;
+        } else {
+          SetView<String> diff = Sets.difference(participants, lastParticipants);
+          if (diff != null) {
+            uniqueCountThisMonth = diff.size();
+            lastParticipants.addAll(diff);
+          }
+
+        }
+
+        final DateCount dateCount = new DateCount(yearKey +":" + monthKey, uniqueCountThisMonth);
+
+        listOfUniqueCountsByYearAndMonth.add(dateCount);
+
+      }
+    }
+    return listOfUniqueCountsByYearAndMonth;
   }
 
 }

@@ -1,22 +1,24 @@
 package com.pacoapp.paco.os;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.util.Log;
-
-import com.pacoapp.paco.PacoConstants;
 import com.pacoapp.paco.net.ServerCommunicationService;
 import com.pacoapp.paco.triggering.BeeperService;
 import com.pacoapp.paco.triggering.ExperimentExpirationManagerService;
 import com.pacoapp.paco.triggering.NotificationCreatorService;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+
 public class SystemChangeEventReceiver extends BroadcastReceiver {
+
+  private static Logger Log = LoggerFactory.getLogger(SystemChangeEventReceiver.class);
 
   @Override
   public void onReceive(Context context, Intent intent) {
-    Log.i(PacoConstants.TAG, "SystemChangeEvent received for intent: " + intent.getAction());
+    Log.info("SystemChangeEvent received for intent: " + intent.getAction());
     if ((intent.getAction().equals(Intent.ACTION_PACKAGE_REPLACED) && (intent.getDataString().startsWith("package:com.google.android.apps.paco"))) ||
         intent.getAction().equals(Intent.ACTION_BOOT_COMPLETED) ||
         intent.getAction().equals(Intent.ACTION_TIMEZONE_CHANGED)/* ||

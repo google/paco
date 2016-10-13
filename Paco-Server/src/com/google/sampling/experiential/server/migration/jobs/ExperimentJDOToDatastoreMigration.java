@@ -220,6 +220,11 @@ public class ExperimentJDOToDatastoreMigration implements MigrationJob {
       eg.setBackgroundListenSourceIdentifier(backgroundListenSourceIdentifier);
     }
 
+    final Boolean accessibilityListen = oe.isAccessibilityListen();
+    if (accessibilityListen != null) {
+      eg.setAccessibilityListen(accessibilityListen);
+    }
+
     final Boolean customRendering = oe.isCustomRendering();
     if (customRendering != null) {
       eg.setCustomRendering(customRendering);

@@ -17,24 +17,14 @@
 package com.google.sampling.experiential.server;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
-import java.util.Calendar;
-import java.util.List;
-import java.util.Locale;
-import java.util.TimeZone;
 import java.util.logging.Logger;
 
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.joda.time.DateTimeZone;
-
-import com.google.common.base.Strings;
-import com.google.common.collect.Lists;
-import com.google.sampling.experiential.server.hub.HubStatsCronJob;
 import com.google.appengine.api.ThreadManager;
+import com.google.sampling.experiential.server.stats.hub.HubStatsCronJob;
 
 /**
  * Servlet that receives request from frontend to start csv report job.
@@ -48,8 +38,6 @@ import com.google.appengine.api.ThreadManager;
 public class BackendHubStatsExecutorServlet extends HttpServlet {
 
     private static final Logger log = Logger.getLogger(BackendReportJobExecutorServlet.class.getName());
-    private String defaultAdmin = "bobevans@google.com";
-    private List<String> adminUsers = Lists.newArrayList(defaultAdmin);
 
 
     @Override

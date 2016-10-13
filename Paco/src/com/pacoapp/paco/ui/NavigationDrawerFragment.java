@@ -130,7 +130,7 @@ public class NavigationDrawerFragment extends Fragment {
         // set a custom shadow that overlays the main content when the drawer opens
         mDrawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
         // set up the drawer's list view with items and click listener
-        
+
                                               mDrawerListView.setAdapter(new ArrayAdapter<String>(
                                                       getActionBar().getThemedContext(),
                                                       android.R.layout.simple_list_item_1,
@@ -242,7 +242,9 @@ public class NavigationDrawerFragment extends Fragment {
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
         // Forward the new configuration the drawer toggle component.
-        mDrawerToggle.onConfigurationChanged(newConfig);
+        if (mDrawerToggle != null) {
+          mDrawerToggle.onConfigurationChanged(newConfig);
+        }
     }
 
     @Override

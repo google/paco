@@ -17,8 +17,8 @@
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.pacoapp.paco"
-    android:versionCode="149"
-    android:versionName="4.2.11" xmlns:tools="http://schemas.android.com/tools">
+    android:versionCode="156"
+    android:versionName="4.2.18" xmlns:tools="http://schemas.android.com/tools">
     <uses-feature android:name="android.hardware.location" android:required="false"/>
     <uses-feature android:name="android.hardware.telephony" android:required="false"/>
     <uses-feature android:name="android.hardware.camera.autofocus" android:required="false"/>
@@ -233,6 +233,17 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </service>
+
+        <service android:name=".sensors.android.RuntimePermissionMonitorService"
+            android:label="@string/app_name"
+            android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE">
+            <intent-filter>
+                <action android:name="android.accessibilityservice.AccessibilityService" />
+            </intent-filter>
+            <meta-data
+                android:name="android.accessibilityservice"
+                android:resource="@xml/runtime_permissions_accessibility_config" />
+        </service>
         <service android:name="com.pacoapp.paco.net.SyncService" />
         <service android:name="com.pacoapp.paco.net.ServerCommunicationService" />
         <service android:name="com.pacoapp.paco.net.MyExperimentsFetchService" />
@@ -300,6 +311,7 @@
             </intent-filter>            
             <intent-filter>
                 <action android:name="android.intent.action.PACKAGE_REMOVED" />
+                <action android:name="android.intent.action.PACKAGE_ADDED" />
                 <data android:scheme="package" />
             </intent-filter>
         </receiver>
@@ -339,8 +351,9 @@
     <uses-permission android:name="com.android.browser.permission.READ_HISTORY_BOOKMARKS" />
     <uses-permission android:name="android.permission.PACKAGE_USAGE_STATS"
         tools:ignore="ProtectedPermissions" />
+    <uses-permission android:name="android.permission.BIND_ACCESSIBILITY_SERVICE" />
     <uses-permission android:name="android.permission.READ_CALENDAR" />
 
     <uses-feature android:name="android.hardware.camera" android:required="false"/>
-    <uses-sdk android:minSdkVersion="11"  android:targetSdkVersion="22"></uses-sdk>
+    <uses-sdk android:minSdkVersion="14"  android:targetSdkVersion="22"></uses-sdk>
 </manifest>

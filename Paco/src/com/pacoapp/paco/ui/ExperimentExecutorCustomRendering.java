@@ -34,7 +34,42 @@ import java.util.Locale;
 import java.util.Map;
 
 import org.joda.time.DateTime;
+import org.joda.time.Seconds;
 import org.json.JSONArray;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.android.apps.paco.questioncondparser.Binding;
+import com.google.android.apps.paco.questioncondparser.ExpressionEvaluator;
+import com.google.common.base.Strings;
+import com.pacoapp.paco.R;
+import com.pacoapp.paco.js.bridge.Environment;
+import com.pacoapp.paco.js.bridge.JavascriptCalendarManager;
+import com.pacoapp.paco.js.bridge.JavascriptEmail;
+import com.pacoapp.paco.js.bridge.JavascriptEventLoader;
+import com.pacoapp.paco.js.bridge.JavascriptExperimentLoader;
+import com.pacoapp.paco.js.bridge.JavascriptNotificationService;
+import com.pacoapp.paco.js.bridge.JavascriptPackageManager;
+import com.pacoapp.paco.js.bridge.JavascriptPhotoService;
+import com.pacoapp.paco.js.bridge.JavascriptSensorManager;
+import com.pacoapp.paco.js.bridge.JavascriptStringResources;
+import com.pacoapp.paco.model.Event;
+import com.pacoapp.paco.model.EventUtil;
+import com.pacoapp.paco.model.Experiment;
+import com.pacoapp.paco.model.ExperimentProviderUtil;
+import com.pacoapp.paco.model.NotificationHolder;
+import com.pacoapp.paco.model.Output;
+import com.pacoapp.paco.net.SyncService;
+import com.pacoapp.paco.sensors.android.BroadcastTriggerReceiver;
+import com.pacoapp.paco.shared.model.FeedbackDAO;
+import com.pacoapp.paco.shared.model2.ExperimentGroup;
+import com.pacoapp.paco.shared.model2.Input2;
+import com.pacoapp.paco.shared.util.ExperimentHelper;
+import com.pacoapp.paco.triggering.AndroidEsmSignalStore;
+import com.pacoapp.paco.triggering.BeeperService;
+import com.pacoapp.paco.triggering.ExperimentExpirationManagerService;
+import com.pacoapp.paco.triggering.NotificationCreator;
+import com.pacoapp.paco.utils.IntentExtraHelper;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -61,7 +96,6 @@ import android.speech.RecognizerIntent;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Base64;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -79,39 +113,9 @@ import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.Toast;
 
-import com.google.android.apps.paco.questioncondparser.Binding;
-import com.google.android.apps.paco.questioncondparser.ExpressionEvaluator;
-import com.google.common.base.Strings;
-import com.pacoapp.paco.PacoConstants;
-import com.pacoapp.paco.R;
-import com.pacoapp.paco.js.bridge.Environment;
-import com.pacoapp.paco.js.bridge.JavascriptCalendarManager;
-import com.pacoapp.paco.js.bridge.JavascriptEmail;
-import com.pacoapp.paco.js.bridge.JavascriptEventLoader;
-import com.pacoapp.paco.js.bridge.JavascriptExperimentLoader;
-import com.pacoapp.paco.js.bridge.JavascriptNotificationService;
-import com.pacoapp.paco.js.bridge.JavascriptPackageManager;
-import com.pacoapp.paco.js.bridge.JavascriptPhotoService;
-import com.pacoapp.paco.js.bridge.JavascriptStringResources;
-import com.pacoapp.paco.model.Event;
-import com.pacoapp.paco.model.EventUtil;
-import com.pacoapp.paco.model.Experiment;
-import com.pacoapp.paco.model.ExperimentProviderUtil;
-import com.pacoapp.paco.model.NotificationHolder;
-import com.pacoapp.paco.model.Output;
-import com.pacoapp.paco.net.SyncService;
-import com.pacoapp.paco.sensors.android.BroadcastTriggerReceiver;
-import com.pacoapp.paco.shared.model.FeedbackDAO;
-import com.pacoapp.paco.shared.model2.ExperimentGroup;
-import com.pacoapp.paco.shared.model2.Input2;
-import com.pacoapp.paco.shared.util.ExperimentHelper;
-import com.pacoapp.paco.triggering.AndroidEsmSignalStore;
-import com.pacoapp.paco.triggering.BeeperService;
-import com.pacoapp.paco.triggering.ExperimentExpirationManagerService;
-import com.pacoapp.paco.triggering.NotificationCreator;
-import com.pacoapp.paco.utils.IntentExtraHelper;
-
 public class ExperimentExecutorCustomRendering extends ActionBarActivity implements ChangeListener, LocationListener, ExperimentLoadingActivity  {
+
+  private static Logger Log = LoggerFactory.getLogger(ExperimentExecutorCustomRendering.class);
 
   private Experiment experiment;
   private ExperimentGroup experimentGroup;
@@ -156,10 +160,15 @@ public class ExperimentExecutorCustomRendering extends ActionBarActivity impleme
   private String notificationMessage;
   private String notificationSource;
 
+  private DateTime formOpenTime;
+
+  private Long timeoutMillis;
+
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
+    Log.debug("ExperimentExecutorCustomRendering onCreate");
     ActionBar actionBar = getSupportActionBar();
     actionBar.setLogo(R.drawable.ic_launcher);
     actionBar.setDisplayUseLogoEnabled(true);
@@ -228,7 +237,7 @@ public class ExperimentExecutorCustomRendering extends ActionBarActivity impleme
     if (extras != null) {
       notificationHolderId = extras.getLong(NotificationCreator.NOTIFICATION_ID);
       notificationHolder = experimentProviderUtil.getNotificationById(notificationHolderId);
-      Long timeoutMillis = null;
+      timeoutMillis = null;
       if (notificationHolder != null) {
         experiment = experimentProviderUtil.getExperimentByServerId(notificationHolder.getExperimentId());
         experimentGroup = experiment.getExperimentDAO().getGroupByName(notificationHolder.getExperimentGroupName());
@@ -236,7 +245,7 @@ public class ExperimentExecutorCustomRendering extends ActionBarActivity impleme
         actionId = notificationHolder.getActionId();
         actionTriggerSpecId = notificationHolder.getActionTriggerSpecId();
         scheduledTime = notificationHolder.getAlarmTime();
-        Log.i(PacoConstants.TAG, "Starting experimentExecutor from signal: " + experiment.getExperimentDAO().getTitle() +". alarmTime: " + new DateTime(scheduledTime).toString());
+        Log.info("Starting experimentExecutor from signal: " + experiment.getExperimentDAO().getTitle() +". alarmTime: " + new DateTime(scheduledTime).toString());
         timeoutMillis = notificationHolder.getTimeoutMillis();
       } else {
         scheduledTime = null;
@@ -274,7 +283,7 @@ public class ExperimentExecutorCustomRendering extends ActionBarActivity impleme
         notificationHolderId = notificationHolder.getId();
         scheduledTime = notificationHolder.getAlarmTime();
         shouldExpireNotificationHolder = true;
-        Log.i(PacoConstants.TAG, "ExperimentExecutor: Self report, but found signal still active : " + experiment.getExperimentDAO().getTitle() +". alarmTime: " + new DateTime(scheduledTime).toString());
+        Log.info("ExperimentExecutor: Self report, but found signal still active : " + experiment.getExperimentDAO().getTitle() +". alarmTime: " + new DateTime(scheduledTime).toString());
       } else {
         NotificationCreator.create(this).timeoutNotification(notificationHolder);
       }
@@ -284,12 +293,14 @@ public class ExperimentExecutorCustomRendering extends ActionBarActivity impleme
   @Override
   protected void onResume() {
     super.onResume();
+    Log.debug("ExperimentExecutorCustomRendering onResume");
     registerLocationListenerIfNecessary();
   }
 
   @Override
   protected void onPause() {
     super.onPause();
+    Log.debug("ExperimentExecutorCustomRendering onPause");
     for (InputLayout inputLayout : inputs) {
       inputLayout.onPause();
     }
@@ -443,6 +454,7 @@ public class ExperimentExecutorCustomRendering extends ActionBarActivity impleme
         showDialog = true;
       }
     }
+    formOpenTime = DateTime.now();
   }
 
 private void injectObjectsIntoJavascriptEnvironment() {
@@ -486,6 +498,7 @@ private void injectObjectsIntoJavascriptEnvironment() {
   webView.addJavascriptInterface(new JavascriptPhotoService(this), "photoService");
   webView.addJavascriptInterface(new JavascriptExecutorListener(experiment), "executor");
   webView.addJavascriptInterface(new JavascriptPackageManager(this), "packageManager");
+  webView.addJavascriptInterface(new JavascriptSensorManager(this), "sensors");
   webView.addJavascriptInterface(new JavascriptStringResources(getApplicationContext()), "strings");
 
 }
@@ -647,14 +660,14 @@ private void setWebChromeClientThatHandlesAlertsAsDialogs() {
 
     @Override
     public void onConsoleMessage(String message, int lineNumber, String sourceID) {
-        Log.d(PacoConstants.TAG, message + " -- From line "
+        Log.debug(message + " -- From line "
                              + lineNumber + " of "
                              + sourceID);
     }
 
     @Override
     public boolean onConsoleMessage(ConsoleMessage consoleMessage) {
-      Log.d(PacoConstants.TAG,  consoleMessage.message() + " -- From line "
+      Log.debug( consoleMessage.message() + " -- From line "
           + consoleMessage.lineNumber() + " of "
           + consoleMessage.sourceId() );
       return true;
@@ -708,8 +721,9 @@ public boolean onKeyDown(int keyCode, KeyEvent event) {
 
 /// saving and external service callouts
   private void save() {
+    Log.debug("ExperimentExecutorCustomRendering save");
     try {
-      if (notificationHolderId == null) {
+      if (notificationHolderId == null || isExpiredEsmPing(timeoutMillis)) {
         // workaround the bug with re-launching and stale scheduleTime.
         // How - if there isn't a notificationHolder waiting, then this is not a response
         // to a notification.
@@ -718,6 +732,7 @@ public boolean onKeyDown(int keyCode, KeyEvent event) {
       Event event = EventUtil.createEvent(getExperiment(), experimentGroup.getName(),
                                           actionTriggerId, actionId, actionTriggerSpecId, scheduledTime);
       gatherResponses(event);
+      addTiming(event);
       experimentProviderUtil.insertEvent(event);
 
 
@@ -739,6 +754,17 @@ public boolean onKeyDown(int keyCode, KeyEvent event) {
     }
   }
 
+  private void addTiming(Event event) {
+    if (formOpenTime != null) {
+      DateTime formFinishTime = DateTime.now();
+      Seconds duration = Seconds.secondsBetween(formOpenTime, formFinishTime);
+
+      Output durationResponse = new Output();
+      durationResponse.setAnswer(Integer.toString(duration.getSeconds()));
+      durationResponse.setName(ExperimentExecutor.FORM_DURATION_IN_SECONDS);
+      event.addResponse(durationResponse);
+    }
+  }
   private void updateAlarms() {
     startService(new Intent(this, BeeperService.class));
   }
@@ -782,7 +808,7 @@ public boolean onKeyDown(int keyCode, KeyEvent event) {
           continue;
         }
       } catch (IllegalArgumentException iae) {
-        Log.e(PacoConstants.TAG, "Parsing problem: " + iae.getMessage());
+        Log.error("Parsing problem: " + iae.getMessage());
         continue;
       }
       Output responseForInput = new Output();
@@ -866,7 +892,7 @@ public boolean onKeyDown(int keyCode, KeyEvent event) {
           cursor.close();
           galleryPicturePicked(filePath);
         } catch (Exception e) {
-          Log.i(PacoConstants.TAG, "Exception in gallery picking: " + e.getMessage());
+          Log.info("Exception in gallery picking: " + e.getMessage());
           e.printStackTrace();
         }
       }
@@ -1066,7 +1092,7 @@ public boolean onKeyDown(int keyCode, KeyEvent event) {
       // Create the storage directory if it does not exist
       if (! mediaStorageDir.exists()){
           if (! mediaStorageDir.mkdirs()){
-              Log.d(PacoConstants.TAG, "failed to create directory");
+              Log.debug("failed to create directory");
               return null;
           }
       }
@@ -1109,6 +1135,7 @@ public boolean onKeyDown(int keyCode, KeyEvent event) {
   }
 
   public void stopExperiment() {
+    Log.debug("ExperimentExecutorCustomRendering stopExperiment");
     deleteExperiment();
     finish();
   }

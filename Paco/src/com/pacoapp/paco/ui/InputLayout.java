@@ -27,6 +27,17 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.android.apps.paco.questioncondparser.ExpressionEvaluator;
+import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
+import com.google.common.io.Files;
+import com.pacoapp.paco.R;
+import com.pacoapp.paco.UserPreferences;
+import com.pacoapp.paco.shared.model2.Input2;
+
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -45,9 +56,9 @@ import android.media.SoundPool;
 import android.net.Uri;
 import android.os.Environment;
 import android.os.Parcelable;
+import android.text.Html;
 import android.text.InputType;
 import android.util.Base64;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AdapterView;
@@ -66,16 +77,10 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.apps.paco.questioncondparser.ExpressionEvaluator;
-import com.google.common.base.Strings;
-import com.google.common.collect.Lists;
-import com.google.common.io.Files;
-import com.pacoapp.paco.PacoConstants;
-import com.pacoapp.paco.R;
-import com.pacoapp.paco.UserPreferences;
-import com.pacoapp.paco.shared.model2.Input2;
-
 public class InputLayout extends LinearLayout implements SpeechRecognitionListener {
+
+  private static Logger Log = LoggerFactory.getLogger(InputLayout.class);
+
   public static final int CAMERA_REQUEST_CODE = 10001;
   // TODO Bob  refactor into separate classes because not every input can receive text from speech recognition
 
@@ -585,7 +590,7 @@ public class InputLayout extends LinearLayout implements SpeechRecognitionListen
       // Create the storage directory if it does not exist
       if (! mediaStorageDir.exists()){
           if (! mediaStorageDir.mkdirs()){
-              Log.d(PacoConstants.TAG, "failed to create directory");
+              Log.debug("failed to create directory");
               return null;
           }
       }
@@ -732,9 +737,9 @@ public class InputLayout extends LinearLayout implements SpeechRecognitionListen
     for (int i = 0; i < count; i++) {
       checkedChoicesBoolArray[i] = checkedChoices.contains(input.getListChoices().get(i));
     }
-    List<String> listChoices = input.getListChoices();
-    String[] listChoiceArray = new String[listChoices.size()];
-    listChoices.toArray(listChoiceArray );
+    List<CharSequence> listChoices = convertHtmlChoicesToTextChoices(input.getListChoices());
+    CharSequence[] listChoiceArray = new CharSequence[listChoices.size()];
+    listChoices.toArray(listChoiceArray);
     builder.setMultiChoiceItems(listChoiceArray, checkedChoicesBoolArray, multiselectListDialogListener);
     builder.setPositiveButton(R.string.done_button, new Dialog.OnClickListener() {
 
@@ -755,6 +760,17 @@ public class InputLayout extends LinearLayout implements SpeechRecognitionListen
     });
 
     return multiSelectListDialog.getListView();
+  }
+
+  public List<CharSequence> convertHtmlChoicesToTextChoices(List<String> rawListChoices) {
+    List<CharSequence> listChoices = Lists.newArrayList();
+    for (String currentChoice : rawListChoices) {
+      if (currentChoice == null) {
+        currentChoice = "";
+      }
+      listChoices.add(Html.fromHtml(currentChoice));
+    }
+    return listChoices;
   }
 
   private View renderMultiSelectListDialog() {
@@ -781,13 +797,13 @@ public class InputLayout extends LinearLayout implements SpeechRecognitionListen
     listView.setPadding(0, 2, 0, 8);
     final Spinner findViewById = (Spinner) findViewById(R.id.list);
     // Formerly android.R.layout.simple_spinner_item
-    final List<String> listChoicesList = Lists.newArrayList(input.getListChoices());
+    List<CharSequence> listChoicesList = convertHtmlChoicesToTextChoices(input.getListChoices());
 
     String defaultListItem = getResources().getString(R.string.default_list_item);
     if (!listChoicesList.get(0).equals(defaultListItem)) {
       listChoicesList.add(0, defaultListItem);       // "No selection" list item.
     }
-    ArrayAdapter<String> choices = new ArrayAdapter<String>(getContext(),
+    ArrayAdapter<CharSequence> choices = new ArrayAdapter<CharSequence>(getContext(),
             //android.R.layout.simple_spinner_dropdown_item,
             R.layout.multiline_spinner_item,
             listChoicesList);
@@ -827,12 +843,12 @@ public class InputLayout extends LinearLayout implements SpeechRecognitionListen
     String leftSideLabel = input2.getLeftSideLabel();
     if (leftSideLabel != null) {
       TextView leftSideView = (TextView) findViewById(R.id.LeftText);
-      leftSideView.setText(leftSideLabel);
+      leftSideView.setText(Html.fromHtml(leftSideLabel));
     }
     String rightSideLabel = input2.getRightSideLabel();
     if (rightSideLabel != null) {
       TextView rightSideView = (TextView) findViewById(R.id.RightText);
-      rightSideView.setText(rightSideLabel);
+      rightSideView.setText(Html.fromHtml(rightSideLabel));
     }
     RadioGroup radioGroup = (RadioGroup) findViewById(R.id.LikertRadioGroup);
     radioGroup.setOnCheckedChangeListener(new OnCheckedChangeListener() {
@@ -885,7 +901,7 @@ public class InputLayout extends LinearLayout implements SpeechRecognitionListen
     case 10:
       return R.layout.radio_group_10;
     default:
-      Log.e(PacoConstants.TAG, "Steps unknown or too big: " + steps);
+      Log.error("Steps unknown or too big: " + steps);
       return R.layout.radio_group_error;
     }
 
@@ -940,8 +956,10 @@ public class InputLayout extends LinearLayout implements SpeechRecognitionListen
     String text = input.getText();
     if (input.getResponseType().equals(Input2.LOCATION) && Strings.isNullOrEmpty(text)) {
       text = getContext().getString(R.string.location_to_be_recorded_default_prompt);
+    } else if (Strings.isNullOrEmpty(text)) {
+      text = "";
     }
-    inputTextView.setText(text);
+    inputTextView.setText(Html.fromHtml(text));
     inputTextView.setTextSize(18);
     if (!Strings.isNullOrEmpty(text)) {
       inputTextView.setBackgroundColor(Color.argb(40, 200, 200, 250));
@@ -955,7 +973,7 @@ public class InputLayout extends LinearLayout implements SpeechRecognitionListen
       try {
         match = interpreter.parse(input.getConditionExpression());
       } catch (IllegalArgumentException iae) {
-        Log.e(PacoConstants.TAG, "Parsing problem: " + iae.getMessage());
+        Log.error("Parsing problem: " + iae.getMessage());
         match = false;
       }
       setVisible(match);
@@ -1134,7 +1152,7 @@ public class InputLayout extends LinearLayout implements SpeechRecognitionListen
       audioPlayer.start();
       audioPlayer.setOnCompletionListener(listener);
     } catch (IOException e) {
-      Log.e(PacoConstants.TAG, "prepare() failed");
+      Log.error("prepare() failed");
     }
   }
 
@@ -1157,7 +1175,7 @@ public class InputLayout extends LinearLayout implements SpeechRecognitionListen
     try {
       audioRecorder.prepare();
     } catch (IOException e) {
-      Log.e(PacoConstants.TAG, "prepare() failed");
+      Log.error("prepare() failed");
     }
 
     audioRecorder.start();

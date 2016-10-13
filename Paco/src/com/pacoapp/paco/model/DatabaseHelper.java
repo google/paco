@@ -5,20 +5,23 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.codehaus.jackson.JsonProcessingException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.pacoapp.paco.shared.model2.ExperimentDAO;
+import com.pacoapp.paco.shared.model2.PacoNotificationAction;
 
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.util.Log;
-
-import com.pacoapp.paco.shared.model2.ExperimentDAO;
-import com.pacoapp.paco.shared.model2.PacoNotificationAction;
 
 /**
  * This class helps open, create, and upgrade the database file.
  */
 public class DatabaseHelper extends SQLiteOpenHelper {
+
+  private static Logger Log = LoggerFactory.getLogger(DatabaseHelper.class);
 
   private Context context;
 
@@ -87,7 +90,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
   @Override
   public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-    Log.w(ExperimentProvider.TAG, "Upgrading database from version " + oldVersion + " to " + newVersion + ".");
+    Log.warn("Upgrading database from version " + oldVersion + " to " + newVersion + ".");
 
     // if (oldVersion <= 12) {
     // throw new
@@ -322,7 +325,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         }
       }
     } catch (RuntimeException e) {
-      Log.w(ExperimentProvider.TAG, "Caught unexpected exception.", e);
+      Log.warn("Caught unexpected exception.", e);
     } finally {
       if (cursor != null) {
         cursor.close();

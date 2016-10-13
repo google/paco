@@ -119,6 +119,19 @@
         android:visibility="gone" >
     </TextView>
 
+    <TextView
+        android:id="@+id/dataCollectedAccessibilityView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="left"
+        android:layout_marginLeft="15dip"
+        android:paddingBottom="4dip"
+        android:paddingLeft="8dip"
+        android:paddingTop="4dip"
+        android:text="@string/accessibility_logging"
+        android:visibility="gone" >
+    </TextView>
+
     <!-- Experiment informed consent content -->
 
     <TextView

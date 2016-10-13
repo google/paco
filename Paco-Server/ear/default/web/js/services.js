@@ -387,7 +387,8 @@ pacoApp.service('config', function() {
     1: 'App Usage and Browser History',
     2: 'Location Information',
     3: 'Phone Details (Make, Model, Carrier)',
-    4: 'Apps installed on the phone'
+    4: 'Apps installed on the phone',
+    5: 'Accessibility events'
   };
 
   this.ringtones = [
@@ -428,7 +429,9 @@ pacoApp.service('config', function() {
     "Experiment joined",
     "Experiment ended",
     "Response received",
-    "App removed"
+    "App removed",
+    "App installed",
+    "Permission changed"
   ];
 
   this.esmPeriods = [

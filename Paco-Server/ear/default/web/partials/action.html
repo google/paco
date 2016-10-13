@@ -25,7 +25,7 @@
         <div flex>
         <md-input-container flex>
           <label>Timeout</label>
-          <input type="number" ng-model="action.timeout" min="0">
+          <input type="number" ng-model="action.timeout" min="0" ng-pattern="/^[0-9]*$/">
           <div ng-messages>
             <div ng-message>minutes</div>
           </div>
@@ -45,7 +45,7 @@
         <div flex>
           <md-input-container ng-if="triggerType === 'interruptTrigger'">
             <label>Delay between cue and action</label>
-            <input type="number" ng-model="action.delay" min="0">
+            <input type="number" ng-model="action.delay" min="0" ng-pattern="/^[0-9]*$/">
             <div ng-messages>
               <div ng-message>seconds</div>
             </div>
@@ -55,7 +55,7 @@
         <div flex>
           <md-input-container ng-if="action.snoozeCount > 0">
             <label>Snooze time</label>
-            <input type="number" ng-model="action.snoozeTimeInMinutes" min="0">
+            <input type="number" ng-model="action.snoozeTimeInMinutes" min="0" ng-pattern="/^[0-9]*$/">
             <div ng-messages>
               <div ng-message>minutes</div>
             </div>

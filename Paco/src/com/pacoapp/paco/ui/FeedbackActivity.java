@@ -26,33 +26,10 @@ import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.joda.time.DateTime;
 import org.json.JSONArray;
-
-import android.app.AlertDialog;
-import android.app.Dialog;
-import android.content.Context;
-import android.content.DialogInterface;
-import android.content.Intent;
-import android.graphics.drawable.ColorDrawable;
-import android.net.Uri;
-import android.os.Bundle;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.ActionBarActivity;
-import android.util.Log;
-import android.view.KeyEvent;
-import android.view.LayoutInflater;
-import android.view.MenuItem;
-import android.view.View;
-import android.view.View.OnClickListener;
-import android.webkit.ConsoleMessage;
-import android.webkit.JsResult;
-import android.webkit.WebChromeClient;
-import android.webkit.WebView;
-import android.webkit.WebViewClient;
-import android.widget.Button;
-import android.widget.LinearLayout;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Strings;
-import com.pacoapp.paco.PacoConstants;
 import com.pacoapp.paco.R;
 import com.pacoapp.paco.js.bridge.Environment;
 import com.pacoapp.paco.js.bridge.JavascriptEmail;
@@ -70,7 +47,32 @@ import com.pacoapp.paco.shared.model2.Input2;
 import com.pacoapp.paco.shared.model2.JsonConverter;
 import com.pacoapp.paco.shared.util.ExperimentHelper;
 
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.graphics.drawable.ColorDrawable;
+import android.net.Uri;
+import android.os.Bundle;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.ActionBarActivity;
+import android.view.KeyEvent;
+import android.view.LayoutInflater;
+import android.view.MenuItem;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.webkit.ConsoleMessage;
+import android.webkit.JsResult;
+import android.webkit.WebChromeClient;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
+import android.widget.Button;
+import android.widget.LinearLayout;
+
 public class FeedbackActivity extends ActionBarActivity {
+
+  private static Logger Log = LoggerFactory.getLogger(FeedbackActivity.class);
 
   private static final String TEMP_URL = null;
   ExperimentProviderUtil experimentProviderUtil;
@@ -85,6 +87,8 @@ public class FeedbackActivity extends ActionBarActivity {
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
+    Log.debug("FeedbackActivity onCreate");
+
     ActionBar actionBar = getSupportActionBar();
     actionBar.setLogo(R.drawable.ic_launcher);
     actionBar.setDisplayUseLogoEnabled(true);
@@ -98,6 +102,7 @@ public class FeedbackActivity extends ActionBarActivity {
     loadExperimentInfoFromIntent();
 
     if (experiment == null || experimentGroup == null) {
+      Log.error("FeedbackActivity experiment is null");
       displayNoExperimentMessage();
     } else {
       setContentView(R.layout.feedback);
@@ -119,8 +124,6 @@ public class FeedbackActivity extends ActionBarActivity {
       final com.pacoapp.paco.shared.model2.Feedback feedback = experimentGroup.getFeedback();
 
       injectObjectsIntoJavascriptEnvironment(feedback);
-
-
       setWebChromeClientThatHandlesAlertsAsDialogs();
 
       WebViewClient webViewClient = createWebViewClientThatHandlesFileLinksForCharts(feedback);
@@ -177,10 +180,12 @@ public class FeedbackActivity extends ActionBarActivity {
   }
 
   private void loadRetrospectiveFeedbackIntoWebView() {
+    Log.debug("FeedbackActivity loadRetrospectiveFeedbackIntoWebView");
     webView.loadUrl("file:///android_asset/retrospective_feedback.html");
   }
 
   private void loadCustomFeedbackIntoWebView() {
+    Log.debug("FeedbackActivity loadCustomFeedbackIntoWebView");
     webView.loadUrl("file:///android_asset/skeleton.html");
   }
 
@@ -199,7 +204,7 @@ public class FeedbackActivity extends ActionBarActivity {
         }
 
         JSONArray results = new JSONArray();
-        experimentProviderUtil.loadEventsForExperiment(experiment); 
+        experimentProviderUtil.loadEventsForExperiment(experiment);
         for (Event event : experiment.getEvents()) {
           JSONArray eventJson = new JSONArray();
           DateTime responseTime = event.getResponseTime();
@@ -285,14 +290,14 @@ public class FeedbackActivity extends ActionBarActivity {
 
       @Override
       public void onConsoleMessage(String message, int lineNumber, String sourceID) {
-          Log.d(PacoConstants.TAG, message + " -- From line "
+          Log.debug(message + " -- From line "
                                + lineNumber + " of "
                                + sourceID);
       }
 
       @Override
       public boolean onConsoleMessage(ConsoleMessage consoleMessage) {
-        Log.d(PacoConstants.TAG,  "*" + consoleMessage.message() + " -- From line "
+        Log.debug("*" + consoleMessage.message() + " -- From line "
             + consoleMessage.lineNumber() + " of "
             + consoleMessage.sourceId() );
         return true;
@@ -408,6 +413,7 @@ public class FeedbackActivity extends ActionBarActivity {
   @Override
   protected void onStop() {
     super.onStop();
+    Log.debug("FeedbackActivity onStop");
     //finish();
   }
 

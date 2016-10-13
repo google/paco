@@ -178,6 +178,9 @@ public class Event {
   private void setWhatMap(Set<What> whats) {
     this.keysList = Lists.newArrayList();
     this.valuesList = Lists.newArrayList();
+    if (what == null) {
+      return;
+    }
     for (What what : whats) {
       keysList.add(what.getName());
       valuesList.add(what.getValue());

@@ -4,6 +4,22 @@ import java.util.Date;
 import java.util.List;
 
 import org.joda.time.DateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.common.base.Joiner;
+import com.google.common.collect.Lists;
+import com.pacoapp.paco.model.Event;
+import com.pacoapp.paco.model.EventUtil;
+import com.pacoapp.paco.model.Experiment;
+import com.pacoapp.paco.model.ExperimentProviderUtil;
+import com.pacoapp.paco.model.Output;
+import com.pacoapp.paco.sensors.android.procmon.LollipopProcessMonitorService;
+import com.pacoapp.paco.sensors.android.procmon.ProcessService;
+import com.pacoapp.paco.shared.model2.InterruptCue;
+import com.pacoapp.paco.shared.scheduling.ActionScheduleGenerator;
+import com.pacoapp.paco.shared.util.ExperimentHelper;
+import com.pacoapp.paco.shared.util.TimeUtil;
 
 import android.app.KeyguardManager;
 import android.content.BroadcastReceiver;
@@ -18,24 +34,9 @@ import android.os.Bundle;
 import android.os.PowerManager;
 import android.provider.Browser;
 import android.telephony.TelephonyManager;
-import android.util.Log;
-
-import com.google.common.base.Joiner;
-import com.google.common.collect.Lists;
-import com.pacoapp.paco.PacoConstants;
-import com.pacoapp.paco.model.Event;
-import com.pacoapp.paco.model.EventUtil;
-import com.pacoapp.paco.model.Experiment;
-import com.pacoapp.paco.model.ExperimentProviderUtil;
-import com.pacoapp.paco.model.Output;
-import com.pacoapp.paco.sensors.android.procmon.LollipopProcessMonitorService;
-import com.pacoapp.paco.sensors.android.procmon.ProcessService;
-import com.pacoapp.paco.shared.model2.InterruptCue;
-import com.pacoapp.paco.shared.scheduling.ActionScheduleGenerator;
-import com.pacoapp.paco.shared.util.ExperimentHelper;
-import com.pacoapp.paco.shared.util.TimeUtil;
 
 public class BroadcastTriggerReceiver extends BroadcastReceiver {
+
 
   public static final String EXPERIMENT_SERVER_ID_EXTRA_KEY = "experimentServerId";
   private static final String FREQUENCY = "Frequency";
@@ -44,6 +45,7 @@ public class BroadcastTriggerReceiver extends BroadcastReceiver {
 
   public static final String PACO_TRIGGER_INTENT = "com.pacoapp.paco.action.PACO_TRIGGER";
   public static final String PACO_ACTION_PAYLOAD = "paco_action_payload";
+  public static final String TRIGGER_TYPE = "triggerType";
 
   public static final String PACO_EXPERIMENT_JOINED_ACTION =  "com.pacoapp.paco.action.PACO_EXPERIMENT_JOINED_ACTION";
   public static final String PACO_EXPERIMENT_ENDED_ACTION = "com.pacoapp.paco.action.PACO_EXPERIMENT_ENDED_ACTION";
@@ -51,6 +53,7 @@ public class BroadcastTriggerReceiver extends BroadcastReceiver {
 
   private static final String ANDROID_PLAY_MUSIC_ACTION = "com.android.music.playstatechanged";
 
+  private static Logger Log = LoggerFactory.getLogger(BroadcastTriggerReceiver.class);
 
 
 	@Override
@@ -73,6 +76,8 @@ public class BroadcastTriggerReceiver extends BroadcastReceiver {
       triggerPacoExperimentResponseReceivedEvent(context ,intent);
     } else if (isPackageRemoved(context, intent)) {
       triggerPackageRemovedEvent(context, intent);
+    } else if (isPackageAdded(context, intent)) {
+      triggerPackageAddedEvent(context, intent);
     }
 
     PowerManager pm = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
@@ -153,24 +158,84 @@ public class BroadcastTriggerReceiver extends BroadcastReceiver {
 	  return intent.getAction().equals(Intent.ACTION_SHUTDOWN);
   }
 
+  /**
+   * Broadcasts an intent destined for the BroadcastTriggerService containing
+   * the package name and time of the event as extra data.
+   * This method is called by the onReceive() method when it received an
+   * ACTION_PACKAGE_REMOVED broadcast.
+   * @param context The Android app context
+   * @param intent The received broadcast intent
+   */
   private void triggerPackageRemovedEvent(Context context, Intent intent) {
-    Log.i(PacoConstants.TAG, "App removed trigger");
+    Log.info("App removed trigger");
 
+    triggerPackageEvent(context, intent, InterruptCue.APP_REMOVED);
+  }
+
+  /**
+   * Broadcasts an intent destined for the BroadcastTriggerService containing
+   * the package name and time of the event as extra data.
+   * This method is called by the onReceive() method when it received an
+   * ACTION_PACKAGE_ADDED broadcast.
+   * @param context The Android app context
+   * @param intent The received broadcast intent
+   */
+  private void triggerPackageAddedEvent(Context context, Intent intent) {
+    Log.info("App installed trigger");
+
+    triggerPackageEvent(context, intent, InterruptCue.APP_ADDED);
+    // Make sure that this new app is in the cache too by caching in the background
+    (new AndroidInstalledApplications(context)).cacheApplicationNames();
+  }
+
+  private void triggerPackageEvent(Context context, Intent intent, int type) {
     Uri data = intent.getData();
     String packageName = data.getEncodedSchemeSpecificPart();
+    AndroidInstalledApplications androidInstalledApplications = new AndroidInstalledApplications(context);
+    String appName = androidInstalledApplications.getApplicationName(packageName);
+    Bundle payload = new Bundle();
+    payload.putString(AndroidInstalledApplications.PACKAGE_NAME, packageName);
+    payload.putString(AndroidInstalledApplications.APP_NAME, appName);
+    // Cue event names are off by one.
+    payload.putString(TRIGGER_TYPE, InterruptCue.CUE_EVENT_NAMES[type-1]);
+
     if (!packageName.equals("com.pacoapp.paco")) {
-      triggerEvent(context, InterruptCue.APP_REMOVED, packageName, null);
+      triggerEvent(context, type, packageName, payload);
     }
+
+  }
+
+  /**
+   * Helper function for isPackageRemoved and isPackageAdded, checking whether the package removal/
+   * installation is actually part of an update (i.e. if a removal will be / was followed by an
+   * installation for the same package
+   * @param intent The ACTION_PACKAGE_REMOVED or ACTION_PACKAGE_ADDED event
+   * @return Whether this event is part of an update
+   */
+  private boolean isPackageUpdate(Intent intent) {
+    // If EXTRA_REPLACING is not present (or if it is present but false), return false.
+    return intent.getBooleanExtra(Intent.EXTRA_REPLACING, false);
   }
 
   private boolean isPackageRemoved(Context context, Intent intent) {
-	  return intent.getAction().equals(Intent.ACTION_PACKAGE_REMOVED);
+    return (intent.getAction().equals(Intent.ACTION_PACKAGE_REMOVED) && !isPackageUpdate(intent));
+  }
+
+  /**
+   * Checks whether an intent contains information about a *new* app being
+   * installed. Updates of existing packages are not considered as new installs.
+   * @param context The Android app context
+   * @param intent The received broadcast intent
+   * @return Whether the intent shows a new package was installed
+   */
+  private boolean isPackageAdded(Context context, Intent intent) {
+    return (intent.getAction().equals(Intent.ACTION_PACKAGE_ADDED) && !isPackageUpdate(intent));
   }
 
   private void triggerPacoExperimentEndedEvent(Context context, Intent intent) {
     long experimentServerId = intent.getLongExtra(EXPERIMENT_SERVER_ID_EXTRA_KEY, -10l);
     if (experimentServerId == -10l) {
-      Log.d(PacoConstants.TAG, "No experimentServerId specified for PACO_EXPERIMENT_ENDED_ACTION");
+      Log.debug("No experimentServerId specified for PACO_EXPERIMENT_ENDED_ACTION");
       return;
     }
     String experimentServerIdString = Long.toString(experimentServerId);
@@ -180,7 +245,7 @@ public class BroadcastTriggerReceiver extends BroadcastReceiver {
   private void triggerPacoExperimentJoinEvent(Context context, Intent intent) {
     long experimentServerId = intent.getLongExtra(EXPERIMENT_SERVER_ID_EXTRA_KEY, -10l);
     if (experimentServerId == -10l) {
-      Log.d(PacoConstants.TAG, "No experimentServerId specified for PACO_EXPERIMENT_JOINED_ACTION");
+      Log.debug("No experimentServerId specified for PACO_EXPERIMENT_JOINED_ACTION");
       return;
     }
     String experimentServerIdString = Long.toString(experimentServerId);
@@ -190,7 +255,7 @@ public class BroadcastTriggerReceiver extends BroadcastReceiver {
   private void triggerPacoExperimentResponseReceivedEvent(Context context, Intent intent) {
     long experimentServerId = intent.getLongExtra(EXPERIMENT_SERVER_ID_EXTRA_KEY, -10l);
     if (experimentServerId == -10l) {
-      Log.d(PacoConstants.TAG, "No experimentServerId specified for PACO_EXPERIMENT_RESPONSE_RECEIVED_ACTION");
+      Log.debug("No experimentServerId specified for PACO_EXPERIMENT_RESPONSE_RECEIVED_ACTION");
       return;
     }
     String experimentServerIdString = Long.toString(experimentServerId);
@@ -442,7 +507,7 @@ public class BroadcastTriggerReceiver extends BroadcastReceiver {
       }
       return results;
     } catch (Exception e) {
-      Log.e(PacoConstants.TAG, "bookmark lookup failed. Must be Marshmallow or latest Chrome. bookmark uri is being removed permanently.", e);
+      Log.error("bookmark lookup failed. Must be Marshmallow or latest Chrome. bookmark uri is being removed permanently.", e);
       return Lists.newArrayList();
     } finally {
       if (mCur != null) {
@@ -469,7 +534,7 @@ public class BroadcastTriggerReceiver extends BroadcastReceiver {
 
 
   public static void startProcessService(Context context) {
-    Log.i(PacoConstants.TAG, "Starting App Usage poller");
+    Log.info("Starting App Usage poller");
     BroadcastTriggerReceiver.toggleWatchRunningProcesses(context, true);
     if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
       Intent intent = new Intent(context, LollipopProcessMonitorService.class);
@@ -481,7 +546,7 @@ public class BroadcastTriggerReceiver extends BroadcastReceiver {
   }
 
   public static void stopProcessService(Context context) {
-    Log.i(PacoConstants.TAG, "Stopping App Usage poller");
+    Log.info("Stopping App Usage poller");
     BroadcastTriggerReceiver.toggleWatchRunningProcesses(context, false);
   }
 
@@ -591,7 +656,7 @@ public class BroadcastTriggerReceiver extends BroadcastReceiver {
   private void triggerPacoTriggerReceived(Context context, Intent intent) {
     String sourceIdentifier = intent.getStringExtra("sourceIdentifier");
     if (sourceIdentifier == null || sourceIdentifier.length() == 0) {
-      Log.d(PacoConstants.TAG, "No source identifier specified for PACO_TRIGGER");
+      Log.debug("No source identifier specified for PACO_TRIGGER");
     } else {
       triggerEvent(context, InterruptCue.PACO_ACTION_EVENT, sourceIdentifier, intent.getExtras());
     }
@@ -611,7 +676,7 @@ public class BroadcastTriggerReceiver extends BroadcastReceiver {
   }
 
   private void triggerUserPresent(Context context, Intent intent) {
-    Log.i(PacoConstants.TAG, "User present trigger");
+    Log.info("User present trigger");
     triggerEvent(context, InterruptCue.USER_PRESENT);
   }
 

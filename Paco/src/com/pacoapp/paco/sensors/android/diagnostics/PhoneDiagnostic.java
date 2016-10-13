@@ -1,6 +1,8 @@
 package com.pacoapp.paco.sensors.android.diagnostics;
 
 import java.util.List;
+import java.util.Locale;
+
 import android.app.Activity;
 import android.content.Context;
 import android.os.Build;
@@ -29,6 +31,7 @@ public class PhoneDiagnostic extends ListDiagnostic {
     values.add(context.getString(R.string.diagnostic_phone_make_label) + ": " + Build.MANUFACTURER);
     values.add(context.getString(R.string.diagnostic_phone_model_label) + ": " + Build.MODEL);
     values.add(context.getString(R.string.diagnostic_phone_android_label) + ": " + Build.VERSION.RELEASE);
+    values.add("language" + ": " + Locale.getDefault().getISO3Language());
     TelephonyManager manager = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
     String carrierName = manager.getNetworkOperatorName();
     values.add(context.getString(R.string.diagnostic_phone_carrier_label) + ": " + carrierName);

@@ -2,6 +2,7 @@ package com.google.sampling.experiential.server;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.apache.commons.codec.digest.DigestUtils;
@@ -126,6 +127,61 @@ public class ReportJobExecutor {
       return generateHtmlReport(timeZoneForClient, anon, jobId, experimentId, eventQueryResultPair, originalQuery, requestorEmail);
     }
   }
+
+  public String runReportJobExperimental(final String requestorEmail, final DateTimeZone timeZoneForClient,
+                             final List<Query> query, final boolean anon, final String reportFormat,
+                             final String originalQuery, final boolean includePhotos) {
+    // TODO get a real id function for jobs
+
+    final String jobId = DigestUtils.md5Hex(requestorEmail + Long.toString(System.currentTimeMillis()));
+    log.info("In runReportJobExperimental for job: " + jobId);
+    statusMgr.startReport(requestorEmail, jobId);
+
+    final ClassLoader cl = getClass().getClassLoader();
+    final Thread thread2 = ThreadManager.createBackgroundThread(new Runnable() {
+      @Override
+      public void run() {
+        log.info("ReportJobExecutor Experimental running");
+        Thread.currentThread().setContextClassLoader(cl);
+        try {
+          String location = doJobExperimental(requestorEmail, timeZoneForClient, query, anon, jobId, reportFormat, originalQuery, includePhotos);
+          statusMgr.completeReport(requestorEmail, jobId, location);
+        } catch (Throwable e) {
+          statusMgr.failReport(requestorEmail, jobId, e.getClass() + "." + e.getMessage());
+          log.severe("Could not run job: " + e.getMessage());
+          log.log(Level.SEVERE, "Could not run job", e);
+          e.printStackTrace();
+        }
+      }
+    });
+    thread2.start();
+    log.info("Leaving runReportJob");
+    return jobId;
+  }
+
+  protected String doJobExperimental(String requestorEmail, DateTimeZone timeZoneForClient, List<Query> query, boolean anon, String jobId,
+                         String reportFormat, String originalQuery, boolean includePhotos) throws IOException {
+    log.info("starting doJob experimental");
+    String experimentId = null;
+    for (Query query2 : query) {
+      if (query2.getKey().equals("experimentId")) {
+        experimentId = query2.getValue();
+      }
+    }
+      log.info("Getting events for job: " + jobId);
+      EventQueryResultPair eventQueryResultPair = EventRetriever.getInstance().getEventsFromLowLevelDS(query, requestorEmail, timeZoneForClient);
+      //EventRetriever.sortEvents(events);
+      log.info("Got events for job: " + jobId);
+
+      if (!Strings.isNullOrEmpty(reportFormat) && reportFormat.equals("csv2")) {
+        return generateCSVReport(anon, jobId, experimentId, eventQueryResultPair, timeZoneForClient);
+      } else if (!Strings.isNullOrEmpty(reportFormat) && reportFormat.equals("json2")) {
+        return generateJsonReport(anon, jobId, experimentId, eventQueryResultPair, timeZoneForClient, includePhotos);
+      }
+      return null;
+
+  }
+
 
   private String generateJsonReport(boolean anon, String jobId, String experimentId,
                                     EventQueryResultPair eventQueryResultPair, DateTimeZone timeZoneForClient,

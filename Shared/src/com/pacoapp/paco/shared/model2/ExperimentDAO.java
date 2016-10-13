@@ -52,12 +52,12 @@ public class ExperimentDAO extends ExperimentDAOCore implements Serializable {
 
   // Visible for testing
   public ExperimentDAO(Long id, String title, String description, String informedConsentForm,
-      String email,
+      String email, String publicKey,
       String joinDate,
       String modifyDate, Boolean published, List<String> admins, List<String> publishedUsers,
       Boolean deleted, Integer version, Boolean recordPhoneDetails, List<ExperimentGroup> groups,
       List<Integer> extraDataDeclarations) {
-    super(id, title, description, informedConsentForm, email, joinDate, recordPhoneDetails, deleted, extraDataDeclarations, null, null, null, null, null);
+    super(id, title, description, informedConsentForm, email, publicKey, joinDate, recordPhoneDetails, deleted, extraDataDeclarations, null, null, null, null, null);
     this.id = id;
     this.title = title;
     this.description = description;

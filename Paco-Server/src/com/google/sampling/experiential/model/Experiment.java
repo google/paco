@@ -152,6 +152,9 @@ public class Experiment {
   private String backgroundListenSourceIdentifier = "";
 
   @Persistent
+  private Boolean accessibilityListen = false;
+
+  @Persistent
   private Boolean logActions = false;
 
   @Persistent
@@ -543,6 +546,14 @@ public class Experiment {
 
   public void setBackgroundListenSourceIdentifier(String sourceId) {
     this.backgroundListenSourceIdentifier = sourceId;
+  }
+
+  public Boolean isAccessibilityListen() {
+    return accessibilityListen;
+  }
+
+  public void setAccessibilityListen(Boolean accessibilityListen) {
+    this.accessibilityListen = accessibilityListen;
   }
 
   public List<Integer> getExtraDataCollectionDeclarations() {

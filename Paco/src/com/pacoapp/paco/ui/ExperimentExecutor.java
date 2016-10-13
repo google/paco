@@ -22,6 +22,29 @@ import java.util.Locale;
 
 import org.joda.time.DateTime;
 import org.joda.time.Seconds;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.android.apps.paco.questioncondparser.Binding;
+import com.google.android.apps.paco.questioncondparser.Environment;
+import com.google.android.apps.paco.questioncondparser.ExpressionEvaluator;
+import com.pacoapp.paco.R;
+import com.pacoapp.paco.model.Event;
+import com.pacoapp.paco.model.EventUtil;
+import com.pacoapp.paco.model.Experiment;
+import com.pacoapp.paco.model.ExperimentProviderUtil;
+import com.pacoapp.paco.model.NotificationHolder;
+import com.pacoapp.paco.model.Output;
+import com.pacoapp.paco.net.SyncService;
+import com.pacoapp.paco.sensors.android.BroadcastTriggerReceiver;
+import com.pacoapp.paco.shared.model2.ExperimentGroup;
+import com.pacoapp.paco.shared.model2.Input2;
+import com.pacoapp.paco.shared.util.ExperimentHelper;
+import com.pacoapp.paco.triggering.AndroidEsmSignalStore;
+import com.pacoapp.paco.triggering.BeeperService;
+import com.pacoapp.paco.triggering.ExperimentExpirationManagerService;
+import com.pacoapp.paco.triggering.NotificationCreator;
+import com.pacoapp.paco.utils.IntentExtraHelper;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -43,7 +66,6 @@ import android.provider.Settings;
 import android.speech.RecognizerIntent;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -58,29 +80,9 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.apps.paco.questioncondparser.Binding;
-import com.google.android.apps.paco.questioncondparser.Environment;
-import com.google.android.apps.paco.questioncondparser.ExpressionEvaluator;
-import com.pacoapp.paco.PacoConstants;
-import com.pacoapp.paco.R;
-import com.pacoapp.paco.model.Event;
-import com.pacoapp.paco.model.EventUtil;
-import com.pacoapp.paco.model.Experiment;
-import com.pacoapp.paco.model.ExperimentProviderUtil;
-import com.pacoapp.paco.model.NotificationHolder;
-import com.pacoapp.paco.model.Output;
-import com.pacoapp.paco.net.SyncService;
-import com.pacoapp.paco.sensors.android.BroadcastTriggerReceiver;
-import com.pacoapp.paco.shared.model2.ExperimentGroup;
-import com.pacoapp.paco.shared.model2.Input2;
-import com.pacoapp.paco.shared.util.ExperimentHelper;
-import com.pacoapp.paco.triggering.AndroidEsmSignalStore;
-import com.pacoapp.paco.triggering.BeeperService;
-import com.pacoapp.paco.triggering.ExperimentExpirationManagerService;
-import com.pacoapp.paco.triggering.NotificationCreator;
-import com.pacoapp.paco.utils.IntentExtraHelper;
-
 public class ExperimentExecutor extends ActionBarActivity implements ChangeListener, LocationListener, ExperimentLoadingActivity  {
+
+  private static Logger Log = LoggerFactory.getLogger(ExperimentExecutor.class);
 
   public static final String FORM_DURATION_IN_SECONDS = "Form Duration";
   private Experiment experiment;
@@ -116,10 +118,13 @@ public class ExperimentExecutor extends ActionBarActivity implements ChangeListe
   private LinearLayout inputsScrollPane;
   private DateTime formOpenTime;
 
+  private Long timeoutMillis;
+
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
+    Log.debug("ExperimentExecutor onCreate");
     ActionBar actionBar = getSupportActionBar();
     actionBar.setLogo(R.drawable.ic_launcher);
     actionBar.setDisplayUseLogoEnabled(true);
@@ -130,6 +135,7 @@ public class ExperimentExecutor extends ActionBarActivity implements ChangeListe
 
     experimentProviderUtil = new ExperimentProviderUtil(this);
     if (experiment == null || experimentGroup == null) {
+      Log.debug("ExperimentExecutor experiment or group null. Loading from Intent");
       IntentExtraHelper.loadExperimentInfoFromIntent(this, getIntent(), experimentProviderUtil);
     }
     loadNotificationData();
@@ -211,7 +217,7 @@ public class ExperimentExecutor extends ActionBarActivity implements ChangeListe
     if (extras != null) {
       notificationHolderId = extras.getLong(NotificationCreator.NOTIFICATION_ID);
       notificationHolder = experimentProviderUtil.getNotificationById(notificationHolderId);
-      Long timeoutMillis = null;
+      timeoutMillis = null;
       if (notificationHolder != null) {
         experiment = experimentProviderUtil.getExperimentByServerId(notificationHolder.getExperimentId());
         experimentGroup = getExperiment().getExperimentDAO().getGroupByName(notificationHolder.getExperimentGroupName());
@@ -219,13 +225,14 @@ public class ExperimentExecutor extends ActionBarActivity implements ChangeListe
         actionId = notificationHolder.getActionId();
         actionTriggerSpecId = notificationHolder.getActionTriggerSpecId();
         scheduledTime = notificationHolder.getAlarmTime();
-        Log.i(PacoConstants.TAG, "Starting experimentExecutor from signal: " + getExperiment().getExperimentDAO().getTitle() +". alarmTime: " + new DateTime(scheduledTime).toString());
+        Log.info("Starting experimentExecutor from signal: " + getExperiment().getExperimentDAO().getTitle() +". alarmTime: " + new DateTime(scheduledTime).toString());
         timeoutMillis = notificationHolder.getTimeoutMillis();
       } else {
         scheduledTime = null;
       }
 
       if (isExpiredEsmPing(timeoutMillis)) {
+        Log.debug("ExperimentExecutor loadNotificationData ping is alread expired");
         Toast.makeText(this, R.string.survey_expired, Toast.LENGTH_LONG).show();
         finish();
       }
@@ -258,8 +265,9 @@ public class ExperimentExecutor extends ActionBarActivity implements ChangeListe
         notificationHolderId = notificationHolder.getId();
         scheduledTime = notificationHolder.getAlarmTime();
         shouldExpireNotificationHolder = true;
-        Log.i(PacoConstants.TAG, "ExperimentExecutor: Self report, but found signal still active : " + getExperiment().getExperimentDAO().getTitle() +". alarmTime: " + new DateTime(scheduledTime).toString());
+        Log.info("ExperimentExecutor: Self reporting but found active notification: " + getExperiment().getExperimentDAO().getTitle() +". alarmTime: " + new DateTime(scheduledTime).toString());
       } else {
+        Log.debug("Timing out notification that has expired.");
         NotificationCreator.create(this).timeoutNotification(notificationHolder);
       }
     }
@@ -268,6 +276,7 @@ public class ExperimentExecutor extends ActionBarActivity implements ChangeListe
   @Override
   protected void onResume() {
     super.onResume();
+    Log.debug("ExperimentExecutor onResume");
     registerLocationListenerIfNecessary();
     if (mainLayout != null) {
       mainLayout.clearFocus();
@@ -276,7 +285,7 @@ public class ExperimentExecutor extends ActionBarActivity implements ChangeListe
         if (firstInput.getInput().getResponseType().equals(Input2.OPEN_TEXT)) {
           firstInput.requestFocus();
         }
-        
+
       }
     }
   }
@@ -284,6 +293,7 @@ public class ExperimentExecutor extends ActionBarActivity implements ChangeListe
   @Override
   protected void onPause() {
     super.onPause();
+    Log.debug("ExperimentExecutor onPause");
     for (InputLayout  layout : inputs) {
       layout.onPause();
     }
@@ -437,8 +447,9 @@ public class ExperimentExecutor extends ActionBarActivity implements ChangeListe
   }
 
   private void save() {
+    Log.debug("ExperimentExecutor save");
     try {
-      if (notificationHolderId == null) {
+      if (notificationHolderId == null || isExpiredEsmPing(timeoutMillis)) {
         // workaround the bug with re-launching and stale scheduleTime.
         // How - if there isn't a notificationHolder waiting, then this is not a response
         // to a notification.
@@ -449,7 +460,6 @@ public class ExperimentExecutor extends ActionBarActivity implements ChangeListe
       gatherResponses(event);
       addTiming(event);
       experimentProviderUtil.insertEvent(event);
-
 
       deleteNotification();
 
@@ -518,7 +528,7 @@ public class ExperimentExecutor extends ActionBarActivity implements ChangeListe
           continue;
         }
       } catch (IllegalArgumentException iae) {
-        Log.e(PacoConstants.TAG, "Parsing problem: " + iae.getMessage());
+        Log.error("Parsing problem: " + iae.getMessage());
         continue;
       }
       Output responseForInput = new Output();
@@ -750,11 +760,11 @@ public class ExperimentExecutor extends ActionBarActivity implements ChangeListe
           inputLayout.galleryPicturePicked(filePath, requestCode);
         }
       } catch (Exception e) {
-        Log.i(PacoConstants.TAG, "Exception in gallery picking: " + e.getMessage());
+        Log.info("Exception in gallery picking: " + e.getMessage());
         e.printStackTrace();
       }
 
-    } 
+    }
   }
 
   private void handleSpeechRecognitionActivityResult(int resultCode, Intent data) {

@@ -3,18 +3,10 @@ package com.pacoapp.paco.sensors.android.procmon;
 import java.util.List;
 
 import org.joda.time.DateTime;
-
-import android.annotation.SuppressLint;
-import android.app.Service;
-import android.app.usage.UsageStatsManager;
-import android.content.Context;
-import android.content.Intent;
-import android.os.IBinder;
-import android.os.PowerManager;
-import android.util.Log;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Lists;
-import com.pacoapp.paco.PacoConstants;
 import com.pacoapp.paco.model.Event;
 import com.pacoapp.paco.model.Experiment;
 import com.pacoapp.paco.model.ExperimentProviderUtil;
@@ -23,10 +15,20 @@ import com.pacoapp.paco.sensors.android.BroadcastTriggerReceiver;
 import com.pacoapp.paco.shared.scheduling.ActionScheduleGenerator;
 import com.pacoapp.paco.shared.util.ExperimentHelper;
 
+import android.annotation.SuppressLint;
+import android.app.Service;
+import android.app.usage.UsageStatsManager;
+import android.content.Context;
+import android.content.Intent;
+import android.os.IBinder;
+import android.os.PowerManager;
+
 // TODO refactor this to compute increased foreground time for an app from it's previous foreground time.
 
 @SuppressLint("NewApi")
 public class LollipopProcessMonitorService extends Service {
+
+  private static Logger Log = LoggerFactory.getLogger(LollipopProcessMonitorService.class);
 
   protected boolean running;
 
@@ -34,17 +36,17 @@ public class LollipopProcessMonitorService extends Service {
   public void onStart(Intent intent, int startId) {
     super.onStart(intent, startId);
     if (running) {
-      Log.i(PacoConstants.TAG, "Paco App Usage Poller.onStart() -- Already running");
+      Log.info("Paco App Usage Poller.onStart() -- Already running");
       stopSelf();
       return;
     } else {
-      Log.i(PacoConstants.TAG, "Paco App Usage Poller.onStart()");
+      Log.info("Paco App Usage Poller.onStart()");
 
       UsageStatsManager am = (UsageStatsManager) getSystemService(Context.USAGE_STATS_SERVICE);
       final AppUsageEventsService usageEventsService = new AppUsageEventsService(am,
                                                                      BroadcastTriggerReceiver.getFrequency(getApplicationContext()));
       if (!usageEventsService.canGetStats()) {
-        Log.i(PacoConstants.TAG, "no access to Usage Stats. Please turn on setting.");
+        Log.info("no access to Usage Stats. Please turn on setting.");
         stopSelf();
         return;
       }
@@ -63,11 +65,11 @@ public class LollipopProcessMonitorService extends Service {
             while (pm.isScreenOn() && BroadcastTriggerReceiver.shouldWatchProcesses(getApplicationContext())) {
               synchronized (this) {
                 try {
-                  Log.i(PacoConstants.TAG, "polling on: runnable instance = " + this.toString());
-                  Log.i(PacoConstants.TAG, "==================================");
+                  Log.info("polling on: runnable instance = " + this.toString());
+                  Log.info("==================================");
                   lpcm.detectUsageEvents();
                   int sleepTime = 1000; //BroadcastTriggerReceiver.getFrequency(LollipopProcessMonitorService.this) * 1000;
-                  Log.i(PacoConstants.TAG, "sleepTime = " + sleepTime);
+                  Log.info("sleepTime = " + sleepTime);
                   wait(sleepTime);
                 } catch (Exception e) {
                 }
@@ -76,7 +78,7 @@ public class LollipopProcessMonitorService extends Service {
             if (!pm.isScreenOn() && BroadcastTriggerReceiver.shouldWatchProcesses(getApplicationContext())) {
               createScreenOffPacoEvents(getApplicationContext());
             }
-            Log.i(PacoConstants.TAG, "polling stopping: instance = " + LollipopProcessMonitorService.this.toString());
+            Log.info("polling stopping: instance = " + LollipopProcessMonitorService.this.toString());
           } finally {
             wl.release();
             stopSelf();
@@ -156,7 +158,7 @@ public class LollipopProcessMonitorService extends Service {
 
   @Override
   public void onDestroy() {
-    Log.i(PacoConstants.TAG, "Paco App Usage poller.onDestroy()");
+    Log.info("Paco App Usage poller.onDestroy()");
   }
 
 }

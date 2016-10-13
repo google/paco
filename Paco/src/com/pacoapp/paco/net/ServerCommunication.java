@@ -24,19 +24,21 @@ import java.util.List;
 import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.joda.time.DateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.pacoapp.paco.UserPreferences;
+import com.pacoapp.paco.model.ExperimentProviderUtil;
 
 import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
-import android.util.Log;
-
-import com.pacoapp.paco.PacoConstants;
-import com.pacoapp.paco.UserPreferences;
-import com.pacoapp.paco.model.ExperimentProviderUtil;
 
 public class ServerCommunication {
+
+  private static Logger Log = LoggerFactory.getLogger(ServerCommunication.class);
 
   private static final int DURATION_IN_MINUTES_THAT_IS_LONGER_THAN_TIME_TO_DOWNLOAD_JOINED_EXPERIMENTS = 5;
   private static ServerCommunication instance;
@@ -91,7 +93,7 @@ public class ServerCommunication {
     alarmManager.cancel(intent);
     alarmManager.set(AlarmManager.RTC_WAKEUP, nextCommTime.getMillis(), intent);
     userPrefs.setNextServerCommunicationServiceAlarmTime(nextCommTime.getMillis());
-    Log.i(PacoConstants.TAG, "Created alarm for ServerCommunicationService. Time: " + nextCommTime.toString());
+    Log.info("Created alarm for ServerCommunicationService. Time: " + nextCommTime.toString());
   }
 
   private boolean isInFuture(DateTime time) {

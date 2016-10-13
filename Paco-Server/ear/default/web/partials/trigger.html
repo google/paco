@@ -42,7 +42,7 @@
     <div class="subsub">Buffer</div>
     Minimum minutes between signals
     <md-input-container md-no-float class="buffer-input">
-      <input type="number" ng-model="trigger.minimumBuffer" placeholder="minutes">
+      <input type="number" ng-model="trigger.minimumBuffer" placeholder="minutes" ng-pattern="/^[0-9]*$/">
     </md-input-container>
   </div>
 
