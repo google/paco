@@ -8,6 +8,9 @@ import java.util.Date;
 import java.util.List;
 import java.util.logging.Logger;
 
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
+
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Entity;
@@ -36,9 +39,9 @@ public class ExperimentHubMigrationJob implements MigrationJob {
 
         ExperimentQueryResult experimentsQueryResults = ExperimentServiceFactory.getExperimentService().getExperimentsPublishedPublicly(DateTimeZone.getDefault(), null, null, null);
         List<ExperimentDAO> experimentList = experimentsQueryResults.getExperiments();
-        log.fine("HbMigration retrieved " + experimentList.size() + "experiments");
 
         if (experimentList != null) {
+            log.fine("HubMigration retrieved " + experimentList.size() + " experiments");
             int modifiedExperimentCount = 0;
             DateFormat df = new SimpleDateFormat(TimeUtil.DATE_FORMAT);
             List<Pair<Long, Date>> experimentsWithModifyDates = Lists.newArrayList();
@@ -63,6 +66,8 @@ public class ExperimentHubMigrationJob implements MigrationJob {
             }
             log.fine("Added modifyDates to " + modifiedExperimentCount + " experiments");
             updateDatastore(experimentsWithModifyDates);
+        }else{
+            log.severe("ExperimentHubMigrationJob got a null experimentList");
         }
 
         //2. Run cron job to count participants in each experiment
