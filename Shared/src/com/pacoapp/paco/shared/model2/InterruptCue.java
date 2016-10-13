@@ -23,12 +23,14 @@ public class InterruptCue extends ModelBase implements Validatable, java.io.Seri
   public static final int APP_REMOVED = 18;
   public static final int APP_ADDED = 19;
   public static final int PERMISSION_CHANGED = 20;
+  public static final int ACCESSIBILITY_EVENT_VIEW_CLICKED = 21;
 
   public static final int[] CUE_EVENTS = new int[] {PHONE_HANGUP, USER_PRESENT, PACO_ACTION_EVENT, APP_USAGE, APP_CLOSED, MUSIC_STARTED, MUSIC_STOPPED,
                                                 PHONE_INCOMING_CALL_STARTED, PHONE_INCOMING_CALL_ENDED,
                                                 PHONE_OUTGOING_CALL_STARTED, PHONE_OUTGOING_CALL_ENDED, PHONE_MISSED_CALL, PHONE_CALL_STARTED, PHONE_CALL_ENDED,
                                                 PACO_EXPERIMENT_JOINED_EVENT,
-                                                PACO_EXPERIMENT_ENDED_EVENT, PACO_EXPERIMENT_RESPONSE_RECEIVED_EVENT, APP_REMOVED, APP_ADDED, PERMISSION_CHANGED};
+                                                PACO_EXPERIMENT_ENDED_EVENT, PACO_EXPERIMENT_RESPONSE_RECEIVED_EVENT, APP_REMOVED, APP_ADDED, PERMISSION_CHANGED,
+                                                ACCESSIBILITY_EVENT_VIEW_CLICKED};
   public static final String[] CUE_EVENT_NAMES = new String[] {"HANGUP (deprecated)", "USER_PRESENT", "Paco Action",
                                                            "App Started", "App Stopped",
                                                            "Music Started", "Music Stopped",
@@ -36,7 +38,7 @@ public class InterruptCue extends ModelBase implements Validatable, java.io.Seri
                                                            "Outgoing call started", "Outgoing call ended",
                                                            "Missed call", "Call started (in or out)", "Call ended (in or out)",
                                                            "Experiment joined", "Experiment ended", "Response received", "App Removed",
-                                                           "App Installed", "Permission changed"};
+                                                           "App Installed", "Permission changed", "View In-App Clicked"};
 
 
 
