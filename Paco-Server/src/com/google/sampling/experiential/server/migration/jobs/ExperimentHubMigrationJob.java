@@ -8,6 +8,9 @@ import java.text.DateFormat;
 import java.util.List;
 import java.util.logging.Logger;
 
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
+
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Key;
@@ -34,7 +37,8 @@ public class ExperimentHubMigrationJob implements MigrationJob {
 
     public boolean doMigrationPublicExperiments(){
         //1. Loop through public experiments and fill in "modify_date"
-        ExperimentQueryResult experimentsQueryResults = ExperimentServiceFactory.getExperimentService().getExperimentsPublishedPublicly(null, null, null, null);
+
+        ExperimentQueryResult experimentsQueryResults = ExperimentServiceFactory.getExperimentService().getExperimentsPublishedPublicly(DateTimeZone.getDefault(), null, null, null);
         List<ExperimentDAO> experimentList = experimentsQueryResults.getExperiments();
 
         if (experimentList != null) {
@@ -43,12 +47,12 @@ public class ExperimentHubMigrationJob implements MigrationJob {
 
             for (ExperimentDAO e : experimentList) {
                 Date date;
-                try{
+                try {
                     date = df.parse(e.getModifyDate());
-                }catch(ParseException ex){
+                } catch (ParseException ex) {
                     log.info("Could not parse date for " + e.getId() + " " + ex.toString());
                     date = new Date(); //fallback to "now"
-                }catch(NullPointerException ex){
+                } catch (NullPointerException ex) {
                     log.info("Could not parse date (npe) for " + e.getId() + " " + ex.toString());
                     date = new Date(); //fallback to "now"
                 }
@@ -65,7 +69,7 @@ public class ExperimentHubMigrationJob implements MigrationJob {
         HubStatsCronJob cj = new HubStatsCronJob();
         try {
             cj.run();
-        }catch(IOException e){
+        } catch (IOException e) {
             log.warning("Exception occurred while running the HubStatsCronJob during Migration: " + e.toString());
         }
 
