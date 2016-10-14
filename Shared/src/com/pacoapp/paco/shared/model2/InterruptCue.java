@@ -38,7 +38,8 @@ public class InterruptCue extends ModelBase implements Validatable, java.io.Seri
                                                            "Outgoing call started", "Outgoing call ended",
                                                            "Missed call", "Call started (in or out)", "Call ended (in or out)",
                                                            "Experiment joined", "Experiment ended", "Response received", "App Removed",
-                                                           "App Installed", "Permission changed", "View In-App Clicked"};
+                                                           "App Installed", "Permission changed", "View Clicked in App"};
+  public static final Integer VIEW_CLICKED = 1;
 
 
 
@@ -47,7 +48,11 @@ public class InterruptCue extends ModelBase implements Validatable, java.io.Seri
 
 
   private Integer cueCode;
-  private String cueSource;
+  private String cueSource; // doubles as package name for view_clicked event type
+  private String cueAEClassName;
+  private Integer cueAEEventType = VIEW_CLICKED;
+  private String cueAEContentDescription;
+
   private Long id;
 
   public InterruptCue() {
@@ -88,4 +93,30 @@ public class InterruptCue extends ModelBase implements Validatable, java.io.Seri
   public void setId(Long id) {
     this.id = id;
   }
+
+  public String getCueAEClassName() {
+    return cueAEClassName;
+  }
+
+  public void setCueAEClassName(String cueAEClassName) {
+    this.cueAEClassName = cueAEClassName;
+  }
+
+  public Integer getCueAEEventType() {
+    return cueAEEventType;
+  }
+
+  public void setCueAEEventType(Integer cueAEEventType) {
+    this.cueAEEventType = cueAEEventType;
+  }
+
+  public String getCueAEContentDescription() {
+    return cueAEContentDescription;
+  }
+
+  public void setCueAEContentDescription(String cueAEContentDescription) {
+    this.cueAEContentDescription = cueAEContentDescription;
+  }
+
+
 }
