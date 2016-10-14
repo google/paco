@@ -1,15 +1,9 @@
 package com.google.android.apps.paco.test;
 
 
-import android.annotation.TargetApi;
-import android.os.Build;
-import android.test.AndroidTestCase;
-
-import com.pacoapp.paco.sensors.android.RuntimePermissionMonitorService;
-import com.pacoapp.paco.sensors.android.procmon.EncounteredPermissionRequest;
-
-import org.junit.Before;
-import org.junit.Test;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.not;
+import static org.junit.Assert.assertThat;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -17,23 +11,26 @@ import java.util.ArrayList;
 import java.util.Deque;
 import java.util.List;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.not;
-import static org.junit.Assert.assertThat;
+import org.junit.Before;
+import org.junit.Test;
+
+import com.pacoapp.paco.sensors.android.RuntimePermissionsAccessibilityEventHandler;
+import com.pacoapp.paco.sensors.android.procmon.EncounteredPermissionRequest;
+
+import android.annotation.TargetApi;
+import android.os.Build;
+import android.test.AndroidTestCase;
 
 public class RuntimePermissionMonitorServiceTest extends AndroidTestCase {
-  RuntimePermissionMonitorService runtimePermissionMonitorService;
+  RuntimePermissionsAccessibilityEventHandler runtimePermissionMonitorService;
   Method extractInformationFromEventText;
   Method setCurrentlyHandledAppName;
   Field previouslyEncounteredPermissionRequests;
 
   @Before
   public void setUp() throws Exception {
-    runtimePermissionMonitorService = new RuntimePermissionMonitorService();
+    runtimePermissionMonitorService = new RuntimePermissionsAccessibilityEventHandler(null);
     // Initialize variables
-    Method init = runtimePermissionMonitorService.getClass().getDeclaredMethod("onServiceConnected");
-    init.setAccessible(true);
-    init.invoke(runtimePermissionMonitorService);
     // Make necessary methods and fields accessible
     extractInformationFromEventText = runtimePermissionMonitorService.getClass().getDeclaredMethod("extractInformationFromEventText", List.class);
     extractInformationFromEventText.setAccessible(true);
@@ -91,10 +88,4 @@ public class RuntimePermissionMonitorServiceTest extends AndroidTestCase {
     assertEquals(lastRequest.getPermissionString(), "access an as of yet unknown thing");
   }
 
-  @Test
-  public void testRunning() throws Exception {
-    assert(runtimePermissionMonitorService.isRunning());
-    runtimePermissionMonitorService.stopSelf();
-    assert(!runtimePermissionMonitorService.isRunning());
-  }
 }

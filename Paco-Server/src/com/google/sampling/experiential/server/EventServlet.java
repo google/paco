@@ -117,8 +117,7 @@ public class EventServlet extends HttpServlet {
     }
   }
 
-  private void dumpEventJsonUsingBackend(HttpServletResponse resp, HttpServletRequest req, boolean anon,
-                                         boolean includePhotos, int limit, String cursor, boolean cmdline) throws IOException {
+  private void dumpEventJsonUsingBackend(HttpServletResponse resp, HttpServletRequest req, boolean anon, int limit, String cursor, boolean cmdline) throws IOException {
     String loggedInuser = AuthUtil.getWhoFromLogin().getEmail().toLowerCase();
     if (loggedInuser != null && adminUsers.contains(loggedInuser)) {
       loggedInuser = defaultAdmin; //TODO this is dumb. It should just be the value, loggedInuser.
@@ -250,27 +249,6 @@ public class EventServlet extends HttpServlet {
       e.printStackTrace();
     }
     return "Error could not retrieve events as json";
-  }
-
-  private void dumpEventsCSV(HttpServletResponse resp, HttpServletRequest req, boolean anon, int limit, String cursor, boolean cmdline) throws IOException {
-    String loggedInuser = AuthUtil.getWhoFromLogin().getEmail().toLowerCase();
-    if (loggedInuser != null && adminUsers.contains(loggedInuser)) {
-      loggedInuser = defaultAdmin; //TODO this is dumb. It should just be the value, loggedInuser.
-    }
-
-    DateTimeZone timeZoneForClient = TimeUtil.getTimeZoneForClient(req);
-    String jobId = runReportJob(anon, loggedInuser, timeZoneForClient, req, "csv", limit, cursor);
-    // Give the backend time to startup and register the job.
-    try {
-      Thread.sleep(100);
-    } catch (InterruptedException e) {
-    }
-    if (cmdline) {
-      resp.getWriter().println(jobId);
-    } else {
-      resp.sendRedirect("/jobStatus?jobId=" + jobId);
-    }
-
   }
 
   private void dumpEventsCSVExperimental(HttpServletResponse resp, HttpServletRequest req, boolean anon, int limit, String cursor, boolean cmdline) throws IOException {

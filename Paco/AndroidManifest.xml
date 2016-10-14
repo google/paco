@@ -233,8 +233,8 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </service>
-
-        <service android:name=".sensors.android.RuntimePermissionMonitorService"
+        
+        <service android:name=".sensors.android.AccessibilityEventMonitorService"
             android:label="@string/app_name"
             android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE">
             <intent-filter>
@@ -242,8 +242,9 @@
             </intent-filter>
             <meta-data
                 android:name="android.accessibilityservice"
-                android:resource="@xml/runtime_permissions_accessibility_config" />
+                android:resource="@xml/accessibility_event_monitor_config" />
         </service>
+        
         <service android:name="com.pacoapp.paco.net.SyncService" />
         <service android:name="com.pacoapp.paco.net.ServerCommunicationService" />
         <service android:name="com.pacoapp.paco.net.MyExperimentsFetchService" />

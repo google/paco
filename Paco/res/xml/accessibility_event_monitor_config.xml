@@ -5,10 +5,12 @@
      We pass on the flagReportViewIds flag to make it easier to identify the
      parts of the interface that contain the information we need -->
 <accessibility-service xmlns:android="http://schemas.android.com/apk/res/android"
-    android:packageNames="com.google.android.packageinstaller,com.android.packageinstaller"
+  
     android:accessibilityEventTypes="typeAllMask"
     android:accessibilityFlags="flagDefault|flagReportViewIds"
     android:accessibilityFeedbackType="feedbackGeneric"
     android:canRetrieveWindowContent="true"
     android:description="@string/accessibility_rationale"
     />
+
+<!--  android:packageNames="com.google.android.packageinstaller,com.android.packageinstaller" -->
