@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * This class contains helper functions for the RuntimePermissionMonitorService accessibilitylistener.
+ * This class contains helper functions for the AccessibilityEventMonitorService accessibilitylistener.
  */
 public class RuntimePermissionsAppUtil {
   // The application context

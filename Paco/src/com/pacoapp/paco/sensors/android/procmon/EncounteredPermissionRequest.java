@@ -1,7 +1,7 @@
 package com.pacoapp.paco.sensors.android.procmon;
 
 /**
- * Class used by RuntimePermissionMonitorService to log a permission request. Used for tying requests to their
+ * Class used by AccessibilityEventMonitorService to log a permission request. Used for tying requests to their
  * responses.
  */
 
