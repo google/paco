@@ -17,6 +17,9 @@
 package com.pacoapp.paco.os;
 
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.pacoapp.paco.net.ServerCommunicationService;
 import com.pacoapp.paco.net.SyncService;
 
@@ -27,6 +30,8 @@ import android.net.ConnectivityManager;
 
 public class NetworkChangeReceiver extends BroadcastReceiver {
 
+  private static Logger Log = LoggerFactory.getLogger(NetworkChangeReceiver.class);
+
   @Override
   public void onReceive(Context context, Intent intent) {
     if (intent.getAction().equals(ConnectivityManager.CONNECTIVITY_ACTION)) {
@@ -34,6 +39,7 @@ public class NetworkChangeReceiver extends BroadcastReceiver {
           intent.getBooleanExtra(ConnectivityManager.EXTRA_NO_CONNECTIVITY, false);
       if (!noConnectivity) {
         // Note: both of these services start a separate thread to execute.
+        Log.debug("NetworkChangeReceiver has connectivity");
         Intent syncService = new Intent(context, SyncService.class);
         context.startService(syncService);
 
