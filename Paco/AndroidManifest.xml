@@ -233,7 +233,12 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </service>
-        
+        <service android:name="com.pacoapp.paco.os.BootupService" >
+            <intent-filter>
+                <action android:name="com.pacoapp.paco.os.BootupService" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </service>
         <service android:name=".sensors.android.AccessibilityEventMonitorService"
             android:label="@string/app_name"
             android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE">

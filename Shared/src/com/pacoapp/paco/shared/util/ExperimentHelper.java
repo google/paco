@@ -127,7 +127,7 @@ public class ExperimentHelper {
     return false;
   }
 
-  public static boolean isLogShutdown(ExperimentDAO experiment) {
+  public static boolean isLogPhoneOnOff(ExperimentDAO experiment) {
     List<ExperimentGroup> groups = experiment.getGroups();
     for (ExperimentGroup experimentGroup : groups) {
       if (experimentGroup.getLogShutdown()) {

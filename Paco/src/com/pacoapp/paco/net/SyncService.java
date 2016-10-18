@@ -32,7 +32,10 @@ import android.content.Intent;
 import android.os.IBinder;
 import android.os.PowerManager;
 
-
+/**
+ * Sends locally recorded events to the server.
+ *
+ */
 public class SyncService extends Service {
 
   private static Logger Log = LoggerFactory.getLogger(SyncService.class);
