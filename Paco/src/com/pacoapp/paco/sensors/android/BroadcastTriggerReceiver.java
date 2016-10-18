@@ -38,6 +38,7 @@ import android.telephony.TelephonyManager;
 public class BroadcastTriggerReceiver extends BroadcastReceiver {
 
 
+  private static final String PHONE_ON_EVENT_KEY = "phoneOn";
   public static final String EXPERIMENT_SERVER_ID_EXTRA_KEY = "experimentServerId";
   private static final String FREQUENCY = "Frequency";
   public static final String RUNNING_PROCESS_WATCHER_FLAG = "RUNNING_PROCESS_WATCHER";
@@ -103,7 +104,7 @@ public class BroadcastTriggerReceiver extends BroadcastReceiver {
           }*/ // Android never fires the screen off intent.
           // Instead we detect screen activity in the process monitor
           if (isPhoneShutdown(context, intent)) {
-            createShutdownLogEvents(context);
+            createPhoneStateLogEvents(context, "false");
           }
 
         } finally {
@@ -114,31 +115,31 @@ public class BroadcastTriggerReceiver extends BroadcastReceiver {
     (new Thread(runnable)).start();
   }
 
-	protected void createShutdownLogEvents(Context context) {
+	public static void createPhoneStateLogEvents(Context context, String phoneOnState) {
     ExperimentProviderUtil experimentProviderUtil = new ExperimentProviderUtil(context);
-    List<Experiment> experimentsNeedingEvent = getExperimentsLoggingShutdownEvent(experimentProviderUtil);
+    List<Experiment> experimentsNeedingEvent = getExperimentsLoggingPhoneOnOffEvent(experimentProviderUtil);
 
     for (Experiment experiment : experimentsNeedingEvent) {
-      Event event = createPhoneShutdownPacoEvent(experiment);
+      Event event = createPhoneShutdownPacoEvent(experiment, phoneOnState);
       experimentProviderUtil.insertEvent(event);
     }
 
   }
 
-  private List<Experiment> getExperimentsLoggingShutdownEvent(ExperimentProviderUtil experimentProviderUtil) {
+  public static List<Experiment> getExperimentsLoggingPhoneOnOffEvent(ExperimentProviderUtil experimentProviderUtil) {
     List<Experiment> joined = experimentProviderUtil.getJoinedExperiments();
     List<Experiment> experimentsNeedingEvent = Lists.newArrayList();
     DateTime now = DateTime.now();
     for (Experiment experiment2 : joined) {
       if (!ActionScheduleGenerator.isOver(now, experiment2.getExperimentDAO())
-          && ExperimentHelper.isLogShutdown(experiment2.getExperimentDAO())) {
+          && ExperimentHelper.isLogPhoneOnOff(experiment2.getExperimentDAO())) {
         experimentsNeedingEvent.add(experiment2);
       }
     }
     return experimentsNeedingEvent;
   }
 
-  protected Event createPhoneShutdownPacoEvent(Experiment experiment) {
+  protected static Event createPhoneShutdownPacoEvent(Experiment experiment, String phoneOnState) {
     Event event = new Event();
     event.setExperimentId(experiment.getId());
     event.setServerExperimentId(experiment.getServerId());
@@ -147,9 +148,8 @@ public class BroadcastTriggerReceiver extends BroadcastReceiver {
     event.setResponseTime(new DateTime());
 
     Output responseForInput = new Output();
-
-    responseForInput.setAnswer(new DateTime().toString());
-    responseForInput.setName("phoneShutdown");
+    responseForInput.setAnswer(phoneOnState);
+    responseForInput.setName(PHONE_ON_EVENT_KEY);
     event.addResponse(responseForInput);
     return event;
   }

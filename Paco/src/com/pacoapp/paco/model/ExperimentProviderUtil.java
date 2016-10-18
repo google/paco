@@ -769,6 +769,7 @@ public class ExperimentProviderUtil implements EventStore {
     } finally {
       // Will get called even with return statements before
       eventStorageWriteLock.unlock();
+      Log.debug("Finished inserting event");
     }
   }
 

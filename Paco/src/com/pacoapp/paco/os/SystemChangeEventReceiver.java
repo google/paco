@@ -33,6 +33,9 @@ public class SystemChangeEventReceiver extends BroadcastReceiver {
       context.startService(new Intent(context, ExperimentExpirationManagerService.class));
       //context.startService(new Intent(context, VersionCheckerService.class));
     }
+    if (intent.getAction().equals(Intent.ACTION_BOOT_COMPLETED)) {
+      context.startService(new Intent(context, BootupService.class));
+    }
   }
 
 }

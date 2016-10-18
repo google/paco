@@ -60,16 +60,19 @@ public class AccessibilityEventMonitorService extends AccessibilityService {
     }
     List<InterruptTrigger> interestingTriggers;
     if (!ExperimentHelper.doesAnyExperimentCareAboutAccessibilityEvents(experimentDAOs)) {
+      //Log.debug("No experiments running that care about accessbility events");
       return;
     } else {
+      Log.debug("1 or more experiments running that care about accessbility events");
       interestingTriggers = ExperimentHelper.getAccessibilityTriggersForAllExperiments(experimentDAOs);
     }
     CharSequence packageName = accessibilityEvent.getPackageName();
     if (RuntimePermissionsAccessibilityEventHandler.isPackageInstallerEvent(packageName)) {
+      Log.debug("runtime permissions checking accessibility events");
       runtimePermissionsEventHandler.handleRuntimePermissionEvents(accessibilityEvent);
       return;
     } else if (isEventOfInterest(accessibilityEvent, interestingTriggers)) {
-      Log.debug("Accessibility Event is interesting: ");
+      Log.debug("Accessibility Event is otherwise interesting: ");
       inspectEvent(accessibilityEvent);
       triggerBroadcastService(accessibilityEvent);
     } else {
