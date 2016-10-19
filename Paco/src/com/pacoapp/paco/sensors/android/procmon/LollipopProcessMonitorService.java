@@ -65,11 +65,11 @@ public class LollipopProcessMonitorService extends Service {
             while (pm.isScreenOn() && BroadcastTriggerReceiver.shouldWatchProcesses(getApplicationContext())) {
               synchronized (this) {
                 try {
-                  Log.info("polling on: runnable instance = " + this.toString());
-                  Log.info("==================================");
+                  //Log.info("polling on: runnable instance = " + this.toString());
+                  //Log.info("==================================");
                   lpcm.detectUsageEvents();
                   int sleepTime = 1000; //BroadcastTriggerReceiver.getFrequency(LollipopProcessMonitorService.this) * 1000;
-                  Log.info("sleepTime = " + sleepTime);
+                  //Log.info("sleepTime = " + sleepTime);
                   wait(sleepTime);
                 } catch (Exception e) {
                 }

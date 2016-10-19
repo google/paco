@@ -97,7 +97,7 @@ public class BroadcastTriggerService extends Service {
         Log.info("Skipping experiment: " + experiment.getExperimentDAO().getTitle());
         continue;
       }
-      Log.info("We have an experiment that is running");
+      //Log.info("We have an experiment that is running");
       List<ExperimentGroup> groupsListening = ExperimentHelper.isBackgroundListeningForSourceId(experiment.getExperimentDAO(),
                                                                                                 sourceIdentifier);
       if (!groupsListening.isEmpty()) {
@@ -115,7 +115,9 @@ public class BroadcastTriggerService extends Service {
         }
       }
 
-      Log.info("triggers that match count: " + triggersThatMatch.size());
+      if (triggersThatMatch.size() > 0) {
+        Log.info("triggers that match count: " + triggersThatMatch.size());
+      }
       for (Trio<ExperimentGroup, InterruptTrigger, InterruptCue> triggerInfo : triggersThatMatch) {
         final InterruptTrigger actionTrigger = triggerInfo.second;
 

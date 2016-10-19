@@ -360,9 +360,14 @@ public class NotificationCreator {
 
   private void fireNotification(Context context, NotificationHolder notificationHolder, String experimentTitle,
                                 String message, String experimentSpecificRingtone, Integer color, Boolean dismissible) {
+    String alarmTimeString = "";
+    final Long alarmTime = notificationHolder.getAlarmTime();
+    if (alarmTime != null) {
+      alarmTimeString = new DateTime(alarmTime).toString();
+    }
     Log.info("Creating notification for experiment: " + experimentTitle + ". source: "
                   + notificationHolder.getNotificationSource() + ". alarmTime: "
-                  + notificationHolder.getAlarmTime().toString() + ", holderId = " + notificationHolder.getId());
+                  + alarmTimeString + ", holderId = " + notificationHolder.getId());
 
     Notification notification = createAndroidNotification(context, notificationHolder, experimentTitle, message,
                                                           experimentSpecificRingtone, color, dismissible);
