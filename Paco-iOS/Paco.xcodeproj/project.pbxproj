@@ -4857,7 +4857,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = (
-					"${J2OBJC_HOME}/dist/lib",
+					"${J2OBJC_HOME}/lib",
 					"$(PROJECT_DIR)/../libs",
 				);
 				ONLY_ACTIVE_ARCH = YES;
@@ -4909,7 +4909,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = (
-					"${J2OBJC_HOME}/dist/lib",
+					"${J2OBJC_HOME}/lib",
 					"$(PROJECT_DIR)/../libs",
 				);
 				ONLY_ACTIVE_ARCH = YES;
@@ -4946,6 +4946,7 @@
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				FRAMEWORK_SEARCH_PATHS = (

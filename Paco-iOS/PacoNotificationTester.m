@@ -24,6 +24,9 @@
 #import "SchedulePrinter.h" 
 #import "Schedule.h" 
 #import "PAExperimentDAO+Helper.h"
+#import "NSObject+J2objcKVO.h"
+#import "NSDate+PacoTimeZoneHelper.h"
+#include "java/lang/Integer.h"
 
 
 @interface PacoNotificationTester ()

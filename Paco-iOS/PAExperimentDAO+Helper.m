@@ -34,7 +34,7 @@
 #import "NSObject+J2objcKVO.h"
 #import "PacoExperimentSchedule.h" 
 #import "Input2.h"
-#import "java/io/Serializable.h"
+#include "java/lang/Integer.h"
 
 
 @implementation PAExperimentDAO (Helper)
