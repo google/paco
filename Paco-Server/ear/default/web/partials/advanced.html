@@ -19,7 +19,7 @@
 
     <div class="row">
       <md-checkbox ng-model="group.backgroundListen" aria-label="Listen for other apps sending data to PACO">
-        Background Listening
+        Background Listening (for data sent from other apps)
       </md-checkbox>
 
       <div class="right source" ng-if="group.backgroundListen">
@@ -27,14 +27,14 @@
         <md-input-container md-no-float>
           <input type="text" ng-model="group.backgroundListenSourceIdentifier" placeholder="Identifier">
         </md-input-container>
-        <no-ios ng-if="group.backgroundListen">iOS cannot do background listening</no-ios>
+        <no-ios ng-if="group.backgroundListen">iOS cannot do background data listening</no-ios>
       </div>
 
     </div>
 
     <div class="row">
-      <md-checkbox ng-model="group.accessibilityListen" aria-label="Log accessibility events">
-        Log accessibility events
+      <md-checkbox ng-model="group.accessibilityListen" aria-label="Log trigger-related accessibility events">
+        Log trigger-related accessibility events
       </md-checkbox>
 
       <no-ios ng-if="group.accessibilityListen" message="'iOS does not support accessibility logging'"></no-ios>
@@ -49,11 +49,11 @@
     </div>
 
     <div class="row">
-      <md-checkbox ng-model="group.logShutdown" aria-label="Log phone shutdown">
-        Log phone shutdowns
+      <md-checkbox ng-model="group.logShutdown" aria-label="Log phone shutdown and startup">
+        Log phone startup and shutdowns
       </md-checkbox>
 
-      <no-ios ng-if="group.logShutdown">iOS does not support phone shutdown logging</no-ios>
+      <no-ios ng-if="group.logShutdown">iOS does not support phone startup and shutdown logging</no-ios>
     </div>
 
     <div class="row">

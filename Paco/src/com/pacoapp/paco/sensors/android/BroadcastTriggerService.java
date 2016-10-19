@@ -88,6 +88,7 @@ public class BroadcastTriggerService extends Service {
     NotificationCreator notificationCreator = NotificationCreator.create(this);
     List<Experiment> joined = eu.getJoinedExperiments();
 
+    boolean shouldSync = false;
     for (Experiment experiment : joined) {
       if (!experiment.isRunning(now) && triggerEvent != InterruptCue.PACO_EXPERIMENT_ENDED_EVENT
           && triggerEvent != InterruptCue.PACO_EXPERIMENT_JOINED_EVENT) {
@@ -99,14 +100,19 @@ public class BroadcastTriggerService extends Service {
       Log.info("We have an experiment that is running");
       List<ExperimentGroup> groupsListening = ExperimentHelper.isBackgroundListeningForSourceId(experiment.getExperimentDAO(),
                                                                                                 sourceIdentifier);
-      persistBroadcastData(eu, experiment, groupsListening, extras);
+      if (!groupsListening.isEmpty()) {
+        shouldSync = shouldSync || persistBroadcastData(eu, experiment, groupsListening, extras);
+      }
 
       List<Trio<ExperimentGroup, InterruptTrigger, InterruptCue>> triggersThatMatch = ExperimentHelper.shouldTriggerBy(experiment.getExperimentDAO(),
                                                                                                          triggerEvent,
                                                                                                          sourceIdentifier);
       if (ExperimentHelper.declaresAccessibilityLogging(experiment.getExperimentDAO())) {
         List<ExperimentGroup> accessibilityGroupsListening = ExperimentHelper.isListeningForAccessibilityEvents(experiment.getExperimentDAO());
-        persistAccessibilityData(eu, experiment, accessibilityGroupsListening, extras.getBundle(RuntimePermissionsAccessibilityEventHandler.PACO_ACTION_ACCESSIBILITY_PAYLOAD));
+        if (!accessibilityGroupsListening.isEmpty()) {
+          shouldSync = shouldSync || persistAccessibilityData(eu, experiment, accessibilityGroupsListening,
+                                                              extras.getBundle(RuntimePermissionsAccessibilityEventHandler.PACO_ACTION_ACCESSIBILITY_PAYLOAD));
+        }
       }
 
       Log.info("triggers that match count: " + triggersThatMatch.size());
@@ -139,6 +145,10 @@ public class BroadcastTriggerService extends Service {
         }
       }
     }
+    if (shouldSync) {
+      notifySyncService();
+      shouldSync = false;
+    }
   }
 
   private void setRecentlyTriggered(DateTime now, String uniqueStringForTrigger) {
@@ -163,20 +173,21 @@ public class BroadcastTriggerService extends Service {
   /*
    * create and persist event containing any payload data sent along in original PACO_INTENT broadcast
    */
-  private void persistBroadcastData(ExperimentProviderUtil eu, Experiment experiment,
+  private boolean persistBroadcastData(ExperimentProviderUtil eu, Experiment experiment,
                                     List<ExperimentGroup> groupsListening, Bundle extras) {
     long nowMillis = new DateTime().getMillis();
     Bundle payload = extras.getBundle(BroadcastTriggerReceiver.PACO_ACTION_PAYLOAD);
     if (payload == null) {
       Log.info("Not persisting broadcast data without payload");
-      return;
+      return false;
     }
     for (ExperimentGroup experimentGroup : groupsListening) {
 
       Event event = EventUtil.createEvent(experiment, experimentGroup.getName(), nowMillis, null, null, null);
       persistEventBundle(eu, event, payload);
     }
-    notifySyncService();
+    return true;
+    //notifySyncService();
   }
 
   /**
@@ -185,13 +196,14 @@ public class BroadcastTriggerService extends Service {
    * @param experimentProviderUtil an initialized ExperimentProviderUtil
    * @param experiment the experiment for which to save the events
    * @param payload the PACO_ACTION_ACCESSIBILITY_PAYLOAD bundle
+   * @return
    */
-  private void persistAccessibilityData(ExperimentProviderUtil experimentProviderUtil,
+  private boolean persistAccessibilityData(ExperimentProviderUtil experimentProviderUtil,
                                         Experiment experiment, List<ExperimentGroup> groupsListening,
                                         Bundle payload) {
     if (payload == null) {
       Log.info("No accessibility data for this trigger.");
-      return;
+      return false;
     }
     Log.info("Persisting accessibility data for experiment " + experiment.getExperimentDAO().getTitle());
     long nowMillis = new DateTime().getMillis();
@@ -199,7 +211,8 @@ public class BroadcastTriggerService extends Service {
       Event event = EventUtil.createEvent(experiment, experimentGroup.getName(), nowMillis, null, null, null);
       persistEventBundle(experimentProviderUtil, event, payload);
     }
-    notifySyncService();
+    return true;
+    //notifySyncService();
   }
 
   /**

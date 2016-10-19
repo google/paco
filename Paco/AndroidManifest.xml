@@ -17,8 +17,8 @@
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.pacoapp.paco"
-    android:versionCode="157"
-    android:versionName="4.2.19" xmlns:tools="http://schemas.android.com/tools">
+    android:versionCode="158"
+    android:versionName="4.2.20" xmlns:tools="http://schemas.android.com/tools">
     <uses-feature android:name="android.hardware.location" android:required="false"/>
     <uses-feature android:name="android.hardware.telephony" android:required="false"/>
     <uses-feature android:name="android.hardware.camera.autofocus" android:required="false"/>
@@ -233,7 +233,12 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </service>
-        
+        <service android:name="com.pacoapp.paco.os.BootupService" >
+            <intent-filter>
+                <action android:name="com.pacoapp.paco.os.BootupService" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </service>
         <service android:name=".sensors.android.AccessibilityEventMonitorService"
             android:label="@string/app_name"
             android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE">
