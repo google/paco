@@ -1,15 +1,17 @@
 package com.pacoapp.paco.ui;
 
-import java.io.BufferedReader;
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.FilenameFilter;
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.List;
 import java.util.regex.Pattern;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,6 +29,7 @@ import com.pacoapp.paco.sensors.android.diagnostics.DiagnosticsReporter;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.graphics.drawable.ColorDrawable;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
@@ -38,6 +41,7 @@ import android.widget.TextView;
 
 public class TroubleshootingActivity extends ActionBarActivity {
 
+  private static final int EMAIL_INTENT_REQUEST_CODE = 1093;
   private static Logger Log = LoggerFactory.getLogger(TroubleshootingActivity.class);
   private UserPreferences userPrefs;
   private DiagnosticReport diagnosticsReport;
@@ -65,7 +69,7 @@ public class TroubleshootingActivity extends ActionBarActivity {
     sendLogButton.setOnClickListener(new OnClickListener() {
       @Override
       public void onClick(View v) {
-        launchLogSender();
+        launchLogSenderZip();
       }
     });
 
@@ -130,14 +134,16 @@ public class TroubleshootingActivity extends ActionBarActivity {
     startActivity(startIntent);
   }
 
-  private void launchLogSender() {
+
+  private void launchLogSenderZip() {
+    Log.debug("Building Troubleshooting email");
     String res = getString(R.string.troubleshooting_no_diagnostics_report_message);
     if (diagnosticsReport != null) {
       res = diagnosticsReport.toString();
     }
 
-    String syslog = readSystemLog();
-    syslog += "\n=======\nPaco File Log\n======\n" + readFileLog();
+    String zipFilePath = writeLogsIntoZip();
+
     experimentProviderUtil = new ExperimentProviderUtil(this);
     List<Experiment> experiments = experimentProviderUtil.getJoinedExperiments();
     String email = null;
@@ -147,18 +153,29 @@ public class TroubleshootingActivity extends ActionBarActivity {
         email = experiments.get(0).getExperimentDAO().getCreator();
       }
     }
-    createEmailIntent(res + "\n\n" + syslog, email);
+
+    createEmailIntentZip(res, zipFilePath);
   }
 
+  private void createEmailIntentZip(String log, String zipFilePath) {
+    Intent emailIntent = new Intent(android.content.Intent.ACTION_SEND);
+    emailIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, getString(R.string.email_subject_paco_feedback));
+    emailIntent.setType("plain/text");
+    emailIntent.putExtra(android.content.Intent.EXTRA_TEXT, log);
+    if (!Strings.isNullOrEmpty(zipFilePath)) {
+      Uri uri = Uri.fromFile(new File(zipFilePath));
+      emailIntent.putExtra(android.content.Intent.EXTRA_STREAM, uri);
+    }
+    Log.debug("Launching email intent");
+    startActivityForResult(emailIntent, EMAIL_INTENT_REQUEST_CODE);
+  }
 
-  private String readFileLog() {
-    //final String filesDirPath = getFilesDir().getPath();
-    //String logDir = filesDirPath + "/Log"; //."/data/data/com.pacoapp.paco/files/Log";
-    File logFileDir = getFilesDir(); //logDir, Context.MODE_PRIVATE);
-    //File logFileDir = new File(fileDir, "log");
+  private String writeLogsIntoZip() {
+    File logFileDir = getFilesDir(); 
     if (logFileDir.exists()) {
       File[] logFiles = logFileDir.listFiles(new FilenameFilter() {
-        private Pattern logFilePattern = Pattern.compile("log[.]?[\\d]?.txt");
+        private Pattern logFilePattern = Pattern.compile("log.*");
+
         @Override
         public boolean accept(File dir, String name) {
           return logFilePattern.matcher(name).matches();
@@ -166,67 +183,60 @@ public class TroubleshootingActivity extends ActionBarActivity {
 
       });
       if (logFiles != null) {
-        StringBuilder buf = new StringBuilder();
-        File fileName = null;
-        for (int i = 0; i < logFiles.length; i++) {
-          fileName = logFiles[i];
-          buf.append("Log file named: ");
-          buf.append(fileName);
-          buf.append("\n");
-          try {
-            final String currentLogFilePath = fileName.getName();
-            FileInputStream file = openFileInput(currentLogFilePath);
-            InputStreamReader isr = new InputStreamReader(file);
-            BufferedReader bufferedReader = new BufferedReader(isr);
-            String line;
-            while ((line = bufferedReader.readLine()) != null) {
-                buf.append(line);
-                buf.append("\n");
-            }
-          } catch (FileNotFoundException e) {
-            Log.error("could not read Log file "+ fileName, e);
-            e.printStackTrace();
-          } catch (IOException e) {
-            Log.error("could not read Log file "+ fileName, e);
-            e.printStackTrace();
-          }
+        try {
+          File zippedLogFile = null;
+          int BUFFER = 2048;
+          BufferedInputStream origin = null;
+          final File externalFilesDir = getExternalFilesDir(null);
+          long freeSpace = externalFilesDir.getFreeSpace();
+          final int spaceMinLimit = 1024 * 1000; // 1MB
+          if (freeSpace >= spaceMinLimit && externalFilesDir.canWrite()) {
+            zippedLogFile = new File(externalFilesDir, DateTime.now().toString() + "logs.zip");
+            zippedLogFile.setReadable(true, false);
+            FileOutputStream dest = new FileOutputStream(zippedLogFile);
+            ZipOutputStream out = new ZipOutputStream(new BufferedOutputStream(dest));
 
+            byte data[] = new byte[BUFFER];
+
+            for (int i = 0; i < logFiles.length; i++) {
+              final File fileName = logFiles[i];
+              Log.debug("Compress: Adding: " + fileName);
+              FileInputStream fi = new FileInputStream(fileName);
+              origin = new BufferedInputStream(fi, BUFFER);
+              ZipEntry entry = new ZipEntry(fileName.getName());
+              out.putNextEntry(entry);
+              int count;
+              while ((count = origin.read(data, 0, BUFFER)) != -1) {
+                out.write(data, 0, count);
+              }
+              origin.close();
+            }
+            ZipEntry entry = new ZipEntry("syslog.log");
+            out.putNextEntry(entry);
+
+            Process process = Runtime.getRuntime().exec("logcat -d");
+            origin = new BufferedInputStream(process.getInputStream(), BUFFER);
+            int count;
+            while ((count = origin.read(data, 0, BUFFER)) != -1) {
+              out.write(data, 0, count);
+            }
+            origin.close();
+            out.close();
+            final String zippedLogFileAbsolutePath = zippedLogFile.getAbsolutePath();
+            userPrefs.setZipLogFileUri(zippedLogFileAbsolutePath);
+            return zippedLogFileAbsolutePath;
+          } else {
+            Log.debug("Either freespace is too low on external storage to write logs or cannot write externalDir. "
+                    + "Freespace: " + freeSpace +", canWrite: " + externalFilesDir.canWrite());
+          }
+        } catch (Exception e) {
+          e.printStackTrace();
         }
-        return buf.toString();
       }
     }
-
     return null;
   }
 
-
-
-  private void createEmailIntent(String log, String email) {
-    Intent emailIntent = new Intent(android.content.Intent.ACTION_SEND);
-    emailIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, getString(R.string.email_subject_paco_feedback));
-    emailIntent.setType("plain/text");
-    emailIntent.putExtra(android.content.Intent.EXTRA_TEXT, log);
-    if (!Strings.isNullOrEmpty(email)) {
-      emailIntent.putExtra(android.content.Intent.EXTRA_EMAIL, new String[]{email});
-    }
-    startActivity(emailIntent);
-  }
-
-  private String readSystemLog() {
-    StringBuilder log = new StringBuilder();
-    try {
-      Process process = Runtime.getRuntime().exec("logcat -d");
-      BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-
-      String line;
-      while ((line = bufferedReader.readLine()) != null) {
-        log.append(line).append("\n");
-      }
-    } catch (IOException e) {
-      return null;
-    }
-    return log.toString();
-  }
 
   @SuppressLint("NewApi")
   private void launchAccountChooser() {
@@ -238,6 +248,16 @@ public class TroubleshootingActivity extends ActionBarActivity {
   @Override
   protected void onActivityResult(int requestCode, int resultCode, Intent data) {
     super.onActivityResult(requestCode, resultCode, data);
+    if (requestCode == EMAIL_INTENT_REQUEST_CODE) {
+      String path = userPrefs.getZipLogFileUri();
+      if (path != null) {
+        File f = new File(path);
+        if (f.exists()) {
+          Log.debug("Found zipLogFile to delete: " + path);
+          //f.delete();
+        }
+      }
+    }
   }
 
 

@@ -77,7 +77,7 @@ public class ProcessService extends Service {
             while (pm.isScreenOn() && BroadcastTriggerReceiver.shouldWatchProcesses(getApplicationContext())) {
               synchronized (this) {
                 try {
-                  Log.info("polling on: runnable instance = " + this.toString());
+                  //Log.info("polling on: runnable instance = " + this.toString());
                   List<String> recentTaskNames = getRecentTaskNames();
 
                   List<String> newlyUsedTasks = checkForNewlyUsedTasks(previousTaskNames, tasksOfInterest,
@@ -106,7 +106,7 @@ public class ProcessService extends Service {
 
                   previousTaskNames = recentTaskNames;
                   int sleepTime = BroadcastTriggerReceiver.getFrequency(ProcessService.this) * 1000;
-                  Log.info("sleepTime = " + sleepTime);
+                  //Log.info("sleepTime = " + sleepTime);
                   wait(sleepTime);
                 } catch (Exception e) {
                 }

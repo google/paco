@@ -658,7 +658,7 @@ public class ExperimentProviderUtil implements EventStore {
             experiment.setId(cursor.getLong(idIndex));
           }
         }
-        Log.error("time to de-jsonify experiment (bytes: " + jsonOfExperiment.getBytes().length + ") : " + (System.currentTimeMillis() - t1));
+        Log.debug("time to de-jsonify experiment (bytes: " + jsonOfExperiment.getBytes().length + ") : " + (System.currentTimeMillis() - t1));
         return experiment;
       } catch (JsonParseException e) {
         e.printStackTrace();
