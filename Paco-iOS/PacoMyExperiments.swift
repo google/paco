@@ -32,7 +32,7 @@ class PacoMyExperiments: UITableViewController,PacoExperimentProtocol {
     }
     
     
-    func showEditView(experiment:PAExperimentDAO,indexPath:NSIndexPath)
+    func showEditView(_ experiment:PAExperimentDAO,indexPath:IndexPath)
         {
             
             
@@ -48,11 +48,11 @@ class PacoMyExperiments: UITableViewController,PacoExperimentProtocol {
       
         
         
-        NSNotificationCenter.defaultCenter().addObserver(self, selector:#selector(PacoMyExperiments.experimentsRefreshed(_:)), name:"MyExperiments", object: nil)
+        NotificationCenter.default.addObserver(self, selector:#selector(PacoMyExperiments.experimentsRefreshed(_:)), name:NSNotification.Name(rawValue: "MyExperiments"), object: nil)
       
-        self.tableView.registerNib(UINib(nibName: "PacoTableViewCell", bundle: nil), forCellReuseIdentifier:cellId)
+        self.tableView.register(UINib(nibName: "PacoTableViewCell", bundle: nil), forCellReuseIdentifier:cellId)
         
-        self.tableView.registerNib(UINib(nibName: "PacoMyExpermementTitleCellTableViewCell", bundle: nil), forCellReuseIdentifier:simpleCellId)
+        self.tableView.register(UINib(nibName: "PacoMyExpermementTitleCellTableViewCell", bundle: nil), forCellReuseIdentifier:simpleCellId)
         
         
         let swiftColor = UIColor(red:0.96, green:0.96, blue:0.96, alpha:1.0)
@@ -60,7 +60,7 @@ class PacoMyExperiments: UITableViewController,PacoExperimentProtocol {
  
         
         let  networkHelper = PacoNetwork .sharedInstance()
-        networkHelper.update()
+        networkHelper?.update()
         
     }
 
@@ -71,12 +71,12 @@ class PacoMyExperiments: UITableViewController,PacoExperimentProtocol {
 
  
 
-    override func numberOfSectionsInTableView(tableView: UITableView) -> Int {
+    override func numberOfSections(in tableView: UITableView) -> Int {
  
         return 1
     }
 
-    override func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+    override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
  
         var retVal:Int = 0
         if isRefreshed
@@ -92,9 +92,9 @@ class PacoMyExperiments: UITableViewController,PacoExperimentProtocol {
     }
 
  
-    override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
+    override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
-        let cell = tableView.dequeueReusableCellWithIdentifier(self.simpleCellId, forIndexPath: indexPath) as! PacoMyExpermementTitleCellTableViewCell
+        let cell = tableView.dequeueReusableCell(withIdentifier: self.simpleCellId, for: indexPath) as! PacoMyExpermementTitleCellTableViewCell
         
         if( !isRefreshed ) {
             
@@ -110,19 +110,19 @@ class PacoMyExperiments: UITableViewController,PacoExperimentProtocol {
         
      
 
-                var dao:PAExperimentDAO = myExpriments![indexPath.row]
+                let dao:PAExperimentDAO = myExpriments![(indexPath as NSIndexPath).row]
                 var title:String?
                 var organization:String?
                 var email:String?
                 var description:String?
          
-               if  dao.valueForKeyEx("title") != nil
+               if  dao.value(forKeyEx: "title") != nil
                {
-                   title = (dao.valueForKeyEx("title")  as? String)!
+                   title = (dao.value(forKeyEx: "title")  as? String)!
                 }
-                if  dao.valueForKeyEx("description")  != nil
+                if  dao.value(forKeyEx: "description")  != nil
                 {
-                  description = (dao.valueForKeyEx("description")  as? String)!
+                  description = (dao.value(forKeyEx: "description")  as? String)!
                 }
                 if !dao.isCompatibleWithIOS()
                 {
@@ -130,17 +130,17 @@ class PacoMyExperiments: UITableViewController,PacoExperimentProtocol {
                     
                     
                 }
-                if  dao.valueForKeyEx("organization") != nil
+                if  dao.value(forKeyEx: "organization") != nil
                 {
-                    organization = (dao.valueForKeyEx("organization")  as? String)!
+                    organization = (dao.value(forKeyEx: "organization")  as? String)!
                 }
                 else
                 {
                     organization = " "
                 }
-                if  dao.valueForKeyEx("contactEmail") != nil
+                if  dao.value(forKeyEx: "contactEmail") != nil
                 {
-                    email = (dao.valueForKeyEx("contactEmail")  as? String)!
+                    email = (dao.value(forKeyEx: "contactEmail")  as? String)!
                 }
                 else
                 {
@@ -156,7 +156,7 @@ class PacoMyExperiments: UITableViewController,PacoExperimentProtocol {
                 
                 if isCompatible == true
                 {
-                    cell.isIos.hidden = true;
+                    cell.isIos.isHidden = true;
                 }
             
                 
@@ -167,7 +167,7 @@ class PacoMyExperiments: UITableViewController,PacoExperimentProtocol {
                 cell.experiment = dao
                 cell.experimentTitle.text = title
                 cell.subtitle.text = "\(organization!), \(email!)"
-                cell.selectionStyle  = UITableViewCellSelectionStyle.None
+                cell.selectionStyle  = UITableViewCellSelectionStyle.none
                 //cell.isIOSCompatible.text = compatibilityText as String
         
         }
@@ -178,8 +178,8 @@ class PacoMyExperiments: UITableViewController,PacoExperimentProtocol {
     
  
   
-    override func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
-        let cell = tableView.cellForRowAtIndexPath(indexPath) as! PacoMyExpermementTitleCellTableViewCell
+    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        let cell = tableView.cellForRow(at: indexPath) as! PacoMyExpermementTitleCellTableViewCell
         
                 didSelect(cell.experiment!)
                 print("did select \(cell.experimentTitle.text) \n")
@@ -189,16 +189,16 @@ class PacoMyExperiments: UITableViewController,PacoExperimentProtocol {
  
     
     
-    func email(experiment:PAExperimentDAO){}
-    func editTime(experiment:PAExperimentDAO){}
+    func email(_ experiment:PAExperimentDAO){}
+    func editTime(_ experiment:PAExperimentDAO){}
     
     
-    func experimentsRefreshed(notification: NSNotification){
+    func experimentsRefreshed(_ notification: Notification){
         
         
       isRefreshed = true;
       let   mediator =  PacoMediator.sharedInstance();
-      let   mArray:NSMutableArray  = mediator.experiments();
+      let   mArray:NSMutableArray  = mediator!.experiments();
        myExpriments = mArray as AnyObject  as? [PAExperimentDAO]
         
         
@@ -207,7 +207,7 @@ class PacoMyExperiments: UITableViewController,PacoExperimentProtocol {
         
         print("print the notificatins \(myExpriments)");
        
-        dispatch_async(dispatch_get_main_queue(), { self.tableView.reloadData()
+        DispatchQueue.main.async(execute: { self.tableView.reloadData()
                                                     self.tableView.setNeedsDisplay()})
         
         
@@ -216,13 +216,13 @@ class PacoMyExperiments: UITableViewController,PacoExperimentProtocol {
     
     
     
-    func didSelect(experiment:PAExperimentDAO)
+    func didSelect(_ experiment:PAExperimentDAO)
     {
         let  detailController =  PacoExperimentDetailController(nibName:"PacoExperimentDetailController",bundle:nil)
         
-        if  experiment.valueForKeyEx("title") != nil
+        if  experiment.value(forKeyEx: "title") != nil
         {
-            detailController.title   = (experiment.valueForKeyEx("title")  as? String)!
+            detailController.title   = (experiment.value(forKeyEx: "title")  as? String)!
         }
         
         detailController.experiment = experiment;
@@ -230,20 +230,20 @@ class PacoMyExperiments: UITableViewController,PacoExperimentProtocol {
         //self.tabnavigationController?.pushViewController(detailController, animated: true)
     }
     
-    func didClose(experiment: PAExperimentDAO)
+    func didClose(_ experiment: PAExperimentDAO)
     {
         
         
         
     }
   
-    override func viewDidAppear(animated: Bool) {
+    override func viewDidAppear(_ animated: Bool) {
         
           self.tabBarController?.navigationItem.title = "Invitations"
  
         
         let  mediator =  PacoMediator.sharedInstance()
-        let mArray:NSMutableArray  = mediator.experiments()
+        let mArray:NSMutableArray  = mediator!.experiments()
         myExpriments = mArray as AnyObject as? [PAExperimentDAO]
         
         
@@ -253,7 +253,7 @@ class PacoMyExperiments: UITableViewController,PacoExperimentProtocol {
     }
     
     
-    override func viewWillDisappear(animated: Bool) {
+    override func viewWillDisappear(_ animated: Bool) {
   
     }
     

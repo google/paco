@@ -3,14 +3,14 @@
 import UIKit
  
 
-@objc public class ScheduleEditor: UITableViewController {
+@objc open class ScheduleEditor: UITableViewController {
 
-    var cells  = [ ]
+    var cells  = [NSArray]()
     var isWizard:Bool = false
     var  experiment:PAExperimentDAO?
     
     
-   public  override func viewDidLoad() {
+   open  override func viewDidLoad() {
     
         self.tableView.rowHeight = UITableViewAutomaticDimension
         self.tableView.estimatedRowHeight = 44
@@ -31,7 +31,7 @@ import UIKit
         
     
      //   let  leftAddBarButtonItem:UIBarButtonItem = UIBarButtonItem(title: "Cancel", style: UIBarButtonItemStyle.Done, target: self, action:#selector(doneButton))
-       let  rightAddBarButtonItem:UIBarButtonItem = UIBarButtonItem(title: "Done", style: UIBarButtonItemStyle.Plain, target: self, action:"doneButton:")
+       let  rightAddBarButtonItem:UIBarButtonItem = UIBarButtonItem(title: "Done", style: UIBarButtonItemStyle.plain, target: self, action:#selector(ScheduleEditor.doneButton(_:)))
         
         
         
@@ -50,7 +50,7 @@ import UIKit
         
         
       //  let  leftAddBarButtonItem:UIBarButtonItem = UIBarButtonItem(title: "Cancel", style: UIBarButtonItemStyle.Done, target: self, action:"doneButton:")
-        let  rightAddBarButtonItem:UIBarButtonItem = UIBarButtonItem(title: "Done", style: UIBarButtonItemStyle.Plain, target: self, action:"doneButton:")
+        let  rightAddBarButtonItem:UIBarButtonItem = UIBarButtonItem(title: "Done", style: UIBarButtonItemStyle.plain, target: self, action:#selector(ScheduleEditor.doneButton(_:)))
      
         
          navigationItem.hidesBackButton = true;
@@ -66,13 +66,13 @@ import UIKit
     
 
     
-     func backTaped(sender:UIBarButtonItem!)
+     func backTaped(_ sender:UIBarButtonItem!)
     {
         print ("back taped super")
     }
     
     
-     func nextTaped(sender:UIBarButtonItem!)
+     func nextTaped(_ sender:UIBarButtonItem!)
     {
         
         let   pacoViewController:PacoJoinSummary   = PacoJoinSummary(nibName: "PacoJoinSummary", bundle: nil)
@@ -80,14 +80,14 @@ import UIKit
         
         if(isWizard==true)
         {
-            self .dismissViewControllerAnimated(true, completion: {
+            self .dismiss(animated: true, completion: {
                 
         })
         }
         else
         {
             
-            self.navigationController!.popViewControllerAnimated(true)
+            self.navigationController!.popViewController(animated: true)
         }
         
         
@@ -104,64 +104,64 @@ import UIKit
     }
     
     
-    func doneButton(sender: UIBarButtonItem) {
+    func doneButton(_ sender: UIBarButtonItem) {
         
         
         
-         self.tabBarController?.navigationController?.navigationBarHidden = true;
+         self.tabBarController?.navigationController?.isNavigationBarHidden = true;
         
        let  mediator =  PacoMediator.sharedInstance()
         var experimentId:String
         if  experiment?.instanceId()  != nil
         {
             experimentId =  experiment!.instanceId()
-            mediator.startRunningExperimentRegenerate(experimentId);
+            mediator?.startRunningExperimentRegenerate(experimentId);
         }
         
         
         if(isWizard == true)
         {
-            self .dismissViewControllerAnimated(true, completion: {
+            self .dismiss(animated: true, completion: {
                 
             })
         }
         else
         {
-            self.navigationController?.popViewControllerAnimated(true)
+            self.navigationController?.popViewController(animated: true)
             
         }
     }
     
     
-    func cancelButton(sender: UIBarButtonItem) {
+    func cancelButton(_ sender: UIBarButtonItem) {
        
     }
     
-    override public func tableView(tableView: UITableView, heightForRowAtIndexPath indexPath: NSIndexPath) -> CGFloat {
+    override open func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         
         
         // Get the correct height if the cell is a DatePickerCell.
-        let cell  = self.tableView(tableView, cellForRowAtIndexPath: indexPath)
-        if (cell.isKindOfClass(DatePickerCell)) {
+        let cell  = self.tableView(tableView, cellForRowAt: indexPath)
+        if (cell.isKind(of: DatePickerCell.self)) {
             return (cell as! DatePickerCell).datePickerHeight()
         }
         
-        return super.tableView(tableView, heightForRowAtIndexPath: indexPath)
+        return super.tableView(tableView, heightForRowAt: indexPath)
     }
     
     
     
-    override public func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
+    override open func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         // Deselect automatically if the cell is a DatePickerCell.
-        let cell = self.tableView(tableView, cellForRowAtIndexPath: indexPath)
+        let cell = self.tableView(tableView, cellForRowAt: indexPath)
         
         
-        if (cell.isKindOfClass(DatePickerCell)) {
+        if (cell.isKind(of: DatePickerCell.self)) {
             
             
             let datePickerTableViewCell = cell as! DatePickerCell
             datePickerTableViewCell.selectedInTableView(tableView)
-            self.tableView.deselectRowAtIndexPath(indexPath, animated: true)
+            self.tableView.deselectRow(at: indexPath, animated: true)
             
             
         }
@@ -169,25 +169,25 @@ import UIKit
     
     
     
-    public override func tableView(tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
+    open override func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
         
-        return cells[section][0].groupName;
+        return (cells[section][0] as AnyObject).groupName as! String;
         
          
     }
     
-    public override func numberOfSectionsInTableView(tableView: UITableView) -> Int {
+    open override func numberOfSections(in tableView: UITableView) -> Int {
         return cells.count
     }
     
-   public  override func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return cells[section].count
+   open  override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return (cells[section] as AnyObject).count
     }
     
     
-    public override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
+    open override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
-        return (cells[indexPath.section] as! NSArray )[indexPath.row] as! DatePickerCell
+        return (cells[(indexPath as NSIndexPath).section] as! NSArray )[(indexPath as NSIndexPath).row] as! DatePickerCell
     }
     
     

@@ -34,7 +34,7 @@ class PacoBoxControl: UIView, UITableViewDataSource,UITableViewDelegate,UIGestur
     {
         table = UITableView(frame:frame)
         super.init(frame: frame)
-        table.scrollEnabled = false
+        table.isScrollEnabled = false
        
     }
     
@@ -43,13 +43,13 @@ class PacoBoxControl: UIView, UITableViewDataSource,UITableViewDelegate,UIGestur
         table = UITableView(coder: aDecoder)!
         super.init(coder:aDecoder)!
         
-        table.scrollEnabled = false
-        self.backgroundColor = UIColor.whiteColor()
+        table.isScrollEnabled = false
+        self.backgroundColor = UIColor.white
         table.dataSource = self
         table.delegate = self
         table.allowsSelection = false
         
-        table.registerNib(UINib(nibName:"PacoCheckCell", bundle: nil), forCellReuseIdentifier:self.cellId)
+        table.register(UINib(nibName:"PacoCheckCell", bundle: nil), forCellReuseIdentifier:self.cellId)
         self.addSubview(table)
         table.reloadData()
        
@@ -60,13 +60,13 @@ class PacoBoxControl: UIView, UITableViewDataSource,UITableViewDelegate,UIGestur
        table.reloadData()
     }
     
-    override func drawRect(rect: CGRect)
+    override func draw(_ rect: CGRect)
     {
         table.frame = self.bounds
         
     }
     
-   func tableView(tableView: UITableView, heightForRowAtIndexPath indexPath: NSIndexPath) -> CGFloat {
+   func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
     
     return 40
     
@@ -74,18 +74,18 @@ class PacoBoxControl: UIView, UITableViewDataSource,UITableViewDelegate,UIGestur
     
     
     
-    func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell
     {
-             let cell = tableView.dequeueReusableCellWithIdentifier(self.cellId, forIndexPath: indexPath) as! PacoCheckCell
+             let cell = tableView.dequeueReusableCell(withIdentifier: self.cellId, for: indexPath) as! PacoCheckCell
         
-        var index:Int32 =  Int32(indexPath.row)
-        var  itemName:String =  (listChoices?.getWithInt(index) as? String)!
+        let index:Int32 =  Int32((indexPath as NSIndexPath).row)
+        let  itemName:String =  (listChoices?.getWith(index) as? String)!
         
    
         print(" \(checks) ")
         
         
-        if(   checks[indexPath.row] == true)
+        if(   checks[(indexPath as NSIndexPath).row] == true)
         {
            cell.checkboxLabel.text  = "\(CHECKED) \(itemName)"
         }
@@ -94,30 +94,30 @@ class PacoBoxControl: UIView, UITableViewDataSource,UITableViewDelegate,UIGestur
               cell.checkboxLabel.text  = "\(UNCHECKED) \(itemName)"
             
         }
-        cell.checkboxLabel.userInteractionEnabled = true
+        cell.checkboxLabel.isUserInteractionEnabled = true
         cell.checkboxLabel!.tag = 0
-        cell.checkboxLabel!.index = indexPath.row;
+        cell.checkboxLabel!.index = (indexPath as NSIndexPath).row;
         
         
-        let   recognizer  =  UITapGestureRecognizer(target: self,action: Selector("checkOrUncheck:"))
+        let   recognizer  =  UITapGestureRecognizer(target: self,action: #selector(PacoBoxControl.checkOrUncheck(_:)))
         recognizer.delegate = self
         recognizer.numberOfTapsRequired = 1
         cell.checkboxLabel.addGestureRecognizer(recognizer)
         
-        checkLabels.updateValue(cell, forKey:indexPath.row)
+        checkLabels.updateValue(cell, forKey:(indexPath as NSIndexPath).row)
         
         return cell
     }
     
   
-   func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int
+   func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int
    {
     
     
         if(listChoices != nil)
         {
-            var count:Int32 = listChoices!.size()
-            var retVal:Int = Int(count)
+            let count:Int32 = listChoices!.size()
+            let retVal:Int = Int(count)
             return retVal
          }
     else
@@ -130,7 +130,7 @@ class PacoBoxControl: UIView, UITableViewDataSource,UITableViewDelegate,UIGestur
     
     
     
-    func checkOrUncheck(recognizer:UITapGestureRecognizer )
+    func checkOrUncheck(_ recognizer:UITapGestureRecognizer )
     {
         print( "\(checkLabels) ")
          print( "\(checks) ")
@@ -138,7 +138,7 @@ class PacoBoxControl: UIView, UITableViewDataSource,UITableViewDelegate,UIGestur
          if checks[label.index] == true
          {
             
-            var  itemName =  listChoices?.getWithInt(Int32(label.index)) as? String
+            let  itemName =  listChoices?.getWith(Int32(label.index)) as? String
             label.text = "\(UNCHECKED) \(itemName)"
              checks[label.index] = false
             
@@ -158,7 +158,7 @@ class PacoBoxControl: UIView, UITableViewDataSource,UITableViewDelegate,UIGestur
             checks[label.index] = true
             
              var  i:Int32 = 0
-             var  itemName =  listChoices?.getWithInt(Int32(label.index)) as? String
+             let  itemName =  listChoices?.getWith(Int32(label.index)) as? String
              label.text = "\(CHECKED) \(itemName)"
           
             
@@ -173,13 +173,13 @@ class PacoBoxControl: UIView, UITableViewDataSource,UITableViewDelegate,UIGestur
     }
     
     
-    func numberOfSectionsInTableView(tableView: UITableView) -> Int
+    func numberOfSections(in tableView: UITableView) -> Int
     {
         var retVal:Int
         
         if(listChoices != nil)
         {
-           var size:Int32 = listChoices!.size()
+           let size:Int32 = listChoices!.size()
             retVal = Int(size)
         }
         else

@@ -29,11 +29,11 @@ class PacoTextTableViewCell:PacoTableViewExpandingCellBase, UITextViewDelegate  
     {
         if(isValid() == false)
         {
-            showValidateStar.hidden = false
+            showValidateStar.isHidden = false
         }
         else
         {
-            showValidateStar.hidden = true
+            showValidateStar.isHidden = true
         }
         
     }
@@ -74,8 +74,8 @@ class PacoTextTableViewCell:PacoTableViewExpandingCellBase, UITextViewDelegate  
         var output  =  PacoOutput()
         output.complete = isValid()
         output.input = input
-        output.val = inputTexInput.text
-        output.type = InputType.OpenText
+        output.val = inputTexInput.text as AnyObject?
+        output.type = InputType.openText
         return output
     
     }
@@ -93,9 +93,9 @@ class PacoTextTableViewCell:PacoTableViewExpandingCellBase, UITextViewDelegate  
         return PacoPickerTableViewCell.defaultHeight
     }
     
-    func textViewDidChange(textView: UITextView) {
+    func textViewDidChange(_ textView: UITextView) {
         
-         parent?.textChanged(indexPath!.row, text: textView.text)
+         parent?.textChanged((indexPath! as NSIndexPath).row, text: textView.text)
     }
     
  
@@ -109,7 +109,7 @@ class PacoTextTableViewCell:PacoTableViewExpandingCellBase, UITextViewDelegate  
     @IBOutlet weak var titleLabel: UILabel!
     @IBOutlet weak var questionText: UITextView!
     
-    override func setSelected(selected: Bool, animated: Bool) {
+    override func setSelected(_ selected: Bool, animated: Bool) {
         super.setSelected(selected, animated: animated)
 
            }

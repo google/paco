@@ -43,40 +43,40 @@ class PacoLikertCell: PacoTableViewExpandingCellBase {
     
     let selfRect:CGRect = self.bounds
     
-    var  buttonWidth:Float  =  30
+    let  buttonWidth:Float  =  30
     var  buttonHeight:Float =  40
-    var width   = UIScreen.mainScreen().bounds.width
+    let width   = UIScreen.main.bounds.width
     let screenWidth:Float = Float(width)
     
     
     var n:Int = 7
-    var startX:Float   = ( screenWidth -  Float(numberOfCheckmarks!)  * buttonWidth)/2
+    let startX:Float   = ( screenWidth -  Float(numberOfCheckmarks!)  * buttonWidth)/2
     
     
-    var firstLabel:UILabel = UILabel(frame: CGRectMake( CGFloat(startX)   , CGFloat(Float(selfRect.size.height - 50)) ,120,30))
+    let firstLabel:UILabel = UILabel(frame: CGRect( x: CGFloat(startX)   , y: CGFloat(Float(selfRect.size.height - 50)) ,width: 120,height: 30))
     firstLabel.font = UIFont(name: "HelveticaNeue", size: 10)
     firstLabel.text = input!.getLeftSideLabel()
     self.contentView.addSubview(firstLabel)
     
    // CGFloat(Float(Float(selfRect.size.height) - buttonWidth * Float(numberOfCheckmarks!)
-    var secondLabel:UILabel = UILabel(frame:CGRectMake( CGFloat(Float(startX) + buttonWidth * Float(numberOfCheckmarks!)  - 120-12) , CGFloat(Float(selfRect.size.height - 50)) ,120,30))
+    let secondLabel:UILabel = UILabel(frame:CGRect( x: CGFloat(Float(startX) + buttonWidth * Float(numberOfCheckmarks!)  - 120-12) , y: CGFloat(Float(selfRect.size.height - 50)) ,width: 120,height: 30))
     secondLabel.font = UIFont(name: "HelveticaNeue", size: 10)
-    secondLabel.textAlignment = NSTextAlignment.Right
+    secondLabel.textAlignment = NSTextAlignment.right
     secondLabel.text = input?.getRightSideLabel()
     self.contentView.addSubview(secondLabel)
     
-    for var i = 0; i < Int(numberOfCheckmarks!); i++
+    for i in 0 ..< Int(numberOfCheckmarks!)
     {
 
-        var frame:CGRect   =
-        CGRectMake( CGFloat(startX + buttonWidth * Float(i)) , CGFloat(Float(selfRect.size.height - 30)) ,40,30)
-        var label:UILabel = UILabel(frame: frame)
+        let frame:CGRect   =
+        CGRect( x: CGFloat(startX + buttonWidth * Float(i)) , y: CGFloat(Float(selfRect.size.height - 30)) ,width: 40,height: 30)
+        let label:UILabel = UILabel(frame: frame)
         label.text = "\(UNCHECKED)"
         labels.append(label)
-        let   recognizer  =  UITapGestureRecognizer(target: self,action: Selector("checkOrUncheck:"))
+        let   recognizer  =  UITapGestureRecognizer(target: self,action: #selector(PacoLikertCell.checkOrUncheck(_:)))
         recognizer.delegate = self
         recognizer.numberOfTapsRequired = 1
-        label.userInteractionEnabled = true
+        label.isUserInteractionEnabled = true
         label.addGestureRecognizer(recognizer)
         self.contentView.addSubview(label)
 
@@ -84,7 +84,7 @@ class PacoLikertCell: PacoTableViewExpandingCellBase {
     }
   }
     
-    @IBAction func checkOrUncheck(recognizer:AnyObject)
+    @IBAction func checkOrUncheck(_ recognizer:AnyObject)
     {
        /* let label = recognizer.view as! UILabel
         let index:Int = label.tag
@@ -106,7 +106,7 @@ class PacoLikertCell: PacoTableViewExpandingCellBase {
         
     }
 
-    override func setSelected(selected: Bool, animated: Bool) {
+    override func setSelected(_ selected: Bool, animated: Bool) {
         super.setSelected(selected, animated: animated)
 
              }

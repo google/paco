@@ -14,7 +14,7 @@ class PacoJoinedExperimentsTableViewCell: UITableViewCell  {
     @IBOutlet weak var editBtn: UILabel!
     var  experiment:PAExperimentDAO?
     var  parent:PacoExperimentProtocol?
-    var  indexPath:NSIndexPath?
+    var  indexPath:IndexPath?
     
     
    // @IBOutlet weak var subtitle: UILabel!
@@ -35,7 +35,7 @@ class PacoJoinedExperimentsTableViewCell: UITableViewCell  {
     
     
     
-    @IBAction func edit(sender: AnyObject)
+    @IBAction func edit(_ sender: AnyObject)
     {
         parent!.showEditView(self.experiment!,indexPath:indexPath!)
        
@@ -47,13 +47,13 @@ class PacoJoinedExperimentsTableViewCell: UITableViewCell  {
     @IBOutlet weak var creator: UILabel!
     
     
-    @IBAction func changeSchedule(sender: AnyObject)
+    @IBAction func changeSchedule(_ sender: AnyObject)
     {
         self.parent!.editTime(self.experiment!)
         
     }
     
-    @IBAction func email(sender: AnyObject)
+    @IBAction func email(_ sender: AnyObject)
     {
         self.parent!.email(self.experiment!)
         
@@ -67,7 +67,7 @@ class PacoJoinedExperimentsTableViewCell: UITableViewCell  {
 
     @IBOutlet weak var email: UIButton!
   
-    @IBAction func close(sender: AnyObject) {
+    @IBAction func close(_ sender: AnyObject) {
         
          parent?.didClose(experiment!)
     }

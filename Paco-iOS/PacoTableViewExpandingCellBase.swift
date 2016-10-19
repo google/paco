@@ -11,7 +11,7 @@ import UIKit
 class PacoTableViewExpandingCellBase: UITableViewCell {
     
     var   input:PAInput2?
-    var indexPath:NSIndexPath?
+    var indexPath:IndexPath?
     
     var frameAdded = false
     func getView() -> UIView {
@@ -57,7 +57,7 @@ class PacoTableViewExpandingCellBase: UITableViewCell {
     
     
     func checkHeight() {
-       getView().hidden = (frame.size.height < getHeight())
+       getView().isHidden = (frame.size.height < getHeight())
     }
     
     func watchFrameChanges() {

@@ -8,26 +8,26 @@
 
 import UIKit
 
-@objc public class PacoMyExpermementTitleCellTableViewCell: UITableViewCell {
+@objc open class PacoMyExpermementTitleCellTableViewCell: UITableViewCell {
 
  
  
     
     @IBOutlet weak var isIos: UIImageView!
-    public var  experiment:PAExperimentDAO?
-    public var  jsonDict:NSDictionary?
-    public var  parent:PacoExperimentProtocol?
+    open var  experiment:PAExperimentDAO?
+    open var  jsonDict:NSDictionary?
+    open var  parent:PacoExperimentProtocol?
     @IBOutlet weak var isIOSCompatible: UILabel!
  
     
   
-    public var expanded = false
+    open var expanded = false
     var unexpandedHeight = CGFloat(44)
  
     @IBOutlet weak var subtitle: UILabel!
     @IBOutlet weak var experimentTitle: UILabel!
     
-    override public func awakeFromNib() {
+    override open func awakeFromNib() {
         super.awakeFromNib()
      /*   self.contentView.backgroundColor = UIColor.clearColor();
         
@@ -42,10 +42,10 @@ import UIKit
     
     
  
-    func email(experiment:PAExperimentDAO){}
-    func editTime(experiment:PAExperimentDAO){}
+    func email(_ experiment:PAExperimentDAO){}
+    func editTime(_ experiment:PAExperimentDAO){}
     
-    @IBAction func buttnClicked(sender: UIButton)
+    @IBAction func buttnClicked(_ sender: UIButton)
     {
         parent?.didSelect(experiment!)
         

@@ -8,7 +8,13 @@
 
 import UIKit
 
-@objc class PacoTestingControllerTableViewController: UITableViewController, NMPaginatorDelegate {
+@objc class PacoTestingControllerTableViewController: UITableViewController//, NMPaginatorDelegate {
+
+{
+    //public func paginator(_ paginator: Any!, didReceiveResults results: [Any]!) {
+        
+    //}
+
     
     
     
@@ -28,7 +34,7 @@ import UIKit
         
         t_enum.loadNextPage { (array, error) -> Void in
            
-            for item in array {
+            for item in array! {
                 
                 print(item)
             }
@@ -45,7 +51,7 @@ import UIKit
     
 
     
-    override func viewWillAppear(animated: Bool) {
+    override func viewWillAppear(_ animated: Bool) {
         
         let  t_enum:PacoEnumeratorProtocol  = PacoPublicDefinitionLoader.publicExperimentsEnumerator();
         let b:Bool =  t_enum.hasMoreItems()
@@ -56,7 +62,7 @@ import UIKit
         
         t_enum.loadNextPage { (array, error) -> Void in
             
-            for item in array {
+            for item in array! {
                 
                 print(item)
             }
@@ -71,25 +77,16 @@ import UIKit
 
     // MARK: - Table view data source
 
-    override func numberOfSectionsInTableView(tableView: UITableView) -> Int {
+    override func numberOfSections(in tableView: UITableView) -> Int {
         // #warning Incomplete implementation, return the number of sections
         return 0
     }
 
-    override func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+    override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         // #warning Incomplete implementation, return the number of rows
         return 0
     }
-    
-    
-    
-    
-   func paginator(paginator: AnyObject!, didReceiveResults results: [AnyObject]!)
-    {
-        
-        
-        
-    }
+
 
     /*
     override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
