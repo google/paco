@@ -255,7 +255,8 @@ public class RuntimePermissionMonitorService extends AccessibilityService {
             (
                     event.getSource().findAccessibilityNodeInfosByViewId("com.android.packageinstaller:id/switchWidget").size() > 0 ||
                     // This changed in Android N
-                    event.getSource().findAccessibilityNodeInfosByViewId("android:id/switch_widget").size() > 0
+                    event.getSource().findAccessibilityNodeInfosByViewId("android:id/switch_widget").size() > 0 ||
+                    event.getSource().findAccessibilityNodeInfosByViewId("android:id/switchWidget").size() > 0
             )
     );
   }
@@ -289,7 +290,8 @@ public class RuntimePermissionMonitorService extends AccessibilityService {
             (
                     nodeInfo.findAccessibilityNodeInfosByViewId("com.android.packageinstaller:id/switchWidget").size() > 0 ||
                     // This changed in Android N
-                    nodeInfo.findAccessibilityNodeInfosByViewId("android:id/switch_widget").size() > 0
+                    nodeInfo.findAccessibilityNodeInfosByViewId("android:id/switch_widget").size() > 0 ||
+                    nodeInfo.findAccessibilityNodeInfosByViewId("android:id/switchWidget").size() > 0
             )
             &&
             nodeInfo.getClassName().equals("android.widget.LinearLayout"));
@@ -407,6 +409,9 @@ public class RuntimePermissionMonitorService extends AccessibilityService {
     List<AccessibilityNodeInfo> switchButtons = source.findAccessibilityNodeInfosByViewId("com.android.packageinstaller:id/switchWidget");
     if (switchButtons.size() == 0) {
       switchButtons = source.findAccessibilityNodeInfosByViewId("android:id/switch_widget");
+    }
+    if (switchButtons.size() == 0) {
+      switchButtons = source.findAccessibilityNodeInfosByViewId("android:id/switchWidget");
     }
     if (switchButtons.size() == 0) {
       Log.error("We couldn't find the switch button in the permissions activity!");
