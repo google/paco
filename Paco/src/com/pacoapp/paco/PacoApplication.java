@@ -1,11 +1,10 @@
 package com.pacoapp.paco;
 
-import im.delight.android.languages.Language;
-
 import org.joda.time.DateTime;
 
 import android.app.Application;
 import android.content.res.Configuration;
+import im.delight.android.languages.Language;
 
 public class PacoApplication extends Application {
 
@@ -16,6 +15,11 @@ public class PacoApplication extends Application {
       super.onCreate();
       DateTime.now(); // load this early to try to circumvent joda bug
       Language.setFromPreference(this, CUSTOM_LANGUAGE_KEY);
+      android.content.Context context;
+//      GoogleApiClient client = new GoogleApiClient.Builder(context)
+//              .addApi(Awareness.API)
+//              .build();
+//      client.connect();
   }
 
   @Override

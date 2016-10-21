@@ -142,6 +142,7 @@ public class RuntimePermissionsAccessibilityEventHandler {
     }
 
     int eventType = accessibilityEvent.getEventType();
+    final AccessibilityNodeInfo source = accessibilityEvent.getSource();
     switch (eventType) {
       case AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED:
         // For our purposes, this means: a dialog requesting a runtime permission is shown,
@@ -150,14 +151,14 @@ public class RuntimePermissionsAccessibilityEventHandler {
         if (isAppPermissionsScreen(accessibilityEvent)) {
           // Find the package name in this view, and store it for future use
           Log.info("We seem to be inside the app permissions screen");
-          extractInformationFromAppPermissionsScreen(accessibilityEvent.getSource());
+          extractInformationFromAppPermissionsScreen(source);
         } else if (isPermissionAppListingScreen(accessibilityEvent)) {
           Log.info("We seem to be inside the screen showing apps for a permission");
-          extractInformationFromAppListingForPermission(accessibilityEvent.getSource());
-        } else if (isPermissionsDialog(accessibilityEvent.getSource())) {
+          extractInformationFromAppListingForPermission(source);
+        } else if (isPermissionsDialog(source)) {
           Log.info("We seem to be inside a runtime permissions dialog");
           extractInformationFromPermissionDialog(accessibilityEvent);
-        } else if (isAppInfoScreen(accessibilityEvent.getSource())) {
+        } else if (isAppInfoScreen(source)) {
           Log.error("We're not using tags from the app info screen anymore");
           // We can use the following call to get the package name from this screen on supported
           // platforms, but it doesn't seem to be available in stock android.
@@ -182,10 +183,10 @@ public class RuntimePermissionsAccessibilityEventHandler {
       case AccessibilityEvent.TYPE_VIEW_CLICKED:
         // For our purposes, this means: permission change via switch button (in settings),
         // or clicking 'allow/deny' in a runtime permission dialog
-        if (isPermissionsDialogAction(accessibilityEvent.getSource())) {
+        if (isPermissionsDialogAction(source)) {
           Log.info("Action taken in permissions dialog");
-          processPermissionDialogAction(accessibilityEvent.getSource());
-        } else if (isSettingsPermissionChange(accessibilityEvent.getSource())) {
+          processPermissionDialogAction(source);
+        } else if (isSettingsPermissionChange(source)) {
           Log.info("Action taken in permission settings activity");
           processPermissionConfigurationChange(accessibilityEvent);
         } else {
@@ -193,6 +194,7 @@ public class RuntimePermissionsAccessibilityEventHandler {
         }
         break;
     }
+    source.recycle();
   }
 
 
