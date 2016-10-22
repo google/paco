@@ -63,16 +63,16 @@ public class AccessibilityEventMonitorService extends AccessibilityService {
       //Log.debug("No experiments running that care about accessbility events");
       return;
     } else {
-      Log.debug("1 or more experiments running that care about accessbility events");
+      //Log.debug("1 or more experiments running that care about accessbility events");
       interestingTriggers = ExperimentHelper.getAccessibilityTriggersForAllExperiments(experimentDAOs);
     }
     CharSequence packageName = accessibilityEvent.getPackageName();
     if (RuntimePermissionsAccessibilityEventHandler.isPackageInstallerEvent(packageName)) {
-      Log.debug("runtime permissions checking accessibility events");
+      //Log.debug("runtime permissions checking accessibility events");
       runtimePermissionsEventHandler.handleRuntimePermissionEvents(accessibilityEvent);
       return;
-    } else if (isEventOfInterest(accessibilityEvent, interestingTriggers)) {
-      Log.debug("Accessibility Event is otherwise interesting: ");
+    } else if (isViewClickEventOfInterest(accessibilityEvent, interestingTriggers)) {
+      Log.debug("Accessibility View Click Event is interesting for non-runtime permissions triggers: ");
       inspectEvent(accessibilityEvent);
       triggerBroadcastService(accessibilityEvent);
     } else {
@@ -101,7 +101,7 @@ public class AccessibilityEventMonitorService extends AccessibilityService {
     startService(broadcastTriggerServiceIntent);
   }
 
-  private boolean isEventOfInterest(AccessibilityEvent accessibilityEvent, List<InterruptTrigger> interestingTriggers) {
+  private boolean isViewClickEventOfInterest(AccessibilityEvent accessibilityEvent, List<InterruptTrigger> interestingTriggers) {
     CharSequence packageName = accessibilityEvent.getPackageName();
     CharSequence className = accessibilityEvent.getClassName();
     int eventType = accessibilityEvent.getEventType();
@@ -116,6 +116,9 @@ public class AccessibilityEventMonitorService extends AccessibilityService {
       List<InterruptCue> cues = trigger.getCues();
       for (InterruptCue interruptCue : cues) {
         boolean matches = true;
+        if (interruptCue.getCueCode() != InterruptCue.ACCESSIBILITY_EVENT_VIEW_CLICKED) {
+           continue;
+        }
         if (interruptCue.getCueSource() != null) {
           if (packageName == null || !interruptCue.getCueSource().equals(packageName)) {
             matches = false;

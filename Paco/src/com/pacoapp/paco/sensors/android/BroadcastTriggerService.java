@@ -179,12 +179,11 @@ public class BroadcastTriggerService extends Service {
                                     List<ExperimentGroup> groupsListening, Bundle extras) {
     long nowMillis = new DateTime().getMillis();
     Bundle payload = extras.getBundle(BroadcastTriggerReceiver.PACO_ACTION_PAYLOAD);
-    if (payload == null) {
+    if (payload == null || payload.keySet().isEmpty()) {
       Log.info("Not persisting broadcast data without payload");
       return false;
     }
     for (ExperimentGroup experimentGroup : groupsListening) {
-
       Event event = EventUtil.createEvent(experiment, experimentGroup.getName(), nowMillis, null, null, null);
       persistEventBundle(eu, event, payload);
     }
@@ -203,8 +202,8 @@ public class BroadcastTriggerService extends Service {
   private boolean persistAccessibilityData(ExperimentProviderUtil experimentProviderUtil,
                                         Experiment experiment, List<ExperimentGroup> groupsListening,
                                         Bundle payload) {
-    if (payload == null) {
-      Log.info("No accessibility data for this trigger.");
+    if (payload == null || payload.keySet().isEmpty()) {
+      Log.info("Not logging accessibility event: null or empty payload.");
       return false;
     }
     Log.info("Persisting accessibility data for experiment " + experiment.getExperimentDAO().getTitle());
