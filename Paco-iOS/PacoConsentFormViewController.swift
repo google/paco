@@ -28,18 +28,18 @@ class PacoConsentFormViewController: UIViewController {
         self.navigationItem.setHidesBackButton(true, animated:true);
         
          
-        let font = UIFont(name: "Roboto-light", size: 11.0) ?? UIFont.systemFontOfSize(12.0)
+        let font = UIFont(name: "Roboto-light", size: 11.0) ?? UIFont.systemFont(ofSize: 12.0)
         let textFont = [NSFontAttributeName:font]
         
-        let fontBold = UIFont(name: "Roboto-regular", size: 15.0) ?? UIFont.systemFontOfSize(12.0)
+        let fontBold = UIFont(name: "Roboto-regular", size: 15.0) ?? UIFont.systemFont(ofSize: 12.0)
         let fontTextBold = [NSFontAttributeName:fontBold]
         
         let para = NSMutableAttributedString()
         let attrString1 = NSAttributedString(string: "Data Handling & Privacy Agreement between You and the Experiment Creator.\n ", attributes:fontTextBold)
          let attrString2 = NSAttributedString(string: agreement, attributes:textFont)
         
-         para.appendAttributedString(attrString1)
-         para.appendAttributedString(attrString2)
+         para.append(attrString1)
+         para.append(attrString2)
         
         // Define paragraph styling
         let paraStyle = NSMutableParagraphStyle()
@@ -61,7 +61,7 @@ class PacoConsentFormViewController: UIViewController {
         // Dispose of any resources that can be recreated.
     }
     
-    @IBAction func decline(sender: AnyObject)
+    @IBAction func decline(_ sender: AnyObject)
     {
         print("declined")
         
@@ -70,7 +70,7 @@ class PacoConsentFormViewController: UIViewController {
     }
     
     
-    @IBAction func accept(sender: AnyObject)
+    @IBAction func accept(_ sender: AnyObject)
     {
        
         
@@ -95,7 +95,7 @@ class PacoConsentFormViewController: UIViewController {
            if  experiment?.instanceId()  != nil
            {
               experimentId =  experiment!.instanceId()
-              mediator.startRunningExperimentRegenerate(experimentId);
+              mediator?.startRunningExperimentRegenerate(experimentId);
            }
             
              backTwo()

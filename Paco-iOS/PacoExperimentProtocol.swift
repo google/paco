@@ -11,10 +11,10 @@ import UIKit
 public protocol PacoExperimentProtocol
 {
     
-    func didSelect(experiment:PAExperimentDAO)
-    func didClose(experiment:PAExperimentDAO)
-    func email(experiment:PAExperimentDAO)
-    func editTime(experiment:PAExperimentDAO)
-    func showEditView(experiment:PAExperimentDAO,indexPath:NSIndexPath)
+    func didSelect(_ experiment:PAExperimentDAO)
+    func didClose(_ experiment:PAExperimentDAO)
+    func email(_ experiment:PAExperimentDAO)
+    func editTime(_ experiment:PAExperimentDAO)
+    func showEditView(_ experiment:PAExperimentDAO,indexPath:IndexPath)
     
 }

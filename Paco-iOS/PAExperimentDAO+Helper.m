@@ -33,6 +33,8 @@
 #import "PAExperimentDAO+Helper.h"
 #import "NSObject+J2objcKVO.h"
 #import "PacoExperimentSchedule.h" 
+#import "Input2.h"
+#include "java/lang/Integer.h"
 
 
 @implementation PAExperimentDAO (Helper)

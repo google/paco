@@ -33,7 +33,7 @@ import UIKit
     
 
     
-    func showEditView(experiment:PAExperimentDAO,indexPath:NSIndexPath)
+    func showEditView(_ experiment:PAExperimentDAO,indexPath:IndexPath)
         {
             
             
@@ -45,8 +45,8 @@ import UIKit
         
         
        
-            publicIterator.loadNextPage { ( nsArray  , err  ) -> Void in
-            let  counter:Int   =  nsArray.count;
+            publicIterator?.loadNextPage { ( nsArray  , err  ) -> Void in
+            let  counter:Int   =  nsArray!.count;
             print(counter);
           
                 
@@ -57,25 +57,25 @@ import UIKit
                 let  email:String?
                 let  description:String?
                 
-                if  dao.valueForKeyEx("title") != nil
+                if  dao.value(forKeyEx: "title") != nil
                 {
-                    title = (dao.valueForKeyEx("title")  as? String)!
+                    title = (dao.value(forKeyEx: "title")  as? String)!
                 }
-                if  dao.valueForKeyEx("description")  != nil
+                if  dao.value(forKeyEx: "description")  != nil
                 {
-                    description = (dao.valueForKeyEx("description")  as? String)!
+                    description = (dao.value(forKeyEx: "description")  as? String)!
                 }
-                if  dao.valueForKeyEx("organization") != nil
+                if  dao.value(forKeyEx: "organization") != nil
                 {
-                    organization = (dao.valueForKeyEx("organization")  as? String)!
+                    organization = (dao.value(forKeyEx: "organization")  as? String)!
                 }
                 else
                 {
                     organization = " "
                 }
-                if  dao.valueForKeyEx("contactEmail") != nil
+                if  dao.value(forKeyEx: "contactEmail") != nil
                 {
-                    email = (dao.valueForKeyEx("contactEmail")  as? String)!
+                    email = (dao.value(forKeyEx: "contactEmail")  as? String)!
                 }
                 else
                 {
@@ -89,11 +89,11 @@ import UIKit
       tableView.tableFooterView = UIView()
         
         
-        NSNotificationCenter.defaultCenter().addObserver(self, selector:"experimentsRefreshed:", name:"MyExperiments", object: nil)
+        NotificationCenter.default.addObserver(self, selector:#selector(PacoHubExperiments.experimentsRefreshed(_:)), name:NSNotification.Name(rawValue: "MyExperiments"), object: nil)
       
-        self.tableView.registerNib(UINib(nibName: "PacoTableViewCell", bundle: nil), forCellReuseIdentifier:cellId)
+        self.tableView.register(UINib(nibName: "PacoTableViewCell", bundle: nil), forCellReuseIdentifier:cellId)
         
-        self.tableView.registerNib(UINib(nibName: "PacoMyExpermementTitleCellTableViewCell", bundle: nil), forCellReuseIdentifier:simpleCellId)
+        self.tableView.register(UINib(nibName: "PacoMyExpermementTitleCellTableViewCell", bundle: nil), forCellReuseIdentifier:simpleCellId)
         
         
         let swiftColor = UIColor(red:0.96, green:0.96, blue:0.96, alpha:1.0)
@@ -117,13 +117,13 @@ import UIKit
 
     // MARK: - Table view data source
 
-    override func numberOfSectionsInTableView(tableView: UITableView) -> Int {
+    override func numberOfSections(in tableView: UITableView) -> Int {
         // #warning Potentially incomplete method implementation.
         // Return the number of sections.
         return 1
     }
 
-    override func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+    override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         // #warning Incomplete method implementation.
         // Return the number of rows in the section.
         var retVal:Int = 0
@@ -135,37 +135,37 @@ import UIKit
     }
 
  
-    override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
+    override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
         
-        let cell = tableView.dequeueReusableCellWithIdentifier(self.simpleCellId, forIndexPath: indexPath) as! PacoMyExpermementTitleCellTableViewCell
+        let cell = tableView.dequeueReusableCell(withIdentifier: self.simpleCellId, for: indexPath) as! PacoMyExpermementTitleCellTableViewCell
 
         
-        var dao:PAExperimentDAO = allExperiments![indexPath.row]
+        let dao:PAExperimentDAO = allExperiments![(indexPath as NSIndexPath).row]
         var title:String?
         var organization:String?
          var email:String?
         var description:String?
  
-       if  dao.valueForKeyEx("title") != nil
+       if  dao.value(forKeyEx: "title") != nil
        {
-           title = (dao.valueForKeyEx("title")  as? String)!
+           title = (dao.value(forKeyEx: "title")  as? String)!
         }
-        if  dao.valueForKeyEx("description")  != nil
+        if  dao.value(forKeyEx: "description")  != nil
         {
-          description = (dao.valueForKeyEx("description")  as? String)!
+          description = (dao.value(forKeyEx: "description")  as? String)!
         }
-        if  dao.valueForKeyEx("organization") != nil
+        if  dao.value(forKeyEx: "organization") != nil
         {
-            organization = (dao.valueForKeyEx("organization")  as? String)!
+            organization = (dao.value(forKeyEx: "organization")  as? String)!
         }
         else
         {
             organization = " "
         }
-        if  dao.valueForKeyEx("contactEmail") != nil
+        if  dao.value(forKeyEx: "contactEmail") != nil
         {
-            email = (dao.valueForKeyEx("contactEmail")  as? String)!
+            email = (dao.value(forKeyEx: "contactEmail")  as? String)!
         }
         else
         {
@@ -177,7 +177,7 @@ import UIKit
         cell.experiment = dao
         cell.experimentTitle.text = title
         cell.subtitle.text = "\(organization!), \(email!)"
-        cell.selectionStyle  = UITableViewCellSelectionStyle.None
+        cell.selectionStyle  = UITableViewCellSelectionStyle.none
         
         return cell;
         
@@ -185,8 +185,8 @@ import UIKit
     
  
   
-    override func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
-        let cell = tableView.cellForRowAtIndexPath(indexPath) as! PacoMyExpermementTitleCellTableViewCell
+    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        let cell = tableView.cellForRow(at: indexPath) as! PacoMyExpermementTitleCellTableViewCell
         
                 didSelect(cell.experiment!)
                 print("did select \(cell.experimentTitle.text) \n")
@@ -196,14 +196,14 @@ import UIKit
  
     
     
-    func email(experiment:PAExperimentDAO){}
-    func editTime(experiment:PAExperimentDAO){}
+    func email(_ experiment:PAExperimentDAO){}
+    func editTime(_ experiment:PAExperimentDAO){}
     
     
-    func experimentsRefreshed(notification: NSNotification){
+    func experimentsRefreshed(_ notification: Notification){
         
       let mediator =  PacoMediator.sharedInstance();
-      let   mArray:NSMutableArray  = mediator.experiments();
+      let   mArray:NSMutableArray  = mediator!.experiments();
        allExperiments = mArray as AnyObject  as? [PAExperimentDAO]
         
         PacoMediator.sharedInstance().replaceAllExperiments(allExperiments)
@@ -214,13 +214,13 @@ import UIKit
     
     
     
-    func didSelect(experiment:PAExperimentDAO)
+    func didSelect(_ experiment:PAExperimentDAO)
     {
         let  detailController =  PacoExperimentDetailController(nibName:"PacoExperimentDetailController",bundle:nil)
         
-        if  experiment.valueForKeyEx("title") != nil
+        if  experiment.value(forKeyEx: "title") != nil
         {
-            detailController.title   = (experiment.valueForKeyEx("title")  as? String)!
+            detailController.title   = (experiment.value(forKeyEx: "title")  as? String)!
         }
         
         detailController.experiment = experiment;
@@ -228,23 +228,23 @@ import UIKit
        // self.navigationController?.pushViewController(detailController, animated: true)
     }
     
-    func didClose(experiment: PAExperimentDAO)
+    func didClose(_ experiment: PAExperimentDAO)
     {
         
         
         
     }
     
-    override func viewWillDisappear(animated: Bool) {
+    override func viewWillDisappear(_ animated: Bool) {
         
        // self.tabBarController?.navigationController?.setNavigationBarHidden(false, animated: false)
     }
   
-    override func viewWillAppear(animated: Bool) {
+    override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
         let mediator =  PacoMediator.sharedInstance()
-        let   mArray:NSMutableArray  = mediator.experiments()
+        let   mArray:NSMutableArray  = mediator!.experiments()
         allExperiments = mArray as AnyObject as? [PAExperimentDAO]
         
       //  self.tabBarController?.navigationController!.setNavigationBarHidden(true, animated: false)

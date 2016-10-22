@@ -104,7 +104,7 @@
 				"$(DERIVED_FILE_DIR)/${INPUT_FILE_BASE}.h",
 				"$(DERIVED_FILE_DIR)/${INPUT_FILE_BASE}.m",
 			);
-			script = "${J2OBJC_HOME}/dist/j2objc -d ${DERIVED_FILE_DIR} -classpath ../../Shared/lib/joda-time-2.9.2.jar -sourcepath ../../Shared/src  --prefixes ../../Shared/j2objcprefixes.properties --no-package-directories -use-arc ${INPUT_FILE_PATH};";
+			script = "${J2OBJC_HOME}/j2objc -d ${DERIVED_FILE_DIR} -classpath ../../Shared/lib/joda-time-2.9.2.jar -sourcepath ../../Shared/src  --prefixes ../../Shared/j2objcprefixes.properties --no-package-directories -use-arc ${INPUT_FILE_PATH};";
 		};
 /* End PBXBuildRule section */
 
@@ -731,12 +731,12 @@
 					"${J2OBJC_HOME}/dist/frameworks",
 				);
 				HEADER_SEARCH_PATHS = (
-					"${J2OBJC_HOME}/dist/include",
+					"${J2OBJC_HOME}/include",
 					"JodaCompile/JodaCompile/**",
 				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(PROJECT_DIR)",
-					"${J2OBJC_HOME}/dist/lib",
+					"${J2OBJC_HOME}/lib",
 				);
 				ONLY_ACTIVE_ARCH = NO;
 				OTHER_LDFLAGS = "-ljre_emul";
@@ -756,12 +756,12 @@
 					"${J2OBJC_HOME}/dist/frameworks",
 				);
 				HEADER_SEARCH_PATHS = (
-					"${J2OBJC_HOME}/dist/include",
+					"${J2OBJC_HOME}/include",
 					"JodaCompile/JodaCompile/**",
 				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(PROJECT_DIR)",
-					"${J2OBJC_HOME}/dist/lib",
+					"${J2OBJC_HOME}/lib",
 				);
 				ONLY_ACTIVE_ARCH = NO;
 				OTHER_LDFLAGS = "-ljre_emul";

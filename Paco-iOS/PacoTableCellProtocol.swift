@@ -10,8 +10,8 @@ import Foundation
 
 protocol PacoInputTable
 {
-    func selected(row:Int,selected:String)
-    func textChanged(row:Int,text:String)
+    func selected(_ row:Int,selected:String)
+    func textChanged(_ row:Int,text:String)
     
     
     

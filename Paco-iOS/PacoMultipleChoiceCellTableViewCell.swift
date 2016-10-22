@@ -58,11 +58,11 @@ class PacoMultipleChoiceCellTableViewCell: PacoTableViewExpandingCellBase {
     {
         if(isValid() == false)
         {
-            showValidateStar.hidden = false
+            showValidateStar.isHidden = false
         }
         else
         {
-             showValidateStar.hidden = true
+             showValidateStar.isHidden = true
         }
         
     }
@@ -74,14 +74,14 @@ class PacoMultipleChoiceCellTableViewCell: PacoTableViewExpandingCellBase {
         
         var output  =  PacoOutput()
         output.input = input
-        output.val = checkboxTable.checks
+        output.val = checkboxTable.checks as AnyObject?
         if checkboxTable.singleSelect
         {
-            output.type = InputType.SingleSelect
+            output.type = InputType.singleSelect
         }
         else
         {
-            output.type = InputType.MultipleSelect
+            output.type = InputType.multipleSelect
             
         }
         
@@ -106,7 +106,7 @@ class PacoMultipleChoiceCellTableViewCell: PacoTableViewExpandingCellBase {
     }
     
     
-    func reloadTable(listChoices:JavaUtilList,singleSelect:Bool)
+    func reloadTable(_ listChoices:JavaUtilList,singleSelect:Bool)
     {
         checkboxTable.singleSelect = singleSelect
         checkboxTable.listChoices = listChoices
@@ -115,7 +115,7 @@ class PacoMultipleChoiceCellTableViewCell: PacoTableViewExpandingCellBase {
     }
     
 
-    override func setSelected(selected: Bool, animated: Bool) {
+    override func setSelected(_ selected: Bool, animated: Bool) {
         super.setSelected(selected, animated: animated)
 
         // Configure the view for the selected state

@@ -38,10 +38,10 @@ class PacoExperimentDetailController: UIViewController {
     {
         super.viewDidLoad()
         
-        self.tabBarController?.navigationController?.navigationBarHidden = true;
+        self.tabBarController?.navigationController?.isNavigationBarHidden = true;
         
         
-        var backBtn = UIBarButtonItem(title: "Cancel", style: UIBarButtonItemStyle.Plain, target: self, action: "btnBack:")
+        let backBtn = UIBarButtonItem(title: "Cancel", style: UIBarButtonItemStyle.plain, target: self, action: #selector(PacoExperimentDetailController.btnBack(_:)))
         
      
         
@@ -67,24 +67,24 @@ class PacoExperimentDetailController: UIViewController {
         
         
         
-        if  experiment!.valueForKeyEx("title") != nil
+        if  experiment!.value(forKeyEx: "title") != nil
         {
-             experimentTitle.text   = (experiment!.valueForKeyEx("title")  as? String)!
+             experimentTitle.text   = (experiment!.value(forKeyEx: "title")  as? String)!
         }
         
-        if  experiment!.valueForKeyEx("description")  != nil
+        if  experiment!.value(forKeyEx: "description")  != nil
         {
-              experimentDescription.text  = (experiment!.valueForKeyEx("description")  as? String)!
+              experimentDescription.text  = (experiment!.value(forKeyEx: "description")  as? String)!
         }
         
-        if  experiment!.valueForKeyEx("creator")  != nil
+        if  experiment!.value(forKeyEx: "creator")  != nil
         {
-             creator.text   = (experiment!.valueForKeyEx("creator")  as? String)!
+             creator.text   = (experiment!.value(forKeyEx: "creator")  as? String)!
         }
         
-        if  experiment!.valueForKeyEx("organization")  != nil
+        if  experiment!.value(forKeyEx: "organization")  != nil
         {
-            organization.text  = (experiment!.valueForKeyEx("organization")  as? String)!
+            organization.text  = (experiment!.value(forKeyEx: "organization")  as? String)!
         }
  
         // Do any additional setup after loading the view.
@@ -104,24 +104,24 @@ class PacoExperimentDetailController: UIViewController {
     
     
     
-    @IBAction func btnBack(btn:AnyObject)
+    @IBAction func btnBack(_ btn:AnyObject)
     {
         
-        navigationController?.popToRootViewControllerAnimated(true)
+        navigationController?.popToRootViewController(animated: true)
         
     }
     
   
-    @IBAction func joinExperiment(sender: AnyObject)
+    @IBAction func joinExperiment(_ sender: AnyObject)
     {
-        var  consentForm = PacoConsentFormViewController(nibName:"PacoConsentFormViewController", bundle:nil)
+        let  consentForm = PacoConsentFormViewController(nibName:"PacoConsentFormViewController", bundle:nil)
         consentForm.experiment = self.experiment
        
       
         
-        if  experiment!.valueForKeyEx("title") != nil
+        if  experiment!.value(forKeyEx: "title") != nil
         {
-            consentForm.title   = (experiment!.valueForKeyEx("title")  as? String)!
+            consentForm.title   = (experiment!.value(forKeyEx: "title")  as? String)!
         }
         self.navigationController?.pushViewController(consentForm, animated: true)
         

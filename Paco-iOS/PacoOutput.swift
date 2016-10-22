@@ -9,13 +9,13 @@
 import UIKit
 
 enum InputType {
-    case OpenText
-    case SingleSelect
-    case MultipleSelect
-    case Photo
-    case Location
-    case LikeT
-    case Unknown
+    case openText
+    case singleSelect
+    case multipleSelect
+    case photo
+    case location
+    case likeT
+    case unknown
 }
 class PacoOutput: NSObject {
     

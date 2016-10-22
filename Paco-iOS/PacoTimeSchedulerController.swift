@@ -22,42 +22,42 @@ class PacoTimeSchedulerController: UITableViewController {
         self.tableView.estimatedRowHeight = 44
         
         // The DatePickerCell.
-        let datePickerCell = DatePickerCell(style: UITableViewCellStyle.Default, reuseIdentifier: nil)
+        let datePickerCell = DatePickerCell(style: UITableViewCellStyle.default, reuseIdentifier: nil)
         // Cells is a 2D array containing sections and rows.
         cells = [[datePickerCell]]
     }
     
-    override func tableView(tableView: UITableView, heightForRowAtIndexPath indexPath: NSIndexPath) -> CGFloat {
+    override func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         // Get the correct height if the cell is a DatePickerCell.
-        let cell = self.tableView(tableView, cellForRowAtIndexPath: indexPath)
-        if (cell.isKindOfClass(DatePickerCell)) {
+        let cell = self.tableView(tableView, cellForRowAt: indexPath)
+        if (cell.isKind(of: DatePickerCell.self)) {
             return (cell as! DatePickerCell).datePickerHeight()
         }
         
-        return super.tableView(tableView, heightForRowAtIndexPath: indexPath)
+        return super.tableView(tableView, heightForRowAt: indexPath)
     }
     
-    override func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
+    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         // Deselect automatically if the cell is a DatePickerCell.
-        let cell = self.tableView(tableView, cellForRowAtIndexPath: indexPath)
-        if (cell.isKindOfClass(DatePickerCell)) {
+        let cell = self.tableView(tableView, cellForRowAt: indexPath)
+        if (cell.isKind(of: DatePickerCell.self)) {
             let datePickerTableViewCell = cell as! DatePickerCell
             datePickerTableViewCell.selectedInTableView(tableView)
-            self.tableView.deselectRowAtIndexPath(indexPath, animated: true)
+            self.tableView.deselectRow(at: indexPath, animated: true)
         }
     }
     
-    override func numberOfSectionsInTableView(tableView: UITableView) -> Int {
+    override func numberOfSections(in tableView: UITableView) -> Int {
         return cells.count
     }
     
-    override func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+    override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return cells[section].count
     }
     
     
-    override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
-        return cells[indexPath.section][indexPath.row] as! UITableViewCell
+    override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        return cells[(indexPath as NSIndexPath).section][(indexPath as NSIndexPath).row] as! UITableViewCell
     }
 
 

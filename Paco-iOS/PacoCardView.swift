@@ -17,10 +17,10 @@ class PacoCardView: UIView {
         let shadowPath = UIBezierPath(roundedRect: bounds, cornerRadius: radius)
         
         layer.masksToBounds = false
-        layer.shadowColor = UIColor.blackColor().CGColor
+        layer.shadowColor = UIColor.black.cgColor
         layer.shadowOffset = CGSize(width: 3, height:3);
         layer.shadowOpacity = 0.1
-        layer.shadowPath = shadowPath.CGPath
+        layer.shadowPath = shadowPath.cgPath
     }
     
     required init(coder aDecoder: NSCoder) {
