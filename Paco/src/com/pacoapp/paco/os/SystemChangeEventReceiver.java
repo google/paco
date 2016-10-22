@@ -1,5 +1,6 @@
 package com.pacoapp.paco.os;
 
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,6 +25,10 @@ public class SystemChangeEventReceiver extends BroadcastReceiver {
         intent.getAction().equals(Intent.ACTION_TIMEZONE_CHANGED)/* ||
         intent.getAction().equals(Intent.ACTION_TIME_CHANGED)*/) {
 
+      if (intent.getAction().equals(Intent.ACTION_TIMEZONE_CHANGED)) {
+        final String tzId = intent.getStringExtra("time-zone");
+        Log.debug("TZ changed. New: " + tzId);
+      }
       context.startService(new Intent(context, BeeperService.class));
       context.startService(new Intent(context, NotificationCreatorService.class));
 
@@ -34,6 +39,7 @@ public class SystemChangeEventReceiver extends BroadcastReceiver {
       //context.startService(new Intent(context, VersionCheckerService.class));
     }
     if (intent.getAction().equals(Intent.ACTION_BOOT_COMPLETED)) {
+      Log.debug("Boot_completed event: " + DateTime.now().toString());
       context.startService(new Intent(context, BootupService.class));
     }
   }
