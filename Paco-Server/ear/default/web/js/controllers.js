@@ -140,6 +140,8 @@ pacoApp.controller('ExperimentCtrl', ['$scope', '$mdDialog', '$filter',
               $scope.experiment.creator = $scope.user;
               $scope.experiment.contactEmail = $scope.user;
               $scope.experiment.admins = [$scope.user];
+              $scope.experiment.publishedUsers = [];
+              $scope.experiment.published = false;
             }
           }
         });
