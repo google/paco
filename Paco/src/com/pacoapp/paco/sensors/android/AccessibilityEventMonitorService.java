@@ -35,6 +35,7 @@ public class AccessibilityEventMonitorService extends AccessibilityService {
   public static final String ACCESSIBILITY_EVENT_PACKAGE = "accessibilityEventPackage";
   public static final String ACCESSIBILITY_EVENT_TYPE = "accessibilityEventType";
   public static final String ACCESSIBILITY_EVENT_CLASS = "accessibilityEventClass";
+  public static final String ACCESSIBILITY_EVENT_CONTENT_DESCRIPTION = "accessibilityEventContentDescription";
 
   private static Logger Log = LoggerFactory.getLogger(AccessibilityEventMonitorService.class);
 
@@ -76,7 +77,12 @@ public class AccessibilityEventMonitorService extends AccessibilityService {
       inspectEvent(accessibilityEvent);
       triggerBroadcastService(accessibilityEvent);
     } else {
-      //inspectEvent(accessibilityEvent);
+//      inspectEvent(accessibilityEvent);
+//      final AccessibilityNodeInfo source = accessibilityEvent.getSource();
+//      if (source != null) {
+//        final CharSequence contentDescription = source.getContentDescription();
+//        Log.info("scd: " + contentDescription);
+//      }
     }
   }
 
@@ -91,6 +97,9 @@ public class AccessibilityEventMonitorService extends AccessibilityService {
     if (textList != null && !textList.isEmpty()) {
       final CharSequence text = textList.get(0);
       accessibilityPayload.putCharSequence(ACCESSIBILITY_EVENT_TEXT, text);
+    }
+    if (accessibilityEvent.getContentDescription() != null) {
+      accessibilityPayload.putCharSequence(ACCESSIBILITY_EVENT_CONTENT_DESCRIPTION, accessibilityEvent.getContentDescription());
     }
     accessibilityPayload.putInt(ACCESSIBILITY_EVENT_TYPE, accessibilityEvent.getEventType());
     accessibilityPayload.putCharSequence(ACCESSIBILITY_EVENT_PACKAGE, accessibilityEvent.getPackageName());
@@ -134,11 +143,11 @@ public class AccessibilityEventMonitorService extends AccessibilityService {
             matches = false;
           }
         }
-        //if (interruptCue.getCueAEEventType() != null) {
-          if (eventType != InterruptCue.VIEW_CLICKED) {
-            matches = false;
-          }
-        //}
+        // if (interruptCue.getCueAEEventType() != null) {
+        if (eventType != InterruptCue.VIEW_CLICKED) {
+          matches = false;
+        }
+        // }
         if (matches) {
           return true;
         }

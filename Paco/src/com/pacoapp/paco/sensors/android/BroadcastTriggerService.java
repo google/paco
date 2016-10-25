@@ -74,6 +74,17 @@ public class BroadcastTriggerService extends Service {
     final String sourceIdentifier = extras.getString(Experiment.TRIGGER_SOURCE_IDENTIFIER);
     final String timeStr = extras.getString(Experiment.TRIGGERED_TIME);
 
+    final Bundle payload = extras.getBundle(RuntimePermissionsAccessibilityEventHandler.PACO_ACTION_ACCESSIBILITY_PAYLOAD);
+    String packageName = null;
+    String className = null;
+    String eventText = null;
+    String eventContentDescription = null;
+    if (payload != null) {
+      packageName = payload.getString(AccessibilityEventMonitorService.ACCESSIBILITY_EVENT_PACKAGE);
+      className = payload.getString(AccessibilityEventMonitorService.ACCESSIBILITY_EVENT_CLASS);
+      eventText = payload.getString(AccessibilityEventMonitorService.ACCESSIBILITY_EVENT_TEXT);
+      eventContentDescription = payload.getString(AccessibilityEventMonitorService.ACCESSIBILITY_EVENT_CONTENT_DESCRIPTION);
+    }
     // TODO pass the duration along to the experiment somehow (either log it at
     // the moment it happened, or, pass it in the notification (yuck)?
     final long duration = extras.getLong(Experiment.TRIGGER_PHONE_CALL_DURATION);
@@ -104,9 +115,14 @@ public class BroadcastTriggerService extends Service {
         shouldSync = shouldSync || persistBroadcastData(eu, experiment, groupsListening, extras);
       }
 
+
       List<Trio<ExperimentGroup, InterruptTrigger, InterruptCue>> triggersThatMatch = ExperimentHelper.shouldTriggerBy(experiment.getExperimentDAO(),
                                                                                                          triggerEvent,
-                                                                                                         sourceIdentifier);
+                                                                                                         sourceIdentifier,
+                                                                                                         packageName,
+                                                                                                         className,
+                                                                                                         eventText,
+                                                                                                         eventContentDescription);
       if (ExperimentHelper.declaresAccessibilityLogging(experiment.getExperimentDAO())) {
         List<ExperimentGroup> accessibilityGroupsListening = ExperimentHelper.isListeningForAccessibilityEvents(experiment.getExperimentDAO());
         if (!accessibilityGroupsListening.isEmpty()) {
