@@ -29,7 +29,6 @@ public class SystemChangeEventReceiver extends BroadcastReceiver {
         final String tzId = intent.getStringExtra("time-zone");
         Log.debug("TZ changed. New: " + tzId);
       }
-
       context.startService(new Intent(context, BeeperService.class));
       context.startService(new Intent(context, NotificationCreatorService.class));
 

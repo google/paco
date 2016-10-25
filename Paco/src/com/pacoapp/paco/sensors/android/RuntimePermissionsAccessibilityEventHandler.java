@@ -167,7 +167,7 @@ public class RuntimePermissionsAccessibilityEventHandler {
           // check at the start of this function
           // extractAppPackageNameFromAppInfoScreen(accessibilityEvent.getSource());
         } else {
-          Log.info("Ignoring window state changed accessibility event, since it was not a permission settings screen or a permissions dialog.");
+          Log.info("Runtime permissions is ignoring window state changed accessibility event, since it was not a permission settings screen or a permissions dialog.");
         }
         break;
       // We used to use the next case in a similar way to TYPE_ANNOUNCEMENT, but it seems that
@@ -358,7 +358,9 @@ public class RuntimePermissionsAccessibilityEventHandler {
             (
                     event.getSource().findAccessibilityNodeInfosByViewId("com.android.packageinstaller:id/switchWidget").size() > 0 ||
                     // This changed in Android N
-                    event.getSource().findAccessibilityNodeInfosByViewId("android:id/switch_widget").size() > 0
+                    event.getSource().findAccessibilityNodeInfosByViewId("android:id/switch_widget").size() > 0 ||
+                    // This was a recent update for Nexus phones
+                    event.getSource().findAccessibilityNodeInfosByViewId("android:id/switchWidget").size() > 0
             )
     );
   }
@@ -417,11 +419,14 @@ public class RuntimePermissionsAccessibilityEventHandler {
             (
                     nodeInfo.findAccessibilityNodeInfosByViewId("com.android.packageinstaller:id/switchWidget").size() > 0 ||
                     // This changed in Android N
-                    nodeInfo.findAccessibilityNodeInfosByViewId("android:id/switch_widget").size() > 0
+                    nodeInfo.findAccessibilityNodeInfosByViewId("android:id/switch_widget").size() > 0 ||
+                    // This changed for Nexus devices
+                    nodeInfo.findAccessibilityNodeInfosByViewId("android:id/switchWidget").size() > 0
             )
             &&
             nodeInfo.getClassName().equals("android.widget.LinearLayout"));
   }
+
 
   /**
    * Called when the user changes a runtime permission from the app permissions screen. Fires a
@@ -449,6 +454,9 @@ public class RuntimePermissionsAccessibilityEventHandler {
     List<AccessibilityNodeInfo> switchButtons = source.findAccessibilityNodeInfosByViewId("com.android.packageinstaller:id/switchWidget");
     if (switchButtons.size() == 0) {
       switchButtons = source.findAccessibilityNodeInfosByViewId("android:id/switch_widget");
+    }
+    if (switchButtons.size() == 0) {
+      switchButtons = source.findAccessibilityNodeInfosByViewId("android:id/switchWidget");
     }
     if (switchButtons.size() == 0) {
       Log.error("We couldn't find the switch button in the permissions activity!");
