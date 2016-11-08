@@ -216,7 +216,8 @@ var paco = (function (init) {
       },
 
       getLastNEvents : function(n) {
-    	  return db.getLastEvent(n);
+        var events = db.getAllEvents();
+        return events.slice(0..n);
       },
       
       getEventsForExperimentGroup : function() {

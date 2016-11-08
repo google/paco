@@ -186,11 +186,14 @@ var paco = (function (init) {
         return events;
       };
 
-      function getLastEvent(num) {
-        return JSON.parse(window.db.getLastEvent(num));
+      function getLastEvent() {
+        return JSON.parse(window.db.getLastNEvents(num));
       };
-     
-
+      
+      function getLastNEvents(num) {
+    	  return JSON.parse(window.db.getLastNEvents(num));
+      };
+      
       function getEventsByQuery(jsonObj) {
     	  return JSON.parse(window.db.getEventsByQuery(jsonObj));
       };
@@ -199,6 +202,7 @@ var paco = (function (init) {
         saveEvent : saveEvent,
         getAllEvents: getAllEvents,
         getLastEvent : getLastEvent,
+        getLastNEvents : getLastNEvents,
         getEventsByQuery : getEventsByQuery,
         getEventsForExperimentGroup : getEventsForExperimentGroup
       };
@@ -273,11 +277,11 @@ var paco = (function (init) {
       getAllEvents : getAllEvents,
       getEventsByQuery : getEventsByQuery,
       getLastEvent : function() {
-        return db.getLastEvent(1);
+        return db.getLastEvent();
       },
 
       getLastNEvents : function(n) {
-    	  return db.getLastEvent(n);
+    	  return db.getLastNEvents(n);
       },
       getResponseForItem  : getResponseForItem,
       
