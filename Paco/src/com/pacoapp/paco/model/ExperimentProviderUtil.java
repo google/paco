@@ -747,10 +747,15 @@ public class ExperimentProviderUtil implements EventStore {
   }
 
   public List<Event> loadEventsForExperimentByServerId(Long serverId) {
+	//TODO Should be calling the below method, with some default value ??
     return findEventsBy(EventColumns.EXPERIMENT_SERVER_ID + " = " + Long.toString(serverId),
         EventColumns._ID +" DESC");
   }
 
+  public List<Event> loadEventsForExperimentByServerId(Long serverId, int noOfRecords) {
+	    return findEventsBy(EventColumns.EXPERIMENT_SERVER_ID + " = " + Long.toString(serverId),
+	        EventColumns._ID +" DESC", noOfRecords);
+  }
 
   public Uri insertEvent(Event event) {
     eventStorageWriteLock.lock();
@@ -778,6 +783,11 @@ public class ExperimentProviderUtil implements EventStore {
       Event event = (Event)eventI;
       insertEvent(event);
     }
+  }
+  
+  public List<Event> findEventsByQuery(String[] projection, String criteriaColumns, String[] criteriaValues, String sortOrder, String limitRecords, String groupBy){
+	  	ExperimentProvider exp = new ExperimentProvider();
+	  	return  exp.findEventsByCriteriaQuery(this.context,projection, criteriaColumns, criteriaValues, sortOrder, limitRecords, groupBy);
   }
 
   private ContentValues createContentValues(Event event) {
@@ -846,6 +856,7 @@ public class ExperimentProviderUtil implements EventStore {
     }
     return values;
   }
+ 
 
   private Event findEventBy(String select, String[] selectionArgs, String sortOrder) {
     Cursor cursor = null;
@@ -893,6 +904,11 @@ public class ExperimentProviderUtil implements EventStore {
       eventStorageReadLock.unlock();
     }
     return events;
+  }
+  
+  //This is a hack, but should improve the performance for now.
+  private List<Event> findEventsBy(String select, String sortOrder, int limitNoOfRecords) {
+	  return findEventsBy(select, sortOrder + " LIMIT " + limitNoOfRecords);
   }
 
   private List<Output> findResponsesFor(Event event) {

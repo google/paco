@@ -16,11 +16,18 @@
 */
 package com.pacoapp.paco.model;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.joda.time.DateTime;
 
 import android.content.ContentProvider;
 import android.content.ContentUris;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.SQLException;
@@ -61,9 +68,11 @@ public class ExperimentProvider extends ContentProvider {
   private static final int NOTIFICATION_DATATYPE = 14;
   private static final int NOTIFICATION_ITEM_DATATYPE = 15;
 
+  private static final int EVENTS_OUTPUTS_DATATYPE=16;
 
   private SQLiteDatabase db;
   private final UriMatcher uriMatcher;
+  private static  Map<String, String> eventsOutputColumns = null;
 
   public ExperimentProvider() {
     uriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
@@ -77,6 +86,7 @@ public class ExperimentProvider extends ContentProvider {
     uriMatcher.addURI(ExperimentProviderUtil.AUTHORITY, "outputs/#", OUTPUT_ITEM_DATATYPE);
     uriMatcher.addURI(ExperimentProviderUtil.AUTHORITY, "notifications", NOTIFICATION_DATATYPE);
     uriMatcher.addURI(ExperimentProviderUtil.AUTHORITY, "notifications/#", NOTIFICATION_ITEM_DATATYPE);
+    loadMap();
   }
 
   @Override
@@ -87,7 +97,6 @@ public class ExperimentProvider extends ContentProvider {
 	return db != null;
   }
 
-  @Override
   public Cursor query(Uri uri, String[] projection, String selection,
 	  String[] selectionArgs, String sortOrder) {
 
@@ -376,7 +385,185 @@ public class ExperimentProvider extends ContentProvider {
     values.put(ExperimentColumns.JOIN_DATE, new DateTime().getMillis());
     }
   }
+  
+  private int identifyTablesInvolved(List<String> colNames){
+	  int tableIndicator = 0;
+	  if(colNames!=null && colNames.size()>0){
+		  //if the input is *, then we do the join and get all the fields in both events and outputs
+		  if(colNames.get(0) == "*"){
+			  return ExperimentProvider.EVENTS_OUTPUTS_DATATYPE;
+		  }
+		  String tableName = eventsOutputColumns.get(colNames.get(0).toUpperCase());
+		  for (String s: colNames){
+			  String crTableName = eventsOutputColumns.get(s.toUpperCase());
+			  //once we get a different table, then we need to do a join
+			 if(tableName!=null && !tableName.equals(crTableName)){
+				 tableIndicator = ExperimentProvider.EVENTS_OUTPUTS_DATATYPE;
+				 return tableIndicator;
+			 }
+		  }
+		  if(tableName!=null && tableName.equalsIgnoreCase(ExperimentProvider.EVENTS_TABLE_NAME)){
+			  tableIndicator = ExperimentProvider.EVENTS_DATATYPE;
+		  }else{
+			  tableIndicator = ExperimentProvider.OUTPUTS_DATATYPE;
+		  }
+	  }
+	  return tableIndicator;
+  }
 
+  private void loadMap(){
+	  if (eventsOutputColumns ==null){
+		  eventsOutputColumns = new HashMap<String,String>();
+		  eventsOutputColumns.put("EXPERIMENT_ID", "EVENTS");
+		  eventsOutputColumns.put("EXPERIMENT_SERVER_ID", "EVENTS");
+		  eventsOutputColumns.put("EXPERIMENT_NAME", "EVENTS");
+		  eventsOutputColumns.put("EXPERIMENT_VERSION", "EVENTS");
+		  eventsOutputColumns.put("SCHEDULE_TIME", "EVENTS");
+		  eventsOutputColumns.put("RESPONSE_TIME", "EVENTS");
+		  eventsOutputColumns.put("UPLOADED", "EVENTS");
+		  eventsOutputColumns.put("GROUP_NAME", "EVENTS");
+		  eventsOutputColumns.put("ACTION_TRIGGER_ID","EVENTS");
+		  eventsOutputColumns.put("ACTION_TRIGGER_SPEC_ID","EVENTS");
+		  eventsOutputColumns.put("ACTION_ID","EVENTS");
+		  eventsOutputColumns.put("EVENT_ID", "OUTPUTS");
+		  eventsOutputColumns.put("TEXT", "OUTPUTS");
+		  eventsOutputColumns.put("ANSWER", "OUTPUTS");
+		  eventsOutputColumns.put("INPUT_SERVER_ID", "OUTPUTS");
+	  }
+  }
+  
+  public List<Event> findEventsByCriteriaQuery(Context context, String[] projection, String criteriaColumns, String criteriaValues[], String sortOrder, String limit, String groupBy) {	    
+	    Cursor cursor = null;
+	    List<Event> events = null;
+	    DatabaseHelper dbHelper = null;
+	    try {
+	    	dbHelper = new DatabaseHelper(context);
+		    db = dbHelper.getReadableDatabase();
+	    	List<String> allColumns = Arrays.asList(projection);
+	    	int tableIndicator = identifyTablesInvolved(allColumns);
+	    	
+	    	switch (tableIndicator){
+		    	case EVENTS_DATATYPE:
+		    		//TODO: Should we refactor to use query at line 101
+		    		cursor = db.query(EVENTS_TABLE_NAME, projection, criteriaColumns, criteriaValues, groupBy, null, sortOrder);
+		    		break;
+		    	case OUTPUTS_DATATYPE:
+		    		//TODO: Should we refactor to use query at line 101 
+		    		cursor = db.query(OUTPUTS_TABLE_NAME, projection, criteriaColumns, criteriaValues, groupBy, null, sortOrder);
+		    		break;
+		    	case EVENTS_OUTPUTS_DATATYPE:
+		    		SQLiteQueryBuilder qb = new SQLiteQueryBuilder();
+		    		qb.setTables(EVENTS_TABLE_NAME+ " INNER JOIN " + OUTPUTS_TABLE_NAME + 
+		    				" ON " + (EVENTS_TABLE_NAME+ "." +EventColumns._ID) + " = " + OutputColumns.EVENT_ID);
+	
+		    		cursor = qb.query(db, projection, criteriaColumns, criteriaValues, groupBy, null, sortOrder);
+		    		break;
+		    	default:
+		    		break;
+	    	}
+	    	
+	    	if (cursor != null) {
+	    		events = new ArrayList<Event>();
+			    while (cursor.moveToNext()) {
+			      Event event = createEventWithPartialResponses(cursor);
+			      events.add(event);
+			    }
+			}    
+	    } finally{
+	    	if(cursor !=null){
+	    		cursor.close();
+	    	}
+	    	db.close();
+	    }
+    	
+		return events;
+	  }
+  
+  Event createEventWithPartialResponses(Cursor cursor) {
+	    Event event = new Event();
+	  	Output input = new Output();
+	    List<Output> responses = new ArrayList<Output>();
+	   
+		int idIndex = cursor.getColumnIndex(EventColumns._ID);
+		int experimentIdIndex  = cursor.getColumnIndex(EventColumns.EXPERIMENT_ID);
+		int experimentServerIdIndex = cursor.getColumnIndex(EventColumns.EXPERIMENT_SERVER_ID);
+	    int experimentVersionIndex = cursor.getColumnIndex(EventColumns.EXPERIMENT_VERSION);
+	    int experimentNameIndex = cursor.getColumnIndex(EventColumns.EXPERIMENT_NAME);
+	    int scheduleTimeIndex = cursor.getColumnIndex(EventColumns.SCHEDULE_TIME);
+	    int responseTimeIndex = cursor.getColumnIndex(EventColumns.RESPONSE_TIME);
+	    int uploadedIndex = cursor.getColumnIndex(EventColumns.UPLOADED);
+	    int groupNameIndex = cursor.getColumnIndex(EventColumns.GROUP_NAME);
+	    int actionTriggerIndex = cursor.getColumnIndex(EventColumns.ACTION_TRIGGER_ID);
+	    int actionTriggerSpecIndex = cursor.getColumnIndex(EventColumns.ACTION_TRIGGER_SPEC_ID);
+	    int actionIdIndex = cursor.getColumnIndex(EventColumns.ACTION_ID);
+	    int eventIdIndex = cursor.getColumnIndex(OutputColumns.EVENT_ID);
+	    int inputServeridIndex = cursor.getColumnIndex(OutputColumns.INPUT_SERVER_ID);
+	    int answerIndex = cursor.getColumnIndex(OutputColumns.ANSWER);
+	    int nameIndex = cursor.getColumnIndex(OutputColumns.NAME);
 
+	    if (!cursor.isNull(idIndex)) {
+	      event.setId(cursor.getLong(idIndex));
+	    }
+
+	    if (!cursor.isNull(experimentIdIndex)) {
+	      event.setExperimentId(cursor.getLong(experimentIdIndex));
+	    }
+
+	    if (!cursor.isNull(experimentServerIdIndex)) {
+	      event.setServerExperimentId(cursor.getLong(experimentServerIdIndex));
+	    }
+	    if (!cursor.isNull(experimentVersionIndex)) {
+	      event.setExperimentVersion(cursor.getInt(experimentVersionIndex));
+	    }
+	    if (!cursor.isNull(experimentNameIndex)) {
+	      event.setExperimentName(cursor.getString(experimentNameIndex));
+	    }
+
+	    if (!cursor.isNull(responseTimeIndex)) {
+	      event.setResponseTime(new DateTime(cursor.getLong(responseTimeIndex)));
+	    }
+	    if (!cursor.isNull(scheduleTimeIndex)) {
+	      event.setScheduledTime(new DateTime(cursor.getLong(scheduleTimeIndex)));
+	    }
+	    if (!cursor.isNull(uploadedIndex)) {
+	      event.setUploaded(cursor.getInt(uploadedIndex) == 1);
+	    }
+
+	    if (!cursor.isNull(groupNameIndex)) {
+	      event.setExperimentGroupName(cursor.getString(groupNameIndex));
+	    }
+	    if (!cursor.isNull(actionTriggerIndex)) {
+	      event.setActionTriggerId(cursor.getLong(actionTriggerIndex));
+	    }
+	    if (!cursor.isNull(actionTriggerSpecIndex)) {
+	      event.setActionTriggerSpecId(cursor.getLong(actionTriggerSpecIndex));
+	    }
+	    if (!cursor.isNull(actionIdIndex)) {
+	      event.setActionId(cursor.getLong(actionIdIndex));
+	    }
+	    if (!cursor.isNull(idIndex)) {
+	      input.setId(cursor.getLong(idIndex));
+	    }
+
+	    //process output columns
+	    if (!cursor.isNull(eventIdIndex)) {
+	      input.setEventId(cursor.getLong(eventIdIndex));
+	    }
+
+	    if (!cursor.isNull(inputServeridIndex)) {
+	      input.setInputServerId(cursor.getLong(inputServeridIndex));
+	    }
+	    if (!cursor.isNull(nameIndex)) {
+	      input.setName(cursor.getString(nameIndex));
+	    }
+	    if (!cursor.isNull(answerIndex)) {
+	      input.setAnswer(cursor.getString(answerIndex));
+	    }
+	    
+	    responses.add(input);
+
+	    event.setResponses(responses);
+	    return event;
+	  }
 
 }

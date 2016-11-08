@@ -56,16 +56,90 @@ public class JavascriptEventLoader {
     return convertExperimentResultsToJsonString;
   }
 
+  //TODO: check if method has references
   @JavascriptInterface
   public String getLastEvent() {
-    // TODO make this class manage retrieval better so that we aren't pulling tons of data into the webview.
-    List<Event> events = experimentProviderUtil.loadEventsForExperimentByServerId(experiment.getId());
-    return FeedbackActivity.convertLastEventToJsonString(events);
+	  return getLastNEvent("1");
+  }
+  
+  @JavascriptInterface
+  public String getLastNEvent(String numberOfRecords) {
+	// TODO: Should this be 10; Adding a default value of 10
+	int noOfRecords=10;
+	try{  
+		noOfRecords = Integer.parseInt(numberOfRecords);
+	}catch(NumberFormatException nfe){
+		Log.error("Not a valid number of records :" + numberOfRecords);
+	}
+	long t1 = System.currentTimeMillis();
+    List<Event> events = experimentProviderUtil.loadEventsForExperimentByServerId(experiment.getId(), noOfRecords);
+    long t2 = System.currentTimeMillis();
+    Log.info("Time for getLastNEvents: " + (t2 - t1));
+    return FeedbackActivity.convertEventsToJsonString(events);
   }
 
   @JavascriptInterface
   public String getEventsForExperimentGroup() {
     List<Event> events = experimentProviderUtil.loadEventsForExperimentGroup(androidExperiment.getId(), experimentGroup.getName());
+    return FeedbackActivity.convertEventsToJsonString(events);
+  }
+  
+  @JavascriptInterface
+  public String getEventsByQuery(String criteriaQuery) {
+	  List<Event> events = null;
+	  try{
+    	String criteriaColumns = null;
+    	String[] projectionColumns =null;
+    	String groupBy = null;
+    	String[] criteriaValue = null;
+     	String sortOrder = null;
+    	String limitRecords = null;
+    	JSONObject criteriaQueryObj = new JSONObject(criteriaQuery);
+    	
+    	if (criteriaQueryObj.has("select")){
+    		JSONArray selectAr = criteriaQueryObj.getJSONArray("select");
+    		if(selectAr!=null){
+	    		projectionColumns = new String[selectAr.length()];
+	    		for(int j=0; j<selectAr.length();j++){
+	    			projectionColumns[j]=selectAr.getString(j);
+	    		}
+    		}
+    	}
+    	
+    	if(criteriaQueryObj.has("query")){
+    		JSONObject queryCriteria = criteriaQueryObj.getJSONObject("query");
+    		if(queryCriteria!=null){
+		    	if (queryCriteria.has("criteria")){
+		    		criteriaColumns = queryCriteria.getString("criteria");
+		    	}
+		    	
+		    	if (queryCriteria.has("values")){
+		    		JSONArray cv = queryCriteria.getJSONArray("values");
+		    		criteriaValue = new String[cv.length()];
+		    		for(int i=0; i<cv.length();i++){
+		    			criteriaValue[i]=cv.getString(i);
+		    		}
+		    	}
+    		}
+    	}
+    	
+    	if (criteriaQueryObj.has("order")){    	
+    		sortOrder = criteriaQueryObj.getString("order");
+    	}
+    	
+    	if (criteriaQueryObj.has("limit")){
+    		limitRecords = criteriaQueryObj.getString("limit");
+    	}
+    	
+    	if (criteriaQueryObj.has("group")){
+    		groupBy = criteriaQueryObj.getString("group");
+    	}
+    	
+    	events = experimentProviderUtil.findEventsByQuery(projectionColumns,  criteriaColumns, criteriaValue, sortOrder, limitRecords, groupBy);
+    	
+    }catch(JSONException je){
+    	Log.error("Invalid JSON in criteria query" + je);
+    }
     return FeedbackActivity.convertEventsToJsonString(events);
   }
 

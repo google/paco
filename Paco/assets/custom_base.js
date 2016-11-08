@@ -147,8 +147,8 @@ var paco = (function (init) {
       };
       
       function getLastEvent() {
-        getAllEvents();
-        return events[events.length - 1];
+    	  getAllEvents();
+          return events[events.length - 1];
       };
 
       return {
@@ -186,14 +186,20 @@ var paco = (function (init) {
         return events;
       };
 
-      function getLastEvent() {
-        return JSON.parse(window.db.getLastEvent());
+      function getLastEvent(num) {
+        return JSON.parse(window.db.getLastEvent(num));
+      };
+     
+
+      function getEventsByQuery(jsonObj) {
+    	  return JSON.parse(window.db.getEventsByQuery(jsonObj));
       };
 
       return {
         saveEvent : saveEvent,
         getAllEvents: getAllEvents,
         getLastEvent : getLastEvent,
+        getEventsByQuery : getEventsByQuery,
         getEventsForExperimentGroup : getEventsForExperimentGroup
       };
     };
@@ -243,6 +249,10 @@ var paco = (function (init) {
         $.each(db.getAllEvents(), function(index, value) { newarray[index] = value });
         return newarray;
     };
+    
+    var getEventsByQuery = function(jsonText){
+    	return  db.getEventsByQuery(jsonText);
+    }
 
     var getResponsesForEventNTimesAgo = function (nBack) {
         var experimentData = db.getAllEvents();
@@ -261,14 +271,13 @@ var paco = (function (init) {
     return {
       saveEvent : saveEvent,
       getAllEvents : getAllEvents,
-
+      getEventsByQuery : getEventsByQuery,
       getLastEvent : function() {
-        return db.getLastEvent();
+        return db.getLastEvent(1);
       },
 
       getLastNEvents : function(n) {
-        var events = db.getAllEvents();
-        return events.slice(0..n);
+    	  return db.getLastEvent(n);
       },
       getResponseForItem  : getResponseForItem,
       
