@@ -59,11 +59,11 @@ public class JavascriptEventLoader {
   //TODO: check if method has references
   @JavascriptInterface
   public String getLastEvent() {
-	  return getLastNEvent("1");
+	  return getLastNEvents("1");
   }
   
   @JavascriptInterface
-  public String getLastNEvent(String numberOfRecords) {
+  public String getLastNEvents(String numberOfRecords) {
 	// TODO: Should this be 10; Adding a default value of 10
 	int noOfRecords=10;
 	try{  
@@ -94,6 +94,7 @@ public class JavascriptEventLoader {
     	String[] criteriaValue = null;
      	String sortOrder = null;
     	String limitRecords = null;
+    	String having = null;
     	JSONObject criteriaQueryObj = new JSONObject(criteriaQuery);
     	
     	if (criteriaQueryObj.has("select")){
@@ -133,9 +134,11 @@ public class JavascriptEventLoader {
     	
     	if (criteriaQueryObj.has("group")){
     		groupBy = criteriaQueryObj.getString("group");
-    	}
-    	
-    	events = experimentProviderUtil.findEventsByQuery(projectionColumns,  criteriaColumns, criteriaValue, sortOrder, limitRecords, groupBy);
+    	} 
+    	if (criteriaQueryObj.has("having")){
+    		groupBy = criteriaQueryObj.getString("having");
+    	} 
+    	events = experimentProviderUtil.findEventsByCriteriaQuery(projectionColumns,  criteriaColumns, criteriaValue, sortOrder, limitRecords, groupBy, having);
     	
     }catch(JSONException je){
     	Log.error("Invalid JSON in criteria query" + je);

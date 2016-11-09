@@ -15,6 +15,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.database.sqlite.SQLiteQueryBuilder;
 
 /**
  * This class helps open, create, and upgrade the database file.
@@ -419,5 +420,30 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 //                 + refCol + " = " + entry.getKey() + ";");
 //    }
 //  }
+  
+  public Cursor query(int tableIndicator, String[] projection, String selection,
+		  String[] selectionArgs, String sortOrder, String groupBy, String having) {
+	  SQLiteQueryBuilder qb = new SQLiteQueryBuilder();
+	  switch (tableIndicator) {
+	    case ExperimentProvider.EVENTS_OUTPUTS_DATATYPE:
+	    	qb.setTables(ExperimentProvider.EVENTS_TABLE_NAME+ " INNER JOIN " + "OUTPUTS" + 
+					" ON " + (ExperimentProvider.EVENTS_TABLE_NAME+ "." +EventColumns._ID) + " = " + OutputColumns.EVENT_ID);
+	        break;
+	        
+	    case ExperimentProvider.OUTPUTS_DATATYPE:
+	    	qb.setTables(ExperimentProvider.OUTPUTS_TABLE_NAME);
+	    	break;
+	    case ExperimentProvider.EVENTS_DATATYPE:
+	    	qb.setTables(ExperimentProvider.EVENTS_TABLE_NAME);
+	    	break;
+	    default:
+		      throw new IllegalArgumentException("Unknown tableIndicator" + tableIndicator);
+	    	
+	    
+	  }
+	  Cursor c = qb.query(getReadableDatabase(), projection, selection, selectionArgs, groupBy, having,
+	        sortOrder);
+	  return c;
+  }
 
 }
