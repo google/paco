@@ -77,6 +77,7 @@ public class ExperimentProviderUtil implements EventStore {
   public static final String AUTHORITY = "com.google.android.apps.paco.ExperimentProvider";
   private static final String PUBLIC_EXPERIMENTS_FILENAME = "experiments";
   private static final String MY_EXPERIMENTS_FILENAME = "my_experiments";
+  private static final String BLANK = " ";
   // The next semaphore is used to make sure that all event inserts/retrievals happen atomically
   // with regards to each other, to ensure that no incomplete events can get synced to the server
   // (and, by extension, to ensure that a thread trying to access an event has to wait until the
@@ -100,7 +101,7 @@ private static final String LIMIT = " limit ";
     loadColumnTableAssociationMap();
   }
   
-  private static void loadColumnTableAssociationMap(){
+  public static void loadColumnTableAssociationMap(){
 	  if (eventsOutputColumns ==null){
 		  eventsOutputColumns = new HashMap<String,String>();
 		  eventsOutputColumns.put("EXPERIMENT_ID", "EVENTS");
@@ -773,12 +774,10 @@ private static final String LIMIT = " limit ";
   }
 
   public List<Event> loadEventsForExperimentByServerId(Long serverId) {
-	//TODO Should be calling the below method, with some default value ??
-    return findEventsBy(EventColumns.EXPERIMENT_SERVER_ID + " = " + Long.toString(serverId),
-        EventColumns._ID +" DESC");
+	return loadEventsForExperimentByServerId(serverId, null);
   }
 
-  public List<Event> loadEventsForExperimentByServerId(Long serverId, int noOfRecords) {
+  public List<Event> loadEventsForExperimentByServerId(Long serverId, Integer noOfRecords) {
 	    return findEventsBy(EventColumns.EXPERIMENT_SERVER_ID + " = " + Long.toString(serverId),
 	        EventColumns._ID +" DESC", noOfRecords);
   }
@@ -821,7 +820,11 @@ private static final String LIMIT = " limit ";
 	    	sortOrder = LIMIT.concat(limit);
 	    }
 	    try {
-	    	List<String> allColumns = Arrays.asList(projection);
+	    	List<String> allColumns = Lists.newArrayList() ;
+	    	allColumns.addAll(Arrays.asList(projection));
+	    	String colNameConcat = (groupBy!=null) ? criteriaColumns.concat(BLANK).concat(groupBy) :  criteriaColumns;
+	    	colNameConcat = (groupBy!=null && having!=null) ? colNameConcat.concat(BLANK).concat(having) : colNameConcat;
+	    	allColumns.addAll(ExperimentUtil.aggregateExtractedColNames(colNameConcat));
 	    	String tableIndicator = ExperimentUtil.identifyTablesInvolved(eventsOutputColumns, allColumns);
 	    	if(tableIndicator.equals(ExperimentProvider.EVENTS_OUTPUTS_TABLE_NAME)){
 	    		cursor = dbHelper.query(ExperimentProvider.EVENTS_OUTPUTS_DATATYPE, projection, criteriaColumns, criteriaValues, sortOrder, groupBy, having);
@@ -832,7 +835,7 @@ private static final String LIMIT = " limit ";
 	    	}
 	    		    	
 	    	if (cursor != null) {
-	    		events = new ArrayList<Event>();
+	    		events = Lists.newArrayList();
 			    while (cursor.moveToNext()) {
 			      Event event = ExperimentUtil.createEventWithPartialResponses(cursor);
 			      events.add(event);
@@ -968,8 +971,12 @@ private static final String LIMIT = " limit ";
   }
   
   //This is a hack, but should improve the performance for now.
-  private List<Event> findEventsBy(String select, String sortOrder, int limitNoOfRecords) {
-	  return findEventsBy(select, sortOrder + LIMIT  + limitNoOfRecords);
+  private List<Event> findEventsBy(String select, String sortOrder, Integer limitNoOfRecords) {
+	  if (limitNoOfRecords != null) {
+		  return findEventsBy(select, sortOrder + LIMIT  + limitNoOfRecords);
+	  } else {
+		  return  findEventsBy(select, sortOrder);
+	  }
   }
 
   private List<Output> findResponsesFor(Event event) {
@@ -1684,6 +1691,11 @@ private static final String LIMIT = " limit ";
     }
     return events;
   }
+
+public static Map<String, String> getEventsOutputColumns() {
+  loadColumnTableAssociationMap();
+	return eventsOutputColumns;
+}
 
 
 
