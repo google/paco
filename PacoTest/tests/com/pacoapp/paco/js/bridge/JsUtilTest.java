@@ -10,7 +10,7 @@ public class JsUtilTest {
 	@Before
 	public void before(){
 		
-	}
+	} 
 	
 	@Test
 	public void testConvertJSONToPOJO_null() throws JSONException{
