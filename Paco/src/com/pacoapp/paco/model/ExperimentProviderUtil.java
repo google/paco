@@ -87,7 +87,7 @@ public class ExperimentProviderUtil implements EventStore {
   private static final Lock eventStorageReadLock = eventStorageDbLock.readLock();
   private static final Lock eventStorageWriteLock = eventStorageDbLock.writeLock();
 
-private static final String LIMIT = " limit ";
+  private static final String LIMIT = " limit ";
 
   DateTimeFormatter endDateFormatter = DateTimeFormat.forPattern(TimeUtil.DATE_FORMAT);
   private static  Map<String, String> eventsOutputColumns = null;

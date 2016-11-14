@@ -34,7 +34,8 @@ public class JavascriptEventLoader {
    * @param androidExperiment
    *
    */
-  public JavascriptEventLoader(ExperimentProviderUtil experimentProviderUtil, Experiment androidExperiment, ExperimentDAO experiment, ExperimentGroup experimentGroup) {
+  public JavascriptEventLoader(ExperimentProviderUtil experimentProviderUtil, Experiment androidExperiment,
+                               ExperimentDAO experiment, ExperimentGroup experimentGroup) {
     this.experimentProviderUtil = experimentProviderUtil;
     this.androidExperiment = androidExperiment;
     this.experiment = experiment;
@@ -63,14 +64,14 @@ public class JavascriptEventLoader {
   
   @JavascriptInterface
   public String getLastNEvents(String numberOfRecords) {
-	// TODO: Should this be 10; Adding a default value of 10
-	int noOfRecords=10;
-	try{  
-		noOfRecords = Integer.parseInt(numberOfRecords);
-	}catch(NumberFormatException nfe){
-		Log.error("Not a valid number of records :" + numberOfRecords);
-	}
-	long t1 = System.currentTimeMillis();
+    // TODO: Should this be 10; Adding a default value of 10
+    int noOfRecords = 10;
+    try {
+      noOfRecords = Integer.parseInt(numberOfRecords);
+    } catch (NumberFormatException nfe) {
+      Log.error("Not a valid number of records :" + numberOfRecords);
+    }
+    long t1 = System.currentTimeMillis();
     List<Event> events = experimentProviderUtil.loadEventsForExperimentByServerId(experiment.getId(), noOfRecords);
     long t2 = System.currentTimeMillis();
     Log.info("Time for getLastNEvents: " + (t2 - t1));
@@ -103,17 +104,21 @@ public class JavascriptEventLoader {
    * @throws Exception
    */
   @JavascriptInterface
-  public String getEventsByQuery(String criteriaQuery) throws JSONException, Exception{
+  public String getEventsByQuery(String criteriaQuery) throws JSONException, Exception {
     List<Event> events = null;
     String eventsJson = null;
-    SQLQuery sqlQueryObj = JsUtil.convertJSONToPOJO(criteriaQuery);	
-    if(sqlQueryObj != null){
-      events = experimentProviderUtil.findEventsByCriteriaQuery(sqlQueryObj.getProjection(),  sqlQueryObj.getCriteriaQuery(), sqlQueryObj.getCriteriaValue(), sqlQueryObj.getSortOrder(), sqlQueryObj.getLimit(), sqlQueryObj.getGroupBy(), sqlQueryObj.getHaving());
+    SQLQuery sqlQueryObj = JsUtil.convertJSONToPOJO(criteriaQuery);
+    if (sqlQueryObj != null) {
+      events = experimentProviderUtil.findEventsByCriteriaQuery(sqlQueryObj.getProjection(),
+                                                                sqlQueryObj.getCriteriaQuery(),
+                                                                sqlQueryObj.getCriteriaValue(),
+                                                                sqlQueryObj.getSortOrder(), sqlQueryObj.getLimit(),
+                                                                sqlQueryObj.getGroupBy(), sqlQueryObj.getHaving());
       eventsJson = FeedbackActivity.convertEventsToJsonString(events);
-	}else{
-		throw new RuntimeException("Empty JSON exception");
-	}
-    return eventsJson; 
+    } else {
+      throw new RuntimeException("Empty JSON exception");
+    }
+    return eventsJson;
   }
 
   /**
