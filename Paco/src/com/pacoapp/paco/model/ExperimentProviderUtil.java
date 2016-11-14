@@ -810,50 +810,51 @@ public class ExperimentProviderUtil implements EventStore {
     }
   }
 
-  public List<Event> findEventsByCriteriaQuery(String[] projection, String criteriaColumns, String criteriaValues[], String sortOrder, String limit, String groupBy, String having) {	    
-	    Cursor cursor = null;
-	    List<Event> events = null;
-	    DatabaseHelper dbHelper = new DatabaseHelper(context);
-	    if(sortOrder != null){
-	    	sortOrder = sortOrder.concat(LIMIT).concat(limit);
-	    }else{
-	    	sortOrder = LIMIT.concat(limit);
-	    }
-	    try {
-	    	List<String> allColumns = Lists.newArrayList() ;
-	    	allColumns.addAll(Arrays.asList(projection));
-	    	String colNameConcat = (groupBy!=null) ? criteriaColumns.concat(BLANK).concat(groupBy) :  criteriaColumns;
-	    	colNameConcat = (groupBy!=null && having!=null) ? colNameConcat.concat(BLANK).concat(having) : colNameConcat;
-	    	allColumns.addAll(ExperimentUtil.aggregateExtractedColNames(colNameConcat));
-	    	String tableIndicator = ExperimentUtil.identifyTablesInvolved(eventsOutputColumns, allColumns);
-	    	if(tableIndicator.equals(ExperimentProvider.EVENTS_OUTPUTS_TABLE_NAME)){
-	    		cursor = dbHelper.query(ExperimentProvider.EVENTS_OUTPUTS_DATATYPE, projection, criteriaColumns, criteriaValues, sortOrder, groupBy, having);
-	    	}else if(tableIndicator.equals(ExperimentProvider.EVENTS_TABLE_NAME)){
-	    		cursor = dbHelper.query(ExperimentProvider.EVENTS_DATATYPE,projection, criteriaColumns, criteriaValues, sortOrder, groupBy, having);
-	    	}else if(tableIndicator.equals(ExperimentProvider.OUTPUTS_TABLE_NAME)){
-	    		cursor = dbHelper.query(ExperimentProvider.OUTPUTS_DATATYPE, projection, criteriaColumns, criteriaValues, sortOrder, groupBy, having);
-	    	}
-	    		    	
-	    	if (cursor != null) {
-	    		events = Lists.newArrayList();
-			    while (cursor.moveToNext()) {
-			      Event event = ExperimentUtil.createEventWithPartialResponses(cursor);
-			      events.add(event);
-			    }
-			}    
-	    } finally{
-	    	if(cursor !=null){
-	    		cursor.close();
-	    	}
-	    	dbHelper.close();
-	    }
-  	
-		return events;
-	  }
+  public List<Event> findEventsByCriteriaQuery(String[] projection, String criteriaColumns, String criteriaValues[],
+                                               String sortOrder, String limit, String groupBy, String having) {
+    Cursor cursor = null;
+    List<Event> events = null;
+    DatabaseHelper dbHelper = new DatabaseHelper(context);
+    if (sortOrder != null) {
+      sortOrder = sortOrder.concat(LIMIT).concat(limit);
+    } else {
+      sortOrder = LIMIT.concat(limit);
+    }
+    try {
+      List<String> allColumns = Lists.newArrayList();
+      allColumns.addAll(Arrays.asList(projection));
+      String colNameConcat = (groupBy != null) ? criteriaColumns.concat(BLANK).concat(groupBy) : criteriaColumns;
+      colNameConcat = (groupBy != null && having != null) ? colNameConcat.concat(BLANK).concat(having) : colNameConcat;
+      allColumns.addAll(ExperimentUtil.aggregateExtractedColNames(colNameConcat));
+      String tableIndicator = ExperimentUtil.identifyTablesInvolved(eventsOutputColumns, allColumns);
+      if (tableIndicator.equals(ExperimentProvider.EVENTS_OUTPUTS_TABLE_NAME)) {
+        cursor = dbHelper.query(ExperimentProvider.EVENTS_OUTPUTS_DATATYPE, projection, criteriaColumns, criteriaValues,
+                                sortOrder, groupBy, having);
+      } else if (tableIndicator.equals(ExperimentProvider.EVENTS_TABLE_NAME)) {
+        cursor = dbHelper.query(ExperimentProvider.EVENTS_DATATYPE, projection, criteriaColumns, criteriaValues,
+                                sortOrder, groupBy, having);
+      } else if (tableIndicator.equals(ExperimentProvider.OUTPUTS_TABLE_NAME)) {
+        cursor = dbHelper.query(ExperimentProvider.OUTPUTS_DATATYPE, projection, criteriaColumns, criteriaValues,
+                                sortOrder, groupBy, having);
+      }
 
-  	
+      if (cursor != null) {
+        events = Lists.newArrayList();
+        while (cursor.moveToNext()) {
+          Event event = ExperimentUtil.createEventWithPartialResponses(cursor);
+          events.add(event);
+        }
+      }
+    } finally {
+      if (cursor != null) {
+        cursor.close();
+      }
+      dbHelper.close();
+    }
 
-  
+    return events;
+  }
+
   private ContentValues createContentValues(Event event) {
     ContentValues values = new ContentValues();
 
