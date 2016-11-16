@@ -117,8 +117,7 @@ public class Event implements Parcelable, EventInterface {
     }
 
   }
-
-  @JsonIgnore
+  // Removing JsonIgnore so that we can enable coalescing of output records when we do getByQuery 
   private long id = -1;
 
   @JsonIgnore
@@ -153,12 +152,10 @@ public class Event implements Parcelable, EventInterface {
   public Event() {
   }
 
-  @JsonIgnore
   public long getId() {
     return id;
   }
 
-  @JsonIgnore
   public void setId(long id) {
     this.id = id;
   }

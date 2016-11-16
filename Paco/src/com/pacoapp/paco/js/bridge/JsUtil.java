@@ -72,15 +72,18 @@ public class JsUtil {
           }
         }
       }
-
+      
+      //Only if we have sort order, we should accept limit value. This is because we cannot limit 
+      //records using the sql lite query builder query method. What we can do is hack the order by clause to have the string
+      //limit 'x'. We can limit records only when we have sortOrder column.
       if (criteriaQueryObj.has("order")) {
         sortOrder = criteriaQueryObj.getString("order");
+        if (criteriaQueryObj.has("limit")) {
+          limitRecords = criteriaQueryObj.getString("limit");
+        }
       }
 
-      if (criteriaQueryObj.has("limit")) {
-        limitRecords = criteriaQueryObj.getString("limit");
-      }
-
+      
       // only if we have group clause, should we have the having column
       if (criteriaQueryObj.has("group")) {
         groupBy = criteriaQueryObj.getString("group");

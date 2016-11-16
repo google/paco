@@ -45,6 +45,7 @@ import org.slf4j.LoggerFactory;
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.pacoapp.paco.UserPreferences;
 import com.pacoapp.paco.shared.model2.ActionTrigger;
 import com.pacoapp.paco.shared.model2.EventInterface;
@@ -811,38 +812,72 @@ public class ExperimentProviderUtil implements EventStore {
   }
 
   public List<Event> findEventsByCriteriaQuery(String[] projection, String criteriaColumns, String criteriaValues[],
-                                               String sortOrder, String limit, String groupBy, String having) {
+                                               String sortOrder, String limit, String groupBy, String having, boolean coalesce) {
     Cursor cursor = null;
     List<Event> events = null;
+    Map<Long, Event> eventMap = null;
+    String[] modifiedProjection = null;
     DatabaseHelper dbHelper = new DatabaseHelper(context);
-    if (sortOrder != null) {
+    if (sortOrder != null && limit != null) {
       sortOrder = sortOrder.concat(LIMIT).concat(limit);
-    } else {
-      sortOrder = LIMIT.concat(limit);
-    }
+    } 
     try {
+      //add all column names in the query->select columns, where clause, group by clause, having clause, sort order clause
       List<String> allColumns = Lists.newArrayList();
       allColumns.addAll(Arrays.asList(projection));
       String colNameConcat = (groupBy != null) ? criteriaColumns.concat(BLANK).concat(groupBy) : criteriaColumns;
       colNameConcat = (groupBy != null && having != null) ? colNameConcat.concat(BLANK).concat(having) : colNameConcat;
       allColumns.addAll(ExperimentUtil.aggregateExtractedColNames(colNameConcat));
+      
+      //identify all tables involved for the complete column names
       String tableIndicator = ExperimentUtil.identifyTablesInvolved(eventsOutputColumns, allColumns);
-      if (tableIndicator.equals(ExperimentProvider.EVENTS_OUTPUTS_TABLE_NAME)) {
-        cursor = dbHelper.query(ExperimentProvider.EVENTS_OUTPUTS_DATATYPE, projection, criteriaColumns, criteriaValues,
+      
+      //adding a default projection of event table primary key column
+      int crtLength = projection.length ;
+      modifiedProjection = new String[crtLength+1];
+      System.arraycopy(projection, 0, modifiedProjection, 0, crtLength);
+      //adding the following columns in the projection list to help in coalescing
+      if(tableIndicator.equals(ExperimentProvider.EVENTS_OUTPUTS_TABLE_NAME) || tableIndicator.equals(ExperimentProvider.EVENTS_TABLE_NAME)){
+        //adding Event table's default id column
+        modifiedProjection[crtLength]="EVENTS._ID as EID";
+      } else if(tableIndicator.equals(ExperimentProvider.OUTPUTS_TABLE_NAME)) {
+        //adding Output table's event id column
+        modifiedProjection[crtLength]="OUTPUTS.EVENT_ID as EID";
+      }
+      
+      if (tableIndicator.equals(ExperimentProvider.EVENTS_OUTPUTS_TABLE_NAME)) { 
+        cursor = dbHelper.query(ExperimentProvider.EVENTS_OUTPUTS_DATATYPE, modifiedProjection, criteriaColumns, criteriaValues,
                                 sortOrder, groupBy, having);
       } else if (tableIndicator.equals(ExperimentProvider.EVENTS_TABLE_NAME)) {
-        cursor = dbHelper.query(ExperimentProvider.EVENTS_DATATYPE, projection, criteriaColumns, criteriaValues,
+        cursor = dbHelper.query(ExperimentProvider.EVENTS_DATATYPE, modifiedProjection, criteriaColumns, criteriaValues,
                                 sortOrder, groupBy, having);
+        
       } else if (tableIndicator.equals(ExperimentProvider.OUTPUTS_TABLE_NAME)) {
-        cursor = dbHelper.query(ExperimentProvider.OUTPUTS_DATATYPE, projection, criteriaColumns, criteriaValues,
+        cursor = dbHelper.query(ExperimentProvider.OUTPUTS_DATATYPE, modifiedProjection, criteriaColumns, criteriaValues,
                                 sortOrder, groupBy, having);
       }
-
+      if(coalesce){
+        //to maintain the insertion order
+        eventMap = Maps.newLinkedHashMap();
+      }
       if (cursor != null) {
         events = Lists.newArrayList();
         while (cursor.moveToNext()) {
           Event event = ExperimentUtil.createEventWithPartialResponses(cursor);
-          events.add(event);
+          //if no need to coalesce, we just add it to the list and send the collection to the client.
+          if(!coalesce){
+            events.add(event);
+          }else {
+            Event oldEvent = eventMap.get(event.getId()); 
+            if(oldEvent==null){ 
+              eventMap.put(event.getId(), event);
+            }else{
+              //add crt out to existing event's output
+              List<Output> oldOutput = oldEvent.getResponses();
+              List<Output> crOutput = event.getResponses();
+              oldOutput.addAll(crOutput);
+            }
+          }
         }
       }
     } finally {
@@ -850,6 +885,9 @@ public class ExperimentProviderUtil implements EventStore {
         cursor.close();
       }
       dbHelper.close();
+    }
+    if(coalesce){
+      events = Lists.newArrayList(eventMap.values());
     }
 
     return events;

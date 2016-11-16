@@ -1,11 +1,12 @@
 package com.pacoapp.paco.model;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
 import org.joda.time.DateTime;
+
+import com.google.common.collect.Lists;
 
 import android.database.Cursor;
 
@@ -25,7 +26,10 @@ public class ExperimentUtil {
    *         return Eventsoutputs table
    */
   public static String identifyTablesInvolved(Map<String, String> eventsOutputColumns, List<String> colNames) {
-    String tableIndicator = null;
+    // This method is not to validate the column names. This just helps identifying if we need to do a join on outputs table.
+    // With null, we cannot accomodate new column names ad-hoc. 
+    // So, changing the default to Join table instead of null.
+    String tableIndicator = ExperimentProvider.EVENTS_OUTPUTS_TABLE_NAME;
     if (colNames != null && colNames.size() > 0) {
       // if the input is *, then we do the join and get all the fields in both
       // events and outputs
@@ -56,10 +60,11 @@ public class ExperimentUtil {
 
   public static Event createEventWithPartialResponses(Cursor cursor) {
     Event event = new Event();
-    Output input = new Output();
-    List<Output> responses = new ArrayList<Output>();
+    Output output = new Output();
+    List<Output> responses = Lists.newArrayList();
 
     int idIndex = cursor.getColumnIndex(EventColumns._ID);
+    int idAlternateIndex = cursor.getColumnIndex("EID");
     int experimentIdIndex = cursor.getColumnIndex(EventColumns.EXPERIMENT_ID);
     int experimentServerIdIndex = cursor.getColumnIndex(EventColumns.EXPERIMENT_SERVER_ID);
     int experimentVersionIndex = cursor.getColumnIndex(EventColumns.EXPERIMENT_VERSION);
@@ -78,6 +83,8 @@ public class ExperimentUtil {
 
     if (!cursor.isNull(idIndex)) {
       event.setId(cursor.getLong(idIndex));
+    } else if(!cursor.isNull(idAlternateIndex)){
+      event.setId(cursor.getLong(idAlternateIndex));
     }
 
     if (!cursor.isNull(experimentIdIndex)) {
@@ -124,27 +131,27 @@ public class ExperimentUtil {
     }
 
     if (!cursor.isNull(idIndex)) {
-      input.setId(cursor.getLong(idIndex));
+      output.setId(cursor.getLong(idIndex));
     }
 
     // process output columns
     if (!cursor.isNull(eventIdIndex)) {
-      input.setEventId(cursor.getLong(eventIdIndex));
+      output.setEventId(cursor.getLong(eventIdIndex));
     }
 
     if (!cursor.isNull(inputServeridIndex)) {
-      input.setInputServerId(cursor.getLong(inputServeridIndex));
+      output.setInputServerId(cursor.getLong(inputServeridIndex));
     }
 
     if (!cursor.isNull(nameIndex)) {
-      input.setName(cursor.getString(nameIndex));
+      output.setName(cursor.getString(nameIndex));
     }
 
     if (!cursor.isNull(answerIndex)) {
-      input.setAnswer(cursor.getString(answerIndex));
+      output.setAnswer(cursor.getString(answerIndex));
     }
 
-    responses.add(input);
+    responses.add(output);
 
     event.setResponses(responses);
     return event;
