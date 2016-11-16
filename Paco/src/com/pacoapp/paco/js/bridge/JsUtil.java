@@ -55,6 +55,10 @@ public class JsUtil {
           }
         }
       }
+      
+      if(projectionColumns == null){
+        projectionColumns = new String[]{"*"};
+      }
 
       if (criteriaQueryObj.has("query")) {
         JSONObject queryCriteria = criteriaQueryObj.getJSONObject("query");
