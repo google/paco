@@ -111,13 +111,18 @@ public class FeedbackActivity extends ActionBarActivity {
 
 
       rawDataButton = (Button)findViewById(R.id.rawDataButton);
-      rawDataButton.setOnClickListener(new OnClickListener() {
-        public void onClick(View v) {
-          Intent rawDataIntent = new Intent(FeedbackActivity.this, RawDataActivity.class);
-          rawDataIntent.putExtras(getIntent().getExtras());
-          startActivity(rawDataIntent);
-        }
-      });
+
+      if (experimentGroup.getRawDataAccess()) {
+        rawDataButton.setOnClickListener(new OnClickListener() {
+          public void onClick(View v) {
+            Intent rawDataIntent = new Intent(FeedbackActivity.this, RawDataActivity.class);
+            rawDataIntent.putExtras(getIntent().getExtras());
+            startActivity(rawDataIntent);
+          }
+        });
+      } else {
+        rawDataButton.setVisibility(View.GONE);
+      }
       webView = (WebView)findViewById(R.id.feedbackText);
       webView.getSettings().setJavaScriptEnabled(true);
 

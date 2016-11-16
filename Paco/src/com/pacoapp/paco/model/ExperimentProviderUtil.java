@@ -100,7 +100,7 @@ public class ExperimentProviderUtil implements EventStore {
     this.contentResolver = context.getContentResolver();
     loadColumnTableAssociationMap();
   }
-  
+
   public static void loadColumnTableAssociationMap(){
 	  if (eventsOutputColumns ==null){
 		  eventsOutputColumns = new HashMap<String,String>();
@@ -492,6 +492,9 @@ public class ExperimentProviderUtil implements EventStore {
     }
     if (rootNode.has("logShutdown")) {
       defaultExperimentGroup.setLogShutdown(rootNode.path("logShutdown").getBooleanValue());
+    }
+    if (rootNode.has("rawDataAccess")) {
+      defaultExperimentGroup.setRawDataAccess(rootNode.path("rawDataAccess").getBooleanValue());
     }
 
     if (rootNode.has("backgroundListen")) {
@@ -921,7 +924,7 @@ public class ExperimentProviderUtil implements EventStore {
     }
     return values;
   }
- 
+
 
   private Event findEventBy(String select, String[] selectionArgs, String sortOrder) {
     Cursor cursor = null;
@@ -970,7 +973,7 @@ public class ExperimentProviderUtil implements EventStore {
     }
     return events;
   }
-  
+
   //This is a hack, but should improve the performance for now.
   private List<Event> findEventsBy(String select, String sortOrder, Integer limitNoOfRecords) {
 	  if (limitNoOfRecords != null) {
