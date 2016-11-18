@@ -64,7 +64,7 @@ public class ExperimentUtil {
     List<Output> responses = Lists.newArrayList();
 
     int idIndex = cursor.getColumnIndex(EventColumns._ID);
-    int idAlternateIndex = cursor.getColumnIndex("EID");
+
     int experimentIdIndex = cursor.getColumnIndex(EventColumns.EXPERIMENT_ID);
     int experimentServerIdIndex = cursor.getColumnIndex(EventColumns.EXPERIMENT_SERVER_ID);
     int experimentVersionIndex = cursor.getColumnIndex(EventColumns.EXPERIMENT_VERSION);
@@ -83,8 +83,6 @@ public class ExperimentUtil {
 
     if (!cursor.isNull(idIndex)) {
       event.setId(cursor.getLong(idIndex));
-    } else if(!cursor.isNull(idAlternateIndex)){
-      event.setId(cursor.getLong(idAlternateIndex));
     }
 
     if (!cursor.isNull(experimentIdIndex)) {
@@ -130,13 +128,13 @@ public class ExperimentUtil {
       event.setActionId(cursor.getLong(actionIdIndex));
     }
 
-    if (!cursor.isNull(idIndex)) {
-      output.setId(cursor.getLong(idIndex));
-    }
-
     // process output columns
     if (!cursor.isNull(eventIdIndex)) {
       output.setEventId(cursor.getLong(eventIdIndex));
+      // if outputs table's event_id is populated and event tables _id is not popoulated
+      if(event.getId()==-1){
+        event.setId(cursor.getLong(eventIdIndex));
+      }
     }
 
     if (!cursor.isNull(inputServeridIndex)) {

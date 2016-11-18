@@ -815,6 +815,7 @@ public class ExperimentProviderUtil implements EventStore {
                                                String sortOrder, String limit, String groupBy, String having, boolean coalesce) {
     Cursor cursor = null;
     List<Event> events = null;
+    Event event = null;
     Map<Long, Event> eventMap = null;
     String[] modifiedProjection = null;
     DatabaseHelper dbHelper = new DatabaseHelper(context);
@@ -839,10 +840,10 @@ public class ExperimentProviderUtil implements EventStore {
       //adding the following columns in the projection list to help in coalescing
       if(tableIndicator.equals(ExperimentProvider.EVENTS_OUTPUTS_TABLE_NAME) || tableIndicator.equals(ExperimentProvider.EVENTS_TABLE_NAME)){
         //adding Event table's default id column
-        modifiedProjection[crtLength]="EVENTS._ID as EID";
+        modifiedProjection[crtLength]="EVENTS._ID";
       } else if(tableIndicator.equals(ExperimentProvider.OUTPUTS_TABLE_NAME)) {
         //adding Output table's event id column
-        modifiedProjection[crtLength]="OUTPUTS.EVENT_ID as EID";
+        modifiedProjection[crtLength]="OUTPUTS.EVENT_ID";
       }
       
       if (tableIndicator.equals(ExperimentProvider.EVENTS_OUTPUTS_TABLE_NAME)) { 
@@ -863,19 +864,23 @@ public class ExperimentProviderUtil implements EventStore {
       if (cursor != null) {
         events = Lists.newArrayList();
         while (cursor.moveToNext()) {
-          Event event = ExperimentUtil.createEventWithPartialResponses(cursor);
           //if no need to coalesce, we just add it to the list and send the collection to the client.
           if(!coalesce){
+            event = ExperimentUtil.createEventWithPartialResponses(cursor);
             events.add(event);
           }else {
+            event = createEvent(cursor, false);
+            // When the query is only outputs table, we do not have event id retrieved, but we have the outputs.event_id which holds the same value
+            if(event.getId() == -1){
+              int eventIdIndex = cursor.getColumnIndex(OutputColumns.EVENT_ID);
+              if (!cursor.isNull(eventIdIndex)) {
+                event.setId(cursor.getLong(eventIdIndex));
+              }
+            }
             Event oldEvent = eventMap.get(event.getId()); 
-            if(oldEvent==null){ 
+            if(oldEvent == null){
+              event.setResponses(findResponsesFor(event));
               eventMap.put(event.getId(), event);
-            }else{
-              //add crt out to existing event's output
-              List<Output> oldOutput = oldEvent.getResponses();
-              List<Output> crOutput = event.getResponses();
-              oldOutput.addAll(crOutput);
             }
           }
         }
@@ -1041,10 +1046,20 @@ public class ExperimentProviderUtil implements EventStore {
     }
     return responses;
   }
+  
+  private Event createEvent(Cursor cursor){
+    return createEvent(cursor, true);
+  }
 
-  private Event createEvent(Cursor cursor) {
-    int idIndex = cursor.getColumnIndexOrThrow(EventColumns._ID);
-    int experimentIdIndex = cursor.getColumnIndexOrThrow(EventColumns.EXPERIMENT_ID);
+  private Event createEvent(Cursor cursor, boolean requiredFieldsFlag) {
+    int idIndex, experimentIdIndex;
+    if(requiredFieldsFlag){
+      idIndex = cursor.getColumnIndexOrThrow(EventColumns._ID);
+      experimentIdIndex = cursor.getColumnIndexOrThrow(EventColumns.EXPERIMENT_ID);
+    }else{
+      idIndex = cursor.getColumnIndex(EventColumns._ID);
+      experimentIdIndex = cursor.getColumnIndex(EventColumns.EXPERIMENT_ID);  
+    }
     int experimentServerIdIndex = cursor.getColumnIndex(EventColumns.EXPERIMENT_SERVER_ID);
     int experimentVersionIndex = cursor.getColumnIndex(EventColumns.EXPERIMENT_VERSION);
     int experimentNameIndex = cursor.getColumnIndex(EventColumns.EXPERIMENT_NAME);
