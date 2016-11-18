@@ -517,6 +517,7 @@ pacoApp.service('template', function() {
       type: 0,
       text: 'Thanks for Participating!',
     },
+    rawDataAccess: true,
     fixedDuration: 'false'
   };
 

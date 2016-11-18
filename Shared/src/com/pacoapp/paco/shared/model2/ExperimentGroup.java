@@ -37,6 +37,8 @@ public class ExperimentGroup extends ModelBase implements Validatable, java.io.S
   // experiments
   private Integer feedbackType;
 
+  private Boolean rawDataAccess = true;
+
   public ExperimentGroup() {
     super();
     this.actionTriggers = new ArrayList<ActionTrigger>();
@@ -272,6 +274,13 @@ public class ExperimentGroup extends ModelBase implements Validatable, java.io.S
     this.logShutdown = logShutdown;
   }
 
+  public Boolean getRawDataAccess() {
+    return this.rawDataAccess;
+  }
+
+  public void setRawDataAccess(Boolean rawDataAccess) {
+    this.rawDataAccess = rawDataAccess;
+  }
 
 
 }

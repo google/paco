@@ -24,7 +24,7 @@
     <uses-feature android:name="android.hardware.camera.autofocus" android:required="false"/>
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
-    <uses-permission android:name="com.google.android.gms.permission.ACTIVITY_RECOGNITION"/>
+   
     
     <application
         android:name="com.pacoapp.paco.PacoApplication"
@@ -41,14 +41,7 @@
            android:value="@integer/google_play_services_version" 
            />
         
-        <meta-data
-   android:name="com.google.android.geo.API_KEY"
-   android:value="AIzaSyBZW4hYwvlIWw0FyzFgUYmYSpaRhU3HPwU" />
-
-        <meta-data
-   android:name="com.google.android.nearby.messages.API_KEY"
-   android:value="AIzaSyAU1dZ_ktyA2XV50hkTVs4UPl6oUEM4Fdc" />
-        
+     
         <activity android:name="com.pacoapp.paco.ui.MyExperimentsActivity" 
             android:label="Paco"
             android:icon="@drawable/ic_launcher" >
