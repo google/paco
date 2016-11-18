@@ -50,6 +50,10 @@ pacoApp.config(['$routeProvider','$locationProvider',
         templateUrl: 'partials/hub.html',
         reloadOnSearch: false,
     }).
+    when('/survey/:pubRespondExperimentId',{
+      templateUrl: 'partials/respondpub.html',
+      reloadOnSearch: false,
+    }).
     otherwise({
       templateUrl: 'partials/welcome.html',
       reloadOnSearch: false,

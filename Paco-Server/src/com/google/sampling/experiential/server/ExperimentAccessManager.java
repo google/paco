@@ -366,8 +366,9 @@ public class ExperimentAccessManager {
 
 
   public static boolean isUserAllowedToGetExperiments(Long experimentId, String email) {
-    if (isAdminForExperiment(email, experimentId) || isExperimentPublishedToUser(email, experimentId)
-        || isPublicExperiment(experimentId)) {
+    if (isPublicExperiment(experimentId) ||
+        isAdminForExperiment(email, experimentId) ||
+        isExperimentPublishedToUser(email, experimentId)) {
       return true;
     }
     return false;
