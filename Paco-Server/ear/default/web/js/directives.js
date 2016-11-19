@@ -666,12 +666,22 @@ pacoApp.directive('fileDropzone', function() {
 
 pacoApp.directive('pacoGroupPub', function () {
 
+  var evaluateConditionals = function($scope) {
+    for ( var inputIdx in $scope.group.inputs) {
+      var input = $scope.group.inputs[inputIdx];
+      if (input.conditional) {
+        var validity = parser.parse(input.conditionExpression, $scope.responses);
+        $scope.mask[inputIdx] = !validity;
+      }
+    } 
+  }
   var controller = ['$scope', '$http', '$location', '$mdDialog', '$anchorScroll', 'util',
     function($scope, $http, $location, $mdDialog, $anchorScroll, util) {
 
-    $scope.mask = {};
     $scope.responses = $scope.responses || {};
-
+    
+    $scope.mask = {};
+  
     $scope.post = {
       appId: 'webform',
       pacoVersion: 1,
@@ -681,20 +691,16 @@ pacoApp.directive('pacoGroupPub', function () {
       if (angular.isDefined($scope.experiment)) {
         $scope.post.experimentId = $scope.experiment.id;
       }
+      if (angular.isDefined($scope.group)) {
+        evaluateConditionals($scope);      
+      }
     });
 
     $scope.$watchCollection('responses', function(newValue, oldValue) {
 
         if (angular.isDefined(newValue) &&
             angular.isDefined($scope.group)) {
-
-          for ( var inputIdx in $scope.group.inputs) {
-            var input = $scope.group.inputs[inputIdx];
-            if (input.conditional) {
-              var validity = parser.parse(input.conditionExpression, $scope.responses);
-              $scope.mask[inputIdx] = !validity;
-            }
-          }
+          evaluateConditionals($scope);        
         }
     });
 
@@ -812,6 +818,7 @@ pacoApp.directive('pacoGroupPub', function () {
 
   }];
 
+  
   return {
     restrict: 'E',
     scope: {  'group': '=data',
@@ -821,10 +828,9 @@ pacoApp.directive('pacoGroupPub', function () {
               'events': '=',
               'experiment': '=',
               'activeIdx': '='},
-
     controller: controller,
     templateUrl: 'partials/group.html'
   };
-  $scope.apply();
+  
 });
 
