@@ -1,6 +1,16 @@
 
 pacoApp.directive('pacoGroup', function () {
 
+  var evaluateConditionals = function($scope) {
+    for ( var inputIdx in $scope.group.inputs) {
+      var input = $scope.group.inputs[inputIdx];
+      if (input.conditional) {
+        var validity = parser.parse(input.conditionExpression, $scope.responses);
+        $scope.mask[inputIdx] = !validity;
+      }
+    } 
+  }
+  
   var controller = ['$scope', '$http', '$location', '$mdDialog', '$anchorScroll', 'util',
     function($scope, $http, $location, $mdDialog, $anchorScroll, util) {
 
@@ -16,20 +26,16 @@ pacoApp.directive('pacoGroup', function () {
       if (angular.isDefined($scope.experiment)) {
         $scope.post.experimentId = $scope.experiment.id;
       }
+      if (angular.isDefined($scope.group)) {
+        evaluateConditionals($scope);      
+      }
     });
 
     $scope.$watchCollection('responses', function(newValue, oldValue) {
 
         if (angular.isDefined(newValue) &&
             angular.isDefined($scope.group)) {
-
-          for ( var inputIdx in $scope.group.inputs) {
-            var input = $scope.group.inputs[inputIdx];
-            if (input.conditional) {
-              var validity = parser.parse(input.conditionExpression, $scope.responses);
-              $scope.mask[inputIdx] = !validity;
-            }
-          }
+          evaluateConditionals($scope);      
         }
     });
 
