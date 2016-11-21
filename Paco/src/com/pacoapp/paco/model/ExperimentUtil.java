@@ -13,49 +13,31 @@ import android.database.Cursor;
 public class ExperimentUtil {
   /**
    * 
-   * @param eventsOutputColumns
-   *          This holds all the column names of the tables Events and Outputs
+   * @param eventsColumns
+   *          This holds all the column names of the tables Events
    *          as keys and the associated table name as value
    * @param colNames
    *          List of names that the client has asked for in the query
    * @return Table name that should be used for the given columns. 
-   *         This will have the following three scenarios 
+   *         This will have the following two scenarios 
    *         - If all input columns are from Events table, will return Events table 
-   *         - If all input columns are from Outputs table, will return Outputs table 
-   *         - If all input columns are a mix of the Outputs and Events table or a '*', will
+   *         - If any one of input columns is not from Events table, will
    *         return Eventsoutputs table
    */
-  public static String identifyTablesInvolved(Map<String, String> eventsOutputColumns, List<String> colNames) {
+  public static String identifyTablesInvolved(Map<String, String> eventsColumns, List<String> colNames) {
     // This method is not to validate the column names. This just helps identifying if we need to do a join on outputs table.
-    // With null, we cannot accomodate new column names ad-hoc. 
-    // So, changing the default to Join table instead of null.
-    String tableIndicator = ExperimentProvider.EVENTS_OUTPUTS_TABLE_NAME;
+    String tableIndicator = ExperimentProvider.EVENTS_TABLE_NAME;
     if (colNames != null && colNames.size() > 0) {
-      // if the input is *, then we do the join and get all the fields in both
-      // events and outputs
-      String firstColName = colNames.get(0).trim().toUpperCase();
-      if (firstColName != null && firstColName.equals("*")) {
-        return ExperimentProvider.EVENTS_OUTPUTS_TABLE_NAME;
-      }
-      String tableName = eventsOutputColumns.get(firstColName);
-      if (tableName != null) {
-        for (String s : colNames) {
-          String crTableName = eventsOutputColumns.get(s.toUpperCase());
-          // once we get a different table, then we need to do a join
-          if (!tableName.equals(crTableName)) {
-            tableIndicator = ExperimentProvider.EVENTS_OUTPUTS_TABLE_NAME;
-            return tableIndicator;
-          }
-        }
-
-        if (tableName.equalsIgnoreCase(ExperimentProvider.EVENTS_TABLE_NAME)) {
-          tableIndicator = ExperimentProvider.EVENTS_TABLE_NAME;
-        } else if (tableName.equalsIgnoreCase(ExperimentProvider.OUTPUTS_TABLE_NAME)) {
-          tableIndicator = ExperimentProvider.OUTPUTS_TABLE_NAME;
+      for (String s : colNames) {
+        String crTableName = eventsColumns.get(s.toUpperCase());
+        // if we do not get a match in Event column names, then we need to do a join
+        if (crTableName == null) {
+          tableIndicator = ExperimentProvider.EVENTS_OUTPUTS_TABLE_NAME;
+          return tableIndicator;
         }
       }
     }
-    return tableIndicator;
+   return tableIndicator;
   }
 
   public static Event createEventWithPartialResponses(Cursor cursor) {
@@ -131,10 +113,6 @@ public class ExperimentUtil {
     // process output columns
     if (!cursor.isNull(eventIdIndex)) {
       output.setEventId(cursor.getLong(eventIdIndex));
-      // if outputs table's event_id is populated and event tables _id is not popoulated
-      if(event.getId()==-1){
-        event.setId(cursor.getLong(eventIdIndex));
-      }
     }
 
     if (!cursor.isNull(inputServeridIndex)) {

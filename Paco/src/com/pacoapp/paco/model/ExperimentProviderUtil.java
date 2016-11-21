@@ -91,7 +91,7 @@ public class ExperimentProviderUtil implements EventStore {
   private static final String LIMIT = " limit ";
 
   DateTimeFormatter endDateFormatter = DateTimeFormat.forPattern(TimeUtil.DATE_FORMAT);
-  private static  Map<String, String> eventsOutputColumns = null;
+  private static  Map<String, String> eventsColumns = null;
   public ExperimentProviderUtil(Context context) {
     super();
     this.context = context;
@@ -103,23 +103,19 @@ public class ExperimentProviderUtil implements EventStore {
   }
   
   public static void loadColumnTableAssociationMap(){
-	  if (eventsOutputColumns ==null){
-		  eventsOutputColumns = new HashMap<String,String>();
-		  eventsOutputColumns.put("EXPERIMENT_ID", "EVENTS");
-		  eventsOutputColumns.put("EXPERIMENT_SERVER_ID", "EVENTS");
-		  eventsOutputColumns.put("EXPERIMENT_NAME", "EVENTS");
-		  eventsOutputColumns.put("EXPERIMENT_VERSION", "EVENTS");
-		  eventsOutputColumns.put("SCHEDULE_TIME", "EVENTS");
-		  eventsOutputColumns.put("RESPONSE_TIME", "EVENTS");
-		  eventsOutputColumns.put("UPLOADED", "EVENTS");
-		  eventsOutputColumns.put("GROUP_NAME", "EVENTS");
-		  eventsOutputColumns.put("ACTION_TRIGGER_ID","EVENTS");
-		  eventsOutputColumns.put("ACTION_TRIGGER_SPEC_ID","EVENTS");
-		  eventsOutputColumns.put("ACTION_ID","EVENTS");
-		  eventsOutputColumns.put("EVENT_ID", "OUTPUTS");
-		  eventsOutputColumns.put("TEXT", "OUTPUTS");
-		  eventsOutputColumns.put("ANSWER", "OUTPUTS");
-		  eventsOutputColumns.put("INPUT_SERVER_ID", "OUTPUTS");
+	  if (eventsColumns ==null){
+		  eventsColumns = new HashMap<String,String>();
+		  eventsColumns.put("EXPERIMENT_ID", "EVENTS");
+		  eventsColumns.put("EXPERIMENT_SERVER_ID", "EVENTS");
+		  eventsColumns.put("EXPERIMENT_NAME", "EVENTS");
+		  eventsColumns.put("EXPERIMENT_VERSION", "EVENTS");
+		  eventsColumns.put("SCHEDULE_TIME", "EVENTS");
+		  eventsColumns.put("RESPONSE_TIME", "EVENTS");
+		  eventsColumns.put("UPLOADED", "EVENTS");
+		  eventsColumns.put("GROUP_NAME", "EVENTS");
+		  eventsColumns.put("ACTION_TRIGGER_ID","EVENTS");
+		  eventsColumns.put("ACTION_TRIGGER_SPEC_ID","EVENTS");
+		  eventsColumns.put("ACTION_ID","EVENTS");
 	  }
   }
 
@@ -819,32 +815,29 @@ public class ExperimentProviderUtil implements EventStore {
     Map<Long, Event> eventMap = null;
     String[] modifiedProjection = null;
     DatabaseHelper dbHelper = new DatabaseHelper(context);
-    if (sortOrder != null && limit != null) {
-      sortOrder = sortOrder.concat(LIMIT).concat(limit);
-    } 
+   
     try {
       //add all column names in the query->select columns, where clause, group by clause, having clause, sort order clause
       List<String> allColumns = Lists.newArrayList();
       allColumns.addAll(Arrays.asList(projection));
       String colNameConcat = (groupBy != null) ? criteriaColumns.concat(BLANK).concat(groupBy) : criteriaColumns;
       colNameConcat = (groupBy != null && having != null) ? colNameConcat.concat(BLANK).concat(having) : colNameConcat;
+      colNameConcat = (sortOrder != null)?colNameConcat.concat(BLANK).concat(sortOrder) : colNameConcat;
       allColumns.addAll(ExperimentUtil.aggregateExtractedColNames(colNameConcat));
+
+      if (sortOrder != null && limit != null) {
+        sortOrder = sortOrder.concat(LIMIT).concat(limit);
+      } 
       
       //identify all tables involved for the complete column names
-      String tableIndicator = ExperimentUtil.identifyTablesInvolved(eventsOutputColumns, allColumns);
+      String tableIndicator = ExperimentUtil.identifyTablesInvolved(eventsColumns, allColumns);
       
       //adding a default projection of event table primary key column
       int crtLength = projection.length ;
       modifiedProjection = new String[crtLength+1];
       System.arraycopy(projection, 0, modifiedProjection, 0, crtLength);
       //adding the following columns in the projection list to help in coalescing
-      if(tableIndicator.equals(ExperimentProvider.EVENTS_OUTPUTS_TABLE_NAME) || tableIndicator.equals(ExperimentProvider.EVENTS_TABLE_NAME)){
-        //adding Event table's default id column
-        modifiedProjection[crtLength]="EVENTS._ID";
-      } else if(tableIndicator.equals(ExperimentProvider.OUTPUTS_TABLE_NAME)) {
-        //adding Output table's event id column
-        modifiedProjection[crtLength]="OUTPUTS.EVENT_ID";
-      }
+      modifiedProjection[crtLength]="EVENTS._ID";
       
       if (tableIndicator.equals(ExperimentProvider.EVENTS_OUTPUTS_TABLE_NAME)) { 
         cursor = dbHelper.query(ExperimentProvider.EVENTS_OUTPUTS_DATATYPE, modifiedProjection, criteriaColumns, criteriaValues,
@@ -852,11 +845,8 @@ public class ExperimentProviderUtil implements EventStore {
       } else if (tableIndicator.equals(ExperimentProvider.EVENTS_TABLE_NAME)) {
         cursor = dbHelper.query(ExperimentProvider.EVENTS_DATATYPE, modifiedProjection, criteriaColumns, criteriaValues,
                                 sortOrder, groupBy, having);
-        
-      } else if (tableIndicator.equals(ExperimentProvider.OUTPUTS_TABLE_NAME)) {
-        cursor = dbHelper.query(ExperimentProvider.OUTPUTS_DATATYPE, modifiedProjection, criteriaColumns, criteriaValues,
-                                sortOrder, groupBy, having);
-      }
+      } 
+      
       if(coalesce){
         //to maintain the insertion order
         eventMap = Maps.newLinkedHashMap();
@@ -870,13 +860,6 @@ public class ExperimentProviderUtil implements EventStore {
             events.add(event);
           }else {
             event = createEvent(cursor, false);
-            // When the query is only outputs table, we do not have event id retrieved, but we have the outputs.event_id which holds the same value
-            if(event.getId() == -1){
-              int eventIdIndex = cursor.getColumnIndex(OutputColumns.EVENT_ID);
-              if (!cursor.isNull(eventIdIndex)) {
-                event.setId(cursor.getLong(eventIdIndex));
-              }
-            }
             Event oldEvent = eventMap.get(event.getId()); 
             if(oldEvent == null){
               event.setResponses(findResponsesFor(event));
@@ -1748,7 +1731,7 @@ public class ExperimentProviderUtil implements EventStore {
 
 public static Map<String, String> getEventsOutputColumns() {
   loadColumnTableAssociationMap();
-	return eventsOutputColumns;
+	return eventsColumns;
 }
 
 
