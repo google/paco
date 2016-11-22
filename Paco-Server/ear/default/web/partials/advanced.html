@@ -19,7 +19,7 @@
 
     <div class="row">
       <md-checkbox ng-model="group.backgroundListen" aria-label="Listen for other apps sending data to PACO">
-        Background Listening (for data sent from other apps)
+        Background Listening
       </md-checkbox>
 
       <div class="right source" ng-if="group.backgroundListen">
@@ -51,6 +51,14 @@
     <div class="row">
       <md-checkbox ng-model="group.logShutdown" aria-label="Log phone shutdown and startup">
         Log phone startup and shutdowns
+      </md-checkbox>
+
+      <no-ios ng-if="group.logShutdown">iOS does not support phone startup and shutdown logging</no-ios>
+    </div>
+
+    <div class="row">
+      <md-checkbox ng-model="group.rawDataAccess" aria-label="Enable user to access raw data on phone">
+        Enable user to access raw data on phone
       </md-checkbox>
 
       <no-ios ng-if="group.logShutdown">iOS does not support phone startup and shutdown logging</no-ios>

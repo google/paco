@@ -178,7 +178,13 @@ public class ExperimentHelper {
 
 
   @SuppressWarnings("unchecked")
-  public static List<Trio<ExperimentGroup, InterruptTrigger, InterruptCue>> shouldTriggerBy(ExperimentDAO experiment, int event, String sourceIdentifier) {
+  public static List<Trio<ExperimentGroup, InterruptTrigger, InterruptCue>> shouldTriggerBy(ExperimentDAO experiment,
+                                                                                            int event,
+                                                                                            String sourceIdentifier,
+                                                                                            String packageName,
+                                                                                            String className,
+                                                                                            String eventText,
+                                                                                            String eventContentDescription) {
     List<Trio<ExperimentGroup, InterruptTrigger, InterruptCue>> groupsThatTrigger = new ArrayList();
     List<ExperimentGroup> groups = experiment.getGroups();
     for (ExperimentGroup experimentGroup : groups) {
@@ -193,28 +199,28 @@ public class ExperimentHelper {
               continue;
             }
 
-            boolean usesSourceId = interruptCue.getCueCode() == InterruptCue.PACO_ACTION_EVENT
-                    || interruptCue.getCueCode() == InterruptCue.APP_USAGE
-                    || interruptCue.getCueCode() == InterruptCue.APP_CLOSED
-                    || interruptCue.getCueCode() == InterruptCue.ACCESSIBILITY_EVENT_VIEW_CLICKED;
-            boolean sourceIdsMatch;
-            boolean isExperimentActionTrigger = interruptCue.getCueCode() == InterruptCue.PACO_EXPERIMENT_JOINED_EVENT
-                    || interruptCue.getCueCode() == InterruptCue.PACO_EXPERIMENT_ENDED_EVENT
-                    || interruptCue.getCueCode() == InterruptCue.PACO_EXPERIMENT_RESPONSE_RECEIVED_EVENT;
+            boolean usesSourceId = interruptUsesSourceId(interruptCue);
+            boolean cueFiltersMatch;
+            boolean isExperimentTrigger = isExperimentEventTrigger(interruptCue);
 
             boolean triggerSourceIdIsEmpty = interruptCue.getCueSource() == null || interruptCue.getCueSource().isEmpty() ;
             if (usesSourceId) {
-              boolean paramEmpty = sourceIdentifier == null || sourceIdentifier.isEmpty();
-              sourceIdsMatch = (paramEmpty && triggerSourceIdIsEmpty) ||
-                interruptCue.getCueSource().equals(sourceIdentifier);
-            } else if (isExperimentActionTrigger) {
+              if (interruptCue.getCueCode() == InterruptCue.ACCESSIBILITY_EVENT_VIEW_CLICKED) {
+                cueFiltersMatch = isMatchingViewClickEvent(packageName, className, eventContentDescription,
+                                                          interruptCue);
+              } else {
+                boolean paramEmpty = sourceIdentifier == null || sourceIdentifier.isEmpty();
+                cueFiltersMatch = (paramEmpty && triggerSourceIdIsEmpty) ||
+                        interruptCue.getCueSource().equals(sourceIdentifier);
+              }
+            } else if (isExperimentTrigger) {
               boolean paramExists = sourceIdentifier != null && !sourceIdentifier.isEmpty();
               boolean sameExperiment = Long.parseLong(sourceIdentifier) == experiment.getId();
-              sourceIdsMatch = paramExists == true && sameExperiment == true;
+              cueFiltersMatch = paramExists == true && sameExperiment == true;
             } else {
-              sourceIdsMatch = true;
+              cueFiltersMatch = true;
             }
-            if (cueCodeMatches && sourceIdsMatch) {
+            if (cueCodeMatches && cueFiltersMatch) {
               groupsThatTrigger.add(new Trio<ExperimentGroup, InterruptTrigger, InterruptCue>(experimentGroup, trigger, interruptCue));
             }
           }
@@ -222,6 +228,39 @@ public class ExperimentHelper {
       }
     }
     return groupsThatTrigger;
+  }
+
+  private static boolean isExperimentEventTrigger(InterruptCue interruptCue) {
+    return interruptCue.getCueCode() == InterruptCue.PACO_EXPERIMENT_JOINED_EVENT
+            || interruptCue.getCueCode() == InterruptCue.PACO_EXPERIMENT_ENDED_EVENT
+            || interruptCue.getCueCode() == InterruptCue.PACO_EXPERIMENT_RESPONSE_RECEIVED_EVENT;
+  }
+
+  private static boolean interruptUsesSourceId(InterruptCue interruptCue) {
+    return interruptCue.getCueCode() == InterruptCue.PACO_ACTION_EVENT
+            || interruptCue.getCueCode() == InterruptCue.APP_USAGE
+            || interruptCue.getCueCode() == InterruptCue.APP_CLOSED
+            || interruptCue.getCueCode() == InterruptCue.ACCESSIBILITY_EVENT_VIEW_CLICKED;
+  }
+
+  private static boolean isMatchingViewClickEvent(String packageName, String className, String eventContentDescription,
+                                                  InterruptCue interruptCue) {
+    if (interruptCue.getCueSource() != null) {
+      if (packageName == null || !interruptCue.getCueSource().equals(packageName)) {
+        return false;
+      }
+    }
+    if (interruptCue.getCueAEContentDescription() != null) {
+      if (eventContentDescription == null || !interruptCue.getCueAEContentDescription().equals(eventContentDescription)) {
+        return false;
+      }
+    }
+    if (interruptCue.getCueAEClassName() != null) {
+      if (className == null || !interruptCue.getCueAEClassName().equals(className)) {
+        return false;
+      }
+    }
+    return true;
   }
 
   public static boolean isAnyGroupOngoingDuration(ExperimentDAO experiment) {

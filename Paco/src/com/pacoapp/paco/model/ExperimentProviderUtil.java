@@ -20,6 +20,8 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.locks.Lock;
@@ -75,6 +77,7 @@ public class ExperimentProviderUtil implements EventStore {
   public static final String AUTHORITY = "com.google.android.apps.paco.ExperimentProvider";
   private static final String PUBLIC_EXPERIMENTS_FILENAME = "experiments";
   private static final String MY_EXPERIMENTS_FILENAME = "my_experiments";
+  private static final String BLANK = " ";
   // The next semaphore is used to make sure that all event inserts/retrievals happen atomically
   // with regards to each other, to ensure that no incomplete events can get synced to the server
   // (and, by extension, to ensure that a thread trying to access an event has to wait until the
@@ -84,8 +87,10 @@ public class ExperimentProviderUtil implements EventStore {
   private static final Lock eventStorageReadLock = eventStorageDbLock.readLock();
   private static final Lock eventStorageWriteLock = eventStorageDbLock.writeLock();
 
-  DateTimeFormatter endDateFormatter = DateTimeFormat.forPattern(TimeUtil.DATE_FORMAT);
+  private static final String LIMIT = " limit ";
 
+  DateTimeFormatter endDateFormatter = DateTimeFormat.forPattern(TimeUtil.DATE_FORMAT);
+  private static  Map<String, String> eventsOutputColumns = null;
   public ExperimentProviderUtil(Context context) {
     super();
     this.context = context;
@@ -93,6 +98,28 @@ public class ExperimentProviderUtil implements EventStore {
       throw new IllegalArgumentException("Need a context to instantiate experimentproviderutil");
     }
     this.contentResolver = context.getContentResolver();
+    loadColumnTableAssociationMap();
+  }
+
+  public static void loadColumnTableAssociationMap(){
+	  if (eventsOutputColumns ==null){
+		  eventsOutputColumns = new HashMap<String,String>();
+		  eventsOutputColumns.put("EXPERIMENT_ID", "EVENTS");
+		  eventsOutputColumns.put("EXPERIMENT_SERVER_ID", "EVENTS");
+		  eventsOutputColumns.put("EXPERIMENT_NAME", "EVENTS");
+		  eventsOutputColumns.put("EXPERIMENT_VERSION", "EVENTS");
+		  eventsOutputColumns.put("SCHEDULE_TIME", "EVENTS");
+		  eventsOutputColumns.put("RESPONSE_TIME", "EVENTS");
+		  eventsOutputColumns.put("UPLOADED", "EVENTS");
+		  eventsOutputColumns.put("GROUP_NAME", "EVENTS");
+		  eventsOutputColumns.put("ACTION_TRIGGER_ID","EVENTS");
+		  eventsOutputColumns.put("ACTION_TRIGGER_SPEC_ID","EVENTS");
+		  eventsOutputColumns.put("ACTION_ID","EVENTS");
+		  eventsOutputColumns.put("EVENT_ID", "OUTPUTS");
+		  eventsOutputColumns.put("TEXT", "OUTPUTS");
+		  eventsOutputColumns.put("ANSWER", "OUTPUTS");
+		  eventsOutputColumns.put("INPUT_SERVER_ID", "OUTPUTS");
+	  }
   }
 
   public List<Experiment> getJoinedExperiments() {
@@ -466,6 +493,9 @@ public class ExperimentProviderUtil implements EventStore {
     if (rootNode.has("logShutdown")) {
       defaultExperimentGroup.setLogShutdown(rootNode.path("logShutdown").getBooleanValue());
     }
+    if (rootNode.has("rawDataAccess")) {
+      defaultExperimentGroup.setRawDataAccess(rootNode.path("rawDataAccess").getBooleanValue());
+    }
 
     if (rootNode.has("backgroundListen")) {
       defaultExperimentGroup.setBackgroundListen(rootNode.path("backgroundListen").getBooleanValue());
@@ -747,10 +777,13 @@ public class ExperimentProviderUtil implements EventStore {
   }
 
   public List<Event> loadEventsForExperimentByServerId(Long serverId) {
-    return findEventsBy(EventColumns.EXPERIMENT_SERVER_ID + " = " + Long.toString(serverId),
-        EventColumns._ID +" DESC");
+	return loadEventsForExperimentByServerId(serverId, null);
   }
 
+  public List<Event> loadEventsForExperimentByServerId(Long serverId, Integer noOfRecords) {
+	    return findEventsBy(EventColumns.EXPERIMENT_SERVER_ID + " = " + Long.toString(serverId),
+	        EventColumns._ID +" DESC", noOfRecords);
+  }
 
   public Uri insertEvent(Event event) {
     eventStorageWriteLock.lock();
@@ -778,6 +811,51 @@ public class ExperimentProviderUtil implements EventStore {
       Event event = (Event)eventI;
       insertEvent(event);
     }
+  }
+
+  public List<Event> findEventsByCriteriaQuery(String[] projection, String criteriaColumns, String criteriaValues[],
+                                               String sortOrder, String limit, String groupBy, String having) {
+    Cursor cursor = null;
+    List<Event> events = null;
+    DatabaseHelper dbHelper = new DatabaseHelper(context);
+    if (sortOrder != null) {
+      sortOrder = sortOrder.concat(LIMIT).concat(limit);
+    } else {
+      sortOrder = LIMIT.concat(limit);
+    }
+    try {
+      List<String> allColumns = Lists.newArrayList();
+      allColumns.addAll(Arrays.asList(projection));
+      String colNameConcat = (groupBy != null) ? criteriaColumns.concat(BLANK).concat(groupBy) : criteriaColumns;
+      colNameConcat = (groupBy != null && having != null) ? colNameConcat.concat(BLANK).concat(having) : colNameConcat;
+      allColumns.addAll(ExperimentUtil.aggregateExtractedColNames(colNameConcat));
+      String tableIndicator = ExperimentUtil.identifyTablesInvolved(eventsOutputColumns, allColumns);
+      if (tableIndicator.equals(ExperimentProvider.EVENTS_OUTPUTS_TABLE_NAME)) {
+        cursor = dbHelper.query(ExperimentProvider.EVENTS_OUTPUTS_DATATYPE, projection, criteriaColumns, criteriaValues,
+                                sortOrder, groupBy, having);
+      } else if (tableIndicator.equals(ExperimentProvider.EVENTS_TABLE_NAME)) {
+        cursor = dbHelper.query(ExperimentProvider.EVENTS_DATATYPE, projection, criteriaColumns, criteriaValues,
+                                sortOrder, groupBy, having);
+      } else if (tableIndicator.equals(ExperimentProvider.OUTPUTS_TABLE_NAME)) {
+        cursor = dbHelper.query(ExperimentProvider.OUTPUTS_DATATYPE, projection, criteriaColumns, criteriaValues,
+                                sortOrder, groupBy, having);
+      }
+
+      if (cursor != null) {
+        events = Lists.newArrayList();
+        while (cursor.moveToNext()) {
+          Event event = ExperimentUtil.createEventWithPartialResponses(cursor);
+          events.add(event);
+        }
+      }
+    } finally {
+      if (cursor != null) {
+        cursor.close();
+      }
+      dbHelper.close();
+    }
+
+    return events;
   }
 
   private ContentValues createContentValues(Event event) {
@@ -847,6 +925,7 @@ public class ExperimentProviderUtil implements EventStore {
     return values;
   }
 
+
   private Event findEventBy(String select, String[] selectionArgs, String sortOrder) {
     Cursor cursor = null;
     eventStorageReadLock.lock();
@@ -893,6 +972,15 @@ public class ExperimentProviderUtil implements EventStore {
       eventStorageReadLock.unlock();
     }
     return events;
+  }
+
+  //This is a hack, but should improve the performance for now.
+  private List<Event> findEventsBy(String select, String sortOrder, Integer limitNoOfRecords) {
+	  if (limitNoOfRecords != null) {
+		  return findEventsBy(select, sortOrder + LIMIT  + limitNoOfRecords);
+	  } else {
+		  return  findEventsBy(select, sortOrder);
+	  }
   }
 
   private List<Output> findResponsesFor(Event event) {
@@ -1607,6 +1695,11 @@ public class ExperimentProviderUtil implements EventStore {
     }
     return events;
   }
+
+public static Map<String, String> getEventsOutputColumns() {
+  loadColumnTableAssociationMap();
+	return eventsOutputColumns;
+}
 
 
 

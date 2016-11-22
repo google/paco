@@ -75,6 +75,16 @@
   </servlet-mapping>
 
   <servlet>
+    <servlet-name>pubExperimentServlet</servlet-name>
+    <servlet-class>com.google.sampling.experiential.server.PubExperimentServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>pubExperimentServlet</servlet-name>
+    <url-pattern>/pubexperiments</url-pattern>
+  </servlet-mapping>
+  
+  
+  <servlet>
     <servlet-name>authServlet</servlet-name>
     <servlet-class>com.google.sampling.experiential.server.AuthServlet</servlet-class>
   </servlet>

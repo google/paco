@@ -517,6 +517,7 @@ pacoApp.service('template', function() {
       type: 0,
       text: 'Thanks for Participating!',
     },
+    rawDataAccess: true,
     fixedDuration: 'false'
   };
 
@@ -603,3 +604,22 @@ pacoApp.service('util', ['$filter', function($filter) {
   };
 
 }]);
+
+pacoApp.service('pubExperimentService', [ '$http', '$cacheFactory', 'util', 'config',
+    function($http, $cacheFactory, util, config) {
+
+      // Set this header here and it applies to all http requests
+      $http.defaults.headers.common['pacoProtocol'] = 4;
+
+      return ({
+        getExperiment : getExperiment
+      });
+
+      function getExperiment(id) {
+        return $http.get('/pubexperiments?id=' + id, {
+          cache : true
+        });
+      }
+
+    } ]);
+

@@ -103,11 +103,11 @@ public class AndroidActionExecutor {
     }
   }
 
-  private static String interpreterBase() {
+  public static String interpreterBase() {
     return "function alert(msg) { log.error(msg); };\n";
   }
 
-  private static String getBaseScript(Context context) {
+  public static String getBaseScript(Context context) {
     AssetManager assetManager = context.getAssets();
     StringBuilder buf;
     try {
