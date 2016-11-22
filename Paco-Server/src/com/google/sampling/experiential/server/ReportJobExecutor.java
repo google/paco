@@ -177,6 +177,8 @@ public class ReportJobExecutor {
         return generateCSVReport(anon, jobId, experimentId, eventQueryResultPair, timeZoneForClient);
       } else if (!Strings.isNullOrEmpty(reportFormat) && reportFormat.equals("json2")) {
         return generateJsonReport(anon, jobId, experimentId, eventQueryResultPair, timeZoneForClient, includePhotos);
+      } else if (!Strings.isNullOrEmpty(reportFormat) && reportFormat.equals("html2")) {
+        return generateHtmlReport(timeZoneForClient, anon, jobId, experimentId, eventQueryResultPair, originalQuery, requestorEmail);
       }
       return null;
 

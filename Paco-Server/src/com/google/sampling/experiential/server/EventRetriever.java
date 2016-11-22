@@ -685,7 +685,7 @@ public class EventRetriever {
 
     long t12 = System.currentTimeMillis();
     log.info("get execute time: " + (t12 - t11));
-    log.info("retrieved " + allEvents.size() + " experiments");
+    log.info("retrieved " + allEvents.size() + " events");
 
     ArrayList<Event> newArrayList = Lists.newArrayList(allEvents);
     sortList(newArrayList);

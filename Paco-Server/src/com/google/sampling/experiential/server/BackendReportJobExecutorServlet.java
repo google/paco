@@ -31,8 +31,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.joda.time.DateTimeZone;
 
-import com.google.appengine.api.ThreadManager;
-
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 
@@ -92,6 +90,9 @@ public class BackendReportJobExecutorServlet extends HttpServlet {
       dumpPhotoZip(req, resp, anon, cursor, limit);
     } else if (reportFormat != null && reportFormat.equals("stats")) {
       runStats(req, resp, limit);
+    } else if (reportFormat != null && reportFormat.equals("html2")) {
+      log.info("Backend generating html2 'experimental' report");
+      dumpEventsHtmlExperimental(resp, req, anon);
     } else {
       log.info("Backend generating html report");
       showEvents(req, resp, anon, cursor, limit);
@@ -147,6 +148,16 @@ public class BackendReportJobExecutorServlet extends HttpServlet {
     String requestorEmail = getRequestorEmail(req);
     DateTimeZone timeZoneForClient = getTimeZoneForClient(req);
     String jobId = ReportJobExecutor.getInstance().runReportJobExperimental(requestorEmail, timeZoneForClient, query, anon, "json2", queryParam, includePhotos);
+    resp.setContentType("text/plain;charset=UTF-8");
+    resp.getWriter().println(jobId);
+  }
+
+  private void dumpEventsHtmlExperimental(HttpServletResponse resp, HttpServletRequest req, boolean anon) throws IOException {
+    String queryParam = getParamForQuery(req);
+    List<com.google.sampling.experiential.server.Query> query = new QueryParser().parse(stripQuotes(queryParam));
+    String requestorEmail = getRequestorEmail(req);
+    DateTimeZone timeZoneForClient = getTimeZoneForClient(req);
+    String jobId = ReportJobExecutor.getInstance().runReportJobExperimental(requestorEmail, timeZoneForClient, query, anon, "html2", queryParam, false);
     resp.setContentType("text/plain;charset=UTF-8");
     resp.getWriter().println(jobId);
   }
