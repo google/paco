@@ -4,12 +4,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-import org.joda.time.DateTime;
-
-import com.google.common.collect.Lists;
-
-import android.database.Cursor;
-
 public class ExperimentUtil {
   /**
    * 
@@ -38,99 +32,6 @@ public class ExperimentUtil {
       }
     }
    return tableIndicator;
-  }
-
-  public static Event createEventWithPartialResponses(Cursor cursor) {
-    Event event = new Event();
-    Output output = new Output();
-    List<Output> responses = Lists.newArrayList();
-
-    int idIndex = cursor.getColumnIndex(EventColumns._ID);
-
-    int experimentIdIndex = cursor.getColumnIndex(EventColumns.EXPERIMENT_ID);
-    int experimentServerIdIndex = cursor.getColumnIndex(EventColumns.EXPERIMENT_SERVER_ID);
-    int experimentVersionIndex = cursor.getColumnIndex(EventColumns.EXPERIMENT_VERSION);
-    int experimentNameIndex = cursor.getColumnIndex(EventColumns.EXPERIMENT_NAME);
-    int scheduleTimeIndex = cursor.getColumnIndex(EventColumns.SCHEDULE_TIME);
-    int responseTimeIndex = cursor.getColumnIndex(EventColumns.RESPONSE_TIME);
-    int uploadedIndex = cursor.getColumnIndex(EventColumns.UPLOADED);
-    int groupNameIndex = cursor.getColumnIndex(EventColumns.GROUP_NAME);
-    int actionTriggerIndex = cursor.getColumnIndex(EventColumns.ACTION_TRIGGER_ID);
-    int actionTriggerSpecIndex = cursor.getColumnIndex(EventColumns.ACTION_TRIGGER_SPEC_ID);
-    int actionIdIndex = cursor.getColumnIndex(EventColumns.ACTION_ID);
-    int eventIdIndex = cursor.getColumnIndex(OutputColumns.EVENT_ID);
-    int inputServeridIndex = cursor.getColumnIndex(OutputColumns.INPUT_SERVER_ID);
-    int answerIndex = cursor.getColumnIndex(OutputColumns.ANSWER);
-    int nameIndex = cursor.getColumnIndex(OutputColumns.NAME);
-
-    if (!cursor.isNull(idIndex)) {
-      event.setId(cursor.getLong(idIndex));
-    }
-
-    if (!cursor.isNull(experimentIdIndex)) {
-      event.setExperimentId(cursor.getLong(experimentIdIndex));
-    }
-
-    if (!cursor.isNull(experimentServerIdIndex)) {
-      event.setServerExperimentId(cursor.getLong(experimentServerIdIndex));
-    }
-
-    if (!cursor.isNull(experimentVersionIndex)) {
-      event.setExperimentVersion(cursor.getInt(experimentVersionIndex));
-    }
-
-    if (!cursor.isNull(experimentNameIndex)) {
-      event.setExperimentName(cursor.getString(experimentNameIndex));
-    }
-
-    if (!cursor.isNull(responseTimeIndex)) {
-      event.setResponseTime(new DateTime(cursor.getLong(responseTimeIndex)));
-    }
-
-    if (!cursor.isNull(scheduleTimeIndex)) {
-      event.setScheduledTime(new DateTime(cursor.getLong(scheduleTimeIndex)));
-    }
-    if (!cursor.isNull(uploadedIndex)) {
-      event.setUploaded(cursor.getInt(uploadedIndex) == 1);
-    }
-
-    if (!cursor.isNull(groupNameIndex)) {
-      event.setExperimentGroupName(cursor.getString(groupNameIndex));
-    }
-
-    if (!cursor.isNull(actionTriggerIndex)) {
-      event.setActionTriggerId(cursor.getLong(actionTriggerIndex));
-    }
-
-    if (!cursor.isNull(actionTriggerSpecIndex)) {
-      event.setActionTriggerSpecId(cursor.getLong(actionTriggerSpecIndex));
-    }
-
-    if (!cursor.isNull(actionIdIndex)) {
-      event.setActionId(cursor.getLong(actionIdIndex));
-    }
-
-    // process output columns
-    if (!cursor.isNull(eventIdIndex)) {
-      output.setEventId(cursor.getLong(eventIdIndex));
-    }
-
-    if (!cursor.isNull(inputServeridIndex)) {
-      output.setInputServerId(cursor.getLong(inputServeridIndex));
-    }
-
-    if (!cursor.isNull(nameIndex)) {
-      output.setName(cursor.getString(nameIndex));
-    }
-
-    if (!cursor.isNull(answerIndex)) {
-      output.setAnswer(cursor.getString(answerIndex));
-    }
-
-    responses.add(output);
-
-    event.setResponses(responses);
-    return event;
   }
 
   /**

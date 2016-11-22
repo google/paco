@@ -808,7 +808,7 @@ public class ExperimentProviderUtil implements EventStore {
   }
 
   public List<Event> findEventsByCriteriaQuery(String[] projection, String criteriaColumns, String criteriaValues[],
-                                               String sortOrder, String limit, String groupBy, String having, boolean coalesce) {
+                                               String sortOrder, String limit, String groupBy, String having) {
     Cursor cursor = null;
     List<Event> events = null;
     Event event = null;
@@ -846,25 +846,18 @@ public class ExperimentProviderUtil implements EventStore {
         cursor = dbHelper.query(ExperimentProvider.EVENTS_DATATYPE, modifiedProjection, criteriaColumns, criteriaValues,
                                 sortOrder, groupBy, having);
       } 
-      
-      if(coalesce){
-        //to maintain the insertion order
-        eventMap = Maps.newLinkedHashMap();
-      }
+      //to maintain the insertion order
+      eventMap = Maps.newLinkedHashMap();
+    
       if (cursor != null) {
         events = Lists.newArrayList();
         while (cursor.moveToNext()) {
           //if no need to coalesce, we just add it to the list and send the collection to the client.
-          if(!coalesce){
-            event = ExperimentUtil.createEventWithPartialResponses(cursor);
-            events.add(event);
-          }else {
-            event = createEvent(cursor, false);
-            Event oldEvent = eventMap.get(event.getId()); 
-            if(oldEvent == null){
-              event.setResponses(findResponsesFor(event));
-              eventMap.put(event.getId(), event);
-            }
+          event = createEvent(cursor, false);
+          Event oldEvent = eventMap.get(event.getId()); 
+          if(oldEvent == null){
+            event.setResponses(findResponsesFor(event));
+            eventMap.put(event.getId(), event);
           }
         }
       }
@@ -874,10 +867,8 @@ public class ExperimentProviderUtil implements EventStore {
       }
       dbHelper.close();
     }
-    if(coalesce){
-      events = Lists.newArrayList(eventMap.values());
-    }
-
+    events = Lists.newArrayList(eventMap.values());
+  
     return events;
   }
 

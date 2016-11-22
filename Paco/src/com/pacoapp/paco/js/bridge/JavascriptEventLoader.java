@@ -99,14 +99,12 @@ public class JavascriptEventLoader {
    *    If the query requires columns from just Events table, it will be a plain select ......from Events 
    * SELECT group_name, response_time, experiment_name, text, answer FROM events INNER JOIN outputs ON events._id = event_id WHERE ( (group_name in(?,?) and (answer=?)) ) GROUP BY group_name ORDER BY response_time limit 100    
    * @param criteriaQuery Query conditions and clauses in JSON format mentioned above
-   * @param coalesce Flag sent for coalescing the output records into the events. If sent false, based upon the query conditions, if an event has three matching output/what records, 
-   *        the result list will have three event each associated with each of the different output records 
    * @return List of Events in JSON String.
    * @throws JSONException
    * @throws Exception
    */
   @JavascriptInterface
-  public String getEventsByQuery(String criteriaQuery, boolean coalesce) throws JSONException, Exception {
+  public String getEventsByQuery(String criteriaQuery) throws JSONException, Exception {
     List<Event> events = null;
     String eventsJson = null;
     SQLQuery sqlQueryObj = JsUtil.convertJSONToPOJO(criteriaQuery);
@@ -115,8 +113,7 @@ public class JavascriptEventLoader {
                                                                 sqlQueryObj.getCriteriaQuery(),
                                                                 sqlQueryObj.getCriteriaValue(),
                                                                 sqlQueryObj.getSortOrder(), sqlQueryObj.getLimit(),
-                                                                sqlQueryObj.getGroupBy(), sqlQueryObj.getHaving(),
-                                                                coalesce);
+                                                                sqlQueryObj.getGroupBy(), sqlQueryObj.getHaving());
       eventsJson = FeedbackActivity.convertEventsToJsonString(events);
     } else {
       throw new RuntimeException("Empty JSON exception");

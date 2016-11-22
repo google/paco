@@ -194,8 +194,8 @@ var paco = (function (init) {
         return JSON.parse(window.db.getLastNEvents(num));
       };
       
-      function getEventsByQuery(queryJson, coalesce) {
-        return JSON.parse(window.db.getEventsByQuery(queryJson, coalesce));
+      function getEventsByQuery(queryJson) {
+        return JSON.parse(window.db.getEventsByQuery(queryJson));
       };
 
       return {
@@ -277,8 +277,8 @@ var paco = (function (init) {
      * BY group_name ORDER BY response_time limit 100
      * 
      */
-    var getEventsByQuery = function(queryJson, coalesce) {
-      return db.getEventsByQuery(queryJson, coalesce);
+    var getEventsByQuery = function(queryJson) {
+      return db.getEventsByQuery(queryJson);
     };
 
     var getResponsesForEventNTimesAgo = function (nBack) {
