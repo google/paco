@@ -41,6 +41,13 @@
         <include name="**/*.jar" />
       </fileset>
     </copy>
+    <copy
+        todir="ear/default/WEB-INF/lib"
+        flatten="true">
+      <fileset dir="../../BQ-lib">
+        <include name="**/*.jar" />
+      </fileset>
+    </copy>
   </target>
 
   <target name="build-shared">
@@ -177,6 +184,7 @@
     <copy todir="ear/default/WEB-INF/lib" file="${gwt.sdk}/gwt-servlet.jar" />
     <copy todir="ear/default/WEB-INF/lib" file="${gwt.sdk}/gwt-servlet-deps.jar" />
     <copy todir="ear/default/WEB-INF/lib" file="../Shared/dist/shared.jar" />
+     <copy todir="ear/default/WEB-INF/lib" file="abc.jar" />
     <!-- Add any additional server libs that need to be copied -->
   </target>
 
