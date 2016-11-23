@@ -90,9 +90,9 @@ public class JavascriptEventLoader {
    * The above JSON represents the following
    *    query->criteria: String with where clause conditions and the values replaced by '?'
    *    query->values: An array of String representing the values of the '?' expressed in query->criteria (in order).
-   *    query->limit: Integer Number of records to limit the result set
+   *    query->limit: Integer Number of records to limit the result set.
    *    query->group: String which holds the group by column 
-   *    query->order: String which holds the order by columns separated by commas
+   *    query->order: String which holds the order by columns separated by commas. Default sort order will be event._id desc
    *    query->select: An array of String which holds the column names
    *    and executes the following query
    *    Since the query requires columns from both Events and Outputs table, we do the inner join.
