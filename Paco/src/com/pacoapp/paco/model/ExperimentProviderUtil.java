@@ -89,7 +89,9 @@ public class ExperimentProviderUtil implements EventStore {
   private static final Lock eventStorageWriteLock = eventStorageDbLock.writeLock();
 
   private static final String LIMIT = " limit ";
-
+  private static final String DESC = " DESC ";
+  private static final String DOT = ".";
+  
   DateTimeFormatter endDateFormatter = DateTimeFormat.forPattern(TimeUtil.DATE_FORMAT);
   private static  Map<String, String> eventsColumns = null;
   public ExperimentProviderUtil(Context context) {
@@ -824,8 +826,14 @@ public class ExperimentProviderUtil implements EventStore {
       colNameConcat = (groupBy != null && having != null) ? colNameConcat.concat(BLANK).concat(having) : colNameConcat;
       colNameConcat = (sortOrder != null)?colNameConcat.concat(BLANK).concat(sortOrder) : colNameConcat;
       allColumns.addAll(ExperimentUtil.aggregateExtractedColNames(colNameConcat));
-
-      if (sortOrder != null && limit != null) {
+      
+      // provide default sort order which is Event._Id desc
+      if(sortOrder == null){
+        sortOrder = ExperimentProvider.EVENTS_TABLE_NAME.concat(DOT).concat(EventColumns._ID).concat(DESC);
+      }
+      
+      //add limit clause to sort order
+      if (limit != null) {
         sortOrder = sortOrder.concat(LIMIT).concat(limit);
       } 
       
@@ -837,7 +845,7 @@ public class ExperimentProviderUtil implements EventStore {
       modifiedProjection = new String[crtLength+1];
       System.arraycopy(projection, 0, modifiedProjection, 0, crtLength);
       //adding the following columns in the projection list to help in coalescing
-      modifiedProjection[crtLength]="EVENTS._ID";
+      modifiedProjection[crtLength]=ExperimentProvider.EVENTS_TABLE_NAME.concat(DOT).concat(EventColumns._ID);
       
       if (tableIndicator.equals(ExperimentProvider.EVENTS_OUTPUTS_TABLE_NAME)) { 
         cursor = dbHelper.query(ExperimentProvider.EVENTS_OUTPUTS_DATATYPE, modifiedProjection, criteriaColumns, criteriaValues,
