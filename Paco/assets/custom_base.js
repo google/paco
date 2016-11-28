@@ -83,28 +83,30 @@ var paco = (function (init) {
   valid = function(input, inputHtml, response) { 
     if ((input.required && inputHtml.element[0].style.display != "none") && (!response.answer || response.answer.length === 0)) {
     	// TODO i18n
-      return { "succeeded" : false , "error" : "Response required for " + input.name, "name" : input.name};    
+      return { "succeeded" : false, "error" : "Response required for " + input.name, "name" : input.name};    
     } else if (!validValueForResponseType(response)) {
-      return { "succeeded" : false , "error" : "Response required for " + name, "name" : name};    
+      return { "succeeded" : false, "error" : "Response required for " + name, "name" : name};    
     } else {
-      return { "succeeded" : true };
+      return { "succeeded" : true, "name" : input.name};
     }
   };
   
   
   obj.validate = function(experimentGroup, responseEvent, inputHtmls, errorMarkingCallback) {
-    var errors = [];
+    var hasErrors = false;
+    var all = [];
     for (var i in experimentGroup.inputs) {
       var input = experimentGroup.inputs[i];
       var response = responseEvent.responses[i];
       var visualElement = inputHtmls[i];
       var validity = valid(input, visualElement, response);
       if (!validity.succeeded) {
-        errors.push(validity);
+        hasErrors = true;
       } 
+      all.push(validity);
     }
-    if (errors.length > 0) {
-      errorMarkingCallback.invalid(errors);
+    if (hasErrors) {
+      errorMarkingCallback.invalid(all);
     } else {
       errorMarkingCallback.valid(responseEvent);
     }
@@ -147,7 +149,7 @@ var paco = (function (init) {
       };
       
       function getLastEvent() {
-    	getAllEvents();
+    	  getAllEvents();
         return events[events.length - 1];
       };
 
@@ -264,7 +266,7 @@ var paco = (function (init) {
      * The above JSON represents the following
      * query->criteria: String with where clause conditions and the values replaced by '?' 
      * query->values: An array of String representing the values of the '?' expressed in query->criteria (in order). 
-     * query->limit: Integer Number of records to limit the result set 
+     * query->limit: Integer Number of records to limit the result set . This will apply only if we have valid value in 'order' clause
      * query->group: String which holds the group by column 
      * query->order: String which holds the order by columns separated by commas 
      * query->select: An array of String which holds the column names and executes the following query 
@@ -696,7 +698,7 @@ paco.renderer = (function() {
     return element;
   };
 
-  renderList = function(input, response, parent, conditionalListener) {
+  renderList = function(input, response, root, conditionalListener) {
     
     
     var steps = input.listChoices;
@@ -708,7 +710,11 @@ paco.renderer = (function() {
       } else {
         selected = [];
       }
-      parent.addClass("left-align");
+      root.addClass("left-align");
+      
+      var parent = $('<div>');
+      root.append(parent);
+      parent.attr("name", input.name);
       
       for (var step = 0; step < steps.length; step++) {
         var currentStep = steps[step];
@@ -761,6 +767,7 @@ paco.renderer = (function() {
       }
       $('select').material_select('destroy');
       var s = $('<select id="' + input.name + '" name="' + input.name + '" />');
+      s.attr("name", input.name);
       var startIndex = 0;
           $("<option />", {value: 0, text: "Please select"}).appendTo(s);
           startIndex = 1;
@@ -769,13 +776,13 @@ paco.renderer = (function() {
       }
       s.addClass("light");
       
-      parent.append(s)
+      root.append(s)
       
       var label = $("<label>");
       label.attr("for", input.name);
       label.attr("text", "");
       label.addClass("light");      
-      parent.append(label);
+      root.append(label);
    
       $('select').material_select();
       s.css("display", "block");
@@ -785,8 +792,7 @@ paco.renderer = (function() {
         response.answer = val;
         conditionalListener.inputChanged();
       });
-      parent.append(s)
-
+  
       return s;
     }
   };
@@ -904,11 +910,28 @@ paco.renderer = (function() {
     // $("p").text("SUCCESS. Data" + str);
   };
 
-  addErrors = function(json) {
+  showErrors = function(json) {
+    var errors = [];
+    for (var i in json) {
+      var event = json[i];
+      if (event.error) {
+        errors.push(event.error);
+      }
+    }
+    alert("Error:\n\n" + errors.join("\n"));
+  }
+  
+  updateErrors = function(json) {
     for (var i in json) {
       var name = json[i].name
-      $("input[name=" + name + "]").addClass("outlineElement");
+      var elem = $("input[name=" + name + "]");
+      if (!json[i].succeeded) {
+        elem.addClass("outlineElement");
+      } else {
+        elem.removeClass("outlineElement");
+      }
     }
+    showErrors(json);
   };
 
   registerValidationErrorMarkingCallback = function(experimentGroup, responseEvent, inputHtmls, saveButton, mainValidationCallback) {
@@ -921,8 +944,8 @@ paco.renderer = (function() {
       }        
     };
 
-    var invalidResponse = function(event) {
-      addErrors(event);
+    var invalidResponse = function(all) {
+      updateErrors(all);
       saveButton.show();
     };
 

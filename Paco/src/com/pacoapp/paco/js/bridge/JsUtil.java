@@ -55,6 +55,10 @@ public class JsUtil {
           }
         }
       }
+      
+      if(projectionColumns == null){
+        projectionColumns = new String[]{"*"};
+      }
 
       if (criteriaQueryObj.has("query")) {
         JSONObject queryCriteria = criteriaQueryObj.getJSONObject("query");
@@ -72,15 +76,15 @@ public class JsUtil {
           }
         }
       }
-
+      
       if (criteriaQueryObj.has("order")) {
         sortOrder = criteriaQueryObj.getString("order");
       }
-
+      
       if (criteriaQueryObj.has("limit")) {
         limitRecords = criteriaQueryObj.getString("limit");
       }
-
+      
       // only if we have group clause, should we have the having column
       if (criteriaQueryObj.has("group")) {
         groupBy = criteriaQueryObj.getString("group");
