@@ -168,22 +168,76 @@ public class ReportJobExecutor {
         experimentId = query2.getValue();
       }
     }
-      log.info("Getting events for job: " + jobId);
-      EventQueryResultPair eventQueryResultPair = EventRetriever.getInstance().getEventsFromLowLevelDS(query, requestorEmail, timeZoneForClient);
-      //EventRetriever.sortEvents(events);
-      log.info("Got events for job: " + jobId);
+    log.info("Getting events for job: " + jobId);
+    EventQueryResultPair eventQueryResultPair = EventRetriever.getInstance().getEventsFromLowLevelDS(query,
+                                                                                                     requestorEmail,
+                                                                                                     timeZoneForClient);
+    // EventRetriever.sortEvents(events);
+    log.info("Got events for job: " + jobId);
 
-      if (!Strings.isNullOrEmpty(reportFormat) && reportFormat.equals("csv2")) {
-        return generateCSVReport(anon, jobId, experimentId, eventQueryResultPair, timeZoneForClient);
-      } else if (!Strings.isNullOrEmpty(reportFormat) && reportFormat.equals("json2")) {
-        return generateJsonReport(anon, jobId, experimentId, eventQueryResultPair, timeZoneForClient, includePhotos);
-      } else if (!Strings.isNullOrEmpty(reportFormat) && reportFormat.equals("html2")) {
-        return generateHtmlReport(timeZoneForClient, anon, jobId, experimentId, eventQueryResultPair, originalQuery, requestorEmail);
-      }
-      return null;
+    if (!Strings.isNullOrEmpty(reportFormat) && reportFormat.equals("csv2")) {
+      return generateCSVReport(anon, jobId, experimentId, eventQueryResultPair, timeZoneForClient);
+    } else if (!Strings.isNullOrEmpty(reportFormat) && reportFormat.equals("json2")) {
+      return generateJsonReport(anon, jobId, experimentId, eventQueryResultPair, timeZoneForClient, includePhotos);
+    } else if (!Strings.isNullOrEmpty(reportFormat) && reportFormat.equals("html2")) {
+      return generateHtmlReport(timeZoneForClient, anon, jobId, experimentId, eventQueryResultPair, originalQuery,
+                                requestorEmail);
+    }
+    return null;
 
   }
 
+  protected String doJobExperimentalSplitLargeFilesAndCompose(String requestorEmail, DateTimeZone timeZoneForClient,
+                                                              List<Query> query, boolean anon, String jobId,
+                                                              String reportFormat, String originalQuery,
+                                                              boolean includePhotos) throws IOException {
+    log.info("starting doJob split large files");
+    String experimentId = null;
+    for (Query query2 : query) {
+      if (query2.getKey().equals("experimentId")) {
+        experimentId = query2.getValue();
+      }
+    }
+
+    if (!Strings.isNullOrEmpty(reportFormat) && reportFormat.equals("csv2")) {
+      log.info("Getting events for csv job: " + jobId);
+      EventQueryResultPair eventQueryResultPair = EventRetriever.getInstance().getEventsFromLowLevelDS(query,
+                                                                                                       requestorEmail,
+                                                                                                       timeZoneForClient);
+      log.info("Got events for job: " + jobId);
+      return generateCSVReport(anon, jobId, experimentId, eventQueryResultPair, timeZoneForClient);
+    } else if (!Strings.isNullOrEmpty(reportFormat) && reportFormat.equals("json2")) {
+      log.info("Getting events for json job: " + jobId);
+      EventQueryResultPair eventQueryResultPair = EventRetriever.getInstance().getEventsFromLowLevelDS(query,
+                                                                                                       requestorEmail,
+                                                                                                       timeZoneForClient);
+      log.info("Got events for job: " + jobId);
+      return generateJsonReport(anon, jobId, experimentId, eventQueryResultPair, timeZoneForClient, includePhotos);
+    } else if (!Strings.isNullOrEmpty(reportFormat) && reportFormat.equals("html2")) {
+      return generateHtmlReportSplitLargeFiles(requestorEmail, timeZoneForClient, query, anon, jobId, originalQuery,
+                                             experimentId);
+    }
+    return null;
+
+  }
+
+  private String generateHtmlReportSplitLargeFiles(String requestorEmail, DateTimeZone timeZoneForClient,
+                                                 List<Query> query, boolean anon, String jobId, String originalQuery,
+                                                 String experimentId) throws IOException {
+    log.info("Getting events for html job: " + jobId);
+    EventQueryResultPair eventQueryResultPair = EventRetriever.getInstance().getEventsFromLowLevelDS(query,
+                                                                                                     requestorEmail,
+                                                                                                     timeZoneForClient);
+    log.info("Got events for job: " + jobId);
+//    if (!Strings.isNullOrEmpty(experimentId)) {
+//      String eodFile = generateEODHtml(anon, jobId, experimentId, eventQueryResultPair, timeZoneForClient.getID());
+//      if (eodFile != null) {
+//        return eodFile;
+//      }
+//    }
+    return new HtmlBlobWriter().writeNormalExperimentEventsAsHtml(anon, eventQueryResultPair, jobId, experimentId,
+                                                                  timeZoneForClient.getID(), originalQuery, requestorEmail);
+  }
 
   private String generateJsonReport(boolean anon, String jobId, String experimentId,
                                     EventQueryResultPair eventQueryResultPair, DateTimeZone timeZoneForClient,

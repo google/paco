@@ -11,32 +11,32 @@ import com.google.sampling.experiential.model.Event;
 /**
  * This class is a frontend to all the stats requests about participation and the
  * stats updates for answering those requests.
- * 
- * We have this because we might change the backend system for computing these stats. 
+ *
+ * We have this because we might change the backend system for computing these stats.
  * We probably will.
- * 
+ *
  */
 public class ParticipationStatsService {
-  
+
   private static final Logger log = Logger.getLogger(ParticipationStatsService.class.getName());
-                                                     
+
   public void updateResponseCountWithEvent(Event event) {
     Date schedTime = event.getScheduledTime();
     Date responseTime = event.getResponseTime();
     if (schedTime != null && responseTime != null) {
-      updateScheduledResponseCountForWho(Long.parseLong(event.getExperimentId()), 
-                                         event.getExperimentGroupName(), 
-                                         event.getWho(), 
+      updateScheduledResponseCountForWho(Long.parseLong(event.getExperimentId()),
+                                         event.getExperimentGroupName(),
+                                         event.getWho(),
                                          new DateTime(event.getScheduledTime()));
     } else if (schedTime == null && responseTime != null) {
-      updateSelfResponseCountForWho(Long.parseLong(event.getExperimentId()), 
-                                         event.getExperimentGroupName(), 
-                                         event.getWho(), 
+      updateSelfResponseCountForWho(Long.parseLong(event.getExperimentId()),
+                                         event.getExperimentGroupName(),
+                                         event.getWho(),
                                          new DateTime(event.getResponseTime()));
     } else if (schedTime != null && responseTime == null) {
-      updateMissedResponseCountForWho(Long.parseLong(event.getExperimentId()), 
-                                         event.getExperimentGroupName(), 
-                                         event.getWho(), 
+      updateMissedResponseCountForWho(Long.parseLong(event.getExperimentId()),
+                                         event.getExperimentGroupName(),
+                                         event.getWho(),
                                          new DateTime(event.getScheduledTime()));
     } else {
       log.warning("Sched time and response time are null. Cannot update a stat");
@@ -66,7 +66,7 @@ public class ParticipationStatsService {
   public void updateMissedResponseCountForWho(Long experimentId, String experimentGroupName, String who, DateTime date) {
     new ResponseStatEntityManager().updateMissedResponseCountForWho(experimentId, experimentGroupName, who, date);
   }
-  
+
   /**
    * Increment the self responses count for an individual in an experiment on a particular date.
    * @param experimentId - the experiment for which this was a response
@@ -81,9 +81,9 @@ public class ParticipationStatsService {
 
   /**
    * All participants total
-   * 
-   * returns List of ResponseStats, one for each participant, containing their overall responseRate 
-   * 
+   *
+   * returns List of ResponseStats, one for each participant, containing their overall responseRate
+   *
    * @param experimentId
    * @return
    */
@@ -91,12 +91,12 @@ public class ParticipationStatsService {
     List<ResponseStat> responseStatsByParticipant = new ResponseStatEntityManager().getResponseStatsForExperiment(experimentId);
     return new ResponseStatSummarizer().totalExperimentResponseStatsByWho(responseStatsByParticipant, null);
   }
-  
+
   /**
    * All participants total
-   * 
+   *
    * Returns total stat for each participant for experimentGroup
-   * 
+   *
    * @param experimentId
    * @param experimentGroupName
    * @return
@@ -107,13 +107,13 @@ public class ParticipationStatsService {
   }
 
 
-  
+
   /**
-   * 
+   *
    * All participants stats for date
-   * 
+   *
    * Returns List of ResponseStats, one for each participant, with their responseRate for the given date.
-   * 
+   *
    * @param experimentId
    * @param date
    * @return
@@ -122,31 +122,31 @@ public class ParticipationStatsService {
     List<ResponseStat> stat = new ResponseStatEntityManager().getResponseStatsForExperimentOnDate(experimentId, date);
     return new ResponseStatSummarizer().totalExperimentResponseStatsByWho(stat, date);
   }
-  
+
   /**
    * All participants stats for date
-   * 
+   *
    * Returns List of ResponseStats, one for each participant, with their responseRate for the given date, for a given group.
-   * 
+   *
    * @param experimentId
    * @param experimentGroupName
    * @param date
    * @return
    */
   public List<ResponseStat> getTotalByParticipantOnDateForGroup(Long experimentId, String experimentGroupName, DateTime date) {
-    List<ResponseStat> responseStatsByParticipant = new ResponseStatEntityManager().getResponseStatsForExperimentGroupOnDate(experimentId, 
+    List<ResponseStat> responseStatsByParticipant = new ResponseStatEntityManager().getResponseStatsForExperimentGroupOnDate(experimentId,
         experimentGroupName, date);
     return responseStatsByParticipant;
   }
-  
-  
-  
+
+
+
   /**
-   * 
+   *
    * participant detail stats
-   * 
+   *
    * Returns List of ResponseStats, one for each day, for given participant.
-   * 
+   *
    * @param experimentId
    * @param participant
    * @return
@@ -158,7 +158,7 @@ public class ParticipationStatsService {
 
 /**
  * participant detail stats
- * 
+ *
  * Returns a list of ResponseStats for each day, for one group, for one participant
  * @param experimentId
  * @param experimentGroupName
@@ -167,6 +167,19 @@ public class ParticipationStatsService {
  */
   public List<ResponseStat> getDailyTotalsForParticipantForGroup(long experimentId, String experimentGroupName, String who) {
     return new ResponseStatEntityManager().getResponseStatsForParticipantForGroup(experimentId, experimentGroupName, who);
+  }
+
+  /**
+   * Total counts for selfReport, missedReport, and scheduledReport
+   *
+   * returns List of ResponseStats, one for each participant, containing their overall responseRate
+   *
+   * @param experimentId
+   * @return
+   */
+  public ResponseStat getTotalResponseCount(Long experimentId) {
+    List<ResponseStat> responseStatsByParticipant = new ResponseStatEntityManager().getResponseStatsForExperiment(experimentId);
+    return new ResponseStatSummarizer().totalExperimentResponseStats(responseStatsByParticipant, experimentId);
   }
 
 }

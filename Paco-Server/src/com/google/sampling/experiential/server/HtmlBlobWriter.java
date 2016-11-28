@@ -24,8 +24,6 @@ import com.google.appengine.api.files.AppEngineFile;
 import com.google.appengine.api.files.FileService;
 import com.google.appengine.api.files.FileServiceFactory;
 import com.google.appengine.api.files.FileWriteChannel;
-import com.google.appengine.api.files.FinalizationException;
-import com.google.appengine.api.files.LockException;
 import com.google.appengine.tools.cloudstorage.GcsFileOptions;
 import com.google.appengine.tools.cloudstorage.GcsFilename;
 import com.google.appengine.tools.cloudstorage.GcsOutputChannel;
@@ -83,7 +81,7 @@ public class HtmlBlobWriter {
 
     GcsOutputChannel writeChannel = gcsService.createOrReplace(filename, options);
     PrintWriter writer = new PrintWriter(Channels.newWriter(writeChannel, "UTF8"));
-    writer.println(printHeader(eventQueryResultPair.getEvents().size(), 
+    writer.println(printHeader(eventQueryResultPair.getEvents().size(),
                                getExperimentTitle(experiment), timeZone));
     writer.println(eventPage);
     writer.flush();

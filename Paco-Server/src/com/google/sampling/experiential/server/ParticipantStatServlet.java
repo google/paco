@@ -139,6 +139,8 @@ public class ParticipantStatServlet extends HttpServlet {
       } else {
         participationStats = ps.getDailyTotalsForParticipant(experimentId, whoParam);
       }
+    } else if (reportType.equals("totalEventCounts")) {
+      participationStats = Lists.newArrayList(ps.getTotalResponseCount(experimentId)); // todo write a single object instead of a list
     }
     PrintWriter writer = resp.getWriter();
     ObjectMapper mapper = JsonConverter.getObjectMapper();
