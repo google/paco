@@ -194,7 +194,9 @@ public class RuntimePermissionsAccessibilityEventHandler {
         }
         break;
     }
-    source.recycle();
+    if (source != null) {
+      source.recycle();
+    }
   }
 
 
@@ -248,6 +250,10 @@ public class RuntimePermissionsAccessibilityEventHandler {
    * @param rootNodeInfo The root node in the tree for the accessibility event
    */
   private void extractInformationFromAppListingForPermission(AccessibilityNodeInfo rootNodeInfo) {
+    if (rootNodeInfo == null) {
+      Log.debug("rootNodeInfo is null in extractInformationFromAppListing");
+      return;
+    }
     // The only way to get the information we need is by completely traversing the tree, since
     // the element containing the actual permission does not have an id
     // So we'll need to actually go look for every possible permission string
@@ -271,6 +277,10 @@ public class RuntimePermissionsAccessibilityEventHandler {
    * @param rootNodeInfo The root node in the tree for the accessibility event
    */
   private void extractInformationFromAppPermissionsScreen(AccessibilityNodeInfo rootNodeInfo) {
+    if (rootNodeInfo == null) {
+      Log.debug("rootNodeInfo is null in extractInformationFromAppPermissionsScreen");
+      return;
+    }
     // "com.android.packageinstaller:id/name" is the id for the text string which contains
     // the app *label* (in case Android is showing the permissions for the app)
     List<AccessibilityNodeInfo> matchingNodeInfos = rootNodeInfo.findAccessibilityNodeInfosByViewId("com.android.packageinstaller:id/name");
@@ -396,7 +406,7 @@ public class RuntimePermissionsAccessibilityEventHandler {
    * @return true if the user performed an action in the permissions dialog
    */
   private boolean isPermissionsDialogAction(AccessibilityNodeInfo nodeInfo) {
-    if (nodeInfo.getText() == null) {
+    if (nodeInfo == null || nodeInfo.getText() == null) {
       return false;
     }
     // Lower case because depending on Android version, the string may be all capitals or just
@@ -472,6 +482,10 @@ public class RuntimePermissionsAccessibilityEventHandler {
    * @param nodeInfo The source of the accessibility event
    */
   private void processPermissionDialogAction(AccessibilityNodeInfo nodeInfo) {
+    if (nodeInfo == null) {
+      Log.info("nodeInfo is null in processPermissionDialog");
+      return;
+    }
     if (previouslyEncounteredPermissionRequests.size() < 1) {
       Log.warn("We got a dialog action on a permission request, but we never saw" +
             "the permission request in the first place");
