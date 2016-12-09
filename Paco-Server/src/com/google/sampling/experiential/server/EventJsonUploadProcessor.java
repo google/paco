@@ -125,15 +125,16 @@ public class EventJsonUploadProcessor {
 
     Date whenDate =  new Date();
 
-    String experimentIdStr = null;
+    Long experimentIdStr = null;
     String experimentName = null;
     Integer experimentVersion = null;
     DateTime responseTime = null;
     DateTime scheduledTime = null;
     String groupName = null;
-
+ 
     if (eventJson.has("experimentId")) {
-      experimentIdStr = eventJson.getString("experimentId");
+      experimentIdStr = eventJson.getLong("experimentId");
+      
     }
     if (eventJson.has("experimentName")) {
       experimentName = eventJson.getString("experimentName");
@@ -185,16 +186,16 @@ public class EventJsonUploadProcessor {
       return outcome;
     }
 
-    Long experimentIdLong = null;
-    try {
-      experimentIdLong = Long.parseLong(experimentIdStr);
-    } catch (NumberFormatException e) {
-      log.info("experimentId, " + experimentIdStr + ", not a number for this event: " + eventId);
-      outcome.setError("experimentId, " + experimentIdStr + ", not a number for this event: " + eventId);
-      return outcome;
-    }
+//    Long experimentIdLong = null;
+//    try {
+//      experimentIdLong = Long.parseLong(experimentIdStr);
+//    } catch (NumberFormatException e) {
+//      log.info("experimentId, " + experimentIdStr + ", not a number for this event: " + eventId);
+//      outcome.setError("experimentId, " + experimentIdStr + ", not a number for this event: " + eventId);
+//      return outcome;
+//    }
 
-    ExperimentDAO experiment = experimentRetriever.getExperiment(experimentIdLong);
+    ExperimentDAO experiment = experimentRetriever.getExperiment(experimentIdStr);
 
     if (experiment == null) {
       outcome.setError("No existing experiment for this event: " + eventId);

@@ -48,10 +48,6 @@ import org.joda.time.DateTimeZone;
 import com.google.appengine.api.modules.ModulesService;
 import com.google.appengine.api.modules.ModulesServiceFactory;
 import com.google.appengine.api.users.User;
-import com.google.cloud.bigquery.BigQuery;
-import com.google.cloud.bigquery.BigQueryOptions;
-import com.google.cloud.bigquery.Dataset;
-import com.google.cloud.bigquery.DatasetInfo;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -79,29 +75,7 @@ public class EventServlet extends HttpServlet {
     if (user == null) {
       AuthUtil.redirectUserToLogin(req, resp);
     } else {
-      if(req!=null&&req.getParameter("bq")!=null){
-        
-        try{
-     // Instantiates a client
-        BigQuery bigquery = BigQueryOptions.getDefaultInstance().getService();
-
-        // The name for the new dataset
-        String datasetName = "test_from_code";
-        
-        // Prepares a new dataset
-        Dataset dataset = null;
-        DatasetInfo datasetInfo = DatasetInfo.newBuilder(datasetName).build();
-
-        // Creates the dataset
-        dataset = bigquery.create(datasetInfo);
-
-        resp.getWriter().printf("Dataset %s created.%n", dataset.getDatasetId().getDataset()); 
-        }catch(Exception e){
-          resp.getWriter().println("e"+ e.getStackTrace());
-        }
-        
-
-      }else{
+      
       String anonStr = req.getParameter("anon");
       boolean anon = false;
       if (anonStr != null) {
@@ -141,7 +115,7 @@ public class EventServlet extends HttpServlet {
       } else {
         dumpEventsHtml(resp, req, anon, limit, cursor, cmdline);
       }
-    }
+   
     }
   }
 
@@ -498,7 +472,7 @@ public class EventServlet extends HttpServlet {
 
     String appIdHeader = req.getHeader("http.useragent");
     String pacoVersion = req.getHeader("paco.version");
-    log.info("Paco version = " + pacoVersion);
+//    log.info("Paco version = " + pacoVersion);
     String results = EventJsonUploadProcessor.create().processJsonEvents(postBodyString, AuthUtil.getEmailOfUser(req, AuthUtil.getWhoFromLogin()), appIdHeader, pacoVersion);
     //if (AuthUtil.getWhoFromLogin().getEmail().toLowerCase().equals("aparkergoldberg@gmail.com")) {
     if (req.getHeader("pacoProtocol") != null && req.getHeader("pacoProtocol").indexOf("4") == -1) {

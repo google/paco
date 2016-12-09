@@ -37,7 +37,7 @@ public class EventJsonUploadProcessorTest extends TestCase {
     noOpEventRetriever = new EventRetriever() {
       @Override
       public void postEvent(String who, String lat, String lon, Date whenDate, String appId, String pacoVersion,
-                            Set<What> what, boolean shared, String experimentId, String experimentName, Integer experimentVersion,
+                            Set<What> what, boolean shared, Long experimentId, String experimentName, Integer experimentVersion,
                             Date responseTime, Date scheduledTime, List<PhotoBlob> blobs, String timezone,
                             String groupName, Long actionTriggerId, Long actionTriggerSpecId, Long actionId) {
       }
@@ -45,7 +45,7 @@ public class EventJsonUploadProcessorTest extends TestCase {
     blowUpEventRetriever = new EventRetriever() {
       @Override
       public void postEvent(String who, String lat, String lon, Date whenDate, String appId, String pacoVersion,
-                            Set<What> what, boolean shared, String experimentId, String experimentName, Integer experimentVersion,
+                            Set<What> what, boolean shared, Long experimentId, String experimentName, Integer experimentVersion,
                             Date responseTime, Date scheduledTime, List<PhotoBlob> blobs, String timezone,
                             String groupName, Long actionTriggerId, Long actionTriggerSpecId, Long actionId) {
         throw new IllegalArgumentException("This event is bad");
@@ -57,7 +57,7 @@ public class EventJsonUploadProcessorTest extends TestCase {
 
       @Override
       public void postEvent(String who, String lat, String lon, Date whenDate, String appId, String pacoVersion,
-                            Set<What> what, boolean shared, String experimentId, String experimentName, Integer experimentVersion,
+                            Set<What> what, boolean shared, Long experimentId, String experimentName, Integer experimentVersion,
                             Date responseTime, Date scheduledTime, List<PhotoBlob> blobs, String timezone,
                             String groupName, Long actionTriggerId, Long actionTriggerSpecId, Long actionId) {
         if (!second) {

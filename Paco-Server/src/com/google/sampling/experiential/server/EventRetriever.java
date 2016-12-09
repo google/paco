@@ -17,6 +17,7 @@
 package com.google.sampling.experiential.server;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -85,7 +86,7 @@ public class EventRetriever {
   }
 
   public void postEvent(String who, String lat, String lon, Date whenDate, String appId, String pacoVersion,
-                        Set<What> whats, boolean shared, String experimentId, String experimentName,
+                        Set<What> whats, boolean shared, Long experimentId, String experimentName,
                         Integer experimentVersion, DateTime responseTime, DateTime scheduledTime,
                         List<PhotoBlob> blobs, String groupName, Long actionTriggerId, Long actionTriggerSpecId, Long actionId) {
 
@@ -102,7 +103,7 @@ public class EventRetriever {
 
 
   public void postEvent(String who, String lat, String lon, Date whenDate, String appId,
-      String pacoVersion, Set<What> what, boolean shared, String experimentId,
+      String pacoVersion, Set<What> what, boolean shared, Long experimentId,
       String experimentName, Integer experimentVersion, Date responseTime, Date scheduledTime, List<PhotoBlob> blobs,
       String tz,
       String groupName, Long actionTriggerId, Long actionTriggerSpecId, Long actionId) {
@@ -130,7 +131,7 @@ public class EventRetriever {
 
     PersistenceManager pm = PMF.get().getPersistenceManager();
     Event event = new Event(who, lat, lon, whenDate, appId, pacoVersion, what, shared,
-        experimentId, experimentName, experimentVersion, responseTime, scheduledTime, blobs, tz,
+        experimentId+"", experimentName, experimentVersion, responseTime, scheduledTime, blobs, tz,
         groupName, actionTriggerId, actionTriggerSpecId, actionId);
     Transaction tx = null;
     try {
@@ -169,6 +170,91 @@ public class EventRetriever {
       log.info("get execute time: " + (t12 - t11));
       return events;
   }
+  
+  @SuppressWarnings("unchecked")
+  public List<Event> getEvents(String loggedInUser, String expId) {
+      PersistenceManager pm = PMF.get().getPersistenceManager();
+      Query newQuery = pm.newQuery(Event.class);
+      Set<Event> allEvents = Sets.newHashSet();
+      JDOQueryBuilder queryBuilder = new JDOQueryBuilder(newQuery);
+      EventJDOQuery jdoQuery = queryBuilder.getQuery();
+      jdoQuery.addFilters("who == loggedInUser", "experimentId == expId");
+      jdoQuery.declareParameters("String loggedInUser", "String expId");
+      jdoQuery.addParameterObjects(loggedInUser, expId);
+      
+
+      Query query = jdoQuery.getQuery();
+      log.info("Query = " + query.toString());
+      log.info("Query params = " + Joiner.on(",").join(jdoQuery.getParameters()));
+      
+      long t11 = System.currentTimeMillis();
+      executeQueryInBatchesForBQ(allEvents, jdoQuery, 10000, null) ;
+      ArrayList<Event> newArrayList = Lists.newArrayList(allEvents);  
+      long t12 = System.currentTimeMillis();
+      
+      log.info("get execute time: " + (t12 - t11));
+     
+        
+      return newArrayList;
+  }
+  
+  @SuppressWarnings("unchecked")
+  public List<Event> getEventsByDate(Date sDate, Date eDate) {
+      PersistenceManager pm = PMF.get().getPersistenceManager();
+//      if (limit == 0) {
+     int   limit = 10000;
+//      }
+      Calendar c = Calendar.getInstance();
+      c.setTime(eDate);
+      c.set(Calendar.HOUR, 23);
+      c.set(Calendar.MINUTE, 59);
+      c.set(Calendar.SECOND, 59);
+      eDate = c.getTime();
+      Set<Event> allEvents = Sets.newHashSet();
+      Query newQuery = pm.newQuery(Event.class);
+      JDOQueryBuilder queryBuilder = new JDOQueryBuilder(newQuery);
+      EventJDOQuery jdoQuery = queryBuilder.getQuery();
+      jdoQuery.addFilters("when >= sDate", "when <= eDate");
+      jdoQuery.declareParameters("java.util.Date sDate", "java.util.Date eDate");
+      jdoQuery.addParameterObjects(sDate, eDate);
+      long t11 = System.currentTimeMillis();
+      
+      Query query = jdoQuery.getQuery();
+      log.info("Query = " + query.toString());
+      log.info("Query params = " + Joiner.on(",").join(jdoQuery.getParameters()));
+
+      executeQueryInBatchesForBQ(allEvents, jdoQuery, limit, null) ;
+      ArrayList<Event> newArrayList = Lists.newArrayList(allEvents);  
+      long t12 = System.currentTimeMillis();
+      log.info("get execute time: " + (t12 - t11));
+      if(newArrayList!=null)
+        log.info("list size is"+ newArrayList.size());
+      else
+        log.info("list size is empty");
+        
+      return newArrayList;
+  }
+//  
+//  @SuppressWarnings("unchecked")
+//  public List<Event> getOutputs(String loggedInUser, String experimentId) {
+//      PersistenceManager pm = PMF.get().getPersistenceManager();
+//      Query q = pm.newQuery(Output.class);
+//      q.setOrdering("when desc");
+////      q.setFilter("who == whoParam and experimentId == expParam");
+////      q.declareParameters("String whoParam String expParam");
+//      q.setFilter("experimentId == expParam");
+//      q.declareParameters("String expParam");
+////      
+//      long t11 = System.currentTimeMillis();
+////      List<Event> events = (List<Event>) q.execute(loggedInUser, experimentId);
+//      List<Event> events = (List<Event>) q.execute(experimentId);
+//      
+//      adjustTimeZone(events);
+//      long t12 = System.currentTimeMillis();
+//      log.info("get execute time: " + (t12 - t11));
+//      return events;
+//  }
+
 
   public List<Event> getEvents(List<com.google.sampling.experiential.server.Query> queryFilters, String loggedInuser,
                                DateTimeZone clientTimeZone, int offset, int limit) {
@@ -691,6 +777,59 @@ public class EventRetriever {
     sortList(newArrayList);
     return new EventQueryResultPair(newArrayList, nextCursor);
   }
+  
+  public EventQueryResultPair getEventsInBatchesForBQ(List<com.google.sampling.experiential.server.Query> queryFilters,
+                                                 String loggedInuser, DateTimeZone clientTimeZone, int limit, String cursor) {
+     if (limit == 0) {
+       limit = DEFAULT_FETCH_LIMIT;
+     }
+     Set<Event> allEvents = Sets.newHashSet();
+     PersistenceManager pm = PMF.get().getPersistenceManager();
+     EventJDOQuery eventJDOQuery = createJDOQueryFrom(pm, queryFilters, clientTimeZone);
+
+     long t11 = System.currentTimeMillis();
+
+     List<Long> adminExperiments = getExperimentsForAdmin(loggedInuser);
+     log.info("Loggedin user's administered experiments: " + loggedInuser + " has ids: "
+              + getIdsQuoted(adminExperiments));
+
+     String nextCursor = null;
+     if (isDevMode() || isUserQueryingTheirOwnData(loggedInuser, eventJDOQuery)) {
+       log.info("dev mode or user querying self");
+       nextCursor = executeQueryInBatchesForBQ(allEvents, eventJDOQuery, limit, cursor);
+     } else if (isAnAdministrator(adminExperiments)) {
+       log.info("isAnAdmin");
+       if (!hasAnExperimentIdFilter(queryFilters)) {
+         log.info("No experimentfilter");
+         eventJDOQuery.addFilters(":p.contains(experimentId)");
+         eventJDOQuery.addParameterObjects("(" + getIdsQuoted(adminExperiments) + ")");
+         nextCursor = executeQueryInBatchesForBQ(allEvents, eventJDOQuery, limit, cursor);
+       } else if (hasAnExperimentIdFilter(queryFilters) && !isAdminOfAllExperimentsInQuery(queryFilters, adminExperiments)) {
+         if (!eventJDOQuery.hasAWho()) {
+           addWhoQueryForLoggedInuser(loggedInuser, eventJDOQuery);
+           nextCursor = executeQueryInBatchesForBQ(allEvents, eventJDOQuery, limit, cursor);
+         } else if (!eventJDOQuery.who().equals(loggedInuser)) {
+           addAllSharedEvents(queryFilters, clientTimeZone, allEvents, pm);
+         }
+       } else {
+         nextCursor = executeQueryInBatchesForBQ(allEvents, eventJDOQuery, limit, cursor);
+       }
+
+     } else {
+       addWhoQueryForLoggedInuser(loggedInuser, eventJDOQuery);
+       nextCursor = executeQueryInBatchesForBQ(allEvents, eventJDOQuery, limit, cursor);
+       // also get all shared data that matches the query
+       addAllSharedEvents(queryFilters, clientTimeZone, allEvents, pm);
+     }
+
+     long t12 = System.currentTimeMillis();
+     log.info("get execute time: " + (t12 - t11));
+     log.info("retrieved " + allEvents.size() + " experiments");
+
+     ArrayList<Event> newArrayList = Lists.newArrayList(allEvents);
+     sortList(newArrayList);
+     return new EventQueryResultPair(newArrayList, nextCursor);
+   }
 
   private String executeQueryInBatches(Set<Event> allEvents, EventJDOQuery eventJDOQuery, int limit, String websafeCursor) {
     Query q = eventJDOQuery.getQuery();
@@ -727,6 +866,56 @@ public class EventRetriever {
       allEvents.addAll(detachedResults);
 
       // log.info("Accumulated result count: " + allEvents.size());
+      Cursor newCursor = JDOCursorHelper.getCursor(currentResults);
+      if (newCursor == null || (cursor != null && newCursor.toWebSafeString().equals(websafeCursor))) {
+        cursor = null;
+      } else {
+        cursor = newCursor;
+      }
+    }
+
+    // }
+    log.info("done with results gathering");
+    adjustTimeZone(allEvents);
+    log.info("done adjusting timezone");
+    return cursor != null ? cursor.toWebSafeString() : null;
+  }
+  
+  private String executeQueryInBatchesForBQ(Set<Event> allEvents, EventJDOQuery eventJDOQuery, int limit, String websafeCursor) {
+    Query q = eventJDOQuery.getQuery();
+    PersistenceManager persistenceManager = q.getPersistenceManager();
+
+    Cursor cursor = null;
+    if (!Strings.isNullOrEmpty(websafeCursor) && !websafeCursor.equals("null")) {
+      cursor = Cursor.fromWebSafeString(websafeCursor);
+    }
+    if (cursor != null) {
+      Map<String, Object> extensionMap = new HashMap<String, Object>();
+      extensionMap.put(JDOCursorHelper.CURSOR_EXTENSION, cursor);
+      q.setExtensions(extensionMap);
+      // q.getFetchPlan().addGroup("PhotoBlob").addGroup("keysList").addGroup("valuesList");
+      //q.getFetchPlan().setFetchSize(limit);
+
+    }
+    q.setRange(0, limit);
+    List<Event> currentResults = (List<Event>) q.executeWithArray(eventJDOQuery.getParameters().toArray());
+    // log.info("Got back " + currentResults.size() + " results");
+    if (currentResults != null && !currentResults.isEmpty()) {
+      // Load each object so that is fetched when we detach.
+      for (Event event : currentResults) {
+        event.getBlobs();
+        event.getWhat();
+
+        // detach to free up resources in the persistence manager across the
+        // huge result sets
+
+        // allEvents.add(persistenceManager.detachCopy(event));
+      }
+
+//      Collection<Event> detachedResults = q.getPersistenceManager().detachCopyAll(currentResults);
+//      allEvents.addAll(detachedResults);
+       allEvents.addAll(currentResults);
+       log.info("Accumulated result count: " + allEvents.size());
       Cursor newCursor = JDOCursorHelper.getCursor(currentResults);
       if (newCursor == null || (cursor != null && newCursor.toWebSafeString().equals(websafeCursor))) {
         cursor = null;
