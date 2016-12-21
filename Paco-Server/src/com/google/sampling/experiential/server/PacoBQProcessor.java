@@ -1,4 +1,8 @@
 package com.google.sampling.experiential.server;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutput;
+import java.io.ObjectOutputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -8,13 +12,24 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.Map.Entry;
 import java.util.logging.Logger;
 
+import javax.jdo.PersistenceManager;
+import javax.jdo.Query;
+
+import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 
+import com.google.appengine.api.taskqueue.Queue;
+import com.google.appengine.api.taskqueue.QueueFactory;
+import com.google.appengine.api.taskqueue.TaskOptions;
+import com.google.appengine.api.taskqueue.TaskOptions.Method;
+import com.google.appengine.api.utils.SystemProperty;
+import com.google.appengine.tools.pipeline.impl.util.SerializationUtils;
 import com.google.cloud.bigquery.BigQuery;
 import com.google.cloud.bigquery.BigQueryError;
 import com.google.cloud.bigquery.BigQueryOptions;
@@ -31,6 +46,8 @@ import com.google.cloud.bigquery.StandardTableDefinition;
 import com.google.cloud.bigquery.Table;
 import com.google.cloud.bigquery.TableId;
 import com.google.cloud.bigquery.TableInfo;
+import com.google.cloud.bigquery.TimePartitioning;
+import com.google.cloud.bigquery.TimePartitioning.Type;
 import com.google.cloud.bigquery.Field.Mode;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -44,6 +61,7 @@ public class PacoBQProcessor {
   static Map<String, Integer> dbPOJOMap = new HashMap<String, Integer>();
   long WAIT_TIME = 60000;
   boolean USE_LEGACY_SQL = true;
+  
   
   public PacoBQProcessor(){
     if(dbPOJOMap.size()==0){
@@ -81,7 +99,7 @@ public class PacoBQProcessor {
     String groupBy = jsonRequest.getGroupBy();
     String having = jsonRequest.getHaving();
     String orderBy = jsonRequest.getSortOrder();
-    String tableName = jsonRequest.getTableName();
+    String tableName = jsonRequest.getTableName()!=null?jsonRequest.getTableName():DataStrategy.TABLE_NAME;
     int i=0;
     
     if(StringUtils.countMatches("\\?", whereClause) >  criValue.length){
@@ -166,39 +184,52 @@ public class PacoBQProcessor {
             .addField(f7).addField(f8).addField(f9).addField(f10).addField(f11).addField(f12).addField(f13).addField(f14)
             .addField(f15).addField(f16).addField(f17).addField(f18).build();
     // Create a table
-    StandardTableDefinition tableDefinition = StandardTableDefinition.of(schema);
+    StandardTableDefinition tableDefinition = StandardTableDefinition.newBuilder().setSchema(schema).setTimePartitioning(TimePartitioning.of(Type.DAY,525600*60*1000)).build();
     Table createdTable = bigquery.create(TableInfo.of(tableId1, tableDefinition));
     log.info("Table created");
     return true;
   }
   
-  public boolean insertAllToBQ(String tableName, Iterable<RowToInsert> rowLst){
-    BigQuery bigquery = BigQueryOptions.getDefaultInstance().getService();
-    TableId tableId = TableId.of("test_from_code", tableName);
-    
-    try{
+  private byte[] convertToByteArray(Iterable<RowToInsert> rowLst){
+    ByteArrayOutputStream bos = new ByteArrayOutputStream();
+    ObjectOutput out = null;
+    byte[] yourBytes = null;
+    try {
+      out = new ObjectOutputStream(bos);   
+      out.writeObject(rowLst);
+      out.flush();
+       yourBytes = bos.toByteArray();
       
-    //insert BQ
-    InsertAllResponse qryResponse = bigquery.insertAll(InsertAllRequest.newBuilder(tableId).setRows(rowLst).build());
-    if (qryResponse.hasErrors()) {
-      // If any of the insertions failed, this lets you inspect the errors
-      for (Entry<Long, List<BigQueryError>> entry : qryResponse.getInsertErrors().entrySet()) {
-        // inspect row error
-        for(BigQueryError bqe : entry.getValue()){
-          log.info(bqe.getMessage() + "-->" +bqe.getReason());
-        }
+    } catch (IOException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    } finally {
+      try {
+        bos.close();
+      } catch (IOException ex) {
+        // ignore close exception
       }
     }
-    log.info("All records inserted into BQ");
-    }catch(Exception e){
-      System.out.println("#####################"+e);
+    return yourBytes;
+  }
+  
+  public boolean insertAllToBQ(String tableName, Iterable<RowToInsert> rowLst){
+    
+    Queue queue = QueueFactory.getQueue("bq-process-q");
+    try {
+      queue.add(TaskOptions.Builder.withUrl("/bqp").method(Method.POST).payload(SerializationUtils.serialize(rowLst)));
+    } catch (IOException e) {
+      // TODO Auto-generated catch block
+      log.info("in insertall in bq ");
+      e.printStackTrace();
     }
+
     return true;
   }
   
 
-  public String getTableName(Date inputDate){
-    String tableName = "Partit_Events1";
+  public String getTableNameDecorator(Date inputDate){
+
     Calendar c= Calendar.getInstance();
     c.setTime(inputDate);
     int dd = c.get(Calendar.DAY_OF_MONTH);
@@ -213,17 +244,51 @@ public class PacoBQProcessor {
       mon = "0"+mm;
     
     int yy = c.get(Calendar.YEAR);
-//    tableName = tableName+"$"+yy+mon+dt;
-    return tableName;
+    String deco = "$"+yy+mon+dt;
+    return deco;
   }
   
  
   
-  
   // run client request in BQ
-  public List<EventDAO> processRequest(SQLQuery1 jsonRequest, String user, DateTimeZone tz) {
+  public List<EventDAO> runBQQuery(SQLQuery1 jsonRequest, String user, DateTimeZone tz) {
     List<EventDAO> events = new ArrayList<>();
     EventDAO eventObj;
+    boolean canRun = false;
+    QueryResponse response = null;
+    String whoValue = findParametrizedValueOfField(jsonRequest, "who");
+//    String origWhereClause = jsonRequest.getCriteriaQuery();
+    
+    List<Long> adminExperiments = ExperimentAccessManager.getExistingExperimentIdsForAdmin(user, 0, null).getExperiments();
+    if(isDevMode() || isUserQueryingTheirOwnData(user, whoValue)){
+      canRun = true;
+    }else if (isAnAdministrator(adminExperiments)) {
+      log.info("isAnAdmin");
+      if (!hasAnExperimentIdFilter(jsonRequest.getCriteriaQuery())) {
+        log.info("No experimentfilter");
+        String tempWhereClause = jsonRequest.getCriteriaQuery();
+        tempWhereClause = tempWhereClause + " and experimentId in ("+ joinBy(getIdsQuoted(adminExperiments)) +" )";
+        jsonRequest.setCriteriaQuery(tempWhereClause);
+        canRun = true;
+      } else if (hasAnExperimentIdFilter(jsonRequest.getCriteriaQuery()) && !isAdminOfAllExperimentsInQuery(jsonRequest, adminExperiments)) {
+        if (!jsonRequest.getCriteriaQuery().contains("who")) {
+          addWhoQueryForLoggedInuser(jsonRequest, user);
+          canRun = true;
+        } else if (!(whoValue!=null && whoValue.equals(user))) {
+          //TODO cannot we just add one more where clause shared=true
+          addSharedCondition(jsonRequest);
+          canRun = true;
+        }
+      } else {
+        canRun = true;
+      }
+
+    }else {
+       addWhoQueryForLoggedInuser(jsonRequest, user);
+       addSharedCondition(jsonRequest);
+       canRun = true;
+    }
+
     String plainSQL = convertJSONtoBQSQL(jsonRequest);
     log.info("Query on BQ "+plainSQL);
     List<String> projectionList = getProjectionListFromSQL(plainSQL);
@@ -231,33 +296,113 @@ public class PacoBQProcessor {
     QueryRequest queryRequest = QueryRequest.newBuilder(plainSQL).setMaxWaitTime(WAIT_TIME)
                                .setUseLegacySql(USE_LEGACY_SQL)
                                .build();
-    QueryResponse response = bigquery.query(queryRequest);
-    if (response.hasErrors()) {
-       for(int g=0;g<response.getExecutionErrors().size();g++){
-         BigQueryError be = response.getExecutionErrors().get(g);
-         log.info("reason is "+be.getReason());
-         log.info("msg is "+be.getMessage());
-       }
+    if(canRun){
+//      response = bigquery.query(queryRequest);
+//      if (response.hasErrors()) {
+//         for(int g=0;g<response.getExecutionErrors().size();g++){
+//           BigQueryError be = response.getExecutionErrors().get(g);
+//           log.info("reason is "+be.getReason());
+//           log.info("msg is "+be.getMessage());
+//         }
+//      }
+//  
+//       QueryResult result = response.getResult();
+//  
+//       if(result!=null){
+//         Iterator<List<FieldValue>> iter = result.iterateAll();
+//         while (iter.hasNext()) {
+//           List<FieldValue> row = iter.next();
+//           eventObj = new EventDAO();
+//           populateIndividualRow(row, projectionList, eventObj, tz);
+//           events.add(eventObj);
+//         }
+//       }else{
+//         log.info("result is null, might be taking longer than timeout specified");
+//       }
+    }else{
+      log.info("Filtered in ACL, so not running query");
     }
-
-     QueryResult result = response.getResult();
-
-     if(result!=null){
-       Iterator<List<FieldValue>> iter = result.iterateAll();
-       while (iter.hasNext()) {
-         List<FieldValue> row = iter.next();
-         eventObj = new EventDAO();
-         populateIndividualRow(row, projectionList, eventObj);
-         events.add(eventObj);
-       }
-     }else{
-       log.info("result is null, might be taking longer than timeout specified");
-     }
      log.info("Number of records from BQ"+ events.size());
      return events;
   }
   
-  private void populateIndividualRow(List<FieldValue> record, List<String> projList, EventDAO event){
+  private void addSharedCondition(SQLQuery1 jsonRequest) {
+    String whereClause = jsonRequest.getCriteriaQuery() + " and shared = 'true' ";
+    jsonRequest.setCriteriaQuery(whereClause);
+  }
+  
+  private void addWhoQueryForLoggedInuser(SQLQuery1 jsonRequest, String loggedInUser) {
+    String criQuery = jsonRequest.getCriteriaQuery();
+    criQuery = criQuery + " and who='"+ loggedInUser + "'";
+    jsonRequest.setCriteriaQuery(criQuery);
+  }
+  
+  private boolean isDevMode(){
+//    return SystemProperty.environment.value() == SystemProperty.Environment.Value.Development;
+    return false;
+  }
+  
+  private boolean isAnAdministrator(List<Long> adminExperiments) {
+    return adminExperiments != null && adminExperiments.size() > 0;
+  }
+  
+  private String findParametrizedValueOfField(SQLQuery1 jsonRequest, String field){
+    //TODO null checks
+    String whereClause = jsonRequest.getCriteriaQuery();
+    if (whereClause.contains(field)){
+      String subStrExpId = StringUtils.substringBefore(jsonRequest.getCriteriaQuery(), field);
+      int countOfQuestionMarks = StringUtils.countMatches(subStrExpId, "?");
+      String[] criValue = jsonRequest.getCriteriaValue();
+      return DigestUtils.md5Hex(criValue[countOfQuestionMarks].replace("'", ""));
+    }
+    return null;
+  }
+  
+  private boolean isAdminOfAllExperimentsInQuery(SQLQuery1 jsonRequest, List<Long> adminExperimentsinDB) {
+    if (!isAnAdministrator(adminExperimentsinDB)) {
+      return false;
+    }
+    boolean filteringForAdminedExperiment = false;
+    String adminExptsInUserRequest = findParametrizedValueOfField(jsonRequest, "experimentId");
+    List<String> userRequestExpIds = Lists.newArrayList(adminExptsInUserRequest.split(","));
+    for (String expId : userRequestExpIds) {
+      String modExpId = expId.replace("'", "");
+      if(!adminExperimentsinDB.contains(modExpId)){
+        return false;
+      }
+    }
+    return filteringForAdminedExperiment;
+  }
+  private boolean hasAnExperimentIdFilter(String whereClause) {
+//    for (com.google.sampling.experiential.server.Query query : queryFilters) {
+      if (whereClause.contains("experimentId") || whereClause.contains("experimentName")) {
+        return true;
+      }
+//    }
+    return false;
+  }
+  
+  private List<String> getIdsQuoted(List<Long> adminExperiments) {
+    List<String> ids = Lists.newArrayList();
+    for (Long long1 : adminExperiments) {
+      ids.add("'" + long1 +"'");
+    }
+    return ids;
+  }
+
+  private String joinBy(List<String> inputList){
+    return StringUtils.join(inputList, ",");
+  }
+  
+  private boolean isUserQueryingTheirOwnData(String user, String userInQuery){
+//    String userInQuery = findParametrizedValueOfField(jsonRequest, "who");
+    if(userInQuery !=null)
+      return userInQuery.equals(user);
+    else
+      return false;
+  }
+  
+  private void populateIndividualRow(List<FieldValue> record, List<String> projList, EventDAO event, DateTimeZone tz){
 
     for (int x=0; x< projList.size();x++){
       String s  = projList.get(x).trim();
@@ -318,7 +463,13 @@ public class PacoBQProcessor {
             break;
           case 14:
             //TODO
-            event.setTimezone("timezone");
+            
+            final String timeZone = event.getResponseTime() != null && new DateTime(event.getResponseTime()).getZone() != null
+            ? new DateTime(event.getResponseTime()).getZone().toString()
+            : event.getScheduledTime()!= null && new DateTime(event.getScheduledTime()).getZone() != null
+              ? new DateTime(event.getScheduledTime()).getZone().toString()
+              : null;
+            event.setTimezone(timeZone);
             break;
           case 15:
             event.setExperimentGroupName(record.get(x).getStringValue());
