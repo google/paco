@@ -1,11 +1,14 @@
 <queue-entries>
-
-    <queue>
+  <queue>
     <name>migration</name>
     <rate>30/s</rate>
   </queue>
   <queue>
    <name>mapreduce-workers</name>
     <rate>30/s</rate>
+  </queue>
+  <queue>
+    <name>bq-process-q</name>
+    <rate>10/s</rate>
   </queue>
 </queue-entries>

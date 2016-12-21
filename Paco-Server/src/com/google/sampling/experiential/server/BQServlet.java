@@ -22,6 +22,7 @@ import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.text.SimpleDateFormat;
 import java.util.List;
+import java.util.TimeZone;
 import java.util.logging.Logger;
 
 import javax.servlet.http.HttpServlet;
@@ -43,51 +44,7 @@ public class BQServlet extends HttpServlet {
 
   public static final Logger log = Logger.getLogger(BQServlet.class.getName());
 
-//  public InsertAllResponse insertAll(String datasetName, String tableName) {
-//    // [START insertAll]
-//    int i=0;
-//    String id="ID";
-//    TableId tableId = TableId.of(datasetName, tableName);
-//    // Values of the row to insert
-//    Map<String, Object> row1Content = new HashMap<>();
-//    row1Content.put("firstName", "indhu");
-//    // Bytes are passed in base64
-//    row1Content.put("lastName", "meyyapp"); // 0xA, 0xD, 0xD, 0xE, 0xD in base64
-//    // Records are passed as a map
-//    //Map<String, Object> recordsContent = new HashMap<>();
-//    //recordsContent.put("stringField", "Hello, World!");
-//    row1Content.put("middleName", "middle");
-//    
-// // Values of the row to insert
-//    Map<String, Object> row2Content = new HashMap<>();
-//    row2Content.put("firstName", "vid");
-//    // Bytes are passed in base64
-//    row2Content.put("lastName", "meyy"); // 0xA, 0xD, 0xD, 0xE, 0xD in base64
-//    // Records are passed as a map
-//    //Map<String, Object> recordsContent = new HashMap<>();
-//    //recordsContent.put("stringField", "Hello, World!");
-//    row2Content.put("middleName", "middle");
-//    
-//    RowToInsert r1Obj = RowToInsert.of((id+i), row1Content);
-//    i++;
-//    RowToInsert r2Obj = RowToInsert.of((id+i), row2Content);
-//    
-//    List<RowToInsert> rList = Lists.newArrayList();
-//    rList.add(r1Obj);
-//    rList.add(r2Obj);
-//    
-//    BigQuery bigquery = BigQueryOptions.getDefaultInstance().getService();
-//    InsertAllResponse response = bigquery.insertAll(InsertAllRequest.newBuilder(tableId).setRows(rList).build());
-//    if (response.hasErrors()) {
-//      // If any of the insertions failed, this lets you inspect the errors
-//      for (Entry<Long, List<BigQueryError>> entry : response.getInsertErrors().entrySet()) {
-//        // inspect row error
-//        System.out.println(entry.getValue());
-//      }
-//    }
-//    // [END insertAll]
-//    return response;
-//  }
+
   
   @Override
   protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
@@ -129,6 +86,9 @@ public class BQServlet extends HttpServlet {
  
     String jsonRequest = buffer.toString();
     DateTimeZone clientTz = TimeUtil.getTimeZoneForClient(req);
+//    DateTimeZone modTime = TimeZone.setDefault();
+//    DateTimeZone clientTz =
+    
     SQLQuery1 sqlObj = om.readValue(jsonRequest, SQLQuery1.class);
     DataContextFactory dcf = new DataContextFactory();
     List<EventDAO> evtList = dcf.processRequest(sqlObj,"bobevans999@gmail.com", clientTz);

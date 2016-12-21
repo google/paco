@@ -43,6 +43,14 @@
     <servlet-name>bqServlet</servlet-name>
     <url-pattern>/bq</url-pattern>
   </servlet-mapping>
+  <servlet>
+    <servlet-name>bqProcessServlet</servlet-name>
+    <servlet-class>com.google.sampling.experiential.server.BQProcessServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>bqProcessServlet</servlet-name>
+    <url-pattern>/bqp</url-pattern>
+  </servlet-mapping>
   
   
   <servlet>

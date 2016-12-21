@@ -10,7 +10,7 @@ public class AvailableDataStrategy implements DataStrategy {
   @Override
   public List<EventDAO> processRequest(SQLQuery1 jsonRequest , String user, DateTimeZone tz) {
     PacoBQProcessor pbq = new PacoBQProcessor();
-    return pbq.processRequest(jsonRequest, user, tz);
+    return pbq.runBQQuery(jsonRequest, user, tz);
            
   }
 }
