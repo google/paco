@@ -18,6 +18,9 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import com.google.appengine.api.taskqueue.Queue;
+import com.google.appengine.api.taskqueue.QueueFactory;
+import com.google.appengine.api.taskqueue.TaskOptions;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
@@ -47,14 +50,19 @@ public class EventJsonUploadProcessor {
   }
 
   public String processJsonEvents(String postBodyString, String whoFromLogin, String appIdHeader, String pacoVersion) {
+    String eventInJsonFormat=null;
     try {
       if (postBodyString.startsWith("[")) {
         final JSONArray events = new JSONArray(postBodyString);
-        return toJson(processJsonArray(events, whoFromLogin, appIdHeader, pacoVersion));
+        eventInJsonFormat = toJson(processJsonArray(events, whoFromLogin, appIdHeader, pacoVersion));
       } else {
         final JSONObject currentEvent = new JSONObject(postBodyString);
-        return toJson(processSingleJsonEvent(currentEvent, whoFromLogin, appIdHeader, pacoVersion));
+        eventInJsonFormat = toJson(processSingleJsonEvent(currentEvent, whoFromLogin, appIdHeader, pacoVersion));
+       
+        return eventInJsonFormat;
       }
+      
+      return eventInJsonFormat;
     } catch (JSONException e) {
       throw new IllegalArgumentException("JSON Exception reading post data: " + e.getMessage());
     }

@@ -46,6 +46,9 @@ import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.PreparedQuery;
 import com.google.appengine.api.datastore.Query.FilterOperator;
 import com.google.appengine.api.datastore.Query.FilterPredicate;
+import com.google.appengine.api.taskqueue.Queue;
+import com.google.appengine.api.taskqueue.QueueFactory;
+import com.google.appengine.api.taskqueue.TaskOptions;
 import com.google.appengine.api.datastore.QueryResultList;
 import com.google.appengine.api.utils.SystemProperty;
 import com.google.common.annotations.VisibleForTesting;
@@ -88,7 +91,7 @@ public class EventRetriever {
                         Set<What> whats, boolean shared, String experimentId, String experimentName,
                         Integer experimentVersion, DateTime responseTime, DateTime scheduledTime,
                         List<PhotoBlob> blobs, String groupName, Long actionTriggerId, Long actionTriggerSpecId, Long actionId) {
-
+    
     final String tz = responseTime != null && responseTime.getZone() != null
             ? responseTime.getZone().toString()
             : scheduledTime!= null && scheduledTime.getZone() != null
@@ -98,6 +101,7 @@ public class EventRetriever {
               responseTime != null ? responseTime.toDate() : null,
               scheduledTime != null ? scheduledTime.toDate() : null, blobs,
               tz, groupName, actionTriggerId, actionTriggerSpecId, actionId);
+   
   }
 
 
@@ -143,7 +147,12 @@ public class EventRetriever {
         new ParticipationStatsService().updateResponseCountWithEvent(event);
       }
       tx.commit();
-      log.info("Event saved");
+      log.info("Event saved in datastore");
+      Queue queue = QueueFactory.getQueue("cloud-sql");
+      List<Event> evtList = Lists.newArrayList();
+      evtList.add(event);
+      queue.add(TaskOptions.Builder.withUrl("/cloudSql").payload((convertEventsToDAOs(evtList)).toString()));
+      log.info("event sent to cloud sql");
     } finally {
       if (tx.isActive()) {
         log.info("Event rolled back");

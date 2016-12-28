@@ -36,6 +36,15 @@
   </servlet-mapping>
   
   <servlet>
+    <servlet-name>CloudSqlServlet</servlet-name>
+    <servlet-class>com.google.sampling.experiential.server.CloudSqlServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>CloudSqlServlet</servlet-name>
+    <url-pattern>/cloudSql</url-pattern>
+  </servlet-mapping>
+  
+  <servlet>
     <servlet-name>usageServlet</servlet-name>
     <servlet-class>com.google.sampling.experiential.server.UsageServlet</servlet-class>
   </servlet>
