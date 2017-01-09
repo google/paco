@@ -58,10 +58,12 @@ import com.pacoapp.paco.shared.model2.InterruptCue;
 import com.pacoapp.paco.shared.model2.JsonConverter;
 import com.pacoapp.paco.shared.model2.PacoAction;
 import com.pacoapp.paco.shared.model2.PacoNotificationAction;
+import com.pacoapp.paco.shared.model2.SQLQuery;
 import com.pacoapp.paco.shared.model2.Schedule;
 import com.pacoapp.paco.shared.model2.ScheduleTrigger;
 import com.pacoapp.paco.shared.model2.ValidationMessage;
 import com.pacoapp.paco.shared.scheduling.ActionScheduleGenerator;
+import com.pacoapp.paco.shared.util.SearchUtil;
 import com.pacoapp.paco.shared.util.TimeUtil;
 
 import android.content.ContentResolver;
@@ -78,7 +80,6 @@ public class ExperimentProviderUtil implements EventStore {
   public static final String AUTHORITY = "com.google.android.apps.paco.ExperimentProvider";
   private static final String PUBLIC_EXPERIMENTS_FILENAME = "experiments";
   private static final String MY_EXPERIMENTS_FILENAME = "my_experiments";
-  private static final String BLANK = " ";
   // The next semaphore is used to make sure that all event inserts/retrievals happen atomically
   // with regards to each other, to ensure that no incomplete events can get synced to the server
   // (and, by extension, to ensure that a thread trying to access an event has to wait until the
@@ -90,10 +91,9 @@ public class ExperimentProviderUtil implements EventStore {
 
   private static final String LIMIT = " limit ";
   private static final String DESC = " DESC ";
-  private static final String DOT = ".";
   
   DateTimeFormatter endDateFormatter = DateTimeFormat.forPattern(TimeUtil.DATE_FORMAT);
-  private static  Map<String, String> eventsColumns = null;
+  private static  Map<String, Integer> eventsColumns = null;
   public ExperimentProviderUtil(Context context) {
     super();
     this.context = context;
@@ -106,18 +106,18 @@ public class ExperimentProviderUtil implements EventStore {
 
   public static void loadColumnTableAssociationMap(){
 	  if (eventsColumns ==null){
-		  eventsColumns = new HashMap<String,String>();
-		  eventsColumns.put("EXPERIMENT_ID", "EVENTS");
-		  eventsColumns.put("EXPERIMENT_SERVER_ID", "EVENTS");
-		  eventsColumns.put("EXPERIMENT_NAME", "EVENTS");
-		  eventsColumns.put("EXPERIMENT_VERSION", "EVENTS");
-		  eventsColumns.put("SCHEDULE_TIME", "EVENTS");
-		  eventsColumns.put("RESPONSE_TIME", "EVENTS");
-		  eventsColumns.put("UPLOADED", "EVENTS");
-		  eventsColumns.put("GROUP_NAME", "EVENTS");
-		  eventsColumns.put("ACTION_TRIGGER_ID","EVENTS");
-		  eventsColumns.put("ACTION_TRIGGER_SPEC_ID","EVENTS");
-		  eventsColumns.put("ACTION_ID","EVENTS");
+		  eventsColumns = new HashMap<String,Integer>();
+		  eventsColumns.put("EXPERIMENT_ID", 1);
+		  eventsColumns.put("EXPERIMENT_SERVER_ID", 2);
+		  eventsColumns.put("EXPERIMENT_NAME", 3);
+		  eventsColumns.put("EXPERIMENT_VERSION", 4);
+		  eventsColumns.put("SCHEDULE_TIME", 5);
+		  eventsColumns.put("RESPONSE_TIME", 6);
+		  eventsColumns.put("UPLOADED", 7);
+		  eventsColumns.put("GROUP_NAME", 8);
+		  eventsColumns.put("ACTION_TRIGGER_ID",9);
+		  eventsColumns.put("ACTION_TRIGGER_SPEC_ID",10);
+		  eventsColumns.put("ACTION_ID",11);
 	  }
   }
 
@@ -812,50 +812,24 @@ public class ExperimentProviderUtil implements EventStore {
     }
   }
 
-  public List<Event> findEventsByCriteriaQuery(String[] projection, String criteriaColumns, String criteriaValues[],
-                                               String sortOrder, String limit, String groupBy, String having) {
+  public List<Event> findEventsByCriteriaQuery(SQLQuery sqlQuery) {
     Cursor cursor = null;
     List<Event> events = null;
     Event event = null;
     Map<Long, Event> eventMap = null;
-    String[] modifiedProjection = null;
     DatabaseHelper dbHelper = new DatabaseHelper(context);
    
     try {
-      //add all column names in the query->select columns, where clause, group by clause, having clause, sort order clause
-      List<String> allColumns = Lists.newArrayList();
-      allColumns.addAll(Arrays.asList(projection));
-      String colNameConcat = (groupBy != null) ? criteriaColumns.concat(BLANK).concat(groupBy) : criteriaColumns;
-      colNameConcat = (groupBy != null && having != null) ? colNameConcat.concat(BLANK).concat(having) : colNameConcat;
-      colNameConcat = (sortOrder != null)?colNameConcat.concat(BLANK).concat(sortOrder) : colNameConcat;
-      allColumns.addAll(ExperimentUtil.aggregateExtractedColNames(colNameConcat));
-      
-      // provide default sort order which is Event._Id desc
-      if(sortOrder == null){
-        sortOrder = ExperimentProvider.EVENTS_TABLE_NAME.concat(DOT).concat(EventColumns._ID).concat(DESC);
-      }
-      
-      //add limit clause to sort order
-      if (limit != null) {
-        sortOrder = sortOrder.concat(LIMIT).concat(limit);
-      } 
-      
+
       //identify all tables involved for the complete column names
-      String tableIndicator = ExperimentUtil.identifyTablesInvolved(eventsColumns, allColumns);
-      
-      //adding a default projection of event table primary key column
-      int crtLength = projection.length ;
-      modifiedProjection = new String[crtLength+1];
-      System.arraycopy(projection, 0, modifiedProjection, 0, crtLength);
-      //adding the following columns in the projection list to help in coalescing
-      modifiedProjection[crtLength]=ExperimentProvider.EVENTS_TABLE_NAME.concat(DOT).concat(EventColumns._ID);
+      String tableIndicator = SearchUtil.identifyTablesInvolved(eventsColumns, sqlQuery);
       
       if (tableIndicator.equals(ExperimentProvider.EVENTS_OUTPUTS_TABLE_NAME)) { 
-        cursor = dbHelper.query(ExperimentProvider.EVENTS_OUTPUTS_DATATYPE, modifiedProjection, criteriaColumns, criteriaValues,
-                                sortOrder, groupBy, having);
+        cursor = dbHelper.query(ExperimentProvider.EVENTS_OUTPUTS_DATATYPE, sqlQuery.getProjection(), sqlQuery.getCriteriaQuery(), sqlQuery.getCriteriaValue(),
+                                sqlQuery.getSortOrder(), sqlQuery.getGroupBy(), sqlQuery.getHaving());
       } else if (tableIndicator.equals(ExperimentProvider.EVENTS_TABLE_NAME)) {
-        cursor = dbHelper.query(ExperimentProvider.EVENTS_DATATYPE, modifiedProjection, criteriaColumns, criteriaValues,
-                                sortOrder, groupBy, having);
+        cursor = dbHelper.query(ExperimentProvider.EVENTS_DATATYPE, sqlQuery.getProjection(), sqlQuery.getCriteriaQuery(), sqlQuery.getCriteriaValue(),
+                                sqlQuery.getSortOrder(), sqlQuery.getGroupBy(), sqlQuery.getHaving());
       } 
       //to maintain the insertion order
       eventMap = Maps.newLinkedHashMap();
@@ -863,7 +837,7 @@ public class ExperimentProviderUtil implements EventStore {
       if (cursor != null) {
         events = Lists.newArrayList();
         while (cursor.moveToNext()) {
-          //if no need to coalesce, we just add it to the list and send the collection to the client.
+          //no need to coalesce, we just add it to the list and send the collection to the client.
           event = createEvent(cursor, false);
           Event oldEvent = eventMap.get(event.getId()); 
           if(oldEvent == null){
@@ -1731,7 +1705,7 @@ public class ExperimentProviderUtil implements EventStore {
     return events;
   }
 
-public static Map<String, String> getEventsOutputColumns() {
+public static Map<String, Integer> getEventsOutputColumns() {
   loadColumnTableAssociationMap();
 	return eventsColumns;
 }

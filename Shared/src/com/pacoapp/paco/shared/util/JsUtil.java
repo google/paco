@@ -1,12 +1,17 @@
-package com.pacoapp.paco.js.bridge;
+package com.pacoapp.paco.shared.util;
+
+import java.util.logging.Logger;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.google.common.base.Strings;
+import com.pacoapp.paco.shared.model2.SQLQuery;
 
 public class JsUtil {
+  public static final Logger log = Logger.getLogger(JsUtil.class.getName());
+
   /**
    * The query JSON should have the following format Example 
    * {query:{criteria: " (group_name in(?,?) and (answer=?)) ",values:["New
@@ -30,22 +35,18 @@ public class JsUtil {
    * @throws JSONException
    * 
    */
-  public static SQLQuery convertJSONToPOJO(String queryJson) throws JSONException {
+  public static SQLQuery convertJSONToPOJO(String queryJson) {
     SQLQuery sqlObj = null;
-    String criteriaColumns = null;
+    SQLQuery.Builder sqlBldr = null;
     String[] projectionColumns = null;
-    String groupBy = null;
     String[] criteriaValues = null;
-    String sortOrder = null;
-    String limitRecords = null;
-    String having = null;
     JSONObject criteriaQueryObj;
     if (Strings.isNullOrEmpty(queryJson)) {
       return null;
     }
+    
     try {
       criteriaQueryObj = new JSONObject(queryJson);
-      sqlObj = new SQLQuery();
       if (criteriaQueryObj.has("select")) {
         JSONArray selectAr = criteriaQueryObj.getJSONArray("select");
         if (selectAr != null) {
@@ -56,15 +57,13 @@ public class JsUtil {
         }
       }
       
-      if(projectionColumns == null){
-        projectionColumns = new String[]{"*"};
-      }
-
+      sqlBldr = new SQLQuery.Builder(projectionColumns);
+              
       if (criteriaQueryObj.has("query")) {
         JSONObject queryCriteria = criteriaQueryObj.getJSONObject("query");
         if (queryCriteria != null) {
           if (queryCriteria.has("criteria")) {
-            criteriaColumns = queryCriteria.getString("criteria");
+            sqlBldr.criteriaQuery(queryCriteria.getString("criteria"));
           }
 
           if (queryCriteria.has("values")) {
@@ -73,38 +72,33 @@ public class JsUtil {
             for (int i = 0; i < cv.length(); i++) {
               criteriaValues[i] = cv.getString(i);
             }
+            sqlBldr.criteriaValues(criteriaValues);
           }
         }
       }
       
       if (criteriaQueryObj.has("order")) {
-        sortOrder = criteriaQueryObj.getString("order");
+        sqlBldr.sortBy(criteriaQueryObj.getString("order"));
       }
       
       if (criteriaQueryObj.has("limit")) {
-        limitRecords = criteriaQueryObj.getString("limit");
+        sqlBldr.limit(criteriaQueryObj.getString("limit"));
       }
       
       // only if we have group clause, should we have the having column
       if (criteriaQueryObj.has("group")) {
-        groupBy = criteriaQueryObj.getString("group");
+        sqlBldr.groupBy(criteriaQueryObj.getString("group"));
 
         if (criteriaQueryObj.has("having")) {
-          having = criteriaQueryObj.getString("having");
+          sqlBldr.having(criteriaQueryObj.getString("having"));
         }
       }
 
-      sqlObj.setProjection(projectionColumns);
-      sqlObj.setCriteriaQuery(criteriaColumns);
-      sqlObj.setCriteriaValue(criteriaValues);
-      sqlObj.setGroupBy(groupBy);
-      sqlObj.setHaving(having);
-      sqlObj.setLimit(limitRecords);
-      sqlObj.setSortOrder(sortOrder);
+      sqlObj = sqlBldr.buildWithDefaultValues();
 
     } catch (JSONException e) {
       e.printStackTrace();
-      throw e;
+      log.info("json exception"+e);
     }
 
     return sqlObj;

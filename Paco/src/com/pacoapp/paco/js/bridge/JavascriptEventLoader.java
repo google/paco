@@ -17,6 +17,8 @@ import com.pacoapp.paco.model.ExperimentProviderUtil;
 import com.pacoapp.paco.model.Output;
 import com.pacoapp.paco.shared.model2.ExperimentDAO;
 import com.pacoapp.paco.shared.model2.ExperimentGroup;
+import com.pacoapp.paco.shared.model2.SQLQuery;
+import com.pacoapp.paco.shared.util.JsUtil;
 import com.pacoapp.paco.ui.FeedbackActivity;
 
 import android.webkit.JavascriptInterface;
@@ -109,11 +111,7 @@ public class JavascriptEventLoader {
     String eventsJson = null;
     SQLQuery sqlQueryObj = JsUtil.convertJSONToPOJO(criteriaQuery);
     if (sqlQueryObj != null) {
-      events = experimentProviderUtil.findEventsByCriteriaQuery(sqlQueryObj.getProjection(),
-                                                                sqlQueryObj.getCriteriaQuery(),
-                                                                sqlQueryObj.getCriteriaValue(),
-                                                                sqlQueryObj.getSortOrder(), sqlQueryObj.getLimit(),
-                                                                sqlQueryObj.getGroupBy(), sqlQueryObj.getHaving());
+      events = experimentProviderUtil.findEventsByCriteriaQuery(sqlQueryObj);
       eventsJson = FeedbackActivity.convertEventsToJsonString(events);
     } else {
       throw new RuntimeException("Empty JSON exception");
@@ -156,7 +154,6 @@ public class JavascriptEventLoader {
         if (!Strings.isNullOrEmpty(actionTriggerIdStr) && !actionTriggerIdStr.equals("null")) {
           actionTriggerId = Long.parseLong(actionTriggerIdStr);
         }
-
       }
 
       if (eventJson.has("actionTriggerSpecId")) {

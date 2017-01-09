@@ -36,12 +36,21 @@
   </servlet-mapping>
   
   <servlet>
-    <servlet-name>CloudSqlServlet</servlet-name>
+    <servlet-name>ServerInsertServlet</servlet-name>
     <servlet-class>com.google.sampling.experiential.server.CloudSqlServlet</servlet-class>
   </servlet>
   <servlet-mapping>
-    <servlet-name>CloudSqlServlet</servlet-name>
-    <url-pattern>/cloudSql</url-pattern>
+    <servlet-name>ServerInsertServlet</servlet-name>
+    <url-pattern>/serverInsert</url-pattern>
+  </servlet-mapping>
+  
+  <servlet>
+    <servlet-name>ServerSearchServlet</servlet-name>
+    <servlet-class>com.google.sampling.experiential.server.CloudSqlSearchServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>ServerSearchServlet</servlet-name>
+    <url-pattern>/serverSearch</url-pattern>
   </servlet-mapping>
   
   <servlet>

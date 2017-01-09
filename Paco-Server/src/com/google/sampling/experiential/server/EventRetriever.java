@@ -32,6 +32,7 @@ import javax.jdo.Query;
 import javax.jdo.Transaction;
 
 import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.lang3.SerializationUtils;
 import org.datanucleus.store.appengine.query.JDOCursorHelper;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
@@ -151,7 +152,10 @@ public class EventRetriever {
       Queue queue = QueueFactory.getQueue("cloud-sql");
       List<Event> evtList = Lists.newArrayList();
       evtList.add(event);
-      queue.add(TaskOptions.Builder.withUrl("/cloudSql").payload((convertEventsToDAOs(evtList)).toString()));
+      List<EventDAO> eDaoList = convertEventsToDAOs(evtList);
+      EventDAO evtDao = eDaoList.get(0);
+      evtDao.setId(event.getId());
+      queue.add(TaskOptions.Builder.withUrl("/serverInsert").payload(SerializationUtils.serialize(evtDao)));
       log.info("event sent to cloud sql");
     } finally {
       if (tx.isActive()) {
