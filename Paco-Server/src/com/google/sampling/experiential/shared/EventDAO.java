@@ -19,12 +19,9 @@ package com.google.sampling.experiential.shared;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 
 import org.codehaus.jackson.annotate.JsonIgnore;
-
-import com.google.common.collect.Lists;
+import org.codehaus.jackson.annotate.JsonProperty;
 
 
 /**
@@ -69,8 +66,8 @@ public class EventDAO implements Serializable {
     this.experimentName = experimentName;
   }
 
-  @JsonIgnore
-  private Map<String, String> what;
+  @JsonProperty("responses")
+  private List<WhatDAO> what;
 
   private Date responseTime;
 
@@ -87,13 +84,13 @@ public class EventDAO implements Serializable {
   private Long actionTriggerSpecId;
   private Long actionId;
 
-  @JsonIgnore
-  public Map<String, String> getWhat() {
+  @JsonProperty("responses")
+  public List<WhatDAO> getWhat() {
     return what;
   }
 
-  @JsonIgnore
-  public void setWhat(Map<String, String> what) {
+  @JsonProperty("responses")
+  public void setWhat(List<WhatDAO> what) {
     this.what = what;
   }
 
@@ -102,7 +99,7 @@ public class EventDAO implements Serializable {
   }
 
   public EventDAO(String who, Date when, String experimentName, String lat, String lon,
-      String appId, String pacoVersion, Map<String, String> map, boolean shared, Date responseTime,
+      String appId, String pacoVersion, List<WhatDAO> set, boolean shared, Date responseTime,
       Date scheduledTime, String[] blobs, Long experimentId, Integer experimentVersion, String timezone,
       String groupName, Long actionTriggerId, Long actionTriggerSpecId, Long actionId) {
     super();
@@ -110,7 +107,7 @@ public class EventDAO implements Serializable {
     this.lat = lat;
     this.lon = lon;
     this.when = when;
-    this.what = map;
+    this.what = set;
     this.appId = appId;
     this.pacoVersion = pacoVersion;
     this.shared = shared;
@@ -173,25 +170,13 @@ public class EventDAO implements Serializable {
   }
 
   @JsonIgnore
-  public String getWhatString() {
-    StringBuilder whatStr = new StringBuilder();
-    boolean first = true;
-    for (String key : what.keySet()) {
-      if (first) {
-        first = false;
-      } else {
-        whatStr.append(", ");
-      }
-      whatStr.append(key);
-      whatStr.append("=");
-      whatStr.append(what.get(key));
-    }
-    return whatStr.toString();
-  }
-
-  @JsonIgnore
   public String getWhatByKey(String key) {
-    return what.get(key);
+    for (WhatDAO currentWhat : what) {
+      if (currentWhat.getName().equals(key)) {
+        return currentWhat.getValue();
+      }
+    }
+    return null;
   }
 
   public String getAppId() {
@@ -255,12 +240,12 @@ public class EventDAO implements Serializable {
     return responseTime.getTime() - scheduledTime.getTime();
   }
 
-  /**
-   * @return
-   */
-  public boolean isJoinEvent() {
-    return getWhatByKey("joined") != null;
-  }
+//  /**
+//   * @return
+//   */
+//  public boolean isJoinEvent() {
+//    return getWhatByKey("joined") != null;
+//  }
 
   public String[] getBlobs() {
     return blobs;
@@ -304,14 +289,13 @@ public class EventDAO implements Serializable {
   }
 
   public boolean isEmptyResponse() {
-    Map<String, String> values = getWhat();
-    for (Entry<String, String> kvPair : values.entrySet()) {
-      String key = kvPair.getKey();
+    for (WhatDAO currentWhat : what) {
+      String key = currentWhat.getName();
 
       if (key.equals(REFERRED_EXPERIMENT_INPUT_ITEM_KEY)) {
         continue;
       }
-      String value = kvPair.getValue();
+      String value = currentWhat.getValue();
       if (value != null && value.length() > 0) {
         return false;
       }
@@ -349,16 +333,6 @@ public class EventDAO implements Serializable {
 
   public void setActionId(Long actionId) {
     this.actionId = actionId;
-  }
-
-  public List<Output> getResponses() {
-    List<Output> responses = Lists.newArrayList();
-    Map<String, String> whats = getWhat();
-    for (String whatKey : whats.keySet()) {
-      String whatValue = whats.get(whatKey);
-      responses.add(new Output(whatKey, whatValue));
-    }
-    return responses;
   }
 
 }

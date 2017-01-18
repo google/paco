@@ -60,6 +60,7 @@ import com.google.sampling.experiential.model.PhotoBlob;
 import com.google.sampling.experiential.model.What;
 import com.google.sampling.experiential.server.stats.participation.ParticipationStatsService;
 import com.google.sampling.experiential.shared.EventDAO;
+import com.google.sampling.experiential.shared.WhatDAO;
 
 /**
  * Retrieve Event objects from the JDO store.
@@ -555,11 +556,19 @@ public class EventRetriever {
     for (Event event : result) {
       eventDAOs.add(new EventDAO(event.getWho(), event.getWhen(), event.getExperimentName(),
           event.getLat(), event.getLon(), event.getAppId(), event.getPacoVersion(),
-          event.getWhatMap(), event.isShared(), event.getResponseTime(), event.getScheduledTime(),
+          convertToWhatDAOs(event.getWhat()), event.isShared(), event.getResponseTime(), event.getScheduledTime(),
           toBase64StringArray(event.getBlobs()), Long.parseLong(event.getExperimentId()), event.getExperimentVersion(),
           event.getTimeZone(), event.getExperimentGroupName(), event.getActionTriggerId(), event.getActionTriggerSpecId(), event.getActionId()));
     }
     return eventDAOs;
+  }
+
+  public static List<WhatDAO> convertToWhatDAOs(Set<What> what) {
+    List<WhatDAO> daos = Lists.newArrayList();
+    for (What currentWhat : what) {
+      daos.add(new WhatDAO(currentWhat.getName(), currentWhat.getValue()));
+    }
+    return daos;
   }
 
   /**

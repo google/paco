@@ -299,8 +299,16 @@ public class ReportJobExecutor {
       }
     }
     List<EventDAO> eodEventDAOs = EventRetriever.convertEventsToDAOs(eventQueryResultPair.getEvents());
-    log.info("converted events to eod");
-    return new CSVBlobWriter().writeNormalExperimentEventsAsCSV(anon, eodEventDAOs, jobId, clientTimezone.getID());
+    try {
+      Long experimentIdLong = Long.parseLong(experimentId);
+      ExperimentService es = ExperimentServiceFactory.getExperimentService();
+      ExperimentDAO experiment = es.getExperiment(experimentIdLong);
+
+      return new CSVBlobWriter().writeNormalExperimentEventsAsCSV(experiment, eodEventDAOs, jobId, anon, clientTimezone.getID());
+    } catch (NumberFormatException e) {
+      log.warning("ExperimentId is not a long: " + experimentId);
+      throw e;
+    }
   }
 
   private String generateEODCSV(boolean anon, String jobId, String experimentId, List<Event> events, String clientTimezone) throws IOException {

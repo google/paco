@@ -35,6 +35,7 @@ import com.google.sampling.experiential.model.Event;
 import com.google.sampling.experiential.model.PhotoBlob;
 import com.google.sampling.experiential.shared.EventDAO;
 import com.google.sampling.experiential.shared.TimeUtil;
+import com.google.sampling.experiential.shared.WhatDAO;
 import com.pacoapp.paco.shared.model2.ExperimentDAO;
 import com.pacoapp.paco.shared.model2.Input2;
 
@@ -251,58 +252,59 @@ public class HtmlBlobWriter {
   private String printEventDAOs(List<EventDAO> events, ExperimentDAO experiment, String clientTimezone, boolean anon) throws IOException {
     if (events.isEmpty()) {
       return "No events in experiment: " + getExperimentTitle(experiment) + ".";
-    } else {
-      List<String> inputKeys = Lists.newArrayList();
-      List<Input2> inputs = getAllInputsForExperiment(experiment);
-      for (Input2 item : inputs) {
-        inputKeys.add(item.getName());
-      }
-
-      StringBuilder out = new StringBuilder();
-      out.append("<table class=\"gridtable\">");
-      out.append("<tr><th>Experiment Name</th><th>Experiment Version</th><th>Scheduled Time</th><th>Response Time</th><th>Who</th>");
-
-      for (String inputName : inputKeys) {
-        out.append("<th>");
-        out.append(escapeText(inputName));
-        out.append("</th>");
-      }
-      out.append("<th>Other Responses</th>");
-      out.append("</tr>");
-
-      for (EventDAO event : events) {
-        out.append("<tr>");
-        out.append("<td>").append(escapeText(event.getExperimentName())).append("</td>");
-        out.append("<td>").append(event.getExperimentVersion()).append("</td>");
-        out.append("<td>").append(getTimeString(event, event.getScheduledTime(), clientTimezone)).append("</td>");
-        out.append("<td>").append(getTimeString(event, event.getResponseTime(), clientTimezone)).append("</td>");
-
-        String who = event.getWho();
-        if (anon) {
-          who = Event.getAnonymousId(who);
-        }
-        out.append("<td>").append(who).append("</td>");
-
-        for (Input2 input : inputs) {
-          out.append("<td>");
-          out.append(getValueAsDisplayString(event, input));
-          out.append("</td>");
-        }
-
-        List<String> keysCopy = Lists.newArrayList(event.getWhat().keySet());
-        keysCopy.removeAll(inputKeys);
-        for (String extraKey : keysCopy) {
-          out.append("<td>");
-          out.append(extraKey);
-          out.append(" = ");
-          out.append(getValueAsDisplayString(event, extraKey));
-          out.append("</td>");
-        }
-        out.append("<tr>");
-      }
-      out.append("</table></body></html>");
-      return out.toString();
     }
+    List<String> inputKeys = Lists.newArrayList();
+    List<Input2> inputs = getAllInputsForExperiment(experiment);
+    for (Input2 item : inputs) {
+      inputKeys.add(item.getName());
+    }
+
+    StringBuilder out = new StringBuilder();
+    out.append("<table class=\"gridtable\">");
+    out.append("<tr><th>Experiment Name</th><th>Experiment Version</th><th>Scheduled Time</th><th>Response Time</th><th>Who</th>");
+
+    for (String inputName : inputKeys) {
+      out.append("<th>");
+      out.append(escapeText(inputName));
+      out.append("</th>");
+    }
+    out.append("<th>Other Responses</th>");
+    out.append("</tr>");
+
+    for (EventDAO event : events) {
+      out.append("<tr>");
+      out.append("<td>").append(escapeText(event.getExperimentName())).append("</td>");
+      out.append("<td>").append(event.getExperimentVersion()).append("</td>");
+      out.append("<td>").append(getTimeString(event, event.getScheduledTime(), clientTimezone)).append("</td>");
+      out.append("<td>").append(getTimeString(event, event.getResponseTime(), clientTimezone)).append("</td>");
+
+      String who = event.getWho();
+      if (anon) {
+        who = Event.getAnonymousId(who);
+      }
+      out.append("<td>").append(who).append("</td>");
+
+      for (Input2 input : inputs) {
+        out.append("<td>");
+        out.append(getValueAsDisplayString(event, input));
+        out.append("</td>");
+      }
+
+      for (WhatDAO currentWhat : event.getWhat()) {
+        if (!inputKeys.contains(currentWhat.getName())) {
+          out.append("<td>");
+          out.append(currentWhat.getName());
+          out.append(" = ");
+          out.append(getValueAsDisplayString(currentWhat.getValue()));
+          out.append("</td>");
+        }
+      }
+      out.append("<tr>");
+    }
+
+    out.append("</table></body></html>");
+    return out.toString();
+
   }
 
   private List<Input2> getAllInputsForExperiment(ExperimentDAO experiment) {
@@ -310,8 +312,7 @@ public class HtmlBlobWriter {
     return inputs;
   }
 
-  private String getValueAsDisplayString(EventDAO event, String key) {
-    String value = event.getWhatByKey(key);
+  private String getValueAsDisplayString(String value) {
     if (value == null) {
       value = "";
     } else if (value.startsWith("===")) {
