@@ -54,6 +54,7 @@ import com.google.common.collect.Maps;
 import com.google.sampling.experiential.model.Event;
 import com.google.sampling.experiential.model.PhotoBlob;
 import com.google.sampling.experiential.shared.EventDAO;
+import com.google.sampling.experiential.shared.WhatDAO;
 import com.pacoapp.paco.shared.model2.JsonConverter;
 
 /**
@@ -192,7 +193,7 @@ public class EventServlet extends HttpServlet {
         if (scheduledDateTime != null) {
           scheduledTime = scheduledDateTime.toDate();
         }
-        final Map<String, String> whatMap = event.getWhatMap();
+        final List<WhatDAO> whatMap = EventRetriever.convertToWhatDAOs(event.getWhat());
         List<PhotoBlob> photos = event.getBlobs();
         String[] photoBlobs = null;
         if (includePhotos && photos != null && photos.size() > 0) {
@@ -203,10 +204,10 @@ public class EventServlet extends HttpServlet {
           for (PhotoBlob photoBlob : photos) {
             photoByNames.put(photoBlob.getName(), photoBlob);
           }
-          for(String key : whatMap.keySet()) {
+          for(WhatDAO currentWhat : whatMap) {
             String value = null;
-            if (photoByNames.containsKey(key)) {
-              byte[] photoData = photoByNames.get(key).getValue();
+            if (photoByNames.containsKey(currentWhat.getName())) {
+              byte[] photoData = photoByNames.get(currentWhat.getName()).getValue();
               if (photoData != null && photoData.length > 0) {
                 String photoString = new String(Base64.encodeBase64(photoData));
                 if (!photoString.equals("==")) {
@@ -217,7 +218,7 @@ public class EventServlet extends HttpServlet {
               } else {
                 value = "";
               }
-              whatMap.put(key, value);
+              currentWhat.setValue(value);
             }
           }
         }

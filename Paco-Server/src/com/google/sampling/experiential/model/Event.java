@@ -447,7 +447,7 @@ public class Event {
       try {
         parseInt = Integer.parseInt(hours);
       } catch (NumberFormatException e) {
-        EventServlet.log.info("Timezone hours are not an integer this event.");
+        EventServlet.log.info("Timezone hours are not an integer this event: " + hours);
         return new DateTime(time);
       }
       DateTimeZone timezoneForOffsetHours = DateTimeZone.forOffsetHours(parseInt);
