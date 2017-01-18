@@ -3,59 +3,20 @@ package com.pacoapp.paco.shared.util;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 
 import com.google.common.collect.Lists;
 import com.pacoapp.paco.shared.model2.SQLQuery;
 
+import net.sf.jsqlparser.JSQLParserException;
+import net.sf.jsqlparser.expression.BinaryExpression;
+import net.sf.jsqlparser.expression.Expression;
+import net.sf.jsqlparser.expression.Parenthesis;
+import net.sf.jsqlparser.expression.operators.relational.InExpression;
+import net.sf.jsqlparser.parser.CCJSqlParserUtil;
+import net.sf.jsqlparser.statement.select.PlainSelect;
+import net.sf.jsqlparser.statement.select.Select;
+
 public class SearchUtil {
-  
-  private static final String BLANK = " ";
-  private static final String DOT = ".";
-
-  /**
-   * 
-   * @param eventsColumns
-   *          This holds all the column names of the tables Events
-   *          as keys and the associated table name as value
-   * @param sqlQuery
-   *          SQL query object that client intends to send to the back end
-   * @return Table name that should be used for the given columns. 
-   *         This will have the following two scenarios 
-   *         - If all input columns are from Events table, will return Events table 
-   *         - If any one of input columns is not from Events table, will
-   *         return Eventsoutputs table
-   */
-//  public static String identifyTablesInvolved(Map<EventTableColumns, EventTableColumns> eventsColumns, SQLQuery sqlQuery) {
-  public static String identifyTablesInvolved(Map<String, Integer> eventsColumns, SQLQuery sqlQuery) {
-    
-    // This method is not to validate the column names. This just helps identifying if we need to do a join on outputs table.
-    //add all column names in the query->select columns, where clause, group by clause, having clause, sort order clause
-    List<String> allColumns = Lists.newArrayList();
-    allColumns.addAll(Arrays.asList(sqlQuery.getProjection()));
-    String colNameConcat = (sqlQuery.getGroupBy() != null) ? sqlQuery.getCriteriaQuery().concat(BLANK).concat(sqlQuery.getGroupBy()) : sqlQuery.getCriteriaQuery();
-    colNameConcat = (sqlQuery.getGroupBy() != null && sqlQuery.getHaving() != null) ? colNameConcat.concat(BLANK).concat(sqlQuery.getHaving()) : colNameConcat;
-    colNameConcat = (sqlQuery.getSortOrder() != null)?colNameConcat.concat(BLANK).concat(sqlQuery.getSortOrder()) : colNameConcat;
-    allColumns.addAll(aggregateExtractedColNames(colNameConcat));
-    
-    
-    String tableIndicator = "events";
-    if (allColumns != null && allColumns.size() > 0) {
-      for (String s : allColumns) {
-//        EventTableColumns evtTableCol = eventsColumns.get(s.toLowerCase());
-        // if we do not get a match in Event column names, then we need to do a join
-//        if (evtTableCol == null) {
-        Integer colIndexInTable = eventsColumns.get(s.toUpperCase());
-        // if we do not get a match in Event column names, then we need to do a join
-        if (colIndexInTable == null) {
-          tableIndicator = "eventsoutputs";
-          return tableIndicator;
-        }
-      }
-    }
-    return tableIndicator;
-  }
-
   
   /**
    * 
@@ -64,45 +25,165 @@ public class SearchUtil {
    *          depending upon the user query
    * @return the list of column names
    */
-  public static List<String> aggregateExtractedColNames(String inputString) {
+  public static void getColumnNames(String inputString, List<String> colNames) {
     // any non word character or the words 'and' 'or' 'is' 'not' get replaced
     // with blank
-    inputString = inputString.replaceAll("\\W+", " ");
-    System.out.println("after non word"+inputString);
+//    inputString = inputString.replaceAll("\\W+", " ");
+//    System.out.println("after non word"+inputString);
     // replace logical operators and other key words
-    inputString = inputString.replaceAll(" in |null|null | and | or | is | not | asc | desc | asc| desc", " ");
-    System.out.println("after key word replace"+inputString);;
-    
-    inputString = inputString.replaceAll(" (?i)in |(?i)null|(?i)null | (?i)and | (?i)or | (?i)is | (?i)not | (?i)asc | (?i)desc | (?i)asc| (?i)desc", " ");
-    System.out.println("after key word replace2"+inputString);;
+//    inputString = inputString.replaceAll(" in |null|null | and | or | is | not | asc | desc | asc| desc", " ");
+//    System.out.println("after key word replace"+inputString);;
+    if (inputString == null)
+            inputString ="";
+    inputString = inputString.replaceAll(" (?i)asc | (?i)desc | (?i)asc| (?i)desc, |,| ,", " ");
+//    System.out.println("after key word replace2"+inputString);
     
     // multiple blank spaces get truncated to single blank space
     inputString = inputString.replaceAll("( )+", " ").trim();
-    System.out.println("after multiple blank"+inputString);;
+//    System.out.println("after multiple blank"+inputString);;
     
     String[] out = inputString.split(" ");
-    return Arrays.asList(out);
+    colNames.addAll(Arrays.asList(out));
+//    return colNames;
   }
   
-//  public static void addImplicitConditions(SQLQuery sqlQuery){
+  public static void getColumnNames(Expression node, List<String> colNames) {  
     
-//    // provide default sort order which is Event._Id desc
-//    if(sqlQuery.getSortOrder() == null){
-//      sqlQuery.setSortOrder("event".concat(DOT).concat("idName").concat("DESC"));
-//    }
-//    
-//    //add limit clause to sort order
-//    if (sqlQuery.getLimit() != null) {
-//      sqlQuery.setSortOrder(sqlQuery.getSortOrder().concat(" LIMIT ").concat(sqlQuery.getLimit()));
-//    } 
+    if(node==null)  
+     return;  
+    if(node instanceof Parenthesis){
+      node = ((Parenthesis) node).getExpression();
+    } else if (node.getClass().getName().contains("Column")){
+      colNames.add(node.toString());
+    }
+    if(node instanceof BinaryExpression){
+      getColumnNames(((BinaryExpression)node).getLeftExpression(), colNames);
+    }
+   
+    if(node instanceof BinaryExpression){
+      getColumnNames(((BinaryExpression)node).getRightExpression(), colNames);
+    }
     
-//    //adding a default projection of event table primary key column
-//    int crtLength = sqlQuery.getProjection().length ;
-//    String[] modifiedProjection = new String[crtLength+1];
-//    System.arraycopy(sqlQuery.getProjection(), 0, modifiedProjection, 0, crtLength);
-//    //adding the following columns in the projection list to help in coalescing
-//    modifiedProjection[crtLength]="event".concat(DOT).concat("idName");
-//    sqlQuery.setProjection(modifiedProjection);
+    if(node instanceof InExpression){
+      getColumnNames(((InExpression)node).getLeftExpression(), colNames);
+    }
+  }  
+  
+  public static void getColumnNamesInWhere(Expression node, List<String> colNames){
+    getColumnNames(node, colNames);
+  }
+  
+  public static void getColumnNamesInHaving(Expression node, List<String> colNames){
+    getColumnNames(node, colNames);
+  }
+  
+  public static void getColumnNamesInSortOrder(String clause,  List<String> colNames){
+    getColumnNames(clause, colNames);
+  }
+  public static void getColumnNamesInGroupBy(String clause,  List<String> colNames){
+    getColumnNames(clause, colNames);
+  }
+  
+  public static List<String> getAllColNamesInQuery(String selectSql){
+    net.sf.jsqlparser.statement.Statement statement = null;
+    try {
+      statement = CCJSqlParserUtil.parse(selectSql);
+    } catch (JSQLParserException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
+    List<String> colNames = Lists.newArrayList(); 
+    
+    Select selectStatement = (Select) statement;
+    PlainSelect pl = (PlainSelect)selectStatement.getSelectBody();
+    BinaryExpression where = (BinaryExpression) pl.getWhere();
+    getColumnNamesInWhere(where, colNames);
+    BinaryExpression having = (BinaryExpression) pl.getHaving();
+    getColumnNamesInHaving(having, colNames);
+    if(pl.getOrderByElements()!=null)
+      getColumnNamesInSortOrder(pl.getOrderByElements().toString(), colNames);
+    if(pl.getGroupByColumnReferences()!=null)
+      getColumnNamesInGroupBy(pl.getGroupByColumnReferences().toString(), colNames);
+    System.out.println("all cols new approach"+colNames);
+    return colNames;
+    
+  }
+  
+  public static  String identifyTablesInvolved(List<String> colNamesInQuery){
+    if(colNamesInQuery.contains("text") || colNamesInQuery.contains("answer")){
+      return "eventsoutputs";
+    }else{
+      return "events";
+    }
+      
+  }
+  
+  public static  String getPlainSql(SQLQuery sqlQuery) {
+
+  //where group having order, limit
+  StringBuffer sqlString = new StringBuffer("");
+  
+  sqlString.append("Select ");
+
+  if(sqlQuery.getProjection()!=null){
+//    TODO : Should we add apache utils to shared
+//    String proj = StringUtils.join(sqlQuery.getProjection(),",");
+//    sqlString.append(proj);
+    String[] proj = sqlQuery.getProjection();
+    StringBuffer colNames = new StringBuffer("");
+    for(int i =0; i<proj.length;i++){
+      if(i==proj.length-1){
+        colNames.append(proj[i]);
+      }else{
+        colNames.append(proj[i]).append(",");
+      }
+    }
+    sqlString.append(colNames);
+  }
+ 
+  sqlString.append( " from events ");
+
+  if(sqlQuery.getCriteriaQuery()!=null){
+    String[] repl = sqlQuery.getCriteriaValue();
+    String x= sqlQuery.getCriteriaQuery();
+    int i=0;
+    while (x.contains("?")){
+      x = x.replaceFirst("\\?", repl[i++]);
+    }
+        
+    sqlString.append( " where ");
+    sqlString.append(x);
+  }
+  
+  if(sqlQuery.getGroupBy()!=null){
+    sqlString.append( " group by ");
+    sqlString.append(sqlQuery.getGroupBy());
+
+    if(sqlQuery.getHaving()!=null){
+      sqlString.append( " having ");
+      sqlString.append(sqlQuery.getHaving());
+    }
+    
+  }
+  
+  if(sqlQuery.getSortOrder()!=null){
+    sqlString.append( " order by ");
+    sqlString.append(sqlQuery.getSortOrder());
+  }
+  
+//TODO Limit is getting added to sort order because sql lite helper api's 
+//  does not allow direct limit variables. Should we continue that for server 
+//  even though we do not need it. Should we handle client limitations to the client side alone
+//  
+//  if(sqlQuery.getLimit()!=null){
+//    sqlString.append( " limit ");
+//    sqlString.append(sqlQuery.getLimit());
 //  }
+  
+  System.out.println(sqlString);
+  
+  return sqlString.toString();
+}
+
 }
 

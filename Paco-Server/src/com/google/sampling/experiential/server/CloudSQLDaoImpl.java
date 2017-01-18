@@ -11,16 +11,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 
-import org.apache.commons.lang3.StringUtils;
-
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.sampling.experiential.shared.EventDAO;
 import com.google.sampling.experiential.shared.Output;
 import com.pacoapp.paco.shared.model2.EventBaseColumns;
 import com.pacoapp.paco.shared.model2.OutputBaseColumns;
-import com.pacoapp.paco.shared.model2.SQLQuery;
-import com.pacoapp.paco.shared.util.SearchUtil;
 
 public class CloudSQLDaoImpl implements CloudSQLDao{
   public static final Logger log = Logger.getLogger(CloudSQLDaoImpl.class.getName());
@@ -47,7 +43,7 @@ public class CloudSQLDaoImpl implements CloudSQLDao{
       eventsColumns.put("PACO_VERSION", 15);
       eventsColumns.put("EVENTS._ID", 16);
       eventsColumns.put("_ID", 17);
-       
+// TODO Consider adding column names of all tables as enums in Shared, Not sure if it's great idea. Leaving it open.     
 //      eventsColumns = new EnumMap<EventTableColumns,EventTableColumns>(EventTableColumns.class);
 //      eventsColumns.put(EventTableColumns.EXPERIMENT_ID, EventTableColumns.EXPERIMENT_ID);
 //      eventsColumns.put(EventTableColumns.EXPERIMENT_SERVER_ID, EventTableColumns.EXPERIMENT_SERVER_ID);
@@ -81,36 +77,39 @@ public class CloudSQLDaoImpl implements CloudSQLDao{
        
       String insertEventSql = "INSERT INTO events ("
               +"_ID,"
+              + EventBaseColumns.EXPERIMENT_ID +","
+//              TODO Experiment server id, experiment id distinction is needed
+//              + EventBaseColumns.EXPERIMENT_SERVER_ID +","
+              + EventBaseColumns.EXPERIMENT_NAME +","
+              + EventBaseColumns.EXPERIMENT_VERSION +","
+              
+              + EventBaseColumns.RESPONSE_TIME +","
+              + EventBaseColumns.SCHEDULE_TIME +","
+              + EventBaseColumns.GROUP_NAME +","
               + EventBaseColumns.ACTION_ID +","
               + EventBaseColumns.ACTION_TRIGGER_ID +","
               + EventBaseColumns.ACTION_TRIGGER_SPEC_ID +","
-              + EventBaseColumns.GROUP_NAME +","
-              + EventBaseColumns.EXPERIMENT_SERVER_ID +","
-              + EventBaseColumns.EXPERIMENT_NAME +","
-              + EventBaseColumns.EXPERIMENT_VERSION +","
-              + EventBaseColumns.LAT +","
-              + EventBaseColumns.LON +","
-              + EventBaseColumns.RESPONSE_TIME +","
-              + EventBaseColumns.SCHEDULE_TIME +","
-//              + "`when`, "
-              + EventBaseColumns.WHO  +")"
-                      + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+             
+              + EventBaseColumns.WHO +","
+//  Since when is a keyword in mysql, we should mark it with a back tick
+              + "`"+ EventBaseColumns.WHEN  +"`)"
+                      + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
       PreparedStatement statementCreateEvent = conn.prepareStatement(insertEventSql);
       statementCreateEvent.setLong(1, event.getId()==null?0L:event.getId());
-      statementCreateEvent.setLong(2, event.getActionId()==null?0L:event.getActionId());
-      statementCreateEvent.setLong(3, event.getActionTriggerId()==null?0L:event.getActionTriggerId());
-      statementCreateEvent.setLong(4, event.getActionTriggerSpecId()==null?0L:event.getActionTriggerSpecId());
+      statementCreateEvent.setLong(2, event.getExperimentId()==null?0L:event.getExperimentId());
+      statementCreateEvent.setString(3, event.getExperimentName()==null?"":event.getExperimentName());
+      statementCreateEvent.setInt(4, event.getExperimentVersion()==null?0:event.getExperimentVersion());
+     
+      statementCreateEvent.setTimestamp(5, new java.sql.Timestamp(event.getResponseTime()==null?new Date().getTime():event.getResponseTime().getTime()));
+      statementCreateEvent.setTimestamp(6, new java.sql.Timestamp(event.getScheduledTime()==null?new Date().getTime():event.getScheduledTime().getTime()));
+      statementCreateEvent.setString(7, event.getExperimentGroupName()==null?"":event.getExperimentGroupName());
+      statementCreateEvent.setLong(8, event.getActionId()==null?0L:event.getActionId());
+      statementCreateEvent.setLong(9, event.getActionTriggerId()==null?0L:event.getActionTriggerId());
+      statementCreateEvent.setLong(10, event.getActionTriggerSpecId()==null?0L:event.getActionTriggerSpecId());
       
-      statementCreateEvent.setString(5, event.getExperimentGroupName()==null?"":event.getExperimentGroupName());
-      statementCreateEvent.setLong(6, event.getExperimentId()==null?0L:event.getExperimentId());
-      statementCreateEvent.setString(7, event.getExperimentName()==null?"":event.getExperimentName());
-      statementCreateEvent.setInt(8, event.getExperimentVersion()==null?0:event.getExperimentVersion());
+      statementCreateEvent.setString(11, event.getWho());
+      statementCreateEvent.setTimestamp(12, new java.sql.Timestamp(event.getWhen()==null?new Date().getTime():event.getWhen().getTime()));
       
-      statementCreateEvent.setString(9, event.getLat()==null?"":event.getLat());
-      statementCreateEvent.setString(10, event.getLon()==null?"":event.getLon());
-      statementCreateEvent.setTimestamp(11, new java.sql.Timestamp(event.getResponseTime()==null?new Date().getTime():event.getResponseTime().getTime()));
-      statementCreateEvent.setTimestamp(12, new java.sql.Timestamp(event.getScheduledTime()==null?new Date().getTime():event.getScheduledTime().getTime()));
-      statementCreateEvent.setString(13, event.getWho());
       statementCreateEvent.execute();
      
     
@@ -180,65 +179,8 @@ public class CloudSQLDaoImpl implements CloudSQLDao{
     return outputLst;
   }
 
-  @Override
-  public String getPlainSql(SQLQuery sqlQuery) {
-    loadColumnTableAssociationMap();
-    String tableIndicator = SearchUtil.identifyTablesInvolved(eventsColumns, sqlQuery);
-    
-    //where group having order, limit
-    StringBuffer sqlString = new StringBuffer("");
-    
-    sqlString.append("Select ");
-  
-    if(sqlQuery.getProjection()!=null){
-      String proj = StringUtils.join(sqlQuery.getProjection(),",");
-      sqlString.append(proj);
-    }
-    
-    if (tableIndicator.equals("events")){
-      sqlString.append( " from events ");
-    } else {
-      sqlString.append( " from events join outputs on events._id = outputs.event_Id ");   
-    }
-
-    if(sqlQuery.getCriteriaQuery()!=null){
-      String[] repl = sqlQuery.getCriteriaValue();
-      String x= sqlQuery.getCriteriaQuery();
-      int i=0;
-      while (x.contains("?")){
-        x = x.replaceFirst("\\?", repl[i++]);
-      }
-          
-      sqlString.append( " where ");
-      sqlString.append(x);
-    }
-    
-    if(sqlQuery.getGroupBy()!=null){
-      sqlString.append( " group by ");
-      sqlString.append(sqlQuery.getGroupBy());
-
-      if(sqlQuery.getHaving()!=null){
-        sqlString.append( " having ");
-        sqlString.append(sqlQuery.getHaving());
-      }
-      
-    }
-    
-    if(sqlQuery.getSortOrder()!=null){
-      sqlString.append( " order by ");
-      sqlString.append(sqlQuery.getSortOrder());
-    }
-//    
-//    if(sqlQuery.getLimit()!=null){
-//      sqlString.append( " limit ");
-//      sqlString.append(sqlQuery.getLimit());
-//    }
-    
-    System.out.println(sqlString);
-    
-    return sqlString.toString();
-  }
   private Map<String, String> convertOutputListToMap(List<Output> outList){
+    //TODO is there a util to do this
     Map<String, String> outMap = Maps.newHashMap();
     for(Output out : outList){
       outMap.put(out.getName(), out.getValue());
@@ -247,7 +189,8 @@ public class CloudSQLDaoImpl implements CloudSQLDao{
   }
 
   @Override
-  public List<EventDAO> getEvents(String query, String whereClause, String[] criValues) {
+  public List<EventDAO> getEvents(String query) {
+    log.info("execute query:"+query);
     List<EventDAO> evtList = Lists.newArrayList();
    
     EventDAO event = null;
@@ -274,7 +217,6 @@ public class CloudSQLDaoImpl implements CloudSQLDao{
             event.setWhat(outputMap);
             eventMap.put(event.getId(), event);
           }
-//          rs.next();
         }
       }
     } catch (SQLException e) {
@@ -285,6 +227,7 @@ public class CloudSQLDaoImpl implements CloudSQLDao{
   }
   
   private EventDAO createEvent(ResultSet rs){
+    loadColumnTableAssociationMap();
     EventDAO e = new EventDAO();
     try{
       ResultSetMetaData rsmd = rs.getMetaData();
@@ -298,6 +241,7 @@ public class CloudSQLDaoImpl implements CloudSQLDao{
               e.setExperimentId(rs.getLong(i));
               break;
             case 2:
+              //TODO experiment server id
               e.setExperimentId(rs.getLong(i));
               break;
             case 3:
@@ -402,5 +346,69 @@ public class CloudSQLDaoImpl implements CloudSQLDao{
       log.info("sql eception s"+ex);
     }
     return e;
+  }
+
+  @Override
+  public String createTables() {
+    String retString = "";
+    try{
+      Connection conn = null;
+      conn = CloudSQLConnectionManager.getConnection();
+       
+      final String createEventsTableSql = "CREATE TABLE `events` ("+
+                  
+      "`_id` bigint(20) NOT NULL,"+
+      "`experiment_id` bigint(20) NOT NULL,"+
+      "`experiment_server_id` bigint(20) DEFAULT NULL,"+
+      "`experiment_name` varchar(45) DEFAULT NULL,"+
+      "`experiment_version` int(11) DEFAULT NULL,"+
+      "`schedule_time` datetime DEFAULT NULL,"+
+      "`response_time` datetime DEFAULT NULL,"+
+      "`group_name` varchar(45) DEFAULT NULL,"+
+      "`action_id` bigint(20) DEFAULT NULL,"+
+      "`action_trigger_id` bigint(20) DEFAULT NULL,"+
+      "`action_trigger_spec_id` bigint(20) DEFAULT NULL,"+
+      "`who` varchar(45) DEFAULT NULL,"+
+      "`paco_version` varchar(45) DEFAULT NULL,"+
+      "`when` datetime DEFAULT NULL,"+
+      "`archive_flag` tinyint(4) NOT NULL DEFAULT '0',"+
+      "PRIMARY KEY (`_id`,`archive_flag`,`experiment_id`)"+
+      ") ENGINE=InnoDB DEFAULT CHARSET=latin1"+
+      "/*!50100 PARTITION BY LIST (archive_flag)"+
+      "SUBPARTITION BY HASH (experiment_id)"+
+      "SUBPARTITIONS 20"+
+      "(PARTITION p1 VALUES IN (0) COMMENT = 'active' ENGINE = InnoDB,"+
+      "PARTITION p2 VALUES IN (1) COMMENT = 'archived' ENGINE = InnoDB) */";
+        
+      final String createOutputsTableSql = "CREATE TABLE `outputs` ("+
+          "`event_id` bigint(20) NOT NULL,"+
+          "`input_server_id` varchar(45) DEFAULT NULL,"+
+          "`text` varchar(45) NOT NULL,"+
+          "`answer` varchar(45) DEFAULT NULL,"+
+          "`archive_flag` tinyint(4) NOT NULL DEFAULT '0',"+
+          "PRIMARY KEY (`event_id`,`text`,`archive_flag`)"+
+        ") ENGINE=InnoDB DEFAULT CHARSET=latin1"+
+      "/*!50100 PARTITION BY LIST (archive_flag)"+
+      "(PARTITION part0 VALUES IN (0) COMMENT = 'active' ENGINE = InnoDB,"+
+      "PARTITION part1 VALUES IN (1) COMMENT = 'archived' ENGINE = InnoDB) */";
+               
+      PreparedStatement statementCreateEvent = conn.prepareStatement(createEventsTableSql);
+     
+      statementCreateEvent.execute();
+      log.info("created events");
+      //TODO better handling
+      retString = "created events table. ";
+      PreparedStatement statementCreateOutput = conn.prepareStatement(createOutputsTableSql);
+      
+      statementCreateOutput.execute();
+      log.info("created outputs");
+      //TODO better handling
+      retString = retString + "Created outputs table";
+      
+    
+    } catch (SQLException e) {
+      log.info("sqlexception while creating event and output table"+e);
+    }
+    return retString;
   }
 }

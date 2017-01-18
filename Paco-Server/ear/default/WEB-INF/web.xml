@@ -45,6 +45,15 @@
   </servlet-mapping>
   
   <servlet>
+    <servlet-name>TestServlet</servlet-name>
+    <servlet-class>com.google.sampling.experiential.server.TestCloudSQLServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>TestServlet</servlet-name>
+    <url-pattern>/serverTest</url-pattern>
+  </servlet-mapping>
+  
+  <servlet>
     <servlet-name>ServerSearchServlet</servlet-name>
     <servlet-class>com.google.sampling.experiential.server.CloudSqlSearchServlet</servlet-class>
   </servlet>

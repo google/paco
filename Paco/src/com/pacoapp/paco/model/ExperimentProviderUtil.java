@@ -821,8 +821,10 @@ public class ExperimentProviderUtil implements EventStore {
    
     try {
 
+      String plainSql = SearchUtil.getPlainSql(sqlQuery);
+      List<String> allColumns = SearchUtil.getAllColNamesInQuery(plainSql);
       //identify all tables involved for the complete column names
-      String tableIndicator = SearchUtil.identifyTablesInvolved(eventsColumns, sqlQuery);
+      String tableIndicator = SearchUtil.identifyTablesInvolved(allColumns);
       
       if (tableIndicator.equals(ExperimentProvider.EVENTS_OUTPUTS_TABLE_NAME)) { 
         cursor = dbHelper.query(ExperimentProvider.EVENTS_OUTPUTS_DATATYPE, sqlQuery.getProjection(), sqlQuery.getCriteriaQuery(), sqlQuery.getCriteriaValue(),

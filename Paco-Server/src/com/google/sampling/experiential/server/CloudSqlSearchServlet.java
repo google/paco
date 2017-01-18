@@ -13,6 +13,7 @@ import javax.servlet.http.HttpServletResponse;
 import com.google.sampling.experiential.shared.EventDAO;
 import com.pacoapp.paco.shared.model2.SQLQuery;
 import com.pacoapp.paco.shared.util.JsUtil;
+import com.pacoapp.paco.shared.util.SearchUtil;
 
 
 
@@ -36,13 +37,22 @@ public class CloudSqlSearchServlet extends HttpServlet {
     CloudSQLDao impl = new CloudSQLDaoImpl();
 
     String reqBody = RequestProcessorUtil.getBody(req);
+    
     sqlQueryObj = JsUtil.convertJSONToPOJO(reqBody);
     
-    final String selectSql = impl.getPlainSql(sqlQueryObj);
+    String selectSql = SearchUtil.getPlainSql(sqlQueryObj);
+    
+    List<String> colNamesInQuery = SearchUtil.getAllColNamesInQuery(selectSql);
+   
+    String tablesInvolved = SearchUtil.identifyTablesInvolved(colNamesInQuery);
+    if (tablesInvolved!=null && tablesInvolved.equals("eventsoutputs")){
+      System.out.println("all cols new approach contains answer/text");
+      selectSql = selectSql.replace(" from events ", " from events join outputs on events._id = outputs.event_Id ");
+    }
     
     PrintWriter out = resp.getWriter();
     resp.setContentType("text/plain");
-    List<EventDAO> evtList = impl.getEvents(selectSql, sqlQueryObj.getCriteriaQuery(), sqlQueryObj.getCriteriaValue());
+    List<EventDAO> evtList = impl.getEvents(selectSql);
    
     for(EventDAO evt : evtList){
         out.print("Id:"+evt.getId());

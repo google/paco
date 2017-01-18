@@ -34,8 +34,10 @@ public class EventBaseColumns {
   public static final String ACTION_TRIGGER_ID = "action_trigger_id";
   public static final String ACTION_TRIGGER_SPEC_ID = "action_trigger_spec_id";
   public static final String ACTION_ID = "action_id";
-  public static final String LAT = "lat";
-  public static final String LON = "lon";
+//  public static final String LAT = "lat";
+//  public static final String LON = "lon";
   public static final String WHO = "who";
+  public static final String WHEN = "when";
+  public static final String ARCHIVE_FLAG = "archive_flag";
 
 }
