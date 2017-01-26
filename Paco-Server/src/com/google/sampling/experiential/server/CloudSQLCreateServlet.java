@@ -9,8 +9,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 @SuppressWarnings("serial")
-public class TestCloudSQLServlet extends HttpServlet {
-
+public class CloudSQLCreateServlet extends HttpServlet {
+//Todo authentication
   @Override
   public void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException,
       ServletException {

@@ -1,45 +1,26 @@
 package com.google.sampling.experiential.server;
 
-import java.io.BufferedReader;
 import java.io.IOException;
+import java.util.logging.Logger;
 
-import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.commons.lang3.SerializationUtils;
-import org.mortbay.log.Log;
-
-import com.google.sampling.experiential.shared.EventDAO;
-
 public class RequestProcessorUtil {
-  public static EventDAO getEventDAO(HttpServletRequest req){
-    ServletInputStream sis = null;
-    EventDAO event = null;
-    
+
+  private static final Logger log = Logger.getLogger(RequestProcessorUtil.class.getName());
+
+  public static String getBody(HttpServletRequest req) throws IOException{
+    String postBodyString = null;
     try {
-      sis = req.getInputStream();
+      postBodyString = org.apache.commons.io.IOUtils.toString(req.getInputStream(), "UTF-8");
     } catch (IOException e) {
-      e.printStackTrace();
+      log.info("IO Exception reading post data stream: " + e.getMessage());
+      throw e;
     }
-    
-    event = (EventDAO)SerializationUtils.deserialize(sis);
-    return event;
-  }
-  
-  public static String getBody(HttpServletRequest req){
-    StringBuilder buffer = new StringBuilder();
-    String reqBody = null;
-    try{
-      BufferedReader reader = req.getReader();
-      String line;
-      while ((line = reader.readLine()) != null) {
-          buffer.append(line);
-      }
-      reqBody = buffer.toString();
-    }catch(Exception e){
-      Log.info("while retrieving req body"+e);
+    if (postBodyString.equals("")) {
+      throw new IllegalArgumentException("Empty Post body");
     }
-    return reqBody;
+    return postBodyString;
   }
   
 

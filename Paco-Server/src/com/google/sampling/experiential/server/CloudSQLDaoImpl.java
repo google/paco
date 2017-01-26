@@ -13,6 +13,7 @@ import java.util.logging.Logger;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.sampling.experiential.model.Event;
 import com.google.sampling.experiential.shared.EventDAO;
 import com.google.sampling.experiential.shared.Output;
 import com.pacoapp.paco.shared.model2.EventBaseColumns;
@@ -20,7 +21,6 @@ import com.pacoapp.paco.shared.model2.OutputBaseColumns;
 
 public class CloudSQLDaoImpl implements CloudSQLDao{
   public static final Logger log = Logger.getLogger(CloudSQLDaoImpl.class.getName());
-//  private static  Map<EventTableColumns, EventTableColumns> eventsColumns = null;
   private static  Map<String, Integer> eventsColumns = null;
   
   private static void loadColumnTableAssociationMap(){
@@ -43,42 +43,25 @@ public class CloudSQLDaoImpl implements CloudSQLDao{
       eventsColumns.put("PACO_VERSION", 15);
       eventsColumns.put("EVENTS._ID", 16);
       eventsColumns.put("_ID", 17);
-// TODO Consider adding column names of all tables as enums in Shared, Not sure if it's great idea. Leaving it open.     
-//      eventsColumns = new EnumMap<EventTableColumns,EventTableColumns>(EventTableColumns.class);
-//      eventsColumns.put(EventTableColumns.EXPERIMENT_ID, EventTableColumns.EXPERIMENT_ID);
-//      eventsColumns.put(EventTableColumns.EXPERIMENT_SERVER_ID, EventTableColumns.EXPERIMENT_SERVER_ID);
-//      eventsColumns.put(EventTableColumns.EXPERIMENT_NAME, EventTableColumns.EXPERIMENT_NAME);
-//      eventsColumns.put(EventTableColumns.EXPERIMENT_VERSION, EventTableColumns.EXPERIMENT_VERSION);
-//      eventsColumns.put(EventTableColumns.SCHEDULE_TIME, EventTableColumns.SCHEDULE_TIME);
-//      eventsColumns.put(EventTableColumns.RESPONSE_TIME, EventTableColumns.RESPONSE_TIME);
-//      eventsColumns.put(EventTableColumns.UPLOADED, EventTableColumns.UPLOADED);
-//      eventsColumns.put(EventTableColumns.GROUP_NAME, EventTableColumns.GROUP_NAME);
-//      eventsColumns.put(EventTableColumns.ACTION_TRIGGER_ID, EventTableColumns.ACTION_TRIGGER_ID);
-//      eventsColumns.put(EventTableColumns.ACTION_TRIGGER_SPEC_ID, EventTableColumns.ACTION_TRIGGER_SPEC_ID);
-//      eventsColumns.put(EventTableColumns.ACTION_ID, EventTableColumns.ACTION_ID);
-//      eventsColumns.put(EventTableColumns.WHO, EventTableColumns.WHO);
-//      eventsColumns.put(EventTableColumns.LAT, EventTableColumns.LAT);
-//      eventsColumns.put(EventTableColumns.LON, EventTableColumns.LON);
-//      eventsColumns.put(EventTableColumns.PACO_VERSION,EventTableColumns.PACO_VERSION);
-//      eventsColumns.put(EventTableColumns.EVENTS_ID, EventTableColumns.EVENTS_ID);
-//      eventsColumns.put(EventTableColumns._ID,EventTableColumns._ID);
     }
   }
  
   @Override
-  public void insertEvent(EventDAO event) {
+  public void insertEvent(Event event) {
     if (event == null){
       log.severe("nothing to insert");
       return;
     }
+    Connection conn = null;
     try{
-      Connection conn = null;
+      
       conn = CloudSQLConnectionManager.getConnection();
-       
+      log.info("inserting event->"+ event.getId());
+      
       String insertEventSql = "INSERT INTO events ("
               +"_ID,"
               + EventBaseColumns.EXPERIMENT_ID +","
-//              TODO Experiment server id, experiment id distinction is needed
+//              TODO Experiment server id, experiment id distinction handling
 //              + EventBaseColumns.EXPERIMENT_SERVER_ID +","
               + EventBaseColumns.EXPERIMENT_NAME +","
               + EventBaseColumns.EXPERIMENT_VERSION +","
@@ -96,7 +79,7 @@ public class CloudSQLDaoImpl implements CloudSQLDao{
                       + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
       PreparedStatement statementCreateEvent = conn.prepareStatement(insertEventSql);
       statementCreateEvent.setLong(1, event.getId()==null?0L:event.getId());
-      statementCreateEvent.setLong(2, event.getExperimentId()==null?0L:event.getExperimentId());
+      statementCreateEvent.setString(2, event.getExperimentId()==null?"":event.getExperimentId());
       statementCreateEvent.setString(3, event.getExperimentName()==null?"":event.getExperimentName());
       statementCreateEvent.setInt(4, event.getExperimentVersion()==null?0:event.getExperimentVersion());
      
@@ -112,22 +95,29 @@ public class CloudSQLDaoImpl implements CloudSQLDao{
       
       statementCreateEvent.execute();
      
-    
     } catch (SQLException e) {
       log.info("sqlexception while inserting event"+e);
+    }finally {
+      try {
+        if (conn != null) {
+            conn.close();
+        }
+      } catch (SQLException ex1) {
+        log.info("sqlexception while inserting event close conn"+ex1);
+      }
     }
   }
   
   @Override
-  public void insertOutputs(EventDAO event) {
+  public void insertOutputs(Event event) {
+    Connection conn = null;
     if (event == null){
       log.severe("nothing to insert");
       return;
     }
     try{
-      Connection conn = null;
-      conn = CloudSQLConnectionManager.getConnection();
      
+      conn = CloudSQLConnectionManager.getConnection();
       String insertEventOutputsSql = "INSERT INTO outputs ("
               + OutputBaseColumns.EVENT_ID +","
               + OutputBaseColumns.NAME +","
@@ -135,7 +125,7 @@ public class CloudSQLDaoImpl implements CloudSQLDao{
               + ") VALUES (?, ?, ?)";
       PreparedStatement statementCreateEventOutput = conn.prepareStatement(insertEventOutputsSql);
         
-      for(String key : event.getWhat().keySet()){
+      for(String key : event.getWhatKeys()){
         String whatAnswer = event.getWhatByKey(key);
         statementCreateEventOutput.setLong(1, event.getId()==null?0L:event.getId());
         statementCreateEventOutput.setString(2, key);
@@ -145,6 +135,14 @@ public class CloudSQLDaoImpl implements CloudSQLDao{
     } catch (SQLException e) {
       log.info("sqlexception while inserting output"+e);
       
+    }finally {
+      try {
+        if (conn != null) {
+            conn.close();
+        }
+      } catch (SQLException ex1) {
+        log.info("sqlexception while inserting event close conn"+ex1);
+      }
     }
   }
   
@@ -154,8 +152,9 @@ public class CloudSQLDaoImpl implements CloudSQLDao{
     Output output = null;
     String question = null;
     String answer = null;
+    Connection conn = null;
     try{
-      Connection conn = null;
+      
       conn = CloudSQLConnectionManager.getConnection();
      
       String selectOutputsSql = "Select * from outputs where event_id =?";
@@ -163,7 +162,6 @@ public class CloudSQLDaoImpl implements CloudSQLDao{
       
       statementSelectOutput.setLong(1, eventId);
 
-      log.info(eventId + "sql qry is"+statementSelectOutput.toString() );
       ResultSet rs = statementSelectOutput.executeQuery();
       while(rs.next()){
         
@@ -173,8 +171,16 @@ public class CloudSQLDaoImpl implements CloudSQLDao{
         outputLst.add(output);
       }    
     } catch (SQLException e) {
-      log.info("sqlexception2"+e);
+      log.info("sqlexception"+e);
       
+    }finally {
+      try {
+        if (conn != null) {
+            conn.close();
+        }
+      } catch (SQLException ex1) {
+        log.info("sqlexception while inserting event close conn"+ex1);
+      }
     }
     return outputLst;
   }
@@ -187,17 +193,17 @@ public class CloudSQLDaoImpl implements CloudSQLDao{
     }
     return outMap;
   }
-
+  //TODO ACL for search
   @Override
   public List<EventDAO> getEvents(String query) {
-    log.info("execute query:"+query);
+    log.info("execute search query:"+query);
     List<EventDAO> evtList = Lists.newArrayList();
    
     EventDAO event = null;
-   
+    Connection conn = null;
     Map<Long, EventDAO> eventMap = null;
     try{
-      Connection conn = null;
+      
       conn = CloudSQLConnectionManager.getConnection();
       PreparedStatement statementSelectEvent = conn.prepareStatement(query);
       
@@ -221,7 +227,16 @@ public class CloudSQLDaoImpl implements CloudSQLDao{
       }
     } catch (SQLException e) {
       log.info("sqlexception while selecting data from cloud sql"+e);
+    }finally {
+      try {
+        if (conn != null) {
+            conn.close();
+        }
+      } catch (SQLException ex1) {
+        log.info("sqlexception while inserting event close conn"+ex1);
+      }
     }
+    
     evtList = Lists.newArrayList(eventMap.values());
     return evtList;
   }
@@ -288,73 +303,23 @@ public class CloudSQLDaoImpl implements CloudSQLDao{
               e.setId(rs.getLong(i));
               break; 
 
-//        String colLower = tempColNameInRS.toLowerCase();
-//        EventTableColumns colIndex = eventsColumns.get(colLower);
-//        if (colIndex!=null){
-//          switch (colIndex){
-//            case EXPERIMENT_ID:
-//            case EXPERIMENT_SERVER_ID:
-//              e.setExperimentId(rs.getLong(i));
-//              break;
-//            case EXPERIMENT_NAME:
-//              e.setExperimentName(rs.getString(i));
-//              break;
-//            case EXPERIMENT_VERSION:
-//              e.setExperimentVersion(rs.getInt(i));
-//              break;
-//            case SCHEDULE_TIME:
-//              e.setScheduledTime(rs.getDate(i));
-//              break;
-//            case RESPONSE_TIME:
-//              e.setResponseTime(rs.getDate(i));
-//              break;
-////            case 7:
-//////              (rs.getLong(i));
-////              break;
-//            case GROUP_NAME:
-//              e.setExperimentGroupName(rs.getString(i));
-//              break;
-//            case ACTION_TRIGGER_ID:
-//              e.setActionTriggerId(rs.getLong(i));
-//              break;
-//            case ACTION_TRIGGER_SPEC_ID:
-//              e.setActionTriggerSpecId(rs.getLong(i));
-//              break;
-//            case ACTION_ID:
-//              e.setActionId(rs.getLong(i));
-//              break;
-//            case WHO:
-//              e.setWho(rs.getString(i));
-//              break;
-//            case LAT:
-//              e.setLat(rs.getString(i));
-//              break;
-//            case LON:
-//              e.setLon(rs.getString(i));
-//              break;
-//            case PACO_VERSION:
-//              e.setPaco_version(rs.getString(i));
-//              break; 
-//            case EVENTS_ID:
-//            case _ID:
-//              e.setId(rs.getLong(i));
-//              break; 
           }
         }
       }
     }catch(SQLException ex){
-      log.info("sql eception s"+ex);
+      log.info("sql eception "+ex);
     }
     return e;
   }
 
   @Override
   public String createTables() {
-    String retString = "";
+    String retString = null;
     try{
       Connection conn = null;
       conn = CloudSQLConnectionManager.getConnection();
-       
+      //TODO Sub Partition size for the experiment hash bucket
+      //TODO indexes for the user id, when 
       final String createEventsTableSql = "CREATE TABLE `events` ("+
                   
       "`_id` bigint(20) NOT NULL,"+

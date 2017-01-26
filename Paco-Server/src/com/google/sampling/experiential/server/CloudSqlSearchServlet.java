@@ -20,7 +20,7 @@ import com.pacoapp.paco.shared.util.SearchUtil;
 @SuppressWarnings("serial")
 public class CloudSqlSearchServlet extends HttpServlet {
   public static final Logger log = Logger.getLogger(CloudSqlSearchServlet.class.getName());
-
+//TODO authentication
   @Override
   public void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException,
   ServletException {
@@ -31,8 +31,6 @@ public class CloudSqlSearchServlet extends HttpServlet {
   @Override
   public void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException,
       ServletException {
-    
-    log.info("in cloudsql search");
     SQLQuery sqlQueryObj =null;
     CloudSQLDao impl = new CloudSQLDaoImpl();
 
@@ -46,7 +44,7 @@ public class CloudSqlSearchServlet extends HttpServlet {
    
     String tablesInvolved = SearchUtil.identifyTablesInvolved(colNamesInQuery);
     if (tablesInvolved!=null && tablesInvolved.equals("eventsoutputs")){
-      System.out.println("all cols new approach contains answer/text");
+//      System.out.println("all cols new approach contains answer/text");
       selectSql = selectSql.replace(" from events ", " from events join outputs on events._id = outputs.event_Id ");
     }
     
@@ -61,7 +59,7 @@ public class CloudSqlSearchServlet extends HttpServlet {
         out.print("out size:"+evt.getResponses().size());
         out.print("expGrpName:"+evt.getExperimentGroupName());
         out.print("who:"+evt.getWho());
-        out.print("sch time:"+new java.util.Date(evt.getScheduledTime().getTime()));
+//        out.print("sch time:"+new java.util.Date(evt.getScheduledTime().getTime()));
         out.print("pacoversion:"+evt.getPacoVersion());
         out.print("appid:"+evt.getAppId());
         out.println();

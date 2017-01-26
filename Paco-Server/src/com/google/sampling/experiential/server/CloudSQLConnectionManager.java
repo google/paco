@@ -1,13 +1,18 @@
 package com.google.sampling.experiential.server;
 
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import javax.sql.DataSource;
+
+import org.apache.commons.dbcp.BasicDataSource;
 
 public class CloudSQLConnectionManager {
   static String url;
-  public static final Logger log = Logger.getLogger(ExperimentServlet.class.getName());
+  static BasicDataSource ds;
+  public static final Logger log = Logger.getLogger(CloudSQLConnectionManager.class.getName());
 
   public CloudSQLConnectionManager(){
   
@@ -15,29 +20,52 @@ public class CloudSQLConnectionManager {
   
   public static Connection getConnection() {
     Connection conn = null;
-    try{
-      if (System.getProperty("com.google.appengine.runtime.version").startsWith("Google App Engine/")) {
-        // Check the System properties to determine if we are running on appengine or not
-        // Google App Engine sets a few system properties that will reliably be present on a remote
-        // instance.
-        url = System.getProperty("ae-cloudsql.cloudsql-database-url");
-        
-          // Load the class that provides the new "jdbc:google:mysql://" prefix.
-          Class.forName("com.mysql.jdbc.GoogleDriver");
-  
-      } else {
-        // Set the url with the local MySQL database connection url when running locally
-        url = System.getProperty("ae-cloudsql.local-database-url");
-      }
-      log.info("connecting to: " + url);
-      
-       conn = DriverManager.getConnection(url);
-    }catch (ClassNotFoundException c){
-      
-    }catch (SQLException s){
-      
+    try {
+      conn = getDataSource().getConnection();
+    } catch (ClassNotFoundException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    } catch (SQLException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
     }
+
     return conn;
     
+  }
+  
+  /**
+   *  
+   * @return
+   * @throws ClassNotFoundException
+   */
+  
+  private static DataSource getDataSource() throws ClassNotFoundException {
+    if(ds==null){
+     ds = new BasicDataSource();
+    }
+    if (System
+        .getProperty("com.google.appengine.runtime.version").startsWith("Google App Engine/")) {
+//       Check the System properties to determine if we are running on appengine or not
+//       Google App Engine sets a few system properties that will reliably be present on a remote
+//       instance.     
+      ds.setUrl("jdbc:google:mysql://quantifiedself-staging2:us-central1:quantifiedself-staging2-sql/test");
+      ds.setUsername("imey****");
+      ds.setPassword("*****");
+   
+      Class.forName("com.mysql.jdbc.GoogleDriver");
+    } else {
+//       Set the url with the local MySQL database connection url when running locally
+//      ds.setDriver("org.gjt.mm.mysql.Driver");
+      ds.setUrl("jdbc:mysql://localhost:3306/pacodb");
+      ds.setUsername("root");
+      ds.setPassword("*****");
+    }
+    log.log(Level.FINE,"connecting to: " + ds.getUrl());
+//   common properties
+    ds.setMinIdle(5);
+    ds.setMaxIdle(20);
+    ds.setMaxOpenPreparedStatements(180);
+    return ds;
   }
 }

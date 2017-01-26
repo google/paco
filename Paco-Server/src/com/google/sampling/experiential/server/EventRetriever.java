@@ -32,10 +32,11 @@ import javax.jdo.Query;
 import javax.jdo.Transaction;
 
 import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.lang3.SerializationUtils;
 import org.datanucleus.store.appengine.query.JDOCursorHelper;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import com.google.appengine.api.datastore.Blob;
 import com.google.appengine.api.datastore.Cursor;
@@ -47,10 +48,10 @@ import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.PreparedQuery;
 import com.google.appengine.api.datastore.Query.FilterOperator;
 import com.google.appengine.api.datastore.Query.FilterPredicate;
+import com.google.appengine.api.datastore.QueryResultList;
 import com.google.appengine.api.taskqueue.Queue;
 import com.google.appengine.api.taskqueue.QueueFactory;
 import com.google.appengine.api.taskqueue.TaskOptions;
-import com.google.appengine.api.datastore.QueryResultList;
 import com.google.appengine.api.utils.SystemProperty;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Joiner;
@@ -76,6 +77,7 @@ public class EventRetriever {
   private static final int DEFAULT_FETCH_LIMIT = 20000;
   private static EventRetriever instance;
   private static final Logger log = Logger.getLogger(EventRetriever.class.getName());
+  private static CloudSQLDao cloudSqlDaoImpl = new CloudSQLDaoImpl();
 
   @VisibleForTesting
   EventRetriever() {
@@ -87,32 +89,43 @@ public class EventRetriever {
     }
     return instance;
   }
+  
+  public void postEvent(boolean persistInCloudSql, JSONObject eventJson, String who, String lat, String lon, Date whenDate, String appId, String pacoVersion,
+                        Set<What> whats, boolean shared, String experimentId, String experimentName,
+                        Integer experimentVersion, DateTime responseTime, DateTime scheduledTime,
+                        List<PhotoBlob> blobs, String groupName, Long actionTriggerId, Long actionTriggerSpecId, Long actionId) {
+    final String tz = responseTime != null && responseTime.getZone() != null
+            ? responseTime.getZone().toString()
+            : scheduledTime!= null && scheduledTime.getZone() != null
+              ? scheduledTime.getZone().toString()
+              : null;
+              
+     postEvent(persistInCloudSql, eventJson, who, lat, lon, whenDate, appId, pacoVersion, whats, shared, experimentId, experimentName, experimentVersion,
+              responseTime != null ? responseTime.toDate() : null,
+              scheduledTime != null ? scheduledTime.toDate() : null, blobs,
+              tz, groupName, actionTriggerId, actionTriggerSpecId, actionId);
+  
+  }
+    
 
   public void postEvent(String who, String lat, String lon, Date whenDate, String appId, String pacoVersion,
                         Set<What> whats, boolean shared, String experimentId, String experimentName,
                         Integer experimentVersion, DateTime responseTime, DateTime scheduledTime,
                         List<PhotoBlob> blobs, String groupName, Long actionTriggerId, Long actionTriggerSpecId, Long actionId) {
     
-    final String tz = responseTime != null && responseTime.getZone() != null
-            ? responseTime.getZone().toString()
-            : scheduledTime!= null && scheduledTime.getZone() != null
-              ? scheduledTime.getZone().toString()
-              : null;
-    postEvent(who, lat, lon, whenDate, appId, pacoVersion, whats, shared, experimentId, experimentName, experimentVersion,
-              responseTime != null ? responseTime.toDate() : null,
-              scheduledTime != null ? scheduledTime.toDate() : null, blobs,
-              tz, groupName, actionTriggerId, actionTriggerSpecId, actionId);
+    postEvent(true, null, who, lat, lon, whenDate, appId, pacoVersion, whats, shared, experimentId, experimentName, 
+                     experimentVersion, responseTime, scheduledTime, blobs, groupName, actionTriggerId, actionTriggerSpecId, actionId);
    
   }
 
 
-  public void postEvent(String who, String lat, String lon, Date whenDate, String appId,
+  public void postEvent(boolean persistInCloudSql, JSONObject eventJson, String who, String lat, String lon, Date whenDate, String appId,
       String pacoVersion, Set<What> what, boolean shared, String experimentId,
       String experimentName, Integer experimentVersion, Date responseTime, Date scheduledTime, List<PhotoBlob> blobs,
       String tz,
       String groupName, Long actionTriggerId, Long actionTriggerSpecId, Long actionId) {
 //    long t1 = System.currentTimeMillis();
-
+    
 
     boolean isJoinEvent = false;
     for (What whatItem : what) {
@@ -137,37 +150,73 @@ public class EventRetriever {
     Event event = new Event(who, lat, lon, whenDate, appId, pacoVersion, what, shared,
         experimentId, experimentName, experimentVersion, responseTime, scheduledTime, blobs, tz,
         groupName, actionTriggerId, actionTriggerSpecId, actionId);
-    Transaction tx = null;
-    try {
-      tx = pm.currentTransaction();
-      tx.begin();
-      pm.makePersistent(event);
-      if (isJoinEvent) {
-        ExperimentAccessManager.addJoinedExperimentFor(who, Long.valueOf(experimentId), responseTime);
-      } else if (!isScheduleEvent && !isStopEvent) {
-        new ParticipationStatsService().updateResponseCountWithEvent(event);
+    //Flow will either persist in data store and send event to the cloud sql queue or persist in cloud sql
+    if(persistInCloudSql && eventJson!=null){
+      Long id;
+      String whoFromJson=null;
+      try {
+        id = eventJson.getLong("id");
+        //TODO remove, since this is Only for test
+        if(eventJson.has("who")){
+          whoFromJson = eventJson.getString("who");
+        }else{
+          whoFromJson = who;
+        }
+        event.setId(id);
+        event.setWho(whoFromJson);
+      } catch (JSONException e) {
+        // TODO Auto-generated catch block
+        e.printStackTrace();
       }
-      tx.commit();
-      log.info("Event saved in datastore");
-      Queue queue = QueueFactory.getQueue("cloud-sql");
-      List<Event> evtList = Lists.newArrayList();
-      evtList.add(event);
-      List<EventDAO> eDaoList = convertEventsToDAOs(evtList);
-      EventDAO evtDao = eDaoList.get(0);
-      evtDao.setId(event.getId());
-      queue.add(TaskOptions.Builder.withUrl("/serverInsert").payload(SerializationUtils.serialize(evtDao)));
-      log.info("event sent to cloud sql");
-    } finally {
-      if (tx.isActive()) {
-        log.info("Event rolled back");
-        tx.rollback();
+      
+      cloudSqlDaoImpl.insertEvent(event);
+      cloudSqlDaoImpl.insertOutputs(event);
+    }else{
+      
+      Transaction tx = null;
+      try {
+        tx = pm.currentTransaction();
+        tx.begin();
+        pm.makePersistent(event);
+     // TODO confirm if this should be outside of transaction
+        event.setWhat(what);
+        
+        
+        if (isJoinEvent) {
+          ExperimentAccessManager.addJoinedExperimentFor(who, Long.valueOf(experimentId), responseTime);
+        } else if (!isScheduleEvent && !isStopEvent) {
+          new ParticipationStatsService().updateResponseCountWithEvent(event);
+        }
+        tx.commit();
+        log.info("Event saved in datastore");
+       
+      } finally {
+        if (tx.isActive()) {
+          log.info("Event rolled back");
+          tx.rollback();
+        }
+        pm.close();
       }
-      pm.close();
+      //TODO confirm if this should be outside of transaction
+      sendToCloudSqlQueue(eventJson, event.getId());
     }
+   
+   
 //    long t2 = System.currentTimeMillis();
 //    log.info("POST Event time: " + (t2 - t1));
   }
-
+  
+  public void sendToCloudSqlQueue(JSONObject eventJson, Long eventId){
+    Queue queue = QueueFactory.getQueue("cloud-sql");
+    try {
+      eventJson.put("id", eventId);
+    } catch (JSONException e) {
+      // TODO Auto-generated catch block
+      log.info("while sending to cloud sql"+e);
+    }
+    queue.add(TaskOptions.Builder.withUrl("/csInsert").payload(eventJson.toString()));
+  }
+  
   @SuppressWarnings("unchecked")
   public List<Event> getEvents(String loggedInUser) {
       PersistenceManager pm = PMF.get().getPersistenceManager();

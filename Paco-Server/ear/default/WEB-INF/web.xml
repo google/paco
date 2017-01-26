@@ -37,20 +37,20 @@
   
   <servlet>
     <servlet-name>ServerInsertServlet</servlet-name>
-    <servlet-class>com.google.sampling.experiential.server.CloudSqlServlet</servlet-class>
+    <servlet-class>com.google.sampling.experiential.server.CloudSqlInsertServlet</servlet-class>
   </servlet>
   <servlet-mapping>
     <servlet-name>ServerInsertServlet</servlet-name>
-    <url-pattern>/serverInsert</url-pattern>
+    <url-pattern>/csInsert</url-pattern>
   </servlet-mapping>
   
   <servlet>
-    <servlet-name>TestServlet</servlet-name>
-    <servlet-class>com.google.sampling.experiential.server.TestCloudSQLServlet</servlet-class>
+    <servlet-name>ServerCreateServlet</servlet-name>
+    <servlet-class>com.google.sampling.experiential.server.CloudSQLCreateServlet</servlet-class>
   </servlet>
   <servlet-mapping>
-    <servlet-name>TestServlet</servlet-name>
-    <url-pattern>/serverTest</url-pattern>
+    <servlet-name>ServerCreateServlet</servlet-name>
+    <url-pattern>/csCreate</url-pattern>
   </servlet-mapping>
   
   <servlet>
@@ -59,7 +59,7 @@
   </servlet>
   <servlet-mapping>
     <servlet-name>ServerSearchServlet</servlet-name>
-    <url-pattern>/serverSearch</url-pattern>
+    <url-pattern>/csSearch</url-pattern>
   </servlet-mapping>
   
   <servlet>

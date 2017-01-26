@@ -26,25 +26,13 @@ public class SearchUtil {
    * @return the list of column names
    */
   public static void getColumnNames(String inputString, List<String> colNames) {
-    // any non word character or the words 'and' 'or' 'is' 'not' get replaced
-    // with blank
-//    inputString = inputString.replaceAll("\\W+", " ");
-//    System.out.println("after non word"+inputString);
-    // replace logical operators and other key words
-//    inputString = inputString.replaceAll(" in |null|null | and | or | is | not | asc | desc | asc| desc", " ");
-//    System.out.println("after key word replace"+inputString);;
     if (inputString == null)
             inputString ="";
-    inputString = inputString.replaceAll(" (?i)asc | (?i)desc | (?i)asc| (?i)desc, |,| ,", " ");
-//    System.out.println("after key word replace2"+inputString);
-    
+    inputString = inputString.replaceAll(" (?i)asc | (?i)desc | (?i)asc| (?i)desc|\\[|\\]", " ");
     // multiple blank spaces get truncated to single blank space
     inputString = inputString.replaceAll("( )+", " ").trim();
-//    System.out.println("after multiple blank"+inputString);;
-    
     String[] out = inputString.split(" ");
     colNames.addAll(Arrays.asList(out));
-//    return colNames;
   }
   
   public static void getColumnNames(Expression node, List<String> colNames) {  
