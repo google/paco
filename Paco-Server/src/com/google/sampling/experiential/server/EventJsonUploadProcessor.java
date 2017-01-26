@@ -62,8 +62,6 @@ public class EventJsonUploadProcessor {
       } else {
         final JSONObject currentEvent = new JSONObject(postBodyString);
         eventInJsonFormat = toJson(processSingleJsonEvent(persistInCloudSql, currentEvent, whoFromLogin, appIdHeader, pacoVersion));
-       
-        return eventInJsonFormat;
       }
       
       return eventInJsonFormat;
