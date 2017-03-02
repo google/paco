@@ -169,7 +169,7 @@ md-menu-content {
 
 .data table td.content:hover div img {
   border: 1px solid gray;
-  width: 200px;
+  width: 600px;
   z-index: 100;
 }
 
