@@ -2,7 +2,6 @@ package com.google.sampling.experiential.datastore;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.logging.Logger;
 
 import com.google.appengine.api.datastore.Cursor;
@@ -15,6 +14,8 @@ import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.KeyFactory;
 import com.google.appengine.api.datastore.PreparedQuery;
 import com.google.appengine.api.datastore.Query;
+import com.google.appengine.api.datastore.Query.Filter;
+import com.google.appengine.api.datastore.Query.FilterOperator;
 import com.google.appengine.api.datastore.QueryResultList;
 import com.google.appengine.api.datastore.Text;
 import com.google.appengine.api.datastore.Transaction;
@@ -148,6 +149,48 @@ public class ExperimentJsonEntityManager {
     return experimentJsons;
   }
 
+
+  public static Pair<List<String>, String> getExperimentsByIdSortedByTitle(List<Long> experimentIds, String cursor) {
+    List<Key> experimentKeys = createKeysForIds(experimentIds);
+
+    DatastoreService ds = DatastoreServiceFactory.getDatastoreService();
+    List<String> experimentJsons = Lists.newArrayList();
+
+    Query query = new Query(EXPERIMENT_KIND);
+    Filter experimentIdFilter = new Query.FilterPredicate(Entity.KEY_RESERVED_PROPERTY,
+                                                     FilterOperator.IN,
+                                                     experimentKeys);
+    query.setFilter(experimentIdFilter);
+    query.addSort("title", Query.SortDirection.ASCENDING);
+
+    PreparedQuery preparedQuery = ds.prepare(query);
+    FetchOptions options = null;
+    Cursor fromWebSafeString = null;
+    if (!Strings.isNullOrEmpty(cursor) && !"null".equals(cursor)) {
+      fromWebSafeString = Cursor.fromWebSafeString(cursor);
+    }
+    options = getFetchOptions(fromWebSafeString);
+
+    // preparedQuery.countEntities(getFetchOptions(cursor));
+    QueryResultList<Entity> iterable = preparedQuery.asQueryResultList(options);
+
+    log.info("reading retrieved entity jsons");
+    for (Entity experiment : iterable) {
+      Text json = (Text) experiment.getProperty(DEFINITION_COLUMN);
+      if (json != null) {
+        experimentJsons.add(reapplyIdIfFirstTime(json.getValue() ,experiment.getKey().getId()));
+      }
+    }
+    final Cursor newCursor = iterable.getCursor();
+    String websafeCursor = null;
+    if (newCursor != null) {
+      newCursor.toWebSafeString();
+    }
+
+    log.info("returning experiment jsons");
+    return new Pair<List<String>, String>(experimentJsons, websafeCursor);
+  }
+
   public static Pair<String, List<String>> getAllExperiments(String cursor) {
     List<String> entities = Lists.newArrayList();
     DatastoreService ds = DatastoreServiceFactory.getDatastoreService();
@@ -173,7 +216,7 @@ public class ExperimentJsonEntityManager {
       }
     }
     String newCursor = iterable.getCursor().toWebSafeString();
-    
+
     log.info("repairing any missing ids");
     for (Pair<Long, String> idJson : idJsons) {
       String value = idJson.second;

@@ -534,12 +534,8 @@ public class ExperimentAccessManager {
       }
     }
 
-
     DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
-
-
     PreparedQuery pq = datastore.prepare(query);
-
     QueryResultList<Entity> results = pq.asQueryResultList(fetchOptions);
     //log.info("getExistingExperimentidsForAdmin: result size: " + results.size());
     List<Long> keys = Lists.newArrayList();
