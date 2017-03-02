@@ -1,10 +1,8 @@
 package com.pacoapp.paco.ui;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-
 import android.annotation.SuppressLint;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
@@ -13,7 +11,6 @@ import android.support.v7.app.ActionBarActivity;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.TextView;
 
@@ -28,6 +25,7 @@ public class SettingsActivity extends ActionBarActivity {
   private UserPreferences userPrefs;
   private TextView accountTextView;
   private TextView serverAddressTextView;
+  protected AlertDialog emailChangeAlertDialog;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -64,7 +62,30 @@ public class SettingsActivity extends ActionBarActivity {
     accountTextView.setOnClickListener(new OnClickListener() {
       @Override
       public void onClick(View v) {
-        launchAccountChooser();
+        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(SettingsActivity.this);
+        alertDialogBuilder.setMessage(R.string.dialog_change_email_warning);
+        alertDialogBuilder.setCancelable(true);
+
+        alertDialogBuilder.setPositiveButton(
+            R.string.change_email_address_button,
+            new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int id) {
+                  dialog.cancel();
+                  launchAccountChooser();
+                }
+            });
+
+        alertDialogBuilder.setNegativeButton(
+            R.string.cancel_button,
+            new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int id) {
+                    dialog.cancel();
+                }
+            });
+
+        emailChangeAlertDialog = alertDialogBuilder.create();
+        emailChangeAlertDialog.show();
+
       }
     });
 
@@ -185,6 +206,10 @@ public class SettingsActivity extends ActionBarActivity {
     super.onPause();
     if (!serverAddressTextView.getText().equals(userPrefs.getServerAddress())) {
       userPrefs.setServerAddress(serverAddressTextView.getText().toString());
+    }
+    if (emailChangeAlertDialog != null) {
+      emailChangeAlertDialog.dismiss();
+      emailChangeAlertDialog = null;
     }
   }
 

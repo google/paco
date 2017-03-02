@@ -20,8 +20,12 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.JsonNode;
@@ -35,18 +39,13 @@ import org.joda.time.DateMidnight;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
-
-import android.content.ContentResolver;
-import android.content.ContentValues;
-import android.content.Context;
-import android.database.Cursor;
-import android.net.Uri;
-import android.util.Log;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
-import com.pacoapp.paco.PacoConstants;
+import com.google.common.collect.Maps;
 import com.pacoapp.paco.UserPreferences;
 import com.pacoapp.paco.shared.model2.ActionTrigger;
 import com.pacoapp.paco.shared.model2.EventInterface;
@@ -65,16 +64,36 @@ import com.pacoapp.paco.shared.model2.ValidationMessage;
 import com.pacoapp.paco.shared.scheduling.ActionScheduleGenerator;
 import com.pacoapp.paco.shared.util.TimeUtil;
 
+import android.content.ContentResolver;
+import android.content.ContentValues;
+import android.content.Context;
+import android.database.Cursor;
+import android.net.Uri;
+
 public class ExperimentProviderUtil implements EventStore {
+  private static Logger Log = LoggerFactory.getLogger(ExperimentProviderUtil.class);
 
   private Context context;
   private ContentResolver contentResolver;
   public static final String AUTHORITY = "com.google.android.apps.paco.ExperimentProvider";
   private static final String PUBLIC_EXPERIMENTS_FILENAME = "experiments";
   private static final String MY_EXPERIMENTS_FILENAME = "my_experiments";
+  private static final String BLANK = " ";
+  // The next semaphore is used to make sure that all event inserts/retrievals happen atomically
+  // with regards to each other, to ensure that no incomplete events can get synced to the server
+  // (and, by extension, to ensure that a thread trying to access an event has to wait until the
+  // event has been fully inserted).
+  // The lock is used in the parent insert/getEvent methods.
+  private static final ReentrantReadWriteLock eventStorageDbLock = new ReentrantReadWriteLock();
+  private static final Lock eventStorageReadLock = eventStorageDbLock.readLock();
+  private static final Lock eventStorageWriteLock = eventStorageDbLock.writeLock();
 
+  private static final String LIMIT = " limit ";
+  private static final String DESC = " DESC ";
+  private static final String DOT = ".";
+  
   DateTimeFormatter endDateFormatter = DateTimeFormat.forPattern(TimeUtil.DATE_FORMAT);
-
+  private static  Map<String, String> eventsColumns = null;
   public ExperimentProviderUtil(Context context) {
     super();
     this.context = context;
@@ -82,6 +101,24 @@ public class ExperimentProviderUtil implements EventStore {
       throw new IllegalArgumentException("Need a context to instantiate experimentproviderutil");
     }
     this.contentResolver = context.getContentResolver();
+    loadColumnTableAssociationMap();
+  }
+
+  public static void loadColumnTableAssociationMap(){
+	  if (eventsColumns ==null){
+		  eventsColumns = new HashMap<String,String>();
+		  eventsColumns.put("EXPERIMENT_ID", "EVENTS");
+		  eventsColumns.put("EXPERIMENT_SERVER_ID", "EVENTS");
+		  eventsColumns.put("EXPERIMENT_NAME", "EVENTS");
+		  eventsColumns.put("EXPERIMENT_VERSION", "EVENTS");
+		  eventsColumns.put("SCHEDULE_TIME", "EVENTS");
+		  eventsColumns.put("RESPONSE_TIME", "EVENTS");
+		  eventsColumns.put("UPLOADED", "EVENTS");
+		  eventsColumns.put("GROUP_NAME", "EVENTS");
+		  eventsColumns.put("ACTION_TRIGGER_ID","EVENTS");
+		  eventsColumns.put("ACTION_TRIGGER_SPEC_ID","EVENTS");
+		  eventsColumns.put("ACTION_ID","EVENTS");
+	  }
   }
 
   public List<Experiment> getJoinedExperiments() {
@@ -128,7 +165,7 @@ public class ExperimentProviderUtil implements EventStore {
         return true;
       }
     } catch (RuntimeException e) {
-      Log.w(ExperimentProvider.TAG, "Caught unexpected exception.", e);
+      Log.warn("Caught unexpected exception.", e);
     } finally {
       if (cursor != null) {
         cursor.close();
@@ -281,8 +318,9 @@ public class ExperimentProviderUtil implements EventStore {
       ExperimentDAO newExperimentDAO = newExperiment.getExperimentDAO();
       ExperimentDAO existingDAO = existingExperiment.getExperimentDAO();
       // TODO preserve any modified schedule settings if it is user-editable and different from the new
-
+      newExperimentDAO.setJoinDate(existingDAO.getJoinDate());
       existingExperiment.setExperimentDAO(newExperimentDAO);
+      existingExperiment.setJoinDate(existingExperiment.getJoinDate());
     }
 
   }
@@ -293,7 +331,7 @@ public class ExperimentProviderUtil implements EventStore {
         createContentValues(experiment),
         ExperimentColumns._ID + "=" + experiment.getId(), null);
     JoinedExperimentCache.getInstance().insertExperiment(experiment);
-    Log.i(ExperimentProviderUtil.class.getSimpleName(), " updated "+ count + " rows. Time: " + (System.currentTimeMillis() - t1));
+    Log.info(" updated "+ count + " rows. Time: " + (System.currentTimeMillis() - t1));
   }
 
   public void deleteAllExperiments() {
@@ -311,7 +349,7 @@ public class ExperimentProviderUtil implements EventStore {
         return experiment;
       }
     } catch (RuntimeException e) {
-      Log.w(ExperimentProvider.TAG, "Caught unexpected exception.", e);
+      Log.warn("Caught unexpected exception.", e);
     } finally {
       if (cursor != null) {
         cursor.close();
@@ -333,7 +371,7 @@ public class ExperimentProviderUtil implements EventStore {
         }
       }
     } catch (RuntimeException e) {
-      Log.w(ExperimentProvider.TAG, "Caught unexpected exception.", e);
+      Log.warn("Caught unexpected exception.", e);
     } finally {
       if (cursor != null) {
         cursor.close();
@@ -451,12 +489,21 @@ public class ExperimentProviderUtil implements EventStore {
     if (rootNode.has("logActions")) {
       defaultExperimentGroup.setLogActions(rootNode.path("logActions").getBooleanValue());
     }
+    if (rootNode.has("logShutdown")) {
+      defaultExperimentGroup.setLogShutdown(rootNode.path("logShutdown").getBooleanValue());
+    }
+    if (rootNode.has("rawDataAccess")) {
+      defaultExperimentGroup.setRawDataAccess(rootNode.path("rawDataAccess").getBooleanValue());
+    }
 
     if (rootNode.has("backgroundListen")) {
       defaultExperimentGroup.setBackgroundListen(rootNode.path("backgroundListen").getBooleanValue());
     }
     if (rootNode.has("backgroundListenSourceIdentifier")) {
       defaultExperimentGroup.setBackgroundListenSourceIdentifier(rootNode.path("backgroundListenSourceIdentifier").getTextValue());
+    }
+    if (rootNode.has("accessibilityListen")) {
+      defaultExperimentGroup.setAccessibilityListen(rootNode.path("accessibilityListen").getBooleanValue());
     }
     if (rootNode.has("inputs")) {
       List<Input2> inputs = Lists.newArrayList();
@@ -581,6 +628,7 @@ public class ExperimentProviderUtil implements EventStore {
 
             trigger.setMinimumBuffer(signalingMechanismNode.path("minimumBuffer").getIntValue());
             InterruptCue cue = new InterruptCue();
+            cue.setId(1l);
             if (signalingMechanismNode.has("eventCode")) {
               cue.setCueCode(signalingMechanismNode.path("eventCode").getIntValue());
             }
@@ -619,7 +667,7 @@ public class ExperimentProviderUtil implements EventStore {
       if (results.size() == 1 && results.get(0).getMsg().equals("admins should be a valid list of email addresses")) {
         return; // OK to not have admins
       } else {
-        Log.e(PacoConstants.TAG, "error migrating experiment: " + experimentDAO.getId() + ":\n" + Joiner.on(",").join(results));
+        Log.error("error migrating experiment: " + experimentDAO.getId() + ":\n" + Joiner.on(",").join(results));
       }
     }
 
@@ -639,7 +687,7 @@ public class ExperimentProviderUtil implements EventStore {
             experiment.setId(cursor.getLong(idIndex));
           }
         }
-        Log.e(PacoConstants.TAG, "time to de-jsonify experiment (bytes: " + jsonOfExperiment.getBytes().length + ") : " + (System.currentTimeMillis() - t1));
+        Log.debug("time to de-jsonify experiment (bytes: " + jsonOfExperiment.getBytes().length + ") : " + (System.currentTimeMillis() - t1));
         return experiment;
       } catch (JsonParseException e) {
         e.printStackTrace();
@@ -666,15 +714,15 @@ public class ExperimentProviderUtil implements EventStore {
     if (experiment.getExperimentDAO().getTitle() != null) {
       values.put(ExperimentColumns.TITLE, experiment.getExperimentDAO().getTitle());
     }
-    if (experiment.getJoinDate() != null) {
-      values.put(ExperimentColumns.JOIN_DATE, experiment.getJoinDate());
-    } else if (experiment.getExperimentDAO().getJoinDate() != null) {
+    if (experiment.getExperimentDAO().getJoinDate() != null) {
       values.put(ExperimentColumns.JOIN_DATE, experiment.getExperimentDAO().getJoinDate());
+    } else if (experiment.getJoinDate() != null) {
+      values.put(ExperimentColumns.JOIN_DATE, experiment.getJoinDate());
     }
 
     long t1 = System.currentTimeMillis();
     String json = getJson(experiment);
-    Log.e(PacoConstants.TAG, "time to jsonify experiment (bytes: " + json.getBytes().length + "): " + (System.currentTimeMillis() - t1));
+    Log.error("time to jsonify experiment (bytes: " + json.getBytes().length + "): " + (System.currentTimeMillis() - t1));
     values.put(ExperimentColumns.JSON, json);
     return values;
   }
@@ -694,11 +742,11 @@ public class ExperimentProviderUtil implements EventStore {
     try {
       return mapper.writeValueAsString(experiment);
     } catch (JsonGenerationException e) {
-      Log.e(PacoConstants.TAG, "Json generation error " + e);
+      Log.error("Json generation error " + e);
     } catch (JsonMappingException e) {
-      Log.e(PacoConstants.TAG, "JsonMapping error getting experiment json: " + e.getMessage());
+      Log.error("JsonMapping error getting experiment json: " + e.getMessage());
     } catch (IOException e) {
-      Log.e(PacoConstants.TAG, "IO error getting experiment: " + e.getMessage());
+      Log.error("IO error getting experiment: " + e.getMessage());
     }
 
     return null;
@@ -711,11 +759,11 @@ public class ExperimentProviderUtil implements EventStore {
     try {
       return mapper.writeValueAsString(experiments);
     } catch (JsonGenerationException e) {
-      Log.e(PacoConstants.TAG, "Json generation error " + e);
+      Log.error("Json generation error " + e);
     } catch (JsonMappingException e) {
-      Log.e(PacoConstants.TAG, "JsonMapping error getting experiment json: " + e.getMessage());
+      Log.error("JsonMapping error getting experiment json: " + e.getMessage());
     } catch (IOException e) {
-      Log.e(PacoConstants.TAG, "IO error getting experiment: " + e.getMessage());
+      Log.error("IO error getting experiment: " + e.getMessage());
     }
 
     return null;
@@ -728,20 +776,33 @@ public class ExperimentProviderUtil implements EventStore {
   }
 
   public List<Event> loadEventsForExperimentByServerId(Long serverId) {
-    return findEventsBy(EventColumns.EXPERIMENT_SERVER_ID + " = " + Long.toString(serverId),
-        EventColumns._ID +" DESC");
+	return loadEventsForExperimentByServerId(serverId, null);
   }
 
+  public List<Event> loadEventsForExperimentByServerId(Long serverId, Integer noOfRecords) {
+	    return findEventsBy(EventColumns.EXPERIMENT_SERVER_ID + " = " + Long.toString(serverId),
+	        EventColumns._ID +" DESC", noOfRecords);
+  }
 
   public Uri insertEvent(Event event) {
-    Uri uri = contentResolver.insert(EventColumns.CONTENT_URI, createContentValues(event));
-    long rowId = Long.parseLong(uri.getLastPathSegment());
-    event.setId(rowId);
-    for (Output response : event.getResponses()) {
-      response.setEventId(rowId);
-      insertResponse(response);
+    eventStorageWriteLock.lock();
+    try {
+      Uri uri = contentResolver.insert(EventColumns.CONTENT_URI, createContentValues(event));
+      long rowId = Long.parseLong(uri.getLastPathSegment());
+      event.setId(rowId);
+      for (Output response : event.getResponses()) {
+        response.setEventId(rowId);
+        insertResponse(response);
+      }
+      return uri;
+    } catch (Exception e) {
+      Log.warn("Caught unexpected exception.", e);
+      return null;
+    } finally {
+      // Will get called even with return statements before
+      eventStorageWriteLock.unlock();
+      Log.debug("Finished inserting event");
     }
-    return uri;
   }
 
   public void insertEvent(EventInterface eventI) {
@@ -749,6 +810,77 @@ public class ExperimentProviderUtil implements EventStore {
       Event event = (Event)eventI;
       insertEvent(event);
     }
+  }
+
+  public List<Event> findEventsByCriteriaQuery(String[] projection, String criteriaColumns, String criteriaValues[],
+                                               String sortOrder, String limit, String groupBy, String having) {
+    Cursor cursor = null;
+    List<Event> events = null;
+    Event event = null;
+    Map<Long, Event> eventMap = null;
+    String[] modifiedProjection = null;
+    DatabaseHelper dbHelper = new DatabaseHelper(context);
+   
+    try {
+      //add all column names in the query->select columns, where clause, group by clause, having clause, sort order clause
+      List<String> allColumns = Lists.newArrayList();
+      allColumns.addAll(Arrays.asList(projection));
+      String colNameConcat = (groupBy != null) ? criteriaColumns.concat(BLANK).concat(groupBy) : criteriaColumns;
+      colNameConcat = (groupBy != null && having != null) ? colNameConcat.concat(BLANK).concat(having) : colNameConcat;
+      colNameConcat = (sortOrder != null)?colNameConcat.concat(BLANK).concat(sortOrder) : colNameConcat;
+      allColumns.addAll(ExperimentUtil.aggregateExtractedColNames(colNameConcat));
+      
+      // provide default sort order which is Event._Id desc
+      if(sortOrder == null){
+        sortOrder = ExperimentProvider.EVENTS_TABLE_NAME.concat(DOT).concat(EventColumns._ID).concat(DESC);
+      }
+      
+      //add limit clause to sort order
+      if (limit != null) {
+        sortOrder = sortOrder.concat(LIMIT).concat(limit);
+      } 
+      
+      //identify all tables involved for the complete column names
+      String tableIndicator = ExperimentUtil.identifyTablesInvolved(eventsColumns, allColumns);
+      
+      //adding a default projection of event table primary key column
+      int crtLength = projection.length ;
+      modifiedProjection = new String[crtLength+1];
+      System.arraycopy(projection, 0, modifiedProjection, 0, crtLength);
+      //adding the following columns in the projection list to help in coalescing
+      modifiedProjection[crtLength]=ExperimentProvider.EVENTS_TABLE_NAME.concat(DOT).concat(EventColumns._ID);
+      
+      if (tableIndicator.equals(ExperimentProvider.EVENTS_OUTPUTS_TABLE_NAME)) { 
+        cursor = dbHelper.query(ExperimentProvider.EVENTS_OUTPUTS_DATATYPE, modifiedProjection, criteriaColumns, criteriaValues,
+                                sortOrder, groupBy, having);
+      } else if (tableIndicator.equals(ExperimentProvider.EVENTS_TABLE_NAME)) {
+        cursor = dbHelper.query(ExperimentProvider.EVENTS_DATATYPE, modifiedProjection, criteriaColumns, criteriaValues,
+                                sortOrder, groupBy, having);
+      } 
+      //to maintain the insertion order
+      eventMap = Maps.newLinkedHashMap();
+    
+      if (cursor != null) {
+        events = Lists.newArrayList();
+        while (cursor.moveToNext()) {
+          //if no need to coalesce, we just add it to the list and send the collection to the client.
+          event = createEvent(cursor, false);
+          Event oldEvent = eventMap.get(event.getId()); 
+          if(oldEvent == null){
+            event.setResponses(findResponsesFor(event));
+            eventMap.put(event.getId(), event);
+          }
+        }
+      }
+    } finally {
+      if (cursor != null) {
+        cursor.close();
+      }
+      dbHelper.close();
+    }
+    events = Lists.newArrayList(eventMap.values());
+  
+    return events;
   }
 
   private ContentValues createContentValues(Event event) {
@@ -818,8 +950,10 @@ public class ExperimentProviderUtil implements EventStore {
     return values;
   }
 
+
   private Event findEventBy(String select, String[] selectionArgs, String sortOrder) {
     Cursor cursor = null;
+    eventStorageReadLock.lock();
     try {
       cursor = contentResolver.query(EventColumns.CONTENT_URI,
           null, select, selectionArgs, sortOrder);
@@ -829,11 +963,12 @@ public class ExperimentProviderUtil implements EventStore {
         return event;
       }
     } catch (RuntimeException e) {
-      Log.w(ExperimentProvider.TAG, "Caught unexpected exception.", e);
+      Log.warn("Caught unexpected exception.", e);
     } finally {
       if (cursor != null) {
         cursor.close();
       }
+      eventStorageReadLock.unlock();
     }
     return null;
   }
@@ -841,6 +976,7 @@ public class ExperimentProviderUtil implements EventStore {
   private List<Event> findEventsBy(String select, String sortOrder) {
     List<Event> events = new ArrayList<Event>();
     Cursor cursor = null;
+    eventStorageReadLock.lock();
     try {
       cursor = contentResolver.query(EventColumns.CONTENT_URI,
           null, select, null, sortOrder);
@@ -853,13 +989,23 @@ public class ExperimentProviderUtil implements EventStore {
       }
       return events;
     } catch (RuntimeException e) {
-      Log.w(ExperimentProvider.TAG, "Caught unexpected exception.", e);
+      Log.warn("Caught unexpected exception.", e);
     } finally {
       if (cursor != null) {
         cursor.close();
       }
+      eventStorageReadLock.unlock();
     }
     return events;
+  }
+
+  //This is a hack, but should improve the performance for now.
+  private List<Event> findEventsBy(String select, String sortOrder, Integer limitNoOfRecords) {
+	  if (limitNoOfRecords != null) {
+		  return findEventsBy(select, sortOrder + LIMIT  + limitNoOfRecords);
+	  } else {
+		  return  findEventsBy(select, sortOrder);
+	  }
   }
 
   private List<Output> findResponsesFor(Event event) {
@@ -877,7 +1023,7 @@ public class ExperimentProviderUtil implements EventStore {
         }
       }
     } catch (RuntimeException e) {
-      Log.w(ExperimentProvider.TAG, "Caught unexpected exception.", e);
+      Log.warn("Caught unexpected exception.", e);
     } finally {
       if (cursor != null) {
         cursor.close();
@@ -885,10 +1031,20 @@ public class ExperimentProviderUtil implements EventStore {
     }
     return responses;
   }
+  
+  private Event createEvent(Cursor cursor){
+    return createEvent(cursor, true);
+  }
 
-  private Event createEvent(Cursor cursor) {
-    int idIndex = cursor.getColumnIndexOrThrow(EventColumns._ID);
-    int experimentIdIndex = cursor.getColumnIndexOrThrow(EventColumns.EXPERIMENT_ID);
+  private Event createEvent(Cursor cursor, boolean requiredFieldsFlag) {
+    int idIndex, experimentIdIndex;
+    if(requiredFieldsFlag){
+      idIndex = cursor.getColumnIndexOrThrow(EventColumns._ID);
+      experimentIdIndex = cursor.getColumnIndexOrThrow(EventColumns.EXPERIMENT_ID);
+    }else{
+      idIndex = cursor.getColumnIndex(EventColumns._ID);
+      experimentIdIndex = cursor.getColumnIndex(EventColumns.EXPERIMENT_ID);  
+    }
     int experimentServerIdIndex = cursor.getColumnIndex(EventColumns.EXPERIMENT_SERVER_ID);
     int experimentVersionIndex = cursor.getColumnIndex(EventColumns.EXPERIMENT_VERSION);
     int experimentNameIndex = cursor.getColumnIndex(EventColumns.EXPERIMENT_NAME);
@@ -976,8 +1132,16 @@ public class ExperimentProviderUtil implements EventStore {
   public void updateEvent(EventInterface eventI) {
     if (eventI instanceof Event) {
       Event event = (Event)eventI;
-      contentResolver.update(EventColumns.CONTENT_URI,
-          createContentValues(event), "_id=" + event.getId(), null);
+
+      eventStorageWriteLock.lock();
+      try {
+        contentResolver.update(EventColumns.CONTENT_URI,
+                createContentValues(event), "_id=" + event.getId(), null);
+      } catch (Exception e) {
+        Log.error("Unexpected exception when updating event: " + e);
+      } finally {
+        eventStorageWriteLock.unlock();
+      }
     } else {
       throw new IllegalArgumentException("I only know how to deal with Android objects!");
     }
@@ -1146,7 +1310,7 @@ public class ExperimentProviderUtil implements EventStore {
   public void deleteNotification(long notificationId) {
     NotificationHolder holder = getNotificationById(notificationId);
     if (holder != null) {
-      Log.i(PacoConstants.TAG, "found notificationHolder: " + holder.getId());
+      Log.info("found notificationHolder: " + holder.getId());
       deleteNotification(holder);
     }
 
@@ -1158,7 +1322,7 @@ public class ExperimentProviderUtil implements EventStore {
       String selectionClause = NotificationHolderColumns._ID + " = ?";
       int res = contentResolver.delete(NotificationHolderColumns.CONTENT_URI,
           selectionClause, selectionArgs);
-      Log.i(PacoConstants.TAG, "resultof deleting notificationHolder: " + holder.getId() +" = " + res);
+      Log.info("resultof deleting notificationHolder: " + holder.getId() +" = " + res);
     }
   }
 
@@ -1279,7 +1443,7 @@ public class ExperimentProviderUtil implements EventStore {
     try {
       experiments = createObjectsFromJsonStream(context.openFileInput(MY_EXPERIMENTS_FILENAME));
     } catch (IOException e) {
-      Log.i(PacoConstants.TAG, "IOException, experiments file does not exist. May be first launch.");
+      Log.info("IOException, experiments file does not exist. May be first launch.");
     }
     return ensureExperiments(experiments);
   }
@@ -1303,7 +1467,7 @@ public class ExperimentProviderUtil implements EventStore {
       FileInputStream openFileInput = context.openFileInput(filename);
       experiments = createObjectsFromJsonStream(openFileInput);
     } catch (IOException e) {
-      Log.i(PacoConstants.TAG, "IOException, experiments file does not exist. May be first launch.");
+      Log.info("IOException, experiments file does not exist. May be first launch.");
     }
     return ensureExperiments(experiments);
   }
@@ -1368,6 +1532,7 @@ public class ExperimentProviderUtil implements EventStore {
     List<Event> events = new ArrayList<Event>();
     Cursor cursor = null;
     try {
+      eventStorageReadLock.lock();
       cursor = contentResolver.query(EventColumns.CONTENT_URI, null, select, null, sortOrder);
       if (cursor != null) {
         if (cursor.moveToFirst()) {
@@ -1378,11 +1543,12 @@ public class ExperimentProviderUtil implements EventStore {
       }
       experiment.setEvents(events);
     } catch (RuntimeException e) {
-      Log.w(ExperimentProvider.TAG, "Caught unexpected exception.", e);
+      Log.warn("Caught unexpected exception.", e);
     } finally {
       if (cursor != null) {
         cursor.close();
       }
+      eventStorageReadLock.unlock();
     }
   }
 
@@ -1481,9 +1647,9 @@ public class ExperimentProviderUtil implements EventStore {
 
     Event event = findEventBy(selectionClause, selectionArgs, EventColumns._ID +" DESC");
     if (event != null) {
-      Log.i(PacoConstants.TAG, "Found event for experimentId: " + experimentServerId +", st = " + scheduledTime);
+      Log.info("Found event for experimentId: " + experimentServerId +", st = " + scheduledTime);
     } else {
-      Log.i(PacoConstants.TAG, "DID NOT Find event for experimentId: " + experimentServerId +", st = " + scheduledTime);
+      Log.info("DID NOT Find event for experimentId: " + experimentServerId +", st = " + scheduledTime);
     }
     return event;
   }
@@ -1528,16 +1694,22 @@ public class ExperimentProviderUtil implements EventStore {
   }
 
   public void loadEventsForExperimentGroup(Experiment experiment, ExperimentGroup experimentGroup) {
-    String[] args = new String[]{ Long.toString(experiment.getId()), experimentGroup.getName()};
+    final Long id = experiment.getId();
+    final String name = experimentGroup.getName();
+    experiment.setEvents(loadEventsForExperimentGroup(id, name));
+  }
+
+  public List<Event> loadEventsForExperimentGroup(final Long experimentId, final String experimentGroupName) {
+    String[] args = new String[]{ Long.toString(experimentId), experimentGroupName};
     final String select = EventColumns.EXPERIMENT_ID + " = ? and " + EventColumns.GROUP_NAME + " = ?";
-    List<Event> eventSingleEntryList = findEventsBy(select, args, EventColumns._ID + " DESC");
-    experiment.setEvents(eventSingleEntryList);
+    return findEventsBy(select, args, EventColumns._ID + " DESC");
   }
 
   private List<Event> findEventsBy(String select, String[] args, String sortOrder) {
     List<Event> events = new ArrayList<Event>();
     Cursor cursor = null;
     try {
+      eventStorageReadLock.lock();
       cursor = contentResolver.query(EventColumns.CONTENT_URI,
           null, select, args, sortOrder);
       if (cursor != null) {
@@ -1549,14 +1721,20 @@ public class ExperimentProviderUtil implements EventStore {
       }
       return events;
     } catch (RuntimeException e) {
-      Log.w(ExperimentProvider.TAG, "Caught unexpected exception.", e);
+      Log.warn("Caught unexpected exception.", e);
     } finally {
       if (cursor != null) {
         cursor.close();
       }
+      eventStorageReadLock.unlock();
     }
     return events;
   }
+
+public static Map<String, String> getEventsOutputColumns() {
+  loadColumnTableAssociationMap();
+	return eventsColumns;
+}
 
 
 

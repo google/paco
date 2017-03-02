@@ -7,4 +7,11 @@
     <timezone>America/Los_Angeles</timezone>
     <target>reportworker</target>
   </cron>
+  <cron>
+    <url>/hub_cron</url>
+    <description>Run weekly hub stats calculator</description>
+    <schedule>every saturday 23:00</schedule>
+    <timezone>America/Los_Angeles</timezone>
+    <target>reportworker</target>
+  </cron>
 </cronentries>

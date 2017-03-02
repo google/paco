@@ -27,17 +27,41 @@
         <md-input-container md-no-float>
           <input type="text" ng-model="group.backgroundListenSourceIdentifier" placeholder="Identifier">
         </md-input-container>
-        <no-ios ng-if="group.backgroundListen">iOS cannot do background listening</no-ios>
+        <no-ios ng-if="group.backgroundListen">iOS cannot do background data listening</no-ios>
       </div>
 
     </div>
 
     <div class="row">
-      <md-checkbox ng-model="group.logActions" aria-label="Log app usage and browser history">
-        Log app usage and browser history
+      <md-checkbox ng-model="group.accessibilityListen" aria-label="Log trigger-related accessibility events">
+        Log trigger-related accessibility events
       </md-checkbox>
 
-      <no-ios ng-if="group.logActions" message="'iOS does not support app logging'"></no-ios>
+      <no-ios ng-if="group.accessibilityListen" message="'iOS does not support accessibility logging'"></no-ios>
+    </div>
+
+    <div class="row">
+      <md-checkbox ng-model="group.logActions" aria-label="Log app usage">
+        Log app usage
+      </md-checkbox>
+
+      <no-ios ng-if="group.logActions">iOS does not support app logging</no-ios>
+    </div>
+
+    <div class="row">
+      <md-checkbox ng-model="group.logShutdown" aria-label="Log phone shutdown and startup">
+        Log phone startup and shutdowns
+      </md-checkbox>
+
+      <no-ios ng-if="group.logShutdown">iOS does not support phone startup and shutdown logging</no-ios>
+    </div>
+
+    <div class="row">
+      <md-checkbox ng-model="group.rawDataAccess" aria-label="Enable user to access raw data on phone">
+        Enable user to access raw data on phone
+      </md-checkbox>
+
+      <no-ios ng-if="group.logShutdown">iOS does not support phone startup and shutdown logging</no-ios>
     </div>
 
     <div class="row">

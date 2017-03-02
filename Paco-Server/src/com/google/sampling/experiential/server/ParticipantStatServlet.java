@@ -2,8 +2,6 @@ package com.google.sampling.experiential.server;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -40,9 +38,9 @@ public class ParticipantStatServlet extends HttpServlet {
 
   /**
    * Produces a json output for the stats mainpage
-   * 
+   *
    * endpoint /participation?experimentId=&who=&limit=&cursor=
-   * 
+   *
    */
   @Override
   protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -74,12 +72,11 @@ public class ParticipantStatServlet extends HttpServlet {
           return;
         }
         ExperimentDAO experiment = ExperimentServiceFactory.getExperimentService().getExperiment(experimentId);
-        
-        
+
+
         String v2Stats = req.getParameter("statv2");
         if (Strings.isNullOrEmpty(v2Stats)) {
           if (Strings.isNullOrEmpty(whoParam)) {
-              
             computeOldStatsFromCounters(req, resp, user, experimentId, whoParam, timeZoneForClient);
           } else {
             // inline of the reportType = who in computeStatsFromCounters below
@@ -94,7 +91,7 @@ public class ParticipantStatServlet extends HttpServlet {
               writer.write("Could not compute stats. Please check server for errors.");
             }
           }
- 
+
         } else {
           computeStatsFromCounters(req, resp, user, experimentId, whoParam, timeZoneForClient);
         }
@@ -103,16 +100,16 @@ public class ParticipantStatServlet extends HttpServlet {
     }
   }
 
-  private void computeStatsFromCounters(HttpServletRequest req, HttpServletResponse resp, User user, Long experimentId, 
+  private void computeStatsFromCounters(HttpServletRequest req, HttpServletResponse resp, User user, Long experimentId,
                                         String whoParam, DateTimeZone timeZoneForClient) throws IOException {
     String experimentGroupName = req.getParameter("experimentGroupName");
     String reportType = req.getParameter("reportType");
-    String dateParam = req.getParameter("date"); // 
+    String dateParam = req.getParameter("date"); //
     DateTime date = null;
     if (!Strings.isNullOrEmpty(dateParam)) {
       date = com.pacoapp.paco.shared.util.TimeUtil.parseDateWithoutZone(dateParam);
     }
-    
+
     ParticipationStatsService ps =  new ParticipationStatsService();
     List<ResponseStat> participationStats = null;
     if (Strings.isNullOrEmpty(reportType) || reportType.equals("today")) {
@@ -142,12 +139,14 @@ public class ParticipantStatServlet extends HttpServlet {
       } else {
         participationStats = ps.getDailyTotalsForParticipant(experimentId, whoParam);
       }
+    } else if (reportType.equals("totalEventCounts")) {
+      participationStats = Lists.newArrayList(ps.getTotalResponseCount(experimentId)); // todo write a single object instead of a list
     }
     PrintWriter writer = resp.getWriter();
     ObjectMapper mapper = JsonConverter.getObjectMapper();
     if (participationStats != null && !participationStats.isEmpty()) {
       writer.write(mapper.writeValueAsString(participationStats));
-    } else if (participationStats != null && participationStats.isEmpty()) { 
+    } else if (participationStats != null && participationStats.isEmpty()) {
       writer.write("{ \"message\" : \"No data\"}");
     } else {
       writer.write("{ \"message\" : \"Could not compute stats. Please check server for errors.\"}");
@@ -159,15 +158,15 @@ public class ParticipantStatServlet extends HttpServlet {
     // computes the overview stats for the project stats page using the new counters
     ParticipationStatsService ps =  new ParticipationStatsService();
     List<ResponseStat> totalParticipationStats = ps.getTotalByParticipant(experimentId);
-    
+
     Map<String, ResponseStat> todayResponseMap = Maps.newConcurrentMap();
     List<ResponseStat> todayParticipationStats = ps.getTotalByParticipantOnDate(experimentId, new DateTime());
     for (ResponseStat responseStat : todayParticipationStats) {
-      todayResponseMap.put(responseStat.who, responseStat);      
+      todayResponseMap.put(responseStat.who, responseStat);
     }
-    
+
     List<ParticipantParticipationStat> participantStats = Lists.newArrayList();
-    
+
     for (ResponseStat totalResponseStat : totalParticipationStats) {
       ResponseStat todayWho = todayResponseMap.get(totalResponseStat.who);
       participantStats.add(new ParticipationStats.ParticipantParticipationStat(totalResponseStat.who,
@@ -179,16 +178,16 @@ public class ParticipantStatServlet extends HttpServlet {
                                                                                totalResponseStat.selfR));
     }
 
-    
+
     ParticipationStats participationStats = new ParticipationStats(participantStats, null);
 
     PrintWriter writer = resp.getWriter();
     ObjectMapper mapper = JsonConverter.getObjectMapper();
     writer.write(mapper.writeValueAsString(participationStats));
   }
-    
-  
-  
+
+
+
   private void computeStatsFromEventsTable(HttpServletRequest req, HttpServletResponse resp, User user,
                                            Long experimentId, String whoParam, DateTimeZone timeZoneForClient)
                                                                                                               throws IOException,

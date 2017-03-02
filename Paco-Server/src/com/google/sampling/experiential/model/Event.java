@@ -178,6 +178,9 @@ public class Event {
   private void setWhatMap(Set<What> whats) {
     this.keysList = Lists.newArrayList();
     this.valuesList = Lists.newArrayList();
+    if (what == null) {
+      return;
+    }
     for (What what : whats) {
       keysList.add(what.getName());
       valuesList.add(what.getValue());
@@ -444,7 +447,7 @@ public class Event {
       try {
         parseInt = Integer.parseInt(hours);
       } catch (NumberFormatException e) {
-        EventServlet.log.info("Timezone hours are not an integer this event.");
+        EventServlet.log.info("Timezone hours are not an integer this event: " + hours);
         return new DateTime(time);
       }
       DateTimeZone timezoneForOffsetHours = DateTimeZone.forOffsetHours(parseInt);

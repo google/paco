@@ -19,6 +19,7 @@ package com.google.sampling.experiential.server.migration;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.SocketTimeoutException;
 import java.net.URL;
@@ -96,8 +97,8 @@ public class MigrationFrontendServlet extends HttpServlet {
   }
 
   private BufferedReader sendToBackend(String backendAddress, String jobName) throws MalformedURLException, IOException {
-    
-    
+
+
     String scheme = "https";
     if (SystemProperty.environment.value() == SystemProperty.Environment.Value.Development) {
       scheme = "http";
@@ -105,7 +106,10 @@ public class MigrationFrontendServlet extends HttpServlet {
     URL url = new URL(scheme + "://" + backendAddress + "/migrateBackend?who=" + AuthUtil.getWhoFromLogin().getEmail().toLowerCase() +
                       "&migrationName=" + jobName );
     log.info("URL to backend = " + url.toString());
-    InputStreamReader inputStreamReader = new InputStreamReader(url.openStream());
+
+    HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+    connection.setInstanceFollowRedirects(false);
+    InputStreamReader inputStreamReader = new InputStreamReader(connection.getInputStream());
     BufferedReader reader = new BufferedReader(inputStreamReader);
     return reader;
   }

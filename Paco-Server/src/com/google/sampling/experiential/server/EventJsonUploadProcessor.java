@@ -184,7 +184,6 @@ public class EventJsonUploadProcessor {
       //outcome.setError("No experiment ID for this event: " + eventId);
       return outcome;
     }
-
     Long experimentIdLong = null;
     try {
       experimentIdLong = Long.parseLong(experimentIdStr);
@@ -194,11 +193,23 @@ public class EventJsonUploadProcessor {
       return outcome;
     }
 
-    ExperimentDAO experiment = experimentRetriever.getExperiment(experimentIdLong);
+    log.info("start retrieving experiment");
+    ExperimentDAO experiment = null;
+    try {
+      experiment = experimentRetriever.getExperiment(experimentIdLong);
+    } catch (Exception e) {
+      log.severe("caught exception retrieving experiment" + e.getMessage());
+      e.printStackTrace();
+      throw e;
+    }
+    log.info("end retrieving experiment");
 
     if (experiment == null) {
-      //outcome.setError("No existing experiment for this event: " + eventId);
-      return outcome;
+      outcome.setError("No existing experiment for this event: " + eventId);
+      log.info("No existing experiment for this event: " + eventId);
+      //return outcome;
+    } else {
+      log.info("Found the experiment: " + experimentIdStr);
     }
 
     if (!experiment.isWhoAllowedToPostToExperiment(who)) {
@@ -208,6 +219,7 @@ public class EventJsonUploadProcessor {
       return outcome;
     }
 
+    log.info("Starting to read responses");
     Set<What> whats = Sets.newHashSet();
     List<PhotoBlob> blobs = Lists.newArrayList();
     if (eventJson.has("responses")) {
@@ -251,7 +263,7 @@ public class EventJsonUploadProcessor {
 
         whats.add(new What(name, answer));
 
-      } 
+      }
     } else {
       log.info("There is no responses section for this event");
     }

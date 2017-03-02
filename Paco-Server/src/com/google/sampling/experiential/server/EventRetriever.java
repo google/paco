@@ -36,13 +36,18 @@ import org.datanucleus.store.appengine.query.JDOCursorHelper;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 
+import com.google.appengine.api.datastore.Blob;
 import com.google.appengine.api.datastore.Cursor;
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.FetchOptions;
+import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.PreparedQuery;
+import com.google.appengine.api.datastore.Query.FilterOperator;
+import com.google.appengine.api.datastore.Query.FilterPredicate;
 import com.google.appengine.api.datastore.QueryResultList;
+import com.google.appengine.api.utils.SystemProperty;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Joiner;
 import com.google.common.base.Strings;
@@ -55,6 +60,7 @@ import com.google.sampling.experiential.model.PhotoBlob;
 import com.google.sampling.experiential.model.What;
 import com.google.sampling.experiential.server.stats.participation.ParticipationStatsService;
 import com.google.sampling.experiential.shared.EventDAO;
+import com.google.sampling.experiential.shared.WhatDAO;
 
 /**
  * Retrieve Event objects from the JDO store.
@@ -181,7 +187,7 @@ public class EventRetriever {
     log.info("Loggedin user's administered experiments: " + loggedInuser + " has ids: "
              + getIdsQuoted(adminExperiments));
 
-    if (isDevMode(loggedInuser) || isUserQueryingTheirOwnData(loggedInuser, eventJDOQuery)) {
+    if (isDevMode() || isUserQueryingTheirOwnData(loggedInuser, eventJDOQuery)) {
       log.info("dev mode or user querying self");
       executeQuery(allEvents, eventJDOQuery);
     } else if (isAnAdministrator(adminExperiments)) {
@@ -191,7 +197,7 @@ public class EventRetriever {
         eventJDOQuery.addFilters(":p.contains(experimentId)");
         eventJDOQuery.addParameterObjects("(" + getIdsQuoted(adminExperiments) + ")");
         executeQuery(allEvents, eventJDOQuery);
-      } else if (hasAnExperimentIdFilter(queryFilters) && !isAdminOfFilteredExperiments(queryFilters, adminExperiments)) {
+      } else if (hasAnExperimentIdFilter(queryFilters) && !isAdminOfAllExperimentsInQuery(queryFilters, adminExperiments)) {
         if (!eventJDOQuery.hasAWho()) {
           addWhoQueryForLoggedInuser(loggedInuser, eventJDOQuery);
           executeQuery(allEvents, eventJDOQuery);
@@ -223,10 +229,8 @@ public class EventRetriever {
     eventJDOQuery.addParameterObjects(loggedInuser);
   }
 
-  private void addWhoQueryForLoggedInuser(String loggedInuser, EventDSQuery eventDSQuery) {
-    eventDSQuery.addFilters("who == whoParam");
-    eventDSQuery.declareParameters("String whoParam");
-    eventDSQuery.addParameterObjects(loggedInuser);
+  private void addWhoQueryFilterForLoggedInuser(String loggedInuser, EventDSQuery eventDSQuery) {
+    eventDSQuery.addFilter(new FilterPredicate("who", FilterOperator.EQUAL, loggedInuser));
   }
 
 
@@ -235,8 +239,11 @@ public class EventRetriever {
    * @param adminExperiments
    * @return
    */
-  private boolean isAdminOfFilteredExperiments(List<com.google.sampling.experiential.server.Query>
+  private boolean isAdminOfAllExperimentsInQuery(List<com.google.sampling.experiential.server.Query>
     queryFilters, List<Long> adminExperiments) {
+    if (!isAnAdministrator(adminExperiments)) {
+      return false;
+    }
     boolean filteringForAdminedExperiment = false;
     for (com.google.sampling.experiential.server.Query query : queryFilters) {
       if (query.getKey().equals("experimentId") ) {
@@ -282,11 +289,12 @@ public class EventRetriever {
   }
 
   private void executeQuery(Set<Event> allEvents, EventDSQuery eventJDOQuery) {
-
-    //
+    log.info("Starting to execute ds query");
     DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
     Cursor cursor = null;
+    int count = 0;
     while (true) {
+      log.info("entering query loop. Count = " + count);
       int pageSize = 1000;
       FetchOptions fetchOptions = FetchOptions.Builder.withLimit(pageSize);
 
@@ -295,23 +303,79 @@ public class EventRetriever {
       }
 
       com.google.appengine.api.datastore.Query q = new com.google.appengine.api.datastore.Query("Event");
-      eventJDOQuery.getLowLevelDatastoreEntityQuery(q);
+      eventJDOQuery.applyFiltersToQuery(q);
 
       PreparedQuery pq = datastore.prepare(q);
+      log.info("execute query");
 
       QueryResultList<Entity> results = pq.asQueryResultList(fetchOptions);
+      count = count + results.size();
       if (results.isEmpty()) {
+        log.info("empty results");
         break;
       }
       for (Entity entity : results) {
-        allEvents.add(createEventFromEntity(entity));
+        Event event = createEventFromEntity(entity);
+        Key key = entity.getKey();
+
+        //todo async
+        // already done with the keyslist and valueslist
+//        Set<What> whats = fetchWhats(datastore,  key);
+//        event.setWhat(whats);
+//
+      //todo async
+        List<PhotoBlob> blobs = fetchBlobs(datastore, key);
+        event.setBlobs(blobs);
+
+        allEvents.add(event);
       }
       cursor = results.getCursor();
       if (cursor == null) {
+        log.info("null cursor");
         break;
       }
     }
     adjustTimeZone(allEvents);
+  }
+
+  private Set<What> fetchWhats(DatastoreService datastore, Key key) {
+    com.google.appengine.api.datastore.Query whatQuery = new com.google.appengine.api.datastore.Query("What", key);
+    PreparedQuery whatPreparedQuery = datastore.prepare(whatQuery);
+    //log.info("execute what query");
+    QueryResultList<Entity> whatResults = whatPreparedQuery.asQueryResultList(FetchOptions.Builder.withDefaults());
+    Set<What> whats = Sets.newHashSet();
+    for (Entity whatEntity : whatResults) {
+      whats.add(createWhatFromEntity(whatEntity));
+    }
+    return whats;
+  }
+
+  private List<PhotoBlob> fetchBlobs(DatastoreService datastore, Key key) {
+    com.google.appengine.api.datastore.Query whatQuery = new com.google.appengine.api.datastore.Query("PhotoBlob", key);
+    PreparedQuery whatPreparedQuery = datastore.prepare(whatQuery);
+    //log.info("execute blob query");
+    QueryResultList<Entity> whatResults = whatPreparedQuery.asQueryResultList(FetchOptions.Builder.withDefaults());
+    List<PhotoBlob> whats = Lists.newArrayList();
+    for (Entity whatEntity : whatResults) {
+      whats.add(createPhotoBlobFromEntity(whatEntity));
+    }
+    return whats;
+  }
+
+
+
+  private What createWhatFromEntity(Entity whatEntity) {
+    return new What((String)whatEntity.getProperty("name"), (String)whatEntity.getProperty("value"));
+  }
+
+  private PhotoBlob createPhotoBlobFromEntity(Entity entity) {
+    final Object blobProperty = entity.getProperty("value");
+    if (blobProperty instanceof Blob) {
+      return new PhotoBlob((String)entity.getProperty("name"), ((Blob)blobProperty).getBytes());
+    } else if (blobProperty instanceof byte[]) {
+      return new PhotoBlob((String)entity.getProperty("name"), (byte[])blobProperty);
+    }
+    return null;
   }
 
 
@@ -358,8 +422,8 @@ public class EventRetriever {
     return adminExperiments != null && adminExperiments.size() > 0;
   }
 
-  private boolean isDevMode(String loggedInuser) {
-    return loggedInuser == null;
+  private boolean isDevMode() {
+    return SystemProperty.environment.value() == SystemProperty.Environment.Value.Development;
   }
 
   private void sortList(ArrayList<Event> newArrayList) {
@@ -492,11 +556,19 @@ public class EventRetriever {
     for (Event event : result) {
       eventDAOs.add(new EventDAO(event.getWho(), event.getWhen(), event.getExperimentName(),
           event.getLat(), event.getLon(), event.getAppId(), event.getPacoVersion(),
-          event.getWhatMap(), event.isShared(), event.getResponseTime(), event.getScheduledTime(),
+          convertToWhatDAOs(event.getWhat()), event.isShared(), event.getResponseTime(), event.getScheduledTime(),
           toBase64StringArray(event.getBlobs()), Long.parseLong(event.getExperimentId()), event.getExperimentVersion(),
           event.getTimeZone(), event.getExperimentGroupName(), event.getActionTriggerId(), event.getActionTriggerSpecId(), event.getActionId()));
     }
     return eventDAOs;
+  }
+
+  public static List<WhatDAO> convertToWhatDAOs(Set<What> what) {
+    List<WhatDAO> daos = Lists.newArrayList();
+    for (What currentWhat : what) {
+      daos.add(new WhatDAO(currentWhat.getName(), currentWhat.getValue()));
+    }
+    return daos;
   }
 
   /**
@@ -504,6 +576,9 @@ public class EventRetriever {
    * @return
    */
   public static String[] toBase64StringArray(List<PhotoBlob> blobs) {
+    if (blobs == null) {
+      return new String[0];
+    }
     String[] results = new String[blobs.size()];
     for (int i =0; i < blobs.size(); i++) {
       results[i] = new String(Base64.encodeBase64(blobs.get(i).getValue()));
@@ -511,30 +586,43 @@ public class EventRetriever {
     return results;
   }
 
-  public List<Event> getEventsFromLowLevelDS(List<com.google.sampling.experiential.server.Query> query,
-                                             String requestorEmail, DateTimeZone timeZoneForClient, int offset, int limit) {
-    if (limit == 0) {
-      limit = DEFAULT_FETCH_LIMIT;
-    }
+  public EventQueryResultPair getEventsFromLowLevelDS(List<com.google.sampling.experiential.server.Query> query,
+                                             String requestorEmail, DateTimeZone timeZoneForClient) {
+    log.info("Getting events from low level datastore");
     Set<Event> allEvents = Sets.newHashSet();
-    PersistenceManager pm = PMF.get().getPersistenceManager();
-    EventDSQuery eventJDOQuery = createDSQueryFrom(pm, query, timeZoneForClient, offset, limit);
+    EventDSQuery eventDSQuery = createDSQueryFrom(query, timeZoneForClient);
 
     long t11 = System.currentTimeMillis();
 
-    if (isDevMode(requestorEmail) || isUserQueryingTheirOwnData(requestorEmail, eventJDOQuery)) {
+    List<Long> adminExperiments = getExperimentsForAdmin(requestorEmail);
+    log.info("Loggedin user's administered experiments: " + requestorEmail + " has ids: "
+             + getIdsQuoted(adminExperiments));
+
+
+    if (isDevMode() || isUserQueryingTheirOwnData(requestorEmail, eventDSQuery)) {
       log.info("dev mode or user querying self data");
-      executeQuery(allEvents, eventJDOQuery);
-    } else if (hasAnExperimentIdFilter(query) && !eventJDOQuery.hasAWho() &&
-            EventRetriever.isExperimentAdministrator(requestorEmail,
-                                                          getExperimentById(getExperimentIdFromFilter(query), pm))) {
-      log.info("Admin query for an experiment");
-      executeQuery(allEvents, eventJDOQuery);
-    } else {
+      executeQuery(allEvents, eventDSQuery);
+    } else if (isAdminOfAllExperimentsInQuery(query, adminExperiments)) {
+      log.info("isAnAdmin of experiment(s)");
+//      if (!hasAnExperimentIdFilter(query)) {
+//        log.info("No experimentfilter. Loading events for all admined experiments");
+//        Filter idFilter = new FilterPredicate("experimentId", FilterOperator.IN, adminExperiments);
+//        eventDSQuery.addFilter(idFilter);
+//        executeQuery(allEvents, eventDSQuery);
+//      } else if (hasAnExperimentIdFilter(query) && !isAdminOfAllExperimentsInQuery(query, adminExperiments) && !eventDSQuery.hasAWho()) {
+//          addWhoQueryFilterForLoggedInuser(requestorEmail, eventDSQuery);
+//          executeQuery(allEvents, eventDSQuery);
+//      } else {
+        executeQuery(allEvents, eventDSQuery);
+//      }
+    } else if (!eventDSQuery.hasAWho()) {
       log.info("No experiment specified, So querying for their own data");
-      addWhoQueryForLoggedInuser(requestorEmail, eventJDOQuery);
-      executeQuery(allEvents, eventJDOQuery);
+      addWhoQueryFilterForLoggedInuser(requestorEmail, eventDSQuery);
+      executeQuery(allEvents, eventDSQuery);
+    } else {
+      return new EventQueryResultPair(Collections.EMPTY_LIST, null);
     }
+
 
 
     long t12 = System.currentTimeMillis();
@@ -542,7 +630,7 @@ public class EventRetriever {
 
     ArrayList<Event> newArrayList = Lists.newArrayList(allEvents);
     sortList(newArrayList);
-    return newArrayList;
+    return  new EventQueryResultPair(newArrayList, null);
   }
 
   public static boolean isExperimentAdministrator(String loggedInUserEmail, Experiment experiment) {
@@ -551,10 +639,9 @@ public class EventRetriever {
   }
 
 
-  private EventDSQuery createDSQueryFrom(PersistenceManager pm,
-                                         List<com.google.sampling.experiential.server.Query> query,
-                                         DateTimeZone timeZoneForClient, int offset, int limit) {
-    Query newQuery = pm.newQuery(Event.class);
+  private EventDSQuery createDSQueryFrom(List<com.google.sampling.experiential.server.Query> query,
+                                         DateTimeZone timeZoneForClient) {
+    com.google.appengine.api.datastore.Query newQuery = new com.google.appengine.api.datastore.Query(Event.class.getName());
     DSQueryBuilder queryBuilder = new DSQueryBuilder(newQuery);
     queryBuilder.addFilters(query, timeZoneForClient);
     return queryBuilder.getQuery();
@@ -577,7 +664,7 @@ public class EventRetriever {
              + getIdsQuoted(adminExperiments));
 
     String nextCursor = null;
-    if (isDevMode(loggedInuser) || isUserQueryingTheirOwnData(loggedInuser, eventJDOQuery)) {
+    if (isDevMode() || isUserQueryingTheirOwnData(loggedInuser, eventJDOQuery)) {
       log.info("dev mode or user querying self");
       nextCursor = executeQueryInBatches(allEvents, eventJDOQuery, limit, cursor);
     } else if (isAnAdministrator(adminExperiments)) {
@@ -587,7 +674,7 @@ public class EventRetriever {
         eventJDOQuery.addFilters(":p.contains(experimentId)");
         eventJDOQuery.addParameterObjects("(" + getIdsQuoted(adminExperiments) + ")");
         nextCursor = executeQueryInBatches(allEvents, eventJDOQuery, limit, cursor);
-      } else if (hasAnExperimentIdFilter(queryFilters) && !isAdminOfFilteredExperiments(queryFilters, adminExperiments)) {
+      } else if (hasAnExperimentIdFilter(queryFilters) && !isAdminOfAllExperimentsInQuery(queryFilters, adminExperiments)) {
         if (!eventJDOQuery.hasAWho()) {
           addWhoQueryForLoggedInuser(loggedInuser, eventJDOQuery);
           nextCursor = executeQueryInBatches(allEvents, eventJDOQuery, limit, cursor);
@@ -607,7 +694,7 @@ public class EventRetriever {
 
     long t12 = System.currentTimeMillis();
     log.info("get execute time: " + (t12 - t11));
-    log.info("retrieved " + allEvents.size() + " experiments");
+    log.info("retrieved " + allEvents.size() + " events");
 
     ArrayList<Event> newArrayList = Lists.newArrayList(allEvents);
     sortList(newArrayList);

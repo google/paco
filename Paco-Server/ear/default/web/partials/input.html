@@ -32,7 +32,7 @@
     <div class="column1">
       <md-input-container>
         <label>Question for the Participant</label>
-        <input ng-model="input.text">
+        <textarea ng-model="input.text"></textarea>
       </md-input-container>
 
       <div layout="row">
@@ -63,7 +63,8 @@
       <div class="likert" ng-if="input.responseType === 'likert'" layout="row">
         <md-input-container flex>
           <label>Likert Steps</label>
-          <input ng-model="input.likertSteps" type="number" min="1" max="9">
+          <input ng-model="input.likertSteps" type="number" min="1" max="9"
+            ng-pattern="/^[0-9]*$/">
         </md-input-container>
 
         <md-input-container flex>

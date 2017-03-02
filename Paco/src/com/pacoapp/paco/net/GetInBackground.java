@@ -1,20 +1,24 @@
 package com.pacoapp.paco.net;
 
+
 import java.io.IOException;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.android.gms.auth.GoogleAuthException;
+import com.google.android.gms.auth.GoogleAuthUtil;
+import com.google.android.gms.auth.UserRecoverableNotifiedException;
+import com.pacoapp.paco.ui.SplashActivity;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
-
-import com.google.android.gms.auth.GoogleAuthException;
-import com.google.android.gms.auth.GoogleAuthUtil;
-import com.google.android.gms.auth.UserRecoverableNotifiedException;
-import com.pacoapp.paco.PacoConstants;
-import com.pacoapp.paco.ui.SplashActivity;
 
 public class GetInBackground extends AbstractAuthTokenTask {
+
+  private static Logger Log = LoggerFactory.getLogger(GetInBackground.class);
 
   public GetInBackground(NetworkClient client) {
     super(client);
@@ -66,7 +70,7 @@ public class GetInBackground extends AbstractAuthTokenTask {
       Intent intent = new Intent(context, SplashActivity.class);
       intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
       intent.putExtras(extras);
-      Log.i(PacoConstants.TAG, "Received broadcast for background task. Resurrecting networkClient");
+      Log.info("Received broadcast for background task. Resurrecting networkClient");
       context.startActivity(intent);
     }
   }

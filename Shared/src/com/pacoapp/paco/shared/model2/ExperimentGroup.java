@@ -18,9 +18,12 @@ public class ExperimentGroup extends ModelBase implements Validatable, java.io.S
   private String endDate;
 
   private Boolean logActions = false;
+  private Boolean logShutdown = false;
 
   private Boolean backgroundListen = false;
   private String backgroundListenSourceIdentifier;
+
+  private Boolean accessibilityListen = false;
 
   private List<ActionTrigger> actionTriggers;
   private List<Input2> inputs;
@@ -34,15 +37,17 @@ public class ExperimentGroup extends ModelBase implements Validatable, java.io.S
   // experiments
   private Integer feedbackType;
 
+  private Boolean rawDataAccess = true;
+
   public ExperimentGroup() {
     super();
     this.actionTriggers = new ArrayList<ActionTrigger>();
     this.inputs = new ArrayList<Input2>();
     this.feedbackType = Feedback.FEEDBACK_TYPE_STATIC_MESSAGE;
   }
-    
 
-    
+
+
   public ExperimentGroup(String string) {
     this();
     this.name = string;
@@ -140,6 +145,12 @@ public class ExperimentGroup extends ModelBase implements Validatable, java.io.S
     this.backgroundListenSourceIdentifier = backgroundListenSourceIdentifier;
   }
 
+  public Boolean getAccessibilityListen() { return accessibilityListen; }
+
+  public void setAccessibilityListen(Boolean accessibilityListen) {
+    this.accessibilityListen = accessibilityListen;
+  }
+
   public String getEndDate() {
     return endDate;
   }
@@ -179,7 +190,9 @@ public class ExperimentGroup extends ModelBase implements Validatable, java.io.S
     validateActionTriggers(validator);
 
     validator.isNotNull(backgroundListen, "backgroundListen not initialized");
+    validator.isNotNull(accessibilityListen, "accessibilityListen not initialized");
     validator.isNotNull(logActions, "logActions not initialized");
+    validator.isNotNull(logShutdown, "logShutdown not initialized");
     if (backgroundListen != null && backgroundListen) {
       validator.isNotNullAndNonEmptyString(backgroundListenSourceIdentifier,
                                            "background listening requires a source identifier");
@@ -251,6 +264,23 @@ public class ExperimentGroup extends ModelBase implements Validatable, java.io.S
     this.endOfDayReferredGroupName = endOfDayReferredGroupName;
   }
 
+
+
+  public boolean getLogShutdown() {
+    return this.logShutdown;
+  }
+
+  public void setLogShutdown(Boolean logShutdown) {
+    this.logShutdown = logShutdown;
+  }
+
+  public Boolean getRawDataAccess() {
+    return this.rawDataAccess;
+  }
+
+  public void setRawDataAccess(Boolean rawDataAccess) {
+    this.rawDataAccess = rawDataAccess;
+  }
 
 
 }

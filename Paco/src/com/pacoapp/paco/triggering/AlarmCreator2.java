@@ -19,22 +19,23 @@ package com.pacoapp.paco.triggering;
 import java.util.List;
 
 import org.joda.time.DateTime;
-
-import android.app.AlarmManager;
-import android.app.PendingIntent;
-import android.app.Service;
-import android.content.Context;
-import android.content.Intent;
-import android.util.Log;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Lists;
-import com.pacoapp.paco.PacoConstants;
 import com.pacoapp.paco.model.Experiment;
 import com.pacoapp.paco.model.ExperimentProviderUtil;
 import com.pacoapp.paco.os.AlarmReceiver;
 import com.pacoapp.paco.shared.model2.ExperimentDAO;
 import com.pacoapp.paco.shared.scheduling.ActionScheduleGenerator;
 import com.pacoapp.paco.shared.scheduling.ActionSpecification;
+
+import android.annotation.SuppressLint;
+import android.app.AlarmManager;
+import android.app.PendingIntent;
+import android.app.Service;
+import android.content.Context;
+import android.content.Intent;
 
 /**
  * Class that is responsible for keeping the alarm schedule.
@@ -49,6 +50,8 @@ import com.pacoapp.paco.shared.scheduling.ActionSpecification;
  *
  */
 public class AlarmCreator2 {
+
+  private static Logger Log = LoggerFactory.getLogger(AlarmCreator2.class);
 
   private static final int ALARM_RECEIVER_INTENT_REQUEST_CODE = 1;
 
@@ -85,6 +88,7 @@ public class AlarmCreator2 {
    * @param regenerateAlarms
    */
   public void updateAlarm() {
+    Log.debug("AlarmCreator updateAlarm");
     ExperimentProviderUtil experimentProviderUtil = new ExperimentProviderUtil(pendingIntentContext);
     List<Experiment> experiments = experimentProviderUtil.getJoinedExperiments();
     List<ExperimentDAO> experimentDAOs = Lists.newArrayList();
@@ -92,7 +96,7 @@ public class AlarmCreator2 {
       experimentDAOs.add(experiment.getExperimentDAO());
     }
     if (experiments.isEmpty()) {
-      Log.i(PacoConstants.TAG, "No joined experiments. Not creating alarms.");
+      Log.info("No joined experiments. Not creating alarms.");
       return;
     }
 
@@ -100,18 +104,23 @@ public class AlarmCreator2 {
                                                                                                      new AndroidEsmSignalStore(pendingIntentContext),
                                                                                                      experimentProviderUtil);
     if (experimentTimes.isEmpty()) {
-      Log.i(PacoConstants.TAG, "No experiments with a next time to signal.");
+      Log.info("No experiments with a next time to signal.");
       return;
     }
     ActionSpecification nextNearestAlarmTime = experimentTimes.get(0);
     createAlarm(nextNearestAlarmTime.time, nextNearestAlarmTime.experiment);
   }
 
+  @SuppressLint("NewApi")
   private void createAlarm(DateTime alarmTime, ExperimentDAO experiment) {
-    Log.i(PacoConstants.TAG, "Creating alarm: " + alarmTime.toString() +" for experiment: " + experiment.getTitle());
+    Log.info("Creating alarm: " + alarmTime.toString() +" for experiment: " + experiment.getTitle());
     PendingIntent intent = createAlarmReceiverIntentForExperiment(alarmTime);
     alarmManager.cancel(intent);
-    alarmManager.set(AlarmManager.RTC_WAKEUP, alarmTime.getMillis(), intent);
+    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.KITKAT) {
+      alarmManager.setExact(AlarmManager.RTC_WAKEUP, alarmTime.getMillis(), intent);
+    } else {
+      alarmManager.set(AlarmManager.RTC_WAKEUP, alarmTime.getMillis(), intent);
+    }
   }
 
   /**

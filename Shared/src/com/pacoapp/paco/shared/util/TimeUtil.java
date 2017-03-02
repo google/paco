@@ -39,7 +39,7 @@ public class TimeUtil {
   public static final String DATETIME_NOZONE_FORMAT = "yyyy/MM/dd hh:mm:ssa";
   public static DateTimeFormatter dateTimeNoZoneFormatter = DateTimeFormat.forPattern(DATETIME_NOZONE_FORMAT);
 
-  public static final String DATETIME_NOZONE_SHORT_FORMAT = "yy/MM/dd hh:mm";
+  public static final String DATETIME_NOZONE_SHORT_FORMAT = "yy/MM/dd HH:mm";
   public static DateTimeFormatter dateTimeNoZoneShortFormatter = DateTimeFormat.forPattern(DATETIME_NOZONE_SHORT_FORMAT);
 
   public static final String DATE_FORMAT = "yyyy/MM/dd";

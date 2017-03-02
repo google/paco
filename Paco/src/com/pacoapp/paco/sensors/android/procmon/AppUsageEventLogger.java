@@ -74,9 +74,9 @@ public class AppUsageEventLogger {
     event.setExperimentId(experiment.getId());
     event.setServerExperimentId(experiment.getServerId());
     event.setExperimentName(experiment.getExperimentDAO().getTitle());
-    
-        
-    event.setExperimentName(experimentGroupFor(experiment));
+
+
+    event.setExperimentGroupName(experimentGroupFor(experiment));
     event.setExperimentVersion(experiment.getExperimentDAO().getVersion());
     event.setResponseTime(new DateTime());
 
@@ -89,12 +89,12 @@ public class AppUsageEventLogger {
     usedAppsNamesResponse.setAnswer(usedAppsTaskNamesString);
     usedAppsNamesResponse.setName("apps_used_raw");
     event.addResponse(usedAppsNamesResponse);
-    
+
     Output startResponse = new Output();
     startResponse.setAnswer("true");
     startResponse.setName("foreground");
     event.addResponse(startResponse);
-    
+
     return event;
   }
 

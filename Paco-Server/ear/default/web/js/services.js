@@ -36,6 +36,9 @@ pacoApp.service('experimentService', ['$http', '$cacheFactory', 'util', 'config'
       invalidateCachedList('admin', true);
       invalidateCachedList('joined');
       invalidateCachedList('mine', true);
+      invalidateCachedList('public', true);
+      invalidateCachedList('popular', true);
+      invalidateCachedList('new', true);
     }
 
     function invalidateCachedList(listType, limit) {
@@ -374,11 +377,18 @@ pacoApp.service('config', function() {
     'invited'
   ];
 
+  this.hubTabs = [
+      'popular',
+      'new',
+      'browse'
+  ];
+
   this.dataDeclarations = {
     1: 'App Usage and Browser History',
     2: 'Location Information',
     3: 'Phone Details (Make, Model, Carrier)',
-    4: 'Apps installed on the phone'
+    4: 'Apps installed on the phone',
+    5: 'Accessibility events'
   };
 
   this.ringtones = [
@@ -418,7 +428,11 @@ pacoApp.service('config', function() {
     'Call Ended (in or out)',
     "Experiment joined",
     "Experiment ended",
-    "Response received"
+    "Response received",
+    "App removed",
+    "App installed",
+    "Permission changed",
+    "View Clicked"
   ];
 
   this.esmPeriods = [
@@ -503,6 +517,7 @@ pacoApp.service('template', function() {
       type: 0,
       text: 'Thanks for Participating!',
     },
+    rawDataAccess: true,
     fixedDuration: 'false'
   };
 
@@ -574,6 +589,7 @@ pacoApp.service('template', function() {
     fixedTimeMillisFromMidnight: 12 * 60 * 60 * 1000,
     type: 0
   };
+
 });
 
 
@@ -588,3 +604,22 @@ pacoApp.service('util', ['$filter', function($filter) {
   };
 
 }]);
+
+pacoApp.service('pubExperimentService', [ '$http', '$cacheFactory', 'util', 'config',
+    function($http, $cacheFactory, util, config) {
+
+      // Set this header here and it applies to all http requests
+      $http.defaults.headers.common['pacoProtocol'] = 4;
+
+      return ({
+        getExperiment : getExperiment
+      });
+
+      function getExperiment(id) {
+        return $http.get('/pubexperiments?id=' + id, {
+          cache : true
+        });
+      }
+
+    } ]);
+

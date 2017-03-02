@@ -132,14 +132,17 @@ public class ExperimentJsonEntityManager {
       log.info("returned experiment list is empty");
       return Lists.newArrayList();
     }
-    for (Entry<Key, Entity> entry : experiments.entrySet()) {
-      Entity experiment = entry.getValue();
-      Text json = (Text)experiment.getProperty(DEFINITION_COLUMN);
-      if (json != null) {
-        // TODO just return DAOs don't do the 2x conversion when it is going to become a DAO anyway.
-        experimentJsons.add(reapplyIdIfFirstTime(json.getValue(), experiment.getKey().getId()));
-      } else {
-        log.severe("No json for experiment: " + experiment.getProperty(TITLE_COLUMN));
+    for(Key entryKey : experimentKeys){
+      Entity experiment = experiments.get( entryKey );
+      if(experiment != null){
+        Text json = (Text)experiment.getProperty(DEFINITION_COLUMN);
+        if(json != null){
+          // TODO just return DAOs don't do the 2x conversion when it is going to become a DAO anyway.
+          experimentJsons.add(reapplyIdIfFirstTime(json.getValue(), experiment.getKey().getId()));
+        }else{
+          log.severe("No json for experiment: " + experiment.getProperty(TITLE_COLUMN));
+        }
+
       }
     }
     return experimentJsons;

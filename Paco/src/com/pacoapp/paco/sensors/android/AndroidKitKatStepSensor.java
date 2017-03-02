@@ -6,18 +6,21 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.pacoapp.paco.sensors.StepSensor;
+
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
-import android.util.Log;
-
-import com.pacoapp.paco.PacoConstants;
-import com.pacoapp.paco.sensors.StepSensor;
 
 public class AndroidKitKatStepSensor implements StepSensor {
+
+  private static Logger Log = LoggerFactory.getLogger(AndroidKitKatStepSensor.class);
 
   private Context context;
 
@@ -62,7 +65,7 @@ public class AndroidKitKatStepSensor implements StepSensor {
 
       this.listener = new SensorEventListener() {
         public void onAccuracyChanged(Sensor sensor, int accuracy) {
-          Log.d(PacoConstants.TAG, "onAccuracyChanged - accuracy: " + accuracy);
+          Log.debug("onAccuracyChanged - accuracy: " + accuracy);
         }
 
         public void onSensorChanged(SensorEvent event) {
@@ -71,7 +74,8 @@ public class AndroidKitKatStepSensor implements StepSensor {
             sensorManager.unregisterListener(this);
             onResult(f);
           } else {
-            Log.d(PacoConstants.TAG, "Unknown sensor type");
+            onResult(-1);
+            Log.debug("Unknown sensor type");
           }
         }
       };

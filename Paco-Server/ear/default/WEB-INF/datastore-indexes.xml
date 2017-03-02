@@ -122,7 +122,7 @@
         <property name="appId" direction="asc"/>
         <property name="experimentId" direction="asc"/>
         <property name="when" direction="desc"/>
-    </datastore-index>    
+    </datastore-index>
 </datastore-indexes>
 
 

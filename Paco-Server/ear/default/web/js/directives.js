@@ -1,6 +1,16 @@
 
 pacoApp.directive('pacoGroup', function () {
 
+  var evaluateConditionals = function($scope) {
+    for ( var inputIdx in $scope.group.inputs) {
+      var input = $scope.group.inputs[inputIdx];
+      if (input.conditional) {
+        var validity = parser.parse(input.conditionExpression, $scope.responses);
+        $scope.mask[inputIdx] = !validity;
+      }
+    } 
+  }
+  
   var controller = ['$scope', '$http', '$location', '$mdDialog', '$anchorScroll', 'util',
     function($scope, $http, $location, $mdDialog, $anchorScroll, util) {
 
@@ -16,20 +26,16 @@ pacoApp.directive('pacoGroup', function () {
       if (angular.isDefined($scope.experiment)) {
         $scope.post.experimentId = $scope.experiment.id;
       }
+      if (angular.isDefined($scope.group)) {
+        evaluateConditionals($scope);      
+      }
     });
 
     $scope.$watchCollection('responses', function(newValue, oldValue) {
 
         if (angular.isDefined(newValue) &&
             angular.isDefined($scope.group)) {
-
-          for ( var inputIdx in $scope.group.inputs) {
-            var input = $scope.group.inputs[inputIdx];
-            if (input.conditional) {
-              var validity = parser.parse(input.conditionExpression, $scope.responses);
-              $scope.mask[inputIdx] = !validity;
-            }
-          }
+          evaluateConditionals($scope);      
         }
     });
 
@@ -70,8 +76,9 @@ pacoApp.directive('pacoGroup', function () {
         post.responses.push(eodPair);
         post.responses.push(referPair);
       }
-
-    $http.post('/events', post).success(function(data) {
+    $http.post( 
+      '/events', post)
+      .success(function(data) {
 
         if (data[0].status === true) {
 
@@ -85,7 +92,7 @@ pacoApp.directive('pacoGroup', function () {
           if (!$scope.events || !$scope.events[$scope.activeIdx]) {
             $mdDialog.show(
               $mdDialog.alert()
-              .title('Respond Status')
+              .title('Response Status')
               .content('Success!')
               .ariaLabel('Success')
               .ok('OK')
@@ -97,6 +104,13 @@ pacoApp.directive('pacoGroup', function () {
 
       }).error(function(data, status, headers, config) {
         console.error(data);
+        $mdDialog.show(
+            $mdDialog.alert()
+            .title('Response Status')
+            .content('Could not save response.<br/>Error: ' + data)
+            .ariaLabel('Could not save response')
+            .ok('OK')
+          )
       });
     };
 
@@ -143,6 +157,40 @@ pacoApp.directive('pacoGroup', function () {
       }
 
       $scope.responses[responseName] = list.join();
+    };
+    
+    $scope.loadFileData = function (event, responseName) {
+     event.target.removeEventListener('change', []);
+      event.target.addEventListener('change', function(e) { 
+        var file = event.target.files[0];
+        if (file && file.size <= 1000000) {
+          var name = event.target.name;
+          var fr = new FileReader();
+          fr.onload = (function(theFile) {
+            return function(e) {
+              var imgData = e.target.result;
+              var truncatedImgData = imgData.substring(23);
+              $scope.responses[responseName] = truncatedImgData;
+              $scope.$apply();
+            };
+          })(file);
+          fr.readAsDataURL(file);
+        } else if (file && file.size > 1000000) {
+          $mdDialog.show(
+              $mdDialog.alert()
+              .title('File too large')
+              .content('The photo is greather than 1mb. It is too large.')
+              .ariaLabel('File too large')
+              .ok('OK'));
+        } else {
+          $scope.responses[responseName] = undefined;          
+        }
+      });
+
+    };
+
+    $scope.removeFileData = function (responseName) {
+      $scope.responses[responseName] = undefined;
     };
 
   }];
@@ -661,4 +709,175 @@ pacoApp.directive('fileDropzone', function() {
       });
     }
   };
+});
+
+
+pacoApp.directive('pacoGroupPub', function () {
+
+  var evaluateConditionals = function($scope) {
+    for ( var inputIdx in $scope.group.inputs) {
+      var input = $scope.group.inputs[inputIdx];
+      if (input.conditional) {
+        var validity = parser.parse(input.conditionExpression, $scope.responses);
+        $scope.mask[inputIdx] = !validity;
+      }
+    } 
+  }
+  var controller = ['$scope', '$http', '$location', '$mdDialog', '$anchorScroll', 'util',
+    function($scope, $http, $location, $mdDialog, $anchorScroll, util) {
+
+    $scope.responses = $scope.responses || {};
+    
+    $scope.mask = {};
+  
+    $scope.post = {
+      appId: 'webform',
+      pacoVersion: 1,
+    };
+
+    $scope.$watch('group', function(newValue, oldValue) {
+      if (angular.isDefined($scope.experiment)) {
+        $scope.post.experimentId = $scope.experiment.id;
+      }
+      if (angular.isDefined($scope.group)) {
+        evaluateConditionals($scope);      
+      }
+    });
+
+    $scope.$watchCollection('responses', function(newValue, oldValue) {
+
+        if (angular.isDefined(newValue) &&
+            angular.isDefined($scope.group)) {
+          evaluateConditionals($scope);        
+        }
+    });
+
+    $scope.respond = function() {
+
+      var post = {};
+
+      post.experimentGroupName = $scope.group.name;
+      post.experimentName = $scope.experiment.title;
+      post.experimentId = $scope.$parent.experiment.id;
+      post.experimentVersion = $scope.experiment.version;
+      post.pacoVersion = 4;
+      post.appId = 'webform';
+      post.responses = [];
+      post.responseTime = util.formatDate(new Date());
+
+      for (var name in $scope.responses) {
+        var pair = {
+          name: name,
+          answer: $scope.responses[name]
+        };
+        post.responses.push(pair);
+      }
+
+      if ($scope.events) {
+
+        var event = $scope.events[$scope.activeIdx];
+        var responseTime = util.formatDate(new Date(event.responseTime));
+
+        var eodPair = {
+          'name': 'eodResponseTime',
+          'answer':  responseTime
+        }
+        var referPair = {
+          'name': 'referred_group',
+          'answer': event.experimentGroupName
+        }
+        post.responses.push(eodPair);
+        post.responses.push(referPair);
+      }
+
+    $http.post('/pubexperiments', post).success(function(data) {
+
+        if (data[0].status === true) {
+
+          if ($scope.events) {
+            $scope.activeIdx++;
+            $scope.responses = {};
+          }
+
+          $anchorScroll('');
+
+          if (!$scope.events || !$scope.events[$scope.activeIdx]) {
+            $mdDialog.show(
+              $mdDialog.alert()
+              .title('Respond Status')
+              .content('Success!')
+              .ariaLabel('Success')
+              .ok('OK')
+            ).then(function() {
+              $location.path('/');
+            });
+          }
+        }
+
+      }).error(function(data, status, headers, config) {
+        console.error(data);
+      });
+    };
+
+    $scope.range = function(start, end) {
+      var arr = [];
+      for (var i = start; i <= end; i++) {
+        arr.push(i);
+      }
+      return arr;
+    }
+
+    $scope.inListString = function(item, responseName) {
+      if (!$scope.responses) {
+        return false;
+      }
+      var listString = $scope.responses[responseName];
+      if (listString === undefined || listString === '') {
+        return false;
+      }
+      var list = listString.split(',');
+      if (list.indexOf(item + '') !== -1) {
+        return true;
+      }
+      return false;
+    }
+
+    $scope.toggleStringItem = function(item, responseName) {
+
+      var listString = $scope.responses[responseName];
+      var list = [];
+
+      if (listString === undefined || listString === '') {
+        $scope.responses[responseName] = [];
+      } else {
+        list = listString.split(',');
+      }
+
+      var find = list.indexOf('' + item);
+
+      if (find === -1) {
+        list.push(item + '');
+      } else {
+        list.splice(find, 1);
+      }
+
+      $scope.responses[responseName] = list.join();
+    };
+
+  }];
+
+  
+  return {
+    restrict: 'E',
+    scope: {  'group': '=data',
+              'responses': '=',
+              'preview': '=',
+              'readonly': '=',
+              'events': '=',
+              'experiment': '=',
+              'activeIdx': '='},
+    controller: controller,
+    templateUrl: 'partials/group.html'
+  };
+  
 });

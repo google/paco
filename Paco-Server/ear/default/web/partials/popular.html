@@ -1,0 +1,26 @@
+<div ng-controller="ListCtrl" >
+    <p>Here are the most popular experiments on Paco</p>
+    <div ng-repeat="exp in list.popular">
+        <md-card>
+            <md-card-content class="padded">
+                <a href="#/experiment/{{exp.id}}">{{exp.title}}</a>
+    <span ng-if="exp.organization" class="organization">
+      administered by {{exp.organization}}
+    </span>
+                <md-button ng-click="joinExperiment($event, exp)" class="join"
+                           ng-disabled="joinedIndex.indexOf(exp.id) != -1">
+                    Join
+                </md-button>
+            </md-card-content>
+        </md-card>
+    </div>
+    <div ng-if="loading.popular" class="status">
+        <span>Loading popular experiments</span>
+        <md-progress-linear md-mode="indeterminate"></md-progress-linear>
+    </div>
+
+    <md-button ng-if="cursor.popular" class="show-more"
+               ng-click="loadPopularList()">
+        Show More
+    </md-button>
+</div>

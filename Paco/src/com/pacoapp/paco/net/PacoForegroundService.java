@@ -10,18 +10,18 @@ import java.net.UnknownHostException;
 import java.util.List;
 
 import org.json.JSONException;
-
-import android.util.Log;
-import android.util.Pair;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.android.gms.auth.GoogleAuthUtil;
 import com.google.common.collect.Lists;
-import com.pacoapp.paco.PacoConstants;
 import com.pacoapp.paco.os.AndroidUtils;
-import com.pacoapp.paco.ui.ProgressDialogFragment;
+
+import android.util.Pair;
 
 public class PacoForegroundService extends GetAuthTokenInForeground {
 
+  private static Logger Log = LoggerFactory.getLogger(PacoForegroundService.class);
 
   public static final String POST = "POST";
   public  static final String GET = "GET";
@@ -74,15 +74,13 @@ public class PacoForegroundService extends GetAuthTokenInForeground {
       writer.flush();
     }
 
-
-
     int sc = 0;
     try {
       sc = urlConnection.getResponseCode();
     } catch (ConnectException e) {
       sc = 503;
     } catch (UnknownHostException e) {
-      Log.i(PacoConstants.TAG, "Exception loading data");
+      Log.info("Exception loading data");
       onError(Integer.toString(NetworkUtil.UNKNOWN_HOST_ERROR), null);
       return;
     }
@@ -96,7 +94,7 @@ public class PacoForegroundService extends GetAuthTokenInForeground {
     } else if (sc == 401) {
         GoogleAuthUtil.invalidateToken(networkClient.getContext(), token);
         onError("Server auth error, please try again.", null);
-        Log.i(PacoConstants.TAG, "Server auth error: " + readResponse(urlConnection.getErrorStream()));
+        Log.info("Server auth error: " + readResponse(urlConnection.getErrorStream()));
         return;
     } else {
       onError("Server returned the following error code: " + sc, null);

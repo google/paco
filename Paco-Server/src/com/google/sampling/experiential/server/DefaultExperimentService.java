@@ -32,6 +32,7 @@ import com.pacoapp.paco.shared.model2.ExperimentIdQueryResult;
 import com.pacoapp.paco.shared.model2.ExperimentJoinQueryResult;
 import com.pacoapp.paco.shared.model2.ExperimentQueryResult;
 import com.pacoapp.paco.shared.model2.ExperimentValidator;
+import com.pacoapp.paco.shared.model2.InterruptCue;
 import com.pacoapp.paco.shared.model2.InterruptTrigger;
 import com.pacoapp.paco.shared.model2.JsonConverter;
 import com.pacoapp.paco.shared.model2.PacoAction;
@@ -115,11 +116,11 @@ class DefaultExperimentService implements ExperimentService {
   public List<ValidationMessage> saveExperiment(ExperimentDAO experiment,
                                                 String loggedInUserEmail,
                                                 DateTimeZone timezone) {
-    
+
     if (ExperimentAccessManager.isUserAllowedToSaveExperiment(experiment.getId(), loggedInUserEmail)) {
       ensureIdsOnActionTriggerObjects(experiment);
       lowercaseAllEmailAddresses(experiment);
-      
+
       ExperimentValidator validator = new ExperimentValidator();
       experiment.validateWith(validator);
       List<ValidationMessage> results = validator.getResults();
@@ -210,6 +211,14 @@ class DefaultExperimentService implements ExperimentService {
                 if (schedule.getId() == null) {
                   schedule.setId(id++);
                 }
+              }
+            }
+          } else if (actionTrigger instanceof InterruptTrigger) {
+            InterruptTrigger interruptTrigger = (InterruptTrigger)actionTrigger;
+            List<InterruptCue> cues = interruptTrigger.getCues();
+            for (InterruptCue interruptCue : cues) {
+              if (interruptCue.getId() == null) {
+                interruptCue.setId(id++);
               }
             }
           }
@@ -432,6 +441,20 @@ class DefaultExperimentService implements ExperimentService {
   @Override
   public ExperimentQueryResult getExperimentsPublishedPublicly(DateTimeZone timezone, Integer limit, String cursor, String email) {
     CursorExerimentIdListPair cursorIdPair = PublicExperimentList.getPublicExperiments(timezone.getID(), limit, cursor);
+    List<ExperimentDAO> experiments = getExperimentsByIdInternal(cursorIdPair.ids, null, timezone);
+    removeNonAdminData(email, experiments);
+    return new ExperimentQueryResult(cursorIdPair.cursor, experiments);
+  }
+
+  public ExperimentQueryResult getExperimentsPublishedPubliclyNew(DateTimeZone timezone, Integer limit, String cursor, String email) {
+    CursorExerimentIdListPair cursorIdPair = PublicExperimentList.getPublicExperimentsNew(timezone.getID(), limit, cursor);
+    List<ExperimentDAO> experiments = getExperimentsByIdInternal(cursorIdPair.ids, null, timezone);
+    removeNonAdminData(email, experiments);
+    return new ExperimentQueryResult(cursorIdPair.cursor, experiments);
+  }
+
+  public ExperimentQueryResult getExperimentsPublishedPubliclyPopular(DateTimeZone timezone, Integer limit, String cursor, String email) {
+    CursorExerimentIdListPair cursorIdPair = PublicExperimentList.getPublicExperimentsPopular(timezone.getID(), limit, cursor);
     List<ExperimentDAO> experiments = getExperimentsByIdInternal(cursorIdPair.ids, null, timezone);
     removeNonAdminData(email, experiments);
     return new ExperimentQueryResult(cursorIdPair.cursor, experiments);

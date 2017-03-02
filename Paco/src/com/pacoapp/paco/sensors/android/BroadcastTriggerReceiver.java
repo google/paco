@@ -4,24 +4,11 @@ import java.util.Date;
 import java.util.List;
 
 import org.joda.time.DateTime;
-
-import android.app.KeyguardManager;
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.SharedPreferences;
-import android.content.SharedPreferences.Editor;
-import android.database.Cursor;
-import android.os.Build;
-import android.os.Bundle;
-import android.os.PowerManager;
-import android.provider.Browser;
-import android.telephony.TelephonyManager;
-import android.util.Log;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
-import com.pacoapp.paco.PacoConstants;
 import com.pacoapp.paco.model.Event;
 import com.pacoapp.paco.model.EventUtil;
 import com.pacoapp.paco.model.Experiment;
@@ -34,8 +21,24 @@ import com.pacoapp.paco.shared.scheduling.ActionScheduleGenerator;
 import com.pacoapp.paco.shared.util.ExperimentHelper;
 import com.pacoapp.paco.shared.util.TimeUtil;
 
+import android.app.KeyguardManager;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
+import android.database.Cursor;
+import android.net.Uri;
+import android.os.Build;
+import android.os.Bundle;
+import android.os.PowerManager;
+import android.provider.Browser;
+import android.telephony.TelephonyManager;
+
 public class BroadcastTriggerReceiver extends BroadcastReceiver {
 
+
+  private static final String PHONE_ON_EVENT_KEY = "phoneOn";
   public static final String EXPERIMENT_SERVER_ID_EXTRA_KEY = "experimentServerId";
   private static final String FREQUENCY = "Frequency";
   public static final String RUNNING_PROCESS_WATCHER_FLAG = "RUNNING_PROCESS_WATCHER";
@@ -43,6 +46,7 @@ public class BroadcastTriggerReceiver extends BroadcastReceiver {
 
   public static final String PACO_TRIGGER_INTENT = "com.pacoapp.paco.action.PACO_TRIGGER";
   public static final String PACO_ACTION_PAYLOAD = "paco_action_payload";
+  public static final String TRIGGER_TYPE = "triggerType";
 
   public static final String PACO_EXPERIMENT_JOINED_ACTION =  "com.pacoapp.paco.action.PACO_EXPERIMENT_JOINED_ACTION";
   public static final String PACO_EXPERIMENT_ENDED_ACTION = "com.pacoapp.paco.action.PACO_EXPERIMENT_ENDED_ACTION";
@@ -50,6 +54,7 @@ public class BroadcastTriggerReceiver extends BroadcastReceiver {
 
   private static final String ANDROID_PLAY_MUSIC_ACTION = "com.android.music.playstatechanged";
 
+  private static Logger Log = LoggerFactory.getLogger(BroadcastTriggerReceiver.class);
 
 
 	@Override
@@ -70,6 +75,10 @@ public class BroadcastTriggerReceiver extends BroadcastReceiver {
       triggerPacoExperimentEndedEvent(context ,intent);
     } else if (intent.getAction().equals(PACO_EXPERIMENT_RESPONSE_RECEIVED_ACTION)) {
       triggerPacoExperimentResponseReceivedEvent(context ,intent);
+    } else if (isPackageRemoved(context, intent)) {
+      triggerPackageRemovedEvent(context, intent);
+    } else if (isPackageAdded(context, intent)) {
+      triggerPackageAddedEvent(context, intent);
     }
 
     PowerManager pm = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
@@ -89,12 +98,13 @@ public class BroadcastTriggerReceiver extends BroadcastReceiver {
           } else if (isScreenOn(intent) && !isKeyGuardOn(context) && shouldPoll) {
             createScreenOnPacoEvents(context);
             startProcessService(context);
-          } else if (isScreenOff(intent)) {
+          } /*else if (isScreenOff(intent)) {
             stopProcessService(context);
-//            if (BroadcastTriggerReceiver.shouldLogActions(context)) {
-//              createBrowserHistoryEndSnapshot(context);
-//            }
-
+            createScreenOffPacoEvents(context);
+          }*/ // Android never fires the screen off intent.
+          // Instead we detect screen activity in the process monitor
+          if (isPhoneShutdown(context, intent)) {
+            createPhoneStateLogEvents(context, "false");
           }
 
         } finally {
@@ -105,10 +115,127 @@ public class BroadcastTriggerReceiver extends BroadcastReceiver {
     (new Thread(runnable)).start();
   }
 
-	private void triggerPacoExperimentEndedEvent(Context context, Intent intent) {
+	public static void createPhoneStateLogEvents(Context context, String phoneOnState) {
+    ExperimentProviderUtil experimentProviderUtil = new ExperimentProviderUtil(context);
+    List<Experiment> experimentsNeedingEvent = getExperimentsLoggingPhoneOnOffEvent(experimentProviderUtil);
+
+    for (Experiment experiment : experimentsNeedingEvent) {
+      Event event = createPhoneShutdownPacoEvent(experiment, phoneOnState);
+      experimentProviderUtil.insertEvent(event);
+    }
+
+  }
+
+  public static List<Experiment> getExperimentsLoggingPhoneOnOffEvent(ExperimentProviderUtil experimentProviderUtil) {
+    List<Experiment> joined = experimentProviderUtil.getJoinedExperiments();
+    List<Experiment> experimentsNeedingEvent = Lists.newArrayList();
+    DateTime now = DateTime.now();
+    for (Experiment experiment2 : joined) {
+      if (!ActionScheduleGenerator.isOver(now, experiment2.getExperimentDAO())
+          && ExperimentHelper.isLogPhoneOnOff(experiment2.getExperimentDAO())) {
+        experimentsNeedingEvent.add(experiment2);
+      }
+    }
+    return experimentsNeedingEvent;
+  }
+
+  protected static Event createPhoneShutdownPacoEvent(Experiment experiment, String phoneOnState) {
+    Event event = new Event();
+    event.setExperimentId(experiment.getId());
+    event.setServerExperimentId(experiment.getServerId());
+    event.setExperimentName(experiment.getExperimentDAO().getTitle());
+    event.setExperimentVersion(experiment.getExperimentDAO().getVersion());
+    event.setResponseTime(new DateTime());
+
+    Output responseForInput = new Output();
+    responseForInput.setAnswer(phoneOnState);
+    responseForInput.setName(PHONE_ON_EVENT_KEY);
+    event.addResponse(responseForInput);
+    return event;
+  }
+
+  private boolean isPhoneShutdown(Context context, Intent intent) {
+	  return intent.getAction().equals(Intent.ACTION_SHUTDOWN);
+  }
+
+  /**
+   * Broadcasts an intent destined for the BroadcastTriggerService containing
+   * the package name and time of the event as extra data.
+   * This method is called by the onReceive() method when it received an
+   * ACTION_PACKAGE_REMOVED broadcast.
+   * @param context The Android app context
+   * @param intent The received broadcast intent
+   */
+  private void triggerPackageRemovedEvent(Context context, Intent intent) {
+    Log.info("App removed trigger");
+
+    triggerPackageEvent(context, intent, InterruptCue.APP_REMOVED);
+  }
+
+  /**
+   * Broadcasts an intent destined for the BroadcastTriggerService containing
+   * the package name and time of the event as extra data.
+   * This method is called by the onReceive() method when it received an
+   * ACTION_PACKAGE_ADDED broadcast.
+   * @param context The Android app context
+   * @param intent The received broadcast intent
+   */
+  private void triggerPackageAddedEvent(Context context, Intent intent) {
+    Log.info("App installed trigger");
+
+    triggerPackageEvent(context, intent, InterruptCue.APP_ADDED);
+    // Make sure that this new app is in the cache too by caching in the background
+    (new AndroidInstalledApplications(context)).cacheApplicationNames();
+  }
+
+  private void triggerPackageEvent(Context context, Intent intent, int type) {
+    Uri data = intent.getData();
+    String packageName = data.getEncodedSchemeSpecificPart();
+    AndroidInstalledApplications androidInstalledApplications = new AndroidInstalledApplications(context);
+    String appName = androidInstalledApplications.getApplicationName(packageName);
+    Bundle payload = new Bundle();
+    payload.putString(AndroidInstalledApplications.PACKAGE_NAME, packageName);
+    payload.putString(AndroidInstalledApplications.APP_NAME, appName);
+    // Cue event names are off by one.
+    payload.putString(TRIGGER_TYPE, InterruptCue.CUE_EVENT_NAMES[type-1]);
+
+    if (!packageName.equals("com.pacoapp.paco")) {
+      triggerEvent(context, type, packageName, payload);
+    }
+
+  }
+
+  /**
+   * Helper function for isPackageRemoved and isPackageAdded, checking whether the package removal/
+   * installation is actually part of an update (i.e. if a removal will be / was followed by an
+   * installation for the same package
+   * @param intent The ACTION_PACKAGE_REMOVED or ACTION_PACKAGE_ADDED event
+   * @return Whether this event is part of an update
+   */
+  private boolean isPackageUpdate(Intent intent) {
+    // If EXTRA_REPLACING is not present (or if it is present but false), return false.
+    return intent.getBooleanExtra(Intent.EXTRA_REPLACING, false);
+  }
+
+  private boolean isPackageRemoved(Context context, Intent intent) {
+    return (intent.getAction().equals(Intent.ACTION_PACKAGE_REMOVED) && !isPackageUpdate(intent));
+  }
+
+  /**
+   * Checks whether an intent contains information about a *new* app being
+   * installed. Updates of existing packages are not considered as new installs.
+   * @param context The Android app context
+   * @param intent The received broadcast intent
+   * @return Whether the intent shows a new package was installed
+   */
+  private boolean isPackageAdded(Context context, Intent intent) {
+    return (intent.getAction().equals(Intent.ACTION_PACKAGE_ADDED) && !isPackageUpdate(intent));
+  }
+
+  private void triggerPacoExperimentEndedEvent(Context context, Intent intent) {
     long experimentServerId = intent.getLongExtra(EXPERIMENT_SERVER_ID_EXTRA_KEY, -10l);
     if (experimentServerId == -10l) {
-      Log.d(PacoConstants.TAG, "No experimentServerId specified for PACO_EXPERIMENT_ENDED_ACTION");
+      Log.debug("No experimentServerId specified for PACO_EXPERIMENT_ENDED_ACTION");
       return;
     }
     String experimentServerIdString = Long.toString(experimentServerId);
@@ -118,7 +245,7 @@ public class BroadcastTriggerReceiver extends BroadcastReceiver {
   private void triggerPacoExperimentJoinEvent(Context context, Intent intent) {
     long experimentServerId = intent.getLongExtra(EXPERIMENT_SERVER_ID_EXTRA_KEY, -10l);
     if (experimentServerId == -10l) {
-      Log.d(PacoConstants.TAG, "No experimentServerId specified for PACO_EXPERIMENT_JOINED_ACTION");
+      Log.debug("No experimentServerId specified for PACO_EXPERIMENT_JOINED_ACTION");
       return;
     }
     String experimentServerIdString = Long.toString(experimentServerId);
@@ -128,7 +255,7 @@ public class BroadcastTriggerReceiver extends BroadcastReceiver {
   private void triggerPacoExperimentResponseReceivedEvent(Context context, Intent intent) {
     long experimentServerId = intent.getLongExtra(EXPERIMENT_SERVER_ID_EXTRA_KEY, -10l);
     if (experimentServerId == -10l) {
-      Log.d(PacoConstants.TAG, "No experimentServerId specified for PACO_EXPERIMENT_RESPONSE_RECEIVED_ACTION");
+      Log.debug("No experimentServerId specified for PACO_EXPERIMENT_RESPONSE_RECEIVED_ACTION");
       return;
     }
     String experimentServerIdString = Long.toString(experimentServerId);
@@ -262,8 +389,6 @@ public class BroadcastTriggerReceiver extends BroadcastReceiver {
       Event event = createScreenOnPacoEvent(experiment);
       experimentProviderUtil.insertEvent(event);
     }
-
-
   }
 
   protected Event createScreenOnPacoEvent(Experiment experiment) {
@@ -357,7 +482,9 @@ public class BroadcastTriggerReceiver extends BroadcastReceiver {
     String[] selArgs = new String[] { String.valueOf(startTimeMillis) };
     Cursor mCur = null;
     try {
-      mCur = context.getContentResolver().query(Browser.BOOKMARKS_URI, proj, sel, selArgs, Browser.BookmarkColumns.DATE + " ASC");
+      Uri bookmarksUri = Browser.BOOKMARKS_URI;
+      //Uri chromeBookmarksUri = Uri.parse("content://com.android.chrome.browser/bookmarks");
+      mCur = context.getContentResolver().query(bookmarksUri, proj, sel, selArgs, Browser.BookmarkColumns.DATE + " ASC");
       mCur.moveToFirst();
 
       String title = "";
@@ -379,6 +506,9 @@ public class BroadcastTriggerReceiver extends BroadcastReceiver {
           }
       }
       return results;
+    } catch (Exception e) {
+      Log.error("bookmark lookup failed. Must be Marshmallow or latest Chrome. bookmark uri is being removed permanently.", e);
+      return Lists.newArrayList();
     } finally {
       if (mCur != null) {
         mCur.close();
@@ -404,7 +534,7 @@ public class BroadcastTriggerReceiver extends BroadcastReceiver {
 
 
   public static void startProcessService(Context context) {
-    Log.i(PacoConstants.TAG, "Starting App Usage poller");
+    Log.info("Starting App Usage poller");
     BroadcastTriggerReceiver.toggleWatchRunningProcesses(context, true);
     if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
       Intent intent = new Intent(context, LollipopProcessMonitorService.class);
@@ -416,7 +546,7 @@ public class BroadcastTriggerReceiver extends BroadcastReceiver {
   }
 
   public static void stopProcessService(Context context) {
-    Log.i(PacoConstants.TAG, "Stopping App Usage poller");
+    Log.info("Stopping App Usage poller");
     BroadcastTriggerReceiver.toggleWatchRunningProcesses(context, false);
   }
 
@@ -526,7 +656,7 @@ public class BroadcastTriggerReceiver extends BroadcastReceiver {
   private void triggerPacoTriggerReceived(Context context, Intent intent) {
     String sourceIdentifier = intent.getStringExtra("sourceIdentifier");
     if (sourceIdentifier == null || sourceIdentifier.length() == 0) {
-      Log.d(PacoConstants.TAG, "No source identifier specified for PACO_TRIGGER");
+      Log.debug("No source identifier specified for PACO_TRIGGER");
     } else {
       triggerEvent(context, InterruptCue.PACO_ACTION_EVENT, sourceIdentifier, intent.getExtras());
     }
@@ -546,7 +676,7 @@ public class BroadcastTriggerReceiver extends BroadcastReceiver {
   }
 
   private void triggerUserPresent(Context context, Intent intent) {
-    Log.i(PacoConstants.TAG, "User present trigger");
+    Log.info("User present trigger");
     triggerEvent(context, InterruptCue.USER_PRESENT);
   }
 
