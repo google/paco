@@ -87,6 +87,17 @@ class DefaultExperimentService implements ExperimentService {
 
   protected List<ExperimentDAO> getExperimentsByIdInternal(List<Long> experimentIds, String email, DateTimeZone timezone) {
     List<String> experimentJsons = getExperimentsByIdAsJson(experimentIds, email, timezone);
+    return turnJsonsIntoExperiments(experimentIds, experimentJsons);
+  }
+
+  protected ExperimentQueryResult getExperimentsByIdInternalSorted(List<Long> experimentIds, String cursor) {
+    com.pacoapp.paco.shared.util.ExperimentHelper.Pair<List<String>, String> experimentJsonsResult = getExperimentsByIdAsJsonSorted(experimentIds, cursor);
+    List<ExperimentDAO> experiments = turnJsonsIntoExperiments(experimentIds, experimentJsonsResult.first);
+    return new ExperimentQueryResult(cursor, experiments);
+  }
+
+
+  private List<ExperimentDAO> turnJsonsIntoExperiments(List<Long> experimentIds, List<String> experimentJsons) {
     log.info("Got back " + experimentJsons.size() +" jsons for " + experimentIds.size() + " ids ( " + Joiner.on(",").join(experimentIds) + ")");
     List<ExperimentDAO> experiments = Lists.newArrayList();
     for (String experimentJson : experimentJsons) {
@@ -109,6 +120,12 @@ class DefaultExperimentService implements ExperimentService {
     // is email a participant or an admin?
     return ExperimentJsonEntityManager.getExperimentsById(experimentIds);
   }
+
+  protected com.pacoapp.paco.shared.util.ExperimentHelper.Pair<List<String>, String> getExperimentsByIdAsJsonSorted(List<Long> experimentIds, String cursor) {
+    //   TODO who can access this call and in what role?
+       // is email a participant or an admin?
+       return ExperimentJsonEntityManager.getExperimentsByIdSortedByTitle(experimentIds, cursor);
+     }
 
 
   // save experiments
@@ -427,15 +444,28 @@ class DefaultExperimentService implements ExperimentService {
   }
 
 
-
-
   @Override
   public ExperimentQueryResult getUsersAdministeredExperiments(String email, DateTimeZone timezone, Integer limit,
                                                                String cursor) {
+    //return getUsersAdministeredExperimentsPagingById(email, timezone, limit, cursor);
+    return getUsersAdministeredExperimentsSorted(email, timezone, limit, cursor);
+  }
+
+
+  private ExperimentQueryResult getUsersAdministeredExperimentsPagingById(String email, DateTimeZone timezone,
+                                                                          Integer limit, String cursor) {
     ExperimentIdQueryResult experimentIdsQueryResult = ExperimentAccessManager.getExistingExperimentIdsForAdmin(email, limit == null ? 0 : limit, cursor);
     //log.info("Administered experiments for: " + email + ". Count: " + experimentIds.size() + ". ids = " + Joiner.on(",").join(experimentIds));
     List<ExperimentDAO> experiments = getExperimentsByIdInternal(experimentIdsQueryResult.getExperiments(), email, timezone);
     return new ExperimentQueryResult(experimentIdsQueryResult.getCursor(), experiments);
+  }
+
+
+  public ExperimentQueryResult getUsersAdministeredExperimentsSorted(String email, DateTimeZone timezone, Integer limit,
+                                                               String cursor) {
+    ExperimentIdQueryResult experimentIdsQueryResult = ExperimentAccessManager.getExistingExperimentIdsForAdmin(email, 0, null);
+    //log.info("Administered experiments for: " + email + ". Count: " + experimentIds.size() + ". ids = " + Joiner.on(",").join(experimentIds));
+    return getExperimentsByIdInternalSorted(experimentIdsQueryResult.getExperiments(), cursor);
   }
 
   @Override
