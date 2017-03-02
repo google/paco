@@ -76,8 +76,9 @@ pacoApp.directive('pacoGroup', function () {
         post.responses.push(eodPair);
         post.responses.push(referPair);
       }
-
-    $http.post('/events', post).success(function(data) {
+    $http.post( 
+      '/events', post)
+      .success(function(data) {
 
         if (data[0].status === true) {
 
@@ -91,7 +92,7 @@ pacoApp.directive('pacoGroup', function () {
           if (!$scope.events || !$scope.events[$scope.activeIdx]) {
             $mdDialog.show(
               $mdDialog.alert()
-              .title('Respond Status')
+              .title('Response Status')
               .content('Success!')
               .ariaLabel('Success')
               .ok('OK')
@@ -103,6 +104,13 @@ pacoApp.directive('pacoGroup', function () {
 
       }).error(function(data, status, headers, config) {
         console.error(data);
+        $mdDialog.show(
+            $mdDialog.alert()
+            .title('Response Status')
+            .content('Could not save response.<br/>Error: ' + data)
+            .ariaLabel('Could not save response')
+            .ok('OK')
+          )
       });
     };
 
@@ -149,6 +157,40 @@ pacoApp.directive('pacoGroup', function () {
       }
 
       $scope.responses[responseName] = list.join();
+    };
+    
+    $scope.loadFileData = function (event, responseName) {
+     event.target.removeEventListener('change', []);
+      event.target.addEventListener('change', function(e) { 
+        var file = event.target.files[0];
+        if (file && file.size <= 1000000) {
+          var name = event.target.name;
+          var fr = new FileReader();
+          fr.onload = (function(theFile) {
+            return function(e) {
+              var imgData = e.target.result;
+              var truncatedImgData = imgData.substring(23);
+              $scope.responses[responseName] = truncatedImgData;
+              $scope.$apply();
+            };
+          })(file);
+          fr.readAsDataURL(file);
+        } else if (file && file.size > 1000000) {
+          $mdDialog.show(
+              $mdDialog.alert()
+              .title('File too large')
+              .content('The photo is greather than 1mb. It is too large.')
+              .ariaLabel('File too large')
+              .ok('OK'));
+        } else {
+          $scope.responses[responseName] = undefined;          
+        }
+      });
+
+    };
+
+    $scope.removeFileData = function (responseName) {
+      $scope.responses[responseName] = undefined;
     };
 
   }];
@@ -839,4 +881,3 @@ pacoApp.directive('pacoGroupPub', function () {
   };
   
 });
-

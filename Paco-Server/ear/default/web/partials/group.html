@@ -69,7 +69,19 @@
             </div>
 
             <div ng-if="input.responseType === 'photo'" class="input">
-              <img ng-src="data:image/jpg;base64,{{responses[input.name]}}" ng-if="responses[input.name]">
+             <div style="font-size:x-small;">(Size limit 1MB)</div>
+              <img width="200" style="padding-bottom:4px;" ng-src="data:image/jpg;base64,{{responses[input.name]}}" ng-if="responses[input.name]"><br/>
+              <input class="ng-hide"
+              id="input-file-id-{{$id}}"
+                    type="file"
+                    accept="image/*"
+                    ng-model="responses[input.name]"
+                    ng-disabled="readonly" 
+                    ng-click="loadFileData($event, input.name)"
+                    />
+              <label for="input-file-id-{{$id}}" class="md-button md-raised md-primary" ng-hide="readonly">Choose Photo</label>
+              <br/>
+              <md-button style="margin-top:4px;" class="md-button md-raised md-primary" ng-click="removeFileData(input.name)" ng-hide="readonly" ng-if="responses[input.name]">Delete Photo</md-button>
             </div>
 
             <div ng-if="input.responseType === 'location'" class="input">
