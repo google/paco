@@ -2,70 +2,78 @@ package com.google.sampling.experiential.server;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.sql.DataSource;
 
-import org.apache.commons.dbcp.BasicDataSource;
+import org.apache.commons.dbcp.ConnectionFactory;
+import org.apache.commons.dbcp.DriverManagerConnectionFactory;
+import org.apache.commons.dbcp.PoolableConnectionFactory;
+import org.apache.commons.dbcp.PoolingDataSource;
+import org.apache.commons.pool.impl.GenericObjectPool;
 
 public class CloudSQLConnectionManager {
-  static String url;
-  static BasicDataSource ds;
   public static final Logger log = Logger.getLogger(CloudSQLConnectionManager.class.getName());
-
-  public CloudSQLConnectionManager(){
   
-  }
+  private static CloudSQLConnectionManager instance = null;
+  private static DataSource ds = null;
+  private static GenericObjectPool connectionPool = null;
   
-  public static Connection getConnection() {
-    Connection conn = null;
-    try {
-      conn = getDataSource().getConnection();
-    } catch (ClassNotFoundException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
-    } catch (SQLException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
-    }
-
-    return conn;
+  private CloudSQLConnectionManager(){
     
   }
   
-  /**
-   *  
-   * @return
-   * @throws ClassNotFoundException
-   */
-  
-  private static DataSource getDataSource() throws ClassNotFoundException {
-    if(ds==null){
-     ds = new BasicDataSource();
+  public static CloudSQLConnectionManager getInstance() throws SQLException{
+    if (instance == null){
+      try {
+        ds = setUp();
+        instance = new CloudSQLConnectionManager();
+      } catch (ClassNotFoundException e) {
+        throw new SQLException("DataSourceSetUp",e);
+      }
     }
-    if (System
-        .getProperty("com.google.appengine.runtime.version").startsWith("Google App Engine/")) {
-//       Check the System properties to determine if we are running on appengine or not
-//       Google App Engine sets a few system properties that will reliably be present on a remote
-//       instance.     
-      ds.setUrl("jdbc:google:mysql://quantifiedself-staging2:us-central1:quantifiedself-staging2-sql/test");
-      ds.setUsername("imey****");
-      ds.setPassword("*****");
-   
+    return instance;
+  }
+
+  public  Connection getConnection() throws SQLException{
+    Connection conn = ds.getConnection();
+    return conn;
+  }
+  
+  public static DataSource setUp() throws ClassNotFoundException {
+    String url = null;
+    String userName = null;
+    String pwd = null;
+
+    connectionPool = new GenericObjectPool();
+    connectionPool.setMaxActive(100);
+    
+    if (System.getProperty("com.google.appengine.runtime.version").startsWith("Google App Engine/")) {
+      url = "jdbc:google:mysql://quantifiedself-staging2:us-central1:quantifiedself-staging2-sql/test";
+      userName = "imeyyappan";
+      pwd = "password2";
       Class.forName("com.mysql.jdbc.GoogleDriver");
     } else {
-//       Set the url with the local MySQL database connection url when running locally
-//      ds.setDriver("org.gjt.mm.mysql.Driver");
-      ds.setUrl("jdbc:mysql://localhost:3306/pacodb");
-      ds.setUsername("root");
-      ds.setPassword("*****");
+      url = "jdbc:mysql://localhost:3306/pacodb?verifyServerCertificate=false&useSSL=false";
+//        url = "jdbc:mysql://127.0.0.1:4040/pacodb?verifyServerCertificate=false&useSSL=false";
+      userName = "root";
+      pwd ="mira@2008";
     }
-    log.log(Level.FINE,"connecting to: " + ds.getUrl());
-//   common properties
-    ds.setMinIdle(5);
-    ds.setMaxIdle(20);
-    ds.setMaxOpenPreparedStatements(180);
+
+    ConnectionFactory cf = new DriverManagerConnectionFactory(url,userName,pwd);
+    PoolableConnectionFactory pcf = new PoolableConnectionFactory(cf, connectionPool,null, null, false, true);
+    ds = new PoolingDataSource(connectionPool);
     return ds;
+    
+  }
+  
+  public static  GenericObjectPool getConnectionPool() {
+    return connectionPool;
+  }
+  
+  static void currentPoolStatus() {
+    System.out.println("Max = " + getConnectionPool().getMaxActive() + " : " +
+            "Active = " + getConnectionPool().getNumActive() );
+            
   }
 }

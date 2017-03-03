@@ -100,7 +100,7 @@ public class SQLQuery {
       
       //add limit clause to sort order
       if (obj.limit != null) {
-        obj.limit = obj.getSortOrder().concat(" LIMIT ").concat(obj.getLimit());
+        obj.sortOrder = obj.getSortOrder().concat(" LIMIT ").concat(obj.getLimit());
       }
       
       if(obj.getProjection() == null){

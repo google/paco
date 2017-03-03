@@ -12,9 +12,11 @@ import net.sf.jsqlparser.expression.BinaryExpression;
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.Parenthesis;
 import net.sf.jsqlparser.expression.operators.relational.InExpression;
+import net.sf.jsqlparser.expression.operators.relational.IsNullExpression;
 import net.sf.jsqlparser.parser.CCJSqlParserUtil;
 import net.sf.jsqlparser.statement.select.PlainSelect;
 import net.sf.jsqlparser.statement.select.Select;
+import net.sf.jsqlparser.statement.select.SelectItem;
 
 public class SearchUtil {
   
@@ -57,6 +59,51 @@ public class SearchUtil {
     }
   }  
   
+  public static List<String> retrieveUserSpecifiedConditions(String selectSql, String colName){
+    Select selectStatement = (Select)getJsqlStatement(selectSql);
+    PlainSelect pl = (PlainSelect)selectStatement.getSelectBody();
+    List<String> qvList = Lists.newArrayList();
+    getQueriedValue(pl.getWhere(), colName, qvList);
+    return qvList;
+  }
+  
+  public static void getQueriedValue(Expression node, String columnName, List<String> queriedValueList) {  
+    
+    if(node==null)  
+     return;  
+    if(node instanceof Parenthesis){
+      node = ((Parenthesis) node).getExpression();
+    } 
+
+    if(node instanceof BinaryExpression){
+      Expression le  = ((BinaryExpression)node).getLeftExpression();
+      Expression re  = ((BinaryExpression)node).getRightExpression();
+      
+      if ((le.getClass().getName().contains("Column")) && le.toString().equalsIgnoreCase(columnName)){
+        queriedValueList.add(((BinaryExpression)node).getRightExpression().toString());
+      }else{
+        getQueriedValue(le, columnName, queriedValueList);
+        getQueriedValue(re, columnName, queriedValueList);
+        
+      }
+    }
+
+    if(node instanceof InExpression){
+      if ((((InExpression) node).getLeftExpression().getClass().getName().contains("Column"))&& node.toString().contains(columnName)){
+        String listWithParen = ((InExpression)node).getRightItemsList().toString().replace('(', ' ');
+        String listWithoutParen = listWithParen.replace(')', ' ' );
+        String[] arr = listWithoutParen.split(", ");
+        queriedValueList.addAll(Arrays.asList(arr));
+      }
+    }
+    if(node instanceof IsNullExpression){
+      if ((((IsNullExpression) node).getLeftExpression().getClass().getName().contains("Column"))&& node.toString().contains(columnName)){
+        queriedValueList.add("isnull");
+      }
+    }
+    
+  }    
+  
   public static void getColumnNamesInWhere(Expression node, List<String> colNames){
     getColumnNames(node, colNames);
   }
@@ -72,7 +119,7 @@ public class SearchUtil {
     getColumnNames(clause, colNames);
   }
   
-  public static List<String> getAllColNamesInQuery(String selectSql){
+  private static net.sf.jsqlparser.statement.Statement getJsqlStatement(String selectSql){
     net.sf.jsqlparser.statement.Statement statement = null;
     try {
       statement = CCJSqlParserUtil.parse(selectSql);
@@ -83,16 +130,28 @@ public class SearchUtil {
     List<String> colNames = Lists.newArrayList(); 
     
     Select selectStatement = (Select) statement;
+    return selectStatement;
+  }
+  
+  public static List<String> getAllColNamesInQuery(String selectSql){
+
+    List<String> colNames = Lists.newArrayList(); 
+    Select selectStatement = (Select)getJsqlStatement(selectSql);
     PlainSelect pl = (PlainSelect)selectStatement.getSelectBody();
+    pl.getStringList(colNames);
+    for(SelectItem s: pl.getSelectItems()){
+      colNames.add(s.toString());
+    }
     BinaryExpression where = (BinaryExpression) pl.getWhere();
     getColumnNamesInWhere(where, colNames);
     BinaryExpression having = (BinaryExpression) pl.getHaving();
     getColumnNamesInHaving(having, colNames);
-    if(pl.getOrderByElements()!=null)
+    if(pl.getOrderByElements()!=null){
       getColumnNamesInSortOrder(pl.getOrderByElements().toString(), colNames);
-    if(pl.getGroupByColumnReferences()!=null)
+    }
+    if(pl.getGroupByColumnReferences()!=null){
       getColumnNamesInGroupBy(pl.getGroupByColumnReferences().toString(), colNames);
-    System.out.println("all cols new approach"+colNames);
+    }
     return colNames;
     
   }
@@ -141,6 +200,7 @@ public class SearchUtil {
         
     sqlString.append( " where ");
     sqlString.append(x);
+//    sqlString.append(" and events.archive_flag=0 ");
   }
   
   if(sqlQuery.getGroupBy()!=null){
@@ -168,7 +228,7 @@ public class SearchUtil {
 //    sqlString.append(sqlQuery.getLimit());
 //  }
   
-  System.out.println(sqlString);
+//  System.out.println(sqlString);
   
   return sqlString.toString();
 }

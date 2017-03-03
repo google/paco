@@ -16,6 +16,7 @@
 */
 package com.google.sampling.experiential.server;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -150,27 +151,22 @@ public class EventRetriever {
     Event event = new Event(who, lat, lon, whenDate, appId, pacoVersion, what, shared,
         experimentId, experimentName, experimentVersion, responseTime, scheduledTime, blobs, tz,
         groupName, actionTriggerId, actionTriggerSpecId, actionId);
-    //Flow will either persist in data store and send event to the cloud sql queue or persist in cloud sql
+    //persistInCloudSql flag will determine which flow to go. Flow 1:persist in data store and send event to the cloud sql queue 
+    // Flow 2: persist in cloud sql
     if(persistInCloudSql && eventJson!=null){
       Long id;
-      String whoFromJson=null;
       try {
         id = eventJson.getLong("id");
-        //TODO remove, since this is Only for test
-        if(eventJson.has("who")){
-          whoFromJson = eventJson.getString("who");
-        }else{
-          whoFromJson = who;
-        }
         event.setId(id);
-        event.setWho(whoFromJson);
       } catch (JSONException e) {
-        // TODO Auto-generated catch block
-        e.printStackTrace();
+        log.warning("Event json id parsing error"+e);
       }
-      
-      cloudSqlDaoImpl.insertEvent(event);
-      cloudSqlDaoImpl.insertOutputs(event);
+      try{
+        cloudSqlDaoImpl.insertEvent(event);
+      } catch (SQLException sqle){
+        log.warning("Exception while inserting data into cloudsql db"+sqle);
+      }
+
     }else{
       
       Transaction tx = null;
@@ -178,10 +174,7 @@ public class EventRetriever {
         tx = pm.currentTransaction();
         tx.begin();
         pm.makePersistent(event);
-     // TODO confirm if this should be outside of transaction
         event.setWhat(what);
-        
-        
         if (isJoinEvent) {
           ExperimentAccessManager.addJoinedExperimentFor(who, Long.valueOf(experimentId), responseTime);
         } else if (!isScheduleEvent && !isStopEvent) {
@@ -200,10 +193,6 @@ public class EventRetriever {
       //TODO confirm if this should be outside of transaction
       sendToCloudSqlQueue(eventJson, event.getId());
     }
-   
-   
-//    long t2 = System.currentTimeMillis();
-//    log.info("POST Event time: " + (t2 - t1));
   }
   
   public void sendToCloudSqlQueue(JSONObject eventJson, Long eventId){
@@ -211,8 +200,7 @@ public class EventRetriever {
     try {
       eventJson.put("id", eventId);
     } catch (JSONException e) {
-      // TODO Auto-generated catch block
-      log.info("while sending to cloud sql"+e);
+      log.warning("while sending to cloud sql queue"+e);
     }
     queue.add(TaskOptions.Builder.withUrl("/csInsert").payload(eventJson.toString()));
   }
