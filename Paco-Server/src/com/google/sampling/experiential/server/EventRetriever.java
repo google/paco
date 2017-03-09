@@ -91,7 +91,7 @@ public class EventRetriever {
     return instance;
   }
   
-  public void postEvent(boolean persistInCloudSql, JSONObject eventJson, String who, String lat, String lon, Date whenDate, String appId, String pacoVersion,
+  public void postEvent(boolean persistInCloudSqlOnly, JSONObject eventJson, String who, String lat, String lon, Date whenDate, String appId, String pacoVersion,
                         Set<What> whats, boolean shared, String experimentId, String experimentName,
                         Integer experimentVersion, DateTime responseTime, DateTime scheduledTime,
                         List<PhotoBlob> blobs, String groupName, Long actionTriggerId, Long actionTriggerSpecId, Long actionId) {
@@ -101,7 +101,7 @@ public class EventRetriever {
               ? scheduledTime.getZone().toString()
               : null;
               
-     postEvent(persistInCloudSql, eventJson, who, lat, lon, whenDate, appId, pacoVersion, whats, shared, experimentId, experimentName, experimentVersion,
+     postEvent(persistInCloudSqlOnly, eventJson, who, lat, lon, whenDate, appId, pacoVersion, whats, shared, experimentId, experimentName, experimentVersion,
               responseTime != null ? responseTime.toDate() : null,
               scheduledTime != null ? scheduledTime.toDate() : null, blobs,
               tz, groupName, actionTriggerId, actionTriggerSpecId, actionId);
@@ -120,7 +120,7 @@ public class EventRetriever {
   }
 
 
-  public void postEvent(boolean persistInCloudSql, JSONObject eventJson, String who, String lat, String lon, Date whenDate, String appId,
+  public void postEvent(boolean persistInCloudSqlOnly, JSONObject eventJson, String who, String lat, String lon, Date whenDate, String appId,
       String pacoVersion, Set<What> what, boolean shared, String experimentId,
       String experimentName, Integer experimentVersion, Date responseTime, Date scheduledTime, List<PhotoBlob> blobs,
       String tz,
@@ -153,11 +153,11 @@ public class EventRetriever {
         groupName, actionTriggerId, actionTriggerSpecId, actionId);
     //persistInCloudSql flag will determine which flow to go. Flow 1:persist in data store and send event to the cloud sql queue 
     // Flow 2: persist in cloud sql
-    if(persistInCloudSql && eventJson!=null){
-      Long id;
+    if(persistInCloudSqlOnly && eventJson!=null){
       try {
-        id = eventJson.getLong("id");
-        event.setId(id);
+        event.setId(eventJson.getLong("id"));
+        event.setPacoVersion(eventJson.getString("pacoVersion"));
+        event.setAppId(eventJson.getString("appId"));
       } catch (JSONException e) {
         log.warning("Event json id parsing error"+e);
       }
@@ -190,15 +190,20 @@ public class EventRetriever {
         }
         pm.close();
       }
-      //TODO confirm if this should be outside of transaction
-      sendToCloudSqlQueue(eventJson, event.getId());
+      
+      sendToCloudSqlQueue(eventJson, event);
     }
   }
   
-  public void sendToCloudSqlQueue(JSONObject eventJson, Long eventId){
+  public void sendToCloudSqlQueue(JSONObject eventJson, Event event){
     Queue queue = QueueFactory.getQueue("cloud-sql");
     try {
-      eventJson.put("id", eventId);
+      // In the flow of saving event data to data store, pacoversion and appid comes in request header.
+      // Adding these values to json, so that we can persist this data on to cloud sql too.
+      eventJson.put("id", event.getId());
+      eventJson.put("pacoVersion", event.getPacoVersion());
+      eventJson.put("appId", event.getAppId());
+      
     } catch (JSONException e) {
       log.warning("while sending to cloud sql queue"+e);
     }
