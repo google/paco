@@ -113,19 +113,7 @@ public class EventJsonUploadProcessor {
     }
     return results;
   }
-  
-//  public static <T> T getGenType(JSONObject json, String attribute) throws JSONException{
-//    T t  =null;
-//    if(json.has(attribute)){
-////      System.out.println(json.get(attribute));
-//      if( json.get(attribute)!=null)
-//        t = (T) json.get(attribute);
-//    }
-//    return t;
-//  }
-// 
-
-
+ 
   private Outcome postEvent(boolean persistInCloudSqlOnly, JSONObject eventJson, int eventId, String who, String appIdHeader, String pacoVersionHeader) throws Throwable {
     Outcome outcome = new Outcome(eventId);
 
