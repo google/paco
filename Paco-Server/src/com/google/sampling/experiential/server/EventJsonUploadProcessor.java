@@ -49,19 +49,19 @@ public class EventJsonUploadProcessor {
   public String processJsonEvents(String postBodyString, String whoFromLogin, String appIdHeader, String pacoVersion) {
     //This is the traditional event processing call to insert to data store. 
     //This call is not from insertCloudSQl flow, where we will persist this info in cloud sql. So, we send the flagfalse
-    boolean persistInCloudSql = false;
-    return processJsonEvents(persistInCloudSql, postBodyString, whoFromLogin, appIdHeader, pacoVersion);
+    boolean persistInCloudSqlOnly = false;
+    return processJsonEvents(persistInCloudSqlOnly, postBodyString, whoFromLogin, appIdHeader, pacoVersion);
   }
   
-  public String processJsonEvents(boolean persistInCloudSql, String postBodyString, String whoFromLogin, String appIdHeader, String pacoVersion) {
+  public String processJsonEvents(boolean persistInCloudSqlOnly, String postBodyString, String whoFromLogin, String appIdHeader, String pacoVersion) {
     String eventInJsonFormat=null;
     try {
       if (postBodyString.startsWith("[")) {
         final JSONArray events = new JSONArray(postBodyString);
-        eventInJsonFormat = toJson(processJsonArray(persistInCloudSql, events, whoFromLogin, appIdHeader, pacoVersion));
+        eventInJsonFormat = toJson(processJsonArray(persistInCloudSqlOnly, events, whoFromLogin, appIdHeader, pacoVersion));
       } else {
         final JSONObject currentEvent = new JSONObject(postBodyString);
-        eventInJsonFormat = toJson(processSingleJsonEvent(persistInCloudSql, currentEvent, whoFromLogin, appIdHeader, pacoVersion));
+        eventInJsonFormat = toJson(processSingleJsonEvent(persistInCloudSqlOnly, currentEvent, whoFromLogin, appIdHeader, pacoVersion));
       }
       
       return eventInJsonFormat;
@@ -98,13 +98,13 @@ public class EventJsonUploadProcessor {
     return results;
   }
 
-  private List<Outcome> processJsonArray(boolean persistInCloudSql, JSONArray events, String whoFromLogin, String appIdHeader, String pacoVersionHeader) {
+  private List<Outcome> processJsonArray(boolean persistInCloudSqlOnly, JSONArray events, String whoFromLogin, String appIdHeader, String pacoVersionHeader) {
     List<Outcome> results = Lists.newArrayList();
     JSONObject currentEvent = null;
     for (int i = 0; i < events.length(); i++) {
       try {
         currentEvent = events.getJSONObject(i);
-        results.add(postEvent(persistInCloudSql, currentEvent, i, whoFromLogin, appIdHeader, pacoVersionHeader));
+        results.add(postEvent(persistInCloudSqlOnly, currentEvent, i, whoFromLogin, appIdHeader, pacoVersionHeader));
       } catch (JSONException e) {
         results.add(new Outcome(i, "JSONException posting event: " + i + ". " + e.getMessage()));
       } catch (Throwable e) {
@@ -126,7 +126,7 @@ public class EventJsonUploadProcessor {
 // 
 
 
-  private Outcome postEvent(boolean persistInCloudSql, JSONObject eventJson, int eventId, String who, String appIdHeader, String pacoVersionHeader) throws Throwable {
+  private Outcome postEvent(boolean persistInCloudSqlOnly, JSONObject eventJson, int eventId, String who, String appIdHeader, String pacoVersionHeader) throws Throwable {
     Outcome outcome = new Outcome(eventId);
 
     String pacoVersion = null;
@@ -315,7 +315,7 @@ public class EventJsonUploadProcessor {
              + ", what length = " + whats.size());
 
 
-    eventRetriever.postEvent(persistInCloudSql, eventJson, who, null, null, whenDate, appId, pacoVersion, whats, false, experimentIdStr,
+    eventRetriever.postEvent(persistInCloudSqlOnly, eventJson, who, null, null, whenDate, appId, pacoVersion, whats, false, experimentIdStr,
                                            experimentName, experimentVersion, responseTime, scheduledTime, blobs,
                                            groupName, actionTriggerId, actionTriggerSpecId, actionId);
 

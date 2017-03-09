@@ -17,6 +17,7 @@
 package com.google.sampling.experiential.shared;
 
 import java.io.Serializable;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -361,4 +362,15 @@ public class EventDAO implements Serializable {
     return responses;
   }
 
+  @Override
+  public String toString() {
+    return "EventDAO [id=" + id + ", experimentId=" + experimentId + ", who=" + who + ", lat=" + lat + ", lon=" + lon
+           + ", when=" + when + ", appId=" + appId + ", pacoVersion=" + pacoVersion + ", shared=" + shared
+           + ", experimentName=" + experimentName + ", what=" + what + ", responseTime=" + responseTime
+           + ", scheduledTime=" + scheduledTime + ", blobs=" + Arrays.toString(blobs) + ", experimentVersion="
+           + experimentVersion + ", timezone=" + timezone + ", experimentGroupName=" + experimentGroupName
+           + ", actionTriggerId=" + actionTriggerId + ", actionTriggerSpecId=" + actionTriggerSpecId + ", actionId="
+           + actionId + "]";
+  }
+  
 }

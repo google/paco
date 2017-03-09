@@ -33,19 +33,11 @@ public class CloudSqlInsertServlet extends HttpServlet {
     } else {
       String requestBody = RequestProcessorUtil.getBody(req);
   
-      String appIdHeader = req.getHeader("http.useragent");
-      String pacoVersion = req.getHeader("paco.version");
-      boolean persistInCloudSql = true;
+      boolean persistInCloudSqlOnly = true;
   
       //should not send this event to cloud sql insert queue again
       //TODO authenticated users email should be verified
-      String results = EventJsonUploadProcessor.create().processJsonEvents(persistInCloudSql, requestBody, AuthUtil.getEmailOfUser(req, user), appIdHeader, pacoVersion);
-     
-      if (req.getHeader("pacoProtocol") != null && req.getHeader("pacoProtocol").indexOf("4") == -1) {
-        log.severe("oldProtocol " + req.getHeader("pacoProtocol") + " (iOS) results?");
-        log.severe(results);
-      }
-      
+      String results = EventJsonUploadProcessor.create().processJsonEvents(persistInCloudSqlOnly, requestBody, AuthUtil.getEmailOfUser(req, user), null, null);      
       resp.getWriter().println(results);
     }
   }

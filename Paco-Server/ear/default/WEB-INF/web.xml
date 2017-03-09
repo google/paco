@@ -187,7 +187,8 @@
       <url-pattern>/participantStats*</url-pattern>
       <url-pattern>/jobStatus*</url-pattern>
       <url-pattern>/simon*</url-pattern>      
-      <url-pattern>/usage*</url-pattern>      
+      <url-pattern>/usage*</url-pattern>
+      <url-pattern>/csSearch</url-pattern>
     </web-resource-collection>
     <user-data-constraint>
       <transport-guarantee>CONFIDENTIAL</transport-guarantee>
@@ -204,6 +205,8 @@
       <url-pattern>/remote_api*</url-pattern>
       <url-pattern>/eval*</url-pattern>
       <url-pattern>/participantJoinStats*</url-pattern>
+      <url-pattern>/csCreate</url-pattern>
+      <url-pattern>/csInsert</url-pattern> 
     </web-resource-collection>
     <auth-constraint>
       <role-name>admin</role-name>

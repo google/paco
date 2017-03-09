@@ -25,4 +25,5 @@ public class OutputBaseColumns {
   public static final String INPUT_SERVER_ID = "input_server_id";
   public static final String NAME = "text";
   public static final String ANSWER = "answer";
+  public static final String ARCHIVE_FLAG = "archive_flag";
 }

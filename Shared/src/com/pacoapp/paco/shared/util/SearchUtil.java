@@ -28,8 +28,9 @@ public class SearchUtil {
    * @return the list of column names
    */
   public static void getColumnNames(String inputString, List<String> colNames) {
-    if (inputString == null)
-            inputString ="";
+    if (inputString == null){
+      inputString ="";
+    }
     inputString = inputString.replaceAll(" (?i)asc | (?i)desc | (?i)asc| (?i)desc|\\[|\\]", " ");
     // multiple blank spaces get truncated to single blank space
     inputString = inputString.replaceAll("( )+", " ").trim();
@@ -165,7 +166,7 @@ public class SearchUtil {
       
   }
   
-  public static  String getPlainSql(SQLQuery sqlQuery) {
+public static  String getPlainSql(SQLQuery sqlQuery) {
 
   //where group having order, limit
   StringBuffer sqlString = new StringBuffer("");
