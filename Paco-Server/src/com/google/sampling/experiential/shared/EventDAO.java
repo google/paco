@@ -126,7 +126,6 @@ public class EventDAO implements Serializable {
     this.actionTriggerId = actionTriggerId;
     this.actionTriggerSpecId = actionTriggerSpecId;
     this.actionId = actionId;
-
   }
 
   public Long getId() {
