@@ -14,6 +14,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.sampling.experiential.model.Event;
 import com.google.sampling.experiential.shared.EventDAO;
+import com.google.sampling.experiential.shared.WhatDAO;
 import com.pacoapp.paco.shared.model2.EventBaseColumns;
 import com.pacoapp.paco.shared.model2.OutputBaseColumns;
 
@@ -36,8 +37,8 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
       eventsOutputColumns.put(EventBaseColumns.WHO, 10);
       eventsOutputColumns.put(EventBaseColumns.PACO_VERSION, 11);
       eventsOutputColumns.put(EventBaseColumns.APP_ID, 12);
-      eventsOutputColumns.put("EVENTS._ID", 13);
-      eventsOutputColumns.put("_ID", 14);
+      eventsOutputColumns.put("events._id", 13);
+      eventsOutputColumns.put("_id", 14);
       eventsOutputColumns.put(OutputBaseColumns.NAME, 15);
       eventsOutputColumns.put(OutputBaseColumns.ANSWER, 16);
     }
@@ -135,10 +136,10 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
     try {
       conn = CloudSQLConnectionManager.getInstance().getConnection();
       statementSelectEvent = conn.prepareStatement(query
-       ,ResultSet.TYPE_FORWARD_ONLY,
-       ResultSet.CONCUR_READ_ONLY
+//       ,ResultSet.TYPE_FORWARD_ONLY,
+//       ResultSet.CONCUR_READ_ONLY
       );
-       statementSelectEvent.setFetchSize(Integer.MIN_VALUE);
+//       statementSelectEvent.setFetchSize(Integer.MIN_VALUE);
       Long stTime = System.nanoTime();
       rs = statementSelectEvent.executeQuery();
 
@@ -157,10 +158,10 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
           } else {
             // Will go through following when the query contains text in
             // ('a','b','v') or answer in(....)
-            Map<String, String> oldOut = oldEvent.getWhat();
-            Map<String, String> newOut = event.getWhat();
+            List<WhatDAO> oldOut = oldEvent.getWhat();
+            List<WhatDAO> newOut = event.getWhat();
             // add all new output to the existing event in map
-            oldOut.putAll(newOut);
+            oldOut.addAll(newOut);
           }
         }
       }
@@ -188,15 +189,16 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
   private EventDAO createEvent(ResultSet rs) {
     loadColumnTableAssociationMap();
     EventDAO e = new EventDAO();
+    List<WhatDAO> whatList = Lists.newArrayList();
     // setting an empty map for possible outputs. Even if the qry does not ask
     // for output fields, we send an empty output map
-    e.setWhat(new HashMap<String, String>());
+    e.setWhat(whatList);
     try {
       ResultSetMetaData rsmd = rs.getMetaData();
       for (int i = 1; i <= rsmd.getColumnCount(); i++) {
         String tempColNameInRS = rsmd.getColumnName(i);
-        String colUpper = tempColNameInRS.toUpperCase();
-        Integer colIndex = eventsOutputColumns.get(colUpper);
+        String colLower = tempColNameInRS.toLowerCase();
+        Integer colIndex = eventsOutputColumns.get(colLower);
         if (colIndex != null) {
           switch (colIndex) {
           case 1:
@@ -240,12 +242,12 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
             e.setId(rs.getLong(i));
             break;
           case 15:
-            Map<String, String> hm = e.getWhat();
-            hm.put(OutputBaseColumns.NAME, rs.getString(i));
+            List<WhatDAO> whTextLst = e.getWhat();
+            whTextLst.add(new WhatDAO(OutputBaseColumns.NAME, rs.getString(i)));
             break;
           case 16:
-            Map<String, String> hma = e.getWhat();
-            hma.put(OutputBaseColumns.ANSWER, rs.getString(i));
+            List<WhatDAO> whAnsLst = e.getWhat();
+            whAnsLst.add(new WhatDAO(OutputBaseColumns.ANSWER, rs.getString(i)));
             break;
           }
         }

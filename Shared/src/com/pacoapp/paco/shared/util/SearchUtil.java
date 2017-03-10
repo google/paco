@@ -1,6 +1,7 @@
 package com.pacoapp.paco.shared.util;
 
 
+import java.io.StringReader;
 import java.util.Arrays;
 import java.util.List;
 
@@ -13,10 +14,10 @@ import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.Parenthesis;
 import net.sf.jsqlparser.expression.operators.relational.InExpression;
 import net.sf.jsqlparser.expression.operators.relational.IsNullExpression;
+import net.sf.jsqlparser.parser.CCJSqlParserManager;
 import net.sf.jsqlparser.parser.CCJSqlParserUtil;
 import net.sf.jsqlparser.statement.select.PlainSelect;
 import net.sf.jsqlparser.statement.select.Select;
-import net.sf.jsqlparser.statement.select.SelectItem;
 
 public class SearchUtil {
   
@@ -105,21 +106,6 @@ public class SearchUtil {
     
   }    
   
-  public static void getColumnNamesInWhere(Expression node, List<String> colNames){
-    getColumnNames(node, colNames);
-  }
-  
-  public static void getColumnNamesInHaving(Expression node, List<String> colNames){
-    getColumnNames(node, colNames);
-  }
-  
-  public static void getColumnNamesInSortOrder(String clause,  List<String> colNames){
-    getColumnNames(clause, colNames);
-  }
-  public static void getColumnNamesInGroupBy(String clause,  List<String> colNames){
-    getColumnNames(clause, colNames);
-  }
-  
   private static net.sf.jsqlparser.statement.Statement getJsqlStatement(String selectSql){
     net.sf.jsqlparser.statement.Statement statement = null;
     try {
@@ -128,33 +114,26 @@ public class SearchUtil {
       // TODO Auto-generated catch block
       e.printStackTrace();
     }
-    List<String> colNames = Lists.newArrayList(); 
-    
     Select selectStatement = (Select) statement;
     return selectStatement;
   }
   
   public static List<String> getAllColNamesInQuery(String selectSql){
-
-    List<String> colNames = Lists.newArrayList(); 
-    Select selectStatement = (Select)getJsqlStatement(selectSql);
-    PlainSelect pl = (PlainSelect)selectStatement.getSelectBody();
-    pl.getStringList(colNames);
-    for(SelectItem s: pl.getSelectItems()){
-      colNames.add(s.toString());
+    List<String> colList = Lists.newArrayList();
+    CCJSqlParserManager pm = new CCJSqlParserManager();
+    net.sf.jsqlparser.statement.Statement statement = null;
+    try {
+      statement = pm.parse(new StringReader(selectSql));
+    } catch (JSQLParserException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
     }
-    BinaryExpression where = (BinaryExpression) pl.getWhere();
-    getColumnNamesInWhere(where, colNames);
-    BinaryExpression having = (BinaryExpression) pl.getHaving();
-    getColumnNamesInHaving(having, colNames);
-    if(pl.getOrderByElements()!=null){
-      getColumnNamesInSortOrder(pl.getOrderByElements().toString(), colNames);
+    if (statement instanceof Select) {
+      Select selectStatement = (Select) statement;
+      ColumnNamesFinder colNamesFinder = new ColumnNamesFinder();
+      colList = colNamesFinder.getColumnList(selectStatement);
     }
-    if(pl.getGroupByColumnReferences()!=null){
-      getColumnNamesInGroupBy(pl.getGroupByColumnReferences().toString(), colNames);
-    }
-    return colNames;
-    
+    return colList;
   }
   
   public static  String identifyTablesInvolved(List<String> colNamesInQuery){

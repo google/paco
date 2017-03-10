@@ -9,6 +9,7 @@ public class ACLHelper {
   public static String getModifiedQueryBasedOnACL(String selectSql, String loggedInUser,
                                                   List<Long> adminExperimentsinDB) throws Exception {
     String adminExpIdCSV = adminExperimentsinDB.toString();
+    String loggedInUserWithQuotes = "'"+ loggedInUser +"'";
     boolean ownData = false;
     boolean ownExpt = false;
     adminExpIdCSV = adminExpIdCSV.replace("[", "");
@@ -20,7 +21,7 @@ public class ACLHelper {
 
     // if user querying own data
     for (String s : userSpecifiedWhoValues) {
-      if (s.equalsIgnoreCase(loggedInUser)) {
+      if (s.equalsIgnoreCase(loggedInUserWithQuotes)) {
         ownData = true;
       } else {
         ownData = false;
@@ -60,6 +61,14 @@ public class ACLHelper {
     // the logged in user
     if (adminExperimentsinDB.size() == 0 && !ownData) {
       throw new Exception("Unauthorized access: User who is not an admin asking for another user data");
+    }
+    
+    if (adminExperimentsinDB.size() == 0 && userSpecifiedWhoValues.size()==0) {
+      if(selectSql.contains(" where ")){
+        selectSql = selectSql.replace("", " where who ='"+ loggedInUser +"' and ");
+      } else {
+        selectSql = selectSql.replace("", " where who ='"+ loggedInUser +"' ");       
+      }
     }
 
     return selectSql;
