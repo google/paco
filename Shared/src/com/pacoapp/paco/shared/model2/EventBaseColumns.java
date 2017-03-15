@@ -37,6 +37,7 @@ public class EventBaseColumns {
   public static final String WHEN = "when";
   public static final String ARCHIVE_FLAG = "archive_flag";
   public static final String PACO_VERSION = "paco_version";
-  public static final String APP_ID = "app_id";
-
+  public static final String APP_ID = "app_id"; 
+  public static final String JOINED = "joined";
+  public static final String SORT_DATE = "sort_date";
 }

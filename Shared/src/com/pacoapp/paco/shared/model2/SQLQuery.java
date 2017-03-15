@@ -97,12 +97,7 @@ public class SQLQuery {
       if(obj.sortOrder == null){
         obj.sortOrder="events".concat(DOT).concat("_id").concat(" DESC");
       }
-      
-      //add limit clause to sort order
-      if (obj.limit != null) {
-        obj.sortOrder = obj.getSortOrder().concat(" LIMIT ").concat(obj.getLimit());
-      }
-      
+
       if(obj.getProjection() == null){
         obj.projection = new String[]{"*"};
       }

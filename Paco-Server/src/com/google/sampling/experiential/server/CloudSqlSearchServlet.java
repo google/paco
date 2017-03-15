@@ -20,6 +20,8 @@ import com.pacoapp.paco.shared.model2.SQLQuery;
 import com.pacoapp.paco.shared.util.JsUtil;
 import com.pacoapp.paco.shared.util.SearchUtil;
 
+import net.sf.jsqlparser.statement.select.PlainSelect;
+
 @SuppressWarnings("serial")
 public class CloudSqlSearchServlet extends HttpServlet {
   public static final Logger log = Logger.getLogger(CloudSqlSearchServlet.class.getName());
@@ -49,27 +51,21 @@ public class CloudSqlSearchServlet extends HttpServlet {
       CloudSQLDao impl = new CloudSQLDaoImpl();
       String reqBody = RequestProcessorUtil.getBody(req);
       sqlQueryObj = JsUtil.convertJSONToPOJO(reqBody);
-      String selectSql = SearchUtil.getPlainSql(sqlQueryObj);
+
       List<Long> adminExperimentsinDB = ExperimentAccessManager.getExistingExperimentIdsForAdmin(loggedInUser, 0, null)
                                                                .getExperiments();
 
+      PlainSelect ps = SearchUtil.getJoinQry(sqlQueryObj);
+
       try {
-        aclQuery = ACLHelper.getModifiedQueryBasedOnACL(selectSql, loggedInUser, adminExperimentsinDB);
+        aclQuery = ACLHelper.getModifiedQueryBasedOnACL(ps.toString(), loggedInUser, adminExperimentsinDB);
       } catch (Exception e) {
         throw new ServletException("Unauthorized acccess");
-      }
-      log.info("before acl" + selectSql);
-      log.info("after acl" + aclQuery);
-
-      List<String> colNamesInQuery = SearchUtil.getAllColNamesInQuery(aclQuery);
-      String tablesInvolved = SearchUtil.identifyTablesInvolved(colNamesInQuery);
-
-      if (tablesInvolved != null && tablesInvolved.equals("eventsoutputs")) {
-        aclQuery = aclQuery.replace(" from events ", " from events join outputs on events._id = outputs.event_Id ");
       }
 
       log.info("send query " + aclQuery);
       startTime = new DateTime();
+      
       try {
         evtList = impl.getEvents(aclQuery);
       } catch (SQLException sqle) {
@@ -81,7 +77,6 @@ public class CloudSqlSearchServlet extends HttpServlet {
       for (EventDAO evt : evtList) {
         out.print(evt);
         out.println();
-
       }
     }
 

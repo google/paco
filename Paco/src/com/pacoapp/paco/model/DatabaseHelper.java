@@ -423,7 +423,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 //  }
   
   public Cursor query(int tableIndicator, String[] projection, String selection,
-		  String[] selectionArgs, String sortOrder, String groupBy, String having) {
+		  String[] selectionArgs, String sortOrder, String groupBy, String having, String limit) {
     SQLiteQueryBuilder qb = new SQLiteQueryBuilder();
     Cursor resultSet = null;
     switch (tableIndicator) {
@@ -439,7 +439,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	  }
     try{
       resultSet = qb.query(getReadableDatabase(), projection, selection, selectionArgs, groupBy, having,
-	      sortOrder);
+	      sortOrder, limit);
     }catch (SQLiteException s){
       Log.warn("Caught SQLite exception.", s);
       //Client should receive the exception

@@ -5,8 +5,15 @@ import java.util.List;
 import com.google.common.collect.Lists;
 import com.pacoapp.paco.shared.util.SearchUtil;
 
+import net.sf.jsqlparser.statement.Statement;
+
 public class ACLHelper {
   public static String getModifiedQueryBasedOnACL(String selectSql, String loggedInUser,
+                                                  List<Long> adminExperimentsinDB) throws Exception {
+    Statement selStat = SearchUtil.getJsqlStatement(selectSql);
+    return getModifiedQueryBasedOnACL( selStat, loggedInUser,adminExperimentsinDB);
+  }
+  public static String getModifiedQueryBasedOnACL(Statement selectSql, String loggedInUser,
                                                   List<Long> adminExperimentsinDB) throws Exception {
     String adminExpIdCSV = adminExperimentsinDB.toString();
     String loggedInUserWithQuotes = "'"+ loggedInUser +"'";
@@ -62,16 +69,17 @@ public class ACLHelper {
     if (adminExperimentsinDB.size() == 0 && !ownData) {
       throw new Exception("Unauthorized access: User who is not an admin asking for another user data");
     }
-    
+//TODO  
+    String modifiedSelectSql = selectSql.toString();
     if (adminExperimentsinDB.size() == 0 && userSpecifiedWhoValues.size()==0) {
-      if(selectSql.contains(" where ")){
-        selectSql = selectSql.replace("", " where who ='"+ loggedInUser +"' and ");
+      if(selectSql.toString().contains(" where ")){
+        modifiedSelectSql = modifiedSelectSql.replace("", " where who ='"+ loggedInUser +"' and ");
       } else {
-        selectSql = selectSql.replace("", " where who ='"+ loggedInUser +"' ");       
+        modifiedSelectSql = modifiedSelectSql.replace("", " where who ='"+ loggedInUser +"' ");       
       }
     }
 
-    return selectSql;
+    return modifiedSelectSql;
   }
 
   private static List<Long> convertToLong(List<String> inpList) {

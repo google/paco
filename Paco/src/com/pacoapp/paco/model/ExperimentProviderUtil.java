@@ -820,18 +820,13 @@ public class ExperimentProviderUtil implements EventStore {
     DatabaseHelper dbHelper = new DatabaseHelper(context);
    
     try {
-
-      String plainSql = SearchUtil.getPlainSql(sqlQuery);
-      List<String> allColumns = SearchUtil.getAllColNamesInQuery(plainSql);
-      //identify all tables involved for the complete column names
-      String tableIndicator = SearchUtil.identifyTablesInvolved(allColumns);
-      
+      String tableIndicator = SearchUtil.getTableIndicator(sqlQuery);
       if (tableIndicator.equals(ExperimentProvider.EVENTS_OUTPUTS_TABLE_NAME)) { 
         cursor = dbHelper.query(ExperimentProvider.EVENTS_OUTPUTS_DATATYPE, sqlQuery.getProjection(), sqlQuery.getCriteriaQuery(), sqlQuery.getCriteriaValue(),
-                                sqlQuery.getSortOrder(), sqlQuery.getGroupBy(), sqlQuery.getHaving());
+                                sqlQuery.getSortOrder(), sqlQuery.getGroupBy(), sqlQuery.getHaving(), sqlQuery.getLimit());
       } else if (tableIndicator.equals(ExperimentProvider.EVENTS_TABLE_NAME)) {
         cursor = dbHelper.query(ExperimentProvider.EVENTS_DATATYPE, sqlQuery.getProjection(), sqlQuery.getCriteriaQuery(), sqlQuery.getCriteriaValue(),
-                                sqlQuery.getSortOrder(), sqlQuery.getGroupBy(), sqlQuery.getHaving());
+                                sqlQuery.getSortOrder(), sqlQuery.getGroupBy(), sqlQuery.getHaving(), sqlQuery.getLimit());
       } 
       //to maintain the insertion order
       eventMap = Maps.newLinkedHashMap();

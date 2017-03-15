@@ -10,24 +10,35 @@ import net.sf.jsqlparser.expression.AnalyticExpression;
 import net.sf.jsqlparser.expression.AnyComparisonExpression;
 import net.sf.jsqlparser.expression.CaseExpression;
 import net.sf.jsqlparser.expression.CastExpression;
+import net.sf.jsqlparser.expression.DateTimeLiteralExpression;
 import net.sf.jsqlparser.expression.DateValue;
 import net.sf.jsqlparser.expression.DoubleValue;
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.ExpressionVisitor;
 import net.sf.jsqlparser.expression.ExtractExpression;
 import net.sf.jsqlparser.expression.Function;
+import net.sf.jsqlparser.expression.HexValue;
 import net.sf.jsqlparser.expression.IntervalExpression;
 import net.sf.jsqlparser.expression.JdbcNamedParameter;
 import net.sf.jsqlparser.expression.JdbcParameter;
+import net.sf.jsqlparser.expression.JsonExpression;
+import net.sf.jsqlparser.expression.KeepExpression;
 import net.sf.jsqlparser.expression.LongValue;
+import net.sf.jsqlparser.expression.MySQLGroupConcat;
 import net.sf.jsqlparser.expression.NullValue;
+import net.sf.jsqlparser.expression.NumericBind;
 import net.sf.jsqlparser.expression.OracleHierarchicalExpression;
+import net.sf.jsqlparser.expression.OracleHint;
 import net.sf.jsqlparser.expression.Parenthesis;
+import net.sf.jsqlparser.expression.RowConstructor;
 import net.sf.jsqlparser.expression.SignedExpression;
 import net.sf.jsqlparser.expression.StringValue;
+import net.sf.jsqlparser.expression.TimeKeyExpression;
 import net.sf.jsqlparser.expression.TimeValue;
 import net.sf.jsqlparser.expression.TimestampValue;
+import net.sf.jsqlparser.expression.UserVariable;
 import net.sf.jsqlparser.expression.WhenClause;
+import net.sf.jsqlparser.expression.WithinGroupExpression;
 import net.sf.jsqlparser.expression.operators.arithmetic.Addition;
 import net.sf.jsqlparser.expression.operators.arithmetic.BitwiseAnd;
 import net.sf.jsqlparser.expression.operators.arithmetic.BitwiseOr;
@@ -55,6 +66,7 @@ import net.sf.jsqlparser.expression.operators.relational.MinorThanEquals;
 import net.sf.jsqlparser.expression.operators.relational.MultiExpressionList;
 import net.sf.jsqlparser.expression.operators.relational.NotEqualsTo;
 import net.sf.jsqlparser.expression.operators.relational.RegExpMatchOperator;
+import net.sf.jsqlparser.expression.operators.relational.RegExpMySQLOperator;
 import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.schema.Table;
 import net.sf.jsqlparser.statement.select.AllColumns;
@@ -73,6 +85,7 @@ import net.sf.jsqlparser.statement.select.SelectVisitor;
 import net.sf.jsqlparser.statement.select.SetOperationList;
 import net.sf.jsqlparser.statement.select.SubJoin;
 import net.sf.jsqlparser.statement.select.SubSelect;
+import net.sf.jsqlparser.statement.select.TableFunction;
 import net.sf.jsqlparser.statement.select.ValuesList;
 import net.sf.jsqlparser.statement.select.WithItem;
 
@@ -488,5 +501,83 @@ public class ColumnNamesFinder implements SelectItemVisitor, SelectVisitor, Expr
         visit(itr.next());
       }
     }
+  }
+
+  @Override
+  public void visit(TableFunction arg0) {
+    // TODO Auto-generated method stub
+    
+  }
+
+  @Override
+  public void visit(HexValue arg0) {
+    // TODO Auto-generated method stub
+    
+  }
+
+  @Override
+  public void visit(WithinGroupExpression arg0) {
+    // TODO Auto-generated method stub
+    
+  }
+
+  @Override
+  public void visit(JsonExpression arg0) {
+    // TODO Auto-generated method stub
+    
+  }
+
+  @Override
+  public void visit(RegExpMySQLOperator arg0) {
+    // TODO Auto-generated method stub
+    
+  }
+
+  @Override
+  public void visit(UserVariable arg0) {
+    // TODO Auto-generated method stub
+    
+  }
+
+  @Override
+  public void visit(NumericBind arg0) {
+    // TODO Auto-generated method stub
+    
+  }
+
+  @Override
+  public void visit(KeepExpression arg0) {
+    // TODO Auto-generated method stub
+    
+  }
+
+  @Override
+  public void visit(MySQLGroupConcat arg0) {
+    // TODO Auto-generated method stub
+    
+  }
+
+  @Override
+  public void visit(RowConstructor arg0) {
+    // TODO Auto-generated method stub
+    
+  }
+
+  @Override
+  public void visit(OracleHint arg0) {
+    // TODO Auto-generated method stub
+    
+  }
+
+  @Override
+  public void visit(TimeKeyExpression arg0) {
+    // TODO Auto-generated method stub
+    
+  }
+
+  @Override
+  public void visit(DateTimeLiteralExpression arg0) {
+    // TODO Auto-generated method stub
+    
   }
 }
