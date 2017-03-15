@@ -9,18 +9,17 @@ import com.pacoapp.paco.shared.util.SearchUtil;
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.operators.conditional.AndExpression;
 import net.sf.jsqlparser.parser.CCJSqlParserUtil;
-import net.sf.jsqlparser.statement.Statement;
 import net.sf.jsqlparser.statement.select.PlainSelect;
 import net.sf.jsqlparser.statement.select.Select;
 
 public class ACLHelper {
   public static String getModifiedQueryBasedOnACL(String selectSql, String loggedInUser,
                                                   List<Long> adminExperimentsinDB) throws Exception {
-    Statement selStat = SearchUtil.getJsqlStatement(selectSql);
+    Select selStat = SearchUtil.getJsqlSelectStatement(selectSql);
     return getModifiedQueryBasedOnACL(selStat, loggedInUser, adminExperimentsinDB);
   }
 
-  public static String getModifiedQueryBasedOnACL(Statement selectSql, String loggedInUser,
+  public static String getModifiedQueryBasedOnACL(Select selectSql, String loggedInUser,
                                                   List<Long> adminExperimentsinDB) throws Exception {
     String loggedInUserWithQuotes = "'" + loggedInUser + "'";
     boolean onlyQueryingOwnData = false;
@@ -71,8 +70,7 @@ public class ACLHelper {
 
     String whoClause = EventBaseColumns.WHO + " ='" + loggedInUser + "'";
     if (adminExperimentsinDB.size() == 0 && userSpecifiedWhoValues.size() == 0) {
-      Select selectStatement = (Select) selectSql;
-      plainSelect = (PlainSelect) ((Select) selectStatement).getSelectBody();
+      plainSelect = (PlainSelect) selectSql.getSelectBody();
       Expression oldWhereClause = plainSelect.getWhere();
       Expression newWhoClause = CCJSqlParserUtil.parseCondExpression(whoClause);
       Expression ex = new AndExpression(oldWhereClause, newWhoClause);

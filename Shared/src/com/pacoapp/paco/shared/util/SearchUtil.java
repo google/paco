@@ -2,6 +2,7 @@ package com.pacoapp.paco.shared.util;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.logging.Logger;
 
 import com.google.common.collect.Lists;
 import com.pacoapp.paco.shared.model2.SQLQuery;
@@ -14,7 +15,6 @@ import net.sf.jsqlparser.expression.operators.relational.InExpression;
 import net.sf.jsqlparser.expression.operators.relational.IsNullExpression;
 import net.sf.jsqlparser.parser.CCJSqlParserUtil;
 import net.sf.jsqlparser.schema.Table;
-import net.sf.jsqlparser.statement.Statement;
 import net.sf.jsqlparser.statement.select.FromItem;
 import net.sf.jsqlparser.statement.select.Join;
 import net.sf.jsqlparser.statement.select.Limit;
@@ -24,6 +24,7 @@ import net.sf.jsqlparser.statement.select.Select;
 import net.sf.jsqlparser.util.SelectUtils;
 
 public class SearchUtil {
+  private static final Logger log = Logger.getLogger(SearchUtil.class.getName());
 
   public static void getColumnNames(Expression node, List<String> colNames) {
 
@@ -47,8 +48,8 @@ public class SearchUtil {
     }
   }
 
-  public static List<String> retrieveUserSpecifiedConditions(Statement selectStatement, String colName) {
-    PlainSelect pl = (PlainSelect) ((Select) selectStatement).getSelectBody();
+  public static List<String> retrieveUserSpecifiedConditions(Select selectStatement, String colName) {
+    PlainSelect pl = (PlainSelect) selectStatement.getSelectBody();
     List<String> qvList = Lists.newArrayList();
     getQueriedValue(pl.getWhere(), colName, qvList);
     return qvList;
@@ -93,25 +94,21 @@ public class SearchUtil {
 
   }
 
-  public static Statement getJsqlStatement(String selectSql) {
-    Statement statement = null;
+  public static Select getJsqlSelectStatement(String selectSql) {
+    Select statement = null;
     try {
-      statement = CCJSqlParserUtil.parse(selectSql);
+      statement = (Select) CCJSqlParserUtil.parse(selectSql);
     } catch (JSQLParserException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
+      log.warning("Not a valid Select stmt" + e);
     }
     return statement;
   }
 
   public static List<String> getAllColNamesInQuery(String selectSql) {
     List<String> colList = Lists.newArrayList();
-    Statement statement = getJsqlStatement(selectSql);
-    if (statement instanceof Select) {
-      Select selectStatement = (Select) statement;
-      ColumnNamesFinder colNamesFinder = new ColumnNamesFinder();
-      colList = colNamesFinder.getColumnList(selectStatement);
-    }
+    Select selStatement = getJsqlSelectStatement(selectSql);
+    ColumnNamesFinder colNamesFinder = new ColumnNamesFinder();
+    colList = colNamesFinder.getColumnList(selStatement);
     return colList;
   }
 
@@ -129,16 +126,16 @@ public class SearchUtil {
     List<OrderByElement> orderByList = null;
     List<Expression> groupBy = null;
     Limit limit = null;
- 
-    try{
+
+    try {
       // projection
       if (sqlQuery.getProjection() != null) {
         selQry = SelectUtils.buildSelectFromTableAndExpressions(new Table("events"), sqlQuery.getProjection());
       }
-      
+
       // where clause
-      if(sqlQuery.getCriteriaQuery()!=null){
-        //TODO replace with jsql utility
+      if (sqlQuery.getCriteriaQuery() != null) {
+        // TODO replace with jsql utility
         String[] repl = sqlQuery.getCriteriaValue();
         String tempWhereClause = sqlQuery.getCriteriaQuery();
         int i = 0;
@@ -147,54 +144,52 @@ public class SearchUtil {
         }
         whereExpr = CCJSqlParserUtil.parseCondExpression(tempWhereClause);
       }
-     
+
       // groupBy
-      if(sqlQuery.getGroupBy() != null){
+      if (sqlQuery.getGroupBy() != null) {
         groupBy = convertToExpressionList(sqlQuery.getGroupBy());
       }
-  
+
       // orderBy
-      if(sqlQuery.getSortOrder() != null) {
+      if (sqlQuery.getSortOrder() != null) {
         orderByList = convertToOrderByList(sqlQuery.getSortOrder());
       }
-      
-      //limit
-      if(sqlQuery.getLimit() != null){
+
+      // limit
+      if (sqlQuery.getLimit() != null) {
         limit = new Limit();
         String[] splitLimitOffset = sqlQuery.getLimit().split(",");
-        
+
         limit.setRowCount(Long.parseLong(splitLimitOffset[0]));
-        if(splitLimitOffset.length>1) {
+        if (splitLimitOffset.length > 1) {
           limit.setOffset(Long.parseLong(splitLimitOffset[1]));
         }
       }
-    }catch(JSQLParserException js){
-      
+    } catch (JSQLParserException js) {
+      log.warning("building query" + js);
     }
-     
+
     PlainSelect plainSel = (PlainSelect) selQry.getSelectBody();
     plainSel.setWhere(whereExpr);
     plainSel.setOrderByElements(orderByList);
     plainSel.setGroupByColumnReferences(groupBy);
     plainSel.setLimit(limit);
-    
-    System.out.println("jsql new qry "+plainSel.toString());
-    return plainSel.toString();
 
+    return plainSel.toString();
   }
-  
-  public static String getTableIndicator(SQLQuery sqlQuery){
+
+  public static String getTableIndicator(SQLQuery sqlQuery) {
     String plainSql = getPlainSql(sqlQuery);
     return getTableIndicator(sqlQuery, plainSql);
   }
-  
-  public static String getTableIndicator(SQLQuery sqlQuery, String plainSql){
+
+  public static String getTableIndicator(SQLQuery sqlQuery, String plainSql) {
     List<String> colNamesInQuery = getAllColNamesInQuery(plainSql);
     String tablesInvolved = identifyTablesInvolved(colNamesInQuery);
     return tablesInvolved;
   }
-  
-  public static PlainSelect getJoinQry(SQLQuery sqlQuery){
+
+  public static PlainSelect getJoinQry(SQLQuery sqlQuery) {
     PlainSelect ps = null;
     Expression joinExp = null;
     Select selStatement = null;
@@ -203,10 +198,7 @@ public class SearchUtil {
     FromItem ft = new Table("outputs");
 
     String plainSql = getPlainSql(sqlQuery);
-    Statement jsqlStmt = getJsqlStatement(plainSql);
-    if (jsqlStmt instanceof Select) {
-      selStatement = (Select) jsqlStmt;
-    }
+    selStatement = getJsqlSelectStatement(plainSql);
     String tableIndicator = getTableIndicator(sqlQuery, plainSql);
     if (tableIndicator != null && tableIndicator.equals("eventsoutputs")) {
       try {
@@ -218,18 +210,18 @@ public class SearchUtil {
       joinObj.setInner(true);
       joinObj.setRightItem(ft);
       jList.add(joinObj);
-      ps = ((PlainSelect)selStatement.getSelectBody());
+      ps = ((PlainSelect) selStatement.getSelectBody());
       ps.setJoins(jList);
     } else {
-      ps = ((PlainSelect)selStatement.getSelectBody());
+      ps = ((PlainSelect) selStatement.getSelectBody());
     }
-    
-    return ps; 
+
+    return ps;
   }
 
   public static List<OrderByElement> convertToOrderByList(String inp) throws JSQLParserException {
-    List<OrderByElement> outList = Lists.newArrayList();
-    if(inp!=null){
+    List<OrderByElement> orderByList = Lists.newArrayList();
+    if (inp != null) {
       String[] inpAry = inp.split(",");
       for (String s : inpAry) {
         OrderByElement ob = new OrderByElement();
@@ -244,10 +236,10 @@ public class SearchUtil {
         }
         Expression exp = CCJSqlParserUtil.parseExpression(s);
         ob.setExpression(exp);
-        outList.add(ob);
+        orderByList.add(ob);
       }
     }
-    return outList;
+    return orderByList;
   }
 
   public static List<Expression> convertToExpressionList(String s) throws JSQLParserException {
