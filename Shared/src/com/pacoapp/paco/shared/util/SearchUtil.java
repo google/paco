@@ -94,7 +94,7 @@ public class SearchUtil {
   }
 
   public static Statement getJsqlStatement(String selectSql) {
-    net.sf.jsqlparser.statement.Statement statement = null;
+    Statement statement = null;
     try {
       statement = CCJSqlParserUtil.parse(selectSql);
     } catch (JSQLParserException e) {

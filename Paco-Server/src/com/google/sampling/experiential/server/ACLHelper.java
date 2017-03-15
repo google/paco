@@ -3,46 +3,34 @@ package com.google.sampling.experiential.server;
 import java.util.List;
 
 import com.google.common.collect.Lists;
+import com.pacoapp.paco.shared.model2.EventBaseColumns;
 import com.pacoapp.paco.shared.util.SearchUtil;
 
+import net.sf.jsqlparser.expression.Expression;
+import net.sf.jsqlparser.expression.operators.conditional.AndExpression;
+import net.sf.jsqlparser.parser.CCJSqlParserUtil;
 import net.sf.jsqlparser.statement.Statement;
+import net.sf.jsqlparser.statement.select.PlainSelect;
+import net.sf.jsqlparser.statement.select.Select;
 
 public class ACLHelper {
   public static String getModifiedQueryBasedOnACL(String selectSql, String loggedInUser,
                                                   List<Long> adminExperimentsinDB) throws Exception {
     Statement selStat = SearchUtil.getJsqlStatement(selectSql);
-    return getModifiedQueryBasedOnACL( selStat, loggedInUser,adminExperimentsinDB);
+    return getModifiedQueryBasedOnACL(selStat, loggedInUser, adminExperimentsinDB);
   }
+
   public static String getModifiedQueryBasedOnACL(Statement selectSql, String loggedInUser,
                                                   List<Long> adminExperimentsinDB) throws Exception {
-    String adminExpIdCSV = adminExperimentsinDB.toString();
-    String loggedInUserWithQuotes = "'"+ loggedInUser +"'";
-    boolean ownData = false;
-    boolean ownExpt = false;
-    adminExpIdCSV = adminExpIdCSV.replace("[", "");
-    adminExpIdCSV = adminExpIdCSV.replace("]", "");
+    String loggedInUserWithQuotes = "'" + loggedInUser + "'";
+    boolean onlyQueryingOwnData = false;
+    boolean adminOnAllExperiments = false;
+    PlainSelect plainSelect = null;
 
-    List<String> userSpecifiedWhoValues = SearchUtil.retrieveUserSpecifiedConditions(selectSql, "who");
-    List<String> userSpecifiedExpId = SearchUtil.retrieveUserSpecifiedConditions(selectSql, "experiment_id");
-    List<Long> userSpecifiedExpIdValues = convertToLong(userSpecifiedExpId);
-
-    // if user querying own data
-    for (String s : userSpecifiedWhoValues) {
-      if (s.equalsIgnoreCase(loggedInUserWithQuotes)) {
-        ownData = true;
-      } else {
-        ownData = false;
-      }
-    }
-
-    // if user querying own experiments
-    for (Long s : userSpecifiedExpIdValues) {
-      if (adminExperimentsinDB.contains(s)) {
-        ownExpt = true;
-      } else {
-        ownExpt = false;
-      }
-    }
+    List<String> userSpecifiedWhoValues = SearchUtil.retrieveUserSpecifiedConditions(selectSql, EventBaseColumns.WHO);
+    List<String> userSpecifiedExpIds = SearchUtil.retrieveUserSpecifiedConditions(selectSql,
+                                                                                  EventBaseColumns.EXPERIMENT_ID);
+    List<Long> userSpecifiedExpIdValues = convertToLong(userSpecifiedExpIds);
 
     // Level 1 filters
     // a->No exp id filter, no processing
@@ -50,36 +38,48 @@ public class ACLHelper {
       throw new Exception("Unauthorized access: No experiment id filter");
     }
 
-    // b->Mixed ACL in experiment id filter, and who clause is not logged in
-    // admin user
-    if (!ownExpt) {
-      // The user is requesting experiments where he is not an admin. He could
-      // be a participant or it could be a random experiment.
-      if (!ownData) {
-        throw new Exception("Unauthorized access: Mixed ACL in Experiment Id and who clause is not logged in user");
+    // if user querying own data
+    for (String s : userSpecifiedWhoValues) {
+      if (s.equalsIgnoreCase(loggedInUserWithQuotes)) {
+        onlyQueryingOwnData = true;
+      } else {
+        onlyQueryingOwnData = false;
+        break;
       }
+    }
+
+    // if user querying own experiments
+    for (Long s : userSpecifiedExpIdValues) {
+      if (adminExperimentsinDB.contains(s)) {
+        adminOnAllExperiments = true;
+      } else {
+        adminOnAllExperiments = false;
+        break;
+      }
+    }
+
+    // b->Mixed ACL in experiment id filter/ not an administrator of any
+    // experiment,
+    // and who clause contains value other than logged in admin user
+    if ((!adminOnAllExperiments || adminExperimentsinDB.size() == 0) && !onlyQueryingOwnData) {
+      throw new Exception("Unauthorized access: Mixed/No Access on all/some experiments");
     }
 
     // c->Mixed ACL in experiment id filter, and who clause is not of a
     // participant or the logged in user
     // TODO participant check
 
-    // d->if logged in user is not admin and who filter contains user other than
-    // the logged in user
-    if (adminExperimentsinDB.size() == 0 && !ownData) {
-      throw new Exception("Unauthorized access: User who is not an admin asking for another user data");
-    }
-//TODO  
-    String modifiedSelectSql = selectSql.toString();
-    if (adminExperimentsinDB.size() == 0 && userSpecifiedWhoValues.size()==0) {
-      if(selectSql.toString().contains(" where ")){
-        modifiedSelectSql = modifiedSelectSql.replace("", " where who ='"+ loggedInUser +"' and ");
-      } else {
-        modifiedSelectSql = modifiedSelectSql.replace("", " where who ='"+ loggedInUser +"' ");       
-      }
+    String whoClause = EventBaseColumns.WHO + " ='" + loggedInUser + "'";
+    if (adminExperimentsinDB.size() == 0 && userSpecifiedWhoValues.size() == 0) {
+      Select selectStatement = (Select) selectSql;
+      plainSelect = (PlainSelect) ((Select) selectStatement).getSelectBody();
+      Expression oldWhereClause = plainSelect.getWhere();
+      Expression newWhoClause = CCJSqlParserUtil.parseCondExpression(whoClause);
+      Expression ex = new AndExpression(oldWhereClause, newWhoClause);
+      plainSelect.setWhere(ex);
     }
 
-    return modifiedSelectSql;
+    return plainSelect.toString();
   }
 
   private static List<Long> convertToLong(List<String> inpList) {
