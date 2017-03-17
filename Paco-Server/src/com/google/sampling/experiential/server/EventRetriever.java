@@ -164,13 +164,11 @@ public class EventRetriever {
         event.setAppId(eventJson.getString("appId"));
         event.setTimeZone(eventJson.getString("tz"));
         event.setWhen(df.parseDateTime(eventJson.getString("whenDate")).toDate());
-      } catch (JSONException e) {
-        log.warning("Event json id parsing error" + e);
-      }
-      try {
         cloudSqlDaoImpl.insertEvent(event);
+      } catch (JSONException e) {
+        log.severe("Event json id parsing error" + e);
       } catch (SQLException sqle) {
-        log.warning("Exception while inserting data into cloudsql db" + sqle);
+        log.severe("Exception while inserting data into cloudsql db" + sqle);
       }
 
     } else {
@@ -214,7 +212,7 @@ public class EventRetriever {
       DateTime whenDate = new DateTime(event.getWhen());
       eventJson.put("whenDate", fmt.print(whenDate));
     } catch (JSONException e) {
-      log.warning("while sending to cloud sql queue" + e);
+      log.severe("while sending to cloud sql queue" + e);
     }
     queue.add(TaskOptions.Builder.withUrl("/csInsert").payload(eventJson.toString()));
   }
