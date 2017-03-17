@@ -18,7 +18,7 @@ import com.pacoapp.paco.model.Output;
 import com.pacoapp.paco.shared.model2.ExperimentDAO;
 import com.pacoapp.paco.shared.model2.ExperimentGroup;
 import com.pacoapp.paco.shared.model2.SQLQuery;
-import com.pacoapp.paco.shared.util.JsUtil;
+import com.pacoapp.paco.shared.util.QueryJsonParser;
 import com.pacoapp.paco.ui.FeedbackActivity;
 
 import android.webkit.JavascriptInterface;
@@ -109,7 +109,7 @@ public class JavascriptEventLoader {
   public String getEventsByQuery(String criteriaQuery) throws JSONException, Exception {
     List<Event> events = null;
     String eventsJson = null;
-    SQLQuery sqlQueryObj = JsUtil.convertJSONToPOJO(criteriaQuery);
+    SQLQuery sqlQueryObj = QueryJsonParser.parseSqlQueryFromJson(criteriaQuery);
     if (sqlQueryObj != null) {
       events = experimentProviderUtil.findEventsByCriteriaQuery(sqlQueryObj);
       eventsJson = FeedbackActivity.convertEventsToJsonString(events);

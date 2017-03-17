@@ -47,8 +47,6 @@ import org.joda.time.DateTimeZone;
 
 import com.google.appengine.api.modules.ModulesService;
 import com.google.appengine.api.modules.ModulesServiceFactory;
-import com.google.appengine.api.taskqueue.Queue;
-import com.google.appengine.api.taskqueue.QueueFactory;
 import com.google.appengine.api.users.User;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
@@ -480,14 +478,7 @@ public class EventServlet extends HttpServlet {
     }
   }
   private void processJsonUpload(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-    String postBodyString;
-
-    try {
-      postBodyString = org.apache.commons.io.IOUtils.toString(req.getInputStream(), "UTF-8");
-    } catch (IOException e) {
-      log.info("IO Exception reading post data stream: " + e.getMessage());
-      throw e;
-    }
+    String postBodyString = RequestProcessorUtil.getBody(req);
     if (postBodyString.equals("")) {
       throw new IllegalArgumentException("Empty Post body");
     }

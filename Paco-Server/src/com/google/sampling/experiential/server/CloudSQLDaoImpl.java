@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.logging.Logger;
 
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
@@ -33,6 +34,8 @@ import net.sf.jsqlparser.statement.insert.Insert;
 public class CloudSQLDaoImpl implements CloudSQLDao {
   public static final Logger log = Logger.getLogger(CloudSQLDaoImpl.class.getName());
   private static Map<String, Integer> eventsOutputColumns = null;
+  public static final String ID = "_id";
+  public static final String TRUE = "true";
 
   private static void loadColumnTableAssociationMap() {
     if (eventsOutputColumns == null) {
@@ -49,10 +52,12 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
       eventsOutputColumns.put(EventBaseColumns.WHO, 10);
       eventsOutputColumns.put(EventBaseColumns.PACO_VERSION, 11);
       eventsOutputColumns.put(EventBaseColumns.APP_ID, 12);
-      eventsOutputColumns.put("events._id", 13);
-      eventsOutputColumns.put("_id", 14);
-      eventsOutputColumns.put(OutputBaseColumns.NAME, 15);
-      eventsOutputColumns.put(OutputBaseColumns.ANSWER, 16);
+      eventsOutputColumns.put(EventBaseColumns.JOINED, 13);
+      eventsOutputColumns.put(EventBaseColumns.SORT_DATE, 14);
+      eventsOutputColumns.put(EventBaseColumns.CLIENT_TIME_ZONE, 15);
+      eventsOutputColumns.put(ID, 16);
+      eventsOutputColumns.put(OutputBaseColumns.NAME, 17);
+      eventsOutputColumns.put(OutputBaseColumns.ANSWER, 18);
     }
   }
 
@@ -76,7 +81,7 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
     List<Column> eventColList = Lists.newArrayList();
     List<Column> outputColList = Lists.newArrayList();
     DateTimeFormatter fmt = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");
-    eventColList.add(new Column("_Id"));
+    eventColList.add(new Column(ID));
     eventColList.add(new Column(EventBaseColumns.EXPERIMENT_ID));
     eventColList.add(new Column(EventBaseColumns.EXPERIMENT_NAME));
     eventColList.add(new Column(EventBaseColumns.EXPERIMENT_VERSION));
@@ -92,6 +97,7 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
     eventColList.add(new Column(EventBaseColumns.APP_ID));
     eventColList.add(new Column(EventBaseColumns.JOINED));
     eventColList.add(new Column(EventBaseColumns.SORT_DATE));
+    eventColList.add(new Column(EventBaseColumns.CLIENT_TIME_ZONE));
     outputColList.add(new Column(OutputBaseColumns.EVENT_ID));
     outputColList.add(new Column(OutputBaseColumns.NAME));
     outputColList.add(new Column(OutputBaseColumns.ANSWER));
@@ -100,8 +106,8 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
       log.info("eventInserting event->" + event.getId());
       conn = CloudSQLConnectionManager.getInstance().getConnection();
       conn.setAutoCommit(false);
-      eventInsert.setTable(new Table("events"));
-      outputInsert.setTable(new Table("outputs"));
+      eventInsert.setTable(new Table(EventBaseColumns.TABLE_NAME));
+      outputInsert.setTable(new Table(OutputBaseColumns.TABLE_NAME));
       eventInsert.setUseValues(true);
       outputInsert.setUseValues(true);
       eventExprList.setExpressions(exp);
@@ -144,9 +150,9 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
       ((ExpressionList) eventInsert.getItemsList()).getExpressions()
                                                    .add(new StringValue(quote(event.getPacoVersion())));
       ((ExpressionList) eventInsert.getItemsList()).getExpressions().add(new StringValue(quote(event.getAppId())));
-      String joinedStat = event.getWhatByKey("joined");
+      String joinedStat = event.getWhatByKey(EventBaseColumns.JOINED);
       if (joinedStat != null) {
-        if (joinedStat.equalsIgnoreCase("true")) {
+        if (joinedStat.equalsIgnoreCase(TRUE)) {
           ((ExpressionList) eventInsert.getItemsList()).getExpressions().add(new LongValue(1));
         } else {
           ((ExpressionList) eventInsert.getItemsList()).getExpressions().add(new LongValue(0));
@@ -160,6 +166,7 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
                                                                                                                      .toString(fmt)))
                                                                                         : new StringValue(quote(event.getScheduledTimeWithTimeZone(null)
                                                                                                                      .toString(fmt))));
+      ((ExpressionList) eventInsert.getItemsList()).getExpressions().add(new StringValue(quote(event.getTimeZone())));
 
       for (String key : event.getWhatKeys()) {
         String whatAnswer = event.getWhatByKey(key);
@@ -202,7 +209,7 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
   }
 
   @Override
-  public List<EventDAO> getEvents(String query) throws SQLException {
+  public List<EventDAO> getEvents(String query, DateTimeZone tzForClient) throws SQLException {
     List<EventDAO> evtList = Lists.newArrayList();
     EventDAO event = null;
     Connection conn = null;
@@ -212,26 +219,32 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
 
     try {
       conn = CloudSQLConnectionManager.getInstance().getConnection();
+      // While we have to retrieve millions of records at a time, we might run
+      // into java heap space issue.
+      // The following two properties(rs type forward only, concur read only,
+      // statement fetch size) of statement are specific to mysql.
+      // This signals the driver to stream records one at a time
       statementSelectEvent = conn.prepareStatement(query, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
       statementSelectEvent.setFetchSize(Integer.MIN_VALUE);
-      Long stTime = System.nanoTime();
+
+      Long st1Time = System.currentTimeMillis();
       rs = statementSelectEvent.executeQuery();
-
-      log.info("step 1 query " + query + "took" + (System.nanoTime() - stTime));
-
-      // to maintain the insertion order
-      eventMap = Maps.newLinkedHashMap();
-      Long dt = System.nanoTime();
+      Long st2Time = System.currentTimeMillis();
+      
+      log.info("step 1 " + query + "took" + (st2Time- st1Time));
       if (rs != null) {
+        // to maintain the insertion order
+        eventMap = Maps.newLinkedHashMap();
         evtList = Lists.newArrayList();
         while (rs.next()) {
           event = createEvent(rs);
+          adjustTimeZone(event);
           EventDAO oldEvent = eventMap.get(event.getId());
           if (oldEvent == null) {
             eventMap.put(event.getId(), event);
           } else {
-            // Will go through following when the query contains text in
-            // ('a','b','v') or answer in(....)
+            // Will go through following when the query returns the same event
+            // id twice or more because of the multiple outputs
             List<WhatDAO> oldOut = oldEvent.getWhat();
             List<WhatDAO> newOut = event.getWhat();
             // add all new output to the existing event in map
@@ -241,7 +254,7 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
       }
       // TODO step 2 sometimes takes 4 times longer to execute than the query.
       // Not sure why??
-      log.info("step 2 proc took" + (System.nanoTime() - dt));
+      log.info("step 2 took" + (System.currentTimeMillis() - st2Time));
     } finally {
       try {
         if (statementSelectEvent != null) {
@@ -260,13 +273,19 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
     return evtList;
   }
 
+  private void adjustTimeZone(EventDAO event) {
+    String tz = event.getTimezone();
+    event.setResponseTime(TimeUtil.adjustTimeToTimezoneIfNecesssary(tz, event.getResponseTime()));
+    event.setScheduledTime(TimeUtil.adjustTimeToTimezoneIfNecesssary(tz, event.getScheduledTime()));
+  }
+
   private EventDAO createEvent(ResultSet rs) {
     loadColumnTableAssociationMap();
-    EventDAO e = new EventDAO();
+    EventDAO event = new EventDAO();
     List<WhatDAO> whatList = Lists.newArrayList();
     // setting an empty map for possible outputs. Even if the qry does not ask
     // for output fields, we send an empty output map
-    e.setWhat(whatList);
+    event.setWhat(whatList);
     try {
       ResultSetMetaData rsmd = rs.getMetaData();
       for (int i = 1; i <= rsmd.getColumnCount(); i++) {
@@ -276,51 +295,59 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
         if (colIndex != null) {
           switch (colIndex) {
           case 1:
-            e.setExperimentId(rs.getLong(i));
+            event.setExperimentId(rs.getLong(i));
             break;
           case 2:
-            e.setExperimentName(rs.getString(i));
+            event.setExperimentName(rs.getString(i));
             break;
           case 3:
-            e.setExperimentVersion(rs.getInt(i));
+            event.setExperimentVersion(rs.getInt(i));
             break;
           case 4:
-            e.setScheduledTime(rs.getTimestamp(i));
+            event.setScheduledTime(rs.getTimestamp(i));
             break;
           case 5:
-            e.setResponseTime(rs.getTimestamp(i));
+            event.setResponseTime(rs.getTimestamp(i));
             break;
           case 6:
-            e.setExperimentGroupName(rs.getString(i));
+            event.setExperimentGroupName(rs.getString(i));
             break;
           case 7:
-            e.setActionTriggerId(rs.getLong(i));
+            event.setActionTriggerId(rs.getLong(i));
             break;
           case 8:
-            e.setActionTriggerSpecId(rs.getLong(i));
+            event.setActionTriggerSpecId(rs.getLong(i));
             break;
           case 9:
-            e.setActionId(rs.getLong(i));
+            event.setActionId(rs.getLong(i));
             break;
           case 10:
-            e.setWho(rs.getString(i));
+            event.setWho(rs.getString(i));
             break;
           case 11:
-            e.setPaco_version(rs.getString(i));
+            event.setPaco_version(rs.getString(i));
             break;
           case 12:
-            e.setAppId(rs.getString(i));
+            event.setAppId(rs.getString(i));
             break;
           case 13:
+            event.setJoined(rs.getBoolean(i));
+            break;
           case 14:
-            e.setId(rs.getLong(i));
+            event.setSortDate(rs.getTimestamp(i));
             break;
           case 15:
-            List<WhatDAO> whTextLst = e.getWhat();
-            whTextLst.add(new WhatDAO(OutputBaseColumns.NAME, rs.getString(i)));
+            event.setTimezone(rs.getString(i));
             break;
           case 16:
-            List<WhatDAO> whAnsLst = e.getWhat();
+            event.setId(rs.getLong(i));
+            break;
+          case 17:
+            List<WhatDAO> whTextLst = event.getWhat();
+            whTextLst.add(new WhatDAO(OutputBaseColumns.NAME, rs.getString(i)));
+            break;
+          case 18:
+            List<WhatDAO> whAnsLst = event.getWhat();
             whAnsLst.add(new WhatDAO(OutputBaseColumns.ANSWER, rs.getString(i)));
             break;
           }
@@ -329,7 +356,7 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
     } catch (SQLException ex) {
       log.warning("exception while mapping resultset to pojo" + ex);
     }
-    return e;
+    return event;
   }
 
   @Override
@@ -343,9 +370,9 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
 
       conn = CloudSQLConnectionManager.getInstance().getConnection();
       // TODO Sub Partition size for the experiment hash bucket
-      final String createEventsTableSql = "CREATE TABLE `events` (" +
+      final String createEventsTableSql = "CREATE TABLE `" + EventBaseColumns.TABLE_NAME + "` (" +
 
-                                          "`_id` bigint(20) NOT NULL," + "`" + EventBaseColumns.EXPERIMENT_ID
+                                          "`" + ID + "` bigint(20) NOT NULL," + "`" + EventBaseColumns.EXPERIMENT_ID
                                           + "` bigint(20) NOT NULL," + "`" + EventBaseColumns.EXPERIMENT_NAME
                                           + "` varchar(45) DEFAULT NULL," + "`" + EventBaseColumns.EXPERIMENT_VERSION
                                           + "` int(11) DEFAULT NULL," + "`" + EventBaseColumns.SCHEDULE_TIME
@@ -361,12 +388,15 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
                                           + "` datetime DEFAULT NULL," + "`" + EventBaseColumns.ARCHIVE_FLAG
                                           + "` tinyint(4) NOT NULL DEFAULT '0'," + "`" + EventBaseColumns.JOINED
                                           + "` tinyint(1)  DEFAULT NULL," + "`" + EventBaseColumns.SORT_DATE
-                                          + "` datetime  DEFAULT NULL," + "PRIMARY KEY (`_id`)," + "KEY `when_index` (`"
-                                          + EventBaseColumns.WHEN + "`)," + "KEY `exp_id_resp_time_index` (`"
-                                          + EventBaseColumns.EXPERIMENT_ID + "`,`response_time`),"
-                                          + "KEY `exp_id_when_index` (`" + EventBaseColumns.EXPERIMENT_ID + "`,`when`),"
-                                          + "KEY `exp_id_who_when_index` (`" + EventBaseColumns.EXPERIMENT_ID
-                                          + "`,`who`,`when`)" + ") ENGINE=InnoDB DEFAULT CHARSET=latin1";
+                                          + "` datetime  DEFAULT NULL," + "`" + EventBaseColumns.CLIENT_TIME_ZONE
+                                          + "` varchar(20) DEFAULT NULL," + "PRIMARY KEY (`" + ID + "`),"
+                                          + "KEY `when_index` (`" + EventBaseColumns.WHEN + "`),"
+                                          + "KEY `exp_id_resp_time_index` (`" + EventBaseColumns.EXPERIMENT_ID + "`,`"
+                                          + EventBaseColumns.RESPONSE_TIME + "`)," + "KEY `exp_id_when_index` (`"
+                                          + EventBaseColumns.EXPERIMENT_ID + "`,`" + EventBaseColumns.WHEN + "`),"
+                                          + "KEY `exp_id_who_when_index` (`" + EventBaseColumns.EXPERIMENT_ID + "`,`"
+                                          + EventBaseColumns.WHO + "`,`" + EventBaseColumns.WHEN + "`)"
+                                          + ") ENGINE=InnoDB DEFAULT CHARSET=latin1";
 
       final String createOutputsTableSql = "CREATE TABLE `outputs` (" + "`" + OutputBaseColumns.EVENT_ID
                                            + "` bigint(20) NOT NULL," + "`" + OutputBaseColumns.NAME

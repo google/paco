@@ -12,14 +12,15 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 
 import com.google.appengine.api.users.User;
 import com.google.sampling.experiential.shared.EventDAO;
 import com.pacoapp.paco.shared.model2.SQLQuery;
-import com.pacoapp.paco.shared.util.JsUtil;
+import com.pacoapp.paco.shared.util.QueryJsonParser;
 import com.pacoapp.paco.shared.util.SearchUtil;
 
+import net.sf.jsqlparser.JSQLParserException;
 import net.sf.jsqlparser.statement.select.PlainSelect;
 
 @SuppressWarnings("serial")
@@ -41,42 +42,45 @@ public class CloudSqlSearchServlet extends HttpServlet {
     } else {
       loggedInUser = AuthUtil.getEmailOfUser(req, user);
       SQLQuery sqlQueryObj = null;
-      DateTime startTime = null;
       List<EventDAO> evtList = null;
       String aclQuery = null;
+      PlainSelect ps = null;
 
       PrintWriter out = resp.getWriter();
       resp.setContentType("text/plain");
 
       CloudSQLDao impl = new CloudSQLDaoImpl();
       String reqBody = RequestProcessorUtil.getBody(req);
-      sqlQueryObj = JsUtil.convertJSONToPOJO(reqBody);
+      sqlQueryObj = QueryJsonParser.parseSqlQueryFromJson(reqBody);
 
       List<Long> adminExperimentsinDB = ExperimentAccessManager.getExistingExperimentIdsForAdmin(loggedInUser, 0, null)
                                                                .getExperiments();
 
-      PlainSelect ps = SearchUtil.getJoinQry(sqlQueryObj);
+      try{
+        ps = SearchUtil.getJoinQry(sqlQueryObj);
+      } catch (JSQLParserException pe){
+        throw new ServletException("Invalid Json Query");
+      }
 
       try {
         aclQuery = ACLHelper.getModifiedQueryBasedOnACL(ps.toString(), loggedInUser, adminExperimentsinDB);
       } catch (Exception e) {
-        throw new ServletException("Unauthorized acccess");
+        throw new ServletException("Unauthorized acccess" + e);
       }
-
-      log.info("send query " + aclQuery);
-      startTime = new DateTime();
       
+      long startTime = System.currentTimeMillis();
+      DateTimeZone tzForClient = TimeUtil.getTimeZoneForClient(req);
+
       try {
-        evtList = impl.getEvents(aclQuery);
+        evtList = impl.getEvents(aclQuery, tzForClient);
       } catch (SQLException sqle) {
         throw new ServletException("SQL - " + sqle);
       }
 
-      long diff = new DateTime().getMillis() - startTime.getMillis();
+      long diff = System.currentTimeMillis() - startTime;
       log.info("complete search qry took " + diff);
       for (EventDAO evt : evtList) {
-        out.print(evt);
-        out.println();
+        out.println(evt);
       }
     }
 

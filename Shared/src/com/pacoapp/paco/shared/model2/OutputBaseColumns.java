@@ -21,6 +21,7 @@ package com.pacoapp.paco.shared.model2;
 
 
 public class OutputBaseColumns {
+  public static final String TABLE_NAME = "outputs";
   public static final String EVENT_ID = "event_id";
   public static final String INPUT_SERVER_ID = "input_server_id";
   public static final String NAME = "text";

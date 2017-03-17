@@ -13,6 +13,7 @@ import net.sf.jsqlparser.statement.select.PlainSelect;
 import net.sf.jsqlparser.statement.select.Select;
 
 public class ACLHelper {
+  static final String EQUALS = " = ";
   public static String getModifiedQueryBasedOnACL(String selectSql, String loggedInUser,
                                                   List<Long> adminExperimentsinDB) throws Exception {
     Select selStat = SearchUtil.getJsqlSelectStatement(selectSql);
@@ -47,7 +48,7 @@ public class ACLHelper {
       }
     }
 
-    // if user querying own experiments
+    // if user is admin on all experiments
     for (Long s : userSpecifiedExpIdValues) {
       if (adminExperimentsinDB.contains(s)) {
         adminOnAllExperiments = true;
@@ -68,9 +69,9 @@ public class ACLHelper {
     // participant or the logged in user
     // TODO participant check
 
-    String whoClause = EventBaseColumns.WHO + " ='" + loggedInUser + "'";
+    String whoClause = EventBaseColumns.WHO + EQUALS + loggedInUserWithQuotes;
+    plainSelect = (PlainSelect) selectSql.getSelectBody();
     if (adminExperimentsinDB.size() == 0 && userSpecifiedWhoValues.size() == 0) {
-      plainSelect = (PlainSelect) selectSql.getSelectBody();
       Expression oldWhereClause = plainSelect.getWhere();
       Expression newWhoClause = CCJSqlParserUtil.parseCondExpression(whoClause);
       Expression ex = new AndExpression(oldWhereClause, newWhoClause);

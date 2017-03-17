@@ -20,7 +20,7 @@
 package com.pacoapp.paco.shared.model2;
 
 public class EventBaseColumns {
-
+  public static final String TABLE_NAME = "events";
   public static final String EXPERIMENT_ID = "experiment_id";
   public static final String EXPERIMENT_SERVER_ID = "experiment_server_id";
   public static final String EXPERIMENT_NAME = "experiment_name";
@@ -40,4 +40,5 @@ public class EventBaseColumns {
   public static final String APP_ID = "app_id"; 
   public static final String JOINED = "joined";
   public static final String SORT_DATE = "sort_date";
+  public static final String CLIENT_TIME_ZONE = "client_timezone";
 }

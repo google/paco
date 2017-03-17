@@ -22,8 +22,12 @@ public class CloudSqlInsertServlet extends HttpServlet {
 
   @Override
   public void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException, ServletException {
-
     setCharacterEncoding(req, resp);
+    // Level 1 Validation
+    if (req.getHeader("X-AppEngine-QueueName") == null) {
+      throw new IllegalStateException("Attempt to access task handler directly - missing custom App Engine header");
+    }
+    // Level 2 validation
     User user = AuthUtil.getWhoFromLogin();
     if (user == null) {
       AuthUtil.redirectUserToLogin(req, resp);
@@ -32,7 +36,6 @@ public class CloudSqlInsertServlet extends HttpServlet {
       boolean persistInCloudSqlOnly = true;
 
       // should not send this event to cloud sql insert queue again
-      // TODO authenticated users email should be verified
       String results = EventJsonUploadProcessor.create().processJsonEvents(persistInCloudSqlOnly, requestBody,
                                                                            AuthUtil.getEmailOfUser(req, user), null,
                                                                            null);

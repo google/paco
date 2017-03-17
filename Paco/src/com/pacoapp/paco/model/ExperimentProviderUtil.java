@@ -20,7 +20,6 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -71,6 +70,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
+import net.sf.jsqlparser.JSQLParserException;
 
 public class ExperimentProviderUtil implements EventStore {
   private static Logger Log = LoggerFactory.getLogger(ExperimentProviderUtil.class);
@@ -90,10 +90,8 @@ public class ExperimentProviderUtil implements EventStore {
   private static final Lock eventStorageWriteLock = eventStorageDbLock.writeLock();
 
   private static final String LIMIT = " limit ";
-  private static final String DESC = " DESC ";
   
   DateTimeFormatter endDateFormatter = DateTimeFormat.forPattern(TimeUtil.DATE_FORMAT);
-  private static  Map<String, Integer> eventsColumns = null;
   public ExperimentProviderUtil(Context context) {
     super();
     this.context = context;
@@ -101,24 +99,6 @@ public class ExperimentProviderUtil implements EventStore {
       throw new IllegalArgumentException("Need a context to instantiate experimentproviderutil");
     }
     this.contentResolver = context.getContentResolver();
-    loadColumnTableAssociationMap();
-  }
-
-  public static void loadColumnTableAssociationMap(){
-	  if (eventsColumns ==null){
-		  eventsColumns = new HashMap<String,Integer>();
-		  eventsColumns.put("EXPERIMENT_ID", 1);
-		  eventsColumns.put("EXPERIMENT_SERVER_ID", 2);
-		  eventsColumns.put("EXPERIMENT_NAME", 3);
-		  eventsColumns.put("EXPERIMENT_VERSION", 4);
-		  eventsColumns.put("SCHEDULE_TIME", 5);
-		  eventsColumns.put("RESPONSE_TIME", 6);
-		  eventsColumns.put("UPLOADED", 7);
-		  eventsColumns.put("GROUP_NAME", 8);
-		  eventsColumns.put("ACTION_TRIGGER_ID",9);
-		  eventsColumns.put("ACTION_TRIGGER_SPEC_ID",10);
-		  eventsColumns.put("ACTION_ID",11);
-	  }
   }
 
   public List<Experiment> getJoinedExperiments() {
@@ -843,6 +823,8 @@ public class ExperimentProviderUtil implements EventStore {
           }
         }
       }
+    } catch (JSQLParserException e) {
+      Log.error("Json parser error " + e);
     } finally {
       if (cursor != null) {
         cursor.close();
@@ -1701,13 +1683,4 @@ public class ExperimentProviderUtil implements EventStore {
     }
     return events;
   }
-
-public static Map<String, Integer> getEventsOutputColumns() {
-  loadColumnTableAssociationMap();
-	return eventsColumns;
-}
-
-
-
-
 }

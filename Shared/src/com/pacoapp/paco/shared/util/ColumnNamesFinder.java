@@ -89,25 +89,26 @@ import net.sf.jsqlparser.statement.select.TableFunction;
 import net.sf.jsqlparser.statement.select.ValuesList;
 import net.sf.jsqlparser.statement.select.WithItem;
 
-public class ColumnNamesFinder implements SelectItemVisitor, SelectVisitor, ExpressionVisitor, FromItemVisitor, OrderByVisitor, ItemsListVisitor {
+public class ColumnNamesFinder implements SelectItemVisitor, SelectVisitor, ExpressionVisitor, FromItemVisitor,
+                               OrderByVisitor, ItemsListVisitor {
   private List<String> colNames = Lists.newArrayList();
-  
+
   public List<String> getColumnList(Select select) {
     colNames = Lists.newArrayList();
     select.getSelectBody().accept(this);
     return colNames;
   }
-  
+
   public void visit(PlainSelect plainSelect) {
-    for(SelectItem sel : plainSelect.getSelectItems()){
+    for (SelectItem sel : plainSelect.getSelectItems()) {
       sel.accept(this);
     }
-    
+
     if (plainSelect.getJoins() != null) {
       for (Iterator<Join> joinsIt = plainSelect.getJoins().iterator(); joinsIt.hasNext();) {
         Join join = joinsIt.next();
         join.getRightItem().accept(this);
-        if(join.getOnExpression()!=null){
+        if (join.getOnExpression() != null) {
           join.getOnExpression().accept(this);
         }
       }
@@ -118,26 +119,26 @@ public class ColumnNamesFinder implements SelectItemVisitor, SelectVisitor, Expr
         expr.accept(this);
       }
     }
-    if (plainSelect.getOrderByElements()!=null){
+    if (plainSelect.getOrderByElements() != null) {
       for (Iterator<OrderByElement> obIt = plainSelect.getOrderByElements().iterator(); obIt.hasNext();) {
         OrderByElement obe = obIt.next();
         obe.accept(this);
       }
     }
-    if (plainSelect.getHaving()!=null){
+    if (plainSelect.getHaving() != null) {
       Expression havingExpr = plainSelect.getHaving();
       havingExpr.accept(this);
     }
-    
-    if(plainSelect.getWhere()!=null){
+
+    if (plainSelect.getWhere() != null) {
       Expression whereExpr = plainSelect.getWhere();
       whereExpr.accept(this);
     }
   }
-  
+
   @Override
   public void visit(AllColumns allColumns) {
-    colNames.add(allColumns.toString());  
+    colNames.add(allColumns.toString());
   }
 
   @Override
@@ -147,138 +148,121 @@ public class ColumnNamesFinder implements SelectItemVisitor, SelectVisitor, Expr
 
   @Override
   public void visit(SelectExpressionItem selExprItem) {
-    // TODO Auto-generated method stub
+
     selExprItem.getExpression().accept(this);
-    
+
   }
 
   @Override
   public void visit(SetOperationList setOpList) {
-    // TODO Auto-generated method stub
-    
+
   }
 
   @Override
   public void visit(WithItem withItem) {
-    // TODO Auto-generated method stub
-    
+
   }
 
   @Override
   public void visit(NullValue nullValue) {
-    // TODO Auto-generated method stub
-    
+
   }
 
   @Override
   public void visit(Function function) {
-    // TODO Auto-generated method stub
-    if(function.getParameters()!=null) {
+
+    if (function.getParameters() != null) {
       function.getParameters().accept(this);
     }
-    
+
   }
 
   @Override
   public void visit(SignedExpression signedExpression) {
-    // TODO Auto-generated method stub
-    
+
   }
 
   @Override
   public void visit(JdbcParameter jdbcParameter) {
-    // TODO Auto-generated method stub
-    
+
   }
 
   @Override
   public void visit(JdbcNamedParameter jdbcNamedParameter) {
-    // TODO Auto-generated method stub
-    
+
   }
 
   @Override
   public void visit(DoubleValue doubleValue) {
-    // TODO Auto-generated method stub
-    
+
   }
 
   @Override
   public void visit(LongValue longValue) {
-    // TODO Auto-generated method stub
-    
+
   }
 
   @Override
   public void visit(DateValue dateValue) {
-    // TODO Auto-generated method stub
-    
+
   }
 
   @Override
   public void visit(TimeValue timeValue) {
-    // TODO Auto-generated method stub
-    
+
   }
 
   @Override
   public void visit(TimestampValue timestampValue) {
-    // TODO Auto-generated method stub
-    
+
   }
 
   @Override
   public void visit(Parenthesis parenthesis) {
-    // TODO Auto-generated method stub
-    
+
   }
 
   @Override
   public void visit(StringValue stringValue) {
-    // TODO Auto-generated method stub
-    
+
   }
 
   @Override
   public void visit(Addition addition) {
-    // TODO Auto-generated method stub
-    
+
   }
 
   @Override
   public void visit(Division division) {
-    // TODO Auto-generated method stub
-    
+
   }
 
   @Override
   public void visit(Multiplication multiplication) {
-    // TODO Auto-generated method stub
-    
+
   }
 
   @Override
   public void visit(Subtraction subtraction) {
-    // TODO Auto-generated method stub
-    
+
   }
 
   @Override
   public void visit(AndExpression andExpression) {
     andExpression.getLeftExpression().accept(this);
-    andExpression.getRightExpression().accept(this); 
+    andExpression.getRightExpression().accept(this);
   }
 
   @Override
   public void visit(OrExpression orExpression) {
     orExpression.getLeftExpression().accept(this);
     orExpression.getRightExpression().accept(this);
-    
+
   }
 
   @Override
   public void visit(Between between) {
-    // TODO Auto-generated method stub
+
     between.getLeftExpression().accept(this);
     between.getBetweenExpressionStart().accept(this);
     between.getBetweenExpressionStart().accept(this);
@@ -287,7 +271,7 @@ public class ColumnNamesFinder implements SelectItemVisitor, SelectVisitor, Expr
   @Override
   public void visit(EqualsTo equalsTo) {
     equalsTo.getLeftExpression().accept(this);
-    
+
   }
 
   @Override
@@ -298,7 +282,7 @@ public class ColumnNamesFinder implements SelectItemVisitor, SelectVisitor, Expr
   @Override
   public void visit(GreaterThanEquals greaterThanEquals) {
     greaterThanEquals.getLeftExpression().accept(this);
-    
+
   }
 
   @Override
@@ -314,190 +298,164 @@ public class ColumnNamesFinder implements SelectItemVisitor, SelectVisitor, Expr
 
   @Override
   public void visit(LikeExpression likeExpression) {
-    // TODO Auto-generated method stub
-    
+
   }
 
   @Override
   public void visit(MinorThan minorThan) {
-    // TODO Auto-generated method stub
-    
+
   }
 
   @Override
   public void visit(MinorThanEquals minorThanEquals) {
-    // TODO Auto-generated method stub
-    
+
   }
 
   @Override
   public void visit(NotEqualsTo notEqualsTo) {
-    // TODO Auto-generated method stub
-    
+
   }
 
   @Override
   public void visit(Column tableColumn) {
     colNames.add(tableColumn.getFullyQualifiedName());
-    
+
   }
 
   @Override
   public void visit(SubSelect subSelect) {
-   subSelect.getSelectBody().accept(this);
-    
+    subSelect.getSelectBody().accept(this);
+
   }
 
   @Override
   public void visit(CaseExpression caseExpression) {
-    // TODO Auto-generated method stub
-    
+
   }
 
   @Override
   public void visit(WhenClause whenClause) {
-    // TODO Auto-generated method stub
+
     whenClause.accept(this);
-    
+
   }
 
   @Override
   public void visit(ExistsExpression existsExpression) {
-    // TODO Auto-generated method stub
-    
+
   }
 
   @Override
   public void visit(AllComparisonExpression allComparisonExpression) {
-    // TODO Auto-generated method stub
-    
-    
+
   }
 
   @Override
   public void visit(AnyComparisonExpression anyComparisonExpression) {
-    // TODO Auto-generated method stub
-    
+
   }
 
   @Override
   public void visit(Concat concat) {
-    // TODO Auto-generated method stub
-    
+
   }
 
   @Override
   public void visit(Matches matches) {
-    // TODO Auto-generated method stub
-    
+
   }
 
   @Override
   public void visit(BitwiseAnd bitwiseAnd) {
-    // TODO Auto-generated method stub
-    
+
   }
 
   @Override
   public void visit(BitwiseOr bitwiseOr) {
-    // TODO Auto-generated method stub
-    
+
   }
 
   @Override
   public void visit(BitwiseXor bitwiseXor) {
-    // TODO Auto-generated method stub
-    
+
   }
 
   @Override
   public void visit(CastExpression cast) {
-    // TODO Auto-generated method stub
-    
+
   }
 
   @Override
   public void visit(Modulo modulo) {
-    // TODO Auto-generated method stub
-    
+
   }
 
   @Override
   public void visit(AnalyticExpression aexpr) {
-    // TODO Auto-generated method stub
-    
+
   }
 
   @Override
   public void visit(ExtractExpression eexpr) {
-    // TODO Auto-generated method stub
-    
+
   }
 
   @Override
   public void visit(IntervalExpression iexpr) {
-    // TODO Auto-generated method stub
-    
+
   }
 
   @Override
   public void visit(OracleHierarchicalExpression oexpr) {
-    // TODO Auto-generated method stub
-    
+
   }
 
   @Override
   public void visit(RegExpMatchOperator rexpr) {
-    // TODO Auto-generated method stub
-    
+
   }
 
   @Override
   public void visit(Table tableName) {
-    // TODO Auto-generated method stub
-    
+
   }
 
   @Override
   public void visit(SubJoin subjoin) {
-    // TODO Auto-generated method stub
-    
+
   }
 
   @Override
   public void visit(LateralSubSelect lateralSubSelect) {
-    // TODO Auto-generated method stub
-    
+
   }
 
   @Override
   public void visit(ValuesList valuesList) {
-    // TODO Auto-generated method stub
-    
+
   }
 
   @Override
   public void visit(OrderByElement orderBy) {
-//    orderBy.accept(this);
+    // orderBy.accept(this);
     orderBy.getExpression().accept(this);
-    // TODO Auto-generated method stub
-    
+
   }
 
   @Override
   public void visit(ExpressionList expressionList) {
-    // TODO Auto-generated method stub
-    for( Iterator<Expression> itr = expressionList.getExpressions().iterator();itr.hasNext();){
+
+    for (Iterator<Expression> itr = expressionList.getExpressions().iterator(); itr.hasNext();) {
       itr.next().accept(this);
     }
-    
+
   }
 
   @Override
   public void visit(MultiExpressionList multiExprList) {
-    // TODO Auto-generated method stub
-    if(multiExprList.getExprList()!=null) {
-      for(Iterator<ExpressionList> itr = multiExprList.getExprList().iterator(); itr.hasNext();){
+
+    if (multiExprList.getExprList() != null) {
+      for (Iterator<ExpressionList> itr = multiExprList.getExprList().iterator(); itr.hasNext();) {
         visit(itr.next());
       }
     }
@@ -505,79 +463,66 @@ public class ColumnNamesFinder implements SelectItemVisitor, SelectVisitor, Expr
 
   @Override
   public void visit(TableFunction arg0) {
-    // TODO Auto-generated method stub
-    
+
   }
 
   @Override
   public void visit(HexValue arg0) {
-    // TODO Auto-generated method stub
-    
+
   }
 
   @Override
   public void visit(WithinGroupExpression arg0) {
-    // TODO Auto-generated method stub
-    
+
   }
 
   @Override
   public void visit(JsonExpression arg0) {
-    // TODO Auto-generated method stub
-    
+
   }
 
   @Override
   public void visit(RegExpMySQLOperator arg0) {
-    // TODO Auto-generated method stub
-    
+
   }
 
   @Override
   public void visit(UserVariable arg0) {
-    // TODO Auto-generated method stub
-    
+
   }
 
   @Override
   public void visit(NumericBind arg0) {
-    // TODO Auto-generated method stub
-    
+
   }
 
   @Override
   public void visit(KeepExpression arg0) {
-    // TODO Auto-generated method stub
-    
+
   }
 
   @Override
   public void visit(MySQLGroupConcat arg0) {
-    // TODO Auto-generated method stub
-    
+
   }
 
   @Override
   public void visit(RowConstructor arg0) {
-    // TODO Auto-generated method stub
-    
+
   }
 
   @Override
   public void visit(OracleHint arg0) {
-    // TODO Auto-generated method stub
-    
+
   }
 
   @Override
   public void visit(TimeKeyExpression arg0) {
-    // TODO Auto-generated method stub
-    
+
   }
 
   @Override
   public void visit(DateTimeLiteralExpression arg0) {
-    // TODO Auto-generated method stub
-    
+
   }
 }

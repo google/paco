@@ -9,19 +9,19 @@ import org.json.JSONObject;
 import com.google.common.base.Strings;
 import com.pacoapp.paco.shared.model2.SQLQuery;
 
-public class JsUtil {
-  public static final Logger log = Logger.getLogger(JsUtil.class.getName());
+public class QueryJsonParser {
+  public static final Logger log = Logger.getLogger(QueryJsonParser.class.getName());
 
   /**
    * The query JSON should have the following format Example 
    * {query:{criteria: " (group_name in(?,?) and (answer=?)) ",values:["New
-   * Group","Exp Group", "ven"]},limit: 100,group: "group_name",order:
+   * Group","Exp Group", "ven"]},limit: "100,10",group: "group_name",order:
    * "response_time" ,select: ["group_name","response_time",
    * "experiment_name", "text", "answer"]} 
    * The above JSON represents the following
    * query->criteria: String with where clause conditions and the values replaced by '?' 
    * query->values: An array of String representing the values of the '?' expressed in query->criteria (in order). 
-   * query->limit: Integer Number of records to limit the result set 
+   * query->limit: String Number of records to limit the result set, with offset value separated by comma Eg for valid values :"100" or "100,1000" 
    * query->group: String which holds the group by column 
    * query->order: String which holds the order by columns separated by commas 
    * query->select: An array of String which holds the column names and executes the following query 
@@ -35,20 +35,29 @@ public class JsUtil {
    * @throws JSONException
    * 
    */
-  public static SQLQuery convertJSONToPOJO(String queryJson) {
+  public static SQLQuery parseSqlQueryFromJson(String queryJson) {
+    final String SELECT = "select";
+    final String QUERY = "query";
+    final String CRITERIA = "criteria";
+    final String VALUES = "values";
+    final String ORDER = "order";
+    final String LIMIT = "limit";
+    final String GROUP = "group";
+    final String HAVING = "having";
+    
     SQLQuery sqlObj = null;
     SQLQuery.Builder sqlBldr = null;
     String[] projectionColumns = null;
     String[] criteriaValues = null;
-    JSONObject criteriaQueryObj;
+    JSONObject queryObj;
     if (Strings.isNullOrEmpty(queryJson)) {
       return null;
     }
     
     try {
-      criteriaQueryObj = new JSONObject(queryJson);
-      if (criteriaQueryObj.has("select")) {
-        JSONArray selectAr = criteriaQueryObj.getJSONArray("select");
+      queryObj = new JSONObject(queryJson);
+      if (queryObj.has(SELECT)) {
+        JSONArray selectAr = queryObj.getJSONArray(SELECT);
         if (selectAr != null) {
           projectionColumns = new String[selectAr.length()];
           for (int j = 0; j < selectAr.length(); j++) {
@@ -59,15 +68,15 @@ public class JsUtil {
       
       sqlBldr = new SQLQuery.Builder(projectionColumns);
               
-      if (criteriaQueryObj.has("query")) {
-        JSONObject queryCriteria = criteriaQueryObj.getJSONObject("query");
+      if (queryObj.has(QUERY)) {
+        JSONObject queryCriteria = queryObj.getJSONObject(QUERY);
         if (queryCriteria != null) {
-          if (queryCriteria.has("criteria")) {
-            sqlBldr.criteriaQuery(queryCriteria.getString("criteria"));
+          if (queryCriteria.has(CRITERIA)) {
+            sqlBldr.criteriaQuery(queryCriteria.getString(CRITERIA));
           }
 
-          if (queryCriteria.has("values")) {
-            JSONArray cv = queryCriteria.getJSONArray("values");
+          if (queryCriteria.has(VALUES)) {
+            JSONArray cv = queryCriteria.getJSONArray(VALUES);
             criteriaValues = new String[cv.length()];
             for (int i = 0; i < cv.length(); i++) {
               criteriaValues[i] = cv.getString(i);
@@ -77,20 +86,20 @@ public class JsUtil {
         }
       }
       
-      if (criteriaQueryObj.has("order")) {
-        sqlBldr.sortBy(criteriaQueryObj.getString("order"));
+      if (queryObj.has(ORDER)) {
+        sqlBldr.sortBy(queryObj.getString(ORDER));
       }
       
-      if (criteriaQueryObj.has("limit")) {
-        sqlBldr.limit(criteriaQueryObj.getString("limit"));
+      if (queryObj.has(LIMIT)) {
+        sqlBldr.limit(queryObj.getString(LIMIT));
       }
       
       // only if we have group clause, should we have the having column
-      if (criteriaQueryObj.has("group")) {
-        sqlBldr.groupBy(criteriaQueryObj.getString("group"));
+      if (queryObj.has(GROUP)) {
+        sqlBldr.groupBy(queryObj.getString(GROUP));
 
-        if (criteriaQueryObj.has("having")) {
-          sqlBldr.having(criteriaQueryObj.getString("having"));
+        if (queryObj.has(HAVING)) {
+          sqlBldr.having(queryObj.getString(HAVING));
         }
       }
 

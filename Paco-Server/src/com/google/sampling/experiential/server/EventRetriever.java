@@ -36,6 +36,8 @@ import org.apache.commons.codec.binary.Base64;
 import org.datanucleus.store.appengine.query.JDOCursorHelper;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -80,6 +82,7 @@ public class EventRetriever {
   private static EventRetriever instance;
   private static final Logger log = Logger.getLogger(EventRetriever.class.getName());
   private static CloudSQLDao cloudSqlDaoImpl = new CloudSQLDaoImpl();
+  private static DateTimeFormatter df = org.joda.time.format.DateTimeFormat.forPattern(TimeUtil.DATETIME_FORMAT).withOffsetParsed();
 
   @VisibleForTesting
   EventRetriever() {
@@ -91,43 +94,42 @@ public class EventRetriever {
     }
     return instance;
   }
-  
-  public void postEvent(boolean persistInCloudSqlOnly, JSONObject eventJson, String who, String lat, String lon, Date whenDate, String appId, String pacoVersion,
-                        Set<What> whats, boolean shared, String experimentId, String experimentName,
-                        Integer experimentVersion, DateTime responseTime, DateTime scheduledTime,
-                        List<PhotoBlob> blobs, String groupName, Long actionTriggerId, Long actionTriggerSpecId, Long actionId) {
-    final String tz = responseTime != null && responseTime.getZone() != null
-            ? responseTime.getZone().toString()
-            : scheduledTime!= null && scheduledTime.getZone() != null
-              ? scheduledTime.getZone().toString()
-              : null;
-              
-     postEvent(persistInCloudSqlOnly, eventJson, who, lat, lon, whenDate, appId, pacoVersion, whats, shared, experimentId, experimentName, experimentVersion,
-              responseTime != null ? responseTime.toDate() : null,
-              scheduledTime != null ? scheduledTime.toDate() : null, blobs,
-              tz, groupName, actionTriggerId, actionTriggerSpecId, actionId);
-  
+
+  public void postEvent(boolean persistInCloudSqlOnly, JSONObject eventJson, String who, String lat, String lon,
+                        Date whenDate, String appId, String pacoVersion, Set<What> whats, boolean shared,
+                        String experimentId, String experimentName, Integer experimentVersion, DateTime responseTime,
+                        DateTime scheduledTime, List<PhotoBlob> blobs, String groupName, Long actionTriggerId,
+                        Long actionTriggerSpecId, Long actionId) {
+    final String tz = responseTime != null
+                      && responseTime.getZone() != null ? responseTime.getZone().toString()
+                                                        : scheduledTime != null
+                                                          && scheduledTime.getZone() != null ? scheduledTime.getZone()
+                                                                                                            .toString()
+                                                                                             : null;
+
+    postEvent(persistInCloudSqlOnly, eventJson, who, lat, lon, whenDate, appId, pacoVersion, whats, shared,
+              experimentId, experimentName, experimentVersion, responseTime != null ? responseTime.toDate() : null,
+              scheduledTime != null ? scheduledTime.toDate() : null, blobs, tz, groupName, actionTriggerId,
+              actionTriggerSpecId, actionId);
+
   }
-    
 
   public void postEvent(String who, String lat, String lon, Date whenDate, String appId, String pacoVersion,
                         Set<What> whats, boolean shared, String experimentId, String experimentName,
-                        Integer experimentVersion, DateTime responseTime, DateTime scheduledTime,
-                        List<PhotoBlob> blobs, String groupName, Long actionTriggerId, Long actionTriggerSpecId, Long actionId) {
-    
-    postEvent(true, null, who, lat, lon, whenDate, appId, pacoVersion, whats, shared, experimentId, experimentName, 
-                     experimentVersion, responseTime, scheduledTime, blobs, groupName, actionTriggerId, actionTriggerSpecId, actionId);
-   
+                        Integer experimentVersion, DateTime responseTime, DateTime scheduledTime, List<PhotoBlob> blobs,
+                        String groupName, Long actionTriggerId, Long actionTriggerSpecId, Long actionId) {
+
+    postEvent(true, null, who, lat, lon, whenDate, appId, pacoVersion, whats, shared, experimentId, experimentName,
+              experimentVersion, responseTime, scheduledTime, blobs, groupName, actionTriggerId, actionTriggerSpecId,
+              actionId);
+
   }
 
-
-  public void postEvent(boolean persistInCloudSqlOnly, JSONObject eventJson, String who, String lat, String lon, Date whenDate, String appId,
-      String pacoVersion, Set<What> what, boolean shared, String experimentId,
-      String experimentName, Integer experimentVersion, Date responseTime, Date scheduledTime, List<PhotoBlob> blobs,
-      String tz,
-      String groupName, Long actionTriggerId, Long actionTriggerSpecId, Long actionId) {
-//    long t1 = System.currentTimeMillis();
-    
+  public void postEvent(boolean persistInCloudSqlOnly, JSONObject eventJson, String who, String lat, String lon,
+                        Date whenDate, String appId, String pacoVersion, Set<What> what, boolean shared,
+                        String experimentId, String experimentName, Integer experimentVersion, Date responseTime,
+                        Date scheduledTime, List<PhotoBlob> blobs, String tz, String groupName, Long actionTriggerId,
+                        Long actionTriggerSpecId, Long actionId) {
 
     boolean isJoinEvent = false;
     for (What whatItem : what) {
@@ -149,27 +151,30 @@ public class EventRetriever {
     }
 
     PersistenceManager pm = PMF.get().getPersistenceManager();
-    Event event = new Event(who, lat, lon, whenDate, appId, pacoVersion, what, shared,
-        experimentId, experimentName, experimentVersion, responseTime, scheduledTime, blobs, tz,
-        groupName, actionTriggerId, actionTriggerSpecId, actionId);
-    //persistInCloudSql flag will determine which flow to go. Flow 1:persist in data store and send event to the cloud sql queue 
+    Event event = new Event(who, lat, lon, whenDate, appId, pacoVersion, what, shared, experimentId, experimentName,
+                            experimentVersion, responseTime, scheduledTime, blobs, tz, groupName, actionTriggerId,
+                            actionTriggerSpecId, actionId);
+    // persistInCloudSql flag will determine which flow to go. Flow 1:persist in
+    // data store and send event to the cloud sql queue
     // Flow 2: persist in cloud sql
-    if(persistInCloudSqlOnly && eventJson!=null){
+    if (persistInCloudSqlOnly && eventJson != null) {
       try {
         event.setId(eventJson.getLong("id"));
         event.setPacoVersion(eventJson.getString("pacoVersion"));
         event.setAppId(eventJson.getString("appId"));
+        event.setTimeZone(eventJson.getString("tz"));
+        event.setWhen(df.parseDateTime(eventJson.getString("whenDate")).toDate());
       } catch (JSONException e) {
-        log.warning("Event json id parsing error"+e);
+        log.warning("Event json id parsing error" + e);
       }
-      try{
+      try {
         cloudSqlDaoImpl.insertEvent(event);
-      } catch (SQLException sqle){
-        log.warning("Exception while inserting data into cloudsql db"+sqle);
+      } catch (SQLException sqle) {
+        log.warning("Exception while inserting data into cloudsql db" + sqle);
       }
 
-    }else{
-      
+    } else {
+
       Transaction tx = null;
       try {
         tx = pm.currentTransaction();
@@ -181,9 +186,9 @@ public class EventRetriever {
         } else if (!isScheduleEvent && !isStopEvent) {
           new ParticipationStatsService().updateResponseCountWithEvent(event);
         }
+        sendToCloudSqlQueue(eventJson, event);
         tx.commit();
         log.info("Event saved in datastore");
-       
       } finally {
         if (tx.isActive()) {
           log.info("Event rolled back");
@@ -191,39 +196,42 @@ public class EventRetriever {
         }
         pm.close();
       }
-      
-      sendToCloudSqlQueue(eventJson, event);
     }
   }
-  
-  public void sendToCloudSqlQueue(JSONObject eventJson, Event event){
+
+  public void sendToCloudSqlQueue(JSONObject eventJson, Event event) {
+    DateTimeFormatter fmt = DateTimeFormat.forPattern(TimeUtil.DATETIME_FORMAT);
     Queue queue = QueueFactory.getQueue("cloud-sql");
     try {
-      // In the flow of saving event data to data store, pacoversion and appid comes in request header.
-      // Adding these values to json, so that we can persist this data on to cloud sql too.
+      // In the flow of saving event data to data store, pacoversion and appid
+      // comes in request header.
+      // Adding these values to json, so that we can persist this data on to
+      // cloud sql too.
       eventJson.put("id", event.getId());
       eventJson.put("pacoVersion", event.getPacoVersion());
       eventJson.put("appId", event.getAppId());
-      
+      eventJson.put("tz", event.getTimeZone());
+      DateTime whenDate = new DateTime(event.getWhen());
+      eventJson.put("whenDate", fmt.print(whenDate));
     } catch (JSONException e) {
-      log.warning("while sending to cloud sql queue"+e);
+      log.warning("while sending to cloud sql queue" + e);
     }
     queue.add(TaskOptions.Builder.withUrl("/csInsert").payload(eventJson.toString()));
   }
-  
+
   @SuppressWarnings("unchecked")
   public List<Event> getEvents(String loggedInUser) {
-      PersistenceManager pm = PMF.get().getPersistenceManager();
-      Query q = pm.newQuery(Event.class);
-      q.setOrdering("when desc");
-      q.setFilter("who = whoParam");
-      q.declareParameters("String whoParam");
-      long t11 = System.currentTimeMillis();
-      List<Event> events = (List<Event>) q.execute(loggedInUser);
-      adjustTimeZone(events);
-      long t12 = System.currentTimeMillis();
-      log.info("get execute time: " + (t12 - t11));
-      return events;
+    PersistenceManager pm = PMF.get().getPersistenceManager();
+    Query q = pm.newQuery(Event.class);
+    q.setOrdering("when desc");
+    q.setFilter("who = whoParam");
+    q.declareParameters("String whoParam");
+    long t11 = System.currentTimeMillis();
+    List<Event> events = (List<Event>) q.execute(loggedInUser);
+    adjustTimeZone(events);
+    long t12 = System.currentTimeMillis();
+    log.info("get execute time: " + (t12 - t11));
+    return events;
   }
 
   public List<Event> getEvents(List<com.google.sampling.experiential.server.Query> queryFilters, String loggedInuser,
@@ -252,7 +260,8 @@ public class EventRetriever {
         eventJDOQuery.addFilters(":p.contains(experimentId)");
         eventJDOQuery.addParameterObjects("(" + getIdsQuoted(adminExperiments) + ")");
         executeQuery(allEvents, eventJDOQuery);
-      } else if (hasAnExperimentIdFilter(queryFilters) && !isAdminOfAllExperimentsInQuery(queryFilters, adminExperiments)) {
+      } else if (hasAnExperimentIdFilter(queryFilters)
+                 && !isAdminOfAllExperimentsInQuery(queryFilters, adminExperiments)) {
         if (!eventJDOQuery.hasAWho()) {
           addWhoQueryForLoggedInuser(loggedInuser, eventJDOQuery);
           executeQuery(allEvents, eventJDOQuery);
@@ -288,26 +297,26 @@ public class EventRetriever {
     eventDSQuery.addFilter(new FilterPredicate("who", FilterOperator.EQUAL, loggedInuser));
   }
 
-
   /**
    * @param queryFilters
    * @param adminExperiments
    * @return
    */
-  private boolean isAdminOfAllExperimentsInQuery(List<com.google.sampling.experiential.server.Query>
-    queryFilters, List<Long> adminExperiments) {
+  private boolean isAdminOfAllExperimentsInQuery(List<com.google.sampling.experiential.server.Query> queryFilters,
+                                                 List<Long> adminExperiments) {
     if (!isAnAdministrator(adminExperiments)) {
       return false;
     }
     boolean filteringForAdminedExperiment = false;
     for (com.google.sampling.experiential.server.Query query : queryFilters) {
-      if (query.getKey().equals("experimentId") ) {
+      if (query.getKey().equals("experimentId")) {
         final String queryValue = query.getValue();
 
         try {
           Long experimentId = Long.parseLong(queryValue);
           filteringForAdminedExperiment = adminExperiments.contains(experimentId);
-          if (!filteringForAdminedExperiment) { // All filters must be admin'ed experiments for now.
+          if (!filteringForAdminedExperiment) { // All filters must be admin'ed
+                                                // experiments for now.
             return false;
           }
         } catch (NumberFormatException e) {
@@ -373,12 +382,12 @@ public class EventRetriever {
         Event event = createEventFromEntity(entity);
         Key key = entity.getKey();
 
-        //todo async
+        // todo async
         // already done with the keyslist and valueslist
-//        Set<What> whats = fetchWhats(datastore,  key);
-//        event.setWhat(whats);
-//
-      //todo async
+        // Set<What> whats = fetchWhats(datastore, key);
+        // event.setWhat(whats);
+        //
+        // todo async
         List<PhotoBlob> blobs = fetchBlobs(datastore, key);
         event.setBlobs(blobs);
 
@@ -396,7 +405,7 @@ public class EventRetriever {
   private Set<What> fetchWhats(DatastoreService datastore, Key key) {
     com.google.appengine.api.datastore.Query whatQuery = new com.google.appengine.api.datastore.Query("What", key);
     PreparedQuery whatPreparedQuery = datastore.prepare(whatQuery);
-    //log.info("execute what query");
+    // log.info("execute what query");
     QueryResultList<Entity> whatResults = whatPreparedQuery.asQueryResultList(FetchOptions.Builder.withDefaults());
     Set<What> whats = Sets.newHashSet();
     for (Entity whatEntity : whatResults) {
@@ -408,7 +417,7 @@ public class EventRetriever {
   private List<PhotoBlob> fetchBlobs(DatastoreService datastore, Key key) {
     com.google.appengine.api.datastore.Query whatQuery = new com.google.appengine.api.datastore.Query("PhotoBlob", key);
     PreparedQuery whatPreparedQuery = datastore.prepare(whatQuery);
-    //log.info("execute blob query");
+    // log.info("execute blob query");
     QueryResultList<Entity> whatResults = whatPreparedQuery.asQueryResultList(FetchOptions.Builder.withDefaults());
     List<PhotoBlob> whats = Lists.newArrayList();
     for (Entity whatEntity : whatResults) {
@@ -417,22 +426,19 @@ public class EventRetriever {
     return whats;
   }
 
-
-
   private What createWhatFromEntity(Entity whatEntity) {
-    return new What((String)whatEntity.getProperty("name"), (String)whatEntity.getProperty("value"));
+    return new What((String) whatEntity.getProperty("name"), (String) whatEntity.getProperty("value"));
   }
 
   private PhotoBlob createPhotoBlobFromEntity(Entity entity) {
     final Object blobProperty = entity.getProperty("value");
     if (blobProperty instanceof Blob) {
-      return new PhotoBlob((String)entity.getProperty("name"), ((Blob)blobProperty).getBytes());
+      return new PhotoBlob((String) entity.getProperty("name"), ((Blob) blobProperty).getBytes());
     } else if (blobProperty instanceof byte[]) {
-      return new PhotoBlob((String)entity.getProperty("name"), (byte[])blobProperty);
+      return new PhotoBlob((String) entity.getProperty("name"), (byte[]) blobProperty);
     }
     return null;
   }
-
 
   private Event createEventFromEntity(Entity entity) {
     return EventEntityConverter.convertEntityToEvent(entity);
@@ -461,14 +467,12 @@ public class EventRetriever {
     return responseTime;
   }
 
-
-
   private void addAllSharedEvents(List<com.google.sampling.experiential.server.Query> queryFilters,
-      DateTimeZone clientTimeZone, Set<Event> allEvents, PersistenceManager pm) {
+                                  DateTimeZone clientTimeZone, Set<Event> allEvents, PersistenceManager pm) {
     EventJDOQuery sharedQ = createJDOQueryFrom(pm, queryFilters, clientTimeZone);
     sharedQ.addFilters("shared == true");
     Query queryShared = sharedQ.getQuery();
-    List<Event> sharedEvents = (List<Event>)queryShared.executeWithArray(sharedQ.getParameters().toArray());
+    List<Event> sharedEvents = (List<Event>) queryShared.executeWithArray(sharedQ.getParameters().toArray());
     allEvents.addAll(sharedEvents);
     adjustTimeZone(allEvents);
   }
@@ -506,8 +510,8 @@ public class EventRetriever {
    */
   private List<String> getNames(List<Experiment> experimentsForAdmin) {
     List<String> ids = Lists.newArrayList();
-    for(Experiment experiment : experimentsForAdmin) {
-      ids.add("'" + experiment.getTitle() +"'");
+    for (Experiment experiment : experimentsForAdmin) {
+      ids.add("'" + experiment.getTitle() + "'");
     }
     return ids;
 
@@ -517,8 +521,7 @@ public class EventRetriever {
    * @param q
    * @return
    */
-  private boolean hasAnExperimentIdFilter(List<com.google.sampling.experiential.server.Query>
-      queryFilters) {
+  private boolean hasAnExperimentIdFilter(List<com.google.sampling.experiential.server.Query> queryFilters) {
     for (com.google.sampling.experiential.server.Query query : queryFilters) {
       if (query.getKey().equals("experimentId") || query.getKey().equals("experimentName")) {
         return true;
@@ -543,7 +546,6 @@ public class EventRetriever {
     return null;
   }
 
-
   /**
    * @param adminExperiments
    * @return
@@ -551,14 +553,14 @@ public class EventRetriever {
   private List<String> getIdsQuoted(List<Long> adminExperiments) {
     List<String> ids = Lists.newArrayList();
     for (Long long1 : adminExperiments) {
-      ids.add("'" + long1 +"'");
+      ids.add("'" + long1 + "'");
     }
     return ids;
   }
 
   private List<String> getIds(List<Experiment> experimentsForAdmin) {
     List<String> ids = Lists.newArrayList();
-    for(Experiment experiment : experimentsForAdmin) {
+    for (Experiment experiment : experimentsForAdmin) {
       ids.add(experiment.getId().toString());
     }
     return ids;
@@ -609,11 +611,13 @@ public class EventRetriever {
     List<EventDAO> eventDAOs = Lists.newArrayList();
 
     for (Event event : result) {
-      eventDAOs.add(new EventDAO(event.getWho(), event.getWhen(), event.getExperimentName(),
-          event.getLat(), event.getLon(), event.getAppId(), event.getPacoVersion(),
-          convertToWhatDAOs(event.getWhat()), event.isShared(), event.getResponseTime(), event.getScheduledTime(),
-          toBase64StringArray(event.getBlobs()), Long.parseLong(event.getExperimentId()), event.getExperimentVersion(),
-          event.getTimeZone(), event.getExperimentGroupName(), event.getActionTriggerId(), event.getActionTriggerSpecId(), event.getActionId()));
+      eventDAOs.add(new EventDAO(event.getWho(), event.getWhen(), event.getExperimentName(), event.getLat(),
+                                 event.getLon(), event.getAppId(), event.getPacoVersion(),
+                                 convertToWhatDAOs(event.getWhat()), event.isShared(), event.getResponseTime(),
+                                 event.getScheduledTime(), toBase64StringArray(event.getBlobs()),
+                                 Long.parseLong(event.getExperimentId()), event.getExperimentVersion(),
+                                 event.getTimeZone(), event.getExperimentGroupName(), event.getActionTriggerId(),
+                                 event.getActionTriggerSpecId(), event.getActionId()));
     }
     return eventDAOs;
   }
@@ -635,14 +639,14 @@ public class EventRetriever {
       return new String[0];
     }
     String[] results = new String[blobs.size()];
-    for (int i =0; i < blobs.size(); i++) {
+    for (int i = 0; i < blobs.size(); i++) {
       results[i] = new String(Base64.encodeBase64(blobs.get(i).getValue()));
     }
     return results;
   }
 
   public EventQueryResultPair getEventsFromLowLevelDS(List<com.google.sampling.experiential.server.Query> query,
-                                             String requestorEmail, DateTimeZone timeZoneForClient) {
+                                                      String requestorEmail, DateTimeZone timeZoneForClient) {
     log.info("Getting events from low level datastore");
     Set<Event> allEvents = Sets.newHashSet();
     EventDSQuery eventDSQuery = createDSQueryFrom(query, timeZoneForClient);
@@ -653,23 +657,26 @@ public class EventRetriever {
     log.info("Loggedin user's administered experiments: " + requestorEmail + " has ids: "
              + getIdsQuoted(adminExperiments));
 
-
     if (isDevMode() || isUserQueryingTheirOwnData(requestorEmail, eventDSQuery)) {
       log.info("dev mode or user querying self data");
       executeQuery(allEvents, eventDSQuery);
     } else if (isAdminOfAllExperimentsInQuery(query, adminExperiments)) {
       log.info("isAnAdmin of experiment(s)");
-//      if (!hasAnExperimentIdFilter(query)) {
-//        log.info("No experimentfilter. Loading events for all admined experiments");
-//        Filter idFilter = new FilterPredicate("experimentId", FilterOperator.IN, adminExperiments);
-//        eventDSQuery.addFilter(idFilter);
-//        executeQuery(allEvents, eventDSQuery);
-//      } else if (hasAnExperimentIdFilter(query) && !isAdminOfAllExperimentsInQuery(query, adminExperiments) && !eventDSQuery.hasAWho()) {
-//          addWhoQueryFilterForLoggedInuser(requestorEmail, eventDSQuery);
-//          executeQuery(allEvents, eventDSQuery);
-//      } else {
-        executeQuery(allEvents, eventDSQuery);
-//      }
+      // if (!hasAnExperimentIdFilter(query)) {
+      // log.info("No experimentfilter. Loading events for all admined
+      // experiments");
+      // Filter idFilter = new FilterPredicate("experimentId",
+      // FilterOperator.IN, adminExperiments);
+      // eventDSQuery.addFilter(idFilter);
+      // executeQuery(allEvents, eventDSQuery);
+      // } else if (hasAnExperimentIdFilter(query) &&
+      // !isAdminOfAllExperimentsInQuery(query, adminExperiments) &&
+      // !eventDSQuery.hasAWho()) {
+      // addWhoQueryFilterForLoggedInuser(requestorEmail, eventDSQuery);
+      // executeQuery(allEvents, eventDSQuery);
+      // } else {
+      executeQuery(allEvents, eventDSQuery);
+      // }
     } else if (!eventDSQuery.hasAWho()) {
       log.info("No experiment specified, So querying for their own data");
       addWhoQueryFilterForLoggedInuser(requestorEmail, eventDSQuery);
@@ -678,21 +685,18 @@ public class EventRetriever {
       return new EventQueryResultPair(Collections.EMPTY_LIST, null);
     }
 
-
-
     long t12 = System.currentTimeMillis();
     log.info("get execute time: " + (t12 - t11));
 
     ArrayList<Event> newArrayList = Lists.newArrayList(allEvents);
     sortList(newArrayList);
-    return  new EventQueryResultPair(newArrayList, null);
+    return new EventQueryResultPair(newArrayList, null);
   }
 
   public static boolean isExperimentAdministrator(String loggedInUserEmail, Experiment experiment) {
-    return experiment.getCreator().getEmail().toLowerCase().equals(loggedInUserEmail) ||
-          experiment.getAdmins().contains(loggedInUserEmail);
+    return experiment.getCreator().getEmail().toLowerCase().equals(loggedInUserEmail)
+           || experiment.getAdmins().contains(loggedInUserEmail);
   }
-
 
   private EventDSQuery createDSQueryFrom(List<com.google.sampling.experiential.server.Query> query,
                                          DateTimeZone timeZoneForClient) {
@@ -704,7 +708,8 @@ public class EventRetriever {
   }
 
   public EventQueryResultPair getEventsInBatches(List<com.google.sampling.experiential.server.Query> queryFilters,
-                                        String loggedInuser, DateTimeZone clientTimeZone, int limit, String cursor) {
+                                                 String loggedInuser, DateTimeZone clientTimeZone, int limit,
+                                                 String cursor) {
     if (limit == 0) {
       limit = DEFAULT_FETCH_LIMIT;
     }
@@ -729,7 +734,8 @@ public class EventRetriever {
         eventJDOQuery.addFilters(":p.contains(experimentId)");
         eventJDOQuery.addParameterObjects("(" + getIdsQuoted(adminExperiments) + ")");
         nextCursor = executeQueryInBatches(allEvents, eventJDOQuery, limit, cursor);
-      } else if (hasAnExperimentIdFilter(queryFilters) && !isAdminOfAllExperimentsInQuery(queryFilters, adminExperiments)) {
+      } else if (hasAnExperimentIdFilter(queryFilters)
+                 && !isAdminOfAllExperimentsInQuery(queryFilters, adminExperiments)) {
         if (!eventJDOQuery.hasAWho()) {
           addWhoQueryForLoggedInuser(loggedInuser, eventJDOQuery);
           nextCursor = executeQueryInBatches(allEvents, eventJDOQuery, limit, cursor);
@@ -756,7 +762,8 @@ public class EventRetriever {
     return new EventQueryResultPair(newArrayList, nextCursor);
   }
 
-  private String executeQueryInBatches(Set<Event> allEvents, EventJDOQuery eventJDOQuery, int limit, String websafeCursor) {
+  private String executeQueryInBatches(Set<Event> allEvents, EventJDOQuery eventJDOQuery, int limit,
+                                       String websafeCursor) {
     Query q = eventJDOQuery.getQuery();
     PersistenceManager persistenceManager = q.getPersistenceManager();
 
@@ -769,7 +776,7 @@ public class EventRetriever {
       extensionMap.put(JDOCursorHelper.CURSOR_EXTENSION, cursor);
       q.setExtensions(extensionMap);
       // q.getFetchPlan().addGroup("PhotoBlob").addGroup("keysList").addGroup("valuesList");
-      //q.getFetchPlan().setFetchSize(limit);
+      // q.getFetchPlan().setFetchSize(limit);
 
     }
     q.setRange(0, limit);
@@ -807,7 +814,8 @@ public class EventRetriever {
   }
 
   public EventQueryResultPair getEventsInBatchesOneBatch(List<com.google.sampling.experiential.server.Query> queryFilters,
-                                                 String loggedInuser, DateTimeZone clientTimeZone, int limit, String cursor) {
+                                                         String loggedInuser, DateTimeZone clientTimeZone, int limit,
+                                                         String cursor) {
 
     return new EventQueryResultPair(getEvents(queryFilters, loggedInuser, clientTimeZone, 0, 20000), null);
   }

@@ -45,7 +45,7 @@ public class CloudSQLConnectionManager {
   private static DataSource setUp() throws ClassNotFoundException, Exception {
     String url = null;
     String userName = null;
-    String pwd = null;
+    String password = null;
 
     connectionPool = new GenericObjectPool();
 
@@ -58,12 +58,16 @@ public class CloudSQLConnectionManager {
 
     if (System.getProperty("com.google.appengine.runtime.version").startsWith("Google App Engine/")) {
       url = System.getProperty("ae-cloudsql.cloud-database-url");
+      userName = System.getProperty("ae-cloudsql.cloudsql-database-username");
+      password = System.getProperty("ae-cloudsql.cloudsql-database-password");
       Class.forName("com.mysql.jdbc.GoogleDriver");
     } else {
       url = System.getProperty("ae-cloudsql.local-database-url");
+      userName = System.getProperty("ae-cloudsql.local-database-username");
+      password = System.getProperty("ae-cloudsql.local-database-password");
     }
 
-    ConnectionFactory cf = new DriverManagerConnectionFactory(url, userName, pwd);
+    ConnectionFactory cf = new DriverManagerConnectionFactory(url, userName, password);
     PoolableConnectionFactory pcf = new PoolableConnectionFactory(cf, connectionPool, null, null, false, true);
     ds = new PoolingDataSource(connectionPool);
     return ds;
