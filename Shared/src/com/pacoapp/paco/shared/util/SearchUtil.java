@@ -14,8 +14,8 @@ import net.sf.jsqlparser.expression.BinaryExpression;
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.Parenthesis;
 import net.sf.jsqlparser.expression.operators.relational.InExpression;
-import net.sf.jsqlparser.expression.operators.relational.IsNullExpression;
 import net.sf.jsqlparser.parser.CCJSqlParserUtil;
+import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.schema.Table;
 import net.sf.jsqlparser.statement.select.FromItem;
 import net.sf.jsqlparser.statement.select.Join;
@@ -51,7 +51,7 @@ public class SearchUtil {
       Expression le = ((BinaryExpression) node).getLeftExpression();
       Expression re = ((BinaryExpression) node).getRightExpression();
 
-      if ((le.getClass().getName().contains(COLUMN)) && le.toString().equalsIgnoreCase(columnName)) {
+      if ((le instanceof Column) && le.toString().equalsIgnoreCase(columnName)) {
         queriedValueList.add(re.toString());
       } else {
         getQueriedValue(le, columnName, queriedValueList);
@@ -61,19 +61,12 @@ public class SearchUtil {
     }
 
     if (node instanceof InExpression) {
-      if ((((InExpression) node).getLeftExpression().getClass().getName().contains(COLUMN))
-          && node.toString().contains(columnName)) {
+      if ((((InExpression) node).getLeftExpression() instanceof Column)
+          && node.toString().equalsIgnoreCase(columnName)) {
         String listWithParen = ((InExpression) node).getRightItemsList().toString().replace('(', ' ');
         String listWithoutParen = listWithParen.replace(')', ' ');
         String[] arr = listWithoutParen.split(", ");
         queriedValueList.addAll(Arrays.asList(arr));
-      }
-    }
-    //TODO
-    if (node instanceof IsNullExpression) {
-      if ((((IsNullExpression) node).getLeftExpression().getClass().getName().contains(COLUMN))
-          && node.toString().contains(columnName)) {
-        queriedValueList.add("isnull");
       }
     }
   }

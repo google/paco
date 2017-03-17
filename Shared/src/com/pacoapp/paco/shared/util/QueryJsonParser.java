@@ -35,7 +35,7 @@ public class QueryJsonParser {
    * @throws JSONException
    * 
    */
-  public static SQLQuery parseSqlQueryFromJson(String queryJson) {
+  public static SQLQuery parseSqlQueryFromJson(String queryJson) throws JSONException {
     final String SELECT = "select";
     final String QUERY = "query";
     final String CRITERIA = "criteria";
@@ -49,67 +49,59 @@ public class QueryJsonParser {
     SQLQuery.Builder sqlBldr = null;
     String[] projectionColumns = null;
     String[] criteriaValues = null;
-    JSONObject queryObj;
+    JSONObject queryObj = null;
     if (Strings.isNullOrEmpty(queryJson)) {
       return null;
     }
+    queryObj = new JSONObject(queryJson);
+    if (queryObj.has(SELECT)) {
+      JSONArray selectAr = queryObj.getJSONArray(SELECT);
+      if (selectAr != null) {
+        projectionColumns = new String[selectAr.length()];
+        for (int j = 0; j < selectAr.length(); j++) {
+          projectionColumns[j] = selectAr.getString(j);
+        }
+      }
+    }
     
-    try {
-      queryObj = new JSONObject(queryJson);
-      if (queryObj.has(SELECT)) {
-        JSONArray selectAr = queryObj.getJSONArray(SELECT);
-        if (selectAr != null) {
-          projectionColumns = new String[selectAr.length()];
-          for (int j = 0; j < selectAr.length(); j++) {
-            projectionColumns[j] = selectAr.getString(j);
+    sqlBldr = new SQLQuery.Builder(projectionColumns);
+            
+    if (queryObj.has(QUERY)) {
+      JSONObject queryCriteria = queryObj.getJSONObject(QUERY);
+      if (queryCriteria != null) {
+        if (queryCriteria.has(CRITERIA)) {
+          sqlBldr.criteriaQuery(queryCriteria.getString(CRITERIA));
+        }
+
+        if (queryCriteria.has(VALUES)) {
+          JSONArray cv = queryCriteria.getJSONArray(VALUES);
+          criteriaValues = new String[cv.length()];
+          for (int i = 0; i < cv.length(); i++) {
+            criteriaValues[i] = cv.getString(i);
           }
+          sqlBldr.criteriaValues(criteriaValues);
         }
       }
-      
-      sqlBldr = new SQLQuery.Builder(projectionColumns);
-              
-      if (queryObj.has(QUERY)) {
-        JSONObject queryCriteria = queryObj.getJSONObject(QUERY);
-        if (queryCriteria != null) {
-          if (queryCriteria.has(CRITERIA)) {
-            sqlBldr.criteriaQuery(queryCriteria.getString(CRITERIA));
-          }
+    }
+    
+    if (queryObj.has(ORDER)) {
+      sqlBldr.sortBy(queryObj.getString(ORDER));
+    }
+    
+    if (queryObj.has(LIMIT)) {
+      sqlBldr.limit(queryObj.getString(LIMIT));
+    }
+    
+    // only if we have group clause, should we have the having column
+    if (queryObj.has(GROUP)) {
+      sqlBldr.groupBy(queryObj.getString(GROUP));
 
-          if (queryCriteria.has(VALUES)) {
-            JSONArray cv = queryCriteria.getJSONArray(VALUES);
-            criteriaValues = new String[cv.length()];
-            for (int i = 0; i < cv.length(); i++) {
-              criteriaValues[i] = cv.getString(i);
-            }
-            sqlBldr.criteriaValues(criteriaValues);
-          }
-        }
+      if (queryObj.has(HAVING)) {
+        sqlBldr.having(queryObj.getString(HAVING));
       }
-      
-      if (queryObj.has(ORDER)) {
-        sqlBldr.sortBy(queryObj.getString(ORDER));
-      }
-      
-      if (queryObj.has(LIMIT)) {
-        sqlBldr.limit(queryObj.getString(LIMIT));
-      }
-      
-      // only if we have group clause, should we have the having column
-      if (queryObj.has(GROUP)) {
-        sqlBldr.groupBy(queryObj.getString(GROUP));
-
-        if (queryObj.has(HAVING)) {
-          sqlBldr.having(queryObj.getString(HAVING));
-        }
-      }
-
-      sqlObj = sqlBldr.buildWithDefaultValues();
-
-    } catch (JSONException e) {
-      e.printStackTrace();
-      log.info("json exception"+e);
     }
 
+    sqlObj = sqlBldr.buildWithDefaultValues();
     return sqlObj;
   }
 }

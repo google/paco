@@ -34,7 +34,12 @@ public class QueryJsonParserTest {
     SQLQuery expectedValue = expectedValueBldr.buildWithDefaultValues();
     
     SQLQuery actualValue = null;
-    actualValue = QueryJsonParser.parseSqlQueryFromJson(inputString);
+    try {
+      actualValue = QueryJsonParser.parseSqlQueryFromJson(inputString);
+    } catch (JSONException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
    
     Assert.assertNotNull(actualValue);
     Assert.assertEquals(expectedValue.getProjection(), actualValue.getProjection());
@@ -60,7 +65,12 @@ public class QueryJsonParserTest {
 
      SQLQuery expectedValue = expectedValueBldr.buildWithDefaultValues();
      SQLQuery actualValue = null;
-     actualValue = QueryJsonParser.parseSqlQueryFromJson(inputString);
+     try {
+      actualValue = QueryJsonParser.parseSqlQueryFromJson(inputString);
+    } catch (JSONException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
      
      Assert.assertNotNull(actualValue);
      Assert.assertEquals(expectedValue.getProjection(), actualValue.getProjection());
@@ -86,7 +96,12 @@ public class QueryJsonParserTest {
      
      SQLQuery actualValue = null;
 
-     actualValue = QueryJsonParser.parseSqlQueryFromJson(inputString);
+     try {
+      actualValue = QueryJsonParser.parseSqlQueryFromJson(inputString);
+    } catch (JSONException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
      
      
      Assert.assertNotNull(actualValue);

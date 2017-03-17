@@ -13,6 +13,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.joda.time.DateTimeZone;
+import org.json.JSONException;
 
 import com.google.appengine.api.users.User;
 import com.google.sampling.experiential.shared.EventDAO;
@@ -51,7 +52,11 @@ public class CloudSqlSearchServlet extends HttpServlet {
 
       CloudSQLDao impl = new CloudSQLDaoImpl();
       String reqBody = RequestProcessorUtil.getBody(req);
-      sqlQueryObj = QueryJsonParser.parseSqlQueryFromJson(reqBody);
+      try{
+        sqlQueryObj = QueryJsonParser.parseSqlQueryFromJson(reqBody);
+      } catch (JSONException jsonEx) {
+        throw new ServletException("Json parsing error"+jsonEx);
+      }
 
       List<Long> adminExperimentsinDB = ExperimentAccessManager.getExistingExperimentIdsForAdmin(loggedInUser, 0, null)
                                                                .getExperiments();

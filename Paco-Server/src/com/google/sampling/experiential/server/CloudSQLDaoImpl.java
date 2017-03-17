@@ -381,7 +381,7 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
                                           + "` varchar(45) DEFAULT NULL," + "`" + EventBaseColumns.ACTION_ID
                                           + "` bigint(20) DEFAULT NULL," + "`" + EventBaseColumns.ACTION_TRIGGER_ID
                                           + "` bigint(20) DEFAULT NULL," + "`" + EventBaseColumns.ACTION_TRIGGER_SPEC_ID
-                                          + "` bigint(20) DEFAULT NULL," + "`" + EventBaseColumns.WHO
+                                          + "` bigint(20) NOT NULL," + "`" + EventBaseColumns.WHO
                                           + "` varchar(45) DEFAULT NULL," + "`" + EventBaseColumns.PACO_VERSION
                                           + "` varchar(45) DEFAULT NULL," + "`" + EventBaseColumns.APP_ID
                                           + "` varchar(45) DEFAULT NULL," + "`" + EventBaseColumns.WHEN
