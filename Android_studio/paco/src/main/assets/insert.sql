@@ -1,0 +1,4 @@
+INSERT INTO "experiments" VALUES(1, '1','Question of the Day','The description of the question of the day.', 'Tina Malm (tmalm)', 'informed consent is just like Google Geist', 'abc123','daily','1',1281942000000,1313478000000,55800000,'',null,null,null);
+INSERT INTO "experiments" VALUES(2, '2','Youtube qotd','The same except for Youtubers', 'Tina Malm (tmalm)', 'informed consent is just like Google Geist', 'abc123','daily','1',1281942000000,1313478000000,55800000,'',null,null,null);
+INSERT INTO "inputs" VALUES(1, 1, 1, "How do you feel today?", 1, "geistnow_likert", 5, null, null, null, null, null, null, null);
+INSERT INTO "feedback" VALUES(1, 1, 1, "display", "Thanks for participating!");

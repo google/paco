@@ -1,0 +1,54 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html> <head>
+<style>
+body {
+font-family:sans-serif;
+}
+.outlineElement {
+  outline: 2px solid #F00;
+}
+.prompt {
+  font-weight: bold;
+}
+.title {
+  font-weight: bold;
+  font-size: 2em;
+  margin-bottom: 1em;
+}
+
+.radioLabel {
+  font-size: .9em;
+  margin: .3em;
+
+
+}
+</style>
+    <script language="javascript" type="text/javascript" src="jquery.js"></script>
+    <script language="javascript" type="text/javascript" src="jquery.flot.js"></script>
+    <script language="javascript" type="text/javascript" src="jquery.flot.stack.js"></script>
+    <script language="javascript" type="text/javascript" src="peg-0.8.0.min.js"></script>
+    <script language="javascript" type="text/javascript" src="conditional_parser.js"></script>
+    <script language="javascript" type="text/javascript" src="custom_base.js"></script>
+
+    <script language="javascript" type="text/javascript">
+function repl() {
+var js = $('input[name=cmdline]').val();
+    var log = $('#log');
+    var output = eval(js);
+    log.html(log.html()  + "<br>" + js + ":<br>" + output);
+}
+
+      $(document).ready(function() {
+        var form_root = $(document.createElement("div"));
+        $(document.body).append(form_root);
+        var e1 = paco.experiment();
+        paco.execute(e1, form_root);        
+      });   	
+    </script>
+</head>
+<body>
+<input type=text name=cmdline><input type=button value="eval" onclick="repl()">
+<div id="log"></div>
+
+<div id="root"></div>
+</body> </html>

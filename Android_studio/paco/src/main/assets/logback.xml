@@ -1,0 +1,34 @@
+<configuration>
+    
+    <appender name="LOGCAT" class="ch.qos.logback.classic.android.LogcatAppender">
+        <tagEncoder>
+                  <pattern>Paco</pattern>
+              </tagEncoder>
+    <encoder>
+      <pattern>[%-20thread] %msg</pattern>
+    </encoder>
+  </appender>
+  
+  <property name="LOG_DIR" value="/data/data/com.pacoapp.paco/files" />
+
+  <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <file>${LOG_DIR}/log.txt</file>
+    <encoder>
+      <pattern>%d{yyyy-MM-dd'T'HH:mm:ss.SSSZ} [%thread] %-5level %logger{36} - %msg%n</pattern>
+    </encoder>
+
+    <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+      <!-- daily rollover period -->
+      <fileNamePattern>${LOG_DIR}/log.%d.txt</fileNamePattern>
+
+      <!-- keep 7 days' worth of history -->
+      <maxHistory>7</maxHistory>
+    </rollingPolicy>
+  </appender>
+    
+  <root level="DEBUG" >
+    <appender-ref ref="LOGCAT" />
+    <appender-ref ref="FILE" />
+  </root>
+  
+</configuration>

@@ -1,0 +1,20 @@
+apply plugin: 'java'
+
+dependencies {
+    compile 'com.google.guava:guava:16.0.1'
+    compile 'joda-time:joda-time:2.9.3'
+    compile files('lib/jackson-all-1.9.11.jar')
+    compile files('lib/js.jar')
+    compile files('lib/json-1.5.jar')
+
+    sourceCompatibility = 1.7
+    targetCompatibility = 1.7
+}
+
+sourceSets {
+    main {
+        java {
+            srcDirs = ['src', 'src_non_j2objc']
+        }
+    }
+}

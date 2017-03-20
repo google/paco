@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ ~ Copyright 2011 Google Inc. All Rights Reserved.
+ ~
+ ~ Licensed under the Apache License, Version 2.0 (the "License");
+ ~ you may not use this file except in compliance  with the License.  
+ ~ You may obtain a copy of the License at
+ ~
+ ~    http://www.apache.org/licenses/LICENSE-2.0
+ ~
+ ~ Unless required by applicable law or agreed to in writing,
+ ~ software distributed under the License is distributed on an
+ ~ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ ~ KIND, either express or implied.  See the License for the
+ ~ specific language governing permissions and limitations
+ ~ under the License.
+ -->
+<LinearLayout
+  xmlns:android="http://schemas.android.com/apk/res/android"
+  android:layout_width="wrap_content"
+  android:layout_height="fill_parent"
+  android:orientation="vertical"
+  android:layout_gravity="center"
+  android:id="@+id/scheduleRootView" >
+
+  <TextView
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:textSize="20dip"
+    android:text="@string/daily_scheduled_time_for"></TextView>
+
+  <TextView
+    android:layout_width="wrap_content"
+    android:layout_gravity="center"
+    android:layout_height="wrap_content"
+    android:textSize="25dip"
+    android:id="@+id/experimentNameSchedule"
+    android:text="@string/experiment_name"></TextView>
+
+  <RadioGroup
+    android:id="@+id/RadioGroup01"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:paddingLeft="50dip">
+
+    <RadioButton
+      android:text="@string/by_day_of_month"
+      android:paddingLeft="75dip"
+      android:id="@+id/domRadio"
+      android:layout_width="fill_parent"
+      android:layout_height="wrap_content" />
+    <RadioButton
+      android:text="@string/by_day_of_week"
+      android:paddingLeft="75dip"
+      android:id="@+id/dowRadio"
+      android:layout_width="fill_parent"
+      android:layout_height="wrap_content" />
+  </RadioGroup>
+
+  <LinearLayout
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:layout_gravity="center">
+     <TextView
+     android:id="@+id/dayOfMonthText"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:textSize="20dip"
+    android:text="@string/day_of_month"/>
+    
+    <Spinner
+      android:id="@+id/dayOfMonthSpinner"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content" />
+  </LinearLayout>
+  <LinearLayout
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:layout_gravity="center">
+     <TextView
+     android:id="@+id/NthOfMonthText"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:textSize="20dip"
+    android:text="@string/day_of_week"/>
+    <Spinner
+      android:id="@+id/NthOfMonthSpinner"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content" />
+      
+    <include
+      layout="@layout/repeat_on_dow_schedule" />
+  </LinearLayout>
+
+  <include
+    layout="@layout/repeat_every_n_schedule" />
+
+  <ListView
+    android:id="@+id/timesList"
+    android:layout_width="wrap_content"
+    android:layout_height="260dp" />
+
+</LinearLayout>

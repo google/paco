@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ ~ Copyright 2011 Google Inc. All Rights Reserved.
+ ~
+ ~ Licensed under the Apache License, Version 2.0 (the "License");
+ ~ you may not use this file except in compliance  with the License.  
+ ~ You may obtain a copy of the License at
+ ~
+ ~    http://www.apache.org/licenses/LICENSE-2.0
+ ~
+ ~ Unless required by applicable law or agreed to in writing,
+ ~ software distributed under the License is distributed on an
+ ~ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ ~ KIND, either express or implied.  See the License for the
+ ~ specific language governing permissions and limitations
+ ~ under the License.
+ -->
+
+<ScrollView
+  xmlns:android="http://schemas.android.com/apk/res/android"
+  android:id="@+id/ScrollView01"
+  android:layout_width="fill_parent"
+  android:layout_height="wrap_content">
+  <LinearLayout
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:layout_gravity="left">
+    <TextView
+      android:layout_gravity="center"
+      android:textStyle="bold"
+      android:textSize="25dip"
+      android:id="@+id/experimentNameSchedule"
+      android:layout_height="wrap_content"
+      android:text="@string/experiment_name"
+      android:layout_width="wrap_content"></TextView>
+    <TextView
+      android:layout_gravity="left"
+      android:layout_marginLeft="4dip"
+      android:layout_marginBottom="7dip"
+      android:textSize="20dip"
+      android:id="@+id/TextView03"
+      android:layout_height="wrap_content"
+      android:text="@string/suggested_signalling_schedule"
+      android:layout_width="wrap_content"></TextView>
+
+    
+    <LinearLayout
+      android:layout_width="wrap_content"
+      android:gravity="center"
+      android:layout_gravity="left"
+      android:orientation="horizontal"
+      android:layout_height="wrap_content"
+      android:layout_margin="1dip"
+      android:padding="1dip">
+      <TextView
+        android:textSize="20dip"
+        android:id="@+id/TextView02"
+        android:text="@string/start_hour"
+        android:layout_width="wrap_content"
+        android:layout_gravity="left|bottom"
+        android:layout_height="wrap_content" />
+      <Button
+        android:textSize="20dip"
+        android:text="@string/default_start_time"
+        android:layout_width="wrap_content"
+        android:layout_gravity="left|bottom"
+        android:layout_height="wrap_content"
+        android:id="@+id/startHourTimePickerLabel" />
+    </LinearLayout>
+
+    <LinearLayout
+      android:layout_width="wrap_content"
+      android:gravity="center"
+      android:layout_gravity="left"
+      android:orientation="horizontal"
+      android:layout_height="wrap_content"
+      android:padding="1dip"
+      android:layout_margin="1dip">
+      <TextView
+        android:textSize="20dip"
+        android:id="@+id/TextView01"
+        android:text="@string/end_hour"
+        android:layout_width="wrap_content"
+        android:layout_gravity="left|bottom"
+        android:layout_height="wrap_content" />
+      <Button
+        android:textSize="20dip"
+        android:text="@string/default_end_hour"
+        android:layout_width="wrap_content"
+        android:layout_gravity="left|bottom"
+        android:layout_height="wrap_content"
+        android:id="@+id/endHourTimePickerLabel" />
+    </LinearLayout>
+
+
+
+  </LinearLayout>
+</ScrollView>

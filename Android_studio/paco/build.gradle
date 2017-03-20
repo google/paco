@@ -1,0 +1,42 @@
+apply plugin: 'com.android.application'
+
+android {
+    compileSdkVersion 'Google Inc.:Google APIs:22'
+    buildToolsVersion "25.0.2"
+
+    defaultConfig {
+        applicationId "com.pacoapp.paco"
+        minSdkVersion 16
+        targetSdkVersion 22
+
+        testApplicationId "com.google.android.apps.paco.tests"
+        testInstrumentationRunner "android.test.InstrumentationTestRunner"
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
+        }
+    }
+}
+
+dependencies {
+    compile project(':Shared')
+    compile 'com.google.guava:guava:16.0.1'
+    compile 'joda-time:joda-time:2.9.3'
+    compile 'com.android.support:appcompat-v7:22.2.1'
+
+    compile 'rhino:js:1.7R2'
+    compile 'com.google.android.gms:play-services-auth:8.3.0'
+
+    //JodliDev: to keep the switch to Android Studio simple, I kept these - but we may want to
+    //download other dependencies from the repositories as well
+    compile files('libs/Android-Languages.jar')
+    compile files('libs/antlr-runtime-3.2.jar')
+    compile files('libs/gps-stripped.jar')
+    compile files('libs/jackson-all-1.9.11.jar')
+    compile files('libs/logback-android-1.1.1-6.jar')
+    compile files('libs/slf4j-api-1.7.21.jar')
+    androidTestCompile files('libs/junit-4.10.jar')
+}

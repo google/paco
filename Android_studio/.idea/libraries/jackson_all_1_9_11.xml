@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="jackson-all-1.9.11">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/paco/libs/jackson-all-1.9.11.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
