@@ -45,9 +45,10 @@ public class InputDAO implements Serializable {
   public static final String PHOTO = "photo";
   public static final String SOUND = "sound";
   public static final String ACTIVITY = "activity";
+  public static final String VA_SCALE = "va_scale";
 
   public static String[] RESPONSE_TYPES = {LIKERT_SMILEYS, LIKERT, OPEN_TEXT, LIST, NUMBER,
-    LOCATION, PHOTO, SOUND, ACTIVITY};
+    LOCATION, PHOTO, SOUND, ACTIVITY, VA_SCALE};
 
   private Long id;
   private String questionType;
