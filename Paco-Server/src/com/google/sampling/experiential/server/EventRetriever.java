@@ -82,7 +82,7 @@ public class EventRetriever {
   private static EventRetriever instance;
   private static final Logger log = Logger.getLogger(EventRetriever.class.getName());
   private static CloudSQLDao cloudSqlDaoImpl = new CloudSQLDaoImpl();
-  private static DateTimeFormatter df = org.joda.time.format.DateTimeFormat.forPattern(TimeUtil.DATETIME_FORMAT).withOffsetParsed();
+  private static DateTimeFormatter df = DateTimeFormat.forPattern(TimeUtil.DATETIME_FORMAT).withOffsetParsed();
 
   @VisibleForTesting
   EventRetriever() {
@@ -164,6 +164,7 @@ public class EventRetriever {
         event.setAppId(eventJson.getString("appId"));
         event.setTimeZone(eventJson.getString("tz"));
         event.setWhen(df.parseDateTime(eventJson.getString("whenDate")).toDate());
+        event.setWho(eventJson.getString("who"));
         cloudSqlDaoImpl.insertEvent(event);
       } catch (JSONException e) {
         log.severe("Event json id parsing error" + e);
@@ -211,6 +212,7 @@ public class EventRetriever {
       eventJson.put("tz", event.getTimeZone());
       DateTime whenDate = new DateTime(event.getWhen());
       eventJson.put("whenDate", fmt.print(whenDate));
+      eventJson.put("who", event.getWho());
     } catch (JSONException e) {
       log.severe("while sending to cloud sql queue" + e);
     }

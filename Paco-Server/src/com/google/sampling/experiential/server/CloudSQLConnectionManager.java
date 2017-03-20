@@ -57,9 +57,9 @@ public class CloudSQLConnectionManager {
     }
 
     if (System.getProperty("com.google.appengine.runtime.version").startsWith("Google App Engine/")) {
-      url = System.getProperty("ae-cloudsql.cloud-database-url");
-      userName = System.getProperty("ae-cloudsql.cloudsql-database-username");
-      password = System.getProperty("ae-cloudsql.cloudsql-database-password");
+      url = System.getProperty("ae-cloudsql.database-url");
+      userName = System.getProperty("ae-cloudsql.database-username");
+      password = System.getProperty("ae-cloudsql.database-password");
       Class.forName("com.mysql.jdbc.GoogleDriver");
     } else {
       url = System.getProperty("ae-cloudsql.local-database-url");

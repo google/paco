@@ -221,7 +221,12 @@ public class EventJsonUploadProcessor {
     } else {
       log.info("Found the experiment: " + experimentIdStr);
     }
-
+    // We retrieve the 'who' value from json, only when it's a request coming from 
+    // cloud sql queue.
+    if(persistInCloudSqlOnly){
+      who = eventJson.getString("who");
+    }
+    
     if (!experiment.isWhoAllowedToPostToExperiment(who)) {
       // don't give differentiated error messages in case someone is trying to discover experiment ids
       log.info("User not allowed to post to this experiment " + experimentIdStr + " .Event: " + eventId + " user: " + who);
