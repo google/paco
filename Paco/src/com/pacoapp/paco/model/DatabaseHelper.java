@@ -427,7 +427,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     SQLiteQueryBuilder qb = new SQLiteQueryBuilder();
     Cursor resultSet = null;
     switch (tableIndicator) {
-	    case ExperimentProvider.EVENTS_OUTPUTS_DATATYPE:
+	    case ExperimentProvider.OUTPUTS_DATATYPE:
 	      qb.setTables(ExperimentProvider.EVENTS_TABLE_NAME+ " INNER JOIN " + ExperimentProvider.OUTPUTS_TABLE_NAME + 
 					" ON " + (ExperimentProvider.EVENTS_TABLE_NAME+ "." +EventColumns._ID) + " = " + OutputColumns.EVENT_ID);
 	      break;

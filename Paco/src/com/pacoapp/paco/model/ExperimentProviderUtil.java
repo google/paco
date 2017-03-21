@@ -801,8 +801,8 @@ public class ExperimentProviderUtil implements EventStore {
    
     try {
       String tableIndicator = SearchUtil.getTableIndicator(sqlQuery);
-      if (tableIndicator.equals(ExperimentProvider.EVENTS_OUTPUTS_TABLE_NAME)) { 
-        cursor = dbHelper.query(ExperimentProvider.EVENTS_OUTPUTS_DATATYPE, sqlQuery.getProjection(), sqlQuery.getCriteriaQuery(), sqlQuery.getCriteriaValue(),
+      if (tableIndicator.equals(ExperimentProvider.OUTPUTS_TABLE_NAME)) { 
+        cursor = dbHelper.query(ExperimentProvider.OUTPUTS_DATATYPE, sqlQuery.getProjection(), sqlQuery.getCriteriaQuery(), sqlQuery.getCriteriaValue(),
                                 sqlQuery.getSortOrder(), sqlQuery.getGroupBy(), sqlQuery.getHaving(), sqlQuery.getLimit());
       } else if (tableIndicator.equals(ExperimentProvider.EVENTS_TABLE_NAME)) {
         cursor = dbHelper.query(ExperimentProvider.EVENTS_DATATYPE, sqlQuery.getProjection(), sqlQuery.getCriteriaQuery(), sqlQuery.getCriteriaValue(),
@@ -831,7 +831,9 @@ public class ExperimentProviderUtil implements EventStore {
       }
       dbHelper.close();
     }
-    events = Lists.newArrayList(eventMap.values());
+    if (eventMap!=null){
+      events = Lists.newArrayList(eventMap.values());
+    }
   
     return events;
   }

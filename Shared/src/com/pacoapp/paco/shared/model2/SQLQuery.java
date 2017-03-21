@@ -112,7 +112,7 @@ public class SQLQuery {
       System.arraycopy(obj.getProjection(), 0, modifiedProjection, 0, crtLength);
       // adding the following columns in the projection list to help in
       // coalescing
-      modifiedProjection[crtLength] = ID;
+      modifiedProjection[crtLength] = EventBaseColumns.TABLE_NAME+"." + ID;
       obj.projection = modifiedProjection;
 
       return this;

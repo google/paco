@@ -5,6 +5,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -56,8 +57,10 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
       eventsOutputColumns.put(EventBaseColumns.SORT_DATE, 14);
       eventsOutputColumns.put(EventBaseColumns.CLIENT_TIME_ZONE, 15);
       eventsOutputColumns.put(ID, 16);
-      eventsOutputColumns.put(OutputBaseColumns.NAME, 17);
-      eventsOutputColumns.put(OutputBaseColumns.ANSWER, 18);
+      eventsOutputColumns.put(EventBaseColumns.TABLE_NAME+"."+ID, 17);
+      eventsOutputColumns.put(OutputBaseColumns.EVENT_ID, 18);
+      eventsOutputColumns.put(OutputBaseColumns.NAME, 19);
+      eventsOutputColumns.put(OutputBaseColumns.ANSWER, 20);
     }
   }
 
@@ -70,12 +73,12 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
 
     Connection conn = null;
     PreparedStatement statementCreateEvent = null;
-    PreparedStatement statementCreateEventOutput = null;
+    Statement statementCreateEventOutput = null;
     boolean retVal = false;
     ExpressionList eventExprList = new ExpressionList();
     ExpressionList outputExprList = new ExpressionList();
     List<Expression> exp = Lists.newArrayList();
-    List<Expression> out = Lists.newArrayList();
+    List<Expression> out = null;
     Insert eventInsert = new Insert();
     Insert outputInsert = new Insert();
     List<Column> eventColList = Lists.newArrayList();
@@ -103,7 +106,7 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
     outputColList.add(new Column(OutputBaseColumns.ANSWER));
 
     try {
-      log.info("eventInserting event->" + event.getId());
+      log.info("Inserting event->" + event.getId());
       conn = CloudSQLConnectionManager.getInstance().getConnection();
       conn.setAutoCommit(false);
       eventInsert.setTable(new Table(EventBaseColumns.TABLE_NAME));
@@ -167,20 +170,23 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
                                                                                         : new StringValue(quote(event.getScheduledTimeWithTimeZone(null)
                                                                                                                      .toString(fmt))));
       ((ExpressionList) eventInsert.getItemsList()).getExpressions().add(new StringValue(quote(event.getTimeZone())));
-
+      
+      statementCreateEventOutput = conn.createStatement();
       for (String key : event.getWhatKeys()) {
+        out = Lists.newArrayList();
+        ((ExpressionList) outputInsert.getItemsList()).setExpressions(out);
         String whatAnswer = event.getWhatByKey(key);
         ((ExpressionList) outputInsert.getItemsList()).getExpressions().add(new LongValue(event.getId()));
         ((ExpressionList) outputInsert.getItemsList()).getExpressions().add(new StringValue(quote(key)));
         ((ExpressionList) outputInsert.getItemsList()).getExpressions()
                                                       .add(whatAnswer != null ? new StringValue(quote(whatAnswer))
                                                                               : null);
+       
+        statementCreateEventOutput.addBatch(outputInsert.toString());
       }
-
+     
       statementCreateEvent = conn.prepareStatement(eventInsert.toString());
       statementCreateEvent.execute();
-
-      statementCreateEventOutput = conn.prepareStatement(outputInsert.toString());
       statementCreateEventOutput.executeBatch();
 
       conn.commit();
@@ -189,7 +195,7 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
     } catch (SQLException e) {
       log.info("While inserting event : " + e);
     } catch (Exception e) {
-      log.info("While inserting event -Gen : " + e);
+      log.info("While inserting event - Gen : " + e);
     } finally {
       try {
         if (statementCreateEventOutput != null) {
@@ -340,13 +346,15 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
             event.setTimezone(rs.getString(i));
             break;
           case 16:
+          case 17:
+          case 18:
             event.setId(rs.getLong(i));
             break;
-          case 17:
+          case 19:
             List<WhatDAO> whTextLst = event.getWhat();
             whTextLst.add(new WhatDAO(OutputBaseColumns.NAME, rs.getString(i)));
             break;
-          case 18:
+          case 20:
             List<WhatDAO> whAnsLst = event.getWhat();
             whAnsLst.add(new WhatDAO(OutputBaseColumns.ANSWER, rs.getString(i)));
             break;

@@ -10,6 +10,8 @@ import org.apache.commons.dbcp.ConnectionFactory;
 import org.apache.commons.dbcp.DriverManagerConnectionFactory;
 import org.apache.commons.dbcp.PoolableConnectionFactory;
 import org.apache.commons.dbcp.PoolingDataSource;
+import org.apache.commons.pool.KeyedObjectPoolFactory;
+import org.apache.commons.pool.impl.GenericKeyedObjectPoolFactory;
 import org.apache.commons.pool.impl.GenericObjectPool;
 
 public class CloudSQLConnectionManager {
@@ -66,9 +68,10 @@ public class CloudSQLConnectionManager {
       userName = System.getProperty("ae-cloudsql.local-database-username");
       password = System.getProperty("ae-cloudsql.local-database-password");
     }
+    KeyedObjectPoolFactory kopf = new GenericKeyedObjectPoolFactory(null);
 
     ConnectionFactory cf = new DriverManagerConnectionFactory(url, userName, password);
-    PoolableConnectionFactory pcf = new PoolableConnectionFactory(cf, connectionPool, null, null, false, true);
+    PoolableConnectionFactory pcf = new PoolableConnectionFactory(cf, connectionPool, kopf, null, false, true);
     ds = new PoolingDataSource(connectionPool);
     return ds;
   }
