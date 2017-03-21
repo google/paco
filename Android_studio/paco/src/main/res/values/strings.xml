@@ -18,22 +18,22 @@
 
 <resources>
 
-    <string name="app_name" description="Name of the Paco app used on the Home Screen and other places [No Translation]">Paco</string>
-    <string name="server" description="default server address for Paco[No Translation]">www.pacoapp.com</string>
-    <string name="app_package" description="unique Android package name[No Translation]">com.pacoapp.paco</string>
-    <string name="contact_email" description="contact email address [No Translation]">paco-users@googlegroups.com</string>
-    <string name="about_googlegroups" description="user group email address [No Translation]">paco-users@googlegroups.com</string>
-    <string name="usergroup_website" description="Website for user group [No Translation]">https://groups.google.com/group/paco-users</string>
+    <string name="app_name" description="Name of the Paco app used on the Home Screen and other places [No Translation]" translatable="false">Paco</string>
+    <string name="server" description="default server address for Paco[No Translation]" translatable="false">www.pacoapp.com</string>
+    <string name="app_package" description="unique Android package name[No Translation]" translatable="false">com.pacoapp.paco</string>
+    <string name="contact_email" description="contact email address [No Translation]" translatable="false">paco-users@googlegroups.com</string>
+    <string name="about_googlegroups" description="user group email address [No Translation]" translatable="false">paco-users@googlegroups.com</string>
+    <string name="usergroup_website" description="Website for user group [No Translation]" translatable="false">https://groups.google.com/group/paco-users</string>
     <string name="about_support">Support:</string>
-    <string name="about_weburl" description="Home page url [No Translation]">pacoapp.com</string>
-    <string name="about_bob" description="[No Translation]">Bob Evans</string>
-    <string name="about_alberto" description="[No Translation]">Alberto Savoia</string>
-    <string name="about_arun" description="[No Translation]">Arun Saigal</string>
-    <string name="about_cp" description="[No Translation]">CP Lim</string>
-    <string name="about_stephen" description="[No Translation]">Stephen Uhler</string>
-    <string name="about_tina" description="[No Translation]">Tina Malm</string>
-    <string name="about_brian" description="[No Translation]">Brian Ong</string>
-    <string name="about_kanwal" description="[No Translation]">Kanwal Safdar</string>
+    <string name="about_weburl" description="Home page url [No Translation]" translatable="false">pacoapp.com</string>
+    <string name="about_bob" description="[No Translation]" translatable="false">Bob Evans</string>
+    <string name="about_alberto" description="[No Translation]" translatable="false">Alberto Savoia</string>
+    <string name="about_arun" description="[No Translation]" translatable="false">Arun Saigal</string>
+    <string name="about_cp" description="[No Translation]" translatable="false">CP Lim</string>
+    <string name="about_stephen" description="[No Translation]" translatable="false">Stephen Uhler</string>
+    <string name="about_tina" description="[No Translation]" translatable="false">Tina Malm</string>
+    <string name="about_brian" description="[No Translation]" translatable="false">Brian Ong</string>
+    <string name="about_kanwal" description="[No Translation]" translatable="false">Kanwal Safdar</string>
     <string name="about_team" description="Label for list of team members">Team:</string>
     <string name="about_version" description="Detail label for Paco version">Version:</string>
         <string name="welcome_about" description="button label to go to Paco version information">Paco Version</string>
@@ -247,6 +247,10 @@
     <string name="navigation_drawer_close" description="Accessibility label for Navigation Drawer indicating that it can be closed">Close navigation drawer</string>
     <string name="choose_experiment_group" description="Label over a list of experiment groups (different surveys) within an experiment prompting user to pick one to respond to its survey items">Choose an Experiment Group to Respond</string>
     <string name="title_activity_settings" description="Title lable for the Settings screen">Settings</string>
+    <string name="title_activity_find_my_Experiments" description="Title lable for the Invitations screen">My Invitations</string>
+    <string name="title_activity_experiment_detail" description="Title lable for the Screen to join a specific Experiment">Join Experiment</string>
+    <string name="title_activity_Informed_consent" description="Title lable for the screen to accept the informed consent from an experiment">Informed Consent</string>
+    <string name="title_activity_Post_join_instructions" description="">Participation Instructions</string>
     <string name="location_to_be_recorded_default_prompt" description="Default prompt text for a location input survey item. This is shown next to the lat/long retrieved and the button to modify location settings">Location to be recorded</string>
     <string name="organization" description="Label for field showing the organization that is offering the experiment">Organization:</string>
     <string name="contact_" description="Label for the field showing the contact email address for the experiment">Contact:</string>
@@ -337,7 +341,6 @@
     <string name="diagnostic_events_unsynced_label">unsynced</string>
     <string name="diagnostic_account_type">account</string>
     <string name="diagnostic_app_usage_access_type">app usage access</string>
-    <string name="diagnostic_accessibility_type">accessibility access</string>
     <string name="diagnostic_clock_type">clock</string>
     <string name="diagnostic_esm_alarms_type">esm alarms</string>
     <string name="diagnostic_ringer_type">ringer</string>
@@ -360,7 +363,7 @@
     <string name="review_accessibility_button_label">Make sure Paco has accessibility permissions by clicking here</string>
     <string name="review_usageaccess_button_label">Make sure Paco has app usage access by clicking here</string>
     <string name="review_schedule_button_label">Review Schedule</string>
-    <string name="the_personal_analytics_companion_subtitle">The Personal Analytics COmpanion</string>
+    <string name="the_personal_analytics_companion_subtitle">The Personal Analytics Companion</string>
     <string name="login_with_your_google_email_to_join_experiments_message">Login with your Google email to join experiments</string>
     <string name="login_button_label">Login</string>
     <string name="time_schedule_edit_label">Time</string>
@@ -374,8 +377,7 @@
     <string name="change_email_address_button">Change Email Address</string>
     <string name="end_time_must_be_after_start_time_warning_label">End time must be after start time</string>
     <string name="start_and_end_time_too_short">Start and End time window is too short</string>
-        
-        
-                
-                
+    <string name="diagnostic_accessibility_type">accessibility access</string>
+
+
 </resources>

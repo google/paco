@@ -179,7 +179,7 @@ public class FindMyExperimentsActivity extends ActionBarActivity implements Netw
     ActionBar actionBar = getSupportActionBar();
     actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
     actionBar.setDisplayShowTitleEnabled(true);
-    actionBar.setTitle("Paco");
+    actionBar.setTitle(R.string.app_name);
   }
 
   @SuppressLint("NewApi")

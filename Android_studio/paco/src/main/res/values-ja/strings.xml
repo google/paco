@@ -17,26 +17,10 @@
  -->
 
 <resources>
-    <string name='app_name'>PACO</string>
-    
-  <string name='server'>quantifiedself.appspot.com</string>
-  <string name='app_package'>com.google.android.apps.paco</string>
-  <string name='contact_email'>paco-users@googlegroups.com</string>
-  <string name='about_googlegroups'>paco-users@googlegroups.com</string>  
-<!--  <string name="about_googlegroups_subscribe">paco-users+subscribe@googlegroups.com</string>  --> 
-  <string name='usergroup_website'>https://groups.google.com/group/paco-users</string>
-  <string name='about_weburl'>pacoapp.com</string>
-  <string name='about_copyright_message'/>
-  <string name='about_bob'>Bob Evans</string>
-  <string name='about_alberto'>Alberto Savoia</string>
-  <string name='about_arun'>Arun Saigal</string>
-  <string name='about_cp'>CP Lim</string>
-  <string name='about_stephen'>Stephen Uhler</string>
-  <string name='about_tina'>Tina Malm</string>
-  <string name='about_brian'>Brian Ong</string>
-  <string name='about_kanwal'>Kanwal Safdar</string>
-  
-    <!-- End User License Agreement -->
+
+ <!--  <string name="about_googlegroups_subscribe">paco-users+subscribe@googlegroups.com</string>  -->
+
+ <!-- End User License Agreement -->
   <string name='eula_title'>利用規約</string>
   <string name='accept'>同意する</string>
   <string name='decline'>同意しない</string>
@@ -46,8 +30,7 @@
   <string name='user_guide'>利用ガイド</string>
   <string name='about_team'>チーム:</string>
   <string name='about_version'>バージョン:</string>
-  <string name='about_email'>Support</string>
-  <string name='about_support'>サポート:</string>
+ <string name='about_support'>サポート:</string>
   <string name='about_paco'>Pacoについて</string>
   
     <!-- Welcome -->

@@ -199,7 +199,7 @@ public class MyExperimentsActivity extends ActionBarActivity implements
     ActionBar actionBar = getSupportActionBar();
     actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
     actionBar.setDisplayShowTitleEnabled(true);
-    actionBar.setTitle("Paco");
+    actionBar.setTitle(R.string.app_name);
 }
 
 

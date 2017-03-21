@@ -1,0 +1,79 @@
+Note, disambiguate ids that are android specific and those that are server specific. The server of course won't be using the ids for android,
+but android will need the server Ids to understand when an existing experiment has been updated.
+
+Also, we need creation dates on the server as part of versioning.
+
+experiment : {
+ serverId: long,
+  title : string,
+  description : string,
+  creator : emailAddress,
+  informedConsentForm : text,
+  hash : bytes/string,
+  icon : bytes/url,
+  questionsChange : boolean (1 | 0),
+  joinDate : date as string of form yyyy/MM/ddZ,
+  modifyDate : date as string of form yyyy/MM/dd of last time this experiment was changed,
+
+  scheduleDetails : {
+     scheduleType : enum/strings/ or ints indicating [fixed, daily, esm] todo clarify this with questionsChange field on experiment,
+     fixedDuration : boolean ( 1 | 0),
+     startDate : date as string of form yyyy/MM/dd,
+     endDate : date as string of form yyyy/MM/dd,
+     esmFrequency : string describing pings / time period,
+     defaultTime : long as seconds after midnight .
+     scheduledDate : long for changing questions apps like qotd, the day for which this question is intended 
+   }, 
+   inputs : {
+     serverId : long for this input on the server,
+     experimentId : long used on android phone,
+     mandatory : boolean whether input response must be given,
+     text : string,
+     questionType : string describing input type (e.g. likert, list options, checkbox, etc..),
+     listOptions : [ string ...],
+     likertSteps : int,
+     nextInputId : long reference to another input ID for ordering input sequence,
+     nextInputConditionalExpresssion : string predicate for conditional inputs - not used yet,
+   },
+   feedback : {
+     serverId : long,
+     experimentId : long,
+     feedbackType : string currently only one type,
+     text : string of display text - could be html with variable interpolation ( a template)
+   },
+   event : {
+     serverId : long,
+    experimentServerId : long,
+     scheduledTime : long,
+     responseTime : long,
+     uploaded : boolean,
+     responses : {
+       eventId : long,
+       inputServerId : long,
+       text : string text of the question,
+       answer : string - this could be a number as well, or a photo even at some point
+     }
+} 
+
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+api calls on the server used by the client
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+getExperiments(long lastModificationDownloaded) :: List<Experiment> - param can be null to just get initial list
+getUpdatedQuestionsForExperiment(long experimentServerId, long lastModificationDownloadedDate) :: List<Inputs>
+postEvent(Event event) :: success or failure, maybe event server Id? How would I use that?
+
+query(searchParams) :: List<Event>
+queryAndFilter(searchparams, filterFunction) :: Some data value, or list of data values produced by filterFunction
+
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+Api calls used on server webform for managing experiments
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
+createExperiment(Experiment experiment) :: success or failure, experiment server id? -- including inputs and feedback
+getExperimentsForUser(user) :: List<Experiment>
+updateExperiment(Experiment experiment) :: success or failure
+deleteExperiment(Experiment experiment) :: success or failure
+
+queryForExperimentData(searchParams) :: List<Event>
+
+

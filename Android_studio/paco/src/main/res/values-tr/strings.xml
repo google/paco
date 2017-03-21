@@ -15,22 +15,7 @@
  ~ under the License.
 --><resources>
 
-    <string description="Name of the Paco app used on the Home Screen and other places [No Translation]" name="app_name">"Paco"</string>
-    <string description="default server address for Paco[No Translation]" name="server">"www.pacoapp.com"</string>
-    <string description="unique Android package name[No Translation]" name="app_package">"com.pacoapp.paco"</string>
-    <string description="contact email address [No Translation]" name="contact_email">"paco-users@googlegroups.com"</string>
-    <string description="user group email address [No Translation]" name="about_googlegroups">"paco-users@googlegroups.com"</string>
-    <string description="Website for user group [No Translation]" name="usergroup_website">"https://groups.google.com/group/paco-users"</string>
     <string name="about_support">"Destek:"</string>
-    <string description="Home page url [No Translation]" name="about_weburl">"pacoapp.com"</string>
-    <string description="[No Translation]" name="about_bob">"Bob Evans"</string>
-    <string description="[No Translation]" name="about_alberto">"Alberto Savoia"</string>
-    <string description="[No Translation]" name="about_arun">"Arun Saigal"</string>
-    <string description="[No Translation]" name="about_cp">"CP Lim"</string>
-    <string description="[No Translation]" name="about_stephen">"Stephen Uhler"</string>
-    <string description="[No Translation]" name="about_tina">"Tina Malm"</string>
-    <string description="[No Translation]" name="about_brian">"Brian Ong"</string>
-    <string description="[No Translation]" name="about_kanwal">"Kanwal Safdar"</string>
     <string description="Label for list of team members" name="about_team">"Takım:"</string>
     <string description="Detail label for Paco version" name="about_version">"Sürüm:"</string>
         <string description="button label to go to Paco version information" name="welcome_about">"Paco Sürümü"</string>

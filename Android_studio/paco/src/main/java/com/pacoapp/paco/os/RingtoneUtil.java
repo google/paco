@@ -164,7 +164,7 @@ public class RingtoneUtil {
     values.put(MediaStore.MediaColumns.TITLE, ringtoneTitle);
     values.put(MediaStore.MediaColumns.SIZE, f.length());
     values.put(MediaStore.MediaColumns.MIME_TYPE, "audio/mp3");
-    values.put(MediaStore.Audio.Media.ARTIST, "Paco");
+    values.put(MediaStore.Audio.Media.ARTIST, R.string.app_name);
     // values.put(MediaStore.Audio.Media.DURATION, ""); This is not needed
     values.put(MediaStore.Audio.Media.IS_RINGTONE, true);
     values.put(MediaStore.Audio.Media.IS_NOTIFICATION, true);
