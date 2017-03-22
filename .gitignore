@@ -70,3 +70,8 @@ Paco-iOS/Paco.xcodeproj/xcuserdata/*
 Paco-iOS/ParseKit/ParseKit.xcodeproj/xcuserdata/*
 Paco-iOS/ParseKit/lib/OCMock/OCMock.xcodeproj/xcuserdata/*
 Paco-iOS/ParseKit/include*
+
+### Android Studio ###
+/Android_studio/.idea/workspace.xml
+/Android_studio/.gradle/*
+/Android_studio/paco/paco.iml
