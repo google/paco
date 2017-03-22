@@ -930,25 +930,22 @@ public class InputLayout extends LinearLayout implements SpeechRecognitionListen
   private View renderVaScale() {
     View view = ((LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(
             R.layout.va_scale, this, true);
-    SeekBar seekBar = (SeekBar) findViewById(R.id.va_scale_input);
+    SeekBar_api14 seekBar = (SeekBar_api14) findViewById(R.id.va_scale_input);
     seekBar.getThumb().mutate().setAlpha(0);
 
-    seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+    seekBar.setOnSeekBarChangeListener(new SeekBar_api14.OnSeekBarChangeListener() {
       @Override
-      public void onStopTrackingTouch(SeekBar seekBar) {
-      }
-
-      @Override
-      public void onStartTrackingTouch(SeekBar seekBar) {
+      public void onStartTrackingTouch(SeekBar_api14 s) {
         va_scale_hasChanged = true;
-        seekBar.getThumb().setAlpha(255);
+        s.getThumb().setAlpha(255);
         notifyChangeListeners();
       }
       @Override
-      public void onProgressChanged(SeekBar seekBar, int progress,boolean fromUser) {
+      public void onStopTrackingTouch(SeekBar_api14 seekBar) {
       }
-
-
+      @Override
+      public void onProgressChanged(SeekBar_api14 seekBar, int progress,boolean fromUser) {
+      }
     });
 
 

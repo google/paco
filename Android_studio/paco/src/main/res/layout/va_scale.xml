@@ -28,7 +28,7 @@
         android:weightSum="1">
 
 
-        <SeekBar
+        <com.pacoapp.paco.ui.SeekBar_api14
             android:id="@+id/va_scale_input"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
