@@ -2,9 +2,11 @@ package com.pacoapp.paco.shared.util;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 import java.util.logging.Logger;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import com.pacoapp.paco.shared.model2.EventBaseColumns;
 import com.pacoapp.paco.shared.model2.OutputBaseColumns;
 import com.pacoapp.paco.shared.model2.SQLQuery;
@@ -32,14 +34,14 @@ public class SearchUtil {
   public static final String DESC = "DESC";
   public static final String ID = "_Id";
   
-  public static List<String> retrieveUserSpecifiedConditions(Select selectStatement, String colName) {
+  public static Set<String> retrieveUserSpecifiedConditions(Select selectStatement, String colName) {
     PlainSelect pl = (PlainSelect) selectStatement.getSelectBody();
-    List<String> qvList = Lists.newArrayList();
-    getQueriedValue(pl.getWhere(), colName, qvList);
-    return qvList;
+    Set<String> qvSet = Sets.newHashSet();
+    getQueriedValue(pl.getWhere(), colName, qvSet);
+    return qvSet;
   }
 
-  public static void getQueriedValue(Expression node, String columnName, List<String> queriedValueList) {
+  public static void getQueriedValue(Expression node, String columnName, Set<String> queriedValueSet) {
     if (node == null) {
       return;
     }
@@ -52,21 +54,22 @@ public class SearchUtil {
       Expression re = ((BinaryExpression) node).getRightExpression();
 
       if ((le instanceof Column) && le.toString().equalsIgnoreCase(columnName)) {
-        queriedValueList.add(re.toString());
+        queriedValueSet.add(re.toString());
       } else {
-        getQueriedValue(le, columnName, queriedValueList);
-        getQueriedValue(re, columnName, queriedValueList);
+        getQueriedValue(le, columnName, queriedValueSet);
+        getQueriedValue(re, columnName, queriedValueSet);
 
       }
     }
 
     if (node instanceof InExpression) {
-      if ((((InExpression) node).getLeftExpression() instanceof Column)
-          && node.toString().equalsIgnoreCase(columnName)) {
+      Expression le = ((InExpression) node).getLeftExpression();
+      if (( le instanceof Column)
+          && le.toString().equalsIgnoreCase(columnName)) {
         String listWithParen = ((InExpression) node).getRightItemsList().toString().replace('(', ' ');
         String listWithoutParen = listWithParen.replace(')', ' ');
         String[] arr = listWithoutParen.split(", ");
-        queriedValueList.addAll(Arrays.asList(arr));
+        queriedValueSet.addAll(Arrays.asList(arr));
       }
     }
   }

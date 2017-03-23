@@ -5,7 +5,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -37,6 +36,7 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
   private static Map<String, Integer> eventsOutputColumns = null;
   public static final String ID = "_id";
   public static final String TRUE = "true";
+  public static final String outputInsert = "Insert into outputs (event_id, text, answer) values (?, ?, ?)";
 
   private static void loadColumnTableAssociationMap() {
     if (eventsOutputColumns == null) {
@@ -73,16 +73,12 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
 
     Connection conn = null;
     PreparedStatement statementCreateEvent = null;
-    Statement statementCreateEventOutput = null;
+    PreparedStatement statementCreateEventOutput = null;
     boolean retVal = false;
     ExpressionList eventExprList = new ExpressionList();
-    ExpressionList outputExprList = new ExpressionList();
     List<Expression> exp = Lists.newArrayList();
-    List<Expression> out = null;
     Insert eventInsert = new Insert();
-    Insert outputInsert = new Insert();
     List<Column> eventColList = Lists.newArrayList();
-    List<Column> outputColList = Lists.newArrayList();
     DateTimeFormatter fmt = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");
     eventColList.add(new Column(ID));
     eventColList.add(new Column(EventBaseColumns.EXPERIMENT_ID));
@@ -101,24 +97,16 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
     eventColList.add(new Column(EventBaseColumns.JOINED));
     eventColList.add(new Column(EventBaseColumns.SORT_DATE));
     eventColList.add(new Column(EventBaseColumns.CLIENT_TIME_ZONE));
-    outputColList.add(new Column(OutputBaseColumns.EVENT_ID));
-    outputColList.add(new Column(OutputBaseColumns.NAME));
-    outputColList.add(new Column(OutputBaseColumns.ANSWER));
 
     try {
       log.info("Inserting event->" + event.getId());
       conn = CloudSQLConnectionManager.getInstance().getConnection();
       conn.setAutoCommit(false);
       eventInsert.setTable(new Table(EventBaseColumns.TABLE_NAME));
-      outputInsert.setTable(new Table(OutputBaseColumns.TABLE_NAME));
       eventInsert.setUseValues(true);
-      outputInsert.setUseValues(true);
       eventExprList.setExpressions(exp);
-      outputExprList.setExpressions(out);
       eventInsert.setItemsList(eventExprList);
-      outputInsert.setItemsList(outputExprList);
       eventInsert.setColumns(eventColList);
-      outputInsert.setColumns(outputColList);
 
       ((ExpressionList) eventInsert.getItemsList()).getExpressions().add(new LongValue(event.getId()));
       ((ExpressionList) eventInsert.getItemsList()).getExpressions().add(new LongValue(event.getExperimentId()));
@@ -170,25 +158,19 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
                                                                                         : new StringValue(quote(event.getScheduledTimeWithTimeZone(null)
                                                                                                                      .toString(fmt))));
       ((ExpressionList) eventInsert.getItemsList()).getExpressions().add(new StringValue(quote(event.getTimeZone())));
-      
-      statementCreateEventOutput = conn.createStatement();
+//    Not using JSQL parser util for outputs, as we want to do it in batch with prepared statements.            
+      statementCreateEventOutput = conn.prepareStatement(outputInsert);
       for (String key : event.getWhatKeys()) {
-        out = Lists.newArrayList();
-        ((ExpressionList) outputInsert.getItemsList()).setExpressions(out);
         String whatAnswer = event.getWhatByKey(key);
-        ((ExpressionList) outputInsert.getItemsList()).getExpressions().add(new LongValue(event.getId()));
-        ((ExpressionList) outputInsert.getItemsList()).getExpressions().add(new StringValue(quote(key)));
-        ((ExpressionList) outputInsert.getItemsList()).getExpressions()
-                                                      .add(whatAnswer != null ? new StringValue(quote(whatAnswer))
-                                                                              : null);
-       
-        statementCreateEventOutput.addBatch(outputInsert.toString());
+        statementCreateEventOutput.setLong(1, event.getId());
+        statementCreateEventOutput.setString(2, key);
+        statementCreateEventOutput.setString(3, whatAnswer);
+        statementCreateEventOutput.addBatch();       
       }
      
       statementCreateEvent = conn.prepareStatement(eventInsert.toString());
       statementCreateEvent.execute();
       statementCreateEventOutput.executeBatch();
-
       conn.commit();
 
       retVal = true;
