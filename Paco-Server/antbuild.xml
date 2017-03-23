@@ -57,6 +57,11 @@
         <exclude name="**/*.java" />
       </fileset>
     </copy>
+    <copy todir="ear/reportworker/WEB-INF/classes">
+      <fileset dir="ear/default/WEB-INF/classes">
+        <include name="**/*" />
+      </fileset>
+    </copy>
     <javac
         srcdir="src"
         destdir="ear/default/WEB-INF/classes"
