@@ -5,12 +5,12 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 
-import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
@@ -24,8 +24,7 @@ import com.pacoapp.paco.shared.model2.EventBaseColumns;
 import com.pacoapp.paco.shared.model2.OutputBaseColumns;
 
 import net.sf.jsqlparser.expression.Expression;
-import net.sf.jsqlparser.expression.LongValue;
-import net.sf.jsqlparser.expression.StringValue;
+import net.sf.jsqlparser.expression.JdbcParameter;
 import net.sf.jsqlparser.expression.operators.relational.ExpressionList;
 import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.schema.Table;
@@ -36,7 +35,6 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
   private static Map<String, Integer> eventsOutputColumns = null;
   public static final String ID = "_id";
   public static final String TRUE = "true";
-  public static final String outputInsert = "Insert into outputs (event_id, text, answer) values (?, ?, ?)";
 
   private static void loadColumnTableAssociationMap() {
     if (eventsOutputColumns == null) {
@@ -67,7 +65,7 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
   @Override
   public boolean insertEvent(Event event) throws SQLException {
     if (event == null) {
-      log.warning("nothing to eventInsert");
+      log.warning("No Event data to insert");
       return false;
     }
 
@@ -76,10 +74,13 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
     PreparedStatement statementCreateEventOutput = null;
     boolean retVal = false;
     ExpressionList eventExprList = new ExpressionList();
+    ExpressionList outputExprList = new ExpressionList();
     List<Expression> exp = Lists.newArrayList();
+    List<Expression>  out = Lists.newArrayList();
     Insert eventInsert = new Insert();
+    Insert outputInsert = new Insert();
     List<Column> eventColList = Lists.newArrayList();
-    DateTimeFormatter fmt = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");
+    List<Column> outputColList = Lists.newArrayList();
     eventColList.add(new Column(ID));
     eventColList.add(new Column(EventBaseColumns.EXPERIMENT_ID));
     eventColList.add(new Column(EventBaseColumns.EXPERIMENT_NAME));
@@ -97,82 +98,71 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
     eventColList.add(new Column(EventBaseColumns.JOINED));
     eventColList.add(new Column(EventBaseColumns.SORT_DATE));
     eventColList.add(new Column(EventBaseColumns.CLIENT_TIME_ZONE));
+    outputColList.add(new Column(OutputBaseColumns.EVENT_ID));
+    outputColList.add(new Column(OutputBaseColumns.NAME));
+    outputColList.add(new Column(OutputBaseColumns.ANSWER));
 
     try {
       log.info("Inserting event->" + event.getId());
       conn = CloudSQLConnectionManager.getInstance().getConnection();
       conn.setAutoCommit(false);
       eventInsert.setTable(new Table(EventBaseColumns.TABLE_NAME));
+      outputInsert.setTable(new Table(OutputBaseColumns.TABLE_NAME));
       eventInsert.setUseValues(true);
+      outputInsert.setUseValues(true);
       eventExprList.setExpressions(exp);
+      outputExprList.setExpressions(out);
       eventInsert.setItemsList(eventExprList);
+      outputInsert.setItemsList(outputExprList);
       eventInsert.setColumns(eventColList);
-
-      ((ExpressionList) eventInsert.getItemsList()).getExpressions().add(new LongValue(event.getId()));
-      ((ExpressionList) eventInsert.getItemsList()).getExpressions().add(new LongValue(event.getExperimentId()));
-      ((ExpressionList) eventInsert.getItemsList()).getExpressions()
-                                                   .add(new StringValue(quote(event.getExperimentName())));
-      ((ExpressionList) eventInsert.getItemsList()).getExpressions().add(new LongValue(event.getExperimentVersion()));
-      ((ExpressionList) eventInsert.getItemsList()).getExpressions()
-                                                   .add(event.getResponseTime() != null ? new StringValue(quote(event.getResponseTimeWithTimeZone(null)
-                                                                                                                     .toString(fmt)))
-                                                                                        : null);
-      ((ExpressionList) eventInsert.getItemsList()).getExpressions()
-                                                   .add(event.getScheduledTime() != null ? new StringValue(quote(event.getScheduledTimeWithTimeZone(null)
-                                                                                                                      .toString(fmt)))
-                                                                                         : null);
-      ((ExpressionList) eventInsert.getItemsList()).getExpressions()
-                                                   .add(new StringValue(quote(event.getExperimentGroupName())));
-      ((ExpressionList) eventInsert.getItemsList()).getExpressions()
-                                                   .add(event.getActionId() != null ? new LongValue(event.getActionId())
-                                                                                    : null);
-      ((ExpressionList) eventInsert.getItemsList()).getExpressions()
-                                                   .add(event.getActionTriggerId() != null ? new LongValue(event.getActionTriggerId())
-                                                                                           : null);
-      ((ExpressionList) eventInsert.getItemsList()).getExpressions()
-                                                   .add(event.getActionTriggerSpecId() != null ? new LongValue(event.getActionTriggerSpecId())
-                                                                                               : null);
-      ((ExpressionList) eventInsert.getItemsList()).getExpressions().add(new StringValue(quote(event.getWho())));
-      if (event.getWhen() != null) {
-        DateTime whenDate = new DateTime(event.getWhen());
-        ((ExpressionList) eventInsert.getItemsList()).getExpressions()
-                                                     .add(new StringValue(quote(whenDate.toString(fmt))));
+      outputInsert.setColumns(outputColList);
+      // Adding ? for prepared stmt
+      for(int i=0; i<eventColList.size(); i++){
+        ((ExpressionList) eventInsert.getItemsList()).getExpressions().add(new JdbcParameter());
       }
-      ((ExpressionList) eventInsert.getItemsList()).getExpressions()
-                                                   .add(new StringValue(quote(event.getPacoVersion())));
-      ((ExpressionList) eventInsert.getItemsList()).getExpressions().add(new StringValue(quote(event.getAppId())));
+      
+      for(int i=0; i<outputColList.size(); i++){
+        ((ExpressionList) outputInsert.getItemsList()).getExpressions().add(new JdbcParameter());
+      }
+      
+      statementCreateEvent = conn.prepareStatement(eventInsert.toString());
+      statementCreateEvent.setLong(1, event.getId());
+      statementCreateEvent.setLong(2, Long.parseLong(event.getExperimentId()));
+      statementCreateEvent.setString(3, event.getExperimentName());
+      statementCreateEvent.setInt(4, event.getExperimentVersion());
+      statementCreateEvent.setTimestamp(5, event.getResponseTime() != null ? new Timestamp(event.getResponseTime().getTime()): null);
+      statementCreateEvent.setTimestamp(6, event.getScheduledTime() != null ? new Timestamp(event.getScheduledTime().getTime()): null);
+      statementCreateEvent.setString(7, event.getExperimentGroupName());
+      statementCreateEvent.setLong(8, event.getActionId() != null ? new Long(event.getActionId()) : java.sql.Types.NULL);
+      statementCreateEvent.setLong(9, event.getActionTriggerId() != null ? new Long(event.getActionTriggerId()) : java.sql.Types.NULL);
+      statementCreateEvent.setLong(10, event.getActionTriggerSpecId() != null ? new Long(event.getActionTriggerId()) : java.sql.Types.NULL);
+      statementCreateEvent.setString(11, event.getWho());
+      statementCreateEvent.setTimestamp(12, event.getWhen() != null ? new Timestamp(event.getWhen().getTime()): null);
+      statementCreateEvent.setString(13, event.getPacoVersion());
+      statementCreateEvent.setString(14, event.getAppId());
+      statementCreateEvent.setNull(15, java.sql.Types.BOOLEAN);
       String joinedStat = event.getWhatByKey(EventBaseColumns.JOINED);
       if (joinedStat != null) {
         if (joinedStat.equalsIgnoreCase(TRUE)) {
-          ((ExpressionList) eventInsert.getItemsList()).getExpressions().add(new LongValue(1));
+          statementCreateEvent.setBoolean(15, true);
         } else {
-          ((ExpressionList) eventInsert.getItemsList()).getExpressions().add(new LongValue(0));
+          statementCreateEvent.setBoolean(15, false);
         }
-      } else {
-        ((ExpressionList) eventInsert.getItemsList()).getExpressions().add(null);
-      }
-
-      ((ExpressionList) eventInsert.getItemsList()).getExpressions()
-                                                   .add(event.getResponseTime() != null ? new StringValue(quote(event.getResponseTimeWithTimeZone(null)
-                                                                                                                     .toString(fmt)))
-                                                                                        : new StringValue(quote(event.getScheduledTimeWithTimeZone(null)
-                                                                                                                     .toString(fmt))));
-      ((ExpressionList) eventInsert.getItemsList()).getExpressions().add(new StringValue(quote(event.getTimeZone())));
-//    Not using JSQL parser util for outputs, as we want to do it in batch with prepared statements.            
-      statementCreateEventOutput = conn.prepareStatement(outputInsert);
+      } 
+      statementCreateEvent.setTimestamp(16, event.getResponseTime()!= null ? new Timestamp(event.getResponseTime().getTime()): new Timestamp(event.getScheduledTime().getTime()));
+      statementCreateEvent.setString(17, event.getTimeZone());
+      
+      statementCreateEvent.execute();
+      statementCreateEventOutput = conn.prepareStatement(outputInsert.toString());
       for (String key : event.getWhatKeys()) {
         String whatAnswer = event.getWhatByKey(key);
         statementCreateEventOutput.setLong(1, event.getId());
         statementCreateEventOutput.setString(2, key);
         statementCreateEventOutput.setString(3, whatAnswer);
-        statementCreateEventOutput.addBatch();       
+        statementCreateEventOutput.addBatch();
       }
-     
-      statementCreateEvent = conn.prepareStatement(eventInsert.toString());
-      statementCreateEvent.execute();
       statementCreateEventOutput.executeBatch();
       conn.commit();
-
       retVal = true;
     } catch (SQLException e) {
       log.info("While inserting event : " + e);
@@ -428,11 +418,4 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
     }
     return retString;
   }
-
-  private static String quote(String inp) {
-    StringBuilder sb = new StringBuilder();
-    sb.append("'").append(inp).append("'");
-    return sb.toString();
-  }
-
 }
