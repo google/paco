@@ -75,3 +75,4 @@ Paco-iOS/ParseKit/include*
 /Android_studio/.idea/workspace.xml
 /Android_studio/.gradle/*
 /Android_studio/paco/paco.iml
+/Android_studio/paco/*.log
