@@ -34,16 +34,6 @@
     <servlet-name>eventServlet</servlet-name>
     <url-pattern>/events</url-pattern>
   </servlet-mapping>
-  
-  <servlet>
-    <servlet-name>ServerInsertServlet</servlet-name>
-    <servlet-class>com.google.sampling.experiential.server.CloudSqlInsertServlet</servlet-class>
-  </servlet>
-  <servlet-mapping>
-    <servlet-name>ServerInsertServlet</servlet-name>
-    <url-pattern>/csInsert</url-pattern>
-  </servlet-mapping>
-  
   <servlet>
     <servlet-name>ServerCreateServlet</servlet-name>
     <servlet-class>com.google.sampling.experiential.server.CloudSQLCreateServlet</servlet-class>
@@ -188,7 +178,7 @@
       <url-pattern>/jobStatus*</url-pattern>
       <url-pattern>/simon*</url-pattern>      
       <url-pattern>/usage*</url-pattern>
-      <url-pattern>/csSearch</url-pattern>
+      <url-pattern>/csSearch</url-pattern> 
     </web-resource-collection>
     <user-data-constraint>
       <transport-guarantee>CONFIDENTIAL</transport-guarantee>
