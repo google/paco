@@ -438,7 +438,17 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	      throw new IllegalArgumentException("Unknown tableIndicator" + tableIndicator);
 	  }
     try{
-      resultSet = qb.query(getReadableDatabase(), projection, selection, selectionArgs, groupBy, having,
+      
+      String selectionArgsWithoutQuotes[] = new String[selectionArgs.length];
+      for(int i=0; i<selectionArgs.length;i++){
+        String temp = selectionArgs[i];
+        selectionArgsWithoutQuotes[i] = temp;
+        if(temp.startsWith("'")){
+          selectionArgsWithoutQuotes[i] = temp.substring(1,temp.length()-1);
+        } 
+      }
+      
+      resultSet = qb.query(getReadableDatabase(), projection, selection, selectionArgsWithoutQuotes, groupBy, having,
 	      sortOrder, limit);
     }catch (SQLiteException s){
       Log.warn("Caught SQLite exception.", s);

@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.pacoapp.paco.model.Event;
+import com.pacoapp.paco.model.EventQueryStatus;
 import com.pacoapp.paco.model.EventUtil;
 import com.pacoapp.paco.model.Experiment;
 import com.pacoapp.paco.model.ExperimentProviderUtil;
@@ -31,6 +32,7 @@ public class JavascriptEventLoader {
   private ExperimentDAO experiment;
   private ExperimentGroup experimentGroup;
   private Experiment androidExperiment;
+  private static final String FAILURE ="Failure";
 
   /**
    * @param androidExperiment
@@ -107,16 +109,18 @@ public class JavascriptEventLoader {
    */
   @JavascriptInterface
   public String getEventsByQuery(String criteriaQuery) throws JSONException, Exception {
-    List<Event> events = null;
-    String eventsJson = null;
+    EventQueryStatus qryStatus = null;
+    String qryOutput = null;
     SQLQuery sqlQueryObj = QueryJsonParser.parseSqlQueryFromJson(criteriaQuery);
     if (sqlQueryObj != null) {
-      events = experimentProviderUtil.findEventsByCriteriaQuery(sqlQueryObj);
-      eventsJson = FeedbackActivity.convertEventsToJsonString(events);
+      qryStatus = experimentProviderUtil.findEventsByCriteriaQuery(sqlQueryObj);
     } else {
-      throw new RuntimeException("Empty JSON exception");
+      qryStatus = new EventQueryStatus();
+      qryStatus.setStatus(FAILURE);
+      qryStatus.setErrorMessage("Empty JSON exception");
     }
-    return eventsJson;
+    qryOutput = FeedbackActivity.convertEventQueryStatusToJsonString(qryStatus);
+    return qryOutput;
   }
 
   /**

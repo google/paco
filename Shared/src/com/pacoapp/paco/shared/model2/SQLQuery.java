@@ -98,7 +98,7 @@ public class SQLQuery {
     private Builder addDefaultValues(SQLQuery obj) {
       // provide default sort order which is Event._Id desc
       if (obj.sortOrder == null) {
-        obj.sortOrder = ID.concat(DESC);
+        obj.sortOrder = EventBaseColumns.TABLE_NAME+"."+ID.concat(DESC);
       }
 
       if (obj.getProjection() == null) {

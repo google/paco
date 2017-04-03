@@ -1,23 +1,16 @@
 package com.pacoapp.paco.shared.util;
 
-import java.util.Arrays;
 import java.util.List;
-import java.util.Set;
 import java.util.logging.Logger;
 
 import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 import com.pacoapp.paco.shared.model2.EventBaseColumns;
 import com.pacoapp.paco.shared.model2.OutputBaseColumns;
 import com.pacoapp.paco.shared.model2.SQLQuery;
 
 import net.sf.jsqlparser.JSQLParserException;
-import net.sf.jsqlparser.expression.BinaryExpression;
 import net.sf.jsqlparser.expression.Expression;
-import net.sf.jsqlparser.expression.Parenthesis;
-import net.sf.jsqlparser.expression.operators.relational.InExpression;
 import net.sf.jsqlparser.parser.CCJSqlParserUtil;
-import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.schema.Table;
 import net.sf.jsqlparser.statement.select.FromItem;
 import net.sf.jsqlparser.statement.select.Join;
@@ -33,58 +26,10 @@ public class SearchUtil {
   public static final String ASC = "ASC";
   public static final String DESC = "DESC";
   public static final String ID = "_Id";
-  
-  public static Set<String> retrieveUserSpecifiedConditions(Select selectStatement, String colName) {
-    PlainSelect pl = (PlainSelect) selectStatement.getSelectBody();
-    Set<String> qvSet = Sets.newHashSet();
-    getQueriedValue(pl.getWhere(), colName, qvSet);
-    return qvSet;
-  }
-
-  public static void getQueriedValue(Expression node, String columnName, Set<String> queriedValueSet) {
-    if (node == null) {
-      return;
-    }
-    if (node instanceof Parenthesis) {
-      node = ((Parenthesis) node).getExpression();
-    }
-
-    if (node instanceof BinaryExpression) {
-      Expression le = ((BinaryExpression) node).getLeftExpression();
-      Expression re = ((BinaryExpression) node).getRightExpression();
-
-      if ((le instanceof Column) && le.toString().equalsIgnoreCase(columnName)) {
-        queriedValueSet.add(re.toString());
-      } else {
-        getQueriedValue(le, columnName, queriedValueSet);
-        getQueriedValue(re, columnName, queriedValueSet);
-
-      }
-    }
-
-    if (node instanceof InExpression) {
-      Expression le = ((InExpression) node).getLeftExpression();
-      if (( le instanceof Column)
-          && le.toString().equalsIgnoreCase(columnName)) {
-        String listWithParen = ((InExpression) node).getRightItemsList().toString().replace('(', ' ');
-        String listWithoutParen = listWithParen.replace(')', ' ');
-        String[] arr = listWithoutParen.split(", ");
-        queriedValueSet.addAll(Arrays.asList(arr));
-      }
-    }
-  }
 
   public static Select getJsqlSelectStatement(String selectSql) throws JSQLParserException {
     Select statement = (Select) CCJSqlParserUtil.parse(selectSql);
     return statement;
-  }
-
-  public static List<String> getAllColNamesInQuery(String selectSql) throws JSQLParserException {
-    List<String> colList = Lists.newArrayList();
-    Select selStatement = getJsqlSelectStatement(selectSql);
-    ColumnNamesFinder colNamesFinder = new ColumnNamesFinder();
-    colList = colNamesFinder.getColumnList(selStatement);
-    return colList;
   }
 
   public static String identifyTablesInvolved(List<String> colNamesInQuery) {
@@ -147,45 +92,23 @@ public class SearchUtil {
     return plainSel.toString();
   }
 
-  public static String getTableIndicator(SQLQuery sqlQuery) throws JSQLParserException {
-    String plainSql = getPlainSql(sqlQuery);
-    return getTableIndicator(sqlQuery, plainSql);
-  }
-
-  public static String getTableIndicator(SQLQuery sqlQuery, String plainSql) throws JSQLParserException {
-    List<String> colNamesInQuery = getAllColNamesInQuery(plainSql);
-    String tablesInvolved = identifyTablesInvolved(colNamesInQuery);
-    return tablesInvolved;
-  }
-
-  public static PlainSelect getJoinQry(SQLQuery sqlQuery) throws JSQLParserException {
+  public static void addJoinClause(Select selStatement) throws JSQLParserException {
     PlainSelect ps = null;
     Expression joinExp = null;
-    Select selStatement = null;
     List<Join> jList = Lists.newArrayList();
     Join joinObj = new Join();
-    FromItem ft = new Table(OutputBaseColumns.TABLE_NAME);
-
-    String plainSql = getPlainSql(sqlQuery);
-    selStatement = getJsqlSelectStatement(plainSql);
-    String tableIndicator = getTableIndicator(sqlQuery, plainSql);
-    if (tableIndicator != null && tableIndicator.equals(OutputBaseColumns.TABLE_NAME)) {
-      try {
-        joinExp = CCJSqlParserUtil.parseCondExpression(ID+ " = " +OutputBaseColumns.TABLE_NAME+ "."+OutputBaseColumns.EVENT_ID);
-      } catch (JSQLParserException e) {
-        e.printStackTrace();
-      }
-      joinObj.setOnExpression(joinExp);
-      joinObj.setInner(true);
-      joinObj.setRightItem(ft);
-      jList.add(joinObj);
-      ps = ((PlainSelect) selStatement.getSelectBody());
-      ps.setJoins(jList);
-    } else {
-      ps = ((PlainSelect) selStatement.getSelectBody());
+    FromItem ft = new Table(OutputBaseColumns.TABLE_NAME); 
+    try {
+      joinExp = CCJSqlParserUtil.parseCondExpression(ID+ " = " +OutputBaseColumns.TABLE_NAME+ "."+OutputBaseColumns.EVENT_ID);
+    } catch (JSQLParserException e) {
+      e.printStackTrace();
     }
-
-    return ps;
+    joinObj.setOnExpression(joinExp);
+    joinObj.setInner(true);
+    joinObj.setRightItem(ft);
+    jList.add(joinObj);
+    ps = ((PlainSelect) selStatement.getSelectBody());
+    ps.setJoins(jList);
   }
   
 

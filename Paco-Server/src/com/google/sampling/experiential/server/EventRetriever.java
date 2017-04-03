@@ -17,6 +17,7 @@
 package com.google.sampling.experiential.server;
 
 import java.sql.SQLException;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -170,6 +171,8 @@ public class EventRetriever {
         log.severe("Event json id parsing error" + e);
       } catch (SQLException sqle) {
         log.severe("Exception while inserting data into cloudsql db" + sqle);
+      } catch (ParseException e) {
+        log.severe("Parse exception" + e);
       }
 
     } else {

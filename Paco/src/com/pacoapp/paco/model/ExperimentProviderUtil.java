@@ -20,7 +20,6 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.locks.Lock;
@@ -62,6 +61,7 @@ import com.pacoapp.paco.shared.model2.Schedule;
 import com.pacoapp.paco.shared.model2.ScheduleTrigger;
 import com.pacoapp.paco.shared.model2.ValidationMessage;
 import com.pacoapp.paco.shared.scheduling.ActionScheduleGenerator;
+import com.pacoapp.paco.shared.util.QueryPreprocessor;
 import com.pacoapp.paco.shared.util.SearchUtil;
 import com.pacoapp.paco.shared.util.TimeUtil;
 
@@ -71,6 +71,9 @@ import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import net.sf.jsqlparser.JSQLParserException;
+import net.sf.jsqlparser.expression.LongValue;
+import net.sf.jsqlparser.expression.StringValue;
+import net.sf.jsqlparser.statement.select.Select;
 
 public class ExperimentProviderUtil implements EventStore {
   private static Logger Log = LoggerFactory.getLogger(ExperimentProviderUtil.class);
@@ -80,6 +83,8 @@ public class ExperimentProviderUtil implements EventStore {
   public static final String AUTHORITY = "com.google.android.apps.paco.ExperimentProvider";
   private static final String PUBLIC_EXPERIMENTS_FILENAME = "experiments";
   private static final String MY_EXPERIMENTS_FILENAME = "my_experiments";
+  private static final String SUCCESS = "Success";
+  private static final String FAILURE = "Failure";
   // The next semaphore is used to make sure that all event inserts/retrievals happen atomically
   // with regards to each other, to ensure that no incomplete events can get synced to the server
   // (and, by extension, to ensure that a thread trying to access an event has to wait until the
@@ -88,6 +93,8 @@ public class ExperimentProviderUtil implements EventStore {
   private static final ReentrantReadWriteLock eventStorageDbLock = new ReentrantReadWriteLock();
   private static final Lock eventStorageReadLock = eventStorageDbLock.readLock();
   private static final Lock eventStorageWriteLock = eventStorageDbLock.writeLock();
+  private static Map<String, Class> validColumnNamesDataTypeInDb = null;
+  private static final String ID = "_id";
 
   private static final String LIMIT = " limit ";
   
@@ -99,7 +106,29 @@ public class ExperimentProviderUtil implements EventStore {
       throw new IllegalArgumentException("Need a context to instantiate experimentproviderutil");
     }
     this.contentResolver = context.getContentResolver();
+    loadValidColumnNamesDataTypeMap();
   }
+  
+  private void loadValidColumnNamesDataTypeMap(){
+    if ( validColumnNamesDataTypeInDb == null) { 
+      validColumnNamesDataTypeInDb = Maps.newHashMap();
+      validColumnNamesDataTypeInDb.put(EventColumns._ID, LongValue.class);
+      validColumnNamesDataTypeInDb.put(EventColumns.EXPERIMENT_ID, LongValue.class);
+      validColumnNamesDataTypeInDb.put(EventColumns.EXPERIMENT_SERVER_ID, StringValue.class);
+      validColumnNamesDataTypeInDb.put(EventColumns.EXPERIMENT_NAME, StringValue.class);
+      validColumnNamesDataTypeInDb.put(EventColumns.EXPERIMENT_VERSION, LongValue.class);
+      validColumnNamesDataTypeInDb.put(EventColumns.SCHEDULE_TIME, StringValue.class);
+      validColumnNamesDataTypeInDb.put(EventColumns.RESPONSE_TIME, StringValue.class);
+      validColumnNamesDataTypeInDb.put(EventColumns.GROUP_NAME, StringValue.class);
+      validColumnNamesDataTypeInDb.put(EventColumns.ACTION_TRIGGER_ID, LongValue.class);
+      validColumnNamesDataTypeInDb.put(EventColumns.ACTION_TRIGGER_SPEC_ID, LongValue.class);
+      validColumnNamesDataTypeInDb.put(EventColumns.ACTION_ID, LongValue.class);
+      validColumnNamesDataTypeInDb.put(EventColumns.WHEN, StringValue.class);
+      validColumnNamesDataTypeInDb.put(OutputColumns.NAME, StringValue.class);
+      validColumnNamesDataTypeInDb.put(OutputColumns.ANSWER, StringValue.class);
+    }
+  }
+  
 
   public List<Experiment> getJoinedExperiments() {
     List<Experiment> cachedExperiments = JoinedExperimentCache.getInstance().getExperiments();
@@ -792,19 +821,38 @@ public class ExperimentProviderUtil implements EventStore {
     }
   }
 
-  public List<Event> findEventsByCriteriaQuery(SQLQuery sqlQuery) {
+  public EventQueryStatus findEventsByCriteriaQuery(SQLQuery sqlQuery) {
     Cursor cursor = null;
-    List<Event> events = null;
+    List<Event> events = Lists.newArrayList();
     Event event = null;
     Map<Long, Event> eventMap = null;
+    EventQueryStatus evQryStat = new EventQueryStatus();
     DatabaseHelper dbHelper = new DatabaseHelper(context);
-   
+    
     try {
-      String tableIndicator = SearchUtil.getTableIndicator(sqlQuery);
-      if (tableIndicator.equals(ExperimentProvider.OUTPUTS_TABLE_NAME)) { 
+      String selectSql = SearchUtil.getPlainSql(sqlQuery);
+      Select selectStmt = SearchUtil.getJsqlSelectStatement(selectSql);
+      QueryPreprocessor qProcessor = new QueryPreprocessor(selectStmt, validColumnNamesDataTypeInDb, false, null,  null);
+      if (qProcessor.probableSqlInjection()!=null){
+        evQryStat.setStatus(FAILURE);
+        evQryStat.setErrorMessage("Invalid query, probable sql injection");
+        return evQryStat;
+      }
+      if (qProcessor.getInvalidDataType()!=null){
+        evQryStat.setStatus(FAILURE);
+        evQryStat.setErrorMessage("Invalid datatypes for "+ qProcessor.getInvalidDataType() + " fields");
+        return evQryStat;
+      }
+      if (qProcessor.getInvalidColumnName() != null){
+        evQryStat.setStatus(FAILURE);
+        evQryStat.setErrorMessage("Invalid column name "+ qProcessor.getInvalidColumnName());
+        return evQryStat;
+      }
+      
+      if (qProcessor.isOutputColumnsPresent()) { 
         cursor = dbHelper.query(ExperimentProvider.OUTPUTS_DATATYPE, sqlQuery.getProjection(), sqlQuery.getCriteriaQuery(), sqlQuery.getCriteriaValue(),
                                 sqlQuery.getSortOrder(), sqlQuery.getGroupBy(), sqlQuery.getHaving(), sqlQuery.getLimit());
-      } else if (tableIndicator.equals(ExperimentProvider.EVENTS_TABLE_NAME)) {
+      } else {
         cursor = dbHelper.query(ExperimentProvider.EVENTS_DATATYPE, sqlQuery.getProjection(), sqlQuery.getCriteriaQuery(), sqlQuery.getCriteriaValue(),
                                 sqlQuery.getSortOrder(), sqlQuery.getGroupBy(), sqlQuery.getHaving(), sqlQuery.getLimit());
       } 
@@ -824,18 +872,23 @@ public class ExperimentProviderUtil implements EventStore {
         }
       }
     } catch (JSQLParserException e) {
-      Log.error("Json parser error " + e);
+      evQryStat.setStatus(FAILURE);
+      evQryStat.setErrorMessage("Json parser error");
+      return evQryStat;
+    } catch (Exception e){
+      evQryStat.setStatus(FAILURE);
+      evQryStat.setErrorMessage("exp pro util gen exce");
+      return evQryStat;
     } finally {
       if (cursor != null) {
         cursor.close();
       }
       dbHelper.close();
     }
-    if (eventMap!=null){
-      events = Lists.newArrayList(eventMap.values());
-    }
-  
-    return events;
+    events = Lists.newArrayList(eventMap.values());
+    evQryStat.setEvents(events);
+    evQryStat.setStatus(SUCCESS);
+    return evQryStat;
   }
 
   private ContentValues createContentValues(Event event) {

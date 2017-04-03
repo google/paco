@@ -6,14 +6,15 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.text.ParseException;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import com.pacoapp.paco.shared.util.TimeUtil;
 import java.util.logging.Logger;
 
 import org.joda.time.DateTimeZone;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -63,7 +64,7 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
   }
 
   @Override
-  public boolean insertEvent(Event event) throws SQLException {
+  public boolean insertEvent(Event event) throws SQLException, ParseException {
     if (event == null) {
       log.warning("No Event data to insert");
       return false;
@@ -72,6 +73,9 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
     Connection conn = null;
     PreparedStatement statementCreateEvent = null;
     PreparedStatement statementCreateEventOutput = null;
+    Date utcWhenTime = null;
+    Date utcResponseTime = null;
+    Date utcScheduledTime = null;
     boolean retVal = false;
     ExpressionList eventExprList = new ExpressionList();
     ExpressionList outputExprList = new ExpressionList();
@@ -101,6 +105,15 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
     outputColList.add(new Column(OutputBaseColumns.EVENT_ID));
     outputColList.add(new Column(OutputBaseColumns.NAME));
     outputColList.add(new Column(OutputBaseColumns.ANSWER));
+    try{
+      utcWhenTime = TimeUtil.convertToUTC(event.getWhen(), event.getTimeZone());
+      utcResponseTime = TimeUtil.convertToUTC(event.getResponseTime(), event.getTimeZone());
+      utcScheduledTime = TimeUtil.convertToUTC(event.getScheduledTime(), event.getTimeZone());
+    } catch (ParseException pe){
+      //TODO Exception handling
+      log.severe("Converting to UTC"+pe);
+      throw pe;
+    }
 
     try {
       log.info("Inserting event->" + event.getId());
@@ -130,14 +143,14 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
       statementCreateEvent.setLong(2, Long.parseLong(event.getExperimentId()));
       statementCreateEvent.setString(3, event.getExperimentName());
       statementCreateEvent.setInt(4, event.getExperimentVersion());
-      statementCreateEvent.setTimestamp(5, event.getResponseTime() != null ? new Timestamp(event.getResponseTime().getTime()): null);
-      statementCreateEvent.setTimestamp(6, event.getScheduledTime() != null ? new Timestamp(event.getScheduledTime().getTime()): null);
+      statementCreateEvent.setTimestamp(5, event.getResponseTime() != null ? new Timestamp(utcResponseTime.getTime()): null);
+      statementCreateEvent.setTimestamp(6, event.getScheduledTime() != null ? new Timestamp(utcScheduledTime.getTime()): null);
       statementCreateEvent.setString(7, event.getExperimentGroupName());
       statementCreateEvent.setLong(8, event.getActionId() != null ? new Long(event.getActionId()) : java.sql.Types.NULL);
       statementCreateEvent.setLong(9, event.getActionTriggerId() != null ? new Long(event.getActionTriggerId()) : java.sql.Types.NULL);
       statementCreateEvent.setLong(10, event.getActionTriggerSpecId() != null ? new Long(event.getActionTriggerId()) : java.sql.Types.NULL);
       statementCreateEvent.setString(11, event.getWho());
-      statementCreateEvent.setTimestamp(12, event.getWhen() != null ? new Timestamp(event.getWhen().getTime()): null);
+      statementCreateEvent.setTimestamp(12, event.getWhen() != null ? new Timestamp(utcWhenTime.getTime()): null);
       statementCreateEvent.setString(13, event.getPacoVersion());
       statementCreateEvent.setString(14, event.getAppId());
       statementCreateEvent.setNull(15, java.sql.Types.BOOLEAN);
@@ -149,7 +162,7 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
           statementCreateEvent.setBoolean(15, false);
         }
       } 
-      statementCreateEvent.setTimestamp(16, event.getResponseTime()!= null ? new Timestamp(event.getResponseTime().getTime()): new Timestamp(event.getScheduledTime().getTime()));
+      statementCreateEvent.setTimestamp(16, event.getResponseTime()!= null ? new Timestamp(utcResponseTime.getTime()): new Timestamp(utcScheduledTime.getTime()));
       statementCreateEvent.setString(17, event.getTimeZone());
       
       statementCreateEvent.execute();
@@ -187,8 +200,8 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
   }
 
   @Override
-  public List<EventDAO> getEvents(String query, DateTimeZone tzForClient) throws SQLException {
-    List<EventDAO> evtList = Lists.newArrayList();
+  public List<EventDAO> getEvents(String query, DateTimeZone tzForClient) throws SQLException, ParseException {
+    List<EventDAO> evtDaoList = Lists.newArrayList();
     EventDAO event = null;
     Connection conn = null;
     Map<Long, EventDAO> eventMap = null;
@@ -213,7 +226,6 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
       if (rs != null) {
         // to maintain the insertion order
         eventMap = Maps.newLinkedHashMap();
-        evtList = Lists.newArrayList();
         while (rs.next()) {
           event = createEvent(rs);
           adjustTimeZone(event);
@@ -246,15 +258,17 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
       }
     }
     if (eventMap != null) {
-      evtList = Lists.newArrayList(eventMap.values());
+      evtDaoList = Lists.newArrayList(eventMap.values());
     }
-    return evtList;
+
+    return evtDaoList;
   }
 
-  private void adjustTimeZone(EventDAO event) {
+  private void adjustTimeZone(EventDAO event) throws ParseException {
     String tz = event.getTimezone();
-    event.setResponseTime(TimeUtil.adjustTimeToTimezoneIfNecesssary(tz, event.getResponseTime()));
-    event.setScheduledTime(TimeUtil.adjustTimeToTimezoneIfNecesssary(tz, event.getScheduledTime()));
+    event.setScheduledTime(TimeUtil.convertToLocal(event.getScheduledTime(), tz));
+    event.setResponseTime(TimeUtil.convertToLocal(event.getResponseTime(), tz));
+    event.setWhen(TimeUtil.convertToLocal(event.getWhen(), tz));
   }
 
   private EventDAO createEvent(ResultSet rs) {
