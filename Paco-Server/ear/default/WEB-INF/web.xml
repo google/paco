@@ -203,7 +203,7 @@
       <url-pattern>/eval*</url-pattern>
       <url-pattern>/participantJoinStats*</url-pattern>
       <url-pattern>/csCreate</url-pattern>
-     <!--   <url-pattern>/csInsert</url-pattern>--> 
+      <url-pattern>/csInsert</url-pattern> 
     </web-resource-collection>
     <auth-constraint>
       <role-name>admin</role-name>

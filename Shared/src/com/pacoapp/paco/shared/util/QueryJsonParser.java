@@ -71,7 +71,7 @@ public class QueryJsonParser {
       JSONObject queryCriteria = queryObj.getJSONObject(QUERY);
       if (queryCriteria != null) {
         if (queryCriteria.has(CRITERIA)) {
-          sqlBldr.criteriaQuery(queryCriteria.getString(CRITERIA));
+          sqlBldr.criteriaQuery(queryCriteria.getString(CRITERIA).trim());
         }
 
         if (queryCriteria.has(VALUES)) {
@@ -86,19 +86,19 @@ public class QueryJsonParser {
     }
     
     if (queryObj.has(ORDER)) {
-      sqlBldr.sortBy(queryObj.getString(ORDER));
+      sqlBldr.sortBy(queryObj.getString(ORDER).trim());
     }
     
     if (queryObj.has(LIMIT)) {
-      sqlBldr.limit(queryObj.getString(LIMIT));
+      sqlBldr.limit(queryObj.getString(LIMIT).trim());
     }
     
     // groupBy feature should be enabled and only if we have group clause, should we have the having column
     if (enableGrpByAndProjection && queryObj.has(GROUP)) {
-      sqlBldr.groupBy(queryObj.getString(GROUP));
+      sqlBldr.groupBy(queryObj.getString(GROUP).trim());
 
       if (queryObj.has(HAVING)) {
-        sqlBldr.having(queryObj.getString(HAVING));
+        sqlBldr.having(queryObj.getString(HAVING).trim());
       }
     }
 

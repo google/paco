@@ -19,7 +19,6 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.sampling.experiential.model.Event;
 import com.google.sampling.experiential.shared.EventDAO;
-import com.google.sampling.experiential.shared.Output;
 import com.google.sampling.experiential.shared.WhatDAO;
 import com.pacoapp.paco.shared.model2.EventBaseColumns;
 import com.pacoapp.paco.shared.model2.OutputBaseColumns;

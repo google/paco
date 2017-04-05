@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.pacoapp.paco.shared.model2.EventBaseColumns;
@@ -100,7 +99,8 @@ import net.sf.jsqlparser.statement.select.TableFunction;
 import net.sf.jsqlparser.statement.select.ValuesList;
 import net.sf.jsqlparser.statement.select.WithItem;
 
-public class QueryPreprocessor implements SelectVisitor, FromItemVisitor, ExpressionVisitor, ItemsListVisitor, SelectItemVisitor, OrderByVisitor {
+public class QueryPreprocessor implements SelectVisitor, FromItemVisitor, ExpressionVisitor, ItemsListVisitor,
+                               SelectItemVisitor, OrderByVisitor {
 
   private Map<String, Class> validColumnNamesDataTypeInDb;
   private List<String> requestedDateColumns;
@@ -111,53 +111,12 @@ public class QueryPreprocessor implements SelectVisitor, FromItemVisitor, Expres
   private static List<Class> allPossibleConstantExpTypes = Lists.newArrayList();
   private String timeZone;
   private Set<String> whoClauseValues = Sets.newHashSet();
-  private Set<Long>  expIdClauseValues = Sets.newHashSet();
+  private Set<Long> expIdClauseValues = Sets.newHashSet();
   private boolean modifyDateToUTC = false;
   private boolean isOutputColumnsPresent;
   private String probableSqlInjectionClause;
-  
-  public QueryPreprocessor(Select select, Map<String, Class>validColumnNames, boolean modifyToUTC, List<String> reqDateColNames, String inpTimeZone) {
-    loadValueExpr();
-    requestedDateColumns = reqDateColNames;
-    validColumnNamesDataTypeInDb = validColumnNames;
-    timeZone = inpTimeZone;
-    modifyDateToUTC = modifyToUTC;
-    select.getSelectBody().accept(this);
-   
-  }
-  public String probableSqlInjection(){
-    return probableSqlInjectionClause;
-  }
-  public String getInvalidDataType(){
-   return invalidDataType; 
-  }
-  
-  public String getInvalidColumnName() {
-    return invalidColumnName;
-  }
-  public void setInvalidColumnName(String invalidColumnName) {
-    this.invalidColumnName = invalidColumnName;
-  }
-  public boolean containExpIdClause(){
-    return containsExperimentIdClause;
-  }
-  
-  public boolean containWhoClause(){
-    return containsWhoClause;
-  }
-  
-  public Set<Long> getExpIdValues(){
-    return expIdClauseValues;
-  }
-  
-  public Set<String> getWhoClause(){
-    return whoClauseValues;
-  }
-  
-  public boolean isOutputColumnsPresent(){
-    return isOutputColumnsPresent;
-  }
-  private void loadValueExpr(){
+
+  static {
     allPossibleConstantExpTypes.add(StringValue.class);
     allPossibleConstantExpTypes.add(DoubleValue.class);
     allPossibleConstantExpTypes.add(DateValue.class);
@@ -166,49 +125,95 @@ public class QueryPreprocessor implements SelectVisitor, FromItemVisitor, Expres
     allPossibleConstantExpTypes.add(TimeValue.class);
   }
 
+  public QueryPreprocessor(Select select, Map<String, Class> validColumnNames, boolean modifyToUTC,
+                           List<String> reqDateColNames, String inpTimeZone) {
+    requestedDateColumns = reqDateColNames;
+    validColumnNamesDataTypeInDb = validColumnNames;
+    timeZone = inpTimeZone;
+    modifyDateToUTC = modifyToUTC;
+    select.getSelectBody().accept(this);
+
+  }
+
+  public String probableSqlInjection() {
+    return probableSqlInjectionClause;
+  }
+
+  public String getInvalidDataType() {
+    return invalidDataType;
+  }
+
+  public String getInvalidColumnName() {
+    return invalidColumnName;
+  }
+
+  public void setInvalidColumnName(String invalidColumnName) {
+    this.invalidColumnName = invalidColumnName;
+  }
+
+  public boolean containExpIdClause() {
+    return containsExperimentIdClause;
+  }
+
+  public boolean containWhoClause() {
+    return containsWhoClause;
+  }
+
+  public Set<Long> getExpIdValues() {
+    return expIdClauseValues;
+  }
+
+  public Set<String> getWhoClause() {
+    return whoClauseValues;
+  }
+
+  public boolean isOutputColumnsPresent() {
+    return isOutputColumnsPresent;
+  }
+
   public void visit(PlainSelect plainSelect) {
     plainSelect.getFromItem().accept(this);
-    
+
     if (plainSelect.getJoins() != null) {
       for (Iterator<Join> joinsIt = plainSelect.getJoins().iterator(); joinsIt.hasNext();) {
-        Join join = (Join) joinsIt.next();
+        Join join = joinsIt.next();
         join.getRightItem().accept(this);
       }
     }
     if (plainSelect.getWhere() != null) {
       plainSelect.getWhere().accept(this);
     }
-    if(plainSelect.getSelectItems()!=null){
+    if (plainSelect.getSelectItems() != null) {
       List<SelectItem> sItems = plainSelect.getSelectItems();
-      for(SelectItem si : sItems){
+      for (SelectItem si : sItems) {
         si.accept(this);
       }
     }
-    if (plainSelect.getOrderByElements() != null){
-      List<OrderByElement> orderElements = plainSelect.getOrderByElements(); 
-      for( OrderByElement oBy : orderElements){
+    if (plainSelect.getOrderByElements() != null) {
+      List<OrderByElement> orderElements = plainSelect.getOrderByElements();
+      for (OrderByElement oBy : orderElements) {
         oBy.accept(this);
       }
     }
-    
-    if(plainSelect.getGroupByColumnReferences()!=null){
+
+    if (plainSelect.getGroupByColumnReferences() != null) {
       List<Expression> grBys = plainSelect.getGroupByColumnReferences();
-      for(Expression gBy : grBys){
+      for (Expression gBy : grBys) {
         gBy.accept(this);
       }
     }
-    
+
   }
 
-//  public void visit(Union union) {
-//    for (Iterator iter = union.getPlainSelects().iterator(); iter.hasNext();) {
-//      PlainSelect plainSelect = (PlainSelect) iter.next();
-//      visit(plainSelect);
-//    }
-//  }
+  // public void visit(Union union) {
+  // for (Iterator iter = union.getPlainSelects().iterator(); iter.hasNext();) {
+  // PlainSelect plainSelect = (PlainSelect) iter.next();
+  // visit(plainSelect);
+  // }
+  // }
 
   public void visit(Table tableName) {
-   
+
   }
 
   public void visit(SubSelect subSelect) {
@@ -230,17 +235,17 @@ public class QueryPreprocessor implements SelectVisitor, FromItemVisitor, Expres
   }
 
   public void visit(Column tableColumn) {
-    if ((validColumnNamesDataTypeInDb.get(tableColumn.getColumnName())==null)){
+    if ((validColumnNamesDataTypeInDb.get(tableColumn.getColumnName()) == null)) {
       invalidColumnName = tableColumn.getColumnName();
-    } else if(tableColumn.getColumnName().equalsIgnoreCase(EventBaseColumns.EXPERIMENT_ID)){
+    } else if (tableColumn.getColumnName().equalsIgnoreCase(EventBaseColumns.EXPERIMENT_ID)) {
       containsExperimentIdClause = true;
-    } else if(tableColumn.getColumnName().equalsIgnoreCase(EventBaseColumns.WHO)){
+    } else if (tableColumn.getColumnName().equalsIgnoreCase(EventBaseColumns.WHO)) {
       containsWhoClause = true;
-    } else if(tableColumn.getColumnName().equalsIgnoreCase(OutputBaseColumns.NAME)){
+    } else if (tableColumn.getColumnName().equalsIgnoreCase(OutputBaseColumns.NAME)) {
       isOutputColumnsPresent = true;
-    } else if(tableColumn.getColumnName().equalsIgnoreCase(OutputBaseColumns.ANSWER)){
+    } else if (tableColumn.getColumnName().equalsIgnoreCase(OutputBaseColumns.ANSWER)) {
       isOutputColumnsPresent = true;
-    } 
+    }
   }
 
   public void visit(Division division) {
@@ -268,20 +273,20 @@ public class QueryPreprocessor implements SelectVisitor, FromItemVisitor, Expres
   public void visit(InExpression inExpression) {
     ItemsList ril = inExpression.getRightItemsList();
     Expression le = inExpression.getLeftExpression();
-    if(le!=null){
-      if(le instanceof Column) { 
-        Column leftColumn  = (Column) le;
-        if(modifyDateToUTC && requestedDateColumns.contains(leftColumn.getColumnName())){
-          if(ril instanceof ItemsList){
+    if (le != null) {
+      if (le instanceof Column) {
+        Column leftColumn = (Column) le;
+        if (modifyDateToUTC && requestedDateColumns.contains(leftColumn.getColumnName())) {
+          if (ril instanceof ItemsList) {
             ExpressionList expList = (ExpressionList) ril;
             List<Expression> elList = expList.getExpressions();
             List<Expression> newUtcList = Lists.newArrayList();
-            SimpleDateFormat sdfLocal = new SimpleDateFormat ("yyyy/MM/dd HH:mm:ss");
-            for (Expression expr : elList){
-              if(expr instanceof StringValue) {
+            SimpleDateFormat sdfLocal = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+            for (Expression expr : elList) {
+              if (expr instanceof StringValue) {
                 try {
                   Date dt = sdfLocal.parse(((StringValue) expr).getValue());
-                  Date utcDate = TimeUtil.convertToUTC(dt, timeZone );
+                  Date utcDate = TimeUtil.convertToUTC(dt, timeZone);
                   String utcFormattedDate = sdfLocal.format(utcDate);
                   newUtcList.add(new StringValue(utcFormattedDate));
                 } catch (ParseException e) {
@@ -292,60 +297,58 @@ public class QueryPreprocessor implements SelectVisitor, FromItemVisitor, Expres
               }
             }
             expList.setExpressions(newUtcList);
-          }else{
+          } else {
             invalidDataType = ril.toString();
           }
-        } else if(leftColumn.getColumnName().equalsIgnoreCase(EventBaseColumns.EXPERIMENT_ID)){
-          if(ril instanceof ItemsList){
+        } else if (leftColumn.getColumnName().equalsIgnoreCase(EventBaseColumns.EXPERIMENT_ID)) {
+          if (ril instanceof ItemsList) {
             ExpressionList expList = (ExpressionList) ril;
             List<Expression> elList = expList.getExpressions();
-            for (Expression expr : elList){
-              if(expr instanceof LongValue) {
+            for (Expression expr : elList) {
+              if (expr instanceof LongValue) {
                 expIdClauseValues.add(((LongValue) expr).getValue());
               } else {
                 invalidDataType = expr.toString();
               }
             }
-          } 
-        } else if(leftColumn.getColumnName().equalsIgnoreCase(EventBaseColumns.WHO)){
-          if(ril instanceof ItemsList){
+          }
+        } else if (leftColumn.getColumnName().equalsIgnoreCase(EventBaseColumns.WHO)) {
+          if (ril instanceof ItemsList) {
             ExpressionList expList = (ExpressionList) ril;
             List<Expression> elList = expList.getExpressions();
-            for (Expression expr : elList){
-              if(expr instanceof StringValue) {
+            for (Expression expr : elList) {
+              if (expr instanceof StringValue) {
                 whoClauseValues.add(((StringValue) expr).getValue());
               } else {
                 invalidDataType = expr.toString();
               }
             }
           }
-        } else if ((validColumnNamesDataTypeInDb.get(leftColumn.getColumnName())!=null)){
+        } else if ((validColumnNamesDataTypeInDb.get(leftColumn.getColumnName()) != null)) {
           Class dataType = validColumnNamesDataTypeInDb.get(leftColumn.getColumnName());
-          if (ril instanceof ExpressionList){
+          if (ril instanceof ExpressionList) {
             ExpressionList expList = (ExpressionList) ril;
             List<Expression> elList = expList.getExpressions();
-            for (Expression expr : elList){
-              if (!(expr.getClass().equals(dataType))){
+            for (Expression expr : elList) {
+              if (!(expr.getClass().equals(dataType))) {
                 invalidDataType = expr.toString();
               }
             }
           }
         }
         
-      } else if(allPossibleConstantExpTypes.contains(le.getClass())){//left expr can never be a constant(string, number, char...) value. this for preventing sql injection
+      } else if (allPossibleConstantExpTypes.contains(le.getClass())){//left expr can never be a constant(string, number, char...) value. this for preventing sql injection
         probableSqlInjectionClause = inExpression.toString();
       }
     }
 
-    
-    
     inExpression.getLeftExpression().accept(this);
     inExpression.getRightItemsList().accept(this);
   }
 
-//  public void visit(InverseExpression inverseExpression) {
-//    inverseExpression.getExpression().accept(this);
-//  }
+  // public void visit(InverseExpression inverseExpression) {
+  // inverseExpression.getExpression().accept(this);
+  // }
 
   public void visit(IsNullExpression isNullExpression) {
   }
@@ -401,48 +404,48 @@ public class QueryPreprocessor implements SelectVisitor, FromItemVisitor, Expres
   public void visitBinaryExpression(BinaryExpression binaryExpression) {
     Expression re = binaryExpression.getRightExpression();
     Expression le = binaryExpression.getLeftExpression();
-    if(le!=null){
-      if(le instanceof Column) {
+    if (le != null) {
+      if (le instanceof Column) {
         String leftColName = ((Column) le).getColumnName();
-        if(modifyDateToUTC && requestedDateColumns.contains(leftColName)){
-          if(re instanceof StringValue){
-            SimpleDateFormat sdfLocal = new SimpleDateFormat ("yyyy/MM/dd HH:mm:ss");
+        if (modifyDateToUTC && requestedDateColumns.contains(leftColName)) {
+          if (re instanceof StringValue) {
+            SimpleDateFormat sdfLocal = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
             try {
               Date dt = sdfLocal.parse(((StringValue) re).getValue());
-              Date utcDate = TimeUtil.convertToUTC(dt, timeZone );
+              Date utcDate = TimeUtil.convertToUTC(dt, timeZone);
               String utcFormattedDate = sdfLocal.format(utcDate);
               ((StringValue) re).setValue(utcFormattedDate);
             } catch (ParseException e) {
               invalidDataType = re.toString();
             }
-          }else{
+          } else {
             invalidDataType = re.toString();
           }
-        } else if(leftColName.equalsIgnoreCase(EventBaseColumns.WHO)){
+        } else if (leftColName.equalsIgnoreCase(EventBaseColumns.WHO)) {
           Class dataType = validColumnNamesDataTypeInDb.get(leftColName);
-          if (re.getClass().equals(dataType)){
+          if (re.getClass().equals(dataType)) {
             whoClauseValues.add(re.toString());
           } else {
             invalidDataType = re.toString();
           }
-        } else if(leftColName.equalsIgnoreCase(EventBaseColumns.EXPERIMENT_ID)){
+        } else if (leftColName.equalsIgnoreCase(EventBaseColumns.EXPERIMENT_ID)) {
           Class dataType = validColumnNamesDataTypeInDb.get(leftColName);
-          if (re.getClass().equals(dataType)){
+          if (re.getClass().equals(dataType)) {
             expIdClauseValues.add(Long.parseLong(re.toString()));
           } else {
-            invalidDataType= re.toString();
+            invalidDataType = re.toString();
           }
-        } else if ((validColumnNamesDataTypeInDb.get(leftColName)!=null)){
+        } else if ((validColumnNamesDataTypeInDb.get(leftColName) != null)) {
           Class dataType = validColumnNamesDataTypeInDb.get(leftColName);
-          if (!(re.getClass().equals(dataType))){
+          if (!(re.getClass().equals(dataType))) {
             invalidDataType = re.toString();
           }
         }
-      }else if(allPossibleConstantExpTypes.contains(le.getClass())){
-        probableSqlInjectionClause = binaryExpression.toString(); 
+      } else if (allPossibleConstantExpTypes.contains(le.getClass())) {
+        probableSqlInjectionClause = binaryExpression.toString();
       }
     }
-    
+
     binaryExpression.getLeftExpression().accept(this);
     binaryExpression.getRightExpression().accept(this);
   }
@@ -457,10 +460,10 @@ public class QueryPreprocessor implements SelectVisitor, FromItemVisitor, Expres
 
   public void visit(DateValue dateValue) {
   }
-  
+
   public void visit(TimestampValue timestampValue) {
   }
-  
+
   public void visit(TimeValue timeValue) {
   }
 
@@ -485,210 +488,182 @@ public class QueryPreprocessor implements SelectVisitor, FromItemVisitor, Expres
 
   @Override
   public void visit(MultiExpressionList arg0) {
-   
-    
+
   }
 
   @Override
   public void visit(SignedExpression arg0) {
-   
-    
+
   }
 
   @Override
   public void visit(JdbcNamedParameter arg0) {
-   
-    
+
   }
 
   @Override
   public void visit(Concat arg0) {
-   
-    
+
   }
 
   @Override
   public void visit(Matches arg0) {
-   
-    
+
   }
 
   @Override
   public void visit(BitwiseAnd arg0) {
-   
-    
+
   }
 
   @Override
   public void visit(BitwiseOr arg0) {
-   
-    
+
   }
 
   @Override
   public void visit(BitwiseXor arg0) {
-   
-    
+
   }
 
   @Override
   public void visit(CastExpression arg0) {
-   
-    
+
   }
 
   @Override
   public void visit(Modulo arg0) {
-   
-    
+
   }
 
   @Override
   public void visit(AnalyticExpression arg0) {
-   
-    
+
   }
 
   @Override
   public void visit(ExtractExpression arg0) {
-   
-    
+
   }
 
   @Override
   public void visit(IntervalExpression arg0) {
-   
-    
+
   }
 
   @Override
   public void visit(OracleHierarchicalExpression arg0) {
-   
-    
+
   }
 
   @Override
   public void visit(RegExpMatchOperator arg0) {
-   
-    
+
   }
 
   @Override
   public void visit(LateralSubSelect arg0) {
-   
-    
+
   }
 
   @Override
   public void visit(ValuesList arg0) {
-   
-    
+
   }
 
   @Override
   public void visit(SetOperationList arg0) {
-   
-    
+
   }
 
   @Override
   public void visit(WithItem arg0) {
-   
-    
+
   }
 
   @Override
   public void visit(HexValue arg0) {
-   
-    
+
   }
 
   @Override
   public void visit(WithinGroupExpression arg0) {
-   
-    
+
   }
 
   @Override
   public void visit(JsonExpression arg0) {
-   
-    
+
   }
 
   @Override
   public void visit(RegExpMySQLOperator arg0) {
-   
-    
+
   }
 
   @Override
   public void visit(UserVariable arg0) {
-   
-    
+
   }
 
   @Override
   public void visit(NumericBind arg0) {
-   
-    
+
   }
 
   @Override
   public void visit(KeepExpression arg0) {
-   
-    
+
   }
 
   @Override
   public void visit(MySQLGroupConcat arg0) {
-   
-    
+
   }
 
   @Override
   public void visit(RowConstructor arg0) {
-   
-    
+
   }
 
   @Override
   public void visit(OracleHint arg0) {
-   
-    
+
   }
 
   @Override
   public void visit(TimeKeyExpression arg0) {
-   
-    
+
   }
 
   @Override
   public void visit(DateTimeLiteralExpression arg0) {
-   
-    
+
   }
 
   @Override
   public void visit(TableFunction arg0) {
-   
-    
+
   }
+
   @Override
   public void visit(AllColumns allColumns) {
-   
+
   }
+
   @Override
   public void visit(AllTableColumns allTableColumns) {
-    
+
   }
+
   @Override
   public void visit(SelectExpressionItem selectExpressionItem) {
     selectExpressionItem.getExpression().accept(this);
   }
+
   @Override
   public void visit(OrderByElement orderBy) {
-    orderBy.getExpression().accept(this); 
+    orderBy.getExpression().accept(this);
   }
 
 }

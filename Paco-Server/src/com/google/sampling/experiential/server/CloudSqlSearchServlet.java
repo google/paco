@@ -52,39 +52,35 @@ public class CloudSqlSearchServlet extends HttpServlet {
   private static final String FAILURE = "Failure";
   private static final String STAR = "*";
   
+  static{
+    validColumnNamesDataTypeInDb.put(ID, LongValue.class);
+    validColumnNamesDataTypeInDb.put(EventBaseColumns.EXPERIMENT_ID, LongValue.class);
+    validColumnNamesDataTypeInDb.put(EventBaseColumns.EXPERIMENT_SERVER_ID, StringValue.class);
+    validColumnNamesDataTypeInDb.put(EventBaseColumns.EXPERIMENT_NAME, StringValue.class);
+    validColumnNamesDataTypeInDb.put(EventBaseColumns.EXPERIMENT_VERSION, LongValue.class);
+    validColumnNamesDataTypeInDb.put(EventBaseColumns.SCHEDULE_TIME, StringValue.class);
+    validColumnNamesDataTypeInDb.put(EventBaseColumns.RESPONSE_TIME, StringValue.class);
+    validColumnNamesDataTypeInDb.put(EventBaseColumns.GROUP_NAME, StringValue.class);
+    validColumnNamesDataTypeInDb.put(EventBaseColumns.ACTION_TRIGGER_ID, LongValue.class);
+    validColumnNamesDataTypeInDb.put(EventBaseColumns.ACTION_TRIGGER_SPEC_ID, LongValue.class);
+    validColumnNamesDataTypeInDb.put(EventBaseColumns.ACTION_ID, LongValue.class);
+    validColumnNamesDataTypeInDb.put(EventBaseColumns.WHO, StringValue.class);
+    validColumnNamesDataTypeInDb.put(EventBaseColumns.WHEN, StringValue.class);
+    validColumnNamesDataTypeInDb.put(EventBaseColumns.PACO_VERSION, LongValue.class);
+    validColumnNamesDataTypeInDb.put(EventBaseColumns.APP_ID, StringValue.class);
+    validColumnNamesDataTypeInDb.put(EventBaseColumns.JOINED, LongValue.class);
+    validColumnNamesDataTypeInDb.put(EventBaseColumns.SORT_DATE, StringValue.class);
+    validColumnNamesDataTypeInDb.put(EventBaseColumns.CLIENT_TIME_ZONE, StringValue.class);
+    validColumnNamesDataTypeInDb.put(OutputBaseColumns.NAME, StringValue.class);
+    validColumnNamesDataTypeInDb.put(OutputBaseColumns.ANSWER, StringValue.class);
+    dateColumns.add(EventBaseColumns.RESPONSE_TIME);
+    dateColumns.add(EventBaseColumns.SCHEDULE_TIME);
+    dateColumns.add("`"+ EventBaseColumns.WHEN +"`");
+  }
+  
   @Override
   public void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException, ServletException {
     throw new ServletException(ErrorMessages.METHOD_NOT_SUPPORTED.getDescription());
-  }
-
-  private void loadColInfo() {
-    if (validColumnNamesDataTypeInDb.size() == 0) {
-      validColumnNamesDataTypeInDb.put(ID, LongValue.class);
-      validColumnNamesDataTypeInDb.put(EventBaseColumns.EXPERIMENT_ID, LongValue.class);
-      validColumnNamesDataTypeInDb.put(EventBaseColumns.EXPERIMENT_SERVER_ID, StringValue.class);
-      validColumnNamesDataTypeInDb.put(EventBaseColumns.EXPERIMENT_NAME, StringValue.class);
-      validColumnNamesDataTypeInDb.put(EventBaseColumns.EXPERIMENT_VERSION, LongValue.class);
-      validColumnNamesDataTypeInDb.put(EventBaseColumns.SCHEDULE_TIME, StringValue.class);
-      validColumnNamesDataTypeInDb.put(EventBaseColumns.RESPONSE_TIME, StringValue.class);
-      validColumnNamesDataTypeInDb.put(EventBaseColumns.GROUP_NAME, StringValue.class);
-      validColumnNamesDataTypeInDb.put(EventBaseColumns.ACTION_TRIGGER_ID, LongValue.class);
-      validColumnNamesDataTypeInDb.put(EventBaseColumns.ACTION_TRIGGER_SPEC_ID, LongValue.class);
-      validColumnNamesDataTypeInDb.put(EventBaseColumns.ACTION_ID, LongValue.class);
-      validColumnNamesDataTypeInDb.put(EventBaseColumns.WHO, StringValue.class);
-      validColumnNamesDataTypeInDb.put(EventBaseColumns.WHEN, StringValue.class);
-      validColumnNamesDataTypeInDb.put(EventBaseColumns.PACO_VERSION, LongValue.class);
-      validColumnNamesDataTypeInDb.put(EventBaseColumns.APP_ID, StringValue.class);
-      validColumnNamesDataTypeInDb.put(EventBaseColumns.JOINED, LongValue.class);
-      validColumnNamesDataTypeInDb.put(EventBaseColumns.SORT_DATE, StringValue.class);
-      validColumnNamesDataTypeInDb.put(EventBaseColumns.CLIENT_TIME_ZONE, StringValue.class);
-      validColumnNamesDataTypeInDb.put(OutputBaseColumns.NAME, StringValue.class);
-      validColumnNamesDataTypeInDb.put(OutputBaseColumns.ANSWER, StringValue.class);
-    }
-    if(dateColumns.size() == 0){
-      dateColumns.add(EventBaseColumns.RESPONSE_TIME);
-      dateColumns.add(EventBaseColumns.SCHEDULE_TIME);
-      dateColumns.add("`"+ EventBaseColumns.WHEN +"`");
-    }
   }
 
   @Override
@@ -99,7 +95,6 @@ public class CloudSqlSearchServlet extends HttpServlet {
     if (user == null) {
       AuthUtil.redirectUserToLogin(req, resp);
     } else {
-      loadColInfo();
       loggedInUser = AuthUtil.getEmailOfUser(req, user);
       SQLQuery sqlQueryObj = null;
       List<EventDAO> evtList = null;
