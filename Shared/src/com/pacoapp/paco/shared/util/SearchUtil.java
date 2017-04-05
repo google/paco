@@ -12,12 +12,14 @@ import net.sf.jsqlparser.JSQLParserException;
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.parser.CCJSqlParserUtil;
 import net.sf.jsqlparser.schema.Table;
+import net.sf.jsqlparser.statement.select.AllColumns;
 import net.sf.jsqlparser.statement.select.FromItem;
 import net.sf.jsqlparser.statement.select.Join;
 import net.sf.jsqlparser.statement.select.Limit;
 import net.sf.jsqlparser.statement.select.OrderByElement;
 import net.sf.jsqlparser.statement.select.PlainSelect;
 import net.sf.jsqlparser.statement.select.Select;
+import net.sf.jsqlparser.statement.select.SelectItem;
 import net.sf.jsqlparser.util.SelectUtils;
 
 public class SearchUtil {
@@ -26,29 +28,34 @@ public class SearchUtil {
   public static final String ASC = "ASC";
   public static final String DESC = "DESC";
   public static final String ID = "_Id";
+  public static final String STAR = "*";
 
   public static Select getJsqlSelectStatement(String selectSql) throws JSQLParserException {
     Select statement = (Select) CCJSqlParserUtil.parse(selectSql);
     return statement;
   }
 
-  public static String identifyTablesInvolved(List<String> colNamesInQuery) {
-    if (colNamesInQuery.contains(OutputBaseColumns.NAME) || colNamesInQuery.contains(OutputBaseColumns.ANSWER)) {
-      return OutputBaseColumns.TABLE_NAME;
-    } else {
-      return EventBaseColumns.TABLE_NAME;
-    }
-  }
-
-  public static String getPlainSql(SQLQuery sqlQuery) throws JSQLParserException {
+  public static String getPlainSql(SQLQuery sqlQuery) throws JSQLParserException, Exception {
     Select selQry = null;
     Expression whereExpr = null;
     List<OrderByElement> orderByList = null;
     List<Expression> groupBy = null;
     Limit limit = null;
+    boolean allCol = false;
+    SelectItem star = new AllColumns();
     // projection
     if (sqlQuery.getProjection() != null) {
-      selQry = SelectUtils.buildSelectFromTableAndExpressions(new Table(EventBaseColumns.TABLE_NAME), sqlQuery.getProjection());
+      for(String eachItem : sqlQuery.getProjection()){
+        if (STAR.equals(eachItem)){
+          allCol = true;
+          break;
+        } 
+      }
+      if(allCol){
+        selQry = SelectUtils.buildSelectFromTableAndSelectItems(new Table(EventBaseColumns.TABLE_NAME), star);
+      } else {
+        selQry = SelectUtils.buildSelectFromTableAndExpressions(new Table(EventBaseColumns.TABLE_NAME), sqlQuery.getProjection());  
+      }
     }
 
     // where clause
@@ -76,10 +83,14 @@ public class SearchUtil {
     // limit
     if (sqlQuery.getLimit() != null) {
       limit = new Limit();
-      String[] splitLimitOffset = sqlQuery.getLimit().split(",");
-      limit.setRowCount(Long.parseLong(splitLimitOffset[0]));
-      if (splitLimitOffset.length > 1) {
-        limit.setOffset(Long.parseLong(splitLimitOffset[1]));
+      try {
+        String[] splitLimitOffset = sqlQuery.getLimit().split(",");
+        limit.setRowCount(Long.parseLong(splitLimitOffset[0]));
+        if (splitLimitOffset.length > 1) {
+          limit.setOffset(Long.parseLong(splitLimitOffset[1]));
+        }
+      }catch (NumberFormatException nfe){
+        throw new Exception(ErrorMessages.INVALID_LIMIT_OFFSET.getDescription(), nfe);
       }
     }
 

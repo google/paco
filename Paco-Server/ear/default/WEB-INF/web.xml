@@ -150,8 +150,15 @@
     <servlet-name>migrationFrontendServlet</servlet-name>
     <url-pattern>/migrate</url-pattern>
   </servlet-mapping>
-
-  
+  <!-- only needed for local dev instance. In other environments, cloudsqlinsert in map reduce  will be used-->
+   <servlet>
+    <servlet-name>ServerInsertServlet</servlet-name>
+    <servlet-class>com.google.sampling.experiential.server.CloudSqlInsertServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>ServerInsertServlet</servlet-name>
+    <url-pattern>/csInsert</url-pattern>
+  </servlet-mapping>
   
   <servlet>
     <display-name>Remote API Servlet</display-name>
@@ -196,7 +203,7 @@
       <url-pattern>/eval*</url-pattern>
       <url-pattern>/participantJoinStats*</url-pattern>
       <url-pattern>/csCreate</url-pattern>
-      <url-pattern>/csInsert</url-pattern> 
+     <!--   <url-pattern>/csInsert</url-pattern>--> 
     </web-resource-collection>
     <auth-constraint>
       <role-name>admin</role-name>

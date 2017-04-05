@@ -61,6 +61,7 @@ import com.pacoapp.paco.shared.model2.Schedule;
 import com.pacoapp.paco.shared.model2.ScheduleTrigger;
 import com.pacoapp.paco.shared.model2.ValidationMessage;
 import com.pacoapp.paco.shared.scheduling.ActionScheduleGenerator;
+import com.pacoapp.paco.shared.util.ErrorMessages;
 import com.pacoapp.paco.shared.util.QueryPreprocessor;
 import com.pacoapp.paco.shared.util.SearchUtil;
 import com.pacoapp.paco.shared.util.TimeUtil;
@@ -69,6 +70,7 @@ import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteException;
 import android.net.Uri;
 import net.sf.jsqlparser.JSQLParserException;
 import net.sf.jsqlparser.expression.LongValue;
@@ -114,7 +116,7 @@ public class ExperimentProviderUtil implements EventStore {
       validColumnNamesDataTypeInDb = Maps.newHashMap();
       validColumnNamesDataTypeInDb.put(EventColumns._ID, LongValue.class);
       validColumnNamesDataTypeInDb.put(EventColumns.EXPERIMENT_ID, LongValue.class);
-      validColumnNamesDataTypeInDb.put(EventColumns.EXPERIMENT_SERVER_ID, StringValue.class);
+      validColumnNamesDataTypeInDb.put(EventColumns.EXPERIMENT_SERVER_ID, LongValue.class);
       validColumnNamesDataTypeInDb.put(EventColumns.EXPERIMENT_NAME, StringValue.class);
       validColumnNamesDataTypeInDb.put(EventColumns.EXPERIMENT_VERSION, LongValue.class);
       validColumnNamesDataTypeInDb.put(EventColumns.SCHEDULE_TIME, StringValue.class);
@@ -832,20 +834,22 @@ public class ExperimentProviderUtil implements EventStore {
     try {
       String selectSql = SearchUtil.getPlainSql(sqlQuery);
       Select selectStmt = SearchUtil.getJsqlSelectStatement(selectSql);
+      // preprocessor parses the query, and identifies potential issues like invalid column name, invalid data tye, sql injection,
+      // or if join is needed.
       QueryPreprocessor qProcessor = new QueryPreprocessor(selectStmt, validColumnNamesDataTypeInDb, false, null,  null);
       if (qProcessor.probableSqlInjection()!=null){
         evQryStat.setStatus(FAILURE);
-        evQryStat.setErrorMessage("Invalid query, probable sql injection");
+        evQryStat.setErrorMessage(ErrorMessages.PROBABLE_SQL_INJECTION.getDescription() + qProcessor.probableSqlInjection());
         return evQryStat;
       }
       if (qProcessor.getInvalidDataType()!=null){
         evQryStat.setStatus(FAILURE);
-        evQryStat.setErrorMessage("Invalid datatypes for "+ qProcessor.getInvalidDataType() + " fields");
+        evQryStat.setErrorMessage(ErrorMessages.INVALID_DATA_TYPE.getDescription() + qProcessor.getInvalidDataType());
         return evQryStat;
       }
       if (qProcessor.getInvalidColumnName() != null){
         evQryStat.setStatus(FAILURE);
-        evQryStat.setErrorMessage("Invalid column name "+ qProcessor.getInvalidColumnName());
+        evQryStat.setErrorMessage(ErrorMessages.INVALID_COLUMN_NAME.getDescription() + qProcessor.getInvalidColumnName());
         return evQryStat;
       }
       
@@ -873,22 +877,33 @@ public class ExperimentProviderUtil implements EventStore {
       }
     } catch (JSQLParserException e) {
       evQryStat.setStatus(FAILURE);
-      evQryStat.setErrorMessage("Json parser error");
+      evQryStat.setErrorMessage(ErrorMessages.JSQL_PARSER_EXCEPTION.getDescription() + e);
+      closeResources(cursor, dbHelper);
+      return evQryStat;
+    } catch(SQLiteException sqle) {
+      evQryStat.setStatus(FAILURE);
+      evQryStat.setErrorMessage(ErrorMessages.SQL_EXCEPTION.getDescription() + sqle);
+      closeResources(cursor, dbHelper);
       return evQryStat;
     } catch (Exception e){
       evQryStat.setStatus(FAILURE);
-      evQryStat.setErrorMessage("exp pro util gen exce");
+      evQryStat.setErrorMessage(ErrorMessages.GENERAL_EXCEPTION.getDescription() + e);
+      closeResources(cursor, dbHelper);
       return evQryStat;
     } finally {
-      if (cursor != null) {
-        cursor.close();
-      }
-      dbHelper.close();
+      closeResources(cursor, dbHelper);
     }
     events = Lists.newArrayList(eventMap.values());
     evQryStat.setEvents(events);
     evQryStat.setStatus(SUCCESS);
     return evQryStat;
+  }
+  
+  private void closeResources(Cursor cursor, DatabaseHelper dbHelper){
+    if (cursor != null) {
+      cursor.close();
+    }
+    dbHelper.close();
   }
 
   private ContentValues createContentValues(Event event) {

@@ -103,18 +103,18 @@ public class SQLQuery {
 
       if (obj.getProjection() == null) {
         obj.projection = new String[] { "*" };
-      }
+      } else {
 
-      // adding a default projection of event table primary key column
-      int crtLength = obj.getProjection().length;
-
-      String[] modifiedProjection = new String[crtLength + 1];
-      System.arraycopy(obj.getProjection(), 0, modifiedProjection, 0, crtLength);
-      // adding the following columns in the projection list to help in
-      // coalescing
-      modifiedProjection[crtLength] = EventBaseColumns.TABLE_NAME+"." + ID;
-      obj.projection = modifiedProjection;
-
+        // adding a default projection of event table primary key column
+        int crtLength = obj.getProjection().length;
+  
+        String[] modifiedProjection = new String[crtLength + 1];
+        System.arraycopy(obj.getProjection(), 0, modifiedProjection, 0, crtLength);
+        // adding the following columns in the projection list to help in
+        // coalescing
+        modifiedProjection[crtLength] = EventBaseColumns.TABLE_NAME+"." + ID;
+        obj.projection = modifiedProjection;
+      }  
       return this;
     }
 

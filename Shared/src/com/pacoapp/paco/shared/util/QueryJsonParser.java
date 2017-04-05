@@ -21,7 +21,7 @@ public class QueryJsonParser {
    * The above JSON represents the following
    * query->criteria: String with where clause conditions and the values replaced by '?' 
    * query->values: An array of String representing the values of the '?' expressed in query->criteria (in order). 
-   * query->limit: String Number of records to limit the result set, with offset value separated by comma Eg for valid values :"100" or "100,1000" 
+   * query->limit: String Number of records to limit the result set, followed by "," followed by the offset integer(startPosition). Eg: 10,100 
    * query->group: String which holds the group by column 
    * query->order: String which holds the order by columns separated by commas 
    * query->select: An array of String which holds the column names and executes the following query 
@@ -35,7 +35,7 @@ public class QueryJsonParser {
    * @throws JSONException
    * 
    */
-  public static SQLQuery parseSqlQueryFromJson(String queryJson) throws JSONException {
+  public static SQLQuery parseSqlQueryFromJson(String queryJson, boolean enableGrpByAndProjection) throws JSONException {
     final String SELECT = "select";
     final String QUERY = "query";
     final String CRITERIA = "criteria";
@@ -54,7 +54,8 @@ public class QueryJsonParser {
       return null;
     }
     queryObj = new JSONObject(queryJson);
-    if (queryObj.has(SELECT)) {
+    // Only when we enable group by feature, can we allow user specified projection columns
+    if (enableGrpByAndProjection && queryObj.has(SELECT)) {
       JSONArray selectAr = queryObj.getJSONArray(SELECT);
       if (selectAr != null) {
         projectionColumns = new String[selectAr.length()];
@@ -62,7 +63,7 @@ public class QueryJsonParser {
           projectionColumns[j] = selectAr.getString(j);
         }
       }
-    }
+    } 
     
     sqlBldr = new SQLQuery.Builder(projectionColumns);
             
@@ -92,8 +93,8 @@ public class QueryJsonParser {
       sqlBldr.limit(queryObj.getString(LIMIT));
     }
     
-    // only if we have group clause, should we have the having column
-    if (queryObj.has(GROUP)) {
+    // groupBy feature should be enabled and only if we have group clause, should we have the having column
+    if (enableGrpByAndProjection && queryObj.has(GROUP)) {
       sqlBldr.groupBy(queryObj.getString(GROUP));
 
       if (queryObj.has(HAVING)) {

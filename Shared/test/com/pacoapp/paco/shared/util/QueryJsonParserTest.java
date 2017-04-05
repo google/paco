@@ -17,7 +17,7 @@ public class QueryJsonParserTest {
 
   @Test
   public void testConvertJSONToPOJO_null() throws JSONException {
-    SQLQuery q = QueryJsonParser.parseSqlQueryFromJson(null);
+    SQLQuery q = QueryJsonParser.parseSqlQueryFromJson(null, false);
     Assert.assertEquals(null, q);
   }
 
@@ -35,7 +35,7 @@ public class QueryJsonParserTest {
     
     SQLQuery actualValue = null;
     try {
-      actualValue = QueryJsonParser.parseSqlQueryFromJson(inputString);
+      actualValue = QueryJsonParser.parseSqlQueryFromJson(inputString, true);
     } catch (JSONException e) {
       // TODO Auto-generated catch block
       e.printStackTrace();
@@ -66,7 +66,7 @@ public class QueryJsonParserTest {
      SQLQuery expectedValue = expectedValueBldr.buildWithDefaultValues();
      SQLQuery actualValue = null;
      try {
-      actualValue = QueryJsonParser.parseSqlQueryFromJson(inputString);
+      actualValue = QueryJsonParser.parseSqlQueryFromJson(inputString, true);
     } catch (JSONException e) {
       // TODO Auto-generated catch block
       e.printStackTrace();
@@ -97,7 +97,7 @@ public class QueryJsonParserTest {
      SQLQuery actualValue = null;
 
      try {
-      actualValue = QueryJsonParser.parseSqlQueryFromJson(inputString);
+      actualValue = QueryJsonParser.parseSqlQueryFromJson(inputString, true);
     } catch (JSONException e) {
       // TODO Auto-generated catch block
       e.printStackTrace();

@@ -9,13 +9,15 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.pacoapp.paco.shared.util.ErrorMessages;
+
 @SuppressWarnings("serial")
 public class CloudSqlInsertServlet extends HttpServlet {
   public static final Logger log = Logger.getLogger(CloudSqlInsertServlet.class.getName());
 
   @Override
   public void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException, ServletException {
-    throw new ServletException("Method not supported");
+    throw new ServletException(ErrorMessages.METHOD_NOT_SUPPORTED.getDescription());
   }
 
   @Override
@@ -23,7 +25,7 @@ public class CloudSqlInsertServlet extends HttpServlet {
     setCharacterEncoding(req, resp);
     // Level 1 Validation
     if (req.getHeader("X-AppEngine-QueueName") == null) {
-      throw new IllegalStateException("Attempt to access task handler directly - missing custom App Engine header");
+      throw new IllegalStateException(ErrorMessages.MISSING_APP_HEADER.getDescription());
     }
     String requestBody = RequestProcessorUtil.getBody(req);
     boolean persistInCloudSqlOnly = true;

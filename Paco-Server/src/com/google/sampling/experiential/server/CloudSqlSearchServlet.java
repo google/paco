@@ -1,7 +1,6 @@
 package com.google.sampling.experiential.server;
 
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.sql.SQLException;
 import java.text.ParseException;
@@ -23,13 +22,14 @@ import org.joda.time.format.DateTimeFormatter;
 import org.json.JSONException;
 
 import com.google.appengine.api.users.User;
-import com.google.common.collect.Maps;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.google.sampling.experiential.shared.EventDAO;
 import com.pacoapp.paco.shared.model2.EventBaseColumns;
 import com.pacoapp.paco.shared.model2.JsonConverter;
 import com.pacoapp.paco.shared.model2.OutputBaseColumns;
 import com.pacoapp.paco.shared.model2.SQLQuery;
+import com.pacoapp.paco.shared.util.ErrorMessages;
 import com.pacoapp.paco.shared.util.QueryJsonParser;
 import com.pacoapp.paco.shared.util.QueryPreprocessor;
 import com.pacoapp.paco.shared.util.SearchUtil;
@@ -48,38 +48,33 @@ public class CloudSqlSearchServlet extends HttpServlet {
   private static List<String> dateColumns = Lists.newArrayList();
   private static final String ID = "_id";
   private static final DateTimeFormatter dtf = DateTimeFormat.forPattern("ZZ");
-  private static final String SUCCESS = "Succes";
+  private static final String SUCCESS = "Success";
   private static final String FAILURE = "Failure";
+  private static final String STAR = "*";
   
-
   @Override
   public void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException, ServletException {
-    throw new ServletException("Method not supported");
+    throw new ServletException(ErrorMessages.METHOD_NOT_SUPPORTED.getDescription());
   }
 
   private void loadColInfo() {
     if (validColumnNamesDataTypeInDb.size() == 0) {
-
       validColumnNamesDataTypeInDb.put(ID, LongValue.class);
-
       validColumnNamesDataTypeInDb.put(EventBaseColumns.EXPERIMENT_ID, LongValue.class);
       validColumnNamesDataTypeInDb.put(EventBaseColumns.EXPERIMENT_SERVER_ID, StringValue.class);
       validColumnNamesDataTypeInDb.put(EventBaseColumns.EXPERIMENT_NAME, StringValue.class);
       validColumnNamesDataTypeInDb.put(EventBaseColumns.EXPERIMENT_VERSION, LongValue.class);
       validColumnNamesDataTypeInDb.put(EventBaseColumns.SCHEDULE_TIME, StringValue.class);
-
       validColumnNamesDataTypeInDb.put(EventBaseColumns.RESPONSE_TIME, StringValue.class);
       validColumnNamesDataTypeInDb.put(EventBaseColumns.GROUP_NAME, StringValue.class);
       validColumnNamesDataTypeInDb.put(EventBaseColumns.ACTION_TRIGGER_ID, LongValue.class);
       validColumnNamesDataTypeInDb.put(EventBaseColumns.ACTION_TRIGGER_SPEC_ID, LongValue.class);
       validColumnNamesDataTypeInDb.put(EventBaseColumns.ACTION_ID, LongValue.class);
-
       validColumnNamesDataTypeInDb.put(EventBaseColumns.WHO, StringValue.class);
       validColumnNamesDataTypeInDb.put(EventBaseColumns.WHEN, StringValue.class);
       validColumnNamesDataTypeInDb.put(EventBaseColumns.PACO_VERSION, LongValue.class);
       validColumnNamesDataTypeInDb.put(EventBaseColumns.APP_ID, StringValue.class);
       validColumnNamesDataTypeInDb.put(EventBaseColumns.JOINED, LongValue.class);
-
       validColumnNamesDataTypeInDb.put(EventBaseColumns.SORT_DATE, StringValue.class);
       validColumnNamesDataTypeInDb.put(EventBaseColumns.CLIENT_TIME_ZONE, StringValue.class);
       validColumnNamesDataTypeInDb.put(OutputBaseColumns.NAME, StringValue.class);
@@ -101,7 +96,6 @@ public class CloudSqlSearchServlet extends HttpServlet {
     ObjectMapper mapper = JsonConverter.getObjectMapper();
     DateTimeZone tzForClient = TimeUtil.getTimeZoneForClient(req);
     
-
     if (user == null) {
       AuthUtil.redirectUserToLogin(req, resp);
     } else {
@@ -111,32 +105,38 @@ public class CloudSqlSearchServlet extends HttpServlet {
       List<EventDAO> evtList = null;
       String aclQuery = null;
       Select selStatement = null;
-      PrintWriter out = resp.getWriter();
       resp.setContentType("text/plain");
+      // NOTE: Group by, having and projection columns related functionality can be toggled on and off with the following flag 
+      boolean enableGrpByAndProjection = false;
 
       CloudSQLDao impl = new CloudSQLDaoImpl();
       String reqBody = RequestProcessorUtil.getBody(req);
       try {
-        sqlQueryObj = QueryJsonParser.parseSqlQueryFromJson(reqBody);
+        sqlQueryObj = QueryJsonParser.parseSqlQueryFromJson(reqBody, enableGrpByAndProjection);
         String plainSql = SearchUtil.getPlainSql(sqlQueryObj);
         selStatement = SearchUtil.getJsqlSelectStatement(plainSql);
-        SelectUtils.addExpression(selStatement, new Column(EventBaseColumns.CLIENT_TIME_ZONE));
+        // Only when we allow projection, and when the user might ask for date columns, we need to retrieve the timezone column to 
+        // display the date correctly
+        if(enableGrpByAndProjection && isTimezoneNeeded(sqlQueryObj.getProjection())){
+          
+          SelectUtils.addExpression(selStatement, new Column(EventBaseColumns.CLIENT_TIME_ZONE));
+        }
         QueryPreprocessor qProcessor = new QueryPreprocessor(selStatement, validColumnNamesDataTypeInDb, true, dateColumns,
                                                              dtf.withZone(tzForClient).print(0));
         if (qProcessor.probableSqlInjection() != null) {
           sendErrorMessage(resp, mapper,
-                           "Invalid query, probable sql injection : " + qProcessor.probableSqlInjection());
+                           ErrorMessages.PROBABLE_SQL_INJECTION + qProcessor.probableSqlInjection());
           return;
         }
         if (qProcessor.getInvalidDataType() != null) {
-          sendErrorMessage(resp, mapper, "Invalid datatype :" + qProcessor.getInvalidDataType());
+          sendErrorMessage(resp, mapper, ErrorMessages.INVALID_DATA_TYPE.getDescription() + qProcessor.getInvalidDataType());
           return;
         }
         if (qProcessor.getInvalidColumnName() != null) {
-          sendErrorMessage(resp, mapper, "Invalid Column name : " + qProcessor.getInvalidColumnName());
+          sendErrorMessage(resp, mapper,  ErrorMessages.INVALID_COLUMN_NAME.getDescription()+ qProcessor.getInvalidColumnName());
           return;
         }
-        System.out.println("qproc - valid finsished");
+        
         if (qProcessor.isOutputColumnsPresent()) {
           SearchUtil.addJoinClause(selStatement);
         }
@@ -153,34 +153,45 @@ public class CloudSqlSearchServlet extends HttpServlet {
         String results = mapper.writeValueAsString(evQryStatus);
         resp.getWriter().println(results);
       } catch (JSONException jsonEx) {
-        sendErrorMessage(resp, mapper, "Json parsing error" + jsonEx);
+        sendErrorMessage(resp, mapper, ErrorMessages.JSON_EXCEPTION.getDescription() + jsonEx);
         return;
       } catch (JSQLParserException e) {
-        sendErrorMessage(resp, mapper, "Unable to add default column");
+        sendErrorMessage(resp, mapper, ErrorMessages.ADD_DEFAULT_COLUMN_EXCEPTION.getDescription() + e);
         return;
       } catch (SQLException sqle) {
-        sendErrorMessage(resp, mapper, "SQL - " + sqle);
+        sendErrorMessage(resp, mapper, ErrorMessages.SQL_EXCEPTION.getDescription() + sqle);
         return;
       } catch (ParseException e) {
-        sendErrorMessage(resp, mapper, "Parse Exception - " + e);
+        sendErrorMessage(resp, mapper, ErrorMessages.TEXT_PARSE_EXCEPTION.getDescription() + e);
         return;
       } catch (Exception e) {
-        if (e.toString().contains("Unauthorized access")) {
-          sendErrorMessage(resp, mapper, "Unauthorized acccess" + e);
+        if (e.toString().contains(ErrorMessages.UNAUTHORIZED_ACCESS.getDescription())) {
+          sendErrorMessage(resp, mapper,  e.getMessage());
           return;
         } else {
-          sendErrorMessage(resp, mapper, "Unknown exception" + e);
+          sendErrorMessage(resp, mapper, ErrorMessages.GENERAL_EXCEPTION.getDescription()+ e);
           return;
         }
       }
     }
+  }
+  
+  private boolean isTimezoneNeeded(String[] projCols){
+    boolean timezoneNeeded = false;
+    for (String eachCol : projCols) {
+      if (eachCol.equals(STAR)){
+        return false;
+      } else if(dateColumns.contains(eachCol)){
+        return true;
+      } 
+    }
+    return timezoneNeeded;
   }
 
   private void sendErrorMessage(HttpServletResponse resp, ObjectMapper mapper,
                                 String errorMessage) throws JsonGenerationException, JsonMappingException, IOException {
     EventQueryStatus evQryStatus = new EventQueryStatus();
     evQryStatus.setErrorMessage(errorMessage);
-
     evQryStatus.setStatus(FAILURE);
     String results = mapper.writeValueAsString(evQryStatus);
     resp.getWriter().println(results);

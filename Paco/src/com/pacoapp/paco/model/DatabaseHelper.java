@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 
 import com.pacoapp.paco.shared.model2.ExperimentDAO;
 import com.pacoapp.paco.shared.model2.PacoNotificationAction;
+import com.pacoapp.paco.shared.util.ErrorMessages;
 
 import android.content.Context;
 import android.database.Cursor;
@@ -435,10 +436,13 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	      qb.setTables(ExperimentProvider.EVENTS_TABLE_NAME);
 	      break;
 	    default:
-	      throw new IllegalArgumentException("Unknown tableIndicator" + tableIndicator);
+	      throw new IllegalArgumentException(ErrorMessages.UNKNOWN_TABLE_INDICATOR.getDescription() + tableIndicator);
 	  }
     try{
-      
+      // While validating the columns, with their corresponding data types, JSQL parser considers a value as
+      // string when enclosed in single quotes. So, in the input we send with single quotes.
+      // But when we send it to the following query method which takes a string array, it considers 
+      // the single quote as part of the string. So, we need to remove it explicitly.  
       String selectionArgsWithoutQuotes[] = new String[selectionArgs.length];
       for(int i=0; i<selectionArgs.length;i++){
         String temp = selectionArgs[i];
@@ -451,7 +455,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
       resultSet = qb.query(getReadableDatabase(), projection, selection, selectionArgsWithoutQuotes, groupBy, having,
 	      sortOrder, limit);
     }catch (SQLiteException s){
-      Log.warn("Caught SQLite exception.", s);
+      Log.warn(ErrorMessages.SQL_EXCEPTION.getDescription(), s);
       //Client should receive the exception
       throw s;
     }

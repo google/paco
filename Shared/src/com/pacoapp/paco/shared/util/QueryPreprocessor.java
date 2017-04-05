@@ -108,7 +108,7 @@ public class QueryPreprocessor implements SelectVisitor, FromItemVisitor, Expres
   private String invalidDataType;
   private boolean containsExperimentIdClause;
   private boolean containsWhoClause;
-  private static List<Class> allValueExpression = Lists.newArrayList();
+  private static List<Class> allPossibleConstantExpTypes = Lists.newArrayList();
   private String timeZone;
   private Set<String> whoClauseValues = Sets.newHashSet();
   private Set<Long>  expIdClauseValues = Sets.newHashSet();
@@ -158,28 +158,19 @@ public class QueryPreprocessor implements SelectVisitor, FromItemVisitor, Expres
     return isOutputColumnsPresent;
   }
   private void loadValueExpr(){
-    allValueExpression.add(StringValue.class);
-    allValueExpression.add(DoubleValue.class);
-    allValueExpression.add(DateValue.class);
-    allValueExpression.add(LongValue.class);
-    allValueExpression.add(TimestampValue.class);
-    allValueExpression.add(TimeValue.class);
-  }
-  
-  public String quote(String input){
-    String quotedString = null;
-  
-    if (input != null) {
-      quotedString = "'"+input+"'";
-    }
-    return quotedString;
+    allPossibleConstantExpTypes.add(StringValue.class);
+    allPossibleConstantExpTypes.add(DoubleValue.class);
+    allPossibleConstantExpTypes.add(DateValue.class);
+    allPossibleConstantExpTypes.add(LongValue.class);
+    allPossibleConstantExpTypes.add(TimestampValue.class);
+    allPossibleConstantExpTypes.add(TimeValue.class);
   }
 
   public void visit(PlainSelect plainSelect) {
     plainSelect.getFromItem().accept(this);
     
     if (plainSelect.getJoins() != null) {
-      for (Iterator joinsIt = plainSelect.getJoins().iterator(); joinsIt.hasNext();) {
+      for (Iterator<Join> joinsIt = plainSelect.getJoins().iterator(); joinsIt.hasNext();) {
         Join join = (Join) joinsIt.next();
         join.getRightItem().accept(this);
       }
@@ -200,12 +191,12 @@ public class QueryPreprocessor implements SelectVisitor, FromItemVisitor, Expres
       }
     }
     
-//    if(plainSelect.getGroupByColumnReferences()!=null){
-//      List<Expression> grBys = plainSelect.getGroupByColumnReferences();
-//      for(Expression gBy : grBys){
-//        gBy.accept(this);
-//      }
-//    }
+    if(plainSelect.getGroupByColumnReferences()!=null){
+      List<Expression> grBys = plainSelect.getGroupByColumnReferences();
+      for(Expression gBy : grBys){
+        gBy.accept(this);
+      }
+    }
     
   }
 
@@ -341,7 +332,7 @@ public class QueryPreprocessor implements SelectVisitor, FromItemVisitor, Expres
           }
         }
         
-      } else if(allValueExpression.contains(le.getClass())){//left expr can never be a constant(string, number, char...) value. this for preventing sql injection
+      } else if(allPossibleConstantExpTypes.contains(le.getClass())){//left expr can never be a constant(string, number, char...) value. this for preventing sql injection
         probableSqlInjectionClause = inExpression.toString();
       }
     }
@@ -447,7 +438,7 @@ public class QueryPreprocessor implements SelectVisitor, FromItemVisitor, Expres
             invalidDataType = re.toString();
           }
         }
-      }else if(allValueExpression.contains(le.getClass())){
+      }else if(allPossibleConstantExpTypes.contains(le.getClass())){
         probableSqlInjectionClause = binaryExpression.toString(); 
       }
     }
@@ -697,7 +688,7 @@ public class QueryPreprocessor implements SelectVisitor, FromItemVisitor, Expres
   }
   @Override
   public void visit(OrderByElement orderBy) {
-//   orderBy.accept(this); 
+    orderBy.getExpression().accept(this); 
   }
 
 }

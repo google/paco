@@ -11,7 +11,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import com.pacoapp.paco.shared.util.TimeUtil;
 import java.util.logging.Logger;
 
 import org.joda.time.DateTimeZone;
@@ -20,9 +19,12 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.sampling.experiential.model.Event;
 import com.google.sampling.experiential.shared.EventDAO;
+import com.google.sampling.experiential.shared.Output;
 import com.google.sampling.experiential.shared.WhatDAO;
 import com.pacoapp.paco.shared.model2.EventBaseColumns;
 import com.pacoapp.paco.shared.model2.OutputBaseColumns;
+import com.pacoapp.paco.shared.util.ErrorMessages;
+import com.pacoapp.paco.shared.util.TimeUtil;
 
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.JdbcParameter;
@@ -36,6 +38,7 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
   private static Map<String, Integer> eventsOutputColumns = null;
   public static final String ID = "_id";
   public static final String TRUE = "true";
+  private static final String selectOutputsSql = "select * from outputs where event_id =?";
 
   private static void loadColumnTableAssociationMap() {
     if (eventsOutputColumns == null) {
@@ -66,7 +69,7 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
   @Override
   public boolean insertEvent(Event event) throws SQLException, ParseException {
     if (event == null) {
-      log.warning("No Event data to insert");
+      log.warning(ErrorMessages.NOT_VALID_DATA.getDescription());
       return false;
     }
 
@@ -111,7 +114,7 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
       utcScheduledTime = TimeUtil.convertToUTC(event.getScheduledTime(), event.getTimeZone());
     } catch (ParseException pe){
       //TODO Exception handling
-      log.severe("Converting to UTC"+pe);
+      log.severe(ErrorMessages.CONVERT_TO_UTC.getDescription()+pe);
       throw pe;
     }
 
@@ -178,9 +181,9 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
       conn.commit();
       retVal = true;
     } catch (SQLException e) {
-      log.info("While inserting event : " + e);
+      log.info(ErrorMessages.SQL_INSERT_EXCEPTION.getDescription() + e);
     } catch (Exception e) {
-      log.info("While inserting event - Gen : " + e);
+      log.info( ErrorMessages.GENERAL_EXCEPTION.getDescription()+ e);
     } finally {
       try {
         if (statementCreateEventOutput != null) {
@@ -193,7 +196,7 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
           conn.close();
         }
       } catch (SQLException ex1) {
-        log.warning("While closing conn for insert event" + ex1);
+        log.warning(ErrorMessages.CLOSING_RESOURCE_EXCEPTION.getDescription() + ex1);
       }
     }
     return retVal;
@@ -231,14 +234,9 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
           adjustTimeZone(event);
           EventDAO oldEvent = eventMap.get(event.getId());
           if (oldEvent == null) {
+            // get all outputs for this event, and add to this event
+            event.setWhat(getOutputs(event.getId()));
             eventMap.put(event.getId(), event);
-          } else {
-            // Will go through following when the query returns the same event
-            // id twice or more because of the multiple outputs
-            List<WhatDAO> oldOut = oldEvent.getWhat();
-            List<WhatDAO> newOut = event.getWhat();
-            // add all new output to the existing event in map
-            oldOut.addAll(newOut);
           }
         }
       }
@@ -254,7 +252,7 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
           conn.close();
         }
       } catch (SQLException ex1) {
-        log.warning("sqlexception while inserting event close conn" + ex1);
+        log.warning(ErrorMessages.CLOSING_RESOURCE_EXCEPTION.getDescription()+ ex1);
       }
     }
     if (eventMap != null) {
@@ -262,6 +260,40 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
     }
 
     return evtDaoList;
+  }
+  
+  private List<WhatDAO> getOutputs(Long eventId) throws SQLException {
+    List<WhatDAO> whatLst = Lists.newArrayList();
+    WhatDAO whatObj = null;
+    String question = null;
+    String answer = null;
+    Connection conn = null;
+    PreparedStatement statementSelectOutput = null;
+    try {
+      conn = CloudSQLConnectionManager.getInstance().getConnection();
+      statementSelectOutput = conn.prepareStatement(selectOutputsSql);
+      statementSelectOutput.setLong(1, eventId);
+      ResultSet rs = statementSelectOutput.executeQuery();
+      while(rs.next()){
+        question = rs.getString(OutputBaseColumns.NAME);
+        answer = rs.getString(OutputBaseColumns.ANSWER);
+        whatObj = new WhatDAO(question, answer);
+        whatLst.add(whatObj);
+      }
+    } finally {
+      try {
+        if (statementSelectOutput != null) {
+          statementSelectOutput.close();
+        }
+        if (conn != null) {
+          conn.close();
+        }
+      } catch (SQLException ex1) {
+        log.warning(ErrorMessages.CLOSING_RESOURCE_EXCEPTION.getDescription()+ ex1);
+      }
+    }
+      
+    return whatLst;
   }
 
   private void adjustTimeZone(EventDAO event) throws ParseException {
@@ -348,7 +380,7 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
         }
       }
     } catch (SQLException ex) {
-      log.warning("exception while mapping resultset to pojo" + ex);
+      log.warning(ErrorMessages.SQL_EXCEPTION.getDescription() + ex);
     }
     return event;
   }
@@ -395,7 +427,7 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
       final String createOutputsTableSql = "CREATE TABLE `outputs` (" + "`" + OutputBaseColumns.EVENT_ID
                                            + "` bigint(20) NOT NULL," + "`" + OutputBaseColumns.NAME
                                            + "` varchar(45) NOT NULL," + "`" + OutputBaseColumns.ANSWER
-                                           + "` varchar(45) DEFAULT NULL," + "`" + OutputBaseColumns.ARCHIVE_FLAG
+                                           + "` varchar(150) DEFAULT NULL," + "`" + OutputBaseColumns.ARCHIVE_FLAG
                                            + "` tinyint(4) NOT NULL DEFAULT '0'," + "PRIMARY KEY (`"
                                            + OutputBaseColumns.EVENT_ID + "`,`" + OutputBaseColumns.NAME + "`),"
                                            + "KEY `event_id_index` (`" + OutputBaseColumns.EVENT_ID + "`),"
@@ -427,7 +459,7 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
         }
 
       } catch (SQLException ex1) {
-        log.warning("sqlexception while creating event close conn" + ex1);
+        log.warning(ErrorMessages.CLOSING_RESOURCE_EXCEPTION.getDescription() + ex1);
       }
     }
     return retString;
