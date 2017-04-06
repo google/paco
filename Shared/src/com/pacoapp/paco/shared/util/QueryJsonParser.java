@@ -36,14 +36,6 @@ public class QueryJsonParser {
    * 
    */
   public static SQLQuery parseSqlQueryFromJson(String queryJson, boolean enableGrpByAndProjection) throws JSONException {
-    final String SELECT = "select";
-    final String QUERY = "query";
-    final String CRITERIA = "criteria";
-    final String VALUES = "values";
-    final String ORDER = "order";
-    final String LIMIT = "limit";
-    final String GROUP = "group";
-    final String HAVING = "having";
     
     SQLQuery sqlObj = null;
     SQLQuery.Builder sqlBldr = null;
@@ -55,8 +47,8 @@ public class QueryJsonParser {
     }
     queryObj = new JSONObject(queryJson);
     // Only when we enable group by feature, can we allow user specified projection columns
-    if (enableGrpByAndProjection && queryObj.has(SELECT)) {
-      JSONArray selectAr = queryObj.getJSONArray(SELECT);
+    if (enableGrpByAndProjection && queryObj.has(Constants.SELECT)) {
+      JSONArray selectAr = queryObj.getJSONArray(Constants.SELECT);
       if (selectAr != null) {
         projectionColumns = new String[selectAr.length()];
         for (int j = 0; j < selectAr.length(); j++) {
@@ -67,15 +59,15 @@ public class QueryJsonParser {
     
     sqlBldr = new SQLQuery.Builder(projectionColumns);
             
-    if (queryObj.has(QUERY)) {
-      JSONObject queryCriteria = queryObj.getJSONObject(QUERY);
+    if (queryObj.has(Constants.QUERY)) {
+      JSONObject queryCriteria = queryObj.getJSONObject(Constants.QUERY);
       if (queryCriteria != null) {
-        if (queryCriteria.has(CRITERIA)) {
-          sqlBldr.criteriaQuery(queryCriteria.getString(CRITERIA).trim());
+        if (queryCriteria.has(Constants.CRITERIA)) {
+          sqlBldr.criteriaQuery(queryCriteria.getString(Constants.CRITERIA).trim());
         }
 
-        if (queryCriteria.has(VALUES)) {
-          JSONArray cv = queryCriteria.getJSONArray(VALUES);
+        if (queryCriteria.has(Constants.VALUES)) {
+          JSONArray cv = queryCriteria.getJSONArray(Constants.VALUES);
           criteriaValues = new String[cv.length()];
           for (int i = 0; i < cv.length(); i++) {
             criteriaValues[i] = cv.getString(i);
@@ -85,20 +77,20 @@ public class QueryJsonParser {
       }
     }
     
-    if (queryObj.has(ORDER)) {
-      sqlBldr.sortBy(queryObj.getString(ORDER).trim());
+    if (queryObj.has(Constants.ORDER)) {
+      sqlBldr.sortBy(queryObj.getString(Constants.ORDER).trim());
     }
     
-    if (queryObj.has(LIMIT)) {
-      sqlBldr.limit(queryObj.getString(LIMIT).trim());
+    if (queryObj.has(Constants.LIMIT)) {
+      sqlBldr.limit(queryObj.getString(Constants.LIMIT).trim());
     }
     
     // groupBy feature should be enabled and only if we have group clause, should we have the having column
-    if (enableGrpByAndProjection && queryObj.has(GROUP)) {
-      sqlBldr.groupBy(queryObj.getString(GROUP).trim());
+    if (enableGrpByAndProjection && queryObj.has(Constants.GROUP)) {
+      sqlBldr.groupBy(queryObj.getString(Constants.GROUP).trim());
 
-      if (queryObj.has(HAVING)) {
-        sqlBldr.having(queryObj.getString(HAVING).trim());
+      if (queryObj.has(Constants.HAVING)) {
+        sqlBldr.having(queryObj.getString(Constants.HAVING).trim());
       }
     }
 

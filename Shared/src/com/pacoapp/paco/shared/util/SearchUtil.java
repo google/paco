@@ -24,12 +24,7 @@ import net.sf.jsqlparser.util.SelectUtils;
 
 public class SearchUtil {
   private static final Logger log = Logger.getLogger(SearchUtil.class.getName());
-  public static final String COLUMN = "Column";
-  public static final String ASC = "ASC";
-  public static final String DESC = "DESC";
-  public static final String ID = "_Id";
-  public static final String STAR = "*";
-
+  
   public static Select getJsqlSelectStatement(String selectSql) throws JSQLParserException {
     Select statement = (Select) CCJSqlParserUtil.parse(selectSql);
     return statement;
@@ -45,13 +40,13 @@ public class SearchUtil {
     SelectItem star = new AllColumns();
     // projection
     if (sqlQuery.getProjection() != null) {
-      for(String eachItem : sqlQuery.getProjection()){
-        if (STAR.equals(eachItem)){
+      for(String eachItem : sqlQuery.getProjection()) {
+        if (Constants.STAR.equals(eachItem)) {
           allCol = true;
           break;
         } 
       }
-      if(allCol){
+      if (allCol) {
         selQry = SelectUtils.buildSelectFromTableAndSelectItems(new Table(EventBaseColumns.TABLE_NAME), star);
       } else {
         selQry = SelectUtils.buildSelectFromTableAndExpressions(new Table(EventBaseColumns.TABLE_NAME), sqlQuery.getProjection());  
@@ -89,7 +84,7 @@ public class SearchUtil {
         if (splitLimitOffset.length > 1) {
           limit.setOffset(Long.parseLong(splitLimitOffset[1]));
         }
-      }catch (NumberFormatException nfe){
+      } catch (NumberFormatException nfe){
         throw new Exception(ErrorMessages.INVALID_LIMIT_OFFSET.getDescription(), nfe);
       }
     }
@@ -110,7 +105,7 @@ public class SearchUtil {
     Join joinObj = new Join();
     FromItem ft = new Table(OutputBaseColumns.TABLE_NAME); 
     try {
-      joinExp = CCJSqlParserUtil.parseCondExpression(ID+ " = " +OutputBaseColumns.TABLE_NAME+ "."+OutputBaseColumns.EVENT_ID);
+      joinExp = CCJSqlParserUtil.parseCondExpression(Constants.ID+ " = " +OutputBaseColumns.TABLE_NAME+ "."+OutputBaseColumns.EVENT_ID);
     } catch (JSQLParserException e) {
       e.printStackTrace();
     }
@@ -132,7 +127,7 @@ public class SearchUtil {
         String[] nameOrder = s.trim().split(" ");
         if (nameOrder.length > 1) {
           ob.setAscDescPresent(true);
-          ob.setAsc(nameOrder[1].equalsIgnoreCase(ASC));
+          ob.setAsc(nameOrder[1].equalsIgnoreCase(Constants.ASC));
         }
         Expression exp = CCJSqlParserUtil.parseExpression(s);
         ob.setExpression(exp);

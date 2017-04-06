@@ -70,6 +70,7 @@ import com.google.sampling.experiential.model.What;
 import com.google.sampling.experiential.server.stats.participation.ParticipationStatsService;
 import com.google.sampling.experiential.shared.EventDAO;
 import com.google.sampling.experiential.shared.WhatDAO;
+import com.pacoapp.paco.shared.util.ErrorMessages;
 
 /**
  * Retrieve Event objects from the JDO store.
@@ -168,11 +169,11 @@ public class EventRetriever {
         event.setWho(eventJson.getString("who"));
         cloudSqlDaoImpl.insertEvent(event);
       } catch (JSONException e) {
-        log.severe("Event json id parsing error" + e);
+        log.info(ErrorMessages.JSON_EXCEPTION + " for request: " + eventJson + e);
       } catch (SQLException sqle) {
-        log.severe("Exception while inserting data into cloudsql db" + sqle);
+        log.info(ErrorMessages.SQL_INSERT_EXCEPTION + " for  request: " + eventJson + sqle);
       } catch (ParseException e) {
-        log.severe("Parse exception" + e);
+        log.info(ErrorMessages.TEXT_PARSE_EXCEPTION + "for request: " +eventJson + e);
       }
 
     } else {
