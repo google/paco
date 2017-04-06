@@ -86,7 +86,8 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
     Date utcResponseTime = null;
     Date utcScheduledTime = null;
     boolean retVal = false;
-    int i = 0 ;
+    //startCount for setting paramter index
+    int i = 1 ;
     ExpressionList eventExprList = new ExpressionList();
     ExpressionList outputExprList = new ExpressionList();
     List<Expression> exp = Lists.newArrayList();
@@ -142,14 +143,12 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
       statementCreateEvent.setString(i++, event.getAppId());
       statementCreateEvent.setNull(i++, java.sql.Types.BOOLEAN);
       String joinedStat = event.getWhatByKey(EventBaseColumns.JOINED);
-      int iTemp = i;
       if (joinedStat != null) {
         if (joinedStat.equalsIgnoreCase(TRUE)) {
-          statementCreateEvent.setBoolean(iTemp, true);
+          statementCreateEvent.setBoolean(i++, true);
         } else {
-          statementCreateEvent.setBoolean(iTemp, false);
+          statementCreateEvent.setBoolean(i++, false);
         }
-        i++;
       } 
       statementCreateEvent.setTimestamp(i++, event.getResponseTime()!= null ? new Timestamp(utcResponseTime.getTime()): new Timestamp(utcScheduledTime.getTime()));
       statementCreateEvent.setString(i++, event.getTimeZone());
