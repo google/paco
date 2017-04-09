@@ -1,0 +1,383 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ ~ Copyright 2011 Google Inc. All Rights Reserved.
+ ~
+ ~ Licensed under the Apache License, Version 2.0 (the "License");
+ ~ you may not use this file except in compliance  with the License.  
+ ~ You may obtain a copy of the License at
+ ~
+ ~    http://www.apache.org/licenses/LICENSE-2.0
+ ~
+ ~ Unless required by applicable law or agreed to in writing,
+ ~ software distributed under the License is distributed on an
+ ~ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ ~ KIND, either express or implied.  See the License for the
+ ~ specific language governing permissions and limitations
+ ~ under the License.
+-->
+
+<resources>
+
+    <string name="app_name" description="Name of the Paco app used on the Home Screen and other places [No Translation]" translatable="false">Paco</string>
+    <string name="server" description="default server address for Paco[No Translation]" translatable="false">www.pacoapp.com</string>
+    <string name="app_package" description="unique Android package name[No Translation]" translatable="false">com.pacoapp.paco</string>
+    <string name="contact_email" description="contact email address [No Translation]" translatable="false">paco-users@googlegroups.com</string>
+    <string name="about_googlegroups" description="user group email address [No Translation]" translatable="false">paco-users@googlegroups.com</string>
+    <string name="usergroup_website" description="Website for user group [No Translation]" translatable="false">https://groups.google.com/group/paco-users</string>
+    <string name="about_support">Support:</string>
+    <string name="about_weburl" description="Home page url [No Translation]" translatable="false">pacoapp.com</string>
+    <string name="about_bob" description="[No Translation]" translatable="false">Bob Evans</string>
+    <string name="about_alberto" description="[No Translation]" translatable="false">Alberto Savoia</string>
+    <string name="about_arun" description="[No Translation]" translatable="false">Arun Saigal</string>
+    <string name="about_cp" description="[No Translation]" translatable="false">CP Lim</string>
+    <string name="about_stephen" description="[No Translation]" translatable="false">Stephen Uhler</string>
+    <string name="about_tina" description="[No Translation]" translatable="false">Tina Malm</string>
+    <string name="about_brian" description="[No Translation]" translatable="false">Brian Ong</string>
+    <string name="about_kanwal" description="[No Translation]" translatable="false">Kanwal Safdar</string>
+    <string name="about_team" description="Label for list of team members">Team:</string>
+    <string name="about_version" description="Detail label for Paco version">Version:</string>
+        <string name="welcome_about" description="button label to go to Paco version information">Paco Version</string>
+    
+
+    <!-- End User License Agreement -->
+    <string name="eula_title" description="Title in screen showing EULA">End User License Agreement</string>
+    <string name="decline" description="Shown to user to decline the EULA">Decline</string>
+
+    <string name="no" description="Dialog Button Label">No</string>
+    <string name="yes" description="Dialog Button Label to agree with presented content">Yes</string>
+    <string name="ok" description="Dialog Button Label to accept presented content">OK</string>
+    <string name="success" description="Confirmation text usually shown in brief messages after user action completes.">Success</string>
+
+    <string-array name="repeat_range" description="List selection choices for number of days between repeating schedules">
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+        <item>5</item>
+        <item>6</item>
+        <item>7</item>
+        <item>8</item>
+        <item>9</item>
+        <item>10</item>
+        <item>11</item>
+        <item>12</item>
+        <item>13</item>
+        <item>14</item>
+        <item>15</item>
+        <item>16</item>
+        <item>17</item>
+        <item>18</item>
+        <item>19</item>
+        <item>20</item>
+        <item>21</item>
+        <item>22</item>
+        <item>23</item>
+        <item>24</item>
+        <item>25</item>
+        <item>26</item>
+        <item>27</item>
+        <item>28</item>
+        <item>29</item>
+        <item>30</item>
+    </string-array>
+    <string-array name="days_of_week" description="Days of week used in schedule editor">
+        <item>Sunday</item>
+        <item>Monday</item>
+        <item>Tuesday</item>
+        <item>Wednesday</item>
+        <item>Thursday</item>
+        <item>Friday</item>
+        <item>Saturday</item>
+    </string-array>
+    <string-array name="nth_of_month" description="Ordinal numbers for which week of the month in schedule editing">
+        <item>First</item>
+        <item>Second</item>
+        <item>Third</item>
+        <item>Fourth</item>
+        <item>Fifth</item>
+    </string-array>
+
+    <string name="explore_data" description="Label for menu item to see recorded data">Explore Data</string>
+    <string name="current_account" description="Label for value of user's currently chosen Google Account">Current Account</string>
+    <string name="experiment_refresh" description="Menu item to cause refresh of the definitions of running experiments from the server.">Experiment Refresh</string>
+    <string name="checking_server_for_new_and_updated_experiment_definitions" description="Message about current work of app, namely checking for new and updated experiment definitions">Checking Server for New and Updated Experiment Definitions</string>
+    <string name="selected_experiment_not_on_phone_refresh" description="Message shown to user trying to join an experiment that is not known to the phone but that might be on the server.">Selected Experiment does not exist on the phone. Refresh Experiments from Server?</string>
+    <string name="link_wrong" description="Message shown to user trying to join experiment from a link in another app but it is not a Paco link">Make sure you are using the right link.</string>
+    <string name="ongoing_duration" description="Label for a schedule that runs in perpetuity">ongoing</string>
+    <string name="day_esm_period" description="List choice for schedule signal period - randomly every day">Day</string>
+    <string name="week_esm_period" description="List choice for schedule signal period - randomly every week">Week</string>
+    <string name="month_esm_period" description="List choice for schedule signal period - randomly very month">Month</string>
+    <string name="daily_schedule_type" description="List choice for schedule that signals - fixed time every day">Daily</string>
+    <string name="weekdays_schedule_type" description="List choice for schedule that signals - fixed time on weekdays">Weekdays</string>
+    <string name="weekly_schedule_type" description="List choice for schedule that signals - fixed time every week">Weekly</string>
+    <string name="monthly_schedule_type" description="List choice for schedule that signals - fixed time every month">Monthly</string>
+    <string name="random_sampling_esm_schedule_type" description="List choice for schedule type  - random signaling (ESM=Experiential Sampling Method)">Random sampling (ESM)</string>
+    <string name="self_report_only_schedule_type" description="List choice for schedule that does not signal. User initiates response.">Self report only</string>
+    <string name="advanced_schedule_type" description="List choice for schedule that signals in custom, advanced ways">Advanced</string>
+    <string name="survey_expired" description="Message to user that the signal to which they were responding has expired and there is no work to be done.">This survey request has expired. No need to enter a response</string>
+    <string name="gps_message" description="Message to user to enable GPS location, but only when outside.">"Use GPS for improved location (outside only)? "</string>
+    <string name="enable_button" description="Dialog Button label to enable GPS">Enable</string>
+    <string name="cancel_button" description="Dialog Button label to cancel GPS">Cancel</string>
+    <string name="need_location" description="Message to user about need to enable location services">"You must enable some form of Location Service if you want to include location data. "</string>
+    <string name="required_answers_missing" description="Message shown to user submitting a form without filling in required fields.">Required Answers Missing</string>
+    <string name="must_answer" description="Label for error dialog listing which fields are required">"Must answer: "</string>
+    <string name="about_paco_menu_item" description="Menu Item text for About screens">About Paco</string>
+    <string name="eula_menu_item" description="Menu Item to see user agreement text">User Agreement</string>
+    <string name="debug_menu_item" description="Menu Item to debug app">Debug</string>
+    <string name="select_signal_tone" description="Title of dialog box letting user select the Signaling Audio tone for Paco notifications">Select Signal Tone</string>
+    <string name="cannot_find_the_experiment_warning" description="Error message shown to users when trying to load a specific experiment">Cannot find the experiment!</string>
+    <string name="save_button" description="Label on button shown to user on survey form">Save</string>
+    <string name="start_time_title" description="Label for schedule editing field that sets the start of the window for scheduling">Start Time</string>
+    <string name="end_time_title" description="Label for schedule editing field that sets the end of the window for scheduling">End Time</string>
+    <string name="modify_time_title" description="Dialog Box title for editing a schedule time">Modify Time</string>
+    <string name="days_of_week_title" description="Dialog Box title for editing days of the week to schedule">Days of Week</string>
+    <string name="start_hour_must_be_before_end_hour_warning" description="Error message when edited start time is after end time">Start hour must be before end hour</string>
+    <string name="show_trends_button" description="Button label for chart that turns on a trend line ">"  Show Trends  "</string>
+    <string name="make_selections" description="Button label for list questionss that allow multiple selections">Make selections</string>
+    <string name="edit_schedule_menu_item" description="Menu Item to edit schedule">Edit Schedule</string>
+    <string name="stop_experiment_menu_item"  description="Menu Item to stop an experiment">Stop Experiment</string>
+    <string name="explore_data_menu_item"  description="Menu Item to explore data collected for an experiment">Explore data</string>
+    <string name="running_experiments_title" description="Nav Drawer label for Running Experiments (Main) Screen">My Current Experiments</string>
+    <string name="completed_experiments_title" description="Nav Drawer label for Finished Experiments Screen">Completed Experiments</string>
+    <string name="find_public_experiments_title"  description="Nav Drawer label for Experiment Hub Screen (publicly available experiments)">Experiment Hub</string>
+    <string name="stop_the_experiment_dialog_title" description="Title of dialog confirming that user wants to stop the experiment">Stop the Experiment?</string>
+    <string name="stop_experiment_dialog_body" description="Body of dialog confirming that user wants to stop the experiment">Are you sure you want to stop the experiment?</string>
+    <string name="unknown_author_text" description="Default text in experiment definition when author of experiment is unspecified">unknown author</string>
+    <string name="retrieving_lat_lon" description="Placeholder label in survey form while retrieving lat/lon coordinates">Retrieving</string>
+    <string name="missing_image_warning" description="Error message when the camera app did not produce a file.">Cannot find image file from camera!</string>
+    <string name="unknown_location" description="Label used in survey form when a location is unavailable">Unknown</string>
+    <string name="cannot_open_camera_warning" description="Error message when survey cannot open the Camera app">Cannot Open Camera</string>
+    <string name="done_button" description="Button label in dialog where user selects multiple options from a list. Signifies that they are done and closes dialog.">Done</string>
+    <string name="time_to_participate_notification_text" description="Default message for Experiment Notifications">Time to participate!</string>
+    <string name="time_for_notification_title" description="Default ticker text for Experiment Notification. Experiment name is appended to this.">"Time for "</string>
+    <string name="refresh_experiment_menu_item" description="Menu item to refresh running experiments">Refresh Running Experiments</string>
+    <string name="main_page_menu_item" description="Menu item to return to the main screen.">Main Page</string>
+    <string name="missed_signal_value" description="Label for signaled response that was not answered before it timed out.">Missed</string>
+    <string name="choose_account" description="Instruction text for choosing a Google Account to use in Paco">Please Choose an Account to use with Paco</string>
+    <string name="daily_scheduled_times_for" description="Prefix title for screen that shows daily scheduled times for an experiment. Experiment name is appended.">"Daily Scheduled Times for: "</string>
+    <string name="scheduled_times" description="Label for list of scheduled times in experiment">Scheduled Times</string>
+    <string name="experiment_name" description="Default placeholder for Experiment name while loading real data">Experiment Name</string>
+    <string name="suggested_signalling_schedule" description="Label for screen for editing default schedule">Suggested signalling schedule:</string>
+    <string name="schedule_period" description="Label for choosing ESM schedule period (day, week, month)">"Schedule Period:  "</string>
+    <string name="times_per_period" description="Label for entering integer value for frequency of ESM signals (# of times per day, wk, mo)">Times per period:</string>
+    <string name="weekends" description="Label for checkbox to configure whether signaling happens on weekends as well as weekdays.">Weekends?</string>
+    <string name="start_hour" description="Label for time picker that sets the starting time of day for an esm schedule">Start Hour</string>
+    <string name="default_start_time" description="String value of default start time for esm schedule">9:30am</string>
+    <string name="end_hour" description="Label for time picker that sets the ending time of day for an esm schedule">"End Hour:   "</string>
+    <string name="default_end_hour" description="String value of default end time for esm schedule">5:30pm</string>
+    <string name="responses" description="Label for table of users' survey responses">Responses</string>
+    <string name="no_data" description="Default list value for ui elements that show lists of data">No data</string>
+    <string name="description" description="Label for field showing experiment's description on Experiment details page.">Description:</string>
+    <string name="schedule" description="Label for showing a schedule summary in Experiment details page">"Schedule: "</string>
+    <string name="start_date" description="Label for experiment start date in experiment details page">"Start Date: "</string>
+    <string name="end_date"  description="Label for experiment end date in experiment details page">"End Date: "</string>
+    <string name="esm_frequency"  description="Label for esm frequency in experiment details page">"ESM Frequency: "</string>
+    <string name="scheduled_time" description="Label for list of scheduled times in experiment details page">"Scheduled Time: "</string>
+    <string name="creator" description="Label for creator of experiment in experiment details page">Creator:</string>
+    <string name="join_this_experiment" description="Label for button to join experiment in experiment details page">Join this Experiment</string>
+    <string name="raw_data_button_text" description="Label for button to go to view of raw data collected">Go to Raw Data</string>
+    <string name="your_current_experiments" description="Title for list of currently running experiments">My Current Experiments</string>
+    <string name="load_more_experiments_from_server" description="Popup message telling user how to load more experiments into a list">Refresh Again to Load More Experiments from Server</string>
+    <string name="data_handling_title" description="Title of Informed Consent Screen">You Agree to Share Information with the Experimenters</string>
+    <string name="informed_consent_preamble" description="Text on infomrmed consent screen instruction to the participant to read the experimenter-provided data handling policy">By joining this experiment, you will be sharing your responses with the creator and administrators of this experiment, and they may use that information for research, product development, or other purposes.  Please read the privacy policy or data handling statement they have provided below to decide whether you want to participate in this experiment.</string>
+    <string name="consent_checkbox_text" description="Label for button to consent to experiment's data policies.">"I consent"</string>
+    <string name="available_experiments" description="Title for list of experiments (retrieved from server) that can be joined by user">Available Experiments</string>
+    <string name="retrieving_location" description="Status message for retrieving location">Retrieving...</string>
+    <string name="location_settings" description="Label for button to take user to system location settings">Location Settings</string>
+    <string name="daily_scheduled_time_for" description="Title for list of daily times in schedule edit screen">"Daily Scheduled Time for: "</string>
+    <string name="by_day_of_month" description="List choice for monthly schedule type (choose by day of the month)">"          By Day of Month"</string>
+    <string name="by_day_of_week" description="List choice for monthly schedule type (choose by day of the week)">          Day of Week"</string>
+    <string name="day_of_month" description="Label for list picker of day of month (1..31)">Day of Month:</string>
+    <string name="day_of_week" description="Label for widget to pick day of week (smtwrfs)">Day of Week:</string>
+    <string name="take_picture" description="Button label for taking a picture with the camera app as part of a survey">Add a Picture</string>
+    <string name="repeat_every_" description="Label for list to pick how many days between signal repeats on a schedule">"Repeat Every "</string>
+    <string name="days" description="List choice for period of ESM schedule">Days</string>
+    <string name="months" description="List choice for period of ESM schedule">Months</string>
+    <string name="weeks" description="List choice for period of ESM schedule">Weeks</string>
+    <string name="days_of_week" description="Label for schedule edit for weekly schedule">Days of Week</string>
+    <string name="this_experiment_is_self_reporting_only" description="Message to let user know that this experiment is self-report or signals upon a trigger. There is no schedule for them to configure.">This experiment is not scheduled. It is self report or triggered.</string>
+    <string name="server_address_warning" description="Warning message to user about modifying server address setting">WARNING: Only change this if you know what you are doing.</string>
+    <string name="enter_server_address" description="Label for text field to edit server address for Paco">Enter Server Address</string>
+    <string name="no_accounts_found" description="Error message to help user login to Paco.">No Google accounts on your phone. Go to Settings/Account to add one.</string>
+    <string name="default_list_item" description="Initial choice in a survey list question. Instructs the user to pick one of the subsequent choices.">Please select an option</string>
+    <string name="retrieving_your_joined_experiment_from_the_server" description="Message about status of fully loading an experiment once user has consented to join.">Retrieving Your Joined Experiment From the Server</string>
+    <string name="experiment_retrieval" description="Title for a dialog while downloading an experiment">Experiment Retrieval</string>
+    <string name="experiment_could_not_be_retrieved" description="Title for dialog informing user that experiment requested could not be retrieved.">Could Not Retrieve Experiment.</string>
+    <string name="invalid_data"  description="Error message that experiment requested could not be retrieved.">Something went wrong with retrieving experiment data.</string>
+    <string name="unable_to_save_experiment" description="Body of message informing user that something prevented them from joining the experiment.">Unable to join this experiment. Please email the researcher running this study.</string>
+    <string name="server_error" description="Catch-all for server side error during network communication">Something went wrong with the server.</string>
+    <string name="network_required" description="Title of dialog that tells the user that some form of networking is necessary to complete the operation">Network Required</string>
+    <string name="unknown_host" description="Title of dialog that tells the user that Server address is not reachable">Unknown or unreachable server address. Check your Paco settings.</string>
+    <string name="need_network_connection" description="body of dialog telling the user network connection is necessary to complete the operation">You will need a network connection to join the experiment. Enable connection now?</string>
+    <string name="no_thanks" description="Choice in dialogs to not pursue options presented.">No, Thanks.</string>
+    <string name="go_to_network_settings" description="Button label to jump to OS settings for networking">Network Settings</string>
+    <string name="last_refreshed" description="Label for timestamp indicating when experiment lists were last loaded from server.">Last Refreshed</string>
+    <string name="answer_by_speaking" description="Assistive popup text for microphone button">Answer by speaking</string>
+    <string name="oops_your_device_doesn_t_support_speech_to_text" description="Error message shown to user in dialog when Speech to text is unavailable on their phone">Oops! Your device doesn\'t support Speech to Text</string>
+    <string name="updating_your_joined_experiments_from_the_server" description="Dialog message showing progress refreshing running (joined) experiments from the server">Updating Your Joined Experiments From the Server</string>
+    <string name="please_choose_the_source_of_your_image" description="Prompt text for photo input survey item indicating that user should choose from Camera or Gallery as the source">Please choose the source of your image</string>
+    <string name="camera" description="Label for button to choose the Camera as the source for inputing a photo into a survey">Camera</string>
+    <string name="gallery" description="Label for button to choose the Photo Gallery app as the source for inputing a photo into a survey">Gallery</string>
+    <string name="action_find_experiments" decsription="Label for button to go to find experiments screen">Find Experiments</string>
+    <string name="action_settings" description="Label for Menu/Toolbar action to go to Settings screen">Settings</string>
+    <string name="action_language_preference" description="Label for Menu/Toolbar action to go to Language Preferences screen">Language Preference</string>
+    <string name="action_troubleshooting" description="Label for Menu/Toolbar action to go to troubleshooting screen">Troubleshooting</string>
+    <string name="action_user_guide" description="Label for Menu/Toolbar action to go to User Guide screen">User Guide</string>
+    <string name="action_email_paco_team"  description="Label for Menu/Toolbar action to go email Paco team">Email Paco Team</string>
+    <string name="action_about" description="Label for Menu/Toolbar action to go to About screen">About Paco</string>
+    <string name="action_user_agreement" description="Label for Menu/Toolbar action to go to User Agreement screen">User Agreement</string>
+    <string name="action_open_source_libs" description="Label for Menu/Toolbar action to go to Open source libraries screen">Open source libraries</string>
+    <string name="find_my_experiments"  description="Nav Drawer label for Experiments Invitations Screen">My Experiment Invitations</string>
+    <string name="find_all_public_experiments" description="Label for button to go to Find Public Experiment screen">Find All Public Experiments</string>
+    <string name="could_not_load_full_experiment_" description="Error message for retrieving the full definition of an experiment when trying to join">Could not load full experiment.</string>
+    <string name="no_more_experiments_on_server" description="Progress dialog message indicating that the user has loaded all the experiments available on the server">All experiments downloaded from server</string>
+    <string name="this_experiment_schedule_is_not_editable" description="Status message to indicate to user entering the Edit Schedule screens that this experiment's schedule is not editable.">This experiment schedule is not editable</string>
+    <string name="multiselectListManyItemsChosen" description="Label for multi-select list button indicating that more than one item is currently chosen">items chosen</string>
+    <string name="multiselectListOneItemChosen" description="Label for multi-select list button indicating that one item is currently chosen">item chosen</string>
+    <string name="i_did_not_understand" description="Error message shown to user in dialog box when speech to text failed">I did not understand</string>
+    <string name="types_of_data_collected" description="Section label above a list of data types that the experiment collects">Types of Data Collected</string>
+    <string name="experiment_informed_consent" description="Label above experimenter-provided informed consent information">Experimenter\'s Informed Consent Statement</string>
+    <string name="survey_responses_data_collected" description="List choice for type of data that will be collected in an experiment corresponding to their survey responses">User responses to experiment form</string>
+    <string name="app_usage_and_browser_usage_data_collected"  description="List choice for type of data that will be collected in an experiment corresponding to the collection of the names of the apps they use and the websites they visit while in the experiment">Apps and sites used during experiment</string>
+    <string name="accessibility_logging"  description="List choice for type of data that will be collected in an experiment corresponding to accessibility events">For some specific screens: text on screen during the event</string>
+    <string name="installed_app_data_collected"  description="List choice for type of dta that will be collected in an experiment corresponding to names of the apps installed on their phone">Apps installed on the phone</string>
+    <string name="accessibility_rationale" description="Message shown to the user when toggling the accessibility permission for Paco">This permission is needed for Paco to be able to read text that is on the screen and detect click events.</string>
+    <!-- new ui -->
+    <string name="navigation_drawer_open" description="Accessibility label for Navigation Drawer indicating that it can be opened">Open navigation drawer</string>
+    <string name="navigation_drawer_close" description="Accessibility label for Navigation Drawer indicating that it can be closed">Close navigation drawer</string>
+    <string name="choose_experiment_group" description="Label over a list of experiment groups (different surveys) within an experiment prompting user to pick one to respond to its survey items">Choose an Experiment Group to Respond</string>
+    <string name="title_activity_settings" description="Title lable for the Settings screen">Settings</string>
+    <string name="title_activity_find_my_Experiments" description="Title lable for the Invitations screen">My Invitations</string>
+    <string name="title_activity_experiment_detail" description="Title lable for the Screen to join a specific Experiment">Join Experiment</string>
+    <string name="title_activity_Informed_consent" description="Title lable for the screen to accept the informed consent from an experiment">Informed Consent</string>
+    <string name="title_activity_Post_join_instructions" description="">Participation Instructions</string>
+    <string name="location_to_be_recorded_default_prompt" description="Default prompt text for a location input survey item. This is shown next to the lat/long retrieved and the button to modify location settings">Location to be recorded</string>
+    <string name="organization" description="Label for field showing the organization that is offering the experiment">Organization:</string>
+    <string name="contact_" description="Label for the field showing the contact email address for the experiment">Contact:</string>
+    <string name="done_joining_button" description="Label for button to complete the experiment join process">Done</string>
+    <string name="save_response" description="Button label for survey form to save answers">Save Response</string>
+    <string name="email_subject_paco_feedback" description="This is the subject line inserted into the email message when a user chooses Email Paco Team">Paco Feedback</string>
+    <string name="could_not_successfully_join_try_again_" description="Error message on joining experiment. This is transient so ask them to try again.">Could not successfully join. Try again.</string>
+    <string name="experiment_list_download_complete" description="Message shown to users when all experiments have been retrieved from server.">Download complete</string>
+    <string name="could_not_retrieve_experiments_try_again_" description="Error message shown to user when experiment list could not be retrieved.">Could not retrieve experiments. Try again.</string>
+    <string name="by" description="connector for showing the organization that is offering this experiment, e.g, 'by Google'">by</string>
+    <string name="joined_on" description="Text shown in experiment card that lists when the user joined the experiment, e.g., 'Joined on August 5th'">Joined on</string>
+    <string name="you_must_pick_an_account" description="Message to user that they must choose a Google account to proceed.">You must pick an account</string>
+    <string name="are_not_available_" description="Appended to message about necessary 3rd party components, e.g., 'GooglePlayServices are not available'">are not available.</string>
+    <string name="error" description="Label for an error message that is appended, e.g., 'ERROR: service not installed'">ERROR</string>
+    
+
+<!--  embedded web ui -->
+    <string name="no_photo_support" description="error message shown in survey form when the platform does not support photos">No photo support</string>
+    <string name="no_notification_support" description="error message shown when the platform running the experiment does not provide notification facilities">No notification support</string>
+    <string name="thank_you_for_participating" decription="Message shown when user submits form">Thank you for participating</string>
+    <string name="maps_button_label" description="label for button to see maps">Maps</string>
+    <string name="data_storage_error" description="error message shown responses could not be stored.">Could not store data. You might try again. Or contact the researcher running the study. </string>
+    
+    <!--  end of day html -->
+    <string name="empty_response_error" decription="error message shown when user submits without answering any questions">You cannot submit an empty response.</string>
+    <string name="already_replied" description="Message shown to user when they have already followed up on a daily response">Already replied</string>
+    <string name="exit_with_unsubmitted_work_confirmation" description="Message shown to confirm that user wants to leave unfinished work">You have not submitted the work on this page. Are you sure to leave this page?</string>
+    <string name="exit_with_unreviewed_work">You have not submitted responses for all daily events. Are you sure you want to leave?</string>
+    <string name="no_active_responses" description="Message shown when user has no work to do">No active daily responses</string>
+    <!--  eodskeleton.html -->
+    <string name="exit" description="button label to exit work flow">Exit</string>
+    <string name="submit" description="button label to submit current part of work">Submit</string>
+    
+    <!--  custom_base.js -->
+    <string name="bad_value" description="error message shown when entering a non-numerical value into a number field">Bad value</string>
+    <string name="could_not_initialize_experiment" decsription="Status message shown when an experimnt is malformed - should only show up for researchers">Could not initialize the experiment</string>
+    
+    <!-- skeleton.html -->
+    <string name="chart_button_label" description="Label for button to go see charts of data for a variable">Chart</string>
+    <string name="no_answer_label" description="Label for data presentation field when no answer was recorded in the data set">No Answer</string>
+    <string name="no_data_found" description="Shown when trying to plot data but there is no data recorded">No data was found</string>
+    
+    <!--  map.html -->
+    <string name="responses_at_location_title" description="Title for list of responses for a given lat/long location">Responses at this Location</string>
+    <string name="unchartable_error" description="message shown when the data type is not a location">Unchartable</string>
+    
+    <!--  eos.html -->
+    <string name="end_of_study_prompt" description="text shown to prompt user to do end of study activity">Please do the End of Study Sorting Activity sometime in the next 24 hours</string>
+    <string name="eos_early_exit_warning" description="warn user that they might lose unfinished work if the exit now">If you have not submitted, you may lose data. Are you sure you want to leave?</string>
+    <string name="eos_no_active_daily_responses">No active daily responses</string>
+    <string name="eos_could_not_save" description="message shown when user's responses in end of study activity could not be saved">Could not store your response. You might try again. Or contact the researcher running the study. Error: </string>
+    <string name="eos_instructions" description="Text instructing user to sort activities into groups">Please group info needs into higher-level activities</string>
+    <string name="eos_check_related_needs_instruction">Check related info needs</string>
+    <string name="eos_enter_label_and_group_instruction">Enter a label for the larger activity and press Group</string>
+    <string name="eos_repeat_until_done_instruction">Repeat until all info needs that were part of a bigger activity have been grouped</string>
+    <string name="eos_activity_field_label" description="label for text field where user gives group a name">Activity</string>
+    <string name="eos_group_button_label" description="button label for group button to group activities under new name">Group</string>
+    <string name="eos_created_activity_group_section_header" description="Label for list of activity groups created by the user">Activity Groups</string>
+    
+    <string name="send_diagnostics_report_button_label">Email Report</string>
+    <string name="force_upload_events_button_label">Sync Events</string>
+    <string name="check_setup_button_label">Test</string>
+    <string name="title_troubleshooting">Troubleshooting</string>
+    <string name="title_results">Results</string>
+    <string name="diagnostics_account_label">account</string>
+    <string name="diagnostics_app_usage_access_label">App usage access</string>
+    <string name="diagnostics_localtime_label">localTime</string>
+    <string name="diagnostics_report_generated_label">Report generated</string>
+    <string name="diagnostics_network_connected_label">connected</string>
+    <string name="diagnostics_network_type_label">type</string>
+    <string name="diagnostics_experiment_count_label">count</string>
+    <string name="diagnostics_experiment_label">experiment</string>
+    <string name="diagnostic_server_label">server</string>
+    <string name="diagnostic_reachable_label">reachable</string>
+    <string name="diagnostic_no_network_label">no network</string>
+    <string name="diagnostic_phone_display_label">display</string>
+    <string name="diagnostic_phone_make_label">make</string>
+    <string name="diagnostic_phone_model_label">model</string>
+    <string name="diagnostic_phone_android_label">android</string>
+    <string name="diagnostic_phone_carrier_label">carrier</string>
+    <string name="diagnostic_phone_unavailable_label">unavailable</string>
+    <string name="diagnostic_ringer_ringer_mode_label">ringer mode</string>
+    <string name="diagnostic_ringer_normal_label">normal</string>
+    <string name="diagnostic_ringer_silent_label">silent</string>
+    <string name="diagnostic_ringer_vibrate_label">vibrate</string>
+    <string name="diagnostic_ringer_notification_volume_label">notification volume</string>
+    <string name="diagnostic_ringer_notification_volume_max_label">notification volume max</string>
+    <string name="diagnostic_events_unsynced_label">unsynced</string>
+    <string name="diagnostic_account_type">account</string>
+    <string name="diagnostic_app_usage_access_type">app usage access</string>
+    <string name="diagnostic_clock_type">clock</string>
+    <string name="diagnostic_esm_alarms_type">esm alarms</string>
+    <string name="diagnostic_ringer_type">ringer</string>
+    <string name="diagnostic_unsynced_events_type">unsynced events</string>
+    <string name="diagnostic_joined_experiments_type">joined experiments</string>
+    <string name="diagnostic_paco_reach_type">paco reach</string>
+    <string name="diagnostic_phone_type">phone</string>
+    <string name="diagnostic_network_type">network</string>
+    <string name="troubleshooting_no_diagnostics_report_message">no diagnostics report</string>
+    <string name="new_invitation_title">You have new invitations</string>
+    <string name="ringtone_for_alerts_label">Ringtone for alerts</string>
+    <string name="server_address_label">Server Address</string>
+    <string name="google_email_address_label">Google Email Address</string>
+    <string name="libraries_used_by_paco_label">Libraries used by Paco</string>
+    <string name="we_are_grateful_for_their_contributions_label">We are grateful for their contributions.</string>
+    <string name="no_groups_in_experiment_message">No groups in experiment</string>
+    <string name="error_loading_experiment_message">Something happened.\\nWe could not load the experiment.\\nPlease exit and email the researcher running the experiment</string>
+    <string name="_unverified_label">(unverified)</string>
+    <string name="ic_phone_make_model_carrier_label">Phone make, model, carrier</string>
+    <string name="review_accessibility_button_label">Make sure Paco has accessibility permissions by clicking here</string>
+    <string name="review_usageaccess_button_label">Make sure Paco has app usage access by clicking here</string>
+    <string name="review_schedule_button_label">Review Schedule</string>
+    <string name="the_personal_analytics_companion_subtitle">The Personal Analytics Companion</string>
+    <string name="login_with_your_google_email_to_join_experiments_message">Login with your Google email to join experiments</string>
+    <string name="login_button_label">Login</string>
+    <string name="time_schedule_edit_label">Time</string>
+    <string name="title_audio_recorder">Audio Recorder</string>
+    <string name="record_audio_label">Record audio</string>
+    <string name="could_not_encode_audio">Could not encode the audio file</string>
+    <string name="play_audio_label">Play</string>
+    <string name="delete_audio_label">Delete</string>
+    <string name="diagnostic_paco_version">Paco version</string>
+    <string name="dialog_change_email_warning">Changing your email address may prevent you from finding experiments or uploading data on existing experiments</string>
+    <string name="change_email_address_button">Change Email Address</string>
+    <string name="end_time_must_be_after_start_time_warning_label">End time must be after start time</string>
+    <string name="start_and_end_time_too_short">Start and End time window is too short</string>
+    <string name="diagnostic_accessibility_type">accessibility access</string>
+
+
+</resources>

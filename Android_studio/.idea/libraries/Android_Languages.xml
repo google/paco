@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="Android-Languages">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/paco/libs/Android-Languages.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

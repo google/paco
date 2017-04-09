@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="antlr-runtime-3.2">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/paco/libs/antlr-runtime-3.2.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

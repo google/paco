@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="maps-android-22">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/Android/sdk/add-ons/addon-google_apis-google-22/libs/maps.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

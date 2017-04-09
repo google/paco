@@ -1,3 +1,0 @@
-keep com.google.android.gms.gcm.*
-keep com.google.android.gms.auth.*
-keep com.google.android.gms.common.*

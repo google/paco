@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/Android_studio.iml" filepath="$PROJECT_DIR$/Android_studio.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../Shared/Shared.iml" filepath="$PROJECT_DIR$/../Shared/Shared.iml" />
+      <module fileurl="file://$PROJECT_DIR$/paco/paco.iml" filepath="$PROJECT_DIR$/paco/paco.iml" />
+    </modules>
+  </component>
+</project>

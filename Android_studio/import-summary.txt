@@ -1,0 +1,128 @@
+ECLIPSE ANDROID PROJECT IMPORT SUMMARY
+======================================
+
+Manifest Merging:
+-----------------
+Your project uses libraries that provide manifests, and your Eclipse
+project did not explicitly turn on manifest merging. In Android Gradle
+projects, manifests are always merged (meaning that contents from your
+libraries' manifests will be merged into the app manifest. If you had
+manually copied contents from library manifests into your app manifest
+you may need to remove these for the app to build correctly.
+
+Ignored Files:
+--------------
+The following files were *not* copied into the new Gradle project; you
+should evaluate whether these are still needed in your project and if
+so manually move them:
+
+From Paco:
+* android_keystore/
+* android_keystore/placeholder.txt
+* ant.properties
+* build.xml
+* build_as_library.xml
+* build_multidex.xml
+* experiment_json_form.txt
+* jarsign.sh
+* proguard-project.txt
+* proguard-project2.txt
+* zipalign.sh
+From Shared:
+* .gitignore
+* build.xml
+* j2objcprefixes.properties
+* lib/
+* lib/guava-16.0.1.jar
+* lib/joda-time-2.9.3.jar
+* lib/junit-4.10.jar
+
+Replaced Jars with Dependencies:
+--------------------------------
+The importer recognized the following .jar files as third party
+libraries and replaced them with Gradle dependencies instead. This has
+the advantage that more explicit version information is known, and the
+libraries can be updated automatically. However, it is possible that
+the .jar file in your project was of an older version than the
+dependency we picked, which could render the project not compileable.
+You can disable the jar replacement in the import wizard and try again:
+
+guava-16.0.1.jar => com.google.guava:guava:16.0.1
+joda-time-2.9.3.jar => joda-time:joda-time:2.9.3
+android-support-v4.jar => com.android.support:support-v4:22.2.1
+android-support-v7-appcompat.jar => com.android.support:appcompat-v7:22.2.1
+guava-16.0.1.jar => com.google.guava:guava:16.0.1
+joda-time-2.9.3.jar => joda-time:joda-time:2.9.3
+
+Potentially Missing Dependency:
+-------------------------------
+When we replaced the following .jar files with a Gradle dependency, we
+inferred the dependency version number from the filename. This
+specific version may not actually be available from the repository.
+If you get a build error stating that the dependency is missing, edit
+the version number to for example "+" to pick up the latest version
+instead. (This may require you to update your code if the library APIs
+have changed.)
+
+guava-16.0.1.jar => version 16.0.1 in com.google.guava:guava:16.0.1
+guava-16.0.1.jar => version 16.0.1 in com.google.guava:guava:16.0.1
+joda-time-2.9.3.jar => version 2.9.3 in joda-time:joda-time:2.9.3
+joda-time-2.9.3.jar => version 2.9.3 in joda-time:joda-time:2.9.3
+
+Replaced Libraries with Dependencies:
+-------------------------------------
+The importer recognized the following library projects as third party
+libraries and replaced them with Gradle dependencies instead. This has
+the advantage that more explicit version information is known, and the
+libraries can be updated automatically. However, it is possible that
+the source files in your project were of an older version than the
+dependency we picked, which could render the project not compileable.
+You can disable the library replacement in the import wizard and try
+again:
+
+android-support-v7-appcompat => [com.android.support:appcompat-v7:22.2.1]
+
+Moved Files:
+------------
+Android Gradle projects use a different directory structure than ADT
+Eclipse projects. Here's how the projects were restructured:
+
+In Shared:
+* lib/jackson-all-1.9.11.jar => shared/lib/jackson-all-1.9.11.jar
+* lib/js.jar => shared/lib/js.jar
+* lib/json-1.5.jar => shared/lib/json-1.5.jar
+* src/ => shared/src/main/java/
+* src_non_j2objc/ => shared/src/main/java/
+* test/ => shared/src/main/java/
+In Paco:
+* AndroidManifest.xml => paco/src/main/AndroidManifest.xml
+* assets/ => paco/src/main/assets/
+* libs/Android-Languages.jar => paco/libs/Android-Languages.jar
+* libs/antlr-runtime-3.2.jar => paco/libs/antlr-runtime-3.2.jar
+* libs/gps-stripped.jar => paco/libs/gps-stripped.jar
+* libs/jackson-all-1.9.11.jar => paco/libs/jackson-all-1.9.11.jar
+* libs/logback-android-1.1.1-6.jar => paco/libs/logback-android-1.1.1-6.jar
+* libs/slf4j-api-1.7.21.jar => paco/libs/slf4j-api-1.7.21.jar
+* res/ => paco/src/main/res/
+* src/ => paco/src/main/java/
+* src/com/bodymedia/mobile/jrs/JawboneDataService.aidl => paco/src/main/aidl/com/bodymedia/mobile/jrs/JawboneDataService.aidl
+* src/com/google/android/apps/paco/questioncondparser/QuestionCondition.g => paco/src/main/resources/com/google/android/apps/paco/questioncondparser/QuestionCondition.g
+* src/com/google/android/apps/paco/questioncondparser/QuestionCondition.tokens => paco/src/main/resources/com/google/android/apps/paco/questioncondparser/QuestionCondition.tokens
+* Test/libs/junit-4.10.jar => paco/libs/junit-4.10.jar
+* Test/res/ => paco/src/androidTest/res/
+* Test/src/ => paco/src/androidTest/java/
+
+Next Steps:
+-----------
+You can now build the project. The Gradle project needs network
+connectivity to download dependencies.
+
+Bugs:
+-----
+If for some reason your project does not build, and you determine that
+it is due to a bug or limitation of the Eclipse to Gradle importer,
+please file a bug at http://b.android.com with category
+Component-Tools.
+
+(This import summary is for your information only, and can be deleted
+after import once you are satisfied with the results.)
