@@ -201,7 +201,6 @@
 		4448BCBC1A808E7A0034FCE9 /* GTMOAuth2Authentication.m in Sources */ = {isa = PBXBuildFile; fileRef = 4448BC891A808E7A0034FCE9 /* GTMOAuth2Authentication.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
 		4448BCBD1A808E7A0034FCE9 /* GTMOAuth2SignIn.m in Sources */ = {isa = PBXBuildFile; fileRef = 4448BC8B1A808E7A0034FCE9 /* GTMOAuth2SignIn.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
 		4448BCBE1A808E7A0034FCE9 /* GTMOAuth2Framework-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 4448BC8D1A808E7A0034FCE9 /* GTMOAuth2Framework-Info.plist */; };
-		4448BCBF1A808E7A0034FCE9 /* GTMOAuth2Window.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4448BC8E1A808E7A0034FCE9 /* GTMOAuth2Window.xib */; };
 		4448BCC01A808E7A0034FCE9 /* GTMOAuth2WindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4448BC901A808E7A0034FCE9 /* GTMOAuth2WindowController.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
 		4448BCC11A808E7A0034FCE9 /* ReleaseNotes.txt in Resources */ = {isa = PBXBuildFile; fileRef = 4448BC911A808E7A0034FCE9 /* ReleaseNotes.txt */; };
 		4448BCDC1A80901D0034FCE9 /* GTMOAuth2ViewControllerTouch.m in Sources */ = {isa = PBXBuildFile; fileRef = 4448BCDA1A80901D0034FCE9 /* GTMOAuth2ViewControllerTouch.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
@@ -619,7 +618,6 @@
 		4448BC8A1A808E7A0034FCE9 /* GTMOAuth2SignIn.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GTMOAuth2SignIn.h; sourceTree = "<group>"; };
 		4448BC8B1A808E7A0034FCE9 /* GTMOAuth2SignIn.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GTMOAuth2SignIn.m; sourceTree = "<group>"; };
 		4448BC8D1A808E7A0034FCE9 /* GTMOAuth2Framework-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GTMOAuth2Framework-Info.plist"; sourceTree = "<group>"; };
-		4448BC8E1A808E7A0034FCE9 /* GTMOAuth2Window.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = GTMOAuth2Window.xib; sourceTree = "<group>"; };
 		4448BC8F1A808E7A0034FCE9 /* GTMOAuth2WindowController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GTMOAuth2WindowController.h; sourceTree = "<group>"; };
 		4448BC901A808E7A0034FCE9 /* GTMOAuth2WindowController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GTMOAuth2WindowController.m; sourceTree = "<group>"; };
 		4448BC911A808E7A0034FCE9 /* ReleaseNotes.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = ReleaseNotes.txt; sourceTree = "<group>"; };
@@ -1402,7 +1400,6 @@
 			isa = PBXGroup;
 			children = (
 				4448BC8D1A808E7A0034FCE9 /* GTMOAuth2Framework-Info.plist */,
-				4448BC8E1A808E7A0034FCE9 /* GTMOAuth2Window.xib */,
 				4448BC8F1A808E7A0034FCE9 /* GTMOAuth2WindowController.h */,
 				4448BC901A808E7A0034FCE9 /* GTMOAuth2WindowController.m */,
 			);
@@ -1537,6 +1534,7 @@
 				TargetAttributes = {
 					319771C3163F0733000AC06B = {
 						DevelopmentTeam = J7M7JW942W;
+						ProvisioningStyle = Automatic;
 					};
 					319771ED163F0733000AC06B = {
 						DevelopmentTeam = J7M7JW942W;
@@ -1713,7 +1711,6 @@
 				C567E89017A03FDE00267A26 /* deepbark_trial.mp3 in Resources */,
 				4448BCC11A808E7A0034FCE9 /* ReleaseNotes.txt in Resources */,
 				36000C5917CD1AF600A8A9E7 /* Test_999999999.plist in Resources */,
-				4448BCBF1A808E7A0034FCE9 /* GTMOAuth2Window.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2033,7 +2030,9 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				CODE_SIGN_IDENTITY = "iPhone Developer: Paco Developers (NW2F476Z8Y)";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer: Paco Developers (NW2F476Z8Y)";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				DEVELOPMENT_TEAM = J7M7JW942W;
+				ENTITLEMENTS_REQUIRED = Yes;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "Paco/source/Paco-Prefix.pch";
 				INFOPLIST_FILE = "Paco/config/Paco-Info.plist";
@@ -2045,6 +2044,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
 				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				TARGETED_DEVICE_FAMILY = "1,2";
 				WRAPPER_EXTENSION = app;
 			};
@@ -2056,7 +2056,9 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				CODE_SIGN_IDENTITY = "iPhone Developer: Paco Developers (NW2F476Z8Y)";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer: Paco Developers (NW2F476Z8Y)";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				DEVELOPMENT_TEAM = J7M7JW942W;
+				ENTITLEMENTS_REQUIRED = Yes;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "Paco/source/Paco-Prefix.pch";
 				INFOPLIST_FILE = "Paco/config/Paco-Info.plist";
@@ -2067,6 +2069,7 @@
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				TARGETED_DEVICE_FAMILY = "1,2";
 				WRAPPER_EXTENSION = app;
 			};
