@@ -24,6 +24,10 @@
 
   <system-properties>
     <property name="java.util.logging.config.file" value="WEB-INF/logging.properties"/>
+    <property name="ae-cloudsql.database-url" value="jdbc:google:mysql://quantifiedself-staging2:us-central1:quantifiedself-staging2-sql/test" />
+    <property name="ae-cloudsql.database-username" value="XXX"/>
+    <property name="ae-cloudsql.database-password" value="XXX"/>
+    <property name="ae-connection-pool.maxconn" value="100"/>
   </system-properties>
 
 </appengine-web-app>

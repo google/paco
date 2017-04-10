@@ -16,6 +16,11 @@
 */
 package com.pacoapp.paco.shared.util;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.TimeZone;
+
 import org.joda.time.DateMidnight;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeConstants;
@@ -47,8 +52,17 @@ public class TimeUtil {
 
   public static final String DATE_WITH_ZONE_FORMAT = "yyyy/MM/ddZ";
   private static DateTimeFormatter dateZoneFormatter = DateTimeFormat.forPattern(DATE_WITH_ZONE_FORMAT);
+  
+  public static final String DATE_TIME_WITH_NO_TZ = "yyyy/MM/dd HH:mm:ss";
+  private static SimpleDateFormat localFormatter = new SimpleDateFormat (DATE_TIME_WITH_NO_TZ);
+  
+  private static SimpleDateFormat utcFormatter = new SimpleDateFormat (DATE_TIME_WITH_NO_TZ);
 
   public static final DateTimeFormatter hourFormatter = DateTimeFormat.forPattern("hh:mma");
+  
+  private static final String GMT = "GMT";
+  private static final String UTC = "UTC";
+    
 
   private TimeUtil() {
     super();
@@ -139,5 +153,25 @@ public class TimeUtil {
     } catch (Exception e) {
       return null;
     }
+  }
+  
+  public static Date convertToUTC(Date dt, String clientTz) throws ParseException{
+    if (dt == null) { 
+      return null;
+    }
+    localFormatter.setTimeZone(TimeZone.getTimeZone(GMT+clientTz));
+    utcFormatter.setTimeZone(TimeZone.getTimeZone(UTC));
+    Date utcTime = localFormatter.parse(utcFormatter.format(dt));
+    return utcTime;
+  }
+  
+  public static Date convertToLocal(Date dt, String tz) throws ParseException{
+    if (dt == null) { 
+      return null;
+    }
+    localFormatter.setTimeZone(TimeZone.getTimeZone(GMT+tz));
+    utcFormatter.setTimeZone(TimeZone.getTimeZone(UTC));
+    Date localTime = utcFormatter.parse(localFormatter.format(dt));
+    return localTime;
   }
 }

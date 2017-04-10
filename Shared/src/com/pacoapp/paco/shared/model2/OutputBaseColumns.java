@@ -17,18 +17,14 @@
 /**
  *
  */
-package com.pacoapp.paco.model;
+package com.pacoapp.paco.shared.model2;
 
-import com.pacoapp.paco.shared.model2.EventBaseColumns;
 
-import android.net.Uri;
-import android.provider.BaseColumns;
-
-public class EventColumns extends EventBaseColumns implements BaseColumns {
-
-  public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.google.paco.event";
-  public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.google.paco.event";
-
-  public static final Uri CONTENT_URI = Uri.parse("content://"+ExperimentProviderUtil.AUTHORITY+"/events");
-
+public class OutputBaseColumns {
+  public static final String TABLE_NAME = "outputs";
+  public static final String EVENT_ID = "event_id";
+  public static final String INPUT_SERVER_ID = "input_server_id";
+  public static final String NAME = "text";
+  public static final String ANSWER = "answer";
+  public static final String ARCHIVE_FLAG = "archive_flag";
 }

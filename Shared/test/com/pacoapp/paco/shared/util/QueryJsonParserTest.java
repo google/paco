@@ -1,11 +1,14 @@
-package com.pacoapp.paco.js.bridge;
+package com.pacoapp.paco.shared.util;
 
 import org.json.JSONException;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-public class JsUtilTest {
+import com.pacoapp.paco.shared.model2.SQLQuery;
+import com.pacoapp.paco.shared.util.QueryJsonParser;
+
+public class QueryJsonParserTest {
 
   @Before
   public void before() {
@@ -14,29 +17,30 @@ public class JsUtilTest {
 
   @Test
   public void testConvertJSONToPOJO_null() throws JSONException {
-    SQLQuery q = JsUtil.convertJSONToPOJO(null);
-    Assert.assertEquals(q, null);
+    SQLQuery q = QueryJsonParser.parseSqlQueryFromJson(null, false);
+    Assert.assertEquals(null, q);
   }
 
   @Test
   public void testConvertJSONToPOJO_partialValues_NoGroupByButHaving() {
     String inputString = "{query: {criteria: '(group_name =? and answer=?)',values:['New Group','bombay']},limit: 100, order: 'response_time' ,select: ['group_name','response_time', 'experiment_name','answer'], having: 'response_time>10'}";
-    SQLQuery expectedValue = new SQLQuery();
-    expectedValue.setProjection(new String[] { "group_name", "response_time", "experiment_name", "answer" });
-    expectedValue.setCriteriaQuery("(group_name =? and answer=?)");
-    expectedValue.setCriteriaValue(new String[] { "New Group", "bombay" });
-    expectedValue.setLimit("100");
-    expectedValue.setSortOrder("response_time");
-    expectedValue.setGroupBy(null);
-    expectedValue.setHaving(null);
-
+    SQLQuery.Builder expectedValueBldr = new SQLQuery.Builder(new String[] { "group_name", "response_time", "experiment_name", "answer" });
+    expectedValueBldr.criteriaQuery("(group_name =? and answer=?)");
+    expectedValueBldr.criteriaValues(new String[] { "New Group", "bombay" });
+    expectedValueBldr.limit("100");
+    expectedValueBldr.sortBy("response_time");
+    expectedValueBldr.groupBy(null);
+    expectedValueBldr.having(null);
+    SQLQuery expectedValue = expectedValueBldr.buildWithDefaultValues();
+    
     SQLQuery actualValue = null;
     try {
-      actualValue = JsUtil.convertJSONToPOJO(inputString);
+      actualValue = QueryJsonParser.parseSqlQueryFromJson(inputString, true);
     } catch (JSONException e) {
+      // TODO Auto-generated catch block
       e.printStackTrace();
     }
-    
+   
     Assert.assertNotNull(actualValue);
     Assert.assertEquals(expectedValue.getProjection(), actualValue.getProjection());
     Assert.assertEquals(expectedValue.getCriteriaQuery().trim(), actualValue.getCriteriaQuery());
@@ -50,21 +54,23 @@ public class JsUtilTest {
   @Test
    public void testConvertJSONToPOJO_allValues(){
      String inputString = "{query: {criteria: '(group_name =? and answer=?)',values:['New Group','bombay']},limit: 100, order: 'response_time' ,select: ['group_name','response_time', 'experiment_name','answer'], group: 'response_time', having: 'response_time>5'}";
-     SQLQuery expectedValue = new SQLQuery();
-     expectedValue.setProjection(new String[] { "group_name", "response_time", "experiment_name", "answer" });
-     expectedValue.setCriteriaQuery("(group_name =? and answer=?)");
-     expectedValue.setCriteriaValue(new String[] { "New Group", "bombay" });
-     expectedValue.setLimit("100");
-     expectedValue.setSortOrder("response_time");
-     expectedValue.setGroupBy("response_time");
-     expectedValue.setHaving("response_time>5");
+     SQLQuery.Builder expectedValueBldr = new SQLQuery.Builder(new String[] { "group_name", "response_time", "experiment_name", "answer" });
+     
+     expectedValueBldr.criteriaQuery("(group_name =? and answer=?)");
+     expectedValueBldr.criteriaValues(new String[] { "New Group", "bombay" });
+     expectedValueBldr.limit("100");
+     expectedValueBldr.sortBy("response_time");
+     expectedValueBldr.groupBy("response_time");
+     expectedValueBldr.having("response_time>5");
 
+     SQLQuery expectedValue = expectedValueBldr.buildWithDefaultValues();
      SQLQuery actualValue = null;
      try {
-       actualValue = JsUtil.convertJSONToPOJO(inputString);
-     } catch (JSONException e) {
-       e.printStackTrace();
-     }
+      actualValue = QueryJsonParser.parseSqlQueryFromJson(inputString, true);
+    } catch (JSONException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
      
      Assert.assertNotNull(actualValue);
      Assert.assertEquals(expectedValue.getProjection(), actualValue.getProjection());
@@ -80,28 +86,30 @@ public class JsUtilTest {
    @Test
    public void testConvertJSONToPOJO_partialValues_NoSortOrderButLimit(){
      String inputString = "{query: {criteria: '(group_name =? and answer=?)',values:['New Group','bombay']},limit: 100, select: ['group_name','response_time', 'experiment_name','answer'], limit: '10'}";
-     SQLQuery expectedValue = new SQLQuery();
-     expectedValue.setProjection(new String[] { "group_name", "response_time", "experiment_name", "answer" });
-     expectedValue.setCriteriaQuery("(group_name =? and answer=?)");
-     expectedValue.setCriteriaValue(new String[] { "New Group", "bombay" });
-     expectedValue.setLimit(null);
-     expectedValue.setSortOrder(null);
-     expectedValue.setGroupBy(null);
-     expectedValue.setHaving(null);
-
+     SQLQuery.Builder expectedValueBldr = new SQLQuery.Builder(new String[] { "group_name", "response_time", "experiment_name", "answer" });
+     expectedValueBldr.criteriaQuery("(group_name =? and answer=?)");
+     expectedValueBldr.criteriaValues(new String[] { "New Group", "bombay" });
+     expectedValueBldr.groupBy(null);
+     expectedValueBldr.having(null);
+     expectedValueBldr.limit("10");
+     SQLQuery expectedValue = expectedValueBldr.buildWithDefaultValues();
+     
      SQLQuery actualValue = null;
+
      try {
-       actualValue = JsUtil.convertJSONToPOJO(inputString);
-     } catch (JSONException e) {
-       e.printStackTrace();
-     }
+      actualValue = QueryJsonParser.parseSqlQueryFromJson(inputString, true);
+    } catch (JSONException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
+     
      
      Assert.assertNotNull(actualValue);
      Assert.assertEquals(expectedValue.getProjection(), actualValue.getProjection());
      Assert.assertEquals(expectedValue.getCriteriaQuery().trim(), actualValue.getCriteriaQuery());
      Assert.assertEquals(expectedValue.getCriteriaValue(), actualValue.getCriteriaValue());
-     Assert.assertNull(actualValue.getSortOrder());
-     Assert.assertNull(actualValue.getLimit());
+     Assert.assertEquals(expectedValue.getSortOrder(), actualValue.getSortOrder());
+     Assert.assertEquals(expectedValue.getLimit(),actualValue.getLimit());
      Assert.assertEquals(expectedValue.getCriteriaQuery().trim(), actualValue.getCriteriaQuery());
      Assert.assertNull(actualValue.getGroupBy());
      Assert.assertNull(actualValue.getHaving());
