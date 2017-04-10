@@ -157,7 +157,7 @@ typedef void (^PacoAuthenticationBlock)(NSError *);
                           NSError *error) {
           BOOL result = [GTMOAuth2ViewControllerTouch saveParamsToKeychainForName:@"PacoKeychain2"
                                                                    authentication:auth];
-          assert(result);
+          //assert(result);
           // TODO(ispiro): If user presses cancel at the final screen, assert will fail. Should return to splash screen.
           self.auth = auth;
           if (auth && !error) {
