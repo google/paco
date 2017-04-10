@@ -630,7 +630,7 @@ pacoApp.controller('DataCtrl', [
       }
 
       $scope.isPhotoData = function(data) {
-        return (typeof (data) === 'string' && data.indexOf($scope.photoMarker) === 0);
+        return (typeof (data) === 'string' && (data.indexOf($scope.photoMarker) === 0 || data.indexOf("iVBORw0K") === 0));
       }
 
       $scope.isAudioData = function(data) {
