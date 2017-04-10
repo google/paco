@@ -78,7 +78,8 @@
         jsonObj = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingAllowFragments error:&jsonError];
         if (jsonError) {
           DDLogError(@"JSON PARSE ERROR = %@\n", jsonError);
-          DDLogError(@"PROBABLY AN AUTH ERROR");
+          DDLogError(@"PROBABLY AN AUTH ERROR\n");
+          DDLogError(@"JSON dump: %@\n", data);
           
           [[PacoClient sharedInstance] invalidateUserAccount];
         }
