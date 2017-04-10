@@ -419,12 +419,12 @@ UIImagePickerControllerDelegate>
     }
     self.map.delegate = self;
     [self addSubview:self.map];
-    if (UIDevice.currentDevice().systemVersion.floatValue>=8.0) {
+    //if (UIDevice.currentDevice().systemVersion.floatValue>=8.0) {
       //---request for foreground location use---
-      location.requestWhenInUseAuthorization()
-    }
+    //  location.requestWhenInUseAuthorization()
+    //}
     
-    lm.startUpdatingLocation()
+    //lm.startUpdatingLocation()
   } else if (self.question.responseEnumType == ResponseEnumTypePhoto) {
     if ([self.question.text length] == 0) {
       self.questionText.text = NSLocalizedString(@"Attach a photo.", nil);
