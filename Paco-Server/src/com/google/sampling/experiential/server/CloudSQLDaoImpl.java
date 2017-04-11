@@ -1,5 +1,6 @@
 package com.google.sampling.experiential.server;
 
+import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -7,21 +8,29 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 
+import org.apache.commons.lang3.StringUtils;
+import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.sampling.experiential.model.ApplicationUsage;
+import com.google.sampling.experiential.model.ApplicationUsageRaw;
 import com.google.sampling.experiential.model.Event;
 import com.google.sampling.experiential.shared.EventDAO;
 import com.google.sampling.experiential.shared.WhatDAO;
 import com.pacoapp.paco.shared.model2.EventBaseColumns;
 import com.pacoapp.paco.shared.model2.OutputBaseColumns;
+import com.pacoapp.paco.shared.model2.SPRequest;
 import com.pacoapp.paco.shared.util.ErrorMessages;
 import com.pacoapp.paco.shared.util.TimeUtil;
 
@@ -446,4 +455,105 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
     }
     return retString;
   }
+
+  @Override
+  public Map<String,List<ApplicationUsageRaw>> getAppUsageTopN(SPRequest spRequest) throws SQLException {
+    Connection conn = null;
+    CallableStatement cStmt = null;
+    ApplicationUsageRaw auRawObj;
+    List<ApplicationUsageRaw> auLst = Lists.newArrayList();
+    Map<String,List<ApplicationUsageRaw>> usageMap = Maps.newHashMap();
+    conn = CloudSQLConnectionManager.getInstance().getConnection();
+    String realSPName = spRequest.getSpName().getRealDbName();
+    Timestamp reqFromDateTS = convertToTS(spRequest.getFromDate());
+    Timestamp reqToDateTS = convertToTS(spRequest.getToDate());
+    
+    cStmt = conn.prepareCall("{call "+realSPName+" (?,?,?)}");
+    cStmt.setString(1, spRequest.getExpId());
+    cStmt.setTimestamp(2, reqFromDateTS);
+    cStmt.setTimestamp(3, reqToDateTS);
+    boolean hadResults = cStmt.execute();
+
+    while (hadResults) {
+      ResultSet rs = cStmt.getResultSet();
+      String prevWho = "";
+      ApplicationUsageRaw prevObject = null;
+      while(rs.next()) {
+        auRawObj = new ApplicationUsageRaw();
+        String who = rs.getString("who");
+        Timestamp eDate = rs.getTimestamp("end_date1");
+        Timestamp sDate = rs.getTimestamp("start_date");
+        String appName = rs.getString("answer");
+        auRawObj.setStartTime(sDate.toString());
+        auRawObj.setAplication(appName);
+        //change end date of data in resultset if it is higher than what we ask for
+        if(changeEndDate(eDate, reqToDateTS)) {
+          eDate = reqToDateTS;
+        }
+        auRawObj.setEndTime(eDate.toString());
+        // TODO identify session endings with more info on phoneOn, etc 
+        long diff = calcDuration(sDate, eDate);
+        if (diff == 0) {
+          if( prevObject != null && prevWho.equalsIgnoreCase(who)) {
+            eDate = convertToTS(prevObject.getStartTime());
+            diff = calcDuration (sDate, eDate);
+          }
+        } 
+        // if diff is more than a day
+        if (diff > 86400) {
+          diff = 0;
+        }
+        auRawObj.setDuration(diff);
+        // adding the raw object to the corresponding user specific list
+        List<ApplicationUsageRaw> auRawFromMap = usageMap.get(who);
+        if (auRawFromMap != null) {
+          auRawFromMap.add(auRawObj);
+        } else {
+          auLst = Lists.newArrayList();
+          auLst.add(auRawObj);
+          usageMap.put(who,auLst);
+        }
+        prevObject = auRawObj;
+        prevWho = who;
+      }
+      hadResults = cStmt.getMoreResults();
+    }
+    return usageMap;
+  }
+  
+  private boolean changeEndDate( Timestamp endDateInResultet, Timestamp endDateInQuery) {
+    DateTimeFormatter formatter = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");
+    String rsDate = formatter.print(endDateInResultet.getTime());
+    String qryDate = formatter.print(endDateInQuery.getTime());
+    
+    try {
+      DateTime dtRS = formatter.parseDateTime(rsDate).withZone(DateTimeZone.UTC);
+      DateTime dtQry = formatter.parseDateTime(qryDate).withZone(DateTimeZone.UTC);
+      
+      if(dtRS.getMillis() - dtQry.getMillis() >0){
+        return true;
+      }
+    } catch (Exception e) {
+      log.info("exception"+e); 
+    }
+    return false;
+  }
+  
+  private long calcDuration(Timestamp fromDate, Timestamp endDate) {
+    long diffInMs = endDate.getTime() - fromDate.getTime();
+    return diffInMs/1000;
+  }
+  
+  private Timestamp convertToTS(String date) {
+    Timestamp timestamp = null;
+    try{
+      SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+      Date parsedDate = dateFormat.parse(date);
+      timestamp = new java.sql.Timestamp(parsedDate.getTime());
+    }catch(Exception e){
+      log.info("convertto timestamp" + e); 
+    }
+    return timestamp;
+  }
+  
 }

@@ -7,7 +7,9 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.google.common.base.Strings;
+import com.pacoapp.paco.shared.model2.SPRequest;
 import com.pacoapp.paco.shared.model2.SQLQuery;
+import com.pacoapp.paco.shared.model2.StoredProcEnum;
 
 public class QueryJsonParser {
   public static final Logger log = Logger.getLogger(QueryJsonParser.class.getName());
@@ -92,6 +94,58 @@ public class QueryJsonParser {
       if (queryObj.has(Constants.HAVING)) {
         sqlBldr.having(queryObj.getString(Constants.HAVING).trim());
       }
+    }
+
+    sqlObj = sqlBldr.buildWithDefaultValues();
+    return sqlObj;
+  }
+  
+  public static SPRequest parseStoredProcRequestFromJson(String queryJson) throws JSONException {
+    final String EXPERIMENT_ID = "expId";
+    final String FROM_DATE = "startDate";
+    final String END_DATE = "endDate";
+    final String WHO = "who";
+    final String ORDER = "order";
+    final String LIMIT = "limit";
+    final String SP_NAME = "spName";
+    
+    SPRequest sqlObj = null;
+    SPRequest.Builder sqlBldr = null;
+    String expId = null;
+    JSONObject queryObj = null;
+    if (Strings.isNullOrEmpty(queryJson)) {
+      return null;
+    }
+    queryObj = new JSONObject(queryJson);
+    if (queryObj.has(EXPERIMENT_ID)) {
+      expId = queryObj.getString(EXPERIMENT_ID);
+    } 
+    
+    sqlBldr = new SPRequest.Builder(expId);
+            
+    if (queryObj.has(FROM_DATE)) {
+      sqlBldr.fromDate(queryObj.getString(FROM_DATE));
+    }
+    
+    if (queryObj.has(END_DATE)) {
+      sqlBldr.toDate(queryObj.getString(END_DATE));
+    }
+
+    
+    if (queryObj.has(ORDER)) {
+      sqlBldr.sortBy(queryObj.getString(ORDER).trim());
+    }
+    
+    if (queryObj.has(LIMIT)) {
+      sqlBldr.limit(queryObj.getString(LIMIT).trim());
+    }
+    
+    if (queryObj.has(WHO)) {
+      sqlBldr.who(queryObj.getString(WHO).trim());
+    }
+    
+    if (queryObj.has(SP_NAME)) {
+      sqlBldr.spName(StoredProcEnum.getEnum(queryObj.getString(SP_NAME).trim()));
     }
 
     sqlObj = sqlBldr.buildWithDefaultValues();

@@ -53,6 +53,15 @@
   </servlet-mapping>
   
   <servlet>
+    <servlet-name>ServerStoredProcServlet</servlet-name>
+    <servlet-class>com.google.sampling.experiential.server.CloudSqlStoredProcServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>ServerStoredProcServlet</servlet-name>
+    <url-pattern>/csReports</url-pattern>
+  </servlet-mapping>
+  
+  <servlet>
     <servlet-name>usageServlet</servlet-name>
     <servlet-class>com.google.sampling.experiential.server.UsageServlet</servlet-class>
   </servlet>
@@ -203,7 +212,9 @@
       <url-pattern>/eval*</url-pattern>
       <url-pattern>/participantJoinStats*</url-pattern>
       <url-pattern>/csCreate</url-pattern>
-      <url-pattern>/csInsert</url-pattern> 
+      <url-pattern>/csReports</url-pattern>
+      <!--  Only needed for local dev instance -->
+      <!-- <url-pattern>/csInsert</url-pattern>--> 
     </web-resource-collection>
     <auth-constraint>
       <role-name>admin</role-name>
