@@ -6,10 +6,19 @@ import com.google.common.collect.Lists;
 import com.google.sampling.experiential.shared.EventDAO;
 
 public class EventQueryStatus {
+  public static final String SUCCESS = "Success";
+  public static final String FAILURE = "Failure";
+
 
   private String status;
   private String errorMessage;
   private List<EventDAO> events = Lists.newArrayList();
+
+
+  public EventQueryStatus() {
+    super();
+    setStatus(SUCCESS);
+  }
 
   public String getStatus() {
     return status;
@@ -25,6 +34,7 @@ public class EventQueryStatus {
 
   public void setErrorMessage(String errorMessage) {
     this.errorMessage = errorMessage;
+    setStatus(FAILURE);
   }
 
   public List<EventDAO> getEvents() {
