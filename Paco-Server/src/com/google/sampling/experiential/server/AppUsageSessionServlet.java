@@ -13,6 +13,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.joda.time.DateMidnight;
+import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
@@ -44,12 +45,13 @@ public class AppUsageSessionServlet extends HttpServlet {
         who = userEmail;
       }
       if (experimentId != null) {
-        produceAppUsageChart(userEmail, who, experimentId, resp);
+        DateTimeZone tzForClient = TimeUtil.getTimeZoneForClient(req);
+        produceAppUsageChart(userEmail, who, experimentId, resp, tzForClient);
       }
     }
   }
 
-  private void produceAppUsageChart(String userEmail, String who, Long experimentId, HttpServletResponse resp) throws IOException {
+  private void produceAppUsageChart(String userEmail, String who, Long experimentId, HttpServletResponse resp, DateTimeZone timezone) throws IOException {
     //String jsonSqlRequest = "select * from events where experimentId = " + experimentId.toString() + " and who = " + userEmail;
 
     DateMidnight today = new DateMidnight();
@@ -70,7 +72,7 @@ public class AppUsageSessionServlet extends HttpServlet {
     "        } " +
     "      };";
 
-    EventQueryStatus result = CloudSqlRequestProcessor.processSearchQuery(userEmail, query, null);
+    EventQueryStatus result = CloudSqlRequestProcessor.processSearchQuery(userEmail, query, timezone);
     if (result.getStatus() == EventQueryStatus.FAILURE) {
       String resultAsString = JsonConverter.getObjectMapper().writeValueAsString(result);
       resp.getWriter().println(resultAsString);
