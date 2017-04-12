@@ -68,8 +68,8 @@ public class AppUsageSessionServlet extends HttpServlet {
     " and who = ? and (group_name = ? or text = ? or text = ? ) and response_time between ? and ?\"," +
     "          values : [" +experimentId.toString() + ", " + "\"\'" + who + "\'\"," +
     " \"\'app_logging\'\", \"\'userPresent\'\", \"\'userNotPresent\'\", \"\'" + startTime + "\'\", \"\'" + endTime + "\'\"]," +
-    "          order : \"response_time\"" +
-    "        } " +
+    "        },  order : \"response_time\"" +
+    "         " +
     "      };";
 
     EventQueryStatus result = CloudSqlRequestProcessor.processSearchQuery(userEmail, query, timezone);
@@ -80,8 +80,8 @@ public class AppUsageSessionServlet extends HttpServlet {
     }
 
     final List<EventDAO> events = result.getEvents();
-    String page = JsonConverter.getObjectMapper().writeValueAsString(events);
-    //String page = makeAppUsagePage(userEmail, experimentId, events);
+    //String page = JsonConverter.getObjectMapper().writeValueAsString(events);
+    String page = makeAppUsagePage(userEmail, experimentId, events);
     resp.getWriter().println(page);
   }
 
@@ -139,7 +139,7 @@ public class AppUsageSessionServlet extends HttpServlet {
 " */" + "\n" +
 "getAppUses = function(events) {" + "\n" +
 "  var appUses = [];" + "\n" +
-"  var reversed = events.reverse();" + "\n" +
+"  var reversed = events; //events.reverse();" + "\n" +
 "  " + "\n" +
 "  var currentAppUsed;" + "\n" +
 "  var appUseStartTime;" + "\n" +
