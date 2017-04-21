@@ -25,6 +25,9 @@ import android.net.Uri;
 import android.provider.BaseColumns;
 
 public class EventColumns extends EventBaseColumns implements BaseColumns {
+  
+  public static final String EXPERIMENT_SERVER_ID = "experiment_server_id";
+  public static final String UPLOADED = "uploaded";
 
   public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.google.paco.event";
   public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.google.paco.event";

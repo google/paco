@@ -7,6 +7,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.google.common.collect.Maps;
+import com.google.sampling.experiential.datastore.EventServerColumns;
 import com.pacoapp.paco.shared.model2.EventBaseColumns;
 import com.pacoapp.paco.shared.model2.OutputBaseColumns;
 import com.pacoapp.paco.shared.util.QueryPreprocessor;
@@ -279,7 +280,6 @@ public class ACLHelperTestAsAdminAndParticipant extends TestCase {
       validColumnNamesDataTypeInDb.put(ID, LongValue.class);
 
       validColumnNamesDataTypeInDb.put(EventBaseColumns.EXPERIMENT_ID, LongValue.class);
-      validColumnNamesDataTypeInDb.put(EventBaseColumns.EXPERIMENT_SERVER_ID, StringValue.class);
       validColumnNamesDataTypeInDb.put(EventBaseColumns.EXPERIMENT_NAME, StringValue.class);
       validColumnNamesDataTypeInDb.put(EventBaseColumns.EXPERIMENT_VERSION, LongValue.class);
       validColumnNamesDataTypeInDb.put(EventBaseColumns.SCHEDULE_TIME, StringValue.class);
@@ -290,14 +290,14 @@ public class ACLHelperTestAsAdminAndParticipant extends TestCase {
       validColumnNamesDataTypeInDb.put(EventBaseColumns.ACTION_TRIGGER_SPEC_ID, LongValue.class);
       validColumnNamesDataTypeInDb.put(EventBaseColumns.ACTION_ID, LongValue.class);
 
-      validColumnNamesDataTypeInDb.put(EventBaseColumns.WHO, StringValue.class);
-      validColumnNamesDataTypeInDb.put(EventBaseColumns.WHEN, StringValue.class);
-      validColumnNamesDataTypeInDb.put(EventBaseColumns.PACO_VERSION, LongValue.class);
-      validColumnNamesDataTypeInDb.put(EventBaseColumns.APP_ID, StringValue.class);
-      validColumnNamesDataTypeInDb.put(EventBaseColumns.JOINED, LongValue.class);
+      validColumnNamesDataTypeInDb.put(EventServerColumns.WHO, StringValue.class);
+      validColumnNamesDataTypeInDb.put(EventServerColumns.WHEN, StringValue.class);
+      validColumnNamesDataTypeInDb.put(EventServerColumns.PACO_VERSION, LongValue.class);
+      validColumnNamesDataTypeInDb.put(EventServerColumns.APP_ID, StringValue.class);
+      validColumnNamesDataTypeInDb.put(EventServerColumns.JOINED, LongValue.class);
 
-      validColumnNamesDataTypeInDb.put(EventBaseColumns.SORT_DATE, StringValue.class);
-      validColumnNamesDataTypeInDb.put(EventBaseColumns.CLIENT_TIME_ZONE, StringValue.class);
+      validColumnNamesDataTypeInDb.put(EventServerColumns.SORT_DATE, StringValue.class);
+      validColumnNamesDataTypeInDb.put(EventServerColumns.CLIENT_TIME_ZONE, StringValue.class);
       validColumnNamesDataTypeInDb.put(OutputBaseColumns.NAME, StringValue.class);
       validColumnNamesDataTypeInDb.put(OutputBaseColumns.ANSWER, StringValue.class);
     }

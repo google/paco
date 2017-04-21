@@ -24,11 +24,12 @@ import org.json.JSONException;
 import com.google.appengine.api.users.User;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.sampling.experiential.datastore.EventServerColumns;
 import com.google.sampling.experiential.shared.EventDAO;
-import com.pacoapp.paco.shared.model2.EventBaseColumns;
 import com.pacoapp.paco.shared.model2.JsonConverter;
 import com.pacoapp.paco.shared.model2.OutputBaseColumns;
 import com.pacoapp.paco.shared.model2.SQLQuery;
+import com.pacoapp.paco.shared.util.Constants;
 import com.pacoapp.paco.shared.util.ErrorMessages;
 import com.pacoapp.paco.shared.util.QueryJsonParser;
 import com.pacoapp.paco.shared.util.QueryPreprocessor;
@@ -46,36 +47,32 @@ public class CloudSqlSearchServlet extends HttpServlet {
   public static final Logger log = Logger.getLogger(CloudSqlSearchServlet.class.getName());
   private static Map<String, Class> validColumnNamesDataTypeInDb = Maps.newHashMap();
   private static List<String> dateColumns = Lists.newArrayList();
-  private static final String ID = "_id";
   private static final DateTimeFormatter dtf = DateTimeFormat.forPattern("ZZ");
-  private static final String SUCCESS = "Success";
-  private static final String FAILURE = "Failure";
-  private static final String STAR = "*";
+  
   
   static{
-    validColumnNamesDataTypeInDb.put(ID, LongValue.class);
-    validColumnNamesDataTypeInDb.put(EventBaseColumns.EXPERIMENT_ID, LongValue.class);
-    validColumnNamesDataTypeInDb.put(EventBaseColumns.EXPERIMENT_SERVER_ID, StringValue.class);
-    validColumnNamesDataTypeInDb.put(EventBaseColumns.EXPERIMENT_NAME, StringValue.class);
-    validColumnNamesDataTypeInDb.put(EventBaseColumns.EXPERIMENT_VERSION, LongValue.class);
-    validColumnNamesDataTypeInDb.put(EventBaseColumns.SCHEDULE_TIME, StringValue.class);
-    validColumnNamesDataTypeInDb.put(EventBaseColumns.RESPONSE_TIME, StringValue.class);
-    validColumnNamesDataTypeInDb.put(EventBaseColumns.GROUP_NAME, StringValue.class);
-    validColumnNamesDataTypeInDb.put(EventBaseColumns.ACTION_TRIGGER_ID, LongValue.class);
-    validColumnNamesDataTypeInDb.put(EventBaseColumns.ACTION_TRIGGER_SPEC_ID, LongValue.class);
-    validColumnNamesDataTypeInDb.put(EventBaseColumns.ACTION_ID, LongValue.class);
-    validColumnNamesDataTypeInDb.put(EventBaseColumns.WHO, StringValue.class);
-    validColumnNamesDataTypeInDb.put(EventBaseColumns.WHEN, StringValue.class);
-    validColumnNamesDataTypeInDb.put(EventBaseColumns.PACO_VERSION, LongValue.class);
-    validColumnNamesDataTypeInDb.put(EventBaseColumns.APP_ID, StringValue.class);
-    validColumnNamesDataTypeInDb.put(EventBaseColumns.JOINED, LongValue.class);
-    validColumnNamesDataTypeInDb.put(EventBaseColumns.SORT_DATE, StringValue.class);
-    validColumnNamesDataTypeInDb.put(EventBaseColumns.CLIENT_TIME_ZONE, StringValue.class);
+    validColumnNamesDataTypeInDb.put(Constants.UNDERSCORE_ID, LongValue.class);
+    validColumnNamesDataTypeInDb.put(EventServerColumns.EXPERIMENT_ID, LongValue.class);
+    validColumnNamesDataTypeInDb.put(EventServerColumns.EXPERIMENT_NAME, StringValue.class);
+    validColumnNamesDataTypeInDb.put(EventServerColumns.EXPERIMENT_VERSION, LongValue.class);
+    validColumnNamesDataTypeInDb.put(EventServerColumns.SCHEDULE_TIME, StringValue.class);
+    validColumnNamesDataTypeInDb.put(EventServerColumns.RESPONSE_TIME, StringValue.class);
+    validColumnNamesDataTypeInDb.put(EventServerColumns.GROUP_NAME, StringValue.class);
+    validColumnNamesDataTypeInDb.put(EventServerColumns.ACTION_TRIGGER_ID, LongValue.class);
+    validColumnNamesDataTypeInDb.put(EventServerColumns.ACTION_TRIGGER_SPEC_ID, LongValue.class);
+    validColumnNamesDataTypeInDb.put(EventServerColumns.ACTION_ID, LongValue.class);
+    validColumnNamesDataTypeInDb.put(EventServerColumns.WHO, StringValue.class);
+    validColumnNamesDataTypeInDb.put(EventServerColumns.WHEN, StringValue.class);
+    validColumnNamesDataTypeInDb.put(EventServerColumns.PACO_VERSION, LongValue.class);
+    validColumnNamesDataTypeInDb.put(EventServerColumns.APP_ID, StringValue.class);
+    validColumnNamesDataTypeInDb.put(EventServerColumns.JOINED, LongValue.class);
+    validColumnNamesDataTypeInDb.put(EventServerColumns.SORT_DATE, StringValue.class);
+    validColumnNamesDataTypeInDb.put(EventServerColumns.CLIENT_TIME_ZONE, StringValue.class);
     validColumnNamesDataTypeInDb.put(OutputBaseColumns.NAME, StringValue.class);
     validColumnNamesDataTypeInDb.put(OutputBaseColumns.ANSWER, StringValue.class);
-    dateColumns.add(EventBaseColumns.RESPONSE_TIME);
-    dateColumns.add(EventBaseColumns.SCHEDULE_TIME);
-    dateColumns.add("`"+ EventBaseColumns.WHEN +"`");
+    dateColumns.add(EventServerColumns.RESPONSE_TIME);
+    dateColumns.add(EventServerColumns.SCHEDULE_TIME);
+    dateColumns.add(EventServerColumns.WHEN);
   }
   
   @Override
@@ -114,7 +111,7 @@ public class CloudSqlSearchServlet extends HttpServlet {
         // display the date correctly
         if(enableGrpByAndProjection && isTimezoneNeeded(sqlQueryObj.getProjection())){
           
-          SelectUtils.addExpression(selStatement, new Column(EventBaseColumns.CLIENT_TIME_ZONE));
+          SelectUtils.addExpression(selStatement, new Column(EventServerColumns.CLIENT_TIME_ZONE));
         }
         QueryPreprocessor qProcessor = new QueryPreprocessor(selStatement, validColumnNamesDataTypeInDb, true, dateColumns,
                                                              dtf.withZone(tzForClient).print(0));
@@ -144,7 +141,7 @@ public class CloudSqlSearchServlet extends HttpServlet {
         long diff = System.currentTimeMillis() - startTime;
         log.info("complete search qry took " + diff);
         evQryStatus.setEvents(evtList);
-        evQryStatus.setStatus(SUCCESS);
+        evQryStatus.setStatus(Constants.SUCCESS);
         String results = mapper.writeValueAsString(evQryStatus);
         resp.getWriter().println(results);
       } catch (JSONException jsonEx) {
@@ -174,7 +171,7 @@ public class CloudSqlSearchServlet extends HttpServlet {
   private boolean isTimezoneNeeded(String[] projCols){
     boolean timezoneNeeded = false;
     for (String eachCol : projCols) {
-      if (eachCol.equals(STAR)){
+      if (eachCol.equals(Constants.STAR)){
         return false;
       } else if(dateColumns.contains(eachCol)){
         return true;
@@ -187,7 +184,7 @@ public class CloudSqlSearchServlet extends HttpServlet {
                                 String errorMessage) throws JsonGenerationException, JsonMappingException, IOException {
     EventQueryStatus evQryStatus = new EventQueryStatus();
     evQryStatus.setErrorMessage(errorMessage);
-    evQryStatus.setStatus(FAILURE);
+    evQryStatus.setStatus(Constants.FAILURE);
     String results = mapper.writeValueAsString(evQryStatus);
     resp.getWriter().println(results);
   }

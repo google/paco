@@ -101,6 +101,23 @@ public class ExperimentProviderUtil implements EventStore {
   private static final String LIMIT = " limit ";
   
   DateTimeFormatter endDateFormatter = DateTimeFormat.forPattern(TimeUtil.DATE_FORMAT);
+  static {
+    validColumnNamesDataTypeInDb = Maps.newHashMap();
+    validColumnNamesDataTypeInDb.put(EventColumns._ID, LongValue.class);
+    validColumnNamesDataTypeInDb.put(EventColumns.EXPERIMENT_ID, LongValue.class);
+    validColumnNamesDataTypeInDb.put(EventColumns.EXPERIMENT_SERVER_ID, LongValue.class);
+    validColumnNamesDataTypeInDb.put(EventColumns.EXPERIMENT_NAME, StringValue.class);
+    validColumnNamesDataTypeInDb.put(EventColumns.EXPERIMENT_VERSION, LongValue.class);
+    validColumnNamesDataTypeInDb.put(EventColumns.SCHEDULE_TIME, StringValue.class);
+    validColumnNamesDataTypeInDb.put(EventColumns.RESPONSE_TIME, StringValue.class);
+    validColumnNamesDataTypeInDb.put(EventColumns.GROUP_NAME, StringValue.class);
+    validColumnNamesDataTypeInDb.put(EventColumns.ACTION_TRIGGER_ID, LongValue.class);
+    validColumnNamesDataTypeInDb.put(EventColumns.ACTION_TRIGGER_SPEC_ID, LongValue.class);
+    validColumnNamesDataTypeInDb.put(EventColumns.ACTION_ID, LongValue.class);
+    validColumnNamesDataTypeInDb.put(OutputColumns.NAME, StringValue.class);
+    validColumnNamesDataTypeInDb.put(OutputColumns.ANSWER, StringValue.class);
+  }
+  
   public ExperimentProviderUtil(Context context) {
     super();
     this.context = context;
@@ -108,30 +125,8 @@ public class ExperimentProviderUtil implements EventStore {
       throw new IllegalArgumentException("Need a context to instantiate experimentproviderutil");
     }
     this.contentResolver = context.getContentResolver();
-    loadValidColumnNamesDataTypeMap();
   }
   
-  private void loadValidColumnNamesDataTypeMap(){
-    if ( validColumnNamesDataTypeInDb == null) { 
-      validColumnNamesDataTypeInDb = Maps.newHashMap();
-      validColumnNamesDataTypeInDb.put(EventColumns._ID, LongValue.class);
-      validColumnNamesDataTypeInDb.put(EventColumns.EXPERIMENT_ID, LongValue.class);
-      validColumnNamesDataTypeInDb.put(EventColumns.EXPERIMENT_SERVER_ID, LongValue.class);
-      validColumnNamesDataTypeInDb.put(EventColumns.EXPERIMENT_NAME, StringValue.class);
-      validColumnNamesDataTypeInDb.put(EventColumns.EXPERIMENT_VERSION, LongValue.class);
-      validColumnNamesDataTypeInDb.put(EventColumns.SCHEDULE_TIME, StringValue.class);
-      validColumnNamesDataTypeInDb.put(EventColumns.RESPONSE_TIME, StringValue.class);
-      validColumnNamesDataTypeInDb.put(EventColumns.GROUP_NAME, StringValue.class);
-      validColumnNamesDataTypeInDb.put(EventColumns.ACTION_TRIGGER_ID, LongValue.class);
-      validColumnNamesDataTypeInDb.put(EventColumns.ACTION_TRIGGER_SPEC_ID, LongValue.class);
-      validColumnNamesDataTypeInDb.put(EventColumns.ACTION_ID, LongValue.class);
-      validColumnNamesDataTypeInDb.put(EventColumns.WHEN, StringValue.class);
-      validColumnNamesDataTypeInDb.put(OutputColumns.NAME, StringValue.class);
-      validColumnNamesDataTypeInDb.put(OutputColumns.ANSWER, StringValue.class);
-    }
-  }
-  
-
   public List<Experiment> getJoinedExperiments() {
     List<Experiment> cachedExperiments = JoinedExperimentCache.getInstance().getExperiments();
     if (cachedExperiments.size() > 0) {
@@ -823,11 +818,13 @@ public class ExperimentProviderUtil implements EventStore {
     }
   }
 
-  public EventQueryStatus findEventsByCriteriaQuery(SQLQuery sqlQuery) {
+  public EventQueryStatus findEventsByCriteriaQuery(SQLQuery sqlQuery, Long expId) {
     Cursor cursor = null;
     List<Event> events = Lists.newArrayList();
     Event event = null;
     Map<Long, Event> eventMap = null;
+    List<String> dateColumns = Lists.newArrayList();
+    dateColumns.add(EventColumns.RESPONSE_TIME);
     EventQueryStatus evQryStat = new EventQueryStatus();
     DatabaseHelper dbHelper = new DatabaseHelper(context);
     
@@ -836,7 +833,17 @@ public class ExperimentProviderUtil implements EventStore {
       Select selectStmt = SearchUtil.getJsqlSelectStatement(selectSql);
       // preprocessor parses the query, and identifies potential issues like invalid column name, invalid data tye, sql injection,
       // or if join is needed.
-      QueryPreprocessor qProcessor = new QueryPreprocessor(selectStmt, validColumnNamesDataTypeInDb, false, null,  null);
+      QueryPreprocessor qProcessor = new QueryPreprocessor(selectStmt, validColumnNamesDataTypeInDb, false, dateColumns,  null);
+      if (qProcessor.containExpIdClause() == false || qProcessor.getExpIdValues().size() > 1 || !qProcessor.getExpIdValues().contains(expId)) {
+        evQryStat.setStatus(FAILURE);
+        evQryStat.setErrorMessage(ErrorMessages.EXPERIMENT_ID_CLAUSE_EXCEPTION.getDescription());
+        return evQryStat;
+      }
+      if (qProcessor.containWhoClause() == true) {
+        evQryStat.setStatus(FAILURE);
+        evQryStat.setErrorMessage(ErrorMessages.INVALID_COLUMN_NAME.getDescription() + qProcessor.getWhoClause());
+        return evQryStat;
+      }
       if (qProcessor.probableSqlInjection()!=null){
         evQryStat.setStatus(FAILURE);
         evQryStat.setErrorMessage(ErrorMessages.PROBABLE_SQL_INJECTION.getDescription() + qProcessor.probableSqlInjection());
@@ -852,12 +859,23 @@ public class ExperimentProviderUtil implements EventStore {
         evQryStat.setErrorMessage(ErrorMessages.INVALID_COLUMN_NAME.getDescription() + qProcessor.getInvalidColumnName());
         return evQryStat;
       }
-      
+      // change date params to long. 
+      String[] origCriValue = sqlQuery.getCriteriaValue();
+      String[] modCriValue = new String[origCriValue.length];
+      System.arraycopy(origCriValue, 0, modCriValue, 0, origCriValue.length);
+      Map<String, Long> dateMap = qProcessor.getDateParamWithLong();
+      for (int i=0 ;i<origCriValue.length; i++ ) {
+        Long dateAsLong =  dateMap.get(origCriValue[i]);
+        if ( dateAsLong != null) {
+          modCriValue[i] = dateAsLong.toString();
+        }
+      }
+     
       if (qProcessor.isOutputColumnsPresent()) { 
-        cursor = dbHelper.query(ExperimentProvider.OUTPUTS_DATATYPE, sqlQuery.getProjection(), sqlQuery.getCriteriaQuery(), sqlQuery.getCriteriaValue(),
+        cursor = dbHelper.query(ExperimentProvider.OUTPUTS_DATATYPE, sqlQuery.getProjection(), sqlQuery.getCriteriaQuery(), modCriValue,
                                 sqlQuery.getSortOrder(), sqlQuery.getGroupBy(), sqlQuery.getHaving(), sqlQuery.getLimit());
       } else {
-        cursor = dbHelper.query(ExperimentProvider.EVENTS_DATATYPE, sqlQuery.getProjection(), sqlQuery.getCriteriaQuery(), sqlQuery.getCriteriaValue(),
+        cursor = dbHelper.query(ExperimentProvider.EVENTS_DATATYPE, sqlQuery.getProjection(), sqlQuery.getCriteriaQuery(), modCriValue,
                                 sqlQuery.getSortOrder(), sqlQuery.getGroupBy(), sqlQuery.getHaving(), sqlQuery.getLimit());
       } 
       //to maintain the insertion order
