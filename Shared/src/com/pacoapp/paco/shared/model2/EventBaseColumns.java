@@ -26,7 +26,6 @@ public class EventBaseColumns {
   public static final String EXPERIMENT_VERSION = "experiment_version";
   public static final String SCHEDULE_TIME = "schedule_time";
   public static final String RESPONSE_TIME = "response_time";
-  public static final String INT_RESPONSE_TIME = "int_response_time";
   public static final String GROUP_NAME = "group_name";
   public static final String ACTION_TRIGGER_ID = "action_trigger_id";
   public static final String ACTION_TRIGGER_SPEC_ID = "action_trigger_spec_id";

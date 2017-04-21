@@ -12,4 +12,5 @@ public class EventServerColumns extends EventBaseColumns {
   public static final String CLIENT_TIME_ZONE = "client_timezone";
   public static final String PACO_VERSION = "paco_version";
   public static final String APP_ID = "app_id"; 
+  public static final String INT_RESPONSE_TIME = "int_response_time";
 }
