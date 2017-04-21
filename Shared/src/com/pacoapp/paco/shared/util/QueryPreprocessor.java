@@ -8,6 +8,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.joda.time.DateTimeZone;
+
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -112,7 +114,7 @@ public class QueryPreprocessor implements SelectVisitor, FromItemVisitor, Expres
   private boolean containsWhoClause;
   private static final SimpleDateFormat sdfLocal = TimeUtil.localFormatter;
   private static List<Class> allPossibleConstantExpTypes = Lists.newArrayList();
-  private String timeZone;
+  private DateTimeZone timeZone;
   private Set<String> whoClauseValues = Sets.newHashSet();
   private Set<Long> expIdClauseValues = Sets.newHashSet();
   private boolean modifyDateToUTC = false;
@@ -129,7 +131,7 @@ public class QueryPreprocessor implements SelectVisitor, FromItemVisitor, Expres
   }
 
   public QueryPreprocessor(Select select, Map<String, Class> validColumnNames, boolean modifyToUTC,
-                           List<String> reqDateColNames, String inpTimeZone) {
+                           List<String> reqDateColNames, DateTimeZone inpTimeZone) {
     requestedDateColumns = reqDateColNames;
     validColumnNamesDataTypeInDb = validColumnNames;
     timeZone = inpTimeZone;
@@ -308,7 +310,6 @@ public class QueryPreprocessor implements SelectVisitor, FromItemVisitor, Expres
                   } else {
                     LongValue lgVal = new LongValue(TimeUtil.convertDateToLong(expr.toString()));
                     dateParamWithLong.put(expr.toString(), lgVal.getValue());
-                    newUtcList.add(lgVal);
                   }
                 } catch (ParseException e) {
                   invalidDataType = expr.toString();
@@ -432,7 +433,6 @@ public class QueryPreprocessor implements SelectVisitor, FromItemVisitor, Expres
         String leftColName = ((Column) le).getColumnName();
         if (requestedDateColumns.contains(leftColName)) {
           if (re instanceof StringValue) {
-            
             try {
               if (modifyDateToUTC) {
                 Date dt = sdfLocal.parse(((StringValue) re).getValue());

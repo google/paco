@@ -114,7 +114,7 @@ public class CloudSqlSearchServlet extends HttpServlet {
           SelectUtils.addExpression(selStatement, new Column(EventServerColumns.CLIENT_TIME_ZONE));
         }
         QueryPreprocessor qProcessor = new QueryPreprocessor(selStatement, validColumnNamesDataTypeInDb, true, dateColumns,
-                                                             dtf.withZone(tzForClient).print(0));
+                                                             tzForClient);
         if (qProcessor.probableSqlInjection() != null) {
           sendErrorMessage(resp, mapper,
                            ErrorMessages.PROBABLE_SQL_INJECTION + qProcessor.probableSqlInjection());

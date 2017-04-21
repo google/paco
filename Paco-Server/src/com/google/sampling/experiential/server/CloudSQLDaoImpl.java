@@ -10,6 +10,7 @@ import java.text.ParseException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.logging.Logger;
 
 import org.joda.time.DateTimeZone;
@@ -19,6 +20,7 @@ import com.google.common.collect.Maps;
 import com.google.sampling.experiential.datastore.EventServerColumns;
 import com.google.sampling.experiential.datastore.FailedEventServerColumns;
 import com.google.sampling.experiential.model.Event;
+import com.google.sampling.experiential.model.What;
 import com.google.sampling.experiential.shared.EventDAO;
 import com.google.sampling.experiential.shared.WhatDAO;
 import com.pacoapp.paco.shared.model2.OutputBaseColumns;
@@ -136,24 +138,26 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
       statementCreateEvent.setString(i++, event.getPacoVersion());
       statementCreateEvent.setString(i++, event.getAppId());
       statementCreateEvent.setNull(i++, java.sql.Types.BOOLEAN);
-      String joinedStat = event.getWhatByKey(EventServerColumns.JOINED);
-      if (joinedStat != null) {
-        if (joinedStat.equalsIgnoreCase(Constants.TRUE)) {
-          statementCreateEvent.setBoolean(i++, true);
-        } else {
-          statementCreateEvent.setBoolean(i++, false);
+      if (event.getWhat() != null) {
+        String joinedStat = event.getWhatByKey(EventServerColumns.JOINED);
+        if (joinedStat != null) {
+          if (joinedStat.equalsIgnoreCase(Constants.TRUE)) {
+            statementCreateEvent.setBoolean(i++, true);
+          } else {
+            statementCreateEvent.setBoolean(i++, false);
+          }
         }
-      } 
+      }
       statementCreateEvent.setTimestamp(i++, event.getResponseTime()!= null ? new Timestamp(event.getResponseTime().getTime()): new Timestamp(event.getScheduledTime().getTime()));
       statementCreateEvent.setString(i++, event.getTimeZone());
       statementCreateEvent.setLong(i++, event.getId());
       statementCreateEvent.setLong(i++, event.getResponseTime() != null ? event.getResponseTime().getTime(): null);
       
       statementCreateEvent.execute();
-      List<String> whatKeysList = event.getWhatKeys();
-      if (whatKeysList != null) {
+      Set<What> whatSet = event.getWhat();
+      if (whatSet != null) {
         statementCreateEventOutput = conn.prepareStatement(outputInsert.toString());
-        for (String key : whatKeysList) {
+        for (String key : event.getWhatKeys()) {
           String whatAnswer = event.getWhatByKey(key);
           statementCreateEventOutput.setLong(1, event.getId());
           statementCreateEventOutput.setString(2, key);
@@ -392,19 +396,20 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
                                           + EventServerColumns.ACTION_TRIGGER_SPEC_ID + "` bigint(20) DEFAULT NULL," + "`"
                                           + EventServerColumns.WHO + "` varchar(45) NOT NULL," + "`"
                                           + EventServerColumns.PACO_VERSION + "` varchar(45) DEFAULT NULL," + "`"
-                                          + EventServerColumns.APP_ID + "` varchar(45) DEFAULT NULL," + "`"
-                                          + EventServerColumns.WHEN + "` datetime DEFAULT NULL," + "`"
+                                          + EventServerColumns.APP_ID + "` varchar(45) DEFAULT NULL," 
+                                          // when column already has the back tick
+                                          + EventServerColumns.WHEN + " datetime DEFAULT NULL," + "`"
                                           + EventServerColumns.ARCHIVE_FLAG + "` tinyint(4) NOT NULL DEFAULT '0'," + "`"
                                           + EventServerColumns.JOINED + "` tinyint(1)  DEFAULT NULL," + "`"
                                           + EventServerColumns.SORT_DATE + "` datetime  DEFAULT NULL," + "`"
                                           + EventServerColumns.CLIENT_TIME_ZONE + "` varchar(20) DEFAULT NULL,"
-                                          + "PRIMARY KEY (`" + Constants.UNDERSCORE_ID + "`)," + "KEY `when_index` (`"
-                                          + EventServerColumns.WHEN + "`)," + "KEY `exp_id_resp_time_index` (`"
+                                          + "PRIMARY KEY (`" + Constants.UNDERSCORE_ID + "`)," + "KEY `when_index` ("
+                                          + EventServerColumns.WHEN + ")," + "KEY `exp_id_resp_time_index` (`"
                                           + EventServerColumns.EXPERIMENT_ID + "`,`" + EventServerColumns.RESPONSE_TIME
                                           + "`)," + "KEY `exp_id_when_index` (`" + EventServerColumns.EXPERIMENT_ID
-                                          + "`,`" + EventServerColumns.WHEN + "`)," + "KEY `exp_id_who_when_index` (`"
-                                          + EventServerColumns.EXPERIMENT_ID + "`,`" + EventServerColumns.WHO + "`,`"
-                                          + EventServerColumns.WHEN + "`)" + ") ENGINE=InnoDB DEFAULT CHARSET=latin1";
+                                          + "`," + EventServerColumns.WHEN + ")," + "KEY `exp_id_who_when_index` (`"
+                                          + EventServerColumns.EXPERIMENT_ID + "`,`" + EventServerColumns.WHO + "`,"
+                                          + EventServerColumns.WHEN + ")" + ") ENGINE=InnoDB DEFAULT CHARSET=latin1";
 
       final String createOutputsTableSql = "CREATE TABLE `" + OutputBaseColumns.TABLE_NAME+ "` (" + "`" 
                                            + OutputBaseColumns.EVENT_ID + "` bigint(20) NOT NULL," + "`"
@@ -421,9 +426,9 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
                                             + FailedEventServerColumns.EVENT_JSON + "` varchar(3000) NOT NULL," + "`"
                                             + FailedEventServerColumns.FAILED_INSERT_TIME + "` datetime  DEFAULT NULL," + "`"
                                             + FailedEventServerColumns.REASON + "` varchar(500) DEFAULT NULL," + "`"
-                                            + FailedEventServerColumns.COMMENTS + "` varchar(1000) DEFAULT,"
+                                            + FailedEventServerColumns.COMMENTS + "` varchar(1000) DEFAULT NULL,"
                                             + "PRIMARY KEY (`" + FailedEventServerColumns.ID + "`)"+") ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=latin1";
-
+     
       statementCreateEvent = conn.prepareStatement(createEventsTableSql);
 
       statementCreateEvent.execute();
