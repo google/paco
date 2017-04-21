@@ -166,7 +166,6 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
         }
         statementCreateEventOutput.executeBatch();
       }
-      statementCreateEventOutput.executeBatch();
       conn.commit();
       retVal = true;
     } finally {
