@@ -1,0 +1,9 @@
+platform :ios, '9.0'
+use_frameworks!
+inhibit_all_warnings!
+
+target 'Paco' do
+  pod 'AppAuth'
+  pod 'GTMAppAuth'
+  pod 'GTMSessionFetcher'
+end

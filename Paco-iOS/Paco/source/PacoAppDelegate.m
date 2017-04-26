@@ -15,8 +15,9 @@
 
 #import "PacoAppDelegate.h"
 
-#import "GoogleAppEngineAuth.h"
-#import "GTMOAuth2ViewControllerTouch.h"
+#import "AppAuth.h"
+//#import "GoogleAppEngineAuth.h"
+//#import "GTMOAuth2ViewControllerTouch.h"
 #import "PacoClient.h"
 #import "UIColor+Paco.h"
 #import "PacoMainViewController.h"
@@ -149,7 +150,7 @@
   } else {
     self.viewController = [[PacoMainViewController alloc] initWithNibName:nil bundle:nil];
   }
-
+  self.viewController.stillAuthenticating = _currentAuthorizationFlow;
   self.window.rootViewController = [[UINavigationController alloc] initWithRootViewController:self.viewController];
   [self.window makeKeyAndVisible];
   
@@ -175,7 +176,7 @@
 
 - (void)applicationDidBecomeActive:(UIApplication *)application {
   DDLogInfo(@"==========  Application applicationDidBecomeActive  ==========");
-  [[PacoClient sharedInstance] uploadPendingEventsInBackground];
+//  [[PacoClient sharedInstance] uploadPendingEventsInBackground];
   
   [[NSNotificationCenter defaultCenter] postNotificationName:kPacoNotificationAppBecomeActive
                                                       object:nil];
@@ -217,5 +218,25 @@
   DDLogInfo(@"==========  Application applicationWillEnterForeground, start executing routine major task if needed  ==========");
   [[PacoClient sharedInstance] executeRoutineMajorTaskIfNeeded];
 }
+
+#pragma GTMAppAuth
+/*! @brief Handles inbound URLs. Checks if the URL matches the redirect URI for a pending
+ AppAuth authorization request.
+ */
+- (BOOL)application:(UIApplication *)app
+            openURL:(NSURL *)url
+            options:(NSDictionary<NSString *, id> *)options {
+  // Sends the URL to the current authorization flow (if any) which will process it if it relates to
+  // an authorization response.
+  if ([_currentAuthorizationFlow resumeAuthorizationFlowWithURL:url]) {
+    _currentAuthorizationFlow = nil;
+    return YES;
+  }
+  
+  // Your additional URL handling (if any) goes here.
+  
+  return NO;
+}
+
 
 @end
