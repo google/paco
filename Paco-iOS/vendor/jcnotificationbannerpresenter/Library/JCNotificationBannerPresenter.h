@@ -5,7 +5,7 @@ typedef void (^JCNotificationBannerPresenterFinishedBlock)();
 
 @class JCNotificationBannerWindow;
 
-@interface JCNotificationBannerPresenter : NSObject
+@interface JCNotificationBannerPresenter : NSObject<CAAnimationDelegate>
 
 - (void)willBeginPresentingNotifications;
 - (void)didFinishPresentingNotifications;

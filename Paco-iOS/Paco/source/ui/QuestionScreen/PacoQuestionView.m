@@ -18,6 +18,7 @@
 #import <MapKit/MapKit.h>
 #import <MobileCoreServices/MobileCoreServices.h>
 #import <QuartzCore/QuartzCore.h>
+#import <UIKit/UIDevice.h>
 
 #import "PacoCheckboxView.h"
 #import "UIColor+Paco.h"
@@ -28,6 +29,7 @@
 #import "PacoExperimentInput.h"
 #import "UIImage+Paco.h"
 #import "PacoClient.h"
+
 
 static const int kInvalidIndex = -1;
 static NSString* const kPlaceHolderString = @"<type response here>";
@@ -417,6 +419,12 @@ UIImagePickerControllerDelegate>
     }
     self.map.delegate = self;
     [self addSubview:self.map];
+    //if (UIDevice.currentDevice().systemVersion.floatValue>=8.0) {
+      //---request for foreground location use---
+    //  location.requestWhenInUseAuthorization()
+    //}
+    
+    //lm.startUpdatingLocation()
   } else if (self.question.responseEnumType == ResponseEnumTypePhoto) {
     if ([self.question.text length] == 0) {
       self.questionText.text = NSLocalizedString(@"Attach a photo.", nil);

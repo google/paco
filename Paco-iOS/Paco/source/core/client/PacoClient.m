@@ -496,7 +496,7 @@ typedef void(^BackgroundFetchCompletionBlock)(UIBackgroundFetchResult result);
       completionHandler(nil);
     }
   }else{
-    [self.authenticator authenticateWithOAuth2WithCompletionHandler:^(NSError *error) {
+    [self.authenticator authenticateWithGTMAppAuthWithCompletionHandler:^(NSError *error) {
       if (!error) {
         // Authorize the service.
         self.service.authenticator = self.authenticator;
