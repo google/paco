@@ -26,8 +26,6 @@
 
 @property (strong, nonatomic) UILocalNotification* notificationFromAppLaunch;
 
-@property(nonatomic,copy) NSArray *scheduledLocalNotifications NS_AVAILABLE_IOS(4_0);   
-
 - (void)processNotificationIfNeeded;
 
 /*! @brief The authorization flow session which receives the return URL from

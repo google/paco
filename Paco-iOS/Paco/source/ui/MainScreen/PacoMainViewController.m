@@ -39,7 +39,7 @@
   if (self) {
     NSArray *nibContents = [[NSBundle mainBundle] loadNibNamed:@"PacoTitleView" owner:nil options:nil];
     self.navigationItem.titleView = [nibContents lastObject];
-
+    
     UIButton* infoButton = [UIButton buttonWithType:UIButtonTypeInfoLight];
     [infoButton addTarget:self action:@selector(onInfoSelect:) forControlEvents:UIControlEventTouchUpInside];
     self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithCustomView:infoButton];

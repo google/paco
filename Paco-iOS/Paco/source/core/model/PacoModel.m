@@ -311,38 +311,9 @@ static NSString* kPacoExperimentPlistName = @"instances.plist";
   return success;
 }
 
-- (BOOL)loadExperimentDefinitionsFromFile {
-    NSString *fileName = [NSString pacoDocumentDirectoryFilePathWithName:kPacoDefinitionPlistName];
-    DDLogInfo(@"Loading from %@", fileName);
-    
-    NSError* error = nil;
-    NSData* fileData = [NSData dataWithContentsOfFile:fileName options:NSDataReadingMappedIfSafe error:&error];
-    if (error && [error pacoIsFileNotExistError]) {
-        DDLogWarn(@"Definition plist doesn't exist.");
-        return NO;
-    }
-    if (error) {
-        DDLogError(@"Failed to load data for file %@", fileName);
-    }
-    NSError *jsonError = nil;
-    id jsonObj = !fileData ? nil : [NSJSONSerialization JSONObjectWithData:fileData
-                                                                   options:NSJSONReadingAllowFragments
-                                                                     error:&jsonError];
-    if (!jsonObj || jsonError) {
-        DDLogError(@"Failed to parse definition json");
-        return NO;
-    }
-    NSAssert([jsonObj isKindOfClass:[NSArray class]], @"should be an array");
-    NSArray* definitions = jsonObj;
-    [self applyDefinitionJSON:definitions];
-    return [definitions count] > 0;
-}
-
-
-
 
 #pragma mark file reading operations
-- (NSArray* )loadExperimentDefinitionsFromFileWithJson {
+- (BOOL)loadExperimentDefinitionsFromFile {
   NSString *fileName = [NSString pacoDocumentDirectoryFilePathWithName:kPacoDefinitionPlistName];
   DDLogInfo(@"Loading from %@", fileName);
   
@@ -366,7 +337,7 @@ static NSString* kPacoExperimentPlistName = @"instances.plist";
   NSAssert([jsonObj isKindOfClass:[NSArray class]], @"should be an array");
   NSArray* definitions = jsonObj;
   [self applyDefinitionJSON:definitions];
-  return definitions;
+  return [definitions count] > 0;
 }
 
 - (NSError*)loadExperimentInstancesFromFile {
