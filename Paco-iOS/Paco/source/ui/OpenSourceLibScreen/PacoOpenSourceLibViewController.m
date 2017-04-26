@@ -76,15 +76,13 @@
 
 - (void)loadCreditsTableView {
   self.creditsArray = @[@"Google-Toolbox-For-Mac",
-                        @"TouchEngine",
-                        @"SSKeyChain",
+                        @"CocoaPods",
                         @"JCNotificationBannerPresenter",
                         @"CocoaLumberjack",
                         @"ParseKit"];
   
   self.urlArray = @[@"https://code.google.com/p/google-toolbox-for-mac/",
-                    @"https://code.google.com/p/touchengine/",
-                    @"https://github.com/soffes/sskeychain",
+                    @"https://cocoapods.org",
                     @"https://github.com/jcoleman/JCNotificationBannerPresenter",
                     @"https://github.com/CocoaLumberjack/CocoaLumberjack",
                     @"https://code.google.com/p/parsekit/source/detail?r=1543"];
