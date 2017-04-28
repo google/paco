@@ -25,5 +25,11 @@
 	<classpathentry kind="lib" path="ear/default/WEB-INF/lib/protobuf-java-2.6.0.jar"/>
 	<classpathentry kind="lib" path="ear/default/WEB-INF/lib/fastutil-6.5.16.jar"/>
 	<classpathentry kind="lib" path="ear/default/WEB-INF/lib/joda-time-2.9.3.jar"/>
+	<classpathentry kind="lib" path="ear/default/WEB-INF/lib/mysql-connector-java-5.1.38.jar"/>
+	<classpathentry kind="lib" path="ear/default/WEB-INF/lib/mysql-socket-factory-1.0.2.jar"/>
+	<classpathentry kind="lib" path="ear/default/WEB-INF/lib/mysql-socket-factory-core-1.0.2.jar"/>
+	<classpathentry kind="lib" path="ear/default/WEB-INF/lib/sqlbuilder-2.1.6.jar"/>
+	<classpathentry kind="lib" path="ear/default/WEB-INF/lib/commons-dbcp-1.4.jar"/>
+	<classpathentry kind="lib" path="ear/default/WEB-INF/lib/commons-pool-1.5.4.jar"/>
 	<classpathentry kind="output" path="ear/default/WEB-INF/classes"/>
 </classpath>
