@@ -20,6 +20,8 @@ public class MigrationLookupTable {
     migrations.put("965", TestJDODSCompat.class);
     migrations.put("98", EventStatsCounterMigrationJob.class);
     migrations.put("99", UsageStatsBackfillJob.class);
+    migrations.put("19", CSInsertEventsJob.class);
+    migrations.put("20", CSInsertOutputsJob.class);
   }
   public static MigrationJob getMigrationByName(String name) {
     if (Strings.isNullOrEmpty(name)) {

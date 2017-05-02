@@ -46,6 +46,7 @@ import com.google.appengine.api.datastore.Blob;
 import com.google.appengine.api.datastore.Cursor;
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
+import com.google.appengine.api.datastore.DatastoreTimeoutException;
 import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.FetchOptions;
 import com.google.appengine.api.datastore.Key;
@@ -67,8 +68,10 @@ import com.google.sampling.experiential.model.Event;
 import com.google.sampling.experiential.model.Experiment;
 import com.google.sampling.experiential.model.PhotoBlob;
 import com.google.sampling.experiential.model.What;
+import com.google.sampling.experiential.server.migration.MigrationOutput;
 import com.google.sampling.experiential.server.stats.participation.ParticipationStatsService;
 import com.google.sampling.experiential.shared.EventDAO;
+import com.google.sampling.experiential.shared.Output;
 import com.google.sampling.experiential.shared.WhatDAO;
 import com.pacoapp.paco.shared.util.ErrorMessages;
 
@@ -173,7 +176,11 @@ public class EventRetriever {
       } catch (SQLException sqle) {
         log.info(ErrorMessages.SQL_INSERT_EXCEPTION + " for  request: " + eventJson + sqle);
       } catch (ParseException e) {
-        log.info(ErrorMessages.TEXT_PARSE_EXCEPTION + "for request: " +eventJson + e);
+        cloudSqlDaoImpl.insertFailedEvent(eventJson.toString(), ErrorMessages.TEXT_PARSE_EXCEPTION.getDescription(), e.getMessage());
+        log.warning(ErrorMessages.TEXT_PARSE_EXCEPTION.getDescription() + "for request: " +eventJson + e);
+      } catch (Exception e) { 
+        cloudSqlDaoImpl.insertFailedEvent(eventJson.toString(), ErrorMessages.GENERAL_EXCEPTION.getDescription(), e.getMessage());
+        log.warning(ErrorMessages.GENERAL_EXCEPTION.getDescription() + "for request: " +eventJson + e);
       }
 
     } else {
@@ -228,7 +235,7 @@ public class EventRetriever {
     PersistenceManager pm = PMF.get().getPersistenceManager();
     Query q = pm.newQuery(Event.class);
     q.setOrdering("when desc");
-    q.setFilter("who = whoParam");
+    q.setFilter("who == whoParam");
     q.declareParameters("String whoParam");
     long t11 = System.currentTimeMillis();
     List<Event> events = (List<Event>) q.execute(loggedInUser);
@@ -404,6 +411,141 @@ public class EventRetriever {
       }
     }
     adjustTimeZone(allEvents);
+  }
+  
+  private void readEventDataStoreAndInsertToCloudSql() {
+    DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+    Cursor cursor = null;
+    int count = 0;
+    int pageSize = 250;
+    List<Event> eventsBatch = null;
+    QueryResultList<Entity> results = null;
+    
+    while (true) {
+      eventsBatch = Lists.newArrayList();
+      log.info("Count = " + count);
+      boolean isContinueCSInsert = true;
+      FetchOptions fetchOptions = FetchOptions.Builder.withLimit(pageSize);
+      if (cursor != null) {
+        fetchOptions.startCursor(cursor);
+      }
+      try { 
+        com.google.appengine.api.datastore.Query q = new com.google.appengine.api.datastore.Query("Event");
+        PreparedQuery pq = datastore.prepare(q);
+        results = pq.asQueryResultList(fetchOptions);
+        if (results.isEmpty()) {
+          log.info("empty results");
+          break;
+        } 
+        
+        for (int i = 0; i < results.size(); i++) {
+          Entity entity = results.get(i);
+          Event event = createEventFromEntity(entity);
+          event.setId(entity.getKey().getId());
+          eventsBatch.add(event);
+        }
+      } catch ( DatastoreTimeoutException dte) {
+        isContinueCSInsert = false;
+        log.severe("datastore timing out" + dte);
+        try {
+          log.warning("Data store timing out, so sleeping for 1 hour");
+          Thread.sleep(3600000);
+        } catch (InterruptedException e) {
+          log.warning("Data store timeout sleep interrupted" + e);
+        }
+      }
+      
+      if (isContinueCSInsert) {
+        CloudSQLDaoImpl  daoImpl =  new CloudSQLDaoImpl();
+        boolean isSuccess = daoImpl.insertEventsInBatch(eventsBatch);
+        //Only if the batch cs insert of events and outputs is successful, should we move the cursor to the next batch in datastore
+        if (isSuccess) {
+         
+          cursor = results.getCursor();
+          log.info("Moving the cursor");
+        }
+        count = count + results.size();
+        //TODO remove the count condition for infinite looping
+        if (cursor == null || count >= 5000) {
+          log.info("null cursor or 5000 , so break");
+          break;
+        }
+      }
+    }
+  }
+  
+  public void readOutputsDataStoreAndInsertToCloudSql() {
+    DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+    Cursor cursor = null;
+    int count = 0;
+    int pageSize = 1000;
+    Set<MigrationOutput> outputsBatch = null;
+    QueryResultList<Entity> results = null;
+    
+    while (true) {
+      outputsBatch = Sets.newHashSet();
+      log.info("Count = " + count);
+      boolean isContinueCSInsert = true;
+      FetchOptions fetchOptions = FetchOptions.Builder.withLimit(pageSize);
+      if (cursor != null) {
+        fetchOptions.startCursor(cursor);
+      }
+      try { 
+        com.google.appengine.api.datastore.Query q = new com.google.appengine.api.datastore.Query("What");
+        PreparedQuery pq = datastore.prepare(q);
+        results = pq.asQueryResultList(fetchOptions);
+        if (results.isEmpty()) {
+          log.info("empty results");
+          break;
+        } 
+        MigrationOutput output = null;
+        for (int i = 0; i < results.size(); i++) {
+          Entity entity = results.get(i);
+          output = createOutputFromEntity(entity);
+          outputsBatch.add(output);
+        }
+      } catch ( DatastoreTimeoutException dte) {
+        isContinueCSInsert = false;
+        log.severe("datastore timing out" + dte);
+        try {
+          log.warning("Data store timing out, so sleeping for 1 hour");
+          Thread.sleep(3600000);
+        } catch (InterruptedException e) {
+          log.warning("Data store timeout sleep interrupted" + e);
+        }
+      }
+      
+      if (isContinueCSInsert) {
+        CloudSQLDaoImpl  daoImpl =  new CloudSQLDaoImpl();
+        boolean isSuccess = daoImpl.insertOutputsInBatch(outputsBatch);
+        //Only if the batch cs insert is successful, should we move the cursor to the next batch in datastore
+        if (isSuccess) {
+//         
+          cursor = results.getCursor();
+          log.info("Moving the cursor");
+        }
+        count = count + results.size();
+        //TODO remove the count condition for infinite looping
+        if (cursor == null || count >= 5000) {
+          log.info("null cursor or 5000 , so break");
+          break;
+        }
+      }
+    }
+  }
+
+
+  private MigrationOutput createOutputFromEntity(Entity entity) {
+    MigrationOutput output = new MigrationOutput();
+    String temp = null;
+    output.setEventId(entity.getKey().getId());
+    output.setText(entity.getProperty("name").toString());
+    if (entity.getProperty("value") != null) {
+      temp = entity.getProperty("value").toString();
+    }
+    output.setAnswer(temp);
+    
+    return output;
   }
 
   private Set<What> fetchWhats(DatastoreService datastore, Key key) {
@@ -696,7 +838,21 @@ public class EventRetriever {
     sortList(newArrayList);
     return new EventQueryResultPair(newArrayList, null);
   }
+  
+  public void copyAllEventsFromLowLevelDSToCloudSql() {
+    log.info("Getting events from low level datastore for migrating to cloud sql");
+    long t11 = System.currentTimeMillis();
 
+    if (isDevMode()) {
+      log.info("dev mode or user querying self data");
+      readEventDataStoreAndInsertToCloudSql();
+    } else {
+      log.info("not calling insert to cloud sql");
+    }
+    long t12 = System.currentTimeMillis();
+    log.info("get execute time: " + (t12 - t11));
+  }
+  
   public static boolean isExperimentAdministrator(String loggedInUserEmail, Experiment experiment) {
     return experiment.getCreator().getEmail().toLowerCase().equals(loggedInUserEmail)
            || experiment.getAdmins().contains(loggedInUserEmail);
