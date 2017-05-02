@@ -361,7 +361,7 @@ static NSString* experimentFixedEveryTwoDays = @"{\"title\":\"NotificationTest-F
 }
 
 
-//10/16-10/17,   Daily, Repeat every 1 day, timeout 479 minutes
+//10/16-10/17, Daily, Repeat every 1 day, timeout 479 minutes
 //9am, 5pm
 //join at 2013/10/16 17:22:34-0700
 - (void)testJoinInMiddleRepeatEveryOneDay {

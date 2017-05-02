@@ -47,14 +47,24 @@ public class EventJsonUploadProcessor {
   }
 
   public String processJsonEvents(String postBodyString, String whoFromLogin, String appIdHeader, String pacoVersion) {
+    //This is the traditional event processing call to insert to data store. 
+    //This call is not from insertCloudSQl flow, where we will persist this info in cloud sql. So, we send the flagfalse
+    boolean persistInCloudSqlOnly = false;
+    return processJsonEvents(persistInCloudSqlOnly, postBodyString, whoFromLogin, appIdHeader, pacoVersion);
+  }
+  
+  public String processJsonEvents(boolean persistInCloudSqlOnly, String postBodyString, String whoFromLogin, String appIdHeader, String pacoVersion) {
+    String eventInJsonFormat=null;
     try {
       if (postBodyString.startsWith("[")) {
         final JSONArray events = new JSONArray(postBodyString);
-        return toJson(processJsonArray(events, whoFromLogin, appIdHeader, pacoVersion));
+        eventInJsonFormat = toJson(processJsonArray(persistInCloudSqlOnly, events, whoFromLogin, appIdHeader, pacoVersion));
       } else {
         final JSONObject currentEvent = new JSONObject(postBodyString);
-        return toJson(processSingleJsonEvent(currentEvent, whoFromLogin, appIdHeader, pacoVersion));
+        eventInJsonFormat = toJson(processSingleJsonEvent(persistInCloudSqlOnly, currentEvent, whoFromLogin, appIdHeader, pacoVersion));
       }
+      
+      return eventInJsonFormat;
     } catch (JSONException e) {
       throw new IllegalArgumentException("JSON Exception reading post data: " + e.getMessage());
     }
@@ -78,23 +88,23 @@ public class EventJsonUploadProcessor {
     }
   }
 
-  private List<Outcome> processSingleJsonEvent(JSONObject currentEvent, String whoFromLogin, String appIdHeader, String pacoVersionHeader) {
+  private List<Outcome> processSingleJsonEvent(boolean persistInCloudSql, JSONObject currentEvent, String whoFromLogin, String appIdHeader, String pacoVersionHeader) {
     List<Outcome> results = Lists.newArrayList();
     try {
-      results.add(postEvent(currentEvent, 0, whoFromLogin, appIdHeader, pacoVersionHeader));
+      results.add(postEvent(persistInCloudSql, currentEvent, 0, whoFromLogin, appIdHeader, pacoVersionHeader));
     } catch (Throwable e) {
       results.add(new Outcome(0, "Exception posting event: 0. "+ e.getMessage()));
     }
     return results;
   }
 
-  private List<Outcome> processJsonArray(JSONArray events, String whoFromLogin, String appIdHeader, String pacoVersionHeader) {
+  private List<Outcome> processJsonArray(boolean persistInCloudSqlOnly, JSONArray events, String whoFromLogin, String appIdHeader, String pacoVersionHeader) {
     List<Outcome> results = Lists.newArrayList();
     JSONObject currentEvent = null;
     for (int i = 0; i < events.length(); i++) {
       try {
         currentEvent = events.getJSONObject(i);
-        results.add(postEvent(currentEvent, i, whoFromLogin, appIdHeader, pacoVersionHeader));
+        results.add(postEvent(persistInCloudSqlOnly, currentEvent, i, whoFromLogin, appIdHeader, pacoVersionHeader));
       } catch (JSONException e) {
         results.add(new Outcome(i, "JSONException posting event: " + i + ". " + e.getMessage()));
       } catch (Throwable e) {
@@ -103,8 +113,8 @@ public class EventJsonUploadProcessor {
     }
     return results;
   }
-
-  private Outcome postEvent(JSONObject eventJson, int eventId, String who, String appIdHeader, String pacoVersionHeader) throws Throwable {
+ 
+  private Outcome postEvent(boolean persistInCloudSqlOnly, JSONObject eventJson, int eventId, String who, String appIdHeader, String pacoVersionHeader) throws Throwable {
     Outcome outcome = new Outcome(eventId);
 
     String pacoVersion = null;
@@ -211,7 +221,12 @@ public class EventJsonUploadProcessor {
     } else {
       log.info("Found the experiment: " + experimentIdStr);
     }
-
+    // We retrieve the 'who' value from json, only when it's a request coming from 
+    // cloud sql queue.
+    if(persistInCloudSqlOnly){
+      who = eventJson.getString("who");
+    }
+    
     if (!experiment.isWhoAllowedToPostToExperiment(who)) {
       // don't give differentiated error messages in case someone is trying to discover experiment ids
       log.info("User not allowed to post to this experiment " + experimentIdStr + " .Event: " + eventId + " user: " + who);
@@ -293,9 +308,10 @@ public class EventJsonUploadProcessor {
              + ", what length = " + whats.size());
 
 
-    eventRetriever.postEvent(who, null, null, whenDate, appId, pacoVersion, whats, false, experimentIdStr,
+    eventRetriever.postEvent(persistInCloudSqlOnly, eventJson, who, null, null, whenDate, appId, pacoVersion, whats, false, experimentIdStr,
                                            experimentName, experimentVersion, responseTime, scheduledTime, blobs,
                                            groupName, actionTriggerId, actionTriggerSpecId, actionId);
+
     return outcome;
   }
 

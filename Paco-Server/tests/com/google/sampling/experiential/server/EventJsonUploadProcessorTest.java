@@ -10,6 +10,7 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.annotate.JsonSerialize.Inclusion;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
+import org.json.JSONObject;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -36,7 +37,7 @@ public class EventJsonUploadProcessorTest extends TestCase {
   public void setUp() {
     noOpEventRetriever = new EventRetriever() {
       @Override
-      public void postEvent(String who, String lat, String lon, Date whenDate, String appId, String pacoVersion,
+      public void postEvent(boolean persistInCloudSql, JSONObject eventJson, String who, String lat, String lon, Date whenDate, String appId, String pacoVersion,
                             Set<What> what, boolean shared, String experimentId, String experimentName, Integer experimentVersion,
                             Date responseTime, Date scheduledTime, List<PhotoBlob> blobs, String timezone,
                             String groupName, Long actionTriggerId, Long actionTriggerSpecId, Long actionId) {
@@ -44,7 +45,7 @@ public class EventJsonUploadProcessorTest extends TestCase {
     };
     blowUpEventRetriever = new EventRetriever() {
       @Override
-      public void postEvent(String who, String lat, String lon, Date whenDate, String appId, String pacoVersion,
+      public void postEvent(boolean persistInCloudSql, JSONObject eventJson, String who, String lat, String lon, Date whenDate, String appId, String pacoVersion,
                             Set<What> what, boolean shared, String experimentId, String experimentName, Integer experimentVersion,
                             Date responseTime, Date scheduledTime, List<PhotoBlob> blobs, String timezone,
                             String groupName, Long actionTriggerId, Long actionTriggerSpecId, Long actionId) {
@@ -56,7 +57,7 @@ public class EventJsonUploadProcessorTest extends TestCase {
       private boolean second = false;
 
       @Override
-      public void postEvent(String who, String lat, String lon, Date whenDate, String appId, String pacoVersion,
+      public void postEvent(boolean persistInCloudSql, JSONObject eventJson, String who, String lat, String lon, Date whenDate, String appId, String pacoVersion,
                             Set<What> what, boolean shared, String experimentId, String experimentName, Integer experimentVersion,
                             Date responseTime, Date scheduledTime, List<PhotoBlob> blobs, String timezone,
                             String groupName, Long actionTriggerId, Long actionTriggerSpecId, Long actionId) {

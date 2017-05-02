@@ -18,6 +18,15 @@
   </servlet-mapping>
  
    <servlet>
+    <servlet-name>ServerInsertServlet</servlet-name>
+    <servlet-class>com.google.sampling.experiential.server.CloudSqlInsertServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>ServerInsertServlet</servlet-name>
+    <url-pattern>/csInsert</url-pattern>
+  </servlet-mapping>
+  
+   <servlet>
     <servlet-name>mapreduce</servlet-name>
     <servlet-class>
       com.google.appengine.tools.mapreduce.MapReduceServlet
@@ -26,7 +35,7 @@
   <servlet-mapping>
     <servlet-name>mapreduce</servlet-name>
     <url-pattern>/mapreduce/*</url-pattern>
-  </servlet-mapping> 
+  </servlet-mapping>
 
   <!-- In this example we put an admin constraint on everything, since MapReduce
     can use a significant amount of resources. -->
@@ -34,8 +43,8 @@
     <web-resource-collection>
       <url-pattern>/*</url-pattern>
       <url-pattern>/_ah/pipeline/*</url-pattern>
+      <url-pattern>/csInsert</url-pattern>
       <url-pattern>/mapreduce/*</url-pattern>
-      
     </web-resource-collection>
     <auth-constraint>
       <role-name>admin</role-name>

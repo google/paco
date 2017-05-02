@@ -38,21 +38,16 @@ static NSString* experimentOngoingDaily = @"{\"title\":\"NotificationTest-FixInt
 //9am, 5pm
 static NSString* experimentFixedLengthDaily = @"{\"title\":\"NotificationTest-FixInterval: Daily\",\"description\":\"fix interval\",\"informedConsentForm\":\"test\",\"creator\":\"ymggtest@gmail.com\",\"fixedDuration\":true,\"startDate\":\"2013/10/16\",\"endDate\":\"2013/10/16\",\"id\":10446002,\"questionsChange\":false,\"modifyDate\":\"2013/08/23\",\"inputs\":[{\"id\":3,\"questionType\":\"question\",\"text\":\"test\",\"mandatory\":true,\"responseType\":\"likert\",\"likertSteps\":5,\"leftSideLabel\":\"left\",\"rightSideLabel\":\"right\",\"name\":\"Hello\",\"conditional\":false,\"listChoices\":[],\"invisibleInput\":false}],\"feedback\":[{\"id\":9002,\"feedbackType\":\"display\",\"text\":\"Thanks for Participating!\"}],\"published\":false,\"deleted\":false,\"webRecommended\":false,\"version\":11,\"signalingMechanisms\":[{\"type\":\"signalSchedule\",\"timeout\":479,\"id\":1,\"scheduleType\":0,\"esmFrequency\":3,\"esmPeriodInDays\":0,\"esmStartHour\":32400000,\"esmEndHour\":61200000,\"times\":[32400000,61200000],\"repeatRate\":2,\"weekDaysScheduled\":0,\"nthOfMonth\":1,\"byDayOfMonth\":true,\"dayOfMonth\":1,\"esmWeekends\":false,\"byDayOfWeek\":false}],\"schedule\":{\"type\":\"signalSchedule\",\"timeout\":479,\"id\":1,\"scheduleType\":0,\"esmFrequency\":3,\"esmPeriodInDays\":0,\"esmStartHour\":32400000,\"esmEndHour\":61200000,\"times\":[32400000,61200000],\"repeatRate\":2,\"weekDaysScheduled\":0,\"nthOfMonth\":1,\"byDayOfMonth\":true,\"dayOfMonth\":1,\"esmWeekends\":false,\"byDayOfWeek\":false}}";
 
-@interface PacoExperimentDefinition ()
-@property(nonatomic, strong) NSDate *startDate;
-@property(nonatomic, strong) NSDate *endDate;
-@end
-
 @interface PacoScheduleGenerator ()
-//+ (NSDate*)getStartTimeWithExperimentStartDate:(NSDate*)experimentStartDate
-//                                      fromDate:(NSDate*)fromDate
-//                                         times:(NSArray*)times
-//                                    repeatRate:(NSInteger)repeatRate;
-//+ (NSDate*)getStartTimeFromDate:(NSDate*)fromDate withTimes:(NSArray*)times;
-//+ (NSDate*)getRealStartDateWithTimes:(NSArray*)times
-//                   originalStartDate:(NSDate*)originalStartDate
-//                 experimentStartDate:(NSDate*)experimentStartDate
-//                          repeatRate:(NSInteger)repeatRate;
++ (NSDate*)getStartTimeWithExperimentStartDate:(NSDate*)experimentStartDate
+                                      fromDate:(NSDate*)fromDate
+                                         times:(NSArray*)times
+                                    repeatRate:(NSInteger)repeatRate;
++ (NSDate*)getStartTimeFromDate:(NSDate*)fromDate withTimes:(NSArray*)times;
++ (NSDate*)getRealStartDateWithTimes:(NSArray*)times
+                   originalStartDate:(NSDate*)originalStartDate
+                 experimentStartDate:(NSDate*)experimentStartDate
+                          repeatRate:(NSInteger)repeatRate;
 
 @end
 
@@ -64,21 +59,21 @@ static NSString* experimentFixedLengthDaily = @"{\"title\":\"NotificationTest-Fi
 @property(nonatomic, strong) PacoExperiment* fixedLengthDailyExperiment;
 @property(nonatomic, strong) NSArray* times;
 
--(PacoExperiment *)createExperimentFromData:(NSString*) dataString;
-- (void)assertEqualDates:(NSDate *)date1 andDate:(NSDate *)date2 msg:(NSString *)errmsg;
 @end
 
 @implementation PacoScheduleGeneratorTests
 
-
--(PacoExperiment *)createExperimentFromData:(NSString*) experimentDataName {
+- (void)setUp
+{
+  [super setUp];
+  // Put setup code here; it will be run once, before the first test case.
   NSError* error = nil;
-  NSData* data = [experimentDataName dataUsingEncoding:NSUTF8StringEncoding];
+  NSData* data = [experimentTemplate dataUsingEncoding:NSUTF8StringEncoding];
   id definitionDict = [NSJSONSerialization JSONObjectWithData:data
                                                       options:NSJSONReadingAllowFragments
                                                         error:&error];
   XCTAssertTrue(error == nil && [definitionDict isKindOfClass:[NSDictionary class]],
-                @"experimentTemplate should be successfully serialized!");
+               @"experimentTemplate should be successfully serialized!");
   PacoExperimentDefinition* definition = [PacoExperimentDefinition pacoExperimentDefinitionFromJSON:definitionDict];
   XCTAssertTrue(definition != nil, @"definition should not be nil!");
   
@@ -86,16 +81,56 @@ static NSString* experimentFixedLengthDaily = @"{\"title\":\"NotificationTest-Fi
   experimentInstance.schedule = definition.schedule;
   experimentInstance.definition = definition;
   experimentInstance.instanceId = definition.experimentId;
-  return experimentInstance;
-}
-
-- (void)setUp {
-  [super setUp];
-  self.experiment = [self createExperimentFromData:experimentTemplate];
-  self.experimentFirst = [self createExperimentFromData:experimentFirst];
-  self.dailyExperiment = [self createExperimentFromData:experimentOngoingDaily];
-  self.fixedLengthDailyExperiment = [self createExperimentFromData:experimentFixedLengthDaily];
+  self.experiment = experimentInstance;
   
+  
+  error = nil;
+  data = [experimentFirst dataUsingEncoding:NSUTF8StringEncoding];
+  definitionDict = [NSJSONSerialization JSONObjectWithData:data
+                                                   options:NSJSONReadingAllowFragments
+                                                     error:&error];
+  XCTAssertTrue(error == nil && [definitionDict isKindOfClass:[NSDictionary class]],
+               @"experimentFirst should be successfully serialized!");
+  definition = [PacoExperimentDefinition pacoExperimentDefinitionFromJSON:definitionDict];
+  XCTAssertTrue(definition != nil, @"definition should not be nil!");
+  
+  experimentInstance = [[PacoExperiment alloc] init];
+  experimentInstance.schedule = definition.schedule;
+  experimentInstance.definition = definition;
+  experimentInstance.instanceId = definition.experimentId;
+  self.experimentFirst = experimentInstance;
+  
+  
+  error = nil;
+  data = [experimentOngoingDaily dataUsingEncoding:NSUTF8StringEncoding];
+  definitionDict = [NSJSONSerialization JSONObjectWithData:data
+                                                   options:NSJSONReadingAllowFragments
+                                                     error:&error];
+  XCTAssertTrue(error == nil && [definitionDict isKindOfClass:[NSDictionary class]],
+               @"dailyExperiment should be successfully serialized!");
+  definition = [PacoExperimentDefinition pacoExperimentDefinitionFromJSON:definitionDict];
+  XCTAssertTrue(definition != nil, @"definition should not be nil!");
+  experimentInstance = [[PacoExperiment alloc] init];
+  experimentInstance.schedule = definition.schedule;
+  experimentInstance.definition = definition;
+  experimentInstance.instanceId = definition.experimentId;
+  self.dailyExperiment = experimentInstance;
+  
+  error = nil;
+  data = [experimentFixedLengthDaily dataUsingEncoding:NSUTF8StringEncoding];
+  definitionDict = [NSJSONSerialization JSONObjectWithData:data
+                                                   options:NSJSONReadingAllowFragments
+                                                     error:&error];
+  XCTAssertTrue(error == nil && [definitionDict isKindOfClass:[NSDictionary class]],
+               @"fixedLengthDailyExperiment should be successfully serialized!");
+  definition = [PacoExperimentDefinition pacoExperimentDefinitionFromJSON:definitionDict];
+  XCTAssertTrue(definition != nil, @"definition should not be nil!");
+  experimentInstance = [[PacoExperiment alloc] init];
+  experimentInstance.schedule = definition.schedule;
+  experimentInstance.definition = definition;
+  experimentInstance.instanceId = definition.experimentId;
+  self.fixedLengthDailyExperiment = experimentInstance;
+
   int hours = 9;
   int minutes = 35;
   int seconds = 50;
@@ -109,281 +144,264 @@ static NSString* experimentFixedLengthDaily = @"{\"title\":\"NotificationTest-Fi
                  @(secondMilliseconds)];
 }
 
-- (void)tearDown {
+- (void)tearDown
+{
+  // Put teardown code here; it will be run once, after the last test case.
   self.experiment = nil;
-  self.experimentFirst = nil;
-  self.dailyExperiment = nil;
-  self.fixedLengthDailyExperiment = nil;
   self.times = nil;
   [super tearDown];
 }
 
-- (void)assertEqualDates:(NSDate *)date1 andDate:(NSDate *)date2 msg:(NSString *)errmsg {
-  NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
-  dateFormatter.timeStyle = NSDateFormatterNoStyle;
-  dateFormatter.dateStyle = NSDateFormatterMediumStyle;
-  
-  NSString *date1Str = [dateFormatter stringFromDate:date1];
-  NSString *date2Str = [dateFormatter stringFromDate:date2];
-  
-  XCTAssertTrue([date1Str isEqual:date2Str]);
-}
 
-- (void)testGetFirstScheduledDateForExperiment {
+- (void)testGetStartTimeWithExperiment {
+  NSInteger repeatRate = 2;
   NSDate* startDate = [PacoDateUtility dateFromStringWithYearAndDay:@"2013/10/21"];
-  self.fixedLengthDailyExperiment.definition.startDate = startDate;
-  
-  NSDate* endDate = [PacoDateUtility dateFromStringWithYearAndDay:@"2013/10/25"];
-  self.fixedLengthDailyExperiment.definition.endDate = endDate;
-  
+  XCTAssertNotNil(startDate, @"startDate should be valid");
   NSDate* fromDate = [PacoDateUtility pacoDateForString:@"2013/10/18 14:00:00-0700"];
   XCTAssertNotNil(fromDate, @"fromDate should be valid");
-  NSArray* result = [PacoScheduleGenerator nextDatesForExperiment:self.fixedLengthDailyExperiment
-                                                      numOfDates:1
-                                                        fromDate:fromDate];
-  XCTAssertNotNil(result, @"should have generated an array of schedules");
-  NSDate* firstDate = [result firstObject];
-  [self assertEqualDates:firstDate
-                 andDate: startDate
-                     msg:@"should be experiment's start date if user joins before experiment starts"];
+  NSDate* result = [PacoScheduleGenerator getStartTimeWithExperimentStartDate:startDate
+                                                                     fromDate:fromDate
+                                                                        times:self.times
+                                                                   repeatRate:repeatRate];
+  XCTAssertEqualObjects(result, startDate,
+                       @"should be experiment's start date if user joins before experiment starts");
 }
 
 //09:35:50, 17:23:44
-//- (void)testGetStartTimeWithFromDateOnSameDayAsExperimentStart {
-//  NSInteger repeatRate = 2;
-//  NSDate* startDate = [PacoDateUtility dateFromStringWithYearAndDay:@"2013/10/21"];
-//  XCTAssertNotNil(startDate, @"startDate should be valid");
-//  NSDate* fromDate = [PacoDateUtility pacoDateForString:@"2013/10/21 14:00:00-0700"];
-//  XCTAssertNotNil(fromDate, @"fromDate should be valid");
-//  NSDate* result = [PacoScheduleGenerator getStartTimeWithExperimentStartDate:startDate
-//                                                                     fromDate:fromDate
-//                                                                        times:self.times
-//                                                                   repeatRate:repeatRate];
-//  XCTAssertEqualObjects(result, fromDate,
-//                       @"should be fromDate if user joins on experiment startDate and is still"
-//                       @"able to schedule times");
-//}
-//
-////09:35:50, 17:23:44
-//- (void)testFromDateOnSameDayAsExperimentStartRepeatRateOne {
-//  NSInteger repeatRate = 1;
-//  NSDate* startDate = [PacoDateUtility dateFromStringWithYearAndDay:@"2013/10/21"];
-//  XCTAssertNotNil(startDate, @"startDate should be valid");
-//  NSDate* fromDate = [PacoDateUtility pacoDateForString:@"2013/10/21 18:00:00-0700"];
-//  XCTAssertNotNil(fromDate, @"fromDate should be valid");
-//  NSDate* result = [PacoScheduleGenerator getStartTimeWithExperimentStartDate:startDate
-//                                                                     fromDate:fromDate
-//                                                                        times:self.times
-//                                                                   repeatRate:repeatRate];
-//  NSDate* expect = [PacoDateUtility dateFromStringWithYearAndDay:@"2013/10/22"];
-//  XCTAssertEqualObjects(result, expect,
-//                       @"should be next day");
-//}
-//
-////09:35:50, 17:23:44
-//- (void)testGetStartTimeWithFromDateOnNextDayOfExperimentStart {
-//  NSInteger repeatRate = 2;
-//  NSDate* startDate = [PacoDateUtility dateFromStringWithYearAndDay:@"2013/10/21"];
-//  XCTAssertNotNil(startDate, @"startDate should be valid");
-//  NSDate* fromDate = [PacoDateUtility pacoDateForString:@"2013/10/22 14:00:00-0700"];
-//  XCTAssertNotNil(fromDate, @"fromDate should be valid");
-//  NSDate* result = [PacoScheduleGenerator getRealStartDateWithTimes:self.times
-//                                                  originalStartDate:fromDate
-//                                                experimentStartDate:self.experiment.startDate
-//                                                         repeatRate:repeatRate
-//];
-//  NSDate* expect = [PacoDateUtility dateFromStringWithYearAndDay:@"2013/10/23"];
-//  XCTAssertEqualObjects(result, expect,
-//                       @"should be next next day");
-//}
-//
-//
-//- (void)testGetStartTimeWithExperiment2 {
-//  NSInteger repeatRate = 2;
-//  NSDate* startDate = [PacoDateUtility dateFromStringWithYearAndDay:@"2013/10/18"];
-//  XCTAssertNotNil(startDate, @"startDate should be valid");
-//  NSDate* fromDate = [PacoDateUtility pacoDateForString:@"2013/10/21 14:00:00-0700"];
-//  XCTAssertNotNil(fromDate, @"fromDate should be valid");
-//  NSDate* result = [PacoScheduleGenerator getStartTimeWithExperimentStartDate:startDate
-//                                                                     fromDate:fromDate
-//                                                                        times:self.times
-//                                                                   repeatRate:repeatRate];
-//  NSDate* expect = [PacoDateUtility pacoDateForString:@"2013/10/22 00:00:00-0700"];
-//  XCTAssertEqualObjects(result, expect,
-//                       @"should be 10/22 since user joins the experiment after it starts, and"
-//                       @"the repeatRate is 2 days");
-//}
-//
-//- (void)testGetStartTimeWithExperiment3 {
-//  NSInteger repeatRate = 2;
-//  NSDate* startDate = [PacoDateUtility dateFromStringWithYearAndDay:@"2013/10/18"];
-//  XCTAssertNotNil(startDate, @"startDate should be valid");
-//  NSDate* fromDate = [PacoDateUtility pacoDateForString:@"2013/10/20 14:00:00-0700"];
-//  XCTAssertNotNil(fromDate, @"fromDate should be valid");
-//  NSDate* result = [PacoScheduleGenerator getStartTimeWithExperimentStartDate:startDate
-//                                                                     fromDate:fromDate
-//                                                                        times:self.times
-//                                                                   repeatRate:repeatRate];
-//  XCTAssertEqualObjects(result, fromDate,
-//                       @"should be fromDate since it's still able to schedule for 17:23:44");
-//}
-//
-//- (void)testGetStartTimeWithExperiment4 {
-//  NSInteger repeatRate = 2;
-//  NSDate* startDate = [PacoDateUtility dateFromStringWithYearAndDay:@"2013/10/18"];
-//  XCTAssertNotNil(startDate, @"startDate should be valid");
-//  NSDate* fromDate = [PacoDateUtility pacoDateForString:@"2013/10/18 17:23:45-0700"];
-//  XCTAssertNotNil(fromDate, @"fromDate should be valid");
-//  NSDate* result = [PacoScheduleGenerator getStartTimeWithExperimentStartDate:startDate
-//                                                                     fromDate:fromDate
-//                                                                        times:self.times
-//                                                                   repeatRate:repeatRate];
-//  NSDate* expect = [PacoDateUtility pacoDateForString:@"2013/10/20 00:00:00-0700"];
-//  XCTAssertEqualObjects(result, expect,
-//                       @"should be 2 days later since it's not able to schedule for 17:23:44");
-//}
-//
-//- (void)testGetStartTimeWithExperiment5 {
-//  NSInteger repeatRate = 2;
-//  NSDate* startDate = [PacoDateUtility dateFromStringWithYearAndDay:@"2013/10/18"];
-//  XCTAssertNotNil(startDate, @"startDate should be valid");
-//  NSDate* fromDate = [PacoDateUtility pacoDateForString:@"2013/10/19 01:23:45-0700"];
-//  XCTAssertNotNil(fromDate, @"fromDate should be valid");
-//  NSDate* result = [PacoScheduleGenerator getStartTimeWithExperimentStartDate:startDate
-//                                                                     fromDate:fromDate
-//                                                                        times:self.times
-//                                                                   repeatRate:repeatRate];
-//  NSDate* expect = [PacoDateUtility pacoDateForString:@"2013/10/20 00:00:00-0700"];
-//  XCTAssertEqualObjects(result, expect,
-//                       @"should be next day");
-//}
-//
-//
-//- (void)testGetStartTimeWithExperimentRepeatRateOne {
-//  NSInteger repeatRate = 1;
-//  NSDate* startDate = [PacoDateUtility dateFromStringWithYearAndDay:@"2013/10/18"];
-//  XCTAssertNotNil(startDate, @"startDate should be valid");
-//  NSDate* fromDate = [PacoDateUtility pacoDateForString:@"2013/10/18 17:23:45-0700"];
-//  XCTAssertNotNil(fromDate, @"fromDate should be valid");
-//  NSDate* result = [PacoScheduleGenerator getStartTimeWithExperimentStartDate:startDate
-//                                                                     fromDate:fromDate
-//                                                                        times:self.times
-//                                                                   repeatRate:repeatRate];
-//  NSDate* expect = [PacoDateUtility pacoDateForString:@"2013/10/19 00:00:00-0700"];
-//  XCTAssertEqualObjects(result, expect,
-//                       @"should be the next day since it's not able to schedule for 17:23:44");
-//}
-//
-//- (void)testGetStartTimeWithExperimentRepeatRateOne2 {
-//  NSInteger repeatRate = 1;
-//  NSDate* startDate = [PacoDateUtility dateFromStringWithYearAndDay:@"2013/10/31"];
-//  XCTAssertNotNil(startDate, @"startDate should be valid");
-//  NSDate* fromDate = [PacoDateUtility pacoDateForString:@"2013/10/31 17:23:45-0700"];
-//  XCTAssertNotNil(fromDate, @"fromDate should be valid");
-//  NSDate* result = [PacoScheduleGenerator getStartTimeWithExperimentStartDate:startDate
-//                                                                     fromDate:fromDate
-//                                                                        times:self.times
-//                                                                   repeatRate:repeatRate];
-//  NSDate* expect = [PacoDateUtility pacoDateForString:@"2013/11/01 00:00:00-0700"];
-//  XCTAssertEqualObjects(result, expect,
-//                       @"should be the next day since it's not able to schedule for 17:23:44");
-//}
-//
-//- (void)testGetStartTimeWithExperimentRepeatRateOne3 {
-//  NSInteger repeatRate = 1;
-//  NSDate* startDate = [PacoDateUtility dateFromStringWithYearAndDay:@"2013/10/31"];
-//  XCTAssertNotNil(startDate, @"startDate should be valid");
-//  NSDate* fromDate = [PacoDateUtility pacoDateForString:@"2013/10/31 10:23:45-0700"];
-//  XCTAssertNotNil(fromDate, @"fromDate should be valid");
-//  NSDate* result = [PacoScheduleGenerator getStartTimeWithExperimentStartDate:startDate
-//                                                                     fromDate:fromDate
-//                                                                        times:self.times
-//                                                                   repeatRate:repeatRate];
-//  XCTAssertEqualObjects(result, fromDate,
-//                       @"should be the fromDate since it's still able to schedule for 17:23:44");
-//}
-//
-//- (void)testGetStartTimeFromDate {
-//  NSDate* fromDate = [PacoDateUtility pacoDateForString:@"2013/10/31 10:23:45-0700"];
-//  XCTAssertNotNil(fromDate, @"fromDate should be valid");
-//  NSDate* result = [PacoScheduleGenerator getStartTimeFromDate:fromDate withTimes:self.times];
-//  XCTAssertEqualObjects(result, fromDate, @"should be fromDate since it's still able to schedule");
-//}
-//
-//- (void)testGetStartTimeFromDate2 {
-//  NSDate* fromDate = [PacoDateUtility pacoDateForString:@"2013/10/31 08:23:45-0700"];
-//  XCTAssertNotNil(fromDate, @"fromDate should be valid");
-//  NSDate* result = [PacoScheduleGenerator getStartTimeFromDate:fromDate withTimes:self.times];
-//  XCTAssertEqualObjects(result, fromDate, @"should be fromDate since it's still able to schedule");
-//}
-//
-//- (void)testGetStartTimeFromDate3 {
-//  NSDate* fromDate = [PacoDateUtility pacoDateForString:@"2013/10/31 17:23:45-0700"];
-//  XCTAssertNotNil(fromDate, @"fromDate should be valid");
-//  NSDate* result = [PacoScheduleGenerator getStartTimeFromDate:fromDate withTimes:self.times];
-//  XCTAssertNotNil(result, @"result should be valid");
-//  NSDate* expect = [PacoDateUtility pacoDateForString:@"2013/11/01 00:00:00-0700"];
-//  XCTAssertNotNil(expect, @"expect should be valid");
-//  XCTAssertEqualObjects(result, expect, @"should be next day");
-//}
-//
-//- (void)testRealStartDate {
-//  NSDate* fromDate = [PacoDateUtility pacoDateForString:@"2013/10/31 17:23:45-0700"];
-//  XCTAssertNotNil(fromDate, @"fromDate should be valid");
-//  NSDate* result = [PacoScheduleGenerator getRealStartDateWithTimes:self.times
-//                                                  originalStartDate:fromDate
-//                                                experimentStartDate:nil
-//                                                         repeatRate:2];
-//  NSDate* expect = [PacoDateUtility pacoDateForString:@"2013/11/01 00:00:00-0700"];
-//  XCTAssertEqualObjects(result, expect,
-//                       @"should be next day since it's not able to schedule");
-//}
-//
-//- (void)testRealStartDate2 {
-//  NSDate* fromDate = [PacoDateUtility pacoDateForString:@"2013/10/31 17:23:00-0700"];
-//  XCTAssertNotNil(fromDate, @"fromDate should be valid");
-//  NSDate* result = [PacoScheduleGenerator getRealStartDateWithTimes:self.times
-//                                                  originalStartDate:fromDate
-//                                                experimentStartDate:nil
-//                                                         repeatRate:2];
-//  XCTAssertEqualObjects(result, fromDate,
-//                       @"should be fromDate since it's still able to schedule for today");
-//}
-//
-//- (void)testRealStartDate3 {
-//  NSDate* experimentStartDate = [PacoDateUtility pacoDateForString:@"2013/10/29 00:00:00-0700"];
-//  XCTAssertNotNil(experimentStartDate, @"experimentStartDate should be valid");
-//
-//  NSDate* fromDate = [PacoDateUtility pacoDateForString:@"2013/10/31 17:23:00-0700"];
-//  XCTAssertNotNil(fromDate, @"fromDate should be valid");
-//  NSDate* result = [PacoScheduleGenerator getRealStartDateWithTimes:self.times
-//                                                  originalStartDate:fromDate
-//                                                experimentStartDate:experimentStartDate
-//                                                         repeatRate:2];
-//  XCTAssertEqualObjects(result, fromDate,
-//                       @"should be fromDate since it's still able to schedule for today");
-//}
-//
-//- (void)testRealStartDate4 {
-//  NSDate* experimentStartDate = [PacoDateUtility pacoDateForString:@"2013/10/29 00:00:00-0700"];
-//  XCTAssertNotNil(experimentStartDate, @"experimentStartDate should be valid");
-//  
-//  NSDate* fromDate = [PacoDateUtility pacoDateForString:@"2013/10/31 17:30:00-0700"];
-//  XCTAssertNotNil(fromDate, @"fromDate should be valid");
-//  NSDate* result = [PacoScheduleGenerator getRealStartDateWithTimes:self.times
-//                                                  originalStartDate:fromDate
-//                                                experimentStartDate:experimentStartDate
-//                                                         repeatRate:2];
-//  NSDate* expect = [PacoDateUtility pacoDateForString:@"2013/11/02 00:00:00-0700"];
-//  XCTAssertNotNil(expect, @"expect should be valid");
-// 
-//  XCTAssertEqualObjects(result, expect,
-//                       @"should be 11/02 since it's not able to schedule for today and should"
-//                       @"be 2 days later");
-//}
-//
-//
-//
+- (void)testGetStartTimeWithFromDateOnSameDayAsExperimentStart {
+  NSInteger repeatRate = 2;
+  NSDate* startDate = [PacoDateUtility dateFromStringWithYearAndDay:@"2013/10/21"];
+  XCTAssertNotNil(startDate, @"startDate should be valid");
+  NSDate* fromDate = [PacoDateUtility pacoDateForString:@"2013/10/21 14:00:00-0700"];
+  XCTAssertNotNil(fromDate, @"fromDate should be valid");
+  NSDate* result = [PacoScheduleGenerator getStartTimeWithExperimentStartDate:startDate
+                                                                     fromDate:fromDate
+                                                                        times:self.times
+                                                                   repeatRate:repeatRate];
+  XCTAssertEqualObjects(result, fromDate,
+                       @"should be fromDate if user joins on experiment startDate and is still"
+                       @"able to schedule times");
+}
+
+//09:35:50, 17:23:44
+- (void)testFromDateOnSameDayAsExperimentStartRepeatRateOne {
+  NSInteger repeatRate = 1;
+  NSDate* startDate = [PacoDateUtility dateFromStringWithYearAndDay:@"2013/10/21"];
+  XCTAssertNotNil(startDate, @"startDate should be valid");
+  NSDate* fromDate = [PacoDateUtility pacoDateForString:@"2013/10/21 18:00:00-0700"];
+  XCTAssertNotNil(fromDate, @"fromDate should be valid");
+  NSDate* result = [PacoScheduleGenerator getStartTimeWithExperimentStartDate:startDate
+                                                                     fromDate:fromDate
+                                                                        times:self.times
+                                                                   repeatRate:repeatRate];
+  NSDate* expect = [PacoDateUtility dateFromStringWithYearAndDay:@"2013/10/22"];
+  XCTAssertEqualObjects(result, expect,
+                       @"should be next day");
+}
+
+//09:35:50, 17:23:44
+- (void)testGetStartTimeWithFromDateOnNextDayOfExperimentStart {
+  NSInteger repeatRate = 2;
+  NSDate* startDate = [PacoDateUtility dateFromStringWithYearAndDay:@"2013/10/21"];
+  XCTAssertNotNil(startDate, @"startDate should be valid");
+  NSDate* fromDate = [PacoDateUtility pacoDateForString:@"2013/10/22 14:00:00-0700"];
+  XCTAssertNotNil(fromDate, @"fromDate should be valid");
+  NSDate* result = [PacoScheduleGenerator getStartTimeWithExperimentStartDate:startDate
+                                                                     fromDate:fromDate
+                                                                        times:self.times
+                                                                   repeatRate:repeatRate];
+  NSDate* expect = [PacoDateUtility dateFromStringWithYearAndDay:@"2013/10/23"];
+  XCTAssertEqualObjects(result, expect,
+                       @"should be next next day");
+}
+
+
+- (void)testGetStartTimeWithExperiment2 {
+  NSInteger repeatRate = 2;
+  NSDate* startDate = [PacoDateUtility dateFromStringWithYearAndDay:@"2013/10/18"];
+  XCTAssertNotNil(startDate, @"startDate should be valid");
+  NSDate* fromDate = [PacoDateUtility pacoDateForString:@"2013/10/21 14:00:00-0700"];
+  XCTAssertNotNil(fromDate, @"fromDate should be valid");
+  NSDate* result = [PacoScheduleGenerator getStartTimeWithExperimentStartDate:startDate
+                                                                     fromDate:fromDate
+                                                                        times:self.times
+                                                                   repeatRate:repeatRate];
+  NSDate* expect = [PacoDateUtility pacoDateForString:@"2013/10/22 00:00:00-0700"];
+  XCTAssertEqualObjects(result, expect,
+                       @"should be 10/22 since user joins the experiment after it starts, and"
+                       @"the repeatRate is 2 days");
+}
+
+- (void)testGetStartTimeWithExperiment3 {
+  NSInteger repeatRate = 2;
+  NSDate* startDate = [PacoDateUtility dateFromStringWithYearAndDay:@"2013/10/18"];
+  XCTAssertNotNil(startDate, @"startDate should be valid");
+  NSDate* fromDate = [PacoDateUtility pacoDateForString:@"2013/10/20 14:00:00-0700"];
+  XCTAssertNotNil(fromDate, @"fromDate should be valid");
+  NSDate* result = [PacoScheduleGenerator getStartTimeWithExperimentStartDate:startDate
+                                                                     fromDate:fromDate
+                                                                        times:self.times
+                                                                   repeatRate:repeatRate];
+  XCTAssertEqualObjects(result, fromDate,
+                       @"should be fromDate since it's still able to schedule for 17:23:44");
+}
+
+- (void)testGetStartTimeWithExperiment4 {
+  NSInteger repeatRate = 2;
+  NSDate* startDate = [PacoDateUtility dateFromStringWithYearAndDay:@"2013/10/18"];
+  XCTAssertNotNil(startDate, @"startDate should be valid");
+  NSDate* fromDate = [PacoDateUtility pacoDateForString:@"2013/10/18 17:23:45-0700"];
+  XCTAssertNotNil(fromDate, @"fromDate should be valid");
+  NSDate* result = [PacoScheduleGenerator getStartTimeWithExperimentStartDate:startDate
+                                                                     fromDate:fromDate
+                                                                        times:self.times
+                                                                   repeatRate:repeatRate];
+  NSDate* expect = [PacoDateUtility pacoDateForString:@"2013/10/20 00:00:00-0700"];
+  XCTAssertEqualObjects(result, expect,
+                       @"should be 2 days later since it's not able to schedule for 17:23:44");
+}
+
+- (void)testGetStartTimeWithExperiment5 {
+  NSInteger repeatRate = 2;
+  NSDate* startDate = [PacoDateUtility dateFromStringWithYearAndDay:@"2013/10/18"];
+  XCTAssertNotNil(startDate, @"startDate should be valid");
+  NSDate* fromDate = [PacoDateUtility pacoDateForString:@"2013/10/19 01:23:45-0700"];
+  XCTAssertNotNil(fromDate, @"fromDate should be valid");
+  NSDate* result = [PacoScheduleGenerator getStartTimeWithExperimentStartDate:startDate
+                                                                     fromDate:fromDate
+                                                                        times:self.times
+                                                                   repeatRate:repeatRate];
+  NSDate* expect = [PacoDateUtility pacoDateForString:@"2013/10/20 00:00:00-0700"];
+  XCTAssertEqualObjects(result, expect,
+                       @"should be next day");
+}
+
+
+- (void)testGetStartTimeWithExperimentRepeatRateOne {
+  NSInteger repeatRate = 1;
+  NSDate* startDate = [PacoDateUtility dateFromStringWithYearAndDay:@"2013/10/18"];
+  XCTAssertNotNil(startDate, @"startDate should be valid");
+  NSDate* fromDate = [PacoDateUtility pacoDateForString:@"2013/10/18 17:23:45-0700"];
+  XCTAssertNotNil(fromDate, @"fromDate should be valid");
+  NSDate* result = [PacoScheduleGenerator getStartTimeWithExperimentStartDate:startDate
+                                                                     fromDate:fromDate
+                                                                        times:self.times
+                                                                   repeatRate:repeatRate];
+  NSDate* expect = [PacoDateUtility pacoDateForString:@"2013/10/19 00:00:00-0700"];
+  XCTAssertEqualObjects(result, expect,
+                       @"should be the next day since it's not able to schedule for 17:23:44");
+}
+
+- (void)testGetStartTimeWithExperimentRepeatRateOne2 {
+  NSInteger repeatRate = 1;
+  NSDate* startDate = [PacoDateUtility dateFromStringWithYearAndDay:@"2013/10/31"];
+  XCTAssertNotNil(startDate, @"startDate should be valid");
+  NSDate* fromDate = [PacoDateUtility pacoDateForString:@"2013/10/31 17:23:45-0700"];
+  XCTAssertNotNil(fromDate, @"fromDate should be valid");
+  NSDate* result = [PacoScheduleGenerator getStartTimeWithExperimentStartDate:startDate
+                                                                     fromDate:fromDate
+                                                                        times:self.times
+                                                                   repeatRate:repeatRate];
+  NSDate* expect = [PacoDateUtility pacoDateForString:@"2013/11/01 00:00:00-0700"];
+  XCTAssertEqualObjects(result, expect,
+                       @"should be the next day since it's not able to schedule for 17:23:44");
+}
+
+- (void)testGetStartTimeWithExperimentRepeatRateOne3 {
+  NSInteger repeatRate = 1;
+  NSDate* startDate = [PacoDateUtility dateFromStringWithYearAndDay:@"2013/10/31"];
+  XCTAssertNotNil(startDate, @"startDate should be valid");
+  NSDate* fromDate = [PacoDateUtility pacoDateForString:@"2013/10/31 10:23:45-0700"];
+  XCTAssertNotNil(fromDate, @"fromDate should be valid");
+  NSDate* result = [PacoScheduleGenerator getStartTimeWithExperimentStartDate:startDate
+                                                                     fromDate:fromDate
+                                                                        times:self.times
+                                                                   repeatRate:repeatRate];
+  XCTAssertEqualObjects(result, fromDate,
+                       @"should be the fromDate since it's still able to schedule for 17:23:44");
+}
+
+- (void)testGetStartTimeFromDate {
+  NSDate* fromDate = [PacoDateUtility pacoDateForString:@"2013/10/31 10:23:45-0700"];
+  XCTAssertNotNil(fromDate, @"fromDate should be valid");
+  NSDate* result = [PacoScheduleGenerator getStartTimeFromDate:fromDate withTimes:self.times];
+  XCTAssertEqualObjects(result, fromDate, @"should be fromDate since it's still able to schedule");
+}
+
+- (void)testGetStartTimeFromDate2 {
+  NSDate* fromDate = [PacoDateUtility pacoDateForString:@"2013/10/31 08:23:45-0700"];
+  XCTAssertNotNil(fromDate, @"fromDate should be valid");
+  NSDate* result = [PacoScheduleGenerator getStartTimeFromDate:fromDate withTimes:self.times];
+  XCTAssertEqualObjects(result, fromDate, @"should be fromDate since it's still able to schedule");
+}
+
+- (void)testGetStartTimeFromDate3 {
+  NSDate* fromDate = [PacoDateUtility pacoDateForString:@"2013/10/31 17:23:45-0700"];
+  XCTAssertNotNil(fromDate, @"fromDate should be valid");
+  NSDate* result = [PacoScheduleGenerator getStartTimeFromDate:fromDate withTimes:self.times];
+  XCTAssertNotNil(result, @"result should be valid");
+  NSDate* expect = [PacoDateUtility pacoDateForString:@"2013/11/01 00:00:00-0700"];
+  XCTAssertNotNil(expect, @"expect should be valid");
+  XCTAssertEqualObjects(result, expect, @"should be next day");
+}
+
+- (void)testRealStartDate {
+  NSDate* fromDate = [PacoDateUtility pacoDateForString:@"2013/10/31 17:23:45-0700"];
+  XCTAssertNotNil(fromDate, @"fromDate should be valid");
+  NSDate* result = [PacoScheduleGenerator getRealStartDateWithTimes:self.times
+                                                  originalStartDate:fromDate
+                                                experimentStartDate:nil
+                                                         repeatRate:2];
+  NSDate* expect = [PacoDateUtility pacoDateForString:@"2013/11/01 00:00:00-0700"];
+  XCTAssertEqualObjects(result, expect,
+                       @"should be next day since it's not able to schedule");
+}
+
+- (void)testRealStartDate2 {
+  NSDate* fromDate = [PacoDateUtility pacoDateForString:@"2013/10/31 17:23:00-0700"];
+  XCTAssertNotNil(fromDate, @"fromDate should be valid");
+  NSDate* result = [PacoScheduleGenerator getRealStartDateWithTimes:self.times
+                                                  originalStartDate:fromDate
+                                                experimentStartDate:nil
+                                                         repeatRate:2];
+  XCTAssertEqualObjects(result, fromDate,
+                       @"should be fromDate since it's still able to schedule for today");
+}
+
+- (void)testRealStartDate3 {
+  NSDate* experimentStartDate = [PacoDateUtility pacoDateForString:@"2013/10/29 00:00:00-0700"];
+  XCTAssertNotNil(experimentStartDate, @"experimentStartDate should be valid");
+
+  NSDate* fromDate = [PacoDateUtility pacoDateForString:@"2013/10/31 17:23:00-0700"];
+  XCTAssertNotNil(fromDate, @"fromDate should be valid");
+  NSDate* result = [PacoScheduleGenerator getRealStartDateWithTimes:self.times
+                                                  originalStartDate:fromDate
+                                                experimentStartDate:experimentStartDate
+                                                         repeatRate:2];
+  XCTAssertEqualObjects(result, fromDate,
+                       @"should be fromDate since it's still able to schedule for today");
+}
+
+- (void)testRealStartDate4 {
+  NSDate* experimentStartDate = [PacoDateUtility pacoDateForString:@"2013/10/29 00:00:00-0700"];
+  XCTAssertNotNil(experimentStartDate, @"experimentStartDate should be valid");
+  
+  NSDate* fromDate = [PacoDateUtility pacoDateForString:@"2013/10/31 17:30:00-0700"];
+  XCTAssertNotNil(fromDate, @"fromDate should be valid");
+  NSDate* result = [PacoScheduleGenerator getRealStartDateWithTimes:self.times
+                                                  originalStartDate:fromDate
+                                                experimentStartDate:experimentStartDate
+                                                         repeatRate:2];
+  NSDate* expect = [PacoDateUtility pacoDateForString:@"2013/11/02 00:00:00-0700"];
+  XCTAssertNotNil(expect, @"expect should be valid");
+ 
+  XCTAssertEqualObjects(result, expect,
+                       @"should be 11/02 since it's not able to schedule for today and should"
+                       @"be 2 days later");
+}
+
+
+
 
 
 

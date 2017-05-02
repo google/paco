@@ -1,6 +1,8 @@
 package com.google.sampling.experiential.server;
 
+import java.text.ParseException;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.Locale;
 import java.util.TimeZone;
 import java.util.logging.Logger;
@@ -79,5 +81,22 @@ public class TimeUtil {
     return jodaTimeZone;
 
   }
+  
+  public static DateTime parseDate(DateTimeFormatter df, String when) throws ParseException {
+    return df.parseDateTime(when);
+  }
 
+  public static Date adjustTimeToTimezoneIfNecesssary(String tz, Date dateObj) {
+    if (dateObj == null) {
+      return null;
+    }
+    DateTimeZone timezone = null;
+    if (tz != null) {
+      timezone = DateTimeZone.forID(tz);
+    }
+    if (timezone != null && dateObj.getTimezoneOffset() != timezone.getOffset(dateObj.getTime())) {
+      dateObj = new DateTime(dateObj).withZone(timezone).toDate();
+    }
+    return dateObj;
+  }
 }

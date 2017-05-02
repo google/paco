@@ -19,14 +19,13 @@
  */
 package com.pacoapp.paco.model;
 
+import com.pacoapp.paco.shared.model2.OutputBaseColumns;
+
 import android.net.Uri;
 import android.provider.BaseColumns;
 
-public class OutputColumns implements BaseColumns {
-  public static final String EVENT_ID = "event_id";
-  public static final String INPUT_SERVER_ID = "input_server_id";
-  public static final String NAME = "text";
-  public static final String ANSWER = "answer";
+public class OutputColumns extends OutputBaseColumns implements BaseColumns {
+  
   
   public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.google.paco.output";
   public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.google.paco.output";

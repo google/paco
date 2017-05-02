@@ -19,7 +19,6 @@
 #import "PacoExperiment.h"
 #import "PacoExperimentDefinition.h"
 #import "PacoScheduleGenerator.h"
-#import "PacoScheduleGenerator+ESM.h"
 #import "PacoUtility.h"
 
 //ESM per day, doesn't include weekends
@@ -197,12 +196,8 @@ static NSString* esmExperimentTemplate = @"{\"title\":\"Notification - ESM Test\
   NSDate* fromDate = [PacoDateUtility pacoDateForString:@"2013/09/10 17:33:22-0700"]; //Tues
   NSDate* esmStartDate = [PacoDateUtility pacoDateForString:@"2013/09/11 16:00:00-0700"];
 
-  
-  NSArray *nextScheduleDates = [PacoScheduleGenerator nextDatesForESMExperiment:self.esmExperiment
-                                                                   numOfDates:1
-                                                                     fromDate:fromDate];
-  
-  XCTAssertTrue(nextScheduleDates != nil, @"%@ should not be nil!", [PacoDateUtility pacoStringForDate:[nextScheduleDates firstObject]]);
+  NSDate* nextScheduleDate = [PacoScheduleGenerator nextScheduledDateForExperiment:self.esmExperiment fromThisDate:fromDate];
+  XCTAssertTrue(nextScheduleDate != nil, @"%@ should not be nil!", [PacoDateUtility pacoStringForDate:nextScheduleDate]);
   
   XCTAssertTrue([self.esmExperiment.schedule.esmScheduleList count] == self.esmExperiment.schedule.esmFrequency, @"esmScheduleList should be generated successfully!");
 
