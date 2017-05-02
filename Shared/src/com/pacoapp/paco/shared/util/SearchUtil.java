@@ -39,20 +39,20 @@ public class SearchUtil {
     boolean allCol = false;
     SelectItem star = new AllColumns();
     // projection
-    String[] projAry = sqlQuery.getProjection();
-    if (projAry != null) {
-      for(int s=0; s< projAry.length; s++) {
-        if (Constants.STAR.equals(projAry[s])) {
+    String[] projections = sqlQuery.getProjection();
+    if (projections != null) {
+      for(int s=0; s< projections.length; s++) {
+        if (Constants.STAR.equals(projections[s])) {
           allCol = true;
           break;
-        } else if (projAry[s].equalsIgnoreCase(Constants.WHEN)) {
-          projAry[s] = Constants.WHEN_WITH_BACKTICK;
+        } else if (projections[s].equalsIgnoreCase(Constants.WHEN)) {
+          projections[s] = Constants.WHEN_WITH_BACKTICK;
         }
       }
       if (allCol) {
         selQry = SelectUtils.buildSelectFromTableAndSelectItems(new Table(EventBaseColumns.TABLE_NAME), star);
       } else {
-        selQry = SelectUtils.buildSelectFromTableAndExpressions(new Table(EventBaseColumns.TABLE_NAME), projAry);  
+        selQry = SelectUtils.buildSelectFromTableAndExpressions(new Table(EventBaseColumns.TABLE_NAME), projections);  
       }
     }
 

@@ -839,17 +839,17 @@ public class ExperimentProviderUtil implements EventStore {
         evQryStat.setErrorMessage(ErrorMessages.EXPERIMENT_ID_CLAUSE_EXCEPTION.getDescription());
         return evQryStat;
       }
-      if (qProcessor.containWhoClause() == true) {
+      if (qProcessor.containWhoClause()) {
         evQryStat.setStatus(FAILURE);
         evQryStat.setErrorMessage(ErrorMessages.INVALID_COLUMN_NAME.getDescription() + qProcessor.getWhoClause());
         return evQryStat;
       }
-      if (qProcessor.probableSqlInjection()!=null){
+      if (qProcessor.probableSqlInjection() != null){
         evQryStat.setStatus(FAILURE);
         evQryStat.setErrorMessage(ErrorMessages.PROBABLE_SQL_INJECTION.getDescription() + qProcessor.probableSqlInjection());
         return evQryStat;
       }
-      if (qProcessor.getInvalidDataType()!=null){
+      if (qProcessor.getInvalidDataType() != null){
         evQryStat.setStatus(FAILURE);
         evQryStat.setErrorMessage(ErrorMessages.INVALID_DATA_TYPE.getDescription() + qProcessor.getInvalidDataType());
         return evQryStat;

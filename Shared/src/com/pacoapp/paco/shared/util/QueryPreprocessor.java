@@ -112,7 +112,7 @@ public class QueryPreprocessor implements SelectVisitor, FromItemVisitor, Expres
   private String invalidDataType;
   private boolean containsExperimentIdClause;
   private boolean containsWhoClause;
-  private static final SimpleDateFormat sdfLocal = TimeUtil.localFormatter;
+  private static final SimpleDateFormat localDateFormatter = TimeUtil.localFormatter;
   private static List<Class> allPossibleConstantExpTypes = Lists.newArrayList();
   private DateTimeZone timeZone;
   private Set<String> whoClauseValues = Sets.newHashSet();
@@ -184,6 +184,13 @@ public class QueryPreprocessor implements SelectVisitor, FromItemVisitor, Expres
       isPresent = true;
     } 
     return isPresent;
+  }
+  
+  private String modifyDateStrToUTC(StringValue strValue) throws ParseException { 
+    Date dt = localDateFormatter.parse(strValue.getValue());
+    Date utcDate = TimeUtil.convertToUTC(dt, timeZone);
+    String utcFormattedDate = localDateFormatter.format(utcDate);
+    return utcFormattedDate;
   }
 
   public void visit(PlainSelect plainSelect) {
@@ -303,9 +310,7 @@ public class QueryPreprocessor implements SelectVisitor, FromItemVisitor, Expres
               if (expr instanceof StringValue) {
                 try {
                   if (modifyDateToUTC) {
-                    Date dt = sdfLocal.parse(((StringValue) expr).getValue());
-                    Date utcDate = TimeUtil.convertToUTC(dt, timeZone);
-                    utcFormattedDate = sdfLocal.format(utcDate);
+                    utcFormattedDate = modifyDateStrToUTC((StringValue) expr);
                     newUtcList.add(new StringValue(utcFormattedDate));
                   } else {
                     LongValue lgVal = new LongValue(TimeUtil.convertDateToLong(expr.toString()));
@@ -435,9 +440,7 @@ public class QueryPreprocessor implements SelectVisitor, FromItemVisitor, Expres
           if (re instanceof StringValue) {
             try {
               if (modifyDateToUTC) {
-                Date dt = sdfLocal.parse(((StringValue) re).getValue());
-                Date utcDate = TimeUtil.convertToUTC(dt, timeZone);
-                utcFormattedDate = sdfLocal.format(utcDate);
+                utcFormattedDate = modifyDateStrToUTC((StringValue) re);
                 ((StringValue) re).setValue(utcFormattedDate);
               } else {
                 LongValue lgVal = new LongValue(TimeUtil.convertDateToLong(re.toString().substring(1,re.toString().length()-1)));
