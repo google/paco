@@ -165,11 +165,14 @@ class DefaultExperimentService implements ExperimentService {
           version++;
         }
         experiment.setVersion(version);
-        experiment.setModifyDate(com.pacoapp.paco.shared.util.TimeUtil.formatDate(new Date().getTime()));
+
+        final long millis = new DateTime().getMillis();
+        experiment.setModifyDate(com.pacoapp.paco.shared.util.TimeUtil.formatDate(millis));
         Key experimentKey = ExperimentJsonEntityManager.saveExperiment(ds, tx, JsonConverter.jsonify(experiment),
                                                                        experiment.getId(),
                                                                        experiment.getTitle(),
-                                                                       experiment.getVersion());
+                                                                       experiment.getVersion(),
+                                                                       millis);
 
         experiment.setId(experimentKey.getId());
         ExperimentAccessManager.updateAccessControlEntities(ds, tx, experiment, experimentKey, timezone);

@@ -31,32 +31,11 @@ public class ExperimentJsonEntityManager {
   private static final String TITLE_COLUMN = "title";
   private static final String VERSION_COLUMN = "version";
   private static final String DEFINITION_COLUMN = "definition";
+  private static final String MODIFIED_COLUMN = "modified_date"; // milliseconds (long value) in utc
 
   public static final Logger log = Logger.getLogger(ExperimentJsonEntityManager.class.getName());
 
-//  public static Key saveExperiment(String experimentJson, Long experimentId, String experimentTitle, Integer version) {
-//    System.out.println("JSON experiment received:\n " + experimentJson);
-//
-//    DatastoreService ds = DatastoreServiceFactory.getDatastoreService();
-//    Entity entity = new Entity(EXPERIMENT_KIND);
-//    if (experimentId != null) {
-//      entity.setProperty("id", experimentId);
-//    }
-//    entity.setProperty(TITLE_COLUMN, experimentTitle);
-//
-//    if (version == null || version == 0) {
-//      version = 1;
-//    }
-//    entity.setProperty(VERSION_COLUMN, version);
-//
-//    Text experimentJsonText = new Text(experimentJson);
-//    entity.setUnindexedProperty(DEFINITION_COLUMN, experimentJsonText);
-//    Key key = ds.put(entity);
-//    return key;
-//  }
-
-  public static Key saveExperiment(DatastoreService ds, Transaction tx, String experimentJson, Long experimentId, String experimentTitle, Integer version) {
-    //System.out.println("JSON experiment received:\n " + experimentJson);
+  public static Key saveExperiment(DatastoreService ds, Transaction tx, String experimentJson, Long experimentId, String experimentTitle, Integer version, Long modifiedDate) {
     Entity entity = null;
 
     if (experimentId != null) {
@@ -64,9 +43,11 @@ public class ExperimentJsonEntityManager {
     } else {
       entity = new Entity(EXPERIMENT_KIND);
     }
-    entity.setProperty(TITLE_COLUMN, experimentTitle);
+    entity.setProperty(TITLE_COLUMN, experimentTitle.toLowerCase());
 
     entity.setProperty(VERSION_COLUMN, version);
+
+    entity.setProperty(MODIFIED_COLUMN, modifiedDate);
 
     Text experimentJsonText = new Text(experimentJson);
     entity.setUnindexedProperty(DEFINITION_COLUMN, experimentJsonText);
