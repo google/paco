@@ -12,6 +12,14 @@
       </md-tab-label>
       <md-tab-body>
         <div ng-if="list.admin" class="group">
+          <div style="text-align:right;">
+              <md-select ng-model="currentAdminSortOrder" ng-change="sortAdminList()" aria-label="Choose sorting order">
+	            <md-option value="title_asc" aria-label="Sort by title ascending">Sort by Title (a-z)</md-option>
+	            <md-option value="title_desc" aria-label="Sort by title descending">Sort by Title (z-a)</md-option>
+	            <md-option value="modified_date_desc" aria-label="Sort by modified date descending">Sort by Date (newest first)</md-option>
+	            <md-option value="modified_date_asc" aria-label="Sort by modified date ascending">Sort by Date (oldest first)</md-option>
+	          </md-select>	        
+	      </div>
           <div ng-repeat="exp in list.admin">
             <md-card ng-class="{deleting: exp.deleting}">
               <md-card-content class="padded">
