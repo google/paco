@@ -26,8 +26,6 @@ public class ExperimentTitleLowercaseMigrationJob implements MigrationJob {
 
   public static final Logger log = Logger.getLogger(ExperimentTitleLowercaseMigrationJob.class.getName());
 
-  public static String PUBLIC_EXPERIMENT_KIND = "public_experiment";
-  private static final String MODIFY_DATE_PROPERTY = "modify_date";
 
   public boolean doMigrationPublicExperiments() {
     final ExperimentService experimentService = ExperimentServiceFactory.getExperimentService();
@@ -58,8 +56,9 @@ public class ExperimentTitleLowercaseMigrationJob implements MigrationJob {
           }
         } else {
           modifiedDateAsMillis = new DateTime().getMillis();
+          e.setModifyDate(TimeUtil.formatDate(modifiedDateAsMillis));
         }
-        ExperimentJsonEntityManager.saveExperiment(ds, tx, mapper.writeValueAsString(e), e.getId(), e.getTitle(), e.getVersion(), modifiedDateAsMillis);
+        ExperimentJsonEntityManager.saveExperiment(ds, tx, mapper.writeValueAsString(e), e.getId(), e.getTitle(), e.getVersion(), modifiedDateAsMillis, e.getAdmins());
         completed++;
       } catch (JsonGenerationException e1) {
         log.severe("JsonGenerationException: " + e1.getMessage() + ". Current Entity = " + e.getTitle() + ", " + e.getId() + ". Completed = " + completed);
@@ -70,7 +69,7 @@ public class ExperimentTitleLowercaseMigrationJob implements MigrationJob {
         log.severe("IOException: " + e1.getMessage() + ". Current Entity = " + e.getTitle() + ", " + e.getId() + ". Completed = " + completed);
       }
     }
-    log.fine("Done with migration");
+    log.fine("Done with migration. Modified entity count: " + completed);
     return true;
   }
 

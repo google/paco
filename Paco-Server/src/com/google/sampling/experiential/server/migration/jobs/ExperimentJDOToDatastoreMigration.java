@@ -517,7 +517,8 @@ public class ExperimentJDOToDatastoreMigration implements MigrationJob {
                                                                        experiment.getId(),
                                                                        experiment.getTitle(),
                                                                        experiment.getVersion(),
-                                                                       new DateTime().getMillis());
+                                                                       new DateTime().getMillis(),
+                                                                       experiment.getAdmins());
 
         experiment.setId(experimentKey.getId());
         ExperimentAccessManager.updateAccessControlEntities(ds, tx, experiment, experimentKey, timezone);
