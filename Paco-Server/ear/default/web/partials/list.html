@@ -25,10 +25,10 @@
               <md-card-content class="padded">
                 <a href="#/experiment/{{exp.id}}">{{exp.title}}
                 </a>
-                <span ng-if="exp.organization" class="organization">
-                    administered by {{exp.organization}}
-                  </span>
                 <span class="admin">Admin</span>
+                <div ng-if="currentAdminSortOrder == 'modified_date_desc' || currentAdminSortOrder == 'modified_date_asc'" class="modifyDate">
+                    {{exp.modifyDate}}
+                  </div>                
               </md-card-content>
               <div class="md-actions">
                 <a href="#/edit/{{exp.id}}">
