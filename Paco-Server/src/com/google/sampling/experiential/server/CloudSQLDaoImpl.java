@@ -673,7 +673,9 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
                                            + "PRIMARY KEY (`" + OutputBaseColumns.EVENT_ID + "`,`"
                                            + OutputBaseColumns.NAME + "`)," + "KEY `event_id_index` (`"
                                            + OutputBaseColumns.EVENT_ID + "`)," + "KEY `text_index` (`"
-                                           + OutputBaseColumns.NAME + "`)" + ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4";
+                                           + OutputBaseColumns.NAME + "`), " 
+                                           + " CONSTRAINT `event_id_fk` FOREIGN KEY (` "+ OutputBaseColumns.EVENT_ID + "`) REFERENCES `"+ EventBaseColumns.TABLE_NAME +"` (`"+ ID +"`) ON DELETE CASCADE ON UPDATE NO ACTION " +
+                                           ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4";
       
       statementCreateEvent = conn.prepareStatement(createEventsTableSql);
 
