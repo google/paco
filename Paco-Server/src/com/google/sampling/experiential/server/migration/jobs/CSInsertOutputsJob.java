@@ -11,7 +11,12 @@ public class CSInsertOutputsJob implements MigrationJob {
 
     @Override
     public boolean doMigration() {
-      EventRetriever.getInstance().readOutputsDataStoreAndInsertToCloudSql();
+      return doMigration(null);
+    }
+
+    @Override
+    public boolean doMigration(String cursor) {
+      EventRetriever.getInstance().readOutputsDataStoreAndInsertToCloudSql(cursor);
       return true;
     }
 

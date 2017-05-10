@@ -596,4 +596,10 @@ public class ExperimentJDOToDatastoreMigration implements MigrationJob {
     log.severe("Unsuccessful batch of old experiment ids: " + Joiner.on(",").join(unsuccessful));
   }
 
+  @Override
+  public boolean doMigration(String cursor) {
+    // TODO Auto-generated method stub
+    return false;
+  }
+
 }

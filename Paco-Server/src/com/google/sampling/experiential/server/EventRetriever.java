@@ -27,6 +27,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.jdo.PersistenceManager;
@@ -71,7 +72,6 @@ import com.google.sampling.experiential.model.What;
 import com.google.sampling.experiential.server.migration.MigrationOutput;
 import com.google.sampling.experiential.server.stats.participation.ParticipationStatsService;
 import com.google.sampling.experiential.shared.EventDAO;
-import com.google.sampling.experiential.shared.Output;
 import com.google.sampling.experiential.shared.WhatDAO;
 import com.pacoapp.paco.shared.util.ErrorMessages;
 
@@ -88,6 +88,7 @@ public class EventRetriever {
   private static final Logger log = Logger.getLogger(EventRetriever.class.getName());
   private static CloudSQLDao cloudSqlDaoImpl = new CloudSQLDaoImpl();
   private static DateTimeFormatter df = DateTimeFormat.forPattern(TimeUtil.DATETIME_FORMAT).withOffsetParsed();
+  private static int NULL_CTR = 0;
 
   @VisibleForTesting
   EventRetriever() {
@@ -172,14 +173,12 @@ public class EventRetriever {
         event.setWho(eventJson.getString("who"));
         cloudSqlDaoImpl.insertEvent(event);
       } catch (JSONException e) {
-        log.info(ErrorMessages.JSON_EXCEPTION + " for request: " + eventJson + e);
+        log.info(ErrorMessages.JSON_EXCEPTION + " for request: " + eventJson);
       } catch (SQLException sqle) {
-        log.info(ErrorMessages.SQL_INSERT_EXCEPTION + " for  request: " + eventJson + sqle);
+        log.info(ErrorMessages.SQL_INSERT_EXCEPTION + " for  request: " + eventJson);
       } catch (ParseException e) {
-        cloudSqlDaoImpl.insertFailedEvent(eventJson.toString(), ErrorMessages.TEXT_PARSE_EXCEPTION.getDescription(), e.getMessage());
-        log.warning(ErrorMessages.TEXT_PARSE_EXCEPTION.getDescription() + "for request: " +eventJson + e);
+        log.warning(ErrorMessages.TEXT_PARSE_EXCEPTION.getDescription() + "for request: " +eventJson);
       } catch (Exception e) { 
-        cloudSqlDaoImpl.insertFailedEvent(eventJson.toString(), ErrorMessages.GENERAL_EXCEPTION.getDescription(), e.getMessage());
         log.warning(ErrorMessages.GENERAL_EXCEPTION.getDescription() + "for request: " +eventJson + e);
       }
 
@@ -413,14 +412,18 @@ public class EventRetriever {
     adjustTimeZone(allEvents);
   }
   
-  private void readEventDataStoreAndInsertToCloudSql() {
+  private boolean readEventDataStoreAndInsertToCloudSql(String oldCursor) {
     DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
     Cursor cursor = null;
     int count = 0;
-    int pageSize = 250;
+    int pageSize = 1000;
     List<Event> eventsBatch = null;
     QueryResultList<Entity> results = null;
-    
+    boolean isFinished = false;
+    if(oldCursor != null) {
+      log.info("old cursor " + oldCursor);
+      cursor = Cursor.fromWebSafeString(oldCursor);
+    }
     while (true) {
       eventsBatch = Lists.newArrayList();
       log.info("Count = " + count);
@@ -429,6 +432,7 @@ public class EventRetriever {
       if (cursor != null) {
         fetchOptions.startCursor(cursor);
       }
+
       try { 
         com.google.appengine.api.datastore.Query q = new com.google.appengine.api.datastore.Query("Event");
         PreparedQuery pq = datastore.prepare(q);
@@ -458,38 +462,46 @@ public class EventRetriever {
       if (isContinueCSInsert) {
         CloudSQLDaoImpl  daoImpl =  new CloudSQLDaoImpl();
         boolean isSuccess = daoImpl.insertEventsInBatch(eventsBatch);
-        //Only if the batch cs insert of events and outputs is successful, should we move the cursor to the next batch in datastore
+        //Only if the batch cs insert of events, should we move the cursor to the next batch in datastore
         if (isSuccess) {
-         
           cursor = results.getCursor();
-          log.info("Moving the cursor");
+          log.info("Moving the cursor:" + cursor.toWebSafeString());
+          count = count + results.size();
         }
-        count = count + results.size();
-        //TODO remove the count condition for infinite looping
-        if (cursor == null || count >= 5000) {
-          log.info("null cursor or 5000 , so break");
+        
+        
+        if (cursor == null || !isSuccess) {
+          log.info("null cursor or insert to cs failed, so break");
+          isFinished = true;
           break;
         }
       }
     }
+    return isFinished;
   }
   
-  public void readOutputsDataStoreAndInsertToCloudSql() {
+  public boolean readOutputsDataStoreAndInsertToCloudSql(String oldCursor) {
     DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
     Cursor cursor = null;
     int count = 0;
-    int pageSize = 1000;
-    Set<MigrationOutput> outputsBatch = null;
+    int pageSize = 100;
+    List<MigrationOutput> outputsBatch = null;
     QueryResultList<Entity> results = null;
+    boolean isFinished = false;
+    if(oldCursor != null) {
+      log.info("old cursor " + oldCursor);
+      cursor = Cursor.fromWebSafeString(oldCursor);
+    }
     
     while (true) {
-      outputsBatch = Sets.newHashSet();
+      outputsBatch = Lists.newArrayList();
       log.info("Count = " + count);
       boolean isContinueCSInsert = true;
       FetchOptions fetchOptions = FetchOptions.Builder.withLimit(pageSize);
       if (cursor != null) {
         fetchOptions.startCursor(cursor);
       }
+     
       try { 
         com.google.appengine.api.datastore.Query q = new com.google.appengine.api.datastore.Query("What");
         PreparedQuery pq = datastore.prepare(q);
@@ -498,6 +510,7 @@ public class EventRetriever {
           log.info("empty results");
           break;
         } 
+       
         MigrationOutput output = null;
         for (int i = 0; i < results.size(); i++) {
           Entity entity = results.get(i);
@@ -516,34 +529,52 @@ public class EventRetriever {
       }
       
       if (isContinueCSInsert) {
+        //TODO enable foll code
         CloudSQLDaoImpl  daoImpl =  new CloudSQLDaoImpl();
+        
         boolean isSuccess = daoImpl.insertOutputsInBatch(outputsBatch);
         //Only if the batch cs insert is successful, should we move the cursor to the next batch in datastore
         if (isSuccess) {
-//         
           cursor = results.getCursor();
-          log.info("Moving the cursor");
+          if (cursor!=null) {
+            log.info("Moving the cursor: " + cursor.toWebSafeString());
+          }
+        } else {
+          log.warning("cs insert batch failed, so restart from the cursor " + cursor.toWebSafeString());
         }
         count = count + results.size();
-        //TODO remove the count condition for infinite looping
-        if (cursor == null || count >= 5000) {
-          log.info("null cursor or 5000 , so break");
+        
+        if (cursor == null || !isSuccess) {
+          log.warning("cursor is " + cursor );
+          log.warning("Last sql batch insert was "+ isSuccess + ". If false, fix error and restart from cursor ");
+          isFinished = true;
           break;
         }
-      }
-    }
+      }//if continue csinsert
+    }//while
+    return isFinished;
   }
 
 
   private MigrationOutput createOutputFromEntity(Entity entity) {
     MigrationOutput output = new MigrationOutput();
-    String temp = null;
-    output.setEventId(entity.getKey().getId());
-    output.setText(entity.getProperty("name").toString());
-    if (entity.getProperty("value") != null) {
-      temp = entity.getProperty("value").toString();
+    String tempName = null;
+    String tempValue = null;
+    
+    output.setEventId(entity.getParent().getId());
+    if(entity.getProperty("name") != null) {
+      tempName = entity.getProperty("name").toString();
+      if(tempName.equalsIgnoreCase("null")) {
+        tempName = tempName + "-" + NULL_CTR++;
+      }
+    } else {
+      tempName ="null-"+ NULL_CTR++;
     }
-    output.setAnswer(temp);
+    output.setText(tempName);
+    if (entity.getProperty("value") != null) {
+      tempValue = entity.getProperty("value").toString();
+    }
+    output.setAnswer(tempValue);
     
     return output;
   }
@@ -839,18 +870,26 @@ public class EventRetriever {
     return new EventQueryResultPair(newArrayList, null);
   }
   
-  public void copyAllEventsFromLowLevelDSToCloudSql() {
+  public boolean copyAllEventsFromLowLevelDSToCloudSql(String cursor) {
     log.info("Getting events from low level datastore for migrating to cloud sql");
     long t11 = System.currentTimeMillis();
-
-    if (isDevMode()) {
-      log.info("dev mode or user querying self data");
-      readEventDataStoreAndInsertToCloudSql();
-    } else {
-      log.info("not calling insert to cloud sql");
-    }
+   
+    boolean finished = readEventDataStoreAndInsertToCloudSql(cursor);
+   
     long t12 = System.currentTimeMillis();
     log.info("get execute time: " + (t12 - t11));
+    return finished;
+  }
+  
+  public boolean copyAllOutputsFromLowLevelDSToCloudSql(String cursor) {
+    log.info("Getting outputs from low level datastore for migrating to cloud sql");
+    long t11 = System.currentTimeMillis();
+   
+    boolean finished = readOutputsDataStoreAndInsertToCloudSql(cursor);
+   
+    long t12 = System.currentTimeMillis();
+    log.info("get execute time: " + (t12 - t11));
+    return finished;
   }
   
   public static boolean isExperimentAdministrator(String loggedInUserEmail, Experiment experiment) {

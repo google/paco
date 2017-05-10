@@ -242,4 +242,12 @@ public class EventStatsCounterMigrationJob implements MigrationJob {
     //return doMigrationInLoopForLatestOnly();
   }
 
+
+
+  @Override
+  public boolean doMigration(String cursor) {
+    // TODO Auto-generated method stub
+    return false;
+  }
+
 }

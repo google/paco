@@ -11,8 +11,13 @@ public class CSInsertEventsJob implements MigrationJob {
 
     @Override
     public boolean doMigration() {
-      EventRetriever.getInstance().copyAllEventsFromLowLevelDSToCloudSql();
-      return true;
+      return doMigration(null);
+    }
+
+    @Override
+    public boolean doMigration(String cursor) {
+      boolean isFinished = EventRetriever.getInstance().copyAllEventsFromLowLevelDSToCloudSql(cursor);
+      return isFinished;
     }
 
 }

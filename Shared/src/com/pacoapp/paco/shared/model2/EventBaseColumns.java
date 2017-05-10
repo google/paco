@@ -41,4 +41,5 @@ public class EventBaseColumns {
   public static final String JOINED = "joined";
   public static final String SORT_DATE = "sort_date";
   public static final String CLIENT_TIME_ZONE = "client_timezone";
+  public static final String INT_RESPONSE_TIME = "int_response_time";
 }

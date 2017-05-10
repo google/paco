@@ -1,5 +1,8 @@
 package com.google.sampling.experiential.server;
 
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
+import java.sql.BatchUpdateException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -18,10 +21,11 @@ import org.joda.time.DateTimeZone;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.sampling.experiential.model.Event;
-import com.google.sampling.experiential.model.What;
 import com.google.sampling.experiential.server.migration.MigrationOutput;
 import com.google.sampling.experiential.shared.EventDAO;
 import com.google.sampling.experiential.shared.WhatDAO;
+import com.mysql.jdbc.Statement;
+import com.mysql.jdbc.exceptions.jdbc4.MySQLIntegrityConstraintViolationException;
 import com.pacoapp.paco.shared.model2.EventBaseColumns;
 import com.pacoapp.paco.shared.model2.OutputBaseColumns;
 import com.pacoapp.paco.shared.util.ErrorMessages;
@@ -41,6 +45,7 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
   private static List<Column> outputColList = Lists.newArrayList();
   public static final String ID = "_id";
   public static final String TRUE = "true";
+  private static int DUP_CTR =0;
   private static final String selectOutputsSql = "select * from outputs where event_id =?";
 
   static {
@@ -61,6 +66,7 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
     eventColList.add(new Column(EventBaseColumns.SORT_DATE));
     eventColList.add(new Column(EventBaseColumns.CLIENT_TIME_ZONE));
     eventColList.add(new Column(ID));
+    eventColList.add(new Column(EventBaseColumns.INT_RESPONSE_TIME));
     outputColList.add(new Column(OutputBaseColumns.EVENT_ID));
     outputColList.add(new Column(OutputBaseColumns.NAME));
     outputColList.add(new Column(OutputBaseColumns.ANSWER));
@@ -155,6 +161,8 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
       statementCreateEvent.setTimestamp(i++, event.getResponseTime()!= null ? new Timestamp(utcResponseTime.getTime()): new Timestamp(utcScheduledTime.getTime()));
       statementCreateEvent.setString(i++, event.getTimeZone());
       statementCreateEvent.setLong(i++, event.getId());
+      statementCreateEvent.setLong(i++, event.getResponseTime() != null ? event.getResponseTime().getTime(): java.sql.Types.NULL);
+      
       statementCreateEvent.execute();
       
       statementCreateEventOutput = conn.prepareStatement(outputInsert.toString());
@@ -205,8 +213,9 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
     
     try {
       conn = CloudSQLConnectionManager.getInstance().getConnection();
+      setNames(conn);
       conn.setAutoCommit(false);
-      eventInsert.setTable(new Table(EventServerColumns.TABLE_NAME));
+      eventInsert.setTable(new Table(EventBaseColumns.TABLE_NAME));
       eventInsert.setUseValues(true);
       eventExprList.setExpressions(exp);
       eventInsert.setItemsList(eventExprList);
@@ -233,13 +242,19 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
         statementCreateEvent.setString(i++, event.getPacoVersion());
         statementCreateEvent.setString(i++, event.getAppId());
         statementCreateEvent.setNull(i++, java.sql.Types.BOOLEAN);
-        statementCreateEvent.setTimestamp(i++, event.getResponseTime()!= null ? new Timestamp(event.getResponseTime().getTime()): new Timestamp(event.getScheduledTime().getTime()));
+        Timestamp ts = null;
+        if(event.getResponseTime() != null) {
+          ts =  new Timestamp(event.getResponseTime().getTime());
+        } else if (event.getScheduledTime() != null) {
+          ts = new Timestamp(event.getScheduledTime().getTime());
+        } else {
+          ts = null;
+        }
+        statementCreateEvent.setTimestamp(i++, ts);
         statementCreateEvent.setString(i++, event.getTimeZone());
         statementCreateEvent.setLong(i++, event.getId());
         statementCreateEvent.setLong(i++, event.getResponseTime() != null ? event.getResponseTime().getTime(): java.sql.Types.NULL);
-        if(eventCtr == events.size()-1) {
-          log.info("inserting to cloud sql " +  event.getId());
-        }
+
         statementCreateEvent.addBatch();
         i = 1;
       }
@@ -249,7 +264,6 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
     } catch (Exception e) {
       log.info(ErrorMessages.GENERAL_EXCEPTION.getDescription() + e.getCause());
       e.printStackTrace(System.out);
-      insertFailedEvent(events.get(eventCtr-1).getId()+" is the last event id in this insert batch", ErrorMessages.EVENT_MIGRATION_EXCEPTION.getDescription(), e.getMessage());
     }
     finally {
       try {
@@ -267,24 +281,26 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
   }
   
   @Override
-  public boolean insertOutputsInBatch(Set<MigrationOutput> outputs) {
+  public boolean insertOutputsInBatch(List<MigrationOutput> outputs) {
     if (outputs == null) {
       log.warning(ErrorMessages.NOT_VALID_DATA.getDescription());
       return false;
     }
-    
+    boolean newBatch = true;
     Connection conn = null;
     PreparedStatement statementCreateOutput = null;
     boolean retVal = false;
+    boolean unknownException = false;
     //startCount for setting parameter index
     int i = 1 ;
     ExpressionList outputList = new ExpressionList();
     List<Expression> exp = Lists.newArrayList();
     Insert outputInsert = new Insert();
-    
+ 
     try {
       conn = CloudSQLConnectionManager.getInstance().getConnection();
       conn.setAutoCommit(false);
+      setNames(conn);
       outputInsert.setTable(new Table(OutputBaseColumns.TABLE_NAME));
       outputInsert.setUseValues(true);
       outputList.setExpressions(exp);
@@ -296,19 +312,57 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
       }
  
       statementCreateOutput = conn.prepareStatement(outputInsert.toString());
-      for (MigrationOutput tempOutput : outputs) {
-        statementCreateOutput.setLong(i++, tempOutput.getEventId());
-        statementCreateOutput.setString(i++, tempOutput.getText());
-        statementCreateOutput.setString(i++, tempOutput.getAnswer());
-        statementCreateOutput.addBatch();
-        i = 1;
-      }
-      statementCreateOutput.executeBatch();
-      conn.commit();
-      retVal = true;
+     
+      while (true) {
+      log.info("Is it New Batch"+newBatch);
+        try {
+          for (MigrationOutput tempOutput : outputs) {
+            statementCreateOutput.setLong(i++, tempOutput.getEventId());
+            statementCreateOutput.setString(i++, tempOutput.getText());
+            statementCreateOutput.setString(i++, tempOutput.getAnswer());
+            statementCreateOutput.addBatch();
+            i = 1;
+          }
+          int[] exStatus = statementCreateOutput.executeBatch();
+          conn.commit();
+          retVal = true;
+          break;
+        } catch (BatchUpdateException trb) {
+          int x[] = trb.getUpdateCounts();
+          newBatch = false;
+          conn.rollback();
+          if(trb.getErrorCode() == 1062 && trb.getCause() instanceof MySQLIntegrityConstraintViolationException) {
+            log.warning("integrity constraint: " + getStackTraceAsString(trb));
+            for (int y=0; y<x.length;y++) {
+              if (x[y]== Statement.EXECUTE_FAILED) {
+                log.info("response values for position"+ y + "->"+x[y] + "->"+outputs.get(y).toString());
+                String origKey = outputs.get(y).getText();
+                if (origKey != null) { 
+                  outputs.get(y).setText(origKey + "-DUP-" +(DUP_CTR++) );
+                } else {
+                  outputs.get(y).setText("DUP-"+ (DUP_CTR++));
+                } 
+              }
+            }
+          } else {
+            log.warning("unknown constraint failed: so, break" + getStackTraceAsString(trb));
+            unknownException = true;
+            for (int y=0; y<x.length;y++) {
+              if (x[y]== Statement.EXECUTE_FAILED) {
+                log.info("response values for position"+ y + "->"+x[y] + "->"+outputs.get(y).toString());
+                break;
+              }
+            }//for
+          }//else
+        }//catch batch update
+        if(unknownException) {
+          log.warning("Not sure how to handle");
+          break;
+        }
+      }// while   
     } catch (Exception e) {
-      log.info(ErrorMessages.GENERAL_EXCEPTION.getDescription() + e.getCause());
-      e.printStackTrace(System.out);
+      log.info(ErrorMessages.GENERAL_EXCEPTION.getDescription()+ "batch insert failed. so restart from cursor");
+      getStackTraceAsString(e);
     }
     finally {
       try {
@@ -323,6 +377,14 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
       }
     }
     return retVal;
+  }
+  
+  private String getStackTraceAsString(Throwable e) {
+    final ByteArrayOutputStream out = new ByteArrayOutputStream();
+    PrintStream pw = new PrintStream(out);
+    e.printStackTrace(pw);
+    final String string = out.toString();
+    return string;
   }
 
   @Override
@@ -507,6 +569,62 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
     }
     return event;
   }
+  
+  public boolean createDB() throws SQLException { 
+    boolean created = false;
+    Connection conn = null;
+    java.sql.Statement statementCreateDB = null;
+  
+    try {
+
+      conn = CloudSQLConnectionManager.getInstance().getConnection();
+      statementCreateDB = conn.createStatement();
+      final String createDatabaseSql = "create database pacodb DEFAULT CHARACTER SET utf8mb4 DEFAULT COLLATE utf8_unicode_ci;";
+      statementCreateDB.execute(createDatabaseSql);
+      log.info("created database");
+
+      created = true;
+    } finally {
+      try {
+        if (statementCreateDB != null) {
+          statementCreateDB.close();
+        }
+       
+        if (conn != null) {
+          conn.close();
+        }
+
+      } catch (SQLException ex1) {
+        log.warning(ErrorMessages.CLOSING_RESOURCE_EXCEPTION.getDescription() + ex1);
+      }
+    }
+    return created;
+  }
+  
+  public boolean setNames(Connection conn) throws SQLException { 
+    boolean isDone = false;
+    java.sql.Statement statementCreateDB = null;
+  
+    try {
+      statementCreateDB = conn.createStatement();
+      final String setNamesSql = "SET NAMES  'utf8mb4'";
+      statementCreateDB.execute(setNamesSql);
+      log.info("set names");
+
+      isDone = true;
+    } finally {
+      try {
+        if (statementCreateDB != null) {
+          statementCreateDB.close();
+        }
+       
+      
+      } catch (SQLException ex1) {
+        log.warning(ErrorMessages.CLOSING_RESOURCE_EXCEPTION.getDescription() + ex1);
+      }
+    }
+    return isDone;
+  }
 
   @Override
   public String createTables() throws SQLException {
@@ -518,34 +636,34 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
     try {
 
       conn = CloudSQLConnectionManager.getInstance().getConnection();
-      // TODO Sub Partition size for the experiment hash bucket
+      
       final String createEventsTableSql = "CREATE TABLE `" + EventBaseColumns.TABLE_NAME + "` (" +
 
-                                          "`" + ID + "` bigint(20) NOT NULL," + "`" + EventBaseColumns.EXPERIMENT_ID
-                                          + "` bigint(20) NOT NULL," + "`" + EventBaseColumns.EXPERIMENT_NAME
-                                          + "` varchar(45) DEFAULT NULL," + "`" + EventBaseColumns.EXPERIMENT_VERSION
-                                          + "` int(11) DEFAULT NULL," + "`" + EventBaseColumns.SCHEDULE_TIME
-                                          + "` datetime DEFAULT NULL," + "`" + EventBaseColumns.RESPONSE_TIME
-                                          + "` datetime DEFAULT NULL," + "`" + EventBaseColumns.GROUP_NAME
-                                          + "` varchar(45) DEFAULT NULL," + "`" + EventBaseColumns.ACTION_ID
-                                          + "` bigint(20) DEFAULT NULL," + "`" + EventBaseColumns.ACTION_TRIGGER_ID
-                                          + "` bigint(20) DEFAULT NULL," + "`" + EventBaseColumns.ACTION_TRIGGER_SPEC_ID
-                                          + "` bigint(20) DEFAULT NULL," + "`" + EventBaseColumns.WHO
-                                          + "` varchar(45) NOT NULL," + "`" + EventBaseColumns.PACO_VERSION
-                                          + "` varchar(45) DEFAULT NULL," + "`" + EventBaseColumns.APP_ID
-                                          + "` varchar(45) DEFAULT NULL," + "`" + EventBaseColumns.WHEN
-                                          + "` datetime DEFAULT NULL," + "`" + EventBaseColumns.ARCHIVE_FLAG
-                                          + "` tinyint(4) NOT NULL DEFAULT '0'," + "`" + EventBaseColumns.JOINED
-                                          + "` tinyint(1)  DEFAULT NULL," + "`" + EventBaseColumns.SORT_DATE
-                                          + "` datetime  DEFAULT NULL," + "`" + EventBaseColumns.CLIENT_TIME_ZONE
-                                          + "` varchar(20) DEFAULT NULL," + "PRIMARY KEY (`" + ID + "`),"
-                                          + "KEY `when_index` (`" + EventBaseColumns.WHEN + "`),"
-                                          + "KEY `exp_id_resp_time_index` (`" + EventBaseColumns.EXPERIMENT_ID + "`,`"
-                                          + EventBaseColumns.RESPONSE_TIME + "`)," + "KEY `exp_id_when_index` (`"
-                                          + EventBaseColumns.EXPERIMENT_ID + "`,`" + EventBaseColumns.WHEN + "`),"
-                                          + "KEY `exp_id_who_when_index` (`" + EventBaseColumns.EXPERIMENT_ID + "`,`"
-                                          + EventBaseColumns.WHO + "`,`" + EventBaseColumns.WHEN + "`)"
-                                          + ") ENGINE=InnoDB DEFAULT CHARSET=latin1";
+                                          "`" + ID + "` bigint(20) NOT NULL," + "`" + 
+                                          EventBaseColumns.EXPERIMENT_ID + "` bigint(20) NOT NULL," + "`"
+                                          + EventBaseColumns.EXPERIMENT_NAME + "` varchar(500) DEFAULT NULL," + "`"
+                                          + EventBaseColumns.EXPERIMENT_VERSION + "` int(11) DEFAULT NULL," + "`"
+                                          + EventBaseColumns.SCHEDULE_TIME + "` datetime DEFAULT NULL," + "`"
+                                          + EventBaseColumns.RESPONSE_TIME + "` datetime DEFAULT NULL," + "`"
+                                          + EventBaseColumns.GROUP_NAME + "` varchar(45) DEFAULT NULL," + "`"
+                                          + EventBaseColumns.ACTION_ID + "` bigint(20) DEFAULT NULL," + "`"
+                                          + EventBaseColumns.ACTION_TRIGGER_ID + "` bigint(20) DEFAULT NULL," + "`"
+                                          + EventBaseColumns.ACTION_TRIGGER_SPEC_ID + "` bigint(20) DEFAULT NULL," + "`"
+                                          + EventBaseColumns.WHO + "` varchar(100) NOT NULL," + "`"
+                                          + EventBaseColumns.PACO_VERSION + "` varchar(45) DEFAULT NULL," + "`"
+                                          + EventBaseColumns.APP_ID + "` varchar(45) DEFAULT NULL," + "`"
+                                          + EventBaseColumns.WHEN + "` datetime DEFAULT NULL," + "`"
+                                          + EventBaseColumns.ARCHIVE_FLAG + "` tinyint(4) NOT NULL DEFAULT '0'," + "`"
+                                          + EventBaseColumns.JOINED + "` tinyint(1)  DEFAULT NULL," + "`"
+                                          + EventBaseColumns.SORT_DATE + "` datetime  DEFAULT NULL," + "`"
+                                          + EventBaseColumns.CLIENT_TIME_ZONE + "` varchar(20) DEFAULT NULL,"
+                                          + "PRIMARY KEY (`" + ID + "`)," + "KEY `when_index` (`"
+                                          + EventBaseColumns.WHEN + "`)," + "KEY `exp_id_resp_time_index` (`"
+                                          + EventBaseColumns.EXPERIMENT_ID + "`,`" + EventBaseColumns.RESPONSE_TIME
+                                          + "`)," + "KEY `exp_id_when_index` (`" + EventBaseColumns.EXPERIMENT_ID
+                                          + "`,`" + EventBaseColumns.WHEN + "`)," + "KEY `exp_id_who_when_index` (`"
+                                          + EventBaseColumns.EXPERIMENT_ID + "`,`" + EventBaseColumns.WHO + "`,`"
+                                          + EventBaseColumns.WHEN + "`)" + ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4";
 
       final String createOutputsTableSql = "CREATE TABLE `" + OutputBaseColumns.TABLE_NAME+ "` (" + "`" 
                                            + OutputBaseColumns.EVENT_ID + "` bigint(20) NOT NULL," + "`"
@@ -555,16 +673,8 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
                                            + "PRIMARY KEY (`" + OutputBaseColumns.EVENT_ID + "`,`"
                                            + OutputBaseColumns.NAME + "`)," + "KEY `event_id_index` (`"
                                            + OutputBaseColumns.EVENT_ID + "`)," + "KEY `text_index` (`"
-                                           + OutputBaseColumns.NAME + "`)" + ") ENGINE=InnoDB DEFAULT CHARSET=latin1";
+                                           + OutputBaseColumns.NAME + "`)" + ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4";
       
-      final String createFailedEventsTableSql = "CREATE TABLE `" +  FailedEventServerColumns.TABLE_NAME +  "` (" + "`" 
-                                            + FailedEventServerColumns.ID + "` bigint(20) NOT NULL AUTO_INCREMENT," + "`"
-                                            + FailedEventServerColumns.EVENT_JSON + "` varchar(3000) NOT NULL," + "`"
-                                            + FailedEventServerColumns.FAILED_INSERT_TIME + "` datetime  DEFAULT CURRENT_TIMESTAMP," + "`"
-                                            + FailedEventServerColumns.REASON + "` varchar(500) DEFAULT NULL," + "`"
-                                            + FailedEventServerColumns.COMMENTS + "` varchar(1000) DEFAULT NULL,"
-                                            + "PRIMARY KEY (`" + FailedEventServerColumns.ID + "`)"+") ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=latin1";
-     
       statementCreateEvent = conn.prepareStatement(createEventsTableSql);
 
       statementCreateEvent.execute();

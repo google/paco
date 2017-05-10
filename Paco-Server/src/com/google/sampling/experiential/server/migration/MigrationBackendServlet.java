@@ -29,6 +29,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.codec.digest.DigestUtils;
 
 import com.google.appengine.api.ThreadManager;
+import com.google.appengine.api.modules.ModulesServiceFactory;
 import com.google.appengine.api.users.UserService;
 import com.google.sampling.experiential.server.HttpUtil;
 import com.google.sampling.experiential.server.ReportJobStatusManager;
@@ -49,12 +50,13 @@ public class MigrationBackendServlet extends HttpServlet {
     final String requestorEmail = getRequestorEmail(req);
     final String migrationJobName = HttpUtil.getParam(req, "migrationName");
     final String useTaskQueue = HttpUtil.getParam(req, "queue");
+    final String cursor = HttpUtil.getParam(req, "cursor");
+  
 
     final String jobId = migrationJobName + "_" +
             DigestUtils.md5Hex(requestorEmail +
             Long.toString(System.currentTimeMillis()));
     log.info("In migrate backend for job: " + jobId);
-    log.severe("In migrate backend for job: " + jobId);
 
 
     final ReportJobStatusManager statusMgr = new ReportJobStatusManager();
@@ -68,7 +70,7 @@ public class MigrationBackendServlet extends HttpServlet {
         log.info("MigrationBackend running");
         Thread.currentThread().setContextClassLoader(cl);
         try {
-          if (doMigration(migrationJobName)) {
+          if (doMigration(migrationJobName, cursor)) {
             statusMgr.completeReport(requestorEmail, jobId, "NA");
           } else {
             statusMgr.failReport(requestorEmail, jobId, "Check server logs for stacktrace");
@@ -90,10 +92,14 @@ public class MigrationBackendServlet extends HttpServlet {
   }
 
 
-  private boolean doMigration(String name) {
+  private boolean doMigration(String name, String cursor) {
     MigrationJob job = MigrationLookupTable.getMigrationByName(name);
     if (job != null) {
-      return job.doMigration();
+      if (cursor != null ) {
+        return job.doMigration(cursor);
+      } else {
+        return job.doMigration();
+      } 
     }
     return false;
   }
