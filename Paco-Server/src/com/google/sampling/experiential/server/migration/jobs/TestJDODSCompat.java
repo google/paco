@@ -106,5 +106,11 @@ public class TestJDODSCompat implements MigrationJob {
     return true;
   }
 
+  @Override
+  public boolean doMigration(String cursor) {
+    // TODO Auto-generated method stub
+    return false;
+  }
+
 
 }
