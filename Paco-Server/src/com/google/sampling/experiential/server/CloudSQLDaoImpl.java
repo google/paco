@@ -103,6 +103,7 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
     try {
       log.info("Inserting event->" + event.getId());
       conn = CloudSQLConnectionManager.getInstance().getConnection();
+      setNames(conn);
       conn.setAutoCommit(false);
       eventInsert.setTable(new Table(EventServerColumns.TABLE_NAME));
       outputInsert.setTable(new Table(OutputBaseColumns.TABLE_NAME));
@@ -197,6 +198,7 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
 
     try {
       conn = CloudSQLConnectionManager.getInstance().getConnection();
+      setNames(conn);
       // While we have to retrieve millions of records at a time, we might run
       // into java heap space issue.
       // The following two properties(rs type forward only, concur read only,
@@ -244,6 +246,31 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
     }
 
     return evtDaoList;
+  }
+  
+  private boolean setNames(Connection conn) throws SQLException { 
+    boolean isDone = false;
+    java.sql.Statement statementSetNames = null;
+  
+    try {
+      statementSetNames = conn.createStatement();
+      final String setNamesSql = "SET NAMES  'utf8mb4'";
+      statementSetNames.execute(setNamesSql);
+      log.info("set names");
+
+      isDone = true;
+    } finally {
+      try {
+        if (statementSetNames != null) {
+          statementSetNames.close();
+        }
+       
+      
+      } catch (SQLException ex1) {
+        log.warning(ErrorMessages.CLOSING_RESOURCE_EXCEPTION.getDescription() + ex1);
+      }
+    }
+    return isDone;
   }
   
   private List<WhatDAO> getOutputs(Long eventId) throws SQLException {
@@ -408,7 +435,7 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
                                           + "`)," + "KEY `exp_id_when_index` (`" + EventServerColumns.EXPERIMENT_ID
                                           + "`," + EventServerColumns.WHEN + ")," + "KEY `exp_id_who_when_index` (`"
                                           + EventServerColumns.EXPERIMENT_ID + "`,`" + EventServerColumns.WHO + "`,"
-                                          + EventServerColumns.WHEN + ")" + ") ENGINE=InnoDB DEFAULT CHARSET=latin1";
+                                          + EventServerColumns.WHEN + ")" + ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4";
 
       final String createOutputsTableSql = "CREATE TABLE `" + OutputBaseColumns.TABLE_NAME+ "` (" + "`" 
                                            + OutputBaseColumns.EVENT_ID + "` bigint(20) NOT NULL," + "`"
@@ -418,7 +445,7 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
                                            + "PRIMARY KEY (`" + OutputBaseColumns.EVENT_ID + "`,`"
                                            + OutputBaseColumns.NAME + "`)," + "KEY `event_id_index` (`"
                                            + OutputBaseColumns.EVENT_ID + "`)," + "KEY `text_index` (`"
-                                           + OutputBaseColumns.NAME + "`)" + ") ENGINE=InnoDB DEFAULT CHARSET=latin1";
+                                           + OutputBaseColumns.NAME + "`)" + ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4";
       
       final String createFailedEventsTableSql = "CREATE TABLE `" +  FailedEventServerColumns.TABLE_NAME +  "` (" + "`" 
                                             + FailedEventServerColumns.ID + "` bigint(20) NOT NULL AUTO_INCREMENT," + "`"
@@ -426,7 +453,7 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
                                             + FailedEventServerColumns.FAILED_INSERT_TIME + "` datetime  DEFAULT NULL," + "`"
                                             + FailedEventServerColumns.REASON + "` varchar(500) DEFAULT NULL," + "`"
                                             + FailedEventServerColumns.COMMENTS + "` varchar(1000) DEFAULT NULL,"
-                                            + "PRIMARY KEY (`" + FailedEventServerColumns.ID + "`)"+") ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=latin1";
+                                            + "PRIMARY KEY (`" + FailedEventServerColumns.ID + "`)"+") ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4";
      
       statementCreateEvent = conn.prepareStatement(createEventsTableSql);
 
