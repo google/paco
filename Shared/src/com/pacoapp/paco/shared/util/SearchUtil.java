@@ -39,17 +39,20 @@ public class SearchUtil {
     boolean allCol = false;
     SelectItem star = new AllColumns();
     // projection
-    if (sqlQuery.getProjection() != null) {
-      for(String eachItem : sqlQuery.getProjection()) {
-        if (Constants.STAR.equals(eachItem)) {
+    String[] projections = sqlQuery.getProjection();
+    if (projections != null) {
+      for(int s=0; s< projections.length; s++) {
+        if (Constants.STAR.equals(projections[s])) {
           allCol = true;
           break;
-        } 
+        } else if (projections[s].equalsIgnoreCase(Constants.WHEN)) {
+          projections[s] = Constants.WHEN_WITH_BACKTICK;
+        }
       }
       if (allCol) {
         selQry = SelectUtils.buildSelectFromTableAndSelectItems(new Table(EventBaseColumns.TABLE_NAME), star);
       } else {
-        selQry = SelectUtils.buildSelectFromTableAndExpressions(new Table(EventBaseColumns.TABLE_NAME), sqlQuery.getProjection());  
+        selQry = SelectUtils.buildSelectFromTableAndExpressions(new Table(EventBaseColumns.TABLE_NAME), projections);  
       }
     }
 
@@ -62,6 +65,7 @@ public class SearchUtil {
       while (tempWhereClause.contains("?")) {
         tempWhereClause = tempWhereClause.replaceFirst("\\?", repl[i++]);
       }
+      tempWhereClause = tempWhereClause.replaceAll(Constants.WHEN, Constants.WHEN_WITH_BACKTICK);
       whereExpr = CCJSqlParserUtil.parseCondExpression(tempWhereClause);
     }
 
@@ -105,7 +109,7 @@ public class SearchUtil {
     Join joinObj = new Join();
     FromItem ft = new Table(OutputBaseColumns.TABLE_NAME); 
     try {
-      joinExp = CCJSqlParserUtil.parseCondExpression(Constants.ID+ " = " +OutputBaseColumns.TABLE_NAME+ "."+OutputBaseColumns.EVENT_ID);
+      joinExp = CCJSqlParserUtil.parseCondExpression(Constants.UNDERSCORE_ID+ " = " +OutputBaseColumns.TABLE_NAME+ "."+OutputBaseColumns.EVENT_ID);
     } catch (JSQLParserException e) {
       e.printStackTrace();
     }
@@ -123,6 +127,9 @@ public class SearchUtil {
     if (inp != null) {
       String[] inpAry = inp.split(",");
       for (String s : inpAry) {
+        if (s.contains(Constants.WHEN)) {
+          s = s.replace(Constants.WHEN, Constants.WHEN_WITH_BACKTICK);
+        }
         OrderByElement ob = new OrderByElement();
         String[] nameOrder = s.trim().split(" ");
         if (nameOrder.length > 1) {
@@ -142,6 +149,9 @@ public class SearchUtil {
     Expression expr = null;
     String[] gCol = s.split(",");
     for (String str : gCol) {
+      if (Constants.WHEN.equalsIgnoreCase(str)) {
+        str = Constants.WHEN_WITH_BACKTICK;
+      }
       expr = CCJSqlParserUtil.parseExpression(str.trim());
       expLst.add(expr);
     }

@@ -8,7 +8,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.joda.time.DateTimeZone;
+
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.pacoapp.paco.shared.model2.EventBaseColumns;
 import com.pacoapp.paco.shared.model2.OutputBaseColumns;
@@ -103,13 +106,15 @@ public class QueryPreprocessor implements SelectVisitor, FromItemVisitor, Expres
                                SelectItemVisitor, OrderByVisitor {
 
   private Map<String, Class> validColumnNamesDataTypeInDb;
+  private Map<String, Long> dateParamWithLong = Maps.newHashMap();
   private List<String> requestedDateColumns;
   private String invalidColumnName;
   private String invalidDataType;
   private boolean containsExperimentIdClause;
   private boolean containsWhoClause;
+  private static final SimpleDateFormat localDateFormatter = TimeUtil.localFormatter;
   private static List<Class> allPossibleConstantExpTypes = Lists.newArrayList();
-  private String timeZone;
+  private DateTimeZone timeZone;
   private Set<String> whoClauseValues = Sets.newHashSet();
   private Set<Long> expIdClauseValues = Sets.newHashSet();
   private boolean modifyDateToUTC = false;
@@ -126,7 +131,7 @@ public class QueryPreprocessor implements SelectVisitor, FromItemVisitor, Expres
   }
 
   public QueryPreprocessor(Select select, Map<String, Class> validColumnNames, boolean modifyToUTC,
-                           List<String> reqDateColNames, String inpTimeZone) {
+                           List<String> reqDateColNames, DateTimeZone inpTimeZone) {
     requestedDateColumns = reqDateColNames;
     validColumnNamesDataTypeInDb = validColumnNames;
     timeZone = inpTimeZone;
@@ -169,6 +174,23 @@ public class QueryPreprocessor implements SelectVisitor, FromItemVisitor, Expres
 
   public boolean isOutputColumnsPresent() {
     return isOutputColumnsPresent;
+  }
+  
+  public boolean isExpIdOrExpServerIdPresent(String colName) {
+    boolean isPresent = false;
+    if (validColumnNamesDataTypeInDb.containsKey(Constants.EXPERIMENT_SERVER_ID) && colName.equalsIgnoreCase(Constants.EXPERIMENT_SERVER_ID)) {
+        isPresent = true;
+    } else if (validColumnNamesDataTypeInDb.containsKey(EventBaseColumns.EXPERIMENT_ID) && colName.equalsIgnoreCase(EventBaseColumns.EXPERIMENT_ID)) {
+      isPresent = true;
+    } 
+    return isPresent;
+  }
+  
+  private String modifyDateStrToUTC(StringValue strValue) throws ParseException { 
+    Date dt = localDateFormatter.parse(strValue.getValue());
+    Date utcDate = TimeUtil.convertToUTC(dt, timeZone);
+    String utcFormattedDate = localDateFormatter.format(utcDate);
+    return utcFormattedDate;
   }
 
   public void visit(PlainSelect plainSelect) {
@@ -235,15 +257,16 @@ public class QueryPreprocessor implements SelectVisitor, FromItemVisitor, Expres
   }
 
   public void visit(Column tableColumn) {
-    if ((validColumnNamesDataTypeInDb.get(tableColumn.getColumnName()) == null)) {
-      invalidColumnName = tableColumn.getColumnName();
-    } else if (tableColumn.getColumnName().equalsIgnoreCase(EventBaseColumns.EXPERIMENT_ID)) {
-      containsExperimentIdClause = true;
-    } else if (tableColumn.getColumnName().equalsIgnoreCase(EventBaseColumns.WHO)) {
+    String colName = tableColumn.getColumnName();
+    if ((validColumnNamesDataTypeInDb.get(colName) == null)) {
+      invalidColumnName = colName;
+    } else if (colName.equalsIgnoreCase(Constants.WHO)) {
       containsWhoClause = true;
-    } else if (tableColumn.getColumnName().equalsIgnoreCase(OutputBaseColumns.NAME)) {
+    } else if (colName.equalsIgnoreCase(Constants.WHEN)) {
+      tableColumn.setColumnName(Constants.WHEN_WITH_BACKTICK);
+    } else if (colName.equalsIgnoreCase(OutputBaseColumns.NAME)) {
       isOutputColumnsPresent = true;
-    } else if (tableColumn.getColumnName().equalsIgnoreCase(OutputBaseColumns.ANSWER)) {
+    } else if (colName.equalsIgnoreCase(OutputBaseColumns.ANSWER)) {
       isOutputColumnsPresent = true;
     }
   }
@@ -276,19 +299,23 @@ public class QueryPreprocessor implements SelectVisitor, FromItemVisitor, Expres
     if (le != null) {
       if (le instanceof Column) {
         Column leftColumn = (Column) le;
-        if (modifyDateToUTC && requestedDateColumns.contains(leftColumn.getColumnName())) {
+        String leftColName = leftColumn.getColumnName();
+        if (requestedDateColumns.contains(leftColName)) {
           if (ril instanceof ItemsList) {
             ExpressionList expList = (ExpressionList) ril;
             List<Expression> elList = expList.getExpressions();
             List<Expression> newUtcList = Lists.newArrayList();
-            SimpleDateFormat sdfLocal = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+            String utcFormattedDate = null;
             for (Expression expr : elList) {
               if (expr instanceof StringValue) {
                 try {
-                  Date dt = sdfLocal.parse(((StringValue) expr).getValue());
-                  Date utcDate = TimeUtil.convertToUTC(dt, timeZone);
-                  String utcFormattedDate = sdfLocal.format(utcDate);
-                  newUtcList.add(new StringValue(utcFormattedDate));
+                  if (modifyDateToUTC) {
+                    utcFormattedDate = modifyDateStrToUTC((StringValue) expr);
+                    newUtcList.add(new StringValue(utcFormattedDate));
+                  } else {
+                    LongValue lgVal = new LongValue(TimeUtil.convertDateToLong(expr.toString()));
+                    dateParamWithLong.put(expr.toString(), lgVal.getValue());
+                  }
                 } catch (ParseException e) {
                   invalidDataType = expr.toString();
                 }
@@ -300,7 +327,8 @@ public class QueryPreprocessor implements SelectVisitor, FromItemVisitor, Expres
           } else {
             invalidDataType = ril.toString();
           }
-        } else if (leftColumn.getColumnName().equalsIgnoreCase(EventBaseColumns.EXPERIMENT_ID)) {
+        } else if (isExpIdOrExpServerIdPresent(leftColName)) {
+          containsExperimentIdClause = true;
           if (ril instanceof ItemsList) {
             ExpressionList expList = (ExpressionList) ril;
             List<Expression> elList = expList.getExpressions();
@@ -312,7 +340,7 @@ public class QueryPreprocessor implements SelectVisitor, FromItemVisitor, Expres
               }
             }
           }
-        } else if (leftColumn.getColumnName().equalsIgnoreCase(EventBaseColumns.WHO)) {
+        } else if (validColumnNamesDataTypeInDb.containsKey(Constants.WHO) && leftColName.equalsIgnoreCase(Constants.WHO)) {
           if (ril instanceof ItemsList) {
             ExpressionList expList = (ExpressionList) ril;
             List<Expression> elList = expList.getExpressions();
@@ -324,8 +352,8 @@ public class QueryPreprocessor implements SelectVisitor, FromItemVisitor, Expres
               }
             }
           }
-        } else if ((validColumnNamesDataTypeInDb.get(leftColumn.getColumnName()) != null)) {
-          Class dataType = validColumnNamesDataTypeInDb.get(leftColumn.getColumnName());
+        } else if ((validColumnNamesDataTypeInDb.get(leftColName) != null)) {
+          Class dataType = validColumnNamesDataTypeInDb.get(leftColName);
           if (ril instanceof ExpressionList) {
             ExpressionList expList = (ExpressionList) ril;
             List<Expression> elList = expList.getExpressions();
@@ -406,30 +434,37 @@ public class QueryPreprocessor implements SelectVisitor, FromItemVisitor, Expres
     Expression le = binaryExpression.getLeftExpression();
     if (le != null) {
       if (le instanceof Column) {
+        String utcFormattedDate = null;
         String leftColName = ((Column) le).getColumnName();
-        if (modifyDateToUTC && requestedDateColumns.contains(leftColName)) {
+        if (requestedDateColumns.contains(leftColName)) {
           if (re instanceof StringValue) {
-            SimpleDateFormat sdfLocal = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
             try {
-              Date dt = sdfLocal.parse(((StringValue) re).getValue());
-              Date utcDate = TimeUtil.convertToUTC(dt, timeZone);
-              String utcFormattedDate = sdfLocal.format(utcDate);
-              ((StringValue) re).setValue(utcFormattedDate);
+              if (modifyDateToUTC) {
+                utcFormattedDate = modifyDateStrToUTC((StringValue) re);
+                ((StringValue) re).setValue(utcFormattedDate);
+              } else {
+                LongValue lgVal = new LongValue(TimeUtil.convertDateToLong(re.toString().substring(1,re.toString().length()-1)));
+                dateParamWithLong.put(re.toString(), lgVal.getValue());
+              }
             } catch (ParseException e) {
               invalidDataType = re.toString();
             }
           } else {
             invalidDataType = re.toString();
           }
-        } else if (leftColName.equalsIgnoreCase(EventBaseColumns.WHO)) {
+        } else if (validColumnNamesDataTypeInDb.containsKey(Constants.WHO) && leftColName.equalsIgnoreCase(Constants.WHO)) {
           Class dataType = validColumnNamesDataTypeInDb.get(leftColName);
           if (re.getClass().equals(dataType)) {
             whoClauseValues.add(re.toString());
           } else {
             invalidDataType = re.toString();
           }
-        } else if (leftColName.equalsIgnoreCase(EventBaseColumns.EXPERIMENT_ID)) {
-          Class dataType = validColumnNamesDataTypeInDb.get(leftColName);
+        } else if (isExpIdOrExpServerIdPresent(leftColName)) {
+           Class dataType = validColumnNamesDataTypeInDb.get(leftColName);
+           // should be changed here and not in visit of Column because, the parser does not go to the visit column method before visit of binary expression.
+           // We also need to know, if the clause has exp id or exp server id. So, we do the check and also change the containsExperimentIdClause value
+           // and then perform the manipulation.
+           containsExperimentIdClause = true;
           if (re.getClass().equals(dataType)) {
             expIdClauseValues.add(Long.parseLong(re.toString()));
           } else {
@@ -666,4 +701,11 @@ public class QueryPreprocessor implements SelectVisitor, FromItemVisitor, Expres
     orderBy.getExpression().accept(this);
   }
 
+  public Map<String, Long> getDateParamWithLong() {
+    return dateParamWithLong;
+  }
+
+  public void setDateParamWithLong(Map<String, Long> dateParamWithLong) {
+    this.dateParamWithLong = dateParamWithLong;
+  }
 }

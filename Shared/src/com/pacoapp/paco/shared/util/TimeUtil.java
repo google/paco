@@ -24,6 +24,7 @@ import java.util.TimeZone;
 import org.joda.time.DateMidnight;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeConstants;
+import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
@@ -54,16 +55,11 @@ public class TimeUtil {
   private static DateTimeFormatter dateZoneFormatter = DateTimeFormat.forPattern(DATE_WITH_ZONE_FORMAT);
   
   public static final String DATE_TIME_WITH_NO_TZ = "yyyy/MM/dd HH:mm:ss";
-  private static SimpleDateFormat localFormatter = new SimpleDateFormat (DATE_TIME_WITH_NO_TZ);
+  public static DateTimeFormatter dateTimeWithNoTzFormatter = DateTimeFormat.forPattern(DATE_TIME_WITH_NO_TZ);
+  public static SimpleDateFormat localFormatter = new SimpleDateFormat (DATE_TIME_WITH_NO_TZ);
   
-  private static SimpleDateFormat utcFormatter = new SimpleDateFormat (DATE_TIME_WITH_NO_TZ);
-
   public static final DateTimeFormatter hourFormatter = DateTimeFormat.forPattern("hh:mma");
   
-  private static final String GMT = "GMT";
-  private static final String UTC = "UTC";
-    
-
   private TimeUtil() {
     super();
   }
@@ -90,6 +86,11 @@ public class TimeUtil {
 
   public static DateTime parseDateTime(String dateTimeStr) {
     return dateTimeFormatter.parseDateTime(dateTimeStr);
+  }
+  
+  public static long convertDateToLong(String dateTimeStr) {
+    DateTime dt = dateTimeWithNoTzFormatter.parseDateTime(dateTimeStr);
+    return dt.getMillis();
   }
 
   public static DateTime parseDateWithZone(String dateTimeStr) {
@@ -154,24 +155,23 @@ public class TimeUtil {
       return null;
     }
   }
-  
-  public static Date convertToUTC(Date dt, String clientTz) throws ParseException{
+
+  public static Date convertToUTC(Date dt, DateTimeZone clientTz) throws ParseException{
     if (dt == null) { 
       return null;
     }
-    localFormatter.setTimeZone(TimeZone.getTimeZone(GMT+clientTz));
-    utcFormatter.setTimeZone(TimeZone.getTimeZone(UTC));
-    Date utcTime = localFormatter.parse(utcFormatter.format(dt));
-    return utcTime;
+    long eventMillsInUTCTimeZone = clientTz.convertLocalToUTC(dt.getTime(), false);
+    DateTime evenDateTimeInUTCTimeZone = new DateTime(eventMillsInUTCTimeZone);
+    return evenDateTimeInUTCTimeZone.toDate();
   }
   
-  public static Date convertToLocal(Date dt, String tz) throws ParseException{
+  public static Date convertToLocal(Date dt, String clientTz) throws ParseException{
     if (dt == null) { 
       return null;
     }
-    localFormatter.setTimeZone(TimeZone.getTimeZone(GMT+tz));
-    utcFormatter.setTimeZone(TimeZone.getTimeZone(UTC));
-    Date localTime = utcFormatter.parse(localFormatter.format(dt));
-    return localTime;
+    DateTimeZone dtz= DateTimeZone.forID(clientTz);
+    long eventMillsInLocalTimeZone = dtz.convertUTCToLocal(dt.getTime());
+    DateTime evenDateTimeInlocalTimeZone = new DateTime(eventMillsInLocalTimeZone);
+    return evenDateTimeInlocalTimeZone.toDate();
   }
 }
