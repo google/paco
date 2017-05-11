@@ -16,4 +16,5 @@ public interface CloudSQLDao {
   String createTables() throws SQLException;
   boolean insertEventsInBatch(List<Event> events) ;
   boolean insertOutputsInBatch(List<MigrationOutput> outputs);
+  Long getEarliestWhen() throws SQLException, ParseException;
 }

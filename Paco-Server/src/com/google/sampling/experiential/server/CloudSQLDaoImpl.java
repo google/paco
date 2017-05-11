@@ -386,6 +386,49 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
     final String string = out.toString();
     return string;
   }
+  
+  @Override
+  public Long getEarliestWhen() throws SQLException, ParseException {
+    Connection conn = null;
+    Date earliestDate = null;
+    PreparedStatement statementSelectEvent = null;
+    ResultSet rs = null;
+    String query  = "select `when` from events order by `when` desc limit 1";
+
+    try {
+      conn = CloudSQLConnectionManager.getInstance().getConnection();
+      statementSelectEvent = conn.prepareStatement(query);
+      
+      Long st1Time = System.currentTimeMillis();
+      rs = statementSelectEvent.executeQuery();
+     
+      if (rs != null) {
+        while (rs.next()) {
+          earliestDate = rs.getTimestamp(1);
+        }
+      }
+      Long st2Time = System.currentTimeMillis();
+      
+      log.info("step 1 " + query + "took" + (st2Time- st1Time) + earliestDate);
+    } finally {
+      try {
+        if (statementSelectEvent != null) {
+          statementSelectEvent.close();
+        }
+        if (conn != null) {
+          conn.close();
+        }
+      } catch (SQLException ex1) {
+        log.warning(ErrorMessages.CLOSING_RESOURCE_EXCEPTION.getDescription()+ ex1);
+      }
+    }
+    if (earliestDate != null) {
+      return earliestDate.getTime();
+    } else {
+      return null;
+    }
+  }
+  
 
   @Override
   public List<EventDAO> getEvents(String query, DateTimeZone tzForClient) throws SQLException, ParseException {
@@ -570,52 +613,21 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
     return event;
   }
   
-  public boolean createDB() throws SQLException { 
-    boolean created = false;
-    Connection conn = null;
-    java.sql.Statement statementCreateDB = null;
-  
-    try {
-
-      conn = CloudSQLConnectionManager.getInstance().getConnection();
-      statementCreateDB = conn.createStatement();
-      final String createDatabaseSql = "create database pacodb DEFAULT CHARACTER SET utf8mb4 DEFAULT COLLATE utf8_unicode_ci;";
-      statementCreateDB.execute(createDatabaseSql);
-      log.info("created database");
-
-      created = true;
-    } finally {
-      try {
-        if (statementCreateDB != null) {
-          statementCreateDB.close();
-        }
-       
-        if (conn != null) {
-          conn.close();
-        }
-
-      } catch (SQLException ex1) {
-        log.warning(ErrorMessages.CLOSING_RESOURCE_EXCEPTION.getDescription() + ex1);
-      }
-    }
-    return created;
-  }
-  
   public boolean setNames(Connection conn) throws SQLException { 
     boolean isDone = false;
-    java.sql.Statement statementCreateDB = null;
+    java.sql.Statement statementSetNames = null;
   
     try {
-      statementCreateDB = conn.createStatement();
+      statementSetNames = conn.createStatement();
       final String setNamesSql = "SET NAMES  'utf8mb4'";
-      statementCreateDB.execute(setNamesSql);
+      statementSetNames.execute(setNamesSql);
       log.info("set names");
 
       isDone = true;
     } finally {
       try {
-        if (statementCreateDB != null) {
-          statementCreateDB.close();
+        if (statementSetNames != null) {
+          statementSetNames.close();
         }
        
       
@@ -632,7 +644,7 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
     Connection conn = null;
     PreparedStatement statementCreateEvent = null;
     PreparedStatement statementCreateOutput = null;
-
+   
     try {
 
       conn = CloudSQLConnectionManager.getInstance().getConnection();

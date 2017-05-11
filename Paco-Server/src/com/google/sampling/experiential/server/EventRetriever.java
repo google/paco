@@ -412,14 +412,46 @@ public class EventRetriever {
     adjustTimeZone(allEvents);
   }
   
+  private DateTime getEarliestWhen() throws Exception{
+    CloudSQLDaoImpl  daoImpl =  new CloudSQLDaoImpl();
+    Long whenUtcInMillis = null;
+    try {
+      whenUtcInMillis = daoImpl.getEarliestWhen();
+    } catch (SQLException | ParseException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+      log.warning("Not able to get earliest when" + e.getMessage());
+    }
+    if (whenUtcInMillis != null) {
+      DateTime dt = new DateTime(whenUtcInMillis);
+      log.info("Earliest date in cloud sql"+ dt);
+      return dt;
+      
+    } else {
+      throw new Exception("no date fetched from Cloud sql, Dont proceed");
+    }
+    
+  }
+  
   private boolean readEventDataStoreAndInsertToCloudSql(String oldCursor) {
     DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
     Cursor cursor = null;
     int count = 0;
     int pageSize = 1000;
+    DateTime earliestWhenInCloudSql = null;
     List<Event> eventsBatch = null;
     QueryResultList<Entity> results = null;
     boolean isFinished = false;
+    try {
+      earliestWhenInCloudSql = getEarliestWhen();
+    } catch (Exception e) { 
+      log.warning("Do not proceed. CS does not have data yet.");
+      return false;
+    }
+    if (earliestWhenInCloudSql == null) {
+      earliestWhenInCloudSql = new DateTime();
+    }
+    
     if(oldCursor != null) {
       log.info("old cursor " + oldCursor);
       cursor = Cursor.fromWebSafeString(oldCursor);
@@ -435,6 +467,8 @@ public class EventRetriever {
 
       try { 
         com.google.appengine.api.datastore.Query q = new com.google.appengine.api.datastore.Query("Event");
+        Date utilEarlyWhen = earliestWhenInCloudSql.toDate();
+        q.setFilter(new com.google.appengine.api.datastore.Query.FilterPredicate("when", FilterOperator.LESS_THAN, utilEarlyWhen));
         PreparedQuery pq = datastore.prepare(q);
         results = pq.asQueryResultList(fetchOptions);
         if (results.isEmpty()) {
@@ -484,7 +518,7 @@ public class EventRetriever {
     DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
     Cursor cursor = null;
     int count = 0;
-    int pageSize = 100;
+    int pageSize = 1000;
     List<MigrationOutput> outputsBatch = null;
     QueryResultList<Entity> results = null;
     boolean isFinished = false;
