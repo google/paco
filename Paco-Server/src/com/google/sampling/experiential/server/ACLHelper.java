@@ -3,7 +3,9 @@ package com.google.sampling.experiential.server;
 import java.util.List;
 import java.util.Set;
 
-import com.pacoapp.paco.shared.model2.EventBaseColumns;
+import com.google.sampling.experiential.datastore.EventServerColumns;
+import com.pacoapp.paco.shared.util.Constants;
+import com.pacoapp.paco.shared.util.ErrorMessages;
 import com.pacoapp.paco.shared.util.QueryPreprocessor;
 import com.pacoapp.paco.shared.util.SearchUtil;
 
@@ -14,7 +16,7 @@ import net.sf.jsqlparser.statement.select.PlainSelect;
 import net.sf.jsqlparser.statement.select.Select;
 
 public class ACLHelper {
-  static final String EQUALS = " = ";
+  
 
   // for testing only
   public static String getModifiedQueryBasedOnACL(String selectSql, String loggedInUser,
@@ -27,7 +29,7 @@ public class ACLHelper {
   public static String getModifiedQueryBasedOnACL(Select selectSql, String loggedInUser,
                                                   List<Long> adminExperimentsinDB,
                                                   QueryPreprocessor qPreprocessor) throws Exception {
-    String loggedInUserWithQuotes = "'" + loggedInUser + "'";
+    String loggedInUserWithQuotes = Constants.SINGLE_QUOTE + loggedInUser + Constants.SINGLE_QUOTE;
     boolean onlyQueryingOwnData = true;
     boolean adminOnAllExperiments = true;
     PlainSelect plainSelect = null;
@@ -37,7 +39,7 @@ public class ACLHelper {
     // Level 1 filters
     // a->No exp id filter, no processing
     if (userSpecifiedExpIdValues.size() == 0) {
-      throw new Exception("Unauthorized access: No experiment id filter");
+      throw new Exception(ErrorMessages.EXPERIMENT_ID_CLAUSE_EXCEPTION.getDescription());
     }
 
     // if user querying own data
@@ -52,11 +54,11 @@ public class ACLHelper {
     }
 
     if (!adminOnAllExperiments && !onlyQueryingOwnData) {
-      throw new Exception("Unauthorized access: Mixed ACL error");
+      throw new Exception(ErrorMessages.UNAUTHORIZED_ACCESS_MIXED_ACL.getDescription());
     }
 
     if ((adminExperimentsinDB != null && adminExperimentsinDB.size() == 0) && !onlyQueryingOwnData) {
-      String whoClause = EventBaseColumns.WHO + EQUALS + loggedInUserWithQuotes;
+      String whoClause = EventServerColumns.WHO + Constants.EQUALS + loggedInUserWithQuotes;
       if (userSpecifiedWhoValues.size() == 0) {
         Expression oldWhereClause = plainSelect.getWhere();
         Expression newWhoClause = CCJSqlParserUtil.parseCondExpression(whoClause);

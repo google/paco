@@ -173,13 +173,17 @@ public class EventRetriever {
         event.setWho(eventJson.getString("who"));
         cloudSqlDaoImpl.insertEvent(event);
       } catch (JSONException e) {
-        log.info(ErrorMessages.JSON_EXCEPTION + " for request: " + eventJson);
+        cloudSqlDaoImpl.insertFailedEvent(eventJson.toString(), ErrorMessages.JSON_EXCEPTION.getDescription(), e.getMessage());
+        log.warning(ErrorMessages.JSON_EXCEPTION.getDescription() + " for request: " + eventJson + e);
       } catch (SQLException sqle) {
-        log.info(ErrorMessages.SQL_INSERT_EXCEPTION + " for  request: " + eventJson);
+        cloudSqlDaoImpl.insertFailedEvent(eventJson.toString(), ErrorMessages.SQL_INSERT_EXCEPTION.getDescription(), sqle.getMessage());
+        log.warning(ErrorMessages.SQL_INSERT_EXCEPTION.getDescription() + " for  request: " + eventJson + sqle);
       } catch (ParseException e) {
-        log.warning(ErrorMessages.TEXT_PARSE_EXCEPTION.getDescription() + "for request: " +eventJson);
+        cloudSqlDaoImpl.insertFailedEvent(eventJson.toString(), ErrorMessages.TEXT_PARSE_EXCEPTION.getDescription(), e.getMessage());
+        log.warning(ErrorMessages.TEXT_PARSE_EXCEPTION.getDescription() + "for request: " +eventJson + e);
       } catch (Exception e) { 
-        log.warning(ErrorMessages.GENERAL_EXCEPTION.getDescription() + "for request: " +eventJson + e);
+        cloudSqlDaoImpl.insertFailedEvent(eventJson.toString(), ErrorMessages.GENERAL_EXCEPTION.getDescription(), e.getMessage());
+        log.warning(ErrorMessages.GENERAL_EXCEPTION.getDescription() + "for request: " +eventJson + e.getStackTrace());
       }
 
     } else {

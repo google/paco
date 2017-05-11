@@ -70,7 +70,14 @@ public class QueryJsonParser {
           JSONArray cv = queryCriteria.getJSONArray(Constants.VALUES);
           criteriaValues = new String[cv.length()];
           for (int i = 0; i < cv.length(); i++) {
-            criteriaValues[i] = cv.getString(i);
+            // identify Json string which could be marked with single or double quotes
+            // to ones with single quotes, because jsql parser considers only values within single quotes
+            // as string value
+            if(cv.get(i).getClass().getName().equals("java.lang.String")) {
+              criteriaValues[i] = Constants.SINGLE_QUOTE+cv.getString(i)+Constants.SINGLE_QUOTE;
+            } else {
+              criteriaValues[i] = cv.getString(i);
+            }
           }
           sqlBldr.criteriaValues(criteriaValues);
         }

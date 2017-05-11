@@ -14,13 +14,17 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.logging.Logger;
 
 import org.joda.time.DateTimeZone;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.sampling.experiential.datastore.EventServerColumns;
+import com.google.sampling.experiential.datastore.FailedEventServerColumns;
 import com.google.sampling.experiential.model.Event;
+import com.google.sampling.experiential.model.What;
 import com.google.sampling.experiential.server.migration.MigrationOutput;
 import com.google.sampling.experiential.shared.EventDAO;
 import com.google.sampling.experiential.shared.WhatDAO;
@@ -28,6 +32,7 @@ import com.mysql.jdbc.Statement;
 import com.mysql.jdbc.exceptions.jdbc4.MySQLIntegrityConstraintViolationException;
 import com.pacoapp.paco.shared.model2.EventBaseColumns;
 import com.pacoapp.paco.shared.model2.OutputBaseColumns;
+import com.pacoapp.paco.shared.util.Constants;
 import com.pacoapp.paco.shared.util.ErrorMessages;
 import com.pacoapp.paco.shared.util.TimeUtil;
 
@@ -42,31 +47,32 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
   public static final Logger log = Logger.getLogger(CloudSQLDaoImpl.class.getName());
   private static Map<String, Integer> eventsOutputColumns = null;
   private static List<Column> eventColList = Lists.newArrayList();
-  private static List<Column> outputColList = Lists.newArrayList();
+  private static int DUP_CTR = 0;
   public static final String ID = "_id";
-  public static final String TRUE = "true";
-  private static int DUP_CTR =0;
+  private static List<Column> outputColList = Lists.newArrayList();
+  private static List<Column> failedColList = Lists.newArrayList();
   private static final String selectOutputsSql = "select * from outputs where event_id =?";
 
   static {
-    eventColList.add(new Column(EventBaseColumns.EXPERIMENT_ID));
-    eventColList.add(new Column(EventBaseColumns.EXPERIMENT_NAME));
-    eventColList.add(new Column(EventBaseColumns.EXPERIMENT_VERSION));
-    eventColList.add(new Column(EventBaseColumns.SCHEDULE_TIME));
-    eventColList.add(new Column(EventBaseColumns.RESPONSE_TIME));
-    eventColList.add(new Column(EventBaseColumns.GROUP_NAME));
-    eventColList.add(new Column(EventBaseColumns.ACTION_TRIGGER_ID));
-    eventColList.add(new Column(EventBaseColumns.ACTION_TRIGGER_SPEC_ID));
-    eventColList.add(new Column(EventBaseColumns.ACTION_ID));
-    eventColList.add(new Column(EventBaseColumns.WHO));
-    eventColList.add(new Column("`" + EventBaseColumns.WHEN + "`"));
-    eventColList.add(new Column(EventBaseColumns.PACO_VERSION));
-    eventColList.add(new Column(EventBaseColumns.APP_ID));
-    eventColList.add(new Column(EventBaseColumns.JOINED));
-    eventColList.add(new Column(EventBaseColumns.SORT_DATE));
-    eventColList.add(new Column(EventBaseColumns.CLIENT_TIME_ZONE));
-    eventColList.add(new Column(ID));
-    eventColList.add(new Column(EventBaseColumns.INT_RESPONSE_TIME));
+    eventColList.add(new Column(EventServerColumns.EXPERIMENT_ID));
+    eventColList.add(new Column(EventServerColumns.EXPERIMENT_NAME));
+    eventColList.add(new Column(EventServerColumns.EXPERIMENT_VERSION));
+    eventColList.add(new Column(EventServerColumns.SCHEDULE_TIME));
+    eventColList.add(new Column(EventServerColumns.RESPONSE_TIME));
+    eventColList.add(new Column(EventServerColumns.GROUP_NAME));
+    eventColList.add(new Column(EventServerColumns.ACTION_TRIGGER_ID));
+    eventColList.add(new Column(EventServerColumns.ACTION_TRIGGER_SPEC_ID));
+    eventColList.add(new Column(EventServerColumns.ACTION_ID));
+    eventColList.add(new Column(EventServerColumns.WHO));
+    eventColList.add(new Column(EventServerColumns.WHEN));
+    eventColList.add(new Column(EventServerColumns.PACO_VERSION));
+    eventColList.add(new Column(EventServerColumns.APP_ID));
+    eventColList.add(new Column(EventServerColumns.JOINED));
+    eventColList.add(new Column(EventServerColumns.SORT_DATE));
+    eventColList.add(new Column(EventServerColumns.CLIENT_TIME_ZONE));
+    eventColList.add(new Column(Constants.UNDERSCORE_ID));
+    eventColList.add(new Column(EventServerColumns.INT_RESPONSE_TIME));
+    
     outputColList.add(new Column(OutputBaseColumns.EVENT_ID));
     outputColList.add(new Column(OutputBaseColumns.NAME));
     outputColList.add(new Column(OutputBaseColumns.ANSWER));
@@ -78,6 +84,10 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
     for(int ct = 0; ct < outputColList.size(); ct ++) {
       eventsOutputColumns.put(outputColList.get(ct).getColumnName(), eventsOutputColumns.size() + ct);
     }
+    
+    failedColList.add(new Column(FailedEventServerColumns.EVENT_JSON));
+    failedColList.add(new Column(FailedEventServerColumns.REASON));
+    failedColList.add(new Column(FailedEventServerColumns.COMMENTS));
   }
 
   @Override
@@ -90,9 +100,6 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
     Connection conn = null;
     PreparedStatement statementCreateEvent = null;
     PreparedStatement statementCreateEventOutput = null;
-    Date utcWhenTime = null;
-    Date utcResponseTime = null;
-    Date utcScheduledTime = null;
     boolean retVal = false;
     //startCount for setting paramter index
     int i = 1 ;
@@ -103,20 +110,12 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
     Insert eventInsert = new Insert();
     Insert outputInsert = new Insert();
    
-    try{
-      utcWhenTime = TimeUtil.convertToUTC(event.getWhen(), event.getTimeZone());
-      utcResponseTime = TimeUtil.convertToUTC(event.getResponseTime(), event.getTimeZone());
-      utcScheduledTime = TimeUtil.convertToUTC(event.getScheduledTime(), event.getTimeZone());
-    } catch (ParseException pe){
-      log.severe(ErrorMessages.CONVERT_TO_UTC.getDescription()+pe);
-      throw pe;
-    }
-
     try {
       log.info("Inserting event->" + event.getId());
       conn = CloudSQLConnectionManager.getInstance().getConnection();
+      setNames(conn);
       conn.setAutoCommit(false);
-      eventInsert.setTable(new Table(EventBaseColumns.TABLE_NAME));
+      eventInsert.setTable(new Table(EventServerColumns.TABLE_NAME));
       outputInsert.setTable(new Table(OutputBaseColumns.TABLE_NAME));
       eventInsert.setUseValues(true);
       outputInsert.setUseValues(true);
@@ -139,41 +138,45 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
       statementCreateEvent.setLong(i++, Long.parseLong(event.getExperimentId()));
       statementCreateEvent.setString(i++, event.getExperimentName());
       statementCreateEvent.setInt(i++, event.getExperimentVersion());
-      statementCreateEvent.setTimestamp(i++, event.getScheduledTime() != null ? new Timestamp(utcScheduledTime.getTime()): null);
-      statementCreateEvent.setTimestamp(i++, event.getResponseTime() != null ? new Timestamp(utcResponseTime.getTime()): null);
+      statementCreateEvent.setTimestamp(i++, event.getScheduledTime() != null ? new Timestamp(event.getScheduledTime().getTime()): null);
+      statementCreateEvent.setTimestamp(i++, event.getResponseTime() != null ? new Timestamp(event.getResponseTime().getTime()): null);
       statementCreateEvent.setString(i++, event.getExperimentGroupName());
       statementCreateEvent.setLong(i++, event.getActionTriggerId() != null ? new Long(event.getActionTriggerId()) : java.sql.Types.NULL);
       statementCreateEvent.setLong(i++, event.getActionTriggerSpecId() != null ? new Long(event.getActionTriggerId()) : java.sql.Types.NULL);
       statementCreateEvent.setLong(i++, event.getActionId() != null ? new Long(event.getActionId()) : java.sql.Types.NULL);
       statementCreateEvent.setString(i++, event.getWho());
-      statementCreateEvent.setTimestamp(i++, event.getWhen() != null ? new Timestamp(utcWhenTime.getTime()): null);
+      statementCreateEvent.setTimestamp(i++, event.getWhen() != null ? new Timestamp(event.getWhen().getTime()): null);
       statementCreateEvent.setString(i++, event.getPacoVersion());
       statementCreateEvent.setString(i++, event.getAppId());
       statementCreateEvent.setNull(i++, java.sql.Types.BOOLEAN);
-      String joinedStat = event.getWhatByKey(EventBaseColumns.JOINED);
-      if (joinedStat != null) {
-        if (joinedStat.equalsIgnoreCase(TRUE)) {
-          statementCreateEvent.setBoolean(i++, true);
-        } else {
-          statementCreateEvent.setBoolean(i++, false);
+      if (event.getWhat() != null) {
+        String joinedStat = event.getWhatByKey(EventServerColumns.JOINED);
+        if (joinedStat != null) {
+          if (joinedStat.equalsIgnoreCase(Constants.TRUE)) {
+            statementCreateEvent.setBoolean(i++, true);
+          } else {
+            statementCreateEvent.setBoolean(i++, false);
+          }
         }
-      } 
-      statementCreateEvent.setTimestamp(i++, event.getResponseTime()!= null ? new Timestamp(utcResponseTime.getTime()): new Timestamp(utcScheduledTime.getTime()));
+      }
+      statementCreateEvent.setTimestamp(i++, event.getResponseTime()!= null ? new Timestamp(event.getResponseTime().getTime()): new Timestamp(event.getScheduledTime().getTime()));
       statementCreateEvent.setString(i++, event.getTimeZone());
       statementCreateEvent.setLong(i++, event.getId());
       statementCreateEvent.setLong(i++, event.getResponseTime() != null ? event.getResponseTime().getTime(): java.sql.Types.NULL);
-      
       statementCreateEvent.execute();
-      
-      statementCreateEventOutput = conn.prepareStatement(outputInsert.toString());
-      for (String key : event.getWhatKeys()) {
-        String whatAnswer = event.getWhatByKey(key);
-        statementCreateEventOutput.setLong(1, event.getId());
-        statementCreateEventOutput.setString(2, key);
-        statementCreateEventOutput.setString(3, whatAnswer);
-        statementCreateEventOutput.addBatch();
+
+      Set<What> whatSet = event.getWhat();
+      if (whatSet != null) {
+        statementCreateEventOutput = conn.prepareStatement(outputInsert.toString());
+        for (String key : event.getWhatKeys()) {
+          String whatAnswer = event.getWhatByKey(key);
+          statementCreateEventOutput.setLong(1, event.getId());
+          statementCreateEventOutput.setString(2, key);
+          statementCreateEventOutput.setString(3, whatAnswer);
+          statementCreateEventOutput.addBatch();
+        }
+        statementCreateEventOutput.executeBatch();
       }
-      statementCreateEventOutput.executeBatch();
       conn.commit();
       retVal = true;
     } finally {
@@ -238,7 +241,7 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
         statementCreateEvent.setLong(i++, event.getActionTriggerSpecId() != null ? new Long(event.getActionTriggerId()) : java.sql.Types.NULL);
         statementCreateEvent.setLong(i++, event.getActionId() != null ? new Long(event.getActionId()) : java.sql.Types.NULL);
         statementCreateEvent.setString(i++, event.getWho());
-        statementCreateEvent.setTimestamp(i++, event.getWhen() != null ? new Timestamp(event.getWhen().getTime()): null);
+        statementCreateEvent.setTimestamp(i++, event.getWhen() != null ? new Timestamp(event.getWhen().getTime()): java.sql.Types.NULL);
         statementCreateEvent.setString(i++, event.getPacoVersion());
         statementCreateEvent.setString(i++, event.getAppId());
         statementCreateEvent.setNull(i++, java.sql.Types.BOOLEAN);
@@ -441,6 +444,7 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
 
     try {
       conn = CloudSQLConnectionManager.getInstance().getConnection();
+      setNames(conn);
       // While we have to retrieve millions of records at a time, we might run
       // into java heap space issue.
       // The following two properties(rs type forward only, concur read only,
@@ -644,38 +648,41 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
     Connection conn = null;
     PreparedStatement statementCreateEvent = null;
     PreparedStatement statementCreateOutput = null;
-   
+
+    PreparedStatement statementCreateFailedEvent = null;
+
     try {
 
       conn = CloudSQLConnectionManager.getInstance().getConnection();
-      
-      final String createEventsTableSql = "CREATE TABLE `" + EventBaseColumns.TABLE_NAME + "` (" +
-
-                                          "`" + ID + "` bigint(20) NOT NULL," + "`" + 
-                                          EventBaseColumns.EXPERIMENT_ID + "` bigint(20) NOT NULL," + "`"
-                                          + EventBaseColumns.EXPERIMENT_NAME + "` varchar(500) DEFAULT NULL," + "`"
-                                          + EventBaseColumns.EXPERIMENT_VERSION + "` int(11) DEFAULT NULL," + "`"
-                                          + EventBaseColumns.SCHEDULE_TIME + "` datetime DEFAULT NULL," + "`"
-                                          + EventBaseColumns.RESPONSE_TIME + "` datetime DEFAULT NULL," + "`"
-                                          + EventBaseColumns.GROUP_NAME + "` varchar(45) DEFAULT NULL," + "`"
-                                          + EventBaseColumns.ACTION_ID + "` bigint(20) DEFAULT NULL," + "`"
-                                          + EventBaseColumns.ACTION_TRIGGER_ID + "` bigint(20) DEFAULT NULL," + "`"
-                                          + EventBaseColumns.ACTION_TRIGGER_SPEC_ID + "` bigint(20) DEFAULT NULL," + "`"
-                                          + EventBaseColumns.WHO + "` varchar(100) NOT NULL," + "`"
-                                          + EventBaseColumns.PACO_VERSION + "` varchar(45) DEFAULT NULL," + "`"
-                                          + EventBaseColumns.APP_ID + "` varchar(45) DEFAULT NULL," + "`"
-                                          + EventBaseColumns.WHEN + "` datetime DEFAULT NULL," + "`"
-                                          + EventBaseColumns.ARCHIVE_FLAG + "` tinyint(4) NOT NULL DEFAULT '0'," + "`"
-                                          + EventBaseColumns.JOINED + "` tinyint(1)  DEFAULT NULL," + "`"
-                                          + EventBaseColumns.SORT_DATE + "` datetime  DEFAULT NULL," + "`"
-                                          + EventBaseColumns.CLIENT_TIME_ZONE + "` varchar(20) DEFAULT NULL,"
-                                          + "PRIMARY KEY (`" + ID + "`)," + "KEY `when_index` (`"
-                                          + EventBaseColumns.WHEN + "`)," + "KEY `exp_id_resp_time_index` (`"
-                                          + EventBaseColumns.EXPERIMENT_ID + "`,`" + EventBaseColumns.RESPONSE_TIME
-                                          + "`)," + "KEY `exp_id_when_index` (`" + EventBaseColumns.EXPERIMENT_ID
-                                          + "`,`" + EventBaseColumns.WHEN + "`)," + "KEY `exp_id_who_when_index` (`"
-                                          + EventBaseColumns.EXPERIMENT_ID + "`,`" + EventBaseColumns.WHO + "`,`"
-                                          + EventBaseColumns.WHEN + "`)" + ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4";
+      // TODO Sub Partition size for the experiment hash bucket
+      final String createEventsTableSql = "CREATE TABLE `" + EventServerColumns.TABLE_NAME 
+                                          + "` (" +"`" + Constants.UNDERSCORE_ID + "` bigint(20) NOT NULL ,"+ "`"
+                                          + EventServerColumns.EXPERIMENT_ID + "` bigint(20) NOT NULL," + "`"
+                                          + EventServerColumns.EXPERIMENT_NAME + "` varchar(500) DEFAULT NULL," + "`"
+                                          + EventServerColumns.EXPERIMENT_VERSION + "` int(11) DEFAULT NULL," + "`"
+                                          + EventServerColumns.SCHEDULE_TIME + "` datetime DEFAULT NULL," + "`"
+                                          + EventServerColumns.RESPONSE_TIME + "` datetime DEFAULT NULL," + "`"
+                                          + EventServerColumns.INT_RESPONSE_TIME + "` bigint(20) DEFAULT NULL," + "`"
+                                          + EventServerColumns.GROUP_NAME + "` varchar(200) DEFAULT NULL," + "`"
+                                          + EventServerColumns.ACTION_ID + "` bigint(20) DEFAULT NULL," + "`"
+                                          + EventServerColumns.ACTION_TRIGGER_ID + "` bigint(20) DEFAULT NULL," + "`"
+                                          + EventServerColumns.ACTION_TRIGGER_SPEC_ID + "` bigint(20) DEFAULT NULL," + "`"
+                                          + EventServerColumns.WHO + "` varchar(45) NOT NULL," + "`"
+                                          + EventServerColumns.PACO_VERSION + "` varchar(45) DEFAULT NULL," + "`"
+                                          + EventServerColumns.APP_ID + "` varchar(45) DEFAULT NULL," 
+                                          // when column already has the back tick
+                                          + EventServerColumns.WHEN + " datetime DEFAULT NULL," + "`"
+                                          + EventServerColumns.ARCHIVE_FLAG + "` tinyint(4) NOT NULL DEFAULT '0'," + "`"
+                                          + EventServerColumns.JOINED + "` tinyint(1)  DEFAULT NULL," + "`"
+                                          + EventServerColumns.SORT_DATE + "` datetime  DEFAULT NULL," + "`"
+                                          + EventServerColumns.CLIENT_TIME_ZONE + "` varchar(20) DEFAULT NULL,"
+                                          + "PRIMARY KEY (`" + Constants.UNDERSCORE_ID + "`)," + "KEY `when_index` ("
+                                          + EventServerColumns.WHEN + ")," + "KEY `exp_id_resp_time_index` (`"
+                                          + EventServerColumns.EXPERIMENT_ID + "`,`" + EventServerColumns.RESPONSE_TIME
+                                          + "`)," + "KEY `exp_id_when_index` (`" + EventServerColumns.EXPERIMENT_ID
+                                          + "`," + EventServerColumns.WHEN + ")," + "KEY `exp_id_who_when_index` (`"
+                                          + EventServerColumns.EXPERIMENT_ID + "`,`" + EventServerColumns.WHO + "`,"
+                                          + EventServerColumns.WHEN + ")" + ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4";
 
       final String createOutputsTableSql = "CREATE TABLE `" + OutputBaseColumns.TABLE_NAME+ "` (" + "`" 
                                            + OutputBaseColumns.EVENT_ID + "` bigint(20) NOT NULL," + "`"
@@ -688,19 +695,35 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
                                            + OutputBaseColumns.NAME + "`), " 
                                            + " CONSTRAINT `event_id_fk` FOREIGN KEY (` "+ OutputBaseColumns.EVENT_ID + "`) REFERENCES `"+ EventBaseColumns.TABLE_NAME +"` (`"+ ID +"`) ON DELETE CASCADE ON UPDATE NO ACTION " +
                                            ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4";
-      
+            
+      final String createFailedEventsTableSql = "CREATE TABLE `" +  FailedEventServerColumns.TABLE_NAME +  "` (" + "`" 
+                                            + FailedEventServerColumns.ID + "` bigint(20) NOT NULL AUTO_INCREMENT," + "`"
+                                            + FailedEventServerColumns.EVENT_JSON + "` varchar(3000) NOT NULL," + "`"
+                                            + FailedEventServerColumns.FAILED_INSERT_TIME + "` datetime  DEFAULT NULL," + "`"
+                                            + FailedEventServerColumns.REASON + "` varchar(500) DEFAULT NULL," + "`"
+                                            + FailedEventServerColumns.COMMENTS + "` varchar(1000) DEFAULT NULL,"
+                                            + "PRIMARY KEY (`" + FailedEventServerColumns.ID + "`)"+") ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4";
+     
+
       statementCreateEvent = conn.prepareStatement(createEventsTableSql);
 
       statementCreateEvent.execute();
       log.info("created events");
       // TODO better handling
       retString = "created events table. ";
+      
       statementCreateOutput = conn.prepareStatement(createOutputsTableSql);
-
       statementCreateOutput.execute();
       log.info("created outputs");
       // TODO better handling
       retString = retString + "Created outputs table";
+      
+      statementCreateFailedEvent = conn.prepareStatement(createFailedEventsTableSql);
+      statementCreateFailedEvent.execute();
+      log.info("created failed events");
+      // TODO better handling
+      retString = retString + "Created FailedEvents table";
+      
     } finally {
       try {
         if (statementCreateEvent != null) {
@@ -708,6 +731,9 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
         }
         if (statementCreateOutput != null) {
           statementCreateOutput.close();
+        }
+        if (statementCreateFailedEvent != null) {
+          statementCreateFailedEvent.close();
         }
         if (conn != null) {
           conn.close();
@@ -719,4 +745,55 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
     }
     return retString;
   }
+
+  @Override
+  public boolean insertFailedEvent(String failedJson, String reason, String comments) {
+    Connection conn = null;
+    PreparedStatement statementCreateFailedEvent = null;
+    boolean retVal = false;
+    ExpressionList failedEventExprList = new ExpressionList();
+    List<Expression> exp = Lists.newArrayList();
+    Insert failedEventInsert = new Insert();
+   
+    try {
+      log.info("Inserting failed event");
+      conn = CloudSQLConnectionManager.getInstance().getConnection();
+      conn.setAutoCommit(false);
+      failedEventInsert.setTable(new Table(FailedEventServerColumns.TABLE_NAME));
+      failedEventInsert.setUseValues(true);
+      failedEventExprList.setExpressions(exp);
+      failedEventInsert.setItemsList(failedEventExprList);
+      failedEventInsert.setColumns(failedColList);
+      // Adding ? for prepared stmt
+      for (Column c : failedColList) {
+        ((ExpressionList) failedEventInsert.getItemsList()).getExpressions().add(new JdbcParameter());
+      }
+ 
+      statementCreateFailedEvent = conn.prepareStatement(failedEventInsert.toString());
+      statementCreateFailedEvent.setString(1, failedJson);
+      statementCreateFailedEvent.setString(2, reason);
+      statementCreateFailedEvent.setString(3, comments);
+      
+      statementCreateFailedEvent.execute();
+      conn.commit();
+      retVal = true;
+    } catch(SQLException sqle) { 
+      log.info("Exception while inserting to failed events table" + failedJson);
+      System.out.println("Exception while inserting to failed events table" + failedJson);
+    } 
+    finally {
+      try {
+        if (statementCreateFailedEvent != null) {
+          statementCreateFailedEvent.close();
+        }
+        if (conn != null) {
+          conn.close();
+        }
+      } catch (SQLException ex1) {
+        log.info(ErrorMessages.CLOSING_RESOURCE_EXCEPTION.getDescription() + ex1);
+      }
+    }
+    return retVal;
+  }
+  
 }
