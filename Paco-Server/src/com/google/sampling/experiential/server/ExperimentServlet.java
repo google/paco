@@ -58,8 +58,7 @@ public class ExperimentServlet extends HttpServlet {
 
 
   @Override
-  protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException,
-  IOException {
+  protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
     resp.setContentType("application/json;charset=UTF-8");
 
     User user = AuthUtil.getWhoFromLogin();
@@ -86,8 +85,7 @@ public class ExperimentServlet extends HttpServlet {
         pacoProtocol = req.getParameter("pacoProtocol");
       }
 
-
-      //String offset = req.getParameter("offset");
+      // String offset = req.getParameter("offset");
       String limitStr = req.getParameter("limit");
       Integer limit = null;
       if (limitStr != null) {
@@ -96,9 +94,10 @@ public class ExperimentServlet extends HttpServlet {
         } catch (NumberFormatException e) {
         }
       }
-//      if (limit != null && (limit <= 0 || limit >= EXPERIMENT_LIMIT_MAX)) {
-//        throw new IllegalArgumentException("Invalid limit. must be greater than 0 and less than or equal to 50");
-//      }
+      // if (limit != null && (limit <= 0 || limit >= EXPERIMENT_LIMIT_MAX)) {
+      // throw new IllegalArgumentException("Invalid limit. must be greater
+      // than 0 and less than or equal to 50");
+      // }
       String cursor = req.getParameter("cursor");
 
       String experimentsJson = null;
@@ -106,22 +105,30 @@ public class ExperimentServlet extends HttpServlet {
       if (experimentsPublishedToMeParam != null) {
         handler = new ExperimentServletExperimentsForMeLoadHandler(email, timezone, limit, cursor, pacoProtocol);
       } else if (selectedExperimentsParam != null) {
-        handler = new ExperimentServletSelectedExperimentsFullLoadHandler(email, timezone, selectedExperimentsParam, pacoProtocol);
+        handler = new ExperimentServletSelectedExperimentsFullLoadHandler(email, timezone, selectedExperimentsParam,
+                                                                          pacoProtocol);
       } else if (experimentsPublishedPubliclyParam != null) {
         handler = new ExperimentServletExperimentsShortPublicLoadHandler(email, timezone, limit, cursor, pacoProtocol);
-      } /*else if (experimentsAdministeredByUserParam != null && experimentsJoinedByMeParam != null) {
-        handler = new ExperimentServletAdminAndJoinedExperimentsShortLoadHandler(email, timezone, limit, cursor, pacoProtocol);
-      } */else if (experimentsJoinedByMeParam != null) {
+      } /*
+         * else if (experimentsAdministeredByUserParam != null &&
+         * experimentsJoinedByMeParam != null) { handler = new
+         * ExperimentServletAdminAndJoinedExperimentsShortLoadHandler(email,
+         * timezone, limit, cursor, pacoProtocol); }
+         */else if (experimentsJoinedByMeParam != null) {
         handler = new ExperimentServletJoinedExperimentsShortLoadHandler(email, timezone, limit, cursor, pacoProtocol);
-      }
-      else if (experimentsAdministeredByUserParam != null) {
-        handler = new ExperimentServletAdminExperimentsFullLoadHandler(email, timezone, limit, cursor, pacoProtocol);
-      } else if (experimentsPopularParam != null){
+      } else if (experimentsAdministeredByUserParam != null) {
+        String sortColumn = req.getParameter("sortColumn");
+        String sortOrder = req.getParameter("sortOrder");
+        handler = new ExperimentServletAdminExperimentsFullLoadHandler(email, timezone, limit, cursor, pacoProtocol,
+                                                                       sortColumn, sortOrder);
+      } else if (experimentsPopularParam != null) {
         handler = new ExperimentServletExperimentsPopularLoadHandler(email, timezone, limit, cursor, pacoProtocol);
-      } else if (experimentsNewParam != null){
+      } else if (experimentsNewParam != null) {
         handler = new ExperimentServletExperimentsNewLoadHandler(email, timezone, limit, cursor, pacoProtocol);
       } else {
-        handler = null; //new ExperimentServletAllExperimentsFullLoadHandler(email, timezone, limit, cursor, pacoProtocol);
+        handler = null; // new
+                        // ExperimentServletAllExperimentsFullLoadHandler(email,
+                        // timezone, limit, cursor, pacoProtocol);
       }
       if (handler != null) {
         log.info("Loading experiments...");

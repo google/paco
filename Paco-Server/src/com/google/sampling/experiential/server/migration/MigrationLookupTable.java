@@ -5,7 +5,12 @@ import java.util.logging.Logger;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
-import com.google.sampling.experiential.server.migration.jobs.*;
+import com.google.sampling.experiential.server.migration.jobs.EventStatsCounterMigrationJob;
+import com.google.sampling.experiential.server.migration.jobs.ExperimentHubMigrationJob;
+import com.google.sampling.experiential.server.migration.jobs.ExperimentJDOToDatastoreMigration;
+import com.google.sampling.experiential.server.migration.jobs.ExperimentTitleLowercaseMigrationJob;
+import com.google.sampling.experiential.server.migration.jobs.FeedbackTypeRepairMigration;
+import com.google.sampling.experiential.server.migration.jobs.TestJDODSCompat;
 import com.google.sampling.experiential.server.stats.usage.UsageStatsBackfillJob;
 
 public class MigrationLookupTable {
@@ -20,6 +25,7 @@ public class MigrationLookupTable {
     migrations.put("965", TestJDODSCompat.class);
     migrations.put("98", EventStatsCounterMigrationJob.class);
     migrations.put("99", UsageStatsBackfillJob.class);
+    migrations.put("100", ExperimentTitleLowercaseMigrationJob.class);
   }
   public static MigrationJob getMigrationByName(String name) {
     if (Strings.isNullOrEmpty(name)) {

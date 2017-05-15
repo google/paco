@@ -4,8 +4,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
-import junit.framework.TestCase;
-
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.annotate.JsonSerialize.Inclusion;
 import org.joda.time.DateTime;
@@ -21,6 +19,8 @@ import com.pacoapp.paco.shared.comm.Outcome;
 import com.pacoapp.paco.shared.model2.ExperimentDAO;
 import com.pacoapp.paco.shared.model2.ExperimentQueryResult;
 import com.pacoapp.paco.shared.model2.ValidationMessage;
+
+import junit.framework.TestCase;
 
 public class EventJsonUploadProcessorTest extends TestCase {
 
@@ -113,7 +113,7 @@ public class EventJsonUploadProcessorTest extends TestCase {
 
       @Override
       public ExperimentQueryResult getUsersAdministeredExperiments(String email, DateTimeZone timezone, Integer limit,
-                                                                   String cursor) {
+                                                                   String cursor, String sortColumn, String sortOrder) {
         // TODO Auto-generated method stub
         return null;
       }
@@ -150,7 +150,7 @@ public class EventJsonUploadProcessorTest extends TestCase {
 
       @Override
       public ExperimentQueryResult getMyJoinedExperiments(String email, DateTimeZone timezone, Integer limit,
-                                                          String cursor) {
+                                                          String cursor, String sortColumn, String sortOrder) {
         // TODO Auto-generated method stub
         return null;
       }
@@ -202,7 +202,7 @@ public class EventJsonUploadProcessorTest extends TestCase {
 
       @Override
       public ExperimentQueryResult getUsersAdministeredExperiments(String email, DateTimeZone timezone, Integer limit,
-                                                                   String cursor) {
+                                                                   String cursor, String sortColumn, String sortOrder) {
         // TODO Auto-generated method stub
         return null;
       }
@@ -239,7 +239,7 @@ public class EventJsonUploadProcessorTest extends TestCase {
 
       @Override
       public ExperimentQueryResult getMyJoinedExperiments(String email, DateTimeZone timezone, Integer limit,
-                                                          String cursor) {
+                                                          String cursor, String sortColumn, String sortOrder) {
         // TODO Auto-generated method stub
         return null;
       }
@@ -296,7 +296,7 @@ public class EventJsonUploadProcessorTest extends TestCase {
 
       @Override
       public ExperimentQueryResult getUsersAdministeredExperiments(String email, DateTimeZone timezone, Integer limit,
-                                                                   String cursor) {
+                                                                   String cursor, String sortColumn, String sortOrder) {
         // TODO Auto-generated method stub
         return null;
       }
@@ -333,7 +333,7 @@ public class EventJsonUploadProcessorTest extends TestCase {
 
       @Override
       public ExperimentQueryResult getMyJoinedExperiments(String email, DateTimeZone timezone, Integer limit,
-                                                          String cursor) {
+                                                          String cursor, String sortColumn, String sortOrder) {
         // TODO Auto-generated method stub
         return null;
       }
@@ -391,7 +391,7 @@ public class EventJsonUploadProcessorTest extends TestCase {
       }
       @Override
       public ExperimentQueryResult getUsersAdministeredExperiments(String email, DateTimeZone timezone, Integer limit,
-                                                                   String cursor) {
+                                                                   String cursor, String sortColumn, String sortOrder) {
         // TODO Auto-generated method stub
         return null;
       }
@@ -422,7 +422,7 @@ public class EventJsonUploadProcessorTest extends TestCase {
       }
       @Override
       public ExperimentQueryResult getMyJoinedExperiments(String email, DateTimeZone timezone, Integer limit,
-                                                          String cursor) {
+                                                          String cursor, String sortColumn, String sortOrder) {
         // TODO Auto-generated method stub
         return null;
       }
