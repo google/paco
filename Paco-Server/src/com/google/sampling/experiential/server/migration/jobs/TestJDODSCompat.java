@@ -23,7 +23,7 @@ import com.google.sampling.experiential.server.migration.MigrationJob;
 public class TestJDODSCompat implements MigrationJob {
 
   @Override
-  public boolean doMigration() {
+  public boolean doMigration(String optionalCursor) {
     // create JDO for a kind with sub kinds
     PersistenceManagerFactory pmf = PMF.get();
     PersistenceManager pm = pmf.getPersistenceManager();
@@ -105,12 +105,5 @@ public class TestJDODSCompat implements MigrationJob {
 
     return true;
   }
-
-  @Override
-  public boolean doMigration(String cursor) {
-    // TODO Auto-generated method stub
-    return false;
-  }
-
 
 }

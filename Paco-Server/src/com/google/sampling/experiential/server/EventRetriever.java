@@ -27,7 +27,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.jdo.PersistenceManager;
@@ -47,7 +46,6 @@ import com.google.appengine.api.datastore.Blob;
 import com.google.appengine.api.datastore.Cursor;
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
-import com.google.appengine.api.datastore.DatastoreTimeoutException;
 import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.FetchOptions;
 import com.google.appengine.api.datastore.Key;
@@ -69,7 +67,6 @@ import com.google.sampling.experiential.model.Event;
 import com.google.sampling.experiential.model.Experiment;
 import com.google.sampling.experiential.model.PhotoBlob;
 import com.google.sampling.experiential.model.What;
-import com.google.sampling.experiential.server.migration.MigrationOutput;
 import com.google.sampling.experiential.server.stats.participation.ParticipationStatsService;
 import com.google.sampling.experiential.shared.EventDAO;
 import com.google.sampling.experiential.shared.WhatDAO;
@@ -88,7 +85,6 @@ public class EventRetriever {
   private static final Logger log = Logger.getLogger(EventRetriever.class.getName());
   private static CloudSQLDao cloudSqlDaoImpl = new CloudSQLDaoImpl();
   private static DateTimeFormatter df = DateTimeFormat.forPattern(TimeUtil.DATETIME_FORMAT).withOffsetParsed();
-  private static int NULL_CTR = 0;
 
   @VisibleForTesting
   EventRetriever() {
@@ -415,208 +411,7 @@ public class EventRetriever {
     }
     adjustTimeZone(allEvents);
   }
-  
-  private DateTime getEarliestWhen() throws Exception{
-    CloudSQLDaoImpl  daoImpl =  new CloudSQLDaoImpl();
-    Long whenUtcInMillis = null;
-    try {
-      whenUtcInMillis = daoImpl.getEarliestWhen();
-    } catch (SQLException | ParseException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
-      log.warning("Not able to get earliest when" + e.getMessage());
-    }
-    if (whenUtcInMillis != null) {
-      DateTime dt = new DateTime(whenUtcInMillis);
-      log.info("Earliest date in cloud sql"+ dt);
-      return dt;
-      
-    } else {
-      throw new Exception("no date fetched from Cloud sql, Dont proceed");
-    }
-    
-  }
-  
-  private boolean readEventDataStoreAndInsertToCloudSql(String oldCursor) {
-    DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
-    Cursor cursor = null;
-    int count = 0;
-    int pageSize = 1000;
-    DateTime earliestWhenInCloudSql = null;
-    List<Event> eventsBatch = null;
-    QueryResultList<Entity> results = null;
-    boolean isFinished = false;
-    try {
-      earliestWhenInCloudSql = getEarliestWhen();
-    } catch (Exception e) { 
-      log.warning("Do not proceed. CS does not have data yet.");
-      return false;
-    }
-    if (earliestWhenInCloudSql == null) {
-      earliestWhenInCloudSql = new DateTime();
-    }
-    
-    if(oldCursor != null) {
-      log.info("old cursor " + oldCursor);
-      cursor = Cursor.fromWebSafeString(oldCursor);
-    }
-    while (true) {
-      eventsBatch = Lists.newArrayList();
-      log.info("Count = " + count);
-      boolean isContinueCSInsert = true;
-      FetchOptions fetchOptions = FetchOptions.Builder.withLimit(pageSize);
-      if (cursor != null) {
-        fetchOptions.startCursor(cursor);
-      }
-
-      try { 
-        com.google.appengine.api.datastore.Query q = new com.google.appengine.api.datastore.Query("Event");
-        Date utilEarlyWhen = earliestWhenInCloudSql.toDate();
-        q.setFilter(new com.google.appengine.api.datastore.Query.FilterPredicate("when", FilterOperator.LESS_THAN, utilEarlyWhen));
-        PreparedQuery pq = datastore.prepare(q);
-        results = pq.asQueryResultList(fetchOptions);
-        if (results.isEmpty()) {
-          log.info("empty results");
-          break;
-        } 
-        
-        for (int i = 0; i < results.size(); i++) {
-          Entity entity = results.get(i);
-          Event event = createEventFromEntity(entity);
-          event.setId(entity.getKey().getId());
-          eventsBatch.add(event);
-        }
-      } catch ( DatastoreTimeoutException dte) {
-        isContinueCSInsert = false;
-        log.severe("datastore timing out" + dte);
-        try {
-          log.warning("Data store timing out, so sleeping for 1 hour");
-          Thread.sleep(3600000);
-        } catch (InterruptedException e) {
-          log.warning("Data store timeout sleep interrupted" + e);
-        }
-      }
-      
-      if (isContinueCSInsert) {
-        CloudSQLDaoImpl  daoImpl =  new CloudSQLDaoImpl();
-        boolean isSuccess = daoImpl.insertEventsInBatch(eventsBatch);
-        //Only if the batch cs insert of events, should we move the cursor to the next batch in datastore
-        if (isSuccess) {
-          cursor = results.getCursor();
-          log.info("Moving the cursor:" + cursor.toWebSafeString());
-          count = count + results.size();
-        }
-        
-        
-        if (cursor == null || !isSuccess) {
-          log.info("null cursor or insert to cs failed, so break");
-          isFinished = true;
-          break;
-        }
-      }
-    }
-    return isFinished;
-  }
-  
-  public boolean readOutputsDataStoreAndInsertToCloudSql(String oldCursor) {
-    DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
-    Cursor cursor = null;
-    int count = 0;
-    int pageSize = 1000;
-    List<MigrationOutput> outputsBatch = null;
-    QueryResultList<Entity> results = null;
-    boolean isFinished = false;
-    if(oldCursor != null) {
-      log.info("old cursor " + oldCursor);
-      cursor = Cursor.fromWebSafeString(oldCursor);
-    }
-    
-    while (true) {
-      outputsBatch = Lists.newArrayList();
-      log.info("Count = " + count);
-      boolean isContinueCSInsert = true;
-      FetchOptions fetchOptions = FetchOptions.Builder.withLimit(pageSize);
-      if (cursor != null) {
-        fetchOptions.startCursor(cursor);
-      }
-     
-      try { 
-        com.google.appengine.api.datastore.Query q = new com.google.appengine.api.datastore.Query("What");
-        PreparedQuery pq = datastore.prepare(q);
-        results = pq.asQueryResultList(fetchOptions);
-        if (results.isEmpty()) {
-          log.info("empty results");
-          break;
-        } 
-       
-        MigrationOutput output = null;
-        for (int i = 0; i < results.size(); i++) {
-          Entity entity = results.get(i);
-          output = createOutputFromEntity(entity);
-          outputsBatch.add(output);
-        }
-      } catch ( DatastoreTimeoutException dte) {
-        isContinueCSInsert = false;
-        log.severe("datastore timing out" + dte);
-        try {
-          log.warning("Data store timing out, so sleeping for 1 hour");
-          Thread.sleep(3600000);
-        } catch (InterruptedException e) {
-          log.warning("Data store timeout sleep interrupted" + e);
-        }
-      }
-      
-      if (isContinueCSInsert) {
-        //TODO enable foll code
-        CloudSQLDaoImpl  daoImpl =  new CloudSQLDaoImpl();
-        
-        boolean isSuccess = daoImpl.insertOutputsInBatch(outputsBatch);
-        //Only if the batch cs insert is successful, should we move the cursor to the next batch in datastore
-        if (isSuccess) {
-          cursor = results.getCursor();
-          if (cursor!=null) {
-            log.info("Moving the cursor: " + cursor.toWebSafeString());
-          }
-        } else {
-          log.warning("cs insert batch failed, so restart from the cursor " + cursor.toWebSafeString());
-        }
-        count = count + results.size();
-        
-        if (cursor == null || !isSuccess) {
-          log.warning("cursor is " + cursor );
-          log.warning("Last sql batch insert was "+ isSuccess + ". If false, fix error and restart from cursor ");
-          isFinished = true;
-          break;
-        }
-      }//if continue csinsert
-    }//while
-    return isFinished;
-  }
-
-
-  private MigrationOutput createOutputFromEntity(Entity entity) {
-    MigrationOutput output = new MigrationOutput();
-    String tempName = null;
-    String tempValue = null;
-    
-    output.setEventId(entity.getParent().getId());
-    if(entity.getProperty("name") != null) {
-      tempName = entity.getProperty("name").toString();
-      if(tempName.equalsIgnoreCase("null")) {
-        tempName = tempName + "-" + NULL_CTR++;
-      }
-    } else {
-      tempName ="null-"+ NULL_CTR++;
-    }
-    output.setText(tempName);
-    if (entity.getProperty("value") != null) {
-      tempValue = entity.getProperty("value").toString();
-    }
-    output.setAnswer(tempValue);
-    
-    return output;
-  }
-
+ 
   private Set<What> fetchWhats(DatastoreService datastore, Key key) {
     com.google.appengine.api.datastore.Query whatQuery = new com.google.appengine.api.datastore.Query("What", key);
     PreparedQuery whatPreparedQuery = datastore.prepare(whatQuery);
@@ -906,28 +701,6 @@ public class EventRetriever {
     ArrayList<Event> newArrayList = Lists.newArrayList(allEvents);
     sortList(newArrayList);
     return new EventQueryResultPair(newArrayList, null);
-  }
-  
-  public boolean copyAllEventsFromLowLevelDSToCloudSql(String cursor) {
-    log.info("Getting events from low level datastore for migrating to cloud sql");
-    long t11 = System.currentTimeMillis();
-   
-    boolean finished = readEventDataStoreAndInsertToCloudSql(cursor);
-   
-    long t12 = System.currentTimeMillis();
-    log.info("get execute time: " + (t12 - t11));
-    return finished;
-  }
-  
-  public boolean copyAllOutputsFromLowLevelDSToCloudSql(String cursor) {
-    log.info("Getting outputs from low level datastore for migrating to cloud sql");
-    long t11 = System.currentTimeMillis();
-   
-    boolean finished = readOutputsDataStoreAndInsertToCloudSql(cursor);
-   
-    long t12 = System.currentTimeMillis();
-    log.info("get execute time: " + (t12 - t11));
-    return finished;
   }
   
   public static boolean isExperimentAdministrator(String loggedInUserEmail, Experiment experiment) {

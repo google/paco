@@ -70,12 +70,10 @@ public class MigrationFrontendServlet extends HttpServlet {
     }
   }
 
-
   private String sendMigrateRequestToBackend(HttpServletRequest req, String jobName, String cursor) throws IOException {
     req.getParameter("name");
     ModulesService modulesApi = ModulesServiceFactory.getModulesService();
     String backendAddress = modulesApi.getVersionHostname("reportworker", modulesApi.getDefaultVersion("reportworker"));
-
 
     try {
       BufferedReader reader = null;
@@ -123,15 +121,9 @@ public class MigrationFrontendServlet extends HttpServlet {
     log.info("URL to backend = " + url.toString());
     connection = (HttpURLConnection) url.openConnection();
     connection.setInstanceFollowRedirects(false);
-    try {
-      connection.setReadTimeout(0);
-      log.info("cis:"+ connection.getReadTimeout());
-      inputStreamReader = new InputStreamReader(connection.getInputStream());
-      reader = new BufferedReader(inputStreamReader);
-    } catch (SocketTimeoutException se) {
-      log.info("in caller socket time out while reading "+ se);
-      throw se;
-    }
+    inputStreamReader = new InputStreamReader(connection.getInputStream());
+    reader = new BufferedReader(inputStreamReader);
+  
     return reader;
   }
 }

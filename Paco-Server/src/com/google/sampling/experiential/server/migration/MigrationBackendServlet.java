@@ -95,11 +95,7 @@ public class MigrationBackendServlet extends HttpServlet {
   private boolean doMigration(String name, String cursor) {
     MigrationJob job = MigrationLookupTable.getMigrationByName(name);
     if (job != null) {
-      if (cursor != null ) {
-        return job.doMigration(cursor);
-      } else {
-        return job.doMigration();
-      } 
+      return job.doMigration(cursor);
     }
     return false;
   }

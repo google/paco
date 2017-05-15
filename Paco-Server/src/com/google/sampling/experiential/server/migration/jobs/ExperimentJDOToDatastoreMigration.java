@@ -52,7 +52,7 @@ public class ExperimentJDOToDatastoreMigration implements MigrationJob {
   public static final Logger log = Logger.getLogger(ExperimentJDOToDatastoreMigration.class.getName());
 
   @Override
-  public boolean doMigration() {
+  public boolean doMigration(String optionalcursor) {
     System.out.println("STARTING MIGRATION");
     UserService userService;
     DateTimeZone timezone = DateTimeZone.getDefault();
@@ -594,12 +594,6 @@ public class ExperimentJDOToDatastoreMigration implements MigrationJob {
 
   private void logUnsuccesful(List<Long> unsuccessful) {
     log.severe("Unsuccessful batch of old experiment ids: " + Joiner.on(",").join(unsuccessful));
-  }
-
-  @Override
-  public boolean doMigration(String cursor) {
-    // TODO Auto-generated method stub
-    return false;
   }
 
 }
