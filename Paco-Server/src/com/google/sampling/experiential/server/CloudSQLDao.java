@@ -11,6 +11,7 @@ import com.google.sampling.experiential.shared.EventDAO;
 
 public interface CloudSQLDao {
   boolean insertEvent(Event e) throws SQLException, ParseException;
+  boolean insertFailedEvent(String failedJson, String reason, String comments);
   List<EventDAO> getEvents(String query, DateTimeZone tzForClient) throws SQLException, ParseException;
   String createTables() throws SQLException;
 }

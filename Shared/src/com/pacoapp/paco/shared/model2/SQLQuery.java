@@ -1,10 +1,10 @@
 package com.pacoapp.paco.shared.model2;
 
+import com.pacoapp.paco.shared.util.Constants;
+
 //POJO to hold the different parts of the SQL query
 public class SQLQuery {
-  private static final String DESC = " desc";
-  private static final String ID = "_id";
-
+ 
   String[] projection;
   String criteriaQuery;
   String[] criteriaValue;
@@ -98,11 +98,11 @@ public class SQLQuery {
     private Builder addDefaultValues(SQLQuery obj) {
       // provide default sort order which is Event._Id desc
       if (obj.sortOrder == null) {
-        obj.sortOrder = EventBaseColumns.TABLE_NAME+"."+ID.concat(DESC);
+        obj.sortOrder = EventBaseColumns.TABLE_NAME+"."+Constants.UNDERSCORE_ID.concat(Constants.DESC);
       }
 
       if (obj.getProjection() == null) {
-        obj.projection = new String[] { "*" };
+        obj.projection = new String[] { Constants.STAR };
       } else {
 
         // adding a default projection of event table primary key column
@@ -112,7 +112,7 @@ public class SQLQuery {
         System.arraycopy(obj.getProjection(), 0, modifiedProjection, 0, crtLength);
         // adding the following columns in the projection list to help in
         // coalescing
-        modifiedProjection[crtLength] = EventBaseColumns.TABLE_NAME+"." + ID;
+        modifiedProjection[crtLength] = EventBaseColumns.TABLE_NAME+"." + Constants.UNDERSCORE_ID;
         obj.projection = modifiedProjection;
       }  
       return this;

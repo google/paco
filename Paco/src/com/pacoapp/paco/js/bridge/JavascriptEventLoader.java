@@ -117,7 +117,7 @@ public class JavascriptEventLoader {
     try {
       SQLQuery sqlQueryObj = QueryJsonParser.parseSqlQueryFromJson(criteriaQuery, enableGrpByAndProjection);
       if (sqlQueryObj != null) {
-        qryStatus = experimentProviderUtil.findEventsByCriteriaQuery(sqlQueryObj);
+        qryStatus = experimentProviderUtil.findEventsByCriteriaQuery(sqlQueryObj, experiment.getId());
       } else {
         qryStatus = new EventQueryStatus();
         qryStatus.setStatus(FAILURE);
