@@ -3,6 +3,8 @@ package com.pacoapp.paco.shared.util;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.joda.time.DateTime;
+
 import com.google.common.collect.Lists;
 import com.pacoapp.paco.shared.model2.ActionTrigger;
 import com.pacoapp.paco.shared.model2.ExperimentDAO;
@@ -197,10 +199,18 @@ public class ExperimentHelper {
     List<Trio<ExperimentGroup, InterruptTrigger, InterruptCue>> groupsThatTrigger = new ArrayList();
     List<ExperimentGroup> groups = experiment.getGroups();
     for (ExperimentGroup experimentGroup : groups) {
+      if (!ActionScheduleGenerator.isExperimentGroupRunning(experimentGroup)) {
+        continue;
+      }
+
       List<ActionTrigger> triggers = experimentGroup.getActionTriggers();
       for (ActionTrigger actionTrigger : triggers) {
         if (actionTrigger instanceof InterruptTrigger) {
           InterruptTrigger trigger = (InterruptTrigger) actionTrigger;
+          if (!withinTriggerTimeWindow(trigger)) {
+            continue;
+          }
+
           List<InterruptCue> cues = trigger.getCues();
           for (InterruptCue interruptCue : cues) {
             boolean cueCodeMatches = interruptCue.getCueCode() == event;
@@ -237,6 +247,16 @@ public class ExperimentHelper {
       }
     }
     return groupsThatTrigger;
+  }
+
+  private static boolean withinTriggerTimeWindow(InterruptTrigger trigger) {
+    if (!trigger.hasTimeWindow()) {
+      return false;
+    }
+    int startTime = trigger.getStartTimeMillis();
+    int endTime = trigger.getEndTimeMillis();
+    int todayMillis = new DateTime().getMillisOfDay();
+    return todayMillis >= startTime && todayMillis < endTime;
   }
 
   private static boolean isExperimentEventTrigger(InterruptCue interruptCue) {

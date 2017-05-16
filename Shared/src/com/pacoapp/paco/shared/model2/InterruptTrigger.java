@@ -9,6 +9,9 @@ public class InterruptTrigger extends ActionTrigger implements Validatable, Mini
 
   private List<InterruptCue> cues;
   protected Integer minimumBuffer = 0;
+  private boolean hasTimeWindow = false;
+  private int startTimeMillis = 0;
+  private int endTimeMillis = 0;
 
 
   public InterruptTrigger() {
@@ -55,9 +58,36 @@ public class InterruptTrigger extends ActionTrigger implements Validatable, Mini
 //    System.out.println("VALIDATING INTERRUPT");
     validator.isNotNull(minimumBuffer, "minimumBuffer is not properly initialized");
     validator.isNotNullAndNonEmptyCollection(cues, "InterruptTrigger needs at least one cue");
+
     for (InterruptCue cue: cues) {
       cue.validateWith(validator);
     }
   }
+
+  public boolean hasTimeWindow() {
+    return hasTimeWindow ;
+  }
+
+  public void setTimeWindow(boolean hasWindow) {
+    this.hasTimeWindow = hasWindow;
+  }
+
+  public int getStartTimeMillis() {
+    return startTimeMillis;
+  }
+
+  public int getEndTimeMillis() {
+    return endTimeMillis ;
+  }
+
+  public void setStartTimeMillis(int startTimeMillis) {
+    this.startTimeMillis = startTimeMillis;
+  }
+
+  public void setEndTimeMillis(int endTimeMillis) {
+    this.endTimeMillis = endTimeMillis;
+  }
+
+
 
 }
