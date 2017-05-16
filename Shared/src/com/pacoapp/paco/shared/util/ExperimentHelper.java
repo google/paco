@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeConstants;
 
 import com.google.common.collect.Lists;
 import com.pacoapp.paco.shared.model2.ActionTrigger;
@@ -250,8 +251,14 @@ public class ExperimentHelper {
   }
 
   private static boolean withinTriggerTimeWindow(InterruptTrigger trigger) {
-    if (!trigger.hasTimeWindow()) {
+    if (!trigger.getTimeWindow()) {
       return false;
+    }
+    if (!trigger.getWeekends()) {
+      int dow = DateTime.now().getDayOfWeek();
+      if (dow == DateTimeConstants.SATURDAY || dow == DateTimeConstants.SUNDAY) {
+        return false;
+      }
     }
     int startTime = trigger.getStartTimeMillis();
     int endTime = trigger.getEndTimeMillis();

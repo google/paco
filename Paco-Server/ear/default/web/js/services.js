@@ -593,7 +593,12 @@ pacoApp.service('template', function() {
     type: 'interruptTrigger',
     actions: [this.defaultAction],
     cues: [this.cue],
-    minimumBuffer: 59
+    minimumBuffer: 59,
+    hasTimeWindow: false,
+    startTimeMillis: 9 * 60 * 60 * 1000,
+    endTimeMillis: 5 * 60 * 60 * 1000,
+    weekends: true
+    
   };
 
   this.signalTime = {

@@ -9,9 +9,10 @@ public class InterruptTrigger extends ActionTrigger implements Validatable, Mini
 
   private List<InterruptCue> cues;
   protected Integer minimumBuffer = 0;
-  private boolean hasTimeWindow = false;
+  private boolean timeWindow = false;
   private int startTimeMillis = 0;
   private int endTimeMillis = 0;
+  private boolean weekends = true;
 
 
   public InterruptTrigger() {
@@ -64,12 +65,12 @@ public class InterruptTrigger extends ActionTrigger implements Validatable, Mini
     }
   }
 
-  public boolean hasTimeWindow() {
-    return hasTimeWindow ;
+  public boolean getTimeWindow() {
+    return timeWindow;
   }
 
   public void setTimeWindow(boolean hasWindow) {
-    this.hasTimeWindow = hasWindow;
+    this.timeWindow = hasWindow;
   }
 
   public int getStartTimeMillis() {
@@ -86,6 +87,14 @@ public class InterruptTrigger extends ActionTrigger implements Validatable, Mini
 
   public void setEndTimeMillis(int endTimeMillis) {
     this.endTimeMillis = endTimeMillis;
+  }
+
+  public boolean getWeekends() {
+    return weekends;
+  }
+
+  public void setWeekends(boolean weekends) {
+    this.weekends = weekends;
   }
 
 
