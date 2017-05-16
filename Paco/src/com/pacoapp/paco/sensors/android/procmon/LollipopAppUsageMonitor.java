@@ -55,11 +55,6 @@ public class LollipopAppUsageMonitor {
       @Override
       public void appOpened(AppUsageEvent event, boolean shouldTrigger) {
         final boolean shouldLogActions = BroadcastTriggerReceiver.shouldLogActions(context);
-        if (isBrowserTask(event) && shouldLogActions) {
-          BroadcastTriggerReceiver.createBrowserHistoryStartSnapshot(context);
-          BroadcastTriggerReceiver.toggleInBrowser(context, true);
-          inBrowser = true;
-        }
 
         if (shouldTrigger) {
           triggerAppUsed(event.getAppIdentifier());
@@ -75,11 +70,6 @@ public class LollipopAppUsageMonitor {
 
       @Override
       public void appClosed(AppUsageEvent event, boolean shouldTrigger) {
-        if (inBrowser == true && isBrowserTask(event)) {
-          inBrowser = false;
-          BroadcastTriggerReceiver.toggleInBrowser(context, false);
-          BroadcastTriggerReceiver.createBrowserHistoryEndSnapshot(context);
-        }
         if (shouldTrigger) {
           triggerAppClosed(event.getAppIdentifier());
         }
@@ -91,13 +81,6 @@ public class LollipopAppUsageMonitor {
     List<AppUsageEvent> usageEventsFriendly = getUsageEvents();
     //printEvents(usageEventsFriendly);
     appUseChangeDetector.newEvents(usageEventsFriendly);
-  }
-
-  private boolean isBrowserTask(AppUsageEvent usageStats) {
-    String packageName = usageStats.getPkgName();
-    return packageName.startsWith("com.android.browser")
-        || packageName.startsWith("com.android.chrome")
-        || packageName.startsWith("org.mozilla.firefox");
   }
 
   public List<AppUsageEvent> getUsageEvents() {

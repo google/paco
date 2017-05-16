@@ -12,6 +12,7 @@ import com.pacoapp.paco.shared.model2.InterruptCue;
 import com.pacoapp.paco.shared.model2.InterruptTrigger;
 import com.pacoapp.paco.shared.model2.Schedule;
 import com.pacoapp.paco.shared.model2.ScheduleTrigger;
+import com.pacoapp.paco.shared.scheduling.ActionScheduleGenerator;
 
 public class ExperimentHelper {
 
@@ -89,18 +90,22 @@ public class ExperimentHelper {
   public static boolean hasAppUsageTrigger(ExperimentDAO experiment) {
     List<ExperimentGroup> groups = experiment.getGroups();
     for (ExperimentGroup experimentGroup : groups) {
-      List<ActionTrigger> triggers = experimentGroup.getActionTriggers();
-      for (ActionTrigger actionTrigger : triggers) {
-        if (actionTrigger instanceof InterruptTrigger) {
-          InterruptTrigger trigger = (InterruptTrigger)actionTrigger;
-          List<InterruptCue> cues = trigger.getCues();
-          for (InterruptCue interruptCue : cues) {
-            if (interruptCue.getCueCode() == InterruptCue.APP_USAGE ||
-                    interruptCue.getCueCode() == InterruptCue.APP_CLOSED) {
-              return true;
+      if (!ActionScheduleGenerator.isExperimentGroupRunning(experimentGroup)) {
+        continue;
+      } else {
+        List<ActionTrigger> triggers = experimentGroup.getActionTriggers();
+        for (ActionTrigger actionTrigger : triggers) {
+          if (actionTrigger instanceof InterruptTrigger) {
+            InterruptTrigger trigger = (InterruptTrigger)actionTrigger;
+            List<InterruptCue> cues = trigger.getCues();
+            for (InterruptCue interruptCue : cues) {
+              if (interruptCue.getCueCode() == InterruptCue.APP_USAGE ||
+                      interruptCue.getCueCode() == InterruptCue.APP_CLOSED) {
+                return true;
+              }
             }
-          }
 
+          }
         }
       }
     }
@@ -110,17 +115,21 @@ public class ExperimentHelper {
   public static boolean hasAppClosedTrigger(ExperimentDAO experiment) {
     List<ExperimentGroup> groups = experiment.getGroups();
     for (ExperimentGroup experimentGroup : groups) {
-      List<ActionTrigger> triggers = experimentGroup.getActionTriggers();
-      for (ActionTrigger actionTrigger : triggers) {
-        if (actionTrigger instanceof InterruptTrigger) {
-          InterruptTrigger trigger = (InterruptTrigger)actionTrigger;
-          List<InterruptCue> cues = trigger.getCues();
-          for (InterruptCue interruptCue : cues) {
-            if (interruptCue.getCueCode() == InterruptCue.APP_CLOSED) {
-              return true;
+      if (!ActionScheduleGenerator.isExperimentGroupRunning(experimentGroup)) {
+        continue;
+      } else {
+        List<ActionTrigger> triggers = experimentGroup.getActionTriggers();
+        for (ActionTrigger actionTrigger : triggers) {
+          if (actionTrigger instanceof InterruptTrigger) {
+            InterruptTrigger trigger = (InterruptTrigger)actionTrigger;
+            List<InterruptCue> cues = trigger.getCues();
+            for (InterruptCue interruptCue : cues) {
+              if (interruptCue.getCueCode() == InterruptCue.APP_CLOSED) {
+                return true;
+              }
             }
-          }
 
+          }
         }
       }
     }
@@ -130,7 +139,7 @@ public class ExperimentHelper {
   public static boolean isLogPhoneOnOff(ExperimentDAO experiment) {
     List<ExperimentGroup> groups = experiment.getGroups();
     for (ExperimentGroup experimentGroup : groups) {
-      if (experimentGroup.getLogShutdown()) {
+      if (ActionScheduleGenerator.isExperimentGroupRunning(experimentGroup) && experimentGroup.getLogShutdown()) {
         return true;
       }
     }
@@ -141,7 +150,7 @@ public class ExperimentHelper {
   public static boolean isLogActions(ExperimentDAO experiment) {
     List<ExperimentGroup> groups = experiment.getGroups();
     for (ExperimentGroup experimentGroup : groups) {
-      if (experimentGroup.getLogActions()) {
+      if (ActionScheduleGenerator.isExperimentGroupRunning(experimentGroup) && experimentGroup.getLogActions()) {
         return true;
       }
     }
@@ -298,7 +307,7 @@ public class ExperimentHelper {
     List<ExperimentGroup> listeningExperimentGroups = new ArrayList();
     List<ExperimentGroup> experimentGroups = experiment.getGroups();
     for (ExperimentGroup experimentGroup : experimentGroups) {
-      if (experimentGroup.getAccessibilityListen()) {
+      if (ActionScheduleGenerator.isExperimentGroupRunning(experimentGroup) && experimentGroup.getAccessibilityListen()) {
         listeningExperimentGroups.add(experimentGroup);
       }
     }
@@ -333,22 +342,37 @@ public class ExperimentHelper {
 
     List<ExperimentGroup> groups = experiment.getGroups();
     for (ExperimentGroup experimentGroup : groups) {
-      List<ActionTrigger> triggers = experimentGroup.getActionTriggers();
-      for (ActionTrigger actionTrigger : triggers) {
-        if (actionTrigger instanceof InterruptTrigger) {
-          InterruptTrigger trigger = (InterruptTrigger)actionTrigger;
-          List<InterruptCue> cues = trigger.getCues();
-          for (InterruptCue interruptCue : cues) {
-            if (interruptCue.getCueCode() == InterruptCue.ACCESSIBILITY_EVENT_VIEW_CLICKED ||
-                    interruptCue.getCueCode() == InterruptCue.PERMISSION_CHANGED) {
-              matching.add(trigger);
+      if (!ActionScheduleGenerator.isExperimentGroupRunning(experimentGroup)) {
+        continue;
+      } else {
+        List<ActionTrigger> triggers = experimentGroup.getActionTriggers();
+        for (ActionTrigger actionTrigger : triggers) {
+          if (actionTrigger instanceof InterruptTrigger) {
+            InterruptTrigger trigger = (InterruptTrigger)actionTrigger;
+            List<InterruptCue> cues = trigger.getCues();
+            for (InterruptCue interruptCue : cues) {
+              if (interruptCue.getCueCode() == InterruptCue.ACCESSIBILITY_EVENT_VIEW_CLICKED ||
+                      interruptCue.getCueCode() == InterruptCue.PERMISSION_CHANGED) {
+                matching.add(trigger);
+              }
             }
-          }
 
+          }
         }
       }
     }
     return matching;
+  }
+
+  public static List<ExperimentGroup> getGroupsThatCareAboutActionLogging(ExperimentDAO experiment) {
+    List<ExperimentGroup> matchingGroups = Lists.newArrayList();
+    List<ExperimentGroup> groups = experiment.getGroups();
+    for (ExperimentGroup experimentGroup : groups) {
+      if (ActionScheduleGenerator.isExperimentGroupRunning(experimentGroup) && experimentGroup.getLogActions() != null && experimentGroup.getLogActions()) {
+        matchingGroups.add(experimentGroup);
+      }
+    }
+    return matchingGroups;
   }
 
 }
