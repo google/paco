@@ -34,8 +34,6 @@
   <security-constraint>
     <web-resource-collection>
       <url-pattern>/*</url-pattern>
-      <url-pattern>/migrate*</url-pattern>
-      <url-pattern>/csCreate</url-pattern>
     </web-resource-collection>
     <auth-constraint>
       <role-name>admin</role-name>
