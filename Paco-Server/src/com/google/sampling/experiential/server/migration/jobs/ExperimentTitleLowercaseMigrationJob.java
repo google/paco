@@ -74,7 +74,7 @@ public class ExperimentTitleLowercaseMigrationJob implements MigrationJob {
   }
 
   @Override
-  public boolean doMigration() {
+  public boolean doMigration(String cursor) {
     return doMigrationPublicExperiments();
   }
 
