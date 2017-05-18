@@ -28,20 +28,12 @@
     <servlet-name>migrationFrontendServlet</servlet-name>
     <url-pattern>/migration/migrate</url-pattern>
   </servlet-mapping>
-  <security-constraint>
-    <web-resource-collection>       
-      <url-pattern>/*</url-pattern>
-    </web-resource-collection>
-    <user-data-constraint>
-      <transport-guarantee>CONFIDENTIAL</transport-guarantee>
-    </user-data-constraint>
-  </security-constraint>
-
-
+ 
   <!-- gwt-only client endpoints use UserService with https -->
   <!-- admin only endpoints use UserService, https, and admin role -->
   <security-constraint>
     <web-resource-collection>
+      <url-pattern>/*</url-pattern>
       <url-pattern>/migrate*</url-pattern>
       <url-pattern>/csCreate</url-pattern>
     </web-resource-collection>
