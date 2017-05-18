@@ -20,7 +20,9 @@ public enum ErrorMessages {
   NOT_VALID_DATA(130," Not valid data"),
   UNKNOWN_TABLE_INDICATOR(135, "Unknown table Indicator : "),
   MISSING_APP_HEADER(140, "Attempt to access task handler directly - missing custom App Engine header"),
-  INVALID_LIMIT_OFFSET(150, "Invalid Number format :"),
+  DATASOURCE_SETUP_EXCEPTION(147, "DataSource setup"),
+  INVALID_LIMIT_OFFSET(148, "Invalid Number format :"),
+  EVENT_MIGRATION_EXCEPTION(149, "Event Migration Failed"),
   GENERAL_EXCEPTION(150, "General Exception");
   
   private final int code;

@@ -40,7 +40,7 @@
     <url-pattern>/migrateBackend</url-pattern>
   </servlet-mapping>
   
-    <servlet>
+  <servlet>
     <servlet-name>usageCronJobServlet</servlet-name>
     <servlet-class>com.google.sampling.experiential.server.UsageCronJobServlet</servlet-class>
   </servlet>

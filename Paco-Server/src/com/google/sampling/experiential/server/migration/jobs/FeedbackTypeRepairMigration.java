@@ -29,7 +29,7 @@ public class FeedbackTypeRepairMigration implements MigrationJob {
   }
 
   @Override
-  public boolean doMigration() {
+  public boolean doMigration(String optionalcursor) {
     // load experiments
     ExperimentService es = ExperimentServiceFactory.getExperimentService();
     String cursor = null;

@@ -234,7 +234,7 @@ public class EventRetriever {
     PersistenceManager pm = PMF.get().getPersistenceManager();
     Query q = pm.newQuery(Event.class);
     q.setOrdering("when desc");
-    q.setFilter("who = whoParam");
+    q.setFilter("who == whoParam");
     q.declareParameters("String whoParam");
     long t11 = System.currentTimeMillis();
     List<Event> events = (List<Event>) q.execute(loggedInUser);
@@ -411,7 +411,7 @@ public class EventRetriever {
     }
     adjustTimeZone(allEvents);
   }
-
+ 
   private Set<What> fetchWhats(DatastoreService datastore, Key key) {
     com.google.appengine.api.datastore.Query whatQuery = new com.google.appengine.api.datastore.Query("What", key);
     PreparedQuery whatPreparedQuery = datastore.prepare(whatQuery);
@@ -702,7 +702,7 @@ public class EventRetriever {
     sortList(newArrayList);
     return new EventQueryResultPair(newArrayList, null);
   }
-
+  
   public static boolean isExperimentAdministrator(String loggedInUserEmail, Experiment experiment) {
     return experiment.getCreator().getEmail().toLowerCase().equals(loggedInUserEmail)
            || experiment.getAdmins().contains(loggedInUserEmail);

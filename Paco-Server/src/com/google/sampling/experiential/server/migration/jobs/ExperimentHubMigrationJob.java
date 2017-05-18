@@ -107,8 +107,7 @@ public class ExperimentHubMigrationJob implements MigrationJob {
     }
 
     @Override
-    public boolean doMigration() {
-        return doMigrationPublicExperiments();
+    public boolean doMigration(String cursor) {
+      return doMigrationPublicExperiments();
     }
-
 }

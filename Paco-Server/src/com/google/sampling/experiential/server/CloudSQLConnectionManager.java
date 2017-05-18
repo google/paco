@@ -14,6 +14,8 @@ import org.apache.commons.pool.KeyedObjectPoolFactory;
 import org.apache.commons.pool.impl.GenericKeyedObjectPoolFactory;
 import org.apache.commons.pool.impl.GenericObjectPool;
 
+import com.pacoapp.paco.shared.util.ErrorMessages;
+
 public class CloudSQLConnectionManager {
   public static final Logger log = Logger.getLogger(CloudSQLConnectionManager.class.getName());
 
@@ -31,9 +33,11 @@ public class CloudSQLConnectionManager {
         ds = setUp();
         instance = new CloudSQLConnectionManager();
       } catch (ClassNotFoundException e) {
-        throw new SQLException("DataSourceSetUp", e);
+        log.warning( ErrorMessages.DATASOURCE_SETUP_EXCEPTION.getDescription() + e.getMessage());
+        throw new SQLException(ErrorMessages.DATASOURCE_SETUP_EXCEPTION.getDescription(), e);
       } catch (Exception ex) {
-        throw new SQLException("DataSourceSetUp", ex);
+        log.warning(ErrorMessages.GENERAL_EXCEPTION.getDescription() + ex.getMessage());
+        throw new SQLException(ErrorMessages.GENERAL_EXCEPTION.getDescription(), ex);
       }
     }
     return instance;

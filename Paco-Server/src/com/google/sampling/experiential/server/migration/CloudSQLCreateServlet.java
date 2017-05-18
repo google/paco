@@ -1,4 +1,4 @@
-package com.google.sampling.experiential.server;
+package com.google.sampling.experiential.server.migration;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -11,6 +11,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.google.appengine.api.users.User;
+import com.google.sampling.experiential.server.AuthUtil;
 
 @SuppressWarnings("serial")
 public class CloudSQLCreateServlet extends HttpServlet {
@@ -26,7 +27,7 @@ public class CloudSQLCreateServlet extends HttpServlet {
       PrintWriter out = resp.getWriter();
       resp.setContentType("text/plain");
   
-      CloudSQLDao dao = new CloudSQLDaoImpl();
+      CloudSQLMigrationDao dao = new CloudSQLMigrationDaoImpl();
       try{
         out.println(dao.createTables());
       }catch (SQLException e){
@@ -37,7 +38,7 @@ public class CloudSQLCreateServlet extends HttpServlet {
   
   public void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException,
   ServletException {
-    throw new ServletException("Method not supported");
+    doPost(req,resp);
   }
   
   private void setCharacterEncoding(HttpServletRequest req, HttpServletResponse resp)

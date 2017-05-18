@@ -34,15 +34,7 @@
     <servlet-name>eventServlet</servlet-name>
     <url-pattern>/events</url-pattern>
   </servlet-mapping>
-  <servlet>
-    <servlet-name>ServerCreateServlet</servlet-name>
-    <servlet-class>com.google.sampling.experiential.server.CloudSQLCreateServlet</servlet-class>
-  </servlet>
-  <servlet-mapping>
-    <servlet-name>ServerCreateServlet</servlet-name>
-    <url-pattern>/csCreate</url-pattern>
-  </servlet-mapping>
-  
+ 
   <servlet>
     <servlet-name>ServerSearchServlet</servlet-name>
     <servlet-class>com.google.sampling.experiential.server.CloudSqlSearchServlet</servlet-class>
@@ -142,14 +134,7 @@
   </servlet-mapping>
   
   <!--  administrative and debugging endpoints -->
-  <servlet>
-    <servlet-name>migrationFrontendServlet</servlet-name>
-    <servlet-class>com.google.sampling.experiential.server.migration.MigrationFrontendServlet</servlet-class>
-  </servlet>
-  <servlet-mapping>
-    <servlet-name>migrationFrontendServlet</servlet-name>
-    <url-pattern>/migrate</url-pattern>
-  </servlet-mapping>
+  
   <!-- only needed for local dev instance. In other environments, cloudsqlinsert in map reduce  will be used-->
    <servlet>
     <servlet-name>ServerInsertServlet</servlet-name>
@@ -197,12 +182,12 @@
   <!-- admin only endpoints use UserService, https, and admin role -->
   <security-constraint>
     <web-resource-collection>
-      <url-pattern>/migrate*</url-pattern>
-      <url-pattern>/pacoserver/migrate*</url-pattern>
+      <!--  TODO : can we remove these bottom commented lines-->
+      <!-- <url-pattern>/migrate*</url-pattern>-->
+      <!--  <url-pattern>/pacoserver/migrate*</url-pattern>-->
       <url-pattern>/remote_api*</url-pattern>
       <url-pattern>/eval*</url-pattern>
       <url-pattern>/participantJoinStats*</url-pattern>
-      <url-pattern>/csCreate</url-pattern>
       <url-pattern>/csInsert</url-pattern> 
     </web-resource-collection>
     <auth-constraint>
@@ -211,7 +196,6 @@
     <user-data-constraint>
       <transport-guarantee>CONFIDENTIAL</transport-guarantee>
     </user-data-constraint>
-
   </security-constraint>
 
   
