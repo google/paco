@@ -393,7 +393,7 @@ public class CloudSQLMigrationDaoImpl implements CloudSQLMigrationDao {
                                            + OutputBaseColumns.NAME + "`)," + "KEY `event_id_index` (`"
                                            + OutputBaseColumns.EVENT_ID + "`)," + "KEY `text_index` (`"
                                            + OutputBaseColumns.NAME + "`), " 
-                                           + " CONSTRAINT `event_id_fk` FOREIGN KEY (` "+ OutputBaseColumns.EVENT_ID + "`) REFERENCES `"+ EventBaseColumns.TABLE_NAME +"` (`"+ ID +"`) ON DELETE CASCADE ON UPDATE NO ACTION " +
+                                           + " CONSTRAINT `event_id_fk` FOREIGN KEY (`"+ OutputBaseColumns.EVENT_ID + "`) REFERENCES `"+ EventBaseColumns.TABLE_NAME +"` (`"+ ID +"`) ON DELETE CASCADE ON UPDATE NO ACTION " +
                                            ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4";
             
       final String createFailedEventsTableSql = "CREATE TABLE `" +  FailedEventServerColumns.TABLE_NAME +  "` (" + "`" 

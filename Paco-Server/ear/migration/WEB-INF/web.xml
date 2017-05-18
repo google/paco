@@ -14,11 +14,11 @@
 <web-app>
   <servlet>
     <servlet-name>ServerCreateServlet</servlet-name>
-    <servlet-class>com.google.sampling.experiential.server.CloudSQLCreateServlet</servlet-class>
+    <servlet-class>com.google.sampling.experiential.server.migration.CloudSQLCreateServlet</servlet-class>
   </servlet>
   <servlet-mapping>
     <servlet-name>ServerCreateServlet</servlet-name>
-    <url-pattern>/csCreate</url-pattern>
+    <url-pattern>/migration/csCreate</url-pattern>
   </servlet-mapping>
   <servlet>
     <servlet-name>migrationFrontendServlet</servlet-name>
@@ -26,7 +26,7 @@
   </servlet>
   <servlet-mapping>
     <servlet-name>migrationFrontendServlet</servlet-name>
-    <url-pattern>/migrate</url-pattern>
+    <url-pattern>/migration/migrate</url-pattern>
   </servlet-mapping>
   <security-constraint>
     <web-resource-collection>       

@@ -6,7 +6,7 @@
       <module>mapreduce</module>
   </dispatch>
   <dispatch>
-      <url>*/csCreate*</url>
+      <url>*/migration/*</url>
       <module>migration</module>
   </dispatch>
 </dispatch-entries>
