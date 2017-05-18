@@ -17,7 +17,7 @@ public class ExperimentServletJoinedExperimentsShortLoadHandler extends Experime
 
   @Override
   protected List<ExperimentDAO> getAllExperimentsAvailableToUser() {
-    ExperimentQueryResult pair = ExperimentServiceFactory.getExperimentService().getMyJoinedExperiments(email, timezone, limit, cursor);
+    ExperimentQueryResult pair = ExperimentServiceFactory.getExperimentService().getMyJoinedExperiments(email, timezone, limit, cursor, sortColumn, sortOrder);
     cursor = pair.getCursor();
     return pair.getExperiments();
   }

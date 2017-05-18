@@ -5,7 +5,6 @@
   xsi:schemaLocation="http://java.sun.com/xml/ns/javaee
                       http://java.sun.com/xml/ns/javaee/application_5.xsd"
   version="202">
-
   <description>Paco</description>
   <display-name>Paco</display-name>
 

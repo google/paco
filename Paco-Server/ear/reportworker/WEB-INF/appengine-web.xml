@@ -20,7 +20,6 @@
   <application>quantifiedself</application>
   <module>reportworker</module>
   <version>202</version>
-
   <!-- Configure java.util.logging -->
   <system-properties>
     <property value='WEB-INF/logging.properties' name='java.util.logging.config.file'/> 
