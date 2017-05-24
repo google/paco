@@ -62,7 +62,6 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
     eventColList.add(new Column(EventServerColumns.SORT_DATE));
     eventColList.add(new Column(EventServerColumns.CLIENT_TIME_ZONE));
     eventColList.add(new Column(Constants.UNDERSCORE_ID));
-    eventColList.add(new Column(EventServerColumns.INT_RESPONSE_TIME));
     
     outputColList.add(new Column(OutputBaseColumns.EVENT_ID));
     outputColList.add(new Column(OutputBaseColumns.NAME));
@@ -153,7 +152,6 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
       statementCreateEvent.setTimestamp(i++, event.getResponseTime()!= null ? new Timestamp(event.getResponseTime().getTime()): new Timestamp(event.getScheduledTime().getTime()));
       statementCreateEvent.setString(i++, event.getTimeZone());
       statementCreateEvent.setLong(i++, event.getId());
-      statementCreateEvent.setLong(i++, event.getResponseTime() != null ? event.getResponseTime().getTime(): java.sql.Types.NULL);
       statementCreateEvent.execute();
 
       Set<What> whatSet = event.getWhat();

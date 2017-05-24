@@ -19,6 +19,7 @@ public class TimeUtil {
 
   public static final Logger log = Logger.getLogger(TimeUtil.class.getName());
   public static final String DATETIME_FORMAT = "yyyy/MM/dd HH:mm:ssZ";
+  public static final String DATETIME_FORMAT_MS = "yyyy/MM/dd HH:mm:ss.SSSZ";
   public static final String DATE_FORMAT = "yyyy/MM/dd";
 
   public static DateMidnight getDateMidnightForDateString(String dateStr) {

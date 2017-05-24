@@ -80,11 +80,32 @@ public class MigrationDataRetriever {
     } else {
       throw new Exception("no date fetched from Cloud sql, Dont proceed");
     }
-    
   }
+  
+  private DateTime getEarliestStreaming() throws Exception{
+    CloudSQLMigrationDaoImpl  daoImpl =  new CloudSQLMigrationDaoImpl();
+    Long whenUtcInMillis = null;
+    try {
+      whenUtcInMillis = daoImpl.getEarliestStreaming();
+    } catch (SQLException | ParseException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+      log.warning("Not able to get earliest in streaming" + e.getMessage());
+    }
+    if (whenUtcInMillis != null) {
+      DateTime dt = new DateTime(whenUtcInMillis);
+      log.info("Earliest date in streamin"+ dt);
+     
+      return dt;
+    } else {
+      throw new Exception("no date fetched from streaming Cloud sql, Dont proceed");
+    }
+  }
+  
   
   private boolean readEventDataStoreAndInsertToCloudSql(String oldCursor) {
     DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+    CloudSQLMigrationDaoImpl  daoImpl =  new CloudSQLMigrationDaoImpl();
     Cursor cursor = null;
     int count = 0;
     int pageSize = 1000;
@@ -92,23 +113,30 @@ public class MigrationDataRetriever {
     List<Event> eventsBatch = null;
     QueryResultList<Entity> results = null;
     boolean isFinished = false;
-    try {
-      earliestWhenInCloudSql = getEarliestWhen();
-    } catch (Exception e) { 
-      log.warning("Do not proceed. CS does not have data yet.");
-      return false;
-    }
-    if (earliestWhenInCloudSql == null) {
-      earliestWhenInCloudSql = new DateTime();
-    }
-    
-    if(oldCursor != null) {
+    if (oldCursor == null) {
+      try {
+        earliestWhenInCloudSql = getEarliestWhen();
+        daoImpl.persistStreamingStart(earliestWhenInCloudSql);
+      } catch (Exception e) { 
+        log.warning("Do not proceed. CS does not have data yet or we cannot persist streaming table");
+        return false;
+      }
+    } else {
       log.info("old cursor " + oldCursor);
       cursor = Cursor.fromWebSafeString(oldCursor);
+      try {
+        earliestWhenInCloudSql = getEarliestStreaming();
+      } catch (Exception e) { 
+        log.warning("Do not proceed. Streaming table does not have data yet.");
+        return false;
+      }
     }
+    
     while (true) {
       eventsBatch = Lists.newArrayList();
-      log.info("Count = " + count);
+      if (count % 10000 == 0) {
+        log.info("Count = " + count);
+      }
       boolean isContinueCSInsert = true;
       FetchOptions fetchOptions = FetchOptions.Builder.withLimit(pageSize);
       if (cursor != null) {
@@ -144,15 +172,15 @@ public class MigrationDataRetriever {
       }
       
       if (isContinueCSInsert) {
-        CloudSQLMigrationDaoImpl  daoImpl =  new CloudSQLMigrationDaoImpl();
+        
         boolean isSuccess = daoImpl.insertEventsInBatch(eventsBatch);
         //Only if the batch cs insert of events, should we move the cursor to the next batch in datastore
         if (isSuccess) {
           cursor = results.getCursor();
           log.info("Moving the cursor:" + cursor.toWebSafeString());
+          daoImpl.persistCursor(cursor.toWebSafeString());
           count = count + results.size();
         }
-        
         
         if (cursor == null || !isSuccess) {
           log.info("null cursor or insert to cs failed, so break");
@@ -183,7 +211,9 @@ public class MigrationDataRetriever {
     
     while (true) {
       outputsBatch = Lists.newArrayList();
-      log.info("Count = " + count);
+      if ( count % 10000 == 0 ) {
+        log.info("Count = " + count);
+      }
       boolean isContinueCSInsert = true;
       FetchOptions fetchOptions = FetchOptions.Builder.withLimit(pageSize);
       if (cursor != null) {
@@ -226,14 +256,16 @@ public class MigrationDataRetriever {
           cursor = results.getCursor();
           if (cursor!=null) {
             log.info("Moving the cursor: " + cursor.toWebSafeString());
+            daoImpl.persistCursor(cursor.toWebSafeString());
           }
         } else {
-          log.warning("cs insert batch failed, so restart from the cursor " + cursor.toWebSafeString());
+          if (cursor != null) {
+            log.warning("cs insert batch failed, so restart from the cursor " + cursor.toWebSafeString());
+          }
         }
         count = count + results.size();
         
         if (cursor == null || !isSuccess) {
-          log.warning("cursor is " + cursor );
           log.warning("Last sql batch insert was "+ isSuccess + ". If false, fix error and restart from cursor ");
           isFinished = true;
           break;

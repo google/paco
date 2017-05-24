@@ -85,7 +85,8 @@ public class MigrationFrontendServlet extends HttpServlet {
           Thread.sleep(100);
         } catch (InterruptedException e) {
         }
-        reader = sendToBackend(backendAddress, jobName, cursor);
+        //TODO: need to resolve this, un commenting the next line, creates two back end request sometimes
+//        reader = sendToBackend(backendAddress, jobName, cursor);
       }
       if (reader != null) {
         StringBuilder buf = new StringBuilder();
