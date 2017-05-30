@@ -14,7 +14,7 @@ public interface CloudSQLMigrationDao {
   boolean insertOutputsInBatch(List<MigrationOutput> outputs);
   Long getEarliestWhen() throws SQLException, ParseException;
   boolean persistCursor(String cursor);
-  boolean persistMissedEvent(Connection conn, Long eventId);
+  boolean persistMissedEvent(Connection conn,  String migrationOutput);
   boolean persistStreamingStart(DateTime startTime);
   Long getEarliestStreaming() throws SQLException, ParseException;
 }

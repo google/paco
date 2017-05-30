@@ -80,13 +80,11 @@ public class MigrationFrontendServlet extends HttpServlet {
       try {
         reader = sendToBackend(backendAddress, jobName, cursor);
       } catch (SocketTimeoutException se) {
-        log.info("socket time ex:"+ se.getMessage());
         try {
           Thread.sleep(100);
         } catch (InterruptedException e) {
         }
-        //TODO: need to resolve this, un commenting the next line, creates two back end request sometimes
-//        reader = sendToBackend(backendAddress, jobName, cursor);
+        reader = sendToBackend(backendAddress, jobName, cursor);
       }
       if (reader != null) {
         StringBuilder buf = new StringBuilder();
@@ -122,9 +120,9 @@ public class MigrationFrontendServlet extends HttpServlet {
     log.info("URL to backend = " + url.toString());
     connection = (HttpURLConnection) url.openConnection();
     connection.setInstanceFollowRedirects(false);
+    connection.setReadTimeout(10000);
     inputStreamReader = new InputStreamReader(connection.getInputStream());
     reader = new BufferedReader(inputStreamReader);
-  
     return reader;
   }
 }

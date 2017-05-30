@@ -124,6 +124,7 @@ public class SearchUtil {
 
   public static List<OrderByElement> convertToOrderByList(String inp) throws JSQLParserException {
     List<OrderByElement> orderByList = Lists.newArrayList();
+    OrderByElement  addOnWhenOrderBy = new OrderByElement();
     if (inp != null) {
       String[] inpAry = inp.split(",");
       for (String s : inpAry) {
@@ -136,9 +137,18 @@ public class SearchUtil {
           ob.setAscDescPresent(true);
           ob.setAsc(nameOrder[1].equalsIgnoreCase(Constants.ASC));
         }
+       
         Expression exp = CCJSqlParserUtil.parseExpression(s);
         ob.setExpression(exp);
         orderByList.add(ob);
+        
+        if (s.contains(Constants.WHEN)) {
+          Expression addOnWhenexp = CCJSqlParserUtil.parseExpression(Constants.WHEN_FRAC_SEC);
+          addOnWhenOrderBy.setAscDescPresent(true);
+          addOnWhenOrderBy.setAsc(ob.isAsc());
+          addOnWhenOrderBy.setExpression(addOnWhenexp);
+          orderByList.add(addOnWhenOrderBy);
+        }
       }
     }
     return orderByList;

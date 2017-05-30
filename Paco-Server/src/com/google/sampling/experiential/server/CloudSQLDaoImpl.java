@@ -7,6 +7,7 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.text.ParseException;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -56,6 +57,7 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
     eventColList.add(new Column(EventServerColumns.ACTION_ID));
     eventColList.add(new Column(EventServerColumns.WHO));
     eventColList.add(new Column(EventServerColumns.WHEN));
+    eventColList.add(new Column(EventServerColumns.WHEN_FRAC_SEC));
     eventColList.add(new Column(EventServerColumns.PACO_VERSION));
     eventColList.add(new Column(EventServerColumns.APP_ID));
     eventColList.add(new Column(EventServerColumns.JOINED));
@@ -91,6 +93,8 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
     PreparedStatement statementCreateEvent = null;
     PreparedStatement statementCreateEventOutput = null;
     boolean retVal = false;
+    Timestamp whenTs = null;
+    int whenFrac = 0;
     //startCount for setting paramter index
     int i = 1 ;
     ExpressionList eventExprList = new ExpressionList();
@@ -135,7 +139,14 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
       statementCreateEvent.setLong(i++, event.getActionTriggerSpecId() != null ? new Long(event.getActionTriggerId()) : java.sql.Types.NULL);
       statementCreateEvent.setLong(i++, event.getActionId() != null ? new Long(event.getActionId()) : java.sql.Types.NULL);
       statementCreateEvent.setString(i++, event.getWho());
-      statementCreateEvent.setTimestamp(i++, event.getWhen() != null ? new Timestamp(event.getWhen().getTime()): null);
+      if (event.getWhen() != null) {
+        whenTs = new Timestamp(event.getWhen().getTime());
+        if(whenTs.getNanos() >= 1000000) {
+          whenFrac = whenTs.getNanos()/1000000;
+        }
+      }
+      statementCreateEvent.setTimestamp(i++, whenTs);
+      statementCreateEvent.setInt(i++, whenFrac);
       statementCreateEvent.setString(i++, event.getPacoVersion());
       statementCreateEvent.setString(i++, event.getAppId());
       statementCreateEvent.setNull(i++, java.sql.Types.BOOLEAN);
@@ -335,29 +346,35 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
             event.setWhen(rs.getTimestamp(i));
             break;
           case 12:
-            event.setPaco_version(rs.getString(i));
+            if( event.getWhen() != null) {
+              long whTime = event.getWhen().getTime() ;
+              event.setWhen(new Date(whTime + rs.getInt(i)));
+            }
             break;
           case 13:
-            event.setAppId(rs.getString(i));
+            event.setPaco_version(rs.getString(i));
             break;
           case 14:
-            event.setJoined(rs.getBoolean(i));
+            event.setAppId(rs.getString(i));
             break;
           case 15:
-            event.setSortDate(rs.getTimestamp(i));
+            event.setJoined(rs.getBoolean(i));
             break;
           case 16:
-            event.setTimezone(rs.getString(i));
+            event.setSortDate(rs.getTimestamp(i));
             break;
           case 17:
+            event.setTimezone(rs.getString(i));
+            break;
           case 18:
+          case 19:
             event.setId(rs.getLong(i));
             break;
-          case 19:
+          case 20:
             List<WhatDAO> whTextLst = event.getWhat();
             whTextLst.add(new WhatDAO(OutputBaseColumns.NAME, rs.getString(i)));
             break;
-          case 20:
+          case 21:
             List<WhatDAO> whAnsLst = event.getWhat();
             whAnsLst.add(new WhatDAO(OutputBaseColumns.ANSWER, rs.getString(i)));
             break;
@@ -378,8 +395,6 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
       statementSetNames = conn.createStatement();
       final String setNamesSql = "SET NAMES  'utf8mb4'";
       statementSetNames.execute(setNamesSql);
-      log.info("set names");
-
       isDone = true;
     } finally {
       try {
@@ -428,7 +443,6 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
       retVal = true;
     } catch(SQLException sqle) { 
       log.info("Exception while inserting to failed events table" + failedJson);
-      System.out.println("Exception while inserting to failed events table" + failedJson);
     } 
     finally {
       try {

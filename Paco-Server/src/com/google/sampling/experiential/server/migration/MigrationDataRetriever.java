@@ -68,8 +68,6 @@ public class MigrationDataRetriever {
     try {
       whenUtcInMillis = daoImpl.getEarliestWhen();
     } catch (SQLException | ParseException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
       log.warning("Not able to get earliest when" + e.getMessage());
     }
     if (whenUtcInMillis != null) {
@@ -88,8 +86,6 @@ public class MigrationDataRetriever {
     try {
       whenUtcInMillis = daoImpl.getEarliestStreaming();
     } catch (SQLException | ParseException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
       log.warning("Not able to get earliest in streaming" + e.getMessage());
     }
     if (whenUtcInMillis != null) {
@@ -199,7 +195,7 @@ public class MigrationDataRetriever {
   public boolean readOutputsDataStoreAndInsertToCloudSql(String oldCursor) {
     DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
     Cursor cursor = null;
-    int count = 0;
+    long count = 0;
     int pageSize = 1000;
     List<MigrationOutput> outputsBatch = null;
     QueryResultList<Entity> results = null;
@@ -247,7 +243,6 @@ public class MigrationDataRetriever {
       }
       
       if (isContinueCSInsert) {
-        //TODO enable foll code
         CloudSQLMigrationDaoImpl  daoImpl =  new CloudSQLMigrationDaoImpl();
         
         boolean isSuccess = daoImpl.insertOutputsInBatch(outputsBatch);
