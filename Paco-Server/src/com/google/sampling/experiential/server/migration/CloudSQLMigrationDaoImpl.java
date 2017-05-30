@@ -22,6 +22,7 @@ import com.google.sampling.experiential.datastore.EventServerColumns;
 import com.google.sampling.experiential.datastore.FailedEventServerColumns;
 import com.google.sampling.experiential.model.Event;
 import com.google.sampling.experiential.server.CloudSQLConnectionManager;
+import com.google.sampling.experiential.server.TimeUtil;
 import com.mysql.jdbc.Statement;
 import com.mysql.jdbc.exceptions.jdbc4.MySQLIntegrityConstraintViolationException;
 import com.pacoapp.paco.shared.model2.EventBaseColumns;
@@ -152,7 +153,7 @@ public class CloudSQLMigrationDaoImpl implements CloudSQLMigrationDao {
             statementCreateEvent.setString(i++, event.getWho());
             if (event.getWhen() != null) {
               whenTs = new Timestamp(event.getWhen().getTime());
-              whenFrac = getFractionalSeconds(whenTs);
+              whenFrac = TimeUtil.getFractionalSeconds(whenTs);
             }
             statementCreateEvent.setTimestamp(i++, whenTs);
             statementCreateEvent.setInt(i++, whenFrac);
@@ -637,7 +638,7 @@ public class CloudSQLMigrationDaoImpl implements CloudSQLMigrationDao {
       statementPersistCursor.setString(1, cursor);
 
       crTimestamp = new Timestamp(System.currentTimeMillis());
-      crFracSec =  getFractionalSeconds(crTimestamp);
+      crFracSec =  TimeUtil.getFractionalSeconds(crTimestamp);
       statementPersistCursor.setTimestamp(2, crTimestamp);
       statementPersistCursor.setInt(3, crFracSec);
       
@@ -695,7 +696,7 @@ public class CloudSQLMigrationDaoImpl implements CloudSQLMigrationDao {
       statementPersistMissedEvent.setString(1, modMigrationOutput);
   
       crTimestamp = new Timestamp(System.currentTimeMillis());
-      crFracSec =  getFractionalSeconds(crTimestamp);
+      crFracSec =  TimeUtil.getFractionalSeconds(crTimestamp);
       statementPersistMissedEvent.setTimestamp(2, crTimestamp);
       statementPersistMissedEvent.setInt(3, crFracSec);
       
@@ -746,7 +747,7 @@ public class CloudSQLMigrationDaoImpl implements CloudSQLMigrationDao {
       statementStreamingStart = conn.prepareStatement(persistMissedEventInsert.toString());
       if(startTime != null) {
         stTimestamp = new Timestamp(startTime.getMillis());
-        stFracSec = getFractionalSeconds(stTimestamp);
+        stFracSec = TimeUtil.getFractionalSeconds(stTimestamp);
       }
       statementStreamingStart.setTimestamp(1, stTimestamp);
       statementStreamingStart.setInt(2, stFracSec);
@@ -773,12 +774,5 @@ public class CloudSQLMigrationDaoImpl implements CloudSQLMigrationDao {
       }
     }
     return retVal;
-  }
-  private int getFractionalSeconds(Timestamp tStamp) {
-    int fracSeconds = 0;
-    if (tStamp.getNanos() >= 1000000) {
-      fracSeconds = tStamp.getNanos() / 1000000;
-    }
-    return fracSeconds;
   }
 }
