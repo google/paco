@@ -152,9 +152,7 @@ public class CloudSQLMigrationDaoImpl implements CloudSQLMigrationDao {
             statementCreateEvent.setString(i++, event.getWho());
             if (event.getWhen() != null) {
               whenTs = new Timestamp(event.getWhen().getTime());
-              if(whenTs.getNanos() >= 1000000) {
-                whenFrac = whenTs.getNanos()/1000000;
-              }
+              whenFrac = getFractionalSeconds(whenTs);
             }
             statementCreateEvent.setTimestamp(i++, whenTs);
             statementCreateEvent.setInt(i++, whenFrac);
@@ -639,9 +637,7 @@ public class CloudSQLMigrationDaoImpl implements CloudSQLMigrationDao {
       statementPersistCursor.setString(1, cursor);
 
       crTimestamp = new Timestamp(System.currentTimeMillis());
-      if (crTimestamp.getNanos() >= 1000000) {
-        crFracSec = crTimestamp.getNanos() / 1000000;
-      }
+      crFracSec =  getFractionalSeconds(crTimestamp);
       statementPersistCursor.setTimestamp(2, crTimestamp);
       statementPersistCursor.setInt(3, crFracSec);
       
@@ -699,9 +695,7 @@ public class CloudSQLMigrationDaoImpl implements CloudSQLMigrationDao {
       statementPersistMissedEvent.setString(1, modMigrationOutput);
   
       crTimestamp = new Timestamp(System.currentTimeMillis());
-      if (crTimestamp.getNanos() >= 1000000) {
-        crFracSec = crTimestamp.getNanos() / 1000000;
-      }
+      crFracSec =  getFractionalSeconds(crTimestamp);
       statementPersistMissedEvent.setTimestamp(2, crTimestamp);
       statementPersistMissedEvent.setInt(3, crFracSec);
       
@@ -752,9 +746,7 @@ public class CloudSQLMigrationDaoImpl implements CloudSQLMigrationDao {
       statementStreamingStart = conn.prepareStatement(persistMissedEventInsert.toString());
       if(startTime != null) {
         stTimestamp = new Timestamp(startTime.getMillis());
-        if (stTimestamp.getNanos() >= 1000000) {
-          stFracSec = stTimestamp.getNanos() / 1000000;
-        }
+        stFracSec = getFractionalSeconds(stTimestamp);
       }
       statementStreamingStart.setTimestamp(1, stTimestamp);
       statementStreamingStart.setInt(2, stFracSec);
@@ -781,5 +773,12 @@ public class CloudSQLMigrationDaoImpl implements CloudSQLMigrationDao {
       }
     }
     return retVal;
+  }
+  private int getFractionalSeconds(Timestamp tStamp) {
+    int fracSeconds = 0;
+    if (tStamp.getNanos() >= 1000000) {
+      fracSeconds = tStamp.getNanos() / 1000000;
+    }
+    return fracSeconds;
   }
 }
