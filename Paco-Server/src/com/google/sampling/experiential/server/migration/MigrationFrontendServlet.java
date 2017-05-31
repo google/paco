@@ -80,7 +80,6 @@ public class MigrationFrontendServlet extends HttpServlet {
       try {
         reader = sendToBackend(backendAddress, jobName, cursor);
       } catch (SocketTimeoutException se) {
-        log.info("socket time ex:"+ se.getMessage());
         try {
           Thread.sleep(100);
         } catch (InterruptedException e) {
@@ -121,9 +120,9 @@ public class MigrationFrontendServlet extends HttpServlet {
     log.info("URL to backend = " + url.toString());
     connection = (HttpURLConnection) url.openConnection();
     connection.setInstanceFollowRedirects(false);
+    connection.setReadTimeout(10000);
     inputStreamReader = new InputStreamReader(connection.getInputStream());
     reader = new BufferedReader(inputStreamReader);
-  
     return reader;
   }
 }

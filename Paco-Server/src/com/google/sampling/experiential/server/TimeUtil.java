@@ -1,5 +1,6 @@
 package com.google.sampling.experiential.server;
 
+import java.sql.Timestamp;
 import java.text.ParseException;
 import java.util.Calendar;
 import java.util.Date;
@@ -19,6 +20,7 @@ public class TimeUtil {
 
   public static final Logger log = Logger.getLogger(TimeUtil.class.getName());
   public static final String DATETIME_FORMAT = "yyyy/MM/dd HH:mm:ssZ";
+  public static final String DATETIME_FORMAT_MS = "yyyy/MM/dd HH:mm:ss.SSSZ";
   public static final String DATE_FORMAT = "yyyy/MM/dd";
 
   public static DateMidnight getDateMidnightForDateString(String dateStr) {
@@ -98,5 +100,13 @@ public class TimeUtil {
       dateObj = new DateTime(dateObj).withZone(timezone).toDate();
     }
     return dateObj;
+  }
+  
+  public static int getFractionalSeconds(Timestamp tStamp) {
+    int fracSeconds = 0;
+    if (tStamp.getNanos() >= 1000000) {
+      fracSeconds = tStamp.getNanos() / 1000000;
+    }
+    return fracSeconds;
   }
 }

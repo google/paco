@@ -84,7 +84,7 @@ public class EventRetriever {
   private static EventRetriever instance;
   private static final Logger log = Logger.getLogger(EventRetriever.class.getName());
   private static CloudSQLDao cloudSqlDaoImpl = new CloudSQLDaoImpl();
-  private static DateTimeFormatter df = DateTimeFormat.forPattern(TimeUtil.DATETIME_FORMAT).withOffsetParsed();
+  private static DateTimeFormatter dfMs = DateTimeFormat.forPattern(TimeUtil.DATETIME_FORMAT_MS).withOffsetParsed();
 
   @VisibleForTesting
   EventRetriever() {
@@ -165,7 +165,7 @@ public class EventRetriever {
         event.setPacoVersion(eventJson.getString("pacoVersion"));
         event.setAppId(eventJson.getString("appId"));
         event.setTimeZone(eventJson.getString("tz"));
-        event.setWhen(df.parseDateTime(eventJson.getString("whenDate")).toDate());
+        event.setWhen(dfMs.parseDateTime(eventJson.getString("whenDate")).toDate());
         event.setWho(eventJson.getString("who"));
         cloudSqlDaoImpl.insertEvent(event);
       } catch (JSONException e) {
@@ -209,7 +209,7 @@ public class EventRetriever {
   }
 
   public void sendToCloudSqlQueue(JSONObject eventJson, Event event) {
-    DateTimeFormatter fmt = DateTimeFormat.forPattern(TimeUtil.DATETIME_FORMAT);
+    DateTimeFormatter fmt = DateTimeFormat.forPattern(TimeUtil.DATETIME_FORMAT_MS);
     Queue queue = QueueFactory.getQueue("cloud-sql");
     try {
       // In the flow of saving event data to data store, pacoversion and appid

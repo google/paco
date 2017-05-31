@@ -6,6 +6,7 @@ public class EventServerColumns extends EventBaseColumns {
   public static final String WHO = "who";
   //since when is a keyword, we have to always use a back tick when we use it in any sql query.
   public static final String WHEN = "`when`";
+  public static final String WHEN_FRAC_SEC = "when_fractional_sec";
   public static final String ARCHIVE_FLAG = "archive_flag";
   public static final String JOINED = "joined";
   public static final String SORT_DATE = "sort_date";

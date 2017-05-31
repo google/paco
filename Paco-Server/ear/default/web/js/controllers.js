@@ -377,6 +377,9 @@ pacoApp.controller('ListCtrl', [
         var cursor = $scope.cursor[listName];
         if (reset === undefined) {
           reset = false;
+        } else if (reset) {
+          cursor = null;
+          $scope.list[listName] = [];
         }
 
         $scope.loading[listName] = true;
@@ -411,8 +414,8 @@ pacoApp.controller('ListCtrl', [
         $scope.loadList('joined', reset);
       };
 
-      $scope.loadAdminList = function(reset) {
-        $scope.loadList('admin', reset);
+      $scope.loadAdminList = function(reset) {        
+        $scope.loadList('admin', reset, this.currentAdminSortOrder);
       }
 
       $scope.loadJoinableList = function(reset) {
@@ -432,6 +435,7 @@ pacoApp.controller('ListCtrl', [
       };
       
       $scope.sortAdminList = function() {
+        $scope.currentAdminSortOrder = this.currentAdminSortOrder;
         $scope.loadList('admin', true, this.currentAdminSortOrder);
       }
 

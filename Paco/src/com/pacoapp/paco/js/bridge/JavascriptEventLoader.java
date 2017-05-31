@@ -66,7 +66,7 @@ public class JavascriptEventLoader {
   public String getLastEvent() {
     return getLastNEvents("1");
   }
-  
+
   @JavascriptInterface
   public String getLastNEvents(String numberOfRecords) {
     // TODO: Should this be 10; Adding a default value of 10
@@ -88,21 +88,26 @@ public class JavascriptEventLoader {
     List<Event> events = experimentProviderUtil.loadEventsForExperimentGroup(androidExperiment.getId(), experimentGroup.getName());
     return FeedbackActivity.convertEventsToJsonString(events);
   }
-  
+
  /**
    * The query JSON should have the following format
-   * Example {query: {criteria: " (group_name in(?,?) and (answer=?)) ",values:["New Group","Exp Group", "ven"]},limit: "100,1",group: "group_name",order: "response_time" ,select: ["group_name","response_time", "experiment_name", "text", "answer"]}
+   * Example {query: {criteria: " (group_name in (?,?) and (answer=?)) ",
+   *                  values:["New Group","Exp Group", "ven"]},
+   *                  limit: "100,1",
+   *                  group: "group_name",
+   *                  order: "response_time",
+   *                  select: ["group_name", "response_time", "experiment_name", "text", "answer"]}
    * The above JSON represents the following
    *    query->criteria: String with where clause conditions and the values replaced by '?'
    *    query->values: An array of String representing the values of the '?' expressed in query->criteria (in order).
    *    query->limit: String Number of records to limit the result set, followed by "," followed by the offset integer(startPosition)
-   *    query->group: String which holds the group by column. For now, this clause is disabled programmatically. 
+   *    query->group: String which holds the group by column. For now, this clause is disabled programmatically.
    *    query->order: String which holds the order by columns separated by commas. Default sort order will be event._id desc
    *    query->select: An array of String which holds the column names. For now, this clause is disabled programmatically. All values will be fetched by default
    *    and executes the following query
    *    Since the query requires columns from both Events and Outputs table, we do the inner join.
-   *    If the query requires columns from just Events table, it will be a plain select ......from Events 
-   * SELECT group_name, response_time, experiment_name, text, answer FROM events INNER JOIN outputs ON events._id = event_id WHERE ( (group_name in(?,?) and (answer=?)) ) GROUP BY group_name ORDER BY response_time limit 100    
+   *    If the query requires columns from just Events table, it will be a plain select ......from Events
+   * SELECT group_name, response_time, experiment_name, text, answer FROM events INNER JOIN outputs ON events._id = event_id WHERE ( (group_name in(?,?) and (answer=?)) ) GROUP BY group_name ORDER BY response_time limit 100
    * @param criteriaQuery Query conditions and clauses in JSON format mentioned above
    * @return Json string of EventQueryStatus object, which holds boolean status - success/failure. If success, it would also include
    *         list of Events. If Failure, it would include the reason for failure.

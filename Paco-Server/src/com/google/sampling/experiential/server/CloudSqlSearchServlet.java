@@ -1,6 +1,8 @@
 package com.google.sampling.experiential.server;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.io.UnsupportedEncodingException;
 import java.sql.SQLException;
 import java.text.ParseException;
@@ -63,6 +65,7 @@ public class CloudSqlSearchServlet extends HttpServlet {
     validColumnNamesDataTypeInDb.put(EventServerColumns.ACTION_ID, LongValue.class);
     validColumnNamesDataTypeInDb.put(EventServerColumns.WHO, StringValue.class);
     validColumnNamesDataTypeInDb.put(EventServerColumns.WHEN, StringValue.class);
+    validColumnNamesDataTypeInDb.put(EventServerColumns.WHEN_FRAC_SEC, LongValue.class);
     validColumnNamesDataTypeInDb.put(EventServerColumns.PACO_VERSION, LongValue.class);
     validColumnNamesDataTypeInDb.put(EventServerColumns.APP_ID, StringValue.class);
     validColumnNamesDataTypeInDb.put(EventServerColumns.JOINED, LongValue.class);
@@ -145,27 +148,41 @@ public class CloudSqlSearchServlet extends HttpServlet {
         String results = mapper.writeValueAsString(evQryStatus);
         resp.getWriter().println(results);
       } catch (JSONException jsonEx) {
-        sendErrorMessage(resp, mapper, ErrorMessages.JSON_EXCEPTION.getDescription() + jsonEx);
+        log.warning( ErrorMessages.JSON_EXCEPTION.getDescription() + getStackTraceAsString(jsonEx));
+        sendErrorMessage(resp, mapper, ErrorMessages.JSON_EXCEPTION.getDescription() + getStackTraceAsString(jsonEx));
         return;
       } catch (JSQLParserException e) {
-        sendErrorMessage(resp, mapper, ErrorMessages.ADD_DEFAULT_COLUMN_EXCEPTION.getDescription() + e);
+        log.warning( ErrorMessages.ADD_DEFAULT_COLUMN_EXCEPTION.getDescription() + getStackTraceAsString(e));
+        sendErrorMessage(resp, mapper, ErrorMessages.ADD_DEFAULT_COLUMN_EXCEPTION.getDescription() + getStackTraceAsString(e));
         return;
       } catch (SQLException sqle) {
-        sendErrorMessage(resp, mapper, ErrorMessages.SQL_EXCEPTION.getDescription() + sqle);
+        log.warning( ErrorMessages.SQL_EXCEPTION.getDescription() + getStackTraceAsString(sqle));
+        sendErrorMessage(resp, mapper, ErrorMessages.SQL_EXCEPTION.getDescription() + getStackTraceAsString(sqle));
         return;
       } catch (ParseException e) {
-        sendErrorMessage(resp, mapper, ErrorMessages.TEXT_PARSE_EXCEPTION.getDescription() + e);
+        log.warning( ErrorMessages.TEXT_PARSE_EXCEPTION.getDescription() + getStackTraceAsString(e));
+        sendErrorMessage(resp, mapper, ErrorMessages.TEXT_PARSE_EXCEPTION.getDescription() + getStackTraceAsString(e));
         return;
       } catch (Exception e) {
         if (e.toString().contains(ErrorMessages.UNAUTHORIZED_ACCESS.getDescription())) {
+          log.warning( ErrorMessages.UNAUTHORIZED_ACCESS.getDescription() + getStackTraceAsString(e));
           sendErrorMessage(resp, mapper,  e.getMessage());
           return;
         } else {
+          log.warning( ErrorMessages.GENERAL_EXCEPTION.getDescription() + getStackTraceAsString(e));
           sendErrorMessage(resp, mapper, ErrorMessages.GENERAL_EXCEPTION.getDescription()+ e);
           return;
         }
       }
     }
+  }
+  
+  private String getStackTraceAsString(Throwable e) {
+    final ByteArrayOutputStream out = new ByteArrayOutputStream();
+    PrintStream pw = new PrintStream(out);
+    e.printStackTrace(pw);
+    final String string = out.toString();
+    return string;
   }
   
   private boolean isTimezoneNeeded(String[] projCols){
