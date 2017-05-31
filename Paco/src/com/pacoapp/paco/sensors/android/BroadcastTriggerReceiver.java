@@ -7,15 +7,14 @@ import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Joiner;
-import com.google.common.collect.Lists;
 import com.pacoapp.paco.model.Event;
-import com.pacoapp.paco.model.EventUtil;
 import com.pacoapp.paco.model.Experiment;
 import com.pacoapp.paco.model.ExperimentProviderUtil;
 import com.pacoapp.paco.model.Output;
 import com.pacoapp.paco.sensors.android.procmon.LollipopProcessMonitorService;
 import com.pacoapp.paco.sensors.android.procmon.ProcessService;
+import com.pacoapp.paco.shared.model2.ExperimentDAO;
+import com.pacoapp.paco.shared.model2.ExperimentGroup;
 import com.pacoapp.paco.shared.model2.InterruptCue;
 import com.pacoapp.paco.shared.scheduling.ActionScheduleGenerator;
 import com.pacoapp.paco.shared.util.ExperimentHelper;
@@ -27,12 +26,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
-import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.PowerManager;
-import android.provider.Browser;
 import android.telephony.TelephonyManager;
 
 public class BroadcastTriggerReceiver extends BroadcastReceiver {
@@ -117,33 +114,25 @@ public class BroadcastTriggerReceiver extends BroadcastReceiver {
 
 	public static void createPhoneStateLogEvents(Context context, String phoneOnState) {
     ExperimentProviderUtil experimentProviderUtil = new ExperimentProviderUtil(context);
-    List<Experiment> experimentsNeedingEvent = getExperimentsLoggingPhoneOnOffEvent(experimentProviderUtil);
-
-    for (Experiment experiment : experimentsNeedingEvent) {
-      Event event = createPhoneShutdownPacoEvent(experiment, phoneOnState);
-      experimentProviderUtil.insertEvent(event);
-    }
-
-  }
-
-  public static List<Experiment> getExperimentsLoggingPhoneOnOffEvent(ExperimentProviderUtil experimentProviderUtil) {
     List<Experiment> joined = experimentProviderUtil.getJoinedExperiments();
-    List<Experiment> experimentsNeedingEvent = Lists.newArrayList();
-    DateTime now = DateTime.now();
-    for (Experiment experiment2 : joined) {
-      if (!ActionScheduleGenerator.isOver(now, experiment2.getExperimentDAO())
-          && ExperimentHelper.isLogPhoneOnOff(experiment2.getExperimentDAO())) {
-        experimentsNeedingEvent.add(experiment2);
+    for (Experiment experiment : joined) {
+      final ExperimentDAO experimentDAO = experiment.getExperimentDAO();
+      List<ExperimentGroup> groups = experimentDAO.getGroups();
+      for (ExperimentGroup experimentGroup : groups) {
+        if (ActionScheduleGenerator.isExperimentGroupRunning(experimentGroup) && experimentGroup.getLogShutdown()) {
+          Event event = createPhoneShutdownPacoEvent(experiment, experimentGroup.getName(), phoneOnState);
+          experimentProviderUtil.insertEvent(event);
+        }
       }
     }
-    return experimentsNeedingEvent;
   }
 
-  protected static Event createPhoneShutdownPacoEvent(Experiment experiment, String phoneOnState) {
+  protected static Event createPhoneShutdownPacoEvent(Experiment experiment, String experimentGroupName, String phoneOnState) {
     Event event = new Event();
     event.setExperimentId(experiment.getId());
     event.setServerExperimentId(experiment.getServerId());
     event.setExperimentName(experiment.getExperimentDAO().getTitle());
+    event.setExperimentGroupName(experimentGroupName);
     event.setExperimentVersion(experiment.getExperimentDAO().getVersion());
     event.setResponseTime(new DateTime());
 
@@ -383,19 +372,22 @@ public class BroadcastTriggerReceiver extends BroadcastReceiver {
 
   protected void createScreenOnPacoEvents(Context context) {
     ExperimentProviderUtil experimentProviderUtil = new ExperimentProviderUtil(context);
-    List<Experiment> experimentsNeedingEvent = initializeExperimentsWatchingAppUsage(experimentProviderUtil);
-
-    for (Experiment experiment : experimentsNeedingEvent) {
-      Event event = createScreenOnPacoEvent(experiment);
-      experimentProviderUtil.insertEvent(event);
+    List<Experiment> joined = experimentProviderUtil.getJoinedExperiments();
+    for (Experiment experiment : joined) {
+      List<ExperimentGroup> groupsThatCare = ExperimentHelper.getGroupsThatCareAboutActionLogging(experiment.getExperimentDAO());
+      for (ExperimentGroup experimentGroup : groupsThatCare) {
+        Event event = createScreenOnPacoEvent(experiment, experimentGroup);
+        experimentProviderUtil.insertEvent(event);
+      }
     }
   }
 
-  protected Event createScreenOnPacoEvent(Experiment experiment) {
+  protected Event createScreenOnPacoEvent(Experiment experiment, ExperimentGroup experimentGroup) {
       Event event = new Event();
       event.setExperimentId(experiment.getId());
       event.setServerExperimentId(experiment.getServerId());
       event.setExperimentName(experiment.getExperimentDAO().getTitle());
+      event.setExperimentGroupName(experimentGroup.getName());
       event.setExperimentVersion(experiment.getExperimentDAO().getVersion());
       event.setResponseTime(new DateTime());
 
@@ -405,115 +397,6 @@ public class BroadcastTriggerReceiver extends BroadcastReceiver {
       responseForInput.setName("userPresent");
       event.addResponse(responseForInput);
       return event;
-  }
-
-  public static void createBrowserHistoryStartSnapshot(Context context) {
-//    List<String> searchHistory = getSearchHistory(context);
-//    int browserHistoryItemCount = searchHistory.size();
-//    String topItemInBrowserHistory = null;
-//    if (browserHistoryItemCount > 0) {
-//      topItemInBrowserHistory = searchHistory.get(0);
-//    }
-
-    setUserPrefsForBrowserAndSession(context, /*browserHistoryItemCount, topItemInBrowserHistory, */System.currentTimeMillis());
-  }
-
-  public static void setUserPrefsForBrowserAndSession(Context context, Long currentTimeMillis) {
-//    BroadcastTriggerReceiver.setBrowserHistoryCount(context, browserHistoryItemCount);
-//    BroadcastTriggerReceiver.setLastBrowserHistoryItem(context, topItemInBrowserHistory);
-    BroadcastTriggerReceiver.setSessionStartMillis(context, currentTimeMillis);
-  }
-
-  public static void createBrowserHistoryEndSnapshot(Context context) {
-    Long sessionStartMillis = BroadcastTriggerReceiver.getSessionStartMillis(context);
-    List<String> newSearchHistory = getSearchHistory(context, sessionStartMillis);
-//    int browserHistoryItemCount = searchHistory.size();
-
-//    Integer oldItemCount = BroadcastTriggerReceiver.getBrowserHistoryCount(context);
-//    String lastTopItem = BroadcastTriggerReceiver.getLastBrowserHistoryItem(context);
-//    Long sessionStartMillis = BroadcastTriggerReceiver.getSessionStartMillis(context);
-
-
-//    List<String> newSearchHistory = Lists.newArrayList();
-//    if (browserHistoryItemCount > oldItemCount) {
-//      List<String> newItems = searchHistory.subList(0, browserHistoryItemCount - oldItemCount);
-//      for (String newHistoryItem : newItems) {
-//        newSearchHistory.add(newHistoryItem);
-//      }
-//    }
-
-    // reset browser prefs
-    setUserPrefsForBrowserAndSession(context, /*0, null,*/ null);
-
-    if (newSearchHistory.isEmpty()) {
-      return;
-    }
-    ExperimentProviderUtil experimentProviderUtil = new ExperimentProviderUtil(context);
-    List<Experiment> experimentsNeedingEvent = initializeExperimentsWatchingAppUsage(experimentProviderUtil);
-
-    String usedAppsString = Joiner.on(",").join(newSearchHistory);
-    for (Experiment experiment : experimentsNeedingEvent) {
-      Event event = EventUtil.createSitesVisitedPacoEvent(usedAppsString, experiment, sessionStartMillis);
-      experimentProviderUtil.insertEvent(event);
-    }
-
-  }
-
-  private static List<Experiment> initializeExperimentsWatchingAppUsage(ExperimentProviderUtil experimentProviderUtil) {
-    List<Experiment> joined = experimentProviderUtil.getJoinedExperiments();
-    List<Experiment> experimentsNeedingEvent = Lists.newArrayList();
-    DateTime now = DateTime.now();
-    for (Experiment experiment2 : joined) {
-      if (!ActionScheduleGenerator.isOver(now, experiment2.getExperimentDAO()) && ExperimentHelper.isLogActions(experiment2.getExperimentDAO())) {
-        experimentsNeedingEvent.add(experiment2);
-      }
-    }
-    return experimentsNeedingEvent;
-  }
-
-
-  public static List<String> getSearchHistory(Context context, long startTimeMillis) {
-    List<String> results = Lists.newArrayList();
-    if (startTimeMillis == 0) {
-      return results;
-    }
-    String[] proj = new String[] { Browser.BookmarkColumns.TITLE, Browser.BookmarkColumns.URL, Browser.BookmarkColumns.DATE };
-    String sel = /*Browser.BookmarkColumns.BOOKMARK + " = 0 & " +*/ Browser.BookmarkColumns.DATE + " > ?"; // 0 = history, 1 = bookmark
-    String[] selArgs = new String[] { String.valueOf(startTimeMillis) };
-    Cursor mCur = null;
-    try {
-      Uri bookmarksUri = Browser.BOOKMARKS_URI;
-      //Uri chromeBookmarksUri = Uri.parse("content://com.android.chrome.browser/bookmarks");
-      mCur = context.getContentResolver().query(bookmarksUri, proj, sel, selArgs, Browser.BookmarkColumns.DATE + " ASC");
-      mCur.moveToFirst();
-
-      String title = "";
-
-      String url = "";
-
-      String ts = "";
-      if (mCur.moveToFirst() && mCur.getCount() > 0) {
-          boolean cont = true;
-          while (mCur.isAfterLast() == false && cont) {
-              title = mCur.getString(mCur.getColumnIndex(Browser.BookmarkColumns.TITLE));
-              url = mCur.getString(mCur.getColumnIndex(Browser.BookmarkColumns.URL));
-              ts = mCur.getString(mCur.getColumnIndex(Browser.BookmarkColumns.DATE));
-              if (ts != null) {
-                ts = new DateTime(Long.parseLong(ts)).toString();
-              }
-              results.add( ts + " _ " + title.replaceAll("_",  " ").replaceAll(", ", " ") + " _ " + url );
-              mCur.moveToNext();
-          }
-      }
-      return results;
-    } catch (Exception e) {
-      Log.error("bookmark lookup failed. Must be Marshmallow or latest Chrome. bookmark uri is being removed permanently.", e);
-      return Lists.newArrayList();
-    } finally {
-      if (mCur != null) {
-        mCur.close();
-      }
-    }
   }
 
   private boolean isUserPresent(Intent intent) {
@@ -587,61 +470,6 @@ public class BroadcastTriggerReceiver extends BroadcastReceiver {
   public static void toggleLogActions(Context context, boolean running) {
     SharedPreferences prefs = context.getSharedPreferences("PacoProcessWatcher", Context.MODE_PRIVATE);
     prefs.edit().putBoolean(LOGGING_ACTIONS_FLAG, running).commit();
-  }
-
-  public static boolean isInBrowser(Context context) {
-    return context.getSharedPreferences("PacoProcessWatcher", Context.MODE_PRIVATE).getBoolean("inBrowserTask", false);
-  }
-
-  public static void toggleInBrowser(Context context, boolean running) {
-    SharedPreferences prefs = context.getSharedPreferences("PacoProcessWatcher", Context.MODE_PRIVATE);
-    prefs.edit().putBoolean("inBrowserTask", running).commit();
-  }
-
-
-  public static String getLastBrowserHistoryItem(Context context) {
-    return context.getSharedPreferences("PacoProcessWatcher", Context.MODE_PRIVATE).getString("LastBrowserHistoryItem", null);
-  }
-
-  public static void setLastBrowserHistoryItem(Context context, String lastItem) {
-    SharedPreferences prefs = context.getSharedPreferences("PacoProcessWatcher", Context.MODE_PRIVATE);
-    Editor editor = prefs.edit();
-    if (lastItem == null) {
-      editor.remove("LastBrowserHistoryItem");
-    } else {
-      editor.putString("LastBrowserHistoryItem", lastItem);
-    }
-    editor.commit();
-  }
-
-  public static Integer getBrowserHistoryCount(Context context) {
-    return context.getSharedPreferences("PacoProcessWatcher", Context.MODE_PRIVATE).getInt("browserHistorySize", 0);
-  }
-
-  public static void setBrowserHistoryCount(Context context, Integer count) {
-    SharedPreferences prefs = context.getSharedPreferences("PacoProcessWatcher", Context.MODE_PRIVATE);
-    Editor editor = prefs.edit();
-    if (count == null) {
-      editor.remove("browserHistorySize");
-    } else {
-      editor.putInt("browserHistorySize", count);
-    }
-    editor.commit();
-  }
-
-  public static Long getSessionStartMillis(Context context) {
-    return context.getSharedPreferences("PacoProcessWatcher", Context.MODE_PRIVATE).getLong("sessionStartMillis", 0);
-  }
-
-  public static void setSessionStartMillis(Context context, Long sessionStartMillis) {
-    SharedPreferences prefs = context.getSharedPreferences("PacoProcessWatcher", Context.MODE_PRIVATE);
-    Editor editor = prefs.edit();
-    if (sessionStartMillis == null) {
-      editor.remove("sessionStartMillis");
-    } else {
-    editor.putLong("sessionStartMillis", sessionStartMillis);
-    }
-    editor.commit();
   }
 
   public static void setFrequency(Context context, int freq) {

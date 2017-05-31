@@ -6,13 +6,12 @@ import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.Lists;
 import com.pacoapp.paco.model.Event;
 import com.pacoapp.paco.model.Experiment;
 import com.pacoapp.paco.model.ExperimentProviderUtil;
 import com.pacoapp.paco.model.Output;
 import com.pacoapp.paco.sensors.android.BroadcastTriggerReceiver;
-import com.pacoapp.paco.shared.scheduling.ActionScheduleGenerator;
+import com.pacoapp.paco.shared.model2.ExperimentGroup;
 import com.pacoapp.paco.shared.util.ExperimentHelper;
 
 import android.annotation.SuppressLint;
@@ -114,19 +113,22 @@ public class LollipopProcessMonitorService extends Service {
 
   protected void createScreenOffPacoEvents(Context context) {
     ExperimentProviderUtil experimentProviderUtil = new ExperimentProviderUtil(context);
-    List<Experiment> experimentsNeedingEvent = initializeExperimentsWatchingAppUsage(experimentProviderUtil);
-
-    for (Experiment experiment : experimentsNeedingEvent) {
-      Event event = createScreenOffPacoEvent(experiment);
-      experimentProviderUtil.insertEvent(event);
+    List<Experiment> joined = experimentProviderUtil.getJoinedExperiments();
+    for (Experiment experiment : joined) {
+      List<ExperimentGroup> groups = ExperimentHelper.getGroupsThatCareAboutActionLogging(experiment.getExperimentDAO());
+      for (ExperimentGroup experimentGroup : groups) {
+        Event event = createScreenOffPacoEvent(experiment, experimentGroup.getName());
+        experimentProviderUtil.insertEvent(event);
+      }
     }
   }
 
-  protected Event createScreenOffPacoEvent(Experiment experiment) {
+  protected Event createScreenOffPacoEvent(Experiment experiment, String groupName) {
     Event event = new Event();
     event.setExperimentId(experiment.getId());
     event.setServerExperimentId(experiment.getServerId());
     event.setExperimentName(experiment.getExperimentDAO().getTitle());
+    event.setExperimentGroupName(groupName);
     event.setExperimentVersion(experiment.getExperimentDAO().getVersion());
     event.setResponseTime(new DateTime());
 
@@ -137,18 +139,6 @@ public class LollipopProcessMonitorService extends Service {
     event.addResponse(responseForInput);
     return event;
 }
-
-  private static List<Experiment> initializeExperimentsWatchingAppUsage(ExperimentProviderUtil experimentProviderUtil) {
-    List<Experiment> joined = experimentProviderUtil.getJoinedExperiments();
-    List<Experiment> experimentsNeedingEvent = Lists.newArrayList();
-    DateTime now = DateTime.now();
-    for (Experiment experiment2 : joined) {
-      if (!ActionScheduleGenerator.isOver(now, experiment2.getExperimentDAO()) && ExperimentHelper.isLogActions(experiment2.getExperimentDAO())) {
-        experimentsNeedingEvent.add(experiment2);
-      }
-    }
-    return experimentsNeedingEvent;
-  }
 
   @Override
   public IBinder onBind(Intent intent) {

@@ -71,8 +71,6 @@ public class ProcessService extends Service {
           List<String> previousTaskNames = null;
           List<String> tasksOfInterestForClosing = initializeCloseAppTasksToWatch();
 
-          boolean inBrowser = BroadcastTriggerReceiver.isInBrowser(getApplicationContext());
-
           try {
             while (pm.isScreenOn() && BroadcastTriggerReceiver.shouldWatchProcesses(getApplicationContext())) {
               synchronized (this) {
@@ -82,16 +80,6 @@ public class ProcessService extends Service {
 
                   List<String> newlyUsedTasks = checkForNewlyUsedTasks(previousTaskNames, tasksOfInterest,
                                                                        recentTaskNames);
-                  if (newlyUsedTasks.size() > 0 && isBrowserTask(newlyUsedTasks.get(0))
-                      && BroadcastTriggerReceiver.shouldLogActions(getApplicationContext())) {
-                    BroadcastTriggerReceiver.createBrowserHistoryStartSnapshot(getApplicationContext());
-                    BroadcastTriggerReceiver.toggleInBrowser(getApplicationContext(), true);
-                    inBrowser = true;
-                  } else if (inBrowser == true && newlyUsedTasks.size() > 0 && !isBrowserTask(newlyUsedTasks.get(0))) {
-                    inBrowser = false;
-                    BroadcastTriggerReceiver.toggleInBrowser(getApplicationContext(), false);
-                    BroadcastTriggerReceiver.createBrowserHistoryEndSnapshot(getApplicationContext());
-                  }
 
                   if (newlyUsedTasks.size() > 0) {
                     createTriggersForNewlyUsedTasksOfInterest(tasksOfInterest, newlyUsedTasks);
@@ -286,8 +274,11 @@ public class ProcessService extends Service {
     String usedAppsPrettyNamesString = Joiner.on(",").join(prettyAppNames);
     String usedAppsNamesString = Joiner.on(",").join(newlyUsedTasks);
     for (Experiment experiment : experimentsNeedingEvent) {
-      Event event = createAppsUsedPacoEvent(usedAppsPrettyNamesString, usedAppsNamesString, experiment);
-      experimentProviderUtil.insertEvent(event);
+      List<ExperimentGroup> groupsThatCare = ExperimentHelper.getGroupsThatCareAboutActionLogging(experiment.getExperimentDAO());
+      for (ExperimentGroup experimentGroup : groupsThatCare) {
+        Event event = createAppsUsedPacoEvent(usedAppsPrettyNamesString, usedAppsNamesString, experiment, experimentGroup);
+        experimentProviderUtil.insertEvent(event);
+      }
     }
 
   }
@@ -333,11 +324,14 @@ public class ProcessService extends Service {
   }
 
   private Event createAppsUsedPacoEvent(String usedAppsPrettyNamesString, String usedAppsTaskNamesString,
-                                        Experiment experiment) {
+                                        Experiment experiment, ExperimentGroup experimentGroup) {
     Event event = new Event();
     event.setExperimentId(experiment.getId());
     event.setServerExperimentId(experiment.getServerId());
     event.setExperimentName(experiment.getExperimentDAO().getTitle());
+    if (experimentGroup != null) {
+      event.setExperimentGroupName(experimentGroup.getName());
+    }
     event.setExperimentVersion(experiment.getExperimentDAO().getVersion());
     event.setResponseTime(new DateTime());
 
@@ -378,19 +372,23 @@ public class ProcessService extends Service {
 
   protected void createScreenOffPacoEvents(Context context) {
     ExperimentProviderUtil experimentProviderUtil = new ExperimentProviderUtil(context);
-    List<Experiment> experimentsNeedingEvent = initializeExperimentsWatchingAppUsage(experimentProviderUtil);
+    List<Experiment> joined = experimentProviderUtil.getJoinedExperiments();
 
-    for (Experiment experiment : experimentsNeedingEvent) {
-      Event event = createScreenOffPacoEvent(experiment);
-      experimentProviderUtil.insertEvent(event);
+    for (Experiment experiment : joined) {
+      List<ExperimentGroup> groupsThatCare = ExperimentHelper.getGroupsThatCareAboutActionLogging(experiment.getExperimentDAO());
+      for (ExperimentGroup experimentGroup : groupsThatCare) {
+        Event event = createScreenOffPacoEvent(experiment, experimentGroup.getName());
+        experimentProviderUtil.insertEvent(event);
+      }
     }
   }
 
-  protected Event createScreenOffPacoEvent(Experiment experiment) {
+  protected Event createScreenOffPacoEvent(Experiment experiment, String groupName) {
     Event event = new Event();
     event.setExperimentId(experiment.getId());
     event.setServerExperimentId(experiment.getServerId());
     event.setExperimentName(experiment.getExperimentDAO().getTitle());
+    event.setExperimentGroupName(groupName);
     event.setExperimentVersion(experiment.getExperimentDAO().getVersion());
     event.setResponseTime(new DateTime());
 
@@ -400,19 +398,6 @@ public class ProcessService extends Service {
     responseForInput.setName("userNotPresent");
     event.addResponse(responseForInput);
     return event;
-}
-
-  private static List<Experiment> initializeExperimentsWatchingAppUsage(ExperimentProviderUtil experimentProviderUtil) {
-    List<Experiment> joined = experimentProviderUtil.getJoinedExperiments();
-    List<Experiment> experimentsNeedingEvent = Lists.newArrayList();
-    DateTime now = DateTime.now();
-    for (Experiment experiment2 : joined) {
-      if (!ActionScheduleGenerator.isOver(now, experiment2.getExperimentDAO()) && ExperimentHelper.isLogActions(experiment2.getExperimentDAO())) {
-        experimentsNeedingEvent.add(experiment2);
-      }
-    }
-    return experimentsNeedingEvent;
   }
-
 
 }
