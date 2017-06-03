@@ -25,7 +25,7 @@
   <system-properties>
     <property value='WEB-INF/logging.properties' name='java.util.logging.config.file'/> 
     
-    <property name="ae-cloudsql.database-url" value="jdbc:google:mysql://quantifiedself-staging:us-central1:quantifiedself-staging-sql/pacodb" /> 
+    <property name="ae-cloudsql.database-url" value="jdbc:google:mysql://XXX" /> 
     <!-- <property name="ae-cloudsql.local-database-url" value="jdbc:mysql://localhost:3306/pacodb?verifyServerCertificate=false&amp;useSSL=false&amp;rewriteBatchedStatements=true"/>-->
     <property name="ae-cloudsql.local-database-url" value="jdbc:mysql://localhost:3306/pacodb?verifyServerCertificate=false&amp;useSSL=false"/>
     <property name="ae-cloudsql.local-database-username" value="XXX"/>
