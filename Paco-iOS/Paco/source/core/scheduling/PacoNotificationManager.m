@@ -111,7 +111,19 @@ static NSString* kNotificationPlistName = @"notificationDictionary.plist";
     if (0 == [notifications count]) {
       return;
     }
-    [notifications removeObject:notification];
+    
+    //The passed notification object is identical to but not the same
+    //as the fired notification object.
+    //Therefore removeObject fails to remove the notification from the array.
+    //Since at this point, the array is already filtered by experimentId, we
+    //can just use the predicate to remove the fired notification object.
+    
+    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"fireDate == %@", notification.fireDate];
+    NSArray *filteredArray = [notifications filteredArrayUsingPredicate:predicate];
+    id firstFoundObject = nil;
+    firstFoundObject =  filteredArray.count > 0 ? filteredArray.firstObject : nil;
+    [notifications removeObject:firstFoundObject];
+    
     (self.notificationDict)[experimentId] = notifications;
     DDLogInfo(@"New Notification Dict: %@", [self.notificationDict pacoDescriptionForNotificationDict]);
     [self saveNotificationsToCache];

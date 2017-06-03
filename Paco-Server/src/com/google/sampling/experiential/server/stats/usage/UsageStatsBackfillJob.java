@@ -41,7 +41,7 @@ public class UsageStatsBackfillJob implements MigrationJob {
   }
 
   @Override
-  public boolean doMigration() {
+  public boolean doMigration(String optionalCursor) {
     try {
       log.info("Starting usage stats backfill 2");
       run();
@@ -291,8 +291,4 @@ public class UsageStatsBackfillJob implements MigrationJob {
     //TODO add more heuristics that non-pilot experiments possess
     return false;
   }
-
-
-
-
 }

@@ -478,13 +478,7 @@ public class EventServlet extends HttpServlet {
     }
   }
   private void processJsonUpload(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-    String postBodyString;
-    try {
-      postBodyString = org.apache.commons.io.IOUtils.toString(req.getInputStream(), "UTF-8");
-    } catch (IOException e) {
-      log.info("IO Exception reading post data stream: " + e.getMessage());
-      throw e;
-    }
+    String postBodyString = RequestProcessorUtil.getBody(req);
     if (postBodyString.equals("")) {
       throw new IllegalArgumentException("Empty Post body");
     }
@@ -493,11 +487,13 @@ public class EventServlet extends HttpServlet {
     String pacoVersion = req.getHeader("paco.version");
     log.info("Paco version = " + pacoVersion);
     String results = EventJsonUploadProcessor.create().processJsonEvents(postBodyString, AuthUtil.getEmailOfUser(req, AuthUtil.getWhoFromLogin()), appIdHeader, pacoVersion);
+    
     //if (AuthUtil.getWhoFromLogin().getEmail().toLowerCase().equals("aparkergoldberg@gmail.com")) {
     if (req.getHeader("pacoProtocol") != null && req.getHeader("pacoProtocol").indexOf("4") == -1) {
       log.severe("oldProtocol " + req.getHeader("pacoProtocol") + " (iOS) results?");
       log.severe(results);
     }
+    
     resp.setContentType("application/json;charset=UTF-8");
     resp.getWriter().write(results);
   }

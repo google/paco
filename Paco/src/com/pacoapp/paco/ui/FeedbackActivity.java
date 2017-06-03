@@ -38,6 +38,7 @@ import com.pacoapp.paco.js.bridge.JavascriptExperimentLoader;
 import com.pacoapp.paco.js.bridge.JavascriptSensorManager;
 import com.pacoapp.paco.js.bridge.JavascriptStringResources;
 import com.pacoapp.paco.model.Event;
+import com.pacoapp.paco.model.EventQueryStatus;
 import com.pacoapp.paco.model.Experiment;
 import com.pacoapp.paco.model.ExperimentProviderUtil;
 import com.pacoapp.paco.model.Output;
@@ -322,6 +323,26 @@ public class FeedbackActivity extends ActionBarActivity {
     }
     return convertEventsToJsonString(events.subList(0,1));
   }
+  
+  public static String convertEventQueryStatusToJsonString(EventQueryStatus eventQryStat) {
+    ObjectMapper mapper = JsonConverter.getObjectMapper();
+
+    String eventJson = null;
+    try {
+      eventJson = mapper.writeValueAsString(eventQryStat);
+    } catch (JsonGenerationException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    } catch (JsonMappingException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    } catch (IOException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
+    return eventJson;
+  }
+
 
   public static String convertEventsToJsonString(List<Event> events) {
     ObjectMapper mapper = JsonConverter.getObjectMapper();

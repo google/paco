@@ -338,6 +338,7 @@ pacoApp.controller('ListCtrl', [
         'new' : [],
         'public' : []
       };
+      $scope.currentAdminSortOrder = 'title_asc';
       $scope.loading = {};
       $scope.state = {};
 
@@ -372,14 +373,17 @@ pacoApp.controller('ListCtrl', [
         $scope.loadAllPublicList(reset);
       };
 
-      $scope.loadList = function(listName, reset) {
+      $scope.loadList = function(listName, reset, sortName) {
         var cursor = $scope.cursor[listName];
         if (reset === undefined) {
           reset = false;
+        } else if (reset) {
+          cursor = null;
+          $scope.list[listName] = [];
         }
 
         $scope.loading[listName] = true;
-        experimentService.getExperimentList(listName, true, cursor).then(function(response) {
+        experimentService.getExperimentList(listName, true, cursor, sortName).then(function(response) {
 
           if (reset) {
             $scope.cursor[listName] = null;
@@ -410,8 +414,8 @@ pacoApp.controller('ListCtrl', [
         $scope.loadList('joined', reset);
       };
 
-      $scope.loadAdminList = function(reset) {
-        $scope.loadList('admin', reset);
+      $scope.loadAdminList = function(reset) {        
+        $scope.loadList('admin', reset, this.currentAdminSortOrder);
       }
 
       $scope.loadJoinableList = function(reset) {
@@ -429,6 +433,11 @@ pacoApp.controller('ListCtrl', [
       $scope.loadNewList = function(reset) {
         $scope.loadList('new', reset);
       };
+      
+      $scope.sortAdminList = function() {
+        $scope.currentAdminSortOrder = this.currentAdminSortOrder;
+        $scope.loadList('admin', true, this.currentAdminSortOrder);
+      }
 
       $scope.deleteExperiment = function(ev, exp) {
         var confirm = $mdDialog.confirm().parent(angular.element(document.body)).title('Confirm experiment deletion')

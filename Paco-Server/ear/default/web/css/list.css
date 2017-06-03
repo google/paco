@@ -19,8 +19,15 @@
 }
 
 .list .organization {
-  color: #aaa;
+  color: #999;
 }
+
+.list .modifyDate {
+  padding-top:5px;	
+  color: #555;
+  font-size: 12px; 
+}
+
 
 .list .join {
   float: right;

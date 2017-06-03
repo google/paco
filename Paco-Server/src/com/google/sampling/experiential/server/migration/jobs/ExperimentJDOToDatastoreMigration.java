@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.logging.Logger;
 
+import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 
 import com.google.appengine.api.datastore.DatastoreService;
@@ -52,7 +53,7 @@ public class ExperimentJDOToDatastoreMigration implements MigrationJob {
   public static final Logger log = Logger.getLogger(ExperimentJDOToDatastoreMigration.class.getName());
 
   @Override
-  public boolean doMigration() {
+  public boolean doMigration(String optionalcursor) {
     System.out.println("STARTING MIGRATION");
     UserService userService;
     DateTimeZone timezone = DateTimeZone.getDefault();
@@ -515,7 +516,9 @@ public class ExperimentJDOToDatastoreMigration implements MigrationJob {
         Key experimentKey = ExperimentJsonEntityManager.saveExperiment(ds, tx, JsonConverter.jsonify(experiment),
                                                                        experiment.getId(),
                                                                        experiment.getTitle(),
-                                                                       experiment.getVersion());
+                                                                       experiment.getVersion(),
+                                                                       new DateTime().getMillis(),
+                                                                       experiment.getAdmins());
 
         experiment.setId(experimentKey.getId());
         ExperimentAccessManager.updateAccessControlEntities(ds, tx, experiment, experimentKey, timezone);

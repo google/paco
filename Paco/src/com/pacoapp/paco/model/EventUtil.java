@@ -23,27 +23,4 @@ public class EventUtil {
     return event;
   }
 
-  public static Event createSitesVisitedPacoEvent(String usedAppsString, Experiment experiment, long startTime) {
-    Event event = new Event();
-    event.setExperimentId(experiment.getId());
-    event.setServerExperimentId(experiment.getServerId());
-    event.setExperimentName(experiment.getExperimentDAO().getTitle());
-    event.setExperimentVersion(experiment.getExperimentDAO().getVersion());
-    event.setResponseTime(new DateTime());
-
-    Output responseForInput = new Output();
-
-    responseForInput.setAnswer(usedAppsString);
-    responseForInput.setName("sites_visited");
-    event.addResponse(responseForInput);
-
-    Output responseForInputSessionDuration = new Output();
-    long sessionDuration = (System.currentTimeMillis() - startTime) / 1000;
-    responseForInputSessionDuration.setAnswer(Long.toString(sessionDuration));
-    responseForInputSessionDuration.setName("session_duration");
-
-    event.addResponse(responseForInputSessionDuration);
-    return event;
-  }
-
 }

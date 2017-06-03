@@ -26,7 +26,6 @@ static NSString* const kSoundNameSecond = @"deepbark_trial_second.mp3";
 static NSString* const kSoundNameThird = @"deepbark_trial_third.mp3";
 
 @interface PacoIOSLocalNotificationTests : XCTestCase
--(int)scheduledCountWithDelay;
 @end
 
 @implementation PacoIOSLocalNotificationTests
@@ -43,17 +42,6 @@ static NSString* const kSoundNameThird = @"deepbark_trial_third.mp3";
   [[UIApplication sharedApplication] cancelAllLocalNotifications];
 }
 
--(int)scheduledCountWithDelay {
-  sleep(1);
-  return (int)[[[UIApplication sharedApplication] scheduledLocalNotifications] count];
-}
-
-- (void)testNilNotifications {
-  [UIApplication sharedApplication].scheduledLocalNotifications = nil;
-  
-  XCTAssertEqual([self scheduledCountWithDelay], 0, @"there should be 0 notification");
-}
-
 - (void)testScheduleNilNotifications {
   UILocalNotification* notification = [[UILocalNotification alloc] init];
   notification.timeZone = [NSTimeZone systemTimeZone];
@@ -61,12 +49,13 @@ static NSString* const kSoundNameThird = @"deepbark_trial_third.mp3";
   notification.soundName = kSoundNameDefault;
   notification.fireDate = [NSDate dateWithTimeIntervalSinceNow:10];
   [[UIApplication sharedApplication] scheduleLocalNotification:notification];
-  XCTAssertEqual([self scheduledCountWithDelay], 1, @"there should be one notification");
+  NSArray* scheduled = [[UIApplication sharedApplication] scheduledLocalNotifications];
+  XCTAssertEqual((int)[scheduled count], 1, @"there should be one notification");
   
   [UIApplication sharedApplication].scheduledLocalNotifications = nil;
   
-
-  XCTAssertEqual([self scheduledCountWithDelay], 0, @"there should be 0 notification");
+  scheduled = [[UIApplication sharedApplication] scheduledLocalNotifications];
+  XCTAssertEqual((int)[scheduled count], 0, @"there should be 0 notification");
 }
 
 - (void)testScheduleEmptyNotifications {
@@ -76,11 +65,13 @@ static NSString* const kSoundNameThird = @"deepbark_trial_third.mp3";
   notification.soundName = kSoundNameDefault;
   notification.fireDate = [NSDate dateWithTimeIntervalSinceNow:10];
   [[UIApplication sharedApplication] scheduleLocalNotification:notification];
-  XCTAssertEqual([self scheduledCountWithDelay], 1, @"there should be one notification");
+  NSArray* scheduled = [[UIApplication sharedApplication] scheduledLocalNotifications];
+  XCTAssertEqual((int)[scheduled count], 1, @"there should be one notification");
   
   [UIApplication sharedApplication].scheduledLocalNotifications = @[];
   
-  XCTAssertEqual([self scheduledCountWithDelay], 0, @"there should be 0 notification");
+  scheduled = [[UIApplication sharedApplication] scheduledLocalNotifications];
+  XCTAssertEqual((int)[scheduled count], 0, @"there should be 0 notification");
 }
 
 - (void)testScheduleInvalidNotificationBeforeNow {
@@ -90,7 +81,8 @@ static NSString* const kSoundNameThird = @"deepbark_trial_third.mp3";
   notification.soundName = kSoundNameDefault;
   notification.fireDate = [NSDate dateWithTimeIntervalSinceNow:-1];
   [[UIApplication sharedApplication] scheduleLocalNotification:notification];
-  XCTAssertEqual([self scheduledCountWithDelay], 0,
+  NSArray* scheduled = [[UIApplication sharedApplication] scheduledLocalNotifications];
+  XCTAssertEqual((int)[scheduled count], 0,
                  @"it should be invalid to schedule a notification one second before now");
 }
 
@@ -101,7 +93,8 @@ static NSString* const kSoundNameThird = @"deepbark_trial_third.mp3";
   notification.soundName = kSoundNameDefault;
   notification.fireDate = [NSDate dateWithTimeIntervalSinceNow:0];
   [[UIApplication sharedApplication] scheduleLocalNotification:notification];
-  XCTAssertEqual([self scheduledCountWithDelay], 0,
+  NSArray* scheduled = [[UIApplication sharedApplication] scheduledLocalNotifications];
+  XCTAssertEqual((int)[scheduled count], 0,
                  @"it should be invalid to schedule a notification for now");
 }
 
@@ -119,31 +112,38 @@ static NSString* const kSoundNameThird = @"deepbark_trial_third.mp3";
   notification.soundName = kSoundNameDefault;
   notification.fireDate = [NSDate dateWithTimeIntervalSinceNow:0];
   [[UIApplication sharedApplication] scheduleLocalNotification:notification];
-  XCTAssertEqual([self scheduledCountWithDelay], 0,
+  NSArray* scheduled = [[UIApplication sharedApplication] scheduledLocalNotifications];
+  XCTAssertEqual((int)[scheduled count], 0,
                  @"it should be invalid to schedule a notification for now");
   
   [[UIApplication sharedApplication] cancelLocalNotification:notification];
-  XCTAssertEqual([self scheduledCountWithDelay], 0,
+  scheduled = [[UIApplication sharedApplication] scheduledLocalNotifications];
+  XCTAssertEqual((int)[scheduled count], 0,
                  @"it should be fine to cancel an invalid notification from UIApplication");
 }
 
 
-- (void)testCancelTimeoutNotification { 
+- (void)testCancelTimeoutNotification {
   UILocalNotification* notification = [[UILocalNotification alloc] init];
   notification.timeZone = [NSTimeZone systemTimeZone];
   notification.alertBody = kAlertBodyDefault;
   notification.soundName = kSoundNameDefault;
   notification.fireDate = [NSDate dateWithTimeIntervalSinceNow:1];
   [[UIApplication sharedApplication] scheduleLocalNotification:notification];
-  XCTAssertEqual([self scheduledCountWithDelay], 1,
+  NSArray* scheduled = [[UIApplication sharedApplication] scheduledLocalNotifications];
+  XCTAssertEqual((int)[scheduled count], 1,
                  @"it should be invalid to schedule a notification for now");
   
-  XCTAssertEqual([self scheduledCountWithDelay], 0,
+  sleep(1);
+  
+  scheduled = [[UIApplication sharedApplication] scheduledLocalNotifications];
+  XCTAssertEqual((int)[scheduled count], 0,
                  @"the notification should fire already");
 
   [[UIApplication sharedApplication] cancelLocalNotification:notification];
   
-  XCTAssertEqual([self scheduledCountWithDelay], 0,
+  scheduled = [[UIApplication sharedApplication] scheduledLocalNotifications];
+  XCTAssertEqual((int)[scheduled count], 0,
                  @"it should be fine to cancel an invalid notification from UIApplication");
 }
 
@@ -154,10 +154,8 @@ static NSString* const kSoundNameThird = @"deepbark_trial_third.mp3";
   notification.soundName = kSoundNameDefault;
   notification.fireDate = [NSDate dateWithTimeIntervalSinceNow:1];
   [[UIApplication sharedApplication] scheduleLocalNotification:notification];
-    
   NSArray* scheduled = [[UIApplication sharedApplication] scheduledLocalNotifications];
-
-  XCTAssertEqual((int) [scheduled count], 1,
+  XCTAssertEqual((int)[scheduled count], 1,
                  @"it should be valid to schedule a notification one second after now");
 }
 
@@ -169,11 +167,10 @@ static NSString* const kSoundNameThird = @"deepbark_trial_third.mp3";
   notification.fireDate = [NSDate dateWithTimeIntervalSinceNow:10];
   
   [[UIApplication sharedApplication] scheduleLocalNotification:notification];
-  XCTAssertEqual([self scheduledCountWithDelay], 1,
+  NSArray* scheduled = [[UIApplication sharedApplication] scheduledLocalNotifications];
+  XCTAssertEqual((int)[scheduled count], 1,
                  @"it should be valid to schedule a notification one second after now");
   
-  NSArray* scheduled = [[UIApplication sharedApplication] scheduledLocalNotifications];
-
   UILocalNotification* notificationInIOS = [scheduled firstObject];
   XCTAssertTrue(notification != notificationInIOS,
                @"notification is copied into iOS SDK, instead of retained as a pointer");
@@ -184,7 +181,8 @@ static NSString* const kSoundNameThird = @"deepbark_trial_third.mp3";
                        @"as long as they have exactly the same information");
   
   [[UIApplication sharedApplication] cancelLocalNotification:notification];
-  XCTAssertEqual([self scheduledCountWithDelay], 0,
+  scheduled = [[UIApplication sharedApplication] scheduledLocalNotifications];
+  XCTAssertEqual((int)[scheduled count], 0,
                  @"cancelling the original notification object is able to cancel the one"
                  @"held in iOS SDK");
 }
@@ -200,7 +198,8 @@ static NSString* const kSoundNameThird = @"deepbark_trial_third.mp3";
     notification.fireDate = [date dateByAddingTimeInterval:count];
     [[UIApplication sharedApplication] scheduleLocalNotification:notification];
   }
-  XCTAssertEqual([self scheduledCountWithDelay], 64,
+  NSArray* scheduled = [[UIApplication sharedApplication] scheduledLocalNotifications];
+  XCTAssertEqual((int)[scheduled count], 64,
                  @"we should be able to schedule as many as 64 notifcations");
 }
 
@@ -214,14 +213,14 @@ static NSString* const kSoundNameThird = @"deepbark_trial_third.mp3";
     notification.fireDate = [date dateByAddingTimeInterval:count];
     [[UIApplication sharedApplication] scheduleLocalNotification:notification];
   }
-  XCTAssertEqual([self scheduledCountWithDelay], 70,
-                 @"notifications now can exceed 64 and will not be dropped!");
   NSArray* scheduled = [[UIApplication sharedApplication] scheduledLocalNotifications];
+  XCTAssertEqual((int)[scheduled count], 64,
+                 @"notifications exceeding 64 will be dropped!");
   UILocalNotification* first = [scheduled firstObject];
   XCTAssertEqualObjects(first.fireDate, [date dateByAddingTimeInterval:0],
                        @"notifications fired later will be dropped!");
   UILocalNotification* last = [scheduled lastObject];
-  XCTAssertEqualObjects(last.fireDate,[date dateByAddingTimeInterval:69],
+  XCTAssertEqualObjects(last.fireDate,[date dateByAddingTimeInterval:63],
                        @"notifications fired later will be dropped!");
 }
 
@@ -242,7 +241,8 @@ static NSString* const kSoundNameThird = @"deepbark_trial_third.mp3";
   notificationSecond.fireDate = date;
   [[UIApplication sharedApplication] scheduleLocalNotification:notificationSecond];
   
-  XCTAssertEqual([self scheduledCountWithDelay], 2,
+  NSArray* scheduled = [[UIApplication sharedApplication] scheduledLocalNotifications];
+  XCTAssertEqual((int)[scheduled count], 2,
                  @"notifications with same fire date but different other information will be"
                  @"treated as two different notifications");
 }
@@ -265,7 +265,8 @@ static NSString* const kSoundNameThird = @"deepbark_trial_third.mp3";
   notificationSecond.fireDate = dateSecond;
   [[UIApplication sharedApplication] scheduleLocalNotification:notificationSecond];
   
-  XCTAssertEqual([self scheduledCountWithDelay], 2,
+  NSArray* scheduled = [[UIApplication sharedApplication] scheduledLocalNotifications];
+  XCTAssertEqual((int)[scheduled count], 2,
                  @"notifications with different fire dates will be treated as two different notifications");
 }
 
@@ -287,7 +288,8 @@ static NSString* const kSoundNameThird = @"deepbark_trial_third.mp3";
   notificationSecond.fireDate = date;
   [[UIApplication sharedApplication] scheduleLocalNotification:notificationSecond];
   
-  XCTAssertEqual([self scheduledCountWithDelay], 1,
+  NSArray* scheduled = [[UIApplication sharedApplication] scheduledLocalNotifications];
+  XCTAssertEqual((int)[scheduled count], 1,
                  @"notifications with same information will be treated as one notification");
 }
 
@@ -312,7 +314,7 @@ static NSString* const kSoundNameThird = @"deepbark_trial_third.mp3";
   
   NSArray* scheduled = [[UIApplication sharedApplication] scheduledLocalNotifications];
   NSLog(@"[%lu]%@",(unsigned long)[scheduled count], scheduled);
-  XCTAssertEqual([self scheduledCountWithDelay], 1,
+  XCTAssertEqual((int)[scheduled count], 1,
                  @"notifications with same information should be treated as one notification");
 }
 
@@ -337,7 +339,8 @@ static NSString* const kSoundNameThird = @"deepbark_trial_third.mp3";
   notificationSecond.userInfo =  @{@"timeOutDate":timeOutDate, @"fireDate":date, @"id":@"1"};;
   [[UIApplication sharedApplication] scheduleLocalNotification:notificationSecond];
   
-  XCTAssertEqual([self scheduledCountWithDelay], 1,
+  NSArray* scheduled = [[UIApplication sharedApplication] scheduledLocalNotifications];
+  XCTAssertEqual((int)[scheduled count], 1,
                  @"notifications with same information should be treated as one notification");
 }
 
@@ -364,7 +367,7 @@ static NSString* const kSoundNameThird = @"deepbark_trial_third.mp3";
   
   NSArray* scheduled = [[UIApplication sharedApplication] scheduledLocalNotifications];
   NSLog(@"[%lu]%@",(unsigned long)[scheduled count], scheduled);
-  XCTAssertEqual([self scheduledCountWithDelay], 2,
+  XCTAssertEqual((int)[scheduled count], 2,
                  @"notifications with different userInfo should be treated as two notifications");
 }
 
@@ -381,7 +384,8 @@ static NSString* const kSoundNameThird = @"deepbark_trial_third.mp3";
     noti.userInfo = @{@"id":@"1", @"fireDate":date, @"timeOutDate":timeOutDate};
     [[UIApplication sharedApplication] scheduleLocalNotification:noti];
   }
-  XCTAssertEqual([self scheduledCountWithDelay], 1,
+  NSArray* scheduled = [[UIApplication sharedApplication] scheduledLocalNotifications];
+  XCTAssertEqual((int)[scheduled count], 1,
                  @"notifications with same information should be treated as one notification");
 }
 
@@ -394,7 +398,8 @@ static NSString* const kSoundNameThird = @"deepbark_trial_third.mp3";
   noti.soundName = kSoundNameDefault;
   noti.fireDate = date;
   [[UIApplication sharedApplication] scheduleLocalNotification:noti];
-  XCTAssertEqual([self scheduledCountWithDelay], 1,
+  NSArray* scheduled = [[UIApplication sharedApplication] scheduledLocalNotifications];
+  XCTAssertEqual((int)[scheduled count], 1,
                  @"there should be one notification scheduled!");
   
   
@@ -404,7 +409,8 @@ static NSString* const kSoundNameThird = @"deepbark_trial_third.mp3";
   toBeCancelled.soundName = kSoundNameDefault;
   toBeCancelled.fireDate = date;
   [[UIApplication sharedApplication] cancelLocalNotification:toBeCancelled];
-  XCTAssertEqual([self scheduledCountWithDelay], 0,
+  scheduled = [[UIApplication sharedApplication] scheduledLocalNotifications];
+  XCTAssertEqual((int)[scheduled count], 0,
                  @"the scheduled notification should be cancelled");
 }
 
@@ -418,7 +424,8 @@ static NSString* const kSoundNameThird = @"deepbark_trial_third.mp3";
   noti.fireDate = date;
   noti.userInfo = @{@"id":@"1", @"fireDate":date, @"timeOutDate":timeOutDate};
   [[UIApplication sharedApplication] scheduleLocalNotification:noti];
-  XCTAssertEqual([self scheduledCountWithDelay], 1,
+  NSArray* scheduled = [[UIApplication sharedApplication] scheduledLocalNotifications];
+  XCTAssertEqual((int)[scheduled count], 1,
                  @"there should be one notification scheduled!");
   
   
@@ -429,7 +436,8 @@ static NSString* const kSoundNameThird = @"deepbark_trial_third.mp3";
   toBeCancelled.fireDate = date;
   toBeCancelled.userInfo = @{@"id":@"1", @"timeOutDate":timeOutDate, @"fireDate":date};
   [[UIApplication sharedApplication] cancelLocalNotification:toBeCancelled];
-  XCTAssertEqual([self scheduledCountWithDelay], 0,
+  scheduled = [[UIApplication sharedApplication] scheduledLocalNotifications];
+  XCTAssertEqual((int)[scheduled count], 0,
                  @"the scheduled notification should be cancelled");
 }
 

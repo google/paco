@@ -16,9 +16,21 @@ pacoApp.service('experimentService', ['$http', '$cacheFactory', 'util', 'config'
       saveExperiment: saveExperiment,
     });
 
-    function getExperimentList(listType, limit, cursor) {
+    function getExperimentList(listType, limit, cursor, sortName) {
       var endpoint = '/experiments?' + listType;
 
+      if (listType === "admin") {
+        if (sortName === 'title_desc') {
+          endpoint += '&sortColumn=title&sortOrder=desc';
+        } else if (sortName === 'modified_date_desc') {
+          endpoint += '&sortColumn=modified_date&sortOrder=desc';
+        } else if (sortName === 'modified_date_asc') {
+          endpoint += '&sortColumn=modified_date&sortOrder=asc';
+        } else  /*(sortName === 'title_asc') */ {
+          endpoint += '&sortColumn=title&sortOrder=asc';
+        } 
+      }
+      
       if (limit) {
         endpoint += '&limit=' + config.listPageSize;
       }
@@ -581,7 +593,12 @@ pacoApp.service('template', function() {
     type: 'interruptTrigger',
     actions: [this.defaultAction],
     cues: [this.cue],
-    minimumBuffer: 59
+    minimumBuffer: 59,
+    hasTimeWindow: false,
+    startTimeMillis: 9 * 60 * 60 * 1000,
+    endTimeMillis: 5 * 60 * 60 * 1000,
+    weekends: true
+    
   };
 
   this.signalTime = {

@@ -14,6 +14,7 @@ import com.google.sampling.experiential.model.What;
 public class EventEntityConverter {
 
   public static Event convertEntityToEvent(Entity entity) {
+    Integer experimentVersion  =null;
     Long id = (Long) entity.getProperty("id");
     String who = (String) entity.getProperty("who");
     String lat = (String) entity.getProperty("lat");
@@ -23,7 +24,9 @@ public class EventEntityConverter {
     String pacoVersion = (String) entity.getProperty("pacoVersion");
     String experimentName = (String) entity.getProperty("experimentName");
     String experimentId = (String) entity.getProperty("experimentId");
-    Integer experimentVersion = (int)(long)entity.getProperty("experimentVersion");
+    if(entity.getProperty("experimentVersion")!=null) {
+      experimentVersion = (int)(long)entity.getProperty("experimentVersion");
+    }
     Date scheduledTime = (Date) entity.getProperty("scheduledTime");
     Date responseTime = (Date) entity.getProperty("responseTime");
     boolean shared = (Boolean) entity.getProperty("shared");

@@ -202,6 +202,17 @@ public class ActionScheduleGenerator {
     return true;
   }
 
+  public static boolean isExperimentGroupRunning(ExperimentGroup experimentGroup) {
+    if (!experimentGroup.getFixedDuration()) {
+      return true;
+    }
+    DateMidnight startDate = TimeUtil.unformatDate(experimentGroup.getStartDate()).toDateMidnight();
+    if (DateTime.now().isBefore(startDate)) {
+      return false;
+    }
+    return !isExperimentGroupOver(experimentGroup);
+  }
+
   public static boolean isOver(DateTime now, ExperimentDAO experiment) {
     return areAllGroupsFixedDuration(experiment) && now.isAfter(getEndDateTime(experiment));
   }

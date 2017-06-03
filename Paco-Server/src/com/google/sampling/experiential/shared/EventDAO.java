@@ -17,6 +17,7 @@
 package com.google.sampling.experiential.shared;
 
 import java.io.Serializable;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -56,16 +57,7 @@ public class EventDAO implements Serializable {
   private boolean shared;
 
   private String experimentName;
-
-
-  public String getExperimentName() {
-    return experimentName;
-  }
-
-  public void setExperimentName(String experimentName) {
-    this.experimentName = experimentName;
-  }
-
+  
   @JsonProperty("responses")
   private List<WhatDAO> what;
 
@@ -83,6 +75,8 @@ public class EventDAO implements Serializable {
   private Long actionTriggerId;
   private Long actionTriggerSpecId;
   private Long actionId;
+  private boolean joined;
+  private Date sortDate;
 
   @JsonProperty("responses")
   public List<WhatDAO> getWhat() {
@@ -204,6 +198,15 @@ public class EventDAO implements Serializable {
   public void setShared(boolean shared) {
     this.shared = shared;
   }
+  
+  public String getExperimentName() {
+    return experimentName;
+  }
+
+  public void setExperimentName(String experimentName) {
+    this.experimentName = experimentName;
+  }
+
 
   /**
    * @return
@@ -335,4 +338,31 @@ public class EventDAO implements Serializable {
     this.actionId = actionId;
   }
 
+  public boolean isJoined() {
+    return joined;
+  }
+
+  public void setJoined(boolean joined) {
+    this.joined = joined;
+  }
+
+  public Date getSortDate() {
+    return sortDate;
+  }
+
+  public void setSortDate(Date sortDate) {
+    this.sortDate = sortDate;
+  }
+  
+  @Override
+  public String toString() {
+    return "EventDAO [id=" + id + ", experimentId=" + experimentId + ", who=" + who + ", lat=" + lat + ", lon=" + lon
+           + ", when=" + when + ", appId=" + appId + ", pacoVersion=" + pacoVersion + ", shared=" + shared
+           + ", experimentName=" + experimentName + ", what=" + what + ", responseTime=" + responseTime
+           + ", scheduledTime=" + scheduledTime + ", blobs=" + Arrays.toString(blobs) + ", experimentVersion="
+           + experimentVersion + ", timezone=" + timezone + ", experimentGroupName=" + experimentGroupName
+           + ", actionTriggerId=" + actionTriggerId + ", actionTriggerSpecId=" + actionTriggerSpecId + ", actionId="
+           + actionId + ", joined=" + joined + ", sortDate=" + sortDate + "]";
+  }
+  
 }

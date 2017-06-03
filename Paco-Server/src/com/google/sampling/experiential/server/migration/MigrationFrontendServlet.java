@@ -48,38 +48,43 @@ public class MigrationFrontendServlet extends HttpServlet {
   @Override
   protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException,
   IOException {
+    
     resp.setContentType("application/json;charset=UTF-8");
 
     User user = AuthUtil.getWhoFromLogin();
-
+    String cursor = null;
+    cursor =  req.getParameter("cursor");
+   if(user != null) {
+     log.info("user in mig front end" + user.getEmail());
+     log.info("front end req id" + req.getSession().getId());
+   }
     if (user == null) {
       AuthUtil.redirectUserToLogin(req, resp);
-    } else if (AuthUtil.isUserAdmin()) {
+      
+    } else  if (AuthUtil.isUserAdmin()) { 
       String jobName = req.getParameter("name");
-      String jobId = sendMigrateRequestToBackend(req, jobName);
+      String jobId = sendMigrateRequestToBackend(req, jobName, cursor);
       resp.sendRedirect("/jobStatus?jobId=" + jobId);
     } else {
       resp.sendError(HttpServletResponse.SC_FORBIDDEN);
     }
   }
 
-
-  private String sendMigrateRequestToBackend(HttpServletRequest req, String jobName) throws IOException {
+  private String sendMigrateRequestToBackend(HttpServletRequest req, String jobName, String cursor) throws IOException {
     req.getParameter("name");
     ModulesService modulesApi = ModulesServiceFactory.getModulesService();
     String backendAddress = modulesApi.getVersionHostname("reportworker", modulesApi.getDefaultVersion("reportworker"));
 
-
     try {
       BufferedReader reader = null;
       try {
-        reader = sendToBackend(backendAddress, jobName);
+        reader = sendToBackend(backendAddress, jobName, cursor);
       } catch (SocketTimeoutException se) {
         try {
           Thread.sleep(100);
         } catch (InterruptedException e) {
         }
-        reader = sendToBackend(backendAddress, jobName);
+        reader = sendToBackend(backendAddress, jobName, cursor);
       }
       if (reader != null) {
         StringBuilder buf = new StringBuilder();
@@ -96,22 +101,28 @@ public class MigrationFrontendServlet extends HttpServlet {
     return null;
   }
 
-  private BufferedReader sendToBackend(String backendAddress, String jobName) throws MalformedURLException, IOException {
-
-
+  private BufferedReader sendToBackend(String backendAddress, String jobName, String cursor) throws MalformedURLException, IOException {
+    URL url = null;
     String scheme = "https";
+    HttpURLConnection connection = null;
+    InputStreamReader inputStreamReader = null;
+    BufferedReader reader = null;
     if (SystemProperty.environment.value() == SystemProperty.Environment.Value.Development) {
       scheme = "http";
     }
-    URL url = new URL(scheme + "://" + backendAddress + "/migrateBackend?who=" + AuthUtil.getWhoFromLogin().getEmail().toLowerCase() +
-                      "&migrationName=" + jobName );
+    if ( cursor != null) {
+      url = new URL(scheme + "://" + backendAddress + "/migrateBackend?who=" + AuthUtil.getWhoFromLogin().getEmail().toLowerCase() +
+                      "&migrationName=" + jobName + "&cursor="+ cursor);
+    } else {
+      url = new URL(scheme + "://" + backendAddress + "/migrateBackend?who=" + AuthUtil.getWhoFromLogin().getEmail().toLowerCase() +
+                    "&migrationName=" + jobName);
+    }
     log.info("URL to backend = " + url.toString());
-
-    HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+    connection = (HttpURLConnection) url.openConnection();
     connection.setInstanceFollowRedirects(false);
-    InputStreamReader inputStreamReader = new InputStreamReader(connection.getInputStream());
-    BufferedReader reader = new BufferedReader(inputStreamReader);
+    connection.setReadTimeout(10000);
+    inputStreamReader = new InputStreamReader(connection.getInputStream());
+    reader = new BufferedReader(inputStreamReader);
     return reader;
   }
-
 }

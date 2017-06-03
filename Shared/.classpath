@@ -10,5 +10,6 @@
 	<classpathentry kind="lib" path="lib/guava-16.0.1.jar"/>
 	<classpathentry kind="lib" path="lib/joda-time-2.9.3.jar"/>
 	<classpathentry kind="lib" path="lib/json-1.5.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/jsqlparser-0.9.6.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

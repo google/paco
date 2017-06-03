@@ -45,7 +45,6 @@ public class ExperimentProvider extends ContentProvider {
   static final String EVENTS_TABLE_NAME = "events";
   static final String OUTPUTS_TABLE_NAME = "outputs";
   static final String NOTIFICATION_TABLE_NAME = "notifications";
-  static final String EVENTS_OUTPUTS_TABLE_NAME = "eventsoutputs";
 
   private static final int EXPERIMENTS_DATATYPE = 1;
   private static final int EXPERIMENT_ITEM_DATATYPE = 2;
@@ -61,8 +60,6 @@ public class ExperimentProvider extends ContentProvider {
 
   private static final int NOTIFICATION_DATATYPE = 14;
   private static final int NOTIFICATION_ITEM_DATATYPE = 15;
-
-  static final int EVENTS_OUTPUTS_DATATYPE=16;
 
   private SQLiteDatabase db;
   private final UriMatcher uriMatcher;

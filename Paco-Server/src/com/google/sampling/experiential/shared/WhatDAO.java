@@ -39,4 +39,9 @@ public class WhatDAO implements Comparable<WhatDAO> {
     return getName().compareTo(o.getName());
   }
 
+  @Override
+  public String toString() {
+    return "WhatDAO [name=" + name + ", value=" + value + "]";
+  }
+
 }
