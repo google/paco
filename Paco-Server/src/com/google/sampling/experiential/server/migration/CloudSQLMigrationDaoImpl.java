@@ -159,7 +159,22 @@ public class CloudSQLMigrationDaoImpl implements CloudSQLMigrationDao {
             statementCreateEvent.setInt(i++, whenFrac);
             statementCreateEvent.setString(i++, event.getPacoVersion());
             statementCreateEvent.setString(i++, event.getAppId());
-            statementCreateEvent.setNull(i++, java.sql.Types.BOOLEAN);
+            Boolean joinFlag = null;
+            if (event.getWhat() != null) {
+              String joinedStat = event.getWhatByKey(EventServerColumns.JOINED);
+              if (joinedStat != null) {
+                if (joinedStat.equalsIgnoreCase(Constants.TRUE)) {
+                  joinFlag = true;
+                } else {
+                  joinFlag = false;
+                }
+              }
+            }
+            if (joinFlag == null) { 
+              statementCreateEvent.setNull(i++, java.sql.Types.BOOLEAN);
+            } else {
+              statementCreateEvent.setBoolean(i++, joinFlag);
+            }
             Timestamp ts = null;
             if(event.getResponseTime() != null) {
               ts =  new Timestamp(event.getResponseTime().getTime());
@@ -360,7 +375,7 @@ public class CloudSQLMigrationDaoImpl implements CloudSQLMigrationDao {
     int fracSec = 0;
     PreparedStatement statementSelectEvent = null;
     ResultSet rs = null;
-    String query  = "select `when`, when_fractional_sec from events order by `when` asc limit 1";
+    String query  = "select `when`, when_fractional_sec from events order by `when` asc, when_fractional_sec asc limit 1";
 
     try {
       conn = CloudSQLConnectionManager.getInstance().getConnection();
@@ -397,7 +412,7 @@ public class CloudSQLMigrationDaoImpl implements CloudSQLMigrationDao {
     Timestamp stTime = null;
     PreparedStatement statementSelectEvent = null;
     ResultSet rs = null;
-    String query  = "select `start_time`,start_time_fractional_sec from streaming order by `current_time` asc limit 1";
+    String query  = "select `start_time`,start_time_fractional_sec from streaming order by `current_time` desc limit 1";
 
     try {
       conn = CloudSQLConnectionManager.getInstance().getConnection();
@@ -514,7 +529,8 @@ public class CloudSQLMigrationDaoImpl implements CloudSQLMigrationDao {
                                             + FailedEventServerColumns.EVENT_JSON + "` varchar(3000) NOT NULL," + "`"
                                             + FailedEventServerColumns.FAILED_INSERT_TIME + "` datetime  DEFAULT NULL," + "`"
                                             + FailedEventServerColumns.REASON + "` varchar(500) DEFAULT NULL," + "`"
-                                            + FailedEventServerColumns.COMMENTS + "` varchar(1000) DEFAULT NULL,"
+                                            + FailedEventServerColumns.COMMENTS + "` varchar(1000) DEFAULT NULL," +"`"
+                                            + FailedEventServerColumns.REPROCESSED + "` varchar(10) DEFAULT 'false'," 
                                             + "PRIMARY KEY (`" + FailedEventServerColumns.ID + "`)"+") ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4";
       final String createMigrationCursorTableSql = "CREATE TABLE `migration_cursor` ( " +
                                                     "`id` bigint(20) NOT NULL AUTO_INCREMENT," + 

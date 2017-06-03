@@ -7,7 +7,7 @@ public class Constants {
   public static final String COLUMN = "Column";
   public static final String ASC = "ASC";
   public static final String DESC = "DESC";
-  public static final String UNDERSCORE_ID = "_Id";
+  public static final String UNDERSCORE_ID = "_id";
   public static final String STAR = "*";
   public static final String SELECT = "select";
   public static final String QUERY = "query";
@@ -28,6 +28,7 @@ public class Constants {
   public static final String EQUALS = " = ";
   public static final String SINGLE_QUOTE = "'";
   public static final String TRUE = "true";
+  public static final String FALSE = "false";
   public static final String SUCCESS = "Success";
   public static final String FAILURE = "Failure";
   public static final String GMT = "GMT";

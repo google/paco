@@ -7,4 +7,5 @@ public class FailedEventServerColumns {
   public static final String FAILED_INSERT_TIME = "failed_insert_time";
   public static final String REASON = "reason";
   public static final String COMMENTS = "comments";
+  public static final String REPROCESSED = "reprocessed";
 }
