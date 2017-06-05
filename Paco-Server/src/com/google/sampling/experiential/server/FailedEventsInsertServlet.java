@@ -83,7 +83,7 @@ public class FailedEventsInsertServlet extends HttpServlet {
       log.info("To be fixed"+ toBeFixed.keySet());
       log.info("FixedList"+ fixedList);
       log.info("NotFixedList"+ notFixedList);
-      log.info("Mystery List"+ mysteryList);
+      log.info("Mystery List(Present in both events table and failed events table. So we are not processing these event ids : )"+ mysteryList);
     } catch (SQLException | JSONException | ParseException e) {
       try {
         sqlDao.updateFailedEventsRetry(id, Constants.TRUE);
