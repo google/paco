@@ -140,7 +140,7 @@ public class CloudSqlSearchServlet extends HttpServlet {
                                                                  .getExperiments();
         aclQuery = ACLHelper.getModifiedQueryBasedOnACL(selStatement, loggedInUser, adminExperimentsinDB, qProcessor);
         long startTime = System.currentTimeMillis();
-        evtList = impl.getEvents(aclQuery, tzForClient);
+        evtList = impl.getEvents(aclQuery, tzForClient, null);
         long diff = System.currentTimeMillis() - startTime;
         log.info("complete search qry took " + diff);
         evQryStatus.setEvents(evtList);
