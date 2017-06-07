@@ -46,6 +46,7 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
   private static final String selectOutputsSql = "select * from " + OutputBaseColumns.TABLE_NAME + " where " + OutputBaseColumns.EVENT_ID + " = ?";
   private static final String selectFailedEventsSql = "select * from " + FailedEventServerColumns.TABLE_NAME + " where " + FailedEventServerColumns.REPROCESSED + "='false'";
   private static final String updateFailedEventsSql = "update "+ FailedEventServerColumns.TABLE_NAME +" set "+ FailedEventServerColumns.REPROCESSED+ " = ? where " + FailedEventServerColumns.ID + "= ?";
+  private static final String GET_EVENT_FOR_ID_QUERY = "select * from " + EventServerColumns.TABLE_NAME + " where " + Constants.UNDERSCORE_ID+ " =?";
 
   static {
     eventColList.add(new Column(EventServerColumns.EXPERIMENT_ID));
@@ -204,13 +205,12 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
   }
   
   @Override
-  public List<EventDAO> getEvents(String eventId) throws SQLException, ParseException{
-    String baseQuery = "Select * from events where "+Constants.UNDERSCORE_ID + "= ";
-    return getEvents(baseQuery + eventId, null);
+  public List<EventDAO> getEvents(Long eventId) throws SQLException, ParseException{
+    return getEvents(GET_EVENT_FOR_ID_QUERY, null, eventId);
   }
  
   @Override
-  public List<EventDAO> getEvents(String query, DateTimeZone tzForClient) throws SQLException, ParseException {
+  public List<EventDAO> getEvents(String query, DateTimeZone tzForClient, Long eventId) throws SQLException, ParseException {
     List<EventDAO> evtDaoList = Lists.newArrayList();
     EventDAO event = null;
     Connection conn = null;
@@ -230,6 +230,9 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
       statementSelectEvent.setFetchSize(Integer.MIN_VALUE);
 
       Long st1Time = System.currentTimeMillis();
+      if(eventId != null && query.contains("?")) {
+        statementSelectEvent.setLong(1, eventId);
+      }
       rs = statementSelectEvent.executeQuery();
       Long st2Time = System.currentTimeMillis();
       

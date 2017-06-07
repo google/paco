@@ -26,6 +26,7 @@ import com.pacoapp.paco.shared.util.ErrorMessages;
 @SuppressWarnings("serial")
 public class FailedEventsInsertServlet extends HttpServlet {
   public static final Logger log = Logger.getLogger(FailedEventsInsertServlet.class.getName());
+  public static String GET_EVENT_FOR_ID_QUERY = "select * from events where _id=?";
   
   @Override
   public void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException, ServletException {
@@ -51,23 +52,24 @@ public class FailedEventsInsertServlet extends HttpServlet {
         id = failedId;
         final JSONObject currentEvent = new JSONObject(failedEvents.get(failedId));
         // find the id  from failed json
-        if (currentEvent.has("id")) {
-          eventId = Long.parseLong(currentEvent.getString("id"));
+        if (currentEvent.has(Constants.ID)) {
+          eventId = Long.parseLong(currentEvent.getString(Constants.ID));
           // check whether failed json id is there in events table
-          List<EventDAO> evtList = sqlDao.getEvents("select * from events where _id="+eventId, null);
+          List<EventDAO> evtList = sqlDao.getEvents(GET_EVENT_FOR_ID_QUERY, null, eventId);
           if (evtList.size() == 0) {
             toBeFixed.put(eventId, false);
             // send it to cs insert
             String results = EventJsonUploadProcessor.create().processJsonEvents(true, failedEvents.get(failedId),
                                                                                  null, null,null);
-            sqlDao.updateFailedEventsRetry(id, Constants.TRUE);
             // verify whether it is there in events table
-            List<EventDAO> evts = sqlDao.getEvents("select * from events where _id="+eventId, null);
+            List<EventDAO> evts = sqlDao.getEvents(GET_EVENT_FOR_ID_QUERY, null, eventId);
             if (evts.size() >0) {
               toBeFixed.put(eventId, true);
+              sqlDao.updateFailedEventsRetry(id, Constants.TRUE);
             }
           } else {
             log.warning("It is in failed Events table and also in events table"+ eventId);
+            sqlDao.updateFailedEventsRetry(id, "resolved");
             mysteryList.add(eventId);
           }
         }  

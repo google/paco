@@ -8,6 +8,7 @@ public class Constants {
   public static final String ASC = "ASC";
   public static final String DESC = "DESC";
   public static final String UNDERSCORE_ID = "_id";
+  public static final String ID = "id";
   public static final String STAR = "*";
   public static final String SELECT = "select";
   public static final String QUERY = "query";
