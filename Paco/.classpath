@@ -12,5 +12,6 @@
 	<classpathentry kind="lib" path="libs/slf4j-api-1.7.21.jar"/>
 	<classpathentry kind="lib" path="libs/logback-android-1.1.1-6.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/google-play-services_lib"/>
+	<classpathentry kind="lib" path="../Shared/lib/jsqlparser-0.9.6.jar"/>
 	<classpathentry kind="output" path="bin/classes"/>
 </classpath>

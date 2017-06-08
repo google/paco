@@ -21,6 +21,14 @@
     <url-pattern>/migration/csCreate</url-pattern>
   </servlet-mapping>
   <servlet>
+    <servlet-name>FailedEventsInsertServlet</servlet-name>
+    <servlet-class>com.google.sampling.experiential.server.FailedEventsInsertServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>FailedEventsInsertServlet</servlet-name>
+    <url-pattern>/migration/csFailedEventsInsert</url-pattern>
+  </servlet-mapping>
+  <servlet>
     <servlet-name>migrationFrontendServlet</servlet-name>
     <servlet-class>com.google.sampling.experiential.server.migration.MigrationFrontendServlet</servlet-class>
   </servlet>

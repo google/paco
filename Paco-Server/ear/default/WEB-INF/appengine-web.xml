@@ -19,7 +19,7 @@
 <appengine-web-app xmlns='http://appengine.google.com/ns/1.0'>
 <application>quantifiedself</application>
   <module>default</module>
-  <version>203</version>
+  <version>206</version>
 
   <public-root>/web</public-root>
 
@@ -35,7 +35,7 @@
     <property value='WEB-INF/logging.properties' name='java.util.logging.config.file'/> 
     <property name="com.pacoapp.reportbucketname" value="reportbucket" />
     <property name="com.pacoapp.adminDomain" value="google.com" />
-    <property name="ae-cloudsql.database-url" value="jdbc:google:mysql://XXX" /> 
+    <property name="ae-cloudsql.database-url" value="jdbc:google:mysql://XXX" />     
     <property name="ae-cloudsql.local-database-url" value="jdbc:mysql://localhost:3306/pacodb?verifyServerCertificate=false&amp;useSSL=false"/>
     <property name="ae-cloudsql.local-database-username" value="XXX"/>
     <property name="ae-cloudsql.local-database-password" value="XXX"/>
