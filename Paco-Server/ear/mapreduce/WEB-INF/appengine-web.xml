@@ -2,7 +2,7 @@
 
  <application>quantifiedself</application>
   <module>mapreduce</module>
-  <version>206</version>
+  <version>208</version>
   <threadsafe>true</threadsafe>
     <ssl-enabled>true</ssl-enabled>
   <sessions-enabled>true</sessions-enabled>
@@ -25,7 +25,6 @@
   <system-properties>
     <property name="java.util.logging.config.file" value="WEB-INF/logging.properties"/>
     <property name="ae-cloudsql.database-url" value="jdbc:google:mysql://XXX" />     
-    
     <property name="ae-cloudsql.database-username" value="XXX"/>
     <property name="ae-cloudsql.database-password" value="XXX"/>
     <property name="ae-connection-pool.maxconn" value="100"/>
