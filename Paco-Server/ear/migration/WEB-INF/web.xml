@@ -29,6 +29,22 @@
     <url-pattern>/migration/csFailedEventsInsert</url-pattern>
   </servlet-mapping>
   <servlet>
+    <servlet-name>EventCounterServlet</servlet-name>
+    <servlet-class>com.google.sampling.experiential.server.migration.mr.eventctr.EventCounterMRServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>EventCounterServlet</servlet-name>
+    <url-pattern>/migration/eventCounter</url-pattern>
+  </servlet-mapping>
+  <servlet>
+    <servlet-name>MayJuneEventCounterServlet</servlet-name>
+    <servlet-class>com.google.sampling.experiential.server.migration.mr.dayctr.MayJuneEventCounterMRServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>MayJuneEventCounterServlet</servlet-name>
+    <url-pattern>/migration/mayJuneEventCounter</url-pattern>
+  </servlet-mapping>
+  <servlet>
     <servlet-name>migrationFrontendServlet</servlet-name>
     <servlet-class>com.google.sampling.experiential.server.migration.MigrationFrontendServlet</servlet-class>
   </servlet>
