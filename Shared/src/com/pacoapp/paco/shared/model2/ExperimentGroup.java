@@ -226,10 +226,9 @@ public class ExperimentGroup extends ModelBase implements Validatable, java.io.S
       return;
     }
     for (Input2 input : inputs) {
-      // TODO commenting this out for now because one experimentor uses the same name cleverly but under conditionals that are mutually exclusive.
-//      if (!inputNames.add(input.getName())) {
-//        validator.addError("Input name: " + input.getName() + " is duplicate. All input names within a group must be unique");
-//      }
+      if (!inputNames.add(input.getName())) {
+        validator.addError("Input name: " + input.getName() + " is duplicate. All input names within a group must be unique");
+      }
       input.validateWith(validator);
     }
   }
