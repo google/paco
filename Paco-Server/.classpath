@@ -30,6 +30,6 @@
 	<classpathentry kind="lib" path="ear/default/WEB-INF/lib/sqlbuilder-2.1.6.jar"/>
 	<classpathentry kind="lib" path="ear/default/WEB-INF/lib/commons-dbcp-1.4.jar"/>
 	<classpathentry kind="lib" path="ear/default/WEB-INF/lib/commons-pool-1.5.4.jar"/>
-	<classpathentry kind="con" path="com.google.appengine.eclipse.core.GAE_CONTAINER/com.google.appengine.eclipse.sdkbundle_1.9.34"/>
+	<classpathentry kind="con" path="com.google.appengine.eclipse.core.GAE_CONTAINER/appengine-java-sdk-1.9.0-paco"/>
 	<classpathentry kind="output" path="ear/default/WEB-INF/classes"/>
 </classpath>
