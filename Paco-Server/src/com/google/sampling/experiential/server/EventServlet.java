@@ -487,13 +487,12 @@ public class EventServlet extends HttpServlet {
     String pacoVersion = req.getHeader("paco.version");
     log.info("Paco version = " + pacoVersion);
     String results = EventJsonUploadProcessor.create().processJsonEvents(postBodyString, AuthUtil.getEmailOfUser(req, AuthUtil.getWhoFromLogin()), appIdHeader, pacoVersion);
-    
-    //if (AuthUtil.getWhoFromLogin().getEmail().toLowerCase().equals("aparkergoldberg@gmail.com")) {
+
     if (req.getHeader("pacoProtocol") != null && req.getHeader("pacoProtocol").indexOf("4") == -1) {
       log.severe("oldProtocol " + req.getHeader("pacoProtocol") + " (iOS) results?");
       log.severe(results);
     }
-    
+
     resp.setContentType("application/json;charset=UTF-8");
     resp.getWriter().write(results);
   }
