@@ -16,6 +16,7 @@ import java.util.logging.Logger;
 
 import org.joda.time.DateTimeZone;
 
+
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.sampling.experiential.datastore.EventServerColumns;
@@ -87,7 +88,7 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
   }
 
   @Override
-  public boolean insertEvent(Event event) throws SQLException, ParseException {
+  public boolean insertEventAndOutputs(Event event) throws SQLException, ParseException {
     if (event == null) {
       log.warning(ErrorMessages.NOT_VALID_DATA.getDescription());
       return false;
@@ -99,7 +100,7 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
     boolean retVal = false;
     Timestamp whenTs = null;
     int whenFrac = 0;
-    //startCount for setting paramter index
+    //startCount for setting parameter index
     int i = 1 ;
     ExpressionList eventExprList = new ExpressionList();
     ExpressionList outputExprList = new ExpressionList();
@@ -191,6 +192,95 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
         if (statementCreateEventOutput != null) {
           statementCreateEventOutput.close();
         }
+        if (statementCreateEvent != null) {
+          statementCreateEvent.close();
+        }
+        if (conn != null) {
+          conn.close();
+        }
+      } catch (SQLException ex1) {
+        log.warning(ErrorMessages.CLOSING_RESOURCE_EXCEPTION.getDescription() + ex1);
+      }
+    }
+    return retVal;
+  }
+  
+  @Override
+  public boolean insertSingleEventOnly(Event event) throws SQLException, ParseException {
+    if (event == null) {
+      log.warning(ErrorMessages.NOT_VALID_DATA.getDescription());
+      return false;
+    }
+
+    Connection conn = null;
+    PreparedStatement statementCreateEvent = null;
+    boolean retVal = false;
+    Timestamp whenTs = null;
+    int whenFrac = 0;
+    //startCount for setting parameter index
+    int i = 1 ;
+    ExpressionList eventExprList = new ExpressionList();
+    List<Expression> exp = Lists.newArrayList();
+    Insert eventInsert = new Insert();
+     try {
+      log.info("Inserting event->" + event.getId());
+      conn = CloudSQLConnectionManager.getInstance().getConnection();
+      setNames(conn);
+      conn.setAutoCommit(false);
+      eventInsert.setTable(new Table(EventServerColumns.TABLE_NAME));
+      eventInsert.setUseValues(true);
+      eventExprList.setExpressions(exp);
+      eventInsert.setItemsList(eventExprList);
+      eventInsert.setColumns(eventColList);
+      // Adding ? for prepared stmt
+      for (Column c : eventColList) {
+        ((ExpressionList) eventInsert.getItemsList()).getExpressions().add(new JdbcParameter());
+      }
+
+      statementCreateEvent = conn.prepareStatement(eventInsert.toString());
+      statementCreateEvent.setLong(i++, Long.parseLong(event.getExperimentId()));
+      statementCreateEvent.setString(i++, event.getExperimentName());
+      statementCreateEvent.setInt(i++, event.getExperimentVersion());
+      statementCreateEvent.setTimestamp(i++, event.getScheduledTime() != null ? new Timestamp(event.getScheduledTime().getTime()): null);
+      statementCreateEvent.setTimestamp(i++, event.getResponseTime() != null ? new Timestamp(event.getResponseTime().getTime()): null);
+      statementCreateEvent.setString(i++, event.getExperimentGroupName());
+      statementCreateEvent.setLong(i++, event.getActionTriggerId() != null ? new Long(event.getActionTriggerId()) : java.sql.Types.NULL);
+      statementCreateEvent.setLong(i++, event.getActionTriggerSpecId() != null ? new Long(event.getActionTriggerId()) : java.sql.Types.NULL);
+      statementCreateEvent.setLong(i++, event.getActionId() != null ? new Long(event.getActionId()) : java.sql.Types.NULL);
+      statementCreateEvent.setString(i++, event.getWho());
+      if (event.getWhen() != null) {
+        whenTs = new Timestamp(event.getWhen().getTime());
+        whenFrac = com.google.sampling.experiential.server.TimeUtil.getFractionalSeconds(whenTs);
+      }
+      statementCreateEvent.setTimestamp(i++, whenTs);
+      statementCreateEvent.setInt(i++, whenFrac);
+      statementCreateEvent.setString(i++, event.getPacoVersion());
+      statementCreateEvent.setString(i++, event.getAppId());
+      Boolean joinFlag = null;
+      if (event.getWhat() != null) {
+        String joinedStat = event.getWhatByKey(EventServerColumns.JOINED);
+        if (joinedStat != null) {
+          if (joinedStat.equalsIgnoreCase(Constants.TRUE)) {
+            joinFlag = true;
+          } else {
+            joinFlag = false;
+          }
+        }
+      }
+      if (joinFlag == null) { 
+        statementCreateEvent.setNull(i++, java.sql.Types.BOOLEAN);
+      } else {
+        statementCreateEvent.setBoolean(i++, joinFlag);
+      }
+      statementCreateEvent.setTimestamp(i++, event.getResponseTime()!= null ? new Timestamp(event.getResponseTime().getTime()): new Timestamp(event.getScheduledTime().getTime()));
+      statementCreateEvent.setString(i++, event.getTimeZone());
+      statementCreateEvent.setLong(i++, event.getId());
+      statementCreateEvent.execute();
+
+      conn.commit();
+      retVal = true;
+    } finally {
+      try {
         if (statementCreateEvent != null) {
           statementCreateEvent.close();
         }

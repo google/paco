@@ -7,6 +7,8 @@ import java.util.Map;
 import javax.jdo.PersistenceManager;
 import javax.jdo.PersistenceManagerFactory;
 
+import org.joda.time.DateTime;
+
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Entity;
@@ -23,7 +25,7 @@ import com.google.sampling.experiential.server.migration.MigrationJob;
 public class TestJDODSCompat implements MigrationJob {
 
   @Override
-  public boolean doMigration(String optionalCursor) {
+  public boolean doMigration(String optionalCursor, DateTime startTime, DateTime endTime) {
     // create JDO for a kind with sub kinds
     PersistenceManagerFactory pmf = PMF.get();
     PersistenceManager pm = pmf.getPersistenceManager();
