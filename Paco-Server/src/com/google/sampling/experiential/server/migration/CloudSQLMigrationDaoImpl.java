@@ -18,6 +18,7 @@ import java.util.logging.Logger;
 import org.joda.time.DateTime;
 
 import com.google.common.collect.Lists;
+import com.google.sampling.experiential.datastore.CatchupFailureServerColumns;
 import com.google.sampling.experiential.datastore.EventServerColumns;
 import com.google.sampling.experiential.datastore.FailedEventServerColumns;
 import com.google.sampling.experiential.model.Event;
@@ -48,7 +49,7 @@ public class CloudSQLMigrationDaoImpl implements CloudSQLMigrationDao {
   private static List<Column> cursorColList = Lists.newArrayList();
   private static List<Column> missedEventsColList = Lists.newArrayList();
   private static List<Column> streamingColList = Lists.newArrayList();
-  
+  private static List<Column> catchupFailureColList = Lists.newArrayList();
   
   static {
     eventColList.add(new Column(EventServerColumns.EXPERIMENT_ID));
@@ -97,6 +98,12 @@ public class CloudSQLMigrationDaoImpl implements CloudSQLMigrationDao {
     streamingColList.add(new Column("`start_time`"));
     streamingColList.add(new Column("`start_time_fractional_sec`"));
     streamingColList.add(new Column("`current_time`"));
+    
+    catchupFailureColList.add(new Column(CatchupFailureServerColumns.INSERTION_TYPE));
+    catchupFailureColList.add(new Column(CatchupFailureServerColumns.EVENT_ID));
+    catchupFailureColList.add(new Column(CatchupFailureServerColumns.TEXT));
+    catchupFailureColList.add(new Column(CatchupFailureServerColumns.FAILURE_REASON));
+    
   }
   
   @Override
@@ -467,9 +474,60 @@ public class CloudSQLMigrationDaoImpl implements CloudSQLMigrationDao {
     }
     return isDone;
   }
+  
+  @Override
+  public boolean insertCatchupFailure(String insertType, Long eventId, String text, String comments) {
+    Connection conn = null;
+    PreparedStatement statementCreateCatchupFailure = null;
+    boolean retVal = false;
+    ExpressionList catchupFailureExprList = new ExpressionList();
+    List<Expression> exp = Lists.newArrayList();
+    Insert catchupFailureInsert = new Insert();
+   
+    try {
+      log.info("Inserting catchup " + insertType + " failure");
+      conn = CloudSQLConnectionManager.getInstance().getConnection();
+      setNames(conn);
+      conn.setAutoCommit(false);
+      catchupFailureInsert.setTable(new Table(CatchupFailureServerColumns.TABLE_NAME));
+      catchupFailureInsert.setUseValues(true);
+      catchupFailureExprList.setExpressions(exp);
+      catchupFailureInsert.setItemsList(catchupFailureExprList);
+      catchupFailureInsert.setColumns(catchupFailureColList);
+      // Adding ? for prepared stmt
+      for (Column c : catchupFailureColList) {
+        ((ExpressionList) catchupFailureInsert.getItemsList()).getExpressions().add(new JdbcParameter());
+      }
+ 
+      statementCreateCatchupFailure = conn.prepareStatement(catchupFailureInsert.toString());
+      statementCreateCatchupFailure.setString(1, insertType);
+      statementCreateCatchupFailure.setLong(2, eventId);
+      statementCreateCatchupFailure.setString(3, text);
+      statementCreateCatchupFailure.setString(4, comments);
+      
+      statementCreateCatchupFailure.execute();
+      conn.commit();
+      retVal = true;
+    } catch(SQLException sqle) { 
+      log.severe("Exception while inserting to catchup failure table" + eventId);
+    } 
+    finally {
+      try {
+        if (statementCreateCatchupFailure != null) {
+          statementCreateCatchupFailure.close();
+        }
+        if (conn != null) {
+          conn.close();
+        }
+      } catch (SQLException ex1) {
+        log.info(ErrorMessages.CLOSING_RESOURCE_EXCEPTION.getDescription() + ex1);
+      }
+    }
+    return retVal;
+  }
 
   @Override
-  public String createTables() throws SQLException {
+  public String createTables(String stepNo) throws SQLException {
     String retString = null;
     Connection conn = null;
     PreparedStatement statementCreateEvent = null;
@@ -478,7 +536,7 @@ public class CloudSQLMigrationDaoImpl implements CloudSQLMigrationDao {
     PreparedStatement statementCreateMigrationCursor = null;
     PreparedStatement statementCreateMissingEventIds = null;
     PreparedStatement statementCreateStreaming = null;
-    
+    PreparedStatement statementCreateCatchupFailure = null;
     try {
 
       conn = CloudSQLConnectionManager.getInstance().getConnection();
@@ -527,11 +585,19 @@ public class CloudSQLMigrationDaoImpl implements CloudSQLMigrationDao {
       final String createFailedEventsTableSql = "CREATE TABLE `" +  FailedEventServerColumns.TABLE_NAME +  "` (" + "`" 
                                             + FailedEventServerColumns.ID + "` bigint(20) NOT NULL AUTO_INCREMENT," + "`"
                                             + FailedEventServerColumns.EVENT_JSON + "` varchar(3000) NOT NULL," + "`"
-                                            + FailedEventServerColumns.FAILED_INSERT_TIME + "` datetime  DEFAULT NULL," + "`"
+                                            + FailedEventServerColumns.FAILED_INSERT_TIME + "` datetime  DEFAULT CURRENT_TIMESTAMP," + "`"
                                             + FailedEventServerColumns.REASON + "` varchar(500) DEFAULT NULL," + "`"
                                             + FailedEventServerColumns.COMMENTS + "` varchar(1000) DEFAULT NULL," +"`"
                                             + FailedEventServerColumns.REPROCESSED + "` varchar(10) DEFAULT 'false'," 
                                             + "PRIMARY KEY (`" + FailedEventServerColumns.ID + "`)"+") ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4";
+      final String createCatchupFailureTableSql = "CREATE TABLE `" +  CatchupFailureServerColumns.TABLE_NAME +  "` (" + "`" 
+                                            + CatchupFailureServerColumns.ID + "` bigint(20) NOT NULL AUTO_INCREMENT," + "`"
+                                            + CatchupFailureServerColumns.INSERTION_TYPE + "` varchar(20) NOT NULL," + "`"
+                                            + CatchupFailureServerColumns.EVENT_ID + "` bigint(20)  DEFAULT NULL," + "`"
+                                            + CatchupFailureServerColumns.TEXT + "` varchar(750) DEFAULT NULL," + "`"
+                                            + CatchupFailureServerColumns.FAILURE_REASON + "` varchar(750) DEFAULT NULL," +"`"
+                                            + CatchupFailureServerColumns.FAILURE_TIME + "` datetime DEFAULT CURRENT_TIMESTAMP," 
+                                            + "PRIMARY KEY (`" + CatchupFailureServerColumns.ID + "`)"+") ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4";
       final String createMigrationCursorTableSql = "CREATE TABLE `migration_cursor` ( " +
                                                     "`id` bigint(20) NOT NULL AUTO_INCREMENT," + 
                                                     "`cursor` varchar(400) DEFAULT NULL, " +
@@ -553,48 +619,57 @@ public class CloudSQLMigrationDaoImpl implements CloudSQLMigrationDao {
                                              " `current_time` datetime DEFAULT NULL, " +
                                              " PRIMARY KEY (`id`) " +
                                              ") ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=latin1";
+      if (stepNo.equalsIgnoreCase("one")) {
 
-      statementCreateEvent = conn.prepareStatement(createEventsTableSql);
-      log.info(createEventsTableSql);
-      statementCreateEvent.execute();
-      log.info("created events");
-      // TODO better handling
-      retString = "created events table. ";
-      
-      statementCreateOutput = conn.prepareStatement(createOutputsTableSql);
-      log.info(createOutputsTableSql);
-      statementCreateOutput.execute();
-      log.info("created outputs");
-      // TODO better handling
-      retString = retString + "Created outputs table. ";
-      
-      statementCreateFailedEvent = conn.prepareStatement(createFailedEventsTableSql);
-      log.info(createFailedEventsTableSql);
-      statementCreateFailedEvent.execute();
-      log.info("created failed events");
-      // TODO better handling
-      retString = retString + "Created FailedEvents table. ";
-      
-      statementCreateMigrationCursor = conn.prepareStatement(createMigrationCursorTableSql);
-      log.info(createMigrationCursorTableSql);
-      statementCreateMigrationCursor.execute();
-      log.info("created migration cursor");
-      // TODO better handling
-      retString = retString + "Created MigrationCursor table. ";
-      
-      statementCreateMissingEventIds = conn.prepareStatement(createMissingEventIdsTableSql);
-      log.info(createMissingEventIdsTableSql);
-      statementCreateMissingEventIds.execute();
-      log.info("created missing events");
-      // TODO better handling
-      retString = retString + "Created missingEventIds table. ";
-      
-      statementCreateStreaming = conn.prepareStatement(createStreamingTableSql);
-      log.info(createStreamingTableSql);
-      statementCreateStreaming.execute();
-      log.info("created streaming");
-      // TODO better handling
-      retString = retString + "Created Streaming table. ";
+        statementCreateEvent = conn.prepareStatement(createEventsTableSql);
+        log.info(createEventsTableSql);
+        statementCreateEvent.execute();
+        log.info("created events");
+        // TODO better handling
+        retString = "created events table. ";
+        
+        statementCreateOutput = conn.prepareStatement(createOutputsTableSql);
+        log.info(createOutputsTableSql);
+        statementCreateOutput.execute();
+        log.info("created outputs");
+        // TODO better handling
+        retString = retString + "Created outputs table. ";
+        
+        statementCreateFailedEvent = conn.prepareStatement(createFailedEventsTableSql);
+        log.info(createFailedEventsTableSql);
+        statementCreateFailedEvent.execute();
+        log.info("created failed events");
+        // TODO better handling
+        retString = retString + "Created FailedEvents table. ";
+        
+        statementCreateMigrationCursor = conn.prepareStatement(createMigrationCursorTableSql);
+        log.info(createMigrationCursorTableSql);
+        statementCreateMigrationCursor.execute();
+        log.info("created migration cursor");
+        // TODO better handling
+        retString = retString + "Created MigrationCursor table. ";
+        
+        statementCreateMissingEventIds = conn.prepareStatement(createMissingEventIdsTableSql);
+        log.info(createMissingEventIdsTableSql);
+        statementCreateMissingEventIds.execute();
+        log.info("created missing events");
+        // TODO better handling
+        retString = retString + "Created missingEventIds table. ";
+        
+        statementCreateStreaming = conn.prepareStatement(createStreamingTableSql);
+        log.info(createStreamingTableSql);
+        statementCreateStreaming.execute();
+        log.info("created streaming");
+        // TODO better handling
+        retString = retString + "Created Streaming table. ";
+      } else  if (stepNo.equalsIgnoreCase("two")) {
+        statementCreateCatchupFailure = conn.prepareStatement(createCatchupFailureTableSql);
+        log.info(createCatchupFailureTableSql);
+        statementCreateCatchupFailure.execute();
+        log.info("created catchup failure");
+        // TODO better handling
+        retString = retString + "Created Catchup failure table. ";
+      }
     } finally {
       try {
         if (statementCreateEvent != null) {

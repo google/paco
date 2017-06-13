@@ -53,7 +53,7 @@ public class ExperimentJDOToDatastoreMigration implements MigrationJob {
   public static final Logger log = Logger.getLogger(ExperimentJDOToDatastoreMigration.class.getName());
 
   @Override
-  public boolean doMigration(String optionalcursor) {
+  public boolean doMigration(String optionalcursor, DateTime startTime, DateTime endTime) {
     System.out.println("STARTING MIGRATION");
     UserService userService;
     DateTimeZone timezone = DateTimeZone.getDefault();

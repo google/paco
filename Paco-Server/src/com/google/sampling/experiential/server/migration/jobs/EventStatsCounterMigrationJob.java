@@ -203,7 +203,7 @@ public class EventStatsCounterMigrationJob implements MigrationJob {
   }
 
   @Override
-  public boolean doMigration(String cursor) {
+  public boolean doMigration(String cursor, DateTime startTime, DateTime endTime) {
     return doMigrationWithMapReduce();
     //return doMigrationInLoopForLatestOnly();
   }
