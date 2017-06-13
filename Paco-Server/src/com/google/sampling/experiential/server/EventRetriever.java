@@ -39,6 +39,7 @@ import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -156,6 +157,7 @@ public class EventRetriever {
     Event event = new Event(who, lat, lon, whenDate, appId, pacoVersion, what, shared, experimentId, experimentName,
                             experimentVersion, responseTime, scheduledTime, blobs, tz, groupName, actionTriggerId,
                             actionTriggerSpecId, actionId);
+
     // persistInCloudSql flag will determine which flow to go. Flow 1:persist in
     // data store and send event to the cloud sql queue
     // Flow 2: persist in cloud sql
@@ -177,13 +179,11 @@ public class EventRetriever {
       } catch (ParseException e) {
         cloudSqlDaoImpl.insertFailedEvent(eventJson.toString(), ErrorMessages.TEXT_PARSE_EXCEPTION.getDescription(), e.getMessage());
         log.warning(ErrorMessages.TEXT_PARSE_EXCEPTION.getDescription() + "for request: " +eventJson + e);
-      } catch (Exception e) { 
+      } catch (Exception e) {
         cloudSqlDaoImpl.insertFailedEvent(eventJson.toString(), ErrorMessages.GENERAL_EXCEPTION.getDescription(), e.getMessage());
         log.warning(ErrorMessages.GENERAL_EXCEPTION.getDescription() + "for request: " +eventJson + e.getStackTrace());
       }
-
     } else {
-
       Transaction tx = null;
       try {
         tx = pm.currentTransaction();
@@ -195,6 +195,7 @@ public class EventRetriever {
         } else if (!isScheduleEvent && !isStopEvent) {
           new ParticipationStatsService().updateResponseCountWithEvent(event);
         }
+        replaceEachBlobInJsonWithTheWordBlob(eventJson, event);
         sendToCloudSqlQueue(eventJson, event);
         tx.commit();
         log.info("Event saved in datastore");
@@ -206,6 +207,46 @@ public class EventRetriever {
         pm.close();
       }
     }
+  }
+
+  /**
+   * A destructive method to replace blobs with the word "blob" so as not to
+   * crash the task queue which has a 100k limit on task payload size.
+   *
+   * We will query for image and audio blob data in a different way.
+   *
+   * @param eventJson
+   * @param event
+   */
+  private void replaceEachBlobInJsonWithTheWordBlob(JSONObject eventJson, Event event) {
+    List<PhotoBlob> blobs = event.getBlobs();
+    if (blobs == null || blobs.isEmpty()) {
+      return;
+    }
+
+    if (!eventJson.has("responses")) {
+      log.warning("We have blobs but no responses in an event: " + event.getId());
+      return;
+    }
+
+    try {
+      JSONArray responses = eventJson.getJSONArray("responses");
+
+      for (PhotoBlob photoBlob : blobs) {
+        String blobName = photoBlob.getName();
+
+        for (int i = 0; i < responses.length(); i++) {
+          JSONObject response = responses.getJSONObject(i);
+          if (response.has("name") && response.get("name").equals(blobName)) {
+            response.put("answer", "blob");
+            break;
+          }
+        }
+      }
+    } catch (JSONException e) {
+      log.severe("JSON Exception on event: " + event.getId() + ". " + e.getMessage());
+    }
+
   }
 
   public void sendToCloudSqlQueue(JSONObject eventJson, Event event) {
@@ -411,7 +452,7 @@ public class EventRetriever {
     }
     adjustTimeZone(allEvents);
   }
- 
+
   private Set<What> fetchWhats(DatastoreService datastore, Key key) {
     com.google.appengine.api.datastore.Query whatQuery = new com.google.appengine.api.datastore.Query("What", key);
     PreparedQuery whatPreparedQuery = datastore.prepare(whatQuery);
@@ -702,7 +743,7 @@ public class EventRetriever {
     sortList(newArrayList);
     return new EventQueryResultPair(newArrayList, null);
   }
-  
+
   public static boolean isExperimentAdministrator(String loggedInUserEmail, Experiment experiment) {
     return experiment.getCreator().getEmail().toLowerCase().equals(loggedInUserEmail)
            || experiment.getAdmins().contains(loggedInUserEmail);
