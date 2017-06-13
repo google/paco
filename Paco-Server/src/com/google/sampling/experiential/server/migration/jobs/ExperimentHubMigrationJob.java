@@ -8,6 +8,9 @@ import java.util.Date;
 import java.util.List;
 import java.util.logging.Logger;
 
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
+
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Entity;
@@ -34,40 +37,44 @@ public class ExperimentHubMigrationJob implements MigrationJob {
     public boolean doMigrationPublicExperiments(){
         //1. Loop through public experiments and fill in "modify_date"
 
-        ExperimentQueryResult experimentsQueryResults = ExperimentServiceFactory.getExperimentService().getAllExperiments(null);
+        ExperimentQueryResult experimentsQueryResults = ExperimentServiceFactory.getExperimentService().getExperimentsPublishedPublicly(DateTimeZone.getDefault(), null, null, null);
         List<ExperimentDAO> experimentList = experimentsQueryResults.getExperiments();
-        log.fine("HbMigration retrieved " + experimentList.size() + "experiments");
 
         if (experimentList != null) {
+            log.fine("HubMigration retrieved " + experimentList.size() + " experiments");
             int modifiedExperimentCount = 0;
             DateFormat df = new SimpleDateFormat(TimeUtil.DATE_FORMAT);
             List<Pair<Long, Date>> experimentsWithModifyDates = Lists.newArrayList();
 
             for (ExperimentDAO e : experimentList) {
-                if (e.getPublished()) {
-                    Date date;
-                    try{
-                        date = df.parse(e.getModifyDate());
-                    }catch(ParseException ex){
-                        log.info("Could not parse date for " + e.getId() + " " + ex.toString());
-                        date = new Date(); //fallback to "now"
-                        modifiedExperimentCount++;
-                    }
-
-                    experimentsWithModifyDates.add(
-                            new Pair<Long, Date>(e.getId(), date)
-                    );
+                Date date;
+                try {
+                    date = df.parse(e.getModifyDate());
+                } catch (ParseException ex) {
+                    log.info("Could not parse date for " + e.getId() + " " + ex.toString());
+                    date = new Date(); //fallback to "now"
+                    modifiedExperimentCount++;
+                } catch (NullPointerException ex) {
+                    log.info("Could not parse date (npe) for " + e.getId() + " " + ex.toString());
+                    date = new Date(); //fallback to "now"
+                    modifiedExperimentCount++;
                 }
+
+                experimentsWithModifyDates.add(
+                        new Pair<Long, Date>(e.getId(), date)
+                );
             }
             log.fine("Added modifyDates to " + modifiedExperimentCount + " experiments");
             updateDatastore(experimentsWithModifyDates);
+        }else{
+            log.severe("ExperimentHubMigrationJob got a null experimentList");
         }
 
         //2. Run cron job to count participants in each experiment
         HubStatsCronJob cj = new HubStatsCronJob();
         try {
             cj.run();
-        }catch(IOException e){
+        } catch (IOException e) {
             log.warning("Exception occurred while running the HubStatsCronJob during Migration: " + e.toString());
         }
 
