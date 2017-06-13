@@ -205,6 +205,33 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
   }
   
   @Override
+  public boolean insertSingleOutput(Long eventId, String text, String answer) throws SQLException { 
+    PreparedStatement statementCreateEventOutput = null;
+    ExpressionList outputExprList = new ExpressionList();
+    List<Expression>  out = Lists.newArrayList();
+    Insert outputInsert = new Insert();
+    Connection conn = CloudSQLConnectionManager.getInstance().getConnection();
+    setNames(conn);
+    conn.setAutoCommit(false);
+    outputInsert.setTable(new Table(OutputBaseColumns.TABLE_NAME));
+    outputInsert.setUseValues(true);
+    outputExprList.setExpressions(out);
+    outputInsert.setItemsList(outputExprList);
+    outputInsert.setColumns(outputColList);
+    // Adding ? for prepared stmt
+    for (Column c : outputColList) {
+      ((ExpressionList) outputInsert.getItemsList()).getExpressions().add(new JdbcParameter());
+    }
+    statementCreateEventOutput = conn.prepareStatement(outputInsert.toString());
+    statementCreateEventOutput.setLong(1, eventId);
+    statementCreateEventOutput.setString(2, text);
+    statementCreateEventOutput.setString(3, answer);
+    int insertCount = statementCreateEventOutput.executeUpdate();
+    conn.commit();
+    return insertCount>0;
+  }
+  
+  @Override
   public List<EventDAO> getEvents(Long eventId) throws SQLException, ParseException{
     return getEvents(GET_EVENT_FOR_ID_QUERY, null, eventId);
   }
@@ -232,11 +259,11 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
       Long st1Time = System.currentTimeMillis();
       if(eventId != null && query.contains("?")) {
         statementSelectEvent.setLong(1, eventId);
+      } else {
+        String selString = statementSelectEvent.toString();
+        log.info("step 1 " + selString.substring(selString.indexOf(":")));
       }
       rs = statementSelectEvent.executeQuery();
-      Long st2Time = System.currentTimeMillis();
-      
-      log.info("step 1 " + query + "took" + (st2Time- st1Time));
       if (rs != null) {
         // to maintain the insertion order
         eventMap = Maps.newLinkedHashMap();
@@ -251,9 +278,6 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
           }
         }
       }
-      // TODO step 2 sometimes takes 4 times longer to execute than the query.
-      // Not sure why??
-      log.info("step 2 took" + (System.currentTimeMillis() - st2Time));
     } finally {
       try {
         if (statementSelectEvent != null) {
@@ -273,7 +297,8 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
     return evtDaoList;
   }
   
-  private List<WhatDAO> getOutputs(Long eventId) throws SQLException {
+  @Override
+  public List<WhatDAO> getOutputs(Long eventId) throws SQLException {
     List<WhatDAO> whatLst = Lists.newArrayList();
     WhatDAO whatObj = null;
     String question = null;
@@ -536,5 +561,4 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
       
     return isSuccess;  
   }
-  
 }

@@ -19,7 +19,9 @@ package com.google.sampling.experiential.server.migration;
 import java.sql.SQLException;
 import java.text.ParseException;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 import java.util.logging.Logger;
 
 import org.joda.time.DateTime;
@@ -31,12 +33,20 @@ import com.google.appengine.api.datastore.DatastoreTimeoutException;
 import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.FetchOptions;
 import com.google.appengine.api.datastore.PreparedQuery;
+import com.google.appengine.api.datastore.Query.CompositeFilterOperator;
+import com.google.appengine.api.datastore.Query.Filter;
 import com.google.appengine.api.datastore.Query.FilterOperator;
+import com.google.appengine.api.datastore.Query.FilterPredicate;
 import com.google.appengine.api.datastore.QueryResultList;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
 import com.google.sampling.experiential.datastore.EventEntityConverter;
 import com.google.sampling.experiential.model.Event;
+import com.google.sampling.experiential.model.What;
+import com.google.sampling.experiential.server.CloudSQLDaoImpl;
+import com.google.sampling.experiential.shared.EventDAO;
+import com.google.sampling.experiential.shared.WhatDAO;
+import com.pacoapp.paco.shared.util.ErrorMessages;
 
 /**
  * Retrieve Event objects from the JDO store.
@@ -187,6 +197,116 @@ public class MigrationDataRetriever {
     }
     return isFinished;
   }
+  
+  public boolean catchUpEventsFromDSToCS(String oldCursor,DateTime startTime, DateTime endTime) {
+    DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+    CloudSQLMigrationDaoImpl  migDaoImpl =  new CloudSQLMigrationDaoImpl();
+    
+    int count = 0;
+    int pageSize = 1000;
+    Cursor cursor = null;
+    Event evtObjDS = null;
+    QueryResultList<Entity> results = null;
+    boolean isFinished = false;
+    if (oldCursor != null) {
+      log.info("old cursor " + oldCursor);
+      cursor = Cursor.fromWebSafeString(oldCursor);
+    }
+    
+    do {
+     
+      FetchOptions fetchOptions = FetchOptions.Builder.withLimit(pageSize);
+      if (cursor != null) {
+        fetchOptions.startCursor(cursor);
+      }
+
+      com.google.appengine.api.datastore.Query q = new com.google.appengine.api.datastore.Query("Event");
+      FilterPredicate lessThan = new FilterPredicate("when", FilterOperator.LESS_THAN, endTime.toDate());
+      FilterPredicate greaterThan = new FilterPredicate("when", FilterOperator.GREATER_THAN, startTime.toDate());
+      Filter andFilter = CompositeFilterOperator.and(lessThan, greaterThan);
+      q.setFilter(andFilter);
+      PreparedQuery pq = datastore.prepare(q);
+      results = pq.asQueryResultList(fetchOptions);
+      if (results.isEmpty()) {
+        log.info("empty results");
+        break;
+      } 
+      
+      for (int i = 0; i < results.size(); i++) {
+        Entity entity = results.get(i);
+        // get event id from DS
+        evtObjDS = EventEntityConverter.convertEntityToEvent(entity);
+        evtObjDS.setId(entity.getKey().getId());
+        copySingleEventAndOutputsFromDSToCS(evtObjDS);    
+      }
+      cursor = results.getCursor();
+      log.info("Moving the cursor:" + cursor.toWebSafeString());
+      log.info("Count = " + count + "Results = "+ results.size());
+      migDaoImpl.persistCursor(cursor.toWebSafeString());
+      count = count + results.size();
+
+    } while (cursor != null);
+    return isFinished;
+  }
+
+  private void copySingleEventAndOutputsFromDSToCS(Event evtObjDS) {
+    CloudSQLDaoImpl sqlDaoImpl = new CloudSQLDaoImpl(); 
+    CloudSQLMigrationDaoImpl sqlMigDaoImpl = new CloudSQLMigrationDaoImpl(); 
+    List<String> whatTexts = Lists.newArrayList();
+    Boolean eventPresentInCS = false;
+    List<WhatDAO> outputsList = null;
+    int outputsInDS=0;
+    int outputsInCS=0;
+    
+    Set<What> whatsDS = evtObjDS.getWhat();
+    outputsInDS = whatsDS.size();
+    // find if event present in events cloud sql
+    try {
+      List<EventDAO> eventInCS = sqlDaoImpl.getEvents(evtObjDS.getId());
+      if (eventInCS.size() == 0) {
+        //copy event and its outputs to cloud sql
+        sqlDaoImpl.insertEvent(evtObjDS);
+        eventPresentInCS = true;
+      } else {
+        eventPresentInCS = true;
+      }
+    } catch (SQLException | ParseException e) {
+      log.warning(ErrorMessages.SQL_EXCEPTION+ "Event id "+ evtObjDS.getId() + "needs to be moved to CS. But failed:"+ e.getMessage());
+      sqlMigDaoImpl.insertCatchupFailure("EventsReadOrWrite", evtObjDS.getId(), null, e.getMessage());
+    }       
+   
+    if (eventPresentInCS) {
+      // find if cloud sql has the correct number of outputs
+      try {
+        outputsList = sqlDaoImpl.getOutputs(evtObjDS.getId());
+        for (int i=0; i< outputsList.size();i++) {
+          whatTexts.add(outputsList.get(i).getName());
+        }
+        outputsInCS = outputsList.size();
+      } catch (SQLException e) {
+        log.warning(ErrorMessages.SQL_EXCEPTION + " retrieve outputs for eventid" + evtObjDS.getId() + e.getMessage());
+        sqlMigDaoImpl.insertCatchupFailure("OutputRead", evtObjDS.getId(), null, e.getMessage());
+      }
+      // identify missing outputs and insert those alone
+      if (outputsInDS > outputsInCS) {
+        Iterator<What> whatItr = whatsDS.iterator();
+        while (whatItr.hasNext()) {
+          What temp = whatItr.next();
+          String text = temp.getName();
+          String answer = temp.getValue();
+          try {
+            if (!whatTexts.contains(text)) {
+              log.info("Outputs missing in CS for event id " + evtObjDS.getId() + "--" + text);
+              sqlDaoImpl.insertSingleOutput(evtObjDS.getId(), text, answer) ;
+            }
+          } catch (SQLException sqle) { 
+            sqlMigDaoImpl.insertCatchupFailure("OutputWrite", evtObjDS.getId(), text, sqle.getMessage());
+          }
+        }
+      }
+    }
+  }
+  
 
   private Event createEventFromEntity(Entity entity) {
     return EventEntityConverter.convertEntityToEvent(entity);
