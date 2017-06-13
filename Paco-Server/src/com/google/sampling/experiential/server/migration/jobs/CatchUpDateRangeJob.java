@@ -7,13 +7,12 @@ import org.joda.time.DateTime;
 import com.google.sampling.experiential.server.migration.MigrationDataRetriever;
 import com.google.sampling.experiential.server.migration.MigrationJob;
 
-public class CSInsertOutputsJob implements MigrationJob {
+public class CatchUpDateRangeJob implements MigrationJob {
 
-    public static final Logger log = Logger.getLogger(CSInsertOutputsJob.class.getName());
+    public static final Logger log = Logger.getLogger(CatchUpDateRangeJob.class.getName());
 
     @Override
     public boolean doMigration(String cursor, DateTime startTime, DateTime endTime) {
-      return MigrationDataRetriever.getInstance().readOutputsDataStoreAndInsertToCloudSql(cursor);
+      return MigrationDataRetriever.getInstance().catchUpEventsFromDSToCS(cursor, startTime, endTime);
     }
-
 }
