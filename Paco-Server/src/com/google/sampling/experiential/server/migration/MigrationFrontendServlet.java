@@ -30,11 +30,17 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
+
 import com.google.appengine.api.modules.ModulesService;
 import com.google.appengine.api.modules.ModulesServiceFactory;
 import com.google.appengine.api.users.User;
 import com.google.appengine.api.utils.SystemProperty;
+
 import com.google.sampling.experiential.server.AuthUtil;
+import com.pacoapp.paco.shared.util.TimeUtil;
 
 /**
  * Servlet that handles migration tasks for data
@@ -53,6 +59,8 @@ public class MigrationFrontendServlet extends HttpServlet {
 
     User user = AuthUtil.getWhoFromLogin();
     String cursor = null;
+    DateTime stDate = null;
+    DateTime endDate = null;
     cursor =  req.getParameter("cursor");
    if(user != null) {
      log.info("user in mig front end" + user.getEmail());
@@ -63,14 +71,25 @@ public class MigrationFrontendServlet extends HttpServlet {
       
     } else  if (AuthUtil.isUserAdmin()) { 
       String jobName = req.getParameter("name");
-      String jobId = sendMigrateRequestToBackend(req, jobName, cursor);
+      String startTime = req.getParameter("startTime");
+      String endTime = req.getParameter("endTime");
+      try{
+        DateTimeFormatter formatter  = DateTimeFormat.forPattern(TimeUtil.DATE_TIME_WITH_NO_TZ);
+        if(startTime!=null && endTime != null) {
+          stDate = formatter.parseDateTime(startTime);
+          endDate = formatter.parseDateTime(endTime);
+        }
+      } catch (IllegalArgumentException e ){
+        resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
+      }
+      String jobId = sendMigrateRequestToBackend(req, jobName, cursor, stDate, endDate);
       resp.sendRedirect("/jobStatus?jobId=" + jobId);
     } else {
       resp.sendError(HttpServletResponse.SC_FORBIDDEN);
     }
   }
 
-  private String sendMigrateRequestToBackend(HttpServletRequest req, String jobName, String cursor) throws IOException {
+  private String sendMigrateRequestToBackend(HttpServletRequest req, String jobName, String cursor, DateTime startDateTime, DateTime endDateTime) throws IOException {
     req.getParameter("name");
     ModulesService modulesApi = ModulesServiceFactory.getModulesService();
     String backendAddress = modulesApi.getVersionHostname("reportworker", modulesApi.getDefaultVersion("reportworker"));
@@ -78,13 +97,13 @@ public class MigrationFrontendServlet extends HttpServlet {
     try {
       BufferedReader reader = null;
       try {
-        reader = sendToBackend(backendAddress, jobName, cursor);
+        reader = sendToBackend(backendAddress, jobName, cursor, startDateTime, endDateTime);
       } catch (SocketTimeoutException se) {
         try {
           Thread.sleep(100);
         } catch (InterruptedException e) {
         }
-        reader = sendToBackend(backendAddress, jobName, cursor);
+        reader = sendToBackend(backendAddress, jobName, cursor, startDateTime, endDateTime);
       }
       if (reader != null) {
         StringBuilder buf = new StringBuilder();
@@ -101,7 +120,7 @@ public class MigrationFrontendServlet extends HttpServlet {
     return null;
   }
 
-  private BufferedReader sendToBackend(String backendAddress, String jobName, String cursor) throws MalformedURLException, IOException {
+  private BufferedReader sendToBackend(String backendAddress, String jobName, String cursor, DateTime startDateTime, DateTime endDateTime) throws MalformedURLException, IOException {
     URL url = null;
     String scheme = "https";
     HttpURLConnection connection = null;
@@ -110,13 +129,15 @@ public class MigrationFrontendServlet extends HttpServlet {
     if (SystemProperty.environment.value() == SystemProperty.Environment.Value.Development) {
       scheme = "http";
     }
+    StringBuffer urlBase = new StringBuffer(scheme + "://" + backendAddress + "/migrateBackend?who=" + AuthUtil.getWhoFromLogin().getEmail().toLowerCase() +
+                                   "&migrationName=" + jobName);
     if ( cursor != null) {
-      url = new URL(scheme + "://" + backendAddress + "/migrateBackend?who=" + AuthUtil.getWhoFromLogin().getEmail().toLowerCase() +
-                      "&migrationName=" + jobName + "&cursor="+ cursor);
-    } else {
-      url = new URL(scheme + "://" + backendAddress + "/migrateBackend?who=" + AuthUtil.getWhoFromLogin().getEmail().toLowerCase() +
-                    "&migrationName=" + jobName);
+      urlBase.append("&cursor="+ cursor);
+    } 
+    if(startDateTime != null && endDateTime != null) {
+      urlBase.append("&startTime="+ startDateTime + "&endTime=" +  endDateTime);
     }
+    url = new URL(urlBase.toString());
     log.info("URL to backend = " + url.toString());
     connection = (HttpURLConnection) url.openConnection();
     connection.setInstanceFollowRedirects(false);

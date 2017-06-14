@@ -26,10 +26,16 @@ public class CloudSQLCreateServlet extends HttpServlet {
     } else {
       PrintWriter out = resp.getWriter();
       resp.setContentType("text/plain");
-  
+      String stepNo = req.getParameter("stepNo");
       CloudSQLMigrationDao dao = new CloudSQLMigrationDaoImpl();
       try{
-        out.println(dao.createTables());
+        if (stepNo == null) {
+          out.println(dao.createTables("one"));
+          out.println(dao.createTables("two"));
+        } else { 
+          out.println(dao.createTables(stepNo));
+        }
+        
       }catch (SQLException e){
         throw new ServletException("SQL",e);
       }

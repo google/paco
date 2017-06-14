@@ -8,6 +8,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.logging.Logger;
 
+import org.joda.time.DateTime;
+
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Entity;
@@ -107,7 +109,7 @@ public class ExperimentHubMigrationJob implements MigrationJob {
     }
 
     @Override
-    public boolean doMigration(String cursor) {
+    public boolean doMigration(String cursor, DateTime startTime, DateTime endTime) {
       return doMigrationPublicExperiments();
     }
 }

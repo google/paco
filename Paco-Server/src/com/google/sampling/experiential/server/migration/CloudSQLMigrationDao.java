@@ -9,7 +9,7 @@ import org.joda.time.DateTime;
 import com.google.sampling.experiential.model.Event;
 
 public interface CloudSQLMigrationDao {
-  String createTables() throws SQLException;
+  String createTables(String stepNo) throws SQLException;
   boolean insertEventsInBatch(List<Event> events) ;
   boolean insertOutputsInBatch(List<MigrationOutput> outputs);
   Long getEarliestWhen() throws SQLException, ParseException;
@@ -17,4 +17,5 @@ public interface CloudSQLMigrationDao {
   boolean persistMissedEvent(Connection conn,  String migrationOutput);
   boolean persistStreamingStart(DateTime startTime);
   Long getEarliestStreaming() throws SQLException, ParseException;
+  boolean insertCatchupFailure(String insertType, Long eventId, String text, String comments);
 }
