@@ -296,29 +296,44 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
   
   @Override
   public boolean insertSingleOutput(Long eventId, String text, String answer) throws SQLException { 
+    
     PreparedStatement statementCreateEventOutput = null;
     ExpressionList outputExprList = new ExpressionList();
     List<Expression>  out = Lists.newArrayList();
     Insert outputInsert = new Insert();
-    Connection conn = CloudSQLConnectionManager.getInstance().getConnection();
-    setNames(conn);
-    conn.setAutoCommit(false);
-    outputInsert.setTable(new Table(OutputBaseColumns.TABLE_NAME));
-    outputInsert.setUseValues(true);
-    outputExprList.setExpressions(out);
-    outputInsert.setItemsList(outputExprList);
-    outputInsert.setColumns(outputColList);
-    // Adding ? for prepared stmt
-    for (Column c : outputColList) {
-      ((ExpressionList) outputInsert.getItemsList()).getExpressions().add(new JdbcParameter());
+    Connection conn = null;
+    try {
+      conn = CloudSQLConnectionManager.getInstance().getConnection();
+      setNames(conn);
+      conn.setAutoCommit(false);
+      outputInsert.setTable(new Table(OutputBaseColumns.TABLE_NAME));
+      outputInsert.setUseValues(true);
+      outputExprList.setExpressions(out);
+      outputInsert.setItemsList(outputExprList);
+      outputInsert.setColumns(outputColList);
+      // Adding ? for prepared stmt
+      for (Column c : outputColList) {
+        ((ExpressionList) outputInsert.getItemsList()).getExpressions().add(new JdbcParameter());
+      }
+      statementCreateEventOutput = conn.prepareStatement(outputInsert.toString());
+      statementCreateEventOutput.setLong(1, eventId);
+      statementCreateEventOutput.setString(2, text);
+      statementCreateEventOutput.setString(3, answer);
+      int insertCount = statementCreateEventOutput.executeUpdate();
+      conn.commit();
+      return insertCount>0;
+    } finally {
+      try {
+        if (statementCreateEventOutput != null) {
+          statementCreateEventOutput.close();
+        }
+        if (conn != null) {
+          conn.close();
+        }
+      } catch (SQLException ex1) {
+        log.warning(ErrorMessages.CLOSING_RESOURCE_EXCEPTION.getDescription() + ex1);
+      }
     }
-    statementCreateEventOutput = conn.prepareStatement(outputInsert.toString());
-    statementCreateEventOutput.setLong(1, eventId);
-    statementCreateEventOutput.setString(2, text);
-    statementCreateEventOutput.setString(3, answer);
-    int insertCount = statementCreateEventOutput.executeUpdate();
-    conn.commit();
-    return insertCount>0;
   }
   
   @Override
