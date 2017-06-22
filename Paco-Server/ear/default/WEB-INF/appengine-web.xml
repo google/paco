@@ -43,8 +43,8 @@
     <property name="ae-connection-pool.maxconn" value="100"/>
 
     <property name="ae-cloudsql.local-database-url" value="jdbc:mysql://localhost:3306/pacodb?verifyServerCertificate=false&amp;useSSL=false"/>
-    <property name="ae-cloudsql.local-database-username" value="XXX"/>
-    <property name="ae-cloudsql.local-database-password" value="XXX"/>
+    <property name="ae-cloudsql.local-database-username" value="user"/>
+    <property name="ae-cloudsql.local-database-password" value="user2008"/>
   </system-properties>
   <ssl-enabled>true</ssl-enabled>
   <sessions-enabled>true</sessions-enabled>
