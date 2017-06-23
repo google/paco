@@ -101,6 +101,7 @@
         <input type="text" ng-model="group.feedback.text" placeholder="Message">
       </md-input-container>
       <no-ios ng-if="group.feedback.type === 0 && group.feedback.text !== defaultFeedback">iOS does not support custom messages</no-ios>
+      <no-ios ng-if="group.feedback.type != 0">No iOS support</no-ios>
     </div>
   </div>
   <!-- TODO(ispiro): clear out text when switching between type 0 and 3 -->
