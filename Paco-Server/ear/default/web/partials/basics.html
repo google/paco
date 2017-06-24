@@ -65,8 +65,11 @@
             Phone details
             <div>
               <label>
-                <md-checkbox ng-model="experiment.recordPhoneDetails">
-                Record phone details in the "Join" event</md-checkbox>
+                <div class="no-ios_inline">
+                  <md-checkbox ng-model="experiment.recordPhoneDetails">
+                    Record phone details in the "Join" event</md-checkbox>
+                  <no-ios ng-if="experiment.recordPhoneDetails" class="align_tiptext">No iOS support for recording phone details in the "Join" event</no-ios>
+                </div>
               </label>
             </div>
           </div>
