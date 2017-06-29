@@ -39,6 +39,26 @@
     <servlet-name>migrationBackendServlet</servlet-name>
     <url-pattern>/migrateBackend</url-pattern>
   </servlet-mapping>
+
+    
+  <servlet>
+  	<servlet-name>StoredProcServlet</servlet-name>
+    <servlet-class>com.google.sampling.experiential.server.CloudSqlStoredProcServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>StoredProcServlet</servlet-name>
+    <url-pattern>/csStoredProc</url-pattern>
+  </servlet-mapping>
+  
+  <servlet>
+  	<servlet-name>CSReportsServlet</servlet-name>
+    <servlet-class>com.google.sampling.experiential.server.CloudSqlReportsServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>CSReportsServlet</servlet-name>
+    <url-pattern>/csReports</url-pattern>
+  </servlet-mapping>
+  
   
   <servlet>
     <servlet-name>usageCronJobServlet</servlet-name>

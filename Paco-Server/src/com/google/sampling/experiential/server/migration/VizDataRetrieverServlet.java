@@ -30,75 +30,55 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.joda.time.DateTime;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
-
 import com.google.appengine.api.modules.ModulesService;
 import com.google.appengine.api.modules.ModulesServiceFactory;
 import com.google.appengine.api.users.User;
 import com.google.appengine.api.utils.SystemProperty;
-
 import com.google.sampling.experiential.server.AuthUtil;
-import com.pacoapp.paco.shared.util.TimeUtil;
 
 /**
- * Servlet that handles migration tasks for data
+ * Servlet that retrieves data for making visualizations
  *
  */
 @SuppressWarnings("serial")
-public class MigrationFrontendServlet extends HttpServlet {
+public class VizDataRetrieverServlet extends HttpServlet {
 
-  public static final Logger log = Logger.getLogger(MigrationFrontendServlet.class.getName());
+  public static final Logger log = Logger.getLogger(VizDataRetrieverServlet.class.getName());
 
   @Override
   protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException,
   IOException {
-    
     resp.setContentType("application/json;charset=UTF-8");
-
     User user = AuthUtil.getWhoFromLogin();
-    String cursor = null;
-    DateTime stDate = null;
-    DateTime endDate = null;
-    cursor =  req.getParameter("cursor");
     if (user == null) {
       AuthUtil.redirectUserToLogin(req, resp);
-      
     } else  if (AuthUtil.isUserAdmin()) { 
-      String jobName = req.getParameter("name");
-      String startTime = req.getParameter("startTime");
-      String endTime = req.getParameter("endTime");
-      try{
-        DateTimeFormatter formatter  = DateTimeFormat.forPattern(TimeUtil.DATE_TIME_WITH_NO_TZ);
-        if(startTime!=null && endTime != null) {
-          stDate = formatter.parseDateTime(startTime);
-          endDate = formatter.parseDateTime(endTime);
-        }
-      } catch (IllegalArgumentException e ){
-        resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
+      String jobName = req.getParameter("jname");
+      String jobType = req.getParameter("jtype");
+      String expId = req.getParameter("expId");
+      String jobId = sendMigrateRequestToBackend(req, jobName, jobType, expId);
+      if (jobId != null  && !jobId.equals("")) {
+        resp.sendRedirect("/jobStatus?jobId=" + jobId);
       }
-      String jobId = sendMigrateRequestToBackend(req, jobName, cursor, stDate, endDate);
-      resp.sendRedirect("/jobStatus?jobId=" + jobId);
     } else {
       resp.sendError(HttpServletResponse.SC_FORBIDDEN);
     }
   }
 
-  private String sendMigrateRequestToBackend(HttpServletRequest req, String jobName, String cursor, DateTime startDateTime, DateTime endDateTime) throws IOException {
+  private String sendMigrateRequestToBackend(HttpServletRequest req, String jobName, String jobType, String expId) throws IOException {
+    
     ModulesService modulesApi = ModulesServiceFactory.getModulesService();
     String backendAddress = modulesApi.getVersionHostname("reportworker", modulesApi.getDefaultVersion("reportworker"));
 
     try {
       BufferedReader reader = null;
       try {
-        reader = sendToBackend(backendAddress, jobName, cursor, startDateTime, endDateTime);
+        reader = sendToBackend(backendAddress, jobName, jobType, expId);
       } catch (SocketTimeoutException se) {
         try {
           Thread.sleep(100);
         } catch (InterruptedException e) {
         }
-        reader = sendToBackend(backendAddress, jobName, cursor, startDateTime, endDateTime);
       }
       if (reader != null) {
         StringBuilder buf = new StringBuilder();
@@ -115,28 +95,32 @@ public class MigrationFrontendServlet extends HttpServlet {
     return null;
   }
 
-  private BufferedReader sendToBackend(String backendAddress, String jobName, String cursor, DateTime startDateTime, DateTime endDateTime) throws MalformedURLException, IOException {
+  private BufferedReader sendToBackend(String backendAddress, String jobName, String jobType, String expId) throws MalformedURLException, IOException {
     URL url = null;
     String scheme = "https";
     HttpURLConnection connection = null;
     InputStreamReader inputStreamReader = null;
     BufferedReader reader = null;
+    StringBuffer urlBase = null;
+    String whoFromServer = AuthUtil.getWhoFromLogin().getEmail().toLowerCase();
     if (SystemProperty.environment.value() == SystemProperty.Environment.Value.Development) {
       scheme = "http";
     }
-    StringBuffer urlBase = new StringBuffer(scheme + "://" + backendAddress + "/migrateBackend?who=" + AuthUtil.getWhoFromLogin().getEmail().toLowerCase() +
-                                   "&migrationName=" + jobName);
-    if ( cursor != null) {
-      urlBase.append("&cursor="+ cursor);
-    } 
-    if(startDateTime != null && endDateTime != null) {
-      urlBase.append("&startTime="+ startDateTime + "&endTime=" +  endDateTime);
+    if (jobType != null && jobType.equals("1")) {
+      urlBase = new StringBuffer(scheme + "://" + backendAddress + "/csReports?who=" + whoFromServer +
+                                 "&name=" + jobName + "&expId="+ expId);
+    } else {
+      urlBase = new StringBuffer(scheme + "://" + backendAddress + "/csStoredProc?who=" + whoFromServer +
+                                 "&name=" + jobName + "&expId="+ expId);
     }
+
     url = new URL(urlBase.toString());
     log.info("URL to backend = " + url.toString());
     connection = (HttpURLConnection) url.openConnection();
+    
     connection.setInstanceFollowRedirects(false);
     connection.setReadTimeout(10000);
+    connection.setDoInput(true);
     inputStreamReader = new InputStreamReader(connection.getInputStream());
     reader = new BufferedReader(inputStreamReader);
     return reader;
