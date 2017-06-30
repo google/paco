@@ -2,6 +2,7 @@
 
   <div class="header section">
     <span ng-bind="input.name" ng-if="input.name"></span>
+    <no-ios class="no-audio" ng-if="input.responseType === 'audio'">iOS does not support audio</no-ios>
     <span ng-if="!input.name">Input {{$index + 1}}</span>
 
     <a class="remove button" href="" ng-click="remove(group.inputs, $index)"></a>
