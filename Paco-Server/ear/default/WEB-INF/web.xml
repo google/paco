@@ -54,12 +54,12 @@
   </servlet-mapping>
   
   <servlet>
-    <servlet-name>vizDataRetrieverServlet</servlet-name>
-    <servlet-class>com.google.sampling.experiential.server.migration.VizDataRetrieverServlet</servlet-class>
+    <servlet-name>ReportsFrontendServlet</servlet-name>
+    <servlet-class>com.google.sampling.experiential.server.migration.ReportsFrontEndServlet</servlet-class>
   </servlet>
   <servlet-mapping>
-    <servlet-name>vizDataRetrieverServlet</servlet-name>
-    <url-pattern>/vizData</url-pattern>
+    <servlet-name>ReportsFrontendServlet</servlet-name>
+    <url-pattern>/reportsFrontend</url-pattern>
   </servlet-mapping>
 
     <servlet>
