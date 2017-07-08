@@ -41,7 +41,6 @@ app.directive('lineChart', function () {
                 .style("font", "12px sans-serif")
                 .text("tooltip");
 
-
             // define the line
             var valueline = d3.svg.line()
                 .x(function (d) {
@@ -133,8 +132,9 @@ app.directive('bubbleChart', function () {
         link: function (scope, elem, attrs) {
             //console.log(scope.data);
 
-            var diameter = 500, //max size of the bubbles
-                color = d3.scale.category20c(); //color category
+            var diameter = 760; //max size of the bubbles
+
+            var color = d3.scale.category20c(); //color category
 
             var bubble = d3.layout.pack()
                 .sort(null)
@@ -152,7 +152,6 @@ app.directive('bubbleChart', function () {
                 .style("border-radius", "6px")
                 .style("font", "12px sans-serif")
                 .text("tooltip");
-
 
             var svg = d3.select("body")
                 .append("svg")
@@ -190,9 +189,7 @@ app.directive('bubbleChart', function () {
                 .attr("cy", function (d) {
                     return d.y;
                 })
-                .style("fill", function (d) {
-                    return color(d.value);
-                })
+                .style("fill", function(d, i) { return color(i); })
                 .on("mouseover", function (d) {
                     tooltip.text(d.number + ": " + d.frequency);
                     tooltip.style("visibility", "visible");
@@ -203,7 +200,6 @@ app.directive('bubbleChart', function () {
                 .on("mouseout", function () {
                     return tooltip.style("visibility", "hidden");
                 });
-
 
             //format the text for each bubble
             bubbles.append("text")
@@ -236,8 +232,8 @@ app.directive('barChart', function () {
         link: function (scope, elem, attrs) {
             // set the dimensions of the canvas
             var margin = {top: 20, right: 20, bottom: 70, left: 40},
-                width = 1000 - margin.left - margin.right,
-                height = 700 - margin.top - margin.bottom;
+                width = 900 - margin.left - margin.right,
+                height = 350 - margin.top - margin.bottom;
 
             // set the ranges
             var x = d3.scale.ordinal().rangeRoundBands([0, width], .05);
@@ -361,7 +357,7 @@ app.directive('scatterPlot', function () {
                     bottom: 30,
                     left: 40
                 },
-                width = 960 - margin.left - margin.right,
+                width = 1000 - margin.left - margin.right,
                 height = 500 - margin.top - margin.bottom;
 
             var x = d3.scale.linear()

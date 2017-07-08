@@ -4,12 +4,49 @@
 
 app.controller('MainController',['$scope','experimentsFactory', function($scope,experimentsFactory){
 
-    $scope.mainModel = {
-        responseTypes:
-            ["number","open text","likert"]
-    };
-}]);
+    //Response map for storing meta data of the response types
+    var responsesMap = new Map();
+    experimentsFactory.getExperimentObject.then(function(experimentInfo){
+        //console.log(experimentInfo);
+        var responseTypes = [];
+        experimentInfo.groups[0].inputs.forEach(function(response){
+          if(response.responseType == "likert"){
+              responsesMap.set(response.name,{"name":response.name, "responseType":response.responseType,"rightSideLabel":response.rightSideLabel,"leftSideLabel":response.leftSideLabel});
+          } else if(response.responseType == "list"){
+              responsesMap.set(response.name, {"name":response.name,"responseType":response.responseType,"listChoice":response.listChoices});
+          }else{
+              responsesMap.set(response.name,{"name":response.name,"responseType":response.responseType});
+          }
+          responseTypes.push(response.responseType);
+        });
+        $scope.experimentModel = {
+            id: experimentInfo.id,
+            title: experimentInfo.title,
+            creator: experimentInfo.creator,
+            date: experimentInfo.modifyDate,
+            responseTypes: responseTypes
+        }
+    });
+    console.log(responsesMap);
 
+    //TODO - Create data model for visualization based on response types
+    var allResponses = [];
+    experimentsFactory.groupResponses.then(function(responses){
+        var mapIter = responsesMap.values();
+        //console.log(responses);
+        responses.forEach(function(res){
+            //console.log(res);
+            if(responsesMap.has(res.key)){
+                var value = mapIter.next().value;
+                if(res.key === value.name){
+                    //console.log(value.responseType);
+                }
+
+            }
+        });
+    });
+}]);
+//Sample controller and data set
 app.controller('LineChartController', [ '$scope', function($scope) {
 
     $scope.lineChartData = [{
@@ -119,17 +156,6 @@ app.controller('BubbleChartController',['$scope', function($scope) {
         "frequency": "2"
     }];
  }]);
-
-// app.controller('BubbleChartController',['$scope', function($scope){
-//     $scope.bubbleData = [{
-//        key:'Data',
-//        values: {
-//            "CA": 170, "US": 393, "BB": 12, "CU": 9, "BR": 89, "MX": 192, "PY": 32, "UY": 9, "VE": 25, "BG": 42, "CZ": 12, "HU": 7, "RU": 184,
-//            "FI": 42, "GB": 162, "IT": 87, "ES": 65, "FR": 42, "DE": 102, "NL": 12, "CN": 92, "JP": 65, "KR": 87, "TW": 9, "IN": 98, "SG": 32,
-//            "ID": 4, "MY": 7, "VN": 8, "AU": 129, "NZ": 65, "GU": 11, "EG": 18, "LY": 4, "ZA": 76, "A1": 2, "Other": 254
-//        }
-//
-//     }];
 
 app.controller('BarChartController',['$scope', function($scope){
 
