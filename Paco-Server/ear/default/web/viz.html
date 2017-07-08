@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+
+<html ng-app="app">
+<head>
+    <meta charset="utf-8">
+    <title>Visualizations</title>
+    <script src="bower_components/angular/angular.js"></script>
+    <script src="bower_components/d3/d3.js"></script>
+    <script src="bower_components/nvd3/nv.d3.js"></script>
+    <link href="bower_components/nvd3/nv.d3.css" rel="stylesheet" type="text/css">
+    <link href="css/vizStyles.css" rel="stylesheet" type="text/css">
+    <script src="visualizations/vizApp.js"></script>
+    <script src="visualizations/vizController.js"></script>
+    <script src="visualizations/vizDirective.js"></script>
+    <script src="visualizations/vizDataFactory.js"></script>
+</head>
+<body ng-controller="MainController">
+<h2>{{experimentModel.title}}</h2>
+<div ng-repeat="responseType in experimentModel.responseTypes">
+    <div ng-if="(responseType == 'number')" ng-controller="LineChartController">
+        <line-chart height="500px" data="lineChartData"></line-chart>
+    </div>
+    <!--<div ng-if="(responseType == 'likert')" ng-controller="BarChartController">-->
+        <!--<bar-chart height="450px" data="barChartData"></bar-chart>-->
+    <!--</div>-->
+    <!--<div ng-if="(responseType == 'open text')" ng-controller="BubbleChartController">-->
+        <!--<bubble-chart data="bubbleData"></bubble-chart>-->
+    <!--</div>-->
+</div>
+</body>
+</html>
