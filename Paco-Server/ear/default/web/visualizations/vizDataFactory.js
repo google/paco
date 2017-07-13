@@ -54,9 +54,11 @@ app.factory('experimentsFactory', function ($http) {
     var events = [];
     var answers = {};
     var outputObject = [];
+
     var getResponses = eventsObject.then(function (eventObject) {
 
         eventObject.forEach(function (event) {
+            //console.log(event);
             if (event.experimentId === experimentId) {
                 answers.who = event.who;
                 answers.when = event.when;
@@ -77,6 +79,7 @@ app.factory('experimentsFactory', function ($http) {
                 });
             }
         });
+
         return outputObject;
     });
 
@@ -95,6 +98,6 @@ app.factory('experimentsFactory', function ($http) {
         getExperimentObject: getExperimentObject,
         getResponseDetails: getResponseDetails,
         getResponses: getResponses,
-        groupResponses: groupResponses
+        groupResponses: groupResponses,
     }
 });

@@ -1,7 +1,7 @@
 {
   "experiments": [
     {
-      "title": "AllSortsOfData",
+      "title": "SampleExperiment",
       "creator": "rbe10001@gmail.com",
       "contactEmail": "rbe10001@gmail.com",
       "id": 4675269154045952,
@@ -74,7 +74,8 @@
               "likertSteps": 5,
               "listChoices": [
                 "Red",
-                "Blue"
+                "Blue",
+                "Green"
               ],
               "multiselect": false,
               "invisible": false,

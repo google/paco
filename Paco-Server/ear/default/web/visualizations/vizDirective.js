@@ -1,120 +1,117 @@
 /**
  * Created by muthuk on 6/27/17.
  */
+"use strict";
 
-app.directive('lineChart', function () {
+app.directive('lineChart', function ($timeout) {
     return {
         restrict: 'E',
         scope: {
             // Bind the data to the directive scope.
-            data: '=',
+            responseInfo: '=',
+            responseData: '=',
             // Allow the user to change the dimensions of the chart.
             height: '@',
             width: '@'
         },
-        // The svg element is needed by D3.
-
         link: function (scope, element) {
+            scope.$watch('responseData', function (responseData) {
+                if (responseData) {
+                    var margin = {top: 20, right: 20, bottom: 30, left: 50},
+                        width = 960 - margin.left - margin.right,
+                        height = 500 - margin.top - margin.bottom;
 
-            var margin = {top: 20, right: 20, bottom: 30, left: 50},
-                width = 960 - margin.left - margin.right,
-                height = 500 - margin.top - margin.bottom;
+                    // set the ranges
+                    var x = d3.scale.ordinal().rangeRoundBands([0, width]);
+                    var y = d3.scale.linear().range([height, 0]);
 
-            // set the ranges
-            var x = d3.scale.ordinal().rangeRoundBands([0, width]);
-            var y = d3.scale.linear().range([height, 0]);
+                    var xAxis = d3.svg.axis().scale(x)
+                        .orient("bottom").ticks(10);
+                    var yAxis = d3.svg.axis().scale(y)
+                        .orient("left").ticks(5);
 
-            var xAxis = d3.svg.axis().scale(x)
-                .orient("bottom").ticks(5);
-            var yAxis = d3.svg.axis().scale(y)
-                .orient("left").ticks(5);
+                    var tooltip = d3.select("body")
+                        .append("div")
+                        .style("position", "absolute")
+                        .style("z-index", "10")
+                        .style("visibility", "hidden")
+                        .style("color", "white")
+                        .style("padding", "8px")
+                        .style("background-color", "rgba(0, 0, 0, 0.75)")
+                        .style("border-radius", "6px")
+                        .style("font", "12px sans-serif")
+                        .text("tooltip");
 
-            var tooltip = d3.select("body")
-                .append("div")
-                .style("position", "absolute")
-                .style("z-index", "10")
-                .style("visibility", "hidden")
-                .style("color", "white")
-                .style("padding", "8px")
-                .style("background-color", "rgba(0, 0, 0, 0.75)")
-                .style("border-radius", "6px")
-                .style("font", "12px sans-serif")
-                .text("tooltip");
+                    // define the line
+                    var valueline = d3.svg.line()
+                        .x(function (d) {
+                            //console.log(d.who);
+                            return x(d.who);
+                        })
+                        .y(function (d) {
+                            //console.log(d.value);
+                            return y(d.answer);
+                        });
 
-            // define the line
-            var valueline = d3.svg.line()
-                .x(function (d) {
-                    //console.log(d.who);
-                    return x(d.who);
-                })
-                .y(function (d) {
-                    //console.log(d.value);
-                    return y(d.value);
-                });
+                    var svg = d3.select(element[0]).append("svg")
+                        .attr("width", width + margin.left + margin.right)
+                        .attr("height", height + margin.top + margin.bottom)
+                        .append("g")
+                        .attr("transform",
+                            "translate(" + margin.left + "," + margin.top + ")");
 
-            var svg = d3.select(element[0]).append("svg")
-                .attr("width", width + margin.left + margin.right)
-                .attr("height", height + margin.top + margin.bottom)
-                .append("g")
-                .attr("transform",
-                    "translate(" + margin.left + "," + margin.top + ")");
+                    // Get the data
+                    responseData.forEach(function (d) {
+                        d.id = d.who;
 
-            // Get the data
-            var data = scope.data;
+                        var participant = d.who.split('@');
+                        d.who = participant[0];
+                        //console.log(d.answer);
+                        d.answer = +d.answer;
+                    });
 
-            data.forEach(function (d) {
-                d.id = d.who;
+                    //Scale the range of the data
+                    x.domain(responseData.map(function (d) {
+                        return d.who;
+                    }));
+                    y.domain([0, d3.max(responseData, function (d) {
+                        return d.answer;
+                    })]);
 
-                var participant = d.who.split('@');
-                d.who = participant[0];
+                    svg.append("path")
+                        .attr("class", "line")
+                        .attr("d", valueline(responseData));
 
-                d.value = +d.value;
-            }, function (error) {
-                console.log(error);
+                    //draw the plots
+                    svg.selectAll("dot")
+                        .data(responseData)
+                        .enter().append("circle")
+                        .attr("r", 5)
+                        .attr("cx", function (d) {
+                            return x(d.who);
+                        })
+                        .attr("cy", function (d) {
+                            return y(d.answer);
+                        })
+                        .on("mouseover", function (d) {
+                            tooltip.text(d.who + " : " + d.answer);
+                            return tooltip.style("visibility", "visible");
+                        })
+                        .on("mousemove", function () {
+                            return tooltip.style("top", (event.pageY - 10) + "px").style("left", (event.pageX + 10) + "px");
+                        })
+                        .on("mouseout", function () {
+                            return tooltip.style("visibility", "hidden");
+                        });
+                    svg.append("g")
+                        .attr("class", "x axis")
+                        .attr("transform", "translate(0," + height + ")")
+                        .call(xAxis);
+                    svg.append("g")
+                        .attr("class", "y axis")
+                        .call(yAxis);
+                }
             });
-
-            // Scale the range of the data
-            x.domain(data.map(function (d) {
-                return d.who;
-            }));
-            y.domain([0, d3.max(data, function (d) {
-                return d.value;
-            })]);
-
-            svg.append("path")
-                .attr("class", "line")
-                .attr("d", valueline(data));
-
-
-            //draw the scatterplot
-            svg.selectAll("dot")
-                .data(data)
-                .enter().append("circle")
-                .attr("r", 5)
-                .attr("cx", function (d) {
-                    return x(d.who);
-                })
-                .attr("cy", function (d) {
-                    return y(d.value);
-                })
-                .on("mouseover", function (d) {
-                    tooltip.text(d.who + " : " + d.value);
-                    return tooltip.style("visibility", "visible");
-                })
-                .on("mousemove", function () {
-                    return tooltip.style("top", (event.pageY - 10) + "px").style("left", (event.pageX + 10) + "px");
-                })
-                .on("mouseout", function () {
-                    return tooltip.style("visibility", "hidden");
-                });
-            svg.append("g")
-                .attr("class", "x axis")
-                .attr("transform", "translate(0," + height + ")")
-                .call(xAxis);
-            svg.append("g")
-                .attr("class", "y axis")
-                .call(yAxis);
-
         }
     }
 });
@@ -125,99 +122,118 @@ app.directive('bubbleChart', function () {
         restrict: 'EA',
         transclude: true,
         scope: {
-            data: '=',
+            // Bind the data to the directive scope.
+            responseInfo: '=',
+            responseData: '=',
+            // Allow the user to change the dimensions of the chart.
             height: '@',
             width: '@'
         },
         link: function (scope, elem, attrs) {
-            //console.log(scope.data);
 
-            var diameter = 760; //max size of the bubbles
+            scope.$watch('responseData', function (responseData) {
 
-            var color = d3.scale.category20c(); //color category
+                if (responseData) {
+                    var diameter = 760; //max size of the bubbles
 
-            var bubble = d3.layout.pack()
-                .sort(null)
-                .size([diameter, diameter])
-                .padding(1.5);
+                    var color = d3.scale.category20c(); //color category
 
-            var tooltip = d3.select("body")
-                .append("div")
-                .style("position", "absolute")
-                .style("z-index", "10")
-                .style("visibility", "hidden")
-                .style("color", "white")
-                .style("padding", "8px")
-                .style("background-color", "rgba(0, 0, 0, 0.75)")
-                .style("border-radius", "6px")
-                .style("font", "12px sans-serif")
-                .text("tooltip");
+                    var bubble = d3.layout.pack()
+                        .sort(null)
+                        .size([diameter, diameter])
+                        .padding(1.5);
 
-            var svg = d3.select("body")
-                .append("svg")
-                .attr("width", diameter)
-                .attr("height", diameter)
-                .attr("class", "bubble");
+                    var tooltip = d3.select("body")
+                        .append("div")
+                        .style("position", "absolute")
+                        .style("z-index", "10")
+                        .style("visibility", "hidden")
+                        .style("color", "white")
+                        .style("padding", "8px")
+                        .style("background-color", "rgba(0, 0, 0, 0.75)")
+                        .style("border-radius", "6px")
+                        .style("font", "12px sans-serif")
+                        .text("tooltip");
 
-            var data = scope.data;
-            //convert numerical values from strings to numbers
-            data = data.map(function (d) {
-                d.value = +d["frequency"];
-                return d;
+                    var svg = d3.select(elem[0])
+                        .append("svg")
+                        .attr("width", diameter)
+                        .attr("height", diameter)
+                        .attr("class", "bubble");
+
+                    //frequency of the data
+                    var responsesFrequency = d3.nest()
+                        .key(function (d) {
+                            return d.answer;
+                        })
+                        .rollup(function (v) {
+                            return v.length;
+                        })
+                        .entries(responseData);
+
+                    var data = responsesFrequency.map(function (d) {
+                        d.value = +d["values"];
+                        return d;
+                    });
+
+                    //bubbles needs very specific format, convert data to this.
+                    var nodes = bubble.nodes({children: data}).filter(function (d) {
+                        return !d.children;
+                    });
+
+                    //setup the chart
+                    var bubbles = svg.append("g")
+                        .attr("transform", "translate(0,0)")
+                        .selectAll(".bubble")
+                        .data(nodes)
+                        .enter();
+
+                    //create the bubbles
+                    bubbles.append("circle")
+                        .attr("r", function (d) {
+                            return d.r;
+                        })
+                        .attr("cx", function (d) {
+                            return d.x;
+                        })
+                        .attr("cy", function (d) {
+                            return d.y;
+                        })
+                        .style("fill", function (d, i) {
+                            return color(i);
+                        })
+                        .on("mouseover", function (d) {
+                            tooltip.text(d.key + ": " + d.value);
+                            tooltip.style("visibility", "visible");
+                        })
+                        .on("mousemove", function () {
+                            return tooltip.style("top", (d3.event.pageY - 10) + "px").style("left", (d3.event.pageX + 10) + "px");
+                        })
+                        .on("mouseout", function () {
+                            return tooltip.style("visibility", "hidden");
+                        });
+
+                    //format the text for each bubble
+                    bubbles.append("text")
+                        .attr("x", function (d) {
+                            return d.x;
+                        })
+                        .attr("y", function (d) {
+                            return d.y + 5;
+                        })
+                        .attr("text-anchor", "middle")
+                        .text(function (d) {
+                            return d["key"];
+                        })
+                        .style({
+                            "fill": "black",
+                            "font-family": "Helvetica Neue, Helvetica, Arial, san-serif",
+                            "font-size": "12px"
+                        });
+                }
             });
 
-            //bubbles needs very specific format, convert data to this.
-            var nodes = bubble.nodes({children: data}).filter(function (d) {
-                return !d.children;
-            });
 
-            //setup the chart
-            var bubbles = svg.append("g")
-                .attr("transform", "translate(0,0)")
-                .selectAll(".bubble")
-                .data(nodes)
-                .enter();
-
-            //create the bubbles
-            bubbles.append("circle")
-                .attr("r", function (d) {
-                    return d.r;
-                })
-                .attr("cx", function (d) {
-                    return d.x;
-                })
-                .attr("cy", function (d) {
-                    return d.y;
-                })
-                .style("fill", function(d, i) { return color(i); })
-                .on("mouseover", function (d) {
-                    tooltip.text(d.number + ": " + d.frequency);
-                    tooltip.style("visibility", "visible");
-                })
-                .on("mousemove", function () {
-                    return tooltip.style("top", (d3.event.pageY - 10) + "px").style("left", (d3.event.pageX + 10) + "px");
-                })
-                .on("mouseout", function () {
-                    return tooltip.style("visibility", "hidden");
-                });
-
-            //format the text for each bubble
-            bubbles.append("text")
-                .attr("x", function (d) {
-                    return d.x;
-                })
-                .attr("y", function (d) {
-                    return d.y + 5;
-                })
-                .attr("text-anchor", "middle")
-                .text(function (d) {
-                    return d["number"];
-                })
-                .style({
-                    "fill": "black",
-                    "font-family": "Helvetica Neue, Helvetica, Arial, san-serif",
-                    "font-size": "12px"
-                });
         }
     };
 });
@@ -227,274 +243,193 @@ app.directive('barChart', function () {
         restrict: 'EA',
         transclude: true,
         scope: {
-            data: '='
-        },
-        link: function (scope, elem, attrs) {
-            // set the dimensions of the canvas
-            var margin = {top: 20, right: 20, bottom: 70, left: 40},
-                width = 900 - margin.left - margin.right,
-                height = 350 - margin.top - margin.bottom;
-
-            // set the ranges
-            var x = d3.scale.ordinal().rangeRoundBands([0, width], .05);
-
-            var y = d3.scale.linear().range([height, 0]);
-
-            // define the axis
-            var xAxis = d3.svg.axis()
-                .scale(x)
-                .orient("bottom");
-
-            var yAxis = d3.svg.axis()
-                .scale(y)
-                .orient("left")
-                .ticks(10);
-
-            //console.log(elem[0]);
-            // add the SVG element
-            var svg = d3.select(elem[0]).append("svg")
-                .attr("width", width + margin.left + margin.right)
-                .attr("height", height + margin.top + margin.bottom)
-                .append("g")
-                .attr("transform",
-                    "translate(" + margin.left + "," + margin.top + ")");
-
-            var tooltip = d3.select("body")
-                .append("div")
-                .style("position", "absolute")
-                .style("z-index", "10")
-                .style("visibility", "hidden")
-                .style("color", "white")
-                .style("padding", "8px")
-                .style("background-color", "rgba(0, 0, 0, 0.75)")
-                .style("border-radius", "6px")
-                .style("font", "12px sans-serif")
-                .text("tooltip");
-
-            var data = scope.data;
-            data.forEach(function (d) {
-                //console.log(d);
-                d.id = d.who;
-                var participant = d.who.split('@');
-                //console.log(participant[0]);
-                d.who = participant[0];
-
-                d.value = +d.value;
-            });
-
-            // scale the range of the data
-            x.domain(data.map(function (d) {
-                return d.who;
-            }));
-            y.domain([0, d3.max(data, function (d) {
-                return d.value;
-            })]);
-
-            // add axis
-            svg.append("g")
-                .attr("class", "x axis")
-                .attr("transform", "translate(0," + height + ")")
-                .call(xAxis)
-                .selectAll("text")
-                .style("text-anchor", "end")
-                .attr("dx", "-.8em")
-                .attr("dy", "-.55em")
-                .attr("transform", "rotate(-45)");
-
-            svg.append("g")
-                .attr("class", "y axis")
-                .call(yAxis)
-                .append("text")
-                .attr("transform", "rotate(-90)")
-                .attr("y", 5)
-                .attr("dy", ".71em")
-                .style("text-anchor", "end")
-                .text("Frequency");
-
-            // Add bar chart
-            svg.selectAll("bar")
-                .data(data)
-                .enter().append("rect")
-                .attr("class", "bar")
-                .attr("x", function (d) {
-                    return x(d.who);
-                })
-                .attr("width", x.rangeBand())
-                .attr("y", function (d) {
-                    return y(d.value);
-                })
-                .attr("height", function (d) {
-                    return height - y(d.value);
-                })
-                .on("mouseover", function (d) {
-                    tooltip.text(d.id + " : " + d.value);
-                    tooltip.style("visibility", "visible");
-                })
-                .on("mousemove", function () {
-                    return tooltip.style("top", (d3.event.pageY - 10) + "px").style("left", (d3.event.pageX + 10) + "px");
-                })
-                .on("mouseout", function () {
-                    return tooltip.style("visibility", "hidden");
-                });
-        }
-    }
-
-});
-
-app.directive('scatterPlot', function () {
-
-    return {
-        restrict: 'EA',
-        transclude: true,
-        scope: {
-            data: '='
+            // Bind the data to the directive scope.
+            responseInfo: '=',
+            responseData: '=',
+            height: '@',
+            width: '@'
         },
         link: function (scope, elem, attrs) {
 
-            var margin = {
-                    top: 20,
-                    right: 20,
-                    bottom: 30,
-                    left: 40
-                },
-                width = 1000 - margin.left - margin.right,
-                height = 500 - margin.top - margin.bottom;
+            var responseType = "";
+            var listResponseData = [];
+            var listChoicesMap = new Map();
+            var choices = "";
+            var responsesFrequency = "";
 
-            var x = d3.scale.linear()
-                .range([0, width]);
-
-            var y = d3.scale.linear()
-                .range([height, 0]);
-
-            var xAxis = d3.svg.axis()
-                .scale(x)
-                .orient("bottom");
-
-            var yAxis = d3.svg.axis()
-                .scale(y)
-                .orient("left");
-
-            var svg = d3.select(elem[0]).append("svg")
-                .attr("width", width + margin.left + margin.right)
-                .attr("height", height + margin.top + margin.bottom)
-                .append("g")
-                .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-
-            var data = create_data(1000);
-
-            data.forEach(function (d) {
-                d.x = +d.x;
-                d.y = +d.y;
-                d.yhat = +d.yhat;
+            scope.$watch('responseInfo', function (responseInfo) {
+                if (responseInfo) {
+                    responseType = responseInfo;
+                }
             });
 
-            var line = d3.svg.line()
-                .x(function (d) {
-                    return x(d.x);
-                })
-                .y(function (d) {
-                    return y(d.yhat);
-                });
-
-            x.domain(d3.extent(data, function (d) {
-                return d.x;
-            }));
-            y.domain(d3.extent(data, function (d) {
-                return d.y;
-            }));
-
-            svg.append("g")
-                .attr("class", "x axis")
-                .attr("transform", "translate(0," + height + ")")
-                .call(xAxis)
-                .append("text")
-                .attr("class", "label")
-                .attr("x", width)
-                .attr("y", -6)
-                .style("text-anchor", "end")
-                .text("X-Value");
-
-            svg.append("g")
-                .attr("class", "y axis")
-                .call(yAxis)
-                .append("text")
-                .attr("class", "label")
-                .attr("transform", "rotate(-90)")
-                .attr("y", 6)
-                .attr("dy", ".71em")
-                .style("text-anchor", "end")
-                .text("Y-Value");
-
-            svg.selectAll(".dot")
-                .data(data)
-                .enter().append("circle")
-                .attr("class", "dot")
-                .attr("r", 3.5)
-                .attr("cx", function (d) {
-                    return x(d.x);
-                })
-                .attr("cy", function (d) {
-                    return y(d.y);
-                });
-
-            svg.append("path")
-                .datum(data)
-                .attr("class", "line")
-                .attr("d", line);
-
-            function create_data(nsamples) {
-                var x = [];
-                var y = [];
-                var n = nsamples;
-                var x_mean = 0;
-                var y_mean = 0;
-                var term1 = 0;
-                var term2 = 0;
-                var noise_factor = 100;
-                var noise = 0;
-                // create x and y values
-                for (var i = 0; i < n; i++) {
-                    noise = noise_factor * Math.random();
-                    noise *= Math.round(Math.random()) == 1 ? 1 : -1;
-                    y.push(i / 5 + noise);
-                    x.push(i + 1);
-                    x_mean += x[i]
-                    y_mean += y[i]
+            //map answer indices with list choices
+            function mapIndicesWithListChoices(index) {
+                var listChoice = "";
+                if (listChoicesMap.has(index)) {
+                    listChoice = listChoicesMap.get(index);
                 }
-                // calculate mean x and y
-                x_mean /= n;
-                y_mean /= n;
-
-                // calculate coefficients
-                var xr = 0;
-                var yr = 0;
-                for (i = 0; i < x.length; i++) {
-                    xr = x[i] - x_mean;
-                    yr = y[i] - y_mean;
-                    term1 += xr * yr;
-                    term2 += xr * xr;
-
-                }
-                var b1 = term1 / term2;
-                var b0 = y_mean - (b1 * x_mean);
-                // perform regression
-
-                yhat = [];
-                // fit line using coeffs
-                for (i = 0; i < x.length; i++) {
-                    yhat.push(b0 + (x[i] * b1));
-                }
-
-                var data = [];
-                for (i = 0; i < y.length; i++) {
-                    data.push({
-                        "yhat": yhat[i],
-                        "y": y[i],
-                        "x": x[i]
-                    })
-                }
-                return (data);
+                return listChoice;
             }
+
+            //split the participant email id
+            function parseEmailId(who) {
+                var participant = who.split('@');
+                return participant;
+            }
+
+            //frequency of the data
+            function responseDataFrequency(dataSet) {
+                var frequency = d3.nest()
+                    .key(function (d) {
+                        return d.answer;
+                    })
+                    .rollup(function (v) {
+                        var who = [];
+                        v.forEach(function (data) {
+                            who.push(data.who);
+                        });
+                        return {"count": v.length, "participants": who};
+                    })
+                    .entries(dataSet);
+                return frequency;
+            }
+
+            scope.$watch('responseData', function (responseData) {
+                if (responseData) {
+                    if (responseType.responseType === "list") {
+                        for (var i in responseType.listChoices) {
+                            listChoicesMap.set(i, responseType.listChoices[i]);
+                        }
+                        responseData.forEach(function (response) {
+                            if (response.answer.length > 1) {
+                                var answers = response.answer.split(",");
+                                var who = "";
+                                answers.forEach(function (a) {
+                                    choices = mapIndicesWithListChoices(a);
+                                    who = parseEmailId(response.who);
+                                    listResponseData.push({"who": who, "answer": choices, "index": a});
+                                });
+                            } else {
+                                response.id = response.who;
+
+                                var participant = response.who.split('@');
+                                response.who = participant[0];
+                                choices = mapIndicesWithListChoices(response.answer);
+                                listResponseData.push({
+                                    "who": response.who,
+                                    "answer": choices,
+                                    "index": response.answer
+                                });
+                            }
+                        });
+
+                        responsesFrequency = responseDataFrequency(listResponseData);
+                    } else {
+                        responsesFrequency = responseDataFrequency(responseData);
+                    }
+
+                    // set the dimensions of the canvas
+                    var margin = {top: 20, right: 20, bottom: 70, left: 40},
+                        width = 900 - margin.left - margin.right,
+                        height = 600 - margin.top - margin.bottom;
+
+                    // set the ranges
+                    var x = d3.scale.ordinal().rangeRoundBands([0, width], 0.5);
+
+                    var y = d3.scale.linear().range([height, 0]);
+
+                    // add the SVG element
+                    var svg = d3.select(elem[0]).append("svg")
+                        .attr("width", width + margin.left + margin.right)
+                        .attr("height", height + margin.top + margin.bottom)
+                        .append("g")
+                        .attr("transform",
+                            "translate(" + margin.left + "," + margin.top + ")");
+
+                    var tooltip = d3.select("body")
+                        .append("div")
+                        .style("position", "absolute")
+                        .style("z-index", "10")
+                        .style("visibility", "hidden")
+                        .style("color", "white")
+                        .style("padding", "8px")
+                        .style("background-color", "rgba(0, 0, 0, 0.75)")
+                        .style("border-radius", "6px")
+                        .style("font", "12px sans-serif")
+                        .style("width", "150px")
+                        .style("height", "auto")
+                        .style("word-wrap", "break-word")
+                        .text("tooltip");
+
+                    // define the axis
+                    var xAxis = d3.svg.axis()
+                        .scale(x)
+                        .orient("bottom");
+
+                    var yAxis = d3.svg.axis()
+                        .scale(y)
+                        .orient("left")
+                        .ticks(5);
+
+                    // scale the range of the data
+                    x.domain(responsesFrequency.map(function (d) {
+                        return d.key;
+                    }));
+                    y.domain([0, d3.max(responsesFrequency, function (d) {
+                        return d.values.count;
+                    })]);
+
+                    // add axis
+                    svg.append("g")
+                        .attr("class", "x axis")
+                        .attr("transform", "translate(0," + height + ")")
+                        .call(xAxis)
+                        .selectAll("text")
+                        .style("text-anchor", "end")
+                        .attr("dx", "-.8em")
+                        .attr("dy", "-.55em")
+                        .attr("transform", "rotate(-45)");
+
+                    svg.append("g")
+                        .attr("class", "y axis")
+                        .call(yAxis)
+                        .append("text")
+                        .attr("transform", "rotate(-90)")
+                        .attr("y", 5)
+                        .attr("dy", ".71em")
+                        .style("text-anchor", "end")
+                        .text("Frequency");
+
+                    // Add bar chart
+                    svg.selectAll("bar")
+                        .data(responsesFrequency)
+                        .enter().append("rect")
+                        .attr("class", "bar")
+                        .attr("x", function (d) {
+                            return x(d.key);
+                        })
+                        .attr("width", 70)
+                        .attr("y", function (d) {
+                            // console.log(d.values.count);
+                            return y(d.values.count);
+                        })
+                        .attr("height", function (d) {
+                            return height - y(d.values.count);
+                        })
+                        .on("mouseover", function (d) {
+                            // console.log(d.values.participants);
+                            tooltip.html("<span>" + "Data: " + d.key + "<span/>" + "<br/>" + "<span>" + "Frequency:" + d.values.count + "<span/>" + "<br/>" + "<span>" + "Participants:" + d.values.participants + "<span/>");
+                            tooltip.style("visibility", "visible");
+                        })
+                        .on("mousemove", function () {
+                            return tooltip.style("top", (d3.event.pageY - 10) + "px").style("left", (d3.event.pageX + 10) + "px");
+                        })
+                        .on("mouseout", function () {
+                            return tooltip.style("visibility", "hidden");
+                        });
+                }
+            });
         }
     }
 });

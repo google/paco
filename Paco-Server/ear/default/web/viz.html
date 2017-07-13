@@ -15,17 +15,35 @@
     <script src="visualizations/vizDataFactory.js"></script>
 </head>
 <body ng-controller="MainController">
-<h2>{{experimentModel.title}}</h2>
-<div ng-repeat="responseType in experimentModel.responseTypes">
-    <div ng-if="(responseType == 'number')" ng-controller="LineChartController">
-        <line-chart height="500px" data="lineChartData"></line-chart>
+<h1>{{experimentDataModel.title}}</h1>
+
+<div ng-repeat="responseType in responseTypeInfo">
+    <div ng-if="(responseType.responseType == 'number')">
+        <h2>{{responseType.name}}</h2>
+        <p>{{responseType.text}}</p>
+        <line-chart height="600px" response-info="responseTypeNumber" response-data="numberData"></line-chart>
+        <p>Frequency of the {{responseType.name}} data set</p>
+        <bar-chart response-info="responseTypeNumber" response-data="numberData"></bar-chart>
     </div>
-    <!--<div ng-if="(responseType == 'likert')" ng-controller="BarChartController">-->
-        <!--<bar-chart height="450px" data="barChartData"></bar-chart>-->
-    <!--</div>-->
-    <!--<div ng-if="(responseType == 'open text')" ng-controller="BubbleChartController">-->
-        <!--<bubble-chart data="bubbleData"></bubble-chart>-->
-    <!--</div>-->
+    <div ng-if="(responseType.responseType == 'open text')">
+        <h2>{{responseType.name}}</h2>
+        <p>{{responseType.text}}</p>
+        <bubble-chart response-info="responseTypeOpenText" response-data="openTextData"></bubble-chart>
+    </div>
+    <div ng-if="(responseType.responseType == 'likert')">
+        <h2>{{responseType.name}}</h2>
+        <p>{{responseType.text}}</p>
+        <line-chart height="600px" response-info="responseTypeLikert" response-data="likertData">
+        </line-chart>
+        <p>Frequency of the {{responseType.name}} data set</p>
+        <bar-chart response-info="responseTypeLikert" response-data="likertData"></bar-chart>
+    </div>
+    <div ng-if="(responseType.responseType == 'list')">
+        <h2>Frequency of the {{responseType.name}} data set</h2>
+        <p>{{responseType.text}}</p>
+        <bar-chart response-info="responseTypeList" response-data="listData"></bar-chart>
+    </div>
+
 </div>
 </body>
 </html>
