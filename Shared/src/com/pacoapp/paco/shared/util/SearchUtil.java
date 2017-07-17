@@ -41,7 +41,7 @@ public class SearchUtil {
     // projection
     String[] projections = sqlQuery.getProjection();
     if (projections != null) {
-      for(int s=0; s< projections.length; s++) {
+      for(int s = 0; s < projections.length; s++) {
         if (Constants.STAR.equals(projections[s])) {
           allCol = true;
           break;
@@ -120,7 +120,6 @@ public class SearchUtil {
     ps = ((PlainSelect) selStatement.getSelectBody());
     ps.setJoins(jList);
   }
-  
 
   public static List<OrderByElement> convertToOrderByList(String inp) throws JSQLParserException {
     List<OrderByElement> orderByList = Lists.newArrayList();
@@ -159,7 +158,7 @@ public class SearchUtil {
     Expression expr = null;
     String[] gCol = s.split(",");
     for (String str : gCol) {
-      if (Constants.WHEN.equalsIgnoreCase(str)) {
+      if (Constants.WHEN.equalsIgnoreCase(str.trim())) {
         str = Constants.WHEN_WITH_BACKTICK;
       }
       expr = CCJSqlParserUtil.parseExpression(str.trim());

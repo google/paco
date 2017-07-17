@@ -26,7 +26,8 @@ public class QueryJsonParserTest {
     String inputString = "{query: {criteria: '(group_name =? and answer=?)',values:['New Group','bombay']},limit: 100, order: 'response_time' ,select: ['group_name','response_time', 'experiment_name','answer'], having: 'response_time>10'}";
 //    String inputString = "{\"query\": {criteria: \"(group_name =? and answer=?)\",values:[\"New Group\",\"bombay\"]},limit: 100, order: \"response_time\" ,select: [\"group_name\",\"response_time\", \"experiment_name\",\"answer\"], having: \"response_time>10\"}";
     
-    SQLQuery.Builder expectedValueBldr = new SQLQuery.Builder(new String[] { "group_name", "response_time", "experiment_name", "answer" });
+    SQLQuery.Builder expectedValueBldr = new SQLQuery.Builder();
+    expectedValueBldr.projection(new String[] { "group_name", "response_time", "experiment_name", "answer" });
     expectedValueBldr.criteriaQuery("(group_name =? and answer=?)");
     expectedValueBldr.criteriaValues(new String[] { "'New Group'", "'bombay'" });
     expectedValueBldr.limit("100");
@@ -56,7 +57,8 @@ public class QueryJsonParserTest {
   @Test
    public void testConvertJSONToPOJO_allValues(){
      String inputString = "{query: {criteria: '(group_name =? and answer=?)',values:['New Group','bombay']},limit: 100, order: 'response_time' ,select: ['group_name','response_time', 'experiment_name','answer'], group: 'response_time', having: 'response_time>5'}";
-     SQLQuery.Builder expectedValueBldr = new SQLQuery.Builder(new String[] { "group_name", "response_time", "experiment_name", "answer" });
+     SQLQuery.Builder expectedValueBldr = new SQLQuery.Builder();
+     expectedValueBldr.projection(new String[] { "group_name", "response_time", "experiment_name", "answer" });
      
      expectedValueBldr.criteriaQuery("(group_name =? and answer=?)");
      expectedValueBldr.criteriaValues(new String[] { "'New Group'", "'bombay'" });
@@ -88,7 +90,9 @@ public class QueryJsonParserTest {
    @Test
    public void testConvertJSONToPOJO_partialValues_NoSortOrderButLimit(){
      String inputString = "{query: {criteria: '(group_name =? and answer=?)',values:['New Group','bombay']},limit: 100, select: ['group_name','response_time', 'experiment_name','answer'], limit: '10'}";
-     SQLQuery.Builder expectedValueBldr = new SQLQuery.Builder(new String[] { "group_name", "response_time", "experiment_name", "answer" });
+     SQLQuery.Builder expectedValueBldr = new SQLQuery.Builder();
+     expectedValueBldr.projection(new String[] { "group_name", "response_time", "experiment_name", "answer" });
+     
      expectedValueBldr.criteriaQuery("(group_name =? and answer=?)");
      expectedValueBldr.criteriaValues(new String[] { "'New Group'", "'bombay'" });
      expectedValueBldr.groupBy(null);

@@ -46,18 +46,23 @@ public class QueryJsonParser {
       return null;
     }
     queryObj = new JSONObject(queryJson);
+    sqlBldr = new SQLQuery.Builder();
+    
     // Only when we enable group by feature, can we allow user specified projection columns
     if (enableGrpByAndProjection && queryObj.has(Constants.SELECT)) {
       JSONArray selectAr = queryObj.getJSONArray(Constants.SELECT);
       if (selectAr != null) {
         projectionColumns = new String[selectAr.length()];
+        sqlBldr.fullEventAndOutputs(false);
         for (int j = 0; j < selectAr.length(); j++) {
           projectionColumns[j] = selectAr.getString(j);
+          if (Constants.STAR.equals(projectionColumns[j])) {
+            sqlBldr.fullEventAndOutputs(true);
+          }
         }
+        sqlBldr.projection(projectionColumns);
       }
     } 
-    
-    sqlBldr = new SQLQuery.Builder(projectionColumns);
             
     if (queryObj.has(Constants.QUERY)) {
       JSONObject queryCriteria = queryObj.getJSONObject(Constants.QUERY);
@@ -95,6 +100,9 @@ public class QueryJsonParser {
     // groupBy feature should be enabled and only if we have group clause, should we have the having column
     if (enableGrpByAndProjection && queryObj.has(Constants.GROUP)) {
       sqlBldr.groupBy(queryObj.getString(Constants.GROUP).trim());
+      // This gets set twice. Once when there is a *, and next when there is a group by.
+      // Group by takes higher precedence.
+      sqlBldr.fullEventAndOutputs(false);
 
       if (queryObj.has(Constants.HAVING)) {
         sqlBldr.having(queryObj.getString(Constants.HAVING).trim());

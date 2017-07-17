@@ -12,6 +12,7 @@ public class SQLQuery {
   String having;
   String sortOrder;
   String limit;
+  Boolean fullEventAndOutputs;
 
   public SQLQuery(Builder b) {
     this.projection = b.projection;
@@ -21,6 +22,7 @@ public class SQLQuery {
     this.having = b.having;
     this.limit = b.limit;
     this.sortOrder = b.sortOrder;
+    this.fullEventAndOutputs = b.fullEventAndOutputs;
   }
 
   public String[] getProjection() {
@@ -50,6 +52,10 @@ public class SQLQuery {
   public String getLimit() {
     return limit;
   }
+  
+  public Boolean isFullEventAndOutputs() { 
+    return fullEventAndOutputs;
+  }
 
   public static class Builder {
     private String[] projection;
@@ -59,10 +65,11 @@ public class SQLQuery {
     private String having;
     private String sortOrder;
     private String limit;
+    private Boolean fullEventAndOutputs;
 
-    public Builder(String[] projection) {
-
+    public Builder projection(String[] projection) {
       this.projection = projection;
+      return this;
     }
 
     public Builder criteriaQuery(String criQuery) {
@@ -94,27 +101,29 @@ public class SQLQuery {
       this.limit = limit;
       return this;
     }
+    
+    public Builder fullEventAndOutputs(Boolean fullEventAndOutputs) {
+      this.fullEventAndOutputs = fullEventAndOutputs;
+      return this;
+    }
 
     private Builder addDefaultValues(SQLQuery obj) {
       // provide default sort order which is Event._Id desc
-      if (obj.sortOrder == null) {
-        obj.sortOrder = EventBaseColumns.TABLE_NAME+"."+Constants.UNDERSCORE_ID.concat(Constants.DESC);
+      if (obj.getGroupBy() == null && obj.sortOrder == null) {
+        obj.sortOrder = EventBaseColumns.TABLE_NAME+"."+Constants.UNDERSCORE_ID.concat(Constants.BLANK).concat(Constants.DESC);
+      }
+      // if we need to include all outputs
+      if(obj.isFullEventAndOutputs() != null && obj.isFullEventAndOutputs()) {
+        String userCriteria = obj.criteriaQuery;
+        String addonCriteria = "_id in (select _id from events e1 join outputs o1 on e1._id=o1.event_id  where ";
+        StringBuffer modifiedCriteria = new StringBuffer(addonCriteria).append(userCriteria).append(")");
+        obj.criteriaQuery = modifiedCriteria.toString();
       }
 
       if (obj.getProjection() == null) {
         obj.projection = new String[] { Constants.STAR };
-      } else {
-
-        // adding a default projection of event table primary key column
-        int crtLength = obj.getProjection().length;
-  
-        String[] modifiedProjection = new String[crtLength + 1];
-        System.arraycopy(obj.getProjection(), 0, modifiedProjection, 0, crtLength);
-        // adding the following columns in the projection list to help in
-        // coalescing
-        modifiedProjection[crtLength] = EventBaseColumns.TABLE_NAME+"." + Constants.UNDERSCORE_ID;
-        obj.projection = modifiedProjection;
-      }  
+        obj.fullEventAndOutputs = true;
+      } 
       return this;
     }
 

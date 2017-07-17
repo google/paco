@@ -6,6 +6,7 @@ import java.io.PrintStream;
 import java.io.UnsupportedEncodingException;
 import java.sql.SQLException;
 import java.text.ParseException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
@@ -21,7 +22,9 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
+import org.json.JSONArray;
 import org.json.JSONException;
+import org.json.JSONObject;
 
 import com.google.appengine.api.users.User;
 import com.google.common.collect.Lists;
@@ -99,23 +102,23 @@ public class CloudSqlSearchServlet extends HttpServlet {
       SQLQuery sqlQueryObj = null;
       List<EventDAO> evtList = null;
       String aclQuery = null;
+      String results = null;
       Select selStatement = null;
       resp.setContentType("text/plain");
       // NOTE: Group by, having and projection columns related functionality can be toggled on and off with the following flag 
-      boolean enableGrpByAndProjection = false;
+      boolean enableGrpByAndProjection = true;
 
       CloudSQLDao impl = new CloudSQLDaoImpl();
-      String reqBody = RequestProcessorUtil.getBody(req);
       try {
-        sqlQueryObj = QueryJsonParser.parseSqlQueryFromJson(reqBody, enableGrpByAndProjection);
+        String postBodyString = RequestProcessorUtil.getBody(req);
+        if(postBodyString.startsWith("{\"message")) {
+          JSONObject queryObj = new JSONObject(postBodyString);
+          postBodyString = queryObj.getString("message");
+        }
+        sqlQueryObj = QueryJsonParser.parseSqlQueryFromJson(postBodyString, enableGrpByAndProjection);
         String plainSql = SearchUtil.getPlainSql(sqlQueryObj);
         selStatement = SearchUtil.getJsqlSelectStatement(plainSql);
-        // Only when we allow projection, and when the user might ask for date columns, we need to retrieve the timezone column to 
-        // display the date correctly
-        if(enableGrpByAndProjection && isTimezoneNeeded(sqlQueryObj.getProjection())){
-          
-          SelectUtils.addExpression(selStatement, new Column(EventServerColumns.CLIENT_TIME_ZONE));
-        }
+
         QueryPreprocessor qProcessor = new QueryPreprocessor(selStatement, validColumnNamesDataTypeInDb, true, dateColumns,
                                                              tzForClient);
         if (qProcessor.probableSqlInjection() != null) {
@@ -131,8 +134,11 @@ public class CloudSqlSearchServlet extends HttpServlet {
           sendErrorMessage(resp, mapper,  ErrorMessages.INVALID_COLUMN_NAME.getDescription()+ qProcessor.getInvalidColumnName());
           return;
         }
-        
-        if (qProcessor.isOutputColumnsPresent()) {
+        if (sqlQueryObj.getGroupBy() != null && !isValidGroupBy(sqlQueryObj.getProjection(), Arrays.asList(sqlQueryObj.getGroupBy().split(",")))) {
+          sendErrorMessage(resp, mapper,  ErrorMessages.INVALID_GROUPBY.getDescription() + Arrays.toString(sqlQueryObj.getProjection()));
+          return;
+        }
+        if (qProcessor.isOutputColumnsPresent() || sqlQueryObj.isFullEventAndOutputs()) {
           SearchUtil.addJoinClause(selStatement);
         }
         List<Long> adminExperimentsinDB = ExperimentAccessManager.getExistingExperimentIdsForAdmin(loggedInUser, 0,
@@ -140,12 +146,22 @@ public class CloudSqlSearchServlet extends HttpServlet {
                                                                  .getExperiments();
         aclQuery = ACLHelper.getModifiedQueryBasedOnACL(selStatement, loggedInUser, adminExperimentsinDB, qProcessor);
         long startTime = System.currentTimeMillis();
-        evtList = impl.getEvents(aclQuery, tzForClient, null);
+        if (sqlQueryObj.isFullEventAndOutputs()) {
+          evtList = impl.getEvents(aclQuery, tzForClient, null);
+          evQryStatus.setEvents(evtList);
+          evQryStatus.setStatus(Constants.SUCCESS);
+          results = mapper.writeValueAsString(evQryStatus);
+        } else {
+          JSONArray resultsArray = impl.getResultSetAsJson(aclQuery, tzForClient, null);
+          JSONObject resultset = new JSONObject();
+          //TODO To be changed to someother variable
+          resultset.put("events", resultsArray);
+          resultset.put("status", Constants.SUCCESS);
+          results = resultset.toString();
+        }
         long diff = System.currentTimeMillis() - startTime;
         log.info("complete search qry took " + diff);
-        evQryStatus.setEvents(evtList);
-        evQryStatus.setStatus(Constants.SUCCESS);
-        String results = mapper.writeValueAsString(evQryStatus);
+        
         resp.getWriter().println(results);
       } catch (JSONException jsonEx) {
         log.warning( ErrorMessages.JSON_EXCEPTION.getDescription() + getStackTraceAsString(jsonEx));
@@ -185,18 +201,25 @@ public class CloudSqlSearchServlet extends HttpServlet {
     return string;
   }
   
-  private boolean isTimezoneNeeded(String[] projCols){
-    boolean timezoneNeeded = false;
-    for (String eachCol : projCols) {
-      if (eachCol.equals(Constants.STAR)){
-        return false;
-      } else if(dateColumns.contains(eachCol)){
-        return true;
-      } 
+  private boolean isValidGroupBy(String[] selectColumnsArr, List<String> groupByCols) {
+    // all (plain) columns in projection (except aggregate functions on columns) must be in group by list
+    // select experiment_id, count(experiment_version) from events group by who INVALID
+    // plain columns->experiment_id; aggregate columns->experiment_version); group by column->who
+    // select who, count(experiment_version) from events group by who VALID
+    boolean isValidGroupBy = true;
+    List<String> selectColumns = Lists.newArrayList();
+    for(String s: selectColumnsArr) {
+      //aggregate function on columns will have open brackets
+      if (!(s.contains("("))) {
+        selectColumns.add(s.trim());
+      }
     }
-    return timezoneNeeded;
+    if((selectColumns != null && groupByCols.size() > 0 && !groupByCols.containsAll(selectColumns))) {
+      isValidGroupBy = false;
+    }
+   return isValidGroupBy;
   }
-
+  
   private void sendErrorMessage(HttpServletResponse resp, ObjectMapper mapper,
                                 String errorMessage) throws JsonGenerationException, JsonMappingException, IOException {
     EventQueryStatus evQryStatus = new EventQueryStatus();

@@ -19,7 +19,7 @@ public class RequestProcessorUtil {
     }
     if (postBodyString.equals("")) {
       throw new IllegalArgumentException("Empty Post body");
-    }
+    } 
     return postBodyString;
   }
   

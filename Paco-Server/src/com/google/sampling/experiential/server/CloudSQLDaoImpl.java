@@ -15,6 +15,9 @@ import java.util.Set;
 import java.util.logging.Logger;
 
 import org.joda.time.DateTimeZone;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 
 import com.google.common.collect.Lists;
@@ -78,7 +81,7 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
       eventsOutputColumns.put(eventColList.get(ct-1).getColumnName(), ct);
     }
     for(int ct = 0; ct < outputColList.size(); ct ++) {
-      eventsOutputColumns.put(outputColList.get(ct).getColumnName(), eventsOutputColumns.size() + ct);
+      eventsOutputColumns.put(outputColList.get(ct).getColumnName(), eventsOutputColumns.size() + 1);
     }
     
     failedColList.add(new Column(FailedEventServerColumns.EVENT_JSON));
@@ -375,11 +378,16 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
         while (rs.next()) {
           event = createEvent(rs);
           adjustTimeZone(event);
+          // to group list of whats into event
           EventDAO oldEvent = eventMap.get(event.getId());
           if (oldEvent == null) {
-            // get all outputs for this event, and add to this event
-            event.setWhat(getOutputs(event.getId()));
             eventMap.put(event.getId(), event);
+          } else {
+            // add crt what to old event
+            List<WhatDAO> newWhat = event.getWhat();
+            if (newWhat != null && oldEvent.getWhat() != null) {
+              oldEvent.getWhat().addAll(newWhat);
+            }
           }
         }
       }
@@ -395,11 +403,51 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
         log.warning(ErrorMessages.CLOSING_RESOURCE_EXCEPTION.getDescription()+ ex1);
       }
     }
-    if (eventMap != null) {
+    if (eventMap != null && eventMap.size() > 0) {
       evtDaoList = Lists.newArrayList(eventMap.values());
     }
 
     return evtDaoList;
+  }
+  
+  @Override
+  public JSONArray getResultSetAsJson(String query, DateTimeZone tzForClient, Long eventId) throws SQLException, ParseException, JSONException {
+    Connection conn = null;
+    JSONArray multipleRecords = null;
+    PreparedStatement statementSelectEvent = null;
+    ResultSet rs = null;
+
+    try {
+      conn = CloudSQLConnectionManager.getInstance().getConnection();
+      setNames(conn);
+    
+      statementSelectEvent = conn.prepareStatement(query, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
+      rs = statementSelectEvent.executeQuery();
+      if (rs != null) {
+        ResultSetMetaData rsmd = rs.getMetaData();
+        multipleRecords = new JSONArray();
+        JSONObject eachRecord = null;
+        while (rs.next()) {
+          eachRecord = new JSONObject();
+          for ( int i=1; i<=rsmd.getColumnCount();i++) {
+            eachRecord.put(rsmd.getColumnName(i), rs.getObject(i));
+          }
+          multipleRecords.put(eachRecord);
+        }
+      }
+    } finally {
+      try {
+        if (statementSelectEvent != null) {
+          statementSelectEvent.close();
+        }
+        if (conn != null) {
+          conn.close();
+        }
+      } catch (SQLException ex1) {
+        log.warning(ErrorMessages.CLOSING_RESOURCE_EXCEPTION.getDescription()+ ex1);
+      }
+    }
+   return multipleRecords; 
   }
   
   @Override
@@ -445,90 +493,36 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
 
   private EventDAO createEvent(ResultSet rs) {
     EventDAO event = new EventDAO();
-    List<WhatDAO> whatList = Lists.newArrayList();
-    // setting an empty map for possible outputs. Even if the qry does not ask
-    // for output fields, we send an empty output map
-    event.setWhat(whatList);
+    List<WhatDAO> whatList = Lists.newArrayList();;
+    WhatDAO singleWhat = null;
     try {
-      ResultSetMetaData rsmd = rs.getMetaData();
-      for (int i = 1; i <= rsmd.getColumnCount(); i++) {
-        String tempColNameInRS = rsmd.getColumnName(i);
-        String colLower = tempColNameInRS.toLowerCase();
-        Integer colIndex = eventsOutputColumns.get(colLower);
-        if (colIndex != null) {
-          switch (colIndex) {
-          case 1:
-            event.setExperimentId(rs.getLong(i));
-            break;
-          case 2:
-            event.setExperimentName(rs.getString(i));
-            break;
-          case 3:
-            event.setExperimentVersion(rs.getInt(i));
-            break;
-          case 4:
-            event.setScheduledTime(rs.getTimestamp(i));
-            break;
-          case 5:
-            event.setResponseTime(rs.getTimestamp(i));
-            break;
-          case 6:
-            event.setExperimentGroupName(rs.getString(i));
-            break;
-          case 7:
-            event.setActionTriggerId(rs.getLong(i));
-            break;
-          case 8:
-            event.setActionTriggerSpecId(rs.getLong(i));
-            break;
-          case 9:
-            event.setActionId(rs.getLong(i));
-            break;
-          case 10:
-            event.setWho(rs.getString(i));
-            break;
-          case 11:
-            event.setWhen(rs.getTimestamp(i));
-            break;
-          case 12:
-            if( event.getWhen() != null) {
-              long whTime = event.getWhen().getTime() ;
-              event.setWhen(new Date(whTime + rs.getInt(i)));
-            }
-            break;
-          case 13:
-            event.setPaco_version(rs.getString(i));
-            break;
-          case 14:
-            event.setAppId(rs.getString(i));
-            break;
-          case 15:
-            event.setJoined(rs.getBoolean(i));
-            break;
-          case 16:
-            event.setSortDate(rs.getTimestamp(i));
-            break;
-          case 17:
-            event.setTimezone(rs.getString(i));
-            break;
-          case 18:
-          case 19:
-            event.setId(rs.getLong(i));
-            break;
-          case 20:
-            List<WhatDAO> whTextLst = event.getWhat();
-            whTextLst.add(new WhatDAO(OutputBaseColumns.NAME, rs.getString(i)));
-            break;
-          case 21:
-            List<WhatDAO> whAnsLst = event.getWhat();
-            whAnsLst.add(new WhatDAO(OutputBaseColumns.ANSWER, rs.getString(i)));
-            break;
-          }
-        }
+      event.setExperimentId(rs.getLong("experiment_id"));
+      event.setExperimentName(rs.getString("experiment_name"));
+      event.setExperimentVersion(rs.getInt("experiment_version"));
+      event.setScheduledTime(rs.getDate("schedule_time"));
+      event.setResponseTime(rs.getDate("response_time"));
+      event.setExperimentGroupName(rs.getString("group_name"));
+      event.setActionTriggerId(rs.getLong("action_trigger_id"));
+      event.setActionTriggerSpecId(rs.getLong("action_trigger_spec_id"));
+      event.setActionId(rs.getLong("action_id"));
+      event.setWho(rs.getString("who"));
+      event.setWhen(new Date(rs.getDate("when").getTime()+rs.getInt("when_fractional_sec")));
+      event.setPaco_version(rs.getString("paco_version"));
+      event.setAppId(rs.getString("app_id"));
+      event.setJoined(rs.getBoolean("joined"));
+      event.setSortDate(rs.getDate("sort_date"));
+      event.setTimezone(rs.getString("client_timezone"));
+      event.setId(rs.getLong("_id"));
+      String tempWhatText = rs.getString("text");
+      if(tempWhatText != null) {
+        singleWhat = new WhatDAO(tempWhatText, rs.getString("answer"));
+        whatList.add(singleWhat);
       }
-    } catch (SQLException ex) {
-      log.warning(ErrorMessages.SQL_EXCEPTION.getDescription() + ex);
+      event.setWhat(whatList);
+    } catch (SQLException sqle) {
+      log.warning(ErrorMessages.SQL_EXCEPTION.getDescription() + sqle);
     }
+  
     return event;
   }
   
@@ -546,8 +540,6 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
         if (statementSetNames != null) {
           statementSetNames.close();
         }
-       
-      
       } catch (SQLException ex1) {
         log.warning(ErrorMessages.CLOSING_RESOURCE_EXCEPTION.getDescription() + ex1);
       }
