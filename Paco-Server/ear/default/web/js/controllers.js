@@ -715,6 +715,35 @@ pacoApp.controller('HelpCtrl', [ '$scope', '$routeParams', 'config', function($s
 
 } ]);
 
+pacoApp.controller('HackCtrl',['$scope','$http',function($scope,$http){
+ $scope.submitForm = function(xmlData) {
+   $scope.message = xmlData;
+   $http({
+   method  : 'POST',
+   url     : '/csSearch',
+   data    : {'message': $scope.message}
+  })
+  .then(function mySuccess(response) {
+      var x='';
+      if(response.data.errorMessage == null) {
+        for (i in response.data.events) {
+          x += JSON.stringify(response.data.events[i], null, 4);
+        }
+      } else { 
+        x = response.data.errorMessage;
+      }
+      $scope.hackResponse = x;
+   }, function myError(response) {
+      $scope.hackResponse = response.data;
+   });
+ };
+ $scope.makePretty = function(xmlData) {
+   var obj = JSON.parse(xmlData);
+   var pretty = JSON.stringify(obj, undefined, 4);
+   $scope.criteriaTextarea = pretty;
+ }
+}]);
+
 pacoApp.controller('ReportCtrl', [
     '$scope',
     '$mdDialog',
