@@ -13,14 +13,15 @@ pacoApp.controller('VizCtrl', ['$scope', 'experimentsVizService', '$timeout', '$
     $scope.getExperimentDetails = function () {
         experimentsVizService.getExperiment($scope.experimentId).then(
             function (experiment) {
+                console.log(experiment);
                 if (experiment.status === 404) {
                     displayErrorMessage("Experiments ", experiment);
                 }
                 $scope.experimentDataModel = {
-                    id: experiment.id,
-                    title: experiment.title,
-                    creator: experiment.creator,
-                    date: experiment.modifyDate
+                    id: experiment.results[0].id,
+                    title: experiment.results[0].title,
+                    creator: experiment.results[0].creator,
+                    date: experiment.results[0].modifyDate
                 };
                 experimentsVizService.getInputs(experiment.results[0]).forEach(function (inputType) {
                     responseTypeList.push(inputType);
