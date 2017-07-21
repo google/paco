@@ -1,6 +1,3 @@
-/**
- * Created by muthuk on 6/28/17.
- */
 "use strict";
 
 pacoApp.controller('VizCtrl', ['$scope', 'experimentsVizService', '$timeout', '$routeParams', function ($scope, experimentsVizService, $timeout, $routeParams) {
@@ -11,37 +8,38 @@ pacoApp.controller('VizCtrl', ['$scope', 'experimentsVizService', '$timeout', '$
     var responseTypeList = [];
     var experimentResponses = [];
 
-    //experiment json objects are retrieved from the 'experimentsVozService'
+    //experiment json objects are retrieved from the 'experimentsVizService'
     // to create a scope variable for response type meta data.
     $scope.getExperimentDetails = function () {
-        experimentsVizService.getExperimentObj($scope.experimentId).then(
-            function (experimentObject) {
+        experimentsVizService.getExperiment($scope.experimentId).then(
+            function (experiment) {
+                if (experiment.status === 404) {
+                    displayErrorMessage("Experiments ", experiment);
+                }
                 $scope.experimentDataModel = {
-                    id: experimentObject.id,
-                    title: experimentObject.title,
-                    creator: experimentObject.creator,
-                    date: experimentObject.modifyDate
+                    id: experiment.id,
+                    title: experiment.title,
+                    creator: experiment.creator,
+                    date: experiment.modifyDate
                 };
-                experimentsVizService.getEventsResponseDetails(experimentObject).forEach(function (resType) {
-                    responseTypeList.push(resType);
+                experimentsVizService.getInputs(experiment.results[0]).forEach(function (inputType) {
+                    responseTypeList.push(inputType);
                 });
-            }, function (error) {
-                console.log(error);
             });
     };
     $scope.responseTypeDetails = responseTypeList;
 
-    //experiment events json objects are retrieved from the 'experimentsVozService'
+    //events json objects are retrieved from the 'experimentsVizService'
     // to create a scope variable for participants' responses.
     $scope.getExperimentEvents = function () {
-        experimentsVizService.getExperimentEvents($scope.experimentId).then(
-            function (eventsObject) {
-                eventsObject.forEach(function (response) {
+        experimentsVizService.getEvents($scope.experimentId).then(
+            function (events) {
+                if (events.status === 404) {
+                    displayErrorMessage("Events ", events);
+                }
+                events.forEach(function (response) {
                     experimentResponses.push(response);
                 })
-            },
-            function (error) {
-                console.log(error);
             }
         )
     };
@@ -51,5 +49,13 @@ pacoApp.controller('VizCtrl', ['$scope', 'experimentsVizService', '$timeout', '$
         $scope.experimentId = parseInt($routeParams.experimentId, 10);
         $scope.getExperimentDetails();
         $scope.getExperimentEvents();
+    }
+
+    function displayErrorMessage(data, error) {
+        $scope.error = {
+            data: data,
+            code: error.status,
+            message: error.statusText
+        };
     }
 }]);

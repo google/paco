@@ -1,30 +1,24 @@
-/**
- * Created by muthuk on 6/28/17.
- */
 pacoApp.factory('experimentsVizService', ['$http', 'experimentService', function ($http, experimentService) {
 
-    var expObject = '';
+    var experiment = '';
 
-    function getExperimentObj(id) {
+    function getExperiment(id) {
 
-        var getExp = experimentService.getExperiment(id).then(function (experimentValue) {
-            return experimentValue.data;
-        }, function (error) {
-            console.log(error);
+        var getExperiment = experimentService.getExperiment(id).then(function successCallback(experimentData) {
+            return experimentData.data;
+        }, function errorCallback(error) {
+            return error;
         });
 
-        expObject = getExp.then(function (experimentObj) {
-            return experimentObj.results[0];
-        }, function (error) {
-            console.log(error);
+        experiment = getExperiment.then(function (experiment) {
+            return experiment;
         });
-        return expObject;
+        return experiment;
     }
 
-    function getEventsResponseDetails(experimentObject) {
-
+    function getInputs(experiment) {
         var responseDetails = [];
-        var inputs = experimentObject.groups[0].inputs;
+        var inputs = experiment.groups[0].inputs;
         inputs.forEach(function (input) {
             if (input.responseType == "likert") {
                 responseDetails.push({
@@ -48,15 +42,15 @@ pacoApp.factory('experimentsVizService', ['$http', 'experimentService', function
         return responseDetails;
     }
 
-    function getExperimentEvents(id) {
+    function getEvents(id) {
 
-        var fetchEvents = $http({
+        var getEvents = $http({
             method: 'GET',
             url: '/events?q=experimentId=' + id + '&json'
         }).then(function successCallback(response) {
             return response.data.events;
         }, function errorCallback(error) {
-            console.log(error);
+            return error;
         });
 
         //TODO
@@ -74,48 +68,47 @@ pacoApp.factory('experimentsVizService', ['$http', 'experimentService', function
         //     console.log(error);
         // });
 
-        var events = [];
         var answers = {};
-        var outputObject = [];
+        var responseResults = "";
+        var responses = [];
 
-        var getEventResponses = fetchEvents.then(function (eventObject) {
-            eventObject.forEach(function (event) {
-                answers.who = event.who;
-                answers.when = event.when;
-                answers.responseTime = event.responseTime;
-                events.push(event.responses);
-                event.responses.forEach(function (e) {
-                    answers.name = e.name;
-                    answers.answer = e.answer;
-                    if (answers.name != "joined") {
-                        outputObject.push({
-                            "who": answers.who,
-                            "when": answers.when,
-                            "responseTime": answers.responseTime,
-                            "name": answers.name,
-                            "answer": answers.answer
-                        });
-                    }
+        var getResponses = getEvents.then(function (events) {
+            if (events.status === 404) {
+                return events;
+            } else {
+                events.forEach(function (event) {
+                    answers.who = event.who;
+                    answers.when = event.when;
+                    answers.responseTime = event.responseTime;
+                    events.push(event.responses);
+                    event.responses.forEach(function (e) {
+                        answers.name = e.name;
+                        answers.answer = e.answer;
+                        if (answers.name != "joined") {
+                            responses.push({
+                                "who": answers.who,
+                                "when": answers.when,
+                                "responseTime": answers.responseTime,
+                                "name": answers.name,
+                                "answer": answers.answer
+                            });
+                        }
+                    });
                 });
-
-            });
-            return outputObject;
+                var groupByInputs = d3.nest()
+                    .key(function (d) {
+                        return d.name;
+                    })
+                    .entries(responses);
+                return groupByInputs;
+            }
         });
-
-        var groupEventResponses = getEventResponses.then(function (responses) {
-            var groupByNames = d3.nest()
-                .key(function (d) {
-                    return d.name;
-                })
-                .entries(responses);
-            return groupByNames;
-        });
-        return groupEventResponses;
+        responseResults = getResponses;
+        return responseResults;
     }
-
     return {
-        getExperimentEvents: getExperimentEvents,
-        getEventsResponseDetails: getEventsResponseDetails,
-        getExperimentObj: getExperimentObj
+        getEvents: getEvents,
+        getInputs: getInputs,
+        getExperiment: getExperiment
     }
 }]);

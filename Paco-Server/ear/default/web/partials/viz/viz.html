@@ -52,4 +52,7 @@
 
         </div>
     </div>
+    <div ng-if="error" class="error">
+        Error {{error.code}}: {{error.data}} {{error.message}}
+    </div>
 </div>
