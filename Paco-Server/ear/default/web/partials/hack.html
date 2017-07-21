@@ -2,11 +2,57 @@
 <div class="hack"  ng-controller="HackCtrl">
 <h1>Hack your data</h1>
 <form name="hackform" >
-<textarea ng-model="criteriaTextarea" rows="10" cols="100"></textarea>
-<button ng-click="makePretty(criteriaTextarea)">Make Pretty</button>
-<button ng-click="submitForm(criteriaTextarea)">Submit</button>
+<div class="ace_editor" ng-model="action.customScript"
+      ui-ace="{
+        mode: 'javascript',
+        onLoad: aceReqLoaded,
+        onChange: aceReqChanged,
+        rendererOptions: {
+          minLines: 10,
+          maxLines: 10
+        }
+      }"></div>
+      
+
+<input type="radio" ng-model="resFormat" value="json">Json
+<input type="radio" ng-model="resFormat" value="table">Table
+
+<button ng-click="submitForm()">Submit</button>
 </form>
-response<br>
-<textarea ng-model="hackResponse" rows="10" cols="100">
-</textarea>
+
+<div ng-switch = "resFormat">
+
+<div ng-switch-when="json">
+{{ errorResponse }}
+<div class="ace_editor" ng-model="hackResponse"
+      ui-ace="{
+        mode: 'javascript',
+        onLoad: aceResLoaded,
+        onChange: aceResChanged,
+        rendererOptions: {
+          minLines: 10,
+          maxLines: 10
+        }
+      }"></div>
+</div>
+<div ng-switch-when="table">
+{{ errorResponse }}
+<table>
+	<thead>
+  <tr>
+  	<th ng-repeat="(header, value) in eventObjects[0]">
+          {{header}}
+    </th>
+  </tr>
+  </thead>
+  <tbody>
+  <tr ng-repeat="row in eventObjects">
+        <td ng-repeat="cell in row">
+          {{cell}}
+        </td>
+   </tr>
+  </tbody>
+</table>
+</div>
+</div>
 </div>

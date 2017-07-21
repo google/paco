@@ -703,45 +703,90 @@ pacoApp.controller('DataCtrl', [
     } ]);
 
 pacoApp.controller('HelpCtrl', [ '$scope', '$routeParams', 'config', function($scope, $routeParams, config) {
-
   $scope.helpLink = config.helpLinkBase;
-
   if (angular.isDefined($routeParams.helpId)) {
     var link = config.helpLinks[$routeParams.helpId];
     if (angular.isDefined(link)) {
       $scope.helpLink = config.helpLinkBase + '#' + link;
     }
   }
-
 } ]);
 
 pacoApp.controller('HackCtrl',['$scope','$http',function($scope,$http){
- $scope.submitForm = function(xmlData) {
-   $scope.message = xmlData;
-   $http({
-   method  : 'POST',
-   url     : '/csSearch',
-   data    : {'message': $scope.message}
-  })
-  .then(function mySuccess(response) {
-      var x='';
-      if(response.data.errorMessage == null) {
-        for (i in response.data.events) {
-          x += JSON.stringify(response.data.events[i], null, 4);
-        }
-      } else { 
-        x = response.data.errorMessage;
-      }
-      $scope.hackResponse = x;
-   }, function myError(response) {
-      $scope.hackResponse = response.data;
-   });
- };
- $scope.makePretty = function(xmlData) {
-   var obj = JSON.parse(xmlData);
-   var pretty = JSON.stringify(obj, undefined, 4);
-   $scope.criteriaTextarea = pretty;
- }
+  var allResponses = '';
+  var editorSesssion = '';
+  $scope.hackRequest = '';
+  $scope.eventObjects = '';
+  $scope.errorResponse = '';
+  $scope.submitForm = function() {
+     $http({
+     method  : 'POST',
+     url     : '/csSearch',
+     data    : {'message': $scope.hackRequest}
+    })
+    .then(function mySuccess(response) {
+       $scope.hackResponse = '';
+       $scope.eventObjects = '';
+       $scope.errorResponse = '';
+       $scope.resFormat = 'json';
+         if(response.data.errorMessage == null) {
+           $scope.eventObjects = response.data.events;
+           for (i in response.data.events) {
+             allResponses += JSON.stringify(response.data.events[i], null, 4);
+           }
+         } else { 
+           $scope.errorResponse = response.data.errorMessage;
+         }
+       $scope.hackResponse = allResponses;
+     }, function myError(response) {
+        $scope.errorResponse = response.data;
+     });
+   };
+   //Need to set blockScrolling to Infinity to supress Ace deprecation
+   // warning
+   $scope.aceInfinity = function(editor) {
+     if (editor) {
+       editor.$blockScrolling = 'Infinity';
+     }
+   };
+   
+   $scope.aceReqLoaded = function(editor) {
+     editorSession = editor.getSession();
+   };
+   $scope.aceReqChanged = function(editor) {
+     $scope.hackRequest = editorSession.getDocument().getValue();
+   };
+  
+   // Ace is loaded  so get pretty JSON here
+   $scope.prepareSourceAce = function(editor) {
+     console.log(editor);
+     $scope.aceInfinity(editor);
+  
+     $scope.ace = {
+       JSON : angular.toJson($scope.hackRequest, true),
+       error : false
+     };
+   };
+   
+   $scope.aceResLoaded = function(editor) {
+   console.log(editor);
+   editorSession = editor.getSession();
+  };
+  $scope.aceResChanged = function(editor) {
+    $scope.hackResponse = editorSession.getDocument().getValue();
+  };
+  
+  // Ace is loaded  so get pretty JSON here
+  $scope.prepareSourceAce = function(editor) {
+   $scope.aceInfinity(editor);
+  
+   $scope.ace = {
+     JSON : angular.toJson($scope.hackResponse, true),
+     error : false
+   };
+  };
+
+ 
 }]);
 
 pacoApp.controller('ReportCtrl', [
