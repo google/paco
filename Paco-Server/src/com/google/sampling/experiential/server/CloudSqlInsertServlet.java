@@ -1,8 +1,6 @@
 package com.google.sampling.experiential.server;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.PrintStream;
 import java.io.UnsupportedEncodingException;
 import java.util.logging.Logger;
 
@@ -10,8 +8,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import org.json.JSONException;
 
 import com.pacoapp.paco.shared.util.ErrorMessages;
 
@@ -47,13 +43,4 @@ public class CloudSqlInsertServlet extends HttpServlet {
     req.setCharacterEncoding("UTF-8");
     resp.setCharacterEncoding("UTF-8");
   }
-  
-  private String getStackTraceAsString(Throwable e) {
-    final ByteArrayOutputStream out = new ByteArrayOutputStream();
-    PrintStream pw = new PrintStream(out);
-    e.printStackTrace(pw);
-    final String string = out.toString();
-    return string;
-  }
-
 }

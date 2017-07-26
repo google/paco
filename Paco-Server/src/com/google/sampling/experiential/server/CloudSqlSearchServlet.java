@@ -178,7 +178,6 @@ public class CloudSqlSearchServlet extends HttpServlet {
         } else {
           JSONArray resultsArray = impl.getResultSetAsJson(aclQuery, tzForClient, null);
           JSONObject resultset = new JSONObject();
-          //TODO To be changed to someother variable
           resultset.put("customResponse", resultsArray);
           resultset.put("status", Constants.SUCCESS);
           results = resultset.toString();
@@ -188,43 +187,40 @@ public class CloudSqlSearchServlet extends HttpServlet {
         
         resp.getWriter().println(results);
       } catch (JSONException jsonEx) {
-        log.warning( ErrorMessages.JSON_EXCEPTION.getDescription() + getStackTraceAsString(jsonEx));
-        sendErrorMessage(resp, mapper, ErrorMessages.JSON_EXCEPTION.getDescription() + getStackTraceAsString(jsonEx));
+        String exceptionString = ExceptionUtil.getStackTraceAsString(jsonEx);
+        log.warning( ErrorMessages.JSON_EXCEPTION.getDescription() + exceptionString);
+        sendErrorMessage(resp, mapper, ErrorMessages.JSON_EXCEPTION.getDescription() + exceptionString);
         return;
       } catch (JSQLParserException e) {
-        log.warning( ErrorMessages.ADD_DEFAULT_COLUMN_EXCEPTION.getDescription() + getStackTraceAsString(e));
-        sendErrorMessage(resp, mapper, ErrorMessages.ADD_DEFAULT_COLUMN_EXCEPTION.getDescription() + getStackTraceAsString(e));
+        String exceptionString = ExceptionUtil.getStackTraceAsString(e);
+        log.warning( ErrorMessages.ADD_DEFAULT_COLUMN_EXCEPTION.getDescription() + exceptionString);
+        sendErrorMessage(resp, mapper, ErrorMessages.ADD_DEFAULT_COLUMN_EXCEPTION.getDescription() + exceptionString);
         return;
       } catch (SQLException sqle) {
-        log.warning( ErrorMessages.SQL_EXCEPTION.getDescription() + getStackTraceAsString(sqle));
-        sendErrorMessage(resp, mapper, ErrorMessages.SQL_EXCEPTION.getDescription() + getStackTraceAsString(sqle));
+        String exceptionString = ExceptionUtil.getStackTraceAsString(sqle);
+        log.warning( ErrorMessages.SQL_EXCEPTION.getDescription() + exceptionString);
+        sendErrorMessage(resp, mapper, ErrorMessages.SQL_EXCEPTION.getDescription() + exceptionString);
         return;
       } catch (ParseException e) {
-        log.warning( ErrorMessages.TEXT_PARSE_EXCEPTION.getDescription() + getStackTraceAsString(e));
-        sendErrorMessage(resp, mapper, ErrorMessages.TEXT_PARSE_EXCEPTION.getDescription() + getStackTraceAsString(e));
+        String exceptionString = ExceptionUtil.getStackTraceAsString(e);
+        log.warning( ErrorMessages.TEXT_PARSE_EXCEPTION.getDescription() + exceptionString);
+        sendErrorMessage(resp, mapper, ErrorMessages.TEXT_PARSE_EXCEPTION.getDescription() + exceptionString);
         return;
       } catch (Exception e) {
+        String exceptionString = ExceptionUtil.getStackTraceAsString(e);
         if (e.toString().contains(ErrorMessages.UNAUTHORIZED_ACCESS.getDescription())) {
-          log.warning( ErrorMessages.UNAUTHORIZED_ACCESS.getDescription() + getStackTraceAsString(e));
+          log.warning( ErrorMessages.UNAUTHORIZED_ACCESS.getDescription() + exceptionString);
           sendErrorMessage(resp, mapper,  e.getMessage());
           return;
         } else {
-          log.warning( ErrorMessages.GENERAL_EXCEPTION.getDescription() + getStackTraceAsString(e));
+          log.warning( ErrorMessages.GENERAL_EXCEPTION.getDescription() + exceptionString);
           sendErrorMessage(resp, mapper, ErrorMessages.GENERAL_EXCEPTION.getDescription()+ e);
           return;
         }
       }
     }
   }
-  
-  private String getStackTraceAsString(Throwable e) {
-    final ByteArrayOutputStream out = new ByteArrayOutputStream();
-    PrintStream pw = new PrintStream(out);
-    e.printStackTrace(pw);
-    final String string = out.toString();
-    return string;
-  }
-  
+ 
   private boolean isValidGroupBy(String[] selectColumnsArr, List<String> groupByCols) {
     // all (plain) columns in projection (except aggregate functions on columns) must be in group by list
     // select experiment_id, count(experiment_version) from events group by who INVALID
