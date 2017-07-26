@@ -19,7 +19,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.sampling.experiential.datastore.EventServerColumns;
@@ -44,7 +43,7 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
   public static final Logger log = Logger.getLogger(CloudSQLDaoImpl.class.getName());
   private static Map<String, Integer> eventsOutputColumns = null;
   private static List<Column> eventColList = Lists.newArrayList();
-  public static final String ID = "_id";
+  public static final String WHEN = "when";
   private static List<Column> outputColList = Lists.newArrayList();
   private static List<Column> failedColList = Lists.newArrayList();
   private static final String selectOutputsSql = "select * from " + OutputBaseColumns.TABLE_NAME + " where " + OutputBaseColumns.EVENT_ID + " = ?";
@@ -391,8 +390,12 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
           }
         }
       }
+      log.info("query took " + (System.currentTimeMillis() - st1Time));
     } finally {
       try {
+        if(rs != null) { 
+          rs.close();
+        }
         if (statementSelectEvent != null) {
           statementSelectEvent.close();
         }
@@ -437,6 +440,9 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
       }
     } finally {
       try {
+       if( rs != null) {
+         rs.close();
+       }
         if (statementSelectEvent != null) {
           statementSelectEvent.close();
         }
@@ -457,12 +463,13 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
     String question = null;
     String answer = null;
     Connection conn = null;
+    ResultSet rs = null;
     PreparedStatement statementSelectOutput = null;
     try {
       conn = CloudSQLConnectionManager.getInstance().getConnection();
       statementSelectOutput = conn.prepareStatement(selectOutputsSql);
       statementSelectOutput.setLong(1, eventId);
-      ResultSet rs = statementSelectOutput.executeQuery();
+      rs = statementSelectOutput.executeQuery();
       while(rs.next()){
         question = rs.getString(OutputBaseColumns.NAME);
         answer = rs.getString(OutputBaseColumns.ANSWER);
@@ -471,6 +478,9 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
       }
     } finally {
       try {
+        if ( rs != null) {
+          rs.close();
+        }
         if (statementSelectOutput != null) {
           statementSelectOutput.close();
         }
@@ -496,26 +506,26 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
     List<WhatDAO> whatList = Lists.newArrayList();;
     WhatDAO singleWhat = null;
     try {
-      event.setExperimentId(rs.getLong("experiment_id"));
-      event.setExperimentName(rs.getString("experiment_name"));
-      event.setExperimentVersion(rs.getInt("experiment_version"));
-      event.setScheduledTime(rs.getDate("schedule_time"));
-      event.setResponseTime(rs.getDate("response_time"));
-      event.setExperimentGroupName(rs.getString("group_name"));
-      event.setActionTriggerId(rs.getLong("action_trigger_id"));
-      event.setActionTriggerSpecId(rs.getLong("action_trigger_spec_id"));
-      event.setActionId(rs.getLong("action_id"));
-      event.setWho(rs.getString("who"));
-      event.setWhen(new Date(rs.getDate("when").getTime()+rs.getInt("when_fractional_sec")));
-      event.setPaco_version(rs.getString("paco_version"));
-      event.setAppId(rs.getString("app_id"));
-      event.setJoined(rs.getBoolean("joined"));
-      event.setSortDate(rs.getDate("sort_date"));
-      event.setTimezone(rs.getString("client_timezone"));
-      event.setId(rs.getLong("_id"));
-      String tempWhatText = rs.getString("text");
+      event.setExperimentId(rs.getLong(EventServerColumns.EXPERIMENT_ID));
+      event.setExperimentName(rs.getString(EventServerColumns.EXPERIMENT_NAME));
+      event.setExperimentVersion(rs.getInt(EventServerColumns.EXPERIMENT_VERSION));
+      event.setScheduledTime(rs.getDate(EventServerColumns.SCHEDULE_TIME));
+      event.setResponseTime(rs.getDate(EventServerColumns.RESPONSE_TIME));
+      event.setExperimentGroupName(rs.getString(EventServerColumns.GROUP_NAME));
+      event.setActionTriggerId(rs.getLong(EventServerColumns.ACTION_TRIGGER_ID));
+      event.setActionTriggerSpecId(rs.getLong(EventServerColumns.ACTION_TRIGGER_SPEC_ID));
+      event.setActionId(rs.getLong(EventServerColumns.ACTION_ID));
+      event.setWho(rs.getString(EventServerColumns.WHO));
+      event.setWhen(new Date(rs.getDate(WHEN).getTime() + rs.getInt(EventServerColumns.WHEN_FRAC_SEC)));
+      event.setPaco_version(rs.getString(EventServerColumns.PACO_VERSION));
+      event.setAppId(rs.getString(EventServerColumns.APP_ID));
+      event.setJoined(rs.getBoolean(EventServerColumns.JOINED));
+      event.setSortDate(rs.getDate(EventServerColumns.SORT_DATE));
+      event.setTimezone(rs.getString(EventServerColumns.CLIENT_TIME_ZONE));
+      event.setId(rs.getLong(Constants.UNDERSCORE_ID));
+      String tempWhatText = rs.getString(OutputBaseColumns.NAME);
       if(tempWhatText != null) {
-        singleWhat = new WhatDAO(tempWhatText, rs.getString("answer"));
+        singleWhat = new WhatDAO(tempWhatText, rs.getString(OutputBaseColumns.ANSWER));
         whatList.add(singleWhat);
       }
       event.setWhat(whatList);

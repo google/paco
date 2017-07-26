@@ -112,13 +112,6 @@ public class SQLQuery {
       if (obj.getGroupBy() == null && obj.sortOrder == null) {
         obj.sortOrder = EventBaseColumns.TABLE_NAME+"."+Constants.UNDERSCORE_ID.concat(Constants.BLANK).concat(Constants.DESC);
       }
-      // if we need to include all outputs
-      if(obj.isFullEventAndOutputs() != null && obj.isFullEventAndOutputs()) {
-        String userCriteria = obj.criteriaQuery;
-        String addonCriteria = "_id in (select _id from events e1 join outputs o1 on e1._id=o1.event_id  where ";
-        StringBuffer modifiedCriteria = new StringBuffer(addonCriteria).append(userCriteria).append(")");
-        obj.criteriaQuery = modifiedCriteria.toString();
-      }
 
       if (obj.getProjection() == null) {
         obj.projection = new String[] { Constants.STAR };
