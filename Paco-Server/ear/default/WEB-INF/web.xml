@@ -55,7 +55,7 @@
   
   <servlet>
     <servlet-name>ReportsFrontendServlet</servlet-name>
-    <servlet-class>com.google.sampling.experiential.server.migration.ReportsFrontEndServlet</servlet-class>
+    <servlet-class>com.google.sampling.experiential.server.reports.ReportsFrontEndServlet</servlet-class>
   </servlet>
   <servlet-mapping>
     <servlet-name>ReportsFrontendServlet</servlet-name>
@@ -173,7 +173,6 @@
     <url-pattern>/mayJuneEventCounter</url-pattern>
   </servlet-mapping>
   -->
-  
   <servlet>
     <display-name>Remote API Servlet</display-name>
     <servlet-name>RemoteApiServlet</servlet-name>

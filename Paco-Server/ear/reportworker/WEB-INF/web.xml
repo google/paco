@@ -42,7 +42,7 @@
 
    <servlet>   
     <servlet-name>reportsBackendServlet</servlet-name>
-    <servlet-class>com.google.sampling.experiential.server.migration.ReportsBackendServlet</servlet-class>
+    <servlet-class>com.google.sampling.experiential.server.reports.ReportsBackendServlet</servlet-class>
   </servlet>    
   <servlet-mapping>
     <servlet-name>reportsBackendServlet</servlet-name>
