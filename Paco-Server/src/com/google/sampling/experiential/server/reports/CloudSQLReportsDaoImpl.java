@@ -24,10 +24,16 @@ import com.google.sampling.experiential.server.CloudSQLConnectionManager;
 import com.google.sampling.experiential.server.ExperimentAccessManager;
 import com.google.sampling.experiential.server.QueryConstants;
 import com.google.sampling.experiential.server.reports.CloudSQLReportsDao;
+import com.pacoapp.paco.shared.model2.OutputBaseColumns;
 import com.pacoapp.paco.shared.util.ErrorMessages;
 
 public class CloudSQLReportsDaoImpl implements CloudSQLReportsDao {
   public static final Logger log = Logger.getLogger(CloudSQLReportsDaoImpl.class.getName());
+  private static final String PARTICIPANT_COUNT = "participantCount";
+  private static final String PARTICIPANT_EMAIL = "participantEmail";
+  private static final String NUMBER_OF_RECORDS = "noOfRecords";
+  private static final String APP_USAGE = "appusage";
+  private static final String ESM = "esm";
   
   @Override
   public List<String> getACLedParticipants(Long expId, String who) throws SQLException {
@@ -35,10 +41,10 @@ public class CloudSQLReportsDaoImpl implements CloudSQLReportsDao {
     Connection conn = null;
     PreparedStatement statementSelectParticipants = null;
     try {
-      List<Long> adminExperimentsinDB = ExperimentAccessManager.getExistingExperimentIdsForAdmin(who, 0,
-                                                                                                 null)
-                                                               .getExperiments();
-      if (adminExperimentsinDB.contains(expId)) {
+      Boolean isAdmin = ExperimentAccessManager.isUserAdmin(expId, who);
+      // if he is an admin, we will give data for all participants in this expt
+      // if not we will just show his data. If he is not valid participant, he will not get any data
+      if (isAdmin) {
         conn = CloudSQLConnectionManager.getInstance().getConnection();
         setNames(conn);
         statementSelectParticipants = conn.prepareStatement(QueryConstants.GET_PARTICIPANTS_QUERY.toString());
@@ -107,11 +113,11 @@ public class CloudSQLReportsDaoImpl implements CloudSQLReportsDao {
         // traverse result set and create response json object
         rs.beforeFirst();
         JSONObject eachRecord = new JSONObject();
-        eachRecord.put("participantCount", partCt++);
-        eachRecord.put("participantEmail", eachParticipant);
+        eachRecord.put(PARTICIPANT_COUNT, partCt++);
+        eachRecord.put(PARTICIPANT_EMAIL, eachParticipant);
         while (rs.next()) {
-          String colName = rs.getString("text");
-          String noOfRecords = rs.getString("noOfRecords");
+          String colName = rs.getString(OutputBaseColumns.NAME);
+          String noOfRecords = rs.getString(NUMBER_OF_RECORDS);
           eachRecord.put(colName, noOfRecords);
         }// while loop
         //to cloud storage
@@ -162,11 +168,11 @@ public class CloudSQLReportsDaoImpl implements CloudSQLReportsDao {
         rs.beforeFirst();
         JSONObject eachRecord = new JSONObject();
         while (rs.next()) {
-          eachRecord.put("participantCount", partCt++);
-          eachRecord.put("participantEmail", rs.getString("who"));
-          eachRecord.put("appUsage", rs.getString("appusage"));
-          eachRecord.put("joined", rs.getString("joined"));
-          eachRecord.put("esm", rs.getString("esm"));
+          eachRecord.put(PARTICIPANT_COUNT, partCt++);
+          eachRecord.put(PARTICIPANT_EMAIL, rs.getString(EventServerColumns.WHO));
+          eachRecord.put(APP_USAGE, rs.getString(APP_USAGE));
+          eachRecord.put(EventServerColumns.JOINED, rs.getString(EventServerColumns.JOINED));
+          eachRecord.put(ESM, rs.getString(ESM));
         }// while loop
         //to cloud storage
         writer.println(eachRecord);
