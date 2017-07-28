@@ -1,23 +1,22 @@
-package com.google.sampling.experiential.server.migration;
+package com.google.sampling.experiential.server.reports;
 
 import java.util.Map;
 import java.util.logging.Logger;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
-import com.google.sampling.experiential.server.CompleteStatusReportJob;
-import com.google.sampling.experiential.server.QuickStatusReportJob;
-import com.google.sampling.experiential.server.ReportJob;
-import com.google.sampling.experiential.server.migration.jobs.ExperimentCompleteStatusSP;
-import com.google.sampling.experiential.server.migration.jobs.ExperimentQuickStatusSP;
+import com.google.sampling.experiential.server.reports.jobs.CompleteStatusReportJob;
+import com.google.sampling.experiential.server.reports.jobs.ExperimentCompleteStatusStoredProcedure;
+import com.google.sampling.experiential.server.reports.jobs.ExperimentQuickStatusStoredProcedure;
+import com.google.sampling.experiential.server.reports.jobs.QuickStatusReportJob;
 
 public class ReportLookupTable {
   private static final Logger log = Logger.getLogger(ReportLookupTable.class.getName());
 
   private static Map<String, Class> reports = Maps.newHashMap();
   static {
-    reports.put("1", ExperimentCompleteStatusSP.class);
-    reports.put("2", ExperimentQuickStatusSP.class);
+    reports.put("1", ExperimentCompleteStatusStoredProcedure.class);
+    reports.put("2", ExperimentQuickStatusStoredProcedure.class);
     reports.put("3", CompleteStatusReportJob.class);
     reports.put("4", QuickStatusReportJob.class);
   }

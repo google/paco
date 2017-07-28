@@ -1,4 +1,4 @@
-package com.google.sampling.experiential.server;
+package com.google.sampling.experiential.server.reports;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -20,22 +20,28 @@ import com.google.appengine.api.blobstore.BlobKey;
 import com.google.appengine.tools.cloudstorage.GcsOutputChannel;
 import com.google.common.collect.Lists;
 import com.google.sampling.experiential.datastore.EventServerColumns;
+import com.google.sampling.experiential.server.CloudSQLConnectionManager;
+import com.google.sampling.experiential.server.ExperimentAccessManager;
+import com.google.sampling.experiential.server.QueryConstants;
+import com.google.sampling.experiential.server.reports.CloudSQLReportsDao;
 import com.pacoapp.paco.shared.util.ErrorMessages;
 
 public class CloudSQLReportsDaoImpl implements CloudSQLReportsDao {
   public static final Logger log = Logger.getLogger(CloudSQLReportsDaoImpl.class.getName());
-  private static final String GET_PARTICIPANTS_QUERY = "select who from expwho where " + EventServerColumns.EXPERIMENT_ID+ " =?";
   
   @Override
-  public List<String> getParticipants(Long expId, String who) throws SQLException {
+  public List<String> getACLedParticipants(Long expId, String who) throws SQLException {
     List<String> userLst = null;
     Connection conn = null;
     PreparedStatement statementSelectParticipants = null;
     try {
-      if (who == null) {
+      List<Long> adminExperimentsinDB = ExperimentAccessManager.getExistingExperimentIdsForAdmin(who, 0,
+                                                                                                 null)
+                                                               .getExperiments();
+      if (adminExperimentsinDB.contains(expId)) {
         conn = CloudSQLConnectionManager.getInstance().getConnection();
         setNames(conn);
-        statementSelectParticipants = conn.prepareStatement(GET_PARTICIPANTS_QUERY);
+        statementSelectParticipants = conn.prepareStatement(QueryConstants.GET_PARTICIPANTS_QUERY.toString());
         statementSelectParticipants.setLong(1, expId);
         ResultSet rs = statementSelectParticipants.executeQuery();
         userLst = Lists.newArrayList();
@@ -66,8 +72,7 @@ public class CloudSQLReportsDaoImpl implements CloudSQLReportsDao {
     java.sql.Statement statementSetNames = null;
     try {
       statementSetNames = conn.createStatement();
-      final String setNamesSql = "SET NAMES  'utf8mb4'";
-      statementSetNames.execute(setNamesSql);
+      statementSetNames.execute(QueryConstants.SET_NAMES.toString());
       isDone = true;
     } finally {
       try {
@@ -88,13 +93,12 @@ public class CloudSQLReportsDaoImpl implements CloudSQLReportsDao {
     BlobKey blobKey = null;
     PreparedStatement pStmt = null;
     int partCt = 1;
-    String query = "select experiment_id, who, text,count(0) noOfRecords from events e join outputs o on e._id = o.event_id " + 
-                   " where experiment_id=? and who=? group by experiment_id, who, text";
+   
     try {
-      participantsLst = getParticipants(experimentId, who);
+      participantsLst = getACLedParticipants(experimentId, who);
       GcsOutputChannel writeChannel = csfw.getCSWriterChannel(jobId, "application/json", "project-private", jobId);
       PrintWriter writer = new PrintWriter(Channels.newWriter(writeChannel, "UTF8"));
-      pStmt = conn.prepareStatement(query);
+      pStmt = conn.prepareStatement(QueryConstants.GET_COMPLETE_STATUS.toString());
       for(String eachParticipant : participantsLst) {
         pStmt.setLong(1, experimentId);
         pStmt.setString(2, eachParticipant);
@@ -117,7 +121,7 @@ public class CloudSQLReportsDaoImpl implements CloudSQLReportsDao {
       }// for loop
      
       writeChannel.close();
-      blobKey = blobstoreService.createGsBlobKey("/gs/" + bucketName + "/" + jobId);
+      blobKey = csfw.getBlobKey(blobstoreService, jobId);
       log.info("JSON data - complete status finished");
     } finally {
       try {
@@ -142,19 +146,13 @@ public class CloudSQLReportsDaoImpl implements CloudSQLReportsDao {
     List<String> participantsLst = null;
     int partCt = 1;
     PreparedStatement pStmt = null;
-    String query = "SELECT who,count(case when text in ('apps_used', 'apps_used_raw') then 1 end) AS appusage, " +
-                   " count(case when text in ('joined') then 1 end) AS joined, " +
-                   " count(case when text not in ('apps_used', 'apps_used_raw','joined') then 1 end) as esm " + 
-                   " from events e " +
-                   " join outputs o on e._id = o.event_id where experiment_id=? and who =? group by who";
     
     try {
       conn = CloudSQLConnectionManager.getInstance().getConnection();
-      participantsLst = getParticipants(experimentId, who);
+      participantsLst = getACLedParticipants(experimentId, who);
       GcsOutputChannel writeChannel = csfw.getCSWriterChannel(jobId, "application/json", "project-private", jobId);
       PrintWriter writer = new PrintWriter(Channels.newWriter(writeChannel, "UTF8"));
-      
-      pStmt = conn.prepareStatement(query);
+      pStmt = conn.prepareStatement(QueryConstants.GET_QUICK_STATUS.toString());
       for(String eachParticipant : participantsLst) {
         pStmt.setLong(1, experimentId);
         pStmt.setString(2, eachParticipant);
@@ -177,7 +175,7 @@ public class CloudSQLReportsDaoImpl implements CloudSQLReportsDao {
         
       }// for loop
       writeChannel.close();
-      blobKey = blobstoreService.createGsBlobKey("/gs/" + bucketName + "/" + jobId);
+      blobKey = csfw.getBlobKey(blobstoreService, jobId);
       log.info("JSON data - quick status finished");
     } finally {
       try {
@@ -195,7 +193,7 @@ public class CloudSQLReportsDaoImpl implements CloudSQLReportsDao {
   }
   
   @Override
-  public String storeQuickStatusBySPInCloudStorage(String jobId, Long expId, String who) throws SQLException, JSONException, FileNotFoundException, IOException {
+  public String storeStatusByStoredProcInCloudStorage(String statusType, String jobId, Long expId, String who) throws SQLException, JSONException, FileNotFoundException, IOException {
     ResultSetMetaData rsmd = null;
     CallableStatement cStmt = null;
     BlobKey blobKey = null;
@@ -206,12 +204,16 @@ public class CloudSQLReportsDaoImpl implements CloudSQLReportsDao {
     int colCount = 0;
    
     Long startTime = System.currentTimeMillis();
-    participantsLst = daoImpl.getParticipants(expId, who);
+    participantsLst = daoImpl.getACLedParticipants(expId, who);
     GcsOutputChannel writeChannel = csfw.getCSWriterChannel(jobId, "application/json", "project-private", jobId);
     PrintWriter writer = new PrintWriter(Channels.newWriter(writeChannel, "UTF8"));
         
     try {
-      cStmt = conn.prepareCall("call ExpQuickStatus(?,?)");
+      if (statusType != null && statusType.equalsIgnoreCase(ReportJob.COMPLETE)) {
+        cStmt = conn.prepareCall(QueryConstants.GET_COMPLETE_STATUS_STORED_PROC.toString());
+      } else if (statusType != null && statusType.equalsIgnoreCase(ReportJob.QUICK))  {
+        cStmt = conn.prepareCall(QueryConstants.GET_QUICK_STATUS_STORED_PROC.toString());
+      }
       for(String eachParticipant : participantsLst) {
         cStmt.setLong(1, expId);
         cStmt.setString(2, eachParticipant);
@@ -269,73 +271,7 @@ public class CloudSQLReportsDaoImpl implements CloudSQLReportsDao {
       log.info("stoptime"+ System.currentTimeMillis());
     }
     writeChannel.close();
-    blobKey = blobstoreService.createGsBlobKey("/gs/" + bucketName + "/" + jobId);
+    blobKey = csfw.getBlobKey(blobstoreService, jobId);
     return blobKey.getKeyString();
   }
-  
-  @Override
-  public String storeCompleteStatusBySPInCloudStorage(String jobId, Long expId, String who) throws SQLException, JSONException, FileNotFoundException, IOException {
-    BlobKey blobKey = null;
-    List<String> participantsLst = null;
-    Connection conn = CloudSQLConnectionManager.getInstance().getConnection();
-    CloudSQLReportsDaoImpl daoImpl = new CloudSQLReportsDaoImpl();
-    participantsLst = daoImpl.getParticipants(expId, who);
-    log.info("participant list size"+ participantsLst.size());
-    
-    GcsOutputChannel writeChannel = csfw.getCSWriterChannel(jobId, "application/json", "project-private", jobId);
-    PrintWriter writer = new PrintWriter(Channels.newWriter(writeChannel, "UTF8"));
-    
-    CallableStatement cStmt = conn.prepareCall("call ExpCompleteStatus(?,?)");
-    for(String eachPart : participantsLst) {
-      cStmt.setLong(1, expId);
-      cStmt.setString(2, eachPart);
-      log.info(cStmt.toString());
-      ResultSet rs = cStmt.executeQuery();
-      ResultSetMetaData rsmd = rs.getMetaData();
-      int colCount = rsmd.getColumnCount();
-     
-      // traverse result set and create response json object
-      rs.beforeFirst();
-      while (rs.next()) {
-        JSONObject eachUserRecord = new JSONObject();
-        for (int i=0; i<colCount; i++) {
-          String colName = rsmd.getColumnName(i+1);
-          int colType = rsmd.getColumnType(i+1);
-          switch (colType) {
-            case java.sql.Types.BIGINT:
-              eachUserRecord.put(colName, rs.getBigDecimal(colName));
-              break;
-            case java.sql.Types.INTEGER:
-              eachUserRecord.put(colName, rs.getInt(colName));
-              break;
-            case java.sql.Types.VARCHAR:
-              eachUserRecord.put(colName, rs.getString(colName));
-              break;
-            case java.sql.Types.LONGVARCHAR:
-              eachUserRecord.put(colName, rs.getString(colName));
-              break;
-            case java.sql.Types.DATE:
-              eachUserRecord.put(colName, rs.getDate(colName));
-              break;
-            case java.sql.Types.TINYINT:
-              eachUserRecord.put(colName, rs.getShort(colName));
-              break;
-            default: 
-              Object obj =  rs.getObject(colName);
-              eachUserRecord.put(colName,  obj!=null?obj.toString():"");
-          }//switch
-        }//col count forloop
-        //to cloud storage
-        writer.println(eachUserRecord);
-        writer.flush();
-        writeChannel.waitForOutstandingWrites();
-      }//while
-    }
-    writeChannel.close();
-    blobKey = blobstoreService.createGsBlobKey("/gs/" + bucketName + "/" + jobId);
-    log.info("JSON data - complete status finished");
-    return blobKey.getKeyString();
-  }
-
-  
 }

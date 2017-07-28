@@ -1,4 +1,4 @@
-package com.google.sampling.experiential.server;
+package com.google.sampling.experiential.server.reports;
 
 import java.util.Enumeration;
 import java.util.Map;
@@ -6,18 +6,19 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 
 import com.google.common.collect.Maps;
-import com.google.sampling.experiential.server.migration.ReportLookupTable;
+import com.google.sampling.experiential.server.PacoModule;
 
 public class ReportRequest {
-  String reportId;
-  PacoModule backendModule;
-  ReportJob reportJob;
-  String who;
-  Map<String, String> requestQueryParamMap = Maps.newHashMap();
+  private String reportId;
+  private PacoModule backendModule;
+  private ReportJob reportJob;
+  private String who;
+  private Map<String, String> requestQueryParamMap = Maps.newHashMap();
+  private static final String REPORT_ID = "reportId";
   
   public ReportRequest(HttpServletRequest request, String requestorEmail, String backendModuleStr) {
     // identify report name
-    reportId = request.getParameter("reportId");
+    reportId = request.getParameter(REPORT_ID);
     // identify back end module
     backendModule = new PacoModule(backendModuleStr);
     // identify report job

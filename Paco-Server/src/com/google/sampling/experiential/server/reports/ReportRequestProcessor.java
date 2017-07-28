@@ -1,4 +1,4 @@
-package com.google.sampling.experiential.server;
+package com.google.sampling.experiential.server.reports;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -11,12 +11,17 @@ import java.util.Map;
 import java.util.logging.Logger;
 
 import com.google.appengine.api.utils.SystemProperty;
+import com.google.sampling.experiential.datastore.EventServerColumns;
+import com.google.sampling.experiential.server.PacoUrl;
 
 public class ReportRequestProcessor {
   public static final Logger log = Logger.getLogger(ReportRequestProcessor.class.getName());
-
+  private static final String JOB_STATUS_URL_PARTIAL = "/jobStatus?jobId=";
+  private static final String HTTP = "http";
+  private static final String HTTPS = "https";
+  private static final String REPORTS_BACKEND = "reportsBackend";
+  
   public String sendReportRequest(ReportRequest req) throws IOException {
-    
     try {
       BufferedReader reader = null;
       try {
@@ -48,14 +53,14 @@ public class ReportRequestProcessor {
     InputStreamReader inputStreamReader = null;
     BufferedReader reader = null;
     
-    String scheme = "https";
+    String scheme = HTTPS;
     if (SystemProperty.environment.value() == SystemProperty.Environment.Value.Development) {
-      scheme = "http";
+      scheme = HTTP;
     } 
     String backendAddress = repRequest.getBackendModule().getAddress();
     Map<String, String> qsMap = repRequest.getRequestQueryParamMap();
-    qsMap.put("who", repRequest.getWho());
-    PacoUrl.PacoUrlBuilder bldr = new PacoUrl.PacoUrlBuilder(backendAddress).scheme(scheme).qParameters(qsMap).context("reportsBackend");
+    qsMap.put(EventServerColumns.WHO, repRequest.getWho());
+    PacoUrl.PacoUrlBuilder bldr = new PacoUrl.PacoUrlBuilder(backendAddress).scheme(scheme).qParameters(qsMap).context(REPORTS_BACKEND);
     url = new URL(bldr.build().toString());
     log.info("URL to backend = " + url.toString());
     connection = (HttpURLConnection) url.openConnection();
@@ -65,6 +70,9 @@ public class ReportRequestProcessor {
     inputStreamReader = new InputStreamReader(connection.getInputStream());
     reader = new BufferedReader(inputStreamReader);
     return reader;
+  }
+  public static String getUrlwithJobId(String jobId) {
+    return JOB_STATUS_URL_PARTIAL + jobId;
   }
 }
 

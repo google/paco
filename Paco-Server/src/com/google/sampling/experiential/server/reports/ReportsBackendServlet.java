@@ -14,7 +14,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.google.sampling.experiential.server.migration;
+package com.google.sampling.experiential.server.reports;
 
 import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
@@ -32,10 +32,9 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.json.JSONException;
 
 import com.google.appengine.api.ThreadManager;
+import com.google.sampling.experiential.datastore.EventServerColumns;
 import com.google.sampling.experiential.server.HttpUtil;
-import com.google.sampling.experiential.server.ReportJob;
 import com.google.sampling.experiential.server.ReportJobStatusManager;
-import com.google.sampling.experiential.server.ReportRequest;
 
 
 /**
@@ -46,12 +45,12 @@ import com.google.sampling.experiential.server.ReportRequest;
 public class ReportsBackendServlet extends HttpServlet {
 
   public static final Logger log = Logger.getLogger(ReportsBackendServlet.class.getName());
-
+  private static final String REPORT_WORKER = "reportworker";
+  
   @Override
   protected void doGet(final HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-    log.info("reports BACKEND");
     final String requestorEmail = getRequestorEmail(req);
-    final ReportRequest reportRequestObj = new ReportRequest(req, requestorEmail, "reportworker");
+    final ReportRequest reportRequestObj = new ReportRequest(req, requestorEmail, REPORT_WORKER);
     final String jobId = getJobId(reportRequestObj);
     final ReportJobStatusManager statusMgr = new ReportJobStatusManager();
     statusMgr.startReport(requestorEmail, jobId);
@@ -95,7 +94,7 @@ public class ReportsBackendServlet extends HttpServlet {
   }
 
   private String getRequestorEmail(HttpServletRequest req) {
-    String whoParam = HttpUtil.getParam(req, "who");
+    String whoParam = HttpUtil.getParam(req, EventServerColumns.WHO);
     if (whoParam == null) {
       throw new IllegalArgumentException("Must pass the who param");
     }

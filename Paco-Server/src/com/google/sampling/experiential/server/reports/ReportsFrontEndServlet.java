@@ -14,7 +14,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.google.sampling.experiential.server.migration;
+package com.google.sampling.experiential.server.reports;
 
 import java.io.IOException;
 import java.util.logging.Logger;
@@ -26,8 +26,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.google.appengine.api.users.User;
 import com.google.sampling.experiential.server.AuthUtil;
-import com.google.sampling.experiential.server.ReportRequest;
-import com.google.sampling.experiential.server.ReportRequestProcessor;
 
 /**
  * Servlet that retrieves data for making visualizations
@@ -37,23 +35,23 @@ import com.google.sampling.experiential.server.ReportRequestProcessor;
 public class ReportsFrontEndServlet extends HttpServlet {
 
   public static final Logger log = Logger.getLogger(ReportsFrontEndServlet.class.getName());
+  private static final String REPORT_WORKER = "reportworker";
+  private static final String JSON_CONTENT_TYPE = "application/json;charset=UTF-8";
 
   @Override
   protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException,
   IOException {
-    resp.setContentType("application/json;charset=UTF-8");
+    resp.setContentType(JSON_CONTENT_TYPE);
     User user = AuthUtil.getWhoFromLogin();
     if (user == null) {
       AuthUtil.redirectUserToLogin(req, resp);
-    } else  if (AuthUtil.isUserAdmin()) { 
-      ReportRequest reportRequestObj = new ReportRequest(req, user.getEmail().toLowerCase(), "reportworker");
+    } else { 
+      ReportRequest reportRequestObj = new ReportRequest(req, user.getEmail().toLowerCase(), REPORT_WORKER);
       ReportRequestProcessor rrp = new ReportRequestProcessor();
       String jobId = rrp.sendReportRequest(reportRequestObj);
       if (jobId != null  && !jobId.equals("")) {
-        resp.sendRedirect("/jobStatus?jobId=" + jobId);
+        resp.sendRedirect(ReportRequestProcessor.getUrlwithJobId(jobId));
       }
-    } else {
-      resp.sendError(HttpServletResponse.SC_FORBIDDEN);
     }
   }
  }
