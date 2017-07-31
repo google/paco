@@ -46,10 +46,6 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
   public static final String WHEN = "when";
   private static List<Column> outputColList = Lists.newArrayList();
   private static List<Column> failedColList = Lists.newArrayList();
-  private static final String selectOutputsSql = "select * from " + OutputBaseColumns.TABLE_NAME + " where " + OutputBaseColumns.EVENT_ID + " = ?";
-  private static final String selectFailedEventsSql = "select * from " + FailedEventServerColumns.TABLE_NAME + " where " + FailedEventServerColumns.REPROCESSED + "='false'";
-  private static final String updateFailedEventsSql = "update "+ FailedEventServerColumns.TABLE_NAME +" set "+ FailedEventServerColumns.REPROCESSED+ " = ? where " + FailedEventServerColumns.ID + "= ?";
-  private static final String GET_EVENT_FOR_ID_QUERY = "select * from " + EventServerColumns.TABLE_NAME + " where " + Constants.UNDERSCORE_ID+ " =?";
 
   static {
     eventColList.add(new Column(EventServerColumns.EXPERIMENT_ID));
@@ -340,7 +336,7 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
   
   @Override
   public List<EventDAO> getEvents(Long eventId) throws SQLException, ParseException{
-    return getEvents(GET_EVENT_FOR_ID_QUERY, null, eventId);
+    return getEvents(QueryConstants.GET_EVENT_FOR_ID.toString(), null, eventId);
   }
  
   @Override
@@ -467,7 +463,7 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
     PreparedStatement statementSelectOutput = null;
     try {
       conn = CloudSQLConnectionManager.getInstance().getConnection();
-      statementSelectOutput = conn.prepareStatement(selectOutputsSql);
+      statementSelectOutput = conn.prepareStatement(QueryConstants.GET_ALL_OUTPUTS_FOR_EVENT_ID.toString());
       statementSelectOutput.setLong(1, eventId);
       rs = statementSelectOutput.executeQuery();
       while(rs.next()){
@@ -542,8 +538,7 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
   
     try {
       statementSetNames = conn.createStatement();
-      final String setNamesSql = "SET NAMES  'utf8mb4'";
-      statementSetNames.execute(setNamesSql);
+      statementSetNames.execute(QueryConstants.SET_NAMES.toString());
       isDone = true;
     } finally {
       try {
@@ -614,7 +609,7 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
     PreparedStatement statementSelectFailedEvents = null;
     try {
       conn = CloudSQLConnectionManager.getInstance().getConnection();
-      statementSelectFailedEvents = conn.prepareStatement(selectFailedEventsSql);
+      statementSelectFailedEvents = conn.prepareStatement(QueryConstants.GET_ALL_UNPROCESSED_FAILED_EVENTS.toString());
       String eventsJson = null;
       Long failedEventId = null;
       ResultSet rs = statementSelectFailedEvents.executeQuery();
@@ -647,7 +642,7 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
     try {
       conn = CloudSQLConnectionManager.getInstance().getConnection();
       conn.setAutoCommit(false);
-      statementUpdateFailedEvents = conn.prepareStatement(updateFailedEventsSql);
+      statementUpdateFailedEvents = conn.prepareStatement(QueryConstants.UPDATE_FAILED_EVENTS_PROCESSED_STATUS_FOR_ID.toString());
       statementUpdateFailedEvents.setString(1, reprocessed);
       statementUpdateFailedEvents.setLong(2, id);
       statementUpdateFailedEvents.executeUpdate();

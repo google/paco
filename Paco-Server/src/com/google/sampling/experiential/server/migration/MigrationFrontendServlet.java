@@ -62,10 +62,6 @@ public class MigrationFrontendServlet extends HttpServlet {
     DateTime stDate = null;
     DateTime endDate = null;
     cursor =  req.getParameter("cursor");
-   if(user != null) {
-     log.info("user in mig front end" + user.getEmail());
-     log.info("front end req id" + req.getSession().getId());
-   }
     if (user == null) {
       AuthUtil.redirectUserToLogin(req, resp);
       
@@ -90,7 +86,6 @@ public class MigrationFrontendServlet extends HttpServlet {
   }
 
   private String sendMigrateRequestToBackend(HttpServletRequest req, String jobName, String cursor, DateTime startDateTime, DateTime endDateTime) throws IOException {
-    req.getParameter("name");
     ModulesService modulesApi = ModulesServiceFactory.getModulesService();
     String backendAddress = modulesApi.getVersionHostname("reportworker", modulesApi.getDefaultVersion("reportworker"));
 
