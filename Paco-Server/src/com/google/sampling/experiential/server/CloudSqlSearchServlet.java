@@ -167,7 +167,6 @@ public class CloudSqlSearchServlet extends HttpServlet {
                                                                                                    null)
                                                                  .getExperiments();
         aclQuery = ACLHelper.getModifiedQueryBasedOnACL(optimizedSelect, loggedInUser, adminExperimentsinDB, qProcessor);
-        aclQuery = optimizedSelect.toString();
         log.info("opt performance query with acl:" + aclQuery);
         long startTime = System.currentTimeMillis();
         if (sqlQueryObj.isFullEventAndOutputs()) {
