@@ -1,58 +1,58 @@
 <div ng-controller="VizCtrl">
-    <div class="nav padded">
-        <a href="#">
-            <md-button>Experiments</md-button>
-        </a>
-        <img src="/img/ic_chevron_right_24px.svg">
-        <a href="#/experiment/{{experimentDataModel.id}}">
-            <md-button aria-label="experiment name">
-                <span ng-if="!experimentDataModel">{{experimentDataModel.id}}</span>
-                <span ng-if="experimentDataModel">{{experimentDataModel.title}}</span>
-            </md-button>
-        </a>
-    </div>
-    <h1>{{experimentDataModel.title}}</h1>
-    <div ng-repeat="responseType in responseTypeDetails">
-        <div ng-repeat="responses in vizResponseData">
-            <div ng-if="(responseType.name === responses.key)">
-                <div ng-if="(responseType.responseType === 'list')">
-                    <h2>{{responseType.name}}</h2>
-                    <p>{{responseType.text}}</p>
-                    <p>Frequency of the '{{responseType.name}}' data set</p>
-                    <bar-chart response-info="responseType" response-data="responses.values"></bar-chart>
-                </div>
-                <div ng-if="(responseType.responseType === 'number')">
-                    <h2>{{responseType.name}}</h2>
-                    <p>{{responseType.text}}</p>
-                    <line-chart height="600px" response-info="responseType" response-data="responses.values"></line-chart>
-                    <p>Frequency of the '{{responseType.name}}' data set</p>
-                    <bar-chart response-info="responseType" response-data="responses.values"></bar-chart>
-                </div>
-                <div ng-if="(responseType.responseType === 'open text')">
-                    <h2>{{responseType.name}}</h2>
-                    <p>{{responseType.text}}</p>
-                    <bubble-chart response-info="responseType" response-data="responses.values"></bubble-chart>
-                </div>
-                <div ng-if="(responseType.responseType === 'likert')">
-                    <h2>{{responseType.name}}</h2>
-                    <p>{{responseType.text}}</p>
-                    <line-chart height="600px" response-info="responseType" response-data="responses.values"></line-chart>
-                    <p>Frequency of the '{{responseType.name}}' data set</p>
-                    <bar-chart response-info="responseType" response-data="responses.values"></bar-chart>
-                </div>
-                <div ng-if="(responseType.responseType === 'likert_smileys')">
-                    <h2>{{responseType.name}}</h2>
-                    <p>{{responseType.text}}</p>
-                    <line-chart height="600px" response-info="responseType" response-data="responses.values">
-                    </line-chart>
-                    <p>Frequency of the '{{responseType.name}}' data set</p>
-                    <bar-chart response-info="responseType" response-data="responses.values"></bar-chart>
-                </div>
-            </div>
-
+  <div class="nav padded">
+    <a href="#">
+      <md-button>Experiments</md-button>
+    </a>
+    <img src="/img/ic_chevron_right_24px.svg">
+    <a href="#/experiment/{{experimentDataModel.id}}">
+      <md-button aria-label="experiment name">
+        <span ng-if="!experimentDataModel">{{experimentDataModel.id}}</span>
+        <span ng-if="experimentDataModel">{{experimentDataModel.title}}</span>
+      </md-button>
+    </a>
+  </div>
+  <h1>{{experimentDataModel.title}}</h1>
+  <div ng-repeat="responseType in responseTypeDetails">
+    <div ng-repeat="responses in vizResponseData">
+      <div ng-if="(responseType.name === responses.key)">
+        <div ng-if="(responseType.responseType === 'list')">
+          <h2>{{responseType.name}}</h2>
+          <p>{{responseType.text}}</p>
+          <p>Frequency of the '{{responseType.name}}' data set</p>
+          <bar-chart response-info="responseType" response-data="responses.values"></bar-chart>
         </div>
+        <div ng-if="(responseType.responseType === 'number')">
+          <h2>{{responseType.name}}</h2>
+          <p>{{responseType.text}}</p>
+          <line-chart height="600px" response-info="responseType" response-data="responses.values"></line-chart>
+          <p>Frequency of the '{{responseType.name}}' data set</p>
+          <bar-chart response-info="responseType" response-data="responses.values"></bar-chart>
+        </div>
+        <div ng-if="(responseType.responseType === 'open text')">
+          <h2>{{responseType.name}}</h2>
+          <p>{{responseType.text}}</p>
+          <bubble-chart response-info="responseType" response-data="responses.values"></bubble-chart>
+        </div>
+        <div ng-if="(responseType.responseType === 'likert')">
+          <h2>{{responseType.name}}</h2>
+          <p>{{responseType.text}}</p>
+          <line-chart height="600px" response-info="responseType" response-data="responses.values"></line-chart>
+          <p>Frequency of the '{{responseType.name}}' data set</p>
+          <bar-chart response-info="responseType" response-data="responses.values"></bar-chart>
+        </div>
+        <div ng-if="(responseType.responseType === 'likert_smileys')">
+          <h2>{{responseType.name}}</h2>
+          <p>{{responseType.text}}</p>
+          <line-chart height="600px" response-info="responseType" response-data="responses.values">
+          </line-chart>
+          <p>Frequency of the '{{responseType.name}}' data set</p>
+          <bar-chart response-info="responseType" response-data="responses.values"></bar-chart>
+        </div>
+      </div>
+
     </div>
-    <div ng-if="error" class="error">
-        Error {{error.code}}: {{error.data}} {{error.message}}
-    </div>
+  </div>
+  <div ng-if="error" class="error">
+    Error {{error.code}}: {{error.data}} {{error.message}}
+  </div>
 </div>
