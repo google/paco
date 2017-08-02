@@ -43,7 +43,7 @@ public class ACLHelper {
       throw new Exception(ErrorMessages.EXPERIMENT_ID_CLAUSE_EXCEPTION.getDescription());
     }
     
-    // is the user only a participant, has never been an admin
+    // is the user only a participant
     if (adminExperimentsinDB != null && adminExperimentsinDB.size() == 0) {
       onlyAParticipant = true;
     }
@@ -65,7 +65,7 @@ public class ACLHelper {
       throw new Exception(ErrorMessages.UNAUTHORIZED_ACCESS_MIXED_ACL.getDescription());
     }
     
-    // if logged in user has never been an admin of any experiment  
+    // if logged in user is only a participant  
     // and he queries more than his data 
     if (onlyAParticipant && !onlyQueryingOwnData) {
       Expression ex = null;
