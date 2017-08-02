@@ -169,7 +169,7 @@ public class EventRetriever {
         event.setTimeZone(eventJson.getString("tz"));
         event.setWhen(dfMs.parseDateTime(eventJson.getString("whenDate")).toDate());
         event.setWho(eventJson.getString("who"));
-        cloudSqlDaoImpl.insertEvent(event);
+        cloudSqlDaoImpl.insertEventAndOutputs(event);
       } catch (JSONException e) {
         cloudSqlDaoImpl.insertFailedEvent(eventJson.toString(), ErrorMessages.JSON_EXCEPTION.getDescription(), e.getMessage());
         log.warning(ErrorMessages.JSON_EXCEPTION.getDescription() + " for request: " + eventJson + e);

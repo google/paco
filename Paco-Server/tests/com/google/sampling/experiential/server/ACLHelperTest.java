@@ -252,16 +252,6 @@ public class ACLHelperTest extends TestCase {
 
   @Before
   public void setUp() {
-    // Initial set up
-    // Expt 1,2,3,4
-    // Admin is admin1
-    // Participant is participant1, participant2, participant3 for all expt 1 2
-    // 3 4
-    // Participant p4
-    // Admin admin1 is admin and participant of Expt 1, 2, 3
-    // public QueryPreprocessor(Select select, boolean modifyDateToUTC,
-    // List<String> reqDateColNames, Map<String, Class>validColumnNames, String
-    // inpTimeZone) {
 
     userInHttpRequest = "admin1";
     userWhoIsAdmin = "admin1";

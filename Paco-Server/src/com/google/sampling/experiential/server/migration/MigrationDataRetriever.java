@@ -264,8 +264,8 @@ public class MigrationDataRetriever {
     try {
       List<EventDAO> eventInCS = sqlDaoImpl.getEvents(evtObjDS.getId());
       if (eventInCS.size() == 0) {
-        //copy event and its outputs to cloud sql
-        sqlDaoImpl.insertEvent(evtObjDS);
+        //copy event to cloud sql
+        sqlDaoImpl.insertSingleEventOnly(evtObjDS);
         eventPresentInCS = true;
       } else {
         eventPresentInCS = true;

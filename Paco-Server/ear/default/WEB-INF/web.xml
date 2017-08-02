@@ -52,6 +52,15 @@
     <servlet-name>usageServlet</servlet-name>
     <url-pattern>/usage</url-pattern>
   </servlet-mapping>
+  
+  <servlet>
+    <servlet-name>ReportsFrontendServlet</servlet-name>
+    <servlet-class>com.google.sampling.experiential.server.reports.ReportsFrontEndServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>ReportsFrontendServlet</servlet-name>
+    <url-pattern>/reportsFrontend</url-pattern>
+  </servlet-mapping>
 
     <servlet>
     <servlet-name>participantJoinStatsServlet</servlet-name>
@@ -207,7 +216,6 @@
     <url-pattern>/mayJuneEventCounter</url-pattern>
   </servlet-mapping>
   -->
-  
   <servlet>
     <display-name>Remote API Servlet</display-name>
     <servlet-name>RemoteApiServlet</servlet-name>
@@ -249,7 +257,7 @@
     
   <security-constraint>
     <web-resource-collection>       
-         <url-pattern>/*</url-pattern>
+      <url-pattern>/*</url-pattern>
       <url-pattern>/index.html</url-pattern>
       <url-pattern>/events*</url-pattern>
       <url-pattern>/experiments*</url-pattern>

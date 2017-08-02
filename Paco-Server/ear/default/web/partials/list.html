@@ -18,7 +18,7 @@
 	            <md-option value="title_desc" aria-label="Sort by title descending">Sort by Title (z-a)</md-option>
 	            <md-option value="modified_date_desc" aria-label="Sort by modified date descending">Sort by Date (newest first)</md-option>
 	            <md-option value="modified_date_asc" aria-label="Sort by modified date ascending">Sort by Date (oldest first)</md-option>
-	          </md-select>	        
+	          </md-select>
 	      </div>
           <div ng-repeat="exp in list.admin">
             <md-card ng-class="{deleting: exp.deleting}">
@@ -28,7 +28,7 @@
                 <span class="admin">Admin</span>
                 <div ng-if="currentAdminSortOrder == 'modified_date_desc' || currentAdminSortOrder == 'modified_date_asc'" class="modifyDate">
                     {{exp.modifyDate}}
-                  </div>                
+                  </div>
               </md-card-content>
               <div class="md-actions">
                 <a href="#/edit/{{exp.id}}">
@@ -61,6 +61,13 @@
                     Anon Data
                   </md-button>
                 </a>
+                <span ng-controller="VizCtrl">
+                  <a href="#/viz/{{exp.id}}">
+                  <md-button>
+                   Viz
+                  </md-button>
+                  </a>
+                </span>
                 <md-button ng-click="joinExperiment($event, exp)"
                   ng-if="joinedIndex.indexOf(exp.id) === -1">
                   Join

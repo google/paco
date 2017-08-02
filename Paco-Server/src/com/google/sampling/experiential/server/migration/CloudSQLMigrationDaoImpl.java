@@ -668,7 +668,7 @@ public class CloudSQLMigrationDaoImpl implements CloudSQLMigrationDao {
         statementCreateCatchupFailure.execute();
         log.info("created catchup failure");
         // TODO better handling
-        retString = retString + "Created Catchup failure table. ";
+        retString = "Created Catchup failure table. ";
       }
     } finally {
       try {

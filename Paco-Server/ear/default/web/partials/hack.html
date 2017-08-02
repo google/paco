@@ -1,0 +1,37 @@
+
+<div class="hack"  ng-controller="HackCtrl">
+<h1>Hack your data</h1>
+<form name="hackform" >
+<div class="ace_editor" ng-model="hackRequest"
+      ui-ace="{
+        mode: 'javascript',
+        onLoad: aceReqLoaded,
+        onChange: aceReqChanged,
+        rendererOptions: {
+          minLines: 10,
+          maxLines: 10
+        }
+      }">
+</div>
+      
+
+<button ng-click="submitForm()">Submit</button>
+</form>
+
+
+<div>
+{{ errorResponse }}
+<div class="ace_editor" ng-model="hackResponse"
+      ui-ace="{
+        mode: 'javascript',
+        onLoad: aceResLoaded,
+        onChange: aceResChanged,
+        rendererOptions: {
+          minLines: 10,
+          maxLines: 10
+        }
+      }">
+</div>
+</div>
+</div>
+

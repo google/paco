@@ -131,6 +131,16 @@ md-dialog li {
   width: 24px;
 }
 
+.no-audio .no-ios{
+  margin-left: 10px;
+  line-height: 11px;
+}
+
+.message.flex .no-ios{
+  margin-top: 6px;
+  margin-left: 10px;
+}
+
 no-ios {
   position: relative;
 }
