@@ -1,7 +1,0 @@
-{
-  "name": "paco-question",
-  "private": false,
-  "dependencies": {
-    "polymer": "Polymer/polymer#~0.5.1"
-  }
-}

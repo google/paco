@@ -4,10 +4,11 @@ import java.util.List;
 
 import com.google.common.collect.Lists;
 import com.google.sampling.experiential.shared.EventDAO;
+import com.pacoapp.paco.shared.util.Constants;
 
 public class EventQueryStatus {
 
-  private String status;
+  private String status = Constants.SUCCESS;
   private String errorMessage;
   private List<EventDAO> events = Lists.newArrayList();
 
@@ -25,6 +26,7 @@ public class EventQueryStatus {
 
   public void setErrorMessage(String errorMessage) {
     this.errorMessage = errorMessage;
+    this.status = Constants.FAILURE;
   }
 
   public List<EventDAO> getEvents() {
