@@ -703,36 +703,46 @@ pacoApp.controller('DataCtrl', [
     } ]);
 
 pacoApp.controller('HelpCtrl', [ '$scope', '$routeParams', 'config', function($scope, $routeParams, config) {
+
   $scope.helpLink = config.helpLinkBase;
+
   if (angular.isDefined($routeParams.helpId)) {
     var link = config.helpLinks[$routeParams.helpId];
     if (angular.isDefined(link)) {
       $scope.helpLink = config.helpLinkBase + '#' + link;
     }
   }
+
 } ]);
 
 pacoApp.controller('HackCtrl',['$scope','$http',function($scope,$http){
   var allResponses = '';
-  var editorSesssion = '';
+  var editorReqSesssion = '';
+  var editorResSession = '';
   $scope.hackRequest = '';
-  $scope.eventObjects = '';
   $scope.errorResponse = '';
   $scope.submitForm = function() {
      $http({
      method  : 'POST',
      url     : '/csSearch',
-     data    : {'message': $scope.hackRequest}
+     data    : angular.fromJson($scope.hackRequest),
+     headers: {'Content-Type': 'application/json'}
     })
     .then(function mySuccess(response) {
+       allResponses = '';
        $scope.hackResponse = '';
-       $scope.eventObjects = '';
        $scope.errorResponse = '';
-       $scope.resFormat = 'json';
          if(response.data.errorMessage == null) {
-           $scope.eventObjects = response.data.events;
-           for (i in response.data.events) {
-             allResponses += JSON.stringify(response.data.events[i], null, 4);
+           if(response.data.events != null) {
+             for (i in response.data.events) {
+               allResponses += JSON.stringify(response.data.events[i], null, 4);
+             }
+           } else if(response.data.customResponse != null) {
+             for (i in response.data.customResponse) {
+               allResponses += JSON.stringify(response.data.customResponse[i], null, 4);
+             }
+           } else {
+             allResponses = "Unknown response format";
            }
          } else { 
            $scope.errorResponse = response.data.errorMessage;
@@ -751,36 +761,33 @@ pacoApp.controller('HackCtrl',['$scope','$http',function($scope,$http){
    };
    
    $scope.aceReqLoaded = function(editor) {
-     editorSession = editor.getSession();
+     editorReqSession = editor.getSession();
    };
    $scope.aceReqChanged = function(editor) {
-     $scope.hackRequest = editorSession.getDocument().getValue();
+     $scope.hackRequest = editorReqSession.getDocument().getValue();
    };
   
    // Ace is loaded  so get pretty JSON here
-   $scope.prepareSourceAce = function(editor) {
-     console.log(editor);
+   $scope.prepareReqSourceAce = function(editor) {
      $scope.aceInfinity(editor);
-  
-     $scope.ace = {
+     $scope.aceReq = {
        JSON : angular.toJson($scope.hackRequest, true),
        error : false
      };
    };
    
-   $scope.aceResLoaded = function(editor) {
-   console.log(editor);
-   editorSession = editor.getSession();
+  $scope.aceResLoaded = function(editor) {
+   editorResSession = editor.getSession();
   };
   $scope.aceResChanged = function(editor) {
-    $scope.hackResponse = editorSession.getDocument().getValue();
+    $scope.hackResponse = editorResSession.getDocument().getValue();
   };
   
   // Ace is loaded  so get pretty JSON here
-  $scope.prepareSourceAce = function(editor) {
+  $scope.prepareResSourceAce = function(editor) {
    $scope.aceInfinity(editor);
   
-   $scope.ace = {
+   $scope.aceRes = {
      JSON : angular.toJson($scope.hackResponse, true),
      error : false
    };

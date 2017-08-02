@@ -35,5 +35,6 @@ public class Constants {
   public static final String GMT = "GMT";
   public static final String UTC = "UTC";
   public static final String WHEN_FRAC_SEC = "when_fractional_sec";
+  public static final String BLANK = " ";
   
 }

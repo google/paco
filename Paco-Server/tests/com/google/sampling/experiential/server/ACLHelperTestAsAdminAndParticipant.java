@@ -95,7 +95,7 @@ public class ACLHelperTestAsAdminAndParticipant extends TestCase {
   String actualS12Qry = "select * from events where experiment_id in(1, 2, 3, 4) and (who = 'participant1' and experiment_version=40) or (who='participant1' and experiment_version=42)";
   String expectedS12Qry = "select * from events where experiment_id in (1, 2, 3, 4) and (who = 'participant1' and experiment_version = 40) or (who = 'participant1' and experiment_version = 42)";
   
-  DateTimeZone dtz = DateTimeZone.forID("tz=America/Los_Angeles");
+  DateTimeZone dtz = DateTimeZone.forID("America/Los_Angeles");
 
   @Test
   public void testS1() {
