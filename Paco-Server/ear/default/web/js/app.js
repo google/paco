@@ -29,6 +29,9 @@ pacoApp.config(['$routeProvider','$locationProvider',
     when('/stats/:experimentId', {
       templateUrl: 'partials/stats.html',
     }).
+    when( '/viz/:experimentId', {
+      templateUrl: 'partials/viz/viz.html',
+    }).
     when('/stats/:experimentId/:filter', {
       templateUrl: 'partials/stats.html',
     }).
