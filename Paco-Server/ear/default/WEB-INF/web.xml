@@ -135,11 +135,20 @@
   
   <servlet>
     <servlet-name>AppUsageSessionServlet</servlet-name>
-    <servlet-class>com.google.sampling.experiential.server.viz.appusage.AppUsageSessionServlet</servlet-class>
+    <servlet-class>com.google.sampling.experiential.server.viz.appusage.LastAppSessionChartServlet</servlet-class>
   </servlet>
   <servlet-mapping>
     <servlet-name>AppUsageSessionServlet</servlet-name>
-    <url-pattern>/appSession</url-pattern>
+    <url-pattern>/lastAppSessionChart</url-pattern>
+  </servlet-mapping>
+  
+  <servlet>
+    <servlet-name>PhoneSessionServlet</servlet-name>
+    <servlet-class>com.google.sampling.experiential.server.viz.appusage.PhoneSessionServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>PhoneSessionServlet</servlet-name>
+    <url-pattern>/phoneSessions</url-pattern>
   </servlet-mapping>
   
   
@@ -248,7 +257,9 @@
       <url-pattern>/jobStatus*</url-pattern>
       <url-pattern>/simon*</url-pattern>      
       <url-pattern>/usage*</url-pattern>
-      <url-pattern>/csSearch</url-pattern> 
+      <url-pattern>/csSearch</url-pattern>
+      <url-pattern>/lastAppSessionChart</url-pattern> 
+      <url-pattern>/phoneSessions</url-pattern>      
     </web-resource-collection>
     <user-data-constraint>
       <transport-guarantee>CONFIDENTIAL</transport-guarantee>

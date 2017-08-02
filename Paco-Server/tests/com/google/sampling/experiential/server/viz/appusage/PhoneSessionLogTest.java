@@ -16,8 +16,8 @@ public class PhoneSessionLogTest {
   @Test
   public void testSessionAnalysis_NoSession() {
     List<EventDAO> events = Lists.newArrayList();
-    PhoneSessionLog analyzer = new PhoneSessionLog();
-    List<PhoneSession> sessions = analyzer.buildSessions(events);
+    PhoneSessionLog analyzer = PhoneSessionLog.buildSessions(events);
+    List<PhoneSession> sessions = analyzer.getPhoneSessions();
     assertTrue(sessions.isEmpty());
   }
 
@@ -38,8 +38,8 @@ public class PhoneSessionLogTest {
      * userNotPresent 1498069428000 2000
      */
     List<EventDAO> events = PhoneSessionTestConstants.getEventsForOneSession();
-    PhoneSessionLog analyzer = new PhoneSessionLog();
-    List<PhoneSession> sessions = analyzer.buildSessions(events);
+    PhoneSessionLog analyzer = PhoneSessionLog.buildSessions(events);
+    List<PhoneSession> sessions = analyzer.getPhoneSessions();
     assertEquals(1, sessions.size());
     PhoneSession session = sessions.get(0);
     final List<AppSession> appSessions = session.getAppSessions();
@@ -60,8 +60,9 @@ public class PhoneSessionLogTest {
   @Test
   public void testMultipleSessions() throws Exception {
     List<EventDAO> events = PhoneSessionTestConstants.getEvents();
-    PhoneSessionLog analyzer = new PhoneSessionLog();
-    List<PhoneSession> phoneSessions = analyzer.buildSessions(events);
+    PhoneSessionLog analyzer = PhoneSessionLog.buildSessions(events);
+    List<PhoneSession> phoneSessions = analyzer.getPhoneSessions();
+
     assertEquals(8, phoneSessions.size());
     PhoneSession phoneSession1 = phoneSessions.get(0);
 
@@ -82,6 +83,25 @@ public class PhoneSessionLogTest {
     assertEquals(3, appSession1PhoneSession2.getAppScreenSessions().size());
   }
 
+  @Test
+  /**
+   * phone session 1 ends userNotPresentEvent, then userPresentEvent, then
+   * same app should be the same phoneSession if the phoneSession2Start - phoneSession1End
+   * < N seconds. Where N is specifiable, but defaults to less than 5 seconds.
+   *
+   * @throws Exception
+   */
+  public void testOneSessionWithPhoneSleepInterruptionEvent() throws Exception {
+    List<EventDAO> events = PhoneSessionTestConstants.getEventsForOneBrokenSession();
+    PhoneSessionLog analyzer = PhoneSessionLog.buildSessions(events);
+    // assert 3 sessions wthout a break detector
+    assertEquals(3, analyzer.getPhoneSessions().size());
+
+    // use small-break fixer
+    PhoneSessionLog analyzerWithBreakDetector = PhoneSessionLog.buildSessionsWithOptions(events, 10);
+    assertEquals(2, analyzerWithBreakDetector.getPhoneSessions().size());
+  }
+
   private void assertAppSession(AppSession actualAppSession, final String expectedAppName, final long expectedStartTime,
                                 final long expectedEndTime, final int expectedDurationSeconds) {
     assertEquals(expectedAppName, actualAppSession.getAppName());
@@ -90,4 +110,10 @@ public class PhoneSessionLogTest {
     assertEquals(expectedDurationSeconds, actualAppSession.getDurationInSeconds());
   }
 
+  @Test
+  public void testNewPhoneSessionWithRandomEvent() throws Exception {
+    List<EventDAO> events = PhoneSessionTestConstants.getUserResponseEvent();
+    PhoneSessionLog log = PhoneSessionLog.buildSessions(events);
+    assertEquals(1, log.getPhoneSessions().size());
+  }
 }

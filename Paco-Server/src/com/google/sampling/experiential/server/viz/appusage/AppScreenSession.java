@@ -15,4 +15,14 @@ public class AppScreenSession extends BaseSession {
   public String toString() {
     return "      Screen Name: " + eventAppScreenName + ", " + super.toString();
   }
+
+  public String getEventAppScreenName() {
+    return eventAppScreenName;
+  }
+
+  public void setEventAppScreenName(String eventAppScreenName) {
+    this.eventAppScreenName = eventAppScreenName;
+  }
+
+
 }

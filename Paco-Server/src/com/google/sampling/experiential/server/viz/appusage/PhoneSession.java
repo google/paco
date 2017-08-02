@@ -16,10 +16,14 @@ public class PhoneSession extends BaseSession {
     super(responseTime);
   }
 
-  public PhoneSession handleEvent(EventDAO event) {
+  public PhoneSession handleEvent(EventDAO event, int minimumSessionBreak) {
     DateTime responseTime = new DateTime(event.getResponseTime());
     if (isSessionStartingEvent(event)) {
-      return newSession(responseTime);
+      if (getEndTime() == null) {
+        return newSession(responseTime);
+      } else {
+        endSession(null);
+      }
     } else if (isAppUsageEvent(event)) {
       addToPhoneSession(event);
     } else if (isSessionEndingEvent(event)) {
@@ -29,6 +33,7 @@ public class PhoneSession extends BaseSession {
     return this;
 
   }
+
 
   private PhoneSession newSession(DateTime responseTime) {
     endSession(responseTime);
@@ -105,6 +110,24 @@ public class PhoneSession extends BaseSession {
     }
 
     return buf.toString();
+  }
+
+  protected DateTime addArtificialEndTime() {
+    final AppSession lastChild = getLastChild();
+    if (lastChild != null) {
+    DateTime childEndTime = lastChild.ensureEndSession();
+    setEndTime(childEndTime);
+    return childEndTime;
+    } else {
+      return super.addArtificialEndTime();
+    }
+  }
+
+  private AppSession getLastChild() {
+    if (childSessions == null || childSessions.isEmpty()) {
+      return null;
+    }
+    return childSessions.get(childSessions.size() - 1);
   }
 
 }

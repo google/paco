@@ -7,6 +7,7 @@ import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.type.TypeReference;
 
+import com.google.common.collect.Lists;
 import com.google.sampling.experiential.shared.EventDAO;
 import com.pacoapp.paco.shared.model2.JsonConverter;
 
@@ -3339,9 +3340,851 @@ public class PhoneSessionTestConstants {
               + "] ";
 
 
+  static String brokenSession = "["+
+          "    {"+
+          "      \"experimentId\": 5755724958269440,"+
+          "      \"who\": \"rbe10001@gmail.com\","+
+          "      \"when\": 1500078773304,"+
+          "      \"appId\": \"Android\","+
+          "      \"pacoVersion\": \"4.2.26\","+
+          "      \"experimentName\": \"app logger\","+
+          "      \"responseTime\": 1500078768000,"+
+          "      \"experimentVersion\": 4,"+
+          "      \"timezone\": \"-07:00\","+
+          "      \"experimentGroupName\": \"New Group\","+
+          "      \"joined\": false,"+
+          "      \"emptyResponse\": false,"+
+          "      \"missedSignal\": false,"+
+          "      \"responses\": ["+
+          "        {"+
+          "          \"name\": \"apps_used_raw\","+
+          "          \"answer\": \"com.pacoapp.paco/com.pacoapp.paco.ui.TroubleshootingActivity\""+
+          "        },"+
+          "        {"+
+          "          \"name\": \"foreground\","+
+          "          \"answer\": \"true\""+
+          "        },"+
+          "        {"+
+          "          \"name\": \"apps_used\","+
+          "          \"answer\": \"Paco\""+
+          "        }"+
+          "      ]"+
+          "    },"+
+          "    {"+
+          "      \"experimentId\": 5755724958269440,"+
+          "      \"who\": \"rbe10001@gmail.com\","+
+          "      \"when\": 1500078772978,"+
+          "      \"appId\": \"Android\","+
+          "      \"pacoVersion\": \"4.2.26\","+
+          "      \"experimentName\": \"app logger\","+
+          "      \"responseTime\": 1500078767000,"+
+          "      \"experimentVersion\": 4,"+
+          "      \"timezone\": \"-07:00\","+
+          "      \"experimentGroupName\": \"New Group\","+
+          "      \"joined\": false,"+
+          "      \"emptyResponse\": false,"+
+          "      \"missedSignal\": false,"+
+          "      \"responses\": ["+
+          "        {"+
+          "          \"name\": \"foreground\","+
+          "          \"answer\": \"true\""+
+          "        },"+
+          "        {"+
+          "          \"name\": \"apps_used_raw\","+
+          "          \"answer\": \"com.google.android.googlequicksearchbox/com.google.android.launcher.GEL\""+
+          "        },"+
+          "        {"+
+          "          \"name\": \"apps_used\","+
+          "          \"answer\": \"Google\""+
+          "        }"+
+          "      ]"+
+          "    },"+
+          "    {"+
+          "      \"experimentId\": 5755724958269440,"+
+          "      \"who\": \"rbe10001@gmail.com\","+
+          "      \"when\": 1500078772543,"+
+          "      \"appId\": \"Android\","+
+          "      \"pacoVersion\": \"4.2.26\","+
+          "      \"experimentName\": \"app logger\","+
+          "      \"responseTime\": 1500078764000,"+
+          "      \"experimentVersion\": 4,"+
+          "      \"timezone\": \"-07:00\","+
+          "      \"experimentGroupName\": \"New Group\","+
+          "      \"joined\": false,"+
+          "      \"emptyResponse\": false,"+
+          "      \"missedSignal\": false,"+
+          "      \"responses\": ["+
+          "        {"+
+          "          \"name\": \"userPresent\","+
+          "          \"answer\": \"2017-07-14T17:32:44.746-07:00\""+
+          "        }"+
+          "      ]"+
+          "    },"+
+          "    {"+
+          "      \"experimentId\": 5755724958269440,"+
+          "      \"who\": \"rbe10001@gmail.com\","+
+          "      \"when\": 1500078772149,"+
+          "      \"appId\": \"Android\","+
+          "      \"pacoVersion\": \"4.2.26\","+
+          "      \"experimentName\": \"app logger\","+
+          "      \"responseTime\": 1500078736000,"+
+          "      \"experimentVersion\": 4,"+
+          "      \"timezone\": \"-07:00\","+
+          "      \"experimentGroupName\": \"New Group\","+
+          "      \"joined\": false,"+
+          "      \"emptyResponse\": false,"+
+          "      \"missedSignal\": false,"+
+          "      \"responses\": ["+
+          "        {"+
+          "          \"name\": \"userNotPresent\","+
+          "          \"answer\": \"2017-07-14T17:32:16.676-07:00\""+
+          "        }"+
+          "      ]"+
+          "    },"+
+          "    {"+
+          "      \"experimentId\": 5755724958269440,"+
+          "      \"who\": \"rbe10001@gmail.com\","+
+          "      \"when\": 1500078771786,"+
+          "      \"appId\": \"Android\","+
+          "      \"pacoVersion\": \"4.2.26\","+
+          "      \"experimentName\": \"app logger\","+
+          "      \"responseTime\": 1500078730000,"+
+          "      \"experimentVersion\": 4,"+
+          "      \"timezone\": \"-07:00\","+
+          "      \"experimentGroupName\": \"New Group\","+
+          "      \"joined\": false,"+
+          "      \"emptyResponse\": false,"+
+          "      \"missedSignal\": false,"+
+          "      \"responses\": ["+
+          "        {"+
+          "          \"name\": \"apps_used\","+
+          "          \"answer\": \"Google Play Music\""+
+          "        },"+
+          "        {"+
+          "          \"name\": \"foreground\","+
+          "          \"answer\": \"true\""+
+          "        },"+
+          "        {"+
+          "          \"name\": \"apps_used_raw\","+
+          "          \"answer\": \"com.google.android.music/com.google.android.music.ui.mylibrary.ArtistPageActivity\""+
+          "        }"+
+          "      ]"+
+          "    },"+
+          "    {"+
+          "      \"experimentId\": 5755724958269440,"+
+          "      \"who\": \"rbe10001@gmail.com\","+
+          "      \"when\": 1500078771258,"+
+          "      \"appId\": \"Android\","+
+          "      \"pacoVersion\": \"4.2.26\","+
+          "      \"experimentName\": \"app logger\","+
+          "      \"responseTime\": 1500078724000,"+
+          "      \"experimentVersion\": 4,"+
+          "      \"timezone\": \"-07:00\","+
+          "      \"experimentGroupName\": \"New Group\","+
+          "      \"joined\": false,"+
+          "      \"emptyResponse\": false,"+
+          "      \"missedSignal\": false,"+
+          "      \"responses\": ["+
+          "        {"+
+          "          \"name\": \"apps_used_raw\","+
+          "          \"answer\": \"com.google.android.music/com.google.android.music.ui.HomeActivity\""+
+          "        },"+
+          "        {"+
+          "          \"name\": \"apps_used\","+
+          "          \"answer\": \"Google Play Music\""+
+          "        },"+
+          "        {"+
+          "          \"name\": \"foreground\","+
+          "          \"answer\": \"true\""+
+          "        }"+
+          "      ]"+
+          "    },"+
+          "    {"+
+          "      \"experimentId\": 5755724958269440,"+
+          "      \"who\": \"rbe10001@gmail.com\","+
+          "      \"when\": 1500078770823,"+
+          "      \"appId\": \"Android\","+
+          "      \"pacoVersion\": \"4.2.26\","+
+          "      \"experimentName\": \"app logger\","+
+          "      \"responseTime\": 1500078723000,"+
+          "      \"experimentVersion\": 4,"+
+          "      \"timezone\": \"-07:00\","+
+          "      \"experimentGroupName\": \"New Group\","+
+          "      \"joined\": false,"+
+          "      \"emptyResponse\": false,"+
+          "      \"missedSignal\": false,"+
+          "      \"responses\": ["+
+          "        {"+
+          "          \"name\": \"userPresent\","+
+          "          \"answer\": \"2017-07-14T17:32:03.255-07:00\""+
+          "        }"+
+          "      ]"+
+          "    },"+
+          "    {"+
+          "      \"experimentId\": 5755724958269440,"+
+          "      \"who\": \"rbe10001@gmail.com\","+
+          "      \"when\": 1500078770483,"+
+          "      \"appId\": \"Android\","+
+          "      \"pacoVersion\": \"4.2.26\","+
+          "      \"experimentName\": \"app logger\","+
+          "      \"responseTime\": 1500078714000,"+
+          "      \"experimentVersion\": 4,"+
+          "      \"timezone\": \"-07:00\","+
+          "      \"experimentGroupName\": \"New Group\","+
+          "      \"joined\": false,"+
+          "      \"emptyResponse\": false,"+
+          "      \"missedSignal\": false,"+
+          "      \"responses\": ["+
+          "        {"+
+          "          \"name\": \"userNotPresent\","+
+          "          \"answer\": \"2017-07-14T17:31:54.303-07:00\""+
+          "        }"+
+          "      ]"+
+          "    },"+
+          "    {"+
+          "      \"experimentId\": 5755724958269440,"+
+          "      \"who\": \"rbe10001@gmail.com\","+
+          "      \"when\": 1500078770077,"+
+          "      \"appId\": \"Android\","+
+          "      \"pacoVersion\": \"4.2.26\","+
+          "      \"experimentName\": \"app logger\","+
+          "      \"responseTime\": 1500078708000,"+
+          "      \"experimentVersion\": 4,"+
+          "      \"timezone\": \"-07:00\","+
+          "      \"experimentGroupName\": \"New Group\","+
+          "      \"joined\": false,"+
+          "      \"emptyResponse\": false,"+
+          "      \"missedSignal\": false,"+
+          "      \"responses\": ["+
+          "        {"+
+          "          \"name\": \"apps_used_raw\","+
+          "          \"answer\": \"com.google.android.music/com.google.android.music.ui.HomeActivity\""+
+          "        },"+
+          "        {"+
+          "          \"name\": \"apps_used\","+
+          "          \"answer\": \"Google Play Music\""+
+          "        },"+
+          "        {"+
+          "          \"name\": \"foreground\","+
+          "          \"answer\": \"true\""+
+          "        }"+
+          "      ]"+
+          "    },"+
+          "    {"+
+          "      \"experimentId\": 5755724958269440,"+
+          "      \"who\": \"rbe10001@gmail.com\","+
+          "      \"when\": 1500078769704,"+
+          "      \"appId\": \"Android\","+
+          "      \"pacoVersion\": \"4.2.26\","+
+          "      \"experimentName\": \"app logger\","+
+          "      \"responseTime\": 1500078701000,"+
+          "      \"experimentVersion\": 4,"+
+          "      \"timezone\": \"-07:00\","+
+          "      \"experimentGroupName\": \"New Group\","+
+          "      \"joined\": false,"+
+          "      \"emptyResponse\": false,"+
+          "      \"missedSignal\": false,"+
+          "      \"responses\": ["+
+          "        {"+
+          "          \"name\": \"apps_used_raw\","+
+          "          \"answer\": \"com.google.android.music/com.google.android.music.ui.TrackContainerActivity\""+
+          "        },"+
+          "        {"+
+          "          \"name\": \"foreground\","+
+          "          \"answer\": \"true\""+
+          "        },"+
+          "        {"+
+          "          \"name\": \"apps_used\","+
+          "          \"answer\": \"Google Play Music\""+
+          "        }"+
+          "      ]"+
+          "    }" +
+//          "," +
+//          "    {"+
+//          "      \"experimentId\": 5755724958269440,"+
+//          "      \"who\": \"rbe10001@gmail.com\","+
+//          "      \"when\": 1500078769335,"+
+//          "      \"appId\": \"Android\","+
+//          "      \"pacoVersion\": \"4.2.26\","+
+//          "      \"experimentName\": \"app logger\","+
+//          "      \"responseTime\": 1500078692000,"+
+//          "      \"experimentVersion\": 4,"+
+//          "      \"timezone\": \"-07:00\","+
+//          "      \"experimentGroupName\": \"New Group\","+
+//          "      \"joined\": false,"+
+//          "      \"emptyResponse\": false,"+
+//          "      \"missedSignal\": false,"+
+//          "      \"responses\": ["+
+//          "        {"+
+//          "          \"name\": \"apps_used_raw\","+
+//          "          \"answer\": \"com.google.android.music/com.google.android.music.ui.HomeActivity\""+
+//          "        },"+
+//          "        {"+
+//          "          \"name\": \"apps_used\","+
+//          "          \"answer\": \"Google Play Music\""+
+//          "        },"+
+//          "        {"+
+//          "          \"name\": \"foreground\","+
+//          "          \"answer\": \"true\""+
+//          "        }"+
+//          "      ]"+
+//          "    },"+
+//          "    {"+
+//          "      \"experimentId\": 5755724958269440,"+
+//          "      \"who\": \"rbe10001@gmail.com\","+
+//          "      \"when\": 1500078769014,"+
+//          "      \"appId\": \"Android\","+
+//          "      \"pacoVersion\": \"4.2.26\","+
+//          "      \"experimentName\": \"app logger\","+
+//          "      \"responseTime\": 1500078689000,"+
+//          "      \"experimentVersion\": 4,"+
+//          "      \"timezone\": \"-07:00\","+
+//          "      \"experimentGroupName\": \"New Group\","+
+//          "      \"joined\": false,"+
+//          "      \"emptyResponse\": false,"+
+//          "      \"missedSignal\": false,"+
+//          "      \"responses\": ["+
+//          "        {"+
+//          "          \"name\": \"foreground\","+
+//          "          \"answer\": \"true\""+
+//          "        },"+
+//          "        {"+
+//          "          \"name\": \"apps_used\","+
+//          "          \"answer\": \"Google\""+
+//          "        },"+
+//          "        {"+
+//          "          \"name\": \"apps_used_raw\","+
+//          "          \"answer\": \"com.google.android.googlequicksearchbox/com.google.android.launcher.GEL\""+
+//          "        }"+
+//          "      ]"+
+//          "    },"+
+//          "    {"+
+//          "      \"experimentId\": 5755724958269440,"+
+//          "      \"who\": \"rbe10001@gmail.com\","+
+//          "      \"when\": 1500078687465,"+
+//          "      \"appId\": \"Android\","+
+//          "      \"pacoVersion\": \"4.2.26\","+
+//          "      \"experimentName\": \"app logger\","+
+//          "      \"responseTime\": 1500078681000,"+
+//          "      \"experimentVersion\": 4,"+
+//          "      \"timezone\": \"-07:00\","+
+//          "      \"experimentGroupName\": \"New Group\","+
+//          "      \"joined\": false,"+
+//          "      \"emptyResponse\": false,"+
+//          "      \"missedSignal\": false,"+
+//          "      \"responses\": ["+
+//          "        {"+
+//          "          \"name\": \"apps_used\","+
+//          "          \"answer\": \"Paco\""+
+//          "        },"+
+//          "        {"+
+//          "          \"name\": \"apps_used_raw\","+
+//          "          \"answer\": \"com.pacoapp.paco/com.pacoapp.paco.ui.TroubleshootingActivity\""+
+//          "        },"+
+//          "        {"+
+//          "          \"name\": \"foreground\","+
+//          "          \"answer\": \"true\""+
+//          "        }"+
+//          "      ]"+
+//          "    },"+
+//          "    {"+
+//          "      \"experimentId\": 5755724958269440,"+
+//          "      \"who\": \"rbe10001@gmail.com\","+
+//          "      \"when\": 1500078687092,"+
+//          "      \"appId\": \"Android\","+
+//          "      \"pacoVersion\": \"4.2.26\","+
+//          "      \"experimentName\": \"app logger\","+
+//          "      \"responseTime\": 1500078680000,"+
+//          "      \"experimentVersion\": 4,"+
+//          "      \"timezone\": \"-07:00\","+
+//          "      \"experimentGroupName\": \"New Group\","+
+//          "      \"joined\": false,"+
+//          "      \"emptyResponse\": false,"+
+//          "      \"missedSignal\": false,"+
+//          "      \"responses\": ["+
+//          "        {"+
+//          "          \"name\": \"apps_used_raw\","+
+//          "          \"answer\": \"com.google.android.googlequicksearchbox/com.google.android.launcher.GEL\""+
+//          "        },"+
+//          "        {"+
+//          "          \"name\": \"apps_used\","+
+//          "          \"answer\": \"Google\""+
+//          "        },"+
+//          "        {"+
+//          "          \"name\": \"foreground\","+
+//          "          \"answer\": \"true\""+
+//          "        }"+
+//          "      ]"+
+//          "    },"+
+//          "    {"+
+//          "      \"experimentId\": 5755724958269440,"+
+//          "      \"who\": \"rbe10001@gmail.com\","+
+//          "      \"when\": 1500078686687,"+
+//          "      \"appId\": \"Android\","+
+//          "      \"pacoVersion\": \"4.2.26\","+
+//          "      \"experimentName\": \"app logger\","+
+//          "      \"responseTime\": 1500078678000,"+
+//          "      \"experimentVersion\": 4,"+
+//          "      \"timezone\": \"-07:00\","+
+//          "      \"experimentGroupName\": \"New Group\","+
+//          "      \"joined\": false,"+
+//          "      \"emptyResponse\": false,"+
+//          "      \"missedSignal\": false,"+
+//          "      \"responses\": ["+
+//          "        {"+
+//          "          \"name\": \"apps_used\","+
+//          "          \"answer\": \"ChargePoint\""+
+//          "        },"+
+//          "        {"+
+//          "          \"name\": \"apps_used_raw\","+
+//          "          \"answer\": \"com.coulombtech/com.cp.ui.activity.map.MapActivity\""+
+//          "        },"+
+//          "        {"+
+//          "          \"name\": \"foreground\","+
+//          "          \"answer\": \"true\""+
+//          "        }"+
+//          "      ]"+
+//          "    },"+
+//          "    {"+
+//          "      \"experimentId\": 5755724958269440,"+
+//          "      \"who\": \"rbe10001@gmail.com\","+
+//          "      \"when\": 1500078686089,"+
+//          "      \"appId\": \"Android\","+
+//          "      \"pacoVersion\": \"4.2.26\","+
+//          "      \"experimentName\": \"app logger\","+
+//          "      \"responseTime\": 1500078676000,"+
+//          "      \"experimentVersion\": 4,"+
+//          "      \"timezone\": \"-07:00\","+
+//          "      \"experimentGroupName\": \"New Group\","+
+//          "      \"joined\": false,"+
+//          "      \"emptyResponse\": false,"+
+//          "      \"missedSignal\": false,"+
+//          "      \"responses\": ["+
+//          "        {"+
+//          "          \"name\": \"foreground\","+
+//          "          \"answer\": \"true\""+
+//          "        },"+
+//          "        {"+
+//          "          \"name\": \"apps_used_raw\","+
+//          "          \"answer\": \"com.coulombtech/com.cp.ui.activity.launcher.LauncherActivity\""+
+//          "        },"+
+//          "        {"+
+//          "          \"name\": \"apps_used\","+
+//          "          \"answer\": \"ChargePoint\""+
+//          "        }"+
+//          "      ]"+
+//          "    },"+
+//          "    {"+
+//          "      \"experimentId\": 5755724958269440,"+
+//          "      \"who\": \"rbe10001@gmail.com\","+
+//          "      \"when\": 1500078685572,"+
+//          "      \"appId\": \"Android\","+
+//          "      \"pacoVersion\": \"4.2.26\","+
+//          "      \"experimentName\": \"app logger\","+
+//          "      \"responseTime\": 1500078673000,"+
+//          "      \"experimentVersion\": 4,"+
+//          "      \"timezone\": \"-07:00\","+
+//          "      \"experimentGroupName\": \"New Group\","+
+//          "      \"joined\": false,"+
+//          "      \"emptyResponse\": false,"+
+//          "      \"missedSignal\": false,"+
+//          "      \"responses\": ["+
+//          "        {"+
+//          "          \"name\": \"foreground\","+
+//          "          \"answer\": \"true\""+
+//          "        },"+
+//          "        {"+
+//          "          \"name\": \"apps_used\","+
+//          "          \"answer\": \"Google\""+
+//          "        },"+
+//          "        {"+
+//          "          \"name\": \"apps_used_raw\","+
+//          "          \"answer\": \"com.google.android.googlequicksearchbox/com.google.android.launcher.GEL\""+
+//          "        }"+
+//          "      ]"+
+//          "    },"+
+//          "    {"+
+//          "      \"experimentId\": 5755724958269440,"+
+//          "      \"who\": \"rbe10001@gmail.com\","+
+//          "      \"when\": 1500078685144,"+
+//          "      \"appId\": \"Android\","+
+//          "      \"pacoVersion\": \"4.2.26\","+
+//          "      \"experimentName\": \"app logger\","+
+//          "      \"responseTime\": 1500078667000,"+
+//          "      \"experimentVersion\": 4,"+
+//          "      \"timezone\": \"-07:00\","+
+//          "      \"experimentGroupName\": \"New Group\","+
+//          "      \"joined\": false,"+
+//          "      \"emptyResponse\": false,"+
+//          "      \"missedSignal\": false,"+
+//          "      \"responses\": ["+
+//          "        {"+
+//          "          \"name\": \"apps_used\","+
+//          "          \"answer\": \"NYTimes\""+
+//          "        },"+
+//          "        {"+
+//          "          \"name\": \"foreground\","+
+//          "          \"answer\": \"true\""+
+//          "        },"+
+//          "        {"+
+//          "          \"name\": \"apps_used_raw\","+
+//          "          \"answer\": \"com.nytimes.android/com.nytimes.android.MainActivity\""+
+//          "        }"+
+//          "      ]"+
+//          "    },"+
+//          "    {"+
+//          "      \"experimentId\": 5755724958269440,"+
+//          "      \"who\": \"rbe10001@gmail.com\","+
+//          "      \"when\": 1500078684808,"+
+//          "      \"appId\": \"Android\","+
+//          "      \"pacoVersion\": \"4.2.26\","+
+//          "      \"experimentName\": \"app logger\","+
+//          "      \"responseTime\": 1500078664000,"+
+//          "      \"experimentVersion\": 4,"+
+//          "      \"timezone\": \"-07:00\","+
+//          "      \"experimentGroupName\": \"New Group\","+
+//          "      \"joined\": false,"+
+//          "      \"emptyResponse\": false,"+
+//          "      \"missedSignal\": false,"+
+//          "      \"responses\": ["+
+//          "        {"+
+//          "          \"name\": \"apps_used\","+
+//          "          \"answer\": \"Google\""+
+//          "        },"+
+//          "        {"+
+//          "          \"name\": \"apps_used_raw\","+
+//          "          \"answer\": \"com.google.android.googlequicksearchbox/com.google.android.launcher.GEL\""+
+//          "        },"+
+//          "        {"+
+//          "          \"name\": \"foreground\","+
+//          "          \"answer\": \"true\""+
+//          "        }"+
+//          "      ]"+
+//          "    },"+
+//          "    {"+
+//          "      \"experimentId\": 5755724958269440,"+
+//          "      \"who\": \"rbe10001@gmail.com\","+
+//          "      \"when\": 1500078660200,"+
+//          "      \"appId\": \"Android\","+
+//          "      \"pacoVersion\": \"4.2.26\","+
+//          "      \"experimentName\": \"app logger\","+
+//          "      \"responseTime\": 1500078653000,"+
+//          "      \"experimentVersion\": 4,"+
+//          "      \"timezone\": \"-07:00\","+
+//          "      \"experimentGroupName\": \"New Group\","+
+//          "      \"joined\": false,"+
+//          "      \"emptyResponse\": false,"+
+//          "      \"missedSignal\": false,"+
+//          "      \"responses\": ["+
+//          "        {"+
+//          "          \"name\": \"apps_used_raw\","+
+//          "          \"answer\": \"com.pacoapp.paco/com.pacoapp.paco.ui.TroubleshootingActivity\""+
+//          "        },"+
+//          "        {"+
+//          "          \"name\": \"foreground\","+
+//          "          \"answer\": \"true\""+
+//          "        },"+
+//          "        {"+
+//          "          \"name\": \"apps_used\","+
+//          "          \"answer\": \"Paco\""+
+//          "        }"+
+//          "      ]"+
+//          "    },"+
+//          "    {"+
+//          "      \"experimentId\": 5755724958269440,"+
+//          "      \"who\": \"rbe10001@gmail.com\","+
+//          "      \"when\": 1500078659759,"+
+//          "      \"appId\": \"Android\","+
+//          "      \"pacoVersion\": \"4.2.26\","+
+//          "      \"experimentName\": \"app logger\","+
+//          "      \"responseTime\": 1500078650000,"+
+//          "      \"experimentVersion\": 4,"+
+//          "      \"timezone\": \"-07:00\","+
+//          "      \"experimentGroupName\": \"New Group\","+
+//          "      \"joined\": false,"+
+//          "      \"emptyResponse\": false,"+
+//          "      \"missedSignal\": false,"+
+//          "      \"responses\": ["+
+//          "        {"+
+//          "          \"name\": \"apps_used\","+
+//          "          \"answer\": \"Paco\""+
+//          "        },"+
+//          "        {"+
+//          "          \"name\": \"apps_used_raw\","+
+//          "          \"answer\": \"com.pacoapp.paco/com.pacoapp.paco.ui.MyExperimentsActivity\""+
+//          "        },"+
+//          "        {"+
+//          "          \"name\": \"foreground\","+
+//          "          \"answer\": \"true\""+
+//          "        }"+
+//          "      ]"+
+//          "    },"+
+//          "    {"+
+//          "      \"experimentId\": 5755724958269440,"+
+//          "      \"who\": \"rbe10001@gmail.com\","+
+//          "      \"when\": 1500078659323,"+
+//          "      \"appId\": \"Android\","+
+//          "      \"pacoVersion\": \"4.2.26\","+
+//          "      \"experimentName\": \"app logger\","+
+//          "      \"responseTime\": 1500078642000,"+
+//          "      \"experimentVersion\": 4,"+
+//          "      \"timezone\": \"-07:00\","+
+//          "      \"experimentGroupName\": \"New Group\","+
+//          "      \"joined\": false,"+
+//          "      \"emptyResponse\": false,"+
+//          "      \"missedSignal\": false,"+
+//          "      \"responses\": ["+
+//          "        {"+
+//          "          \"name\": \"foreground\","+
+//          "          \"answer\": \"true\""+
+//          "        },"+
+//          "        {"+
+//          "          \"name\": \"apps_used_raw\","+
+//          "          \"answer\": \"com.google.android.googlequicksearchbox/com.google.android.launcher.GEL\""+
+//          "        },"+
+//          "        {"+
+//          "          \"name\": \"apps_used\","+
+//          "          \"answer\": \"Google\""+
+//          "        }"+
+//          "      ]"+
+//          "    },"+
+//          "    {"+
+//          "      \"experimentId\": 5755724958269440,"+
+//          "      \"who\": \"rbe10001@gmail.com\","+
+//          "      \"when\": 1500078658913,"+
+//          "      \"appId\": \"Android\","+
+//          "      \"pacoVersion\": \"4.2.26\","+
+//          "      \"experimentName\": \"app logger\","+
+//          "      \"responseTime\": 1500078640000,"+
+//          "      \"experimentVersion\": 4,"+
+//          "      \"timezone\": \"-07:00\","+
+//          "      \"experimentGroupName\": \"New Group\","+
+//          "      \"joined\": false,"+
+//          "      \"emptyResponse\": false,"+
+//          "      \"missedSignal\": false,"+
+//          "      \"responses\": ["+
+//          "        {"+
+//          "          \"name\": \"apps_used\","+
+//          "          \"answer\": \"Paco\""+
+//          "        },"+
+//          "        {"+
+//          "          \"name\": \"foreground\","+
+//          "          \"answer\": \"true\""+
+//          "        },"+
+//          "        {"+
+//          "          \"name\": \"apps_used_raw\","+
+//          "          \"answer\": \"com.pacoapp.paco/com.pacoapp.paco.ui.MyExperimentsActivity\""+
+//          "        }"+
+//          "      ]"+
+//          "    },"+
+//          "    {"+
+//          "      \"experimentId\": 5755724958269440,"+
+//          "      \"who\": \"rbe10001@gmail.com\","+
+//          "      \"when\": 1500078658492,"+
+//          "      \"appId\": \"Android\","+
+//          "      \"pacoVersion\": \"4.2.26\","+
+//          "      \"experimentName\": \"app logger\","+
+//          "      \"responseTime\": 1500078640000,"+
+//          "      \"experimentVersion\": 4,"+
+//          "      \"timezone\": \"-07:00\","+
+//          "      \"experimentGroupName\": \"New Group\","+
+//          "      \"joined\": false,"+
+//          "      \"emptyResponse\": false,"+
+//          "      \"missedSignal\": false,"+
+//          "      \"responses\": ["+
+//          "        {"+
+//          "          \"name\": \"apps_used_raw\","+
+//          "          \"answer\": \"com.pacoapp.paco/com.pacoapp.paco.ui.FindMyExperimentsActivity\""+
+//          "        },"+
+//          "        {"+
+//          "          \"name\": \"apps_used\","+
+//          "          \"answer\": \"Paco\""+
+//          "        },"+
+//          "        {"+
+//          "          \"name\": \"foreground\","+
+//          "          \"answer\": \"true\""+
+//          "        }"+
+//          "      ]"+
+//          "    },"+
+//          "    {"+
+//          "      \"experimentId\": 5755724958269440,"+
+//          "      \"who\": \"rbe10001@gmail.com\","+
+//          "      \"when\": 1500078658004,"+
+//          "      \"appId\": \"Android\","+
+//          "      \"pacoVersion\": \"4.2.26\","+
+//          "      \"experimentName\": \"app logger\","+
+//          "      \"responseTime\": 1500078640000,"+
+//          "      \"experimentVersion\": 4,"+
+//          "      \"timezone\": \"-07:00\","+
+//          "      \"experimentGroupName\": \"New Group\","+
+//          "      \"joined\": false,"+
+//          "      \"emptyResponse\": false,"+
+//          "      \"missedSignal\": false,"+
+//          "      \"responses\": ["+
+//          "        {"+
+//          "          \"name\": \"foreground\","+
+//          "          \"answer\": \"true\""+
+//          "        },"+
+//          "        {"+
+//          "          \"name\": \"apps_used_raw\","+
+//          "          \"answer\": \"com.pacoapp.paco/com.pacoapp.paco.ui.ExperimentDetailActivity\""+
+//          "        },"+
+//          "        {"+
+//          "          \"name\": \"apps_used\","+
+//          "          \"answer\": \"Paco\""+
+//          "        }"+
+//          "      ]"+
+//          "    },"+
+//          "    {"+
+//          "      \"experimentId\": 5755724958269440,"+
+//          "      \"who\": \"rbe10001@gmail.com\","+
+//          "      \"when\": 1500078657493,"+
+//          "      \"appId\": \"Android\","+
+//          "      \"pacoVersion\": \"4.2.26\","+
+//          "      \"experimentName\": \"app logger\","+
+//          "      \"responseTime\": 1500078640000,"+
+//          "      \"experimentVersion\": 4,"+
+//          "      \"timezone\": \"-07:00\","+
+//          "      \"experimentGroupName\": \"New Group\","+
+//          "      \"joined\": false,"+
+//          "      \"emptyResponse\": false,"+
+//          "      \"missedSignal\": false,"+
+//          "      \"responses\": ["+
+//          "        {"+
+//          "          \"name\": \"apps_used_raw\","+
+//          "          \"answer\": \"com.pacoapp.paco/com.pacoapp.paco.ui.InformedConsentActivity\""+
+//          "        },"+
+//          "        {"+
+//          "          \"name\": \"foreground\","+
+//          "          \"answer\": \"true\""+
+//          "        },"+
+//          "        {"+
+//          "          \"name\": \"apps_used\","+
+//          "          \"answer\": \"Paco\""+
+//          "        }"+
+//          "      ]"+
+//          "    },"+
+//          "    {"+
+//          "      \"experimentId\": 5755724958269440,"+
+//          "      \"who\": \"rbe10001@gmail.com\","+
+//          "      \"when\": 1500078657013,"+
+//          "      \"appId\": \"Android\","+
+//          "      \"pacoVersion\": \"4.2.26\","+
+//          "      \"experimentName\": \"app logger\","+
+//          "      \"responseTime\": 1500078639000,"+
+//          "      \"experimentVersion\": 4,"+
+//          "      \"timezone\": \"-07:00\","+
+//          "      \"experimentGroupName\": \"New Group\","+
+//          "      \"joined\": false,"+
+//          "      \"emptyResponse\": false,"+
+//          "      \"missedSignal\": false,"+
+//          "      \"responses\": ["+
+//          "        {"+
+//          "          \"name\": \"apps_used\","+
+//          "          \"answer\": \"Paco\""+
+//          "        },"+
+//          "        {"+
+//          "          \"name\": \"apps_used_raw\","+
+//          "          \"answer\": \"com.pacoapp.paco/com.pacoapp.paco.ui.PostJoinInstructionsActivity\""+
+//          "        },"+
+//          "        {"+
+//          "          \"name\": \"foreground\","+
+//          "          \"answer\": \"true\""+
+//          "        }"+
+//          "      ]"+
+//          "    },"+
+//          "    {"+
+//          "      \"experimentId\": 5755724958269440,"+
+//          "      \"who\": \"rbe10001@gmail.com\","+
+//          "      \"when\": 1500078656558,"+
+//          "      \"appId\": \"Android\","+
+//          "      \"pacoVersion\": \"4.2.26\","+
+//          "      \"experimentName\": \"app logger\","+
+//          "      \"responseTime\": 1500078637000,"+
+//          "      \"experimentVersion\": 4,"+
+//          "      \"timezone\": \"-07:00\","+
+//          "      \"experimentGroupName\": \"New Group\","+
+//          "      \"joined\": false,"+
+//          "      \"emptyResponse\": false,"+
+//          "      \"missedSignal\": false,"+
+//          "      \"responses\": ["+
+//          "        {"+
+//          "          \"name\": \"apps_used_raw\","+
+//          "          \"answer\": \"com.pacoapp.paco/com.pacoapp.paco.ui.InformedConsentActivity\""+
+//          "        },"+
+//          "        {"+
+//          "          \"name\": \"foreground\","+
+//          "          \"answer\": \"true\""+
+//          "        },"+
+//          "        {"+
+//          "          \"name\": \"apps_used\","+
+//          "          \"answer\": \"Paco\""+
+//          "        }"+
+//          "      ]"+
+//          "    },"+
+//          "    {"+
+//          "      \"experimentId\": 5755724958269440,"+
+//          "      \"who\": \"rbe10001@gmail.com\","+
+//          "      \"when\": 1500078656094,"+
+//          "      \"appId\": \"Android\","+
+//          "      \"pacoVersion\": \"4.2.26\","+
+//          "      \"experimentName\": \"app logger\","+
+//          "      \"responseTime\": 1500078637000,"+
+//          "      \"experimentVersion\": 4,"+
+//          "      \"timezone\": \"-07:00\","+
+//          "      \"experimentGroupName\": \"New Group\","+
+//          "      \"joined\": false,"+
+//          "      \"emptyResponse\": false,"+
+//          "      \"missedSignal\": false,"+
+//          "      \"responses\": ["+
+//          "        {"+
+//          "          \"name\": \"apps_used_raw\","+
+//          "          \"answer\": \"com.pacoapp.paco/com.pacoapp.paco.ui.ExperimentDetailActivity\""+
+//          "        },"+
+//          "        {"+
+//          "          \"name\": \"apps_used\","+
+//          "          \"answer\": \"Paco\""+
+//          "        },"+
+//          "        {"+
+//          "          \"name\": \"foreground\","+
+//          "          \"answer\": \"true\""+
+//          "        }"+
+//          "      ]"+
+//          "    },"+
+//          "    {"+
+//          "      \"experimentId\": 5755724958269440,"+
+//          "      \"who\": \"rbe10001@gmail.com\","+
+//          "      \"when\": 1500078637932,"+
+//          "      \"appId\": \"Android\","+
+//          "      \"pacoVersion\": \"4.2.26\","+
+//          "      \"experimentName\": \"app logger\","+
+//          "      \"responseTime\": 1500078637000,"+
+//          "      \"experimentVersion\": 4,"+
+//          "      \"timezone\": \"-07:00\","+
+//          "      \"joined\": false,"+
+//          "      \"emptyResponse\": false,"+
+//          "      \"missedSignal\": false,"+
+//          "      \"responses\": ["+
+//          "        {"+
+//          "          \"name\": \"schedule\","+
+//          "          \"answer\": \"New Group:[]\""+
+//          "        },"+
+//          "        {"+
+//          "          \"name\": \"joined\","+
+//          "          \"answer\": \"true\""+
+//          "        }"+
+//          "      ]"+
+//          "    }"+
+            "  ]";
+
+
   public static List<EventDAO> getEventsForOneSession() {
+    return getEventsForJson(oneSession);
+  }
+
+  private static List<EventDAO> getEventsForJson(String eventJson) {
     try {
-      return JsonConverter.getObjectMapper().readValue(oneSession, new TypeReference<List<EventDAO>>() {});
+      return JsonConverter.getObjectMapper().readValue(eventJson, new TypeReference<List<EventDAO>>() {});
     } catch (JsonParseException e) {
       e.printStackTrace();
     } catch (JsonMappingException e) {
@@ -3350,5 +4193,45 @@ public class PhoneSessionTestConstants {
       e.printStackTrace();
     }
     return null;
+  }
+
+  public static List<EventDAO> getEventsForOneBrokenSession() {
+    try {
+      final List<EventDAO> events = JsonConverter.getObjectMapper().readValue(brokenSession, new TypeReference<List<EventDAO>>() {});
+      // this data set was retrieved in reverse sort order
+      return Lists.reverse(events);
+    } catch (JsonParseException e) {
+      e.printStackTrace();
+    } catch (JsonMappingException e) {
+      e.printStackTrace();
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+    return null;
+  }
+
+  public static List<EventDAO> getUserResponseEvent() {
+      String oneEvent = "     [{ \"experimentId\": 5755724958269440,"+
+      "      \"who\": \"rbe10001@gmail.com\","+
+      "      \"when\": 1500078637932,"+
+      "      \"appId\": \"Android\","+
+      "      \"pacoVersion\": \"4.2.26\","+
+      "      \"experimentName\": \"app logger\","+
+      "      \"responseTime\": 1500078637000,"+
+      "      \"experimentVersion\": 4,"+
+      "      \"timezone\": \"-07:00\","+
+      "      \"joined\": false,"+
+      "      \"emptyResponse\": false,"+
+      "      \"missedSignal\": false,"+
+      "      \"responses\": ["+
+      "        {"+
+      "          \"name\": \"q1\","+
+      "          \"answer\": \"my answer\""+
+      "        } " +
+      "      ]"+
+      "    }"+
+        "  ]";
+      return getEventsForJson(oneEvent);
+
   }
 }

@@ -33,8 +33,8 @@ import com.pacoapp.paco.shared.util.Constants;
  *
  */
 @SuppressWarnings("serial")
-public class AppUsageSessionServlet extends HttpServlet {
-  public static final Logger log = Logger.getLogger(AppUsageSessionServlet.class.getName());
+public class LastAppSessionChartServlet extends HttpServlet {
+  public static final Logger log = Logger.getLogger(LastAppSessionChartServlet.class.getName());
 
   @Override
   public void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException, ServletException {
@@ -254,8 +254,8 @@ public class AppUsageSessionServlet extends HttpServlet {
 
     //    Long startTime = today.getMillis();
 //    Long endTime = today.plusDays(1).getMillis();
-    String startTime = today.minusDays(5).toString(dateTimeFormatter);
-    String endTime = today.plusDays(2).toString(dateTimeFormatter);
+    String startTime = today.minusDays(31).toString(dateTimeFormatter);
+    String endTime = today.minusDays(29).toString(dateTimeFormatter);
     String query = "{ query : " +
                    "        { criteria : \" experiment_id = ? " +
                                           " and who = ? and (group_name = ? or text = ? or text = ? ) and response_time between ? and ?\"," +

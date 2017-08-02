@@ -75,4 +75,18 @@ public class AppSession extends BaseSession {
     return childSessions;
   }
 
+  protected DateTime addArtificialEndTime() {
+    DateTime childEndTime = getLastChild().ensureEndSession();
+    setEndTime(childEndTime);
+    return childEndTime;
+  }
+
+  private AppScreenSession getLastChild() {
+    if (childSessions == null || childSessions.isEmpty()) {
+      return null;
+    }
+    return childSessions.get(childSessions.size() - 1);
+  }
+
+
 }
