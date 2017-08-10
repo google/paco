@@ -316,13 +316,13 @@ Test targets suppressed because -junit argument was not specified when running w
   </target>
   
   <target name="prep-for-deploy">
-    <antcall target="change-appname-version"/>
-    <antcall target="change-db-properties"/>
+    <antcall target="change-appname-version_db_prop"/>
+   <!--  <antcall target="change-db-properties"/> -->
   </target>
   
-  <target name="change-appname-version">
+  <target name="change-appname-version_db_prop">
     <echo message="Changing config in all modules" />
-    <foreach target="change-appname-version-in-each-module" param="configFile">
+    <foreach target="change-appname-version_db_prop-in-each-module" param="configFile">
       <path>
         <fileset dir="ear">
           <filename name="${module.config.file}" />
@@ -336,41 +336,15 @@ Test targets suppressed because -junit argument was not specified when running w
     </foreach>
   </target>
 
-  <target name="change-appname-version-in-each-module">
+  <target name="change-appname-version_db_prop-in-each-module">
     <echo message="${configFile}" />
     <basename property="filename" file="${configFile}"/>
     <dirname property="module.dirname" file="${configFile}" />
-    <echo message="${module.dirname}"></echo>
-    <mkdir dir="${module.dirname}/backup" />
-    <copy file="${configFile}" todir="${module.dirname}/backup"></copy>
+    <copy file="${configFile}" tofile="${configFile}.bak"></copy>
     <xslt in="${configFile}" out="${module.dirname}/local-${filename}"
-      style="${change.appname.version.xsl}">
+      style="${change.appname.version.dbprops.xsl}">
       <param name="appName" expression="${app.name}" />
       <param name="appVersion" expression="${app.version}" />
-    </xslt>
-    <move file="${module.dirname}/local-${filename}" tofile="${configFile}" />
-  </target>
-  
-  <target name="change-db-properties">
-    <echo message="Changing db config in all modules" />
-    <foreach target="change-db-properties-in-each-module" param="configFile">
-      <path>
-        <fileset dir="ear">
-          <filename name="${module.config.file}" />
-          <depth max="2" />
-        </fileset>
-      </path>
-    </foreach>
-  </target>
-  
-  <target name="change-db-properties-in-each-module">
-    <basename property="parent.dir.name" file="${configFile}"/>
-     <echo message="${parent.dir.name}"/>
-    <dirname property="module.dirname" file="${configFile}" />
-    <mkdir dir="${module.dirname}/backup" />
-    <copy file="${configFile}" todir="${module.dirname}/backup"></copy>
-    <xslt in="${configFile}" out="${module.dirname}/temp-prop-${configFile}"
-      style="${change.db.properties.xsl}">
       <param name="localSqlUrl" expression="${local.sql.url}" />
       <param name="cloudSqlUrl" expression="${cloud.sql.url}" />
       <param name="localSqlUsername" expression="${local.sql.username}" />
@@ -378,9 +352,9 @@ Test targets suppressed because -junit argument was not specified when running w
       <param name="localSqlPassword" expression="${local.sql.password}" />
       <param name="cloudSqlPassword" expression="${cloud.sql.password}" />
     </xslt>
-    <move file="${module.dirname}/temp-prop-${configFile}" tofile="${configFile}" />
+    <move file="${module.dirname}/local-${filename}" tofile="${configFile}" />
   </target>
-  
+ 
    <target name="deploy">
     <echo message="Deploying to ${deploy.url}"></echo>
     <exec executable="/bin/sh">
