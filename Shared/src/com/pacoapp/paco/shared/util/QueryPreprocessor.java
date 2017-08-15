@@ -188,9 +188,10 @@ public class QueryPreprocessor implements SelectVisitor, FromItemVisitor, Expres
   
   private String modifyDateStrToUTC(StringValue strValue) throws ParseException { 
     Date dt = localDateFormatter.parse(strValue.getValue());
-    Date utcDate = TimeUtil.convertToUTC(dt, timeZone);
-    String utcFormattedDate = localDateFormatter.format(utcDate);
-    return utcFormattedDate;
+//    Date utcDate = TimeUtil.convertToUTC(dt, timeZone);
+//    String utcFormattedDate = localDateFormatter.format(utcDate);
+//    return utcFormattedDate;
+    return localDateFormatter.format(dt);
   }
 
   public void visit(PlainSelect plainSelect) {

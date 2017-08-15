@@ -151,53 +151,19 @@
     <url-pattern>/lastAppSessionChart</url-pattern>
   </servlet-mapping>
   
-  <servlet>
+<!--   <servlet>
     <servlet-name>PhoneSessionServlet</servlet-name>
     <servlet-class>com.google.sampling.experiential.server.viz.appusage.PhoneSessionServlet</servlet-class>
   </servlet>
   <servlet-mapping>
     <servlet-name>PhoneSessionServlet</servlet-name>
     <url-pattern>/phoneSessions</url-pattern>
-  </servlet-mapping>
+  </servlet-mapping> -->
   
   
   <!--  administrative and debugging endpoints -->
   
   <!-- only needed for local dev instance. In other environments, cloudsqlinsert in map reduce  will be used-->
-<!--   
-   <servlet>
-    <servlet-name>ServerInsertServlet</servlet-name>
-    <servlet-class>com.google.sampling.experiential.server.CloudSqlInsertServlet</servlet-class>
-  </servlet>
-  <servlet-mapping>
-    <servlet-name>ServerInsertServlet</servlet-name>
-    <url-pattern>/csInsert</url-pattern>
-  </servlet-mapping>
-     <servlet>
-    <servlet-name>ServerCreateServlet</servlet-name>
-    <servlet-class>com.google.sampling.experiential.server.migration.CloudSQLCreateServlet</servlet-class>
-  </servlet>
-  <servlet-mapping>
-    <servlet-name>ServerCreateServlet</servlet-name>
-    <url-pattern>/migration/csCreate</url-pattern>
-  </servlet-mapping>
-  <servlet>
-    <servlet-name>FailedEventsInsertServlet</servlet-name>
-    <servlet-class>com.google.sampling.experiential.server.FailedEventsInsertServlet</servlet-class>
-  </servlet>
-  <servlet-mapping>
-    <servlet-name>FailedEventsInsertServlet</servlet-name>
-    <url-pattern>/migration/csFailedEventsInsert</url-pattern>
-  </servlet-mapping>
-  <servlet>
-    <servlet-name>migrationFrontendServlet</servlet-name>
-    <servlet-class>com.google.sampling.experiential.server.migration.MigrationFrontendServlet</servlet-class>
-  </servlet>
-  <servlet-mapping>
-    <servlet-name>migrationFrontendServlet</servlet-name>
-    <url-pattern>/migration/migrate</url-pattern>
-  </servlet-mapping>
--->
   <!-- 
    <servlet>
     <servlet-name>EventCounterServlet</servlet-name>

@@ -55,7 +55,9 @@ public class AuthUtil {
         //throw new IllegalArgumentException("You need to specify a test acct to return when testing mobile clients.");
         // uncomment the line below and put in the test acct. This is necessary because the dev appengine server
         // only returns example@example.com as the user!!
-        return "bobevans999@gmail.com";
+//        return "bobevans999@gmail.com";
+    	  return "paco.muthu@gmail.com";
+//    	  return "userpaco1000@gmail.com";
       } else {
         User currentUser = UserServiceFactory.getUserService().getCurrentUser();
         if (currentUser != null) {
