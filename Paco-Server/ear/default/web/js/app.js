@@ -11,10 +11,6 @@ pacoApp.config(['$sceDelegateProvider', function($sceDelegateProvider) {
 	$sceDelegateProvider.resourceUrlWhitelist(['data:audio/mpeg;base64,**','self']);
 }]);
 
-pacoApp.config(['$locationProvider', function($locationProvider) {
-  $locationProvider.hashPrefix('');
-}]);
-
 pacoApp.config(['$routeProvider','$locationProvider',
   function($routeProvider, $locationProvider) {
     $routeProvider.

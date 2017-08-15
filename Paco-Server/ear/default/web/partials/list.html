@@ -61,19 +61,6 @@
                     Anon Data
                   </md-button>
                 </a>
-                <span ng-controller="VizCtrl">
-                  <a href="#/viz/{{exp.id}}">
-<!--<<<<<<< Updated upstream-->
-                  <!--<md-button>-->
-                   <!--Viz-->
-                  <!--</md-button>-->
-<!--=======-->
-                   <md-button>
-                    Viz
-                   </md-button>
-<!--&gt;>>>>>> Stashed changes-->
-                  </a>
-                </span>
                 <md-button ng-click="joinExperiment($event, exp)"
                   ng-if="joinedIndex.indexOf(exp.id) === -1">
                   Join
