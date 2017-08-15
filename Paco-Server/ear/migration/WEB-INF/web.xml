@@ -16,7 +16,7 @@
     <servlet-name>ServerCreateServlet</servlet-name>
     <servlet-class>com.google.sampling.experiential.server.migration.CloudSQLCreateServlet</servlet-class>
   </servlet>
-   <servlet-mapping>
+  <servlet-mapping>
     <servlet-name>ServerCreateServlet</servlet-name>
     <url-pattern>/migration/csCreate</url-pattern>
   </servlet-mapping>
@@ -44,7 +44,6 @@
     <servlet-name>MayJuneEventCounterServlet</servlet-name>
     <url-pattern>/migration/mayJuneEventCounter</url-pattern>
   </servlet-mapping>
-  
   <servlet>
     <servlet-name>migrationFrontendServlet</servlet-name>
     <servlet-class>com.google.sampling.experiential.server.migration.MigrationFrontendServlet</servlet-class>
@@ -52,7 +51,7 @@
   <servlet-mapping>
     <servlet-name>migrationFrontendServlet</servlet-name>
     <url-pattern>/migration/migrate</url-pattern>
-  </servlet-mapping> 
+  </servlet-mapping>
  
   <!-- gwt-only client endpoints use UserService with https -->
   <!-- admin only endpoints use UserService, https, and admin role -->

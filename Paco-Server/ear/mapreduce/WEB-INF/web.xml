@@ -17,14 +17,14 @@
     <url-pattern>/_ah/pipeline/*</url-pattern>
   </servlet-mapping>
  
- <!--   <servlet>
+   <servlet>
     <servlet-name>ServerInsertServlet</servlet-name>
     <servlet-class>com.google.sampling.experiential.server.CloudSqlInsertServlet</servlet-class>
   </servlet>
   <servlet-mapping>
     <servlet-name>ServerInsertServlet</servlet-name>
     <url-pattern>/csInsert</url-pattern>
-  </servlet-mapping>-->
+  </servlet-mapping>
   
    <servlet>
     <servlet-name>mapreduce</servlet-name>

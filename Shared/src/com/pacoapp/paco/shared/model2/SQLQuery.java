@@ -108,15 +108,10 @@ public class SQLQuery {
     }
 
     private Builder addDefaultValues(SQLQuery obj) {
-      // provide default sort order which is Event._Id desc
-//<<<<<<< Updated upstream
+        // provide default sort order which is Event._Id desc
       if (obj.getGroupBy() == null && obj.sortOrder == null) {
-        obj.sortOrder = EventBaseColumns.TABLE_NAME+"."+Constants.UNDERSCORE_ID.concat(Constants.BLANK).concat(Constants.DESC);
-//=======
-//      if (obj.sortOrder == null) {
-//        obj.sortOrder = EventBaseColumns.TABLE_NAME+"."+Constants.UNDERSCORE_ID.concat(" ").concat(Constants.DESC);
-//>>>>>>> Stashed changes
-      }
+         obj.sortOrder = EventBaseColumns.TABLE_NAME+"."+Constants.UNDERSCORE_ID.concat(Constants.BLANK).concat(Constants.DESC);
+       }
 
       if (obj.getProjection() == null) {
         obj.projection = new String[] { Constants.STAR };
