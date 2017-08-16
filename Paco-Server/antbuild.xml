@@ -16,7 +16,7 @@
  -->
  <project default="build" basedir=".">
   <taskdef resource="net/sf/antcontrib/antcontrib.properties"/>
-  <property name="sdk.dir" location="../tools/appengine-java-sdk-1.9.54" />
+  <property name="sdk.dir" location="../tools/appengine-java-sdk-1.9.0" />
   <property file="${environ}.properties"></property>
   
   <import file="${sdk.dir}/config/user/ant-macros.xml" />
