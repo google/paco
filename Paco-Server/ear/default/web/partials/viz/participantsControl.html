@@ -1,6 +1,6 @@
 <md-input-container class="participantsDropDown">
   <label class="participantsLabel">Participants</label>
-  <md-select  ng-model="selectedParticipants"
+  <md-select ng-model="selectedParticipants"
              md-on-close="getParticipants()"
              data-md-container-class="selectdemoSelectHeader"
              md-selected-text="getParticipantsLength()"
@@ -10,11 +10,8 @@
              class="demo-header-searchbox md-text">
     </md-select-header>
     <md-optgroup label="participants">
-      <md-option ng-repeat="participant in participants track by $index" ng-value="participant">{{participant}}</md-option>'
+      <md-option ng-repeat="participant in participants track by $index" ng-value="participant">{{participant}}
+      </md-option>
     </md-optgroup>
   </md-select>
 </md-input-container>
-
-<!--md-on-close="clearSearchTerm()"-->
-<!--md-selected-text="getParticipantsLength()"-->
-<!--md-selected-text="getLength()"-->

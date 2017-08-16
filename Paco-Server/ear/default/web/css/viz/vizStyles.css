@@ -69,16 +69,6 @@
   margin-left: 10px;
 }
 
-layout.layout-row-vizFrequency {
-  margin-left: 470px;
-  margin-top: -20px;
-}
-
-.templates1, templates2 {
-  margin-top: 20px;
-  margin-bottom: 20px;
-}
-
 .sidePanel {
   height: 650px;
   width: 23%;
@@ -113,7 +103,6 @@ layout.layout-row-vizFrequency {
 
 .saveDownload {
   float: right;
-  /*margin-left: 20%;*/
   margin-top: 18px;
 }
 
