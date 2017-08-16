@@ -16,7 +16,7 @@
  -->
  <project default="build" basedir=".">
   <taskdef resource="net/sf/antcontrib/antcontrib.properties"/>
-  <property name="sdk.dir" location="../tools/appengine-java-sdk-1.9.0" />
+  <property name="sdk.dir" location="../tools/appengine-java-sdk-1.9.54" />
   <property file="${environ}.properties"></property>
   
   <import file="${sdk.dir}/config/user/ant-macros.xml" />
@@ -317,7 +317,6 @@ Test targets suppressed because -junit argument was not specified when running w
   
   <target name="prep-for-deploy">
     <antcall target="change-appname-version_db_prop"/>
-   <!--  <antcall target="change-db-properties"/> -->
   </target>
   
   <target name="change-appname-version_db_prop">
