@@ -276,7 +276,11 @@ public class ExperimentHelper {
     return interruptCue.getCueCode() == InterruptCue.PACO_ACTION_EVENT
             || interruptCue.getCueCode() == InterruptCue.APP_USAGE
             || interruptCue.getCueCode() == InterruptCue.APP_CLOSED
-            || interruptCue.getCueCode() == InterruptCue.ACCESSIBILITY_EVENT_VIEW_CLICKED;
+            || interruptCue.getCueCode() == InterruptCue.ACCESSIBILITY_EVENT_VIEW_CLICKED
+            || interruptCue.getCueCode() == InterruptCue.NOTIFICATION_CREATED
+            || interruptCue.getCueCode() == InterruptCue.NOTIFICATION_TRAY_SWIPE_DISMISS
+            || interruptCue.getCueCode() == InterruptCue.NOTIFICATION_CLICKED
+            ;
   }
 
   private static boolean isMatchingViewClickEvent(String packageName, String className, String eventContentDescription,
@@ -378,8 +382,14 @@ public class ExperimentHelper {
             InterruptTrigger trigger = (InterruptTrigger)actionTrigger;
             List<InterruptCue> cues = trigger.getCues();
             for (InterruptCue interruptCue : cues) {
-              if (interruptCue.getCueCode() == InterruptCue.ACCESSIBILITY_EVENT_VIEW_CLICKED ||
-                      interruptCue.getCueCode() == InterruptCue.PERMISSION_CHANGED) {
+              if (interruptCue.getCueCode() == InterruptCue.ACCESSIBILITY_EVENT_VIEW_CLICKED
+                      || interruptCue.getCueCode() == InterruptCue.PERMISSION_CHANGED
+                      || interruptCue.getCueCode() == InterruptCue.NOTIFICATION_CREATED
+                      || interruptCue.getCueCode() == InterruptCue.NOTIFICATION_TRAY_CANCELLED
+                      || interruptCue.getCueCode() == InterruptCue.NOTIFICATION_TRAY_CLEAR_ALL
+                      || interruptCue.getCueCode() == InterruptCue.NOTIFICATION_TRAY_OPENED
+                      || interruptCue.getCueCode() == InterruptCue.NOTIFICATION_TRAY_SWIPE_DISMISS
+                      || interruptCue.getCueCode() == InterruptCue.NOTIFICATION_CLICKED) {
                 matching.add(trigger);
               }
             }
