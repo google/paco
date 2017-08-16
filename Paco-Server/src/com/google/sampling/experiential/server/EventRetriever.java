@@ -270,10 +270,8 @@ public class EventRetriever {
     }
     TaskOptions to = TaskOptions.Builder.withUrl("/csInsert").payload(eventJson.toString());
     if (!System.getProperty("com.google.appengine.runtime.version").startsWith("Google App Engine/")) {
-      log.info("hello");
       queue.add(to.header("Host", ModulesServiceFactory.getModulesService().getVersionHostname("mapreduce", null)));
     } else {
-      log.info("hi");
       queue.add(to);
     }
   }

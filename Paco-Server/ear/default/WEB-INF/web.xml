@@ -151,14 +151,14 @@
     <url-pattern>/lastAppSessionChart</url-pattern>
   </servlet-mapping>
   
- <!--  <servlet>
+  <servlet>
     <servlet-name>PhoneSessionServlet</servlet-name>
     <servlet-class>com.google.sampling.experiential.server.viz.appusage.PhoneSessionServlet</servlet-class>
   </servlet>
   <servlet-mapping>
     <servlet-name>PhoneSessionServlet</servlet-name>
     <url-pattern>/phoneSessions</url-pattern>
-  </servlet-mapping> -->
+  </servlet-mapping>
   
   
   <!--  administrative and debugging endpoints -->
@@ -285,8 +285,6 @@
       <url-pattern>/remote_api*</url-pattern>
       <url-pattern>/eval*</url-pattern>
       <url-pattern>/participantJoinStats*</url-pattern>
-    <!--   <url-pattern>/migration*</url-pattern> -->
-    <!--   <url-pattern>/csInsert*</url-pattern> -->
       <!--  <url-pattern>/eventCounter</url-pattern> --> 
       <!--  <url-pattern>/mayJuneEventCounter</url-pattern>  --> 
     </web-resource-collection>
