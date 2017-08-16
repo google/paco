@@ -1,7 +1,4 @@
-"use strict";
-
 pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsVizService', '$timeout', '$routeParams', '$filter', function ($scope, $element, $compile, experimentsVizService, $timeout, $routeParams, $filter) {
-
 
   $scope.responseMetadata = [];
   $scope.group = "";
@@ -152,12 +149,12 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
     var template = "";
     $scope.template = "";
     if (questionsMap.has($scope.selectedQues)) {
-      $scope.template  = questionsMap.get($scope.selectedQues);
+      $scope.template = questionsMap.get($scope.selectedQues);
       var vizContainer = angular.element(document.querySelector('.vizContainer'));
-      if ($scope.template  === 1) {
+      if ($scope.template === 1) {
         $scope.dateRangeControl = false;
         $scope.vizTypes = ["Box Plot", "Bar Chart", "Bar Chart with Density plot"];
-      } else if ($scope.template  == 2) {
+      } else if ($scope.template == 2) {
         $scope.dateRangeControl = true;
         $scope.selectedInputs = undefined;
         $scope.selectedType = undefined;
@@ -235,36 +232,37 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
       });
     });
   }
-  function displayDescription(){
+
+  function displayDescription() {
     var participantsDesc = [];
     var dateDesc = " ";
-    var timeDesc= " ";
-    if($scope.participantsCount === $scope.selectedParticipants.length){
+    var timeDesc = " ";
+    if ($scope.participantsCount === $scope.selectedParticipants.length) {
       participantsDesc.push("All participants")
-    }else{
+    } else {
       participantsDesc = $scope.selectedParticipants.join(', ');
     }
-    if($scope.startDate != undefined){
+    if ($scope.startDate != undefined) {
       dateDesc = formatDate($scope.startDate);
     }
-    if($scope.startDate != undefined && $scope.endDate != undefined){
+    if ($scope.startDate != undefined && $scope.endDate != undefined) {
       dateDesc = formatDate($scope.startDate) + " - " + formatDate($scope.endDate);
     }
-    if($scope.startDate === undefined && $scope.endDate === undefined){
+    if ($scope.startDate === undefined && $scope.endDate === undefined) {
       dateDesc = $scope.dateRange[0] + " - " + $scope.dateRange[1];
     }
-    if($scope.startTime != undefined){
+    if ($scope.startTime != undefined) {
       timeDesc = "Time Range: " + formatTime($scope.startTime);
     }
-    if($scope.startTime != undefined && $scope.endTime != undefined){
+    if ($scope.startTime != undefined && $scope.endTime != undefined) {
       timeDesc = "Time Range: " + formatTime($scope.startTime) + " - " + formatTime($scope.endTime);
     }
 
-    if($scope.template == 1){
+    if ($scope.template == 1) {
 
       $scope.vizDesc = "Participants: " + participantsDesc + "\n"
-       + "Date Range: " + $scope.dateRange[0] + " - " + $scope.dateRange[1];
-    } else if($scope.template === 2){
+          + "Date Range: " + $scope.dateRange[0] + " - " + $scope.dateRange[1];
+    } else if ($scope.template === 2) {
       $scope.vizDesc = "Participants: " + participantsDesc + "\n" + "Date Range: " + dateDesc + "\n" + timeDesc;
     }
   }
@@ -664,7 +662,7 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
 
       var svg = d3.select('.vizContainer')
           .append('svg')
-          .style('width', '60%')
+          .style('width', '98%')
           .style('height', 600)
           .style('margin-left', 20)
           .style('margin-top', 20)

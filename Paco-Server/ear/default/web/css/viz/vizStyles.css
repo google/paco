@@ -80,10 +80,7 @@
 
 .vizContainer {
   background-color: white;
-  /*float: right;*/
   width: 98%;
-  /*height: 1200px;*/
-  /*margin-bottom: 20px;*/
 }
 
 .vizTemplate {
@@ -348,7 +345,7 @@ md-input-container.typesDropDown:not([md-no-float]) .md-select-placeholder span:
   background-color: #f2f2f2;
   margin:5px;
   width:100%;
-  height:120px;
+  height:130px;
   border-radius: 5px;
 }
 .vizDescLabel{
