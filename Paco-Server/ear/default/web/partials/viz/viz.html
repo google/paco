@@ -1,0 +1,67 @@
+<div ng-controller="VizCtrl" class="padded">
+  <div class="nav padded">
+    <a href="#">
+      <md-button>Experiments</md-button>
+    </a>
+    <img src="/img/ic_chevron_right_24px.svg">
+    <a href="#/experiment/{{experimentDataModel.id}}">
+      <md-button aria-label="experiment name">
+        <span ng-if="!experimentDataModel">{{experimentDataModel.id}}</span>
+        <span ng-if="experimentDataModel">{{experimentDataModel.title}}</span>
+      </md-button>
+    </a>
+  </div>
+  <div>
+
+  <div class="variable-width">
+    <md-toolbar>
+      <div class="md-toolbar-tools">
+        <div layout="row vizPickerRow">
+          <span class="asterisk">*</span>
+          <md-input-container class="quesDropDown">
+            <label class="quesLabel">Questions</label>
+            <md-select class="quesSelect" ng-model="selectedQues" ng-change="getTemplate()">
+              <md-optgroup label="Questions">
+                <md-option ng-repeat="ques in questions" ng-value="ques.question">{{ques.question}}</md-option>
+              </md-optgroup>
+            </md-select>
+          </md-input-container>
+          <div layout="row" class="vizPickerSelections">
+            <span class="asterisk">*</span>
+            <inputs-drop-down></inputs-drop-down>
+          </div>
+          <participants-drop-down class="vizPickerSelections"></participants-drop-down>
+          <date-range ng-show="template2" class="vizPickerSelections"></date-range>
+          <types-drop-down class="vizPickerSelections"></types-drop-down>
+          <create-button class="vizPickerSelections"></create-button>
+        </div>
+      </div>
+    </md-toolbar>
+  </div>
+
+  <div ng-show="vizTemplate" class="vizTemplate">
+    <md-toolbar>
+      <div class="md-toolbar-tools titleToolbar">
+        <div layout-gt-xs="row">
+          <div>
+            <md-input-container class="vizTitle">
+              <input ng-model="vizTitle" placeholder="Title" value="{{vizTitle}}">
+            </md-input-container>
+          </div>
+          <span flex></span>
+          <div class="saveDownload">
+            <md-button class="md-primary" label="saveViz" ng-click="saveViz()"><span>Save</span></md-button>
+            <md-button class="md-primary" label="downloadViz"><span>Download</span></md-button>
+          </div>
+        </div>
+      </div>
+    </md-toolbar>
+    <div class="vizContainer"></div>
+  </div>
+
+  <div ng-if="error" class="error viz">
+    Error - {{error.code}}: {{error.data}} {{error.message}}
+  </div>
+</div>
+</div>
+

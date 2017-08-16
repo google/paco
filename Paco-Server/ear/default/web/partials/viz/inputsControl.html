@@ -1,0 +1,41 @@
+<md-input-container class="inputsDropDown">
+  <label class="inputsLabel">Inputs</label>
+  <md-select class="inputsSelect" ng-model="selectedInputs"
+             md-on-close="getInputs()"
+             data-md-container-class="selectdemoSelectHeader"
+             md-selected-text="getInputsLength()"
+             multiple>
+    <md-select-header class="demo-select-header">
+      <input placeholder="Inputs"
+             class="demo-header-searchbox md-text">
+    </md-select-header>
+      <md-optgroup ng-repeat="grp in groups" label={{grp}} ng-model="selectedGroup">
+        <md-option ng-value="input" ng-repeat="input in groupInputs| filter: {'group':grp}">{{input.inputs}}</md-option>
+      </md-optgroup>
+    <!--<md-optgroup ng-repeat="grp in groups" label={{grp}}>-->
+    <!--<md-option ng-value="value.name" ng-repeat="(key, value) in groupInputsMap| filter:{key:'New Group'}">{{value.name}}</md-option>-->
+    <!--</md-optgroup>-->
+  </md-select>
+</md-input-container>
+
+<!--class="demo-header-searchbox md-text"-->
+<!--type="search"-->
+<!--placeholder="Inputs"-->
+<!--multiple=""-->
+
+<!--<md-input-container class="inputsDropDown">-->
+  <!--<label class="inputsLabel">Inputs</label>-->
+  <!--<md-select class="inputsSelect" ng-model="selectedInputs"-->
+             <!--md-on-close="getInputs()"-->
+             <!--data-md-container-class="selectdemoSelectHeader"-->
+             <!--md-selected-text="getInputsLength()"-->
+             <!--multiple>-->
+    <!--<md-select-header class="demo-select-header">-->
+      <!--<input placeholder="Inputs"-->
+             <!--class="demo-header-searchbox md-text">-->
+    <!--</md-select-header>-->
+    <!--<md-optgroup label="inputs">-->
+      <!--<md-option ng-value="input" ng-repeat="input in inputs track by $index">{{input}}</md-option>-->
+    <!--</md-optgroup>-->
+  <!--</md-select>-->
+<!--</md-input-container>-->
