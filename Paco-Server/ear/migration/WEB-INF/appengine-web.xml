@@ -42,6 +42,7 @@
   <precompilation-enabled>true</precompilation-enabled>
   <threadsafe>true</threadsafe>
   <instance-class>B8</instance-class>
+  <runtime>java8</runtime>
   <basic-scaling>
     <max-instances>10</max-instances>
   </basic-scaling>

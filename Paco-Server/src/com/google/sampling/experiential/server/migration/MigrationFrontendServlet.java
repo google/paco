@@ -79,7 +79,16 @@ public class MigrationFrontendServlet extends HttpServlet {
         resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
       }
       String jobId = sendMigrateRequestToBackend(req, jobName, cursor, stDate, endDate);
-      resp.sendRedirect("/jobStatus?jobId=" + jobId);
+      String redirectUrl = null;
+      // On dev local, when we kick off job from backend module - migration with correct port number, 
+      // the job status which is defined in default module is getting searched in migration module.
+      // In other environments, the request gets routed through dispatch xml.
+      if (!System.getProperty("com.google.appengine.runtime.version").startsWith("Google App Engine/")) {
+        redirectUrl = "http://"+ModulesServiceFactory.getModulesService().getVersionHostname("default", null)+"/jobStatus?jobId=" + jobId;
+      } else {
+        redirectUrl = "/jobStatus?jobId=" + jobId;
+      }
+      resp.sendRedirect(redirectUrl);
     } else {
       resp.sendError(HttpServletResponse.SC_FORBIDDEN);
     }

@@ -51,6 +51,7 @@
   <precompilation-enabled>true</precompilation-enabled>
   <threadsafe>true</threadsafe>
   <use-google-connector-j>true</use-google-connector-j>
+  <runtime>java8</runtime>
   <!--
       <admin-console>
       <page name="Appstats" url="/appstats" />

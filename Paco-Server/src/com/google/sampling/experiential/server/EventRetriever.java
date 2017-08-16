@@ -54,6 +54,7 @@ import com.google.appengine.api.datastore.PreparedQuery;
 import com.google.appengine.api.datastore.Query.FilterOperator;
 import com.google.appengine.api.datastore.Query.FilterPredicate;
 import com.google.appengine.api.datastore.QueryResultList;
+import com.google.appengine.api.modules.ModulesServiceFactory;
 import com.google.appengine.api.taskqueue.Queue;
 import com.google.appengine.api.taskqueue.QueueFactory;
 import com.google.appengine.api.taskqueue.TaskOptions;
@@ -267,7 +268,14 @@ public class EventRetriever {
     } catch (JSONException e) {
       log.severe("while sending to cloud sql queue" + e);
     }
-    queue.add(TaskOptions.Builder.withUrl("/csInsert").payload(eventJson.toString()));
+    TaskOptions to = TaskOptions.Builder.withUrl("/csInsert").payload(eventJson.toString());
+    if (!System.getProperty("com.google.appengine.runtime.version").startsWith("Google App Engine/")) {
+      log.info("hello");
+      queue.add(to.header("Host", ModulesServiceFactory.getModulesService().getVersionHostname("mapreduce", null)));
+    } else {
+      log.info("hi");
+      queue.add(to);
+    }
   }
 
   @SuppressWarnings("unchecked")

@@ -22,7 +22,11 @@
     running out of memory -->
   <max-concurrent-requests>4</max-concurrent-requests>
   </automatic-scaling>
+<<<<<<< Updated upstream
 
+=======
+  <runtime>java8</runtime>
+>>>>>>> Stashed changes
   <system-properties>
     <property name="java.util.logging.config.file" value="WEB-INF/logging.properties"/>
 

@@ -36,7 +36,7 @@
     <property name="ae-cloudsql.local-database-username" value="XXXX"/>
     <property name="ae-cloudsql.local-database-password" value="XXXX"/>
   </system-properties>
-  
+  <runtime>java8</runtime>
   <ssl-enabled>true</ssl-enabled>
   <sessions-enabled>true</sessions-enabled>
   <precompilation-enabled>true</precompilation-enabled>

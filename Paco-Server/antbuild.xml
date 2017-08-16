@@ -15,7 +15,7 @@
  ~ under the License.
  -->
  <project default="build" basedir=".">
-  <property name="sdk.dir" location="../tools/appengine-java-sdk-1.9.0" />
+  <property name="sdk.dir" location="../tools/appengine-java-sdk-1.9.54" />
 
   <import file="${sdk.dir}/config/user/ant-macros.xml" />
 
