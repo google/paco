@@ -14,6 +14,28 @@
   <div>
 
   <div class="variable-width">
+    <div class="snapshotContainer">
+        <div class="snapShots">
+          <b>{{participantsCount}}</b>
+          <div>Participants</div>
+        </div>
+        <div class="snapShots">
+          <b class="dateRange">{{dateRange[0]}} - {{dateRange[1]}}</b>
+          <div>Date Range</div>
+        </div>
+        <div class="snapShots">
+          <b>{{responseCounts[0]}}</b>
+          <div>Scheduled Responses</div>
+        </div>
+        <div class="snapShots">
+          <b>{{responseCounts[1]}}</b>
+          <div>Missed Responses</div>
+        </div>
+        <div class="snapShots">
+          <b>{{responseCounts[2]}}</b>
+          <div>Self Responses</div>
+        </div>
+    </div>
     <md-toolbar>
       <div class="md-toolbar-tools">
         <div layout="row vizPickerRow">
@@ -31,7 +53,7 @@
             <inputs-drop-down></inputs-drop-down>
           </div>
           <participants-drop-down class="vizPickerSelections"></participants-drop-down>
-          <date-range ng-show="template2" class="vizPickerSelections"></date-range>
+          <date-range ng-show="dateRangeControl" class="vizPickerSelections"></date-range>
           <types-drop-down class="vizPickerSelections"></types-drop-down>
           <create-button class="vizPickerSelections"></create-button>
         </div>
@@ -40,23 +62,22 @@
   </div>
 
   <div ng-show="vizTemplate" class="vizTemplate">
-    <md-toolbar>
-      <div class="md-toolbar-tools titleToolbar">
-        <div layout-gt-xs="row">
-          <div>
-            <md-input-container class="vizTitle">
-              <input ng-model="vizTitle" placeholder="Title" value="{{vizTitle}}">
-            </md-input-container>
-          </div>
-          <span flex></span>
-          <div class="saveDownload">
-            <md-button class="md-primary" label="saveViz" ng-click="saveViz()"><span>Save</span></md-button>
-            <md-button class="md-primary" label="downloadViz"><span>Download</span></md-button>
-          </div>
-        </div>
-      </div>
-    </md-toolbar>
+    <div class="vizCaption">
+      <md-input-container class="md-block">
+        <input class="vizTitle" ng-model="vizTitle">
+      </md-input-container>
+    </div>
     <div class="vizContainer"></div>
+    <div class="vizDescription">
+      <div class="vizDescBlock" layout-gt-sm="row">
+        <md-input-container class="md-block" style="width:78%">
+          <label class="vizDescLabel">Description</label>
+          <textarea style="font-size:13px; font-style: italic" ng-model="vizDesc" md-maxlength="150" rows="3" md-select-on-focus></textarea>
+        </md-input-container>
+        <md-button class="md-primary">Save</md-button>
+        <md-button class="md-primary">Download</md-button>
+      </div>
+    </div>
   </div>
 
   <div ng-if="error" class="error viz">

@@ -1,4 +1,4 @@
-pacoApp.factory('experimentsVizService', ['$http', 'experimentService', function ($http, experimentService) {
+pacoApp.factory('experimentsVizService', ['$http', 'experimentService', '$filter', function ($http, experimentService, $filter) {
 
   var experiment = '';
   var events = ' ';
@@ -15,25 +15,41 @@ pacoApp.factory('experimentsVizService', ['$http', 'experimentService', function
     });
     return experiment;
   }
-  function getParticipants(experimentId){
 
-   if(experimentId != undefined){
-         var message = '{ "select":["who"], "query" : { "criteria" : "experiment_id = ?", "values" : ['+experimentId+']},"group":"who"}';
-   }
-    var participants = $http({
-      method: 'POST',
-      url: '/csSearch',
-      data: angular.fromJson(message),
-    }).then(function successCallback(response) {
-      return response;
-    }, function errorCallback(error) {
-      return error;
-    });
+  function getParticipants(experimentId) {
+
+    if (experimentId != undefined) {
+      var message = '{ "select":["who"], "query" : { "criteria" : "experiment_id = ?", "values" : [' + experimentId + ']},"group":"who"}';
+    }
+    var participants = httpPostBody(message);
     return participants;
-
   }
 
-  function getEventCounts(id){
+  function getDateRange(experimentId) {
+
+    var dateRange = [];
+    var format = 'MM/dd/yyyy';
+    if (experimentId != undefined) {
+      var endDateQuery = '{ "select":["response_time"], "query" : { "criteria" : "experiment_id = ?", "values" : [' + experimentId + ']},"order":"response_time desc","limit":"1"}';
+      var startDateQuery = '{ "select":["response_time"], "query" : { "criteria" : "experiment_id = ?", "values" : [' + experimentId + ']},"order":"response_time asc","limit":"1"}';
+    }
+    var startDate = httpPostBody(startDateQuery);
+    var endDate = httpPostBody(endDateQuery);
+
+    startDate.then(function (data) {
+
+      var format_startDate = $filter('date')(new Date(data.data.customResponse[0].response_time), format);
+      dateRange.push(format_startDate)
+    });
+    endDate.then(function (data) {
+      var format_endDate = $filter('date')(new Date(data.data.customResponse[0].response_time), format);
+      dateRange.push(format_endDate)
+    });
+    return dateRange;
+  }
+
+  function getEventsCounts(id) {
+    var eventsCount = [];
     var getCount = $http({
       method: 'GET',
       url: '/participantStats?experimentId=' + id + '&reportType=totalEventCounts&statv2=1'
@@ -42,7 +58,10 @@ pacoApp.factory('experimentsVizService', ['$http', 'experimentService', function
     }, function errorCallback(error) {
       return error;
     });
-    return getCount;
+    getCount.then(function (data) {
+      eventsCount.push(data.data[0].schedR, data.data[0].missedR, data.data[0].selfR);
+    });
+    return eventsCount;
   }
 
   function getEvents(experimentId, group, participants, startDate, startTime, endDate, endTime) {
@@ -51,48 +70,40 @@ pacoApp.factory('experimentsVizService', ['$http', 'experimentService', function
     if (experimentId != undefined && group != undefined) {
       message = '{ "query" : { "criteria" : "experiment_id = ? and group_name = ?", "values" : [' + experimentId + ', "' + group + '"]},"limit":"50"}';
     }
-    if(experimentId != undefined  && participants!=undefined && participants.length > 0){
+    if (experimentId != undefined && participants != undefined && participants.length > 0) {
       var questionMarks = [];
       var participantsList = [];
-      for(var i=0;i<participants.length;i++){
+      for (var i = 0; i < participants.length; i++) {
         questionMarks.push("?");
-        participantsList.push('"'+participants[i]+'"');
+        participantsList.push('"' + participants[i] + '"');
       }
-      message =  '{ "query" : { "criteria" : "experiment_id = ? and group_name = ? and who in ('+questionMarks+')", "values" : [' + experimentId + ', "' + group + '" , '+participantsList+']},"limit":"50"}';
+      message = '{ "query" : { "criteria" : "experiment_id = ? and group_name = ? and who in (' + questionMarks + ')", "values" : [' + experimentId + ', "' + group + '" , ' + participantsList + ']},"limit":"50"}';
     }
-     if(experimentId != undefined && group != undefined && startDate != undefined){
+    if (experimentId != undefined && group != undefined && startDate != undefined) {
       var start_date = startDate + " " + "00:00:00";
       var end_date = startDate + " " + "23:59:59";
       message = '{"query": {"criteria":" experiment_id=?  and response_time>? and response_time<? and group_name=? ) ","values" : [' + experimentId + ', "' + start_date + '", "' + end_date + '","' + group + '"]}}';
     }
 
-    if(experimentId != undefined && group != undefined && startDate != undefined && endDate != undefined){
+    if (experimentId != undefined && group != undefined && startDate != undefined && endDate != undefined) {
       var start_date = startDate + " " + "00:00:00";
-      var end_date = endDate  + " " + "23:59:59";
+      var end_date = endDate + " " + "23:59:59";
       message = '{"query": {"criteria":" experiment_id=?  and response_time>? and response_time<? and group_name=? ) ","values" : [' + experimentId + ', "' + start_date + '", "' + end_date + '","' + group + '"]}}';
     }
 
-    if(experimentId != undefined && group != undefined && startDate != undefined && startTime != undefined && endTime != undefined){
-      var start_dateTime = startDate + " " + startTime+":00";
-      var end_dateTime = startDate + " " + endTime+":00";
+    if (experimentId != undefined && group != undefined && startDate != undefined && startTime != undefined && endTime != undefined) {
+      var start_dateTime = startDate + " " + startTime + ":00";
+      var end_dateTime = startDate + " " + endTime + ":00";
       message = '{"query": {"criteria":" experiment_id=?  and response_time>? and response_time<? and group_name=? ) ","values" : [' + experimentId + ', "' + start_dateTime + '", "' + end_dateTime + '", "' + group + '"]}}';
     }
 
-    if(experimentId != undefined && group != undefined && startDate != undefined && startTime != undefined && endDate != undefined && endTime != undefined){
-      var start_dateTime = startDate + " " + startTime+":00";
-      var end_dateTime = endDate + " " + endTime+":00";
+    if (experimentId != undefined && group != undefined && startDate != undefined && startTime != undefined && endDate != undefined && endTime != undefined) {
+      var start_dateTime = startDate + " " + startTime + ":00";
+      var end_dateTime = endDate + " " + endTime + ":00";
       message = '{"query": {"criteria":" experiment_id=?  and response_time>? and response_time<? and group_name=? ) ","values" : [' + experimentId + ', "' + start_dateTime + '", "' + end_dateTime + '","' + group + '"]}}';
     }
 
-    events = $http({
-      method: 'POST',
-      url: '/csSearch',
-      data: angular.fromJson(message),
-    }).then(function successCallback(response) {
-      return response;
-    }, function errorCallback(error) {
-      return error;
-    });
+    var events = httpPostBody(message);
     return events;
   }
 
@@ -103,46 +114,61 @@ pacoApp.factory('experimentsVizService', ['$http', 'experimentService', function
     var inputText = "";
     var responses = [];
 
-      events.forEach(function (response) {
-        answers.who = response.who;
-        answers.when = response.when;
-        answers.responseTime = response.responseTime;
-        answers.timezone = response.timezone;
-        response.responses.forEach(function (e) {
-          answers.name = e.name;
-          answers.answer = e.answer;
-          if (answers.name != "joined") {
-            responses.push({
-              "who": answers.who,
-              "when": answers.when,
-              "responseTime": answers.responseTime,
-              "name": answers.name,
-              "answer": answers.answer,
-              "timezone": answers.timezone
-            });
-          }
-        });
-      });
-      var groupByInputs = d3.nest()
-          .key(function (d) {
-            return d.name;
-          })
-          .entries(responses);
-      inputText = input;
-      responseResults = [];
-      groupByInputs.forEach(function (inputs) {
-        if (inputText === inputs.key) {
-          responseResults = inputs.values;
+    events.forEach(function (response) {
+      answers.who = response.who;
+      answers.when = response.when;
+      answers.responseTime = response.responseTime;
+      answers.timezone = response.timezone;
+      response.responses.forEach(function (e) {
+        answers.name = e.name;
+        answers.answer = e.answer;
+        if (answers.name != "joined") {
+          responses.push({
+            "who": answers.who,
+            "when": answers.when,
+            "responseTime": answers.responseTime,
+            "name": answers.name,
+            "answer": answers.answer,
+            "timezone": answers.timezone
+          });
         }
       });
-      return responseResults;
+    });
+    var groupByInputs = d3.nest()
+        .key(function (d) {
+          return d.name;
+        })
+        .entries(responses);
+    inputText = input;
+    responseResults = [];
+    groupByInputs.forEach(function (inputs) {
+      if (inputText === inputs.key) {
+        responseResults = inputs.values;
+      }
+    });
+    return responseResults;
+  }
+
+  function httpPostBody(message) {
+    var response = $http({
+      method: 'POST',
+      url: '/csSearch',
+      data: angular.fromJson(message),
+    }).then(function successCallback(response) {
+      return response;
+    }, function errorCallback(error) {
+      return error;
+    });
+    return response;
+
   }
 
   return {
     getExperiment: getExperiment,
     getEvents: getEvents,
     getResponses: getResponses,
-    getParticipants:getParticipants,
-    getEventCounts:getEventCounts
+    getParticipants: getParticipants,
+    getEventsCounts: getEventsCounts,
+    getDateRange: getDateRange
   }
 }]);

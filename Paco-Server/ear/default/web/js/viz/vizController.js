@@ -21,8 +21,10 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
   $scope.groupInputs = [];
   $scope.selectedGroup = "";
   $scope.groupInputsMap = new Map();
-  $scope.template2 = false;
-
+  $scope.dateRangeControl = false;
+  $scope.responseCounts = 0;
+  $scope.participantsCount = 0;
+  $scope.vizDesc = "";
 
   var responseTypeMap = new Map();
   var responseMetaData = [];
@@ -71,6 +73,18 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
     questionsMap.set(ques.question, ques.qno);
   });
 
+  $scope.dataSnapshot = function () {
+    $scope.dateRange = [];
+    $scope.responseCounts = [];
+
+    $scope.responseCounts = experimentsVizService.getEventsCounts($scope.experimentId);
+
+    experimentsVizService.getParticipants($scope.experimentId).then(function (participants) {
+      $scope.participantsCount = participants.data.customResponse.length;
+    });
+
+    $scope.dateRange = experimentsVizService.getDateRange($scope.experimentId);
+  };
 
   //experiment json objects are retrieved from the 'experimentsVizService'
   // to create a scope variable for response type meta data.
@@ -136,18 +150,20 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
   var inputs = [];
   $scope.getTemplate = function () {
     var template = "";
+    $scope.template = "";
     if (questionsMap.has($scope.selectedQues)) {
-      template = questionsMap.get($scope.selectedQues);
+      $scope.template  = questionsMap.get($scope.selectedQues);
       var vizContainer = angular.element(document.querySelector('.vizContainer'));
-      if (template === 1) {
-        $scope.template2 = false;
+      if ($scope.template  === 1) {
+        $scope.dateRangeControl = false;
         $scope.vizTypes = ["Box Plot", "Bar Chart", "Bar Chart with Density plot"];
-      } else if (template == 2) {
-        $scope.template2 = true;
+      } else if ($scope.template  == 2) {
+        $scope.dateRangeControl = true;
         $scope.selectedInputs = undefined;
         $scope.selectedType = undefined;
         $scope.selectedParticipants = [];
         $scope.vizTypes = ["Box Plot", "Bar Chart", "Bar Chart with Density plot"];
+
       }
     }
   };
@@ -218,6 +234,39 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
         }
       });
     });
+  }
+  function displayDescription(){
+    var participantsDesc = [];
+    var dateDesc = " ";
+    var timeDesc= " ";
+    if($scope.participantsCount === $scope.selectedParticipants.length){
+      participantsDesc.push("All participants")
+    }else{
+      participantsDesc = $scope.selectedParticipants.join(', ');
+    }
+    if($scope.startDate != undefined){
+      dateDesc = formatDate($scope.startDate);
+    }
+    if($scope.startDate != undefined && $scope.endDate != undefined){
+      dateDesc = formatDate($scope.startDate) + " - " + formatDate($scope.endDate);
+    }
+    if($scope.startDate === undefined && $scope.endDate === undefined){
+      dateDesc = $scope.dateRange[0] + " - " + $scope.dateRange[1];
+    }
+    if($scope.startTime != undefined){
+      timeDesc = "Time Range: " + formatTime($scope.startTime);
+    }
+    if($scope.startTime != undefined && $scope.endTime != undefined){
+      timeDesc = "Time Range: " + formatTime($scope.startTime) + " - " + formatTime($scope.endTime);
+    }
+
+    if($scope.template == 1){
+
+      $scope.vizDesc = "Participants: " + participantsDesc + "\n"
+       + "Date Range: " + $scope.dateRange[0] + " - " + $scope.dateRange[1];
+    } else if($scope.template === 2){
+      $scope.vizDesc = "Participants: " + participantsDesc + "\n" + "Date Range: " + dateDesc + "\n" + timeDesc;
+    }
   }
 
   function formatDate(dateValue) {
@@ -422,9 +471,9 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
               d3.event.stopPropagation();
             })
             .style('width', '98%')
-            .style('height', 580)
+            .style('height', 530)
             .style('margin-left', 20)
-            .style('margin-top', 50)
+            .style('margin-top', 15)
             .style('background-color', 'white')
             .style('vertical-align', 'middle')
             .style('display', 'inline-block')
@@ -615,8 +664,8 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
 
       var svg = d3.select('.vizContainer')
           .append('svg')
-          .style('width', '98%')
-          .style('height', 580)
+          .style('width', '60%')
+          .style('height', 600)
           .style('margin-left', 20)
           .style('margin-top', 20)
           .style('background-color', 'white')
@@ -745,11 +794,13 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
     if ($scope.selectedType === "Bar Chart") {
       processBarChartData($scope.responseData);
     }
+    displayDescription();
   };
 
   if (angular.isDefined($routeParams.experimentId)) {
     $scope.experimentId = parseInt($routeParams.experimentId, 10);
     $scope.getExperiment();
+    $scope.dataSnapshot();
   }
 
   function displayErrorMessage(data, error) {
