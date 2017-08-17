@@ -41,6 +41,14 @@
     </div>
 
     <div class="row">
+      <md-checkbox ng-model="group.logNotificationEvents" aria-label="Log notification realted events">
+        Log notification-related events
+      </md-checkbox>
+
+      <no-ios ng-if="group.logNotificationEvents" message="'iOS does not support notifcation event logging'">iOS does not support notification event logging</no-ios>
+    </div>
+
+    <div class="row">
       <md-checkbox ng-model="group.logActions" aria-label="Log app usage">
         Log app usage
       </md-checkbox>

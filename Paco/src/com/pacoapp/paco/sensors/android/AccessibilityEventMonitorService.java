@@ -10,6 +10,7 @@ import com.google.common.collect.Lists;
 import com.pacoapp.paco.model.Experiment;
 import com.pacoapp.paco.model.ExperimentProviderUtil;
 import com.pacoapp.paco.shared.model2.ExperimentDAO;
+import com.pacoapp.paco.shared.model2.ExperimentGroup;
 import com.pacoapp.paco.shared.model2.InterruptCue;
 import com.pacoapp.paco.shared.model2.InterruptTrigger;
 import com.pacoapp.paco.shared.util.ExperimentHelper;
@@ -61,7 +62,9 @@ public class AccessibilityEventMonitorService extends AccessibilityService {
       }
     }
     List<InterruptTrigger> interestingTriggers;
-    if (!ExperimentHelper.doesAnyExperimentCareAboutAccessibilityEvents(experimentDAOs)) {
+    final boolean doesAnyExperimentCareAboutAccessibilityEvents = ExperimentHelper.doesAnyExperimentCareAboutAccessibilityEvents(experimentDAOs);
+    List<ExperimentGroup> experimentGroupsLoggingNotificationEvents = ExperimentHelper.getExperimentsLoggingNotificationEvents(experimentDAOs);
+    if (!doesAnyExperimentCareAboutAccessibilityEvents && experimentGroupsLoggingNotificationEvents.isEmpty()) {
       //Log.debug("No experiments running that care about accessibility events");
       return;
     } else {
@@ -69,6 +72,7 @@ public class AccessibilityEventMonitorService extends AccessibilityService {
       interestingTriggers = ExperimentHelper.getAccessibilityTriggersForAllExperiments(experimentDAOs);
     }
     CharSequence packageName = accessibilityEvent.getPackageName();
+    Integer eventCode = null;
     if (RuntimePermissionsAccessibilityEventHandler.isPackageInstallerEvent(packageName)) {
       //Log.debug("runtime permissions checking accessibility events");
       runtimePermissionsEventHandler.handleRuntimePermissionEvents(accessibilityEvent);
@@ -77,9 +81,8 @@ public class AccessibilityEventMonitorService extends AccessibilityService {
       Log.debug("Accessibility View Click Event is interesting for non-runtime permissions triggers: ");
       inspectEvent(accessibilityEvent);
       triggerBroadcastService(accessibilityEvent, InterruptCue.ACCESSIBILITY_EVENT_VIEW_CLICKED);
-    } else if (isNotificationEventOfInterest(accessibilityEvent, interestingTriggers)) {
-      Integer eventCode = notificationHandler.handleAccessibilityEvent(accessibilityEvent);
-      if (eventCode != null) {
+    } else if ((eventCode = notificationHandler.handleAccessibilityEvent(accessibilityEvent)) != null) {
+      if (eventCode != null /*isMatchingInterruptEventCode(eventCode, interestingTriggers)*/) {
         triggerBroadcastService(accessibilityEvent, eventCode);
       }
     } else {
@@ -90,6 +93,18 @@ public class AccessibilityEventMonitorService extends AccessibilityService {
 //        Log.info("scd: " + contentDescription);
 //      }
     }
+  }
+
+  private boolean isMatchingInterruptEventCode(Integer eventCode, List<InterruptTrigger> interestingTriggers) {
+    for (InterruptTrigger interruptTrigger : interestingTriggers) {
+      List<InterruptCue> cues = interruptTrigger.getCues();
+      for (InterruptCue interruptCue : cues) {
+        if (interruptCue.getCueCode().equals(eventCode)) {
+          return true;
+        }
+      }
+    }
+    return false;
   }
 
   private void triggerBroadcastService(AccessibilityEvent accessibilityEvent, int eventCueCode) {
@@ -107,7 +122,7 @@ public class AccessibilityEventMonitorService extends AccessibilityService {
     if (accessibilityEvent.getContentDescription() != null) {
       accessibilityPayload.putCharSequence(ACCESSIBILITY_EVENT_CONTENT_DESCRIPTION, accessibilityEvent.getContentDescription());
     }
-    accessibilityPayload.putInt(ACCESSIBILITY_EVENT_TYPE, accessibilityEvent.getEventType());
+    accessibilityPayload.putString(ACCESSIBILITY_EVENT_TYPE, AccessibilityEvent.eventTypeToString(accessibilityEvent.getEventType()));
     accessibilityPayload.putCharSequence(ACCESSIBILITY_EVENT_PACKAGE, accessibilityEvent.getPackageName());
     accessibilityPayload.putCharSequence(ACCESSIBILITY_EVENT_CLASS, accessibilityEvent.getClassName());
 
@@ -197,7 +212,7 @@ public class AccessibilityEventMonitorService extends AccessibilityService {
             matches = false;
           }
         }
-        if (eventType != InterruptCue.VIEW_CLICKED) {
+        if (!isEventTypeMatch(eventType, interruptCue.getCueCode())) {
           matches = false;
         }
         if (matches) {
@@ -207,6 +222,21 @@ public class AccessibilityEventMonitorService extends AccessibilityService {
 
     }
     return false;
+  }
+
+  private boolean isEventTypeMatch(int eventType, Integer cueCode) {
+    return true;
+//    Too many accessibility events involved
+//    switch (eventType) {
+//    case AccessibilityEvent.TYPE_NOTIFICATION_STATE_CHANGED:
+//      return true;
+//    case AccessibilityEvent.TYPE_ANNOUNCEMENT:
+//      return cueCode == InterruptCue.NOTIFICATION_TRAY_OPENED
+//      || cueCode == InterruptCue.NOTIFICATION_TRAY_CANCELLED;
+//    default:
+//      break;
+//    }
+//    return false;
   }
 
   private boolean isNotificationCue(InterruptCue interruptCue) {
