@@ -34,22 +34,6 @@ pacoApp.controller('HomeCtrl', ['$scope', '$http', '$location', 'experimentServi
       $scope.scrolling(true);
     });
 
-    // $http.get('/userinfo').success(function(data) {
-    //
-    //     $scope.loaded = true;
-    //
-    //     // Make sure email isn't the dev email address
-    //     if (data.user && data.user !== 'bobevans999@gmail.com') {
-    //       $scope.user = data.user;
-    //     } else {
-    //       $scope.loginURL = data.login;
-    //     }
-    //     $scope.logoutURL = data.logout;
-    //
-    //   }).error(function(data) {
-    //     console.log(data);
-    //   });
-
     //updated http get call to suit the new angular version 1.6.5
     $http.get('/userinfo').then(function onSuccess(response) {
       $scope.loaded = true;
@@ -65,7 +49,7 @@ pacoApp.controller('HomeCtrl', ['$scope', '$http', '$location', 'experimentServi
     }, function onError(response) {
       console.log(response.data);
     });
-  } ]);
+  }]);
 
 pacoApp.controller('ExperimentCtrl', [
   '$scope',
