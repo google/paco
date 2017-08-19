@@ -1,22 +1,8 @@
-pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsVizService', '$timeout', '$routeParams', '$filter', function ($scope, $element, $compile, experimentsVizService, $timeout, $routeParams, $filter) {
+pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsVizService', '$timeout', '$routeParams', '$filter', '$mdDialog', '$http', '$route','$location',function ($scope, $element, $compile, experimentsVizService, $timeout, $routeParams, $filter, $mdDialog, $http, $route, $location) {
 
-  $scope.responseMetadata = [];
-  $scope.group = "";
-  $scope.input = "";
-  $scope.selectedInputs = [];
-  $scope.inputs = [];
-  $scope.inputNames = [];
-  $scope.selectedType = "";
-  $scope.vizChartTypes = [];
-  $scope.responseData = [];
-  $scope.question = "";
+
   $scope.selectedQues = "";
-  $scope.participants = [];
-  $scope.selectedParticipants = [];
   $scope.vizTemplate = false;
-  $scope.vizTitle = "";
-  $scope.groupInputs = [];
-  $scope.selectedGroup = "";
   $scope.groupInputsMap = new Map();
   $scope.dateRangeControl = false;
   $scope.responseCounts = 0;
@@ -29,6 +15,7 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
   var questionsMap = new Map();
   var getEvents = "";
   var inputsList = [];
+  var savedVisualizations = [];
 
 
   $scope.questions = [{
@@ -92,6 +79,7 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
             displayErrorMessage("Experiments ", experiment);
           }
           else {
+            $scope.vizs = experiment.results[0].visualizations;
             $scope.experimentDataModel = {
               id: experiment.results[0].id,
               title: experiment.results[0].title,
@@ -165,13 +153,16 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
     }
   };
 
+
   $scope.getInputs = function () {
     $scope.participants = [];
     $scope.inputNames = [];
+    $scope.groupNInput = [];
     $scope.groupsSet = new Set();
     inputs = $scope.selectedInputs;
     inputsList = [];
     inputs.forEach(function (input) {
+      $scope.groupNInput.push(input.group + ":" + input.inputs);
       $scope.inputNames.push(input.inputs);
       $scope.groupsSet.add(input.group);
     });
@@ -321,23 +312,6 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
       }
     }
     return display_text;
-  }
-
-  var convertToClassName = function (selectedValue) {
-    var inputText = selectedValue;
-    var split_selectedValue = inputText.split(" ");
-    var join_selectedValue = split_selectedValue.join(".");
-    return join_selectedValue;
-  };
-
-  function vizHeader(inputName) {
-
-    $timeout(function () {
-      var vizClassName = convertToClassName(inputName);
-      var vizClass = angular.element(document.querySelector('.' + vizClassName));
-      vizClass.prepend("<h3 class='vizHeader'>" + $scope.question + "</h3>");
-      vizClass.prepend($compile("<md-button  delete-viz class='md-warn' data=" + '.' + vizClassName + ">" + "x" + "</md-button>")($scope));
-    });
   }
 
   function processBoxData(res) {
@@ -795,12 +769,67 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
     displayDescription();
   };
 
+
+  $scope.saveViz = function () {
+
+    var saveVizs = [];
+    var vizData = {};
+    vizData.vizId = new Date().getUTCHours() + new Date().getUTCMinutes() + new Date().getUTCSeconds() + new Date().getUTCMilliseconds();
+    vizData.expId = $scope.experimentId;
+    vizData.vizTitle = $scope.vizTitle;
+    vizData.dateCreated = $filter('date')(new Date(), 'EEE, dd MMM yyyy HH:mm:ss Z');
+    vizData.vizQues = $scope.selectedQues;
+    vizData.inputs = $scope.groupNInput;
+    vizData.participants = $scope.selectedParticipants;
+    vizData.vizType = $scope.selectedType;
+    vizData.vizDesc = $scope.vizDesc;
+
+    saveVizs.push({
+      "vizId": vizData.vizId,
+      "experimentId": vizData.expId,
+      "vizTitle": vizData.vizTitle,
+      "vizDateCreated": vizData.dateCreated,
+      "question": vizData.vizQues,
+      "texts": vizData.inputs,
+      "participants": vizData.participants,
+      "vizType": vizData.vizType,
+      "vizDesc": vizData.vizDesc
+    });
+
+    experimentsVizService.getExperiment($scope.experimentId).then(function successCallback(experimentData) {
+      saveVizs.forEach(function (viz) {
+        experimentData.results[0].visualizations.push(viz);
+      });
+
+      experimentsVizService.saveVisualizations(experimentData.results[0]).then(function (res) {
+        if (res.data[0].status === true) {
+          $mdDialog.show($mdDialog.alert().title('Save Status').content('Saved Viz!').ariaLabel('Success').ok('OK'));
+
+        } else {
+          $mdDialog.show($mdDialog.alert().title('Save Status').content('Could not save viz due to ' + res.data[0].errorMessage).ariaLabel('Success').ok('OK'));
+        }
+      });
+
+    });
+
+    $scope.vizTemplate = false;
+    $scope.vizTitle = "";
+    $scope.selectedQues = undefined;
+    $scope.groupNInput = [];
+    $scope.inputNames = [];
+    $scope.selectedInputs = undefined;
+    $scope.groupSet = new Set();
+    $scope.selectedParticipants = [];
+    $scope.selectedType = undefined;
+    $scope.vizDesc = "";
+
+  };
+
   if (angular.isDefined($routeParams.experimentId)) {
     $scope.experimentId = parseInt($routeParams.experimentId, 10);
     $scope.getExperiment();
     $scope.dataSnapshot();
   }
-
   function displayErrorMessage(data, error) {
     $scope.vizTemplate = false;
     var message = "";

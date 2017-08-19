@@ -8,6 +8,7 @@
   "informedConsentForm": "No data sharing without explicit permission!",
   "recordPhoneDetails": false,
   "extraDataCollectionDeclarations": [],
+  "visualizations":[],
   "deleted": false,
   "modifyDate": "2015/02/27",
   "published": false,

@@ -13,8 +13,8 @@
   </div>
   <div>
 
-  <div class="variable-width">
-    <div class="snapshotContainer">
+    <div class="variable-width">
+      <div class="snapshotContainer">
         <div class="snapShots">
           <b>{{participantsCount}}</b>
           <div>Participants</div>
@@ -35,54 +35,79 @@
           <b>{{responseCounts[2]}}</b>
           <div>Self Responses</div>
         </div>
-    </div>
-    <md-toolbar>
-      <div class="md-toolbar-tools">
-        <div layout="row vizPickerRow">
-          <span class="asterisk">*</span>
-          <md-input-container class="quesDropDown">
-            <label class="quesLabel">Questions</label>
-            <md-select class="quesSelect" ng-model="selectedQues" ng-change="getTemplate()">
-              <md-optgroup label="Questions">
-                <md-option ng-repeat="ques in questions" ng-value="ques.question">{{ques.question}}</md-option>
-              </md-optgroup>
-            </md-select>
-          </md-input-container>
-          <div layout="row" class="vizPickerSelections">
+      </div>
+      <md-toolbar>
+        <div class="md-toolbar-tools">
+          <div layout="row vizPickerRow">
             <span class="asterisk">*</span>
-            <inputs-drop-down></inputs-drop-down>
+            <md-input-container class="quesDropDown">
+              <label class="quesLabel">Questions</label>
+              <md-select class="quesSelect" ng-model="selectedQues" ng-change="getTemplate()">
+                <md-optgroup label="Questions">
+                  <md-option ng-repeat="ques in questions" ng-value="ques.question">{{ques.question}}</md-option>
+                </md-optgroup>
+              </md-select>
+            </md-input-container>
+            <div layout="row" class="vizPickerSelections">
+              <span class="asterisk">*</span>
+              <inputs-drop-down></inputs-drop-down>
+            </div>
+            <participants-drop-down class="vizPickerSelections"></participants-drop-down>
+            <date-range ng-show="dateRangeControl" class="vizPickerSelections"></date-range>
+            <types-drop-down class="vizPickerSelections"></types-drop-down>
+            <create-button class="vizPickerSelections"></create-button>
           </div>
-          <participants-drop-down class="vizPickerSelections"></participants-drop-down>
-          <date-range ng-show="dateRangeControl" class="vizPickerSelections"></date-range>
-          <types-drop-down class="vizPickerSelections"></types-drop-down>
-          <create-button class="vizPickerSelections"></create-button>
+        </div>
+      </md-toolbar>
+    </div>
+
+    <div ng-show="vizTemplate" class="vizTemplate">
+      <div class="vizCaption">
+        <md-input-container class="md-block">
+          <input class="vizTitle" ng-model="vizTitle">
+        </md-input-container>
+      </div>
+      <div class="vizContainer"></div>
+      <div class="vizDescription">
+        <div class="vizDescBlock" layout-gt-sm="row">
+          <md-input-container class="md-block" style="width:78%">
+            <label class="vizDescLabel">Description</label>
+            <textarea style="font-size:13px; font-style: italic" ng-model="vizDesc" md-maxlength="150" rows="3"
+                      md-select-on-focus></textarea>
+          </md-input-container>
+          <div class="saveDownload">
+            <md-button class="md-primary" ng-click="saveViz()">Save</md-button>
+            <md-button class="md-primary">Download</md-button>
+          </div>
         </div>
       </div>
-    </md-toolbar>
-  </div>
-
-  <div ng-show="vizTemplate" class="vizTemplate">
-    <div class="vizCaption">
-      <md-input-container class="md-block">
-        <input class="vizTitle" ng-model="vizTitle">
-      </md-input-container>
     </div>
-    <div class="vizContainer"></div>
-    <div class="vizDescription">
-      <div class="vizDescBlock" layout-gt-sm="row">
-        <md-input-container class="md-block" style="width:78%">
-          <label class="vizDescLabel">Description</label>
-          <textarea style="font-size:13px; font-style: italic" ng-model="vizDesc" md-maxlength="150" rows="3" md-select-on-focus></textarea>
-        </md-input-container>
-        <md-button class="md-primary">Save</md-button>
-        <md-button class="md-primary">Download</md-button>
-      </div>
+
+    <div class="vizTableContainer">
+      <table class="vizTable">
+        <tr class="viz">
+          <th class="viz">Title</th>
+          <th class="viz">Type</th>
+          <th class="viz">Date</th>
+          <th class="viz"></th>
+        </tr>
+        <tr class="viz" ng-repeat="viz in vizs track by $index">
+          <td class="viz">
+            <a><span class="md-primary">{{viz.vizTitle}}</span></a>
+          </td>
+          <td class="viz">{{viz.vizType}}</td>
+          <td class="viz">{{viz.vizDateCreated|date:'yyyy-MM-dd'}}</td>
+          <td class="viz">
+            <md-button>Download</md-button>
+            <md-button>Delete</md-button>
+          </td>
+        </tr>
+      </table>
+    </div>
+
+    <div ng-if="error" class="error viz">
+      Error - {{error.code}}: {{error.data}} {{error.message}}
     </div>
   </div>
-
-  <div ng-if="error" class="error viz">
-    Error - {{error.code}}: {{error.data}} {{error.message}}
-  </div>
-</div>
 </div>
 

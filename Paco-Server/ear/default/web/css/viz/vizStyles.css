@@ -69,14 +69,14 @@
   margin-left: 10px;
 }
 
-.sidePanel {
-  height: 650px;
-  width: 23%;
-  margin-top: 20px;
-  margin-bottom: 20px;
-  background-color: white;
-  float: left;
-}
+/*.sidePanel {*/
+  /*height: 650px;*/
+  /*width: 23%;*/
+  /*margin-top: 20px;*/
+  /*margin-bottom: 20px;*/
+  /*background-color: white;*/
+  /*float: left;*/
+/*}*/
 
 .vizContainer {
   background-color: white;
@@ -100,8 +100,6 @@
   width:98%;
   text-align: center;
 }
-
-
 
 .md-toolbar-tools.filterLabel {
   background-color: #d8d8d8;
@@ -332,8 +330,8 @@ md-input-container.typesDropDown:not([md-no-float]) .md-select-placeholder span:
 }
 
 .vizCaption{
-  background-color: white;
   width:95%;
+  background-color: white;
   height:70px;
 }
 .vizDescBlock{
@@ -352,5 +350,35 @@ md-input-container.typesDropDown:not([md-no-float]) .md-select-placeholder span:
   color:black;
 }
 
+.saveDownload{
+  margin-top: 80px;
+}
+
+table.vizTable, td.viz, th.viz {
+  border: 1px solid #ddd;
+  text-align: left;
+}
+
+table.vizTable {
+  border-collapse: collapse;
+  width: 100%;
+  background-color: whitesmoke;
+}
+th.viz{
+  background-color: #d8d8d8;
+}
+
+th.viz, td.viz {
+  padding: 10px;
+}
+.vizTableContainer{
+  padding:30px;
+  height: 100%;
+}
+
+a:hover {
+  color: #0D47A1;
+  cursor: pointer;
+}
 
 

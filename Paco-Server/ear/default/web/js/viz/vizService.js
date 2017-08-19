@@ -6,6 +6,7 @@ pacoApp.factory('experimentsVizService', ['$http', 'experimentService', '$filter
   function getExperiment(id) {
 
     var getExperiment = experimentService.getExperiment(id).then(function successCallback(experimentData) {
+      console.log(experimentData);
       return experimentData.data;
     }, function errorCallback(error) {
       return error;
@@ -160,7 +161,17 @@ pacoApp.factory('experimentsVizService', ['$http', 'experimentService', '$filter
       return error;
     });
     return response;
+  }
 
+  function saveVisualizations(experiment) {
+
+    var saveVizs = $http.post('/experiments?id=' + experiment.id, JSON.stringify(experiment))
+        .then(function successCallback(response) {
+          return response;
+        }, function errorCallback(error) {
+          console.log(error);
+        });
+    return saveVizs;
   }
 
   return {
@@ -169,6 +180,7 @@ pacoApp.factory('experimentsVizService', ['$http', 'experimentService', '$filter
     getResponses: getResponses,
     getParticipants: getParticipants,
     getEventsCounts: getEventsCounts,
-    getDateRange: getDateRange
+    getDateRange: getDateRange,
+    saveVisualizations: saveVisualizations
   }
 }]);
