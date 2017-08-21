@@ -8,12 +8,15 @@ public class Visualizations {
   private int vizId;
   private Long experimentId;
   private String vizTitle;
-  private Date vizDateCreated;
+  private Date modifyDate;
   private String question;
   private List<String> texts;
   private List<String> participants;
   private String vizType;
   private String vizDesc;
+  private Date startDateTime;
+  private Date endDateTime;
+
 
   public int getVizId() {
     return vizId;
@@ -22,7 +25,7 @@ public class Visualizations {
   public void setVizId(int vizId) {
     this.vizId = vizId;
   }
-
+  
   public Long getExperimentId() {
     return experimentId;
   }
@@ -38,13 +41,13 @@ public class Visualizations {
   public void setVizTitle(String vizTitle) {
     this.vizTitle = vizTitle;
   }
-
-  public Date getVizDateCreated() {
-    return vizDateCreated;
+  
+  public Date getModifyDate() {
+    return modifyDate;
   }
 
-  public void setVizDateCreated(Date vizDateCreated) {
-    this.vizDateCreated = vizDateCreated;
+  public void setModifyDate(Date modifyDate) {
+    this.modifyDate = modifyDate;
   }
 
   public String getQuestion() {
@@ -87,4 +90,20 @@ public class Visualizations {
     this.vizDesc = vizDesc;
   }
 
+  public Date getStartDateTime() {
+    return startDateTime;
+  }
+
+  public void setStartDateTime(Date startDateTime) {
+    this.startDateTime = startDateTime;
+  }
+
+  public Date getEndDateTime() {
+    return endDateTime;
+  }
+
+  public void setEndDateTime(Date endDateTime) {
+    this.endDateTime = endDateTime;
+  }
+  
 }

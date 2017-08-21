@@ -381,4 +381,9 @@ a:hover {
   cursor: pointer;
 }
 
+span.md-primary.clearTable{
+  float:right;
+  padding:5px;
+}
+
 

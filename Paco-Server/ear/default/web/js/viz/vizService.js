@@ -65,8 +65,9 @@ pacoApp.factory('experimentsVizService', ['$http', 'experimentService', '$filter
     return eventsCount;
   }
 
-  function getEvents(experimentId, group, participants, startDate, startTime, endDate, endTime) {
+  function getEvents(experimentId, group, participants, startDateTime, endDateTime) {
 
+    console.log(experimentId + " " + group + " " +participants+ " " +startDateTime+" "+ endDateTime);
     var message = "";
     if (experimentId != undefined && group != undefined) {
       message = '{ "query" : { "criteria" : "experiment_id = ? and group_name = ?", "values" : [' + experimentId + ', "' + group + '"]},"limit":"50"}';
@@ -80,30 +81,10 @@ pacoApp.factory('experimentsVizService', ['$http', 'experimentService', '$filter
       }
       message = '{ "query" : { "criteria" : "experiment_id = ? and group_name = ? and who in (' + questionMarks + ')", "values" : [' + experimentId + ', "' + group + '" , ' + participantsList + ']},"limit":"50"}';
     }
-    if (experimentId != undefined && group != undefined && startDate != undefined) {
-      var start_date = startDate + " " + "00:00:00";
-      var end_date = startDate + " " + "23:59:59";
-      message = '{"query": {"criteria":" experiment_id=?  and response_time>? and response_time<? and group_name=? ) ","values" : [' + experimentId + ', "' + start_date + '", "' + end_date + '","' + group + '"]}}';
+    if (experimentId != undefined && group != undefined && startDateTime != undefined && endDateTime != undefined) {
+      message = '{"query": {"criteria":" experiment_id=?  and response_time>? and response_time<? and group_name=? ) ","values" : [' + experimentId + ', "' + startDateTime + '", "' + endDateTime + '","' + group + '"]}}';
     }
-
-    if (experimentId != undefined && group != undefined && startDate != undefined && endDate != undefined) {
-      var start_date = startDate + " " + "00:00:00";
-      var end_date = endDate + " " + "23:59:59";
-      message = '{"query": {"criteria":" experiment_id=?  and response_time>? and response_time<? and group_name=? ) ","values" : [' + experimentId + ', "' + start_date + '", "' + end_date + '","' + group + '"]}}';
-    }
-
-    if (experimentId != undefined && group != undefined && startDate != undefined && startTime != undefined && endTime != undefined) {
-      var start_dateTime = startDate + " " + startTime + ":00";
-      var end_dateTime = startDate + " " + endTime + ":00";
-      message = '{"query": {"criteria":" experiment_id=?  and response_time>? and response_time<? and group_name=? ) ","values" : [' + experimentId + ', "' + start_dateTime + '", "' + end_dateTime + '", "' + group + '"]}}';
-    }
-
-    if (experimentId != undefined && group != undefined && startDate != undefined && startTime != undefined && endDate != undefined && endTime != undefined) {
-      var start_dateTime = startDate + " " + startTime + ":00";
-      var end_dateTime = endDate + " " + endTime + ":00";
-      message = '{"query": {"criteria":" experiment_id=?  and response_time>? and response_time<? and group_name=? ) ","values" : [' + experimentId + ', "' + start_dateTime + '", "' + end_dateTime + '","' + group + '"]}}';
-    }
-
+    console.log(message);
     var events = httpPostBody(message);
     return events;
   }

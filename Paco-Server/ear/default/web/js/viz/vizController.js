@@ -1,13 +1,17 @@
-pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsVizService', '$timeout', '$routeParams', '$filter', '$mdDialog', '$http', '$route','$location',function ($scope, $element, $compile, experimentsVizService, $timeout, $routeParams, $filter, $mdDialog, $http, $route, $location) {
+pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsVizService', '$timeout', '$routeParams', '$filter', '$mdDialog', '$mdToast', function ($scope, $element, $compile, experimentsVizService, $timeout, $routeParams, $filter, $mdDialog, $mdToast) {
 
 
   $scope.selectedQues = "";
   $scope.vizTemplate = false;
-  $scope.groupInputsMap = new Map();
+  // $scope.groupInputsMap = new Map();
   $scope.dateRangeControl = false;
   $scope.responseCounts = 0;
   $scope.participantsCount = 0;
   $scope.vizDesc = "";
+  $scope.vizs = [];
+  $scope.vizTable = false;
+  $scope.vizTitle = undefined;
+  $scope.vizDesc = undefined;
 
   var responseTypeMap = new Map();
   var responseMetaData = [];
@@ -15,8 +19,8 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
   var questionsMap = new Map();
   var getEvents = "";
   var inputsList = [];
-  var savedVisualizations = [];
-
+  var vizIndex = 0;
+  var editViz = false;
 
   $scope.questions = [{
     qno: 1,
@@ -68,6 +72,7 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
     });
 
     $scope.dateRange = experimentsVizService.getDateRange($scope.experimentId);
+
   };
 
   //experiment json objects are retrieved from the 'experimentsVizService'
@@ -80,29 +85,40 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
           }
           else {
             $scope.vizs = experiment.results[0].visualizations;
+            if (experiment.results[0].visualizations.length >= 1) {
+              $scope.vizTable = true;
+            }
             $scope.experimentDataModel = {
               id: experiment.results[0].id,
               title: experiment.results[0].title,
               creator: experiment.results[0].creator,
               date: experiment.results[0].modifyDate
             };
-            getGroups(experiment.results[0]);
+            responseTypeData(experiment.results[0]);
           }
         });
   };
 
-  function getGroups(experiment) {
+  function getGroups() {
     $scope.groupInputs = [];
+    $scope.groups = [];
+
+    experimentsVizService.getExperiment($scope.experimentId).then(
+        function (experiment) {
+          experiment.results[0].groups.forEach(function (groups) {
+            $scope.groups.push(groups.name);
+            groups.inputs.forEach(function (input) {
+              $scope.groupInputs.push({"group": groups.name, "inputs": input.name});
+            });
+          });
+        });
+  }
+
+  function responseTypeData(experiment) {
     responseMetaData = [];
     responseTypeMap = new Map();
-    $scope.inputs = [];
-    $scope.groups = [];
     experiment.groups.forEach(function (groups) {
-      $scope.groupInputsMap.set(groups.name, groups.inputs);
-      $scope.groups.push(groups.name);
       groups.inputs.forEach(function (input) {
-        $scope.groupInputs.push({"group": groups.name, "inputs": input.name});
-        $scope.inputs.push(groups.name + ": " + input.name);
         if (input.responseType == "likert") {
           responseMetaData.push({
             "name": input.name,
@@ -141,61 +157,86 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
       var vizContainer = angular.element(document.querySelector('.vizContainer'));
       if ($scope.template === 1) {
         $scope.dateRangeControl = false;
-        $scope.vizTypes = ["Box Plot", "Bar Chart", "Bar Chart with Density plot"];
+        $scope.selectedInputs = undefined;
+        $scope.selectedType = undefined;
+        $scope.selectedParticipants = [];
       } else if ($scope.template == 2) {
         $scope.dateRangeControl = true;
         $scope.selectedInputs = undefined;
         $scope.selectedType = undefined;
         $scope.selectedParticipants = [];
-        $scope.vizTypes = ["Box Plot", "Bar Chart", "Bar Chart with Density plot"];
-
+        // $scope.startTime = new Date("Mon, 24 Jul 2017 18:00:00 -0700");
       }
     }
+    getGroups();
+    populateVizType();
   };
 
+  function populateVizType() {
+    if (questionsMap.has($scope.selectedQues)) {
+      $scope.template = questionsMap.get($scope.selectedQues);
+      if ($scope.template === 1 || $scope.template === 2) {
+        $scope.vizTypes = ["Box Plot", "Bar Chart", "Bar Chart with Density plot"];
+      }
+    }
+  }
 
-  $scope.getInputs = function () {
+  function populateParticipants() {
     $scope.participants = [];
-    $scope.inputNames = [];
-    $scope.groupNInput = [];
-    $scope.groupsSet = new Set();
-    inputs = $scope.selectedInputs;
-    inputsList = [];
-    inputs.forEach(function (input) {
-      $scope.groupNInput.push(input.group + ":" + input.inputs);
-      $scope.inputNames.push(input.inputs);
-      $scope.groupsSet.add(input.group);
-    });
-
     experimentsVizService.getParticipants($scope.experimentId).then(function (participants) {
       participants.data.customResponse.forEach(function (participant) {
         $scope.participants.push(participant.who);
       });
     });
-    $scope.selectedParticipants = $scope.participants;
+  }
+
+  // $scope.selectedInputs = [];
+  // $scope.selectedInputs.push({'group':'New Group','inputs':'Winter in NY'});
+
+  $scope.getInputs = function () {
+    $scope.inputNames = [];
+    $scope.groupNInput = [];
+    $scope.groupsSet = new Set();
+    inputs = $scope.selectedInputs;
+    inputsList = [];
+    if (inputs != undefined) {
+      inputs.forEach(function (input) {
+        $scope.groupNInput.push(input.group + ":" + input.inputs);
+        $scope.inputNames.push(input.inputs);
+        $scope.groupsSet.add(input.group);
+      });
+
+      populateParticipants();
+      $scope.selectedParticipants = $scope.participants;
+    }
   };
 
   function getEventsResponses() {
 
-    var startDate, endDate, startTime, endTime = "";
+    $scope.startDateTime = undefined;
+    $scope.endDateTime = undefined;
 
     if ($scope.startDate != undefined) {
-      startDate = formatDate($scope.startDate);
+      $scope.startDateTime = formatDate($scope.startDate) + " " + "00:00:00";
+      $scope.endDateTime = formatDate($scope.startDate) + " " + "23:59:59";
     }
-    if ($scope.endDate != undefined) {
-      endDate = formatDate($scope.endDate);
+    if ($scope.startDate != undefined && $scope.endDate != undefined) {
+      $scope.startDateTime = formatDate($scope.startDate) + " " + "00:00:00";
+      $scope.endDateTime = formatDate($scope.endDate) + " " + "23:59:59";
     }
-    if ($scope.startTime != undefined) {
-      startTime = formatTime($scope.startTime);
+    if ($scope.startDate != undefined && $scope.startTime != undefined && $scope.endTime != undefined) {
+      $scope.startDateTime = formatDate($scope.startDate) + " " + formatTime($scope.startTime);
+      $scope.endDateTime = formatDate($scope.startDate) + " " + formatTime($scope.endTime);
     }
-    if ($scope.endTime != undefined) {
-      endTime = formatTime($scope.endTime);
+    if ($scope.startDate != undefined && $scope.endDate != undefined && $scope.startTime != undefined && $scope.endTime != undefined) {
+      $scope.startDateTime = formatDate($scope.startDate) + " " + formatTime($scope.startTime);
+      $scope.endDateTime = formatDate($scope.endDate) + " " + formatTime($scope.endTime);
     }
 
     var responses = [];
     $scope.groupsSet.forEach(function (group) {
 
-      getEvents = experimentsVizService.getEvents($scope.experimentId, group, $scope.selectedParticipants, startDate, startTime, endDate, endTime).then(function (events) {
+      getEvents = experimentsVizService.getEvents($scope.experimentId, group, $scope.selectedParticipants, $scope.startDateTime, $scope.endDateTime).then(function (events) {
         if (events.status === 404) {
           displayErrorMessage('Events', events);
         }
@@ -222,6 +263,16 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
         }
       });
     });
+  }
+
+  function displayViz() {
+    if ($scope.selectedType === "Box Plot") {
+      processBoxData($scope.responseData);
+    }
+    if ($scope.selectedType === "Bar Chart") {
+      processBarChartData($scope.responseData);
+    }
+    displayDescription();
   }
 
   function displayDescription() {
@@ -759,70 +810,198 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
   $scope.createViz = function () {
     $scope.vizTemplate = true;
     getEventsResponses();
-    if ($scope.selectedType === "Box Plot") {
-      processBoxData($scope.responseData);
-
-    }
-    if ($scope.selectedType === "Bar Chart") {
-      processBarChartData($scope.responseData);
-    }
-    displayDescription();
+    displayViz();
   };
-
 
   $scope.saveViz = function () {
 
-    var saveVizs = [];
-    var vizData = {};
-    vizData.vizId = new Date().getUTCHours() + new Date().getUTCMinutes() + new Date().getUTCSeconds() + new Date().getUTCMilliseconds();
-    vizData.expId = $scope.experimentId;
-    vizData.vizTitle = $scope.vizTitle;
-    vizData.dateCreated = $filter('date')(new Date(), 'EEE, dd MMM yyyy HH:mm:ss Z');
-    vizData.vizQues = $scope.selectedQues;
-    vizData.inputs = $scope.groupNInput;
-    vizData.participants = $scope.selectedParticipants;
-    vizData.vizType = $scope.selectedType;
-    vizData.vizDesc = $scope.vizDesc;
-
-    saveVizs.push({
-      "vizId": vizData.vizId,
-      "experimentId": vizData.expId,
-      "vizTitle": vizData.vizTitle,
-      "vizDateCreated": vizData.dateCreated,
-      "question": vizData.vizQues,
-      "texts": vizData.inputs,
-      "participants": vizData.participants,
-      "vizType": vizData.vizType,
-      "vizDesc": vizData.vizDesc
-    });
-
-    experimentsVizService.getExperiment($scope.experimentId).then(function successCallback(experimentData) {
-      saveVizs.forEach(function (viz) {
-        experimentData.results[0].visualizations.push(viz);
+    if (editViz) {
+      experimentsVizService.getExperiment($scope.experimentId).then(function successCallback(experimentData) {
+        experimentData.results[0].visualizations[vizIndex].experimentId = $scope.experimentId;
+        experimentData.results[0].visualizations[vizIndex].modifyDate = $filter('date')(new Date(), 'EEE, dd MMM yyyy HH:mm:ss Z');
+        experimentData.results[0].visualizations[vizIndex].participants = $scope.selectedParticipants;
+        experimentData.results[0].visualizations[vizIndex].question = $scope.selectedQues;
+        experimentData.results[0].visualizations[vizIndex].texts = $scope.groupNInput;
+        experimentData.results[0].visualizations[vizIndex].vizTitle = $scope.vizTitle;
+        experimentData.results[0].visualizations[vizIndex].vizType = $scope.selectedType;
+        experimentData.results[0].visualizations[vizIndex].vizDesc = $scope.vizDesc;
+        experimentData.results[0].visualizations[vizIndex].startDateTime = $filter('date')(new Date($scope.startDateTime), 'EEE, dd MMM yyyy HH:mm:ss Z');
+        experimentData.results[0].visualizations[vizIndex].endDateTime = $filter('date')(new Date($scope.endDateTime), 'EEE, dd MMM yyyy HH:mm:ss Z');
+        experimentsVizService.saveVisualizations(experimentData.results[0]).then(function (res) {
+          if (res.data[0].status === true) {
+            $mdDialog.show($mdDialog.alert().title('Edit Status').content('Viz Edited! Saving Viz..').ariaLabel('Success'));
+            $timeout(function () {
+              "use strict";
+              location.reload();
+            }, 1000);
+          } else {
+            $mdDialog.show($mdDialog.alert().title('Edit Status').content('Could not edit viz due to ' + res.data[0].errorMessage).ariaLabel('Success').ok('OK'));
+          }
+        });
       });
 
-      experimentsVizService.saveVisualizations(experimentData.results[0]).then(function (res) {
-        if (res.data[0].status === true) {
-          $mdDialog.show($mdDialog.alert().title('Save Status').content('Saved Viz!').ariaLabel('Success').ok('OK'));
+    } else {
+      var saveVizs = [];
+      var vizData = {};
 
-        } else {
-          $mdDialog.show($mdDialog.alert().title('Save Status').content('Could not save viz due to ' + res.data[0].errorMessage).ariaLabel('Success').ok('OK'));
-        }
-      });
+      vizData.vizId = new Date().getUTCHours() + new Date().getUTCMinutes() + new Date().getUTCSeconds() + new Date().getUTCMilliseconds();
+      vizData.expId = $scope.experimentId;
+      vizData.vizTitle = $scope.vizTitle;
+      vizData.dateCreated = $filter('date')(new Date(), 'EEE, dd MMM yyyy HH:mm:ss Z');
+      vizData.vizQues = $scope.selectedQues;
+      vizData.inputs = $scope.groupNInput;
+      vizData.participants = $scope.selectedParticipants;
+      vizData.vizType = $scope.selectedType;
+      vizData.vizDesc = $scope.vizDesc;
+      vizData.startDateTime = $filter('date')(new Date($scope.startDateTime), 'EEE, dd MMM yyyy HH:mm:ss Z');
+      vizData.endDateTime = $filter('date')(new Date($scope.endDateTime), 'EEE, dd MMM yyyy HH:mm:ss Z');
 
+      if(vizData.vizId != undefined && vizData.expId!=undefined && vizData.vizQues!=undefined && vizData.inputs!=undefined){
+        saveVizs.push({
+          "vizId": vizData.vizId,
+          "experimentId": vizData.expId,
+          "vizTitle": vizData.vizTitle,
+          "modifyDate": vizData.dateCreated,
+          "question": vizData.vizQues,
+          "texts": vizData.inputs,
+          "participants": vizData.participants,
+          "vizType": vizData.vizType,
+          "vizDesc": vizData.vizDesc,
+          "startDateTime": vizData.startDateTime,
+          "endDateTime": vizData.endDateTime
+        });
+      }else{
+        $mdDialog.show($mdDialog.alert().content('Insufficient data').ariaLabel('Failure').ok('OK'));
+      }
+
+      if(saveVizs.length > 0){
+        experimentsVizService.getExperiment($scope.experimentId).then(function successCallback(experimentData) {
+          saveVizs.forEach(function (viz) {
+            experimentData.results[0].visualizations.push(viz);
+          });
+
+          experimentsVizService.saveVisualizations(experimentData.results[0]).then(function (res) {
+            if (res.data[0].status === true) {
+              $mdDialog.show($mdDialog.alert().content('Saving Viz...'));
+              $timeout(function () {
+                "use strict";
+                location.reload();
+              }, 1000);
+            } else {
+              $mdDialog.show($mdDialog.alert().title('Save Status').content('Could not save viz due to ' + res.data[0].errorMessage).ariaLabel('Success').ok('OK'));
+            }
+          });
+        });
+      }
+
+      $scope.vizTemplate = false;
+      $scope.vizTitle = "";
+      $scope.selectedQues = undefined;
+      $scope.groupNInput = [];
+      $scope.inputNames = [];
+      $scope.selectedInputs = undefined;
+      $scope.groupsSet = new Set();
+      $scope.selectedParticipants = [];
+      $scope.selectedType = undefined;
+      $scope.vizDesc = "";
+    }
+  };
+
+  $scope.renderViz = function (viz, index) {
+    var startTime = "";
+    var endTime = "";
+    var startDate = "";
+    var endDate = "";
+
+    $scope.selectedQues = viz.question;
+    $scope.getTemplate();
+    $scope.selectedType = viz.vizType;
+    var groupsNInputs = [];
+    $scope.selectedInputs = [];
+    viz.texts.forEach(function (text) {
+      groupsNInputs = text.split(":");
+      $scope.selectedInputs.push({"group": groupsNInputs[0], "inputs": groupsNInputs[1]});
     });
 
-    $scope.vizTemplate = false;
-    $scope.vizTitle = "";
-    $scope.selectedQues = undefined;
-    $scope.groupNInput = [];
-    $scope.inputNames = [];
-    $scope.selectedInputs = undefined;
-    $scope.groupSet = new Set();
+    $scope.getInputs();
     $scope.selectedParticipants = [];
-    $scope.selectedType = undefined;
-    $scope.vizDesc = "";
+    $scope.selectedParticipants = viz.participants;
+    $timeout(function () {
+      $scope.vizTitle = viz.vizTitle;
+      $scope.vizDesc = viz.vizDesc;
+    }, 150);
 
+    if(viz.startDateTime != undefined && viz.endDateTime != undefined){
+
+      $scope.startDateTime = viz.startDateTime;
+      $scope.endDateTime = viz.endDateTime;
+      startDate = $filter('date')(new Date($scope.startDateTime), 'dd/MM/yyyy');
+      endDate = $filter('date')(new Date($scope.endDateTime), 'dd/MM/yyyy');
+      if(startDate == endDate){
+        $scope.startDate = $filter('date')(new Date($scope.startDateTime),'EEE, dd MMM yyyy HH:mm:ss Z');
+        $scope.endDate = undefined;
+      }else{
+        $scope.startDate = $filter('date')(new Date($scope.startDateTime),'EEE, dd MMM yyyy HH:mm:ss Z');
+        $scope.endDate = $filter('date')(new Date($scope.endDateTime),'EEE, dd MMM yyyy HH:mm:ss Z');
+      }
+      startTime = $filter('date')($scope.startDateTime, 'HH:mm:ss');
+      endTime = $filter('date')($scope.endDateTime, 'HH:mm:ss');
+      if(startTime == '00:00:00' || startTime == '23:59:59'){
+        $scope.startTime = undefined;
+      }else{
+        $scope.startTime = new Date($filter('date')($scope.startDateTime, 'EEE, dd MMM yyyy HH:mm:ss Z'));
+      }
+      if(endTime == '00:00:00' || endTime == '23:59:59'){
+        $scope.endTime = undefined;
+      }else{
+        $scope.endTime = new Date($filter('date')($scope.endDateTime, 'EEE, dd MMM yyyy HH:mm:ss Z'));
+      }
+    }
+    $scope.createViz();
+    editViz = true;
+    vizIndex = index;
+  };
+
+  $scope.deleteViz = function (viz, index) {
+    $mdDialog.show($mdDialog.confirm()
+        .title('Delete Status')
+        .content('Do you want to delete the viz: ' + viz.vizTitle + '?')
+        .ariaLabel("Delete Viz")
+        .cancel('Yes')
+        .ok('No')).then(function () {
+    }, function () {
+      experimentsVizService.getExperiment($scope.experimentId).then(function successCallback(experimentData) {
+        experimentData.results[0].visualizations.splice(index, 1);
+        experimentsVizService.saveVisualizations(experimentData.results[0]).then(function (res) {
+          if (res.data[0].status === true) {
+            location.reload();
+          } else {
+            $mdDialog.show($mdDialog.alert().title('Delete Status').content('Could not delete viz due to ' + res.data[0].errorMessage).ariaLabel('Success').ok('OK'));
+          }
+        });
+      });
+    });
+  };
+
+  $scope.clearVizTable = function () {
+    $mdDialog.show($mdDialog.confirm()
+        .title('Confirmation Status')
+        .textContent('Do you want to delete all the visualizations?')
+        .ariaLabel('Clear All').cancel('Yes')
+        .ok('No')
+    ).then(function () {
+    }, function () {
+      experimentsVizService.getExperiment($scope.experimentId).then(function successCallback(experimentData) {
+        experimentData.results[0].visualizations = [];
+        experimentsVizService.saveVisualizations(experimentData.results[0]).then(function (res) {
+          if (res.data[0].status === true) {
+            $scope.vizTable = false;
+          } else {
+            $mdDialog.show($mdDialog.alert().title('Failure').content('Could not delete vizs due to ' + res.data[0].errorMessage).ariaLabel('Failure').ok('OK'));
+          }
+        });
+      });
+    });
   };
 
   if (angular.isDefined($routeParams.experimentId)) {
