@@ -46,7 +46,7 @@ pacoApp.factory('experimentsVizService', ['$http', 'experimentService', function
     return getCount;
   }
 
-  function getEvents(experimentId, group, participants, startDate, startTime, endDate, endTime) {
+  function getEvents(experimentId, group, participants, startDateTime, endDateTime) {
 
     var message = "";
     var startDateTimeStamp = "";
@@ -63,32 +63,10 @@ pacoApp.factory('experimentsVizService', ['$http', 'experimentService', function
       }
       message = '{ "query" : { "criteria" : "experiment_id = ? and group_name = ? and who in (' + questionMarks + ')", "values" : [' + experimentId + ', "' + group + '" , ' + participantsList + ']},"limit":"50"}';
     }
-
-    //date/timestamp criteria based on a date
-    if (experimentId != undefined && group != undefined && startDate != undefined) {
-      startDateTimeStamp = startDate + " " + "00:00:00";
-      endDateTimeStamp = startDate + " " + "23:59:59";
-    }
-    //date/timestamp criteria based on a date range
-    if (experimentId != undefined && group != undefined && startDate != undefined && endDate != undefined) {
-      startDateTimeStamp = startDate + " " + "00:00:00";
-      endDateTimeStamp = endDate + " " + "23:59:59";
-    }
-    //date/timestamp criteria based on a date and for a given time range
-    if (experimentId != undefined && group != undefined && startDate != undefined && startTime != undefined && endTime != undefined) {
-      startDateTimeStamp = startDate + " " + startTime + ":00";
-      endDateTimeStamp = startDate + " " + endTime + ":00";
-    }
-    //date/timestamp criteria based on a date range and time range
-    if (experimentId != undefined && group != undefined && startDate != undefined && startTime != undefined && endDate != undefined && endTime != undefined) {
-      startDateTimeStamp = startDate + " " + startTime + ":00";
-      endDateTimeStamp = endDate + " " + endTime + ":00";
-    }
     //filter data based on start and end date/timestamp values
-    if (startDateTimeStamp != "" && endDateTimeStamp != "") {
-      message = '{"query": {"criteria":" experiment_id=?  and response_time>? and response_time<? and group_name=? ) ","values" : [' + experimentId + ', "' + startDateTimeStamp + '", "' + endDateTimeStamp + '","' + group + '"]}}';
+    if (experimentId != undefined && group != undefined && startDateTime != undefined && endDateTime != undefined) {
+      message = '{"query": {"criteria":" experiment_id=?  and response_time>? and response_time<? and group_name=? ) ","values" : [' + experimentId + ', "' + startDateTime + '", "' + endDateTime + '","' + group + '"]}}';
     }
-
     events = $http({
       method: 'POST',
       url: '/csSearch',

@@ -173,25 +173,34 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
 
   function getEventsResponses() {
 
-    var startDate, endDate, startTime, endTime = "";
+    $scope.startDateTime = undefined;
+    $scope.endDateTime = undefined;
 
+    // start and end date/time stamp based on a date
     if ($scope.startDate != undefined) {
-      startDate = formatDate($scope.startDate);
+      $scope.startDateTime = formatDate($scope.startDate) + " " + "00:00:00";
+      $scope.endDateTime = formatDate($scope.startDate) + " " + "23:59:59";
     }
+    // start and end date/time stamp based on a date range
     if ($scope.endDate != undefined) {
-      endDate = formatDate($scope.endDate);
+      $scope.startDateTime = formatDate($scope.startDate) + " " + "00:00:00";
+      $scope.endDateTime = formatDate($scope.endDate) + " " + "23:59:59";
     }
-    if ($scope.startTime != undefined) {
-      startTime = formatTime($scope.startTime);
+    // start and end date/time stamp based on a date and time range
+    if ($scope.startDate != undefined && $scope.startTime != undefined && $scope.endTime != undefined) {
+      $scope.startDateTime = formatDate($scope.startDate) + " " + formatTime($scope.startTime);
+      $scope.endDateTime = formatDate($scope.startDate) + " " + formatTime($scope.endTime);
     }
-    if ($scope.endTime != undefined) {
-      endTime = formatTime($scope.endTime);
+    // start and end date/time stamp based on a date range and time range
+    if ($scope.startDate != undefined && $scope.endDate != undefined && $scope.startTime != undefined && $scope.endTime != undefined) {
+      $scope.startDateTime = formatDate($scope.startDate) + " " + formatTime($scope.startTime);
+      $scope.endDateTime = formatDate($scope.endDate) + " " + formatTime($scope.endTime);
     }
 
     var responses = [];
     $scope.groupsSet.forEach(function (group) {
 
-      getEvents = experimentsVizService.getEvents($scope.experimentId, group, $scope.selectedParticipants, startDate, startTime, endDate, endTime).then(function (events) {
+      getEvents = experimentsVizService.getEvents($scope.experimentId, group, $scope.selectedParticipants, $scope.startDateTime, $scope.endDateTime).then(function (events) {
         if (events.status === 404) {
           displayErrorMessage('Events', events);
         }
