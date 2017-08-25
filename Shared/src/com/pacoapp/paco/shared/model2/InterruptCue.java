@@ -24,13 +24,26 @@ public class InterruptCue extends ModelBase implements Validatable, java.io.Seri
   public static final int APP_ADDED = 19;
   public static final int PERMISSION_CHANGED = 20;
   public static final int ACCESSIBILITY_EVENT_VIEW_CLICKED = 21;
+  public static final int NOTIFICATION_CREATED = 22;
+  public static final int NOTIFICATION_TRAY_OPENED = 23;
+  public static final int NOTIFICATION_TRAY_CLEAR_ALL = 24;
+  public static final int NOTIFICATION_TRAY_SWIPE_DISMISS = 25;
+  public static final int NOTIFICATION_TRAY_CANCELLED = 26;
+  public static final int NOTIFICATION_CLICKED = 27;
+
+
+
 
   public static final int[] CUE_EVENTS = new int[] {PHONE_HANGUP, USER_PRESENT, PACO_ACTION_EVENT, APP_USAGE, APP_CLOSED, MUSIC_STARTED, MUSIC_STOPPED,
                                                 PHONE_INCOMING_CALL_STARTED, PHONE_INCOMING_CALL_ENDED,
                                                 PHONE_OUTGOING_CALL_STARTED, PHONE_OUTGOING_CALL_ENDED, PHONE_MISSED_CALL, PHONE_CALL_STARTED, PHONE_CALL_ENDED,
                                                 PACO_EXPERIMENT_JOINED_EVENT,
                                                 PACO_EXPERIMENT_ENDED_EVENT, PACO_EXPERIMENT_RESPONSE_RECEIVED_EVENT, APP_REMOVED, APP_ADDED, PERMISSION_CHANGED,
-                                                ACCESSIBILITY_EVENT_VIEW_CLICKED};
+                                                ACCESSIBILITY_EVENT_VIEW_CLICKED,
+                                                NOTIFICATION_CREATED, NOTIFICATION_TRAY_OPENED,
+                                                NOTIFICATION_TRAY_CLEAR_ALL, NOTIFICATION_TRAY_SWIPE_DISMISS,
+                                                NOTIFICATION_TRAY_CANCELLED, NOTIFICATION_CLICKED};
+
   public static final String[] CUE_EVENT_NAMES = new String[] {"HANGUP (deprecated)", "USER_PRESENT", "Paco Action",
                                                            "App Started", "App Stopped",
                                                            "Music Started", "Music Stopped",
@@ -38,7 +51,12 @@ public class InterruptCue extends ModelBase implements Validatable, java.io.Seri
                                                            "Outgoing call started", "Outgoing call ended",
                                                            "Missed call", "Call started (in or out)", "Call ended (in or out)",
                                                            "Experiment joined", "Experiment ended", "Response received", "App Removed",
-                                                           "App Installed", "Permission changed", "View Clicked in App"};
+                                                           "App Installed", "Permission changed", "View Clicked in App",
+                                                           "Notification Created", "Notification shade opened",
+                                                           "Notification shade dismiss all notifications",
+                                                           "Notification shade dismiss notification",
+                                                           "Notification shade closed",
+                                                           "Notification tapped in shade"};
   public static final Integer VIEW_CLICKED = 1;
 
 
