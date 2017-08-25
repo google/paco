@@ -1,0 +1,24 @@
+#!/bin/sh
+source ~/.bash_profile
+#
+# An example hook script to verify what is about to be committed.
+# Called by "git commit" with no arguments.  The hook should
+# exit with non-zero status after issuing an appropriate message if
+# it wants to stop the commit.
+#
+# To enable this hook, rename this file to "pre-commit".
+echo $PWD
+cd Paco-Server
+ant -buildfile antbuild.xml prep-for-deploy -Denviron=codepush
+
+exitCode=$?
+
+# If exit code is not 0 then there was a failure
+if [ 0 -ne $exitCode ]
+then
+    echo "\033[01;31m codepush property setting failed\033[00m"
+    exit 1
+fi
+
+echo "\033[01;32m app engine web xml files modified to mask credentials successfully\033[00m"
+exit 0
