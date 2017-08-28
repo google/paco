@@ -3,8 +3,6 @@ package com.pacoapp.paco.sensors.android;
 import java.util.List;
 
 import org.joda.time.DateTime;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Lists;
 import com.pacoapp.paco.model.Experiment;
@@ -21,6 +19,7 @@ import android.annotation.TargetApi;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.accessibility.AccessibilityEvent;
 
 /**
@@ -38,12 +37,25 @@ public class AccessibilityEventMonitorService extends AccessibilityService {
   public static final String ACCESSIBILITY_EVENT_CLASS = "accessibilityEventClass";
   public static final String ACCESSIBILITY_EVENT_CONTENT_DESCRIPTION = "accessibilityEventContentDescription";
 
-  private static Logger Log = LoggerFactory.getLogger(AccessibilityEventMonitorService.class);
+//  private static Logger Log = LoggerFactory.getLogger(AccessibilityEventMonitorService.class);
 
     // Keeps whether the service is connected
   private static boolean running = false;
   private RuntimePermissionsAccessibilityEventHandler runtimePermissionsEventHandler;
   private NotificationEventHandler notificationHandler;
+
+
+  private String getEventType(AccessibilityEvent event) {
+    return AccessibilityEvent.eventTypeToString(event.getEventType());
+  }
+
+  private String getEventText(AccessibilityEvent event) {
+    StringBuilder sb = new StringBuilder();
+    for (CharSequence s : event.getText()) {
+      sb.append(s);
+    }
+    return sb.toString();
+  }
 
   /**
    * Called to allow experiments that trigger on accessibility events.
@@ -51,6 +63,10 @@ public class AccessibilityEventMonitorService extends AccessibilityService {
    */
   @Override
   public void onAccessibilityEvent(AccessibilityEvent accessibilityEvent) {
+  Log.v("NotificationEventHandler", String.format("ev:[t] %s [c] %s [p] %s [tm] %s [tx] %s [cd]",
+  getEventType(accessibilityEvent), accessibilityEvent.getClassName(), accessibilityEvent.getPackageName(),
+  accessibilityEvent.getEventTime(), getEventText(accessibilityEvent), accessibilityEvent.getContentDescription()));
+
     // TODO make this a flag when joining or stopping or expiring or refreshing experiments
     // TODO or at least cache the experiments somewhere, like in the Application Object
     List<Experiment> experiments = new ExperimentProviderUtil(this).getJoinedExperiments();
@@ -78,7 +94,7 @@ public class AccessibilityEventMonitorService extends AccessibilityService {
       runtimePermissionsEventHandler.handleRuntimePermissionEvents(accessibilityEvent);
       return;
     } else if (isViewClickEventOfInterest(accessibilityEvent, interestingTriggers) ) {
-      Log.debug("Accessibility View Click Event is interesting for non-runtime permissions triggers: ");
+      Log.v("Paco", "Accessibility View Click Event is interesting for non-runtime permissions triggers: ");
       inspectEvent(accessibilityEvent);
       triggerBroadcastService(accessibilityEvent, InterruptCue.ACCESSIBILITY_EVENT_VIEW_CLICKED);
     } else if ((eventCode = notificationHandler.handleAccessibilityEvent(accessibilityEvent)) != null) {
@@ -250,7 +266,7 @@ public class AccessibilityEventMonitorService extends AccessibilityService {
 
 
   private void inspectEvent(AccessibilityEvent accessibilityEvent) {
-    Log.debug(eventToString(accessibilityEvent));
+    Log.v("Paco", eventToString(accessibilityEvent));
   }
 
   private String getStringForEventType(int eventType) {
@@ -293,7 +309,7 @@ public class AccessibilityEventMonitorService extends AccessibilityService {
   @Override
   protected void onServiceConnected() {
     running = true;
-    Log.debug("Connected to the accessibility service");
+    Log.v("Paco", "Connected to the accessibility service");
     initializeRuntimePermissionsMonitoringState();
     notificationHandler = new NotificationEventHandler(getApplicationContext());
   }
@@ -308,7 +324,7 @@ public class AccessibilityEventMonitorService extends AccessibilityService {
    */
   @Override
   public void onDestroy() {
-    Log.debug("Accessibility service destroyed");
+    Log.v("Paco", "Accessibility service destroyed");
     running = false;
     runtimePermissionsEventHandler = null;
   }
