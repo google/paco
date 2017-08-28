@@ -63,9 +63,9 @@ public class AccessibilityEventMonitorService extends AccessibilityService {
    */
   @Override
   public void onAccessibilityEvent(AccessibilityEvent accessibilityEvent) {
-  Log.v("NotificationEventHandler", String.format("ev:[t] %s [c] %s [p] %s [tm] %s [tx] %s [cd]",
-  getEventType(accessibilityEvent), accessibilityEvent.getClassName(), accessibilityEvent.getPackageName(),
-  accessibilityEvent.getEventTime(), getEventText(accessibilityEvent), accessibilityEvent.getContentDescription()));
+//    Log.v("NotificationEventHandler", String.format("ev:[t] %s [c] %s [p] %s [tm] %s [tx] %s [cd]",
+//    getEventType(accessibilityEvent), accessibilityEvent.getClassName(), accessibilityEvent.getPackageName(),
+//    accessibilityEvent.getEventTime(), getEventText(accessibilityEvent), accessibilityEvent.getContentDescription()));
 
     // TODO make this a flag when joining or stopping or expiring or refreshing experiments
     // TODO or at least cache the experiments somewhere, like in the Application Object
