@@ -169,6 +169,7 @@ public class CloudSqlSearchServlet extends HttpServlet {
         aclQuery = ACLHelper.getModifiedQueryBasedOnACL(optimizedSelect, loggedInUser, adminExperimentsinDB, qProcessor);
         log.info("opt performance query with acl:" + aclQuery);
         long startTime = System.currentTimeMillis();
+
         if (sqlQueryObj.isFullEventAndOutputs()) {
           evtList = impl.getEvents(aclQuery, tzForClient, null);
           evQryStatus.setEvents(evtList);
@@ -183,7 +184,6 @@ public class CloudSqlSearchServlet extends HttpServlet {
         }
         long diff = System.currentTimeMillis() - startTime;
         log.info("complete search qry took " + diff);
-        
         resp.getWriter().println(results);
       } catch (JSONException jsonEx) {
         String exceptionString = ExceptionUtil.getStackTraceAsString(jsonEx);

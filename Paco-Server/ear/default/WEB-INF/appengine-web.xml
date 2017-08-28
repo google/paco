@@ -1,4 +1,4 @@
-<?xml version='1.0' encoding='UTF-8'?>
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
 <!--
  ~ Copyright 2011 Google Inc. All Rights Reserved.
  ~
@@ -15,36 +15,29 @@
  ~ KIND, either express or implied.  See the License for the
  ~ specific language governing permissions and limitations
  ~ under the License.
- -->
-<appengine-web-app xmlns='http://appengine.google.com/ns/1.0'>
-<application>quantifiedself</application>
+ --><appengine-web-app xmlns="http://appengine.google.com/ns/1.0">
+  <application>quantifiedself</application>
   <module>default</module>
   <version>211</version>
-
   <public-root>/web</public-root>
-
   <static-files>
-    <exclude path='**/*.gwt.rpc'/>
+    <exclude path="**/*.gwt.rpc"/>
   </static-files>
   <resource-files>
-    <include path='**/*.gwt.rpc'/>
+    <include path="**/*.gwt.rpc"/>
   </resource-files>
-  
   <!-- Configure java.util.logging -->
   <system-properties>
-    <property value='WEB-INF/logging.properties' name='java.util.logging.config.file'/> 
-    <property name="com.pacoapp.reportbucketname" value="reportbucket" />
-    <property name="com.pacoapp.adminDomain" value="google.com" />
-
-    <property name="ae-cloudsql.database-url" value="jdbc:google:mysql://XXX" />     
-    <property name="ae-cloudsql.database-username" value="XXX"/>
-    <property name="ae-cloudsql.database-password" value="XXX"/>
-
+    <property value="WEB-INF/logging.properties" name="java.util.logging.config.file"/>
+    <property name="com.pacoapp.reportbucketname" value="reportbucket"/>
+    <property name="com.pacoapp.adminDomain" value="google.com"/>
+    <property name="ae-cloudsql.database-url" value="AAA"/>
+    <property name="ae-cloudsql.database-username" value="BBB"/>
+    <property name="ae-cloudsql.database-password" value="CCC"/>
     <property name="ae-connection-pool.maxconn" value="100"/>
-
-    <property name="ae-cloudsql.local-database-url" value="jdbc:mysql://localhost:3306/pacodb?verifyServerCertificate=false&amp;useSSL=false"/>
-    <property name="ae-cloudsql.local-database-username" value="XXXX"/>
-    <property name="ae-cloudsql.local-database-password" value="XXXX"/>
+    <property name="ae-cloudsql.local-database-url" value="DDD"/>
+    <property name="ae-cloudsql.local-database-username" value="EEE"/>
+    <property name="ae-cloudsql.local-database-password" value="FFF"/>
   </system-properties>
   <ssl-enabled>true</ssl-enabled>
   <sessions-enabled>true</sessions-enabled>
@@ -56,12 +49,9 @@
       <page name="Appstats" url="/appstats" />
       </admin-console>
   -->
-
   <instance-class>F4</instance-class>
   <automatic-scaling>
     <max-idle-instances>830</max-idle-instances>
     <max-pending-latency>14.8s</max-pending-latency>
   </automatic-scaling>
-
 </appengine-web-app>
-
