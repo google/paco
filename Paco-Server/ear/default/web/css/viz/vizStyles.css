@@ -69,25 +69,17 @@
   margin-left: 10px;
 }
 
-.sidePanel {
-  height: 650px;
-  width: 23%;
-  margin-top: 20px;
-  margin-bottom: 20px;
-  background-color: white;
-  float: left;
-}
 
 .vizContainer {
   background-color: white;
-  float: right;
-  width: 100%;
-  height: 650px;
-  margin-bottom: 20px;
+  width: 98%;
 }
 
 .vizTemplate {
   padding: 20px;
+  width: 97%;
+  margin-top: 20px;
+  background-color: white;
 }
 
 .md-toolbar-tools.titleToolbar {
@@ -96,14 +88,9 @@
 
 .vizTitle {
   font-size: 16px;
-  width: 1070px;
-  margin-bottom: -15px;
-  float: left;
-}
-
-.saveDownload {
-  float: right;
-  margin-top: 18px;
+  margin: 10px;
+  width:98%;
+  text-align: center;
 }
 
 .md-toolbar-tools.filterLabel {
@@ -199,6 +186,8 @@ md-select.dateTimeSelect .md-select-value.md-select-placeholder {
   margin-top: 20px;
 }
 
+
+
 .selectdemoSelectHeader .demo-header-searchbox {
   border: none;
   outline: none;
@@ -222,7 +211,7 @@ md-select.dateTimeSelect .md-select-value.md-select-placeholder {
   max-height: 500px;
 }
 
-.inputsDropDown, .typesDropDown, .participantsDropDown, .datesDropDown {
+.inputsDropDown, .typesDropDown, .participantsDropDown, .datesDropDown, .input1input2DropDown {
   font-size: 16px;
   color: white;
 }
@@ -288,13 +277,133 @@ md-input-container.typesDropDown:not([md-no-float]) .md-select-placeholder span:
   color: white;
 }
 
+md-input-container.quesDropDown .md-select-menu .md-content {
+  max-height: 600px;
+}
+
 .quesSelect {
-  color: white
+  color: white;
+  margin-left:40px;
+  margin-right: 40px;
+}
+
+.quesContainer{
+  height: 500px !important;
+}
+
+.quesContainer > md-select-menu._md.md-overflow{
+  max-height: 500px !important;
+}
+
+.quesContainer > md-select-menu._md.md-overflow > md-content._md{
+  max-height: 500px !important;
+}
+
+.resType{
+  font-style: italic;
+  font-size: 12px;
 }
 
 .asterisk {
   color: white;
   margin-top: 19px;
+}
+
+.snapshotContainer{
+  background: #d8d8d8;
+  margin-bottom: 20px;
+  padding: 18px;
+  text-align: center;
+  height:130px;
+  position: relative;
+}
+
+.tableContainer{
+  background-color: #d8d8d8;
+  margin: 0 auto;
+  text-align: center;
+  border-spacing: 10px;
+
+}
+
+.cellContainer{
+  background-color: #eee;
+  width: 150px;
+  height: 100px;
+  padding: 5px;
+}
+
+.dataCount{
+  font-weight: 700;
+  color: red;
+  font-size: 28px;
+}
+
+.countText{
+  font-size: 13px;
+}
+
+.dateRangeVal{
+  font-weight: bold;
+  color: red;
+  font-size: 13px;
+}
+
+.vizCaption{
+  width:95%;
+  background-color: white;
+  height:70px;
+}
+.vizDescBlock{
+  width:100%;
+  position:absolute;
+  padding:5px;
+}
+.vizDescription{
+  background-color: #f2f2f2;
+  margin:5px;
+  width:100%;
+  height:130px;
+  border-radius: 5px;
+}
+.vizDescLabel{
+  color:black;
+}
+
+.saveDownload{
+  margin-top: 80px;
+}
+
+table.vizTable, td.viz, th.viz {
+  border: 1px solid #ddd;
+  text-align: left;
+}
+
+table.vizTable {
+  border-collapse: collapse;
+  width: 100%;
+  background-color: whitesmoke;
+}
+th.viz{
+  background-color: #d8d8d8;
+}
+
+th.viz, td.viz {
+  padding: 10px;
+}
+.vizTableContainer{
+  padding:30px;
+  height: 100%;
+}
+
+a:hover {
+  color: #0D47A1;
+  cursor: pointer;
+}
+
+span.md-primary.clearTable{
+  float:right;
+  padding:5px;
 }
 
 

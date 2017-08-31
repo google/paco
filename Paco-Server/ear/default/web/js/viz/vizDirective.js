@@ -27,9 +27,38 @@ pacoApp.directive('typesDropDown', [ function () {
     restrict: 'E',
     template: '<md-input-container class="typesDropDown">'+
     '<label class="typesLabel">Viz Types</label>'+
-    '<md-select ng-model="selectedType" ng-change="getSelectedType()">'+
+    '<md-select ng-model="selectedType"  md-on-close="resetTypes()" ng-change="getSelectedType()">'+
     '<md-optgroup label="Viz Types">'+
-    '<md-option ng-repeat="type in vizTypes" ng-value="type" ng-selected="$first">{{type}}</md-option>'+
+    '<md-option ng-repeat="type in vizTypes" ng-value="type">{{type}}</md-option>'+
+    '</md-optgroup></md-select></md-input-container>',
+    controller: 'VizCtrl',
+    link: function (scope, element, attrs, controller) {
+
+    }
+  }
+}]);
+
+pacoApp.directive('xyDropDown', [ function () {
+
+  return {
+    restrict: 'E',
+    templateUrl: 'partials/viz/xyPlotControls.html',
+    controller: 'VizCtrl',
+    link: function (scope, element, attrs, controller) {
+
+    }
+  }
+}]);
+
+pacoApp.directive('singleInputDropDown', [ function () {
+
+  return {
+    restrict: 'E',
+    template: '<md-input-container class="inputsDropDown">'+
+    '<label class="inputsLabel">Input</label>'+
+    '<md-select class="inputsSelect" ng-model="input_timeSeries">'+
+    '<md-optgroup label="Inputs">'+
+    '<md-option ng-repeat="input in groupInputs" ng-value="input">{{input}}<div class="resType"><span>{{getResponseType(input)}}</span></div></md-option>'+
     '</md-optgroup></md-select></md-input-container>',
     controller: 'VizCtrl',
     link: function (scope, element, attrs, controller) {

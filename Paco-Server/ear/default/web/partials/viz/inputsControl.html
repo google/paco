@@ -5,12 +5,8 @@
              data-md-container-class="selectdemoSelectHeader"
              md-selected-text="getInputsLength()"
              multiple>
-    <md-select-header class="demo-select-header">
-      <input placeholder="Inputs"
-             class="demo-header-searchbox md-text">
-    </md-select-header>
-    <md-optgroup ng-repeat="grp in groups" label={{grp}} ng-model="selectedGroup">
-      <md-option ng-value="input" ng-repeat="input in groupInputs| filter: {'group':grp}">{{input.inputs}}</md-option>
+    <md-optgroup label="Inputs">
+      <md-option ng-value="input" ng-repeat="input in groupInputs">{{input}}<div class="resType"><span>{{getResponseType(input)}}</span></div></md-option>
     </md-optgroup>
   </md-select>
 </md-input-container>
