@@ -99,7 +99,7 @@ public class ExperimentProviderUtil implements EventStore {
   private static final String ID = "_id";
 
   private static final String LIMIT = " limit ";
-  
+
   DateTimeFormatter endDateFormatter = DateTimeFormat.forPattern(TimeUtil.DATE_FORMAT);
   static {
     validColumnNamesDataTypeInDb = Maps.newHashMap();
@@ -117,7 +117,7 @@ public class ExperimentProviderUtil implements EventStore {
     validColumnNamesDataTypeInDb.put(OutputColumns.NAME, StringValue.class);
     validColumnNamesDataTypeInDb.put(OutputColumns.ANSWER, StringValue.class);
   }
-  
+
   public ExperimentProviderUtil(Context context) {
     super();
     this.context = context;
@@ -126,7 +126,7 @@ public class ExperimentProviderUtil implements EventStore {
     }
     this.contentResolver = context.getContentResolver();
   }
-  
+
   public List<Experiment> getJoinedExperiments() {
     List<Experiment> cachedExperiments = JoinedExperimentCache.getInstance().getExperiments();
     if (cachedExperiments.size() > 0) {
@@ -498,6 +498,9 @@ public class ExperimentProviderUtil implements EventStore {
     if (rootNode.has("logShutdown")) {
       defaultExperimentGroup.setLogShutdown(rootNode.path("logShutdown").getBooleanValue());
     }
+    if (rootNode.has("logNotificationEvents")) {
+      defaultExperimentGroup.setLogNotificationEvents(rootNode.path("logNotificationEvents").getBooleanValue());
+    }
     if (rootNode.has("rawDataAccess")) {
       defaultExperimentGroup.setRawDataAccess(rootNode.path("rawDataAccess").getBooleanValue());
     }
@@ -827,7 +830,7 @@ public class ExperimentProviderUtil implements EventStore {
     dateColumns.add(EventColumns.RESPONSE_TIME);
     EventQueryStatus evQryStat = new EventQueryStatus();
     DatabaseHelper dbHelper = new DatabaseHelper(context);
-    
+
     try {
       String selectSql = SearchUtil.getPlainSql(sqlQuery);
       Select selectStmt = SearchUtil.getJsqlSelectStatement(selectSql);
@@ -859,7 +862,7 @@ public class ExperimentProviderUtil implements EventStore {
         evQryStat.setErrorMessage(ErrorMessages.INVALID_COLUMN_NAME.getDescription() + qProcessor.getInvalidColumnName());
         return evQryStat;
       }
-      // change date params to long. 
+      // change date params to long.
       String[] origCriValue = sqlQuery.getCriteriaValue();
       String[] modCriValue = new String[origCriValue.length];
       System.arraycopy(origCriValue, 0, modCriValue, 0, origCriValue.length);
@@ -870,23 +873,23 @@ public class ExperimentProviderUtil implements EventStore {
           modCriValue[i] = dateAsLong.toString();
         }
       }
-     
-      if (qProcessor.isOutputColumnsPresent()) { 
+
+      if (qProcessor.isOutputColumnsPresent()) {
         cursor = dbHelper.query(ExperimentProvider.OUTPUTS_DATATYPE, sqlQuery.getProjection(), sqlQuery.getCriteriaQuery(), modCriValue,
                                 sqlQuery.getSortOrder(), sqlQuery.getGroupBy(), sqlQuery.getHaving(), sqlQuery.getLimit());
       } else {
         cursor = dbHelper.query(ExperimentProvider.EVENTS_DATATYPE, sqlQuery.getProjection(), sqlQuery.getCriteriaQuery(), modCriValue,
                                 sqlQuery.getSortOrder(), sqlQuery.getGroupBy(), sqlQuery.getHaving(), sqlQuery.getLimit());
-      } 
+      }
       //to maintain the insertion order
       eventMap = Maps.newLinkedHashMap();
-    
+
       if (cursor != null) {
         events = Lists.newArrayList();
         while (cursor.moveToNext()) {
           //no need to coalesce, we just add it to the list and send the collection to the client.
           event = createEvent(cursor, false);
-          Event oldEvent = eventMap.get(event.getId()); 
+          Event oldEvent = eventMap.get(event.getId());
           if(oldEvent == null){
             event.setResponses(findResponsesFor(event));
             eventMap.put(event.getId(), event);
@@ -916,7 +919,7 @@ public class ExperimentProviderUtil implements EventStore {
     evQryStat.setStatus(SUCCESS);
     return evQryStat;
   }
-  
+
   private void closeResources(Cursor cursor, DatabaseHelper dbHelper){
     if (cursor != null) {
       cursor.close();
@@ -1072,7 +1075,7 @@ public class ExperimentProviderUtil implements EventStore {
     }
     return responses;
   }
-  
+
   private Event createEvent(Cursor cursor){
     return createEvent(cursor, true);
   }
@@ -1084,7 +1087,7 @@ public class ExperimentProviderUtil implements EventStore {
       experimentIdIndex = cursor.getColumnIndexOrThrow(EventColumns.EXPERIMENT_ID);
     }else{
       idIndex = cursor.getColumnIndex(EventColumns._ID);
-      experimentIdIndex = cursor.getColumnIndex(EventColumns.EXPERIMENT_ID);  
+      experimentIdIndex = cursor.getColumnIndex(EventColumns.EXPERIMENT_ID);
     }
     int experimentServerIdIndex = cursor.getColumnIndex(EventColumns.EXPERIMENT_SERVER_ID);
     int experimentVersionIndex = cursor.getColumnIndex(EventColumns.EXPERIMENT_VERSION);

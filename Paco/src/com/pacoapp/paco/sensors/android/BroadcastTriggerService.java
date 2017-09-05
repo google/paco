@@ -109,10 +109,10 @@ public class BroadcastTriggerService extends Service {
         continue;
       }
       //Log.info("We have an experiment that is running");
-      List<ExperimentGroup> groupsListening = ExperimentHelper.isBackgroundListeningForSourceId(experiment.getExperimentDAO(),
+      List<ExperimentGroup> groupsListeningForBackgroundData = ExperimentHelper.isBackgroundListeningForSourceId(experiment.getExperimentDAO(),
                                                                                                 sourceIdentifier);
-      if (!groupsListening.isEmpty()) {
-        shouldSync = shouldSync || persistBroadcastData(eu, experiment, groupsListening, extras);
+      if (!groupsListeningForBackgroundData.isEmpty()) {
+        shouldSync = shouldSync || persistBroadcastData(eu, experiment, groupsListeningForBackgroundData, extras);
       }
 
 
@@ -123,13 +123,18 @@ public class BroadcastTriggerService extends Service {
                                                                                                          className,
                                                                                                          eventText,
                                                                                                          eventContentDescription);
-      if (ExperimentHelper.declaresAccessibilityLogging(experiment.getExperimentDAO())) {
+//      if (ExperimentHelper.declaresAccessibilityLogging(experiment.getExperimentDAO())) {
         List<ExperimentGroup> accessibilityGroupsListening = ExperimentHelper.isListeningForAccessibilityEvents(experiment.getExperimentDAO());
+        final List<ExperimentGroup> groupsListeningForNotificationEvents = ExperimentHelper.isListeningForNotificationEvents(experiment.getExperimentDAO());
         if (!accessibilityGroupsListening.isEmpty()) {
           shouldSync = shouldSync || persistAccessibilityData(eu, experiment, accessibilityGroupsListening,
                                                               extras.getBundle(RuntimePermissionsAccessibilityEventHandler.PACO_ACTION_ACCESSIBILITY_PAYLOAD));
         }
-      }
+        if (!groupsListeningForNotificationEvents.isEmpty()) {
+          shouldSync = shouldSync || persistAccessibilityData(eu, experiment, groupsListeningForNotificationEvents,
+                                                              extras.getBundle(RuntimePermissionsAccessibilityEventHandler.PACO_ACTION_ACCESSIBILITY_PAYLOAD));
+        }
+//      }
 
       if (triggersThatMatch.size() > 0) {
         Log.info("triggers that match count: " + triggersThatMatch.size());

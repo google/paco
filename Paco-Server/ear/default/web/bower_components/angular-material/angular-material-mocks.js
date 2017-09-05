@@ -1,10 +1,10 @@
 /**
  *
- * AngularJS-Material-Mocks
+ * Angular-Material-Mocks
  *
  * Developers interested in running their own custom unit tests WITH angular-material.js loaded...
  * must also include this *mocks* file. Similar to `angular-mocks.js`, `angular-material-mocks.js`
- * will override and disable specific AngularJS Material performance settings:
+ * will override and disable specific Angular Material performance settings:
  *
  *  - Disabled Theme CSS rule generations
  *  - Forces $mdAria.expectWithText() to be synchronous
@@ -15,12 +15,6 @@
 (function(window, angular, undefined) {
 
 'use strict';
-
-  // Allow our code to know when they are running inside of a test so they can expose extra services
-  // that should NOT be exposed to the public but that should be tested.
-  //
-  // As an example, see input.js which exposes some animation-related methods.
-  window._mdMocksIncluded = true;
 
 /**
  * @ngdoc module
@@ -39,28 +33,8 @@ angular.module('ngMaterial-mock', [
   ])
   .config(['$provide', function($provide) {
 
-    $provide.factory('$material', ['$animate', '$timeout', function($animate, $timeout) {
-      return {
-        flushOutstandingAnimations: function() {
-          // this code is placed in a try-catch statement
-          // since 1.3 and 1.4 handle their animations differently
-          // and there may be situations where follow-up animations
-          // are run in one version and not the other
-          try { $animate.flush(); } catch(e) {}
-        },
-        flushInterimElement: function() {
-          this.flushOutstandingAnimations();
-          $timeout.flush();
-          this.flushOutstandingAnimations();
-          $timeout.flush();
-          this.flushOutstandingAnimations();
-          $timeout.flush();
-        }
-      };
-    }]);
-
     /**
-      * AngularJS Material dynamically generates Style tags
+      * Angular Material dynamically generates Style tags
       * based on themes and palletes; for each ng-app.
       *
       * For testing, we want to disable generation and
@@ -68,6 +42,18 @@ angular.module('ngMaterial-mock', [
       * styles while testing...
       */
      $provide.constant('$MD_THEME_CSS', '/**/');
+
+    /**
+     * Intercept to make .expectWithText() to be synchronous
+     */
+    $provide.decorator('$mdAria', function($delegate){
+
+      $delegate.expectWithText = function(element, attrName){
+        $delegate.expect(element, attrName, element.text().trim());
+      };
+
+      return $delegate;
+    });
 
     /**
      * Add throttle() and wrap .flush() to catch `no callbacks present`
@@ -83,8 +69,8 @@ angular.module('ngMaterial-mock', [
 
       var ngFlush = $delegate.flush;
       $delegate.flush = function() {
-        try      { ngFlush();  }
-        catch(e) { ;           }
+          try      { ngFlush();  }
+          catch(e) { ;           }
       };
 
       return $delegate;
@@ -100,7 +86,7 @@ angular.module('ngMaterial-mock', [
       $delegate.flush = function() {
           var args = Array.prototype.slice.call(arguments);
           try      { ngFlush.apply($delegate, args);  }
-          catch(e) { }
+          catch(e) { ;           }
       };
 
       return $delegate;

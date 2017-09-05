@@ -61,6 +61,9 @@ pacoApp.config(['$routeProvider','$locationProvider',
       templateUrl: 'partials/respondpub.html',
       reloadOnSearch: false,
     }).
+    when('/hack',{
+      templateUrl: 'partials/hack.html',
+    }).
     otherwise({
       templateUrl: 'partials/welcome.html',
       reloadOnSearch: false,
