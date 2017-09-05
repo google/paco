@@ -1,11 +1,11 @@
 /*!
- * AngularJS Material Design
+ * Angular Material Design
  * https://github.com/angular/material
  * @license MIT
- * v1.1.4-master-baa869a
+ * v0.11.0-rc1-master-d74f93a
  */
-goog.provide('ngmaterial.components.content');
-goog.require('ngmaterial.core');
+goog.provide('ng.material.components.content');
+goog.require('ng.material.core');
 /**
  * @ngdoc module
  * @name material.components.content
@@ -13,7 +13,6 @@ goog.require('ngmaterial.core');
  * @description
  * Scrollable content
  */
-mdContentDirective['$inject'] = ["$mdTheming"];
 angular.module('material.components.content', [
   'material.core'
 ])
@@ -27,44 +26,26 @@ angular.module('material.components.content', [
  * @restrict E
  *
  * @description
- *
- * The `<md-content>` directive is a container element useful for scrollable content. It achieves
- * this by setting the CSS `overflow` property to `auto` so that content can properly scroll.
- *
- * In general, `<md-content>` components are not designed to be nested inside one another. If
- * possible, it is better to make them siblings. This often results in a better user experience as
- * having nested scrollbars may confuse the user.
- *
- * ## Troubleshooting
- *
- * In some cases, you may wish to apply the `md-no-momentum` class to ensure that Safari's
- * momentum scrolling is disabled. Momentum scrolling can cause flickering issues while scrolling
- * SVG icons and some other components.
- *
- * Additionally, we now also offer the `md-no-flicker` class which can be applied to any element
- * and uses a Webkit-specific filter of `blur(0px)` that forces GPU rendering of all elements
- * inside (which eliminates the flicker on iOS devices).
- *
- * _<b>Note:</b> Forcing an element to render on the GPU can have unintended side-effects, especially
- * related to the z-index of elements. Please use with caution and only on the elements needed._
+ * The `<md-content>` directive is a container element useful for scrollable content
  *
  * @usage
  *
- * Add the `[layout-padding]` attribute to make the content padded.
+ * - Add the `[layout-padding]` attribute to make the content padded.
  *
  * <hljs lang="html">
  *  <md-content layout-padding>
  *      Lorem ipsum dolor sit amet, ne quod novum mei.
  *  </md-content>
  * </hljs>
+ *
  */
 
 function mdContentDirective($mdTheming) {
   return {
     restrict: 'E',
     controller: ['$scope', '$element', ContentController],
-    link: function(scope, element) {
-      element.addClass('_md');     // private md component indicator for styling
+    link: function(scope, element, attr) {
+      var node = element[0];
 
       $mdTheming(element);
       scope.$broadcast('$mdContentLoaded', element);
@@ -78,6 +59,7 @@ function mdContentDirective($mdTheming) {
     this.$element = $element;
   }
 }
+mdContentDirective.$inject = ["$mdTheming"];
 
 function iosScrollFix(node) {
   // IOS FIX:
@@ -99,4 +81,4 @@ function iosScrollFix(node) {
   });
 }
 
-ngmaterial.components.content = angular.module("material.components.content");
+ng.material.components.content = angular.module("material.components.content");

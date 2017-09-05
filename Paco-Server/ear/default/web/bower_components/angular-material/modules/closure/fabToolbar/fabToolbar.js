@@ -1,13 +1,14 @@
 /*!
- * AngularJS Material Design
+ * Angular Material Design
  * https://github.com/angular/material
  * @license MIT
- * v1.1.4-master-baa869a
+ * v0.11.0-rc1-master-d74f93a
  */
-goog.provide('ngmaterial.components.fabToolbar');
-goog.require('ngmaterial.components.fabActions');
-goog.require('ngmaterial.components.fabShared');
-goog.require('ngmaterial.core');
+goog.provide('ng.material.components.fabToolbar');
+goog.require('ng.material.components.fabActions');
+goog.require('ng.material.components.fabShared');
+goog.require('ng.material.components.fabTrigger');
+goog.require('ng.material.core');
 (function() {
   'use strict';
 
@@ -20,6 +21,7 @@ goog.require('ngmaterial.core');
     .module('material.components.fabToolbar', [
       'material.core',
       'material.components.fabShared',
+      'material.components.fabTrigger',
       'material.components.fabActions'
     ])
 
@@ -41,7 +43,7 @@ goog.require('ngmaterial.core');
    *
    * @description
    *
-   * The `<md-fab-toolbar>` directive is used to present a toolbar of elements (usually `<md-button>`s)
+   * The `<md-fab-toolbar>` directive is used present a toolbar of elements (usually `<md-button>`s)
    * for quick access to common actions when a floating action button is activated (via click or
    * keyboard navigation).
    *
@@ -60,24 +62,22 @@ goog.require('ngmaterial.core');
    * <hljs lang="html">
    * <md-fab-toolbar md-direction='left'>
    *   <md-fab-trigger>
-   *     <md-button aria-label="Add..."><md-icon md-svg-src="/img/icons/plus.svg"></md-icon></md-button>
+   *     <md-button aria-label="Add..."><md-icon icon="/img/icons/plus.svg"></md-icon></md-button>
    *   </md-fab-trigger>
    *
-   *   <md-toolbar>
-   *    <md-fab-actions>
-   *      <md-button aria-label="Add User">
-   *        <md-icon md-svg-src="/img/icons/user.svg"></md-icon>
-   *      </md-button>
+   *   <md-fab-actions>
+   *     <md-button aria-label="Add User">
+   *       <md-icon icon="/img/icons/user.svg"></md-icon>
+   *     </md-button>
    *
-   *      <md-button aria-label="Add Group">
-   *        <md-icon md-svg-src="/img/icons/group.svg"></md-icon>
-   *      </md-button>
-   *    </md-fab-actions>
-   *   </md-toolbar>
+   *     <md-button aria-label="Add Group">
+   *       <md-icon icon="/img/icons/group.svg"></md-icon>
+   *     </md-button>
+   *   </md-fab-actions>
    * </md-fab-toolbar>
    * </hljs>
    *
-   * @param {string} md-direction From which direction you would like the toolbar items to appear
+   * @param {string=} md-direction From which direction you would like the toolbar items to appear
    * relative to the trigger element. Supports `left` and `right` directions.
    * @param {expression=} md-open Programmatically control whether or not the toolbar is visible.
    */
@@ -95,7 +95,7 @@ goog.require('ngmaterial.core');
       },
 
       bindToController: true,
-      controller: 'MdFabController',
+      controller: 'FabController',
       controllerAs: 'vm',
 
       link: link
@@ -136,8 +136,8 @@ goog.require('ngmaterial.core');
         var width = el.offsetWidth;
         var height = el.offsetHeight;
 
-        // Make it twice as big as it should be since we scale from the center
-        var scale = 2 * (width / triggerElement.offsetWidth);
+        // Make a square
+        var scale = width * 2;
 
         // Set some basic styles no matter what animation we're doing
         backgroundElement.style.backgroundColor = color;
@@ -146,11 +146,24 @@ goog.require('ngmaterial.core');
         // If we're open
         if (ctrl.isOpen) {
           // Turn on toolbar pointer events when closed
-          toolbarElement.style.pointerEvents = 'inherit';
+          toolbarElement.style.pointerEvents = 'initial';
 
-          backgroundElement.style.width = triggerElement.offsetWidth + 'px';
-          backgroundElement.style.height = triggerElement.offsetHeight + 'px';
-          backgroundElement.style.transform = 'scale(' + scale + ')';
+          // Set the width/height to take up the full toolbar width
+          backgroundElement.style.width = scale + 'px';
+          backgroundElement.style.height = scale + 'px';
+
+          // Set the top/left to move up/left (or right) by the scale width/height
+          backgroundElement.style.top = -(scale / 2) + 'px';
+
+          if (element.hasClass('md-right')) {
+            backgroundElement.style.left = -(scale / 2) + 'px';
+            backgroundElement.style.right = null;
+          }
+
+          if (element.hasClass('md-left')) {
+            backgroundElement.style.right = -(scale / 2) + 'px';
+            backgroundElement.style.left = null;
+          }
 
           // Set the next close animation to have the proper delays
           backgroundElement.style.transitionDelay = '0ms';
@@ -164,19 +177,20 @@ goog.require('ngmaterial.core');
           // Turn off toolbar pointer events when closed
           toolbarElement.style.pointerEvents = 'none';
 
-          // Scale it back down to the trigger's size
-          backgroundElement.style.transform = 'scale(1)';
+          // Otherwise, set the width/height to the trigger's width/height
+          backgroundElement.style.width = triggerElement.offsetWidth + 'px';
+          backgroundElement.style.height = triggerElement.offsetHeight + 'px';
 
           // Reset the position
-          backgroundElement.style.top = '0';
+          backgroundElement.style.top = '0px';
 
           if (element.hasClass('md-right')) {
-            backgroundElement.style.left = '0';
+            backgroundElement.style.left = '0px';
             backgroundElement.style.right = null;
           }
 
           if (element.hasClass('md-left')) {
-            backgroundElement.style.right = '0';
+            backgroundElement.style.right = '0px';
             backgroundElement.style.left = null;
           }
 
@@ -202,8 +216,7 @@ goog.require('ngmaterial.core');
         runAnimation(element, className, done);
         done();
       }
-    };
+    }
   }
 })();
-
-ngmaterial.components.fabToolbar = angular.module("material.components.fabToolbar");
+ng.material.components.fabToolbar = angular.module("material.components.fabToolbar");
