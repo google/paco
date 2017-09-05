@@ -1,7 +1,8 @@
 var pacoApp = angular.module('pacoApp', [
   'ngRoute',
   'ngMaterial',
-  'ui.ace'
+  'ui.ace',
+  'nvd3'
 ]);
 
 pacoApp.config(['$sceDelegateProvider', function($sceDelegateProvider) {
@@ -37,6 +38,9 @@ pacoApp.config(['$routeProvider','$locationProvider',
     }).
     when('/respond/:respondExperimentId', {
       templateUrl: 'partials/respond.html',
+    }).
+    when('/hack',{
+      templateUrl: 'partials/hack.html',
     }).
     when('/help/:helpId?', {
       templateUrl: 'partials/help.html',
