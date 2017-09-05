@@ -20,6 +20,11 @@
     "http://java.sun.com/dtd/web-app_2_3.dtd">
 
 <web-app>
+  <!-- Filters -->
+  <filter>
+    <filter-name>Internal Request Identification Servlet Filter</filter-name>
+    <filter-class>com.google.sampling.experiential.server.InternalRequestIdentificationFilter</filter-class>
+  </filter>
    
   <!-- Servlets -->
   <servlet>
@@ -75,6 +80,17 @@
     <servlet-name>backendHubStatsExecutorServlet</servlet-name>
     <url-pattern>/hubJobExecutor</url-pattern>
   </servlet-mapping>
+  <!-- filter mapping -->
+   <filter-mapping>
+    <filter-name>Internal Request Identification Servlet Filter</filter-name>
+    <url-pattern>/backendReportJobExecutor</url-pattern>
+    <url-pattern>/usage_cron*</url-pattern>
+    <url-pattern>/hubJobExecutor*</url-pattern>
+    <url-pattern>/hub_cron*</url-pattern>
+    <url-pattern>/migrateBackend</url-pattern>
+    <url-pattern>/reportsBackend</url-pattern>
+    <url-pattern>/migrate*</url-pattern>
+  </filter-mapping>
   
   <!--  workers are only called internally should not be accessible by others -->
   <security-constraint>
@@ -83,29 +99,10 @@
       <url-pattern>/usage_cron*</url-pattern>
       <url-pattern>/hubJobExecutor*</url-pattern>
       <url-pattern>/hub_cron*</url-pattern>
-    </web-resource-collection>
-    <auth-constraint>
-      <role-name>admin</role-name> 
-    </auth-constraint>
-
-    <user-data-constraint>
-      <transport-guarantee>CONFIDENTIAL</transport-guarantee>
-    </user-data-constraint>
-    
-  </security-constraint>
-  
-  <security-constraint>
-    <web-resource-collection>
       <url-pattern>/migrate*</url-pattern>
     </web-resource-collection>
-    <auth-constraint>
-      <role-name>admin</role-name>
-    </auth-constraint>
     <user-data-constraint>
       <transport-guarantee>CONFIDENTIAL</transport-guarantee>
     </user-data-constraint>
-    
   </security-constraint>
-  
-  
 </web-app>
