@@ -76,7 +76,6 @@
         <servlet-name>bshservlet</servlet-name>
         <servlet-class>bsh.servlet.BshServlet</servlet-class>
     </servlet>
-
     <servlet-mapping>
         <servlet-name>bshservlet</servlet-name>
         <url-pattern>/eval</url-pattern>

@@ -50,7 +50,7 @@ Paco-Server/ear/reportworker/WEB-INF/lib/shared.jar
 # Created by https://www.gitignore.io
 
 ### Xcode ###
-build/
+#build/
 *.pbxuser
 !default.pbxuser
 *.mode1v3
@@ -67,7 +67,7 @@ DerivedData
 Paco-iOS/Paco.xcodeproj/project.xcworkspace/xcuserdata/*
 Paco-iOS/Paco.xcodeproj/project.xcworkspace/xcshareddata/*
 Paco-iOS/Paco.xcodeproj/xcuserdata/*
-Paco-iOS/Paco.xcworkspace/xcuserdata/*
+Paco-iOS/Paco.xcworkspace/xcuserdata/*  
 Paco-iOS/ParseKit/ParseKit.xcodeproj/xcuserdata/*
 Paco-iOS/ParseKit/lib/OCMock/OCMock.xcodeproj/xcuserdata/*
 Paco-iOS/ParseKit/include*

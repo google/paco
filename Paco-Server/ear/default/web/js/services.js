@@ -444,7 +444,13 @@ pacoApp.service('config', function() {
     "App removed",
     "App installed",
     "Permission changed",
-    "View Clicked"
+    "View Clicked",
+    "Notification created", 
+    "Notification shade opened",
+    "Notification shade dismiss all",
+    "Notification shade dismiss notification",
+    "Notification shade closed",
+    "Notification tapped in shade"
   ];
 
   this.esmPeriods = [

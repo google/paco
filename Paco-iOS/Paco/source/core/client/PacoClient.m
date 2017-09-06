@@ -209,7 +209,7 @@ typedef void(^BackgroundFetchCompletionBlock)(UIBackgroundFetchResult result);
 }
 
 - (void)updateServerDomainWithAddress:(NSString*)serverAddress {
-  NSString* prefix = [serverAddress isEqualToString:kPacoLocalServerAddress] ? @"http://" : @"https://";
+  NSString* prefix = [serverAddress hasPrefix:kPacoLocalServerAddress] ? @"http://" : @"https://";
   self.serverDomain = [NSString stringWithFormat:@"%@%@", prefix, serverAddress];
 }
 
