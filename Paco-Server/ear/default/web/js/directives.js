@@ -100,6 +100,14 @@ pacoApp.directive('pacoGroup', function () {
               $location.path('/experiments');
             });
           }
+        } else {
+          $mdDialog.show(
+              $mdDialog.alert()
+              .title('Response Status')
+              .content('Could not save response.<br/>Error: ' + data[0].errorMessage)
+              .ariaLabel('Could not save response')
+              .ok('OK')
+            )
         }
 
       }).error(function(data, status, headers, config) {

@@ -16,7 +16,7 @@ import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
 import com.google.appengine.api.users.User;
-import com.google.appengine.labs.repackaged.com.google.common.base.Strings;
+import com.google.common.base.Strings;
 import com.google.sampling.experiential.server.AuthUtil;
 import com.google.sampling.experiential.server.EventQueryStatus;
 import com.google.sampling.experiential.server.TimeUtil;
