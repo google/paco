@@ -363,12 +363,11 @@ md-input-container.quesDropDown .md-select-menu .md-content {
   height:70px;
 }
 .vizDescBlock{
-  width:100%;
+  width:107%;
   position:absolute;
   padding:5px;
 }
 .vizDescription{
-  background-color: #f2f2f2;
   margin:5px;
   width:100%;
   height:130px;
@@ -376,6 +375,11 @@ md-input-container.quesDropDown .md-select-menu .md-content {
 }
 .vizDescLabel{
   color:black;
+}
+
+.descTextArea{
+  font-size: 13px;
+  height: 81px;
 }
 
 button.md-primary.vizClearButton.md-button.md-ink-ripple{
@@ -486,4 +490,21 @@ span.md-primary.clearTable{
   margin-bottom: 1px;
 }
 
+.titleStaticText{
+  margin-top: 25px;
+  font-weight: 500;
+  margin-left: 10px;
+  font-size: 18px;
+}
+
+.vizTitleContainer{
+  text-align: center;
+}
+
+.descStaticText{
+  margin-top: 33px;
+  margin-left: 10px;
+  font-size: 17px;
+  font-weight: 500;
+}
 
