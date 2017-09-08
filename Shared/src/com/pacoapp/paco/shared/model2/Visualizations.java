@@ -10,13 +10,13 @@ public class Visualizations {
   private String vizTitle;
   private Date modifyDate;
   private String question;
-  private List<String> texts;
+  private List<VizTexts> texts;
   private List<String> participants;
   private String vizType;
   private String vizDesc;
   private Date startDateTime;
   private Date endDateTime;
-  private String xPlotInput;
+  private VizTexts xPlotInput;
 
 
   public int getVizId() {
@@ -58,12 +58,12 @@ public class Visualizations {
   public void setQuestion(String question) {
     this.question = question;
   }
-
-  public List<String> getTexts() {
+  
+  public List<VizTexts> getTexts() {
     return texts;
   }
 
-  public void setTexts(List<String> texts) {
+  public void setTexts(List<VizTexts> texts) {
     this.texts = texts;
   }
 
@@ -107,11 +107,11 @@ public class Visualizations {
     this.endDateTime = endDateTime;
   }
 
-  public String getxPlotData() {
+  public VizTexts getxPlotInput() {
     return xPlotInput;
   }
 
-  public void setxPlotData(String xPlotInput) {
+  public void setxPlotInput(VizTexts xPlotInput) {
     this.xPlotInput = xPlotInput;
   }
   

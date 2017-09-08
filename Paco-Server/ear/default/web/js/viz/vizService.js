@@ -1,11 +1,9 @@
 pacoApp.factory('experimentsVizService', ['$http', 'experimentService', '$filter', function ($http, experimentService, $filter) {
 
-
   var experiment = '';
 
   function getExperiment(id) {
     var getExperiment = experimentService.getExperiment(id).then(function successCallback(experimentData) {
-      console.log(experimentData);
       return experimentData.data;
     }, function errorCallback(error) {
       return error;
@@ -35,15 +33,19 @@ pacoApp.factory('experimentsVizService', ['$http', 'experimentService', '$filter
       var endDate = httpPostBody(endDateQuery);
 
       startDate.then(function (data) {
-        if(data.data.customResponse.length > 0){
-          var format_startDate = $filter('date')(new Date(data.data.customResponse[0].response_time), format);
-          dateRange[0] = format_startDate;
+        if(data.data.customResponse !== undefined){
+          if(data.data.customResponse.length > 0){
+            var format_startDate = $filter('date')(new Date(data.data.customResponse[0].response_time), format);
+            dateRange[0] = format_startDate;
+          }
         }
       });
       endDate.then(function (data) {
-        if(data.data.customResponse.length > 0){
-          var format_endDate = $filter('date')(new Date(data.data.customResponse[0].response_time), format);
-          dateRange[1] = format_endDate;
+        if(data.data.customResponse !== undefined){
+          if(data.data.customResponse.length > 0){
+            var format_endDate = $filter('date')(new Date(data.data.customResponse[0].response_time), format);
+            dateRange[1] = format_endDate;
+          }
         }
       });
       return dateRange;
@@ -61,7 +63,9 @@ pacoApp.factory('experimentsVizService', ['$http', 'experimentService', '$filter
       return error;
     });
     getCount.then(function (data) {
-      eventsCount.push(data.data[0].schedR, data.data[0].missedR, data.data[0].selfR);
+      if(data.data !== undefined){
+        eventsCount.push(data.data[0].schedR, data.data[0].missedR, data.data[0].selfR);
+      }
     });
     return eventsCount;
   }
@@ -69,7 +73,7 @@ pacoApp.factory('experimentsVizService', ['$http', 'experimentService', '$filter
   function getEvents(experimentId, group, input, participants, startDateTime, endDateTime) {
     var message = "";
     if (experimentId != undefined && group != undefined) {
-      message = '{"select":["who","when","response_time","text","answer","client_timezone"], "query" : { "criteria" : "experiment_id = ? and group_name = ?", "values" : [' + experimentId + ', "' + group + '"]},"order":"who","order":"text"}';
+      message = '{"select":["who","when","response_time","text","answer","client_timezone"], "query" : { "criteria" : "experiment_id = ? and group_name = ? and text=?", "values" : [' + experimentId + ', "' + group + '","' + input + '"]},"order":"who","order":"text"}';
     }
     if (experimentId != undefined && participants != undefined && participants.length > 0 && input != undefined) {
       var questionMarks = [];

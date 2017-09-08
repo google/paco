@@ -43,7 +43,15 @@
   fill: #7A99AC;
 }
 
-.vizPickerSelections {
+.vizInputSelections {
+  margin-left: 5px;
+}
+
+.vizFilterSelections{
+  margin-left: 10px;
+}
+
+.vizTypeSelectionDiv {
   margin-left: 25px;
 }
 
@@ -53,12 +61,13 @@
 }
 
 .vizCreateButton {
-  margin-top: 15px;
+  margin-top: 13px;
+  margin-left:15px;
 }
 
 .vizCreateButton .md-button.md-raised:not([disabled]) {
   color: #5c6bc0;
-  font-weight: bold;
+  font-weight: 500;
 }
 
 .filterControls {
@@ -186,8 +195,6 @@ md-select.dateTimeSelect .md-select-value.md-select-placeholder {
   margin-top: 20px;
 }
 
-
-
 .selectdemoSelectHeader .demo-header-searchbox {
   border: none;
   outline: none;
@@ -228,13 +235,13 @@ md-input-container.participantsDropDown:not([md-no-float]) .md-select-placeholde
   color: white;
 }
 
-/*datesDropDown*/
 md-input-container.datesDropDown:not([md-no-float]) .md-select-placeholder span:first-child {
   color: white;
 }
 
 md-input-container.md-input-focused label.quesLabel:not(.md-no-float), md-input-container.md-input-has-placeholder label.quesLabel:not(.md-no-float), md-input-container.md-input-has-value label.quesLabel:not(.md-no-float) {
   color: white;
+  display: none;
 }
 
 md-input-container.md-input-focused label.typesLabel:not(.md-no-float), md-input-container.md-input-has-placeholder label.typesLabel:not(.md-no-float), md-input-container.md-input-has-value label.typesLabel:not(.md-no-float) {
@@ -307,6 +314,7 @@ md-input-container.quesDropDown .md-select-menu .md-content {
 .asterisk {
   color: white;
   margin-top: 19px;
+  font-size: 12px;
 }
 
 .snapshotContainer{
@@ -334,7 +342,7 @@ md-input-container.quesDropDown .md-select-menu .md-content {
 }
 
 .dataCount{
-  font-weight: 700;
+  font-weight: 500;
   color: red;
   font-size: 28px;
 }
@@ -344,7 +352,7 @@ md-input-container.quesDropDown .md-select-menu .md-content {
 }
 
 .dateRangeVal{
-  font-weight: bold;
+  font-weight: 500;
   color: red;
   font-size: 13px;
 }
@@ -370,6 +378,12 @@ md-input-container.quesDropDown .md-select-menu .md-content {
   color:black;
 }
 
+button.md-primary.vizClearButton.md-button.md-ink-ripple{
+  color:white;
+  margin-left:-33px;
+  margin-top: -3px;
+}
+
 .saveDownload{
   margin-top: 80px;
 }
@@ -377,19 +391,21 @@ md-input-container.quesDropDown .md-select-menu .md-content {
 table.vizTable, td.viz, th.viz {
   border: 1px solid #ddd;
   text-align: left;
+  font-size: 14px;
 }
 
 table.vizTable {
   border-collapse: collapse;
   width: 100%;
-  background-color: whitesmoke;
+  background-color: #fff;
 }
 th.viz{
-  background-color: #d8d8d8;
+  background-color: #fff;
+  font-weight: 500;
 }
 
 th.viz, td.viz {
-  padding: 10px;
+  padding: 9.8px;
 }
 .vizTableContainer{
   padding:30px;
@@ -404,6 +420,70 @@ a:hover {
 span.md-primary.clearTable{
   float:right;
   padding:5px;
+  font-size: 15px;
+}
+
+.clearViz{
+  float: right;
+  margin-top: -31px;
+  margin-right: -24px;
+  color: red;
+  font-size: 14px;
+  font-weight: 400;
+}
+
+.separator{
+  color:#d8d8d8;
+  transform: scale(.8, 4);
+  margin-top: 26px;
+  margin-left: 10px;
+  margin-right: 5px;
+}
+
+.yAxisText{
+  font-size:12px;
+  margin-top: 3.5px;
+  margin-left: 15px;
+}
+
+.yAxisTextLabel{
+  color:white;
+  font-size: 16px;
+  margin-top: 8.5px;
+  margin-left: 15px;
+  width:100%;
+}
+
+.categoryLabels{
+  color: lightpink;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.alignVizInput{
+  margin-top: 3px;
+  margin-left: -6px;
+}
+
+.alignLblInput{
+  margin-top: 3px;
+  margin-left: -6px;
+}
+
+.controlsToolbar{
+  height:100px;
+}
+
+.vizPickerRow{
+  margin-top: 55px;
+}
+
+.dateSelections{
+  margin-left: 10px;
+}
+
+.quesToolbar{
+  margin-bottom: 1px;
 }
 
 

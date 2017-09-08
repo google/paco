@@ -18,7 +18,7 @@
         <table class="tableContainer">
           <tr class="rowContainer">
             <td class="cellContainer"><div class="dataCount">{{participantsCount}}</div><div class="countText">Participants</div></td>
-            <td class="cellContainer"><div class="dateRangeVal">{{dateRange[0]}}</div><div class="dateRangeVal">-</div><div class="dateRangeVal">{{dateRange[1]}}</div><div class="countText">Date Range</div></td>
+            <td class="cellContainer"><div class="dateRangeVal">{{dateRange[0]}}</div><div class="dateRangeVal">{{dateRange[1]}}</div><div class="countText">Date Range</div></td>
             <td class="cellContainer"><div class="dataCount">{{responseCounts[0]}}</div><div class="countText">Scheduled Responses</div></td>
             <td class="cellContainer"><div class="dataCount">{{responseCounts[1]}}</div><div class="countText">Missed Responses</div></td>
             <td class="cellContainer"><div class="dataCount">{{responseCounts[2]}}</div><div class="countText">Self Responses</div></td>
@@ -26,8 +26,7 @@
         </table>
 
       </div>
-      <md-toolbar>
-        <!--<span style="color:white">*</span>-->
+      <md-toolbar class="quesToolbar">
         <md-input-container class="quesDropDown">
           <label class="quesLabel">Please choose a data exploration question</label>
           <md-select class="quesSelect" md-container-class="quesContainer" ng-model="selectedQues" ng-change="getTemplate()">
@@ -38,25 +37,54 @@
         </md-input-container>
       </md-toolbar>
 
-      <md-toolbar ng-show="selectedQues">
+      <md-toolbar ng-show="selectedQues" class="controlsToolbar">
         <div class="md-toolbar-tools">
-          <div layout="row vizPickerRow">
-            <types-drop-down ng-show="vizChartTypes" class="vizPickerSelections"></types-drop-down>
-            <div ng-show="multipleInputs" layout="row" class="vizPickerSelections">
+          <div layout="row" class="vizPickerRow">
+            <div layout="column" class="vizTypeSelectionDiv">
+            <div class="categoryLabels">Viz</div>
+            <div ng-show="vizChartTypes" layout="row" class="alignVizInput">
               <span class="asterisk">*</span>
-              <inputs-drop-down></inputs-drop-down>
+              <types-drop-down ></types-drop-down>
+              <div class="separator">|</div>
             </div>
-            <single-input-drop-down ng-show="singleInput" class="vizPickerSelections"></single-input-drop-down>
-            <xy-drop-down ng-show="input1Input2" class="vizPickerSelections"></xy-drop-down>
-            <participants-drop-down ng-show="expParticipants" class="vizPickerSelections"></participants-drop-down>
-            <date-range ng-show="dateRangeControl" class="vizPickerSelections"></date-range>
-            <create-button ng-show="createBtn" class="vizPickerSelections"></create-button>
-          </div>
+            </div>
+            <div layout="column" class="vizInputSelections">
+            <div class="categoryLabels">Data</div>
+              <div class="alignLblInput" layout="row">
+                <div ng-show="multipleInputs" layout="row">
+                  <span class="asterisk">*</span>
+                  <multiple-inputs-drop-down></multiple-inputs-drop-down>
+                </div>
+                <div ng-show="singleInput" layout="row">
+                  <span class="asterisk">*</span>
+                  <single-input-drop-down></single-input-drop-down>
+                </div>
+                  <div ng-show="yAxisLabel" layout="column" >
+                    <label class="yAxisText">y Axis</label>
+                    <label class="yAxisTextLabel">{{yAxisLabel}}</label>
+                  </div>
+                <div ng-show="correlationViz" layout="row">
+                  <span class="asterisk">*</span>
+                  <multiple-inputs-drop-down></multiple-inputs-drop-down>
+                </div>
+                <div class="separator">|</div>
+              </div>
+              </div>
+            <div layout="column" class="vizFilterSelections">
+            <div class="categoryLabels">Filter</div>
+            <div class="alignLblInput" layout="row">
+              <participants-drop-down ng-show="expParticipants"></participants-drop-down>
+              <date-range ng-show="dateRangeControl" class="dateSelections"></date-range>
+            </div>
+            </div>
+            <create-button ng-show="createBtn" class="vizCreateButton"></create-button>
+            </div>
         </div>
       </md-toolbar>
     </div>
 
     <div ng-show="vizTemplate" class="vizTemplate">
+      <!--<div class="clearViz" ng-click="clearViz()">X</div>-->
       <div class="vizCaption">
         <md-input-container class="md-block">
           <input class="vizTitle" ng-model="vizTitle" ng-value="vizTitle">
@@ -81,16 +109,20 @@
     <div ng-show="vizTable" class="vizTableContainer">
       <table class="vizTable">
         <tr class="viz">
+          <th class="viz">Viz Id</th>
           <th class="viz">Title</th>
+          <th class="viz">Date Range</th>
           <th class="viz">Type</th>
-          <th class="viz">Date</th>
+          <th class="viz">Date Created</th>
           <th class="viz"></th>
           <th class="viz"></th>
         </tr>
         <tr class="viz" ng-repeat="viz in vizs track by $index">
+          <td class="viz">{{viz.vizId}}</td>
           <td class="viz">
             <a><span class="md-primary" ng-click="renderViz(viz,$index)">{{viz.vizTitle}}</span></a>
           </td>
+          <td class="viz">{{viz.startDateTime|date:'MM/dd/yyyy'}} - {{viz.endDateTime|date:'MM/dd/yyyy'}}</td>
           <td class="viz">{{viz.vizType}}</td>
           <td class="viz">{{viz.modifyDate|date:'MM/dd/yyyy'}}</td>
           <td class="viz">
@@ -102,7 +134,7 @@
         </tr>
       </table>
       <div class="clearTable">
-        <a><span class="md-primary clearTable" ng-click="clearVizTable()">Clear All</span></a>
+        <a><span class="md-primary clearTable" ng-click="clearVizTable()">Delete All</span></a>
       </div>
     </div>
 
