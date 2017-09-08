@@ -499,7 +499,7 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
 
   private EventDAO createEvent(ResultSet rs) {
     EventDAO event = new EventDAO();
-    List<WhatDAO> whatList = Lists.newArrayList();;
+    List<WhatDAO> whatList = Lists.newArrayList();
     WhatDAO singleWhat = null;
     try {
       event.setExperimentId(rs.getLong(EventServerColumns.EXPERIMENT_ID));

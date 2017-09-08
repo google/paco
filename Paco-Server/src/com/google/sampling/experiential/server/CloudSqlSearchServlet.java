@@ -1,8 +1,6 @@
 package com.google.sampling.experiential.server;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.PrintStream;
 import java.io.UnsupportedEncodingException;
 import java.sql.SQLException;
 import java.text.ParseException;
@@ -52,6 +50,7 @@ import net.sf.jsqlparser.schema.Table;
 import net.sf.jsqlparser.statement.select.AllColumns;
 import net.sf.jsqlparser.statement.select.FromItem;
 import net.sf.jsqlparser.statement.select.Join;
+import net.sf.jsqlparser.statement.select.OrderByElement;
 import net.sf.jsqlparser.statement.select.PlainSelect;
 import net.sf.jsqlparser.statement.select.Select;
 import net.sf.jsqlparser.statement.select.SelectBody;
@@ -67,6 +66,7 @@ public class CloudSqlSearchServlet extends HttpServlet {
   private static List<String> dateColumns = Lists.newArrayList();
   private static final DateTimeFormatter dtf = DateTimeFormat.forPattern("ZZ");
   private static String CLIENT_REQUEST = "ClientReq";
+  private static final String AND = " and ";
   
   
   static{
@@ -122,6 +122,7 @@ public class CloudSqlSearchServlet extends HttpServlet {
       resp.setContentType("text/plain");
       // NOTE: Group by, having and projection columns related functionality can be toggled on and off with the following flag 
       boolean enableGrpByAndProjection = true;
+      int outputRecordCt = 0;
 
       CloudSQLDao impl = new CloudSQLDaoImpl();
       try {
@@ -158,11 +159,14 @@ public class CloudSqlSearchServlet extends HttpServlet {
           SearchUtil.addJoinClause(clientJsqlStatement);
         }
         if(sqlQueryObj.isFullEventAndOutputs()) {
-          optimizedSelect = modifyToOptimizePerformance(clientJsqlStatement);
+          boolean outputColsInWhere = false;
+          if (sqlQueryObj.getCriteriaQuery().contains(OutputBaseColumns.ANSWER) || sqlQueryObj.getCriteriaQuery().contains(OutputBaseColumns.NAME)) {
+            outputColsInWhere = true;
+          }
+          optimizedSelect = modifyToOptimizePerformance(clientJsqlStatement, outputColsInWhere);
         } else {
           optimizedSelect = clientJsqlStatement;
         }
-        
         List<Long> adminExperimentsinDB = ExperimentAccessManager.getExistingExperimentIdsForAdmin(loggedInUser, 0,
                                                                                                    null)
                                                                  .getExperiments();
@@ -175,15 +179,17 @@ public class CloudSqlSearchServlet extends HttpServlet {
           evQryStatus.setEvents(evtList);
           evQryStatus.setStatus(Constants.SUCCESS);
           results = mapper.writeValueAsString(evQryStatus);
+          outputRecordCt = results.length();
         } else {
           JSONArray resultsArray = impl.getResultSetAsJson(aclQuery, tzForClient, null);
           JSONObject resultset = new JSONObject();
           resultset.put("customResponse", resultsArray);
           resultset.put("status", Constants.SUCCESS);
           results = resultset.toString();
+          outputRecordCt = resultsArray.length();
         }
         long diff = System.currentTimeMillis() - startTime;
-        log.info("complete search qry took " + diff);
+        log.info("complete search qry took " + diff + " and returned " + outputRecordCt + "records.");
         resp.getWriter().println(results);
       } catch (JSONException jsonEx) {
         String exceptionString = ExceptionUtil.getStackTraceAsString(jsonEx);
@@ -255,9 +261,9 @@ public class CloudSqlSearchServlet extends HttpServlet {
   //instead of currentSelect which is --> select * from events inner join outputs on events._id=outputs.event_id where <conditions> <limit><group><order> 
    // do a late fetch as
    // optimizedSelect(firstJoinObj) which is -->               select * from events inner join ouputs on events._id=outputs.event_id
-   // (secondJoinObj with subselect)                                          inner join (select * from events inner join outputs on events._id=outputs.event_id where <conditions> <limit><group><order>) as clientReq 
+   // (secondJoinObj with subselect)                                          inner join (select _id, text from events inner join outputs on events._id=outputs.event_id where <conditions> <limit><group><order>) as clientReq 
    // (with secondJoinCondition)                                                    on events._id=clientReq._id and outputs.event_id=clientReq._id and outputs.text=clientReq.text
-   private static Select modifyToOptimizePerformance(Select currentSelect) throws JSQLParserException {
+   private static Select modifyToOptimizePerformance(Select currentSelect, boolean outputColsInWhere) throws JSQLParserException {
      PlainSelect optimizedPlainSelect = null;
      Select optimizedSelect = null;
      Expression firstJoinOnExp = null;
@@ -272,12 +278,16 @@ public class CloudSqlSearchServlet extends HttpServlet {
      // even though it is a select * , when we optimize we change it to get only _id and text
      modifyProjectionColumnsToClientQuery(currentSelect);
      clientReqQuery.setSelectBody(currentSelect.getSelectBody());
+     
      clientReqQuery.setAlias(new Alias(CLIENT_REQUEST));
      
      // second join on condition
-     secondJoinCondition.append(EventServerColumns.TABLE_NAME + "." + Constants.UNDERSCORE_ID+ " = " +CLIENT_REQUEST + "." + Constants.UNDERSCORE_ID + " AND ");
-     secondJoinCondition.append(OutputBaseColumns.TABLE_NAME + "." + OutputBaseColumns.EVENT_ID + " = "  + CLIENT_REQUEST + "." + Constants.UNDERSCORE_ID + " AND ");
-     secondJoinCondition.append(OutputBaseColumns.TABLE_NAME + "." + OutputBaseColumns.NAME+ " = "  + CLIENT_REQUEST + "." + OutputBaseColumns.NAME);
+     secondJoinCondition.append(EventServerColumns.TABLE_NAME + "." + Constants.UNDERSCORE_ID+ " = " +CLIENT_REQUEST + "." + Constants.UNDERSCORE_ID + AND);
+     secondJoinCondition.append(OutputBaseColumns.TABLE_NAME + "." + OutputBaseColumns.EVENT_ID + " = "  + CLIENT_REQUEST + "." + Constants.UNDERSCORE_ID);
+     // if where clause contains text/answer then do not add this condition
+     if (!outputColsInWhere) {
+       secondJoinCondition.append(AND +OutputBaseColumns.TABLE_NAME + "." + OutputBaseColumns.NAME+ " = "  + CLIENT_REQUEST + "." + OutputBaseColumns.NAME);
+     }
           
      try {
        firstJoinOnExp = CCJSqlParserUtil.parseCondExpression(EventServerColumns.TABLE_NAME + "." + Constants.UNDERSCORE_ID+ " = " +OutputBaseColumns.TABLE_NAME+ "."+OutputBaseColumns.EVENT_ID);
@@ -298,6 +308,12 @@ public class CloudSqlSearchServlet extends HttpServlet {
      jList.add(secondJoinObj);
      optimizedSelect = SelectUtils.buildSelectFromTableAndSelectItems(new Table(EventBaseColumns.TABLE_NAME), new AllColumns());
      optimizedPlainSelect = ((PlainSelect) optimizedSelect.getSelectBody());
+     // Since we are making an inner query and outer query to improve performance
+     // when we have an order by, the outer qry does not order the records in the order we want, so adding the order clause to outer qry as well
+     List<OrderByElement> orderByList = ((PlainSelect)currentSelect.getSelectBody()).getOrderByElements();
+     if ( orderByList != null) {
+       optimizedPlainSelect.setOrderByElements(orderByList);  
+     }
      optimizedPlainSelect.setJoins(jList);
      return optimizedSelect;
    }

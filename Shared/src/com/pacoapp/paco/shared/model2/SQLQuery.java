@@ -108,10 +108,18 @@ public class SQLQuery {
     }
 
     private Builder addDefaultValues(SQLQuery obj) {
-        // provide default sort order which is Event._Id desc
-      if (obj.getGroupBy() == null && obj.sortOrder == null) {
-         obj.sortOrder = EventBaseColumns.TABLE_NAME+"."+Constants.UNDERSCORE_ID.concat(Constants.BLANK).concat(Constants.DESC);
-       }
+      // find if there is a distinct clause
+      boolean isDistinct = false;
+      for(String s : obj.getProjection()) {
+        if (s.startsWith(Constants.DISTINCT)) {
+          isDistinct = true;
+          break;
+        }
+      }
+      // provide default sort order which is Event._Id desc
+      if (obj.getGroupBy() == null && obj.sortOrder == null && !isDistinct) {
+        obj.sortOrder = EventBaseColumns.TABLE_NAME+"."+Constants.UNDERSCORE_ID.concat(Constants.BLANK).concat(Constants.DESC);
+      }
 
       if (obj.getProjection() == null) {
         obj.projection = new String[] { Constants.STAR };

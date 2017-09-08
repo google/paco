@@ -11,6 +11,7 @@ public class Constants {
   public static final String ID = "id";
   public static final String STAR = "*";
   public static final String SELECT = "select";
+  public static final String DISTINCT = "distinct";
   public static final String QUERY = "query";
   public static final String CRITERIA = "criteria";
   public static final String VALUES = "values";
