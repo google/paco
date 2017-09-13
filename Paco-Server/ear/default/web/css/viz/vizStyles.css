@@ -78,7 +78,6 @@
   margin-left: 10px;
 }
 
-
 .vizContainer {
   background-color: white;
   width: 98%;
@@ -86,8 +85,7 @@
 
 .vizTemplate {
   padding: 20px;
-  width: 97%;
-  margin-top: 20px;
+  width: 96.5%;
   background-color: white;
 }
 
@@ -113,7 +111,8 @@
 }
 
 md-input-container.quesDropDown.md-input-has-value .md-select-value > span:not(.md-select-icon) {
-  color: white;
+  /*color: white;*/
+  color:black;
 }
 
 div.tooltip.bars {
@@ -162,7 +161,8 @@ start-date-picker.filterControls.div.md-datepicker-input-container {
 
 .quesDropDown {
   font-size: 16px;
-  color: white;
+  /*color: white;*/
+  color:black;
 }
 
 .dateTimeSelect {
@@ -240,7 +240,8 @@ md-input-container.datesDropDown:not([md-no-float]) .md-select-placeholder span:
 }
 
 md-input-container.md-input-focused label.quesLabel:not(.md-no-float), md-input-container.md-input-has-placeholder label.quesLabel:not(.md-no-float), md-input-container.md-input-has-value label.quesLabel:not(.md-no-float) {
-  color: white;
+  /*color: white;*/
+  color:black;
   display: none;
 }
 
@@ -269,7 +270,8 @@ md-input-container.typesDropDown.md-input-has-value .md-select-value > span:not(
 }
 
 md-input-container.quesDropDown:not([md-no-float]) .md-select-placeholder span:first-child {
-  color: white;
+  /*color: white;*/
+  color:black;
 }
 
 md-input-container.participantsDropDown.md-input-has-value .md-select-value > span:not(.md-select-icon) {
@@ -289,8 +291,9 @@ md-input-container.quesDropDown .md-select-menu .md-content {
 }
 
 .quesSelect {
-  color: white;
-  margin-left:40px;
+  /*color: white;*/
+  color:black;
+  /*margin-left:10px;*/
   margin-right: 40px;
 }
 
@@ -412,7 +415,8 @@ th.viz, td.viz {
   padding: 9.8px;
 }
 .vizTableContainer{
-  padding:30px;
+  /*padding:15px;*/
+  margin-top: 20px;
   height: 100%;
 }
 
@@ -506,5 +510,14 @@ span.md-primary.clearTable{
   margin-left: 10px;
   font-size: 17px;
   font-weight: 500;
+}
+
+.vizInactive{
+  background-color: white;
+}
+
+.archivesLabel{
+  /*margin-left: 15px;*/
+  margin-top: 40px;
 }
 

@@ -63,7 +63,7 @@ pacoApp.factory('experimentsVizService', ['$http', 'experimentService', '$filter
       return error;
     });
     getCount.then(function (data) {
-      if(data.data !== undefined){
+      if(data.data[0] !== undefined){
         eventsCount.push(data.data[0].schedR, data.data[0].missedR, data.data[0].selfR);
       }
     });
