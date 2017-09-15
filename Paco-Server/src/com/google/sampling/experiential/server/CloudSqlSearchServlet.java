@@ -179,7 +179,7 @@ public class CloudSqlSearchServlet extends HttpServlet {
           evQryStatus.setEvents(evtList);
           evQryStatus.setStatus(Constants.SUCCESS);
           results = mapper.writeValueAsString(evQryStatus);
-          outputRecordCt = results.length();
+          outputRecordCt = evtList.size();
         } else {
           JSONArray resultsArray = impl.getResultSetAsJson(aclQuery, tzForClient, null);
           JSONObject resultset = new JSONObject();
