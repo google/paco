@@ -1,5 +1,5 @@
 pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsVizService', '$timeout', '$routeParams', '$filter', '$mdDialog', '$sce', function ($scope, $element, $compile, experimentsVizService, $timeout, $routeParams, $filter, $mdDialog, $sce) {
-  
+
   $scope.dateRangeControl = false;
   $scope.multipleInputs = false;
   $scope.expParticipants = false;
@@ -16,6 +16,7 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
   $scope.backButton = true;
   $scope.forwardButton = true;
   $scope.vizHistory = [];
+  $scope.drawButton = true;
 
   var responseTypeMap = new Map();
   var responseMetaData = [];
@@ -193,53 +194,20 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
       $scope.template = questionsMap.get($scope.selectedQues);
       if ($scope.template === 1) {
         toggleVizControls(false, true, false, true, true, true, false);
-        // $scope.templateChange = true;
-        // $scope.disableVizParams = false;
-        // if ($scope.renderVisualization) {
-        //   $scope.vizTransitions = true;
-        // } else {
-        //   $scope.vizTransitions = false;
-        // }
-        //
-        // if ($scope.vizTemplate) {
-        //   inactiveStateStyling();
-        //   $scope.disableCaptions = true;
-        // }
         populateVizParams();
-        // vizMode();
+        clearViz();
       } else if ($scope.template === 2) {
         toggleVizControls(true, true, false, true, true, true, false);
-        // $scope.templateChange = true;
-        // $scope.disableVizParams = false;
-        // if ($scope.renderVisualization) {
-        //   $scope.vizTransitions = true;
-        // } else {
-        //   $scope.vizTransitions = false;
-        // }
         populateVizParams();
-        // vizMode();
+        clearViz();
       } else if ($scope.template === 3) {
         toggleVizControls(true, false, true, true, true, true, true);
-        // $scope.templateChange = true;
-        // $scope.disableVizParams = false;
-        // if ($scope.renderVisualization) {
-        //   $scope.vizTransitions = true;
-        // } else {
-        //   $scope.vizTransitions = false;
-        // }
         populateVizParams();
-        // vizMode();
+        clearViz();
       } else if ($scope.template === 4) {
         toggleVizControls(true, false, false, true, true, true, true);
-        // $scope.templateChange = true;
-        // $scope.disableVizParams = false;
-        // if ($scope.renderVisualization) {
-        //   $scope.vizTransitions = true;
-        // } else {
-        //   $scope.vizTransitions = false;
-        // }
         populateVizParams();
-        // vizMode();
+        clearViz();
       }
     }
   };
@@ -316,6 +284,19 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
         $scope.groupsSet.add(input.group);
       });
     }
+    $scope.drawButton = false;
+  };
+
+  $scope.getSelectedType = function(){
+    $scope.drawButton = false;
+  };
+
+  $scope.getParticipants = function(){
+    $scope.drawButton = false;
+  };
+
+  $scope.getDateTime = function(){
+    $scope.drawButton = false;
   };
 
   function axisLabels() {
@@ -432,6 +413,13 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
     }
     displayDescription(viz);
     displayTitle(viz);
+  }
+
+  function clearViz(){
+    d3.selectAll('.vizContainer' + "> *").remove();
+    $scope.vizTemplate = false;
+    $scope.saveDownload = false;
+    $scope.drawButton = true;
   }
 
   function displayDescription(viz) {
@@ -1319,6 +1307,7 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
       $scope.saveDownload = true;
       $scope.editMode = true;
       $scope.editTextMode = true;
+      $scope.drawButton = true;
     }
   };
 
@@ -1436,8 +1425,7 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
         return;
       }
     });
-    d3.selectAll('.vizContainer' + "> *").remove();
-    $scope.vizTemplate = false;
+    clearViz();
     $scope.currentViz = prevViz[0];
     setParams(prevViz[0]);
   };
@@ -1458,8 +1446,7 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
         return;
       }
     });
-    d3.selectAll('.vizContainer' + "> *").remove();
-    $scope.vizTemplate = false;
+    clearViz();
     $scope.currentViz = nextViz[0];
     setParams(nextViz[0]);
   };
@@ -1704,8 +1691,7 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
   }
 
   $scope.getSelectedViz = function (vizLog) {
-    d3.selectAll('.vizContainer' + "> *").remove();
-    $scope.vizTemplate = false;
+    clearViz();
     $scope.currentViz = vizLog[0];
     setParams(vizLog[0]);
     $scope.vizId = vizLog[0].vizId;
