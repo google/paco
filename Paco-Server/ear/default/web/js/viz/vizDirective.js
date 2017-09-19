@@ -20,11 +20,11 @@ pacoApp.directive('singleInputDropDown', [function () {
   }
 }]);
 
-pacoApp.directive('participantsDropDown', [ function () {
+pacoApp.directive('participantsDropDown', [function () {
 
   return {
     restrict: 'E',
-    templateUrl:'partials/viz/participantsControl.html',
+    templateUrl: 'partials/viz/participantsControl.html',
     controller: 'VizCtrl',
     link: function (scope, element, attrs, controller) {
 
@@ -32,15 +32,15 @@ pacoApp.directive('participantsDropDown', [ function () {
   }
 }]);
 
-pacoApp.directive('typesDropDown', [ function () {
+pacoApp.directive('typesDropDown', [function () {
 
   return {
     restrict: 'E',
-    template: '<md-input-container class="typesDropDown">'+
-    '<label class="typesLabel">Types</label>'+
-    '<md-select ng-model="selectedType"  md-on-close="getSelectedType()">'+
-    '<md-optgroup label="Viz Types">'+
-    '<md-option ng-repeat="type in vizTypes" ng-value="type">{{type}}</md-option>'+
+    template: '<md-input-container class="typesDropDown">' +
+    '<label class="typesLabel">Types</label>' +
+    '<md-select ng-model="selectedType"  md-on-close="getSelectedType()">' +
+    '<md-optgroup label="Viz Types">' +
+    '<md-option ng-repeat="type in vizTypes" ng-value="type">{{type}}</md-option>' +
     '</md-optgroup></md-select></md-input-container>',
     controller: 'VizCtrl',
     link: function (scope, element, attrs, controller) {
@@ -50,13 +50,12 @@ pacoApp.directive('typesDropDown', [ function () {
 }]);
 
 pacoApp.directive('createButton', [function () {
-
   return {
     restrict: 'E',
-    template: '<md-input-container class="vizCreateButton">'+
-    '<md-button class="md-raised" ng-disabled="createBtnDisabled" ng-click="createViz($event)">{{createText}}</md-button>'+
+    template: '<md-input-container class="vizCreateButton">' +
+    '<md-button class="md-raised" ng-disabled="createBtnDisabled" ng-click="createViz(undefined,$event)">Draw</md-button>' +
     '</md-input-container>',
-     controller: 'VizCtrl', //Embed a custom controller in the directive
+    controller: 'VizCtrl', //Embed a custom controller in the directive
     link: function (scope, element, attrs, controller) {
 
     }
@@ -66,8 +65,8 @@ pacoApp.directive('createButton', [function () {
 pacoApp.directive('clearButton', [function () {
   return {
     restrict: 'E',
-    template: '<md-input-container>'+
-    '<md-button class="md-primary vizClearButton" ng-click="clearViz()">Clear</md-button>'+
+    template: '<md-input-container>' +
+    '<md-button class="md-primary vizClearButton" ng-click="clearViz()">Clear</md-button>' +
     '</md-input-container>',
     controller: 'VizCtrl', //Embed a custom controller in the directive
     link: function (scope, element, attrs, controller) {
@@ -76,7 +75,7 @@ pacoApp.directive('clearButton', [function () {
   }
 }]);
 
-pacoApp.directive('dateRange',[function(){
+pacoApp.directive('dateRange', [function () {
   return {
     restrict: 'E',
     templateUrl: 'partials/viz/dateTimeControl.html',
@@ -85,6 +84,17 @@ pacoApp.directive('dateRange',[function(){
 
     }
   }
+}]);
 
+
+pacoApp.directive('historyDropDown', [function () {
+  return {
+    restrict: 'E',
+    templateUrl: 'partials/viz/historyDropDown.html',
+    controller: 'VizCtrl',
+    link: function (scope, element, attrs, controller) {
+
+    }
+  }
 }]);
 

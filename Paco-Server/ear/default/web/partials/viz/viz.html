@@ -40,8 +40,8 @@
             </td>
           </tr>
         </table>
-
       </div>
+      <div class="vizSectionLabels"><span>Data Exploration</span></div>
       <md-input-container class="quesDropDown">
         <label class="quesLabel">Please choose a data exploration question</label>
         <md-select class="quesSelect" md-container-class="quesContainer" ng-model="selectedQues"
@@ -93,75 +93,96 @@
               </div>
             </div>
             <create-button ng-show="createBtn" class="vizCreateButton"></create-button>
+            <div layout="row" class="vizRevisions">
+              <md-button class="backArrow backButton" ng-disabled="backButton" ng-click="prevViz()"></md-button>
+              <history-drop-down></history-drop-down>
+              <md-button class="frwdArrow frwdButton" ng-disabled="forwardButton" ng-click="nextViz()"></md-button>
+            </div>
             <md-button ng-show="saveDownload" class="md-primary" style="color:white" ng-click="saveViz()">Save
             </md-button>
-            <md-button ng-show="saveDownload" class="md-primary" style="color:white">Download</md-button>
+            <md-button id="download" pdf-save-button="idOne" pdf-name="test.pdf" ng-show="saveDownload"
+                       class="md-primary" style="color:white">Download
+            </md-button>
           </div>
         </div>
       </md-toolbar>
     </div>
 
-    <div ng-show="vizTemplate" class="vizTemplate" ng-style="{'background-color': templateStyle.bgColor}">
+    <div ng-show="vizTemplate" class="vizTemplate" id="vizTemplate">
       <div layout="row" class="vizTitleContainer">
-        <span class="titleStaticText" ng-style="{'color': textColor.bgColor}">Title:</span>
-        <div class="vizCaption" ng-style="{'background-color': titleStyle.bgColor}">
+        <div class="vizCaption" ng-show="editTitleTextMode">
           <md-input-container class="md-block">
-            <input class="vizTitle" ng-disabled="disableCaptions" ng-model="vizTitle" ng-value="vizTitle">
+            <input class="vizTitle" ng-model="vizTitle" ng-value="vizTitle">
+            <div class="doneButton" ng-click="confirmTitle(vizTitle)"></div>
+            <div class="resetTextButton" ng-click="resetTitle(vizTitle)"></div>
           </md-input-container>
         </div>
+        <div class="vizTitle" layout="row" layout-align="center" ng-show="editTitleMode" ng-hide="editTitleTextMode">
+          <span>{{vizTitle}}</span>
+          <div ng-show="vizTitle" ng-click="editTitle()" class="editTextButton"></div>
+        </div>
       </div>
-      <div class="vizContainer"
-           ng-style="{'background-color': vizContainerStyle.bgColor,'opacity':vizContainerStyle.opacity}"></div>
-      <div layout="row">
-        <span class="descStaticText" ng-style="{'color': textColor.bgColor}">Description:</span>
+      <div class="vizContainer"></div>
+      <div ng-hide="editDescMode" ng-show="editDescTextMode">
+        <div class="descStaticText" layout="row"><span>Description:</span></div>
         <div class="vizDescription">
           <div class="vizDescBlock" layout-gt-sm="row">
             <md-input-container class="md-block" style="width:78%">
-              <textarea ng-disabled="disableCaptions" class="descTextArea" ng-model="vizDesc" md-maxlength="500"
+              <textarea class="descTextArea" ng-style={'height':descTextarea.height} ng-model="vizDescription"
+                        md-maxlength="500"
                         rows="3"
                         md-select-on-focus></textarea>
+              <div class="confirmDesc" ng-click="confirmDesc()"></div>
+              <div class="resetDesc" ng-click="resetDesc()"></div>
             </md-input-container>
           </div>
         </div>
       </div>
-    </div>
-
-    <div class="archivesLabel"><span>Viz Archives</span></div>
-    <div ng-show="vizTable" class="vizTableContainer">
-      <table class="vizTable">
-        <tr class="viz">
-          <th class="viz">Viz Id</th>
-          <th class="viz">Title</th>
-          <th class="viz">Date Range</th>
-          <th class="viz">Type</th>
-          <th class="viz">Date Created</th>
-          <th class="viz"></th>
-          <th class="viz"></th>
-        </tr>
-        <tr class="viz" ng-repeat="viz in vizs track by $index">
-          <td class="viz">{{viz.vizId}}</td>
-          <td class="viz">
-            <a><span class="md-primary" ng-click="renderViz(viz,$index)">{{viz.vizTitle}}</span></a>
-          </td>
-          <td class="viz">{{viz.startDateTime|date:'MM/dd/yyyy'}} - {{viz.endDateTime|date:'MM/dd/yyyy'}}</td>
-          <td class="viz">{{viz.vizType}}</td>
-          <td class="viz">{{viz.modifyDate|date:'MM/dd/yyyy'}}</td>
-          <td class="viz">
-            <a><span class="md-primary">Download</span></a>
-          </td>
-          <td class="viz">
-            <a> <span class="md-primary" ng-click="deleteViz(viz,$index)">Delete</span></a>
-          </td>
-        </tr>
-      </table>
-      <div class="clearTable">
-        <a><span class="md-primary clearTable" ng-click="clearVizTable()">Delete All</span></a>
+      <div ng-show="editDescMode">
+        <div class="descStaticText" layout="row"><span>Description:</span>
+          <div ng-show="editMode" class="editDescButton" ng-click="editDesc()"></div>
+        </div>
+        <div class="descText" ng-bind-html="vizDescription"></div>
       </div>
     </div>
+  </div>
 
-    <div ng-if="error" class="error viz">
-      Error - {{error.code}}: {{error.data}} {{error.message}}
+  <div ng-show="vizTable" class="vizTableContainer">
+    <div class="vizSectionLabels"><span>Viz Archives</span></div>
+    <table class="vizTable">
+      <tr class="viz">
+        <th class="viz">Viz Id</th>
+        <th class="viz">Title</th>
+        <th class="viz">Date Range</th>
+        <th class="viz">Type</th>
+        <th class="viz">Date Created</th>
+        <th class="viz"></th>
+        <th class="viz"></th>
+      </tr>
+      <tr class="viz" ng-repeat="viz in vizs track by $index">
+        <td class="viz">{{viz.vizId}}</td>
+        <td class="viz">
+          <a><span class="md-primary" ng-click="renderViz(viz,$index)">{{viz.vizTitle}}</span></a>
+        </td>
+        <td class="viz">{{viz.startDateTime|date:'MM/dd/yyyy'}} - {{viz.endDateTime|date:'MM/dd/yyyy'}}</td>
+        <td class="viz">{{viz.vizType}}</td>
+        <td class="viz">{{viz.modifyDate|date:'MM/dd/yyyy'}}</td>
+        <td class="viz">
+          <a><span class="md-primary">Download</span></a>
+        </td>
+        <td class="viz">
+          <a> <span class="md-primary" ng-click="deleteViz(viz,$index)">Delete</span></a>
+        </td>
+      </tr>
+    </table>
+    <div class="clearTable">
+      <a><span class="md-primary clearTable" ng-click="clearVizTable()">Delete All</span></a>
     </div>
   </div>
+
+  <div ng-if="error" class="error viz">
+    Error - {{error.code}}: {{error.data}} {{error.message}}
+  </div>
+</div>
 </div>
 
