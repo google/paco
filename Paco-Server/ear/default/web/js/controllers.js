@@ -724,7 +724,7 @@ pacoApp.controller('HackCtrl', ['$scope', '$http', function ($scope, $http) {
   $scope.submitForm = function () {
      $http({
      method  : 'POST',
-     url     : '/csSearch?tz=America/Los_Angeles',
+     url     : '/csSearch',
      data    : angular.fromJson($scope.hackRequest),
      headers: {'Content-Type': 'application/json'}
     })
