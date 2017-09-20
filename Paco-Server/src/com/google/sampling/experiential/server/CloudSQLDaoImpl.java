@@ -585,7 +585,7 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
       conn.commit();
       retVal = true;
     } catch(SQLException sqle) { 
-      log.info("Exception while inserting to failed events table" + failedJson);
+      log.info("Exception while inserting to failed events table" + failedJson + ":" +  sqle);
     } 
     finally {
       try {

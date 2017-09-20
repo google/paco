@@ -182,7 +182,7 @@ public class EventRetriever {
         log.warning(ErrorMessages.TEXT_PARSE_EXCEPTION.getDescription() + "for request: " +eventJson + e);
       } catch (Exception e) {
         cloudSqlDaoImpl.insertFailedEvent(eventJson.toString(), ErrorMessages.GENERAL_EXCEPTION.getDescription(), e.getMessage());
-        log.warning(ErrorMessages.GENERAL_EXCEPTION.getDescription() + "for request: " +eventJson + e.getStackTrace());
+        log.warning(ErrorMessages.GENERAL_EXCEPTION.getDescription() + "for request: " +eventJson + e);
       }
     } else {
       Transaction tx = null;
@@ -269,7 +269,7 @@ public class EventRetriever {
       log.severe("while sending to cloud sql queue" + e);
     }
     TaskOptions to = TaskOptions.Builder.withUrl("/csInsert").payload(eventJson.toString());
-    if (!System.getProperty("com.google.appengine.runtime.version").startsWith("Google App Engine/")) {
+    if (EnvironmentUtil.isDevServer()) {
       queue.add(to.header("Host", ModulesServiceFactory.getModulesService().getVersionHostname("mapreduce", null)));
     } else {
       queue.add(to);

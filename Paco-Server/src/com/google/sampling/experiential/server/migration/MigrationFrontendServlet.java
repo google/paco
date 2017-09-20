@@ -34,11 +34,11 @@ import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
-import com.google.appengine.api.modules.ModulesService;
 import com.google.appengine.api.modules.ModulesServiceFactory;
 import com.google.appengine.api.users.User;
 import com.google.appengine.api.utils.SystemProperty;
 import com.google.sampling.experiential.server.AuthUtil;
+import com.google.sampling.experiential.server.EnvironmentUtil;
 import com.google.sampling.experiential.server.PacoModule;
 import com.pacoapp.paco.shared.util.TimeUtil;
 
@@ -58,33 +58,39 @@ public class MigrationFrontendServlet extends HttpServlet {
     resp.setContentType("application/json;charset=UTF-8");
 
     User user = AuthUtil.getWhoFromLogin();
-    String cursor = null;
-    DateTime stDate = null;
-    DateTime endDate = null;
-    cursor =  req.getParameter("cursor");
-    String jobName = req.getParameter("name");
-    String startTime = req.getParameter("startTime");
-    String endTime = req.getParameter("endTime");
-    try{
-      DateTimeFormatter formatter  = DateTimeFormat.forPattern(TimeUtil.DATE_TIME_WITH_NO_TZ);
-      if(startTime!=null && endTime != null) {
-        stDate = formatter.parseDateTime(startTime);
-        endDate = formatter.parseDateTime(endTime);
+    if (user == null) {
+      AuthUtil.redirectUserToLogin(req, resp);
+    } else if (AuthUtil.isUserAdmin()){
+      String cursor = null;
+      DateTime stDate = null;
+      DateTime endDate = null;
+      cursor =  req.getParameter("cursor");
+      String jobName = req.getParameter("name");
+      String startTime = req.getParameter("startTime");
+      String endTime = req.getParameter("endTime");
+      try{
+        DateTimeFormatter formatter  = DateTimeFormat.forPattern(TimeUtil.DATE_TIME_WITH_NO_TZ);
+        if(startTime!=null && endTime != null) {
+          stDate = formatter.parseDateTime(startTime);
+          endDate = formatter.parseDateTime(endTime);
+        }
+      } catch (IllegalArgumentException e ){
+        resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
       }
-    } catch (IllegalArgumentException e ){
-      resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
-    }
-    String jobId = sendMigrateRequestToBackend(req, jobName, cursor, stDate, endDate);
-    String redirectUrl = null;
-    // On dev local, when we kick off job from backend module - migration with correct port number, 
-    // the job status which is defined in default module is getting searched in migration module.
-    // In other environments, the request gets routed through dispatch xml.
-    if (!System.getProperty("com.google.appengine.runtime.version").startsWith("Google App Engine/")) {
-      redirectUrl = "http://"+ModulesServiceFactory.getModulesService().getVersionHostname("default", null)+"/jobStatus?jobId=" + jobId;
+      String jobId = sendMigrateRequestToBackend(req, jobName, cursor, stDate, endDate);
+      String redirectUrl = null;
+      // On dev local, when we kick off job from backend module - migration with correct port number, 
+      // the job status which is defined in default module is getting searched in migration module.
+      // In other environments, the request gets routed through dispatch xml.
+      if (EnvironmentUtil.isDevServer()) {
+        redirectUrl = "http://"+ModulesServiceFactory.getModulesService().getVersionHostname("default", null)+"/jobStatus?jobId=" + jobId;
+      } else {
+        redirectUrl = "/jobStatus?jobId=" + jobId;
+      }
+      resp.sendRedirect(redirectUrl);
     } else {
-      redirectUrl = "/jobStatus?jobId=" + jobId;
+      resp.sendError(403);
     }
-    resp.sendRedirect(redirectUrl);
   }
 
   private String sendMigrateRequestToBackend(HttpServletRequest req, String jobName, String cursor, DateTime startDateTime, DateTime endDateTime) throws IOException {

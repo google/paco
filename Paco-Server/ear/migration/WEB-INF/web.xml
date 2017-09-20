@@ -12,10 +12,6 @@
     "http://java.sun.com/dtd/web-app_2_3.dtd">
 
 <web-app>
-    <filter>
-    <filter-name>Internal Request Identification Servlet Filter</filter-name>
-    <filter-class>com.google.sampling.experiential.server.InternalRequestIdentificationFilter</filter-class>
-  </filter>
   <servlet>
     <servlet-name>ServerCreateServlet</servlet-name>
     <servlet-class>com.google.sampling.experiential.server.migration.CloudSQLCreateServlet</servlet-class>
@@ -56,14 +52,6 @@
     <servlet-name>migrationFrontendServlet</servlet-name>
     <url-pattern>/migration/migrate</url-pattern>
   </servlet-mapping>
-  <filter-mapping>
-    <filter-name>Internal Request Identification Servlet Filter</filter-name>
-    <!-- <url-pattern>/*</url-pattern> -->
-    <url-pattern>/migration/csCreate</url-pattern>
-    <url-pattern>/migration/csFailedEventsInsert</url-pattern>
-    <url-pattern>/migration/eventCounter</url-pattern>
-    <url-pattern>/migration/mayJuneEventCounter</url-pattern>
-  </filter-mapping>
  
   <!-- gwt-only client endpoints use UserService with https -->
   <!-- admin only endpoints use UserService, https, and admin role -->
@@ -71,6 +59,9 @@
     <web-resource-collection>
       <url-pattern>/*</url-pattern>
     </web-resource-collection>
+    <auth-constraint>
+      <role-name>admin</role-name>
+    </auth-constraint>
     <user-data-constraint>
       <transport-guarantee>CONFIDENTIAL</transport-guarantee>
     </user-data-constraint>
