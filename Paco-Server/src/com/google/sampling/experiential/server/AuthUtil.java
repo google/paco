@@ -10,7 +10,6 @@ import com.google.appengine.api.oauth.OAuthServiceFactory;
 import com.google.appengine.api.users.User;
 import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
-import com.google.appengine.api.utils.SystemProperty;
 
 public class AuthUtil {
   private static final String EMAIL_SCOPE = "https://www.googleapis.com/auth/userinfo.email";
@@ -50,7 +49,7 @@ public class AuthUtil {
     if (email == null) {
       throw new IllegalArgumentException("User not logged in");
     }
-    if (isDevInstance(req)) {
+    if (EnvironmentUtil.isDevInstance()) {
       if ("example@example.com".equalsIgnoreCase(email)) {
         //throw new IllegalArgumentException("You need to specify a test acct to return when testing mobile clients.");
         // uncomment the line below and put in the test acct. This is necessary because the dev appengine server
@@ -66,10 +65,6 @@ public class AuthUtil {
       }
     }
     return email.toLowerCase();
-  }
-
-  public static boolean isDevInstance(HttpServletRequest req) {
-    return SystemProperty.environment.value() == SystemProperty.Environment.Value.Development;
   }
 
 }

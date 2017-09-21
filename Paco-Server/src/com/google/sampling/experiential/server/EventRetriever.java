@@ -269,7 +269,7 @@ public class EventRetriever {
       log.severe("while sending to cloud sql queue" + e);
     }
     TaskOptions to = TaskOptions.Builder.withUrl("/csInsert").payload(eventJson.toString());
-    if (EnvironmentUtil.isDevServer()) {
+    if (EnvironmentUtil.isDevInstance()) {
       queue.add(to.header("Host", ModulesServiceFactory.getModulesService().getVersionHostname("mapreduce", null)));
     } else {
       queue.add(to);

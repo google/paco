@@ -141,7 +141,7 @@ public class JobStatusServlet extends HttpServlet {
     if (!Strings.isNullOrEmpty(errorMessage)) {
       out.append("<th>" + "Error" + "</th>");
       out.append("<td>").append(errorMessage).append("</td>");
-    } else if (!Strings.isNullOrEmpty(jobReport.getLocation()) && !jobReport.getLocation().equals(Constants.NA)) {
+    } else if (!Strings.isNullOrEmpty(jobReport.getLocation()) && !jobReport.getLocation().equals(Constants.LOCATION_NA)) {
       out.append("<th>" + "Report: " + "</th>");
       out.append("<td>").append(createLinkForLocation(jobReport, jobId, who)).append("</td>");
     }

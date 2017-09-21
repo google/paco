@@ -67,7 +67,7 @@ public class CloudSQLConnectionManager {
       throw new Exception("Max connections not set to Integer in config file.");
     }
 
-    if (!EnvironmentUtil.isDevServer()) {
+    if (!EnvironmentUtil.isDevInstance()) {
       url = System.getProperty("ae-cloudsql.database-url");
       userName = System.getProperty("ae-cloudsql.database-username");
       password = System.getProperty("ae-cloudsql.database-password");

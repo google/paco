@@ -82,7 +82,7 @@ public class MigrationFrontendServlet extends HttpServlet {
       // On dev local, when we kick off job from backend module - migration with correct port number, 
       // the job status which is defined in default module is getting searched in migration module.
       // In other environments, the request gets routed through dispatch xml.
-      if (EnvironmentUtil.isDevServer()) {
+      if (EnvironmentUtil.isDevInstance()) {
         redirectUrl = "http://"+ModulesServiceFactory.getModulesService().getVersionHostname("default", null)+"/jobStatus?jobId=" + jobId;
       } else {
         redirectUrl = "/jobStatus?jobId=" + jobId;

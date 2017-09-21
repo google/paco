@@ -81,7 +81,7 @@ public class MigrationBackendServlet extends HttpServlet {
             endTime = DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ss.sssZ").parseDateTime(eTime);
           }
           if (doMigration(migrationJobName, cursor, startTime, endTime)) {
-            statusMgr.completeReport(requestorEmail, jobId, Constants.NA);
+            statusMgr.completeReport(requestorEmail, jobId, Constants.LOCATION_NA);
           } else {
             statusMgr.failReport(requestorEmail, jobId, "Check server logs for stacktrace");
           }
