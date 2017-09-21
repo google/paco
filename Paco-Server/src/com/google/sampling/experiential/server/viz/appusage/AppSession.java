@@ -4,7 +4,7 @@ import java.util.List;
 
 import org.joda.time.DateTime;
 
-import com.google.appengine.labs.repackaged.com.google.common.base.Joiner;
+import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import com.google.sampling.experiential.shared.EventDAO;
 

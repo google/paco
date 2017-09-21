@@ -229,6 +229,7 @@ public class MigrationDataRetriever {
       results = pq.asQueryResultList(fetchOptions);
       if (results.isEmpty()) {
         log.info("empty results");
+        isFinished = true;
         break;
       } 
       

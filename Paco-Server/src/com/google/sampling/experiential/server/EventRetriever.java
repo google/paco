@@ -54,6 +54,7 @@ import com.google.appengine.api.datastore.PreparedQuery;
 import com.google.appengine.api.datastore.Query.FilterOperator;
 import com.google.appengine.api.datastore.Query.FilterPredicate;
 import com.google.appengine.api.datastore.QueryResultList;
+import com.google.appengine.api.modules.ModulesServiceFactory;
 import com.google.appengine.api.taskqueue.Queue;
 import com.google.appengine.api.taskqueue.QueueFactory;
 import com.google.appengine.api.taskqueue.TaskOptions;
@@ -178,10 +179,10 @@ public class EventRetriever {
         log.warning(ErrorMessages.SQL_INSERT_EXCEPTION.getDescription() + " for  request: " + eventJson + sqle);
       } catch (ParseException e) {
         cloudSqlDaoImpl.insertFailedEvent(eventJson.toString(), ErrorMessages.TEXT_PARSE_EXCEPTION.getDescription(), e.getMessage());
-        log.warning(ErrorMessages.TEXT_PARSE_EXCEPTION.getDescription() + "for request: " +eventJson + e);
+        log.warning(ErrorMessages.TEXT_PARSE_EXCEPTION.getDescription() + " for request: " + eventJson + " : " + e);
       } catch (Exception e) {
         cloudSqlDaoImpl.insertFailedEvent(eventJson.toString(), ErrorMessages.GENERAL_EXCEPTION.getDescription(), e.getMessage());
-        log.warning(ErrorMessages.GENERAL_EXCEPTION.getDescription() + "for request: " +eventJson + e.getStackTrace());
+        log.warning(ErrorMessages.GENERAL_EXCEPTION.getDescription() + " for request: " + eventJson + " : " + e);
       }
     } else {
       Transaction tx = null;
@@ -267,7 +268,12 @@ public class EventRetriever {
     } catch (JSONException e) {
       log.severe("while sending to cloud sql queue" + e);
     }
-    queue.add(TaskOptions.Builder.withUrl("/csInsert").payload(eventJson.toString()));
+    TaskOptions to = TaskOptions.Builder.withUrl("/csInsert").payload(eventJson.toString());
+    if (EnvironmentUtil.isDevInstance()) {
+      queue.add(to.header("Host", ModulesServiceFactory.getModulesService().getVersionHostname("mapreduce", null)));
+    } else {
+      queue.add(to);
+    }
   }
 
   @SuppressWarnings("unchecked")

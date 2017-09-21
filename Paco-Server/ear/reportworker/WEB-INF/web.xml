@@ -20,7 +20,6 @@
     "http://java.sun.com/dtd/web-app_2_3.dtd">
 
 <web-app>
-   
   <!-- Servlets -->
   <servlet>
     <servlet-name>backendReportJobExecutorServlet</servlet-name>
@@ -83,19 +82,6 @@
       <url-pattern>/usage_cron*</url-pattern>
       <url-pattern>/hubJobExecutor*</url-pattern>
       <url-pattern>/hub_cron*</url-pattern>
-    </web-resource-collection>
-    <auth-constraint>
-      <role-name>admin</role-name> 
-    </auth-constraint>
-
-    <user-data-constraint>
-      <transport-guarantee>CONFIDENTIAL</transport-guarantee>
-    </user-data-constraint>
-    
-  </security-constraint>
-  
-  <security-constraint>
-    <web-resource-collection>
       <url-pattern>/migrate*</url-pattern>
     </web-resource-collection>
     <auth-constraint>
@@ -104,8 +90,5 @@
     <user-data-constraint>
       <transport-guarantee>CONFIDENTIAL</transport-guarantee>
     </user-data-constraint>
-    
   </security-constraint>
-  
-  
 </web-app>

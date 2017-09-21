@@ -68,6 +68,7 @@ public class EventServlet extends HttpServlet {
   public static final Logger log = Logger.getLogger(EventServlet.class.getName());
   private String defaultAdmin = "bobevans@google.com";
   private List<String> adminUsers = Lists.newArrayList(defaultAdmin);
+  private static final String REPORT_WORKER = "reportworker";
 
   @Override
   protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
@@ -375,11 +376,11 @@ public class EventServlet extends HttpServlet {
    */
   private String runReportJob(boolean anon, String loggedInuser, DateTimeZone timeZoneForClient,
                                  HttpServletRequest req, String reportFormat, int limit, String cursor) throws IOException {
-    ModulesService modulesApi = ModulesServiceFactory.getModulesService();
-    String backendAddress = modulesApi.getVersionHostname("reportworker", modulesApi.getDefaultVersion("reportworker"));
-     try {
-
+    try {
+      PacoModule backendModule = new PacoModule(REPORT_WORKER, req.getServerName());
+      String backendAddress = backendModule.getAddress();
       BufferedReader reader = null;
+      
       try {
         reader = sendToBackend(timeZoneForClient, req, backendAddress, reportFormat, cursor, limit);
       } catch (SocketTimeoutException se) {
@@ -424,6 +425,7 @@ public class EventServlet extends HttpServlet {
             "&limit=" + limit);
     log.info("URL to backend = " + url.toString());
     HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+    // set instance follow redirects should be set to false. Only when it is false, GAE will set the header value to X-Appengine-Inbound-Appid
     connection.setInstanceFollowRedirects(false);
     InputStreamReader inputStreamReader = new InputStreamReader(connection.getInputStream());
     BufferedReader reader = new BufferedReader(inputStreamReader);

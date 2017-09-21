@@ -39,6 +39,7 @@ import com.google.appengine.api.blobstore.BlobstoreServiceFactory;
 import com.google.appengine.api.users.User;
 import com.google.common.base.Strings;
 import com.google.sampling.experiential.shared.TimeUtil;
+import com.pacoapp.paco.shared.util.Constants;
 
 /**
  * Servlet that answers queries for Events.
@@ -140,7 +141,7 @@ public class JobStatusServlet extends HttpServlet {
     if (!Strings.isNullOrEmpty(errorMessage)) {
       out.append("<th>" + "Error" + "</th>");
       out.append("<td>").append(errorMessage).append("</td>");
-    } else if (!Strings.isNullOrEmpty(jobReport.getLocation())) {
+    } else if (!Strings.isNullOrEmpty(jobReport.getLocation()) && !jobReport.getLocation().equals(Constants.LOCATION_NA)) {
       out.append("<th>" + "Report: " + "</th>");
       out.append("<td>").append(createLinkForLocation(jobReport, jobId, who)).append("</td>");
     }
