@@ -159,62 +159,6 @@
     <url-pattern>/phoneSessions</url-pattern>
   </servlet-mapping>
   
-  
-  <!--  administrative and debugging endpoints -->
-  
-  <!-- only needed for local dev instance. In other environments, cloudsqlinsert in map reduce  will be used-->
-<!--   
-   <servlet>
-    <servlet-name>ServerInsertServlet</servlet-name>
-    <servlet-class>com.google.sampling.experiential.server.CloudSqlInsertServlet</servlet-class>
-  </servlet>
-  <servlet-mapping>
-    <servlet-name>ServerInsertServlet</servlet-name>
-    <url-pattern>/csInsert</url-pattern>
-  </servlet-mapping>
-     <servlet>
-    <servlet-name>ServerCreateServlet</servlet-name>
-    <servlet-class>com.google.sampling.experiential.server.migration.CloudSQLCreateServlet</servlet-class>
-  </servlet>
-  <servlet-mapping>
-    <servlet-name>ServerCreateServlet</servlet-name>
-    <url-pattern>/migration/csCreate</url-pattern>
-  </servlet-mapping>
-  <servlet>
-    <servlet-name>FailedEventsInsertServlet</servlet-name>
-    <servlet-class>com.google.sampling.experiential.server.FailedEventsInsertServlet</servlet-class>
-  </servlet>
-  <servlet-mapping>
-    <servlet-name>FailedEventsInsertServlet</servlet-name>
-    <url-pattern>/migration/csFailedEventsInsert</url-pattern>
-  </servlet-mapping>
-  <servlet>
-    <servlet-name>migrationFrontendServlet</servlet-name>
-    <servlet-class>com.google.sampling.experiential.server.migration.MigrationFrontendServlet</servlet-class>
-  </servlet>
-  <servlet-mapping>
-    <servlet-name>migrationFrontendServlet</servlet-name>
-    <url-pattern>/migration/migrate</url-pattern>
-  </servlet-mapping>
--->
-  <!-- 
-   <servlet>
-    <servlet-name>EventCounterServlet</servlet-name>
-    <servlet-class>com.google.sampling.experiential.server.migration.mr.eventctr.EventCounterMRServlet</servlet-class>
-  </servlet>
-  <servlet-mapping>
-    <servlet-name>EventCounterServlet</servlet-name>
-    <url-pattern>/eventCounter</url-pattern>
-  </servlet-mapping>
-<servlet>
-    <servlet-name>MayJuneEventCounterServlet</servlet-name>
-    <servlet-class>com.google.sampling.experiential.server.migration.mr.dayctr.MayJuneEventCounterMRServlet</servlet-class>
-  </servlet>
-  <servlet-mapping>
-    <servlet-name>MayJuneEventCounterServlet</servlet-name>
-    <url-pattern>/mayJuneEventCounter</url-pattern>
-  </servlet-mapping>
-  -->
   <servlet>
     <display-name>Remote API Servlet</display-name>
     <servlet-name>RemoteApiServlet</servlet-name>
@@ -278,16 +222,9 @@
   <!-- admin only endpoints use UserService, https, and admin role -->
   <security-constraint>
     <web-resource-collection>
-      <!--  TODO : can we remove these bottom commented lines-->
-      <!-- <url-pattern>/migrate*</url-pattern>-->
-      <!--  <url-pattern>/pacoserver/migrate*</url-pattern>-->
       <url-pattern>/remote_api*</url-pattern>
       <url-pattern>/eval*</url-pattern>
       <url-pattern>/participantJoinStats*</url-pattern>
-      <url-pattern>/migration*</url-pattern>
-      <url-pattern>/csInsert*</url-pattern>
-      <!--  <url-pattern>/eventCounter</url-pattern> --> 
-      <!--  <url-pattern>/mayJuneEventCounter</url-pattern>  --> 
     </web-resource-collection>
     <auth-constraint>
       <role-name>admin</role-name>

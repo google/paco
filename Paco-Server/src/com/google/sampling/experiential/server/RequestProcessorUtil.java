@@ -22,6 +22,4 @@ public class RequestProcessorUtil {
     } 
     return postBodyString;
   }
-  
-
 }
