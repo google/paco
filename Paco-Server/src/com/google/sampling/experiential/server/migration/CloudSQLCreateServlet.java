@@ -27,12 +27,12 @@ public class CloudSQLCreateServlet extends HttpServlet {
     User user = AuthUtil.getWhoFromLogin();
     if (user == null) {
       AuthUtil.redirectUserToLogin(req, resp);
-    } else if (AuthUtil.isUserAdmin()){
+    } else if (AuthUtil.isUserAdmin()) {
       PrintWriter out = resp.getWriter();
       resp.setContentType("text/plain");
       String stepNo = req.getParameter("stepNo");
       CloudSQLMigrationDao dao = new CloudSQLMigrationDaoImpl();
-      try{
+      try {
         if (stepNo == null) {
           out.println(dao.createTables("one"));
           out.println(dao.createTables("two"));
@@ -40,7 +40,7 @@ public class CloudSQLCreateServlet extends HttpServlet {
           out.println(dao.createTables(stepNo));
         }
         
-      }catch (SQLException e){
+      } catch (SQLException e) {
         throw new ServletException(ErrorMessages.SQL_EXCEPTION.getDescription(),e);
       }
     } else {

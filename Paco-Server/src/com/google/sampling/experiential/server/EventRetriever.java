@@ -179,10 +179,10 @@ public class EventRetriever {
         log.warning(ErrorMessages.SQL_INSERT_EXCEPTION.getDescription() + " for  request: " + eventJson + sqle);
       } catch (ParseException e) {
         cloudSqlDaoImpl.insertFailedEvent(eventJson.toString(), ErrorMessages.TEXT_PARSE_EXCEPTION.getDescription(), e.getMessage());
-        log.warning(ErrorMessages.TEXT_PARSE_EXCEPTION.getDescription() + "for request: " +eventJson + e);
+        log.warning(ErrorMessages.TEXT_PARSE_EXCEPTION.getDescription() + " for request: " + eventJson + " : " + e);
       } catch (Exception e) {
         cloudSqlDaoImpl.insertFailedEvent(eventJson.toString(), ErrorMessages.GENERAL_EXCEPTION.getDescription(), e.getMessage());
-        log.warning(ErrorMessages.GENERAL_EXCEPTION.getDescription() + "for request: " +eventJson + e);
+        log.warning(ErrorMessages.GENERAL_EXCEPTION.getDescription() + " for request: " + eventJson + " : " + e);
       }
     } else {
       Transaction tx = null;

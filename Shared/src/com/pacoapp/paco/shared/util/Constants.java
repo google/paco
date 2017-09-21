@@ -37,5 +37,6 @@ public class Constants {
   public static final String WHEN_FRAC_SEC = "when_fractional_sec";
   public static final String BLANK = " ";
   public static final int FORBIDDEN_STATUS = 403;
+  public static final String NA = "NA";
   
 }
