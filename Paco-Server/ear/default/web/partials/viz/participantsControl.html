@@ -2,12 +2,17 @@
   <label class="participantsLabel">Participants</label>
   <md-select ng-model="selectedParticipants"
              md-on-close="getParticipants()"
+             ng-change="getParticipantsSelected()"
              data-md-container-class="selectdemoSelectHeader"
              md-selected-text="getParticipantsLength()"
              multiple>
     <md-select-header class="demo-select-header">
       <input placeholder="Participants"
              class="demo-header-searchbox md-text">
+      <md-input-container class="toggleParticipantsContainer">
+        <span ng-show="selectAllParticipants" class="selectAllDeselectAll"><a ng-click="selectAll()">Select All</a></span>
+        <span ng-show="deSelectAllParticipants" class="selectAllDeselectAll"><a ng-click="deselectAll()">Deselect All</a></span>
+      </md-input-container>
     </md-select-header>
     <md-optgroup label="participants">
       <md-option ng-repeat="participant in participants track by $index" ng-value="participant">{{participant}}

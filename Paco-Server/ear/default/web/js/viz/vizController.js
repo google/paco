@@ -17,6 +17,8 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
   $scope.forwardButton = true;
   $scope.vizHistory = [];
   $scope.drawButton = true;
+  $scope.selectAllParticipants = false;
+  $scope.deSelectAllParticipants = true;
 
   var responseTypeMap = new Map();
   var responseMetaData = [];
@@ -175,7 +177,7 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
     $scope.endDateTime = undefined;
     $scope.selectedInput1 = undefined;
     $scope.xPlotInput = [];
-    $scope.selectedParticipants = [];
+    $scope.selectedParticipants = $scope.participants;
     $scope.yAxisLabel = undefined;
   }
 
@@ -188,6 +190,18 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
     $scope.startDate = $filter('date')(new Date($scope.dateRange[0]), 'EEE, dd MMM yyyy HH:mm:ss Z');
     $scope.endDate = $filter('date')(new Date($scope.dateRange[1]), 'EEE, dd MMM yyyy HH:mm:ss Z');
   }
+
+  $scope.selectAll = function(){
+    $scope.selectedParticipants = $scope.participants;
+    $scope.selectAllParticipants = false;
+    $scope.deSelectAllParticipants = true;
+  };
+
+  $scope.deselectAll = function(){
+    $scope.selectedParticipants = [];
+    $scope.selectAllParticipants = true;
+    $scope.deSelectAllParticipants = false;
+  };
 
   $scope.getTemplate = function () {
     if (questionsMap.has($scope.selectedQues)) {

@@ -197,7 +197,6 @@ md-select.dateTimeSelect .md-select-value.md-select-placeholder {
   border: none;
   outline: none;
   height: 100%;
-  width: 100%;
   padding: 0;
 }
 
@@ -653,5 +652,9 @@ span.md-primary.clearTable {
 
 .vizRevisions {
   margin-top: 35px;
+}
+
+.selectAllDeselectAll{
+  font-size: 12px;
 }
 
