@@ -119,7 +119,7 @@ public class CloudSqlSearchServlet extends HttpServlet {
       String results = null;
       Select clientJsqlStatement = null;
       Select optimizedSelect = null;
-      resp.setContentType("text/plain");
+      resp.setContentType(Constants.RESPONSE_TYPE_APP_JSON);
       // NOTE: Group by, having and projection columns related functionality can be toggled on and off with the following flag 
       boolean enableGrpByAndProjection = true;
       int outputRecordCt = 0;
@@ -159,10 +159,7 @@ public class CloudSqlSearchServlet extends HttpServlet {
           SearchUtil.addJoinClause(clientJsqlStatement);
         }
         if(sqlQueryObj.isFullEventAndOutputs()) {
-          boolean outputColsInWhere = false;
-          if (sqlQueryObj.getCriteriaQuery().contains(OutputBaseColumns.ANSWER) || sqlQueryObj.getCriteriaQuery().contains(OutputBaseColumns.NAME)) {
-            outputColsInWhere = true;
-          }
+          boolean outputColsInWhere = sqlQueryObj.getCriteriaQuery().contains(OutputBaseColumns.ANSWER) || sqlQueryObj.getCriteriaQuery().contains(OutputBaseColumns.NAME);
           optimizedSelect = modifyToOptimizePerformance(clientJsqlStatement, outputColsInWhere);
         } else {
           optimizedSelect = clientJsqlStatement;
@@ -282,15 +279,15 @@ public class CloudSqlSearchServlet extends HttpServlet {
      clientReqQuery.setAlias(new Alias(CLIENT_REQUEST));
      
      // second join on condition
-     secondJoinCondition.append(EventServerColumns.TABLE_NAME + "." + Constants.UNDERSCORE_ID+ " = " +CLIENT_REQUEST + "." + Constants.UNDERSCORE_ID + AND);
+     secondJoinCondition.append(EventServerColumns.TABLE_NAME + "." + Constants.UNDERSCORE_ID + " = " +CLIENT_REQUEST + "." + Constants.UNDERSCORE_ID + AND);
      secondJoinCondition.append(OutputBaseColumns.TABLE_NAME + "." + OutputBaseColumns.EVENT_ID + " = "  + CLIENT_REQUEST + "." + Constants.UNDERSCORE_ID);
      // if where clause contains text/answer then do not add this condition
      if (!outputColsInWhere) {
-       secondJoinCondition.append(AND +OutputBaseColumns.TABLE_NAME + "." + OutputBaseColumns.NAME+ " = "  + CLIENT_REQUEST + "." + OutputBaseColumns.NAME);
+       secondJoinCondition.append(AND + OutputBaseColumns.TABLE_NAME + "." + OutputBaseColumns.NAME+ " = "  + CLIENT_REQUEST + "." + OutputBaseColumns.NAME);
      }
           
      try {
-       firstJoinOnExp = CCJSqlParserUtil.parseCondExpression(EventServerColumns.TABLE_NAME + "." + Constants.UNDERSCORE_ID+ " = " +OutputBaseColumns.TABLE_NAME+ "."+OutputBaseColumns.EVENT_ID);
+       firstJoinOnExp = CCJSqlParserUtil.parseCondExpression(EventServerColumns.TABLE_NAME + "." + Constants.UNDERSCORE_ID+ " = " + OutputBaseColumns.TABLE_NAME + "."+ OutputBaseColumns.EVENT_ID);
        secondJoinOnExp = CCJSqlParserUtil.parseCondExpression(secondJoinCondition.toString());
      } catch (JSQLParserException e) {  
        log.warning(ErrorMessages.JSON_PARSER_EXCEPTION.getDescription()+ e.getMessage());

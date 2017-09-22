@@ -39,5 +39,5 @@ public class Constants {
   public static final String BLANK = " ";
   public static final int FORBIDDEN_STATUS = 403;
   public static final String LOCATION_NA = "location_na";
-  
+  public static final String RESPONSE_TYPE_APP_JSON = "application/json";
 }
