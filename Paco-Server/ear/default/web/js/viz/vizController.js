@@ -16,7 +16,6 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
   $scope.backButton = true;
   $scope.forwardButton = true;
   $scope.vizHistory = [];
-  $scope.drawButton = true;
 
   var responseTypeMap = new Map();
   var responseMetaData = [];
@@ -195,19 +194,15 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
       if ($scope.template === 1) {
         toggleVizControls(false, true, false, true, true, true, false);
         populateVizParams();
-        clearViz();
       } else if ($scope.template === 2) {
         toggleVizControls(true, true, false, true, true, true, false);
         populateVizParams();
-        clearViz();
       } else if ($scope.template === 3) {
         toggleVizControls(true, false, true, true, true, true, true);
         populateVizParams();
-        clearViz();
       } else if ($scope.template === 4) {
         toggleVizControls(true, false, false, true, true, true, true);
         populateVizParams();
-        clearViz();
       }
     }
   };
@@ -284,19 +279,6 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
         $scope.groupsSet.add(input.group);
       });
     }
-    $scope.drawButton = false;
-  };
-
-  $scope.getSelectedType = function(){
-    $scope.drawButton = false;
-  };
-
-  $scope.getParticipants = function(){
-    $scope.drawButton = false;
-  };
-
-  $scope.getDateTime = function(){
-    $scope.drawButton = false;
   };
 
   function axisLabels() {
@@ -415,15 +397,13 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
     displayTitle(viz);
   }
 
-  function clearViz(){
+  function clearViz() {
     d3.selectAll('.vizContainer' + "> *").remove();
     $scope.vizTemplate = false;
     $scope.saveDownload = false;
-    $scope.drawButton = true;
   }
 
   function displayDescription(viz) {
-
     if (viz !== undefined) {
       $scope.vizDesc = viz.vizDesc;
       $scope.vizDescription = $sce.trustAsHtml("<pre class='descText'>" + viz.vizDesc + "</pre>");
@@ -527,7 +507,6 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
   }
 
   function processXYPlotTimeSeries(responseData) {
-
     $timeout(function () {
       var xAxisMaxMin = [];
       var xAxisTickValues = [];
@@ -742,7 +721,6 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
             .style('display', 'inline-block')
             .datum(data)
             .call(chart);
-
         nv.utils.windowResize(chart.update);
         return chart;
       });
@@ -1066,11 +1044,11 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
     }, 1000);
   }
 
-  function dataFrequency(viz, resData) {
+  function mapChoices(responseType, resData) {
     var listChoicesMap = new Map();
+    var listResponseData = [];
+    var choices = "";
 
-    //Utility functions
-    //map answer indices with list choices
     function mapIndicesWithListChoices(index) {
       var listChoice = " ";
       var index = (parseInt(index) - 1).toString();
@@ -1080,132 +1058,130 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
       return listChoice;
     }
 
-    function responseDataFrequency(dataSet) {
-
-      var frequency = [];
-      if (viz === "Bubble Chart") {
-
-        //frequency of the data
-        frequency = d3.nest()
-            .key(function (d) {
-              return d.answer;
-            })
-            .rollup(function (v) {
-              return v.length;
-            })
-            .entries(dataSet);
-        return frequency;
-      }
-      // else if (viz === "Bar Chart") {
-      //   console.log("BarC");
-      //   frequency = d3.nest()
-      //       .key(function (d) {
-      //         return d.answer;
-      //       })
-      //       .rollup(function (v) {
-      //         var who = [];
-      //         v.forEach(function (data) {
-      //           who.push(data.who);
-      //         });
-      //         return {"count": v.length, "participants": who};
-      //       })
-      //       .entries(dataSet);
-      // }
-      // return frequency;
+    for (var i in responseType.listChoices) {
+      listChoicesMap.set(i, responseType.listChoices[i]);
     }
-
-    var responsesFrequency = [];
-    resData.forEach(function (responseData) {
-      if (responseData !== null && responseData !== undefined) {
-        var listResponseData = [];
-        // var chartData = {};
-        var choices = "";
-
-        var responsesMap = new Map();
-        // chartData.key = responseData.key;
-
-        if (responseTypeMap.has(responseData.key)) {
-          var responseType = responseTypeMap.get(responseData.key);
-          if (responseType.responseType === "list") {
-            for (var i in responseType.listChoices) {
-              listChoicesMap.set(i, responseType.listChoices[i]);
-            }
-
-            responseData.values.forEach(function (response) {
-              if (response.answer.length > 1) {
-                var answers = response.answer.split(",");
-                answers.forEach(function (a) {
-                  choices = mapIndicesWithListChoices(a);
-                  listResponseData.push({"who": response.who, "answer": choices, "index": a});
-                });
-              } else {
-                choices = mapIndicesWithListChoices(response.answer);
-                listResponseData.push({
-                  "who": response.who,
-                  "answer": choices,
-                  "index": response.answer
-                });
-              }
-            });
-            responsesFrequency = responseDataFrequency(listResponseData);
-          } else if (responseType.responseType === "likert" || responseType.responseType === "likert_smileys") {
-            responsesFrequency = responseDataFrequency(responseData.values);
-            if (responsesFrequency.length < 5) {
-              responsesFrequency.forEach(function (resFrequency) {
-
-                responsesMap.set(resFrequency.key, resFrequency.values);
-              });
-              var scales = ["1", "2", "3", "4", "5"];
-
-              scales.forEach(function (scale) {
-                var emptyData = {};
-                if (!responsesMap.has(scale)) {
-                  emptyData = {
-                    key: scale,
-                    values: {
-                      count: 0,
-                      participants: "None"
-                    }
-                  };
-                  responsesFrequency.push(emptyData);
-                }
-              });
-              responsesFrequency.sort(function (x, y) {
-                return d3.ascending(x.key, y.key);
-              });
-            }
-          } else {
-            responsesFrequency = responseDataFrequency(responseData.values);
-          }
-        }
+    resData.forEach(function (response) {
+      if (response.answer.length > 1) {
+        var answers = response.answer.split(",");
+        answers.forEach(function (a) {
+          choices = mapIndicesWithListChoices(a);
+          listResponseData.push({"who": response.who, "answer": choices, "index": a});
+        });
+      } else {
+        choices = mapIndicesWithListChoices(response.answer);
+        listResponseData.push({
+          "who": response.who,
+          "answer": choices,
+          "index": response.answer
+        });
       }
     });
-    return responsesFrequency;
+    return listResponseData;
   }
 
-  function processBubbleChartData(data) {
-
+  function processBubbleChartData(responseData) {
+    var vizData = [];
+    var responsesCount = [];
+    var responses_bubbleChart = [];
     $timeout(function () {
-      var bubbleChartData = [];
-
-      var responsesFrequency = dataFrequency("Bubble Chart", data);
-      bubbleChartData = responsesFrequency.map(function (d) {
+      responseData.forEach(function (data) {
+        if (responseTypeMap.has(data.key)) {
+          var responseType = responseTypeMap.get(data.key);
+          if (responseType.responseType === "open text") {
+            var stringsTokenized = tokenizeWords(data.values);
+            var stringsLowerCase = convertToLowerCase("open text", stringsTokenized);
+            vizData = removeStopWords(stringsLowerCase);
+          } else if (responseType.responseType === "list") {
+            var mapListChoices = mapChoices(responseType, data.values);
+            vizData = convertToLowerCase(responseType.responseType, mapListChoices);
+          } else {
+            var data = data.values;
+            vizData = convertToLowerCase(responseType.responseType, data);
+          }
+        }
+        responsesCount = countResponses(vizData);
+        responsesCount.forEach(function (responses) {
+          responses_bubbleChart.push(responses);
+        });
+      });
+      var bubbleChartData = responses_bubbleChart.map(function (d) {
         d.value = +d["values"];
         return d;
       });
-      drawBubbleChart(data.key, bubbleChartData);
+      if(bubbleChartData !== undefined){
+        drawBubbleChart(bubbleChartData);
+      }
     }, 1000);
   }
 
-  function drawBubbleChart(key, data) {
-    d3.selectAll('.vizContainer' + "> *").remove();
+  function convertToLowerCase(type, responseData) {
+    var responseLowerCase = [];
+    responseData.forEach(function (res) {
+      if (type === "open text") {
+        responseLowerCase.push(res.toLowerCase());
+      } else {
+        responseLowerCase.push(res.answer.toLowerCase());
+      }
+    });
+    return responseLowerCase;
+  }
 
+  function countResponses(dataSet) {
+    var responsesCount = d3.nest()
+        .key(function (d) {
+          return d;
+        })
+        .rollup(function (v) {
+          return v.length;
+        })
+        .entries(dataSet);
+    return responsesCount;
+  }
+
+  function tokenizeWords(data) {
+    var tokenizedWords = [];
+    data.forEach(function (d) {
+      var splitWords = d.answer.split(" ");
+      splitWords.forEach(function (word) {
+        if ((word !== "") && (/^[a-zA-Z]/.test(word))) {
+          tokenizedWords.push(word);
+        }
+      });
+    });
+    return tokenizedWords;
+  }
+
+  function removeStopWords(tokenizedStrings) {
+    var rootWords = [];
+    var stopwords = ["a", "about", "above", "after", "again", "against", "all", "am", "an", "and", "any", "are", "aren't",
+      "as", "at", "be", "because", "been", "before", "being", "below", "between", "both", "but", "by", "can't", "cannot",
+      "could", "couldn't", "did", "didn't", "do", "does", "doesn't", "doing", "don't", "down", "during", "each", "few",
+      "for", "from", "further", "had", "hadn't", "has", "hasn't", "have", "haven't", "having", "he", "he'd", "he'll",
+      "he's", "her", "here", "here's", "hers", "herself", "him", "himself", "his", "how", "how's", "i", "i'd", "i'll",
+      "i'm", "i've", "if", "in", "into", "is", "isn't", "it", "it's", "its", "itself", "let's", "me", "more", "most",
+      "mustn't", "my", "myself", "no", "nor", "not", "of", "off", "on", "once", "only", "or", "other", "ought", "our",
+      "ours", "ourselves", "out", "over", "own", "same", "shan't", "she", "she'd", "she'll", "she's", "should", "shouldn't",
+      "so", "some", "such", "than", "that", "that's", "the", "their", "theirs", "them", "themselves", "then", "there", "there's",
+      "these", "they", "they'd", "they'll", "they're", "they've", "this", "those", "through", "to", "too", "under", "until",
+      "up", "very", "was", "wasn't", "we", "we'd", "we'll", "we're", "we've", "were", "weren't", "what", "what's", "when", "when's",
+      "where", "where's", "which", "while", "who", "who's", "whom", "why", "why's", "with", "won't", "would", "wouldn't", "you",
+      "you'd", "you'll", "you're", "you've", "your", "yours", "yourself", "yourselves"];
+
+    tokenizedStrings.forEach(function (str) {
+      if (!stopwords.includes(str)) {
+        rootWords.push(str);
+      }
+    });
+    return rootWords;
+  }
+
+  function drawBubbleChart(data) {
+    d3.selectAll('.vizContainer' + "> *").remove();
     $timeout(function () {
       if (data !== undefined) {
 
         var diameter = 600; //max size of the bubbles
-
-        var color = d3.scale.category20c(); //color category
 
         var bubble = d3.layout.pack()
             .sort(null)
@@ -1223,7 +1199,7 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
             .attr("width", diameter)
             .attr("height", diameter)
             .style("margin", "auto")
-            .style("margin-top", "-50")
+            .style("margin-top", "0")
             .attr("class", "bubble");
 
         //bubbles needs very specific format, convert data to this.
@@ -1249,11 +1225,9 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
             .attr("cy", function (d) {
               return d.y;
             })
-            .style("fill", function (d, i) {
-              return color(i);
-            })
+            .style("fill", "steelblue")
             .on("mouseover", function (d) {
-              tooltip.text(d.key + ": " + d.value);
+              tooltip.html(d.key + ": " + d.value);
               tooltip.style("visibility", "visible");
             })
             .on("mousemove", function () {
@@ -1275,11 +1249,10 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
             .text(function (d) {
               return d["key"];
             })
-            .style({
-              "fill": "black",
-              "font-family": "Helvetica Neue, Helvetica, Arial, san-serif",
-              "font-size": "12px"
-            });
+            .style("fill", "white")
+            .style("font-size", function (d) {
+              return Math.min(d.r, (d.r - 8) / this.getComputedTextLength() * 20) + "px";
+            })
       }
     }, 1000);
   }
@@ -1307,7 +1280,6 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
       $scope.saveDownload = true;
       $scope.editMode = true;
       $scope.editTextMode = true;
-      $scope.drawButton = true;
     }
   };
 
@@ -1680,7 +1652,6 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
   }
 
   function renderSavedViz(viz, index, vizMode) {
-
     $scope.renderVisualization = true;
     setParams(viz);
     $scope.createViz(viz, undefined);
