@@ -1314,13 +1314,10 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
       getEventsResponses();
       if ($scope.currentViz !== undefined) {
         displayViz($scope.currentViz);
-        // $scope.loadViz = false;
       } else if (viz !== undefined) {
         displayViz(viz);
-        // $scope.loadViz = false;
       } else {
         displayViz();
-        // $scope.loadViz = false;
       }
       if (event !== undefined) {
         var vizParamsJson = vizJson();
