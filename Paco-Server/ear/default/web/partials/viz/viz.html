@@ -12,7 +12,10 @@
     </a>
   </div>
   <div>
-
+    <div ng-if="loadDataSummary">
+      <span>Loading experiment data summary...</span>
+      <md-progress-linear md-mode="indeterminate"></md-progress-linear>
+    </div>
     <div class="variable-width">
       <div class="snapshotContainer">
         <table class="tableContainer">
@@ -108,7 +111,11 @@
       </md-toolbar>
     </div>
 
-    <div ng-show="vizTemplate" class="vizTemplate" id="vizTemplate">
+    <div ng-show="vizTemplate" class="vizTemplate">
+      <div ng-if="loadViz">
+        <span>Loading visualization...</span>
+        <md-progress-linear md-mode="indeterminate"></md-progress-linear>
+      </div>
       <div layout="row" class="vizTitleContainer">
         <div class="vizCaption" ng-show="editTitleTextMode">
           <md-input-container class="md-block">

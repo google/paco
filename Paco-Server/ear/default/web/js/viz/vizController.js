@@ -70,14 +70,17 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
     $scope.dateRange = [];
     $scope.responseCounts = [];
 
-    $scope.responseCounts = experimentsVizService.getEventsCounts($scope.experimentId);
+    experimentsVizService.getEventsCounts($scope.experimentId).then(function (data) {
+      if (data.data[0] !== undefined) {
+        $scope.responseCounts.push(data.data[0].schedR, data.data[0].missedR, data.data[0].selfR);
+      }
+      $scope.loadDataSummary = false;
+    });
 
     experimentsVizService.getParticipants($scope.experimentId).then(function (participants) {
       $scope.participantsCount = participants.data.customResponse.length;
     });
-
     $scope.dateRange = experimentsVizService.getDateRange($scope.experimentId);
-
   };
 
   //experiment json objects are retrieved from the 'experimentsVizService'
@@ -191,13 +194,13 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
     $scope.endDate = $filter('date')(new Date($scope.dateRange[1]), 'EEE, dd MMM yyyy HH:mm:ss Z');
   }
 
-  $scope.selectAll = function(){
+  $scope.selectAll = function () {
     $scope.selectedParticipants = $scope.participants;
     $scope.selectAllParticipants = false;
     $scope.deSelectAllParticipants = true;
   };
 
-  $scope.deselectAll = function(){
+  $scope.deselectAll = function () {
     $scope.selectedParticipants = [];
     $scope.selectAllParticipants = true;
     $scope.deSelectAllParticipants = false;
@@ -301,15 +304,15 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
     $scope.drawButton = false;
   };
 
-  $scope.getSelectedType = function(){
+  $scope.getSelectedType = function () {
     $scope.drawButton = false;
   };
 
-  $scope.getParticipants = function(){
+  $scope.getParticipants = function () {
     $scope.drawButton = false;
   };
 
-  $scope.getDateTime = function(){
+  $scope.getDateTime = function () {
     $scope.drawButton = false;
   };
 
@@ -429,7 +432,7 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
     displayTitle(viz);
   }
 
-  function clearViz(){
+  function clearViz() {
     d3.selectAll('.vizContainer' + "> *").remove();
     $scope.vizTemplate = false;
     $scope.saveDownload = false;
@@ -610,6 +613,7 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
         yAxisTickValues.push(parseInt(sortedYValues[i]));
       }
       drawXYPlotTimeSeries(xAxisMaxMin, yAxisMaxMin, xAxisTickValues, yAxisTickValues, scatterPlotTimeSeries);
+      $scope.loadViz = false;
     }, 1000);
   }
 
@@ -719,6 +723,7 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
           }
         }
         drawScatterPlot(data);
+        $scope.loadViz = false;
       }
     }, 1000);
   }
@@ -813,6 +818,7 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
       maxValue = d3.max(whiskers_high);
       minValue = d3.min(whiskers_low);
       drawBoxPlot(minValue, boxPlotData, maxValue);
+      $scope.loadViz = false;
     }, 1000);
   }
 
@@ -1020,6 +1026,7 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
         }
       });
       drawMultiBarChart(barChartData);
+      $scope.loadViz = false;
     }, 1000);
   }
 
@@ -1208,6 +1215,7 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
         return d;
       });
       drawBubbleChart(data.key, bubbleChartData);
+      $scope.loadViz = false;
     }, 1000);
   }
 
@@ -1298,17 +1306,21 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
     }, 1000);
   }
 
-  $scope.createViz = function (viz, event) {
 
+  $scope.createViz = function (viz, event) {
     var reqFieldsCheck = reqFieldsValidation();
     if (reqFieldsCheck) {
+      $scope.loadViz = true;
       getEventsResponses();
       if ($scope.currentViz !== undefined) {
         displayViz($scope.currentViz);
+        // $scope.loadViz = false;
       } else if (viz !== undefined) {
         displayViz(viz);
+        // $scope.loadViz = false;
       } else {
         displayViz();
+        // $scope.loadViz = false;
       }
       if (event !== undefined) {
         var vizParamsJson = vizJson();
@@ -1326,7 +1338,6 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
   };
 
   function vizJson() {
-
     var vizs = [];
     var vizData = {};
     vizData.xInput = {};
@@ -1756,6 +1767,7 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
   if (angular.isDefined($routeParams.experimentId)) {
     $scope.experimentId = parseInt($routeParams.experimentId, 10);
     $scope.getExperiment();
+    $scope.loadDataSummary = true;
     $scope.dataSnapshot();
   }
   function displayErrorMessage(data, error) {

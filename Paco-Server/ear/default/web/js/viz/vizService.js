@@ -53,19 +53,13 @@ pacoApp.factory('experimentsVizService', ['$http', 'experimentService', '$filter
   }
 
   function getEventsCounts(id) {
-    var eventsCount = [];
-    var getCount = $http({
+    var eventsCount = $http({
       method: 'GET',
       url: '/participantStats?experimentId=' + id + '&reportType=totalEventCounts&statv2=1'
     }).then(function successCallback(response) {
       return response;
     }, function errorCallback(error) {
       return error;
-    });
-    getCount.then(function (data) {
-      if(data.data[0] !== undefined){
-        eventsCount.push(data.data[0].schedR, data.data[0].missedR, data.data[0].selfR);
-      }
     });
     return eventsCount;
   }
