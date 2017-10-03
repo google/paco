@@ -1,7 +1,5 @@
 package com.google.sampling.experiential.server.migration;
 
-import java.io.ByteArrayOutputStream;
-import java.io.PrintStream;
 import java.sql.BatchUpdateException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -23,6 +21,7 @@ import com.google.sampling.experiential.datastore.EventServerColumns;
 import com.google.sampling.experiential.datastore.FailedEventServerColumns;
 import com.google.sampling.experiential.model.Event;
 import com.google.sampling.experiential.server.CloudSQLConnectionManager;
+import com.google.sampling.experiential.server.ExceptionUtil;
 import com.google.sampling.experiential.server.TimeUtil;
 import com.mysql.jdbc.Statement;
 import com.mysql.jdbc.exceptions.jdbc4.MySQLIntegrityConstraintViolationException;
@@ -216,7 +215,7 @@ public class CloudSQLMigrationDaoImpl implements CloudSQLMigrationDao {
               }
               events.removeAll(toRemove);
             } else { // any other failure
-              log.warning(trb.getErrorCode() + "unknown constraint failed: so, break" + getStackTraceAsString(trb));
+              log.warning(trb.getErrorCode() + "unknown constraint failed: so, break" + ExceptionUtil.getStackTraceAsString(trb));
               unknownException = true;
               for (int y=0; y<updateResult.length;y++) {
                 if (updateResult[y]== Statement.EXECUTE_FAILED) {
@@ -333,7 +332,7 @@ public class CloudSQLMigrationDaoImpl implements CloudSQLMigrationDao {
               }
             }
           } else {
-            log.warning(trb.getErrorCode() + "unknown constraint failed: so, break" + getStackTraceAsString(trb));
+            log.warning(trb.getErrorCode() + "unknown constraint failed: so, break" + ExceptionUtil.getStackTraceAsString(trb));
             unknownException = true;
             for (int y=0; y<updateResult.length;y++) {
               if (updateResult[y]== Statement.EXECUTE_FAILED) {
@@ -349,7 +348,7 @@ public class CloudSQLMigrationDaoImpl implements CloudSQLMigrationDao {
       }// while   
     } catch (Exception e) {
       log.info(ErrorMessages.GENERAL_EXCEPTION.getDescription()+ "batch insert failed. so restart from cursor");
-      log.warning(getStackTraceAsString(e));
+      log.warning(ExceptionUtil.getStackTraceAsString(e));
     }
     finally {
       try {
@@ -364,14 +363,6 @@ public class CloudSQLMigrationDaoImpl implements CloudSQLMigrationDao {
       }
     }
     return retVal;
-  }
-  
-  private String getStackTraceAsString(Throwable e) {
-    final ByteArrayOutputStream out = new ByteArrayOutputStream();
-    PrintStream pw = new PrintStream(out);
-    e.printStackTrace(pw);
-    final String string = out.toString();
-    return string;
   }
   
   @Override

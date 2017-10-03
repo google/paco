@@ -12,6 +12,8 @@ public class EventServerColumns extends EventBaseColumns {
   public static final String SORT_DATE = "sort_date";
   public static final String CLIENT_TIME_ZONE = "client_timezone";
   public static final String PACO_VERSION = "paco_version";
-  public static final String APP_ID = "app_id"; 
-  public static final String INT_RESPONSE_TIME = "int_response_time";
+  public static final String APP_ID = "app_id";
+  public static final String SORT_DATE_UTC = "sort_date_utc";
+  public static final String RESPONSE_TIME_UTC = "response_time_utc";
+  public static final String SCHEDULE_TIME_UTC = "schedule_time_utc";
 }

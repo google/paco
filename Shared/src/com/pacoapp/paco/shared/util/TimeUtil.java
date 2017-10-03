@@ -20,6 +20,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.TimeZone;
+import java.util.logging.Logger;
 
 import org.joda.time.DateMidnight;
 import org.joda.time.DateTime;
@@ -59,6 +60,7 @@ public class TimeUtil {
   public static SimpleDateFormat localFormatter = new SimpleDateFormat (DATE_TIME_WITH_NO_TZ);
   
   public static final DateTimeFormatter hourFormatter = DateTimeFormat.forPattern("hh:mma");
+  private static final Logger log = Logger.getLogger(TimeUtil.class.getName());
   
   private TimeUtil() {
     super();
@@ -165,13 +167,14 @@ public class TimeUtil {
     return evenDateTimeInUTCTimeZone.toDate();
   }
   
-  public static Date convertToLocal(Date dt, String clientTz) throws ParseException{
+  public static DateTime convertToLocal(Date dt, String clientTz) throws ParseException{
     if (dt == null) { 
       return null;
     }
     DateTimeZone dtz= DateTimeZone.forID(clientTz);
     long eventMillsInLocalTimeZone = dtz.convertUTCToLocal(dt.getTime());
     DateTime evenDateTimeInlocalTimeZone = new DateTime(eventMillsInLocalTimeZone);
-    return evenDateTimeInlocalTimeZone.toDate();
+    return evenDateTimeInlocalTimeZone;
   }
+  
 }

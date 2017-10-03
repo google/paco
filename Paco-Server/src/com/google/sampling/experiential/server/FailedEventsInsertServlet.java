@@ -54,14 +54,14 @@ public class FailedEventsInsertServlet extends HttpServlet {
         if (currentEvent.has(Constants.ID)) {
           eventId = Long.parseLong(currentEvent.getString(Constants.ID));
           // check whether failed json id is there in events table
-          List<EventDAO> evtList = sqlDao.getEvents(QueryConstants.GET_EVENT_FOR_ID.toString(), null, eventId);
+          List<EventDAO> evtList = sqlDao.getEvents(QueryConstants.GET_EVENT_FOR_ID.toString(), eventId);
           if (evtList.size() == 0) {
             toBeFixed.put(eventId, false);
             // send it to cs insert
             String results = EventJsonUploadProcessor.create().processJsonEvents(true, failedEvents.get(failedId),
                                                                                  null, null,null);
             // verify whether it is there in events table
-            List<EventDAO> evts = sqlDao.getEvents(QueryConstants.GET_EVENT_FOR_ID.toString(), null, eventId);
+            List<EventDAO> evts = sqlDao.getEvents(QueryConstants.GET_EVENT_FOR_ID.toString(), eventId);
             if (evts.size() >0) {
               toBeFixed.put(eventId, true);
               sqlDao.updateFailedEventsRetry(id, Constants.TRUE);

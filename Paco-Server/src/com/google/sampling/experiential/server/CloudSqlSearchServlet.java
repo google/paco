@@ -1,8 +1,6 @@
 package com.google.sampling.experiential.server;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.PrintStream;
 import java.io.UnsupportedEncodingException;
 import java.sql.SQLException;
 import java.text.ParseException;
@@ -19,9 +17,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
-import org.joda.time.DateTimeZone;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
+import org.codehaus.jackson.map.util.ISO8601DateFormat;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -30,6 +26,7 @@ import com.google.appengine.api.users.User;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.sampling.experiential.datastore.EventServerColumns;
+import com.google.sampling.experiential.model.Views;
 import com.google.sampling.experiential.shared.EventDAO;
 import com.pacoapp.paco.shared.model2.EventBaseColumns;
 import com.pacoapp.paco.shared.model2.JsonConverter;
@@ -65,7 +62,6 @@ public class CloudSqlSearchServlet extends HttpServlet {
   public static final Logger log = Logger.getLogger(CloudSqlSearchServlet.class.getName());
   private static Map<String, Class> validColumnNamesDataTypeInDb = Maps.newHashMap();
   private static List<String> dateColumns = Lists.newArrayList();
-  private static final DateTimeFormatter dtf = DateTimeFormat.forPattern("ZZ");
   private static String CLIENT_REQUEST = "ClientReq";
   
   
@@ -76,6 +72,8 @@ public class CloudSqlSearchServlet extends HttpServlet {
     validColumnNamesDataTypeInDb.put(EventServerColumns.EXPERIMENT_VERSION, LongValue.class);
     validColumnNamesDataTypeInDb.put(EventServerColumns.SCHEDULE_TIME, StringValue.class);
     validColumnNamesDataTypeInDb.put(EventServerColumns.RESPONSE_TIME, StringValue.class);
+    validColumnNamesDataTypeInDb.put(EventServerColumns.SCHEDULE_TIME_UTC, StringValue.class);
+    validColumnNamesDataTypeInDb.put(EventServerColumns.RESPONSE_TIME_UTC, StringValue.class);
     validColumnNamesDataTypeInDb.put(EventServerColumns.GROUP_NAME, StringValue.class);
     validColumnNamesDataTypeInDb.put(EventServerColumns.ACTION_TRIGGER_ID, LongValue.class);
     validColumnNamesDataTypeInDb.put(EventServerColumns.ACTION_TRIGGER_SPEC_ID, LongValue.class);
@@ -87,11 +85,16 @@ public class CloudSqlSearchServlet extends HttpServlet {
     validColumnNamesDataTypeInDb.put(EventServerColumns.APP_ID, StringValue.class);
     validColumnNamesDataTypeInDb.put(EventServerColumns.JOINED, LongValue.class);
     validColumnNamesDataTypeInDb.put(EventServerColumns.SORT_DATE, StringValue.class);
+    validColumnNamesDataTypeInDb.put(EventServerColumns.SORT_DATE_UTC, StringValue.class);
     validColumnNamesDataTypeInDb.put(EventServerColumns.CLIENT_TIME_ZONE, StringValue.class);
     validColumnNamesDataTypeInDb.put(OutputBaseColumns.NAME, StringValue.class);
     validColumnNamesDataTypeInDb.put(OutputBaseColumns.ANSWER, StringValue.class);
     dateColumns.add(EventServerColumns.RESPONSE_TIME);
     dateColumns.add(EventServerColumns.SCHEDULE_TIME);
+    dateColumns.add(EventServerColumns.SORT_DATE);
+    dateColumns.add(EventServerColumns.RESPONSE_TIME_UTC);
+    dateColumns.add(EventServerColumns.SCHEDULE_TIME_UTC);
+    dateColumns.add(EventServerColumns.SORT_DATE_UTC);
     dateColumns.add(EventServerColumns.WHEN);
   }
   
@@ -107,7 +110,6 @@ public class CloudSqlSearchServlet extends HttpServlet {
     String loggedInUser = null;
     EventQueryStatus evQryStatus = new EventQueryStatus();
     ObjectMapper mapper = JsonConverter.getObjectMapper();
-    DateTimeZone tzForClient = TimeUtil.getTimeZoneForClient(req);
     
     if (user == null) {
       AuthUtil.redirectUserToLogin(req, resp);
@@ -119,6 +121,7 @@ public class CloudSqlSearchServlet extends HttpServlet {
       String results = null;
       Select clientJsqlStatement = null;
       Select optimizedSelect = null;
+      boolean webRequest = true;
       resp.setContentType("text/plain");
       // NOTE: Group by, having and projection columns related functionality can be toggled on and off with the following flag 
       boolean enableGrpByAndProjection = true;
@@ -126,17 +129,25 @@ public class CloudSqlSearchServlet extends HttpServlet {
       CloudSQLDao impl = new CloudSQLDaoImpl();
       try {
         String postBodyString = RequestProcessorUtil.getBody(req);
+        Float pacoProtocol = RequestProcessorUtil.getPacoProtocolVersionAsFloat(req);
         sqlQueryObj = QueryJsonParser.parseSqlQueryFromJson(postBodyString, enableGrpByAndProjection);
         if (sqlQueryObj == null) {
           sendErrorMessage(resp, mapper,
                            ErrorMessages.JSON_PARSER_EXCEPTION + postBodyString);
           return;
         }
+        
+        // include client_timezone field when there is no group by and query contains response_time or schedule_time
+        List<String> projList = Lists.newArrayList(sqlQueryObj.getProjection());
+        
+        if (sqlQueryObj.getGroupBy() == null && (projList.contains(EventBaseColumns.RESPONSE_TIME) || (projList.contains(EventBaseColumns.SCHEDULE_TIME)))) {
+          sqlQueryObj.addClientTzToProjection();
+        }
+        
         String plainSql = SearchUtil.getPlainSql(sqlQueryObj);
         clientJsqlStatement = SearchUtil.getJsqlSelectStatement(plainSql);
 
-        QueryPreprocessor qProcessor = new QueryPreprocessor(clientJsqlStatement, validColumnNamesDataTypeInDb, true, dateColumns,
-                                                             tzForClient);
+        QueryPreprocessor qProcessor = new QueryPreprocessor(clientJsqlStatement, validColumnNamesDataTypeInDb, webRequest, dateColumns);
         if (qProcessor.probableSqlInjection() != null) {
           sendErrorMessage(resp, mapper,
                            ErrorMessages.PROBABLE_SQL_INJECTION + qProcessor.probableSqlInjection());
@@ -171,12 +182,18 @@ public class CloudSqlSearchServlet extends HttpServlet {
         long startTime = System.currentTimeMillis();
 
         if (sqlQueryObj.isFullEventAndOutputs()) {
-          evtList = impl.getEvents(aclQuery, tzForClient, null);
+          evtList = impl.getEvents(aclQuery, null);
           evQryStatus.setEvents(evtList);
           evQryStatus.setStatus(Constants.SUCCESS);
-          results = mapper.writeValueAsString(evQryStatus);
+          log.info("paco protocol version: "+ pacoProtocol);
+          if (pacoProtocol != null && pacoProtocol < 5) {
+            results = mapper.writerWithView(Views.OldVersion.class).writeValueAsString(evQryStatus);
+          } else {
+            mapper.setDateFormat(new ISO8601DateFormat());
+            results = mapper.writerWithView(Views.NewVersion.class).writeValueAsString(evQryStatus);
+          }
         } else {
-          JSONArray resultsArray = impl.getResultSetAsJson(aclQuery, tzForClient, null);
+          JSONArray resultsArray = impl.getResultSetAsJson(aclQuery, null);
           JSONObject resultset = new JSONObject();
           resultset.put("customResponse", resultsArray);
           resultset.put("status", Constants.SUCCESS);

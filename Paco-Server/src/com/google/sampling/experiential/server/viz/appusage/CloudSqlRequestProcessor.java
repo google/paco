@@ -90,7 +90,7 @@ public class CloudSqlRequestProcessor {
       }
 
       QueryPreprocessor qProcessor = new QueryPreprocessor(selStatement, validColumnNamesDataTypeInDb, true,
-                                                           dateColumns, tzForClient);
+                                                           dateColumns);
 
       if (qProcessor.probableSqlInjection() != null) {
         eventQueryResult.setErrorMessage(ErrorMessages.PROBABLE_SQL_INJECTION + qProcessor.probableSqlInjection());
@@ -117,7 +117,7 @@ public class CloudSqlRequestProcessor {
                                                              qProcessor);
 
       long startTime = System.currentTimeMillis();
-      List<EventDAO> eventList = impl.getEvents(aclQuery, tzForClient, null);
+      List<EventDAO> eventList = impl.getEvents(aclQuery, null);
       long diff = System.currentTimeMillis() - startTime;
       CloudSqlSearchServlet.log.info("complete search qry took " + diff);
 

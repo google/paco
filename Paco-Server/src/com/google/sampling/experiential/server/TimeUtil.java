@@ -16,6 +16,8 @@ import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
+import com.google.sampling.experiential.shared.EventDAO;
+
 public class TimeUtil {
 
   public static final Logger log = Logger.getLogger(TimeUtil.class.getName());
@@ -108,5 +110,35 @@ public class TimeUtil {
       fracSeconds = tStamp.getNanos() / 1000000;
     }
     return fracSeconds;
+  }
+  
+  public static Integer getIntFromOffsetString(String timeZone) {
+    String hours = timeZone.substring(0,3);
+    if (hours.startsWith("+")) {
+      hours = hours.substring(1);
+    }
+
+    int parseInt;
+    try {
+      parseInt = Integer.parseInt(hours);
+    } catch (NumberFormatException e) {
+      log.warning("Timezone hours are not an integer this event: " + hours);
+      return 0; 
+    }
+    return parseInt;
+  }
+  
+  public static void adjustTimeZone(EventDAO event) throws ParseException {
+    int offsetHrs = TimeUtil.getIntFromOffsetString(event.getTimezone());
+    
+    if (event.getScheduledTime() != null) {
+      event.setScheduledTime(event.getScheduledTime().withZoneRetainFields(DateTimeZone.forOffsetHours(offsetHrs)));
+    }
+    if (event.getResponseTime() != null) {
+      event.setResponseTime(event.getResponseTime().withZoneRetainFields(DateTimeZone.forOffsetHours(offsetHrs)));
+    }
+    if (event.getSortDate() != null) {
+      event.setSortDate(event.getSortDate().withZoneRetainFields(DateTimeZone.forOffsetHours(offsetHrs)));
+    }
   }
 }

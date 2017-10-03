@@ -56,6 +56,13 @@ public class SQLQuery {
   public Boolean isFullEventAndOutputs() { 
     return fullEventAndOutputs;
   }
+  
+  public void addClientTzToProjection(){
+    String[] modArr = new String[projection.length+1];
+    System.arraycopy(projection, 0, modArr, 0, projection.length);
+    modArr[projection.length] = Constants.CLIENT_TIMEZONE;
+    this.projection = modArr;
+  }
 
   public static class Builder {
     private String[] projection;
@@ -108,7 +115,7 @@ public class SQLQuery {
     }
 
     private Builder addDefaultValues(SQLQuery obj) {
-        // provide default sort order which is Event._Id desc
+      // provide default sort order which is Event._Id desc
       if (obj.getGroupBy() == null && obj.sortOrder == null) {
          obj.sortOrder = EventBaseColumns.TABLE_NAME+"."+Constants.UNDERSCORE_ID.concat(Constants.BLANK).concat(Constants.DESC);
        }
