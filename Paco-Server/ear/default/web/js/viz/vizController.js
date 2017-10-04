@@ -20,6 +20,7 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
   $scope.selectAllParticipants = false;
   $scope.deSelectAllParticipants = true;
 
+
   var responseTypeMap = new Map();
   var responseMetaData = [];
   var responses = [];
@@ -69,18 +70,45 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
   $scope.dataSnapshot = function () {
     $scope.dateRange = [];
     $scope.responseCounts = [];
+    $scope.loadResponseCounts = false;
+    $scope.loadParticipantsCount = false;
+    $scope.loadStartDate = false;
+    $scope.loadEndDate = false;
 
     experimentsVizService.getEventsCounts($scope.experimentId).then(function (data) {
       if (data.data[0] !== undefined) {
         $scope.responseCounts.push(data.data[0].schedR, data.data[0].missedR, data.data[0].selfR);
+        $scope.loadResponseCounts = true;
       }
-      $scope.loadDataSummary = false;
     });
 
     experimentsVizService.getParticipants($scope.experimentId).then(function (participants) {
       $scope.participantsCount = participants.data.customResponse.length;
+      $scope.loadParticipantsCount = true;
     });
-    $scope.dateRange = experimentsVizService.getDateRange($scope.experimentId);
+
+    experimentsVizService.getStartDate($scope.experimentId).then(function (data) {
+      var format = 'MM/dd/yyyy';
+      if (data.data.customResponse !== undefined) {
+        if (data.data.customResponse.length > 0) {
+          var format_startDate = $filter('date')(new Date(data.data.customResponse[0].response_time), format);
+          $scope.dateRange[0] = format_startDate;
+        }
+      }
+      $scope.loadStartDate = true;
+    });
+
+    experimentsVizService.getEndDate($scope.experimentId).then(function (data) {
+      var format = 'MM/dd/yyyy';
+      if (data.data.customResponse !== undefined) {
+        if (data.data.customResponse.length > 0) {
+          var format_endDate = $filter('date')(new Date(data.data.customResponse[0].response_time), format);
+          $scope.dateRange[1] = format_endDate;
+        }
+      }
+      $scope.loadEndDate = true;
+      $scope.loadDataSummary = false;
+    });
   };
 
   //experiment json objects are retrieved from the 'experimentsVizService'
@@ -181,6 +209,8 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
     $scope.selectedInput1 = undefined;
     $scope.xPlotInput = [];
     $scope.selectedParticipants = $scope.participants;
+    $scope.selectAllParticipants = false;
+    $scope.deSelectAllParticipants = true;
     $scope.yAxisLabel = undefined;
   }
 
@@ -210,11 +240,11 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
     if (questionsMap.has($scope.selectedQues)) {
       $scope.template = questionsMap.get($scope.selectedQues);
       if ($scope.template === 1) {
-        toggleVizControls(false, true, false, true, true, true, false);
+        toggleVizControls(true, true, false, true, true, true, false);
         populateVizParams();
         clearViz();
       } else if ($scope.template === 2) {
-        toggleVizControls(true, true, false, true, true, true, false);
+        toggleVizControls(true, false, false, true, true, true, true);
         populateVizParams();
         clearViz();
       } else if ($scope.template === 3) {
@@ -242,8 +272,11 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
   function populateVizType() {
     if (questionsMap.has($scope.selectedQues)) {
       $scope.template = questionsMap.get($scope.selectedQues);
-      if ($scope.template === 1 || $scope.template === 2) {
+      if ($scope.template === 1) {
         $scope.vizTypes = ["Box Plot", "Bar Chart", "Bubble Chart"];
+      }
+      if ($scope.template === 2) {
+        $scope.vizTypes = ["Box Plot", "Bar Chart"];
       }
       if ($scope.template === 3) {
         $scope.vizTypes = ["Scatter Plot"];
@@ -301,6 +334,10 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
         $scope.groupsSet.add(input.group);
       });
     }
+    $scope.drawButton = false;
+  };
+
+  $scope.getInput1 = function () {
     $scope.drawButton = false;
   };
 
@@ -389,7 +426,7 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
       var responses = [];
       var data = {};
       $scope.xPlotInput = [];
-      $scope.timeSeriesInput = [];
+      $scope.singleInputResponseData = [];
       data.key = $scope.selectedInput1.input;
       getEvents = experimentsVizService.getEvents($scope.experimentId, $scope.selectedInput1.group, $scope.selectedInput1.input, $scope.selectedParticipants, $scope.startDateTime, $scope.endDateTime).then(function (events) {
         if (events.data.customResponse !== undefined) {
@@ -399,8 +436,8 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
             if ($scope.template === 3) {
               $scope.xPlotInput.push(data);
             }
-            if ($scope.template === 4) {
-              $scope.timeSeriesInput.push(data);
+            if (($scope.template === 4) || ($scope.template === 2)) {
+              $scope.singleInputResponseData.push(data);
             }
           }
         }
@@ -409,22 +446,25 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
   }
 
   function displayViz(viz) {
-    if ($scope.selectedType === "Box Plot") {
+    if (($scope.selectedType === "Box Plot") && ($scope.template === 1)) {
       processBoxData($scope.responseData);
-      $scope.vizTemplate = true;
     }
-    if ($scope.selectedType === "Bar Chart") {
+    if (($scope.selectedType === "Bar Chart") && ($scope.template === 1)) {
       processBarChartData($scope.responseData);
-      $scope.vizTemplate = true;
     }
     if ($scope.selectedType === "Bubble Chart") {
       processBubbleChartData($scope.responseData);
-      $scope.vizTemplate = true;
+    }
+    if (($scope.selectedType === "Box Plot") && ($scope.template === 2)) {
+      processBoxData($scope.singleInputResponseData);
+    }
+    if (($scope.selectedType === "Bar Chart") && ($scope.template === 2)) {
+      processBarChartData($scope.singleInputResponseData);
     }
     if (($scope.selectedType === "Scatter Plot") && ($scope.template === 4)) {
-      processXYPlotTimeSeries($scope.timeSeriesInput);
-      $scope.vizTemplate = true;
-    } else if (($scope.selectedType === "Scatter Plot") && ($scope.template === 3)) {
+      processXYPlotTimeSeries($scope.singleInputResponseData);
+    }
+    if (($scope.selectedType === "Scatter Plot") && ($scope.template === 3)) {
       processScatterPlot($scope.responseData);
       $scope.vizTemplate = true;
     }
@@ -484,21 +524,23 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
     if ($scope.selectedInputs !== undefined) {
       if ($scope.responseData !== undefined) {
         var inputNames = [];
-        var titles = [];
+        $scope.titles = [];
         $scope.selectedInputs.forEach(function (input) {
-          titles.push(input.input);
+          $scope.titles.push(input.input);
         });
       }
     }
     if (viz !== undefined) {
       $scope.vizTitle = viz.vizTitle;
     } else {
-      if ($scope.selectedType === "Box Plot" || $scope.selectedType === "Bar Chart" || $scope.selectedType === "Bubble Chart") {
-        $scope.vizTitle = "Distribution of responses for: " + titles.join(", ");
+      if ((($scope.selectedType === "Box Plot") || ($scope.selectedType === "Bar Chart") || ($scope.selectedType === "Bubble Chart")) && ($scope.template === 1)) {
+        $scope.vizTitle = "Distribution of responses for: " + $scope.titles.join(", ");
       } else if (($scope.selectedType === "Scatter Plot") && ($scope.xPlotInput !== undefined) && ($scope.template === 3)) {
-        $scope.vizTitle = "Correlation between '" + $scope.xPlotInput[0].key + "' and '" + titles.join(", ") + "'";
+        $scope.vizTitle = "Correlation between '" + $scope.xPlotInput[0].key + "' and '" + $scope.titles.join(", ") + "'";
       } else if (($scope.selectedType === "Scatter Plot") && ($scope.selectedInput1 !== undefined) && ($scope.template === 4)) {
         $scope.vizTitle = "Value of '" + $scope.selectedInput1.input + "' over time for each person.";
+      } else if ((($scope.selectedType === "Box Plot") || ($scope.selectedType === "Bar Chart")) && ($scope.selectedInput1 !== undefined) && ($scope.template === 2)) {
+        $scope.vizTitle = "Distribution of responses for: " + $scope.selectedInput1.input;
       }
     }
   }
@@ -614,6 +656,7 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
       }
       drawXYPlotTimeSeries(xAxisMaxMin, yAxisMaxMin, xAxisTickValues, yAxisTickValues, scatterPlotTimeSeries);
       $scope.loadViz = false;
+      $scope.vizTemplate = true;
     }, 1000);
   }
 
@@ -768,64 +811,148 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
     }, 1000);
   }
 
-  function processBoxData(res) {
-    var response = res;
-    var label = "";
+  function incompatibleDataTypes(keyText, multipleKeys, vizLength) {
+    if (keyText !== undefined) {
+      $mdDialog.show($mdDialog.confirm()
+          .title('Incompatible Data')
+          .textContent('Could not display the viz(s) " ' + keyText + ' " due to incompatible data type(s).')
+          .ariaLabel('Incompatible Data')
+          .ok('ok')
+      ).then(function () {
+        if ((!multipleKeys) && (vizLength === 0)) {
+          clearViz();
+          $scope.loadViz = false;
+        } else {
+          var eliminatedTitles = keyText.split(",");
+          eliminatedTitles.forEach(function (title) {
+            $scope.titles.splice($scope.titles.indexOf(title), 1);
+          });
+          $scope.vizTitle = "Distribution of responses for: " + $scope.titles.join(", ");
+        }
+      });
+    }
+  }
+
+  function processBoxData(response) {
     var maxValue = 0;
     var minValue = 0;
+    var boxPlotData = [];
+    var keyText = undefined;
+    var resKeys = [];
+    var multipleKeys = "";
+
+    function dataCount(dataSet) {
+      var frequency = d3.nest()
+          .key(function (d) {
+            return $filter('date')(new Date(d.response_time), 'MM/dd/yyyy');
+          }).sortKeys(d3.ascending)
+          .rollup(function (v) {
+            var answers = [];
+            v.forEach(function (data) {
+              answers.push(data.answer);
+            });
+            return {"answers": answers};
+          })
+          .entries(dataSet);
+      return frequency;
+    }
+
+    $timeout(function () {
+      if (response !== undefined) {
+        if ($scope.template === 2) {
+          var vizByDay = dataCount(response[0].values);
+          vizByDay.forEach(function (data) {
+            var dataTransformed = transformBoxPlotData("vizByDay", data.key, data.values.answers);
+            if (dataTransformed !== undefined) {
+              boxPlotData.push(dataTransformed);
+            } else {
+              keyText = response[0].key;
+              multipleKeys = false;
+            }
+          });
+          $scope.loadViz = false;
+        } else if ($scope.template === 1) {
+          response.forEach(function (res) {
+            var dataTransformed = transformBoxPlotData("vizByDateRange", res.key, res.values);
+            if (dataTransformed !== undefined) {
+              boxPlotData.push(dataTransformed);
+            } else {
+              resKeys.push(res.key);
+              keyText = resKeys.join(",");
+              if (resKeys.length === 1) {
+                multipleKeys = false;
+              } else if (resKeys.length > 1) {
+                multipleKeys = true;
+              }
+            }
+          });
+        }
+        if (boxPlotData.length > 0) {
+          var whiskers_high = [];
+          var whiskers_low = [];
+          boxPlotData.forEach(function (data) {
+            whiskers_high.push(data.values.whisker_high);
+            whiskers_low.push(data.values.whisker_low);
+          });
+          maxValue = d3.max(whiskers_high);
+          minValue = d3.min(whiskers_low);
+          drawBoxPlot(minValue, boxPlotData, maxValue);
+          $scope.loadViz = false;
+        }
+        incompatibleDataTypes(keyText, multipleKeys, boxPlotData.length)
+      }
+      $scope.vizTemplate = true;
+    }, 1000);
+  }
+
+  function transformBoxPlotData(viz, key, values) {
+
     var data = [];
     var firstHalf = [];
     var secondHalf = [];
-    var boxPlotData = [];
 
-    $timeout(function () {
-      response.forEach(function (res) {
-        var resData = {};
-        label = res.key;
-        resData.label = label;
-        data = [];
-        resData.values = {};
-        var max, min, median, midPoint, q1, q3 = "";
-        res.values.forEach(function (val) {
-          data.push(parseInt(val.answer));
-        });
-        if (data.length === 1) {
-          resData.values = {Q1: data[0], Q2: data[0], Q3: data[0], whisker_low: data[0], whisker_high: data[0]};
-        } else {
-          function compareFunction(a, b) {
-            return a - b;
-          }
+    var resData = {};
+    resData.label = key;
+    data = [];
+    resData.values = {};
+    var max, min, median, midPoint, q1, q3 = "";
+    if (viz === "vizByDateRange") {
+      values.forEach(function (val) {
+        data.push(parseInt(val.answer));
+      });
+    } else if (viz === "vizByDay") {
+      values.forEach(function (val) {
+        data.push(parseInt(val));
+      });
+    }
+    if ((data.length === 1) && (!isNaN(data[0]))) {
+      resData.values = {Q1: data[0], Q2: data[0], Q3: data[0], whisker_low: data[0], whisker_high: data[0]};
+    } else {
+      function compareFunction(a, b) {
+        return a - b;
+      }
 
-          data.sort(compareFunction);
-          max = d3.max(data);
-          min = d3.min(data);
-          median = d3.median(data);
-          midPoint = Math.floor((data.length / 2));
-          firstHalf = data.slice(0, midPoint);
-          secondHalf = data.slice(midPoint, data.length);
-          q1 = d3.median(firstHalf);
-          q3 = d3.median(secondHalf);
-          resData.values = {Q1: q1, Q2: median, Q3: q3, whisker_low: min, whisker_high: max};
-        }
-        boxPlotData.push(resData);
-      });
-      var whiskers_high = [];
-      var whiskers_low = [];
-      boxPlotData.forEach(function (data) {
-        whiskers_high.push(data.values.whisker_high);
-        whiskers_low.push(data.values.whisker_low);
-      });
-      maxValue = d3.max(whiskers_high);
-      minValue = d3.min(whiskers_low);
-      drawBoxPlot(minValue, boxPlotData, maxValue);
-      $scope.loadViz = false;
-    }, 1000);
+      data.sort(compareFunction);
+      max = d3.max(data);
+      min = d3.min(data);
+      median = d3.median(data);
+      midPoint = Math.floor((data.length / 2));
+      firstHalf = data.slice(0, midPoint);
+      secondHalf = data.slice(midPoint, data.length);
+      q1 = d3.median(firstHalf);
+      q3 = d3.median(secondHalf);
+      if ((q1 !== undefined) && (median !== undefined) && (q3 !== undefined) && (min !== undefined) && (max !== undefined)) {
+        resData.values = {Q1: q1, Q2: median, Q3: q3, whisker_low: min, whisker_high: max};
+      } else {
+        resData = undefined;
+      }
+    }
+    return resData;
   }
 
   function drawBoxPlot(min, boxPlotData, whisker_high) {
     d3.selectAll('.vizContainer' + "> *").remove();
 
-    // $timeout(function () {
     if (boxPlotData !== undefined) {
       nv.addGraph(function () {
         var chart = nv.models.boxPlotChart()
@@ -839,6 +966,17 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
 
         chart.xAxis.showMaxMin(false);
         chart.yAxis.tickFormat(d3.format('d'));
+        if ($scope.template === 2) {
+          var response = responseTypeMap.get($scope.selectedInput1.input);
+          var responseType = response.responseType;
+          if ((responseType === "likert") || (responseType === "likert_smileys")) {
+            chart.yDomain([1, 5]);
+            chart.yAxis.tickValues([2, 3, 4]);
+          }
+          else {
+            chart.yDomain([min, whisker_high]);
+          }
+        }
         chart.tooltip(true);
         chart.tooltip.contentGenerator(function (d) {
           if (d.data !== undefined) {
@@ -910,11 +1048,155 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
         return chart;
       });
     }
-    // });
   }
 
   function processBarChartData(res) {
+    var keyText = undefined;
+    var multipleKeys = false;
+    var resKeys = [];
+    var compatibleResponses = [];
+
+    if (res !== undefined) {
+      $timeout(function () {
+        var barChartData = [];
+        var values = [];
+        if ($scope.template === 2) {
+          barChartData = transformBarChartData_template2(res);
+        } else if ($scope.template === 1) {
+          res.forEach(function (response) {
+            if (responseTypeMap.get(response.key).responseType === "open text") {
+              resKeys.push(response.key);
+              keyText = resKeys.join(",");
+              if (resKeys.length === 1) {
+                multipleKeys = false;
+              } else if (resKeys.length > 1) {
+                multipleKeys = true;
+              }
+            } else {
+              compatibleResponses.push(response);
+              barChartData = transformDataforBarChart(undefined, compatibleResponses);
+            }
+          });
+        }
+        if (barChartData !== undefined) {
+          barChartData.forEach(function (data) {
+            data.values.forEach(function (value) {
+              values.push(value.y);
+            });
+          });
+        }
+        if (values !== undefined) {
+          var yAxisValues = values.filter(function (item, pos) {
+            return values.indexOf(item) == pos;
+          });
+        }
+        if (barChartData !== undefined && yAxisValues !== undefined) {
+          if ((barChartData.length > 0) && (yAxisValues.length > 0)) {
+            drawMultiBarChart(barChartData, yAxisValues);
+            $scope.vizTemplate = true;
+          }
+          incompatibleDataTypes(keyText, multipleKeys, barChartData.length);
+        }
+        $scope.loadViz = false;
+      }, 1000);
+    }
+  }
+
+  function transformBarChartData_template2(res) {
+    var maxDatesOfStudy = [];
+    var studyDateRange = [];
+    var responses_groupedByDate = [];
+    var barChartData = {};
+    var maxDatesOfStudyMap = new Map();
+
+    function getGroupByDate(values) {
+      var vizByDay = d3.nest()
+          .key(function (d) {
+            return $filter('date')(new Date(d.response_time), 'MM/dd/yyyy');
+          }).sortKeys(d3.ascending)
+          .rollup(function (v) {
+            return v.length;
+          })
+          .entries(values);
+      return vizByDay;
+    }
+
+    var vizGroupByAnswers = d3.nest()
+        .key(function (d) {
+          return d.answer
+        })
+        .rollup(function (v) {
+          return v;
+        })
+        .entries(res[0].values);
+
+    var barChartViz = [];
+    vizGroupByAnswers.forEach(function (response) {
+      if (response !== undefined) {
+        barChartData = {};
+        barChartData.key = response.key;
+        responses_groupedByDate = getGroupByDate(response.values);
+        maxDatesOfStudy.push(responses_groupedByDate);
+        maxDatesOfStudyMap.set(response.key, responses_groupedByDate);
+      }
+    });
+
+    var maxLength = maxDatesOfStudy.map(function (a) {
+      return a.length;
+    }).indexOf(Math.max.apply(Math, maxDatesOfStudy.map(function (a) {
+      return a.length;
+    })));
+
+    var maxDateRange = maxDatesOfStudy[maxLength];
+    maxDateRange.forEach(function (data) {
+      studyDateRange.push(data.key);
+    });
+
+    maxDatesOfStudyMap.forEach(function (value, key) {
+      var dateRange = [];
+      var barChartValuesMap = new Map();
+      var datesDiff = [];
+      var chartData = {};
+
+      chartData.key = key;
+      value.forEach(function (dateValue) {
+        barChartValuesMap.set(dateValue.key, dateValue.values);
+        dateRange.push(dateValue.key);
+      });
+      datesDiff = studyDateRange.filter(function (n) {
+        return !this.has(n)
+      }, new Set(dateRange));
+
+      if (datesDiff.length > 0) {
+        datesDiff.forEach(function (d) {
+          barChartValuesMap.set(d, 0);
+        });
+      }
+
+      var barChartVals = [];
+      barChartValuesMap.forEach(function(value,key){
+        var chartDataValues = {};
+        chartDataValues.x = key;
+        chartDataValues.y = value;
+        barChartVals.push(chartDataValues);
+      });
+      chartData.values = barChartVals;
+      barChartViz.push(chartData);
+    });
+
+    barChartViz.forEach(function(barChartVizData){
+      barChartVizData.values.sort(function(x, y){
+        return d3.ascending(x.x, y.x);
+      });
+    });
+    return barChartViz;
+  }
+
+  function transformDataforBarChart(key, res) {
+
     var listChoicesMap = new Map();
+    var barChartData = [];
+    var responsesFrequency = [];
 
     //Utility functions
     //map answer indices with list choices
@@ -929,7 +1211,6 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
 
     //frequency of the data
     function responseDataFrequency(dataSet) {
-
       var frequency = d3.nest()
           .key(function (d) {
             return d.answer;
@@ -945,213 +1226,27 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
       return frequency;
     }
 
-    var barChartData = [];
-    $timeout(function () {
-
-      res.forEach(function (responseData) {
-        if (responseData !== null && responseData !== undefined) {
-          var listResponseData = [];
-          var chartData = {};
-          var choices = "";
-          var responsesFrequency = [];
-          var responsesMap = new Map();
-          chartData.key = responseData.key;
-
-          if (responseTypeMap.has(responseData.key)) {
-            var responseType = responseTypeMap.get(responseData.key);
-            var response_type = responseType.responseType;
-            if (responseType.responseType === "list") {
-              for (var i in responseType.listChoices) {
-                listChoicesMap.set(i, responseType.listChoices[i]);
-              }
-
-              responseData.values.forEach(function (response) {
-                if (response.answer.length > 1) {
-                  var answers = response.answer.split(",");
-                  answers.forEach(function (a) {
-                    choices = mapIndicesWithListChoices(a);
-                    listResponseData.push({"who": response.who, "answer": choices, "index": a});
-                  });
-                } else {
-                  choices = mapIndicesWithListChoices(response.answer);
-                  listResponseData.push({
-                    "who": response.who,
-                    "answer": choices,
-                    "index": response.answer
-                  });
-                }
-              });
-
-              responsesFrequency = responseDataFrequency(listResponseData);
-            } else if (responseType.responseType === "likert" || responseType.responseType === "likert_smileys") {
-              responsesFrequency = responseDataFrequency(responseData.values);
-              if (responsesFrequency.length < 5) {
-                responsesFrequency.forEach(function (resFrequency) {
-
-                  responsesMap.set(resFrequency.key, resFrequency.values);
-                });
-                var scales = ["1", "2", "3", "4", "5"];
-
-                scales.forEach(function (scale) {
-                  var emptyData = {};
-                  if (!responsesMap.has(scale)) {
-                    emptyData = {
-                      key: scale,
-                      values: {
-                        count: 0,
-                        participants: "None"
-                      }
-                    };
-                    responsesFrequency.push(emptyData);
-                  }
-                });
-                responsesFrequency.sort(function (x, y) {
-                  return d3.ascending(x.key, y.key);
-                });
-              }
-            } else {
-              responsesFrequency = responseDataFrequency(responseData.values);
-            }
-          }
-          var barChartVals = [];
-          responsesFrequency.forEach(function (res) {
-            var chartDataValues = {};
-            chartDataValues.x = res.key;
-            chartDataValues.y = res.values.count;
-            chartDataValues.participants = res.values.participants;
-            barChartVals.push(chartDataValues);
-          });
-          chartData.values = barChartVals;
-          barChartData.push(chartData);
-        }
-      });
-      drawMultiBarChart(barChartData);
-      $scope.loadViz = false;
-    }, 1000);
-  }
-
-  function drawMultiBarChart(barChartData) {
-    d3.selectAll('.vizContainer' + "> *").remove();
-    $timeout(function () {
-      if (barChartData !== undefined) {
-        var chart = nv.models.multiBarChart()
-            .showControls(true).showLegend(true)
-            .height(580)
-            .duration(500);
-
-        chart.yAxis.tickFormat(d3.format('.0f'));
-        chart.yAxis.axisLabel("Count of responses");
-        chart.xAxis.axisLabel("Available options");
-        // .rotateLabels(-45);
-        chart.tooltip(true);
-        chart.tooltip.contentGenerator(function (d) {
-
-          var rows =
-              "<tr>" +
-              "<td class='key'>" + 'Data: ' + "</td>" +
-              "<td class='x-value'>" + d.data.x + "</td>" +
-              "</tr>" +
-              "<tr>" +
-              "<td class='key'>" + 'Frequency: ' + "</td>" +
-              "<td class='x-value'><strong>" + d.data.y + "</strong></td>" +
-              "</tr>";
-
-          var header =
-              "<thead>" +
-              "<tr>" +
-              "<td class='legend-color-guide'><div style='background-color: " + d.color + ";'></div></td>" +
-              "<td class='key'><strong>" + d.data.key + "</strong></td>" +
-              "</tr>" +
-              "</thead>";
-
-          return "<table>" +
-              header +
-              "<tbody>" +
-              rows +
-              "</tbody>" +
-              "</table>";
-        });
-        var svg = d3.select('.vizContainer')
-            .append('svg')
-            .style('width', '98%')
-            .style('height', 600)
-            .style('margin-left', 20)
-            .style('margin-top', 20)
-            .style('background-color', 'white')
-            .style('vertical-align', 'middle')
-            .datum(barChartData)
-            .call(chart);
-        nv.utils.windowResize(chart.update);
-        return chart;
-      }
-    }, 1000);
-  }
-
-  function dataFrequency(viz, resData) {
-    var listChoicesMap = new Map();
-
-    //Utility functions
-    //map answer indices with list choices
-    function mapIndicesWithListChoices(index) {
-      var listChoice = " ";
-      var index = (parseInt(index) - 1).toString();
-      if (listChoicesMap.has(index)) {
-        listChoice = listChoicesMap.get(index);
-      }
-      return listChoice;
-    }
-
-    function responseDataFrequency(dataSet) {
-
-      var frequency = [];
-      if (viz === "Bubble Chart") {
-
-        //frequency of the data
-        frequency = d3.nest()
-            .key(function (d) {
-              return d.answer;
-            })
-            .rollup(function (v) {
-              return v.length;
-            })
-            .entries(dataSet);
-        return frequency;
-      }
-      // else if (viz === "Bar Chart") {
-      //   console.log("BarC");
-      //   frequency = d3.nest()
-      //       .key(function (d) {
-      //         return d.answer;
-      //       })
-      //       .rollup(function (v) {
-      //         var who = [];
-      //         v.forEach(function (data) {
-      //           who.push(data.who);
-      //         });
-      //         return {"count": v.length, "participants": who};
-      //       })
-      //       .entries(dataSet);
-      // }
-      // return frequency;
-    }
-
-    var responsesFrequency = [];
-    resData.forEach(function (responseData) {
-      if (responseData !== null && responseData !== undefined) {
+    res.forEach(function (responseData) {
+      if (responseData !== undefined) {
         var listResponseData = [];
-        // var chartData = {};
+        var chartData = {};
         var choices = "";
-
         var responsesMap = new Map();
-        // chartData.key = responseData.key;
+        var text = "";
+        if (key !== undefined) {
+          text = key;
+        } else {
+          text = responseData.key;
+        }
+        chartData.key = responseData.key;
 
-        if (responseTypeMap.has(responseData.key)) {
-          var responseType = responseTypeMap.get(responseData.key);
+        if (responseTypeMap.has(text)) {
+          var responseType = responseTypeMap.get(text);
+
           if (responseType.responseType === "list") {
             for (var i in responseType.listChoices) {
               listChoicesMap.set(i, responseType.listChoices[i]);
             }
-
             responseData.values.forEach(function (response) {
               if (response.answer.length > 1) {
                 var answers = response.answer.split(",");
@@ -1199,35 +1294,238 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
             responsesFrequency = responseDataFrequency(responseData.values);
           }
         }
+
+        var barChartVals = [];
+        responsesFrequency.forEach(function (res) {
+          var chartDataValues = {};
+          chartDataValues.x = res.key;
+          chartDataValues.y = res.values.count;
+          chartDataValues.participants = res.values.participants;
+          barChartVals.push(chartDataValues);
+        });
+        chartData.values = barChartVals;
+        barChartData.push(chartData);
       }
     });
-    return responsesFrequency;
+    return barChartData;
   }
 
-  function processBubbleChartData(data) {
-
-    $timeout(function () {
-      var bubbleChartData = [];
-
-      var responsesFrequency = dataFrequency("Bubble Chart", data);
-      bubbleChartData = responsesFrequency.map(function (d) {
-        d.value = +d["values"];
-        return d;
-      });
-      drawBubbleChart(data.key, bubbleChartData);
-      $scope.loadViz = false;
-    }, 1000);
-  }
-
-  function drawBubbleChart(key, data) {
+  function drawMultiBarChart(barChartData, yAxisValues) {
+    yAxisValues.sort(d3.ascending);
     d3.selectAll('.vizContainer' + "> *").remove();
 
     $timeout(function () {
+      if (barChartData !== undefined) {
+        var chart = nv.models.multiBarChart()
+            .showControls(false)
+            .showLegend(true)
+            .height(700)
+            .duration(500)
+            .reduceXTicks(false);
+        chart.yAxis.tickFormat(d3.format('.0f'));
+        chart.yAxis.tickValues(yAxisValues);
+        chart.yAxis.axisLabel("Count of responses");
+        chart.yAxis.axisLabelDistance(70);
+        chart.xAxis.axisLabel("Available options");
+        // .rotateLabels(-45);
+        chart.tooltip(true);
+        chart.tooltip.contentGenerator(function (d) {
+          var rows =
+              "<tr>" +
+              "<td class='key'>" + 'Data: ' + "</td>" +
+              "<td class='x-value'>" + d.data.x + "</td>" +
+              "</tr>" +
+              "<tr>" +
+              "<td class='key'>" + 'Frequency: ' + "</td>" +
+              "<td class='x-value'><strong>" + d.data.y + "</strong></td>" +
+              "</tr>";
+          var header =
+              "<thead>" +
+              "<tr>" +
+              "<td class='legend-color-guide'><div style='background-color: " + d.color + ";'></div></td>" +
+              "<td class='key'><strong>" + d.data.key + "</strong></td>" +
+              "</tr>" +
+              "</thead>";
+          return "<table>" +
+              header +
+              "<tbody>" +
+              rows +
+              "</tbody>" +
+              "</table>";
+        });
+        var svg = d3.select('.vizContainer')
+            .append('svg')
+            .style('width', '98%')
+            .style('height', 600)
+            .style('margin', "auto")
+            .style('display', 'block')
+            .style('background-color', 'white')
+            .style('vertical-align', 'middle')
+            .datum(barChartData)
+            .call(chart);
+        nv.utils.windowResize(chart.update);
+        return chart;
+      }
+    }, 1000);
+  }
+
+  function mapChoices(responseType, resData) {
+    var listChoicesMap = new Map();
+    var listResponseData = [];
+    var choices = "";
+
+    function mapIndicesWithListChoices(index) {
+      var listChoice = " ";
+      var index = (parseInt(index) - 1).toString();
+      if (listChoicesMap.has(index)) {
+        listChoice = listChoicesMap.get(index);
+      }
+      return listChoice;
+    }
+
+    for (var i in responseType.listChoices) {
+      listChoicesMap.set(i, responseType.listChoices[i]);
+    }
+    resData.forEach(function (response) {
+      if (response.answer.length > 1) {
+        var answers = response.answer.split(",");
+        answers.forEach(function (a) {
+          choices = mapIndicesWithListChoices(a);
+          listResponseData.push({"who": response.who, "answer": choices, "index": a});
+        });
+      } else {
+        choices = mapIndicesWithListChoices(response.answer);
+        listResponseData.push({
+          "who": response.who,
+          "answer": choices,
+          "index": response.answer
+        });
+      }
+    });
+    return listResponseData;
+  }
+
+  function processBubbleChartData(responseData) {
+    var responses_bubbleChart = [];
+    $timeout(function () {
+      responses_bubbleChart = preProcessStrings(responseData);
+      if (responses_bubbleChart !== undefined) {
+        if (responses_bubbleChart.length > 0) {
+          var bubbleChartData = responses_bubbleChart.map(function (d) {
+            d.value = +d["values"];
+            return d;
+          });
+          drawBubbleChart(bubbleChartData);
+          $scope.loadViz = false;
+        }
+      }
+      $scope.vizTemplate = true;
+    }, 1000);
+  }
+
+  function preProcessStrings(responseData) {
+    var vizData = [];
+    var responsesCount = [];
+    var collectiveResponses = [];
+
+    responseData.forEach(function (data) {
+      if (responseTypeMap.has(data.key)) {
+        var responseType = responseTypeMap.get(data.key);
+        if (responseType.responseType === "open text") {
+          var stringsTokenized = tokenizeWords(data.values);
+          var stringsLowerCase = vizResponseJson("open text", stringsTokenized);
+          vizData.push(removeStopWords((stringsLowerCase)));
+        } else if (responseType.responseType === "list") {
+          var mapListChoices = mapChoices(responseType, data.values);
+          vizData.push(vizResponseJson(responseType.responseType, mapListChoices));
+        } else {
+          var data = data.values;
+          vizData.push(vizResponseJson(responseType.responseType, data));
+        }
+      }
+    });
+    vizData.forEach(function (responseData) {
+      responseData.forEach(function (data) {
+        collectiveResponses.push(data);
+      })
+    });
+
+    responsesCount = countResponses(collectiveResponses);
+    return responsesCount;
+  }
+
+  function vizResponseJson(type, responseData) {
+    var responseJson = [];
+    responseData.forEach(function (res) {
+      if (type === "open text") {
+        responseJson.push(res.toLowerCase());
+      } else {
+        responseJson.push(res.answer.toLowerCase());
+      }
+    });
+    return responseJson;
+  }
+
+  function countResponses(dataSet) {
+    var responsesCount = d3.nest()
+        .key(function (d) {
+          return d;
+        })
+        .rollup(function (v) {
+          return v.length;
+        })
+        .entries(dataSet);
+    return responsesCount;
+  }
+
+  function tokenizeWords(data) {
+    var tokenizedWords = [];
+    data.forEach(function (d) {
+      if (d.answer !== undefined) {
+        var splitWords = d.answer.split(" ");
+      }
+      if (splitWords !== undefined) {
+        splitWords.forEach(function (word) {
+          if ((word !== "") && (/^[a-zA-Z]/.test(word))) {
+            tokenizedWords.push(word);
+          }
+        });
+      }
+    });
+    return tokenizedWords;
+  }
+
+  function removeStopWords(tokenizedStrings) {
+    var rootWords = [];
+    //source - https://stackoverflow.com/questions/5631422/stop-word-removal-in-javascript
+    var stopwords = ["a", "about", "above", "after", "again", "against", "all", "am", "an", "and", "any", "are", "aren't",
+      "as", "at", "be", "because", "been", "before", "being", "below", "between", "both", "but", "by", "can't", "cannot",
+      "could", "couldn't", "did", "didn't", "do", "does", "doesn't", "doing", "don't", "down", "during", "each", "few",
+      "for", "from", "further", "had", "hadn't", "has", "hasn't", "have", "haven't", "having", "he", "he'd", "he'll",
+      "he's", "her", "here", "here's", "hers", "herself", "him", "himself", "his", "how", "how's", "i", "i'd", "i'll",
+      "i'm", "i've", "if", "in", "into", "is", "isn't", "it", "it's", "its", "itself", "let's", "me", "more", "most",
+      "mustn't", "my", "myself", "no", "nor", "not", "of", "off", "on", "once", "only", "or", "other", "ought", "our",
+      "ours", "ourselves", "out", "over", "own", "same", "shan't", "she", "she'd", "she'll", "she's", "should", "shouldn't",
+      "so", "some", "such", "than", "that", "that's", "the", "their", "theirs", "them", "themselves", "then", "there", "there's",
+      "these", "they", "they'd", "they'll", "they're", "they've", "this", "those", "through", "to", "too", "under", "until",
+      "up", "very", "was", "wasn't", "we", "we'd", "we'll", "we're", "we've", "were", "weren't", "what", "what's", "when", "when's",
+      "where", "where's", "which", "while", "who", "who's", "whom", "why", "why's", "with", "won't", "would", "wouldn't", "you",
+      "you'd", "you'll", "you're", "you've", "your", "yours", "yourself", "yourselves"];
+
+    tokenizedStrings.forEach(function (str) {
+      if (!stopwords.includes(str)) {
+        rootWords.push(str);
+      }
+    });
+    return rootWords;
+  }
+
+  function drawBubbleChart(data) {
+    d3.selectAll('.vizContainer' + "> *").remove();
+    $timeout(function () {
       if (data !== undefined) {
 
-        var diameter = 600; //max size of the bubbles
-
-        var color = d3.scale.category20c(); //color category
+        var diameter = 800; //max size of the bubbles
 
         var bubble = d3.layout.pack()
             .sort(null)
@@ -1245,7 +1543,7 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
             .attr("width", diameter)
             .attr("height", diameter)
             .style("margin", "auto")
-            .style("margin-top", "-50")
+            .style("margin-top", "0")
             .attr("class", "bubble");
 
         //bubbles needs very specific format, convert data to this.
@@ -1271,11 +1569,9 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
             .attr("cy", function (d) {
               return d.y;
             })
-            .style("fill", function (d, i) {
-              return color(i);
-            })
+            .style("fill", "steelblue")
             .on("mouseover", function (d) {
-              tooltip.text(d.key + ": " + d.value);
+              tooltip.html(d.key + ": " + d.value);
               tooltip.style("visibility", "visible");
             })
             .on("mousemove", function () {
@@ -1297,11 +1593,10 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
             .text(function (d) {
               return d["key"];
             })
-            .style({
-              "fill": "black",
-              "font-family": "Helvetica Neue, Helvetica, Arial, san-serif",
-              "font-size": "12px"
-            });
+            .style("fill", "white")
+            .style("font-size", function (d) {
+              return Math.min(d.r, (d.r - 8) / this.getComputedTextLength() * 20) + "px";
+            })
       }
     }, 1000);
   }
@@ -1512,7 +1807,7 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
 
   function reqFieldsValidation() {
     var msgTitle = "Required Fields";
-    if (($scope.template === 1) || ($scope.template === 2)) {
+    if (($scope.template === 1)) {
       if (($scope.selectedType === undefined) && ($scope.selectedInputs === undefined)) {
         showAlert(msgTitle, "Please select Viz Type and x axis value(s).");
         return false;
@@ -1522,6 +1817,21 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
         return false;
       }
       if ($scope.selectedInputs === undefined) {
+        showAlert(msgTitle, "Please select the x axis value(s).");
+        return false;
+      }
+    }
+
+    if (($scope.template === 2)) {
+      if (($scope.selectedType === undefined) && ($scope.selectedInput1 === undefined)) {
+        showAlert(msgTitle, "Please select Viz Type and x axis value(s).");
+        return false;
+      }
+      if ($scope.selectedType === undefined) {
+        showAlert(msgTitle, "Please select Viz Type.");
+        return false;
+      }
+      if ($scope.selectedInput1 === undefined) {
         showAlert(msgTitle, "Please select the x axis value(s).");
         return false;
       }
@@ -1654,6 +1964,9 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
     }
 
     if (viz.xPlotInput !== undefined) {
+      if ($scope.template === 2) {
+        $scope.selectedInput1 = viz.xPlotInput;
+      }
       if ($scope.template === 3) {
         $scope.selectedInput1 = viz.xPlotInput;
       }
@@ -1702,7 +2015,6 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
   }
 
   function renderSavedViz(viz, index, vizMode) {
-
     $scope.renderVisualization = true;
     setParams(viz);
     $scope.createViz(viz, undefined);
@@ -1766,6 +2078,7 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
     $scope.getExperiment();
     $scope.loadDataSummary = true;
     $scope.dataSnapshot();
+
   }
   function displayErrorMessage(data, error) {
     $scope.vizTemplate = false;
@@ -1774,7 +2087,8 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
     if (data == "Query") {
       message = error.errorMessage;
       errorData = "";
-    } else {
+    }
+    else {
       message = error.statusText;
       errorData = data;
     }

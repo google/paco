@@ -52,6 +52,25 @@ pacoApp.factory('experimentsVizService', ['$http', 'experimentService', '$filter
     }
   }
 
+  function getStartDate(experimentId){
+    var startDateQuery = "";
+    if(experimentId !== undefined){
+      startDateQuery = '{ "select":["response_time"], "query" : { "criteria" : "experiment_id = ? and response_time is not null", "values" : [' + experimentId + ']},"order":"response_time asc","limit":"1"}';
+    }
+    var startDate = httpPostBody(startDateQuery);
+    return startDate;
+  }
+
+  function getEndDate(experimentId){
+    var endDateQuery = "";
+    if(experimentId !== undefined){
+      endDateQuery = '{ "select":["response_time"], "query" : { "criteria" : "experiment_id = ? and response_time is not null", "values" : [' + experimentId + ']},"order":"response_time desc","limit":"1"}';
+    }
+
+    var endDate = httpPostBody(endDateQuery);
+    return endDate;
+  }
+
   function getEventsCounts(id) {
     var eventsCount = $http({
       method: 'GET',
@@ -122,6 +141,8 @@ pacoApp.factory('experimentsVizService', ['$http', 'experimentService', '$filter
     getParticipants: getParticipants,
     getEventsCounts: getEventsCounts,
     getDateRange: getDateRange,
+    getStartDate:getStartDate,
+    getEndDate:getEndDate,
     saveVisualizations: saveVisualizations
   }
 }]);
