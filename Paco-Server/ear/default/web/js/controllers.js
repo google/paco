@@ -721,12 +721,19 @@ pacoApp.controller('HackCtrl', ['$scope', '$http', function ($scope, $http) {
   var editorResSession = '';
   $scope.hackRequest = '';
   $scope.errorResponse = '';
-  $scope.submitForm = function () {
+  var searchUrlWithVersion = '';
+  $scope.submitForm = function (protocolVersion) {
+    if (protocolVersion == 5) {
+      searchUrlWithVersion = '/csSearch?pacoProtocol=5';
+    } else {
+      searchUrlWithVersion = '/csSearch?pacoProtocol=4';
+    }
     $http({
       method: 'POST',
-      url: '/csSearch',
+      url: searchUrlWithVersion,
       data: angular.fromJson($scope.hackRequest),
-      headers: {'Content-Type': 'application/json'}
+      // making the header as undefined, will remove the header value for ONLY this request (which was originally added from the default header configuration)
+      headers: {'pacoProtocol': undefined}
     })
         .then(function mySuccess(response) {
           allResponses = '';

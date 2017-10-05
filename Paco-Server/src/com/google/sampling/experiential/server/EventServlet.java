@@ -77,6 +77,7 @@ public class EventServlet extends HttpServlet {
       AuthUtil.redirectUserToLogin(req, resp);
     } else {
       Float pacoProtocol = RequestProcessorUtil.getPacoProtocolVersionAsFloat(req);
+      log.info("pacoProtocol is : " + pacoProtocol);
       String anonStr = req.getParameter("anon");
       boolean anon = false;
       if (anonStr != null) {
