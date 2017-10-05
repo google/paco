@@ -695,7 +695,7 @@ public class CloudSQLMigrationDaoImpl implements CloudSQLMigrationDao {
   @Override
   public boolean eventV5AddNewColumns() throws SQLException{
     final String addNewColumnsSql = "ALTER TABLE `pacodb`.`"+ EventBaseColumns.TABLE_NAME  +"` " +
-                                 " ADD COLUMN `" + EventBaseColumns.SCHEDULE_TIME + " ` DATETIME NULL DEFAULT NULL AFTER `" + EventServerColumns.CLIENT_TIME_ZONE+ "`, " + 
+                                 " ADD COLUMN `" + EventBaseColumns.SCHEDULE_TIME + "` DATETIME NULL DEFAULT NULL AFTER `" + EventServerColumns.CLIENT_TIME_ZONE+ "`, " + 
                                  " ADD COLUMN `" + EventBaseColumns.RESPONSE_TIME + "` DATETIME NULL DEFAULT NULL AFTER `" + EventServerColumns.SCHEDULE_TIME + "`, " + 
                                  " ADD COLUMN `" + EventServerColumns.SORT_DATE + "` DATETIME NULL DEFAULT NULL AFTER `" + EventServerColumns.RESPONSE_TIME + "`";
     Connection conn = null;
@@ -730,7 +730,7 @@ public class CloudSQLMigrationDaoImpl implements CloudSQLMigrationDao {
   @Override
   public boolean eventV5RenameExistingColumns() throws SQLException {
     final String renameExistingColumns = "ALTER TABLE `pacodb`.`"+ EventBaseColumns.TABLE_NAME  +"` " +
-                                           " CHANGE COLUMN `" + EventBaseColumns.SCHEDULE_TIME + " ` `" + EventServerColumns.SCHEDULE_TIME_UTC + "` DATETIME NULL DEFAULT NULL , " + 
+                                           " CHANGE COLUMN `" + EventBaseColumns.SCHEDULE_TIME + "` `" + EventServerColumns.SCHEDULE_TIME_UTC + "` DATETIME NULL DEFAULT NULL , " + 
                                            " CHANGE COLUMN `" + EventBaseColumns.RESPONSE_TIME + "` `" + EventServerColumns.RESPONSE_TIME_UTC + "` DATETIME NULL DEFAULT NULL , " +
                                            " CHANGE COLUMN `" + EventServerColumns.SORT_DATE + "` `" + EventServerColumns.SORT_DATE_UTC + "` DATETIME NULL DEFAULT NULL";
     Connection conn = null;
