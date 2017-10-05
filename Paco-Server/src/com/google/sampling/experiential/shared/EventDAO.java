@@ -58,7 +58,7 @@ public class EventDAO implements Serializable {
   private String[] blobs;
   private Integer experimentVersion;
   // timezone will be represented as part of the date time along with date fields
-  @JsonView(Views.OldVersion.class)
+  @JsonView(Views.V4.class)
   private String timezone;
   
   private String experimentGroupName;

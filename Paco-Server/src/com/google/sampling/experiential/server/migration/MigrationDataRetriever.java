@@ -44,6 +44,7 @@ import com.google.sampling.experiential.datastore.EventEntityConverter;
 import com.google.sampling.experiential.model.Event;
 import com.google.sampling.experiential.model.What;
 import com.google.sampling.experiential.server.CloudSQLDaoImpl;
+import com.google.sampling.experiential.server.QueryConstants;
 import com.google.sampling.experiential.shared.EventDAO;
 import com.google.sampling.experiential.shared.WhatDAO;
 import com.pacoapp.paco.shared.util.ErrorMessages;
@@ -249,6 +250,66 @@ public class MigrationDataRetriever {
     } while (cursor != null);
     return isFinished;
   }
+  
+  public String convertEventV4ToV5(String cursor) throws SQLException {
+    String returnString = "";
+    Boolean doAll = false;
+    CloudSQLMigrationDaoImpl sqlMigDaoImpl = new CloudSQLMigrationDaoImpl();
+    if (cursor == null) {
+      doAll = true;
+    }
+    if (doAll || (cursor != null && cursor.equalsIgnoreCase("step1"))) {
+      try {
+          sqlMigDaoImpl.eventV5RemoveOldIndexes();
+          returnString = "Removed old Indexes. Step1 complete.";
+          doAll = true;
+        } catch (SQLException e) {
+          returnString = "Failed to remove old Indexes. Restart job";
+          throw new SQLException(returnString, e);
+        }
+    }
+    if (doAll || (cursor != null && cursor.equalsIgnoreCase("step2"))) {
+      try {
+        sqlMigDaoImpl.eventV5RenameExistingColumns();
+        returnString += "Renamed old columns. Step2 complete.";
+        doAll =  true;
+      } catch (SQLException e) {
+        returnString += "Failed to rename old columns. Restart job from step2";
+        throw new SQLException(returnString, e);
+      }
+    }
+    if (doAll || (cursor != null && cursor.equalsIgnoreCase("step3"))) {
+      try {
+        sqlMigDaoImpl.eventV5AddNewColumns();
+        returnString += "Added new columns. Step3 complete.";
+        doAll = true;
+      } catch (SQLException e) {
+        returnString += "Failed to add new columns. Restart job from step3";
+        throw new SQLException(returnString, e);
+      }
+    }
+    if (doAll || (cursor != null && cursor.equalsIgnoreCase("step4"))) {
+      try {
+        sqlMigDaoImpl.eventV5AddNewIndexes();
+        returnString += "Adding new Indexes. Step4 complete.";
+        doAll = true;
+      } catch (SQLException e) {
+        returnString += "Failed to add New Indexes. Restart job from step4";
+        throw new SQLException(returnString, e);
+      }
+    }
+    if (doAll || (cursor != null && cursor.equalsIgnoreCase("step5"))) {
+      try {
+        sqlMigDaoImpl.eventV5UpdateNewColumnsWithValues();
+        returnString = "All Done";
+      } catch (SQLException e) {
+        returnString += "Failed to update new columns with values. Restart job from step5";
+        throw new SQLException(returnString, e);
+      }
+    }
+     
+    return returnString;
+  }
 
   private void copySingleEventAndOutputsFromDSToCS(Event evtObjDS) {
     CloudSQLDaoImpl sqlDaoImpl = new CloudSQLDaoImpl(); 
@@ -261,9 +322,10 @@ public class MigrationDataRetriever {
     
     Set<What> whatsDS = evtObjDS.getWhat();
     outputsInDS = whatsDS.size();
+    boolean withOutputs = false;
     // find if event present in events cloud sql
     try {
-      List<EventDAO> eventInCS = sqlDaoImpl.getEvents(evtObjDS.getId());
+      List<EventDAO> eventInCS = sqlDaoImpl.getEvents(QueryConstants.GET_EVENT_FOR_ID.toString(), evtObjDS.getId(), withOutputs);
       if (eventInCS.size() == 0) {
         //copy event to cloud sql
         sqlDaoImpl.insertSingleEventOnly(evtObjDS);

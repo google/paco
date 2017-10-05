@@ -125,7 +125,7 @@ public class CloudSqlSearchServlet extends HttpServlet {
       resp.setContentType("text/plain");
       // NOTE: Group by, having and projection columns related functionality can be toggled on and off with the following flag 
       boolean enableGrpByAndProjection = true;
-
+      boolean withOutputs = true;
       CloudSQLDao impl = new CloudSQLDaoImpl();
       try {
         String postBodyString = RequestProcessorUtil.getBody(req);
@@ -182,15 +182,15 @@ public class CloudSqlSearchServlet extends HttpServlet {
         long startTime = System.currentTimeMillis();
 
         if (sqlQueryObj.isFullEventAndOutputs()) {
-          evtList = impl.getEvents(aclQuery, null);
+          evtList = impl.getEvents(aclQuery, null, withOutputs);
           evQryStatus.setEvents(evtList);
           evQryStatus.setStatus(Constants.SUCCESS);
           log.info("paco protocol version: "+ pacoProtocol);
           if (pacoProtocol != null && pacoProtocol < 5) {
-            results = mapper.writerWithView(Views.OldVersion.class).writeValueAsString(evQryStatus);
+            results = mapper.writerWithView(Views.V4.class).writeValueAsString(evQryStatus);
           } else {
             mapper.setDateFormat(new ISO8601DateFormat());
-            results = mapper.writerWithView(Views.NewVersion.class).writeValueAsString(evQryStatus);
+            results = mapper.writerWithView(Views.V5.class).writeValueAsString(evQryStatus);
           }
         } else {
           JSONArray resultsArray = impl.getResultSetAsJson(aclQuery, null);

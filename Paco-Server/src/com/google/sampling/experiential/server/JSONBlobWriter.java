@@ -120,10 +120,10 @@ public class JSONBlobWriter {
       EventDAOQueryResultPair eventDaoQueryResultPair = new EventDAOQueryResultPair(eventDAOs, eventQueryResultPair.getCursor());
       String finalRes = null;
       if (pacoProtocol != null && pacoProtocol < 5) { 
-        finalRes = mapper.writerWithView(Views.OldVersion.class).writeValueAsString(eventDaoQueryResultPair);
+        finalRes = mapper.writerWithView(Views.V4.class).writeValueAsString(eventDaoQueryResultPair);
       } else {
         mapper.setDateFormat(new ISO8601DateFormat());
-        finalRes = mapper.writeValueAsString(eventDaoQueryResultPair);
+        finalRes = mapper.writerWithView(Views.V5.class).writeValueAsString(eventDaoQueryResultPair);
       }
       return finalRes;
     } catch (JsonGenerationException e) {

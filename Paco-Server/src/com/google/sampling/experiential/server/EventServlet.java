@@ -219,10 +219,10 @@ public class EventServlet extends HttpServlet {
       String finalRes = null;
       log.info("protocol version: "+ protocolVersion);
       if (protocolVersion != null && protocolVersion < 5) {
-        finalRes = mapper.writerWithView(Views.OldVersion.class).writeValueAsString(eventDaoQueryResultPair);
+        finalRes = mapper.writerWithView(Views.V4.class).writeValueAsString(eventDaoQueryResultPair);
       } else {
         mapper.setDateFormat(new ISO8601DateFormat());
-        finalRes = mapper.writerWithView(Views.NewVersion.class).writeValueAsString(eventDaoQueryResultPair);
+        finalRes = mapper.writerWithView(Views.V5.class).writeValueAsString(eventDaoQueryResultPair);
       }
       return finalRes;
     } catch (JsonGenerationException e) {

@@ -358,12 +358,7 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
   }
   
   @Override
-  public List<EventDAO> getEvents(Long eventId) throws SQLException, ParseException{
-    return getEvents(QueryConstants.GET_EVENT_FOR_ID.toString(), eventId);
-  }
- 
-  @Override
-  public List<EventDAO> getEvents(String query, Long eventId) throws SQLException, ParseException {
+  public List<EventDAO> getEvents(String query, Long eventId, boolean withOutputs) throws SQLException, ParseException {
     List<EventDAO> evtDaoList = Lists.newArrayList();
     EventDAO event = null;
     Connection conn = null;
@@ -394,7 +389,7 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
         // to maintain the insertion order
         eventMap = Maps.newLinkedHashMap();
         while (rs.next()) {
-          event = createEvent(rs);
+          event = createEvent(rs, withOutputs);
           com.google.sampling.experiential.server.TimeUtil.adjustTimeZone(event);
           // to group list of whats into event
           EventDAO oldEvent = eventMap.get(event.getId());
@@ -523,7 +518,7 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
     return whatLst;
   }
 
-  private EventDAO createEvent(ResultSet rs) {
+  private EventDAO createEvent(ResultSet rs, boolean withOutputs) {
     EventDAO event = new EventDAO();
     List<WhatDAO> whatList = Lists.newArrayList();
     WhatDAO singleWhat = null;
@@ -553,12 +548,14 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
       event.setSortDate(new DateTime(rs.getTimestamp(EventServerColumns.SORT_DATE)));
       event.setTimezone(rs.getString(EventServerColumns.CLIENT_TIME_ZONE));
       event.setId(rs.getLong(Constants.UNDERSCORE_ID));
-      String tempWhatText = rs.getString(OutputBaseColumns.NAME);
-      if(tempWhatText != null) {
-        singleWhat = new WhatDAO(tempWhatText, rs.getString(OutputBaseColumns.ANSWER));
-        whatList.add(singleWhat);
+      if (withOutputs) {
+        String tempWhatText = rs.getString(OutputBaseColumns.NAME);
+        if(tempWhatText != null) {
+          singleWhat = new WhatDAO(tempWhatText, rs.getString(OutputBaseColumns.ANSWER));
+          whatList.add(singleWhat);
+        }
+        event.setWhat(whatList);
       }
-      event.setWhat(whatList);
     } catch (SQLException sqle) {
       log.warning(ErrorMessages.SQL_EXCEPTION.getDescription() + sqle);
     }

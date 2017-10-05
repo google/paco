@@ -19,7 +19,6 @@ package com.pacoapp.paco.shared.util;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.TimeZone;
 import java.util.logging.Logger;
 
 import org.joda.time.DateMidnight;
