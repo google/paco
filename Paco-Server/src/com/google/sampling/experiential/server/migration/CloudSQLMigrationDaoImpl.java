@@ -852,13 +852,11 @@ public class CloudSQLMigrationDaoImpl implements CloudSQLMigrationDao {
   @Override
   public boolean eventV5AddNewIndexes() throws SQLException {
     String[] qry = null;
-    final String addNewIndexSql1 = "ALTER TABLE `pacodb`.`outputs` " +
-            " ADD FULLTEXT INDEX `answer_index` (`answer` ASC) ";
-    final String addNewIndexSql2 = "ALTER TABLE `pacodb`.`events` " +
+    final String addNewIndexSql1 = "ALTER TABLE `pacodb`.`events` " +
             " ADD INDEX `exp_id_grp_who_index`  (`experiment_id` ASC, `group_name` ASC, `who` ASC) , " +
             " ADD INDEX `exp_id_sort_date_index` (`experiment_id` ASC, `sort_date` DESC), " +
             " ADD INDEX `exp_id_who_index`  (`experiment_id` ASC, `who` ASC)  ";
-    qry = new String[] { addNewIndexSql1, addNewIndexSql2};
+    qry = new String[] { addNewIndexSql1 };
     Connection conn = null;
     PreparedStatement statementAddNewIndex = null;
     try {

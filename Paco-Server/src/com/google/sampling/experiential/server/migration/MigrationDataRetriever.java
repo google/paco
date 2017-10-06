@@ -290,20 +290,20 @@ public class MigrationDataRetriever {
     }
     if (doAll || (cursor != null && cursor.equalsIgnoreCase("step4"))) {
       try {
-        sqlMigDaoImpl.eventV5AddNewIndexes();
-        returnString += "Adding new Indexes. Step4 complete.";
+        sqlMigDaoImpl.eventV5UpdateNewColumnsWithValues();
+        returnString += "Updating new new columns with values. Step4 complete.";
         doAll = true;
       } catch (SQLException e) {
-        returnString += "Failed to add New Indexes. Restart job from step4";
+        returnString += "Failed to update new columns with values. Restart job from step4";
         throw new SQLException(returnString, e);
       }
     }
     if (doAll || (cursor != null && cursor.equalsIgnoreCase("step5"))) {
       try {
-        sqlMigDaoImpl.eventV5UpdateNewColumnsWithValues();
+        sqlMigDaoImpl.eventV5AddNewIndexes();
         returnString = "All Done";
       } catch (SQLException e) {
-        returnString += "Failed to update new columns with values. Restart job from step5";
+        returnString += "Failed to add New Indexes. Restart job from step5";
         throw new SQLException(returnString, e);
       }
     }
