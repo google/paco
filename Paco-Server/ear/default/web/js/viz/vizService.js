@@ -22,36 +22,6 @@ pacoApp.factory('experimentsVizService', ['$http', 'experimentService', '$filter
     return participants;
   }
 
-  function getDateRange(experimentId) {
-    var dateRange = [];
-    var format = 'MM/dd/yyyy';
-    if (experimentId != undefined) {
-      var endDateQuery = '{ "select":["response_time"], "query" : { "criteria" : "experiment_id = ? and response_time is not null", "values" : [' + experimentId + ']},"order":"response_time desc","limit":"1"}';
-      var startDateQuery = '{ "select":["response_time"], "query" : { "criteria" : "experiment_id = ? and response_time is not null", "values" : [' + experimentId + ']},"order":"response_time asc","limit":"1"}';
-
-      var startDate = httpPostBody(startDateQuery);
-      var endDate = httpPostBody(endDateQuery);
-
-      startDate.then(function (data) {
-        if(data.data.customResponse !== undefined){
-          if(data.data.customResponse.length > 0){
-            var format_startDate = $filter('date')(new Date(data.data.customResponse[0].response_time), format);
-            dateRange[0] = format_startDate;
-          }
-        }
-      });
-      endDate.then(function (data) {
-        if(data.data.customResponse !== undefined){
-          if(data.data.customResponse.length > 0){
-            var format_endDate = $filter('date')(new Date(data.data.customResponse[0].response_time), format);
-            dateRange[1] = format_endDate;
-          }
-        }
-      });
-      return dateRange;
-    }
-  }
-
   function getStartDate(experimentId){
     var startDateQuery = "";
     if(experimentId !== undefined){
@@ -140,7 +110,6 @@ pacoApp.factory('experimentsVizService', ['$http', 'experimentService', '$filter
     getEvents: getEvents,
     getParticipants: getParticipants,
     getEventsCounts: getEventsCounts,
-    getDateRange: getDateRange,
     getStartDate:getStartDate,
     getEndDate:getEndDate,
     saveVisualizations: saveVisualizations

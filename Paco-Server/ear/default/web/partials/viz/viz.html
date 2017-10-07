@@ -27,7 +27,7 @@
             <td class="cellContainer">
               <div class="dateRangeVal">{{dateRange[0]}}</div>
               <div class="dateRangeVal">{{dateRange[1]}}</div>
-              <div class="countText">Date Range</div>
+              <div class="countText">Dates of Study</div>
             </td>
             <td class="cellContainer">
               <div class="dataCount">{{responseCounts[0]}}</div>
@@ -154,6 +154,10 @@
     </div>
   </div>
 
+  <div ng-if="error" class="error viz">
+    Error - {{error.code}}: {{error.data}} {{error.message}}
+  </div>
+
   <div ng-show="vizTable" class="vizTableContainer">
     <div class="vizSectionLabels"><span>Viz Archives</span></div>
     <table class="vizTable">
@@ -187,9 +191,7 @@
     </div>
   </div>
 
-  <div ng-if="error" class="error viz">
-    Error - {{error.code}}: {{error.data}} {{error.message}}
-  </div>
+
 </div>
 </div>
 
