@@ -118,7 +118,9 @@ public class CloudSqlRequestProcessor {
 
       long startTime = System.currentTimeMillis();
       boolean withOutputs = true;
-      List<EventDAO> eventList = impl.getEvents(aclQuery, null, withOutputs);
+      Long eventId = null;
+      // aclQuery will have the eventId in itself, so we send the individual param eventId as null
+      List<EventDAO> eventList = impl.getEvents(aclQuery, eventId, withOutputs);
       long diff = System.currentTimeMillis() - startTime;
       CloudSqlSearchServlet.log.info("complete search qry took " + diff);
 

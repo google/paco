@@ -103,7 +103,7 @@ public class BackendReportJobExecutorServlet extends HttpServlet {
   private void runStats(HttpServletRequest req, HttpServletResponse resp, int limit) throws IOException {
       String requestorEmail = "cron"; // bypass the admins check since it can only be launched by cron or an admin
       DateTimeZone timeZoneForClient = getTimeZoneForClient(req);
-      //paco version is immaterial, so passing null
+      //paco protocol is immaterial, so passing null
       String jobId = ReportJobExecutor.getInstance().runReportJob(requestorEmail, timeZoneForClient, null, false, "stats", null, limit, null, false, null);
       resp.setContentType("text/plain;charset=UTF-8");
       resp.getWriter().println(jobId);
@@ -113,7 +113,7 @@ public class BackendReportJobExecutorServlet extends HttpServlet {
     String queryParam = getParamForQuery(req);
     List<com.google.sampling.experiential.server.Query> query = new QueryParser().parse(stripQuotes(queryParam));
     DateTimeZone timeZoneForClient = getTimeZoneForClient(req);
-    //paco version is immaterial, so passing null
+    //paco protocol is immaterial, so passing null
     String jobId = ReportJobExecutor.getInstance().runReportJob(getRequestorEmail(req), timeZoneForClient, query, anon, "photozip", queryParam, limit, cursor, false, null);
     resp.setContentType("text/plain;charset=UTF-8");
     resp.getWriter().println(jobId);

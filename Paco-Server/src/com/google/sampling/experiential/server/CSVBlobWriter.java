@@ -5,8 +5,6 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.nio.channels.Channels;
 import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
 import java.util.List;
 import java.util.Set;
 import java.util.logging.Logger;
@@ -27,6 +25,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.google.sampling.experiential.model.Event;
 import com.google.sampling.experiential.shared.EventDAO;
+import com.google.sampling.experiential.shared.EventDateComparator;
 import com.google.sampling.experiential.shared.TimeUtil;
 import com.google.sampling.experiential.shared.WhatDAO;
 import com.pacoapp.paco.shared.model2.ExperimentDAO;
@@ -54,8 +53,8 @@ public class CSVBlobWriter {
   }
 
   public String writeEndOfDayExperimentEventsAsCSV(boolean anon, List<EventDAO> events,
-                                                   String jobId, String clientTimezone, Float pacoProtocol) throws IOException {
-   sortEventDAOs(events);
+                                                   String jobId, Float pacoProtocol) throws IOException {
+   Collections.sort(events, new EventDateComparator());
    List<String[]> eventsCSV = Lists.newArrayList();
 
    List<String> columns = Lists.newArrayList();
@@ -70,7 +69,7 @@ public class CSVBlobWriter {
    }
    Collections.sort(columns);
    for (EventDAO event : events) {
-     eventsCSV.add(toCSV(event, columns, anon, clientTimezone, pacoProtocol));
+     eventsCSV.add(toCSV(event, columns, anon, pacoProtocol));
    }
    TimeLogger.logTimestamp("T8:");
    // add back in the standard pacot event columns
@@ -135,14 +134,13 @@ public class CSVBlobWriter {
 
 
   private String[] toCSV(EventDAO event, List<String> whatColumnNames, boolean anon,
-                        String clientTimezone, Float pacoProtocol) {
+                        Float pacoProtocol) {
      int csvIndex = 0;
      int totalColSize = 0;
      if (pacoProtocol != null && pacoProtocol < 5) {
        totalColSize = standardColumns.size() + whatColumnNames.size();
      } else {
-       //exclude timezone
-       totalColSize = standardColumns.size() + whatColumnNames.size() - 1;
+       totalColSize = standardColumnsV5.size() + whatColumnNames.size();
      }
      String[] parts = new String[totalColSize];
      if (anon) {
@@ -185,7 +183,7 @@ public class CSVBlobWriter {
      return parts;
  }
 
- String writeNormalExperimentEventsAsCSV(ExperimentDAO experiment, List<EventDAO> eventDAOs, String jobId, boolean anon, String clientTimezone, Float pacoProtocol) throws IOException {
+ String writeNormalExperimentEventsAsCSV(ExperimentDAO experiment, List<EventDAO> eventDAOs, String jobId, boolean anon, Float pacoProtocol) throws IOException {
    List<String> experimentColumnNames = Lists.newArrayList();
    List<Input2> inputs = ExperimentHelper.getInputs(experiment);
    for (Input2 input2 : inputs) {
@@ -213,7 +211,7 @@ public class CSVBlobWriter {
 
    List<String[]> eventsCSV = Lists.newArrayList();
    for (EventDAO event : eventDAOs) {
-     eventsCSV.add(toCSV(event, columns, anon, clientTimezone, pacoProtocol));
+     eventsCSV.add(toCSV(event, columns, anon, pacoProtocol));
    }
    if (pacoProtocol != null && pacoProtocol >=5) {
      columns.addAll(0, standardColumnsV5);
@@ -223,26 +221,5 @@ public class CSVBlobWriter {
    return writeBlobUsingNewApi(jobId, columns, eventsCSV).getKeyString();
 
 
- }
-
- private void sortEventDAOs(List<EventDAO> greetings) {
-   Comparator<EventDAO> dateComparator = new Comparator<EventDAO>() {
-     @Override
-     public int compare(EventDAO o1, EventDAO o2) {
-       // TODO really it would be better to sort by responseTime when it exists, or scheduledTime if that does not exist.
-       Date when1 = o1.getWhen().toDate();
-       Date when2 = o2.getWhen().toDate();
-       if (when1 == null || when2 == null) {
-         return 0;
-       } else if (when1.after(when2)) {
-         return -1;
-       } else if (when2.after(when1)) {
-         return 1;
-       }
-       return 0;
-     }
-   };
-   Collections.sort(greetings, dateComparator);
- }
-
+  }
 }

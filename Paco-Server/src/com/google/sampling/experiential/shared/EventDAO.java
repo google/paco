@@ -25,8 +25,6 @@ import org.codehaus.jackson.annotate.JsonProperty;
 import org.codehaus.jackson.map.annotate.JsonView;
 import org.joda.time.DateTime;
 
-import com.google.sampling.experiential.model.Views;
-
 
 /**
  *

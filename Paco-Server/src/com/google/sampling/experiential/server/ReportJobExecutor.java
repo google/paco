@@ -100,7 +100,7 @@ public class ReportJobExecutor {
       //EventRetriever.sortEvents(events);
       log.info("Got events for job: " + jobId);
 
-      return generateCSVReport(anon, jobId, experimentId, eventQueryResultPair, timeZoneForClient, pacoProtocol);
+      return generateCSVReport(anon, jobId, experimentId, eventQueryResultPair, pacoProtocol);
     } else if (!Strings.isNullOrEmpty(reportFormat) && reportFormat.equals("json")) {
       // TODO - get rid of the offset and limit params and rewrite the eventretriever call to loop until all results are retrieved.
       log.info("Getting events for job: " + jobId);
@@ -176,7 +176,7 @@ public class ReportJobExecutor {
     log.info("Got events for job: " + jobId);
 
     if (!Strings.isNullOrEmpty(reportFormat) && reportFormat.equals("csv2")) {
-      return generateCSVReport(anon, jobId, experimentId, eventQueryResultPair, timeZoneForClient, pacoProtocol);
+      return generateCSVReport(anon, jobId, experimentId, eventQueryResultPair, pacoProtocol);
     } else if (!Strings.isNullOrEmpty(reportFormat) && reportFormat.equals("json2")) {
       return generateJsonReport(anon, jobId, experimentId, eventQueryResultPair, timeZoneForClient, includePhotos, pacoProtocol);
     } else if (!Strings.isNullOrEmpty(reportFormat) && reportFormat.equals("html2")) {
@@ -205,7 +205,7 @@ public class ReportJobExecutor {
                                                                                                        requestorEmail,
                                                                                                        timeZoneForClient);
       log.info("Got events for job: " + jobId);
-      return generateCSVReport(anon, jobId, experimentId, eventQueryResultPair, timeZoneForClient, pacoProtocol);
+      return generateCSVReport(anon, jobId, experimentId, eventQueryResultPair, pacoProtocol);
     } else if (!Strings.isNullOrEmpty(reportFormat) && reportFormat.equals("json2")) {
       log.info("Getting events for json job: " + jobId);
       EventQueryResultPair eventQueryResultPair = EventRetriever.getInstance().getEventsFromLowLevelDS(query,
@@ -290,10 +290,10 @@ public class ReportJobExecutor {
     return ExperimentServiceFactory.getExperimentService().getReferredExperiment(Long.parseLong(experimentId));
   }
 
-  private String generateCSVReport(boolean anon, String jobId, String experimentId, EventQueryResultPair eventQueryResultPair, DateTimeZone clientTimezone, Float pacoProtocol)
+  private String generateCSVReport(boolean anon, String jobId, String experimentId, EventQueryResultPair eventQueryResultPair, Float pacoProtocol)
                                                                                                        throws IOException {
     if (!Strings.isNullOrEmpty(experimentId)) {
-      String eodFile = generateEODCSV(anon, jobId, experimentId, eventQueryResultPair.getEvents(), clientTimezone.getID(), pacoProtocol);
+      String eodFile = generateEODCSV(anon, jobId, experimentId, eventQueryResultPair.getEvents(), pacoProtocol);
       if (eodFile != null) {
         return eodFile;
       }
@@ -304,19 +304,19 @@ public class ReportJobExecutor {
       ExperimentService es = ExperimentServiceFactory.getExperimentService();
       ExperimentDAO experiment = es.getExperiment(experimentIdLong);
 
-      return new CSVBlobWriter().writeNormalExperimentEventsAsCSV(experiment, eodEventDAOs, jobId, anon, clientTimezone.getID(), pacoProtocol);
+      return new CSVBlobWriter().writeNormalExperimentEventsAsCSV(experiment, eodEventDAOs, jobId, anon, pacoProtocol);
     } catch (NumberFormatException e) {
       log.warning("ExperimentId is not a long: " + experimentId);
       throw e;
     }
   }
 
-  private String generateEODCSV(boolean anon, String jobId, String experimentId, List<Event> events, String clientTimezone, Float pacoProtocol) throws IOException {
+  private String generateEODCSV(boolean anon, String jobId, String experimentId, List<Event> events, Float pacoProtocol) throws IOException {
     ExperimentDAO referredExperiment = getReferredExperiment(experimentId);
     if (referredExperiment != null) {
       List<EventDAO> eodEventDAOs = EventRetriever.convertEventsToDAOs(events);
       List<EventDAO> dailyPingEodEventDAOs = new EndOfDayEventProcessor().breakEodResponsesIntoIndividualDailyEventResponses(eodEventDAOs);
-      return new CSVBlobWriter().writeEndOfDayExperimentEventsAsCSV(anon, dailyPingEodEventDAOs, jobId, clientTimezone, pacoProtocol);
+      return new CSVBlobWriter().writeEndOfDayExperimentEventsAsCSV(anon, dailyPingEodEventDAOs, jobId, pacoProtocol);
     }
     return null;
   }

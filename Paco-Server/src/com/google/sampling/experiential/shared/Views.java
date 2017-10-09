@@ -1,4 +1,4 @@
-package com.google.sampling.experiential.model;
+package com.google.sampling.experiential.shared;
 
 public class Views {
   public static class V4 {
