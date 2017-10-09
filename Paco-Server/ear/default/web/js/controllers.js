@@ -735,57 +735,52 @@ pacoApp.controller('HackCtrl', ['$scope', '$http', function ($scope, $http) {
       // making the header as undefined, will remove the header value for ONLY this request (which was originally added from the default header configuration)
       headers: {'pacoProtocol': undefined}
     })
-        .then(function mySuccess(response) {
-          allResponses = '';
-          $scope.hackResponse = '';
-          $scope.errorResponse = '';
-          if (response.data.errorMessage == null) {
-            if (response.data.events != null) {
-              for (i in response.data.events) {
-                allResponses += JSON.stringify(response.data.events[i], null, 4);
-              }
-            } else if (response.data.customResponse != null) {
-              for (i in response.data.customResponse) {
-                allResponses += JSON.stringify(response.data.customResponse[i], null, 4);
-              }
-            } else {
-              allResponses = "Unknown response format";
-            }
-          } else {
-            $scope.errorResponse = response.data.errorMessage;
-          }
-          $scope.hackResponse = allResponses;
-        }, function myError(response) {
-          $scope.errorResponse = response.data;
-        });
-  };
-
-  //Need to set blockScrolling to Infinity to supress Ace deprecation
-  // warning
-  $scope.aceInfinity = function (editor) {
-    if (editor) {
-      editor.$blockScrolling = 'Infinity';
-    }
-  };
-
-  $scope.aceReqLoaded = function (editor) {
-    editorReqSession = editor.getSession();
-  };
-  $scope.aceReqChanged = function (editor) {
-    $scope.hackRequest = editorReqSession.getDocument().getValue();
-  };
-
-  // Ace is loaded  so get pretty JSON here
-  $scope.prepareReqSourceAce = function (editor) {
-    $scope.aceInfinity(editor);
-    $scope.aceReq = {
-      JSON: angular.toJson($scope.hackRequest, true),
-      error: false
-    };
-  };
-
+    .then(function mySuccess(response) {
+       allResponses = '';
+       $scope.hackResponse = '';
+       $scope.errorResponse = '';
+         if(response.data.errorMessage == null) {
+           if(response.data.events != null) {
+             allResponses =  JSON.stringify(response.data.events, null, 4);
+           } else if(response.data.customResponse != null) {
+             allResponses = JSON.stringify(response.data.customResponse, null, 4);
+           } else {
+             allResponses = "Unknown response format";
+           }
+         } else { 
+           $scope.errorResponse = response.data.errorMessage;
+         }
+       $scope.hackResponse = allResponses;
+     }, function myError(response) {
+        $scope.errorResponse = response.data;
+     });
+   };
+   //Need to set blockScrolling to Infinity to supress Ace deprecation
+   // warning
+   $scope.aceInfinity = function (editor) {
+     if (editor) {
+       editor.$blockScrolling = 'Infinity';
+     }
+   };
+   
+   $scope.aceReqLoaded = function(editor) {
+     editorReqSession = editor.getSession();
+   };
+   $scope.aceReqChanged = function(editor) {
+     $scope.hackRequest = editorReqSession.getDocument().getValue();
+   };
+  
+   // Ace is loaded  so get pretty JSON here
+   $scope.prepareReqSourceAce = function (editor) {
+     $scope.aceInfinity(editor);
+     $scope.aceReq = {
+       JSON : angular.toJson($scope.hackRequest, true),
+       error : false
+     };
+   };
+   
   $scope.aceResLoaded = function (editor) {
-    editorResSession = editor.getSession();
+   editorResSession = editor.getSession();
   };
   $scope.aceResChanged = function (editor) {
     $scope.hackResponse = editorResSession.getDocument().getValue();
