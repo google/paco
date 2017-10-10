@@ -137,6 +137,7 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
   function getGroups() {
     $scope.groupInputs = [];
     $scope.groups = [];
+    var expGroups = [];
 
     experimentsVizService.getExperiment($scope.experimentId).then(
         function (experiment) {
@@ -146,16 +147,33 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
             experiment.results[0].groups.forEach(function (groups) {
               $scope.groups.push(groups.name);
               groups.inputs.forEach(function (input) {
+                expGroups.push(input.name);
                 $scope.groupInputs.push({
                   "id": groups.name + ":" + input.name,
                   "group": groups.name,
                   "input": input.name,
+                  "userOrSystemDefined": false,
                   "responseType": input.responseType
                 });
               });
             });
-          }
-        });
+            experimentsVizService.getDistinctText($scope.experimentId, expGroups).then(function (groupsList) {
+              groupsList.data.customResponse.forEach(function (grpList) {
+                if ((grpList.group_name !== undefined)) {
+                 if((grpList.text !== "foreground") && (grpList.text !== "referred_group") && (grpList.text !== "eodResponseTime")){
+                   $scope.groupInputs.push({
+                     "id": grpList.group_name + ":" + grpList.text,
+                     "group": grpList.group_name,
+                     "input": grpList.text,
+                     "userOrSystemDefined": true,
+                     "responseType": "open text"
+                   });
+                 }
+                }
+             });
+         });
+       }
+    });
   }
 
   $scope.getResponseType = function (input) {
@@ -585,7 +603,6 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
   }
 
   function processXYPlotTimeSeries(responseData) {
-
     $timeout(function () {
       var xAxisMaxMin = [];
       var xAxisTickValues = [];
@@ -1405,8 +1422,52 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
 
   function processBubbleChartData(responseData) {
     var responses_bubbleChart = [];
+
+    var vizData = [];
+    var responsesCount = [];
+    var collectiveResponses = [];
+    var userOrSystemDefined = false;
+
     $timeout(function () {
-      responses_bubbleChart = preProcessStrings(responseData);
+      responseData.forEach(function (data) {
+        if (responseTypeMap.has(data.key)) {
+          var responseType = responseTypeMap.get(data.key);
+          if (responseType.responseType === "open text") {
+            var stringsTokenized = tokenizeWords(data.values);
+            var stringsLowerCase = vizResponseJson("open text", stringsTokenized);
+            vizData.push(removeStopWords((stringsLowerCase)));
+          } else if (responseType.responseType === "list") {
+            var mapListChoices = mapChoices(responseType, data.values);
+            vizData.push(vizResponseJson(responseType.responseType, mapListChoices));
+          } else {
+            var data = data.values;
+            vizData.push(vizResponseJson(responseType.responseType, data));
+          }
+          userOrSystemDefined = false;
+        } else {
+          vizData.push(data.values);
+          userOrSystemDefined = true;
+        }
+      });
+
+      vizData.forEach(function (responseData) {
+        responseData.forEach(function (data) {
+          collectiveResponses.push(data);
+        })
+      });
+      if (userOrSystemDefined) {
+        responsesCount = d3.nest()
+            .key(function (d) {
+              return d.answer;
+            })
+            .rollup(function (v) {
+              return v.length;
+            })
+            .entries(vizData[0]);
+      } else {
+        responsesCount = countResponses(collectiveResponses);
+      }
+      responses_bubbleChart = responsesCount;
       if (responses_bubbleChart !== undefined) {
         if (responses_bubbleChart.length > 0) {
           var bubbleChartData = responses_bubbleChart.map(function (d) {
@@ -1418,38 +1479,7 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
         }
       }
       $scope.vizTemplate = true;
-    }, 1000);
-  }
-
-  function preProcessStrings(responseData) {
-    var vizData = [];
-    var responsesCount = [];
-    var collectiveResponses = [];
-
-    responseData.forEach(function (data) {
-      if (responseTypeMap.has(data.key)) {
-        var responseType = responseTypeMap.get(data.key);
-        if (responseType.responseType === "open text") {
-          var stringsTokenized = tokenizeWords(data.values);
-          var stringsLowerCase = vizResponseJson("open text", stringsTokenized);
-          vizData.push(removeStopWords((stringsLowerCase)));
-        } else if (responseType.responseType === "list") {
-          var mapListChoices = mapChoices(responseType, data.values);
-          vizData.push(vizResponseJson(responseType.responseType, mapListChoices));
-        } else {
-          var data = data.values;
-          vizData.push(vizResponseJson(responseType.responseType, data));
-        }
-      }
-    });
-    vizData.forEach(function (responseData) {
-      responseData.forEach(function (data) {
-        collectiveResponses.push(data);
-      })
-    });
-
-    responsesCount = countResponses(collectiveResponses);
-    return responsesCount;
+    }, 4000);
   }
 
   function vizResponseJson(type, responseData) {
@@ -1496,7 +1526,7 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
   function removeStopWords(tokenizedStrings) {
     var rootWords = [];
     //source - https://stackoverflow.com/questions/5631422/stop-word-removal-in-javascript
-    var stopwords = ["a", "about", "above", "after", "again", "against", "all", "am", "an", "and", "any", "are", "aren't",
+    var stopwords = ["a", "about", "above", "after", "again", "against", "all", "also", "am", "an", "and", "any", "are", "aren't",
       "as", "at", "be", "because", "been", "before", "being", "below", "between", "both", "but", "by", "can't", "cannot",
       "could", "couldn't", "did", "didn't", "do", "does", "doesn't", "doing", "don't", "down", "during", "each", "few",
       "for", "from", "further", "had", "hadn't", "has", "hasn't", "have", "haven't", "having", "he", "he'd", "he'll",
@@ -1519,6 +1549,7 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
   }
 
   function drawBubbleChart(data) {
+
     d3.selectAll('.vizContainer' + "> *").remove();
     $timeout(function () {
       if (data !== undefined) {
@@ -1528,7 +1559,7 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
         var bubble = d3.layout.pack()
             .sort(null)
             .size([diameter, diameter])
-            .padding(1);
+            .padding(1.5);
 
         var tooltip = d3.select("body")
             .append("div")
@@ -1587,14 +1618,12 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
             .attr("y", function (d) {
               return d.y + 5;
             })
-            .attr("text-anchor", "middle")
-            .text(function (d) {
-              return d["key"];
-            })
+            .style("text-anchor", "middle")
             .style("fill", "white")
-            .style("font-size", function (d) {
-              return Math.min(d.r, (d.r - 8) / this.getComputedTextLength() * 20) + "px";
-            })
+            .style("pointer-events", "none")
+            .text(function (d) {
+              return d["key"].substring(0, d.r / 5);
+            });
       }
     }, 1000);
   }
@@ -1949,6 +1978,7 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
   };
 
   function setParams(viz) {
+
     var startTime = "";
     var endTime = "";
     var startDate = "";

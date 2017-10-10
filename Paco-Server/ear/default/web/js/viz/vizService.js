@@ -22,6 +22,23 @@ pacoApp.factory('experimentsVizService', ['$http', 'experimentService', '$filter
     return participants;
   }
 
+  function getAllTexts(experimentId,texts){
+    var questionMarks = [];
+    var textsList = [];
+
+    for (var i = 0; i < texts.length; i++) {
+      questionMarks.push("?");
+      textsList.push('"' + texts[i] + '"');
+    }
+
+    if(experimentId !== undefined && textsList !== undefined){
+      var distinctTextQuery = '{ "select":["group_name","text"], "query" : { "criteria" : "experiment_id = ? and text not in (' + questionMarks + ')", "values" : ['+experimentId+',' + textsList + ']},"order":"group_name,text","group":"group_name,text"}';
+      console.log(distinctTextQuery);
+      var textQuery = httpPostBody(distinctTextQuery);
+    }
+    return textQuery;
+  }
+
   function getStartDate(experimentId){
     var startDateQuery = "";
     if(experimentId !== undefined){
@@ -109,6 +126,7 @@ pacoApp.factory('experimentsVizService', ['$http', 'experimentService', '$filter
     getExperiment: getExperiment,
     getEvents: getEvents,
     getParticipants: getParticipants,
+    getAllTexts:getAllTexts,
     getEventsCounts: getEventsCounts,
     getStartDate:getStartDate,
     getEndDate:getEndDate,
