@@ -25,6 +25,8 @@ import org.codehaus.jackson.annotate.JsonProperty;
 import org.codehaus.jackson.map.annotate.JsonView;
 import org.joda.time.DateTime;
 
+import com.pacoapp.paco.shared.model2.Views;
+
 
 /**
  *
