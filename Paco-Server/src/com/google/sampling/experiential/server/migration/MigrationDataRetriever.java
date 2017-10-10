@@ -44,10 +44,13 @@ import com.google.sampling.experiential.datastore.EventEntityConverter;
 import com.google.sampling.experiential.model.Event;
 import com.google.sampling.experiential.model.What;
 import com.google.sampling.experiential.server.CloudSQLDaoImpl;
-import com.google.sampling.experiential.server.QueryConstants;
+import com.google.sampling.experiential.server.ExceptionUtil;
 import com.google.sampling.experiential.shared.EventDAO;
 import com.google.sampling.experiential.shared.WhatDAO;
 import com.pacoapp.paco.shared.util.ErrorMessages;
+import com.pacoapp.paco.shared.util.SearchUtil;
+
+import net.sf.jsqlparser.JSQLParserException;
 
 /**
  * Retrieve Event objects from the JDO store.
@@ -325,7 +328,8 @@ public class MigrationDataRetriever {
     boolean withOutputs = false;
     // find if event present in events cloud sql
     try {
-      List<EventDAO> eventInCS = sqlDaoImpl.getEvents(QueryConstants.GET_EVENT_FOR_ID.toString(), evtObjDS.getId(), withOutputs);
+      String getQueryForEventIdSql = SearchUtil.getQueryForEventRetrieval(evtObjDS.getId().toString());
+      List<EventDAO> eventInCS = sqlDaoImpl.getEvents(getQueryForEventIdSql, withOutputs);
       if (eventInCS.size() == 0) {
         //copy event to cloud sql
         sqlDaoImpl.insertSingleEventOnly(evtObjDS);
@@ -333,9 +337,12 @@ public class MigrationDataRetriever {
       } else {
         eventPresentInCS = true;
       }
-    } catch (SQLException | ParseException e) {
-      log.warning(ErrorMessages.SQL_EXCEPTION+ "Event id "+ evtObjDS.getId() + "needs to be moved to CS. But failed:"+ e.getMessage());
+    } catch (SQLException | ParseException | JSQLParserException e) {
+      log.warning(ErrorMessages.SQL_EXCEPTION.getDescription() + "Event id "+ evtObjDS.getId() + "needs to be moved to CS. But failed:" + ExceptionUtil.getStackTraceAsString(e));
       sqlMigDaoImpl.insertCatchupFailure("EventsReadOrWrite", evtObjDS.getId(), null, e.getMessage());
+    } catch (Exception e) {
+      log.warning(ErrorMessages.GENERAL_EXCEPTION.getDescription() + "Event id "+ evtObjDS.getId() + "needs to be moved to CS. But failed:"+ ExceptionUtil.getStackTraceAsString(e));
+      sqlMigDaoImpl.insertCatchupFailure("EventsReadOrWrite", evtObjDS.getId(), null, e.getMessage());    
     }       
    
     if (eventPresentInCS) {

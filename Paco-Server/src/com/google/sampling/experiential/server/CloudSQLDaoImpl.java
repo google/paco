@@ -358,7 +358,7 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
   }
   
   @Override
-  public List<EventDAO> getEvents(String query, Long eventId, boolean withOutputs) throws SQLException, ParseException {
+  public List<EventDAO> getEvents(String query, boolean withOutputs) throws SQLException, ParseException {
     List<EventDAO> evtDaoList = Lists.newArrayList();
     EventDAO event = null;
     Connection conn = null;
@@ -378,12 +378,8 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
       statementSelectEvent.setFetchSize(Integer.MIN_VALUE);
 
       Long st1Time = System.currentTimeMillis();
-      if(eventId != null && query.contains("?")) {
-        statementSelectEvent.setLong(1, eventId);
-      } else {
-        String selString = statementSelectEvent.toString();
-        log.info("step 1 " + selString.substring(selString.indexOf(":")));
-      }
+      String selString = statementSelectEvent.toString();
+      log.info("step 1 " + selString.substring(selString.indexOf(":")));
       rs = statementSelectEvent.executeQuery();
       if (rs != null) {
         // to maintain the insertion order

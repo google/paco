@@ -186,7 +186,7 @@ public class CloudSqlSearchServlet extends HttpServlet {
         long startTime = System.currentTimeMillis();
 
         if (sqlQueryObj.isFullEventAndOutputs()) {
-          evtList = impl.getEvents(aclQuery, null, withOutputs);
+          evtList = impl.getEvents(aclQuery, withOutputs);
           evQryStatus.setEvents(evtList);
           evQryStatus.setStatus(Constants.SUCCESS);
           log.info("paco protocol version: "+ pacoProtocol);
