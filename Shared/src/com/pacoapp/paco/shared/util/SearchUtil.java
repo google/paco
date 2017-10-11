@@ -175,5 +175,13 @@ public class SearchUtil {
     }
     return expLst;
   }
+  
+  public static String getQueryForEventRetrieval(String eventId) throws JSQLParserException, Exception { 
+    SQLQuery.Builder sqlBldr = new SQLQuery.Builder();
+    sqlBldr.criteriaQuery(Constants.UNDERSCORE_ID + "=?").criteriaValues(new String[]{eventId});
+    String plainSql = getPlainSql(sqlBldr.buildWithDefaultValues());
+    Select clientJsqlStatement = getJsqlSelectStatement(plainSql);
+    return clientJsqlStatement.toString();
+  }
 
 }

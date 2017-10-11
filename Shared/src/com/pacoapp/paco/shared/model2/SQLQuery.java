@@ -56,6 +56,13 @@ public class SQLQuery {
   public Boolean isFullEventAndOutputs() { 
     return fullEventAndOutputs;
   }
+  
+  public void addClientTzToProjection(){
+    String[] modArr = new String[projection.length+1];
+    System.arraycopy(projection, 0, modArr, 0, projection.length);
+    modArr[projection.length] = Constants.CLIENT_TIMEZONE;
+    this.projection = modArr;
+  }
 
   public static class Builder {
     private String[] projection;
@@ -108,6 +115,7 @@ public class SQLQuery {
     }
 
     private Builder addDefaultValues(SQLQuery obj) {
+
       // default projection is *
       if (obj.getProjection() == null) {
         obj.projection = new String[] { Constants.STAR };

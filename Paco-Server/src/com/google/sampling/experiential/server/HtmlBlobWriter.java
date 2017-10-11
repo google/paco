@@ -4,7 +4,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.nio.channels.Channels;
-import java.util.Date;
+import java.text.ParseException;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
@@ -34,10 +34,10 @@ import com.google.common.collect.Maps;
 import com.google.sampling.experiential.model.Event;
 import com.google.sampling.experiential.model.PhotoBlob;
 import com.google.sampling.experiential.shared.EventDAO;
-import com.google.sampling.experiential.shared.TimeUtil;
 import com.google.sampling.experiential.shared.WhatDAO;
 import com.pacoapp.paco.shared.model2.ExperimentDAO;
 import com.pacoapp.paco.shared.model2.Input2;
+import com.pacoapp.paco.shared.util.ErrorMessages;
 
 public class HtmlBlobWriter {
 
@@ -48,14 +48,14 @@ public class HtmlBlobWriter {
   public HtmlBlobWriter() {
   }
 
-  public String writeNormalExperimentEventsAsHtml(boolean anon, EventQueryResultPair eventQueryResultPair, String jobId, String experimentId, String timeZone, String originalQuery, String requestorEmail)
+  public String writeNormalExperimentEventsAsHtml(boolean anon, EventQueryResultPair eventQueryResultPair, String jobId, String experimentId, String timeZone, String originalQuery, String requestorEmail, Float pacoProtocol)
           throws IOException {
     log.info("writing normal Experiment events as html");
 
     ExperimentDAO experiment = ExperimentServiceFactory.getExperimentService().getExperiment(Long.parseLong(experimentId));
     String eventPage;
     try {
-      eventPage = printEvents(eventQueryResultPair, experiment, timeZone, anon, originalQuery, requestorEmail);
+      eventPage = printEvents(eventQueryResultPair, experiment, anon, originalQuery, requestorEmail, pacoProtocol);
     } catch (IOException e) {
       log.severe("Could not run printEvents. " + e.getMessage());
       e.printStackTrace();
@@ -97,8 +97,9 @@ public class HtmlBlobWriter {
     return blobKey;
   }
 
+  //TODO: Has been broken by app engine upgrade, will be fixed in a separate branch
   public String writeEndOfDayExperimentEventsAsHtml(boolean anon, String jobId, String experimentId,
-                                                    List<EventDAO> events, String timeZoneForClient) throws IOException {
+                                                    List<EventDAO> events, String timeZoneForClient, Float pacoProtocol) throws IOException {
     log.info("writing End of Day Experiment events as html");
     FileService fileService = FileServiceFactory.getFileService();
     AppEngineFile file = fileService.createNewBlobFile("text/html;charset=UTF-8", jobId);
@@ -113,7 +114,7 @@ public class HtmlBlobWriter {
 
 
     ExperimentDAO experiment = ExperimentServiceFactory.getExperimentService().getExperiment(Long.parseLong(experimentId));
-    String eventPage = printEventDAOs(events, experiment, timeZoneForClient, anon);
+    String eventPage = printEventDAOs(events, experiment, anon, pacoProtocol);
 
     out.println(printHeader(events.size(), getExperimentTitle(experiment), timeZoneForClient));
     out.println(eventPage);
@@ -159,7 +160,7 @@ public class HtmlBlobWriter {
 
   }
 
-  private String printEvents(EventQueryResultPair eventQueryResultPair, ExperimentDAO experiment, String clientTimezone, boolean anon, String originalQuery, String whoFromLogin) throws IOException {
+  private String printEvents(EventQueryResultPair eventQueryResultPair, ExperimentDAO experiment, boolean anon, String originalQuery, String whoFromLogin, Float pacoProtocol) throws IOException {
     if (eventQueryResultPair.getEvents().isEmpty()) {
       return "No events in experiment: " + getExperimentTitle(experiment) + ".";
     } else {
@@ -190,9 +191,8 @@ public class HtmlBlobWriter {
           out.append("<tr>");
           out.append("<td>").append(event.getExperimentName()).append("</td>");
           out.append("<td>").append(event.getExperimentVersion()).append("</td>");
-          out.append("<td>").append(getTimeString(event, event.getScheduledTime(), clientTimezone)).append("</td>");
-          out.append("<td>").append(getTimeString(event, event.getResponseTime(), clientTimezone)).append("</td>");
-
+          out.append("<td>").append(event.getScheduledTimeWithTimeZone(event.getTimeZone())).append("</td>");
+          out.append("<td>").append(event.getResponseTimeWithTimeZone(event.getTimeZone())).append("</td>");
           String who = event.getWho();
           if (anon) {
             who = Event.getAnonymousId(who);
@@ -233,23 +233,12 @@ public class HtmlBlobWriter {
         }
       }
       out.append("</table>");
-//      if (eventQueryResultPair.getCursor() != null) {
-//        String nextCursorUrl = "/events?q=" +
-//                originalQuery +
-//                "&who=" + whoFromLogin +
-//                "&anon=" + anon +
-//                "&tz=" + clientTimezone +
-//                "&reportFormat=html" +
-//                "&cursor=" + eventQueryResultPair.getCursor();
-//        out.append("<center><font size=+4><a href=\"" + nextCursorUrl + "\">Load More Results</a></font></center>");
-//
-//      }
       out.append("</body></html>");
       return out.toString();
     }
   }
 
-  private String printEventDAOs(List<EventDAO> events, ExperimentDAO experiment, String clientTimezone, boolean anon) throws IOException {
+  private String printEventDAOs(List<EventDAO> events, ExperimentDAO experiment, boolean anon, Float pacoProtocol) throws IOException {
     if (events.isEmpty()) {
       return "No events in experiment: " + getExperimentTitle(experiment) + ".";
     }
@@ -275,9 +264,13 @@ public class HtmlBlobWriter {
       out.append("<tr>");
       out.append("<td>").append(escapeText(event.getExperimentName())).append("</td>");
       out.append("<td>").append(event.getExperimentVersion()).append("</td>");
-      out.append("<td>").append(getTimeString(event, event.getScheduledTime(), clientTimezone)).append("</td>");
-      out.append("<td>").append(getTimeString(event, event.getResponseTime(), clientTimezone)).append("</td>");
-
+      try {
+        TimeUtil.adjustTimeZone(event);
+      } catch (ParseException e) {
+        log.warning(ErrorMessages.TEXT_PARSE_EXCEPTION.getDescription() + ExceptionUtil.getStackTraceAsString(e));
+      }
+      out.append("<td>").append(event.getScheduledTime()).append("</td>");
+      out.append("<td>").append(event.getResponseTime()).append("</td>");
       String who = event.getWho();
       if (anon) {
         who = Event.getAnonymousId(who);
@@ -360,14 +353,6 @@ public class HtmlBlobWriter {
     return value;
   }
 
-  private String getTimeString(EventDAO event, Date time, String clientTimezone) {
-    String timeString = "";
-    if (time != null) {
-      timeString = jodaFormatter.print(Event.getTimeZoneAdjustedDate(time, clientTimezone, event.getTimezone()));
-    }
-    return timeString;
-  }
-
   private String getValueAsDisplayString(Event event, Map<String, PhotoBlob> photoByNames, String key) {
     String value = event.getWhatByKey(key);
     if (value == null) {
@@ -391,12 +376,4 @@ public class HtmlBlobWriter {
     }
     return value;
   }
-
- private String getTimeString(Event event, Date time, String defaultTimezone) {
-   String scheduledTimeString = "";
-   if (time != null) {
-     scheduledTimeString = jodaFormatter.print(event.getTimeZoneAdjustedDate(time, defaultTimezone));
-   }
-   return scheduledTimeString;
- }
 }

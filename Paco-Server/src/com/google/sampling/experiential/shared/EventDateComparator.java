@@ -20,7 +20,8 @@ package com.google.sampling.experiential.shared;
 
 import java.io.Serializable;
 import java.util.Comparator;
-import java.util.Date;
+
+import org.joda.time.DateTime;
 
 public class EventDateComparator implements Comparator<EventDAO>, Serializable {
 
@@ -30,13 +31,13 @@ public class EventDateComparator implements Comparator<EventDAO>, Serializable {
 
   @Override
   public int compare(EventDAO o1, EventDAO o2) {
-    Date when1 = o1.getWhen();
-    Date when2 = o2.getWhen();
+    DateTime when1 = o1.getWhen();
+    DateTime when2 = o2.getWhen();
     if (when1 == null || when2 == null) {
       return 0;
-    } else if (when1.after(when2)) {
+    } else if (when1.isAfter(when2)) {
       return -1;
-    } else if (when2.after(when1)) {
+    } else if (when2.isAfter(when1)) {
       return 1;
     }
     return 0;

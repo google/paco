@@ -1,14 +1,9 @@
 package com.pacoapp.paco.shared.util;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import org.joda.time.DateTimeZone;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -112,12 +107,10 @@ public class QueryPreprocessor implements SelectVisitor, FromItemVisitor, Expres
   private String invalidDataType;
   private boolean containsExperimentIdClause;
   private boolean containsWhoClause;
-  private static final SimpleDateFormat localDateFormatter = TimeUtil.localFormatter;
   private static List<Class> allPossibleConstantExpTypes = Lists.newArrayList();
-  private DateTimeZone timeZone;
   private Set<String> whoClauseValues = Sets.newHashSet();
   private Set<Long> expIdClauseValues = Sets.newHashSet();
-  private boolean modifyDateToUTC = false;
+  private boolean webRequest = false;
   private boolean isOutputColumnsPresent;
   private String probableSqlInjectionClause;
 
@@ -130,12 +123,11 @@ public class QueryPreprocessor implements SelectVisitor, FromItemVisitor, Expres
     allPossibleConstantExpTypes.add(TimeValue.class);
   }
 
-  public QueryPreprocessor(Select select, Map<String, Class> validColumnNames, boolean modifyToUTC,
-                           List<String> reqDateColNames, DateTimeZone inpTimeZone) {
+  public QueryPreprocessor(Select select, Map<String, Class> validColumnNames, boolean webRequest,
+                           List<String> reqDateColNames) {
     requestedDateColumns = reqDateColNames;
     validColumnNamesDataTypeInDb = validColumnNames;
-    timeZone = inpTimeZone;
-    modifyDateToUTC = modifyToUTC;
+    this.webRequest = webRequest;
     select.getSelectBody().accept(this);
 
   }
@@ -185,14 +177,6 @@ public class QueryPreprocessor implements SelectVisitor, FromItemVisitor, Expres
     } 
     return isPresent;
   }
-  
-  private String modifyDateStrToUTC(StringValue strValue) throws ParseException { 
-	 Date dt = localDateFormatter.parse(strValue.getValue());
-	   Date utcDate = TimeUtil.convertToUTC(dt, timeZone);
-	   String utcFormattedDate = localDateFormatter.format(utcDate);
-	   return utcFormattedDate;
-	 }
-
 
   public void visit(PlainSelect plainSelect) {
     plainSelect.getFromItem().accept(this);
@@ -306,19 +290,14 @@ public class QueryPreprocessor implements SelectVisitor, FromItemVisitor, Expres
             ExpressionList expList = (ExpressionList) ril;
             List<Expression> elList = expList.getExpressions();
             List<Expression> newUtcList = Lists.newArrayList();
-            String utcFormattedDate = null;
+            
             for (Expression expr : elList) {
               if (expr instanceof StringValue) {
-                try {
-                  if (modifyDateToUTC) {
-                    utcFormattedDate = modifyDateStrToUTC((StringValue) expr);
-                    newUtcList.add(new StringValue(utcFormattedDate));
-                  } else {
-                    LongValue lgVal = new LongValue(TimeUtil.convertDateToLong(expr.toString()));
-                    dateParamWithLong.put(expr.toString(), lgVal.getValue());
-                  }
-                } catch (ParseException e) {
-                  invalidDataType = expr.toString();
+                if (webRequest) {
+                  newUtcList.add(expr);
+                } else {
+                  LongValue lgVal = new LongValue(TimeUtil.convertDateToLong(expr.toString()));
+                  dateParamWithLong.put(expr.toString(), lgVal.getValue());
                 }
               } else {
                 invalidDataType = expr.toString();
@@ -435,21 +414,13 @@ public class QueryPreprocessor implements SelectVisitor, FromItemVisitor, Expres
     Expression le = binaryExpression.getLeftExpression();
     if (le != null) {
       if (le instanceof Column) {
-        String utcFormattedDate = null;
         String leftColName = ((Column) le).getColumnName();
         if (requestedDateColumns != null && requestedDateColumns.contains(leftColName)) {
           if (re instanceof StringValue) {
-            try {
-              if (modifyDateToUTC) {
-                utcFormattedDate = modifyDateStrToUTC((StringValue) re);
-                ((StringValue) re).setValue(utcFormattedDate);
-              } else {
+              if (!webRequest) {
                 LongValue lgVal = new LongValue(TimeUtil.convertDateToLong(re.toString().substring(1,re.toString().length()-1)));
                 dateParamWithLong.put(re.toString(), lgVal.getValue());
               }
-            } catch (ParseException e) {
-              invalidDataType = re.toString();
-            }
           } else {
             invalidDataType = re.toString();
           }

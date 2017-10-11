@@ -836,7 +836,7 @@ public class ExperimentProviderUtil implements EventStore {
       Select selectStmt = SearchUtil.getJsqlSelectStatement(selectSql);
       // preprocessor parses the query, and identifies potential issues like invalid column name, invalid data tye, sql injection,
       // or if join is needed.
-      QueryPreprocessor qProcessor = new QueryPreprocessor(selectStmt, validColumnNamesDataTypeInDb, false, dateColumns,  null);
+      QueryPreprocessor qProcessor = new QueryPreprocessor(selectStmt, validColumnNamesDataTypeInDb, false, dateColumns);
       if (qProcessor.containExpIdClause() == false || qProcessor.getExpIdValues().size() > 1 || !qProcessor.getExpIdValues().contains(expId)) {
         evQryStat.setStatus(FAILURE);
         evQryStat.setErrorMessage(ErrorMessages.EXPERIMENT_ID_CLAUSE_EXCEPTION.getDescription());
