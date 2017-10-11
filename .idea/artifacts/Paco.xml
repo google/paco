@@ -1,0 +1,21 @@
+<component name="ArtifactManager">
+  <artifact type="apk" name="Paco">
+    <output-path>$PROJECT_DIR$/out/artifacts/Paco</output-path>
+    <properties id="android-properties">
+      <options>
+        <option name="keyStoreUrl" value="file://" />
+        <option name="proGuardCfgFiles">
+          <list>
+            <option value="file://%MODULE_SDK_HOME%/tools/proguard/proguard-android.txt" />
+          </list>
+        </option>
+        <option name="signingMode" value="DEBUG" />
+      </options>
+    </properties>
+    <root id="archive" name="Paco.apk">
+      <element id="android-final-package" facet="Paco/android/Android" />
+      <element id="module-output" name="Shared" />
+      <element id="module-output" name="Paco" />
+    </root>
+  </artifact>
+</component>
