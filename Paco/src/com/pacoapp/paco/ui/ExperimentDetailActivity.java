@@ -309,7 +309,7 @@ public class ExperimentDetailActivity extends ActionBarActivity implements Exper
         }
       } else if (isLaunchedFromQRCode() && experiment == null) {
         new AlertDialog.Builder(this).setMessage(R.string.selected_experiment_not_on_phone_refresh)
-                                     .setPositiveButton(R.string.accept, new DialogInterface.OnClickListener() {
+                                     .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
                                        public void onClick(DialogInterface dialog, int which) {
                                          String realServerId = uri.getLastPathSegment().substring(4);
                                          retrieveExperimentFromServer(realServerId);
