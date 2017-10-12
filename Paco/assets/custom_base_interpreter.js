@@ -136,10 +136,16 @@ var paco = (function (init) {
         return JSON.parse(pacodb.getLastEvent());
       };
 
+      function getEventsByQuery(queryJson) {
+        return JSON.parse(pacodb.getEventsByQuery(queryJson));
+      };
+
+
       return {
         saveEvent : saveEvent,
         getAllEvents: getAllEvents,
         getLastEvent : getLastEvent,
+        getEventsByQuery : getEventsByQuery,
         getEventsForExperimentGroup : getEventsForExperimentGroup
       };
     };
