@@ -40,9 +40,12 @@ dependencies {
     //compile fileTree(dir: 'lib', include: ['*.jar'])
     compile 'com.google.guava:guava:16.0.1'
     compile 'joda-time:joda-time:2.9.3'
-    compile 'org.codehaus.jackson:jackson-mapper-asl:1.9.11'
-    compile 'org.codehaus.jackson:jackson-core-asl:1.9.11'
-    compile 'rhino:js:1.7R2'
+    compile files('lib/jackson-all-1.9.11.jar')
+//    compile 'org.codehaus.jackson:jackson-mapper-asl:1.9.11'
+//    compile 'org.codehaus.jackson:jackson-core-asl:1.9.11'
+    //compile 'rhino:js:1.7R2'
+    compile files('lib/js.jar')
+
     compile 'com.github.jsqlparser:jsqlparser:0.9.6'
 
     compile files('lib/json-1.5.jar')
