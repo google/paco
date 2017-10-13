@@ -34,6 +34,7 @@ import com.google.appengine.api.ThreadManager;
 import com.google.appengine.api.users.UserService;
 import com.google.sampling.experiential.server.HttpUtil;
 import com.google.sampling.experiential.server.ReportJobStatusManager;
+import com.pacoapp.paco.shared.util.Constants;
 
 
 /**
@@ -80,7 +81,7 @@ public class MigrationBackendServlet extends HttpServlet {
             endTime = DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ss.sssZ").parseDateTime(eTime);
           }
           if (doMigration(migrationJobName, cursor, startTime, endTime)) {
-            statusMgr.completeReport(requestorEmail, jobId, "NA");
+            statusMgr.completeReport(requestorEmail, jobId, Constants.LOCATION_NA);
           } else {
             statusMgr.failReport(requestorEmail, jobId, "Check server logs for stacktrace");
           }

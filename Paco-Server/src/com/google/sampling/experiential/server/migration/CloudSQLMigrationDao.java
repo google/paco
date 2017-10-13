@@ -18,4 +18,9 @@ public interface CloudSQLMigrationDao {
   boolean persistStreamingStart(DateTime startTime);
   Long getEarliestStreaming() throws SQLException, ParseException;
   boolean insertCatchupFailure(String insertType, Long eventId, String text, String comments);
+  boolean eventV5AddNewColumns() throws SQLException;
+  boolean eventV5RenameExistingColumns() throws SQLException;
+  boolean eventV5UpdateNewColumnsWithValues() throws SQLException;
+  boolean eventV5RemoveOldIndexes() throws SQLException;
+  boolean eventV5AddNewIndexes() throws SQLException;
 }

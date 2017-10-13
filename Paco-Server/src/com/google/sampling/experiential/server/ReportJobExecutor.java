@@ -46,10 +46,10 @@ public class ReportJobExecutor {
     super();
     statusMgr = new ReportJobStatusManager();
   }
-
+  
   public String runReportJob(final String requestorEmail, final DateTimeZone timeZoneForClient,
                              final List<Query> query, final boolean anon, final String reportFormat,
-                             final String originalQuery, final int limit, final String cursor, final boolean includePhotos) {
+                             final String originalQuery, final int limit, final String cursor, final boolean includePhotos,final Float pacoProtocol) {
     // TODO get a real id function for jobs
 
     final String jobId = DigestUtils.md5Hex(requestorEmail + Long.toString(System.currentTimeMillis()));
@@ -63,7 +63,7 @@ public class ReportJobExecutor {
         log.info("ReportJobExecutor running");
         Thread.currentThread().setContextClassLoader(cl);
         try {
-          String location = doJob(requestorEmail, timeZoneForClient, query, anon, jobId, reportFormat, originalQuery, limit, cursor, includePhotos);
+          String location = doJob(requestorEmail, timeZoneForClient, query, anon, jobId, reportFormat, originalQuery, limit, cursor, includePhotos, pacoProtocol);
           statusMgr.completeReport(requestorEmail, jobId, location);
         } catch (Throwable e) {
           statusMgr.failReport(requestorEmail, jobId, e.getClass() + "." + e.getMessage());
@@ -78,7 +78,7 @@ public class ReportJobExecutor {
   }
 
   protected String doJob(String requestorEmail, DateTimeZone timeZoneForClient, List<Query> query, boolean anon, String jobId,
-                         String reportFormat, String originalQuery, int limit, String cursor, boolean includePhotos) throws IOException {
+                         String reportFormat, String originalQuery, int limit, String cursor, boolean includePhotos, Float pacoProtocol) throws IOException {
     log.info("starting doJob");
     if (!Strings.isNullOrEmpty(reportFormat) && reportFormat.equals("stats")) {
       log.info("Running stats report for job: " + jobId);
@@ -100,7 +100,7 @@ public class ReportJobExecutor {
       //EventRetriever.sortEvents(events);
       log.info("Got events for job: " + jobId);
 
-      return generateCSVReport(anon, jobId, experimentId, eventQueryResultPair, timeZoneForClient);
+      return generateCSVReport(anon, jobId, experimentId, eventQueryResultPair, pacoProtocol);
     } else if (!Strings.isNullOrEmpty(reportFormat) && reportFormat.equals("json")) {
       // TODO - get rid of the offset and limit params and rewrite the eventretriever call to loop until all results are retrieved.
       log.info("Getting events for job: " + jobId);
@@ -108,7 +108,7 @@ public class ReportJobExecutor {
       //EventRetriever.sortEvents(events);
       log.info("Got events for job: " + jobId);
 
-      return generateJsonReport(anon, jobId, experimentId, eventQueryResultPair, timeZoneForClient, includePhotos);
+      return generateJsonReport(anon, jobId, experimentId, eventQueryResultPair, timeZoneForClient, includePhotos, pacoProtocol);
     } else if (!Strings.isNullOrEmpty(reportFormat) && reportFormat.equals("photozip")) {
       // TODO - get rid of the offset and limit params and rewrite the eventretriever call to loop until all results are retrieved.
       log.info("Getting events for job: " + jobId);
@@ -124,13 +124,13 @@ public class ReportJobExecutor {
       //EventRetriever.sortEvents(events);
       log.info("Got events for job: " + jobId);
 
-      return generateHtmlReport(timeZoneForClient, anon, jobId, experimentId, eventQueryResultPair, originalQuery, requestorEmail);
+      return generateHtmlReport(timeZoneForClient, anon, jobId, experimentId, eventQueryResultPair, originalQuery, requestorEmail, pacoProtocol);
     }
   }
 
   public String runReportJobExperimental(final String requestorEmail, final DateTimeZone timeZoneForClient,
                              final List<Query> query, final boolean anon, final String reportFormat,
-                             final String originalQuery, final boolean includePhotos) {
+                             final String originalQuery, final boolean includePhotos, final Float pacoProtocol) {
     // TODO get a real id function for jobs
 
     final String jobId = DigestUtils.md5Hex(requestorEmail + Long.toString(System.currentTimeMillis()));
@@ -144,7 +144,7 @@ public class ReportJobExecutor {
         log.info("ReportJobExecutor Experimental running");
         Thread.currentThread().setContextClassLoader(cl);
         try {
-          String location = doJobExperimental(requestorEmail, timeZoneForClient, query, anon, jobId, reportFormat, originalQuery, includePhotos);
+          String location = doJobExperimental(requestorEmail, timeZoneForClient, query, anon, jobId, reportFormat, originalQuery, includePhotos, pacoProtocol);
           statusMgr.completeReport(requestorEmail, jobId, location);
         } catch (Throwable e) {
           statusMgr.failReport(requestorEmail, jobId, e.getClass() + "." + e.getMessage());
@@ -160,7 +160,7 @@ public class ReportJobExecutor {
   }
 
   protected String doJobExperimental(String requestorEmail, DateTimeZone timeZoneForClient, List<Query> query, boolean anon, String jobId,
-                         String reportFormat, String originalQuery, boolean includePhotos) throws IOException {
+                         String reportFormat, String originalQuery, boolean includePhotos, Float pacoProtocol) throws IOException {
     log.info("starting doJob experimental");
     String experimentId = null;
     for (Query query2 : query) {
@@ -176,12 +176,12 @@ public class ReportJobExecutor {
     log.info("Got events for job: " + jobId);
 
     if (!Strings.isNullOrEmpty(reportFormat) && reportFormat.equals("csv2")) {
-      return generateCSVReport(anon, jobId, experimentId, eventQueryResultPair, timeZoneForClient);
+      return generateCSVReport(anon, jobId, experimentId, eventQueryResultPair, pacoProtocol);
     } else if (!Strings.isNullOrEmpty(reportFormat) && reportFormat.equals("json2")) {
-      return generateJsonReport(anon, jobId, experimentId, eventQueryResultPair, timeZoneForClient, includePhotos);
+      return generateJsonReport(anon, jobId, experimentId, eventQueryResultPair, timeZoneForClient, includePhotos, pacoProtocol);
     } else if (!Strings.isNullOrEmpty(reportFormat) && reportFormat.equals("html2")) {
       return generateHtmlReport(timeZoneForClient, anon, jobId, experimentId, eventQueryResultPair, originalQuery,
-                                requestorEmail);
+                                requestorEmail, pacoProtocol);
     }
     return null;
 
@@ -190,7 +190,7 @@ public class ReportJobExecutor {
   protected String doJobExperimentalSplitLargeFilesAndCompose(String requestorEmail, DateTimeZone timeZoneForClient,
                                                               List<Query> query, boolean anon, String jobId,
                                                               String reportFormat, String originalQuery,
-                                                              boolean includePhotos) throws IOException {
+                                                              boolean includePhotos, Float pacoProtocol) throws IOException {
     log.info("starting doJob split large files");
     String experimentId = null;
     for (Query query2 : query) {
@@ -205,17 +205,17 @@ public class ReportJobExecutor {
                                                                                                        requestorEmail,
                                                                                                        timeZoneForClient);
       log.info("Got events for job: " + jobId);
-      return generateCSVReport(anon, jobId, experimentId, eventQueryResultPair, timeZoneForClient);
+      return generateCSVReport(anon, jobId, experimentId, eventQueryResultPair, pacoProtocol);
     } else if (!Strings.isNullOrEmpty(reportFormat) && reportFormat.equals("json2")) {
       log.info("Getting events for json job: " + jobId);
       EventQueryResultPair eventQueryResultPair = EventRetriever.getInstance().getEventsFromLowLevelDS(query,
                                                                                                        requestorEmail,
                                                                                                        timeZoneForClient);
       log.info("Got events for job: " + jobId);
-      return generateJsonReport(anon, jobId, experimentId, eventQueryResultPair, timeZoneForClient, includePhotos);
+      return generateJsonReport(anon, jobId, experimentId, eventQueryResultPair, timeZoneForClient, includePhotos, pacoProtocol);
     } else if (!Strings.isNullOrEmpty(reportFormat) && reportFormat.equals("html2")) {
       return generateHtmlReportSplitLargeFiles(requestorEmail, timeZoneForClient, query, anon, jobId, originalQuery,
-                                             experimentId);
+                                             experimentId, pacoProtocol);
     }
     return null;
 
@@ -223,7 +223,7 @@ public class ReportJobExecutor {
 
   private String generateHtmlReportSplitLargeFiles(String requestorEmail, DateTimeZone timeZoneForClient,
                                                  List<Query> query, boolean anon, String jobId, String originalQuery,
-                                                 String experimentId) throws IOException {
+                                                 String experimentId, Float pacoProtocol) throws IOException {
     log.info("Getting events for html job: " + jobId);
     EventQueryResultPair eventQueryResultPair = EventRetriever.getInstance().getEventsFromLowLevelDS(query,
                                                                                                      requestorEmail,
@@ -236,13 +236,13 @@ public class ReportJobExecutor {
 //      }
 //    }
     return new HtmlBlobWriter().writeNormalExperimentEventsAsHtml(anon, eventQueryResultPair, jobId, experimentId,
-                                                                  timeZoneForClient.getID(), originalQuery, requestorEmail);
+                                                                  timeZoneForClient.getID(), originalQuery, requestorEmail, pacoProtocol);
   }
 
   private String generateJsonReport(boolean anon, String jobId, String experimentId,
                                     EventQueryResultPair eventQueryResultPair, DateTimeZone timeZoneForClient,
-                                    boolean includePhotos) throws IOException {
-    return new JSONBlobWriter().writeEventsAsJSON(anon, eventQueryResultPair, jobId, timeZoneForClient, includePhotos);
+                                    boolean includePhotos, Float pacoProtocol) throws IOException {
+    return new JSONBlobWriter().writeEventsAsJSON(anon, eventQueryResultPair, jobId, timeZoneForClient, includePhotos, pacoProtocol);
 
   }
 
@@ -265,23 +265,23 @@ public class ReportJobExecutor {
   }
 
   private String generateHtmlReport(DateTimeZone timeZoneForClient, boolean anon, String jobId, String experimentId,
-                                    EventQueryResultPair eventQueryResultPair, String originalQuery, String requestorEmail) throws IOException {
+                                    EventQueryResultPair eventQueryResultPair, String originalQuery, String requestorEmail, Float pacoProtocol) throws IOException {
     if (!Strings.isNullOrEmpty(experimentId)) {
-      String eodFile = generateEODHtml(anon, jobId, experimentId, eventQueryResultPair, timeZoneForClient.getID());
+      String eodFile = generateEODHtml(anon, jobId, experimentId, eventQueryResultPair, timeZoneForClient.getID(), pacoProtocol);
       if (eodFile != null) {
         return eodFile;
       }
     }
-    return new HtmlBlobWriter().writeNormalExperimentEventsAsHtml(anon, eventQueryResultPair, jobId, experimentId, timeZoneForClient.getID(), originalQuery, requestorEmail);
+    return new HtmlBlobWriter().writeNormalExperimentEventsAsHtml(anon, eventQueryResultPair, jobId, experimentId, timeZoneForClient.getID(), originalQuery, requestorEmail, pacoProtocol);
   }
 
-  private String generateEODHtml(boolean anon, String jobId, String experimentId, EventQueryResultPair eventQueryResultPair, String timeZoneForClient) throws IOException {
+  private String generateEODHtml(boolean anon, String jobId, String experimentId, EventQueryResultPair eventQueryResultPair, String timeZoneForClient, Float pacoProtocol) throws IOException {
     log.info("Checking referred experiment for job: " + jobId);
     ExperimentDAO referredExperiment = getReferredExperiment(experimentId);
     if (referredExperiment != null) {
       List<EventDAO> eodEventDAOs = EventRetriever.convertEventsToDAOs(eventQueryResultPair.getEvents());
       List<EventDAO> dailyPingEodEventDAOs = new EndOfDayEventProcessor().breakEodResponsesIntoIndividualDailyEventResponses(eodEventDAOs);
-      return new HtmlBlobWriter().writeEndOfDayExperimentEventsAsHtml(anon, jobId, experimentId, dailyPingEodEventDAOs, timeZoneForClient);
+      return new HtmlBlobWriter().writeEndOfDayExperimentEventsAsHtml(anon, jobId, experimentId, dailyPingEodEventDAOs, timeZoneForClient, pacoProtocol);
     }
     return null;
   }
@@ -290,10 +290,10 @@ public class ReportJobExecutor {
     return ExperimentServiceFactory.getExperimentService().getReferredExperiment(Long.parseLong(experimentId));
   }
 
-  private String generateCSVReport(boolean anon, String jobId, String experimentId, EventQueryResultPair eventQueryResultPair, DateTimeZone clientTimezone)
+  private String generateCSVReport(boolean anon, String jobId, String experimentId, EventQueryResultPair eventQueryResultPair, Float pacoProtocol)
                                                                                                        throws IOException {
     if (!Strings.isNullOrEmpty(experimentId)) {
-      String eodFile = generateEODCSV(anon, jobId, experimentId, eventQueryResultPair.getEvents(), clientTimezone.getID());
+      String eodFile = generateEODCSV(anon, jobId, experimentId, eventQueryResultPair.getEvents(), pacoProtocol);
       if (eodFile != null) {
         return eodFile;
       }
@@ -304,19 +304,19 @@ public class ReportJobExecutor {
       ExperimentService es = ExperimentServiceFactory.getExperimentService();
       ExperimentDAO experiment = es.getExperiment(experimentIdLong);
 
-      return new CSVBlobWriter().writeNormalExperimentEventsAsCSV(experiment, eodEventDAOs, jobId, anon, clientTimezone.getID());
+      return new CSVBlobWriter().writeNormalExperimentEventsAsCSV(experiment, eodEventDAOs, jobId, anon, pacoProtocol);
     } catch (NumberFormatException e) {
       log.warning("ExperimentId is not a long: " + experimentId);
       throw e;
     }
   }
 
-  private String generateEODCSV(boolean anon, String jobId, String experimentId, List<Event> events, String clientTimezone) throws IOException {
+  private String generateEODCSV(boolean anon, String jobId, String experimentId, List<Event> events, Float pacoProtocol) throws IOException {
     ExperimentDAO referredExperiment = getReferredExperiment(experimentId);
     if (referredExperiment != null) {
       List<EventDAO> eodEventDAOs = EventRetriever.convertEventsToDAOs(events);
       List<EventDAO> dailyPingEodEventDAOs = new EndOfDayEventProcessor().breakEodResponsesIntoIndividualDailyEventResponses(eodEventDAOs);
-      return new CSVBlobWriter().writeEndOfDayExperimentEventsAsCSV(anon, dailyPingEodEventDAOs, jobId, clientTimezone);
+      return new CSVBlobWriter().writeEndOfDayExperimentEventsAsCSV(anon, dailyPingEodEventDAOs, jobId, pacoProtocol);
     }
     return null;
   }

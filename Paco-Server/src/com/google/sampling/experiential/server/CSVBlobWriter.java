@@ -5,8 +5,6 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.nio.channels.Channels;
 import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
 import java.util.List;
 import java.util.Set;
 import java.util.logging.Logger;
@@ -27,6 +25,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.google.sampling.experiential.model.Event;
 import com.google.sampling.experiential.shared.EventDAO;
+import com.google.sampling.experiential.shared.EventDateComparator;
 import com.google.sampling.experiential.shared.TimeUtil;
 import com.google.sampling.experiential.shared.WhatDAO;
 import com.pacoapp.paco.shared.model2.ExperimentDAO;
@@ -44,14 +43,18 @@ public class CSVBlobWriter {
                                             "experimentId","experimentName","experimentVersion",
                                             "experimentGroupName","actionTriggerId","actionId",
                                             "actionSpecId","responseTime", "scheduledTime", "timeZone");
+  public static final List<String> standardColumnsV5 = Lists.newArrayList("who", "when","appId","pacoVersion",
+                                                                        "experimentId","experimentName","experimentVersion",
+                                                                        "experimentGroupName","actionTriggerId","actionId",
+                                                                        "actionSpecId","responseTime", "scheduledTime");
 
 
   public CSVBlobWriter() {
   }
 
   public String writeEndOfDayExperimentEventsAsCSV(boolean anon, List<EventDAO> events,
-                                                   String jobId, String clientTimezone) throws IOException {
-   sortEventDAOs(events);
+                                                   String jobId, Float pacoProtocol) throws IOException {
+   Collections.sort(events, new EventDateComparator());
    List<String[]> eventsCSV = Lists.newArrayList();
 
    List<String> columns = Lists.newArrayList();
@@ -66,7 +69,7 @@ public class CSVBlobWriter {
    }
    Collections.sort(columns);
    for (EventDAO event : events) {
-     eventsCSV.add(toCSV(event, columns, anon, clientTimezone));
+     eventsCSV.add(toCSV(event, columns, anon, pacoProtocol));
    }
    TimeLogger.logTimestamp("T8:");
    // add back in the standard pacot event columns
@@ -83,7 +86,9 @@ public class CSVBlobWriter {
    columns.add(10, "actionSpecId");
    columns.add(11, "responseTime");
    columns.add(12, "scheduledTime");
-   columns.add(13, "timeZone");
+   if (pacoProtocol != null && pacoProtocol <5) { 
+     columns.add(13, "timeZone");
+   }
 
    return writeBlobUsingNewApi(jobId, columns, eventsCSV).getKeyString();
  }
@@ -128,11 +133,16 @@ public class CSVBlobWriter {
   }
 
 
- private String[] toCSV(EventDAO event, List<String> whatColumnNames, boolean anon,
-                        String clientTimezone) {
-//   log.info("converting to csv. event: " + getTimeString(event, event.getResponseTime(), clientTimezone));
+  private String[] toCSV(EventDAO event, List<String> whatColumnNames, boolean anon,
+                        Float pacoProtocol) {
      int csvIndex = 0;
-     String[] parts = new String[standardColumns.size() + whatColumnNames.size()];
+     int totalColSize = 0;
+     if (pacoProtocol != null && pacoProtocol < 5) {
+       totalColSize = standardColumns.size() + whatColumnNames.size();
+     } else {
+       totalColSize = standardColumnsV5.size() + whatColumnNames.size();
+     }
+     String[] parts = new String[totalColSize];
      if (anon) {
        parts[csvIndex++] = Event.getAnonymousId(event.getWho() + Event.SALT);
      } else {
@@ -148,10 +158,11 @@ public class CSVBlobWriter {
      parts[csvIndex++] = event.getActionTriggerId() != null ? Long.toString(event.getActionTriggerId()) : "0";
      parts[csvIndex++] = event.getActionId() != null ? Long.toString(event.getActionId()) : "0";
      parts[csvIndex++] = event.getActionTriggerSpecId() != null ? Long.toString(event.getActionTriggerSpecId()) : "0";
-     parts[csvIndex++] = getTimeString(event, event.getResponseTime(), clientTimezone);
-     parts[csvIndex++] = getTimeString(event, event.getScheduledTime(), clientTimezone);
-     parts[csvIndex++] = event.getTimezone();
-
+     parts[csvIndex++] = event.getResponseTime() != null ? event.getResponseTime().toString() : "";
+     parts[csvIndex++] = event.getScheduledTime() != null ? event.getScheduledTime().toString() : "";
+     if (pacoProtocol != null && pacoProtocol < 5) {
+       parts[csvIndex++] = event.getTimezone();
+     }
      // dealing with possible duplicate var-names, in-order in survey definition (legacy)
      Set<WhatDAO> unhandledWhats = Sets.newHashSet();
      unhandledWhats.addAll(event.getWhat());
@@ -172,7 +183,7 @@ public class CSVBlobWriter {
      return parts;
  }
 
- String writeNormalExperimentEventsAsCSV(ExperimentDAO experiment, List<EventDAO> eventDAOs, String jobId, boolean anon, String clientTimezone) throws IOException {
+ String writeNormalExperimentEventsAsCSV(ExperimentDAO experiment, List<EventDAO> eventDAOs, String jobId, boolean anon, Float pacoProtocol) throws IOException {
    List<String> experimentColumnNames = Lists.newArrayList();
    List<Input2> inputs = ExperimentHelper.getInputs(experiment);
    for (Input2 input2 : inputs) {
@@ -200,41 +211,15 @@ public class CSVBlobWriter {
 
    List<String[]> eventsCSV = Lists.newArrayList();
    for (EventDAO event : eventDAOs) {
-     eventsCSV.add(toCSV(event, columns, anon, clientTimezone));
+     eventsCSV.add(toCSV(event, columns, anon, pacoProtocol));
    }
-   columns.addAll(0, standardColumns);
+   if (pacoProtocol != null && pacoProtocol >=5) {
+     columns.addAll(0, standardColumnsV5);
+   } else {
+     columns.addAll(0, standardColumns);
+   }
    return writeBlobUsingNewApi(jobId, columns, eventsCSV).getKeyString();
 
 
- }
-
- private void sortEventDAOs(List<EventDAO> greetings) {
-   Comparator<EventDAO> dateComparator = new Comparator<EventDAO>() {
-     @Override
-     public int compare(EventDAO o1, EventDAO o2) {
-       // TODO really it would be better to sort by responseTime when it exists, or scheduledTime if that does not exist.
-       Date when1 = o1.getWhen();
-       Date when2 = o2.getWhen();
-       if (when1 == null || when2 == null) {
-         return 0;
-       } else if (when1.after(when2)) {
-         return -1;
-       } else if (when2.after(when1)) {
-         return 1;
-       }
-       return 0;
-     }
-   };
-   Collections.sort(greetings, dateComparator);
- }
-
- private String getTimeString(EventDAO event, Date time, String clientTimezone) {
-   String scheduledTimeString = "";
-   if (time != null) {
-     scheduledTimeString = jodaFormatter.print(Event.getTimeZoneAdjustedDate(time, clientTimezone, event.getTimezone()));
-   }
-   return scheduledTimeString;
- }
-
-
+  }
 }

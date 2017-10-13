@@ -8,6 +8,7 @@ import com.google.common.collect.Maps;
 import com.google.sampling.experiential.server.migration.jobs.CSInsertEventsJob;
 import com.google.sampling.experiential.server.migration.jobs.CSInsertOutputsJob;
 import com.google.sampling.experiential.server.migration.jobs.CatchUpDateRangeJob;
+import com.google.sampling.experiential.server.migration.jobs.ConvertEventV4ToV5Job;
 import com.google.sampling.experiential.server.migration.jobs.EventStatsCounterMigrationJob;
 import com.google.sampling.experiential.server.migration.jobs.ExperimentHubMigrationJob;
 import com.google.sampling.experiential.server.migration.jobs.ExperimentJDOToDatastoreMigration;
@@ -31,6 +32,7 @@ public class MigrationLookupTable {
     migrations.put("19", CSInsertEventsJob.class);
     migrations.put("20", CSInsertOutputsJob.class);
     migrations.put("21", CatchUpDateRangeJob.class);
+    migrations.put("22", ConvertEventV4ToV5Job.class);
     migrations.put("100", ExperimentTitleLowercaseMigrationJob.class);
   }
   public static MigrationJob getMigrationByName(String name) {
