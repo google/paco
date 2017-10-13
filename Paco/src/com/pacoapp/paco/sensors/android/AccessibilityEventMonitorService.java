@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.joda.time.DateTime;
 
+import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.pacoapp.paco.model.Experiment;
 import com.pacoapp.paco.model.ExperimentProviderUtil;
@@ -19,8 +20,10 @@ import android.annotation.TargetApi;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.accessibility.AccessibilityEvent;
+
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
 
 /**
  *
@@ -37,7 +40,7 @@ public class AccessibilityEventMonitorService extends AccessibilityService {
   public static final String ACCESSIBILITY_EVENT_CLASS = "accessibilityEventClass";
   public static final String ACCESSIBILITY_EVENT_CONTENT_DESCRIPTION = "accessibilityEventContentDescription";
 
-//  private static Logger Log = LoggerFactory.getLogger(AccessibilityEventMonitorService.class);
+  private static Logger Log = LoggerFactory.getLogger(AccessibilityEventMonitorService.class);
 
     // Keeps whether the service is connected
   private static boolean running = false;
@@ -63,9 +66,10 @@ public class AccessibilityEventMonitorService extends AccessibilityService {
    */
   @Override
   public void onAccessibilityEvent(AccessibilityEvent accessibilityEvent) {
-//    Log.v("NotificationEventHandler", String.format("ev:[t] %s [c] %s [p] %s [tm] %s [tx] %s [cd]",
-//    getEventType(accessibilityEvent), accessibilityEvent.getClassName(), accessibilityEvent.getPackageName(),
-//    accessibilityEvent.getEventTime(), getEventText(accessibilityEvent), accessibilityEvent.getContentDescription()));
+//    String formattedMessage = String.format("ev:[t] %s [c] %s [p] %s [tm] %s [tx] %s [cd]",
+//            getEventType(accessibilityEvent), accessibilityEvent.getClassName(), accessibilityEvent.getPackageName(),
+//            accessibilityEvent.getEventTime(), getEventText(accessibilityEvent), accessibilityEvent.getContentDescription());
+//    Log.info("Paco: " + formattedMessage);
 
     // TODO make this a flag when joining or stopping or expiring or refreshing experiments
     // TODO or at least cache the experiments somewhere, like in the Application Object
@@ -94,7 +98,7 @@ public class AccessibilityEventMonitorService extends AccessibilityService {
       runtimePermissionsEventHandler.handleRuntimePermissionEvents(accessibilityEvent);
       return;
     } else if (isViewClickEventOfInterest(accessibilityEvent, interestingTriggers) ) {
-      Log.v("Paco", "Accessibility View Click Event is interesting for non-runtime permissions triggers: ");
+      Log.info("Paco", "Accessibility View Click Event is interesting for non-runtime permissions triggers: ");
       inspectEvent(accessibilityEvent);
       triggerBroadcastService(accessibilityEvent, InterruptCue.ACCESSIBILITY_EVENT_VIEW_CLICKED);
     } else if ((eventCode = notificationHandler.handleAccessibilityEvent(accessibilityEvent)) != null) {
@@ -151,13 +155,16 @@ public class AccessibilityEventMonitorService extends AccessibilityService {
     CharSequence packageName = accessibilityEvent.getPackageName();
     CharSequence className = accessibilityEvent.getClassName();
     int eventType = accessibilityEvent.getEventType();
+
+    if (eventType != InterruptCue.VIEW_CLICKED) {
+      return false;
+    }
     CharSequence contentDescription = accessibilityEvent.getContentDescription();
     final List<CharSequence> text2 = accessibilityEvent.getText();
     CharSequence text = null;
     if (text2 != null && text2.size() > 0) {
       text = text2.get(0);
     }
-
     for (InterruptTrigger trigger : interestingTriggers) {
       List<InterruptCue> cues = trigger.getCues();
       for (InterruptCue interruptCue : cues) {
@@ -165,17 +172,18 @@ public class AccessibilityEventMonitorService extends AccessibilityService {
         if (interruptCue.getCueCode() != InterruptCue.ACCESSIBILITY_EVENT_VIEW_CLICKED) {
            continue;
         }
-        if (interruptCue.getCueSource() != null) {
+        if (!Strings.isNullOrEmpty(interruptCue.getCueSource()) && interruptCue.getCueSource().length() > 0) {
           if (packageName == null || !interruptCue.getCueSource().equals(packageName)) {
             matches = false;
           }
         }
-        if (interruptCue.getCueAEContentDescription() != null) {
-          if (contentDescription == null || !interruptCue.getCueAEContentDescription().equals(contentDescription)) {
+        if (!Strings.isNullOrEmpty(interruptCue.getCueAEContentDescription())) {
+          if (!contentDescriptionMatchesEither(contentDescription, text, interruptCue)) {
             matches = false;
           }
+
         }
-        if (interruptCue.getCueAEClassName() != null) {
+        if (!Strings.isNullOrEmpty(interruptCue.getCueAEClassName())) {
           if (className == null || !interruptCue.getCueAEClassName().equals(className)) {
             matches = false;
           }
@@ -189,9 +197,13 @@ public class AccessibilityEventMonitorService extends AccessibilityService {
           return true;
         }
       }
-
     }
     return false;
+  }
+
+  private boolean contentDescriptionMatchesEither(CharSequence aeContentDescription, CharSequence aeText, InterruptCue interruptCue) {
+    return ((aeContentDescription != null && interruptCue.getCueAEContentDescription().equals(aeContentDescription)) ||
+            (aeText != null && interruptCue.getCueAEContentDescription().equals(aeText)));
   }
 
   private boolean isNotificationEventOfInterest(AccessibilityEvent accessibilityEvent, List<InterruptTrigger> interestingTriggers) {
@@ -266,7 +278,7 @@ public class AccessibilityEventMonitorService extends AccessibilityService {
 
 
   private void inspectEvent(AccessibilityEvent accessibilityEvent) {
-    Log.v("Paco", eventToString(accessibilityEvent));
+    Log.info("Paco", eventToString(accessibilityEvent));
   }
 
   private String getStringForEventType(int eventType) {
@@ -309,7 +321,7 @@ public class AccessibilityEventMonitorService extends AccessibilityService {
   @Override
   protected void onServiceConnected() {
     running = true;
-    Log.v("Paco", "Connected to the accessibility service");
+    Log.info("Paco", "Connected to the accessibility service");
     initializeRuntimePermissionsMonitoringState();
     notificationHandler = new NotificationEventHandler(getApplicationContext());
   }
@@ -324,7 +336,7 @@ public class AccessibilityEventMonitorService extends AccessibilityService {
    */
   @Override
   public void onDestroy() {
-    Log.v("Paco", "Accessibility service destroyed");
+    Log.info("Paco", "Accessibility service destroyed");
     running = false;
     runtimePermissionsEventHandler = null;
   }
