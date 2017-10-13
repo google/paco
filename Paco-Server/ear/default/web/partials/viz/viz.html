@@ -39,7 +39,7 @@
             </td>
             <td class="cellContainer">
               <div class="dataCount">{{responseCounts[2]}}</div>
-              <div class="countText">Self Responses</div>
+              <div class="countText">Self & Logged Responses</div>
             </td>
           </tr>
         </table>
@@ -111,11 +111,11 @@
       </md-toolbar>
     </div>
 
+    <div ng-if="loadViz">
+      <span>Loading visualization...</span>
+      <md-progress-linear md-mode="indeterminate"></md-progress-linear>
+    </div>
     <div ng-show="vizTemplate" class="vizTemplate">
-      <div ng-if="loadViz">
-        <span>Loading visualization...</span>
-        <md-progress-linear md-mode="indeterminate"></md-progress-linear>
-      </div>
       <div layout="row" class="vizTitleContainer">
         <div class="vizCaption" ng-show="editTitleTextMode">
           <md-input-container class="md-block">
@@ -130,6 +130,7 @@
         </div>
       </div>
       <div class="vizContainer"></div>
+      <div class="vizDescContainer">
       <div ng-hide="editDescMode" ng-show="editDescTextMode">
         <div class="descStaticText" layout="row"><span>Description:</span></div>
         <div class="vizDescription">
@@ -151,6 +152,7 @@
         </div>
         <div class="descText" ng-bind-html="vizDescription"></div>
       </div>
+      </div>
     </div>
   </div>
 
@@ -162,7 +164,6 @@
     <div class="vizSectionLabels"><span>Viz Archives</span></div>
     <table class="vizTable">
       <tr class="viz">
-        <th class="viz">Viz Id</th>
         <th class="viz">Title</th>
         <th class="viz">Date Range</th>
         <th class="viz">Type</th>
@@ -171,7 +172,6 @@
         <th class="viz"></th>
       </tr>
       <tr class="viz" ng-repeat="viz in vizs track by $index">
-        <td class="viz">{{viz.vizId}}</td>
         <td class="viz">
           <a><span class="md-primary" ng-click="renderViz(viz,$index)">{{viz.vizTitle}}</span></a>
         </td>
@@ -190,8 +190,6 @@
       <a><span class="md-primary clearTable" ng-click="clearVizTable()">Delete All</span></a>
     </div>
   </div>
-
-
 </div>
 </div>
 

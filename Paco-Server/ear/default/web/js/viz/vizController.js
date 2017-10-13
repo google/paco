@@ -27,6 +27,7 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
   var getEvents = "";
   var vizIndex = 0;
 
+
   $scope.questions = [{
     qno: 1,
     question: "Show the distribution of responses for the variable?",
@@ -39,28 +40,30 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
   }, {
     qno: 4,
     question: "What is the value of the variable over time for each person?"
-  }, {
-    qno: 5,
-    question: "What is the value of this variable over time for everyone?"
-  }, {
-    qno: 6,
-    question: "How many people in total and basic demographics.",
-  }, {
-    qno: 7,
-    question: "Stats: Spread of # of devices, average by use from high to low"
-  }, {
-    qno: 8,
-    question: "Stats:range of time on devices, any differences by demographics?"
-  }, {
-    qno: 9,
-    question: "No.of apps in total and ranges of time spent, and differences by demographics?"
-  }, {
-    qno: 10,
-    question: "App usage by category"
-  }, {
-    qno: 11,
-    question: "App usage by time of day with ESM responses"
-  }];
+  }
+  // {
+  //   qno: 5,
+  //   question: "What is the value of this variable over time for everyone?"
+  // }, {
+  //   qno: 6,
+  //   question: "How many people in total and basic demographics.",
+  // }, {
+  //   qno: 7,
+  //   question: "Stats: Spread of # of devices, average by use from high to low"
+  // }, {
+  //   qno: 8,
+  //   question: "Stats:range of time on devices, any differences by demographics?"
+  // }, {
+  //   qno: 9,
+  //   question: "No.of apps in total and ranges of time spent, and differences by demographics?"
+  // }, {
+  //   qno: 10,
+  //   question: "App usage by category"
+  // }, {
+  //   qno: 11,
+  //   question: "App usage by time of day with ESM responses"
+  // }
+  ];
 
   $scope.questions.forEach(function (ques) {
     questionsMap.set(ques.question, ques.qno);
@@ -157,23 +160,23 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
                 });
               });
             });
-            experimentsVizService.getDistinctText($scope.experimentId, expGroups).then(function (groupsList) {
+            experimentsVizService.getAllTexts($scope.experimentId, expGroups).then(function (groupsList) {
               groupsList.data.customResponse.forEach(function (grpList) {
                 if ((grpList.group_name !== undefined)) {
-                 if((grpList.text !== "foreground") && (grpList.text !== "referred_group") && (grpList.text !== "eodResponseTime")){
-                   $scope.groupInputs.push({
-                     "id": grpList.group_name + ":" + grpList.text,
-                     "group": grpList.group_name,
-                     "input": grpList.text,
-                     "userOrSystemDefined": true,
-                     "responseType": "open text"
-                   });
-                 }
+                  if ((grpList.text !== "foreground") && (grpList.text !== "referred_group") && (grpList.text !== "eodResponseTime")) {
+                    $scope.groupInputs.push({
+                      "id": grpList.group_name + ":" + grpList.text,
+                      "group": grpList.group_name,
+                      "input": grpList.text,
+                      "userOrSystemDefined": true,
+                      "responseType": "open text"
+                    });
+                  }
                 }
-             });
-         });
-       }
-    });
+              });
+            });
+          }
+        });
   }
 
   $scope.getResponseType = function (input) {
@@ -392,9 +395,10 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
     $scope.displayTextOne();
   }
 
-  function getEventsResponses() {
+  function getEventsResponses(viz, createBtnEvent) {
     $scope.startDateTime = undefined;
     $scope.endDateTime = undefined;
+    $scope.responseData = [];
 
     // start and end date/time stamp based on a date
     if ($scope.startDate != undefined) {
@@ -417,57 +421,122 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
       $scope.endDateTime = formatDate($scope.endDate) + " " + formatTime($scope.endTime);
     }
 
+
+    var textsSet = [];
+    var groups = [];
+    var groupsSet = new Set;
+
     if ($scope.selectedInputs !== undefined) {
-      var groupNInputs = [];
-      $scope.responseData = [];
-      var responses = [];
-      var key = "";
-      $scope.selectedInputs.forEach(function (inputs) {
-        var data = {};
-        data.key = inputs.input;
-        getEvents = experimentsVizService.getEvents($scope.experimentId, inputs.group, inputs.input, $scope.selectedParticipants, $scope.startDateTime, $scope.endDateTime).then(function (events) {
+      if ($scope.selectedInputs.length > 0) {
+        $scope.selectedInputs.forEach(function (selectedInput) {
+          textsSet.push(selectedInput.input);
+          groupsSet.add(selectedInput.group);
+        });
+        groupsSet.forEach(function (group) {
+          groups.push(group);
+        });
+
+        experimentsVizService.getEvents($scope.experimentId, groups, textsSet, $scope.selectedParticipants, $scope.startDateTime, $scope.endDateTime).then(function (events) {
           if (events.data.customResponse !== undefined) {
-            if (events.data.customResponse.length > 0) {
-              responses = events.data.customResponse;
-              data.values = responses;
-              $scope.responseData.push(data);
-            } else {
-              showAlert("Zero data", "No data available for the selection: " + inputs.input);
-            }
+            processViz(viz, createBtnEvent, events.data.customResponse);
           }
         });
-      });
+      }
     }
 
     if ($scope.selectedInput1 !== undefined) {
-      var responses = [];
-      var data = {};
-      $scope.xPlotInput = [];
-      $scope.singleInputResponseData = [];
-      data.key = $scope.selectedInput1.input;
-      getEvents = experimentsVizService.getEvents($scope.experimentId, $scope.selectedInput1.group, $scope.selectedInput1.input, $scope.selectedParticipants, $scope.startDateTime, $scope.endDateTime).then(function (events) {
+      $scope.loadViz = true;
+      textsSet.push($scope.selectedInput1.input);
+      groups.push($scope.selectedInput1.group);
+      experimentsVizService.getEvents($scope.experimentId, groups, textsSet, $scope.selectedParticipants, $scope.startDateTime, $scope.endDateTime).then(function (events) {
         if (events.data.customResponse !== undefined) {
-          if (events.data.customResponse.length > 0) {
-            responses = events.data.customResponse;
-            data.values = responses;
-            if ($scope.template === 3) {
-              $scope.xPlotInput.push(data);
-            }
-            if (($scope.template === 4) || ($scope.template === 2)) {
-              $scope.singleInputResponseData.push(data);
-            }
-          }
+          processViz(viz, createBtnEvent, events.data.customResponse);
         }
       });
     }
   }
 
+  function processViz(viz, createBtnEvent, responseData) {
+
+    var zeroData = [];
+    var vizResponseData = [];
+    if (responseData !== undefined) {
+      var groupByText = d3.nest()
+          .key(function (d) {
+            return d.text;
+          })
+          .entries(responseData);
+    }
+
+    if (groupByText !== undefined) {
+      if (groupByText.length > 0) {
+        groupByText.forEach(function (text) {
+          if (text.values.length > 0) {
+            vizResponseData.push(text);
+          } else {
+            zeroData.push(text);
+          }
+        });
+      }
+    }
+
+    if (vizResponseData !== undefined) {
+      if (vizResponseData.length > 0) {
+        var reqFieldsCheck = reqFieldsValidation();
+        if (reqFieldsCheck) {
+          $scope.responseData = vizResponseData;
+          if ($scope.template === 3) {
+            $scope.xPlotInput = vizResponseData;
+          }
+          if (($scope.template === 4) || ($scope.template === 2)) {
+            $scope.singleInputResponseData = vizResponseData;
+          }
+          if ($scope.currentViz !== undefined) {
+            displayViz($scope.currentViz);
+          } else if (viz !== undefined) {
+            displayViz(viz);
+          } else {
+            displayViz();
+          }
+
+          if (createBtnEvent !== undefined) {
+            var vizParamsJson = vizJson();
+            var vizLogTitle = getvizLogTitle(vizParamsJson[0]);
+            vizParamsJson[0].vizLogTitle = vizLogTitle;
+            $scope.vizHistory.push(vizParamsJson);
+            if ($scope.vizHistory.length > 1) {
+              $scope.backButton = false;
+              $scope.forwardButton = false;
+            }
+          } else {
+            d3.selectAll('.vizContainer' + "> *").remove();
+            $scope.vizTemplate = false;
+            $scope.saveDownload = false;
+            $scope.drawButton = false;
+          }
+        }
+      }
+    }
+
+    if (zeroData !== undefined) {
+      var zeroDataTexts = "";
+      if (zeroData.length > 0) {
+        zeroDataTexts = zeroData.join(", ");
+        showAlert("Zero data", "No data available for the selection: " + zeroDataTexts);
+      }
+    }
+  }
+
   function displayViz(viz) {
+    var incompatibleTexts = undefined;
+
     if (($scope.selectedType === "Box Plot") && ($scope.template === 1)) {
-      processBoxData($scope.responseData);
+      incompatibleTexts = checkIncompatibleTexts($scope.selectedInputs);
+      processBoxData($scope.responseData, incompatibleTexts);
     }
     if (($scope.selectedType === "Bar Chart") && ($scope.template === 1)) {
-      processBarChartData($scope.responseData);
+      incompatibleTexts = checkIncompatibleTexts($scope.selectedInputs);
+      processBarChartData($scope.responseData, incompatibleTexts);
     }
     if ($scope.selectedType === "Bubble Chart") {
       processBubbleChartData($scope.responseData);
@@ -485,8 +554,26 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
       processScatterPlot($scope.responseData);
       $scope.vizTemplate = true;
     }
+    $scope.saveDownload = true;
+    $scope.editMode = true;
+    $scope.editTextMode = true;
+    $scope.drawButton = true;
     displayDescription(viz);
     displayTitle(viz);
+  }
+
+  function checkIncompatibleTexts(selectedTexts) {
+    var resKeys = [];
+    selectedTexts.forEach(function (selectedInput) {
+      if (selectedInput.userOrSystemDefined) {
+        var index = $scope.responseData.map(function (e) {
+          return e.key;
+        }).indexOf(selectedInput.input);
+        $scope.responseData.splice(index, 1);
+        resKeys.push(selectedInput.input);
+      }
+    });
+    return resKeys;
   }
 
   function clearViz() {
@@ -497,7 +584,6 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
   }
 
   function displayDescription(viz) {
-
     if (viz !== undefined) {
       $scope.vizDesc = viz.vizDesc;
       $scope.vizDescription = $sce.trustAsHtml("<pre class='descText'>" + viz.vizDesc + "</pre>");
@@ -603,230 +689,229 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
   }
 
   function processXYPlotTimeSeries(responseData) {
-    $timeout(function () {
-      var xAxisMaxMin = [];
-      var xAxisTickValues = [];
-      var yValues = new Set();
+    var xAxisMaxMin = [];
+    var xAxisTickValues = [];
+    var yValues = new Set();
 
-      if ($scope.startDateTime !== undefined && $scope.endDateTime !== undefined) {
-        xAxisMaxMin.push(new Date($scope.startDateTime).getTime(), new Date($scope.endDateTime).getTime());
-      } else if ($scope.dateRange !== undefined && $scope.startDateTime === undefined && $scope.endDateTime === undefined) {
-        $scope.dateRange.forEach(function (dateRange) {
-          xAxisMaxMin.push(new Date(dateRange).getTime());
+    if ($scope.startDateTime !== undefined && $scope.endDateTime !== undefined) {
+      xAxisMaxMin.push(new Date($scope.startDateTime).getTime(), new Date($scope.endDateTime).getTime());
+    } else if ($scope.dateRange !== undefined && $scope.startDateTime === undefined && $scope.endDateTime === undefined) {
+      $scope.dateRange.forEach(function (dateRange) {
+        xAxisMaxMin.push(new Date(dateRange).getTime());
+      });
+    }
+
+    function getAllDays() {
+      var start_date = new Date(xAxisMaxMin[0]);
+      var end_Date = new Date(xAxisMaxMin[1]);
+      var dateRange = [];
+      while (start_date < end_Date) {
+        dateRange.push(start_date);
+        start_date = new Date(start_date.setDate(
+            start_date.getDate() + 1
+        ));
+      }
+      return dateRange;
+    }
+
+    var xTickValues = getAllDays();
+    xTickValues.forEach(function (value) {
+      xAxisTickValues.push(value.getTime());
+    });
+
+    var groupByParticipants = d3.nest()
+        .key(function (d) {
+          return d.who;
+        }).entries(responseData[0].values);
+
+    var scatterPlotTimeSeries = [];
+    groupByParticipants.forEach(function (participant) {
+      var data = [];
+      data.key = participant.key;
+      data.values = [];
+      participant.values.forEach(function (value) {
+        data.values.push({
+          x: new Date(value.response_time).getTime(),
+          y: value.answer,
+          size: Math.round(Math.random() * 100) / 100
         });
-      }
-
-      function getAllDays() {
-        var start_date = new Date(xAxisMaxMin[0]);
-        var end_Date = new Date(xAxisMaxMin[1]);
-        var dateRange = [];
-        while (start_date < end_Date) {
-          dateRange.push(start_date);
-          start_date = new Date(start_date.setDate(
-              start_date.getDate() + 1
-          ));
-        }
-        return dateRange;
-      }
-
-      var xTickValues = getAllDays();
-      xTickValues.forEach(function (value) {
-        xAxisTickValues.push(value.getTime());
       });
+      scatterPlotTimeSeries.push(data);
+    });
 
-      var groupByParticipants = d3.nest()
-          .key(function (d) {
-            return d.who;
-          }).entries(responseData[0].values);
+    scatterPlotTimeSeries.forEach(function (plotData) {
+      plotData.values.forEach(function (value) {
+        yValues.add(value.y);
+      })
+    });
+    function compareNumbers(a, b) {
+      return a - b;
+    }
 
-      var scatterPlotTimeSeries = [];
-      groupByParticipants.forEach(function (participant) {
-        var data = [];
-        data.key = participant.key;
-        data.values = [];
-        participant.values.forEach(function (value) {
-          data.values.push({
-            x: new Date(value.response_time).getTime(),
-            y: value.answer,
-            size: Math.round(Math.random() * 100) / 100
-          });
-        });
-        scatterPlotTimeSeries.push(data);
-      });
-
-      scatterPlotTimeSeries.forEach(function (plotData) {
-        plotData.values.forEach(function (value) {
-          yValues.add(value.y);
-        })
-      });
-      function compareNumbers(a, b) {
-        return a - b;
-      }
-
-      var sortedYValues = Array.from(yValues).sort(compareNumbers);
-      var yAxisMaxMin = [];
-      yAxisMaxMin.push(parseInt(sortedYValues[0]), parseInt(sortedYValues[(sortedYValues.length) - 1]));
-      var yAxisTickValues = [];
-      for (var i = 1; i < sortedYValues.length - 1; i++) {
-        yAxisTickValues.push(parseInt(sortedYValues[i]));
-      }
-      drawXYPlotTimeSeries(xAxisMaxMin, yAxisMaxMin, xAxisTickValues, yAxisTickValues, scatterPlotTimeSeries);
-      $scope.loadViz = false;
-      $scope.vizTemplate = true;
-    }, 1000);
+    var sortedYValues = Array.from(yValues).sort(compareNumbers);
+    var yAxisMaxMin = [];
+    yAxisMaxMin.push(parseInt(sortedYValues[0]), parseInt(sortedYValues[(sortedYValues.length) - 1]));
+    var yAxisTickValues = [];
+    for (var i = 1; i < sortedYValues.length - 1; i++) {
+      yAxisTickValues.push(parseInt(sortedYValues[i]));
+    }
+    drawXYPlotTimeSeries(xAxisMaxMin, yAxisMaxMin, xAxisTickValues, yAxisTickValues, scatterPlotTimeSeries);
+    $scope.loadViz = false;
+    $scope.vizTemplate = true;
   }
 
   function drawXYPlotTimeSeries(xAxisMaxMin, yAxisMaxMin, xAxisTickValues, yAxisTickValues, data) {
 
     d3.selectAll('.vizContainer' + "> *").remove();
-    $timeout(function () {
-      var response = responseTypeMap.get($scope.selectedInput1.input);
-      var responseType = response.responseType;
-      // create the chart
-      var chart;
-      nv.addGraph(function () {
-        chart = nv.models.scatterChart()
-            .showDistX(true)
-            .showDistY(true)
-            .useVoronoi(true)
-            .interactive(true)
-            .xDomain(xAxisMaxMin)
-            .height(550)
-            .color(d3.scale.category10().range())
-            .duration(300);
+    var response = responseTypeMap.get($scope.selectedInput1.input);
+    var responseType = response.responseType;
 
-        chart.xAxis
-        // .rotateLabels(-45)
-            .tickValues(xAxisTickValues)
-            .tickFormat(function (d) {
-              return d3.time.format('%m/%d/%y %H:%M:%S')(new Date(d));
-            });
-        chart.yAxis
-            .tickFormat(d3.format('d'));
+    // create the chart
+    var chart;
+    nv.addGraph(function () {
+      chart = nv.models.scatterChart()
+          .showDistX(true)
+          .showDistY(true)
+          .useVoronoi(true)
+          .interactive(true)
+          .xDomain(xAxisMaxMin)
+          .height(550)
+          .color(d3.scale.category10().range())
+          .duration(300);
 
-        if ((responseType === "likert") || (responseType === "likert_smileys")) {
-          chart.yDomain([1, 5]);
-          chart.yAxis.tickValues([2, 3, 4]);
-        }
-        else {
-          chart.yDomain(yAxisMaxMin);
-          chart.yAxis.tickValues(yAxisTickValues);
-        }
+      chart.xAxis
+      // .rotateLabels(-45)
+          .tickValues(xAxisTickValues)
+          .tickFormat(function (d) {
+            return d3.time.format('%m/%d/%y %H:%M:%S')(new Date(d));
+          });
+      chart.yAxis
+          .tickFormat(d3.format('d'));
 
-        chart.tooltip(true);
-        chart.tooltip.contentGenerator(function (d) {
-          var rows =
-              "<tr>" +
-              "<td class='key'>" + 'Date:' + "</td>" +
-              "<td class='x-value'><strong>" + $filter('date')(new Date(d.point.x), 'dd/MM/yyyy hh:mm:ss') + "</strong></td>" +
-              "</tr>" +
-              "<tr>" +
-              "<td class='key'>" + 'Value:' + "</td>" +
-              "<td class='x-value'><strong>" + d.point.y + "</strong></td>" +
-              "</tr>";
+      if ((responseType === "likert") || (responseType === "likert_smileys")) {
+        chart.yDomain([1, 5]);
+        chart.yAxis.tickValues([2, 3, 4]);
+      }
+      else {
+        chart.yDomain(yAxisMaxMin);
+        chart.yAxis.tickValues(yAxisTickValues);
+      }
 
-          var header =
-              "<thead>" +
-              "<tr>" +
-              "<td class='legend-color-guide'><div style='background-color: " + d.series.color + ";'></div></td>" +
-              "<td class='key'><strong>" + d.series.key + "</strong></td>" +
-              "</tr>" +
-              "</thead>";
+      chart.tooltip(true);
+      chart.tooltip.contentGenerator(function (d) {
+        var rows =
+            "<tr>" +
+            "<td class='key'>" + 'Date:' + "</td>" +
+            "<td class='x-value'><strong>" + $filter('date')(new Date(d.point.x), 'dd/MM/yyyy hh:mm:ss') + "</strong></td>" +
+            "</tr>" +
+            "<tr>" +
+            "<td class='key'>" + 'Value:' + "</td>" +
+            "<td class='x-value'><strong>" + d.point.y + "</strong></td>" +
+            "</tr>";
 
-          return "<table>" +
-              header +
-              "<tbody>" +
-              rows +
-              "</tbody>" +
-              "</table>";
-        });
+        var header =
+            "<thead>" +
+            "<tr>" +
+            "<td class='legend-color-guide'><div style='background-color: " + d.series.color + ";'></div></td>" +
+            "<td class='key'><strong>" + d.series.key + "</strong></td>" +
+            "</tr>" +
+            "</thead>";
 
-        d3.select('.vizContainer')
-            .append('svg')
-            .style('width', '98%')
-            .style('height', 600)
-            .style('margin-left', 15)
-            .style('margin-top', 15)
-            .style('background-color', 'white')
-            .style('vertical-align', 'middle')
-            .style('display', 'inline-block')
-            .datum(data)
-            .call(chart);
-
-        nv.utils.windowResize(chart.update);
-        return chart;
+        return "<table>" +
+            header +
+            "<tbody>" +
+            rows +
+            "</tbody>" +
+            "</table>";
       });
-    }, 1000);
+
+      d3.select('.vizContainer')
+          .append('svg')
+          .style('width', '98%')
+          .style('height', 600)
+          .style('margin-left', 15)
+          .style('margin-top', 15)
+          .style('background-color', 'white')
+          .style('vertical-align', 'middle')
+          .style('display', 'inline-block')
+          .datum(data)
+          .call(chart);
+
+      nv.utils.windowResize(chart.update);
+    });
   }
 
   function processScatterPlot(responseData) {
+    if ($scope.xPlotInput !== undefined && responseData !== undefined) {
+      var xValue = $scope.xPlotInput;
+      var yValue = responseData;
 
-    $timeout(function () {
-      if ($scope.xPlotInput !== undefined && responseData !== undefined) {
-        var xValue = $scope.xPlotInput;
-        var yValue = responseData;
+      var data = [];
+      for (var i = 0; i < yValue.length; i++) {
+        data.push({
+          key: yValue[i].key,
+          values: []
+        });
 
-        var data = [];
-        for (var i = 0; i < yValue.length; i++) {
-          data.push({
-            key: yValue[i].key,
-            values: []
+        for (var j = 0; j < xValue[0].values.length; j++) {
+          data[i].values.push({
+            x: xValue[0].values[j].answer,
+            y: yValue[i].values[j].answer,
+            size: Math.round(Math.random() * 100) / 100
           });
-
-          for (var j = 0; j < xValue[0].values.length; j++) {
-            data[i].values.push({
-              x: xValue[0].values[j].answer,
-              y: yValue[i].values[j].answer,
-              size: Math.round(Math.random() * 100) / 100
-            });
-          }
         }
-        drawScatterPlot(data);
-        $scope.loadViz = false;
       }
-    }, 1000);
+      drawScatterPlot(data);
+      $scope.loadViz = false;
+    }
   }
 
   function drawScatterPlot(data) {
     d3.selectAll('.vizContainer' + "> *").remove();
 
-    $timeout(function () {
-      // create the chart
-      var chart;
-      nv.addGraph(function () {
-        chart = nv.models.scatterChart()
-            .showDistX(true)
-            .showDistY(true)
-            .useVoronoi(true)
-            .height(500)
-            .color(d3.scale.category10().range())
-            .duration(300);
+    // create the chart
+    var chart;
+    nv.addGraph(function () {
+      chart = nv.models.scatterChart()
+          .showDistX(true)
+          .showDistY(true)
+          .useVoronoi(true)
+          .height(500)
+          .color(d3.scale.category10().range())
+          .duration(300);
 
-        chart.xAxis
-        // .rotateLabels(-45)
-            .tickFormat(d3.format('.0f'))
-            .axisLabel($scope.xPlotInput[0].key);
-        chart.yAxis.tickFormat(d3.format('.0f'));
+      chart.xAxis
+      // .rotateLabels(-45)
+          .tickFormat(d3.format('.0f'))
+          .axisLabel($scope.xPlotInput[0].key);
+      chart.yAxis.tickFormat(d3.format('.0f'));
 
-        d3.select('.vizContainer')
-            .append('svg')
-            .style('width', '98%')
-            .style('height', 530)
-            .style('margin-left', 15)
-            .style('margin-top', 15)
-            .style('background-color', 'white')
-            .style('vertical-align', 'middle')
-            .style('display', 'inline-block')
-            .datum(data)
-            .call(chart);
+      d3.select('.vizContainer')
+          .append('svg')
+          .style('width', '98%')
+          .style('height', 530)
+          .style('margin-left', 15)
+          .style('margin-top', 15)
+          .style('background-color', 'white')
+          .style('vertical-align', 'middle')
+          .style('display', 'inline-block')
+          .datum(data)
+          .call(chart);
 
-        nv.utils.windowResize(chart.update);
-        return chart;
-      });
-    }, 1000);
+      nv.utils.windowResize(chart.update);
+    });
   }
 
-  function incompatibleDataTypes(keyText, multipleKeys, vizLength) {
+  function incompatibleDataTypes(resKeys, vizLength) {
+    var multipleKeys = "";
+    var keyText = undefined;
+
+    keyText = resKeys.join(",");
+    if (resKeys.length === 1) {
+      multipleKeys = false;
+    } else if (resKeys.length > 1) {
+      multipleKeys = true;
+    }
     if (keyText !== undefined) {
       $mdDialog.show($mdDialog.confirm()
           .title('Incompatible Data')
@@ -848,7 +933,8 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
     }
   }
 
-  function processBoxData(response) {
+  function processBoxData(response, incompatibleTexts) {
+
     var maxValue = 0;
     var minValue = 0;
     var boxPlotData = [];
@@ -872,9 +958,9 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
       return frequency;
     }
 
-    $timeout(function () {
-      if (response !== undefined) {
-        if ($scope.template === 2) {
+    if (response !== undefined) {
+      if ($scope.template === 2) {
+        if (!$scope.selectedInput1.userOrSystemDefined) {
           var vizByDay = dataCount(response[0].values);
           vizByDay.forEach(function (data) {
             var dataTransformed = transformBoxPlotData("vizByDay", data.key, data.values.answers);
@@ -886,38 +972,47 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
             }
           });
           $scope.loadViz = false;
-        } else if ($scope.template === 1) {
-          response.forEach(function (res) {
-            var dataTransformed = transformBoxPlotData("vizByDateRange", res.key, res.values);
-            if (dataTransformed !== undefined) {
-              boxPlotData.push(dataTransformed);
-            } else {
-              resKeys.push(res.key);
-              keyText = resKeys.join(",");
-              if (resKeys.length === 1) {
-                multipleKeys = false;
-              } else if (resKeys.length > 1) {
-                multipleKeys = true;
-              }
-            }
-          });
+        } else {
+          resKeys.push($scope.selectedInput1.input);
+          if (resKeys.length > 0) {
+            incompatibleDataTypes(resKeys, 0);
+          }
         }
-        if (boxPlotData.length > 0) {
-          var whiskers_high = [];
-          var whiskers_low = [];
-          boxPlotData.forEach(function (data) {
-            whiskers_high.push(data.values.whisker_high);
-            whiskers_low.push(data.values.whisker_low);
-          });
-          maxValue = d3.max(whiskers_high);
-          minValue = d3.min(whiskers_low);
-          drawBoxPlot(minValue, boxPlotData, maxValue);
-          $scope.loadViz = false;
-        }
-        incompatibleDataTypes(keyText, multipleKeys, boxPlotData.length)
+      } else if ($scope.template === 1) {
+        response.forEach(function (res) {
+          var dataTransformed = transformBoxPlotData("vizByDateRange", res.key, res.values);
+          if (dataTransformed !== undefined) {
+            boxPlotData.push(dataTransformed);
+          } else {
+            resKeys.push(res.key);
+          }
+        });
       }
-      $scope.vizTemplate = true;
-    }, 1000);
+      if (incompatibleTexts !== undefined) {
+        if (incompatibleTexts.length > 0) {
+          incompatibleTexts.forEach(function (text) {
+            resKeys.push(text);
+          });
+        }
+      }
+
+      if (boxPlotData.length > 0) {
+        var whiskers_high = [];
+        var whiskers_low = [];
+        boxPlotData.forEach(function (data) {
+          whiskers_high.push(data.values.whisker_high);
+          whiskers_low.push(data.values.whisker_low);
+        });
+        maxValue = d3.max(whiskers_high);
+        minValue = d3.min(whiskers_low);
+        drawBoxPlot(minValue, boxPlotData, maxValue);
+        $scope.loadViz = false;
+      }
+      if (resKeys.length > 0) {
+        incompatibleDataTypes(resKeys, boxPlotData.length);
+      }
+    }
+    $scope.vizTemplate = true;
   }
 
   function transformBoxPlotData(viz, key, values) {
@@ -981,7 +1076,7 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
 
         chart.xAxis.showMaxMin(false);
         chart.yAxis.tickFormat(d3.format('d'));
-        if ($scope.template === 2) {
+        if (($scope.template === 2)) {
           var response = responseTypeMap.get($scope.selectedInput1.input);
           var responseType = response.responseType;
           if ((responseType === "likert") || (responseType === "likert_smileys")) {
@@ -1053,67 +1148,71 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
             .style('height', 570)
             .style('margin-left', 20)
             .style('margin-top', 15)
-            // .style('background-color', 'white')
             .style('vertical-align', 'middle')
             .style('display', 'inline-block')
             .datum(boxPlotData)
             .call(chart);
 
         nv.utils.windowResize(chart.update);
-        return chart;
       });
     }
   }
 
-  function processBarChartData(res) {
-    var keyText = undefined;
-    var multipleKeys = false;
+  function processBarChartData(res, incompatibleTexts) {
     var resKeys = [];
     var compatibleResponses = [];
 
     if (res !== undefined) {
-      $timeout(function () {
-        var barChartData = [];
-        var values = [];
-        if ($scope.template === 2) {
+      var barChartData = [];
+      var values = [];
+      if ($scope.template === 2) {
+        if (!$scope.selectedInput1.userOrSystemDefined) {
           barChartData = transformBarChartData_template2(res);
-        } else if ($scope.template === 1) {
-          res.forEach(function (response) {
-            if (responseTypeMap.get(response.key).responseType === "open text") {
-              resKeys.push(response.key);
-              keyText = resKeys.join(",");
-              if (resKeys.length === 1) {
-                multipleKeys = false;
-              } else if (resKeys.length > 1) {
-                multipleKeys = true;
-              }
-            } else {
-              compatibleResponses.push(response);
-              barChartData = transformDataforBarChart(undefined, compatibleResponses);
-            }
-          });
-        }
-        if (barChartData !== undefined) {
-          barChartData.forEach(function (data) {
-            data.values.forEach(function (value) {
-              values.push(value.y);
-            });
-          });
-        }
-        if (values !== undefined) {
-          var yAxisValues = values.filter(function (item, pos) {
-            return values.indexOf(item) == pos;
-          });
-        }
-        if (barChartData !== undefined && yAxisValues !== undefined) {
-          if ((barChartData.length > 0) && (yAxisValues.length > 0)) {
-            drawMultiBarChart(barChartData, yAxisValues);
-            $scope.vizTemplate = true;
+        } else {
+          resKeys.push($scope.selectedInput1.input);
+          if (resKeys.length > 0) {
+            incompatibleDataTypes(resKeys, 0);
           }
-          incompatibleDataTypes(keyText, multipleKeys, barChartData.length);
         }
-        $scope.loadViz = false;
-      }, 1000);
+      } else if ($scope.template === 1) {
+        res.forEach(function (response) {
+          if (responseTypeMap.get(response.key).responseType === "open text") {
+            resKeys.push(response.key);
+          } else {
+            compatibleResponses.push(response);
+            barChartData = transformDataforBarChart(undefined, compatibleResponses);
+          }
+        });
+        if (incompatibleTexts !== undefined) {
+          if (incompatibleTexts.length > 0) {
+            incompatibleTexts.forEach(function (text) {
+              resKeys.push(text);
+            });
+          }
+        }
+      }
+      if (barChartData !== undefined) {
+        barChartData.forEach(function (data) {
+          data.values.forEach(function (value) {
+            values.push(value.y);
+          });
+        });
+      }
+      if (values !== undefined) {
+        var yAxisValues = values.filter(function (item, pos) {
+          return values.indexOf(item) == pos;
+        });
+      }
+      if (barChartData !== undefined && yAxisValues !== undefined) {
+        if ((barChartData.length > 0) && (yAxisValues.length > 0)) {
+          drawMultiBarChart(barChartData, yAxisValues);
+          $scope.vizTemplate = true;
+        }
+        if (resKeys.length > 0) {
+          incompatibleDataTypes(resKeys, barChartData.length);
+        }
+      }
+      $scope.loadViz = false;
     }
   }
 
@@ -1263,19 +1362,23 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
               listChoicesMap.set(i, responseType.listChoices[i]);
             }
             responseData.values.forEach(function (response) {
-              if (response.answer.length > 1) {
-                var answers = response.answer.split(",");
-                answers.forEach(function (a) {
-                  choices = mapIndicesWithListChoices(a);
-                  listResponseData.push({"who": response.who, "answer": choices, "index": a});
-                });
-              } else {
-                choices = mapIndicesWithListChoices(response.answer);
-                listResponseData.push({
-                  "who": response.who,
-                  "answer": choices,
-                  "index": response.answer
-                });
+              if (response !== undefined) {
+                if (response.answer !== undefined) {
+                  if (response.answer.length > 1) {
+                    var answers = response.answer.split(",");
+                    answers.forEach(function (a) {
+                      choices = mapIndicesWithListChoices(a);
+                      listResponseData.push({"who": response.who, "answer": choices, "index": a});
+                    });
+                  } else {
+                    choices = mapIndicesWithListChoices(response.answer);
+                    listResponseData.push({
+                      "who": response.who,
+                      "answer": choices,
+                      "index": response.answer
+                    });
+                  }
+                }
               }
             });
             responsesFrequency = responseDataFrequency(listResponseData);
@@ -1326,23 +1429,23 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
   }
 
   function drawMultiBarChart(barChartData, yAxisValues) {
-    yAxisValues.sort(d3.ascending);
-    d3.selectAll('.vizContainer' + "> *").remove();
 
+    d3.selectAll('.vizContainer' + "> *").remove();
+    yAxisValues.sort(d3.ascending);
     $timeout(function () {
       if (barChartData !== undefined) {
         var chart = nv.models.multiBarChart()
             .showControls(false)
             .showLegend(true)
-            .height(700)
+            .height(612)
             .duration(500)
             .reduceXTicks(false);
         chart.yAxis.tickFormat(d3.format('.0f'));
         chart.yAxis.tickValues(yAxisValues);
         chart.yAxis.axisLabel("Count of responses");
         chart.yAxis.axisLabelDistance(70);
-        chart.xAxis.axisLabel("Available options");
-        // .rotateLabels(-45);
+        chart.xAxis.axisLabel("Available options")
+            .rotateLabels(0);
         chart.tooltip(true);
         chart.tooltip.contentGenerator(function (d) {
           var rows =
@@ -1370,7 +1473,7 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
         });
         var svg = d3.select('.vizContainer')
             .append('svg')
-            .style('width', '98%')
+            .style('width', '98%!important')
             .style('height', 600)
             .style('margin', "auto")
             .style('display', 'block')
@@ -1378,8 +1481,8 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
             .style('vertical-align', 'middle')
             .datum(barChartData)
             .call(chart);
+
         nv.utils.windowResize(chart.update);
-        return chart;
       }
     }, 1000);
   }
@@ -1421,65 +1524,53 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
   }
 
   function processBubbleChartData(responseData) {
-    var responses_bubbleChart = [];
 
+    var responses_bubbleChart = [];
     var vizData = [];
+    var responseValues = [];
     var responsesCount = [];
     var collectiveResponses = [];
-    var userOrSystemDefined = false;
 
-    $timeout(function () {
-      responseData.forEach(function (data) {
-        if (responseTypeMap.has(data.key)) {
-          var responseType = responseTypeMap.get(data.key);
-          if (responseType.responseType === "open text") {
-            var stringsTokenized = tokenizeWords(data.values);
-            var stringsLowerCase = vizResponseJson("open text", stringsTokenized);
-            vizData.push(removeStopWords((stringsLowerCase)));
-          } else if (responseType.responseType === "list") {
-            var mapListChoices = mapChoices(responseType, data.values);
-            vizData.push(vizResponseJson(responseType.responseType, mapListChoices));
-          } else {
-            var data = data.values;
-            vizData.push(vizResponseJson(responseType.responseType, data));
-          }
-          userOrSystemDefined = false;
+    responseData.forEach(function (data) {
+      if (responseTypeMap.has(data.key)) {
+        var responseType = responseTypeMap.get(data.key);
+        if (responseType.responseType === "open text") {
+          var stringsTokenized = tokenizeWords(data.values);
+          var stringsLowerCase = vizResponseJson("open text", stringsTokenized);
+          vizData.push(removeStopWords((stringsLowerCase)));
+        } else if (responseType.responseType === "list") {
+          var mapListChoices = mapChoices(responseType, data.values);
+          vizData.push(vizResponseJson(responseType.responseType, mapListChoices));
         } else {
-          vizData.push(data.values);
-          userOrSystemDefined = true;
+          var data = data.values;
+          vizData.push(vizResponseJson(responseType.responseType, data));
         }
-      });
-
-      vizData.forEach(function (responseData) {
-        responseData.forEach(function (data) {
-          collectiveResponses.push(data);
-        })
-      });
-      if (userOrSystemDefined) {
-        responsesCount = d3.nest()
-            .key(function (d) {
-              return d.answer;
-            })
-            .rollup(function (v) {
-              return v.length;
-            })
-            .entries(vizData[0]);
       } else {
-        responsesCount = countResponses(collectiveResponses);
+        data.values.forEach(function (values) {
+          responseValues.push(values.answer);
+        });
+        vizData.push(responseValues);
       }
-      responses_bubbleChart = responsesCount;
-      if (responses_bubbleChart !== undefined) {
-        if (responses_bubbleChart.length > 0) {
-          var bubbleChartData = responses_bubbleChart.map(function (d) {
-            d.value = +d["values"];
-            return d;
-          });
-          drawBubbleChart(bubbleChartData);
-          $scope.loadViz = false;
-        }
+    });
+    vizData.forEach(function (responses) {
+      responses.forEach(function (res) {
+        collectiveResponses.push(res);
+      });
+    });
+
+    responsesCount = countResponses(collectiveResponses);
+    responses_bubbleChart = responsesCount;
+    if (responses_bubbleChart !== undefined) {
+      if (responses_bubbleChart.length > 0) {
+        var bubbleChartData = responses_bubbleChart.map(function (d) {
+          d.value = +d["values"];
+          return d;
+        });
+        drawBubbleChart(bubbleChartData);
+        $scope.loadViz = false;
       }
-      $scope.vizTemplate = true;
-    }, 4000);
+    }
+    $scope.vizTemplate = true;
   }
 
   function vizResponseJson(type, responseData) {
@@ -1551,113 +1642,88 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
   function drawBubbleChart(data) {
 
     d3.selectAll('.vizContainer' + "> *").remove();
-    $timeout(function () {
-      if (data !== undefined) {
+    if (data !== undefined) {
 
-        var diameter = 800; //max size of the bubbles
+      var diameter = 800; //max size of the bubbles
 
-        var bubble = d3.layout.pack()
-            .sort(null)
-            .size([diameter, diameter])
-            .padding(1.5);
+      var bubble = d3.layout.pack()
+          .sort(null)
+          .size([diameter, diameter])
+          .padding(1.5);
 
-        var tooltip = d3.select("body")
-            .append("div")
-            .attr("class", "tooltip")
-            .text("tooltip");
+      var tooltip = d3.select("body")
+          .append("div")
+          .attr("class", "tooltip")
+          .text("tooltip");
 
-        var svg = d3.select('.vizContainer')
-            .append("svg")
-            .attr("display", "block")
-            .attr("width", diameter)
-            .attr("height", diameter)
-            .style("margin", "auto")
-            .style("margin-top", "0")
-            .attr("class", "bubble");
+      var svg = d3.select('.vizContainer')
+          .append("svg")
+          .attr("display", "block")
+          .attr("width", diameter)
+          .attr("height", diameter)
+          .style("margin", "auto")
+          .style("margin-top", "0")
+          .attr("class", "bubble");
 
-        //bubbles needs very specific format, convert data to this.
-        var nodes = bubble.nodes({children: data}).filter(function (d) {
-          return !d.children;
-        });
+      //convert data to a form required by the bubble chart viz
+      var nodes = bubble.nodes({children: data}).filter(function (d) {
+        return !d.children;
+      });
 
-        //setup the chart
-        var bubbles = svg.append("g")
-            .attr("transform", "translate(0,0)")
-            .selectAll(".bubble")
-            .data(nodes)
-            .enter();
+      //setup the chart
+      var bubbles = svg.append("g")
+          .attr("transform", "translate(0,0)")
+          .selectAll(".bubble")
+          .data(nodes)
+          .enter();
 
-        //create the bubbles
-        bubbles.append("circle")
-            .attr("r", function (d) {
-              return d.r;
-            })
-            .attr("cx", function (d) {
-              return d.x;
-            })
-            .attr("cy", function (d) {
-              return d.y;
-            })
-            .style("fill", "steelblue")
-            .on("mouseover", function (d) {
-              tooltip.html(d.key + ": " + d.value);
-              tooltip.style("visibility", "visible");
-            })
-            .on("mousemove", function () {
-              return tooltip.style("top", (d3.event.pageY - 10) + "px").style("left", (d3.event.pageX + 10) + "px");
-            })
-            .on("mouseout", function () {
-              return tooltip.style("visibility", "hidden");
-            });
+      //create the bubbles
+      bubbles.append("circle")
+          .attr("r", function (d) {
+            return d.r;
+          })
+          .attr("cx", function (d) {
+            return d.x;
+          })
+          .attr("cy", function (d) {
+            return d.y;
+          })
+          .style("fill", "steelblue")
+          .on("mouseover", function (d) {
+            tooltip.html(d.key + ": " + d.value);
+            tooltip.style("visibility", "visible");
+          })
+          .on("mousemove", function () {
+            return tooltip.style("top", (d3.event.pageY - 10) + "px").style("left", (d3.event.pageX + 10) + "px");
+          })
+          .on("mouseout", function () {
+            return tooltip.style("visibility", "hidden");
+          });
 
-        //format the text for each bubble
-        bubbles.append("text")
-            .attr("x", function (d) {
-              return d.x;
-            })
-            .attr("y", function (d) {
-              return d.y + 5;
-            })
-            .style("text-anchor", "middle")
-            .style("fill", "white")
-            .style("pointer-events", "none")
-            .text(function (d) {
-              return d["key"].substring(0, d.r / 5);
-            });
-      }
-    }, 1000);
+      //format the text for each bubble
+      bubbles.append("text")
+          .attr("x", function (d) {
+            return d.x;
+          })
+          .attr("y", function (d) {
+            return d.y + 5;
+          })
+          .style("text-anchor", "middle")
+          .style("fill", "white")
+          .style("pointer-events", "none")
+          .text(function (d) {
+            return d["key"].substring(0, d.r / 5); //trim the labels to fit the bubbles
+          });
+    }
   }
 
-
+  //invoke events responses function on click of the draw button
   $scope.createViz = function (viz, event) {
-    var reqFieldsCheck = reqFieldsValidation();
-    if (reqFieldsCheck) {
-      $scope.loadViz = true;
-      getEventsResponses();
-      if ($scope.currentViz !== undefined) {
-        displayViz($scope.currentViz);
-      } else if (viz !== undefined) {
-        displayViz(viz);
-      } else {
-        displayViz();
-      }
-      if (event !== undefined) {
-        var vizParamsJson = vizJson();
-        var vizLogTitle = getvizLogTitle(vizParamsJson[0]);
-        vizParamsJson[0].vizLogTitle = vizLogTitle;
-        $scope.vizHistory.push(vizParamsJson);
-        if ($scope.vizHistory.length > 1) {
-          $scope.backButton = false;
-          $scope.forwardButton = false;
-        }
-      }
-      $scope.saveDownload = true;
-      $scope.editMode = true;
-      $scope.editTextMode = true;
-      $scope.drawButton = true;
-    }
+    $scope.loadViz = true;
+    getEventsResponses(viz, event);
   };
 
+  //convert data into a json format for saving the viz entity
   function vizJson() {
     var vizs = [];
     var vizData = {};
@@ -1734,7 +1800,6 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
       $mdDialog.show($mdDialog.alert().content('Insufficient data').ariaLabel('Failure').ok('OK'));
     }
     return vizs;
-
   }
 
   $scope.editTitle = function () {
@@ -1972,9 +2037,15 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
     }
   };
 
-  $scope.renderViz = function (viz, index) {
+  $scope.renderViz = function (viz) {
     $scope.vizId = viz.vizId;
-    renderSavedViz(viz, index, "savedViz");
+    $scope.renderVisualization = true;
+
+    if (viz !== undefined) {
+      setParams(viz);
+      $scope.renderSavedViz = true;
+      $scope.createViz(viz, undefined);
+    }
   };
 
   function setParams(viz) {
@@ -2047,17 +2118,7 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
     if (viz.vizDesc !== undefined) {
       $scope.vizDesc = viz.vizDesc;
     }
-
-  }
-
-  function renderSavedViz(viz, index, vizMode) {
-    $scope.renderVisualization = true;
-    setParams(viz);
-    $scope.createViz(viz, undefined);
-    if (vizMode === "savedViz") {
-      $scope.renderSavedViz = true;
-      vizIndex = index;
-    }
+    $scope.drawButton = false;
   }
 
   $scope.getSelectedViz = function (vizLog) {
