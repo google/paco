@@ -20,6 +20,7 @@ import android.annotation.TargetApi;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.view.accessibility.AccessibilityEvent;
 
 import org.slf4j.LoggerFactory;
@@ -152,48 +153,20 @@ public class AccessibilityEventMonitorService extends AccessibilityService {
   }
 
   private boolean isViewClickEventOfInterest(AccessibilityEvent accessibilityEvent, List<InterruptTrigger> interestingTriggers) {
-    CharSequence packageName = accessibilityEvent.getPackageName();
-    CharSequence className = accessibilityEvent.getClassName();
     int eventType = accessibilityEvent.getEventType();
-
     if (eventType != InterruptCue.VIEW_CLICKED) {
       return false;
     }
-    CharSequence contentDescription = accessibilityEvent.getContentDescription();
-    final List<CharSequence> text2 = accessibilityEvent.getText();
-    CharSequence text = null;
-    if (text2 != null && text2.size() > 0) {
-      text = text2.get(0);
-    }
+
+    CharSequence eventPackage = accessibilityEvent.getPackageName();
+    CharSequence eventClass = accessibilityEvent.getClassName();
+    CharSequence eventContentDescription = accessibilityEvent.getContentDescription();
+    CharSequence eventText = getFirstTextEntryFromEvent(accessibilityEvent);
+
     for (InterruptTrigger trigger : interestingTriggers) {
       List<InterruptCue> cues = trigger.getCues();
       for (InterruptCue interruptCue : cues) {
-        boolean matches = true;
-        if (interruptCue.getCueCode() != InterruptCue.ACCESSIBILITY_EVENT_VIEW_CLICKED) {
-           continue;
-        }
-        if (!Strings.isNullOrEmpty(interruptCue.getCueSource()) && interruptCue.getCueSource().length() > 0) {
-          if (packageName == null || !interruptCue.getCueSource().equals(packageName)) {
-            matches = false;
-          }
-        }
-        if (!Strings.isNullOrEmpty(interruptCue.getCueAEContentDescription())) {
-          if (!contentDescriptionMatchesEither(contentDescription, text, interruptCue)) {
-            matches = false;
-          }
-
-        }
-        if (!Strings.isNullOrEmpty(interruptCue.getCueAEClassName())) {
-          if (className == null || !interruptCue.getCueAEClassName().equals(className)) {
-            matches = false;
-          }
-        }
-        // if (interruptCue.getCueAEEventType() != null) {
-        if (eventType != InterruptCue.VIEW_CLICKED) {
-          matches = false;
-        }
-        // }
-        if (matches) {
+        if (eventMatchesCue(eventPackage, eventClass, eventType, eventContentDescription, eventText, interruptCue)) {
           return true;
         }
       }
@@ -201,9 +174,54 @@ public class AccessibilityEventMonitorService extends AccessibilityService {
     return false;
   }
 
+  @Nullable
+  private CharSequence getFirstTextEntryFromEvent(AccessibilityEvent accessibilityEvent) {
+    final List<CharSequence> textList = accessibilityEvent.getText();
+    CharSequence text = null;
+    if (textList != null && textList.size() > 0) {
+      text = textList.get(0); // only check first text in event.
+    }
+    return text;
+  }
+
+  private boolean eventMatchesCue(CharSequence packageName, CharSequence className, int eventType, CharSequence contentDescription, CharSequence text, InterruptCue interruptCue) {
+    // All specified cue parameters must match
+    if (interruptCue.getCueCode() != InterruptCue.ACCESSIBILITY_EVENT_VIEW_CLICKED) {
+       return false;
+    }
+    // if (interruptCue.getCueAEEventType() != null) {
+    if (eventType != InterruptCue.VIEW_CLICKED) {
+      return false;
+    }
+    if (cueHasParameter(interruptCue.getCueSource()) &&
+            !eventValueMatchesCueParameter(packageName, interruptCue.getCueSource())) {
+        return false;
+    }
+    if (cueHasParameter(interruptCue.getCueAEContentDescription()) &&
+            !contentDescriptionMatchesEither(contentDescription, text, interruptCue)) {
+        return false;
+    }
+    if (cueHasParameter(interruptCue.getCueAEClassName()) &&
+            !eventValueMatchesCueParameter(className, interruptCue.getCueAEClassName())) {
+        return false;
+    }
+
+    return true;
+  }
+
+  private boolean eventValueMatchesCueParameter(CharSequence eventValue, String cueParameter) {
+    return eventValue != null && cueParameter.equals(eventValue);
+  }
+
+  private boolean cueHasParameter(String parameter) {
+    return !Strings.isNullOrEmpty(parameter) && parameter.length() > 0;
+  }
+
   private boolean contentDescriptionMatchesEither(CharSequence aeContentDescription, CharSequence aeText, InterruptCue interruptCue) {
-    return ((aeContentDescription != null && interruptCue.getCueAEContentDescription().equals(aeContentDescription)) ||
-            (aeText != null && interruptCue.getCueAEContentDescription().equals(aeText)));
+    return eventValueMatchesCueParameter(aeContentDescription, interruptCue.getCueAEContentDescription()) ||
+            eventValueMatchesCueParameter(aeText, interruptCue.getCueAEContentDescription());
+//    return ((aeContentDescription != null && interruptCue.getCueAEContentDescription().equals(aeContentDescription)) ||
+//            (aeText != null && interruptCue.getCueAEContentDescription().equals(aeText)));
   }
 
   private boolean isNotificationEventOfInterest(AccessibilityEvent accessibilityEvent, List<InterruptTrigger> interestingTriggers) {
@@ -212,11 +230,7 @@ public class AccessibilityEventMonitorService extends AccessibilityService {
     CharSequence className = accessibilityEvent.getClassName();
     int eventType = accessibilityEvent.getEventType();
     CharSequence contentDescription = accessibilityEvent.getContentDescription();
-    final List<CharSequence> eventTextRecords = accessibilityEvent.getText();
-    CharSequence firstEventTextRecord = null; // TODO test the pattern match against the event text too -or- add the text as another match parameter.
-    if (eventTextRecords != null && eventTextRecords.size() > 0) {
-      firstEventTextRecord = eventTextRecords.get(0);
-    }
+    CharSequence firstEventTextRecord = getFirstTextEntryFromEvent(accessibilityEvent);
 
     for (InterruptTrigger trigger : interestingTriggers) {
       List<InterruptCue> cues = trigger.getCues();
