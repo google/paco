@@ -41,28 +41,28 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
     qno: 4,
     question: "What is the value of the variable over time for each person?"
   }
-  // {
-  //   qno: 5,
-  //   question: "What is the value of this variable over time for everyone?"
-  // }, {
-  //   qno: 6,
-  //   question: "How many people in total and basic demographics.",
-  // }, {
-  //   qno: 7,
-  //   question: "Stats: Spread of # of devices, average by use from high to low"
-  // }, {
-  //   qno: 8,
-  //   question: "Stats:range of time on devices, any differences by demographics?"
-  // }, {
-  //   qno: 9,
-  //   question: "No.of apps in total and ranges of time spent, and differences by demographics?"
-  // }, {
-  //   qno: 10,
-  //   question: "App usage by category"
-  // }, {
-  //   qno: 11,
-  //   question: "App usage by time of day with ESM responses"
-  // }
+    // {
+    //   qno: 5,
+    //   question: "What is the value of this variable over time for everyone?"
+    // }, {
+    //   qno: 6,
+    //   question: "How many people in total and basic demographics.",
+    // }, {
+    //   qno: 7,
+    //   question: "Stats: Spread of # of devices, average by use from high to low"
+    // }, {
+    //   qno: 8,
+    //   question: "Stats:range of time on devices, any differences by demographics?"
+    // }, {
+    //   qno: 9,
+    //   question: "No.of apps in total and ranges of time spent, and differences by demographics?"
+    // }, {
+    //   qno: 10,
+    //   question: "App usage by category"
+    // }, {
+    //   qno: 11,
+    //   question: "App usage by time of day with ESM responses"
+    // }
   ];
 
   $scope.questions.forEach(function (ques) {
@@ -421,12 +421,11 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
       $scope.endDateTime = formatDate($scope.endDate) + " " + formatTime($scope.endTime);
     }
 
-
-    var textsSet = [];
-    var groups = [];
-    var groupsSet = new Set;
-
+    // if (($scope.template === 1) || ($scope.template === 2) || ($scope.template === 4)) {
     if ($scope.selectedInputs !== undefined) {
+      var textsSet = [];
+      var groups = [];
+      var groupsSet = new Set;
       if ($scope.selectedInputs.length > 0) {
         $scope.selectedInputs.forEach(function (selectedInput) {
           textsSet.push(selectedInput.input);
@@ -438,83 +437,146 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
 
         experimentsVizService.getEvents($scope.experimentId, groups, textsSet, $scope.selectedParticipants, $scope.startDateTime, $scope.endDateTime).then(function (events) {
           if (events.data.customResponse !== undefined) {
-            processViz(viz, createBtnEvent, events.data.customResponse);
+            console.log(events.data.customResponse);
+            processViz(viz, createBtnEvent, events.data.customResponse, undefined);
           }
         });
       }
     }
 
     if ($scope.selectedInput1 !== undefined) {
+      var textsSet = [];
+      var groups = [];
       $scope.loadViz = true;
       textsSet.push($scope.selectedInput1.input);
       groups.push($scope.selectedInput1.group);
       experimentsVizService.getEvents($scope.experimentId, groups, textsSet, $scope.selectedParticipants, $scope.startDateTime, $scope.endDateTime).then(function (events) {
         if (events.data.customResponse !== undefined) {
-          processViz(viz, createBtnEvent, events.data.customResponse);
+          console.log(events.data.customResponse);
+          processViz(viz, createBtnEvent, undefined, events.data.customResponse);
         }
       });
     }
+    // }
+
+    //methods to fetch sql queries for magic scatter plot
+    //
+    //   if ($scope.template === 3) {
+    //     console.log($scope.selectedInputs);
+    //     console.log($scope.selectedInput1);
+    //     var textsSet = [];
+    //     var groups = [];
+    //     var groupsSet = new Set;
+    //     if (($scope.selectedInputs !== undefined)) {
+    //
+    //       if ($scope.selectedInputs.length > 0) {
+    //         $scope.selectedInputs.forEach(function (selectedInput) {
+    //           textsSet.push(selectedInput.input);
+    //           groupsSet.add(selectedInput.group);
+    //         });
+    //         groupsSet.forEach(function (group) {
+    //           groups.push(group);
+    //         });
+    //       }
+    //     }
+    //
+    //     console.log($scope.selectedInput1);
+    //     if (($scope.selectedInput1 !== undefined)) {
+    //       textsSet.push($scope.selectedInput1.input);
+    //       groups.push($scope.selectedInput1.group);
+    //     }
+    //     console.log(textsSet);
+    //     console.log(groups);
+    //     experimentsVizService.getDataForScatterPlotTemplate3($scope.experimentId, groups, textsSet, $scope.selectedParticipants, $scope.startDateTime, $scope.endDateTime).then(function (events) {
+    //       if (events.data.customResponse !== undefined) {
+    //         console.log(events.data.customResponse);
+    //         if (events.data.customResponse.length > 0) {
+    //           processScatterPlot(events.data.customResponse);
+    //         }
+    //       }
+    //     });
+    //   }
   }
 
-  function processViz(viz, createBtnEvent, responseData) {
+  function processViz(viz, createBtnEvent, multiSelectResData, singleSelectResData) {
 
     var zeroData = [];
-    var vizResponseData = [];
-    if (responseData !== undefined) {
+    var multiSelect_vizResponseData = [];
+    var singleSelect_vizResponseData = [];
+
+    console.log(multiSelectResData);
+    console.log(singleSelectResData);
+
+    if (multiSelectResData !== undefined) {
       var groupByText = d3.nest()
           .key(function (d) {
             return d.text;
           })
-          .entries(responseData);
-    }
-
-    if (groupByText !== undefined) {
-      if (groupByText.length > 0) {
-        groupByText.forEach(function (text) {
-          if (text.values.length > 0) {
-            vizResponseData.push(text);
-          } else {
-            zeroData.push(text);
-          }
-        });
+          .entries(multiSelectResData);
+      if (groupByText !== undefined) {
+        if (groupByText.length > 0) {
+          groupByText.forEach(function (text) {
+            if (text.values.length > 0) {
+              multiSelect_vizResponseData.push(text);
+            } else {
+              zeroData.push(text);
+            }
+          });
+        }
+        $scope.responseData = multiSelect_vizResponseData;
       }
     }
 
-    if (vizResponseData !== undefined) {
-      if (vizResponseData.length > 0) {
-        var reqFieldsCheck = reqFieldsValidation();
-        if (reqFieldsCheck) {
-          $scope.responseData = vizResponseData;
-          if ($scope.template === 3) {
-            $scope.xPlotInput = vizResponseData;
-          }
-          if (($scope.template === 4) || ($scope.template === 2)) {
-            $scope.singleInputResponseData = vizResponseData;
-          }
-          if ($scope.currentViz !== undefined) {
-            displayViz($scope.currentViz);
-          } else if (viz !== undefined) {
-            displayViz(viz);
-          } else {
-            displayViz();
-          }
+    if (singleSelectResData !== undefined) {
+      var groupByText = d3.nest()
+          .key(function (d) {
+            return d.text;
+          })
+          .entries(singleSelectResData);
 
-          if (createBtnEvent !== undefined) {
-            var vizParamsJson = vizJson();
-            var vizLogTitle = getvizLogTitle(vizParamsJson[0]);
-            vizParamsJson[0].vizLogTitle = vizLogTitle;
-            $scope.vizHistory.push(vizParamsJson);
-            if ($scope.vizHistory.length > 1) {
-              $scope.backButton = false;
-              $scope.forwardButton = false;
+      if (groupByText !== undefined) {
+        if (groupByText.length > 0) {
+          groupByText.forEach(function (text) {
+            if (text.values.length > 0) {
+              singleSelect_vizResponseData.push(text);
+            } else {
+              zeroData.push(text);
             }
-          } else {
-            d3.selectAll('.vizContainer' + "> *").remove();
-            $scope.vizTemplate = false;
-            $scope.saveDownload = false;
-            $scope.drawButton = false;
-          }
+          });
         }
+        if ($scope.template === 3) {
+          $scope.xPlotInput = singleSelect_vizResponseData;
+        }
+        if (($scope.template === 4) || ($scope.template === 2)) {
+          $scope.singleInputResponseData = singleSelect_vizResponseData;
+        }
+      }
+    }
+
+    var reqFieldsCheck = reqFieldsValidation();
+    if (reqFieldsCheck) {
+
+      if ($scope.currentViz !== undefined) {
+        displayViz($scope.currentViz);
+      } else if (viz !== undefined) {
+        displayViz(viz);
+      } else {
+        displayViz();
+      }
+      if (createBtnEvent !== undefined) {
+        var vizParamsJson = vizJson();
+        var vizLogTitle = getvizLogTitle(vizParamsJson[0]);
+        vizParamsJson[0].vizLogTitle = vizLogTitle;
+        $scope.vizHistory.push(vizParamsJson);
+        if ($scope.vizHistory.length > 1) {
+          $scope.backButton = false;
+          $scope.forwardButton = false;
+        }
+      } else {
+        d3.selectAll('.vizContainer' + "> *").remove();
+        $scope.vizTemplate = false;
+        $scope.saveDownload = false;
+        $scope.drawButton = false;
       }
     }
 
@@ -552,7 +614,6 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
     }
     if (($scope.selectedType === "Scatter Plot") && ($scope.template === 3)) {
       processScatterPlot($scope.responseData);
-      $scope.vizTemplate = true;
     }
     $scope.saveDownload = true;
     $scope.editMode = true;
@@ -775,12 +836,17 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
           .useVoronoi(true)
           .interactive(true)
           .xDomain(xAxisMaxMin)
+          .pointShape("circle")
+          .pointSize(20)
+          .pointRange([80, 80]) //set fixed point size on the scatter plot
           .height(550)
-          .color(d3.scale.category10().range())
+          .color(d3.scale.category20().range())
           .duration(300);
 
+      chart.legend.margin({top: 5, right: 0, left: 0, bottom: 30});
+
       chart.xAxis
-      // .rotateLabels(-45)
+          .rotateLabels(-45)
           .tickValues(xAxisTickValues)
           .tickFormat(function (d) {
             return d3.time.format('%m/%d/%y %H:%M:%S')(new Date(d));
@@ -841,7 +907,83 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
     });
   }
 
+  function magicScatterPlot(responseData) {
+    console.log(responseData);
+    var scatterPlotData = {};
+    var currResultValues = {};
+    var currWho;
+    var currResponseTime;
+
+    responseData.forEach(function (resultRow) {
+      console.log(resultRow);
+      var rowWho = resultRow.who;
+      var rowResponseTime = resultRow.response_time;
+      var independentVars = [];
+      $scope.selectedInputs.forEach(function (selectedInput) {
+        independentVars.push(selectedInput.input);
+      });
+      console.log(groupHasChanged(rowWho, rowResponseTime, currWho, currResponseTime));
+      if (groupHasChanged(rowWho, rowResponseTime, currWho, currResponseTime)) {
+        processCurrResultValues(currWho, currResponseTime, currResultValues, $scope.selectedInput1.input, independentVars);
+        currWho = rowWho;
+        currResponseTime = rowResponseTime;
+        currResultValues = {};
+      }
+      addResultRowToCurrResultValues(resultRow, currResultValues, currWho, currResponseTime);
+    });
+
+    function addResultRowToCurrResultValues(resultRow, currResultValues, currWho, currRt) {
+      var currText = resultRow.text;
+      var currAnswer = resultRow.answer;
+      var existingValues = currResultValues[currWho + currRt];
+      if (existingValues === undefined) {
+        existingValues = [];
+        currResultValues[currWho + currRt] = existingValues;
+      }
+      existingValues.push([currText, currAnswer]);
+    }
+
+
+    function groupHasChanged(rowWho, rowRt, currWho, currRt) {
+      return rowWho !== currWho && rowRt !== currRt;
+    }
+
+    function processCurrResultValues(currWho, currResponseTime, currResultValues, dependentVar, independentVars) {
+      // console.log(currWho, currResponseTime, currResultValues, dependentVar, independentVars);
+      var points = getPointsFromValues(currResultValues, dependentVar, independentVars);
+      if (points.length > 0) {
+        points.forEach(function (p) {
+          var currRow = [p.y];
+          if (currRow === undefined) {
+            currRow = {key: points.y, values: []};
+            [dependentVar] = currRow;
+          }
+          currRow.values.push(points);
+        });
+      }
+    }
+
+    function getPointsFromValues(values, dependentVar, independentVars) {
+      //   if (values.length < 2) {
+      //     return [];
+      //   }
+      //   var dependentVar = getDependentVarFrom(values, dependentVar);
+      //   if (dependentVar === undefined) {
+      //     return [];
+      //   }
+      //
+      var points = [];
+      values.forEach(function (iv) {
+        var newPoint = {x: values.dependentVar.answer, y: values[iv]["answer"]};
+        points.push(newPoint);
+      });
+      return points;
+    }
+  }
+
+
   function processScatterPlot(responseData) {
+    console.log(responseData);
     if ($scope.xPlotInput !== undefined && responseData !== undefined) {
       var xValue = $scope.xPlotInput;
       var yValue = responseData;
@@ -876,12 +1018,17 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
           .showDistX(true)
           .showDistY(true)
           .useVoronoi(true)
+          .pointShape("circle")
+          .pointSize(20)
+          .pointRange([80, 80]) //set the point size
           .height(500)
-          .color(d3.scale.category10().range())
+          .color(d3.scale.category20().range())
           .duration(300);
 
+      chart.legend.margin({top: 5, right: 0, left: 0, bottom: 30});
+
       chart.xAxis
-      // .rotateLabels(-45)
+          .rotateLabels(-45)
           .tickFormat(d3.format('.0f'))
           .axisLabel($scope.xPlotInput[0].key);
       chart.yAxis.tickFormat(d3.format('.0f'));

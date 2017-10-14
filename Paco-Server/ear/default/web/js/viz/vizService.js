@@ -99,6 +99,23 @@ pacoApp.factory('experimentsVizService', ['$http', 'experimentService', '$filter
     return events;
   }
 
+  function getDataForScatterPlotTemplate3(experimentId, groups, texts, participants, startDateTime, endDateTime){
+    var message = "";
+    var expTexts = {};
+    var expGroups = {};
+    var expParticipants = {};
+
+    if (experimentId != undefined && participants != undefined && participants.length > 0 && texts != undefined && groups != undefined && startDateTime != undefined && endDateTime != undefined) {
+      expGroups = parametersList(groups, "groups");
+      expTexts  = parametersList(texts, "texts");
+      expParticipants = parametersList(participants, "participants");
+      message = '{ "select":["who","when","response_time","text","answer","client_timezone"], "query" : { "criteria" : "experiment_id = ? and response_time>? and response_time<? and group_name in (' + expGroups.questionMarks + ') and text in (' + expTexts.questionMarks + ') and text is not null and who in (' + expParticipants.questionMarks + ')", "values" : [' + experimentId + ', "' + startDateTime + '", "' + endDateTime + '",' + expGroups.params + ' ,' + expTexts.params + ' ,' + expParticipants.params + ']},"order":"who,response_time"}';
+    }
+    console.log(message);
+    var events = httpPostBody(message);
+    return events;
+  }
+
   function parametersList(parameterList, parameter){
     var questionMarks_list = [];
     var paramsList = [];
@@ -139,6 +156,7 @@ pacoApp.factory('experimentsVizService', ['$http', 'experimentService', '$filter
     getParticipants: getParticipants,
     getAllTexts:getAllTexts,
     getEventsCounts: getEventsCounts,
+    getDataForScatterPlotTemplate3:getDataForScatterPlotTemplate3,
     getStartDate:getStartDate,
     getEndDate:getEndDate,
     saveVisualizations: saveVisualizations
