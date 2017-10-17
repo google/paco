@@ -18,7 +18,6 @@
 	<classpathentry kind="lib" path="../tools/appengine-java-sdk-1.9.54/lib/impl/appengine-api.jar"/>
 	<classpathentry kind="lib" path="../tools/appengine-java-sdk-1.9.54/lib/impl/appengine-api-labs.jar"/>
 	<classpathentry kind="lib" path="ear/default/WEB-INF/lib/json-1.5.jar"/>
-	<classpathentry kind="lib" path="ear/default/WEB-INF/lib/appengine-gcs-client-0.4.4.jar"/>
 	<classpathentry kind="lib" path="ear/default/WEB-INF/lib/appengine-mapreduce.jar"/>
 	<classpathentry kind="lib" path="ear/default/WEB-INF/lib/appengine-pipeline-0.2.13.jar"/>
 	<classpathentry kind="lib" path="ear/default/WEB-INF/lib/protobuf-java-2.6.0.jar"/>
@@ -31,5 +30,6 @@
 	<classpathentry kind="lib" path="ear/default/WEB-INF/lib/commons-dbcp-1.4.jar"/>
 	<classpathentry kind="lib" path="ear/default/WEB-INF/lib/commons-pool-1.5.4.jar"/>
 	<classpathentry kind="con" path="com.google.appengine.eclipse.core.GAE_CONTAINER"/>
+	<classpathentry kind="lib" path="ear/default/WEB-INF/lib/appengine-gcs-client-0.5.jar"/>
 	<classpathentry kind="output" path="ear/default/WEB-INF/classes"/>
 </classpath>

@@ -1,0 +1,138 @@
+buildscript {
+    repositories {
+        jcenter()
+    }
+
+    dependencies {
+        classpath 'com.android.tools.build:gradle:2.3.3'
+    }
+}
+
+allprojects {
+    repositories {
+        google()
+        mavenCentral()
+    }
+}
+
+/**
+ * This line applies the com.android.application plugin. Note that you should
+ * only apply the com.android.application plugin. Applying the Java plugin as
+ * well will result in a build error.
+ */
+apply plugin: 'com.android.application'
+
+/**
+ * This dependencies block includes any dependencies for the project itself. The
+ * following line includes all the JAR files in the libs directory.
+ */
+dependencies {
+    //compile fileTree(dir: 'libs', include: ['*.jar'])
+    
+    // Add other library dependencies here (see the next step)
+    // Support Libraries
+
+    //compile 'com.android.support:support-v4:26.1.0'
+    //compile 'com.android.support:appcompat-v7:25+'
+
+    //compile files('libs/shared.jar')
+    compile project(':Shared')
+
+    compile 'com.google.guava:guava:16.0.1'
+    compile 'joda-time:joda-time:2.9.3'
+    compile 'com.android.support:appcompat-v7:22.2.1'
+
+    //compile 'rhino:js:1.7R2'
+    compile files('libs/js.jar')
+
+    compile files('libs/gps-stripped.jar')
+    //compile 'com.google.android.gms:play-services-base:11.4.2'
+    //compile 'com.google.android.gms:play-services-auth:11.4.2'
+
+
+    compile files('libs/antlr-runtime-3.2.jar')
+    //compile 'org.antlr:antlr:3.2'
+
+    compile files('libs/jackson-all-1.9.11.jar')
+//    compile 'org.codehaus.jackson:jackson-mapper-asl:1.9.11'
+//    compile 'org.codehaus.jackson:jackson-core-asl:1.9.11'
+
+    compile files('libs/logback-android-1.1.1-6.jar')
+    //compile 'com.github.tony19:logback-android-core:1.1.1-6'
+
+    compile files('libs/slf4j-api-1.7.21.jar')
+    //compile 'org.slf4j:slf4j-api:1.7.21'
+
+//    compile 'org.slf4j:slf4j-api:1.7.21'
+//    compile 'com.github.tony19:logback-android-core:1.1.1-6'
+//    compile('com.github.tony19:logback-android-classic:1.1.1-6') {
+//        // workaround issue #73
+//        exclude group: 'com.google.android', module: 'android'
+//    }
+
+    compile 'com.github.jsqlparser:jsqlparser:0.9.6'
+
+    compile files('libs/Android-Languages.jar')
+
+    androidTestCompile  'junit:junit:4.10'
+}
+
+/**
+ * The android{} block configures all of the parameters for the Android build.
+ * You must provide values for at least the build tools version and the
+ * compilation target.
+ */
+android {
+    compileSdkVersion 26
+    buildToolsVersion "26.0.1"
+
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            lintOptions {
+                disable 'MissingTranslation'
+                abortOnError false
+            }
+        }
+        debug {
+            minifyEnabled false
+            lintOptions {
+                disable 'MissingTranslation'
+                abortOnError false
+            }
+        }
+    }
+
+
+    sourceSets {
+        main {
+            manifest.srcFile 'AndroidManifest.xml'
+            java.srcDirs = ['src']
+            resources.srcDirs = ['src']
+            aidl.srcDirs = ['src']
+            renderscript.srcDirs = ['src']
+            res.srcDirs = ['res']
+            assets.srcDirs = ['assets']
+        }
+
+        // Move the tests to tests/java, tests/res, etc...
+        //instrumentTest.setRoot('tests')
+
+        /**
+         * Move the build types to build-types/<type>
+         * For instance, build-types/debug/java, build-types/debug/AndroidManifest.xml, ...
+         * This moves them out of them default location under src/<type>/... which would
+         * conflict with src/ being used by the main source set.
+         * Adding new build types or product flavors should be accompanied
+         * by a similar customization.
+         */
+        debug.setRoot('build-types/debug')
+        release.setRoot('build-types/release')
+    }
+
+    packagingOptions {
+        pickFirst  'META-INF/license.txt'
+        pickFirst  'META-INF/LICENSE'
+    }
+}

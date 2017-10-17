@@ -26,7 +26,6 @@
 <!--  <string name="about_googlegroups_subscribe">paco-users+subscribe@googlegroups.com</string>  --> 
   <string name='usergroup_website'>https://groups.google.com/group/paco-users</string>
   <string name='about_weburl'>pacoapp.com</string>
-  <string name='about_copyright_message'/>
   <string name='about_bob'>Bob Evans</string>
   <string name='about_alberto'>Alberto Savoia</string>
   <string name='about_arun'>Arun Saigal</string>
@@ -38,21 +37,14 @@
   
     <!-- End User License Agreement -->
   <string name='eula_title'>利用規約</string>
-  <string name='accept'>同意する</string>
   <string name='decline'>同意しない</string>
 
   <!-- About -->
-  <string name='about'>概要</string>
-  <string name='user_guide'>利用ガイド</string>
   <string name='about_team'>チーム:</string>
   <string name='about_version'>バージョン:</string>
-  <string name='about_email'>Support</string>
   <string name='about_support'>サポート:</string>
-  <string name='about_paco'>Pacoについて</string>
-  
+
     <!-- Welcome -->
-  <string name='welcome'>ようこそ</string>
-  <string name='welcome_read_later'>了承</string>
   <string name='welcome_about'>バージョン情報</string>
   
   <string name='no'>いいえ</string>
@@ -112,25 +104,8 @@
    <item>４日</item>
    <item>５日</item>
    </string-array>
-   <string name='experiment_title'>実験タイトル</string>
-   <string name='refresh_questions'>質問を更新</string>
    <string name='save_response'>回答を保存</string>
-   <string name='contact_us'>お問い合わせ</string>
-   <string name='find_experiments'>実験を検索</string>
-   <string name='running_experiments'>現在の実験</string>
-   <string name='experiment_manager_screen_subtitle'>Personal Analytics COmpanion</string>
-   <string name='experiment_manager_screen_welcome_to_paco'>PACOへようこそ!</string>
-   <string name='go_to_website_button_text'>ウェブサイトを参照する</string>
-   <string name='go_to_user_group'>ユーザMLを見る</string>
-   <string name='email_us'>MLに投稿</string>
-   <string name='ways_to_talk_to_paco'>Pacoに会話する方法</string>
    <string name='explore_data'>データを見る</string>
-   <string name='create_experiment'>新規の実験</string>
-   <string name='intro_howto_title'>初めに</string>
-   <string name='account_chooser_title'>アカウントを選択</string>
-   <string name='do_on_phone_anyway'>それでもスマートフォン上で回答する</string>
-   <string name='do_on_web'>パソコン上で回答する</string>
-   <string name='webRecommendedWarning'>注意: パソコン上で回答することをおすすめします。</string>
    <string name="current_account">使用中のアカウント</string>
    <string name="experiment_refresh">実験を更新</string>
    <string name="checking_server_for_new_and_updated_experiment_definitions">サーバーに通信中</string>
@@ -146,7 +121,6 @@
    <string name="random_sampling_esm_schedule_type">ランダムサンプル (ESM)</string>
    <string name="self_report_only_schedule_type">自己申告制</string>
    <string name="advanced_schedule_type">詳細</string>
-   <string name="use_browser">" パソコンで下記のウェブページを開いてください "</string>
    <string name="survey_expired">依頼の回答期限が切れています。回答する必要がありません。</string>
    <string name="gps_message">"現在位置の認識精度を上げるためにGPSを使う (外出中のみ)? "</string>
    <string name="enable_button">有効</string>
@@ -154,18 +128,8 @@
    <string name="need_location">"現在位置情報を追加するにはロケーションサービスを有効にする必要があります。 "</string>
    <string name="required_answers_missing">必須項目が入力されていません</string>
    <string name="must_answer">"必須項目: "</string>
-   <string name="found_updated_questions">新しい質問がありました。</string>
-   <string name="didnt_find_updated_questions">新しい質問がありませんでした。</string>
-   <string name="invalid_experiment_warning">実験は無効になっている可能性があります。再度お試しください。</string>
-   <string name="create_experiment_instructions">テキスト入力が必要になりますので、新規の実験を作成するには携帯電話はおすすめできません。　新規作成するには http://%1$s/ を開いてくさい。</string>
-   <string name="create_experiment_title">実験を作るには</string>
    <string name="about_paco_menu_item">Pacoについて</string>
    <string name="debug_menu_item">デバッグ</string>
-   <string name="server_address_menu_item">サーバ URL</string>
-   <string name="check_updates_menu_item">アップデートを確認</string>
-   <string name="choose_account_menu_item">アカウントを選択</string>
-   <string name="choose_alert_menu_item">通知音を選択</string>
-   <string name="send_log_menu_item">ログを送信</string>
    <string name="select_signal_tone">通知音を選択</string>
    <string name="cannot_find_the_experiment_warning">実験が見つかりませんでした！</string>
    <string name="save_button">保存</string>
@@ -174,21 +138,12 @@
    <string name="modify_time_title">時間を変更</string>
    <string name="days_of_week_title">曜日</string>
    <string name="start_hour_must_be_before_end_hour_warning">開始時間が終了時間よりも前にある必要があります。</string>
-   <string name="no_experimental_data_warning">まだ実験をロードしていませんのでこのオプションは使えません。実験に参加して、データを入力してから再試行してください。</string>
    <string name="show_trends_button">"  トレンドを見る  "</string>
-   <string name="show_relationships_button">"  関係性を見る  "</string>
-   <string name="show_distributions_button">"  分布を見る  "</string>
-   <string name="experiment_choice_warning">実験は正しく選択されていません。</string>
    <string name="make_selections">選択する</string>
-   <string name="experiment_does_not_exist_warning">実験は存在しません。</string>
-   <string name="sorry_please_select_exactly_one_variable_warning">１つの変数を選択してください！</string>
-   <string name="sorry_please_select_exactly_two_variables_warning">２つの変数を選択してください！</string>
-   <string name="thanks_for_participating_message">ご参加有難うございました！</string>
    <string name="edit_schedule_menu_item">予定を変更</string>
    <string name="stop_experiment_menu_item">実験を停止する</string>
    <string name="explore_data_menu_item">データを見る</string>
    <string name="running_experiments_title">進行中の実験</string>
-   <string name="available_experiments_title">利用できる実験</string>
    <string name="stop_the_experiment_dialog_title">実験を停止？</string>
    <string name="stop_experiment_dialog_body">本当に実験を停止しますか?</string>
    <string name="unknown_author_text">作成者不明</string>
@@ -202,12 +157,9 @@
    <string name="refresh_experiment_menu_item">実験を更新</string>
    <string name="main_page_menu_item">トップページ</string>
    <string name="missed_signal_value">未入力</string>
-   <string name="version_is_current">最新のバージョンです。</string>
-   <string name="update_found">アップデートが見つかりました！</string>
    <string name="choose_account">Pacoで使うアカウントを選択ください</string>
    <string name="daily_scheduled_times_for">実験の投稿予定</string>
    <string name="scheduled_times">投稿予定</string>
-   <string name="save_schedule">予定を保存</string>
    <string name="experiment_name">実験の名前</string>
    <string name="suggested_signalling_schedule">通知を送る予定:</string>
    <string name="schedule_period">"期間:  "</string>
@@ -227,17 +179,8 @@
    <string name="scheduled_time">"予定時刻: "</string>
    <string name="creator">作成者</string>
    <string name="join_this_experiment">この実験に参加する</string>
-   <string name="title">タイトル</string>
-   <string name="edit_schedule">予定を変更</string>
-   <string name="stop_experiment">実験を中止</string>
-   <string name="list_of_experiments">実験リスト</string>
-   <string name="explore_data_title">どのようにデータを表示しますか？</string>
-   <string name="trends">トレンド</string>
-   <string name="relationships">関係性</string>
-   <string name="distributions">分布</string>
    <string name="raw_data_button_text">生データを表示</string>
    <string name="your_current_experiments">あなたの進行中の実験</string>
-   <string name="refresh_experiments_list_from_server">実験リストを同期する</string>
    <string name="data_handling_title">データ取扱い：　ユーザと実験作成者とのプライバシー規約</string>
    <string name="informed_consent_preamble">この実験に参加すると、実験の作成者に情報を提供する可能性があります。 参加するには実験の作成者が明記した下記のデータ取扱い規約をよくお読みになり、それに同意する必要があります。</string>
    <string name="consent_checkbox_text">"          同意します"</string>
@@ -249,31 +192,17 @@
    <string name="by_day_of_week">"          曜日で"</string>
    <string name="day_of_month">月の特定の日:</string>
    <string name="day_of_week">曜日:</string>
-   <string name="end_hour_signaling">終了時間</string>
-   <string name="signals_per_week_3_10">１週間の通知数 (3-10)</string>
-   <string name="save">保存</string>
    <string name="take_picture">写真をとる</string>
-   <string name="refresh_experiments">実験を更新</string>
    <string name="repeat_every_">"リピート： "</string>
    <string name="days">日</string>
    <string name="days_of_week">日</string>
    <string name="this_experiment_is_self_reporting_only">この実験は自己申告制です。</string>
-   <string name="there_is_no_schedule_to_configure">調整できる予定がありません。</string>
-   <string name="finish">終了</string>
    <string name="server_address_warning">警告：上級者の方のみ変更してください。</string>
    <string name="enter_server_address">サーバURLを入力</string>
-   <string name="checking_for_updates">アップデートを確認中...</string>
-   <string name="install">インストール</string>
-   <string name="explore_data_variable_title">どの変数を表示しますか？</string>
    <string name="no_accounts_found">スマートフォンにはGoogleアカウントは登録されていません。「設定 > アカウント」より追加してください。</string>
-   <string name="join_again">すでに参加済みの実験です。本当にもう一度参加しますか？</string>
-   <string name="updated_paco_notification_ticker_text">Paco: アプリを更新できます。</string>
-   <string name="updated_paco_notification_content_title">Pacoを更新</string>
-   <string name="updated_paco_notification_content_text">Pacoの更新版をダウンロードできます。</string>
    <string name="default_list_item"/>
    <string name="retrieving_your_joined_experiment_from_the_server">Retrieving Your Joined Experiment From the Server</string>
    <string name="experiment_retrieval">Experiment Retrieval</string>
-   <string name="dialog_dismiss">OK</string>
    <string name="experiment_could_not_be_retrieved">Could Not Retrieve Experiment.</string>
    <string name="invalid_data">Something went wrong with retrieving experiment data.</string>
    <string name="server_error">Something went wrong with the server.</string>
@@ -284,7 +213,6 @@
    <string name="last_refreshed">Last Refreshed</string>
    <string name="answer_by_speaking">Answer by speaking</string>
    <string name="oops_your_device_doesn_t_support_speech_to_text">Oops! Your device doesn\'t support Speech to Text</string>
-   <string name="successfully_joined_experiment">Success! Please go to Current Experiments for a list of all joined experiments.</string>
    <string name="updating_your_joined_experiments_from_the_server">Updating Your Joined Experiments From the Server</string>
    <string name="please_choose_the_source_of_your_image">Please choose the source of your image</string>
    <string name="camera">Camera</string>
