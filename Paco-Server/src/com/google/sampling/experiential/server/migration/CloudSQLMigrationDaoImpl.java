@@ -745,7 +745,7 @@ public class CloudSQLMigrationDaoImpl implements CloudSQLMigrationDao {
       log.warning("SQLException while renaming existing columns" + ExceptionUtil.getStackTraceAsString(sqle));
       throw sqle;
     } catch (Exception e) { 
-      log.warning("GException while renaming exiasting columns" + ExceptionUtil.getStackTraceAsString(e));
+      log.warning("GException while renaming existing columns" + ExceptionUtil.getStackTraceAsString(e));
       throw e;
     } finally {
       try { 
@@ -764,10 +764,10 @@ public class CloudSQLMigrationDaoImpl implements CloudSQLMigrationDao {
   
   @Override
   public boolean eventV5UpdateNewColumnsWithValues() throws SQLException{ 
-    final String updateValuesExistingColumns1 = "update " + EventBaseColumns.TABLE_NAME  + " set " + EventBaseColumns.RESPONSE_TIME + " = CONVERT_TZ(" + EventServerColumns.RESPONSE_TIME_UTC + ",'+00:00'," + EventServerColumns.CLIENT_TIME_ZONE + ") where " + EventServerColumns.RESPONSE_TIME_UTC + " is not null and _id >0";
-    final String updateValuesExistingColumns2 = "update " + EventBaseColumns.TABLE_NAME  + " set " + EventBaseColumns.SCHEDULE_TIME + "  = CONVERT_TZ(" + EventServerColumns.SCHEDULE_TIME_UTC + ",'+00:00'," + EventServerColumns.CLIENT_TIME_ZONE + ") where " + EventServerColumns.SCHEDULE_TIME_UTC + " is not null and _id >0";
-    final String updateValuesExistingColumns3 = "update " + EventBaseColumns.TABLE_NAME  + " set " + EventServerColumns.SORT_DATE + " = CONVERT_TZ(" + EventServerColumns.SORT_DATE_UTC + ",'+00:00'," + EventServerColumns.CLIENT_TIME_ZONE + ") where " + EventServerColumns.SORT_DATE_UTC + " is not null and _id >0";
-    String[] qry = new String[] {updateValuesExistingColumns1, updateValuesExistingColumns2, updateValuesExistingColumns3};
+    final String updateValuesExistingColumns1 = "update `pacodb`.`" + EventBaseColumns.TABLE_NAME  +"` set " + EventBaseColumns.RESPONSE_TIME + " = CONVERT_TZ(" + EventServerColumns.RESPONSE_TIME_UTC + ",'+00:00'," + EventServerColumns.CLIENT_TIME_ZONE + ") where " + EventServerColumns.RESPONSE_TIME_UTC + " is not null and _id >0";
+    final String updateValuesExistingColumns2 = "update `pacodb`.`" + EventBaseColumns.TABLE_NAME  +"` set " + EventBaseColumns.SCHEDULE_TIME + "  = CONVERT_TZ(" + EventServerColumns.SCHEDULE_TIME_UTC + ",'+00:00'," + EventServerColumns.CLIENT_TIME_ZONE + ") where " + EventServerColumns.SCHEDULE_TIME_UTC + " is not null and _id >0";
+    final String updateValuesExistingColumns3 = "update `pacodb`.`" + EventBaseColumns.TABLE_NAME  +"` set " + EventServerColumns.SORT_DATE + " = CONVERT_TZ(" + EventServerColumns.SORT_DATE_UTC + ",'+00:00'," + EventServerColumns.CLIENT_TIME_ZONE + ") where " + EventServerColumns.SORT_DATE_UTC + " is not null and _id >0";
+    String[] qry = new String[] { updateValuesExistingColumns1, updateValuesExistingColumns2, updateValuesExistingColumns3};
     Connection conn = null;
     PreparedStatement statementUpdateValuesCol = null;
     try {
