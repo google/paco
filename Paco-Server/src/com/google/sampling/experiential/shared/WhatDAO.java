@@ -10,6 +10,9 @@ public class WhatDAO implements Comparable<WhatDAO> {
   @JsonProperty("answer")
   private String value;
 
+  public WhatDAO() {
+  }
+
   public WhatDAO(String name, String value) {
     super();
     this.name = name;

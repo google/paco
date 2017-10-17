@@ -15,8 +15,9 @@
  ~ under the License.
  -->
  <project default="build" basedir=".">
-  <property name="sdk.dir" location="../tools/appengine-java-sdk-1.9.0" />
-
+  <taskdef resource="net/sf/antcontrib/antcontrib.properties"/>
+  <property name="sdk.dir" location="../tools/appengine-java-sdk-1.9.54" />
+  <property file="${environ}.properties"></property>
   <import file="${sdk.dir}/config/user/ant-macros.xml" />
 
   <path id="project.classpath">
@@ -212,9 +213,12 @@
   <target name="symlinks_for_reportworker">
     <symlink link="${basedir}/ear/reportworker/WEB-INF/lib" resource="${basedir}/ear/default/WEB-INF/lib" failonerror="false" overwrite="true"/>
     <symlink link="${basedir}/ear/reportworker/WEB-INF/classes" resource="${basedir}/ear/default/WEB-INF/classes" failonerror="false" overwrite="true"/>
+    <symlink link="${basedir}/ear/migration/WEB-INF/lib" resource="${basedir}/ear/default/WEB-INF/lib" failonerror="false" overwrite="true"/>
+    <symlink link="${basedir}/ear/migration/WEB-INF/classes" resource="${basedir}/ear/default/WEB-INF/classes" failonerror="false" overwrite="true"/>
+    <symlink link="${basedir}/ear/mapreduce/WEB-INF/lib" resource="${basedir}/ear/default/WEB-INF/lib" failonerror="false" overwrite="true"/>
+    <symlink link="${basedir}/ear/mapreduce/WEB-INF/classes" resource="${basedir}/ear/default/WEB-INF/classes" failonerror="false" overwrite="true"/>
   </target>
-
-
+  
   <target name="devmode" depends="javac" description="Run development mode">
     <java failonerror="true" fork="true" classname="com.google.gwt.dev.DevMode">
       <classpath>
@@ -304,6 +308,57 @@ Test targets suppressed because -junit argument was not specified when running w
     <delete dir="ear/default/WEB-INF/classes" failonerror="false" />
     <delete dir="ear/default/pacoserver" failonerror="false" />
   </target>
+  
+  <target name="prep-and-deploy">
+    <antcall target="prep-for-deploy"/>
+    <antcall target="deploy"/>
+  </target>
+  
+  <target name="prep-for-deploy">
+    <antcall target="change-appname-version_db_prop"/>
+  </target>
+  
+  <target name="change-appname-version_db_prop">
+    <echo message="Changing config in all modules" />
+    <foreach target="change-appname-version_db_prop-in-each-module" param="configFile">
+      <path>
+        <fileset dir="ear">
+          <filename name="${module.config.file}" />
+          <depth max="2" />
+        </fileset>
+        <fileset dir="ear">
+          <filename name="${main.file}" />
+          <depth max="2" />
+        </fileset>
+      </path>
+    </foreach>
+  </target>
 
-
+  <target name="change-appname-version_db_prop-in-each-module">
+    <echo message="${configFile}" />
+    <basename property="filename" file="${configFile}"/>
+    <dirname property="module.dirname" file="${configFile}" />
+    <copy file="${configFile}" tofile="${configFile}.bak"></copy>
+    <xslt in="${configFile}" out="${module.dirname}/local-${filename}"
+      style="${change.appname.version.dbprops.xsl}">
+      <param name="appName" expression="${app.name}" />
+      <param name="appVersion" expression="${app.version}" />
+      <param name="localSqlUrl" expression="${local.sql.url}" />
+      <param name="cloudSqlUrl" expression="${cloud.sql.url}" />
+      <param name="localSqlUsername" expression="${local.sql.username}" />
+      <param name="cloudSqlUsername" expression="${cloud.sql.username}" />
+      <param name="localSqlPassword" expression="${local.sql.password}" />
+      <param name="cloudSqlPassword" expression="${cloud.sql.password}" />
+    </xslt>
+    <move file="${module.dirname}/local-${filename}" tofile="${configFile}" />
+  </target>
+ 
+   <target name="deploy">
+    <echo message="Deploying to ${deploy.url}"></echo>
+    <exec executable="/bin/sh">
+      <arg value="-c" />
+      <arg value="${deploy.url}"/>
+    </exec>
+    <echo message="Deploy - Finished" />
+  </target>
 </project>

@@ -396,7 +396,7 @@ pacoApp.service('config', function() {
   ];
 
   this.dataDeclarations = {
-    1: 'App Usage and Browser History',
+    1: 'App Usage',
     2: 'Location Information',
     3: 'Phone Details (Make, Model, Carrier)',
     4: 'Apps installed on the phone',
@@ -444,7 +444,13 @@ pacoApp.service('config', function() {
     "App removed",
     "App installed",
     "Permission changed",
-    "View Clicked"
+    "View Clicked",
+    "Notification created", 
+    "Notification shade opened",
+    "Notification shade dismiss all",
+    "Notification shade dismiss notification",
+    "Notification shade closed",
+    "Notification tapped in shade"
   ];
 
   this.esmPeriods = [

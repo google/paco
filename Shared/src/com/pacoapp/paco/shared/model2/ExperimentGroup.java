@@ -39,6 +39,8 @@ public class ExperimentGroup extends ModelBase implements Validatable, java.io.S
 
   private Boolean rawDataAccess = true;
 
+  private boolean logNotificationEvents = false;
+
   public ExperimentGroup() {
     super();
     this.actionTriggers = new ArrayList<ActionTrigger>();
@@ -281,5 +283,14 @@ public class ExperimentGroup extends ModelBase implements Validatable, java.io.S
     this.rawDataAccess = rawDataAccess;
   }
 
+
+
+  public Boolean getLogNotificationEvents() {
+    return this.logNotificationEvents;
+  }
+
+  public void setLogNotificationEvents(Boolean shouldLog) {
+    this.logNotificationEvents = shouldLog;
+  }
 
 }

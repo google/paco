@@ -34,12 +34,12 @@ import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
-import com.google.appengine.api.modules.ModulesService;
 import com.google.appengine.api.modules.ModulesServiceFactory;
 import com.google.appengine.api.users.User;
 import com.google.appengine.api.utils.SystemProperty;
-
 import com.google.sampling.experiential.server.AuthUtil;
+import com.google.sampling.experiential.server.EnvironmentUtil;
+import com.google.sampling.experiential.server.PacoModule;
 import com.pacoapp.paco.shared.util.TimeUtil;
 
 /**
@@ -58,18 +58,13 @@ public class MigrationFrontendServlet extends HttpServlet {
     resp.setContentType("application/json;charset=UTF-8");
 
     User user = AuthUtil.getWhoFromLogin();
-    String cursor = null;
-    DateTime stDate = null;
-    DateTime endDate = null;
-    cursor =  req.getParameter("cursor");
-   if(user != null) {
-     log.info("user in mig front end" + user.getEmail());
-     log.info("front end req id" + req.getSession().getId());
-   }
     if (user == null) {
       AuthUtil.redirectUserToLogin(req, resp);
-      
-    } else  if (AuthUtil.isUserAdmin()) { 
+    } else if (AuthUtil.isUserAdmin()){
+      String cursor = null;
+      DateTime stDate = null;
+      DateTime endDate = null;
+      cursor =  req.getParameter("cursor");
       String jobName = req.getParameter("name");
       String startTime = req.getParameter("startTime");
       String endTime = req.getParameter("endTime");
@@ -83,27 +78,33 @@ public class MigrationFrontendServlet extends HttpServlet {
         resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
       }
       String jobId = sendMigrateRequestToBackend(req, jobName, cursor, stDate, endDate);
-      resp.sendRedirect("/jobStatus?jobId=" + jobId);
+      String redirectUrl = null;
+      // On dev local, when we kick off job from backend module - migration with correct port number, 
+      // the job status which is defined in default module is getting searched in migration module.
+      // In other environments, the request gets routed through dispatch xml.
+      if (EnvironmentUtil.isDevInstance()) {
+        redirectUrl = "http://"+ModulesServiceFactory.getModulesService().getVersionHostname("default", null)+"/jobStatus?jobId=" + jobId;
+      } else {
+        redirectUrl = "/jobStatus?jobId=" + jobId;
+      }
+      resp.sendRedirect(redirectUrl);
     } else {
-      resp.sendError(HttpServletResponse.SC_FORBIDDEN);
+      resp.sendError(403);
     }
   }
 
   private String sendMigrateRequestToBackend(HttpServletRequest req, String jobName, String cursor, DateTime startDateTime, DateTime endDateTime) throws IOException {
-    req.getParameter("name");
-    ModulesService modulesApi = ModulesServiceFactory.getModulesService();
-    String backendAddress = modulesApi.getVersionHostname("reportworker", modulesApi.getDefaultVersion("reportworker"));
-
+    PacoModule pacoMod = new PacoModule("reportworker", req.getServerName());
     try {
       BufferedReader reader = null;
       try {
-        reader = sendToBackend(backendAddress, jobName, cursor, startDateTime, endDateTime);
+        reader = sendToBackend(pacoMod.getAddress(), jobName, cursor, startDateTime, endDateTime);
       } catch (SocketTimeoutException se) {
         try {
           Thread.sleep(100);
         } catch (InterruptedException e) {
         }
-        reader = sendToBackend(backendAddress, jobName, cursor, startDateTime, endDateTime);
+        reader = sendToBackend(pacoMod.getAddress(), jobName, cursor, startDateTime, endDateTime);
       }
       if (reader != null) {
         StringBuilder buf = new StringBuilder();

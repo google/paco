@@ -13,7 +13,7 @@
           <md-option ng-repeat="group in experiment.groups" value="{{group.name}}">{{group.name}}
           </md-option>
         </md-select>
-        <no-ios ng-if="group.endOfDayGroup" message="'iOS does not support EOD groups'"></no-ios>
+        <no-ios ng-if="group.endOfDayGroup" message="'iOS does not support EOD groups'">iOS does not support EOD groups</no-ios>
       </div>
     </div>
 
@@ -37,7 +37,15 @@
         Log trigger-related accessibility events
       </md-checkbox>
 
-      <no-ios ng-if="group.accessibilityListen" message="'iOS does not support accessibility logging'"></no-ios>
+      <no-ios ng-if="group.accessibilityListen" message="'iOS does not support accessibility logging'">iOS does not support accessibility logging</no-ios>
+    </div>
+
+    <div class="row">
+      <md-checkbox ng-model="group.logNotificationEvents" aria-label="Log notification realted events">
+        Log notification-related events
+      </md-checkbox>
+
+      <no-ios ng-if="group.logNotificationEvents" message="'iOS does not support notifcation event logging'">iOS does not support notification event logging</no-ios>
     </div>
 
     <div class="row">
@@ -61,7 +69,7 @@
         Enable user to access raw data on phone
       </md-checkbox>
 
-      <no-ios ng-if="group.logShutdown">iOS does not support phone startup and shutdown logging</no-ios>
+      <no-ios ng-if="group.rawDataAccess">iOS does not support access to raw data on phone</no-ios>
     </div>
 
     <div class="row">
@@ -97,10 +105,13 @@
     </select>
 
     <div class="message" flex>
-      <md-input-container md-no-float ng-if="group.feedback.type === 0" ng-enabled="">
-        <input type="text" ng-model="group.feedback.text" placeholder="Message">
-      </md-input-container>
-      <no-ios ng-if="group.feedback.type === 0 && group.feedback.text !== defaultFeedback">iOS does not support custom messages</no-ios>
+      <no-ios class="align_tiptext" ng-if="group.feedback.type === 0 && group.feedback.text !== defaultFeedback">iOS does not support custom messages</no-ios>
+      <no-ios ng-if="group.feedback.type != 0">iOS does not support non-static feedback</no-ios>
+      <div class="align_no-ios_feedback">
+        <md-input-container md-no-float class="align_custom-message" ng-if="group.feedback.type === 0" ng-enabled="">
+          <input type="text" ng-model="group.feedback.text" placeholder="Message">
+        </md-input-container>
+      </div>
     </div>
   </div>
   <!-- TODO(ispiro): clear out text when switching between type 0 and 3 -->

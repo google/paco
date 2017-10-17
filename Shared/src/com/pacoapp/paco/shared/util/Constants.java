@@ -11,6 +11,7 @@ public class Constants {
   public static final String ID = "id";
   public static final String STAR = "*";
   public static final String SELECT = "select";
+  public static final String DISTINCT = "distinct";
   public static final String QUERY = "query";
   public static final String CRITERIA = "criteria";
   public static final String VALUES = "values";
@@ -35,5 +36,9 @@ public class Constants {
   public static final String GMT = "GMT";
   public static final String UTC = "UTC";
   public static final String WHEN_FRAC_SEC = "when_fractional_sec";
-  
+  public static final String CLIENT_TIMEZONE = "client_timezone";
+  public static final String BLANK = " ";
+  public static final int FORBIDDEN_STATUS = 403;
+  public static final String LOCATION_NA = "location_na";
+  public static final String RESPONSE_TYPE_APP_JSON = "application/json";
 }

@@ -68,7 +68,7 @@ public class ExperimentServlet extends HttpServlet {
     } else {
       DateTimeZone timezone = TimeUtil.getTimeZoneForClient(req);
       log.info("Timezone is computed to be: " + timezone.toString());
-      logPacoClientVersion(req);
+      RequestProcessorUtil.logPacoClientVersion(req);
 
       String email = AuthUtil.getEmailOfUser(req, user);
 
@@ -80,10 +80,7 @@ public class ExperimentServlet extends HttpServlet {
       String experimentsPopularParam = req.getParameter("popular");
       String experimentsNewParam = req.getParameter("new");
 
-      String pacoProtocol = req.getHeader("pacoProtocol");
-      if (pacoProtocol == null) {
-        pacoProtocol = req.getParameter("pacoProtocol");
-      }
+      String pacoProtocol = RequestProcessorUtil.getPacoProtocolVersionAsStr(req);
 
       // String offset = req.getParameter("offset");
       String limitStr = req.getParameter("limit");
@@ -142,12 +139,7 @@ public class ExperimentServlet extends HttpServlet {
   }
 
 
-  private void logPacoClientVersion(HttpServletRequest req) {
-    String pacoVersion = req.getHeader("paco.version");
-    if (pacoVersion != null) {
-      log.info("Paco version of request = " + pacoVersion);
-    }
-  }
+  
 
   private String scriptBust(String experimentsJson) {
     // TODO add scriptbusting prefix to this and client code.
@@ -162,7 +154,7 @@ public class ExperimentServlet extends HttpServlet {
       AuthUtil.redirectUserToLogin(req, resp);
     } else {
       DateTimeZone timezone = TimeUtil.getTimeZoneForClient(req);
-      logPacoClientVersion(req);
+      RequestProcessorUtil.logPacoClientVersion(req);
       String email = AuthUtil.getEmailOfUser(req, user);
 
       String delete = req.getParameter("delete");

@@ -3,13 +3,13 @@ package com.pacoapp.paco.sensors.android;
 import java.util.List;
 
 import org.joda.time.DateTime;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.pacoapp.paco.model.Experiment;
 import com.pacoapp.paco.model.ExperimentProviderUtil;
 import com.pacoapp.paco.shared.model2.ExperimentDAO;
+import com.pacoapp.paco.shared.model2.ExperimentGroup;
 import com.pacoapp.paco.shared.model2.InterruptCue;
 import com.pacoapp.paco.shared.model2.InterruptTrigger;
 import com.pacoapp.paco.shared.util.ExperimentHelper;
@@ -20,7 +20,11 @@ import android.annotation.TargetApi;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.view.accessibility.AccessibilityEvent;
+
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
 
 /**
  *
@@ -42,6 +46,20 @@ public class AccessibilityEventMonitorService extends AccessibilityService {
     // Keeps whether the service is connected
   private static boolean running = false;
   private RuntimePermissionsAccessibilityEventHandler runtimePermissionsEventHandler;
+  private NotificationEventHandler notificationHandler;
+
+
+  private String getEventType(AccessibilityEvent event) {
+    return AccessibilityEvent.eventTypeToString(event.getEventType());
+  }
+
+  private String getEventText(AccessibilityEvent event) {
+    StringBuilder sb = new StringBuilder();
+    for (CharSequence s : event.getText()) {
+      sb.append(s);
+    }
+    return sb.toString();
+  }
 
   /**
    * Called to allow experiments that trigger on accessibility events.
@@ -49,6 +67,11 @@ public class AccessibilityEventMonitorService extends AccessibilityService {
    */
   @Override
   public void onAccessibilityEvent(AccessibilityEvent accessibilityEvent) {
+//    String formattedMessage = String.format("ev:[t] %s [c] %s [p] %s [tm] %s [tx] %s [cd]",
+//            getEventType(accessibilityEvent), accessibilityEvent.getClassName(), accessibilityEvent.getPackageName(),
+//            accessibilityEvent.getEventTime(), getEventText(accessibilityEvent), accessibilityEvent.getContentDescription());
+//    Log.info("Paco: " + formattedMessage);
+
     // TODO make this a flag when joining or stopping or expiring or refreshing experiments
     // TODO or at least cache the experiments somewhere, like in the Application Object
     List<Experiment> experiments = new ExperimentProviderUtil(this).getJoinedExperiments();
@@ -60,22 +83,29 @@ public class AccessibilityEventMonitorService extends AccessibilityService {
       }
     }
     List<InterruptTrigger> interestingTriggers;
-    if (!ExperimentHelper.doesAnyExperimentCareAboutAccessibilityEvents(experimentDAOs)) {
-      //Log.debug("No experiments running that care about accessbility events");
+    final boolean doesAnyExperimentCareAboutAccessibilityEvents = ExperimentHelper.doesAnyExperimentCareAboutAccessibilityEvents(experimentDAOs);
+    List<ExperimentGroup> experimentGroupsLoggingNotificationEvents = ExperimentHelper.getExperimentsLoggingNotificationEvents(experimentDAOs);
+    if (!doesAnyExperimentCareAboutAccessibilityEvents && experimentGroupsLoggingNotificationEvents.isEmpty()) {
+      //Log.debug("No experiments running that care about accessibility events");
       return;
     } else {
-      //Log.debug("1 or more experiments running that care about accessbility events");
+      //Log.debug("1 or more experiments running that care about accessibility events");
       interestingTriggers = ExperimentHelper.getAccessibilityTriggersForAllExperiments(experimentDAOs);
     }
     CharSequence packageName = accessibilityEvent.getPackageName();
+    Integer eventCode = null;
     if (RuntimePermissionsAccessibilityEventHandler.isPackageInstallerEvent(packageName)) {
       //Log.debug("runtime permissions checking accessibility events");
       runtimePermissionsEventHandler.handleRuntimePermissionEvents(accessibilityEvent);
       return;
-    } else if (isViewClickEventOfInterest(accessibilityEvent, interestingTriggers)) {
-      Log.debug("Accessibility View Click Event is interesting for non-runtime permissions triggers: ");
+    } else if (isViewClickEventOfInterest(accessibilityEvent, interestingTriggers) ) {
+      Log.info("Paco", "Accessibility View Click Event is interesting for non-runtime permissions triggers: ");
       inspectEvent(accessibilityEvent);
-      triggerBroadcastService(accessibilityEvent);
+      triggerBroadcastService(accessibilityEvent, InterruptCue.ACCESSIBILITY_EVENT_VIEW_CLICKED);
+    } else if ((eventCode = notificationHandler.handleAccessibilityEvent(accessibilityEvent)) != null) {
+      if (eventCode != null /*isMatchingInterruptEventCode(eventCode, interestingTriggers)*/) {
+        triggerBroadcastService(accessibilityEvent, eventCode);
+      }
     } else {
 //      inspectEvent(accessibilityEvent);
 //      final AccessibilityNodeInfo source = accessibilityEvent.getSource();
@@ -86,10 +116,22 @@ public class AccessibilityEventMonitorService extends AccessibilityService {
     }
   }
 
-  private void triggerBroadcastService(AccessibilityEvent accessibilityEvent) {
+  private boolean isMatchingInterruptEventCode(Integer eventCode, List<InterruptTrigger> interestingTriggers) {
+    for (InterruptTrigger interruptTrigger : interestingTriggers) {
+      List<InterruptCue> cues = interruptTrigger.getCues();
+      for (InterruptCue interruptCue : cues) {
+        if (interruptCue.getCueCode().equals(eventCode)) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  private void triggerBroadcastService(AccessibilityEvent accessibilityEvent, int eventCueCode) {
     Intent broadcastTriggerServiceIntent = new Intent(this, BroadcastTriggerService.class);
     broadcastTriggerServiceIntent.putExtra(Experiment.TRIGGERED_TIME, DateTime.now().toString(TimeUtil.DATETIME_FORMAT));
-    broadcastTriggerServiceIntent.putExtra(Experiment.TRIGGER_EVENT, InterruptCue.ACCESSIBILITY_EVENT_VIEW_CLICKED);
+    broadcastTriggerServiceIntent.putExtra(Experiment.TRIGGER_EVENT, eventCueCode);
     broadcastTriggerServiceIntent.putExtra(Experiment.TRIGGER_SOURCE_IDENTIFIER, accessibilityEvent.getPackageName());
 
     Bundle accessibilityPayload = new Bundle();
@@ -101,7 +143,7 @@ public class AccessibilityEventMonitorService extends AccessibilityService {
     if (accessibilityEvent.getContentDescription() != null) {
       accessibilityPayload.putCharSequence(ACCESSIBILITY_EVENT_CONTENT_DESCRIPTION, accessibilityEvent.getContentDescription());
     }
-    accessibilityPayload.putInt(ACCESSIBILITY_EVENT_TYPE, accessibilityEvent.getEventType());
+    accessibilityPayload.putString(ACCESSIBILITY_EVENT_TYPE, AccessibilityEvent.eventTypeToString(accessibilityEvent.getEventType()));
     accessibilityPayload.putCharSequence(ACCESSIBILITY_EVENT_PACKAGE, accessibilityEvent.getPackageName());
     accessibilityPayload.putCharSequence(ACCESSIBILITY_EVENT_CLASS, accessibilityEvent.getClassName());
 
@@ -111,21 +153,90 @@ public class AccessibilityEventMonitorService extends AccessibilityService {
   }
 
   private boolean isViewClickEventOfInterest(AccessibilityEvent accessibilityEvent, List<InterruptTrigger> interestingTriggers) {
+    int eventType = accessibilityEvent.getEventType();
+    if (eventType != InterruptCue.VIEW_CLICKED) {
+      return false;
+    }
+
+    CharSequence eventPackage = accessibilityEvent.getPackageName();
+    CharSequence eventClass = accessibilityEvent.getClassName();
+    CharSequence eventContentDescription = accessibilityEvent.getContentDescription();
+    CharSequence eventText = getFirstTextEntryFromEvent(accessibilityEvent);
+
+    for (InterruptTrigger trigger : interestingTriggers) {
+      List<InterruptCue> cues = trigger.getCues();
+      for (InterruptCue interruptCue : cues) {
+        if (eventMatchesCue(eventPackage, eventClass, eventType, eventContentDescription, eventText, interruptCue)) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  @Nullable
+  private CharSequence getFirstTextEntryFromEvent(AccessibilityEvent accessibilityEvent) {
+    final List<CharSequence> textList = accessibilityEvent.getText();
+    CharSequence text = null;
+    if (textList != null && textList.size() > 0) {
+      text = textList.get(0); // only check first text in event.
+    }
+    return text;
+  }
+
+  private boolean eventMatchesCue(CharSequence packageName, CharSequence className, int eventType, CharSequence contentDescription, CharSequence text, InterruptCue interruptCue) {
+    // All specified cue parameters must match
+    if (interruptCue.getCueCode() != InterruptCue.ACCESSIBILITY_EVENT_VIEW_CLICKED) {
+       return false;
+    }
+    // if (interruptCue.getCueAEEventType() != null) {
+    if (eventType != InterruptCue.VIEW_CLICKED) {
+      return false;
+    }
+    if (cueHasParameter(interruptCue.getCueSource()) &&
+            !eventValueMatchesCueParameter(packageName, interruptCue.getCueSource())) {
+        return false;
+    }
+    if (cueHasParameter(interruptCue.getCueAEContentDescription()) &&
+            !contentDescriptionMatchesEither(contentDescription, text, interruptCue)) {
+        return false;
+    }
+    if (cueHasParameter(interruptCue.getCueAEClassName()) &&
+            !eventValueMatchesCueParameter(className, interruptCue.getCueAEClassName())) {
+        return false;
+    }
+
+    return true;
+  }
+
+  private boolean eventValueMatchesCueParameter(CharSequence eventValue, String cueParameter) {
+    return eventValue != null && cueParameter.equals(eventValue);
+  }
+
+  private boolean cueHasParameter(String parameter) {
+    return !Strings.isNullOrEmpty(parameter) && parameter.length() > 0;
+  }
+
+  private boolean contentDescriptionMatchesEither(CharSequence aeContentDescription, CharSequence aeText, InterruptCue interruptCue) {
+    return eventValueMatchesCueParameter(aeContentDescription, interruptCue.getCueAEContentDescription()) ||
+            eventValueMatchesCueParameter(aeText, interruptCue.getCueAEContentDescription());
+//    return ((aeContentDescription != null && interruptCue.getCueAEContentDescription().equals(aeContentDescription)) ||
+//            (aeText != null && interruptCue.getCueAEContentDescription().equals(aeText)));
+  }
+
+  private boolean isNotificationEventOfInterest(AccessibilityEvent accessibilityEvent, List<InterruptTrigger> interestingTriggers) {
+    // TODO - unify this with View Click Event after implementation is done.
     CharSequence packageName = accessibilityEvent.getPackageName();
     CharSequence className = accessibilityEvent.getClassName();
     int eventType = accessibilityEvent.getEventType();
     CharSequence contentDescription = accessibilityEvent.getContentDescription();
-    final List<CharSequence> text2 = accessibilityEvent.getText();
-    CharSequence text = null;
-    if (text2 != null && text2.size() > 0) {
-      text = text2.get(0);
-    }
+    CharSequence firstEventTextRecord = getFirstTextEntryFromEvent(accessibilityEvent);
 
     for (InterruptTrigger trigger : interestingTriggers) {
       List<InterruptCue> cues = trigger.getCues();
       for (InterruptCue interruptCue : cues) {
         boolean matches = true;
-        if (interruptCue.getCueCode() != InterruptCue.ACCESSIBILITY_EVENT_VIEW_CLICKED) {
+        if (!isNotificationCue(interruptCue)) {
            continue;
         }
         if (interruptCue.getCueSource() != null) {
@@ -143,11 +254,9 @@ public class AccessibilityEventMonitorService extends AccessibilityService {
             matches = false;
           }
         }
-        // if (interruptCue.getCueAEEventType() != null) {
-        if (eventType != InterruptCue.VIEW_CLICKED) {
+        if (!isEventTypeMatch(eventType, interruptCue.getCueCode())) {
           matches = false;
         }
-        // }
         if (matches) {
           return true;
         }
@@ -157,8 +266,33 @@ public class AccessibilityEventMonitorService extends AccessibilityService {
     return false;
   }
 
+  private boolean isEventTypeMatch(int eventType, Integer cueCode) {
+    return true;
+//    Too many accessibility events involved
+//    switch (eventType) {
+//    case AccessibilityEvent.TYPE_NOTIFICATION_STATE_CHANGED:
+//      return true;
+//    case AccessibilityEvent.TYPE_ANNOUNCEMENT:
+//      return cueCode == InterruptCue.NOTIFICATION_TRAY_OPENED
+//      || cueCode == InterruptCue.NOTIFICATION_TRAY_CANCELLED;
+//    default:
+//      break;
+//    }
+//    return false;
+  }
+
+  private boolean isNotificationCue(InterruptCue interruptCue) {
+    return interruptCue.getCueCode() == InterruptCue.NOTIFICATION_CREATED
+            || interruptCue.getCueCode() == InterruptCue.NOTIFICATION_TRAY_CANCELLED
+            || interruptCue.getCueCode() == InterruptCue.NOTIFICATION_TRAY_CLEAR_ALL
+            || interruptCue.getCueCode() == InterruptCue.NOTIFICATION_TRAY_OPENED
+            || interruptCue.getCueCode() == InterruptCue.NOTIFICATION_TRAY_SWIPE_DISMISS
+            || interruptCue.getCueCode() == InterruptCue.NOTIFICATION_CLICKED;
+  }
+
+
   private void inspectEvent(AccessibilityEvent accessibilityEvent) {
-    Log.debug(eventToString(accessibilityEvent));
+    Log.info("Paco", eventToString(accessibilityEvent));
   }
 
   private String getStringForEventType(int eventType) {
@@ -201,8 +335,9 @@ public class AccessibilityEventMonitorService extends AccessibilityService {
   @Override
   protected void onServiceConnected() {
     running = true;
-    Log.debug("Connected to the accessibility service");
+    Log.info("Paco", "Connected to the accessibility service");
     initializeRuntimePermissionsMonitoringState();
+    notificationHandler = new NotificationEventHandler(getApplicationContext());
   }
 
   private void initializeRuntimePermissionsMonitoringState() {
@@ -215,7 +350,7 @@ public class AccessibilityEventMonitorService extends AccessibilityService {
    */
   @Override
   public void onDestroy() {
-    Log.debug("Accessibility service destroyed");
+    Log.info("Paco", "Accessibility service destroyed");
     running = false;
     runtimePermissionsEventHandler = null;
   }

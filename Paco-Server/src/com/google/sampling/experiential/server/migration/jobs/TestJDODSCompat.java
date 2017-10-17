@@ -21,6 +21,7 @@ import com.google.appengine.api.datastore.Query;
 import com.google.sampling.experiential.server.PMF;
 import com.google.sampling.experiential.server.migration.MigrationJob;
 
+import org.joda.time.DateTime;
 
 public class TestJDODSCompat implements MigrationJob {
 

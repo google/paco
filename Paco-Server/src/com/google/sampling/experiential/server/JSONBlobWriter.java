@@ -4,7 +4,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.nio.channels.Channels;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
@@ -13,6 +12,7 @@ import org.apache.commons.codec.binary.Base64;
 import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.map.util.ISO8601DateFormat;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormat;
@@ -34,6 +34,7 @@ import com.google.sampling.experiential.shared.EventDAO;
 import com.google.sampling.experiential.shared.TimeUtil;
 import com.google.sampling.experiential.shared.WhatDAO;
 import com.pacoapp.paco.shared.model2.JsonConverter;
+import com.pacoapp.paco.shared.model2.Views;
 
 public class JSONBlobWriter {
 
@@ -46,15 +47,15 @@ public class JSONBlobWriter {
 
 
   public String writeEventsAsJSON(boolean anon, EventQueryResultPair eventQueryResultPair, String jobId,
-                                  DateTimeZone timeZoneForClient, boolean includePhotos) throws IOException {
+                                  DateTimeZone timeZoneForClient, boolean includePhotos, Float pacoProtocol) throws IOException {
     EventRetriever.sortEvents(eventQueryResultPair.getEvents());
 
-    String jsonOutput = jsonifyEvents(anon, timeZoneForClient.getID(), includePhotos, eventQueryResultPair);
+    String jsonOutput = jsonifyEvents(anon, timeZoneForClient.getID(), includePhotos, eventQueryResultPair, pacoProtocol);
 
     return writeBlobUsingNewApi(jobId, jsonOutput).getKeyString();
  }
 
-  private String jsonifyEvents(boolean anon, String timezoneId, boolean includePhotos, EventQueryResultPair eventQueryResultPair) {
+  private String jsonifyEvents(boolean anon, String timezoneId, boolean includePhotos, EventQueryResultPair eventQueryResultPair, Float pacoProtocol) {
     ObjectMapper mapper = JsonConverter.getObjectMapper();
 
     try {
@@ -65,15 +66,7 @@ public class JSONBlobWriter {
           userId = Event.getAnonymousId(userId);
         }
         DateTime responseDateTime = event.getResponseTimeWithTimeZone(timezoneId);
-        Date responseTime = null;
-        if (responseDateTime != null) {
-          responseTime = responseDateTime.toGregorianCalendar().getTime();
-        }
         DateTime scheduledDateTime = event.getScheduledTimeWithTimeZone(timezoneId);
-        Date scheduledTime = null;
-        if (scheduledDateTime != null) {
-          scheduledTime = scheduledDateTime.toDate();
-        }
         List<WhatDAO> whatMap = EventRetriever.convertToWhatDAOs(event.getWhat());
         List<PhotoBlob> photos = event.getBlobs();
         String[] photoBlobs = null;
@@ -105,15 +98,15 @@ public class JSONBlobWriter {
         }
 
         eventDAOs.add(new EventDAO(userId,
-                                   event.getWhen(),
+                                   new DateTime(event.getWhen()),
                                    event.getExperimentName(),
                                    event.getLat(), event.getLon(),
                                    event.getAppId(),
                                    event.getPacoVersion(),
                                    whatMap,
                                    event.isShared(),
-                                   responseTime,
-                                   scheduledTime,
+                                   responseDateTime,
+                                   scheduledDateTime,
                                    null,
                                    Long.parseLong(event.getExperimentId()),
                                    event.getExperimentVersion(),
@@ -123,8 +116,16 @@ public class JSONBlobWriter {
                                    event.getActionTriggerSpecId(),
                                    event.getActionId()));
       }
+      
       EventDAOQueryResultPair eventDaoQueryResultPair = new EventDAOQueryResultPair(eventDAOs, eventQueryResultPair.getCursor());
-      return mapper.writeValueAsString(eventDaoQueryResultPair);
+      String finalRes = null;
+      if (pacoProtocol != null && pacoProtocol < 5) { 
+        finalRes = mapper.writerWithView(Views.V4.class).writeValueAsString(eventDaoQueryResultPair);
+      } else {
+        mapper.setDateFormat(new ISO8601DateFormat());
+        finalRes = mapper.writerWithView(Views.V5.class).writeValueAsString(eventDaoQueryResultPair);
+      }
+      return finalRes;
     } catch (JsonGenerationException e) {
       e.printStackTrace();
     } catch (JsonMappingException e) {
@@ -135,7 +136,7 @@ public class JSONBlobWriter {
     return "Error could not retrieve events as json";
   }
 
-  private BlobKey writeBlobUsingNewApi(String jobId, String json) throws IOException,
+  public  BlobKey writeBlobUsingNewApi(String jobId, String json) throws IOException,
                                                                      FileNotFoundException {
     GcsService gcsService = GcsServiceFactory.createGcsService();
     String bucketName = System.getProperty("com.pacoapp.reportbucketname");
@@ -158,17 +159,4 @@ public class JSONBlobWriter {
     BlobKey blobKey = blobstoreService.createGsBlobKey("/gs/" + bucketName + "/" + fileName);
     return blobKey;
   }
-
-
-
- private String getTimeString(EventDAO event, Date time, String clientTimezone) {
-   String scheduledTimeString = "";
-   if (time != null) {
-     scheduledTimeString = jodaFormatter.print(Event.getTimeZoneAdjustedDate(time, clientTimezone, event.getTimezone()));
-   }
-   return scheduledTimeString;
- }
-
-
-
 }

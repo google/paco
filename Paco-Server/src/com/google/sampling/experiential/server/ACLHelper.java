@@ -32,6 +32,7 @@ public class ACLHelper {
     String loggedInUserWithQuotes = Constants.SINGLE_QUOTE + loggedInUser + Constants.SINGLE_QUOTE;
     boolean onlyQueryingOwnData = true;
     boolean adminOnAllExperiments = true;
+    boolean onlyAParticipant = false;
     PlainSelect plainSelect = null;
     Set<String> userSpecifiedWhoValues = qPreprocessor.getWhoClause();
     Set<Long> userSpecifiedExpIdValues = qPreprocessor.getExpIdValues();
@@ -40,6 +41,11 @@ public class ACLHelper {
     // a->No exp id filter, no processing
     if (userSpecifiedExpIdValues.size() == 0) {
       throw new Exception(ErrorMessages.EXPERIMENT_ID_CLAUSE_EXCEPTION.getDescription());
+    }
+    
+    // is the user only a participant
+    if (adminExperimentsinDB != null && adminExperimentsinDB.size() == 0) {
+      onlyAParticipant = true;
     }
 
     // if user querying own data
@@ -52,17 +58,26 @@ public class ACLHelper {
     if (adminExperimentsinDB != null && !adminExperimentsinDB.containsAll(userSpecifiedExpIdValues)) {
       adminOnAllExperiments = false;
     }
-
-    if (!adminOnAllExperiments && !onlyQueryingOwnData) {
+    
+    // if the user is an admin on atleast one experiment, then check if he has full access/ACL on all expts in query
+    // and also if he is not querying just his data
+    if (!onlyAParticipant && !adminOnAllExperiments && !onlyQueryingOwnData) {
       throw new Exception(ErrorMessages.UNAUTHORIZED_ACCESS_MIXED_ACL.getDescription());
     }
-
-    if ((adminExperimentsinDB != null && adminExperimentsinDB.size() == 0) && !onlyQueryingOwnData) {
+    
+    // if logged in user is only a participant  
+    // and he queries more than his data 
+    if (onlyAParticipant && !onlyQueryingOwnData) {
+      Expression ex = null;
       String whoClause = EventServerColumns.WHO + Constants.EQUALS + loggedInUserWithQuotes;
       if (userSpecifiedWhoValues.size() == 0) {
         Expression oldWhereClause = plainSelect.getWhere();
         Expression newWhoClause = CCJSqlParserUtil.parseCondExpression(whoClause);
-        Expression ex = new AndExpression(oldWhereClause, newWhoClause);
+        if (oldWhereClause != null) {
+          ex = new AndExpression(oldWhereClause, newWhoClause);
+        } else {
+          ex = newWhoClause;
+        }
         plainSelect.setWhere(ex);
       }
     }

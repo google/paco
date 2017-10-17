@@ -15,6 +15,7 @@ import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.Query;
 import com.google.appengine.api.datastore.Query.FilterOperator;
 import com.google.appengine.api.datastore.Query.FilterPredicate;
+import com.google.appengine.api.users.User;
 import com.google.appengine.tools.mapreduce.MapReduceJob;
 import com.google.appengine.tools.mapreduce.MapReduceSettings;
 import com.google.appengine.tools.mapreduce.MapReduceSpecification;
@@ -23,6 +24,7 @@ import com.google.appengine.tools.mapreduce.Marshaller;
 import com.google.appengine.tools.mapreduce.Marshallers;
 import com.google.appengine.tools.mapreduce.inputs.DatastoreInput;
 import com.google.appengine.tools.mapreduce.outputs.DatastoreOutput;
+import com.google.sampling.experiential.server.AuthUtil;
 
 public class MayJuneEventCounterMRServlet extends HttpServlet {
 
@@ -35,13 +37,19 @@ public class MayJuneEventCounterMRServlet extends HttpServlet {
     String queue = "mapreduce-workers";
     String module = "mapreduce";
     String bucket = "default";
-
-    MapReduceSpecification<Entity, String, Integer, Entity, Void> mapReduceSpec = createMapReduceSpec();
-    MapReduceSettings settings = getSettings(bucket, queue, module);
-
-    String id = MapReduceJob.start(mapReduceSpec, settings);
-
-    resp.sendRedirect("/_ah/pipeline/status.html?root=" + id);
+    User user = AuthUtil.getWhoFromLogin();
+    if (user == null) {
+      AuthUtil.redirectUserToLogin(req, resp);
+    } else if (AuthUtil.isUserAdmin()){
+      MapReduceSpecification<Entity, String, Integer, Entity, Void> mapReduceSpec = createMapReduceSpec();
+      MapReduceSettings settings = getSettings(bucket, queue, module);
+  
+      String id = MapReduceJob.start(mapReduceSpec, settings);
+  
+      resp.sendRedirect("/_ah/pipeline/status.html?root=" + id);
+    } else {
+      resp.sendError(403);
+    }
   }
 
   public static MapReduceSpecification<Entity, String, Integer, Entity, Void> createMapReduceSpec() {

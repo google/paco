@@ -35,6 +35,7 @@ public class CloudSqlInsertServlet extends HttpServlet {
                                                                          null, null,
                                                                          null);
     resp.getWriter().println(results);
+ 
   }
 
   private void setCharacterEncoding(HttpServletRequest req,
@@ -42,5 +43,4 @@ public class CloudSqlInsertServlet extends HttpServlet {
     req.setCharacterEncoding("UTF-8");
     resp.setCharacterEncoding("UTF-8");
   }
-
 }

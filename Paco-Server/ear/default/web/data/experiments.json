@@ -1,0 +1,114 @@
+{
+  "experiments": [
+    {
+      "title": "SampleExperiment",
+      "creator": "rbe10001@gmail.com",
+      "contactEmail": "rbe10001@gmail.com",
+      "id": 4675269154045952,
+      "recordPhoneDetails": false,
+      "extraDataCollectionDeclarations": [],
+      "deleted": false,
+      "modifyDate": "2017/06/26",
+      "published": false,
+      "admins": [
+        "rbe10001@gmail.com",
+        "paco.muthu@gmail.com"
+      ],
+      "publishedUsers": [],
+      "version": 2,
+      "groups": [
+        {
+          "name": "New Group",
+          "customRendering": false,
+          "fixedDuration": false,
+          "logActions": false,
+          "logShutdown": false,
+          "backgroundListen": false,
+          "accessibilityListen": false,
+          "actionTriggers": [],
+          "inputs": [
+            {
+              "name": "temperature",
+              "required": false,
+              "conditional": false,
+              "responseType": "likert",
+              "text": "How warm is it where you are right now?",
+              "likertSteps": 5,
+              "leftSideLabel": "Very Cold",
+              "rightSideLabel": "Very Warm",
+              "multiselect": false,
+              "invisible": false,
+              "numeric": true,
+              "nameOfClass": "com.pacoapp.paco.shared.model2.Input2"
+            },
+            {
+              "name": "number",
+              "required": false,
+              "conditional": false,
+              "responseType": "number",
+              "text": "Pick a number",
+              "likertSteps": 5,
+              "multiselect": false,
+              "invisible": false,
+              "numeric": true,
+              "nameOfClass": "com.pacoapp.paco.shared.model2.Input2"
+            },
+            {
+              "name": "animal",
+              "required": false,
+              "conditional": false,
+              "responseType": "open text",
+              "text": "Name an animal",
+              "likertSteps": 5,
+              "multiselect": false,
+              "invisible": false,
+              "numeric": false,
+              "nameOfClass": "com.pacoapp.paco.shared.model2.Input2"
+            },
+            {
+              "name": "color",
+              "required": false,
+              "conditional": false,
+              "responseType": "list",
+              "text": "What is your favorite color?",
+              "likertSteps": 5,
+              "listChoices": [
+                "Red",
+                "Blue",
+                "Green"
+              ],
+              "multiselect": false,
+              "invisible": false,
+              "numeric": true,
+              "nameOfClass": "com.pacoapp.paco.shared.model2.Input2"
+            },
+            {
+              "name": "location",
+              "required": false,
+              "conditional": false,
+              "responseType": "location",
+              "text": "Location",
+              "likertSteps": 5,
+              "multiselect": false,
+              "invisible": true,
+              "numeric": false,
+              "nameOfClass": "com.pacoapp.paco.shared.model2.Input2"
+            }
+          ],
+          "endOfDayGroup": false,
+          "feedback": {
+            "text": "Thanks for Participating!",
+            "type": 0,
+            "nameOfClass": "com.pacoapp.paco.shared.model2.Feedback"
+          },
+          "feedbackType": 0,
+          "rawDataAccess": true,
+          "nameOfClass": "com.pacoapp.paco.shared.model2.ExperimentGroup"
+        }
+      ],
+      "ringtoneUri": "/assets/ringtone/Paco Bark",
+      "postInstallInstructions": "<b>You have successfully joined the experiment!</b><br/><br/>\nNo need to do anything else for now.<br/><br/>\nPaco will send you a notification when it is time to participate.<br/><br/>\nBe sure your ringer/buzzer is on so you will hear the notification.",
+      "nameOfClass": "com.pacoapp.paco.shared.model2.ExperimentDAO"
+    }
+  ]
+}

@@ -1,0 +1,2 @@
+include ":Shared"
+project(":Shared").projectDir = new File("../Shared")
