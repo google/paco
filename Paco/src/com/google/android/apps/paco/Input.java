@@ -34,6 +34,7 @@ public class Input {
   public static final String PHOTO = "photo";
   public static final String SOUND = "sound";
   public static final String ACTIVITY = "activity";
+  public static final String VA_SCALE = "va_scale";
 
 
   @JsonIgnore

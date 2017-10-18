@@ -75,6 +75,7 @@ import android.widget.RadioGroup;
 import android.widget.RadioGroup.OnCheckedChangeListener;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.SeekBar;
 import android.widget.Toast;
 
 public class InputLayout extends LinearLayout implements SpeechRecognitionListener {
@@ -108,6 +109,7 @@ public class InputLayout extends LinearLayout implements SpeechRecognitionListen
   private MediaPlayer   audioPlayer = null;
   boolean mStartRecording = true;
   boolean mStartPlaying = true;
+  private boolean va_scale_hasChanged = false;
 
 
   public InputLayout(ExperimentExecutor context, Input2 input2) {
@@ -221,6 +223,8 @@ public class InputLayout extends LinearLayout implements SpeechRecognitionListen
       return getPhotoValue();
     } else if (input.getResponseType().equals(Input2.AUDIO)) {
       return getAudioValue();
+    } else if (input.getResponseType().equals(Input2.VA_SCALE)) {
+      return getVaScaleValue();
     }
     return null;
   }
@@ -245,6 +249,8 @@ public class InputLayout extends LinearLayout implements SpeechRecognitionListen
       return getPhotoValue();
     } else if (input.getResponseType().equals(Input2.AUDIO)) {
       return getAudioValue();
+    } else if (input.getResponseType().equals(Input2.VA_SCALE)) {
+      return intToString(getVaScaleValue());
     }
     return null;
   }
@@ -286,6 +292,8 @@ public class InputLayout extends LinearLayout implements SpeechRecognitionListen
     } else if (input.getResponseType().equals(Input2.SOUND)) {
       return SoundPool.class; // TODO (bobevans): is this really a good idea as
                               // the storage type? probably not.
+    } else if (input.getResponseType().equals(Input2.VA_SCALE)) {
+      return Integer.class;
     }
     return Object.class;
   }
@@ -306,6 +314,16 @@ public class InputLayout extends LinearLayout implements SpeechRecognitionListen
 
     }
     return "";
+  }
+
+  private Integer getVaScaleValue() {
+    SeekBar seekBar =(SeekBar) componentWithValue;
+//    if(seekBar.getThumb().mutate().getAlpha() == 0)
+
+    if(va_scale_hasChanged)
+      return ((SeekBar) componentWithValue).getProgress();
+    else
+      return null;
   }
 
 
@@ -495,6 +513,8 @@ public class InputLayout extends LinearLayout implements SpeechRecognitionListen
       return renderPhotoButton(input2);
     } else if (questionType.equals(Input2.AUDIO)) {
       return renderAudioRecorder(input2);
+    } else if (questionType.equals(Input2.VA_SCALE)) {
+      return renderVaScale();
     }
     return null;
   }
@@ -905,6 +925,30 @@ public class InputLayout extends LinearLayout implements SpeechRecognitionListen
       return R.layout.radio_group_error;
     }
 
+  }
+
+  private View renderVaScale() {
+    View view = ((LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(
+            R.layout.va_scale, this, true);
+    SeekBar_api14 seekBar = (SeekBar_api14) findViewById(R.id.va_scale_input);
+    seekBar.getThumb().mutate().setAlpha(0);
+
+    seekBar.setOnSeekBarChangeListener(new SeekBar_api14.OnSeekBarChangeListener() {
+      @Override
+      public void onStartTrackingTouch(SeekBar_api14 s) {
+        va_scale_hasChanged = true;
+        s.getThumb().setAlpha(255);
+        notifyChangeListeners();
+      }
+      @Override
+      public void onStopTrackingTouch(SeekBar_api14 seekBar) {
+      }
+      @Override
+      public void onProgressChanged(SeekBar_api14 seekBar, int progress,boolean fromUser) {
+      }
+    });
+
+    return seekBar;
   }
 
   private View renderOpenText() {
