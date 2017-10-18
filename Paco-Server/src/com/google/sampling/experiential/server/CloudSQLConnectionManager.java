@@ -14,7 +14,6 @@ import org.apache.commons.pool.KeyedObjectPoolFactory;
 import org.apache.commons.pool.impl.GenericKeyedObjectPoolFactory;
 import org.apache.commons.pool.impl.GenericObjectPool;
 
-
 import com.pacoapp.paco.shared.util.ErrorMessages;
 
 public class CloudSQLConnectionManager {

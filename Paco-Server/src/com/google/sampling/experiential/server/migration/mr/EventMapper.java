@@ -1,23 +1,18 @@
 package com.google.sampling.experiential.server.migration.mr;
 
-import com.google.appengine.api.datastore.Entity;
-import com.google.common.collect.Lists;
-
-import org.joda.time.DateMidnight;
-import org.joda.time.DateTimeZone;
-
-import com.google.appengine.tools.mapreduce.Mapper;
-import com.google.common.primitives.Ints;
-import com.google.sampling.experiential.server.migration.jobs.EventStatMigrateServlet;
-import com.google.sampling.experiential.server.stats.participation.LocalToUTCTimeZoneConverter;
-
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Random;
 import java.util.logging.Logger;
 
+import org.joda.time.DateMidnight;
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
+
+import com.google.appengine.api.datastore.Entity;
+import com.google.appengine.tools.mapreduce.Mapper;
+import com.google.common.collect.Lists;
+import com.google.sampling.experiential.server.stats.participation.LocalToUTCTimeZoneConverter;
 
 /**
  * Maps each incoming Event into an intermediate key with a count
