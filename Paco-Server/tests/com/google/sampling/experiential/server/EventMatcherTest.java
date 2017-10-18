@@ -22,12 +22,12 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import junit.framework.TestCase;
-
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.google.sampling.experiential.model.Event;
 import com.google.sampling.experiential.model.What;
+
+import junit.framework.TestCase;
 
 public class EventMatcherTest extends TestCase {
 
