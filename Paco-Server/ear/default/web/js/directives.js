@@ -78,9 +78,9 @@ pacoApp.directive('pacoGroup', function () {
       }
     $http.post( 
       '/events', post)
-      .success(function(data) {
+      .then(function onSuccess(data) {
 
-        if (data[0].status === true) {
+        if (data.data[0].status === true) {
 
           if ($scope.events) {
             $scope.activeIdx++;
@@ -110,7 +110,7 @@ pacoApp.directive('pacoGroup', function () {
             )
         }
 
-      }).error(function(data, status, headers, config) {
+      }, function onError(data, status, headers, config) {
         console.error(data);
         $mdDialog.show(
             $mdDialog.alert()
@@ -798,9 +798,9 @@ pacoApp.directive('pacoGroupPub', function () {
         post.responses.push(referPair);
       }
 
-    $http.post('/pubexperiments', post).success(function(data) {
+    $http.post('/pubexperiments', post).then(function(data) {
 
-        if (data[0].status === true) {
+        if (data.data[0].status === true) {
 
           if ($scope.events) {
             $scope.activeIdx++;
@@ -822,7 +822,7 @@ pacoApp.directive('pacoGroupPub', function () {
           }
         }
 
-      }).error(function(data, status, headers, config) {
+      }, function(data, status, headers, config) {
         console.error(data);
       });
     };

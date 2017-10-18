@@ -177,18 +177,20 @@ pacoApp.service('dataService', ['$http', '$timeout', '$q', 'config',
           endpoint += '&includePhotos=true';
         }
 
-        $http.get(endpoint).success(
+        $http.get(endpoint).then(
           function(data) {
 
             // JSON endpoint directly returns data. No need to ping for
             // job status.
             if (type === 'json') {
-              var json = JSON.stringify(data.events);
+              var json = JSON.stringify(data.data.events);
               defer.resolve({'data': json});
             } else {
-              jobUrl = '/jobStatus?jobId=' + data + '&cmdline=1';
+              jobUrl = '/jobStatus?jobId=' + data.data + '&cmdline=1';
               poll();
             }
+          }, function (data) {
+            console.log("Error:  " + JSON.stringify(data, null, 2));
           }
         );
 
@@ -199,14 +201,17 @@ pacoApp.service('dataService', ['$http', '$timeout', '$q', 'config',
           }
           tryCount++;
 
-          $http.get(jobUrl).success(
+          $http.get(jobUrl).then(
             function(data) {
-              if (data === 'pending\n') {
+              if (data.data === 'pending\n') {
                 $timeout(poll, 3000);
               } else {
-                var csv = data.trim();
+                var csv = data.data.trim();
                 defer.resolve({'data': csv});
               }
+            },
+            function (data) {
+              console.log("Error:  " + JSON.stringify(data, null, 2));
             }
           )
         };
@@ -327,9 +332,9 @@ pacoApp.service('dataService', ['$http', '$timeout', '$q', 'config',
         endpoint += '&experimentGroupName=' + escape(group);
       }
 
-      $http.get(endpoint).success(
+      $http.get(endpoint).then(
         function(data) {
-
+					data =data.data; // deal with new wrapper
           if (!user) {
             var totalParticipantCount = 0;
 	          var todayParticipantCount = 0;
@@ -366,6 +371,9 @@ pacoApp.service('dataService', ['$http', '$timeout', '$q', 'config',
           defer.resolve({
             'data': data
           });
+        }, 
+        function (data) {
+          console.log("Error:  " + JSON.stringify(data, null, 2));
         });
 
       return defer.promise;
