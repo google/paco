@@ -16,7 +16,7 @@ pacoApp.factory('experimentsVizService', ['$http', 'experimentService', '$filter
 
   function getParticipants(experimentId) {
     if (experimentId != undefined) {
-      var message = '{ "select":["who"], "query" : { "criteria" : "experiment_id = ?", "values" : [' + experimentId + ']},"group":"who"}';
+      var message = '{ "select":["distinct who"], "query" : { "criteria" : "experiment_id = ?", "values" : [' + experimentId + ']}}';
       var participants = httpPostBody(message);
     }
     return participants;
