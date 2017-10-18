@@ -1,0 +1,12 @@
+<md-input-container class="inputsDropDown">
+  <label class="inputsLabel">Inputs</label>
+  <md-select class="inputsSelect" ng-model="selectedInputs"
+             md-on-close="getInputs()"
+             data-md-container-class="selectdemoSelectHeader"
+             md-selected-text="getInputsLength()"
+             multiple>
+    <md-optgroup label="Inputs">
+      <md-option ng-value="input" ng-repeat="input in groupInputs">{{input}}<div class="resType"><span>{{getResponseType(input)}}</span></div></md-option>
+    </md-optgroup>
+  </md-select>
+</md-input-container>

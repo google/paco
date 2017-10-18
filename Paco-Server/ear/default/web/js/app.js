@@ -11,6 +11,13 @@ pacoApp.config(['$sceDelegateProvider', function($sceDelegateProvider) {
 	$sceDelegateProvider.resourceUrlWhitelist(['data:audio/mpeg;base64,**','self']);
 }]);
 
+//Code update: Since the new angular version 1.6.5 has changed empty string to '!'
+//for example - mydomain.com/#/a/b/c is now mydomain.com/#!/a/b/c
+//the following config block is required to restore the previous behavior.
+pacoApp.config(['$locationProvider', function($locationProvider) {
+  $locationProvider.hashPrefix('');
+}]);
+
 pacoApp.config(['$routeProvider','$locationProvider',
   function($routeProvider, $locationProvider) {
     $routeProvider.
