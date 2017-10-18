@@ -27,6 +27,7 @@ import com.pacoapp.paco.shared.comm.Outcome;
 import com.pacoapp.paco.shared.model2.ExperimentDAO;
 import com.pacoapp.paco.shared.model2.Input2;
 import com.pacoapp.paco.shared.model2.JsonConverter;
+import com.pacoapp.paco.shared.util.ErrorMessages;
 import com.pacoapp.paco.shared.util.ExperimentHelper;
 
 public class EventJsonUploadProcessor {
@@ -92,6 +93,7 @@ public class EventJsonUploadProcessor {
     try {
       results.add(postEvent(persistInCloudSql, currentEvent, 0, whoFromLogin, appIdHeader, pacoVersionHeader));
     } catch (Throwable e) {
+      log.warning(ErrorMessages.GENERAL_EXCEPTION.getDescription() + ExceptionUtil.getStackTraceAsString(e));
       results.add(new Outcome(0, "Exception posting event: 0. "+ e.getMessage()));
     }
     return results;

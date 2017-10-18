@@ -3,6 +3,7 @@ package com.google.sampling.experiential.datastore;
 import java.util.Date;
 import java.util.List;
 import java.util.logging.Logger;
+
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 
@@ -15,7 +16,6 @@ import com.google.appengine.api.datastore.FetchOptions;
 import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.KeyFactory;
 import com.google.appengine.api.datastore.Query;
-import com.google.appengine.api.datastore.Query.CompositeFilterOperator;
 import com.google.appengine.api.datastore.Query.Filter;
 import com.google.appengine.api.datastore.Query.FilterOperator;
 import com.google.appengine.api.datastore.QueryResultList;

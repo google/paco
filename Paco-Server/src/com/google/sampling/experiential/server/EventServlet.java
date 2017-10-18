@@ -25,7 +25,6 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.SocketTimeoutException;
 import java.net.URL;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -42,11 +41,10 @@ import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.map.util.ISO8601DateFormat;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 
-import com.google.appengine.api.modules.ModulesService;
-import com.google.appengine.api.modules.ModulesServiceFactory;
 import com.google.appengine.api.users.User;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
@@ -56,6 +54,7 @@ import com.google.sampling.experiential.model.PhotoBlob;
 import com.google.sampling.experiential.shared.EventDAO;
 import com.google.sampling.experiential.shared.WhatDAO;
 import com.pacoapp.paco.shared.model2.JsonConverter;
+import com.pacoapp.paco.shared.model2.Views;
 
 /**
  * Servlet that answers queries for Events.
@@ -68,6 +67,7 @@ public class EventServlet extends HttpServlet {
   public static final Logger log = Logger.getLogger(EventServlet.class.getName());
   private String defaultAdmin = "bobevans@google.com";
   private List<String> adminUsers = Lists.newArrayList(defaultAdmin);
+  private static final String REPORT_WORKER = "reportworker";
 
   @Override
   protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
@@ -76,6 +76,8 @@ public class EventServlet extends HttpServlet {
     if (user == null) {
       AuthUtil.redirectUserToLogin(req, resp);
     } else {
+      Float pacoProtocol = RequestProcessorUtil.getPacoProtocolVersionAsFloat(req);
+      log.info("pacoProtocol is : " + pacoProtocol);
       String anonStr = req.getParameter("anon");
       boolean anon = false;
       if (anonStr != null) {
@@ -100,45 +102,25 @@ public class EventServlet extends HttpServlet {
       boolean doJsonOnBackend = req.getParameter("backend") != null;
 
       if (req.getParameter("mapping") != null) {
+        //only plain user id, so there is no need to check paco protocol
         dumpUserIdMapping(req, resp, limit, cursor);
       } else if (req.getParameter("json") != null) {
         if (!doJsonOnBackend) {
           resp.setContentType("application/json;charset=UTF-8");
-          dumpEventsJson(resp, req, anon, includePhotos, limit, cursor, cmdline);
+          dumpEventsJson(resp, req, anon, includePhotos, limit, cursor, cmdline, pacoProtocol);
         } else {
-          dumpEventsJsonExperimental(resp, req, anon, limit, cursor, cmdline);
+          dumpEventsJsonExperimental(resp, req, anon, limit, cursor, cmdline, pacoProtocol);
         }
       } else if (req.getParameter("photozip") != null) {
         dumpPhotosZip(resp, req, anon, limit, cursor, cmdline);
       } else if (req.getParameter("csv") != null) {
-        dumpEventsCSVExperimental(resp, req, anon, limit, cursor, cmdline);
+        dumpEventsCSVExperimental(resp, req, anon, limit, cursor, cmdline, pacoProtocol);
       } else if (req.getParameter("html2") != null) {
-        dumpEventsHtmlExperimental(resp, req, anon, limit, cursor, cmdline);
+        dumpEventsHtmlExperimental(resp, req, anon, limit, cursor, cmdline, pacoProtocol);
       } else {
-        dumpEventsHtml(resp, req, anon, limit, cursor, cmdline);
+        dumpEventsHtml(resp, req, anon, limit, cursor, cmdline, pacoProtocol);
       }
     }
-  }
-
-  private void dumpEventJsonUsingBackend(HttpServletResponse resp, HttpServletRequest req, boolean anon, int limit, String cursor, boolean cmdline) throws IOException {
-    String loggedInuser = AuthUtil.getWhoFromLogin().getEmail().toLowerCase();
-    if (loggedInuser != null && adminUsers.contains(loggedInuser)) {
-      loggedInuser = defaultAdmin; //TODO this is dumb. It should just be the value, loggedInuser.
-    }
-
-    DateTimeZone timeZoneForClient = TimeUtil.getTimeZoneForClient(req);
-    String jobId = runReportJob(anon, loggedInuser, timeZoneForClient, req, "json", limit, cursor);
-    // Give the backend time to startup and register the job.
-    try {
-      Thread.sleep(100);
-    } catch (InterruptedException e) {
-    }
-    if (cmdline) {
-      resp.getWriter().println(jobId);
-    } else {
-      resp.sendRedirect("/jobStatus?jobId=" + jobId);
-    }
-
   }
 
   // TODO replace this with a call to the joined table to get all the unique users for an experiment.
@@ -163,17 +145,17 @@ public class EventServlet extends HttpServlet {
   }
 
 
-  private void dumpEventsJson(HttpServletResponse resp, HttpServletRequest req, boolean anon, boolean includePhotos, int limit, String cursor, boolean cmdline) throws IOException {
+  private void dumpEventsJson(HttpServletResponse resp, HttpServletRequest req, boolean anon, boolean includePhotos, int limit, String cursor, boolean cmdline, Float protocolVersion) throws IOException {
     List<com.google.sampling.experiential.server.Query> query = new QueryParser().parse(stripQuotes(HttpUtil.getParam(req, "q")));
     EventQueryResultPair eventQueryPair = getEventsWithQuery(req, query, limit, cursor);
     List<Event> events = eventQueryPair.getEvents();
     EventRetriever.sortEvents(events);
 
-    String jsonOutput = jsonifyEvents(eventQueryPair, anon, TimeUtil.getTimeZoneForClient(req).getID(), includePhotos);
+    String jsonOutput = jsonifyEvents(eventQueryPair, anon, TimeUtil.getTimeZoneForClient(req).getID(), includePhotos, protocolVersion);
     resp.getWriter().println(jsonOutput);
   }
 
-  private String jsonifyEvents(EventQueryResultPair eventQueryPair, boolean anon, String timezoneId, boolean includePhotos) {
+  private String jsonifyEvents(EventQueryResultPair eventQueryPair, boolean anon, String timezoneId, boolean includePhotos, Float protocolVersion) {
     ObjectMapper mapper = JsonConverter.getObjectMapper();
 
     try {
@@ -183,16 +165,8 @@ public class EventServlet extends HttpServlet {
         if (anon) {
           userId = Event.getAnonymousId(userId);
         }
-        DateTime responseDateTime = event.getResponseTimeWithTimeZone(timezoneId);
-        Date responseTime = null;
-        if (responseDateTime != null) {
-          responseTime = responseDateTime.toGregorianCalendar().getTime();
-        }
-        DateTime scheduledDateTime = event.getScheduledTimeWithTimeZone(timezoneId);
-        Date scheduledTime = null;
-        if (scheduledDateTime != null) {
-          scheduledTime = scheduledDateTime.toDate();
-        }
+        DateTime responseDateTime = event.getResponseTimeWithTimeZone(event.getTimeZone());
+        DateTime scheduledDateTime = event.getScheduledTimeWithTimeZone(event.getTimeZone());
         final List<WhatDAO> whatMap = EventRetriever.convertToWhatDAOs(event.getWhat());
         List<PhotoBlob> photos = event.getBlobs();
         String[] photoBlobs = null;
@@ -222,17 +196,17 @@ public class EventServlet extends HttpServlet {
             }
           }
         }
-
+      
         eventDAOs.add(new EventDAO(userId,
-                                   event.getWhen(),
+                                   new DateTime(event.getWhen()),
                                    event.getExperimentName(),
                                    event.getLat(), event.getLon(),
                                    event.getAppId(),
                                    event.getPacoVersion(),
                                    whatMap,
                                    event.isShared(),
-                                   responseTime,
-                                   scheduledTime,
+                                   responseDateTime,
+                                   scheduledDateTime,
                                    null,
                                    Long.parseLong(event.getExperimentId()),
                                    event.getExperimentVersion(),
@@ -243,7 +217,15 @@ public class EventServlet extends HttpServlet {
                                    event.getActionId()));
       }
       EventDAOQueryResultPair eventDaoQueryResultPair = new EventDAOQueryResultPair(eventDAOs, eventQueryPair.getCursor());
-      return mapper.writeValueAsString(eventDaoQueryResultPair);
+      String finalRes = null;
+      log.info("protocol version: "+ protocolVersion);
+      if (protocolVersion != null && protocolVersion < 5) {
+        finalRes = mapper.writerWithView(Views.V4.class).writeValueAsString(eventDaoQueryResultPair);
+      } else {
+        mapper.setDateFormat(new ISO8601DateFormat());
+        finalRes = mapper.writerWithView(Views.V5.class).writeValueAsString(eventDaoQueryResultPair);
+      }
+      return finalRes;
     } catch (JsonGenerationException e) {
       e.printStackTrace();
     } catch (JsonMappingException e) {
@@ -254,14 +236,14 @@ public class EventServlet extends HttpServlet {
     return "Error could not retrieve events as json";
   }
 
-  private void dumpEventsCSVExperimental(HttpServletResponse resp, HttpServletRequest req, boolean anon, int limit, String cursor, boolean cmdline) throws IOException {
+  private void dumpEventsCSVExperimental(HttpServletResponse resp, HttpServletRequest req, boolean anon, int limit, String cursor, boolean cmdline, Float pacoProtocol ) throws IOException {
     String loggedInuser = AuthUtil.getWhoFromLogin().getEmail().toLowerCase();
     if (loggedInuser != null && adminUsers.contains(loggedInuser)) {
       loggedInuser = defaultAdmin; //TODO this is dumb. It should just be the value, loggedInuser.
     }
 
     DateTimeZone timeZoneForClient = TimeUtil.getTimeZoneForClient(req);
-    String jobId = runReportJob(anon, loggedInuser, timeZoneForClient, req, "csv2", limit, cursor);
+    String jobId = runReportJob(anon, loggedInuser, timeZoneForClient, req, "csv2", limit, cursor, pacoProtocol);
     // Give the backend time to startup and register the job.
     try {
       Thread.sleep(100);
@@ -274,14 +256,14 @@ public class EventServlet extends HttpServlet {
     }
   }
 
-  private void dumpEventsJsonExperimental(HttpServletResponse resp, HttpServletRequest req, boolean anon, int limit, String cursor, boolean cmdline) throws IOException {
+  private void dumpEventsJsonExperimental(HttpServletResponse resp, HttpServletRequest req, boolean anon, int limit, String cursor, boolean cmdline, Float pacoProtocol) throws IOException {
     String loggedInuser = AuthUtil.getWhoFromLogin().getEmail().toLowerCase();
     if (loggedInuser != null && adminUsers.contains(loggedInuser)) {
       loggedInuser = defaultAdmin; //TODO this is dumb. It should just be the value, loggedInuser.
     }
 
     DateTimeZone timeZoneForClient = TimeUtil.getTimeZoneForClient(req);
-    String jobId = runReportJob(anon, loggedInuser, timeZoneForClient, req, "json2", limit, cursor);
+    String jobId = runReportJob(anon, loggedInuser, timeZoneForClient, req, "json2", limit, cursor, pacoProtocol);
     // Give the backend time to startup and register the job.
     try {
       Thread.sleep(100);
@@ -294,14 +276,14 @@ public class EventServlet extends HttpServlet {
     }
   }
 
-  private void dumpEventsHtmlExperimental(HttpServletResponse resp, HttpServletRequest req, boolean anon, int limit, String cursor, boolean cmdline) throws IOException {
+  private void dumpEventsHtmlExperimental(HttpServletResponse resp, HttpServletRequest req, boolean anon, int limit, String cursor, boolean cmdline, Float pacoProtocol) throws IOException {
     String loggedInuser = AuthUtil.getWhoFromLogin().getEmail().toLowerCase();
     if (loggedInuser != null && adminUsers.contains(loggedInuser)) {
       loggedInuser = defaultAdmin; //TODO this is dumb. It should just be the value, loggedInuser.
     }
 
     DateTimeZone timeZoneForClient = TimeUtil.getTimeZoneForClient(req);
-    String jobId = runReportJob(anon, loggedInuser, timeZoneForClient, req, "html2", limit, cursor);
+    String jobId = runReportJob(anon, loggedInuser, timeZoneForClient, req, "html2", limit, cursor, pacoProtocol);
     // Give the backend time to startup and register the job.
     try {
       Thread.sleep(100);
@@ -317,14 +299,14 @@ public class EventServlet extends HttpServlet {
 
 
 
-  private void dumpEventsHtml(HttpServletResponse resp, HttpServletRequest req, boolean anon, int limit, String cursor, boolean cmdline) throws IOException {
+  private void dumpEventsHtml(HttpServletResponse resp, HttpServletRequest req, boolean anon, int limit, String cursor, boolean cmdline, Float pacoProtocol) throws IOException {
     String loggedInuser = AuthUtil.getWhoFromLogin().getEmail().toLowerCase();
     if (loggedInuser != null && adminUsers.contains(loggedInuser)) {
       loggedInuser = defaultAdmin; //TODO this is dumb. It should just be the value, loggedInuser.
     }
 
     DateTimeZone timeZoneForClient = TimeUtil.getTimeZoneForClient(req);
-    String jobId = runReportJob(anon, loggedInuser, timeZoneForClient, req, "html", limit, cursor);
+    String jobId = runReportJob(anon, loggedInuser, timeZoneForClient, req, "html", limit, cursor, pacoProtocol);
     // Give the backend time to startup and register the job.
     try {
       Thread.sleep(100);
@@ -345,7 +327,7 @@ public class EventServlet extends HttpServlet {
 
     DateTimeZone timeZoneForClient = TimeUtil.getTimeZoneForClient(req);
 
-    String jobId = runReportJob(anon, loggedInuser, timeZoneForClient, req, "photozip", limit, cursor);
+    String jobId = runReportJob(anon, loggedInuser, timeZoneForClient, req, "photozip", limit, cursor, null);
     // Give the backend time to startup and register the job.
     try {
       Thread.sleep(100);
@@ -374,21 +356,21 @@ public class EventServlet extends HttpServlet {
    * @throws IOException
    */
   private String runReportJob(boolean anon, String loggedInuser, DateTimeZone timeZoneForClient,
-                                 HttpServletRequest req, String reportFormat, int limit, String cursor) throws IOException {
-    ModulesService modulesApi = ModulesServiceFactory.getModulesService();
-    String backendAddress = modulesApi.getVersionHostname("reportworker", modulesApi.getDefaultVersion("reportworker"));
-     try {
-
+                                 HttpServletRequest req, String reportFormat, int limit, String cursor, Float pacoProtocol) throws IOException {
+    try {
+      PacoModule backendModule = new PacoModule(REPORT_WORKER, req.getServerName());
+      String backendAddress = backendModule.getAddress();
       BufferedReader reader = null;
+      
       try {
-        reader = sendToBackend(timeZoneForClient, req, backendAddress, reportFormat, cursor, limit);
+        reader = sendToBackend(timeZoneForClient, req, backendAddress, reportFormat, cursor, limit, pacoProtocol);
       } catch (SocketTimeoutException se) {
         log.info("Timed out sending to backend. Trying again...");
         try {
           Thread.sleep(100);
         } catch (InterruptedException e) {
         }
-        reader = sendToBackend(timeZoneForClient, req, backendAddress, reportFormat, cursor, limit);
+        reader = sendToBackend(timeZoneForClient, req, backendAddress, reportFormat, cursor, limit, pacoProtocol);
       }
       if (reader != null) {
         StringBuilder buf = new StringBuilder();
@@ -406,7 +388,7 @@ public class EventServlet extends HttpServlet {
   }
 
   private BufferedReader sendToBackend(DateTimeZone timeZoneForClient, HttpServletRequest req,
-                                       String backendAddress, String reportFormat, String cursor, int limit) throws MalformedURLException, IOException {
+                                       String backendAddress, String reportFormat, String cursor, int limit, Float pacoProtocol) throws MalformedURLException, IOException {
 
     String httpScheme = "https";
     String localAddr = req.getLocalAddr();
@@ -421,9 +403,11 @@ public class EventServlet extends HttpServlet {
             "&tz=" + timeZoneForClient +
             "&reportFormat=" + reportFormat +
             "&cursor=" + cursor +
-            "&limit=" + limit);
+            "&limit=" + limit +
+            "&pacoProtocol=" + pacoProtocol);
     log.info("URL to backend = " + url.toString());
     HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+    // set instance follow redirects should be set to false. Only when it is false, GAE will set the header value to X-Appengine-Inbound-Appid
     connection.setInstanceFollowRedirects(false);
     InputStreamReader inputStreamReader = new InputStreamReader(connection.getInputStream());
     BufferedReader reader = new BufferedReader(inputStreamReader);

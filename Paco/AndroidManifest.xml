@@ -36,10 +36,8 @@
          <meta-data
       android:name="com.google.android.awareness.API_KEY"
       android:value="AIzaSyC0N5795KEkF93Ku1VpDP44Bnwi9aHTG0U"/>
-        
-        <meta-data android:name="com.google.android.gms.version"
-           android:value="@integer/google_play_services_version" 
-           />
+
+        <meta-data android:name="com.google.android.gms.version" android:value="@integer/google_play_services_version" />\
         
      
         <activity android:name="com.pacoapp.paco.ui.MyExperimentsActivity" 
@@ -179,7 +177,6 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
-        <activity android:name="com.pacoapp.paco.ui.ContactOptionsActivity" android:configChanges="locale|layoutDirection" android:label="Contact Options"/>
         <activity android:name="com.pacoapp.paco.ui.HelpActivity" android:configChanges="locale|layoutDirection" android:label="Help"/>
         <activity android:name="com.pacoapp.paco.ui.EulaDisplayActivity" android:configChanges="locale|layoutDirection" />
         <activity android:name="com.pacoapp.paco.ui.OpenSourceLicenseListActivity" android:configChanges="locale|layoutDirection"

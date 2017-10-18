@@ -1,7 +1,17 @@
 
+
 <div class="hack"  ng-controller="HackCtrl">
 <h1>Hack your data</h1>
 <form name="hackform" >
+  <label>
+    <input type="radio" ng-model="protocolVersion" ng-checked="true" ng-value="4.0">
+    Version 4.0
+  </label><br/>
+  <label>
+    <input type="radio" ng-model="protocolVersion" ng-value="5.0">
+    Version 5
+  </label><br/>
+  
 <div class="ace_editor" ng-model="hackRequest"
       ui-ace="{
         mode: 'javascript',
@@ -13,9 +23,7 @@
         }
       }">
 </div>
-      
-
-<button ng-click="submitForm()">Submit</button>
+<button ng-click="submitForm(protocolVersion)">Submit</button>
 </form>
 
 
@@ -27,8 +35,8 @@
         onLoad: aceResLoaded,
         onChange: aceResChanged,
         rendererOptions: {
-          minLines: 10,
-          maxLines: 10
+          minLines: 30,
+          maxLines: 30
         }
       }">
 </div>

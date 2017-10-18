@@ -1,0 +1,60 @@
+// This buildscript{} block configures the code driving the build
+buildscript {
+    /**
+     * The nested repositories{} block declares that this build uses the
+     * jcenter repository.
+     */
+    repositories {
+        jcenter()
+    }
+
+    /**
+     * This block declares a dependency on the 2.3.3 version
+     * of the Gradle plugin for the buildscript.
+     */
+    dependencies {
+        classpath 'com.android.tools.build:gradle:2.3.3'
+    }
+}
+
+allprojects {
+    repositories {
+        jcenter()
+    }
+}
+/**
+ * This line applies the com.android.application plugin. Note that you should
+ * only apply the com.android.application plugin. Applying the Java plugin as
+ * well will result in a build error.
+ */
+apply plugin: 'java'
+
+sourceCompatibility = 1.7
+targetCompatibility = 1.7
+
+/**
+ * This dependencies block includes any dependencies for the project itself. The
+ * following line includes all the JAR files in the libs directory.
+ */
+dependencies {
+    //compile fileTree(dir: 'lib', include: ['*.jar'])
+    compile 'com.google.guava:guava:16.0.1'
+    compile 'joda-time:joda-time:2.9.3'
+    compile files('lib/jackson-all-1.9.11.jar')
+//    compile 'org.codehaus.jackson:jackson-mapper-asl:1.9.11'
+//    compile 'org.codehaus.jackson:jackson-core-asl:1.9.11'
+    //compile 'rhino:js:1.7R2'
+    compile files('lib/js.jar')
+
+    compile 'com.github.jsqlparser:jsqlparser:0.9.6'
+
+    compile files('lib/json-1.5.jar')
+    testCompile 'junit:junit:4.10'
+}
+
+sourceSets {
+    main {
+        java.srcDirs = ['src','src_non_j2objc']
+    }
+}
+

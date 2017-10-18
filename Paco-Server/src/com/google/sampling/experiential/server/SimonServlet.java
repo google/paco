@@ -4,6 +4,8 @@
 package com.google.sampling.experiential.server;
 
 import java.io.IOException;
+import java.util.ConcurrentModificationException;
+import java.util.List;
 
 import javax.mail.internet.AddressException;
 import javax.servlet.http.HttpServletRequest;
@@ -20,11 +22,8 @@ import com.google.appengine.api.datastore.EntityNotFoundException;
 import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.KeyFactory;
 import com.google.sampling.experiential.datastore.SimonConfigEntity;
-import com.google.sampling.experiential.datastore.UnauthorizedException;
 import com.google.sampling.experiential.datastore.SimonConfigEntity.SimonConfig;
-
-import java.util.ConcurrentModificationException;
-import java.util.List;
+import com.google.sampling.experiential.datastore.UnauthorizedException;
 
 /**
  * Simon servlet handles simon config CRUD.

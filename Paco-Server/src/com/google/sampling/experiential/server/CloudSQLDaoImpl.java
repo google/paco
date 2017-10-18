@@ -14,7 +14,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.logging.Logger;
 
-import org.joda.time.DateTimeZone;
+import org.joda.time.DateTime;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -51,8 +51,8 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
     eventColList.add(new Column(EventServerColumns.EXPERIMENT_ID));
     eventColList.add(new Column(EventServerColumns.EXPERIMENT_NAME));
     eventColList.add(new Column(EventServerColumns.EXPERIMENT_VERSION));
-    eventColList.add(new Column(EventServerColumns.SCHEDULE_TIME));
-    eventColList.add(new Column(EventServerColumns.RESPONSE_TIME));
+    eventColList.add(new Column(EventServerColumns.SCHEDULE_TIME_UTC));
+    eventColList.add(new Column(EventServerColumns.RESPONSE_TIME_UTC));
     eventColList.add(new Column(EventServerColumns.GROUP_NAME));
     eventColList.add(new Column(EventServerColumns.ACTION_TRIGGER_ID));
     eventColList.add(new Column(EventServerColumns.ACTION_TRIGGER_SPEC_ID));
@@ -63,22 +63,25 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
     eventColList.add(new Column(EventServerColumns.PACO_VERSION));
     eventColList.add(new Column(EventServerColumns.APP_ID));
     eventColList.add(new Column(EventServerColumns.JOINED));
-    eventColList.add(new Column(EventServerColumns.SORT_DATE));
+    eventColList.add(new Column(EventServerColumns.SORT_DATE_UTC));
     eventColList.add(new Column(EventServerColumns.CLIENT_TIME_ZONE));
     eventColList.add(new Column(Constants.UNDERSCORE_ID));
-    
+    eventColList.add(new Column(EventServerColumns.RESPONSE_TIME));
+    eventColList.add(new Column(EventServerColumns.SCHEDULE_TIME));
+    eventColList.add(new Column(EventServerColumns.SORT_DATE));
+
     outputColList.add(new Column(OutputBaseColumns.EVENT_ID));
     outputColList.add(new Column(OutputBaseColumns.NAME));
     outputColList.add(new Column(OutputBaseColumns.ANSWER));
     eventsOutputColumns = new HashMap<String, Integer>();
-        
+
     for(int ct = 1; ct <= eventColList.size(); ct ++) {
       eventsOutputColumns.put(eventColList.get(ct-1).getColumnName(), ct);
     }
     for(int ct = 0; ct < outputColList.size(); ct ++) {
       eventsOutputColumns.put(outputColList.get(ct).getColumnName(), eventsOutputColumns.size() + 1);
     }
-    
+
     failedColList.add(new Column(FailedEventServerColumns.EVENT_JSON));
     failedColList.add(new Column(FailedEventServerColumns.REASON));
     failedColList.add(new Column(FailedEventServerColumns.COMMENTS));
@@ -106,7 +109,7 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
     List<Expression>  out = Lists.newArrayList();
     Insert eventInsert = new Insert();
     Insert outputInsert = new Insert();
-   
+
     try {
       log.info("Inserting event->" + event.getId());
       conn = CloudSQLConnectionManager.getInstance().getConnection();
@@ -130,7 +133,7 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
       for (Column c : outputColList) {
         ((ExpressionList) outputInsert.getItemsList()).getExpressions().add(new JdbcParameter());
       }
- 
+
       statementCreateEvent = conn.prepareStatement(eventInsert.toString());
       statementCreateEvent.setLong(i++, Long.parseLong(event.getExperimentId()));
       statementCreateEvent.setString(i++, event.getExperimentName());
@@ -161,14 +164,24 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
           }
         }
       }
-      if (joinFlag == null) { 
+      if (joinFlag == null) {
         statementCreateEvent.setNull(i++, java.sql.Types.BOOLEAN);
       } else {
         statementCreateEvent.setBoolean(i++, joinFlag);
       }
-      statementCreateEvent.setTimestamp(i++, event.getResponseTime()!= null ? new Timestamp(event.getResponseTime().getTime()): new Timestamp(event.getScheduledTime().getTime()));
+      Long sortDateMillis = null;
+      if (event.getResponseTime() != null) {
+        sortDateMillis = event.getResponseTime().getTime();
+      } else {
+        sortDateMillis = event.getScheduledTime().getTime();
+      }
+      statementCreateEvent.setTimestamp(i++, new Timestamp(sortDateMillis));
       statementCreateEvent.setString(i++, event.getTimeZone());
       statementCreateEvent.setLong(i++, event.getId());
+      statementCreateEvent.setTimestamp(i++, event.getResponseTime() != null ? new Timestamp(TimeUtil.convertToLocal(event.getResponseTime(), event.getTimeZone()).getMillis()): null);
+      statementCreateEvent.setTimestamp(i++, event.getScheduledTime() != null ? new Timestamp(TimeUtil.convertToLocal(event.getScheduledTime(), event.getTimeZone()).getMillis()): null);
+      statementCreateEvent.setTimestamp(i++, new Timestamp(TimeUtil.convertToLocal(new Date(sortDateMillis), event.getTimeZone()).getMillis()));
+
       statementCreateEvent.execute();
 
       Set<What> whatSet = event.getWhat();
@@ -202,7 +215,7 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
     }
     return retVal;
   }
-  
+
   @Override
   public boolean insertSingleEventOnly(Event event) throws SQLException, ParseException {
     if (event == null) {
@@ -265,14 +278,24 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
           }
         }
       }
-      if (joinFlag == null) { 
+      if (joinFlag == null) {
         statementCreateEvent.setNull(i++, java.sql.Types.BOOLEAN);
       } else {
         statementCreateEvent.setBoolean(i++, joinFlag);
       }
-      statementCreateEvent.setTimestamp(i++, event.getResponseTime()!= null ? new Timestamp(event.getResponseTime().getTime()): new Timestamp(event.getScheduledTime().getTime()));
+      Long sortDateMillis = null;
+      if (event.getResponseTime() != null) {
+        sortDateMillis = event.getResponseTime().getTime();
+      } else {
+        sortDateMillis = event.getScheduledTime().getTime();
+      }
+      statementCreateEvent.setTimestamp(i++, new Timestamp(sortDateMillis));
       statementCreateEvent.setString(i++, event.getTimeZone());
       statementCreateEvent.setLong(i++, event.getId());
+      statementCreateEvent.setTimestamp(i++, event.getResponseTime() != null ? new Timestamp(TimeUtil.convertToLocal(event.getResponseTime(), event.getTimeZone()).getMillis()): null);
+      statementCreateEvent.setTimestamp(i++, event.getScheduledTime() != null ? new Timestamp(TimeUtil.convertToLocal(event.getScheduledTime(), event.getTimeZone()).getMillis()): null);
+      statementCreateEvent.setTimestamp(i++, new Timestamp(TimeUtil.convertToLocal(new Date(sortDateMillis), event.getTimeZone()).getMillis()));
+
       statementCreateEvent.execute();
 
       conn.commit();
@@ -291,10 +314,10 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
     }
     return retVal;
   }
-  
+
   @Override
-  public boolean insertSingleOutput(Long eventId, String text, String answer) throws SQLException { 
-    
+  public boolean insertSingleOutput(Long eventId, String text, String answer) throws SQLException {
+
     PreparedStatement statementCreateEventOutput = null;
     ExpressionList outputExprList = new ExpressionList();
     List<Expression>  out = Lists.newArrayList();
@@ -333,14 +356,9 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
       }
     }
   }
-  
+
   @Override
-  public List<EventDAO> getEvents(Long eventId) throws SQLException, ParseException{
-    return getEvents(QueryConstants.GET_EVENT_FOR_ID.toString(), null, eventId);
-  }
- 
-  @Override
-  public List<EventDAO> getEvents(String query, DateTimeZone tzForClient, Long eventId) throws SQLException, ParseException {
+  public List<EventDAO> getEvents(String query, boolean withOutputs) throws SQLException, ParseException {
     List<EventDAO> evtDaoList = Lists.newArrayList();
     EventDAO event = null;
     Connection conn = null;
@@ -360,19 +378,15 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
       statementSelectEvent.setFetchSize(Integer.MIN_VALUE);
 
       Long st1Time = System.currentTimeMillis();
-      if(eventId != null && query.contains("?")) {
-        statementSelectEvent.setLong(1, eventId);
-      } else {
-        String selString = statementSelectEvent.toString();
-        log.info("step 1 " + selString.substring(selString.indexOf(":")));
-      }
+      String selString = statementSelectEvent.toString();
+      log.info("step 1 " + selString.substring(selString.indexOf(":")));
       rs = statementSelectEvent.executeQuery();
       if (rs != null) {
         // to maintain the insertion order
         eventMap = Maps.newLinkedHashMap();
         while (rs.next()) {
-          event = createEvent(rs);
-          adjustTimeZone(event);
+          event = createEvent(rs, withOutputs);
+          com.google.sampling.experiential.server.TimeUtil.adjustTimeZone(event);
           // to group list of whats into event
           EventDAO oldEvent = eventMap.get(event.getId());
           if (oldEvent == null) {
@@ -389,7 +403,7 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
       log.info("query took " + (System.currentTimeMillis() - st1Time));
     } finally {
       try {
-        if(rs != null) { 
+        if(rs != null) {
           rs.close();
         }
         if (statementSelectEvent != null) {
@@ -408,9 +422,9 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
 
     return evtDaoList;
   }
-  
+
   @Override
-  public JSONArray getResultSetAsJson(String query, DateTimeZone tzForClient, Long eventId) throws SQLException, ParseException, JSONException {
+  public JSONArray getResultSetAsJson(String query, Long eventId) throws SQLException, ParseException, JSONException {
     Connection conn = null;
     JSONArray multipleRecords = null;
     PreparedStatement statementSelectEvent = null;
@@ -419,7 +433,7 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
     try {
       conn = CloudSQLConnectionManager.getInstance().getConnection();
       setNames(conn);
-    
+
       statementSelectEvent = conn.prepareStatement(query, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
       rs = statementSelectEvent.executeQuery();
       if (rs != null) {
@@ -429,7 +443,16 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
         while (rs.next()) {
           eachRecord = new JSONObject();
           for ( int i=1; i<=rsmd.getColumnCount();i++) {
-            eachRecord.put(rsmd.getColumnName(i), rs.getObject(i));
+            String colName = rsmd.getColumnName(i);
+            String colValue = rs.getObject(i).toString();
+            //if client timezone, then do not write to json
+            if (!(colName.equalsIgnoreCase(EventServerColumns.CLIENT_TIME_ZONE))) {
+              //if date columns in projection, then display along with corresponding timezone
+              if ((colName.equalsIgnoreCase(EventServerColumns.RESPONSE_TIME)) || (colName.equalsIgnoreCase(EventServerColumns.SCHEDULE_TIME))) {
+                colValue = colValue + rs.getString(EventServerColumns.CLIENT_TIME_ZONE);
+              }
+              eachRecord.put(colName, colValue);
+            }
           }
           multipleRecords.put(eachRecord);
         }
@@ -449,9 +472,9 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
         log.warning(ErrorMessages.CLOSING_RESOURCE_EXCEPTION.getDescription()+ ex1);
       }
     }
-   return multipleRecords; 
+   return multipleRecords;
   }
-  
+
   @Override
   public List<WhatDAO> getOutputs(Long eventId) throws SQLException {
     List<WhatDAO> whatLst = Lists.newArrayList();
@@ -487,55 +510,59 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
         log.warning(ErrorMessages.CLOSING_RESOURCE_EXCEPTION.getDescription()+ ex1);
       }
     }
-      
+
     return whatLst;
   }
 
-  private void adjustTimeZone(EventDAO event) throws ParseException {
-    String tz = event.getTimezone();
-    event.setScheduledTime(TimeUtil.convertToLocal(event.getScheduledTime(), tz));
-    event.setResponseTime(TimeUtil.convertToLocal(event.getResponseTime(), tz));
-  }
-
-  private EventDAO createEvent(ResultSet rs) {
+  private EventDAO createEvent(ResultSet rs, boolean withOutputs) {
     EventDAO event = new EventDAO();
-    List<WhatDAO> whatList = Lists.newArrayList();;
+    List<WhatDAO> whatList = Lists.newArrayList();
     WhatDAO singleWhat = null;
     try {
       event.setExperimentId(rs.getLong(EventServerColumns.EXPERIMENT_ID));
       event.setExperimentName(rs.getString(EventServerColumns.EXPERIMENT_NAME));
       event.setExperimentVersion(rs.getInt(EventServerColumns.EXPERIMENT_VERSION));
-      event.setScheduledTime(rs.getDate(EventServerColumns.SCHEDULE_TIME));
-      event.setResponseTime(rs.getDate(EventServerColumns.RESPONSE_TIME));
+
+      Date scheduleDate = rs.getTimestamp(EventServerColumns.SCHEDULE_TIME);
+      DateTime scheduledDateTime = scheduleDate != null ? new DateTime(scheduleDate): null;
+      event.setScheduledTime(scheduledDateTime);
+
+      Date responseDate = rs.getTimestamp(EventServerColumns.RESPONSE_TIME);
+      DateTime responseDateTime = responseDate != null ? new DateTime(responseDate) : null;
+      event.setResponseTime(responseDateTime);
+
       event.setExperimentGroupName(rs.getString(EventServerColumns.GROUP_NAME));
       event.setActionTriggerId(rs.getLong(EventServerColumns.ACTION_TRIGGER_ID));
       event.setActionTriggerSpecId(rs.getLong(EventServerColumns.ACTION_TRIGGER_SPEC_ID));
       event.setActionId(rs.getLong(EventServerColumns.ACTION_ID));
       event.setWho(rs.getString(EventServerColumns.WHO));
-      event.setWhen(new Date(rs.getDate(WHEN).getTime() + rs.getInt(EventServerColumns.WHEN_FRAC_SEC)));
+      event.setWhen(new DateTime(rs.getTimestamp(WHEN).getTime() + rs.getInt(EventServerColumns.WHEN_FRAC_SEC)));
       event.setPaco_version(rs.getString(EventServerColumns.PACO_VERSION));
       event.setAppId(rs.getString(EventServerColumns.APP_ID));
       event.setJoined(rs.getBoolean(EventServerColumns.JOINED));
-      event.setSortDate(rs.getDate(EventServerColumns.SORT_DATE));
+      //sort date cannot be null, so its safe to have new datetime
+      event.setSortDate(new DateTime(rs.getTimestamp(EventServerColumns.SORT_DATE)));
       event.setTimezone(rs.getString(EventServerColumns.CLIENT_TIME_ZONE));
       event.setId(rs.getLong(Constants.UNDERSCORE_ID));
-      String tempWhatText = rs.getString(OutputBaseColumns.NAME);
-      if(tempWhatText != null) {
-        singleWhat = new WhatDAO(tempWhatText, rs.getString(OutputBaseColumns.ANSWER));
-        whatList.add(singleWhat);
+      if (withOutputs) {
+        String tempWhatText = rs.getString(OutputBaseColumns.NAME);
+        if(tempWhatText != null) {
+          singleWhat = new WhatDAO(tempWhatText, rs.getString(OutputBaseColumns.ANSWER));
+          whatList.add(singleWhat);
+        }
+        event.setWhat(whatList);
       }
-      event.setWhat(whatList);
     } catch (SQLException sqle) {
       log.warning(ErrorMessages.SQL_EXCEPTION.getDescription() + sqle);
     }
-  
+
     return event;
   }
-  
-  public boolean setNames(Connection conn) throws SQLException { 
+
+  public boolean setNames(Connection conn) throws SQLException {
     boolean isDone = false;
     java.sql.Statement statementSetNames = null;
-  
+
     try {
       statementSetNames = conn.createStatement();
       statementSetNames.execute(QueryConstants.SET_NAMES.toString());
@@ -560,7 +587,7 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
     ExpressionList failedEventExprList = new ExpressionList();
     List<Expression> exp = Lists.newArrayList();
     Insert failedEventInsert = new Insert();
-   
+
     try {
       log.info("Inserting failed event");
       conn = CloudSQLConnectionManager.getInstance().getConnection();
@@ -574,19 +601,19 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
       for (Column c : failedColList) {
         ((ExpressionList) failedEventInsert.getItemsList()).getExpressions().add(new JdbcParameter());
       }
- 
+
       statementCreateFailedEvent = conn.prepareStatement(failedEventInsert.toString());
       statementCreateFailedEvent.setString(1, failedJson);
       statementCreateFailedEvent.setString(2, reason);
       statementCreateFailedEvent.setString(3, comments);
       statementCreateFailedEvent.setString(4, Constants.FALSE);
-      
+
       statementCreateFailedEvent.execute();
       conn.commit();
       retVal = true;
-    } catch(SQLException sqle) { 
-      log.info("Exception while inserting to failed events table" + failedJson);
-    } 
+    } catch(SQLException sqle) {
+      log.info("Exception while inserting to failed events table" + failedJson + ":" +  sqle);
+    }
     finally {
       try {
         if (statementCreateFailedEvent != null) {
@@ -630,7 +657,7 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
         log.warning(ErrorMessages.CLOSING_RESOURCE_EXCEPTION.getDescription()+ ex1);
       }
     }
-      
+
     return failedEventsMap;
   }
 
@@ -660,7 +687,7 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
         log.warning(ErrorMessages.CLOSING_RESOURCE_EXCEPTION.getDescription()+ ex1);
       }
     }
-      
-    return isSuccess;  
+
+    return isSuccess;
   }
 }

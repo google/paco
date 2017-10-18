@@ -47,7 +47,7 @@ public class ACLHelperTestAsParticipantOnly extends TestCase {
   public void testS1() {
     try {
       Select selStmt = SearchUtil.getJsqlSelectStatement(actualS1Qry);
-      QueryPreprocessor qp = new QueryPreprocessor(selStmt, validColumnNamesDataTypeInDb, false, null, dtz);
+      QueryPreprocessor qp = new QueryPreprocessor(selStmt, validColumnNamesDataTypeInDb, false, null);
       ACLHelper.getModifiedQueryBasedOnACL(actualS1Qry, userWhoIsOnlyParticipant, expListinDBForAdmin, qp);
     } catch (Exception e) {
       assertTrue(e.getMessage().startsWith("Unauthorized access"));
@@ -59,7 +59,7 @@ public class ACLHelperTestAsParticipantOnly extends TestCase {
     String actualQuery;
     try {
       Select selStmt = SearchUtil.getJsqlSelectStatement(actualS2Qry);
-      QueryPreprocessor qp = new QueryPreprocessor(selStmt, validColumnNamesDataTypeInDb, false, null, dtz);
+      QueryPreprocessor qp = new QueryPreprocessor(selStmt, validColumnNamesDataTypeInDb, false, null);
       actualQuery = ACLHelper.getModifiedQueryBasedOnACL(actualS2Qry, userWhoIsOnlyParticipant, expListinDBForAdmin, qp);
       assertTrue(expectedS2Qry.equalsIgnoreCase(actualQuery));
     } catch (Exception e) {
@@ -71,7 +71,7 @@ public class ACLHelperTestAsParticipantOnly extends TestCase {
   public void testS3() {
     try {
       Select selStmt = SearchUtil.getJsqlSelectStatement(actualS3Qry);
-      QueryPreprocessor qp = new QueryPreprocessor(selStmt, validColumnNamesDataTypeInDb, false, null, dtz);
+      QueryPreprocessor qp = new QueryPreprocessor(selStmt, validColumnNamesDataTypeInDb, false, null);
       ACLHelper.getModifiedQueryBasedOnACL(actualS3Qry, userWhoIsOnlyParticipant, expListinDBForAdmin, qp);
     } catch (Exception e) {
       assertTrue(e.getMessage().startsWith("Unauthorized access"));

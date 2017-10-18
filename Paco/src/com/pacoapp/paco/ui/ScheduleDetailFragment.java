@@ -370,7 +370,7 @@ public class ScheduleDetailFragment extends Fragment implements ExperimentLoadin
       });
     }
 
-    dialogBldr.setPositiveButton(R.string.accept, new DialogInterface.OnClickListener() {
+    dialogBldr.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
       public void onClick(DialogInterface dialog, int which) {
         int selected = 0;
 

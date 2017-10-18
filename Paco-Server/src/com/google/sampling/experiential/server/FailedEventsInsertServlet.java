@@ -16,12 +16,14 @@ import javax.servlet.http.HttpServletResponse;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.google.appengine.labs.repackaged.com.google.common.collect.Lists;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.sampling.experiential.shared.EventDAO;
 import com.pacoapp.paco.shared.util.Constants;
 import com.pacoapp.paco.shared.util.ErrorMessages;
+import com.pacoapp.paco.shared.util.SearchUtil;
 
+import net.sf.jsqlparser.JSQLParserException;
 
 @SuppressWarnings("serial")
 public class FailedEventsInsertServlet extends HttpServlet {
@@ -38,30 +40,33 @@ public class FailedEventsInsertServlet extends HttpServlet {
     setCharacterEncoding(req, resp);
     Long id = null;
     Long eventId = null;
+    String getQueryForEventIdSql = null;
     List<Long> fixedList = Lists.newArrayList();
     List<Long> notFixedList = Lists.newArrayList();
     List<Long> mysteryList = Lists.newArrayList();
     
     CloudSQLDaoImpl sqlDao = new CloudSQLDaoImpl();
     try {
-
       // Get failed events of reprocessing status false
       Map<Long, String> failedEvents = sqlDao.getFailedEvents();
+      boolean withOutputs = false;
       for ( Long failedId : failedEvents.keySet()) {
         id = failedId;
         final JSONObject currentEvent = new JSONObject(failedEvents.get(failedId));
+        
         // find the id  from failed json
         if (currentEvent.has(Constants.ID)) {
-          eventId = Long.parseLong(currentEvent.getString(Constants.ID));
           // check whether failed json id is there in events table
-          List<EventDAO> evtList = sqlDao.getEvents(QueryConstants.GET_EVENT_FOR_ID.toString(), null, eventId);
+          getQueryForEventIdSql = SearchUtil.getQueryForEventRetrieval(currentEvent.getString(Constants.ID));
+          List<EventDAO> evtList = sqlDao.getEvents(getQueryForEventIdSql, withOutputs);
           if (evtList.size() == 0) {
             toBeFixed.put(eventId, false);
             // send it to cs insert
             String results = EventJsonUploadProcessor.create().processJsonEvents(true, failedEvents.get(failedId),
                                                                                  null, null,null);
             // verify whether it is there in events table
-            List<EventDAO> evts = sqlDao.getEvents(QueryConstants.GET_EVENT_FOR_ID.toString(), null, eventId);
+            getQueryForEventIdSql = SearchUtil.getQueryForEventRetrieval(currentEvent.getString(Constants.ID));
+            List<EventDAO> evts = sqlDao.getEvents(getQueryForEventIdSql, withOutputs);
             if (evts.size() >0) {
               toBeFixed.put(eventId, true);
               sqlDao.updateFailedEventsRetry(id, Constants.TRUE);
@@ -91,6 +96,10 @@ public class FailedEventsInsertServlet extends HttpServlet {
       } catch (SQLException sqle) {
         log.warning(ErrorMessages.SQL_EXCEPTION +  sqle.getMessage());
       }
+    } catch (JSQLParserException e) {
+      log.warning(ErrorMessages.JSQL_PARSER_EXCEPTION.getDescription() + " : " + ExceptionUtil.getStackTraceAsString(e));
+    } catch (Exception e) {
+      log.warning(ErrorMessages.GENERAL_EXCEPTION.getDescription() + " : " + ExceptionUtil.getStackTraceAsString(e));
     } 
     resp.getWriter().println("success");
   }

@@ -16,13 +16,12 @@
 */
 package com.google.sampling.experiential.shared;
 
-import com.google.sampling.experiential.shared.WordCloud;
+import java.util.ArrayList;
+import java.util.List;
+
 import com.google.sampling.experiential.shared.WordCloud.WordWeight;
 
 import junit.framework.TestCase;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class WordCloudTest extends TestCase {
 

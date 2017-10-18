@@ -1,6 +1,6 @@
 package com.google.sampling.experiential.server.stats.participation;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 import java.util.List;
 
@@ -8,9 +8,6 @@ import org.joda.time.DateTime;
 import org.junit.Test;
 
 import com.google.common.collect.Lists;
-import com.google.sampling.experiential.server.stats.participation.LocalToUTCTimeZoneConverter;
-import com.google.sampling.experiential.server.stats.participation.ResponseStat;
-import com.google.sampling.experiential.server.stats.participation.ResponseStatSummarizer;
 
 
 

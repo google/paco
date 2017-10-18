@@ -1,7 +1,5 @@
 package com.google.sampling.experiential.server.migration;
 
-import java.io.ByteArrayOutputStream;
-import java.io.PrintStream;
 import java.sql.BatchUpdateException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -23,6 +21,7 @@ import com.google.sampling.experiential.datastore.EventServerColumns;
 import com.google.sampling.experiential.datastore.FailedEventServerColumns;
 import com.google.sampling.experiential.model.Event;
 import com.google.sampling.experiential.server.CloudSQLConnectionManager;
+import com.google.sampling.experiential.server.ExceptionUtil;
 import com.google.sampling.experiential.server.TimeUtil;
 import com.mysql.jdbc.Statement;
 import com.mysql.jdbc.exceptions.jdbc4.MySQLIntegrityConstraintViolationException;
@@ -50,7 +49,7 @@ public class CloudSQLMigrationDaoImpl implements CloudSQLMigrationDao {
   private static List<Column> missedEventsColList = Lists.newArrayList();
   private static List<Column> streamingColList = Lists.newArrayList();
   private static List<Column> catchupFailureColList = Lists.newArrayList();
-  
+
   static {
     eventColList.add(new Column(EventServerColumns.EXPERIMENT_ID));
     eventColList.add(new Column(EventServerColumns.EXPERIMENT_NAME));
@@ -70,42 +69,42 @@ public class CloudSQLMigrationDaoImpl implements CloudSQLMigrationDao {
     eventColList.add(new Column(EventServerColumns.SORT_DATE));
     eventColList.add(new Column(EventServerColumns.CLIENT_TIME_ZONE));
     eventColList.add(new Column(Constants.UNDERSCORE_ID));
-    
+
     outputColList.add(new Column(OutputBaseColumns.EVENT_ID));
     outputColList.add(new Column(OutputBaseColumns.NAME));
     outputColList.add(new Column(OutputBaseColumns.ANSWER));
     eventsOutputColumns = new HashMap<String, Integer>();
-        
+
     for(int ct = 1; ct <= eventColList.size(); ct ++) {
       eventsOutputColumns.put(eventColList.get(ct-1).getColumnName(), ct);
     }
     for(int ct = 0; ct < outputColList.size(); ct ++) {
       eventsOutputColumns.put(outputColList.get(ct).getColumnName(), eventsOutputColumns.size() + ct);
     }
-    
+
     failedColList.add(new Column(FailedEventServerColumns.EVENT_JSON));
     failedColList.add(new Column(FailedEventServerColumns.REASON));
     failedColList.add(new Column(FailedEventServerColumns.COMMENTS));
-    
+
     cursorColList.add(new Column("`cursor`"));
     cursorColList.add(new Column("`current_time`"));
     cursorColList.add(new Column("`current_time_fractional_sec`"));
-    
+
     missedEventsColList.add(new Column("`output_info`"));
     missedEventsColList.add(new Column("`current_time`"));
     missedEventsColList.add(new Column("`current_time_fractional_sec`"));
-   
+
     streamingColList.add(new Column("`start_time`"));
     streamingColList.add(new Column("`start_time_fractional_sec`"));
     streamingColList.add(new Column("`current_time`"));
-    
+
     catchupFailureColList.add(new Column(CatchupFailureServerColumns.INSERTION_TYPE));
     catchupFailureColList.add(new Column(CatchupFailureServerColumns.EVENT_ID));
     catchupFailureColList.add(new Column(CatchupFailureServerColumns.TEXT));
     catchupFailureColList.add(new Column(CatchupFailureServerColumns.FAILURE_REASON));
-    
+
   }
-  
+
   @Override
   public boolean insertEventsInBatch(List<Event> events) {
     if (events == null) {
@@ -125,7 +124,7 @@ public class CloudSQLMigrationDaoImpl implements CloudSQLMigrationDao {
     ExpressionList eventExprList = new ExpressionList();
     List<Expression> exp = Lists.newArrayList();
     Insert eventInsert = new Insert();
-    
+
     try {
       conn = CloudSQLConnectionManager.getInstance().getConnection();
       setNames(conn);
@@ -139,7 +138,7 @@ public class CloudSQLMigrationDaoImpl implements CloudSQLMigrationDao {
       for (Column c : eventColList) {
         ((ExpressionList) eventInsert.getItemsList()).getExpressions().add(new JdbcParameter());
       }
-     
+
       statementCreateEvent = conn.prepareStatement(eventInsert.toString());
       while (true) {
         if(!newBatch || events.size()<1000) {
@@ -177,7 +176,7 @@ public class CloudSQLMigrationDaoImpl implements CloudSQLMigrationDao {
                 }
               }
             }
-            if (joinFlag == null) { 
+            if (joinFlag == null) {
               statementCreateEvent.setNull(i++, java.sql.Types.BOOLEAN);
             } else {
               statementCreateEvent.setBoolean(i++, joinFlag);
@@ -193,7 +192,7 @@ public class CloudSQLMigrationDaoImpl implements CloudSQLMigrationDao {
             statementCreateEvent.setTimestamp(i++, ts);
             statementCreateEvent.setString(i++, event.getTimeZone());
             statementCreateEvent.setLong(i++, event.getId());
-       
+
             statementCreateEvent.addBatch();
             i = 1;
           }// for loop
@@ -216,7 +215,7 @@ public class CloudSQLMigrationDaoImpl implements CloudSQLMigrationDao {
               }
               events.removeAll(toRemove);
             } else { // any other failure
-              log.warning(trb.getErrorCode() + "unknown constraint failed: so, break" + getStackTraceAsString(trb));
+              log.warning(trb.getErrorCode() + "unknown constraint failed: so, break" + ExceptionUtil.getStackTraceAsString(trb));
               unknownException = true;
               for (int y=0; y<updateResult.length;y++) {
                 if (updateResult[y]== Statement.EXECUTE_FAILED) {
@@ -247,7 +246,7 @@ public class CloudSQLMigrationDaoImpl implements CloudSQLMigrationDao {
     }
     return retVal;
   }
-  
+
   @Override
   public boolean insertOutputsInBatch(List<MigrationOutput> outputs) {
     if (outputs == null) {
@@ -264,7 +263,7 @@ public class CloudSQLMigrationDaoImpl implements CloudSQLMigrationDao {
     ExpressionList outputList = new ExpressionList();
     List<Expression> exp = Lists.newArrayList();
     Insert outputInsert = new Insert();
- 
+
     try {
       conn = CloudSQLConnectionManager.getInstance().getConnection();
       conn.setAutoCommit(false);
@@ -278,9 +277,9 @@ public class CloudSQLMigrationDaoImpl implements CloudSQLMigrationDao {
       for (Column c : outputColList) {
         ((ExpressionList) outputInsert.getItemsList()).getExpressions().add(new JdbcParameter());
       }
- 
+
       statementCreateOutput = conn.prepareStatement(outputInsert.toString());
-     
+
       while (true) {
         if(!newBatch || outputs.size()<1000) {
           log.info("Is it New Batch"+newBatch + ". Batch size:" + outputs.size());
@@ -307,11 +306,11 @@ public class CloudSQLMigrationDaoImpl implements CloudSQLMigrationDao {
               if (updateResult[y]== Statement.EXECUTE_FAILED) {
                 log.info("response values for position"+ y + "->"+updateResult[y] + "->"+outputs.get(y).toString());
                 String origKey = outputs.get(y).getText();
-                if (origKey != null) { 
+                if (origKey != null) {
                   outputs.get(y).setText(origKey + "-DUP-" +(DUP_CTR++) );
                 } else {
                   outputs.get(y).setText("DUP-"+ (DUP_CTR++));
-                } 
+                }
               }
             }
           } else  if(trb.getErrorCode() == 1452 && trb.getCause() instanceof MySQLIntegrityConstraintViolationException) {// foreign key failure
@@ -323,17 +322,17 @@ public class CloudSQLMigrationDaoImpl implements CloudSQLMigrationDao {
                 lastEventId = outputs.get(y).getEventId();
               }
             }
-            
+
             log.warning("Last Error position is:"+ lastErrorPos);
             // remove the last eventid from the complete batch, and persist in missed events table
             for (int k = 0; k < outputs.size();k++) {
               if (outputs.get(k).getEventId() == lastEventId) {
                 persistMissedEvent(conn, outputs.get(k).toString());
-                outputs.remove(k);  
+                outputs.remove(k);
               }
             }
           } else {
-            log.warning(trb.getErrorCode() + "unknown constraint failed: so, break" + getStackTraceAsString(trb));
+            log.warning(trb.getErrorCode() + "unknown constraint failed: so, break" + ExceptionUtil.getStackTraceAsString(trb));
             unknownException = true;
             for (int y=0; y<updateResult.length;y++) {
               if (updateResult[y]== Statement.EXECUTE_FAILED) {
@@ -346,10 +345,10 @@ public class CloudSQLMigrationDaoImpl implements CloudSQLMigrationDao {
           log.warning("Not sure how to handle");
           break;
         }
-      }// while   
+      }// while
     } catch (Exception e) {
       log.info(ErrorMessages.GENERAL_EXCEPTION.getDescription()+ "batch insert failed. so restart from cursor");
-      log.warning(getStackTraceAsString(e));
+      log.warning(ExceptionUtil.getStackTraceAsString(e));
     }
     finally {
       try {
@@ -365,15 +364,7 @@ public class CloudSQLMigrationDaoImpl implements CloudSQLMigrationDao {
     }
     return retVal;
   }
-  
-  private String getStackTraceAsString(Throwable e) {
-    final ByteArrayOutputStream out = new ByteArrayOutputStream();
-    PrintStream pw = new PrintStream(out);
-    e.printStackTrace(pw);
-    final String string = out.toString();
-    return string;
-  }
-  
+
   @Override
   public Long getEarliestWhen() throws SQLException, ParseException {
     Connection conn = null;
@@ -388,7 +379,7 @@ public class CloudSQLMigrationDaoImpl implements CloudSQLMigrationDao {
       conn = CloudSQLConnectionManager.getInstance().getConnection();
       statementSelectEvent = conn.prepareStatement(query);
       rs = statementSelectEvent.executeQuery();
-     
+
       if (rs != null) {
         while (rs.next()) {
           earliestTs = rs.getTimestamp(1);
@@ -410,7 +401,7 @@ public class CloudSQLMigrationDaoImpl implements CloudSQLMigrationDao {
     }
     return retTime;
   }
-  
+
   @Override
   public Long getEarliestStreaming() throws SQLException, ParseException {
     Connection conn = null;
@@ -425,13 +416,13 @@ public class CloudSQLMigrationDaoImpl implements CloudSQLMigrationDao {
       conn = CloudSQLConnectionManager.getInstance().getConnection();
       statementSelectEvent = conn.prepareStatement(query);
       rs = statementSelectEvent.executeQuery();
-     
+
       if (rs != null) {
         while (rs.next()) {
           stTime = rs.getTimestamp(1);
           fracSec = rs.getInt(2);
         }
-        
+
         earliestDate = new Date(stTime.getTime() + fracSec);
       }
     } finally {
@@ -452,12 +443,12 @@ public class CloudSQLMigrationDaoImpl implements CloudSQLMigrationDao {
       return null;
     }
   }
-  
 
-  public boolean setNames(Connection conn) throws SQLException { 
+
+  public boolean setNames(Connection conn) throws SQLException {
     boolean isDone = false;
     java.sql.Statement statementSetNames = null;
-  
+
     try {
       statementSetNames = conn.createStatement();
       final String setNamesSql = "SET NAMES  'utf8mb4'";
@@ -474,7 +465,7 @@ public class CloudSQLMigrationDaoImpl implements CloudSQLMigrationDao {
     }
     return isDone;
   }
-  
+
   @Override
   public boolean insertCatchupFailure(String insertType, Long eventId, String text, String comments) {
     Connection conn = null;
@@ -483,7 +474,7 @@ public class CloudSQLMigrationDaoImpl implements CloudSQLMigrationDao {
     ExpressionList catchupFailureExprList = new ExpressionList();
     List<Expression> exp = Lists.newArrayList();
     Insert catchupFailureInsert = new Insert();
-   
+
     try {
       log.info("Inserting catchup " + insertType + " failure");
       conn = CloudSQLConnectionManager.getInstance().getConnection();
@@ -498,19 +489,19 @@ public class CloudSQLMigrationDaoImpl implements CloudSQLMigrationDao {
       for (Column c : catchupFailureColList) {
         ((ExpressionList) catchupFailureInsert.getItemsList()).getExpressions().add(new JdbcParameter());
       }
- 
+
       statementCreateCatchupFailure = conn.prepareStatement(catchupFailureInsert.toString());
       statementCreateCatchupFailure.setString(1, insertType);
       statementCreateCatchupFailure.setLong(2, eventId);
       statementCreateCatchupFailure.setString(3, text);
       statementCreateCatchupFailure.setString(4, comments);
-      
+
       statementCreateCatchupFailure.execute();
       conn.commit();
       retVal = true;
-    } catch(SQLException sqle) { 
+    } catch(SQLException sqle) {
       log.severe("Exception while inserting to catchup failure table" + eventId);
-    } 
+    }
     finally {
       try {
         if (statementCreateCatchupFailure != null) {
@@ -541,7 +532,7 @@ public class CloudSQLMigrationDaoImpl implements CloudSQLMigrationDao {
 
       conn = CloudSQLConnectionManager.getInstance().getConnection();
       // TODO Sub Partition size for the experiment hash bucket
-      final String createEventsTableSql = "CREATE TABLE `" + EventServerColumns.TABLE_NAME 
+      final String createEventsTableSql = "CREATE TABLE `" + EventServerColumns.TABLE_NAME
                                           + "` (" +"`" + Constants.UNDERSCORE_ID + "` bigint(20) NOT NULL ,"+ "`"
                                           + EventServerColumns.EXPERIMENT_ID + "` bigint(20) NOT NULL," + "`"
                                           + EventServerColumns.EXPERIMENT_NAME + "` varchar(500) DEFAULT NULL," + "`"
@@ -554,7 +545,7 @@ public class CloudSQLMigrationDaoImpl implements CloudSQLMigrationDao {
                                           + EventServerColumns.ACTION_TRIGGER_SPEC_ID + "` bigint(20) DEFAULT NULL," + "`"
                                           + EventServerColumns.WHO + "` varchar(500) NOT NULL," + "`"
                                           + EventServerColumns.PACO_VERSION + "` varchar(20) DEFAULT NULL," + "`"
-                                          + EventServerColumns.APP_ID + "` varchar(25) DEFAULT NULL," 
+                                          + EventServerColumns.APP_ID + "` varchar(25) DEFAULT NULL,"
                                           // when column already has the back tick
                                           + EventServerColumns.WHEN + " datetime DEFAULT NULL," + "`"
                                           + EventServerColumns.WHEN_FRAC_SEC + "` int(11) DEFAULT '0', " +  "`"
@@ -570,7 +561,7 @@ public class CloudSQLMigrationDaoImpl implements CloudSQLMigrationDao {
                                           + EventServerColumns.EXPERIMENT_ID + "`,`" + EventServerColumns.WHO + "`,"
                                           + EventServerColumns.WHEN + ","+ EventServerColumns.WHEN_FRAC_SEC  + ")) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4";
 
-      final String createOutputsTableSql = "CREATE TABLE `" + OutputBaseColumns.TABLE_NAME+ "` (" + "`" 
+      final String createOutputsTableSql = "CREATE TABLE `" + OutputBaseColumns.TABLE_NAME+ "` (" + "`"
                                            + OutputBaseColumns.EVENT_ID + "` bigint(20) NOT NULL," + "`"
                                            + OutputBaseColumns.NAME + "` varchar(750) NOT NULL," + "`"
                                            + OutputBaseColumns.ANSWER + "` varchar(1000) DEFAULT NULL," + "`"
@@ -578,28 +569,28 @@ public class CloudSQLMigrationDaoImpl implements CloudSQLMigrationDao {
                                            + "PRIMARY KEY (`" + OutputBaseColumns.EVENT_ID + "`,`"
                                            + OutputBaseColumns.NAME + "`)," + "KEY `events_id_index` (`"
                                            + OutputBaseColumns.EVENT_ID + "`)," + "KEY `text_index` (`"
-                                           + OutputBaseColumns.NAME + "`), " 
+                                           + OutputBaseColumns.NAME + "`), "
                                            + " CONSTRAINT `events_id_fk` FOREIGN KEY (`"+ OutputBaseColumns.EVENT_ID + "`) REFERENCES `"+ EventBaseColumns.TABLE_NAME +"` (`"+ ID +"`) ON DELETE CASCADE ON UPDATE NO ACTION " +
                                            ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4";
-            
-      final String createFailedEventsTableSql = "CREATE TABLE `" +  FailedEventServerColumns.TABLE_NAME +  "` (" + "`" 
+
+      final String createFailedEventsTableSql = "CREATE TABLE `" +  FailedEventServerColumns.TABLE_NAME +  "` (" + "`"
                                             + FailedEventServerColumns.ID + "` bigint(20) NOT NULL AUTO_INCREMENT," + "`"
                                             + FailedEventServerColumns.EVENT_JSON + "` varchar(3000) NOT NULL," + "`"
                                             + FailedEventServerColumns.FAILED_INSERT_TIME + "` datetime  DEFAULT CURRENT_TIMESTAMP," + "`"
                                             + FailedEventServerColumns.REASON + "` varchar(500) DEFAULT NULL," + "`"
                                             + FailedEventServerColumns.COMMENTS + "` varchar(1000) DEFAULT NULL," +"`"
-                                            + FailedEventServerColumns.REPROCESSED + "` varchar(10) DEFAULT 'false'," 
+                                            + FailedEventServerColumns.REPROCESSED + "` varchar(10) DEFAULT 'false',"
                                             + "PRIMARY KEY (`" + FailedEventServerColumns.ID + "`)"+") ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4";
-      final String createCatchupFailureTableSql = "CREATE TABLE `" +  CatchupFailureServerColumns.TABLE_NAME +  "` (" + "`" 
+      final String createCatchupFailureTableSql = "CREATE TABLE `" +  CatchupFailureServerColumns.TABLE_NAME +  "` (" + "`"
                                             + CatchupFailureServerColumns.ID + "` bigint(20) NOT NULL AUTO_INCREMENT," + "`"
                                             + CatchupFailureServerColumns.INSERTION_TYPE + "` varchar(20) NOT NULL," + "`"
                                             + CatchupFailureServerColumns.EVENT_ID + "` bigint(20)  DEFAULT NULL," + "`"
                                             + CatchupFailureServerColumns.TEXT + "` varchar(750) DEFAULT NULL," + "`"
                                             + CatchupFailureServerColumns.FAILURE_REASON + "` varchar(750) DEFAULT NULL," +"`"
-                                            + CatchupFailureServerColumns.FAILURE_TIME + "` datetime DEFAULT CURRENT_TIMESTAMP," 
+                                            + CatchupFailureServerColumns.FAILURE_TIME + "` datetime DEFAULT CURRENT_TIMESTAMP,"
                                             + "PRIMARY KEY (`" + CatchupFailureServerColumns.ID + "`)"+") ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4";
       final String createMigrationCursorTableSql = "CREATE TABLE `migration_cursor` ( " +
-                                                    "`id` bigint(20) NOT NULL AUTO_INCREMENT," + 
+                                                    "`id` bigint(20) NOT NULL AUTO_INCREMENT," +
                                                     "`cursor` varchar(400) DEFAULT NULL, " +
                                                     "`current_time` datetime DEFAULT NULL," +
                                                     "`current_time_fractional_sec` int(11) DEFAULT '0'," +
@@ -627,35 +618,35 @@ public class CloudSQLMigrationDaoImpl implements CloudSQLMigrationDao {
         log.info("created events");
         // TODO better handling
         retString = "created events table. ";
-        
+
         statementCreateOutput = conn.prepareStatement(createOutputsTableSql);
         log.info(createOutputsTableSql);
         statementCreateOutput.execute();
         log.info("created outputs");
         // TODO better handling
         retString = retString + "Created outputs table. ";
-        
+
         statementCreateFailedEvent = conn.prepareStatement(createFailedEventsTableSql);
         log.info(createFailedEventsTableSql);
         statementCreateFailedEvent.execute();
         log.info("created failed events");
         // TODO better handling
         retString = retString + "Created FailedEvents table. ";
-        
+
         statementCreateMigrationCursor = conn.prepareStatement(createMigrationCursorTableSql);
         log.info(createMigrationCursorTableSql);
         statementCreateMigrationCursor.execute();
         log.info("created migration cursor");
         // TODO better handling
         retString = retString + "Created MigrationCursor table. ";
-        
+
         statementCreateMissingEventIds = conn.prepareStatement(createMissingEventIdsTableSql);
         log.info(createMissingEventIdsTableSql);
         statementCreateMissingEventIds.execute();
         log.info("created missing events");
         // TODO better handling
         retString = retString + "Created missingEventIds table. ";
-        
+
         statementCreateStreaming = conn.prepareStatement(createStreamingTableSql);
         log.info(createStreamingTableSql);
         statementCreateStreaming.execute();
@@ -700,7 +691,204 @@ public class CloudSQLMigrationDaoImpl implements CloudSQLMigrationDao {
     }
     return retString;
   }
-  
+
+  @Override
+  public boolean eventV5AddNewColumns() throws SQLException{
+    final String addNewColumnsSql = "ALTER TABLE `pacodb`.`"+ EventBaseColumns.TABLE_NAME  +"` " +
+                                 " ADD COLUMN `" + EventBaseColumns.SCHEDULE_TIME + "` DATETIME NULL DEFAULT NULL AFTER `" + EventServerColumns.CLIENT_TIME_ZONE+ "`, " +
+                                 " ADD COLUMN `" + EventBaseColumns.RESPONSE_TIME + "` DATETIME NULL DEFAULT NULL AFTER `" + EventServerColumns.SCHEDULE_TIME + "`, " +
+                                 " ADD COLUMN `" + EventServerColumns.SORT_DATE + "` DATETIME NULL DEFAULT NULL AFTER `" + EventServerColumns.RESPONSE_TIME + "`";
+    Connection conn = null;
+    PreparedStatement statementAddNewCol = null;
+    try {
+      conn = CloudSQLConnectionManager.getInstance().getConnection();
+      statementAddNewCol = conn.prepareStatement(addNewColumnsSql);
+      log.info(addNewColumnsSql);
+      statementAddNewCol.execute();
+      log.info("Added new columns");
+    } catch (SQLException sqle) {
+      log.warning("SQLException while adding new cols" + ExceptionUtil.getStackTraceAsString(sqle));
+      throw sqle;
+    } catch (Exception e) {
+      log.warning("GException while adding new cols" + ExceptionUtil.getStackTraceAsString(e));
+      throw e;
+    } finally {
+      try {
+        if (statementAddNewCol != null) {
+          statementAddNewCol.close();
+        }
+        if (conn != null) {
+          conn.close();
+        }
+      } catch (SQLException e) {
+          log.warning("Exception in finally block" + ExceptionUtil.getStackTraceAsString(e));
+      }
+    }
+    return true;
+  }
+
+  @Override
+  public boolean eventV5RenameExistingColumns() throws SQLException {
+    final String renameExistingColumns = "ALTER TABLE `pacodb`.`"+ EventBaseColumns.TABLE_NAME  +"` " +
+                                           " CHANGE COLUMN `" + EventBaseColumns.SCHEDULE_TIME + "` `" + EventServerColumns.SCHEDULE_TIME_UTC + "` DATETIME NULL DEFAULT NULL , " +
+                                           " CHANGE COLUMN `" + EventBaseColumns.RESPONSE_TIME + "` `" + EventServerColumns.RESPONSE_TIME_UTC + "` DATETIME NULL DEFAULT NULL , " +
+                                           " CHANGE COLUMN `" + EventServerColumns.SORT_DATE + "` `" + EventServerColumns.SORT_DATE_UTC + "` DATETIME NULL DEFAULT NULL";
+    Connection conn = null;
+    PreparedStatement statementRenameExistingCol = null;
+    try {
+      conn = CloudSQLConnectionManager.getInstance().getConnection();
+      statementRenameExistingCol = conn.prepareStatement(renameExistingColumns);
+      log.info(renameExistingColumns);
+      statementRenameExistingCol.execute();
+      log.info("Renamed existing columns");
+    } catch (SQLException sqle) {
+      log.warning("SQLException while renaming existing columns" + ExceptionUtil.getStackTraceAsString(sqle));
+      throw sqle;
+    } catch (Exception e) {
+      log.warning("GException while renaming existing columns" + ExceptionUtil.getStackTraceAsString(e));
+      throw e;
+    } finally {
+      try {
+        if (statementRenameExistingCol != null) {
+          statementRenameExistingCol.close();
+        }
+        if (conn != null) {
+          conn.close();
+        }
+      } catch (SQLException e) {
+        log.warning("Exception in finally block" + ExceptionUtil.getStackTraceAsString(e));
+      }
+    }
+    return true;
+  }
+
+  @Override
+  public boolean eventV5UpdateNewColumnsWithValues() throws SQLException{
+    final String updateValuesExistingColumns1 = "update `pacodb`.`" + EventBaseColumns.TABLE_NAME  +"` set " + EventBaseColumns.RESPONSE_TIME + " = CONVERT_TZ(" + EventServerColumns.RESPONSE_TIME_UTC + ",'+00:00'," + EventServerColumns.CLIENT_TIME_ZONE + ") where " + EventServerColumns.RESPONSE_TIME_UTC + " is not null and _id >0";
+    final String updateValuesExistingColumns2 = "update `pacodb`.`" + EventBaseColumns.TABLE_NAME  +"` set " + EventBaseColumns.SCHEDULE_TIME + "  = CONVERT_TZ(" + EventServerColumns.SCHEDULE_TIME_UTC + ",'+00:00'," + EventServerColumns.CLIENT_TIME_ZONE + ") where " + EventServerColumns.SCHEDULE_TIME_UTC + " is not null and _id >0";
+    final String updateValuesExistingColumns3 = "update `pacodb`.`" + EventBaseColumns.TABLE_NAME  +"` set " + EventServerColumns.SORT_DATE + " = CONVERT_TZ(" + EventServerColumns.SORT_DATE_UTC + ",'+00:00'," + EventServerColumns.CLIENT_TIME_ZONE + ") where " + EventServerColumns.SORT_DATE_UTC + " is not null and _id >0";
+    String[] qry = new String[] { updateValuesExistingColumns1, updateValuesExistingColumns2, updateValuesExistingColumns3};
+    Connection conn = null;
+    PreparedStatement statementUpdateValuesCol = null;
+    try {
+      conn = CloudSQLConnectionManager.getInstance().getConnection();
+      for ( int i = 0; i < qry.length; i++) {
+        statementUpdateValuesCol  = conn.prepareStatement(qry[i]);
+        log.info(qry[i]);
+        statementUpdateValuesCol.execute();
+      }
+      log.info("Updated columns with values");
+    } catch (SQLException sqle) {
+      log.warning("SQLException while updating values" + ExceptionUtil.getStackTraceAsString(sqle));
+      throw sqle;
+    } catch (Exception e) {
+      log.warning("GException while updating values" + ExceptionUtil.getStackTraceAsString(e));
+      throw e;
+    } finally {
+      try {
+        if (statementUpdateValuesCol != null) {
+          statementUpdateValuesCol.close();
+        }
+
+        if (conn != null) {
+        conn.close();
+        }
+      } catch (SQLException e) {
+        log.warning("Exception in finally block" + ExceptionUtil.getStackTraceAsString(e));
+      }
+    }
+    return true;
+  }
+
+  @Override
+  public boolean eventV5RemoveOldIndexes() throws SQLException{
+    boolean isComplete = false;
+    String[] qry = new String[3];
+    final String removeOldIndexSql1 = "ALTER TABLE `pacodb`.`events` " +
+            " DROP INDEX `exp_id_when_index` , " +
+            " DROP INDEX `exp_id_who_when_index` , " +
+            " DROP INDEX `exp_id_resp_time_index` , " +
+            " DROP INDEX `when_index` ";
+    final String removeOldIndexSql2 = "ALTER TABLE `pacodb`.`outputs` " +
+            " DROP INDEX `events_id_index` ";
+    final String removeOldIndexSql3 = "ALTER TABLE `pacodb`.`outputs` " +
+            " DROP INDEX `text_index` ";
+    qry = new String[] { removeOldIndexSql1, removeOldIndexSql2, removeOldIndexSql3};
+    Connection conn = null;
+    PreparedStatement statementRemoveOldIndex = null;
+
+    try {
+      conn = CloudSQLConnectionManager.getInstance().getConnection();
+      for ( int i = 0; i < qry.length; i++) {
+        statementRemoveOldIndex = conn.prepareStatement(qry[i]);
+        log.info(qry[i]);
+        statementRemoveOldIndex.execute();
+      }
+      isComplete = true;
+    } catch (SQLException sqle) {
+      log.warning("SQLException while removing old index" + ExceptionUtil.getStackTraceAsString(sqle));
+      throw sqle;
+    } catch (Exception e) {
+      log.warning("GException while removing old index" + ExceptionUtil.getStackTraceAsString(e));
+      throw e;
+    } finally {
+      try {
+        if (statementRemoveOldIndex != null) {
+          statementRemoveOldIndex.close();
+        }
+
+        if (conn != null) {
+          conn.close();
+        }
+      } catch (SQLException e) {
+        log.warning("Exception in finally block" + ExceptionUtil.getStackTraceAsString(e));
+      }
+    }
+
+    return isComplete;
+
+  }
+
+  @Override
+  public boolean eventV5AddNewIndexes() throws SQLException {
+    String[] qry = null;
+    final String addNewIndexSql1 = "ALTER TABLE `pacodb`.`events` " +
+            " ADD INDEX `exp_id_grp_who_index`  (`experiment_id` ASC, `group_name`(100) ASC, `who` ASC) , " +
+            " ADD INDEX `exp_id_sort_date_index` (`experiment_id` ASC, `sort_date` DESC), " +
+            " ADD INDEX `exp_id_who_index`  (`experiment_id` ASC, `who` ASC)  ";
+    qry = new String[] { addNewIndexSql1 };
+    Connection conn = null;
+    PreparedStatement statementAddNewIndex = null;
+    try {
+      conn = CloudSQLConnectionManager.getInstance().getConnection();
+      for ( int i = 0; i < qry.length; i++) {
+        statementAddNewIndex = conn.prepareStatement(qry[i]);
+        log.info(qry[i]);
+        statementAddNewIndex.execute();
+      }
+      log.info("Added New Indexes");
+    } catch (SQLException sqle) {
+      log.warning("SQLException while adding new index" + ExceptionUtil.getStackTraceAsString(sqle));
+      throw sqle;
+    } catch (Exception e) {
+      log.warning("GException while adding new index" + ExceptionUtil.getStackTraceAsString(e));
+      throw e;
+    } finally {
+      try {
+        if (statementAddNewIndex != null) {
+          statementAddNewIndex.close();
+        }
+        if (conn != null) {
+          conn.close();
+        }
+      } catch (SQLException e) {
+        log.warning("Exception in finally block" + ExceptionUtil.getStackTraceAsString(e));
+      }
+    }
+    return true;
+
+  }
+
   @Override
   public boolean persistCursor(String cursor) {
     Connection conn = null;
@@ -711,7 +899,7 @@ public class CloudSQLMigrationDaoImpl implements CloudSQLMigrationDao {
     ExpressionList persistCursorExprList = new ExpressionList();
     List<Expression> exp = Lists.newArrayList();
     Insert persistCursorInsert = new Insert();
-   
+
     try {
       conn = CloudSQLConnectionManager.getInstance().getConnection();
       conn.setAutoCommit(false);
@@ -724,7 +912,7 @@ public class CloudSQLMigrationDaoImpl implements CloudSQLMigrationDao {
       for (Column c : cursorColList) {
         ((ExpressionList) persistCursorInsert.getItemsList()).getExpressions().add(new JdbcParameter());
       }
- 
+
       statementPersistCursor = conn.prepareStatement(persistCursorInsert.toString());
       statementPersistCursor.setString(1, cursor);
 
@@ -732,14 +920,14 @@ public class CloudSQLMigrationDaoImpl implements CloudSQLMigrationDao {
       crFracSec =  TimeUtil.getFractionalSeconds(crTimestamp);
       statementPersistCursor.setTimestamp(2, crTimestamp);
       statementPersistCursor.setInt(3, crFracSec);
-      
+
       statementPersistCursor.execute();
       conn.commit();
       retVal = true;
-    } catch(SQLException sqle) { 
+    } catch(SQLException sqle) {
       log.warning("Exception while inserting to migration cursor" + cursor);
       log.warning("Exception while inserting to migration cursors table" + sqle);
-    } 
+    }
     finally {
       try {
         if (statementPersistCursor != null) {
@@ -754,12 +942,12 @@ public class CloudSQLMigrationDaoImpl implements CloudSQLMigrationDao {
     }
     return retVal;
   }
-  
 
-  
+
+
   @Override
   public boolean persistMissedEvent(Connection conn, String origMigrationOutput) {
-    
+
     PreparedStatement statementPersistMissedEvent = null;
     boolean retVal = false;
     Timestamp crTimestamp = null;
@@ -768,7 +956,7 @@ public class CloudSQLMigrationDaoImpl implements CloudSQLMigrationDao {
     List<Expression> exp = Lists.newArrayList();
     Insert persistMissedEventInsert = new Insert();
     String modMigrationOutput = origMigrationOutput;
-   
+
     try {
       conn.setAutoCommit(false);
       persistMissedEventInsert.setTable(new Table("missing_event_ids"));
@@ -785,31 +973,31 @@ public class CloudSQLMigrationDaoImpl implements CloudSQLMigrationDao {
       }
       statementPersistMissedEvent = conn.prepareStatement(persistMissedEventInsert.toString());
       statementPersistMissedEvent.setString(1, modMigrationOutput);
-  
+
       crTimestamp = new Timestamp(System.currentTimeMillis());
       crFracSec =  TimeUtil.getFractionalSeconds(crTimestamp);
       statementPersistMissedEvent.setTimestamp(2, crTimestamp);
       statementPersistMissedEvent.setInt(3, crFracSec);
-      
+
       statementPersistMissedEvent.execute();
       conn.commit();
       retVal = true;
-    } catch(SQLException sqle) { 
+    } catch(SQLException sqle) {
       log.warning("Exception while inserting to missed events table" + sqle);
-    } 
+    }
     finally {
       try {
         if (statementPersistMissedEvent != null) {
           statementPersistMissedEvent.close();
         }
-        
+
       } catch (SQLException ex1) {
         log.info(ErrorMessages.CLOSING_RESOURCE_EXCEPTION.getDescription() + ex1);
       }
     }
     return retVal;
   }
-  
+
   @Override
   public boolean persistStreamingStart(DateTime startTime) {
     Connection conn = null;
@@ -820,7 +1008,7 @@ public class CloudSQLMigrationDaoImpl implements CloudSQLMigrationDao {
     ExpressionList streamingExprList = new ExpressionList();
     List<Expression> exp = Lists.newArrayList();
     Insert persistMissedEventInsert = new Insert();
-   
+
     try {
       log.info("Inserting streaming start ");
       conn = CloudSQLConnectionManager.getInstance().getConnection();
@@ -834,7 +1022,7 @@ public class CloudSQLMigrationDaoImpl implements CloudSQLMigrationDao {
       for (Column c : streamingColList) {
         ((ExpressionList) persistMissedEventInsert.getItemsList()).getExpressions().add(new JdbcParameter());
       }
-      
+
       statementStreamingStart = conn.prepareStatement(persistMissedEventInsert.toString());
       if(startTime != null) {
         stTimestamp = new Timestamp(startTime.getMillis());
@@ -843,14 +1031,14 @@ public class CloudSQLMigrationDaoImpl implements CloudSQLMigrationDao {
       statementStreamingStart.setTimestamp(1, stTimestamp);
       statementStreamingStart.setInt(2, stFracSec);
       statementStreamingStart.setTimestamp(3, new Timestamp(System.currentTimeMillis()));
-      
+
       statementStreamingStart.execute();
       conn.commit();
       retVal = true;
-    } catch(SQLException sqle) { 
+    } catch(SQLException sqle) {
       log.warning("Exception while inserting to streaming" + startTime);
       log.warning("Exception while inserting to streaming table" + sqle);
-    } 
+    }
     finally {
       try {
         if (statementStreamingStart != null) {
@@ -859,7 +1047,7 @@ public class CloudSQLMigrationDaoImpl implements CloudSQLMigrationDao {
         if (conn != null) {
           conn.close();
         }
-        
+
       } catch (SQLException ex1) {
         log.info(ErrorMessages.CLOSING_RESOURCE_EXCEPTION.getDescription() + ex1);
       }

@@ -22,8 +22,6 @@ import org.apache.commons.io.IOUtils;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormatter;
 
-import au.com.bytecode.opencsv.CSVReader;
-
 import com.google.appengine.api.users.User;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
@@ -35,6 +33,8 @@ import com.pacoapp.paco.shared.comm.Outcome;
 import com.pacoapp.paco.shared.model2.ExperimentDAO;
 import com.pacoapp.paco.shared.model2.Input2;
 import com.pacoapp.paco.shared.util.ExperimentHelper;
+
+import au.com.bytecode.opencsv.CSVReader;
 
 public class EventCsvUploadProcessor {
 

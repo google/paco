@@ -20,7 +20,7 @@ public class ReportRequest {
     // identify report name
     reportId = request.getParameter(REPORT_ID);
     // identify back end module
-    backendModule = new PacoModule(backendModuleStr);
+    backendModule = new PacoModule(backendModuleStr, request.getServerName());
     // identify report job
     reportJob =  ReportLookupTable.getReportBackendName(reportId);       
     // identify who

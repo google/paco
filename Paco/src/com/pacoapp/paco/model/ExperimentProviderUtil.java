@@ -826,6 +826,7 @@ public class ExperimentProviderUtil implements EventStore {
     List<Event> events = Lists.newArrayList();
     Event event = null;
     Map<Long, Event> eventMap = null;
+    boolean webRequest = false;
     List<String> dateColumns = Lists.newArrayList();
     dateColumns.add(EventColumns.RESPONSE_TIME);
     EventQueryStatus evQryStat = new EventQueryStatus();
@@ -836,7 +837,7 @@ public class ExperimentProviderUtil implements EventStore {
       Select selectStmt = SearchUtil.getJsqlSelectStatement(selectSql);
       // preprocessor parses the query, and identifies potential issues like invalid column name, invalid data tye, sql injection,
       // or if join is needed.
-      QueryPreprocessor qProcessor = new QueryPreprocessor(selectStmt, validColumnNamesDataTypeInDb, false, dateColumns,  null);
+      QueryPreprocessor qProcessor = new QueryPreprocessor(selectStmt, validColumnNamesDataTypeInDb, webRequest, dateColumns);
       if (qProcessor.containExpIdClause() == false || qProcessor.getExpIdValues().size() > 1 || !qProcessor.getExpIdValues().contains(expId)) {
         evQryStat.setStatus(FAILURE);
         evQryStat.setErrorMessage(ErrorMessages.EXPERIMENT_ID_CLAUSE_EXCEPTION.getDescription());
@@ -874,7 +875,7 @@ public class ExperimentProviderUtil implements EventStore {
         }
       }
 
-      if (qProcessor.isOutputColumnsPresent()) {
+      if (qProcessor.isOutputColumnsPresent() || sqlQuery.isFullEventAndOutputs()) {
         cursor = dbHelper.query(ExperimentProvider.OUTPUTS_DATATYPE, sqlQuery.getProjection(), sqlQuery.getCriteriaQuery(), modCriValue,
                                 sqlQuery.getSortOrder(), sqlQuery.getGroupBy(), sqlQuery.getHaving(), sqlQuery.getLimit());
       } else {
@@ -886,9 +887,10 @@ public class ExperimentProviderUtil implements EventStore {
 
       if (cursor != null) {
         events = Lists.newArrayList();
+        boolean withOutputs = qProcessor.isOutputColumnsPresent() || sqlQuery.isFullEventAndOutputs();
         while (cursor.moveToNext()) {
           //no need to coalesce, we just add it to the list and send the collection to the client.
-          event = createEvent(cursor, false);
+          event = createEvent(cursor, false, withOutputs);
           Event oldEvent = eventMap.get(event.getId());
           if(oldEvent == null){
             event.setResponses(findResponsesFor(event));
@@ -1077,18 +1079,31 @@ public class ExperimentProviderUtil implements EventStore {
   }
 
   private Event createEvent(Cursor cursor){
-    return createEvent(cursor, true);
+    boolean cursorWithOutputColumns = false;
+    return createEvent(cursor, true, cursorWithOutputColumns);
   }
 
-  private Event createEvent(Cursor cursor, boolean requiredFieldsFlag) {
+  private Event createEvent(Cursor cursor, boolean requiredFieldsFlag, boolean withOutputColumns) {
     int idIndex, experimentIdIndex;
-    if(requiredFieldsFlag){
-      idIndex = cursor.getColumnIndexOrThrow(EventColumns._ID);
+    // If output table columns are present in cursor, we will have duplicate column names for _id. One will be wrt the events table
+    // which is the correct one and the other will be wrt outputs table, which is not the intended id.
+    // When we have output columns, we get event_id from outputs table, otherwise _id from events table
+    if(requiredFieldsFlag) {
+      if (withOutputColumns) {
+        idIndex = cursor.getColumnIndexOrThrow(OutputColumns.EVENT_ID);
+      } else {
+        idIndex = cursor.getColumnIndexOrThrow(EventColumns._ID);
+      }
       experimentIdIndex = cursor.getColumnIndexOrThrow(EventColumns.EXPERIMENT_ID);
-    }else{
-      idIndex = cursor.getColumnIndex(EventColumns._ID);
+    } else {
+      if (withOutputColumns) {
+        idIndex = cursor.getColumnIndex(OutputColumns.EVENT_ID);
+      } else {
+        idIndex = cursor.getColumnIndex(EventColumns._ID);
+      }
       experimentIdIndex = cursor.getColumnIndex(EventColumns.EXPERIMENT_ID);
     }
+    
     int experimentServerIdIndex = cursor.getColumnIndex(EventColumns.EXPERIMENT_SERVER_ID);
     int experimentVersionIndex = cursor.getColumnIndex(EventColumns.EXPERIMENT_VERSION);
     int experimentNameIndex = cursor.getColumnIndex(EventColumns.EXPERIMENT_NAME);
