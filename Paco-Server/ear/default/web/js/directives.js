@@ -881,7 +881,7 @@ pacoApp.directive('pacoGroupPub', function () {
   return {
     restrict: 'E',
     scope: {  'group': '=data',
-              'responses': '=',
+              'responses': '=?',
               'preview': '=',
               'readonly': '=',
               'events': '=',
