@@ -3,7 +3,7 @@
     <div class="column0">
       <div>
         <select ng-model="schedule.scheduleType" as-string>
-          <option disabled selected value="">Signal Schedule</option>
+          <option disabled  value="">Signal Schedule</option>
           <option ng-selected="$index === schedule.scheduleType" ng-repeat="type in scheduleTypes"
           value="{{$index}}">
             {{type}}
@@ -42,7 +42,7 @@
       <div ng-if="schedule.scheduleType === 0">
         Repeat every
         <select ng-model="schedule.repeatRate" as-string>
-          <option value="" disabled selected></option>
+          <option value="" disabled ></option>
           <option ng-selected="rate === schedule.repeatRate" ng-repeat="rate in repeatRates"
           value="{{rate}}">{{rate}}</option>
         </select>
@@ -52,7 +52,7 @@
       <div ng-if="schedule.scheduleType === 2">
         Repeat every
         <select ng-model="schedule.repeatRate" as-string>
-          <option value="" disabled selected></option>
+          <option value="" disabled ></option>
           <option ng-selected="rate === schedule.repeatRate" ng-repeat="rate in repeatRates"
           value="{{rate}}">{{rate}}</option>
         </select>
@@ -62,7 +62,7 @@
       <div ng-if="schedule.scheduleType === 3">
         Repeat every
         <select ng-model="schedule.repeatRate" as-string>
-          <option value="" disabled selected></option>
+          <option value="" disabled ></option>
           <option ng-selected="rate === schedule.repeatRate" ng-repeat="rate in repeatRates"
           value="{{rate}}">{{rate}}</option>
         </select>
@@ -135,7 +135,7 @@
           </md-input-container>
 
           <select ng-model="schedule.esmPeriodInDays" flex="33" class="period" as-string>
-            <option value="" disabled selected>Select period</option>
+            <option value="" disabled>Select period</option>
             <option ng-selected="$index === schedule.esmPeriodInDays" ng-repeat="period in esmPeriods"
             value="{{$index}}">{{period}}</option>
           </select>

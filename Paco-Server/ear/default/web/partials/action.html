@@ -3,7 +3,7 @@
     <div layout="row">
       <div>
         <select ng-model="action.actionCode" as-string>
-          <option value="" disabled selected>Choose Action</option>
+          <option value="" disabled>Choose Action</option>
           <option ng-selected="(id) == action.actionCode" ng-repeat="(id, type) in actionTypes"
           value="{{id}}">{{type}}</option>
         </select>
