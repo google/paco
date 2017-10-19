@@ -2,7 +2,8 @@ var pacoApp = angular.module('pacoApp', [
   'ngRoute',
   'ngMaterial',
   'ui.ace',
-  'nvd3'
+  'nvd3',
+  'ngSanitize'
 ]);
 
 // 1.5 to 1.6 update need to have bindings or use $onInit function in controllers
@@ -73,9 +74,6 @@ pacoApp.config(['$routeProvider','$locationProvider',
     when('/survey/:pubRespondExperimentId',{
       templateUrl: 'partials/respondpub.html',
       reloadOnSearch: false,
-    }).
-    when('/hack',{
-      templateUrl: 'partials/hack.html',
     }).
     otherwise({
       templateUrl: 'partials/welcome.html',
