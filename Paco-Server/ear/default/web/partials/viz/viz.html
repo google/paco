@@ -103,7 +103,7 @@
             </div>
             <md-button ng-show="saveDownload" class="md-primary" style="color:white" ng-click="saveViz()">Save
             </md-button>
-            <md-button id="download" pdf-save-button="idOne" pdf-name="test.pdf" ng-show="saveDownload"
+            <md-button id="download" pdf-save-button="idOne" pdf-name="test.pdf" ng-show="false"
                        class="md-primary" style="color:white">Download
             </md-button>
           </div>
@@ -168,7 +168,9 @@
         <th class="viz">Date Range</th>
         <th class="viz">Type</th>
         <th class="viz">Date Created</th>
+        <!-- 
         <th class="viz"></th>
+         -->
         <th class="viz"></th>
       </tr>
       <tr class="viz" ng-repeat="viz in vizs track by $index">
@@ -178,12 +180,15 @@
         <td class="viz">{{viz.startDateTime|date:'MM/dd/yyyy'}} - {{viz.endDateTime|date:'MM/dd/yyyy'}}</td>
         <td class="viz">{{viz.vizType}}</td>
         <td class="viz">{{viz.modifyDate|date:'MM/dd/yyyy'}}</td>
+       <!-- 
         <td class="viz">
           <a><span class="md-primary">Download</span></a>
         </td>
+         -->
         <td class="viz">
           <a> <span class="md-primary" ng-click="deleteViz(viz,$index)">Delete</span></a>
         </td>
+       
       </tr>
     </table>
     <div class="clearTable">
