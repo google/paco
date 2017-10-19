@@ -14,9 +14,11 @@ pacoApp.directive('pacoGroup', function () {
   var controller = ['$scope', '$http', '$location', '$mdDialog', '$anchorScroll', 'util',
     function($scope, $http, $location, $mdDialog, $anchorScroll, util) {
 
-    $scope.mask = {};
-    $scope.responses = $scope.responses || {};
-
+    //this.$onInit = function() {
+      $scope.mask = {};
+      $scope.responses = $scope.responses || {};
+    
+    
     $scope.post = {
       appId: 'webform',
       pacoVersion: 1,
@@ -38,6 +40,7 @@ pacoApp.directive('pacoGroup', function () {
           evaluateConditionals($scope);      
         }
     });
+   // };
 
     $scope.respond = function() {
 
@@ -206,7 +209,7 @@ pacoApp.directive('pacoGroup', function () {
   return {
     restrict: 'E',
     scope: {  'group': '=data',
-              'responses': '=',
+              'responses': '=?',
               'preview': '=',
               'readonly': '=',
               'events': '=',

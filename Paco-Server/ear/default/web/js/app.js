@@ -5,6 +5,12 @@ var pacoApp = angular.module('pacoApp', [
   'nvd3'
 ]);
 
+// 1.5 to 1.6 update need to have bindings or use $onInit function in controllers
+// https://docs.angularjs.org/guide/migration#-compile-
+pacoApp.config(['$compileProvider', function($compileProvider) {
+  $compileProvider.preAssignBindingsEnabled(true);
+}]);
+
 pacoApp.config(['$sceDelegateProvider', function($sceDelegateProvider) {
     // Angular doesn't deal well with audio src=data: this lets us load local data. 
     // TODO remove when port to Google Cloud Storage for Audio and Image data is complete
