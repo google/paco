@@ -614,6 +614,7 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
     }
     if (($scope.selectedType === "Scatter Plot") && ($scope.template === 3)) {
       processScatterPlot($scope.responseData);
+      //$scope.vizTemplate = true;
     }
     $scope.saveDownload = true;
     $scope.editMode = true;
@@ -840,7 +841,7 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
           .pointSize(20)
           .pointRange([80, 80]) //set fixed point size on the scatter plot
           .height(550)
-          .color(d3.scale.category20().range())
+          .color(d3.scale.category20().range()) // c
           .duration(300);
 
       chart.legend.margin({top: 5, right: 0, left: 0, bottom: 30});
@@ -999,7 +1000,7 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
           data[i].values.push({
             x: xValue[0].values[j].answer,
             y: yValue[i].values[j].answer,
-            size: Math.round(Math.random() * 100) / 100
+            size: 5 // Math.round(Math.random() * 100) / 100
           });
         }
       }
@@ -1022,7 +1023,7 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
           .pointSize(20)
           .pointRange([80, 80]) //set the point size
           .height(500)
-          .color(d3.scale.category20().range())
+          .color(d3.scale.category20().range()) // c
           .duration(300);
 
       chart.legend.margin({top: 5, right: 0, left: 0, bottom: 30});
