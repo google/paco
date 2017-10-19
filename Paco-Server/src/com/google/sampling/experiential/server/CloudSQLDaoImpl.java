@@ -444,7 +444,11 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
           eachRecord = new JSONObject();
           for ( int i=1; i<=rsmd.getColumnCount();i++) {
             String colName = rsmd.getColumnName(i);
-            String colValue = rs.getObject(i).toString();
+            final Object object = rs.getObject(i);
+            String colValue = "";
+            if (object != null) { // sometimes the value is null for the given colName
+              colValue = object.toString();
+            }
             //if client timezone, then do not write to json
             if (!(colName.equalsIgnoreCase(EventServerColumns.CLIENT_TIME_ZONE))) {
               //if date columns in projection, then display along with corresponding timezone
