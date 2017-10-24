@@ -242,7 +242,7 @@ public class QueryPreprocessor implements SelectVisitor, FromItemVisitor, Expres
   }
 
   public void visit(Column tableColumn) {
-    String colName = tableColumn.getColumnName();
+    String colName = tableColumn.getColumnName().toLowerCase();
     if ((validColumnNamesDataTypeInDb.get(colName) == null)) {
       invalidColumnName = colName;
     } else if (colName.equalsIgnoreCase(Constants.WHO)) {
@@ -284,7 +284,7 @@ public class QueryPreprocessor implements SelectVisitor, FromItemVisitor, Expres
     if (le != null) {
       if (le instanceof Column) {
         Column leftColumn = (Column) le;
-        String leftColName = leftColumn.getColumnName();
+        String leftColName = leftColumn.getColumnName().toLowerCase();
         if (requestedDateColumns != null && requestedDateColumns.contains(leftColName)) {
           if (ril instanceof ItemsList) {
             ExpressionList expList = (ExpressionList) ril;
@@ -414,7 +414,7 @@ public class QueryPreprocessor implements SelectVisitor, FromItemVisitor, Expres
     Expression le = binaryExpression.getLeftExpression();
     if (le != null) {
       if (le instanceof Column) {
-        String leftColName = ((Column) le).getColumnName();
+        String leftColName = ((Column) le).getColumnName().toLowerCase();
         if (requestedDateColumns != null && requestedDateColumns.contains(leftColName)) {
           if (re instanceof StringValue) {
               if (!webRequest) {

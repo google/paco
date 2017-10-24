@@ -1,5 +1,6 @@
 package com.pacoapp.paco.shared.util;
 
+import java.util.Iterator;
 import java.util.logging.Logger;
 
 import org.json.JSONArray;
@@ -47,68 +48,77 @@ public class QueryJsonParser {
     }
     queryObj = new JSONObject(queryJson);
     sqlBldr = new SQLQuery.Builder();
+    Iterator<String> itr = queryObj.keys();
+    String crKey = null;
     
-    // Only when we enable group by feature, can we allow user specified projection columns
-    if (enableGrpByAndProjection && queryObj.has(Constants.SELECT)) {
-      JSONArray selectAr = queryObj.getJSONArray(Constants.SELECT);
-      if (selectAr != null) {
-        projectionColumns = new String[selectAr.length()];
-        sqlBldr.fullEventAndOutputs(false);
-        for (int j = 0; j < selectAr.length(); j++) {
-          projectionColumns[j] = selectAr.getString(j);
-          if (Constants.STAR.equals(projectionColumns[j])) {
-            sqlBldr.fullEventAndOutputs(true);
-          }
-        }
-        sqlBldr.projection(projectionColumns);
-      }
-    } 
-            
-    if (queryObj.has(Constants.QUERY)) {
-      JSONObject queryCriteria = queryObj.getJSONObject(Constants.QUERY);
-      if (queryCriteria != null) {
-        if (queryCriteria.has(Constants.CRITERIA)) {
-          sqlBldr.criteriaQuery(queryCriteria.getString(Constants.CRITERIA).trim());
-        }
-
-        if (queryCriteria.has(Constants.VALUES)) {
-          JSONArray cv = queryCriteria.getJSONArray(Constants.VALUES);
-          criteriaValues = new String[cv.length()];
-          for (int i = 0; i < cv.length(); i++) {
-            // identify Json string which could be marked with single or double quotes
-            // to ones with single quotes, because jsql parser considers only values within single quotes
-            // as string value
-            if(cv.get(i).getClass().getName().equals("java.lang.String")) {
-              criteriaValues[i] = Constants.SINGLE_QUOTE+cv.getString(i)+Constants.SINGLE_QUOTE;
-            } else {
-              criteriaValues[i] = cv.getString(i);
+    while (itr.hasNext()) {
+      
+      crKey = itr.next();
+      // Only when we enable group by feature, can we allow user specified projection columns
+      if (enableGrpByAndProjection && crKey.equalsIgnoreCase(Constants.SELECT)) {
+        JSONArray selectAr = queryObj.getJSONArray(crKey);
+        if (selectAr != null) {
+          projectionColumns = new String[selectAr.length()];
+          sqlBldr.fullEventAndOutputs(false);
+          for (int j = 0; j < selectAr.length(); j++) {
+            projectionColumns[j] = selectAr.getString(j);
+            if (Constants.STAR.equals(projectionColumns[j])) {
+              sqlBldr.fullEventAndOutputs(true);
             }
           }
-          sqlBldr.criteriaValues(criteriaValues);
+          sqlBldr.projection(projectionColumns);
+        }
+      } 
+              
+      if (crKey.equalsIgnoreCase(Constants.QUERY)) {
+        JSONObject queryCriteria = queryObj.getJSONObject(crKey);
+        if (queryCriteria != null) {
+          Iterator<String> qcItr = queryCriteria.keys();
+          while (qcItr.hasNext()) {
+            String crQcKey = qcItr.next();
+            if (crQcKey.equalsIgnoreCase(Constants.CRITERIA)) {
+              sqlBldr.criteriaQuery(queryCriteria.getString(crQcKey).trim());
+            }
+    
+            if (crQcKey.equalsIgnoreCase(Constants.VALUES)) {
+              JSONArray cv = queryCriteria.getJSONArray(crQcKey);
+              criteriaValues = new String[cv.length()];
+              for (int i = 0; i < cv.length(); i++) {
+                // identify Json string which could be marked with single or double quotes
+                // to ones with single quotes, because jsql parser considers only values within single quotes
+                // as string value
+                if(cv.get(i).getClass().getName().equals("java.lang.String")) {
+                  criteriaValues[i] = Constants.SINGLE_QUOTE+cv.getString(i)+Constants.SINGLE_QUOTE;
+                } else {
+                  criteriaValues[i] = cv.getString(i);
+                }
+              }
+              sqlBldr.criteriaValues(criteriaValues);
+            }
+          }
+        }
+      }
+      
+      if (crKey.equalsIgnoreCase(Constants.ORDER)) {
+        sqlBldr.sortBy(queryObj.getString(crKey).trim());
+      }
+      
+      if (crKey.equalsIgnoreCase(Constants.LIMIT)) {
+        sqlBldr.limit(queryObj.getString(crKey).trim());
+      }
+      
+      // groupBy feature should be enabled and only if we have group clause, should we have the having column
+      if (enableGrpByAndProjection && crKey.equalsIgnoreCase(Constants.GROUP)) {
+        sqlBldr.groupBy(queryObj.getString(crKey).trim());
+        // This gets set twice. Once when there is a *, and next when there is a group by.
+        // Group by takes higher precedence.
+        sqlBldr.fullEventAndOutputs(false);
+  
+        if (crKey.equalsIgnoreCase(Constants.HAVING)) {
+          sqlBldr.having(queryObj.getString(crKey).trim());
         }
       }
     }
-    
-    if (queryObj.has(Constants.ORDER)) {
-      sqlBldr.sortBy(queryObj.getString(Constants.ORDER).trim());
-    }
-    
-    if (queryObj.has(Constants.LIMIT)) {
-      sqlBldr.limit(queryObj.getString(Constants.LIMIT).trim());
-    }
-    
-    // groupBy feature should be enabled and only if we have group clause, should we have the having column
-    if (enableGrpByAndProjection && queryObj.has(Constants.GROUP)) {
-      sqlBldr.groupBy(queryObj.getString(Constants.GROUP).trim());
-      // This gets set twice. Once when there is a *, and next when there is a group by.
-      // Group by takes higher precedence.
-      sqlBldr.fullEventAndOutputs(false);
-
-      if (queryObj.has(Constants.HAVING)) {
-        sqlBldr.having(queryObj.getString(Constants.HAVING).trim());
-      }
-    }
-
     sqlObj = sqlBldr.buildWithDefaultValues();
     return sqlObj;
   }
