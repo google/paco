@@ -36,8 +36,9 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
     question: "Compare distribution of responses for the variable by day?",
   }, {
     qno: 3,
-    question: "How do the responses for input 1 relate to the responses for variable 2?",
-  }, {
+    question: "NOT READY How do the responses for input 1 relate to the responses for variable 2?",
+  }
+  , {
     qno: 4,
     question: "What is the value of the variable over time for each person?"
   }
