@@ -130,7 +130,7 @@ pacoApp.factory('experimentsVizService', ['$http', 'experimentService', '$filter
   function httpPostBody(message) {
     var response = $http({
       method: 'POST',
-      url: '/csSearch',
+      url: '/csSearch?pacoProtocol=5',
       data: angular.fromJson(message),
     }).then(function successCallback(response) {
       return response;
