@@ -78,7 +78,6 @@
             <md-radio-button value="false" class="inline">Day of Week </md-radio-button>
             <!--  the bizarre ng-options expression is to turn the idx into a number and make it 1-based -->
             <select ng-model="schedule.nthOfMonth" ng-if="!schedule.byDayOfMonth" ng-options="idx*1 + 1 as choice for (idx, choice) in weeksOfMonth" convert-to-number>              
-              <!-- <option ng-repeat="option in weeksOfMonth track by $index" ng-value="option">{{option}}</option>  -->
             </select>
           </div>
 
