@@ -50,12 +50,16 @@ public class QueryJsonParser {
     sqlBldr = new SQLQuery.Builder();
     Iterator<String> itr = queryObj.keys();
     String crKey = null;
+    String lowerCaseCrKey = null;
+    String crQcKey = null;
+    String lowerCaseCrQcKey = null;
     
     while (itr.hasNext()) {
       
       crKey = itr.next();
+      lowerCaseCrKey = crKey != null ? crKey.toLowerCase() : null; 
       // Only when we enable group by feature, can we allow user specified projection columns
-      if (enableGrpByAndProjection && crKey.equalsIgnoreCase(Constants.SELECT)) {
+      if (enableGrpByAndProjection && Constants.SELECT.equals(lowerCaseCrKey)) {
         JSONArray selectAr = queryObj.getJSONArray(crKey);
         if (selectAr != null) {
           projectionColumns = new String[selectAr.length()];
@@ -68,19 +72,16 @@ public class QueryJsonParser {
           }
           sqlBldr.projection(projectionColumns);
         }
-      } 
-              
-      if (crKey.equalsIgnoreCase(Constants.QUERY)) {
+      } else if (Constants.QUERY.equals(lowerCaseCrKey)) {
         JSONObject queryCriteria = queryObj.getJSONObject(crKey);
         if (queryCriteria != null) {
           Iterator<String> qcItr = queryCriteria.keys();
           while (qcItr.hasNext()) {
-            String crQcKey = qcItr.next();
-            if (crQcKey.equalsIgnoreCase(Constants.CRITERIA)) {
+            crQcKey = qcItr.next();
+            lowerCaseCrQcKey = crQcKey != null ? crQcKey.toLowerCase() : null;
+            if (Constants.CRITERIA.equals(lowerCaseCrQcKey)) {
               sqlBldr.criteriaQuery(queryCriteria.getString(crQcKey).trim());
-            }
-    
-            if (crQcKey.equalsIgnoreCase(Constants.VALUES)) {
+            } else if (Constants.VALUES.equals(lowerCaseCrQcKey)) {
               JSONArray cv = queryCriteria.getJSONArray(crQcKey);
               criteriaValues = new String[cv.length()];
               for (int i = 0; i < cv.length(); i++) {
@@ -97,26 +98,20 @@ public class QueryJsonParser {
             }
           }
         }
-      }
-      
-      if (crKey.equalsIgnoreCase(Constants.ORDER)) {
+      } else if (Constants.ORDER.equals(lowerCaseCrKey)) {
         sqlBldr.sortBy(queryObj.getString(crKey).trim());
-      }
-      
-      if (crKey.equalsIgnoreCase(Constants.LIMIT)) {
+      } else  if (Constants.LIMIT.equals(lowerCaseCrKey)) {
         sqlBldr.limit(queryObj.getString(crKey).trim());
-      }
-      
+      } else if (enableGrpByAndProjection && Constants.GROUP.equals(lowerCaseCrKey)) {
       // groupBy feature should be enabled and only if we have group clause, should we have the having column
-      if (enableGrpByAndProjection && crKey.equalsIgnoreCase(Constants.GROUP)) {
-        sqlBldr.groupBy(queryObj.getString(crKey).trim());
-        // This gets set twice. Once when there is a *, and next when there is a group by.
-        // Group by takes higher precedence.
-        sqlBldr.fullEventAndOutputs(false);
-  
-        if (crKey.equalsIgnoreCase(Constants.HAVING)) {
-          sqlBldr.having(queryObj.getString(crKey).trim());
-        }
+          sqlBldr.groupBy(queryObj.getString(crKey).trim());
+          // This gets set twice. Once when there is a *, and next when there is a group by.
+          // Group by takes higher precedence.
+          sqlBldr.fullEventAndOutputs(false);
+    
+          if (Constants.HAVING.equals(lowerCaseCrKey)) {
+            sqlBldr.having(queryObj.getString(crKey).trim());
+          }
       }
     }
     sqlObj = sqlBldr.buildWithDefaultValues();

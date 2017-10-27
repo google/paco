@@ -147,7 +147,7 @@ public class CloudSqlSearchServlet extends HttpServlet {
         
         if (sqlQueryObj.getCriteriaQuery() == null) {
           sendErrorMessage(resp, mapper,
-                           ErrorMessages.EXPERIMENT_ID_CLAUSE_EXCEPTION.getDescription() + postBodyString);
+                           ErrorMessages.QUERY_CRITERIA_EMPTY_EXCEPTION.getDescription() + postBodyString);
           return;
         }
         

@@ -434,6 +434,9 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
     DateTime dateInLocal = null;
     String offsetHrsStr = null;
     int offsetHrs = 0;
+    String colName = null;
+    String colValue = null;
+    Object anyObject = null;
     try {
       conn = CloudSQLConnectionManager.getInstance().getConnection();
       setNames(conn);
@@ -446,9 +449,10 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
         JSONObject eachRecord = null;
         while (rs.next()) {
           eachRecord = new JSONObject();
-          for ( int i=1; i<=rsmd.getColumnCount();i++) {
-            String colName = rsmd.getColumnName(i);
-            String colValue = rs.getObject(i).toString();
+          for ( int i = 1; i <= rsmd.getColumnCount(); i++) {
+            colName = rsmd.getColumnName(i);
+            anyObject = rs.getObject(i);
+            colValue =  anyObject != null ? anyObject.toString() : null;
             //if client timezone, then do not write to json
             if (!(colName.equalsIgnoreCase(EventServerColumns.CLIENT_TIME_ZONE))) {
               //if date columns in projection, then display along with corresponding timezone
