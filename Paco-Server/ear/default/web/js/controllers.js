@@ -947,7 +947,7 @@ pacoApp.controller('TriggerCtrl', ['$scope', '$mdDialog', 'config', 'template',
     }
 
     $scope.addSchedule = function (event) {
-      $scope.trigger.schedules.push(angular.copy(template.schedule));
+      $scope.trigger.schedules.push(angular.copy(template.defaultEsmSchedule));
     }
 
     $scope.addCue = function (event) {
