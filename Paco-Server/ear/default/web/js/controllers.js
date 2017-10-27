@@ -1005,6 +1005,7 @@ pacoApp.controller('ActionCtrl', ['$scope', '$mdDialog', 'config', 'template', '
 
       if (newValue <= 2) {
         angular.extend($scope.action, template.defaultAction);
+        $scope.action.actionCode = newValue;
       } else if (newValue >= 3) {
         angular.extend($scope.action, template.otherAction);
       }
@@ -1120,7 +1121,12 @@ pacoApp.controller('SummaryCtrl', ['$scope', 'config', function ($scope, config)
 
   $scope.getActionSummary = function () {
     if ($scope.action.actionCode !== undefined && $scope.action.actionCode !== '') {
-      return config.actionTypes[$scope.action.actionCode];
+      // this dumb logic is due to disabling option 3, log value, in the actions list
+      if ($scope.action.actionCode === 1 || $scope.action.actionCode === 2) {
+        return config.actionTypes[$scope.action.actionCode - 1].name;
+      } else if ($scope.action.actionCode === 4) {
+        return config.actionTypes[2].name;
+      }
     } else {
       return 'Undefined';
     }
@@ -1164,7 +1170,7 @@ pacoApp.controller('SummaryCtrl', ['$scope', 'config', function ($scope, config)
         str += 'Every ' + sched.repeatRate + ' months'
       }
     } else if (sched.scheduleType == 4) {
-      str += config.scheduleTypes[4] + ', ' + sched.esmFrequency + ' time';
+      str += config.scheduleTypes[4].name + ', ' + sched.esmFrequency + ' time';
       if (sched.esmFrequency > 1) {
         str += 's per ';
       } else {

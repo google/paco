@@ -15,10 +15,8 @@
 
   <div class="padded">
     <div class="column0">
-      <select ng-model="input.responseType">
-        <option value="" disabled>Response Type</option>
-        <option ng-selected="{{id === input.responseType}}" ng-repeat="(id, type) in responseTypes"
-        value="{{id}}">{{type}}</option>
+      <select ng-model="input.responseType" >
+      <option ng-repeat="option in responseTypes" ng-value="option.id">{{option.name}}</option>
       </select>
 
       <md-checkbox ng-model="input.required" aria-label="Required">

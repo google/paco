@@ -2,10 +2,8 @@
   <md-dialog-content>
     <div layout="row">
       <div>
-        <select ng-model="action.actionCode" as-string>
-          <option value="" disabled>Choose Action</option>
-          <option ng-selected="(id) == action.actionCode" ng-repeat="(id, type) in actionTypes"
-          value="{{id}}">{{type}}</option>
+        <select ng-model="action.actionCode">
+          <option ng-repeat="option in actionTypes" ng-value="option.id">{{option.name}}</option>
         </select>
       </div>
 
@@ -13,7 +11,6 @@
         <no-ios ng-if="action.actionCode > 1">iOS does not support this action</no-ios>
       </div>
     </div>
-
     <md-input-container ng-if="action.actionCode === 2">
       <label>Message</label>
       <input type="text" ng-model="action.msgText">

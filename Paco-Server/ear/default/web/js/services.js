@@ -417,19 +417,19 @@ pacoApp.service('config', function() {
   ];
 
   this.scheduleTypes = [
-    'Daily',
-    'Weekdays',
-    'Weekly',
-    'Monthly',
-    'Random sampling (ESM)'
+    { id : 0, name : "Daily" },
+    { id : 1, name : 'Weekdays' },
+    { id : 2, name : 'Weekly' },
+    { id : 3, name : 'Monthly' },
+    { id : 4, name : 'Random sampling (ESM)'}
   ];
 
-  this.actionTypes = {
-    1: 'Create notification to participate',
-    2: 'Create notification message',
-    // 3: 'Log data',
-    4: 'Execute script'
-  };
+  this.actionTypes = [
+    { id : 1, name: 'Create notification to participate'},
+    { id : 2, name : 'Create notification message'},
+    // { id : 3, name : 'Log data'},
+    { id : 4, name : 'Execute script'}
+  ];
 
   this.cueTypes = [
     'HANGUP (deprecated)',
@@ -475,17 +475,16 @@ pacoApp.service('config', function() {
     'Fifth'
   ];
 
-  this.responseTypes = {
-    'likert': 'Scale',
-    'likert_smileys': '5 Point Smiley Scale',
-    'number': 'Number',
-    'open text': 'Open Text',
-    'list': 'List',
-    'photo': 'Photo',
-    'location': 'Location',
-    'audio': 'Audio'
-  };
-
+  this.responseTypes =[ 
+  {"id" : 'likert', "name" : 'Scale'},
+  {"id" : 'likert_smileys', "name" : '5 Point Smiley Scale'},
+  {"id" : 'number', "name" : 'Number'},
+  {"id" : 'open text', "name" : 'Open Text'},
+  {"id" : 'list', "name" : 'List'},
+  {"id" : 'photo', "name" : 'Photo'},
+  {"id" : 'location', "name" : 'Location'},
+  {"id" : 'audio', "name" : 'Audio'}];
+  
   this.feedbackTypes = [
     'Static Message',
     'Retrospective (QS default)',
@@ -570,6 +569,7 @@ pacoApp.service('template', function() {
 
   this.defaultAction = {
     type: 'pacoNotificationAction',
+    actionCode : 1,
     timeout: 15,
     color: 0,
     delay: 0,
@@ -600,7 +600,7 @@ pacoApp.service('template', function() {
   this.scheduleTrigger = {
     type: 'scheduleTrigger',
     actions: [this.defaultAction],
-    schedules: [this.schedule]
+    schedules: [this.defaultEsmSchedule]
   };
 
   this.eventTrigger = {

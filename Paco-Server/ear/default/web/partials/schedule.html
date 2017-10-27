@@ -2,12 +2,8 @@
   <md-dialog-content>
     <div class="column0">
       <div>
-        <select ng-model="schedule.scheduleType" as-string>
-          <option disabled  value="">Signal Schedule</option>
-          <option ng-selected="$index === schedule.scheduleType" ng-repeat="type in scheduleTypes"
-          value="{{$index}}">
-            {{type}}
-          </option>
+        <select ng-model="schedule.scheduleType">
+           <option ng-repeat="option in scheduleTypes" ng-value="option.id">{{option.name}}</option>
         </select>
       </div>
 
@@ -32,8 +28,8 @@
           User editable
         </md-checkbox>
 
-        <md-checkbox ng-model="schedule.onlyEditableOnJoin" aria-label="User editable on join">
-          Editable on Join
+        <md-checkbox ng-model="schedule.onlyEditableOnJoin" aria-label="User editable only at time of joining">
+          Only editable at join
         </md-checkbox>
       </div>
     </div>
