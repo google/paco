@@ -18,7 +18,7 @@ public interface CloudSQLDao {
   boolean insertSingleOutput(Long eventId, String text, String answer) throws SQLException; 
   boolean insertFailedEvent(String failedJson, String reason, String comments);
   List<EventDAO> getEvents(String query, boolean withOutputs) throws SQLException, ParseException;
-  JSONArray getResultSetAsJson(String query, Long eventId) throws SQLException, ParseException, JSONException;
+  JSONArray getResultSetAsJson(String query, List<String> dateColumns) throws SQLException, ParseException, JSONException;
   Map<Long, String> getFailedEvents() throws SQLException;
   boolean updateFailedEventsRetry(Long failedEventsId, String reprocessed) throws SQLException;
   List<WhatDAO> getOutputs(Long eventId) throws SQLException;

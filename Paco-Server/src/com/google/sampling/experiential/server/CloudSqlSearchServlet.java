@@ -62,7 +62,9 @@ import net.sf.jsqlparser.util.SelectUtils;
 public class CloudSqlSearchServlet extends HttpServlet {
   public static final Logger log = Logger.getLogger(CloudSqlSearchServlet.class.getName());
   private static Map<String, Class> validColumnNamesDataTypeInDb = Maps.newHashMap();
-  private static List<String> dateColumns = Lists.newArrayList();
+  private static List<String> localDateColumns = Lists.newArrayList();
+  private static List<String> utcDateColumns = Lists.newArrayList();
+  private static List<String> allDateColumns = Lists.newArrayList();
   private static String CLIENT_REQUEST = "ClientReq";
   private static final String AND = " and ";
   
@@ -91,13 +93,15 @@ public class CloudSqlSearchServlet extends HttpServlet {
     validColumnNamesDataTypeInDb.put(EventServerColumns.CLIENT_TIME_ZONE, StringValue.class);
     validColumnNamesDataTypeInDb.put(OutputBaseColumns.NAME, StringValue.class);
     validColumnNamesDataTypeInDb.put(OutputBaseColumns.ANSWER, StringValue.class);
-    dateColumns.add(EventServerColumns.RESPONSE_TIME);
-    dateColumns.add(EventServerColumns.SCHEDULE_TIME);
-    dateColumns.add(EventServerColumns.SORT_DATE);
-    dateColumns.add(EventServerColumns.RESPONSE_TIME_UTC);
-    dateColumns.add(EventServerColumns.SCHEDULE_TIME_UTC);
-    dateColumns.add(EventServerColumns.SORT_DATE_UTC);
-    dateColumns.add(EventServerColumns.WHEN);
+    localDateColumns.add(EventServerColumns.RESPONSE_TIME);
+    localDateColumns.add(EventServerColumns.SCHEDULE_TIME);
+    localDateColumns.add(EventServerColumns.SORT_DATE);
+    utcDateColumns.add(EventServerColumns.RESPONSE_TIME_UTC);
+    utcDateColumns.add(EventServerColumns.SCHEDULE_TIME_UTC);
+    utcDateColumns.add(EventServerColumns.SORT_DATE_UTC);
+    utcDateColumns.add(EventServerColumns.WHEN);
+    allDateColumns.addAll(localDateColumns);
+    allDateColumns.addAll(utcDateColumns);
   }
   
   @Override
@@ -141,6 +145,12 @@ public class CloudSqlSearchServlet extends HttpServlet {
           return;
         }
         
+        if (sqlQueryObj.getCriteriaQuery() == null) {
+          sendErrorMessage(resp, mapper,
+                           ErrorMessages.QUERY_CRITERIA_EMPTY_EXCEPTION.getDescription() + postBodyString);
+          return;
+        }
+        
         // include client_timezone field when there is no group by and query contains response_time or schedule_time
         List<String> projList = Lists.newArrayList(sqlQueryObj.getProjection());
         
@@ -151,7 +161,7 @@ public class CloudSqlSearchServlet extends HttpServlet {
         String plainSql = SearchUtil.getPlainSql(sqlQueryObj);
         clientJsqlStatement = SearchUtil.getJsqlSelectStatement(plainSql);
 
-        QueryPreprocessor qProcessor = new QueryPreprocessor(clientJsqlStatement, validColumnNamesDataTypeInDb, webRequest, dateColumns);
+        QueryPreprocessor qProcessor = new QueryPreprocessor(clientJsqlStatement, validColumnNamesDataTypeInDb, webRequest, allDateColumns);
         if (qProcessor.probableSqlInjection() != null) {
           sendErrorMessage(resp, mapper,
                            ErrorMessages.PROBABLE_SQL_INJECTION + qProcessor.probableSqlInjection());
@@ -198,7 +208,7 @@ public class CloudSqlSearchServlet extends HttpServlet {
           }
           outputRecordCt = evtList.size();
         } else {
-          JSONArray resultsArray = impl.getResultSetAsJson(aclQuery, null);
+          JSONArray resultsArray = impl.getResultSetAsJson(aclQuery, localDateColumns);
           JSONObject resultset = new JSONObject();
           resultset.put("customResponse", resultsArray);
           resultset.put("status", Constants.SUCCESS);
