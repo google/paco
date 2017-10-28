@@ -37,7 +37,7 @@ pacoApp.controller('EodCtrl', ['$scope', '$http', '$mdDialog', '$timeout',
       $http.get(endpoint, {
         cache: false
       })
-      .success(function(data) {
+      .then(function(data) {
         $scope.allEvents = data;
         $scope.getActiveEventsWithoutEod();
       });

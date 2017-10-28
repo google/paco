@@ -4,7 +4,7 @@ import com.pacoapp.paco.shared.util.Constants;
 
 //POJO to hold the different parts of the SQL query
 public class SQLQuery {
- 
+
   String[] projection;
   String criteriaQuery;
   String[] criteriaValue;
@@ -52,11 +52,11 @@ public class SQLQuery {
   public String getLimit() {
     return limit;
   }
-  
-  public Boolean isFullEventAndOutputs() { 
+
+  public Boolean isFullEventAndOutputs() {
     return fullEventAndOutputs;
   }
-  
+
   public void addClientTzToProjection(){
     String[] modArr = new String[projection.length+1];
     System.arraycopy(projection, 0, modArr, 0, projection.length);
@@ -108,7 +108,7 @@ public class SQLQuery {
       this.limit = limit;
       return this;
     }
-    
+
     public Builder fullEventAndOutputs(Boolean fullEventAndOutputs) {
       this.fullEventAndOutputs = fullEventAndOutputs;
       return this;
@@ -120,7 +120,7 @@ public class SQLQuery {
       if (obj.getProjection() == null) {
         obj.projection = new String[] { Constants.STAR };
         obj.fullEventAndOutputs = true;
-      } 
+      }
       // find if there is a distinct clause
       boolean isDistinct = false;
       for(String s : obj.getProjection()) {
@@ -129,12 +129,12 @@ public class SQLQuery {
           break;
         }
       }
-      
+
       // provide default sort order which is Event._Id desc
       // but do not provide default ordering under the following conditions
       // 1.when the user specifies a group by value, in this case when we add default ordering on _id, sql complains order by column _id should be part of group by
       // 2.distinct query, in this case when we add default ordering on _id, sql complains order by column _id should be part of select list
-      if ((obj.getGroupBy() == null || !isDistinct ) && obj.sortOrder == null) {
+      if (obj.getGroupBy() == null && !isDistinct && obj.sortOrder == null) {
         obj.sortOrder = EventBaseColumns.TABLE_NAME + "." + Constants.UNDERSCORE_ID.concat(Constants.BLANK).concat(Constants.DESC);
       }
       return this;

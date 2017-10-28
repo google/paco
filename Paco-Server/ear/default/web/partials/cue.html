@@ -3,9 +3,9 @@
 
     <div class="cue">
       <div>
-        <select ng-model="cue.cueCode" as-string>
-          <option value="" disabled selected>Choose cue event</option>
-          <option ng-selected="($index + 1) === cue.cueCode" ng-repeat="type in cueTypes" value="{{$index + 1}}">{{type}}</option>
+      <!--  the bizarre ng-options expression is to turn the idx into a number and make it 1-based -->
+      
+        <select ng-model="cue.cueCode" ng-options="idx*1 + 1 as choice for (idx, choice) in cueTypes" convert-to-number>
         </select>
 
         <paco-help tip="app-triggers" ng-if="cue.cueCode === 4 || cue.cueCode === 5 || cue.cueCode === 18">

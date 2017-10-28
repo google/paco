@@ -34,22 +34,22 @@ pacoApp.controller('HomeCtrl', ['$scope', '$http', '$location', 'experimentServi
       $scope.scrolling(true);
     });
 
-    $http.get('/userinfo').success(function(data) {
+    //updated http get call to suit the new angular version 1.6.5
+    $http.get('/userinfo').then(function onSuccess(response) {
+      $scope.loaded = true;
 
-        $scope.loaded = true;
+      // Make sure email isn't the dev email address
+      if (response.data.user && response.data.user !== 'bobevans999@gmail.com') {
+        $scope.user = response.data.user;
+      } else {
+        $scope.loginURL = response.data.login;
+      }
+      $scope.logoutURL = response.data.logout;
 
-        // Make sure email isn't the dev email address
-        if (data.user && data.user !== 'bobevans999@gmail.com') {
-          $scope.user = data.user;
-        } else {
-          $scope.loginURL = data.login;
-        }
-        $scope.logoutURL = data.logout;
-
-      }).error(function(data) {
-        console.log(data);
-      });
-    } ]);
+    }, function onError(response) {
+      console.log(response.data);
+    });
+  }]);
 
 pacoApp.controller('ExperimentCtrl', [
   '$scope',
@@ -947,7 +947,7 @@ pacoApp.controller('TriggerCtrl', ['$scope', '$mdDialog', 'config', 'template',
     }
 
     $scope.addSchedule = function (event) {
-      $scope.trigger.schedules.push(angular.copy(template.schedule));
+      $scope.trigger.schedules.push(angular.copy(template.defaultEsmSchedule));
     }
 
     $scope.addCue = function (event) {
@@ -1005,6 +1005,7 @@ pacoApp.controller('ActionCtrl', ['$scope', '$mdDialog', 'config', 'template', '
 
       if (newValue <= 2) {
         angular.extend($scope.action, template.defaultAction);
+        $scope.action.actionCode = newValue;
       } else if (newValue >= 3) {
         angular.extend($scope.action, template.otherAction);
       }
@@ -1120,7 +1121,12 @@ pacoApp.controller('SummaryCtrl', ['$scope', 'config', function ($scope, config)
 
   $scope.getActionSummary = function () {
     if ($scope.action.actionCode !== undefined && $scope.action.actionCode !== '') {
-      return config.actionTypes[$scope.action.actionCode];
+      // this dumb logic is due to disabling option 3, log value, in the actions list
+      if ($scope.action.actionCode === 1 || $scope.action.actionCode === 2) {
+        return config.actionTypes[$scope.action.actionCode - 1].name;
+      } else if ($scope.action.actionCode === 4) {
+        return config.actionTypes[2].name;
+      }
     } else {
       return 'Undefined';
     }
@@ -1164,7 +1170,7 @@ pacoApp.controller('SummaryCtrl', ['$scope', 'config', function ($scope, config)
         str += 'Every ' + sched.repeatRate + ' months'
       }
     } else if (sched.scheduleType == 4) {
-      str += config.scheduleTypes[4] + ', ' + sched.esmFrequency + ' time';
+      str += config.scheduleTypes[4].name + ', ' + sched.esmFrequency + ' time';
       if (sched.esmFrequency > 1) {
         str += 's per ';
       } else {
