@@ -14,6 +14,7 @@ public enum ErrorMessages {
   TEXT_PARSE_EXCEPTION(80,"Text Parse exception : "),
   ADD_DEFAULT_COLUMN_EXCEPTION(90, "Unable to add default column "),
   EXPERIMENT_ID_CLAUSE_EXCEPTION(91, "Unauthorized access: Error in Experiment id clause"),
+  QUERY_CRITERIA_EMPTY_EXCEPTION(92, "Query Criteria empty: Experiment id clause required"),
   UNAUTHORIZED_ACCESS(100,"Unauthorized access"),
   UNAUTHORIZED_ACCESS_MIXED_ACL(101,"Unauthorized access : Mixed ACL error"),
   CONVERT_TO_UTC(110, "Converting to UTC"),

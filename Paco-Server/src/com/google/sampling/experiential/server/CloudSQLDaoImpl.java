@@ -15,6 +15,7 @@ import java.util.Set;
 import java.util.logging.Logger;
 
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -424,12 +425,18 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
   }
 
   @Override
-  public JSONArray getResultSetAsJson(String query, Long eventId) throws SQLException, ParseException, JSONException {
+  public JSONArray getResultSetAsJson(String query, List<String> dateColumns) throws SQLException, ParseException, JSONException {
     Connection conn = null;
     JSONArray multipleRecords = null;
     PreparedStatement statementSelectEvent = null;
     ResultSet rs = null;
-
+    DateTime dateFromDb = null;
+    DateTime dateInLocal = null;
+    String offsetHrsStr = null;
+    int offsetHrs = 0;
+    String colName = null;
+    String colValue = null;
+    Object anyObject = null;
     try {
       conn = CloudSQLConnectionManager.getInstance().getConnection();
       setNames(conn);
@@ -442,18 +449,20 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
         JSONObject eachRecord = null;
         while (rs.next()) {
           eachRecord = new JSONObject();
-          for ( int i=1; i<=rsmd.getColumnCount();i++) {
-            String colName = rsmd.getColumnName(i);
-            final Object object = rs.getObject(i);
-            String colValue = "";
-            if (object != null) { // sometimes the value is null for the given colName
-              colValue = object.toString();
-            }
+          for ( int i = 1; i <= rsmd.getColumnCount(); i++) {
+            colName = rsmd.getColumnName(i);
+            anyObject = rs.getObject(i);
+            colValue =  anyObject != null ? anyObject.toString() : null;
             //if client timezone, then do not write to json
             if (!(colName.equalsIgnoreCase(EventServerColumns.CLIENT_TIME_ZONE))) {
               //if date columns in projection, then display along with corresponding timezone
-              if ((colName.equalsIgnoreCase(EventServerColumns.RESPONSE_TIME)) || (colName.equalsIgnoreCase(EventServerColumns.SCHEDULE_TIME))) {
-                colValue = colValue + rs.getString(EventServerColumns.CLIENT_TIME_ZONE);
+              if(dateColumns.contains(colName)) {
+                offsetHrsStr =  rs.getString(EventServerColumns.CLIENT_TIME_ZONE);
+                offsetHrs = com.google.sampling.experiential.server.TimeUtil.getIntFromOffsetString(offsetHrsStr);
+                dateFromDb = new DateTime(rs.getTimestamp(colName).getTime());
+                // change the tz with value stored in db
+                dateInLocal = dateFromDb.withZoneRetainFields(DateTimeZone.forOffsetHours(offsetHrs));
+                colValue = dateInLocal.toString();
               }
               eachRecord.put(colName, colValue);
             }
