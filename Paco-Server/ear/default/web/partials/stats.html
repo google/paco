@@ -82,7 +82,7 @@
             </span>
           </td>
         </tr>
-        <tr ng-repeat="row in stats | orderBy: sortColumn: reverseSort">
+        <tr ng-repeat="row in stats.data | orderBy: sortColumn: reverseSort">
           <td right-border>
             {{row["date"]}}
           </td>
