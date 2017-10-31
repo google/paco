@@ -14,10 +14,10 @@
   </div>
 
   <div class="padded">
-    <div class="column0">
-      <select ng-model="input.responseType" >
-      <option ng-repeat="option in responseTypes" ng-value="option.id">{{option.name}}</option>
-      </select>
+    <div class="column0">    
+      <md-select ng-model="input.responseType" >      
+      <md-option ng-repeat="option in responseTypes" ng-value="option.id">{{option.name}}</option>
+      </md-select>
 
       <md-checkbox ng-model="input.required" aria-label="Required">
         Required
