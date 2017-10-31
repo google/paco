@@ -1,5 +1,5 @@
 .basics md-input-container {
-  overflow-y: hidden;
+  /* overflow-y: hidden; */
 }
 
 md-input-container div[ng-message] {
