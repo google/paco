@@ -15,13 +15,15 @@
 
   <div class="padded">
     <div class="column0">    
+    <md-input-container layout="row" >
+      <label>Response type</label>
       <md-select ng-model="input.responseType" palceholder="Response Type" flex="85">    
       <md-select-header>
 	      <span>Response Type</span>
 	    </md-select-header>  
       <md-option ng-repeat="option in responseTypes" ng-value="option.id">{{option.name}}</option>
       </md-select>
-
+    </md-input-container>
       <md-checkbox ng-model="input.required" aria-label="Required">
         Required
       </md-checkbox>
