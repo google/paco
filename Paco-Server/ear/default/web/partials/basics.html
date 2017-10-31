@@ -8,7 +8,7 @@
         <div layout="row">
           <md-input-container flex=85>
             <label>Title</label>
-            <input ng-model="experiment.title">
+            <input ng-model="experiment.title" md-maxlength=100 md-no-resize>
             <div ng-messages>
               <div ng-message>Your experiment title should be simple, specific and memorable.</div>
             </div>
@@ -27,16 +27,15 @@
 
         <md-input-container>
           <label>Organization</label>
-          <input ng-model="experiment.organization">
+          <input type="text" ng-model="experiment.organization">
           <div ng-messages>
-            <div ng-message>What organization is sponsoring the experiment? If it's not sponsored by
-              an organization, you can just use your name.</div>
+            <div ng-message>Organization or person running this experiment.</div>
           </div>
         </md-input-container>
 
         <md-input-container>
           <label>Description</label>
-          <textarea ng-model="experiment.description"></textarea>
+          <textarea ng-model="experiment.description" md-maxlength=500></textarea>
           <div ng-messages>
             <div ng-message>Our search tools run through the title and description sections of your
               project, so be sure to incorporate any keywords here.</div>
