@@ -144,8 +144,8 @@ md-card .section .title {
 
 md-card .section .group-name {
   position: absolute;
-  top: 12px;
-  left: 230px;
+  top: -4px;
+  left: 218px;
   width: 400px;
 }
 
