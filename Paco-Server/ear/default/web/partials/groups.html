@@ -38,14 +38,14 @@
             <md-radio-button value="true">Fixed</md-radio-button>
           </md-radio-group>
 
-          <div flex class="date">
-            <md-input-container ng-if="group.fixedDuration">
+          <div flex class="date" style="max-height:24px;padding:0px;margin:0px">
+            <md-input-container ng-if="group.fixedDuration" style="max-height:24px;padding:0px;margin:0px">
               <label>Start date</label>
               <md-datepicker ng-if="group.fixedDuration" ng-model="startDate" ng-change="group.startDate = dateToString(startDate)" placeholder="Start date"></md-datepicker>
             </md-input-container>
           </div>
-          <div flex class="date">
-            <md-input-container ng-if="group.fixedDuration">
+          <div flex class="date" style="max-height:24px;padding:0px;margin:0px">
+            <md-input-container ng-if="group.fixedDuration"  style="max-height:24px;padding:0px;margin:0px">
               <label>End date</label>
               <md-datepicker ng-if="group.fixedDuration" ng-model="endDate" ng-change="group.endDate = dateToString(endDate)" placeholder="End date"></md-datepicker>
             </md-input-container>
