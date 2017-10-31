@@ -20,7 +20,7 @@
 }
 
 .schedule .period {
-  margin-top: 30px;
+  /* margin-top: 30px; */
 }
 
 md-dialog.schedule md-dialog-content, md-dialog.action md-dialog-content {
@@ -35,22 +35,31 @@ md-dialog.schedule md-dialog-content, md-dialog.action md-dialog-content {
   display: inline;
   line-height: 32px;
   vertical-align: top;
+  margin-right:4px;
 }
 
 .days md-checkbox {
   display: inline-block;
   position: relative;
-  width: 18px;
+  width: 26px;
+  padding-left: 2px;
+  padding-right: 2px;
+  padding-top: 12px;
+  margin-top:4px;
+   vertical-align: middle;
 }
 
 .days md-checkbox .md-label {
   position: absolute;
-  top: 24px;
+  top: 4px;
   left: -10px;
+  width: 24px;
+  padding-left:2px;
 }
 
 .schedule .inline {
   display: inline-block;
+  max-height:24px;
 }
 
 .schedule .column0 {
