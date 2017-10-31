@@ -1,5 +1,5 @@
 <div class="groups">
-
+<p>Define data collection instruments for your experiment.</p>
   <div class="group" ng-repeat="group in experiment.groups track by $index" ng-controller="GroupsCtrl">
 
     <md-card hidable>
@@ -38,16 +38,16 @@
             <md-radio-button value="true">Fixed</md-radio-button>
           </md-radio-group>
 
-          <div flex class="date">
-            <md-input-container ng-if="group.fixedDuration">
+          <div flex class="date" style="max-height:24px;padding:0px;margin:0px">
+            <md-input-container ng-if="group.fixedDuration" style="max-height:24px;padding:0px;margin:0px">
               <label>Start date</label>
-              <input type="date" paco-date ng-model="group.startDate">
+              <md-datepicker ng-if="group.fixedDuration" ng-model="startDate" ng-change="group.startDate = dateToString(startDate)" placeholder="Start date"></md-datepicker>
             </md-input-container>
           </div>
-          <div flex class="date">
-            <md-input-container ng-if="group.fixedDuration">
+          <div flex class="date" style="max-height:24px;padding:0px;margin:0px">
+            <md-input-container ng-if="group.fixedDuration"  style="max-height:24px;padding:0px;margin:0px">
               <label>End date</label>
-              <input type="date" paco-date ng-model="group.endDate">
+              <md-datepicker ng-if="group.fixedDuration" ng-model="endDate" ng-change="group.endDate = dateToString(endDate)" placeholder="End date"></md-datepicker>
             </md-input-container>
           </div>
         </div>

@@ -27,11 +27,11 @@
 }
 
 .group .duration {
-  padding: 0 0 0 16px;
+  /* padding: 0 0 0 16px; */
 }
 
 .group .duration .title {
-  margin-top: 16px;
+  /* margin-top: 16px; */
 }
 
 .group .duration md-input-container {
@@ -144,8 +144,8 @@ md-card .section .title {
 
 md-card .section .group-name {
   position: absolute;
-  top: 12px;
-  left: 230px;
+  top: -4px;
+  left: 218px;
   width: 400px;
 }
 

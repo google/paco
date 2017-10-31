@@ -1,38 +1,45 @@
-<md-dialog aria-label="Edit Cue">
+<md-dialog aria-label="Edit Cue" layout-padding>
   <md-dialog-content>
 
-    <div class="cue">
-      <div>
+    <div class="cue" layout="column">
       <!--  the bizarre ng-options expression is to turn the idx into a number and make it 1-based -->
       
-        <select ng-model="cue.cueCode" ng-options="idx*1 + 1 as choice for (idx, choice) in cueTypes" convert-to-number>
-        </select>
+        <md-select ng-model="cue.cueCode" placeholder="Select Cue" convert-to-number flex="grow">
+          <md-select-header>
+            <span>Select Cue</span>
+          </md-select-header>
+          <md-option ng-value="idx*1 + 1" ng-repeat="(idx, choice) in cueTypes">{{choice}}</md-option> 
+        </md-select>        
+    
 
-        <paco-help tip="app-triggers" ng-if="cue.cueCode === 4 || cue.cueCode === 5 || cue.cueCode === 18">
-          Help: App Triggers
-        </paco-help>
+	    <div layout="row" >
+	      <md-input-container ng-if="cue.cueCode === 3 || cue.cueCode === 4 || cue.cueCode === 5 || cue.cueCode === 18" flex=90>
+	        <label>Source of Paco Action</label>
+	        <input type="text" ng-model="cue.cueSource" placeholder="Source Android Package name">
+	      </md-input-container>
+      <paco-help tip="app-triggers" ng-if="cue.cueCode === 4 || cue.cueCode === 5 || cue.cueCode === 18" >
+        <span>Help: App Triggers</span>
+      </paco-help>      
+        </div>
+
+	    <div layout="column" ng-if="cue.cueCode === 21 || cue.cueCode === 22 || cue.cueCode === 25 || cue.cueCode === 27"  >      
+	      <md-input-container ng-if="cue.cueCode === 21 || cue.cueCode === 22 || cue.cueCode === 25 || cue.cueCode === 27"  flex=30>
+	        <label>Android View Package Name (Optional)</label>
+	        <input type="text" ng-model="cue.cueSource">
+	      </md-input-container>
+	      
+	      <md-input-container ng-if="cue.cueCode === 21 || cue.cueCode === 22 || cue.cueCode === 25 || cue.cueCode === 27"  flex=30>
+	        <label>Android View Class Name (Optional)</label>
+	        <input type="text" ng-model="cue.cueAEClassName">
+	      </md-input-container>
+	      
+	      <md-input-container ng-if="cue.cueCode === 21 || cue.cueCode === 22 || cue.cueCode === 25 || cue.cueCode === 27"  flex=30>
+	        <label>Android View Content Descriptor Text (Optional)</label>
+	        <input type="text" ng-model="cue.cueAEContentDescription">
+	      </md-input-container>
       </div>
-
-      <md-input-container ng-if="cue.cueCode === 3 || cue.cueCode === 4 || cue.cueCode === 5 || cue.cueCode === 18">
-        <label>Source of Paco Action</label>
-        <input type="text" ng-model="cue.cueSource">
-      </md-input-container>
-      
-      <md-input-container ng-if="cue.cueCode === 21 || cue.cueCode === 22 || cue.cueCode === 25 || cue.cueCode === 27">
-        <label>Android View Package Name (Optional)</label>
-        <input type="text" ng-model="cue.cueSource">
-      </md-input-container>
-      
-      <md-input-container ng-if="cue.cueCode === 21 || cue.cueCode === 22 || cue.cueCode === 25 || cue.cueCode === 27">
-        <label>Android View Class Name (Optional)</label>
-        <input type="text" ng-model="cue.cueAEClassName">
-      </md-input-container>
-      
-      <md-input-container ng-if="cue.cueCode === 21 || cue.cueCode === 22 || cue.cueCode === 25 || cue.cueCode === 27">
-        <label>Android View Content Descriptor Text (Optional)</label>
-        <input type="text" ng-model="cue.cueAEContentDescription">
-      </md-input-container>
     </div>
+      
   </md-dialog-content>
 
   <div class="md-actions">
