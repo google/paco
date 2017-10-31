@@ -1,10 +1,10 @@
 <div class="basics">
-  <p>Let's define some of the basics for your experiment.</p>
+  <p>Define basic attributes of your experiment.</p>
   <md-card>
     <md-card-content>
       <h2>Experiment Listing</h2>
 
-      <div layout="column" layout-padding layout-margin>
+      <div layout="column"  layout-padding>
         <div layout="row">
           <md-input-container flex=85>
             <label>Title</label>
@@ -20,20 +20,23 @@
           </md-input-container>
         </div>
 
-        <md-input-container>
+<div layout="row">
+        <md-input-container  flex=50>
           <label>Contact Email</label>
           <input type="text" ng-model="experiment.contactEmail"></input>
         </md-input-container>
-
-        <md-input-container>
+</div>
+<div layout="row">
+        <md-input-container flex=50>
           <label>Organization</label>
           <input type="text" ng-model="experiment.organization">
           <div ng-messages>
             <div ng-message>Organization or person running this experiment.</div>
           </div>
         </md-input-container>
-
-        <md-input-container>
+</div>
+<div layout="row">
+        <md-input-container  flex=100>
           <label>Description</label>
           <textarea ng-model="experiment.description" md-maxlength=500></textarea>
           <div ng-messages>
@@ -41,12 +44,13 @@
               project, so be sure to incorporate any keywords here.</div>
           </div>
         </md-input-container>
-
-        <md-input-container>
+</div>
+<div layout="row">
+        <md-input-container flex=100>
           <label>Informed Consent</label>
           <textarea ng-model="experiment.informedConsentForm"></textarea>
         </md-input-container>
-
+</div>
        <div layout="row">
           <div flex=40>
           <div>Ringtone</div>
@@ -63,7 +67,7 @@
 
           <div flex>
             <div>Phone details</div>
-            <div style="margin:24px;">
+            <div style="margin:8px;">
               <label>
                 <div class="no-ios_inline">
                   <md-checkbox ng-model="experiment.recordPhoneDetails">
@@ -75,7 +79,8 @@
           </div>
         </div>
 
-        <div class="instructions">Instructions
+<div layout="row">
+        <div class="instructions"  flex=100>Instructions
 
           <div class="source-frame">
             <div class="ace_editor" ng-model="experiment.postInstallInstructions" ui-ace="{
@@ -91,6 +96,7 @@
             These instructions will be shown to the user immediately after they join the experiment.
           </div>
         </div>
+      </div>
       </div>
     </md-card-content>
     <md-divider></md-divider>
