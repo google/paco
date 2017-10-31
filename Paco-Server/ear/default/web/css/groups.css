@@ -27,11 +27,11 @@
 }
 
 .group .duration {
-  padding: 0 0 0 16px;
+  /* padding: 0 0 0 16px; */
 }
 
 .group .duration .title {
-  margin-top: 16px;
+  /* margin-top: 16px; */
 }
 
 .group .duration md-input-container {

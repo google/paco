@@ -844,6 +844,17 @@ pacoApp.controller('ReportCtrl', [
 pacoApp.controller('GroupsCtrl', ['$scope', 'template', function ($scope, template) {
   $scope.hiding = false;
   $scope.defaultFeedback = 'Thanks for Participating!';
+  
+  if ($scope.group.startDate) {
+    $scope.startDate = $scope.group.startDate
+  } else {
+    $scope.startDate = null;
+  }
+  if ($scope.group.endDate) {
+    $scope.endDate = $scope.group.endDate
+  } else {
+    $scope.endDate = null;
+  }
 
   $scope.dateToString = function (d) {
     var s = d.getUTCFullYear() + '/' + (d.getMonth() + 1) + '/' + d.getDate();
@@ -902,19 +913,21 @@ pacoApp.controller('GroupsCtrl', ['$scope', 'template', function ($scope, templa
   };
 
   $scope.$watch('group.fixedDuration', function (newVal, oldVal) {
-    if (newVal && newVal === true && $scope.group.startDate == undefined) {
-      var today = new Date();
-      var tomorrow = new Date(today.getTime() + (24 * 60 * 60 * 1000));
-      $scope.group.startDate = $scope.dateToString(today);
-      ;
+    if (newVal && !oldVal) {
+      $scope.startDate = new Date();
+      $scope.endDate = new Date($scope.startDate.getTime() + (24 * 60 * 60 * 1000));
+      $scope.group.startDate = $scope.dateToString(today);      
       $scope.group.endDate = $scope.dateToString(tomorrow);
     }
 
     if (newVal === false) {
       $scope.group.startDate = null;
+      $scope.startDate = null;
       $scope.group.endDate = null;
+      $scope.endDate = null;
     }
   });
+  
 }]);
 
 pacoApp.controller('InputCtrl', ['$scope', 'config', function ($scope, config) {

@@ -41,13 +41,13 @@
           <div flex class="date">
             <md-input-container ng-if="group.fixedDuration">
               <label>Start date</label>
-              <input type="date" paco-date ng-model="group.startDate">
+              <md-datepicker ng-if="group.fixedDuration" ng-model="startDate" ng-change="group.startDate = dateToString(startDate)" placeholder="Start date"></md-datepicker>
             </md-input-container>
           </div>
           <div flex class="date">
             <md-input-container ng-if="group.fixedDuration">
               <label>End date</label>
-              <input type="date" paco-date ng-model="group.endDate">
+              <md-datepicker ng-if="group.fixedDuration" ng-model="endDate" ng-change="group.endDate = dateToString(endDate)" placeholder="End date"></md-datepicker>
             </md-input-container>
           </div>
         </div>

@@ -543,7 +543,7 @@ pacoApp.service('template', function() {
       text: 'Thanks for Participating!',
     },
     rawDataAccess: true,
-    fixedDuration: 'false'
+    fixedDuration: false
   };
 
   this.experiment = {
