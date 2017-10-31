@@ -15,7 +15,10 @@
 
   <div class="padded">
     <div class="column0">    
-      <md-select ng-model="input.responseType" >      
+      <md-select ng-model="input.responseType" palceholder="Response Type" >    
+      <md-select-header>
+	      <span>Response Type</span>
+	    </md-select-header>  
       <md-option ng-repeat="option in responseTypes" ng-value="option.id">{{option.name}}</option>
       </md-select>
 
@@ -31,13 +34,13 @@
     <div class="column1">
       <md-input-container>
         <label>Question for the Participant</label>
-        <textarea ng-model="input.text"></textarea>
+        <textarea ng-model="input.text" md-no-resize md-maxlength=500></textarea>
       </md-input-container>
 
       <div layout="row">
         <md-input-container class="medium" flex>
           <label>Input {{$index + 1}} Variable Name</label>
-          <input ng-model="input.name">
+          <input ng-model="input.name" ng-trim="true" ng-change="input.name = input.name.split(' ').join('_')" >
         </md-input-container>
 
         <div flex>
