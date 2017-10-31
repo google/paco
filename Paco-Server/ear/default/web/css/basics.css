@@ -87,6 +87,9 @@ md-input-container div[ng-message] {
 
 div.no-ios_inline md-checkbox {
   display: inline-block;
+  line-height: 16px;
+  vertical-align: top;
+  
 }
 
 no-ios.align_tiptext.ng-scope div.no-ios {

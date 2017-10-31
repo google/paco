@@ -48,7 +48,8 @@
         </md-input-container>
 
        <div layout="row">
-          <div flex=40>Ringtone
+          <div flex=40>
+          <div>Ringtone</div>
             <md-input-container>
             <md-select ng-model="experiment.ringtoneUri" placeholder="Select">
               <md-option ng-repeat="ringtone in ringtones" value="/assets/ringtone/{{ringtone}}">
@@ -61,8 +62,8 @@
           <div flex=10></div>
 
           <div flex>
-            Phone details
-            <div>
+            <div>Phone details</div>
+            <div style="margin:24px;">
               <label>
                 <div class="no-ios_inline">
                   <md-checkbox ng-model="experiment.recordPhoneDetails">
@@ -74,8 +75,7 @@
           </div>
         </div>
 
-        <div class="padded instructions">
-          Instructions
+        <div class="instructions">Instructions
 
           <div class="source-frame">
             <div class="ace_editor" ng-model="experiment.postInstallInstructions" ui-ace="{
