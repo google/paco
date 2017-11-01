@@ -11,7 +11,7 @@ public class PacoModule {
   ModulesService modulesApi = ModulesServiceFactory.getModulesService();
   private static final String DOT = "-dot-";
   private static final String LOCALHOST = "localhost";
-  
+
   public PacoModule(String moduleName, String serverName) {
     this.name = moduleName;
     Set<String> allModules = modulesApi.getModules();
@@ -22,7 +22,7 @@ public class PacoModule {
       finalUrl = modulesApi.getVersionHostname(name, modulesApi.getDefaultVersion(name));
     } else {
       for (String eachModuleName : allModules) {
-        if (eachModuleName != null && eachModuleName.equalsIgnoreCase(name)) { 
+        if (eachModuleName != null && eachModuleName.equalsIgnoreCase(name)) {
           // Eg: If server name has -dot- in its request url
           if (serverName != null && serverName.contains(DOT)) {
             serverNameInParts = serverName.split(DOT);
@@ -37,9 +37,7 @@ public class PacoModule {
               finalUrl = "";
             }
           } else {
-            //Eg: quantifiedself.com
-            version = modulesApi.getCurrentVersion();
-            finalUrl = version + DOT + name + DOT + serverName;
+            finalUrl = modulesApi.getVersionHostname(moduleName, modulesApi.getDefaultVersion(moduleName));
           }
           break;
         } else {
@@ -49,7 +47,7 @@ public class PacoModule {
     }
     this.address = finalUrl;
   }
-  
+
   public String getName() {
     return name;
   }
@@ -62,5 +60,5 @@ public class PacoModule {
   public void setAddress(String address) {
     this.address = address;
   }
-  
+
 }

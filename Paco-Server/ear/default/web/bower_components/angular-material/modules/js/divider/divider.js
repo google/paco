@@ -1,8 +1,8 @@
 /*!
- * Angular Material Design
+ * AngularJS Material Design
  * https://github.com/angular/material
  * @license MIT
- * v0.11.0-rc1-master-d74f93a
+ * v1.1.5
  */
 (function( window, angular, undefined ){
 "use strict";
@@ -12,6 +12,7 @@
  * @name material.components.divider
  * @description Divider module!
  */
+MdDividerDirective['$inject'] = ["$mdTheming"];
 angular.module('material.components.divider', [
   'material.core'
 ])
@@ -41,6 +42,5 @@ function MdDividerDirective($mdTheming) {
     link: $mdTheming
   };
 }
-MdDividerDirective.$inject = ["$mdTheming"];
 
 })(window, window.angular);

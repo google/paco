@@ -2,13 +2,27 @@ var pacoApp = angular.module('pacoApp', [
   'ngRoute',
   'ngMaterial',
   'ui.ace',
-  'nvd3'
+  'nvd3',
+  'ngSanitize'
 ]);
+
+// 1.5 to 1.6 update need to have bindings or use $onInit function in controllers
+// https://docs.angularjs.org/guide/migration#-compile-
+pacoApp.config(['$compileProvider', function($compileProvider) {
+  $compileProvider.preAssignBindingsEnabled(true);
+}]);
 
 pacoApp.config(['$sceDelegateProvider', function($sceDelegateProvider) {
     // Angular doesn't deal well with audio src=data: this lets us load local data. 
     // TODO remove when port to Google Cloud Storage for Audio and Image data is complete
 	$sceDelegateProvider.resourceUrlWhitelist(['data:audio/mpeg;base64,**','self']);
+}]);
+
+//Code update: Since the new angular version 1.6.5 has changed empty string to '!'
+//for example - mydomain.com/#/a/b/c is now mydomain.com/#!/a/b/c
+//the following config block is required to restore the previous behavior.
+pacoApp.config(['$locationProvider', function($locationProvider) {
+  $locationProvider.hashPrefix('');
 }]);
 
 pacoApp.config(['$routeProvider','$locationProvider',
@@ -60,9 +74,6 @@ pacoApp.config(['$routeProvider','$locationProvider',
     when('/survey/:pubRespondExperimentId',{
       templateUrl: 'partials/respondpub.html',
       reloadOnSearch: false,
-    }).
-    when('/hack',{
-      templateUrl: 'partials/hack.html',
     }).
     otherwise({
       templateUrl: 'partials/welcome.html',

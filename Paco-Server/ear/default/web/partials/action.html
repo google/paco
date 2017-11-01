@@ -1,66 +1,58 @@
-<md-dialog aria-label="Edit Action" class="action">
+<md-dialog aria-label="Edit Action" class="action" layout-padding layout-margin>
   <md-dialog-content>
     <div layout="row">
       <div>
-        <select ng-model="action.actionCode" as-string>
-          <option value="" disabled selected>Choose Action</option>
-          <option ng-selected="(id) == action.actionCode" ng-repeat="(id, type) in actionTypes"
-          value="{{id}}">{{type}}</option>
-        </select>
+      <md-input-container>
+        <label>Action type</label>
+        <md-select ng-model="action.actionCode">
+          <md-option ng-repeat="option in actionTypes" ng-value="option.id">{{option.name}}</md-option>
+        </md-select>
+      </md-input-container>  
       </div>
 
       <div class="ios" flex>
         <no-ios ng-if="action.actionCode > 1">iOS does not support this action</no-ios>
       </div>
     </div>
-
-    <md-input-container ng-if="action.actionCode === 2">
+    
+    <div layout="row">
+    <md-input-container ng-if="action.actionCode === 2" flex>
       <label>Message</label>
       <input type="text" ng-model="action.msgText">
     </md-input-container>
+    </div>
 
     <div ng-if="action.actionCode < 3">
 
       <div layout="row">
-        <div flex>
-        <md-input-container flex>
-          <label>Timeout</label>
-          <input type="number" ng-model="action.timeout" min="0" ng-pattern="/^[0-9]*$/">
-          <div ng-messages>
-            <div ng-message>minutes</div>
-          </div>
+        <md-input-container >
+          <label>Timeout in minutes</label>
+          <input type="number" ng-model="action.timeout" min="0" ng-pattern="/^[0-9]*$/" flex=30>          
         </md-input-container>
-        </div>
 
-        <div flex>
-          <md-input-container flex>
-            <md-checkbox ng-model="action.snoozeCount" aria-label="Snooze repeats" ng-true-value="1" ng-false-value="0">
-              Snooze repeats
+          <md-input-container style="vertical-alignment:top;margin-top:2px;">
+            <md-checkbox ng-model="action.snoozeCount" aria-label="Snooze repeats" ng-true-value="1" ng-false-value="0" flex>
+              Repeat alarm once
             </md-checkbox>
           </md-input-container>
-        </div>
       </div>
 
       <div layout="row">
-        <div flex>
-          <md-input-container ng-if="triggerType === 'interruptTrigger'">
-            <label>Delay between cue and action</label>
-            <input type="number" ng-model="action.delay" min="0" ng-pattern="/^[0-9]*$/">
+          <md-input-container ng-show="triggerType === 'interruptTrigger'">
+            <label>Seconds to delay action</label>
+            <input type="number" ng-model="action.delay" min="0" ng-pattern="/^[0-9]*$/" flex=30>
             <div ng-messages>
               <div ng-message>seconds</div>
             </div>
           </md-input-container>
-        </div>
 
-        <div flex>
           <md-input-container ng-if="action.snoozeCount > 0">
-            <label>Snooze time</label>
-            <input type="number" ng-model="action.snoozeTimeInMinutes" min="0" ng-pattern="/^[0-9]*$/">
+            <label>Minutes until repeat</label>
+            <input type="number" ng-model="action.snoozeTimeInMinutes" min="0" ng-pattern="/^[0-9]*$/" flex>
             <div ng-messages>
               <div ng-message>minutes</div>
             </div>
           </md-input-container>
-        </div>
       </div>
     </div>
 

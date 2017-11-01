@@ -1,0 +1,14 @@
+<md-input-container class="inputsDropDown">
+  <label class="inputsLabel">{{axisLabel2}}</label>
+  <md-select class="inputsSelect" ng-model="selectedInput1"
+             md-on-close="getInput1()"
+             placeholder="{{displayTextSingle}}"
+             data-md-container-class="selectdemoSelectHeader"
+             ng-model-options="{trackBy: '$value.id'}">
+    <md-optgroup ng-repeat="grp in groups" label={{grp}}>
+      <md-option ng-value="input" ng-repeat="input in groupInputs| filter: {'group':grp}">{{input.input}}
+        <div class="resType"><span ng-if="!input.userOrSystemDefined">{{getResponseType(input)}}</span><span ng-if="input.userOrSystemDefined" style="color:red">{{getResponseType(input)}}</span></div>
+      </md-option>
+    </md-optgroup>
+  </md-select>
+</md-input-container>

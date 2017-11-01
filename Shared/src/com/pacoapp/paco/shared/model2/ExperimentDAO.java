@@ -50,6 +50,8 @@ public class ExperimentDAO extends ExperimentDAOCore implements Serializable {
   private String ringtoneUri;
   private String postInstallInstructions;
   private Boolean anonymousPublic;
+  private List<Visualizations> visualizations;
+
 
   // Visible for testing
   public ExperimentDAO(Long id, String title, String description, String informedConsentForm,
@@ -57,7 +59,7 @@ public class ExperimentDAO extends ExperimentDAOCore implements Serializable {
       String joinDate,
       String modifyDate, Boolean published, List<String> admins, List<String> publishedUsers,
       Boolean deleted, Integer version, Boolean recordPhoneDetails, List<ExperimentGroup> groups,
-      List<Integer> extraDataDeclarations, Boolean anonymousPublic) {
+      List<Integer> extraDataDeclarations, Boolean anonymousPublic, List<Visualizations> visualizations) {
     super(id, title, description, informedConsentForm, email, publicKey, joinDate, recordPhoneDetails, deleted, extraDataDeclarations, null, null, null, null, null);
     this.id = id;
     this.title = title;
@@ -71,6 +73,7 @@ public class ExperimentDAO extends ExperimentDAOCore implements Serializable {
     this.version = version;
     this.groups = ListMaker.paramOrNewList(groups, ExperimentGroup.class);
     this.anonymousPublic = anonymousPublic;
+    this.visualizations = visualizations;
   }
 
   /**
@@ -81,6 +84,7 @@ public class ExperimentDAO extends ExperimentDAOCore implements Serializable {
     this.admins = new java.util.ArrayList();
     this.publishedUsers = new java.util.ArrayList();
     this.groups = new java.util.ArrayList();
+    this.visualizations = new java.util.ArrayList();
   }
 
   public String getModifyDate() {
@@ -230,4 +234,11 @@ public class ExperimentDAO extends ExperimentDAOCore implements Serializable {
     this.postInstallInstructions = instructions;
   }
 
+  public List<Visualizations> getVisualizations() {
+    return visualizations;
+  }
+
+  public void setVisualizations(List<Visualizations> visualizations) {
+    this.visualizations = visualizations;
+  }
 }

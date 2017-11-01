@@ -1,5 +1,7 @@
 .basics md-input-container {
-  overflow-y: hidden;
+  /* overflow-y: hidden; */
+  margin: 4px;
+  padding: 4px;
 }
 
 md-input-container div[ng-message] {
@@ -87,6 +89,9 @@ md-input-container div[ng-message] {
 
 div.no-ios_inline md-checkbox {
   display: inline-block;
+  line-height: 16px;
+  vertical-align: top;
+  
 }
 
 no-ios.align_tiptext.ng-scope div.no-ios {

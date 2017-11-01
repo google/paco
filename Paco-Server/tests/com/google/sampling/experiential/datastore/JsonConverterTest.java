@@ -27,7 +27,7 @@ public class JsonConverterTest extends TestCase {
     experimentList.add(new ExperimentDAO(new Long(1), "1title", "1descr", "1consent", "1email",
                                          (String)null /*pk*/, null, null, false,
                                          publishedAdmins, publishedAdmins,
-                                         false, 1, false, null, null, false));
+                                         false, 1, false, null, null, false, null));
   }
 
   public void testShortJsonifyShortening() throws Exception {

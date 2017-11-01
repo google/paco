@@ -167,6 +167,11 @@ md-dialog .paco-help {
   top: 0px;
 }
 
+md-dialog .paco-help .tip-text {
+  top: 0%;
+  left: -100%;
+  margin-left:-100px;
+}
 .paco-help img {
   opacity: .5;
   -webkit-transition: opacity .25s;

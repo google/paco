@@ -14,9 +14,11 @@ pacoApp.directive('pacoGroup', function () {
   var controller = ['$scope', '$http', '$location', '$mdDialog', '$anchorScroll', 'util',
     function($scope, $http, $location, $mdDialog, $anchorScroll, util) {
 
-    $scope.mask = {};
-    $scope.responses = $scope.responses || {};
-
+    //this.$onInit = function() {
+      $scope.mask = {};
+      $scope.responses = $scope.responses || {};
+    
+    
     $scope.post = {
       appId: 'webform',
       pacoVersion: 1,
@@ -38,6 +40,7 @@ pacoApp.directive('pacoGroup', function () {
           evaluateConditionals($scope);      
         }
     });
+   // };
 
     $scope.respond = function() {
 
@@ -78,9 +81,9 @@ pacoApp.directive('pacoGroup', function () {
       }
     $http.post( 
       '/events', post)
-      .success(function(data) {
+      .then(function onSuccess(data) {
 
-        if (data[0].status === true) {
+        if (data.data[0].status === true) {
 
           if ($scope.events) {
             $scope.activeIdx++;
@@ -110,7 +113,7 @@ pacoApp.directive('pacoGroup', function () {
             )
         }
 
-      }).error(function(data, status, headers, config) {
+      }, function onError(data, status, headers, config) {
         console.error(data);
         $mdDialog.show(
             $mdDialog.alert()
@@ -206,7 +209,7 @@ pacoApp.directive('pacoGroup', function () {
   return {
     restrict: 'E',
     scope: {  'group': '=data',
-              'responses': '=',
+              'responses': '=?',
               'preview': '=',
               'readonly': '=',
               'events': '=',
@@ -234,7 +237,6 @@ pacoApp.directive('pacoHelp', function() {
     restrict: 'E',
     transclude: true,
     scope: {  'tip': '@tip' },
-//    template: '<a class="paco-help" href="#/help/{{tip}}" target="_new"><img src="img/ic_help_outline_black_24px.svg"></a>',
     template: '<a class="paco-help" href="#/help/{{tip}}" target="_new"><img src="img/ic_help_outline_black_24px.svg"><span class="tip-text" ng-transclude></span></a>',
     link: function(scope, element) {}
   };
@@ -798,9 +800,9 @@ pacoApp.directive('pacoGroupPub', function () {
         post.responses.push(referPair);
       }
 
-    $http.post('/pubexperiments', post).success(function(data) {
+    $http.post('/pubexperiments', post).then(function(data) {
 
-        if (data[0].status === true) {
+        if (data.data[0].status === true) {
 
           if ($scope.events) {
             $scope.activeIdx++;
@@ -822,7 +824,7 @@ pacoApp.directive('pacoGroupPub', function () {
           }
         }
 
-      }).error(function(data, status, headers, config) {
+      }, function(data, status, headers, config) {
         console.error(data);
       });
     };
@@ -878,7 +880,7 @@ pacoApp.directive('pacoGroupPub', function () {
   return {
     restrict: 'E',
     scope: {  'group': '=data',
-              'responses': '=',
+              'responses': '=?',
               'preview': '=',
               'readonly': '=',
               'events': '=',

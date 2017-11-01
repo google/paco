@@ -38,7 +38,7 @@
       <md-progress-linear md-mode="indeterminate" ng-if="loading === true"></md-progress-linear>
     </div>
 
-    <div ng-show="stats && userChips" class="frame">
+    <div ng-if="stats && userChips" class="frame">
 
       <div class="summary" ng-if="stats && experiment">
         <div class="individual-stat">
@@ -99,7 +99,7 @@
     <!--  barf - this is my hacked version to show a different table depending on whether we are looking at one user or all users stats. -->
       <div ng-show="stats && !userChips" class="frame">
 
-      <div class="summary" ng-if="stats && experiment && experiment.published">
+      <div class="summary" ng-if="stats && experiment">
 
         <div class="stat">
           <b>{{experiment.publishedUsers.length}}</b>

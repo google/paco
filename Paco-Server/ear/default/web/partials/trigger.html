@@ -41,11 +41,11 @@
 	<div class="section" ng-if="trigger.type === 'interruptTrigger'">
 		<div class="subsub">Constraints</div>
 		Minimum minutes between signals
-		<md-input-container md-no-float class="buffer-input">
+		<md-input-container md-no-float class="buffer-input" style="margin:0px;padding:2px;">
 		  <input type="number" ng-model="trigger.minimumBuffer"
 			placeholder="minutes" ng-pattern="/^[0-9]*$/"> 
 		</md-input-container>
-		<div style="padding-left: 210px;">
+		<div style="padding-left: 218px;margin-top:4px;">
 			<md-checkbox ng-model="trigger.timeWindow"
 				aria-label="Limit trigger window">Limit trigger window
 			</md-checkbox>

@@ -1,11 +1,11 @@
 /*!
- * Angular Material Design
+ * AngularJS Material Design
  * https://github.com/angular/material
  * @license MIT
- * v0.11.0-rc1-master-d74f93a
+ * v1.1.5
  */
-goog.provide('ng.material.components.fabActions');
-goog.require('ng.material.core');
+goog.provide('ngmaterial.components.fabActions');
+goog.require('ngmaterial.core');
 (function() {
   'use strict';
 
@@ -13,6 +13,7 @@ goog.require('ng.material.core');
    * @ngdoc module
    * @name material.components.fabActions
    */
+  MdFabActionsDirective['$inject'] = ["$mdUtil"];
   angular
     .module('material.components.fabActions', ['material.core'])
     .directive('mdFabActions', MdFabActionsDirective);
@@ -26,13 +27,13 @@ goog.require('ng.material.core');
    *
    * @description
    * The `<md-fab-actions>` directive is used inside of a `<md-fab-speed-dial>` or
-   * `<md-fab-toolbar>` directive to mark the an element (or elements) as the actions and setup the
+   * `<md-fab-toolbar>` directive to mark an element (or elements) as the actions and setup the
    * proper event listeners.
    *
    * @usage
    * See the `<md-fab-speed-dial>` or `<md-fab-toolbar>` directives for example usage.
    */
-  function MdFabActionsDirective() {
+  function MdFabActionsDirective($mdUtil) {
     return {
       restrict: 'E',
 
@@ -41,11 +42,7 @@ goog.require('ng.material.core');
       compile: function(element, attributes) {
         var children = element.children();
 
-        var hasNgRepeat = false;
-
-        angular.forEach(['', 'data-', 'x-'], function(prefix) {
-          hasNgRepeat = hasNgRepeat || (children.attr(prefix + 'ng-repeat') ? true : false);
-        });
+        var hasNgRepeat = $mdUtil.prefixer().hasAttribute(children, 'ng-repeat');
 
         // Support both ng-repeat and static content
         if (hasNgRepeat) {
@@ -55,9 +52,9 @@ goog.require('ng.material.core');
           children.wrap('<div class="md-fab-action-item">');
         }
       }
-    }
+    };
   }
 
 })();
 
-ng.material.components.fabActions = angular.module("material.components.fabActions");
+ngmaterial.components.fabActions = angular.module("material.components.fabActions");
