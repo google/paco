@@ -386,7 +386,7 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
       }
     }
 
-    if (viz.xAxisVariable && viz.xAxisVariable) {
+    if (viz.xAxisVariable) {
       var textsSet = [];
       var groups = [];
       $scope.loadViz = true;
@@ -474,9 +474,6 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
     var zeroData = []; // TODO deal with bug where zero data single item does not get collected as such
     var multiSelect_vizResponseData = [];
     var singleSelect_vizResponseData = [];
-
-    // console.log(multiSelectResData);
-    // console.log(singleSelectResData);
 
     if (multiSelectResData) {
       var groupByInputName = d3.nest()
