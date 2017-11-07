@@ -38,7 +38,7 @@ pacoApp.directive('typesDropDown', [function () {
     restrict: 'E',
     template: '<md-input-container class="typesDropDown">' +
     '<label class="typesLabel">Types</label>' +
-    '<md-select ng-model="selectedType"  md-on-close="getSelectedType()">' +
+    '<md-select ng-model="currentVisualization.type"  md-on-close="toggleDrawButton(true)">' +
     '<md-optgroup label="Viz Types">' +
     '<md-option ng-repeat="type in vizTypes" ng-value="type">{{type}}</md-option>' +
     '</md-optgroup></md-select></md-input-container>',
@@ -53,7 +53,7 @@ pacoApp.directive('createButton', [function () {
   return {
     restrict: 'E',
     template: '<md-input-container class="vizCreateButton">' +
-    '<md-button class="md-raised" ng-disabled="drawButton" ng-click="createViz(undefined,$event)">Draw</md-button>' +
+    '<md-button class="md-raised" ng-disabled="!drawButton" ng-click="createViz(undefined,$event)">Draw</md-button>' +
     '</md-input-container>',
     controller: 'VizCtrl', //Embed a custom controller in the directive
     link: function (scope, element, attrs, controller) {

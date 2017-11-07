@@ -17,9 +17,9 @@ pacoApp.factory('experimentsVizService', ['$http', 'experimentService', '$filter
   function getParticipants(experimentId) {
     if (experimentId != undefined) {
       var message = '{ "select":["distinct who"], "query" : { "criteria" : "experiment_id = ?", "values" : [' + experimentId + ']}}';
-      var participants = httpPostBody(message);
+      return httpPostBody(message);
     }
-    return participants;
+    return [];
   }
 
   function getAllTexts(experimentId,texts){
@@ -140,8 +140,20 @@ pacoApp.factory('experimentsVizService', ['$http', 'experimentService', '$filter
     return response;
   }
 
+  function convertDatesToStrings(experiment) {
+    if (experiment.visualizations && experiment.visualizations.length > 0) {
+      experiment.visualizations.forEach(function(v) {
+        v.startDatetime = $filter('date')(v.startDatetime, 'yyyy-MM-ddTHH:mm:ss');
+        v.endDatetime = $filter('date')(v.endDatetime, 'yyyy-MM-ddTHH:mm:ss');
+      });
+    }
+  }
+
   function saveVisualizations(experiment) {
-    var saveVizs = $http.post('/experiments?id=' + experiment.id, JSON.stringify(experiment))
+    var experimentCopy = {};
+    angular.copy(experiment, experimentCopy);
+    convertDatesToStrings(experimentCopy);
+    var saveVizs = $http.post('/experiments?id=' + experimentCopy.id, JSON.stringify(experimentCopy))
         .then(function successCallback(response) {
           return response;
         }, function errorCallback(error) {

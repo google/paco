@@ -1,4 +1,7 @@
-pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsVizService', '$timeout', '$routeParams', '$filter', '$mdDialog', '$sce', function ($scope, $element, $compile, experimentsVizService, $timeout, $routeParams, $filter, $mdDialog, $sce) {
+pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsVizService',
+      '$timeout', '$routeParams', '$filter', '$mdDialog', '$sce',
+    function ($scope, $element, $compile, experimentsVizService, $timeout,
+              $routeParams, $filter, $mdDialog, $sce) {
 
   $scope.dateRangeControl = false;
   $scope.multipleInputs = false;
@@ -6,27 +9,25 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
   $scope.vizChartTypes = false;
   $scope.createBtn = false;
   $scope.singleInput = false;
-  $scope.vizs = [];
-  $scope.vizTable = false;
-  $scope.renderSavedViz = false;
   $scope.saveDownload = false;
-  $scope.renderVisualization = false;
   $scope.editMode = true;
   $scope.editDescMode = true;
   $scope.backButton = true;
   $scope.forwardButton = true;
   $scope.vizHistory = [];
-  $scope.drawButton = true;
+  $scope.drawButton = false;
   $scope.selectAllParticipants = false;
   $scope.deSelectAllParticipants = true;
 
   var responseTypeMap = new Map();
   var responseMetaData = [];
-  var responses = [];
   var questionsMap = new Map();
-  var getEvents = "";
-  var vizIndex = 0;
 
+  var DATE_FORMAT = 'yyyy-MM-ddTHH:mm:ssZ';
+  var DATE_FORMAT_NO_TZ = 'yyyy-MM-ddTHH:mm:ss';
+
+  // TODO refactor to use a viz as model for ui
+  $scope.currentVisualization = newVizSchema();
 
   $scope.questions = [{
     qno: 1,
@@ -86,12 +87,16 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
     });
 
     experimentsVizService.getParticipants($scope.experimentId).then(function (participants) {
-      $scope.participantsCount = participants.data.customResponse.length;
+      $scope.participants = [];
+        participants.data.customResponse.forEach(function (participant) {
+          $scope.participants.push(participant.who);
+        });
+      $scope.participantsCount = $scope.participants.length;
       $scope.loadParticipantsCount = true;
     });
 
     experimentsVizService.getStartDate($scope.experimentId).then(function (data) {
-      var format = 'MM/dd/yyyy';
+      var format = 'yyyy/MM/dd';
       if (data.data.customResponse !== undefined) {
         if (data.data.customResponse.length > 0) {
           var format_startDate = $filter('date')(new Date(data.data.customResponse[0].response_time), format);
@@ -102,7 +107,7 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
     });
 
     experimentsVizService.getEndDate($scope.experimentId).then(function (data) {
-      var format = 'MM/dd/yyyy';
+      var format = 'yyyy/MM/dd';
       if (data.data.customResponse !== undefined) {
         if (data.data.customResponse.length > 0) {
           var format_endDate = $filter('date')(new Date(data.data.customResponse[0].response_time), format);
@@ -114,26 +119,33 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
     });
   };
 
+  function correctDatetimeAfterParseIntoLocalZone(datetimeMillis) {
+    if (datetimeMillis) {
+      datetimeMillis = new Date(datetimeMillis);
+      // restore the time to ignore timezone
+      var userTimezoneOffset = datetimeMillis.getTimezoneOffset() * 60000;
+      return new Date(datetimeMillis.getTime() + userTimezoneOffset);
+    }
+    return datetimeMillis;
+  };
+
   //experiment json objects are retrieved from the 'experimentsVizService'
   // to create a scope variable for response type meta data.
   $scope.getExperiment = function () {
     experimentsVizService.getExperiment($scope.experimentId).then(
-        function (experiment) {
-          if (experiment.status === 404) {
-            displayErrorMessage("Experiments ", experiment);
-          }
-          else {
-            $scope.vizs = experiment.results[0].visualizations;
-            if (experiment.results[0].visualizations.length >= 1) {
-              $scope.vizTable = true;
+        function (response) {
+          if (response.status === 404) {
+            displayErrorMessage("Experiments ", response);
+          } else {
+            $scope.experiment = response.results[0];
+            var experiment = response.results[0];
+            if (experiment.visualizations.length > 0) {
+              experiment.visualizations.forEach(function (v) {
+                v.endDatetime = correctDatetimeAfterParseIntoLocalZone(v.endDatetime);
+                v.startDatetime = correctDatetimeAfterParseIntoLocalZone(v.startDatetime);
+              });
             }
-            $scope.experimentDataModel = {
-              id: experiment.results[0].id,
-              title: experiment.results[0].title,
-              creator: experiment.results[0].creator,
-              date: experiment.results[0].modifyDate
-            };
-            responseTypeData(experiment.results[0]);
+            responseTypeData(experiment);
           }
         });
   };
@@ -141,43 +153,37 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
   function getGroups() {
     $scope.groupInputs = [];
     $scope.groups = [];
-    var expGroups = [];
+    var experimentDefinedInputs = [];
 
-    experimentsVizService.getExperiment($scope.experimentId).then(
-        function (experiment) {
-          if (experiment.status === 500) {
-            displayErrorMessage("Experiment", experiment);
-          } else {
-            experiment.results[0].groups.forEach(function (groups) {
-              $scope.groups.push(groups.name);
-              groups.inputs.forEach(function (input) {
-                expGroups.push(input.name);
-                $scope.groupInputs.push({
-                  "id": groups.name + ":" + input.name,
-                  "group": groups.name,
-                  "input": input.name,
-                  "userOrSystemDefined": false,
-                  "responseType": input.responseType
-                });
-              });
-            });
-            experimentsVizService.getAllTexts($scope.experimentId, expGroups).then(function (groupsList) {
-              groupsList.data.customResponse.forEach(function (grpList) {
-                if ((grpList.group_name !== undefined)) {
-                  if ((grpList.text !== "foreground") && (grpList.text !== "referred_group") && (grpList.text !== "eodResponseTime")) {
-                    $scope.groupInputs.push({
-                      "id": grpList.group_name + ":" + grpList.text,
-                      "group": grpList.group_name,
-                      "input": grpList.text,
-                      "userOrSystemDefined": true,
-                      "responseType": "open text"
-                    });
-                  }
-                }
-              });
+    $scope.experiment.groups.forEach(function (group) {
+      $scope.groups.push(group.name);
+      group.inputs.forEach(function (input) {
+        experimentDefinedInputs.push(input.name);
+        $scope.groupInputs.push({
+          "id": group.name + ":" + input.name,
+          "group": group.name,
+          "input": input.name,
+          "userOrSystemDefined": false,
+          "responseType": input.responseType
+        });
+      });
+    });
+
+    experimentsVizService.getAllTexts($scope.experimentId, experimentDefinedInputs).then(function (groupsList) {
+      groupsList.data.customResponse.forEach(function (grpList) {
+        if ((grpList.group_name)) {
+          if ((grpList.text !== "foreground") && (grpList.text !== "referred_group") && (grpList.text !== "eodResponseTime")) {
+            $scope.groupInputs.push({
+              "id": grpList.group_name + ":" + grpList.text,
+              "group": grpList.group_name,
+              "input": grpList.text,
+              "userOrSystemDefined": true,
+              "responseType": "open text" // TODO have a function to return better values for known types, e.g., Form Duration
             });
           }
-        });
+        }
+      });
+    });
   }
 
   $scope.getResponseType = function (input) {
@@ -185,98 +191,59 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
   };
 
   function responseTypeData(experiment) {
-    responseMetaData = [];
     responseTypeMap = new Map();
     experiment.groups.forEach(function (groups) {
       groups.inputs.forEach(function (input) {
-        if (input.responseType == "likert") {
-          responseMetaData.push({
-            "name": input.name,
-            "responseType": input.responseType,
-            "text": input.text,
-            "leftsidelabel": input.leftSideLabel,
-            "rightsidelabel": input.rightSideLabel
-          });
-        } else if (input.responseType == "list") {
-          responseMetaData.push({
-            "name": input.name,
-            "responseType": input.responseType,
-            "text": input.text,
-            "listChoices": input.listChoices
-          });
-        } else {
-          responseMetaData.push({
-            "name": input.name,
-            "responseType": input.responseType,
-            "text": input.text
-          });
-        }
-      });
-      responseMetaData.forEach(function (response) {
-        responseTypeMap.set(response.name, response);
+        responseTypeMap.set(input.name, input);
       });
     });
   }
 
   function resetVariables() {
-    $scope.selectedInputs = undefined;
-    $scope.selectedType = undefined;
-    $scope.startDate = undefined;
-    $scope.endDate = undefined;
-    $scope.startTime = undefined;
-    $scope.endTime = undefined;
-    $scope.startDateTime = undefined;
-    $scope.endDateTime = undefined;
-    $scope.selectedInput1 = undefined;
     $scope.xPlotInput = [];
-    $scope.selectedParticipants = $scope.participants;
     $scope.selectAllParticipants = false;
     $scope.deSelectAllParticipants = true;
     $scope.yAxisLabel = undefined;
   }
 
-  function populateVizParams() {
-    resetVariables();
-    getGroups();
-    populateParticipants();
-    $scope.selectedParticipants = $scope.participants;
-    populateVizType();
-    $scope.startDate = $filter('date')(new Date($scope.dateRange[0]), 'EEE, dd MMM yyyy HH:mm:ss Z');
-    $scope.endDate = $filter('date')(new Date($scope.dateRange[1]), 'EEE, dd MMM yyyy HH:mm:ss Z');
-  }
-
   $scope.selectAll = function () {
-    $scope.selectedParticipants = $scope.participants;
+    $scope.currentVisualization.participants = $scope.participants;
     $scope.selectAllParticipants = false;
     $scope.deSelectAllParticipants = true;
   };
 
   $scope.deselectAll = function () {
-    $scope.selectedParticipants = [];
+    $scope.currentVisualization.participants = [];
     $scope.selectAllParticipants = true;
     $scope.deSelectAllParticipants = false;
   };
 
-  $scope.getTemplate = function () {
-    if (questionsMap.has($scope.selectedQues)) {
-      $scope.template = questionsMap.get($scope.selectedQues);
+  $scope.getTemplate = function (isNewViz) {
+    if (questionsMap.has($scope.currentVisualization.question)) {
+      $scope.template = questionsMap.get($scope.currentVisualization.question);
+
       if ($scope.template === 1) {
         toggleVizControls(true, true, false, true, true, true, false);
-        populateVizParams();
-        clearViz();
       } else if ($scope.template === 2) {
         toggleVizControls(true, false, false, true, true, true, true);
-        populateVizParams();
-        clearViz();
       } else if ($scope.template === 3) {
         toggleVizControls(true, false, true, true, true, true, true);
-        populateVizParams();
-        clearViz();
       } else if ($scope.template === 4) {
         toggleVizControls(true, false, false, true, true, true, true);
-        populateVizParams();
-        clearViz();
       }
+      resetVariables();
+      getGroups();
+      populateVizType();
+
+      //inlined populateVizParams
+      if (isNewViz) {
+        $scope.currentVisualization.startDatetime = new Date($scope.dateRange[0]);
+        var endDateRange = new Date($scope.dateRange[1]);
+        endDateRange.setDate(endDateRange.getDate() + 1);
+        $scope.currentVisualization.endDatetime = endDateRange;
+        $scope.currentVisualization.participants = $scope.participants;
+      }
+      clearViz();
     }
   };
 
@@ -291,8 +258,8 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
   }
 
   function populateVizType() {
-    if (questionsMap.has($scope.selectedQues)) {
-      $scope.template = questionsMap.get($scope.selectedQues);
+    if (questionsMap.has($scope.currentVisualization.question)) {
+      $scope.template = questionsMap.get($scope.currentVisualization.question);
       if ($scope.template === 1) {
         $scope.vizTypes = ["Box Plot", "Bar Chart", "Bubble Chart"];
       }
@@ -306,89 +273,86 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
         $scope.vizTypes = ["Scatter Plot"];
       }
     }
-    $scope.selectedType = $scope.vizTypes[0];
+    if ($scope.currentVisualization.type === null) {
+      $scope.currentVisualization.type = $scope.vizTypes[0];
+    }
     axisLabels();
     $scope.displayTextMul();
     $scope.displayTextOne();
   }
 
   $scope.displayTextMul = function () {
-    if ($scope.selectedInputs === undefined) {
-      if (($scope.selectedType === "Box Plot") || ($scope.selectedType === "Bar Chart")) {
+    if ($scope.currentVisualization.yAxisVariables === undefined) {
+      if (($scope.currentVisualization.type === "Box Plot") || ($scope.currentVisualization.type === "Bar Chart")) {
         $scope.displayTextMultiple = "x Axis";
       }
-      if ($scope.selectedType === "Bubble Chart") {
+      if ($scope.currentVisualization.type === "Bubble Chart") {
         $scope.displayTextMultiple = "Inputs";
       }
-      if (($scope.selectedType === "Scatter Plot") && ($scope.template === 3)) {
+      if (($scope.currentVisualization.type === "Scatter Plot") && ($scope.template === 3)) {
         $scope.displayTextMultiple = "y Axis";
       }
-    } else if ($scope.selectedInputs.length === 1) {
-      $scope.displayTextMultiple = $scope.selectedInputs[0].input;
+    } else if ($scope.currentVisualization.yAxisVariables.length === 1) {
+      $scope.displayTextMultiple = $scope.currentVisualization.yAxisVariables[0].input;
     } else {
-      $scope.displayTextMultiple = dropDownDisplayText($scope.selectedInputs);
+      $scope.displayTextMultiple = dropDownDisplayText($scope.currentVisualization.yAxisVariables);
     }
     return $scope.displayTextMultiple;
   };
 
   $scope.displayTextOne = function () {
-    if ($scope.selectedInputs === undefined) {
+    if ($scope.currentVisualization.xAxisVariable === undefined) {
       $scope.displayTextSingle = "x Axis";
     }
   };
 
-  function populateParticipants() {
-    $scope.participants = [];
-    experimentsVizService.getParticipants($scope.experimentId).then(function (participants) {
-      participants.data.customResponse.forEach(function (participant) {
-        $scope.participants.push(participant.who);
-      });
-    });
-  }
-
-  $scope.getInputs = function () {
-    $scope.inputNames = [];
-    $scope.groupsSet = new Set();
-    if ($scope.selectedInputs !== undefined) {
-      $scope.selectedInputs.forEach(function (input) {
-        $scope.inputNames.push(input.input);
-        $scope.groupsSet.add(input.group);
-      });
-    }
-    $scope.drawButton = false;
+  $scope.toggleDrawButton = function(bool_value) {
+    $scope.drawButton = bool_value;
   };
 
-  $scope.getInput1 = function () {
-    $scope.drawButton = false;
-  };
+      // $scope.getInputs = function () {
+  //   // $scope.inputNames = [];
+  //   // $scope.groupsSet = new Set();
+  //   // if ($scope.currentVisualization.yAxisVariables !== undefined) {
+  //   //   $scope.currentVisualization.yAxisVariables.forEach(function (input) {
+  //   //     $scope.inputNames.push(input.input);
+  //   //     $scope.groupsSet.add(input.group);
+  //   //   });
+  //   // }
+  //   $scope.drawButton = false;
+  // };
 
-  $scope.getSelectedType = function () {
-    $scope.drawButton = false;
-  };
+  // $scope.getInput1 = function () {
+  //   $scope.drawButton = false;
+  // };
 
-  $scope.getParticipants = function () {
-    $scope.drawButton = false;
-  };
+  // $scope.getSelectedType = function () {
+  //   $scope.drawButton = false;
+  // };
 
-  $scope.getDateTime = function () {
-    $scope.drawButton = false;
-  };
+  // $scope.getParticipants = function () {
+  //   $scope.drawButton = false;
+  // };
+
+  // $scope.getDatetime = function () {
+  //   $scope.drawButton = false;
+  // };
 
   function axisLabels() {
-    if ($scope.selectedType === "Bar Chart") {
+    if ($scope.currentVisualization.type === "Bar Chart") {
       $scope.axisLabel1 = "x Axis";
       $scope.yAxisLabel = "Count";
-    } else if (($scope.selectedType === "Scatter Plot") && ($scope.template === 4)) {
+    } else if (($scope.currentVisualization.type === "Scatter Plot") && ($scope.template === 4)) {
       $scope.axisLabel2 = "x Axis";
       $scope.yAxisLabel = "Date/Time Series";
-    } else if (($scope.selectedType === "Scatter Plot") && ($scope.template === 3)) {
+    } else if (($scope.currentVisualization.type === "Scatter Plot") && ($scope.template === 3)) {
       $scope.axisLabel2 = "x Axis";
       $scope.axisLabel1 = "y Axis";
       $scope.yAxisLabel = undefined;
-    } else if ($scope.selectedType === "Box Plot") {
+    } else if ($scope.currentVisualization.type === "Box Plot") {
       $scope.axisLabel1 = "x Axis";
       $scope.yAxisLabel = undefined;
-    } else if ($scope.selectedType === "Bubble Chart") {
+    } else if ($scope.currentVisualization.type === "Bubble Chart") {
       $scope.axisLabel1 = "Inputs";
       $scope.yAxisLabel = undefined;
     }
@@ -397,62 +361,40 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
   }
 
   function getEventsResponses(viz, createBtnEvent) {
-    $scope.startDateTime = undefined;
-    $scope.endDateTime = undefined;
     $scope.responseData = [];
 
-    // start and end date/time stamp based on a date
-    if ($scope.startDate != undefined) {
-      $scope.startDateTime = formatDate($scope.startDate) + " " + "00:00:00";
-      $scope.endDateTime = formatDate($scope.startDate) + " " + "23:59:59";
-    }
-    // start and end date/time stamp based on a date range
-    if ($scope.endDate != undefined) {
-      $scope.startDateTime = formatDate($scope.startDate) + " " + "00:00:00";
-      $scope.endDateTime = formatDate($scope.endDate) + " " + "23:59:59";
-    }
-    // start and end date/time stamp based on a date and time range
-    if ($scope.startDate != undefined && $scope.startTime != undefined && $scope.endTime != undefined) {
-      $scope.startDateTime = formatDate($scope.startDate) + " " + formatTime($scope.startTime);
-      $scope.endDateTime = formatDate($scope.startDate) + " " + formatTime($scope.endTime);
-    }
-    // start and end date/time stamp based on a date range and time range
-    if ($scope.startDate != undefined && $scope.endDate != undefined && $scope.startTime != undefined && $scope.endTime != undefined) {
-      $scope.startDateTime = formatDate($scope.startDate) + " " + formatTime($scope.startTime);
-      $scope.endDateTime = formatDate($scope.endDate) + " " + formatTime($scope.endTime);
-    }
+    var startDatetimeStr = $filter('date')(viz.startDatetime, DATE_FORMAT_NO_TZ);
+    var endDatetimeStr = $filter('date')(viz.endDatetime, DATE_FORMAT_NO_TZ);
 
     // if (($scope.template === 1) || ($scope.template === 2) || ($scope.template === 4)) {
-    if ($scope.selectedInputs !== undefined) {
+    if (viz.yAxisVariables) {
       var textsSet = [];
       var groups = [];
-      var groupsSet = new Set;
-      if ($scope.selectedInputs.length > 0) {
-        $scope.selectedInputs.forEach(function (selectedInput) {
+      if (viz.yAxisVariables.length > 0) {
+        viz.yAxisVariables.forEach(function (selectedInput) {
           textsSet.push(selectedInput.input);
-          groupsSet.add(selectedInput.group);
-        });
-        groupsSet.forEach(function (group) {
-          groups.push(group);
+          groups.push(selectedInput.group); // TODO does the query work when the inputs are from more than one group?
         });
 
-        experimentsVizService.getEvents($scope.experimentId, groups, textsSet, $scope.selectedParticipants, $scope.startDateTime, $scope.endDateTime).then(function (events) {
-          if (events.data.customResponse !== undefined) {
+        experimentsVizService.getEvents($scope.experimentId, groups, textsSet, viz.participants,
+          startDatetimeStr, endDatetimeStr).then(function (events) {
+          if (events.data.customResponse) {
             console.log(events.data.customResponse);
-            processViz(viz, createBtnEvent, events.data.customResponse, undefined);
+            processViz(viz, createBtnEvent, events.data.customResponse);
           }
         });
       }
     }
 
-    if ($scope.selectedInput1 !== undefined) {
+    if (viz.xAxisVariable && viz.xAxisVariable) {
       var textsSet = [];
       var groups = [];
       $scope.loadViz = true;
-      textsSet.push($scope.selectedInput1.input);
-      groups.push($scope.selectedInput1.group);
-      experimentsVizService.getEvents($scope.experimentId, groups, textsSet, $scope.selectedParticipants, $scope.startDateTime, $scope.endDateTime).then(function (events) {
-        if (events.data.customResponse !== undefined) {
+      textsSet.push(viz.xAxisVariable.input);
+      groups.push(viz.xAxisVariable.group);
+      experimentsVizService.getEvents($scope.experimentId, groups, textsSet,
+        viz.participants, startDatetimeStr, endDatetimeStr).then(function (events) {
+        if (events.data.customResponse) {
           console.log(events.data.customResponse);
           processViz(viz, createBtnEvent, undefined, events.data.customResponse);
         }
@@ -488,7 +430,7 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
     //     }
     //     console.log(textsSet);
     //     console.log(groups);
-    //     experimentsVizService.getDataForScatterPlotTemplate3($scope.experimentId, groups, textsSet, $scope.selectedParticipants, $scope.startDateTime, $scope.endDateTime).then(function (events) {
+    //     experimentsVizService.getDataForScatterPlotTemplate3($scope.experimentId, groups, textsSet, $scope.selectedParticipants, $scope.startDatetime, $scope.endDatetime).then(function (events) {
     //       if (events.data.customResponse !== undefined) {
     //         console.log(events.data.customResponse);
     //         if (events.data.customResponse.length > 0) {
@@ -499,128 +441,151 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
     //   }
   }
 
+  function pushOntoCommandHistory(viz, addedTitleString) {
+    viz.historyTitle = getVizHistoryTitle(viz, "Description Edited");
+
+    var currentPlaceInHistory = $scope.vizHistory.indexOf(viz);
+    if (currentPlaceInHistory > -1) {
+      $scope.vizHistory.splice(currentPlaceInHistory, 1);
+      $scope.vizHistory.push(viz);
+    } else {
+      $scope.vizHistory.push(viz);
+    }
+    if ($scope.vizHistory.length > 1) {
+      $scope.backButton = false;
+      $scope.forwardButton = false;
+    }
+
+  }
+
+  function variableCount(viz) {
+    var count = 0;
+    if (viz.xAxisVariable) {
+      count += viz.xAxisVariable.length;
+    }
+    if (viz.yAxisVariables) {
+      count += viz.yAxisVariables.length;
+    }
+    return count;
+  }
+
   function processViz(viz, createBtnEvent, multiSelectResData, singleSelectResData) {
 
-    var zeroData = [];
+    var zeroData = []; // TODO deal with bug where zero data single item does not get collected as such
     var multiSelect_vizResponseData = [];
     var singleSelect_vizResponseData = [];
 
-    console.log(multiSelectResData);
-    console.log(singleSelectResData);
+    // console.log(multiSelectResData);
+    // console.log(singleSelectResData);
 
-    if (multiSelectResData !== undefined) {
-      var groupByText = d3.nest()
+    if (multiSelectResData) {
+      var groupByInputName = d3.nest()
           .key(function (d) {
             return d.text;
           })
           .entries(multiSelectResData);
-      if (groupByText !== undefined) {
-        if (groupByText.length > 0) {
-          groupByText.forEach(function (text) {
-            if (text.values.length > 0) {
-              multiSelect_vizResponseData.push(text);
-            } else {
-              zeroData.push(text);
-            }
-          });
-        }
+      
+      if (groupByInputName && groupByInputName.length > 0) {
+        groupByInputName.forEach(function (inputName) {
+          if (inputName.values.length > 0) {
+            multiSelect_vizResponseData.push(inputName);
+          } else {
+            zeroData.push(inputName);
+          }
+        });
         $scope.responseData = multiSelect_vizResponseData;
+      } else {
+        viz.yAxisVariables.forEach(function(v) { zeroData.push(v.input); });
       }
     }
 
-    if (singleSelectResData !== undefined) {
-      var groupByText = d3.nest()
+    if (singleSelectResData) {
+      var groupByInputName = d3.nest()
           .key(function (d) {
             return d.text;
           })
           .entries(singleSelectResData);
 
-      if (groupByText !== undefined) {
-        if (groupByText.length > 0) {
-          groupByText.forEach(function (text) {
-            if (text.values.length > 0) {
-              singleSelect_vizResponseData.push(text);
-            } else {
-              zeroData.push(text);
-            }
-          });
-        }
+      if (groupByInputName && groupByInputName.length > 0) {
+
+        groupByInputName.forEach(function (inputName) {
+          if (inputName.values.length > 0) {
+            singleSelect_vizResponseData.push(inputName);
+          } else {
+            zeroData.push(inputName);
+          }
+        });
+
         if ($scope.template === 3) {
           $scope.xPlotInput = singleSelect_vizResponseData;
         }
         if (($scope.template === 4) || ($scope.template === 2)) {
           $scope.singleInputResponseData = singleSelect_vizResponseData;
         }
+      } else {
+        zeroData.push(viz.xAxisVariable.input);
       }
     }
 
-    var reqFieldsCheck = reqFieldsValidation();
-    if (reqFieldsCheck) {
+    if (reqFieldsValidation()) {
+      displayViz($scope.currentVisualization);
 
-      if ($scope.currentViz !== undefined) {
-        displayViz($scope.currentViz);
-      } else if (viz !== undefined) {
-        displayViz(viz);
+      if (createBtnEvent) { // TODO was this triggered on a new Draw event? (actually, any draw event will cause this (reload doesn't pass it)
+        // Clicking the draw button makes it a memorable event and therefore puts the viz on the history stack
+        var newViz = $scope.cloneVisualization($scope.currentVisualization);
+        pushOntoCommandHistory($scope.currentVisualization);
+        $scope.currentVisualization = newViz;
       } else {
-        displayViz();
-      }
-      if (createBtnEvent !== undefined) {
-        var vizParamsJson = vizJson();
-        var vizLogTitle = getvizLogTitle(vizParamsJson[0]);
-        vizParamsJson[0].vizLogTitle = vizLogTitle;
-        $scope.vizHistory.push(vizParamsJson);
-        if ($scope.vizHistory.length > 1) {
-          $scope.backButton = false;
-          $scope.forwardButton = false;
-        }
-      } else {
-        d3.selectAll('.vizContainer' + "> *").remove();
-        $scope.vizTemplate = false;
-        $scope.saveDownload = false;
-        $scope.drawButton = false;
+       clearViz(); // TODO does it make sense to clear viz if createBtnEvent is undefined? it clears the reload event - which double draws. Maybe?
       }
     }
 
-    if (zeroData !== undefined) {
-      var zeroDataTexts = "";
+
+
       if (zeroData.length > 0) {
-        zeroDataTexts = zeroData.join(", ");
+        if (variableCount(viz) < 2) {
+          $scope.loadViz = false;
+          clearViz();
+        }
+        var zeroDataTexts = zeroData.join(", ");
         showAlert("Zero data", "No data available for the selection: " + zeroDataTexts);
+
       }
-    }
+
+
   }
 
   function displayViz(viz) {
     var incompatibleTexts = undefined;
 
-    if (($scope.selectedType === "Box Plot") && ($scope.template === 1)) {
-      incompatibleTexts = checkIncompatibleTexts($scope.selectedInputs);
+    if (($scope.currentVisualization.type === "Box Plot") && ($scope.template === 1)) {
+      incompatibleTexts = checkIncompatibleTexts($scope.currentVisualization.yAxisVariables); // TODO is this necessary .. since currentVisualization
       processBoxData($scope.responseData, incompatibleTexts);
     }
-    if (($scope.selectedType === "Bar Chart") && ($scope.template === 1)) {
-      incompatibleTexts = checkIncompatibleTexts($scope.selectedInputs);
+    if (($scope.currentVisualization.type === "Bar Chart") && ($scope.template === 1)) {
+      incompatibleTexts = checkIncompatibleTexts($scope.currentVisualization.yAxisVariables); // TODO is this necessary .. since currentVisualization
       processBarChartData($scope.responseData, incompatibleTexts);
     }
-    if ($scope.selectedType === "Bubble Chart") {
+    if ($scope.currentVisualization.type === "Bubble Chart") {
       processBubbleChartData($scope.responseData);
     }
-    if (($scope.selectedType === "Box Plot") && ($scope.template === 2)) {
+    if (($scope.currentVisualization.type === "Box Plot") && ($scope.template === 2)) {
       processBoxData($scope.singleInputResponseData);
     }
-    if (($scope.selectedType === "Bar Chart") && ($scope.template === 2)) {
+    if (($scope.currentVisualization.type === "Bar Chart") && ($scope.template === 2)) {
       processBarChartData($scope.singleInputResponseData);
     }
-    if (($scope.selectedType === "Scatter Plot") && ($scope.template === 4)) {
+    if (($scope.currentVisualization.type === "Scatter Plot") && ($scope.template === 4)) {
       processXYPlotTimeSeries($scope.singleInputResponseData);
     }
-    if (($scope.selectedType === "Scatter Plot") && ($scope.template === 3)) {
+    if (($scope.currentVisualization.type === "Scatter Plot") && ($scope.template === 3)) {
       processScatterPlot($scope.responseData);
       //$scope.vizTemplate = true;
     }
     $scope.saveDownload = true;
     $scope.editMode = true;
     $scope.editTextMode = true;
-    $scope.drawButton = true;
+    $scope.drawButton = false;
     displayDescription(viz);
     displayTitle(viz);
   }
@@ -643,112 +608,115 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
     d3.selectAll('.vizContainer' + "> *").remove();
     $scope.vizTemplate = false;
     $scope.saveDownload = false;
-    $scope.drawButton = true;
+    $scope.drawButton = false;
+    $scope.vizDescription = null;
+    $scope.vizTitle = null;
+  }
+
+  function createNewChartDescriptionText() {
+    var participantsDesc = [];
+    var dateDesc = " ";
+
+    if ($scope.participantsCount === $scope.currentVisualization.participants.length) {
+      participantsDesc.push("All participants")
+    } else {
+      participantsDesc = $scope.currentVisualization.participants.join(', ');
+    }
+    if ($scope.currentVisualization.startDatetime) {
+      dateDesc = formatDate($scope.currentVisualization.startDatetime);
+    }
+    if ($scope.currentVisualization.endDatetime) {
+      dateDesc = dateDesc + " " + formatDate($scope.currentVisualization.endDatetime);
+    }
+
+    var newDescription = "";
+    if ($scope.template == 1) {
+      newDescription = "Participants: " + participantsDesc + "<br>" + "Date Range: " + $scope.dateRange[0] + " - " + $scope.dateRange[1];
+    } else if ($scope.template === 2 || $scope.template === 3 || $scope.template === 4) {
+      newDescription = "Participants: " + participantsDesc + "<br>" + "Date Range: " + dateDesc;
+    }
+    return newDescription;
   }
 
   function displayDescription(viz) {
-    if (viz !== undefined) {
-      $scope.vizDesc = viz.vizDesc;
-      $scope.vizDescription = $sce.trustAsHtml("<pre class='descText'>" + viz.vizDesc + "</pre>");
+    if (!viz.description) {
+      $scope.vizDescription = createNewChartDescriptionText();
     } else {
-      var participantsDesc = [];
-      var dateDesc = " ";
-      var timeDesc = " ";
-      if ($scope.participantsCount === $scope.selectedParticipants.length) {
-        participantsDesc.push("All participants")
-      } else {
-        participantsDesc = $scope.selectedParticipants.join(', ');
-      }
-      if ($scope.startDate != undefined) {
-        dateDesc = formatDate($scope.startDate);
-      }
-      if ($scope.startDate != undefined && $scope.endDate != undefined) {
-        dateDesc = formatDate($scope.startDate) + " - " + formatDate($scope.endDate);
-      }
-      if ($scope.startDate === undefined && $scope.endDate === undefined) {
-        dateDesc = $scope.dateRange[0] + " - " + $scope.dateRange[1];
-      }
-      if ($scope.startTime != undefined) {
-        timeDesc = "Time Range: " + formatTime($scope.startTime);
-      }
-      if ($scope.startTime != undefined && $scope.endTime != undefined) {
-        timeDesc = "Time Range: " + formatTime($scope.startTime) + " - " + formatTime($scope.endTime);
-      }
-
-      if ($scope.template == 1) {
-        $scope.vizDesc = "Participants: " + participantsDesc + "<br>"
-            + "Date Range: " + $scope.dateRange[0] + " - " + $scope.dateRange[1];
-        $scope.vizDescription = $scope.vizDesc;
-      } else if ($scope.template === 2 || $scope.template === 3 || $scope.template === 4) {
-        $scope.vizDesc = "Participants: " + participantsDesc + "<br>" + "Date Range: " + dateDesc + "<br>" + timeDesc;
-        $scope.vizDescription = $scope.vizDesc;
-      }
+      // TODO do we create the local variable so that we can make the trustAsHtml call to sanitize it?
+      $scope.vizDescription = $sce.trustAsHtml("<pre class='descText'>" + viz.description + "</pre>");
     }
   }
 
-  function displayTitle(viz) {
-    if ($scope.selectedInputs !== undefined) {
-      if ($scope.responseData !== undefined) {
+  function getDefaultTitleForViz(viz) {
+    var newTitle = "";
+    if (viz.yAxisVariables) {
+      if ($scope.responseData) {
         var inputNames = [];
         $scope.titles = [];
-        $scope.selectedInputs.forEach(function (input) {
+        viz.yAxisVariables.forEach(function (input) {
           $scope.titles.push(input.input);
         });
       }
     }
-    if (viz !== undefined) {
-      $scope.vizTitle = viz.vizTitle;
-    } else {
-      if ((($scope.selectedType === "Box Plot") || ($scope.selectedType === "Bar Chart") || ($scope.selectedType === "Bubble Chart")) && ($scope.template === 1)) {
-        $scope.vizTitle = "Distribution of responses for: " + $scope.titles.join(", ");
-      } else if (($scope.selectedType === "Scatter Plot") && ($scope.selectedInput1 !== undefined) && ($scope.template === 3)) {
-        $scope.vizTitle = "Correlation between '" + $scope.selectedInput1.input + "' and '" + $scope.titles.join(", ") + "'";
-      } else if (($scope.selectedType === "Scatter Plot") && ($scope.selectedInput1 !== undefined) && ($scope.template === 4)) {
-        $scope.vizTitle = "Value of '" + $scope.selectedInput1.input + "' over time for each person.";
-      } else if ((($scope.selectedType === "Box Plot") || ($scope.selectedType === "Bar Chart")) && ($scope.selectedInput1 !== undefined) && ($scope.template === 2)) {
-        $scope.vizTitle = "Distribution of responses for: " + $scope.selectedInput1.input;
-      }
+    if (((viz.type === "Box Plot")
+        || (viz.type === "Bar Chart")
+        || (viz.type === "Bubble Chart"))
+      && ($scope.template === 1)) {
+      newTitle = "Distribution of responses"; // for: " + $scope.titles.join(", ");
+    } else if ((viz.type === "Scatter Plot")
+      && (viz.xAxisVariable)
+      && ($scope.template === 3)) {
+      newTitle = "Correlation"; // between '" + viz.xAxisVariable.input + "' and '" + $scope.titles.join(", ") + "'";
+    } else if ((viz.type === "Scatter Plot")
+      && (viz.xAxisVariable)
+      && ($scope.template === 4)) {
+      newTitle = "Value " + /* of '" + viz.xAxisVariable.input + "' */ + "over time by person.";
+    } else if (((viz.type === "Box Plot")
+        || (viz.type === "Bar Chart"))
+      && (viz.xAxisVariable)
+      && ($scope.template === 2)) {
+      newTitle = "Distribution of responses"; // for: " + viz.xAxisVariable.input;
+    }
+    return newTitle;
+  }
+
+  function displayTitle(viz) {
+    if (!viz.title) {
+      viz.title = getDefaultTitleForViz(viz);
     }
   }
 
   function formatDate(dateValue) {
-    var format = 'yyyy/MM/dd';
-    var formattedDate = $filter('date')(new Date(dateValue), format);
-    return formattedDate;
+    return $filter('date')(new Date(dateValue), 'yyyy-MM-dd');
   }
 
   function formatTime(timeValue) {
-    var format = 'HH:mm:ss';
-    var formattedTime = $filter('date')(new Date(timeValue), format);
-    return formattedTime;
+    return $filter('date')(new Date(timeValue), 'HH:mm:ssZ');
   }
 
-  $scope.participantsLength = "";
+  // used by participantsControl.html
   $scope.getParticipantsLength = function () {
-    var participantsLength = "";
-    if ($scope.selectedParticipants === undefined) {
-      participantsLength = "0 Participants";
-    } else if ($scope.selectedParticipants.length === 1) {
-      participantsLength = $scope.selectedParticipants;
+
+    if ($scope.currentVisualization.participants === undefined) {
+      return "0 Participants";
+    } else if ($scope.currentVisualization.participants.length === 1) {
+      return $scope.currentVisualization.participants;
     } else {
-      $scope.participantsLength = dropDownDisplayText($scope.selectedParticipants);
-      participantsLength = $scope.participantsLength;
+      return dropDownDisplayText($scope.currentVisualization.participants);
     }
-    return participantsLength;
   };
 
   function dropDownDisplayText(selection) {
-    var display_text = "";
     if (selection.length === 1) {
-      display_text = selection;
+      return selection;
     } else {
-      if (selection === $scope.selectedInputs) {
-        display_text = selection.length + " Inputs";
-      } else if (selection === $scope.selectedParticipants) {
-        display_text = selection.length + " Participants";
+      if (selection === $scope.currentVisualization.yAxisVariables) {
+        return selection.length + " Inputs";
+      } else if (selection === $scope.currentVisualization.participants) {
+        return selection.length + " Participants";
       }
     }
-    return display_text;
+    return "";
   }
 
   function processXYPlotTimeSeries(responseData) {
@@ -756,9 +724,10 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
     var xAxisTickValues = [];
     var yValues = new Set();
 
-    if ($scope.startDateTime !== undefined && $scope.endDateTime !== undefined) {
-      xAxisMaxMin.push(new Date($scope.startDateTime).getTime(), new Date($scope.endDateTime).getTime());
-    } else if ($scope.dateRange !== undefined && $scope.startDateTime === undefined && $scope.endDateTime === undefined) {
+    if ($scope.currentVisualization.startDatetime && $scope.currentVisualization.endDatetime) {
+      xAxisMaxMin.push($scope.currentVisualization.startDatetime.getTime(),
+        $scope.currentVisualization.endDatetime.getTime());
+    } else if ($scope.dateRange && $scope.currentVisualization.startDatetime && $scope.currentVisualization.endDatetime) {
       $scope.dateRange.forEach(function (dateRange) {
         xAxisMaxMin.push(new Date(dateRange).getTime());
       });
@@ -826,7 +795,7 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
   function drawXYPlotTimeSeries(xAxisMaxMin, yAxisMaxMin, xAxisTickValues, yAxisTickValues, data) {
 
     d3.selectAll('.vizContainer' + "> *").remove();
-    var response = responseTypeMap.get($scope.selectedInput1.input);
+    var response = responseTypeMap.get($scope.currentVisualization.xAxisVariable.input);
     var responseType = response.responseType;
 
     // create the chart
@@ -921,12 +890,12 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
       var rowWho = resultRow.who;
       var rowResponseTime = resultRow.response_time;
       var independentVars = [];
-      $scope.selectedInputs.forEach(function (selectedInput) {
+      $scope.currentVisualization.yAxisVariables.forEach(function (selectedInput) {
         independentVars.push(selectedInput.input);
       });
       console.log(groupHasChanged(rowWho, rowResponseTime, currWho, currResponseTime));
       if (groupHasChanged(rowWho, rowResponseTime, currWho, currResponseTime)) {
-        processCurrResultValues(currWho, currResponseTime, currResultValues, $scope.selectedInput1.input, independentVars);
+        processCurrResultValues(currWho, currResponseTime, currResultValues, $scope.currentVisualization.xAxisVariable.input, independentVars);
         currWho = rowWho;
         currResponseTime = rowResponseTime;
         currResultValues = {};
@@ -1076,7 +1045,7 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
           eliminatedTitles.forEach(function (title) {
             $scope.titles.splice($scope.titles.indexOf(title), 1);
           });
-          $scope.vizTitle = "Distribution of responses for: " + $scope.titles.join(", ");
+          $scope.currentVisualization.title = "Distribution of responses"; // for: " + $scope.titles.join(", ");
         }
       });
     }
@@ -1109,7 +1078,7 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
 
     if (response !== undefined) {
       if ($scope.template === 2) {
-        if (!$scope.selectedInput1.userOrSystemDefined) {
+        if (!$scope.currentVisualization.xAxisVariable.userOrSystemDefined) {
           var vizByDay = dataCount(response[0].values);
           vizByDay.forEach(function (data) {
             var dataTransformed = transformBoxPlotData("vizByDay", data.key, data.values.answers);
@@ -1122,7 +1091,7 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
           });
           $scope.loadViz = false;
         } else {
-          resKeys.push($scope.selectedInput1.input);
+          resKeys.push($scope.currentVisualization.xAxisVariable.input);
           if (resKeys.length > 0) {
             incompatibleDataTypes(resKeys, 0);
           }
@@ -1206,6 +1175,7 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
         resData = undefined;
       }
     }
+    resData.values.count = data.length;
     return resData;
   }
 
@@ -1226,7 +1196,7 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
         chart.xAxis.showMaxMin(false);
         chart.yAxis.tickFormat(d3.format('d'));
         if (($scope.template === 2)) {
-          var response = responseTypeMap.get($scope.selectedInput1.input);
+          var response = responseTypeMap.get($scope.currentVisualization.xAxisVariable.input);
           var responseType = response.responseType;
           if ((responseType === "likert") || (responseType === "likert_smileys")) {
             chart.yDomain([1, 5]);
@@ -1240,6 +1210,10 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
         chart.tooltip.contentGenerator(function (d) {
           if (d.data !== undefined) {
             var rows =
+              "<tr>" +
+              "<td class='key'>" + 'Count ' + "</td>" +
+              "<td class='x-value' style='border-bottom:1pt solid gray;'><strong>" + d.data.values.count + "</strong></td>" +
+              "</tr>" +
                 "<tr>" +
                 "<td class='key'>" + 'Max ' + "</td>" +
                 "<td class='x-value'><strong>" + d.data.values.whisker_high + "</strong></td>" +
@@ -1277,7 +1251,7 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
                 "</table>";
           }
         });
-        chart.yAxis.axisLabel("Distribution of responses");
+        chart.yAxis.axisLabel("Response");
 
         d3.select('.vizContainer')
             .append('svg')
@@ -1315,10 +1289,10 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
       var barChartData = [];
       var values = [];
       if ($scope.template === 2) {
-        if (!$scope.selectedInput1.userOrSystemDefined) {
+        if (!$scope.currentVisualization.xAxisVariable.userOrSystemDefined) {
           barChartData = transformBarChartData_template2(res);
         } else {
-          resKeys.push($scope.selectedInput1.input);
+          resKeys.push($scope.currentVisualization.xAxisVariable.input);
           if (resKeys.length > 0) {
             incompatibleDataTypes(resKeys, 0);
           }
@@ -1599,11 +1573,11 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
         chart.tooltip.contentGenerator(function (d) {
           var rows =
               "<tr>" +
-              "<td class='key'>" + 'Data: ' + "</td>" +
+              "<td class='key'>" + 'Value: ' + "</td>" +
               "<td class='x-value'>" + d.data.x + "</td>" +
               "</tr>" +
               "<tr>" +
-              "<td class='key'>" + 'Frequency: ' + "</td>" +
+              "<td class='key'>" + 'Count: ' + "</td>" +
               "<td class='x-value'><strong>" + d.data.y + "</strong></td>" +
               "</tr>";
           var header =
@@ -1839,7 +1813,7 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
           })
           .style("fill", "steelblue")
           .on("mouseover", function (d) {
-            tooltip.html(d.key + ": " + d.value);
+            tooltip.html("Value: " + d.key + "<br/>Count: " + d.value);
             tooltip.style("visibility", "visible");
           })
           .on("mousemove", function () {
@@ -1868,188 +1842,164 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
 
   //invoke events responses function on click of the draw button
   $scope.createViz = function (viz, event) {
+    if (!viz) {
+      viz = $scope.currentVisualization;
+    }
     $scope.loadViz = true;
     getEventsResponses(viz, event);
   };
 
-  //convert data into a json format for saving the viz entity
-  function vizJson() {
-    var vizs = [];
+  function generateId() {
+    return new Date().getUTCHours() + new Date().getUTCMinutes() + new Date().getUTCSeconds() + new Date().getUTCMilliseconds();
+  };
+
+  function newVizSchema() {
     var vizData = {};
-    vizData.singleText = {};
-    vizData.expId = "";
-    vizData.vizTitle = "";
-    vizData.dateCreated = "";
-    vizData.vizQues = "";
-    vizData.multipleTexts = [];
-    vizData.participants = [];
-    vizData.vizType = "";
-    vizData.startDateTime = "";
-    vizData.endDateTime = "";
+    vizData.id = generateId();
+    vizData.type = null;
 
-    $scope.vizId = new Date().getUTCHours() + new Date().getUTCMinutes() + new Date().getUTCSeconds() + new Date().getUTCMilliseconds();
+    if ($scope.experimentId) {
+      vizData.experimentId = $scope.experimentId;
+    }
 
-    if ($scope.selectedInput1 !== undefined) {
-      vizData.singleText = $scope.selectedInput1;
-    }
-    if ($scope.selectedQues !== undefined) {
-      vizData.vizQues = $scope.selectedQues;
-    }
-    if ($scope.selectedType !== undefined) {
-      vizData.vizType = $scope.selectedType;
-    }
-    if ($scope.selectedInputs !== undefined) {
-      vizData.multipleTexts = $scope.selectedInputs;
-    }
-    if ($scope.experimentId !== undefined) {
-      vizData.expId = $scope.experimentId;
-    }
-    if ($scope.vizTitle !== "") {
-      vizData.vizTitle = $scope.vizTitle;
-    }
-    if ($scope.selectedParticipants.length > 0) {
-      vizData.participants = $scope.selectedParticipants;
-    }
-    if ($scope.startDateTime !== undefined) {
-      vizData.startDateTime = $filter('date')(new Date($scope.startDateTime), 'EEE, dd MMM yyyy HH:mm:ss Z');
-    } else {
-      if ($scope.dateRange !== undefined) {
-        vizData.startDateTime = $filter('date')(new Date($scope.dateRange[0]), 'EEE, dd MMM yyyy HH:mm:ss Z');
-      }
-    }
-    if ($scope.endDateTime !== undefined) {
-      vizData.endDateTime = $filter('date')(new Date($scope.endDateTime), 'EEE, dd MMM yyyy HH:mm:ss Z');
-    } else {
-      if ($scope.dateRange !== undefined) {
-        vizData.endDateTime = $filter('date')(new Date($scope.dateRange[1]), 'EEE, dd MMM yyyy HH:mm:ss Z');
-      }
-    }
-    if ($scope.vizDesc != "") {
-      vizData.vizDesc = $scope.vizDesc;
-    }
-    vizData.vizId = $scope.vizId;
-    vizData.dateCreated = $filter('date')(new Date(), 'EEE, dd MMM yyyy HH:mm:ss Z');
+    vizData.title = null;
+    vizData.description = null;
 
-    if (vizData.vizId != undefined && vizData.expId != undefined && vizData.vizQues != undefined) {
-      vizs.push({
-        "vizId": vizData.vizId,
-        "experimentId": vizData.expId,
-        "vizTitle": vizData.vizTitle,
-        "modifyDate": vizData.dateCreated,
-        "question": vizData.vizQues,
-        "multipleTexts": vizData.multipleTexts,
-        "participants": vizData.participants,
-        "vizType": vizData.vizType,
-        "vizDesc": vizData.vizDesc,
-        "startDateTime": vizData.startDateTime,
-        "endDateTime": vizData.endDateTime,
-        "singleText": vizData.singleText
-      });
+    vizData.question = null;
+
+    if ($scope.participants) {
+      vizData.participants = $scope.participants;
     } else {
-      $mdDialog.show($mdDialog.alert().content('Insufficient data').ariaLabel('Failure').ok('OK'));
+      vizData.participants = [];
     }
-    return vizs;
+
+
+    if ($scope.dateRange) {
+      vizData.startDatetime = new Date($scope.dateRange[0]);
+      var endDateRange = new Date($scope.dateRange[1]);
+      endDateRange.setDate(endDateRange.getDate() + 1);
+      vizData.endDatetime = endDateRange;
+    }
+
+    vizData.xAxisVariable = null;
+    vizData.yAxisVariables = [];
+
+    vizData.modifyDate = $filter('date')(new Date(), DATE_FORMAT);
+
+    return vizData;
   }
 
-  $scope.editTitle = function () {
-    $scope.defaultTitle = $scope.vizTitle;
-    $scope.editTitleTextMode = true;
-    $scope.editTitleMode = false;
-  };
+  $scope.cloneVisualization = function(viz) {
+    var newViz = {};
+    angular.copy(viz, newViz);
+    newViz.id = generateId(); // make it unique
+    return newViz;
+  }
 
-  $scope.editDesc = function () {
-    $scope.defaultDesc = $scope.vizDesc;
-    $scope.editDescTextMode = true;
-    $scope.descTextarea = {
-      'height': '81px'
-    };
-    $scope.editDescMode = false;
+  function copyCurrentVisualizationForEdit() {
+    $scope.previousVisualization = $scope.currentVisualization;
+    $scope.currentVisualization = $scope.cloneVisualization($scope.currentVisualization);
+  }
 
-    var text = $scope.vizDesc;
-    var desc = text.replace(/<br\s*[\/]?>/gi, "\n");
-    $scope.vizDescription = desc;
-  };
-
+  /**
+   * Find the current viz in the list and go back 1.
+   * Stop if we are at the first index.
+   *
+   * If we have made edits but not yet drawn (i.e. it hasn't been pushed onto the history)
+   * then reset to the top item on the stack?
+   */
   $scope.prevViz = function () {
     var prevViz = {};
     $scope.vizHistory.forEach(function (viz) {
-      if (viz[0].vizId === $scope.vizId) {
+      if (viz.id === $scope.currentVisualization.id) {
         var currentIndex = $scope.vizHistory.indexOf(viz);
         var prevIndex = currentIndex - 1;
         if (prevIndex >= 0) {
           prevViz = $scope.vizHistory[prevIndex];
-        } else if (prevIndex < 0) {
-          prevViz = $scope.vizHistory[0];
+        } else { // rollover to last
+          prevViz = $scope.vizHistory[$scope.vizHistory.length - 1];
         }
       } else {
         return;
       }
     });
-    clearViz();
-    $scope.currentViz = prevViz[0];
-    setParams(prevViz[0]);
+    $scope.getSelectedViz(prevViz);
   };
 
   $scope.nextViz = function () {
     var nextViz = {};
     $scope.vizHistory.forEach(function (viz) {
-      if (viz[0].vizId === $scope.vizId) {
+      if (viz.id === $scope.currentVisualization.id) {
         var currIndex = $scope.vizHistory.indexOf(viz);
         var nextIndex = currIndex + 1;
         var limit = $scope.vizHistory.length;
         if (nextIndex < limit) {
           nextViz = $scope.vizHistory[currIndex + 1];
-        } else if (nextIndex >= limit) {
-          nextViz = $scope.vizHistory[limit - 1];
+        } else { // rollover to beginning
+          nextViz = $scope.vizHistory[0];
         }
       } else {
         return;
       }
     });
-    clearViz();
-    $scope.currentViz = nextViz[0];
-    setParams(nextViz[0]);
+    $scope.getSelectedViz(nextViz);
   };
 
+  $scope.editTitle = function () {
+    copyCurrentVisualizationForEdit();
+    $scope.editTitleTextMode = true;
+    $scope.editTitleMode = false;
+  };
+
+  /**
+   * This is called after the user has confirmed the edit of the title.
+   */
   $scope.confirmTitle = function () {
     $scope.editTitleMode = true;
     $scope.editTitleTextMode = false;
-    var vizJson_titleEdited = vizJson();
-    var vizLogTitle = getvizLogTitle(vizJson_titleEdited[0], "Title Edited");
-    vizJson_titleEdited[0].vizLogTitle = vizLogTitle;
 
-    $scope.vizHistory.push(vizJson_titleEdited);
-    if ($scope.vizHistory.length > 1) {
-      $scope.backButton = false;
-      $scope.forwardButton = false;
-    }
+    $scope.previousVisualization = null;
+    pushOntoCommandHistory($scope.currentVisualization, "Title Edited");
   };
 
   $scope.resetTitle = function () {
-    $scope.vizTitle = $scope.defaultTitle;
+    $scope.currentVisualization = $scope.previousVisualization;
+    $scope.previousVisualization = null;
+
     $scope.editTitleMode = true;
     $scope.editTitleTextMode = false;
   };
 
-  $scope.confirmDesc = function () {
-    $scope.vizDesc = $scope.vizDescription;
-    var vizJson_descEdited = vizJson();
-    var vizLogTitle = getvizLogTitle(vizJson_descEdited[0], "Description Edited");
-    vizJson_descEdited[0].vizLogTitle = vizLogTitle;
+  $scope.editDesc = function () {
+    $scope.previousDescription = $scope.currentVisualization.description;
 
-    $scope.vizHistory.push(vizJson_descEdited);
-    $scope.vizDescription = $sce.trustAsHtml("<pre class='descText'>" + $scope.vizDesc + "</pre>");
-    if ($scope.vizHistory.length > 1) {
-      $scope.backButton = false;
-      $scope.forwardButton = false;
-    }
+    $scope.editDescTextMode = true;
+    $scope.descTextarea = {
+      'height': '81px'
+    };
+    $scope.editDescMode = false;
+    $scope.vizDescription = $scope.currentVisualization.description.replace(/<br\s*[\/]?>/gi, "\n");
+  };
+
+      /**
+   * For description, we have a temp variable, $scope.vizDescription, to hold potentially bad html before we assign
+   * to the model, $scope.currentVisualization
+   */
+  $scope.confirmDesc = function () {
+    var newViz = $scope.cloneVisualization($scope.currentVisualization);
+    newViz.description = $sce.trustAsHtml("<pre class='descText'>" + $scope.vizDescription + "</pre>");
+    $scope.currentVisualization = newViz;
+
+    pushOntoCommandHistory($scope.currentVisualization, "Description Edited");
+
     $scope.editDescMode = true;
     $scope.editDescTextMode = false;
   };
 
   $scope.resetDesc = function () {
-    $scope.vizDesc = $scope.defaultDesc;
-    $scope.vizDescription = $sce.trustAsHtml("<pre class='descText'>" + $scope.vizDesc + "</pre>");
+    $scope.vizDescription = $sce.trustAsHtml("<pre class='descText'>" + $scope.previousDescription + "</pre>");
+    $scope.previousDescription = null;
+
     $scope.editDescMode = true;
     $scope.editDescTextMode = false;
   };
@@ -2057,68 +2007,68 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
   function reqFieldsValidation() {
     var msgTitle = "Required Fields";
     if (($scope.template === 1)) {
-      if (($scope.selectedType === undefined) && ($scope.selectedInputs === undefined)) {
+      if (($scope.currentVisualization.type === undefined) && ($scope.currentVisualization.yAxisVariables === undefined)) {
         showAlert(msgTitle, "Please select Viz Type and x axis value(s).");
         return false;
       }
-      if ($scope.selectedType === undefined) {
-        showAlert(msgTitle, "Please select Viz Type.");
+      if ($scope.currentVisualization.type === undefined) {
+        showAlert(msgTitle, "Please select type of visualization.");
         return false;
       }
-      if ($scope.selectedInputs === undefined) {
-        showAlert(msgTitle, "Please select the x axis value(s).");
+      if ($scope.currentVisualization.yAxisVariables === undefined) {
+        showAlert(msgTitle, "Please select the y axis value(s).");
         return false;
       }
     }
 
     if (($scope.template === 2)) {
-      if (($scope.selectedType === undefined) && ($scope.selectedInput1 === undefined)) {
+      if (($scope.currentVisualization.type === undefined) && ($scope.currentVisualization.xAxisVariable === undefined)) {
         showAlert(msgTitle, "Please select Viz Type and x axis value(s).");
         return false;
       }
-      if ($scope.selectedType === undefined) {
+      if ($scope.currentVisualization.type === undefined) {
         showAlert(msgTitle, "Please select Viz Type.");
         return false;
       }
-      if ($scope.selectedInput1 === undefined) {
+      if ($scope.currentVisualization.xAxisVariable === undefined) {
         showAlert(msgTitle, "Please select the x axis value(s).");
         return false;
       }
     }
 
     if ($scope.template === 3) {
-      if ((($scope.selectedType === undefined) && ($scope.selectedInputs === undefined) && ($scope.selectedInput1 === undefined))) {
+      if ((($scope.currentVisualization.type === undefined) && ($scope.currentVisualization.yAxisVariables === undefined) && ($scope.currentVisualization.xAxisVariable === undefined))) {
         showAlert(msgTitle, "Please select Viz Type, x axis value and y axis value(s).");
         return false;
       }
-      if ($scope.selectedType === undefined) {
+      if ($scope.currentVisualization.type === undefined) {
         showAlert(msgTitle, "Please select Viz Type.");
         return false;
       }
-      if (($scope.selectedInputs === undefined) && ($scope.selectedInput1 === undefined)) {
+      if (($scope.currentVisualization.yAxisVariables === undefined) && ($scope.currentVisualization.xAxisVariable === undefined)) {
         showAlert(msgTitle, "Please select x axis and y axis values.");
         return false;
       }
-      if (($scope.selectedInputs === undefined)) {
+      if (($scope.currentVisualization.yAxisVariables === undefined)) {
         showAlert(msgTitle, "Please select the y axis value(s).");
         return false;
       }
-      if (($scope.selectedInput1 === undefined)) {
+      if (($scope.currentVisualization.xAxisVariable === undefined)) {
         showAlert(msgTitle, "Please select the x axis value.");
         return false;
       }
     }
 
     if ($scope.template === 4) {
-      if (($scope.selectedType === undefined) && ($scope.selectedInput1 === undefined)) {
-        showAlert(msgTitle, "Please select Viz Type and x axis value.");
+      if (($scope.currentVisualization.type === undefined) && ($scope.currentVisualization.xAxisVariable === undefined)) {
+        showAlert(msgTitle, "Please select type of visualization and x axis value.");
         return false;
       }
-      if ($scope.selectedType === undefined) {
-        showAlert(msgTitle, "Please select Viz Type.");
+      if ($scope.currentVisualization.type === undefined) {
+        showAlert(msgTitle, "Please select type of visualization to draw.");
         return false;
       }
-      if ($scope.selectedInput1 === undefined) {
+      if ($scope.currentVisualization.xAxisVariable === undefined) {
         showAlert(msgTitle, "Please select the x axis value.");
         return false;
       }
@@ -2134,206 +2084,101 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
             .ariaLabel('Required Fields').ok("OK"));
   }
 
+  function experimentHasVisualization(experiment, visualization) {
+    return experiment.visualizations.filter(function(v) { return v.id === visualization.id; }).length > 0;
+  };
+
   $scope.saveViz = function () {
-    if ($scope.renderSavedViz) {
-      experimentsVizService.getExperiment($scope.experimentId).then(function successCallback(experimentData) {
-        experimentData.results[0].visualizations[vizIndex].experimentId = $scope.experimentId;
-        experimentData.results[0].visualizations[vizIndex].modifyDate = $filter('date')(new Date(), 'EEE, dd MMM yyyy HH:mm:ss Z');
-        experimentData.results[0].visualizations[vizIndex].participants = $scope.selectedParticipants;
-        experimentData.results[0].visualizations[vizIndex].question = $scope.selectedQues;
-        experimentData.results[0].visualizations[vizIndex].multipleTexts = $scope.selectedInputs;
-        experimentData.results[0].visualizations[vizIndex].vizTitle = $scope.vizTitle;
-        experimentData.results[0].visualizations[vizIndex].vizType = $scope.selectedType;
-        experimentData.results[0].visualizations[vizIndex].vizDesc = $scope.vizDesc;
-        experimentData.results[0].visualizations[vizIndex].startDateTime = $filter('date')(new Date($scope.startDateTime), 'EEE, dd MMM yyyy HH:mm:ss Z');
-        experimentData.results[0].visualizations[vizIndex].endDateTime = $filter('date')(new Date($scope.endDateTime), 'EEE, dd MMM yyyy HH:mm:ss Z');
-        if ($scope.template === 3) {
-          experimentData.results[0].visualizations[vizIndex].singleText = $scope.selectedInput1;
-        } else if ($scope.template === 4) {
-          experimentData.results[0].visualizations[vizIndex].singleText = $scope.selectedInput1;
-        }
-        experimentsVizService.saveVisualizations(experimentData.results[0]).then(function (res) {
+    var editingExistingVisualization = experimentHasVisualization($scope.experiment, $scope.currentVisualization);
+    if (!editingExistingVisualization) {
+      $scope.experiment.visualizations.push($scope.currentVisualization);
+    }
+    experimentsVizService.saveVisualizations($scope.experiment).then(function (res) {
+          var actionWord = editingExistingVisualization ? "Edit" : "Save";
           if (res.data[0].status === true) {
-            showAlert("Edit Status", "Viz Edited" + "<br>" + " Saving Viz...");
-            $timeout(function () {
-              location.reload();
-            }, 1000);
+            showAlert(actionWord + " Status", "Visualization Saved");
+            location.reload(); // TODO do we need to reload the whole page when we save a visualization?
           } else {
-            $mdDialog.show($mdDialog.alert().title('Edit Status').content('Could not edit viz due to ' + res.data[0].errorMessage).ariaLabel('Success').ok('OK'));
+            $mdDialog.show($mdDialog.alert().title(actionWord + ' Status').content('Could not ' + actionWord.toLowerCase() + ' viz due to ' + res.data[0].errorMessage).ariaLabel('Success').ok('OK'));
           }
         });
-      });
-    } else {
-      var saveVizs = vizJson();
-      if (saveVizs.length > 0) {
-        experimentsVizService.getExperiment($scope.experimentId).then(function successCallback(experimentData) {
-          saveVizs.forEach(function (viz) {
-            experimentData.results[0].visualizations.push(viz);
-          });
-
-          experimentsVizService.saveVisualizations(experimentData.results[0]).then(function (res) {
-            if (res.data[0].status === true) {
-              showAlert("Save Status", "Saving Viz...");
-              $timeout(function () {
-                location.reload();
-              }, 1000);
-            } else {
-              $mdDialog.show($mdDialog.alert().title('Save Status').content('Could not save viz due to error: ' + res.data[0].errorMessage).ariaLabel('Success').ok('OK'));
-            }
-          });
-        });
-      }
-    }
   };
 
-  $scope.renderViz = function (viz) {
-    $scope.vizId = viz.vizId;
-    $scope.renderVisualization = true;
-
-    if (viz !== undefined) {
-      setParams(viz);
-      $scope.renderSavedViz = true;
-      $scope.createViz(viz, undefined);
-    }
+  $scope.reloadViz = function (viz) {
+    $scope.getSelectedViz(viz);
   };
 
-  function setParams(viz) {
-
-    var startTime = "";
-    var endTime = "";
-    var startDate = "";
-    var endDate = "";
+  $scope.getSelectedViz = function (viz) {
+    clearViz();
+    $scope.currentVisualization = viz;
 
     if (viz.question !== undefined) {
-      $scope.selectedQues = viz.question;
       $scope.getTemplate();
     }
-
-    if (viz.vizType !== undefined) {
-      $scope.selectedType = viz.vizType;
-    }
-
-    if (viz.multipleTexts !== undefined) {
-      $scope.selectedInputs = [];
-      $scope.selectedInputs = viz.multipleTexts;
-      $scope.getInputs();
-    }
-
-    if (viz.singleText !== undefined) {
-      if ($scope.template === 2) {
-        $scope.selectedInput1 = viz.singleText;
-      }
-      if ($scope.template === 3) {
-        $scope.selectedInput1 = viz.singleText;
-      }
-      if ($scope.template === 4) {
-        $scope.selectedInput1 = viz.singleText;
-      }
-    }
-
-    if (viz.participants !== undefined) {
-      $scope.selectedParticipants = viz.participants;
-    }
-
-    if (viz.startDateTime != undefined && viz.endDateTime != undefined) {
-      $scope.startDateTime = viz.startDateTime;
-      $scope.endDateTime = viz.endDateTime;
-      startDate = $filter('date')(new Date($scope.startDateTime), 'dd/MM/yyyy');
-      endDate = $filter('date')(new Date($scope.endDateTime), 'dd/MM/yyyy');
-      if (startDate == endDate) {
-        $scope.startDate = $filter('date')(new Date($scope.startDateTime), 'EEE, dd MMM yyyy HH:mm:ss Z');
-        $scope.endDate = undefined;
-      } else {
-        $scope.startDate = $filter('date')(new Date($scope.startDateTime), 'EEE, dd MMM yyyy HH:mm:ss Z');
-        $scope.endDate = $filter('date')(new Date($scope.endDateTime), 'EEE, dd MMM yyyy HH:mm:ss Z');
-      }
-      startTime = $filter('date')($scope.startDateTime, 'HH:mm:ss');
-      endTime = $filter('date')($scope.endDateTime, 'HH:mm:ss');
-      if (startTime == '00:00:00' || startTime == '23:59:59') {
-        $scope.startTime = undefined;
-      } else {
-        $scope.startTime = new Date($filter('date')($scope.startDateTime, 'EEE, dd MMM yyyy HH:mm:ss Z'));
-      }
-      if (endTime == '00:00:00' || endTime == '23:59:59') {
-        $scope.endTime = undefined;
-      } else {
-        $scope.endTime = new Date($filter('date')($scope.endDateTime, 'EEE, dd MMM yyyy HH:mm:ss Z'));
-      }
-    }
-    $scope.vizId = viz.vizId;
-    if (viz.vizTitle !== undefined) {
-      $scope.vizTitle = viz.vizTitle;
-    }
-    if (viz.vizDesc !== undefined) {
-      $scope.vizDesc = viz.vizDesc;
-    }
-    $scope.drawButton = false;
-  }
-
-  $scope.getSelectedViz = function (vizLog) {
-    clearViz();
-    $scope.currentViz = vizLog[0];
-    setParams(vizLog[0]);
-    $scope.vizId = vizLog[0].vizId;
+    $scope.drawButton = true;
+    // ToDO remove when obsoleted by $scope.currentVisualiation
+    // if (viz.multipleTexts !== undefined) {
+    //   //$scope.selectedInputs = viz.yAxisVariables;
+    //   //$scope.getInputs();
+    // }
   };
 
-  function getvizLogTitle(vizLog, titleOrDescEdited) {
+  function getVizHistoryTitle(viz, titleOrDescEdited) {
     var vizTexts = "";
     var texts = [];
     if (($scope.template === 1)) {
-      if (vizLog.multipleTexts.length > 1) {
-        vizLog.multipleTexts.forEach(function (text) {
+      if (viz.yAxisVariables.length > 1) {
+        viz.yAxisVariables.forEach(function (text) {
           texts.push(text.input);
         });
         vizTexts = texts.join(", ");
       } else {
-        vizTexts = vizLog.multipleTexts[0].input;
+        vizTexts = viz.yAxisVariables[0].input;
       }
-    }
-    if (($scope.template === 2) || ($scope.template === 4)) {
-      vizTexts = vizLog.singleText.input;
-    }
-    if (($scope.template === 3)) {
-      vizLog.multipleTexts.forEach(function (text) {
+    } else if (($scope.template === 2) || ($scope.template === 4)) {
+      vizTexts = viz.xAxisVariable.input;
+    } else if (($scope.template === 3)) {
+      viz.yAxisVariables.forEach(function (text) {
         texts.push(text.input);
       });
-      texts.push(vizLog.singleText.input);
+      texts.push(viz.xAxisVariable.input);
       vizTexts = texts.join(", ");
     }
 
-    var vizHistoryLogTitle = "";
-    if ((vizLog !== undefined) && (titleOrDescEdited === undefined)) {
-      vizHistoryLogTitle = "Q" + questionsMap.get(vizLog.question) + "," + vizLog.vizType + "," + vizTexts + "," + vizLog.participants.length + " Participants" + "," + $filter('date')(new Date(vizLog.startDateTime), 'dd/MM/yy') + "-"
-          + $filter('date')(new Date(vizLog.endDateTime), 'dd/MM/yy');
-    } else if ((vizLog !== undefined) && (titleOrDescEdited !== undefined)) {
-      vizHistoryLogTitle = "Q" + questionsMap.get(vizLog.question) + "," + vizLog.vizType + "," + vizTexts + "," + vizLog.participants.length + " Participants" + "," + $filter('date')(new Date(vizLog.startDateTime), 'dd/MM/yy') + "-"
-          + $filter('date')(new Date(vizLog.endDateTime), 'dd/MM/yy') + "," + titleOrDescEdited;
+    var title = "Q" + questionsMap.get(viz.question) + ", "
+          + viz.type + ", "
+          + vizTexts + ", "
+          + viz.participants.length + " Participants" + ", "
+          + $filter('date')(viz.startDatetime, 'MM/dd/yyyy') + "-"
+          + $filter('date')(viz.endDatetime, 'MM/dd/yyyy');
+    if (titleOrDescEdited) {
+      title = title + ", " + titleOrDescEdited;
     }
-    return vizHistoryLogTitle;
+    return title;
   }
 
   $scope.deleteViz = function (viz, index) {
     $mdDialog.show($mdDialog.confirm()
         .title('Delete Status')
-        .content('Do you want to delete the viz: ' + viz.vizTitle + '?')
+        .content('Do you want to delete the viz: ' + viz.title + '?')
         .ariaLabel("Delete Viz")
         .cancel('Yes')
         .ok('No')).then(function () {
     }, function () {
-      experimentsVizService.getExperiment($scope.experimentId).then(function successCallback(experimentData) {
-        experimentData.results[0].visualizations.splice(index, 1);
-        experimentsVizService.saveVisualizations(experimentData.results[0]).then(function (res) {
+
+        $scope.experiment.visualizations.splice(index, 1); // TODO delete this by matching the vizId
+        experimentsVizService.saveVisualizations($scope.experiment).then(function (res) { // todo replace with plain ol saveExperiment
           if (res.data[0].status === true) {
-            location.reload();
+            location.reload(); // TODO do we need to reload the whole page when we delete a saved viz?
           } else {
             $mdDialog.show($mdDialog.alert().title('Delete Status').content('Could not delete viz due to ' + res.data[0].errorMessage).ariaLabel('Success').ok('OK'));
           }
         });
-      });
+
     });
   };
 
-  $scope.clearVizTable = function () {
+  $scope.deleteAllSavedVisualizations = function () {
     $mdDialog.show($mdDialog.confirm()
         .title('Confirmation Status')
         .textContent('Do you want to delete all the visualizations?')
@@ -2341,16 +2186,16 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
         .ok('No')
     ).then(function () {
     }, function () {
-      experimentsVizService.getExperiment($scope.experimentId).then(function successCallback(experimentData) {
-        experimentData.results[0].visualizations = [];
-        experimentsVizService.saveVisualizations(experimentData.results[0]).then(function (res) {
-          if (res.data[0].status === true) {
-            $scope.vizTable = false;
-          } else {
+
+        $scope.experiment.visualizations = [];
+        experimentsVizService.saveVisualizations($scope.experiment).then(function (res) {
+          if (res.data[0].status !== true) {
             $mdDialog.show($mdDialog.alert().title('Failure').content('Could not delete vizs due to ' + res.data[0].errorMessage).ariaLabel('Failure').ok('OK'));
+          } else {
+            location.reload();
           }
         });
-      });
+
     });
   };
 
@@ -2359,8 +2204,39 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
     $scope.getExperiment();
     $scope.loadDataSummary = true;
     $scope.dataSnapshot();
-
   }
+
+  function listValuesEqual(newValue, oldValue) {
+    if (newValue == oldValue) {
+      return true;
+    }
+    if (newValue && !oldValue) {
+      return false;
+    } else if (!newValue && oldValue) {
+      return false;
+    } else if (!newValue && !oldvalue) {
+      return true;
+    } else { //(newValue && oldValue)
+      if (newValue.length != oldValue.length) {
+        return false;
+      }
+      for (var index = 0; index < newValue.length; index++) {
+        var newVal = newValue[index];
+        var oldVal = oldValue[index];
+        if (newVal.id !== oldVal.id) {
+          return false;
+        }
+      }
+      return true;
+    }
+  };
+
+
+  function inputListChanged() {
+    $scope.currentVisualization.title = null;
+    $scope.currentVisualization.description = null;
+  }
+
   function displayErrorMessage(data, error) {
     $scope.vizTemplate = false;
     var message = "";
