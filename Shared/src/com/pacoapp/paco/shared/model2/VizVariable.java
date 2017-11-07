@@ -1,6 +1,6 @@
 package com.pacoapp.paco.shared.model2;
 
-public class VizTexts {
+public class VizVariable {
   private String id;
   private String group;
   private String input;
