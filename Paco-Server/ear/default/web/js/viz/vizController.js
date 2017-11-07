@@ -219,6 +219,11 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
   };
 
   $scope.getTemplate = function (isNewViz) {
+    if (isNewViz) {
+      var question = $scope.currentVisualization.question
+      $scope.currentVisualization = newVizSchema();
+      $scope.currentVisualization.question = question;
+    }
     if (questionsMap.has($scope.currentVisualization.question)) {
       $scope.template = questionsMap.get($scope.currentVisualization.question);
 
@@ -233,16 +238,7 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
       }
       resetVariables();
       getGroups();
-      populateVizType();
-
-      //inlined populateVizParams
-      if (isNewViz) {
-        $scope.currentVisualization.startDatetime = new Date($scope.dateRange[0]);
-        var endDateRange = new Date($scope.dateRange[1]);
-        endDateRange.setDate(endDateRange.getDate() + 1);
-        $scope.currentVisualization.endDatetime = endDateRange;
-        $scope.currentVisualization.participants = $scope.participants;
-      }
+      populateVizType(isNewViz);
       clearViz();
     }
   };
@@ -257,7 +253,7 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
     $scope.singleInput = singleInputCtrl;
   }
 
-  function populateVizType() {
+  function populateVizType(isNewViz) {
     if (questionsMap.has($scope.currentVisualization.question)) {
       $scope.template = questionsMap.get($scope.currentVisualization.question);
       if ($scope.template === 1) {
@@ -273,7 +269,7 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
         $scope.vizTypes = ["Scatter Plot"];
       }
     }
-    if ($scope.currentVisualization.type === null) {
+    if (isNewViz) {
       $scope.currentVisualization.type = $scope.vizTypes[0];
     }
     axisLabels();
@@ -534,26 +530,28 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
         $scope.currentVisualization = newViz;
       } else {
        clearViz(); // TODO does it make sense to clear viz if createBtnEvent is undefined? it clears the reload event - which double draws. Maybe?
+        $scope.loadViz = false;
       }
+    }  else {
+      clearViz(); // TODO does it make sense to clear viz if createBtnEvent is undefined? it clears the reload event - which double draws. Maybe?
+      $scope.loadViz = false;
     }
 
 
 
-      if (zeroData.length > 0) {
-        if (variableCount(viz) < 2) {
-          $scope.loadViz = false;
-          clearViz();
-        }
-        var zeroDataTexts = zeroData.join(", ");
-        showAlert("Zero data", "No data available for the selection: " + zeroDataTexts);
-
+    if (zeroData.length > 0) {
+      if (variableCount(viz) < 2) {
+        $scope.loadViz = false;
+        clearViz();
       }
-
-
+      var zeroDataTexts = zeroData.join(", ");
+      showAlert("Zero data", "No data available for the selection: " + zeroDataTexts);
+    }
   }
 
   function displayViz(viz) {
     var incompatibleTexts = undefined;
+    clearViz();
 
     if (($scope.currentVisualization.type === "Box Plot") && ($scope.template === 1)) {
       incompatibleTexts = checkIncompatibleTexts($scope.currentVisualization.yAxisVariables); // TODO is this necessary .. since currentVisualization
@@ -667,7 +665,7 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
     } else if ((viz.type === "Scatter Plot")
       && (viz.xAxisVariable)
       && ($scope.template === 4)) {
-      newTitle = "Value " + /* of '" + viz.xAxisVariable.input + "' */ + "over time by person.";
+      newTitle = "Value over time by person.";
     } else if (((viz.type === "Box Plot")
         || (viz.type === "Bar Chart"))
       && (viz.xAxisVariable)
@@ -2057,15 +2055,15 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
     }
 
     if ($scope.template === 4) {
-      if (($scope.currentVisualization.type === undefined) && ($scope.currentVisualization.xAxisVariable === undefined)) {
+      if (!$scope.currentVisualization.type && !$scope.currentVisualization.xAxisVariable) {
         showAlert(msgTitle, "Please select type of visualization and x axis value.");
         return false;
       }
-      if ($scope.currentVisualization.type === undefined) {
+      if (!$scope.currentVisualization.type) {
         showAlert(msgTitle, "Please select type of visualization to draw.");
         return false;
       }
-      if ($scope.currentVisualization.xAxisVariable === undefined) {
+      if (!$scope.currentVisualization.xAxisVariable) {
         showAlert(msgTitle, "Please select the x axis value.");
         return false;
       }
@@ -2109,7 +2107,7 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
     clearViz();
     $scope.currentVisualization = viz;
 
-    if (viz.question !== undefined) {
+    if (viz.question) {
       $scope.getTemplate();
     }
     $scope.drawButton = true;
