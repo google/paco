@@ -1,7 +1,8 @@
 <md-input-container class="inputsDropDown">
   <label class="inputsLabel">{{axisLabel1}}</label>
-  <md-select class="inputsSelect" ng-model="selectedInputs"
-             md-on-close="getInputs()"
+  <md-select class="inputsSelect" ng-model="currentVisualization.yAxisVariables"
+             md-on-close="toggleDrawButton(true)"
+             ng-change="inputListChanged()"
              data-md-container-class="selectdemoSelectHeader"
              md-selected-text="displayTextMul()"
              placeholder="{{displayTextMultiple}}"
