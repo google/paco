@@ -1,7 +1,7 @@
 <md-input-container class="participantsDropDown">
   <label class="participantsLabel">Participants</label>
-  <md-select ng-model="selectedParticipants"
-             md-on-close="getParticipants()"
+  <md-select ng-model="currentVisualization.participants"
+             md-on-close="toggleDrawButton(true)"
              ng-change="getParticipantsSelected()"
              data-md-container-class="selectdemoSelectHeader"
              md-selected-text="getParticipantsLength()"
