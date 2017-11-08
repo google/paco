@@ -797,10 +797,8 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
   }
 
   function drawXYPlotTimeSeries(xAxisMaxMin, yAxisMaxMin, xAxisTickValues, yAxisTickValues, data) {
-
     d3.selectAll('.vizContainer' + "> *").remove();
-    var response = responseTypeMap.get($scope.currentVisualization.xAxisVariable.input);
-    var responseType = response.responseType;
+    var input = $scope.currentVisualization.xAxisVariable.input;
 
     // create the chart
     var chart;
@@ -829,12 +827,12 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
       chart.yAxis
           .tickFormat(d3.format('d'))
           .axisLabelDistance(10)
-          .axisLabel(response.name);
+          .axisLabel(input.name);
 
-      if ((responseType === "likert") || (responseType === "likert_smileys")) {
-        var steps = 5;
-        if (response.likertSteps) {
-          steps = response.likertSteps;
+      if ((input.responseType === "likert") || (input.responseType === "likert_smileys")) {
+        var steps = 5; // default value
+        if (input.likertSteps) {
+          steps = input.likertSteps;
         }
         chart.yDomain([1, steps]);
         var yAxisTickValues = [];
@@ -969,7 +967,7 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
 
   function processScatterPlot(responseData) {
     console.log(responseData);
-    if ($scope.xPlotInput !== undefined && responseData !== undefined) {
+    if ($scope.xPlotInput && responseData) {
       var xValue = $scope.xPlotInput;
       var yValue = responseData;
 
@@ -990,6 +988,7 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
       }
       drawScatterPlot(data);
       $scope.loadViz = false;
+      $scope.vizTemplate = true;
     }
   }
 
@@ -1018,7 +1017,7 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
           .axisLabel($scope.xPlotInput[0].key);
       chart.yAxis
         .tickFormat(d3.format('.0f'))
-        .axisLabel("Response");
+        .axisLabel(data[0].key);
 
       d3.select('.vizContainer')
           .append('svg')
