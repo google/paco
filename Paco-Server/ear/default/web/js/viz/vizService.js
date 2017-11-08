@@ -22,13 +22,13 @@ pacoApp.factory('experimentsVizService', ['$http', 'experimentService', '$filter
     return [];
   }
 
-  function getAllTexts(experimentId,texts){
+  function getAdditionalInputsFromEventsData(experimentId, definedInputs){
     var questionMarks = [];
     var textsList = [];
 
-    for (var i = 0; i < texts.length; i++) {
+    for (var i = 0; i < definedInputs.length; i++) {
       questionMarks.push("?");
-      textsList.push('"' + texts[i] + '"');
+      textsList.push('"' + definedInputs[i] + '"');
     }
 
     if(experimentId !== undefined && textsList !== undefined){
@@ -166,7 +166,7 @@ pacoApp.factory('experimentsVizService', ['$http', 'experimentService', '$filter
     getExperiment: getExperiment,
     getEvents: getEvents,
     getParticipants: getParticipants,
-    getAllTexts:getAllTexts,
+    getAdditionalInputsFromEventsData: getAdditionalInputsFromEventsData,
     getEventsCounts: getEventsCounts,
     getDataForScatterPlotTemplate3:getDataForScatterPlotTemplate3,
     getStartDate:getStartDate,

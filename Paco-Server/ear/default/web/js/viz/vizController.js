@@ -150,6 +150,14 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
         });
   };
 
+  function getResponseTypeForAdditionalInputDefinitions(group) {
+    var responseType = "open text";
+    if (group.text === "Form Duration") {
+      responseType = 'number';
+    }
+    return responseType;
+  }
+
   function getGroups() {
     $scope.groupInputs = [];
     $scope.groups = [];
@@ -157,38 +165,39 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
 
     $scope.experiment.groups.forEach(function (group) {
       $scope.groups.push(group.name);
+
       group.inputs.forEach(function (input) {
         experimentDefinedInputs.push(input.name);
-        $scope.groupInputs.push({
-          "id": group.name + ":" + input.name,
-          "group": group.name,
-          "input": input.name,
-          "userOrSystemDefined": false,
-          "responseType": input.responseType
-        });
+
+        // add variables for existing code. TODO remove these extras
+        input.id = group.name + ":" + input.name;
+        input.group =  group.name;
+        input.input = input.name;
+        input.userOrSystemDefined = false;
+
+        $scope.groupInputs.push(input);
       });
     });
 
-    experimentsVizService.getAllTexts($scope.experimentId, experimentDefinedInputs).then(function (groupsList) {
-      groupsList.data.customResponse.forEach(function (grpList) {
-        if ((grpList.group_name)) {
-          if ((grpList.text !== "foreground") && (grpList.text !== "referred_group") && (grpList.text !== "eodResponseTime")) {
+
+    experimentsVizService.getAdditionalInputsFromEventsData($scope.experimentId, experimentDefinedInputs).then(function (groupsList) {
+      groupsList.data.customResponse.forEach(function (group) {
+        if ((group.group_name)) {
+          if ((group.text !== "foreground") && (group.text !== "referred_group") && (group.text !== "eodResponseTime")) {
+
+            var responseType = getResponseTypeForAdditionalInputDefinitions(group);
             $scope.groupInputs.push({
-              "id": grpList.group_name + ":" + grpList.text,
-              "group": grpList.group_name,
-              "input": grpList.text,
+              "id": group.group_name + ":" + group.text,
+              "group": group.group_name,
+              "input": group.text,
               "userOrSystemDefined": true,
-              "responseType": "open text" // TODO have a function to return better values for known types, e.g., Form Duration
+              "responseType": responseType
             });
           }
         }
       });
     });
   }
-
-  $scope.getResponseType = function (input) {
-    return input.responseType;
-  };
 
   function responseTypeData(experiment) {
     responseTypeMap = new Map();
@@ -1194,8 +1203,12 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
           var response = responseTypeMap.get($scope.currentVisualization.xAxisVariable.input);
           var responseType = response.responseType;
           if ((responseType === "likert") || (responseType === "likert_smileys")) {
-            chart.yDomain([1, 5]);
-            chart.yAxis.tickValues([2, 3, 4]);
+            chart.yDomain([1, response.likertSteps]);
+            var ticks = [];
+            for (var t = 1; t < response.likertSteps + 1; t++) {
+              ticks.push(t);
+            }
+            chart.yAxis.tickValues(ticks);
           }
           else {
             chart.yDomain([min, whisker_high]);
