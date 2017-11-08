@@ -827,11 +827,21 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
             return d3.time.format('%m/%d/%y %H:%M:%S')(new Date(d));
           });
       chart.yAxis
-          .tickFormat(d3.format('d'));
+          .tickFormat(d3.format('d'))
+          .axisLabelDistance(10)
+          .axisLabel(response.name);
 
       if ((responseType === "likert") || (responseType === "likert_smileys")) {
-        chart.yDomain([1, 5]);
-        chart.yAxis.tickValues([2, 3, 4]);
+        var steps = 5;
+        if (response.likertSteps) {
+          steps = response.likertSteps;
+        }
+        chart.yDomain([1, steps]);
+        var yAxisTickValues = [];
+        for (var t = 0; t < steps + 1; t++) {
+          yAxisTickValues.push(t);
+        }
+        chart.yAxis.tickValues(yAxisTickValues);
       }
       else {
         chart.yDomain(yAxisMaxMin);
@@ -1006,7 +1016,9 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
           .rotateLabels(-45)
           .tickFormat(d3.format('.0f'))
           .axisLabel($scope.xPlotInput[0].key);
-      chart.yAxis.tickFormat(d3.format('.0f'));
+      chart.yAxis
+        .tickFormat(d3.format('.0f'))
+        .axisLabel("Response");
 
       d3.select('.vizContainer')
           .append('svg')
@@ -1203,12 +1215,16 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
           var response = responseTypeMap.get($scope.currentVisualization.xAxisVariable.input);
           var responseType = response.responseType;
           if ((responseType === "likert") || (responseType === "likert_smileys")) {
-            chart.yDomain([1, response.likertSteps]);
-            var ticks = [];
-            for (var t = 1; t < response.likertSteps + 1; t++) {
-              ticks.push(t);
+            var steps = 5;
+            if (response.likertSteps) {
+              steps = response.likertSteps;
             }
-            chart.yAxis.tickValues(ticks);
+            chart.yDomain([1, steps]);
+            var yAxisTickValues = [];
+            for (var t = 0; t < steps + 1; t++) {
+              yAxisTickValues.push(t);
+            }
+            chart.yAxis.tickValues(yAxisTickValues);
           }
           else {
             chart.yDomain([min, whisker_high]);
