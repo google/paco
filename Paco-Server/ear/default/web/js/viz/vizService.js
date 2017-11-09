@@ -1,4 +1,5 @@
-pacoApp.factory('experimentsVizService', ['$http', 'experimentService', '$filter', function ($http, experimentService, $filter) {
+pacoApp.factory('experimentsVizService', ['$http', 'experimentService', '$filter',
+  function ($http, experimentService, $filter) {
 
   var experiment = '';
 
@@ -16,7 +17,9 @@ pacoApp.factory('experimentsVizService', ['$http', 'experimentService', '$filter
 
   function getParticipants(experimentId) {
     if (experimentId != undefined) {
-      var message = '{ "select":["distinct who"], "query" : { "criteria" : "experiment_id = ?", "values" : [' + experimentId + ']}}';
+      var message = '{ "select":["distinct who"], ' +
+        '"query" : { "criteria" : "experiment_id = ?", ' +
+        '"values" : [' + experimentId + ']}}';
       return httpPostBody(message);
     }
     return [];
@@ -32,7 +35,10 @@ pacoApp.factory('experimentsVizService', ['$http', 'experimentService', '$filter
     }
 
     if(experimentId !== undefined && textsList !== undefined){
-      var distinctTextQuery = '{ "select":["group_name","text"], "query" : { "criteria" : "experiment_id = ? and text not in (' + questionMarks + ')", "values" : ['+experimentId+',' + textsList + ']},"order":"group_name,text","group":"group_name,text"}';
+      var distinctTextQuery = '{ "select":["group_name","text"], ' +
+        '"query" : { "criteria" : "experiment_id = ? and text not in (' + questionMarks + ')", ' +
+        '"values" : ['+experimentId+',' + textsList + ']},' +
+        '"order":"group_name,text","group":"group_name,text"}';
       console.log(distinctTextQuery);
       var textQuery = httpPostBody(distinctTextQuery);
     }
@@ -42,7 +48,10 @@ pacoApp.factory('experimentsVizService', ['$http', 'experimentService', '$filter
   function getStartDate(experimentId){
     var startDateQuery = "";
     if(experimentId !== undefined){
-      startDateQuery = '{ "select":["response_time"], "query" : { "criteria" : "experiment_id = ? and response_time is not null", "values" : [' + experimentId + ']},"order":"response_time asc","limit":"1"}';
+      startDateQuery = '{ "select":["response_time"], ' +
+        '"query" : { "criteria" : "experiment_id = ? and response_time is not null", ' +
+        '"values" : [' + experimentId + ']},' +
+        '"order":"response_time asc","limit":"1"}';
     }
     var startDate = httpPostBody(startDateQuery);
     return startDate;
@@ -51,7 +60,10 @@ pacoApp.factory('experimentsVizService', ['$http', 'experimentService', '$filter
   function getEndDate(experimentId){
     var endDateQuery = "";
     if(experimentId !== undefined){
-      endDateQuery = '{ "select":["response_time"], "query" : { "criteria" : "experiment_id = ? and response_time is not null", "values" : [' + experimentId + ']},"order":"response_time desc","limit":"1"}';
+      endDateQuery = '{ "select":["response_time"], ' +
+        '"query" : { "criteria" : "experiment_id = ? and response_time is not null", ' +
+        '"values" : [' + experimentId + ']},' +
+        '"order":"response_time desc","limit":"1"}';
     }
 
     var endDate = httpPostBody(endDateQuery);
@@ -72,48 +84,76 @@ pacoApp.factory('experimentsVizService', ['$http', 'experimentService', '$filter
 
   function getEvents(experimentId, groups, texts, participants, startDateTime, endDateTime) {
     var message = "";
-    var expTexts = {};
-    var expGroups = {};
-    var expParticipants = {};
 
-    if (experimentId != undefined && groups != undefined) {
-      expTexts = parametersList(texts,"texts");
-      expGroups = parametersList(groups,"groups");
-      message = '{"select":["who","when","response_time","text","answer","client_timezone"], "query" : { "criteria" : "experiment_id = ? and group_name in(' + expGroups.questionMarks + ') and text in (' + expTexts.questionMarks + ')", "values" : [' + experimentId + ', "' + expGroups.params + '","' + expTexts.params + '"]},"order":"who","order":"text"}';
+    if (experimentId && participants && participants.length > 0 && texts && groups && startDateTime && endDateTime) {
+      var expGroups = parametersList(groups, "groups");
+      var expTexts  = parametersList(texts, "texts");
+      var expParticipants = parametersList(participants, "participants");
+
+      message = '{ "select":["who","when","response_time","text","answer","client_timezone"], "query" : ' +
+        '{ "criteria" : "experiment_id = ? and response_time>? and response_time<? and ' +
+        'group_name in (' + expGroups.questionMarks + ') and ' +
+        'text in (' + expTexts.questionMarks + ') and ' +
+        'who in (' + expParticipants.questionMarks + ')", ' +
+        '"values" : [' + experimentId + ', "' + startDateTime + '", "' + endDateTime + '",' + expGroups.params +
+        ' ,' + expTexts.params + ' ,' + expParticipants.params + ']},' +
+        '"order":"who,text"}';
+    } else if (experimentId && groups && participants && participants.length > 0 && texts) {
+      var expGroups = parametersList(groups, "groups");
+      var expTexts  = parametersList(texts, "texts");
+      var expParticipants = parametersList(participants, "participants");
+
+      message = '{ "select":["who","when","response_time","text","answer","client_timezone"], ' +
+        '"query" : { "criteria" : "experiment_id = ? and group_name in (' + expGroups.questionMarks + ') and ' +
+        'text in (' + expTexts.questionMarks + ') and ' +
+        'who in (' + expParticipants.questionMarks + ')", ' +
+        '"values" : [' + experimentId + ',  '+ expGroups.params + ' ,' + expTexts.params + ' ,' +
+        expParticipants.params + ']},' +
+        '"order":"who","order":"text"}';
+    } else if (experimentId && groups) {
+      var expTexts = parametersList(texts,"texts");
+      var expGroups = parametersList(groups,"groups");
+
+      message = '{"select":["who","when","response_time","text","answer","client_timezone"], ' +
+        '"query" : { "criteria" : "experiment_id = ? and group_name in(' + expGroups.questionMarks + ') and ' +
+        'text in (' + expTexts.questionMarks + ')", "values" : [' + experimentId + ', "' + expGroups.params + '","' +
+        expTexts.params + '"]},' +
+        '"order":"who","order":"text"}';
+    } else {
+      console.log("not enough information provided to vizService.getEvents");
+      return null;
     }
-    if (experimentId != undefined && participants != undefined && participants.length > 0 && texts != undefined) {
-      expGroups = parametersList(groups, "groups");
-      expTexts  = parametersList(texts, "texts");
-      expParticipants = parametersList(participants, "participants");
-      message = '{ "select":["who","when","response_time","text","answer","client_timezone"], "query" : { "criteria" : "experiment_id = ? and group_name in (' + expGroups.questionMarks + ') and text in (' + expTexts.questionMarks + ') and who in (' + expParticipants.questionMarks + ')", "values" : [' + experimentId + ',  '+ expGroups.params + ' ,' + expTexts.params + ' ,' + expParticipants.params + ']},"order":"who","order":"text"}';
-    }
-    //filter data based on start and end date/timestamp values
-    if (experimentId != undefined && participants != undefined && participants.length > 0 && texts != undefined && groups != undefined && startDateTime != undefined && endDateTime != undefined) {
-      expGroups = parametersList(groups, "groups");
-      expTexts  = parametersList(texts, "texts");
-      expParticipants = parametersList(participants, "participants");
-      message = '{ "select":["who","when","response_time","text","answer","client_timezone"], "query" : { "criteria" : "experiment_id = ? and response_time>? and response_time<? and group_name in (' + expGroups.questionMarks + ') and text in (' + expTexts.questionMarks + ') and who in (' + expParticipants.questionMarks + ')", "values" : [' + experimentId + ', "' + startDateTime + '", "' + endDateTime + '",' + expGroups.params + ' ,' + expTexts.params + ' ,' + expParticipants.params + ']},"order":"who,text"}';
-    }
+
     console.log(message);
-    var events = httpPostBody(message);
-    return events;
+    return httpPostBody(message);
   }
 
-  function getDataForScatterPlotTemplate3(experimentId, groups, texts, participants, startDateTime, endDateTime){
+  function getDataForScatterPlotTemplate3(experimentId, groups, inputs, participants, startDateTime, endDateTime){
     var message = "";
     var expTexts = {};
     var expGroups = {};
     var expParticipants = {};
 
-    if (experimentId != undefined && participants != undefined && participants.length > 0 && texts != undefined && groups != undefined && startDateTime != undefined && endDateTime != undefined) {
+    if (experimentId && participants && participants.length > 0 && inputs && groups && startDateTime && endDateTime) {
       expGroups = parametersList(groups, "groups");
-      expTexts  = parametersList(texts, "texts");
+      expTexts  = parametersList(inputs, "texts");
       expParticipants = parametersList(participants, "participants");
-      message = '{ "select":["who","when","response_time","text","answer","client_timezone"], "query" : { "criteria" : "experiment_id = ? and response_time>? and response_time<? and group_name in (' + expGroups.questionMarks + ') and text in (' + expTexts.questionMarks + ') and text is not null and who in (' + expParticipants.questionMarks + ')", "values" : [' + experimentId + ', "' + startDateTime + '", "' + endDateTime + '",' + expGroups.params + ' ,' + expTexts.params + ' ,' + expParticipants.params + ']},"order":"who,response_time"}';
+      message = '{ "select":["who","when","response_time","text","answer","client_timezone"], ' +
+        '"query" : { "criteria" : "experiment_id = ? and response_time>? and response_time<? and ' +
+                                    'group_name in (' + expGroups.questionMarks + ') and ' +
+                                    'text in (' + expTexts.questionMarks + ') ' +
+                                    'and text is not null and ' +
+                                    'who in (' + expParticipants.questionMarks + ')", ' +
+                     '"values" : [' + experimentId + ', "' + startDateTime + '", "' + endDateTime + '",' +
+                                      expGroups.params + ' ,' + expTexts.params + ' ,' +
+                                   expParticipants.params + ']},' +
+        '"order":"who,response_time"}';
+      console.log(message);
+      return httpPostBody(message);
+    } else {
+      return {};
     }
-    console.log(message);
-    var events = httpPostBody(message);
-    return events;
+
   }
 
   function parametersList(parameterList, parameter){

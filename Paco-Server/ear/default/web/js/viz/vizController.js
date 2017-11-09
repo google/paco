@@ -1013,11 +1013,16 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
 
       chart.xAxis
           .rotateLabels(-45)
-          .tickFormat(d3.format('.0f'))
+          .tickFormat(d3.format('d'))
           .axisLabel($scope.xPlotInput[0].key);
+
+      var yAxisLabel = "";
+      if (data && data[0]) {
+        yAxisLabel = data[0].key
+      }
       chart.yAxis
-        .tickFormat(d3.format('.0f'))
-        .axisLabel(data[0].key);
+        .tickFormat(d3.format('d'))
+        .axisLabel(yAxisLabel);
 
       d3.select('.vizContainer')
           .append('svg')
