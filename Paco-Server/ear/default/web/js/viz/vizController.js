@@ -80,7 +80,7 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
     $scope.loadEndDate = false;
 
     experimentsVizService.getEventsCounts($scope.experimentId).then(function (data) {
-      if (data.data[0] !== undefined) {
+      if (data && data.data && data.data[0]) {
         $scope.responseCounts.push(data.data[0].schedR, data.data[0].missedR, data.data[0].selfR);
         $scope.loadResponseCounts = true;
       }
@@ -314,14 +314,12 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
     if (getAllAxisVariablesFromViz($scope.currentVisualization).length == 0) {
       $scope.drawButton = false;
     } else {
-      var allFieldsSet = requiredFieldsSetForTemplate(false);
-      if (!allFieldsSet) {
+      if (!requiredFieldsSetForTemplate(false)) {
         $scope.drawButton = false;
       } else {
         var compatibility = checkInputsAreCompatibleWithChartType($scope.currentVisualization);
         $scope.drawButton = compatibility.compatible;
         if (!compatibility.compatible) {
-          allFields
           alertAboutIncompatibleDataTypes(compatibility.incompatibleInputs);
         }
       }
@@ -401,9 +399,11 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
     experimentsVizService.getEvents($scope.experimentId, groups, textsSet, viz.participants,
         startDatetimeStr, endDatetimeStr).then(function (events) {
       $scope.loadViz = false;
-      if (events.data.customResponse) {
+      if (events && events.data && events.data.customResponse) {
         //console.log(events.data.customResponse);
         buildViz(viz, events.data.customResponse);
+      } else {
+        showAlert("Error", "There was an error retrieving data for your visualization. Please try again.\n" + events);
       }
     }, function(error) {
       showAlert("Error", "There was an error retrieving data for your visualization. Please try again.\n" + error);
@@ -873,6 +873,33 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
   }
 
 
+  function isMultipleSelectListResponse(variable) {
+    // this cheat works because we have already gotten rid of all non-numeric types that might contain a ","
+    return variable.indexOf(",") != -1;
+
+    // TODO look up the type and see if it is a multiselect list
+    // first pass in the right type that can be looked up for the particular xAxisVar or for one of the yAxisVars
+    var response = $scope.currentVisualization.xAxisVariable && $scope.currentVisualization.xAxisVariable;
+    var responseType = null;
+
+    if (response && response.responseType) {
+      responseType = response.responseType;
+    } else {
+      response = responseTypeMap.get($scope.currentVisualization.xAxisVariable.name);
+      if (response) {
+        responseType = response.responseType;
+      }
+      if (responsType === 'list' && response.multiselect) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  function splitOutResponses(answer) {
+    return answer.split(",");
+  }
+
   function processScatterPlot(responseData) {
     //console.log(responseData);
     if (responseData) {
@@ -904,13 +931,32 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
           for (var j = 0; j < xValue[0].values.length; j++) {
             var currX = getValue(xValue[0], j);
             var currY = getValue(yValue[i], j);
-            if (currX && currY) {
-              data[i].values.push({
-                x: currX,
-                y: currY,
-                size: 5
-              });
+
+            var currXMultiples = [];
+            var currYMultiples = [];
+            if (isMultipleSelectListResponse(currX)) {
+              currXMultiples = splitOutResponses(currX);
+            } else {
+              currXMultiples.push(currX);
             }
+
+            if (isMultipleSelectListResponse(currY)) {
+              currYMultiples = splitOutResponses(currY);
+            } else {
+              currYMultiples.push(currY);
+            }
+
+            currXMultiples.forEach(function(x1){
+              currYMultiples.forEach(function(y1){
+                if (x1 && y1) {
+                  data[i].values.push({
+                    x: x1,
+                    y: y1,
+                    size: 5
+                  });
+                }
+              });
+            });
           }
         }
       }
@@ -1098,6 +1144,14 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
     return resData;
   }
 
+  function makeTicksWithNumberOfSteps(steps) {
+    var yAxisTickValues = [];
+    for (var t = 1; t < steps + 1; t++) {
+      yAxisTickValues.push(t);
+    }
+    return yAxisTickValues;
+  }
+
   function drawBoxPlot(min, boxPlotData, whisker_high) {
     d3.selectAll('.vizContainer' + "> *").remove();
 
@@ -1114,22 +1168,31 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
 
         chart.xAxis.showMaxMin(false);
         chart.yAxis.tickFormat(d3.format('d'));
+
         if (($scope.template === 2)) {
-          var response = responseTypeMap.get($scope.currentVisualization.xAxisVariable.name);
-          var responseType = response.responseType;
-          if ((responseType === "likert") || (responseType === "likert_smileys")) {
+          var response = $scope.currentVisualization.xAxisVariable && $scope.currentVisualization.xAxisVariable;
+          var responseType = null;
+
+          if (response && response.responseType) {
+            responseType = response.responseType;
+          } else {
+            response = responseTypeMap.get($scope.currentVisualization.xAxisVariable.name);
+            if (response) {
+              responseType = response.responseType;
+            }
+          }
+          if (responseType && (responseType === "likert" || responseType === "likert_smileys")) {
             var steps = 5;
-            if (response.likertSteps) {
+            if (response && response.likertSteps) {
               steps = response.likertSteps;
             }
             chart.yDomain([1, steps]);
-            var yAxisTickValues = [];
-            for (var t = 0; t < steps + 1; t++) {
-              yAxisTickValues.push(t);
-            }
-            chart.yAxis.tickValues(yAxisTickValues);
-          }
-          else {
+            chart.yAxis.tickValues(makeTicksWithNumberOfSteps(steps));
+          } else  if (responseType && responseType === 'list') {
+            // TODO should we make the labels be the list choices themselves?
+            chart.yDomain([1, response.listChoices.length]);
+            chart.yAxis.tickValues(makeTicksWithNumberOfSteps(steps));
+          } else {
             chart.yDomain([min, whisker_high]);
           }
         }
@@ -1536,19 +1599,21 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
       listChoicesMap.set(i, responseType.listChoices[i]);
     }
     resData.forEach(function (response) {
-      if (response.answer.length > 1) {
-        var answers = response.answer.split(",");
-        answers.forEach(function (a) {
-          choices = mapIndicesWithListChoices(a);
-          listResponseData.push({"who": response.who, "answer": choices, "index": a});
-        });
-      } else {
-        choices = mapIndicesWithListChoices(response.answer);
-        listResponseData.push({
-          "who": response.who,
-          "answer": choices,
-          "index": response.answer
-        });
+      if (response.answer) {
+        if (response.answer.length > 1) {
+          var answers = response.answer.split(",");
+          answers.forEach(function (a) {
+            choices = mapIndicesWithListChoices(a);
+            listResponseData.push({"who": response.who, "answer": choices, "index": a});
+          });
+        } else {
+          choices = mapIndicesWithListChoices(response.answer);
+          listResponseData.push({
+            "who": response.who,
+            "answer": choices,
+            "index": response.answer
+          });
+        }
       }
     });
     return listResponseData;
