@@ -873,6 +873,33 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
   }
 
 
+  function isMultipleSelectListResponse(variable) {
+    // this cheat works because we have already gotten rid of all non-numeric types that might contain a ","
+    return variable.indexOf(",") != -1;
+
+    // TODO look up the type and see if it is a multiselect list
+    // first pass in the right type that can be looked up for the particular xAxisVar or for one of the yAxisVars
+    var response = $scope.currentVisualization.xAxisVariable && $scope.currentVisualization.xAxisVariable;
+    var responseType = null;
+
+    if (response && response.responseType) {
+      responseType = response.responseType;
+    } else {
+      response = responseTypeMap.get($scope.currentVisualization.xAxisVariable.name);
+      if (response) {
+        responseType = response.responseType;
+      }
+      if (responsType === 'list' && response.multiselect) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  function splitOutResponses(answer) {
+    return answer.split(",");
+  }
+
   function processScatterPlot(responseData) {
     //console.log(responseData);
     if (responseData) {
@@ -904,13 +931,32 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
           for (var j = 0; j < xValue[0].values.length; j++) {
             var currX = getValue(xValue[0], j);
             var currY = getValue(yValue[i], j);
-            if (currX && currY) {
-              data[i].values.push({
-                x: currX,
-                y: currY,
-                size: 5
-              });
+
+            var currXMultiples = [];
+            var currYMultiples = [];
+            if (isMultipleSelectListResponse(currX)) {
+              currXMultiples = splitOutResponses(currX);
+            } else {
+              currXMultiples.push(currX);
             }
+
+            if (isMultipleSelectListResponse(currY)) {
+              currYMultiples = splitOutResponses(currY);
+            } else {
+              currYMultiples.push(currY);
+            }
+
+            currXMultiples.forEach(function(x1){
+              currYMultiples.forEach(function(y1){
+                if (x1 && y1) {
+                  data[i].values.push({
+                    x: x1,
+                    y: y1,
+                    size: 5
+                  });
+                }
+              });
+            });
           }
         }
       }
@@ -1124,7 +1170,7 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
         chart.yAxis.tickFormat(d3.format('d'));
 
         if (($scope.template === 2)) {
-          var response = currentVisualization.xAxisVariable && $scope.currentVisualization.xAxisVariable;
+          var response = $scope.currentVisualization.xAxisVariable && $scope.currentVisualization.xAxisVariable;
           var responseType = null;
 
           if (response && response.responseType) {
