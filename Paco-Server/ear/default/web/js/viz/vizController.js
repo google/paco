@@ -314,14 +314,12 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
     if (getAllAxisVariablesFromViz($scope.currentVisualization).length == 0) {
       $scope.drawButton = false;
     } else {
-      var allFieldsSet = requiredFieldsSetForTemplate(false);
-      if (!allFieldsSet) {
+      if (!requiredFieldsSetForTemplate(false)) {
         $scope.drawButton = false;
       } else {
         var compatibility = checkInputsAreCompatibleWithChartType($scope.currentVisualization);
         $scope.drawButton = compatibility.compatible;
         if (!compatibility.compatible) {
-          allFields
           alertAboutIncompatibleDataTypes(compatibility.incompatibleInputs);
         }
       }
@@ -401,9 +399,11 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
     experimentsVizService.getEvents($scope.experimentId, groups, textsSet, viz.participants,
         startDatetimeStr, endDatetimeStr).then(function (events) {
       $scope.loadViz = false;
-      if (events.data.customResponse) {
+      if (events && events.data && events.data.customResponse) {
         //console.log(events.data.customResponse);
         buildViz(viz, events.data.customResponse);
+      } else {
+        showAlert("Error", "There was an error retrieving data for your visualization. Please try again.\n" + events);
       }
     }, function(error) {
       showAlert("Error", "There was an error retrieving data for your visualization. Please try again.\n" + error);
