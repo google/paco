@@ -402,7 +402,7 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
         startDatetimeStr, endDatetimeStr).then(function (events) {
       $scope.loadViz = false;
       if (events.data.customResponse) {
-        console.log(events.data.customResponse);
+        //console.log(events.data.customResponse);
         buildViz(viz, events.data.customResponse);
       }
     }, function(error) {
@@ -799,21 +799,21 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
   }
 
   function magicScatterPlot(responseData) {
-    console.log(responseData);
+    //console.log(responseData);
     var scatterPlotData = {};
     var currResultValues = {};
     var currWho;
     var currResponseTime;
 
     responseData.forEach(function (resultRow) {
-      console.log(resultRow);
+      //console.log(resultRow);
       var rowWho = resultRow.who;
       var rowResponseTime = resultRow.response_time;
       var independentVars = [];
       $scope.currentVisualization.yAxisVariables.forEach(function (selectedInput) {
         independentVars.push(selectedInput.name);
       });
-      console.log(groupHasChanged(rowWho, rowResponseTime, currWho, currResponseTime));
+      //console.log(groupHasChanged(rowWho, rowResponseTime, currWho, currResponseTime));
       if (groupHasChanged(rowWho, rowResponseTime, currWho, currResponseTime)) {
         processCurrResultValues(currWho, currResponseTime, currResultValues, $scope.currentVisualization.xAxisVariable.name, independentVars);
         currWho = rowWho;
@@ -874,7 +874,7 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
 
 
   function processScatterPlot(responseData) {
-    console.log(responseData);
+    //console.log(responseData);
     if (responseData) {
       // TODO Split out xValue and yValue data from responseData
       var xValue = responseData.filter(function(d) { return d.key === $scope.currentVisualization.xAxisVariable.name});
@@ -914,7 +914,7 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
           }
         }
       }
-      console.log(data);
+      //console.log(data);
       drawScatterPlot(data, xAxisLabel);
     }
   }

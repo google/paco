@@ -39,7 +39,7 @@ pacoApp.factory('experimentsVizService', ['$http', 'experimentService', '$filter
         '"query" : { "criteria" : "experiment_id = ? and text not in (' + questionMarks + ')", ' +
         '"values" : ['+experimentId+',' + textsList + ']},' +
         '"order":"group_name,text","group":"group_name,text"}';
-      console.log(distinctTextQuery);
+      //console.log(distinctTextQuery);
       var textQuery = httpPostBody(distinctTextQuery);
     }
     return textQuery;
@@ -124,7 +124,7 @@ pacoApp.factory('experimentsVizService', ['$http', 'experimentService', '$filter
       return null;
     }
 
-    console.log(message);
+    //console.log(message);
     return httpPostBody(message);
   }
 
@@ -148,7 +148,7 @@ pacoApp.factory('experimentsVizService', ['$http', 'experimentService', '$filter
                                       expGroups.params + ' ,' + expTexts.params + ' ,' +
                                    expParticipants.params + ']},' +
         '"order":"who,response_time"}';
-      console.log(message);
+      //console.log(message);
       return httpPostBody(message);
     } else {
       return {};
