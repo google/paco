@@ -4,10 +4,10 @@
       <md-button>Experiments</md-button>
     </a>
     <img src="/img/ic_chevron_right_24px.svg">
-    <a href="#/experiment/{{experimentDataModel.id}}">
+    <a href="#/experiment/{{experiment.id}}">
       <md-button aria-label="experiment name">
-        <span ng-if="!experimentDataModel">{{experimentDataModel.id}}</span>
-        <span ng-if="experimentDataModel">{{experimentDataModel.title}}</span>
+        <span ng-if="!experiment">{{experiment.id}}</span>
+        <span ng-if="experiment">{{experiment.title}}</span>
       </md-button>
     </a>
   </div>
@@ -47,15 +47,15 @@
       <div class="vizSectionLabels"><span>Data Exploration</span></div>
       <md-input-container class="quesDropDown">
         <label class="quesLabel">Please choose a data exploration question</label>
-        <md-select class="quesSelect" md-container-class="quesContainer" ng-model="selectedQues"
-                   md-on-close="getTemplate()">
+        <md-select class="quesSelect" md-container-class="quesContainer" ng-model="currentVisualization.question"
+                   md-on-close="getTemplate(true)">
           <md-optgroup label="Please choose a data exploration question">
             <md-option ng-repeat="ques in questions" ng-value="ques.question">{{ques.question}}</md-option>
           </md-optgroup>
         </md-select>
       </md-input-container>
 
-      <md-toolbar ng-show="selectedQues" class="controlsToolbar">
+      <md-toolbar ng-show="currentVisualization.question" class="controlsToolbar">
         <div class="md-toolbar-tools">
           <div layout="row" class="vizPickerRow">
             <div layout="column" class="vizTypeSelectionDiv">
@@ -97,11 +97,11 @@
             </div>
             <create-button ng-show="createBtn" class="vizCreateButton"></create-button>
             <div layout="row" class="vizRevisions">
-              <md-button class="backArrow backButton" ng-disabled="backButton" ng-click="prevViz()"></md-button>
+              <md-button class="backArrow backButton" ng-disabled="backButtonDisabled" ng-click="prevViz()"></md-button>
               <history-drop-down></history-drop-down>
-              <md-button class="frwdArrow frwdButton" ng-disabled="forwardButton" ng-click="nextViz()"></md-button>
+              <md-button class="frwdArrow frwdButton" ng-disabled="forwardButtonDisabled" ng-click="nextViz()"></md-button>
             </div>
-            <md-button ng-show="saveDownload" class="md-primary" style="color:white" ng-click="saveViz()">Save
+            <md-button ng-show="saveDownload" class="md-primary" style="color:white" ng-click="saveViz()">Save Visualization
             </md-button>
             <md-button id="download" pdf-save-button="idOne" pdf-name="test.pdf" ng-show="false"
                        class="md-primary" style="color:white">Download
@@ -112,21 +112,21 @@
     </div>
 
     <div ng-if="loadViz">
-      <span>Loading visualization...</span>
+      <span>Building visualization...</span>
       <md-progress-linear md-mode="indeterminate"></md-progress-linear>
     </div>
     <div ng-show="vizTemplate" class="vizTemplate">
       <div layout="row" class="vizTitleContainer">
         <div class="vizCaption" ng-show="editTitleTextMode">
           <md-input-container class="md-block">
-            <input class="vizTitle" ng-model="vizTitle" ng-value="vizTitle">
-            <div class="doneButton" ng-click="confirmTitle(vizTitle)"></div>
-            <div class="resetTextButton" ng-click="resetTitle(vizTitle)"></div>
+            <input class="vizTitle" ng-model="currentVisualization.title" ng-value="currentVisualization.title">
+            <div class="doneButton" ng-click="confirmTitle()"></div>
+            <div class="resetTextButton" ng-click="resetTitle()"></div>
           </md-input-container>
         </div>
         <div class="vizTitle" layout="row" layout-align="center" ng-show="editTitleMode" ng-hide="editTitleTextMode">
-          <span>{{vizTitle}}</span>
-          <div ng-show="vizTitle" ng-click="editTitle()" class="editTextButton"></div>
+          <span>{{currentVisualization.title}}</span>
+          <div ng-show="currentVisualization.title" ng-click="editTitle()" class="editTextButton"></div>
         </div>
       </div>
       <div class="vizContainer"></div>
@@ -160,8 +160,8 @@
     Error - {{error.code}}: {{error.data}} {{error.message}}
   </div>
 
-  <div ng-show="vizTable" class="vizTableContainer">
-    <div class="vizSectionLabels"><span>Viz Archives</span></div>
+  <div ng-show="experiment.visualizations.length > 0" class="vizTableContainer">
+    <div class="vizSectionLabels"><span>Saved Visualizations</span></div>
     <table class="vizTable">
       <tr class="viz">
         <th class="viz">Title</th>
@@ -173,13 +173,13 @@
          -->
         <th class="viz"></th>
       </tr>
-      <tr class="viz" ng-repeat="viz in vizs track by $index">
+      <tr class="viz" ng-repeat="viz in experiment.visualizations track by $index">
         <td class="viz">
-          <a><span class="md-primary" ng-click="renderViz(viz,$index)">{{viz.vizTitle}}</span></a>
+          <a><span class="md-primary" ng-click="reloadViz(viz,$index)">{{viz.title}}</span></a>
         </td>
-        <td class="viz">{{viz.startDateTime|date:'MM/dd/yyyy'}} - {{viz.endDateTime|date:'MM/dd/yyyy'}}</td>
-        <td class="viz">{{viz.vizType}}</td>
-        <td class="viz">{{viz.modifyDate|date:'MM/dd/yyyy'}}</td>
+        <td class="viz">{{viz.startDatetime | date:'yyyy/MM/dd'}} - {{viz.endDatetime | date:'yyyy/MM/dd'}}</td>
+        <td class="viz">{{viz.type}}</td>
+        <td class="viz">{{viz.modifyDate | date:'yyyy/MM/dd'}}</td>
        <!-- 
         <td class="viz">
           <a><span class="md-primary">Download</span></a>
@@ -192,7 +192,7 @@
       </tr>
     </table>
     <div class="clearTable">
-      <a><span class="md-primary clearTable" ng-click="clearVizTable()">Delete All</span></a>
+      <a><span class="md-primary clearTable" ng-click="deleteAllSavedVisualizations()">Delete All</span></a>
     </div>
   </div>
 </div>
