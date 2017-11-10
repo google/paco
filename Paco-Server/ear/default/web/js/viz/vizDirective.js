@@ -53,7 +53,7 @@ pacoApp.directive('createButton', [function () {
   return {
     restrict: 'E',
     template: '<md-input-container class="vizCreateButton">' +
-    '<md-button class="md-raised" ng-disabled="!drawButton" ng-click="createViz(undefined,$event)">Draw</md-button>' +
+    '<md-button class="md-raised" ng-disabled="!drawButton" ng-click="createViz()">Draw</md-button>' +
     '</md-input-container>',
     controller: 'VizCtrl', //Embed a custom controller in the directive
     link: function (scope, element, attrs, controller) {

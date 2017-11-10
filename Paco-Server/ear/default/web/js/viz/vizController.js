@@ -12,8 +12,8 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
   $scope.saveDownload = false;
   $scope.editMode = true;
   $scope.editDescMode = true;
-  $scope.backButton = true;
-  $scope.forwardButton = true;
+  $scope.backButtonDisabled = true;
+  $scope.forwardButtonDisabled = true;
   $scope.vizHistory = [];
   $scope.drawButton = false;
   $scope.selectAllParticipants = false;
@@ -150,12 +150,12 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
         });
   };
 
-  function getResponseTypeForAdditionalInputDefinitions(group) {
-    var responseType = "open text";
-    if (group.text === "Form Duration") {
-      responseType = 'number';
+  function getResponseTypeForAdditionalInputDefinitions(event) {
+    if (event.text === "Form Duration") {
+      return 'number';
+    } else {
+      return "open text";
     }
-    return responseType;
   }
 
   function getGroups() {
@@ -172,7 +172,6 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
         // add variables for existing code. TODO remove these extras
         input.id = group.name + ":" + input.name;
         input.group =  group.name;
-        input.input = input.name;
         input.userOrSystemDefined = false;
 
         $scope.groupInputs.push(input);
@@ -189,7 +188,7 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
             $scope.groupInputs.push({
               "id": group.group_name + ":" + group.text,
               "group": group.group_name,
-              "input": group.text,
+              "name": group.text,
               "userOrSystemDefined": true,
               "responseType": responseType
             });
@@ -209,7 +208,6 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
   }
 
   function resetVariables() {
-    $scope.xPlotInput = [];
     $scope.selectAllParticipants = false;
     $scope.deSelectAllParticipants = true;
     $scope.yAxisLabel = undefined;
@@ -298,7 +296,7 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
         $scope.displayTextMultiple = "y Axis";
       }
     } else if ($scope.currentVisualization.yAxisVariables.length === 1) {
-      $scope.displayTextMultiple = $scope.currentVisualization.yAxisVariables[0].input;
+      $scope.displayTextMultiple = $scope.currentVisualization.yAxisVariables[0].name;
     } else {
       $scope.displayTextMultiple = dropDownDisplayText($scope.currentVisualization.yAxisVariables);
     }
@@ -312,7 +310,24 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
   };
 
   $scope.toggleDrawButton = function(bool_value) {
-    $scope.drawButton = bool_value;
+    // todo remove bool_value;
+    if (getAllAxisVariablesFromViz($scope.currentVisualization).length == 0) {
+      $scope.drawButton = false;
+    } else {
+      var allFieldsSet = requiredFieldsSetForTemplate(false);
+      if (!allFieldsSet) {
+        $scope.drawButton = false;
+      } else {
+        var compatibility = checkInputsAreCompatibleWithChartType($scope.currentVisualization);
+        $scope.drawButton = compatibility.compatible;
+        if (!compatibility.compatible) {
+          allFields
+          alertAboutIncompatibleDataTypes(compatibility.incompatibleInputs);
+        }
+      }
+
+
+    }
   };
 
       // $scope.getInputs = function () {
@@ -365,89 +380,39 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
     $scope.displayTextOne();
   }
 
-  function getEventsResponses(viz, createBtnEvent) {
-    $scope.responseData = [];
-
+  function getEvents(viz) {
     var startDatetimeStr = $filter('date')(viz.startDatetime, DATE_FORMAT_NO_TZ);
     var endDatetimeStr = $filter('date')(viz.endDatetime, DATE_FORMAT_NO_TZ);
 
-    // if (($scope.template === 1) || ($scope.template === 2) || ($scope.template === 4)) {
-    if (viz.yAxisVariables) {
-      var textsSet = [];
-      var groups = [];
-      if (viz.yAxisVariables.length > 0) {
-        viz.yAxisVariables.forEach(function (selectedInput) {
-          textsSet.push(selectedInput.input);
-          groups.push(selectedInput.group); // TODO does the query work when the inputs are from more than one group?
-        });
-
-        experimentsVizService.getEvents($scope.experimentId, groups, textsSet, viz.participants,
-          startDatetimeStr, endDatetimeStr).then(function (events) {
-          if (events.data.customResponse) {
-            console.log(events.data.customResponse);
-            processViz(viz, createBtnEvent, events.data.customResponse);
-          }
-        });
-      }
+    var textsSet = [];
+    var groups = [];
+    if (viz.yAxisVariables && viz.yAxisVariables.length > 0) {
+      viz.yAxisVariables.forEach(function (selectedInput) {
+        textsSet.push(selectedInput.name);
+        groups.push(selectedInput.group);
+      });
     }
 
     if (viz.xAxisVariable) {
-      var textsSet = [];
-      var groups = [];
-      $scope.loadViz = true;
-      textsSet.push(viz.xAxisVariable.input);
+      textsSet.push(viz.xAxisVariable.name);
       groups.push(viz.xAxisVariable.group);
-      experimentsVizService.getEvents($scope.experimentId, groups, textsSet,
-        viz.participants, startDatetimeStr, endDatetimeStr).then(function (events) {
-        if (events.data.customResponse) {
-          console.log(events.data.customResponse);
-          processViz(viz, createBtnEvent, undefined, events.data.customResponse);
-        }
-      });
     }
-    // }
 
-    //methods to fetch sql queries for magic scatter plot
-    //
-    //   if ($scope.template === 3) {
-    //     console.log($scope.selectedInputs);
-    //     console.log($scope.selectedInput1);
-    //     var textsSet = [];
-    //     var groups = [];
-    //     var groupsSet = new Set;
-    //     if (($scope.selectedInputs !== undefined)) {
-    //
-    //       if ($scope.selectedInputs.length > 0) {
-    //         $scope.selectedInputs.forEach(function (selectedInput) {
-    //           textsSet.push(selectedInput.input);
-    //           groupsSet.add(selectedInput.group);
-    //         });
-    //         groupsSet.forEach(function (group) {
-    //           groups.push(group);
-    //         });
-    //       }
-    //     }
-    //
-    //     console.log($scope.selectedInput1);
-    //     if (($scope.selectedInput1 !== undefined)) {
-    //       textsSet.push($scope.selectedInput1.input);
-    //       groups.push($scope.selectedInput1.group);
-    //     }
-    //     console.log(textsSet);
-    //     console.log(groups);
-    //     experimentsVizService.getDataForScatterPlotTemplate3($scope.experimentId, groups, textsSet, $scope.selectedParticipants, $scope.startDatetime, $scope.endDatetime).then(function (events) {
-    //       if (events.data.customResponse !== undefined) {
-    //         console.log(events.data.customResponse);
-    //         if (events.data.customResponse.length > 0) {
-    //           processScatterPlot(events.data.customResponse);
-    //         }
-    //       }
-    //     });
-    //   }
+    experimentsVizService.getEvents($scope.experimentId, groups, textsSet, viz.participants,
+        startDatetimeStr, endDatetimeStr).then(function (events) {
+      $scope.loadViz = false;
+      if (events.data.customResponse) {
+        console.log(events.data.customResponse);
+        buildViz(viz, events.data.customResponse);
+      }
+    }, function(error) {
+      showAlert("Error", "There was an error retrieving data for your visualization. Please try again.\n" + error);
+      $scope.loadViz = false;
+    });
   }
 
   function pushOntoCommandHistory(viz, addedTitleString) {
-    viz.historyTitle = getVizHistoryTitle(viz, "Description Edited");
+    viz.historyTitle = getVizHistoryTitle(viz, addedTitleString);
 
     var currentPlaceInHistory = $scope.vizHistory.indexOf(viz);
     if (currentPlaceInHistory > -1) {
@@ -457,10 +422,9 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
       $scope.vizHistory.push(viz);
     }
     if ($scope.vizHistory.length > 1) {
-      $scope.backButton = false;
-      $scope.forwardButton = false;
+      $scope.backButtonDisabled = false;
+      $scope.forwardButtonDisabled = true;
     }
-
   }
 
   function variableCount(viz) {
@@ -474,118 +438,72 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
     return count;
   }
 
-  function processViz(viz, createBtnEvent, multiSelectResData, singleSelectResData) {
+  function buildViz(viz, events) {
+    var zeroData = [];
 
-    var zeroData = []; // TODO deal with bug where zero data single item does not get collected as such
-    var multiSelect_vizResponseData = [];
-    var singleSelect_vizResponseData = [];
+    var groupByInputNameKeys = [];
+    var groupByInputName = [];
 
-    if (multiSelectResData) {
-      var groupByInputName = d3.nest()
-          .key(function (d) {
-            return d.text;
-          })
-          .entries(multiSelectResData);
-      
-      if (groupByInputName && groupByInputName.length > 0) {
-        groupByInputName.forEach(function (inputName) {
-          if (inputName.values.length > 0) {
-            multiSelect_vizResponseData.push(inputName);
-          } else {
-            zeroData.push(inputName);
-          }
-        });
-        $scope.responseData = multiSelect_vizResponseData;
-      } else {
-        viz.yAxisVariables.forEach(function(v) { zeroData.push(v.input); });
-      }
-    }
+    if (events) {
+      groupByInputName = d3.nest()
+        .key(function (d) {
+          return d.text; // TODO do we actually need to group by both input.text + input.group?
+        }).entries(events);
 
-    if (singleSelectResData) {
-      var groupByInputName = d3.nest()
-          .key(function (d) {
-            return d.text;
-          })
-          .entries(singleSelectResData);
+      groupByInputNameKeys = groupByInputName.map(function(e) { return e.key; });
 
-      if (groupByInputName && groupByInputName.length > 0) {
-
-        groupByInputName.forEach(function (inputName) {
-          if (inputName.values.length > 0) {
-            singleSelect_vizResponseData.push(inputName);
-          } else {
-            zeroData.push(inputName);
-          }
-        });
-
-        if ($scope.template === 3) {
-          $scope.xPlotInput = singleSelect_vizResponseData;
+      groupByInputName.forEach(function (eventsForInputName) {
+        if (!eventsForInputName.values || eventsForInputName.values.length == 0) {
+          zeroData.push(eventsForInputName.key);
         }
-        if (($scope.template === 4) || ($scope.template === 2)) {
-          $scope.singleInputResponseData = singleSelect_vizResponseData;
-        }
-      } else {
-        zeroData.push(viz.xAxisVariable.input);
-      }
+      });
+
+      displayViz($scope.currentVisualization, groupByInputName);
+
+      $scope.vizTemplate = true;
+
+      pushOntoCommandHistory($scope.currentVisualization);
+      $scope.currentVisualization = $scope.cloneVisualization($scope.currentVisualization);
     }
 
-    if (reqFieldsValidation()) {
-      displayViz($scope.currentVisualization);
-
-      if (createBtnEvent) { // TODO was this triggered on a new Draw event? (actually, any draw event will cause this (reload doesn't pass it)
-        // Clicking the draw button makes it a memorable event and therefore puts the viz on the history stack
-        var newViz = $scope.cloneVisualization($scope.currentVisualization);
-        pushOntoCommandHistory($scope.currentVisualization);
-        $scope.currentVisualization = newViz;
-      } else {
-       clearViz(); // TODO does it make sense to clear viz if createBtnEvent is undefined? it clears the reload event - which double draws. Maybe?
-        $scope.loadViz = false;
-      }
-    }  else {
-      clearViz(); // TODO does it make sense to clear viz if createBtnEvent is undefined? it clears the reload event - which double draws. Maybe?
-      $scope.loadViz = false;
+    if (viz.yAxisVariables) {
+      viz.yAxisVariables.filter(function (input) {
+        return groupByInputNameKeys.indexOf(input.name) === -1 && zeroData.indexOf(input.name) === -1;
+      }).forEach(function (input) {
+        zeroData.push(input.name)
+      });
     }
-
-
+    if (viz.xAxisVariable && groupByInputNameKeys.indexOf(viz.xAxisVariable.name) === -1 && zeroData.indexOf(viz.xAxisVariable.name) === -1) {
+      zeroData.push(viz.xAxisVariable.name);
+    }
 
     if (zeroData.length > 0) {
-      if (variableCount(viz) < 2) {
-        $scope.loadViz = false;
-        clearViz();
-      }
       var zeroDataTexts = zeroData.join(", ");
       showAlert("Zero data", "No data available for the selection: " + zeroDataTexts);
     }
   }
 
-  function displayViz(viz) {
-    var incompatibleTexts = undefined;
-    clearViz();
+  function displayViz(viz, eventData) {
+    if ($scope.template === 1) {
+      if (($scope.currentVisualization.type === "Box Plot") && ($scope.template === 1)) {
+        processBoxData(eventData);
+      } else if (($scope.currentVisualization.type === "Bar Chart") && ($scope.template === 1)) {
+        processBarChartData(eventData);
+      } else if ($scope.currentVisualization.type === "Bubble Chart") {
+        processBubbleChartData(eventData);
+      }
+    } else if ($scope.template === 2) {
+      if (($scope.currentVisualization.type === "Box Plot")) {
+        processBoxData(eventData);
+      } else if (($scope.currentVisualization.type === "Bar Chart")) {
+        processBarChartData(eventData);
+      }
+    } else if (($scope.currentVisualization.type === "Scatter Plot") && ($scope.template === 4)) {
+        processXYPlotTimeSeries(eventData);
+    } else if (($scope.currentVisualization.type === "Scatter Plot") && ($scope.template === 3)) {
+      processScatterPlot(eventData);
+    }
 
-    if (($scope.currentVisualization.type === "Box Plot") && ($scope.template === 1)) {
-      incompatibleTexts = checkIncompatibleTexts($scope.currentVisualization.yAxisVariables); // TODO is this necessary .. since currentVisualization
-      processBoxData($scope.responseData, incompatibleTexts);
-    }
-    if (($scope.currentVisualization.type === "Bar Chart") && ($scope.template === 1)) {
-      incompatibleTexts = checkIncompatibleTexts($scope.currentVisualization.yAxisVariables); // TODO is this necessary .. since currentVisualization
-      processBarChartData($scope.responseData, incompatibleTexts);
-    }
-    if ($scope.currentVisualization.type === "Bubble Chart") {
-      processBubbleChartData($scope.responseData);
-    }
-    if (($scope.currentVisualization.type === "Box Plot") && ($scope.template === 2)) {
-      processBoxData($scope.singleInputResponseData);
-    }
-    if (($scope.currentVisualization.type === "Bar Chart") && ($scope.template === 2)) {
-      processBarChartData($scope.singleInputResponseData);
-    }
-    if (($scope.currentVisualization.type === "Scatter Plot") && ($scope.template === 4)) {
-      processXYPlotTimeSeries($scope.singleInputResponseData);
-    }
-    if (($scope.currentVisualization.type === "Scatter Plot") && ($scope.template === 3)) {
-      processScatterPlot($scope.responseData);
-      //$scope.vizTemplate = true;
-    }
     $scope.saveDownload = true;
     $scope.editMode = true;
     $scope.editTextMode = true;
@@ -594,22 +512,24 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
     displayTitle(viz);
   }
 
-  function checkIncompatibleTexts(selectedTexts) {
-    var resKeys = [];
-    selectedTexts.forEach(function (selectedInput) {
-      if (selectedInput.userOrSystemDefined) {
-        var index = $scope.responseData.map(function (e) {
-          return e.key;
-        }).indexOf(selectedInput.input);
-        $scope.responseData.splice(index, 1);
-        resKeys.push(selectedInput.input);
-      }
-    });
-    return resKeys;
+  function checkIncompatibleInputs(selectedInputs) {
+    var incompatibleInputs = [];
+    // selectedInputs.forEach(function (input) {
+    //   if (input.responseType) {
+    //
+    //     var index = $scope.responseData.map(function (e) {
+    //       return e.key;
+    //     }).indexOf(input.input);
+    //
+    //     $scope.responseData.splice(index, 1);
+    //     incompatibleInputs.push(input.input);
+    //   }
+    // });
+    return incompatibleInputs;
   }
 
   function clearViz() {
-    d3.selectAll('.vizContainer' + "> *").remove();
+    d3.selectAll("svg > *").remove();
     $scope.vizTemplate = false;
     $scope.saveDownload = false;
     $scope.drawButton = false;
@@ -652,36 +572,26 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
   }
 
   function getDefaultTitleForViz(viz) {
-    var newTitle = "";
-    if (viz.yAxisVariables) {
-      if ($scope.responseData) {
-        var inputNames = [];
-        $scope.titles = [];
-        viz.yAxisVariables.forEach(function (input) {
-          $scope.titles.push(input.input);
-        });
-      }
-    }
     if (((viz.type === "Box Plot")
         || (viz.type === "Bar Chart")
         || (viz.type === "Bubble Chart"))
       && ($scope.template === 1)) {
-      newTitle = "Distribution of responses"; // for: " + $scope.titles.join(", ");
+      return "Distribution of responses";
     } else if ((viz.type === "Scatter Plot")
       && (viz.xAxisVariable)
       && ($scope.template === 3)) {
-      newTitle = "Correlation"; // between '" + viz.xAxisVariable.input + "' and '" + $scope.titles.join(", ") + "'";
+      return "Correlation";
     } else if ((viz.type === "Scatter Plot")
       && (viz.xAxisVariable)
       && ($scope.template === 4)) {
-      newTitle = "Value over time by person.";
+      return "Value over time by person.";
     } else if (((viz.type === "Box Plot")
         || (viz.type === "Bar Chart"))
       && (viz.xAxisVariable)
       && ($scope.template === 2)) {
-      newTitle = "Distribution of responses"; // for: " + viz.xAxisVariable.input;
+      return "Distribution of responses";
     }
-    return newTitle;
+    return "Edit Title";
   }
 
   function displayTitle(viz) {
@@ -792,13 +702,11 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
       yAxisTickValues.push(parseInt(sortedYValues[i]));
     }
     drawXYPlotTimeSeries(xAxisMaxMin, yAxisMaxMin, xAxisTickValues, yAxisTickValues, scatterPlotTimeSeries);
-    $scope.loadViz = false;
-    $scope.vizTemplate = true;
   }
 
   function drawXYPlotTimeSeries(xAxisMaxMin, yAxisMaxMin, xAxisTickValues, yAxisTickValues, data) {
     d3.selectAll('.vizContainer' + "> *").remove();
-    var input = $scope.currentVisualization.xAxisVariable.input;
+    var input = $scope.currentVisualization.xAxisVariable.name;
 
     // create the chart
     var chart;
@@ -851,7 +759,7 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
         var rows =
             "<tr>" +
             "<td class='key'>" + 'Date:' + "</td>" +
-            "<td class='x-value'><strong>" + $filter('date')(new Date(d.point.x), 'dd/MM/yyyy hh:mm:ss') + "</strong></td>" +
+            "<td class='x-value'><strong>" + $filter('date')(new Date(d.point.x), 'MM/dd/yyyy hh:mm:ss') + "</strong></td>" +
             "</tr>" +
             "<tr>" +
             "<td class='key'>" + 'Value:' + "</td>" +
@@ -903,11 +811,11 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
       var rowResponseTime = resultRow.response_time;
       var independentVars = [];
       $scope.currentVisualization.yAxisVariables.forEach(function (selectedInput) {
-        independentVars.push(selectedInput.input);
+        independentVars.push(selectedInput.name);
       });
       console.log(groupHasChanged(rowWho, rowResponseTime, currWho, currResponseTime));
       if (groupHasChanged(rowWho, rowResponseTime, currWho, currResponseTime)) {
-        processCurrResultValues(currWho, currResponseTime, currResultValues, $scope.currentVisualization.xAxisVariable.input, independentVars);
+        processCurrResultValues(currWho, currResponseTime, currResultValues, $scope.currentVisualization.xAxisVariable.name, independentVars);
         currWho = rowWho;
         currResponseTime = rowResponseTime;
         currResultValues = {};
@@ -967,9 +875,13 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
 
   function processScatterPlot(responseData) {
     console.log(responseData);
-    if ($scope.xPlotInput && responseData) {
-      var xValue = $scope.xPlotInput;
-      var yValue = responseData;
+    if (responseData) {
+      // TODO Split out xValue and yValue data from responseData
+      var xValue = responseData.filter(function(d) { return d.key === $scope.currentVisualization.xAxisVariable.name});
+      var yAxisVarNames = $scope.currentVisualization.yAxisVariables.map(function(v) { return v.name; });
+
+      var yValue = responseData.filter(function(d) { return yAxisVarNames.indexOf(d.key) != -1;});
+      var xAxisLabel = $scope.currentVisualization.xAxisVariable.name;
 
       var data = [];
       for (var i = 0; i < yValue.length; i++) {
@@ -978,22 +890,37 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
           values: []
         });
 
-        for (var j = 0; j < xValue[0].values.length; j++) {
-          data[i].values.push({
-            x: xValue[0].values[j].answer,
-            y: yValue[i].values[j].answer,
-            size: 5 // Math.round(Math.random() * 100) / 100
-          });
+        function getValue(collection, j) {
+          if (collection) {
+            var currXValue = collection.values[j];
+            if (currXValue) {
+              return currXValue.answer;
+            }
+          }
+          return null;
+        }
+
+        if (xValue[0]) {
+          for (var j = 0; j < xValue[0].values.length; j++) {
+            var currX = getValue(xValue[0], j);
+            var currY = getValue(yValue[i], j);
+            if (currX && currY) {
+              data[i].values.push({
+                x: currX,
+                y: currY,
+                size: 5
+              });
+            }
+          }
         }
       }
-      drawScatterPlot(data);
-      $scope.loadViz = false;
-      $scope.vizTemplate = true;
+      console.log(data);
+      drawScatterPlot(data, xAxisLabel);
     }
   }
 
-  function drawScatterPlot(data) {
-    d3.selectAll('.vizContainer' + "> *").remove();
+  function drawScatterPlot(data, xAxisLabel) {
+    d3.selectAll(".vizContainer > *").remove();
 
     // create the chart
     var chart;
@@ -1014,7 +941,7 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
       chart.xAxis
           .rotateLabels(-45)
           .tickFormat(d3.format('d'))
-          .axisLabel($scope.xPlotInput[0].key);
+          .axisLabel(xAxisLabel);
 
       var yAxisLabel = "";
       if (data && data[0]) {
@@ -1040,38 +967,32 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
     });
   }
 
-  function incompatibleDataTypes(resKeys, vizLength) {
-    var multipleKeys = "";
-    var keyText = undefined;
-
-    keyText = resKeys.join(",");
-    if (resKeys.length === 1) {
-      multipleKeys = false;
-    } else if (resKeys.length > 1) {
-      multipleKeys = true;
+  function alertAboutIncompatibleDataTypes(incompatibleInputNames,
+                                           compatibleInputNamesCount) {
+    if (!incompatibleInputNames || incompatibleInputNames.length == 0) {
+      return;
     }
-    if (keyText !== undefined) {
-      $mdDialog.show($mdDialog.confirm()
-          .title('Incompatible Data')
-          .textContent('Could not display the viz(s) " ' + keyText + ' " due to incompatible data type(s).')
-          .ariaLabel('Incompatible Data')
-          .ok('ok')
-      ).then(function () {
-        if ((!multipleKeys) && (vizLength === 0)) {
-          clearViz();
-          $scope.loadViz = false;
-        } else {
-          var eliminatedTitles = keyText.split(",");
-          eliminatedTitles.forEach(function (title) {
-            $scope.titles.splice($scope.titles.indexOf(title), 1);
-          });
-          $scope.currentVisualization.title = "Distribution of responses"; // for: " + $scope.titles.join(", ");
-        }
-      });
-    }
+    $mdDialog.show($mdDialog.confirm()
+        .title('Incompatible Variable Types for Selected Visualization')
+        .textContent('Incompatible Inputs: ' + incompatibleInputNames.map(function (i) {return i.name; }).join(", "))
+        .ariaLabel('Incompatible Variable Types for Selected Visualization')
+        .ok('ok')
+    ).then(function () {
+      // if (compatibleInputNamesCount === 0) {
+      //   clearViz();
+      //   $scope.loadViz = false;
+      // } else {
+        // TODO remove since we no longer put variable names in titles
+         // remove names from title
+        // incompatibleInputNames.forEach(function (title) {
+        //   $scope.titles.splice($scope.titles.indexOf(title), 1);
+        // });
+        // $scope.currentVisualization.title = "Distribution of responses"; // for: " + $scope.titles.join(", ");
+      // }
+    });
   }
 
-  function processBoxData(response, incompatibleTexts) {
+  function processBoxData(response) {
 
     var maxValue = 0;
     var minValue = 0;
@@ -1096,42 +1017,25 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
       return frequency;
     }
 
-    if (response !== undefined) {
+    if (response) {
       if ($scope.template === 2) {
-        if (!$scope.currentVisualization.xAxisVariable.userOrSystemDefined) {
-          var vizByDay = dataCount(response[0].values);
-          vizByDay.forEach(function (data) {
-            var dataTransformed = transformBoxPlotData("vizByDay", data.key, data.values.answers);
-            if (dataTransformed !== undefined) {
-              boxPlotData.push(dataTransformed);
-            } else {
-              keyText = response[0].key;
-              multipleKeys = false;
-            }
-          });
-          $scope.loadViz = false;
-        } else {
-          resKeys.push($scope.currentVisualization.xAxisVariable.input);
-          if (resKeys.length > 0) {
-            incompatibleDataTypes(resKeys, 0);
+        var dataGroupedByDay = dataCount(response[0].values);
+        dataGroupedByDay.forEach(function (data) {
+          var dataTransformed = transformBoxPlotData("vizByDay", data.key, data.values.answers);
+          if (dataTransformed) {
+            boxPlotData.push(dataTransformed);
+          } else {
+            keyText = response[0].key;
+            multipleKeys = false;
           }
-        }
+        });
       } else if ($scope.template === 1) {
         response.forEach(function (res) {
           var dataTransformed = transformBoxPlotData("vizByDateRange", res.key, res.values);
-          if (dataTransformed !== undefined) {
+          if (dataTransformed) {
             boxPlotData.push(dataTransformed);
-          } else {
-            resKeys.push(res.key);
           }
         });
-      }
-      if (incompatibleTexts !== undefined) {
-        if (incompatibleTexts.length > 0) {
-          incompatibleTexts.forEach(function (text) {
-            resKeys.push(text);
-          });
-        }
       }
 
       if (boxPlotData.length > 0) {
@@ -1144,13 +1048,8 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
         maxValue = d3.max(whiskers_high);
         minValue = d3.min(whiskers_low);
         drawBoxPlot(minValue, boxPlotData, maxValue);
-        $scope.loadViz = false;
-      }
-      if (resKeys.length > 0) {
-        incompatibleDataTypes(resKeys, boxPlotData.length);
       }
     }
-    $scope.vizTemplate = true;
   }
 
   function transformBoxPlotData(viz, key, values) {
@@ -1216,7 +1115,7 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
         chart.xAxis.showMaxMin(false);
         chart.yAxis.tickFormat(d3.format('d'));
         if (($scope.template === 2)) {
-          var response = responseTypeMap.get($scope.currentVisualization.xAxisVariable.input);
+          var response = responseTypeMap.get($scope.currentVisualization.xAxisVariable.name);
           var responseType = response.responseType;
           if ((responseType === "likert") || (responseType === "likert_smileys")) {
             var steps = 5;
@@ -1279,7 +1178,7 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
                 "</table>";
           }
         });
-        chart.yAxis.axisLabel("Response");
+        chart.yAxis.axisLabel("Distribution");
 
         d3.select('.vizContainer')
             .append('svg')
@@ -1309,61 +1208,42 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
     }
   }
 
-  function processBarChartData(res, incompatibleTexts) {
-    var resKeys = [];
+  function processBarChartData(res) {
     var compatibleResponses = [];
 
-    if (res !== undefined) {
+    if (res) {
       var barChartData = [];
       var values = [];
       if ($scope.template === 2) {
-        if (!$scope.currentVisualization.xAxisVariable.userOrSystemDefined) {
-          barChartData = transformBarChartData_template2(res);
-        } else {
-          resKeys.push($scope.currentVisualization.xAxisVariable.input);
-          if (resKeys.length > 0) {
-            incompatibleDataTypes(resKeys, 0);
-          }
-        }
+        barChartData = transformBarChartData_template2(res);
       } else if ($scope.template === 1) {
         res.forEach(function (response) {
-          if (responseTypeMap.get(response.key).responseType === "open text") {
-            resKeys.push(response.key);
-          } else {
-            compatibleResponses.push(response);
-            barChartData = transformDataforBarChart(undefined, compatibleResponses);
-          }
+          compatibleResponses.push(response);
+          barChartData = transformDataforBarChart(undefined, compatibleResponses);
         });
-        if (incompatibleTexts !== undefined) {
-          if (incompatibleTexts.length > 0) {
-            incompatibleTexts.forEach(function (text) {
-              resKeys.push(text);
-            });
-          }
-        }
       }
-      if (barChartData !== undefined) {
+
+      if (barChartData) {
         barChartData.forEach(function (data) {
           data.values.forEach(function (value) {
             values.push(value.y);
           });
         });
       }
-      if (values !== undefined) {
+
+      // TODO - what is this doing?
+      if (values) {
         var yAxisValues = values.filter(function (item, pos) {
           return values.indexOf(item) == pos;
         });
       }
-      if (barChartData !== undefined && yAxisValues !== undefined) {
-        if ((barChartData.length > 0) && (yAxisValues.length > 0)) {
-          drawMultiBarChart(barChartData, yAxisValues);
-          $scope.vizTemplate = true;
-        }
-        if (resKeys.length > 0) {
-          incompatibleDataTypes(resKeys, barChartData.length);
-        }
+
+      if (barChartData && barChartData.length > 0 &&
+        yAxisValues && yAxisValues.length > 0) {
+        drawMultiBarChart(barChartData, yAxisValues);
+        $scope.vizTemplate = true;
+
       }
-      $scope.loadViz = false;
     }
   }
 
@@ -1718,10 +1598,8 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
           return d;
         });
         drawBubbleChart(bubbleChartData);
-        $scope.loadViz = false;
       }
     }
-    $scope.vizTemplate = true;
   }
 
   function vizResponseJson(type, responseData) {
@@ -1868,18 +1746,83 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
     }
   }
 
-  //invoke events responses function on click of the draw button
-  $scope.createViz = function (viz, event) {
-    if (!viz) {
-      viz = $scope.currentVisualization;
+  //invoked by click of the draw button
+  $scope.createViz = function () {
+    if (requiredFieldsSetForTemplate(true)) {
+      var checkResponse = checkInputsAreCompatibleWithChartType($scope.currentVisualization);
+      if (checkResponse.compatible) {
+        $scope.loadViz = true;
+        getEvents($scope.currentVisualization);
+      } else {
+        alertAboutIncompatibleDataTypes(checkResponse.incompatibleInputs);
+        $scope.drawButton = true;
+      }
+    } else {
+      $scope.drawButton = true;
     }
-    $scope.loadViz = true;
-    getEventsResponses(viz, event);
   };
 
   function generateId() {
     return new Date().getUTCHours() + new Date().getUTCMinutes() + new Date().getUTCSeconds() + new Date().getUTCMilliseconds();
   };
+
+  function vizRequiresNumericalData(viz) {
+    return viz.type === "Box Plot" ||
+      viz.type === "Bar Chart" ||
+      viz.type === "Scatter Plot";
+  }
+
+  function vizRequiresTextableData(viz) {
+    return viz.type === "Bubble Chart"
+  }
+
+  function inputIsTextable(input) {
+    return input.responseType === "open text" ||
+      input.responseType === "location" ||
+      inputIsNumerical(input);
+  }
+
+  function inputIsNumerical(input) {
+    return input.responseType === "number" ||
+      input.responseType === "likert" ||
+      input.responseType === "list";
+  }
+
+  function getAllAxisVariablesFromViz(viz) {
+    var allInputs = [];
+    if (viz.xAxisVariable) {
+      allInputs.push(viz.xAxisVariable);
+    }
+    if (viz.yAxisVariables) {
+      viz.yAxisVariables.forEach(function (v) {
+        allInputs.push(v);
+      });
+    }
+    return allInputs;
+  }
+
+  function checkInputsAreCompatibleWithChartType(viz) {
+    var compatible = true;
+    var incompatibleInputs = [];
+
+    var allInputs = getAllAxisVariablesFromViz(viz);
+    if (vizRequiresNumericalData(viz)) {
+      allInputs.forEach(function (input) {
+        if (!inputIsNumerical(input)) {
+          incompatibleInputs.push(input);
+        }
+      });
+    } else if (vizRequiresTextableData(viz)) {
+      allInputs.forEach(function (input) {
+        if (!inputIsTextable(input)) {
+          incompatibleInputs.push(input);
+        }
+      });
+    }
+
+    return { "compatible" : incompatibleInputs.length == 0, "incompatibleInputs" : incompatibleInputs };
+  };
+
 
   function newVizSchema() {
     var vizData = {};
@@ -1937,9 +1880,16 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
    * then reset to the top item on the stack?
    */
   $scope.prevViz = function () {
-    var prevViz = {};
+    var currentViz = historyContainsViz($scope.currentVisualization); // handle the case of going back in history multiple times before hitting draw again (draw pushes a new viz onto $scope.currentViz and resets the history pointer.
+    if (currentViz.length == 0) {
+      currentViz = $scope.vizHistory[$scope.vizHistory.length - 1]; // any time we are navigating, we have to look at the last real viz, not the current editing one.
+    } else {
+      currentViz = currentViz[0];
+    }
+
+    var prevViz = null;
     $scope.vizHistory.forEach(function (viz) {
-      if (viz.id === $scope.currentVisualization.id) {
+      if (viz.id === currentViz.id) {
         var currentIndex = $scope.vizHistory.indexOf(viz);
         var prevIndex = currentIndex - 1;
         if (prevIndex >= 0) {
@@ -1951,13 +1901,27 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
         return;
       }
     });
-    $scope.getSelectedViz(prevViz);
+    if (prevViz) {
+      $scope.getSelectedViz(prevViz);
+      $scope.forwardButtonDisabled = false;
+    }
   };
 
+  function historyContainsViz(viz) {
+    var history = $scope.vizHistory.filter(function (h) { return h.id === viz.id; });
+    return history;
+  }
+
   $scope.nextViz = function () {
+    var currentViz = historyContainsViz($scope.currentVisualization); // handle the case of going back in history multiple times before hitting draw again (draw pushes a new viz onto $scope.currentViz and resets the history pointer.
+    if (currentViz.length == 0) {
+      currentViz = $scope.vizHistory[$scope.vizHistory.length - 1]; // any time we are navigating, we have to look at the last real viz, not the current editing one.
+    } else {
+      currentViz = currentViz[0];
+    }
     var nextViz = {};
     $scope.vizHistory.forEach(function (viz) {
-      if (viz.id === $scope.currentVisualization.id) {
+      if (viz.id === currentViz.id) {
         var currIndex = $scope.vizHistory.indexOf(viz);
         var nextIndex = currIndex + 1;
         var limit = $scope.vizHistory.length;
@@ -2032,72 +1996,98 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
     $scope.editDescTextMode = false;
   };
 
-  function reqFieldsValidation() {
+  function requiredFieldsSetForTemplate(showAlert) {
     var msgTitle = "Required Fields";
     if (($scope.template === 1)) {
-      if (($scope.currentVisualization.type === undefined) && ($scope.currentVisualization.yAxisVariables === undefined)) {
-        showAlert(msgTitle, "Please select Viz Type and x axis value(s).");
-        return false;
-      }
-      if ($scope.currentVisualization.type === undefined) {
-        showAlert(msgTitle, "Please select type of visualization.");
-        return false;
-      }
-      if ($scope.currentVisualization.yAxisVariables === undefined) {
-        showAlert(msgTitle, "Please select the y axis value(s).");
-        return false;
-      }
-    }
-
-    if (($scope.template === 2)) {
-      if (($scope.currentVisualization.type === undefined) && ($scope.currentVisualization.xAxisVariable === undefined)) {
-        showAlert(msgTitle, "Please select Viz Type and x axis value(s).");
-        return false;
-      }
-      if ($scope.currentVisualization.type === undefined) {
-        showAlert(msgTitle, "Please select Viz Type.");
-        return false;
-      }
-      if ($scope.currentVisualization.xAxisVariable === undefined) {
-        showAlert(msgTitle, "Please select the x axis value(s).");
-        return false;
-      }
-    }
-
-    if ($scope.template === 3) {
-      if ((($scope.currentVisualization.type === undefined) && ($scope.currentVisualization.yAxisVariables === undefined) && ($scope.currentVisualization.xAxisVariable === undefined))) {
-        showAlert(msgTitle, "Please select Viz Type, x axis value and y axis value(s).");
-        return false;
-      }
-      if ($scope.currentVisualization.type === undefined) {
-        showAlert(msgTitle, "Please select Viz Type.");
-        return false;
-      }
-      if (($scope.currentVisualization.yAxisVariables === undefined) && ($scope.currentVisualization.xAxisVariable === undefined)) {
-        showAlert(msgTitle, "Please select x axis and y axis values.");
-        return false;
-      }
-      if (($scope.currentVisualization.yAxisVariables === undefined)) {
-        showAlert(msgTitle, "Please select the y axis value(s).");
-        return false;
-      }
-      if (($scope.currentVisualization.xAxisVariable === undefined)) {
-        showAlert(msgTitle, "Please select the x axis value.");
-        return false;
-      }
-    }
-
-    if ($scope.template === 4) {
-      if (!$scope.currentVisualization.type && !$scope.currentVisualization.xAxisVariable) {
-        showAlert(msgTitle, "Please select type of visualization and x axis value.");
+      if (!$scope.currentVisualization.type &&
+        (!$scope.currentVisualization.yAxisVariables || $scope.currentVisualization.yAxisVariables.length == 0)) {
+        if (showAlert) {
+          showAlert(msgTitle, "Please select Viz Type and x axis value(s).");
+        }
         return false;
       }
       if (!$scope.currentVisualization.type) {
-        showAlert(msgTitle, "Please select type of visualization to draw.");
+        if (showAlert) {
+          showAlert(msgTitle, "Please select type of visualization.");
+        }
+        return false;
+      }
+      if (!$scope.currentVisualization.yAxisVariables || $scope.currentVisualization.yAxisVariables.length == 0) {
+        if (showAlert) {
+          showAlert(msgTitle, "Please select the y axis value(s).");
+        }
+        return false;
+      }
+    } else if (($scope.template === 2)) {
+      if ((!$scope.currentVisualization.type) && (!$scope.currentVisualization.xAxisVariable)) {
+        if (showAlert) {
+          showAlert(msgTitle, "Please select Viz Type and x axis value(s).");
+        }
+        return false;
+      }
+      if (!$scope.currentVisualization.type) {
+        if (showAlert) {
+          showAlert(msgTitle, "Please select Viz Type.");
+        }
         return false;
       }
       if (!$scope.currentVisualization.xAxisVariable) {
-        showAlert(msgTitle, "Please select the x axis value.");
+        if (showAlert) {
+          showAlert(msgTitle, "Please select the x axis value(s).");
+        }
+        return false;
+      }
+    } else if ($scope.template === 3) {
+      if (!$scope.currentVisualization.type &&
+        (!$scope.currentVisualization.yAxisVariables || $scope.currentVisualization.yAxisVariables.length == 0) &&
+        !$scope.currentVisualization.xAxisVariable) {
+        if (showAlert) {
+          showAlert(msgTitle, "Please select Viz Type, x axis value and y axis value(s).");
+        }
+        return false;
+      }
+      if ((!$scope.currentVisualization.yAxisVariables || $scope.currentVisualization.yAxisVariables.length == 0)
+        && !$scope.currentVisualization.xAxisVariable) {
+        if (showAlert) {
+          showAlert(msgTitle, "Please select x axis and y axis values.");
+        }
+        return false;
+      }
+      if (!$scope.currentVisualization.type) {
+        if (showAlert) {
+          showAlert(msgTitle, "Please select Viz Type.");
+        }
+        return false;
+      }
+      if (!$scope.currentVisualization.yAxisVariables || $scope.currentVisualization.yAxisVariables.length == 0) {
+        if (showAlert) {
+          showAlert(msgTitle, "Please select the y axis value(s).");
+        }
+        return false;
+      }
+      if (!$scope.currentVisualization.xAxisVariable) {
+        if (showAlert) {
+          showAlert(msgTitle, "Please select the x axis value.");
+        }
+        return false;
+      }
+    } else if ($scope.template === 4) {
+      if (!$scope.currentVisualization.type && !$scope.currentVisualization.xAxisVariable) {
+        if (showAlert) {
+          showAlert(msgTitle, "Please select type of visualization and x axis value.");
+        }
+        return false;
+      }
+      if (!$scope.currentVisualization.type) {
+        if (showAlert) {
+          showAlert(msgTitle, "Please select type of visualization to draw.");
+        }
+        return false;
+      }
+      if (!$scope.currentVisualization.xAxisVariable) {
+        if (showAlert) {
+          showAlert(msgTitle, "Please select the x axis value.");
+        }
         return false;
       }
     }
@@ -2144,11 +2134,6 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
       $scope.getTemplate();
     }
     $scope.drawButton = true;
-    // ToDO remove when obsoleted by $scope.currentVisualiation
-    // if (viz.multipleTexts !== undefined) {
-    //   //$scope.selectedInputs = viz.yAxisVariables;
-    //   //$scope.getInputs();
-    // }
   };
 
   function getVizHistoryTitle(viz, titleOrDescEdited) {
@@ -2157,19 +2142,19 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
     if (($scope.template === 1)) {
       if (viz.yAxisVariables.length > 1) {
         viz.yAxisVariables.forEach(function (text) {
-          texts.push(text.input);
+          texts.push(text.name);
         });
         vizTexts = texts.join(", ");
       } else {
-        vizTexts = viz.yAxisVariables[0].input;
+        vizTexts = viz.yAxisVariables[0].name;
       }
     } else if (($scope.template === 2) || ($scope.template === 4)) {
-      vizTexts = viz.xAxisVariable.input;
+      vizTexts = viz.xAxisVariable.name;
     } else if (($scope.template === 3)) {
       viz.yAxisVariables.forEach(function (text) {
-        texts.push(text.input);
+        texts.push(text.name);
       });
-      texts.push(viz.xAxisVariable.input);
+      texts.push(viz.xAxisVariable.name);
       vizTexts = texts.join(", ");
     }
 
@@ -2234,31 +2219,31 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
     $scope.dataSnapshot();
   }
 
-  function listValuesEqual(newValue, oldValue) {
-    if (newValue == oldValue) {
-      return true;
-    }
-    if (newValue && !oldValue) {
-      return false;
-    } else if (!newValue && oldValue) {
-      return false;
-    } else if (!newValue && !oldvalue) {
-      return true;
-    } else { //(newValue && oldValue)
-      if (newValue.length != oldValue.length) {
-        return false;
-      }
-      for (var index = 0; index < newValue.length; index++) {
-        var newVal = newValue[index];
-        var oldVal = oldValue[index];
-        if (newVal.id !== oldVal.id) {
-          return false;
-        }
-      }
-      return true;
-    }
-  };
-
+  // function listValuesEqual(newValue, oldValue) {
+  //   if (newValue == oldValue) {
+  //     return true;
+  //   }
+  //   if (newValue && !oldValue) {
+  //     return false;
+  //   } else if (!newValue && oldValue) {
+  //     return false;
+  //   } else if (!newValue && !oldvalue) {
+  //     return true;
+  //   } else { //(newValue && oldValue)
+  //     if (newValue.length != oldValue.length) {
+  //       return false;
+  //     }
+  //     for (var index = 0; index < newValue.length; index++) {
+  //       var newVal = newValue[index];
+  //       var oldVal = oldValue[index];
+  //       if (newVal.id !== oldVal.id) {
+  //         return false;
+  //       }
+  //     }
+  //     return true;
+  //   }
+  // };
+  //
 
   function inputListChanged() {
     $scope.currentVisualization.title = null;

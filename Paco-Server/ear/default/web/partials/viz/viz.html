@@ -97,9 +97,9 @@
             </div>
             <create-button ng-show="createBtn" class="vizCreateButton"></create-button>
             <div layout="row" class="vizRevisions">
-              <md-button class="backArrow backButton" ng-disabled="backButton" ng-click="prevViz()"></md-button>
+              <md-button class="backArrow backButton" ng-disabled="backButtonDisabled" ng-click="prevViz()"></md-button>
               <history-drop-down></history-drop-down>
-              <md-button class="frwdArrow frwdButton" ng-disabled="forwardButton" ng-click="nextViz()"></md-button>
+              <md-button class="frwdArrow frwdButton" ng-disabled="forwardButtonDisabled" ng-click="nextViz()"></md-button>
             </div>
             <md-button ng-show="saveDownload" class="md-primary" style="color:white" ng-click="saveViz()">Save Visualization
             </md-button>

@@ -7,7 +7,7 @@
              data-md-container-class="selectdemoSelectHeader"
              ng-model-options="{trackBy: '$value.id'}">
     <md-optgroup ng-repeat="grp in groups" label={{grp}}>
-      <md-option ng-value="input" ng-repeat="input in groupInputs| filter: {'group':grp}">{{input.input}}
+      <md-option ng-value="input" ng-repeat="input in groupInputs| filter: {'group':grp}">{{input.name}}
         <div class="resType"><span ng-if="!input.userOrSystemDefined">{{input.responseType}}</span>
           <span ng-if="input.userOrSystemDefined" style="color:red">{{input.responseType}}</span></div>
       </md-option>
