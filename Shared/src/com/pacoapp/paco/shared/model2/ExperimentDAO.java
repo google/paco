@@ -50,7 +50,7 @@ public class ExperimentDAO extends ExperimentDAOCore implements Serializable {
   private String ringtoneUri;
   private String postInstallInstructions;
   private Boolean anonymousPublic;
-  private List<Visualizations> visualizations;
+  private List<Visualization> visualizations;
 
 
   // Visible for testing
@@ -59,7 +59,7 @@ public class ExperimentDAO extends ExperimentDAOCore implements Serializable {
       String joinDate,
       String modifyDate, Boolean published, List<String> admins, List<String> publishedUsers,
       Boolean deleted, Integer version, Boolean recordPhoneDetails, List<ExperimentGroup> groups,
-      List<Integer> extraDataDeclarations, Boolean anonymousPublic, List<Visualizations> visualizations) {
+      List<Integer> extraDataDeclarations, Boolean anonymousPublic, List<Visualization> visualizations) {
     super(id, title, description, informedConsentForm, email, publicKey, joinDate, recordPhoneDetails, deleted, extraDataDeclarations, null, null, null, null, null);
     this.id = id;
     this.title = title;
@@ -234,11 +234,11 @@ public class ExperimentDAO extends ExperimentDAOCore implements Serializable {
     this.postInstallInstructions = instructions;
   }
 
-  public List<Visualizations> getVisualizations() {
+  public List<Visualization> getVisualizations() {
     return visualizations;
   }
 
-  public void setVisualizations(List<Visualizations> visualizations) {
+  public void setVisualizations(List<Visualization> visualizations) {
     this.visualizations = visualizations;
   }
 }
