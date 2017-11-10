@@ -80,7 +80,7 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
     $scope.loadEndDate = false;
 
     experimentsVizService.getEventsCounts($scope.experimentId).then(function (data) {
-      if (data.data[0] !== undefined) {
+      if (data && data.data && data.data[0]) {
         $scope.responseCounts.push(data.data[0].schedR, data.data[0].missedR, data.data[0].selfR);
         $scope.loadResponseCounts = true;
       }
@@ -1098,6 +1098,14 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
     return resData;
   }
 
+  function makeTicksWithNumberOfSteps(steps) {
+    var yAxisTickValues = [];
+    for (var t = 1; t < steps + 1; t++) {
+      yAxisTickValues.push(t);
+    }
+    return yAxisTickValues;
+  }
+
   function drawBoxPlot(min, boxPlotData, whisker_high) {
     d3.selectAll('.vizContainer' + "> *").remove();
 
@@ -1114,22 +1122,31 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
 
         chart.xAxis.showMaxMin(false);
         chart.yAxis.tickFormat(d3.format('d'));
+
         if (($scope.template === 2)) {
-          var response = responseTypeMap.get($scope.currentVisualization.xAxisVariable.name);
-          var responseType = response.responseType;
-          if ((responseType === "likert") || (responseType === "likert_smileys")) {
+          var response = currentVisualization.xAxisVariable && $scope.currentVisualization.xAxisVariable;
+          var responseType = null;
+
+          if (response && response.responseType) {
+            responseType = response.responseType;
+          } else {
+            response = responseTypeMap.get($scope.currentVisualization.xAxisVariable.name);
+            if (response) {
+              responseType = response.responseType;
+            }
+          }
+          if (responseType && (responseType === "likert" || responseType === "likert_smileys")) {
             var steps = 5;
-            if (response.likertSteps) {
+            if (response && response.likertSteps) {
               steps = response.likertSteps;
             }
             chart.yDomain([1, steps]);
-            var yAxisTickValues = [];
-            for (var t = 0; t < steps + 1; t++) {
-              yAxisTickValues.push(t);
-            }
-            chart.yAxis.tickValues(yAxisTickValues);
-          }
-          else {
+            chart.yAxis.tickValues(makeTicksWithNumberOfSteps(steps));
+          } else  if (responseType && responseType === 'list') {
+            // TODO should we make the labels be the list choices themselves?
+            chart.yDomain([1, response.listChoices.length]);
+            chart.yAxis.tickValues(makeTicksWithNumberOfSteps(steps));
+          } else {
             chart.yDomain([min, whisker_high]);
           }
         }
