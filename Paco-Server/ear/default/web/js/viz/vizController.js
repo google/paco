@@ -1536,19 +1536,21 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
       listChoicesMap.set(i, responseType.listChoices[i]);
     }
     resData.forEach(function (response) {
-      if (response.answer.length > 1) {
-        var answers = response.answer.split(",");
-        answers.forEach(function (a) {
-          choices = mapIndicesWithListChoices(a);
-          listResponseData.push({"who": response.who, "answer": choices, "index": a});
-        });
-      } else {
-        choices = mapIndicesWithListChoices(response.answer);
-        listResponseData.push({
-          "who": response.who,
-          "answer": choices,
-          "index": response.answer
-        });
+      if (response.answer) {
+        if (response.answer.length > 1) {
+          var answers = response.answer.split(",");
+          answers.forEach(function (a) {
+            choices = mapIndicesWithListChoices(a);
+            listResponseData.push({"who": response.who, "answer": choices, "index": a});
+          });
+        } else {
+          choices = mapIndicesWithListChoices(response.answer);
+          listResponseData.push({
+            "who": response.who,
+            "answer": choices,
+            "index": response.answer
+          });
+        }
       }
     });
     return listResponseData;
