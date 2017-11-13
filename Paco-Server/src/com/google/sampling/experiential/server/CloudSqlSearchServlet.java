@@ -26,6 +26,7 @@ import com.google.appengine.api.users.User;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.sampling.experiential.datastore.EventServerColumns;
+import com.google.sampling.experiential.datastore.ExperimentLookupServerColumns;
 import com.google.sampling.experiential.shared.EventDAO;
 import com.pacoapp.paco.shared.model2.EventBaseColumns;
 import com.pacoapp.paco.shared.model2.JsonConverter;
@@ -179,9 +180,11 @@ public class CloudSqlSearchServlet extends HttpServlet {
           sendErrorMessage(resp, mapper,  ErrorMessages.INVALID_GROUPBY.getDescription() + Arrays.toString(sqlQueryObj.getProjection()));
           return;
         }
+        addExperimentLookupJoinClause(clientJsqlStatement);
         if (qProcessor.isOutputColumnsPresent() || sqlQueryObj.isFullEventAndOutputs()) {
           SearchUtil.addJoinClause(clientJsqlStatement);
         }
+//        TODO: Performance has to be tested for this query.
         if(sqlQueryObj.isFullEventAndOutputs()) {
           boolean outputColsInWhere = sqlQueryObj.getCriteriaQuery().contains(OutputBaseColumns.ANSWER) || sqlQueryObj.getCriteriaQuery().contains(OutputBaseColumns.NAME);
           optimizedSelect = modifyToOptimizePerformance(clientJsqlStatement, outputColsInWhere);
@@ -283,6 +286,26 @@ public class CloudSqlSearchServlet extends HttpServlet {
     siList.add(si2);
     ((PlainSelect)sb).setSelectItems(siList);  
   }
+  
+  private static void addExperimentLookupJoinClause(Select selStatement) throws JSQLParserException {
+    PlainSelect ps = null;
+    Expression joinExp = null;
+    List<Join> jList = Lists.newArrayList();
+    Join joinObj = new Join();
+    FromItem ft = new Table(ExperimentLookupServerColumns.TABLE_NAME); 
+    try {
+      joinExp = CCJSqlParserUtil.parseCondExpression(EventServerColumns.TABLE_NAME + "." + EventServerColumns.EXPERIMENT_LOOKUP_ID + " = " + ExperimentLookupServerColumns.TABLE_NAME + "." + ExperimentLookupServerColumns.EXPERIMENT_LOOKUP_ID);
+    } catch (JSQLParserException e) {
+      e.printStackTrace();
+    }
+    joinObj.setOnExpression(joinExp);
+    joinObj.setInner(true);
+    joinObj.setRightItem(ft);
+    jList.add(joinObj);
+    ps = ((PlainSelect) selStatement.getSelectBody());
+    ps.setJoins(jList);
+  }
+
   
 
   //instead of currentSelect which is --> select * from events inner join outputs on events._id=outputs.event_id where <conditions> <limit><group><order> 

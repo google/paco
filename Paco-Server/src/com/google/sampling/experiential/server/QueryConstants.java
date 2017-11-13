@@ -1,7 +1,9 @@
 package com.google.sampling.experiential.server;
 
 import com.google.sampling.experiential.datastore.EventServerColumns;
+import com.google.sampling.experiential.datastore.ExperimentUserServerColumns;
 import com.google.sampling.experiential.datastore.FailedEventServerColumns;
+import com.google.sampling.experiential.datastore.UserServerColumns;
 import com.pacoapp.paco.shared.model2.EventBaseColumns;
 import com.pacoapp.paco.shared.model2.OutputBaseColumns;
 import com.pacoapp.paco.shared.util.Constants;
@@ -9,8 +11,10 @@ import com.pacoapp.paco.shared.util.Constants;
 public enum QueryConstants {
   UPDATE_FAILED_EVENTS_PROCESSED_STATUS_FOR_ID("update "+ FailedEventServerColumns.TABLE_NAME +" set "+ FailedEventServerColumns.REPROCESSED+ " = ? where " + FailedEventServerColumns.ID + "= ?"),
   GET_ALL_UNPROCESSED_FAILED_EVENTS("select * from " + FailedEventServerColumns.TABLE_NAME + " where " + FailedEventServerColumns.REPROCESSED + "='false'"),
+  GET_ALL_USERS_FOR_EXPERIMENT("select * from " + ExperimentUserServerColumns.TABLE_NAME + " join " + UserServerColumns.TABLE_NAME + " on " + UserServerColumns.TABLE_NAME +". "+ UserServerColumns.USER_ID +" = " + ExperimentUserServerColumns.TABLE_NAME  +  "." + ExperimentUserServerColumns.USER_ID + " where " + ExperimentUserServerColumns.EXPERIMENT_ID +" = ? "),
   GET_EVENT_FOR_ID("select * from " + EventServerColumns.TABLE_NAME + " where " + Constants.UNDERSCORE_ID+ " =?"),
   GET_ALL_OUTPUTS_FOR_EVENT_ID("select * from " + OutputBaseColumns.TABLE_NAME + " where " + OutputBaseColumns.EVENT_ID + " = ?"),
+  GET_ANON_ID_FOR_EMAIL("select " +ExperimentUserServerColumns.EXP_USER_ANON_ID+ " from " + ExperimentUserServerColumns.TABLE_NAME + " join " + UserServerColumns.TABLE_NAME + " on " + UserServerColumns.TABLE_NAME +". "+ UserServerColumns.USER_ID +" = " + ExperimentUserServerColumns.TABLE_NAME  +  "." + ExperimentUserServerColumns.USER_ID + " where " + ExperimentUserServerColumns.EXPERIMENT_ID +" = ? and " + UserServerColumns.WHO + " = ?"),
   GET_QUICK_STATUS_STORED_PROC("call ExpQuickStatus(?,?)"),
   GET_COMPLETE_STATUS_STORED_PROC("call ExpCompleteStatus(?,?)"),
   GET_QUICK_STATUS(" SELECT "+ EventServerColumns.WHO +",count(case when "+ OutputBaseColumns.NAME+" in ('apps_used', 'apps_used_raw') then 1 end) AS appusage, " +
