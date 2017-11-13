@@ -1246,7 +1246,7 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
       // for all emails in request, insert email into user table if not present already and update map with the newly generated id
       for (String email : allUsersEmailsInRequest) {
         if (requestedEmailIdsInUserTable.get(email) == null) {
-          Long genId = insertUserAndRetrieveId(email);
+          Long genId = getUseridWithCreateOption(email, true).getId();
           requestedEmailIdsInUserTable.put(email, genId);
         }
       }
