@@ -310,52 +310,65 @@ public class CloudSqlSearchServlet extends HttpServlet {
 
   //instead of currentSelect which is --> select * from events inner join outputs on events._id=outputs.event_id where <conditions> <limit><group><order> 
    // do a late fetch as
-   // optimizedSelect(firstJoinObj) which is -->               select * from events inner join ouputs on events._id=outputs.event_id
-   // (secondJoinObj with subselect)                                          inner join (select _id, text from events inner join outputs on events._id=outputs.event_id where <conditions> <limit><group><order>) as clientReq 
-   // (with secondJoinCondition)                                                    on events._id=clientReq._id and outputs.event_id=clientReq._id and outputs.text=clientReq.text
+   // optimizedSelect(firstJoinObj) which is -->               select * from events 
+   //                                                                       inner join ouputs on events._id=outputs.event_id
+   // (secondJoinObj with ExperimentLookup -->                              inner join experiment_lookup on events.experiment_lookup_id=experiment_lookup.lookup_id
+   // (thirdJoinObj with subselect)                                         inner join (select _id, text from events inner join outputs on events._id=outputs.event_id where <conditions> <limit><group><order>) as clientReq 
+   // (with thirdJoinCondition)                                                    on events._id=clientReq._id and outputs.event_id=clientReq._id and outputs.text=clientReq.text
    private static Select modifyToOptimizePerformance(Select currentSelect, boolean outputColsInWhere) throws JSQLParserException {
      PlainSelect optimizedPlainSelect = null;
      Select optimizedSelect = null;
      Expression firstJoinOnExp = null;
      Expression secondJoinOnExp = null;
+     Expression thirdJoinOnExp = null;
      List<Join> jList = Lists.newArrayList();
-     FromItem ft = new Table(OutputBaseColumns.TABLE_NAME); 
+     FromItem fromOutput = new Table(OutputBaseColumns.TABLE_NAME);
+     FromItem fromExperimentLookup = new Table(ExperimentLookupServerColumns.TABLE_NAME); 
      Join firstJoinObj = new Join();
      Join secondJoinObj = new Join();
+     Join thirdJoinObj = new Join();
      SubSelect clientReqQuery = new SubSelect();
      StringBuffer secondJoinCondition = new StringBuffer();
+     StringBuffer thirdJoinCondition = new StringBuffer();
      
      // even though it is a select * , when we optimize we change it to get only _id and text
      modifyProjectionColumnsToClientQuery(currentSelect);
      clientReqQuery.setSelectBody(currentSelect.getSelectBody());
      
      clientReqQuery.setAlias(new Alias(CLIENT_REQUEST));
-     
      // second join on condition
-     secondJoinCondition.append(EventServerColumns.TABLE_NAME + "." + Constants.UNDERSCORE_ID + " = " +CLIENT_REQUEST + "." + Constants.UNDERSCORE_ID + AND);
-     secondJoinCondition.append(OutputBaseColumns.TABLE_NAME + "." + OutputBaseColumns.EVENT_ID + " = "  + CLIENT_REQUEST + "." + Constants.UNDERSCORE_ID);
+     secondJoinCondition.append(EventServerColumns.TABLE_NAME + "." + EventServerColumns.EXPERIMENT_LOOKUP_ID + " = " + ExperimentLookupServerColumns.TABLE_NAME + "." + ExperimentLookupServerColumns.EXPERIMENT_LOOKUP_ID);
+     // third join on condition
+     thirdJoinCondition.append(EventServerColumns.TABLE_NAME + "." + Constants.UNDERSCORE_ID + " = " +CLIENT_REQUEST + "." + Constants.UNDERSCORE_ID + AND);
+     thirdJoinCondition.append(OutputBaseColumns.TABLE_NAME + "." + OutputBaseColumns.EVENT_ID + " = "  + CLIENT_REQUEST + "." + Constants.UNDERSCORE_ID);
      // if where clause contains text/answer then do not add this condition
      if (!outputColsInWhere) {
-       secondJoinCondition.append(AND + OutputBaseColumns.TABLE_NAME + "." + OutputBaseColumns.NAME+ " = "  + CLIENT_REQUEST + "." + OutputBaseColumns.NAME);
+       thirdJoinCondition.append(AND + OutputBaseColumns.TABLE_NAME + "." + OutputBaseColumns.NAME+ " = "  + CLIENT_REQUEST + "." + OutputBaseColumns.NAME);
      }
           
      try {
        firstJoinOnExp = CCJSqlParserUtil.parseCondExpression(EventServerColumns.TABLE_NAME + "." + Constants.UNDERSCORE_ID+ " = " + OutputBaseColumns.TABLE_NAME + "."+ OutputBaseColumns.EVENT_ID);
        secondJoinOnExp = CCJSqlParserUtil.parseCondExpression(secondJoinCondition.toString());
+       thirdJoinOnExp = CCJSqlParserUtil.parseCondExpression(thirdJoinCondition.toString());
      } catch (JSQLParserException e) {  
        log.warning(ErrorMessages.JSON_PARSER_EXCEPTION.getDescription()+ e.getMessage());
      }
      
      firstJoinObj.setOnExpression(firstJoinOnExp);
      firstJoinObj.setInner(true);
-     firstJoinObj.setRightItem(ft);
+     firstJoinObj.setRightItem(fromOutput);
      
      secondJoinObj.setOnExpression(secondJoinOnExp);
      secondJoinObj.setInner(true);
-     secondJoinObj.setRightItem(clientReqQuery);
+     secondJoinObj.setRightItem(fromExperimentLookup);
+     
+     thirdJoinObj.setOnExpression(thirdJoinOnExp);
+     thirdJoinObj.setInner(true);
+     thirdJoinObj.setRightItem(clientReqQuery);
      
      jList.add(firstJoinObj);
      jList.add(secondJoinObj);
+     jList.add(thirdJoinObj);
      optimizedSelect = SelectUtils.buildSelectFromTableAndSelectItems(new Table(EventBaseColumns.TABLE_NAME), new AllColumns());
      optimizedPlainSelect = ((PlainSelect) optimizedSelect.getSelectBody());
      // Since we are making an inner query and outer query to improve performance
