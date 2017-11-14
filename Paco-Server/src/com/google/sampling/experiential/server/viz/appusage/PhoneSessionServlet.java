@@ -51,9 +51,6 @@ public class PhoneSessionServlet extends HttpServlet {
       Long experimentId = getExperimentId(req);
       String groupName = getGroupName(req);
       String who = req.getParameter("who");
-//      if (who == null) {
-//        who = userEmail;
-//      }
 
       DateTimeFormatter dateTimeFormatter = DateTimeFormat.forPattern(DATETIME_FORMAT);
       String startDatetimeParam = req.getParameter("startTime");
