@@ -41,7 +41,11 @@ public class BaseSession {
   }
 
   public int getDurationInSeconds() {
-    return Seconds.secondsBetween(startTime, endTime).getSeconds();
+    if (startTime != null && endTime != null) {
+      return Seconds.secondsBetween(startTime, endTime).getSeconds();
+    }
+
+    return 0;
   }
 
   @Override
