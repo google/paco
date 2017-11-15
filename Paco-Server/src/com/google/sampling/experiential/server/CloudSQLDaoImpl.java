@@ -1396,7 +1396,6 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
         statementGetAnonId = conn.prepareStatement(QueryConstants.GET_ANON_ID_FOR_EMAIL.toString());
         statementGetAnonId.setLong(1, experimentId);
         statementGetAnonId.setString(2, email);
-//        log.info(statementGetAnonId.toString() + "with exp id:" + experimentId + " with email" + email);
         rs = statementGetAnonId.executeQuery();
         if (rs.next()){
           anonId = rs.getInt(ExperimentUserServerColumns.EXP_USER_ANON_ID);
@@ -1460,6 +1459,7 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
       pacoAnonId.setId(0L);
       pacoAnonId.setIsCreatedWithThisCall(false);
     }
+    log.info("gawc: done"+ pacoAnonId.getId() + "--" + pacoAnonId.getIsCreatedWithThisCall());
     return pacoAnonId;
   }
   

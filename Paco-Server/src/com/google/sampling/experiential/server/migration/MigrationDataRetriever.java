@@ -363,11 +363,11 @@ public class MigrationDataRetriever {
     }
     if (doAll || (cursor != null && cursor.equalsIgnoreCase("step5"))) {
       try {
-        sqlMigDaoImpl.anonymizeParticipantsMigrateToExperimentLookup();
-        returnString += "migrateToExperimentLookup Done. Step5 complete.";
+        sqlMigDaoImpl.anonymizeParticipantsModifyExperimentNameFromNullToBlank();
+        returnString += "Modify experiment name from null to blank Done. Step5 complete.";
         doAll = true;
       } catch (SQLException e) {
-        returnString += "Failed to migrate to Experimentlookup tables. Restart job from step5";
+        returnString += "Failed to modify experiment name from null to blank. Restart job from step5";
         throw new SQLException(returnString, e);
       }
     }
@@ -383,42 +383,59 @@ public class MigrationDataRetriever {
     }
     if (doAll || (cursor != null && cursor.equalsIgnoreCase("step7"))) {
       try {
-        sqlMigDaoImpl.anonymizeParticipantsUpdateEventWhoAndLookupIdByTracking();
-        returnString += "update event who and lookup id Done. Step7 complete.";
+        sqlMigDaoImpl.anonymizeParticipantsMigrateToExperimentLookup();
+        returnString += "migrateToExperimentLookup Done. Step7 complete.";
         doAll = true;
       } catch (SQLException e) {
-        returnString += "Failed to update event who and lookup id . Restart job from step7";
+        returnString += "Failed to migrate to Experimentlookup tables. Restart job from step7";
         throw new SQLException(returnString, e);
       }
     }
     if (doAll || (cursor != null && cursor.equalsIgnoreCase("step8"))) {
       try {
-        sqlMigDaoImpl.anonymizeParticipantsUpdateEventWhoAndLookupIdForFailed();
-        returnString += "update event on failed ones Done. Step8 complete.";
+        sqlMigDaoImpl.anonymizeParticipantsUpdateEventWhoAndLookupIdByTracking();
+        returnString += "update event who and lookup id Done. Step8 complete.";
         doAll = true;
       } catch (SQLException e) {
-        returnString += "Failed to update event on failed ones. Restart job from step8";
+        log.warning(ExceptionUtil.getStackTraceAsString(e));
+        returnString += "SQL:Failed to update event who and lookup id . Restart job from step8";
         throw new SQLException(returnString, e);
+      } catch (Exception ex)  {
+        log.warning(ExceptionUtil.getStackTraceAsString(ex));
+        returnString += "Ex:Failed to update event who and lookup id . Restart job from step8";
+        throw ex;
+      } finally {
+        log.info("mdr-finally");
       }
     }
     if (doAll || (cursor != null && cursor.equalsIgnoreCase("step9"))) {
+      try {
+        sqlMigDaoImpl.anonymizeParticipantsUpdateEventWhoAndLookupIdForFailed();
+        returnString += "update event on failed ones Done. Step9 complete.";
+        doAll = true;
+      } catch (SQLException e) {
+        returnString += "Failed to update event on failed ones. Restart job from step9";
+        throw new SQLException(returnString, e);
+      }
+    }
+    if (doAll || (cursor != null && cursor.equalsIgnoreCase("step10"))) {
       try {
         sqlMigDaoImpl.anonymizeParticipantsRenameOldEventColumns();
         returnString = "All Done";
         doAll = true;
       } catch (SQLException e) {
-        returnString += "Failed to process event update failures. Restart job from step8";
+        returnString += "Failed to rename event columns. Restart job from step10";
         throw new SQLException(returnString, e);
       }
     }
     
-    if (cursor != null && cursor.equalsIgnoreCase("step10Confirmed")) {
+    if (cursor != null && cursor.equalsIgnoreCase("step11Confirmed")) {
       try {
         sqlMigDaoImpl.anonymizeParticipantsUpdateEventWhoAndLookupIdSerially();
         returnString = "All Done";
         doAll = true;
       } catch (SQLException e) {
-        returnString += "Failed to update new columns with values. Restart job from step10";
+        returnString += "Failed to update new columns with values. Restart job from step11";
         throw new SQLException(returnString, e);
       }
     }

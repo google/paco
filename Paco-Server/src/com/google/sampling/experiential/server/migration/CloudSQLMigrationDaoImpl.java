@@ -1081,7 +1081,7 @@ public class CloudSQLMigrationDaoImpl implements CloudSQLMigrationDao {
     final String createTableSql4 = "CREATE TABLE `pacodb`.`"+ ExperimentLookupServerColumns.TABLE_NAME+"_tracking` (" +
             "tracking_id INT NOT NULL AUTO_INCREMENT," +
             ExperimentLookupServerColumns.EXPERIMENT_ID + " BIGINT(20) NOT NULL," +
-            ExperimentLookupServerColumns.GROUP_NAME + " VARCHAR(500) NOT NULL," +
+            ExperimentLookupServerColumns.GROUP_NAME + " VARCHAR(500)," +
             ExperimentLookupServerColumns.EXPERIMENT_NAME + " VARCHAR(500) NOT NULL," +
             ExperimentLookupServerColumns.EXPERIMENT_VERSION + " INT(11) NOT NULL," +
             EventServerColumns.WHO + "  VARCHAR(500) NOT NULL," +
@@ -1127,7 +1127,7 @@ public class CloudSQLMigrationDaoImpl implements CloudSQLMigrationDao {
   @Override
   public boolean anonymizeParticipantsAddColumnToEventTable() throws SQLException{
     final String addNewColumnsSql = "ALTER TABLE `pacodb`.`"+ EventBaseColumns.TABLE_NAME  +"` " +
-                                 " ADD COLUMN `" + EventServerColumns.EXPERIMENT_LOOKUP_ID + "` INT NOT NULL AFTER `" + EventServerColumns.SORT_DATE + "` ";
+                                 " ADD COLUMN `" + EventServerColumns.EXPERIMENT_LOOKUP_ID + "` INT AFTER `" + EventServerColumns.SORT_DATE + "` ";
     Connection conn = null;
     PreparedStatement statementAddNewCol = null;
     try {
@@ -1181,7 +1181,7 @@ public class CloudSQLMigrationDaoImpl implements CloudSQLMigrationDao {
   
   @Override
   public boolean anonymizeParticipantsMigrateToExperimentLookup()  throws SQLException {
-    final String insertToLookupSql = "INSERT INTO experiment_lookup(experiment_id, experiment_name, group_name, experiment_version) SELECT distinct experiment_id, experiment_name, group_name, experiment_version FROM events where experiment_version >0";
+    final String insertToLookupSql = "INSERT INTO experiment_lookup(experiment_id, experiment_name, group_name, experiment_version) SELECT distinct experiment_id, experiment_name, group_name, experiment_version FROM events where experiment_id > 0 and experiment_version >= 0 and experiment_name is not null";
     Connection conn = null;
     PreparedStatement statementInsertToLookup = null;
     try {
@@ -1212,8 +1212,40 @@ public class CloudSQLMigrationDaoImpl implements CloudSQLMigrationDao {
   }
   
   @Override
+  public boolean anonymizeParticipantsModifyExperimentNameFromNullToBlank()  throws SQLException {
+    final String updateExptNameSql = "update events set experiment_name='' where experiment_name is null and experiment_id > 0";
+    Connection conn = null;
+    PreparedStatement statementUpdateExptName = null;
+    try {
+      conn = CloudSQLConnectionManager.getInstance().getConnection();
+      statementUpdateExptName = conn.prepareStatement(updateExptNameSql);
+      log.info(updateExptNameSql);
+      statementUpdateExptName.execute();
+      log.info("Experiment name changed from null to blank");
+    } catch (SQLException sqle) {
+      log.warning("SQLException while changing expt name" + ExceptionUtil.getStackTraceAsString(sqle));
+      throw sqle;
+    } catch (Exception e) {
+      log.warning("GException while changing expt name" + ExceptionUtil.getStackTraceAsString(e));
+      throw e;
+    } finally {
+      try {
+        if (statementUpdateExptName != null) {
+          statementUpdateExptName.close();
+        }
+        if (conn != null) {
+        conn.close();
+        }
+      } catch (SQLException e) {
+        log.warning("Exception in finally block" + ExceptionUtil.getStackTraceAsString(e));
+      }
+    }
+    return true;
+  }
+  
+  @Override
   public boolean anonymizeParticipantsMigrateToExperimentLookupTracking()  throws SQLException {
-    final String insertToLookupTrackingSql = "INSERT INTO experiment_lookup_tracking(experiment_id, `experiment_name`, group_name, experiment_version, who) SELECT distinct experiment_id, experiment_name, group_name, experiment_version, who FROM events where experiment_id > 0";
+    final String insertToLookupTrackingSql = "INSERT INTO experiment_lookup_tracking(experiment_id, `experiment_name`, group_name, experiment_version, who) SELECT distinct experiment_id, experiment_name, group_name, experiment_version, who FROM events where experiment_id > 0 and experiment_version >= 0 and experiment_name is not null";
     Connection conn = null;
     PreparedStatement statementInsertToLookup = null;
     try {
@@ -1251,17 +1283,20 @@ public class CloudSQLMigrationDaoImpl implements CloudSQLMigrationDao {
     Connection conn = null;
     PreparedStatement statementUpdateEventValues = null;
     ExperimentLookupTracking expTracking = null;
-    List<ExperimentLookupTracking> expTrackingWithNullGroupNames = Lists.newArrayList();
-    List<ExperimentLookupTracking> expTrackingWithNotNullGroupNames = Lists.newArrayList();
-   
-    try {
-      conn = CloudSQLConnectionManager.getInstance().getConnection();
-      while (true) {
+    List<ExperimentLookupTracking> expTrackingWithNullGroupNames = null;
+    List<ExperimentLookupTracking> expTrackingWithNotNullGroupNames = null;
+    while (true) {
+      try {
+        conn = CloudSQLConnectionManager.getInstance().getConnection();
+        log.info("Fetch next 20 records from tracking");
         List<ExperimentLookupTracking> toBeUpdated = getRecordsFromLookupTracking(20, 'N');
         if (toBeUpdated.isEmpty()) {
+          log.info("List is empty, so break from the job");
           break;
         }
         Iterator<ExperimentLookupTracking> itr = toBeUpdated.iterator();
+        expTrackingWithNullGroupNames = Lists.newArrayList();
+        expTrackingWithNotNullGroupNames = Lists.newArrayList();
         
         while (itr.hasNext()) {
           expTracking = itr.next(); 
@@ -1270,40 +1305,43 @@ public class CloudSQLMigrationDaoImpl implements CloudSQLMigrationDao {
           } else {
             expTrackingWithNullGroupNames.add(expTracking);
           }
+          log.info("expTrackingid"+ expTracking.getTrackingId() + "-->" + expTrackingWithNullGroupNames.size() + "--" + expTrackingWithNotNullGroupNames.size());
         }
         
         if (expTrackingWithNotNullGroupNames.size() > 0) {
+          log.info("In not null list");
           statementUpdateEventValues  = conn.prepareStatement(updateValueForLookupid1);
           updateEventTable(expTrackingWithNotNullGroupNames, statementUpdateEventValues);
         }
-        if(expTrackingWithNullGroupNames.size() > 0){
+        if(expTrackingWithNullGroupNames.size() > 0) {
+          log.info("In null list");
           statementUpdateEventValues  = conn.prepareStatement(updateValueForLookupid2);
           updateEventTable(expTrackingWithNullGroupNames, statementUpdateEventValues);
         }
+        log.info("Finished updating 20 records from tracking");
+      } catch (SQLException sqle) {
+        anonymizeParticipantsUpdateLookupTracking(expTracking, 'F');
+        log.warning("SQLException while updating values" + ExceptionUtil.getStackTraceAsString(sqle));
+        throw sqle;
+      } catch (Exception e) {
+        anonymizeParticipantsUpdateLookupTracking(expTracking, 'F');
+        log.warning("GException while updating values" + ExceptionUtil.getStackTraceAsString(e));
+        throw e;
+      } finally {
+        try {
+          if (statementUpdateEventValues != null) {
+            statementUpdateEventValues.close();
+          }
+          if (conn != null) {
+          conn.close();
+          }
+        } catch (SQLException e) {
+          log.warning("Exception in finally block" + ExceptionUtil.getStackTraceAsString(e));
+        }
       }
       log.info("Updated look up columns with values for all records in event table");
-      return true;
-    } catch (SQLException sqle) {
-      anonymizeParticipantsUpdateLookupTracking(expTracking, 'F');
-      log.warning("SQLException while updating values" + ExceptionUtil.getStackTraceAsString(sqle));
-      throw sqle;
-    } catch (Exception e) {
-      anonymizeParticipantsUpdateLookupTracking(expTracking, 'F');
-      log.warning("GException while updating values" + ExceptionUtil.getStackTraceAsString(e));
-      throw e;
-    } finally {
-      try {
-       
-        if (statementUpdateEventValues != null) {
-          statementUpdateEventValues.close();
-        }
-        if (conn != null) {
-        conn.close();
-        }
-      } catch (SQLException e) {
-        log.warning("Exception in finally block" + ExceptionUtil.getStackTraceAsString(e));
-      }
     }
+    return true;
   }
   
   private void updateEventTable(List<ExperimentLookupTracking> expTrackingLst, PreparedStatement statementUpdateValuesCol) throws SQLException {
@@ -1311,7 +1349,7 @@ public class CloudSQLMigrationDaoImpl implements CloudSQLMigrationDao {
     Iterator<ExperimentLookupTracking> itr = expTrackingLst.iterator();
     CloudSQLDaoImpl daoImpl = new CloudSQLDaoImpl();
     Long totalRecordsUpdated = 0L;
-    while(itr.hasNext()) {
+    while (itr.hasNext()) {
       expTracking = itr.next();
       log.info("currently updating expid: " + expTracking.getExperimentId() + " expName:" + expTracking.getExperimentName() + " expVersion:" + expTracking.getExperimentVersion()  + " who:"+ expTracking.getWho()+ " group name:" + expTracking.getGroupName());
       PacoId lookupId = daoImpl.getExperimentLookupIdWithCreateOption(expTracking.getExperimentId(), expTracking.getExperimentName(), expTracking.getGroupName(), expTracking.getExperimentVersion(), true);
@@ -1334,7 +1372,10 @@ public class CloudSQLMigrationDaoImpl implements CloudSQLMigrationDao {
       totalRecordsUpdated += crQueryUpdatedCount;
       anonymizeParticipantsUpdateLookupTracking(expTracking, 'Y');
       log.info("current update ended. Records updated in this batch: "+ crQueryUpdatedCount + " Total Number of records updated: "+ totalRecordsUpdated);
-    } 
+    }
+    if (statementUpdateValuesCol != null) {
+      statementUpdateValuesCol.close();
+    }
   }
 
   private boolean anonymizeParticipantsUpdateLookupTracking(ExperimentLookupTracking tracking, Character result) throws SQLException {
@@ -1607,7 +1648,7 @@ public class CloudSQLMigrationDaoImpl implements CloudSQLMigrationDao {
   private List<ExperimentLookupTracking> getRecordsFromLookupTracking(int noOfRecords, Character status) throws SQLException {
     Connection conn = null;
     ResultSet rs = null;
-    String query = "select * from experiment_lookup_tracking where updated_events='"+ status+"' limit "+ noOfRecords;
+    String query = "select * from experiment_lookup_tracking where experiment_version is not null and updated_events='"+ status+"' order by tracking_id asc limit "+ noOfRecords;
     List<ExperimentLookupTracking> recList = Lists.newArrayList();
     ExperimentLookupTracking lookupTrackingObj = null;
     PreparedStatement statementGetFromExpTracking = null;

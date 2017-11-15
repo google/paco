@@ -34,4 +34,5 @@ public interface CloudSQLMigrationDao {
   boolean anonymizeParticipantsUpdateEventWhoAndLookupIdSerially() throws SQLException;
   boolean anonymizeParticipantsTakeBackupEventIdWho() throws SQLException;
   boolean anonymizeParticipantsRenameOldEventColumns() throws SQLException;
+  boolean anonymizeParticipantsModifyExperimentNameFromNullToBlank() throws SQLException;
 }
