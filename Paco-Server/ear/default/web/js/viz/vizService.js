@@ -20,7 +20,7 @@ pacoApp.factory('experimentsVizService', ['$http', 'experimentService', '$filter
       var message = '{ "select":["distinct who"], ' +
         '"query" : { "criteria" : "experiment_id = ?", ' +
         '"values" : [' + experimentId + ']}}';
-      return httpPostBody(message);
+      return csSearchHttpPostBody(message);
     }
     return [];
   }
@@ -40,7 +40,7 @@ pacoApp.factory('experimentsVizService', ['$http', 'experimentService', '$filter
         '"values" : ['+experimentId+',' + textsList + ']},' +
         '"order":"group_name,text","group":"group_name,text"}';
       //console.log(distinctTextQuery);
-      var textQuery = httpPostBody(distinctTextQuery);
+      var textQuery = csSearchHttpPostBody(distinctTextQuery);
     }
     return textQuery;
   }
@@ -53,7 +53,7 @@ pacoApp.factory('experimentsVizService', ['$http', 'experimentService', '$filter
         '"values" : [' + experimentId + ']},' +
         '"order":"response_time asc","limit":"1"}';
     }
-    var startDate = httpPostBody(startDateQuery);
+    var startDate = csSearchHttpPostBody(startDateQuery);
     return startDate;
   }
 
@@ -66,7 +66,7 @@ pacoApp.factory('experimentsVizService', ['$http', 'experimentService', '$filter
         '"order":"response_time desc","limit":"1"}';
     }
 
-    var endDate = httpPostBody(endDateQuery);
+    var endDate = csSearchHttpPostBody(endDateQuery);
     return endDate;
   }
 
@@ -125,7 +125,7 @@ pacoApp.factory('experimentsVizService', ['$http', 'experimentService', '$filter
     }
 
     //console.log(message);
-    return httpPostBody(message);
+    return csSearchHttpPostBody(message);
   }
 
   function getDataForScatterPlotTemplate3(experimentId, groups, inputs, participants, startDateTime, endDateTime){
@@ -149,7 +149,7 @@ pacoApp.factory('experimentsVizService', ['$http', 'experimentService', '$filter
                                    expParticipants.params + ']},' +
         '"order":"who,response_time"}';
       //console.log(message);
-      return httpPostBody(message);
+      return csSearchHttpPostBody(message);
     } else {
       return {};
     }
@@ -167,7 +167,7 @@ pacoApp.factory('experimentsVizService', ['$http', 'experimentService', '$filter
     return {"questionMarks":questionMarks_list,"params":paramsList }
   }
 
-  function httpPostBody(message) {
+  function csSearchHttpPostBody(message) {
     var response = $http({
       method: 'POST',
       url: '/csSearch?pacoProtocol=5',
@@ -180,7 +180,31 @@ pacoApp.factory('experimentsVizService', ['$http', 'experimentService', '$filter
     return response;
   }
 
-  function convertDatesToStrings(experiment) {
+  function phoneSessionHttpPostBody(experimentId, whoList, groupName, startTime, endTime) {
+    var url = "phoneSessions?experimentId="+experimentId;
+    if (whoList) {
+      url = url + "&who=" + whoList;
+    }
+    if (groupName) {
+      url = url + "&groupName=" + groupName;
+    }
+    if (startTime && endTime) {
+      url = url + "&startTime=" + startTime + "&endTime=" + endTime;
+    }
+
+    var response = $http({
+      method: 'GET',
+      url: url
+    }).then(function successCallback(response) {
+      return response;
+    }, function errorCallback(error) {
+      return error;
+    });
+    return response;
+  }
+
+
+    function convertDatesToStrings(experiment) {
     if (experiment.visualizations && experiment.visualizations.length > 0) {
       experiment.visualizations.forEach(function(v) {
         v.startDatetime = $filter('date')(v.startDatetime, 'yyyy-MM-ddTHH:mm:ss');
@@ -209,6 +233,7 @@ pacoApp.factory('experimentsVizService', ['$http', 'experimentService', '$filter
     getAdditionalInputsFromEventsData: getAdditionalInputsFromEventsData,
     getEventsCounts: getEventsCounts,
     getDataForScatterPlotTemplate3:getDataForScatterPlotTemplate3,
+    phoneSessionHttpPostBody:phoneSessionHttpPostBody,
     getStartDate:getStartDate,
     getEndDate:getEndDate,
     saveVisualizations: saveVisualizations
