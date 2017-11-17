@@ -2161,6 +2161,7 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
   function inputIsNumerical(input) {
     return input.responseType === "number" ||
       input.responseType === "likert" ||
+      input.responseType === "likert_smileys" ||
       input.responseType === "list";
   }
 
