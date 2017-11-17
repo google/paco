@@ -396,25 +396,20 @@ public class MigrationDataRetriever {
         sqlMigDaoImpl.anonymizeParticipantsUpdateEventWhoAndLookupIdByTracking();
         returnString += "update event who and lookup id Done. Step8 complete.";
         doAll = true;
-      } catch (SQLException e) {
-        log.warning(ExceptionUtil.getStackTraceAsString(e));
-        returnString += "SQL:Failed to update event who and lookup id . Restart job from step8";
-        throw new SQLException(returnString, e);
       } catch (Exception ex)  {
         log.warning(ExceptionUtil.getStackTraceAsString(ex));
         returnString += "Ex:Failed to update event who and lookup id . Restart job from step8";
         throw ex;
-      } finally {
-        log.info("mdr-finally");
       }
     }
     if (doAll || (cursor != null && cursor.equalsIgnoreCase("step9"))) {
       try {
-        sqlMigDaoImpl.anonymizeParticipantsUpdateEventWhoAndLookupIdForFailed();
+        sqlMigDaoImpl.anonymizeParticipantsUpdateEventWhoAndLookupIdSerially();
         returnString += "update event on failed ones Done. Step9 complete.";
         doAll = true;
       } catch (SQLException e) {
         returnString += "Failed to update event on failed ones. Restart job from step9";
+        log.warning(ExceptionUtil.getStackTraceAsString(e));
         throw new SQLException(returnString, e);
       }
     }
@@ -422,20 +417,9 @@ public class MigrationDataRetriever {
       try {
         sqlMigDaoImpl.anonymizeParticipantsRenameOldEventColumns();
         returnString = "All Done";
-        doAll = true;
       } catch (SQLException e) {
         returnString += "Failed to rename event columns. Restart job from step10";
-        throw new SQLException(returnString, e);
-      }
-    }
-    
-    if (cursor != null && cursor.equalsIgnoreCase("step11Confirmed")) {
-      try {
-        sqlMigDaoImpl.anonymizeParticipantsUpdateEventWhoAndLookupIdSerially();
-        returnString = "All Done";
-        doAll = true;
-      } catch (SQLException e) {
-        returnString += "Failed to update new columns with values. Restart job from step11";
+        log.warning(ExceptionUtil.getStackTraceAsString(e));
         throw new SQLException(returnString, e);
       }
     }

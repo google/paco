@@ -1322,11 +1322,9 @@ public class CloudSQLMigrationDaoImpl implements CloudSQLMigrationDao {
       } catch (SQLException sqle) {
         anonymizeParticipantsUpdateLookupTracking(expTracking, 'F');
         log.warning("SQLException while updating values" + ExceptionUtil.getStackTraceAsString(sqle));
-        throw sqle;
       } catch (Exception e) {
         anonymizeParticipantsUpdateLookupTracking(expTracking, 'F');
         log.warning("GException while updating values" + ExceptionUtil.getStackTraceAsString(e));
-        throw e;
       } finally {
         try {
           if (statementUpdateEventValues != null) {
@@ -1473,7 +1471,7 @@ public class CloudSQLMigrationDaoImpl implements CloudSQLMigrationDao {
   @Override
   public boolean anonymizeParticipantsUpdateEventWhoAndLookupIdSerially() throws SQLException {
     long ctr = 0;
-    int batchSize = 100;
+    int batchSize = 1000;
     while (true) {
      log.info("Looping iteration count: " + ctr++);
      List<PartialEvent> toBeUpdatedLst = getEventRecordsWithNoLookupId(batchSize);
@@ -1521,130 +1519,7 @@ public class CloudSQLMigrationDaoImpl implements CloudSQLMigrationDao {
     }
     return true;
   }
-
-  @Override
-  public boolean anonymizeParticipantsUpdateEventWhoAndLookupIdForFailed() throws SQLException {
-    Connection conn = null;
-    ResultSet rs = null;
-    String queryGroupNameWithNotNull = "select * from events where experiment_id=? and experiment_name=? and group_name=? and experiment_version=? order by _id";
-    String queryGroupNameWithNull = "select * from events where experiment_id=? and experiment_name=? and group_name is null and experiment_version=? order by _id";
-    
-    
-    List<ExperimentLookupTracking> recList = null;
-    List<ExperimentLookupTracking> groupNameNotNullLst = Lists.newArrayList();
-    List<ExperimentLookupTracking> groupNameNullLst = Lists.newArrayList();
-    ExperimentLookupTracking lookupTrackingObj = null;
-    PreparedStatement statementGetFromEvent = null;
   
-    
-      try {
-        conn = CloudSQLConnectionManager.getInstance().getConnection();
-        setNames(conn);
-       
-        while (true) {
-          recList = getRecordsFromLookupTracking(10, 'F');
-          if (recList.isEmpty()) {
-            break;
-          }
-          Iterator<ExperimentLookupTracking> itr = recList.iterator();
-          while (itr.hasNext()) {
-            lookupTrackingObj = itr.next();
-            if (lookupTrackingObj.getGroupName() == null) {
-              groupNameNullLst.add(lookupTrackingObj);
-            } else {
-              groupNameNotNullLst.add(lookupTrackingObj);
-            }
-          }
-          if (groupNameNullLst.size() > 0) {
-            statementGetFromEvent = conn.prepareStatement(queryGroupNameWithNull);
-            updateEventById(groupNameNullLst, statementGetFromEvent);
-          } 
-          if (groupNameNotNullLst.size() > 0) {
-            statementGetFromEvent = conn.prepareStatement(queryGroupNameWithNotNull);
-            updateEventById(groupNameNotNullLst, statementGetFromEvent);
-          }
-        }
-        return true;
-      } finally {
-        try {
-          if ( rs != null) {
-            rs.close();
-          }
-          if (statementGetFromEvent != null) {
-            statementGetFromEvent.close();
-          }
-        
-          if (conn != null) {
-            conn.close();
-          }
-        } catch (SQLException ex1) {
-          log.warning(ErrorMessages.CLOSING_RESOURCE_EXCEPTION.getDescription()+ ex1);
-        }
-      }
-  }
-  
-  private void updateEventById(List<ExperimentLookupTracking> expLookTrackingLst, PreparedStatement statementGetFromEvent) throws SQLException {
-    Iterator<ExperimentLookupTracking> itr = expLookTrackingLst.iterator();
-    ExperimentLookupTracking lookupTrackingObj = null;
-    ResultSet rs = null;
-    CloudSQLDaoImpl daoImpl = new CloudSQLDaoImpl();
-    Connection conn = null;
-    PreparedStatement statementUpdateEvent = null;
-    String updateQuery = "update events set experiment_lookup_id= ?, who =? where _id= ?";
-    try {
-      conn = CloudSQLConnectionManager.getInstance().getConnection();
-      setNames(conn);
-      while(itr.hasNext()) {
-        int ct = 1;
-        lookupTrackingObj = itr.next();
-        statementGetFromEvent.setLong(ct++, lookupTrackingObj.getExperimentId());
-        statementGetFromEvent.setString(ct++, lookupTrackingObj.getExperimentName());
-        if (lookupTrackingObj.getGroupName() != null) { 
-          statementGetFromEvent.setString(ct++, lookupTrackingObj.getGroupName());
-        } 
-        statementGetFromEvent.setInt(ct++, lookupTrackingObj.getExperimentVersion());
-        
-        log.info(statementGetFromEvent.toString());
-        rs = statementGetFromEvent.executeQuery();
-        while (rs.next()){
-          // get _id
-          Long eventId  = rs.getLong(Constants.UNDERSCORE_ID);
-          
-          // find lookup id and anon id
-          PacoId lookupId = daoImpl.getExperimentLookupIdWithCreateOption(lookupTrackingObj.getExperimentId(), lookupTrackingObj.getExperimentName(), lookupTrackingObj.getGroupName(), lookupTrackingObj.getExperimentVersion(), true);
-          log.info("Look up id is " + lookupId.getId());
-          PacoId anonId = daoImpl.getAnonymousIdWithCreateOption(lookupTrackingObj.getExperimentId(), lookupTrackingObj.getWho(), true);
-          log.info("Anon id for " + lookupTrackingObj.getWho() + " is " + anonId.getId());
-          // add update qry to batch
-          statementUpdateEvent = conn.prepareStatement(updateQuery);
-          statementUpdateEvent.setInt(1, lookupId.getId().intValue());
-          statementUpdateEvent.setInt(2, anonId.getId().intValue());
-          statementUpdateEvent.setLong(3, eventId);
-          statementUpdateEvent.executeUpdate();
-          log.info("updated event id :" + eventId);
-        }
-        anonymizeParticipantsUpdateLookupTracking(lookupTrackingObj, 'Y');
-      }
-    } finally {
-      try {
-        if ( rs != null) {
-          rs.close();
-        }
-        if (statementGetFromEvent != null) {
-          statementGetFromEvent.close();
-        }
-        if (statementUpdateEvent != null) {
-          statementUpdateEvent.close();
-        }
-        if (conn != null) {
-          conn.close();
-        }
-      } catch (SQLException ex1) {
-        log.warning(ErrorMessages.CLOSING_RESOURCE_EXCEPTION.getDescription()+ ex1);
-      }
-    }
-  }
-
   private List<ExperimentLookupTracking> getRecordsFromLookupTracking(int noOfRecords, Character status) throws SQLException {
     Connection conn = null;
     ResultSet rs = null;
@@ -1721,7 +1596,6 @@ public class CloudSQLMigrationDaoImpl implements CloudSQLMigrationDao {
   @Override
   public boolean anonymizeParticipantsRenameOldEventColumns() throws SQLException{
     Connection conn = null;
-    ResultSet rs = null;
     PreparedStatement statementRename = null;
     String createQuery = "ALTER TABLE `pacodb`.`events` " +
             " CHANGE COLUMN `experiment_id` `experiment_id_old` BIGINT(20) NULL DEFAULT NULL ," +
@@ -1737,9 +1611,6 @@ public class CloudSQLMigrationDaoImpl implements CloudSQLMigrationDao {
       log.info("backup created" );
     } finally {
       try {
-        if ( rs != null) {
-          rs.close();
-        }
         if (statementRename != null) {
           statementRename.close();
         }

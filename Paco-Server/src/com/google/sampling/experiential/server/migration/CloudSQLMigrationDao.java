@@ -29,7 +29,6 @@ public interface CloudSQLMigrationDao {
   boolean anonymizeParticipantsMigrateToUserAndExptUser() throws SQLException;
   boolean anonymizeParticipantsMigrateToExperimentLookup()  throws SQLException;
   boolean anonymizeParticipantsMigrateToExperimentLookupTracking()  throws SQLException;
-  boolean anonymizeParticipantsUpdateEventWhoAndLookupIdForFailed() throws SQLException;
   boolean anonymizeParticipantsUpdateEventWhoAndLookupIdByTracking() throws SQLException;
   boolean anonymizeParticipantsUpdateEventWhoAndLookupIdSerially() throws SQLException;
   boolean anonymizeParticipantsTakeBackupEventIdWho() throws SQLException;

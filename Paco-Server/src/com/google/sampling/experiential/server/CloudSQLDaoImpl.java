@@ -1483,7 +1483,12 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
       } else {
         statementSelectExperimentLookup = conn.prepareStatement(updateValueForLookupid1);
       }
-      
+      if (expName == null) { 
+        expName = Constants.BLANK;
+      }
+      if (version == null) {
+        version = 0;
+      }
       statementSelectExperimentLookup.setLong(ct++, expId);
       if (groupName != null) {
         statementSelectExperimentLookup.setString(ct++, groupName);
