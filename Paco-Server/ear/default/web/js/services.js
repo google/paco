@@ -462,9 +462,9 @@ pacoApp.service('config', function() {
   ];
 
   this.esmPeriods = [
-    'day',
-    'week',
-    'month'
+    'daily',
+    'weekly',
+    'monthly'
   ];
 
   this.weeksOfMonth = [
@@ -543,7 +543,7 @@ pacoApp.service('template', function() {
       text: 'Thanks for Participating!',
     },
     rawDataAccess: true,
-    fixedDuration: 'false'
+    fixedDuration: false
   };
 
   this.experiment = {

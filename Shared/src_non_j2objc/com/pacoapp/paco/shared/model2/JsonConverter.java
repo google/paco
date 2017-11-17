@@ -503,20 +503,6 @@ public class JsonConverter {
     return null;
   }
 
-  // public static String jsonify(ExperimentDAO experiment) {
-  // ObjectMapper mapper = getObjectMapper();
-  // try {
-  // return mapper.writeValueAsString(experiment);
-  // } catch (JsonGenerationException e) {
-  // log.severe("Json generation error " + e);
-  // } catch (JsonMappingException e) {
-  // log.severe("JsonMapping error getting experiments: " + e.getMessage());
-  // } catch (IOException e) {
-  // log.severe("IO error getting experiments: " + e.getMessage());
-  // }
-  // return null;
-  // }
-
   public static List<ExperimentDAO> fromEntitiesJsonUpload(String experimentJson) {
     ObjectMapper mapper = getObjectMapper();
     try {

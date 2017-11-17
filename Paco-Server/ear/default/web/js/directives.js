@@ -237,7 +237,6 @@ pacoApp.directive('pacoHelp', function() {
     restrict: 'E',
     transclude: true,
     scope: {  'tip': '@tip' },
-//    template: '<a class="paco-help" href="#/help/{{tip}}" target="_new"><img src="img/ic_help_outline_black_24px.svg"></a>',
     template: '<a class="paco-help" href="#/help/{{tip}}" target="_new"><img src="img/ic_help_outline_black_24px.svg"><span class="tip-text" ng-transclude></span></a>',
     link: function(scope, element) {}
   };
@@ -444,21 +443,21 @@ pacoApp.filter('timeSince', ['$filter', function ($filter) {
     var seconds = Math.floor(((new Date().getTime()/1000) - millis/1000))
     interval = Math.floor(seconds / 31536000);
 
-    if (interval > 1) return interval + 'y';
-
-    interval = Math.floor(seconds / 2592000);
-    if (interval > 1) return interval + 'm';
+    // if (interval > 1) return interval + 'y';
+    //
+    // interval = Math.floor(seconds / 2592000);
+    // if (interval > 1) return interval + 'mos';
 
     interval = Math.floor(seconds / 86400);
-    if (interval >= 1) return interval + 'd';
+    if (interval >= 1) return interval + ' days';
 
     interval = Math.floor(seconds / 3600);
-    if (interval >= 1) return interval + 'h';
+    if (interval >= 1) return interval + ' hours';
 
     interval = Math.floor(seconds / 60);
-    if (interval > 1) return interval + 'm ';
+    if (interval > 1) return interval + ' minutes';
 
-    return Math.floor(seconds) + 's';
+    return Math.floor(seconds) + ' seconds';
   }
 }]);
 

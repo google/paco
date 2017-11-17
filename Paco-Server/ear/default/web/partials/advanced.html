@@ -1,8 +1,6 @@
 <div class="padded advanced">
   <div class="over">
-
-
-    <div class="row">
+    <div layout="row">
       <md-checkbox ng-model="group.endOfDayGroup" aria-label="End of day group">
         End of day group
       </md-checkbox>
@@ -17,7 +15,7 @@
       </div>
     </div>
 
-    <div class="row">
+    <div layout="row">
       <md-checkbox ng-model="group.backgroundListen" aria-label="Listen for other apps sending data to PACO">
         Background Listening
       </md-checkbox>
@@ -32,7 +30,7 @@
 
     </div>
 
-    <div class="row">
+    <div layout="row">
       <md-checkbox ng-model="group.accessibilityListen" aria-label="Log trigger-related accessibility events">
         Log trigger-related accessibility events
       </md-checkbox>
@@ -40,7 +38,7 @@
       <no-ios ng-if="group.accessibilityListen" message="'iOS does not support accessibility logging'">iOS does not support accessibility logging</no-ios>
     </div>
 
-    <div class="row">
+    <div layout="row">
       <md-checkbox ng-model="group.logNotificationEvents" aria-label="Log notification realted events">
         Log notification-related events
       </md-checkbox>
@@ -48,7 +46,7 @@
       <no-ios ng-if="group.logNotificationEvents" message="'iOS does not support notifcation event logging'">iOS does not support notification event logging</no-ios>
     </div>
 
-    <div class="row">
+    <div layout="row">
       <md-checkbox ng-model="group.logActions" aria-label="Log app usage">
         Log app usage
       </md-checkbox>
@@ -56,7 +54,7 @@
       <no-ios ng-if="group.logActions">iOS does not support app logging</no-ios>
     </div>
 
-    <div class="row">
+    <div layout="row">
       <md-checkbox ng-model="group.logShutdown" aria-label="Log phone shutdown and startup">
         Log phone startup and shutdowns
       </md-checkbox>
@@ -64,7 +62,7 @@
       <no-ios ng-if="group.logShutdown">iOS does not support phone startup and shutdown logging</no-ios>
     </div>
 
-    <div class="row">
+    <div layout="row">
       <md-checkbox ng-model="group.rawDataAccess" aria-label="Enable user to access raw data on phone">
         Enable user to access raw data on phone
       </md-checkbox>
@@ -72,7 +70,7 @@
       <no-ios ng-if="group.rawDataAccess">iOS does not support access to raw data on phone</no-ios>
     </div>
 
-    <div class="row">
+    <div layout="row">
       <md-checkbox ng-model="group.customRendering" aria-label="Override form display">
         Override form display
       </md-checkbox>
@@ -96,24 +94,26 @@
     </div>
   </div>
 
-  <div class="feedback" layout="row">
-
-    Feedback
-    <select ng-model="group.feedback.type" as-string>
-      <option ng-selected="$index === group.feedback.type" ng-repeat="type in feedbackTypes"
-        value="{{$index}}">{{type}}</option>
-    </select>
-
-    <div class="message" flex>
-      <no-ios class="align_tiptext" ng-if="group.feedback.type === 0 && group.feedback.text !== defaultFeedback">iOS does not support custom messages</no-ios>
-      <no-ios ng-if="group.feedback.type != 0">iOS does not support non-static feedback</no-ios>
-      <div class="align_no-ios_feedback">
-        <md-input-container md-no-float class="align_custom-message" ng-if="group.feedback.type === 0" ng-enabled="">
-          <input type="text" ng-model="group.feedback.text" placeholder="Message">
-        </md-input-container>
-      </div>
+  
+  <div layout="row">
+  <md-input-container flex="22" style="padding-top:2px;margin-top:8px;margin-left:0px;padding-left:0px;">
+  <div style="padding-top:2px;">
+    Feedback (after survey):
     </div>
+    </md-input-container>
+    <md-input-container style="padding-top:2px;margin-top:4px;">
+    <md-select ng-model="group.feedback.type" as-string flex="24" placeholder="Feedback">
+      <md-option ng-selected="$index === group.feedback.type" ng-repeat="type in feedbackTypes"
+        value="{{$index}}">{{type}}</md-option>
+    </md-select>      
+    </md-input-container>
+    <no-ios ng-if="group.feedback.type != 0">iOS does not support non-static feedback</no-ios>
+      <md-input-container style="padding-top:2px;margin-top:4px;" ng-if="group.feedback.type === 0" ng-enabled="" flex="50">
+        <input type="text" ng-model="group.feedback.text" placeholder="Message" >
+      </md-input-container>
+    <no-ios class="align_tiptext" ng-if="group.feedback.type === 0 && group.feedback.text !== defaultFeedback">iOS does not support custom messages</no-ios>
   </div>
+  
   <!-- TODO(ispiro): clear out text when switching between type 0 and 3 -->
   <div class="padded source-frame" ng-if="group.feedback.type === 3">
     Enter custom feedback code

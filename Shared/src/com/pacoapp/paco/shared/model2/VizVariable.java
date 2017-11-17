@@ -1,9 +1,9 @@
 package com.pacoapp.paco.shared.model2;
 
-public class VizTexts {
+public class VizVariable {
   private String id;
   private String group;
-  private String input;
+  private String name;
   private String responseType;
 
   public String getId() {
@@ -22,12 +22,12 @@ public class VizTexts {
     this.group = group;
   }
 
-  public String getInput() {
-    return input;
+  public String getName() {
+    return name;
   }
 
-  public void setInput(String input) {
-    this.input = input;
+  public void setName(String name) {
+    this.name = name;
   }
 
   public String getResponseType() {

@@ -16,7 +16,7 @@ public class PhoneSessionLogTest {
   @Test
   public void testSessionAnalysis_NoSession() {
     List<EventDAO> events = Lists.newArrayList();
-    PhoneSessionLog analyzer = PhoneSessionLog.buildSessions(events);
+    PhoneSessionLog analyzer = PhoneSessionLog.buildSessions("test@example.com", events);
     List<PhoneSession> sessions = analyzer.getPhoneSessions();
     assertTrue(sessions.isEmpty());
   }
@@ -38,7 +38,7 @@ public class PhoneSessionLogTest {
      * userNotPresent 1498069428000 2000
      */
     List<EventDAO> events = PhoneSessionTestConstants.getEventsForOneSession();
-    PhoneSessionLog analyzer = PhoneSessionLog.buildSessions(events);
+    PhoneSessionLog analyzer = PhoneSessionLog.buildSessions("test@example.com", events);
     List<PhoneSession> sessions = analyzer.getPhoneSessions();
     assertEquals(1, sessions.size());
     PhoneSession session = sessions.get(0);
@@ -60,7 +60,7 @@ public class PhoneSessionLogTest {
   @Test
   public void testMultipleSessions() throws Exception {
     List<EventDAO> events = PhoneSessionTestConstants.getEvents();
-    PhoneSessionLog analyzer = PhoneSessionLog.buildSessions(events);
+    PhoneSessionLog analyzer = PhoneSessionLog.buildSessions("test@example.com", events);
     List<PhoneSession> phoneSessions = analyzer.getPhoneSessions();
 
     assertEquals(8, phoneSessions.size());
@@ -93,12 +93,12 @@ public class PhoneSessionLogTest {
    */
   public void testOneSessionWithPhoneSleepInterruptionEvent() throws Exception {
     List<EventDAO> events = PhoneSessionTestConstants.getEventsForOneBrokenSession();
-    PhoneSessionLog analyzer = PhoneSessionLog.buildSessions(events);
+    PhoneSessionLog analyzer = PhoneSessionLog.buildSessions("test@example.com", events);
     // assert 3 sessions wthout a break detector
     assertEquals(3, analyzer.getPhoneSessions().size());
 
     // use small-break fixer
-    PhoneSessionLog analyzerWithBreakDetector = PhoneSessionLog.buildSessionsWithOptions(events, 10);
+    PhoneSessionLog analyzerWithBreakDetector = PhoneSessionLog.buildSessionsWithOptions("test@example.com", events, 10);
     assertEquals(2, analyzerWithBreakDetector.getPhoneSessions().size());
   }
 
@@ -113,7 +113,7 @@ public class PhoneSessionLogTest {
   @Test
   public void testNewPhoneSessionWithRandomEvent() throws Exception {
     List<EventDAO> events = PhoneSessionTestConstants.getUserResponseEvent();
-    PhoneSessionLog log = PhoneSessionLog.buildSessions(events);
+    PhoneSessionLog log = PhoneSessionLog.buildSessions("test@example.com", events);
     assertEquals(1, log.getPhoneSessions().size());
   }
 }
