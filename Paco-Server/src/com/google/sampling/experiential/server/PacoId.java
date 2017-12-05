@@ -1,5 +1,10 @@
 package com.google.sampling.experiential.server;
-
+/**
+ * Class to capture the auto id generated /retrieved in cloud sql, with additional information if the id was created in this call.
+ * 
+ * @author imeyyappan
+ *
+ */
 public class PacoId {
   Long id;
   Boolean isCreatedWithThisCall;

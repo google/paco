@@ -107,7 +107,7 @@ public class ExperimentJsonUploadProcessor {
     }
     if (persistInCloudSqlOnly) { 
       CloudSQLDaoImpl cloudSqlDaoImpl = new CloudSQLDaoImpl();
-      cloudSqlDaoImpl.createIfNotPresentUserIdAndAnonId(experimentDAO.getId(), Sets.newHashSet(experimentDAO.getAdmins()), Sets.newHashSet(experimentDAO.getPublishedUsers()));
+      cloudSqlDaoImpl.ensureUserId(experimentDAO.getId(), Sets.newHashSet(experimentDAO.getAdmins()), Sets.newHashSet(experimentDAO.getPublishedUsers()));
     } else {
       lowerCaseEmail = userFromLogin.getEmail().toLowerCase();
       if (existingExperiment != null && !existingExperiment.isAdmin(lowerCaseEmail)) {

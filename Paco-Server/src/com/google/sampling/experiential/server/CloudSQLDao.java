@@ -26,9 +26,9 @@ public interface CloudSQLDao {
   List<WhatDAO> getOutputs(Long eventId) throws SQLException;
   Map<String, Long> getUserIdsForEmails(Set<String> userEmailLst) throws SQLException;
   List<PacoUser> getAllUsersForExperiment(Long experimentId) throws SQLException;
-  void createIfNotPresentUserIdAndAnonId(Long expId, Set<String> adminLstInRequest, Set<String> partLstInRequest);
-  PacoId getUseridWithCreateOption(String email, boolean createOption) throws SQLException;
-  PacoId getAnonymousIdWithCreateOption(Long experimentId, String email, boolean createOption) throws SQLException;
-  PacoId getExperimentLookupIdWithCreateOption(Long expId, String expName, String groupName, Integer version, boolean createOption) throws SQLException;
+  void ensureUserId(Long expId, Set<String> adminLstInRequest, Set<String> partLstInRequest);
+  PacoId getUseridAndCreate(String email, boolean createOption) throws SQLException;
+  PacoId getAnonymousIdAndCreate(Long experimentId, String email, boolean createOption) throws SQLException;
+  PacoId getExperimentLookupIdAndCreate(Long expId, String expName, String groupName, Integer version, boolean createOption) throws SQLException;
 }
 

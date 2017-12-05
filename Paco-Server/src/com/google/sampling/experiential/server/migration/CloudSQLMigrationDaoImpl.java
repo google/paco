@@ -18,10 +18,10 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.google.sampling.experiential.datastore.CatchupFailureServerColumns;
 import com.google.sampling.experiential.datastore.EventServerColumns;
-import com.google.sampling.experiential.datastore.ExperimentLookupServerColumns;
-import com.google.sampling.experiential.datastore.ExperimentUserServerColumns;
+import com.google.sampling.experiential.datastore.ExperimentLookupColumns;
+import com.google.sampling.experiential.datastore.ExperimentUserColumns;
 import com.google.sampling.experiential.datastore.FailedEventServerColumns;
-import com.google.sampling.experiential.datastore.UserServerColumns;
+import com.google.sampling.experiential.datastore.UserColumns;
 import com.google.sampling.experiential.model.Event;
 import com.google.sampling.experiential.server.CloudSQLConnectionManager;
 import com.google.sampling.experiential.server.CloudSQLDaoImpl;
@@ -156,7 +156,7 @@ public class CloudSQLMigrationDaoImpl implements CloudSQLMigrationDao {
             statementCreateEvent.setLong(i++, event.getActionTriggerId() != null ? new Long(event.getActionTriggerId()) : java.sql.Types.NULL);
             statementCreateEvent.setLong(i++, event.getActionTriggerSpecId() != null ? new Long(event.getActionTriggerId()) : java.sql.Types.NULL);
             statementCreateEvent.setLong(i++, event.getActionId() != null ? new Long(event.getActionId()) : java.sql.Types.NULL);
-            PacoId anonId = daoImpl.getAnonymousIdWithCreateOption(Long.parseLong(event.getExperimentId()), event.getWho(), true);
+            PacoId anonId = daoImpl.getAnonymousIdAndCreate(Long.parseLong(event.getExperimentId()), event.getWho(), true);
             statementCreateEvent.setString(i++, anonId.getId().toString());
             if (event.getWhen() != null) {
               whenTs = new Timestamp(event.getWhen().getTime());
@@ -193,7 +193,7 @@ public class CloudSQLMigrationDaoImpl implements CloudSQLMigrationDao {
             statementCreateEvent.setTimestamp(i++, ts);
             statementCreateEvent.setString(i++, event.getTimeZone());
             statementCreateEvent.setLong(i++, event.getId());
-            PacoId experimentLookupId = daoImpl.getExperimentLookupIdWithCreateOption(Long.parseLong(event.getExperimentId()), event.getExperimentName(), event.getExperimentGroupName(), event.getExperimentVersion(), true);
+            PacoId experimentLookupId = daoImpl.getExperimentLookupIdAndCreate(Long.parseLong(event.getExperimentId()), event.getExperimentName(), event.getExperimentGroupName(), event.getExperimentVersion(), true);
             statementCreateEvent.setLong(i++, experimentLookupId.getId());
 
             statementCreateEvent.addBatch();
@@ -1058,32 +1058,32 @@ public class CloudSQLMigrationDaoImpl implements CloudSQLMigrationDao {
   public boolean anonymizeParticipantsCreateTables() throws SQLException{
     boolean isComplete = false;
     String[] qry = new String[3];
-    final String createTableSql1 = "CREATE TABLE `pacodb`.`"+ ExperimentLookupServerColumns.TABLE_NAME+"` (" +
-            ExperimentLookupServerColumns.EXPERIMENT_LOOKUP_ID + " INT NOT NULL AUTO_INCREMENT," +
-            ExperimentLookupServerColumns.EXPERIMENT_ID + " BIGINT(20) NOT NULL," +
-            ExperimentLookupServerColumns.GROUP_NAME + " VARCHAR(500) NOT NULL," +
-            ExperimentLookupServerColumns.EXPERIMENT_NAME + " VARCHAR(500) NOT NULL," +
-            ExperimentLookupServerColumns.EXPERIMENT_VERSION + " INT(11) NOT NULL," +
-            " PRIMARY KEY (`"+ ExperimentLookupServerColumns.EXPERIMENT_LOOKUP_ID +"`))" ;
+    final String createTableSql1 = "CREATE TABLE `pacodb`.`"+ ExperimentLookupColumns.TABLE_NAME+"` (" +
+            ExperimentLookupColumns.EXPERIMENT_LOOKUP_ID + " INT NOT NULL AUTO_INCREMENT," +
+            ExperimentLookupColumns.EXPERIMENT_ID + " BIGINT(20) NOT NULL," +
+            ExperimentLookupColumns.GROUP_NAME + " VARCHAR(500) NOT NULL," +
+            ExperimentLookupColumns.EXPERIMENT_NAME + " VARCHAR(500) NOT NULL," +
+            ExperimentLookupColumns.EXPERIMENT_VERSION + " INT(11) NOT NULL," +
+            " PRIMARY KEY (`"+ ExperimentLookupColumns.EXPERIMENT_LOOKUP_ID +"`))" ;
 //            " INDEX `exp_id_version_index` (`"+ ExperimentLookupServerColumns.EXPERIMENT_ID + "` ASC, `"+ ExperimentLookupServerColumns.EXPERIMENT_VERSION + "` ASC))";
-    final String createTableSql2 = "CREATE TABLE `pacodb`.`"+ UserServerColumns.TABLE_NAME+"` (" +
-            UserServerColumns.USER_ID + " INT NOT NULL AUTO_INCREMENT," +
-            UserServerColumns.WHO + " VARCHAR(500) NOT NULL," +
-            " PRIMARY KEY (`" + UserServerColumns.USER_ID + "`)," +
-            " UNIQUE INDEX `who_unique_index` (`"+ UserServerColumns.WHO + "` ASC))";
-    final String createTableSql3 = "CREATE TABLE `pacodb`.`"+ ExperimentUserServerColumns.TABLE_NAME +"` (" +
-            ExperimentUserServerColumns.EXPERIMENT_ID + " BIGINT(20) NOT NULL," +
-            ExperimentUserServerColumns.USER_ID + " INT NOT NULL," +
-            ExperimentUserServerColumns.EXP_USER_ANON_ID + " INT NOT NULL," +
-            ExperimentUserServerColumns.USER_TYPE + " CHAR(1) NOT NULL," +
-            " PRIMARY KEY (`" + ExperimentUserServerColumns.EXPERIMENT_ID+ "`,`" +ExperimentUserServerColumns.USER_ID+ "`), "+ 
+    final String createTableSql2 = "CREATE TABLE `pacodb`.`"+ UserColumns.TABLE_NAME+"` (" +
+            UserColumns.USER_ID + " INT NOT NULL AUTO_INCREMENT," +
+            UserColumns.WHO + " VARCHAR(500) NOT NULL," +
+            " PRIMARY KEY (`" + UserColumns.USER_ID + "`)," +
+            " UNIQUE INDEX `who_unique_index` (`"+ UserColumns.WHO + "` ASC))";
+    final String createTableSql3 = "CREATE TABLE `pacodb`.`"+ ExperimentUserColumns.TABLE_NAME +"` (" +
+            ExperimentUserColumns.EXPERIMENT_ID + " BIGINT(20) NOT NULL," +
+            ExperimentUserColumns.USER_ID + " INT NOT NULL," +
+            ExperimentUserColumns.EXP_USER_ANON_ID + " INT NOT NULL," +
+            ExperimentUserColumns.USER_TYPE + " CHAR(1) NOT NULL," +
+            " PRIMARY KEY (`" + ExperimentUserColumns.EXPERIMENT_ID+ "`,`" +ExperimentUserColumns.USER_ID+ "`), "+ 
             " UNIQUE KEY `experiment_id_anon_id_UNIQUE` (`experiment_id`,`experiment_user_anon_id`))";
-    final String createTableSql4 = "CREATE TABLE `pacodb`.`"+ ExperimentLookupServerColumns.TABLE_NAME+"_tracking` (" +
+    final String createTableSql4 = "CREATE TABLE `pacodb`.`"+ ExperimentLookupColumns.TABLE_NAME+"_tracking` (" +
             "tracking_id INT NOT NULL AUTO_INCREMENT," +
-            ExperimentLookupServerColumns.EXPERIMENT_ID + " BIGINT(20) NOT NULL," +
-            ExperimentLookupServerColumns.GROUP_NAME + " VARCHAR(500)," +
-            ExperimentLookupServerColumns.EXPERIMENT_NAME + " VARCHAR(500) NOT NULL," +
-            ExperimentLookupServerColumns.EXPERIMENT_VERSION + " INT(11) NOT NULL," +
+            ExperimentLookupColumns.EXPERIMENT_ID + " BIGINT(20) NOT NULL," +
+            ExperimentLookupColumns.GROUP_NAME + " VARCHAR(500)," +
+            ExperimentLookupColumns.EXPERIMENT_NAME + " VARCHAR(500) NOT NULL," +
+            ExperimentLookupColumns.EXPERIMENT_VERSION + " INT(11) NOT NULL," +
             EventServerColumns.WHO + "  VARCHAR(500) NOT NULL," +
             "updated_events CHAR(1) NOT NULL DEFAULT 'N'," +
             " PRIMARY KEY (`tracking_id`))" ;
@@ -1174,7 +1174,7 @@ public class CloudSQLMigrationDaoImpl implements CloudSQLMigrationDao {
     for (ExperimentDAO eachExperiment : experimentList) {
       List<String> adminLstInRequest = eachExperiment.getAdmins();
       List<String> partLstInRequest = eachExperiment.getPublishedUsers();
-      daoImpl.createIfNotPresentUserIdAndAnonId(eachExperiment.getId(), Sets.newHashSet(adminLstInRequest), Sets.newHashSet(partLstInRequest));
+      daoImpl.ensureUserId(eachExperiment.getId(), Sets.newHashSet(adminLstInRequest), Sets.newHashSet(partLstInRequest));
     }
     return true;
   }
@@ -1350,9 +1350,9 @@ public class CloudSQLMigrationDaoImpl implements CloudSQLMigrationDao {
     while (itr.hasNext()) {
       expTracking = itr.next();
       log.info("currently updating expid: " + expTracking.getExperimentId() + " expName:" + expTracking.getExperimentName() + " expVersion:" + expTracking.getExperimentVersion()  + " who:"+ expTracking.getWho()+ " group name:" + expTracking.getGroupName());
-      PacoId lookupId = daoImpl.getExperimentLookupIdWithCreateOption(expTracking.getExperimentId(), expTracking.getExperimentName(), expTracking.getGroupName(), expTracking.getExperimentVersion(), true);
+      PacoId lookupId = daoImpl.getExperimentLookupIdAndCreate(expTracking.getExperimentId(), expTracking.getExperimentName(), expTracking.getGroupName(), expTracking.getExperimentVersion(), true);
       log.info("Look up id is " + lookupId.getId());
-      PacoId anonId = daoImpl.getAnonymousIdWithCreateOption(expTracking.getExperimentId(), expTracking.getWho(), true);
+      PacoId anonId = daoImpl.getAnonymousIdAndCreate(expTracking.getExperimentId(), expTracking.getWho(), true);
       log.info("Anon id for " + expTracking.getWho() + " is " + anonId.getId());
      
       int ctr = 1;
@@ -1438,11 +1438,11 @@ public class CloudSQLMigrationDaoImpl implements CloudSQLMigrationDao {
         expVersion = rs.getInt(EventServerColumns.EXPERIMENT_VERSION);
         who = rs.getString(EventServerColumns.WHO);
         // find lookup id and anon id
-        PacoId lookupId = daoImpl.getExperimentLookupIdWithCreateOption(expId, expName, groupName, expVersion, true);
+        PacoId lookupId = daoImpl.getExperimentLookupIdAndCreate(expId, expName, groupName, expVersion, true);
         log.info("Look up id is " + lookupId);
         lookupObj.setLookupId(lookupId.getId().intValue());
         // find anon id
-        PacoId anonId = daoImpl.getAnonymousIdWithCreateOption(expId, who, true);
+        PacoId anonId = daoImpl.getAnonymousIdAndCreate(expId, who, true);
         log.info("Anon id for " + who + " is " + anonId);
         lookupObj.setAnonId(anonId.getId().intValue());
         updateList.add(lookupObj);

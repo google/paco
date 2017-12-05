@@ -25,10 +25,10 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.google.sampling.experiential.datastore.EventServerColumns;
-import com.google.sampling.experiential.datastore.ExperimentLookupServerColumns;
-import com.google.sampling.experiential.datastore.ExperimentUserServerColumns;
+import com.google.sampling.experiential.datastore.ExperimentLookupColumns;
+import com.google.sampling.experiential.datastore.ExperimentUserColumns;
 import com.google.sampling.experiential.datastore.FailedEventServerColumns;
-import com.google.sampling.experiential.datastore.UserServerColumns;
+import com.google.sampling.experiential.datastore.UserColumns;
 import com.google.sampling.experiential.model.Event;
 import com.google.sampling.experiential.model.What;
 import com.google.sampling.experiential.shared.EventDAO;
@@ -100,17 +100,17 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
     failedColList.add(new Column(FailedEventServerColumns.COMMENTS));
     failedColList.add(new Column(FailedEventServerColumns.REPROCESSED));
     
-    userColList.add(new Column(UserServerColumns.WHO));
+    userColList.add(new Column(UserColumns.WHO));
     
-    experimentUserColList.add(new Column(ExperimentUserServerColumns.EXPERIMENT_ID));
-    experimentUserColList.add(new Column(ExperimentUserServerColumns.USER_ID));
-    experimentUserColList.add(new Column(ExperimentUserServerColumns.EXP_USER_ANON_ID));
-    experimentUserColList.add(new Column(ExperimentUserServerColumns.USER_TYPE));
+    experimentUserColList.add(new Column(ExperimentUserColumns.EXPERIMENT_ID));
+    experimentUserColList.add(new Column(ExperimentUserColumns.USER_ID));
+    experimentUserColList.add(new Column(ExperimentUserColumns.EXP_USER_ANON_ID));
+    experimentUserColList.add(new Column(ExperimentUserColumns.USER_TYPE));
     
-    experimentLookupColList.add(new Column(ExperimentLookupServerColumns.EXPERIMENT_ID));
-    experimentLookupColList.add(new Column(ExperimentLookupServerColumns.EXPERIMENT_NAME));
-    experimentLookupColList.add(new Column(ExperimentLookupServerColumns.GROUP_NAME));
-    experimentLookupColList.add(new Column(ExperimentLookupServerColumns.EXPERIMENT_VERSION));
+    experimentLookupColList.add(new Column(ExperimentLookupColumns.EXPERIMENT_ID));
+    experimentLookupColList.add(new Column(ExperimentLookupColumns.EXPERIMENT_NAME));
+    experimentLookupColList.add(new Column(ExperimentLookupColumns.GROUP_NAME));
+    experimentLookupColList.add(new Column(ExperimentLookupColumns.EXPERIMENT_VERSION));
     
     eventColList.add(new Column(EventServerColumns.EXPERIMENT_ID));
     eventColList.add(new Column(EventServerColumns.EXPERIMENT_NAME));
@@ -190,7 +190,7 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
       statementCreateEvent.setLong(i++, event.getActionTriggerId() != null ? new Long(event.getActionTriggerId()) : java.sql.Types.NULL);
       statementCreateEvent.setLong(i++, event.getActionTriggerSpecId() != null ? new Long(event.getActionTriggerId()) : java.sql.Types.NULL);
       statementCreateEvent.setLong(i++, event.getActionId() != null ? new Long(event.getActionId()) : java.sql.Types.NULL);
-      PacoId anonId = getAnonymousIdWithCreateOption(expIdLong, event.getWho(), true);
+      PacoId anonId = getAnonymousIdAndCreate(expIdLong, event.getWho(), true);
       statementCreateEvent.setString(i++, anonId.getId().toString());
       if (event.getWhen() != null) {
         whenTs = new Timestamp(event.getWhen().getTime());
@@ -228,7 +228,7 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
       statementCreateEvent.setTimestamp(i++, event.getResponseTime() != null ? new Timestamp(TimeUtil.convertToLocal(event.getResponseTime(), event.getTimeZone()).getMillis()): null);
       statementCreateEvent.setTimestamp(i++, event.getScheduledTime() != null ? new Timestamp(TimeUtil.convertToLocal(event.getScheduledTime(), event.getTimeZone()).getMillis()): null);
       statementCreateEvent.setTimestamp(i++, new Timestamp(TimeUtil.convertToLocal(new Date(sortDateMillis), event.getTimeZone()).getMillis()));
-      PacoId experimentLookupId = getExperimentLookupIdWithCreateOption(expIdLong, event.getExperimentName(), event.getExperimentGroupName(), event.getExperimentVersion(), true);
+      PacoId experimentLookupId = getExperimentLookupIdAndCreate(expIdLong, event.getExperimentName(), event.getExperimentGroupName(), event.getExperimentVersion(), true);
       statementCreateEvent.setInt(i++, experimentLookupId.getId().intValue());
       
       statementCreateEvent.execute();
@@ -305,7 +305,7 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
       statementCreateEvent.setLong(i++, event.getActionTriggerId() != null ? new Long(event.getActionTriggerId()) : java.sql.Types.NULL);
       statementCreateEvent.setLong(i++, event.getActionTriggerSpecId() != null ? new Long(event.getActionTriggerId()) : java.sql.Types.NULL);
       statementCreateEvent.setLong(i++, event.getActionId() != null ? new Long(event.getActionId()) : java.sql.Types.NULL);
-      PacoId anonId = getAnonymousIdWithCreateOption(expIdLong, event.getWho(), true);
+      PacoId anonId = getAnonymousIdAndCreate(expIdLong, event.getWho(), true);
       statementCreateEvent.setString(i++, anonId.getId().toString());
       if (event.getWhen() != null) {
         whenTs = new Timestamp(event.getWhen().getTime());
@@ -343,7 +343,7 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
       statementCreateEvent.setTimestamp(i++, event.getResponseTime() != null ? new Timestamp(TimeUtil.convertToLocal(event.getResponseTime(), event.getTimeZone()).getMillis()): null);
       statementCreateEvent.setTimestamp(i++, event.getScheduledTime() != null ? new Timestamp(TimeUtil.convertToLocal(event.getScheduledTime(), event.getTimeZone()).getMillis()): null);
       statementCreateEvent.setTimestamp(i++, new Timestamp(TimeUtil.convertToLocal(new Date(sortDateMillis), event.getTimeZone()).getMillis()));
-      PacoId experimentLookupId = getExperimentLookupIdWithCreateOption(Long.parseLong(event.getExperimentId()), event.getExperimentName(), event.getExperimentGroupName(), event.getExperimentVersion(), true);
+      PacoId experimentLookupId = getExperimentLookupIdAndCreate(Long.parseLong(event.getExperimentId()), event.getExperimentName(), event.getExperimentGroupName(), event.getExperimentVersion(), true);
       statementCreateEvent.setInt(i++, experimentLookupId.getId().intValue());
       
       statementCreateEvent.execute();
@@ -681,9 +681,9 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
     List<WhatDAO> whatList = Lists.newArrayList();
     WhatDAO singleWhat = null;
     try {
-      event.setExperimentId(rs.getLong(ExperimentLookupServerColumns.EXPERIMENT_ID));
-      event.setExperimentName(rs.getString(ExperimentLookupServerColumns.EXPERIMENT_NAME));
-      event.setExperimentVersion(rs.getInt(ExperimentLookupServerColumns.EXPERIMENT_VERSION));
+      event.setExperimentId(rs.getLong(ExperimentLookupColumns.EXPERIMENT_ID));
+      event.setExperimentName(rs.getString(ExperimentLookupColumns.EXPERIMENT_NAME));
+      event.setExperimentVersion(rs.getInt(ExperimentLookupColumns.EXPERIMENT_VERSION));
 
       Date scheduleDate = rs.getTimestamp(EventServerColumns.SCHEDULE_TIME);
       DateTime scheduledDateTime = scheduleDate != null ? new DateTime(scheduleDate): null;
@@ -693,7 +693,7 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
       DateTime responseDateTime = responseDate != null ? new DateTime(responseDate) : null;
       event.setResponseTime(responseDateTime);
 
-      event.setExperimentGroupName(rs.getString(ExperimentLookupServerColumns.GROUP_NAME));
+      event.setExperimentGroupName(rs.getString(ExperimentLookupColumns.GROUP_NAME));
       event.setActionTriggerId(rs.getLong(EventServerColumns.ACTION_TRIGGER_ID));
       event.setActionTriggerSpecId(rs.getLong(EventServerColumns.ACTION_TRIGGER_SPEC_ID));
       event.setActionId(rs.getLong(EventServerColumns.ACTION_ID));
@@ -873,7 +873,7 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
       conn = CloudSQLConnectionManager.getInstance().getConnection();
       setNames(conn);
       conn.setAutoCommit(false);
-      experimentUserInsert.setTable(new Table(ExperimentUserServerColumns.TABLE_NAME));
+      experimentUserInsert.setTable(new Table(ExperimentUserColumns.TABLE_NAME));
       experimentUserInsert.setUseValues(true);
       experimentUserExprList.setExpressions(out);
       experimentUserInsert.setItemsList(experimentUserExprList);
@@ -933,17 +933,17 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
       update.setExpressions(updateUserExprLst);
       
       List<Table> updTableLst = Lists.newArrayList();
-      updTableLst.add(new Table(ExperimentUserServerColumns.TABLE_NAME));
+      updTableLst.add(new Table(ExperimentUserColumns.TABLE_NAME));
       
       List<Column> updateUserTypeColumnList = Lists.newArrayList();
-      updateUserTypeColumnList.add(new Column(ExperimentUserServerColumns.USER_TYPE));
+      updateUserTypeColumnList.add(new Column(ExperimentUserColumns.USER_TYPE));
       
       for (Column c : updateUserTypeColumnList) {
         updateUserExprLst.add(new JdbcParameter());
       }
     
       EqualsTo experimentIdEqualsToCondition = new EqualsTo();
-      experimentIdEqualsToCondition.setLeftExpression(new Column(ExperimentUserServerColumns.EXPERIMENT_ID));
+      experimentIdEqualsToCondition.setLeftExpression(new Column(ExperimentUserColumns.EXPERIMENT_ID));
       experimentIdEqualsToCondition.setRightExpression(new JdbcParameter());
       
       if (asAdmin != null && asAdmin.size() > 0) {
@@ -962,7 +962,7 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
       }
       
       InExpression userIdInCondition = new InExpression();
-      userIdInCondition.setLeftExpression(new Column(ExperimentUserServerColumns.USER_ID));
+      userIdInCondition.setLeftExpression(new Column(ExperimentUserColumns.USER_ID));
       
       AndExpression andExpr = new AndExpression(experimentIdEqualsToCondition, userIdInCondition);
       
@@ -974,7 +974,7 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
       if (asAdmin != null && asAdmin.size() > 0) {
         userIdInCondition.setRightItemsList(adminIds);
         statementUpdateAsAdminExperimentUsers = conn.prepareStatement(update.toString());
-        statementUpdateAsAdminExperimentUsers.setString(1, ExperimentUserServerColumns.ADMIN_TYPE);
+        statementUpdateAsAdminExperimentUsers.setString(1, ExperimentUserColumns.ADMIN_TYPE);
         statementUpdateAsAdminExperimentUsers.setLong(2, experimentId);
         log.info(statementUpdateAsAdminExperimentUsers.toString());
         statementUpdateAsAdminExperimentUsers.execute();
@@ -983,7 +983,7 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
       if (asParticipant != null && asParticipant.size() > 0) {
         userIdInCondition.setRightItemsList(participantIds);
         statementUpdateAsParticipantExperimentUsers = conn.prepareStatement(update.toString());
-        statementUpdateAsParticipantExperimentUsers.setString(1, ExperimentUserServerColumns.PARTICIPANT_TYPE);
+        statementUpdateAsParticipantExperimentUsers.setString(1, ExperimentUserColumns.PARTICIPANT_TYPE);
         statementUpdateAsParticipantExperimentUsers.setLong(2, experimentId);
         log.info(statementUpdateAsParticipantExperimentUsers.toString());
         statementUpdateAsParticipantExperimentUsers.execute();
@@ -1024,10 +1024,10 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
       rs = findAllUsersStatement.executeQuery();
       while(rs.next()){
         pUser = new PacoUser();
-        pUser.setType(rs.getString(ExperimentUserServerColumns.USER_TYPE).charAt(0));
-        pUser.setId(rs.getLong(ExperimentUserServerColumns.USER_ID));
-        pUser.setAnonId(rs.getInt(ExperimentUserServerColumns.EXP_USER_ANON_ID));
-        pUser.setEmail(rs.getString(UserServerColumns.WHO));
+        pUser.setType(rs.getString(ExperimentUserColumns.USER_TYPE).charAt(0));
+        pUser.setId(rs.getLong(ExperimentUserColumns.USER_ID));
+        pUser.setAnonId(rs.getInt(ExperimentUserColumns.EXP_USER_ANON_ID));
+        pUser.setEmail(rs.getString(UserColumns.WHO));
         pacoUsersForExperiment.add(pUser);
       }
     } finally {
@@ -1072,20 +1072,20 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
         exprList.setExpressions(lstExpr);
         
         InExpression emailInClause = new InExpression();
-        emailInClause.setLeftExpression(new Column(UserServerColumns.WHO));
+        emailInClause.setLeftExpression(new Column(UserColumns.WHO));
         emailInClause.setRightItemsList(exprList);
         
         SelectItem userId = new SelectExpressionItem();
-        ((SelectExpressionItem)userId).setExpression(new Column(UserServerColumns.USER_ID));
+        ((SelectExpressionItem)userId).setExpression(new Column(UserColumns.USER_ID));
         SelectItem userEmail = new SelectExpressionItem();
-        ((SelectExpressionItem)userEmail).setExpression(new Column(UserServerColumns.WHO));
+        ((SelectExpressionItem)userEmail).setExpression(new Column(UserColumns.WHO));
         
         List<SelectItem> selectColLst = Lists.newArrayList();
         selectColLst.add(userId);
         selectColLst.add(userEmail);
         
         PlainSelect selectIdEmailQry = new PlainSelect(); 
-        selectIdEmailQry.setFromItem(new Table(UserServerColumns.TABLE_NAME));
+        selectIdEmailQry.setFromItem(new Table(UserColumns.TABLE_NAME));
         selectIdEmailQry.setSelectItems(selectColLst);
         selectIdEmailQry.setWhere(emailInClause);
   
@@ -1096,7 +1096,7 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
         log.info("find all ids" + findUsersStatement.toString());
         rs = findUsersStatement.executeQuery();
         while (rs.next()){
-          userIds.put(rs.getString(UserServerColumns.WHO), rs.getLong(UserServerColumns.USER_ID));
+          userIds.put(rs.getString(UserColumns.WHO), rs.getLong(UserColumns.USER_ID));
         }
       } else {
         log.warning("user email list is " +  userEmailLst);
@@ -1134,7 +1134,7 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
         conn = CloudSQLConnectionManager.getInstance().getConnection();
         setNames(conn);
         conn.setAutoCommit(false);
-        userInsert.setTable(new Table(UserServerColumns.TABLE_NAME));
+        userInsert.setTable(new Table(UserColumns.TABLE_NAME));
         userInsert.setUseValues(true);
         insertEventExprList.setExpressions(exp);
         userInsert.setItemsList(insertEventExprList);
@@ -1186,16 +1186,16 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
     } 
    
     try { 
-      PacoId userId = getUseridWithCreateOption(email, true);
+      PacoId userId = getUseridAndCreate(email, true);
       List<PacoUser> toBeInsertedIntoExptUserTable = Lists.newArrayList();
 
       // Check the current admin status for email for this experiment and then update experiment_users table
       boolean isAdmin = ExperimentAccessManager.isAdminForExperiment(email, experimentId);
       newAnonId = getMaxAnonId(experimentId) + 1;
       if (isAdmin) {
-        pacoUser = new PacoUser(userId.getId(), newAnonId, ExperimentUserServerColumns.ADMIN_TYPE.charAt(0), email);
+        pacoUser = new PacoUser(userId.getId(), newAnonId, ExperimentUserColumns.ADMIN_TYPE.charAt(0), email);
       } else {
-        pacoUser = new PacoUser(userId.getId(), newAnonId, ExperimentUserServerColumns.PARTICIPANT_TYPE.charAt(0), email);
+        pacoUser = new PacoUser(userId.getId(), newAnonId, ExperimentUserColumns.PARTICIPANT_TYPE.charAt(0), email);
       }
       toBeInsertedIntoExptUserTable.add(pacoUser);
       insertIntoExperimentUsers(experimentId, toBeInsertedIntoExptUserTable);
@@ -1209,7 +1209,7 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
   }
  
   @Override
-  public void createIfNotPresentUserIdAndAnonId(Long expId, Set<String> adminEmailsInRequest, Set<String> participantEmailsInRequest) {
+  public void ensureUserId(Long expId, Set<String> adminEmailsInRequest, Set<String> participantEmailsInRequest) {
     if (adminEmailsInRequest == null && participantEmailsInRequest == null) {
       return;
     }
@@ -1246,7 +1246,7 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
       // for all emails in request, insert email into user table if not present already and update map with the newly generated id
       for (String email : allUsersEmailsInRequest) {
         if (requestedEmailIdsInUserTable.get(email) == null) {
-          Long genId = getUseridWithCreateOption(email, true).getId();
+          Long genId = getUseridAndCreate(email, true).getId();
           requestedEmailIdsInUserTable.put(email, genId);
         }
       }
@@ -1256,7 +1256,7 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
       Iterator<PacoUser> pacoUsrItr = pacoUsersInDb.iterator();
       while (pacoUsrItr.hasNext()) { 
         PacoUser crtUser = pacoUsrItr.next();
-        if (crtUser != null && crtUser.getType().equals(ExperimentUserServerColumns.ADMIN_TYPE.charAt(0))) {
+        if (crtUser != null && crtUser.getType().equals(ExperimentUserColumns.ADMIN_TYPE.charAt(0))) {
           adminIdsInDb.add(crtUser.getId());
         } else {
           participantIdsInDb.add(crtUser.getId());
@@ -1267,7 +1267,7 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
       Integer maxAnonId = getMaxAnonId(pacoUsersInDb);
    // TODO Commented code needs to be removed. Checking it in, to review the commonality between the two blocks
       // For admin type
-      identifyChangesToExperimentUserMappingForEachUserType(adminEmailsInRequest, requestedEmailIdsInUserTable, adminIdsInRequest, adminIdsInDb, participantIdsInDb, maxAnonId, idsToBeUpdatedAsAdmin, toBeInsertedIntoExptUserTable, ExperimentUserServerColumns.ADMIN_TYPE); 
+      identifyChangesToExperimentUserMappingForEachUserType(adminEmailsInRequest, requestedEmailIdsInUserTable, adminIdsInRequest, adminIdsInDb, participantIdsInDb, maxAnonId, idsToBeUpdatedAsAdmin, toBeInsertedIntoExptUserTable, ExperimentUserColumns.ADMIN_TYPE); 
       
 //      if (adminEmailsInRequest != null) {
 //        Iterator<String> adminItr = adminEmailsInRequest.iterator();
@@ -1295,7 +1295,7 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
         maxAnonId = getMaxAnonId(toBeInsertedIntoExptUserTable);
       }
       // For participant type
-      identifyChangesToExperimentUserMappingForEachUserType(participantEmailsInRequest, requestedEmailIdsInUserTable, participantIdsInRequest, participantIdsInDb, adminIdsInDb, maxAnonId, idsToBeUpdatedAsParticipant, toBeInsertedIntoExptUserTable, ExperimentUserServerColumns.PARTICIPANT_TYPE); 
+      identifyChangesToExperimentUserMappingForEachUserType(participantEmailsInRequest, requestedEmailIdsInUserTable, participantIdsInRequest, participantIdsInDb, adminIdsInDb, maxAnonId, idsToBeUpdatedAsParticipant, toBeInsertedIntoExptUserTable, ExperimentUserColumns.PARTICIPANT_TYPE); 
       
 //      if (participantEmailsInRequest != null) {
 //        Iterator<String> partItr = participantEmailsInRequest.iterator();
@@ -1398,7 +1398,7 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
         statementGetAnonId.setString(2, email);
         rs = statementGetAnonId.executeQuery();
         if (rs.next()){
-          anonId = rs.getInt(ExperimentUserServerColumns.EXP_USER_ANON_ID);
+          anonId = rs.getInt(ExperimentUserColumns.EXP_USER_ANON_ID);
         }
       } finally {
         try {
@@ -1422,7 +1422,7 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
   }
 
   @Override
-  public PacoId getUseridWithCreateOption(String email, boolean createOption) throws SQLException {
+  public PacoId getUseridAndCreate(String email, boolean createOption) throws SQLException {
     PacoId userId = new PacoId();
     Set<String> userSet = Sets.newHashSet();
     userSet.add(email);
@@ -1444,7 +1444,7 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
   }
 
   @Override
-  public PacoId getAnonymousIdWithCreateOption(Long experimentId, String email, boolean createOption) throws SQLException{
+  public PacoId getAnonymousIdAndCreate(Long experimentId, String email, boolean createOption) throws SQLException{
     PacoId pacoAnonId = new PacoId();
     Integer anonId = getAnonymousId(experimentId, email);
     if (anonId != null) {
@@ -1464,7 +1464,7 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
   }
   
   @Override
-  public PacoId getExperimentLookupIdWithCreateOption(Long expId, String expName, String groupName, Integer version, boolean createOption) throws SQLException{
+  public PacoId getExperimentLookupIdAndCreate(Long expId, String expName, String groupName, Integer version, boolean createOption) throws SQLException{
     PacoId returnId = new PacoId();
     Connection conn = null;
     ResultSet rs = null;
@@ -1472,8 +1472,8 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
     int ct = 1;
     PreparedStatement statementSelectExperimentLookup = null;
     PreparedStatement statementCreateExperimentLookup = null;
-    final String updateValueForLookupid1 = "select "+ ExperimentLookupServerColumns.EXPERIMENT_LOOKUP_ID +" from " + ExperimentLookupServerColumns.TABLE_NAME + " where " + ExperimentLookupServerColumns.EXPERIMENT_ID + " = ? and "  + ExperimentLookupServerColumns.GROUP_NAME + " = ? and "+ ExperimentLookupServerColumns.EXPERIMENT_NAME + " = ? and "  + ExperimentLookupServerColumns.EXPERIMENT_VERSION + " = ? " ;
-    final String updateValueForLookupid2 = "select "+ ExperimentLookupServerColumns.EXPERIMENT_LOOKUP_ID +" from " + ExperimentLookupServerColumns.TABLE_NAME + " where " + ExperimentLookupServerColumns.EXPERIMENT_ID + " = ? and "  + ExperimentLookupServerColumns.GROUP_NAME + " is null and "+ ExperimentLookupServerColumns.EXPERIMENT_NAME + " = ? and "  + ExperimentLookupServerColumns.EXPERIMENT_VERSION + " = ? " ;
+    final String updateValueForLookupid1 = "select "+ ExperimentLookupColumns.EXPERIMENT_LOOKUP_ID +" from " + ExperimentLookupColumns.TABLE_NAME + " where " + ExperimentLookupColumns.EXPERIMENT_ID + " = ? and "  + ExperimentLookupColumns.GROUP_NAME + " = ? and "+ ExperimentLookupColumns.EXPERIMENT_NAME + " = ? and "  + ExperimentLookupColumns.EXPERIMENT_VERSION + " = ? " ;
+    final String updateValueForLookupid2 = "select "+ ExperimentLookupColumns.EXPERIMENT_LOOKUP_ID +" from " + ExperimentLookupColumns.TABLE_NAME + " where " + ExperimentLookupColumns.EXPERIMENT_ID + " = ? and "  + ExperimentLookupColumns.GROUP_NAME + " is null and "+ ExperimentLookupColumns.EXPERIMENT_NAME + " = ? and "  + ExperimentLookupColumns.EXPERIMENT_VERSION + " = ? " ;
     
     try {
       conn = CloudSQLConnectionManager.getInstance().getConnection();
@@ -1499,12 +1499,12 @@ public class CloudSQLDaoImpl implements CloudSQLDao {
       rs = statementSelectExperimentLookup.executeQuery();
       if (rs.next()) {
         returnId.setIsCreatedWithThisCall(false);
-        returnId.setId(new Long(rs.getInt(ExperimentLookupServerColumns.EXPERIMENT_LOOKUP_ID)));
+        returnId.setId(new Long(rs.getInt(ExperimentLookupColumns.EXPERIMENT_LOOKUP_ID)));
       } else if (createOption) {
         ExpressionList experimentExprList = new ExpressionList();
         List<Expression>  out = Lists.newArrayList();
         Insert experimentInsert = new Insert();
-        experimentInsert.setTable(new Table(ExperimentLookupServerColumns.TABLE_NAME));
+        experimentInsert.setTable(new Table(ExperimentLookupColumns.TABLE_NAME));
         experimentInsert.setUseValues(true);
         experimentExprList.setExpressions(out);
         experimentInsert.setItemsList(experimentExprList);

@@ -111,7 +111,7 @@ public class SearchUtil {
     return plainSel.toString();
   }
   
-  public static void addJoinClause(Select selStatement) throws JSQLParserException {
+  public static void addOutputJoinClause(Select selStatement) throws JSQLParserException {
     PlainSelect ps = null;
     Expression joinExp = null;
     List<Join> jList = null;

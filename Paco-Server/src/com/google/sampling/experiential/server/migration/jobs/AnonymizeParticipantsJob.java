@@ -17,7 +17,7 @@ public class AnonymizeParticipantsJob implements MigrationJob {
       Boolean success = false;
       try {
         String successMsg = MigrationDataRetriever.getInstance().anonymizeParticipants(cursor);
-        if (successMsg != null && successMsg.equals("All Done")) { 
+        if ("All Done".equals(successMsg)) { 
           success = true;
         } else {
           success = false;

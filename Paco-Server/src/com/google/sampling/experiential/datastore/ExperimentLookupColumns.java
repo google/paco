@@ -1,6 +1,6 @@
 package com.google.sampling.experiential.datastore;
 
-public class ExperimentLookupServerColumns {
+public class ExperimentLookupColumns {
   public static final String TABLE_NAME = "experiment_lookup";
   
   public static final String EXPERIMENT_LOOKUP_ID = "experiment_lookup_id";
