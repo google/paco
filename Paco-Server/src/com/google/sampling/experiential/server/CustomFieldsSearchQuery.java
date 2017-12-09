@@ -7,6 +7,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import com.google.sampling.experiential.dao.impl.CSEventOutputDaoImpl;
 import com.pacoapp.paco.shared.model2.SQLQuery;
 import com.pacoapp.paco.shared.util.Constants;
 import com.pacoapp.paco.shared.util.SearchUtil;
@@ -37,7 +38,7 @@ public class CustomFieldsSearchQuery extends SearchQuery{
   public PacoResponse executeAcledQuery(String aclQuery) throws JSONException, SQLException, ParseException {
     log.info("custom fields execute");
     CustomResponse pacoResponse = new CustomResponse();
-    CloudSQLDaoImpl impl = new CloudSQLDaoImpl();
+    CSEventOutputDaoImpl impl = new CSEventOutputDaoImpl();
     JSONArray resultsArray = impl.getResultSetAsJson(aclQuery, localDateColumns);
     JSONObject resultset = new JSONObject();
     resultset.put("customResponse", resultsArray);

@@ -23,6 +23,7 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.SocketTimeoutException;
 import java.net.URL;
+import java.util.Map;
 import java.util.logging.Logger;
 
 import javax.servlet.ServletException;
@@ -37,6 +38,7 @@ import org.joda.time.format.DateTimeFormatter;
 import com.google.appengine.api.modules.ModulesServiceFactory;
 import com.google.appengine.api.users.User;
 import com.google.appengine.api.utils.SystemProperty;
+import com.google.common.collect.Maps;
 import com.google.sampling.experiential.server.AuthUtil;
 import com.google.sampling.experiential.server.EnvironmentUtil;
 import com.google.sampling.experiential.server.PacoModule;
@@ -60,10 +62,12 @@ public class MigrationFrontendServlet extends HttpServlet {
     User user = AuthUtil.getWhoFromLogin();
     if (user == null) {
       AuthUtil.redirectUserToLogin(req, resp);
-    } else if (AuthUtil.isUserAdmin()){
+    } else if (AuthUtil.isUserAdmin()) {
       String cursor = null;
       DateTime stDate = null;
       DateTime endDate = null;
+      String queryString = req.getQueryString();
+      log.info("query string is ------->"+ queryString);
       cursor =  req.getParameter("cursor");
       String jobName = req.getParameter("name");
       String startTime = req.getParameter("startTime");
@@ -77,7 +81,7 @@ public class MigrationFrontendServlet extends HttpServlet {
       } catch (IllegalArgumentException e ){
         resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
       }
-      String jobId = sendMigrateRequestToBackend(req, jobName, cursor, stDate, endDate);
+      String jobId = sendMigrateRequestToBackend(req, jobName, cursor, stDate, endDate, queryString);
       String redirectUrl = null;
       // On dev local, when we kick off job from backend module - migration with correct port number, 
       // the job status which is defined in default module is getting searched in migration module.
@@ -93,18 +97,18 @@ public class MigrationFrontendServlet extends HttpServlet {
     }
   }
 
-  private String sendMigrateRequestToBackend(HttpServletRequest req, String jobName, String cursor, DateTime startDateTime, DateTime endDateTime) throws IOException {
+  private String sendMigrateRequestToBackend(HttpServletRequest req, String jobName, String cursor, DateTime startDateTime, DateTime endDateTime, String optionalParam) throws IOException {
     PacoModule pacoMod = new PacoModule("reportworker", req.getServerName());
     try {
       BufferedReader reader = null;
       try {
-        reader = sendToBackend(pacoMod.getAddress(), jobName, cursor, startDateTime, endDateTime);
+        reader = sendToBackend(pacoMod.getAddress(), jobName, cursor, startDateTime, endDateTime, optionalParam);
       } catch (SocketTimeoutException se) {
         try {
           Thread.sleep(100);
         } catch (InterruptedException e) {
         }
-        reader = sendToBackend(pacoMod.getAddress(), jobName, cursor, startDateTime, endDateTime);
+        reader = sendToBackend(pacoMod.getAddress(), jobName, cursor, startDateTime, endDateTime, optionalParam);
       }
       if (reader != null) {
         StringBuilder buf = new StringBuilder();
@@ -121,12 +125,14 @@ public class MigrationFrontendServlet extends HttpServlet {
     return null;
   }
 
-  private BufferedReader sendToBackend(String backendAddress, String jobName, String cursor, DateTime startDateTime, DateTime endDateTime) throws MalformedURLException, IOException {
+  private BufferedReader sendToBackend(String backendAddress, String jobName, String cursor, DateTime startDateTime, DateTime endDateTime, String optParam) throws MalformedURLException, IOException {
     URL url = null;
     String scheme = "https";
     HttpURLConnection connection = null;
     InputStreamReader inputStreamReader = null;
     BufferedReader reader = null;
+    Map<String, String> test = Maps.newHashMap();
+    test.put("abc", "def");
     if (SystemProperty.environment.value() == SystemProperty.Environment.Value.Development) {
       scheme = "http";
     }
@@ -135,10 +141,15 @@ public class MigrationFrontendServlet extends HttpServlet {
     if ( cursor != null) {
       urlBase.append("&cursor="+ cursor);
     } 
+    
     if(startDateTime != null && endDateTime != null) {
       urlBase.append("&startTime="+ startDateTime + "&endTime=" +  endDateTime);
     }
+    
+    
+   
     url = new URL(urlBase.toString());
+    log.info("final qs----->"+ optParam);
     log.info("URL to backend = " + url.toString());
     connection = (HttpURLConnection) url.openConnection();
     connection.setInstanceFollowRedirects(false);

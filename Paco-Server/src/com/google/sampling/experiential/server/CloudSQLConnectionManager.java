@@ -46,8 +46,30 @@ public class CloudSQLConnectionManager {
   public Connection getConnection() throws SQLException {
     Connection conn = ds.getConnection();
     conn.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
+    setNames(conn);
     return conn;
   }
+  
+  private boolean setNames(Connection conn) throws SQLException {
+    boolean isDone = false;
+    java.sql.Statement statementSetNames = null;
+
+    try {
+      statementSetNames = conn.createStatement();
+      statementSetNames.execute(QueryConstants.SET_NAMES.toString());
+      isDone = true;
+    } finally {
+      try {
+        if (statementSetNames != null) {
+          statementSetNames.close();
+        }
+      } catch (SQLException ex1) {
+        log.warning(ErrorMessages.CLOSING_RESOURCE_EXCEPTION.getDescription() + ex1);
+      }
+    }
+    return isDone;
+  }
+
 
   private static DataSource setUp() throws ClassNotFoundException, Exception {
     String url = null;

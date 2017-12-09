@@ -5,6 +5,9 @@ import java.text.ParseException;
 import java.util.List;
 
 import com.google.common.collect.Lists;
+import com.google.sampling.experiential.dao.CSEventOutputDao;
+import com.google.sampling.experiential.dao.impl.CSEventDaoImpl;
+import com.google.sampling.experiential.dao.impl.CSEventOutputDaoImpl;
 import com.google.sampling.experiential.datastore.EventServerColumns;
 import com.google.sampling.experiential.datastore.ExperimentLookupColumns;
 import com.google.sampling.experiential.shared.EventDAO;
@@ -40,18 +43,33 @@ public class AllFieldsSearchQuery extends SearchQuery{
     this.pacoProtocol = pacoProtocol;
     this.sqlQueryObj = sqlQueryObj;
   }
+  @Override
+  public PacoResponse executeAcledQuery(String aclQuery) throws SQLException, ParseException {
+    log.info("all fields execute");
+    boolean withOutputs = true;
+    List<EventDAO> evtList = null;
+    CSEventOutputDao impl = new CSEventOutputDaoImpl();
+    EventQueryStatus pacoResponse = new EventQueryStatus(pacoProtocol);
+    
+    evtList = impl.getEvents(aclQuery, withOutputs);
+    pacoResponse.setEvents(evtList);
+    log.info("all fields execute - records size:" + evtList.size());
+    pacoResponse.setStatus(Constants.SUCCESS);
+    return pacoResponse;
+  }
  
   @Override
   public void addJoinClauses() throws JSQLParserException { 
     super.addJoinClauses();
     SearchUtil.addOutputJoinClause(jsqlStatement);
   }
+  
   @Override
   public void addOptimizationToQuery() throws JSQLParserException {
     boolean outputColsInWhere = sqlQueryObj.getCriteriaQuery().contains(OutputBaseColumns.ANSWER) || sqlQueryObj.getCriteriaQuery().contains(OutputBaseColumns.NAME);
     jsqlStatement = modifyToOptimizePerformance(jsqlStatement, outputColsInWhere);
-    
   }
+  
   //instead of currentSelect which is --> select * from events inner join outputs on events._id=outputs.event_id where <conditions> <limit><group><order> 
   // do a late fetch as
   // optimizedSelect(firstJoinObj) which is -->               select * from events 
@@ -124,6 +142,7 @@ public class AllFieldsSearchQuery extends SearchQuery{
     optimizedPlainSelect.setJoins(jList);
     return optimizedSelect;
   }
+  
   private static void modifyProjectionColumnsToClientQuery(Select selStatement) {
     SelectBody sb = selStatement.getSelectBody();
     SelectItem si1 = new SelectExpressionItem();
@@ -134,21 +153,5 @@ public class AllFieldsSearchQuery extends SearchQuery{
     siList.add(si1);
     siList.add(si2);
     ((PlainSelect)sb).setSelectItems(siList);  
-  }
-
-  @Override
-  public PacoResponse executeAcledQuery(String aclQuery) throws SQLException, ParseException {
-    log.info("all fields execute");
-    boolean withOutputs = true;
-    List<EventDAO> evtList = null;
-    CloudSQLDaoImpl impl = new CloudSQLDaoImpl();
-    EventQueryStatus pacoResponse = new EventQueryStatus(pacoProtocol);
-    
-    evtList = impl.getEvents(aclQuery, withOutputs);
-    pacoResponse.setEvents(evtList);
-    log.info("all fields execute - records size:" + evtList.size());
-    pacoResponse.setStatus(Constants.SUCCESS);
-    return pacoResponse;
-  }
-  
+  }  
 }

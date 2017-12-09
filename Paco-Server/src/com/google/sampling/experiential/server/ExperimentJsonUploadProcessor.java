@@ -13,6 +13,8 @@ import org.json.JSONException;
 import com.google.appengine.api.users.User;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import com.google.sampling.experiential.dao.CSExperimentUserDao;
+import com.google.sampling.experiential.dao.impl.CSExperimentUserDaoImpl;
 import com.pacoapp.paco.shared.comm.ExperimentEditOutcome;
 import com.pacoapp.paco.shared.comm.Outcome;
 import com.pacoapp.paco.shared.model2.ExperimentDAO;
@@ -106,8 +108,8 @@ public class ExperimentJsonUploadProcessor {
       experimentDAO.setId(null);
     }
     if (persistInCloudSqlOnly) { 
-      CloudSQLDaoImpl cloudSqlDaoImpl = new CloudSQLDaoImpl();
-      cloudSqlDaoImpl.ensureUserId(experimentDAO.getId(), Sets.newHashSet(experimentDAO.getAdmins()), Sets.newHashSet(experimentDAO.getPublishedUsers()));
+      CSExperimentUserDao exptUserDaoImpl = new CSExperimentUserDaoImpl();
+      exptUserDaoImpl.ensureUserId(experimentDAO.getId(), Sets.newHashSet(experimentDAO.getAdmins()), Sets.newHashSet(experimentDAO.getPublishedUsers()));
     } else {
       lowerCaseEmail = userFromLogin.getEmail().toLowerCase();
       if (existingExperiment != null && !existingExperiment.isAdmin(lowerCaseEmail)) {

@@ -40,11 +40,21 @@ import com.google.appengine.api.datastore.Query.FilterPredicate;
 import com.google.appengine.api.datastore.QueryResultList;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
+import com.google.sampling.experiential.dao.CSEventDao;
+import com.google.sampling.experiential.dao.CSEventOutputDao;
+import com.google.sampling.experiential.dao.CSOutputDao;
+import com.google.sampling.experiential.dao.impl.CSEventDaoImpl;
+import com.google.sampling.experiential.dao.impl.CSEventOutputDaoImpl;
+import com.google.sampling.experiential.dao.impl.CSOutputDaoImpl;
 import com.google.sampling.experiential.datastore.EventEntityConverter;
 import com.google.sampling.experiential.model.Event;
 import com.google.sampling.experiential.model.What;
-import com.google.sampling.experiential.server.CloudSQLDaoImpl;
 import com.google.sampling.experiential.server.ExceptionUtil;
+import com.google.sampling.experiential.server.migration.dao.AnonymizeParticipantsMigrationDao;
+import com.google.sampling.experiential.server.migration.dao.EventV5MigrationDao;
+import com.google.sampling.experiential.server.migration.dao.impl.AnonymizeParticipantsMigrationDaoImpl;
+import com.google.sampling.experiential.server.migration.dao.impl.CloudSQLMigrationDaoImpl;
+import com.google.sampling.experiential.server.migration.dao.impl.EventV5MigrationDaoImpl;
 import com.google.sampling.experiential.shared.EventDAO;
 import com.google.sampling.experiential.shared.WhatDAO;
 import com.pacoapp.paco.shared.util.ErrorMessages;
@@ -257,7 +267,7 @@ public class MigrationDataRetriever {
   public String convertEventV4ToV5(String cursor) throws SQLException {
     String returnString = "";
     Boolean doAll = false;
-    CloudSQLMigrationDaoImpl sqlMigDaoImpl = new CloudSQLMigrationDaoImpl();
+    EventV5MigrationDao sqlMigDaoImpl = new EventV5MigrationDaoImpl();
     if (cursor == null) {
       doAll = true;
     }
@@ -317,7 +327,7 @@ public class MigrationDataRetriever {
   public String anonymizeParticipants(String cursor) throws SQLException {
     String returnString = "";
     Boolean doAll = false;
-    CloudSQLMigrationDaoImpl sqlMigDaoImpl = new CloudSQLMigrationDaoImpl();
+    AnonymizeParticipantsMigrationDao sqlMigDaoImpl = new AnonymizeParticipantsMigrationDaoImpl();
     if (cursor == null) {
       doAll = true;
     }
@@ -427,7 +437,11 @@ public class MigrationDataRetriever {
   }
 
   private void copySingleEventAndOutputsFromDSToCS(Event evtObjDS, boolean populateExperimentInfoInEvents) {
-    CloudSQLDaoImpl sqlDaoImpl = new CloudSQLDaoImpl(); 
+    CSEventOutputDao eventOutputDaoImpl = new CSEventOutputDaoImpl();
+    CSEventDao eventDaoImpl = new CSEventDaoImpl();
+    CSOutputDao outputDaoImpl = new CSOutputDaoImpl();
+    
+//    CloudSQLDaoImpl sqlDaoImpl = new CloudSQLDaoImpl(); 
     CloudSQLMigrationDaoImpl sqlMigDaoImpl = new CloudSQLMigrationDaoImpl(); 
     List<String> whatTexts = Lists.newArrayList();
     Boolean eventPresentInCS = false;
@@ -441,13 +455,13 @@ public class MigrationDataRetriever {
     // find if event present in events cloud sql
     try {
       String getQueryForEventIdSql = SearchUtil.getQueryForEventRetrieval(evtObjDS.getId().toString());
-      List<EventDAO> eventInCS = sqlDaoImpl.getEvents(getQueryForEventIdSql, withOutputs);
+      List<EventDAO> eventInCS = eventOutputDaoImpl.getEvents(getQueryForEventIdSql, withOutputs);
       if (eventInCS.size() == 0) {
         //copy event to cloud sql
         if (populateExperimentInfoInEvents) {
-          sqlDaoImpl.insertSingleEventOnlyWithExperimentInfo(evtObjDS);
+          eventDaoImpl.insertSingleEventOnlyWithExperimentInfo(evtObjDS);
         } else {
-          sqlDaoImpl.insertSingleEventOnly(evtObjDS);
+          eventDaoImpl.insertSingleEventOnly(evtObjDS);
         }
         eventPresentInCS = true;
       } else {
@@ -464,7 +478,7 @@ public class MigrationDataRetriever {
     if (eventPresentInCS) {
       // find if cloud sql has the correct number of outputs
       try {
-        outputsList = sqlDaoImpl.getOutputs(evtObjDS.getId());
+        outputsList = outputDaoImpl.getOutputs(evtObjDS.getId());
         for (int i=0; i< outputsList.size();i++) {
           whatTexts.add(outputsList.get(i).getName());
         }
@@ -483,7 +497,7 @@ public class MigrationDataRetriever {
           try {
             if (!whatTexts.contains(text)) {
               log.info("Outputs missing in CS for event id " + evtObjDS.getId() + "--" + text);
-              sqlDaoImpl.insertSingleOutput(evtObjDS.getId(), text, answer) ;
+              outputDaoImpl.insertSingleOutput(evtObjDS.getId(), text, answer) ;
             }
           } catch (SQLException sqle) { 
             sqlMigDaoImpl.insertCatchupFailure("OutputWrite", evtObjDS.getId(), text, sqle.getMessage());

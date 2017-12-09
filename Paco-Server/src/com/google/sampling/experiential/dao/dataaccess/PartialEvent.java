@@ -1,4 +1,4 @@
-package com.google.sampling.experiential.server.migration;
+package com.google.sampling.experiential.dao.dataaccess;
 
 public class PartialEvent {
   Long eventId;
