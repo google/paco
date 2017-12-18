@@ -21,10 +21,19 @@ import com.google.appengine.api.users.User;
 import com.google.common.base.Strings;
 import com.google.sampling.experiential.server.AuthUtil;
 import com.google.sampling.experiential.server.EventQueryStatus;
+import com.google.sampling.experiential.server.ExceptionUtil;
+import com.google.sampling.experiential.server.PacoResponse;
+import com.google.sampling.experiential.server.QueryFactory;
+import com.google.sampling.experiential.server.SearchQuery;
 import com.google.sampling.experiential.server.TimeUtil;
 import com.google.sampling.experiential.shared.EventDAO;
 import com.pacoapp.paco.shared.model2.JsonConverter;
+import com.pacoapp.paco.shared.model2.SQLQuery;
 import com.pacoapp.paco.shared.util.Constants;
+import com.pacoapp.paco.shared.util.ErrorMessages;
+import com.pacoapp.paco.shared.util.QueryJsonParser;
+
+import net.sf.jsqlparser.JSQLParserException;
 
 /**
  * Demonstration of building a visualization with the new sqlSearch api
@@ -50,12 +59,16 @@ public class LastAppSessionChartServlet extends HttpServlet {
       }
       if (experimentId != null) {
         DateTimeZone tzForClient = TimeUtil.getTimeZoneForClient(req);
-        produceAppUsageChart(userEmail, who, experimentId, resp, tzForClient);
+        try {
+          produceAppUsageChart(userEmail, who, experimentId, resp, tzForClient);
+        } catch (Exception e) {
+          log.warning(ErrorMessages.GENERAL_EXCEPTION.getDescription() + ExceptionUtil.getStackTraceAsString(e));
+        }
       }
     }
   }
 
-  private void produceAppUsageChart(String userEmail, String who, Long experimentId, HttpServletResponse resp, DateTimeZone timezone) throws IOException {
+  private void produceAppUsageChart(String userEmail, String who, Long experimentId, HttpServletResponse resp, DateTimeZone timezone) throws JSQLParserException, Exception {
 
     DateMidnight today = new DateMidnight();
 
@@ -75,16 +88,18 @@ public class LastAppSessionChartServlet extends HttpServlet {
                                           "         " +
                                           "      };";
 
-    EventQueryStatus result = CloudSqlRequestProcessor.processSearchQuery(userEmail, query, timezone);
-    if (result.getStatus() != Constants.SUCCESS) {
-      String resultAsString = JsonConverter.getObjectMapper().writeValueAsString(result);
-      resp.getWriter().println(resultAsString);
-      return;
+    SQLQuery sqlQueryObj = QueryJsonParser.parseSqlQueryFromJson(query, true);
+    SearchQuery sq = QueryFactory.createSearchQuery(sqlQueryObj, 5.0f);
+    PacoResponse pr = sq.process(userEmail);
+    EventQueryStatus evQryStatus = null;
+    String page = "Unable to retrieve user app sessions";
+    if ( pr != null && pr instanceof EventQueryStatus) {
+      if (Constants.SUCCESS.equals(pr.getStatus())) {
+        evQryStatus = (EventQueryStatus) pr;
+        final List<EventDAO> events = evQryStatus.getEvents();
+        page = makeAppUsagePage(userEmail, experimentId, events);
+      }
     }
-
-    final List<EventDAO> events = result.getEvents();
-    //String page = JsonConverter.getObjectMapper().writeValueAsString(events);
-    String page = makeAppUsagePage(userEmail, experimentId, events);
     resp.getWriter().println(page);
   }
 

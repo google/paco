@@ -110,12 +110,18 @@ public class SearchUtil {
 
     return plainSel.toString();
   }
-
-  public static void addJoinClause(Select selStatement) throws JSQLParserException {
+  
+  public static void addOutputJoinClause(Select selStatement) throws JSQLParserException {
     PlainSelect ps = null;
     Expression joinExp = null;
-    List<Join> jList = Lists.newArrayList();
+    List<Join> jList = null;
     Join joinObj = new Join();
+    ps = ((PlainSelect) selStatement.getSelectBody());
+    if (ps.getJoins() == null) { 
+      jList = Lists.newArrayList();
+    } else {
+      jList = ps.getJoins();
+    }
     FromItem ft = new Table(OutputBaseColumns.TABLE_NAME); 
     try {
       joinExp = CCJSqlParserUtil.parseCondExpression(Constants.UNDERSCORE_ID+ " = " +OutputBaseColumns.TABLE_NAME+ "."+OutputBaseColumns.EVENT_ID);
@@ -126,7 +132,6 @@ public class SearchUtil {
     joinObj.setInner(true);
     joinObj.setRightItem(ft);
     jList.add(joinObj);
-    ps = ((PlainSelect) selStatement.getSelectBody());
     ps.setJoins(jList);
   }
 

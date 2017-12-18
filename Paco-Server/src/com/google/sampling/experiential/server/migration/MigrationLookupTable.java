@@ -5,9 +5,11 @@ import java.util.logging.Logger;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
+import com.google.sampling.experiential.server.migration.jobs.AnonymizeParticipantsJob;
 import com.google.sampling.experiential.server.migration.jobs.CSInsertEventsJob;
 import com.google.sampling.experiential.server.migration.jobs.CSInsertOutputsJob;
 import com.google.sampling.experiential.server.migration.jobs.CatchUpDateRangeJob;
+import com.google.sampling.experiential.server.migration.jobs.CatchUpDateRangeJobOldVersion;
 import com.google.sampling.experiential.server.migration.jobs.ConvertEventV4ToV5Job;
 import com.google.sampling.experiential.server.migration.jobs.EventStatsCounterMigrationJob;
 import com.google.sampling.experiential.server.migration.jobs.ExperimentHubMigrationJob;
@@ -33,6 +35,9 @@ public class MigrationLookupTable {
     migrations.put("20", CSInsertOutputsJob.class);
     migrations.put("21", CatchUpDateRangeJob.class);
     migrations.put("22", ConvertEventV4ToV5Job.class);
+    migrations.put("23", AnonymizeParticipantsJob.class);
+    // Catchup job old version, persists experiment info for an event in events table 
+    migrations.put("24", CatchUpDateRangeJobOldVersion.class);
     migrations.put("100", ExperimentTitleLowercaseMigrationJob.class);
   }
   public static MigrationJob getMigrationByName(String name) {

@@ -15,6 +15,10 @@ import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.Transaction;
 import com.google.appengine.api.datastore.TransactionOptions;
+import com.google.appengine.api.modules.ModulesServiceFactory;
+import com.google.appengine.api.taskqueue.Queue;
+import com.google.appengine.api.taskqueue.QueueFactory;
+import com.google.appengine.api.taskqueue.TaskOptions;
 import com.google.common.base.Joiner;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
@@ -196,6 +200,7 @@ class DefaultExperimentService implements ExperimentService {
 
         experiment.setId(experimentKey.getId());
         ExperimentAccessManager.updateAccessControlEntities(ds, tx, experiment, experimentKey, timezone);
+        sendToCloudSqlQueue(experiment, loggedInUserEmail);
         tx.commit();
         return null;
       } catch (Exception e) {
@@ -206,9 +211,20 @@ class DefaultExperimentService implements ExperimentService {
           tx.rollback();
         }
       }
+    } else {
+      throw new IllegalStateException(loggedInUserEmail + " does not have permission to edit " + experiment.getTitle());  
     }
-    throw new IllegalStateException(loggedInUserEmail + " does not have permission to edit " + experiment.getTitle());
-
+  }
+  
+  public void sendToCloudSqlQueue(ExperimentDAO experiment, String loggedInUserEmail) {
+    Queue queue = QueueFactory.getQueue("cloud-sql");
+    TaskOptions to = TaskOptions.Builder.withUrl("/csExpInsert").payload(JsonConverter.jsonify(experiment));
+    if (EnvironmentUtil.isDevInstance()) {
+      log.info("In dev instance task sent to Queue");
+      queue.add(to.header("Host", ModulesServiceFactory.getModulesService().getVersionHostname("mapreduce", null)));
+    } else {
+      queue.add(to);
+    }
   }
 
 

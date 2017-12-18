@@ -24,10 +24,16 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.sampling.experiential.server.AuthUtil;
 import com.google.sampling.experiential.server.EventQueryStatus;
+import com.google.sampling.experiential.server.PacoResponse;
+import com.google.sampling.experiential.server.QueryFactory;
+import com.google.sampling.experiential.server.RequestProcessorUtil;
+import com.google.sampling.experiential.server.SearchQuery;
 import com.google.sampling.experiential.server.TimeUtil;
 import com.google.sampling.experiential.shared.EventDAO;
 import com.pacoapp.paco.shared.model2.JsonConverter;
+import com.pacoapp.paco.shared.model2.SQLQuery;
 import com.pacoapp.paco.shared.util.Constants;
+import com.pacoapp.paco.shared.util.QueryJsonParser;
 
 /**
  * Demonstration of building a visualization with the new sqlSearch api
@@ -51,6 +57,7 @@ public class PhoneSessionServlet extends HttpServlet {
       Long experimentId = getExperimentId(req);
       String groupName = getGroupName(req);
       String who = req.getParameter("who");
+      Float pacoProtocol = RequestProcessorUtil.getPacoProtocolVersionAsFloat(req);;
 
       DateTimeFormatter dateTimeFormatter = DateTimeFormat.forPattern(DATETIME_FORMAT);
       String startDatetimeParam = req.getParameter("startTime");
@@ -71,7 +78,11 @@ public class PhoneSessionServlet extends HttpServlet {
 
       if (experimentId != null) {
         DateTimeZone tzForClient = TimeUtil.getTimeZoneForClient(req);
-        produceAppUsageChart(userEmail, who, experimentId, resp, tzForClient, groupName, startTime, endTime);
+        try {
+          produceAppUsageChart(userEmail, who, experimentId, resp, tzForClient, groupName, startTime, endTime, pacoProtocol);
+        } catch (Exception e) {
+          throw new ServletException("Exception while processing app usage information"+ e.getMessage());
+        }
       }
     }
   }
@@ -84,8 +95,7 @@ public class PhoneSessionServlet extends HttpServlet {
 
 
   private void produceAppUsageChart(String userEmail, String who, Long experimentId, HttpServletResponse resp,
-                                    DateTimeZone timezone, String groupName, String startTime, String endTime) throws IOException {
-
+                                    DateTimeZone timezone, String groupName, String startTime, String endTime, Float pacoProtocol) throws Exception {
     String responseTimeClause = "";
     String responseTimeValues = "";
     if (!Strings.isNullOrEmpty(startTime) && !Strings.isNullOrEmpty(endTime)) {
@@ -138,24 +148,30 @@ public class PhoneSessionServlet extends HttpServlet {
               + "],"
               + "}, "
               + "order : \"who,response_time\"};";
-
-
-    EventQueryStatus result = CloudSqlRequestProcessor.processSearchQuery(userEmail, query, timezone);
-    if (result.getStatus() != Constants.SUCCESS) {
-      String resultAsString = JsonConverter.getObjectMapper().writeValueAsString(result);
-      resp.getWriter().println(resultAsString);
-      return;
+    boolean enableGrpByAndProjection = true;
+    SQLQuery sqlQueryObj = QueryJsonParser.parseSqlQueryFromJson(query, enableGrpByAndProjection);
+    SearchQuery searchQuery = QueryFactory.createSearchQuery(sqlQueryObj, pacoProtocol);
+    long qryStartTime = System.currentTimeMillis();
+    PacoResponse pr = searchQuery.process(userEmail);
+    long diff = System.currentTimeMillis() - qryStartTime;
+    log.info("complete search qry took " + diff + " seconds");
+    
+    EventQueryStatus evQryStatus = null;
+    String page = "Unable to retrieve user app sessions";
+    if ( pr != null && pr instanceof EventQueryStatus) {
+      if (Constants.SUCCESS.equals(pr.getStatus())) {
+        evQryStatus = (EventQueryStatus)pr;
+        final List<EventDAO> events = evQryStatus.getEvents();
+        Map<String, List<EventDAO>> eventByWho = toMap(events);
+        List<PhoneSessionLog> allUserSessions = Lists.newArrayList();
+        for (String currentWho : eventByWho.keySet()) {
+          List<EventDAO> userEvents = eventByWho.get(currentWho);
+          PhoneSessionLog sessions = PhoneSessionLog.buildSessions(currentWho, userEvents);
+          allUserSessions.add(sessions);
+        }
+        page = JsonConverter.getObjectMapper().writeValueAsString(allUserSessions);
+      }
     }
-
-    final List<EventDAO> events = result.getEvents();
-    Map<String, List<EventDAO>> eventByWho = toMap(events);
-    List<PhoneSessionLog> allUserSessions = Lists.newArrayList();
-    for (String currentWho : eventByWho.keySet()) {
-      List<EventDAO> userEvents = eventByWho.get(currentWho);
-      PhoneSessionLog sessions = PhoneSessionLog.buildSessions(currentWho, userEvents);
-      allUserSessions.add(sessions);
-    }
-    String page = JsonConverter.getObjectMapper().writeValueAsString(allUserSessions);
     resp.getWriter().println(page);
   }
 
