@@ -21,11 +21,11 @@ import org.json.JSONObject;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.sampling.experiential.cloudsql.columns.EventServerColumns;
+import com.google.sampling.experiential.cloudsql.columns.ExperimentLookupColumns;
 import com.google.sampling.experiential.dao.CSEventOutputDao;
 import com.google.sampling.experiential.dao.CSExperimentLookupDao;
 import com.google.sampling.experiential.dao.CSExperimentUserDao;
-import com.google.sampling.experiential.datastore.EventServerColumns;
-import com.google.sampling.experiential.datastore.ExperimentLookupColumns;
 import com.google.sampling.experiential.model.Event;
 import com.google.sampling.experiential.model.What;
 import com.google.sampling.experiential.server.CloudSQLConnectionManager;

@@ -12,11 +12,12 @@ import java.util.logging.Logger;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import com.google.sampling.experiential.cloudsql.columns.ExperimentUserColumns;
+import com.google.sampling.experiential.cloudsql.columns.UserColumns;
 import com.google.sampling.experiential.dao.CSExperimentUserDao;
 import com.google.sampling.experiential.dao.CSFailedEventDao;
 import com.google.sampling.experiential.dao.CSUserDao;
-import com.google.sampling.experiential.datastore.ExperimentUserColumns;
-import com.google.sampling.experiential.datastore.UserColumns;
+import com.google.sampling.experiential.dao.dataaccess.User;
 import com.google.sampling.experiential.server.CloudSQLConnectionManager;
 import com.google.sampling.experiential.server.ExceptionUtil;
 import com.google.sampling.experiential.server.ExperimentAccessManager;
@@ -158,7 +159,7 @@ public class CSExperimentUserDaoImpl implements CSExperimentUserDao {
       // for all emails in request, insert email into user table if not present already and update map with the newly generated id
       for (String email : allUsersEmailsInRequest) {
         if (requestedEmailIdsInUserTable.get(email) == null) {
-          Long genId = userDaoImpl.getUseridAndCreate(email, true).getId();
+          Long genId = userDaoImpl.getUserAndCreate(email, true).getUserId().getId();
           requestedEmailIdsInUserTable.put(email, genId);
         }
       }
@@ -448,7 +449,8 @@ public class CSExperimentUserDaoImpl implements CSExperimentUserDao {
     } 
    
     try { 
-      PacoId userId = userDaoImpl.getUseridAndCreate(email, true);
+      User user = userDaoImpl.getUserAndCreate(email, true);
+      PacoId userId = user.getUserId();
       List<PacoUser> toBeInsertedIntoExptUserTable = Lists.newArrayList();
 
       // Check the current admin status for email for this experiment and then update experiment_users table

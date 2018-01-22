@@ -11,8 +11,8 @@ import org.json.JSONException;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.google.sampling.experiential.datastore.EventServerColumns;
-import com.google.sampling.experiential.datastore.ExperimentLookupColumns;
+import com.google.sampling.experiential.cloudsql.columns.EventServerColumns;
+import com.google.sampling.experiential.cloudsql.columns.ExperimentLookupColumns;
 import com.pacoapp.paco.shared.model2.EventBaseColumns;
 import com.pacoapp.paco.shared.model2.OutputBaseColumns;
 import com.pacoapp.paco.shared.model2.SQLQuery;

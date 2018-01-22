@@ -1,4 +1,4 @@
-package com.google.sampling.experiential.datastore;
+package com.google.sampling.experiential.cloudsql.columns;
 
 public class ExperimentUserColumns {
   public static final String TABLE_NAME = "experiment_user";

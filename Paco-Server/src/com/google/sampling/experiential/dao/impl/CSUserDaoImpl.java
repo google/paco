@@ -14,8 +14,9 @@ import com.google.cloud.sql.jdbc.Statement;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import com.google.sampling.experiential.cloudsql.columns.UserColumns;
 import com.google.sampling.experiential.dao.CSUserDao;
-import com.google.sampling.experiential.datastore.UserColumns;
+import com.google.sampling.experiential.dao.dataaccess.User;
 import com.google.sampling.experiential.server.CloudSQLConnectionManager;
 import com.google.sampling.experiential.server.PacoId;
 import com.pacoapp.paco.shared.util.ErrorMessages;
@@ -38,7 +39,8 @@ public class CSUserDaoImpl implements CSUserDao {
     userColList.add(new Column(UserColumns.WHO));
   }
   @Override
-  public PacoId getUseridAndCreate(String email, boolean createOption) throws SQLException {
+  public User getUserAndCreate(String email, boolean createOption) throws SQLException {
+    User user = new User();
     PacoId userId = new PacoId();
     Set<String> userSet = Sets.newHashSet();
     userSet.add(email);
@@ -56,7 +58,9 @@ public class CSUserDaoImpl implements CSUserDao {
       userId.setId(0L);
       userId.setIsCreatedWithThisCall(false);
     }
-    return userId;
+    user.setUserId(userId);
+    
+    return user;
   }
   
   @Override
@@ -128,8 +132,8 @@ public class CSUserDaoImpl implements CSUserDao {
 
     return userIds;
   }
-  @Override
-  public Long insertUserAndRetrieveId(String email) throws SQLException {
+ 
+  private Long insertUserAndRetrieveId(String email) throws SQLException {
     Connection conn = null;
     PreparedStatement statementCreateUser = null;
     ResultSet rs = null;

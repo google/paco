@@ -10,11 +10,10 @@ import java.util.List;
 import java.util.logging.Logger;
 
 import com.google.common.collect.Lists;
+import com.google.sampling.experiential.cloudsql.columns.EventServerColumns;
 import com.google.sampling.experiential.dao.CSEventDao;
 import com.google.sampling.experiential.dao.CSExperimentLookupDao;
 import com.google.sampling.experiential.dao.CSExperimentUserDao;
-import com.google.sampling.experiential.dao.CSUserDao;
-import com.google.sampling.experiential.datastore.EventServerColumns;
 import com.google.sampling.experiential.model.Event;
 import com.google.sampling.experiential.server.CloudSQLConnectionManager;
 import com.google.sampling.experiential.server.PacoId;

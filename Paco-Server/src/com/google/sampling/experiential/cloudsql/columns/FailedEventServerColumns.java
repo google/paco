@@ -1,4 +1,4 @@
-package com.google.sampling.experiential.datastore;
+package com.google.sampling.experiential.cloudsql.columns;
 
 public class FailedEventServerColumns {
   public static final String TABLE_NAME = "failed_events";

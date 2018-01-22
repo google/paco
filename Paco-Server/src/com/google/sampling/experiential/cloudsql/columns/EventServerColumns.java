@@ -1,4 +1,4 @@
-package com.google.sampling.experiential.datastore;
+package com.google.sampling.experiential.cloudsql.columns;
 
 import com.pacoapp.paco.shared.model2.EventBaseColumns;
 

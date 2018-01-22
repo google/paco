@@ -9,8 +9,8 @@ import java.util.logging.Logger;
 
 import com.google.cloud.sql.jdbc.Statement;
 import com.google.common.collect.Lists;
+import com.google.sampling.experiential.cloudsql.columns.ExperimentLookupColumns;
 import com.google.sampling.experiential.dao.CSExperimentLookupDao;
-import com.google.sampling.experiential.datastore.ExperimentLookupColumns;
 import com.google.sampling.experiential.server.CloudSQLConnectionManager;
 import com.google.sampling.experiential.server.PacoId;
 import com.pacoapp.paco.shared.util.Constants;

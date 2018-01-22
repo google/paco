@@ -11,6 +11,7 @@ import com.google.sampling.experiential.server.migration.jobs.CSInsertOutputsJob
 import com.google.sampling.experiential.server.migration.jobs.CatchUpDateRangeJob;
 import com.google.sampling.experiential.server.migration.jobs.CatchUpDateRangeJobOldVersion;
 import com.google.sampling.experiential.server.migration.jobs.ConvertEventV4ToV5Job;
+import com.google.sampling.experiential.server.migration.jobs.CopyExperimentFromDataStoreToCloudSqlJob;
 import com.google.sampling.experiential.server.migration.jobs.EventStatsCounterMigrationJob;
 import com.google.sampling.experiential.server.migration.jobs.ExperimentHubMigrationJob;
 import com.google.sampling.experiential.server.migration.jobs.ExperimentJDOToDatastoreMigration;
@@ -38,6 +39,7 @@ public class MigrationLookupTable {
     migrations.put("23", AnonymizeParticipantsJob.class);
     // Catchup job old version, persists experiment info for an event in events table 
     migrations.put("24", CatchUpDateRangeJobOldVersion.class);
+    migrations.put("25", CopyExperimentFromDataStoreToCloudSqlJob.class);
     migrations.put("100", ExperimentTitleLowercaseMigrationJob.class);
   }
   public static MigrationJob getMigrationByName(String name) {

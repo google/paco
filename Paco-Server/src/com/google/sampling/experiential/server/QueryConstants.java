@@ -1,9 +1,12 @@
 package com.google.sampling.experiential.server;
 
-import com.google.sampling.experiential.datastore.EventServerColumns;
-import com.google.sampling.experiential.datastore.ExperimentUserColumns;
-import com.google.sampling.experiential.datastore.FailedEventServerColumns;
-import com.google.sampling.experiential.datastore.UserColumns;
+import com.google.sampling.experiential.cloudsql.columns.DataTypeColumns;
+import com.google.sampling.experiential.cloudsql.columns.EventServerColumns;
+import com.google.sampling.experiential.cloudsql.columns.ExperimentUserColumns;
+import com.google.sampling.experiential.cloudsql.columns.ExternStringInputColumns;
+import com.google.sampling.experiential.cloudsql.columns.ExternStringListLabelColumns;
+import com.google.sampling.experiential.cloudsql.columns.FailedEventServerColumns;
+import com.google.sampling.experiential.cloudsql.columns.UserColumns;
 import com.pacoapp.paco.shared.model2.EventBaseColumns;
 import com.pacoapp.paco.shared.model2.OutputBaseColumns;
 import com.pacoapp.paco.shared.util.Constants;
@@ -25,7 +28,10 @@ public enum QueryConstants {
   GET_COMPLETE_STATUS(" select "+EventBaseColumns.EXPERIMENT_ID+","+ EventServerColumns.WHO+","+ OutputBaseColumns.NAME+",count(0) noOfRecords from events e join outputs o on e._id = o.event_id " + 
                   " where "+ EventBaseColumns.EXPERIMENT_ID+"=? and "+EventServerColumns.WHO+"=? group by "+ EventServerColumns.EXPERIMENT_ID+", "+EventServerColumns.WHO+","+OutputBaseColumns.NAME),
   SET_NAMES("SET NAMES  'utf8mb4'"),
-  GET_PARTICIPANTS_QUERY("select "+ EventServerColumns.WHO +" from expwho where " + EventServerColumns.EXPERIMENT_ID+ " =?");
+  GET_PARTICIPANTS_QUERY("select "+ EventServerColumns.WHO +" from expwho where " + EventServerColumns.EXPERIMENT_ID+ " =?"),
+  GET_ALL_DATATYPES("select * from " + DataTypeColumns.TABLE_NAME),
+  GET_LABEL_ID_FOR_STRING("select * from " + ExternStringListLabelColumns.TABLE_NAME + " where "  + ExternStringListLabelColumns.LABEL + "= ?"),
+  GET_INPUT_TEXT_ID_FOR_STRING("select * from " + ExternStringInputColumns.TABLE_NAME + " where "  + ExternStringInputColumns.LABEL + "= ?");
   
 
   private final String query;

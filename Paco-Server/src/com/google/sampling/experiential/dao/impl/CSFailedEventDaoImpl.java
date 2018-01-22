@@ -10,8 +10,8 @@ import java.util.logging.Logger;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.sampling.experiential.cloudsql.columns.FailedEventServerColumns;
 import com.google.sampling.experiential.dao.CSFailedEventDao;
-import com.google.sampling.experiential.datastore.FailedEventServerColumns;
 import com.google.sampling.experiential.server.CloudSQLConnectionManager;
 import com.google.sampling.experiential.server.QueryConstants;
 import com.pacoapp.paco.shared.util.Constants;

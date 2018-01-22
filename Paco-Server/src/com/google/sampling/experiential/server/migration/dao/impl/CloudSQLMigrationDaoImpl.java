@@ -14,13 +14,13 @@ import java.util.logging.Logger;
 import org.joda.time.DateTime;
 
 import com.google.common.collect.Lists;
+import com.google.sampling.experiential.cloudsql.columns.CatchupFailureServerColumns;
+import com.google.sampling.experiential.cloudsql.columns.EventServerColumns;
+import com.google.sampling.experiential.cloudsql.columns.FailedEventServerColumns;
 import com.google.sampling.experiential.dao.CSExperimentLookupDao;
 import com.google.sampling.experiential.dao.CSExperimentUserDao;
 import com.google.sampling.experiential.dao.impl.CSExperimentLookupDaoImpl;
 import com.google.sampling.experiential.dao.impl.CSExperimentUserDaoImpl;
-import com.google.sampling.experiential.datastore.CatchupFailureServerColumns;
-import com.google.sampling.experiential.datastore.EventServerColumns;
-import com.google.sampling.experiential.datastore.FailedEventServerColumns;
 import com.google.sampling.experiential.model.Event;
 import com.google.sampling.experiential.server.CloudSQLConnectionManager;
 import com.google.sampling.experiential.server.ExceptionUtil;
