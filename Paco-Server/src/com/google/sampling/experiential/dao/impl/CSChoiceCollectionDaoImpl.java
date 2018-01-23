@@ -67,7 +67,7 @@ public class CSChoiceCollectionDaoImpl implements CSChoiceCollectionDao {
  
        statementCreateChoiceCollection = conn.prepareStatement(choiceCollectionInsert.toString(), Statement.RETURN_GENERATED_KEYS);
        
-       choiceCollectionId = IdGenerator.generate(inputCollectionId, inputOrder);
+       choiceCollectionId = IdGenerator.generate(inputCollectionId.divide(BigInteger.valueOf(1000)), inputOrder);
        Choice currentChoice = null;
        PacoId currentChoiceId = null;
        choiceItr = choiceCollection.getChoices().keySet().iterator();

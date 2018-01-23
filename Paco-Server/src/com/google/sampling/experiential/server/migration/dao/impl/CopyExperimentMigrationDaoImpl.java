@@ -144,10 +144,8 @@ public class CopyExperimentMigrationDaoImpl implements CopyExperimentMigrationDa
              " PRIMARY KEY (`" + InformedConsentColumns.INFORMED_CONSENT_ID + "`, `"+ InformedConsentColumns.EXPERIMENT_ID +"`)) " +  
              " DEFAULT CHARACTER SET = utf8mb4" ;
      
-     
-     
     qry = new String[] { createTableSql1, createTableSql2, createTableSql3, createTableSql4, createTableSql5, 
-                         createTableSql6, createTableSql7, createTableSql8, createTableSql9, createTableSql10};
+                         createTableSql6, createTableSql7, createTableSql8, createTableSql9, createTableSql10 };
     
     Connection conn = null;
     PreparedStatement statementCreateTable = null;

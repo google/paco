@@ -219,35 +219,46 @@ public class CSExperimentVersionMappingDaoImpl implements CSExperimentVersionMap
                   if (currentNewInputOrderAndChoice.getInput().getResponseDataType().getName().equals(matchingOldInputOrderAndChoice.getInput().getResponseDataType().getName()) 
                           && currentNewInputOrderAndChoice.getInput().getResponseDataType().isMultiSelect() == (matchingOldInputOrderAndChoice.getInput().getResponseDataType().isMultiSelect())
                           && currentNewInputOrderAndChoice.getInput().getResponseDataType().isNumeric() == (matchingOldInputOrderAndChoice.getInput().getResponseDataType().isNumeric())) {
-                    log.info("comparing inputs and response data types same");
                     currentNewInputOrderAndChoice.getInput().setInputId(matchingOldInputOrderAndChoice.getInput().getInputId());
                     // check input order
                     if (matchingOldInputOrderAndChoice.getInputOrder().intValue() == currentNewInputOrderAndChoice.getInputOrder().intValue()) {
                       log.info("comparing input order - same");
                       // check input choices
                       currentNewChoiceCollection = currentNewInputOrderAndChoice.getChoiceCollection();
+                      matchingOldChoiceCollection = matchingOldInputOrderAndChoice.getChoiceCollection();
+                      // new is choice
                       if (currentNewChoiceCollection != null) {
-                        log.info("current input has choice collection");
-                        matchingOldChoiceCollection = matchingOldInputOrderAndChoice.getChoiceCollection();
                         if ( matchingOldChoiceCollection != null ) { // if old was a choice too
-                          choiceTextOrOrderOrSizeChanged = hasChoiceOrderOrTextOrSizeChanged(currentNewChoiceCollection, matchingOldChoiceCollection);
-                        } else {
+                          if (hasChoiceOrderOrTextOrSizeChanged(currentNewChoiceCollection, matchingOldChoiceCollection)) {
+                            log.info("something has changed in the choices");
+                            choiceTextOrOrderOrSizeChanged = true;  
+                          } 
+                        } else { // if old was not choice
+                          log.info("old version does not have a choice collection");
                           // old was choice, but now, in new it is not
                           inputResponseDataTypeChanged = true;
                           currentNewInputOrderAndChoice.getInput().setInputId(null);
                         }
+                      } else { // new is not choice
+                        if (matchingOldChoiceCollection != null) { // old was choice
+                          inputResponseDataTypeChanged = true;
+                          currentNewInputOrderAndChoice.getInput().setInputId(null);
+                        } // else part not needed (since, old was not choice too)
                       }
                     } else {
                       // input order has changed
+                      log.info("input order changed");
                       inputOrderChanged = true;
                     }
                   } else {
                     // data type properties changed
+                    log.info("data type prop changed");
                     inputResponseDataTypeChanged = true;
                     currentNewInputOrderAndChoice.getInput().setInputId(null);
                   }
                 } else {
                   // input props like right label, left label, likert steps, conditional, multi select etc
+                  log.info("input prop changed0");
                   inputPropsChanged = true;
                 }
               } catch (IllegalArgumentException | IllegalAccessException e) {
@@ -256,24 +267,32 @@ public class CSExperimentVersionMappingDaoImpl implements CSExperimentVersionMap
             } else {
               // totally new variable in this grp
               // we need to insert input, (choice and collection, if list), and then input collection
+              log.info("input prop changed1");
               inputPropsChanged = true;
             }
+            if (choiceTextOrOrderOrSizeChanged && currentNewInputOrderAndChoice.getChoiceCollection() != null) {
+              currentNewInputOrderAndChoice.getChoiceCollection().setChoiceCollectionId(null);
+            }
           }// while input itr
+          
         } else {
           // grp is not present in old version, so there were no inputs on the earlier version
           // all inputs are new
           // no need to update ids
+          log.info("input prop changed2");
           inputPropsChanged = true;
         }
       }
       if (!inputPropsChanged && !inputResponseDataTypeChanged && !inputOrderChanged && !choiceTextOrOrderOrSizeChanged) {
         // copy ic id from old to new
+        log.info("nothing changed in inputs or choices");
         InputCollection temp = newVersion.get(currentNewGroupName);
         if (oldVersion.get(currentNewGroupName) != null ) {
           temp.setInputCollectionId(oldVersion.get(currentNewGroupName).getInputCollectionId());
         }
         newVersion.put(currentNewGroupName, temp);
       } else {
+        log.info("something changed in inputs or choices");
         // set ic id to null 
         InputCollection temp = newVersion.get(currentNewGroupName);
         if ( temp != null) {
@@ -295,31 +314,35 @@ public class CSExperimentVersionMappingDaoImpl implements CSExperimentVersionMap
     Choice matchingOldChoice = null;
     // for every choice in the new list, compare text and then order
     if (currentNewChoices != null ) {
-      Iterator<String> newChoicesItr = currentNewChoices.keySet().iterator();
-      String currentNewChoice = null;
-      while (newChoicesItr.hasNext()) {
-        currentNewChoice = newChoicesItr.next();
-        if (matchingOldChoices != null) { 
-          matchingOldChoice = matchingOldChoices.get(currentNewChoice.toLowerCase());
-          if (matchingOldChoice != null) {
-            currentNewChoices.get(currentNewChoice).setChoiceLabel(matchingOldChoice.getChoiceLabel());
-            if (!(matchingOldChoice.getChoiceOrder() == currentNewChoices.get(currentNewChoice).getChoiceOrder())) {
-              choiceOrderChanged = true;
-            }
-          } else {
-            choiceTextChanged = true;
-          }
-        } else {
-          choiceTextChanged = true;
-        }
-        
-      } // end while for input iterator
-      // all choices for this input iterated
       // when old version has choices c1, c2, c3 and new version has c1, c2. The order has not changed and labels have not changed.
       // but we still need to change the choice collection. we detect this scenario by comparing the sizes
       if (!(currentNewChoices.size() == matchingOldChoices.size())) {
-        currentNewChoiceCollection.setChoiceCollectionId(matchingOldChoiceCollection.getChoiceCollectionId());
         choiceSizeChanged = true;
+      } else {
+        currentNewChoiceCollection.setChoiceCollectionId(matchingOldChoiceCollection.getChoiceCollectionId());
+        Iterator<String> newChoicesItr = currentNewChoices.keySet().iterator();
+        String currentNewChoice = null;
+        while (newChoicesItr.hasNext()) {
+          currentNewChoice = newChoicesItr.next();
+          if (matchingOldChoices != null) { 
+            matchingOldChoice = matchingOldChoices.get(currentNewChoice.toLowerCase());
+            if (matchingOldChoice != null) {
+              currentNewChoices.get(currentNewChoice).setChoiceLabel(matchingOldChoice.getChoiceLabel());
+              if (!(matchingOldChoice.getChoiceOrder() == currentNewChoices.get(currentNewChoice).getChoiceOrder())) {
+                choiceOrderChanged = true;
+                break;
+              }
+            } else {
+              choiceTextChanged = true;
+              break;
+            }
+          } else {
+            choiceTextChanged = true;
+            break;
+          }
+          
+        } // end while for input iterator
+        // all choices for this input iterated
       }
     }
     return choiceTextChanged || choiceOrderChanged || choiceSizeChanged;
@@ -401,7 +424,6 @@ public class CSExperimentVersionMappingDaoImpl implements CSExperimentVersionMap
     // Item 3 - Groups
     updateNewGroupsWithOldId(oldGroupMap, newGroupList);
     groupDaoImpl.insertGroup(newGroupList);
-    
     log.info("processing group end, input begin");
     
     // Item 4 - Inputs

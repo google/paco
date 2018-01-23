@@ -56,6 +56,7 @@ public class CSInputCollectionDaoImpl implements CSInputCollectionDao {
     PreparedStatement statementCreateInputCollection = null;
     ResultSet rs = null;
     Iterator<String> currentInputVarNameIOCItr = null;
+    ChoiceCollection choiceCollection = null;
     String currentInputVarName = null;
     String currentGroupName = null;
     InputOrderAndChoice currentIOC = null;
@@ -90,27 +91,31 @@ public class CSInputCollectionDaoImpl implements CSInputCollectionDao {
           currentGroupName = newVersionGroupItr.next();
           BigInteger inputCollectionId = IdGenerator.generate(new BigInteger(exptDao.getVersion().toString()), groupCount);
           currentGroupInputCollection = newVersionGroupInputCollections.get(currentGroupName);
-          if (currentGroupInputCollection!= null && currentGroupInputCollection.getInputCollectionId() == null) {
+          if (currentGroupInputCollection != null && currentGroupInputCollection.getInputCollectionId() == null) {
             currentInputVarNameIOC = currentGroupInputCollection.getInputOrderAndChoices();
             currentInputVarNameIOCItr = currentInputVarNameIOC.keySet().iterator();
             if ( currentInputVarNameIOC.size() >0) {
-              log.info("size is higher");
+              log.info("input size is greater than 0");
               while (currentInputVarNameIOCItr.hasNext()) {
                 currentInputVarName = currentInputVarNameIOCItr.next();
                 currentIOC = currentInputVarNameIOC.get(currentInputVarName);
+                choiceCollection   = currentIOC.getChoiceCollection();
+                if (choiceCollection != null && choiceCollection.getChoiceCollectionId() != null) {
+                  choiceCollectionId = BigInteger.valueOf(choiceCollection.getChoiceCollectionId());
+                } else {
+                  choiceCollectionId = null;
+                }
+                
                 statementCreateInputCollection.setLong(1, exptDao.getId());
                 statementCreateInputCollection.setObject(2, inputCollectionId, Types.BIGINT);
                 inputDaoImpl.insertInput(currentIOC.getInput());
                 statementCreateInputCollection.setLong(3, currentIOC.getInput().getInputId().getId());
-                ChoiceCollection choiceCollection   = currentIOC.getChoiceCollection();
                 currentDataType =  currentIOC.getInput().getResponseDataType();
-                if (currentDataType != null && currentDataType.isResponseMappingRequired()) {
-                  choiceDaoImpl.createChoiceCollectionId(exptDao.getId(), inputCollectionId, currentIOC.getInputOrder(), currentIOC.getChoiceCollection());
-                }
-                if (choiceCollection == null || choiceCollection.getChoiceCollectionId() == null) {
+                if (currentDataType != null && currentDataType.isResponseMappingRequired() && choiceCollection != null && choiceCollectionId == null) {
+                  choiceDaoImpl.createChoiceCollectionId(exptDao.getId(), inputCollectionId, currentIOC.getInputOrder(), choiceCollection);
+                  choiceCollectionId = BigInteger.valueOf(choiceCollection.getChoiceCollectionId());
                   statementCreateInputCollection.setObject(4, choiceCollectionId, Types.BIGINT);
                 } else {
-                  choiceCollectionId = BigInteger.valueOf(choiceCollection.getChoiceCollectionId());
                   statementCreateInputCollection.setObject(4, choiceCollectionId, Types.BIGINT);
                 }
                 statementCreateInputCollection.setInt(5, currentIOC.getInputOrder());
