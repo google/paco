@@ -197,7 +197,7 @@ public class EventRetriever {
           new ParticipationStatsService().updateResponseCountWithEvent(event);
         }
         replaceEachBlobInJsonWithTheWordBlob(eventJson, event);
-        sendToCloudSqlQueue(eventJson, event);
+//        sendToCloudSqlQueue(eventJson, event);
         tx.commit();
         log.info("Event saved in datastore");
       } finally {
