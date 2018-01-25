@@ -33,7 +33,8 @@ public class AndroidJsInterpreterBuilder {
 
   }
 
-  public static JsInterpreter createInterpreter(Context context, Experiment androidExperiment, ExperimentDAO experiment, ExperimentGroup experimentGroup, Long actionTriggerSpecId, Long actionTriggerId, Long actionId) {
+  public static JsInterpreter createInterpreter(Context context, Experiment androidExperiment, ExperimentDAO experiment, ExperimentGroup experimentGroup,
+                                                Long actionTriggerSpecId, Long actionTriggerId, Long actionId) {
     JsInterpreter interpreter = new JsInterpreter();
     ExperimentProviderUtil experimentProvider = new ExperimentProviderUtil(context);
     bindLibraries(context, interpreter);
@@ -47,6 +48,15 @@ public class AndroidJsInterpreterBuilder {
     interpreter.newBind("strings", new JavascriptStringResources(context));
     interpreter.newBind("calendar", new JavascriptCalendarManager(context));
     interpreter.newBind("locationService", new JavascriptLocationManager(context));
+    if (actionTriggerSpecId != null) {
+      interpreter.newBind("actionTriggerSpecId", actionTriggerSpecId);
+    }
+    if (actionTriggerId != null) {
+      interpreter.newBind("actionTriggerId", actionTriggerId);
+    }
+    if (actionId != null) {
+      interpreter.newBind("actionId", actionId);
+    }
     return interpreter;
 
   }
