@@ -191,7 +191,7 @@ public class Input2 extends ModelBase implements Validatable, Serializable {
 
   public void validateWith(Validator validator) {
 //    System.out.println("VALIDATING Input");
-    validator.isNotNullAndNonEmptyString(name, "input name is not properly initialized");
+    validator.isNonEmptyString(name, "input name is not properly initialized");
     //validator.isNotNullAndNonEmptyString(text, "input question text is not properly initialized");
     if (text != null && text.length() > 0) {
       validator.isTrue(text.length() <= 500, "input question text is too long. 500 char limit.");
@@ -208,7 +208,7 @@ public class Input2 extends ModelBase implements Validatable, Serializable {
       } else if (responseType.equals(LIST)) {
         validator.isNotNullAndNonEmptyCollection(listChoices, "lists must have a non-empty set of choices");
         for (String choice : listChoices) {
-          validator.isNotNullAndNonEmptyString(choice, "list choice text must all be non-empty");
+          validator.isNonEmptyString(choice, "list choice text must all be non-empty");
           if (choice != null && choice.length() > 0) {
             validator.isTrue(choice.length() <= 500, "list choice text is too long. 500 char limit.");
           }

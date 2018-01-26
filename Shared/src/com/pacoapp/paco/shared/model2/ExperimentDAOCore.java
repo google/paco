@@ -182,7 +182,7 @@ public class ExperimentDAOCore extends ModelBase implements Validatable, Seriali
   @Override
   public void validateWith(Validator validator) {
 //    System.out.println("VALIDATING CORE");
-    validator.isNotNullAndNonEmptyString(title, "Experiment title cannot be null");
+    validator.isNonEmptyString(title, "Experiment title cannot be null");
     validator.isValidEmail(creator, "Experiment creator must be a valid email address");
     if (contactEmail != null && contactEmail.length() > 0) {
       validator.isValidEmail(contactEmail, "Experiment contact must be a valid email address");
@@ -196,7 +196,7 @@ public class ExperimentDAOCore extends ModelBase implements Validatable, Seriali
       validator.isValidDateString(joinDate, "join date should be a valid date string");
     }
     if (organization != null && organization.length() > 0) {
-      validator.isNotNullAndNonEmptyString(organization,
+      validator.isNonEmptyString(organization,
                                            "organization must be non null if it is specified");
     }
 
