@@ -11,7 +11,7 @@ public interface Validator {
 
   void addError(String errorMessage);
 
-  boolean isNotNullAndNonEmptyString(String value, String errorMsg);
+  boolean isNonEmptyString(String value, String errorMsg);
 
   boolean isNotNullAndNonEmptyCollection(Collection collection, String errorMessage);
 

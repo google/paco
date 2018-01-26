@@ -3,6 +3,8 @@ package com.pacoapp.paco.shared.model2;
 import java.util.Collection;
 import java.util.List;
 
+import com.pacoapp.paco.shared.util.TimeUtil;
+
 
 public class ExperimentValidator implements Validator {
 
@@ -18,12 +20,13 @@ public class ExperimentValidator implements Validator {
     results.add(new ValidationMessage(msg, Validator.MANDATORY));
   }
 
-  public boolean isNotNullAndNonEmptyString(String value, String msg) {
+  public boolean isNonEmptyString(String value, String msg) {
     boolean b = isNullOrEmptyString(value);
     if (b) {
       addError(msg);
+      return false;
     }
-    return b;
+    return true;
   }
 
   public boolean isNullOrEmptyString(String value) {
@@ -44,7 +47,7 @@ public class ExperimentValidator implements Validator {
    */
   @Override
   public boolean isValidEmail(String address, String errorMessage) {
-    if (!isNotNullAndNonEmptyString(address, errorMessage)) {
+    if (!isNonEmptyString(address, errorMessage)) {
       return false;
     }
     int atIndex = address.indexOf('@');
@@ -54,10 +57,10 @@ public class ExperimentValidator implements Validator {
     }
     String namePart = address.substring(0, atIndex);
     String domainPart = address.substring(atIndex + 1);
-    if (!isNotNullAndNonEmptyString(namePart, errorMessage)) {
+    if (!isNonEmptyString(namePart, errorMessage)) {
       return false;
     }
-    if (!isNotNullAndNonEmptyString(domainPart, errorMessage)) {
+    if (!isNonEmptyString(domainPart, errorMessage)) {
       return false;
     }
     if (domainPart.indexOf('.') == -1) {
@@ -94,23 +97,31 @@ public class ExperimentValidator implements Validator {
    */
   @Override
   public boolean isValidDateString(String dateStr, String errorMessage) {
-    if (!isNotNullAndNonEmptyString(dateStr, errorMessage)) {
+    if (!isNonEmptyString(dateStr, errorMessage)) {
       return false;
     }
-    String[] ymd = dateStr.split("/");
-    if (!isArrayWithNElements(3, ymd, errorMessage)) {
+
+    try {
+      TimeUtil.dateFormatter.parseDateTime(dateStr);
+      return true;
+    } catch (Exception e) {
       return false;
     }
-    if (!isValid4DigitYear(ymd[0], errorMessage)) {
-      return false;
-    }
-    if (!isValid2DigitMonth(ymd[1], errorMessage)) {
-      return false;
-    }
-    if (!isValid2DigitDay(ymd[2], errorMessage)) {
-      return false;
-    }
-    return true;
+//
+//    String[] ymd = dateStr.split("/");
+//    if (!isArrayWithNElements(3, ymd, errorMessage)) {
+//      return false;
+//    }
+//    if (!isValid4DigitYear(ymd[0], errorMessage)) {
+//      return false;
+//    }
+//    if (!isValid2DigitMonth(ymd[1], errorMessage)) {
+//      return false;
+//    }
+//    if (!isValid2DigitDay(ymd[2], errorMessage)) {
+//      return false;
+//    }
+//    return true;
   }
 
   private boolean isValid2DigitMonth(String monthString, String errorMessage) {
@@ -202,7 +213,7 @@ public class ExperimentValidator implements Validator {
    */
   @Override
   public boolean isValidJavascript(String code, String errorMessage) {
-    if (!isNotNullAndNonEmptyString(code, errorMessage)) {
+    if (!isNonEmptyString(code, errorMessage)) {
       return false;
     }
     return true;
