@@ -26,19 +26,17 @@ public class CustomFieldsSearchQuery extends SearchQuery{
     super.addJoinClauses();
     if (qPreProcessor.isOutputColumnsPresent()) {
       SearchUtil.addOutputJoinClause(jsqlStatement);
+      // add ic, i, cc, esi, esll joins
+      super.addInputCollectionBundleJoinClause(jsqlStatement);
     }
   }
   
-  @Override
-  public void addOptimizationToQuery() {
-    // Nothing to do
-  }
-
   @Override
   public PacoResponse executeAcledQuery(String aclQuery) throws JSONException, SQLException, ParseException {
     log.info("custom fields execute");
     CustomResponse pacoResponse = new CustomResponse();
     CSEventOutputDaoImpl impl = new CSEventOutputDaoImpl();
+    log.info("cs-acled qry"+ aclQuery);
     JSONArray resultsArray = impl.getResultSetAsJson(aclQuery, localDateColumns);
     JSONObject resultset = new JSONObject();
     resultset.put("customResponse", resultsArray);

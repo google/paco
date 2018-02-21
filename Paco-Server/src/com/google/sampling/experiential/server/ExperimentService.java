@@ -56,6 +56,8 @@ public interface ExperimentService {
   ExperimentQueryResult getMyJoinedExperiments(String email, DateTimeZone timezone, Integer limit, String cursor, String sortColumn, String sortOrder);
 
   ExperimentQueryResult getAllExperiments(String cursor);
+  List<ValidationMessage> saveExperiment(ExperimentDAO experiment, String loggedInUserEmail, DateTimeZone timezone,
+                                         boolean flag);
 
 
 }

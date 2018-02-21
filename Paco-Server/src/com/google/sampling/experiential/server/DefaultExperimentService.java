@@ -150,12 +150,19 @@ class DefaultExperimentService implements ExperimentService {
     List<ExperimentDAO> experiments = turnJsonsIntoExperiments(experimentJsonsResult.first);
     return new ExperimentQueryResult(experimentJsonsResult.second, experiments);
   }
+  
+  @Override
+  public List<ValidationMessage> saveExperiment(ExperimentDAO experiment,
+                                                String loggedInUserEmail,
+                                                DateTimeZone timezone) {
+    return saveExperiment(experiment, loggedInUserEmail, timezone, true);
+  }
 
   // save experiments
   @Override
   public List<ValidationMessage> saveExperiment(ExperimentDAO experiment,
                                                 String loggedInUserEmail,
-                                                DateTimeZone timezone) {
+                                                DateTimeZone timezone, boolean flag) {
 
     if (ExperimentAccessManager.isUserAllowedToSaveExperiment(experiment.getId(), loggedInUserEmail)) {
       ensureIdsOnActionTriggerObjects(experiment);
@@ -200,7 +207,9 @@ class DefaultExperimentService implements ExperimentService {
 
         experiment.setId(experimentKey.getId());
         ExperimentAccessManager.updateAccessControlEntities(ds, tx, experiment, experimentKey, timezone);
-        sendToCloudSqlQueue(experiment, loggedInUserEmail);
+        if (flag) {
+          sendToCloudSqlQueue(experiment, loggedInUserEmail);
+        }
         tx.commit();
         return null;
       } catch (Exception e) {

@@ -6,4 +6,5 @@ import com.google.sampling.experiential.dao.dataaccess.Experiment;
 
 public interface CSExperimentDao {
   void insertExperiment(Experiment experiment) throws SQLException;
+  Long getExperimentFacetId(Long expId, Integer expVersion) throws SQLException;
 }

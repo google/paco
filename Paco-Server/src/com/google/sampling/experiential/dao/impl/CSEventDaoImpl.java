@@ -12,8 +12,8 @@ import java.util.logging.Logger;
 import com.google.common.collect.Lists;
 import com.google.sampling.experiential.cloudsql.columns.EventServerColumns;
 import com.google.sampling.experiential.dao.CSEventDao;
-import com.google.sampling.experiential.dao.CSExperimentLookupDao;
 import com.google.sampling.experiential.dao.CSExperimentUserDao;
+import com.google.sampling.experiential.dao.CSExperimentVersionMappingDao;
 import com.google.sampling.experiential.model.Event;
 import com.google.sampling.experiential.server.CloudSQLConnectionManager;
 import com.google.sampling.experiential.server.PacoId;
@@ -32,7 +32,7 @@ public class CSEventDaoImpl implements CSEventDao {
   public static final Logger log = Logger.getLogger(CSEventDaoImpl.class.getName());
   private static List<Column> eventColInsertList = Lists.newArrayList();
   private CSExperimentUserDao exptUserDaoImpl = new CSExperimentUserDaoImpl();
-  private CSExperimentLookupDao exptLookupDaoImpl = new CSExperimentLookupDaoImpl();
+  private CSExperimentVersionMappingDao experimentVersionMappingDaoImpl = new CSExperimentVersionMappingDaoImpl();
   private static List<Column> eventColList = Lists.newArrayList();
   
   static {
@@ -75,7 +75,7 @@ public class CSEventDaoImpl implements CSEventDao {
     eventColInsertList.add(new Column(EventServerColumns.RESPONSE_TIME));
     eventColInsertList.add(new Column(EventServerColumns.SCHEDULE_TIME));
     eventColInsertList.add(new Column(EventServerColumns.SORT_DATE));
-    eventColInsertList.add(new Column(EventServerColumns.EXPERIMENT_LOOKUP_ID));
+    eventColInsertList.add(new Column(EventServerColumns.EXPERIMENT_VERSION_MAPPING_ID));
   }
   
   @Override
@@ -155,8 +155,8 @@ public class CSEventDaoImpl implements CSEventDao {
       statementCreateEvent.setTimestamp(i++, event.getResponseTime() != null ? new Timestamp(TimeUtil.convertToLocal(event.getResponseTime(), event.getTimeZone()).getMillis()): null);
       statementCreateEvent.setTimestamp(i++, event.getScheduledTime() != null ? new Timestamp(TimeUtil.convertToLocal(event.getScheduledTime(), event.getTimeZone()).getMillis()): null);
       statementCreateEvent.setTimestamp(i++, new Timestamp(TimeUtil.convertToLocal(new Date(sortDateMillis), event.getTimeZone()).getMillis()));
-      PacoId experimentLookupId = exptLookupDaoImpl.getExperimentLookupIdAndCreate(Long.parseLong(event.getExperimentId()), event.getExperimentName(), event.getExperimentGroupName(), event.getExperimentVersion(), true);
-      statementCreateEvent.setInt(i++, experimentLookupId.getId().intValue());
+      PacoId experimentVersionMappingId = experimentVersionMappingDaoImpl.getExperimentVersionMappingId(Long.parseLong(event.getExperimentId()), event.getExperimentVersion(), event.getExperimentGroupName());
+      statementCreateEvent.setLong(i++, experimentVersionMappingId.getId());
       
       statementCreateEvent.execute();
 

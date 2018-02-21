@@ -1,12 +1,14 @@
 package com.google.sampling.experiential.dao.dataaccess;
 
 public class ExperimentVersionMapping {
+  private Long experimentVersionMappingId;
   private Experiment experimentInfo;
   private Group groupInfo;
   private InputCollection inputCollection;
   private boolean eventsPosted;
   private Long experimentId;
   private Integer experimentVersion;
+  private String source;
   public Experiment getExperimentInfo() {
     return experimentInfo;
   }
@@ -43,11 +45,25 @@ public class ExperimentVersionMapping {
   public void setExperimentVersion(Integer experimentVersion) {
     this.experimentVersion = experimentVersion;
   }
+  public Long getExperimentVersionMappingId() {
+    return experimentVersionMappingId;
+  }
+  public void setExperimentVersionMappingId(Long experimentVersionMappingId) {
+    this.experimentVersionMappingId = experimentVersionMappingId;
+  }
+ 
+  public String getSource() {
+    return source;
+  }
+  public void setSource(String source) {
+    this.source = source;
+  }
   @Override
   public String toString() {
-    return "ExperimentVersionMappingHistory [experimentInfo=" + experimentInfo + ", groupInfo=" + groupInfo
-           + ", inputCollection=" + inputCollection + ", eventsPosted=" + eventsPosted + ", experimentId="
-           + experimentId + ", experimentVersion=" + experimentVersion + "]";
+    return "ExperimentVersionMapping [experimentVersionMappingId=" + experimentVersionMappingId + ", experimentInfo="
+           + experimentInfo + ", groupInfo=" + groupInfo + ", inputCollection=" + inputCollection + ", eventsPosted="
+           + eventsPosted + ", experimentId=" + experimentId + ", experimentVersion=" + experimentVersion + ", source="
+           + source + "]";
   }
 
 }

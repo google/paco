@@ -12,5 +12,6 @@ public class InputColumns {
   public static final String LIKERT_STEPS = "likert_steps";
   public static final String LEFT_LABEL = "left_label";
   public static final String RIGHT_LABEL = "right_label";
-  public static final String CHANNEL = "channel";
+  public static final String PARENT_ID = "parent_id";
+  
 }

@@ -8,6 +8,7 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.text.ParseException;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -21,11 +22,23 @@ import org.json.JSONObject;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import com.google.sampling.experiential.cloudsql.columns.EventServerColumns;
 import com.google.sampling.experiential.cloudsql.columns.ExperimentLookupColumns;
+import com.google.sampling.experiential.cloudsql.columns.OutputServerColumns;
+import com.google.sampling.experiential.dao.CSDataTypeDao;
 import com.google.sampling.experiential.dao.CSEventOutputDao;
-import com.google.sampling.experiential.dao.CSExperimentLookupDao;
 import com.google.sampling.experiential.dao.CSExperimentUserDao;
+import com.google.sampling.experiential.dao.CSExperimentVersionMappingDao;
+import com.google.sampling.experiential.dao.CSGroupTypeInputMappingDao;
+import com.google.sampling.experiential.dao.CSInputCollectionDao;
+import com.google.sampling.experiential.dao.CSInputDao;
+import com.google.sampling.experiential.dao.CSPivotHelperDao;
+import com.google.sampling.experiential.dao.dataaccess.DataType;
+import com.google.sampling.experiential.dao.dataaccess.ExperimentVersionMapping;
+import com.google.sampling.experiential.dao.dataaccess.Group;
+import com.google.sampling.experiential.dao.dataaccess.Input;
+import com.google.sampling.experiential.dao.dataaccess.InputOrderAndChoice;
 import com.google.sampling.experiential.model.Event;
 import com.google.sampling.experiential.model.What;
 import com.google.sampling.experiential.server.CloudSQLConnectionManager;
@@ -74,12 +87,13 @@ public class CSEventOutputDaoImpl implements CSEventOutputDao {
     eventColInsertList.add(new Column(EventServerColumns.RESPONSE_TIME));
     eventColInsertList.add(new Column(EventServerColumns.SCHEDULE_TIME));
     eventColInsertList.add(new Column(EventServerColumns.SORT_DATE));
-    eventColInsertList.add(new Column(EventServerColumns.EXPERIMENT_LOOKUP_ID));
+    eventColInsertList.add(new Column(EventServerColumns.EXPERIMENT_VERSION_MAPPING_ID));
     eventColSearchList.addAll(eventColInsertList);
     
-    outputColList.add(new Column(OutputBaseColumns.EVENT_ID));
-    outputColList.add(new Column(OutputBaseColumns.NAME));
-    outputColList.add(new Column(OutputBaseColumns.ANSWER));
+    outputColList.add(new Column(OutputServerColumns.EVENT_ID));
+    outputColList.add(new Column(OutputServerColumns.NAME));
+    outputColList.add(new Column(OutputServerColumns.ANSWER));
+    outputColList.add(new Column(OutputServerColumns.INPUT_ID));
   }
 
   @Override
@@ -157,6 +171,9 @@ public class CSEventOutputDaoImpl implements CSEventOutputDao {
     PreparedStatement statementCreateEventOutput = null;
     boolean retVal = false;
     Timestamp whenTs = null;
+    Long pvUpdateEvmId = null;
+    Integer pvUpdateAnonWhoId = null;
+    Long expIdLong = null;
     int whenFrac = 0;
     //startCount for setting parameter index
     int i = 1 ;
@@ -166,10 +183,12 @@ public class CSEventOutputDaoImpl implements CSEventOutputDao {
     List<Expression>  out = Lists.newArrayList();
     Insert eventInsert = new Insert();
     Insert outputInsert = new Insert();
-    Long expIdLong = null;
     CSExperimentUserDao euImpl = new CSExperimentUserDaoImpl();
-    CSExperimentLookupDao elImpl = new CSExperimentLookupDaoImpl();
-
+    CSExperimentVersionMappingDao evmDaoImpl = new CSExperimentVersionMappingDaoImpl();
+    CSInputCollectionDao icDaoImpl = new CSInputCollectionDaoImpl();
+    CSPivotHelperDao pvDaoImpl = new CSPivotHelperDaoImpl();
+    List<Long> pvUpdateInputIds = Lists.newArrayList();
+    
     try {
       log.info("Inserting event->" + event.getId());
       conn = CloudSQLConnectionManager.getInstance().getConnection();
@@ -201,6 +220,7 @@ public class CSEventOutputDaoImpl implements CSEventOutputDao {
       statementCreateEvent.setLong(i++, event.getActionTriggerSpecId() != null ? new Long(event.getActionTriggerId()) : java.sql.Types.NULL);
       statementCreateEvent.setLong(i++, event.getActionId() != null ? new Long(event.getActionId()) : java.sql.Types.NULL);
       PacoId anonId = euImpl.getAnonymousIdAndCreate(expIdLong, event.getWho(), true);
+      pvUpdateAnonWhoId = anonId.getId().intValue();
       statementCreateEvent.setString(i++, anonId.getId().toString());
       if (event.getWhen() != null) {
         whenTs = new Timestamp(event.getWhen().getTime());
@@ -238,10 +258,12 @@ public class CSEventOutputDaoImpl implements CSEventOutputDao {
       statementCreateEvent.setTimestamp(i++, event.getResponseTime() != null ? new Timestamp(TimeUtil.convertToLocal(event.getResponseTime(), event.getTimeZone()).getMillis()): null);
       statementCreateEvent.setTimestamp(i++, event.getScheduledTime() != null ? new Timestamp(TimeUtil.convertToLocal(event.getScheduledTime(), event.getTimeZone()).getMillis()): null);
       statementCreateEvent.setTimestamp(i++, new Timestamp(TimeUtil.convertToLocal(new Date(sortDateMillis), event.getTimeZone()).getMillis()));
-      PacoId experimentLookupId = elImpl.getExperimentLookupIdAndCreate(expIdLong, event.getExperimentName(), event.getExperimentGroupName(), event.getExperimentVersion(), true);
-      statementCreateEvent.setInt(i++, experimentLookupId.getId().intValue());
-      
+      Map<String, ExperimentVersionMapping> allEVMInVersion = evmDaoImpl.getAllGroupsInVersion(Long.parseLong(event.getExperimentId()), event.getExperimentVersion());
+      ExperimentVersionMapping evmForThisGroup = findMatchingEVMRecord(event, allEVMInVersion);
+      pvUpdateEvmId = evmForThisGroup.getExperimentVersionMappingId();
+      statementCreateEvent.setLong(i++, pvUpdateEvmId);
       statementCreateEvent.execute();
+
       Set<What> whatSet = event.getWhat();
       if (whatSet != null) {
         statementCreateEventOutput = conn.prepareStatement(outputInsert.toString());
@@ -250,11 +272,23 @@ public class CSEventOutputDaoImpl implements CSEventOutputDao {
           statementCreateEventOutput.setLong(1, event.getId());
           statementCreateEventOutput.setString(2, key);
           statementCreateEventOutput.setString(3, whatAnswer);
+          InputOrderAndChoice currentInput = evmForThisGroup.getInputCollection().getInputOrderAndChoices().get(key);
+          // for some reason (scripted variable) this particular output does not have input associated, then add this input variable name to the input collection and get the input id
+          if ( currentInput == null) {
+            // add this variable to the existing input collection
+            Input newInput = null;
+            currentInput = new InputOrderAndChoice();
+            newInput = icDaoImpl.addUndefinedInputToCollection(expIdLong, evmForThisGroup.getInputCollection().getInputCollectionId(), key);
+            currentInput.setInput(newInput);
+          }
+          statementCreateEventOutput.setLong(4, currentInput.getInput().getInputId().getId());
+          pvUpdateInputIds.add(currentInput.getInput().getInputId().getId());
           statementCreateEventOutput.addBatch();
         }
         statementCreateEventOutput.executeBatch();
       }
       
+      pvDaoImpl.incrementUpdateCtByOne(pvUpdateEvmId, pvUpdateAnonWhoId, pvUpdateInputIds);
       conn.commit();
       retVal = true;
     } finally {
@@ -273,6 +307,98 @@ public class CSEventOutputDaoImpl implements CSEventOutputDao {
       }
     }
     return retVal;
+  }
+  
+  private ExperimentVersionMapping findMatchingEVMRecord(Event event, Map<String, ExperimentVersionMapping> allEVMMap) throws SQLException{
+    String groupNameInEvent = event.getExperimentGroupName();
+    List<String> inputVariableNamesInEvent = event.getWhatKeys();
+    Set<String> inputVariableNamesInMatchingGroup = null;
+    Group crtGroup = null;
+    String crtGroupName = null;
+    List<Input> predefinedFeatureInputLst = null;
+    boolean mixedEventsPossible = false;
+    ExperimentVersionMapping returnEVM = null;
+    CSExperimentVersionMappingDao daoImpl = new CSExperimentVersionMappingDaoImpl();
+    CSGroupTypeInputMappingDao gtDaoImpl = new CSGroupTypeInputMappingDaoImpl();
+    Long expId = Long.parseLong(event.getExperimentId());
+    // if event is posted for a version where we do not have experiment mapping records
+    if (allEVMMap == null) {
+      
+//      closestVersion = daoImpl.getClosestExperimentVersion(expId, event.getExperimentVersion());
+//      daoImpl.copyFrom(expId, closestVersion, event.getExperimentVersion());
+//      allEVMMap = daoImpl.getAllGroupsInVersion(Long.parseLong(event.getExperimentId()), event.getExperimentVersion());
+      daoImpl.copyClosestVersion(expId, event.getExperimentVersion());
+      allEVMMap = daoImpl.getAllGroupsInVersion(expId, event.getExperimentVersion());
+      if (allEVMMap  == null) {
+        allEVMMap = Maps.newHashMap();
+        returnEVM = daoImpl.createGroupWithInputs(expId, event.getExperimentName(), event.getExperimentVersion(), event.getExperimentGroupName(), event.getWho(), event.getWhatKeys());
+        allEVMMap.put(event.getExperimentGroupName(), returnEVM);
+      }
+    }
+    Iterator<String> grpItr = allEVMMap.keySet().iterator();
+    
+    while(grpItr.hasNext()) {
+      crtGroupName = grpItr.next();
+      // older versions of some experiments have the survey group name associated with sensor type data as well. 
+      // With newer version, each experiment will have different group name for each of the sensor data like app_usage, accessibility etc.
+      // if the evm record in the cloud sql table says it has been copied over from one of the latest versions, then we can receive events which contain mixed groups
+      if (allEVMMap.get(crtGroupName).getSource() != null) {
+        mixedEventsPossible = true;
+        break;
+      }
+    }
+    
+    if( !mixedEventsPossible) {
+        return allEVMMap.get(crtGroupName);
+    } else {
+      // it could be predefined feature inputs or survey inputs
+      Map<String, List<Input>> featureInputs = gtDaoImpl.getAllFeatureInputs();
+      Iterator<String> featureItr = featureInputs.keySet().iterator();
+      String currentFeatureName = null;
+      while ( featureItr.hasNext()) {
+        currentFeatureName = featureItr.next();
+        predefinedFeatureInputLst = featureInputs.get(currentFeatureName);
+        // if feature name is system, then even if one of the system variables comes in the outputs, we can use the system group id.
+        // event variable names should contain all of predefined list
+        if (currentFeatureName.equalsIgnoreCase("system")) {
+          if (inputVariableNamesInEvent.contains(getVariableNamesFromInputLst(predefinedFeatureInputLst))) {
+            returnEVM = allEVMMap.get(currentFeatureName);
+            break;
+          }
+        } else {
+          if (inputVariableNamesInEvent.containsAll(getVariableNamesFromInputLst(predefinedFeatureInputLst))) {
+            returnEVM = allEVMMap.get(currentFeatureName);
+            if (returnEVM == null) {
+              // so we add a grp with these inputs to this version
+              returnEVM = daoImpl.createGroupWithPredefinedInputs(expId, event.getExperimentVersion(), event.getExperimentGroupName(), predefinedFeatureInputLst, currentFeatureName);
+              allEVMMap.put(event.getExperimentGroupName(), returnEVM);
+              break;
+            }
+          } 
+        }
+        return returnEVM;
+      }// while
+      // if none of the predefined feature inputs match, then it must be survey grp under which the event is getting posted
+      returnEVM = allEVMMap.get(event.getExperimentGroupName());
+      if ( allEVMMap.size() > 0 ) {
+        
+      }
+      // here too it can be null when older versions had a grp name, and now the latest versions do not have that grp name
+      if ( returnEVM == null) { 
+        returnEVM = daoImpl.createGroupWithInputs(expId, event.getExperimentName(), event.getExperimentVersion(), event.getExperimentGroupName(), event.getWho(), event.getWhatKeys());
+        allEVMMap.put(event.getExperimentGroupName(), returnEVM);
+      }
+      return returnEVM;
+    }
+  
+  }
+  
+  private Set<String> getVariableNamesFromInputLst(List<Input> inputLst) {
+    Set<String> inputSet = Sets.newHashSet();
+    for (Input i : inputLst) { 
+      inputSet.add(i.getName().getLabel());
+    }
+    return inputSet;
   }
   
   @Override

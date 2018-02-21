@@ -12,11 +12,13 @@ import java.util.logging.Logger;
 import com.google.cloud.sql.jdbc.Statement;
 import com.google.common.collect.Lists;
 import com.google.sampling.experiential.cloudsql.columns.ExperimentColumns;
+import com.google.sampling.experiential.cloudsql.columns.ExperimentVersionMappingColumns;
 import com.google.sampling.experiential.dao.CSExperimentDao;
 import com.google.sampling.experiential.dao.dataaccess.Experiment;
 import com.google.sampling.experiential.dao.dataaccess.InformedConsent;
 import com.google.sampling.experiential.server.CloudSQLConnectionManager;
 import com.google.sampling.experiential.server.PacoId;
+import com.google.sampling.experiential.server.QueryConstants;
 import com.pacoapp.paco.shared.util.ErrorMessages;
 
 import net.sf.jsqlparser.expression.Expression;
@@ -31,7 +33,7 @@ public class CSExperimentDaoImpl implements CSExperimentDao {
   private static List<Column> experimentColList = Lists.newArrayList();
   
   static {
-    experimentColList.add(new Column(ExperimentColumns.TITLE));
+    experimentColList.add(new Column(ExperimentColumns.EXPERIMENT_NAME));
     experimentColList.add(new Column(ExperimentColumns.DESCRIPTION));
     experimentColList.add(new Column(ExperimentColumns.CREATOR));
     experimentColList.add(new Column(ExperimentColumns.ORGANIZATION));
@@ -56,7 +58,6 @@ public class CSExperimentDaoImpl implements CSExperimentDao {
     PacoId expId = new PacoId();
     if (experiment != null) {
       try {
-        log.info("Inserting experiment into experiment_history table" + experiment.getExperimentFacetId());
         conn = CloudSQLConnectionManager.getInstance().getConnection();
         conn.setAutoCommit(false);
 
@@ -114,5 +115,38 @@ public class CSExperimentDaoImpl implements CSExperimentDao {
     } else {
       log.warning("insert experiment failed" + experiment);
     }
+  }
+
+  @Override
+  public Long getExperimentFacetId(Long expId, Integer expVersion) throws SQLException {
+    Connection conn = null;
+    ResultSet rs = null;
+    PreparedStatement statementGetExperimentInfo = null;
+    Long expFacetId = null;
+    try {
+      conn = CloudSQLConnectionManager.getInstance().getConnection();
+      statementGetExperimentInfo = conn.prepareStatement(QueryConstants.GET_EXPERIMENT_FACET_ID.toString());
+      statementGetExperimentInfo.setLong(1, expId);
+      statementGetExperimentInfo.setInt(2, expVersion);
+      rs = statementGetExperimentInfo.executeQuery();
+      while (rs.next()) {
+        expFacetId = rs.getLong(ExperimentVersionMappingColumns.EXPERIMENT_FACET_ID);
+      }
+    } finally {
+      try {
+        if ( rs != null) {
+          rs.close();
+        }
+        if (statementGetExperimentInfo != null) {
+          statementGetExperimentInfo.close();
+        }
+        if (conn != null) {
+          conn.close();
+        }
+      } catch (SQLException ex1) {
+        log.warning(ErrorMessages.CLOSING_RESOURCE_EXCEPTION.getDescription()+ ex1);
+      }
+    }
+    return expFacetId;
   }
 }

@@ -10,8 +10,6 @@ import org.joda.time.format.DateTimeFormatter;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.sampling.experiential.dao.CSDataTypeDao;
-import com.google.sampling.experiential.dao.CSExternStringTextDao;
-import com.google.sampling.experiential.dao.CSInformedConsentDao;
 import com.google.sampling.experiential.dao.CSUserDao;
 import com.google.sampling.experiential.dao.dataaccess.Choice;
 import com.google.sampling.experiential.dao.dataaccess.ChoiceCollection;
@@ -27,8 +25,6 @@ import com.google.sampling.experiential.dao.dataaccess.InputCollection;
 import com.google.sampling.experiential.dao.dataaccess.InputOrderAndChoice;
 import com.google.sampling.experiential.dao.dataaccess.User;
 import com.google.sampling.experiential.dao.impl.CSDataTypeDaoImpl;
-import com.google.sampling.experiential.dao.impl.CSExternStringTextDaoImpl;
-import com.google.sampling.experiential.dao.impl.CSInformedConsentDaoImpl;
 import com.google.sampling.experiential.dao.impl.CSUserDaoImpl;
 import com.pacoapp.paco.shared.model2.ExperimentDAO;
 import com.pacoapp.paco.shared.model2.ExperimentGroup;
@@ -65,12 +61,16 @@ public class ExperimentDAOConverter {
     for ( ExperimentGroup experimentGroup : experimentGroups) {
       group = new Group();
       group.setName(experimentGroup.getName());
+      if (experimentGroup.getGroupType() != null) {
+        group.setGroupTypeId(experimentGroup.getGroupType().getGroupTypeId());
+      } 
       group.setCustomRendering(experimentGroup.getCustomRenderingCode());
       group.setFixedDuration(experimentGroup.getFixedDuration());
       group.setStartDate(experimentGroup.getStartDate() != null ? formatter.parseDateTime(experimentGroup.getStartDate()) : null);
       group.setEndDate(experimentGroup.getEndDate() != null ? formatter.parseDateTime(experimentGroup.getEndDate()) : null);
       group.setRawDataAccess(experimentGroup.getRawDataAccess());
       group.setEndOfDayGroup(experimentGroup.getEndOfDayReferredGroupName());
+      group.setGroupTypeId(experimentGroup.getGroupType().getGroupTypeId());
       groups.add(group);
     }  
     return groups; 
@@ -79,25 +79,34 @@ public class ExperimentDAOConverter {
   public InputCollection convertToInputCollection(ExperimentGroup experimentGroup) throws SQLException {
     InputCollection inputCollection = null;
     Input inputObj = null;
-    ChoiceCollection choiceCollectionObj = null;
     InputOrderAndChoice inputOrderAndChoiceObj = null;
     Input2 input2Obj = null;
+    Map<String, InputOrderAndChoice> inputOrderAndChoices = null;
     if (experimentGroup.getInputs().size() > 0) {
+      inputOrderAndChoices = Maps.newHashMap();
       inputCollection = new InputCollection();
-      Map<String, InputOrderAndChoice> inputOrderAndChoices = Maps.newLinkedHashMap();
       for (int order=0; order<experimentGroup.getInputs().size(); order++) {
         input2Obj = experimentGroup.getInputs().get(order);
         inputObj = convertToInput(input2Obj);
-        inputOrderAndChoiceObj = new InputOrderAndChoice();
-        inputOrderAndChoiceObj.setInput(inputObj);
-        inputOrderAndChoiceObj.setInputOrder(order+1);
-        choiceCollectionObj = convertToChoiceCollectionAndCreate(input2Obj.getListChoices());
-        inputOrderAndChoiceObj.setChoiceCollection(choiceCollectionObj);
+        inputOrderAndChoiceObj = convertInputToInputOrderAndChoice(inputObj, order+1, input2Obj.getListChoices());
         inputOrderAndChoices.put(inputObj.getName().getLabel(), inputOrderAndChoiceObj);
       }
       inputCollection.setInputOrderAndChoices(inputOrderAndChoices);
     }
     return inputCollection; 
+  }
+  
+  
+  
+  private InputOrderAndChoice convertInputToInputOrderAndChoice(Input inputObj, Integer order, List<String> choices) throws SQLException {
+    InputOrderAndChoice inputOrderAndChoiceObj = null;
+    ChoiceCollection choiceCollectionObj = null;
+    inputOrderAndChoiceObj = new InputOrderAndChoice();
+    inputOrderAndChoiceObj.setInput(inputObj);
+    inputOrderAndChoiceObj.setInputOrder(order);
+    choiceCollectionObj = convertToChoiceCollectionAndCreate(choices);
+    inputOrderAndChoiceObj.setChoiceCollection(choiceCollectionObj);
+    return inputOrderAndChoiceObj;
   }
   
   public User convertToUserAndCreate(String email, Boolean createOption) throws SQLException {
@@ -150,15 +159,37 @@ public class ExperimentDAOConverter {
     inputObj.setLikertSteps(input2Obj.getLikertSteps());
     inputObj.setLeftLabel(input2Obj.getLeftSideLabel());
     inputObj.setRightLabel(input2Obj.getRightSideLabel());
-    inputObj.setChannel("Group");
     return inputObj;
+  }
+  
+  public List<Input2> convertToInput2(List<Input> inputLst) {
+    List<Input2> input2List = Lists.newArrayList();
+    for (Input eachInput : inputLst) {
+      input2List.add(convertToInput2(eachInput));
+    }
+    return input2List;
+  }
+  
+  public Input2 convertToInput2(Input inputObj) {
+    Input2 input2Obj = new Input2();
+    input2Obj.setName(inputObj.getText().getLabel());
+    input2Obj.setRequired(inputObj.isRequired());
+    input2Obj.setConditionExpression(inputObj.getConditional());
+    if (inputObj.getConditional() != null) {
+      input2Obj.setConditional(true);
+    }
+    input2Obj.setResponseType(inputObj.getResponseDataType().getName());
+    input2Obj.setText(inputObj.getText().getLabel());
+    input2Obj.setLikertSteps(inputObj.getLikertSteps());
+    input2Obj.setLeftSideLabel(inputObj.getLeftLabel());
+    input2Obj.setRightSideLabel(inputObj.getRightLabel());
+    return input2Obj;
   }
   
   public List<ExperimentVersionMapping> convertToExperimentVersionMapping(ExperimentDAO experimentDao) throws SQLException {
     List<ExperimentVersionMapping> newMappingList = Lists.newArrayList();
     ExperimentVersionMapping currentMappingObj = null;
     List<Group> convertedGroups = convertToGroup(experimentDao.getGroups());
-   
     for (Group group : convertedGroups) {
       currentMappingObj = new ExperimentVersionMapping();
       currentMappingObj.setExperimentInfo(convertToExperiment(experimentDao));

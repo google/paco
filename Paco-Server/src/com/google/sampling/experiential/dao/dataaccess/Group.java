@@ -9,12 +9,14 @@ import com.google.sampling.experiential.server.PacoId;
 public class Group {
   private PacoId groupId;
   private String name;
+  private Integer groupTypeId;
   private String customRendering;
   private Boolean fixedDuration;
   private DateTime startDate;
   private DateTime endDate;
   private Boolean rawDataAccess;
   private String endOfDayGroup;
+  
   public PacoId getGroupId() {
     return groupId;
   }
@@ -63,12 +65,7 @@ public class Group {
   public void setEndOfDayGroup(String endOfDayGroup) {
     this.endOfDayGroup = endOfDayGroup;
   }
-  @Override
-  public String toString() {
-    return "Group [groupId=" + groupId + ", name=" + name + ", customRendering=" + customRendering
-           + ", fixedDuration=" + fixedDuration + ", startDate=" + startDate + ", endDate=" + endDate
-           + ", rawDataAccess=" + rawDataAccess + ", endOfDayGroup=" + endOfDayGroup + "]";
-  }
+ 
   public Boolean compareWithoutId(Group other) throws IllegalArgumentException, IllegalAccessException { 
     Field[] fields = this.getClass().getDeclaredFields();
     for (Field field : fields) {
@@ -79,5 +76,17 @@ public class Group {
       }
     }
     return true;
+  }
+  public Integer getGroupTypeId() {
+    return groupTypeId;
+  }
+  public void setGroupTypeId(Integer groupTypeId) {
+    this.groupTypeId = groupTypeId;
+  }
+  @Override
+  public String toString() {
+    return "Group [groupId=" + groupId + ", name=" + name + ", groupTypeId=" + groupTypeId + ", customRendering="
+           + customRendering + ", fixedDuration=" + fixedDuration + ", startDate=" + startDate + ", endDate=" + endDate
+           + ", rawDataAccess=" + rawDataAccess + ", endOfDayGroup=" + endOfDayGroup + "]";
   }
 }

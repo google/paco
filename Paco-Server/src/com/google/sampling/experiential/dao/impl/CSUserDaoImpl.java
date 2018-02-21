@@ -59,6 +59,7 @@ public class CSUserDaoImpl implements CSUserDao {
       userId.setIsCreatedWithThisCall(false);
     }
     user.setUserId(userId);
+    user.setWho(email);
     
     return user;
   }
@@ -108,7 +109,7 @@ public class CSUserDaoImpl implements CSUserDao {
         }
         log.info("find all ids" + findUsersStatement.toString());
         rs = findUsersStatement.executeQuery();
-        while (rs.next()){
+        while (rs.next()) {
           userIds.put(rs.getString(UserColumns.WHO), rs.getLong(UserColumns.USER_ID));
         }
       } else {

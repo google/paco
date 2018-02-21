@@ -10,4 +10,5 @@ public class ExperimentVersionMappingColumns {
   public static final String GROUP_ID = GroupColumns.GROUP_ID;
   public static final String INPUT_COLLECTION_ID = InputCollectionColumns.INPUT_COLLECTION_ID;
   public static final String EVENTS_POSTED = "events_posted";
+  public static final String SOURCE = "source";
 }

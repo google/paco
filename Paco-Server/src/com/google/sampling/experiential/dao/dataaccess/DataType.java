@@ -8,6 +8,14 @@ public class DataType {
   private boolean numeric;
   private boolean multiSelect;
   private boolean responseMappingRequired;
+  public DataType() {
+    
+  }
+  public DataType(String name, boolean numeric, boolean multiSelect) {
+    this.name = name;
+    this.numeric = numeric;
+    this.multiSelect = multiSelect;
+  }
   public PacoId getDataTypeId() {
     return dataTypeId;
   }

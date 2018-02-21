@@ -5,6 +5,7 @@ public class GroupColumns {
   
   public static final String GROUP_ID = "group_id";
   public static final String NAME = "group_name";
+  public static final String GROUP_TYPE_ID = "group_type_id";
   public static final String CUSTOM_RENDERING = "custom_rendering";
   public static final String FIXED_DURATION = "fixed_duration";
   public static final String START_DATE = "start_date";

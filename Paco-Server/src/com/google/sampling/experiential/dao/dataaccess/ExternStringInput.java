@@ -5,6 +5,18 @@ import com.google.sampling.experiential.server.PacoId;
 public class ExternStringInput {
   private PacoId externStringInputId;
   private String label;
+  public ExternStringInput() { 
+    
+  }
+  public ExternStringInput(String label) {
+    Long labelId = null;
+    this.label = label;
+    this.externStringInputId = new PacoId(labelId, false);
+  }
+  public ExternStringInput(String label, Long labelId) {
+    this.label = label;
+    this.externStringInputId = new PacoId(labelId, false);
+  }
   public PacoId getExternStringInputId() {
     return externStringInputId;
   }
@@ -12,6 +24,9 @@ public class ExternStringInput {
     this.externStringInputId = externStringInputId;
   }
   public String getLabel() {
+    if (label == null ) {
+      label = "";
+    }
     return label;
   }
   public void setLabel(String label) {

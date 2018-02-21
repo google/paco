@@ -4,7 +4,7 @@ public class ExperimentColumns {
   public static final String TABLE_NAME = "experiment";
   
   public static final String EXPERIMENT_FACET_ID = "experiment_facet_id";
-  public static final String TITLE = "title";
+  public static final String EXPERIMENT_NAME = "experiment_name";
   public static final String DESCRIPTION = "description";
   public static final String CREATOR = "creator";
   public static final String ORGANIZATION = "organization";

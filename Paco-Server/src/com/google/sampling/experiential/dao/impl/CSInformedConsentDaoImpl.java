@@ -70,7 +70,7 @@ public class CSInformedConsentDaoImpl implements CSInformedConsentDao {
         pacoId.setIsCreatedWithThisCall(true);
         informedConsent.setInformedConsentId(pacoId);
       } catch(SQLException sqle) {
-        log.warning("Exception while inserting to informed_consent_history table" + informedConsent.getInformedConsentId().getId() + ":" +  sqle);
+        log.warning("Exception while inserting to informed_consent_history table:" +  sqle);
       }
       finally {
         try {

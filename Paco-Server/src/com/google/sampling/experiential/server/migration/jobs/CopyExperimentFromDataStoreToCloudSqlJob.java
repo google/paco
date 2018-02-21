@@ -47,9 +47,13 @@ public class CopyExperimentFromDataStoreToCloudSqlJob implements MigrationJob {
       // if inputs response type is list/likert, then create choice collection while adding choices
       // 
       
+      
       if (doAll || (cursor != null && cursor.equalsIgnoreCase("step1"))) {
         try {
+            log.info("------------------------------------------------Step 1 Begin------------------------------------------------");
             sqlMigDaoImpl.copyExperimentCreateTables();
+            sqlMigDaoImpl.anonymizeParticipantsCreateTables();
+            log.info("------------------------------------------------Step 1 End------------------------------------------------");
             returnString = "Created new tables. Step1 complete.";
             doAll = true;
           } catch (SQLException e) {
@@ -59,7 +63,9 @@ public class CopyExperimentFromDataStoreToCloudSqlJob implements MigrationJob {
       }
       if (doAll || (cursor != null && cursor.equalsIgnoreCase("step2"))) {
         try {
+          log.info("------------------------------------------------Step 2 Begin------------------------------------------------");
           sqlMigDaoImpl.addModificationsToExistingTables();
+          log.info("------------------------------------------------Step 2 End------------------------------------------------");
           returnString += "Modified existing tables. Step2 complete.";
           doAll =  true;
         } catch (SQLException e) {
@@ -69,87 +75,112 @@ public class CopyExperimentFromDataStoreToCloudSqlJob implements MigrationJob {
       }
       if (doAll || (cursor != null && cursor.equalsIgnoreCase("step3"))) {
         try {
-          sqlMigDaoImpl.addDataTypes();
-//          returnString += "insert records to data types";
-          returnString = "All Done";
+          log.info("------------------------------------------------Step 3 Begin------------------------------------------------");
+          sqlMigDaoImpl.insertPredefinedRecords();
+          log.info("------------------------------------------------Step 3 End------------------------------------------------");
+          returnString += "Inserted records to data types. Step 3 complete";
           doAll =  true;
         } catch (SQLException e) {
           returnString += "Failed to insert data types. Restart job from step3";
           throw new SQLException(returnString, e);
         }
       }
-//      if (doAll || (cursor != null && cursor.equalsIgnoreCase("step4"))) {
-//        try {
-//          sqlMigDaoImpl.anonymizeParticipantsMigrateToUserAndExptUser();
-//          returnString += "migrateToUserAndExptUser Done. Step4 complete.";
-//          doAll = true;
-//        } catch (SQLException e) {
-//          returnString += "Failed to migrate to User and Expt tables. Restart job from step4";
-//          throw new SQLException(returnString, e);
-//        }
-//      }
-//      if (doAll || (cursor != null && cursor.equalsIgnoreCase("step5"))) {
-//        try {
-//          sqlMigDaoImpl.anonymizeParticipantsModifyExperimentNameFromNullToBlank();
-//          returnString += "Modify experiment name from null to blank Done. Step5 complete.";
-//          doAll = true;
-//        } catch (SQLException e) {
-//          returnString += "Failed to modify experiment name from null to blank. Restart job from step5";
-//          throw new SQLException(returnString, e);
-//        }
-//      }
-//      if (doAll || (cursor != null && cursor.equalsIgnoreCase("step6"))) {
-//        try {
-//          sqlMigDaoImpl.anonymizeParticipantsMigrateToExperimentLookupTracking();
-//          returnString += "migrateToExperimentLookupTracking Done. Step6 complete.";
-//          doAll = true;
-//        } catch (SQLException e) {
-//          returnString += "Failed to migrate to Expt Lookup Tracking tables. Restart job from step6";
-//          throw new SQLException(returnString, e);
-//        }
-//      }
-//      if (doAll || (cursor != null && cursor.equalsIgnoreCase("step7"))) {
-//        try {
-//          sqlMigDaoImpl.anonymizeParticipantsMigrateToExperimentLookup();
-//          returnString += "migrateToExperimentLookup Done. Step7 complete.";
-//          doAll = true;
-//        } catch (SQLException e) {
-//          returnString += "Failed to migrate to Experimentlookup tables. Restart job from step7";
-//          throw new SQLException(returnString, e);
-//        }
-//      }
-//      if (doAll || (cursor != null && cursor.equalsIgnoreCase("step8"))) {
-//        try {
-//          sqlMigDaoImpl.anonymizeParticipantsUpdateEventWhoAndLookupIdByTracking();
-//          returnString += "update event who and lookup id Done. Step8 complete.";
-//          doAll = true;
-//        } catch (Exception ex)  {
-//          log.warning(ExceptionUtil.getStackTraceAsString(ex));
-//          returnString += "Ex:Failed to update event who and lookup id . Restart job from step8";
-//          throw ex;
-//        }
-//      }
-//      if (doAll || (cursor != null && cursor.equalsIgnoreCase("step9"))) {
-//        try {
-//          sqlMigDaoImpl.anonymizeParticipantsUpdateEventWhoAndLookupIdSerially();
-//          returnString += "update event on failed ones Done. Step9 complete.";
-//          doAll = true;
-//        } catch (SQLException e) {
-//          returnString += "Failed to update event on failed ones. Restart job from step9";
-//          log.warning(ExceptionUtil.getStackTraceAsString(e));
-//          throw new SQLException(returnString, e);
-//        }
-//      }
-//      if (doAll || (cursor != null && cursor.equalsIgnoreCase("step10"))) {
-//        try {
-//          sqlMigDaoImpl.anonymizeParticipantsRenameOldEventColumns();
-//          returnString = "All Done";
-//        } catch (SQLException e) {
-//          returnString += "Failed to rename event columns. Restart job from step10";
-//          log.warning(ExceptionUtil.getStackTraceAsString(e));
-//          throw new SQLException(returnString, e);
-//        }
-//      }
+      if (doAll || (cursor != null && cursor.equalsIgnoreCase("step4"))) {
+        try {
+          log.info("------------------------------------------------Step 4 Begin------------------------------------------------");
+          sqlMigDaoImpl.updateEventTableGroupNameNull();
+          log.info("------------------------------------------------Step 4 End------------------------------------------------");
+          returnString += "Modify experiment name from null to System Done. Step4 complete.";
+          doAll = true;
+        } catch (SQLException e) {
+          returnString += "Failed to modify experiment name from null to System. Restart job from step4";
+          throw new SQLException(returnString, e);
+        }
+      }
+      if (doAll || (cursor != null && cursor.equalsIgnoreCase("step5"))) {
+        try {
+          log.info("------------------------------------------------Step 5 Begin------------------------------------------------");
+          sqlMigDaoImpl.copyExperimentSplitGroupsAndPersist();
+          log.info("------------------------------------------------Step 5 End------------------------------------------------");
+          returnString += "Split groups and persist Done. Step5 complete.";
+          doAll = true;
+        } catch (SQLException e) {
+          returnString += "Failed to split groups and persist. Restart job from step5";
+          throw new SQLException(returnString, e);
+        }
+      }
+      
+      if (doAll || (cursor != null && cursor.equalsIgnoreCase("step6"))) {
+        try {
+          log.info("------------------------------------------------Step 6 Begin------------------------------------------------");
+          sqlMigDaoImpl.copyExperimentMigrateFromDataStoreToCloudSql();
+          log.info("------------------------------------------------Step 6 End------------------------------------------------");
+          returnString += "copy experiment data from ds to cs bundle Done. Step6 complete.";
+          doAll = true;
+        } catch (SQLException e) {
+          returnString += "Failed to populate bundle tables. Restart job from step6";
+          throw new SQLException(returnString, e);
+        }
+      }
+      if (doAll || (cursor != null && cursor.equalsIgnoreCase("step7"))) {
+        try {
+          log.info("------------------------------------------------Step 7 Begin------------------------------------------------");
+          sqlMigDaoImpl.populatePivotTableHelper();
+          log.info("------------------------------------------------Step 7 End------------------------------------------------");
+          returnString += "populate pivot table helper Done. Step7 complete.";
+          doAll = true;
+        } catch (SQLException e) {
+          returnString += "Failed to populate pivot tables. Restart job from step7";
+          throw new SQLException(returnString, e);
+        }
+      }
+      if (doAll || (cursor != null && cursor.equalsIgnoreCase("step8"))) {
+        try {
+          log.info("------------------------------------------------Step 8 Begin------------------------------------------------");
+          sqlMigDaoImpl.processPivotTableHelper();
+          log.info("------------------------------------------------Step 8 End------------------------------------------------");
+          returnString += "process pivot table helper Done. Step8 complete.";
+          doAll = true;
+        } catch (SQLException e) {
+          returnString += "Failed to process pivot table. Restart job from step8";
+          throw new SQLException(returnString, e);
+        }
+      } 
+    
+      if (doAll || (cursor != null && cursor.equalsIgnoreCase("step9"))) {
+        try {
+          log.info("------------------------------------------------Step 9 Begin------------------------------------------------");
+          while (true) {
+            boolean insertedToPivotHelperTable = sqlMigDaoImpl.processOlderVersionsAndAnonUsersInEventTable();
+            if (insertedToPivotHelperTable) {
+              sqlMigDaoImpl.processPivotTableHelper();
+            } 
+            else {
+              break;
+            }
+          }
+          log.info("------------------------------------------------Step 9 End------------------------------------------------");
+          returnString += "OlderVersions And AnonUsers Updates in Events and Outputs table Done. Step8 complete.";
+          doAll = true;
+        } catch (SQLException e) {
+          returnString += "Failed to update OlderVersions And AnonUsers data in events table. Restart job from step9";
+          throw new SQLException(returnString, e);
+        }
+      }
+      if (doAll || (cursor != null && cursor.equalsIgnoreCase("step10"))) {
+        try {
+          log.info("------------------------------------------------Step 10 Begin------------------------------------------------");
+          sqlMigDaoImpl.copyExperimentRenameOldEventColumns();
+          log.info("------------------------------------------------Step 10 End------------------------------------------------");
+          returnString = "All Done";
+        } catch (SQLException e) {
+          returnString += "Failed to rename event columns to avoid ambiguity. Restart job from step10";
+          throw new SQLException(returnString, e);
+        }
+      }
+      
+      
+
       return returnString;
     }
 }

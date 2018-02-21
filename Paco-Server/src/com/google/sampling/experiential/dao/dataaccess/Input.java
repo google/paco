@@ -14,8 +14,23 @@ public class Input {
   private Integer likertSteps;
   private String leftLabel;
   private String rightLabel;
-  private String channel;
   private PacoId parentId;
+  
+  public Input() {
+    
+  }
+  public Input(String name, boolean required, String conditional, DataType dataType, String text, int likertSteps, String leftLabel, String rightLabel, Long parentId) {
+    this.name = new ExternStringInput(name);
+    this.required = required;
+    this.conditional = conditional;
+    this.responseDataType = dataType;
+    this.text = new ExternStringInput(text);
+    this.likertSteps = likertSteps;
+    this.leftLabel = leftLabel;
+    this.rightLabel = rightLabel;
+    this.parentId = new PacoId(parentId, false);
+  }
+  
   public PacoId getInputId() {
     return inputId;
   }
@@ -70,12 +85,6 @@ public class Input {
   public void setRightLabel(String rightLabel) {
     this.rightLabel = rightLabel;
   }
-  public String getChannel() {
-    return channel;
-  }
-  public void setChannel(String channel) {
-    this.channel = channel;
-  }
   public PacoId getParentId() {
     return parentId;
   }
@@ -102,7 +111,7 @@ public class Input {
   public String toString() {
     return "Input [inputId=" + inputId + ", name=" + name + ", required=" + required + ", conditional=" + conditional
            + ", responseDataType=" + responseDataType + ", text=" + text + ", likertSteps=" + likertSteps
-           + ", leftLabel=" + leftLabel + ", rightLabel=" + rightLabel + ", channel=" + channel + ", parentId="
-           + parentId + "]";
+           + ", leftLabel=" + leftLabel + ", rightLabel=" + rightLabel + 
+           ", parentId="+ parentId + "]";
   }
 }

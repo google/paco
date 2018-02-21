@@ -30,6 +30,7 @@ public class CSGroupDaoImpl implements CSGroupDao {
  
   static {
     groupColList.add(new Column(GroupColumns.NAME));
+    groupColList.add(new Column(GroupColumns.GROUP_TYPE_ID));
     groupColList.add(new Column(GroupColumns.CUSTOM_RENDERING));
     groupColList.add(new Column(GroupColumns.FIXED_DURATION));
     groupColList.add(new Column(GroupColumns.START_DATE));
@@ -48,7 +49,7 @@ public class CSGroupDaoImpl implements CSGroupDao {
     Insert groupInsert = new Insert();
 
     try {
-      log.info("Inserting group into group_history table" );
+      log.info("Inserting group into group table" );
       conn = CloudSQLConnectionManager.getInstance().getConnection();
       conn.setAutoCommit(false);
       groupInsert.setTable(new Table(GroupColumns.TABLE_NAME));
@@ -66,12 +67,13 @@ public class CSGroupDaoImpl implements CSGroupDao {
           statementCreateGroup = conn.prepareStatement(groupInsert.toString(), Statement.RETURN_GENERATED_KEYS);
           
           statementCreateGroup.setString(1, group.getName());
-          statementCreateGroup.setString(2, group.getCustomRendering());
-          statementCreateGroup.setBoolean(3, group.getFixedDuration());
-          statementCreateGroup.setTimestamp(4, group.getStartDate() != null ? new Timestamp(group.getStartDate().getMillis()): null);
-          statementCreateGroup.setTimestamp(5, group.getEndDate() != null ? new Timestamp(group.getEndDate().getMillis()): null);
-          statementCreateGroup.setBoolean(6, group.getRawDataAccess());
-          statementCreateGroup.setString(7, group.getEndOfDayGroup());
+          statementCreateGroup.setInt(2, group.getGroupTypeId());
+          statementCreateGroup.setString(3, group.getCustomRendering());
+          statementCreateGroup.setBoolean(4, group.getFixedDuration());
+          statementCreateGroup.setTimestamp(5, group.getStartDate() != null ? new Timestamp(group.getStartDate().getMillis()): null);
+          statementCreateGroup.setTimestamp(6, group.getEndDate() != null ? new Timestamp(group.getEndDate().getMillis()): null);
+          statementCreateGroup.setBoolean(7, group.getRawDataAccess());
+          statementCreateGroup.setString(8, group.getEndOfDayGroup());
           log.info(statementCreateGroup.toString());
           statementCreateGroup.execute();
           rs = statementCreateGroup.getGeneratedKeys();

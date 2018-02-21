@@ -129,7 +129,10 @@ public class TimeUtil {
   }
   
   public static void adjustTimeZone(EventDAO event) throws ParseException {
-    int offsetHrs = TimeUtil.getIntFromOffsetString(event.getTimezone());
+    int offsetHrs = 0;
+    if (event.getTimezone() != null) {
+      offsetHrs = TimeUtil.getIntFromOffsetString(event.getTimezone());
+    }
     
     if (event.getScheduledTime() != null) {
       event.setScheduledTime(event.getScheduledTime().withZoneRetainFields(DateTimeZone.forOffsetHours(offsetHrs)));

@@ -10,7 +10,7 @@ import java.util.logging.Logger;
 import com.google.cloud.sql.jdbc.Statement;
 import com.google.common.collect.Lists;
 import com.google.sampling.experiential.cloudsql.columns.ExternStringInputColumns;
-import com.google.sampling.experiential.dao.CSExternStringTextDao;
+import com.google.sampling.experiential.dao.CSExternStringInputDao;
 import com.google.sampling.experiential.server.CloudSQLConnectionManager;
 import com.google.sampling.experiential.server.PacoId;
 import com.google.sampling.experiential.server.QueryConstants;
@@ -23,9 +23,9 @@ import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.schema.Table;
 import net.sf.jsqlparser.statement.insert.Insert;
 
-public class CSExternStringTextDaoImpl implements CSExternStringTextDao {
+public class CSExternStringInputDaoImpl implements CSExternStringInputDao {
 
-  public static final Logger log = Logger.getLogger(CSExternStringTextDaoImpl.class.getName());
+  public static final Logger log = Logger.getLogger(CSExternStringInputDaoImpl.class.getName());
   private static List<Column> labelColList = Lists.newArrayList();
   static {
     labelColList.add(new Column(ExternStringInputColumns.LABEL));
@@ -57,6 +57,9 @@ public class CSExternStringTextDaoImpl implements CSExternStringTextDao {
     try {
       conn = CloudSQLConnectionManager.getInstance().getConnection();
       statementGetIdForLabel = conn.prepareStatement(QueryConstants.GET_INPUT_TEXT_ID_FOR_STRING.toString());
+      if (label == null) {
+        label = "";
+      }
       statementGetIdForLabel.setString(1, label);
       rs = statementGetIdForLabel.executeQuery();
       while (rs.next()) {
@@ -88,49 +91,47 @@ public class CSExternStringTextDaoImpl implements CSExternStringTextDao {
     List<Expression> exp = Lists.newArrayList();
     Insert textInsert = new Insert();
     Long textId = null;
-    if (text != null) {
+    if (text == null) {
+      text = "";
+    }
+    try {
+      conn = CloudSQLConnectionManager.getInstance().getConnection();
+      conn.setAutoCommit(false);
+      textInsert.setTable(new Table(ExternStringInputColumns.TABLE_NAME));
+      textInsert.setUseValues(true);
+      insertTextExprList.setExpressions(exp);
+      textInsert.setItemsList(insertTextExprList);
+      textInsert.setColumns(labelColList);
+      // Adding ? for prepared stmt
+      for (Column c : labelColList) {
+        ((ExpressionList) textInsert.getItemsList()).getExpressions().add(new JdbcParameter());
+      }
+
+      statementCreateText = conn.prepareStatement(textInsert.toString(), Statement.RETURN_GENERATED_KEYS);
+      statementCreateText.setString(1, text);
+      statementCreateText.execute();
+      rs = statementCreateText.getGeneratedKeys();
+      if (rs.next()) {
+        textId = rs.getLong(1);
+      }
+      conn.commit();
+    } catch(SQLException sqle) {
+      log.warning("Exception while inserting to extern string text table" + text + ":" +  sqle);
+    }
+    finally {
       try {
-        log.info("Inserting text into extern string text table" + text);
-        conn = CloudSQLConnectionManager.getInstance().getConnection();
-        conn.setAutoCommit(false);
-        textInsert.setTable(new Table(ExternStringInputColumns.TABLE_NAME));
-        textInsert.setUseValues(true);
-        insertTextExprList.setExpressions(exp);
-        textInsert.setItemsList(insertTextExprList);
-        textInsert.setColumns(labelColList);
-        // Adding ? for prepared stmt
-        for (Column c : labelColList) {
-          ((ExpressionList) textInsert.getItemsList()).getExpressions().add(new JdbcParameter());
+        if( rs != null) { 
+          rs.close();
         }
-  
-        statementCreateText = conn.prepareStatement(textInsert.toString(), Statement.RETURN_GENERATED_KEYS);
-        statementCreateText.setString(1, text);
-        statementCreateText.execute();
-        rs = statementCreateText.getGeneratedKeys();
-        if (rs.next()) {
-          textId = rs.getLong(1);
+        if (statementCreateText != null) {
+          statementCreateText.close();
         }
-        conn.commit();
-      } catch(SQLException sqle) {
-        log.warning("Exception while inserting to extern string text table" + text + ":" +  sqle);
+        if (conn != null) {
+          conn.close();
+        }
+      } catch (SQLException ex1) {
+        log.info(ErrorMessages.CLOSING_RESOURCE_EXCEPTION.getDescription() + ex1);
       }
-      finally {
-        try {
-          if( rs != null) { 
-            rs.close();
-          }
-          if (statementCreateText != null) {
-            statementCreateText.close();
-          }
-          if (conn != null) {
-            conn.close();
-          }
-        } catch (SQLException ex1) {
-          log.info(ErrorMessages.CLOSING_RESOURCE_EXCEPTION.getDescription() + ex1);
-        }
-      }
-    } else {
-      log.warning("insert extern string text label:"+ text);
     }
     return textId;
   }

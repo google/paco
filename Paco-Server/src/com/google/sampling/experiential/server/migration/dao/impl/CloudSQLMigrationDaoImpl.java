@@ -17,10 +17,10 @@ import com.google.common.collect.Lists;
 import com.google.sampling.experiential.cloudsql.columns.CatchupFailureServerColumns;
 import com.google.sampling.experiential.cloudsql.columns.EventServerColumns;
 import com.google.sampling.experiential.cloudsql.columns.FailedEventServerColumns;
-import com.google.sampling.experiential.dao.CSExperimentLookupDao;
 import com.google.sampling.experiential.dao.CSExperimentUserDao;
-import com.google.sampling.experiential.dao.impl.CSExperimentLookupDaoImpl;
+import com.google.sampling.experiential.dao.CSExperimentVersionMappingDao;
 import com.google.sampling.experiential.dao.impl.CSExperimentUserDaoImpl;
+import com.google.sampling.experiential.dao.impl.CSExperimentVersionMappingDaoImpl;
 import com.google.sampling.experiential.model.Event;
 import com.google.sampling.experiential.server.CloudSQLConnectionManager;
 import com.google.sampling.experiential.server.ExceptionUtil;
@@ -76,7 +76,7 @@ public class CloudSQLMigrationDaoImpl implements CloudSQLMigrationDao {
     eventColInsertList.add(new Column(EventServerColumns.SORT_DATE));
     eventColInsertList.add(new Column(EventServerColumns.CLIENT_TIME_ZONE));
     eventColInsertList.add(new Column(Constants.UNDERSCORE_ID));
-    eventColInsertList.add(new Column(EventServerColumns.EXPERIMENT_LOOKUP_ID));
+    eventColInsertList.add(new Column(EventServerColumns.EXPERIMENT_VERSION_MAPPING_ID));
 
     outputColList.add(new Column(OutputBaseColumns.EVENT_ID));
     outputColList.add(new Column(OutputBaseColumns.NAME));
@@ -125,7 +125,7 @@ public class CloudSQLMigrationDaoImpl implements CloudSQLMigrationDao {
     List<Expression> exp = Lists.newArrayList();
     Insert eventInsert = new Insert();
     CSExperimentUserDao exptUserDaoImpl = new CSExperimentUserDaoImpl();
-    CSExperimentLookupDao exptLookupDaoImpl = new CSExperimentLookupDaoImpl();
+    CSExperimentVersionMappingDao experimentVersionMappingDaoImpl = new CSExperimentVersionMappingDaoImpl();
     
     try {
       conn = CloudSQLConnectionManager.getInstance().getConnection();
@@ -191,8 +191,8 @@ public class CloudSQLMigrationDaoImpl implements CloudSQLMigrationDao {
             statementCreateEvent.setTimestamp(i++, ts);
             statementCreateEvent.setString(i++, event.getTimeZone());
             statementCreateEvent.setLong(i++, event.getId());
-            PacoId experimentLookupId = exptLookupDaoImpl.getExperimentLookupIdAndCreate(Long.parseLong(event.getExperimentId()), event.getExperimentName(), event.getExperimentGroupName(), event.getExperimentVersion(), true);
-            statementCreateEvent.setLong(i++, experimentLookupId.getId());
+            PacoId experimentVersionMappingId = experimentVersionMappingDaoImpl.getExperimentVersionMappingId(Long.parseLong(event.getExperimentId()), event.getExperimentVersion(), event.getExperimentGroupName());
+            statementCreateEvent.setLong(i++, experimentVersionMappingId.getId());
 
             statementCreateEvent.addBatch();
             i = 1;

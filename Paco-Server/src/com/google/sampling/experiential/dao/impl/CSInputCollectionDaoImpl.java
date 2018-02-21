@@ -9,18 +9,18 @@ import java.sql.Types;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.logging.Logger;
 
 import com.google.cloud.sql.jdbc.Statement;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import com.google.sampling.experiential.cloudsql.columns.InputCollectionColumns;
 import com.google.sampling.experiential.dao.CSChoiceCollectionDao;
-import com.google.sampling.experiential.dao.CSDataTypeDao;
 import com.google.sampling.experiential.dao.CSInputCollectionDao;
 import com.google.sampling.experiential.dao.CSInputDao;
 import com.google.sampling.experiential.dao.dataaccess.ChoiceCollection;
 import com.google.sampling.experiential.dao.dataaccess.DataType;
+import com.google.sampling.experiential.dao.dataaccess.Group;
 import com.google.sampling.experiential.dao.dataaccess.Input;
 import com.google.sampling.experiential.dao.dataaccess.InputCollection;
 import com.google.sampling.experiential.dao.dataaccess.InputOrderAndChoice;
@@ -49,7 +49,7 @@ public class CSInputCollectionDaoImpl implements CSInputCollectionDao {
     inputCollectionColList.add(new Column(InputCollectionColumns.CHOICE_COLLECTION_ID));
     inputCollectionColList.add(new Column(InputCollectionColumns.INPUT_ORDER));
   }
-
+  
   @Override
   public void createInputCollectionId(ExperimentDAO exptDao, Map<String, InputCollection> newVersionGroupInputCollections,  Map<String, InputCollection> oldVersionGroupInputCollections) throws SQLException {
     Connection conn = null;
@@ -71,7 +71,7 @@ public class CSInputCollectionDaoImpl implements CSInputCollectionDao {
     Iterator<String> newVersionGroupItr = newVersionGroupInputCollections.keySet().iterator(); 
     if (exptDao != null) {
       try {
-        log.info("Inserting input collection into input_collection_history table" + exptDao.getId());
+        log.info("Inserting input collection into input_collection table" + exptDao.getId());
         conn = CloudSQLConnectionManager.getInstance().getConnection();
         conn.setAutoCommit(false);
         inputCollectionInsert.setTable(new Table(InputCollectionColumns.TABLE_NAME));
@@ -152,4 +152,68 @@ public class CSInputCollectionDaoImpl implements CSInputCollectionDao {
      log.warning("insert input collection failed" + exptDao);
    }
   }
+
+  @Override
+  public Input addUndefinedInputToCollection(Long experimentId, Long inputCollectionId, String variableName) throws SQLException {
+    CSInputDao inputDao = new CSInputDaoImpl();
+    List<Input> inputLst = inputDao.insertVariableNames(Lists.newArrayList(variableName));
+    addUndefinedInputToCollection(experimentId, inputCollectionId, inputLst.get(0).getInputId().getId());
+    return inputLst.get(0);
+  }
+  
+  @Override
+  public void addUndefinedInputToCollection(Long experimentId, Long inputCollectionId, Long inputId) {
+   
+    Connection conn = null;
+    PreparedStatement statementCreateInput = null;
+    ResultSet rs = null;
+    ExpressionList insertInputExprList = new ExpressionList();
+    List<Expression> exp = Lists.newArrayList();
+    Insert inputInsert = new Insert();
+    try {
+      log.info("Inserting undefined input into input collection table");
+      conn = CloudSQLConnectionManager.getInstance().getConnection();
+      conn.setAutoCommit(false);
+      inputInsert.setTable(new Table(InputCollectionColumns.TABLE_NAME));
+      inputInsert.setUseValues(true);
+      insertInputExprList.setExpressions(exp);
+      inputInsert.setItemsList(insertInputExprList);
+      inputInsert.setColumns(inputCollectionColList);
+      // Adding ? for prepared stmt
+      for (Column c : inputCollectionColList) {
+        ((ExpressionList) inputInsert.getItemsList()).getExpressions().add(new JdbcParameter());
+      }
+
+      statementCreateInput = conn.prepareStatement(inputInsert.toString());
+      Long choiceCollectionId = null;
+      statementCreateInput.setLong(1, experimentId);
+      statementCreateInput.setLong(2, inputCollectionId);
+      statementCreateInput.setLong(3, inputId);
+      statementCreateInput.setObject(4, choiceCollectionId);
+      statementCreateInput.setLong(5, -99);
+      log.info(statementCreateInput.toString());
+      statementCreateInput.execute();
+      conn.commit();
+    } catch(SQLException sqle) {
+      log.warning("Exception while inserting to input table:" +  sqle);
+    } finally {
+      try {
+        if( rs != null) { 
+          rs.close();
+        }
+        if (statementCreateInput != null) {
+          statementCreateInput.close();
+        }
+        if (conn != null) {
+          conn.close();
+        }
+      } catch (SQLException ex1) {
+        log.info(ErrorMessages.CLOSING_RESOURCE_EXCEPTION.getDescription() + ex1);
+      }
+    }
+  }
+    
 }
+
+ 
+
