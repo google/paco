@@ -99,7 +99,7 @@ public class ExperimentJsonUploadProcessor {
   private Outcome postObject(boolean persistInCloudSqlOnly, ExperimentDAO experimentDAO, int objectId, User userFromLogin, String appIdHeader, String pacoVersionHeader, DateTimeZone timezone) throws Throwable {
     String lowerCaseEmail = null;
     ExperimentEditOutcome outcome = new ExperimentEditOutcome(objectId);
-  
+    
     Long id = experimentDAO.getId();
     log.info("Retrieving experimentId, experimentName for experiment posting: " + id + ", " + experimentDAO.getTitle());
     ExperimentDAO existingExperiment = null;
@@ -111,6 +111,10 @@ public class ExperimentJsonUploadProcessor {
       experimentDAO.setId(null);
     }
     if (persistInCloudSqlOnly) { 
+      // TODO REMOVE BEGIN TO BE REMOVED WHEN FRONT END CHANGES ARE MADE. temp code to split into grps
+      ExperimentDAOConverter daoConverter = new ExperimentDAOConverter();
+      daoConverter.splitGroups(experimentDAO);
+      // REMOVE ENDS
       CSExperimentUserDao exptUserDaoImpl = new CSExperimentUserDaoImpl();
       CSExperimentVersionMappingDao exptVersionMapping = new CSExperimentVersionMappingDaoImpl();
       // for saving experiment, group, inputs
@@ -130,16 +134,16 @@ public class ExperimentJsonUploadProcessor {
         outcome.setError("Newer version of the experiment for this event: " + objectId + ". Refresh and try editing again.");
         return outcome;
       }
-    }
-    List<ValidationMessage> saveExperimentErrorResults = experimentService.saveExperiment(experimentDAO,
-                                                                                          lowerCaseEmail,
-                                                                                          timezone);
-    if (saveExperimentErrorResults != null) {
-      ObjectMapper mapper = JsonConverter.getObjectMapper();
-      String json = mapper.writeValueAsString(saveExperimentErrorResults);
-      outcome.setError(json);
-    }
-    outcome.setExperimentId(experimentDAO.getId());
+      List<ValidationMessage> saveExperimentErrorResults = experimentService.saveExperiment(experimentDAO,
+                                                                                            lowerCaseEmail,
+                                                                                            timezone);
+      if (saveExperimentErrorResults != null) {
+        ObjectMapper mapper = JsonConverter.getObjectMapper();
+        String json = mapper.writeValueAsString(saveExperimentErrorResults);
+        outcome.setError(json);
+      }
+      outcome.setExperimentId(experimentDAO.getId());
+    }  
     return outcome;
   }
 

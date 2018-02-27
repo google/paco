@@ -51,6 +51,7 @@ import com.pacoapp.paco.shared.model2.EventStore;
 import com.pacoapp.paco.shared.model2.ExperimentDAO;
 import com.pacoapp.paco.shared.model2.ExperimentGroup;
 import com.pacoapp.paco.shared.model2.ExperimentValidator;
+import com.pacoapp.paco.shared.model2.GroupTypeEnum;
 import com.pacoapp.paco.shared.model2.Input2;
 import com.pacoapp.paco.shared.model2.InterruptCue;
 import com.pacoapp.paco.shared.model2.JsonConverter;
@@ -473,6 +474,9 @@ public class ExperimentProviderUtil implements EventStore {
     }
     if (rootNode.has("fixedDuration")) {
       defaultExperimentGroup.setFixedDuration(rootNode.path("fixedDuration").getBooleanValue());
+    }
+    if (rootNode.has("groupType")) {
+      defaultExperimentGroup.setGroupType(GroupTypeEnum.valueOf(rootNode.path("groupType").getTextValue()));
     }
 
 

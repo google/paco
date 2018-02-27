@@ -162,7 +162,7 @@ class DefaultExperimentService implements ExperimentService {
   @Override
   public List<ValidationMessage> saveExperiment(ExperimentDAO experiment,
                                                 String loggedInUserEmail,
-                                                DateTimeZone timezone, boolean flag) {
+                                                DateTimeZone timezone, boolean sendToCloudSqlflag) {
 
     if (ExperimentAccessManager.isUserAllowedToSaveExperiment(experiment.getId(), loggedInUserEmail)) {
       ensureIdsOnActionTriggerObjects(experiment);
@@ -207,7 +207,7 @@ class DefaultExperimentService implements ExperimentService {
 
         experiment.setId(experimentKey.getId());
         ExperimentAccessManager.updateAccessControlEntities(ds, tx, experiment, experimentKey, timezone);
-        if (flag) {
+        if (sendToCloudSqlflag) {
           sendToCloudSqlQueue(experiment, loggedInUserEmail);
         }
         tx.commit();

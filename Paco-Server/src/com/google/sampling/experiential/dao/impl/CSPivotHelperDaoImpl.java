@@ -63,8 +63,10 @@ public class CSPivotHelperDaoImpl implements CSPivotHelperDao {
           statementCreatePivotHelper.setLong(3, pivotHelper.getInputId());
           statementCreatePivotHelper.setBoolean(4, pivotHelper.getProcessed());
           log.info(statementCreatePivotHelper.toString());
-          statementCreatePivotHelper.addBatch();
-        
+          if (!getPivotHelper(pivotHelper.getExpVersionMappingId(),pivotHelper.getAnonWhoId(),pivotHelper.getInputId())) {
+            statementCreatePivotHelper.addBatch();
+          }
+          
       } //for
       statementCreatePivotHelper.executeBatch();
       conn.commit();
@@ -85,6 +87,41 @@ public class CSPivotHelperDaoImpl implements CSPivotHelperDao {
         log.info(ErrorMessages.CLOSING_RESOURCE_EXCEPTION.getDescription() + ex1);
       }
     }
+  }
+  @Override
+  public boolean getPivotHelper(Long evmId, Integer anonWho, Long inputId) throws SQLException {
+    
+    Connection conn = null;
+    PreparedStatement statementUpdateEvent = null;
+    ResultSet rs =null;
+    String updateQuery = "select * from pivot_helper where experiment_version_mapping_id= ? and anon_who=? and input_id=?";
+    try {
+      conn = CloudSQLConnectionManager.getInstance().getConnection();
+      
+      statementUpdateEvent = conn.prepareStatement(updateQuery);
+      statementUpdateEvent.setLong(1, evmId);
+      statementUpdateEvent.setInt(2, anonWho);
+      statementUpdateEvent.setLong(3, inputId);
+      log.info(updateQuery);
+      rs = statementUpdateEvent.executeQuery();
+      while (rs.next()) {
+        return true;
+      }
+      return false;
+//      log.info("chk if pv exists " + evmId + "-who:" + anonWho + ",inputid" + inputId);
+    } finally {
+      try {
+        if (statementUpdateEvent != null) {
+          statementUpdateEvent.close();
+        }
+        if (conn != null) {
+          conn.close();
+        }
+      } catch (SQLException ex1) {
+        log.warning(ErrorMessages.CLOSING_RESOURCE_EXCEPTION.getDescription()+ ex1);
+      }
+    }
+//    return true;
   }
   
   @Override

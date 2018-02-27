@@ -7,7 +7,6 @@ import java.sql.SQLException;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 import java.util.logging.Logger;
 
@@ -34,13 +33,10 @@ import com.google.sampling.experiential.cloudsql.columns.InputColumns;
 import com.google.sampling.experiential.cloudsql.columns.OutputServerColumns;
 import com.google.sampling.experiential.cloudsql.columns.PivotHelperColumns;
 import com.google.sampling.experiential.cloudsql.columns.UserColumns;
-import com.google.sampling.experiential.dao.CSExperimentDefinitionDao;
 import com.google.sampling.experiential.dao.CSExperimentUserDao;
 import com.google.sampling.experiential.dao.CSExperimentVersionMappingDao;
-import com.google.sampling.experiential.dao.CSFailedEventDao;
 import com.google.sampling.experiential.dao.CSGroupTypeDao;
 import com.google.sampling.experiential.dao.CSGroupTypeInputMappingDao;
-import com.google.sampling.experiential.dao.CSInputCollectionDao;
 import com.google.sampling.experiential.dao.CSInputDao;
 import com.google.sampling.experiential.dao.CSOutputDao;
 import com.google.sampling.experiential.dao.CSPivotHelperDao;
@@ -48,19 +44,16 @@ import com.google.sampling.experiential.dao.dataaccess.DataType;
 import com.google.sampling.experiential.dao.dataaccess.ExperimentVersionMapping;
 import com.google.sampling.experiential.dao.dataaccess.GroupTypeInputMapping;
 import com.google.sampling.experiential.dao.dataaccess.Input;
-import com.google.sampling.experiential.dao.dataaccess.InputCollection;
 import com.google.sampling.experiential.dao.dataaccess.InputOrderAndChoice;
 import com.google.sampling.experiential.dao.dataaccess.PivotHelper;
-import com.google.sampling.experiential.dao.impl.CSExperimentDefinitionDaoImpl;
 import com.google.sampling.experiential.dao.impl.CSExperimentUserDaoImpl;
 import com.google.sampling.experiential.dao.impl.CSExperimentVersionMappingDaoImpl;
-import com.google.sampling.experiential.dao.impl.CSFailedEventDaoImpl;
 import com.google.sampling.experiential.dao.impl.CSGroupTypeDaoImpl;
 import com.google.sampling.experiential.dao.impl.CSGroupTypeInputMappingDaoImpl;
-import com.google.sampling.experiential.dao.impl.CSInputCollectionDaoImpl;
 import com.google.sampling.experiential.dao.impl.CSInputDaoImpl;
 import com.google.sampling.experiential.dao.impl.CSOutputDaoImpl;
 import com.google.sampling.experiential.dao.impl.CSPivotHelperDaoImpl;
+import com.google.sampling.experiential.model.What;
 import com.google.sampling.experiential.server.CloudSQLConnectionManager;
 import com.google.sampling.experiential.server.ExceptionUtil;
 import com.google.sampling.experiential.server.ExperimentDAOConverter;
@@ -70,16 +63,13 @@ import com.google.sampling.experiential.server.PacoId;
 import com.google.sampling.experiential.server.migration.dao.CopyExperimentMigrationDao;
 import com.google.sampling.experiential.shared.WhatDAO;
 import com.pacoapp.paco.shared.model2.ExperimentDAO;
-import com.pacoapp.paco.shared.model2.ExperimentGroup;
 import com.pacoapp.paco.shared.model2.ExperimentQueryResult;
-import com.pacoapp.paco.shared.model2.GroupTypeEnum;
-import com.pacoapp.paco.shared.model2.Input2;
-import com.pacoapp.paco.shared.model2.JsonConverter;
 import com.pacoapp.paco.shared.util.Constants;
 import com.pacoapp.paco.shared.util.ErrorMessages;
 
 public class CopyExperimentMigrationDaoImpl implements CopyExperimentMigrationDao {
   public static final Logger log = Logger.getLogger(CopyExperimentMigrationDaoImpl.class.getName());
+  private CSGroupTypeInputMappingDao gtimDaoImpl = new CSGroupTypeInputMappingDaoImpl();
   
   @Override
   public boolean copyExperimentCreateTables() throws SQLException {
@@ -502,138 +492,37 @@ return true;
   
   @Override
   public boolean copyExperimentSplitGroupsAndPersist()  throws SQLException {
-    CSExperimentDefinitionDao expDefDao = new CSExperimentDefinitionDaoImpl();
-    CSGroupTypeInputMappingDao gtimDao = new CSGroupTypeInputMappingDaoImpl();
+//    CSExperimentDefinitionDao expDefDao = new CSExperimentDefinitionDaoImpl();
     final ExperimentService experimentService = ExperimentServiceFactory.getExperimentService();
     ExperimentQueryResult experimentsQueryResults = experimentService.getAllExperiments(null);
     List<ExperimentDAO> experimentList = experimentsQueryResults.getExperiments();
-    
+    ExperimentDAOConverter daoConverter = new ExperimentDAOConverter();
     log.info("Retrieved " + experimentList.size() + "experiments");
 
     if (experimentList == null || experimentList.isEmpty()) {
       return false;
     }
-    List<ExperimentGroup> predefinedGroups = null;
-    ExperimentDAOConverter daoConverter = new ExperimentDAOConverter();
-    // add predefined system group
-    ExperimentGroup systemGroup = null;
     
     for (ExperimentDAO eachExperiment : experimentList) {
       try {
-        predefinedGroups = Lists.newArrayList();
-        // add predefined system group
-        systemGroup = gtimDao.createSystemExperimentGroupForGroupType(GroupTypeEnum.SYSTEM, eachExperiment.getRecordPhoneDetails());
-
-        // take crt backup in cloud sql
         //TODO uncomment for the first time
-        expDefDao.insertExperimentDefinition(eachExperiment.getId(), eachExperiment.getVersion(), JsonConverter.jsonify(Lists.newArrayList(eachExperiment), null, null, null));
+//        expDefDao.insertExperimentDefinition(eachExperiment.getId(), eachExperiment.getVersion(), JsonConverter.jsonify(Lists.newArrayList(eachExperiment), null, null, null));
        
-        // chk if splitting is neccessary
-        for (ExperimentGroup eg: eachExperiment.getGroups()) {
-          List<Input2> crtInputList =  eg.getInputs();
-          Integer inputSize = 0;
-          if (crtInputList != null) {
-            inputSize = crtInputList.size();
-          }
-          if ( inputSize > 0) {
-            if (eg.getAccessibilityListen() || eg.getGroupType().equals(GroupTypeEnum.ACCESSIBILITY)) {
-              ExperimentGroup accListen = new ExperimentGroup();
-              String lowerCaseGroupTypeName = GroupTypeEnum.ACCESSIBILITY.toString().toLowerCase();
-              List<Input> inputLst = gtimDao.getAllFeatureInputs().get(lowerCaseGroupTypeName);
-              accListen.setName(lowerCaseGroupTypeName);
-              accListen.setGroupType(GroupTypeEnum.ACCESSIBILITY);
-              accListen.setInputs(daoConverter.convertToInput2(inputLst));
-              accListen.setStartDate(eg.getStartDate());
-              accListen.setEndDate(eg.getEndDate());
-              accListen.setFeedback(eg.getFeedback());
-              accListen.setAccessibilityListen(true);
-              
-              eg.setAccessibilityListen(false);
-              
-              predefinedGroups.add(accListen);
-            }
-            if (eg.getLogShutdown() || eg.getGroupType().equals(GroupTypeEnum.PHONESTATUS)) {
-              ExperimentGroup logPhoneActions = new ExperimentGroup();
-              String lowerCaseGroupTypeName = GroupTypeEnum.PHONESTATUS.toString().toLowerCase();
-              List<Input> inputLst = gtimDao.getAllFeatureInputs().get(lowerCaseGroupTypeName);
-              logPhoneActions.setName(lowerCaseGroupTypeName);
-              logPhoneActions.setGroupType(GroupTypeEnum.PHONESTATUS);
-              logPhoneActions.setInputs(daoConverter.convertToInput2(inputLst));
-              logPhoneActions.setStartDate(eg.getStartDate());
-              logPhoneActions.setEndDate(eg.getEndDate());
-              logPhoneActions.setFeedback(eg.getFeedback());
-              logPhoneActions.setLogShutdown(true);
-              
-              eg.setLogShutdown(false);
-              
-              predefinedGroups.add(logPhoneActions);
-              
-            }
-      
-            if ( eg.getLogActions() || eg.getGroupType().equals(GroupTypeEnum.APPUSAGE))  {
-              ExperimentGroup appUsage = new ExperimentGroup();
-              String lowerCaseGroupTypeName = GroupTypeEnum.APPUSAGE.toString().toLowerCase();
-              
-              List<Input> inputLst = gtimDao.getAllFeatureInputs().get(lowerCaseGroupTypeName);
-              appUsage.setName(lowerCaseGroupTypeName);
-              appUsage.setGroupType(GroupTypeEnum.APPUSAGE);
-              appUsage.setInputs(daoConverter.convertToInput2(inputLst));
-              appUsage.setStartDate(eg.getStartDate());
-              appUsage.setEndDate(eg.getEndDate());
-              appUsage.setFeedback(eg.getFeedback());
-              appUsage.setLogActions(true);
-              
-              eg.setLogActions(false);
-              
-              predefinedGroups.add(appUsage);
-              
-            }
-            if (eg.getLogNotificationEvents() || eg.getGroupType().equals(GroupTypeEnum.NOTFICATION)) {
-              ExperimentGroup logNotifGrp = new ExperimentGroup();
-              String lowerCaseGroupTypeName = GroupTypeEnum.NOTFICATION.toString().toLowerCase();
-              
-              List<Input> inputLst = gtimDao.getAllFeatureInputs().get(lowerCaseGroupTypeName);
-              logNotifGrp.setName(lowerCaseGroupTypeName);
-              logNotifGrp.setGroupType(GroupTypeEnum.NOTFICATION);
-              logNotifGrp.setInputs(daoConverter.convertToInput2(inputLst));
-              logNotifGrp.setStartDate(eg.getStartDate());
-              logNotifGrp.setEndDate(eg.getEndDate());
-              logNotifGrp.setFeedback(eg.getFeedback());
-              logNotifGrp.setLogNotificationEvents(true);
-              
-              eg.setLogNotificationEvents(false);
-              
-              predefinedGroups.add(logNotifGrp);
-              
-            }
-          } 
-        }
+        daoConverter.splitGroups(eachExperiment);
+        log.info("Splitted or Added with System Group, Experiment Id : " + eachExperiment.getId()) ;
+        // upgrade version and persist in data store and in cloud sql
+        eachExperiment.setVersion(eachExperiment.getVersion() + 1);
+        // save splitted updated json in ds
+        experimentService.saveExperiment(eachExperiment, eachExperiment.getCreator(), new DateTime().getZone(), false);
       } catch (Exception e) {
         log.warning(ErrorMessages.GENERAL_EXCEPTION.getDescription() + ExceptionUtil.getStackTraceAsString(e));
       }
-      predefinedGroups.add(systemGroup);
-      List<ExperimentGroup> origGroups = eachExperiment.getGroups();
-      ExperimentGroup matchingGroupInDS = null;
-      // add all predefined grps, only if its not already present
-      for (ExperimentGroup egt : predefinedGroups) {
-        matchingGroupInDS = eachExperiment.getGroupByName(egt.getName());
-        if (matchingGroupInDS == null) {
-          origGroups.add(egt);
-        }
-      }
-    
-      
-      log.info("Splitted or Added with System Group, Experiment Id : " + eachExperiment.getId()) ;
-      // upgrade version and persist in data store and in cloud sql
-      eachExperiment.setVersion(eachExperiment.getVersion() + 1);
-      // save json for bkup in cs
-      expDefDao.insertExperimentDefinition(eachExperiment.getId(), eachExperiment.getVersion(), JsonConverter.jsonify(Lists.newArrayList(eachExperiment), null, null, null));
-      // save splitted updated json in ds
-      experimentService.saveExperiment(eachExperiment, eachExperiment.getCreator(), new DateTime().getZone(), false);
     } // for loop on expt in ds
     log.info("splitting groups for all experiments finished");
     return true;
   }
+  
+ 
 
 
   private boolean populateGroupTypeInput()  throws SQLException {
@@ -919,12 +808,18 @@ return true;
     return true;
   }
   
+  private  Set<What> convertToWhats(List<WhatDAO> whatDaos) {
+    Set<What> daos = Sets.newHashSet();
+    for (WhatDAO currentWhat : whatDaos) {
+      daos.add(new What(currentWhat.getName(), currentWhat.getValue()));
+    }
+    return daos;
+  }
+  
   @Override
   public boolean processOlderVersionsAndAnonUsersInEventTable()  throws SQLException {
     CSExperimentVersionMappingDao daoImpl = new CSExperimentVersionMappingDaoImpl();
-    CSFailedEventDao failedDaoImpl = new CSFailedEventDaoImpl();
     CSExperimentUserDao expUserDao = new CSExperimentUserDaoImpl();
-    CSInputCollectionDao icDaoImpl = new CSInputCollectionDaoImpl();
     CSOutputDao outDaoImpl = new  CSOutputDaoImpl();
     final String unprocessedEventRecordQuery = "select experiment_id, experiment_version, group_name, who, text, experiment_name, _id from events e join outputs o on e._id=o.event_id where ((experiment_version_mapping_id is null or o.input_id is null) and experiment_id is not null) limit 1";
     Connection conn = null;
@@ -937,28 +832,17 @@ return true;
     Long eventId = null;
     String whoEmail = null;
     List<String> inputVariableNames = Lists.newArrayList();
-    InputOrderAndChoice currentIOC = null;
-    InputCollection currentInputCollection = null;
-    Input newCreatedInput = null;
-    Map<String, ExperimentVersionMapping> allEVMRecords = null;
-    Map<String, ExperimentVersionMapping> newEVMRecordMap = null;
     
     ExperimentVersionMapping newEVMRecord = null;
-    ExperimentVersionMapping deletedExptEVMRecord = null;
     
     List<PivotHelper> pvHelperList = Lists.newArrayList();
-    boolean olderVersion = false;
-    boolean publicUser = false;
     String experimentName = null;
-    boolean deletedExperiment = false;
-    boolean doFurtherProcessing = false;
     try {
       conn = CloudSQLConnectionManager.getInstance().getConnection();
       statementUnprocessedEventRecord = conn.prepareStatement(unprocessedEventRecordQuery);
       log.info(unprocessedEventRecordQuery);
       rsUnprocessedEventQuery = statementUnprocessedEventRecord.executeQuery();
       while(rsUnprocessedEventQuery.next()) {
-        doFurtherProcessing = true;
         expId = rsUnprocessedEventQuery.getLong(ExperimentVersionMappingColumns.EXPERIMENT_ID);
         expVersion = rsUnprocessedEventQuery.getInt(ExperimentVersionMappingColumns.EXPERIMENT_VERSION) ;
         whoEmail = rsUnprocessedEventQuery.getString(EventServerColumns.WHO);
@@ -966,73 +850,12 @@ return true;
         inputVariableNames.add(rsUnprocessedEventQuery.getString(OutputServerColumns.TEXT));
         experimentName = rsUnprocessedEventQuery.getString(EventServerColumns.EXPERIMENT_NAME);
         eventId = rsUnprocessedEventQuery.getLong(Constants.UNDERSCORE_ID);
-      }
-      if (eventId != null) {
         List<WhatDAO> whats = outDaoImpl.getOutputs(eventId);
-        for (WhatDAO w : whats) {
-          if (!inputVariableNames.contains(w.getName())) {
-            inputVariableNames.add(w.getName());
-          }
-        }
-      }
-      if (doFurtherProcessing) {
-        allEVMRecords = daoImpl.getAllGroupsInVersion(expId, expVersion);
-        
-        if (allEVMRecords == null || allEVMRecords.size() == 0) {
-          daoImpl.copyClosestVersion(expId, expVersion);
-          allEVMRecords = daoImpl.getAllGroupsInVersion(expId, expVersion);
-          if (allEVMRecords == null) {
-            deletedExperiment = true;
-            failedDaoImpl.insertFailedEvent("expId: " + expId + "expVersion: "+ expVersion + ",who:"+ whoEmail , "Did not find any closestVersion. ", "Did not find any closestVersion.");
-            deletedExptEVMRecord = daoImpl.createMappingForDeletedExperiment(expId, experimentName, expVersion, whoEmail, groupName, inputVariableNames);
-            allEVMRecords = Maps.newHashMap();
-            allEVMRecords.put(groupName, deletedExptEVMRecord);
-          } else {
-            olderVersion = true;
-            log.info("older version");
-          }
-        } 
-        
+        Set<What> whatSet = convertToWhats(whats);
+        newEVMRecord = daoImpl.prepareEVMForGroupWithInputsAllScenarios(expId, experimentName, expVersion, groupName, whoEmail, whatSet);
         // find anon user id, if not present create it
         PacoId anonId = expUserDao.getAnonymousIdAndCreate(expId, whoEmail, true);
-        if (anonId.getIsCreatedWithThisCall()) {
-          //  TODO insert to pivothelper all groups all inputs
-          log.info("anon user");
-          publicUser = true;
-        }
-        if (olderVersion || publicUser || deletedExperiment) { 
-          log.info("older version or pub user or deleted experiment");
-          pvHelperList.addAll(convertToPivotHelper(allEVMRecords, anonId));
-        }
-        
-        // find group name exists, if not create it with all inputs listed
-        if (allEVMRecords.get(groupName) == null) {
-          log.info("grp name not present");
-          newEVMRecordMap = Maps.newHashMap();
-          newEVMRecord = daoImpl.createGroupWithInputs(expId, experimentName, expVersion, groupName, whoEmail, inputVariableNames);
-          allEVMRecords.put(groupName, newEVMRecord);// ??
-          newEVMRecordMap.put(groupName, newEVMRecord);
-          pvHelperList.addAll(convertToPivotHelper(newEVMRecordMap, anonId));
-          log.info("pv list" + pvHelperList.size());
-        } else {
-          // find input id, if not present create it
-          log.info("finding input id, if not create it");
-          
-          for (String s : inputVariableNames) {
-            currentInputCollection = allEVMRecords.get(groupName).getInputCollection();
-            if (currentInputCollection != null) { 
-              currentIOC = currentInputCollection.getInputOrderAndChoices().get(s);
-            }
-            if (currentIOC == null) {
-              // probably scripted or variable existed in old version only
-              log.info("creating scripted undefined input");
-              
-              newCreatedInput = icDaoImpl.addUndefinedInputToCollection(expId, allEVMRecords.get(groupName).getInputCollection().getInputCollectionId(), s);
-              pvHelperList.add(new PivotHelper(allEVMRecords.get(groupName).getExperimentVersionMappingId(), anonId.getId().intValue(), newCreatedInput.getInputId().getId(), false));
-              log.info("pv list" + pvHelperList.size());
-            }
-          }
-        }
+        pvHelperList.addAll(convertToPivotHelper(newEVMRecord, anonId));
         // create in pivot table helper
         CSPivotHelperDao phDaoImpl = new CSPivotHelperDaoImpl();
         if (pvHelperList != null && pvHelperList.size() > 0) {
@@ -1040,7 +863,6 @@ return true;
           log.info("inserted records to pv_helper:" + pvHelperList.size());
           return true;
         }
-      } else {
         log.info("finished processing all event records");
       }
       return false;
@@ -1071,31 +893,25 @@ return true;
     }
   }
   
-  private List<PivotHelper> convertToPivotHelper(Map<String, ExperimentVersionMapping> allEVMRecords, PacoId anonWhoId) {
-    Set<Entry<String, ExperimentVersionMapping>> eset = allEVMRecords.entrySet();
-    Iterator<Entry<String, ExperimentVersionMapping>> entryItr = eset.iterator();
-    Entry<String, ExperimentVersionMapping> es = null;
+  private List<PivotHelper> convertToPivotHelper(ExperimentVersionMapping matchingEVMRecord, PacoId anonWhoId) {
     List<PivotHelper> pvList = Lists.newArrayList();
     PivotHelper pvh = null;
     Map<String, InputOrderAndChoice> varNameInputObject = Maps.newHashMap();
     InputOrderAndChoice ioc = null;
     String currentVarName = null;
     Iterator<String> varNameItr = null;
-    while(entryItr.hasNext()) {
-      es = entryItr.next();
-      varNameInputObject = es.getValue().getInputCollection().getInputOrderAndChoices();
-      varNameItr = varNameInputObject.keySet().iterator();
-      while (varNameItr.hasNext()) {
-        currentVarName = varNameItr.next();
-        ioc = varNameInputObject.get(currentVarName);
-        pvh = new PivotHelper();
-        pvh.setAnonWhoId(anonWhoId.getId().intValue());
-        pvh.setEventsPosted(0L);
-        pvh.setInputId(ioc.getInput().getInputId().getId());
-        pvh.setProcessed(false);
-        pvh.setExpVersionMappingId(es.getValue().getExperimentVersionMappingId());
-        pvList.add(pvh);
-      }
+    varNameInputObject = matchingEVMRecord.getInputCollection().getInputOrderAndChoices();
+    varNameItr = varNameInputObject.keySet().iterator();
+    while (varNameItr.hasNext()) {
+      currentVarName = varNameItr.next();
+      ioc = varNameInputObject.get(currentVarName);
+      pvh = new PivotHelper();
+      pvh.setAnonWhoId(anonWhoId.getId().intValue());
+      pvh.setEventsPosted(0L);
+      pvh.setInputId(ioc.getInput().getInputId().getId());
+      pvh.setProcessed(false);
+      pvh.setExpVersionMappingId(matchingEVMRecord.getExperimentVersionMappingId());
+      pvList.add(pvh);
     }
     return pvList;
   }

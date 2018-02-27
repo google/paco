@@ -21,12 +21,8 @@ import com.google.sampling.experiential.dao.dataaccess.ExternStringInput;
 import com.google.sampling.experiential.dao.dataaccess.GroupTypeInputMapping;
 import com.google.sampling.experiential.dao.dataaccess.Input;
 import com.google.sampling.experiential.server.CloudSQLConnectionManager;
-import com.google.sampling.experiential.server.ExperimentDAOConverter;
 import com.google.sampling.experiential.server.PacoId;
 import com.google.sampling.experiential.server.QueryConstants;
-import com.pacoapp.paco.shared.model2.ExperimentGroup;
-import com.pacoapp.paco.shared.model2.Feedback;
-import com.pacoapp.paco.shared.model2.GroupTypeEnum;
 import com.pacoapp.paco.shared.util.ErrorMessages;
 
 import net.sf.jsqlparser.expression.Expression;
@@ -76,6 +72,7 @@ public class CSGroupTypeInputMappingDaoImpl implements CSGroupTypeInputMappingDa
         eachInput.setRightLabel(rs.getString(InputColumns.RIGHT_LABEL));
         eachInput.setRequired(rs.getBoolean(InputColumns.REQUIRED));
         eachInput.setParentId(new PacoId(rs.getLong(InputColumns.PARENT_ID),false));
+        eachInput.setLikertSteps(rs.getInt(InputColumns.LIKERT_STEPS));
         
         responseDataType.setDataTypeId(new PacoId(rs.getInt(DataTypeColumns.DATA_TYPE_ID), false));
         responseDataType.setName(rs.getString(DataTypeColumns.NAME));
@@ -161,30 +158,6 @@ public class CSGroupTypeInputMappingDaoImpl implements CSGroupTypeInputMappingDa
     } 
   }
 
-  @Override
-  public ExperimentGroup createSystemExperimentGroupForGroupType(GroupTypeEnum groupType, Boolean recordPhoneDetails) throws SQLException {
-    ExperimentGroup systemGrp = new ExperimentGroup();
-    ExperimentDAOConverter daoConverter = new ExperimentDAOConverter();
-    String lowerCaseGroupTypeName = groupType.name().toLowerCase();
-    List<Input> sysInputOrigLst = getAllFeatureInputs().get(lowerCaseGroupTypeName);
-    List<Input> sysInputModifiedLst = Lists.newArrayList();
-    
-    if (!recordPhoneDetails && GroupTypeEnum.SYSTEM.equals(groupType)) { 
-      for (Input i : sysInputOrigLst) {
-        String inputLabel = i.getName().getLabel();
-        // TODO better way
-        if (!(inputLabel.equalsIgnoreCase("make") ||  inputLabel.equalsIgnoreCase("model") || inputLabel.equalsIgnoreCase("android") || inputLabel.equalsIgnoreCase("carrier")
-                || inputLabel.equalsIgnoreCase("display"))) {
-          sysInputModifiedLst.add(i);
-        } 
-      }
-    } else {
-      sysInputModifiedLst = sysInputOrigLst;
-    }
-    systemGrp.setName(lowerCaseGroupTypeName);
-    systemGrp.setGroupType(groupType);
-    systemGrp.setInputs(daoConverter.convertToInput2(sysInputModifiedLst));
-    systemGrp.setFeedback(new Feedback("Thanks"));
-    return systemGrp;
-  }
+ 
+ 
 }

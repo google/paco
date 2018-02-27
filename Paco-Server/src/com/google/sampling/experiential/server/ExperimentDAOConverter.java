@@ -3,6 +3,7 @@ package com.google.sampling.experiential.server;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Logger;
 
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
@@ -10,6 +11,7 @@ import org.joda.time.format.DateTimeFormatter;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.sampling.experiential.dao.CSDataTypeDao;
+import com.google.sampling.experiential.dao.CSGroupTypeInputMappingDao;
 import com.google.sampling.experiential.dao.CSUserDao;
 import com.google.sampling.experiential.dao.dataaccess.Choice;
 import com.google.sampling.experiential.dao.dataaccess.ChoiceCollection;
@@ -25,13 +27,19 @@ import com.google.sampling.experiential.dao.dataaccess.InputCollection;
 import com.google.sampling.experiential.dao.dataaccess.InputOrderAndChoice;
 import com.google.sampling.experiential.dao.dataaccess.User;
 import com.google.sampling.experiential.dao.impl.CSDataTypeDaoImpl;
+import com.google.sampling.experiential.dao.impl.CSGroupTypeInputMappingDaoImpl;
 import com.google.sampling.experiential.dao.impl.CSUserDaoImpl;
 import com.pacoapp.paco.shared.model2.ExperimentDAO;
 import com.pacoapp.paco.shared.model2.ExperimentGroup;
+import com.pacoapp.paco.shared.model2.Feedback;
+import com.pacoapp.paco.shared.model2.GroupTypeEnum;
 import com.pacoapp.paco.shared.model2.Input2;
+import com.pacoapp.paco.shared.util.ErrorMessages;
 
 public class ExperimentDAOConverter {
   DateTimeFormatter formatter = DateTimeFormat.forPattern("YYYY/MM/dd");
+  public static final Logger log = Logger.getLogger(ExperimentDAOConverter.class.getName());
+  
   public Experiment convertToExperiment(ExperimentDAO experimentDao) throws SQLException {
     InformedConsent newInformedConsent = null;
     if (experimentDao.getInformedConsentForm() != null && !experimentDao.getInformedConsentForm().equals("")) {
@@ -156,7 +164,7 @@ public class ExperimentDAOConverter {
     inputObj.setConditional(input2Obj.getConditionExpression());
     inputObj.setResponseDataType(responseDataType);
     inputObj.setText(variableText);
-    inputObj.setLikertSteps(input2Obj.getLikertSteps());
+    inputObj.setLikertSteps(input2Obj.getLikertSteps()==null ? 0 : input2Obj.getLikertSteps());
     inputObj.setLeftLabel(input2Obj.getLeftSideLabel());
     inputObj.setRightLabel(input2Obj.getRightSideLabel());
     return inputObj;
@@ -202,5 +210,91 @@ public class ExperimentDAOConverter {
     
     return newMappingList;
     
+  }
+  
+  public ExperimentGroup createPredefinedExperimentGroupForGroupType(GroupTypeEnum groupType, Boolean recordPhoneDetails) throws SQLException {
+    CSGroupTypeInputMappingDao gtimDaoImpl = new CSGroupTypeInputMappingDaoImpl();
+    ExperimentGroup predefinedGrp = new ExperimentGroup();
+    ExperimentDAOConverter daoConverter = new ExperimentDAOConverter();
+    String lowerCaseGroupTypeName = groupType.name().toLowerCase();
+    List<Input> predefinedInputOrigLst = gtimDaoImpl.getAllFeatureInputs().get(lowerCaseGroupTypeName);
+    List<Input> predefinedInputModifiedLst = null;
+    
+    if (!recordPhoneDetails && GroupTypeEnum.SYSTEM.equals(groupType)) {
+      predefinedInputModifiedLst = Lists.newArrayList();
+      for (Input i : predefinedInputOrigLst) {
+        String inputLabel = i.getName().getLabel();
+        // TODO better way
+        if (!(inputLabel.equalsIgnoreCase("make") ||  inputLabel.equalsIgnoreCase("model") || inputLabel.equalsIgnoreCase("android") || inputLabel.equalsIgnoreCase("carrier")
+                || inputLabel.equalsIgnoreCase("display"))) {
+          predefinedInputModifiedLst.add(i);
+        } 
+      }
+    } else {
+      predefinedInputModifiedLst = predefinedInputOrigLst;
+    }
+    predefinedGrp.setName(lowerCaseGroupTypeName);
+    predefinedGrp.setGroupType(groupType);
+    predefinedGrp.setInputs(daoConverter.convertToInput2(predefinedInputModifiedLst));
+    predefinedGrp.setFeedback(new Feedback("Thanks"));
+    return predefinedGrp;
+  }
+  
+
+  public void splitGroups(ExperimentDAO eachExperiment)  throws SQLException {
+    List<ExperimentGroup> predefinedGroups = null;
+    // add predefined system group
+    ExperimentGroup systemGroup = null;
+    try {
+      predefinedGroups = Lists.newArrayList();
+      // add predefined system group
+      systemGroup = createPredefinedExperimentGroupForGroupType(GroupTypeEnum.SYSTEM, eachExperiment.getRecordPhoneDetails());
+     
+      // chk if splitting is neccessary
+      for (ExperimentGroup eg: eachExperiment.getGroups()) {
+        if (eg.getGroupType() == null)  {
+          // once it saved with splitted groups, then even predefined groups will have inputs
+          eg.setGroupType(GroupTypeEnum.SURVEY);
+          if (eg.getAccessibilityListen() || eg.getGroupType().equals(GroupTypeEnum.ACCESSIBILITY)) {
+            ExperimentGroup accListen = createPredefinedExperimentGroupForGroupType(GroupTypeEnum.ACCESSIBILITY, eachExperiment.getRecordPhoneDetails());
+            accListen.setAccessibilityListen(true);
+            eg.setAccessibilityListen(false);
+            predefinedGroups.add(accListen);
+          }
+          if (eg.getLogShutdown() || eg.getGroupType().equals(GroupTypeEnum.PHONESTATUS)) {
+            ExperimentGroup logPhoneActions = createPredefinedExperimentGroupForGroupType(GroupTypeEnum.PHONESTATUS, eachExperiment.getRecordPhoneDetails());
+            logPhoneActions.setLogShutdown(true);
+            eg.setLogShutdown(false);
+            predefinedGroups.add(logPhoneActions);
+          }
+    
+          if ( eg.getLogActions() || eg.getGroupType().equals(GroupTypeEnum.APPUSAGE))  {
+            ExperimentGroup appUsage = createPredefinedExperimentGroupForGroupType(GroupTypeEnum.APPUSAGE, eachExperiment.getRecordPhoneDetails());
+            appUsage.setLogActions(true);
+            eg.setLogActions(false);
+            predefinedGroups.add(appUsage);
+          }
+          if (eg.getLogNotificationEvents() || eg.getGroupType().equals(GroupTypeEnum.NOTFICATION)) {
+            ExperimentGroup logNotifGrp = createPredefinedExperimentGroupForGroupType(GroupTypeEnum.NOTFICATION, eachExperiment.getRecordPhoneDetails());;
+            logNotifGrp.setLogNotificationEvents(true);
+            eg.setLogNotificationEvents(false);
+            predefinedGroups.add(logNotifGrp);
+          }
+        } 
+      }
+      predefinedGroups.add(systemGroup);
+      List<ExperimentGroup> origGroups = eachExperiment.getGroups();
+      ExperimentGroup matchingGroupInDS = null;
+      // add all predefined grps, only if its not already present
+      for (ExperimentGroup egt : predefinedGroups) {
+        matchingGroupInDS = eachExperiment.getGroupByName(egt.getName());
+        if (matchingGroupInDS == null) {
+          origGroups.add(egt);
+        }
+      }
+    } catch (Exception e) {
+      log.warning(ErrorMessages.GENERAL_EXCEPTION.getDescription() + ExceptionUtil.getStackTraceAsString(e));
+    }
+    log.info("splitting groups for an experiment finished");
   }
 }

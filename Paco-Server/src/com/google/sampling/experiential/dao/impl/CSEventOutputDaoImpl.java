@@ -8,7 +8,6 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.text.ParseException;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -26,17 +25,13 @@ import com.google.common.collect.Sets;
 import com.google.sampling.experiential.cloudsql.columns.EventServerColumns;
 import com.google.sampling.experiential.cloudsql.columns.ExperimentLookupColumns;
 import com.google.sampling.experiential.cloudsql.columns.OutputServerColumns;
-import com.google.sampling.experiential.dao.CSDataTypeDao;
 import com.google.sampling.experiential.dao.CSEventOutputDao;
 import com.google.sampling.experiential.dao.CSExperimentUserDao;
 import com.google.sampling.experiential.dao.CSExperimentVersionMappingDao;
 import com.google.sampling.experiential.dao.CSGroupTypeInputMappingDao;
 import com.google.sampling.experiential.dao.CSInputCollectionDao;
-import com.google.sampling.experiential.dao.CSInputDao;
 import com.google.sampling.experiential.dao.CSPivotHelperDao;
-import com.google.sampling.experiential.dao.dataaccess.DataType;
 import com.google.sampling.experiential.dao.dataaccess.ExperimentVersionMapping;
-import com.google.sampling.experiential.dao.dataaccess.Group;
 import com.google.sampling.experiential.dao.dataaccess.Input;
 import com.google.sampling.experiential.dao.dataaccess.InputOrderAndChoice;
 import com.google.sampling.experiential.model.Event;
@@ -310,95 +305,14 @@ public class CSEventOutputDaoImpl implements CSEventOutputDao {
   }
   
   private ExperimentVersionMapping findMatchingEVMRecord(Event event, Map<String, ExperimentVersionMapping> allEVMMap) throws SQLException{
-    String groupNameInEvent = event.getExperimentGroupName();
-    List<String> inputVariableNamesInEvent = event.getWhatKeys();
-    Set<String> inputVariableNamesInMatchingGroup = null;
-    Group crtGroup = null;
-    String crtGroupName = null;
-    List<Input> predefinedFeatureInputLst = null;
-    boolean mixedEventsPossible = false;
     ExperimentVersionMapping returnEVM = null;
     CSExperimentVersionMappingDao daoImpl = new CSExperimentVersionMappingDaoImpl();
     CSGroupTypeInputMappingDao gtDaoImpl = new CSGroupTypeInputMappingDaoImpl();
     Long expId = Long.parseLong(event.getExperimentId());
     // if event is posted for a version where we do not have experiment mapping records
-    if (allEVMMap == null) {
-      
-//      closestVersion = daoImpl.getClosestExperimentVersion(expId, event.getExperimentVersion());
-//      daoImpl.copyFrom(expId, closestVersion, event.getExperimentVersion());
-//      allEVMMap = daoImpl.getAllGroupsInVersion(Long.parseLong(event.getExperimentId()), event.getExperimentVersion());
-      daoImpl.copyClosestVersion(expId, event.getExperimentVersion());
-      allEVMMap = daoImpl.getAllGroupsInVersion(expId, event.getExperimentVersion());
-      if (allEVMMap  == null) {
-        allEVMMap = Maps.newHashMap();
-        returnEVM = daoImpl.createGroupWithInputs(expId, event.getExperimentName(), event.getExperimentVersion(), event.getExperimentGroupName(), event.getWho(), event.getWhatKeys());
-        allEVMMap.put(event.getExperimentGroupName(), returnEVM);
-      }
-    }
-    Iterator<String> grpItr = allEVMMap.keySet().iterator();
-    
-    while(grpItr.hasNext()) {
-      crtGroupName = grpItr.next();
-      // older versions of some experiments have the survey group name associated with sensor type data as well. 
-      // With newer version, each experiment will have different group name for each of the sensor data like app_usage, accessibility etc.
-      // if the evm record in the cloud sql table says it has been copied over from one of the latest versions, then we can receive events which contain mixed groups
-      if (allEVMMap.get(crtGroupName).getSource() != null) {
-        mixedEventsPossible = true;
-        break;
-      }
-    }
-    
-    if( !mixedEventsPossible) {
-        return allEVMMap.get(crtGroupName);
-    } else {
-      // it could be predefined feature inputs or survey inputs
-      Map<String, List<Input>> featureInputs = gtDaoImpl.getAllFeatureInputs();
-      Iterator<String> featureItr = featureInputs.keySet().iterator();
-      String currentFeatureName = null;
-      while ( featureItr.hasNext()) {
-        currentFeatureName = featureItr.next();
-        predefinedFeatureInputLst = featureInputs.get(currentFeatureName);
-        // if feature name is system, then even if one of the system variables comes in the outputs, we can use the system group id.
-        // event variable names should contain all of predefined list
-        if (currentFeatureName.equalsIgnoreCase("system")) {
-          if (inputVariableNamesInEvent.contains(getVariableNamesFromInputLst(predefinedFeatureInputLst))) {
-            returnEVM = allEVMMap.get(currentFeatureName);
-            break;
-          }
-        } else {
-          if (inputVariableNamesInEvent.containsAll(getVariableNamesFromInputLst(predefinedFeatureInputLst))) {
-            returnEVM = allEVMMap.get(currentFeatureName);
-            if (returnEVM == null) {
-              // so we add a grp with these inputs to this version
-              returnEVM = daoImpl.createGroupWithPredefinedInputs(expId, event.getExperimentVersion(), event.getExperimentGroupName(), predefinedFeatureInputLst, currentFeatureName);
-              allEVMMap.put(event.getExperimentGroupName(), returnEVM);
-              break;
-            }
-          } 
-        }
-        return returnEVM;
-      }// while
-      // if none of the predefined feature inputs match, then it must be survey grp under which the event is getting posted
-      returnEVM = allEVMMap.get(event.getExperimentGroupName());
-      if ( allEVMMap.size() > 0 ) {
-        
-      }
-      // here too it can be null when older versions had a grp name, and now the latest versions do not have that grp name
-      if ( returnEVM == null) { 
-        returnEVM = daoImpl.createGroupWithInputs(expId, event.getExperimentName(), event.getExperimentVersion(), event.getExperimentGroupName(), event.getWho(), event.getWhatKeys());
-        allEVMMap.put(event.getExperimentGroupName(), returnEVM);
-      }
-      return returnEVM;
-    }
-  
-  }
-  
-  private Set<String> getVariableNamesFromInputLst(List<Input> inputLst) {
-    Set<String> inputSet = Sets.newHashSet();
-    for (Input i : inputLst) { 
-      inputSet.add(i.getName().getLabel());
-    }
-    return inputSet;
+    returnEVM = daoImpl.prepareEVMForGroupWithInputsAllScenarios(expId, event.getExperimentName(), event.getExperimentVersion(), event.getExperimentGroupName(), event.getWho(), event.getWhat());
+    allEVMMap.put(event.getExperimentGroupName(), returnEVM);
+    return returnEVM;
   }
   
   @Override
