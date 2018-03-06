@@ -26,6 +26,15 @@
     <url-pattern>/csInsert</url-pattern>
   </servlet-mapping>
   
+  <servlet>
+    <servlet-name>ExperimentUserInsertServlet</servlet-name>
+    <servlet-class>com.google.sampling.experiential.server.CloudSqlExperimentUserInsertServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>ExperimentUserInsertServlet</servlet-name>
+    <url-pattern>/csExpInsert</url-pattern>
+  </servlet-mapping>
+  
    <servlet>
     <servlet-name>mapreduce</servlet-name>
     <servlet-class>

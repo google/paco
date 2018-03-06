@@ -16,9 +16,11 @@ import com.google.sampling.experiential.shared.EventDAO;
 public class PhoneSessionLog extends BaseSession {
 
   private List<PhoneSession> phoneSessions;
+  private String who;
 
-  public PhoneSessionLog(List<PhoneSession> phoneSessions) {
+  public PhoneSessionLog(String who, List<PhoneSession> phoneSessions) {
     super();
+    this.who = who;
     this.phoneSessions = phoneSessions;
     if (!phoneSessions.isEmpty()) {
       setStartTime(phoneSessions.get(0).getStartTime());
@@ -26,11 +28,11 @@ public class PhoneSessionLog extends BaseSession {
     }
   }
 
-  public static PhoneSessionLog buildSessions(List<EventDAO> events) {
-    return buildSessionsWithOptions(events, 0);
+  public static PhoneSessionLog buildSessions(String who, List<EventDAO> events) {
+    return buildSessionsWithOptions(who, events, 0);
   }
 
-  public static PhoneSessionLog buildSessionsWithOptions(List<EventDAO> events, int minimumSessionBreak) {
+  public static PhoneSessionLog buildSessionsWithOptions(String who, List<EventDAO> events, int minimumSessionBreak) {
     List<PhoneSession> phoneSessions = Lists.newArrayList();
     PhoneSession currentPhoneSession = null;
 
@@ -61,10 +63,10 @@ public class PhoneSessionLog extends BaseSession {
       }
     }
     ensureEndToLastSession(currentPhoneSession);
-    return new PhoneSessionLog(phoneSessions);
+    return new PhoneSessionLog(who, phoneSessions);
   }
 
-  public static PhoneSessionLog buildPhoneSessionsWithOptionsV2(List<EventDAO> events, int minimumSessionBreakSeconds) {
+  public static PhoneSessionLog buildPhoneSessionsWithOptionsV2(String who, List<EventDAO> events, int minimumSessionBreakSeconds) {
     List<PhoneSession> phoneSessions = Lists.newArrayList();
     PhoneSession currentPhoneSession = null;
 
@@ -93,7 +95,7 @@ public class PhoneSessionLog extends BaseSession {
       }
     }
     ensureEndToLastSession(currentPhoneSession);
-    return new PhoneSessionLog(phoneSessions);
+    return new PhoneSessionLog(who, phoneSessions);
   }
 
   private static void mergeIntoCurrentSession(PhoneSession currentPhoneSession, PhoneSession returnedPhoneSession) {
@@ -127,6 +129,14 @@ public class PhoneSessionLog extends BaseSession {
       return 0;
     }
     return phoneSessions.size();
+  }
+
+  public String getWho() {
+    return who;
+  }
+
+  public void setWho(String who) {
+    this.who = who;
   }
 
 }

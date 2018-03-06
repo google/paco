@@ -16,4 +16,5 @@ public class EventServerColumns extends EventBaseColumns {
   public static final String SORT_DATE_UTC = "sort_date_utc";
   public static final String RESPONSE_TIME_UTC = "response_time_utc";
   public static final String SCHEDULE_TIME_UTC = "schedule_time_utc";
+  public static final String EXPERIMENT_LOOKUP_ID = "experiment_lookup_id";
 }

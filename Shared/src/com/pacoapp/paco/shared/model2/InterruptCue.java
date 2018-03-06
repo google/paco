@@ -98,7 +98,7 @@ public class InterruptCue extends ModelBase implements Validatable, java.io.Seri
 //    System.out.println("VALIDATING CUE");
     validator.isNotNull(cueCode, "cue code is not properly initialized");
     if (cueCode != null && (cueCode.equals(PACO_ACTION_EVENT) || cueCode.equals(APP_USAGE))) {
-      validator.isNotNullAndNonEmptyString(cueSource,
+      validator.isNonEmptyString(cueSource,
                                            "cuesource must be valid for cuecode: " + CUE_EVENT_NAMES[cueCode - 1]);
     }
   }

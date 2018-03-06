@@ -29,7 +29,7 @@ public class AndroidInstalledApplications {
   public static final String SHARED_PREFERENCES_KEY = "InstalledApplications";
 
   private static final List<String> whitelist =
-          Lists.newArrayList("Chrome", "Gmail", "Phone", "Camera", "Messaging", "Google App",
+    Lists.newArrayList("Chrome", "Gmail", "Phone", "Camera", "Messaging", "Google App", "Google",
                              "Maps", "Drive", "Google Play Movies & TV", "Google+", "Google Play Store",
                              "Google Play Newsstand", "Contacts", "Calendar", "Google Play Music",
                              "Google Play Books", "Hangouts", "Gallery", "Google Play Games", "YouTube",

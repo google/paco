@@ -1027,9 +1027,7 @@ public class InputLayout extends LinearLayout implements SpeechRecognitionListen
 
   private View renderGeistNowSmilerLikert(Integer likertSteps) {
     // create a GeistNow radio group with # of steps and images
-    if (likertSteps != null && likertSteps != 5) {
-      throw new RuntimeException("Currently we are only doing the GeistNow 5 step likert scale.");
-    }
+    likertSteps = 5;
     View likertView = ((LayoutInflater)getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(R.layout.likert_smiley, this, true);
     likertView.setPadding(0, 2, 0, 16);
     RadioGroup findViewById = (RadioGroup) findViewById(R.id.GeistNowRadioGroup);

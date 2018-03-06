@@ -58,7 +58,7 @@ public abstract class ActionTrigger extends ModelBase implements Validatable, Se
 
   public void validateWith(Validator validator) {
 //    System.out.println("VALIDATING ACTION TRIGGER");
-    validator.isNotNullAndNonEmptyString(getType(), getClass().getSimpleName()
+    validator.isNonEmptyString(getType(), getClass().getSimpleName()
                                          + " type field is not properly initialized");
     validateActions(validator);
   }
