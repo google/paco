@@ -57,6 +57,7 @@ public class CSGroupTypeInputMappingDaoImpl implements CSGroupTypeInputMappingDa
     try {
       conn = CloudSQLConnectionManager.getInstance().getConnection();
       statementSelectAllFeatureInputs = conn.prepareStatement(QueryConstants.GET_ALL_PRE_DEFINED_INPUTS.toString());
+      log.info(statementSelectAllFeatureInputs.toString());
       rs = statementSelectAllFeatureInputs.executeQuery();
       predefinedInputsMap = Maps.newHashMap();
       while (rs.next()) {
@@ -65,8 +66,8 @@ public class CSGroupTypeInputMappingDaoImpl implements CSGroupTypeInputMappingDa
         
         currentFeature = rs.getString(GroupTypeColumns.GROUP_TYPE_NAME);
         eachInput.setInputId(new PacoId(rs.getLong(GroupTypeInputMappingColumns.INPUT_ID), false));
-        eachInput.setName(new ExternStringInput(rs.getString("esi1." +ExternStringInputColumns.LABEL), rs.getLong("esi1."+ ExternStringInputColumns.EXTERN_STRING_ID)));
-        eachInput.setText(new ExternStringInput(rs.getString("esi2." +ExternStringInputColumns.LABEL), rs.getLong("esi2."+ ExternStringInputColumns.EXTERN_STRING_ID)));
+        eachInput.setName(new ExternStringInput(rs.getString("esi1." +ExternStringInputColumns.LABEL), rs.getLong("esi1."+ ExternStringInputColumns.EXTERN_STRING_INPUT_ID)));
+        eachInput.setText(new ExternStringInput(rs.getString("esi2." +ExternStringInputColumns.LABEL), rs.getLong("esi2."+ ExternStringInputColumns.EXTERN_STRING_INPUT_ID)));
         eachInput.setConditional(rs.getString(InputColumns.CONDITIONAL));
         eachInput.setLeftLabel(rs.getString(InputColumns.LEFT_LABEL));
         eachInput.setRightLabel(rs.getString(InputColumns.RIGHT_LABEL));

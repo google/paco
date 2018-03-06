@@ -1,12 +1,17 @@
 package com.google.sampling.experiential.dao.dataaccess;
 
 import java.lang.reflect.Field;
+import java.util.logging.Logger;
 
 import org.joda.time.DateTime;
 
+import com.google.sampling.experiential.server.ExceptionUtil;
 import com.google.sampling.experiential.server.PacoId;
+import com.pacoapp.paco.shared.util.ErrorMessages;
 
-public class Group {
+public class GroupDetail implements PacoComparator<GroupDetail> {
+  public static final Logger log = Logger.getLogger(GroupDetail.class.getName());
+  
   private PacoId groupId;
   private String name;
   private Integer groupTypeId;
@@ -66,7 +71,7 @@ public class Group {
     this.endOfDayGroup = endOfDayGroup;
   }
  
-  public Boolean compareWithoutId(Group other) throws IllegalArgumentException, IllegalAccessException { 
+  public Boolean equalsWithoutId(GroupDetail other) throws IllegalArgumentException, IllegalAccessException { 
     Field[] fields = this.getClass().getDeclaredFields();
     for (Field field : fields) {
       if (!field.getName().equals("groupId")) {
@@ -89,4 +94,19 @@ public class Group {
            + customRendering + ", fixedDuration=" + fixedDuration + ", startDate=" + startDate + ", endDate=" + endDate
            + ", rawDataAccess=" + rawDataAccess + ", endOfDayGroup=" + endOfDayGroup + "]";
   }
+  @Override
+  public boolean hasChanged(GroupDetail oldVersion) {
+    boolean hasChanged = false;
+    try {
+      if (oldVersion != null && this.equalsWithoutId(oldVersion)) {
+        hasChanged = false;
+      } else {
+        hasChanged = true;
+      }
+    } catch (IllegalArgumentException | IllegalAccessException e) {
+      log.warning("Compare Group fields:"+ ErrorMessages.INVALID_ACCESS_OR_ARGUMENT_EXCEPTION.getDescription() + ExceptionUtil.getStackTraceAsString(e));    
+    }
+    return hasChanged;
+  }
+  
 }

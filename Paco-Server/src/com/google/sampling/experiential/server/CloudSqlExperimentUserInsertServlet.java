@@ -39,7 +39,6 @@ public class CloudSqlExperimentUserInsertServlet extends HttpServlet {
     String appIdHeader = req.getHeader("http.useragent");
     String pacoVersion = req.getHeader("paco.version");
     String results = ExperimentJsonUploadProcessor.create().processJsonExperiments(persistInCloudSqlOnly, requestBody, currentUser, appIdHeader, pacoVersion, timezone);
-    
     resp.getWriter().println(results);
  
   }

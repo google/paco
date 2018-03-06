@@ -21,14 +21,12 @@ import org.json.JSONObject;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 import com.google.sampling.experiential.cloudsql.columns.EventServerColumns;
 import com.google.sampling.experiential.cloudsql.columns.ExperimentLookupColumns;
 import com.google.sampling.experiential.cloudsql.columns.OutputServerColumns;
 import com.google.sampling.experiential.dao.CSEventOutputDao;
 import com.google.sampling.experiential.dao.CSExperimentUserDao;
 import com.google.sampling.experiential.dao.CSExperimentVersionMappingDao;
-import com.google.sampling.experiential.dao.CSGroupTypeInputMappingDao;
 import com.google.sampling.experiential.dao.CSInputCollectionDao;
 import com.google.sampling.experiential.dao.CSPivotHelperDao;
 import com.google.sampling.experiential.dao.dataaccess.ExperimentVersionMapping;
@@ -38,6 +36,7 @@ import com.google.sampling.experiential.model.Event;
 import com.google.sampling.experiential.model.What;
 import com.google.sampling.experiential.server.CloudSQLConnectionManager;
 import com.google.sampling.experiential.server.PacoId;
+import com.google.sampling.experiential.server.QueryConstants;
 import com.google.sampling.experiential.shared.EventDAO;
 import com.google.sampling.experiential.shared.WhatDAO;
 import com.pacoapp.paco.shared.model2.OutputBaseColumns;
@@ -82,7 +81,7 @@ public class CSEventOutputDaoImpl implements CSEventOutputDao {
     eventColInsertList.add(new Column(EventServerColumns.RESPONSE_TIME));
     eventColInsertList.add(new Column(EventServerColumns.SCHEDULE_TIME));
     eventColInsertList.add(new Column(EventServerColumns.SORT_DATE));
-    eventColInsertList.add(new Column(EventServerColumns.EXPERIMENT_VERSION_MAPPING_ID));
+    eventColInsertList.add(new Column(EventServerColumns.EXPERIMENT_GROUP_VERSION_MAPPING_ID));
     eventColSearchList.addAll(eventColInsertList);
     
     outputColList.add(new Column(OutputServerColumns.EVENT_ID));
@@ -170,6 +169,7 @@ public class CSEventOutputDaoImpl implements CSEventOutputDao {
     Integer pvUpdateAnonWhoId = null;
     Long expIdLong = null;
     int whenFrac = 0;
+    boolean migrationFlag = false;
     //startCount for setting parameter index
     int i = 1 ;
     ExpressionList eventExprList = new ExpressionList();
@@ -254,7 +254,7 @@ public class CSEventOutputDaoImpl implements CSEventOutputDao {
       statementCreateEvent.setTimestamp(i++, event.getScheduledTime() != null ? new Timestamp(TimeUtil.convertToLocal(event.getScheduledTime(), event.getTimeZone()).getMillis()): null);
       statementCreateEvent.setTimestamp(i++, new Timestamp(TimeUtil.convertToLocal(new Date(sortDateMillis), event.getTimeZone()).getMillis()));
       Map<String, ExperimentVersionMapping> allEVMInVersion = evmDaoImpl.getAllGroupsInVersion(Long.parseLong(event.getExperimentId()), event.getExperimentVersion());
-      ExperimentVersionMapping evmForThisGroup = findMatchingEVMRecord(event, allEVMInVersion);
+      ExperimentVersionMapping evmForThisGroup = findMatchingEVMRecord(event, allEVMInVersion, migrationFlag);
       pvUpdateEvmId = evmForThisGroup.getExperimentVersionMappingId();
       statementCreateEvent.setLong(i++, pvUpdateEvmId);
       statementCreateEvent.execute();
@@ -284,6 +284,9 @@ public class CSEventOutputDaoImpl implements CSEventOutputDao {
       }
       
       pvDaoImpl.incrementUpdateCtByOne(pvUpdateEvmId, pvUpdateAnonWhoId, pvUpdateInputIds);
+      if (!evmForThisGroup.isEventsPosted()) {
+        evmDaoImpl.updateEventsPosted(pvUpdateEvmId);
+      }
       conn.commit();
       retVal = true;
     } finally {
@@ -304,13 +307,13 @@ public class CSEventOutputDaoImpl implements CSEventOutputDao {
     return retVal;
   }
   
-  private ExperimentVersionMapping findMatchingEVMRecord(Event event, Map<String, ExperimentVersionMapping> allEVMMap) throws SQLException{
+  private ExperimentVersionMapping findMatchingEVMRecord(Event event, Map<String, ExperimentVersionMapping> allEVMMap, boolean migrationFlag) throws SQLException{
     ExperimentVersionMapping returnEVM = null;
     CSExperimentVersionMappingDao daoImpl = new CSExperimentVersionMappingDaoImpl();
-    CSGroupTypeInputMappingDao gtDaoImpl = new CSGroupTypeInputMappingDaoImpl();
     Long expId = Long.parseLong(event.getExperimentId());
+    
     // if event is posted for a version where we do not have experiment mapping records
-    returnEVM = daoImpl.prepareEVMForGroupWithInputsAllScenarios(expId, event.getExperimentName(), event.getExperimentVersion(), event.getExperimentGroupName(), event.getWho(), event.getWhat());
+    returnEVM = daoImpl.prepareEVMForGroupWithInputs(expId, event.getExperimentName(), event.getExperimentVersion(), event.getExperimentGroupName(), event.getWho(), event.getWhat(), migrationFlag);
     allEVMMap.put(event.getExperimentGroupName(), returnEVM);
     return returnEVM;
   }
@@ -424,6 +427,38 @@ public class CSEventOutputDaoImpl implements CSEventOutputDao {
     }
 
     return event;
+  }
+
+  @Override
+  public boolean deleteAllEventsAndOutputsData(Long experimentId, Integer whoAnonId) throws SQLException {
+    Connection conn = null;
+    PreparedStatement statementDeleteEventsAndOutputs = null;
+    String deleteQuery = QueryConstants.DELETE_ALL_EVENTS_AND_OUTPUTS.toString() ;
+    try {
+      conn = CloudSQLConnectionManager.getInstance().getConnection();
+      if ( whoAnonId !=null) {
+        deleteQuery = deleteQuery + " and who_bk=?";
+      }
+      statementDeleteEventsAndOutputs = conn.prepareStatement(deleteQuery);
+      
+      statementDeleteEventsAndOutputs.setLong(1, experimentId);
+      if (whoAnonId != null) {
+        statementDeleteEventsAndOutputs.setInt(2, whoAnonId);
+      }
+      statementDeleteEventsAndOutputs.execute();
+      return true;
+    } finally {
+      try {
+        if (statementDeleteEventsAndOutputs != null) {
+          statementDeleteEventsAndOutputs.close();
+        }
+        if (conn != null) {
+          conn.close();
+        }
+      } catch (SQLException ex1) {
+        log.warning(ErrorMessages.CLOSING_RESOURCE_EXCEPTION.getDescription()+ ex1);
+      }
+    }
   }
 
 }

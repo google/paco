@@ -9,7 +9,6 @@ import java.sql.Types;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.logging.Logger;
 
 import com.google.cloud.sql.jdbc.Statement;
@@ -20,7 +19,6 @@ import com.google.sampling.experiential.dao.CSInputCollectionDao;
 import com.google.sampling.experiential.dao.CSInputDao;
 import com.google.sampling.experiential.dao.dataaccess.ChoiceCollection;
 import com.google.sampling.experiential.dao.dataaccess.DataType;
-import com.google.sampling.experiential.dao.dataaccess.Group;
 import com.google.sampling.experiential.dao.dataaccess.Input;
 import com.google.sampling.experiential.dao.dataaccess.InputCollection;
 import com.google.sampling.experiential.dao.dataaccess.InputOrderAndChoice;
@@ -71,7 +69,6 @@ public class CSInputCollectionDaoImpl implements CSInputCollectionDao {
     Iterator<String> newVersionGroupItr = newVersionGroupInputCollections.keySet().iterator(); 
     if (exptDao != null) {
       try {
-        log.info("Inserting input collection into input_collection table" + exptDao.getId());
         conn = CloudSQLConnectionManager.getInstance().getConnection();
         conn.setAutoCommit(false);
         inputCollectionInsert.setTable(new Table(InputCollectionColumns.TABLE_NAME));
@@ -95,7 +92,6 @@ public class CSInputCollectionDaoImpl implements CSInputCollectionDao {
             currentInputVarNameIOC = currentGroupInputCollection.getInputOrderAndChoices();
             currentInputVarNameIOCItr = currentInputVarNameIOC.keySet().iterator();
             if ( currentInputVarNameIOC.size() >0) {
-              log.info("input size is greater than 0");
               while (currentInputVarNameIOCItr.hasNext()) {
                 currentInputVarName = currentInputVarNameIOCItr.next();
                 currentIOC = currentInputVarNameIOC.get(currentInputVarName);
@@ -119,15 +115,12 @@ public class CSInputCollectionDaoImpl implements CSInputCollectionDao {
                   statementCreateInputCollection.setObject(4, choiceCollectionId, Types.BIGINT);
                 }
                 statementCreateInputCollection.setInt(5, currentIOC.getInputOrder());
-                log.info(statementCreateInputCollection.toString());
                 statementCreateInputCollection.addBatch();
               }
               
               statementCreateInputCollection.executeBatch();
               currentGroupInputCollection.setInputCollectionId(inputCollectionId.longValue());
             }
-          }  else {
-            log.info("input collection id already set");
           }
         }
         conn.commit();

@@ -76,7 +76,7 @@ public class CloudSQLMigrationDaoImpl implements CloudSQLMigrationDao {
     eventColInsertList.add(new Column(EventServerColumns.SORT_DATE));
     eventColInsertList.add(new Column(EventServerColumns.CLIENT_TIME_ZONE));
     eventColInsertList.add(new Column(Constants.UNDERSCORE_ID));
-    eventColInsertList.add(new Column(EventServerColumns.EXPERIMENT_VERSION_MAPPING_ID));
+    eventColInsertList.add(new Column(EventServerColumns.EXPERIMENT_GROUP_VERSION_MAPPING_ID));
 
     outputColList.add(new Column(OutputBaseColumns.EVENT_ID));
     outputColList.add(new Column(OutputBaseColumns.NAME));

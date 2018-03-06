@@ -3,7 +3,7 @@ package com.google.sampling.experiential.server;
 import com.google.sampling.experiential.cloudsql.columns.DataTypeColumns;
 import com.google.sampling.experiential.cloudsql.columns.EventServerColumns;
 import com.google.sampling.experiential.cloudsql.columns.ExperimentUserColumns;
-import com.google.sampling.experiential.cloudsql.columns.ExperimentVersionMappingColumns;
+import com.google.sampling.experiential.cloudsql.columns.ExperimentGroupVersionMappingColumns;
 import com.google.sampling.experiential.cloudsql.columns.ExternStringInputColumns;
 import com.google.sampling.experiential.cloudsql.columns.ExternStringListLabelColumns;
 import com.google.sampling.experiential.cloudsql.columns.FailedEventServerColumns;
@@ -36,13 +36,24 @@ public enum QueryConstants {
   SET_NAMES("SET NAMES  'utf8mb4'"),
   GET_PARTICIPANTS_QUERY("select "+ EventServerColumns.WHO +" from expwho where " + EventServerColumns.EXPERIMENT_ID+ " =?"),
   GET_ALL_DATATYPES("select * from " + DataTypeColumns.TABLE_NAME),
-  GET_EXPERIMENT_FACET_ID("select * from " + ExperimentVersionMappingColumns.TABLE_NAME + " where experiment_id=? and experiment_version=?"),
-  GET_ALL_PRE_DEFINED_INPUTS("select * from " + GroupTypeInputMappingColumns.TABLE_NAME + " gtim join " + InputColumns.TABLE_NAME + " i  on i.input_id=gtim.input_id join extern_String_input esi1 on i.name_id = esi1.extern_string_input_id join extern_String_input esi2 on i.text_id = esi2.extern_string_input_id join data_type dt on i.data_type_id=dt.data_type_id join group_type gt on gt.group_type_id = gtim.group_type_id"),
+  GET_EXPERIMENT_DETAIL_ID("select * from " + ExperimentGroupVersionMappingColumns.TABLE_NAME + " where "+ ExperimentGroupVersionMappingColumns.EXPERIMENT_ID +" =? and "+ ExperimentGroupVersionMappingColumns.EXPERIMENT_VERSION + "=?"),
+  GET_ALL_PRE_DEFINED_INPUTS("select * from " + GroupTypeInputMappingColumns.TABLE_NAME + " gtim join " + InputColumns.TABLE_NAME +
+                             " i  on i."+ InputColumns.INPUT_ID +"=gtim." + GroupTypeInputMappingColumns.INPUT_ID + " join " + ExternStringInputColumns.TABLE_NAME +" esi1 on i."+ InputColumns.NAME_ID +" = esi1." + ExternStringInputColumns.EXTERN_STRING_INPUT_ID
+                             + " join "+ ExternStringInputColumns.TABLE_NAME +" esi2 on i.text_id = esi2." + ExternStringInputColumns.EXTERN_STRING_INPUT_ID 
+                             + " join "+ DataTypeColumns.TABLE_NAME  +" dt on i."+ InputColumns.RESPONSE_DATA_TYPE_ID  +"=dt."+ DataTypeColumns.DATA_TYPE_ID  +" "
+                             + " join " + GroupTypeColumns.TABLE_NAME+ " gt on gt." + GroupTypeColumns.GROUP_TYPE_ID+ " = gtim." +GroupTypeInputMappingColumns.GROUP_TYPE_ID),
   GET_LABEL_ID_FOR_STRING("select * from " + ExternStringListLabelColumns.TABLE_NAME + " where "  + ExternStringListLabelColumns.LABEL + "= ?"),
   GET_INPUT_TEXT_ID_FOR_STRING("select * from " + ExternStringInputColumns.TABLE_NAME + " where "  + ExternStringInputColumns.LABEL + "= ?"),
-  GET_CLOSEST_VERSION("(SELECT experiment_version FROM pacodb.experiment_version_mapping where experiment_id=? and experiment_version >? order by experiment_version asc limit 1) " +
-                      " union (SELECT  experiment_version FROM pacodb.experiment_version_mapping where experiment_id=? and experiment_version <? order by experiment_version desc limit 1 )"),
-  GET_ALL_EVM_RECORDS_FOR_VERSION("select * from " + ExperimentVersionMappingColumns.TABLE_NAME + " where "  + ExperimentVersionMappingColumns.EXPERIMENT_ID + "= ? and " + ExperimentVersionMappingColumns.EXPERIMENT_VERSION + "=?");
+  GET_CLOSEST_VERSION("(SELECT "+ ExperimentGroupVersionMappingColumns.EXPERIMENT_VERSION +" FROM " + ExperimentGroupVersionMappingColumns.TABLE_NAME + " where "+ ExperimentGroupVersionMappingColumns.EXPERIMENT_ID +"=? and "+ ExperimentGroupVersionMappingColumns.EXPERIMENT_VERSION +" >? order by "+ ExperimentGroupVersionMappingColumns.EXPERIMENT_VERSION +" asc limit 1) " +
+                      " union (SELECT  "+ ExperimentGroupVersionMappingColumns.EXPERIMENT_VERSION +" FROM " + ExperimentGroupVersionMappingColumns.TABLE_NAME + " where " + ExperimentGroupVersionMappingColumns.EXPERIMENT_ID +" =? and "+ ExperimentGroupVersionMappingColumns.EXPERIMENT_VERSION +" <? order by "+ ExperimentGroupVersionMappingColumns.EXPERIMENT_VERSION +" desc limit 1 )"),
+  GET_ALL_EVM_RECORDS_FOR_VERSION("select * from " + ExperimentGroupVersionMappingColumns.TABLE_NAME + " where "  + ExperimentGroupVersionMappingColumns.EXPERIMENT_ID + "= ? and " + ExperimentGroupVersionMappingColumns.EXPERIMENT_VERSION + "=?"),
+  UNPROCESSED_EVENT_QUERY("select experiment_id, experiment_version, group_name, who, text, experiment_name, _id from events e join outputs o on e._id=o.event_id where ((experiment_group_version_mapping_id is null or o.input_id is null) and experiment_id is not null) limit 1"),
+  INSERT_TO_PIVOT_HELPER("insert into pivot_helper(experiment_group_version_mapping_id, anon_who, input_id)  select evm.experiment_group_version_mapping_id, eu.experiment_user_anon_id, ic.input_id from experiment_group_version_mapping evm " 
+          + " join experiment_detail e on evm.experiment_detail_id = e.experiment_detail_id "
+          + " join experiment_user eu on evm.experiment_id = eu.experiment_id "
+          + " join input_collection ic on ic.experiment_ds_id = evm.experiment_id and  evm.input_collection_id=ic.input_collection_id"),
+  DELETE_ALL_EVENTS_AND_OUTPUTS("DELETE events, outputs FROM events LEFT JOIN outputs ON events._id = outputs.event_id WHERE events.experiment_id=?")
+  ;
   
 
   

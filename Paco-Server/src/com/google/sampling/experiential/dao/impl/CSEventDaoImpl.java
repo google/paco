@@ -75,7 +75,7 @@ public class CSEventDaoImpl implements CSEventDao {
     eventColInsertList.add(new Column(EventServerColumns.RESPONSE_TIME));
     eventColInsertList.add(new Column(EventServerColumns.SCHEDULE_TIME));
     eventColInsertList.add(new Column(EventServerColumns.SORT_DATE));
-    eventColInsertList.add(new Column(EventServerColumns.EXPERIMENT_VERSION_MAPPING_ID));
+    eventColInsertList.add(new Column(EventServerColumns.EXPERIMENT_GROUP_VERSION_MAPPING_ID));
   }
   
   @Override
@@ -274,4 +274,6 @@ public class CSEventDaoImpl implements CSEventDao {
     }
     return retVal;
   }
+ 
 }
+

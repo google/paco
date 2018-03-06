@@ -1,10 +1,12 @@
 package com.google.sampling.experiential.dao.dataaccess;
 
 import java.lang.reflect.Field;
+import java.util.logging.Logger;
 
 import com.google.sampling.experiential.server.PacoId;
 
-public class Input {
+public class Input implements PacoComparator<Input> {
+  public static final Logger log = Logger.getLogger(Input.class.getName());
   private PacoId inputId;
   private ExternStringInput name;
   private boolean required;
@@ -92,7 +94,7 @@ public class Input {
     this.parentId = parentId;
   }
 
-  public Boolean compareWithoutId(Input other) throws IllegalArgumentException, IllegalAccessException { 
+  public Boolean equalsWithoutId(Input other) throws IllegalArgumentException, IllegalAccessException { 
     Field[] fields = this.getClass().getDeclaredFields();
 
     for(Field field : fields){
@@ -107,11 +109,28 @@ public class Input {
     }
     return true;
   }
+  
   @Override
   public String toString() {
     return "Input [inputId=" + inputId + ", name=" + name + ", required=" + required + ", conditional=" + conditional
            + ", responseDataType=" + responseDataType + ", text=" + text + ", likertSteps=" + likertSteps
            + ", leftLabel=" + leftLabel + ", rightLabel=" + rightLabel + 
            ", parentId="+ parentId + "]";
+  }
+  
+  @Override
+  public boolean hasChanged(Input olderVersion) {
+    boolean hasChanged = true;
+    try {
+      if (this.equalsWithoutId(olderVersion)) {
+        if (this.getResponseDataType().isMultiSelect() == olderVersion.getResponseDataType().isMultiSelect() && this.getResponseDataType().getName().equals(olderVersion.getResponseDataType().getName())
+                                                          && this.getResponseDataType().isNumeric() == olderVersion.getResponseDataType().isNumeric()) {
+          hasChanged = false;  
+        }
+      }
+    } catch (IllegalArgumentException | IllegalAccessException e) {
+      e.printStackTrace();
+    }
+    return hasChanged;
   }
 }

@@ -1,6 +1,9 @@
 package com.google.sampling.experiential.dao.dataaccess;
 
-public class InputOrderAndChoice {
+import java.util.logging.Logger;
+
+public class InputOrderAndChoice implements PacoComparator<InputOrderAndChoice> {
+  public static final Logger log = Logger.getLogger(InputOrderAndChoice.class.getName());
   Input input;
   Integer inputOrder;
   ChoiceCollection choiceCollection;
@@ -26,6 +29,31 @@ public class InputOrderAndChoice {
   public String toString() {
     return "InputOrderAndChoice [input=" + input + ", inputOrder=" + inputOrder + ", choiceCollection="
            + choiceCollection + "]";
+  }
+  @Override
+  public boolean hasChanged(InputOrderAndChoice olderVersion) {
+    boolean hasChanged = false;
+    if (olderVersion == null) {
+      hasChanged = true;
+    } else { 
+      boolean inputChanged = this.getInput().hasChanged(olderVersion.getInput());
+      boolean inputOrderChanged = this.getInputOrder() != olderVersion.getInputOrder();
+      boolean choiceCollectionChanged = false;
+      if (this.getChoiceCollection() != null) {
+        choiceCollectionChanged = this.getChoiceCollection().hasChanged(olderVersion.getChoiceCollection());
+      }
+      if (inputChanged || inputOrderChanged || choiceCollectionChanged) {
+        hasChanged = true;
+      }
+      if (!inputChanged) {
+        this.getInput().setInputId(olderVersion.getInput().getInputId());
+      }
+      if(this.getChoiceCollection() != null && !choiceCollectionChanged) {
+        this.getChoiceCollection().setChoiceCollectionId(olderVersion.getChoiceCollection().getChoiceCollectionId());
+      }
+    }
+    
+    return hasChanged;
   }
 
 }

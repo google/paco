@@ -110,15 +110,15 @@ public class ExperimentJsonUploadProcessor {
     if (existingExperiment == null) {
       experimentDAO.setId(null);
     }
+    // TODO REMOVE BEGIN TO BE REMOVED WHEN FRONT END CHANGES ARE MADE. temp code to split into grps
+    ExperimentDAOConverter daoConverter = new ExperimentDAOConverter();
+    daoConverter.splitGroups(experimentDAO, true);
+    // REMOVE ENDS
     if (persistInCloudSqlOnly) { 
-      // TODO REMOVE BEGIN TO BE REMOVED WHEN FRONT END CHANGES ARE MADE. temp code to split into grps
-      ExperimentDAOConverter daoConverter = new ExperimentDAOConverter();
-      daoConverter.splitGroups(experimentDAO);
-      // REMOVE ENDS
       CSExperimentUserDao exptUserDaoImpl = new CSExperimentUserDaoImpl();
       CSExperimentVersionMappingDao exptVersionMapping = new CSExperimentVersionMappingDaoImpl();
       // for saving experiment, group, inputs
-      exptVersionMapping.updateExperimentVersionMapping(experimentDAO);
+      exptVersionMapping.ensureExperimentVersionMapping(experimentDAO);
       // for saving admin and participants
       exptUserDaoImpl.ensureUserId(experimentDAO.getId(), Sets.newHashSet(experimentDAO.getAdmins()), Sets.newHashSet(experimentDAO.getPublishedUsers()));
     } else {

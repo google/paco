@@ -16,11 +16,11 @@ import com.google.sampling.experiential.dao.CSUserDao;
 import com.google.sampling.experiential.dao.dataaccess.Choice;
 import com.google.sampling.experiential.dao.dataaccess.ChoiceCollection;
 import com.google.sampling.experiential.dao.dataaccess.DataType;
-import com.google.sampling.experiential.dao.dataaccess.Experiment;
+import com.google.sampling.experiential.dao.dataaccess.ExperimentDetail;
 import com.google.sampling.experiential.dao.dataaccess.ExperimentVersionMapping;
 import com.google.sampling.experiential.dao.dataaccess.ExternStringInput;
 import com.google.sampling.experiential.dao.dataaccess.ExternStringListLabel;
-import com.google.sampling.experiential.dao.dataaccess.Group;
+import com.google.sampling.experiential.dao.dataaccess.GroupDetail;
 import com.google.sampling.experiential.dao.dataaccess.InformedConsent;
 import com.google.sampling.experiential.dao.dataaccess.Input;
 import com.google.sampling.experiential.dao.dataaccess.InputCollection;
@@ -40,13 +40,14 @@ public class ExperimentDAOConverter {
   DateTimeFormatter formatter = DateTimeFormat.forPattern("YYYY/MM/dd");
   public static final Logger log = Logger.getLogger(ExperimentDAOConverter.class.getName());
   
-  public Experiment convertToExperiment(ExperimentDAO experimentDao) throws SQLException {
+  public ExperimentDetail convertToExperiment(ExperimentDAO experimentDao) throws SQLException {
     InformedConsent newInformedConsent = null;
     if (experimentDao.getInformedConsentForm() != null && !experimentDao.getInformedConsentForm().equals("")) {
       newInformedConsent = new InformedConsent();
+      newInformedConsent.setExperimentId(experimentDao.getId());
       newInformedConsent.setInformedConsent(experimentDao.getInformedConsentForm());
     }
-    Experiment experiment = new Experiment();
+    ExperimentDetail experiment = new ExperimentDetail();
     experiment.setTitle(experimentDao.getTitle());
     experiment.setDescription(experimentDao.getDescription());
     // create option should always be false. we should have the user authenticated by the time we hit save button.
@@ -63,12 +64,13 @@ public class ExperimentDAOConverter {
     return experiment; 
   }
   
-  public List<Group> convertToGroup(List<ExperimentGroup> experimentGroups) {
-    List<Group> groups = Lists.newArrayList();
-    Group group = null;
+  public List<GroupDetail> convertToGroup(List<ExperimentGroup> experimentGroups) {
+    List<GroupDetail> groups = Lists.newArrayList();
+    GroupDetail group = null;
     for ( ExperimentGroup experimentGroup : experimentGroups) {
-      group = new Group();
+      group = new GroupDetail();
       group.setName(experimentGroup.getName());
+      //TODO
       if (experimentGroup.getGroupType() != null) {
         group.setGroupTypeId(experimentGroup.getGroupType().getGroupTypeId());
       } 
@@ -78,7 +80,6 @@ public class ExperimentDAOConverter {
       group.setEndDate(experimentGroup.getEndDate() != null ? formatter.parseDateTime(experimentGroup.getEndDate()) : null);
       group.setRawDataAccess(experimentGroup.getRawDataAccess());
       group.setEndOfDayGroup(experimentGroup.getEndOfDayReferredGroupName());
-      group.setGroupTypeId(experimentGroup.getGroupType().getGroupTypeId());
       groups.add(group);
     }  
     return groups; 
@@ -93,7 +94,7 @@ public class ExperimentDAOConverter {
     if (experimentGroup.getInputs().size() > 0) {
       inputOrderAndChoices = Maps.newHashMap();
       inputCollection = new InputCollection();
-      for (int order=0; order<experimentGroup.getInputs().size(); order++) {
+      for (int order = 0; order < experimentGroup.getInputs().size(); order++) {
         input2Obj = experimentGroup.getInputs().get(order);
         inputObj = convertToInput(input2Obj);
         inputOrderAndChoiceObj = convertInputToInputOrderAndChoice(inputObj, order+1, input2Obj.getListChoices());
@@ -197,10 +198,12 @@ public class ExperimentDAOConverter {
   public List<ExperimentVersionMapping> convertToExperimentVersionMapping(ExperimentDAO experimentDao) throws SQLException {
     List<ExperimentVersionMapping> newMappingList = Lists.newArrayList();
     ExperimentVersionMapping currentMappingObj = null;
-    List<Group> convertedGroups = convertToGroup(experimentDao.getGroups());
-    for (Group group : convertedGroups) {
+    List<GroupDetail> convertedGroups = convertToGroup(experimentDao.getGroups());
+    ExperimentDetail convertedExperiment = convertToExperiment(experimentDao);
+    
+    for (GroupDetail group : convertedGroups) {
       currentMappingObj = new ExperimentVersionMapping();
-      currentMappingObj.setExperimentInfo(convertToExperiment(experimentDao));
+      currentMappingObj.setExperimentInfo(convertedExperiment);
       currentMappingObj.setExperimentId(experimentDao.getId());
       currentMappingObj.setExperimentVersion(experimentDao.getVersion());
       currentMappingObj.setGroupInfo(group);
@@ -216,8 +219,7 @@ public class ExperimentDAOConverter {
     CSGroupTypeInputMappingDao gtimDaoImpl = new CSGroupTypeInputMappingDaoImpl();
     ExperimentGroup predefinedGrp = new ExperimentGroup();
     ExperimentDAOConverter daoConverter = new ExperimentDAOConverter();
-    String lowerCaseGroupTypeName = groupType.name().toLowerCase();
-    List<Input> predefinedInputOrigLst = gtimDaoImpl.getAllFeatureInputs().get(lowerCaseGroupTypeName);
+    List<Input> predefinedInputOrigLst = gtimDaoImpl.getAllFeatureInputs().get(groupType.name());
     List<Input> predefinedInputModifiedLst = null;
     
     if (!recordPhoneDetails && GroupTypeEnum.SYSTEM.equals(groupType)) {
@@ -233,15 +235,15 @@ public class ExperimentDAOConverter {
     } else {
       predefinedInputModifiedLst = predefinedInputOrigLst;
     }
-    predefinedGrp.setName(lowerCaseGroupTypeName);
+    predefinedGrp.setName(groupType.name());
     predefinedGrp.setGroupType(groupType);
     predefinedGrp.setInputs(daoConverter.convertToInput2(predefinedInputModifiedLst));
-    predefinedGrp.setFeedback(new Feedback("Thanks"));
+    predefinedGrp.setFeedback(new Feedback(Feedback.DEFAULT_FEEDBACK_MSG));
     return predefinedGrp;
   }
   
 
-  public void splitGroups(ExperimentDAO eachExperiment)  throws SQLException {
+  public void splitGroups(ExperimentDAO eachExperiment, boolean saveExperimentFlag)  throws SQLException {
     List<ExperimentGroup> predefinedGroups = null;
     // add predefined system group
     ExperimentGroup systemGroup = null;
@@ -251,50 +253,83 @@ public class ExperimentDAOConverter {
       systemGroup = createPredefinedExperimentGroupForGroupType(GroupTypeEnum.SYSTEM, eachExperiment.getRecordPhoneDetails());
      
       // chk if splitting is neccessary
-      for (ExperimentGroup eg: eachExperiment.getGroups()) {
-        if (eg.getGroupType() == null)  {
-          // once it saved with splitted groups, then even predefined groups will have inputs
-          eg.setGroupType(GroupTypeEnum.SURVEY);
-          if (eg.getAccessibilityListen() || eg.getGroupType().equals(GroupTypeEnum.ACCESSIBILITY)) {
-            ExperimentGroup accListen = createPredefinedExperimentGroupForGroupType(GroupTypeEnum.ACCESSIBILITY, eachExperiment.getRecordPhoneDetails());
-            accListen.setAccessibilityListen(true);
-            eg.setAccessibilityListen(false);
-            predefinedGroups.add(accListen);
-          }
-          if (eg.getLogShutdown() || eg.getGroupType().equals(GroupTypeEnum.PHONESTATUS)) {
-            ExperimentGroup logPhoneActions = createPredefinedExperimentGroupForGroupType(GroupTypeEnum.PHONESTATUS, eachExperiment.getRecordPhoneDetails());
-            logPhoneActions.setLogShutdown(true);
-            eg.setLogShutdown(false);
-            predefinedGroups.add(logPhoneActions);
-          }
-    
-          if ( eg.getLogActions() || eg.getGroupType().equals(GroupTypeEnum.APPUSAGE))  {
-            ExperimentGroup appUsage = createPredefinedExperimentGroupForGroupType(GroupTypeEnum.APPUSAGE, eachExperiment.getRecordPhoneDetails());
-            appUsage.setLogActions(true);
-            eg.setLogActions(false);
-            predefinedGroups.add(appUsage);
-          }
-          if (eg.getLogNotificationEvents() || eg.getGroupType().equals(GroupTypeEnum.NOTFICATION)) {
-            ExperimentGroup logNotifGrp = createPredefinedExperimentGroupForGroupType(GroupTypeEnum.NOTFICATION, eachExperiment.getRecordPhoneDetails());;
-            logNotifGrp.setLogNotificationEvents(true);
-            eg.setLogNotificationEvents(false);
-            predefinedGroups.add(logNotifGrp);
+      for (ExperimentGroup experimentGroup : eachExperiment.getGroups()) {
+        // The very first time, while doing migration of the experiments, the group type will be null. There can be a grp with accessibility, appusage turned on. We have to split these grps
+        // When saving an experiment, we would know the group type, so we have to add the corresponding predefined inputs to the special groups
+        if (experimentGroup.getGroupType() == null || saveExperimentFlag)  {
+          // once it is saved with split groups, then even predefined groups will have inputs
+          ensureAccessibilityGroup(experimentGroup, predefinedGroups);
+          ensurePhoneStatusGroup(experimentGroup, predefinedGroups);
+          ensureAppUsageAndroidGroup(experimentGroup, predefinedGroups);
+          ensureNotificationGroup(experimentGroup, predefinedGroups);
+          if (predefinedGroups.size() == 0 && !saveExperimentFlag) {
+            experimentGroup.setGroupType(GroupTypeEnum.SURVEY);
           }
         } 
       }
       predefinedGroups.add(systemGroup);
-      List<ExperimentGroup> origGroups = eachExperiment.getGroups();
-      ExperimentGroup matchingGroupInDS = null;
-      // add all predefined grps, only if its not already present
-      for (ExperimentGroup egt : predefinedGroups) {
-        matchingGroupInDS = eachExperiment.getGroupByName(egt.getName());
-        if (matchingGroupInDS == null) {
-          origGroups.add(egt);
+      List<ExperimentGroup> userDefinedGroups = eachExperiment.getGroups();
+      ExperimentGroup matchingGroupInDataStore = null;
+      //  if its not already present, add all predefined grps. if its present, chk for the sizes. System grp can have diff sizes.
+      // This is only for predefined grps and not for survey grps.
+      for (ExperimentGroup currentPredefinedExperimentGroup : predefinedGroups) {
+        matchingGroupInDataStore = eachExperiment.getGroupByName(currentPredefinedExperimentGroup.getName());
+        if (matchingGroupInDataStore == null) {
+          userDefinedGroups.add(currentPredefinedExperimentGroup);
+        } else if (matchingGroupInDataStore.getInputs().size() != currentPredefinedExperimentGroup.getInputs().size()) {
+          userDefinedGroups.remove(matchingGroupInDataStore);
+          userDefinedGroups.add(currentPredefinedExperimentGroup);
         }
       }
     } catch (Exception e) {
       log.warning(ErrorMessages.GENERAL_EXCEPTION.getDescription() + ExceptionUtil.getStackTraceAsString(e));
     }
-    log.info("splitting groups for an experiment finished");
+    log.info("splitting groups for an experiment finished" + eachExperiment.getId());
+  }
+  
+  private void ensureAccessibilityGroup (ExperimentGroup experimentGroup, List<ExperimentGroup> predefinedGroups) throws SQLException {
+    // eg.getAccessibilityListen() is for handling current UI, the second condition eg.getgrouptype is for handling future UI
+    if (experimentGroup.getAccessibilityListen() || GroupTypeEnum.ACCESSIBILITY.equals(experimentGroup.getGroupType())) {
+      ExperimentGroup accListen = createPredefinedExperimentGroupForGroupType(GroupTypeEnum.ACCESSIBILITY, false);
+      accListen.setStartDate(experimentGroup.getStartDate());
+      accListen.setEndDate(experimentGroup.getEndDate());
+      accListen.setFixedDuration(accListen.getEndDate() != null);
+      accListen.setAccessibilityListen(true);
+      experimentGroup.setAccessibilityListen(false);
+      predefinedGroups.add(accListen);
+    }
+  }
+  private void ensurePhoneStatusGroup (ExperimentGroup experimentGroup, List<ExperimentGroup> predefinedGroups) throws SQLException {
+    if (experimentGroup.getLogShutdown() || GroupTypeEnum.PHONESTATUS.equals(experimentGroup.getGroupType())) {
+      ExperimentGroup logPhoneActions = createPredefinedExperimentGroupForGroupType(GroupTypeEnum.PHONESTATUS, false);
+      logPhoneActions.setStartDate(experimentGroup.getStartDate());
+      logPhoneActions.setEndDate(experimentGroup.getEndDate());
+      logPhoneActions.setFixedDuration(logPhoneActions.getEndDate() != null);
+      logPhoneActions.setLogShutdown(true);
+      experimentGroup.setLogShutdown(false);
+      predefinedGroups.add(logPhoneActions);
+    }
+  }
+  private void ensureAppUsageAndroidGroup (ExperimentGroup experimentGroup, List<ExperimentGroup> predefinedGroups) throws SQLException {
+    if ( experimentGroup.getLogActions() || GroupTypeEnum.APPUSAGE_ANDROID.equals(experimentGroup.getGroupType()))  {
+      ExperimentGroup appUsage = createPredefinedExperimentGroupForGroupType(GroupTypeEnum.APPUSAGE_ANDROID, false);
+      appUsage.setStartDate(experimentGroup.getStartDate());
+      appUsage.setEndDate(experimentGroup.getEndDate());
+      appUsage.setFixedDuration(appUsage.getEndDate() != null);
+      appUsage.setLogActions(true);
+      experimentGroup.setLogActions(false);
+      predefinedGroups.add(appUsage);
+    }
+  }
+  private void ensureNotificationGroup (ExperimentGroup experimentGroup, List<ExperimentGroup> predefinedGroups) throws SQLException {
+    if (experimentGroup.getLogNotificationEvents() || GroupTypeEnum.NOTIFICATION.equals(experimentGroup.getGroupType())) {
+      ExperimentGroup logNotifGrp = createPredefinedExperimentGroupForGroupType(GroupTypeEnum.NOTIFICATION, false);
+      logNotifGrp.setStartDate(experimentGroup.getStartDate());
+      logNotifGrp.setEndDate(experimentGroup.getEndDate());
+      logNotifGrp.setFixedDuration(logNotifGrp.getEndDate() != null);
+      logNotifGrp.setLogNotificationEvents(true);
+      experimentGroup.setLogNotificationEvents(false);
+      predefinedGroups.add(logNotifGrp);
+    }
   }
 }

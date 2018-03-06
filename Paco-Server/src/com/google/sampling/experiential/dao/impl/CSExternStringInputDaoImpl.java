@@ -63,7 +63,7 @@ public class CSExternStringInputDaoImpl implements CSExternStringInputDao {
       statementGetIdForLabel.setString(1, label);
       rs = statementGetIdForLabel.executeQuery();
       while (rs.next()) {
-        id = rs.getLong(ExternStringInputColumns.EXTERN_STRING_ID);
+        id = rs.getLong(ExternStringInputColumns.EXTERN_STRING_INPUT_ID);
       }
     } finally {
       try {

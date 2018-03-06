@@ -44,5 +44,4 @@ public class ExternStringListLabel {
       return false;
     return true;
   }
-
 }

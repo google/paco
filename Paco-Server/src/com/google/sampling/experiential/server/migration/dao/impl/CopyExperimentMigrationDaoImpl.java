@@ -18,13 +18,13 @@ import com.google.common.collect.Sets;
 import com.google.sampling.experiential.cloudsql.columns.ChoiceCollectionColumns;
 import com.google.sampling.experiential.cloudsql.columns.DataTypeColumns;
 import com.google.sampling.experiential.cloudsql.columns.EventServerColumns;
-import com.google.sampling.experiential.cloudsql.columns.ExperimentColumns;
+import com.google.sampling.experiential.cloudsql.columns.ExperimentDetailColumns;
 import com.google.sampling.experiential.cloudsql.columns.ExperimentDefinitionColumns;
 import com.google.sampling.experiential.cloudsql.columns.ExperimentUserColumns;
-import com.google.sampling.experiential.cloudsql.columns.ExperimentVersionMappingColumns;
+import com.google.sampling.experiential.cloudsql.columns.ExperimentGroupVersionMappingColumns;
 import com.google.sampling.experiential.cloudsql.columns.ExternStringInputColumns;
 import com.google.sampling.experiential.cloudsql.columns.ExternStringListLabelColumns;
-import com.google.sampling.experiential.cloudsql.columns.GroupColumns;
+import com.google.sampling.experiential.cloudsql.columns.GroupDetailColumns;
 import com.google.sampling.experiential.cloudsql.columns.GroupTypeColumns;
 import com.google.sampling.experiential.cloudsql.columns.GroupTypeInputMappingColumns;
 import com.google.sampling.experiential.cloudsql.columns.InformedConsentColumns;
@@ -60,16 +60,17 @@ import com.google.sampling.experiential.server.ExperimentDAOConverter;
 import com.google.sampling.experiential.server.ExperimentService;
 import com.google.sampling.experiential.server.ExperimentServiceFactory;
 import com.google.sampling.experiential.server.PacoId;
+import com.google.sampling.experiential.server.QueryConstants;
 import com.google.sampling.experiential.server.migration.dao.CopyExperimentMigrationDao;
 import com.google.sampling.experiential.shared.WhatDAO;
 import com.pacoapp.paco.shared.model2.ExperimentDAO;
 import com.pacoapp.paco.shared.model2.ExperimentQueryResult;
+import com.pacoapp.paco.shared.model2.GroupTypeEnum;
 import com.pacoapp.paco.shared.util.Constants;
 import com.pacoapp.paco.shared.util.ErrorMessages;
 
 public class CopyExperimentMigrationDaoImpl implements CopyExperimentMigrationDao {
   public static final Logger log = Logger.getLogger(CopyExperimentMigrationDaoImpl.class.getName());
-  private CSGroupTypeInputMappingDao gtimDaoImpl = new CSGroupTypeInputMappingDaoImpl();
   
   @Override
   public boolean copyExperimentCreateTables() throws SQLException {
@@ -92,9 +93,9 @@ public class CopyExperimentMigrationDaoImpl implements CopyExperimentMigrationDa
             " UNIQUE KEY `type_UNIQUE` (`" + ExternStringListLabelColumns.LABEL + "`))" +
             " DEFAULT CHARACTER SET = utf8mb4" ;
     final String createTableSql3 = "CREATE TABLE IF NOT EXISTS `pacodb`.`"+ ExternStringInputColumns.TABLE_NAME+"` (" +
-            ExternStringInputColumns.EXTERN_STRING_ID + " BIGINT(20) NOT NULL AUTO_INCREMENT," +
+            ExternStringInputColumns.EXTERN_STRING_INPUT_ID + " BIGINT(20) NOT NULL AUTO_INCREMENT," +
             ExternStringInputColumns.LABEL + " VARCHAR(500) NOT NULL," +
-            " PRIMARY KEY (`"+ ExternStringInputColumns.EXTERN_STRING_ID +"`)," +
+            " PRIMARY KEY (`"+ ExternStringInputColumns.EXTERN_STRING_INPUT_ID +"`)," +
             " UNIQUE KEY `type_UNIQUE` (`" + ExternStringInputColumns.LABEL + "`))" +
             " DEFAULT CHARACTER SET = utf8mb4" ;
      final String createTableSql4 = "CREATE TABLE IF NOT EXISTS `pacodb`.`"+ ChoiceCollectionColumns.TABLE_NAME+"` (" +
@@ -109,32 +110,32 @@ public class CopyExperimentMigrationDaoImpl implements CopyExperimentMigrationDa
             " REFERENCES `pacodb`.`" + ExternStringListLabelColumns.TABLE_NAME + "` (" + ExternStringListLabelColumns.EXTERN_STRING_LIST_LABEL_ID + "))" + 
             " DEFAULT CHARACTER SET = utf8mb4" ;
      
-     final String createTableSql5 = "CREATE TABLE IF NOT EXISTS `pacodb`.`"+ ExperimentColumns.TABLE_NAME+"` (" +
-             ExperimentColumns.EXPERIMENT_FACET_ID + " BIGINT(20) NOT NULL AUTO_INCREMENT," +
-             ExperimentColumns.EXPERIMENT_NAME + " VARCHAR(500) NOT NULL," +
-             ExperimentColumns.DESCRIPTION + " VARCHAR(500) NULL," +
-             ExperimentColumns.CREATOR + " BIGINT(20) NOT NULL," +
-             ExperimentColumns.CONTACT_EMAIL + " VARCHAR(200) NULL," +
-             ExperimentColumns.ORGANIZATION + " VARCHAR(200)  NULL," +
-             ExperimentColumns.INFORMED_CONSENT_ID + " BIGINT(20) NULL DEFAULT NULL," +
-             ExperimentColumns.MODIFIED_DATE + " datetime NULL," +
-             ExperimentColumns.PUBLISHED + " BIT(1) NULL DEFAULT 0," +
-             ExperimentColumns.RINGTONE_URI + "  VARCHAR(200) NULL," +
-             ExperimentColumns.POST_INSTALL_INSTRUCTIONS + " VARCHAR(500) NULL," +
-             ExperimentColumns.DELETED + " bit(1) NULL DEFAULT 0," +
-             " PRIMARY KEY (`"+ ExperimentColumns.EXPERIMENT_FACET_ID +"`))" +
+     final String createTableSql5 = "CREATE TABLE IF NOT EXISTS `pacodb`.`"+ ExperimentDetailColumns.TABLE_NAME+"` (" +
+             ExperimentDetailColumns.EXPERIMENT_DETAIL_ID + " BIGINT(20) NOT NULL AUTO_INCREMENT," +
+             ExperimentDetailColumns.EXPERIMENT_NAME + " VARCHAR(500) NOT NULL," +
+             ExperimentDetailColumns.DESCRIPTION + " VARCHAR(500) NULL," +
+             ExperimentDetailColumns.CREATOR + " BIGINT(20) NOT NULL," +
+             ExperimentDetailColumns.CONTACT_EMAIL + " VARCHAR(200) NULL," +
+             ExperimentDetailColumns.ORGANIZATION + " VARCHAR(200)  NULL," +
+             ExperimentDetailColumns.INFORMED_CONSENT_ID + " BIGINT(20) NULL DEFAULT NULL," +
+             ExperimentDetailColumns.MODIFIED_DATE + " datetime NULL," +
+             ExperimentDetailColumns.PUBLISHED + " BIT(1) NULL DEFAULT 0," +
+             ExperimentDetailColumns.RINGTONE_URI + "  VARCHAR(200) NULL," +
+             ExperimentDetailColumns.POST_INSTALL_INSTRUCTIONS + " VARCHAR(500) NULL," +
+             ExperimentDetailColumns.DELETED + " bit(1) NULL DEFAULT 0," +
+             " PRIMARY KEY (`"+ ExperimentDetailColumns.EXPERIMENT_DETAIL_ID +"`))" +
              " DEFAULT CHARACTER SET = utf8mb4" ;
-     final String createTableSql6 = "CREATE TABLE IF NOT EXISTS `pacodb`."+ GroupColumns.TABLE_NAME+" (" +
-             GroupColumns.GROUP_ID + " BIGINT(20) NOT NULL AUTO_INCREMENT," +
-             GroupColumns.NAME + " VARCHAR(500) NOT NULL," +
-             GroupColumns.GROUP_TYPE_ID + " INT(11) NULL DEFAULT NULL, " +
-             GroupColumns.CUSTOM_RENDERING + " VARCHAR(500) NULL," +
-             GroupColumns.END_OF_DAY_GROUP + " VARCHAR(500) NULL DEFAULT NULL," +
-             GroupColumns.FIXED_DURATION + " BIT(1) NULL," +
-             GroupColumns.START_DATE + " datetime NULL," +
-             GroupColumns.END_DATE + " datetime NULL," +
-             GroupColumns.RAW_DATA_ACCESS + " BIT(1) NULL," +
-             " PRIMARY KEY (`"+ GroupColumns.GROUP_ID +"`))" +
+     final String createTableSql6 = "CREATE TABLE IF NOT EXISTS `pacodb`."+ GroupDetailColumns.TABLE_NAME+" (" +
+             GroupDetailColumns.GROUP_DETAIL_ID + " BIGINT(20) NOT NULL AUTO_INCREMENT," +
+             GroupDetailColumns.NAME + " VARCHAR(500) NOT NULL," +
+             GroupDetailColumns.GROUP_TYPE_ID + " INT(11) NULL DEFAULT NULL, " +
+             GroupDetailColumns.CUSTOM_RENDERING + " VARCHAR(500) NULL," +
+             GroupDetailColumns.END_OF_DAY_GROUP + " VARCHAR(500) NULL DEFAULT NULL," +
+             GroupDetailColumns.FIXED_DURATION + " BIT(1) NULL," +
+             GroupDetailColumns.START_DATE + " datetime NULL," +
+             GroupDetailColumns.END_DATE + " datetime NULL," +
+             GroupDetailColumns.RAW_DATA_ACCESS + " BIT(1) NULL," +
+             " PRIMARY KEY (`"+ GroupDetailColumns.GROUP_DETAIL_ID +"`))" +
              " DEFAULT CHARACTER SET = utf8mb4" ;
      final String createTableSql7 = "CREATE TABLE IF NOT EXISTS `pacodb`.`"+ InputColumns.TABLE_NAME+"` (" +
              InputColumns.INPUT_ID + " BIGINT(20) NOT NULL AUTO_INCREMENT," +
@@ -142,7 +143,7 @@ public class CopyExperimentMigrationDaoImpl implements CopyExperimentMigrationDa
              InputColumns.TEXT_ID + " BIGINT(20) NOT NULL," +
              InputColumns.REQUIRED + " BIT(1) NULL DEFAULT 0," +
              InputColumns.CONDITIONAL + " VARCHAR(200) NULL," +
-             InputColumns.RESPONSE_TYPE_ID + " INT(11) NULL," +
+             InputColumns.RESPONSE_DATA_TYPE_ID + " INT(11) NULL," +
              InputColumns.LIKERT_STEPS + " TINYINT(4) NULL," +
              InputColumns.LEFT_LABEL + " VARCHAR(100) NULL," +
              InputColumns.RIGHT_LABEL + " VARCHAR(100) NULL," +
@@ -150,12 +151,12 @@ public class CopyExperimentMigrationDaoImpl implements CopyExperimentMigrationDa
              " PRIMARY KEY (`"+ InputColumns.INPUT_ID +"`)," +
              " INDEX `name_extern_string_fk_idx` (`" + InputColumns.NAME_ID  + "` ASC)," + 
              " INDEX `text_extern_string_fk_idx` (`" + InputColumns.TEXT_ID + "` ASC)," + 
-             " INDEX `response_type_fk_idx` (`" + InputColumns.RESPONSE_TYPE_ID + "` ASC)," + 
+             " INDEX `response_type_fk_idx` (`" + InputColumns.RESPONSE_DATA_TYPE_ID + "` ASC)," + 
              " CONSTRAINT `ih_es_name_fk` FOREIGN KEY (`" + InputColumns.NAME_ID + "`) REFERENCES `" + 
-                 ExternStringInputColumns.TABLE_NAME +"`(`" + ExternStringInputColumns.EXTERN_STRING_ID + "`)  ON DELETE NO ACTION ON UPDATE NO ACTION," + 
+                 ExternStringInputColumns.TABLE_NAME +"`(`" + ExternStringInputColumns.EXTERN_STRING_INPUT_ID + "`)  ON DELETE NO ACTION ON UPDATE NO ACTION," + 
              " CONSTRAINT `ih_es_text_fk` FOREIGN KEY (`" + InputColumns.TEXT_ID + "`) REFERENCES `" + 
-                 ExternStringInputColumns.TABLE_NAME +"`(`" + ExternStringInputColumns.EXTERN_STRING_ID + "`)  ON DELETE NO ACTION ON UPDATE NO ACTION," +  
-             " CONSTRAINT `ih_es_response_type_fk` FOREIGN KEY (`" + InputColumns.RESPONSE_TYPE_ID + "`) REFERENCES `" + 
+                 ExternStringInputColumns.TABLE_NAME +"`(`" + ExternStringInputColumns.EXTERN_STRING_INPUT_ID + "`)  ON DELETE NO ACTION ON UPDATE NO ACTION," +  
+             " CONSTRAINT `ih_es_response_type_fk` FOREIGN KEY (`" + InputColumns.RESPONSE_DATA_TYPE_ID + "`) REFERENCES `" + 
                  DataTypeColumns.TABLE_NAME +"`(`" + DataTypeColumns.DATA_TYPE_ID + "`)  ON DELETE NO ACTION ON UPDATE NO ACTION)"  +
              " DEFAULT CHARACTER SET = utf8mb4" ;
      final String createTableSql8 = "CREATE TABLE IF NOT EXISTS `pacodb`.`"+ InputCollectionColumns.TABLE_NAME+"` (" +
@@ -168,25 +169,25 @@ public class CopyExperimentMigrationDaoImpl implements CopyExperimentMigrationDa
                      InputCollectionColumns.EXPERIMENT_ID +"`,`" +
                      InputCollectionColumns.INPUT_ID +"`)) " +
            " DEFAULT CHARACTER SET = utf8mb4" ;
-     final String createTableSql9 = "CREATE TABLE IF NOT EXISTS `pacodb`.`"+ ExperimentVersionMappingColumns.TABLE_NAME+"` (" +
-             ExperimentVersionMappingColumns.EXPERIMENT_VERSION_MAPPING_ID + " BIGINT(20) NOT NULL AUTO_INCREMENT," +
-             ExperimentVersionMappingColumns.EXPERIMENT_ID + " BIGINT(20) NOT NULL," +
-             ExperimentVersionMappingColumns.EXPERIMENT_VERSION + " INT(11) NOT NULL," +
-             ExperimentVersionMappingColumns.EXPERIMENT_FACET_ID + " BIGINT(20) NOT NULL," +
-             ExperimentVersionMappingColumns.GROUP_ID + " BIGINT(20) NOT NULL," +
-             ExperimentVersionMappingColumns.INPUT_COLLECTION_ID + " BIGINT(20) NULL," +
-             ExperimentVersionMappingColumns.EVENTS_POSTED + " BIT(1) DEFAULT 0," +
-             ExperimentVersionMappingColumns.SOURCE + " VARCHAR(100) NULL, " +
-             " PRIMARY KEY (`" + ExperimentVersionMappingColumns.EXPERIMENT_VERSION_MAPPING_ID + "`)," +  
-             " UNIQUE KEY `experiment_id_version_group_unique` (`" + ExperimentVersionMappingColumns.EXPERIMENT_ID + "`,"
-                     + "`" + ExperimentVersionMappingColumns.EXPERIMENT_VERSION + "`,"
-                     + "`" + ExperimentVersionMappingColumns.GROUP_ID + "`)," +
-              "KEY `experiment_history_fk_idx` (`" + ExperimentVersionMappingColumns.EXPERIMENT_FACET_ID + "`)," +
-              "KEY `group_history_fk_idx` (`" + ExperimentVersionMappingColumns.GROUP_ID + "`)," +
-              " CONSTRAINT `experiment_history_fk` FOREIGN KEY (`" + ExperimentVersionMappingColumns.EXPERIMENT_FACET_ID + "`) REFERENCES `" +
-                     ExperimentColumns.TABLE_NAME + "` (`" + ExperimentColumns.EXPERIMENT_FACET_ID + "`) ON DELETE NO ACTION ON UPDATE NO ACTION," +
-              " CONSTRAINT `group_history_fk` FOREIGN KEY (`" + ExperimentVersionMappingColumns.GROUP_ID + "`) REFERENCES " +
-                     GroupColumns.TABLE_NAME + " (`" + GroupColumns.GROUP_ID + "`) ON DELETE NO ACTION ON UPDATE NO ACTION)" +
+     final String createTableSql9 = "CREATE TABLE IF NOT EXISTS `pacodb`.`"+ ExperimentGroupVersionMappingColumns.TABLE_NAME+"` (" +
+             ExperimentGroupVersionMappingColumns.EXPERIMENT_GROUP_VERSION_MAPPING_ID + " BIGINT(20) NOT NULL AUTO_INCREMENT," +
+             ExperimentGroupVersionMappingColumns.EXPERIMENT_ID + " BIGINT(20) NOT NULL," +
+             ExperimentGroupVersionMappingColumns.EXPERIMENT_VERSION + " INT(11) NOT NULL," +
+             ExperimentGroupVersionMappingColumns.EXPERIMENT_DETAIL_ID + " BIGINT(20) NOT NULL," +
+             ExperimentGroupVersionMappingColumns.GROUP_DETAIL_ID + " BIGINT(20) NOT NULL," +
+             ExperimentGroupVersionMappingColumns.INPUT_COLLECTION_ID + " BIGINT(20) NULL," +
+             ExperimentGroupVersionMappingColumns.EVENTS_POSTED + " BIT(1) DEFAULT 0," +
+             ExperimentGroupVersionMappingColumns.SOURCE + " VARCHAR(100) NULL, " +
+             " PRIMARY KEY (`" + ExperimentGroupVersionMappingColumns.EXPERIMENT_GROUP_VERSION_MAPPING_ID + "`)," +  
+             " UNIQUE KEY `experiment_id_version_group_unique` (`" + ExperimentGroupVersionMappingColumns.EXPERIMENT_ID + "`,"
+                     + "`" + ExperimentGroupVersionMappingColumns.EXPERIMENT_VERSION + "`,"
+                     + "`" + ExperimentGroupVersionMappingColumns.GROUP_DETAIL_ID + "`)," +
+              "KEY `experiment_history_fk_idx` (`" + ExperimentGroupVersionMappingColumns.EXPERIMENT_DETAIL_ID + "`)," +
+              "KEY `group_history_fk_idx` (`" + ExperimentGroupVersionMappingColumns.GROUP_DETAIL_ID + "`)," +
+              " CONSTRAINT `experiment_history_fk` FOREIGN KEY (`" + ExperimentGroupVersionMappingColumns.EXPERIMENT_DETAIL_ID + "`) REFERENCES `" +
+                     ExperimentDetailColumns.TABLE_NAME + "` (`" + ExperimentDetailColumns.EXPERIMENT_DETAIL_ID + "`) ON DELETE NO ACTION ON UPDATE NO ACTION," +
+              " CONSTRAINT `group_history_fk` FOREIGN KEY (`" + ExperimentGroupVersionMappingColumns.GROUP_DETAIL_ID + "`) REFERENCES " +
+                     GroupDetailColumns.TABLE_NAME + " (`" + GroupDetailColumns.GROUP_DETAIL_ID + "`) ON DELETE NO ACTION ON UPDATE NO ACTION)" +
               " DEFAULT CHARACTER SET = utf8mb4" ;
      final String createTableSql10 = "CREATE TABLE IF NOT EXISTS `pacodb`.`"+ InformedConsentColumns.TABLE_NAME+"` (" +
              InformedConsentColumns.INFORMED_CONSENT_ID + " BIGINT(20) NOT NULL," +
@@ -207,12 +208,12 @@ public class CopyExperimentMigrationDaoImpl implements CopyExperimentMigrationDa
              " UNIQUE KEY `groupt_type_id_input_id_UNIQUE` (`" + GroupTypeInputMappingColumns.GROUP_TYPE_ID + "`, `"+GroupTypeInputMappingColumns.INPUT_ID+"`)) " +
              " ENGINE=InnoDB DEFAULT CHARSET = utf8mb4" ;
      final String createTableSql13 = "CREATE TABLE IF NOT EXISTS `pacodb`.`"+ PivotHelperColumns.TABLE_NAME+"` (" +
-             PivotHelperColumns.EXPERIMENT_VERSION_MAPPING_ID + " BIGINT(20) NOT NULL," +
+             PivotHelperColumns.EXPERIMENT_GROUP_VERSION_MAPPING_ID + " BIGINT(20) NOT NULL," +
              PivotHelperColumns.ANON_WHO + " INT NOT NULL," +
              PivotHelperColumns.INPUT_ID + " BIGINT(20) NOT NULL," +
              PivotHelperColumns.EVENTS_POSTED + " BIGINT(20) NOT NULL DEFAULT 0," +
              PivotHelperColumns.PROCESSED + " BIT(1) DEFAULT 0," +
-             " PRIMARY KEY (`" + PivotHelperColumns.EXPERIMENT_VERSION_MAPPING_ID + "`, `"+ PivotHelperColumns.ANON_WHO +"`, `"+ PivotHelperColumns.INPUT_ID+"`)) " +  
+             " PRIMARY KEY (`" + PivotHelperColumns.EXPERIMENT_GROUP_VERSION_MAPPING_ID + "`, `"+ PivotHelperColumns.ANON_WHO +"`, `"+ PivotHelperColumns.INPUT_ID+"`)) " +  
              " DEFAULT CHARACTER SET = utf8mb4" ;
      final String createTableSql14 = "CREATE TABLE IF NOT EXISTS `pacodb`.`" + ExperimentDefinitionColumns.TABLE_NAME + "` (" +
              " `" + ExperimentDefinitionColumns.ID + "` bigint(20) NOT NULL, " +
@@ -317,21 +318,21 @@ public class CopyExperimentMigrationDaoImpl implements CopyExperimentMigrationDa
   @Override
   public boolean insertPredefinedRecords() throws SQLException {
     
-    final String insertDataTypeSql1 = "INSERT INTO `pacodb`.`data_type` (`name`, `is_numeric`, `multi_select`, `response_mapping_required`) VALUES ('open text', 1, 0, 0)";
-    final String insertDataTypeSql2 = "INSERT INTO `pacodb`.`data_type` (`name`, `is_numeric`, `multi_select`, `response_mapping_required`) VALUES ('open text', 0, 0, 0)";
-    final String insertDataTypeSql3 = "INSERT INTO `pacodb`.`data_type` (`name`, `is_numeric`, `multi_select`, `response_mapping_required`) VALUES ('list', 1, 0, 1)";
-    final String insertDataTypeSql4 = "INSERT INTO `pacodb`.`data_type` (`name`, `is_numeric`, `multi_select`, `response_mapping_required`) VALUES ('list', 1, 1, 1)";
-    final String insertDataTypeSql5 = "INSERT INTO `pacodb`.`data_type` (`name`, `is_numeric`, `multi_select`, `response_mapping_required`) VALUES ('likert', 1, 0, 0)";
-    final String insertDataTypeSql7 = "INSERT INTO `pacodb`.`data_type` (`name`, `is_numeric`, `multi_select`, `response_mapping_required`) VALUES ('number', 1, 0, 0)";
-    final String insertDataTypeSql8 = "INSERT INTO `pacodb`.`data_type` (`name`, `is_numeric`, `multi_select`, `response_mapping_required`) VALUES ('likert_smileys', 0, 0, 0)";
-    final String insertDataTypeSql9 = "INSERT INTO `pacodb`.`data_type` (`name`, `is_numeric`, `multi_select`, `response_mapping_required`) VALUES ('undefined', 0, 0, 0)";
+    final String insertDataTypeSql1 = "INSERT INTO `pacodb`.`"+DataTypeColumns.TABLE_NAME+"` (`"+DataTypeColumns.NAME+"`, `"+DataTypeColumns.IS_NUMERIC+"`, `"+DataTypeColumns.MULTI_SELECT+"`, `"+DataTypeColumns.RESPONSE_MAPPING_REQUIRED+"`) VALUES ('open text', 1, 0, 0)";
+    final String insertDataTypeSql2 = "INSERT INTO `pacodb`.`data_type` (`"+DataTypeColumns.NAME+"`, `"+DataTypeColumns.IS_NUMERIC+"`, `"+DataTypeColumns.MULTI_SELECT+"`, `"+DataTypeColumns.RESPONSE_MAPPING_REQUIRED+"`) VALUES ('open text', 0, 0, 0)";
+    final String insertDataTypeSql3 = "INSERT INTO `pacodb`.`data_type` (`"+DataTypeColumns.NAME+"`, `"+DataTypeColumns.IS_NUMERIC+"`, `"+DataTypeColumns.MULTI_SELECT+"`, `"+DataTypeColumns.RESPONSE_MAPPING_REQUIRED+"`) VALUES ('list', 1, 0, 1)";
+    final String insertDataTypeSql4 = "INSERT INTO `pacodb`.`data_type` (`"+DataTypeColumns.NAME+"`, `"+DataTypeColumns.IS_NUMERIC+"`, `"+DataTypeColumns.MULTI_SELECT+"`, `"+DataTypeColumns.RESPONSE_MAPPING_REQUIRED+"`) VALUES ('list', 1, 1, 1)";
+    final String insertDataTypeSql5 = "INSERT INTO `pacodb`.`data_type` (`"+DataTypeColumns.NAME+"`, `"+DataTypeColumns.IS_NUMERIC+"`, `"+DataTypeColumns.MULTI_SELECT+"`, `"+DataTypeColumns.RESPONSE_MAPPING_REQUIRED+"`) VALUES ('likert', 1, 0, 0)";
+    final String insertDataTypeSql7 = "INSERT INTO `pacodb`.`data_type` (`"+DataTypeColumns.NAME+"`, `"+DataTypeColumns.IS_NUMERIC+"`, `"+DataTypeColumns.MULTI_SELECT+"`, `"+DataTypeColumns.RESPONSE_MAPPING_REQUIRED+"`) VALUES ('number', 1, 0, 0)";
+    final String insertDataTypeSql8 = "INSERT INTO `pacodb`.`data_type` (`"+DataTypeColumns.NAME+"`, `"+DataTypeColumns.IS_NUMERIC+"`, `"+DataTypeColumns.MULTI_SELECT+"`, `"+DataTypeColumns.RESPONSE_MAPPING_REQUIRED+"`) VALUES ('likert_smileys', 0, 0, 0)";
+    final String insertDataTypeSql9 = "INSERT INTO `pacodb`.`data_type` (`"+DataTypeColumns.NAME+"`, `"+DataTypeColumns.IS_NUMERIC+"`, `"+DataTypeColumns.MULTI_SELECT+"`, `"+DataTypeColumns.RESPONSE_MAPPING_REQUIRED+"`) VALUES ('undefined', 0, 0, 0)";
         
-    final String insertDataTypeSql10 = "INSERT INTO `pacodb`.`group_type` (`group_type_name`) VALUES ('system')";
-    final String insertDataTypeSql11 = "INSERT INTO `pacodb`.`group_type` (`group_type_name`) VALUES ('survey')";
-    final String insertDataTypeSql12 = "INSERT INTO `pacodb`.`group_type` (`group_type_name`) VALUES ('logAppUsage')";
-    final String insertDataTypeSql13 = "INSERT INTO `pacodb`.`group_type` (`group_type_name`) VALUES ('logNotification')";
-    final String insertDataTypeSql14 = "INSERT INTO `pacodb`.`group_type` (`group_type_name`) VALUES ('logAccessibility')";
-    final String insertDataTypeSql15 = "INSERT INTO `pacodb`.`group_type` (`group_type_name`) VALUES ('phoneStatus')";
+    final String insertDataTypeSql10 = "INSERT INTO `pacodb`.`"+GroupTypeColumns.TABLE_NAME+"` (`"+GroupTypeColumns.GROUP_TYPE_NAME+"`) VALUES ('"+GroupTypeEnum.SYSTEM+"')";
+    final String insertDataTypeSql11 = "INSERT INTO `pacodb`.`"+GroupTypeColumns.TABLE_NAME+"` (`"+GroupTypeColumns.GROUP_TYPE_NAME+"`) VALUES ('"+GroupTypeEnum.SURVEY+"')";
+    final String insertDataTypeSql12 = "INSERT INTO `pacodb`.`"+GroupTypeColumns.TABLE_NAME+"` (`"+GroupTypeColumns.GROUP_TYPE_NAME+"`) VALUES ('"+GroupTypeEnum.APPUSAGE_ANDROID+"')";
+    final String insertDataTypeSql13 = "INSERT INTO `pacodb`.`"+GroupTypeColumns.TABLE_NAME+"` (`"+GroupTypeColumns.GROUP_TYPE_NAME+"`) VALUES ('"+GroupTypeEnum.NOTIFICATION+"')";
+    final String insertDataTypeSql14 = "INSERT INTO `pacodb`.`"+GroupTypeColumns.TABLE_NAME+"` (`"+GroupTypeColumns.GROUP_TYPE_NAME+"`) VALUES ('"+GroupTypeEnum.ACCESSIBILITY+"')";
+    final String insertDataTypeSql15 = "INSERT INTO `pacodb`.`"+GroupTypeColumns.TABLE_NAME+"` (`"+GroupTypeColumns.GROUP_TYPE_NAME+"`) VALUES ('"+GroupTypeEnum.PHONESTATUS+"')";
         
 
         
@@ -380,30 +381,30 @@ public class CopyExperimentMigrationDaoImpl implements CopyExperimentMigrationDa
   
   @Override
   public boolean addModificationsToExistingTables()  throws SQLException {
-    final String addNewColumnsSql1 = "ALTER TABLE `pacodb`.`outputs` " +
-            " ADD COLUMN `input_id` BIGINT(20) NULL AFTER `archive_flag`," +
+    final String addNewColumnsSql1 = "ALTER TABLE `pacodb`.`"+OutputServerColumns.TABLE_NAME+"` " +
+            " ADD COLUMN `"+OutputServerColumns.INPUT_ID+"` BIGINT(20) NULL AFTER `archive_flag`," +
             " ADD INDEX `fk_text_input_id_idx` (`input_id` ASC)";
-    final String addNewColumnsSql2 = "ALTER TABLE `pacodb`.`outputs`  " + 
+    final String addNewColumnsSql2 = "ALTER TABLE `pacodb`.`"+OutputServerColumns.TABLE_NAME+"`  " + 
                   " ADD CONSTRAINT `fk_text_input_id` " +  
-                  "   FOREIGN KEY (`input_id`) " + 
-                  "  REFERENCES `pacodb`.`input` (`input_id`) "  +
+                  "   FOREIGN KEY (`"+OutputServerColumns.INPUT_ID+"`) " + 
+                  "  REFERENCES `pacodb`.`"+InputColumns.TABLE_NAME+"` (`"+InputColumns.INPUT_ID+"`) "  +
                   " ON DELETE NO ACTION " + 
                   "  ON UPDATE NO ACTION ";
     final String addNewColumnsSql3 = "ALTER TABLE `pacodb`.`events`  " + 
-    " ADD COLUMN `experiment_version_mapping_id` BIGINT(20) NULL AFTER `sort_date`, " +
-    " ADD COLUMN `who_bk` BIGINT(20) NULL AFTER `experiment_version_mapping_id`," +
-    " ADD INDEX `fk_exp_version_mapping_idx` (`experiment_version_mapping_id` ASC)";
+    " ADD COLUMN `"+ ExperimentGroupVersionMappingColumns.EXPERIMENT_GROUP_VERSION_MAPPING_ID  + "` BIGINT(20) NULL AFTER `sort_date`, " +
+    " ADD COLUMN `who_bk` BIGINT(20) NULL AFTER `"+ ExperimentGroupVersionMappingColumns.EXPERIMENT_GROUP_VERSION_MAPPING_ID  + "`," +
+    " ADD INDEX `fk_exp_group_version_mapping_idx` (`"+ ExperimentGroupVersionMappingColumns.EXPERIMENT_GROUP_VERSION_MAPPING_ID  + "` ASC)";
     final String addNewColumnsSql4 = "ALTER TABLE `pacodb`.`events`  " +
-    " ADD CONSTRAINT `fk_exp_version_mapping` " +
-    " FOREIGN KEY (`experiment_version_mapping_id`) " + 
-    " REFERENCES `pacodb`.`experiment_version_mapping` (`experiment_version_mapping_id`) " + 
+    " ADD CONSTRAINT `fk_exp_group_version_mapping` " +
+    " FOREIGN KEY (`"+ ExperimentGroupVersionMappingColumns.EXPERIMENT_GROUP_VERSION_MAPPING_ID  + "`) " + 
+    " REFERENCES `pacodb`.`"+ ExperimentGroupVersionMappingColumns.TABLE_NAME  + "` (`"+ ExperimentGroupVersionMappingColumns.EXPERIMENT_GROUP_VERSION_MAPPING_ID  + "`) " + 
     " ON DELETE NO ACTION " +
     " ON UPDATE NO ACTION ";
-    final String addNewColumnsSql5 = "ALTER TABLE `pacodb`.`input_collection` " + 
-    " ADD INDEX `ic_input_id_fk_idx` (`input_id` ASC)";
-    final String addNewColumnsSql6 = "ALTER TABLE `pacodb`.`input_collection`" +
+    final String addNewColumnsSql5 = "ALTER TABLE `pacodb`.`"+ InputCollectionColumns.TABLE_NAME  + "` " + 
+    " ADD INDEX `ic_input_id_fk_idx` (`"+ InputCollectionColumns.INPUT_ID  + "` ASC)";
+    final String addNewColumnsSql6 = "ALTER TABLE `pacodb`.`"+ InputCollectionColumns.TABLE_NAME  + "`" +
     " ADD CONSTRAINT `ic_input_id_fk` " +
-    " FOREIGN KEY (`input_id`) " + 
+    " FOREIGN KEY (`"+ InputCollectionColumns.INPUT_ID  + "`) " + 
     " REFERENCES `pacodb`.`input` (`input_id`) " + 
     " ON DELETE NO ACTION " +
     " ON UPDATE NO ACTION ";
@@ -415,12 +416,12 @@ public class CopyExperimentMigrationDaoImpl implements CopyExperimentMigrationDa
     " REFERENCES `pacodb`.`user` (`user_id`) " + 
     " ON DELETE NO ACTION " +
     " ON UPDATE NO ACTION ";
-    final String addNewColumnsSql9 = "ALTER TABLE `pacodb`.`experiment` " + 
+    final String addNewColumnsSql9 = "ALTER TABLE `pacodb`.`"+ ExperimentDetailColumns.TABLE_NAME  + "` " + 
     " ADD INDEX `e_ic_informed_consent_fk_idx` (`informed_consent_id` ASC)";
-    final String addNewColumnsSql10 = "ALTER TABLE `pacodb`.`experiment`" +
+    final String addNewColumnsSql10 = "ALTER TABLE `pacodb`.`"+ ExperimentDetailColumns.TABLE_NAME  + "`" +
     " ADD CONSTRAINT `e_ic_informed_consent_fk` " +
-    " FOREIGN KEY (`informed_consent_id`) " + 
-    " REFERENCES `pacodb`.`informed_consent` (`informed_consent_id`) " + 
+    " FOREIGN KEY (`"+ InformedConsentColumns.INFORMED_CONSENT_ID  + "`) " + 
+    " REFERENCES `pacodb`.`"+ InformedConsentColumns.TABLE_NAME  + "` (`"+ InformedConsentColumns.INFORMED_CONSENT_ID  + "`) " + 
     " ON DELETE NO ACTION " +
     " ON UPDATE NO ACTION ";
     
@@ -482,7 +483,7 @@ return true;
         List<String> adminLstInRequest = eachExperiment.getAdmins();
         List<String> partLstInRequest = eachExperiment.getPublishedUsers();
         expUserDaoImpl.ensureUserId(eachExperiment.getId(), Sets.newHashSet(adminLstInRequest), Sets.newHashSet(partLstInRequest));
-        evMappingDaoImpl.updateExperimentVersionMapping(eachExperiment);
+        evMappingDaoImpl.ensureExperimentVersionMapping(eachExperiment);
       } catch (Exception e) {
         log.warning(ErrorMessages.GENERAL_EXCEPTION.getDescription() + ExceptionUtil.getStackTraceAsString(e));
       }
@@ -508,8 +509,7 @@ return true;
         //TODO uncomment for the first time
 //        expDefDao.insertExperimentDefinition(eachExperiment.getId(), eachExperiment.getVersion(), JsonConverter.jsonify(Lists.newArrayList(eachExperiment), null, null, null));
        
-        daoConverter.splitGroups(eachExperiment);
-        log.info("Splitted or Added with System Group, Experiment Id : " + eachExperiment.getId()) ;
+        daoConverter.splitGroups(eachExperiment, false);
         // upgrade version and persist in data store and in cloud sql
         eachExperiment.setVersion(eachExperiment.getVersion() + 1);
         // save splitted updated json in ds
@@ -550,7 +550,7 @@ return true;
       inputDaoImpl.insertInput(openTextCarrier);
       inputDaoImpl.insertInput(openTextDisplay);
       
-      Integer grpTypeSystemId = groupTypeDapImpl.getGroupTypeId("system");
+      Integer grpTypeSystemId = groupTypeDapImpl.getGroupTypeId(GroupTypeEnum.SYSTEM.name());
       
       predfinedDaoImpl.insertGroupTypeInputMapping(new GroupTypeInputMapping(grpTypeSystemId, openTextJoined));
       predfinedDaoImpl.insertGroupTypeInputMapping(new GroupTypeInputMapping(grpTypeSystemId, openTextSchedule));
@@ -564,7 +564,7 @@ return true;
       Input openTextAppUsage = new Input("apps_used", false, null, new DataType("open text", true, false), "apps_used", 0, null, null,  null);
       Input openTextAppUsageRaw = new Input("apps_used_raw", false, null, new DataType("open text", false, false), "apps_used_raw", 0, null, null, null);
       Input openTextForeGround = new Input("foreground", false, null, new DataType("open text", false, false), "foreground", 0, null, null, null);
-      Integer grpTypeAppUsageId = groupTypeDapImpl.getGroupTypeId("logAppUsage");
+      Integer grpTypeAppUsageId = groupTypeDapImpl.getGroupTypeId(GroupTypeEnum.APPUSAGE_ANDROID.name());
       inputDaoImpl.insertInput(openTextAppUsage);
       inputDaoImpl.insertInput(openTextAppUsageRaw);
       inputDaoImpl.insertInput(openTextForeGround);
@@ -575,7 +575,7 @@ return true;
       // BackGround - phoneEvent
       Input openTextPhoneOn = new Input("phoneOn", false, null, new DataType("open text", true, false), "phoneOn", 0, null, null, null);
       Input openTextPhoneOff = new Input("phoneOff", false, null, new DataType("open text", false, false), "phoneOff", 0, null, null, null);
-      Integer grpTypePhoneOnId = groupTypeDapImpl.getGroupTypeId("phoneStatus");
+      Integer grpTypePhoneOnId = groupTypeDapImpl.getGroupTypeId(GroupTypeEnum.PHONESTATUS.name());
       inputDaoImpl.insertInput(openTextPhoneOn);
       inputDaoImpl.insertInput(openTextPhoneOff);
       predfinedDaoImpl.insertGroupTypeInputMapping(new GroupTypeInputMapping(grpTypePhoneOnId, openTextPhoneOn));
@@ -587,7 +587,7 @@ return true;
       Input openTextAccEventClass = new Input("accessibilityEventClass", false, null, new DataType("open text", true, false), "accessibilityEventClass", 0, null, null, null);
       Input openTextAccEventType = new Input("accessibilityEventType", false, null, new DataType("open text", false, false), "accessibilityEventType", 0, null, null, null);
       
-      Integer grpTypeAccId = groupTypeDapImpl.getGroupTypeId("logAccessibility");
+      Integer grpTypeAccId = groupTypeDapImpl.getGroupTypeId(GroupTypeEnum.ACCESSIBILITY.name());
       
       inputDaoImpl.insertInput(openTextAccEventText);
       inputDaoImpl.insertInput(openTextAccEventPackage);
@@ -601,7 +601,7 @@ return true;
       
       
       // BackGround - logNotification
-      Integer grpTypeNotificationId = groupTypeDapImpl.getGroupTypeId("logNotification");
+      Integer grpTypeNotificationId = groupTypeDapImpl.getGroupTypeId(GroupTypeEnum.NOTIFICATION.name());
       
       predfinedDaoImpl.insertGroupTypeInputMapping(new GroupTypeInputMapping(grpTypeNotificationId, openTextAccEventText));
       predfinedDaoImpl.insertGroupTypeInputMapping(new GroupTypeInputMapping(grpTypeNotificationId, openTextAccEventPackage));
@@ -622,10 +622,7 @@ return true;
   
   @Override
   public boolean populatePivotTableHelper()  throws SQLException {
-    final String insertToPivotHelperSql = "insert into pivot_helper(experiment_version_mapping_id, anon_who, input_id)  select evm.experiment_version_mapping_id, eu.experiment_user_anon_id, ic.input_id from experiment_version_mapping evm " 
-                                        + " join experiment e on evm.experiment_facet_id = e.experiment_facet_id "
-                                        + " join experiment_user eu on evm.experiment_id = eu.experiment_id "
-                                        + " join input_collection ic on ic.experiment_ds_id = evm.experiment_id and  evm.input_collection_id=ic.input_collection_id";
+    final String insertToPivotHelperSql = QueryConstants.INSERT_TO_PIVOT_HELPER.toString();
     Connection conn = null;
     PreparedStatement statementInsertToLookup = null;
     try {
@@ -660,17 +657,18 @@ return true;
   public boolean processPivotTableHelper()  throws SQLException {
     final String processPivotHelperSql = "select * from pivot_helper where processed = b'0' ";
     final String eventQry = "update events e  " + 
-                            " join outputs o on e._id=o.event_id set e.experiment_version_mapping_id=?, o.input_id = ?, e.who_bk=? " + 
+                            " join outputs o on e._id=o.event_id set e.experiment_group_version_mapping_id=?, o.input_id = ?, e.who_bk=? " + 
                             " where e._id>0 and o.event_id>0 and  e.experiment_id = ? and e.experiment_version=? and e.group_name=? and o.text=? ";
-    final String getFullPivotHelperDetailsQry = "select evm.experiment_id, evm.experiment_version, g.group_name, u.who, esi.label from experiment_version_mapping evm "
-            + " join  `group` g on evm.group_id=g.group_id "
-            + " join pivot_helper pv on pv.experiment_version_mapping_id = evm.experiment_version_mapping_id"
+    final String getFullPivotHelperDetailsQry = "select evm.experiment_id, evm.experiment_version, g.group_name, u.who, esi.label, evm.events_posted from experiment_group_version_mapping evm "
+            + " join  `group_detail` g on evm.group_detail_id=g.group_detail_id "
+            + " join pivot_helper pv on pv.experiment_group_version_mapping_id = evm.experiment_group_version_mapping_id"
             + " join  experiment_user eu on evm.experiment_id=eu.experiment_id  and eu.experiment_user_anon_id=pv.anon_who"
             + " join  input_collection ic on ic.experiment_ds_id=evm.experiment_id  and evm.input_collection_id = ic.input_collection_id"
             + " join  `input` i on i.input_id=ic.input_id and i.input_id=pv.input_id"
             + " join extern_string_input esi on i.name_id=esi.extern_string_input_id"
             + " join  user u on u.user_id=eu.user_id "
-            + " where evm.experiment_version_mapping_id=? and ic.input_id=? and pv.anon_who=?";
+            + " where evm.experiment_group_version_mapping_id=? and ic.input_id=? and pv.anon_who=?";
+    
     
     Connection conn = null;
     PreparedStatement statementPivotHelper = null;
@@ -687,6 +685,7 @@ return true;
     String groupName = null;
     String inputVariableName = null;
     String whoEmail = null;
+    boolean hasEventsBeenPosted =  false;
     try {
       conn = CloudSQLConnectionManager.getInstance().getConnection();
       statementPivotHelper = conn.prepareStatement(processPivotHelperSql);
@@ -694,12 +693,13 @@ return true;
       statementUpdateEventsTable = conn.prepareStatement(eventQry);
       
       CSPivotHelperDao daoImpl = new CSPivotHelperDaoImpl();
+      CSExperimentVersionMappingDao egvDaoImpl = new CSExperimentVersionMappingDaoImpl();
       log.info(processPivotHelperSql);
       rsPivotHelper = statementPivotHelper.executeQuery();
       while(rsPivotHelper.next()) {
         currentWhoAnonId = rsPivotHelper.getInt(PivotHelperColumns.ANON_WHO);
         currentInputId = rsPivotHelper.getLong(PivotHelperColumns.INPUT_ID);
-        currentEVMappingId = rsPivotHelper.getLong(PivotHelperColumns.EXPERIMENT_VERSION_MAPPING_ID);
+        currentEVMappingId = rsPivotHelper.getLong(PivotHelperColumns.EXPERIMENT_GROUP_VERSION_MAPPING_ID);
         log.info("processing:EV Mapping "+ currentEVMappingId + ",who:" + currentWhoAnonId + ",input var name" + currentInputId);
         log.info(getFullPivotHelperDetailsQry);
         statementPivotHelperDetails.setLong(1, currentEVMappingId);
@@ -709,12 +709,13 @@ return true;
         rsDetails = statementPivotHelperDetails.executeQuery();
         long updateCt =0;
         while (rsDetails.next()) {
-          exptId = rsDetails.getLong(ExperimentVersionMappingColumns.EXPERIMENT_ID);
-          expVersion =  rsDetails.getInt(ExperimentVersionMappingColumns.EXPERIMENT_VERSION);
-          groupName =  rsDetails.getString(GroupColumns.NAME);
+          exptId = rsDetails.getLong(ExperimentGroupVersionMappingColumns.EXPERIMENT_ID);
+          expVersion =  rsDetails.getInt(ExperimentGroupVersionMappingColumns.EXPERIMENT_VERSION);
+          groupName =  rsDetails.getString(GroupDetailColumns.NAME);
           inputVariableName = rsDetails.getString(ExternStringInputColumns.LABEL);
           whoEmail = rsDetails.getString(UserColumns.WHO);
-          log.info("processing 2nd qry:EV Mapping "+ currentEVMappingId + ",who:" + whoEmail + ",input var name" + inputVariableName);
+          hasEventsBeenPosted = rsDetails.getBoolean(ExperimentGroupVersionMappingColumns.EVENTS_POSTED);
+//          log.info("processing 2nd qry:EV Mapping "+ currentEVMappingId + ",who:" + whoEmail + ",input var name" + inputVariableName);
           
           // update events and outputs
           statementUpdateEventsTable.setLong(1, currentEVMappingId);
@@ -734,8 +735,11 @@ return true;
         if (updateCt >=2) {
           updateCt = updateCt/2;
         }
-        log.info("updating pv evt posted ct for "+ currentEVMappingId + "who annon id "+ currentWhoAnonId + "input id" + currentInputId + "update ct :" + updateCt);
+//        log.info("updating pv evt posted ct for "+ currentEVMappingId + "who annon id "+ currentWhoAnonId + "input id" + currentInputId + "update ct :" + updateCt);
         daoImpl.updatePivotHelperStatus(currentEVMappingId, currentWhoAnonId, currentInputId, updateCt);
+        if (!hasEventsBeenPosted) {
+          egvDaoImpl.updateEventsPosted(currentEVMappingId);
+        }
 
       }
     } catch (SQLException sqle) {
@@ -780,7 +784,7 @@ return true;
   public boolean updateEventTableGroupNameNull() throws SQLException {
     Connection conn = null;
     PreparedStatement statementUpdateEvent = null;
-    String updateQuery1 = "update events e  join outputs o on e._id=o.event_id set e.group_name ='system' where e._id>0  and o.text in ('joined','schedule','make','model','display','carrier','android') and o.event_id>0 and e.group_name is null";
+    String updateQuery1 = "update events e  join outputs o on e._id=o.event_id set e.group_name ='SYSTEM' where e._id>0  and o.text in ('joined','schedule','make','model','display','carrier','android') and o.event_id>0 and e.group_name is null";
     String updateQuery2 = "update events e  set e.group_name ='unknown' where e._id>0 and e.group_name is null";
     
     String[] qry = new String[] { updateQuery1, updateQuery2 };
@@ -821,7 +825,8 @@ return true;
     CSExperimentVersionMappingDao daoImpl = new CSExperimentVersionMappingDaoImpl();
     CSExperimentUserDao expUserDao = new CSExperimentUserDaoImpl();
     CSOutputDao outDaoImpl = new  CSOutputDaoImpl();
-    final String unprocessedEventRecordQuery = "select experiment_id, experiment_version, group_name, who, text, experiment_name, _id from events e join outputs o on e._id=o.event_id where ((experiment_version_mapping_id is null or o.input_id is null) and experiment_id is not null) limit 1";
+    boolean migrationFlag = true;
+    final String unprocessedEventRecordQuery = QueryConstants.UNPROCESSED_EVENT_QUERY.toString();
     Connection conn = null;
     PreparedStatement statementUnprocessedEventRecord = null;
     ResultSet rsUnprocessedEventQuery = null;
@@ -843,8 +848,8 @@ return true;
       log.info(unprocessedEventRecordQuery);
       rsUnprocessedEventQuery = statementUnprocessedEventRecord.executeQuery();
       while(rsUnprocessedEventQuery.next()) {
-        expId = rsUnprocessedEventQuery.getLong(ExperimentVersionMappingColumns.EXPERIMENT_ID);
-        expVersion = rsUnprocessedEventQuery.getInt(ExperimentVersionMappingColumns.EXPERIMENT_VERSION) ;
+        expId = rsUnprocessedEventQuery.getLong(ExperimentGroupVersionMappingColumns.EXPERIMENT_ID);
+        expVersion = rsUnprocessedEventQuery.getInt(ExperimentGroupVersionMappingColumns.EXPERIMENT_VERSION) ;
         whoEmail = rsUnprocessedEventQuery.getString(EventServerColumns.WHO);
         groupName =  rsUnprocessedEventQuery.getString(EventServerColumns.GROUP_NAME);
         inputVariableNames.add(rsUnprocessedEventQuery.getString(OutputServerColumns.TEXT));
@@ -852,15 +857,20 @@ return true;
         eventId = rsUnprocessedEventQuery.getLong(Constants.UNDERSCORE_ID);
         List<WhatDAO> whats = outDaoImpl.getOutputs(eventId);
         Set<What> whatSet = convertToWhats(whats);
-        newEVMRecord = daoImpl.prepareEVMForGroupWithInputsAllScenarios(expId, experimentName, expVersion, groupName, whoEmail, whatSet);
+        newEVMRecord = daoImpl.prepareEVMForGroupWithInputs(expId, experimentName, expVersion, groupName, whoEmail, whatSet, migrationFlag);
         // find anon user id, if not present create it
-        PacoId anonId = expUserDao.getAnonymousIdAndCreate(expId, whoEmail, true);
-        pvHelperList.addAll(convertToPivotHelper(newEVMRecord, anonId));
-        // create in pivot table helper
-        CSPivotHelperDao phDaoImpl = new CSPivotHelperDaoImpl();
-        if (pvHelperList != null && pvHelperList.size() > 0) {
-          phDaoImpl.insertPivotHelper(pvHelperList);
-          log.info("inserted records to pv_helper:" + pvHelperList.size());
+        if (newEVMRecord != null) {
+          PacoId anonId = expUserDao.getAnonymousIdAndCreate(expId, whoEmail, true);
+          pvHelperList.addAll(convertToPivotHelper(newEVMRecord, anonId));
+          // create in pivot table helper
+          CSPivotHelperDao phDaoImpl = new CSPivotHelperDaoImpl();
+          if (pvHelperList != null && pvHelperList.size() > 0) {
+            phDaoImpl.insertPivotHelper(pvHelperList);
+            log.info("inserted records to pv_helper:" + pvHelperList.size());
+            return true;
+          }
+        } else {
+          log.info("must have deleted some event/output records. still we must continue process");
           return true;
         }
         log.info("finished processing all event records");

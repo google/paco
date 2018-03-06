@@ -1,8 +1,12 @@
 package com.google.sampling.experiential.dao.dataaccess;
 
+import java.util.Iterator;
 import java.util.Map;
+import java.util.logging.Logger;
 
-public class InputCollection {
+public class InputCollection implements PacoComparator<InputCollection> {
+  public static final Logger log = Logger.getLogger(InputCollection.class.getName());
+
   private Long inputCollectionId;
   Map<String, InputOrderAndChoice> inputOrderAndChoices;
 
@@ -30,9 +34,30 @@ public class InputCollection {
       } 
     }
   }
+  
   @Override
   public String toString() {
     return "InputCollection [inputCollectionId=" + inputCollectionId + ", inputOrderAndChoices=" + inputOrderAndChoices
            + "]";
+  }
+  
+  @Override
+  public boolean hasChanged(InputCollection olderVersion) {
+    boolean hasChanged = false;
+    if (olderVersion == null) {
+      hasChanged = true;
+    } else if (this.getInputOrderAndChoices().size() != olderVersion.getInputOrderAndChoices().size()) {
+      hasChanged = true;
+    } else {
+      Iterator<String> newInputItr = this.getInputOrderAndChoices().keySet().iterator();
+      String currentNewInput = null;
+      while (newInputItr.hasNext()) {
+        currentNewInput = newInputItr.next();
+        if (this.getInputOrderAndChoices().get(currentNewInput).hasChanged(olderVersion.getInputOrderAndChoices().get(currentNewInput))) {
+          hasChanged = true;
+        }
+      }
+    }
+    return hasChanged;
   }
 }

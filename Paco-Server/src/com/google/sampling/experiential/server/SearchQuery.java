@@ -13,11 +13,11 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.sampling.experiential.cloudsql.columns.ChoiceCollectionColumns;
 import com.google.sampling.experiential.cloudsql.columns.EventServerColumns;
-import com.google.sampling.experiential.cloudsql.columns.ExperimentColumns;
-import com.google.sampling.experiential.cloudsql.columns.ExperimentVersionMappingColumns;
+import com.google.sampling.experiential.cloudsql.columns.ExperimentDetailColumns;
+import com.google.sampling.experiential.cloudsql.columns.ExperimentGroupVersionMappingColumns;
 import com.google.sampling.experiential.cloudsql.columns.ExternStringInputColumns;
 import com.google.sampling.experiential.cloudsql.columns.ExternStringListLabelColumns;
-import com.google.sampling.experiential.cloudsql.columns.GroupColumns;
+import com.google.sampling.experiential.cloudsql.columns.GroupDetailColumns;
 import com.google.sampling.experiential.cloudsql.columns.InputCollectionColumns;
 import com.google.sampling.experiential.cloudsql.columns.InputColumns;
 import com.google.sampling.experiential.cloudsql.columns.OutputServerColumns;
@@ -184,24 +184,24 @@ public abstract class SearchQuery {
     Join joinObj3 = new Join();
     
     try {
-      joinExp1 = CCJSqlParserUtil.parseCondExpression(EventServerColumns.TABLE_NAME + "." + EventServerColumns.EXPERIMENT_VERSION_MAPPING_ID + " = " + ExperimentVersionMappingColumns.TABLE_NAME + "." + ExperimentVersionMappingColumns.EXPERIMENT_VERSION_MAPPING_ID);
-      joinExp2 = CCJSqlParserUtil.parseCondExpression(ExperimentColumns.TABLE_NAME + "." + ExperimentColumns.EXPERIMENT_FACET_ID + " = " + ExperimentVersionMappingColumns.TABLE_NAME + "." + ExperimentVersionMappingColumns.EXPERIMENT_FACET_ID);
-      joinExp3 = CCJSqlParserUtil.parseCondExpression(GroupColumns.TABLE_NAME + "." + GroupColumns.GROUP_ID + " = " + ExperimentVersionMappingColumns.TABLE_NAME + "." + ExperimentVersionMappingColumns.GROUP_ID);
+      joinExp1 = CCJSqlParserUtil.parseCondExpression(EventServerColumns.TABLE_NAME + "." + EventServerColumns.EXPERIMENT_GROUP_VERSION_MAPPING_ID + " = " + ExperimentGroupVersionMappingColumns.TABLE_NAME + "." + ExperimentGroupVersionMappingColumns.EXPERIMENT_GROUP_VERSION_MAPPING_ID + " AND " + ExperimentGroupVersionMappingColumns.TABLE_NAME + "." + ExperimentGroupVersionMappingColumns.EVENTS_POSTED + "=1");
+      joinExp2 = CCJSqlParserUtil.parseCondExpression(ExperimentDetailColumns.TABLE_NAME + "." + ExperimentDetailColumns.EXPERIMENT_DETAIL_ID + " = " + ExperimentGroupVersionMappingColumns.TABLE_NAME + "." + ExperimentGroupVersionMappingColumns.EXPERIMENT_DETAIL_ID);
+      joinExp3 = CCJSqlParserUtil.parseCondExpression(GroupDetailColumns.TABLE_NAME + "." + GroupDetailColumns.GROUP_DETAIL_ID + " = " + ExperimentGroupVersionMappingColumns.TABLE_NAME + "." + ExperimentGroupVersionMappingColumns.GROUP_DETAIL_ID);
     } catch (JSQLParserException e) {
       e.printStackTrace();
     }
     joinObj1.setOnExpression(joinExp1);
     joinObj1.setInner(true);
-    FromItem fi = new Table(ExperimentVersionMappingColumns.TABLE_NAME);
+    FromItem fi = new Table(ExperimentGroupVersionMappingColumns.TABLE_NAME);
     joinObj1.setRightItem(fi);
     
     joinObj2.setOnExpression(joinExp2);
     joinObj2.setInner(true);
-    joinObj2.setRightItem(new Table(ExperimentColumns.TABLE_NAME));
+    joinObj2.setRightItem(new Table(ExperimentDetailColumns.TABLE_NAME));
     
     joinObj3.setOnExpression(joinExp3);
     joinObj3.setInner(true);
-    joinObj3.setRightItem(new Table(GroupColumns.TABLE_NAME));
+    joinObj3.setRightItem(new Table(GroupDetailColumns.TABLE_NAME));
     
     jList.add(joinObj1);
     jList.add(joinObj2);
@@ -229,11 +229,11 @@ public abstract class SearchQuery {
     Join joinObj6 = new Join();
     
     try {
-      joinExp1 = CCJSqlParserUtil.parseCondExpression(InputCollectionColumns.TABLE_NAME + "." + InputCollectionColumns.INPUT_COLLECTION_ID + " = " + ExperimentVersionMappingColumns.TABLE_NAME + "." + ExperimentVersionMappingColumns.INPUT_COLLECTION_ID + " and " + ExperimentVersionMappingColumns.TABLE_NAME + "." + ExperimentVersionMappingColumns.EXPERIMENT_ID + "=" + InputCollectionColumns.TABLE_NAME + "."+ InputCollectionColumns.EXPERIMENT_ID);
+      joinExp1 = CCJSqlParserUtil.parseCondExpression(InputCollectionColumns.TABLE_NAME + "." + InputCollectionColumns.INPUT_COLLECTION_ID + " = " + ExperimentGroupVersionMappingColumns.TABLE_NAME + "." + ExperimentGroupVersionMappingColumns.INPUT_COLLECTION_ID + " and " + ExperimentGroupVersionMappingColumns.TABLE_NAME + "." + ExperimentGroupVersionMappingColumns.EXPERIMENT_ID + "=" + InputCollectionColumns.TABLE_NAME + "."+ InputCollectionColumns.EXPERIMENT_ID);
       joinExp2 = CCJSqlParserUtil.parseCondExpression(InputColumns.TABLE_NAME + "." + InputColumns.INPUT_ID + " = " + InputCollectionColumns.TABLE_NAME + "." + InputCollectionColumns.INPUT_ID + " AND " + OutputServerColumns.TABLE_NAME + "." + OutputServerColumns.INPUT_ID + " = " + InputColumns.TABLE_NAME + "." + InputColumns.INPUT_ID );
-      joinExp3 = CCJSqlParserUtil.parseCondExpression( "esi1." + ExternStringInputColumns.EXTERN_STRING_ID + " = " + InputColumns.TABLE_NAME + "." + InputColumns.NAME_ID );
-      joinExp4 = CCJSqlParserUtil.parseCondExpression( "esi2." + ExternStringInputColumns.EXTERN_STRING_ID + " = " + InputColumns.TABLE_NAME + "." + InputColumns.TEXT_ID);
-      joinExp5 = CCJSqlParserUtil.parseCondExpression(ChoiceCollectionColumns.TABLE_NAME + "." + ChoiceCollectionColumns.CHOICE_COLLECTION_ID + " = " + InputCollectionColumns.TABLE_NAME + "." + InputCollectionColumns.CHOICE_COLLECTION_ID + " and " + ExperimentVersionMappingColumns.TABLE_NAME + "." + ExperimentVersionMappingColumns.EXPERIMENT_ID + "=" + ChoiceCollectionColumns.TABLE_NAME + "."+ ChoiceCollectionColumns.EXPERIMENT_ID + " and " + OutputServerColumns.TABLE_NAME + "." + OutputServerColumns.ANSWER + " = " + ChoiceCollectionColumns.TABLE_NAME + "." + ChoiceCollectionColumns.CHOICE_ORDER);
+      joinExp3 = CCJSqlParserUtil.parseCondExpression( "esi1." + ExternStringInputColumns.EXTERN_STRING_INPUT_ID + " = " + InputColumns.TABLE_NAME + "." + InputColumns.NAME_ID );
+      joinExp4 = CCJSqlParserUtil.parseCondExpression( "esi2." + ExternStringInputColumns.EXTERN_STRING_INPUT_ID + " = " + InputColumns.TABLE_NAME + "." + InputColumns.TEXT_ID);
+      joinExp5 = CCJSqlParserUtil.parseCondExpression(ChoiceCollectionColumns.TABLE_NAME + "." + ChoiceCollectionColumns.CHOICE_COLLECTION_ID + " = " + InputCollectionColumns.TABLE_NAME + "." + InputCollectionColumns.CHOICE_COLLECTION_ID + " and " + ExperimentGroupVersionMappingColumns.TABLE_NAME + "." + ExperimentGroupVersionMappingColumns.EXPERIMENT_ID + "=" + ChoiceCollectionColumns.TABLE_NAME + "."+ ChoiceCollectionColumns.EXPERIMENT_ID + " and " + OutputServerColumns.TABLE_NAME + "." + OutputServerColumns.ANSWER + " = " + ChoiceCollectionColumns.TABLE_NAME + "." + ChoiceCollectionColumns.CHOICE_ORDER);
       joinExp6 = CCJSqlParserUtil.parseCondExpression(ExternStringListLabelColumns.TABLE_NAME + "." + ExternStringListLabelColumns.EXTERN_STRING_LIST_LABEL_ID + " = " + ChoiceCollectionColumns.TABLE_NAME + "." + ChoiceCollectionColumns.CHOICE_ID);
       
       

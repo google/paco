@@ -11,14 +11,15 @@ import com.google.sampling.experiential.server.PacoId;
 import com.pacoapp.paco.shared.model2.ExperimentDAO;
 
 public interface CSExperimentVersionMappingDao {
-  void updateExperimentVersionMapping(ExperimentDAO experimentDao) throws SQLException;
+  void ensureExperimentVersionMapping(ExperimentDAO experimentDao) throws SQLException;
   Map<String, ExperimentVersionMapping> getAllGroupsInVersion(Long experimentId, Integer version) throws SQLException;
   boolean createExperimentVersionMapping(List<ExperimentVersionMapping> experimentVersionMappingLst);
   PacoId getExperimentVersionMappingId(Long experimentId, Integer version, String groupName) throws SQLException;
   Integer getNumberOfGroups(Long experimentId, Integer version) throws SQLException;
   void copyClosestVersion(Long experimentId, Integer fromVersion) throws SQLException;
-  ExperimentVersionMapping prepareEVMForGroupWithInputsAllScenarios(Long experimentId, String experimentName,
+  ExperimentVersionMapping prepareEVMForGroupWithInputs(Long experimentId, String experimentName,
                                                                     Integer experimentVersion, String groupName,
                                                                     String whoEmail,
-                                                                    Set<What> whatSet) throws SQLException;
+                                                                    Set<What> whatSet, boolean migrationFlag) throws SQLException;
+  boolean updateEventsPosted(Long egvId) throws SQLException;
 }

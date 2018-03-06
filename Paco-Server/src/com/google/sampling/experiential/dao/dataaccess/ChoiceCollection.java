@@ -1,8 +1,11 @@
 package com.google.sampling.experiential.dao.dataaccess;
 
+import java.util.Iterator;
 import java.util.Map;
+import java.util.logging.Logger;
 
-public class ChoiceCollection {
+public class ChoiceCollection implements PacoComparator<ChoiceCollection> {
+  public static final Logger log = Logger.getLogger(ChoiceCollection.class.getName());
   private Long choiceCollectionId;
   private Map<String, Choice> choices;
   
@@ -22,5 +25,23 @@ public class ChoiceCollection {
   public String toString() {
     return "ChoiceCollection [choiceCollectionId=" + choiceCollectionId + ", choices=" + choices + "]";
   }
-
+  @Override
+  public boolean hasChanged(ChoiceCollection olderVersion) {
+    boolean hasChanged = false;
+    if (olderVersion == null || olderVersion.getChoices() == null) {
+      hasChanged = true;
+    } else if (this.getChoices().size() != olderVersion.getChoices().size()) {
+      hasChanged = true;
+    } else {
+      Iterator<String> newChoicesItr = this.getChoices().keySet().iterator();
+      String currentNewChoice = null;
+      while (newChoicesItr.hasNext()) {
+        currentNewChoice = newChoicesItr.next();
+        if (this.getChoices().get(currentNewChoice).hasChanged(olderVersion.getChoices().get(currentNewChoice))) {
+          hasChanged = true;
+        }
+      }
+    }
+    return hasChanged;
+  }
 }

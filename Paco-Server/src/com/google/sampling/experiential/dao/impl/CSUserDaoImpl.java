@@ -107,7 +107,6 @@ public class CSUserDaoImpl implements CSUserDao {
         for (String s: userEmailLst) {
           findUsersStatement.setString(ct++, s);
         }
-        log.info("find all ids" + findUsersStatement.toString());
         rs = findUsersStatement.executeQuery();
         while (rs.next()) {
           userIds.put(rs.getString(UserColumns.WHO), rs.getLong(UserColumns.USER_ID));
@@ -144,7 +143,6 @@ public class CSUserDaoImpl implements CSUserDao {
     Long userId = null;
     if (email != null) {
       try {
-        log.info("Inserting user into user table" + email);
         conn = CloudSQLConnectionManager.getInstance().getConnection();
         conn.setAutoCommit(false);
         userInsert.setTable(new Table(UserColumns.TABLE_NAME));

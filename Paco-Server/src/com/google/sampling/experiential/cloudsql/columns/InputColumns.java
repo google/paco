@@ -7,7 +7,7 @@ public class InputColumns {
   public static final String NAME_ID = "name_id";
   public static final String REQUIRED = "required";
   public static final String CONDITIONAL = "conditional";
-  public static final String RESPONSE_TYPE_ID = "data_type_id";
+  public static final String RESPONSE_DATA_TYPE_ID = "response_data_type_id";
   public static final String TEXT_ID = "text_id";
   public static final String LIKERT_STEPS = "likert_steps";
   public static final String LEFT_LABEL = "left_label";

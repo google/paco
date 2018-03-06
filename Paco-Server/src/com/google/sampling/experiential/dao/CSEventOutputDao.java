@@ -17,5 +17,7 @@ public interface CSEventOutputDao {
   boolean insertEventAndOutputs(Event event) throws SQLException, ParseException;
 
   List<EventDAO> getEvents(String query, boolean withOutputs) throws SQLException, ParseException;
+  
+  boolean deleteAllEventsAndOutputsData(Long experiment_id, Integer whoAnonId) throws SQLException;
 
 }

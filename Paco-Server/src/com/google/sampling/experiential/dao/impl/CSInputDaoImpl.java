@@ -39,7 +39,7 @@ public class CSInputDaoImpl implements CSInputDao {
     inputColList.add(new Column(InputColumns.NAME_ID));
     inputColList.add(new Column(InputColumns.REQUIRED));
     inputColList.add(new Column(InputColumns.CONDITIONAL));
-    inputColList.add(new Column(InputColumns.RESPONSE_TYPE_ID));
+    inputColList.add(new Column(InputColumns.RESPONSE_DATA_TYPE_ID));
     inputColList.add(new Column(InputColumns.TEXT_ID));
     inputColList.add(new Column(InputColumns.LIKERT_STEPS));
     inputColList.add(new Column(InputColumns.LEFT_LABEL));
@@ -112,7 +112,6 @@ public class CSInputDaoImpl implements CSInputDao {
           statementCreateInput.setInt(6, input.getLikertSteps()==null ? 0:input.getLikertSteps());
           statementCreateInput.setString(7, input.getLeftLabel());
           statementCreateInput.setString(8, input.getRightLabel());
-          log.info(statementCreateInput.toString());
           statementCreateInput.addBatch();
         }
         

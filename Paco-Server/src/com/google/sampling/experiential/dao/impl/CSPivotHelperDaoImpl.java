@@ -25,7 +25,7 @@ public class CSPivotHelperDaoImpl implements CSPivotHelperDao {
   public static final Logger log = Logger.getLogger(CSPivotHelperDaoImpl.class.getName());
   private static List<Column> pvhColList = Lists.newArrayList();
   static {
-    pvhColList.add(new Column(PivotHelperColumns.EXPERIMENT_VERSION_MAPPING_ID));
+    pvhColList.add(new Column(PivotHelperColumns.EXPERIMENT_GROUP_VERSION_MAPPING_ID));
     pvhColList.add(new Column(PivotHelperColumns.ANON_WHO));
     pvhColList.add(new Column(PivotHelperColumns.INPUT_ID));
     pvhColList.add(new Column(PivotHelperColumns.PROCESSED));
@@ -42,7 +42,6 @@ public class CSPivotHelperDaoImpl implements CSPivotHelperDao {
     List<Expression> exp = Lists.newArrayList();
     Insert pvhInsert = new Insert();
     try {
-      log.info("Inserting pivotHelper into pivot helper table");
       conn = CloudSQLConnectionManager.getInstance().getConnection();
       conn.setAutoCommit(false);
       pvhInsert.setTable(new Table(PivotHelperColumns.TABLE_NAME));
@@ -94,7 +93,7 @@ public class CSPivotHelperDaoImpl implements CSPivotHelperDao {
     Connection conn = null;
     PreparedStatement statementUpdateEvent = null;
     ResultSet rs =null;
-    String updateQuery = "select * from pivot_helper where experiment_version_mapping_id= ? and anon_who=? and input_id=?";
+    String updateQuery = "select * from pivot_helper where experiment_group_version_mapping_id= ? and anon_who=? and input_id=?";
     try {
       conn = CloudSQLConnectionManager.getInstance().getConnection();
       
@@ -102,7 +101,6 @@ public class CSPivotHelperDaoImpl implements CSPivotHelperDao {
       statementUpdateEvent.setLong(1, evmId);
       statementUpdateEvent.setInt(2, anonWho);
       statementUpdateEvent.setLong(3, inputId);
-      log.info(updateQuery);
       rs = statementUpdateEvent.executeQuery();
       while (rs.next()) {
         return true;
@@ -128,7 +126,7 @@ public class CSPivotHelperDaoImpl implements CSPivotHelperDao {
   public boolean updatePivotHelperStatus(Long evmId, Integer anonWho, Long inputId, Long updateCt) throws SQLException {
     Connection conn = null;
     PreparedStatement statementUpdateEvent = null;
-    String updateQuery = "update pivot_helper set processed =b'1', events_posted=events_posted+ " + updateCt + " where experiment_version_mapping_id= ? and anon_who=? and input_id=?";
+    String updateQuery = "update pivot_helper set processed =b'1', events_posted=events_posted+ " + updateCt + " where experiment_group_version_mapping_id= ? and anon_who=? and input_id=?";
     try {
       conn = CloudSQLConnectionManager.getInstance().getConnection();
       
@@ -136,9 +134,8 @@ public class CSPivotHelperDaoImpl implements CSPivotHelperDao {
       statementUpdateEvent.setLong(1, evmId);
       statementUpdateEvent.setInt(2, anonWho);
       statementUpdateEvent.setLong(3, inputId);
-      log.info(updateQuery);
       statementUpdateEvent.executeUpdate();
-      log.info("updated status  as  complete for " + evmId + "-who:" + anonWho + ",inputid" + inputId);
+      log.info("updated pv status  as  complete for " + evmId + "-who:" + anonWho + ",inputid" + inputId + ",updateCt"+ updateCt);
     } finally {
       try {
         if (statementUpdateEvent != null) {
@@ -159,7 +156,7 @@ public class CSPivotHelperDaoImpl implements CSPivotHelperDao {
     Connection conn = null;
     PreparedStatement statementUpdateEvent = null;
     // this uses upsert command, which inserts first time, and then increments events ct by 1
-    String updateQuery = "INSERT INTO pivot_helper (experiment_version_mapping_id, anon_who, input_id, events_posted, processed) VALUES (?,?,?,?,?) ON DUPLICATE KEY UPDATE events_posted=events_posted+1" ;
+    String updateQuery = "INSERT INTO pivot_helper (experiment_group_version_mapping_id, anon_who, input_id, events_posted, processed) VALUES (?,?,?,?,?) ON DUPLICATE KEY UPDATE events_posted=events_posted+1" ;
 
     try {
       conn = CloudSQLConnectionManager.getInstance().getConnection();

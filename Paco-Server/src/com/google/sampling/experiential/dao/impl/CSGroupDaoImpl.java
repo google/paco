@@ -10,9 +10,9 @@ import java.util.logging.Logger;
 
 import com.google.cloud.sql.jdbc.Statement;
 import com.google.common.collect.Lists;
-import com.google.sampling.experiential.cloudsql.columns.GroupColumns;
+import com.google.sampling.experiential.cloudsql.columns.GroupDetailColumns;
 import com.google.sampling.experiential.dao.CSGroupDao;
-import com.google.sampling.experiential.dao.dataaccess.Group;
+import com.google.sampling.experiential.dao.dataaccess.GroupDetail;
 import com.google.sampling.experiential.server.CloudSQLConnectionManager;
 import com.google.sampling.experiential.server.PacoId;
 import com.pacoapp.paco.shared.util.ErrorMessages;
@@ -29,18 +29,18 @@ public class CSGroupDaoImpl implements CSGroupDao {
   private static List<Column> groupColList = Lists.newArrayList();
  
   static {
-    groupColList.add(new Column(GroupColumns.NAME));
-    groupColList.add(new Column(GroupColumns.GROUP_TYPE_ID));
-    groupColList.add(new Column(GroupColumns.CUSTOM_RENDERING));
-    groupColList.add(new Column(GroupColumns.FIXED_DURATION));
-    groupColList.add(new Column(GroupColumns.START_DATE));
-    groupColList.add(new Column(GroupColumns.END_DATE));
-    groupColList.add(new Column(GroupColumns.RAW_DATA_ACCESS));
-    groupColList.add(new Column(GroupColumns.END_OF_DAY_GROUP));
+    groupColList.add(new Column(GroupDetailColumns.NAME));
+    groupColList.add(new Column(GroupDetailColumns.GROUP_TYPE_ID));
+    groupColList.add(new Column(GroupDetailColumns.CUSTOM_RENDERING));
+    groupColList.add(new Column(GroupDetailColumns.FIXED_DURATION));
+    groupColList.add(new Column(GroupDetailColumns.START_DATE));
+    groupColList.add(new Column(GroupDetailColumns.END_DATE));
+    groupColList.add(new Column(GroupDetailColumns.RAW_DATA_ACCESS));
+    groupColList.add(new Column(GroupDetailColumns.END_OF_DAY_GROUP));
   }
 
   @Override
-  public void insertGroup(List<Group> groups) throws SQLException {
+  public void insertGroup(List<GroupDetail> groups) throws SQLException {
     Connection conn = null;
     PreparedStatement statementCreateGroup = null;
     ResultSet rs = null;
@@ -49,10 +49,10 @@ public class CSGroupDaoImpl implements CSGroupDao {
     Insert groupInsert = new Insert();
 
     try {
-      log.info("Inserting group into group table" );
+//      log.info("Inserting group into group table" );
       conn = CloudSQLConnectionManager.getInstance().getConnection();
       conn.setAutoCommit(false);
-      groupInsert.setTable(new Table(GroupColumns.TABLE_NAME));
+      groupInsert.setTable(new Table(GroupDetailColumns.TABLE_NAME));
       groupInsert.setUseValues(true);
       insertGroupExprList.setExpressions(exp);
       groupInsert.setItemsList(insertGroupExprList);
@@ -62,7 +62,7 @@ public class CSGroupDaoImpl implements CSGroupDao {
         ((ExpressionList) groupInsert.getItemsList()).getExpressions().add(new JdbcParameter());
       }
       
-      for (Group group : groups) {
+      for (GroupDetail group : groups) {
         if (group.getGroupId() == null ) {
           statementCreateGroup = conn.prepareStatement(groupInsert.toString(), Statement.RETURN_GENERATED_KEYS);
           
@@ -74,7 +74,6 @@ public class CSGroupDaoImpl implements CSGroupDao {
           statementCreateGroup.setTimestamp(6, group.getEndDate() != null ? new Timestamp(group.getEndDate().getMillis()): null);
           statementCreateGroup.setBoolean(7, group.getRawDataAccess());
           statementCreateGroup.setString(8, group.getEndOfDayGroup());
-          log.info(statementCreateGroup.toString());
           statementCreateGroup.execute();
           rs = statementCreateGroup.getGeneratedKeys();
           if (rs.next()) {

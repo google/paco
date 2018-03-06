@@ -1,8 +1,11 @@
 package com.google.sampling.experiential.dao.dataaccess;
 
+import java.util.logging.Logger;
+
 import com.google.sampling.experiential.server.PacoId;
 
-public class DataType {
+public class DataType  {
+  public static final Logger log = Logger.getLogger(DataType.class.getName());
   private PacoId dataTypeId;
   private String name;
   private boolean numeric;

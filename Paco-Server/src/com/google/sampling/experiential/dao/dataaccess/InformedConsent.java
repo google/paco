@@ -1,8 +1,11 @@
 package com.google.sampling.experiential.dao.dataaccess;
 
+import java.util.logging.Logger;
+
 import com.google.sampling.experiential.server.PacoId;
 
-public class InformedConsent {
+public class InformedConsent implements PacoComparator<InformedConsent> {
+  public static final Logger log = Logger.getLogger(InformedConsent.class.getName());
   private Long experimentId;
   private PacoId informedConsentId;
   private String informedConsent;
@@ -26,9 +29,7 @@ public class InformedConsent {
   }
   public Boolean isInformedConsentStringMatched(InformedConsent other) {
     boolean matched = false;
-    if (other == null || other.getInformedConsent() == null) {
-      matched = false;
-    } else if (other.getInformedConsent().equalsIgnoreCase(this.getInformedConsent())) {
+   if (other.getInformedConsent().equalsIgnoreCase(this.getInformedConsent())) {
       matched =  true;
     }
     return matched; 
@@ -37,5 +38,15 @@ public class InformedConsent {
   public String toString() {
     return "InformedConsent [experimentId=" + experimentId + ", informedConsentId="
            + informedConsentId + ", informedConsent=" + informedConsent + "]";
+  }
+  @Override
+  public boolean hasChanged(InformedConsent olderVersion) {
+    boolean hasChanged = false;
+    if (olderVersion == null || olderVersion.getInformedConsent() == null) {
+       hasChanged = true;
+    } else if (this.isInformedConsentStringMatched(olderVersion)) {
+      hasChanged = false;
+    } 
+    return hasChanged;
   }
 }

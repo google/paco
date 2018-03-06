@@ -52,7 +52,6 @@ public class CSChoiceCollectionDaoImpl implements CSChoiceCollectionDao {
    Insert choiceCollectionInsert = new Insert();
    if (choiceCollection != null && choiceCollection.getChoiceCollectionId() == null) {
      try {
-       log.info("Inserting choice collection into choice_collection table" + experimentId);
        conn = CloudSQLConnectionManager.getInstance().getConnection();
        conn.setAutoCommit(false);
        choiceCollectionInsert.setTable(new Table(ChoiceCollectionColumns.TABLE_NAME));

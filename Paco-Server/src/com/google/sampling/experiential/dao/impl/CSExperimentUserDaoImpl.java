@@ -68,7 +68,6 @@ public class CSExperimentUserDaoImpl implements CSExperimentUserDao {
       pacoAnonId.setId(0L);
       pacoAnonId.setIsCreatedWithThisCall(false);
     }
-    log.info("gawc: done"+ pacoAnonId.getId() + "--" + pacoAnonId.getIsCreatedWithThisCall());
     return pacoAnonId;
   }
   
@@ -91,7 +90,6 @@ public class CSExperimentUserDaoImpl implements CSExperimentUserDao {
     try {
       conn = CloudSQLConnectionManager.getInstance().getConnection();
       findAllUsersStatement = conn.prepareStatement(QueryConstants.GET_ALL_USERS_FOR_EXPERIMENT.toString());
-      log.info("Getting all users for experiment Id "+ experimentId);
       findAllUsersStatement.setLong(1, experimentId);
       rs = findAllUsersStatement.executeQuery();
       while(rs.next()){
@@ -139,13 +137,12 @@ public class CSExperimentUserDaoImpl implements CSExperimentUserDao {
     Set<String> allUsersEmailsInRequest = Sets.newHashSet();
     
     if (adminEmailsInRequest != null) {
-      log.info("Persisting users for experiment id:"+ expId + "with adminList size:"+adminEmailsInRequest.size());
       allUsersEmailsInRequest.addAll(adminEmailsInRequest);
     }
     if (participantEmailsInRequest != null) {
-      log.info("Persisting users for experiment id:"+ expId + "with participantList size:"+participantEmailsInRequest.size());
       allUsersEmailsInRequest.addAll(participantEmailsInRequest);
     }
+    log.info("Persisting users for experiment id:"+ expId + "with adminList size:" + (adminEmailsInRequest != null ? adminEmailsInRequest.size(): "0") + "with participantList size:" + (participantEmailsInRequest != null ? participantEmailsInRequest.size(): "0"));
     
     // if same id is requested as admin and participant, admin takes precedence
     if (participantEmailsInRequest != null) {
@@ -285,7 +282,6 @@ public class CSExperimentUserDaoImpl implements CSExperimentUserDao {
     Connection conn = null;
     boolean isSuccess = false;
     if (users == null || users.size() == 0) {
-      log.warning("inserting to experiment_users:"+ experimentId + ", with users "+ users.size());
       return false;
     }
     
@@ -330,7 +326,6 @@ public class CSExperimentUserDaoImpl implements CSExperimentUserDao {
   
   private boolean updateUserTypesForExperiment(Long experimentId, Set<Long> asAdmin, Set<Long> asParticipant) throws SQLException {
     if ((asAdmin == null && asParticipant == null) || (asAdmin.size() == 0 && asParticipant.size() == 0)) {
-      log.info("update user types with admin and participant lists empty or null "+ experimentId );
       return false;
     }
     PreparedStatement statementUpdateAsAdminExperimentUsers = null;
@@ -435,7 +430,6 @@ public class CSExperimentUserDaoImpl implements CSExperimentUserDao {
         maxAnonId = crtUser.getAnonId();
       }
     }
-    log.info("max anon id:" + maxAnonId);
     return maxAnonId;
   }
   

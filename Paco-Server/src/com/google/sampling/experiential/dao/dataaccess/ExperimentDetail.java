@@ -1,13 +1,17 @@
 package com.google.sampling.experiential.dao.dataaccess;
 
 import java.lang.reflect.Field;
+import java.util.logging.Logger;
 
 import org.joda.time.DateTime;
 
+import com.google.sampling.experiential.server.ExceptionUtil;
 import com.google.sampling.experiential.server.PacoId;
+import com.pacoapp.paco.shared.util.ErrorMessages;
 
-public class Experiment {
-  private PacoId experimentFacetId;
+public class ExperimentDetail implements PacoComparator<ExperimentDetail> {
+  public static final Logger log = Logger.getLogger(ExperimentDetail.class.getName());
+  private PacoId experimentDetailId;
   private String title;
   private String description;
   private User creator;
@@ -19,11 +23,11 @@ public class Experiment {
   private boolean published;
   private String ringtoneUri;
   private String postInstallInstructions;
-  public PacoId getExperimentFacetId() {
-    return experimentFacetId;
+  public PacoId getExperimentDetailId() {
+    return experimentDetailId;
   }
-  public void setExperimentFacetId(PacoId experimentId) {
-    this.experimentFacetId = experimentId;
+  public void setExperimentDetailId(PacoId experimentId) {
+    this.experimentDetailId = experimentId;
   }
   public String getTitle() {
     return title;
@@ -93,17 +97,17 @@ public class Experiment {
   }
   @Override
   public String toString() {
-    return "ExperimentHistory [experimentHistoryId=" + experimentFacetId + ", title=" + title + ", description="
+    return "ExperimentHistory [experimentHistoryId=" + experimentDetailId + ", title=" + title + ", description="
            + description + ", creator=" + creator + ", organization=" + organization + ", contactEmail=" + contactEmail
            + ", informedConsent=" + informedConsent + ", deleted=" + deleted + ", modifiedDate=" + modifiedDate
            + ", published=" + published + ", ringtoneUri=" + ringtoneUri + ", postInstallInstructions="
            + postInstallInstructions + "]";
   }
   
-  public Boolean compareWithoutId(Experiment other) throws IllegalArgumentException, IllegalAccessException { 
+  public Boolean equalsWithoutId(ExperimentDetail other) throws IllegalArgumentException, IllegalAccessException { 
     Field[] fields = this.getClass().getDeclaredFields();
 
-    for (Field field : fields){
+    for (Field field : fields) {
       if (!field.getName().equals("experimentFacetId") && !field.getName().equals("modifiedDate") && !field.getName().equals("informedConsent") && !field.getName().equals("creator")) {
         if(((field.get(this) != null && !field.get(this).equals(field.get(other)))) || (field.get(this) == null && field.get(other) != null)) {
           return false;
@@ -113,4 +117,19 @@ public class Experiment {
     return true;
   }
 
+  @Override
+  public boolean hasChanged(ExperimentDetail oldVersion) {
+    boolean hasChanged = false;
+    try {
+      if (oldVersion != null && this.equalsWithoutId(oldVersion)) {
+        // experiment property fields matched with older version properties
+        hasChanged = false;
+      } else {
+        hasChanged = true;
+      }
+    } catch (IllegalArgumentException | IllegalAccessException e) {
+      log.warning("Compare Experiment fields:"+ ErrorMessages.INVALID_ACCESS_OR_ARGUMENT_EXCEPTION.getDescription() + ExceptionUtil.getStackTraceAsString(e));    
+    }
+    return hasChanged;
+  }
 }

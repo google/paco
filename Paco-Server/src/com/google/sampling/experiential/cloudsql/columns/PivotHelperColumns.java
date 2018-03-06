@@ -3,7 +3,7 @@ package com.google.sampling.experiential.cloudsql.columns;
 public class PivotHelperColumns {
   public static final String TABLE_NAME = "pivot_helper";
   
-  public static final String EXPERIMENT_VERSION_MAPPING_ID = "experiment_version_mapping_id";
+  public static final String EXPERIMENT_GROUP_VERSION_MAPPING_ID = "experiment_group_version_mapping_id";
   public static final String ANON_WHO = "anon_who";
   public static final String INPUT_ID = "input_id";
   public static final String JOINED = "joined";

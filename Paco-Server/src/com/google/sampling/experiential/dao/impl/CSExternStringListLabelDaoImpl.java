@@ -46,7 +46,6 @@ public class CSExternStringListLabelDaoImpl implements CSExternStringListLabelDa
       labelId.setId(0L);
       labelId.setIsCreatedWithThisCall(false);
     }
-    log.info("label id is "+labelId.getId());
     return labelId;
   }
   
@@ -59,7 +58,6 @@ public class CSExternStringListLabelDaoImpl implements CSExternStringListLabelDa
       conn = CloudSQLConnectionManager.getInstance().getConnection();
       statementGetIdForLabel = conn.prepareStatement(QueryConstants.GET_LABEL_ID_FOR_STRING.toString());
       statementGetIdForLabel.setString(1, label);
-      log.info(statementGetIdForLabel.toString());
       rs = statementGetIdForLabel.executeQuery();
       while (rs.next()) {
         id = rs.getLong(ExternStringListLabelColumns.EXTERN_STRING_LIST_LABEL_ID);
@@ -92,7 +90,6 @@ public class CSExternStringListLabelDaoImpl implements CSExternStringListLabelDa
     Long labelId = null;
     if (label != null) {
       try {
-        log.info("Inserting label into extern string label table" + label);
         conn = CloudSQLConnectionManager.getInstance().getConnection();
         conn.setAutoCommit(false);
         labelInsert.setTable(new Table(ExternStringListLabelColumns.TABLE_NAME));
@@ -107,7 +104,6 @@ public class CSExternStringListLabelDaoImpl implements CSExternStringListLabelDa
   
         statementCreateLabel = conn.prepareStatement(labelInsert.toString(), Statement.RETURN_GENERATED_KEYS);
         statementCreateLabel.setString(1, label);
-        log.info(statementCreateLabel.toString());
         statementCreateLabel.execute();
         rs = statementCreateLabel.getGeneratedKeys();
         if (rs.next()) {

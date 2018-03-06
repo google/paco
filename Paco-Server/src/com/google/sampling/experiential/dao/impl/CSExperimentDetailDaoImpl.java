@@ -11,10 +11,10 @@ import java.util.logging.Logger;
 
 import com.google.cloud.sql.jdbc.Statement;
 import com.google.common.collect.Lists;
-import com.google.sampling.experiential.cloudsql.columns.ExperimentColumns;
-import com.google.sampling.experiential.cloudsql.columns.ExperimentVersionMappingColumns;
-import com.google.sampling.experiential.dao.CSExperimentDao;
-import com.google.sampling.experiential.dao.dataaccess.Experiment;
+import com.google.sampling.experiential.cloudsql.columns.ExperimentDetailColumns;
+import com.google.sampling.experiential.cloudsql.columns.ExperimentGroupVersionMappingColumns;
+import com.google.sampling.experiential.dao.CSExperimentDetailDao;
+import com.google.sampling.experiential.dao.dataaccess.ExperimentDetail;
 import com.google.sampling.experiential.dao.dataaccess.InformedConsent;
 import com.google.sampling.experiential.server.CloudSQLConnectionManager;
 import com.google.sampling.experiential.server.PacoId;
@@ -28,26 +28,26 @@ import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.schema.Table;
 import net.sf.jsqlparser.statement.insert.Insert;
 
-public class CSExperimentDaoImpl implements CSExperimentDao {
-  public static final Logger log = Logger.getLogger(CSExperimentDaoImpl.class.getName());
+public class CSExperimentDetailDaoImpl implements CSExperimentDetailDao {
+  public static final Logger log = Logger.getLogger(CSExperimentDetailDaoImpl.class.getName());
   private static List<Column> experimentColList = Lists.newArrayList();
   
   static {
-    experimentColList.add(new Column(ExperimentColumns.EXPERIMENT_NAME));
-    experimentColList.add(new Column(ExperimentColumns.DESCRIPTION));
-    experimentColList.add(new Column(ExperimentColumns.CREATOR));
-    experimentColList.add(new Column(ExperimentColumns.ORGANIZATION));
-    experimentColList.add(new Column(ExperimentColumns.CONTACT_EMAIL));
-    experimentColList.add(new Column(ExperimentColumns.INFORMED_CONSENT_ID));
-    experimentColList.add(new Column(ExperimentColumns.DELETED));
-    experimentColList.add(new Column(ExperimentColumns.MODIFIED_DATE));
-    experimentColList.add(new Column(ExperimentColumns.PUBLISHED));
-    experimentColList.add(new Column(ExperimentColumns.RINGTONE_URI));
-    experimentColList.add(new Column(ExperimentColumns.POST_INSTALL_INSTRUCTIONS));
+    experimentColList.add(new Column(ExperimentDetailColumns.EXPERIMENT_NAME));
+    experimentColList.add(new Column(ExperimentDetailColumns.DESCRIPTION));
+    experimentColList.add(new Column(ExperimentDetailColumns.CREATOR));
+    experimentColList.add(new Column(ExperimentDetailColumns.ORGANIZATION));
+    experimentColList.add(new Column(ExperimentDetailColumns.CONTACT_EMAIL));
+    experimentColList.add(new Column(ExperimentDetailColumns.INFORMED_CONSENT_ID));
+    experimentColList.add(new Column(ExperimentDetailColumns.DELETED));
+    experimentColList.add(new Column(ExperimentDetailColumns.MODIFIED_DATE));
+    experimentColList.add(new Column(ExperimentDetailColumns.PUBLISHED));
+    experimentColList.add(new Column(ExperimentDetailColumns.RINGTONE_URI));
+    experimentColList.add(new Column(ExperimentDetailColumns.POST_INSTALL_INSTRUCTIONS));
   }
   
   @Override
-  public void insertExperiment(Experiment experiment) throws SQLException {
+  public void insertExperimentDetail(ExperimentDetail experiment) throws SQLException {
     Connection conn = null;
     PreparedStatement statementCreateExperiment = null;
     ResultSet rs = null;
@@ -61,7 +61,7 @@ public class CSExperimentDaoImpl implements CSExperimentDao {
         conn = CloudSQLConnectionManager.getInstance().getConnection();
         conn.setAutoCommit(false);
 
-        experimentInsert.setTable(new Table(ExperimentColumns.TABLE_NAME));
+        experimentInsert.setTable(new Table(ExperimentDetailColumns.TABLE_NAME));
         experimentInsert.setUseValues(true);
         insertExperimentExprList.setExpressions(exp);
         experimentInsert.setItemsList(insertExperimentExprList);
@@ -84,7 +84,6 @@ public class CSExperimentDaoImpl implements CSExperimentDao {
         statementCreateExperiment.setBoolean(9, experiment.isPublished());
         statementCreateExperiment.setString(10, experiment.getRingtoneUri());
         statementCreateExperiment.setString(11, experiment.getPostInstallInstructions());
-        log.info(statementCreateExperiment.toString());
         statementCreateExperiment.execute();
         rs = statementCreateExperiment.getGeneratedKeys();
         if (rs.next()) {
@@ -92,10 +91,10 @@ public class CSExperimentDaoImpl implements CSExperimentDao {
         }
         expId.setId(experimentId);
         expId.setIsCreatedWithThisCall(true);
-        experiment.setExperimentFacetId(expId);
+        experiment.setExperimentDetailId(expId);
         conn.commit();
       } catch(SQLException sqle) {
-        log.warning("Exception while inserting to experiment table" + experiment.getExperimentFacetId().getId() + ":" +  sqle);
+        log.warning("Exception while inserting to experiment table" + experiment.getExperimentDetailId().getId() + ":" +  sqle);
       }
       finally {
         try {
@@ -118,19 +117,19 @@ public class CSExperimentDaoImpl implements CSExperimentDao {
   }
 
   @Override
-  public Long getExperimentFacetId(Long expId, Integer expVersion) throws SQLException {
+  public Long getExperimentDetailId(Long expId, Integer expVersion) throws SQLException {
     Connection conn = null;
     ResultSet rs = null;
     PreparedStatement statementGetExperimentInfo = null;
     Long expFacetId = null;
     try {
       conn = CloudSQLConnectionManager.getInstance().getConnection();
-      statementGetExperimentInfo = conn.prepareStatement(QueryConstants.GET_EXPERIMENT_FACET_ID.toString());
+      statementGetExperimentInfo = conn.prepareStatement(QueryConstants.GET_EXPERIMENT_DETAIL_ID.toString());
       statementGetExperimentInfo.setLong(1, expId);
       statementGetExperimentInfo.setInt(2, expVersion);
       rs = statementGetExperimentInfo.executeQuery();
       while (rs.next()) {
-        expFacetId = rs.getLong(ExperimentVersionMappingColumns.EXPERIMENT_FACET_ID);
+        expFacetId = rs.getLong(ExperimentGroupVersionMappingColumns.EXPERIMENT_DETAIL_ID);
       }
     } finally {
       try {
