@@ -26,7 +26,7 @@ import net.sf.jsqlparser.schema.Table;
 import net.sf.jsqlparser.statement.insert.Insert;
 
 public class CSInformedConsentDaoImpl implements CSInformedConsentDao {
-  public static final Logger log = Logger.getLogger(CSExperimentDaoImpl.class.getName());
+  public static final Logger log = Logger.getLogger(CSExperimentDetailDaoImpl.class.getName());
   private static List<Column> informedConsentColList = Lists.newArrayList();
   static {
     informedConsentColList.add(new Column(InformedConsentColumns.EXPERIMENT_ID));
