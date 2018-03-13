@@ -29,6 +29,9 @@ public interface ExperimentService {
   // saving experiments
   List<ValidationMessage> saveExperiment(ExperimentDAO experimentDAO, String loggedInUserEmail, DateTimeZone timezone);
 
+  // saving experiments but specifying validation or not
+  List<ValidationMessage> saveExperiment(ExperimentDAO experimentDAO, String loggedInUserEmail, DateTimeZone timezone, Boolean validate);
+
   //delete experiments
   Boolean deleteExperiment(ExperimentDAO experimentDAO, String loggedInUserEmail);
   Boolean deleteExperiment(Long experimentId, String loggedInUserEmail);
