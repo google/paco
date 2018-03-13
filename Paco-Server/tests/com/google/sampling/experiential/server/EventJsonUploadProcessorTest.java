@@ -161,6 +161,13 @@ public class EventJsonUploadProcessorTest extends TestCase {
         return null;
       }
 
+      @Override
+      public List<ValidationMessage> saveExperiment(ExperimentDAO experimentDAO, String loggedInUserEmail,
+                                                    DateTimeZone timezone, Boolean validate) {
+        // TODO Auto-generated method stub
+        return null;
+      }
+
     };
 
     noExperimentService = new ExperimentService() {
@@ -246,6 +253,13 @@ public class EventJsonUploadProcessorTest extends TestCase {
 
       @Override
       public ExperimentQueryResult getAllExperiments(String cursor) {
+        // TODO Auto-generated method stub
+        return null;
+      }
+
+      @Override
+      public List<ValidationMessage> saveExperiment(ExperimentDAO experimentDAO, String loggedInUserEmail,
+                                                    DateTimeZone timezone, Boolean validate) {
         // TODO Auto-generated method stub
         return null;
       }
@@ -344,6 +358,13 @@ public class EventJsonUploadProcessorTest extends TestCase {
         return null;
       }
 
+      @Override
+      public List<ValidationMessage> saveExperiment(ExperimentDAO experimentDAO, String loggedInUserEmail,
+                                                    DateTimeZone timezone, Boolean validate) {
+        // TODO Auto-generated method stub
+        return null;
+      }
+
     };
 
     noThenYesExperimentService = new ExperimentService() {
@@ -428,6 +449,12 @@ public class EventJsonUploadProcessorTest extends TestCase {
       }
       @Override
       public ExperimentQueryResult getAllExperiments(String cursor) {
+        // TODO Auto-generated method stub
+        return null;
+      }
+      @Override
+      public List<ValidationMessage> saveExperiment(ExperimentDAO experimentDAO, String loggedInUserEmail,
+                                                    DateTimeZone timezone, Boolean validate) {
         // TODO Auto-generated method stub
         return null;
       }

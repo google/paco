@@ -156,16 +156,25 @@ class DefaultExperimentService implements ExperimentService {
   public List<ValidationMessage> saveExperiment(ExperimentDAO experiment,
                                                 String loggedInUserEmail,
                                                 DateTimeZone timezone) {
+    return saveExperiment(experiment, loggedInUserEmail, timezone, true);
+  }
 
+  @Override
+  public List<ValidationMessage> saveExperiment(ExperimentDAO experiment,
+                                                String loggedInUserEmail,
+                                                DateTimeZone timezone,
+                                                Boolean validate) {
     if (ExperimentAccessManager.isUserAllowedToSaveExperiment(experiment.getId(), loggedInUserEmail)) {
       ensureIdsOnActionTriggerObjects(experiment);
       lowercaseAllEmailAddresses(experiment);
 
-      ExperimentValidator validator = new ExperimentValidator();
-      experiment.validateWith(validator);
-      List<ValidationMessage> results = validator.getResults();
-      if (!results.isEmpty()) {
-        return results;
+      if (validate) {
+        ExperimentValidator validator = new ExperimentValidator();
+        experiment.validateWith(validator);
+        List<ValidationMessage> results = validator.getResults();
+        if (!results.isEmpty()) {
+          return results;
+        }
       }
 
       DatastoreService ds = DatastoreServiceFactory.getDatastoreService();
@@ -212,10 +221,10 @@ class DefaultExperimentService implements ExperimentService {
         }
       }
     } else {
-      throw new IllegalStateException(loggedInUserEmail + " does not have permission to edit " + experiment.getTitle());  
+      throw new IllegalStateException(loggedInUserEmail + " does not have permission to edit " + experiment.getTitle());
     }
   }
-  
+
   public void sendToCloudSqlQueue(ExperimentDAO experiment, String loggedInUserEmail) {
     Queue queue = QueueFactory.getQueue("cloud-sql");
     TaskOptions to = TaskOptions.Builder.withUrl("/csExpInsert").payload(JsonConverter.jsonify(experiment));
