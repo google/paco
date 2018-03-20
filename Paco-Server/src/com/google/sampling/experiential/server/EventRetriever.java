@@ -427,7 +427,7 @@ public class EventRetriever {
       eventJDOQuery.applyFiltersToQuery(q);
 
       PreparedQuery pq = datastore.prepare(q);
-      log.info("execute query");
+      log.info("execute query: " + q.toString());
 
       QueryResultList<Entity> results = pq.asQueryResultList(fetchOptions);
       count = count + results.size();
@@ -711,8 +711,8 @@ public class EventRetriever {
     long t11 = System.currentTimeMillis();
 
     List<Long> adminExperiments = getExperimentsForAdmin(requestorEmail);
-    log.info("Loggedin user's administered experiments: " + requestorEmail + " has ids: "
-             + getIdsQuoted(adminExperiments));
+//    log.info("Loggedin user's administered experiments: " + requestorEmail + " has ids: "
+//             + getIdsQuoted(adminExperiments));
 
     if (isDevMode() || isUserQueryingTheirOwnData(requestorEmail, eventDSQuery)) {
       log.info("dev mode or user querying self data");
