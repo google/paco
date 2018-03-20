@@ -144,7 +144,7 @@ public class JDOQueryBuilder {
     startDate = newDateTimeFromDateTimeString(firstDate, jodaTimeZone);
     endDate = null;
     if (secondDate != null && !secondDate.isEmpty()) {
-      endDate = newDateTimeFromDateTimeString(secondDate, jodaTimeZone).plusDays(1);
+      endDate = newDateTimeFromDateTimeString(secondDate, jodaTimeZone);
     } else {
       endDate = startDate.plusDays(1);
     }
