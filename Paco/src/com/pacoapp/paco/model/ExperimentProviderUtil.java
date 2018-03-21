@@ -555,6 +555,12 @@ public class ExperimentProviderUtil implements EventStore {
         if (inputNode.has("multiselect")) {
           input.setMultiselect(inputNode.path("multiselect").getBooleanValue());
         }
+        if (inputNode.has("multiline")) {
+          input.setMultiline(inputNode.path("multiline").getBooleanValue());
+        }
+        if (inputNode.has("multilineNumber")) {
+          input.setMultilineNumber(inputNode.path("multilineNumber").getIntValue());
+        }
         List<String> listChoices = Lists.newArrayList();
         ArrayNode listChoicesNode = (ArrayNode) inputNode.path("listChoices");
         for (int l = 0; l < listChoicesNode.size(); l++) {

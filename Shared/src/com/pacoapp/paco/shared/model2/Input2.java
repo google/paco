@@ -54,6 +54,9 @@ public class Input2 extends ModelBase implements Validatable, Serializable {
   private List<String> listChoices;
   private Boolean multiselect = false;
 
+  private boolean multiline;
+  private int multilineNumber;
+
   /**
    *
    */
@@ -72,10 +75,12 @@ public class Input2 extends ModelBase implements Validatable, Serializable {
    * @param rightSideLabel
    * @param listChoices
    * @param multiselect
+   * @param multiline
+   * @param multilineNumber
    */
   public Input2(String name, String responseType, String text, Boolean required,
       Integer likertSteps, Boolean conditional, String conditionExpr, String leftSideLabel,
-      String rightSideLabel, List<String> listChoices, Boolean multiselect) {
+      String rightSideLabel, List<String> listChoices, Boolean multiselect, Boolean multiline, Integer multilineNumber) {
     this.text = text;
     this.required = required != null ? required : false;
     this.responseType = responseType;
@@ -87,12 +92,14 @@ public class Input2 extends ModelBase implements Validatable, Serializable {
     this.rightSideLabel = rightSideLabel;
     this.listChoices = listChoices;
     this.multiselect = multiselect != null ? multiselect : false;
+    this.multiline = multiline != null ? multiline : false;
+    this.multilineNumber = multilineNumber != null ? multilineNumber : 0;
   }
 
   // visible for testing
   public Input2(String name, String text) {
     this(name, LIKERT, text, false, null, false, null, null, null, null,
-        null);
+        null, null, null);
   }
 
   public Input2() {
@@ -187,6 +194,22 @@ public class Input2 extends ModelBase implements Validatable, Serializable {
 
   public void setMultiselect(Boolean multiselect) {
     this.multiselect = multiselect;
+  }
+
+  public Boolean getMultiline() {
+    return multiline;
+  }
+
+  public void setMultiline(Boolean multiline) {
+    this.multiline = multiline;
+  }
+
+  public Integer getMultilineNumber() {
+    return multilineNumber;
+  }
+
+  public void setMultilineNumber(Integer multilineNumber) {
+    this.multilineNumber = multilineNumber;
   }
 
   public void validateWith(Validator validator) {

@@ -27,6 +27,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import android.view.Gravity;
+import android.view.inputmethod.EditorInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -482,7 +484,7 @@ public class InputLayout extends LinearLayout implements SpeechRecognitionListen
     if (questionType.equals(Input2.LIKERT_SMILEYS)) {
       return renderGeistNowSmilerLikert(input2.getLikertSteps());
     } else if (questionType.equals(Input2.OPEN_TEXT)) {
-      return renderOpenText();
+      return renderOpenText(input2);
     } else if (questionType.equals(Input2.LIKERT)) {
       return renderLikert(input2);
     } else if (questionType.equals(Input2.LIST)) {
@@ -907,8 +909,8 @@ public class InputLayout extends LinearLayout implements SpeechRecognitionListen
 
   }
 
-  private View renderOpenText() {
-    View likertView = ((LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(
+  private View renderOpenText(Input2 input2) {
+    ((LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(
         R.layout.open_text, this, true);
     openTextView = (AutoCompleteTextView) findViewById(R.id.open_text_answer);
     openTextView.setThreshold(1);
@@ -919,6 +921,16 @@ public class InputLayout extends LinearLayout implements SpeechRecognitionListen
     //ensureAutoCompleteDatabase();
     //openTextView.setAdapter(new AutocompleteUsageFilteringArrayAdapter(getContext(), android.R.layout.simple_dropdown_item_1line, autocompleteDatabase));
     //openTextView.setTokenizer(new AutoCompleteTextView(getContext()));
+    if (input2.getMultiline() != null && input2.getMultiline()) {
+      if (input2.getMultilineNumber() != null && input2.getMultilineNumber() > 1) {
+        openTextView.setSingleLine(false);
+        openTextView.setImeOptions(EditorInfo.IME_FLAG_NO_ENTER_ACTION);
+        openTextView.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_MULTI_LINE
+            | InputType.TYPE_TEXT_FLAG_AUTO_CORRECT | InputType.TYPE_TEXT_FLAG_AUTO_COMPLETE);
+        openTextView.setLines(input2.getMultilineNumber());
+        openTextView.setGravity(Gravity.LEFT | Gravity.TOP);
+      }
+    }
     openTextView.setOnFocusChangeListener(new OnFocusChangeListener() {
 
       public void onFocusChange(View v, boolean hasFocus) {

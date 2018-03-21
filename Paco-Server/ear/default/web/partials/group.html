@@ -34,7 +34,13 @@
             </div>
 
             <div ng-if="input.responseType === 'open text'" class="input">
-              <div>
+              <div ng-if="input.multiline" >
+                <md-input-container md-no-float>
+                  <textarea name="bio" ng-model="responses[input.name]" placeholder="answer"
+                            rows="{{input.multilineNumber}}"></textarea>
+                </md-input-container>
+              </div>
+              <div ng-if="!input.multiline" >
                 <md-input-container md-no-float>
                   <input type="text" placeholder="answer" 
                     ng-model="responses[input.name]" ng-disabled="readonly"></input>
