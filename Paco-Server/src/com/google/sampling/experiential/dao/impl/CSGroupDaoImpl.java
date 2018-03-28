@@ -83,7 +83,8 @@ public class CSGroupDaoImpl implements CSGroupDao {
       }
       conn.commit();
     } catch(SQLException sqle) {
-      log.warning("Exception while inserting to group_history table:" +  sqle);
+      log.warning("Exception while inserting to group_detail table:" +  sqle);
+      throw sqle;
     }
     finally {
       try {

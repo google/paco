@@ -47,12 +47,12 @@ public class CSInputDaoImpl implements CSInputDao {
   }
   
   @Override
-  public void insertInput(Input input) throws SQLException {
+  public void insertInput(Input input) throws Exception {
     insertInput(Lists.newArrayList(input));
   }
   
   @Override
-  public List<Input> insertVariableNames(List<String> variableNames) throws SQLException {
+  public List<Input> insertVariableNames(List<String> variableNames) throws Exception {
     List<Input> inputLst = Lists.newArrayList();
     Input input = null;
     CSDataTypeDao dataTypeDaoImpl =  new CSDataTypeDaoImpl();
@@ -73,15 +73,15 @@ public class CSInputDaoImpl implements CSInputDao {
     return inputLst;
   }
   
-  
   @Override
-  public void insertInput(List<Input> inputs) throws SQLException {
+  public void insertInput(List<Input> inputs) throws Exception {
     Connection conn = null;
     PreparedStatement statementCreateInput = null;
     ResultSet rs = null;
     ExpressionList insertInputExprList = new ExpressionList();
     List<Expression> exp = Lists.newArrayList();
     Insert inputInsert = new Insert();
+    boolean isAnyInputInserted = false;
     try {
       conn = CloudSQLConnectionManager.getInstance().getConnection();
       conn.setAutoCommit(false);
@@ -99,6 +99,7 @@ public class CSInputDaoImpl implements CSInputDao {
       List<DataType> allDataTypes = dataTypeDao.getAllDataTypes();
       for (Input input : inputs) {
         if (input.getInputId() == null || input.getInputId().getId() == null) {
+          isAnyInputInserted = true;
           PacoId variableNameId = externStringDao.getTextAndCreate(input.getName().getLabel(), true);
           PacoId textId = externStringDao.getTextAndCreate(input.getText().getLabel(), true);
           statementCreateInput.setLong(1, variableNameId.getId());
@@ -116,25 +117,24 @@ public class CSInputDaoImpl implements CSInputDao {
         }
         
       } //for
-      if (statementCreateInput != null) {
+      if (isAnyInputInserted) {
         statementCreateInput.executeBatch();
         ResultSet generatedKeys = statementCreateInput.getGeneratedKeys();
         
         for (Input input : inputs) {
-
-          if ( generatedKeys == null || ! generatedKeys.next()){
+          if ( generatedKeys == null || ! generatedKeys.next()) {
             log.warning("Unable to retrieve all generated keys");
+            throw new Exception("Input not persisted");
+          } else {
+            input.setInputId(new PacoId(generatedKeys.getLong(1), true));
           }
-          input.setInputId(new PacoId(generatedKeys.getLong(1), true));
         }
-        
+        conn.commit();
       }
-
-
-
-      conn.commit();
+      
     } catch(SQLException sqle) {
       log.warning("Exception while inserting to input table:" +  sqle);
+      throw sqle;
     } finally {
       try {
         if( rs != null) { 

@@ -155,26 +155,29 @@ class DefaultExperimentService implements ExperimentService {
   public List<ValidationMessage> saveExperiment(ExperimentDAO experiment,
                                                 String loggedInUserEmail,
                                                 DateTimeZone timezone) {
-    return saveExperiment(experiment, loggedInUserEmail, timezone, true);
+    boolean sendToCloudSqlFlag = true;
+    boolean validate = true;
+    return saveExperiment(experiment, loggedInUserEmail, timezone, sendToCloudSqlFlag, validate);
   }
 
   // save experiments
   @Override
   public List<ValidationMessage> saveExperiment(ExperimentDAO experiment,
                                                 String loggedInUserEmail,
-                                                DateTimeZone timezone, boolean sendToCloudSqlflag) {
-
+                                                DateTimeZone timezone, boolean sendToCloudSqlflag, boolean validate) {
     if (ExperimentAccessManager.isUserAllowedToSaveExperiment(experiment.getId(), loggedInUserEmail)) {
+      
       ensureIdsOnActionTriggerObjects(experiment);
       lowercaseAllEmailAddresses(experiment);
-
-      ExperimentValidator validator = new ExperimentValidator();
-      experiment.validateWith(validator);
-      List<ValidationMessage> results = validator.getResults();
-      if (!results.isEmpty()) {
-        return results;
+      if (validate) {
+        ExperimentValidator validator = new ExperimentValidator();
+        experiment.validateWith(validator);
+        List<ValidationMessage> results = validator.getResults();
+        if (!results.isEmpty()) {
+          return results;
+        }
       }
-
+        
       DatastoreService ds = DatastoreServiceFactory.getDatastoreService();
       TransactionOptions options = TransactionOptions.Builder.withXG(true);
       Transaction tx = ds.beginTransaction(options);
@@ -185,6 +188,7 @@ class DefaultExperimentService implements ExperimentService {
         if (!experiment.getAdmins().contains(loggedInUserEmail)) {
           experiment.getAdmins().add(loggedInUserEmail);
         }
+        
         if (Strings.isNullOrEmpty(experiment.getContactEmail())) {
           experiment.setContactEmail(experiment.getCreator());
         }
@@ -195,7 +199,7 @@ class DefaultExperimentService implements ExperimentService {
           version++;
         }
         experiment.setVersion(version);
-
+        
         final long millis = new DateTime().getMillis();
         experiment.setModifyDate(com.pacoapp.paco.shared.util.TimeUtil.formatDate(millis));
         Key experimentKey = ExperimentJsonEntityManager.saveExperiment(ds, tx, JsonConverter.jsonify(experiment),
@@ -204,13 +208,15 @@ class DefaultExperimentService implements ExperimentService {
                                                                        experiment.getVersion(),
                                                                        millis,
                                                                        experiment.getAdmins());
-
+        
         experiment.setId(experimentKey.getId());
         ExperimentAccessManager.updateAccessControlEntities(ds, tx, experiment, experimentKey, timezone);
+        
         if (sendToCloudSqlflag) {
           sendToCloudSqlQueue(experiment, loggedInUserEmail);
-        }
+        } 
         tx.commit();
+        
         return null;
       } catch (Exception e) {
         e.printStackTrace();

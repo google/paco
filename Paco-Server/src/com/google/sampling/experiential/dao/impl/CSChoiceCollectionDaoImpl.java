@@ -78,7 +78,6 @@ public class CSChoiceCollectionDaoImpl implements CSChoiceCollectionDao {
          statementCreateChoiceCollection.setLong(3, currentChoiceId.getId());
          currentChoice.getChoiceLabel().setExternStringListLabelId(currentChoiceId);
          statementCreateChoiceCollection.setLong(4, currentChoice.getChoiceOrder());
-         log.info(statementCreateChoiceCollection.toString());
          statementCreateChoiceCollection.addBatch();
        }
        choiceCollection.setChoiceCollectionId(choiceCollectionId.longValue());
@@ -86,6 +85,7 @@ public class CSChoiceCollectionDaoImpl implements CSChoiceCollectionDao {
        conn.commit();
      } catch(SQLException sqle) {
        log.warning("Exception while inserting to choice collection table" + experimentId + ":" +  sqle);
+       throw sqle;
      }
      finally {
        try {

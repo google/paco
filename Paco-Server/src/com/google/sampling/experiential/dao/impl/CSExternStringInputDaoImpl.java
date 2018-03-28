@@ -83,7 +83,7 @@ public class CSExternStringInputDaoImpl implements CSExternStringInputDao {
     return id;
   }
   
-  private Long insertLabelAndRetrieveId(String text) {
+  private Long insertLabelAndRetrieveId(String text) throws SQLException {
     Connection conn = null;
     PreparedStatement statementCreateText = null;
     ResultSet rs = null;
@@ -117,6 +117,7 @@ public class CSExternStringInputDaoImpl implements CSExternStringInputDao {
       conn.commit();
     } catch(SQLException sqle) {
       log.warning("Exception while inserting to extern string text table" + text + ":" +  sqle);
+      throw sqle;
     }
     finally {
       try {

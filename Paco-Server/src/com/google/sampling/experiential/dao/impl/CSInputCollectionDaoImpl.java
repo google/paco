@@ -49,7 +49,7 @@ public class CSInputCollectionDaoImpl implements CSInputCollectionDao {
   }
   
   @Override
-  public void createInputCollectionId(ExperimentDAO exptDao, Map<String, InputCollection> newVersionGroupInputCollections,  Map<String, InputCollection> oldVersionGroupInputCollections) throws SQLException {
+  public void createInputCollectionId(ExperimentDAO exptDao, Map<String, InputCollection> newVersionGroupInputCollections,  Map<String, InputCollection> oldVersionGroupInputCollections) throws Exception {
     Connection conn = null;
     PreparedStatement statementCreateInputCollection = null;
     ResultSet rs = null;
@@ -107,7 +107,8 @@ public class CSInputCollectionDaoImpl implements CSInputCollectionDao {
                 inputDaoImpl.insertInput(currentIOC.getInput());
                 statementCreateInputCollection.setLong(3, currentIOC.getInput().getInputId().getId());
                 currentDataType =  currentIOC.getInput().getResponseDataType();
-                if (currentDataType != null && currentDataType.isResponseMappingRequired() && choiceCollection != null && choiceCollectionId == null) {
+                
+                if (currentDataType != null && choiceCollection != null && choiceCollectionId == null) {
                   choiceDaoImpl.createChoiceCollectionId(exptDao.getId(), inputCollectionId, currentIOC.getInputOrder(), choiceCollection);
                   choiceCollectionId = BigInteger.valueOf(choiceCollection.getChoiceCollectionId());
                   statementCreateInputCollection.setObject(4, choiceCollectionId, Types.BIGINT);
@@ -126,6 +127,7 @@ public class CSInputCollectionDaoImpl implements CSInputCollectionDao {
         conn.commit();
       } catch(SQLException sqle) {
         log.warning("Exception while inserting to input collection table" + exptDao.getId() + ":" +  sqle);
+        throw sqle;
       } finally {
         try {
           if( rs != null) { 
@@ -147,15 +149,15 @@ public class CSInputCollectionDaoImpl implements CSInputCollectionDao {
   }
 
   @Override
-  public Input addUndefinedInputToCollection(Long experimentId, Long inputCollectionId, String variableName) throws SQLException {
+  public Input addUndefinedInputToCollection(Long experimentId, Long inputCollectionId, String variableName) throws Exception {
     CSInputDao inputDao = new CSInputDaoImpl();
     List<Input> inputLst = inputDao.insertVariableNames(Lists.newArrayList(variableName));
-    addUndefinedInputToCollection(experimentId, inputCollectionId, inputLst.get(0).getInputId().getId());
+    addInputToInputCollection(experimentId, inputCollectionId, inputLst.get(0));
     return inputLst.get(0);
   }
   
   @Override
-  public void addUndefinedInputToCollection(Long experimentId, Long inputCollectionId, Long inputId) {
+  public void addInputToInputCollection(Long experimentId, Long inputCollectionId, Input input) throws SQLException {
    
     Connection conn = null;
     PreparedStatement statementCreateInput = null;
@@ -181,7 +183,7 @@ public class CSInputCollectionDaoImpl implements CSInputCollectionDao {
       Long choiceCollectionId = null;
       statementCreateInput.setLong(1, experimentId);
       statementCreateInput.setLong(2, inputCollectionId);
-      statementCreateInput.setLong(3, inputId);
+      statementCreateInput.setLong(3, input.getInputId().getId());
       statementCreateInput.setObject(4, choiceCollectionId);
       statementCreateInput.setLong(5, -99);
       log.info(statementCreateInput.toString());
@@ -189,6 +191,7 @@ public class CSInputCollectionDaoImpl implements CSInputCollectionDao {
       conn.commit();
     } catch(SQLException sqle) {
       log.warning("Exception while inserting to input table:" +  sqle);
+      throw sqle;
     } finally {
       try {
         if( rs != null) { 
@@ -204,8 +207,7 @@ public class CSInputCollectionDaoImpl implements CSInputCollectionDao {
         log.info(ErrorMessages.CLOSING_RESOURCE_EXCEPTION.getDescription() + ex1);
       }
     }
-  }
-    
+  }  
 }
 
  

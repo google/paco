@@ -203,7 +203,7 @@ public class EventRetriever {
         }
         replaceEachBlobInJsonWithTheWordBlob(eventJson, event);
         // TODO remove this so events can get posted to cloud sql while they are posted to data store
-//        sendToCloudSqlQueue(eventJson, event);
+        sendToCloudSqlQueue(eventJson, event);
         tx.commit();
         log.info("Event saved in datastore");
       } finally {

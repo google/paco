@@ -22,7 +22,9 @@ import org.json.JSONObject;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.sampling.experiential.cloudsql.columns.EventServerColumns;
-import com.google.sampling.experiential.cloudsql.columns.ExperimentLookupColumns;
+import com.google.sampling.experiential.cloudsql.columns.ExperimentDetailColumns;
+import com.google.sampling.experiential.cloudsql.columns.ExperimentGroupVersionMappingColumns;
+import com.google.sampling.experiential.cloudsql.columns.GroupDetailColumns;
 import com.google.sampling.experiential.cloudsql.columns.OutputServerColumns;
 import com.google.sampling.experiential.dao.CSEventOutputDao;
 import com.google.sampling.experiential.dao.CSExperimentUserDao;
@@ -154,7 +156,7 @@ public class CSEventOutputDaoImpl implements CSEventOutputDao {
   }
   
   @Override
-  public boolean insertEventAndOutputs(Event event) throws SQLException, ParseException {
+  public boolean insertEventAndOutputs(Event event) throws Exception {
     if (event == null) {
       log.warning(ErrorMessages.NOT_VALID_DATA.getDescription());
       return false;
@@ -254,6 +256,7 @@ public class CSEventOutputDaoImpl implements CSEventOutputDao {
       statementCreateEvent.setTimestamp(i++, event.getScheduledTime() != null ? new Timestamp(TimeUtil.convertToLocal(event.getScheduledTime(), event.getTimeZone()).getMillis()): null);
       statementCreateEvent.setTimestamp(i++, new Timestamp(TimeUtil.convertToLocal(new Date(sortDateMillis), event.getTimeZone()).getMillis()));
       Map<String, ExperimentVersionMapping> allEVMInVersion = evmDaoImpl.getAllGroupsInVersion(Long.parseLong(event.getExperimentId()), event.getExperimentVersion());
+      // Rename event group Name from null to System, if its system predefined inputs
       ExperimentVersionMapping evmForThisGroup = findMatchingEVMRecord(event, allEVMInVersion, migrationFlag);
       pvUpdateEvmId = evmForThisGroup.getExperimentVersionMappingId();
       statementCreateEvent.setLong(i++, pvUpdateEvmId);
@@ -284,10 +287,12 @@ public class CSEventOutputDaoImpl implements CSEventOutputDao {
       }
       
       pvDaoImpl.incrementUpdateCtByOne(pvUpdateEvmId, pvUpdateAnonWhoId, pvUpdateInputIds);
+     
+      conn.commit();
+      // After commit, otherwise, goes to lock issue
       if (!evmForThisGroup.isEventsPosted()) {
         evmDaoImpl.updateEventsPosted(pvUpdateEvmId);
       }
-      conn.commit();
       retVal = true;
     } finally {
       try {
@@ -307,14 +312,15 @@ public class CSEventOutputDaoImpl implements CSEventOutputDao {
     return retVal;
   }
   
-  private ExperimentVersionMapping findMatchingEVMRecord(Event event, Map<String, ExperimentVersionMapping> allEVMMap, boolean migrationFlag) throws SQLException{
+  private ExperimentVersionMapping findMatchingEVMRecord(Event event, Map<String, ExperimentVersionMapping> allEVMMap, boolean migrationFlag) throws Exception{
     ExperimentVersionMapping returnEVM = null;
     CSExperimentVersionMappingDao daoImpl = new CSExperimentVersionMappingDaoImpl();
     Long expId = Long.parseLong(event.getExperimentId());
-    
+    log.info("event id"+ event.getId());
     // if event is posted for a version where we do not have experiment mapping records
-    returnEVM = daoImpl.prepareEVMForGroupWithInputs(expId, event.getExperimentName(), event.getExperimentVersion(), event.getExperimentGroupName(), event.getWho(), event.getWhat(), migrationFlag);
-    allEVMMap.put(event.getExperimentGroupName(), returnEVM);
+    returnEVM = daoImpl.ensureEVMRecord(expId,event.getId(), event.getExperimentName(), event.getExperimentVersion(), event.getExperimentGroupName(), event.getWho(), event.getWhat(), migrationFlag);
+    String mightBeModifiedGroupName = returnEVM.getGroupInfo().getName();
+    allEVMMap.put(mightBeModifiedGroupName, returnEVM);
     return returnEVM;
   }
   
@@ -389,9 +395,9 @@ public class CSEventOutputDaoImpl implements CSEventOutputDao {
     List<WhatDAO> whatList = Lists.newArrayList();
     WhatDAO singleWhat = null;
     try {
-      event.setExperimentId(rs.getLong(ExperimentLookupColumns.EXPERIMENT_ID));
-      event.setExperimentName(rs.getString(ExperimentLookupColumns.EXPERIMENT_NAME));
-      event.setExperimentVersion(rs.getInt(ExperimentLookupColumns.EXPERIMENT_VERSION));
+      event.setExperimentId(rs.getLong(ExperimentGroupVersionMappingColumns.EXPERIMENT_ID));
+      event.setExperimentName(rs.getString(ExperimentDetailColumns.EXPERIMENT_NAME));
+      event.setExperimentVersion(rs.getInt(ExperimentGroupVersionMappingColumns.EXPERIMENT_VERSION));
 
       Date scheduleDate = rs.getTimestamp(EventServerColumns.SCHEDULE_TIME);
       DateTime scheduledDateTime = scheduleDate != null ? new DateTime(scheduleDate): null;
@@ -401,7 +407,7 @@ public class CSEventOutputDaoImpl implements CSEventOutputDao {
       DateTime responseDateTime = responseDate != null ? new DateTime(responseDate) : null;
       event.setResponseTime(responseDateTime);
 
-      event.setExperimentGroupName(rs.getString(ExperimentLookupColumns.GROUP_NAME));
+      event.setExperimentGroupName(rs.getString(GroupDetailColumns.NAME));
       event.setActionTriggerId(rs.getLong(EventServerColumns.ACTION_TRIGGER_ID));
       event.setActionTriggerSpecId(rs.getLong(EventServerColumns.ACTION_TRIGGER_SPEC_ID));
       event.setActionId(rs.getLong(EventServerColumns.ACTION_ID));
@@ -432,25 +438,37 @@ public class CSEventOutputDaoImpl implements CSEventOutputDao {
   @Override
   public boolean deleteAllEventsAndOutputsData(Long experimentId, Integer whoAnonId) throws SQLException {
     Connection conn = null;
-    PreparedStatement statementDeleteEventsAndOutputs = null;
-    String deleteQuery = QueryConstants.DELETE_ALL_EVENTS_AND_OUTPUTS.toString() ;
+    PreparedStatement statementDeleteEvents = null;
+    PreparedStatement statementDeleteOutputs = null;
+    
+    String deleteQuery1 = QueryConstants.DELETE_ALL_OUTPUTS.toString() ;
+    String deleteQuery2 = QueryConstants.DELETE_ALL_EVENTS.toString() ;
+    
     try {
       conn = CloudSQLConnectionManager.getInstance().getConnection();
       if ( whoAnonId !=null) {
-        deleteQuery = deleteQuery + " and who_bk=?";
+        deleteQuery1 = deleteQuery1 + " and who_bk=?";
+        deleteQuery2 = deleteQuery2 + " and who_bk=?";
       }
-      statementDeleteEventsAndOutputs = conn.prepareStatement(deleteQuery);
-      
-      statementDeleteEventsAndOutputs.setLong(1, experimentId);
+      statementDeleteOutputs = conn.prepareStatement(deleteQuery1);
+      statementDeleteOutputs.setLong(1, experimentId);
       if (whoAnonId != null) {
-        statementDeleteEventsAndOutputs.setInt(2, whoAnonId);
+        statementDeleteOutputs.setInt(2, whoAnonId);
       }
-      statementDeleteEventsAndOutputs.execute();
+      statementDeleteOutputs.execute();
+      
+      statementDeleteEvents = conn.prepareStatement(deleteQuery2);
+      statementDeleteEvents.setLong(1, experimentId);
+      if (whoAnonId != null) {
+        statementDeleteEvents.setInt(2, whoAnonId);
+      }
+      statementDeleteEvents.execute();
+      
       return true;
     } finally {
       try {
-        if (statementDeleteEventsAndOutputs != null) {
-          statementDeleteEventsAndOutputs.close();
+        if (statementDeleteEvents != null) {
+          statementDeleteEvents.close();
         }
         if (conn != null) {
           conn.close();

@@ -10,7 +10,7 @@ import com.pacoapp.paco.shared.model2.ExperimentDAO;
 public interface CSInputCollectionDao {
   
   void createInputCollectionId(ExperimentDAO exptDao,
-                                                  Map<String, InputCollection> newVersion, Map<String, InputCollection> oldVersion) throws SQLException;
-  void addUndefinedInputToCollection(Long experimentId, Long inputCollectionId, Long inputId);
-  Input addUndefinedInputToCollection(Long experimentId, Long inputCollectionId, String variableName) throws SQLException;
+                                                  Map<String, InputCollection> newVersion, Map<String, InputCollection> oldVersion) throws SQLException, Exception;
+  void addInputToInputCollection(Long experimentId, Long inputCollectionId, Input input) throws SQLException;
+  Input addUndefinedInputToCollection(Long experimentId, Long inputCollectionId, String variableName) throws SQLException, Exception;
 }

@@ -70,7 +70,6 @@ public class ExperimentDAOConverter {
     for ( ExperimentGroup experimentGroup : experimentGroups) {
       group = new GroupDetail();
       group.setName(experimentGroup.getName());
-      //TODO
       if (experimentGroup.getGroupType() != null) {
         group.setGroupTypeId(experimentGroup.getGroupType().getGroupTypeId());
       } 
@@ -256,16 +255,14 @@ public class ExperimentDAOConverter {
       for (ExperimentGroup experimentGroup : eachExperiment.getGroups()) {
         // The very first time, while doing migration of the experiments, the group type will be null. There can be a grp with accessibility, appusage turned on. We have to split these grps
         // When saving an experiment, we would know the group type, so we have to add the corresponding predefined inputs to the special groups
-        if (experimentGroup.getGroupType() == null || saveExperimentFlag)  {
+        if (experimentGroup.getGroupType() == null || GroupTypeEnum.SURVEY.equals(experimentGroup.getGroupType()))  {
           // once it is saved with split groups, then even predefined groups will have inputs
           ensureAccessibilityGroup(experimentGroup, predefinedGroups);
           ensurePhoneStatusGroup(experimentGroup, predefinedGroups);
           ensureAppUsageAndroidGroup(experimentGroup, predefinedGroups);
           ensureNotificationGroup(experimentGroup, predefinedGroups);
-          if (predefinedGroups.size() == 0 && !saveExperimentFlag) {
-            experimentGroup.setGroupType(GroupTypeEnum.SURVEY);
-          }
-        } 
+          experimentGroup.setGroupType(GroupTypeEnum.SURVEY);
+        }
       }
       predefinedGroups.add(systemGroup);
       List<ExperimentGroup> userDefinedGroups = eachExperiment.getGroups();
@@ -283,6 +280,7 @@ public class ExperimentDAOConverter {
       }
     } catch (Exception e) {
       log.warning(ErrorMessages.GENERAL_EXCEPTION.getDescription() + ExceptionUtil.getStackTraceAsString(e));
+      throw e;
     }
     log.info("splitting groups for an experiment finished" + eachExperiment.getId());
   }

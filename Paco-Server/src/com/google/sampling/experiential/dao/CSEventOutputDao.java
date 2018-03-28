@@ -14,7 +14,7 @@ public interface CSEventOutputDao {
 
   JSONArray getResultSetAsJson(String query, List<String> dateColumns) throws SQLException, ParseException, JSONException;
 
-  boolean insertEventAndOutputs(Event event) throws SQLException, ParseException;
+  boolean insertEventAndOutputs(Event event) throws SQLException, ParseException, Exception;
 
   List<EventDAO> getEvents(String query, boolean withOutputs) throws SQLException, ParseException;
   

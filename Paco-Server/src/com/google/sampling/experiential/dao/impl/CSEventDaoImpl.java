@@ -14,6 +14,7 @@ import com.google.sampling.experiential.cloudsql.columns.EventServerColumns;
 import com.google.sampling.experiential.dao.CSEventDao;
 import com.google.sampling.experiential.dao.CSExperimentUserDao;
 import com.google.sampling.experiential.dao.CSExperimentVersionMappingDao;
+import com.google.sampling.experiential.dao.dataaccess.ExperimentVersionMapping;
 import com.google.sampling.experiential.model.Event;
 import com.google.sampling.experiential.server.CloudSQLConnectionManager;
 import com.google.sampling.experiential.server.PacoId;
@@ -79,7 +80,7 @@ public class CSEventDaoImpl implements CSEventDao {
   }
   
   @Override
-  public boolean insertSingleEventOnly(Event event) throws SQLException, ParseException {
+  public boolean insertSingleEventOnly(Event event) throws NumberFormatException, Exception {
     if (event == null) {
       log.warning(ErrorMessages.NOT_VALID_DATA.getDescription());
       return false;
@@ -90,6 +91,7 @@ public class CSEventDaoImpl implements CSEventDao {
     boolean retVal = false;
     Timestamp whenTs = null;
     Long expIdLong = null;
+    ExperimentVersionMapping evm = null;
     int whenFrac = 0;
     //startCount for setting parameter index
     int i = 1 ;
@@ -155,8 +157,8 @@ public class CSEventDaoImpl implements CSEventDao {
       statementCreateEvent.setTimestamp(i++, event.getResponseTime() != null ? new Timestamp(TimeUtil.convertToLocal(event.getResponseTime(), event.getTimeZone()).getMillis()): null);
       statementCreateEvent.setTimestamp(i++, event.getScheduledTime() != null ? new Timestamp(TimeUtil.convertToLocal(event.getScheduledTime(), event.getTimeZone()).getMillis()): null);
       statementCreateEvent.setTimestamp(i++, new Timestamp(TimeUtil.convertToLocal(new Date(sortDateMillis), event.getTimeZone()).getMillis()));
-      PacoId experimentVersionMappingId = experimentVersionMappingDaoImpl.getExperimentVersionMappingId(Long.parseLong(event.getExperimentId()), event.getExperimentVersion(), event.getExperimentGroupName());
-      statementCreateEvent.setLong(i++, experimentVersionMappingId.getId());
+      evm = experimentVersionMappingDaoImpl.ensureEVMRecord(Long.parseLong(event.getExperimentId()), event.getId(), event.getExperimentName(), event.getExperimentVersion(), event.getExperimentGroupName(), event.getWho(), event.getWhat(), true);
+      statementCreateEvent.setLong(i++, evm.getExperimentVersionMappingId());
       
       statementCreateEvent.execute();
 
@@ -273,6 +275,47 @@ public class CSEventDaoImpl implements CSEventDao {
       }
     }
     return retVal;
+  }
+  
+  
+  @Override
+  public boolean updateGroupName(Long eventId, String oldGrpName, String newGrpName) throws SQLException {
+    Connection conn = null;
+    PreparedStatement statementUpdateEvent1 = null;
+    String updateQuery1 = "update events set group_name=? where _id=?";
+    PreparedStatement statementInsertOldGroupName = null;
+    String insertQuery1 = "insert into event_old_group_name(old_group_name,event_id) values (?,?)";
+    
+    try {
+      conn = CloudSQLConnectionManager.getInstance().getConnection();
+      
+      statementUpdateEvent1 = conn.prepareStatement(updateQuery1);
+      statementUpdateEvent1.setString(1, newGrpName);
+      statementUpdateEvent1.setLong(2, eventId);
+      statementUpdateEvent1.executeUpdate();
+      
+      statementInsertOldGroupName = conn.prepareStatement(insertQuery1);
+      statementInsertOldGroupName.setString(1, oldGrpName);
+      statementInsertOldGroupName.setLong(2,  eventId);
+      statementInsertOldGroupName.execute();
+      
+      log.info("updated  grp name in events table" +eventId + "--" + oldGrpName  + "--" + newGrpName);
+    } finally {
+      try {
+        if (statementUpdateEvent1 != null) {
+          statementUpdateEvent1.close();
+        }
+        if (statementInsertOldGroupName != null) {
+          statementInsertOldGroupName.close();
+        }
+        if (conn != null) {
+          conn.close();
+        }
+      } catch (SQLException ex1) {
+        log.warning(ErrorMessages.CLOSING_RESOURCE_EXCEPTION.getDescription()+ ex1);
+      }
+    }
+    return true;
   }
  
 }

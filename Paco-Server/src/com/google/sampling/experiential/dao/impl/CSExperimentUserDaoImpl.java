@@ -304,7 +304,6 @@ public class CSExperimentUserDaoImpl implements CSExperimentUserDao {
         statementCreateExperimentUsers.setInt(3, eachUser.getAnonId());
         statementCreateExperimentUsers.setString(4, eachUser.getType().toString());
         statementCreateExperimentUsers.addBatch();
-        log.info("inserting to experiment_users:"+ experimentId + ", with user: "+ eachUser.getAnonId());
       }
       statementCreateExperimentUsers.executeBatch();
       conn.commit();
@@ -472,7 +471,6 @@ public class CSExperimentUserDaoImpl implements CSExperimentUserDao {
     Integer anonId = null;
     PreparedStatement statementGetAnonId = null;
     if (experimentId != null && email != null) {
-      log.info("get anonymous id with experiment id: "+ experimentId + " and email " + email);
      
       try {
         conn = CloudSQLConnectionManager.getInstance().getConnection();

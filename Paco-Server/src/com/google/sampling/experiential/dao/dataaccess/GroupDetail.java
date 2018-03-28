@@ -75,7 +75,7 @@ public class GroupDetail implements PacoComparator<GroupDetail> {
     Field[] fields = this.getClass().getDeclaredFields();
     for (Field field : fields) {
       if (!field.getName().equals("groupId")) {
-        if (((field.get(this) != null && !field.get(this).equals(field.get(other)))) || (field.get(this) == null && field.get(other) != null)){
+        if (((field.get(this) != null && !field.get(this).equals(field.get(other)))) || (field.get(this) == null && field.get(other) != null)) {
           return false;
         }
       }

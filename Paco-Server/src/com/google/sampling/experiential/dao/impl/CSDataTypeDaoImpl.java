@@ -7,11 +7,13 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.logging.Logger;
 
+import com.google.cloud.sql.jdbc.Statement;
 import com.google.common.collect.Lists;
 import com.google.sampling.experiential.cloudsql.columns.DataTypeColumns;
 import com.google.sampling.experiential.dao.CSDataTypeDao;
 import com.google.sampling.experiential.dao.dataaccess.DataType;
 import com.google.sampling.experiential.server.CloudSQLConnectionManager;
+import com.google.sampling.experiential.server.ExceptionUtil;
 import com.google.sampling.experiential.server.PacoId;
 import com.google.sampling.experiential.server.QueryConstants;
 import com.pacoapp.paco.shared.util.ErrorMessages;
@@ -63,7 +65,7 @@ public class CSDataTypeDaoImpl implements CSDataTypeDao {
   }
   
   // utility method, to avoid hitting the db for every input on an experiment
-  public DataType getMatchingDataType(List<DataType> fullList, String name, Boolean isNumeric, Boolean isMultiSelect) {
+  public DataType getMatchingDataType(List<DataType> fullList, String name, Boolean isNumeric, Boolean isMultiSelect) throws SQLException {
     DataType matchingId = null;
     for(DataType dataType : fullList) { 
       if (dataType.getName().equalsIgnoreCase(name) && dataType.isNumeric() == isNumeric && dataType.isMultiSelect() == isMultiSelect) {
@@ -71,6 +73,58 @@ public class CSDataTypeDaoImpl implements CSDataTypeDao {
         break;
       }
     }
+    if (matchingId == null) {
+      try {
+        matchingId = insertNewDataType(name, isNumeric, isMultiSelect);
+      } catch (SQLException e) {
+        log.warning("no matching data type "+ name + "--" + isNumeric + "--"+ isMultiSelect);
+        matchingId = null;
+        throw e;
+      }
+    }
     return matchingId;
+  }
+  
+  @Override
+  public DataType insertNewDataType(String responseTypeName, Boolean isNumeric, boolean isMultiSelect) throws SQLException {
+    final String insertDataTypeSql = "INSERT INTO `pacodb`.`data_type` (`"+DataTypeColumns.NAME+"`, `"+DataTypeColumns.IS_NUMERIC+"`, `"+DataTypeColumns.MULTI_SELECT+"`, `"+DataTypeColumns.RESPONSE_MAPPING_REQUIRED+"`) VALUES ('"+responseTypeName+"',"+ isNumeric +","+ isMultiSelect +", 0)";
+    Connection conn = null;
+    PreparedStatement statementModifyExisting = null;
+    DataType newDataType = null; 
+    ResultSet rs = null;
+    Integer dataTypeId = null;
+    try {
+      conn = CloudSQLConnectionManager.getInstance().getConnection();
+      statementModifyExisting = conn.prepareStatement(insertDataTypeSql, Statement.RETURN_GENERATED_KEYS);
+      log.info(insertDataTypeSql);
+      statementModifyExisting.execute();
+      rs = statementModifyExisting.getGeneratedKeys();
+      if (rs.next()) {
+        dataTypeId = rs.getInt(1);
+      }
+      newDataType = new DataType();
+      newDataType.setDataTypeId(new PacoId(dataTypeId, true));
+      newDataType.setMultiSelect(isMultiSelect);
+      newDataType.setNumeric(isNumeric);
+      newDataType.setResponseMappingRequired(false);
+    } catch (SQLException sqle) {
+      log.warning("SQLException while adding new cols" + ExceptionUtil.getStackTraceAsString(sqle));
+      throw sqle;
+    } catch (Exception e) {
+      log.warning("GException while adding new cols" + ExceptionUtil.getStackTraceAsString(e));
+      throw e;
+    } finally {
+      try {
+        if (statementModifyExisting != null) {
+          statementModifyExisting.close();
+        }
+        if (conn != null) {
+          conn.close();
+        }
+      } catch (SQLException e) {
+          log.warning("Exception in finally block" + ExceptionUtil.getStackTraceAsString(e));
+      }
+    }
+    return newDataType;
   }
 }

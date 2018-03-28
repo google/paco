@@ -19,6 +19,7 @@ import com.google.sampling.experiential.cloudsql.columns.EventServerColumns;
 import com.google.sampling.experiential.cloudsql.columns.FailedEventServerColumns;
 import com.google.sampling.experiential.dao.CSExperimentUserDao;
 import com.google.sampling.experiential.dao.CSExperimentVersionMappingDao;
+import com.google.sampling.experiential.dao.dataaccess.ExperimentVersionMapping;
 import com.google.sampling.experiential.dao.impl.CSExperimentUserDaoImpl;
 import com.google.sampling.experiential.dao.impl.CSExperimentVersionMappingDaoImpl;
 import com.google.sampling.experiential.model.Event;
@@ -191,8 +192,9 @@ public class CloudSQLMigrationDaoImpl implements CloudSQLMigrationDao {
             statementCreateEvent.setTimestamp(i++, ts);
             statementCreateEvent.setString(i++, event.getTimeZone());
             statementCreateEvent.setLong(i++, event.getId());
-            PacoId experimentVersionMappingId = experimentVersionMappingDaoImpl.getExperimentVersionMappingId(Long.parseLong(event.getExperimentId()), event.getExperimentVersion(), event.getExperimentGroupName());
-            statementCreateEvent.setLong(i++, experimentVersionMappingId.getId());
+            
+            ExperimentVersionMapping evm = experimentVersionMappingDaoImpl.ensureEVMRecord(Long.parseLong(event.getExperimentId()), event.getId(), event.getExperimentName(), event.getExperimentVersion(), event.getExperimentGroupName(), event.getWho(), event.getWhat(), true);
+            statementCreateEvent.setLong(i++, evm.getExperimentVersionMappingId());
 
             statementCreateEvent.addBatch();
             i = 1;

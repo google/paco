@@ -57,7 +57,6 @@ public class CSGroupTypeInputMappingDaoImpl implements CSGroupTypeInputMappingDa
     try {
       conn = CloudSQLConnectionManager.getInstance().getConnection();
       statementSelectAllFeatureInputs = conn.prepareStatement(QueryConstants.GET_ALL_PRE_DEFINED_INPUTS.toString());
-      log.info(statementSelectAllFeatureInputs.toString());
       rs = statementSelectAllFeatureInputs.executeQuery();
       predefinedInputsMap = Maps.newHashMap();
       while (rs.next()) {

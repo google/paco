@@ -41,7 +41,7 @@ public class InformedConsent implements PacoComparator<InformedConsent> {
   }
   @Override
   public boolean hasChanged(InformedConsent olderVersion) {
-    boolean hasChanged = false;
+    boolean hasChanged = true;
     if (olderVersion == null || olderVersion.getInformedConsent() == null) {
        hasChanged = true;
     } else if (this.isInformedConsentStringMatched(olderVersion)) {

@@ -2,14 +2,16 @@ package com.google.sampling.experiential.server;
 
 import com.google.sampling.experiential.cloudsql.columns.DataTypeColumns;
 import com.google.sampling.experiential.cloudsql.columns.EventServerColumns;
-import com.google.sampling.experiential.cloudsql.columns.ExperimentUserColumns;
+import com.google.sampling.experiential.cloudsql.columns.ExperimentDefinitionColumns;
 import com.google.sampling.experiential.cloudsql.columns.ExperimentGroupVersionMappingColumns;
+import com.google.sampling.experiential.cloudsql.columns.ExperimentUserColumns;
 import com.google.sampling.experiential.cloudsql.columns.ExternStringInputColumns;
 import com.google.sampling.experiential.cloudsql.columns.ExternStringListLabelColumns;
 import com.google.sampling.experiential.cloudsql.columns.FailedEventServerColumns;
 import com.google.sampling.experiential.cloudsql.columns.GroupTypeColumns;
 import com.google.sampling.experiential.cloudsql.columns.GroupTypeInputMappingColumns;
 import com.google.sampling.experiential.cloudsql.columns.InputColumns;
+import com.google.sampling.experiential.cloudsql.columns.PivotHelperColumns;
 import com.google.sampling.experiential.cloudsql.columns.UserColumns;
 import com.pacoapp.paco.shared.model2.EventBaseColumns;
 import com.pacoapp.paco.shared.model2.OutputBaseColumns;
@@ -23,6 +25,11 @@ public enum QueryConstants {
   
   GET_EVENT_FOR_ID("select * from " + EventServerColumns.TABLE_NAME + " where " + Constants.UNDERSCORE_ID+ " =?"),
   GET_ALL_OUTPUTS_FOR_EVENT_ID("select * from " + OutputBaseColumns.TABLE_NAME + " where " + OutputBaseColumns.EVENT_ID + " = ?"),
+  GET_EXPERIMENT_DEFINITION_RECORD_COUNT("select count(*) from experiment_definition_bk"),
+  GET_ALL_UNPROCESSED_PIVOT_HELPER("select * from " + PivotHelperColumns.TABLE_NAME + " where " + PivotHelperColumns.PROCESSED + " = b'0'"),
+  GET_ALL_EXPERIMENT_JSON("select * from " + ExperimentDefinitionColumns.TABLE_NAME ),
+  GET_ALL_ERRORED_EXPERIMENT_JSON("select id from " + ExperimentDefinitionColumns.TABLE_NAME +  " where error_message is not null" ),
+  GET_ALL_EXPERIMENT_JSON_BK("select * from " + ExperimentDefinitionColumns.TABLE_NAME+"_bk where id in(4584120130732032, 4564354635661312, 4577054784749568)" ),
   GET_ANON_ID_FOR_EMAIL("select " +ExperimentUserColumns.EXP_USER_ANON_ID+ " from " + ExperimentUserColumns.TABLE_NAME + " join " + UserColumns.TABLE_NAME + " on " + UserColumns.TABLE_NAME +". "+ UserColumns.USER_ID +" = " + ExperimentUserColumns.TABLE_NAME  +  "." + ExperimentUserColumns.USER_ID + " where " + ExperimentUserColumns.EXPERIMENT_ID +" = ? and " + UserColumns.WHO + " = ?"),
   GET_QUICK_STATUS_STORED_PROC("call ExpQuickStatus(?,?)"),
   GET_COMPLETE_STATUS_STORED_PROC("call ExpCompleteStatus(?,?)"),
@@ -47,12 +54,13 @@ public enum QueryConstants {
   GET_CLOSEST_VERSION("(SELECT "+ ExperimentGroupVersionMappingColumns.EXPERIMENT_VERSION +" FROM " + ExperimentGroupVersionMappingColumns.TABLE_NAME + " where "+ ExperimentGroupVersionMappingColumns.EXPERIMENT_ID +"=? and "+ ExperimentGroupVersionMappingColumns.EXPERIMENT_VERSION +" >? order by "+ ExperimentGroupVersionMappingColumns.EXPERIMENT_VERSION +" asc limit 1) " +
                       " union (SELECT  "+ ExperimentGroupVersionMappingColumns.EXPERIMENT_VERSION +" FROM " + ExperimentGroupVersionMappingColumns.TABLE_NAME + " where " + ExperimentGroupVersionMappingColumns.EXPERIMENT_ID +" =? and "+ ExperimentGroupVersionMappingColumns.EXPERIMENT_VERSION +" <? order by "+ ExperimentGroupVersionMappingColumns.EXPERIMENT_VERSION +" desc limit 1 )"),
   GET_ALL_EVM_RECORDS_FOR_VERSION("select * from " + ExperimentGroupVersionMappingColumns.TABLE_NAME + " where "  + ExperimentGroupVersionMappingColumns.EXPERIMENT_ID + "= ? and " + ExperimentGroupVersionMappingColumns.EXPERIMENT_VERSION + "=?"),
-  UNPROCESSED_EVENT_QUERY("select experiment_id, experiment_version, group_name, who, text, experiment_name, _id from events e join outputs o on e._id=o.event_id where ((experiment_group_version_mapping_id is null or o.input_id is null) and experiment_id is not null) limit 1"),
+  UNPROCESSED_EVENT_QUERY("select experiment_id, experiment_version, group_name, who, text, experiment_name, _id from events e join outputs o on e._id=o.event_id where (experiment_group_version_mapping_id is null or o.input_id is null) and experiment_id is not null limit 1"),
   INSERT_TO_PIVOT_HELPER("insert into pivot_helper(experiment_group_version_mapping_id, anon_who, input_id)  select evm.experiment_group_version_mapping_id, eu.experiment_user_anon_id, ic.input_id from experiment_group_version_mapping evm " 
           + " join experiment_detail e on evm.experiment_detail_id = e.experiment_detail_id "
           + " join experiment_user eu on evm.experiment_id = eu.experiment_id "
           + " join input_collection ic on ic.experiment_ds_id = evm.experiment_id and  evm.input_collection_id=ic.input_collection_id"),
-  DELETE_ALL_EVENTS_AND_OUTPUTS("DELETE events, outputs FROM events LEFT JOIN outputs ON events._id = outputs.event_id WHERE events.experiment_id=?")
+  DELETE_ALL_OUTPUTS("DELETE outputs FROM events LEFT JOIN outputs ON events._id = outputs.event_id WHERE events.experiment_id=?"),
+  DELETE_ALL_EVENTS("DELETE events FROM events LEFT JOIN outputs ON events._id = outputs.event_id WHERE events.experiment_id=?")
   ;
   
 

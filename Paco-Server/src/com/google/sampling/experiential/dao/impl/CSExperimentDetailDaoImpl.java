@@ -73,7 +73,13 @@ public class CSExperimentDetailDaoImpl implements CSExperimentDetailDao {
        
         statementCreateExperiment = conn.prepareStatement(experimentInsert.toString(), Statement.RETURN_GENERATED_KEYS);
         statementCreateExperiment.setString(1, experiment.getTitle());
-        statementCreateExperiment.setString(2, experiment.getDescription());
+        String expDesc = experiment.getDescription();
+        if (expDesc != null && expDesc.length() >= 2500) {
+          log.warning("exp desc is :" + expDesc.length());
+          expDesc = experiment.getDescription().substring(0,2500);
+        }
+        
+        statementCreateExperiment.setString(2, expDesc);
         statementCreateExperiment.setLong(3, experiment.getCreator().getUserId().getId());
         statementCreateExperiment.setString(4, experiment.getOrganization());
         statementCreateExperiment.setString(5, experiment.getContactEmail());
@@ -94,7 +100,8 @@ public class CSExperimentDetailDaoImpl implements CSExperimentDetailDao {
         experiment.setExperimentDetailId(expId);
         conn.commit();
       } catch(SQLException sqle) {
-        log.warning("Exception while inserting to experiment table" + experiment.getExperimentDetailId().getId() + ":" +  sqle);
+        log.warning("Exception while inserting to experiment table" + experiment.getTitle() + ":" +  sqle);
+        throw sqle;
       }
       finally {
         try {
@@ -108,7 +115,7 @@ public class CSExperimentDetailDaoImpl implements CSExperimentDetailDao {
             conn.close();
           }
         } catch (SQLException ex1) {
-          log.info(ErrorMessages.CLOSING_RESOURCE_EXCEPTION.getDescription() + ex1);
+          log.warning(ErrorMessages.CLOSING_RESOURCE_EXCEPTION.getDescription() + ex1);
         }
       }
     } else {
@@ -144,6 +151,7 @@ public class CSExperimentDetailDaoImpl implements CSExperimentDetailDao {
         }
       } catch (SQLException ex1) {
         log.warning(ErrorMessages.CLOSING_RESOURCE_EXCEPTION.getDescription()+ ex1);
+        throw ex1;
       }
     }
     return expFacetId;

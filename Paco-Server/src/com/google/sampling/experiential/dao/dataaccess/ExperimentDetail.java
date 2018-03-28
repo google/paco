@@ -108,7 +108,7 @@ public class ExperimentDetail implements PacoComparator<ExperimentDetail> {
     Field[] fields = this.getClass().getDeclaredFields();
 
     for (Field field : fields) {
-      if (!field.getName().equals("experimentFacetId") && !field.getName().equals("modifiedDate") && !field.getName().equals("informedConsent") && !field.getName().equals("creator")) {
+      if (!field.getName().equals("experimentDetailId") && !field.getName().equals("modifiedDate") && !field.getName().equals("informedConsent") && !field.getName().equals("creator")) {
         if(((field.get(this) != null && !field.get(this).equals(field.get(other)))) || (field.get(this) == null && field.get(other) != null)) {
           return false;
         }

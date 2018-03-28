@@ -15,6 +15,9 @@ public class DataType  {
     
   }
   public DataType(String name, boolean numeric, boolean multiSelect) {
+    if ( name == null) {
+      name ="";
+    }
     this.name = name;
     this.numeric = numeric;
     this.multiSelect = multiSelect;
@@ -26,9 +29,15 @@ public class DataType  {
     this.dataTypeId = dataTypeId;
   }
   public String getName() {
+    if (name == null) {
+      name = "";
+    }
     return name;
   }
   public void setName(String name) {
+    if ( name == null) {
+      name = "";
+    }
     this.name = name;
   }
   public boolean isNumeric() {

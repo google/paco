@@ -6,10 +6,10 @@ import java.util.List;
 import com.google.sampling.experiential.dao.dataaccess.Input;
 
 public interface CSInputDao {
-  void insertInput(Input input) throws SQLException;
+  void insertInput(Input input) throws SQLException, Exception;
 
-  void insertInput(List<Input> inputs) throws SQLException;
+  void insertInput(List<Input> inputs) throws SQLException, Exception;
 
-  List<Input> insertVariableNames(List<String> variableNames) throws SQLException;
+  List<Input> insertVariableNames(List<String> variableNames) throws SQLException, Exception;
  
 }

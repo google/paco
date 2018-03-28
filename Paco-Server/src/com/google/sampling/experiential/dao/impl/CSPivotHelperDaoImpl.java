@@ -4,14 +4,20 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Logger;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.google.sampling.experiential.cloudsql.columns.PivotHelperColumns;
 import com.google.sampling.experiential.dao.CSPivotHelperDao;
+import com.google.sampling.experiential.dao.dataaccess.ExperimentVersionMapping;
+import com.google.sampling.experiential.dao.dataaccess.InputOrderAndChoice;
 import com.google.sampling.experiential.dao.dataaccess.PivotHelper;
 import com.google.sampling.experiential.server.CloudSQLConnectionManager;
+import com.google.sampling.experiential.server.PacoId;
 import com.pacoapp.paco.shared.util.ErrorMessages;
 
 import net.sf.jsqlparser.expression.Expression;
@@ -29,6 +35,7 @@ public class CSPivotHelperDaoImpl implements CSPivotHelperDao {
     pvhColList.add(new Column(PivotHelperColumns.ANON_WHO));
     pvhColList.add(new Column(PivotHelperColumns.INPUT_ID));
     pvhColList.add(new Column(PivotHelperColumns.PROCESSED));
+    pvhColList.add(new Column(PivotHelperColumns.EVENTS_POSTED));
   }
   
   
@@ -61,11 +68,10 @@ public class CSPivotHelperDaoImpl implements CSPivotHelperDao {
           statementCreatePivotHelper.setInt(2, pivotHelper.getAnonWhoId());
           statementCreatePivotHelper.setLong(3, pivotHelper.getInputId());
           statementCreatePivotHelper.setBoolean(4, pivotHelper.getProcessed());
-          log.info(statementCreatePivotHelper.toString());
+          statementCreatePivotHelper.setLong(5, pivotHelper.getEventsPosted());
           if (!getPivotHelper(pivotHelper.getExpVersionMappingId(),pivotHelper.getAnonWhoId(),pivotHelper.getInputId())) {
             statementCreatePivotHelper.addBatch();
-          }
-          
+          } 
       } //for
       statementCreatePivotHelper.executeBatch();
       conn.commit();
@@ -106,7 +112,6 @@ public class CSPivotHelperDaoImpl implements CSPivotHelperDao {
         return true;
       }
       return false;
-//      log.info("chk if pv exists " + evmId + "-who:" + anonWho + ",inputid" + inputId);
     } finally {
       try {
         if (statementUpdateEvent != null) {
@@ -126,16 +131,28 @@ public class CSPivotHelperDaoImpl implements CSPivotHelperDao {
   public boolean updatePivotHelperStatus(Long evmId, Integer anonWho, Long inputId, Long updateCt) throws SQLException {
     Connection conn = null;
     PreparedStatement statementUpdateEvent = null;
+    PivotHelper pvh = new PivotHelper();
+    List<PivotHelper> pvhs = Lists.newArrayList();
     String updateQuery = "update pivot_helper set processed =b'1', events_posted=events_posted+ " + updateCt + " where experiment_group_version_mapping_id= ? and anon_who=? and input_id=?";
     try {
       conn = CloudSQLConnectionManager.getInstance().getConnection();
       
       statementUpdateEvent = conn.prepareStatement(updateQuery);
-      statementUpdateEvent.setLong(1, evmId);
-      statementUpdateEvent.setInt(2, anonWho);
-      statementUpdateEvent.setLong(3, inputId);
-      statementUpdateEvent.executeUpdate();
-      log.info("updated pv status  as  complete for " + evmId + "-who:" + anonWho + ",inputid" + inputId + ",updateCt"+ updateCt);
+      boolean isPVHelperRecordPresent = getPivotHelper(evmId, anonWho, inputId);
+      if  (!isPVHelperRecordPresent) {
+        pvh.setAnonWhoId(anonWho);
+        pvh.setExpVersionMappingId(evmId);
+        pvh.setInputId(inputId);
+        pvh.setEventsPosted(updateCt);
+        pvh.setProcessed(true);
+        pvhs.add(pvh);
+        insertPivotHelper(pvhs);
+      } else {
+        statementUpdateEvent.setLong(1, evmId);
+        statementUpdateEvent.setInt(2, anonWho);
+        statementUpdateEvent.setLong(3, inputId);
+        statementUpdateEvent.executeUpdate();
+      }
     } finally {
       try {
         if (statementUpdateEvent != null) {
@@ -169,8 +186,6 @@ public class CSPivotHelperDaoImpl implements CSPivotHelperDao {
         statementUpdateEvent.setBoolean(5, true);
         
         statementUpdateEvent.addBatch();
-        log.info(updateQuery);
-        log.info("updated status  as  complete for " + evmId + "-who:" + anonWho + ",inputid" + inputId);
       }
       statementUpdateEvent.executeBatch();
       
@@ -187,5 +202,29 @@ public class CSPivotHelperDaoImpl implements CSPivotHelperDao {
       }
     }
     
+  }
+  
+  @Override
+  public List<PivotHelper> convertToPivotHelper(ExperimentVersionMapping matchingEVMRecord, PacoId anonWhoId) {
+    List<PivotHelper> pvList = Lists.newArrayList();
+    PivotHelper pvh = null;
+    Map<String, InputOrderAndChoice> varNameInputObject = Maps.newHashMap();
+    InputOrderAndChoice ioc = null;
+    String currentVarName = null;
+    Iterator<String> varNameItr = null;
+    varNameInputObject = matchingEVMRecord.getInputCollection().getInputOrderAndChoices();
+    varNameItr = varNameInputObject.keySet().iterator();
+    while (varNameItr.hasNext()) {
+      currentVarName = varNameItr.next();
+      ioc = varNameInputObject.get(currentVarName);
+      pvh = new PivotHelper();
+      pvh.setAnonWhoId(anonWhoId.getId().intValue());
+      pvh.setEventsPosted(0L);
+      pvh.setInputId(ioc.getInput().getInputId().getId());
+      pvh.setProcessed(false);
+      pvh.setExpVersionMappingId(matchingEVMRecord.getExperimentVersionMappingId());
+      pvList.add(pvh);
+    }
+    return pvList;
   }
 }
