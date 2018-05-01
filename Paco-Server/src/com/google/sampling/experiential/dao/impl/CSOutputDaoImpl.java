@@ -110,4 +110,42 @@ public class CSOutputDaoImpl implements CSOutputDao {
 
     return whatLst;
   }
+  @Override
+  public List<WhatDAO> getOutputsWithoutInputId(Long eventId) throws SQLException {
+    List<WhatDAO> whatLst = Lists.newArrayList();
+    WhatDAO whatObj = null;
+    String question = null;
+    String answer = null;
+    Connection conn = null;
+    ResultSet rs = null;
+    PreparedStatement statementSelectOutput = null;
+    try {
+      conn = CloudSQLConnectionManager.getInstance().getConnection();
+      statementSelectOutput = conn.prepareStatement(QueryConstants.GET_ALL_OUTPUTS_WITHOUT_INPUTID_FOR_EVENT_ID.toString());
+      statementSelectOutput.setLong(1, eventId);
+      rs = statementSelectOutput.executeQuery();
+      while(rs.next()){
+        question = rs.getString(OutputBaseColumns.NAME);
+        answer = rs.getString(OutputBaseColumns.ANSWER);
+        whatObj = new WhatDAO(question, answer);
+        whatLst.add(whatObj);
+      }
+    } finally {
+      try {
+        if ( rs != null) {
+          rs.close();
+        }
+        if (statementSelectOutput != null) {
+          statementSelectOutput.close();
+        }
+        if (conn != null) {
+          conn.close();
+        }
+      } catch (SQLException ex1) {
+        log.warning(ErrorMessages.CLOSING_RESOURCE_EXCEPTION.getDescription()+ ex1);
+      }
+    }
+
+    return whatLst;
+  }
 }

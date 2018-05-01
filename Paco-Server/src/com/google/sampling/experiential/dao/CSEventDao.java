@@ -2,6 +2,7 @@ package com.google.sampling.experiential.dao;
 
 import java.sql.SQLException;
 import java.text.ParseException;
+import java.util.List;
 
 import com.google.sampling.experiential.model.Event;
 
@@ -11,6 +12,6 @@ public interface CSEventDao {
 
   boolean insertSingleEventOnlyWithExperimentInfo(Event event) throws SQLException, ParseException;
 
-  boolean updateGroupName(Long eventId, String oldGrpName, String newGrpName) throws SQLException;
-
+  void updateGroupName(List<Long> eventIdsToBeUpdatedWithNewGroupName, List<String> eventIdsOldGroupName,
+                       String featureName) throws SQLException;
 }

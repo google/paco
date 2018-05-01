@@ -7,17 +7,20 @@ import java.sql.Timestamp;
 import java.text.ParseException;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Logger;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.google.sampling.experiential.cloudsql.columns.EventServerColumns;
 import com.google.sampling.experiential.dao.CSEventDao;
 import com.google.sampling.experiential.dao.CSExperimentUserDao;
-import com.google.sampling.experiential.dao.CSExperimentVersionMappingDao;
+import com.google.sampling.experiential.dao.CSExperimentVersionGroupMappingDao;
 import com.google.sampling.experiential.dao.dataaccess.ExperimentVersionMapping;
 import com.google.sampling.experiential.model.Event;
 import com.google.sampling.experiential.server.CloudSQLConnectionManager;
 import com.google.sampling.experiential.server.PacoId;
+import com.google.sampling.experiential.server.QueryConstants;
 import com.pacoapp.paco.shared.util.Constants;
 import com.pacoapp.paco.shared.util.ErrorMessages;
 import com.pacoapp.paco.shared.util.TimeUtil;
@@ -33,7 +36,7 @@ public class CSEventDaoImpl implements CSEventDao {
   public static final Logger log = Logger.getLogger(CSEventDaoImpl.class.getName());
   private static List<Column> eventColInsertList = Lists.newArrayList();
   private CSExperimentUserDao exptUserDaoImpl = new CSExperimentUserDaoImpl();
-  private CSExperimentVersionMappingDao experimentVersionMappingDaoImpl = new CSExperimentVersionMappingDaoImpl();
+  private CSExperimentVersionGroupMappingDao experimentVersionMappingDaoImpl = new CSExperimentVersionGroupMappingDaoImpl();
   private static List<Column> eventColList = Lists.newArrayList();
   
   static {
@@ -91,6 +94,7 @@ public class CSEventDaoImpl implements CSEventDao {
     boolean retVal = false;
     Timestamp whenTs = null;
     Long expIdLong = null;
+    Map<String, ExperimentVersionMapping> allEVMRecords = Maps.newHashMap();
     ExperimentVersionMapping evm = null;
     int whenFrac = 0;
     //startCount for setting parameter index
@@ -157,8 +161,13 @@ public class CSEventDaoImpl implements CSEventDao {
       statementCreateEvent.setTimestamp(i++, event.getResponseTime() != null ? new Timestamp(TimeUtil.convertToLocal(event.getResponseTime(), event.getTimeZone()).getMillis()): null);
       statementCreateEvent.setTimestamp(i++, event.getScheduledTime() != null ? new Timestamp(TimeUtil.convertToLocal(event.getScheduledTime(), event.getTimeZone()).getMillis()): null);
       statementCreateEvent.setTimestamp(i++, new Timestamp(TimeUtil.convertToLocal(new Date(sortDateMillis), event.getTimeZone()).getMillis()));
-      evm = experimentVersionMappingDaoImpl.ensureEVMRecord(Long.parseLong(event.getExperimentId()), event.getId(), event.getExperimentName(), event.getExperimentVersion(), event.getExperimentGroupName(), event.getWho(), event.getWhat(), true);
-      statementCreateEvent.setLong(i++, evm.getExperimentVersionMappingId());
+      experimentVersionMappingDaoImpl.ensureEVMRecord(Long.parseLong(event.getExperimentId()), event.getId(), event.getExperimentName(), event.getExperimentVersion(), event.getExperimentGroupName(), event.getWho(), event.getWhat(), true, allEVMRecords);
+      if (allEVMRecords.get(event.getExperimentGroupName()) == null) {
+        statementCreateEvent.setNull(i++, java.sql.Types.BIGINT);
+      } else {
+        statementCreateEvent.setLong(i++, allEVMRecords.get(event.getExperimentGroupName()).getExperimentVersionMappingId());
+      }
+      
       
       statementCreateEvent.execute();
 
@@ -277,29 +286,35 @@ public class CSEventDaoImpl implements CSEventDao {
     return retVal;
   }
   
-  
   @Override
-  public boolean updateGroupName(Long eventId, String oldGrpName, String newGrpName) throws SQLException {
+  public void updateGroupName(List<Long> eventIdsToBeUpdatedWithNewGroupName, List<String> eventIdsOldGroupName,
+                              String featureName) throws SQLException {
     Connection conn = null;
     PreparedStatement statementUpdateEvent1 = null;
-    String updateQuery1 = "update events set group_name=? where _id=?";
+    String updateQuery1 = QueryConstants.UPDATE_EVENTS_WITH_NEW_GROUP_NAME.toString();
     PreparedStatement statementInsertOldGroupName = null;
-    String insertQuery1 = "insert into event_old_group_name(old_group_name,event_id) values (?,?)";
+    String insertQuery1 = QueryConstants.INSERT_TO_OLD_GROUP_NAME_TABLE.toString();
     
     try {
       conn = CloudSQLConnectionManager.getInstance().getConnection();
-      
+      conn.setAutoCommit(false);
       statementUpdateEvent1 = conn.prepareStatement(updateQuery1);
-      statementUpdateEvent1.setString(1, newGrpName);
-      statementUpdateEvent1.setLong(2, eventId);
-      statementUpdateEvent1.executeUpdate();
+      for (Long eventId : eventIdsToBeUpdatedWithNewGroupName) {
+        statementUpdateEvent1.setString(1, featureName);
+        statementUpdateEvent1.setLong(2, eventId);
+        statementUpdateEvent1.addBatch();
+      }
+      
+      statementUpdateEvent1.executeBatch();
       
       statementInsertOldGroupName = conn.prepareStatement(insertQuery1);
-      statementInsertOldGroupName.setString(1, oldGrpName);
-      statementInsertOldGroupName.setLong(2,  eventId);
-      statementInsertOldGroupName.execute();
-      
-      log.info("updated  grp name in events table" +eventId + "--" + oldGrpName  + "--" + newGrpName);
+      for (int i=0;i < eventIdsOldGroupName.size(); i++ ) {
+        statementInsertOldGroupName.setString(1, eventIdsOldGroupName.get(i));
+        statementInsertOldGroupName.setLong(2,  eventIdsToBeUpdatedWithNewGroupName.get(i));
+        statementInsertOldGroupName.addBatch();
+      }
+      statementInsertOldGroupName.executeBatch();
+      conn.commit();
     } finally {
       try {
         if (statementUpdateEvent1 != null) {
@@ -315,8 +330,7 @@ public class CSEventDaoImpl implements CSEventDao {
         log.warning(ErrorMessages.CLOSING_RESOURCE_EXCEPTION.getDescription()+ ex1);
       }
     }
-    return true;
-  }
  
+  }
 }
 

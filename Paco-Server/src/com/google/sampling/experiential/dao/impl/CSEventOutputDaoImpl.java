@@ -28,7 +28,7 @@ import com.google.sampling.experiential.cloudsql.columns.GroupDetailColumns;
 import com.google.sampling.experiential.cloudsql.columns.OutputServerColumns;
 import com.google.sampling.experiential.dao.CSEventOutputDao;
 import com.google.sampling.experiential.dao.CSExperimentUserDao;
-import com.google.sampling.experiential.dao.CSExperimentVersionMappingDao;
+import com.google.sampling.experiential.dao.CSExperimentVersionGroupMappingDao;
 import com.google.sampling.experiential.dao.CSInputCollectionDao;
 import com.google.sampling.experiential.dao.CSPivotHelperDao;
 import com.google.sampling.experiential.dao.dataaccess.ExperimentVersionMapping;
@@ -181,7 +181,7 @@ public class CSEventOutputDaoImpl implements CSEventOutputDao {
     Insert eventInsert = new Insert();
     Insert outputInsert = new Insert();
     CSExperimentUserDao euImpl = new CSExperimentUserDaoImpl();
-    CSExperimentVersionMappingDao evmDaoImpl = new CSExperimentVersionMappingDaoImpl();
+    CSExperimentVersionGroupMappingDao evmDaoImpl = new CSExperimentVersionGroupMappingDaoImpl();
     CSInputCollectionDao icDaoImpl = new CSInputCollectionDaoImpl();
     CSPivotHelperDao pvDaoImpl = new CSPivotHelperDaoImpl();
     List<Long> pvUpdateInputIds = Lists.newArrayList();
@@ -314,11 +314,13 @@ public class CSEventOutputDaoImpl implements CSEventOutputDao {
   
   private ExperimentVersionMapping findMatchingEVMRecord(Event event, Map<String, ExperimentVersionMapping> allEVMMap, boolean migrationFlag) throws Exception{
     ExperimentVersionMapping returnEVM = null;
-    CSExperimentVersionMappingDao daoImpl = new CSExperimentVersionMappingDaoImpl();
+    CSExperimentVersionGroupMappingDao daoImpl = new CSExperimentVersionGroupMappingDaoImpl();
     Long expId = Long.parseLong(event.getExperimentId());
     log.info("event id"+ event.getId());
+    Map<String, ExperimentVersionMapping> allEVMRecords = Maps.newHashMap();
     // if event is posted for a version where we do not have experiment mapping records
-    returnEVM = daoImpl.ensureEVMRecord(expId,event.getId(), event.getExperimentName(), event.getExperimentVersion(), event.getExperimentGroupName(), event.getWho(), event.getWhat(), migrationFlag);
+    daoImpl.ensureEVMRecord(expId,event.getId(), event.getExperimentName(), event.getExperimentVersion(), event.getExperimentGroupName(), event.getWho(), event.getWhat(), migrationFlag, allEVMRecords);
+    returnEVM = allEVMRecords.get(event.getExperimentGroupName());
     String mightBeModifiedGroupName = returnEVM.getGroupInfo().getName();
     allEVMMap.put(mightBeModifiedGroupName, returnEVM);
     return returnEVM;
@@ -446,7 +448,7 @@ public class CSEventOutputDaoImpl implements CSEventOutputDao {
     
     try {
       conn = CloudSQLConnectionManager.getInstance().getConnection();
-      if ( whoAnonId !=null) {
+      if ( whoAnonId != null) {
         deleteQuery1 = deleteQuery1 + " and who_bk=?";
         deleteQuery2 = deleteQuery2 + " and who_bk=?";
       }
@@ -456,6 +458,7 @@ public class CSEventOutputDaoImpl implements CSEventOutputDao {
         statementDeleteOutputs.setInt(2, whoAnonId);
       }
       statementDeleteOutputs.execute();
+      log.info("Deleted " + statementDeleteOutputs.getUpdateCount() +  " output records  for expt id " + experimentId );
       
       statementDeleteEvents = conn.prepareStatement(deleteQuery2);
       statementDeleteEvents.setLong(1, experimentId);
@@ -463,6 +466,7 @@ public class CSEventOutputDaoImpl implements CSEventOutputDao {
         statementDeleteEvents.setInt(2, whoAnonId);
       }
       statementDeleteEvents.execute();
+      log.info("Deleted " + statementDeleteEvents.getUpdateCount() +  " event records  for expt id " + experimentId );
       
       return true;
     } finally {

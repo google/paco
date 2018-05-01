@@ -100,10 +100,7 @@ public class Input implements PacoComparator<Input> {
     for(Field field : fields){
       if (!field.getName().equals("inputId") && !field.getName().equals("responseDataType")) {
         if(((field.get(this) != null && !field.get(this).equals(field.get(other)))) || (field.get(this) == null && field.get(other) != null)){
-          System.out.println(false);
           return false;
-        } else {
-          System.out.println(true);
         }
       }
     }

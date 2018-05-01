@@ -16,6 +16,10 @@ public class PivotHelper {
     this.inputId = inputId;
     this.processed = processed;
   }
+  public PivotHelper(Long evMapping, Integer anonWhoId, Long inputId, Boolean processed, Long eventsPosted) {
+    this(evMapping, anonWhoId, inputId, processed);
+    this.eventsPosted = eventsPosted;
+  }
   
   public Long getExpVersionMappingId() {
     return expVersionMappingId;

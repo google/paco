@@ -4,8 +4,10 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.logging.Logger;
 
 import com.google.common.collect.Lists;
@@ -158,6 +160,25 @@ public class CSGroupTypeInputMappingDaoImpl implements CSGroupTypeInputMappingDa
     } 
   }
 
+  @Override
+  public Map<String, List<String>> getAllPredefinedFeatureVariableNames() throws SQLException {
+    Map<String, List<String>> predefinedFeatureInputVariableNamesMap = Maps.newHashMap();
+    Map<String, List<Input>> predefinedFeatureInputMap = getAllFeatureInputs();
+    Iterator<Entry<String, List<Input>>> predefinedItr = predefinedFeatureInputMap.entrySet().iterator();
+    while (predefinedItr.hasNext()) {
+      Entry<String,List<Input>> entry = predefinedItr.next();
+      predefinedFeatureInputVariableNamesMap.put(entry.getKey(), convertInputToVariableName(entry.getValue()));
+    }
+    return predefinedFeatureInputVariableNamesMap;
+  }
+  
+  private List<String> convertInputToVariableName (List<Input> inputLst) {
+    List<String> inputVariableNames = Lists.newArrayList();
+    for (Input i : inputLst) {
+      inputVariableNames.add(i.getName().getLabel());
+    }
+    return inputVariableNames;
+  }
  
  
 }

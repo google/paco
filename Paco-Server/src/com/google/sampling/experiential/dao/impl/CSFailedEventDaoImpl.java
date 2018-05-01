@@ -4,9 +4,12 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
+
+import org.joda.time.DateTime;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -31,6 +34,7 @@ public class CSFailedEventDaoImpl implements CSFailedEventDao {
     failedColList.add(new Column(FailedEventServerColumns.EVENT_JSON));
     failedColList.add(new Column(FailedEventServerColumns.REASON));
     failedColList.add(new Column(FailedEventServerColumns.COMMENTS));
+    failedColList.add(new Column(FailedEventServerColumns.FAILED_INSERT_TIME));
     failedColList.add(new Column(FailedEventServerColumns.REPROCESSED));
   }
   @Override
@@ -60,7 +64,8 @@ public class CSFailedEventDaoImpl implements CSFailedEventDao {
       statementCreateFailedEvent.setString(1, failedJson);
       statementCreateFailedEvent.setString(2, reason);
       statementCreateFailedEvent.setString(3, comments);
-      statementCreateFailedEvent.setString(4, Constants.FALSE);
+      statementCreateFailedEvent.setTimestamp(4, new Timestamp(new DateTime().getMillis()));
+      statementCreateFailedEvent.setString(5, Constants.FALSE);
 
       statementCreateFailedEvent.execute();
       conn.commit();
@@ -114,7 +119,7 @@ public class CSFailedEventDaoImpl implements CSFailedEventDao {
 
     return failedEventsMap;
   }
-
+  
   @Override
   public boolean updateFailedEventsRetry(Long id, String reprocessed) throws SQLException {
     boolean isSuccess = false;

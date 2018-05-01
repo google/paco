@@ -457,10 +457,10 @@ public class CSExperimentUserDaoImpl implements CSExperimentUserDao {
       toBeInsertedIntoExptUserTable.add(pacoUser);
       insertIntoExperimentUsers(experimentId, toBeInsertedIntoExptUserTable);
     } catch (SQLException sqle) {
-      failedEventDaoImpl.insertFailedEvent(experimentId.toString(), ErrorMessages.SQL_INSERT_EXCEPTION.getDescription() + "Admin/Participant", sqle.getMessage());
+      failedEventDaoImpl.insertFailedEvent(experimentId.toString() + " -- "+ email, ErrorMessages.SQL_INSERT_EXCEPTION.getDescription() + "Admin/Participant", sqle.getMessage());
       log.warning(ErrorMessages.SQL_INSERT_EXCEPTION.getDescription() + " for  Admin/ Participant request: " + experimentId + " : " + ExceptionUtil.getStackTraceAsString(sqle));
     } catch (Exception e) {
-      failedEventDaoImpl.insertFailedEvent(experimentId.toString(), ErrorMessages.GENERAL_EXCEPTION.getDescription(), e.getMessage());
+      failedEventDaoImpl.insertFailedEvent(experimentId.toString() + " -- "+ email, ErrorMessages.GENERAL_EXCEPTION.getDescription(), e.getMessage());
       log.warning(ErrorMessages.GENERAL_EXCEPTION.getDescription() + " for  Admin/ Participant request: " + experimentId + " : " + ExceptionUtil.getStackTraceAsString(e));
     }
   }

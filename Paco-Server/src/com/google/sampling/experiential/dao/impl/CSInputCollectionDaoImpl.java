@@ -9,10 +9,12 @@ import java.sql.Types;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.logging.Logger;
 
 import com.google.cloud.sql.jdbc.Statement;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import com.google.sampling.experiential.cloudsql.columns.InputCollectionColumns;
 import com.google.sampling.experiential.dao.CSChoiceCollectionDao;
 import com.google.sampling.experiential.dao.CSInputCollectionDao;
@@ -166,7 +168,7 @@ public class CSInputCollectionDaoImpl implements CSInputCollectionDao {
     List<Expression> exp = Lists.newArrayList();
     Insert inputInsert = new Insert();
     try {
-      log.info("Inserting undefined input into input collection table");
+//      log.info("Inserting undefined input into input collection table");
       conn = CloudSQLConnectionManager.getInstance().getConnection();
       conn.setAutoCommit(false);
       inputInsert.setTable(new Table(InputCollectionColumns.TABLE_NAME));
@@ -191,6 +193,67 @@ public class CSInputCollectionDaoImpl implements CSInputCollectionDao {
       conn.commit();
     } catch(SQLException sqle) {
       log.warning("Exception while inserting to input table:" +  sqle);
+      throw sqle;
+    } finally {
+      try {
+        if( rs != null) { 
+          rs.close();
+        }
+        if (statementCreateInput != null) {
+          statementCreateInput.close();
+        }
+        if (conn != null) {
+          conn.close();
+        }
+      } catch (SQLException ex1) {
+        log.info(ErrorMessages.CLOSING_RESOURCE_EXCEPTION.getDescription() + ex1);
+      }
+    }
+  }  
+  
+  @Override
+  public void addInputsToInputCollection(Long experimentId, Long inputCollectionId, List<Input> inputs) throws SQLException {
+   
+    Connection conn = null;
+    PreparedStatement statementCreateInput = null;
+    ResultSet rs = null;
+    ExpressionList insertInputExprList = new ExpressionList();
+    List<Expression> exp = Lists.newArrayList();
+    Insert inputInsert = new Insert();
+    StringBuffer inputIdsAdded = new StringBuffer();
+    try {
+      conn = CloudSQLConnectionManager.getInstance().getConnection();
+      conn.setAutoCommit(false);
+      inputInsert.setTable(new Table(InputCollectionColumns.TABLE_NAME));
+      inputInsert.setUseValues(true);
+      insertInputExprList.setExpressions(exp);
+      inputInsert.setItemsList(insertInputExprList);
+      inputInsert.setColumns(inputCollectionColList);
+      // Adding ? for prepared stmt
+      for (Column c : inputCollectionColList) {
+        ((ExpressionList) inputInsert.getItemsList()).getExpressions().add(new JdbcParameter());
+      }
+
+      statementCreateInput = conn.prepareStatement(inputInsert.toString());
+      Long choiceCollectionId = null;
+      Set<Long> inputIdsSet = Sets.newHashSet();  
+      for (Input input : inputs) {
+        if (!inputIdsSet.contains(input.getInputId().getId())) {
+          inputIdsSet.add( input.getInputId().getId());
+          statementCreateInput.setLong(1, experimentId);
+          statementCreateInput.setLong(2, inputCollectionId);
+          statementCreateInput.setLong(3, input.getInputId().getId());
+          statementCreateInput.setObject(4, choiceCollectionId);
+          statementCreateInput.setLong(5, -99);
+          inputIdsAdded.append(input.getInputId().getId()+",");
+          statementCreateInput.addBatch();
+        }
+      }
+      statementCreateInput.executeBatch();
+      conn.commit();
+      log.info("added to collection id" + inputCollectionId + inputIdsAdded);
+    } catch(SQLException sqle) {
+      log.warning("Exception while inserting batch to input collection table:" +  sqle);
       throw sqle;
     } finally {
       try {

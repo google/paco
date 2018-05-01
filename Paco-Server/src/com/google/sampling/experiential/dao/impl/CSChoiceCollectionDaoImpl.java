@@ -102,8 +102,6 @@ public class CSChoiceCollectionDaoImpl implements CSChoiceCollectionDao {
          log.info(ErrorMessages.CLOSING_RESOURCE_EXCEPTION.getDescription() + ex1);
        }
      }
-   } else {
-     log.warning("do not insert new choice collection" + experimentId);
    }
   }
 }

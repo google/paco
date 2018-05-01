@@ -29,6 +29,8 @@ public class Constants {
   public static final String SP_NAME = "spName";
   public static final String EQUALS = " = ";
   public static final String SINGLE_QUOTE = "'";
+  public static final String QUESTION_MARK = "?";
+  public static final String COMMA = ",";
   public static final String TRUE = "true";
   public static final String FALSE = "false";
   public static final String SUCCESS = "Success";

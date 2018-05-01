@@ -9,6 +9,7 @@ import java.sql.Timestamp;
 import java.text.ParseException;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Logger;
 
 import org.joda.time.DateTime;
@@ -18,10 +19,10 @@ import com.google.sampling.experiential.cloudsql.columns.CatchupFailureServerCol
 import com.google.sampling.experiential.cloudsql.columns.EventServerColumns;
 import com.google.sampling.experiential.cloudsql.columns.FailedEventServerColumns;
 import com.google.sampling.experiential.dao.CSExperimentUserDao;
-import com.google.sampling.experiential.dao.CSExperimentVersionMappingDao;
+import com.google.sampling.experiential.dao.CSExperimentVersionGroupMappingDao;
 import com.google.sampling.experiential.dao.dataaccess.ExperimentVersionMapping;
 import com.google.sampling.experiential.dao.impl.CSExperimentUserDaoImpl;
-import com.google.sampling.experiential.dao.impl.CSExperimentVersionMappingDaoImpl;
+import com.google.sampling.experiential.dao.impl.CSExperimentVersionGroupMappingDaoImpl;
 import com.google.sampling.experiential.model.Event;
 import com.google.sampling.experiential.server.CloudSQLConnectionManager;
 import com.google.sampling.experiential.server.ExceptionUtil;
@@ -126,7 +127,8 @@ public class CloudSQLMigrationDaoImpl implements CloudSQLMigrationDao {
     List<Expression> exp = Lists.newArrayList();
     Insert eventInsert = new Insert();
     CSExperimentUserDao exptUserDaoImpl = new CSExperimentUserDaoImpl();
-    CSExperimentVersionMappingDao experimentVersionMappingDaoImpl = new CSExperimentVersionMappingDaoImpl();
+    Map<String, ExperimentVersionMapping> allEVMRecords = null;
+    CSExperimentVersionGroupMappingDao experimentVersionMappingDaoImpl = new CSExperimentVersionGroupMappingDaoImpl();
     
     try {
       conn = CloudSQLConnectionManager.getInstance().getConnection();
@@ -192,8 +194,10 @@ public class CloudSQLMigrationDaoImpl implements CloudSQLMigrationDao {
             statementCreateEvent.setTimestamp(i++, ts);
             statementCreateEvent.setString(i++, event.getTimeZone());
             statementCreateEvent.setLong(i++, event.getId());
+            allEVMRecords = experimentVersionMappingDaoImpl.getAllGroupsInVersion(Long.parseLong(event.getExperimentId()), event.getExperimentVersion());
             
-            ExperimentVersionMapping evm = experimentVersionMappingDaoImpl.ensureEVMRecord(Long.parseLong(event.getExperimentId()), event.getId(), event.getExperimentName(), event.getExperimentVersion(), event.getExperimentGroupName(), event.getWho(), event.getWhat(), true);
+            experimentVersionMappingDaoImpl.ensureEVMRecord(Long.parseLong(event.getExperimentId()), event.getId(), event.getExperimentName(), event.getExperimentVersion(), event.getExperimentGroupName(), event.getWho(), event.getWhat(), true, allEVMRecords);
+            ExperimentVersionMapping evm = allEVMRecords.get(event.getExperimentGroupName());
             statementCreateEvent.setLong(i++, evm.getExperimentVersionMappingId());
 
             statementCreateEvent.addBatch();

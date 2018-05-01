@@ -11,10 +11,12 @@ public interface CSExperimentDefinitionDao {
 
   boolean updateMigrationStatus(Long experimentId, Integer experimentVersion, String errorMessage) throws SQLException;
 
-  Integer getTotalRecordsInExperimentDefinition() throws SQLException;
+  Integer getTotalRecordsInExperimentDefinitionBackupTable() throws SQLException;
 
-  boolean insertExperimentDefinitionBk(Long experimentId, Integer version, String jsonString) throws SQLException;
+  boolean insertExperimentDefinitionBackup(Long experimentId, Integer version, String jsonString) throws SQLException;
   
   List<Long> getErroredExperimentDefinition() throws SQLException;
+
+  boolean deleteExperiment(List<Long> experimentIds) throws SQLException;
 
 }

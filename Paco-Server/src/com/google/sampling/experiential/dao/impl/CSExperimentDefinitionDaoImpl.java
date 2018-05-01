@@ -84,7 +84,7 @@ public class CSExperimentDefinitionDaoImpl implements CSExperimentDefinitionDao 
   }
   
   @Override
-  public boolean insertExperimentDefinitionBk(Long experimentId, Integer version, String jsonString) throws SQLException {
+  public boolean insertExperimentDefinitionBackup(Long experimentId, Integer version, String jsonString) throws SQLException {
 
     PreparedStatement statementCreateExperimentDefinition = null;
     ExpressionList expDefExprList = new ExpressionList();
@@ -131,7 +131,7 @@ public class CSExperimentDefinitionDaoImpl implements CSExperimentDefinitionDao 
   public boolean updateSplitJson(Long experimentId, Integer experimentVersion, String splitJson) throws SQLException {
     Connection conn = null;
     PreparedStatement statementUpdateExperimentDefinition = null;
-    String updateQuery = "update experiment_definition set migration_status =migration_status+1, converted_json=? where id=? and version=?";
+    String updateQuery = QueryConstants.UPDATE_SPLIT_JSON_IN_EXPERIMENT_DEFINITION.toString();
     try {
       conn = CloudSQLConnectionManager.getInstance().getConnection();
       
@@ -157,12 +157,45 @@ public class CSExperimentDefinitionDaoImpl implements CSExperimentDefinitionDao 
     }
     return true;
   }
+  
+  @Override
+  public boolean deleteExperiment(List<Long> experimentIds) throws SQLException {
+    Connection conn = null;
+    PreparedStatement statementDeleteExperimentDefinition = null;
+    String updateQuery = QueryConstants.DELETE_FROM_EXPERIMENT_DEFINITION.toString();
+    try {
+      conn = CloudSQLConnectionManager.getInstance().getConnection();
+      
+      statementDeleteExperimentDefinition = conn.prepareStatement(updateQuery);
+      for (Long toBeDeletedExperimentId : experimentIds) {
+        statementDeleteExperimentDefinition.setLong(1, toBeDeletedExperimentId);
+        statementDeleteExperimentDefinition.addBatch();
+      }
+      if (experimentIds != null && experimentIds.size() >0) {
+        statementDeleteExperimentDefinition.executeBatch();
+      }
+    } finally {
+      try {
+        if (statementDeleteExperimentDefinition != null) {
+          statementDeleteExperimentDefinition.close();
+        }
+        if (conn != null) {
+          conn.close();
+        }
+      } catch (SQLException ex1) {
+        log.warning(ErrorMessages.CLOSING_RESOURCE_EXCEPTION.getDescription()+ ex1);
+        throw ex1;
+      }
+    }
+    return true;
+  }
+  
   @Override
   public boolean updateMigrationStatus(Long experimentId, Integer experimentVersion, String errorMessage) throws SQLException {
     Connection conn = null;
     PreparedStatement statementUpdateExperimentDefinition = null;
-    String updateQuery1 = "update experiment_definition set migration_status =migration_status+1 where id=? and version=?";
-    String updateQuery2 = "update experiment_definition set error_message=? where id=? and version=?";
+    String updateQuery1 = QueryConstants.UPDATE_MIGRATION_STATUS_IN_EXPERIMENT_DEFINITION.toString();
+    String updateQuery2 = QueryConstants.UPDATE_ERROR_MESSAGE_IN_EXPERIMENT_DEFINITION.toString();
   
     try {
       conn = CloudSQLConnectionManager.getInstance().getConnection();
@@ -176,9 +209,9 @@ public class CSExperimentDefinitionDaoImpl implements CSExperimentDefinitionDao 
         statementUpdateExperimentDefinition.setLong(2, experimentId);
         statementUpdateExperimentDefinition.setInt(3, experimentVersion);
       }
-      log.info(statementUpdateExperimentDefinition.toString());
-      statementUpdateExperimentDefinition.executeUpdate();
-//      log.info("updated exp def: exp id:" + experimentId + "-version:" + experimentVersion + ",splitJson" + splitJson);
+      
+      int updateCt = statementUpdateExperimentDefinition.executeUpdate();
+      log.info("updated exp def for expt id:" + experimentId + "-version:" + experimentVersion);
     } finally {
       try {
         if (statementUpdateExperimentDefinition != null) {
@@ -195,7 +228,7 @@ public class CSExperimentDefinitionDaoImpl implements CSExperimentDefinitionDao 
   }
   
   @Override
-  public Integer getTotalRecordsInExperimentDefinition() throws SQLException {
+  public Integer getTotalRecordsInExperimentDefinitionBackupTable() throws SQLException {
     Connection conn = null;
     ResultSet rs = null;
     int ct = 0;

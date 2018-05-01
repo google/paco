@@ -14,9 +14,9 @@ import com.google.appengine.api.users.User;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.google.sampling.experiential.dao.CSExperimentUserDao;
-import com.google.sampling.experiential.dao.CSExperimentVersionMappingDao;
+import com.google.sampling.experiential.dao.CSExperimentVersionGroupMappingDao;
 import com.google.sampling.experiential.dao.impl.CSExperimentUserDaoImpl;
-import com.google.sampling.experiential.dao.impl.CSExperimentVersionMappingDaoImpl;
+import com.google.sampling.experiential.dao.impl.CSExperimentVersionGroupMappingDaoImpl;
 import com.pacoapp.paco.shared.comm.ExperimentEditOutcome;
 import com.pacoapp.paco.shared.comm.Outcome;
 import com.pacoapp.paco.shared.model2.ExperimentDAO;
@@ -116,7 +116,7 @@ public class ExperimentJsonUploadProcessor {
     // REMOVE ENDS
     if (persistInCloudSqlOnly) { 
       CSExperimentUserDao exptUserDaoImpl = new CSExperimentUserDaoImpl();
-      CSExperimentVersionMappingDao exptVersionMapping = new CSExperimentVersionMappingDaoImpl();
+      CSExperimentVersionGroupMappingDao exptVersionMapping = new CSExperimentVersionGroupMappingDaoImpl();
       // for saving experiment, group, inputs
       exptVersionMapping.ensureExperimentVersionMapping(experimentDAO);
       // for saving admin and participants
