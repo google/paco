@@ -317,10 +317,9 @@ public class CSEventOutputDaoImpl implements CSEventOutputDao {
     CSExperimentVersionGroupMappingDao daoImpl = new CSExperimentVersionGroupMappingDaoImpl();
     Long expId = Long.parseLong(event.getExperimentId());
     log.info("event id"+ event.getId());
-    Map<String, ExperimentVersionMapping> allEVMRecords = Maps.newHashMap();
     // if event is posted for a version where we do not have experiment mapping records
-    daoImpl.ensureEVMRecord(expId,event.getId(), event.getExperimentName(), event.getExperimentVersion(), event.getExperimentGroupName(), event.getWho(), event.getWhat(), migrationFlag, allEVMRecords);
-    returnEVM = allEVMRecords.get(event.getExperimentGroupName());
+    daoImpl.ensureEVMRecord(expId,event.getId(), event.getExperimentName(), event.getExperimentVersion(), event.getExperimentGroupName(), event.getWho(), event.getWhat(), migrationFlag, allEVMMap);
+    returnEVM = allEVMMap.get(event.getExperimentGroupName());
     String mightBeModifiedGroupName = returnEVM.getGroupInfo().getName();
     allEVMMap.put(mightBeModifiedGroupName, returnEVM);
     return returnEVM;

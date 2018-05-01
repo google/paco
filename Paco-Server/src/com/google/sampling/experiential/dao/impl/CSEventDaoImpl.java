@@ -94,14 +94,14 @@ public class CSEventDaoImpl implements CSEventDao {
     boolean retVal = false;
     Timestamp whenTs = null;
     Long expIdLong = null;
-    Map<String, ExperimentVersionMapping> allEVMRecords = Maps.newHashMap();
-    ExperimentVersionMapping evm = null;
+    Map<String, ExperimentVersionMapping> allEVMRecords = null;
     int whenFrac = 0;
     //startCount for setting parameter index
     int i = 1 ;
     ExpressionList eventExprList = new ExpressionList();
     List<Expression> exp = Lists.newArrayList();
     Insert eventInsert = new Insert();
+    CSExperimentVersionGroupMappingDao evmDaoImpl = new CSExperimentVersionGroupMappingDaoImpl();
      try {
       log.info("Inserting event->" + event.getId());
       conn = CloudSQLConnectionManager.getInstance().getConnection();
@@ -161,6 +161,7 @@ public class CSEventDaoImpl implements CSEventDao {
       statementCreateEvent.setTimestamp(i++, event.getResponseTime() != null ? new Timestamp(TimeUtil.convertToLocal(event.getResponseTime(), event.getTimeZone()).getMillis()): null);
       statementCreateEvent.setTimestamp(i++, event.getScheduledTime() != null ? new Timestamp(TimeUtil.convertToLocal(event.getScheduledTime(), event.getTimeZone()).getMillis()): null);
       statementCreateEvent.setTimestamp(i++, new Timestamp(TimeUtil.convertToLocal(new Date(sortDateMillis), event.getTimeZone()).getMillis()));
+      allEVMRecords = evmDaoImpl.getAllGroupsInVersion(Long.parseLong(event.getExperimentId()), event.getExperimentVersion());
       experimentVersionMappingDaoImpl.ensureEVMRecord(Long.parseLong(event.getExperimentId()), event.getId(), event.getExperimentName(), event.getExperimentVersion(), event.getExperimentGroupName(), event.getWho(), event.getWhat(), true, allEVMRecords);
       if (allEVMRecords.get(event.getExperimentGroupName()) == null) {
         statementCreateEvent.setNull(i++, java.sql.Types.BIGINT);
