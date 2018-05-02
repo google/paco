@@ -193,6 +193,9 @@ public class CopyExperimentMigrationDaoImpl implements CopyExperimentMigrationDa
            " UNIQUE KEY `experiment_id_version_group_unique` (`" + ExperimentGroupVersionMappingColumns.EXPERIMENT_ID + "`,"
                    + "`" + ExperimentGroupVersionMappingColumns.EXPERIMENT_VERSION + "`,"
                    + "`" + ExperimentGroupVersionMappingColumns.GROUP_DETAIL_ID + "`)," +
+           " UNIQUE KEY `experiment_id_version_ic_unique` (`" + ExperimentGroupVersionMappingColumns.EXPERIMENT_ID + "`,"
+                   + "`" + ExperimentGroupVersionMappingColumns.EXPERIMENT_VERSION + "`,"
+                   + "`" + ExperimentGroupVersionMappingColumns.INPUT_COLLECTION_ID + "`)," +
             "KEY `experiment_history_fk_idx` (`" + ExperimentGroupVersionMappingColumns.EXPERIMENT_DETAIL_ID + "`)," +
             "KEY `group_history_fk_idx` (`" + ExperimentGroupVersionMappingColumns.GROUP_DETAIL_ID + "`)," +
             " CONSTRAINT `experiment_history_fk` FOREIGN KEY (`" + ExperimentGroupVersionMappingColumns.EXPERIMENT_DETAIL_ID + "`) REFERENCES `" +
@@ -951,11 +954,18 @@ public class CopyExperimentMigrationDaoImpl implements CopyExperimentMigrationDa
   }
   
   private boolean isAllEventOutputsPresentInEVMRecord(ExperimentVersionMapping evm, Set<What> whatSet) {
-    Map<String, InputOrderAndChoice> iocsInDB = evm.getInputCollection().getInputOrderAndChoices();
-    for (What eachWhat : whatSet) {
-      // for scripted inputs
-      if (iocsInDB.get(eachWhat.getName()) == null) {
+    // no input collection previously, but now we have some inputs
+    if (evm.getInputCollection() == null) { 
+      if  (whatSet != null && whatSet.size() > 0) {
         return false;
+      }
+    }  else {
+      Map<String, InputOrderAndChoice> iocsInDB = evm.getInputCollection().getInputOrderAndChoices();
+      for (What eachWhat : whatSet) {
+        // for scripted inputs
+        if (iocsInDB.get(eachWhat.getName()) == null) {
+          return false;
+        }
       }
     }
     return true;
@@ -1027,7 +1037,6 @@ public class CopyExperimentMigrationDaoImpl implements CopyExperimentMigrationDa
           statementUpdateEventsTable.setLong(1, matchingEVM.getExperimentVersionMappingId());
           statementUpdateEventsTable.setInt(2, anonId.getId().intValue());
           statementUpdateEventsTable.setLong(3, singleEvent.getId());
-          log.info(statementUpdateEventsTable.toString());
           eventsUpdateNeeded = true;
           statementUpdateEventsTable.addBatch();
           if (singleEvent.getWhat() != null || singleEvent.getWhat().size() > 0)  {
@@ -1041,7 +1050,6 @@ public class CopyExperimentMigrationDaoImpl implements CopyExperimentMigrationDa
                 statementUpdateOutputsTable.setLong(1, inputId);
                 statementUpdateOutputsTable.setLong(2, singleEvent.getId());
                 statementUpdateOutputsTable.setString(3, singleWhat.getName());
-                log.info(statementUpdateOutputsTable.toString());
                 outputsUpdateNeeded = true;
                 statementUpdateOutputsTable.addBatch();
               }

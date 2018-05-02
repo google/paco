@@ -539,6 +539,7 @@ public class CSExperimentVersionGroupMappingDaoImpl implements CSExperimentVersi
     ExperimentDetail expFacet = null;
     GroupDetail group = null;
     InputCollection inputCollection = null;
+    Long inputCollectionId = null;
     try {
       if (closestVersion != null && closestVersion != experimentVersion) {
         conn = CloudSQLConnectionManager.getInstance().getConnection();
@@ -551,10 +552,16 @@ public class CSExperimentVersionGroupMappingDaoImpl implements CSExperimentVersi
           evm = new ExperimentVersionMapping();
           expFacet = new ExperimentDetail();
           group = new GroupDetail();
-          inputCollection = new InputCollection();
           expFacet.setExperimentDetailId(new PacoId(rs.getLong(ExperimentGroupVersionMappingColumns.EXPERIMENT_DETAIL_ID), false));
           group.setGroupId(new PacoId(rs.getLong(ExperimentGroupVersionMappingColumns.GROUP_DETAIL_ID), false));
-          inputCollection.setInputCollectionId(rs.getLong(ExperimentGroupVersionMappingColumns.INPUT_COLLECTION_ID));
+          inputCollectionId = rs.getLong(ExperimentGroupVersionMappingColumns.INPUT_COLLECTION_ID);
+          // when rs.getLong() has to return null, it returns as '0' 
+          if ( inputCollectionId > 0L) {
+            inputCollection = new InputCollection();
+            inputCollection.setInputCollectionId(inputCollectionId);
+          } else {
+            inputCollection = null;
+          }
           evm.setExperimentId(experimentId);
           // just change the version alone
           evm.setExperimentVersion(experimentVersion);
@@ -586,6 +593,7 @@ public class CSExperimentVersionGroupMappingDaoImpl implements CSExperimentVersi
   @Override
   public void ensureEVMRecord(Long experimentId, Long eventId, String experimentName, Integer experimentVersion, String groupName, String whoEmail, Set<What> whatSet, boolean migrationFlag, Map<String, ExperimentVersionMapping> allEVMRecords) throws Exception {
     GroupTypeEnum matchingGroupType = null;
+    CSInputCollectionDao inputCollDao = new CSInputCollectionDaoImpl();
     // 1. find matching grp name for these outputs
     matchingGroupType = findMatchingGroupType(groupName);
     ExperimentVersionMapping evm = new ExperimentVersionMapping();
@@ -596,10 +604,9 @@ public class CSExperimentVersionGroupMappingDaoImpl implements CSExperimentVersi
     if (matchingEVMInDB == null && migrationFlag) {
       ensureEVMMissingGroupName(groupName, whatSet, allEVMRecords, matchingGroupType, evm);
     } else if (matchingEVMInDB != null) {
-      boolean veryFirstTime = false;
       Map<String, InputOrderAndChoice> iocsInDB = null;
-      InputCollection newCopyInputCollection  = null;
-      Integer noOfGroups = getNumberOfGroups(evm.getExperimentId(), evm.getExperimentVersion());
+      List<String> newVariables = Lists.newArrayList();
+      Integer numberOfGroups = getNumberOfGroups(evm.getExperimentId(), evm.getExperimentVersion());
       evm.setExperimentInfo(matchingEVMInDB.getExperimentInfo());
       evm.setGroupInfo(matchingEVMInDB.getGroupInfo());
       evm.setInputCollection(matchingEVMInDB.getInputCollection());
@@ -608,52 +615,42 @@ public class CSExperimentVersionGroupMappingDaoImpl implements CSExperimentVersi
       if (matchingEVMInDB.getInputCollection() != null) {
         // some inputs are already there ??? not needed
         iocsInDB = matchingEVMInDB.getInputCollection().getInputOrderAndChoices();
-        if (iocsInDB == null) {
-          iocsInDB = Maps.newHashMap();
+        for (What eachWhat : whatSet) {
+          // input alone missing
+          if (iocsInDB.get(eachWhat.getName()) == null) {
+            // check and create new ic id
+            newVariables.add(eachWhat.getName());
+          }
         }
       } else {
         //  grp has no input collection at all in DB 
-        veryFirstTime = true;
-        InputCollection ic = new InputCollection();
-        ic.setInputCollectionId(IdGenerator.generate(BigInteger.valueOf(evm.getExperimentVersion()), noOfGroups+1).longValue());
-        iocsInDB = Maps.newHashMap();
-        ic.setInputOrderAndChoices(iocsInDB);
-        evm.setInputCollection(ic);
-      }
-       
-      List<String> newVariables = Lists.newArrayList();
-      
-      for (What eachWhat : whatSet) {
-        // input alone missing
-        if (iocsInDB.get(eachWhat.getName()) == null) {
-          // check and create new ic id
-          newVariables.add(eachWhat.getName());
+        if (whatSet != null && whatSet.size() > 0 ) {
+          InputCollection ic = new InputCollection();
+          iocsInDB = Maps.newHashMap();
+          ic.setInputOrderAndChoices(iocsInDB);
+          for (What eachWhat : whatSet) {
+            // check and create new input
+            newVariables.add(eachWhat.getName());
+          }
+          evm.setInputCollection(ic);
+        } else {
+          evm.setInputCollection(null);
         }
       }
       if (newVariables.size() > 0) {
         Integer noOfInputCollectionIdsPresentInDB = getInputCollectionIdCountForExperiment(matchingEVMInDB.getExperimentId(), evm.getInputCollection().getInputCollectionId()); 
-        if (veryFirstTime) {
-          if  (noOfInputCollectionIdsPresentInDB >= 1) {
-            log.warning("This ic id should not be present in db, but it is" + evm.getInputCollection().getInputCollectionId() +  "for this expt"+ evm.getExperimentId());
-            throw new Exception("This ic id should not be present in db, but it is" + evm.getInputCollection().getInputCollectionId() +  "for this expt"+ evm.getExperimentId());
-          }
-        } else { // some inputs are there already in DB. 1 being this same version, and another for some other version
-          if (noOfInputCollectionIdsPresentInDB >= 2) { 
-            log.info("input collection id shared " + noOfInputCollectionIdsPresentInDB);
-            // create new ic, copy old inputs, add new inputs
-            newCopyInputCollection = new InputCollection();
-            Long newInputCollectionId = IdGenerator.generate(BigInteger.valueOf(evm.getExperimentVersion()), noOfGroups+1).longValue();
-            if (newInputCollectionId == evm.getInputCollection().getInputCollectionId()) {
-              newInputCollectionId++;
-            }
-            newCopyInputCollection.setInputCollectionId(newInputCollectionId);
-            newCopyInputCollection.setInputOrderAndChoices(iocsInDB);
-            evm.setInputCollection(newCopyInputCollection);
-            // update evm ic id
-            updateInputCollectionId(evm, newCopyInputCollection.getInputCollectionId());
-          }
+        if  (noOfInputCollectionIdsPresentInDB > 1) {
+            Boolean uniqueFlag = true;
+            Long newInputCollectionId = inputCollDao.getInputCollectionId(evm.getExperimentId(), evm.getExperimentVersion(), numberOfGroups, uniqueFlag);
+            evm.getInputCollection().setInputCollectionId(newInputCollectionId);
+            // add all variables to new input coll id
+            addWhatsToInputCollection(evm, newVariables, true);
+            // update egvm 
+            updateInputCollectionId(evm, evm.getInputCollection().getInputCollectionId());
+        }  else {
+          // add new variables to existing input coll id
+          addWhatsToInputCollection(evm, newVariables, false);
         }
-        addOnlyNewWhatsToInputCollection(evm, newVariables, true);
         allEVMRecords.put(groupName, evm);
       }
     } 
@@ -685,12 +682,20 @@ public class CSExperimentVersionGroupMappingDaoImpl implements CSExperimentVersi
       for (What eachWhat : whatSet) {
         whatList.add(eachWhat.getName());
       }
-      addAllWhatsToInputCollection(evm, whatList);
+      if (whatList.size() > 0) {
+        Boolean uniqueFlag = true;
+        // flag can be false
+        // plain number of groups* 1000 shd be unique
+        addAllWhatsToInputCollection(evm, whatList, uniqueFlag);
+      }
     } else {
       CSGroupTypeInputMappingDao gtimDao = new CSGroupTypeInputMappingDaoImpl();
       List<Input> inputLst = gtimDao.getAllFeatureInputs().get(matchingGroupType.name());
       List<String> newWhats = Lists.newArrayList();
-      addInputsToInputCollection(evm, inputLst);
+      Boolean uniqueFlag = true;
+      // flag can be false
+      // plain number of groups* 1000 shd be unique
+      addInputsToInputCollection(evm, inputLst, uniqueFlag);
       Map<String, InputOrderAndChoice> iocsInDB = evm.getInputCollection().getInputOrderAndChoices();
       for (What eachWhat : whatSet) {
         // for scripted inputs
@@ -699,7 +704,9 @@ public class CSExperimentVersionGroupMappingDaoImpl implements CSExperimentVersi
         }
       }
       if (newWhats.size() > 0 ) {
-        addOnlyNewWhatsToInputCollection(evm, newWhats, false);  
+        // just add new ones, since they are scripted
+        Boolean addOldOnesFlag = false;
+        addWhatsToInputCollection(evm, newWhats, addOldOnesFlag);  
       }
       
     }
@@ -727,19 +734,21 @@ public class CSExperimentVersionGroupMappingDaoImpl implements CSExperimentVersi
     evm.setGroupInfo(grp);
   }
   
-  private void  addAllWhatsToInputCollection(ExperimentVersionMapping evm, List<String> inputsToBeAdded) throws Exception {
-    InputCollection inputCollection = new InputCollection();; 
+  private void  addAllWhatsToInputCollection(ExperimentVersionMapping evm, List<String> inputsToBeAdded, Boolean uniqueFlag) throws Exception {
+    CSInputCollectionDao inputCollectionDaoImpl = new CSInputCollectionDaoImpl();
+    InputCollection inputCollection = new InputCollection();
     CSInputDao inputDaoImpl = new CSInputDaoImpl();
     List<Input> inputs = inputDaoImpl.insertVariableNames(inputsToBeAdded);
     Integer noOfGroups = getNumberOfGroups(evm.getExperimentId(), evm.getExperimentVersion());
-    inputCollection.setInputCollectionId(IdGenerator.generate(BigInteger.valueOf(evm.getExperimentVersion()), noOfGroups+1).longValue());
+    Long newInputCollectionId = inputCollectionDaoImpl.getInputCollectionId(evm.getExperimentId(), evm.getExperimentVersion(), noOfGroups, uniqueFlag);
+    inputCollection.setInputCollectionId(newInputCollectionId);
     inputCollectionDaoImpl.addInputsToInputCollection(evm.getExperimentId(), inputCollection.getInputCollectionId(), inputs);
     inputCollection.setInputOrderAndChoices(convertInputListToInputOrderAndChoice(inputs));
     evm.setInputCollection(inputCollection);
   }
   
   @Override
-  public void  addOnlyNewWhatsToInputCollection(ExperimentVersionMapping evm, List<String> inputsToBeAdded, boolean checkCollisionFlag) throws Exception {
+  public void  addWhatsToInputCollection(ExperimentVersionMapping evm, List<String> inputsToBeAdded, boolean includeOldOnes) throws Exception {
     InputCollection inputCollection = evm.getInputCollection(); 
     CSInputDao inputDaoImpl = new CSInputDaoImpl();
     List<Input> newInputs = inputDaoImpl.insertVariableNames(inputsToBeAdded);
@@ -751,12 +760,13 @@ public class CSExperimentVersionGroupMappingDaoImpl implements CSExperimentVersi
       String existingVarName = varNameItr.next();
       existingInputs.add(existingVariablesMap.get(existingVarName).getInput());
     }
-    
+    if (includeOldOnes) {
+      inputCollectionDaoImpl.addInputsToInputCollection(evm.getExperimentId(), inputCollection.getInputCollectionId(), existingInputs);
+    } 
     inputCollectionDaoImpl.addInputsToInputCollection(evm.getExperimentId(), inputCollection.getInputCollectionId(), newInputs);
-    existingInputs.addAll(newInputs);
-
-    inputCollection.setInputOrderAndChoices(convertInputListToInputOrderAndChoice(existingInputs));
     
+    existingInputs.addAll(newInputs);
+    inputCollection.setInputOrderAndChoices(convertInputListToInputOrderAndChoice(existingInputs));
     evm.setInputCollection(inputCollection);
   }
   
@@ -771,7 +781,6 @@ public class CSExperimentVersionGroupMappingDaoImpl implements CSExperimentVersi
       statementUpdateEvent = conn.prepareStatement(updateQuery);
       statementUpdateEvent.setLong(1, evm.getInputCollection().getInputCollectionId());
       statementUpdateEvent.setLong(2, evm.getExperimentVersionMappingId());
-      
       statementUpdateEvent.executeUpdate();
     } finally {
       try {
@@ -788,12 +797,14 @@ public class CSExperimentVersionGroupMappingDaoImpl implements CSExperimentVersi
     return true;
   }
   
-  private void addInputsToInputCollection(ExperimentVersionMapping evm, List<Input> inputs) throws SQLException {
+  private void addInputsToInputCollection(ExperimentVersionMapping evm, List<Input> inputs, Boolean uniqueFlag) throws SQLException {
+    CSInputCollectionDao inputCollectionDaoImpl = new CSInputCollectionDaoImpl();
     InputCollection inputCollection = evm.getInputCollection(); 
     if (inputCollection == null) {
       inputCollection = new InputCollection();
       Integer noOfGroups = getNumberOfGroups(evm.getExperimentId(), evm.getExperimentVersion());
-      inputCollection.setInputCollectionId(IdGenerator.generate(BigInteger.valueOf(evm.getExperimentVersion()), noOfGroups+1).longValue());
+      Long newInputCollectionId = inputCollectionDaoImpl.getInputCollectionId(evm.getExperimentId(), evm.getExperimentVersion(), noOfGroups, uniqueFlag);
+      inputCollection.setInputCollectionId(newInputCollectionId);
     }
     inputCollectionDaoImpl.addInputsToInputCollection(evm.getExperimentId(), inputCollection.getInputCollectionId(), inputs);
     inputCollection.setInputOrderAndChoices(convertInputListToInputOrderAndChoice(inputs));
@@ -837,10 +848,7 @@ public class CSExperimentVersionGroupMappingDaoImpl implements CSExperimentVersi
     ResultSet rs1 = null;
     PreparedStatement statementSelectExperimentVersionMapping = null;
    
-    final String updateValueForExperimentVersionMappingId = "select "+ ExperimentGroupVersionMappingColumns.EXPERIMENT_GROUP_VERSION_MAPPING_ID +
-            " from " + ExperimentGroupVersionMappingColumns.TABLE_NAME + " evm "+
-            " where " + ExperimentGroupVersionMappingColumns.EXPERIMENT_ID + " = ? and  " + ExperimentGroupVersionMappingColumns.EXPERIMENT_VERSION + " = ? " ;
-  
+    final String updateValueForExperimentVersionMappingId = QueryConstants.GET_EGVM_ID_FOR_EXP_ID_AND_VERSION.toString();
     try {
       conn = CloudSQLConnectionManager.getInstance().getConnection();
 
@@ -940,7 +948,9 @@ public class CSExperimentVersionGroupMappingDaoImpl implements CSExperimentVersi
     String selectQuery = QueryConstants.GET_COUNT_INPUT_COLLECTION_ID_IN_EXPERIMENT.toString();
     try {
       if ( icId == null) { 
-        return 0;
+        // For null, we cannot assume it belongs to the same group, but different version. so we need to assume, if the ic id is null,
+        // so, we fake a return count of 2, which is other versions.
+        return 2;
       }
       conn = CloudSQLConnectionManager.getInstance().getConnection();
       

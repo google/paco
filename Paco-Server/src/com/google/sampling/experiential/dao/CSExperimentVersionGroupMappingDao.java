@@ -17,8 +17,8 @@ public interface CSExperimentVersionGroupMappingDao {
   void copyClosestVersion(Long experimentId, Integer fromVersion) throws SQLException;
   boolean updateEventsPosted(Long egvId) throws SQLException;
   boolean updateInputCollectionId(ExperimentVersionMapping evm, Long newInputCollectionId) throws SQLException;
-  void addOnlyNewWhatsToInputCollection(ExperimentVersionMapping evm, List<String> inputsToBeAdded,
-                                        boolean checkCollisionF) throws Exception;
+  void addWhatsToInputCollection(ExperimentVersionMapping evm, List<String> inputsToBeAdded,
+                                        boolean includeOldOnes) throws Exception;
   Integer getInputCollectionIdCountForExperiment(Long expId, Long icId) throws SQLException;
   boolean updateEventsPosted(Set<Long> egvmIds) throws SQLException;
   void ensureEVMRecord(Long experimentId, Long eventId, String experimentName,

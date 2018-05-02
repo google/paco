@@ -17,6 +17,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.google.sampling.experiential.cloudsql.columns.InputCollectionColumns;
 import com.google.sampling.experiential.dao.CSChoiceCollectionDao;
+import com.google.sampling.experiential.dao.CSExperimentVersionGroupMappingDao;
 import com.google.sampling.experiential.dao.CSInputCollectionDao;
 import com.google.sampling.experiential.dao.CSInputDao;
 import com.google.sampling.experiential.dao.dataaccess.ChoiceCollection;
@@ -271,6 +272,25 @@ public class CSInputCollectionDaoImpl implements CSInputCollectionDao {
       }
     }
   }  
+  
+  @Override
+  public Long getInputCollectionId(Long experimentId, Integer experimentVersion, Integer numberOfGroups, Boolean uniqueFlag) throws SQLException {
+    Integer numberOfInputCollectionIdsAlreadyInDB = 0;
+    CSExperimentVersionGroupMappingDao daoImpl = new CSExperimentVersionGroupMappingDaoImpl();
+    Integer noOfGroups = daoImpl.getNumberOfGroups(experimentId, experimentVersion);
+    Long newInputCollectionId = IdGenerator.generate(BigInteger.valueOf(experimentVersion), noOfGroups+1).longValue();
+    if (uniqueFlag) {
+      while ( true)  {
+        numberOfInputCollectionIdsAlreadyInDB = daoImpl.getInputCollectionIdCountForExperiment(experimentId, newInputCollectionId);
+        if (numberOfInputCollectionIdsAlreadyInDB == 0) {
+          return newInputCollectionId;
+        } else {
+          newInputCollectionId++;
+        }
+      }
+    }
+    return newInputCollectionId;
+  }
 }
 
  

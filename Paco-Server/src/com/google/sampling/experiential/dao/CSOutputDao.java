@@ -9,4 +9,5 @@ public interface CSOutputDao {
   boolean insertSingleOutput(Long eventId, String text, String answer) throws SQLException;
   List<WhatDAO> getOutputs(Long eventId) throws SQLException;
   List<WhatDAO> getOutputsWithoutInputId(Long eventId) throws SQLException;
+  Long getDistinctOutputCount(Long experimentId) throws SQLException;
 }

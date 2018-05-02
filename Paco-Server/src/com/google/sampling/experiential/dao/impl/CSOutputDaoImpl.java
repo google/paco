@@ -148,4 +148,37 @@ public class CSOutputDaoImpl implements CSOutputDao {
 
     return whatLst;
   }
+  
+  @Override
+  public Long getDistinctOutputCount(Long experimentId) throws SQLException {
+    Long count = 0L;
+    Connection conn = null;
+    ResultSet rs = null;
+    PreparedStatement statementSelectOutput = null;
+    try {
+      conn = CloudSQLConnectionManager.getInstance().getConnection();
+      statementSelectOutput = conn.prepareStatement(QueryConstants.GET_DISTINCT_OUTPUTS_FOR_EXPERIMENT_ID.toString());
+      statementSelectOutput.setLong(1, experimentId);
+      rs = statementSelectOutput.executeQuery();
+      while(rs.next()){
+       count = rs.getLong(1);
+      }
+    } finally {
+      try {
+        if ( rs != null) {
+          rs.close();
+        }
+        if (statementSelectOutput != null) {
+          statementSelectOutput.close();
+        }
+        if (conn != null) {
+          conn.close();
+        }
+      } catch (SQLException ex1) {
+        log.warning(ErrorMessages.CLOSING_RESOURCE_EXCEPTION.getDescription()+ ex1);
+      }
+    }
+
+    return count;
+  }
 }
