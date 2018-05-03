@@ -742,7 +742,7 @@ public class CSExperimentVersionGroupMappingDaoImpl implements CSExperimentVersi
     Integer noOfGroups = getNumberOfGroups(evm.getExperimentId(), evm.getExperimentVersion());
     Long newInputCollectionId = inputCollectionDaoImpl.getInputCollectionId(evm.getExperimentId(), evm.getExperimentVersion(), noOfGroups, uniqueFlag);
     inputCollection.setInputCollectionId(newInputCollectionId);
-    inputCollectionDaoImpl.addInputsToInputCollection(evm.getExperimentId(), inputCollection.getInputCollectionId(), inputs);
+    inputCollectionDaoImpl.addInputsToInputCollection(evm.getExperimentId(), inputCollection, inputs);
     inputCollection.setInputOrderAndChoices(convertInputListToInputOrderAndChoice(inputs));
     evm.setInputCollection(inputCollection);
   }
@@ -761,9 +761,9 @@ public class CSExperimentVersionGroupMappingDaoImpl implements CSExperimentVersi
       existingInputs.add(existingVariablesMap.get(existingVarName).getInput());
     }
     if (includeOldOnes) {
-      inputCollectionDaoImpl.addInputsToInputCollection(evm.getExperimentId(), inputCollection.getInputCollectionId(), existingInputs);
+      inputCollectionDaoImpl.addInputsToInputCollection(evm.getExperimentId(), inputCollection, existingInputs);
     } 
-    inputCollectionDaoImpl.addInputsToInputCollection(evm.getExperimentId(), inputCollection.getInputCollectionId(), newInputs);
+    inputCollectionDaoImpl.addInputsToInputCollection(evm.getExperimentId(), inputCollection, newInputs);
     
     existingInputs.addAll(newInputs);
     inputCollection.setInputOrderAndChoices(convertInputListToInputOrderAndChoice(existingInputs));
@@ -806,9 +806,9 @@ public class CSExperimentVersionGroupMappingDaoImpl implements CSExperimentVersi
       Long newInputCollectionId = inputCollectionDaoImpl.getInputCollectionId(evm.getExperimentId(), evm.getExperimentVersion(), noOfGroups, uniqueFlag);
       inputCollection.setInputCollectionId(newInputCollectionId);
     }
-    inputCollectionDaoImpl.addInputsToInputCollection(evm.getExperimentId(), inputCollection.getInputCollectionId(), inputs);
     inputCollection.setInputOrderAndChoices(convertInputListToInputOrderAndChoice(inputs));
     evm.setInputCollection(inputCollection);
+    inputCollectionDaoImpl.addInputsToInputCollection(evm.getExperimentId(), inputCollection, inputs);
   }
   
   private GroupTypeEnum findMatchingGroupType(String groupName) throws SQLException {

@@ -14,7 +14,7 @@ public interface CSInputCollectionDao {
                                                   Map<String, InputCollection> newVersion, Map<String, InputCollection> oldVersion) throws SQLException, Exception;
   void addInputToInputCollection(Long experimentId, Long inputCollectionId, Input input) throws SQLException;
   Input addUndefinedInputToCollection(Long experimentId, Long inputCollectionId, String variableName) throws SQLException, Exception;
-  void addInputsToInputCollection(Long experimentId, Long inputCollectionId, List<Input> inputs) throws SQLException;
+  void addInputsToInputCollection(Long experimentId, InputCollection inputCollection, List<Input> inputs) throws SQLException;
   Long getInputCollectionId(Long experimentId, Integer experimentVersion, Integer numberOfGroups,
                             Boolean uniqueFlag) throws SQLException;
 }

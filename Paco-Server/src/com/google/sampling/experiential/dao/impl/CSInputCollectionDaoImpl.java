@@ -213,11 +213,12 @@ public class CSInputCollectionDaoImpl implements CSInputCollectionDao {
   }  
   
   @Override
-  public void addInputsToInputCollection(Long experimentId, Long inputCollectionId, List<Input> inputs) throws SQLException {
+  public void addInputsToInputCollection(Long experimentId, InputCollection inputCollection, List<Input> inputs) throws SQLException {
    
     Connection conn = null;
     PreparedStatement statementCreateInput = null;
     ResultSet rs = null;
+    Long inputCollectionId = inputCollection.getInputCollectionId();
     ExpressionList insertInputExprList = new ExpressionList();
     List<Expression> exp = Lists.newArrayList();
     Insert inputInsert = new Insert();
@@ -237,15 +238,25 @@ public class CSInputCollectionDaoImpl implements CSInputCollectionDao {
 
       statementCreateInput = conn.prepareStatement(inputInsert.toString());
       Long choiceCollectionId = null;
+      Integer inputOrder = null;
       Set<Long> inputIdsSet = Sets.newHashSet();  
+      Map<String, InputOrderAndChoice> iocMap = inputCollection.getInputOrderAndChoices();
       for (Input input : inputs) {
         if (!inputIdsSet.contains(input.getInputId().getId())) {
           inputIdsSet.add( input.getInputId().getId());
           statementCreateInput.setLong(1, experimentId);
           statementCreateInput.setLong(2, inputCollectionId);
           statementCreateInput.setLong(3, input.getInputId().getId());
+          
+          if (iocMap != null) {
+            InputOrderAndChoice oldIoc = iocMap.get(input.getName().getLabel());
+            if (oldIoc != null) {
+              choiceCollectionId = oldIoc.getChoiceCollection() != null ? oldIoc.getChoiceCollection().getChoiceCollectionId() : null;
+              inputOrder = oldIoc.getInputOrder();
+            }
+          }
           statementCreateInput.setObject(4, choiceCollectionId);
-          statementCreateInput.setLong(5, -99);
+          statementCreateInput.setLong(5, inputOrder != null ? inputOrder : -99);
           inputIdsAdded.append(input.getInputId().getId()+",");
           statementCreateInput.addBatch();
         }
