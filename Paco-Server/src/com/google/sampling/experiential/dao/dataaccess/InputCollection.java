@@ -48,16 +48,17 @@ public class InputCollection implements PacoComparator<InputCollection> {
       hasChanged = true;
     } else if (this.getInputOrderAndChoices().size() != olderVersion.getInputOrderAndChoices().size()) {
       hasChanged = true;
-    } else {
-      Iterator<String> newInputItr = this.getInputOrderAndChoices().keySet().iterator();
-      String currentNewInput = null;
-      while (newInputItr.hasNext()) {
-        currentNewInput = newInputItr.next();
-        if (this.getInputOrderAndChoices().get(currentNewInput).hasChanged(olderVersion.getInputOrderAndChoices().get(currentNewInput))) {
-          hasChanged = true;
-        }
+    }
+    // irrespective of the value of has changed, we need to check the ioc changed, in order to update the id's.
+    Iterator<String> newInputItr = this.getInputOrderAndChoices().keySet().iterator();
+    String currentNewInput = null;
+    while (newInputItr.hasNext()) {
+      currentNewInput = newInputItr.next();
+      if (this.getInputOrderAndChoices().get(currentNewInput).hasChanged(olderVersion.getInputOrderAndChoices().get(currentNewInput))) {
+        hasChanged = true;
       }
     }
+  
     return hasChanged;
   }
 }

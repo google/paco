@@ -40,7 +40,7 @@ public class ExperimentDAOConverter {
   DateTimeFormatter formatter = DateTimeFormat.forPattern("YYYY/MM/dd");
   public static final Logger log = Logger.getLogger(ExperimentDAOConverter.class.getName());
   
-  public ExperimentDetail convertToExperiment(ExperimentDAO experimentDao) throws SQLException {
+  public ExperimentDetail convertToExperimentDetail(ExperimentDAO experimentDao) throws SQLException {
     InformedConsent newInformedConsent = null;
     if (experimentDao.getInformedConsentForm() != null && !experimentDao.getInformedConsentForm().equals("")) {
       newInformedConsent = new InformedConsent();
@@ -64,7 +64,7 @@ public class ExperimentDAOConverter {
     return experiment; 
   }
   
-  public List<GroupDetail> convertToGroup(List<ExperimentGroup> experimentGroups) {
+  public List<GroupDetail> convertToGroupDetail(List<ExperimentGroup> experimentGroups) {
     List<GroupDetail> groups = Lists.newArrayList();
     GroupDetail group = null;
     for ( ExperimentGroup experimentGroup : experimentGroups) {
@@ -197,8 +197,8 @@ public class ExperimentDAOConverter {
   public List<ExperimentVersionMapping> convertToExperimentVersionMapping(ExperimentDAO experimentDao) throws SQLException {
     List<ExperimentVersionMapping> newMappingList = Lists.newArrayList();
     ExperimentVersionMapping currentMappingObj = null;
-    List<GroupDetail> convertedGroups = convertToGroup(experimentDao.getGroups());
-    ExperimentDetail convertedExperiment = convertToExperiment(experimentDao);
+    List<GroupDetail> convertedGroups = convertToGroupDetail(experimentDao.getGroups());
+    ExperimentDetail convertedExperiment = convertToExperimentDetail(experimentDao);
     
     for (GroupDetail group : convertedGroups) {
       currentMappingObj = new ExperimentVersionMapping();
