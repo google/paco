@@ -220,8 +220,8 @@ public class EventJsonUploadProcessor {
     log.info("end retrieving experiment");
 
     if (experiment == null) {
-      outcome.setError("No existing experiment for this event: " + eventId);
-      log.info("No existing experiment for this event: " + eventId);
+      //outcome.setError("No existing experiment for this event: " + eventId);
+      log.info("No existing experiment for this event: " + eventId + ", who = " + who + ", experimentId = " + experimentIdStr);
       //return outcome;
     } else {
       log.info("Found the experiment: " + experimentIdStr);

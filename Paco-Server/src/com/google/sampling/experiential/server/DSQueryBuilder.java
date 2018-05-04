@@ -44,8 +44,7 @@ public class DSQueryBuilder {
   private EventDSQuery dsQuery;
 
   private DateTimeFormatter jodaFormatter = DateTimeFormat.forPattern(TimeUtil.DATE_FORMAT);
-
-
+  private DateTimeFormatter jodaDateTimeFormatter = DateTimeFormat.forPattern(TimeUtil.DATETIME_FORMAT_EVENT_QUERY);
 
   public DSQueryBuilder(com.google.appengine.api.datastore.Query newQuery) {
     this.dsQuery = new EventDSQuery(newQuery);
@@ -60,6 +59,8 @@ public class DSQueryBuilder {
       String key = query.getKey();
       if (key.equals("date_range") || key.startsWith("@")) {
         compareDateRange(key, query.getValue(), jodaTimeZone);
+      } else if (key.equals("datetime_range")) {
+        compareDateTimeRange(key, query.getValue(), jodaTimeZone);
       } else {
         if (key.equals("who") && query.getValue() != null) {
           dsQuery.setHasWho(query.getValue());
@@ -125,7 +126,42 @@ public class DSQueryBuilder {
     Filter endDateFilter = new FilterPredicate("when", FilterOperator.LESS_THAN_OR_EQUAL, endDate.toDate());
     CompositeFilter betweenDateFilter =
             CompositeFilterOperator.and(startDateFilter, endDateFilter);
-    dsQuery.addFilter(betweenDateFilter);    
+    dsQuery.addFilter(betweenDateFilter);
+  }
+
+  private void compareDateTimeRange(String key, String range, DateTimeZone jodaTimeZone) {
+    DateTime startDate = null;
+    DateTime endDate = null;
+
+    Iterable<String> iterable = Splitter.on("--").split(range);
+    Iterator<String> iter = iterable.iterator();
+    if (!iter.hasNext()) {
+      throw new IllegalArgumentException("Illformed Date Range: " + range);
+    }
+    String firstDate = iter.next();
+    String secondDate = null;
+    if (iter.hasNext()) {
+      secondDate = iter.next();
+    }
+
+    startDate = newDateTimeFromDateTimeString(firstDate, jodaTimeZone);
+    endDate = null;
+    if (secondDate != null && !secondDate.isEmpty()) {
+      endDate = newDateTimeFromDateTimeString(secondDate, jodaTimeZone);
+    } else {
+      endDate = startDate.plusDays(1);
+    }
+
+    Filter startDateFilter = new FilterPredicate("when", FilterOperator.GREATER_THAN_OR_EQUAL, startDate.toDate());
+    Filter endDateFilter = new FilterPredicate("when", FilterOperator.LESS_THAN_OR_EQUAL, endDate.toDate());
+    CompositeFilter betweenDateFilter =
+            CompositeFilterOperator.and(startDateFilter, endDateFilter);
+    dsQuery.addFilter(betweenDateFilter);
+  }
+
+  private DateTime newDateTimeFromDateTimeString(String firstDate, DateTimeZone jodaTimeZone) {
+    DateTime parsedTime = jodaDateTimeFormatter.parseDateTime(firstDate);
+    return parsedTime.withZone(DateTimeZone.UTC);
   }
 
   private void compareMemberResultToQueryValue(com.google.sampling.experiential.server.Query query,

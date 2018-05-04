@@ -5,8 +5,15 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.joda.time.DateMidnight;
+import org.joda.time.Days;
+
+import com.pacoapp.paco.shared.util.TimeUtil;
+
 
 public class ExperimentGroup extends ModelBase implements Validatable, java.io.Serializable {
+
+  private static final int MAX_DURATION_DAYS_FOR_LARGE_DATA_LOGGERS = 14;
 
   private String name;
   private GroupTypeEnum groupType;
@@ -188,16 +195,17 @@ public class ExperimentGroup extends ModelBase implements Validatable, java.io.S
 
   public void validateWith(Validator validator) {
 //    System.out.println("VALIDATING GROUP");
-    validator.isNotNullAndNonEmptyString(name, "name is not properly initialized");
+    validator.isNonEmptyString(name, "name is not properly initialized");
 
     validateActionTriggers(validator);
 
     validator.isNotNull(backgroundListen, "backgroundListen not initialized");
     validator.isNotNull(accessibilityListen, "accessibilityListen not initialized");
     validator.isNotNull(logActions, "logActions not initialized");
+    validator.isNotNull(logNotificationEvents, "logNotificationEvents not initialized");
     validator.isNotNull(logShutdown, "logShutdown not initialized");
     if (backgroundListen != null && backgroundListen) {
-      validator.isNotNullAndNonEmptyString(backgroundListenSourceIdentifier,
+      validator.isNonEmptyString(backgroundListenSourceIdentifier,
                                            "background listening requires a source identifier");
     }
     validator.isNotNull(customRendering, "customRendering not initialized properly");
@@ -209,6 +217,12 @@ public class ExperimentGroup extends ModelBase implements Validatable, java.io.S
       validator.isValidDateString(startDate, "start date must be a valid string");
       validator.isValidDateString(endDate, "end date must be a valid string");
     }
+    if (isPresentAndTrue(logActions) || isPresentAndTrue(accessibilityListen) || isPresentAndTrue(logNotificationEvents)) {
+      if (fixedDuration == null || !fixedDuration || !isDurationLessThanTwoWeeks()) {
+        validator.addError("logActions, logAccessibilityEvents and logNotificationEvents are only "
+                + "allowed on Fixed Duration experiments that run less than 2 weeks due to large data volumes.");
+      }
+    }
     validator.isNotNull(feedbackType, "feedbacktype is not properly initialized");
     validator.isNotNull(feedback, "feedback is not properly initialized");
 
@@ -216,9 +230,36 @@ public class ExperimentGroup extends ModelBase implements Validatable, java.io.S
 
     validator.isNotNull(endOfDayGroup, "endOfDayGroup is not properly initialized");
     if (endOfDayGroup != null && endOfDayGroup) {
-      validator.isNotNullAndNonEmptyString(endOfDayReferredGroupName, "endOfDayGroups need to specify the name of the group to which they refer");
+      validator.isNonEmptyString(endOfDayReferredGroupName, "endOfDayGroups need to specify the name of the group to which they refer");
     }
     feedback.validateWith(validator);
+  }
+
+
+
+  private boolean isDurationLessThanTwoWeeks() {
+    try {
+      if (getStartDate() == null || getEndDate() == null) {
+        return false;
+      }
+      DateMidnight startDateCandidate = TimeUtil.unformatDate(getStartDate()).toDateMidnight();
+      DateMidnight endDateCandidate = TimeUtil.unformatDate(getEndDate()).toDateMidnight();
+      Days daysDuration = Days.daysBetween(startDateCandidate, endDateCandidate);
+      if (daysDuration.getDays() > MAX_DURATION_DAYS_FOR_LARGE_DATA_LOGGERS) {
+        return false;
+      } else {
+        return true;
+      }
+    } catch (Exception e) {
+       // fall through to return false
+    }
+    return false;
+  }
+
+
+
+  private boolean isPresentAndTrue(Boolean fieldToValidate) {
+    return fieldToValidate != null && logActions;
   }
 
   public void validateInputs(Validator validator) {

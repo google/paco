@@ -158,6 +158,12 @@ public class ActionScheduleGenerator {
     }
 
     DateTime now = DateTime.now();
+
+    DateTime lastEndDate = new DateMidnight(TimeUtil.unformatDate(experimentGroup.getEndDate())).plusDays(1).toDateTime();
+    if (lastEndDate.isAfter(now)) {
+      return false;
+    }
+
     List<ActionTrigger> triggers = experimentGroup.getActionTriggers();
     for (ActionTrigger actionTrigger : triggers) {
       DateTime lastTimeForSignalGroup = null;

@@ -227,8 +227,7 @@ public class ExperimentHelper {
             boolean triggerSourceIdIsEmpty = interruptCue.getCueSource() == null || interruptCue.getCueSource().isEmpty() ;
             if (usesSourceId) {
               if (isAccessibilityRelatedCueCodeAndMatchesPatterns(interruptCue.getCueCode())) {
-                cueFiltersMatch = isMatchingAccessibilitySource(packageName, className, eventContentDescription,
-                                                          interruptCue);
+                cueFiltersMatch = isMatchingAccessibilitySource(packageName, className, eventContentDescription, eventText, interruptCue);
               } else {
                 boolean paramEmpty = sourceIdentifier == null || sourceIdentifier.isEmpty();
                 cueFiltersMatch = (paramEmpty && triggerSourceIdIsEmpty) ||
@@ -285,14 +284,15 @@ public class ExperimentHelper {
   }
 
   private static boolean isMatchingAccessibilitySource(String packageName, String className, String eventContentDescription,
-                                                  InterruptCue interruptCue) {
+                                                       String eventText, InterruptCue interruptCue) {
     if (!Strings.isNullOrEmpty(interruptCue.getCueSource())) {
       if (packageName == null || !interruptCue.getCueSource().equals(packageName)) {
         return false;
       }
     }
     if (!Strings.isNullOrEmpty(interruptCue.getCueAEContentDescription())) {
-      if (eventContentDescription == null || !interruptCue.getCueAEContentDescription().equals(eventContentDescription)) {
+      if ((eventContentDescription == null || !interruptCue.getCueAEContentDescription().equals(eventContentDescription)) &&
+              (eventText == null || !interruptCue.getCueAEContentDescription().equals(eventText))) {
         return false;
       }
     }
