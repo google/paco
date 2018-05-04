@@ -25,6 +25,7 @@ import com.google.sampling.experiential.dao.dataaccess.InformedConsent;
 import com.google.sampling.experiential.dao.dataaccess.Input;
 import com.google.sampling.experiential.dao.dataaccess.InputCollection;
 import com.google.sampling.experiential.dao.dataaccess.InputOrderAndChoice;
+import com.google.sampling.experiential.dao.dataaccess.PredefinedInputNames;
 import com.google.sampling.experiential.dao.dataaccess.User;
 import com.google.sampling.experiential.dao.impl.CSDataTypeDaoImpl;
 import com.google.sampling.experiential.dao.impl.CSGroupTypeInputMappingDaoImpl;
@@ -225,9 +226,8 @@ public class ExperimentDAOConverter {
       predefinedInputModifiedLst = Lists.newArrayList();
       for (Input i : predefinedInputOrigLst) {
         String inputLabel = i.getName().getLabel();
-        // TODO better way
-        if (!(inputLabel.equalsIgnoreCase("make") ||  inputLabel.equalsIgnoreCase("model") || inputLabel.equalsIgnoreCase("android") || inputLabel.equalsIgnoreCase("carrier")
-                || inputLabel.equalsIgnoreCase("display"))) {
+        if (!(inputLabel.equalsIgnoreCase(PredefinedInputNames.MAKE) ||  inputLabel.equalsIgnoreCase(PredefinedInputNames.MODEL) || inputLabel.equalsIgnoreCase(PredefinedInputNames.ANDROID) || inputLabel.equalsIgnoreCase(PredefinedInputNames.CARRIER)
+                || inputLabel.equalsIgnoreCase(PredefinedInputNames.DISPLAY))) {
           predefinedInputModifiedLst.add(i);
         } 
       }
