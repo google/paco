@@ -27,7 +27,6 @@ import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.logging.Logger;
 
 import javax.servlet.http.HttpServlet;
@@ -48,15 +47,12 @@ import com.google.appengine.api.users.User;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 import com.google.sampling.experiential.model.Event;
 import com.google.sampling.experiential.model.PhotoBlob;
-import com.google.sampling.experiential.server.viz.appusage.CloudSqlRequestProcessor;
 import com.google.sampling.experiential.shared.EventDAO;
 import com.google.sampling.experiential.shared.WhatDAO;
 import com.pacoapp.paco.shared.model2.JsonConverter;
 import com.pacoapp.paco.shared.model2.Views;
-import com.pacoapp.paco.shared.util.Constants;
 
 /**
  * Servlet that answers queries for Events.
@@ -103,10 +99,11 @@ public class EventServlet extends HttpServlet {
       }
       boolean doJsonOnBackend = req.getParameter("backend") != null;
 
-      if (req.getParameter("mapping") != null) {
-        //only plain user id, so there is no need to check paco protocol
-        dumpUserIdMapping(req, resp, limit, cursor);
-      } else if (req.getParameter("json") != null) {
+//      if (req.getParameter("mapping") != null) {
+//        //only plain user id, so there is no need to check paco protocol
+//        dumpUserIdMapping(req, resp, limit, cursor);
+//      } else
+      if (req.getParameter("json") != null) {
         if (!doJsonOnBackend) {
           resp.setContentType("application/json;charset=UTF-8");
           dumpEventsJson(resp, req, anon, includePhotos, limit, cursor, cmdline, pacoProtocol);
@@ -124,49 +121,6 @@ public class EventServlet extends HttpServlet {
       }
     }
   }
-
-  // TODO replace this with a call to the joined table to get all the unique users for an experiment.
-  private void dumpUserIdMapping(HttpServletRequest req, HttpServletResponse resp, int limit, String cursor) throws IOException {
-    String experimentId = req.getParameter("experimentId");
-    Set<String> whos = getUsersForExperiment(experimentId, req);
-    StringBuilder mappingOutput = new StringBuilder();
-    for (String who : whos) {
-      mappingOutput.append(who);
-      mappingOutput.append(",");
-      mappingOutput.append(Event.getAnonymousId(who));
-      mappingOutput.append("\n");
-    }
-    resp.setContentType("text/csv;charset=UTF-8");
-    resp.getWriter().println(mappingOutput.toString());
-  }
-
-  private Set<String> getUsersForExperiment(String experimentId, HttpServletRequest req) {
-    String query = "{ select : [\"distinct who\"], query : " + "        { criteria : \" experiment_id = ? \","
-            + "values : [" + experimentId + "],"
-            + "}, "
-            + "order : \"who\"};";
-
-
-    EventQueryStatus result = CloudSqlRequestProcessor.processSearchQuery(AuthUtil.getEmailOfUser(req, AuthUtil.getWhoFromLogin()), query, TimeUtil.getTimeZoneForClient(req));
-    if (result.getStatus() != Constants.SUCCESS) {
-      String resultAsString;
-      try {
-        resultAsString = JsonConverter.getObjectMapper().writeValueAsString(result);
-        log.info("Error getting users in experiment for anon map: " + resultAsString);
-      } catch (IOException e) {
-        log.info("Exception writing error for attempt to get anon map: " + e.getMessage());
-      }
-      return Sets.newHashSet();
-    }
-
-    final List<EventDAO> events = result.getEvents();
-    Set<String> whos = Sets.newHashSet();
-    for (EventDAO eventDAO : events) {
-      whos.add(eventDAO.getWho());
-    }
-    return whos;
-  }
-
 
   private void dumpEventsJson(HttpServletResponse resp, HttpServletRequest req, boolean anon, boolean includePhotos, int limit, String cursor, boolean cmdline, Float protocolVersion) throws IOException {
     List<com.google.sampling.experiential.server.Query> query = new QueryParser().parse(stripQuotes(HttpUtil.getParam(req, "q")));
