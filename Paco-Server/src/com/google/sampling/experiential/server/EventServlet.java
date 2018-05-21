@@ -25,7 +25,6 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.SocketTimeoutException;
 import java.net.URL;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -49,12 +48,15 @@ import com.google.appengine.api.users.User;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import com.google.sampling.experiential.model.Event;
 import com.google.sampling.experiential.model.PhotoBlob;
+import com.google.sampling.experiential.server.viz.appusage.CloudSqlRequestProcessor;
 import com.google.sampling.experiential.shared.EventDAO;
 import com.google.sampling.experiential.shared.WhatDAO;
 import com.pacoapp.paco.shared.model2.JsonConverter;
 import com.pacoapp.paco.shared.model2.Views;
+import com.pacoapp.paco.shared.util.Constants;
 
 /**
  * Servlet that answers queries for Events.
@@ -125,14 +127,8 @@ public class EventServlet extends HttpServlet {
 
   // TODO replace this with a call to the joined table to get all the unique users for an experiment.
   private void dumpUserIdMapping(HttpServletRequest req, HttpServletResponse resp, int limit, String cursor) throws IOException {
-    List<com.google.sampling.experiential.server.Query> query = new QueryParser().parse(stripQuotes(HttpUtil.getParam(req, "q")));
-    EventQueryResultPair eventQueryPair = getEventsWithQuery(req, query, limit, cursor);
-    List<Event> events = eventQueryPair.getEvents();
-    EventRetriever.sortEvents(events);
-    Set<String> whos = new HashSet<String>();
-    for (Event event : events) {
-      whos.add(event.getWho());
-    }
+    String experimentId = req.getParameter("experimentId");
+    Set<String> whos = getUsersForExperiment(experimentId, req);
     StringBuilder mappingOutput = new StringBuilder();
     for (String who : whos) {
       mappingOutput.append(who);
@@ -142,6 +138,33 @@ public class EventServlet extends HttpServlet {
     }
     resp.setContentType("text/csv;charset=UTF-8");
     resp.getWriter().println(mappingOutput.toString());
+  }
+
+  private Set<String> getUsersForExperiment(String experimentId, HttpServletRequest req) {
+    String query = "{ select : [\"distinct who\"], query : " + "        { criteria : \" experiment_id = ? \","
+            + "values : [" + experimentId + "],"
+            + "}, "
+            + "order : \"who\"};";
+
+
+    EventQueryStatus result = CloudSqlRequestProcessor.processSearchQuery(AuthUtil.getEmailOfUser(req, AuthUtil.getWhoFromLogin()), query, TimeUtil.getTimeZoneForClient(req));
+    if (result.getStatus() != Constants.SUCCESS) {
+      String resultAsString;
+      try {
+        resultAsString = JsonConverter.getObjectMapper().writeValueAsString(result);
+        log.info("Error getting users in experiment for anon map: " + resultAsString);
+      } catch (IOException e) {
+        log.info("Exception writing error for attempt to get anon map: " + e.getMessage());
+      }
+      return Sets.newHashSet();
+    }
+
+    final List<EventDAO> events = result.getEvents();
+    Set<String> whos = Sets.newHashSet();
+    for (EventDAO eventDAO : events) {
+      whos.add(eventDAO.getWho());
+    }
+    return whos;
   }
 
 
@@ -196,7 +219,7 @@ public class EventServlet extends HttpServlet {
             }
           }
         }
-      
+
         eventDAOs.add(new EventDAO(userId,
                                    new DateTime(event.getWhen()),
                                    event.getExperimentName(),
@@ -361,7 +384,7 @@ public class EventServlet extends HttpServlet {
       PacoModule backendModule = new PacoModule(REPORT_WORKER, req.getServerName());
       String backendAddress = backendModule.getAddress();
       BufferedReader reader = null;
-      
+
       try {
         reader = sendToBackend(timeZoneForClient, req, backendAddress, reportFormat, cursor, limit, pacoProtocol);
       } catch (SocketTimeoutException se) {
