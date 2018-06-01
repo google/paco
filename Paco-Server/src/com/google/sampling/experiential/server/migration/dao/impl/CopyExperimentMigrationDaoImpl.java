@@ -365,7 +365,7 @@ public class CopyExperimentMigrationDaoImpl implements CopyExperimentMigrationDa
    List<String> grpList = Lists.newArrayList();
      
   @Override
-  public boolean experimentSplitCreateTables() throws SQLException {
+  public boolean dataCleanupCreateTables() throws SQLException {
     String[] creationQueries = null;
     
     creationQueries = new String[] { CREATE_TABLE_DATATYPE, CREATE_TABLE_EXTERN_STRING_LIST_LABEL, CREATE_TABLE_EXTERN_STRING_INPUT, CREATE_TABLE_CHOICE_COLLECTION, CREATE_TABLE_EXPERIMENT_DETAIL, 
@@ -378,7 +378,7 @@ public class CopyExperimentMigrationDaoImpl implements CopyExperimentMigrationDa
   
 
   @Override
-  public boolean experimentSplitAnonymizeParticipantsCreateTables() throws SQLException {
+  public boolean dataCleanupAnonymizeParticipantsCreateTables() throws SQLException {
     String[] creationQueries = new String[2];
     creationQueries = new String[] { CREATE_TABLE_USER, CREATE_TABLE_EXPERIMENT_USER};
     return executeCreationOrInsertionQuerys(creationQueries);
@@ -386,7 +386,7 @@ public class CopyExperimentMigrationDaoImpl implements CopyExperimentMigrationDa
   
   
   @Override
-  public boolean experimentSplitInsertPredefinedRecords() throws Exception {            
+  public boolean dataCleanupInsertPredefinedRecords() throws Exception {            
     String[] insertionQueries = new String[] { 
                                   insertDataTypeSql1, insertDataTypeSql2,
                                   insertDataTypeSql3, insertDataTypeSql4,
@@ -412,7 +412,7 @@ public class CopyExperimentMigrationDaoImpl implements CopyExperimentMigrationDa
   }
   
   @Override
-  public boolean experimentSplitAddModificationsToExistingTables()  throws SQLException {
+  public boolean dataCleanupAddModificationsToExistingTables()  throws SQLException {
     String[] modificationQueries = new String[] { 
               addNewColumnsSql2,
               addNewColumnsSql4,
@@ -1222,7 +1222,7 @@ public class CopyExperimentMigrationDaoImpl implements CopyExperimentMigrationDa
   }
 
   @Override
-  public boolean copyExperimentPopulateDistinctExperimentIdVersionAndGroupName() throws SQLException {
+  public boolean dataCleanupPopulateDistinctExperimentIdVersionAndGroupName() throws SQLException {
     CSTempExperimentIdVersionGroupNameDao daoImpl = new CSTempExperimentIdVersionGroupNameDaoImpl();
     daoImpl.insertExperimentIdVersionAndGroupName();
     return true;
@@ -1355,7 +1355,7 @@ public class CopyExperimentMigrationDaoImpl implements CopyExperimentMigrationDa
   
   
   @Override
-  public boolean copyExperimentChangeGroupNameOfEventsWithPredefinedInputs() throws SQLException {
+  public boolean dataCleanupChangeGroupNameOfEventsWithPredefinedInputs() throws SQLException {
     String featureName = null;
     String finalQryForNotifAcc = null;
     Connection conn = null;

@@ -153,8 +153,6 @@ public class CopyExperimentFromDataStoreToCloudSqlJob implements MigrationJob {
       return returnString;
     }
     
-    
-    
     private String updateEventAndOutputTable(Integer expLiteStatus, Integer batchSize, String unprocessedEventRecordQuery) throws Exception {
       CSTempExperimentDefinitionDao expDefDaoImpl = new CSTempExperimentDefinitionDaoImpl();
       CSTempExperimentIdVersionGroupNameDao expIdVersionDaoImpl = new CSTempExperimentIdVersionGroupNameDaoImpl();

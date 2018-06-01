@@ -37,7 +37,6 @@ public class ExperimentMigrationDataPreCleanupJob implements MigrationJob {
     private String cleanupDataBeforeMigration(String cursor) throws Exception {
       String returnString = "";
       Boolean doAll = false;
-      CloudSQLMigrationDao csMigDaoImpl = new CloudSQLMigrationDaoImpl();
       CopyExperimentMigrationDao sqlMigDaoImpl = new CopyExperimentMigrationDaoImpl();
       if (cursor == null) {
         doAll = true;
@@ -46,7 +45,6 @@ public class ExperimentMigrationDataPreCleanupJob implements MigrationJob {
       if (doAll || (cursor != null && cursor.equalsIgnoreCase("step1"))) {
         try {
           log.info("------------------------------------------------Step 1 Begin------------------------------------------------");
-//          csMigDaoImpl.persistStreamingStart(new DateTime());
           sqlMigDaoImpl.dataCleanupUpdateEventTableExperimentVersionAndGroupNameNull();
           log.info("------------------------------------------------Step 1 End------------------------------------------------");
           returnString += "Modify experiment version from null to 0 Done. Step1 complete.";
@@ -100,9 +98,9 @@ public class ExperimentMigrationDataPreCleanupJob implements MigrationJob {
       if (doAll || (cursor != null && cursor.equalsIgnoreCase("step5"))) {
         try {
           log.info("------------------------------------------------Step 5 Begin------------------------------------------------");
-          sqlMigDaoImpl.experimentSplitCreateTables();
-          sqlMigDaoImpl.experimentSplitAnonymizeParticipantsCreateTables();
-          sqlMigDaoImpl.experimentSplitAddModificationsToExistingTables();
+          sqlMigDaoImpl.dataCleanupCreateTables();
+          sqlMigDaoImpl.dataCleanupAnonymizeParticipantsCreateTables();
+          sqlMigDaoImpl.dataCleanupAddModificationsToExistingTables();
           log.info("------------------------------------------------Step 5 End------------------------------------------------");
           returnString += "Created new tables and altered existing tables. Step5 complete.";
 //          returnString = "All Done";
@@ -116,7 +114,7 @@ public class ExperimentMigrationDataPreCleanupJob implements MigrationJob {
       if (doAll || (cursor != null && cursor.equalsIgnoreCase("step6"))) {
         try {
           log.info("------------------------------------------------Step 6 Begin------------------------------------------------");
-          sqlMigDaoImpl.experimentSplitInsertPredefinedRecords();
+          sqlMigDaoImpl.dataCleanupInsertPredefinedRecords();
           log.info("------------------------------------------------Step 6 End------------------------------------------------");
           returnString += "Inserted records to data types. Step 6 complete";
           doAll =  true;
@@ -129,7 +127,7 @@ public class ExperimentMigrationDataPreCleanupJob implements MigrationJob {
       if (doAll || (cursor != null && cursor.equalsIgnoreCase("step7"))) {
         try {
           log.info("------------------------------------------------Step 7 Begin------------------------------------------------");
-          sqlMigDaoImpl.copyExperimentPopulateDistinctExperimentIdVersionAndGroupName();
+          sqlMigDaoImpl.dataCleanupPopulateDistinctExperimentIdVersionAndGroupName();
           log.info("------------------------------------------------Step 7 End------------------------------------------------");
           returnString += "copy distinct exp id and version from events Done. Step7 complete.";
 //          returnString = "All Done";
@@ -145,7 +143,7 @@ public class ExperimentMigrationDataPreCleanupJob implements MigrationJob {
       if (doAll || (cursor != null && cursor.equalsIgnoreCase("step8"))) {
         try {
           log.info("------------------------------------------------Step 8 Begin------------------------------------------------");
-          sqlMigDaoImpl.copyExperimentChangeGroupNameOfEventsWithPredefinedInputs();
+          sqlMigDaoImpl.dataCleanupChangeGroupNameOfEventsWithPredefinedInputs();
           // egn status 2
           log.info("------------------------------------------------Step 8 End------------------------------------------------");
           returnString += "group name changed for events with predefined inputs Done. Step8 complete.";

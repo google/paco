@@ -13,20 +13,20 @@ public interface CopyExperimentMigrationDao {
   boolean dataCleanupRemoveUnwantedEventAndOutputsPredefinedExperiments() throws Exception;
   boolean dataCleanupChangeDupCounterAloneOnVariableNames(String query) throws Exception;
   
-  boolean experimentSplitCreateTables() throws SQLException; 
-  boolean experimentSplitAddModificationsToExistingTables() throws SQLException;
-  boolean experimentSplitInsertPredefinedRecords() throws SQLException, Exception; 
+  boolean dataCleanupCreateTables() throws SQLException; 
+  boolean dataCleanupAddModificationsToExistingTables() throws SQLException;
+  boolean dataCleanupInsertPredefinedRecords() throws SQLException, Exception; 
   boolean experimentSplitPopulateExperimentBundleTables()  throws SQLException;
-  boolean experimentSplitAnonymizeParticipantsCreateTables() throws SQLException; 
+  boolean dataCleanupAnonymizeParticipantsCreateTables() throws SQLException; 
   boolean experimentSplitGroupsAndPersist() throws SQLException, Exception;
   boolean experimentSplitTakeBackupInCloudSql() throws SQLException;
   boolean experimentSplitInsertIntoExperimentDefinition() throws SQLException, Exception;
   boolean experimentSplitRemoveUnwantedExperimentJsonFromExperimentDefinition() throws Exception;
   
-  boolean copyExperimentPopulateDistinctExperimentIdVersionAndGroupName() throws SQLException;
+  boolean dataCleanupPopulateDistinctExperimentIdVersionAndGroupName() throws SQLException;
   boolean copyExperimentDeleteEventsAndOutputsForDeletedExperiments() throws SQLException;
   boolean copyExperimentCreateEVGMRecordsForAllExperiments() throws SQLException;
-  boolean copyExperimentChangeGroupNameOfEventsWithPredefinedInputs() throws SQLException;
+  boolean dataCleanupChangeGroupNameOfEventsWithPredefinedInputs() throws SQLException;
   boolean copyExperimentRenameOldEventColumns() throws SQLException;
   boolean copyExperimentMarkExperimentsForPivotTable() throws Exception;
   boolean copyExperimentPopulatePivotTableForAllExperiments() throws SQLException;
