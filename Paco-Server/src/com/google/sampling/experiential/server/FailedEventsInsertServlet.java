@@ -56,6 +56,7 @@ public class FailedEventsInsertServlet extends HttpServlet {
       // Get failed events of reprocessing status false
       Map<Long, String> failedEvents = failedDaoImpl.getFailedEvents();
       boolean withOutputs = false;
+      Boolean oldColumnName = true;
       for ( Long failedId : failedEvents.keySet()) {
         id = failedId;
         final JSONObject currentEvent = new JSONObject(failedEvents.get(failedId));
@@ -64,7 +65,7 @@ public class FailedEventsInsertServlet extends HttpServlet {
         if (currentEvent.has(Constants.ID)) {
           // check whether failed json id is there in events table
           getQueryForEventIdSql = SearchUtil.getQueryForEventRetrieval(currentEvent.getString(Constants.ID));
-          List<EventDAO> evtList = eventOutputDaoImpl.getEvents(getQueryForEventIdSql, withOutputs);
+          List<EventDAO> evtList = eventOutputDaoImpl.getEvents(getQueryForEventIdSql, withOutputs, oldColumnName);
           if (evtList.size() == 0) {
             toBeFixed.put(eventId, false);
             // send it to cs insert
@@ -72,7 +73,7 @@ public class FailedEventsInsertServlet extends HttpServlet {
                                                                                  null, null,null);
             // verify whether it is there in events table
             getQueryForEventIdSql = SearchUtil.getQueryForEventRetrieval(currentEvent.getString(Constants.ID));
-            List<EventDAO> evts = eventOutputDaoImpl.getEvents(getQueryForEventIdSql, withOutputs);
+            List<EventDAO> evts = eventOutputDaoImpl.getEvents(getQueryForEventIdSql, withOutputs, oldColumnName);
             if (evts.size() >0) {
               toBeFixed.put(eventId, true);
               failedDaoImpl.updateFailedEventsRetry(id, Constants.TRUE);

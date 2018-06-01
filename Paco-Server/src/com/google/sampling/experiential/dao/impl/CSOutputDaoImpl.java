@@ -8,6 +8,8 @@ import java.util.List;
 import java.util.logging.Logger;
 
 import com.google.common.collect.Lists;
+import com.google.sampling.experiential.cloudsql.columns.OutputServerColumns;
+import com.google.sampling.experiential.dao.CSInputDao;
 import com.google.sampling.experiential.dao.CSOutputDao;
 import com.google.sampling.experiential.server.CloudSQLConnectionManager;
 import com.google.sampling.experiential.server.QueryConstants;
@@ -24,20 +26,25 @@ import net.sf.jsqlparser.statement.insert.Insert;
 
 public class CSOutputDaoImpl implements CSOutputDao {
   public static final Logger log = Logger.getLogger(CSOutputDaoImpl.class.getName());
-  private static List<Column> outputColList = Lists.newArrayList();
+  private static List<Column> outputNewColList = Lists.newArrayList();
+  private static List<Column> outputOldColList = Lists.newArrayList();
   static {
-    outputColList.add(new Column(OutputBaseColumns.EVENT_ID));
-    outputColList.add(new Column(OutputBaseColumns.NAME));
-    outputColList.add(new Column(OutputBaseColumns.ANSWER));
+    outputOldColList.add(new Column(OutputBaseColumns.EVENT_ID));
+    outputOldColList.add(new Column(OutputBaseColumns.NAME));
+    outputOldColList.add(new Column(OutputBaseColumns.ANSWER));
+    outputNewColList.add(new Column(OutputBaseColumns.EVENT_ID));
+    outputNewColList.add(new Column(OutputServerColumns.INPUT_ID));
+    outputNewColList.add(new Column(OutputBaseColumns.ANSWER));
   }
 
   @Override
-  public boolean insertSingleOutput(Long eventId, String text, String answer) throws SQLException {
+  public boolean insertSingleOutput(Long eventId, Long inputId, String text, String answer, Boolean oldColumnNames) throws SQLException {
 
     PreparedStatement statementCreateEventOutput = null;
     ExpressionList outputExprList = new ExpressionList();
     List<Expression>  out = Lists.newArrayList();
     Insert outputInsert = new Insert();
+    List<Column> outputColList = null;
     Connection conn = null;
     try {
       conn = CloudSQLConnectionManager.getInstance().getConnection();
@@ -46,6 +53,11 @@ public class CSOutputDaoImpl implements CSOutputDao {
       outputInsert.setUseValues(true);
       outputExprList.setExpressions(out);
       outputInsert.setItemsList(outputExprList);
+      if (oldColumnNames) {
+        outputColList = outputOldColList;
+      } else {
+        outputColList = outputNewColList;
+      }
       outputInsert.setColumns(outputColList);
       // Adding ? for prepared stmt
       for (Column c : outputColList) {
@@ -53,7 +65,11 @@ public class CSOutputDaoImpl implements CSOutputDao {
       }
       statementCreateEventOutput = conn.prepareStatement(outputInsert.toString());
       statementCreateEventOutput.setLong(1, eventId);
-      statementCreateEventOutput.setString(2, text);
+      if (oldColumnNames) {
+        statementCreateEventOutput.setString(2, text);
+      } else {
+        statementCreateEventOutput.setLong(2, inputId);
+      }
       statementCreateEventOutput.setString(3, answer);
       int insertCount = statementCreateEventOutput.executeUpdate();
       conn.commit();
@@ -71,23 +87,35 @@ public class CSOutputDaoImpl implements CSOutputDao {
       }
     }
   }
+ 
   
   @Override
-  public List<WhatDAO> getOutputs(Long eventId) throws SQLException {
+  public List<WhatDAO> getOutputs(Long eventId, Boolean populateEventsTableOldMethod) throws SQLException {
     List<WhatDAO> whatLst = Lists.newArrayList();
+    CSInputDao inputDaoImpl = new CSInputDaoImpl();
     WhatDAO whatObj = null;
     String question = null;
     String answer = null;
     Connection conn = null;
     ResultSet rs = null;
+    Long inputId = null;
     PreparedStatement statementSelectOutput = null;
     try {
       conn = CloudSQLConnectionManager.getInstance().getConnection();
       statementSelectOutput = conn.prepareStatement(QueryConstants.GET_ALL_OUTPUTS_FOR_EVENT_ID.toString());
       statementSelectOutput.setLong(1, eventId);
+      log.info(statementSelectOutput.toString());
       rs = statementSelectOutput.executeQuery();
-      while(rs.next()){
-        question = rs.getString(OutputBaseColumns.NAME);
+      while (rs.next()) {
+        if (populateEventsTableOldMethod) { 
+          question = rs.getString(OutputBaseColumns.NAME);
+        } else {
+          inputId = rs.getLong(OutputServerColumns.INPUT_ID);
+          
+          if (inputId != null) { 
+            question = inputDaoImpl.getLabelForInputId(inputId);
+          }
+        }
         answer = rs.getString(OutputBaseColumns.ANSWER);
         whatObj = new WhatDAO(question, answer);
         whatLst.add(whatObj);

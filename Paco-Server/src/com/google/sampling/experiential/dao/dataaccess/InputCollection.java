@@ -46,6 +46,7 @@ public class InputCollection implements PacoComparator<InputCollection> {
     boolean hasChanged = false;
     if (olderVersion == null) {
       hasChanged = true;
+      return hasChanged;
     } else if (this.getInputOrderAndChoices().size() != olderVersion.getInputOrderAndChoices().size()) {
       hasChanged = true;
     }
@@ -54,9 +55,15 @@ public class InputCollection implements PacoComparator<InputCollection> {
     String currentNewInput = null;
     while (newInputItr.hasNext()) {
       currentNewInput = newInputItr.next();
-      if (this.getInputOrderAndChoices().get(currentNewInput).hasChanged(olderVersion.getInputOrderAndChoices().get(currentNewInput))) {
-        hasChanged = true;
-      }
+      if (this.getInputOrderAndChoices() != null && this.getInputOrderAndChoices().get(currentNewInput) != null) {
+        if (olderVersion.getInputOrderAndChoices() != null) {
+          if (this.getInputOrderAndChoices().get(currentNewInput).hasChanged(olderVersion.getInputOrderAndChoices().get(currentNewInput))) {
+            hasChanged = true;
+          }
+        } else {
+          hasChanged = true;
+        }
+      } 
     }
   
     return hasChanged;

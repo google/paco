@@ -20,7 +20,7 @@ import com.google.sampling.experiential.cloudsql.columns.EventServerColumns;
 import com.google.sampling.experiential.cloudsql.columns.FailedEventServerColumns;
 import com.google.sampling.experiential.dao.CSExperimentUserDao;
 import com.google.sampling.experiential.dao.CSExperimentVersionGroupMappingDao;
-import com.google.sampling.experiential.dao.dataaccess.ExperimentVersionMapping;
+import com.google.sampling.experiential.dao.dataaccess.ExperimentVersionGroupMapping;
 import com.google.sampling.experiential.dao.impl.CSExperimentUserDaoImpl;
 import com.google.sampling.experiential.dao.impl.CSExperimentVersionGroupMappingDaoImpl;
 import com.google.sampling.experiential.model.Event;
@@ -78,7 +78,7 @@ public class CloudSQLMigrationDaoImpl implements CloudSQLMigrationDao {
     eventColInsertList.add(new Column(EventServerColumns.SORT_DATE));
     eventColInsertList.add(new Column(EventServerColumns.CLIENT_TIME_ZONE));
     eventColInsertList.add(new Column(Constants.UNDERSCORE_ID));
-    eventColInsertList.add(new Column(EventServerColumns.EXPERIMENT_GROUP_VERSION_MAPPING_ID));
+    eventColInsertList.add(new Column(EventServerColumns.EXPERIMENT_VERSION_GROUP_MAPPING_ID));
 
     outputColList.add(new Column(OutputBaseColumns.EVENT_ID));
     outputColList.add(new Column(OutputBaseColumns.NAME));
@@ -127,7 +127,7 @@ public class CloudSQLMigrationDaoImpl implements CloudSQLMigrationDao {
     List<Expression> exp = Lists.newArrayList();
     Insert eventInsert = new Insert();
     CSExperimentUserDao exptUserDaoImpl = new CSExperimentUserDaoImpl();
-    Map<String, ExperimentVersionMapping> allEVMRecords = null;
+    Map<String, ExperimentVersionGroupMapping> allEVMRecords = null;
     CSExperimentVersionGroupMappingDao experimentVersionMappingDaoImpl = new CSExperimentVersionGroupMappingDaoImpl();
     
     try {
@@ -197,7 +197,7 @@ public class CloudSQLMigrationDaoImpl implements CloudSQLMigrationDao {
             allEVMRecords = experimentVersionMappingDaoImpl.getAllGroupsInVersion(Long.parseLong(event.getExperimentId()), event.getExperimentVersion());
             
             experimentVersionMappingDaoImpl.ensureEVMRecord(Long.parseLong(event.getExperimentId()), event.getId(), event.getExperimentName(), event.getExperimentVersion(), event.getExperimentGroupName(), event.getWho(), event.getWhat(), true, allEVMRecords);
-            ExperimentVersionMapping evm = allEVMRecords.get(event.getExperimentGroupName());
+            ExperimentVersionGroupMapping evm = allEVMRecords.get(event.getExperimentGroupName());
             statementCreateEvent.setLong(i++, evm.getExperimentVersionMappingId());
 
             statementCreateEvent.addBatch();

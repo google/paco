@@ -12,6 +12,7 @@ import java.util.logging.Logger;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import com.google.sampling.experiential.cloudsql.columns.EventServerColumns;
 import com.google.sampling.experiential.cloudsql.columns.ExperimentUserColumns;
 import com.google.sampling.experiential.cloudsql.columns.UserColumns;
 import com.google.sampling.experiential.dao.CSExperimentUserDao;
@@ -79,7 +80,6 @@ public class CSExperimentUserDaoImpl implements CSExperimentUserDao {
     return getMaxAnonId(userLst);
   }
   
-  
   @Override
   public List<PacoUser> getAllUsersForExperiment(Long experimentId) throws SQLException {
     List<PacoUser> pacoUsersForExperiment = Lists.newArrayList();
@@ -117,6 +117,39 @@ public class CSExperimentUserDaoImpl implements CSExperimentUserDao {
     }
 
     return pacoUsersForExperiment;
+  }
+  
+  @Override
+  public List<Integer> getAllAnonIdsForEVGMId(Long evgmId) throws SQLException {
+    List<Integer> anonIdsForExperiment = Lists.newArrayList();
+    Connection conn = null;
+    PreparedStatement findAllUsersStatement = null;
+    ResultSet rs = null;
+    try {
+      conn = CloudSQLConnectionManager.getInstance().getConnection();
+      findAllUsersStatement = conn.prepareStatement(QueryConstants.GET_ALL_USERS_FOR_EVGM.toString());
+      findAllUsersStatement.setLong(1, evgmId);
+      rs = findAllUsersStatement.executeQuery();
+      while(rs.next()){
+        anonIdsForExperiment.add(rs.getInt(EventServerColumns.WHO+"_bk"));
+      }
+    } finally {
+      try {
+        if (rs != null) {
+          rs.close();
+        }
+        if (findAllUsersStatement != null) {
+          findAllUsersStatement.close();
+        }
+        if (conn != null) {
+          conn.close();
+        }
+      } catch (SQLException ex1) {
+        log.warning(ErrorMessages.CLOSING_RESOURCE_EXCEPTION.getDescription()+ ex1);
+      }
+    }
+
+    return anonIdsForExperiment;
   }
   
   @Override

@@ -66,8 +66,10 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.google.sampling.experiential.dao.CSEventOutputDao;
 import com.google.sampling.experiential.dao.CSFailedEventDao;
+import com.google.sampling.experiential.dao.CSOldEventOutputDao;
 import com.google.sampling.experiential.dao.impl.CSEventOutputDaoImpl;
 import com.google.sampling.experiential.dao.impl.CSFailedEventDaoImpl;
+import com.google.sampling.experiential.dao.impl.CSOldEventOutputDaoImpl;
 import com.google.sampling.experiential.datastore.EventEntityConverter;
 import com.google.sampling.experiential.model.Event;
 import com.google.sampling.experiential.model.Experiment;
@@ -76,6 +78,7 @@ import com.google.sampling.experiential.model.What;
 import com.google.sampling.experiential.server.stats.participation.ParticipationStatsService;
 import com.google.sampling.experiential.shared.EventDAO;
 import com.google.sampling.experiential.shared.WhatDAO;
+import com.pacoapp.paco.shared.util.Constants;
 import com.pacoapp.paco.shared.util.ErrorMessages;
 
 /**
@@ -91,6 +94,7 @@ public class EventRetriever {
   private static final Logger log = Logger.getLogger(EventRetriever.class.getName());
   private CSFailedEventDao failedEventDaoImpl = new CSFailedEventDaoImpl();
   private CSEventOutputDao eventOutputDaoImpl = new CSEventOutputDaoImpl();
+  private CSOldEventOutputDao oldEventOutputDaoImpl = new CSOldEventOutputDaoImpl();
   private static DateTimeFormatter dfMs = DateTimeFormat.forPattern(TimeUtil.DATETIME_FORMAT_MS).withOffsetParsed();
 
   @VisibleForTesting
@@ -175,7 +179,11 @@ public class EventRetriever {
         event.setTimeZone(eventJson.getString("tz"));
         event.setWhen(dfMs.parseDateTime(eventJson.getString("whenDate")).toDate());
         event.setWho(eventJson.getString("who"));
-        eventOutputDaoImpl.insertEventAndOutputs(event);
+        if (Constants.USE_OLD_FORMAT_FLAG) {
+          oldEventOutputDaoImpl.insertEventAndOutputsInOldWay(event);
+        } else {
+          eventOutputDaoImpl.insertEventAndOutputs(event);
+        }
       } catch (JSONException e) {
         failedEventDaoImpl.insertFailedEvent(eventJson.toString(), ErrorMessages.JSON_EXCEPTION.getDescription(), e.getMessage());
         log.warning(ErrorMessages.JSON_EXCEPTION.getDescription() + " for request: " + eventJson + " : " + ExceptionUtil.getStackTraceAsString(e));

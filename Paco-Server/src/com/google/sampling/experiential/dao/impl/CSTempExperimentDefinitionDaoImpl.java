@@ -8,10 +8,12 @@ import java.util.List;
 import java.util.logging.Logger;
 
 import com.google.common.collect.Lists;
-import com.google.sampling.experiential.cloudsql.columns.ExperimentDefinitionColumns;
-import com.google.sampling.experiential.dao.CSExperimentDefinitionDao;
+import com.google.sampling.experiential.cloudsql.columns.TempExperimentDefinitionColumns;
+import com.google.sampling.experiential.dao.CSTempExperimentDefinitionDao;
 import com.google.sampling.experiential.server.CloudSQLConnectionManager;
 import com.google.sampling.experiential.server.QueryConstants;
+import com.pacoapp.paco.shared.model2.ExperimentDAO;
+import com.pacoapp.paco.shared.model2.JsonConverter;
 import com.pacoapp.paco.shared.util.ErrorMessages;
 
 import net.sf.jsqlparser.expression.Expression;
@@ -21,21 +23,21 @@ import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.schema.Table;
 import net.sf.jsqlparser.statement.insert.Insert;
 
-public class CSExperimentDefinitionDaoImpl implements CSExperimentDefinitionDao {
-  public static final Logger log = Logger.getLogger(CSExperimentDefinitionDaoImpl.class.getName());
+public class CSTempExperimentDefinitionDaoImpl implements CSTempExperimentDefinitionDao {
+  public static final Logger log = Logger.getLogger(CSTempExperimentDefinitionDaoImpl.class.getName());
   private static List<Column> experimentDefinitionColList = Lists.newArrayList();
   private static List<Column> experimentDefinitionBkColList = Lists.newArrayList();
   
   static {
-    experimentDefinitionColList.add(new Column(ExperimentDefinitionColumns.ID));
-    experimentDefinitionColList.add(new Column(ExperimentDefinitionColumns.VERSION));
-    experimentDefinitionColList.add(new Column(ExperimentDefinitionColumns.SOURCE_JSON));
-    experimentDefinitionColList.add(new Column(ExperimentDefinitionColumns.CONVERTED_JSON));
-    experimentDefinitionColList.add(new Column(ExperimentDefinitionColumns.MIGRATION_STATUS));
-    experimentDefinitionColList.add(new Column(ExperimentDefinitionColumns.ERROR_MESSAGE));
-    experimentDefinitionBkColList.add(new Column(ExperimentDefinitionColumns.ID));
-    experimentDefinitionBkColList.add(new Column(ExperimentDefinitionColumns.VERSION));
-    experimentDefinitionBkColList.add(new Column(ExperimentDefinitionColumns.SOURCE_JSON));
+    experimentDefinitionColList.add(new Column(TempExperimentDefinitionColumns.ID));
+    experimentDefinitionColList.add(new Column(TempExperimentDefinitionColumns.VERSION));
+    experimentDefinitionColList.add(new Column(TempExperimentDefinitionColumns.SOURCE_JSON));
+    experimentDefinitionColList.add(new Column(TempExperimentDefinitionColumns.CONVERTED_JSON));
+    experimentDefinitionColList.add(new Column(TempExperimentDefinitionColumns.MIGRATION_STATUS));
+    experimentDefinitionColList.add(new Column(TempExperimentDefinitionColumns.ERROR_MESSAGE));
+    experimentDefinitionBkColList.add(new Column(TempExperimentDefinitionColumns.ID));
+    experimentDefinitionBkColList.add(new Column(TempExperimentDefinitionColumns.VERSION));
+    experimentDefinitionBkColList.add(new Column(TempExperimentDefinitionColumns.SOURCE_JSON));
   }
 
   @Override
@@ -49,7 +51,7 @@ public class CSExperimentDefinitionDaoImpl implements CSExperimentDefinitionDao 
     try {
       conn = CloudSQLConnectionManager.getInstance().getConnection();
       conn.setAutoCommit(false);
-      expDefInsert.setTable(new Table(ExperimentDefinitionColumns.TABLE_NAME));
+      expDefInsert.setTable(new Table(TempExperimentDefinitionColumns.TABLE_NAME));
       expDefInsert.setUseValues(true);
       expDefExprList.setExpressions(out);
       expDefInsert.setItemsList(expDefExprList);
@@ -94,7 +96,7 @@ public class CSExperimentDefinitionDaoImpl implements CSExperimentDefinitionDao 
     try {
       conn = CloudSQLConnectionManager.getInstance().getConnection();
       conn.setAutoCommit(false);
-      expDefInsert.setTable(new Table(ExperimentDefinitionColumns.TABLE_NAME+"_bk"));
+      expDefInsert.setTable(new Table(TempExperimentDefinitionColumns.TABLE_NAME+"_bk"));
       expDefInsert.setUseValues(true);
       expDefExprList.setExpressions(out);
       expDefInsert.setItemsList(expDefExprList);
@@ -124,6 +126,56 @@ public class CSExperimentDefinitionDaoImpl implements CSExperimentDefinitionDao 
         log.warning(ErrorMessages.CLOSING_RESOURCE_EXCEPTION.getDescription() + ex1);
       }
     }
+  }
+  
+  @Override
+  public List<ExperimentDAO> getAllExperimentFromExperimentDefinition(Integer migrationStatus) throws SQLException {
+    List<ExperimentDAO> experimentList = Lists.newArrayList();
+    Connection conn = null;
+    ResultSet rs = null;
+    String experimentJson = null;
+    ExperimentDAO experimentDao = null;
+    PreparedStatement statementSelectExperimentJson = null;
+    String query = null;
+    try {
+      conn = CloudSQLConnectionManager.getInstance().getConnection();
+      query = QueryConstants.GET_ALL_EXPERIMENT_JSON.toString();
+      if (migrationStatus == 1) {
+        query = query + " and " + TempExperimentDefinitionColumns.ERROR_MESSAGE+ "  is null and  " + TempExperimentDefinitionColumns.CONVERTED_JSON + " is not null";
+      }
+      statementSelectExperimentJson = conn.prepareStatement(query);
+      statementSelectExperimentJson.setInt(1, migrationStatus);
+      log.info(query);
+      rs = statementSelectExperimentJson.executeQuery();
+      while(rs.next()) {
+        if (migrationStatus == 0) {
+          experimentJson = rs.getString(TempExperimentDefinitionColumns.SOURCE_JSON);
+          experimentDao = JsonConverter.fromSingleEntityJson(experimentJson.substring(1,experimentJson.length()-1));
+        } else if (migrationStatus == 1) {
+          experimentJson = rs.getString(TempExperimentDefinitionColumns.CONVERTED_JSON);
+          experimentDao = JsonConverter.fromSingleEntityJson(experimentJson);
+        }
+        experimentList.add(experimentDao);
+      }
+    } finally {
+      try {
+        if ( rs != null) {
+          rs.close();
+        }
+        if (statementSelectExperimentJson != null) {
+          statementSelectExperimentJson.close();
+        }
+        if (conn != null) {
+          conn.close();
+        }
+      } catch (SQLException ex1) {
+        log.warning(ErrorMessages.CLOSING_RESOURCE_EXCEPTION.getDescription()+ ex1);
+      }
+    }
+
+    
+    log.info("Retrieved " + experimentList.size() + "experiments");
+    return experimentList;
   }
   
   
@@ -270,7 +322,7 @@ public class CSExperimentDefinitionDaoImpl implements CSExperimentDefinitionDao 
       findAllErroredExperimentsStatement = conn.prepareStatement(QueryConstants.GET_ALL_ERRORED_EXPERIMENT_JSON.toString());
       rs = findAllErroredExperimentsStatement.executeQuery();
       while(rs.next()) {
-        erroredExperiments.add( rs.getLong(ExperimentDefinitionColumns.ID));
+        erroredExperiments.add( rs.getLong(TempExperimentDefinitionColumns.ID));
       }
     } finally {
       try {
@@ -290,5 +342,53 @@ public class CSExperimentDefinitionDaoImpl implements CSExperimentDefinitionDao 
 
     return erroredExperiments;
   }
+  
+  @Override
+  public ExperimentDAO getExperimentDefinition(Long exptId, Integer expVersion) throws SQLException {
+    Connection conn = null;
+    ResultSet rs = null;
+    String experimentJson = null;
+    ExperimentDAO experimentDao = null;
+    PreparedStatement statementSelectExperimentJson = null;
+    String query = null;
+    try {
+      conn = CloudSQLConnectionManager.getInstance().getConnection();
+      query = QueryConstants.GET_EXPERIMENT_JSON_FOR_EXP_ID.toString();
+      if (expVersion != null) { 
+        query = query +  " and " + TempExperimentDefinitionColumns.VERSION + " = ?";
+      } else {
+        query = query + " order by " + TempExperimentDefinitionColumns.VERSION + " desc limit 1";
+      }
+      statementSelectExperimentJson = conn.prepareStatement(query);
+      statementSelectExperimentJson.setLong(1, exptId);
+      if (expVersion != null) { 
+        statementSelectExperimentJson.setLong(2, expVersion);
+      }
+      
+      log.info(query);
+      rs = statementSelectExperimentJson.executeQuery();
+      while(rs.next()) {
+        experimentJson = rs.getString(TempExperimentDefinitionColumns.CONVERTED_JSON);
+        experimentDao = JsonConverter.fromSingleEntityJson(experimentJson);  
+      }
+    } finally {
+      try {
+        if ( rs != null) {
+          rs.close();
+        }
+        if (statementSelectExperimentJson != null) {
+          statementSelectExperimentJson.close();
+        }
+        if (conn != null) {
+          conn.close();
+        }
+      } catch (SQLException ex1) {
+        log.warning(ErrorMessages.CLOSING_RESOURCE_EXCEPTION.getDescription()+ ex1);
+      }
+    }
+
+    return experimentDao;
+  }
+  
   
 }

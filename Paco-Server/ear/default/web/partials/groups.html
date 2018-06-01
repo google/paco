@@ -1,32 +1,37 @@
 <div class="groups">
 <p>Define data collection instruments for your experiment.</p>
+ <!--  <md-button ng-click="">
+    Add App Usage Group
+  </md-button> 
+  <md-button ng-click="addGroup()">
+    Add Survey Group
+  </md-button> -->
   <div class="group" ng-repeat="group in experiment.groups track by $index" ng-controller="GroupsCtrl">
 
-    <md-card hidable>
+    <md-card hidable >
       <md-card-content ng-if="experiment.groups.length > 1 || hiding">
           <paco-help tip="experiment-groups" ng-if="$index > 0">
             Help: Experiment Groups
           </paco-help>
-        <div class="section">
+  	      <div class="section">
+	          <div class="title" ng-click="toggleHide()">
+	            <a href="" class="group-toggle" ng-class="{hiding: hiding}"></a>
+	            Experiment Group
+	          </div>
+          	<md-input-container placeholder="Group Name" md-no-float class="group-name">
+            	<input ng-model="group.name" aria-label="Group name" ng-disabled="{{disabled}}">
+            	<no-ios ng-if="$index > 0">iOS does not support multiple groups</no-ios>
+          	</md-input-container>
 
-          <div class="title" ng-click="toggleHide()">
-            <a href="" class="group-toggle" ng-class="{hiding: hiding}"></a>
-            Experiment Group
+
+          	<a href="" class="removeGroup" ng-click="remove(experiment.groups, $index)">
+          	</a>
+
           </div>
-          <md-input-container placeholder="Group Name" md-no-float class="group-name">
-            <input ng-model="group.name" aria-label="Group name">
-            <no-ios ng-if="$index > 0">iOS does not support multiple groups</no-ios>
-          </md-input-container>
 
+      	</md-card-content>
 
-          <a href="" class="removeGroup" ng-click="remove(experiment.groups, $index)">
-          </a>
-
-        </div>
-
-      </md-card-content>
-
-      <md-card-content ng-hide="hiding">
+      <md-card-content ng-hide="hiding"  ng-disabled="{{disabled}}">
         <md-divider></md-divider>
 
         <div class="duration section" layout="row">
@@ -52,7 +57,14 @@
           </div>
         </div>
       </md-card-content>
-
+     <!--  <md-card-content ng-hide="hiding" >
+        <md-divider></md-divider>
+         <div class="duration section" layout="row">
+          <div class="title">Group type</div>
+          <md-input-container md-no-float class="group-name">
+            <input ng-model="group.groupType" aria-label="Group Type" ng-disabled="true">
+          </md-input-container></div>
+      </md-card-content> -->
       <md-card-content ng-hide="hiding" expandable="{{group.actionTriggers.length > 0}}">
         <md-divider></md-divider>
 
@@ -62,10 +74,11 @@
             Triggers
             <span class="light">({{group.actionTriggers.length}})</span>
           </div>
-          <md-button ng-click="addScheduleTrigger($event, toggleExpand)">
+         
+          <md-button ng-click="addScheduleTrigger($event, toggleExpand)" >
             Add Scheduled Trigger
           </md-button>
-          <md-button ng-click="addEventTrigger($event, toggleExpand)">
+          <md-button ng-click="addEventTrigger($event, toggleExpand)" >
             Add Event Trigger
           </md-button>
         </div>
@@ -87,14 +100,18 @@
           <md-button ng-click="addInput($event, toggleExpand)">
             Add Input
           </md-button>
+<!--           <md-button ng-click="addInput($event, toggleExpand)" ng-disabled="{{group.groupType !== 'SURVEY'}}">
+            Add Input
+          </md-button> -->
         </div>
         <div expander ng-show="group.inputs.length > 0">
           <paco-help tip="inputs" ng-if="group.inputs.length > 0">Help: Inputs</paco-help>
-          <div ng-repeat="input in group.inputs track by $index" ng-include="'partials/input.html'">
+          <div ng-repeat="input in group.inputs track by $index" ng-disabled="{{disabled}}" ng-include="'partials/input.html'">
           </div>
         </div>
       </md-card-content>
 
+      <!-- <md-card-content ng-hide="hiding" expandable="{{group.groupType !== 'SURVEY'}}" expanded=false> -->
       <md-card-content ng-hide="hiding" expandable=true expanded=false>
         <paco-help tip="advanced" ng-if="state.expand">Help: Advanced</paco-help>
         <md-divider></md-divider>
@@ -106,6 +123,7 @@
           <i>End of day, background listening, accessibility listening, logging, custom rendering, feedback</i>
         </div>
 
+        <!-- <div expander ng-show="group.groupType !== 'SURVEY'"> -->
         <div expander>
           <div ng-include="'partials/advanced.html'"></div>
         </div>
@@ -114,7 +132,7 @@
     </md-card>
   </div>
 
-  <md-button ng-click="addGroup()">
+   <md-button ng-click="addGroup()">
     Add Experiment Group
-  </md-button>
+  </md-button> 
 </div>

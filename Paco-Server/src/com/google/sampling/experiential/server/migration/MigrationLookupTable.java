@@ -11,9 +11,12 @@ import com.google.sampling.experiential.server.migration.jobs.CatchUpDateRangeJo
 import com.google.sampling.experiential.server.migration.jobs.CatchUpDateRangeJobOldVersion;
 import com.google.sampling.experiential.server.migration.jobs.ConvertEventV4ToV5Job;
 import com.google.sampling.experiential.server.migration.jobs.CopyExperimentFromDataStoreToCloudSqlJob;
+import com.google.sampling.experiential.server.migration.jobs.EVGMigrationVerificationJob;
 import com.google.sampling.experiential.server.migration.jobs.EventStatsCounterMigrationJob;
 import com.google.sampling.experiential.server.migration.jobs.ExperimentHubMigrationJob;
 import com.google.sampling.experiential.server.migration.jobs.ExperimentJDOToDatastoreMigration;
+import com.google.sampling.experiential.server.migration.jobs.ExperimentMigrationDataPreCleanupJob;
+import com.google.sampling.experiential.server.migration.jobs.ExperimentSplitAndPersistJob;
 import com.google.sampling.experiential.server.migration.jobs.ExperimentTitleLowercaseMigrationJob;
 import com.google.sampling.experiential.server.migration.jobs.FeedbackTypeRepairMigration;
 import com.google.sampling.experiential.server.migration.jobs.TestJDODSCompat;
@@ -36,6 +39,9 @@ public class MigrationLookupTable {
     // Catchup job old version, persists experiment info for an event in events table 
     migrations.put("24", CatchUpDateRangeJobOldVersion.class);
     migrations.put("25", CopyExperimentFromDataStoreToCloudSqlJob.class);
+    migrations.put("26", ExperimentMigrationDataPreCleanupJob.class);
+    migrations.put("27", ExperimentSplitAndPersistJob.class);
+    migrations.put("28", EVGMigrationVerificationJob.class);
     migrations.put("100", ExperimentTitleLowercaseMigrationJob.class);
   }
   

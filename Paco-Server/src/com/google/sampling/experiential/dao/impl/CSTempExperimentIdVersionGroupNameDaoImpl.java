@@ -8,19 +8,19 @@ import java.util.List;
 import java.util.logging.Logger;
 
 import com.google.common.collect.Lists;
-import com.google.sampling.experiential.cloudsql.columns.ExperimentIdVersionGroupNameColumns;
-import com.google.sampling.experiential.dao.CSExperimentIdVersionDao;
+import com.google.sampling.experiential.cloudsql.columns.TempExperimentIdVersionGroupNameColumns;
+import com.google.sampling.experiential.dao.CSTempExperimentIdVersionGroupNameDao;
 import com.google.sampling.experiential.dao.dataaccess.ExperimentLite;
 import com.google.sampling.experiential.server.CloudSQLConnectionManager;
 import com.google.sampling.experiential.server.ExceptionUtil;
 import com.google.sampling.experiential.server.QueryConstants;
 
-public class CSExperimentIdVersionDaoImpl implements CSExperimentIdVersionDao {
-  public static final Logger log = Logger.getLogger(CSExperimentIdVersionDaoImpl.class.getName());
+public class CSTempExperimentIdVersionGroupNameDaoImpl implements CSTempExperimentIdVersionGroupNameDao {
+  public static final Logger log = Logger.getLogger(CSTempExperimentIdVersionGroupNameDaoImpl.class.getName());
 
   @Override
   public void insertExperimentIdVersionAndGroupName() throws SQLException {
-    String insertTableSql2 = QueryConstants.INSERT_EXPERIMENT_ID_VERSION_GROUP_NAME.toString();
+    String insertTableSql2 = QueryConstants.INSERT_TEMP_EXPERIMENT_ID_VERSION_GROUP_NAME.toString();
     String[] qry = new String[] { insertTableSql2} ;
                              
     Connection conn = null;
@@ -65,7 +65,7 @@ public class CSExperimentIdVersionDaoImpl implements CSExperimentIdVersionDao {
         log.info(statementCreateTable.toString());
         rs = statementCreateTable.executeQuery();
         while (rs.next()) {
-          expIdsToBeDeleted.add(rs.getLong(ExperimentIdVersionGroupNameColumns.EXPERIMENT_ID));
+          expIdsToBeDeleted.add(rs.getLong(TempExperimentIdVersionGroupNameColumns.EXPERIMENT_ID));
         }
     } catch (SQLException sqle) {
       log.warning("SQLException while populating exp id version tables" + ExceptionUtil.getStackTraceAsString(sqle));
@@ -130,6 +130,43 @@ public class CSExperimentIdVersionDaoImpl implements CSExperimentIdVersionDao {
   }
   
   @Override
+  public boolean insertExperimentIdVersionGroupName(Long expId, Integer expVersion, String groupName, Integer status) throws SQLException {
+    String insertToExperimentIdVersion = QueryConstants.INSERT_IGNORE_TO_EXPERIMENT_ID_VERSION_GROUP_NAME.toString();
+    Connection conn = null;
+    PreparedStatement statementInsertToExpIdVersion = null;
+    try {
+      conn = CloudSQLConnectionManager.getInstance().getConnection();
+      statementInsertToExpIdVersion = conn.prepareStatement(insertToExperimentIdVersion);
+      statementInsertToExpIdVersion.setLong(1, expId);
+      statementInsertToExpIdVersion.setInt(2, expVersion);
+      statementInsertToExpIdVersion.setString(3, groupName);
+      statementInsertToExpIdVersion.setInt(4, status);
+     
+      statementInsertToExpIdVersion.execute();
+    
+    } catch (SQLException sqle) {
+      log.warning("SQLException while inserting to exp id version tables" + ExceptionUtil.getStackTraceAsString(sqle));
+      throw sqle;
+    } catch (Exception e) {
+      log.warning("GException while inserting to exp id version tables" + ExceptionUtil.getStackTraceAsString(e));
+      throw e;
+    } finally {
+      try {
+        if (statementInsertToExpIdVersion != null) {
+          statementInsertToExpIdVersion.close();
+        }
+
+        if (conn != null) {
+          conn.close();
+        }
+      } catch (SQLException e) {
+        log.warning("Exception in finally block" + ExceptionUtil.getStackTraceAsString(e));
+      }
+    } 
+    return true;
+  }
+  
+  @Override
   public boolean deleteExperiment(Long toBeDeletedExperimentId, Integer experimentVersion) throws SQLException {
     String deleteFromExperimentIdVersion = QueryConstants.DELETE_EXPERIMENTS_WITH_VERSION_IN_EXPERIMENT_ID_VERSION.toString();
     boolean allDeleted = false;                             
@@ -178,7 +215,7 @@ public class CSExperimentIdVersionDaoImpl implements CSExperimentIdVersionDao {
         log.info("explite status"+ statementCreateTable.toString());
         rs = statementCreateTable.executeQuery();
         while (rs.next()) {
-          expLites.add(new ExperimentLite(rs.getLong(ExperimentIdVersionGroupNameColumns.EXPERIMENT_ID), rs.getInt(ExperimentIdVersionGroupNameColumns.EXPERIMENT_VERSION), rs.getString(ExperimentIdVersionGroupNameColumns.GROUP_NAME)));
+          expLites.add(new ExperimentLite(rs.getLong(TempExperimentIdVersionGroupNameColumns.EXPERIMENT_ID), rs.getInt(TempExperimentIdVersionGroupNameColumns.EXPERIMENT_VERSION), rs.getString(TempExperimentIdVersionGroupNameColumns.GROUP_NAME)));
         }
         log.info("get all exp lite returned " + expLites.size());
     } catch (SQLException sqle) {
@@ -217,7 +254,7 @@ public class CSExperimentIdVersionDaoImpl implements CSExperimentIdVersionDao {
         statementCreateTable.setInt(1, status);
         rs = statementCreateTable.executeQuery();
         while (rs.next()) {
-          expLites.add(new ExperimentLite(rs.getLong(ExperimentIdVersionGroupNameColumns.EXPERIMENT_ID), rs.getInt(ExperimentIdVersionGroupNameColumns.EXPERIMENT_VERSION)));
+          expLites.add(new ExperimentLite(rs.getLong(TempExperimentIdVersionGroupNameColumns.EXPERIMENT_ID), rs.getInt(TempExperimentIdVersionGroupNameColumns.EXPERIMENT_VERSION)));
         }
         log.info("get all exp lite returned " + expLites.size());
     } catch (SQLException sqle) {
@@ -245,11 +282,14 @@ public class CSExperimentIdVersionDaoImpl implements CSExperimentIdVersionDao {
   }
 
   @Override
-  public boolean updateExperimentIdGroupNameStatus(Long expId, Integer expVersion,
+  public boolean updateExperimentIdVersionGroupNameStatus(Long expId, Integer expVersion,
                                                       String groupName, Integer status) throws SQLException {
     String incrementStatusInExperimentIdVersion = QueryConstants.UPDATE_EXPERIMENT_ID_VERSION_GROUP_NAME_STATUS_IN_EXPERIMENT_ID_VERSION.toString();
     if ( groupName == null ) { 
       incrementStatusInExperimentIdVersion = QueryConstants.UPDATE_EXPERIMENT_ID_VERSION_STATUS_IN_EXPERIMENT_ID_VERSION.toString();
+    }
+    if (expVersion == null) { 
+      incrementStatusInExperimentIdVersion= (QueryConstants.UPDATE_EXPERIMENT_ID_STATUS_IN_EXPERIMENT_ID_VERSION.toString());
     }
                                  
     Connection conn = null;
@@ -260,7 +300,9 @@ public class CSExperimentIdVersionDaoImpl implements CSExperimentIdVersionDao {
       statementIncrementStatusExpIdVersion = conn.prepareStatement(incrementStatusInExperimentIdVersion);
       statementIncrementStatusExpIdVersion.setInt(i++, status);
       statementIncrementStatusExpIdVersion.setLong(i++, expId);
-      statementIncrementStatusExpIdVersion.setInt(i++, expVersion);
+      if ( expVersion != null ) { 
+        statementIncrementStatusExpIdVersion.setInt(i++, expVersion);
+      }
       if ( groupName != null) { 
         statementIncrementStatusExpIdVersion.setString(i++, groupName);
       }

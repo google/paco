@@ -14,7 +14,7 @@ import com.google.common.collect.Maps;
 import com.google.sampling.experiential.cloudsql.columns.ChoiceCollectionColumns;
 import com.google.sampling.experiential.cloudsql.columns.EventServerColumns;
 import com.google.sampling.experiential.cloudsql.columns.ExperimentDetailColumns;
-import com.google.sampling.experiential.cloudsql.columns.ExperimentGroupVersionMappingColumns;
+import com.google.sampling.experiential.cloudsql.columns.ExperimentVersionGroupMappingColumns;
 import com.google.sampling.experiential.cloudsql.columns.ExternStringInputColumns;
 import com.google.sampling.experiential.cloudsql.columns.ExternStringListLabelColumns;
 import com.google.sampling.experiential.cloudsql.columns.GroupDetailColumns;
@@ -88,15 +88,36 @@ public abstract class SearchQuery {
     allDateColumns.addAll(utcDateColumns);
   }
   
-  public abstract PacoResponse executeAcledQuery(String query) throws SQLException, ParseException, JSONException;
+  public abstract PacoResponse executeAcledQuery(String query, Boolean oldMethodFlag) throws SQLException, ParseException, JSONException;
+  public abstract String renameTextColumn(String acledQuery) ;
+  private boolean contains(List<String> projList, List<String> searchColumnList) {
+    String[] colNameSplit = null;
+    for (String s: projList) {
+      // proj list might contain distinct who, distinct response_time
+      s = s.trim();
+      if (s.contains(Constants.BLANK)) {
+        colNameSplit = s.split(Constants.BLANK);
+        if (colNameSplit.length > 1) {
+          s = colNameSplit[1];
+        }
+      }
+      if (searchColumnList.contains(s)) {
+        return true;
+      }
+    }
+    return false;
+  }
   
-  public PacoResponse process(String loggedInUser) throws JSQLParserException, Exception {
+  public PacoResponse process(String loggedInUser, Boolean oldMethodFlag) throws JSQLParserException, Exception {
     EventQueryStatus evStatus = null;
     PacoResponse pacoResp = null;
+    List<String> searchColumnList = Lists.newArrayList();
+    searchColumnList.add(EventBaseColumns.RESPONSE_TIME);
+    searchColumnList.add(EventBaseColumns.SCHEDULE_TIME);
     // 1.client tz needed
     if (isClientTzNeedsAdded) { 
       List<String> projList = Lists.newArrayList(sqlQueryObj.getProjection());
-      if (sqlQueryObj.getGroupBy() == null && (projList.contains(EventBaseColumns.RESPONSE_TIME) || (projList.contains(EventBaseColumns.SCHEDULE_TIME)))) {
+      if (sqlQueryObj.getGroupBy() == null && (contains(projList, searchColumnList))) {
         sqlQueryObj.addClientTzToProjection();
       }
     }
@@ -104,11 +125,15 @@ public abstract class SearchQuery {
     evStatus = queryPreprocessingAndValidation();
     if (Constants.SUCCESS.equals(evStatus.getStatus())) {
       // 3. add join
-      addJoinClauses();
+      addJoinClauses(oldMethodFlag);
       // 5. Add acl-ing to query
       String acledQuery = addAclToQuery(loggedInUser);
-      // 6. execute acl-ed query
-      pacoResp = executeAcledQuery(acledQuery);
+      // 6.Rename columns if needed
+      if (!oldMethodFlag) {
+        acledQuery = renameTextColumn(acledQuery);
+      }
+      // 7. execute acl-ed query
+      pacoResp = executeAcledQuery(acledQuery, oldMethodFlag);
     } else {
       return evStatus;
     }
@@ -143,8 +168,10 @@ public abstract class SearchQuery {
     return evQueryStatus;
   }
   
-  public void addJoinClauses() throws JSQLParserException { 
-    addExperimentBundleJoinClause(jsqlStatement);
+  public void addJoinClauses(Boolean oldMethodFlag) throws JSQLParserException { 
+    if (!oldMethodFlag )  {
+      addExperimentBundleJoinClause(jsqlStatement);
+    }
   }
   
   public String addAclToQuery(String loggedInUser) throws Exception { 
@@ -184,15 +211,15 @@ public abstract class SearchQuery {
     Join joinObj3 = new Join();
     
     try {
-      joinExp1 = CCJSqlParserUtil.parseCondExpression(EventServerColumns.TABLE_NAME + "." + EventServerColumns.EXPERIMENT_GROUP_VERSION_MAPPING_ID + " = " + ExperimentGroupVersionMappingColumns.TABLE_NAME + "." + ExperimentGroupVersionMappingColumns.EXPERIMENT_GROUP_VERSION_MAPPING_ID + " AND " + ExperimentGroupVersionMappingColumns.TABLE_NAME + "." + ExperimentGroupVersionMappingColumns.EVENTS_POSTED + "=1");
-      joinExp2 = CCJSqlParserUtil.parseCondExpression(ExperimentDetailColumns.TABLE_NAME + "." + ExperimentDetailColumns.EXPERIMENT_DETAIL_ID + " = " + ExperimentGroupVersionMappingColumns.TABLE_NAME + "." + ExperimentGroupVersionMappingColumns.EXPERIMENT_DETAIL_ID);
-      joinExp3 = CCJSqlParserUtil.parseCondExpression(GroupDetailColumns.TABLE_NAME + "." + GroupDetailColumns.GROUP_DETAIL_ID + " = " + ExperimentGroupVersionMappingColumns.TABLE_NAME + "." + ExperimentGroupVersionMappingColumns.GROUP_DETAIL_ID);
+      joinExp1 = CCJSqlParserUtil.parseCondExpression(EventServerColumns.TABLE_NAME + "." + EventServerColumns.EXPERIMENT_VERSION_GROUP_MAPPING_ID + " = " + ExperimentVersionGroupMappingColumns.TABLE_NAME + "." + ExperimentVersionGroupMappingColumns.EXPERIMENT_VERSION_GROUP_MAPPING_ID + " AND " + ExperimentVersionGroupMappingColumns.TABLE_NAME + "." + ExperimentVersionGroupMappingColumns.EVENTS_POSTED + "=1");
+      joinExp2 = CCJSqlParserUtil.parseCondExpression(ExperimentDetailColumns.TABLE_NAME + "." + ExperimentDetailColumns.EXPERIMENT_DETAIL_ID + " = " + ExperimentVersionGroupMappingColumns.TABLE_NAME + "." + ExperimentVersionGroupMappingColumns.EXPERIMENT_DETAIL_ID);
+      joinExp3 = CCJSqlParserUtil.parseCondExpression(GroupDetailColumns.TABLE_NAME + "." + GroupDetailColumns.GROUP_DETAIL_ID + " = " + ExperimentVersionGroupMappingColumns.TABLE_NAME + "." + ExperimentVersionGroupMappingColumns.GROUP_DETAIL_ID);
     } catch (JSQLParserException e) {
       e.printStackTrace();
     }
     joinObj1.setOnExpression(joinExp1);
     joinObj1.setInner(true);
-    FromItem fi = new Table(ExperimentGroupVersionMappingColumns.TABLE_NAME);
+    FromItem fi = new Table(ExperimentVersionGroupMappingColumns.TABLE_NAME);
     joinObj1.setRightItem(fi);
     
     joinObj2.setOnExpression(joinExp2);
@@ -211,7 +238,7 @@ public abstract class SearchQuery {
     ps.setJoins(jList);
   }
   
-  public static void addInputCollectionBundleJoinClause(Select selStatement) throws JSQLParserException {
+  public static void addInputCollectionBundleJoinClause(Select selStatement, boolean isOutputTableAdded) throws JSQLParserException {
     PlainSelect ps = null;
     List<Join> jList = null;
     ps = ((PlainSelect) selStatement.getSelectBody());
@@ -229,11 +256,14 @@ public abstract class SearchQuery {
     Join joinObj6 = new Join();
     
     try {
-      joinExp1 = CCJSqlParserUtil.parseCondExpression(InputCollectionColumns.TABLE_NAME + "." + InputCollectionColumns.INPUT_COLLECTION_ID + " = " + ExperimentGroupVersionMappingColumns.TABLE_NAME + "." + ExperimentGroupVersionMappingColumns.INPUT_COLLECTION_ID + " and " + ExperimentGroupVersionMappingColumns.TABLE_NAME + "." + ExperimentGroupVersionMappingColumns.EXPERIMENT_ID + "=" + InputCollectionColumns.TABLE_NAME + "."+ InputCollectionColumns.EXPERIMENT_ID);
-      joinExp2 = CCJSqlParserUtil.parseCondExpression(InputColumns.TABLE_NAME + "." + InputColumns.INPUT_ID + " = " + InputCollectionColumns.TABLE_NAME + "." + InputCollectionColumns.INPUT_ID + " AND " + OutputServerColumns.TABLE_NAME + "." + OutputServerColumns.INPUT_ID + " = " + InputColumns.TABLE_NAME + "." + InputColumns.INPUT_ID );
+      joinExp1 = CCJSqlParserUtil.parseCondExpression(InputCollectionColumns.TABLE_NAME + "." + InputCollectionColumns.INPUT_COLLECTION_ID + " = " + ExperimentVersionGroupMappingColumns.TABLE_NAME + "." + ExperimentVersionGroupMappingColumns.INPUT_COLLECTION_ID + " and "  + ExperimentVersionGroupMappingColumns.EXPERIMENT_ID + "=" + InputCollectionColumns.TABLE_NAME + "."+ InputCollectionColumns.EXPERIMENT_ID);
+      if (isOutputTableAdded) {
+        joinExp2 = CCJSqlParserUtil.parseCondExpression(InputColumns.TABLE_NAME + "." + InputColumns.INPUT_ID + " = " + InputCollectionColumns.TABLE_NAME + "." + InputCollectionColumns.INPUT_ID + " AND " + OutputServerColumns.TABLE_NAME + "." + OutputServerColumns.INPUT_ID + " = " + InputColumns.TABLE_NAME + "." + InputColumns.INPUT_ID );
+      } else {
+        joinExp2 = CCJSqlParserUtil.parseCondExpression(InputColumns.TABLE_NAME + "." + InputColumns.INPUT_ID + " = " + InputCollectionColumns.TABLE_NAME + "." + InputCollectionColumns.INPUT_ID );
+      }
       joinExp3 = CCJSqlParserUtil.parseCondExpression( "esi1." + ExternStringInputColumns.EXTERN_STRING_INPUT_ID + " = " + InputColumns.TABLE_NAME + "." + InputColumns.NAME_ID );
-      joinExp4 = CCJSqlParserUtil.parseCondExpression( "esi2." + ExternStringInputColumns.EXTERN_STRING_INPUT_ID + " = " + InputColumns.TABLE_NAME + "." + InputColumns.TEXT_ID);
-      joinExp5 = CCJSqlParserUtil.parseCondExpression(ChoiceCollectionColumns.TABLE_NAME + "." + ChoiceCollectionColumns.CHOICE_COLLECTION_ID + " = " + InputCollectionColumns.TABLE_NAME + "." + InputCollectionColumns.CHOICE_COLLECTION_ID + " and " + ExperimentGroupVersionMappingColumns.TABLE_NAME + "." + ExperimentGroupVersionMappingColumns.EXPERIMENT_ID + "=" + ChoiceCollectionColumns.TABLE_NAME + "."+ ChoiceCollectionColumns.EXPERIMENT_ID + " and " + OutputServerColumns.TABLE_NAME + "." + OutputServerColumns.ANSWER + " = " + ChoiceCollectionColumns.TABLE_NAME + "." + ChoiceCollectionColumns.CHOICE_ORDER);
+      joinExp5 = CCJSqlParserUtil.parseCondExpression(ChoiceCollectionColumns.TABLE_NAME + "." + ChoiceCollectionColumns.CHOICE_COLLECTION_ID + " = " + InputCollectionColumns.TABLE_NAME + "." + InputCollectionColumns.CHOICE_COLLECTION_ID + " and " + ExperimentVersionGroupMappingColumns.TABLE_NAME + "." + ExperimentVersionGroupMappingColumns.EXPERIMENT_ID + "=" + ChoiceCollectionColumns.TABLE_NAME + "."+ ChoiceCollectionColumns.EXPERIMENT_ID + " and " + OutputServerColumns.TABLE_NAME + "." + OutputServerColumns.ANSWER + " = " + ChoiceCollectionColumns.TABLE_NAME + "." + ChoiceCollectionColumns.CHOICE_ORDER);
       joinExp6 = CCJSqlParserUtil.parseCondExpression(ExternStringListLabelColumns.TABLE_NAME + "." + ExternStringListLabelColumns.EXTERN_STRING_LIST_LABEL_ID + " = " + ChoiceCollectionColumns.TABLE_NAME + "." + ChoiceCollectionColumns.CHOICE_ID);
       
       
@@ -271,10 +301,11 @@ public abstract class SearchQuery {
     jList.add(joinObj1);
     jList.add(joinObj2);
     jList.add(joinObj3);
-    jList.add(joinObj4);
-    jList.add(joinObj5);
-    jList.add(joinObj6);
-
+    if (isOutputTableAdded) {
+      jList.add(joinObj5);
+      jList.add(joinObj6);
+    }
     ps.setJoins(jList);
   }
+ 
 }

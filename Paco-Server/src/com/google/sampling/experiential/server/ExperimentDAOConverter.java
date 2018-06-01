@@ -17,7 +17,7 @@ import com.google.sampling.experiential.dao.dataaccess.Choice;
 import com.google.sampling.experiential.dao.dataaccess.ChoiceCollection;
 import com.google.sampling.experiential.dao.dataaccess.DataType;
 import com.google.sampling.experiential.dao.dataaccess.ExperimentDetail;
-import com.google.sampling.experiential.dao.dataaccess.ExperimentVersionMapping;
+import com.google.sampling.experiential.dao.dataaccess.ExperimentVersionGroupMapping;
 import com.google.sampling.experiential.dao.dataaccess.ExternStringInput;
 import com.google.sampling.experiential.dao.dataaccess.ExternStringListLabel;
 import com.google.sampling.experiential.dao.dataaccess.GroupDetail;
@@ -195,14 +195,14 @@ public class ExperimentDAOConverter {
     return input2Obj;
   }
   
-  public List<ExperimentVersionMapping> convertToExperimentVersionMapping(ExperimentDAO experimentDao) throws SQLException {
-    List<ExperimentVersionMapping> newMappingList = Lists.newArrayList();
-    ExperimentVersionMapping currentMappingObj = null;
+  public List<ExperimentVersionGroupMapping> convertToExperimentVersionMapping(ExperimentDAO experimentDao) throws SQLException {
+    List<ExperimentVersionGroupMapping> newMappingList = Lists.newArrayList();
+    ExperimentVersionGroupMapping currentMappingObj = null;
     List<GroupDetail> convertedGroups = convertToGroupDetail(experimentDao.getGroups());
     ExperimentDetail convertedExperiment = convertToExperimentDetail(experimentDao);
     
     for (GroupDetail group : convertedGroups) {
-      currentMappingObj = new ExperimentVersionMapping();
+      currentMappingObj = new ExperimentVersionGroupMapping();
       currentMappingObj.setExperimentInfo(convertedExperiment);
       currentMappingObj.setExperimentId(experimentDao.getId());
       currentMappingObj.setExperimentVersion(experimentDao.getVersion());
@@ -242,7 +242,7 @@ public class ExperimentDAOConverter {
   }
   
 
-  public void splitGroups(ExperimentDAO eachExperiment, boolean saveExperimentFlag)  throws SQLException {
+  public void splitGroups(ExperimentDAO eachExperiment)  throws SQLException {
     List<ExperimentGroup> predefinedGroups = null;
     // add predefined system group
     ExperimentGroup systemGroup = null;
@@ -256,12 +256,15 @@ public class ExperimentDAOConverter {
         // The very first time, while doing migration of the experiments, the group type will be null. There can be a grp with accessibility, appusage turned on. We have to split these grps
         // When saving an experiment, we would know the group type, so we have to add the corresponding predefined inputs to the special groups
         if (experimentGroup.getGroupType() == null || GroupTypeEnum.SURVEY.equals(experimentGroup.getGroupType()))  {
+          log.info("performing split on" + eachExperiment.getId() + "--" + experimentGroup.getName());
           // once it is saved with split groups, then even predefined groups will have inputs
           ensureAccessibilityGroup(experimentGroup, predefinedGroups);
           ensurePhoneStatusGroup(experimentGroup, predefinedGroups);
           ensureAppUsageAndroidGroup(experimentGroup, predefinedGroups);
           ensureNotificationGroup(experimentGroup, predefinedGroups);
           experimentGroup.setGroupType(GroupTypeEnum.SURVEY);
+        } else {
+          log.info("not trying for expt" + eachExperiment.getId() + "--" + experimentGroup.getName());
         }
       }
       predefinedGroups.add(systemGroup);

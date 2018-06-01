@@ -157,12 +157,6 @@ public class EventJsonUploadProcessorTest extends TestCase {
         return null;
       }
 
-      @Override
-      public List<ValidationMessage> saveExperiment(ExperimentDAO experiment, String loggedInUserEmail,
-                                                    DateTimeZone timezone) {
-        // TODO Auto-generated method stub
-        return null;
-      }
 
       @Override
       public List<ValidationMessage> saveExperiment(ExperimentDAO experiment, String loggedInUserEmail,
@@ -172,12 +166,7 @@ public class EventJsonUploadProcessorTest extends TestCase {
         return null;
       }
 
-      @Override
-      public List<ValidationMessage> saveExperiment(ExperimentDAO experimentDAO, String loggedInUserEmail,
-                                                    DateTimeZone timezone, Boolean validate) {
-        // TODO Auto-generated method stub
-        return null;
-      }
+    
 
     };
 
@@ -243,11 +232,6 @@ public class EventJsonUploadProcessorTest extends TestCase {
         return null;
       }
 
-      @Override
-      public List<ValidationMessage> saveExperiment(ExperimentDAO experimentDAO, String userFromLogin, DateTimeZone timezone) {
-        // TODO Auto-generated method stub
-        return null;
-      }
 
       @Override
       public Boolean deleteExperiments(List<Long> experimentIds, String email) {
@@ -276,12 +260,7 @@ public class EventJsonUploadProcessorTest extends TestCase {
         return null;
       }
 
-      @Override
-      public List<ValidationMessage> saveExperiment(ExperimentDAO experimentDAO, String loggedInUserEmail,
-                                                    DateTimeZone timezone, Boolean validate) {
-        // TODO Auto-generated method stub
-        return null;
-      }
+      
 
     };
 
@@ -352,11 +331,7 @@ public class EventJsonUploadProcessorTest extends TestCase {
         return null;
       }
 
-      @Override
-      public List<ValidationMessage> saveExperiment(ExperimentDAO experimentDAO, String userFromLogin, DateTimeZone timezone) {
-        // TODO Auto-generated method stub
-        return null;
-      }
+     
 
       @Override
       public Boolean deleteExperiments(List<Long> experimentIds, String email) {
@@ -385,12 +360,7 @@ public class EventJsonUploadProcessorTest extends TestCase {
         return null;
       }
 
-      @Override
-      public List<ValidationMessage> saveExperiment(ExperimentDAO experimentDAO, String loggedInUserEmail,
-                                                    DateTimeZone timezone, Boolean validate) {
-        // TODO Auto-generated method stub
-        return null;
-      }
+      
 
     };
 
@@ -458,11 +428,7 @@ public class EventJsonUploadProcessorTest extends TestCase {
         // TODO Auto-generated method stub
         return null;
       }
-      @Override
-      public List<ValidationMessage> saveExperiment(ExperimentDAO experimentDAO, String userFromLogin, DateTimeZone timezone) {
-        // TODO Auto-generated method stub
-        return null;
-      }
+     
       @Override
       public Boolean deleteExperiments(List<Long> experimentIds, String email) {
         // TODO Auto-generated method stub
@@ -485,12 +451,7 @@ public class EventJsonUploadProcessorTest extends TestCase {
         // TODO Auto-generated method stub
         return null;
       }
-      @Override
-      public List<ValidationMessage> saveExperiment(ExperimentDAO experimentDAO, String loggedInUserEmail,
-                                                    DateTimeZone timezone, Boolean validate) {
-        // TODO Auto-generated method stub
-        return null;
-      }
+      
     };
   }
 

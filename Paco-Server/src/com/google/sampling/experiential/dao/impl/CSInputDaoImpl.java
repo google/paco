@@ -10,6 +10,7 @@ import java.util.logging.Logger;
 
 import com.google.cloud.sql.jdbc.Statement;
 import com.google.common.collect.Lists;
+import com.google.sampling.experiential.cloudsql.columns.ExternStringInputColumns;
 import com.google.sampling.experiential.cloudsql.columns.InputColumns;
 import com.google.sampling.experiential.dao.CSDataTypeDao;
 import com.google.sampling.experiential.dao.CSExternStringInputDao;
@@ -19,6 +20,7 @@ import com.google.sampling.experiential.dao.dataaccess.ExternStringInput;
 import com.google.sampling.experiential.dao.dataaccess.Input;
 import com.google.sampling.experiential.server.CloudSQLConnectionManager;
 import com.google.sampling.experiential.server.PacoId;
+import com.google.sampling.experiential.server.QueryConstants;
 import com.pacoapp.paco.shared.util.ErrorMessages;
 
 import net.sf.jsqlparser.expression.Expression;
@@ -71,6 +73,42 @@ public class CSInputDaoImpl implements CSInputDao {
     }
     insertInput(inputLst);
     return inputLst;
+  }
+  
+  @Override
+  public String getLabelForInputId(Long inputId) throws SQLException {
+   
+    String label = null;
+    Connection conn = null;
+    ResultSet rs = null;
+    PreparedStatement statementSelectGetLabel = null;
+    try {
+      conn = CloudSQLConnectionManager.getInstance().getConnection();
+      statementSelectGetLabel = conn.prepareStatement(QueryConstants.GET_LABEL_FOR_INPUT_ID.toString());
+      statementSelectGetLabel.setLong(1, inputId);
+      log.info(statementSelectGetLabel.toString());
+      rs = statementSelectGetLabel.executeQuery();
+      while(rs.next()){
+        label = rs.getString(ExternStringInputColumns.LABEL);
+      }
+    } finally {
+      try {
+        if ( rs != null) {
+          rs.close();
+        }
+        if (statementSelectGetLabel != null) {
+          statementSelectGetLabel.close();
+        }
+        if (conn != null) {
+          conn.close();
+        }
+      } catch (SQLException ex1) {
+        log.warning(ErrorMessages.CLOSING_RESOURCE_EXCEPTION.getDescription()+ ex1);
+      }
+    }
+
+    return label;
+    
   }
   
   @Override
@@ -150,5 +188,35 @@ public class CSInputDaoImpl implements CSInputDao {
         log.info(ErrorMessages.CLOSING_RESOURCE_EXCEPTION.getDescription() + ex1);
       }
     }
+  }
+  
+  @Override
+  public boolean deleteAllInputs(List<Long> inputIds) throws SQLException {
+   
+    Connection conn = null;
+    PreparedStatement deleteAllInputs = null;
+    try {
+      conn = CloudSQLConnectionManager.getInstance().getConnection();
+      deleteAllInputs = conn.prepareStatement(QueryConstants.DELETE_FROM_INPUT.toString());
+      for (Long eachInputId : inputIds) {
+        deleteAllInputs.setLong(1, eachInputId);
+        deleteAllInputs.addBatch();
+      }
+      deleteAllInputs.executeBatch();
+      
+    } finally {
+      try {
+        if (deleteAllInputs != null) {
+          deleteAllInputs.close();
+        }
+        if (conn != null) {
+          conn.close();
+        }
+      } catch (SQLException ex1) {
+        log.warning(ErrorMessages.CLOSING_RESOURCE_EXCEPTION.getDescription()+ ex1);
+      }
+    }
+
+    return true;
   }
 }

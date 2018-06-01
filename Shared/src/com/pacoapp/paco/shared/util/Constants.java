@@ -43,4 +43,8 @@ public class Constants {
   public static final int FORBIDDEN_STATUS = 403;
   public static final String LOCATION_NA = "location_na";
   public static final String RESPONSE_TYPE_APP_JSON = "application/json";
+  public static final String UNKNOWN = "unknown";
+  public static final Boolean USE_OLD_FORMAT_FLAG = false;
+  public static final Boolean PERSIST_IN_CLOUD_SQL_FLAG = false;
+  public static final Boolean SEND_TO_CLOUD_SQL = true;
 }

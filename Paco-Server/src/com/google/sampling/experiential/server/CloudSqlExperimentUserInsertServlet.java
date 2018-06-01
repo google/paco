@@ -12,6 +12,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.joda.time.DateTimeZone;
 
 import com.google.appengine.api.users.User;
+import com.pacoapp.paco.shared.util.Constants;
 import com.pacoapp.paco.shared.util.ErrorMessages;
 
 @SuppressWarnings("serial")
@@ -26,6 +27,8 @@ public class CloudSqlExperimentUserInsertServlet extends HttpServlet {
   @Override
   public void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException, ServletException {
     log.info("Exp user insert servlet");
+    boolean sendToCloudSql = false;
+    boolean saveInOldFormatInDS  = Constants.USE_OLD_FORMAT_FLAG;
     boolean persistInCloudSqlOnly = true;
     User currentUser = null;
     setCharacterEncoding(req, resp);
@@ -38,7 +41,7 @@ public class CloudSqlExperimentUserInsertServlet extends HttpServlet {
     DateTimeZone timezone = TimeUtil.getTimeZoneForClient(req);
     String appIdHeader = req.getHeader("http.useragent");
     String pacoVersion = req.getHeader("paco.version");
-    String results = ExperimentJsonUploadProcessor.create().processJsonExperiments(persistInCloudSqlOnly, requestBody, currentUser, appIdHeader, pacoVersion, timezone);
+    String results = ExperimentJsonUploadProcessor.create().processJsonExperiments(sendToCloudSql, persistInCloudSqlOnly, saveInOldFormatInDS, requestBody, currentUser, appIdHeader, pacoVersion, timezone);
     resp.getWriter().println(results);
  
   }

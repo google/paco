@@ -4,22 +4,14 @@ import java.sql.SQLException;
 import java.text.ParseException;
 import java.util.List;
 
-import com.google.common.collect.Lists;
 import com.google.sampling.experiential.dao.CSEventOutputDao;
 import com.google.sampling.experiential.dao.impl.CSEventOutputDaoImpl;
 import com.google.sampling.experiential.shared.EventDAO;
-import com.pacoapp.paco.shared.model2.OutputBaseColumns;
 import com.pacoapp.paco.shared.model2.SQLQuery;
 import com.pacoapp.paco.shared.util.Constants;
 import com.pacoapp.paco.shared.util.SearchUtil;
 
 import net.sf.jsqlparser.JSQLParserException;
-import net.sf.jsqlparser.schema.Column;
-import net.sf.jsqlparser.statement.select.PlainSelect;
-import net.sf.jsqlparser.statement.select.Select;
-import net.sf.jsqlparser.statement.select.SelectBody;
-import net.sf.jsqlparser.statement.select.SelectExpressionItem;
-import net.sf.jsqlparser.statement.select.SelectItem;
 
 public class AllFieldsSearchQuery extends SearchQuery {
   AllFieldsSearchQuery(SQLQuery sqlQueryObj, Float pacoProtocol) {
@@ -27,13 +19,13 @@ public class AllFieldsSearchQuery extends SearchQuery {
     this.sqlQueryObj = sqlQueryObj;
   }
   @Override
-  public PacoResponse executeAcledQuery(String aclQuery) throws SQLException, ParseException {
+  public PacoResponse executeAcledQuery(String aclQuery, Boolean oldMethodFlag) throws SQLException, ParseException {
     boolean withOutputs = true;
     List<EventDAO> evtList = null;
     CSEventOutputDao impl = new CSEventOutputDaoImpl();
     EventQueryStatus pacoResponse = new EventQueryStatus(pacoProtocol);
     log.info("af-acled qry"+ aclQuery);
-    evtList = impl.getEvents(aclQuery, withOutputs);
+    evtList = impl.getEvents(aclQuery, withOutputs, oldMethodFlag);
     pacoResponse.setEvents(evtList);
     log.info("all fields execute - records size:" + evtList.size());
     pacoResponse.setStatus(Constants.SUCCESS);
@@ -41,10 +33,18 @@ public class AllFieldsSearchQuery extends SearchQuery {
   }
  
   @Override
-  public void addJoinClauses() throws JSQLParserException { 
-    super.addJoinClauses();
+  public void addJoinClauses(Boolean oldMethodFlag) throws JSQLParserException {
+    boolean isOutputTableAdded = true;
+    if (oldMethodFlag) {
+      super.addJoinClauses(oldMethodFlag);
+    } else {
+      super.addInputCollectionBundleJoinClause(jsqlStatement, isOutputTableAdded);
+    }
     SearchUtil.addOutputJoinClause(jsqlStatement);
-    super.addInputCollectionBundleJoinClause(jsqlStatement);
+  }
+  @Override
+  public String renameTextColumn(String acledQuery) {
+    return acledQuery;
   }
   
 //  @Override

@@ -17,4 +17,7 @@ public interface CSInputCollectionDao {
   void addInputsToInputCollection(Long experimentId, InputCollection inputCollection, List<Input> inputs) throws SQLException;
   Long getInputCollectionId(Long experimentId, Integer experimentVersion, Integer numberOfGroups,
                             Boolean uniqueFlag) throws SQLException;
+  List<Long> getAllInputIds(Long experimentId, Long inputCollectionId) throws SQLException;
+  boolean deleteDupInputsInInputCollection(Long experimentId, List<Long> inputIds) throws SQLException;
+  List<Long> getAllDupInputsForExperiment(Long experimentId) throws SQLException;
 }

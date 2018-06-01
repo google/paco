@@ -1,5 +1,6 @@
 package com.google.sampling.experiential.server;
 
+import java.sql.SQLException;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -15,15 +16,15 @@ import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.Transaction;
 import com.google.appengine.api.datastore.TransactionOptions;
-import com.google.appengine.api.modules.ModulesServiceFactory;
-import com.google.appengine.api.taskqueue.Queue;
-import com.google.appengine.api.taskqueue.QueueFactory;
-import com.google.appengine.api.taskqueue.TaskOptions;
 import com.google.common.base.Joiner;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import com.google.sampling.experiential.dao.CSExperimentUserDao;
+import com.google.sampling.experiential.dao.CSExperimentVersionGroupMappingDao;
+import com.google.sampling.experiential.dao.impl.CSExperimentUserDaoImpl;
+import com.google.sampling.experiential.dao.impl.CSExperimentVersionGroupMappingDaoImpl;
 import com.google.sampling.experiential.datastore.ExperimentJsonEntityManager;
 import com.google.sampling.experiential.datastore.PublicExperimentList;
 import com.google.sampling.experiential.datastore.PublicExperimentList.CursorExerimentIdListPair;
@@ -150,98 +151,90 @@ class DefaultExperimentService implements ExperimentService {
     List<ExperimentDAO> experiments = turnJsonsIntoExperiments(experimentJsonsResult.first);
     return new ExperimentQueryResult(experimentJsonsResult.second, experiments);
   }
-  
-  @Override
-  public List<ValidationMessage> saveExperiment(ExperimentDAO experiment,
-                                                String loggedInUserEmail,
-                                                DateTimeZone timezone) {
-    boolean sendToCloudSqlFlag = true;
-    boolean validate = true;
-    return saveExperiment(experiment, loggedInUserEmail, timezone, sendToCloudSqlFlag, validate);
-  }
 
   // save experiments
   @Override
   public List<ValidationMessage> saveExperiment(ExperimentDAO experiment,
                                                 String loggedInUserEmail,
-                                                DateTimeZone timezone, boolean sendToCloudSqlflag, boolean validate) {
-
-    if (ExperimentAccessManager.isUserAllowedToSaveExperiment(experiment.getId(), loggedInUserEmail)) {
-      
-      ensureIdsOnActionTriggerObjects(experiment);
-      lowercaseAllEmailAddresses(experiment);
-      if (validate) {
-        ExperimentValidator validator = new ExperimentValidator();
-        experiment.validateWith(validator);
-        List<ValidationMessage> results = validator.getResults();
-        if (!results.isEmpty()) {
-          return results;
-        }
-      }
-        
-      DatastoreService ds = DatastoreServiceFactory.getDatastoreService();
-      TransactionOptions options = TransactionOptions.Builder.withXG(true);
-      Transaction tx = ds.beginTransaction(options);
-      try {
-        if (experiment.getId() == null) {
-          experiment.setCreator(loggedInUserEmail);
-        }
-        if (!experiment.getAdmins().contains(loggedInUserEmail)) {
-          experiment.getAdmins().add(loggedInUserEmail);
-        }
-        
-        if (Strings.isNullOrEmpty(experiment.getContactEmail())) {
-          experiment.setContactEmail(experiment.getCreator());
-        }
-        Integer version = experiment.getVersion();
-        if (version == null || version == 0) {
-          version = 1;
-        } else {
-          version++;
-        }
-        experiment.setVersion(version);
-        
-        final long millis = new DateTime().getMillis();
-        experiment.setModifyDate(com.pacoapp.paco.shared.util.TimeUtil.formatDate(millis));
-        Key experimentKey = ExperimentJsonEntityManager.saveExperiment(ds, tx, JsonConverter.jsonify(experiment),
-                                                                       experiment.getId(),
-                                                                       experiment.getTitle(),
-                                                                       experiment.getVersion(),
-                                                                       millis,
-                                                                       experiment.getAdmins());
-        
-        experiment.setId(experimentKey.getId());
-        ExperimentAccessManager.updateAccessControlEntities(ds, tx, experiment, experimentKey, timezone);
-        
-        if (sendToCloudSqlflag) {
-          sendToCloudSqlQueue(experiment, loggedInUserEmail);
-        } 
-        tx.commit();
-        
-        return null;
-      } catch (Exception e) {
-        e.printStackTrace();
-        throw new IllegalStateException(e);
-      } finally {
-        if (tx.isActive()) {
-          tx.rollback();
-        }
-      }
+                                                DateTimeZone timezone, boolean persistInCloudSql, boolean validate) throws SQLException, Exception {
+    if (persistInCloudSql) {
+      CSExperimentUserDao exptUserDaoImpl = new CSExperimentUserDaoImpl();
+      CSExperimentVersionGroupMappingDao exptVersionMapping = new CSExperimentVersionGroupMappingDaoImpl();
+//      // for saving experiment, group, inputs
+      exptVersionMapping.ensureExperimentVersionGroupMapping(experiment);
+//      // for saving admin and participants
+      exptUserDaoImpl.ensureUserId(experiment.getId(), Sets.newHashSet(experiment.getAdmins()), Sets.newHashSet(experiment.getPublishedUsers()));
     } else {
-      throw new IllegalStateException(loggedInUserEmail + " does not have permission to edit " + experiment.getTitle());
+      if (ExperimentAccessManager.isUserAllowedToSaveExperiment(experiment.getId(), loggedInUserEmail)) {
+        
+        ensureIdsOnActionTriggerObjects(experiment);
+        lowercaseAllEmailAddresses(experiment);
+        if (validate) {
+          ExperimentValidator validator = new ExperimentValidator();
+          experiment.validateWith(validator);
+          List<ValidationMessage> results = validator.getResults();
+          if (!results.isEmpty()) {
+            return results;
+          }
+        }
+          
+       
+          DatastoreService ds = DatastoreServiceFactory.getDatastoreService();
+          TransactionOptions options = TransactionOptions.Builder.withXG(true);
+          Transaction tx = ds.beginTransaction(options);
+          try {
+            if (experiment.getId() == null) {
+              experiment.setCreator(loggedInUserEmail);
+            }
+            if (!experiment.getAdmins().contains(loggedInUserEmail)) {
+              experiment.getAdmins().add(loggedInUserEmail);
+            }
+            
+            if (Strings.isNullOrEmpty(experiment.getContactEmail())) {
+              experiment.setContactEmail(experiment.getCreator());
+            }
+            Integer version = experiment.getVersion();
+             
+            if (version == null || version == 0) {
+              version = 1;
+            } else {
+              version++;
+            }
+            experiment.setVersion(version);
+            
+            final long millis = new DateTime().getMillis();
+            experiment.setModifyDate(com.pacoapp.paco.shared.util.TimeUtil.formatDate(millis));
+            Key experimentKey = ExperimentJsonEntityManager.saveExperiment(ds, tx, JsonConverter.jsonify(experiment),
+                                                                           experiment.getId(),
+                                                                           experiment.getTitle(),
+                                                                           experiment.getVersion(),
+                                                                           millis,
+                                                                           experiment.getAdmins());
+            
+            experiment.setId(experimentKey.getId());
+            ExperimentAccessManager.updateAccessControlEntities(ds, tx, experiment, experimentKey, timezone);
+          
+            tx.commit();
+         
+           
+          } catch (Exception e) {
+            e.printStackTrace();
+            throw new IllegalStateException(e);
+          } finally {
+            if (tx.isActive()) {
+              tx.rollback();
+            }
+          }
+          
+        
+      } else {
+        throw new IllegalStateException(loggedInUserEmail + " does not have permission to edit " + experiment.getTitle());
+      }
     }
+    return null;
   }
 
-  public void sendToCloudSqlQueue(ExperimentDAO experiment, String loggedInUserEmail) {
-    Queue queue = QueueFactory.getQueue("cloud-sql");
-    TaskOptions to = TaskOptions.Builder.withUrl("/csExpInsert").payload(JsonConverter.jsonify(experiment));
-    if (EnvironmentUtil.isDevInstance()) {
-      log.info("In dev instance task sent to Queue");
-      queue.add(to.header("Host", ModulesServiceFactory.getModulesService().getVersionHostname("mapreduce", null)));
-    } else {
-      queue.add(to);
-    }
-  }
+ 
 
 
   private void lowercaseAllEmailAddresses(ExperimentDAO experiment) {
@@ -655,14 +648,6 @@ class DefaultExperimentService implements ExperimentService {
     result.setExperiments(experiments);
     result.setCursor(jsonResults.first);
     return result;
-  }
-
-
-  @Override
-  public List<ValidationMessage> saveExperiment(ExperimentDAO experimentDAO, String loggedInUserEmail,
-                                                DateTimeZone timezone, Boolean validate) {
-    // TODO Auto-generated method stub
-    return null;
   }
 
 

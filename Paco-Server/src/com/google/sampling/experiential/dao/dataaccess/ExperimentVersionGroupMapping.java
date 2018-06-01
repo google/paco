@@ -1,6 +1,6 @@
 package com.google.sampling.experiential.dao.dataaccess;
 
-public class ExperimentVersionMapping {
+public class ExperimentVersionGroupMapping {
   private Long experimentVersionMappingId;
   private ExperimentDetail experimentInfo;
   private GroupDetail groupInfo;

@@ -17,4 +17,6 @@ public interface CSExperimentUserDao {
 
   void ensureUserId(Long expId, Set<String> adminEmailsInRequest, Set<String> participantEmailsInRequest);
 
+  List<Integer> getAllAnonIdsForEVGMId(Long evgmId) throws SQLException;
+
 }

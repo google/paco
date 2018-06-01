@@ -8,9 +8,13 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.text.ParseException;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.NavigableMap;
 import java.util.Set;
+import java.util.SortedMap;
+import java.util.TreeMap;
 import java.util.logging.Logger;
 
 import org.joda.time.DateTime;
@@ -23,15 +27,18 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.sampling.experiential.cloudsql.columns.EventServerColumns;
 import com.google.sampling.experiential.cloudsql.columns.ExperimentDetailColumns;
-import com.google.sampling.experiential.cloudsql.columns.ExperimentGroupVersionMappingColumns;
+import com.google.sampling.experiential.cloudsql.columns.ExperimentVersionGroupMappingColumns;
+import com.google.sampling.experiential.cloudsql.columns.ExternStringInputColumns;
 import com.google.sampling.experiential.cloudsql.columns.GroupDetailColumns;
 import com.google.sampling.experiential.cloudsql.columns.OutputServerColumns;
+import com.google.sampling.experiential.dao.CSEventDao;
 import com.google.sampling.experiential.dao.CSEventOutputDao;
 import com.google.sampling.experiential.dao.CSExperimentUserDao;
 import com.google.sampling.experiential.dao.CSExperimentVersionGroupMappingDao;
 import com.google.sampling.experiential.dao.CSInputCollectionDao;
+import com.google.sampling.experiential.dao.CSOutputDao;
 import com.google.sampling.experiential.dao.CSPivotHelperDao;
-import com.google.sampling.experiential.dao.dataaccess.ExperimentVersionMapping;
+import com.google.sampling.experiential.dao.dataaccess.ExperimentVersionGroupMapping;
 import com.google.sampling.experiential.dao.dataaccess.Input;
 import com.google.sampling.experiential.dao.dataaccess.InputOrderAndChoice;
 import com.google.sampling.experiential.model.Event;
@@ -83,13 +90,14 @@ public class CSEventOutputDaoImpl implements CSEventOutputDao {
     eventColInsertList.add(new Column(EventServerColumns.RESPONSE_TIME));
     eventColInsertList.add(new Column(EventServerColumns.SCHEDULE_TIME));
     eventColInsertList.add(new Column(EventServerColumns.SORT_DATE));
-    eventColInsertList.add(new Column(EventServerColumns.EXPERIMENT_GROUP_VERSION_MAPPING_ID));
+    eventColInsertList.add(new Column(EventServerColumns.EXPERIMENT_VERSION_GROUP_MAPPING_ID));
     eventColSearchList.addAll(eventColInsertList);
     
     outputColList.add(new Column(OutputServerColumns.EVENT_ID));
-    outputColList.add(new Column(OutputServerColumns.NAME));
+    outputColList.add(new Column(OutputServerColumns.TEXT));
     outputColList.add(new Column(OutputServerColumns.ANSWER));
     outputColList.add(new Column(OutputServerColumns.INPUT_ID));
+    
   }
 
   @Override
@@ -105,13 +113,14 @@ public class CSEventOutputDaoImpl implements CSEventOutputDao {
     String colName = null;
     String colValue = null;
     Object anyObject = null;
+    ResultSetMetaData rsmd = null;
     try {
       conn = CloudSQLConnectionManager.getInstance().getConnection();
 
       statementSelectEvent = conn.prepareStatement(query, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
       rs = statementSelectEvent.executeQuery();
       if (rs != null) {
-        ResultSetMetaData rsmd = rs.getMetaData();
+        rsmd = rs.getMetaData();
         multipleRecords = new JSONArray();
         JSONObject eachRecord = null;
         while (rs.next()) {
@@ -255,9 +264,17 @@ public class CSEventOutputDaoImpl implements CSEventOutputDao {
       statementCreateEvent.setTimestamp(i++, event.getResponseTime() != null ? new Timestamp(TimeUtil.convertToLocal(event.getResponseTime(), event.getTimeZone()).getMillis()): null);
       statementCreateEvent.setTimestamp(i++, event.getScheduledTime() != null ? new Timestamp(TimeUtil.convertToLocal(event.getScheduledTime(), event.getTimeZone()).getMillis()): null);
       statementCreateEvent.setTimestamp(i++, new Timestamp(TimeUtil.convertToLocal(new Date(sortDateMillis), event.getTimeZone()).getMillis()));
-      Map<String, ExperimentVersionMapping> allEVMInVersion = evmDaoImpl.getAllGroupsInVersion(Long.parseLong(event.getExperimentId()), event.getExperimentVersion());
+      Map<String, ExperimentVersionGroupMapping> allEVMInVersion = evmDaoImpl.getAllGroupsInVersion(expIdLong, event.getExperimentVersion());
+      if (allEVMInVersion == null) { 
+        evmDaoImpl.createEVGMByCopyingFromLatestVersion(expIdLong, event.getExperimentVersion());
+        allEVMInVersion =  evmDaoImpl.getAllGroupsInVersion(expIdLong, event.getExperimentVersion());
+        if (allEVMInVersion == null) { 
+          log.warning("eventId:"+ event.getId() + " not saved in cloud sql");
+          throw new Exception("No EVGM records for event"+ event.getId());
+        }
+      }
       // Rename event group Name from null to System, if its system predefined inputs
-      ExperimentVersionMapping evmForThisGroup = findMatchingEVMRecord(event, allEVMInVersion, migrationFlag);
+      ExperimentVersionGroupMapping evmForThisGroup = findMatchingEVMRecord(event, allEVMInVersion, migrationFlag);
       pvUpdateEvmId = evmForThisGroup.getExperimentVersionMappingId();
       statementCreateEvent.setLong(i++, pvUpdateEvmId);
       statementCreateEvent.execute();
@@ -312,11 +329,13 @@ public class CSEventOutputDaoImpl implements CSEventOutputDao {
     return retVal;
   }
   
-  private ExperimentVersionMapping findMatchingEVMRecord(Event event, Map<String, ExperimentVersionMapping> allEVMMap, boolean migrationFlag) throws Exception{
-    ExperimentVersionMapping returnEVM = null;
+  private ExperimentVersionGroupMapping findMatchingEVMRecord(Event event, Map<String, ExperimentVersionGroupMapping> allEVMMap, boolean migrationFlag) throws Exception{
+    ExperimentVersionGroupMapping returnEVM = null;
     CSExperimentVersionGroupMappingDao daoImpl = new CSExperimentVersionGroupMappingDaoImpl();
     Long expId = Long.parseLong(event.getExperimentId());
     log.info("event id"+ event.getId());
+    // fix the group name
+    daoImpl.ensureCorrectGroupName(event);
     // if event is posted for a version where we do not have experiment mapping records
     daoImpl.ensureEVMRecord(expId,event.getId(), event.getExperimentName(), event.getExperimentVersion(), event.getExperimentGroupName(), event.getWho(), event.getWhat(), migrationFlag, allEVMMap);
     returnEVM = allEVMMap.get(event.getExperimentGroupName());
@@ -326,7 +345,7 @@ public class CSEventOutputDaoImpl implements CSEventOutputDao {
   }
   
   @Override
-  public List<EventDAO> getEvents(String query, boolean withOutputs) throws SQLException, ParseException {
+  public List<EventDAO> getEvents(String query, boolean withOutputs, Boolean withOldColumnNames) throws SQLException, ParseException {
     List<EventDAO> evtDaoList = Lists.newArrayList();
     EventDAO event = null;
     Connection conn = null;
@@ -352,7 +371,7 @@ public class CSEventOutputDaoImpl implements CSEventOutputDao {
         // to maintain the insertion order
         eventMap = Maps.newLinkedHashMap();
         while (rs.next()) {
-          event = createEvent(rs, withOutputs);
+          event = createEvent(rs, withOutputs, withOldColumnNames);
           com.google.sampling.experiential.server.TimeUtil.adjustTimeZone(event);
           // to group list of whats into event
           EventDAO oldEvent = eventMap.get(event.getId());
@@ -391,14 +410,14 @@ public class CSEventOutputDaoImpl implements CSEventOutputDao {
   }
 
   
-  private EventDAO createEvent(ResultSet rs, boolean withOutputs) {
+  private EventDAO createEvent(ResultSet rs, boolean withOutputs, Boolean withOldColumnNames) {
     EventDAO event = new EventDAO();
     List<WhatDAO> whatList = Lists.newArrayList();
     WhatDAO singleWhat = null;
     try {
-      event.setExperimentId(rs.getLong(ExperimentGroupVersionMappingColumns.EXPERIMENT_ID));
+      event.setExperimentId(rs.getLong(ExperimentVersionGroupMappingColumns.EXPERIMENT_ID));
       event.setExperimentName(rs.getString(ExperimentDetailColumns.EXPERIMENT_NAME));
-      event.setExperimentVersion(rs.getInt(ExperimentGroupVersionMappingColumns.EXPERIMENT_VERSION));
+      event.setExperimentVersion(rs.getInt(ExperimentVersionGroupMappingColumns.EXPERIMENT_VERSION));
 
       Date scheduleDate = rs.getTimestamp(EventServerColumns.SCHEDULE_TIME);
       DateTime scheduledDateTime = scheduleDate != null ? new DateTime(scheduleDate): null;
@@ -422,7 +441,12 @@ public class CSEventOutputDaoImpl implements CSEventOutputDao {
       event.setTimezone(rs.getString(EventServerColumns.CLIENT_TIME_ZONE));
       event.setId(rs.getLong(Constants.UNDERSCORE_ID));
       if (withOutputs) {
-        String tempWhatText = rs.getString(OutputBaseColumns.NAME);
+        String tempWhatText = null;
+        if (withOldColumnNames) {
+          tempWhatText = rs.getString(OutputBaseColumns.NAME);
+        } else {
+          tempWhatText = rs.getString("esi1."+ ExternStringInputColumns.LABEL);
+        }
         if(tempWhatText != null) {
           singleWhat = new WhatDAO(tempWhatText, rs.getString(OutputBaseColumns.ANSWER));
           whatList.add(singleWhat);
@@ -480,6 +504,120 @@ public class CSEventOutputDaoImpl implements CSEventOutputDao {
         log.warning(ErrorMessages.CLOSING_RESOURCE_EXCEPTION.getDescription()+ ex1);
       }
     }
-  }
+  }  
 
+  @Override
+  public void resetDupCounterForVariableNames(Long experimentId) throws SQLException {
+    Connection conn = null;
+    PreparedStatement statementEventsWithDupCtr = null;
+    PreparedStatement statementUpdateTextInOutputs = null;
+    PreparedStatement statementUpdateEVGMIdInEvents = null;
+    ResultSet rs = null;
+    CSOutputDao outDao =  new CSOutputDaoImpl();
+    CSEventDao eventDaoImpl = new CSEventDaoImpl();
+    String getAllEventsWithDupCtr = QueryConstants.GET_EVENT_ID_WITH_DUP_VARIABLE.toString();
+    String updateOutputsText = QueryConstants.UPDATE_OUTPUT_TEXT.toString() ;
+    String updateEventsEVGMId = QueryConstants.UPDATE_EVENT_EVGM_ID_AS_NULL.toString();
+    Boolean oldColumnName = true;
+    List<WhatDAO> whats = null;
+    try {
+      // mock all events with -DUP- outputs as evgm id 1.
+      eventDaoImpl.updateAllEventsData(experimentId);
+      
+      conn = CloudSQLConnectionManager.getInstance().getConnection();
+      statementUpdateTextInOutputs = conn.prepareStatement(updateOutputsText);
+      statementEventsWithDupCtr = conn.prepareStatement(getAllEventsWithDupCtr);
+      statementUpdateEVGMIdInEvents = conn.prepareStatement(updateEventsEVGMId);
+      statementEventsWithDupCtr.setLong(1, experimentId);
+      Map<String, String> oldAndNewNameMap = null;
+      Iterator<String> oldNameItr = null;
+      String oldKeyValue = null;
+      Long eventId = null;
+     while (true) {
+       rs = statementEventsWithDupCtr.executeQuery();
+       if(!rs.next()) {
+         break;
+       } else {
+         rs.beforeFirst();
+         while (rs.next()) { 
+           eventId = rs.getLong(Constants.UNDERSCORE_ID);
+           whats = outDao.getOutputs(eventId, oldColumnName);
+           oldAndNewNameMap = resetDupVariablesCtr(whats);
+           oldNameItr = oldAndNewNameMap.keySet().iterator();
+           while (oldNameItr.hasNext()) {
+             oldKeyValue = oldNameItr.next();
+             statementUpdateTextInOutputs.setString(1, oldAndNewNameMap.get(oldKeyValue));
+             statementUpdateTextInOutputs.setLong(2, eventId);
+             statementUpdateTextInOutputs.setString(3, oldKeyValue);
+             statementUpdateTextInOutputs.addBatch();
+           }
+           statementUpdateEVGMIdInEvents.setLong(1, eventId);
+           statementUpdateEVGMIdInEvents.addBatch();
+         }
+         statementUpdateEVGMIdInEvents.executeBatch();
+         statementUpdateTextInOutputs.executeBatch();
+       }      
+     }
+    } finally {
+      try {
+        if (rs != null) { 
+          rs.close();
+        }
+        if (statementUpdateEVGMIdInEvents != null) {
+          statementUpdateEVGMIdInEvents.close();
+        }
+        if (statementUpdateTextInOutputs != null) { 
+          statementUpdateTextInOutputs.close();
+        }
+        if (statementEventsWithDupCtr != null) {
+          statementEventsWithDupCtr.close();
+        }
+        if (conn != null) {
+          conn.close();
+        }
+      } catch (SQLException ex1) {
+        log.warning(ErrorMessages.CLOSING_RESOURCE_EXCEPTION.getDescription()+ ex1);
+      }
+    }
+  }
+  
+  private static NavigableMap<String, WhatDAO> convertListToTreeMap (List<WhatDAO> whats) {
+    TreeMap<String, WhatDAO> tm = Maps.newTreeMap();
+    for (WhatDAO eachWhat : whats) { 
+      tm.put(eachWhat.getName(), eachWhat);
+    }
+    return tm;
+  }
+  private static SortedMap<String, WhatDAO> getByPrefix(
+                                                        NavigableMap<String, WhatDAO> myMap,
+                                                        String prefix ) {
+    return myMap.subMap( prefix, prefix + Character.MAX_VALUE );
+  }
+  private static Map<String, String> resetDupVariablesCtr(List<WhatDAO> whats) {
+    Map<String, String> oldAndNewVarNameMap = Maps.newHashMap();
+    NavigableMap<String, WhatDAO> tm = convertListToTreeMap(whats);
+    SortedMap<String, WhatDAO> subMap = null;
+    List<String> prefixes = Lists.newArrayList();
+    String[] variableNameSplitArray = null;
+    for (WhatDAO eachWhat : whats) { 
+      variableNameSplitArray = eachWhat.getName().split("-DUP-");
+      String firstPart = variableNameSplitArray[0]+"-DUP-";
+      if (eachWhat.getName().contains("-DUP-") && !prefixes.contains(firstPart)) {
+        prefixes.add(firstPart);
+      }
+    }
+    for (String prefix : prefixes) {
+      subMap = getByPrefix(tm, prefix);  
+      Iterator<String> subMapItr = subMap.keySet().iterator();
+      int i = 1;
+      while (subMapItr.hasNext()) {
+        // q1-DUP-23, q1-DUP-25
+        WhatDAO eachWhat = subMap.get(subMapItr.next());
+        oldAndNewVarNameMap.put(eachWhat.getName(), prefix + i);
+        i++;        
+      }
+    }
+    return oldAndNewVarNameMap;
+  }
+  
 }

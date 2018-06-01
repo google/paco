@@ -39,6 +39,7 @@ public class CloudSqlSearchServlet extends HttpServlet {
     setCharacterEncoding(req, resp);
     User user = AuthUtil.getWhoFromLogin();
     String loggedInUser = null;
+    boolean oldFormatFlag = Constants.USE_OLD_FORMAT_FLAG;
     ObjectMapper mapper = JsonConverter.getObjectMapper();
     
     if (user == null) {
@@ -54,7 +55,7 @@ public class CloudSqlSearchServlet extends HttpServlet {
         sqlQueryObj = QueryJsonParser.parseSqlQueryFromJson(postBodyString, enableGrpByAndProjection);
         SearchQuery searchQuery = QueryFactory.createSearchQuery(sqlQueryObj, pacoProtocol);
         long startTime = System.currentTimeMillis();
-        PacoResponse pr = searchQuery.process(loggedInUser);
+        PacoResponse pr = searchQuery.process(loggedInUser, oldFormatFlag);
         long diff = System.currentTimeMillis() - startTime;
         log.info("complete search qry took " + diff + " seconds");
         resp.setContentType("text/html");

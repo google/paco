@@ -27,6 +27,7 @@ import com.google.sampling.experiential.dao.dataaccess.InputCollection;
 import com.google.sampling.experiential.dao.dataaccess.InputOrderAndChoice;
 import com.google.sampling.experiential.server.CloudSQLConnectionManager;
 import com.google.sampling.experiential.server.IdGenerator;
+import com.google.sampling.experiential.server.QueryConstants;
 import com.pacoapp.paco.shared.model2.ExperimentDAO;
 import com.pacoapp.paco.shared.util.ErrorMessages;
 
@@ -302,6 +303,115 @@ public class CSInputCollectionDaoImpl implements CSInputCollectionDao {
     }
     return newInputCollectionId;
   }
+ 
+  @Override
+  public List<Long> getAllInputIds(Long experimentId, Long inputCollectionId) throws SQLException { 
+    Connection conn = null;
+    ResultSet rs = null;
+    PreparedStatement statementGetAllInputIds = null;
+    Long id = null;
+    List<Long> inputIds = Lists.newArrayList();
+    try {
+      conn = CloudSQLConnectionManager.getInstance().getConnection();
+      statementGetAllInputIds = conn.prepareStatement(QueryConstants.GET_ALL_INPUT_IDS.toString());
+      
+      statementGetAllInputIds.setLong(1, experimentId);
+      statementGetAllInputIds.setLong(2, inputCollectionId);
+      rs = statementGetAllInputIds.executeQuery();
+      while (rs.next()) {
+        inputIds.add(rs.getLong(InputCollectionColumns.INPUT_ID));
+      }
+    } finally {
+      try {
+        if ( rs != null) {
+          rs.close();
+        }
+        if (statementGetAllInputIds != null) {
+          statementGetAllInputIds.close();
+        }
+        if (conn != null) {
+          conn.close();
+        }
+      } catch (SQLException ex1) {
+        log.warning(ErrorMessages.CLOSING_RESOURCE_EXCEPTION.getDescription()+ ex1);
+      }
+    }
+    return inputIds;
+    
+  }
+  
+  
+  
+  @Override
+  public boolean deleteDupInputsInInputCollection(Long experimentId, List<Long> inputIds) throws SQLException { 
+    Connection conn = null;
+    ResultSet rs = null;
+    PreparedStatement statementDeleteAllInputIdsWithDupCtr = null;
+    Long id = null;
+    CSInputDao inputDaoImpl = new CSInputDaoImpl();
+    try {
+      conn = CloudSQLConnectionManager.getInstance().getConnection();
+      statementDeleteAllInputIdsWithDupCtr = conn.prepareStatement(QueryConstants.DELELTE_INPUTS_IN_INPUT_COLLECTION_FOR_EXPERIMENT.toString());
+      for (Long eachInputId :  inputIds) { 
+        statementDeleteAllInputIdsWithDupCtr.setLong(1, experimentId);
+        statementDeleteAllInputIdsWithDupCtr.setLong(2, eachInputId);  
+        statementDeleteAllInputIdsWithDupCtr.addBatch();
+      }
+      statementDeleteAllInputIdsWithDupCtr.executeBatch();
+    } finally {
+      try {
+        if ( rs != null) {
+          rs.close();
+        }
+        if (statementDeleteAllInputIdsWithDupCtr != null) {
+          statementDeleteAllInputIdsWithDupCtr.close();
+        }
+        if (conn != null) {
+          conn.close();
+        }
+      } catch (SQLException ex1) {
+        log.warning(ErrorMessages.CLOSING_RESOURCE_EXCEPTION.getDescription()+ ex1);
+      }
+    }
+    return true;
+    
+  }
+  
+  @Override
+  public List<Long> getAllDupInputsForExperiment(Long experimentId) throws SQLException { 
+    Connection conn = null;
+    ResultSet rs = null;
+    PreparedStatement statementGetAllInputIdsWithDupCtr = null;
+    List<Long> inputIds =  Lists.newArrayList();
+    try {
+      conn = CloudSQLConnectionManager.getInstance().getConnection();
+      statementGetAllInputIdsWithDupCtr = conn.prepareStatement(QueryConstants.GET_INPUT_IDS_WITH_DUP_INPUTS_FOR_EXPERIMENT.toString());
+      
+      statementGetAllInputIdsWithDupCtr.setLong(1, experimentId);
+      log.info(statementGetAllInputIdsWithDupCtr.toString());
+      rs = statementGetAllInputIdsWithDupCtr.executeQuery();
+      while (rs.next()) {
+        inputIds.add(rs.getLong(InputCollectionColumns.INPUT_ID));
+      }
+    } finally {
+      try {
+        if ( rs != null) {
+          rs.close();
+        }
+        if (statementGetAllInputIdsWithDupCtr != null) {
+          statementGetAllInputIdsWithDupCtr.close();
+        }
+        if (conn != null) {
+          conn.close();
+        }
+      } catch (SQLException ex1) {
+        log.warning(ErrorMessages.CLOSING_RESOURCE_EXCEPTION.getDescription()+ ex1);
+      }
+    }
+    return inputIds;
+    
+  }
+
 }
 
  

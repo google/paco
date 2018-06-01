@@ -11,5 +11,9 @@ public interface CSInputDao {
   void insertInput(List<Input> inputs) throws SQLException, Exception;
 
   List<Input> insertVariableNames(List<String> variableNames) throws SQLException, Exception;
+
+  boolean deleteAllInputs(List<Long> inputIds) throws SQLException;
+
+  String getLabelForInputId(Long inputId) throws SQLException;
  
 }

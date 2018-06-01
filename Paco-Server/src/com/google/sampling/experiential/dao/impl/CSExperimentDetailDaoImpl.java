@@ -12,7 +12,7 @@ import java.util.logging.Logger;
 import com.google.cloud.sql.jdbc.Statement;
 import com.google.common.collect.Lists;
 import com.google.sampling.experiential.cloudsql.columns.ExperimentDetailColumns;
-import com.google.sampling.experiential.cloudsql.columns.ExperimentGroupVersionMappingColumns;
+import com.google.sampling.experiential.cloudsql.columns.ExperimentVersionGroupMappingColumns;
 import com.google.sampling.experiential.dao.CSExperimentDetailDao;
 import com.google.sampling.experiential.dao.dataaccess.ExperimentDetail;
 import com.google.sampling.experiential.dao.dataaccess.InformedConsent;
@@ -136,7 +136,7 @@ public class CSExperimentDetailDaoImpl implements CSExperimentDetailDao {
       statementGetExperimentInfo.setInt(2, expVersion);
       rs = statementGetExperimentInfo.executeQuery();
       while (rs.next()) {
-        expFacetId = rs.getLong(ExperimentGroupVersionMappingColumns.EXPERIMENT_DETAIL_ID);
+        expFacetId = rs.getLong(ExperimentVersionGroupMappingColumns.EXPERIMENT_DETAIL_ID);
       }
     } finally {
       try {
