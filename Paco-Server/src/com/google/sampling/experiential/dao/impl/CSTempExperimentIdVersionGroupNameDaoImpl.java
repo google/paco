@@ -130,8 +130,10 @@ public class CSTempExperimentIdVersionGroupNameDaoImpl implements CSTempExperime
   }
   
   @Override
-  public boolean insertExperimentIdVersionGroupName(Long expId, Integer expVersion, String groupName, Integer status) throws SQLException {
-    String insertToExperimentIdVersion = QueryConstants.INSERT_IGNORE_TO_EXPERIMENT_ID_VERSION_GROUP_NAME.toString();
+  public boolean upsertExperimentIdVersionGroupName(Long expId, Integer expVersion, String groupName, Integer status) throws SQLException {
+    // if the primary key record is not there, this record will be inserted as new
+    // if the primary key record is there, it will be updated with the new values
+    String insertToExperimentIdVersion = QueryConstants.REPLACE_TO_EXPERIMENT_ID_VERSION_GROUP_NAME.toString();
     Connection conn = null;
     PreparedStatement statementInsertToExpIdVersion = null;
     try {

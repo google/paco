@@ -28,6 +28,7 @@ public enum QueryConstants {
   GET_ALL_USERS_FOR_EVGM("select distinct who_bk from " + EventServerColumns.TABLE_NAME +  " where " + EventServerColumns.EXPERIMENT_VERSION_GROUP_MAPPING_ID +" = ? "),
   GET_ALL_GROUP_TYPE("select * from " + GroupTypeColumns.TABLE_NAME ),
   GET_LABEL_FOR_INPUT_ID("select esi.label from input i join extern_string_input esi on i.name_id=esi.extern_string_input_id where i.input_id=?"),
+  GET_ALL_INPUT_IDS_FOR_EVGM_AND_USER("select distinct input_id from events e join outputs o on e._id=o.event_id where e.experiment_version_group_mapping_id=? and e.who_bk=?"),
   GET_EXPERIMENT_IDS_WITH_DUP_INPUTS("select  distinct evgm.experiment_id from " + ExperimentVersionGroupMappingColumns.TABLE_NAME + " evgm " + 
           " join input_collection ic on evgm.input_collection_id=ic.input_collection_id and evgm.experiment_id=ic.experiment_ds_id  " + 
           " join input i on ic.input_id=i.input_id "  +
@@ -58,7 +59,7 @@ public enum QueryConstants {
   GET_ALL_EXPERIMENT_JSON("select * from " + TempExperimentDefinitionColumns.TABLE_NAME + " where "+TempExperimentDefinitionColumns.MIGRATION_STATUS +" = ?"),
   GET_EXPERIMENT_JSON_FOR_EXP_ID("select * from " + TempExperimentDefinitionColumns.TABLE_NAME + " where "+TempExperimentDefinitionColumns.ID +" = ?"),
   GET_ALL_ERRORED_EXPERIMENT_JSON("select id from " + TempExperimentDefinitionColumns.TABLE_NAME +  " where error_message is not null" ),
-  GET_TO_BE_DELETED_EXPERIMENTS("select distinct experiment_id from temp_experiment_id_version_group_name where experiment_id not in (select id from temp_experiment_definition)" ),
+  GET_TO_BE_DELETED_EXPERIMENTS("select distinct experiment_id from temp_experiment_id_version_group_name where experiment_id not in (select id from temp_experiment_definition) and experiment_id not in (select distinct experiment_id from experiment_version_group_mapping)" ),
   DELETE_EXPERIMENTS_IN_EXPERIMENT_ID_VERSION("delete from temp_experiment_id_version_group_name where experiment_id = ?" ),
   DELETE_EXPERIMENTS_WITH_VERSION_IN_EXPERIMENT_ID_VERSION("delete from temp_experiment_id_version_group_name where experiment_id = ? and experiment_version = ?" ),
   DELELTE_INPUTS_IN_INPUT_COLLECTION_FOR_EXPERIMENT("delete from input_collection where  experiment_ds_id=? and input_id=?"),
@@ -69,7 +70,7 @@ public enum QueryConstants {
   UPDATE_EVENTS_WITH_NEW_GROUP_NAME("update events set group_name=? where _id=?"),
   INSERT_TO_OLD_GROUP_NAME_TABLE("insert into event_old_group_name(old_group_name,event_id) values (?,?)"),
   INSERT_TO_PIVOT_HELPER_WITH_ON_DUPLICATE_CLAUSE("INSERT INTO pivot_helper (experiment_version_group_mapping_id, anon_who, input_id, events_posted, processed) VALUES (?,?,?,?,?) ON DUPLICATE KEY UPDATE events_posted=events_posted+1"),
-  INSERT_IGNORE_TO_EXPERIMENT_ID_VERSION_GROUP_NAME("INSERT ignore INTO `pacodb`.`temp_experiment_id_version_group_name` (`experiment_id`, `experiment_version`, `group_name`, `status`) VALUES (?, ?,?,?)"),
+  REPLACE_TO_EXPERIMENT_ID_VERSION_GROUP_NAME("REPLACE INTO `pacodb`.`temp_experiment_id_version_group_name` (`experiment_id`, `experiment_version`, `group_name`, `status`) VALUES (?, ?,?,?)"),
   DELETE_FROM_EXPERIMENT_DEFINITION("delete from temp_experiment_definition where id = ? "),
   DELETE_FROM_INPUT("delete from input where input_id=?"),
   UPDATE_SPLIT_JSON_IN_EXPERIMENT_DEFINITION("update temp_experiment_definition set migration_status = 1, converted_json=? where id=? and version=?"),
@@ -103,7 +104,7 @@ public enum QueryConstants {
                              + " join " + GroupTypeColumns.TABLE_NAME+ " gt on gt." + GroupTypeColumns.GROUP_TYPE_ID+ " = gtim." +GroupTypeInputMappingColumns.GROUP_TYPE_ID),
   GET_LABEL_ID_FOR_STRING("select * from " + ExternStringListLabelColumns.TABLE_NAME + " where "  + ExternStringListLabelColumns.LABEL + "= ?"),
   GET_INPUT_TEXT_ID_FOR_STRING("select * from " + ExternStringInputColumns.TABLE_NAME + " where "  + ExternStringInputColumns.LABEL + "= ?"),
-  GET_CLOSEST_VERSION("SELECT "+ ExperimentVersionGroupMappingColumns.EXPERIMENT_VERSION +" FROM " + ExperimentVersionGroupMappingColumns.TABLE_NAME + " where "+ ExperimentVersionGroupMappingColumns.EXPERIMENT_ID +"=? order by "+ ExperimentVersionGroupMappingColumns.EXPERIMENT_VERSION +" desc limit 1") ,
+  GET_LATEST_VERSION("SELECT "+ ExperimentVersionGroupMappingColumns.EXPERIMENT_VERSION +" FROM " + ExperimentVersionGroupMappingColumns.TABLE_NAME + " where "+ ExperimentVersionGroupMappingColumns.EXPERIMENT_ID +"=? order by "+ ExperimentVersionGroupMappingColumns.EXPERIMENT_VERSION +" desc limit 1") ,
   GET_ALL_EVM_RECORDS_FOR_VERSION("select * from " + ExperimentVersionGroupMappingColumns.TABLE_NAME + " where "  + ExperimentVersionGroupMappingColumns.EXPERIMENT_ID + "= ? and " + ExperimentVersionGroupMappingColumns.EXPERIMENT_VERSION + "=?"),
   GET_ALL_GROUPS_IN_VERSION("select * from experiment_version_group_mapping evgm join experiment_detail eh on evgm.experiment_detail_id = eh.experiment_detail_id " + 
           " join group_detail gh on evgm.group_detail_id = gh.group_detail_id " +

@@ -18,8 +18,12 @@
 	            <a href="" class="group-toggle" ng-class="{hiding: hiding}"></a>
 	            Experiment Group
 	          </div>
-          	<md-input-container placeholder="Group Name" md-no-float class="group-name">
+          	<!-- <md-input-container placeholder="Group Name" md-no-float class="group-name">
             	<input ng-model="group.name" aria-label="Group name" ng-disabled="{{disabled}}">
+            	<no-ios ng-if="$index > 0">iOS does not support multiple groups</no-ios>
+          	</md-input-container> -->
+          	<md-input-container placeholder="Group Name" md-no-float class="group-name">
+            	<input ng-model="group.name" aria-label="Group name">
             	<no-ios ng-if="$index > 0">iOS does not support multiple groups</no-ios>
           	</md-input-container>
 

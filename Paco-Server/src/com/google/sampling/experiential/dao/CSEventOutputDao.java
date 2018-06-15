@@ -22,5 +22,6 @@ public interface CSEventOutputDao {
 
   List<EventDAO> getEvents(String query, boolean withOutputs, Boolean withOldColumnNames) throws SQLException,
                                                                                           ParseException;
+  List<Long> getAllInputIdsForEVGMAndUser(Long evgmId, Integer anonWhoId) throws SQLException;
 
 }

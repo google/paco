@@ -60,6 +60,7 @@ public class CustomFieldsSearchQuery extends SearchQuery {
   public String renameTextColumn(String acledQuery) {
     // during migration phase, when both events and experiment_version_group_mapping tables have the same column name, experiment_id will be ambiguous
     String tempAcledQuery = acledQuery.replace("experiment_id", "experiment_version_group_mapping.experiment_id");
+    tempAcledQuery = tempAcledQuery.replace("group_name", "group_detail.group_name");
     return tempAcledQuery.replace("text", "esi1." + ExternStringInputColumns.LABEL );
   }
 }

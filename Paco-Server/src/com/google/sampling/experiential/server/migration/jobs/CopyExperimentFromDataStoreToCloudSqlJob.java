@@ -8,14 +8,11 @@ import java.util.logging.Logger;
 
 import org.joda.time.DateTime;
 
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.google.sampling.experiential.dao.CSEventOutputDao;
 import com.google.sampling.experiential.dao.CSOutputDao;
 import com.google.sampling.experiential.dao.CSTempExperimentDefinitionDao;
 import com.google.sampling.experiential.dao.CSTempExperimentIdVersionGroupNameDao;
 import com.google.sampling.experiential.dao.dataaccess.ExperimentLite;
-import com.google.sampling.experiential.dao.impl.CSEventOutputDaoImpl;
 import com.google.sampling.experiential.dao.impl.CSOutputDaoImpl;
 import com.google.sampling.experiential.dao.impl.CSTempExperimentDefinitionDaoImpl;
 import com.google.sampling.experiential.dao.impl.CSTempExperimentIdVersionGroupNameDaoImpl;
@@ -63,7 +60,6 @@ public class CopyExperimentFromDataStoreToCloudSqlJob implements MigrationJob {
           sqlMigDaoImpl.copyExperimentDeleteEventsAndOutputsForDeletedExperiments();
           log.info("------------------------------------------------Step 1 End------------------------------------------------");
           returnString += "delete events of deleted experiments Done. Step1 complete.";
-//          returnString = "All Done";
           doAll = true;
         } catch (SQLException e) {
           returnString += "Failed to delete events of deleted experiments. Restart job from step1";
@@ -71,84 +67,130 @@ public class CopyExperimentFromDataStoreToCloudSqlJob implements MigrationJob {
         }
       }
       
-      if ( (cursor != null && cursor.equalsIgnoreCase("step2"))) {
+      if ( doAll || (cursor != null && cursor.equalsIgnoreCase("step2"))) {
         try {
           log.info("------------------------------------------------Step 2 Begin------------------------------------------------");
+          // picks up exp id version group name status 0
           sqlMigDaoImpl.copyExperimentCreateEVGMRecordsForAllExperiments();
-          // egn status 1
+          // on success, updates exp id version group name status 1
           log.info("------------------------------------------------Step 2 End------------------------------------------------");
           returnString += "create evgm record for earlier versions Done. Step2 complete.";
-//          returnString = "All Done";
           doAll = true;
         } catch (SQLException e) {
           returnString += "Failed to create evgm records for earlier versions of experiments. Restart job from step2";
           throw new SQLException(returnString, e);
         }
       }
-    
-      if ( (cursor != null && cursor.equalsIgnoreCase("step3"))) {
+      
+      if (doAll || (cursor != null && cursor.equalsIgnoreCase("step3"))) {
         try {
           log.info("------------------------------------------------Step 3 Begin------------------------------------------------");
-          returnString = updateEventAndOutputTable(2, 1000, unprocessedEventRecordQuery);
+          // picks up exp id version group name status 1
+          sqlMigDaoImpl.copyExperimentChangeGroupNameOfEventsWithPredefinedInputs();
+          // on success, updates exp id version group name status 2
           log.info("------------------------------------------------Step 3 End------------------------------------------------");
+          returnString += "group name changed for events with predefined inputs Done. Step3 complete.";
+          returnString = "All Done";
           doAll = true;
-        } catch (Exception e) {
-          returnString += "Failed to update event and output table . Restart job from step3";
+        } catch (SQLException e) {
+          returnString += "Failed to change group name for events with predefined inputs. Restart job from step3";
           throw new SQLException(returnString, e);
         }
       }
-      if ( (cursor != null && cursor.equalsIgnoreCase("step4"))) {
+      
+      if ( doAll || (cursor != null && cursor.equalsIgnoreCase("step4"))) {
         try {
           log.info("------------------------------------------------Step 4 Begin------------------------------------------------");
-          returnString = updateEventAndOutputTable(20, 100, unprocessedEventRecordQuery);
+          // picks up exp id version group name status 2
+          returnString += updateEventAndOutputTable(2, 1000, unprocessedEventRecordQuery);
+          // on success, updates exp id version group name status 3 or 20
           log.info("------------------------------------------------Step 4 End------------------------------------------------");
           doAll = true;
         } catch (Exception e) {
           returnString += "Failed to update event and output table . Restart job from step4";
           throw new SQLException(returnString, e);
         }
+      }
+      
+      if (doAll ||  (cursor != null && cursor.equalsIgnoreCase("step5"))) {
+        try {
+          log.info("------------------------------------------------Step 5 Begin------------------------------------------------");
+          // picks up exp id version group name status 20
+          returnString += updateEventAndOutputTable(20, 500, unprocessedEventRecordQuery);
+          // on success, updates exp id version group name status 3
+          log.info("------------------------------------------------Step 5 End------------------------------------------------");
+          doAll = true;
+        } catch (Exception e) {
+          returnString += "Failed to update event and output table . Restart job from step5";
+          throw new SQLException(returnString, e);
+        }
        returnString = "All Done";
       }
       
-      if ( (cursor != null && cursor.equalsIgnoreCase("step5"))) {
+      if (doAll ||  (cursor != null && cursor.equalsIgnoreCase("step6"))) {
+        String query = "select * from events where experiment_id is not null and experiment_version_group_mapping_id is null";
         try {
-          log.info("------------------------------------------------Step 5 Begin------------------------------------------------");
-          sqlMigDaoImpl.copyExperimentMarkExperimentsForPivotTable();
-          // egn status 2
-          log.info("------------------------------------------------Step 5 End------------------------------------------------");
-          returnString += "populate pivot table helper Done. Step5 complete.";
-          returnString = "All Done";
+          log.info("------------------------------------------------Step 6 Begin------------------------------------------------");
+          // picks up all new exp id version group name combination events posted from the time ExperimentMigrationDataPreCleanupJob->step 7 happens
+          // until this jobs first step starts. Some of these events might not have been updated with evgm ids and inputs ids. 
+          // Right when this job starts all events will be posted with new format.
+          sqlMigDaoImpl.copyExperimentUpdateEventAndOutputCatchAll(query);
+          // on success, creates/updates exp id version group name status 0
+          // TODO check if evgm exists for it already  if yes just update status or else create evgm and then update
+          sqlMigDaoImpl.copyExperimentCreateEVGMRecordsForExperimentsThatDoNotHaveEVGM();
+          // on success, updates exp id version group name status 1
+          sqlMigDaoImpl.copyExperimentChangeGroupNameOfEventsWithPredefinedInputs();
+          // on success, , updates exp id version group name status 2
+          updateEventAndOutputTable(2, 1000, unprocessedEventRecordQuery);
+          updateEventAndOutputTable(20, 100, unprocessedEventRecordQuery);
+          // on success, udpates exp id version group name status 3
+          log.info("------------------------------------------------Step 6 End------------------------------------------------");
+          returnString += " CatchAll complete"; 
           doAll = true;
-        } catch (SQLException e) {
-          returnString += "Failed to populate pivot table helper. Restart job from step5";
+        } catch (Exception e) {
+          returnString += "Failed to update event and output table . Restart job from step6";
           throw new SQLException(returnString, e);
         }
       }
-      if ( (cursor != null && cursor.equalsIgnoreCase("step6"))) {
+      
+      if (doAll ||  (cursor != null && cursor.equalsIgnoreCase("step7"))) {
         try {
-          log.info("------------------------------------------------Step 6 Begin------------------------------------------------");
-          sqlMigDaoImpl.copyExperimentPopulatePivotTableForAllExperiments();
-          log.info("------------------------------------------------Step 6 End------------------------------------------------");
-          returnString += "populate pivot table helper Done. Step6 complete.";
+          log.info("------------------------------------------------Step 7 Begin------------------------------------------------");
+          sqlMigDaoImpl.copyExperimentMarkExperimentsForPivotTable();
+          // exp id version group name status 5
+          log.info("------------------------------------------------Step 7 End------------------------------------------------");
+          returnString += "mark pivot table helper Done. Step7 complete.";
           returnString = "All Done";
-    //      doAll = true;
+          doAll = true;
         } catch (SQLException e) {
-          returnString += "Failed to populate pivot table helper. Restart job from step6";
+          returnString += "Failed to populate pivot table helper. Restart job from step7";
+          throw new SQLException(returnString, e);
+        }
+      }
+      if (doAll ||  (cursor != null && cursor.equalsIgnoreCase("step8"))) {
+        try {
+          log.info("------------------------------------------------Step 8 Begin------------------------------------------------");
+          sqlMigDaoImpl.copyExperimentPopulatePivotTableForAllExperiments();
+          // exp id version group name status 4
+          log.info("------------------------------------------------Step 8 End------------------------------------------------");
+          returnString += "populate pivot table helper Done. Step8 complete.";
+        } catch (SQLException e) {
+          returnString += "Failed to populate pivot table helper. Restart job from step8";
           throw new SQLException(returnString, e);
         }
       }
 
-      if (doAll || (cursor != null && cursor.equalsIgnoreCase("step7"))) {
-        try {
-          log.info("------------------------------------------------Step 7 Begin------------------------------------------------");
-          sqlMigDaoImpl.copyExperimentRenameOldEventColumns();
-          log.info("------------------------------------------------Step 7 End------------------------------------------------");
-          returnString = "All Done";
-        } catch (SQLException e) {
-          returnString += "Failed to rename event columns to avoid ambiguity. Restart job from step7";
-          throw new SQLException(returnString, e);
-        }
-      }
+//      if (doAll || (cursor != null && cursor.equalsIgnoreCase("step9"))) {
+//        try {
+//          log.info("------------------------------------------------Step 9 Begin------------------------------------------------");
+//          sqlMigDaoImpl.copyExperimentRenameOldEventColumns();
+//          log.info("------------------------------------------------Step 9 End------------------------------------------------");
+//          returnString = "All Done";
+//        } catch (SQLException e) {
+//          returnString += "Failed to rename event columns to avoid ambiguity. Restart job from step9";
+//          throw new SQLException(returnString, e);
+//        }
+//      }
     
       return returnString;
     }
@@ -158,18 +200,16 @@ public class CopyExperimentFromDataStoreToCloudSqlJob implements MigrationJob {
       CSTempExperimentIdVersionGroupNameDao expIdVersionDaoImpl = new CSTempExperimentIdVersionGroupNameDaoImpl();
       CSOutputDao outputDaoImpl = new CSOutputDaoImpl();
       CopyExperimentMigrationDao sqlMigDaoImpl = new CopyExperimentMigrationDaoImpl();
-      CSEventOutputDao eventOutputDaoImpl = new CSEventOutputDaoImpl();
       Connection conn = null;
       String returnString = null;
       try {
         List<Long> erroredExperimentIds = expDefDaoImpl.getErroredExperimentDefinition();
         List<EventDAO> allEventsForThisExptVersion = null;
         Map<Long, Long> expIdDistinctVariableMap = Maps.newHashMap();
-        int ct = 0 ;
+        int ct = 0;
         Long distinctVariableCount = 0L;
         conn = CloudSQLConnectionManager.getInstance().getConnection();
         List<ExperimentLite> expLites = expIdVersionDaoImpl.getAllExperimentLiteOfStatus(expLiteStatus);
-        List<Long> experimentIdsWithResetDups = Lists.newArrayList();
         for (ExperimentLite expLite : expLites) {
           if (expLiteStatus == 2) {
             distinctVariableCount = expIdDistinctVariableMap.get(expLite.getExperimentId());
@@ -177,24 +217,18 @@ public class CopyExperimentFromDataStoreToCloudSqlJob implements MigrationJob {
               distinctVariableCount = outputDaoImpl.getDistinctOutputCount(expLite.getExperimentId());
               expIdDistinctVariableMap.put(expLite.getExperimentId(), distinctVariableCount);
             }
-          } else {
-            // identify dup variables in expt of status 20
-            if (!experimentIdsWithResetDups.contains(expLite.getExperimentId())) {
-              eventOutputDaoImpl.resetDupCounterForVariableNames(expLite.getExperimentId());
-              experimentIdsWithResetDups.add(expLite.getExperimentId());
-            }
           }
           if (distinctVariableCount < batchSize ) { 
-            log.info("distinct exp id version ct " + (ct++) + " exp id"+ expLite.getExperimentId() + "expVersion" + expLite.getExperimentVersion() + "expGroup" + expLite.getExperimentGroupName()  + "distinct variable name " + distinctVariableCount);
+            log.info("distinct exp id version ct " + (ct++) + " exp id"+ expLite.getExperimentId() + "expVersion" + expLite.getExperimentVersion() + "expGroup" + expLite.getExperimentGroupName()  + "distinct variable name count" + distinctVariableCount);
               
             while (true) {
-                allEventsForThisExptVersion = sqlMigDaoImpl.getSingleBatchUnprocessedEvent(conn, erroredExperimentIds, unprocessedEventRecordQuery, expLite.getExperimentId(), expLite.getExperimentVersion(), expLite.getExperimentGroupName(), batchSize) ;
-                if (allEventsForThisExptVersion == null || allEventsForThisExptVersion.size() == 0 ) { 
-                  log.info("All Event records for this Expt version have EGVM Id.............................." + expLite.getExperimentId() + "--" + expLite.getExperimentVersion());
-                  break;
-                } else {
-                  sqlMigDaoImpl.processOlderVersionsAndAnonUsersInEventTable(conn, erroredExperimentIds, allEventsForThisExptVersion, expLiteStatus == 20);
-                } 
+              allEventsForThisExptVersion = sqlMigDaoImpl.getSingleBatchUnprocessedEvent(conn, erroredExperimentIds, unprocessedEventRecordQuery, expLite.getExperimentId(), expLite.getExperimentVersion(), expLite.getExperimentGroupName(), batchSize) ;
+              if (allEventsForThisExptVersion == null || allEventsForThisExptVersion.size() == 0 ) { 
+                log.info("All Event records for this Expt version have EGVM Id.............................." + expLite.getExperimentId() + "--" + expLite.getExperimentVersion());
+                break;
+              } else {
+                sqlMigDaoImpl.processOlderVersionsAndAnonUsersInEventTable(conn, erroredExperimentIds, allEventsForThisExptVersion, expLiteStatus == 20);
+              } 
             }
             expIdVersionDaoImpl.updateExperimentIdVersionGroupNameStatus(expLite.getExperimentId(), expLite.getExperimentVersion(), expLite.getExperimentGroupName(), 3);
           } else {

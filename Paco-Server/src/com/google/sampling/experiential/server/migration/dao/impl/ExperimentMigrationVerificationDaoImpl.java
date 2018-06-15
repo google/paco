@@ -8,12 +8,9 @@ import java.util.List;
 import java.util.logging.Logger;
 
 import com.google.common.collect.Lists;
-import com.google.sampling.experiential.cloudsql.columns.ExperimentVersionGroupMappingColumns;
 import com.google.sampling.experiential.cloudsql.columns.ExternStringInputColumns;
-import com.google.sampling.experiential.dao.CSEventOutputDao;
 import com.google.sampling.experiential.dao.CSTempExperimentIdVersionGroupNameDao;
 import com.google.sampling.experiential.dao.dataaccess.ExperimentLite;
-import com.google.sampling.experiential.dao.impl.CSEventOutputDaoImpl;
 import com.google.sampling.experiential.dao.impl.CSTempExperimentIdVersionGroupNameDaoImpl;
 import com.google.sampling.experiential.server.CloudSQLConnectionManager;
 import com.google.sampling.experiential.server.ExceptionUtil;

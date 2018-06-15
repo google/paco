@@ -12,21 +12,22 @@ public interface CopyExperimentMigrationDao {
   boolean dataCleanupUpdateEventTableExperimentVersionAndGroupNameNull() throws SQLException;
   boolean dataCleanupRemoveUnwantedEventAndOutputsPredefinedExperiments() throws Exception;
   boolean dataCleanupChangeDupCounterAloneOnVariableNames(String query) throws Exception;
-  
+  boolean dataCleanupEnforceForeignKeyConstraintOnEVGM() throws Exception;
   boolean dataCleanupCreateTables() throws SQLException; 
   boolean dataCleanupAddModificationsToExistingTables() throws SQLException;
-  boolean dataCleanupInsertPredefinedRecords() throws SQLException, Exception; 
-  boolean experimentSplitPopulateExperimentBundleTables()  throws SQLException;
+  boolean dataCleanupInsertPredefinedRecords() throws SQLException, Exception;
   boolean dataCleanupAnonymizeParticipantsCreateTables() throws SQLException; 
+  
+  boolean experimentSplitPopulateExperimentBundleTables()  throws SQLException;
   boolean experimentSplitGroupsAndPersist() throws SQLException, Exception;
   boolean experimentSplitTakeBackupInCloudSql() throws SQLException;
   boolean experimentSplitInsertIntoExperimentDefinition() throws SQLException, Exception;
   boolean experimentSplitRemoveUnwantedExperimentJsonFromExperimentDefinition() throws Exception;
   
-  boolean dataCleanupPopulateDistinctExperimentIdVersionAndGroupName() throws SQLException;
+  boolean copyExperimentPopulateDistinctExperimentIdVersionAndGroupName() throws SQLException;
   boolean copyExperimentDeleteEventsAndOutputsForDeletedExperiments() throws SQLException;
   boolean copyExperimentCreateEVGMRecordsForAllExperiments() throws SQLException;
-  boolean dataCleanupChangeGroupNameOfEventsWithPredefinedInputs() throws SQLException;
+  boolean copyExperimentChangeGroupNameOfEventsWithPredefinedInputs() throws SQLException;
   boolean copyExperimentRenameOldEventColumns() throws SQLException;
   boolean copyExperimentMarkExperimentsForPivotTable() throws Exception;
   boolean copyExperimentPopulatePivotTableForAllExperiments() throws SQLException;
@@ -40,5 +41,6 @@ public interface CopyExperimentMigrationDao {
                                                 Integer batchSize) throws SQLException;
 
   void processOlderVersionsAndAnonUsersInEventTable(Connection conn, List<Long> erroredExperimentIds, List<EventDAO> allEvents, Boolean aggregateInputNames) throws Exception;
+  boolean copyExperimentCreateEVGMRecordsForExperimentsThatDoNotHaveEVGM() throws SQLException;
   
 }

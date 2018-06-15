@@ -37,64 +37,62 @@ public class ExperimentSplitAndPersistJob implements MigrationJob {
       CopyExperimentMigrationDao sqlMigDaoImpl = new CopyExperimentMigrationDaoImpl();
       if (cursor == null) {
         doAll = true;
-      }
-    
-      
-    
-      
-      if (doAll || (cursor != null && cursor.equalsIgnoreCase("step3"))) {
+      }  
+      if (doAll || (cursor != null && cursor.equalsIgnoreCase("step1"))) {
         try {
-            log.info("------------------------------------------------Step 3 Begin------------------------------------------------");
+            log.info("------------------------------------------------Step 1 Begin------------------------------------------------");
             sqlMigDaoImpl.experimentSplitTakeBackupInCloudSql();
-            log.info("------------------------------------------------Step 3 End------------------------------------------------");
-            returnString = "Backup of Datastore experiments Done. Step3 complete.";
+            log.info("------------------------------------------------Step 1 End------------------------------------------------");
+            returnString = "Backup of Datastore experiments Done. Step1 complete.";
             doAll = true;
           } catch (SQLException e) {
-            returnString = "Backup of datastore experiments. Restart job from step3";
+            returnString = "Backup of datastore experiments. Restart job from step1";
             throw new SQLException(returnString, e);
           }
       }
        
       // create tables needs to happen first, bcoz backup table has to be created first
-      if (doAll || (cursor != null && cursor.equalsIgnoreCase("step4"))) {
+      if (doAll || (cursor != null && cursor.equalsIgnoreCase("step2"))) {
         try {
-          log.info("------------------------------------------------Step 4 Begin------------------------------------------------");
+          log.info("------------------------------------------------Step 2 Begin------------------------------------------------");
+          // exp def status will be 0
           sqlMigDaoImpl.experimentSplitInsertIntoExperimentDefinition();
           sqlMigDaoImpl.experimentSplitRemoveUnwantedExperimentJsonFromExperimentDefinition();
-          log.info("------------------------------------------------Step 4 End------------------------------------------------");
-          returnString += "Insert to ExperimentDefintion from Backup Done. Step4 complete.";
-//          returnString = "All Done";
+          log.info("------------------------------------------------Step 2 End------------------------------------------------");
+          returnString += "Insert to ExperimentDefintion from Backup Done. Step2 complete.";
           doAll = true;
         } catch (SQLException e) {
-          returnString += "Insert to ExperimentDefintion from Backup. Restart job from step4";
+          returnString += "Insert to ExperimentDefintion from Backup. Restart job from step2";
           throw new SQLException(returnString, e);
         }
       }  
       
-      if (doAll || (cursor != null && cursor.equalsIgnoreCase("step5"))) {
+      if (doAll || (cursor != null && cursor.equalsIgnoreCase("step3"))) {
         try {
-          log.info("------------------------------------------------Step 5 Begin------------------------------------------------");
+          log.info("------------------------------------------------Step 3 Begin------------------------------------------------");
+          // picks exp def mig status 0
           sqlMigDaoImpl.experimentSplitGroupsAndPersist();
-          log.info("------------------------------------------------Step 5 End------------------------------------------------");
-          returnString += "Split groups and persist Done. Step5 complete.";
-          returnString = "All Done";
+          // on success, updates exp def mig status 1
+          log.info("------------------------------------------------Step 3 End------------------------------------------------");
+          returnString += "Split groups and persist Done. Step3 complete.";
           doAll = true;
         } catch (Exception e) {
-          returnString += "Failed to split groups and persist. Restart job from step5";
+          returnString += "Failed to split groups and persist. Restart job from step3";
           throw new SQLException(returnString, e);
         }
       }    
       
-      if (doAll || (cursor != null && cursor.equalsIgnoreCase("step6"))) {
+      if (doAll || (cursor != null && cursor.equalsIgnoreCase("step4"))) {
         try {
-          log.info("------------------------------------------------Step 6 Begin------------------------------------------------");
+          log.info("------------------------------------------------Step 4 Begin------------------------------------------------");
+          // picks up exp def mig status 1
           sqlMigDaoImpl.experimentSplitPopulateExperimentBundleTables();
-          log.info("------------------------------------------------Step 6 End------------------------------------------------");
-          returnString += "copy experiment data from ds to cs bundle Done. Step6 complete.";
-//          returnString = "All Done";
+          // on success, updates exp def mig status 2
+          log.info("------------------------------------------------Step 4 End------------------------------------------------");
+          returnString += "All Done";
           doAll = true;
         } catch (SQLException e) {
-          returnString += "Failed to populate bundle tables. Restart job from step6";
+          returnString += "Failed to populate bundle tables. Restart job from step4";
           throw new SQLException(returnString, e);
         }
       }

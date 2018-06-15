@@ -13,6 +13,6 @@ public interface CSTempExperimentIdVersionGroupNameDao {
   boolean deleteExperiments(List<Long> toBeDeletedExperiments) throws SQLException;
   boolean deleteExperiment(Long toBeDeletedExperimentId, Integer experimentVersion) throws SQLException;
   boolean updateExperimentIdVersionGroupNameStatus(Long expId, Integer expVersion, String groupName, Integer status) throws SQLException;
-  boolean insertExperimentIdVersionGroupName(Long expId, Integer expVersion, String groupName,
+  boolean upsertExperimentIdVersionGroupName(Long expId, Integer expVersion, String groupName,
                                              Integer status) throws SQLException;
 }

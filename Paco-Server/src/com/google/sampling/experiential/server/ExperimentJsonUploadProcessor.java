@@ -19,6 +19,7 @@ import com.google.common.collect.Lists;
 import com.pacoapp.paco.shared.comm.ExperimentEditOutcome;
 import com.pacoapp.paco.shared.comm.Outcome;
 import com.pacoapp.paco.shared.model2.ExperimentDAO;
+import com.pacoapp.paco.shared.model2.ExperimentGroup;
 import com.pacoapp.paco.shared.model2.JsonConverter;
 import com.pacoapp.paco.shared.model2.ValidationMessage;
 import com.pacoapp.paco.shared.util.Constants;
@@ -126,7 +127,7 @@ public class ExperimentJsonUploadProcessor {
     ExperimentDAOConverter daoConverter = new ExperimentDAOConverter();
     
     // REMOVE ENDS
-    if (!saveInOldFormatInDS && experimentDAO.getGroups() != null && experimentDAO.getGroups().get(0).getGroupType() == null) { 
+    if (!saveInOldFormatInDS && experimentDAO.getGroups() != null && isAnyGroupHavingGroupTypeNull(experimentDAO)) { 
       daoConverter.splitGroups(experimentDAO);
     }
     if (!persistInCloudSqlOnly) { 
@@ -158,5 +159,13 @@ public class ExperimentJsonUploadProcessor {
     return outcome;
   }
 
+  private boolean isAnyGroupHavingGroupTypeNull(ExperimentDAO experimentDAO) { 
+    for ( ExperimentGroup eg : experimentDAO.getGroups()) {
+      if (eg.getGroupType() == null) { 
+        return true;
+      }
+    }
+    return false;
+  }
 
 }

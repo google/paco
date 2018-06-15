@@ -79,6 +79,7 @@ public class CSEventOutputDaoImpl implements CSEventOutputDao {
     eventColInsertList.add(new Column(EventServerColumns.ACTION_TRIGGER_SPEC_ID));
     eventColInsertList.add(new Column(EventServerColumns.ACTION_ID));
     eventColInsertList.add(new Column(EventServerColumns.WHO));
+    eventColInsertList.add(new Column(EventServerColumns.WHO+ "_bk"));
     eventColInsertList.add(new Column(EventServerColumns.WHEN));
     eventColInsertList.add(new Column(EventServerColumns.WHEN_FRAC_SEC));
     eventColInsertList.add(new Column(EventServerColumns.PACO_VERSION));
@@ -227,6 +228,7 @@ public class CSEventOutputDaoImpl implements CSEventOutputDao {
       statementCreateEvent.setLong(i++, event.getActionId() != null ? new Long(event.getActionId()) : java.sql.Types.NULL);
       PacoId anonId = euImpl.getAnonymousIdAndCreate(expIdLong, event.getWho(), true);
       pvUpdateAnonWhoId = anonId.getId().intValue();
+      statementCreateEvent.setString(i++, anonId.getId().toString());
       statementCreateEvent.setString(i++, anonId.getId().toString());
       if (event.getWhen() != null) {
         whenTs = new Timestamp(event.getWhen().getTime());
@@ -494,6 +496,9 @@ public class CSEventOutputDaoImpl implements CSEventOutputDao {
       return true;
     } finally {
       try {
+        if (statementDeleteOutputs != null) { 
+          statementDeleteOutputs.close();
+        }
         if (statementDeleteEvents != null) {
           statementDeleteEvents.close();
         }
@@ -534,6 +539,7 @@ public class CSEventOutputDaoImpl implements CSEventOutputDao {
       String oldKeyValue = null;
       Long eventId = null;
      while (true) {
+       log.info("Making DUP ctr changes in experiment" + experimentId);
        rs = statementEventsWithDupCtr.executeQuery();
        if(!rs.next()) {
          break;
@@ -554,8 +560,8 @@ public class CSEventOutputDaoImpl implements CSEventOutputDao {
            statementUpdateEVGMIdInEvents.setLong(1, eventId);
            statementUpdateEVGMIdInEvents.addBatch();
          }
-         statementUpdateEVGMIdInEvents.executeBatch();
          statementUpdateTextInOutputs.executeBatch();
+         statementUpdateEVGMIdInEvents.executeBatch();
        }      
      }
     } finally {
@@ -588,6 +594,11 @@ public class CSEventOutputDaoImpl implements CSEventOutputDao {
     }
     return tm;
   }
+ // All whats of an event which contains -DUP- is sent. Some whats can have no -DUP- in them
+ // If an event has two normal variables q1 and q2. They also have q1-DUP-1234, q1-DUP-3444, q2-DUP-445
+ // this function when passed prefix 'q1-dup-' will return a map of what names as key and what objects as value.
+ // So when prefix 'q1-DUP-' is sent we get back map of size 2. the elements are q1-DUP-1234, q1-DUP=3444
+ // when prefix 'q2-DUP-' is sent we get back map of size 1. the element is q2-DUP-445
   private static SortedMap<String, WhatDAO> getByPrefix(
                                                         NavigableMap<String, WhatDAO> myMap,
                                                         String prefix ) {
@@ -610,14 +621,50 @@ public class CSEventOutputDaoImpl implements CSEventOutputDao {
       subMap = getByPrefix(tm, prefix);  
       Iterator<String> subMapItr = subMap.keySet().iterator();
       int i = 1;
+      // when prefix is 'q1-DUP-', the submap has the values q1-DUP-1234, q1-DUP-3444
+      // oldAndNewVarNameMap contains {q1-DUP-1234, q1-DUP-1} , {q1-DUP-3444, q1-DUP-2}, {}....
       while (subMapItr.hasNext()) {
-        // q1-DUP-23, q1-DUP-25
         WhatDAO eachWhat = subMap.get(subMapItr.next());
         oldAndNewVarNameMap.put(eachWhat.getName(), prefix + i);
         i++;        
       }
     }
     return oldAndNewVarNameMap;
+  }
+
+  @Override
+  public List<Long> getAllInputIdsForEVGMAndUser(Long evgmId, Integer anonWhoId) throws SQLException {
+    List<Long> allInputIds = Lists.newArrayList();
+    Connection conn = null;
+    PreparedStatement getAllInputIdsStatement = null;
+    ResultSet rs = null;
+    try {
+      conn = CloudSQLConnectionManager.getInstance().getConnection();
+      getAllInputIdsStatement = conn.prepareStatement(QueryConstants.GET_ALL_INPUT_IDS_FOR_EVGM_AND_USER.toString());
+      getAllInputIdsStatement.setLong(1, evgmId);
+      getAllInputIdsStatement.setInt(2, anonWhoId);
+      
+      rs = getAllInputIdsStatement.executeQuery();
+      while(rs.next()){
+        allInputIds.add(rs.getLong(OutputServerColumns.INPUT_ID));
+      }
+    } finally {
+      try {
+        if (rs != null) {
+          rs.close();
+        }
+        if (getAllInputIdsStatement != null) {
+          getAllInputIdsStatement.close();
+        }
+        if (conn != null) {
+          conn.close();
+        }
+      } catch (SQLException ex1) {
+        log.warning(ErrorMessages.CLOSING_RESOURCE_EXCEPTION.getDescription()+ ex1);
+      }
+    }
+
+    return allInputIds;
   }
   
 }

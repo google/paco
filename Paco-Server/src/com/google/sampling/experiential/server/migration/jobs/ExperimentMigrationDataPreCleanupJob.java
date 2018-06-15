@@ -8,9 +8,7 @@ import org.joda.time.DateTime;
 import com.google.sampling.experiential.server.ExceptionUtil;
 import com.google.sampling.experiential.server.QueryConstants;
 import com.google.sampling.experiential.server.migration.MigrationJob;
-import com.google.sampling.experiential.server.migration.dao.CloudSQLMigrationDao;
 import com.google.sampling.experiential.server.migration.dao.CopyExperimentMigrationDao;
-import com.google.sampling.experiential.server.migration.dao.impl.CloudSQLMigrationDaoImpl;
 import com.google.sampling.experiential.server.migration.dao.impl.CopyExperimentMigrationDaoImpl;
 
 public class ExperimentMigrationDataPreCleanupJob implements MigrationJob {
@@ -71,7 +69,8 @@ public class ExperimentMigrationDataPreCleanupJob implements MigrationJob {
       if (doAll || (cursor != null && cursor.equalsIgnoreCase("step3"))) {
         try {
           log.info("------------------------------------------------Step 3 Begin------------------------------------------------");
-          sqlMigDaoImpl.dataCleanupMakeDBChanges();
+          sqlMigDaoImpl.dataCleanupCreateTables();
+          sqlMigDaoImpl.dataCleanupAnonymizeParticipantsCreateTables();
           log.info("------------------------------------------------Step 3 End------------------------------------------------");
           returnString += "Make db changes Done. Step3 complete.";
           doAll = true;
@@ -82,31 +81,29 @@ public class ExperimentMigrationDataPreCleanupJob implements MigrationJob {
       }
       
       if (doAll || (cursor != null && cursor.equalsIgnoreCase("step4"))) {
-        String query = QueryConstants.GET_EXPERIMENT_IDS_FROM_EVENTS_WITH_DUP_INPUTS.toString();
         try {
           log.info("------------------------------------------------Step 4 Begin------------------------------------------------");
-          sqlMigDaoImpl.dataCleanupChangeDupCounterAloneOnVariableNames(query);
+          sqlMigDaoImpl.dataCleanupMakeDBChanges();
+          sqlMigDaoImpl.dataCleanupAddModificationsToExistingTables();
           log.info("------------------------------------------------Step 4 End------------------------------------------------");
-          returnString += "Modify event with DUP input variable names Done. Step4 complete.";
+          returnString += "Created new tables and altered existing tables. Step4 complete.";
           doAll = true;
         } catch (SQLException e) {
-          returnString += "Failed to modify event with DUP variable names. Restart job from step4";
+          returnString += "Create new tables and altering existing tables failed. Restart job from step4";
           throw new SQLException(returnString, e);
         }
       }
       
       if (doAll || (cursor != null && cursor.equalsIgnoreCase("step5"))) {
+        String query = QueryConstants.GET_EXPERIMENT_IDS_FROM_EVENTS_WITH_DUP_INPUTS.toString();
         try {
           log.info("------------------------------------------------Step 5 Begin------------------------------------------------");
-          sqlMigDaoImpl.dataCleanupCreateTables();
-          sqlMigDaoImpl.dataCleanupAnonymizeParticipantsCreateTables();
-          sqlMigDaoImpl.dataCleanupAddModificationsToExistingTables();
+          sqlMigDaoImpl.dataCleanupChangeDupCounterAloneOnVariableNames(query);
           log.info("------------------------------------------------Step 5 End------------------------------------------------");
-          returnString += "Created new tables and altered existing tables. Step5 complete.";
-//          returnString = "All Done";
+          returnString += "Modify event with DUP input variable names Done. Step5 complete.";
           doAll = true;
         } catch (SQLException e) {
-          returnString += "Create new tables and altering existing tables failed. Restart job from step5";
+          returnString += "Failed to modify event with DUP variable names. Restart job from step5";
           throw new SQLException(returnString, e);
         }
       }
@@ -114,6 +111,7 @@ public class ExperimentMigrationDataPreCleanupJob implements MigrationJob {
       if (doAll || (cursor != null && cursor.equalsIgnoreCase("step6"))) {
         try {
           log.info("------------------------------------------------Step 6 Begin------------------------------------------------");
+          sqlMigDaoImpl.dataCleanupEnforceForeignKeyConstraintOnEVGM();
           sqlMigDaoImpl.dataCleanupInsertPredefinedRecords();
           log.info("------------------------------------------------Step 6 End------------------------------------------------");
           returnString += "Inserted records to data types. Step 6 complete";
@@ -127,33 +125,17 @@ public class ExperimentMigrationDataPreCleanupJob implements MigrationJob {
       if (doAll || (cursor != null && cursor.equalsIgnoreCase("step7"))) {
         try {
           log.info("------------------------------------------------Step 7 Begin------------------------------------------------");
-          sqlMigDaoImpl.dataCleanupPopulateDistinctExperimentIdVersionAndGroupName();
+          // exp id version grp name status is 0
+          sqlMigDaoImpl.copyExperimentPopulateDistinctExperimentIdVersionAndGroupName();
           log.info("------------------------------------------------Step 7 End------------------------------------------------");
-          returnString += "copy distinct exp id and version from events Done. Step7 complete.";
-//          returnString = "All Done";
-          doAll = true;
-        } catch (SQLException e) {
-          returnString += "Failed to populate bundle tables. Restart job from step7";
-          throw new SQLException(returnString, e);
-        }
-      }
-    
-     
-      
-      if (doAll || (cursor != null && cursor.equalsIgnoreCase("step8"))) {
-        try {
-          log.info("------------------------------------------------Step 8 Begin------------------------------------------------");
-          sqlMigDaoImpl.dataCleanupChangeGroupNameOfEventsWithPredefinedInputs();
-          // egn status 2
-          log.info("------------------------------------------------Step 8 End------------------------------------------------");
-          returnString += "group name changed for events with predefined inputs Done. Step8 complete.";
           returnString = "All Done";
           doAll = true;
         } catch (SQLException e) {
-          returnString += "Failed to change group name for events with predefined inputs. Restart job from step8";
+          returnString += "Failed to populate distinct exp id and version table. Restart job from step7";
           throw new SQLException(returnString, e);
         }
       }
+     
       return returnString;
     }
 }

@@ -60,9 +60,10 @@ pacoApp.controller('ExperimentCtrl', [
   '$routeParams',
   '$location',
   'experimentService',
-  function ($scope, $mdDialog, $filter, config, template, $routeParams, $location, experimentService) {
+  'PacoConstantsService',
+  function ($scope, $mdDialog, $filter, config, template, $routeParams, $location, experimentService, PacoConstantsService) {
     $scope.ace = {};
-    $scope.useOldColumns = true;
+    $scope.useOldColumns = PacoConstantsService.useOldColumns;
     $scope.feedbackTypes = config.feedbackTypes;
     $scope.ringtones = config.ringtones;
     $scope.tabs = config.editTabs;
@@ -841,10 +842,10 @@ pacoApp.controller('ReportCtrl', [
     }
   }]);
 
-pacoApp.controller('GroupsCtrl', ['$scope', 'template', function ($scope, template) {
+pacoApp.controller('GroupsCtrl', ['$scope', 'template', 'PacoConstantsService',  function ($scope, template, PacoConstantsService) {
   $scope.hiding = false;
   $scope.disabled = false;
-  $scope.useOldColumns = true;
+  $scope.useOldColumns = PacoConstantsService.useOldColumns;
   $scope.defaultFeedback = 'Thanks for Participating!';
   
   if ($scope.group.startDate) {
@@ -1265,8 +1266,8 @@ pacoApp.controller('HubCtrl', ['$scope', '$mdDialog', '$filter', 'config', 'temp
   }]);
 
 pacoApp.controller('Experiment2Ctrl', ['$scope', '$mdDialog', '$filter', 'config', 'template', '$routeParams',
-  '$location', 'pubExperimentService',
-  function ($scope, $mdDialog, $filter, config, template, $routeParams, $location, experimentService) {
+  '$location', 'pubExperimentService', 'PacoConstantsService',
+  function ($scope, $mdDialog, $filter, config, template, $routeParams, $location, experimentService, PacoConstantsService) {
     $scope.state = {
       tabId: 0,
       groupIndex: null
@@ -1283,7 +1284,8 @@ pacoApp.controller('Experiment2Ctrl', ['$scope', '$mdDialog', '$filter', 'config
       });
     }
     $scope.$watch('experiment.groups', function (newValue, oldValue) {
-      $scope.useOldColumns = true;
+      $scope.useOldColumns = PacoConstantsService.useOldColumns;
+      
       if (newValue) {
         $scope.admin = ($scope.experiment.admins.indexOf($scope.user) !== -1);
 

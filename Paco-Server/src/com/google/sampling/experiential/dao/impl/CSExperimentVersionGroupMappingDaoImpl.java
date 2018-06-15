@@ -491,17 +491,17 @@ public class CSExperimentVersionGroupMappingDaoImpl implements CSExperimentVersi
     Connection conn = null;
     ResultSet rs = null;
     PreparedStatement statementClosestExperimentVersion = null;
-    List<Integer> possibleVersions = Lists.newArrayList();
+    Integer latestVersion = null;
     try {
       conn = CloudSQLConnectionManager.getInstance().getConnection();
-      statementClosestExperimentVersion = conn.prepareStatement(QueryConstants.GET_CLOSEST_VERSION.toString());
+      statementClosestExperimentVersion = conn.prepareStatement(QueryConstants.GET_LATEST_VERSION.toString());
       statementClosestExperimentVersion.setLong(1, experimentId);
-      log.info("get closest version:" + statementClosestExperimentVersion.toString());
+      log.info("get latest version:" + statementClosestExperimentVersion.toString());
       rs = statementClosestExperimentVersion.executeQuery();
       while (rs.next()) {
-        possibleVersions.add(rs.getInt(ExperimentVersionGroupMappingColumns.EXPERIMENT_VERSION));
+        latestVersion = rs.getInt(ExperimentVersionGroupMappingColumns.EXPERIMENT_VERSION);
       }
-      return possibleVersions.size()>0 ? possibleVersions.get(0) : null;
+      return latestVersion;
 
     } finally {
       try {
@@ -581,7 +581,7 @@ public class CSExperimentVersionGroupMappingDaoImpl implements CSExperimentVersi
         statementClosestExperimentVersion = conn.prepareStatement(QueryConstants.GET_ALL_EVM_RECORDS_FOR_VERSION.toString());
         statementClosestExperimentVersion.setLong(1, experimentId);
         statementClosestExperimentVersion.setInt(2, latestVersion);
-        log.info(statementClosestExperimentVersion.toString());
+//        log.info(statementClosestExperimentVersion.toString());
         rs = statementClosestExperimentVersion.executeQuery();
         while (rs.next()) {
           evm = new ExperimentVersionGroupMapping();
@@ -1089,34 +1089,18 @@ public class CSExperimentVersionGroupMappingDaoImpl implements CSExperimentVersi
     // for each predefined feature
     while (predefinedInputIterator.hasNext()) {
       featureName = predefinedInputIterator.next();
+      if (featureName.equals(GroupTypeEnum.NOTIFICATION.name())) { 
+        continue;
+      }
       List<String> featuresInputVariableNames = inputMap.get(featureName);
-      // if it is system, phone status or appusage android
-      if (!featureName.equals(GroupTypeEnum.ACCESSIBILITY.name()) && !featureName.equals(GroupTypeEnum.NOTIFICATION.name())) {
-          for (String eachFeatureVariableName : featuresInputVariableNames) {
-            if (inputsInEvent.containsKey(eachFeatureVariableName)) {
-              eventDao.setExperimentGroupName(featureName);
-              groupNameChanged = true;
-              break;
-            }
-          }
-      } else if (featureName.equals(GroupTypeEnum.ACCESSIBILITY.name()) || featureName.equals(GroupTypeEnum.NOTIFICATION.name())) {
-        for (String eachFeatureVariableName : featuresInputVariableNames) {
-          What matchingWhatInEvent =  inputsInEvent.get(eachFeatureVariableName);
-          if (matchingWhatInEvent != null) {
-            if (PredefinedInputNames.ACCESSIBILITY_EVENT_TYPE.equals(matchingWhatInEvent.getName())) { 
-              if ("21".equals(matchingWhatInEvent.getValue())) {
-                eventDao.setExperimentGroupName(GroupTypeEnum.ACCESSIBILITY.name());
-                groupNameChanged = true;
-                break;
-              } else {
-                eventDao.setExperimentGroupName(GroupTypeEnum.NOTIFICATION.name());
-                groupNameChanged = true;
-                break;
-              }
-            }
-          }
+      
+      for (String eachFeatureVariableName : featuresInputVariableNames) {
+        if (inputsInEvent.containsKey(eachFeatureVariableName)) {
+          eventDao.setExperimentGroupName(featureName);
+          groupNameChanged = true;
+          break;
         }
-      } // if predefined grp is acc or notifs
+      }
       if (groupNameChanged) {
         break;
       }
@@ -1125,5 +1109,4 @@ public class CSExperimentVersionGroupMappingDaoImpl implements CSExperimentVersi
       eventDao.setExperimentGroupName(Constants.UNKNOWN);
     }
   }
-
 }

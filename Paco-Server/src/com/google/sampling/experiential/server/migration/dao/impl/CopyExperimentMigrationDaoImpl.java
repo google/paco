@@ -251,7 +251,7 @@ public class CopyExperimentMigrationDaoImpl implements CopyExperimentMigrationDa
           " DEFAULT CHARACTER SET = utf8mb4" ;
    final String CREATE_TABLE_USER = "CREATE TABLE IF NOT EXISTS `pacodb`.`"+ UserColumns.TABLE_NAME+"` (" +
            UserColumns.USER_ID + " INT NOT NULL AUTO_INCREMENT," +
-           UserColumns.WHO + " VARCHAR(500) NOT NULL," +
+           UserColumns.WHO + " VARCHAR(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL," +
            " PRIMARY KEY (`" + UserColumns.USER_ID + "`)," +
            " UNIQUE INDEX `who_unique_index` (`"+ UserColumns.WHO + "` ASC))";
    final String CREATE_TABLE_EXPERIMENT_USER = "CREATE TABLE IF NOT EXISTS `pacodb`.`"+ ExperimentUserColumns.TABLE_NAME +"` (" +
@@ -346,6 +346,17 @@ public class CopyExperimentMigrationDaoImpl implements CopyExperimentMigrationDa
    " ON UPDATE NO ACTION ";
    final String addNewColumnsSql11 = "ALTER TABLE `pacodb`.`" + EventServerColumns.TABLE_NAME +  "`  " +
            " ADD INDEX `evg_idx` (`"+EventServerColumns.EXPERIMENT_ID+"`,`"+EventServerColumns.EXPERIMENT_VERSION+"`,`"+EventServerColumns.GROUP_NAME+"`,`"+EventServerColumns.EXPERIMENT_VERSION_GROUP_MAPPING_ID +"`)";
+   final String addNewColumnsSql12 = "ALTER TABLE `pacodb`.`events` " + 
+           " CHANGE COLUMN `experiment_name` `experiment_name` VARCHAR(500) CHARACTER SET 'utf8mb4' COLLATE 'utf8mb4_bin' NULL DEFAULT NULL , " +
+           " CHANGE COLUMN `group_name` `group_name` VARCHAR(500) CHARACTER SET 'utf8mb4' COLLATE 'utf8mb4_bin' NULL DEFAULT NULL , "  +
+           " CHANGE COLUMN `who` `who` VARCHAR(500) CHARACTER SET 'utf8mb4' COLLATE 'utf8mb4_unicode_ci' NOT NULL ";
+   final String addNewColumnsSql13 = "ALTER TABLE `pacodb`.`outputs` " + 
+             " CHANGE COLUMN `text` `text` VARCHAR(750) CHARACTER SET 'utf8mb4' COLLATE 'utf8mb4_bin' NOT NULL ";
+   final String addNewColumnsSql14 = "ALTER TABLE `pacodb`.`events` " +  
+             " DROP INDEX `exp_id_who_index` , " + 
+             " DROP INDEX `exp_id_sort_date_index` ,  "+ 
+             " DROP INDEX `exp_id_grp_who_index`";
+   final String addNewColumnsSql15 = "ALTER TABLE `pacodb`.`events` CHANGE COLUMN `experiment_id` `experiment_id` BIGINT(20) NULL ";
    final String SELECT_EVENTS_MATCHING_PREDFINED_INPUT_NAMES = "Select "+Constants.UNDERSCORE_ID+", "+ EventServerColumns.GROUP_NAME +" from "+EventServerColumns.TABLE_NAME +
            " e join "+OutputServerColumns.TABLE_NAME + " o on e."+Constants.UNDERSCORE_ID+ "= o."+OutputServerColumns.EVENT_ID+" where "+EventServerColumns.EXPERIMENT_ID+"=? and "+EventServerColumns.EXPERIMENT_VERSION+"=? and "+EventServerColumns.GROUP_NAME+" = ? and "+ OutputServerColumns.TEXT+ "=? limit 1000 ";
    final String SELECT_EVENTS_MATCHING_PREDFINED_FOR_NOTIF_AND_ACC = "Select " +Constants.UNDERSCORE_ID+ " , " + EventServerColumns.GROUP_NAME + " from "+EventServerColumns.TABLE_NAME +
@@ -361,7 +372,7 @@ public class CopyExperimentMigrationDaoImpl implements CopyExperimentMigrationDa
            " CHANGE COLUMN `" + EventServerColumns.EXPERIMENT_VERSION + "` `experiment_version_old` INT(11) NULL DEFAULT NULL , " +
            " CHANGE COLUMN `" + EventServerColumns.GROUP_NAME + "` `group_name_old` VARCHAR(500) CHARACTER SET 'utf8mb4' NULL DEFAULT NULL,"
            + "CHANGE COLUMN `" + EventServerColumns.WHO + "` `who_old` VARCHAR(500) CHARACTER SET 'utf8mb4' NULL DEFAULT NULL,"
-           + "CHANGE COLUMN `" + EventServerColumns.WHO + "_bk` `who` VARCHAR(500) CHARACTER SET 'utf8mb4' NULL DEFAULT NULL";
+           + "CHANGE COLUMN `" + EventServerColumns.WHO + "_bk` `who` BIGINT(20) NULL DEFAULT NULL";
    List<String> grpList = Lists.newArrayList();
      
   @Override
@@ -415,13 +426,17 @@ public class CopyExperimentMigrationDaoImpl implements CopyExperimentMigrationDa
   public boolean dataCleanupAddModificationsToExistingTables()  throws SQLException {
     String[] modificationQueries = new String[] { 
               addNewColumnsSql2,
-              addNewColumnsSql4,
               addNewColumnsSql5, 
               addNewColumnsSql6,
               addNewColumnsSql7,
               addNewColumnsSql8,
-              addNewColumnsSql9, addNewColumnsSql10,
-              addNewColumnsSql11
+              addNewColumnsSql9, 
+              addNewColumnsSql10,
+              addNewColumnsSql11,
+              addNewColumnsSql12,
+              addNewColumnsSql13,
+              addNewColumnsSql14,
+              addNewColumnsSql15
               };
     executeCreationOrInsertionQuerys(modificationQueries);
     return true;
@@ -556,6 +571,7 @@ public class CopyExperimentMigrationDaoImpl implements CopyExperimentMigrationDa
     int migrationStatus = 0 ;
     CSTempExperimentDefinitionDao expDefDao = new CSTempExperimentDefinitionDaoImpl();
     ExperimentDAOConverter daoConverter = new ExperimentDAOConverter();
+    CSExperimentUserDao exptUserDaoImpl = new CSExperimentUserDaoImpl();
     final ExperimentService experimentService = ExperimentServiceFactory.getExperimentService();
     List<ExperimentDAO> experimentList = expDefDao.getAllExperimentFromExperimentDefinition(migrationStatus);
     
@@ -564,7 +580,7 @@ public class CopyExperimentMigrationDaoImpl implements CopyExperimentMigrationDa
     }
     // THIS SHOULD ALWAYS BE FALSE. During migration, populating cloudsql is done in next step
     boolean persistInCloudSql = false;
-    // NO need to do any validation, since it is already in data store.
+    // NO need to do any validation, since experiment is already in data store.
     boolean validationFlag = false;
     
     for (ExperimentDAO eachExperiment : experimentList) {
@@ -572,6 +588,7 @@ public class CopyExperimentMigrationDaoImpl implements CopyExperimentMigrationDa
         daoConverter.splitGroups(eachExperiment);
         // save splitted updated json in ds
         List<ValidationMessage> vmList = experimentService.saveExperiment(eachExperiment, eachExperiment.getCreator(), new DateTime().getZone(), persistInCloudSql, validationFlag);
+        exptUserDaoImpl.ensureUserId(eachExperiment.getId(), Sets.newHashSet(eachExperiment.getAdmins()), Sets.newHashSet(eachExperiment.getPublishedUsers()));
         if (vmList != null && vmList.size() > 0) {
           for (ValidationMessage vm : vmList) {
             errorMessage = vm.getMsg();
@@ -623,6 +640,8 @@ public class CopyExperimentMigrationDaoImpl implements CopyExperimentMigrationDa
     List<Long> expIdsToBeDeleted = Lists.newArrayList();
     // Romanian expt
     expIdsToBeDeleted.add(6651607195844608L);
+    // staging 2
+    expIdsToBeDeleted.add(5118119076954112L);
     for (Long eachExperimentId : expIdsToBeDeleted) { 
       eventOutputDaoImpl.deleteAllEventsAndOutputsData(eachExperimentId, null);
     }
@@ -635,6 +654,8 @@ public class CopyExperimentMigrationDaoImpl implements CopyExperimentMigrationDa
     List<Long> expIdsToBeDeleted = Lists.newArrayList();
     // Romanian expt
     expIdsToBeDeleted.add(6651607195844608L);
+    // staging 2
+    expIdsToBeDeleted.add(5118119076954112L);
     exptDefDaoImpl.deleteExperiment(expIdsToBeDeleted);
     return true;
   }
@@ -756,13 +777,10 @@ public class CopyExperimentMigrationDaoImpl implements CopyExperimentMigrationDa
         log.info("evgm expt id"+ exptId);
         // update outputs with new dup ctr values, and also input_id is set to null, also evgm in events is set to null
         eventOutputDaoImpl.resetDupCounterForVariableNames(exptId);
-        
       }
-      
     } catch (SQLException sqle) {
       log.warning("Catch all - sqle"+ExceptionUtil.getStackTraceAsString(sqle));
       throw sqle;
-      
     } catch (Exception e) { 
       log.warning("Catch all - ge"+ExceptionUtil.getStackTraceAsString(e));
       throw e;
@@ -814,7 +832,7 @@ public class CopyExperimentMigrationDaoImpl implements CopyExperimentMigrationDa
       conn = CloudSQLConnectionManager.getInstance().getConnection();
       for (String s : updateQrys) {
         statementUpdate = conn.prepareStatement(s);
-        log.info(statementUpdate.toString());
+//        log.info(statementUpdate.toString());
         updateCts[i++] = statementUpdate.executeUpdate(); 
       }
     } finally {
@@ -1011,7 +1029,6 @@ public class CopyExperimentMigrationDaoImpl implements CopyExperimentMigrationDa
   public void processOlderVersionsAndAnonUsersInEventTable(Connection conn, List<Long> erroredExperimentIds, List<EventDAO> allEvents, Boolean aggregateInputNames)  throws Exception {
     CSExperimentVersionGroupMappingDao daoImpl = new CSExperimentVersionGroupMappingDaoImpl();
     CSExperimentUserDao euImpl = new CSExperimentUserDaoImpl();
-    CSFailedEventDao failedDaoImpl = new CSFailedEventDaoImpl();
     Set<Long> eventsPostedForEGVMId = Sets.newHashSet();
     boolean eventsUpdateNeeded = false;
     boolean outputsUpdateNeeded = false;
@@ -1023,6 +1040,7 @@ public class CopyExperimentMigrationDaoImpl implements CopyExperimentMigrationDa
     Long secondStepEndTime = 0L;
     Long thirdStepEndTime = null;
     Long fourthStepEndTime = null;
+    Long fifthStepEndTime = null;
     PacoId anonId = null;
     ExperimentVersionGroupMapping matchingEVM = null;
     Map<String, PacoId> emailAnonIdMap = null;
@@ -1034,15 +1052,6 @@ public class CopyExperimentMigrationDaoImpl implements CopyExperimentMigrationDa
       Map<String, ExperimentVersionGroupMapping> allEVMRecords = null;
       if (allEvents != null && allEvents.size() > 0  ) {
         allEVMRecords = daoImpl.getAllGroupsInVersion(allEvents.get(0).getExperimentId(), allEvents.get(0).getExperimentVersion());
-        if (allEVMRecords == null || allEVMRecords.size() == 0) {
-          daoImpl.createEVGMByCopyingFromLatestVersion(allEvents.get(0).getExperimentId(), allEvents.get(0).getExperimentVersion());
-          allEVMRecords =  daoImpl.getAllGroupsInVersion(allEvents.get(0).getExperimentId(), allEvents.get(0).getExperimentVersion());
-          // if we do not hv matching group name in a newer version of experiment with group types
-          if ( allEVMRecords == null ) {
-            failedDaoImpl.insertFailedEvent("expId: " + allEvents.get(0).getExperimentId() + "expVersion: "+ allEvents.get(0).getExperimentVersion() + ",who:"+ allEvents.get(0).getWho() + " grp name:" + allEvents.get(0).getExperimentGroupName() , "Event save, does not have matching group ", "Event save does not have matching group");
-            return;
-          }
-        }
         emailAnonIdMap = Maps.newHashMap();
       }
       int logCtr = 1;
@@ -1050,6 +1059,7 @@ public class CopyExperimentMigrationDaoImpl implements CopyExperimentMigrationDa
       long step2Time = 0L;
       long step3Time = 0L;
       long step4Time = 0L;
+      long step5Time = 0L;
       Set<What> currentWhatOrAggregatedWhatSet = null;
       if (aggregateInputNames) {
         currentWhatOrAggregatedWhatSet = getAggregatedWhatSet(getAggregatedWhatsMap(allEvents));
@@ -1109,20 +1119,23 @@ public class CopyExperimentMigrationDaoImpl implements CopyExperimentMigrationDa
       if (eventsUpdateNeeded) { 
         statementUpdateEventsTable.executeBatch();
       }
+      thirdStepEndTime = System.currentTimeMillis();
+      step3Time += ( thirdStepEndTime - secondStepEndTime);
       if (outputsUpdateNeeded) { 
         statementUpdateOutputsTable.executeBatch();
       }
-      thirdStepEndTime = System.currentTimeMillis();
-      step3Time += ( thirdStepEndTime - secondStepEndTime);
+      fourthStepEndTime = System.currentTimeMillis();
+      step4Time += ( fourthStepEndTime - thirdStepEndTime);
       if (eventsPostedForEGVMId.size() >0 ) {
         daoImpl.updateEventsPosted(eventsPostedForEGVMId);
       }
-      fourthStepEndTime = System.currentTimeMillis();
-      step4Time += (fourthStepEndTime - thirdStepEndTime);
+      fifthStepEndTime = System.currentTimeMillis();
+      step5Time += (fifthStepEndTime - fourthStepEndTime);
       log.info("step 1 ensure evm took " + step1Time +
                "step 2 anon Id took " + step2Time + 
-               "step3 events and o/p update took " + step3Time +
-               "step4 events posted took "+  step4Time + " for total records :" + logCtr);
+               "step3 events updates took " + step3Time +
+               "step4 outputs updates took "+  step4Time + 
+               "step5 events posted took" + step5Time + " for total records :" + logCtr);
     } catch (SQLException sqle) {
       log.info("sqlException while performing event udpate" + ExceptionUtil.getStackTraceAsString(sqle));
       throw sqle;
@@ -1146,7 +1159,7 @@ public class CopyExperimentMigrationDaoImpl implements CopyExperimentMigrationDa
  
   @Override
   public boolean copyExperimentRenameOldEventColumns() throws SQLException {
-    executeCreationOrInsertionQuerys(new String[]{ RENAME_EVENT_TABLE_COLUMNS });
+    executeCreationOrInsertionQuerys(new String[] { RENAME_EVENT_TABLE_COLUMNS });
     return true;
   }
   
@@ -1196,7 +1209,6 @@ public class CopyExperimentMigrationDaoImpl implements CopyExperimentMigrationDa
   public boolean copyExperimentCleanDeleteInputsWithDupCtr(String query) throws SQLException {
     Connection conn = null;
     PreparedStatement statementFindExperimentWithDuplicateVariableNames = null;
-    CSEventOutputDao eventOutputDaoImpl = new CSEventOutputDaoImpl();
     ResultSet rs = null;
     boolean successFlag = false;
     Long exptId = null;
@@ -1208,8 +1220,6 @@ public class CopyExperimentMigrationDaoImpl implements CopyExperimentMigrationDa
       while (rs.next()) {
         exptId = rs.getLong(ExperimentVersionGroupMappingColumns.EXPERIMENT_ID);
         log.info("evgm expt id"+ exptId);
-        
-       
       }
     } catch (SQLException sqle) {
       log.warning("Catch all - sqle"+ExceptionUtil.getStackTraceAsString(sqle));
@@ -1222,7 +1232,7 @@ public class CopyExperimentMigrationDaoImpl implements CopyExperimentMigrationDa
   }
 
   @Override
-  public boolean dataCleanupPopulateDistinctExperimentIdVersionAndGroupName() throws SQLException {
+  public boolean copyExperimentPopulateDistinctExperimentIdVersionAndGroupName() throws SQLException {
     CSTempExperimentIdVersionGroupNameDao daoImpl = new CSTempExperimentIdVersionGroupNameDaoImpl();
     daoImpl.insertExperimentIdVersionAndGroupName();
     return true;
@@ -1237,7 +1247,8 @@ public class CopyExperimentMigrationDaoImpl implements CopyExperimentMigrationDa
     for (Long experimentId : expIdsToBeDeleted) {
       // delete all outputs and events for these experiments
       daoImpl.deleteAllEventsAndOutputsData(experimentId, null);
-      failedDaoImpl.insertFailedEvent("expId: " + experimentId , "Did not find any experiment definition. ", "Did not find any experiment definition.");
+      // not an actual failed event. But, just to track that we have deleted all events and outputs of this experiment, we update this table
+      failedDaoImpl.insertFailedEvent("expId: " + experimentId , "Did not find any experiment definition. ", "Did not find any experiment definition.So deleted all events and outputs");
       log.info("expId: " + experimentId + "deleted");
     }
     // delete these experiments from expid version table as well
@@ -1249,14 +1260,28 @@ public class CopyExperimentMigrationDaoImpl implements CopyExperimentMigrationDa
 
   @Override
   public boolean copyExperimentCreateEVGMRecordsForAllExperiments() throws SQLException {
-    Integer migrationStatus = 1;
+    Integer migrationStatus = 0;
     CSExperimentVersionGroupMappingDao evgmDao = new CSExperimentVersionGroupMappingDaoImpl();
     CSTempExperimentIdVersionGroupNameDao expIdVersionDao = new CSTempExperimentIdVersionGroupNameDaoImpl();
     List<ExperimentLite> expLites = expIdVersionDao.getDistinctExperimentIdAndVersion(migrationStatus);
     for (ExperimentLite expLite : expLites) {
-      //TODO check if version already existing
       evgmDao.createEVGMByCopyingFromLatestVersion(expLite.getExperimentId(), expLite.getExperimentVersion());
-      expIdVersionDao.updateExperimentIdVersionGroupNameStatus(expLite.getExperimentId(), expLite.getExperimentVersion(), null,2);
+      expIdVersionDao.updateExperimentIdVersionGroupNameStatus(expLite.getExperimentId(), expLite.getExperimentVersion(), null,1);
+    }
+    return true;
+  }
+  
+  @Override
+  public boolean copyExperimentCreateEVGMRecordsForExperimentsThatDoNotHaveEVGM() throws SQLException {
+    Integer migrationStatus = 0;
+    CSExperimentVersionGroupMappingDao evgmDao = new CSExperimentVersionGroupMappingDaoImpl();
+    CSTempExperimentIdVersionGroupNameDao expIdVersionDao = new CSTempExperimentIdVersionGroupNameDaoImpl();
+    List<ExperimentLite> expLites = expIdVersionDao.getDistinctExperimentIdAndVersion(migrationStatus);
+    for (ExperimentLite expLite : expLites) {
+      if (evgmDao.getAllGroupsInVersion(expLite.getExperimentId(), expLite.getExperimentVersion()) == null) {
+        evgmDao.createEVGMByCopyingFromLatestVersion(expLite.getExperimentId(), expLite.getExperimentVersion());
+      }
+      expIdVersionDao.updateExperimentIdVersionGroupNameStatus(expLite.getExperimentId(), expLite.getExperimentVersion(), null,1);
     }
     return true;
   }
@@ -1278,7 +1303,7 @@ public class CopyExperimentMigrationDaoImpl implements CopyExperimentMigrationDa
         eventDao.setExperimentId(rsCatchAll.getLong(ExperimentVersionGroupMappingColumns.EXPERIMENT_ID));
         eventDao.setExperimentVersion(rsCatchAll.getInt(ExperimentVersionGroupMappingColumns.EXPERIMENT_VERSION));
         eventDao.setExperimentGroupName(rsCatchAll.getString(EventServerColumns.GROUP_NAME));
-        tempIdVersionDaoImpl.updateExperimentIdVersionGroupNameStatus(eventDao.getExperimentId(), eventDao.getExperimentVersion(), eventDao.getExperimentGroupName(), 2);
+        tempIdVersionDaoImpl.upsertExperimentIdVersionGroupName(eventDao.getExperimentId(), eventDao.getExperimentVersion(), eventDao.getExperimentGroupName(), 0);
       }
     } catch (SQLException sqle) {
       log.warning("Catch all - sqle"+ExceptionUtil.getStackTraceAsString(sqle));
@@ -1322,8 +1347,8 @@ public class CopyExperimentMigrationDaoImpl implements CopyExperimentMigrationDa
     CSExperimentVersionGroupMappingDao evgmDao = new CSExperimentVersionGroupMappingDaoImpl();
     CSTempExperimentIdVersionGroupNameDao expIdVersionDao = new CSTempExperimentIdVersionGroupNameDaoImpl();
     CSExperimentUserDao userDaoImpl = new CSExperimentUserDaoImpl();
-    CSInputCollectionDao icDaoImpl = new CSInputCollectionDaoImpl();
     CSPivotHelperDao pvHelperDaoImpl = new CSPivotHelperDaoImpl();
+    CSEventOutputDao eventOutputDaoImpl = new CSEventOutputDaoImpl();
     ExperimentVersionGroupMapping evgm = null;
     List<Long> inputIds = null;
     List<Integer> allAnonUserList = null;
@@ -1335,8 +1360,8 @@ public class CopyExperimentMigrationDaoImpl implements CopyExperimentMigrationDa
       evgm = evgmDao.getEVGMId(expLite.getExperimentId(), expLite.getExperimentVersion(), expLite.getExperimentGroupName());
       if (evgm != null && evgm.isEventsPosted()) {
         allAnonUserList = userDaoImpl.getAllAnonIdsForEVGMId(evgm.getExperimentVersionMappingId());
-        inputIds= icDaoImpl.getAllInputIds(expLite.getExperimentId(), evgm.getInputCollection().getInputCollectionId());
         for (Integer eachUserAnonId : allAnonUserList) { 
+          inputIds =  eventOutputDaoImpl.getAllInputIdsForEVGMAndUser(evgm.getExperimentVersionMappingId(), eachUserAnonId);
           pvHelperList = Lists.newArrayList();
           for (Long eachInputId : inputIds) { 
             long noOfEvents = evgmDao.getNumberOfEvents(evgm.getExperimentVersionMappingId(), eachUserAnonId, eachInputId);
@@ -1355,19 +1380,16 @@ public class CopyExperimentMigrationDaoImpl implements CopyExperimentMigrationDa
   
   
   @Override
-  public boolean dataCleanupChangeGroupNameOfEventsWithPredefinedInputs() throws SQLException {
+  public boolean copyExperimentChangeGroupNameOfEventsWithPredefinedInputs() throws SQLException {
     String featureName = null;
-    String finalQryForNotifAcc = null;
     Connection conn = null;
     ResultSet rs = null;
     Set<Long> eventIdsToBeUpdatedWithNewGroupName = null;
     List<String> eventIdsOldGroupName = null;
     PreparedStatement statementSelectEventsWithPredefinedInputs = null;
-    PreparedStatement statementAccNotSelectEventsWithPredefinedInputs = null;
     CSGroupTypeInputMappingDao inputMappingDao = new CSGroupTypeInputMappingDaoImpl();
     CSTempExperimentIdVersionGroupNameDao expIdVersionDao = new CSTempExperimentIdVersionGroupNameDaoImpl();
     CSEventDao eventDaoImpl = new CSEventDaoImpl();
-    String qryForNotifAcc = SELECT_EVENTS_MATCHING_PREDFINED_FOR_NOTIF_AND_ACC;
     String finalQryForSys = SELECT_EVENTS_MATCHING_PREDFINED_INPUT_NAMES;
     try {
       conn = CloudSQLConnectionManager.getInstance().getConnection();
@@ -1375,7 +1397,7 @@ public class CopyExperimentMigrationDaoImpl implements CopyExperimentMigrationDa
       int recordCount = 0;
       Map<String, List<String>>inputMap = inputMappingDao.getAllPredefinedFeatureVariableNames();
       while (true) {
-        List<ExperimentLite> expLites = expIdVersionDao.getAllExperimentLiteOfStatus(0);
+        List<ExperimentLite> expLites = expIdVersionDao.getAllExperimentLiteOfStatus(1);
         if ( expLites.size() == 0) {
           break;
         }
@@ -1385,99 +1407,55 @@ public class CopyExperimentMigrationDaoImpl implements CopyExperimentMigrationDa
           if (!inputMap.keySet().contains(expLite.getExperimentGroupName())) {
             // for each predefined feature
             while (predefinedInputIterator.hasNext()) {
-                featureName = predefinedInputIterator.next();
-                // if it is system, phone status or appusage android
-                if (!featureName.equals(GroupTypeEnum.ACCESSIBILITY.name()) && !featureName.equals(GroupTypeEnum.NOTIFICATION.name())) {
-                  try {
-                    List<String> eachFeaturesInputVariableNames = inputMap.get(featureName);
-                    statementSelectEventsWithPredefinedInputs = conn.prepareStatement(finalQryForSys);
-                    statementSelectEventsWithPredefinedInputs.setFetchSize(500);
-                    
-                    for (String eachFeatureInputVariableName : eachFeaturesInputVariableNames) {
-                        while (true) {
-                          statementSelectEventsWithPredefinedInputs.setLong(1, expLite.getExperimentId());
-                          statementSelectEventsWithPredefinedInputs.setInt(2, expLite.getExperimentVersion());
-                          statementSelectEventsWithPredefinedInputs.setString(3, expLite.getExperimentGroupName());
-                          statementSelectEventsWithPredefinedInputs.setString(4, eachFeatureInputVariableName);
-                          log.info("executing qry " + statementSelectEventsWithPredefinedInputs.toString());
-                          rs = statementSelectEventsWithPredefinedInputs.executeQuery();
-                          if(!rs.next()) {
-                            break;
-                          } else {
-                            rs.beforeFirst();
-                            eventIdsToBeUpdatedWithNewGroupName = Sets.newLinkedHashSet();
-                            eventIdsOldGroupName = Lists.newArrayList();
-                            while (rs.next()) {
-                              eventId = rs.getLong(Constants.UNDERSCORE_ID);
-                              if (eventIdsToBeUpdatedWithNewGroupName.add(eventId)) {
-                                eventIdsOldGroupName.add(rs.getString(EventServerColumns.GROUP_NAME));
-                                expIdVersionDao.insertExperimentIdVersionGroupName(expLite.getExperimentId(), expLite.getExperimentVersion(), featureName, 0);
-                              }
-                            }// 250 records
-                            // update events in batch
-                            eventDaoImpl.updateGroupName(Lists.newArrayList(eventIdsToBeUpdatedWithNewGroupName), eventIdsOldGroupName, featureName);
-                          } // if records present
-                          log.info("continue for more records for same feature");
-                        }// while loop finish all records
-  //                    }// for loop on possible group names
-                    } // for loop on each variable name in predefined input
-                  } finally {
-                    if ( rs != null) { 
-                      rs.close();
-                    }
-                    if (statementSelectEventsWithPredefinedInputs != null) { 
-                      statementSelectEventsWithPredefinedInputs.close();
-                    }
-                  }
-                  
-                } else if (featureName.equals(GroupTypeEnum.ACCESSIBILITY.name())) {
-                  finalQryForNotifAcc = qryForNotifAcc + " and   " + OutputServerColumns.TEXT + " = 'accessibilityEventType' and  " + OutputServerColumns.ANSWER +" = '21' limit 1000";
-                } else  if (featureName.equals(GroupTypeEnum.NOTIFICATION.name())) {
-                  finalQryForNotifAcc = qryForNotifAcc + " and " + OutputServerColumns.TEXT + " = 'accessibilityEventType' and "+ OutputServerColumns.ANSWER + " != '21' limit 1000";
-                }
-                if (featureName.equals(GroupTypeEnum.ACCESSIBILITY.name()) || featureName.equals(GroupTypeEnum.NOTIFICATION.name())) { 
-                  try { 
-                    statementAccNotSelectEventsWithPredefinedInputs = conn.prepareStatement(finalQryForNotifAcc);
-                    statementAccNotSelectEventsWithPredefinedInputs.setFetchSize(500);
-                      while (true) {
-                        statementAccNotSelectEventsWithPredefinedInputs.setLong(1, expLite.getExperimentId());
-                        statementAccNotSelectEventsWithPredefinedInputs.setInt(2, expLite.getExperimentVersion());
-                        statementAccNotSelectEventsWithPredefinedInputs.setString(3, expLite.getExperimentGroupName());
-                        
-                        log.info("executing qry " + statementAccNotSelectEventsWithPredefinedInputs.toString());
-                        rs = statementAccNotSelectEventsWithPredefinedInputs.executeQuery();
-                        if(!rs.next()) {
-                          break;
-                        } else {
-                          rs.beforeFirst();
-                          eventIdsToBeUpdatedWithNewGroupName = Sets.newLinkedHashSet();
-                          eventIdsOldGroupName = Lists.newArrayList();
-                          while (rs.next()) {
-                            eventId = rs.getLong(Constants.UNDERSCORE_ID);
-                            if (eventIdsToBeUpdatedWithNewGroupName.add(eventId)) {
-                              eventIdsOldGroupName.add(rs.getString(EventServerColumns.GROUP_NAME));
-                              expIdVersionDao.insertExperimentIdVersionGroupName(expLite.getExperimentId(), expLite.getExperimentVersion(), featureName, 0);
-                            }
-                          }// 250 records
-                          // update events in batch
-                          eventDaoImpl.updateGroupName(Lists.newArrayList(eventIdsToBeUpdatedWithNewGroupName), eventIdsOldGroupName, featureName);
+              featureName = predefinedInputIterator.next();
+              // TODO we have to fix this, once we fix the way we capture events for notification grp
+              if (featureName.equals(GroupTypeEnum.NOTIFICATION.name())) {
+                continue;
+              }
+              try {
+                List<String> eachFeaturesInputVariableNames = inputMap.get(featureName);
+                statementSelectEventsWithPredefinedInputs = conn.prepareStatement(finalQryForSys);
+                statementSelectEventsWithPredefinedInputs.setFetchSize(500);
+                
+                for (String eachFeatureInputVariableName : eachFeaturesInputVariableNames) {
+                  while (true) {
+                    statementSelectEventsWithPredefinedInputs.setLong(1, expLite.getExperimentId());
+                    statementSelectEventsWithPredefinedInputs.setInt(2, expLite.getExperimentVersion());
+                    statementSelectEventsWithPredefinedInputs.setString(3, expLite.getExperimentGroupName());
+                    statementSelectEventsWithPredefinedInputs.setString(4, eachFeatureInputVariableName);
+                    log.info("executing qry " + statementSelectEventsWithPredefinedInputs.toString());
+                    rs = statementSelectEventsWithPredefinedInputs.executeQuery();
+                    if(!rs.next()) {
+                      break;
+                    } else {
+                      rs.beforeFirst();
+                      eventIdsToBeUpdatedWithNewGroupName = Sets.newLinkedHashSet();
+                      eventIdsOldGroupName = Lists.newArrayList();
+                      while (rs.next()) {
+                        eventId = rs.getLong(Constants.UNDERSCORE_ID);
+                        if (eventIdsToBeUpdatedWithNewGroupName.add(eventId)) {
+                          eventIdsOldGroupName.add(rs.getString(EventServerColumns.GROUP_NAME));
+                          expIdVersionDao.upsertExperimentIdVersionGroupName(expLite.getExperimentId(), expLite.getExperimentVersion(), featureName, 1);
                         }
-                        log.info("continue for more records for same feature");
-                      }// while finish all recrods
-  //                  }// for loop on possible group names
-                  } finally {
-                    if ( rs != null) { 
-                      rs.close();
-                    }
-                    if (statementAccNotSelectEventsWithPredefinedInputs != null) { 
-                      statementAccNotSelectEventsWithPredefinedInputs.close();
-                    }
-                  }
-                } // if predefined grp is acc or notifs
+                      }// 250 records
+                      // update events in batch
+                      eventDaoImpl.updateGroupName(Lists.newArrayList(eventIdsToBeUpdatedWithNewGroupName), eventIdsOldGroupName, featureName);
+                    } // if records present
+//                    log.info("continue for more records for same feature");
+                  }// while loop finish all records
+                } // for loop on each variable name in predefined input
+              } finally {
+                if ( rs != null) { 
+                  rs.close();
+                }
+                if (statementSelectEventsWithPredefinedInputs != null) { 
+                  statementSelectEventsWithPredefinedInputs.close();
+                }
+              }   
             } // predefined map of all predefined grps
           } // if grp name not in predefined grps
           // finally if there is no exception after checking for all predefined grps, delete this exp id version in expidversion table, since it is processed
-          expIdVersionDao.updateExperimentIdVersionGroupNameStatus(expLite.getExperimentId(), expLite.getExperimentVersion(), expLite.getExperimentGroupName(), 1);
+          expIdVersionDao.updateExperimentIdVersionGroupNameStatus(expLite.getExperimentId(), expLite.getExperimentVersion(), expLite.getExperimentGroupName(), 2);
         }// for loop on each exp id version combination
       }
     } finally {
@@ -1505,6 +1483,15 @@ public class CopyExperimentMigrationDaoImpl implements CopyExperimentMigrationDa
       throw e;
     }
     return successFlag;
+  }
+
+
+  @Override
+  public boolean dataCleanupEnforceForeignKeyConstraintOnEVGM() throws Exception {
+    String[] modificationQueries = new String[] { addNewColumnsSql4 };
+    
+    executeCreationOrInsertionQuerys(modificationQueries);
+    return false;
   }
 
 
