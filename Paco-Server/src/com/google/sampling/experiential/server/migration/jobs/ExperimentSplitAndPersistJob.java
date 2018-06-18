@@ -40,15 +40,15 @@ public class ExperimentSplitAndPersistJob implements MigrationJob {
       }  
       if (doAll || (cursor != null && cursor.equalsIgnoreCase("step1"))) {
         try {
-            log.info("------------------------------------------------Step 1 Begin------------------------------------------------");
-            sqlMigDaoImpl.experimentSplitTakeBackupInCloudSql();
-            log.info("------------------------------------------------Step 1 End------------------------------------------------");
-            returnString = "Backup of Datastore experiments Done. Step1 complete.";
-            doAll = true;
-          } catch (SQLException e) {
-            returnString = "Backup of datastore experiments. Restart job from step1";
-            throw new SQLException(returnString, e);
-          }
+          log.info("------------------------------------------------Step 1 Begin------------------------------------------------");
+          sqlMigDaoImpl.experimentSplitTakeBackupInCloudSql();
+          log.info("------------------------------------------------Step 1 End------------------------------------------------");
+          returnString = "Backup of Datastore experiments Done. Step1 complete.";
+          doAll = true;
+        } catch (SQLException e) {
+          returnString = "Backup of datastore experiments. Restart job from step1";
+          throw new SQLException(returnString, e);
+        }
       }
        
       // create tables needs to happen first, bcoz backup table has to be created first

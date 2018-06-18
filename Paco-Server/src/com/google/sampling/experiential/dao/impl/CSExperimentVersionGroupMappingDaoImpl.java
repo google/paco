@@ -576,12 +576,11 @@ public class CSExperimentVersionGroupMappingDaoImpl implements CSExperimentVersi
     InputCollection inputCollection = null;
     Long inputCollectionId = null;
     try {
-      if (latestVersion != null) {
+      if (latestVersion != null && latestVersion != experimentVersion) {
         conn = CloudSQLConnectionManager.getInstance().getConnection();
         statementClosestExperimentVersion = conn.prepareStatement(QueryConstants.GET_ALL_EVM_RECORDS_FOR_VERSION.toString());
         statementClosestExperimentVersion.setLong(1, experimentId);
         statementClosestExperimentVersion.setInt(2, latestVersion);
-//        log.info(statementClosestExperimentVersion.toString());
         rs = statementClosestExperimentVersion.executeQuery();
         while (rs.next()) {
           evm = new ExperimentVersionGroupMapping();
