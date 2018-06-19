@@ -3,6 +3,7 @@ package com.google.sampling.experiential.server;
 import java.sql.SQLException;
 import java.text.ParseException;
 import java.util.List;
+import java.util.logging.Logger;
 
 import com.google.sampling.experiential.dao.CSEventOutputDao;
 import com.google.sampling.experiential.dao.impl.CSEventOutputDaoImpl;
@@ -14,6 +15,7 @@ import com.pacoapp.paco.shared.util.SearchUtil;
 import net.sf.jsqlparser.JSQLParserException;
 
 public class AllFieldsSearchQuery extends SearchQuery {
+  public static final Logger log = Logger.getLogger(AllFieldsSearchQuery.class.getName());
   AllFieldsSearchQuery(SQLQuery sqlQueryObj, Float pacoProtocol) {
     this.pacoProtocol = pacoProtocol;
     this.sqlQueryObj = sqlQueryObj;
@@ -35,15 +37,20 @@ public class AllFieldsSearchQuery extends SearchQuery {
   @Override
   public void addJoinClauses(Boolean oldMethodFlag) throws JSQLParserException {
     boolean isOutputTableAdded = true;
-    if (oldMethodFlag) {
+    SearchUtil.addOutputJoinClause(jsqlStatement);
+    log.info(jsqlStatement.toString());
+    if (!oldMethodFlag) {
       super.addJoinClauses(oldMethodFlag);
-    } else {
       super.addInputCollectionBundleJoinClause(jsqlStatement, isOutputTableAdded);
     }
-    SearchUtil.addOutputJoinClause(jsqlStatement);
+    
   }
+
   @Override
   public String renameTextColumn(String acledQuery) {
+    // TODO following replaces will only be needed during the big migration phase. This should be cleaned up.
+    acledQuery = acledQuery.replace("experiment_id", "experiment_version_group_mapping.experiment_id");
+    acledQuery = acledQuery.replace("experiment_version_group_mapping.experiment_version_group_mapping.experiment_id", "experiment_version_group_mapping.experiment_id");
     return acledQuery;
   }
   

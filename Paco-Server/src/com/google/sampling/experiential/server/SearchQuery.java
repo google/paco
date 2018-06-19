@@ -168,7 +168,7 @@ public abstract class SearchQuery {
     return evQueryStatus;
   }
   
-  public void addJoinClauses(Boolean oldMethodFlag) throws JSQLParserException { 
+  public void addJoinClauses(Boolean oldMethodFlag) throws JSQLParserException {
     if (!oldMethodFlag )  {
       addExperimentBundleJoinClause(jsqlStatement);
     }
@@ -206,6 +206,7 @@ public abstract class SearchQuery {
     PlainSelect ps = null;
     Expression joinExp1 = null, joinExp2 = null, joinExp3 = null;
     List<Join> jList = Lists.newArrayList();
+    List<Join> oldJoinList = null;
     Join joinObj1 = new Join();
     Join joinObj2 = new Join();
     Join joinObj3 = new Join();
@@ -235,7 +236,13 @@ public abstract class SearchQuery {
     jList.add(joinObj3);
     
     ps = ((PlainSelect) selStatement.getSelectBody());
-    ps.setJoins(jList);
+    oldJoinList = ps.getJoins();
+    if (oldJoinList != null) { 
+      oldJoinList.addAll(jList);
+    } else {
+      oldJoinList = jList;
+    }
+    ps.setJoins(oldJoinList);
   }
   
   public static void addInputCollectionBundleJoinClause(Select selStatement, boolean isOutputTableAdded) throws JSQLParserException {

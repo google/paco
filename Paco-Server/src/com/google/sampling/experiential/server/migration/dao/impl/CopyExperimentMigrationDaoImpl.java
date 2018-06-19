@@ -357,6 +357,7 @@ public class CopyExperimentMigrationDaoImpl implements CopyExperimentMigrationDa
              " DROP INDEX `exp_id_sort_date_index` ,  "+ 
              " DROP INDEX `exp_id_grp_who_index`";
    final String addNewColumnsSql15 = "ALTER TABLE `pacodb`.`events` CHANGE COLUMN `experiment_id` `experiment_id` BIGINT(20) NULL ";
+   final String addNewColumnsSql16 = "ALTER TABLE `pacodb`.`outputs` ADD INDEX `text_idx` (`text` ASC)";
    final String SELECT_EVENTS_MATCHING_PREDFINED_INPUT_NAMES = "Select "+Constants.UNDERSCORE_ID+", "+ EventServerColumns.GROUP_NAME +" from "+EventServerColumns.TABLE_NAME +
            " e join "+OutputServerColumns.TABLE_NAME + " o on e."+Constants.UNDERSCORE_ID+ "= o."+OutputServerColumns.EVENT_ID+" where "+EventServerColumns.EXPERIMENT_ID+"=? and "+EventServerColumns.EXPERIMENT_VERSION+"=? and "+EventServerColumns.GROUP_NAME+" = ? and "+ OutputServerColumns.TEXT+ "=? limit 1000 ";
    final String SELECT_EVENTS_MATCHING_PREDFINED_FOR_NOTIF_AND_ACC = "Select " +Constants.UNDERSCORE_ID+ " , " + EventServerColumns.GROUP_NAME + " from "+EventServerColumns.TABLE_NAME +
@@ -436,7 +437,8 @@ public class CopyExperimentMigrationDaoImpl implements CopyExperimentMigrationDa
               addNewColumnsSql12,
               addNewColumnsSql13,
               addNewColumnsSql14,
-              addNewColumnsSql15
+              addNewColumnsSql15,
+              addNewColumnsSql16
               };
     executeCreationOrInsertionQuerys(modificationQueries);
     return true;
@@ -788,7 +790,6 @@ public class CopyExperimentMigrationDaoImpl implements CopyExperimentMigrationDa
     return successFlag;
   }
   
-  
   @Override
   public boolean populatePivotTableHelper()  throws SQLException {
     final String insertToPivotHelperSql = QueryConstants.INSERT_TO_PIVOT_HELPER.toString();
@@ -798,7 +799,6 @@ public class CopyExperimentMigrationDaoImpl implements CopyExperimentMigrationDa
       log.info("populate pivot table helper - start");
       conn = CloudSQLConnectionManager.getInstance().getConnection();
       statementInsertToLookup = conn.prepareStatement(insertToPivotHelperSql);
-      log.info(insertToPivotHelperSql);
       statementInsertToLookup.execute();
       log.info("Inserted pivot helper from experiment, experiment_user, input collection tables");
     } catch (SQLException sqle) {
