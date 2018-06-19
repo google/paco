@@ -18,26 +18,26 @@ import com.google.sampling.experiential.server.migration.dao.ExperimentMigration
 
 public class ExperimentMigrationVerificationDaoImpl implements ExperimentMigrationVerificationDao {
   public static final Logger log = Logger.getLogger(ExperimentMigrationVerificationDaoImpl.class.getName());
-  final String EXP_ID_VERIFICATION_QUERY = "select e.experiment_id, egvm.experiment_id, e.experiment_id - egvm.experiment_id  from events e"
+  final String EXP_ID_VERIFICATION_QUERY = "select e.experiment_id_old, egvm.experiment_id, e.experiment_id_old - egvm.experiment_id  from events e"
           + " join experiment_version_group_mapping egvm  on e.experiment_version_group_mapping_id = egvm.experiment_version_group_mapping_id "
-          + " where (e.experiment_id - egvm.experiment_id) != 0 and egvm.experiment_id=?";
-  final String EXP_NAME_VERIFICATION_QUERY = "select e.experiment_id, e.experiment_name, e.experiment_id, ed.experiment_detail_id,ed.experiment_name  from events e "
+          + " where (e.experiment_id_old - egvm.experiment_id) != 0 and egvm.experiment_id=?";
+  final String EXP_NAME_VERIFICATION_QUERY = "select e.experiment_id_old, e.experiment_name_old, e.experiment_id_old, ed.experiment_detail_id,ed.experiment_name  from events e "
           + " join experiment_version_group_mapping egvm  on e.experiment_version_group_mapping_id = egvm.experiment_version_group_mapping_id  "
           + " join experiment_detail ed on egvm.experiment_detail_id=ed.experiment_detail_id "
-          + " where e.experiment_name != ed.experiment_name and egvm.experiment_id=? ";
-  final String EXP_VERSION_VERIFICATION_QUERY = "select e.experiment_id, e.experiment_version, egvm.experiment_version, e.experiment_version - egvm.experiment_version  from events e "
+          + " where e.experiment_name_old != ed.experiment_name and egvm.experiment_id=? ";
+  final String EXP_VERSION_VERIFICATION_QUERY = "select e.experiment_id_old, e.experiment_version_old, egvm.experiment_version, e.experiment_version_old - egvm.experiment_version  from events e "
           + " join experiment_version_group_mapping egvm  on e.experiment_version_group_mapping_id = egvm.experiment_version_group_mapping_id "
-          + " where (e.experiment_version - egvm.experiment_version) != 0 and egvm.experiment_id=?";
-  final String GROUP_NAME_VERIFICATION_QUERY = "select e.experiment_id, e.experiment_name, e.group_name, gd.group_name from events e "  
+          + " where (e.experiment_version_old - egvm.experiment_version) != 0 and egvm.experiment_id=?";
+  final String GROUP_NAME_VERIFICATION_QUERY = "select e.experiment_id_old, e.experiment_name_old, e.group_name_old, gd.group_name from events e "  
           + " join experiment_version_group_mapping egvm  on e.experiment_version_group_mapping_id = egvm.experiment_version_group_mapping_id "  
           + " join group_detail gd on egvm.group_detail_id=gd.group_detail_id  "
-          + " where e.group_name != gd.group_name and egvm.experiment_id=?";
-  final String ANON_WHO_VERIFICATION_QUERY = "select e._id, e.who eventwho, e.who_bk eventwhobk, eu.experiment_user_anon_id,u.who from events e " 
+          + " where e.group_name_old != gd.group_name and egvm.experiment_id=?";
+  final String ANON_WHO_VERIFICATION_QUERY = "select e._id, e.who_old eventwhoemail, e.who eventwhoanonid, eu.experiment_user_anon_id,u.who from events e " 
           + " join experiment_version_group_mapping egvm  on e.experiment_version_group_mapping_id = egvm.experiment_version_group_mapping_id "  
           + " join experiment_detail ed on egvm.experiment_detail_id=ed.experiment_detail_id "
-          + " left join experiment_user eu on egvm.experiment_id=eu.experiment_id and e.who_bk=eu.experiment_user_anon_id "
+          + " left join experiment_user eu on egvm.experiment_id=eu.experiment_id and e.who=eu.experiment_user_anon_id "
           + " left join user u on u.user_id=eu.user_id "
-          + " where (u.who  is null or eu.experiment_user_anon_id is null or e.who!=u.who)  and egvm.experiment_id=?";
+          + " where (u.who is null or eu.experiment_user_anon_id is null or e.who_old!=u.who)  and egvm.experiment_id=?";
   final String INPUT_NAME_VERIFICATION_QUERY = " select e._id, o.text, i.input_id,o.input_id,o.answer, esi."+ ExternStringInputColumns.LABEL +" from events e "  
           + " join outputs o on e._id=o.event_id join experiment_version_group_mapping egvm on e.experiment_version_group_mapping_id=egvm.experiment_version_group_mapping_id "  
           + " join input_collection ic on egvm.input_collection_id=ic.input_collection_id and egvm.experiment_id=ic.experiment_ds_id  "
