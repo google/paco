@@ -69,9 +69,9 @@ public class LastAppSessionChartServlet extends HttpServlet {
   }
 
   private void produceAppUsageChart(String userEmail, String who, Long experimentId, HttpServletResponse resp, DateTimeZone timezone) throws JSQLParserException, Exception {
-
+    Boolean oldMethodFlag = Constants.USE_OLD_FORMAT_FLAG;
     DateMidnight today = new DateMidnight();
-
+    
     String DATETIME_FORMAT = "yyyy/MM/dd HH:mm:ss";
     DateTimeFormatter dateTimeFormatter = DateTimeFormat.forPattern(DATETIME_FORMAT);
 
@@ -90,7 +90,7 @@ public class LastAppSessionChartServlet extends HttpServlet {
 
     SQLQuery sqlQueryObj = QueryJsonParser.parseSqlQueryFromJson(query, true);
     SearchQuery sq = QueryFactory.createSearchQuery(sqlQueryObj, 5.0f);
-    PacoResponse pr = sq.process(userEmail);
+    PacoResponse pr = sq.process(userEmail, oldMethodFlag);
     EventQueryStatus evQryStatus = null;
     String page = "Unable to retrieve user app sessions";
     if ( pr != null && pr instanceof EventQueryStatus) {
