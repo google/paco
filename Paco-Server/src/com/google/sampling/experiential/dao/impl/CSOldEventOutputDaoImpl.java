@@ -124,9 +124,15 @@ public class CSOldEventOutputDaoImpl implements CSOldEventOutputDao {
       statementCreateEvent = conn.prepareStatement(eventInsert.toString());
       statementCreateEvent.setLong(i++, Long.parseLong(event.getExperimentId()));
       statementCreateEvent.setString(i++, event.getExperimentName());
+      if (event.getExperimentVersion() == null) {
+        event.setExperimentVersion(0);
+      }
       statementCreateEvent.setInt(i++, event.getExperimentVersion());
       statementCreateEvent.setTimestamp(i++, event.getScheduledTime() != null ? new Timestamp(event.getScheduledTime().getTime()): null);
       statementCreateEvent.setTimestamp(i++, event.getResponseTime() != null ? new Timestamp(event.getResponseTime().getTime()): null);
+      if (event.getExperimentGroupName() == null) {
+        event.setExperimentGroupName(Constants.UNKNOWN);
+      }
       statementCreateEvent.setString(i++, event.getExperimentGroupName());
       statementCreateEvent.setLong(i++, event.getActionTriggerId() != null ? new Long(event.getActionTriggerId()) : java.sql.Types.NULL);
       statementCreateEvent.setLong(i++, event.getActionTriggerSpecId() != null ? new Long(event.getActionTriggerId()) : java.sql.Types.NULL);
@@ -168,20 +174,22 @@ public class CSOldEventOutputDaoImpl implements CSOldEventOutputDao {
       statementCreateEvent.setTimestamp(i++, event.getScheduledTime() != null ? new Timestamp(TimeUtil.convertToLocal(event.getScheduledTime(), event.getTimeZone()).getMillis()): null);
       statementCreateEvent.setTimestamp(i++, event.getResponseTime() != null ? new Timestamp(TimeUtil.convertToLocal(event.getResponseTime(), event.getTimeZone()).getMillis()): null);
       statementCreateEvent.setTimestamp(i++, new Timestamp(TimeUtil.convertToLocal(new Date(sortDateMillis), event.getTimeZone()).getMillis()));
-      log.info("oldway qry"+ statementCreateEvent.toString());
-      statementCreateEvent.execute();
-      Set<What> whatSet = event.getWhat();
-      if (whatSet != null) {
-        statementCreateEventOutput = conn.prepareStatement(outputInsert.toString());
-        
-        for (String key : event.getWhatKeys()) {
-          String whatAnswer = event.getWhatByKey(key);
-          statementCreateEventOutput.setLong(1, event.getId());
-          statementCreateEventOutput.setString(2, key);
-          statementCreateEventOutput.setString(3, whatAnswer);
-          statementCreateEventOutput.addBatch();
+      // romanian experiment
+      if (Long.parseLong(event.getExperimentId()) != 6651607195844608L) {
+        statementCreateEvent.execute();
+        Set<What> whatSet = event.getWhat();
+        if (whatSet != null) {
+          statementCreateEventOutput = conn.prepareStatement(outputInsert.toString());
+          
+          for (String key : event.getWhatKeys()) {
+            String whatAnswer = event.getWhatByKey(key);
+            statementCreateEventOutput.setLong(1, event.getId());
+            statementCreateEventOutput.setString(2, key);
+            statementCreateEventOutput.setString(3, whatAnswer);
+            statementCreateEventOutput.addBatch();
+          }
+          statementCreateEventOutput.executeBatch();
         }
-        statementCreateEventOutput.executeBatch();
       }
       
       conn.commit();

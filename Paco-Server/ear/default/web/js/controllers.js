@@ -844,7 +844,6 @@ pacoApp.controller('ReportCtrl', [
 
 pacoApp.controller('GroupsCtrl', ['$scope', 'template', 'PacoConstantsService',  function ($scope, template, PacoConstantsService) {
   $scope.hiding = false;
-  $scope.disabled = false;
   $scope.useOldColumns = PacoConstantsService.useOldColumns;
   $scope.defaultFeedback = 'Thanks for Participating!';
   
@@ -857,9 +856,6 @@ pacoApp.controller('GroupsCtrl', ['$scope', 'template', 'PacoConstantsService', 
     $scope.endDate = $scope.group.endDate
   } else {
     $scope.endDate = null;
-  }
-  if($scope.group.groupType !== 'SURVEY'  && $scope.group.groupType !== 'undefined') {
-    $scope.disabled = true;
   }
 
   $scope.dateToString = function (d) {
@@ -922,8 +918,8 @@ pacoApp.controller('GroupsCtrl', ['$scope', 'template', 'PacoConstantsService', 
     if (newVal && !oldVal) {
       $scope.startDate = new Date();
       $scope.endDate = new Date($scope.startDate.getTime() + (24 * 60 * 60 * 1000));
-      $scope.group.startDate = $scope.dateToString(today);      
-      $scope.group.endDate = $scope.dateToString(tomorrow);
+      $scope.group.startDate = $scope.dateToString($scope.startDate);      
+      $scope.group.endDate = $scope.dateToString($scope.endDate);
     }
 
     if (newVal === false) {
@@ -938,9 +934,6 @@ pacoApp.controller('GroupsCtrl', ['$scope', 'template', 'PacoConstantsService', 
 pacoApp.controller('InputCtrl', ['$scope', 'config', function ($scope, config) {
 
   $scope.responseTypes = config.responseTypes;
-  if($scope.group.groupType !== 'SURVEY'  && $scope.group.groupType !== 'undefined') {
-    $scope.disabled = true;
-  }
 
   $scope.$watch('input.responseType', function (newValue, oldValue) {
     if ($scope.input.responseType === 'list' && $scope.input.listChoices === undefined) {

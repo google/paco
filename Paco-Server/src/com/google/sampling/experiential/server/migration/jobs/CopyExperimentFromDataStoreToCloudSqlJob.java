@@ -191,6 +191,18 @@ public class CopyExperimentFromDataStoreToCloudSqlJob implements MigrationJob {
 //          throw new SQLException(returnString, e);
 //        }
 //      }
+//      if (cursor != null && cursor.equalsIgnoreCase("step10")) {
+//        try {
+//          log.info("------------------------------------------------Step 10 Begin------------------------------------------------");
+//          String blobKey = sqlMigDaoImpl.copyExperimentStoreCreateSqlInCloudStorage("createsql");
+//          log.info("blobkey return"+blobKey);
+//          log.info("------------------------------------------------Step 0 End------------------------------------------------");
+//          returnString += "Create sql Done. Step0 complete.";
+//        } catch (SQLException e) {
+//          returnString += "Failed to create sql. Restart job from step0";
+//          throw new SQLException(returnString, e);
+//        }
+//      }
     
       return returnString;
     }

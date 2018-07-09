@@ -1,5 +1,7 @@
 package com.google.sampling.experiential.server.migration.dao;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
@@ -33,6 +35,8 @@ public interface CopyExperimentMigrationDao {
   boolean copyExperimentPopulatePivotTableForAllExperiments() throws SQLException;
   boolean copyExperimentUpdateEventAndOutputCatchAll(String query) throws SQLException, Exception;
   boolean copyExperimentChangeDupCounterOnVariableNames(String query) throws Exception;
+  String copyExperimentStoreCreateSqlInCloudStorage(String fileName) throws SQLException, FileNotFoundException,
+  IOException;
   
   boolean populatePivotTableHelper() throws SQLException;
   List<EventDAO> getSingleBatchUnprocessedEvent(Connection conn, List<Long> erroredExperimentIds,

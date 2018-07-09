@@ -1,5 +1,9 @@
 package com.google.sampling.experiential.server.migration.dao.impl;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.nio.channels.Channels;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -12,6 +16,10 @@ import java.util.logging.Logger;
 
 import org.joda.time.DateTime;
 
+import com.google.appengine.api.blobstore.BlobKey;
+import com.google.appengine.api.blobstore.BlobstoreService;
+import com.google.appengine.api.blobstore.BlobstoreServiceFactory;
+import com.google.appengine.tools.cloudstorage.GcsOutputChannel;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -70,6 +78,7 @@ import com.google.sampling.experiential.dao.impl.CSTempExperimentDefinitionDaoIm
 import com.google.sampling.experiential.dao.impl.CSTempExperimentIdVersionGroupNameDaoImpl;
 import com.google.sampling.experiential.model.What;
 import com.google.sampling.experiential.server.CloudSQLConnectionManager;
+import com.google.sampling.experiential.server.CloudStorageFileWriter;
 import com.google.sampling.experiential.server.ExceptionUtil;
 import com.google.sampling.experiential.server.ExperimentDAOConverter;
 import com.google.sampling.experiential.server.ExperimentService;
@@ -702,13 +711,20 @@ public class CopyExperimentMigrationDaoImpl implements CopyExperimentMigrationDa
       Input openTextAppUsage = new Input(PredefinedInputNames.APPS_USED, false, null, openTextDataType, PredefinedInputNames.APPS_USED, 0, null, null,  null);
       Input openTextAppUsageRaw = new Input(PredefinedInputNames.APPS_USED_RAW, false, null, openTextDataType, PredefinedInputNames.APPS_USED_RAW, 0, null, null, null);
       Input openTextForeGround = new Input(PredefinedInputNames.FOREGROUND, false, null, openTextDataType, PredefinedInputNames.FOREGROUND, 0, null, null, null);
+      Input openTextUserPresent = new Input(PredefinedInputNames.USER_PRESENT, false, null, openTextDataType, PredefinedInputNames.USER_PRESENT, 0, null, null, null);
+      Input openTextUserNotPresent = new Input(PredefinedInputNames.USER_NOT_PRESENT, false, null, openTextDataType, PredefinedInputNames.USER_NOT_PRESENT, 0, null, null, null);
+      
       Integer grpTypeAppUsageId = groupTypeDapImpl.getGroupTypeId(GroupTypeEnum.APPUSAGE_ANDROID.name());
       inputDaoImpl.insertInput(openTextAppUsage);
       inputDaoImpl.insertInput(openTextAppUsageRaw);
       inputDaoImpl.insertInput(openTextForeGround);
+      inputDaoImpl.insertInput(openTextUserPresent);
+      inputDaoImpl.insertInput(openTextUserNotPresent);
       predfinedDaoImpl.insertGroupTypeInputMapping(new GroupTypeInputMapping(grpTypeAppUsageId, openTextAppUsage));
       predfinedDaoImpl.insertGroupTypeInputMapping(new GroupTypeInputMapping(grpTypeAppUsageId, openTextAppUsageRaw));
       predfinedDaoImpl.insertGroupTypeInputMapping(new GroupTypeInputMapping(grpTypeAppUsageId, openTextForeGround));
+      predfinedDaoImpl.insertGroupTypeInputMapping(new GroupTypeInputMapping(grpTypeAppUsageId, openTextUserPresent));
+      predfinedDaoImpl.insertGroupTypeInputMapping(new GroupTypeInputMapping(grpTypeAppUsageId, openTextUserNotPresent));
       
       // BackGround - phoneEvent
       Input openTextPhoneOn = new Input(PredefinedInputNames.PHONE_ON, false, null, openTextDataType, PredefinedInputNames.PHONE_ON, 0, null, null, null);
@@ -1494,5 +1510,96 @@ public class CopyExperimentMigrationDaoImpl implements CopyExperimentMigrationDa
     return false;
   }
 
+  @Override
+  public String copyExperimentStoreCreateSqlInCloudStorage(String fileName) throws SQLException, FileNotFoundException, IOException {
+    CloudStorageFileWriter csfw = new CloudStorageFileWriter();
+    BlobstoreService blobstoreService = BlobstoreServiceFactory.getBlobstoreService();
+    Connection conn = CloudSQLConnectionManager.getInstance().getConnection();
+    BlobKey blobKey = null;
+    String tempCreateStmt = null;
+    PreparedStatement statementGetTableViewNames = null;
+    PreparedStatement statementGetTableViewDDL = null;
+    PreparedStatement statementGetStoredProcs = null;
+    PreparedStatement statementGetStoredProcsDDL = null;
+    ResultSet rsGetTableViewNames = null;
+    ResultSet rsGetTableViewDDL = null;
+    ResultSet rsGetStoredProcs = null;
+    ResultSet rsGetStoredProcsDDL = null;
 
+    String crtTableName = null;
+    try {
+      GcsOutputChannel writeChannel = csfw.getCSWriterChannel(fileName, "application/text", "project-private", fileName);
+      PrintWriter writer = new PrintWriter(Channels.newWriter(writeChannel, "UTF8"));
+      conn = CloudSQLConnectionManager.getInstance().getConnection();
+      statementGetTableViewNames = conn.prepareStatement(QueryConstants.GET_TABLES_NAMES_IN_PACODB.toString());
+      rsGetTableViewNames = statementGetTableViewNames.executeQuery();
+      while (rsGetTableViewNames.next()) { 
+        crtTableName = rsGetTableViewNames.getString("table_name");
+        statementGetTableViewDDL = conn.prepareStatement(QueryConstants.SHOW_CREATE_TABLE.toString() + crtTableName ); 
+        log.info(statementGetTableViewDDL.toString());
+        rsGetTableViewDDL = statementGetTableViewDDL.executeQuery();
+        while (rsGetTableViewDDL.next()) { 
+          tempCreateStmt = rsGetTableViewDDL.getString(2);
+          writer.println(tempCreateStmt);
+          writer.flush();
+          writeChannel.waitForOutstandingWrites();
+        }  
+      } // while 
+      
+      // Do store procs
+      statementGetStoredProcs = conn.prepareStatement(QueryConstants.SHOW_ALL_STORED_PROCS_IN_PACODB.toString());
+      rsGetStoredProcs = statementGetStoredProcs.executeQuery();
+      String storedProcName = null;
+      while (rsGetStoredProcs.next()) {
+        storedProcName = rsGetStoredProcs.getString("name");
+        statementGetStoredProcsDDL = conn.prepareStatement(QueryConstants.SHOW_CREATE_PROCEDURE.toString() + storedProcName);
+        rsGetStoredProcsDDL = statementGetStoredProcsDDL.executeQuery();
+        while (rsGetStoredProcsDDL.next()) {
+          tempCreateStmt = rsGetStoredProcsDDL.getString("Create Procedure");
+          writer.println(tempCreateStmt);
+          writer.flush();
+          writeChannel.waitForOutstandingWrites();
+        }
+      }
+      writeChannel.close();
+      blobKey = csfw.getBlobKey(blobstoreService, fileName);
+      log.info("Create SQL for all tables and stored procs - finished"+blobKey.getKeyString());
+    } finally {
+      try {
+        if (rsGetTableViewNames != null) { 
+          rsGetTableViewNames.close();
+        }
+        if (rsGetTableViewDDL != null) { 
+          rsGetTableViewDDL.close();
+        }
+        if (rsGetStoredProcs != null) { 
+          rsGetStoredProcs.close();
+        }
+        if (rsGetStoredProcsDDL != null) { 
+          rsGetStoredProcsDDL.close();
+        }
+        if (statementGetTableViewNames != null) {
+          statementGetTableViewNames.close();
+        }
+        if (statementGetTableViewDDL != null) { 
+          statementGetTableViewDDL.close();
+        }
+        if (statementGetStoredProcs != null) { 
+          statementGetStoredProcs.close();
+        }
+        if (statementGetStoredProcsDDL != null) { 
+          statementGetStoredProcsDDL.close();
+        }
+        if (conn != null) {
+          conn.close();
+        }
+      } catch (SQLException ex1) {
+        log.warning(ErrorMessages.CLOSING_RESOURCE_EXCEPTION.getDescription()+ ex1);
+      }
+    }
+    return blobKey.getKeyString();
+  }
 }
+
+
+

@@ -1,6 +1,7 @@
 package com.google.sampling.experiential.server;
 
 import java.io.IOException;
+import java.util.logging.Logger;
 
 import com.google.appengine.api.blobstore.BlobKey;
 import com.google.appengine.api.blobstore.BlobstoreService;
@@ -11,6 +12,7 @@ import com.google.appengine.tools.cloudstorage.GcsService;
 import com.google.appengine.tools.cloudstorage.GcsServiceFactory;
 
 public class CloudStorageFileWriter {
+  public static final Logger log = Logger.getLogger(CloudStorageFileWriter.class.getName());
   static GcsService gcsService = GcsServiceFactory.createGcsService();;
   static String bucketName = System.getProperty("com.pacoapp.reportbucketname");
   private static final String JOB_ID = "jobId";

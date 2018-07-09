@@ -11,6 +11,8 @@ public class PredefinedInputNames {
   public static final String APPS_USED = "apps_used";
   public static final String APPS_USED_RAW = "apps_used_raw";
   public static final String FOREGROUND = "foreground";
+  public static final String USER_PRESENT = "userPresent";
+  public static final String USER_NOT_PRESENT = "userNotPresent";
   public static final String PHONE_ON = "phoneOn";
   public static final String PHONE_OFF = "phoneOff";
   public static final String ACCESSIBILITY_EVENT_TEXT = "accessibilityEventText";

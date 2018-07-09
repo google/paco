@@ -93,6 +93,10 @@ public enum QueryConstants {
           " join "+ OutputBaseColumns.TABLE_NAME +" o on e."+Constants.UNDERSCORE_ID +" = o."+OutputBaseColumns.EVENT_ID+" where "+ EventServerColumns.EXPERIMENT_ID+"=? and "+ EventServerColumns.WHO+" =? group by " +EventServerColumns.WHO),
   GET_COMPLETE_STATUS(" select "+EventBaseColumns.EXPERIMENT_ID+","+ EventServerColumns.WHO+","+ OutputBaseColumns.NAME+",count(0) noOfRecords from events e join outputs o on e._id = o.event_id " + 
                   " where "+ EventBaseColumns.EXPERIMENT_ID+"=? and "+EventServerColumns.WHO+"=? group by "+ EventServerColumns.EXPERIMENT_ID+", "+EventServerColumns.WHO+","+OutputBaseColumns.NAME),
+  GET_TABLES_NAMES_IN_PACODB("select distinct table_name from information_schema.columns where table_schema = 'pacodb'"),
+  SHOW_CREATE_TABLE("SHOW CREATE TABLE "),
+  SHOW_ALL_STORED_PROCS_IN_PACODB("show procedure status where Db='pacodb'"),
+  SHOW_CREATE_PROCEDURE("show create procedure "),
   SET_NAMES("SET NAMES  'utf8mb4'"),
   GET_PARTICIPANTS_QUERY("select "+ EventServerColumns.WHO +" from expwho where " + EventServerColumns.EXPERIMENT_ID+ " =?"),
   GET_ALL_DATATYPES("select * from " + DataTypeColumns.TABLE_NAME),

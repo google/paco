@@ -20,6 +20,7 @@ import com.pacoapp.paco.shared.comm.ExperimentEditOutcome;
 import com.pacoapp.paco.shared.comm.Outcome;
 import com.pacoapp.paco.shared.model2.ExperimentDAO;
 import com.pacoapp.paco.shared.model2.ExperimentGroup;
+import com.pacoapp.paco.shared.model2.GroupTypeEnum;
 import com.pacoapp.paco.shared.model2.JsonConverter;
 import com.pacoapp.paco.shared.model2.ValidationMessage;
 import com.pacoapp.paco.shared.util.Constants;
@@ -127,7 +128,7 @@ public class ExperimentJsonUploadProcessor {
     ExperimentDAOConverter daoConverter = new ExperimentDAOConverter();
     
     // REMOVE ENDS
-    if (!saveInOldFormatInDS && experimentDAO.getGroups() != null && isAnyGroupHavingGroupTypeNull(experimentDAO)) { 
+    if (!saveInOldFormatInDS && experimentDAO.getGroups() != null && (isAnyGroupHavingGroupTypeNull(experimentDAO) || (!isSystemGroupPresent(experimentDAO)))) { 
       daoConverter.splitGroups(experimentDAO);
     }
     if (!persistInCloudSqlOnly) { 
@@ -162,6 +163,15 @@ public class ExperimentJsonUploadProcessor {
   private boolean isAnyGroupHavingGroupTypeNull(ExperimentDAO experimentDAO) { 
     for ( ExperimentGroup eg : experimentDAO.getGroups()) {
       if (eg.getGroupType() == null) { 
+        return true;
+      }
+    }
+    return false;
+  }
+
+  private boolean isSystemGroupPresent(ExperimentDAO experimentDAO) { 
+    for ( ExperimentGroup eg : experimentDAO.getGroups()) {
+      if (eg.getGroupType().equals(GroupTypeEnum.SYSTEM.name())) { 
         return true;
       }
     }
