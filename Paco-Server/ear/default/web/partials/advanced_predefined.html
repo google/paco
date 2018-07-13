@@ -1,0 +1,18 @@
+<div class="padded advanced">
+  <div class="over">
+    <div layout="row" ng-if="group.groupType==='SYSTEM'"> <!-- EOD group -->
+      <div flex>
+           
+            <div>
+              <label>
+                <div class="no-ios_inline">
+                  <md-checkbox ng-model="experiment.recordPhoneDetails">
+                    Record phone details in the "Join" event</md-checkbox>
+                  <no-ios ng-if="experiment.recordPhoneDetails" class="align_tiptext">No iOS support for recording phone details in the "Join" event</no-ios>
+                </div>
+              </label>
+            </div>
+          </div>
+     </div>
+  </div><!--  padded source frame -->
+</div><!--  padded advanced -->

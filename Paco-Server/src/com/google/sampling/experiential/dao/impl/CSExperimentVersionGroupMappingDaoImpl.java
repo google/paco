@@ -649,7 +649,7 @@ public class CSExperimentVersionGroupMappingDaoImpl implements CSExperimentVersi
     evm.setExperimentId(experimentId);
     evm.setExperimentVersion(experimentVersion);
     ExperimentVersionGroupMapping matchingEVMInDB = allEVMRecords.get(groupName);
-    
+
     if (matchingEVMInDB == null && migrationFlag) {
       ensureEVMMissingGroupName(groupName, whatSet, allEVMRecords, matchingGroupType, evm);
     } else if (matchingEVMInDB != null) {

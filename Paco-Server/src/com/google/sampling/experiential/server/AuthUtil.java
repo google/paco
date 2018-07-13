@@ -55,6 +55,7 @@ public class AuthUtil {
         // uncomment the line below and put in the test acct. This is necessary because the dev appengine server
         // only returns example@example.com as the user!!
         return "bobevans999@gmail.com";
+//        return "pacotest100@gmail.com";
       } else {
         User currentUser = UserServiceFactory.getUserService().getCurrentUser();
         if (currentUser != null) {

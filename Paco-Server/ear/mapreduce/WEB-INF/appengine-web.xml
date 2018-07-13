@@ -21,12 +21,14 @@
   </automatic-scaling>
   <system-properties>
     <property name="java.util.logging.config.file" value="WEB-INF/logging.properties"/>
-    <property name="ae-cloudsql.database-url" value="AAA"/>
-    <property name="ae-cloudsql.database-username" value="BBB"/>
-    <property name="ae-cloudsql.database-password" value="CCC"/>
+    <property name="ae-cloudsql.database-url" value=""/>
+    <property name="ae-cloudsql.database-username" value=""/>
+    <property name="ae-cloudsql.database-password" value=""/>
     <property name="ae-connection-pool.maxconn" value="100"/>
-    <property name="ae-cloudsql.local-database-url" value="DDD"/>
-    <property name="ae-cloudsql.local-database-username" value="EEE"/>
-    <property name="ae-cloudsql.local-database-password" value="FFF"/>
+    <property name="ae-cloudsql.local-database-url" value="jdbc:mysql://localhost:3306/pacodb?requireSSL=true&amp;verifyServerCertificate=true&amp;useSSL=true&amp;noAccessToProcedureBodies=true&amp;characterEncoding=utf8"/>
+    <property name="ae-cloudsql.local-database-username" value="root"/>
+    <property name="ae-cloudsql.local-database-password" value="mira@2008"/>
+    <!-- <property name="cloudsql.url" value="${cloudsql.url}"/> -->
+    <property name="cloudsql.url.dev" value="jdbc:mysql://localhost:3306/pacodb?requireSSL=true&amp;verifyServerCertificate=true&amp;useSSL=true&amp;noAccessToProcedureBodies=true"/>
   </system-properties>
 </appengine-web-app>

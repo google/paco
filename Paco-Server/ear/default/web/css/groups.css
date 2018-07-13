@@ -35,7 +35,7 @@
 }
 
 .group .duration md-input-container {
-  padding: 0;
+  padding: 120;
 }
 
 .group .duration .date {
@@ -307,9 +307,23 @@ md-input-container .align_custom-message{
   min-height: 600px;
 }
 
-.instructions .message{
+.instructions .message {
   color: #9E9E9E;
   font-size: 12px;
+}
+
+.predefined-group .labelheader {
+  color: #9E9E9E;
+  font-size: 12px;
+  padding: 15px;
+  padding-bottom: 5px;
+}
+
+.predefined-group label{
+  color: black;
+  padding: 15px;
+  padding-top: 5px;
+  display:block;
 }
 
 .advanced select {

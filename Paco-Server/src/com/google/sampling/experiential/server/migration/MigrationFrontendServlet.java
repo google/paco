@@ -131,8 +131,7 @@ public class MigrationFrontendServlet extends HttpServlet {
     HttpURLConnection connection = null;
     InputStreamReader inputStreamReader = null;
     BufferedReader reader = null;
-    Map<String, String> test = Maps.newHashMap();
-    test.put("abc", "def");
+
     if (SystemProperty.environment.value() == SystemProperty.Environment.Value.Development) {
       scheme = "http";
     }

@@ -180,6 +180,7 @@ public class CopyExperimentFromDataStoreToCloudSqlJob implements MigrationJob {
         }
       }
 
+
 //      if (doAll || (cursor != null && cursor.equalsIgnoreCase("step9"))) {
 //        try {
 //          log.info("------------------------------------------------Step 9 Begin------------------------------------------------");
