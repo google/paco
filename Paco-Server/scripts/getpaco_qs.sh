@@ -6,6 +6,7 @@
 refresh_token=`cat ~/.qs_paco`
 
 export refresh_token=`sed -e 's/^"//' -e 's/"$//' <<< $refresh_token`
+echo "refresh_token = ${refresh_token}"
 
 # get a new access token from the refresh token
 export new_access_token_response=`curl https://www.googleapis.com/oauth2/v3/token \
@@ -14,10 +15,10 @@ export new_access_token_response=`curl https://www.googleapis.com/oauth2/v3/toke
      -d refresh_token=$refresh_token \
      -d grant_type=refresh_token`
 
-#echo "nat: $new_access_token_response"
-export access_token=`echo $new_access_token_response | grep 'access_token' | cut -d ":" -f 2 | rev | cut -c 2- | rev`
-#export access_token=`echo $new_access_token_response | grep 'access_token' | cut -d ":" -f 2 | cut -d "," -f 1 | tr -d '" '`
-#echo "parsed token: ${access_token}"
+echo "nat: $new_access_token_response"
+#export access_token=`echo $new_access_token_response | grep 'access_token' | cut -d ":" -f 2 | rev | cut -c 2- | rev`
+export access_token=`echo $new_access_token_response | grep 'access_token' | cut -d ":" -f 2 | cut -d "," -f 1 | tr -d '" '`
+echo "parsed token: ${access_token}"
 
 
 #echo "new_access_token: $access_token"

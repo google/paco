@@ -29,7 +29,7 @@
 	<classpathentry kind="lib" path="ear/default/WEB-INF/lib/sqlbuilder-2.1.6.jar"/>
 	<classpathentry kind="lib" path="ear/default/WEB-INF/lib/commons-dbcp-1.4.jar"/>
 	<classpathentry kind="lib" path="ear/default/WEB-INF/lib/commons-pool-1.5.4.jar"/>
-	<classpathentry kind="con" path="com.google.appengine.eclipse.core.GAE_CONTAINER"/>
+	<classpathentry kind="con" path="com.google.appengine.eclipse.core.GAE_CONTAINER/appengine-java-sdk-1.9.64"/>
 	<classpathentry kind="lib" path="ear/default/WEB-INF/lib/appengine-gcs-client-0.5.jar"/>
 	<classpathentry kind="output" path="ear/default/WEB-INF/classes"/>
 </classpath>

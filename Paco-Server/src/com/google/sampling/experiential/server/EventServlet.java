@@ -25,10 +25,8 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.SocketTimeoutException;
 import java.net.URL;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.logging.Logger;
 
 import javax.servlet.http.HttpServlet;
@@ -101,10 +99,11 @@ public class EventServlet extends HttpServlet {
       }
       boolean doJsonOnBackend = req.getParameter("backend") != null;
 
-      if (req.getParameter("mapping") != null) {
-        //only plain user id, so there is no need to check paco protocol
-        dumpUserIdMapping(req, resp, limit, cursor);
-      } else if (req.getParameter("json") != null) {
+//      if (req.getParameter("mapping") != null) {
+//        //only plain user id, so there is no need to check paco protocol
+//        dumpUserIdMapping(req, resp, limit, cursor);
+//      } else
+      if (req.getParameter("json") != null) {
         if (!doJsonOnBackend) {
           resp.setContentType("application/json;charset=UTF-8");
           dumpEventsJson(resp, req, anon, includePhotos, limit, cursor, cmdline, pacoProtocol);
@@ -122,28 +121,6 @@ public class EventServlet extends HttpServlet {
       }
     }
   }
-
-  // TODO replace this with a call to the joined table to get all the unique users for an experiment.
-  private void dumpUserIdMapping(HttpServletRequest req, HttpServletResponse resp, int limit, String cursor) throws IOException {
-    List<com.google.sampling.experiential.server.Query> query = new QueryParser().parse(stripQuotes(HttpUtil.getParam(req, "q")));
-    EventQueryResultPair eventQueryPair = getEventsWithQuery(req, query, limit, cursor);
-    List<Event> events = eventQueryPair.getEvents();
-    EventRetriever.sortEvents(events);
-    Set<String> whos = new HashSet<String>();
-    for (Event event : events) {
-      whos.add(event.getWho());
-    }
-    StringBuilder mappingOutput = new StringBuilder();
-    for (String who : whos) {
-      mappingOutput.append(who);
-      mappingOutput.append(",");
-      mappingOutput.append(Event.getAnonymousId(who));
-      mappingOutput.append("\n");
-    }
-    resp.setContentType("text/csv;charset=UTF-8");
-    resp.getWriter().println(mappingOutput.toString());
-  }
-
 
   private void dumpEventsJson(HttpServletResponse resp, HttpServletRequest req, boolean anon, boolean includePhotos, int limit, String cursor, boolean cmdline, Float protocolVersion) throws IOException {
     List<com.google.sampling.experiential.server.Query> query = new QueryParser().parse(stripQuotes(HttpUtil.getParam(req, "q")));
@@ -196,7 +173,7 @@ public class EventServlet extends HttpServlet {
             }
           }
         }
-      
+
         eventDAOs.add(new EventDAO(userId,
                                    new DateTime(event.getWhen()),
                                    event.getExperimentName(),
@@ -361,7 +338,7 @@ public class EventServlet extends HttpServlet {
       PacoModule backendModule = new PacoModule(REPORT_WORKER, req.getServerName());
       String backendAddress = backendModule.getAddress();
       BufferedReader reader = null;
-      
+
       try {
         reader = sendToBackend(timeZoneForClient, req, backendAddress, reportFormat, cursor, limit, pacoProtocol);
       } catch (SocketTimeoutException se) {
