@@ -158,7 +158,8 @@
     <servlet-name>PhoneSessionServlet</servlet-name>
     <url-pattern>/phoneSessions</url-pattern>
   </servlet-mapping>
-  
+
+<!--  
   <servlet>
     <display-name>Remote API Servlet</display-name>
     <servlet-name>RemoteApiServlet</servlet-name>
@@ -169,7 +170,16 @@
     <servlet-name>RemoteApiServlet</servlet-name>
     <url-pattern>/remote_api</url-pattern>
   </servlet-mapping>
-  
+  +   -->
+   <servlet>
+     <servlet-name>inviteServlet</servlet-name>
+     <servlet-class>com.google.sampling.experiential.server.invitations.InvitationServlet</servlet-class>
+   </servlet>
+   <servlet-mapping>
+     <servlet-name>inviteServlet</servlet-name>
+     <url-pattern>/invite</url-pattern>
+   </servlet-mapping>
+ 
   <!--
     <servlet>
     <servlet-name>PipelineServlet</servlet-name>
