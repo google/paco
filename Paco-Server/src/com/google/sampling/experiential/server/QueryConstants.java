@@ -128,8 +128,9 @@ public enum QueryConstants {
           + " join experiment_detail e on evm.experiment_detail_id = e.experiment_detail_id "
           + " join experiment_user eu on evm.experiment_id = eu.experiment_id "
           + " join input_collection ic on ic.experiment_ds_id = evm.experiment_id and  evm.input_collection_id=ic.input_collection_id"),
-  DELETE_ALL_OUTPUTS("DELETE outputs FROM events LEFT JOIN outputs ON events._id = outputs.event_id WHERE events.experiment_id=?"),
-  DELETE_ALL_EVENTS("DELETE events FROM events WHERE events.experiment_id=?"),
+  DELETE_ALL_OUTPUTS("DELETE outputs FROM events LEFT JOIN outputs ON events._id = outputs.event_id WHERE events._id in (?)"),
+  DELETE_ALL_EVENTS("DELETE events FROM events WHERE events._id in (?)"),
+  GET_EVENT_IDS_ORDERED_BY_ID("select _id from events where experiment_id=? order by _id asc limit 250"),
   UPDATE_ALL_EVENTS("update events e join outputs o on e._id=o.event_id set experiment_version_group_mapping_id =1 where o.text like '%-DUP-%' and e.experiment_id=?"),
   INSERT_TEMP_EXPERIMENT_ID_VERSION_GROUP_NAME ("insert into temp_experiment_id_version_group_name(experiment_id, experiment_version, group_name)  select distinct experiment_id, experiment_version, group_name from events where experiment_id is not null"),
   GET_EXPERIMENTS_WITH_HUGE_INPUTSET("select experiment_ds_id, input_collection_id, count(*) from input_collection group by experiment_ds_id, input_collection_id " + 

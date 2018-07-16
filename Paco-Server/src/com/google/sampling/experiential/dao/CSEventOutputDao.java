@@ -16,12 +16,11 @@ public interface CSEventOutputDao {
 
   boolean insertEventAndOutputs(Event event) throws SQLException, ParseException, Exception;
   
-  boolean deleteAllEventsAndOutputsData(Long experiment_id, Integer whoAnonId) throws SQLException;
+  boolean deleteAllEventsAndOutputsData(Long experimentId) throws SQLException;
   
   void resetDupCounterForVariableNames(Long exptId) throws SQLException;
 
   List<EventDAO> getEvents(String query, boolean withOutputs, Boolean withOldColumnNames) throws SQLException,
                                                                                           ParseException;
   List<Long> getAllInputIdsForEVGMAndUser(Long evgmId, Integer anonWhoId) throws SQLException;
-
 }

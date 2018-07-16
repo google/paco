@@ -211,12 +211,12 @@
   </target>
 
   <target name="symlinks_for_reportworker">
-    <symlink link="${basedir}/ear/reportworker/WEB-INF/lib" resource="${basedir}/ear/default/WEB-INF/lib" failonerror="false" overwrite="true"/>
-    <symlink link="${basedir}/ear/reportworker/WEB-INF/classes" resource="${basedir}/ear/default/WEB-INF/classes" failonerror="false" overwrite="true"/>
-    <symlink link="${basedir}/ear/migration/WEB-INF/lib" resource="${basedir}/ear/default/WEB-INF/lib" failonerror="false" overwrite="true"/>
-    <symlink link="${basedir}/ear/migration/WEB-INF/classes" resource="${basedir}/ear/default/WEB-INF/classes" failonerror="false" overwrite="true"/>
-    <symlink link="${basedir}/ear/mapreduce/WEB-INF/lib" resource="${basedir}/ear/default/WEB-INF/lib" failonerror="false" overwrite="true"/>
-    <symlink link="${basedir}/ear/mapreduce/WEB-INF/classes" resource="${basedir}/ear/default/WEB-INF/classes" failonerror="false" overwrite="true"/>
+    <symlink link="${basedir}/ear/reportworker/WEB-INF/lib" resource="${basedir}/ear/default/WEB-INF/lib" failonerror="true" overwrite="true"/>
+    <symlink link="${basedir}/ear/reportworker/WEB-INF/classes" resource="${basedir}/ear/default/WEB-INF/classes" failonerror="true" overwrite="true"/>
+    <symlink link="${basedir}/ear/migration/WEB-INF/lib" resource="${basedir}/ear/default/WEB-INF/lib" failonerror="true" overwrite="true"/>
+    <symlink link="${basedir}/ear/migration/WEB-INF/classes" resource="${basedir}/ear/default/WEB-INF/classes" failonerror="true" overwrite="true"/>
+    <symlink link="${basedir}/ear/mapreduce/WEB-INF/lib" resource="${basedir}/ear/default/WEB-INF/lib" failonerror="true" overwrite="true"/>
+    <symlink link="${basedir}/ear/mapreduce/WEB-INF/classes" resource="${basedir}/ear/default/WEB-INF/classes" failonerror="true" overwrite="true"/>
   </target>
   
   <target name="devmode" depends="javac" description="Run development mode">
@@ -310,6 +310,7 @@ Test targets suppressed because -junit argument was not specified when running w
   </target>
   
   <target name="prep-and-deploy">
+    <antcall target="symlinks_for_reportworker"/>
     <antcall target="prep-for-deploy"/>
     <antcall target="deploy"/>
   </target>

@@ -654,7 +654,7 @@ public class CopyExperimentMigrationDaoImpl implements CopyExperimentMigrationDa
     // staging 2
     expIdsToBeDeleted.add(5118119076954112L);
     for (Long eachExperimentId : expIdsToBeDeleted) { 
-      eventOutputDaoImpl.deleteAllEventsAndOutputsData(eachExperimentId, null);
+      eventOutputDaoImpl.deleteAllEventsAndOutputsData(eachExperimentId);
     }
     return true;
   }
@@ -1260,18 +1260,30 @@ public class CopyExperimentMigrationDaoImpl implements CopyExperimentMigrationDa
     CSFailedEventDao failedDaoImpl = new CSFailedEventDaoImpl();
     CSTempExperimentIdVersionGroupNameDao expIdDaoImpl = new CSTempExperimentIdVersionGroupNameDaoImpl();
     List<Long> expIdsToBeDeleted = expIdDaoImpl.getExperimentIdsToBeDeleted();
+    List<Long> expIdsCurrentlyInDataStore = null;
     for (Long experimentId : expIdsToBeDeleted) {
       // delete all outputs and events for these experiments
-      daoImpl.deleteAllEventsAndOutputsData(experimentId, null);
-      // not an actual failed event. But, just to track that we have deleted all events and outputs of this experiment, we update this table
-      failedDaoImpl.insertFailedEvent("expId: " + experimentId , "Did not find any experiment definition. ", "Did not find any experiment definition.So deleted all events and outputs");
-      log.info("expId: " + experimentId + "deleted");
+      expIdsCurrentlyInDataStore = getExperimentIdLst(readFromDataStore());
+      if (!expIdsCurrentlyInDataStore.contains(experimentId)) {
+        daoImpl.deleteAllEventsAndOutputsData(experimentId);
+        // not an actual failed event. But, just to track that we have deleted all events and outputs of this experiment, we update this table
+        failedDaoImpl.insertFailedEvent("expId: " + experimentId , "Did not find any experiment definition. ", "Did not find any experiment definition.So deleted all events and outputs");
+        log.info("expId: " + experimentId + "deleted");
+      }
     }
     // delete these experiments from expid version table as well
     if (expIdsToBeDeleted.size() > 0 ) { 
       expIdDaoImpl.deleteExperiments(expIdsToBeDeleted);
     }
     return false;
+  }
+  
+  private List<Long> getExperimentIdLst(List<ExperimentDAO> expDaoList) {
+    List<Long> allExpIds = Lists.newArrayList();
+    for (ExperimentDAO expDao : expDaoList) { 
+      allExpIds.add(expDao.getId());
+    }
+    return allExpIds;
   }
 
   @Override

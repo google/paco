@@ -462,37 +462,84 @@ public class CSEventOutputDaoImpl implements CSEventOutputDao {
     return event;
   }
 
-  @Override
-  public boolean deleteAllEventsAndOutputsData(Long experimentId, Integer whoAnonId) throws SQLException {
+  private String questionMark(List<Long> expIds) {
+    StringBuffer expIdsList = new StringBuffer();
+    for ( Long expId : expIds) { 
+      expIdsList.append("?,");
+    }
+    if (expIds.size() > 0) {
+      String chk = expIdsList.substring(0,expIdsList.length()-1);
+      return chk;
+    }
+    return "0";
+  }
+  
+  private List<Long> getEventIdsForExperiment(Long experimentId) throws SQLException {
     Connection conn = null;
-    PreparedStatement statementDeleteEvents = null;
-    PreparedStatement statementDeleteOutputs = null;
-    
-    String deleteQuery1 = QueryConstants.DELETE_ALL_OUTPUTS.toString() ;
-    String deleteQuery2 = QueryConstants.DELETE_ALL_EVENTS.toString() ;
+    PreparedStatement statementGetEventIds = null;
+    ResultSet rsGetEventIds = null;
+    List<Long> eventIds = Lists.newArrayList();
+    String getEventIds = QueryConstants.GET_EVENT_IDS_ORDERED_BY_ID.toString() ;
     
     try {
       conn = CloudSQLConnectionManager.getInstance().getConnection();
-      if ( whoAnonId != null) {
-        deleteQuery1 = deleteQuery1 + " and who_bk=?";
-        deleteQuery2 = deleteQuery2 + " and who_bk=?";
+      
+      statementGetEventIds = conn.prepareStatement(getEventIds);
+      statementGetEventIds.setLong(1, experimentId);
+      
+      rsGetEventIds = statementGetEventIds.executeQuery();
+      while (rsGetEventIds.next()) {
+        eventIds.add(rsGetEventIds.getLong(1));
       }
+      log.info("Selected " + eventIds.size() +  " event ids  for expt id " + experimentId );
+      
+      return eventIds;
+    } finally {
+      try {
+        if (rsGetEventIds != null) {
+          rsGetEventIds.close();
+        }
+        if (statementGetEventIds != null) {
+          statementGetEventIds.close();
+        }
+        if (conn != null) {
+          conn.close();
+        }
+      } catch (SQLException ex1) {
+        log.warning(ErrorMessages.CLOSING_RESOURCE_EXCEPTION.getDescription()+ ex1);
+      }
+    }
+  }  
+  
+  private boolean deleteEventsAndOutputs(List<Long> eventIds) throws SQLException {
+    Connection conn = null;
+    PreparedStatement statementDeleteEvents = null;
+    PreparedStatement statementDeleteOutputs = null;
+    int i = 1;
+    String questionMarkCharacters = null;
+    String deleteQuery1 = QueryConstants.DELETE_ALL_OUTPUTS.toString() ;
+    String deleteQuery2 = QueryConstants.DELETE_ALL_EVENTS.toString() ;
+    try {
+      conn = CloudSQLConnectionManager.getInstance().getConnection();
+      questionMarkCharacters = questionMark(eventIds);
+      deleteQuery1 = deleteQuery1.replaceFirst("\\?", questionMarkCharacters);
       statementDeleteOutputs = conn.prepareStatement(deleteQuery1);
-      statementDeleteOutputs.setLong(1, experimentId);
-      if (whoAnonId != null) {
-        statementDeleteOutputs.setInt(2, whoAnonId);
+      deleteQuery2 = deleteQuery2.replaceAll("\\?",  questionMarkCharacters);
+      statementDeleteEvents = conn.prepareStatement(deleteQuery2);
+      for (Long eventId : eventIds) {
+        statementDeleteOutputs.setLong(i++, eventId);
       }
       statementDeleteOutputs.execute();
-      log.info("Deleted " + statementDeleteOutputs.getUpdateCount() +  " output records  for expt id " + experimentId );
       
-      statementDeleteEvents = conn.prepareStatement(deleteQuery2);
-      statementDeleteEvents.setLong(1, experimentId);
-      if (whoAnonId != null) {
-        statementDeleteEvents.setInt(2, whoAnonId);
+      log.info("Deleted " + statementDeleteOutputs.getUpdateCount() +  " output records" );
+      i = 1;
+      
+      for (Long eventId : eventIds) {
+        statementDeleteEvents.setLong(i++, eventId);
       }
+     
       statementDeleteEvents.execute();
-      log.info("Deleted " + statementDeleteEvents.getUpdateCount() +  " event records  for expt id " + experimentId );
-      
+      log.info("Deleted " + statementDeleteEvents.getUpdateCount() +  " event records" );
       return true;
     } finally {
       try {
@@ -508,7 +555,26 @@ public class CSEventOutputDaoImpl implements CSEventOutputDao {
       } catch (SQLException ex1) {
         log.warning(ErrorMessages.CLOSING_RESOURCE_EXCEPTION.getDescription()+ ex1);
       }
+
     }
+      
+  }
+
+  
+  @Override
+  public boolean deleteAllEventsAndOutputsData(Long experimentId) throws SQLException {
+    
+    List<Long> eventIds = getEventIdsForExperiment(experimentId);
+    
+    while ( true ) {
+      deleteEventsAndOutputs(eventIds);
+      eventIds = getEventIdsForExperiment(experimentId);
+      if (eventIds.size() == 0) {
+        break;
+      }
+    } 
+    return true;
+ 
   }  
 
   @Override
