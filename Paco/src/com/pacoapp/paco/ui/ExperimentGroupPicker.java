@@ -49,6 +49,16 @@ public class ExperimentGroupPicker extends ActionBarActivity implements Experime
   private int shouldRender;
   private ViewGroup mainLayout;
   private ListView list;
+  
+  private List<ExperimentGroup> getOnlySurveyGroups(List<ExperimentGroup> groups) {
+    List<ExperimentGroup> surveyGroups = Lists.newArrayList();
+    for (ExperimentGroup eg : groups) {
+      if (GroupTypeEnum.SURVEY.equals(eg.getGroupType())) {
+        surveyGroups.add(eg);
+      }
+    }
+    return surveyGroups;
+  }
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -75,9 +85,11 @@ public class ExperimentGroupPicker extends ActionBarActivity implements Experime
       choosableGroupNames = Lists.newArrayList();
 
       ExperimentDAO experimentDAO = experiment.getExperimentDAO();
+      
       List<ExperimentGroup> groups = experimentDAO.getGroups();
+      List<ExperimentGroup> surveyGroups = getOnlySurveyGroups(groups);
       choosableGroups = Lists.newArrayList();
-      for (ExperimentGroup experimentGroup : groups) {
+      for (ExperimentGroup experimentGroup : surveyGroups) {
         if (!experimentGroup.getFixedDuration() || (!ActionScheduleGenerator.isOver(new DateTime(), experimentDAO))) {
           if (shouldRender == RENDER_NEXT && experimentGroup.getGroupType().equals(GroupTypeEnum.SURVEY)) {
             choosableGroups.add(experimentGroup);

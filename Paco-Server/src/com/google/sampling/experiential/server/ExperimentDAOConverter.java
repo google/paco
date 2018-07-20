@@ -264,6 +264,15 @@ public class ExperimentDAOConverter {
           ensureNotificationGroup(experimentGroup, predefinedGroups);
           experimentGroup.setGroupType(GroupTypeEnum.SURVEY);
         } else {
+          if (GroupTypeEnum.APPUSAGE_ANDROID.equals(experimentGroup.getGroupType())) {
+            experimentGroup.setLogActions(true);
+          } else if (GroupTypeEnum.PHONESTATUS.equals(experimentGroup.getGroupType())) { 
+            experimentGroup.setLogShutdown(true);
+          } else if (GroupTypeEnum.NOTIFICATION.equals(experimentGroup.getGroupType())) {
+            experimentGroup.setLogNotificationEvents(true);
+          } else if (GroupTypeEnum.ACCESSIBILITY.equals(experimentGroup.getGroupType())) {
+            experimentGroup.setAccessibilityListen(true);
+          }
           log.info("not trying for expt" + eachExperiment.getId() + "--" + experimentGroup.getName());
         }
       }

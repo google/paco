@@ -20,7 +20,9 @@ import com.pacoapp.paco.shared.comm.ExperimentEditOutcome;
 import com.pacoapp.paco.shared.comm.Outcome;
 import com.pacoapp.paco.shared.model2.ExperimentDAO;
 import com.pacoapp.paco.shared.model2.ExperimentGroup;
+
 import com.pacoapp.paco.shared.model2.GroupTypeEnum;
+
 import com.pacoapp.paco.shared.model2.JsonConverter;
 import com.pacoapp.paco.shared.model2.ValidationMessage;
 import com.pacoapp.paco.shared.util.Constants;
@@ -124,6 +126,7 @@ public class ExperimentJsonUploadProcessor {
     if (existingExperiment == null) {
       experimentDAO.setId(null);
     }
+
     // TODO REMOVE BEGIN TO BE REMOVED WHEN FRONT END CHANGES ARE MADE. temp code to split into grps
     ExperimentDAOConverter daoConverter = new ExperimentDAOConverter();
     
@@ -177,5 +180,4 @@ public class ExperimentJsonUploadProcessor {
     }
     return false;
   }
-
 }

@@ -30,6 +30,7 @@ import android.os.Parcelable;
 
 import com.pacoapp.paco.shared.model2.ExperimentDAO;
 import com.pacoapp.paco.shared.model2.ExperimentGroup;
+import com.pacoapp.paco.shared.model2.GroupTypeEnum;
 import com.pacoapp.paco.shared.util.TimeUtil;
 
 public class Experiment implements Parcelable {
@@ -157,8 +158,12 @@ public class Experiment implements Parcelable {
     }
     List<ExperimentGroup> groups = experimentDelegate.getGroups();
     for (ExperimentGroup experimentGroup : groups) {
-      if (isRunning(now, experimentGroup)) {
-        return true;
+      if (GroupTypeEnum.SYSTEM.equals(experimentGroup.getGroupType())) {
+        continue;
+      } else {
+        if (isRunning(now, experimentGroup)) {
+          return true;
+        }
       }
     }
     return false;

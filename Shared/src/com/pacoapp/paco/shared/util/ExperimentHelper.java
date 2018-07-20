@@ -11,6 +11,7 @@ import com.google.common.collect.Lists;
 import com.pacoapp.paco.shared.model2.ActionTrigger;
 import com.pacoapp.paco.shared.model2.ExperimentDAO;
 import com.pacoapp.paco.shared.model2.ExperimentGroup;
+import com.pacoapp.paco.shared.model2.GroupTypeEnum;
 import com.pacoapp.paco.shared.model2.Input2;
 import com.pacoapp.paco.shared.model2.InterruptCue;
 import com.pacoapp.paco.shared.model2.InterruptTrigger;
@@ -75,14 +76,18 @@ public class ExperimentHelper {
   public static boolean hasUserEditableSchedule(ExperimentDAO experiment) {
     List<ExperimentGroup> experimentGroups = experiment.getGroups();
     for (ExperimentGroup experimentGroup : experimentGroups) {
-      List<ActionTrigger> triggers = experimentGroup.getActionTriggers();
-      for (ActionTrigger actionTrigger : triggers) {
-        if (actionTrigger instanceof ScheduleTrigger) {
-          ScheduleTrigger scheduleTrigger = (ScheduleTrigger)actionTrigger;
-          List<Schedule> schedules = scheduleTrigger.getSchedules();
-          for (Schedule schedule : schedules) {
-            if (schedule.getUserEditable()) {
-              return true;
+      if (GroupTypeEnum.SYSTEM.equals(experimentGroup.getGroupType())) {
+        continue;
+      } else {
+        List<ActionTrigger> triggers = experimentGroup.getActionTriggers();
+        for (ActionTrigger actionTrigger : triggers) {
+          if (actionTrigger instanceof ScheduleTrigger) {
+            ScheduleTrigger scheduleTrigger = (ScheduleTrigger)actionTrigger;
+            List<Schedule> schedules = scheduleTrigger.getSchedules();
+            for (Schedule schedule : schedules) {
+              if (schedule.getUserEditable()) {
+                return true;
+              }
             }
           }
         }
@@ -94,7 +99,7 @@ public class ExperimentHelper {
   public static boolean hasAppUsageTrigger(ExperimentDAO experiment) {
     List<ExperimentGroup> groups = experiment.getGroups();
     for (ExperimentGroup experimentGroup : groups) {
-      if (!ActionScheduleGenerator.isExperimentGroupRunning(experimentGroup)) {
+      if ((GroupTypeEnum.SYSTEM.equals(experimentGroup.getGroupType())) || (!ActionScheduleGenerator.isExperimentGroupRunning(experimentGroup))) {
         continue;
       } else {
         List<ActionTrigger> triggers = experimentGroup.getActionTriggers();
@@ -119,7 +124,7 @@ public class ExperimentHelper {
   public static boolean hasAppClosedTrigger(ExperimentDAO experiment) {
     List<ExperimentGroup> groups = experiment.getGroups();
     for (ExperimentGroup experimentGroup : groups) {
-      if (!ActionScheduleGenerator.isExperimentGroupRunning(experimentGroup)) {
+      if (GroupTypeEnum.SYSTEM.equals(experimentGroup.getGroupType()) || !ActionScheduleGenerator.isExperimentGroupRunning(experimentGroup)) {
         continue;
       } else {
         List<ActionTrigger> triggers = experimentGroup.getActionTriggers();
@@ -143,8 +148,12 @@ public class ExperimentHelper {
   public static boolean isLogPhoneOnOff(ExperimentDAO experiment) {
     List<ExperimentGroup> groups = experiment.getGroups();
     for (ExperimentGroup experimentGroup : groups) {
-      if (ActionScheduleGenerator.isExperimentGroupRunning(experimentGroup) && experimentGroup.getLogShutdown()) {
-        return true;
+      if (GroupTypeEnum.SYSTEM.equals(experimentGroup.getGroupType())) {
+        continue;
+      } else {
+        if (ActionScheduleGenerator.isExperimentGroupRunning(experimentGroup) && experimentGroup.getLogShutdown()) {
+          return true;
+        }
       }
     }
     return false;
@@ -154,8 +163,12 @@ public class ExperimentHelper {
   public static boolean isLogActions(ExperimentDAO experiment) {
     List<ExperimentGroup> groups = experiment.getGroups();
     for (ExperimentGroup experimentGroup : groups) {
-      if (ActionScheduleGenerator.isExperimentGroupRunning(experimentGroup) && experimentGroup.getLogActions()) {
-        return true;
+      if (GroupTypeEnum.SYSTEM.equals(experimentGroup.getGroupType())) {
+        continue;
+      } else {
+        if (ActionScheduleGenerator.isExperimentGroupRunning(experimentGroup) && experimentGroup.getLogActions()) {
+          return true;
+        }
       }
     }
     return false;
@@ -201,7 +214,7 @@ public class ExperimentHelper {
     List<Trio<ExperimentGroup, InterruptTrigger, InterruptCue>> groupsThatTrigger = new ArrayList();
     List<ExperimentGroup> groups = experiment.getGroups();
     for (ExperimentGroup experimentGroup : groups) {
-      if (!ActionScheduleGenerator.isExperimentGroupRunning(experimentGroup)) {
+      if (GroupTypeEnum.SYSTEM.equals(experimentGroup.getGroupType()) || !ActionScheduleGenerator.isExperimentGroupRunning(experimentGroup)) {
         continue;
       }
 
@@ -307,8 +320,12 @@ public class ExperimentHelper {
   public static boolean isAnyGroupOngoingDuration(ExperimentDAO experiment) {
     List<ExperimentGroup> groups = experiment.getGroups();
     for (ExperimentGroup experimentGroup : groups) {
-      if (!experimentGroup.getFixedDuration()) {
-        return true;
+      if (GroupTypeEnum.SYSTEM.equals(experimentGroup.getGroupType()) ) {
+        continue;
+      } else {
+        if (!experimentGroup.getFixedDuration()) {
+          return true;
+        }
       }
     }
     return false;
@@ -339,8 +356,12 @@ public class ExperimentHelper {
     List<ExperimentGroup> listeningExperimentGroups = new ArrayList();
     List<ExperimentGroup> experimentGroups = experiment.getGroups();
     for (ExperimentGroup experimentGroup : experimentGroups) {
-      if (ActionScheduleGenerator.isExperimentGroupRunning(experimentGroup) && (experimentGroup.getAccessibilityListen())) {
-        listeningExperimentGroups.add(experimentGroup);
+      if (GroupTypeEnum.SYSTEM.equals(experimentGroup.getGroupType())) {
+        continue;
+      } else {
+        if (ActionScheduleGenerator.isExperimentGroupRunning(experimentGroup) && ((experimentGroup.getAccessibilityListen()) || GroupTypeEnum.ACCESSIBILITY.equals(experimentGroup.getGroupType()))) {
+          listeningExperimentGroups.add(experimentGroup);
+        }
       }
     }
     return listeningExperimentGroups;
@@ -374,7 +395,7 @@ public class ExperimentHelper {
 
     List<ExperimentGroup> groups = experiment.getGroups();
     for (ExperimentGroup experimentGroup : groups) {
-      if (!ActionScheduleGenerator.isExperimentGroupRunning(experimentGroup)) {
+      if (GroupTypeEnum.SYSTEM.equals(experimentGroup.getGroupType()) || !ActionScheduleGenerator.isExperimentGroupRunning(experimentGroup)) {
         continue;
       } else {
         List<ActionTrigger> triggers = experimentGroup.getActionTriggers();
@@ -430,8 +451,12 @@ public class ExperimentHelper {
     List<ExperimentGroup> listeningExperimentGroups = new ArrayList();
     List<ExperimentGroup> experimentGroups = experiment.getGroups();
     for (ExperimentGroup experimentGroup : experimentGroups) {
-      if (ActionScheduleGenerator.isExperimentGroupRunning(experimentGroup) && experimentGroup.getLogNotificationEvents()) {
-        listeningExperimentGroups.add(experimentGroup);
+      if (GroupTypeEnum.SYSTEM.equals(experimentGroup.getGroupType())) {
+        continue;
+      } else {
+        if (ActionScheduleGenerator.isExperimentGroupRunning(experimentGroup) && (experimentGroup.getLogNotificationEvents() || GroupTypeEnum.NOTIFICATION.equals(experimentGroup.getGroupType()))) {
+          listeningExperimentGroups.add(experimentGroup);
+        }
       }
     }
     return listeningExperimentGroups;
@@ -442,8 +467,12 @@ public class ExperimentHelper {
     List<ExperimentGroup> matchingGroups = Lists.newArrayList();
     List<ExperimentGroup> groups = experiment.getGroups();
     for (ExperimentGroup experimentGroup : groups) {
-      if (ActionScheduleGenerator.isExperimentGroupRunning(experimentGroup) && experimentGroup.getLogActions() != null && experimentGroup.getLogActions()) {
-        matchingGroups.add(experimentGroup);
+      if (GroupTypeEnum.SYSTEM.equals(experimentGroup.getGroupType())) {
+        continue;
+      } else {
+        if (ActionScheduleGenerator.isExperimentGroupRunning(experimentGroup) && ((experimentGroup.getLogActions() != null && experimentGroup.getLogActions()) || ( GroupTypeEnum.APPUSAGE_ANDROID.equals(experimentGroup.getGroupType())))) {
+          matchingGroups.add(experimentGroup);
+        }
       }
     }
     return matchingGroups;
