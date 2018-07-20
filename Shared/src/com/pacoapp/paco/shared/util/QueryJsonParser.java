@@ -65,7 +65,7 @@ public class QueryJsonParser {
           projectionColumns = new String[selectAr.length()];
           sqlBldr.fullEventAndOutputs(false);
           for (int j = 0; j < selectAr.length(); j++) {
-            projectionColumns[j] = selectAr.getString(j);
+            projectionColumns[j] = selectAr.getString(j).trim();
             if (Constants.STAR.equals(projectionColumns[j])) {
               sqlBldr.fullEventAndOutputs(true);
             }

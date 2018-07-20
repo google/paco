@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
@@ -378,11 +379,13 @@ public class JsonConverter {
   public static boolean isExperimentBackwardCompatible(ExperimentDAOCore experimentDAOCore) {
     if (experimentDAOCore instanceof ExperimentDAO) {
       ExperimentDAO experimentDAO = (ExperimentDAO) experimentDAOCore;
-      if (experimentDAO.getGroups().size() != 1) {
+      List<ExperimentGroup> groups = experimentDAO.getGroups();
+      List<ExperimentGroup> nonSystemGroups = getNonSystemGroups(groups);
+      if (nonSystemGroups.size() != 1) {
         log.info("group size != 1");
         return false;
       }
-      ExperimentGroup group = experimentDAO.getGroups().get(0);
+      ExperimentGroup group = nonSystemGroups.get(0);
       if (group.getCustomRendering()) {
         return false;
       }
@@ -394,7 +397,8 @@ public class JsonConverter {
       if (actionTriggers.size() == 1) {
         ActionTrigger at = actionTriggers.get(0);
         List<PacoAction> actions = at.getActions();
-        if (actions.size() != 1 || actions.get(0).getActionCode() != PacoAction.NOTIFICATION_TO_PARTICIPATE_ACTION_CODE) {
+        if (actions.size() != 1
+            || actions.get(0).getActionCode() != PacoAction.NOTIFICATION_TO_PARTICIPATE_ACTION_CODE) {
           log.info("actions size > 1 or action != notification");
           return false;
         }
@@ -423,6 +427,16 @@ public class JsonConverter {
       }
     }
     return true;
+  }
+
+  private static List<ExperimentGroup> getNonSystemGroups(List<ExperimentGroup> groups) {
+    List<ExperimentGroup> nonSystemGroups = Lists.newArrayList();
+    for (ExperimentGroup experimentGroup : groups) {
+      if (!experimentGroup.getGroupType().equals(GroupTypeEnum.SYSTEM)) {
+        nonSystemGroups.add(experimentGroup);
+      }
+    }
+    return nonSystemGroups;
   }
 
   private static Map<String, Object> buildV4ProtocolJson(List<? extends ExperimentDAOCore> experiments, Integer limit,

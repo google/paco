@@ -173,10 +173,8 @@ pacoApp.controller('VizCtrl', ['$scope', '$element', '$compile', 'experimentsViz
 
     $scope.experiment.groups.forEach(function (group) {
       $scope.groups.push(group.name);
-
       group.inputs.forEach(function (input) {
         experimentDefinedInputs.push(input.name);
-
         // add variables for existing code. TODO remove these extras
         input.id = group.name + ":" + input.name;
         input.group =  group.name;
