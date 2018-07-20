@@ -1078,6 +1078,7 @@ public class CSExperimentVersionGroupMappingDaoImpl implements CSExperimentVersi
 
   @Override
   public void ensureCorrectGroupName(Event eventDao) throws Exception {
+    log.info("gn entering" + eventDao.getExperimentGroupName());
     String featureName = null;
     CSGroupTypeInputMappingDao inputMappingDao = new CSGroupTypeInputMappingDaoImpl();
     Map<String, List<String>>inputMap = inputMappingDao.getAllPredefinedFeatureVariableNames();
@@ -1088,6 +1089,7 @@ public class CSExperimentVersionGroupMappingDaoImpl implements CSExperimentVersi
     // for each predefined feature
     while (predefinedInputIterator.hasNext()) {
       featureName = predefinedInputIterator.next();
+      log.info("chking for feature : "+ featureName);
       if (featureName.equals(GroupTypeEnum.NOTIFICATION.name())) { 
         continue;
       }
@@ -1095,6 +1097,7 @@ public class CSExperimentVersionGroupMappingDaoImpl implements CSExperimentVersi
       
       for (String eachFeatureVariableName : featuresInputVariableNames) {
         if (inputsInEvent.containsKey(eachFeatureVariableName)) {
+          log.info("group name changing from " + eventDao.getExperimentGroupName() + " -to- " + featureName);
           eventDao.setExperimentGroupName(featureName);
           groupNameChanged = true;
           break;
@@ -1107,5 +1110,6 @@ public class CSExperimentVersionGroupMappingDaoImpl implements CSExperimentVersi
     if ( eventDao.getExperimentGroupName() == null) { 
       eventDao.setExperimentGroupName(Constants.UNKNOWN);
     }
+    log.info("gn exiting" + eventDao.getExperimentGroupName());
   }
 }

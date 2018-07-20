@@ -385,7 +385,7 @@ pacoApp.service('config', function() {
 
   this.editTabs = [
     'basics',
-    'groups',
+    'data collectors',
     'admin',
     'source',
     'preview'
@@ -535,7 +535,8 @@ pacoApp.service('template', function() {
 
   this.group = {
     actionTriggers: [],
-    name: 'New Group',
+    name: 'New Survey',
+    groupType: 'SURVEY',
     inputs: [],
     feedbackType: 0,
     feedback: {
@@ -551,7 +552,7 @@ pacoApp.service('template', function() {
     creator: '',
     contactEmail: '',
     extraDataCollectionDeclarations: [],
-    groups: [this.group],
+    groups: [],
     postInstallInstructions: '<b>You have successfully joined the experiment!</b><br/><br/>\nNo need to do anything else for now.<br/><br/>\nPaco will send you a notification when it is time to participate.<br/><br/>\nBe sure your ringer/buzzer is on so you will hear the notification.',
     published: false,
     publishedUsers: [],
@@ -620,7 +621,45 @@ pacoApp.service('template', function() {
     fixedTimeMillisFromMidnight: 12 * 60 * 60 * 1000,
     type: 0
   };
-
+  
+  this.inputsForPredefinedGroupAppUsageAndroid =[ 
+    {"name" : 'apps_used', "required": false,"conditional": false, "text" : 'apps_used', "likertSteps": 5,"responseType" : 'open text', "multiselect": false, "predefined":true},
+    {"name" : 'apps_used_raw',"required": false, "conditional": false,"text" : 'apps_used_raw',"likertSteps": 5, "responseType" : 'open text', "multiselect": false, "predefined":true},
+    {"name" : 'foreground',"required": false,"conditional": false, "text" : 'foreground', "likertSteps": 5,"responseType" : 'open text', "multiselect": false, "predefined":true},
+    {"name" : 'userPresent',"required": false,"conditional": false, "text" : 'userPresent', "likertSteps": 5,"responseType" : 'open text', "multiselect": false, "predefined":true},
+    {"name" : 'userNotPresent',"required": false,"conditional": false, "text" : 'userNotPresent', "likertSteps": 5,"responseType" : 'open text', "multiselect": false, "predefined":true}
+    ];
+  this.inputsForPredefinedGroupPhoneStatus =[ 
+    {"name" : 'phoneOn', "required": false,"conditional": false, "text" : 'phoneOn', "likertSteps": 5,"responseType" : 'open text', "multiselect": false, "predefined":true},
+    {"name" : 'phoneOff',"required": false, "conditional": false,"text" : 'phoneOff',"likertSteps": 5, "responseType" : 'open text', "multiselect": false, "predefined":true}
+    ];
+  this.inputsForPredefinedGroupSystem =[ 
+    {"name" : 'joined', "required": false,"conditional": false, "text" : 'joined', "likertSteps": 5,"responseType" : 'open text', "multiselect": false, "predefined":true},
+    {"name" : 'schedule',"required": false, "conditional": false,"text" : 'schedule',"likertSteps": 5, "responseType" : 'open text', "multiselect": false, "predefined":true}
+    ];
+  this.inputsForPredefinedGroupSystemAndAdvanced = [
+    {"name" : 'joined', "required": false,"conditional": false, "text" : 'joined', "likertSteps": 5,"responseType" : 'open text', "multiselect": false, "predefined":true},
+    {"name" : 'schedule',"required": false, "conditional": false,"text" : 'schedule',"likertSteps": 5, "responseType" : 'open text', "multiselect": false, "predefined":true},
+    {"name" : 'make', "required": false,"conditional": false, "text" : 'make', "likertSteps": 5,"responseType" : 'open text', "multiselect": false, "predefined":true},
+    {"name" : 'model',"required": false, "conditional": false,"text" : 'model',"likertSteps": 5, "responseType" : 'open text', "multiselect": false, "predefined":true},
+    {"name" : 'android', "required": false,"conditional": false, "text" : 'android', "likertSteps": 5,"responseType" : 'open text', "multiselect": false, "predefined":true},
+    {"name" : 'display',"required": false, "conditional": false,"text" : 'display',"likertSteps": 5, "responseType" : 'open text', "multiselect": false, "predefined":true},
+    {"name" : 'carrier',"required": false, "conditional": false,"text" : 'carrier',"likertSteps": 5, "responseType" : 'open text', "multiselect": false, "predefined":true}
+    ];
+  this.inputsForPredefinedGroupAccessibility =[ 
+    {"name" : 'accessibilityEventText', "required": false,"conditional": false, "text" : 'accessibilityEventText', "likertSteps": 5,"responseType" : 'open text', "multiselect": false, "predefined":true},
+    {"name" : 'accessibilityEventPackage',"required": false, "conditional": false,"text" : 'accessibilityEventPackage',"likertSteps": 5, "responseType" : 'open text', "multiselect": false, "predefined":true},
+    {"name" : 'accessibilityEventClass',"required": false,"conditional": false, "text" : 'accessibilityEventClass', "likertSteps": 5,"responseType" : 'open text', "multiselect": false, "predefined":true},
+    {"name" : 'accessibilityEventType',"required": false,"conditional": false, "text" : 'accessibilityEventType', "likertSteps": 5,"responseType" : 'open text', "multiselect": false, "predefined":true},
+    {"name" : 'accessibilityEventContentDescription',"required": false,"conditional": false, "text" : 'accessibilityEventContentDescription', "likertSteps": 5,"responseType" : 'open text', "multiselect": false, "predefined":true}
+    ];
+  this.inputsForPredefinedGroupNotification =[ 
+    {"name" : 'accessibilityEventText', "required": false,"conditional": false, "text" : 'accessibilityEventText', "likertSteps": 5,"responseType" : 'open text', "multiselect": false, "predefined":true},
+    {"name" : 'accessibilityEventPackage',"required": false, "conditional": false,"text" : 'accessibilityEventPackage',"likertSteps": 5, "responseType" : 'open text', "multiselect": false, "predefined":true},
+    {"name" : 'accessibilityEventClass',"required": false,"conditional": false, "text" : 'accessibilityEventClass', "likertSteps": 5,"responseType" : 'open text', "multiselect": false, "predefined":true},
+    {"name" : 'accessibilityEventType',"required": false,"conditional": false, "text" : 'accessibilityEventType', "likertSteps": 5,"responseType" : 'open text', "multiselect": false, "predefined":true},
+    {"name" : 'accessibilityEventContentDescription',"required": false,"conditional": false, "text" : 'accessibilityEventContentDescription', "likertSteps": 5,"responseType" : 'open text', "multiselect": false, "predefined":true}
+    ];
 });
 
 

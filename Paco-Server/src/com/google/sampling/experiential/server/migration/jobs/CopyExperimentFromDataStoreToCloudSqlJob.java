@@ -57,6 +57,8 @@ public class CopyExperimentFromDataStoreToCloudSqlJob implements MigrationJob {
       if (doAll || (cursor != null && cursor.equalsIgnoreCase("step1"))) {
         try {
           log.info("------------------------------------------------Step 1 Begin------------------------------------------------");
+          sqlMigDaoImpl.dataCleanupUpdateEventTableExperimentVersionAndGroupNameNull();
+          sqlMigDaoImpl.copyExperimentPopulateDistinctExperimentIdVersionAndGroupName();
           sqlMigDaoImpl.copyExperimentDeleteEventsAndOutputsForDeletedExperiments();
           log.info("------------------------------------------------Step 1 End------------------------------------------------");
           returnString += "delete events of deleted experiments Done. Step1 complete.";

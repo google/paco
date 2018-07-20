@@ -180,8 +180,10 @@ public class EventRetriever {
         event.setWhen(dfMs.parseDateTime(eventJson.getString("whenDate")).toDate());
         event.setWho(eventJson.getString("who"));
         if (Constants.USE_OLD_FORMAT_FLAG) {
+          log.info("in old way");
           oldEventOutputDaoImpl.insertEventAndOutputsInOldWay(event);
         } else {
+          log.info("in new way");
           eventOutputDaoImpl.insertEventAndOutputs(event);
         }
       } catch (JSONException e) {

@@ -27,7 +27,7 @@ pacoApp.config(['$locationProvider', function($locationProvider) {
 
 pacoApp.factory('PacoConstantsService', function() {
   return {
-      useOldColumns : true
+      useOldColumns : false
   };
 });
 

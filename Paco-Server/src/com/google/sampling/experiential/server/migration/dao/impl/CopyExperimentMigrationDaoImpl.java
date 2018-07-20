@@ -4,6 +4,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.nio.channels.Channels;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -20,6 +21,7 @@ import com.google.appengine.api.blobstore.BlobKey;
 import com.google.appengine.api.blobstore.BlobstoreService;
 import com.google.appengine.api.blobstore.BlobstoreServiceFactory;
 import com.google.appengine.tools.cloudstorage.GcsOutputChannel;
+
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -78,7 +80,9 @@ import com.google.sampling.experiential.dao.impl.CSTempExperimentDefinitionDaoIm
 import com.google.sampling.experiential.dao.impl.CSTempExperimentIdVersionGroupNameDaoImpl;
 import com.google.sampling.experiential.model.What;
 import com.google.sampling.experiential.server.CloudSQLConnectionManager;
+
 import com.google.sampling.experiential.server.CloudStorageFileWriter;
+
 import com.google.sampling.experiential.server.ExceptionUtil;
 import com.google.sampling.experiential.server.ExperimentDAOConverter;
 import com.google.sampling.experiential.server.ExperimentService;
@@ -713,7 +717,6 @@ public class CopyExperimentMigrationDaoImpl implements CopyExperimentMigrationDa
       Input openTextForeGround = new Input(PredefinedInputNames.FOREGROUND, false, null, openTextDataType, PredefinedInputNames.FOREGROUND, 0, null, null, null);
       Input openTextUserPresent = new Input(PredefinedInputNames.USER_PRESENT, false, null, openTextDataType, PredefinedInputNames.USER_PRESENT, 0, null, null, null);
       Input openTextUserNotPresent = new Input(PredefinedInputNames.USER_NOT_PRESENT, false, null, openTextDataType, PredefinedInputNames.USER_NOT_PRESENT, 0, null, null, null);
-      
       Integer grpTypeAppUsageId = groupTypeDapImpl.getGroupTypeId(GroupTypeEnum.APPUSAGE_ANDROID.name());
       inputDaoImpl.insertInput(openTextAppUsage);
       inputDaoImpl.insertInput(openTextAppUsageRaw);
@@ -1068,6 +1071,9 @@ public class CopyExperimentMigrationDaoImpl implements CopyExperimentMigrationDa
       Map<String, ExperimentVersionGroupMapping> allEVMRecords = null;
       if (allEvents != null && allEvents.size() > 0  ) {
         allEVMRecords = daoImpl.getAllGroupsInVersion(allEvents.get(0).getExperimentId(), allEvents.get(0).getExperimentVersion());
+        if (allEVMRecords == null) {
+          throw new Exception("Unexpected scenario:"+ allEvents.get(0).getExperimentId() + "--"+ allEvents.get(0).getExperimentVersion());
+        }
         emailAnonIdMap = Maps.newHashMap();
       }
       int logCtr = 1;
@@ -1612,6 +1618,5 @@ public class CopyExperimentMigrationDaoImpl implements CopyExperimentMigrationDa
     return blobKey.getKeyString();
   }
 }
-
 
 

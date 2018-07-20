@@ -270,7 +270,7 @@ public class CSEventOutputDaoImpl implements CSEventOutputDao {
       if (allEVMInVersion == null) { 
         evmDaoImpl.createEVGMByCopyingFromLatestVersion(expIdLong, event.getExperimentVersion());
         allEVMInVersion =  evmDaoImpl.getAllGroupsInVersion(expIdLong, event.getExperimentVersion());
-        if (allEVMInVersion == null) { 
+        if (allEVMInVersion == null) {
           log.warning("eventId:"+ event.getId() + " not saved in cloud sql");
           throw new Exception("No EVGM records for event"+ event.getId());
         }

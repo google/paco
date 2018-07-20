@@ -37,6 +37,7 @@ import com.pacoapp.paco.shared.model2.ExperimentIdQueryResult;
 import com.pacoapp.paco.shared.model2.ExperimentJoinQueryResult;
 import com.pacoapp.paco.shared.model2.ExperimentQueryResult;
 import com.pacoapp.paco.shared.model2.ExperimentValidator;
+import com.pacoapp.paco.shared.model2.GroupTypeEnum;
 import com.pacoapp.paco.shared.model2.InterruptCue;
 import com.pacoapp.paco.shared.model2.InterruptTrigger;
 import com.pacoapp.paco.shared.model2.JsonConverter;
@@ -585,11 +586,15 @@ class DefaultExperimentService implements ExperimentService {
   @Override
   public boolean isOver(ExperimentDAO experiment, DateTime nowInUserTimezone) {
     for (ExperimentGroup group : experiment.getGroups()) {
-      boolean groupIsOver = group.getFixedDuration() != null && group.getFixedDuration()
-              && getEndDateTime(group).isBefore(nowInUserTimezone);
-
-      if (!groupIsOver) {
-        return false;
+      if (GroupTypeEnum.SYSTEM.equals(group.getGroupType())) {
+        continue;
+      } else {
+        boolean groupIsOver = group.getFixedDuration() != null && group.getFixedDuration()
+                && getEndDateTime(group).isBefore(nowInUserTimezone);
+  
+        if (!groupIsOver) {
+          return false;
+        }
       }
     }
     return true;

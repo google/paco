@@ -12,6 +12,7 @@ import com.pacoapp.paco.shared.model2.ActionTrigger;
 import com.pacoapp.paco.shared.model2.EventStore;
 import com.pacoapp.paco.shared.model2.ExperimentDAO;
 import com.pacoapp.paco.shared.model2.ExperimentGroup;
+import com.pacoapp.paco.shared.model2.GroupTypeEnum;
 import com.pacoapp.paco.shared.model2.PacoAction;
 import com.pacoapp.paco.shared.model2.PacoNotificationAction;
 import com.pacoapp.paco.shared.model2.Schedule;
@@ -86,7 +87,10 @@ public class ActionScheduleGenerator {
     List<ExperimentGroup> groups = experiment.getGroups();
     DateTime currentNearestTime = null;
     for (ExperimentGroup experimentGroup : groups) {
-      if (isExperimentGroupOver(experimentGroup)) {
+      // TODO Group Type - 'System' is a special kind of group. It is created by the PACO system, and not by the administrator of the experiment.
+      // System Group type has no specific duration. It does not have any fixed duration. We are filtering the System group type from any sort of 
+      // processing. Ideally, this should be handled in an object oriented way
+      if (GroupTypeEnum.SYSTEM.equals(experimentGroup.getGroupType())  || isExperimentGroupOver(experimentGroup)) {
         continue;
       }
 
@@ -209,7 +213,7 @@ public class ActionScheduleGenerator {
   }
 
   public static boolean isExperimentGroupRunning(ExperimentGroup experimentGroup) {
-    if (!experimentGroup.getFixedDuration()) {
+    if (!GroupTypeEnum.SYSTEM.equals(experimentGroup.getGroupType()) && !experimentGroup.getFixedDuration()) {
       return true;
     }
     DateMidnight startDate = TimeUtil.unformatDate(experimentGroup.getStartDate()).toDateMidnight();
@@ -227,7 +231,9 @@ public class ActionScheduleGenerator {
   public static boolean areAllGroupsFixedDuration(ExperimentDAO experiment) {
     List<ExperimentGroup> groups = experiment.getGroups();
     for (ExperimentGroup experimentGroup : groups) {
-      if (!experimentGroup.getFixedDuration()) {
+      if (GroupTypeEnum.SYSTEM.equals(experimentGroup.getGroupType())){
+        continue;
+      } else if (!experimentGroup.getFixedDuration()) {
         return false;
       }
     }
@@ -249,7 +255,7 @@ public class ActionScheduleGenerator {
     List<ExperimentGroup> groups = experiment.getGroups();
     DateMidnight currentEarliestStartDate = null;
     for (ExperimentGroup experimentGroup : groups) {
-      if (!experimentGroup.getFixedDuration()) {
+      if (GroupTypeEnum.SYSTEM.equals(experimentGroup.getGroupType()) || !experimentGroup.getFixedDuration()) {
         continue;
       }
       DateMidnight startDate = TimeUtil.unformatDate(experimentGroup.getStartDate()).toDateMidnight();
@@ -296,7 +302,7 @@ public class ActionScheduleGenerator {
     List<ExperimentGroup> groups = experiment.getGroups();
     DateTime currentLatestEndTime = null;
     for (ExperimentGroup experimentGroup : groups) {
-      if (!experimentGroup.getFixedDuration()) {
+      if (GroupTypeEnum.SYSTEM.equals(experimentGroup.getGroupType()) || !experimentGroup.getFixedDuration()) {
         continue;
       }
       DateTime endDate = TimeUtil.unformatDate(experimentGroup.getEndDate());

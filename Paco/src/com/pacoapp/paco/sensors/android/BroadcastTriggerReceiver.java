@@ -15,6 +15,7 @@ import com.pacoapp.paco.sensors.android.procmon.LollipopProcessMonitorService;
 import com.pacoapp.paco.sensors.android.procmon.ProcessService;
 import com.pacoapp.paco.shared.model2.ExperimentDAO;
 import com.pacoapp.paco.shared.model2.ExperimentGroup;
+import com.pacoapp.paco.shared.model2.GroupTypeEnum;
 import com.pacoapp.paco.shared.model2.InterruptCue;
 import com.pacoapp.paco.shared.scheduling.ActionScheduleGenerator;
 import com.pacoapp.paco.shared.util.ExperimentHelper;
@@ -119,9 +120,13 @@ public class BroadcastTriggerReceiver extends BroadcastReceiver {
       final ExperimentDAO experimentDAO = experiment.getExperimentDAO();
       List<ExperimentGroup> groups = experimentDAO.getGroups();
       for (ExperimentGroup experimentGroup : groups) {
-        if (ActionScheduleGenerator.isExperimentGroupRunning(experimentGroup) && experimentGroup.getLogShutdown()) {
-          Event event = createPhoneShutdownPacoEvent(experiment, experimentGroup.getName(), phoneOnState);
-          experimentProviderUtil.insertEvent(event);
+        if (GroupTypeEnum.SYSTEM.equals(experimentGroup.getGroupType())) {
+          continue;
+        } else { 
+          if (ActionScheduleGenerator.isExperimentGroupRunning(experimentGroup) && experimentGroup.getLogShutdown()) {
+            Event event = createPhoneShutdownPacoEvent(experiment, experimentGroup.getName(), phoneOnState);
+            experimentProviderUtil.insertEvent(event);
+          }
         }
       }
     }
