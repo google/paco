@@ -276,7 +276,7 @@ public class CSEventOutputDaoImpl implements CSEventOutputDao {
         }
       }
       // Rename event group Name from null to System, if its system predefined inputs
-      ExperimentVersionGroupMapping evmForThisGroup = findMatchingEVMRecord(event, allEVMInVersion, migrationFlag);
+      ExperimentVersionGroupMapping evmForThisGroup = evmDaoImpl.findMatchingEVGMRecord(event, allEVMInVersion, migrationFlag);
       pvUpdateEvmId = evmForThisGroup.getExperimentVersionMappingId();
       statementCreateEvent.setLong(i++, pvUpdateEvmId);
       statementCreateEvent.execute();
@@ -329,21 +329,6 @@ public class CSEventOutputDaoImpl implements CSEventOutputDao {
       }
     }
     return retVal;
-  }
-  
-  private ExperimentVersionGroupMapping findMatchingEVMRecord(Event event, Map<String, ExperimentVersionGroupMapping> allEVMMap, boolean migrationFlag) throws Exception{
-    ExperimentVersionGroupMapping returnEVM = null;
-    CSExperimentVersionGroupMappingDao daoImpl = new CSExperimentVersionGroupMappingDaoImpl();
-    Long expId = Long.parseLong(event.getExperimentId());
-    log.info("event id"+ event.getId());
-    // fix the group name
-    daoImpl.ensureCorrectGroupName(event);
-    // if event is posted for a version where we do not have experiment mapping records
-    daoImpl.ensureEVMRecord(expId,event.getId(), event.getExperimentName(), event.getExperimentVersion(), event.getExperimentGroupName(), event.getWho(), event.getWhat(), migrationFlag, allEVMMap);
-    returnEVM = allEVMMap.get(event.getExperimentGroupName());
-    String mightBeModifiedGroupName = returnEVM.getGroupInfo().getName();
-    allEVMMap.put(mightBeModifiedGroupName, returnEVM);
-    return returnEVM;
   }
   
   @Override

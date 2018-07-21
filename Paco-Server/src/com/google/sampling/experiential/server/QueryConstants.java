@@ -109,6 +109,7 @@ public enum QueryConstants {
   GET_LABEL_ID_FOR_STRING("select * from " + ExternStringListLabelColumns.TABLE_NAME + " where "  + ExternStringListLabelColumns.LABEL + "= ?"),
   GET_INPUT_TEXT_ID_FOR_STRING("select * from " + ExternStringInputColumns.TABLE_NAME + " where "  + ExternStringInputColumns.LABEL + "= ?"),
   GET_LATEST_VERSION("SELECT "+ ExperimentVersionGroupMappingColumns.EXPERIMENT_VERSION +" FROM " + ExperimentVersionGroupMappingColumns.TABLE_NAME + " where "+ ExperimentVersionGroupMappingColumns.EXPERIMENT_ID +"=? order by "+ ExperimentVersionGroupMappingColumns.EXPERIMENT_VERSION +" desc limit 1") ,
+  GET_ALL_VERSIONS("SELECT distinct "+ ExperimentVersionGroupMappingColumns.EXPERIMENT_VERSION +" FROM " + ExperimentVersionGroupMappingColumns.TABLE_NAME + " where "+ ExperimentVersionGroupMappingColumns.EXPERIMENT_ID +"=? ") ,
   GET_ALL_EVM_RECORDS_FOR_VERSION("select * from " + ExperimentVersionGroupMappingColumns.TABLE_NAME + " where "  + ExperimentVersionGroupMappingColumns.EXPERIMENT_ID + "= ? and " + ExperimentVersionGroupMappingColumns.EXPERIMENT_VERSION + "=?"),
   GET_ALL_GROUPS_IN_VERSION("select * from experiment_version_group_mapping evgm join experiment_detail eh on evgm.experiment_detail_id = eh.experiment_detail_id " + 
           " join group_detail gh on evgm.group_detail_id = gh.group_detail_id " +

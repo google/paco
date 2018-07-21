@@ -29,8 +29,7 @@ public interface CSExperimentVersionGroupMappingDao {
   ExperimentVersionGroupMapping getEVGMId(Long experimentId, Integer experimentVersion,
                                        String groupName) throws SQLException;
   Long getNumberOfEvents(Long experimentgroupVersionMappingId, Integer anonWhoId, Long inputId) throws SQLException;
- 
-  void ensureCorrectGroupName(Event eventDao) throws Exception;
   ExperimentVersionGroupMapping findMatchingEVGMRecord(Event event, Map<String, ExperimentVersionGroupMapping> allEVMMap,
                                                       boolean migrationFlag) throws Exception;
+  void ensureCorrectGroupName(Event eventDao, Map<String, ExperimentVersionGroupMapping> allEVMMap) throws Exception;
 }

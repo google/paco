@@ -47,6 +47,15 @@
 								<label>Variable Name</label>
 			          			<input ng-model="input.name" ng-trim="true" ng-change="input.name = input.name.split(' ').join('_')">
 			          		</md-input-container>
+			          		
+	 		 <md-input-container ng-if="input.conditional"  flex="75">
+	            <label>Condition</label>
+	            <input ng-model="input.conditionExpression">
+	          </md-input-container>
+	        
+	          <paco-help tip="conditional" ng-if="input.conditional">
+	            Help: Conditional Logic
+	          </paco-help>
 			            </div>
 					</div> <!--  col 1 -->
 			     </div><!--  padded -->
@@ -67,12 +76,7 @@
 						<div class="predefined-group">
 							<label>{{input.name}}</label>
 						</div>
-			</div><!--  col1 -->
-	 </div> <!-- ng switch when-->
-	
-				 
-  
-		  
+						
 	 		 <md-input-container ng-if="input.conditional"  flex="75">
 	            <label>Condition</label>
 	            <input ng-model="input.conditionExpression">
@@ -81,6 +85,14 @@
 	          <paco-help tip="conditional" ng-if="input.conditional">
 	            Help: Conditional Logic
 	          </paco-help>
+			</div><!--  col1 -->
+	 </div> <!-- ng switch when-->
+	
+				<div class="column0">
+		  			</div>
+		  			   
+		  			<div class="column1">  
+  
 	           <div ng-if="input.responseType === 'list'">
 			        <md-checkbox ng-model="input.multiselect" aria-label="Multiple selections">
 			          Multiple selections
@@ -104,7 +116,10 @@
 		          <input ng-model="input.rightSideLabel">
 		        </md-input-container>
 		      </div>
-		      <div class="list" ng-if="input.responseType === 'list'">
+		      
+		 	   
+		  			
+		      <div class="list padded" ng-if="input.responseType === 'list'">
 		        <div class="choice" ng-repeat="choice in input.listChoices track by $index"  layout="row">
 		          <md-input-container flex>
 		            <label>Choice {{$index + 1}}</label>
@@ -124,7 +139,9 @@
 		          </div>
 		        </div>
         		<md-button add-icon ng-click="addChoice()">Choice</md-button>
-      		</div>
+      		</div> <!--  list -->
+      		</div><!--  col1 -->
+      		<!--  padded -->
 	 	 </div>  <!--  ng switch on -->
       
        
