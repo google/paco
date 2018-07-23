@@ -599,12 +599,19 @@ public class CSExperimentVersionGroupMappingDaoImpl implements CSExperimentVersi
 
   @Override
   public void createEVGMByCopyingFromLatestVersion(Long experimentId, Integer experimentVersion) throws SQLException {
+    Integer latestVersion = null;
     List<Integer> allVersions = getAllExperimentVersionsInCloudSql(experimentId);
-    Integer latestVersion = Collections.max(allVersions);
+    if (allVersions.size() > 0) {
+      latestVersion = Collections.max(allVersions);
+    } else {
+      // These records should have been deleted in earlier migration steps. But, in case we run into this situation
+      // we need to delete the experiment in exp id version group name table and do not create evgm records in cloud sql
+      log.info("Unexpected scenario, cannot find EVGM for "+ experimentId + " and " + experimentVersion);
+      return;
+    }
     Connection conn = null;
     ResultSet rs = null;
     PreparedStatement statementClosestExperimentVersion = null;
-    
     List<ExperimentVersionGroupMapping> newEVMRecords = Lists.newArrayList();
     ExperimentVersionGroupMapping evm = null;
     ExperimentDetail expFacet = null;
@@ -670,6 +677,7 @@ public class CSExperimentVersionGroupMappingDaoImpl implements CSExperimentVersi
     // if event is posted for a version where we do not have experiment mapping records
     daoImpl.ensureEVMRecord(expId,event.getId(), event.getExperimentName(), event.getExperimentVersion(), event.getExperimentGroupName(), event.getWho(), event.getWhat(), migrationFlag, allEVMMap);
     returnEVM = allEVMMap.get(event.getExperimentGroupName());
+    
     String mightBeModifiedGroupName = returnEVM.getGroupInfo().getName();
     allEVMMap.put(mightBeModifiedGroupName, returnEVM);
     return returnEVM;
@@ -1141,15 +1149,17 @@ public class CSExperimentVersionGroupMappingDaoImpl implements CSExperimentVersi
         break;
       }
     } // predefined map of all predefined grps
-    if ( eventDao.getExperimentGroupName() == null) {
-      // chk if its ios/with app as ios and paco version as 1.1.8.2
-      if (eventDao.getAppId().equalsIgnoreCase(Constants.IOS) && eventDao.getPacoVersion().equalsIgnoreCase(Constants.IOS_VERSION_1182)) {
+    // Currently, IOS versions supports only 1 group. Also, for that single group, client does not send group name with any of the events
+    // we need to identify the IOS events and populate the group name 
+    if (eventDao.getExperimentGroupName() == null) {
+      if (eventDao.getAppId().equalsIgnoreCase(Constants.IOS)) {
         eventDao.setExperimentGroupName(getNonSystemGroupNameFromEVGMRecords(allEVMMap));
       } else {
         eventDao.setExperimentGroupName(Constants.UNKNOWN);
       }
-      log.info("new group name:"+ eventDao.getExperimentGroupName());
     }
+    log.info("new group name:"+ eventDao.getExperimentGroupName());
+    
   }
   
   private String getNonSystemGroupNameFromEVGMRecords(Map<String, ExperimentVersionGroupMapping> allEVMMap) {

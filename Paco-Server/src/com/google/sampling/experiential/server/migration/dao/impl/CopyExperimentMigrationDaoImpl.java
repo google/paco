@@ -1266,21 +1266,38 @@ public class CopyExperimentMigrationDaoImpl implements CopyExperimentMigrationDa
     CSFailedEventDao failedDaoImpl = new CSFailedEventDaoImpl();
     CSTempExperimentIdVersionGroupNameDao expIdDaoImpl = new CSTempExperimentIdVersionGroupNameDaoImpl();
     List<Long> expIdsToBeDeleted = expIdDaoImpl.getExperimentIdsToBeDeleted();
-    List<Long> expIdsCurrentlyInDataStore = null;
+    List<Long> finalListOfExptIdToBeDeleted = null;
+    final ExperimentService experimentService = ExperimentServiceFactory.getExperimentService();
+    log.info("Delete from exp id version");
     for (Long experimentId : expIdsToBeDeleted) {
       // delete all outputs and events for these experiments
-      expIdsCurrentlyInDataStore = getExperimentIdLst(readFromDataStore());
-      if (!expIdsCurrentlyInDataStore.contains(experimentId)) {
+      if (experimentService.getExperiment(experimentId) == null) {
+        log.info("exp id :"+ experimentId);
+        if (finalListOfExptIdToBeDeleted == null) {
+          finalListOfExptIdToBeDeleted = Lists.newArrayList();
+        }
+        finalListOfExptIdToBeDeleted.add(experimentId);
         daoImpl.deleteAllEventsAndOutputsData(experimentId);
         // not an actual failed event. But, just to track that we have deleted all events and outputs of this experiment, we update this table
         failedDaoImpl.insertFailedEvent("expId: " + experimentId , "Did not find any experiment definition. ", "Did not find any experiment definition.So deleted all events and outputs");
-        log.info("expId: " + experimentId + "deleted");
+//        log.info("expId: " + experimentId + "deleted");
+        if ( finalListOfExptIdToBeDeleted.size()  == 30) {
+          log.info("reached 30:");
+          expIdDaoImpl.deleteExperiments(finalListOfExptIdToBeDeleted);
+          finalListOfExptIdToBeDeleted = null;
+        }
+      } else {
+        log.info("exp def found in data store "+ experimentId);
       }
     }
-    // delete these experiments from expid version table as well
-    if (expIdsToBeDeleted.size() > 0 ) { 
-      expIdDaoImpl.deleteExperiments(expIdsToBeDeleted);
+    // if the number of experiments to be deleted is not a multiple of 30, then last batch of records that are less than 30
+    // will not get deleted.
+    if (finalListOfExptIdToBeDeleted != null) {
+      log.info("last batch of expts to be deleted size:" + finalListOfExptIdToBeDeleted.size());
+      expIdDaoImpl.deleteExperiments(finalListOfExptIdToBeDeleted);
+      finalListOfExptIdToBeDeleted = null;
     }
+   
     return false;
   }
   
@@ -1457,7 +1474,7 @@ public class CopyExperimentMigrationDaoImpl implements CopyExperimentMigrationDa
                     statementSelectEventsWithPredefinedInputs.setInt(2, expLite.getExperimentVersion());
                     statementSelectEventsWithPredefinedInputs.setString(3, expLite.getExperimentGroupName());
                     statementSelectEventsWithPredefinedInputs.setString(4, eachFeatureInputVariableName);
-                    log.info("executing qry " + statementSelectEventsWithPredefinedInputs.toString());
+//                    log.info("executing qry " + statementSelectEventsWithPredefinedInputs.toString());
                     rs = statementSelectEventsWithPredefinedInputs.executeQuery();
                     if(!rs.next()) {
                       break;

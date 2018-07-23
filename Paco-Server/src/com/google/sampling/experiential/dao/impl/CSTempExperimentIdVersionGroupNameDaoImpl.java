@@ -106,6 +106,7 @@ public class CSTempExperimentIdVersionGroupNameDaoImpl implements CSTempExperime
         log.info("deleting from expid version" + statementDeleteFromExpIdVersion.toString());
       }
       statementDeleteFromExpIdVersion.executeBatch();
+      log.info("deleted from exp id version");
       allDeleted = true;
     } catch (SQLException sqle) {
       log.warning("SQLException while deletin exp id version tables" + ExceptionUtil.getStackTraceAsString(sqle));
