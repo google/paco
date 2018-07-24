@@ -68,7 +68,7 @@ public enum QueryConstants {
   UPDATE_EXPERIMENT_ID_VERSION_STATUS_IN_EXPERIMENT_ID_VERSION("update temp_experiment_id_version_group_name set status=? where experiment_id = ? and experiment_version = ?" ),
   UPDATE_EXPERIMENT_ID_STATUS_IN_EXPERIMENT_ID_VERSION("update temp_experiment_id_version_group_name set status=? where experiment_id = ? " ),
   UPDATE_EVENTS_WITH_NEW_GROUP_NAME("update events set group_name=? where _id=?"),
-  INSERT_TO_OLD_GROUP_NAME_TABLE("insert into event_old_group_name(old_group_name,event_id) values (?,?)"),
+  INSERT_TO_OLD_GROUP_NAME_TABLE("insert ignore into event_old_group_name(old_group_name,event_id) values (?,?)"),
   INSERT_TO_PIVOT_HELPER_WITH_ON_DUPLICATE_CLAUSE("INSERT INTO pivot_helper (experiment_version_group_mapping_id, anon_who, input_id, events_posted, processed) VALUES (?,?,?,?,?) ON DUPLICATE KEY UPDATE events_posted=events_posted+1"),
   REPLACE_TO_EXPERIMENT_ID_VERSION_GROUP_NAME("REPLACE INTO `pacodb`.`temp_experiment_id_version_group_name` (`experiment_id`, `experiment_version`, `group_name`, `status`) VALUES (?, ?,?,?)"),
   DELETE_FROM_EXPERIMENT_DEFINITION("delete from temp_experiment_definition where id = ? "),

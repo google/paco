@@ -1453,7 +1453,7 @@ public class CopyExperimentMigrationDaoImpl implements CopyExperimentMigrationDa
           break;
         }
         for (ExperimentLite expLite : expLites) {
-          log.info("RecordCount" + (recordCount++) + ":New exp id" + expLite.getExperimentId() + "----------" + expLite.getExperimentVersion());
+          log.info("RecordCount" + (recordCount++) + ":New exp id" + expLite.getExperimentId() + "--" + expLite.getExperimentVersion() + "--" + expLite.getExperimentGroupName());
           Iterator<String> predefinedInputIterator = inputMap.keySet().iterator();
           if (!inputMap.keySet().contains(expLite.getExperimentGroupName())) {
             // for each predefined feature
@@ -1486,7 +1486,9 @@ public class CopyExperimentMigrationDaoImpl implements CopyExperimentMigrationDa
                         eventId = rs.getLong(Constants.UNDERSCORE_ID);
                         if (eventIdsToBeUpdatedWithNewGroupName.add(eventId)) {
                           eventIdsOldGroupName.add(rs.getString(EventServerColumns.GROUP_NAME));
-                          expIdVersionDao.upsertExperimentIdVersionGroupName(expLite.getExperimentId(), expLite.getExperimentVersion(), featureName, 1);
+                          // these can be inserted with mig status 2, since we are adding this once we identify the correct group name. 
+                          // these records need not be checked for again to see if we need to change group name
+                          expIdVersionDao.upsertExperimentIdVersionGroupName(expLite.getExperimentId(), expLite.getExperimentVersion(), featureName, 2);
                         }
                       }// 250 records
                       // update events in batch
