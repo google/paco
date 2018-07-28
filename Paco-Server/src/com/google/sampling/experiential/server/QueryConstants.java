@@ -62,6 +62,19 @@ public enum QueryConstants {
   GET_TO_BE_DELETED_EXPERIMENTS("select distinct experiment_id from temp_experiment_id_version_group_name where experiment_id not in (select id from temp_experiment_definition) and experiment_id not in (select distinct experiment_id from experiment_version_group_mapping)" ),
   DELETE_EXPERIMENTS_IN_EXPERIMENT_ID_VERSION("delete from temp_experiment_id_version_group_name where experiment_id = ?" ),
   DELETE_EXPERIMENTS_WITH_VERSION_IN_EXPERIMENT_ID_VERSION("delete from temp_experiment_id_version_group_name where experiment_id = ? and experiment_version = ?" ),
+  DELETE_EVGM_EXP_GROUP_DETAILS_INF_CONSENT("delete evgm, ed, infcon, gd " + 
+                                        "  from experiment_version_group_mapping evgm  " + 
+                                        " join group_detail gd on evgm.group_detail_id=gd.group_detail_id " + 
+                                        " join experiment_detail ed on ed.experiment_detail_id=evgm.experiment_detail_id " + 
+                                        " left join informed_consent infcon on infcon.experiment_id=evgm.experiment_id and infcon.informed_consent_id=ed.informed_consent_id " + 
+                                        " where evgm.experiment_id=? and evgm.experiment_version>0 and evgm.group_detail_id >0"),
+  DELETE_INPUT_AND_CHOICE_COLLECTION_FOR_EXPT("delete i,ic, cc " + 
+                                                          " from experiment_version_group_mapping evgm  "+  
+                                                          " join input_collection ic on evgm.input_collection_id=ic.input_collection_id and evgm.experiment_id=ic.experiment_ds_id " +
+                                                          " join input i on ic.input_id=i.input_id " + 
+                                                          " left join choice_collection cc on ic.choice_collection_id=cc.choice_collection_id and ic.experiment_ds_id=cc.experiment_ds_id " + 
+                                                          " where evgm.experiment_id=?"),
+  DELETE_EXPERIMENT_USER_FOR_EXPERIMENT("delete from experiment_user where experiment_id=?"),
   DELELTE_INPUTS_IN_INPUT_COLLECTION_FOR_EXPERIMENT("delete from input_collection where  experiment_ds_id=? and input_id=?"),
   UPDATE_INPUT_COLLECTION_ID_FOR_EVGM_ID("update experiment_version_group_mapping set input_collection_id=? where experiment_version_group_mapping_id= ? "),
   UPDATE_EXPERIMENT_ID_VERSION_GROUP_NAME_STATUS_IN_EXPERIMENT_ID_VERSION("update temp_experiment_id_version_group_name set status=? where experiment_id = ? and experiment_version = ? and group_name=?" ),
@@ -131,7 +144,9 @@ public enum QueryConstants {
           + " join input_collection ic on ic.experiment_ds_id = evm.experiment_id and  evm.input_collection_id=ic.input_collection_id"),
   DELETE_ALL_OUTPUTS("DELETE outputs FROM events LEFT JOIN outputs ON events._id = outputs.event_id WHERE events._id in (?)"),
   DELETE_ALL_EVENTS("DELETE events FROM events WHERE events._id in (?)"),
-  GET_EVENT_IDS_ORDERED_BY_ID("select _id from events where experiment_id=? order by _id asc limit 250"),
+  GET_EVENT_IDS_OLD_FORMAT_ORDERED_BY_ID("select _id from events where experiment_id=? order by _id asc limit 250"),
+  GET_EVENT_IDS_NEW_FORMAT_ORDERED_BY_ID("select _id from events join experiment_version_group_mapping evgm "  +
+          " on evgm.experiment_version_group_mapping_id = events.experiment_version_group_mapping_id where evgm.experiment_id =? order by _id asc limit 250"),
   UPDATE_ALL_EVENTS("update events e join outputs o on e._id=o.event_id set experiment_version_group_mapping_id =1 where o.text like '%-DUP-%' and e.experiment_id=?"),
   INSERT_TEMP_EXPERIMENT_ID_VERSION_GROUP_NAME ("insert into temp_experiment_id_version_group_name(experiment_id, experiment_version, group_name)  select distinct experiment_id, experiment_version, group_name from events where experiment_id is not null"),
   GET_EXPERIMENTS_WITH_HUGE_INPUTSET("select experiment_ds_id, input_collection_id, count(*) from input_collection group by experiment_ds_id, input_collection_id " + 

@@ -459,12 +459,17 @@ public class CSEventOutputDaoImpl implements CSEventOutputDao {
     return "0";
   }
   
-  private List<Long> getEventIdsForExperiment(Long experimentId) throws SQLException {
+  private List<Long> getEventIdsForExperiment(Long experimentId, boolean oldFormat) throws SQLException {
     Connection conn = null;
     PreparedStatement statementGetEventIds = null;
     ResultSet rsGetEventIds = null;
+    String getEventIds =  null;
     List<Long> eventIds = Lists.newArrayList();
-    String getEventIds = QueryConstants.GET_EVENT_IDS_ORDERED_BY_ID.toString() ;
+    if (oldFormat) { 
+      getEventIds = QueryConstants.GET_EVENT_IDS_OLD_FORMAT_ORDERED_BY_ID.toString() ;
+    } else {
+      getEventIds = QueryConstants.GET_EVENT_IDS_NEW_FORMAT_ORDERED_BY_ID.toString() ;
+    }
     
     try {
       conn = CloudSQLConnectionManager.getInstance().getConnection();
@@ -502,8 +507,8 @@ public class CSEventOutputDaoImpl implements CSEventOutputDao {
     PreparedStatement statementDeleteOutputs = null;
     int i = 1;
     String questionMarkCharacters = null;
-    String deleteQuery1 = QueryConstants.DELETE_ALL_OUTPUTS.toString() ;
-    String deleteQuery2 = QueryConstants.DELETE_ALL_EVENTS.toString() ;
+    String deleteQuery1 = QueryConstants.DELETE_ALL_OUTPUTS.toString();
+    String deleteQuery2 = QueryConstants.DELETE_ALL_EVENTS.toString();
     try {
       conn = CloudSQLConnectionManager.getInstance().getConnection();
       questionMarkCharacters = questionMark(eventIds);
@@ -548,15 +553,20 @@ public class CSEventOutputDaoImpl implements CSEventOutputDao {
   
   @Override
   public boolean deleteAllEventsAndOutputsData(Long experimentId) throws SQLException {
-    
-    List<Long> eventIds = getEventIdsForExperiment(experimentId);
+    boolean oldFormat = true;
+    List<Long> eventIds = getEventIdsForExperiment(experimentId, oldFormat);
     
     while ( true ) {
       deleteEventsAndOutputs(eventIds);
-      eventIds = getEventIdsForExperiment(experimentId);
+      eventIds = getEventIdsForExperiment(experimentId, oldFormat);
       if (eventIds.size() == 0) {
-        break;
-      }
+        if ( oldFormat) { 
+          oldFormat = false;
+          eventIds = getEventIdsForExperiment(experimentId, oldFormat);
+        } else {
+          break;  
+        }
+      } 
     } 
     return true;
  

@@ -11,6 +11,7 @@ import com.google.sampling.experiential.server.migration.jobs.CatchUpDateRangeJo
 import com.google.sampling.experiential.server.migration.jobs.CatchUpDateRangeJobOldVersion;
 import com.google.sampling.experiential.server.migration.jobs.ConvertEventV4ToV5Job;
 import com.google.sampling.experiential.server.migration.jobs.CopyExperimentFromDataStoreToCloudSqlJob;
+import com.google.sampling.experiential.server.migration.jobs.DeleteExperimentDataJob;
 import com.google.sampling.experiential.server.migration.jobs.EVGMigrationVerificationJob;
 import com.google.sampling.experiential.server.migration.jobs.EventStatsCounterMigrationJob;
 import com.google.sampling.experiential.server.migration.jobs.ExperimentHubMigrationJob;
@@ -42,6 +43,7 @@ public class MigrationLookupTable {
     migrations.put("26", ExperimentMigrationDataPreCleanupJob.class);
     migrations.put("27", ExperimentSplitAndPersistJob.class);
     migrations.put("28", EVGMigrationVerificationJob.class);
+    migrations.put("29", DeleteExperimentDataJob.class);
     migrations.put("100", ExperimentTitleLowercaseMigrationJob.class);
   }
   

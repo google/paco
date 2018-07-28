@@ -20,4 +20,5 @@ public interface CSInputCollectionDao {
   List<Long> getAllInputIds(Long experimentId, Long inputCollectionId) throws SQLException;
   boolean deleteDupInputsInInputCollection(Long experimentId, List<Long> inputIds) throws SQLException;
   List<Long> getAllDupInputsForExperiment(Long experimentId) throws SQLException;
+  boolean deleteInputCollectionInputAndChoiceCollection(Long experimentId) throws SQLException;
 }

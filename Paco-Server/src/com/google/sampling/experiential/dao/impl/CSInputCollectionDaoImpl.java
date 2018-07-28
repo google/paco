@@ -347,8 +347,6 @@ public class CSInputCollectionDaoImpl implements CSInputCollectionDao {
     Connection conn = null;
     ResultSet rs = null;
     PreparedStatement statementDeleteAllInputIdsWithDupCtr = null;
-    Long id = null;
-    CSInputDao inputDaoImpl = new CSInputDaoImpl();
     try {
       conn = CloudSQLConnectionManager.getInstance().getConnection();
       statementDeleteAllInputIdsWithDupCtr = conn.prepareStatement(QueryConstants.DELELTE_INPUTS_IN_INPUT_COLLECTION_FOR_EXPERIMENT.toString());
@@ -365,6 +363,31 @@ public class CSInputCollectionDaoImpl implements CSInputCollectionDao {
         }
         if (statementDeleteAllInputIdsWithDupCtr != null) {
           statementDeleteAllInputIdsWithDupCtr.close();
+        }
+        if (conn != null) {
+          conn.close();
+        }
+      } catch (SQLException ex1) {
+        log.warning(ErrorMessages.CLOSING_RESOURCE_EXCEPTION.getDescription()+ ex1);
+      }
+    }
+    return true;
+    
+  }
+  
+  @Override
+  public boolean deleteInputCollectionInputAndChoiceCollection(Long experimentId) throws SQLException { 
+    Connection conn = null;
+    PreparedStatement statementDeleteAllOutputsAndInputCollection = null;
+    try {
+      conn = CloudSQLConnectionManager.getInstance().getConnection();
+      statementDeleteAllOutputsAndInputCollection = conn.prepareStatement(QueryConstants.DELETE_INPUT_AND_CHOICE_COLLECTION_FOR_EXPT.toString());
+      statementDeleteAllOutputsAndInputCollection.setLong(1, experimentId);
+      statementDeleteAllOutputsAndInputCollection.execute();
+    } finally {
+      try {
+        if (statementDeleteAllOutputsAndInputCollection != null) {
+          statementDeleteAllOutputsAndInputCollection.close();
         }
         if (conn != null) {
           conn.close();
