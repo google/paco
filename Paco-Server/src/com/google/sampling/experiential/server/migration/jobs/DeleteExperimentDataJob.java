@@ -38,7 +38,9 @@ public class DeleteExperimentDataJob implements MigrationJob {
     Boolean doAll = false;
     List<Long> expIds = Lists.newArrayList();
     // TODO add exp ids here or create table and store ids in that table
-    expIds.add(5552926096359424L);
+//    expIds.add(5552926096359424L);
+    // staging 2
+    expIds.add(5205392893673472L);
     DeleteExperimentDataDao delExpDataDaoImpl = new DeleteExperimentDataDaoImpl();
     
     if (cursor == null) {
@@ -50,10 +52,10 @@ public class DeleteExperimentDataJob implements MigrationJob {
           log.info("------------------------------------------------Step 1 Begin------------------------------------------------");
           delExpDataDaoImpl.deleteEventsAndOutputs(expId);
           log.info("------------------------------------------------Step 1 End------------------------------------------------");
-          returnString += "Verification of experiment version  Done. Step1 complete.";
+          returnString += "Delete experiment event and outputs  Done. Step1 complete.";
           doAll = true;
         } catch (SQLException e) {
-          returnString += "Verify experiment version failed. Restart job from step1";
+          returnString += "Delete experiment event and outputs failed. Restart job from step1";
           throw new SQLException(returnString, e);
         }
       }
@@ -63,10 +65,10 @@ public class DeleteExperimentDataJob implements MigrationJob {
           log.info("------------------------------------------------Step 2 Begin------------------------------------------------");
           delExpDataDaoImpl.deleteInputCollectionInputAndChoiceCollection(expId);
           log.info("------------------------------------------------Step 2 End------------------------------------------------");
-          returnString += "Verification of experiment name  Done. Step2 complete.";
+          returnString += "Delete Input and choice collection  Done. Step2 complete.";
           doAll = true;
         } catch (SQLException e) {
-          returnString += "Verify experiment name failed. Restart job from step2";
+          returnString += "Delete Input and choice collection failed. Restart job from step2";
           throw new SQLException(returnString, e);
         }
       }
@@ -76,10 +78,10 @@ public class DeleteExperimentDataJob implements MigrationJob {
           log.info("------------------------------------------------Step 4 Begin------------------------------------------------");
           delExpDataDaoImpl.deleteExperimentGroupDetailAndInformedConsent(expId);
           log.info("------------------------------------------------Step 4 End------------------------------------------------");
-          returnString += "Verification of experiment group name  Done. Step4 complete.";
+          returnString += "Delete experiment group detail and informed consent  Done. Step4 complete.";
           doAll = true;
         } catch (SQLException e) {
-          returnString += "Verify experiment group name failed. Restart job from step4";
+          returnString += "Delete experiment group detail and informed consent failed. Restart job from step4";
           throw new SQLException(returnString, e);
         }
       }
@@ -89,26 +91,26 @@ public class DeleteExperimentDataJob implements MigrationJob {
           log.info("------------------------------------------------Step 5 Begin------------------------------------------------");
           delExpDataDaoImpl.deleteExperimentUser(expId);
           log.info("------------------------------------------------Step 5 End------------------------------------------------");
-          returnString += "Verification of anon who  Done. Step5 complete.";
+          returnString += "Delete experiment user Done. Step5 complete.";
           doAll = true;
         } catch (SQLException e) {
-          returnString += "Verify anon who failed. Restart job from step5";
+          returnString += "Delete experiment user failed. Restart job from step5";
           throw new SQLException(returnString, e);
         }
       }
       
-      if (doAll || (cursor != null && cursor.equalsIgnoreCase("step6"))) {
-        try {
-          log.info("------------------------------------------------Step 6 Begin------------------------------------------------");
-          delExpDataDaoImpl.deleteUser(expId);
-          log.info("------------------------------------------------Step 6 End------------------------------------------------");
-          returnString += "Verification of  input name  Done. Step6 complete.";
-          doAll = true;
-        } catch (SQLException e) {
-          returnString += "Verify input name failed. Restart job from step6";
-          throw new SQLException(returnString, e);
-        }
-      }
+//      if (doAll || (cursor != null && cursor.equalsIgnoreCase("step6"))) {
+//        try {
+//          log.info("------------------------------------------------Step 6 Begin------------------------------------------------");
+//          delExpDataDaoImpl.deleteUser(expId);
+//          log.info("------------------------------------------------Step 6 End------------------------------------------------");
+//          returnString += "Verification of  input name  Done. Step6 complete.";
+//          doAll = true;
+//        } catch (SQLException e) {
+//          returnString += "Verify input name failed. Restart job from step6";
+//          throw new SQLException(returnString, e);
+//        }
+//      }
     }
     return returnString;
   }
