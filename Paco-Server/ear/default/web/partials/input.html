@@ -21,7 +21,7 @@
       <md-select-header>
 	      <span>Response Type</span>
 	    </md-select-header>  
-      <md-option ng-repeat="option in responseTypes" ng-value="option.id">{{option.name}}</option>
+      <md-option ng-repeat="option in responseTypes" ng-value="option.id">{{option.name}}</md-option>
       </md-select>
     </md-input-container>
       <md-checkbox ng-model="input.required" aria-label="Required">
@@ -34,20 +34,19 @@
     </div>
 
     <div class="column1">
-    <div layout="row">
-    
-      <md-input-container flex="100">
-        <label>Question for the Participant</label>
-        <textarea ng-model="input.text" md-no-resize md-maxlength=500></textarea>
-      </md-input-container>
-</div>
+      <div layout="row">
+        <md-input-container flex="100">
+          <label>Question for the Participant</label>
+          <textarea ng-model="input.text" md-no-resize md-maxlength=500></textarea>
+        </md-input-container>
+      </div>
       <div layout="row">
         <md-input-container class="medium" flex="25">
           <label>Input {{$index + 1}} Variable Name</label>
           <input ng-model="input.name" ng-trim="true" ng-change="input.name = input.name.split(' ').join('_')" >
         </md-input-container>
 
-          <md-input-container ng-if="input.conditional"  flex="75">
+          <md-input-container ng-if="input.conditional" flex="75">
             <label>Condition</label>
             <input ng-model="input.conditionExpression">
           </md-input-container>
@@ -55,9 +54,16 @@
           <paco-help tip="conditional" ng-if="input.conditional">
             Help: Conditional Logic
           </paco-help>
-
-
-
+      </div>
+      <div ng-if="input.responseType === 'open text'">
+        <md-checkbox ng-model="input.multiline" aria-label="Multiple lines"
+                     ng-change="input.multilineNumber = input.multiline ? 2 : input.multilineNumber">
+          Multiple lines
+        </md-checkbox>
+        <div ng-if="input.multiline">
+          <label>Number of lines</label>
+          <input ng-model="input.multilineNumber" type="number" min="2" max="9" ng-pattern="/^[2-9]*$/">
+        </div>
       </div>
 
       <div ng-if="input.responseType === 'list'">
