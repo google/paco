@@ -216,9 +216,9 @@ public class CopyExperimentMigrationDaoImpl implements CopyExperimentMigrationDa
             "KEY `experiment_history_fk_idx` (`" + ExperimentVersionGroupMappingColumns.EXPERIMENT_DETAIL_ID + "`)," +
             "KEY `group_history_fk_idx` (`" + ExperimentVersionGroupMappingColumns.GROUP_DETAIL_ID + "`)," +
             " CONSTRAINT `experiment_history_fk` FOREIGN KEY (`" + ExperimentVersionGroupMappingColumns.EXPERIMENT_DETAIL_ID + "`) REFERENCES `" +
-                   ExperimentDetailColumns.TABLE_NAME + "` (`" + ExperimentDetailColumns.EXPERIMENT_DETAIL_ID + "`) ON DELETE NO ACTION ON UPDATE NO ACTION," +
+                   ExperimentDetailColumns.TABLE_NAME + "` (`" + ExperimentDetailColumns.EXPERIMENT_DETAIL_ID + "`) ON DELETE CASCADE ON UPDATE NO ACTION," +
             " CONSTRAINT `group_history_fk` FOREIGN KEY (`" + ExperimentVersionGroupMappingColumns.GROUP_DETAIL_ID + "`) REFERENCES " +
-                   GroupDetailColumns.TABLE_NAME + " (`" + GroupDetailColumns.GROUP_DETAIL_ID + "`) ON DELETE NO ACTION ON UPDATE NO ACTION)" +
+                   GroupDetailColumns.TABLE_NAME + " (`" + GroupDetailColumns.GROUP_DETAIL_ID + "`) ON DELETE CASCADE ON UPDATE NO ACTION)" +
             " DEFAULT CHARACTER SET = utf8mb4" ;
    final String CREATE_TABLE_INFORMED_CONSENT = "CREATE TABLE IF NOT EXISTS `pacodb`.`"+ InformedConsentColumns.TABLE_NAME+"` (" +
            InformedConsentColumns.INFORMED_CONSENT_ID + " BIGINT(20) NOT NULL," +
@@ -355,7 +355,7 @@ public class CopyExperimentMigrationDaoImpl implements CopyExperimentMigrationDa
    " ADD CONSTRAINT `e_ic_informed_consent_fk` " +
    " FOREIGN KEY (`"+ InformedConsentColumns.INFORMED_CONSENT_ID  + "`) " + 
    " REFERENCES `pacodb`.`"+ InformedConsentColumns.TABLE_NAME  + "` (`"+ InformedConsentColumns.INFORMED_CONSENT_ID  + "`) " + 
-   " ON DELETE NO ACTION " +
+   " ON DELETE CASCADE " +
    " ON UPDATE NO ACTION ";
    final String addNewColumnsSql11 = "ALTER TABLE `pacodb`.`" + EventServerColumns.TABLE_NAME +  "`  " +
            " ADD INDEX `evg_idx` (`"+EventServerColumns.EXPERIMENT_ID+"`,`"+EventServerColumns.EXPERIMENT_VERSION+"`,`"+EventServerColumns.GROUP_NAME+"`,`"+EventServerColumns.EXPERIMENT_VERSION_GROUP_MAPPING_ID +"`)";

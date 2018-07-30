@@ -38,9 +38,7 @@ public class DeleteExperimentDataJob implements MigrationJob {
     Boolean doAll = false;
     List<Long> expIds = Lists.newArrayList();
     // TODO add exp ids here or create table and store ids in that table
-//    expIds.add(5552926096359424L);
-    // staging 2
-    expIds.add(5205392893673472L);
+    expIds.add(5552926096359424L);
     DeleteExperimentDataDao delExpDataDaoImpl = new DeleteExperimentDataDaoImpl();
     
     if (cursor == null) {
