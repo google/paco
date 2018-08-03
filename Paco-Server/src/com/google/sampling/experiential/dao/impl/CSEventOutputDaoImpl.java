@@ -23,6 +23,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import com.google.appengine.api.LifecycleManager;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.sampling.experiential.cloudsql.columns.EventServerColumns;
@@ -459,41 +460,20 @@ public class CSEventOutputDaoImpl implements CSEventOutputDao {
     return "0";
   }
   
-  private List<Long> getEventIdsForExperiment(Long experimentId, boolean oldFormat) throws SQLException {
-    Connection conn = null;
-    PreparedStatement statementGetEventIds = null;
+  private List<Long> getEventIdsForExperiment(Long experimentId, Connection conn, PreparedStatement statementGetEventIds) throws SQLException {
     ResultSet rsGetEventIds = null;
-    String getEventIds =  null;
     List<Long> eventIds = Lists.newArrayList();
-    if (oldFormat) { 
-      getEventIds = QueryConstants.GET_EVENT_IDS_OLD_FORMAT_ORDERED_BY_ID.toString() ;
-    } else {
-      getEventIds = QueryConstants.GET_EVENT_IDS_NEW_FORMAT_ORDERED_BY_ID.toString() ;
-    }
-    
     try {
-      conn = CloudSQLConnectionManager.getInstance().getConnection();
-      
-      statementGetEventIds = conn.prepareStatement(getEventIds);
-      statementGetEventIds.setLong(1, experimentId);
-      
       rsGetEventIds = statementGetEventIds.executeQuery();
       while (rsGetEventIds.next()) {
         eventIds.add(rsGetEventIds.getLong(1));
       }
       log.info("Selected " + eventIds.size() +  " event ids  for expt id " + experimentId );
-      
       return eventIds;
     } finally {
       try {
         if (rsGetEventIds != null) {
           rsGetEventIds.close();
-        }
-        if (statementGetEventIds != null) {
-          statementGetEventIds.close();
-        }
-        if (conn != null) {
-          conn.close();
         }
       } catch (SQLException ex1) {
         log.warning(ErrorMessages.CLOSING_RESOURCE_EXCEPTION.getDescription()+ ex1);
@@ -501,8 +481,7 @@ public class CSEventOutputDaoImpl implements CSEventOutputDao {
     }
   }  
   
-  private boolean deleteEventsAndOutputs(List<Long> eventIds) throws SQLException {
-    Connection conn = null;
+  private boolean deleteEventsAndOutputs(Connection conn, List<Long> eventIds) throws SQLException {
     PreparedStatement statementDeleteEvents = null;
     PreparedStatement statementDeleteOutputs = null;
     int i = 1;
@@ -510,7 +489,6 @@ public class CSEventOutputDaoImpl implements CSEventOutputDao {
     String deleteQuery1 = QueryConstants.DELETE_ALL_OUTPUTS.toString();
     String deleteQuery2 = QueryConstants.DELETE_ALL_EVENTS.toString();
     try {
-      conn = CloudSQLConnectionManager.getInstance().getConnection();
       questionMarkCharacters = questionMark(eventIds);
       deleteQuery1 = deleteQuery1.replaceFirst("\\?", questionMarkCharacters);
       statementDeleteOutputs = conn.prepareStatement(deleteQuery1);
@@ -539,9 +517,6 @@ public class CSEventOutputDaoImpl implements CSEventOutputDao {
         if (statementDeleteEvents != null) {
           statementDeleteEvents.close();
         }
-        if (conn != null) {
-          conn.close();
-        }
       } catch (SQLException ex1) {
         log.warning(ErrorMessages.CLOSING_RESOURCE_EXCEPTION.getDescription()+ ex1);
       }
@@ -554,20 +529,49 @@ public class CSEventOutputDaoImpl implements CSEventOutputDao {
   @Override
   public boolean deleteAllEventsAndOutputsData(Long experimentId) throws SQLException {
     boolean oldFormat = true;
-    List<Long> eventIds = getEventIdsForExperiment(experimentId, oldFormat);
-    
-    while ( true ) {
-      deleteEventsAndOutputs(eventIds);
-      eventIds = getEventIdsForExperiment(experimentId, oldFormat);
-      if (eventIds.size() == 0) {
-        if ( oldFormat) { 
-          oldFormat = false;
-          eventIds = getEventIdsForExperiment(experimentId, oldFormat);
-        } else {
-          break;  
+    PreparedStatement statementGetEventIds = null;
+    String getEventIds =  null;
+    Connection conn = null;
+    try {
+      conn = CloudSQLConnectionManager.getInstance().getConnection();
+      
+      if (oldFormat) { 
+        getEventIds = QueryConstants.GET_EVENT_IDS_OLD_FORMAT_ORDERED_BY_ID.toString() ;
+      } else {
+        getEventIds = QueryConstants.GET_EVENT_IDS_NEW_FORMAT_ORDERED_BY_ID.toString() ;
+      }
+      statementGetEventIds = conn.prepareStatement(getEventIds);
+      statementGetEventIds.setLong(1, experimentId);
+      List<Long> eventIds = getEventIdsForExperiment(experimentId, conn, statementGetEventIds);
+      
+      while (true) {
+        if (LifecycleManager.getInstance().isShuttingDown()) { 
+          log.info("app engine current module is going to shut down in.........."+LifecycleManager.getInstance().getRemainingShutdownTime());
         }
+        deleteEventsAndOutputs(conn, eventIds);
+        eventIds = getEventIdsForExperiment(experimentId, conn, statementGetEventIds);
+        if (eventIds.size() == 0) {
+          if (oldFormat) { 
+            oldFormat = false;
+            eventIds = getEventIdsForExperiment(experimentId, conn, statementGetEventIds);
+          } else {
+            break;  
+          }
+        } 
       } 
+    } finally { 
+      try {
+        if (statementGetEventIds != null) {
+          statementGetEventIds.close();
+        }
+        if (conn != null) {
+          conn.close();
+        }
+      } catch (SQLException ex1) {
+        log.warning(ErrorMessages.CLOSING_RESOURCE_EXCEPTION.getDescription()+ ex1);
+      }
     } 
+    
     return true;
  
   }  

@@ -6,6 +6,8 @@ import java.util.logging.Logger;
 
 import org.joda.time.DateTime;
 
+import com.google.appengine.api.LifecycleManager;
+import com.google.appengine.api.LifecycleManager.ShutdownHook;
 import com.google.common.collect.Lists;
 import com.google.sampling.experiential.server.ExceptionUtil;
 import com.google.sampling.experiential.server.migration.MigrationJob;
@@ -20,6 +22,13 @@ public class DeleteExperimentDataJob implements MigrationJob {
   public boolean doMigration(String cursor, DateTime startTime, DateTime endTime) {
     Boolean success = false;
     try {
+      LifecycleManager.getInstance().setShutdownHook(new ShutdownHook() {
+        public void shutdown() {
+//          LifecycleManager.getInstance().interruptAllRequests();
+          log.info("in delete experiment job - setting shut down hook");
+//          throw new Exception("hh");
+        }
+      });
       String successMsg = deleteAllExperimentData(cursor);
       if ("All Done".equals(successMsg)) { 
         success = true;
@@ -27,9 +36,13 @@ public class DeleteExperimentDataJob implements MigrationJob {
         success = false;
       }
     } catch (Exception e) { 
-      log.warning(ExceptionUtil.getStackTraceAsString(e));
+      log.warning("doMig: Ex:"+ExceptionUtil.getStackTraceAsString(e));
+      success = false;
+    } catch (Throwable t) { 
+      log.warning("doMig: Throwable:"+ ExceptionUtil.getStackTraceAsString(t));
       success = false;
     }
+ 
     return success;
   }
   
@@ -54,7 +67,11 @@ public class DeleteExperimentDataJob implements MigrationJob {
           doAll = true;
         } catch (SQLException e) {
           returnString += "Delete experiment event and outputs failed. Restart job from step1";
+          log.warning("Delete events and outputs job" + ExceptionUtil.getStackTraceAsString(e));
           throw new SQLException(returnString, e);
+        } catch (Throwable e) { 
+          log.warning("Throwable: "+ ExceptionUtil.getStackTraceAsString(e));
+          throw e;
         }
       }
       
