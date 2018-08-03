@@ -18,6 +18,10 @@ import org.json.JSONObject;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.sampling.experiential.dao.CSEventOutputDao;
+import com.google.sampling.experiential.dao.CSFailedEventDao;
+import com.google.sampling.experiential.dao.impl.CSEventOutputDaoImpl;
+import com.google.sampling.experiential.dao.impl.CSFailedEventDaoImpl;
 import com.google.sampling.experiential.shared.EventDAO;
 import com.pacoapp.paco.shared.util.Constants;
 import com.pacoapp.paco.shared.util.ErrorMessages;
@@ -45,11 +49,14 @@ public class FailedEventsInsertServlet extends HttpServlet {
     List<Long> notFixedList = Lists.newArrayList();
     List<Long> mysteryList = Lists.newArrayList();
     
-    CloudSQLDaoImpl sqlDao = new CloudSQLDaoImpl();
+    CSFailedEventDao failedDaoImpl = new CSFailedEventDaoImpl();
+    CSEventOutputDao eventOutputDaoImpl = new CSEventOutputDaoImpl();
+    
     try {
       // Get failed events of reprocessing status false
-      Map<Long, String> failedEvents = sqlDao.getFailedEvents();
+      Map<Long, String> failedEvents = failedDaoImpl.getFailedEvents();
       boolean withOutputs = false;
+      Boolean oldColumnName = true;
       for ( Long failedId : failedEvents.keySet()) {
         id = failedId;
         final JSONObject currentEvent = new JSONObject(failedEvents.get(failedId));
@@ -58,7 +65,7 @@ public class FailedEventsInsertServlet extends HttpServlet {
         if (currentEvent.has(Constants.ID)) {
           // check whether failed json id is there in events table
           getQueryForEventIdSql = SearchUtil.getQueryForEventRetrieval(currentEvent.getString(Constants.ID));
-          List<EventDAO> evtList = sqlDao.getEvents(getQueryForEventIdSql, withOutputs);
+          List<EventDAO> evtList = eventOutputDaoImpl.getEvents(getQueryForEventIdSql, withOutputs, oldColumnName);
           if (evtList.size() == 0) {
             toBeFixed.put(eventId, false);
             // send it to cs insert
@@ -66,14 +73,14 @@ public class FailedEventsInsertServlet extends HttpServlet {
                                                                                  null, null,null);
             // verify whether it is there in events table
             getQueryForEventIdSql = SearchUtil.getQueryForEventRetrieval(currentEvent.getString(Constants.ID));
-            List<EventDAO> evts = sqlDao.getEvents(getQueryForEventIdSql, withOutputs);
+            List<EventDAO> evts = eventOutputDaoImpl.getEvents(getQueryForEventIdSql, withOutputs, oldColumnName);
             if (evts.size() >0) {
               toBeFixed.put(eventId, true);
-              sqlDao.updateFailedEventsRetry(id, Constants.TRUE);
+              failedDaoImpl.updateFailedEventsRetry(id, Constants.TRUE);
             }
           } else {
             log.warning("It is in failed Events table and also in events table"+ eventId);
-            sqlDao.updateFailedEventsRetry(id, "resolved");
+            failedDaoImpl.updateFailedEventsRetry(id, "resolved");
             mysteryList.add(eventId);
           }
         }  
@@ -92,7 +99,7 @@ public class FailedEventsInsertServlet extends HttpServlet {
       log.info("Mystery List(Present in both events table and failed events table. So we are not processing these event ids : )"+ mysteryList);
     } catch (SQLException | JSONException | ParseException e) {
       try {
-        sqlDao.updateFailedEventsRetry(id, Constants.TRUE);
+        failedDaoImpl.updateFailedEventsRetry(id, Constants.TRUE);
       } catch (SQLException sqle) {
         log.warning(ErrorMessages.SQL_EXCEPTION +  sqle.getMessage());
       }

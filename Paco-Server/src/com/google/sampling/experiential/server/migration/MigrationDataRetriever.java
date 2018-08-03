@@ -21,6 +21,7 @@ import java.text.ParseException;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.logging.Logger;
 
@@ -40,11 +41,20 @@ import com.google.appengine.api.datastore.Query.FilterPredicate;
 import com.google.appengine.api.datastore.QueryResultList;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
+import com.google.sampling.experiential.dao.CSEventDao;
+import com.google.sampling.experiential.dao.CSEventOutputDao;
+import com.google.sampling.experiential.dao.CSExperimentVersionGroupMappingDao;
+import com.google.sampling.experiential.dao.CSOutputDao;
+import com.google.sampling.experiential.dao.dataaccess.ExperimentVersionGroupMapping;
+import com.google.sampling.experiential.dao.impl.CSEventDaoImpl;
+import com.google.sampling.experiential.dao.impl.CSEventOutputDaoImpl;
+import com.google.sampling.experiential.dao.impl.CSExperimentVersionGroupMappingDaoImpl;
+import com.google.sampling.experiential.dao.impl.CSOutputDaoImpl;
 import com.google.sampling.experiential.datastore.EventEntityConverter;
 import com.google.sampling.experiential.model.Event;
 import com.google.sampling.experiential.model.What;
-import com.google.sampling.experiential.server.CloudSQLDaoImpl;
 import com.google.sampling.experiential.server.ExceptionUtil;
+import com.google.sampling.experiential.server.migration.dao.impl.CloudSQLMigrationDaoImpl;
 import com.google.sampling.experiential.shared.EventDAO;
 import com.google.sampling.experiential.shared.WhatDAO;
 import com.pacoapp.paco.shared.util.ErrorMessages;
@@ -202,7 +212,7 @@ public class MigrationDataRetriever {
     return isFinished;
   }
   
-  public boolean catchUpEventsFromDSToCS(String oldCursor,DateTime startTime, DateTime endTime, boolean populateExperimentInfoInEvents) {
+  public boolean catchUpEventsFromDSToCS(String oldCursor,DateTime startTime, DateTime endTime, boolean populateEventsTableOldMethod) {
     DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
     CloudSQLMigrationDaoImpl  migDaoImpl =  new CloudSQLMigrationDaoImpl();
     
@@ -242,7 +252,7 @@ public class MigrationDataRetriever {
         // get event id from DS
         evtObjDS = EventEntityConverter.convertEntityToEvent(entity);
         evtObjDS.setId(entity.getKey().getId());
-        copySingleEventAndOutputsFromDSToCS(evtObjDS, populateExperimentInfoInEvents);    
+        copySingleEventAndOutputsFromDSToCS(evtObjDS, populateEventsTableOldMethod);    
       }
       cursor = results.getCursor();
       log.info("Moving the cursor:" + cursor.toWebSafeString());
@@ -254,200 +264,41 @@ public class MigrationDataRetriever {
     return isFinished;
   }
   
-  public String convertEventV4ToV5(String cursor) throws SQLException {
-    String returnString = "";
-    Boolean doAll = false;
-    CloudSQLMigrationDaoImpl sqlMigDaoImpl = new CloudSQLMigrationDaoImpl();
-    if (cursor == null) {
-      doAll = true;
-    }
-    if (doAll || (cursor != null && cursor.equalsIgnoreCase("step1"))) {
-      try {
-          sqlMigDaoImpl.eventV5RemoveOldIndexes();
-          returnString = "Removed old Indexes. Step1 complete.";
-          doAll = true;
-        } catch (SQLException e) {
-          returnString = "Failed to remove old Indexes. Restart job";
-          throw new SQLException(returnString, e);
-        }
-    }
-    if (doAll || (cursor != null && cursor.equalsIgnoreCase("step2"))) {
-      try {
-        sqlMigDaoImpl.eventV5RenameExistingColumns();
-        returnString += "Renamed old columns. Step2 complete.";
-        doAll =  true;
-      } catch (SQLException e) {
-        returnString += "Failed to rename old columns. Restart job from step2";
-        throw new SQLException(returnString, e);
-      }
-    }
-    if (doAll || (cursor != null && cursor.equalsIgnoreCase("step3"))) {
-      try {
-        sqlMigDaoImpl.eventV5AddNewColumns();
-        returnString += "Added new columns. Step3 complete.";
-        doAll = true;
-      } catch (SQLException e) {
-        returnString += "Failed to add new columns. Restart job from step3";
-        throw new SQLException(returnString, e);
-      }
-    }
-    if (doAll || (cursor != null && cursor.equalsIgnoreCase("step4"))) {
-      try {
-        sqlMigDaoImpl.eventV5UpdateNewColumnsWithValues();
-        returnString += "Updating new new columns with values. Step4 complete.";
-        doAll = true;
-      } catch (SQLException e) {
-        returnString += "Failed to update new columns with values. Restart job from step4";
-        throw new SQLException(returnString, e);
-      }
-    }
-    if (doAll || (cursor != null && cursor.equalsIgnoreCase("step5"))) {
-      try {
-        sqlMigDaoImpl.eventV5AddNewIndexes();
-        returnString = "All Done";
-      } catch (SQLException e) {
-        returnString += "Failed to add New Indexes. Restart job from step5";
-        throw new SQLException(returnString, e);
-      }
-    }
-     
-    return returnString;
-  }
-  
-  public String anonymizeParticipants(String cursor) throws SQLException {
-    String returnString = "";
-    Boolean doAll = false;
-    CloudSQLMigrationDaoImpl sqlMigDaoImpl = new CloudSQLMigrationDaoImpl();
-    if (cursor == null) {
-      doAll = true;
-    }
-    if (doAll || (cursor != null && cursor.equalsIgnoreCase("step1"))) {
-      try {
-          sqlMigDaoImpl.anonymizeParticipantsCreateTables();
-          returnString = "Created new tables. Step1 complete.";
-          doAll = true;
-        } catch (SQLException e) {
-          returnString = "Create new tables failed. Restart job";
-          throw new SQLException(returnString, e);
-        }
-    }
-    if (doAll || (cursor != null && cursor.equalsIgnoreCase("step2"))) {
-      try {
-        sqlMigDaoImpl.anonymizeParticipantsAddColumnToEventTable();
-        returnString += "Added lookup column to event table. Step2 complete.";
-        doAll =  true;
-      } catch (SQLException e) {
-        returnString += "Failed to add lookup column. Restart job from step2";
-        throw new SQLException(returnString, e);
-      }
-    }
-    if (doAll || (cursor != null && cursor.equalsIgnoreCase("step3"))) {
-      try {
-        sqlMigDaoImpl.anonymizeParticipantsTakeBackupEventIdWho();
-        returnString += "Created backup of id, who in event table. Step3 complete.";
-        doAll =  true;
-      } catch (SQLException e) {
-        returnString += "Failed to create backup of id, who in event table. Restart job from step3";
-        throw new SQLException(returnString, e);
-      }
-    }
-    if (doAll || (cursor != null && cursor.equalsIgnoreCase("step4"))) {
-      try {
-        sqlMigDaoImpl.anonymizeParticipantsMigrateToUserAndExptUser();
-        returnString += "migrateToUserAndExptUser Done. Step4 complete.";
-        doAll = true;
-      } catch (SQLException e) {
-        returnString += "Failed to migrate to User and Expt tables. Restart job from step4";
-        throw new SQLException(returnString, e);
-      }
-    }
-    if (doAll || (cursor != null && cursor.equalsIgnoreCase("step5"))) {
-      try {
-        sqlMigDaoImpl.anonymizeParticipantsModifyExperimentNameFromNullToBlank();
-        returnString += "Modify experiment name from null to blank Done. Step5 complete.";
-        doAll = true;
-      } catch (SQLException e) {
-        returnString += "Failed to modify experiment name from null to blank. Restart job from step5";
-        throw new SQLException(returnString, e);
-      }
-    }
-    if (doAll || (cursor != null && cursor.equalsIgnoreCase("step6"))) {
-      try {
-        sqlMigDaoImpl.anonymizeParticipantsMigrateToExperimentLookupTracking();
-        returnString += "migrateToExperimentLookupTracking Done. Step6 complete.";
-        doAll = true;
-      } catch (SQLException e) {
-        returnString += "Failed to migrate to Expt Lookup Tracking tables. Restart job from step6";
-        throw new SQLException(returnString, e);
-      }
-    }
-    if (doAll || (cursor != null && cursor.equalsIgnoreCase("step7"))) {
-      try {
-        sqlMigDaoImpl.anonymizeParticipantsMigrateToExperimentLookup();
-        returnString += "migrateToExperimentLookup Done. Step7 complete.";
-        doAll = true;
-      } catch (SQLException e) {
-        returnString += "Failed to migrate to Experimentlookup tables. Restart job from step7";
-        throw new SQLException(returnString, e);
-      }
-    }
-    if (doAll || (cursor != null && cursor.equalsIgnoreCase("step8"))) {
-      try {
-        sqlMigDaoImpl.anonymizeParticipantsUpdateEventWhoAndLookupIdByTracking();
-        returnString += "update event who and lookup id Done. Step8 complete.";
-        doAll = true;
-      } catch (Exception ex)  {
-        log.warning(ExceptionUtil.getStackTraceAsString(ex));
-        returnString += "Ex:Failed to update event who and lookup id . Restart job from step8";
-        throw ex;
-      }
-    }
-    if (doAll || (cursor != null && cursor.equalsIgnoreCase("step9"))) {
-      try {
-        sqlMigDaoImpl.anonymizeParticipantsUpdateEventWhoAndLookupIdSerially();
-        returnString += "update event on failed ones Done. Step9 complete.";
-        doAll = true;
-      } catch (SQLException e) {
-        returnString += "Failed to update event on failed ones. Restart job from step9";
-        log.warning(ExceptionUtil.getStackTraceAsString(e));
-        throw new SQLException(returnString, e);
-      }
-    }
-    if (doAll || (cursor != null && cursor.equalsIgnoreCase("step10"))) {
-      try {
-        sqlMigDaoImpl.anonymizeParticipantsRenameOldEventColumns();
-        returnString = "All Done";
-      } catch (SQLException e) {
-        returnString += "Failed to rename event columns. Restart job from step10";
-        log.warning(ExceptionUtil.getStackTraceAsString(e));
-        throw new SQLException(returnString, e);
-      }
-    }
-    return returnString;
-  }
+ 
 
-  private void copySingleEventAndOutputsFromDSToCS(Event evtObjDS, boolean populateExperimentInfoInEvents) {
-    CloudSQLDaoImpl sqlDaoImpl = new CloudSQLDaoImpl(); 
+
+  private void copySingleEventAndOutputsFromDSToCS(Event evtObjDS, boolean populateEventsTableOldMethod) {
+    CSEventOutputDao eventOutputDaoImpl = new CSEventOutputDaoImpl();
+    CSExperimentVersionGroupMappingDao evmDaoImpl = new CSExperimentVersionGroupMappingDaoImpl();
+    CSEventDao eventDaoImpl = new CSEventDaoImpl();
+    CSOutputDao outputDaoImpl = new CSOutputDaoImpl();
     CloudSQLMigrationDaoImpl sqlMigDaoImpl = new CloudSQLMigrationDaoImpl(); 
     List<String> whatTexts = Lists.newArrayList();
     Boolean eventPresentInCS = false;
     List<WhatDAO> outputsList = null;
     int outputsInDS=0;
     int outputsInCS=0;
-    
+    List<Event> evtDSLst = Lists.newArrayList();
     Set<What> whatsDS = evtObjDS.getWhat();
     outputsInDS = whatsDS.size();
     boolean withOutputs = false;
+    ExperimentVersionGroupMapping evmForThisGroup = null;
     // find if event present in events cloud sql
     try {
+      evtDSLst.add(evtObjDS);
+      if (!populateEventsTableOldMethod) {
+        Map<String, ExperimentVersionGroupMapping> allEVMInVersion = evmDaoImpl.getAllGroupsInVersion(Long.parseLong(evtObjDS.getExperimentId()), evtObjDS.getExperimentVersion());
+        // Rename event group Name from null to System, if its system predefined inputs
+        evmForThisGroup = evmDaoImpl.findMatchingEVGMRecord(evtObjDS, allEVMInVersion, false);
+      }
       String getQueryForEventIdSql = SearchUtil.getQueryForEventRetrieval(evtObjDS.getId().toString());
-      List<EventDAO> eventInCS = sqlDaoImpl.getEvents(getQueryForEventIdSql, withOutputs);
+      List<EventDAO> eventInCS = eventOutputDaoImpl.getEvents(getQueryForEventIdSql, withOutputs, populateEventsTableOldMethod);
       if (eventInCS.size() == 0) {
         //copy event to cloud sql
-        if (populateExperimentInfoInEvents) {
-          sqlDaoImpl.insertSingleEventOnlyWithExperimentInfo(evtObjDS);
+        if (populateEventsTableOldMethod) {
+          eventDaoImpl.insertSingleEventOnlyOldFormat(evtObjDS);
         } else {
-          sqlDaoImpl.insertSingleEventOnly(evtObjDS);
+          eventDaoImpl.insertSingleEventOnly(evtObjDS);
         }
         eventPresentInCS = true;
       } else {
@@ -464,7 +315,7 @@ public class MigrationDataRetriever {
     if (eventPresentInCS) {
       // find if cloud sql has the correct number of outputs
       try {
-        outputsList = sqlDaoImpl.getOutputs(evtObjDS.getId());
+        outputsList = outputDaoImpl.getOutputs(evtObjDS.getId(), populateEventsTableOldMethod);
         for (int i=0; i< outputsList.size();i++) {
           whatTexts.add(outputsList.get(i).getName());
         }
@@ -480,10 +331,14 @@ public class MigrationDataRetriever {
           What temp = whatItr.next();
           String text = temp.getName();
           String answer = temp.getValue();
+          Long inputId = null;
           try {
+            if (!populateEventsTableOldMethod) {
+              inputId = evmForThisGroup.getInputCollection().getInputOrderAndChoices().get(text).getInput().getInputId().getId();
+            }
             if (!whatTexts.contains(text)) {
               log.info("Outputs missing in CS for event id " + evtObjDS.getId() + "--" + text);
-              sqlDaoImpl.insertSingleOutput(evtObjDS.getId(), text, answer) ;
+              outputDaoImpl.insertSingleOutput(evtObjDS.getId(), inputId ,  text, answer, populateEventsTableOldMethod) ;
             }
           } catch (SQLException sqle) { 
             sqlMigDaoImpl.insertCatchupFailure("OutputWrite", evtObjDS.getId(), text, sqle.getMessage());
@@ -492,7 +347,6 @@ public class MigrationDataRetriever {
       }
     }
   }
-  
 
   private Event createEventFromEntity(Entity entity) {
     return EventEntityConverter.convertEntityToEvent(entity);

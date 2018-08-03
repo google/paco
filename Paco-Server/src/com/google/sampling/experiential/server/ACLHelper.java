@@ -3,7 +3,7 @@ package com.google.sampling.experiential.server;
 import java.util.List;
 import java.util.Set;
 
-import com.google.sampling.experiential.datastore.EventServerColumns;
+import com.google.sampling.experiential.cloudsql.columns.EventServerColumns;
 import com.pacoapp.paco.shared.util.Constants;
 import com.pacoapp.paco.shared.util.ErrorMessages;
 import com.pacoapp.paco.shared.util.QueryPreprocessor;

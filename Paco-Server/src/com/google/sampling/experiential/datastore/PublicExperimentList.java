@@ -56,13 +56,11 @@ public class PublicExperimentList {
     try {
       existingPublicAcl = ds.get(/*tx,*/ existingKey);
     } catch (EntityNotFoundException e) {
-    }
+    } 
     Entity entity = new Entity(PUBLIC_EXPERIMENT_KIND, experimentKey.getId());
     entity.setProperty(END_DATE_PROPERTY, getEndDateColumn(experiment));
     entity.setProperty(STATS_PARTICIPANTS_PROPERTY, ps.getTotalByParticipant( experiment.getId() ).size());
     entity.setProperty(MODIFY_DATE_PROPERTY, com.pacoapp.paco.shared.util.TimeUtil.formatDate(new Date().getTime())); //Update the modify date - used for experiment hub - "new"
-
-
     if (!ActionScheduleGenerator.isOver(dateTime, experiment) && experiment.getPublished() && experiment.getPublishedUsers().isEmpty()) {
       ds.put(/*tx, */entity);
     } else if (existingPublicAcl != null) {

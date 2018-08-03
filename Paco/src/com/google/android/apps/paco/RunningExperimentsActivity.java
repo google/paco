@@ -42,10 +42,13 @@ import com.pacoapp.paco.model.Experiment;
 import com.pacoapp.paco.model.ExperimentProviderUtil;
 import com.pacoapp.paco.net.NetworkUtil;
 import com.pacoapp.paco.shared.model2.ExperimentGroup;
+import com.pacoapp.paco.shared.model2.GroupTypeEnum;
 import com.pacoapp.paco.ui.ExperimentExecutor;
 import com.pacoapp.paco.ui.ExperimentExecutorCustomRendering;
 import com.pacoapp.paco.ui.ExperimentGroupPicker;
 import com.pacoapp.paco.ui.FindExperimentsActivity;
+
+import static com.pacoapp.paco.ui.ExperimentGroupPicker.getOnlySurveyGroups;
 
 
 /**
@@ -193,7 +196,7 @@ public class RunningExperimentsActivity extends Activity {
           final Long experimentServerId = (Long) v.getTag();
           final Experiment experiment = experiments.get(position);
           final List<ExperimentGroup> groups = experiment.getExperimentDAO().getGroups();
-
+          List<ExperimentGroup> surveyGroups = ExperimentGroupPicker.getOnlySurveyGroups(groups);
 /*          if (v.getId() == R.id.editExperimentButton) {
             editExperiment(experiment, groups);
           } else if (v.getId() == R.id.exploreDataExperimentButton) {
@@ -221,12 +224,13 @@ public class RunningExperimentsActivity extends Activity {
 
           } else*/ if (v.getId() == R.id.experimentListRowTitle) {
             Intent experimentIntent = null;
-            if (groups.size() > 1) {
+            // TODO grouptype must be survey and more than one
+            if (surveyGroups.size() > 1) {
               experimentIntent = new Intent(RunningExperimentsActivity.this, ExperimentGroupPicker.class);
               experimentIntent.putExtra(ExperimentGroupPicker.SHOULD_GO_TO_RENDER_NEXT, ExperimentGroupPicker.RENDER_NEXT);
-            } else {
+            } else if (surveyGroups.size() == 1) {
               Class clazz = null;
-              final ExperimentGroup experimentGroup = groups.get(0);
+              final ExperimentGroup experimentGroup = surveyGroups.get(0);
               if (experimentGroup.getCustomRendering()) {
                 clazz = ExperimentExecutorCustomRendering.class;
               } else {

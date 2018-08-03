@@ -28,7 +28,8 @@ public enum ErrorMessages {
   INVALID_LIMIT_OFFSET(148, "Invalid Number format :"),
   EVENT_MIGRATION_EXCEPTION(149, "Event Migration Failed"),
   GENERAL_EXCEPTION(150, "General Exception"),
-  IO_EXCEPTION(151, "IO Exception");
+  IO_EXCEPTION(151, "IO Exception"),
+  INVALID_ACCESS_OR_ARGUMENT_EXCEPTION(152, "Invalid access or Illegal arument");
   
   private final int code;
   private final String description;

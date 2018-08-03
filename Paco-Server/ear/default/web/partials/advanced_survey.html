@@ -1,0 +1,76 @@
+<div class="padded advanced">
+  <div class="over">
+    <div layout="row" ng-if="group.groupType==='SURVEY'"> <!-- EOD group -->
+      <md-checkbox ng-model="group.endOfDayGroup" aria-label="End of day group" ng-if="moreThanOneSurveyGroupPresent(experiment)">
+        End of day survey
+      </md-checkbox>
+
+      <div ng-if="group.endOfDayGroup">
+        Referred Group
+        <md-select ng-model="group.endOfDayReferredGroupName" placeholder="Select">
+          <md-option ng-repeat="group in experiment.groups" value="{{group.name}}">{{group.name}}
+          </md-option>
+        </md-select>
+        <no-ios ng-if="group.endOfDayGroup" message="'iOS does not support EOD groups'">iOS does not support EOD groups</no-ios>
+      </div>
+    </div> <!--  row -->
+
+    <div layout="row"> <!--  override -->
+      <md-checkbox ng-model="group.customRendering" aria-label="Override form display">
+        Override form display
+      </md-checkbox>
+
+      <no-ios ng-if="group.customRendering">iOS does not support custom display</no-ios>
+    </div>
+
+
+  <!-- </div>  over -->
+  <div class="padded source-frame" ng-if="group.customRendering">
+    Enter HTML and Javascript for custom rendering of experiment
+
+    <div class="ace_editor" ng-model="group.customRenderingCode" ui-ace="{
+        mode: 'javascript',
+        rendererOptions: {
+          minLines: 10,
+          maxLines: 100
+        }
+      }">
+    </div>
+  </div><!-- padded source frame --> 
+
+  
+  <div layout="row"> <!--  custom feedback -->
+  <md-input-container flex="22" style="padding-top:2px;margin-top:8px;margin-left:0px;padding-left:0px;">
+  <div style="padding-top:2px;">
+    Feedback (after survey):
+    </div>
+    </md-input-container>
+    <md-input-container style="padding-top:2px;margin-top:4px;">
+    <md-select ng-model="group.feedback.type" as-string flex="24" placeholder="Feedback">
+      <md-option ng-selected="$index === group.feedback.type" ng-repeat="type in feedbackTypes"
+        value="{{$index}}">{{type}}</md-option>
+    </md-select>      
+    </md-input-container>
+    <no-ios ng-if="group.feedback.type != 0">iOS does not support non-static feedback</no-ios>
+      <md-input-container style="padding-top:2px;margin-top:4px;" ng-if="group.feedback.type === 0" ng-enabled="" flex="50">
+        <input type="text" ng-model="group.feedback.text" placeholder="Message" >
+      </md-input-container>
+    <no-ios class="align_tiptext" ng-if="group.feedback.type === 0 && group.feedback.text !== defaultFeedback">iOS does not support custom messages</no-ios>
+  </div>
+  
+  <!-- TODO(ispiro): clear out text when switching between type 0 and 3 -->
+  <div class="padded source-frame" ng-if="group.feedback.type === 3">
+    Enter custom feedback code
+
+    <div class="ace_editor" ng-model="group.feedback.text" ui-ace="{
+        mode: 'javascript',
+        onLoad: aceInfinity,
+        rendererOptions: {
+          minLines: 10,
+          maxLines: 'Infinity'
+        }
+      }">
+    </div>
+  </div><!--  padded source frame -->
+</div> <!--  over -->
+</div><!--  padded advanced -->

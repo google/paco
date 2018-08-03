@@ -96,6 +96,7 @@ public class PhoneSessionServlet extends HttpServlet {
 
   private void produceAppUsageChart(String userEmail, String who, Long experimentId, HttpServletResponse resp,
                                     DateTimeZone timezone, String groupName, String startTime, String endTime, Float pacoProtocol) throws Exception {
+    Boolean oldMethodFlag = Constants.USE_OLD_FORMAT_FLAG;
     String responseTimeClause = "";
     String responseTimeValues = "";
     if (!Strings.isNullOrEmpty(startTime) && !Strings.isNullOrEmpty(endTime)) {
@@ -152,7 +153,7 @@ public class PhoneSessionServlet extends HttpServlet {
     SQLQuery sqlQueryObj = QueryJsonParser.parseSqlQueryFromJson(query, enableGrpByAndProjection);
     SearchQuery searchQuery = QueryFactory.createSearchQuery(sqlQueryObj, pacoProtocol);
     long qryStartTime = System.currentTimeMillis();
-    PacoResponse pr = searchQuery.process(userEmail);
+    PacoResponse pr = searchQuery.process(userEmail, oldMethodFlag);
     long diff = System.currentTimeMillis() - qryStartTime;
     log.info("complete search qry took " + diff + " seconds");
     

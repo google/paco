@@ -8,7 +8,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.google.common.collect.Maps;
-import com.google.sampling.experiential.datastore.EventServerColumns;
+import com.google.sampling.experiential.cloudsql.columns.EventServerColumns;
 import com.pacoapp.paco.shared.model2.EventBaseColumns;
 import com.pacoapp.paco.shared.model2.OutputBaseColumns;
 import com.pacoapp.paco.shared.util.QueryPreprocessor;
