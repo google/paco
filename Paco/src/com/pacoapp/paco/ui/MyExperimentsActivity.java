@@ -573,15 +573,6 @@ public class MyExperimentsActivity extends ActionBarActivity implements
       DateTime dt = TimeUtil.parseDateWithZone(joinDate);
       return TimeUtil.formatDateLong(dt);
     }
-    private List<ExperimentGroup> getOnlySurveyGroups(List<ExperimentGroup> groups) {
-      List<ExperimentGroup> surveyGroups = Lists.newArrayList();
-      for (ExperimentGroup eg : groups) {
-        if (GroupTypeEnum.SURVEY.equals(eg.getGroupType())) {
-          surveyGroups.add(eg);
-        }
-      }
-      return surveyGroups;
-    }
 
     private OnClickListener myButtonListener = new OnClickListener() {
       @Override
@@ -593,7 +584,7 @@ public class MyExperimentsActivity extends ActionBarActivity implements
           final Long experimentServerId = (Long) v.getTag();
           final Experiment experiment = experiments.get(position);
           final List<ExperimentGroup> groups = experiment.getExperimentDAO().getGroups();
-          List<ExperimentGroup> surveyGrps = getOnlySurveyGroups(groups);
+          List<ExperimentGroup> surveyGrps = ExperimentGroupPicker.getOnlySurveyGroups(groups);
           if (v.getId() == R.id.menuButton) {
             showPopup(experiment, v);
           } else {

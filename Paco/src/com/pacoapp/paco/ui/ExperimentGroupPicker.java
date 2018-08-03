@@ -50,14 +50,19 @@ public class ExperimentGroupPicker extends ActionBarActivity implements Experime
   private ViewGroup mainLayout;
   private ListView list;
   
-  private List<ExperimentGroup> getOnlySurveyGroups(List<ExperimentGroup> groups) {
+  public static List<ExperimentGroup> getOnlySurveyGroups(List<ExperimentGroup> groups) {
     List<ExperimentGroup> surveyGroups = Lists.newArrayList();
     for (ExperimentGroup eg : groups) {
-      if (GroupTypeEnum.SURVEY.equals(eg.getGroupType())) {
+      if (isSurveyGroup(eg)) {
         surveyGroups.add(eg);
       }
     }
     return surveyGroups;
+  }
+
+  public static boolean isSurveyGroup(ExperimentGroup eg) {
+    return GroupTypeEnum.SURVEY.equals(eg.getGroupType()) ||
+            (eg.getGroupType() == null && !eg.getInputs().isEmpty());
   }
 
   @Override

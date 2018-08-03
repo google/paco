@@ -48,6 +48,8 @@ import com.pacoapp.paco.ui.ExperimentExecutorCustomRendering;
 import com.pacoapp.paco.ui.ExperimentGroupPicker;
 import com.pacoapp.paco.ui.FindExperimentsActivity;
 
+import static com.pacoapp.paco.ui.ExperimentGroupPicker.getOnlySurveyGroups;
+
 
 /**
  *
@@ -183,15 +185,6 @@ public class RunningExperimentsActivity extends Activity {
       // iv.setImageResource();
       return view;
     }
-    private List<ExperimentGroup> getOnlySurveyGroups(List<ExperimentGroup> groups) {
-      List<ExperimentGroup> surveyGroups = Lists.newArrayList();
-      for (ExperimentGroup eg : groups) {
-        if (GroupTypeEnum.SURVEY.equals(eg.getGroupType())) {
-          surveyGroups.add(eg);
-        }
-      }
-      return surveyGroups;
-    }
 
     private OnClickListener myButtonListener = new OnClickListener() {
       @Override
@@ -203,7 +196,7 @@ public class RunningExperimentsActivity extends Activity {
           final Long experimentServerId = (Long) v.getTag();
           final Experiment experiment = experiments.get(position);
           final List<ExperimentGroup> groups = experiment.getExperimentDAO().getGroups();
-          List<ExperimentGroup> surveyGroups = getOnlySurveyGroups(groups);
+          List<ExperimentGroup> surveyGroups = ExperimentGroupPicker.getOnlySurveyGroups(groups);
 /*          if (v.getId() == R.id.editExperimentButton) {
             editExperiment(experiment, groups);
           } else if (v.getId() == R.id.exploreDataExperimentButton) {
@@ -235,7 +228,7 @@ public class RunningExperimentsActivity extends Activity {
             if (surveyGroups.size() > 1) {
               experimentIntent = new Intent(RunningExperimentsActivity.this, ExperimentGroupPicker.class);
               experimentIntent.putExtra(ExperimentGroupPicker.SHOULD_GO_TO_RENDER_NEXT, ExperimentGroupPicker.RENDER_NEXT);
-            } else {
+            } else if (surveyGroups.size() == 1) {
               Class clazz = null;
               final ExperimentGroup experimentGroup = surveyGroups.get(0);
               if (experimentGroup.getCustomRendering()) {
