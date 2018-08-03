@@ -603,7 +603,7 @@ public class MyExperimentsActivity extends ActionBarActivity implements
               experimentIntent = new Intent(MyExperimentsActivity.this, ExperimentGroupPicker.class);
               experimentIntent.putExtra(ExperimentGroupPicker.SHOULD_GO_TO_RENDER_NEXT,
                                         ExperimentGroupPicker.RENDER_NEXT);
-            } else {
+            } else if (surveyGrps.size() == 1){
               Class clazz = null;
               final ExperimentGroup experimentGroup = surveyGrps.get(0);
               if (experimentGroup.getCustomRendering()) {
@@ -614,6 +614,8 @@ public class MyExperimentsActivity extends ActionBarActivity implements
               experimentIntent = new Intent(MyExperimentsActivity.this, clazz);
               experimentIntent.putExtra(Experiment.EXPERIMENT_GROUP_NAME_EXTRA_KEY, experimentGroup.getName());
 
+            } else {
+              // TODO show them the experiment has no operable elements
             }
             experimentIntent.putExtra(Experiment.EXPERIMENT_SERVER_ID_EXTRA_KEY, experimentServerId);
             startActivity(experimentIntent);
