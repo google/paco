@@ -1429,6 +1429,29 @@ public class CopyExperimentMigrationDaoImpl implements CopyExperimentMigrationDa
     return true;
   }
   
+  private List<String> getMatchingFeatures(Map<String, List<String>> featuresMap, List<String> allPossibleTexts) { 
+    List<String> matchingFeatures = Lists.newArrayList();
+    Iterator<String> predefinedInputIterator = featuresMap.keySet().iterator();
+    String featureName = null;
+    // for each predefined feature
+    while (predefinedInputIterator.hasNext()) {
+      featureName = predefinedInputIterator.next();
+      // TODO we have to fix this, once we fix the way we capture events for notification grp
+      if (featureName.equals(GroupTypeEnum.NOTIFICATION.name())) {
+        continue;
+      } else {
+        for (String eachKnownVariableName : featuresMap.get(featureName)) {
+          if (allPossibleTexts != null && allPossibleTexts.contains(eachKnownVariableName)) { 
+            matchingFeatures.add(featureName);
+            log.info("matching features"+ featureName);
+            break;
+          }
+        }
+      }
+    }
+    return matchingFeatures;
+  }
+  
   
   @Override
   public boolean copyExperimentChangeGroupNameOfEventsWithPredefinedInputs() throws SQLException {
@@ -1441,12 +1464,16 @@ public class CopyExperimentMigrationDaoImpl implements CopyExperimentMigrationDa
     CSGroupTypeInputMappingDao inputMappingDao = new CSGroupTypeInputMappingDaoImpl();
     CSTempExperimentIdVersionGroupNameDao expIdVersionDao = new CSTempExperimentIdVersionGroupNameDaoImpl();
     CSEventDao eventDaoImpl = new CSEventDaoImpl();
+    CSEventOutputDao eventOutputDaoImpl = new CSEventOutputDaoImpl();
     String finalQryForSys = SELECT_EVENTS_MATCHING_PREDFINED_INPUT_NAMES;
     try {
       conn = CloudSQLConnectionManager.getInstance().getConnection();
       Long eventId = null;
       int recordCount = 0;
+      List<String> matchingFeatures = null;
       Map<String, List<String>>inputMap = inputMappingDao.getAllPredefinedFeatureVariableNames();
+      statementSelectEventsWithPredefinedInputs = conn.prepareStatement(finalQryForSys);
+      statementSelectEventsWithPredefinedInputs.setFetchSize(500);
       while (true) {
         List<ExperimentLite> expLites = expIdVersionDao.getAllExperimentLiteOfStatus(1);
         if ( expLites.size() == 0) {
@@ -1455,63 +1482,62 @@ public class CopyExperimentMigrationDaoImpl implements CopyExperimentMigrationDa
         for (ExperimentLite expLite : expLites) {
           log.info("RecordCount" + (recordCount++) + ":New exp id" + expLite.getExperimentId() + "--" + expLite.getExperimentVersion() + "--" + expLite.getExperimentGroupName());
           Iterator<String> predefinedInputIterator = inputMap.keySet().iterator();
+          
           if (!inputMap.keySet().contains(expLite.getExperimentGroupName())) {
-            // for each predefined feature
-            while (predefinedInputIterator.hasNext()) {
-              featureName = predefinedInputIterator.next();
-              // TODO we have to fix this, once we fix the way we capture events for notification grp
-              if (featureName.equals(GroupTypeEnum.NOTIFICATION.name())) {
-                continue;
+            matchingFeatures = getMatchingFeatures(inputMap, eventOutputDaoImpl.getAllDistinctTextForExperiment(expLite.getExperimentId()));
+            if (matchingFeatures != null) { 
+              // for each predefined feature
+              while (predefinedInputIterator.hasNext()) {
+                featureName = predefinedInputIterator.next();
+                // TODO we have to fix this, once we fix the way we capture events for notification grp
+                if (featureName.equals(GroupTypeEnum.NOTIFICATION.name())) {
+                  continue;
+                } else if (matchingFeatures.contains(featureName)) {
+                  List<String> eachFeaturesInputVariableNames = inputMap.get(featureName);
+                  for (String eachFeatureInputVariableName : eachFeaturesInputVariableNames) {
+                    while (true) {
+                      statementSelectEventsWithPredefinedInputs.setLong(1, expLite.getExperimentId());
+                      statementSelectEventsWithPredefinedInputs.setInt(2, expLite.getExperimentVersion());
+                      statementSelectEventsWithPredefinedInputs.setString(3, expLite.getExperimentGroupName());
+                      statementSelectEventsWithPredefinedInputs.setString(4, eachFeatureInputVariableName);
+                        log.info("executing qry " + statementSelectEventsWithPredefinedInputs.toString());
+                      rs = statementSelectEventsWithPredefinedInputs.executeQuery();
+                      if(!rs.next()) {
+                        break;
+                      } else {
+                        rs.beforeFirst();
+                        eventIdsToBeUpdatedWithNewGroupName = Sets.newLinkedHashSet();
+                        eventIdsOldGroupName = Lists.newArrayList();
+                        while (rs.next()) {
+                          eventId = rs.getLong(Constants.UNDERSCORE_ID);
+                          if (eventIdsToBeUpdatedWithNewGroupName.add(eventId)) {
+                            eventIdsOldGroupName.add(rs.getString(EventServerColumns.GROUP_NAME));
+                            // these can be inserted with mig status 2, since we are adding this once we identify the correct group name. 
+                            // these records need not be checked for again to see if we need to change group name
+                            expIdVersionDao.upsertExperimentIdVersionGroupName(expLite.getExperimentId(), expLite.getExperimentVersion(), featureName, 2);
+                          }
+                        }// 250 records
+                        // update events in batch
+                        eventDaoImpl.updateGroupName(Lists.newArrayList(eventIdsToBeUpdatedWithNewGroupName), eventIdsOldGroupName, featureName);
+                      } // if records present
+    //                    log.info("continue for more records for same feature");
+                    }// while loop finish all records
+                  } // for loop on each variable name in predefined input
+                } // predefined map of all predefined grps
               }
-              try {
-                List<String> eachFeaturesInputVariableNames = inputMap.get(featureName);
-                statementSelectEventsWithPredefinedInputs = conn.prepareStatement(finalQryForSys);
-                statementSelectEventsWithPredefinedInputs.setFetchSize(500);
-                
-                for (String eachFeatureInputVariableName : eachFeaturesInputVariableNames) {
-                  while (true) {
-                    statementSelectEventsWithPredefinedInputs.setLong(1, expLite.getExperimentId());
-                    statementSelectEventsWithPredefinedInputs.setInt(2, expLite.getExperimentVersion());
-                    statementSelectEventsWithPredefinedInputs.setString(3, expLite.getExperimentGroupName());
-                    statementSelectEventsWithPredefinedInputs.setString(4, eachFeatureInputVariableName);
-//                    log.info("executing qry " + statementSelectEventsWithPredefinedInputs.toString());
-                    rs = statementSelectEventsWithPredefinedInputs.executeQuery();
-                    if(!rs.next()) {
-                      break;
-                    } else {
-                      rs.beforeFirst();
-                      eventIdsToBeUpdatedWithNewGroupName = Sets.newLinkedHashSet();
-                      eventIdsOldGroupName = Lists.newArrayList();
-                      while (rs.next()) {
-                        eventId = rs.getLong(Constants.UNDERSCORE_ID);
-                        if (eventIdsToBeUpdatedWithNewGroupName.add(eventId)) {
-                          eventIdsOldGroupName.add(rs.getString(EventServerColumns.GROUP_NAME));
-                          // these can be inserted with mig status 2, since we are adding this once we identify the correct group name. 
-                          // these records need not be checked for again to see if we need to change group name
-                          expIdVersionDao.upsertExperimentIdVersionGroupName(expLite.getExperimentId(), expLite.getExperimentVersion(), featureName, 2);
-                        }
-                      }// 250 records
-                      // update events in batch
-                      eventDaoImpl.updateGroupName(Lists.newArrayList(eventIdsToBeUpdatedWithNewGroupName), eventIdsOldGroupName, featureName);
-                    } // if records present
-//                    log.info("continue for more records for same feature");
-                  }// while loop finish all records
-                } // for loop on each variable name in predefined input
-              } finally {
-                if ( rs != null) { 
-                  rs.close();
-                }
-                if (statementSelectEventsWithPredefinedInputs != null) { 
-                  statementSelectEventsWithPredefinedInputs.close();
-                }
-              }   
-            } // predefined map of all predefined grps
+            }
           } // if grp name not in predefined grps
           // finally if there is no exception after checking for all predefined grps, delete this exp id version in expidversion table, since it is processed
           expIdVersionDao.updateExperimentIdVersionGroupNameStatus(expLite.getExperimentId(), expLite.getExperimentVersion(), expLite.getExperimentGroupName(), 2);
         }// for loop on each exp id version combination
       }
     } finally {
+      if ( rs != null) { 
+        rs.close();
+      }
+      if (statementSelectEventsWithPredefinedInputs != null) { 
+        statementSelectEventsWithPredefinedInputs.close();
+      }
       if (conn != null) { 
         conn.close();
       }

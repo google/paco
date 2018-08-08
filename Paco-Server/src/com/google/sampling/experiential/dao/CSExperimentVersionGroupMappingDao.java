@@ -32,4 +32,5 @@ public interface CSExperimentVersionGroupMappingDao {
   ExperimentVersionGroupMapping findMatchingEVGMRecord(Event event, Map<String, ExperimentVersionGroupMapping> allEVMMap,
                                                       boolean migrationFlag) throws Exception;
   void ensureCorrectGroupName(Event eventDao, Map<String, ExperimentVersionGroupMapping> allEVMMap) throws Exception;
+  void ensureSystemGroupName(Event eventDao, Map<String, ExperimentVersionGroupMapping> allEVMMap) throws Exception;
 }

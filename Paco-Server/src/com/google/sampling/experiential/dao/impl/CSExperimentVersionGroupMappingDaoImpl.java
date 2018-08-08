@@ -677,9 +677,12 @@ public class CSExperimentVersionGroupMappingDaoImpl implements CSExperimentVersi
     // if event is posted for a version where we do not have experiment mapping records
     daoImpl.ensureEVMRecord(expId,event.getId(), event.getExperimentName(), event.getExperimentVersion(), event.getExperimentGroupName(), event.getWho(), event.getWhat(), migrationFlag, allEVMMap);
     returnEVM = allEVMMap.get(event.getExperimentGroupName());
-    
-    String mightBeModifiedGroupName = returnEVM.getGroupInfo().getName();
-    allEVMMap.put(mightBeModifiedGroupName, returnEVM);
+    if (returnEVM != null)  {
+      String mightBeModifiedGroupName = returnEVM.getGroupInfo().getName();
+      allEVMMap.put(mightBeModifiedGroupName, returnEVM);
+    } else {
+      throw new Exception("No corresponding group in EVGM table"+ event.getExperimentId() + "--" + event.getExperimentGroupName());
+    }
     return returnEVM;
   }
   
@@ -1149,6 +1152,35 @@ public class CSExperimentVersionGroupMappingDaoImpl implements CSExperimentVersi
         break;
       }
     } // predefined map of all predefined grps
+    // Currently, IOS versions supports only 1 group. Also, for that single group, client does not send group name with any of the events
+    // we need to identify the IOS events and populate the group name 
+    if (eventDao.getExperimentGroupName() == null) {
+      if (eventDao.getAppId().equalsIgnoreCase(Constants.IOS)) {
+        eventDao.setExperimentGroupName(getNonSystemGroupNameFromEVGMRecords(allEVMMap));
+      } else {
+        eventDao.setExperimentGroupName(Constants.UNKNOWN);
+      }
+    }
+    log.info("new group name:"+ eventDao.getExperimentGroupName());
+    
+  }
+  
+  @Override
+  public void ensureSystemGroupName(Event eventDao, Map<String, ExperimentVersionGroupMapping> allEVMMap) throws Exception {
+    String featureName = null;
+    CSGroupTypeInputMappingDao inputMappingDao = new CSGroupTypeInputMappingDaoImpl();
+    Map<String, List<String>>inputMap = inputMappingDao.getAllPredefinedFeatureVariableNames();
+    Map<String, What> inputsInEvent = convertFromWhatToMap(eventDao.getWhat());
+    // for each predefined feature
+    log.info("sys - old group name: " + eventDao.getExperimentGroupName());
+    List<String> featuresInputVariableNames = inputMap.get(GroupTypeEnum.SYSTEM.name());
+    
+    for (String eachFeatureVariableName : featuresInputVariableNames) {
+      if (inputsInEvent.containsKey(eachFeatureVariableName)) {
+        eventDao.setExperimentGroupName(featureName);
+        break;
+      }
+    }
     // Currently, IOS versions supports only 1 group. Also, for that single group, client does not send group name with any of the events
     // we need to identify the IOS events and populate the group name 
     if (eventDao.getExperimentGroupName() == null) {

@@ -42,6 +42,7 @@ public enum QueryConstants {
           " join " + ExternStringInputColumns.TABLE_NAME + " esi  " +  
           " on i.name_id=esi." + ExternStringInputColumns.EXTERN_STRING_INPUT_ID +  
           " where evgm.experiment_id = ? and esi."+ ExternStringInputColumns.LABEL +" like '%-DUP-%'"),
+  GET_ALL_DISTINCT_TEXT_FOR_EXPERIMENT_ID("select distinct text from events e join outputs o on e._id=o.event_id where experiment_id=?"),
   GET_EVENT_FOR_ID("select * from " + EventServerColumns.TABLE_NAME + " where " + Constants.UNDERSCORE_ID+ " =?"),
   GET_EVENT_ID_WITH_DUP_VARIABLE("select distinct _id from events e join outputs o on e._id=o.event_id where e.experiment_id=? and text like'%-DUP-%' and e.experiment_version_group_mapping_id is not null limit 1000"),
   GET_NUMBER_OF_EVENTS_FOR_EXPERIMENT("select count("+ Constants.UNDERSCORE_ID + ") from " + EventServerColumns.TABLE_NAME + " where " + EventServerColumns.EXPERIMENT_ID + " = ?"),
