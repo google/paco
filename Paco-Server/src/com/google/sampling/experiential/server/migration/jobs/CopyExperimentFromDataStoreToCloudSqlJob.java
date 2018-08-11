@@ -253,6 +253,14 @@ public class CopyExperimentFromDataStoreToCloudSqlJob implements MigrationJob {
       } catch (SQLException e) {
         returnString += "Failed to update OlderVersions And AnonUsers data in events table. Restart job";
         throw new SQLException(returnString, e);
+      } finally {
+        try {
+          if (conn != null) {
+            conn.close();
+          }
+        } catch (SQLException e) {
+          log.warning("Exception in finally block" + ExceptionUtil.getStackTraceAsString(e));
+        }
       }
       return returnString; 
     }

@@ -1167,7 +1167,7 @@ public class CSExperimentVersionGroupMappingDaoImpl implements CSExperimentVersi
   
   @Override
   public void ensureSystemGroupName(Event eventDao, Map<String, ExperimentVersionGroupMapping> allEVMMap) throws Exception {
-    String featureName = null;
+    
     CSGroupTypeInputMappingDao inputMappingDao = new CSGroupTypeInputMappingDaoImpl();
     Map<String, List<String>>inputMap = inputMappingDao.getAllPredefinedFeatureVariableNames();
     Map<String, What> inputsInEvent = convertFromWhatToMap(eventDao.getWhat());
@@ -1177,7 +1177,7 @@ public class CSExperimentVersionGroupMappingDaoImpl implements CSExperimentVersi
     
     for (String eachFeatureVariableName : featuresInputVariableNames) {
       if (inputsInEvent.containsKey(eachFeatureVariableName)) {
-        eventDao.setExperimentGroupName(featureName);
+        eventDao.setExperimentGroupName(GroupTypeEnum.SYSTEM.name());
         break;
       }
     }

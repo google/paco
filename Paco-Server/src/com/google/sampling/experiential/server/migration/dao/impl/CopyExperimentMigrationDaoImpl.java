@@ -943,6 +943,8 @@ public class CopyExperimentMigrationDaoImpl implements CopyExperimentMigrationDa
     CSOutputDao outDaoImpl = new  CSOutputDaoImpl();
     int i = 1;
     Long startTime = System.currentTimeMillis();
+    Long outputStartTime = null;
+    Long outputTotalTime = 0L;
     try {
       if (erroredExperimentIds != null && erroredExperimentIds.size() > 0) {
         unprocessedRecordQuery = unprocessedRecordQuery.replace(" limit 1000", " and " + EventServerColumns.EXPERIMENT_ID + "  not in (?) and " + EventServerColumns.EXPERIMENT_ID+ "  = ? and  " + EventServerColumns.EXPERIMENT_VERSION + " = ? and  " + EventServerColumns.GROUP_NAME+ " =? limit "+ batchSize);
@@ -962,6 +964,7 @@ public class CopyExperimentMigrationDaoImpl implements CopyExperimentMigrationDa
       
       log.info("executing"+unprocessedRecordQuery.toString());
       rsUnprocessedEventQuery = statementUnprocessedEventRecord.executeQuery();
+      log.info("execute event query complete");
       while (rsUnprocessedEventQuery.next()) {
         eventDao = new EventDAO();
         eventDao.setExperimentId(rsUnprocessedEventQuery.getLong(ExperimentVersionGroupMappingColumns.EXPERIMENT_ID));
@@ -970,11 +973,13 @@ public class CopyExperimentMigrationDaoImpl implements CopyExperimentMigrationDa
         eventDao.setExperimentGroupName(rsUnprocessedEventQuery.getString(EventServerColumns.GROUP_NAME));
         eventDao.setExperimentName(rsUnprocessedEventQuery.getString(EventServerColumns.EXPERIMENT_NAME));
         eventDao.setId(rsUnprocessedEventQuery.getLong(Constants.UNDERSCORE_ID));
+        outputStartTime = System.currentTimeMillis();
         List<WhatDAO> whats = outDaoImpl.getOutputsWithoutInputId(eventDao.getId());
+        outputTotalTime = outputTotalTime + (System.currentTimeMillis() - outputStartTime);
         eventDao.setWhat(whats);
         eventDaoList.add(eventDao);
       } 
-      log.info("get 1000 records took :" + (System.currentTimeMillis() - startTime));
+      log.info("get 1000 records took :" + (System.currentTimeMillis() - startTime) + ", with output taking: "+ outputTotalTime);
       return eventDaoList;
     } catch (SQLException sqle) {
       log.warning("SQLException while inserting to lookup" + ExceptionUtil.getStackTraceAsString(sqle));
