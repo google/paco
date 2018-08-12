@@ -974,7 +974,7 @@ public class CopyExperimentMigrationDaoImpl implements CopyExperimentMigrationDa
         eventDao.setExperimentName(rsUnprocessedEventQuery.getString(EventServerColumns.EXPERIMENT_NAME));
         eventDao.setId(rsUnprocessedEventQuery.getLong(Constants.UNDERSCORE_ID));
         outputStartTime = System.currentTimeMillis();
-        List<WhatDAO> whats = outDaoImpl.getOutputsWithoutInputId(eventDao.getId());
+        List<WhatDAO> whats = outDaoImpl.getOutputsWithoutInputId(conn, eventDao.getId());
         outputTotalTime = outputTotalTime + (System.currentTimeMillis() - outputStartTime);
         eventDao.setWhat(whats);
         eventDaoList.add(eventDao);
