@@ -15,6 +15,24 @@
   font-size: 18px;
 }
 
+.alert-toolbar {
+  background: #ffe58c !important;
+  box-shadow: 0px 3px 3px rgba(0,0,0,.1);
+  color: #111111 !important;
+  text-color: #111111 !important;
+  margin: 16px 96px 16px 96px;
+  padding: 0px;
+}
+
+.alert-toolbar-container {
+  background: #ffe58c !important;
+  box-shadow: 0px 3px 3px rgba(0,0,0,.1);
+  color: #111111 !important;
+  text-color: #111111 !important;
+  padding: 8px;
+}
+
+
 md-toolbar {
   background: #5c6bc0 !important;
   box-shadow: 0px 3px 3px rgba(0,0,0,.1);
