@@ -13,10 +13,6 @@
 	<classpathentry kind="lib" path="ear/default/WEB-INF/lib/guava-16.0.1.jar"/>
 	<classpathentry kind="lib" path="ear/default/WEB-INF/lib/jackson-all-1.9.11.jar"/>
 	<classpathentry kind="lib" path="ear/default/WEB-INF/lib/opencsv-2.3.jar"/>
-	<classpathentry kind="lib" path="../tools/appengine-java-sdk-1.9.54/lib/testing/appengine-testing.jar"/>
-	<classpathentry kind="lib" path="../tools/appengine-java-sdk-1.9.54/lib/impl/appengine-api-stubs.jar"/>
-	<classpathentry kind="lib" path="../tools/appengine-java-sdk-1.9.54/lib/impl/appengine-api.jar"/>
-	<classpathentry kind="lib" path="../tools/appengine-java-sdk-1.9.54/lib/impl/appengine-api-labs.jar"/>
 	<classpathentry kind="lib" path="ear/default/WEB-INF/lib/json-1.5.jar"/>
 	<classpathentry kind="lib" path="ear/default/WEB-INF/lib/appengine-mapreduce.jar"/>
 	<classpathentry kind="lib" path="ear/default/WEB-INF/lib/appengine-pipeline-0.2.13.jar"/>
@@ -31,5 +27,6 @@
 	<classpathentry kind="lib" path="ear/default/WEB-INF/lib/commons-pool-1.5.4.jar"/>
 	<classpathentry kind="con" path="com.google.appengine.eclipse.core.GAE_CONTAINER/appengine-java-sdk-1.9.64"/>
 	<classpathentry kind="lib" path="ear/default/WEB-INF/lib/appengine-gcs-client-0.5.jar"/>
+	<classpathentry kind="lib" path="/Users/bobevans/git/paco/tools/appengine-java-sdk-1.9.64/lib/testing/appengine-testing.jar"/>
 	<classpathentry kind="output" path="ear/default/WEB-INF/classes"/>
 </classpath>
