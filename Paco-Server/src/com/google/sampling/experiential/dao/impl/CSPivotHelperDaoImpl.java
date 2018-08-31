@@ -119,4 +119,87 @@ public class CSPivotHelperDaoImpl implements CSPivotHelperDao {
       }
     }
   }
+  
+  @Override
+  public void updatePivotHelper(List<PivotHelper> pvList) throws SQLException {
+    
+    Connection conn = null;
+    PreparedStatement statementCreatePivotHelper = null;
+    ResultSet rs = null;
+    
+    try {
+      conn = CloudSQLConnectionManager.getInstance().getConnection();
+      conn.setAutoCommit(false);
+      statementCreatePivotHelper = conn.prepareStatement(QueryConstants.UPDATE_PIVOT_HELPER.toString());
+      for (PivotHelper pivotHelper : pvList) {
+        if (pivotHelper.getEventsPosted() > 0) { 
+          statementCreatePivotHelper.setLong(1, pivotHelper.getEventsPosted());
+          statementCreatePivotHelper.setLong(2, pivotHelper.getExpVersionMappingId());
+          statementCreatePivotHelper.setInt(3, pivotHelper.getAnonWhoId());
+          statementCreatePivotHelper.setLong(4, pivotHelper.getInputId());
+          log.info(statementCreatePivotHelper.toString());
+          statementCreatePivotHelper.addBatch();
+        }
+      } //for
+      statementCreatePivotHelper.executeBatch();
+      conn.commit();
+    } catch(SQLException sqle) {
+      log.warning("Exception while updating to pivotHelper table:" +  sqle);
+    } finally {
+      try {
+        if( rs != null) { 
+          rs.close();
+        }
+        if (statementCreatePivotHelper != null) {
+          statementCreatePivotHelper.close();
+        }
+        if (conn != null) {
+          conn.close();
+        }
+      } catch (SQLException ex1) {
+        log.info(ErrorMessages.CLOSING_RESOURCE_EXCEPTION.getDescription() + ex1);
+      }
+    }
+  }
+  
+  @Override
+  public void insertIgnorePivotHelper(List<PivotHelper> pvList) throws SQLException {
+    
+    Connection conn = null;
+    PreparedStatement statementCreatePivotHelper = null;
+    ResultSet rs = null;
+    
+    try {
+      conn = CloudSQLConnectionManager.getInstance().getConnection();
+      conn.setAutoCommit(false);
+      statementCreatePivotHelper = conn.prepareStatement(QueryConstants.INSERT_IGNORE_TO_PIVOT_HELPER.toString());
+      for (PivotHelper pivotHelper : pvList) {
+          statementCreatePivotHelper.setLong(1, pivotHelper.getExpVersionMappingId());
+          statementCreatePivotHelper.setInt(2, pivotHelper.getAnonWhoId());
+          statementCreatePivotHelper.setLong(3, pivotHelper.getInputId());
+          statementCreatePivotHelper.setLong(4, pivotHelper.getEventsPosted());
+          log.info(statementCreatePivotHelper.toString());
+          statementCreatePivotHelper.addBatch();
+      } //for
+      statementCreatePivotHelper.executeBatch();
+      log.info("finsihed");
+      conn.commit();
+    } catch(SQLException sqle) {
+      log.warning("Exception while updating to pivotHelper table:" +  sqle);
+    } finally {
+      try {
+        if( rs != null) { 
+          rs.close();
+        }
+        if (statementCreatePivotHelper != null) {
+          statementCreatePivotHelper.close();
+        }
+        if (conn != null) {
+          conn.close();
+        }
+      } catch (SQLException ex1) {
+        log.info(ErrorMessages.CLOSING_RESOURCE_EXCEPTION.getDescription() + ex1);
+      }
+    }
+  }
 }

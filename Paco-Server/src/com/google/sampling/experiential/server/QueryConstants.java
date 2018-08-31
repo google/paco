@@ -83,7 +83,15 @@ public enum QueryConstants {
   UPDATE_EXPERIMENT_ID_STATUS_IN_EXPERIMENT_ID_VERSION("update temp_experiment_id_version_group_name set status=? where experiment_id = ? " ),
   UPDATE_EVENTS_WITH_NEW_GROUP_NAME("update events set group_name=? where _id=?"),
   INSERT_TO_OLD_GROUP_NAME_TABLE("insert ignore into event_old_group_name(old_group_name,event_id) values (?,?)"),
+  INSERT_IGNORE_TO_PIVOT_HELPER("INSERT ignore INTO pivot_helper (experiment_version_group_mapping_id, anon_who, input_id, events_posted) VALUES (?,?,?,?) "),
   INSERT_TO_PIVOT_HELPER_WITH_ON_DUPLICATE_CLAUSE("INSERT INTO pivot_helper (experiment_version_group_mapping_id, anon_who, input_id, events_posted, processed) VALUES (?,?,?,?,?) ON DUPLICATE KEY UPDATE events_posted=events_posted+1"),
+  SELECT_PIVOT_HELPER_ZERO_RECORDS("select * from pivot_helper where events_posted=0"),
+  SELECT_JULY_AUGUST_EVG("select distinct evgm.experiment_version_group_mapping_id, who_bk, input_id from experiment_version_group_mapping evgm"
+          + " join events e on e.experiment_version_group_mapping_id= evgm.experiment_version_group_mapping_id "
+          + " join outputs o on e._id=o.event_id where e.response_time between '2018-07-01 01:00:00' and '2018-08-31 11:59:49'"),
+  FIND_EVENTS_MISSING_INPUT_IDS("select e.experiment_id, e.experiment_version, e.group_name, e.experiment_version_group_mapping_id, e.who_bk, o.* from events e join outputs o on e._id=o.event_id  where  input_id is null"),
+  UPDATE_OUTPUT_WITH_INPUT_ID("update outputs set input_id=? where event_id=? and text=?"),
+  UPDATE_PIVOT_HELPER("update pivot_helper set events_posted =? where experiment_version_group_mapping_id=? and anon_who=? and input_id=?"),
   REPLACE_TO_EXPERIMENT_ID_VERSION_GROUP_NAME("REPLACE INTO `pacodb`.`temp_experiment_id_version_group_name` (`experiment_id`, `experiment_version`, `group_name`, `status`) VALUES (?, ?,?,?)"),
   DELETE_FROM_EXPERIMENT_DEFINITION("delete from temp_experiment_definition where id = ? "),
   DELETE_FROM_INPUT("delete from input where input_id=?"),

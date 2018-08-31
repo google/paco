@@ -31,8 +31,8 @@ public interface CopyExperimentMigrationDao {
   boolean copyExperimentCreateEVGMRecordsForAllExperiments() throws SQLException;
   boolean copyExperimentChangeGroupNameOfEventsWithPredefinedInputs() throws SQLException;
   boolean copyExperimentRenameOldEventColumns() throws SQLException;
-  boolean copyExperimentMarkExperimentsForPivotTable() throws Exception;
-  boolean copyExperimentPopulatePivotTableForAllExperiments() throws SQLException;
+  boolean copyExperimentFilterExperimentsForPivotTableProcessing() throws Exception;
+  boolean copyExperimentPopulatePivotTableForFilteredExperiments() throws SQLException;
   boolean copyExperimentUpdateEventAndOutputCatchAll(String query) throws SQLException, Exception;
   boolean copyExperimentChangeDupCounterOnVariableNames(String query) throws Exception;
   String copyExperimentStoreCreateSqlInCloudStorage(String fileName) throws SQLException, FileNotFoundException,
@@ -46,5 +46,8 @@ public interface CopyExperimentMigrationDao {
 
   void processOlderVersionsAndAnonUsersInEventTable(Connection conn, List<Long> erroredExperimentIds, List<EventDAO> allEvents, Boolean aggregateInputNames) throws Exception;
   boolean copyExperimentCreateEVGMRecordsForExperimentsThatDoNotHaveEVGM() throws SQLException;
+  boolean copyExperimentPopulatePivotTableForSelectiveRecords() throws SQLException;
+  boolean copyExperimentPopulatePivotTableForMissingRecords() throws SQLException;
+  void copyExperimentFixMissingInputIds() throws SQLException, Exception;
   
 }

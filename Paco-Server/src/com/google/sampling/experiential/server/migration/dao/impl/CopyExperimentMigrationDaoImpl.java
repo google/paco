@@ -805,6 +805,16 @@ public class CopyExperimentMigrationDaoImpl implements CopyExperimentMigrationDa
     } catch (Exception e) { 
       log.warning("Catch all - ge"+ExceptionUtil.getStackTraceAsString(e));
       throw e;
+    } finally {
+      if ( rs != null) { 
+        rs.close();
+      }
+      if (statementFindExperimentWithDuplicateVariableNames != null) { 
+        statementFindExperimentWithDuplicateVariableNames.close();
+      }
+      if (conn != null) { 
+        conn.close();
+      }
     }
     return successFlag;
   }
@@ -1229,7 +1239,18 @@ public class CopyExperimentMigrationDaoImpl implements CopyExperimentMigrationDa
     } catch (Exception e) { 
       log.warning("Catch all - ge"+ExceptionUtil.getStackTraceAsString(e));
       throw e;
+    } finally {
+      if ( rs != null) { 
+        rs.close();
+      }
+      if (statementFindExperimentWithDuplicateVariableNames != null) { 
+        statementFindExperimentWithDuplicateVariableNames.close();
+      }
+      if (conn != null) { 
+        conn.close();
+      }
     }
+    
     return successFlag;
   }
   
@@ -1254,6 +1275,16 @@ public class CopyExperimentMigrationDaoImpl implements CopyExperimentMigrationDa
     } catch (Exception e) { 
       log.warning("Catch all - ge"+ExceptionUtil.getStackTraceAsString(e));
       throw e;
+    } finally {
+      if ( rs != null) { 
+        rs.close();
+      }
+      if (statementFindExperimentWithDuplicateVariableNames != null) { 
+        statementFindExperimentWithDuplicateVariableNames.close();
+      }
+      if (conn != null) { 
+        conn.close();
+      }
     }
     return successFlag;
   }
@@ -1368,12 +1399,22 @@ public class CopyExperimentMigrationDaoImpl implements CopyExperimentMigrationDa
     } catch (Exception e) { 
       log.warning("Catch all - ge"+ExceptionUtil.getStackTraceAsString(e));
       throw e;
+    } finally {
+      if ( rsCatchAll != null) { 
+        rsCatchAll.close();
+      }
+      if (statementCatchAll != null) { 
+        statementCatchAll.close();
+      }
+      if (conn != null) { 
+        conn.close();
+      }
     }
     return successFlag;
   }
   
   @Override 
-  public boolean copyExperimentMarkExperimentsForPivotTable() throws Exception {
+  public boolean copyExperimentFilterExperimentsForPivotTableProcessing() throws Exception {
     Connection conn = null;
     PreparedStatement statementExperimentWithHugeInputSet = null;
     ResultSet rs = null;
@@ -1393,12 +1434,23 @@ public class CopyExperimentMigrationDaoImpl implements CopyExperimentMigrationDa
     } catch (Exception e) { 
       log.warning("Huge Inputset - ge"+ ExceptionUtil.getStackTraceAsString(e));
       throw e;
+    } finally {
+      if ( rs != null) { 
+        rs.close();
+      }
+      if (statementExperimentWithHugeInputSet != null) { 
+        statementExperimentWithHugeInputSet.close();
+      }
+      if (conn != null) { 
+        conn.close();
+      }
     }
+    
     return successFlag;
   }
   
   @Override
-  public boolean copyExperimentPopulatePivotTableForAllExperiments() throws SQLException {
+  public boolean copyExperimentPopulatePivotTableForFilteredExperiments() throws SQLException {
     Integer migrationStatus = 3;
     CSExperimentVersionGroupMappingDao evgmDao = new CSExperimentVersionGroupMappingDaoImpl();
     CSTempExperimentIdVersionGroupNameDao expIdVersionDao = new CSTempExperimentIdVersionGroupNameDaoImpl();
@@ -1429,6 +1481,163 @@ public class CopyExperimentMigrationDaoImpl implements CopyExperimentMigrationDa
         expIdVersionDao.updateExperimentIdVersionGroupNameStatus(expLite.getExperimentId(), expLite.getExperimentVersion(), expLite.getExperimentGroupName(), 4);
       } else {
         expIdVersionDao.updateExperimentIdVersionGroupNameStatus(expLite.getExperimentId(), expLite.getExperimentVersion(), expLite.getExperimentGroupName(), 4);
+      }
+    }
+    return true;
+  }
+  
+  @Override
+  public boolean copyExperimentPopulatePivotTableForMissingRecords() throws SQLException {
+    Connection conn = null;
+    PreparedStatement statementPvHelperSelectiveSet = null;
+    ResultSet rs = null;
+    CSPivotHelperDao pvHelperDaoImpl = new CSPivotHelperDaoImpl();
+    List<PivotHelper> pvHelperList = Lists.newArrayList();
+    PivotHelper pvHelper = null;
+    Long evgmId = null;
+    Long noOfEvents = 0L;
+    Long inputId = null;
+    Integer anonId = null;
+    try {
+      conn = CloudSQLConnectionManager.getInstance().getConnection();
+      statementPvHelperSelectiveSet = conn.prepareStatement(QueryConstants.SELECT_JULY_AUGUST_EVG.toString());
+      rs = statementPvHelperSelectiveSet.executeQuery();
+      while (rs.next()) {
+        evgmId = rs.getLong(PivotHelperColumns.EXPERIMENT_VERSION_GROUP_MAPPING_ID);
+        inputId = rs.getLong(PivotHelperColumns.INPUT_ID);
+        anonId = rs.getInt("who_bk");
+        pvHelper = new PivotHelper(evgmId, anonId, inputId, true, noOfEvents);
+        pvHelperList.add(pvHelper);
+      }
+      pvHelperDaoImpl.insertIgnorePivotHelper(pvHelperList);
+      
+    } finally {
+      if ( rs != null) { 
+        rs.close();
+      }
+      if (statementPvHelperSelectiveSet != null) { 
+        statementPvHelperSelectiveSet.close();
+      }
+      if (conn != null) { 
+        conn.close();
+      }
+    }
+    return true;
+  }
+  
+  @Override
+  public void copyExperimentFixMissingInputIds() throws Exception {
+    Connection conn = null;
+    PreparedStatement statementFixMissingInputIds = null;
+    PreparedStatement statementUpdateInputIds = null;
+    
+    ResultSet rs = null;
+    Long evgmId = null;
+    Integer anonId = null;
+    Long expId = null;
+    List<Long> inputIds = null;
+    Long eventId = null;
+    String text = null;
+    ExperimentVersionGroupMapping currentEVGM = null;
+    Integer expVersion = null;
+    CSExperimentVersionGroupMappingDao evmDaoImpl = new CSExperimentVersionGroupMappingDaoImpl();
+    
+    CSInputCollectionDao icDaoImpl = new CSInputCollectionDaoImpl();
+    CSPivotHelperDao pvDaoImpl = new CSPivotHelperDaoImpl();
+    try {
+      conn = CloudSQLConnectionManager.getInstance().getConnection();
+      statementFixMissingInputIds = conn.prepareStatement(QueryConstants.FIND_EVENTS_MISSING_INPUT_IDS.toString());
+      statementUpdateInputIds = conn.prepareStatement(QueryConstants.UPDATE_OUTPUT_WITH_INPUT_ID.toString());
+      
+      rs = statementFixMissingInputIds.executeQuery();
+      Map<String, ExperimentVersionGroupMapping> allEVMInVersion = null;
+      while (rs.next()) {
+        inputIds = Lists.newArrayList();
+        expId =  rs.getLong(EventServerColumns.EXPERIMENT_ID);
+        expVersion = rs.getInt(EventServerColumns.EXPERIMENT_VERSION);
+        evgmId = rs.getLong(EventServerColumns.EXPERIMENT_VERSION_GROUP_MAPPING_ID);
+        anonId = rs.getInt("who_bk");
+        eventId = rs.getLong(OutputServerColumns.EVENT_ID);
+        text = rs.getString(OutputServerColumns.TEXT);
+        allEVMInVersion = evmDaoImpl.getAllGroupsInVersion(expId, expVersion);
+        currentEVGM = allEVMInVersion.get(rs.getString(EventServerColumns.GROUP_NAME));
+        InputOrderAndChoice currentInput = currentEVGM.getInputCollection().getInputOrderAndChoices().get(text);
+        // for some reason (scripted variable) this particular output does not have input associated, then add this input variable name to the input collection and get the input id
+        if ( currentInput == null) {
+          // add this variable to the existing input collection
+          log.warning("This input is not already in there"+ text +  "--" + eventId);
+          Input newInput = null;
+          currentInput = new InputOrderAndChoice();
+          newInput = icDaoImpl.addUndefinedInputToCollection(expId, currentEVGM.getInputCollection().getInputCollectionId(), text);
+          currentInput.setInput(newInput);
+        }
+        if (currentEVGM.getExperimentVersionMappingId().longValue() != evgmId) {
+          log.warning("check EVGM id conflict" + currentEVGM.getExperimentVersionMappingId() + "--" + evgmId);
+        }
+        inputIds.add(currentInput.getInput().getInputId().getId());
+        // update output table with input id
+        statementUpdateInputIds.setLong(1, currentInput.getInput().getInputId().getId());
+        statementUpdateInputIds.setLong(2, eventId);
+        statementUpdateInputIds.setString(3, text);
+        log.info(statementUpdateInputIds.toString());
+        statementUpdateInputIds.execute();
+        // update pv helper table for this single output
+        pvDaoImpl.incrementUpdateCtByOne(currentEVGM.getExperimentVersionMappingId(), anonId, inputIds);
+      }
+    } finally {
+      if ( rs != null) { 
+        rs.close();
+      }
+      if (statementFixMissingInputIds != null) { 
+        statementFixMissingInputIds.close();
+      }
+      if (statementUpdateInputIds != null) { 
+        statementUpdateInputIds.close();
+      }
+      if (conn != null) { 
+        conn.close();
+      }
+    }
+  }
+  
+  @Override
+  public boolean copyExperimentPopulatePivotTableForSelectiveRecords() throws SQLException {
+    Connection conn = null;
+    PreparedStatement statementPvHelperSelectiveSet = null;
+    ResultSet rs = null;
+    CSExperimentVersionGroupMappingDao evgmDao = new CSExperimentVersionGroupMappingDaoImpl();
+    CSPivotHelperDao pvHelperDaoImpl = new CSPivotHelperDaoImpl();
+    List<PivotHelper> pvHelperList = null;
+    PivotHelper pvHelper = null;
+    Long evgmId = null;
+    Long inputId = null;
+    Integer anonId = null;
+    try {
+      conn = CloudSQLConnectionManager.getInstance().getConnection();
+      statementPvHelperSelectiveSet = conn.prepareStatement(QueryConstants.SELECT_PIVOT_HELPER_ZERO_RECORDS.toString());
+      rs = statementPvHelperSelectiveSet.executeQuery();
+      while (rs.next()) {
+        evgmId = rs.getLong(PivotHelperColumns.EXPERIMENT_VERSION_GROUP_MAPPING_ID);
+        inputId = rs.getLong(PivotHelperColumns.INPUT_ID);
+        anonId = rs.getInt(PivotHelperColumns.ANON_WHO);
+        
+        pvHelperList = Lists.newArrayList();
+
+        long noOfEvents = evgmDao.getNumberOfEvents(evgmId, anonId, inputId);
+        pvHelper = new PivotHelper(evgmId, anonId, inputId, true, noOfEvents);
+        pvHelperList.add(pvHelper);
+        pvHelperDaoImpl.updatePivotHelper(pvHelperList);
+      }
+      
+    } finally {
+      if ( rs != null) { 
+        rs.close();
+      }
+      if (statementPvHelperSelectiveSet != null) { 
+        statementPvHelperSelectiveSet.close();
+      }
+      if (conn != null) { 
+        conn.close();
       }
     }
     return true;

@@ -1181,6 +1181,10 @@ public class CSExperimentVersionGroupMappingDaoImpl implements CSExperimentVersi
         break;
       }
     }
+    
+//    if (eventDao.getWhat() == null || (eventDao.getWhat().size() == 0 && eventDao.getScheduledTime() != null)) {
+//      eventDao.setExperimentGroupName(GroupTypeEnum.SYSTEM.name());
+//    }
     // Currently, IOS versions supports only 1 group. Also, for that single group, client does not send group name with any of the events
     // we need to identify the IOS events and populate the group name 
     if (eventDao.getExperimentGroupName() == null) {
@@ -1207,6 +1211,7 @@ public class CSExperimentVersionGroupMappingDaoImpl implements CSExperimentVersi
         break;
       }
     }
+    log.info("non sys group:" + nonSystemGroupName);
     return nonSystemGroupName;
   }
 }

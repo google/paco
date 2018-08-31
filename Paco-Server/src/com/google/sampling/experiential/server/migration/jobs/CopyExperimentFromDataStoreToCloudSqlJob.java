@@ -158,7 +158,7 @@ public class CopyExperimentFromDataStoreToCloudSqlJob implements MigrationJob {
       if (doAll ||  (cursor != null && cursor.equalsIgnoreCase("step7"))) {
         try {
           log.info("------------------------------------------------Step 7 Begin------------------------------------------------");
-          sqlMigDaoImpl.copyExperimentMarkExperimentsForPivotTable();
+          sqlMigDaoImpl.copyExperimentFilterExperimentsForPivotTableProcessing();
           // exp id version group name status 5
           log.info("------------------------------------------------Step 7 End------------------------------------------------");
           returnString += "mark pivot table helper Done. Step7 complete.";
@@ -172,7 +172,7 @@ public class CopyExperimentFromDataStoreToCloudSqlJob implements MigrationJob {
       if (doAll ||  (cursor != null && cursor.equalsIgnoreCase("step8"))) {
         try {
           log.info("------------------------------------------------Step 8 Begin------------------------------------------------");
-          sqlMigDaoImpl.copyExperimentPopulatePivotTableForAllExperiments();
+          sqlMigDaoImpl.copyExperimentPopulatePivotTableForFilteredExperiments();
           // exp id version group name status 4
           log.info("------------------------------------------------Step 8 End------------------------------------------------");
           returnString += "populate pivot table helper Done. Step8 complete.";
@@ -181,30 +181,57 @@ public class CopyExperimentFromDataStoreToCloudSqlJob implements MigrationJob {
           throw new SQLException(returnString, e);
         }
       }
+      
+      if (doAll || (cursor != null && cursor.equalsIgnoreCase("step10"))) {
+        try {
+          log.info("------------------------------------------------Step 10 Begin------------------------------------------------");
+          sqlMigDaoImpl.copyExperimentFixMissingInputIds();
+          log.info("------------------------------------------------Step 10 End------------------------------------------------");
+          returnString += "Populate pivot table for missing records";
+        } catch (SQLException e) {
+          returnString += "Failed to update input ids for unprocessed events. Restart job from step10";
+          throw new SQLException(returnString, e);
+        }
+      }
+      
+      if (doAll || (cursor != null && cursor.equalsIgnoreCase("step11"))) {
+        try {
+          // picks pivot helper records with events poasted as 0 and then counts number of events and outputs and updates 
+          // pivothelper table.
+          log.info("------------------------------------------------Step 11 Begin------------------------------------------------");
+          sqlMigDaoImpl.copyExperimentPopulatePivotTableForSelectiveRecords();
+          log.info("------------------------------------------------Step 11 End------------------------------------------------");
+          returnString += "Update update count for pivot helper records that are reset";
+        } catch (SQLException e) {
+          returnString += "Failed to Update update count for pivot helper records that are reset. Restart job from step11";
+          throw new SQLException(returnString, e);
+        }
+      }
 
-//      if (doAll || (cursor != null && cursor.equalsIgnoreCase("step9"))) {
-//        try {
-//          log.info("------------------------------------------------Step 9 Begin------------------------------------------------");
-//          sqlMigDaoImpl.copyExperimentRenameOldEventColumns();
-//          log.info("------------------------------------------------Step 9 End------------------------------------------------");
-//          returnString = "All Done";
-//        } catch (SQLException e) {
-//          returnString += "Failed to rename event columns to avoid ambiguity. Restart job from step9";
-//          throw new SQLException(returnString, e);
-//        }
-//      }
-//      if (cursor != null && cursor.equalsIgnoreCase("step10")) {
-//        try {
-//          log.info("------------------------------------------------Step 10 Begin------------------------------------------------");
-//          String blobKey = sqlMigDaoImpl.copyExperimentStoreCreateSqlInCloudStorage("createsql");
-//          log.info("blobkey return"+blobKey);
-//          log.info("------------------------------------------------Step 0 End------------------------------------------------");
-//          returnString += "Create sql Done. Step0 complete.";
-//        } catch (SQLException e) {
-//          returnString += "Failed to create sql. Restart job from step0";
-//          throw new SQLException(returnString, e);
-//        }
-//      }
+      if (doAll || (cursor != null && cursor.equalsIgnoreCase("step12"))) {
+        try {
+          log.info("------------------------------------------------Step 12 Begin------------------------------------------------");
+          sqlMigDaoImpl.copyExperimentRenameOldEventColumns();
+          log.info("------------------------------------------------Step 12 End------------------------------------------------");
+          returnString = "Rename old event columns";
+        } catch (SQLException e) {
+          returnString += "Failed to rename event columns to avoid ambiguity. Restart job from step12";
+          throw new SQLException(returnString, e);
+        }
+      }
+      
+      if (cursor != null && cursor.equalsIgnoreCase("step13")) {
+        try {
+          log.info("------------------------------------------------Step 13 Begin------------------------------------------------");
+          String blobKey = sqlMigDaoImpl.copyExperimentStoreCreateSqlInCloudStorage("createsql");
+          log.info("blobkey return"+blobKey);
+          log.info("------------------------------------------------Step 13 End------------------------------------------------");
+          returnString = "All Done";
+        } catch (SQLException e) {
+          returnString += "Failed to create sql. Restart job from step13";
+          throw new SQLException(returnString, e);
+        }
+      }
     
       return returnString;
     }

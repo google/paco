@@ -111,7 +111,7 @@ public class ExperimentMigrationDataPreCleanupJob implements MigrationJob {
       if (doAll || (cursor != null && cursor.equalsIgnoreCase("step6"))) {
         try {
           log.info("------------------------------------------------Step 6 Begin------------------------------------------------");
-          sqlMigDaoImpl.dataCleanupEnforceForeignKeyConstraintOnEVGM();
+//          sqlMigDaoImpl.dataCleanupEnforceForeignKeyConstraintOnEVGM();
           sqlMigDaoImpl.dataCleanupInsertPredefinedRecords();
           log.info("------------------------------------------------Step 6 End------------------------------------------------");
           returnString += "Inserted records to data types. Step 6 complete";
