@@ -51,7 +51,7 @@ public enum QueryConstants {
   GET_DISTINCT_OUTPUTS_FOR_EXPERIMENT_ID("select count(distinct text) from events e join outputs o on e._id=o.event_id where experiment_id=?"),
   GET_EXPERIMENT_DEFINITION_RECORD_COUNT("select count(*) from temp_experiment_definition_bk"),
   GET_EVENTS_COUNT("select count(*) from " + ExperimentVersionGroupMappingColumns.TABLE_NAME + " evgm join events e on evgm.experiment_version_group_mapping_id = e.experiment_version_group_mapping_id " +
-                                    " join outputs o on e._id=o.event_id where evgm.experiment_version_group_mapping_id=? and who_bk=? and input_id=?"),
+                                    " join outputs o on e._id=o.event_id where evgm.experiment_version_group_mapping_id=? and who=? and input_id=?"),
   GET_EGVM_ID_FOR_EXP_ID_AND_VERSION("select "+ ExperimentVersionGroupMappingColumns.EXPERIMENT_VERSION_GROUP_MAPPING_ID + " from " + ExperimentVersionGroupMappingColumns.TABLE_NAME + " evm "+
                                     " where " + ExperimentVersionGroupMappingColumns.EXPERIMENT_ID + " = ? and  " + ExperimentVersionGroupMappingColumns.EXPERIMENT_VERSION + " = ? " ),
   GET_EVGM_ID("SELECT * FROM " + ExperimentVersionGroupMappingColumns.TABLE_NAME +  " evgm join group_detail gd on evgm.group_detail_id=gd.group_detail_id where experiment_id=? and experiment_version=? and group_name =?"),

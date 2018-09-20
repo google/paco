@@ -80,7 +80,6 @@ public class CSEventOutputDaoImpl implements CSEventOutputDao {
     eventColInsertList.add(new Column(EventServerColumns.ACTION_TRIGGER_SPEC_ID));
     eventColInsertList.add(new Column(EventServerColumns.ACTION_ID));
     eventColInsertList.add(new Column(EventServerColumns.WHO));
-    eventColInsertList.add(new Column(EventServerColumns.WHO+ "_bk"));
     eventColInsertList.add(new Column(EventServerColumns.WHEN));
     eventColInsertList.add(new Column(EventServerColumns.WHEN_FRAC_SEC));
     eventColInsertList.add(new Column(EventServerColumns.PACO_VERSION));
@@ -96,7 +95,6 @@ public class CSEventOutputDaoImpl implements CSEventOutputDao {
     eventColSearchList.addAll(eventColInsertList);
     
     outputColList.add(new Column(OutputServerColumns.EVENT_ID));
-    outputColList.add(new Column(OutputServerColumns.TEXT));
     outputColList.add(new Column(OutputServerColumns.ANSWER));
     outputColList.add(new Column(OutputServerColumns.INPUT_ID));
     
@@ -229,8 +227,7 @@ public class CSEventOutputDaoImpl implements CSEventOutputDao {
       statementCreateEvent.setLong(i++, event.getActionId() != null ? new Long(event.getActionId()) : java.sql.Types.NULL);
       PacoId anonId = euImpl.getAnonymousIdAndCreate(expIdLong, event.getWho(), true);
       pvUpdateAnonWhoId = anonId.getId().intValue();
-      statementCreateEvent.setString(i++, anonId.getId().toString());
-      statementCreateEvent.setString(i++, anonId.getId().toString());
+      statementCreateEvent.setInt(i++, anonId.getId().intValue());
       if (event.getWhen() != null) {
         whenTs = new Timestamp(event.getWhen().getTime());
         whenFrac = com.google.sampling.experiential.server.TimeUtil.getFractionalSeconds(whenTs);
@@ -295,8 +292,7 @@ public class CSEventOutputDaoImpl implements CSEventOutputDao {
         for (String key : event.getWhatKeys()) {
           String whatAnswer = event.getWhatByKey(key);
           statementCreateEventOutput.setLong(1, event.getId());
-          statementCreateEventOutput.setString(2, key);
-          statementCreateEventOutput.setString(3, whatAnswer);
+          statementCreateEventOutput.setString(2, whatAnswer);
           InputOrderAndChoice currentInput = evmForThisGroup.getInputCollection().getInputOrderAndChoices().get(key);
           // for some reason (scripted variable) this particular output does not have input associated, then add this input variable name to the input collection and get the input id
           if ( currentInput == null) {
@@ -306,7 +302,7 @@ public class CSEventOutputDaoImpl implements CSEventOutputDao {
             newInput = icDaoImpl.addUndefinedInputToCollection(expIdLong, evmForThisGroup.getInputCollection().getInputCollectionId(), key);
             currentInput.setInput(newInput);
           }
-          statementCreateEventOutput.setLong(4, currentInput.getInput().getInputId().getId());
+          statementCreateEventOutput.setLong(3, currentInput.getInput().getInputId().getId());
           pvUpdateInputIds.add(currentInput.getInput().getInputId().getId());
           statementCreateEventOutput.addBatch();
         }

@@ -29,7 +29,20 @@
 			          		<a href="" class="removeGroup" ng-click="remove(experiment.groups, $index)"></a>
 						</div>
 					 </div>	
-      				<div ng-switch-when="PHONESTATUS|SYSTEM|APPUSAGE_ANDROID" ng-switch-when-separator="|">
+      				<div ng-switch-when="PHONESTATUS|APPUSAGE_ANDROID" ng-switch-when-separator="|">
+	      				<div class="section">
+			          			<div class="title" ng-click="toggleHide()">
+						            <a href="" class="group-toggle" ng-class="{hiding: hiding}"></a>
+						            Sensor
+					          	</div>
+	      					<md-input-container placeholder="Sensor" md-no-float class="group-name">
+	      					<input ng-model="group.name" aria-label="Group name">
+	      					
+	      					</md-input-container>
+	      					 <a href="" class="removeGroup" ng-click="remove(experiment.groups, $index)" ng-if="group.groupType !== 'SYSTEM'"></a>
+	      				</div>
+     				</div>
+     				<div ng-switch-when="SYSTEM" ng-switch-when-separator="|">
 	      				<div class="section">
 			          			<div class="title" ng-click="toggleHide()">
 						            <a href="" class="group-toggle" ng-class="{hiding: hiding}"></a>
@@ -37,7 +50,6 @@
 					          	</div>
 	      					<md-input-container placeholder="Sensor" md-no-float class="group-name">
 	      					<label>{{group.groupType}}</label>
-	      					
 	      					</md-input-container>
 	      					 <a href="" class="removeGroup" ng-click="remove(experiment.groups, $index)" ng-if="group.groupType !== 'SYSTEM'"></a>
 	      				</div>
