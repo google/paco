@@ -24,6 +24,12 @@ public class JavascriptNotificationService {
     createNotification(message, true, true, 1000 * 60 * 60 * 24); // timeout in 24 hours.
   }
 
+  @JavascriptInterface
+  public void createNotification(String message, long timeoutMillis) {
+    createNotification(message, true, true, timeoutMillis);
+  }
+
+
   private void createNotification(String message, boolean makeSound, boolean makeVibrate, long timeoutMillis) {
     NotificationCreator.create(context).createNotificationsForCustomGeneratedScript(experiment, experimentGroup, message, makeSound, makeVibrate, timeoutMillis);
   }

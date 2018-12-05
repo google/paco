@@ -120,7 +120,7 @@ public class NotificationCreator {
 
           int color = getColorForNotification(experiment, notificationHolder);
           boolean dismissible = getDismissibleForNotification(experiment, notificationHolder);
-          
+
           fireNotification(context, notificationHolder, experiment.getExperimentDAO().getTitle(), message,
                            experiment.getExperimentDAO().getRingtoneUri(), color, dismissible);
 
@@ -161,7 +161,7 @@ public class NotificationCreator {
 
     return PacoNotificationAction.DEFAULT_COLOR;
   }
-  
+
   private boolean getDismissibleForNotification(Experiment experiment, NotificationHolder notificationHolder){
     String groupName = notificationHolder.getExperimentGroupName();
     Long actionTriggerId = notificationHolder.getActionTriggerId();
@@ -227,9 +227,8 @@ public class NotificationCreator {
     }
     List<ActionSpecification> times = ActionScheduleGenerator.getAllAlarmsWithinOneMinuteofNow(alarmAsDateTime.minusSeconds(59),
                                                                                                experimentDAOs,
-                                                                                               new AndroidEsmSignalStore(
-                                                                                                                         context),
-                                                                                               experimentProviderUtil);
+                                                                                               new AndroidEsmSignalStore(context),
+                                                                                                                         experimentProviderUtil);
 
     for (ActionSpecification timeExperiment : times) {
       if (timeExperiment.action == null) {
@@ -237,7 +236,15 @@ public class NotificationCreator {
       }
       // TODO might we be able to timeout all notifications for all experiments
       // instead of doing this for each experiment?
-      timeoutNotifications(experimentProviderUtil.getAllNotificationsFor(timeExperiment.experiment.getId()));
+      final Long experimentId = timeExperiment.experiment.getId();
+      ExperimentGroup experimentGroup = timeExperiment.experimentGroup;
+      if (experimentGroup == null) {
+        timeoutNotifications(experimentProviderUtil.getAllNotificationsFor(experimentId));
+      } else {
+        List<NotificationHolder> notificationsForGroup = experimentProviderUtil.getNotificationsFor(experimentId,
+                                                                                                    experimentGroup.getName());
+        timeoutNotifications(notificationsForGroup);
+      }
       createNewNotificationForExperiment(context, timeExperiment, false);
     }
   }
@@ -324,7 +331,7 @@ public class NotificationCreator {
     if (Strings.isNullOrEmpty(messageText) || (!Strings.isNullOrEmpty(messageText) && messageText.equals(PacoNotificationAction.DEFAULT_NOTIFICATION_MSG))) {
       messageText = context.getString(R.string.time_to_participate_notification_text);
     }
-                                
+
     NotificationHolder notificationHolder = new NotificationHolder(
                                                                    timeExperiment.time.getMillis(),
                                                                    timeExperiment.experiment.getId(),
@@ -373,7 +380,9 @@ public class NotificationCreator {
     surveyIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
     surveyIntent.putExtra(NOTIFICATION_ID, notificationHolder.getId().longValue());
 
-    PendingIntent notificationIntent = PendingIntent.getActivity(context, 1, surveyIntent,
+    PendingIntent notificationIntent = PendingIntent.getActivity(context,
+                                                                 notificationHolder.getId().intValue(),
+                                                                 surveyIntent,
                                                                  PendingIntent.FLAG_UPDATE_CURRENT);
 
     // Adding bigText style to notification enabling larger messages to be read
@@ -381,12 +390,12 @@ public class NotificationCreator {
     NotificationCompat.BigTextStyle bigStyle = new NotificationCompat.BigTextStyle();
     bigStyle.setBigContentTitle(experimentTitle);
     bigStyle.bigText(message);
-    
+
     // Make sure we have a color, or use the default
     if(color == null){
     	color = PacoNotificationAction.DEFAULT_COLOR;
     }
-    
+
     //Make sure we know whether the notification is dismissible/not, or use default
     if(dismissible == null){
     	dismissible = PacoNotificationAction.DEFAULT_DISMISSIBLE;

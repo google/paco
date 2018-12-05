@@ -139,6 +139,10 @@ var paco = (function (init) {
         return events;
       };
       
+      function getEventsForExperimentGroup() {
+        alert("not implemented!");
+      };
+      
       function getLastEvent() {
         getAllEvents();
         return events[events.length - 1];
@@ -147,7 +151,8 @@ var paco = (function (init) {
       return {
         saveEvent : saveEvent,
         getAllEvents: getAllEvents,
-        getLastEvent : getLastEvent
+        getLastEvent : getLastEvent,
+        getEventsForExperimentGroup : getEventsForExperimentGroup
       };
     };
 
@@ -168,7 +173,15 @@ var paco = (function (init) {
           loaded = true;
         }
         return events;
-      }
+      };
+      
+      function getEventsForExperimentGroup() {
+        if (!loaded) {
+          events = JSON.parse(window.db.getEventsForExperimentGroup());
+          loaded = true;
+        }
+        return events;
+      };
 
       function getLastEvent() {
         return JSON.parse(window.db.getLastEvent());
@@ -177,7 +190,8 @@ var paco = (function (init) {
       return {
         saveEvent : saveEvent,
         getAllEvents: getAllEvents,
-        getLastEvent : getLastEvent
+        getLastEvent : getLastEvent,
+        getEventsForExperimentGroup : getEventsForExperimentGroup
       };
     };
 
@@ -252,6 +266,10 @@ var paco = (function (init) {
       getLastNEvents : function(n) {
         var events = db.getAllEvents();
         return events.slice(0..n);
+      },
+      
+      getEventsForExperimentGroup : function() {
+        return db.getEventsForExperimentGroup();
       },
 
       getResponsesForEventNTimesAgo : getResponsesForEventNTimesAgo,
@@ -401,7 +419,11 @@ var paco = (function (init) {
 	        	// TODO i18n
 	          alert("No notification support"); 
 	        },
-	        removeNotification : function(message) { 
+	        createNotification : function(message, timeout) { 
+            // TODO i18n
+            alert("No notification support"); 
+          },
+          removeNotification : function(message) { 
 		          alert("No notification support"); 
 		      },
           removeAllNotifications : function() {
@@ -414,7 +436,10 @@ var paco = (function (init) {
 	      createNotification : function(message) {
 	        window.notificationService.createNotification(message);
 	      }, 
-	      removeNotification : function(message) {
+	      createNotification : function(message, timeout) {
+          notificationService.createNotification(message, timeout);
+        },
+        removeNotification : function(message) {
 	    	  window.notificationService.removeNotification(message);
 	      },
         removeAllNotifications : function() {
@@ -446,6 +471,23 @@ var paco = (function (init) {
 	    };
 	  })();
 
+  obj.calendarService = (function() {
+    if (!window.calendar) {
+      window.calendar = { 
+        listEventInstances : function(startMillis, endMillis) { 
+          // TODO i18n
+          alert("No calendar support"); 
+        }
+      };
+    }
+
+    return {
+      listEventInstances : function(startMillis, endMillis) {
+        return window.calendar.listEventInstances(startMillis, endMillis);
+      }
+    };
+  })();
+  
   return obj;
 })();
 
