@@ -39,6 +39,15 @@
     <servlet-name>migrationBackendServlet</servlet-name>
     <url-pattern>/migrateBackend</url-pattern>
   </servlet-mapping>
+
+   <servlet>   
+    <servlet-name>reportsBackendServlet</servlet-name>
+    <servlet-class>com.google.sampling.experiential.server.reports.ReportsBackendServlet</servlet-class>
+  </servlet>    
+  <servlet-mapping>
+    <servlet-name>reportsBackendServlet</servlet-name>
+    <url-pattern>/reportsBackend</url-pattern>
+  </servlet-mapping>
   
   <servlet>
     <servlet-name>usageCronJobServlet</servlet-name>

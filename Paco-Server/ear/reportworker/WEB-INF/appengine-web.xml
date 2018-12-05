@@ -46,4 +46,3 @@
     <max-instances>10</max-instances>
   </basic-scaling>
 </appengine-web-app>
-

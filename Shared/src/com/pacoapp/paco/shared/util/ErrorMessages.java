@@ -7,6 +7,7 @@ public enum ErrorMessages {
   PROBABLE_SQL_INJECTION(30, "Invalid query, probable sql injection : "),
   INVALID_DATA_TYPE(40, "Invalid datatype :"),
   INVALID_COLUMN_NAME(50,"Invalid Column name : "),
+  INVALID_GROUPBY(51,"Invalid GroupBy : "),
   JSON_EXCEPTION(60, "Invalid json"),
   SQL_EXCEPTION(70,"SQL Exception : "),
   SQL_INSERT_EXCEPTION(71,"SQL Exception : "),

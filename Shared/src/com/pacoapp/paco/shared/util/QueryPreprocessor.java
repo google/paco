@@ -187,11 +187,12 @@ public class QueryPreprocessor implements SelectVisitor, FromItemVisitor, Expres
   }
   
   private String modifyDateStrToUTC(StringValue strValue) throws ParseException { 
-    Date dt = localDateFormatter.parse(strValue.getValue());
-    Date utcDate = TimeUtil.convertToUTC(dt, timeZone);
-    String utcFormattedDate = localDateFormatter.format(utcDate);
-    return utcFormattedDate;
-  }
+	 Date dt = localDateFormatter.parse(strValue.getValue());
+	   Date utcDate = TimeUtil.convertToUTC(dt, timeZone);
+	   String utcFormattedDate = localDateFormatter.format(utcDate);
+	   return utcFormattedDate;
+	 }
+
 
   public void visit(PlainSelect plainSelect) {
     plainSelect.getFromItem().accept(this);
@@ -300,7 +301,7 @@ public class QueryPreprocessor implements SelectVisitor, FromItemVisitor, Expres
       if (le instanceof Column) {
         Column leftColumn = (Column) le;
         String leftColName = leftColumn.getColumnName();
-        if (requestedDateColumns.contains(leftColName)) {
+        if (requestedDateColumns != null && requestedDateColumns.contains(leftColName)) {
           if (ril instanceof ItemsList) {
             ExpressionList expList = (ExpressionList) ril;
             List<Expression> elList = expList.getExpressions();
@@ -436,7 +437,7 @@ public class QueryPreprocessor implements SelectVisitor, FromItemVisitor, Expres
       if (le instanceof Column) {
         String utcFormattedDate = null;
         String leftColName = ((Column) le).getColumnName();
-        if (requestedDateColumns.contains(leftColName)) {
+        if (requestedDateColumns != null && requestedDateColumns.contains(leftColName)) {
           if (re instanceof StringValue) {
             try {
               if (modifyDateToUTC) {

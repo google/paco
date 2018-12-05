@@ -1,0 +1,660 @@
+.bar {
+  fill: steelblue;
+}
+
+.bar:hover {
+  fill: brown;
+}
+
+.axis {
+  font: 10px sans-serif;
+}
+
+.axis path,
+.axis line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+
+.line {
+  stroke: #E4002B;
+  fill: none;
+  stroke-width: 1.5;
+  stroke: steelblue;
+}
+
+.axis text {
+  font-size: 10px;
+  font-family: sans-serif;
+}
+
+.text-label {
+  font-size: 10px;
+  font-family: sans-serif;
+}
+
+.tick line {
+  opacity: 0.8;
+}
+
+.dot {
+  stroke: steelblue;
+  fill: #7A99AC;
+}
+
+.vizInputSelections {
+  margin-left: 5px;
+}
+
+.vizFilterSelections {
+  margin-left: 10px;
+}
+
+.vizTypeSelectionDiv {
+  margin-left: 25px;
+}
+
+.vizDateSelection {
+  margin-right: 15px;
+  width: 100px;
+}
+
+.vizCreateButton {
+  margin-top: 13px;
+  margin-left: 15px;
+}
+
+.vizCreateButton .md-button.md-raised:not([disabled]) {
+  color: #5c6bc0;
+  font-weight: 500;
+}
+
+.filterControls {
+  padding: 5px;
+}
+
+.filterControls_usersDropDown {
+  margin-left: 10px;
+}
+
+.vizContainer {
+  background-color: white;
+  width: 98%;
+}
+
+.vizTemplate {
+  padding: 20px;
+  width: 96.5%;
+  background-color: white;
+}
+
+.md-toolbar-tools.titleToolbar {
+  background-color: #d8d8d8;
+}
+
+.vizTitle {
+  font-size: 16px;
+  margin: 10px;
+  width: 98%;
+  text-align: center;
+}
+
+.md-toolbar-tools.filterLabel {
+  background-color: #d8d8d8;
+  color: black;
+}
+
+.filterLabelText {
+  font-size: 18px;
+  color: black;
+}
+
+md-input-container.quesDropDown.md-input-has-value .md-select-value > span:not(.md-select-icon) {
+  color: black;
+}
+
+div.tooltip.bars {
+  position: absolute;
+  z-index: 10;
+  visibility: hidden;
+  color: #fff;
+  padding: 8px;
+  background-color: rgba(0, 0, 0, 0.75);
+  border-radius: 6px;
+  font: 12px sans-serif;
+  width: 200px;
+  height: auto;
+  word-wrap: break-word;
+}
+
+div.tooltip {
+  position: absolute;
+  z-index: 10;
+  visibility: hidden;
+  color: #fff;
+  padding: 8px;
+  background-color: rgba(0, 0, 0, 0.75);
+  border-radius: 6px;
+  font: 12px sans-serif;
+}
+
+.vizClass {
+  float: left;
+}
+
+.filterControls_date {
+  padding: 5px;
+  margin-left: -5px;
+  margin-top: 10px;
+}
+
+.filterControls_dateLabel {
+  margin-left: 10px;
+  text-decoration: underline;
+}
+
+start-date-picker.filterControls.div.md-datepicker-input-container {
+  margin-left: 0px;
+}
+
+.quesDropDown {
+  font-size: 16px;
+  color: black;
+}
+
+.dateTimeSelect {
+  width: 150px;
+  color: white;
+}
+
+md-select.dateTimeSelect .md-select-value.md-select-placeholder {
+  color: white !important;
+}
+
+.datePicker > button {
+  display: none;
+}
+
+.timePicker > input {
+  width: 100px;
+  font-size: 14px;
+}
+
+.dateTimePlaceholder {
+  color: white;
+}
+
+.dateRangeWidth {
+  width: 270px;
+}
+
+.error.viz {
+  margin-top: 20px;
+}
+
+.selectdemoSelectHeader .demo-header-searchbox {
+  border: none;
+  outline: none;
+  height: 100%;
+  padding: 0;
+}
+
+.selectdemoSelectHeader .demo-select-header {
+  box-shadow: 0 1px 0 0 rgba(0, 0, 0, 0.1), 0 0 0 0 rgba(0, 0, 0, 0.14), 0 0 0 0 rgba(0, 0, 0, 0.12);
+  padding-left: 10.667px;
+  height: 48px;
+  cursor: pointer;
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: auto;
+}
+
+.selectdemoSelectHeader md-content._md {
+  max-height: 500px;
+}
+
+.inputsDropDown, .typesDropDown, .participantsDropDown, .datesDropDown, .input1input2DropDown {
+  font-size: 16px;
+  color: white;
+}
+
+md-input-container.inputsDropDown:not([md-no-float]) .md-select-placeholder span:first-child {
+  color: white;
+}
+
+md-input-container.typesDropDown:not([md-no-float]) .md-select-placeholder span:first-child {
+  color: white;
+}
+
+md-input-container.participantsDropDown:not([md-no-float]) .md-select-placeholder span:first-child {
+  color: white;
+}
+
+md-input-container.datesDropDown:not([md-no-float]) .md-select-placeholder span:first-child {
+  color: white;
+}
+
+md-input-container.md-input-focused label.quesLabel:not(.md-no-float), md-input-container.md-input-has-placeholder label.quesLabel:not(.md-no-float), md-input-container.md-input-has-value label.quesLabel:not(.md-no-float) {
+  color: black;
+  display: none;
+}
+
+md-input-container.md-input-focused label.typesLabel:not(.md-no-float), md-input-container.md-input-has-placeholder label.typesLabel:not(.md-no-float), md-input-container.md-input-has-value label.typesLabel:not(.md-no-float) {
+  color: white;
+}
+
+md-input-container.md-input-focused label.inputsLabel:not(.md-no-float), md-input-container.md-input-has-placeholder label.inputsLabel:not(.md-no-float), md-input-container.md-input-has-value label.inputsLabel:not(.md-no-float) {
+  color: white;
+}
+
+md-input-container.md-input-focused label.participantsLabel:not(.md-no-float), md-input-container.md-input-has-placeholder label.participantsLabel:not(.md-no-float), md-input-container.md-input-has-value label.participantsLabel:not(.md-no-float) {
+  color: white;
+}
+
+md-input-container.md-input-focused label.datesLabel:not(.md-no-float), md-input-container.md-input-has-placeholder label.datesLabel:not(.md-no-float), md-input-container.md-input-has-value label.datesLabel:not(.md-no-float) {
+  color: white;
+}
+
+md-input-container.inputsDropDown.md-input-has-value .md-select-value > span:not(.md-select-icon) {
+  color: white;
+}
+
+md-input-container.typesDropDown.md-input-has-value .md-select-value > span:not(.md-select-icon) {
+  color: white;
+}
+
+md-input-container.quesDropDown:not([md-no-float]) .md-select-placeholder span:first-child {
+  /*color: white;*/
+  color: black;
+}
+
+md-input-container.participantsDropDown.md-input-has-value .md-select-value > span:not(.md-select-icon) {
+  color: white;
+}
+
+md-input-container.datesDropDown.md-input-has-value .md-select-value > span:not(.md-select-icon) {
+  color: white;
+}
+
+md-input-container.typesDropDown:not([md-no-float]) .md-select-placeholder span:first-child {
+  color: white;
+}
+
+md-input-container.quesDropDown .md-select-menu .md-content {
+  max-height: 600px;
+}
+
+.quesSelect {
+  color: black;
+  margin-right: 40px;
+  margin-top: -20px;
+}
+
+.quesContainer {
+  height: 500px !important;
+}
+
+.quesContainer > md-select-menu._md.md-overflow {
+  max-height: 500px !important;
+}
+
+.quesContainer > md-select-menu._md.md-overflow > md-content._md {
+  max-height: 500px !important;
+}
+
+.resType {
+  font-style: italic;
+  font-size: 12px;
+}
+
+.asterisk {
+  color: white;
+  margin-top: 19px;
+  font-size: 12px;
+}
+
+.snapshotContainer {
+  background: #d8d8d8;
+  margin-bottom: 20px;
+  padding: 18px;
+  text-align: center;
+  height: 130px;
+  position: relative;
+}
+
+.tableContainer {
+  background-color: #d8d8d8;
+  margin: 0 auto;
+  text-align: center;
+  border-spacing: 10px;
+
+}
+
+.cellContainer {
+  background-color: #eee;
+  width: 150px;
+  height: 100px;
+  padding: 5px;
+}
+
+.dataCount {
+  font-weight: 500;
+  color: red;
+  font-size: 28px;
+}
+
+.countText {
+  font-size: 13px;
+}
+
+.dateRangeVal {
+  font-weight: 500;
+  color: red;
+  font-size: 13px;
+}
+
+.vizCaption {
+  width: 94%;
+  background-color: white;
+  height: 70px;
+}
+
+.vizDescBlock {
+  width: 107%;
+  position: absolute;
+  padding: 5px;
+}
+
+.vizDescription {
+  margin: 5px;
+  width: 100%;
+  height: 130px;
+  border-radius: 5px;
+}
+
+.vizDescLabel {
+  color: black;
+}
+
+textarea.descTextArea {
+  font-size: 13px;
+  height: 81px;
+}
+
+.descText {
+  margin-top: 25px;
+  font-size: 14px;
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+  margin-left: 9px;
+  height: 81px;
+}
+
+button.md-primary.vizClearButton.md-button.md-ink-ripple {
+  color: white;
+  margin-left: -33px;
+  margin-top: -3px;
+}
+
+.saveDownload {
+  margin-top: 80px;
+}
+
+table.vizTable, td.viz, th.viz {
+  border: 1px solid #ddd;
+  text-align: left;
+  font-size: 14px;
+}
+
+table.vizTable {
+  border-collapse: collapse;
+  width: 100%;
+  background-color: #fff;
+}
+
+th.viz {
+  background-color: #fff;
+  font-weight: 500;
+}
+
+th.viz, td.viz {
+  padding: 9.8px;
+}
+
+.vizTableContainer {
+  margin-top: 20px;
+  height: 100%;
+}
+
+a:hover {
+  color: #0D47A1;
+  cursor: pointer;
+}
+
+span.md-primary.clearTable {
+  float: right;
+  padding: 5px;
+  font-size: 15px;
+}
+
+.clearViz {
+  float: right;
+  margin-top: -31px;
+  margin-right: -24px;
+  color: red;
+  font-size: 14px;
+  font-weight: 400;
+}
+
+.separator {
+  color: #d8d8d8;
+  transform: scale(.8, 4);
+  margin-top: 48px;
+  margin-left: 10px;
+  margin-right: 5px;
+}
+
+.yAxisText {
+  font-size: 12px;
+  margin-top: 3.5px;
+  margin-left: 15px;
+}
+
+.yAxisTextLabel {
+  color: white;
+  font-size: 16px;
+  margin-top: 8.5px;
+  margin-left: 15px;
+  width: 100%;
+}
+
+.categoryLabels {
+  color: lightpink;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.alignVizInput {
+  margin-top: 3px;
+  margin-left: -6px;
+}
+
+.alignLblInput {
+  margin-top: 3px;
+  margin-left: -6px;
+}
+
+.controlsToolbar {
+  height: 100px;
+}
+
+.vizPickerRow {
+  margin-top: 55px;
+}
+
+.dateSelections {
+  margin-left: 10px;
+}
+
+.quesToolbar {
+  margin-bottom: 1px;
+}
+
+.titleStaticText {
+  margin-top: 25px;
+  font-weight: 500;
+  margin-left: 10px;
+  font-size: 18px;
+}
+
+.vizTitleContainer {
+  text-align: center;
+}
+
+.descStaticText {
+  margin-top: 33px;
+  margin-bottom: -20px;
+  margin-left: 10px;
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.vizInactive {
+  background-color: white;
+}
+
+.vizSectionLabels {
+  margin-top: 40px;
+  margin-bottom: 20px;
+  background-color: #d8d8d8;
+  width: 100%;
+  vertical-align: middle;
+  padding: 10px;
+}
+
+.editTextButton {
+  background: url('/img/ic_mode_edit_black_24px.svg') no-repeat;
+  height: 26px;
+  opacity: .5;
+  display: inline-block;
+  float: right;
+  width: 26px;
+  cursor: pointer;
+  margin-left: 8px;
+  margin-top: -4px;
+}
+
+.doneButton {
+  background: url('/img/ic_done_24px.svg') no-repeat;
+  height: 26px;
+  opacity: .5;
+  display: inline-block;
+  float: right;
+  width: 26px;
+  cursor: pointer;
+  margin-top: -29px;
+  margin-right: -40px;
+}
+
+.confirmDesc {
+  background: url('/img/ic_done_24px.svg') no-repeat;
+  height: 26px;
+  opacity: .5;
+  display: inline-block;
+  float: right;
+  width: 26px;
+  cursor: pointer;
+  margin-top: -17px;
+  margin-right: -80px;
+}
+
+.resetTextButton {
+  background: url('/img/ic_clear_24px.svg') no-repeat;
+  height: 26px;
+  opacity: .5;
+  display: inline-block;
+  float: right;
+  width: 26px;
+  cursor: pointer;
+  margin-top: -29px;
+  margin-right: -70px;
+}
+
+.resetDesc {
+  background: url('/img/ic_clear_24px.svg') no-repeat;
+  height: 26px;
+  opacity: .5;
+  display: inline-block;
+  float: right;
+  width: 26px;
+  cursor: pointer;
+  margin-top: -17px;
+  margin-right: -108px;
+}
+
+.backArrow {
+  background: url('/img/ic_arrow_back_white_24px.svg') no-repeat;
+  height: 24px;
+  opacity: .5;
+  display: inline-block;
+  float: right;
+  width: 24px;
+  cursor: pointer;
+  color: black;
+  margin-right: 5px;
+}
+
+.backArrow.backButton {
+  min-width: 24px !important;
+}
+
+.downArrow {
+  background: url('/img/ic_keyboard_arrow_down_white_24px.svg') no-repeat;
+  height: 24px;
+  opacity: .5;
+  display: inline-block;
+  float: right;
+  width: 24px;
+  cursor: pointer;
+  margin-right: 5px;
+}
+
+.downArrow.historyButton {
+  min-width: 24px !important;
+}
+
+.frwdArrow {
+  background: url('/img/ic_arrow_forward_white_24px.svg') no-repeat;
+  height: 24px;
+  opacity: .5;
+  display: inline-block;
+  float: right;
+  width: 24px;
+  cursor: pointer;
+}
+
+.frwdArrow.frwdButton {
+  min-width: 24px !important;
+}
+
+.editDescButton {
+  background: url('/img/ic_mode_edit_black_24px.svg') no-repeat;
+  height: 26px;
+  opacity: .5;
+  display: inline-block;
+  float: right;
+  width: 26px;
+  cursor: pointer;
+  margin-left: 8px;
+  margin-top: -4px;
+}
+
+.vizRevisions {
+  margin-top: 35px;
+}
+
+.selectAllDeselectAll{
+  font-size: 12px;
+}
+

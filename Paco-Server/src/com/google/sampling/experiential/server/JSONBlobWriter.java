@@ -135,7 +135,7 @@ public class JSONBlobWriter {
     return "Error could not retrieve events as json";
   }
 
-  private BlobKey writeBlobUsingNewApi(String jobId, String json) throws IOException,
+  public  BlobKey writeBlobUsingNewApi(String jobId, String json) throws IOException,
                                                                      FileNotFoundException {
     GcsService gcsService = GcsServiceFactory.createGcsService();
     String bucketName = System.getProperty("com.pacoapp.reportbucketname");
