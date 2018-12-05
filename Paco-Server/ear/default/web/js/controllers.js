@@ -210,6 +210,14 @@ pacoApp.controller('ExperimentCtrl', ['$scope', '$mdDialog', '$filter',
       $scope.ace.height = $scope.lineCount(newValue) * 16;
     });
 
+    $scope.discardChanges = function() {
+      if ($scope.newExperiment) {
+        $location.path('/experiments/');
+      } else {
+        $scope.experiment = angular.copy($scope.experiment0);
+      }
+    }
+
     $scope.saveExperiment = function() {
       $scope.cancelSave = false;
       $mdDialog.show(
@@ -340,8 +348,9 @@ pacoApp.controller('ListCtrl', ['$scope', '$mdDialog', '$location',
         then(function(response) {
           $scope.loadList(true);
 
-          // If we're on the experiment page, change location to home
-          if ($location.path().indexOf('/experiment/') === 0) {
+          // If we're on the experiment or edit page, change location to home
+          if ($location.path().indexOf('/experiment/') === 0 ||
+              $location.path().indexOf('/edit/') === 0) {
             $location.path('/');
           }
         });
@@ -386,7 +395,7 @@ pacoApp.controller('DataCtrl', ['$scope', '$mdDialog', '$location', '$filter',
 
     $scope.switchView = function() {
       var newPath = $scope.currentView + '/' + $scope.experimentId;
-      if ($scope.restrict) {
+      if ($scope.userChips) {
         newPath += '/' + $scope.user;
       }
       $location.path(newPath);
@@ -405,6 +414,11 @@ pacoApp.controller('DataCtrl', ['$scope', '$mdDialog', '$location', '$filter',
       return row[$scope.sortColumn];
     };
 
+    enableColumns = function(columns) {
+      for (var id in columns) {
+        $scope.showColumn[columns[id]] = true;
+      }
+    };
 
     $scope.loadEvents = function() {
       $scope.loading = true;
@@ -431,16 +445,11 @@ pacoApp.controller('DataCtrl', ['$scope', '$mdDialog', '$location', '$filter',
             return;
           }
 
-          // Toggle on all data order columns
-          for (var id in config.dataOrder) {
-            $scope.showColumn[config.dataOrder[id]] = true;
-          }
-
-          // Toggle on all response columns
-          if (table.responseNames) {
-            for (var id in table.responseNames) {
-              $scope.showColumn[table.responseNames[id]] = true;
-            }
+          if ($scope.columnOverride) {
+            enableColumns($scope.columnOverride);
+          } else {
+            enableColumns(config.dataOrder);
+            enableColumns(table.responseNames);
           }
 
           // TODO(ispiro): regenerate CSV based on column visibility
@@ -457,7 +466,7 @@ pacoApp.controller('DataCtrl', ['$scope', '$mdDialog', '$location', '$filter',
       }, function(result) {
         $scope.loading = false;
         $scope.error = {  code: result.status,
-                          message: result.statusText
+                          message: result.message
                         };
       });
 
@@ -491,17 +500,20 @@ pacoApp.controller('DataCtrl', ['$scope', '$mdDialog', '$location', '$filter',
       $location.path(newPath);
     };
 
-    if ($location.hash() && $location.hash() === 'anon') {
-      $scope.anon = true;
+    if ($location.hash()) {
+      $scope.columnOverride = $location.hash().split(',');
     }
 
-    if ($location.hash() && $location.hash() === 'mine') {
-      $scope.restrict = $scope.user;
-    }
+    if (angular.isDefined($routeParams.filter)) {
 
-    if (angular.isDefined($routeParams.who)) {
-      $scope.restrict = $routeParams.who;
-      $scope.userChips = [$routeParams.who];
+      if ($routeParams.filter === 'anonymous') {
+        $scope.anon = true;
+      } else if ($routeParams.filter === 'mine') {
+        $scope.restrict = $scope.user;
+      } else {
+        $scope.restrict = $routeParams.filter;
+        $scope.userChips = [$routeParams.filter];
+      }
     }
 
     if (angular.isDefined($routeParams.csvExperimentId)) {
@@ -518,6 +530,19 @@ pacoApp.controller('DataCtrl', ['$scope', '$mdDialog', '$location', '$filter',
       function(response) {
         $scope.experiment = response.data[0];
       });
+
+    $scope.$watchCollection('showColumn', function(newVal, oldVal) {
+      var columnString = '';
+      for (var key in $scope.showColumn) {
+        if ($scope.showColumn[key] && key !== 'responses') {
+          if (columnString !== '') {
+            columnString += ',';
+          }
+          columnString += key;
+        }
+      }
+      $scope.columnString = columnString;
+    });
   }
 ]);
 

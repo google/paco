@@ -1,5 +1,5 @@
-application: quantifiedself-staging
-version: 88
+application: quantifiedself
+version: 148
 runtime: python
 api_version: 1
 

@@ -22,10 +22,22 @@ md-tab-item.md-active {
   margin-top: -4px;
 }
 
-.save {
-  float: right;
+.edit .save {
+  position: absolute;
+  right: 0;
+  top: 72px;
+  z-index: 100;
 }
 
-.save a {
+.edit .actions {
+  float: right;
+  margin-right: -16px;
+}
+
+.edit .save button {
+  color: white;
+}
+
+.edit .save a {
   color: red;
 }

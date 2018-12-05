@@ -17,7 +17,7 @@
   display: inline-block;
 }
 
-.data .nav img {
+.nav img {
   vertical-align: middle;
 }
 
@@ -27,7 +27,7 @@
   padding: 16px;
 }
 
-.data .download {
+.data .actions {
   float: right;
 }
 
@@ -181,6 +181,11 @@ md-menu-item {
   text-align: center;
 }
 
+.data .error {
+  margin: 16px;
+  text-align: left;
+}
+
 .data md-chips {
   display: inline-block;
   position: relative;
@@ -191,6 +196,10 @@ md-menu-item {
   position: absolute;
   left: 0;
   top: -30px;
+}
+
+.data md-chips .md-chip-input-container {
+  display: none;
 }
 
 .data md-chips .md-chips.md-focused {
