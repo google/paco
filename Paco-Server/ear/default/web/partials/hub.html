@@ -1,0 +1,36 @@
+<div ng-controller="HubCtrl" class="centered">
+    <div>
+    <md-card>
+        <md-card-content>
+            <div class="nav padded">
+                <a href="#/">
+                    <md-button>
+                        Paco
+                    </md-button>
+                </a>
+                <img src="/img/ic_chevron_right_24px.svg">
+                <a href="#/hub">
+                    <md-button>
+                        Experiment Hub
+                    </md-button>
+                </a>
+            </div>
+
+            <md-tabs md-selected="state.tabId">
+                <md-tab ng-repeat="tab in tabs">
+                    <md-tab-label>
+                        {{tab}}
+                    </md-tab-label>
+                    <md-tab-body></md-tab-body>
+                </md-tab>
+            </md-tabs>
+
+        </md-card-content>
+    </md-card>
+    </div>
+
+    <div ng-repeat="tab in tabs">
+        <div ng-include="'partials/' + tab + '.html'" ng-if="state.tabId === $index">
+        </div>
+    </div>
+</div>

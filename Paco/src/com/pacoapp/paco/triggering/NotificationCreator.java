@@ -19,21 +19,11 @@ package com.pacoapp.paco.triggering;
 import java.util.List;
 
 import org.joda.time.DateTime;
-
-import android.app.AlarmManager;
-import android.app.Notification;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
-import android.content.Context;
-import android.content.Intent;
-import android.net.Uri;
-import android.support.v4.app.NotificationCompat;
-import android.support.v4.app.NotificationManagerCompat;
-import android.util.Log;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
-import com.pacoapp.paco.PacoConstants;
 import com.pacoapp.paco.R;
 import com.pacoapp.paco.UserPreferences;
 import com.pacoapp.paco.model.Event;
@@ -47,15 +37,29 @@ import com.pacoapp.paco.os.RingtoneUtil;
 import com.pacoapp.paco.shared.model2.ActionTrigger;
 import com.pacoapp.paco.shared.model2.ExperimentDAO;
 import com.pacoapp.paco.shared.model2.ExperimentGroup;
+import com.pacoapp.paco.shared.model2.InterruptCue;
 import com.pacoapp.paco.shared.model2.InterruptTrigger;
 import com.pacoapp.paco.shared.model2.PacoAction;
 import com.pacoapp.paco.shared.model2.PacoNotificationAction;
 import com.pacoapp.paco.shared.scheduling.ActionScheduleGenerator;
 import com.pacoapp.paco.shared.scheduling.ActionSpecification;
-import com.pacoapp.paco.shared.util.ExperimentHelper.Pair;
+import com.pacoapp.paco.shared.util.ExperimentHelper.Trio;
 import com.pacoapp.paco.ui.ExperimentExecutor;
 
+import android.annotation.SuppressLint;
+import android.app.AlarmManager;
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.content.Context;
+import android.content.Intent;
+import android.net.Uri;
+import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.NotificationManagerCompat;
+
 public class NotificationCreator {
+
+  private static Logger Log = LoggerFactory.getLogger(NotificationCreator.class);
 
   private static final int DEFAULT_SNOOZE_10_MINUTES = 600000;
   public static final String SNOOZE_REPEATER_EXTRA_KEY = "SNOOZE REPEATER";
@@ -82,6 +86,8 @@ public class NotificationCreator {
   }
 
   public void timeoutNotification(long notificationId) {
+    Log.debug("timeoutNotification: " + notificationId);
+
     try {
       NotificationHolder notificationHolder = experimentProviderUtil.getNotificationById(notificationId);
       timeoutNotification(notificationHolder);
@@ -96,6 +102,7 @@ public class NotificationCreator {
   }
 
   public void recreateActiveNotifications() {
+    Log.debug("recreateActiveNotifications");
     try {
       List<NotificationHolder> allNotifications = experimentProviderUtil.getAllNotifications();
       DateTime now = new DateTime();
@@ -120,7 +127,7 @@ public class NotificationCreator {
 
           int color = getColorForNotification(experiment, notificationHolder);
           boolean dismissible = getDismissibleForNotification(experiment, notificationHolder);
-          
+
           fireNotification(context, notificationHolder, experiment.getExperimentDAO().getTitle(), message,
                            experiment.getExperimentDAO().getRingtoneUri(), color, dismissible);
 
@@ -161,7 +168,7 @@ public class NotificationCreator {
 
     return PacoNotificationAction.DEFAULT_COLOR;
   }
-  
+
   private boolean getDismissibleForNotification(Experiment experiment, NotificationHolder notificationHolder){
     String groupName = notificationHolder.getExperimentGroupName();
     Long actionTriggerId = notificationHolder.getActionTriggerId();
@@ -187,6 +194,7 @@ public class NotificationCreator {
   }
 
   public void createSnoozeWakeupNotification(long notificationId) {
+    Log.debug("createSnoozeWakeupNotification " + notificationId);
     NotificationHolder notificationHolder = experimentProviderUtil.getNotificationById(notificationId);
     if (notificationHolder == null) {
       return;
@@ -218,8 +226,8 @@ public class NotificationCreator {
 
   private void createAllNotificationsForLastMinute(long alarmTime) {
     DateTime alarmAsDateTime = new DateTime(alarmTime);
-    Log.i(PacoConstants.TAG,
-          "Creating All notifications for last minute from signaled alarmTime: " + alarmAsDateTime.toString());
+    Log.info("Creating All notifications for last minute from signaled alarmTime: "
+            + alarmAsDateTime.toString());
 
     List<ExperimentDAO> experimentDAOs = Lists.newArrayList();
     for (Experiment experiment : experimentProviderUtil.getJoinedExperiments()) {
@@ -227,9 +235,8 @@ public class NotificationCreator {
     }
     List<ActionSpecification> times = ActionScheduleGenerator.getAllAlarmsWithinOneMinuteofNow(alarmAsDateTime.minusSeconds(59),
                                                                                                experimentDAOs,
-                                                                                               new AndroidEsmSignalStore(
-                                                                                                                         context),
-                                                                                               experimentProviderUtil);
+                                                                                               new AndroidEsmSignalStore(context),
+                                                                                                                         experimentProviderUtil);
 
     for (ActionSpecification timeExperiment : times) {
       if (timeExperiment.action == null) {
@@ -237,7 +244,15 @@ public class NotificationCreator {
       }
       // TODO might we be able to timeout all notifications for all experiments
       // instead of doing this for each experiment?
-      timeoutNotifications(experimentProviderUtil.getAllNotificationsFor(timeExperiment.experiment.getId()));
+      final Long experimentId = timeExperiment.experiment.getId();
+      ExperimentGroup experimentGroup = timeExperiment.experimentGroup;
+      if (experimentGroup == null) {
+        timeoutNotifications(experimentProviderUtil.getAllNotificationsFor(experimentId));
+      } else {
+        List<NotificationHolder> notificationsForGroup = experimentProviderUtil.getNotificationsFor(experimentId,
+                                                                                                    experimentGroup.getName());
+        timeoutNotifications(notificationsForGroup);
+      }
       createNewNotificationForExperiment(context, timeExperiment, false);
     }
   }
@@ -252,7 +267,7 @@ public class NotificationCreator {
   // So, this notification has not been responded to and should be canceled.
   public void timeoutNotification(NotificationHolder notificationHolder) {
     if (notificationHolder != null) {
-      Log.i(PacoConstants.TAG, "Timing out notification. Holder = " + notificationHolder.getId() + ", experiment = "
+      Log.info("Timing out notification. Holder = " + notificationHolder.getId() + ", experiment = "
                                + notificationHolder.getExperimentId());
       cancelNotification(context, notificationHolder.getId());
       createMissedPacot(context, notificationHolder);
@@ -274,7 +289,8 @@ public class NotificationCreator {
     event.setExperimentName(experiment.getExperimentDAO().getTitle());
     event.setExperimentGroupName(notificationHolder.getExperimentGroupName());
     event.setActionTriggerId(notificationHolder.getActionTriggerId());
-    event.setActionTriggerSpecId(notificationHolder.getActionId());
+    event.setActionTriggerSpecId(notificationHolder.getActionTriggerSpecId());
+    event.setActionId(notificationHolder.getActionId());
     event.setExperimentVersion(experiment.getExperimentDAO().getVersion());
     event.setScheduledTime(new DateTime(notificationHolder.getAlarmTime()));
     experimentProviderUtil.insertEvent(event);
@@ -287,7 +303,7 @@ public class NotificationCreator {
 
   private void createNewNotificationForExperiment(Context context, ActionSpecification timeExperiment,
                                                   boolean customGenerated) {
-    Log.i(PacoConstants.TAG, "CreateNewNotificationForExperiment start");
+    Log.info("CreateNewNotificationForExperiment start");
     NotificationHolder notificationHolder = createNewNotificationWithDetails(context, timeExperiment);
 
     createAlarmToCancelNotificationAtTimeout(context, notificationHolder);
@@ -295,16 +311,16 @@ public class NotificationCreator {
     if (timeExperiment.action.getSnoozeCount() > PacoNotificationAction.SNOOZE_COUNT_DEFAULT) {
       createAlarmForSnooze(context, notificationHolder);
     }
-    Log.i(PacoConstants.TAG, "CreateNewNotificationForExperiment done");
+    Log.info("CreateNewNotificationForExperiment done");
   }
 
   private void createNewCustomNotificationForExperiment(Context context, DateTime time, ExperimentDAO experiment,
                                                         String groupName, long expirationTimeInMillis, String message,
-                                                        Integer color, Boolean dismissible) {
+                                                        Integer color, Boolean dismissible, Long actionTriggerSpecId, Long actionTriggerId, Long actionId) {
     NotificationHolder notificationHolder = new NotificationHolder(time.getMillis(), experiment.getId(), 0,
-                                                                   expirationTimeInMillis, groupName, null, null,
+                                                                   expirationTimeInMillis, groupName, actionTriggerId, actionId,
                                                                    NotificationHolder.CUSTOM_GENERATED_NOTIFICATION,
-                                                                   message, null);
+                                                                   message, actionTriggerSpecId);
 
     experimentProviderUtil.insertNotification(notificationHolder);
     fireNotification(context, notificationHolder, experiment.getTitle(), message, experiment.getRingtoneUri(), color, dismissible);
@@ -320,6 +336,11 @@ public class NotificationCreator {
       expirationTimeInMillis = Integer.parseInt(PacoNotificationAction.ESM_SIGNAL_TIMEOUT);
     }
 
+    String messageText = action.getMsgText() != null ? action.getMsgText() : null;
+    if (Strings.isNullOrEmpty(messageText) || (!Strings.isNullOrEmpty(messageText) && messageText.equals(PacoNotificationAction.DEFAULT_NOTIFICATION_MSG))) {
+      messageText = context.getString(R.string.time_to_participate_notification_text);
+    }
+
     NotificationHolder notificationHolder = new NotificationHolder(
                                                                    timeExperiment.time.getMillis(),
                                                                    timeExperiment.experiment.getId(),
@@ -329,21 +350,24 @@ public class NotificationCreator {
                                                                    timeExperiment.actionTrigger.getId(),
                                                                    action.getId(),
                                                                    null,
-                                                                   action.getMsgText() != null ? action.getMsgText()
-                                                                                              : context.getString(R.string.time_to_participate_notification_text),
+                                                                   messageText,
                                                                    timeExperiment.actionTriggerSpecId);
     experimentProviderUtil.insertNotification(notificationHolder);
-    fireNotification(context, notificationHolder, timeExperiment.experiment.getTitle(), action.getMsgText(),
+    fireNotification(context, notificationHolder, timeExperiment.experiment.getTitle(), messageText,
                      timeExperiment.experiment.getRingtoneUri(), action.getColor(), action.getDismissible());
     return notificationHolder;
   }
 
   private void fireNotification(Context context, NotificationHolder notificationHolder, String experimentTitle,
                                 String message, String experimentSpecificRingtone, Integer color, Boolean dismissible) {
-    Log.i(PacoConstants.TAG,
-          "Creating notification for experiment: " + experimentTitle + ". source: "
+    String alarmTimeString = "";
+    final Long alarmTime = notificationHolder.getAlarmTime();
+    if (alarmTime != null) {
+      alarmTimeString = new DateTime(alarmTime).toString();
+    }
+    Log.info("Creating notification for experiment: " + experimentTitle + ". source: "
                   + notificationHolder.getNotificationSource() + ". alarmTime: "
-                  + notificationHolder.getAlarmTime().toString() + ", holderId = " + notificationHolder.getId());
+                  + alarmTimeString + ", holderId = " + notificationHolder.getId());
 
     Notification notification = createAndroidNotification(context, notificationHolder, experimentTitle, message,
                                                           experimentSpecificRingtone, color, dismissible);
@@ -369,7 +393,9 @@ public class NotificationCreator {
     surveyIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
     surveyIntent.putExtra(NOTIFICATION_ID, notificationHolder.getId().longValue());
 
-    PendingIntent notificationIntent = PendingIntent.getActivity(context, 1, surveyIntent,
+    PendingIntent notificationIntent = PendingIntent.getActivity(context,
+                                                                 notificationHolder.getId().intValue(),
+                                                                 surveyIntent,
                                                                  PendingIntent.FLAG_UPDATE_CURRENT);
 
     // Adding bigText style to notification enabling larger messages to be read
@@ -377,12 +403,12 @@ public class NotificationCreator {
     NotificationCompat.BigTextStyle bigStyle = new NotificationCompat.BigTextStyle();
     bigStyle.setBigContentTitle(experimentTitle);
     bigStyle.bigText(message);
-    
+
     // Make sure we have a color, or use the default
     if(color == null){
     	color = PacoNotificationAction.DEFAULT_COLOR;
     }
-    
+
     //Make sure we know whether the notification is dismissible/not, or use default
     if(dismissible == null){
     	dismissible = PacoNotificationAction.DEFAULT_DISMISSIBLE;
@@ -431,13 +457,14 @@ public class NotificationCreator {
     return defaults;
   }
 
+  @SuppressLint("NewApi")
   private void createAlarmToCancelNotificationAtTimeout(Context context, NotificationHolder notificationHolder) {
     DateTime alarmTime = new DateTime(notificationHolder.getAlarmTime());
     int timeoutMinutes = (int) (notificationHolder.getTimeoutMillis() / MILLIS_IN_MINUTE);
     DateTime timeoutTime = new DateTime(alarmTime).plusMinutes(timeoutMinutes);
     long elapsedDurationInMillis = timeoutTime.getMillis();
 
-    Log.i(PacoConstants.TAG, "Creating cancel alarm to timeout notification for holder: " + notificationHolder.getId()
+    Log.info("Creating cancel alarm to timeout notification for holder: " + notificationHolder.getId()
                              + ". experiment = " + notificationHolder.getExperimentId() + ". alarmtime = "
                              + new DateTime(alarmTime).toString() + " timing out in " + timeoutMinutes + " minutes");
 
@@ -451,18 +478,23 @@ public class NotificationCreator {
 
     AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
     alarmManager.cancel(intent);
-    alarmManager.set(AlarmManager.RTC_WAKEUP, elapsedDurationInMillis, intent);
+    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.KITKAT) {
+      alarmManager.setExact(AlarmManager.RTC_WAKEUP, elapsedDurationInMillis, intent);
+    } else {
+      alarmManager.set(AlarmManager.RTC_WAKEUP, elapsedDurationInMillis, intent);
+    }
+
   }
 
-  public void createNotificationsForTrigger(Experiment experiment, Pair<ExperimentGroup, InterruptTrigger> triggerInfo,
+  public void createNotificationsForTrigger(Experiment experiment, Trio<ExperimentGroup, InterruptTrigger, InterruptCue> triggerInfo,
                                             long delayTime, DateTime triggeredDateTime, int triggerEvent,
                                             String sourceIdentifier, ActionSpecification timeExperiment) {
-    Log.i(PacoConstants.TAG, "entering createNotificationsForTrigger");
+    Log.info("entering createNotificationsForTrigger");
     ExperimentGroup experimentGroup = triggerInfo.first;
     List<NotificationHolder> notificationsForGroup = experimentProviderUtil.getNotificationsFor(experiment.getId(),
                                                                                                 experimentGroup.getName());
 
-    Log.i(PacoConstants.TAG, "Got notificationsForGroup: " + notificationsForGroup.size());
+    Log.info("Got notificationsForGroup: " + notificationsForGroup.size());
     // Approach 1 for triggers, mark old triggers notification as missed, cancel
     // them, and install notification for new trigger.
     // we cannot catch the notification before the user can click it. Thus they
@@ -472,11 +504,11 @@ public class NotificationCreator {
     // Alternate approach, ignore new trigger if there is already an active
     // notification for this trigger
     if (activeNotificationForTrigger(notificationsForGroup, timeExperiment)) {
-      Log.i(PacoConstants.TAG, "ACtive notification for trigger exists. not notifying");
+      Log.info("ACtive notification for trigger exists. not notifying");
       return;
     }
 
-    Log.i(PacoConstants.TAG, "delaytime in notificaiton action: " + delayTime);
+    Log.info("delaytime in notificaiton action: " + delayTime);
     try {
       if (delayTime >= 5000) { // temporary bug in the default value
         delayTime /= 1000;
@@ -484,21 +516,21 @@ public class NotificationCreator {
       Thread.sleep(delayTime * 1000);
     } catch (InterruptedException e) {
     }
-    Log.i(PacoConstants.TAG, "timeout and createNew");
+    Log.info("timeout and createNew");
     timeoutNotifications(notificationsForGroup);
     createNewNotificationForExperiment(context, timeExperiment, false);
   }
 
   public void createNotificationsForCustomGeneratedScript(ExperimentDAO experiment, ExperimentGroup experimentGroup,
                                                           String message, boolean makeSound, boolean makeVibrate,
-                                                          long timeoutMillis) {
+                                                          long timeoutMillis, Long actionTriggerSpecId, Long actionTriggerId, Long actionId) {
     List<NotificationHolder> notifications = experimentProviderUtil.getAllNotificationsFor(experiment.getId());
 
     if (activeNotificationForCustomGeneratedScript(notifications, message)) {
       return;
     }
     createNewCustomNotificationForExperiment(context, DateTime.now(), experiment, experimentGroup.getName(),
-                                             timeoutMillis, message, null, null);
+                                             timeoutMillis, message, null, null, actionTriggerSpecId, actionTriggerId, actionId);
   }
 
   private boolean activeNotificationForTrigger(List<NotificationHolder> notificationsForGroup,
@@ -506,7 +538,7 @@ public class NotificationCreator {
     DateTime now = new DateTime();
     for (NotificationHolder notificationHolder : notificationsForGroup) {
       if (notificationHolder.isActive(now) && notificationHolder.matches(timeExperiment)) {
-        Log.d(PacoConstants.TAG, "There is already a live notification for this trigger.");
+        Log.debug("There is already a live notification for this trigger.");
         return true;
       }
     }
@@ -519,13 +551,14 @@ public class NotificationCreator {
       if (notificationHolder.isCustomNotification() && notificationHolder.getMessage() != null
           && notificationHolder.getMessage().equals(message)
           && notificationHolder.getNotificationSource().equals(NotificationHolder.CUSTOM_GENERATED_NOTIFICATION)) {
-        Log.d(PacoConstants.TAG, "There is already a live custom-generated notification for this experiment.");
+        Log.debug("There is already a live custom-generated notification for this experiment.");
         return true;
       }
     }
     return false;
   }
 
+  @SuppressLint("NewApi")
   private void createAlarmForSnooze(Context context, NotificationHolder notificationHolder) {
     DateTime alarmTime = new DateTime(notificationHolder.getAlarmTime());
     Experiment experiment = experimentProviderUtil.getExperimentByServerId(notificationHolder.getExperimentId());
@@ -537,7 +570,7 @@ public class NotificationCreator {
     DateTime timeoutMinutes = new DateTime(alarmTime).plusMinutes(snoozeMinutes);
     long snoozeDurationInMillis = timeoutMinutes.getMillis();
 
-    Log.i(PacoConstants.TAG, "Creating snooze alarm to resound notification for holder: " + notificationHolder.getId()
+    Log.info("Creating snooze alarm to resound notification for holder: " + notificationHolder.getId()
                              + ". experiment = " + notificationHolder.getExperimentId() + ". alarmtime = "
                              + new DateTime(alarmTime).toString() + " waking up from snooze in " + timeoutMinutes
                              + " minutes");
@@ -553,7 +586,12 @@ public class NotificationCreator {
 
     AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
     alarmManager.cancel(intent);
-    alarmManager.set(AlarmManager.RTC_WAKEUP, snoozeDurationInMillis, intent);
+    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.KITKAT) {
+      alarmManager.setExact(AlarmManager.RTC_WAKEUP, snoozeDurationInMillis, intent);
+    } else {
+      alarmManager.set(AlarmManager.RTC_WAKEUP, snoozeDurationInMillis, intent);
+    }
+
   }
 
   public void removeNotificationsForCustomGeneratedScript(ExperimentDAO experiment, ExperimentGroup experimentGroup,

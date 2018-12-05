@@ -19,9 +19,11 @@ package com.google.sampling.experiential.server.migration;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.SocketTimeoutException;
 import java.net.URL;
+import java.util.Map;
 import java.util.logging.Logger;
 
 import javax.servlet.ServletException;
@@ -29,11 +31,18 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.google.appengine.api.modules.ModulesService;
+import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
+
 import com.google.appengine.api.modules.ModulesServiceFactory;
 import com.google.appengine.api.users.User;
 import com.google.appengine.api.utils.SystemProperty;
+import com.google.common.collect.Maps;
 import com.google.sampling.experiential.server.AuthUtil;
+import com.google.sampling.experiential.server.EnvironmentUtil;
+import com.google.sampling.experiential.server.PacoModule;
+import com.pacoapp.paco.shared.util.TimeUtil;
 
 /**
  * Servlet that handles migration tasks for data
@@ -47,38 +56,59 @@ public class MigrationFrontendServlet extends HttpServlet {
   @Override
   protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException,
   IOException {
+    
     resp.setContentType("application/json;charset=UTF-8");
 
     User user = AuthUtil.getWhoFromLogin();
-
     if (user == null) {
       AuthUtil.redirectUserToLogin(req, resp);
     } else if (AuthUtil.isUserAdmin()) {
+      String cursor = null;
+      DateTime stDate = null;
+      DateTime endDate = null;
+      String queryString = req.getQueryString();
+      log.info("query string is ------->"+ queryString);
+      cursor =  req.getParameter("cursor");
       String jobName = req.getParameter("name");
-      String jobId = sendMigrateRequestToBackend(req, jobName);
-      resp.sendRedirect("/jobStatus?jobId=" + jobId);
+      String startTime = req.getParameter("startTime");
+      String endTime = req.getParameter("endTime");
+      try{
+        DateTimeFormatter formatter  = DateTimeFormat.forPattern(TimeUtil.DATE_TIME_WITH_NO_TZ);
+        if(startTime!=null && endTime != null) {
+          stDate = formatter.parseDateTime(startTime);
+          endDate = formatter.parseDateTime(endTime);
+        }
+      } catch (IllegalArgumentException e ){
+        resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
+      }
+      String jobId = sendMigrateRequestToBackend(req, jobName, cursor, stDate, endDate, queryString);
+      String redirectUrl = null;
+      // On dev local, when we kick off job from backend module - migration with correct port number, 
+      // the job status which is defined in default module is getting searched in migration module.
+      // In other environments, the request gets routed through dispatch xml.
+      if (EnvironmentUtil.isDevInstance()) {
+        redirectUrl = "http://"+ModulesServiceFactory.getModulesService().getVersionHostname("default", null)+"/jobStatus?jobId=" + jobId;
+      } else {
+        redirectUrl = "/jobStatus?jobId=" + jobId;
+      }
+      resp.sendRedirect(redirectUrl);
     } else {
-      resp.sendError(HttpServletResponse.SC_FORBIDDEN);
+      resp.sendError(403);
     }
   }
 
-
-  private String sendMigrateRequestToBackend(HttpServletRequest req, String jobName) throws IOException {
-    req.getParameter("name");
-    ModulesService modulesApi = ModulesServiceFactory.getModulesService();
-    String backendAddress = modulesApi.getVersionHostname("reportworker", modulesApi.getDefaultVersion("reportworker"));
-
-
+  private String sendMigrateRequestToBackend(HttpServletRequest req, String jobName, String cursor, DateTime startDateTime, DateTime endDateTime, String optionalParam) throws IOException {
+    PacoModule pacoMod = new PacoModule("reportworker", req.getServerName());
     try {
       BufferedReader reader = null;
       try {
-        reader = sendToBackend(backendAddress, jobName);
+        reader = sendToBackend(pacoMod.getAddress(), jobName, cursor, startDateTime, endDateTime, optionalParam);
       } catch (SocketTimeoutException se) {
         try {
           Thread.sleep(100);
         } catch (InterruptedException e) {
         }
-        reader = sendToBackend(backendAddress, jobName);
+        reader = sendToBackend(pacoMod.getAddress(), jobName, cursor, startDateTime, endDateTime, optionalParam);
       }
       if (reader != null) {
         StringBuilder buf = new StringBuilder();
@@ -95,19 +125,37 @@ public class MigrationFrontendServlet extends HttpServlet {
     return null;
   }
 
-  private BufferedReader sendToBackend(String backendAddress, String jobName) throws MalformedURLException, IOException {
-    
-    
+  private BufferedReader sendToBackend(String backendAddress, String jobName, String cursor, DateTime startDateTime, DateTime endDateTime, String optParam) throws MalformedURLException, IOException {
+    URL url = null;
     String scheme = "https";
+    HttpURLConnection connection = null;
+    InputStreamReader inputStreamReader = null;
+    BufferedReader reader = null;
+    Map<String, String> test = Maps.newHashMap();
+    test.put("abc", "def");
     if (SystemProperty.environment.value() == SystemProperty.Environment.Value.Development) {
       scheme = "http";
     }
-    URL url = new URL(scheme + "://" + backendAddress + "/migrateBackend?who=" + AuthUtil.getWhoFromLogin().getEmail().toLowerCase() +
-                      "&migrationName=" + jobName );
+    StringBuffer urlBase = new StringBuffer(scheme + "://" + backendAddress + "/migrateBackend?who=" + AuthUtil.getWhoFromLogin().getEmail().toLowerCase() +
+                                   "&migrationName=" + jobName);
+    if ( cursor != null) {
+      urlBase.append("&cursor="+ cursor);
+    } 
+    
+    if(startDateTime != null && endDateTime != null) {
+      urlBase.append("&startTime="+ startDateTime + "&endTime=" +  endDateTime);
+    }
+    
+    
+   
+    url = new URL(urlBase.toString());
+    log.info("final qs----->"+ optParam);
     log.info("URL to backend = " + url.toString());
-    InputStreamReader inputStreamReader = new InputStreamReader(url.openStream());
-    BufferedReader reader = new BufferedReader(inputStreamReader);
+    connection = (HttpURLConnection) url.openConnection();
+    connection.setInstanceFollowRedirects(false);
+    connection.setReadTimeout(10000);
+    inputStreamReader = new InputStreamReader(connection.getInputStream());
+    reader = new BufferedReader(inputStreamReader);
     return reader;
   }
-
 }

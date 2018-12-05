@@ -33,9 +33,10 @@ public class Input2 extends ModelBase implements Validatable, Serializable {
   public static final String PHOTO = "photo";
   public static final String SOUND = "sound";
   public static final String ACTIVITY = "activity";
+  public static final String AUDIO = "audio";
 
   public static String[] RESPONSE_TYPES = {LIKERT_SMILEYS, LIKERT, OPEN_TEXT, LIST, NUMBER,
-    LOCATION, PHOTO, SOUND, ACTIVITY};
+    LOCATION, PHOTO, SOUND, ACTIVITY, AUDIO};
 
   private String name;
   private Boolean required = false;
@@ -56,7 +57,7 @@ public class Input2 extends ModelBase implements Validatable, Serializable {
   /**
    *
    */
-  public static final Integer DEFAULT_LIKERT_STEPS = 5;
+  public static final Integer DEFAULT_LIKERT_STEPS = 5;  
 
   /**
    *
@@ -190,7 +191,7 @@ public class Input2 extends ModelBase implements Validatable, Serializable {
 
   public void validateWith(Validator validator) {
 //    System.out.println("VALIDATING Input");
-    validator.isNotNullAndNonEmptyString(name, "input name is not properly initialized");
+    validator.isNonEmptyString(name, "input name is not properly initialized");
     //validator.isNotNullAndNonEmptyString(text, "input question text is not properly initialized");
     if (text != null && text.length() > 0) {
       validator.isTrue(text.length() <= 500, "input question text is too long. 500 char limit.");
@@ -207,7 +208,7 @@ public class Input2 extends ModelBase implements Validatable, Serializable {
       } else if (responseType.equals(LIST)) {
         validator.isNotNullAndNonEmptyCollection(listChoices, "lists must have a non-empty set of choices");
         for (String choice : listChoices) {
-          validator.isNotNullAndNonEmptyString(choice, "list choice text must all be non-empty");
+          validator.isNonEmptyString(choice, "list choice text must all be non-empty");
           if (choice != null && choice.length() > 0) {
             validator.isTrue(choice.length() <= 500, "list choice text is too long. 500 char limit.");
           }

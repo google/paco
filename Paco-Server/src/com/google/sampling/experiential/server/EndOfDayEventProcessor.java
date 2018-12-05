@@ -1,6 +1,5 @@
 package com.google.sampling.experiential.server;
 
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -14,6 +13,7 @@ import com.google.common.collect.Maps;
 import com.google.sampling.experiential.model.Event;
 import com.google.sampling.experiential.shared.EventDAO;
 import com.google.sampling.experiential.shared.TimeUtil;
+import com.google.sampling.experiential.shared.WhatDAO;
 
 public class EndOfDayEventProcessor {
 
@@ -35,7 +35,7 @@ public class EndOfDayEventProcessor {
     List<EventDAO> rawListOfSingleEodEvents = breakEodResponsesIntoIndividualDailyEventResponses(eodEvents);
     Map<Date, EventDAO> eventsByPingDate = Maps.newHashMap();
     for (EventDAO eventDAO : rawListOfSingleEodEvents) {
-      String dailyTime = eventDAO.getWhat().get("daily_event");
+      String dailyTime = eventDAO.getWhatByKey("daily_event");
       if (eventsByPingDate.get(dailyTime) != null) {
         log.info("There is already an event for this date! " + dailyTime);
       }
@@ -53,15 +53,14 @@ public class EndOfDayEventProcessor {
     for (EventDAO eodEvent : eodEvents) {
       EventDAO currentEodEvent = null;
 
-      Map<String, String> outputs = eodEvent.getWhat();
-      List<String> itemNames = Lists.newArrayList(outputs.keySet());
-      Collections.sort(itemNames);
 
-      for (String itemName : itemNames) {
+      for (WhatDAO currentWhat : eodEvent.getWhat()) {
+        String itemName = currentWhat.getName();
+        String itemValue = currentWhat.getValue();
+
         if (itemName.equals(EventDAO.REFERRED_EXPERIMENT_INPUT_ITEM_KEY)) {
           continue;
         }
-        String itemValue = outputs.get(itemName);
 
         int date_itemNameSeparatorIndex = itemName.indexOf("_");
         if (date_itemNameSeparatorIndex == -1) {
@@ -71,14 +70,14 @@ public class EndOfDayEventProcessor {
         String dateStr = itemName.substring(0, date_itemNameSeparatorIndex);
         String inputName = itemName.substring(date_itemNameSeparatorIndex + 1);
 
-        if (currentEodEvent == null || !currentEodEvent.getWhat().get("daily_event").equals(dateStr) ) {
+        if (currentEodEvent == null || !currentEodEvent.getWhatByKey("daily_event").equals(dateStr) ) {
 //          if (currentEodEvent != null) {
 //            log.info("currentDailyEventTime: " + currentEodEvent.getWhat().get("daily_event") + ", date = " + dateStr);
 //          } else {
 //            log.info("new currentEODEvent because last was null. dateStr = " + dateStr);
 //          }
-          Map<String, String> newWhat = Maps.newHashMap();
-          newWhat.put("daily_event", dateStr);
+          List<WhatDAO> newWhat = Lists.newArrayList();
+          newWhat.add(new WhatDAO("daily_event", dateStr));
           currentEodEvent = new EventDAO(eodEvent.getWho(), eodEvent.getWhen(), eodEvent.getExperimentName(), eodEvent.getLat(), eodEvent.getLon(),
                                   eodEvent.getAppId(), eodEvent.getPacoVersion(), newWhat, eodEvent.isShared(), eodEvent.getResponseTime(),
                                   eodEvent.getScheduledTime(), eodEvent.getBlobs(), eodEvent.getExperimentId(), eodEvent.getExperimentVersion(),
@@ -87,7 +86,7 @@ public class EndOfDayEventProcessor {
                                   eodEvent.getActionId());
           rawListOfSingleEodEvents.add(currentEodEvent);
         }
-        currentEodEvent.getWhat().put(inputName, itemValue);
+        currentEodEvent.getWhat().add(new WhatDAO(inputName, itemValue));
       }
       if (eodEventCounter % 1000 == 0) {
         TimeLogger.logTimestamp("EodEvents: " + eodEventCounter + ": ");
@@ -117,7 +116,7 @@ public class EndOfDayEventProcessor {
         eventsByWhoByDate.put(who, whoseEventsByDate);
       }
 
-      String dailyTime = eventDAO.getWhat().get("daily_event");
+      String dailyTime = eventDAO.getWhatByKey("daily_event");
       if (whoseEventsByDate.get(dailyTime) != null) {
         log.info("There is already an event for this date! " + who + ", " + dailyTime);
       }

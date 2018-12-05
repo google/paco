@@ -32,6 +32,15 @@ class MockExperimentProviderUtil extends ExperimentProviderUtil {
   }
 
   @Override
+  public Experiment getExperimentByServerId(long id) {
+    for (Experiment experiment : experimentList) {
+      if (experiment.getServerId() != null && experiment.getServerId().equals(id))
+        return experiment;
+    }
+    return null;
+  }
+
+  @Override
   public void updateJoinedExperiment(Experiment experiment) {
     Experiment experimentToDelete = null;
     for (Experiment e : experimentList) {

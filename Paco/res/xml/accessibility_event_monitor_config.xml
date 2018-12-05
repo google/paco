@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Makes sure that the com.pacoapp.paco.sensors.android.RuntimePermissionMonitorServiceonitorService
+     service will only listen for accessibility events from the packageinstaller
+     and that it can retrieve the contents on screen.
+     We pass on the flagReportViewIds flag to make it easier to identify the
+     parts of the interface that contain the information we need -->
+<accessibility-service xmlns:android="http://schemas.android.com/apk/res/android"
+  
+    android:accessibilityEventTypes="typeAllMask"
+    android:accessibilityFlags="flagDefault|flagReportViewIds"
+    android:accessibilityFeedbackType="feedbackGeneric"
+    android:canRetrieveWindowContent="true"
+    android:description="@string/accessibility_rationale"
+                       android:summary="Some Paco experiments you may join use the Accessibility Service to log window events and recognize taps so as to prompt you to answer surveys at appropriate moments."
+    />
+
+<!--  android:packageNames="com.google.android.packageinstaller,com.android.packageinstaller" -->

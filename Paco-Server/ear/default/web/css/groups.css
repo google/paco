@@ -27,11 +27,11 @@
 }
 
 .group .duration {
-  padding: 0 0 0 16px;
+  /* padding: 0 0 0 16px; */
 }
 
 .group .duration .title {
-  margin-top: 16px;
+  /* margin-top: 16px; */
 }
 
 .group .duration md-input-container {
@@ -144,8 +144,15 @@ md-card .section .title {
 
 md-card .section .group-name {
   position: absolute;
-  top: 12px;
-  left: 230px;
+  top: -4px;
+  left: 218px;
+  width: 400px;
+}
+
+md-card .section .group-type{
+  position: absolute;
+  top: -4px;
+  left: 218px;
   width: 400px;
 }
 
@@ -237,6 +244,12 @@ md-card-content.expand::after  {
   height: 100%;
 }
 
+md-input-container .align_custom-message{
+  float: right;
+  width: 550px;
+  padding: 6px;
+}
+
 .advanced.padded {
   padding-top: 0px;
 }
@@ -265,7 +278,7 @@ md-card-content.expand::after  {
 
 .advanced .row no-ios {
   position: absolute;
-  left: 320px;
+  left: 335px;
   top: 0;
 }
 
@@ -283,6 +296,7 @@ md-card-content.expand::after  {
   margin-top: -8px;
   padding-left: 16px;
   padding-right: 16px;
+  margin-left: 15px;
 }
 
 .advanced textarea {
@@ -306,4 +320,13 @@ md-card-content.expand::after  {
   border: 1px solid lightgray;
   margin-top: 8px;
   position: relative !important;
+}
+
+.align_no-ios_feedback {
+  width: 540px;
+  float: right;
+}
+
+no-ios.align_tiptext div.no-ios span.tip-text {
+  margin-top: 35px;
 }

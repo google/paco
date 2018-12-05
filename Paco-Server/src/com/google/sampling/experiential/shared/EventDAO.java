@@ -17,14 +17,15 @@
 package com.google.sampling.experiential.shared;
 
 import java.io.Serializable;
-import java.util.Date;
+import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 
 import org.codehaus.jackson.annotate.JsonIgnore;
+import org.codehaus.jackson.annotate.JsonProperty;
+import org.codehaus.jackson.map.annotate.JsonView;
+import org.joda.time.DateTime;
 
-import com.google.common.collect.Lists;
+import com.pacoapp.paco.shared.model2.Views;
 
 
 /**
@@ -41,59 +42,39 @@ public class EventDAO implements Serializable {
   public static final String REFERRED_EXPERIMENT_INPUT_ITEM_KEY = "referred_experiment";
 
   private Long id;
-
   private Long experimentId;
-
   private String who;
-
   private String lat;
-
   private String lon;
-
-  private Date when;
-
+  private DateTime when;
   private String appId;
-
   private String pacoVersion;
-
   private boolean shared;
-
   private String experimentName;
-
-
-  public String getExperimentName() {
-    return experimentName;
-  }
-
-  public void setExperimentName(String experimentName) {
-    this.experimentName = experimentName;
-  }
-
-  @JsonIgnore
-  private Map<String, String> what;
-
-  private Date responseTime;
-
-  private Date scheduledTime;
-
+  @JsonProperty("responses")
+  private List<WhatDAO> what;
+  private DateTime responseTime;
+  private DateTime scheduledTime;
   private String[] blobs;
-
   private Integer experimentVersion;
-
+  // timezone will be represented as part of the date time along with date fields
+  @JsonView(Views.V4.class)
   private String timezone;
-
+  
   private String experimentGroupName;
   private Long actionTriggerId;
   private Long actionTriggerSpecId;
   private Long actionId;
+  private boolean joined;
+  private DateTime sortDate;
 
-  @JsonIgnore
-  public Map<String, String> getWhat() {
+  @JsonProperty("responses")
+  public List<WhatDAO> getWhat() {
     return what;
   }
 
-  @JsonIgnore
-  public void setWhat(Map<String, String> what) {
+  @JsonProperty("responses")
+  public void setWhat(List<WhatDAO> what) {
     this.what = what;
   }
 
@@ -101,16 +82,16 @@ public class EventDAO implements Serializable {
 
   }
 
-  public EventDAO(String who, Date when, String experimentName, String lat, String lon,
-      String appId, String pacoVersion, Map<String, String> map, boolean shared, Date responseTime,
-      Date scheduledTime, String[] blobs, Long experimentId, Integer experimentVersion, String timezone,
+  public EventDAO(String who, DateTime when, String experimentName, String lat, String lon,
+      String appId, String pacoVersion, List<WhatDAO> set, boolean shared, DateTime responseTime,
+      DateTime scheduledTime, String[] blobs, Long experimentId, Integer experimentVersion, String timezone,
       String groupName, Long actionTriggerId, Long actionTriggerSpecId, Long actionId) {
     super();
     this.who = who;
     this.lat = lat;
     this.lon = lon;
     this.when = when;
-    this.what = map;
+    this.what = set;
     this.appId = appId;
     this.pacoVersion = pacoVersion;
     this.shared = shared;
@@ -164,34 +145,22 @@ public class EventDAO implements Serializable {
     this.lon = lon;
   }
 
-  public Date getWhen() {
+  public DateTime getWhen() {
     return when;
   }
 
-  public void setWhen(Date when) {
+  public void setWhen(DateTime when) {
     this.when = when;
   }
 
   @JsonIgnore
-  public String getWhatString() {
-    StringBuilder whatStr = new StringBuilder();
-    boolean first = true;
-    for (String key : what.keySet()) {
-      if (first) {
-        first = false;
-      } else {
-        whatStr.append(", ");
-      }
-      whatStr.append(key);
-      whatStr.append("=");
-      whatStr.append(what.get(key));
-    }
-    return whatStr.toString();
-  }
-
-  @JsonIgnore
   public String getWhatByKey(String key) {
-    return what.get(key);
+    for (WhatDAO currentWhat : what) {
+      if (currentWhat.getName().equals(key)) {
+        return currentWhat.getValue();
+      }
+    }
+    return null;
   }
 
   public String getAppId() {
@@ -219,24 +188,33 @@ public class EventDAO implements Serializable {
   public void setShared(boolean shared) {
     this.shared = shared;
   }
+  
+  public String getExperimentName() {
+    return experimentName;
+  }
+
+  public void setExperimentName(String experimentName) {
+    this.experimentName = experimentName;
+  }
+
 
   /**
    * @return
    */
-  public Date getResponseTime() {
+  public DateTime getResponseTime() {
     return responseTime;
   }
 
-  public void setResponseTime(Date responseTime) {
+  public void setResponseTime(DateTime responseTime) {
     this.responseTime = responseTime;
   }
 
 
-  public Date getScheduledTime() {
+  public DateTime getScheduledTime() {
     return scheduledTime;
   }
 
-  public void setScheduledTime(Date scheduledTime) {
+  public void setScheduledTime(DateTime scheduledTime) {
     this.scheduledTime = scheduledTime;
   }
 
@@ -247,20 +225,20 @@ public class EventDAO implements Serializable {
   /**
    * @return
    */
-  @JsonIgnore
+     @JsonIgnore
   public long responseTime() {
     if (responseTime == null || scheduledTime == null) {
       return 0;
     }
-    return responseTime.getTime() - scheduledTime.getTime();
+    return responseTime.getMillis() - scheduledTime.getMillis();
   }
 
-  /**
-   * @return
-   */
-  public boolean isJoinEvent() {
-    return getWhatByKey("joined") != null;
-  }
+//  /**
+//   * @return
+//   */
+//  public boolean isJoinEvent() {
+//    return getWhatByKey("joined") != null;
+//  }
 
   public String[] getBlobs() {
     return blobs;
@@ -271,7 +249,7 @@ public class EventDAO implements Serializable {
   }
 
   @JsonIgnore
-  public Date getIdFromTimes() {
+  public DateTime getIdFromTimes() {
     if (getScheduledTime() != null) {
       return getScheduledTime();
     } else/* if (getResponseTime() != null) */{
@@ -304,14 +282,13 @@ public class EventDAO implements Serializable {
   }
 
   public boolean isEmptyResponse() {
-    Map<String, String> values = getWhat();
-    for (Entry<String, String> kvPair : values.entrySet()) {
-      String key = kvPair.getKey();
+    for (WhatDAO currentWhat : what) {
+      String key = currentWhat.getName();
 
       if (key.equals(REFERRED_EXPERIMENT_INPUT_ITEM_KEY)) {
         continue;
       }
-      String value = kvPair.getValue();
+      String value = currentWhat.getValue();
       if (value != null && value.length() > 0) {
         return false;
       }
@@ -351,14 +328,32 @@ public class EventDAO implements Serializable {
     this.actionId = actionId;
   }
 
-  public List<Output> getResponses() {
-    List<Output> responses = Lists.newArrayList();
-    Map<String, String> whats = getWhat();
-    for (String whatKey : whats.keySet()) {
-      String whatValue = whats.get(whatKey);
-      responses.add(new Output(whatKey, whatValue));
-    }
-    return responses;
+  public boolean isJoined() {
+    return joined;
   }
 
+  public void setJoined(boolean joined) {
+    this.joined = joined;
+  }
+
+  public DateTime getSortDate() {
+    return sortDate;
+  }
+
+  public void setSortDate(DateTime sortDate) {
+    this.sortDate = sortDate;
+  }
+  
+  @Override
+  public String toString() {
+    return "EventDAO [id=" + id + ", experimentId=" + experimentId + ", who=" + who + ", lat=" + lat + ", lon=" + lon
+           + ", when=" + when + ", appId=" + appId + ", pacoVersion=" + pacoVersion + ", shared=" + shared
+           + ", experimentName=" + experimentName + ", what=" + what + ", responseTime=" + responseTime
+           + ", scheduledTime=" + scheduledTime + ", blobs=" + Arrays.toString(blobs) + ", experimentVersion="
+           + experimentVersion + ", timezone=" + timezone + ", experimentGroupName=" + experimentGroupName
+           + ", actionTriggerId=" + actionTriggerId + ", actionTriggerSpecId=" + actionTriggerSpecId + ", actionId="
+           + actionId + ", joined=" + joined + ", sortDate=" + sortDate + "]";
+  }
+
+  
 }

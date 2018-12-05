@@ -2,7 +2,7 @@
   <a href="#/edit/new" class="new-experiment">
     <md-button class="md-raised">
       New Experiment
-    </md-button>
+    </md-button> 
   </a>
 
   <md-tabs md-selected="state.listTab" md-dynamic-height md-center-tabs>
@@ -12,15 +12,29 @@
       </md-tab-label>
       <md-tab-body>
         <div ng-if="list.admin" class="group">
+          <div style="text-align:right;">
+            <md-select ng-model="currentAdminSortOrder" ng-change="sortAdminList()" aria-label="Choose sorting order">
+              <md-option value="title_asc" aria-label="Sort by title ascending">Sort by Title (a-z)</md-option>
+              <md-option value="title_desc" aria-label="Sort by title descending">Sort by Title (z-a)</md-option>
+              <md-option value="modified_date_desc" aria-label="Sort by modified date descending">Sort by Date (newest
+                first)
+              </md-option>
+              <md-option value="modified_date_asc" aria-label="Sort by modified date ascending">Sort by Date (oldest
+                first)
+              </md-option>
+            </md-select>
+          </div>
           <div ng-repeat="exp in list.admin">
             <md-card ng-class="{deleting: exp.deleting}">
               <md-card-content class="padded">
                 <a href="#/experiment/{{exp.id}}">{{exp.title}}
                 </a>
-                <span ng-if="exp.organization" class="organization">
-                    administered by {{exp.organization}}
-                  </span>
                 <span class="admin">Admin</span>
+                <div
+                    ng-if="currentAdminSortOrder == 'modified_date_desc' || currentAdminSortOrder == 'modified_date_asc'"
+                    class="modifyDate">
+                  {{exp.modifyDate}}
+                </div>
               </md-card-content>
               <div class="md-actions">
                 <a href="#/edit/{{exp.id}}">
@@ -53,8 +67,15 @@
                     Anon Data
                   </md-button>
                 </a>
-                <md-button ng-click="joinExperiment($event, exp)" 
-                  ng-if="joinedIndex.indexOf(exp.id) === -1">
+               <!--   <span ng-controller="VizCtrl">
+                  <a href="#/viz/{{exp.id}}">
+                   <md-button>
+                    Viz
+                   </md-button>
+                  </a>
+                </span>  -->
+                <md-button ng-click="joinExperiment($event, exp)"
+                 ng-if="joinedIndex.indexOf(exp.id) === -1">
                   Join
                 </md-button>
               </div>
@@ -68,7 +89,7 @@
         </div>
 
         <md-button class="show-more" ng-if="cursor.admin"
-          ng-click="loadAdminList()">
+                   ng-click="loadAdminList()">
           Show More
         </md-button>
       </md-tab-body>
@@ -105,6 +126,11 @@
                     Stats
                   </md-button>
                 </a>
+                <a href="#/copy/{{exp.id}}">
+                  <md-button>
+                    Copy
+                  </md-button>
+                </a>
               </div>
             </md-card>
           </div>
@@ -116,7 +142,7 @@
         </div>
 
         <md-button class="show-more" ng-if="cursor.joined"
-          ng-click="loadJoinedList()">
+                   ng-click="loadJoinedList()">
           Show More
         </md-button>
       </md-tab-body>
@@ -136,7 +162,7 @@
                   administered by {{exp.organization}}
                 </span>
                 <md-button ng-click="joinExperiment($event, exp)" class="join"
-                  ng-disabled="joinedIndex.indexOf(exp.id) != -1">
+                           ng-disabled="joinedIndex.indexOf(exp.id) != -1">
                   Join
                 </md-button>
               </md-card-content>
@@ -150,7 +176,7 @@
         </div>
 
         <md-button ng-if="cursor.mine" class="show-more"
-          ng-click="loadJoinableList()">
+                   ng-click="loadJoinableList()">
           Show More
         </md-button>
       </md-tab-body>
@@ -158,4 +184,3 @@
   </md-tabs>
 
 </div>
-

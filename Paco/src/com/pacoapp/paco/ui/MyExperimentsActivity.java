@@ -27,37 +27,8 @@ import java.util.List;
 import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.joda.time.DateTime;
-
-import android.annotation.SuppressLint;
-import android.app.AlertDialog;
-import android.app.Dialog;
-import android.app.ProgressDialog;
-import android.content.ComponentName;
-import android.content.Context;
-import android.content.DialogInterface;
-import android.content.Intent;
-import android.content.ServiceConnection;
-import android.graphics.drawable.ColorDrawable;
-import android.os.Bundle;
-import android.os.IBinder;
-import android.provider.Settings;
-import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.ActionBarActivity;
-import android.support.v7.widget.PopupMenu;
-import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.View;
-import android.view.View.OnClickListener;
-import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
-import android.widget.ImageButton;
-import android.widget.LinearLayout;
-import android.widget.ListView;
-import android.widget.ProgressBar;
-import android.widget.TextView;
-import android.widget.Toast;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
@@ -88,6 +59,38 @@ import com.pacoapp.paco.triggering.BeeperService;
 import com.pacoapp.paco.triggering.ExperimentExpirationManagerService;
 import com.pacoapp.paco.triggering.NotificationCreator;
 
+import android.annotation.SuppressLint;
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.app.ProgressDialog;
+import android.content.ComponentName;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.ServiceConnection;
+import android.graphics.drawable.ColorDrawable;
+import android.os.Bundle;
+import android.os.IBinder;
+import android.provider.Settings;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.ActionBarActivity;
+import android.support.v7.widget.PopupMenu;
+import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
+import android.widget.ImageButton;
+import android.widget.LinearLayout;
+import android.widget.ListView;
+import android.widget.ProgressBar;
+import android.widget.TextView;
+import android.widget.Toast;
+
 /**
  *
  */
@@ -96,6 +99,8 @@ public class MyExperimentsActivity extends ActionBarActivity implements
 
   private static final int RINGTONE_REQUESTCODE = 945;
   public static final int REFRESHING_EXPERIMENTS_DIALOG_ID = 1001;
+
+  private Logger Log = LoggerFactory.getLogger(this.getClass());
 
   private ExperimentProviderUtil experimentProviderUtil;
   private ListView list;
@@ -138,42 +143,35 @@ public class MyExperimentsActivity extends ActionBarActivity implements
   @SuppressLint("NewApi")
   @Override
   protected void onCreate(Bundle savedInstanceState) {
+    Log.info("MyExperimentsActivity onCreate");
     super.onCreate(savedInstanceState);
     mainLayout = (ViewGroup) getLayoutInflater().inflate(R.layout.activity_current_experiments, null);
     setContentView(mainLayout);
 
-
-    ActionBar actionBar = getSupportActionBar();
-    actionBar.setLogo(R.drawable.ic_launcher);
-    actionBar.setDisplayUseLogoEnabled(true);
-    actionBar.setDisplayShowHomeEnabled(true);
-    actionBar.setBackgroundDrawable(new ColorDrawable(0xff4A53B3));
-
-
-    // Set up the drawer.
-    mNavigationDrawerFragment = (NavigationDrawerFragment) getSupportFragmentManager().findFragmentById(R.id.navigation_drawer);
-    mNavigationDrawerFragment.setUp(R.id.navigation_drawer, (DrawerLayout) findViewById(R.id.drawer_layout));
-
-    navDrawerList = (ListView)mNavigationDrawerFragment.getView().findViewById(R.id.navDrawerList);
-    progressBar = (ProgressBar)findViewById(R.id.findExperimentsProgressBar);
 
 
     // TODO would this work if it is in the Systemchangereceiver ?
     new RingtoneUtil(this).installPacoBarkRingtone();
 
     userPrefs = new UserPreferences(this);
+    progressBar = (ProgressBar)findViewById(R.id.findExperimentsProgressBar);
+
+    FragmentManager supportFragmentManager = getSupportFragmentManager();
+    mNavigationDrawerFragment = (NavigationDrawerFragment) supportFragmentManager.findFragmentById(R.id.navigation_drawer);
+
 
     list = (ListView) findViewById(R.id.find_experiments_list);
     list.setBackgroundColor(333);
-    createListHeader();
+    experimentProviderUtil = new ExperimentProviderUtil(this);
+
+    // Set up the drawer.
+
+
 
     invitationLayout = (LinearLayout)findViewById(R.id.announcementLayout);
     invitationExperimentName = (TextView)findViewById(R.id.invitationExperimentNameTextView);
     invitationContactTextView = (TextView)findViewById(R.id.invitationContactTextView);
     invitationCloseButton = (ImageButton)findViewById(R.id.invitationAnnouncementCloseButton);
- 
-    experimentProviderUtil = new ExperimentProviderUtil(this);
-    registerForContextMenu(list);
   }
 
   @Override
@@ -331,6 +329,7 @@ public class MyExperimentsActivity extends ActionBarActivity implements
 
   @Override
   protected void onResume() {
+    Log.info("MyExperimentsActivity onResume");
     super.onResume();
     if (userPrefs.getAccessToken() == null) {
       Intent splash = new Intent(this, SplashActivity.class);
@@ -338,14 +337,34 @@ public class MyExperimentsActivity extends ActionBarActivity implements
 //      Intent acctChooser = new Intent(this, AccountChooser.class);
 //      this.startActivity(acctChooser);
     } else {
+      ActionBar actionBar = getSupportActionBar();
+      actionBar.setLogo(R.drawable.ic_launcher);
+      actionBar.setDisplayUseLogoEnabled(true);
+      actionBar.setDisplayShowHomeEnabled(true);
+      actionBar.setBackgroundDrawable(new ColorDrawable(0xff4A53B3));
+
+
+      mNavigationDrawerFragment.setUp(R.id.navigation_drawer, (DrawerLayout) findViewById(R.id.drawer_layout));
+      navDrawerList = (ListView)mNavigationDrawerFragment.getView().findViewById(R.id.navDrawerList);
+
       reloadAdapter();
+      setListHeader();
       if (invitationLayout.getVisibility() == View.VISIBLE) {
         List<Experiment> unseen = removeJoinedExperiments(invitations);
         unseen = removeSeenInvitations(unseen);
         invitations = unseen;
         showInvitations(unseen);
       }
+      registerForContextMenu(list);
     }
+  }
+
+
+  @Override
+  protected void onPause() {
+    Log.info("MyExperimentsActivity onPause");
+    super.onPause();
+    unregisterForContextMenu(list);
   }
 
   private void showDataForExperiment(Experiment experiment, List<ExperimentGroup> groups) {
@@ -410,7 +429,7 @@ public class MyExperimentsActivity extends ActionBarActivity implements
     }
   }
 
-  private TextView createListHeader() {
+  private TextView setListHeader() {
     TextView listHeader = (TextView) findViewById(R.id.ExperimentListTitle);
     String header = getString(R.string.your_current_experiments);
     listHeader.setText(header);
@@ -728,6 +747,7 @@ public class MyExperimentsActivity extends ActionBarActivity implements
   }
 
   private void refreshList() {
+    Log.debug("MyExperimentsActivity refreshList");
     List<Long> joinedExperimentServerIds = experimentProviderUtil.getJoinedExperimentServerIds();
     if (joinedExperimentServerIds != null && joinedExperimentServerIds.size() > 0) {
       progressBar.setVisibility(View.VISIBLE);
@@ -774,11 +794,11 @@ public class MyExperimentsActivity extends ActionBarActivity implements
   private void launchSettings() {
     startActivity(new Intent(this, SettingsActivity.class));
   }
-  
+
   private void launchPreferences() {
     startActivity(new Intent(this, PreferencesActivity.class));
   }
-  
+
   private void launchTroubleshooting() {
     startActivity(new Intent(this, TroubleshootingActivity.class));
   }
@@ -830,6 +850,7 @@ public class MyExperimentsActivity extends ActionBarActivity implements
 
   @Override
   protected void onStop() {
+    Log.info("MyExperimentsActivity onStop");
     super.onStop();
     if (bound) {
       unbindService(mConnection);
@@ -840,8 +861,10 @@ public class MyExperimentsActivity extends ActionBarActivity implements
   @Override
   protected void onStart() {
     super.onStart();
+    Log.debug("MyExperimentsActivity onStart");
     // Bind to LocalService
     if (userPrefs.getAccessToken() != null) {
+      Log.debug("MyExperimentsActivity fetching new experiments");
       Intent intent = new Intent(this, MyExperimentsFetchService.class);
       bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
     }

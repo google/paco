@@ -16,9 +16,21 @@ pacoApp.service('experimentService', ['$http', '$cacheFactory', 'util', 'config'
       saveExperiment: saveExperiment,
     });
 
-    function getExperimentList(listType, limit, cursor) {
+    function getExperimentList(listType, limit, cursor, sortName) {
       var endpoint = '/experiments?' + listType;
 
+      if (listType === "admin") {
+        if (sortName === 'title_desc') {
+          endpoint += '&sortColumn=title&sortOrder=desc';
+        } else if (sortName === 'modified_date_desc') {
+          endpoint += '&sortColumn=modified_date&sortOrder=desc';
+        } else if (sortName === 'modified_date_asc') {
+          endpoint += '&sortColumn=modified_date&sortOrder=asc';
+        } else  /*(sortName === 'title_asc') */ {
+          endpoint += '&sortColumn=title&sortOrder=asc';
+        } 
+      }
+      
       if (limit) {
         endpoint += '&limit=' + config.listPageSize;
       }
@@ -36,6 +48,9 @@ pacoApp.service('experimentService', ['$http', '$cacheFactory', 'util', 'config'
       invalidateCachedList('admin', true);
       invalidateCachedList('joined');
       invalidateCachedList('mine', true);
+      invalidateCachedList('public', true);
+      invalidateCachedList('popular', true);
+      invalidateCachedList('new', true);
     }
 
     function invalidateCachedList(listType, limit) {
@@ -106,12 +121,17 @@ pacoApp.service('dataService', ['$http', '$timeout', '$q', 'config',
     return ({
       getEvents: getEvents,
       getReport: getReport,
-      getParticipantData: getParticipantData,
+      getParticipantStats: getParticipantStats,
+      updateParticipantDateStats: updateParticipantDateStats,
     });
 
-    function getEvents(id, user, anonymous, cursor) {
+    function getEvents(id, user, anonymous, group, cursor) {
 
       var endpoint = '/events?q=\'experimentId=' + id;
+
+      if (group && group !== 'all') {
+        endpoint += ':experimentGroupName=' + group;
+      }
 
       if (user) {
         endpoint += ':who=' + user;
@@ -157,18 +177,20 @@ pacoApp.service('dataService', ['$http', '$timeout', '$q', 'config',
           endpoint += '&includePhotos=true';
         }
 
-        $http.get(endpoint).success(
+        $http.get(endpoint).then(
           function(data) {
 
             // JSON endpoint directly returns data. No need to ping for
             // job status.
             if (type === 'json') {
-              var json = JSON.stringify(data.events);
+              var json = JSON.stringify(data.data.events);
               defer.resolve({'data': json});
             } else {
-              jobUrl = '/jobStatus?jobId=' + data + '&cmdline=1';
+              jobUrl = '/jobStatus?jobId=' + data.data + '&cmdline=1';
               poll();
             }
+          }, function (data) {
+            console.log("Error:  " + JSON.stringify(data, null, 2));
           }
         );
 
@@ -179,44 +201,149 @@ pacoApp.service('dataService', ['$http', '$timeout', '$q', 'config',
           }
           tryCount++;
 
-          $http.get(jobUrl).success(
+          $http.get(jobUrl).then(
             function(data) {
-              if (data === 'pending\n') {
+              if (data.data === 'pending\n') {
                 $timeout(poll, 3000);
               } else {
-                var csv = data.trim();
+                var csv = data.data.trim();
                 defer.resolve({'data': csv});
               }
+            },
+            function (data) {
+              console.log("Error:  " + JSON.stringify(data, null, 2));
             }
           )
         };
         return defer.promise;
       }
 
+
+    function unpackTotalStats(data, stats) {
+
+      if (!stats.order) {
+        stats.order = {};
+        stats.data = [];
+      }
+      for (var i = 0; i < data.length; i++) {
+        stats.order[data[i].who] = i;
+        stats.data[i] = {'who': data[i].who};
+        stats.data[i]['totalSignalMissCount'] = data[i]['missedR'];
+        stats.data[i]['totalSignalResponseCount'] = data[i]['schedR'];
+        stats.data[i]['totalSelfReportCount'] = data[i]['selfR'];
+        stats.data[i]['totalSignalCount'] = data[i]['schedR'] + data[i]['missedR'];
+        stats.data[i]['daySignalMissCount'] = 0;
+        stats.data[i]['daySignalResponseCount'] = 0;
+        stats.data[i]['daySelfReportCount'] = 0;
+        stats.data[i]['daySignalCount'] = 0;
+        stats.data[i]['lastContactDateTime'] = data[i]['lastContactDateTime'];
+      }
+    }
+
+    function unpackDayStats(data, stats) {
+
+      stats.dayParticipantCount = 0;
+
+      for (var i = 0; i < data.length; i++) {
+        stats.dayParticipantCount++;
+        var row = data[i];
+        var who = data[i]['who'];
+        var colId = stats.order[who];
+
+        stats.date = data[i].date;
+
+        stats.data[colId]['daySignalMissCount'] = data[i]['missedR'];
+        stats.data[colId]['daySignalResponseCount'] = data[i]['schedR'];
+        stats.data[colId]['daySelfReportCount'] = data[i]['selfR'];
+        stats.data[colId]['daySignalCount'] = data[i]['schedR'] + data[i]['missedR'];
+      }
+    }
+
+
+    function statsDate(d) {
+      var statsDateString = d.getFullYear() + '/' + (1 + d.getMonth()) + '/' + d.getDate();
+      return statsDateString;
+    }
+
+    function zeroDateStats(stats) {
+      for (var i = 0; i < stats.data.length; i++) {
+        stats.data[i]['daySignalResponseCount'] = 0;
+        stats.data[i]['daySelfReportCount'] = 0;
+        stats.data[i]['daySignalCount'] = 0;
+      }
+    }
+
+    function updateParticipantDateStats(id, date, stats) {
+      var defer = $q.defer();
+      var endpoint = 'participantStats?experimentId=' + id + '&statv2=1&reportType=date&date=' + statsDate(date);
+      $http.get(endpoint).then(
+        function(data) {
+          zeroDateStats(stats);
+          unpackDayStats(data.data, stats);
+        });
+    }
+
+    function getParticipantStats(id, date, user, group) {
+      if (user) {
+        return getUserStats(id, user, group);
+      }
+
+      var defer = $q.defer();
+      var endpointBase = 'participantStats?experimentId=' + id + '&statv2=1';
+
+      if (group != 'all') {
+        endpointBase += '&experimentGroupName=' + escape(group);
+      }
+
+      var endpoint1 = endpointBase + '&reportType=date&date=' + statsDate(date);
+      var endpoint2 = endpointBase + '&reportType=total';
+
+      var stats = {};
+      stats.data = [];
+
+      var p1 = $http.get(endpoint1);
+      var p2 = $http.get(endpoint2);
+
+      $q.all([p1, p2]).then(
+        function(datas) {
+
+          unpackTotalStats(datas[1].data, stats);
+          unpackDayStats(datas[0].data, stats);
+
+          defer.resolve({'data': stats});
+        });
+
+      return defer.promise;
+    }
+
     /**
     * Gets stats data from PACO server endpoint. Iterates over data to
     * compute the total participant count for today and all time.
     */
-
-    function getParticipantData(id, user) {
+    function getUserStats(id, user, group) {
 
       var defer = $q.defer();
-      var endpoint = 'participantStats?experimentId=' + id;
+      var endpoint = 'participantStats?experimentId=' + id + '&reportType=user&statv2=1'
       if (user) {
         endpoint += '&who=' + user;
       }
 
-      $http.get(endpoint).success(
+      if (group != 'all') {
+        endpoint += '&experimentGroupName=' + escape(group);
+      }
+
+      $http.get(endpoint).then(
         function(data) {
-          if (!user) {	
-	          var totalParticipantCount = 0;
+					data =data.data; // deal with new wrapper
+          if (!user) {
+            var totalParticipantCount = 0;
 	          var todayParticipantCount = 0;
 	          for (var i = 0; i < data.participants.length; i++) {
-	
+
 	            if (data.participants[i].todaySignalResponseCount > 0) {
 	              todayParticipantCount++;
 	            }
-	
+
 	            if (data.participants[i].totalSignalResponseCount > 0) {
 	              totalParticipantCount++;
 	            }
@@ -232,17 +359,21 @@ pacoApp.service('dataService', ['$http', '$timeout', '$q', 'config',
         		  data.signaledResponseCount += data[i].schedR;
         		  data.missedResponseCount += data[i].missedR;
         		  data.selfReportResponseCount += data[i].selfR;
+              data[i].signals = data[i].missedR + data[i].schedR;
         	  }
         	  data.totalSignalCount = data.signaledResponseCount + data.missedResponseCount;
-        	  if ((data.totalSignalCount) > 0) {        		  
-        		  data.responseRate = data.signaledResponseCount / data.totalSignalCount;        		  
+        	  if ((data.totalSignalCount) > 0) {
+        		  data.responseRate = data.signaledResponseCount / data.totalSignalCount;
         	  } else {
         		  data.responseRate = 0;
-        	  }        	  
+        	  }
           }
           defer.resolve({
             'data': data
           });
+        }, 
+        function (data) {
+          console.log("Error:  " + JSON.stringify(data, null, 2));
         });
 
       return defer.promise;
@@ -266,11 +397,18 @@ pacoApp.service('config', function() {
     'invited'
   ];
 
+  this.hubTabs = [
+      'popular',
+      'new',
+      'browse'
+  ];
+
   this.dataDeclarations = {
-    1: 'App Usage and Browser History',
+    1: 'App Usage',
     2: 'Location Information',
     3: 'Phone Details (Make, Model, Carrier)',
-    4: 'Apps installed on the phone'
+    4: 'Apps installed on the phone',
+    5: 'Accessibility events'
   };
 
   this.ringtones = [
@@ -279,19 +417,19 @@ pacoApp.service('config', function() {
   ];
 
   this.scheduleTypes = [
-    'Daily',
-    'Weekdays',
-    'Weekly',
-    'Monthly',
-    'Random sampling (ESM)'
+    { id : 0, name : "Daily" },
+    { id : 1, name : 'Weekdays' },
+    { id : 2, name : 'Weekly' },
+    { id : 3, name : 'Monthly' },
+    { id : 4, name : 'Random sampling (ESM)'}
   ];
 
-  this.actionTypes = {
-    1: 'Create notification to participate',
-    2: 'Create notification message',
-    // 3: 'Log data',
-    4: 'Execute script'
-  };
+  this.actionTypes = [
+    { id : 1, name: 'Create notification to participate'},
+    { id : 2, name : 'Create notification message'},
+    // { id : 3, name : 'Log data'},
+    { id : 4, name : 'Execute script'}
+  ];
 
   this.cueTypes = [
     'HANGUP (deprecated)',
@@ -310,13 +448,23 @@ pacoApp.service('config', function() {
     'Call Ended (in or out)',
     "Experiment joined",
     "Experiment ended",
-    "Response received"
+    "Response received",
+    "App removed",
+    "App installed",
+    "Permission changed",
+    "View Clicked",
+    "Notification created", 
+    "Notification shade opened",
+    "Notification shade dismiss all",
+    "Notification shade dismiss notification",
+    "Notification shade closed",
+    "Notification tapped in shade"
   ];
 
   this.esmPeriods = [
-    'day',
-    'week',
-    'month'
+    'daily',
+    'weekly',
+    'monthly'
   ];
 
   this.weeksOfMonth = [
@@ -327,16 +475,16 @@ pacoApp.service('config', function() {
     'Fifth'
   ];
 
-  this.responseTypes = {
-    'likert': 'Scale',
-    'likert_smileys': '5 Point Smiley Scale',
-    'number': 'Number',
-    'open text': 'Open Text',
-    'list': 'List',
-    'photo': 'Photo',
-    'location': 'Location'
-  };
-
+  this.responseTypes =[ 
+  {"id" : 'likert', "name" : 'Scale'},
+  {"id" : 'likert_smileys', "name" : '5 Point Smiley Scale'},
+  {"id" : 'number', "name" : 'Number'},
+  {"id" : 'open text', "name" : 'Open Text'},
+  {"id" : 'list', "name" : 'List'},
+  {"id" : 'photo', "name" : 'Photo'},
+  {"id" : 'location', "name" : 'Location'},
+  {"id" : 'audio', "name" : 'Audio'}];
+  
   this.feedbackTypes = [
     'Static Message',
     'Retrospective (QS default)',
@@ -394,7 +542,8 @@ pacoApp.service('template', function() {
       type: 0,
       text: 'Thanks for Participating!',
     },
-    fixedDuration: 'false'
+    rawDataAccess: true,
+    fixedDuration: false
   };
 
   this.experiment = {
@@ -420,6 +569,7 @@ pacoApp.service('template', function() {
 
   this.defaultAction = {
     type: 'pacoNotificationAction',
+    actionCode : 1,
     timeout: 15,
     color: 0,
     delay: 0,
@@ -450,14 +600,19 @@ pacoApp.service('template', function() {
   this.scheduleTrigger = {
     type: 'scheduleTrigger',
     actions: [this.defaultAction],
-    schedules: [this.schedule]
+    schedules: [this.defaultEsmSchedule]
   };
 
   this.eventTrigger = {
     type: 'interruptTrigger',
     actions: [this.defaultAction],
     cues: [this.cue],
-    minimumBuffer: 59
+    minimumBuffer: 59,
+    hasTimeWindow: false,
+    startTimeMillis: 9 * 60 * 60 * 1000,
+    endTimeMillis: 5 * 60 * 60 * 1000,
+    weekends: true
+    
   };
 
   this.signalTime = {
@@ -465,6 +620,7 @@ pacoApp.service('template', function() {
     fixedTimeMillisFromMidnight: 12 * 60 * 60 * 1000,
     type: 0
   };
+
 });
 
 
@@ -479,3 +635,22 @@ pacoApp.service('util', ['$filter', function($filter) {
   };
 
 }]);
+
+pacoApp.service('pubExperimentService', [ '$http', '$cacheFactory', 'util', 'config',
+    function($http, $cacheFactory, util, config) {
+
+      // Set this header here and it applies to all http requests
+      $http.defaults.headers.common['pacoProtocol'] = 4;
+
+      return ({
+        getExperiment : getExperiment
+      });
+
+      function getExperiment(id) {
+        return $http.get('/pubexperiments?id=' + id, {
+          cache : true
+        });
+      }
+
+    } ]);
+

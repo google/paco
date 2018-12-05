@@ -19,23 +19,15 @@
  */
 package com.pacoapp.paco.model;
 
+import com.pacoapp.paco.shared.model2.EventBaseColumns;
+
 import android.net.Uri;
 import android.provider.BaseColumns;
 
-public class EventColumns implements BaseColumns {
-
-  public static final String EXPERIMENT_ID = "experiment_id";
+public class EventColumns extends EventBaseColumns implements BaseColumns {
+  
   public static final String EXPERIMENT_SERVER_ID = "experiment_server_id";
-  public static final String EXPERIMENT_NAME = "experiment_name";
-  public static final String EXPERIMENT_VERSION = "experiment_version";
-  public static final String SCHEDULE_TIME = "schedule_time";
-  public static final String RESPONSE_TIME = "response_time";
   public static final String UPLOADED = "uploaded";
-
-  public static final String GROUP_NAME = "group_name";
-  public static final String ACTION_TRIGGER_ID = "action_trigger_id";
-  public static final String ACTION_TRIGGER_SPEC_ID = "action_trigger_spec_id";
-  public static final String ACTION_ID = "action_id";
 
   public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.google.paco.event";
   public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.google.paco.event";

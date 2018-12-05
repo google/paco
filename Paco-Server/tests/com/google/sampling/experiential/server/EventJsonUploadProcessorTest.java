@@ -4,12 +4,11 @@ import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
-import junit.framework.TestCase;
-
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.annotate.JsonSerialize.Inclusion;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
+import org.json.JSONObject;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -20,6 +19,8 @@ import com.pacoapp.paco.shared.comm.Outcome;
 import com.pacoapp.paco.shared.model2.ExperimentDAO;
 import com.pacoapp.paco.shared.model2.ExperimentQueryResult;
 import com.pacoapp.paco.shared.model2.ValidationMessage;
+
+import junit.framework.TestCase;
 
 public class EventJsonUploadProcessorTest extends TestCase {
 
@@ -36,7 +37,7 @@ public class EventJsonUploadProcessorTest extends TestCase {
   public void setUp() {
     noOpEventRetriever = new EventRetriever() {
       @Override
-      public void postEvent(String who, String lat, String lon, Date whenDate, String appId, String pacoVersion,
+      public void postEvent(boolean persistInCloudSql, JSONObject eventJson, String who, String lat, String lon, Date whenDate, String appId, String pacoVersion,
                             Set<What> what, boolean shared, String experimentId, String experimentName, Integer experimentVersion,
                             Date responseTime, Date scheduledTime, List<PhotoBlob> blobs, String timezone,
                             String groupName, Long actionTriggerId, Long actionTriggerSpecId, Long actionId) {
@@ -44,7 +45,7 @@ public class EventJsonUploadProcessorTest extends TestCase {
     };
     blowUpEventRetriever = new EventRetriever() {
       @Override
-      public void postEvent(String who, String lat, String lon, Date whenDate, String appId, String pacoVersion,
+      public void postEvent(boolean persistInCloudSql, JSONObject eventJson, String who, String lat, String lon, Date whenDate, String appId, String pacoVersion,
                             Set<What> what, boolean shared, String experimentId, String experimentName, Integer experimentVersion,
                             Date responseTime, Date scheduledTime, List<PhotoBlob> blobs, String timezone,
                             String groupName, Long actionTriggerId, Long actionTriggerSpecId, Long actionId) {
@@ -56,7 +57,7 @@ public class EventJsonUploadProcessorTest extends TestCase {
       private boolean second = false;
 
       @Override
-      public void postEvent(String who, String lat, String lon, Date whenDate, String appId, String pacoVersion,
+      public void postEvent(boolean persistInCloudSql, JSONObject eventJson, String who, String lat, String lon, Date whenDate, String appId, String pacoVersion,
                             Set<What> what, boolean shared, String experimentId, String experimentName, Integer experimentVersion,
                             Date responseTime, Date scheduledTime, List<PhotoBlob> blobs, String timezone,
                             String groupName, Long actionTriggerId, Long actionTriggerSpecId, Long actionId) {
@@ -112,7 +113,7 @@ public class EventJsonUploadProcessorTest extends TestCase {
 
       @Override
       public ExperimentQueryResult getUsersAdministeredExperiments(String email, DateTimeZone timezone, Integer limit,
-                                                                   String cursor) {
+                                                                   String cursor, String sortColumn, String sortOrder) {
         // TODO Auto-generated method stub
         return null;
       }
@@ -135,11 +136,7 @@ public class EventJsonUploadProcessorTest extends TestCase {
         return null;
       }
 
-      @Override
-      public List<ValidationMessage> saveExperiment(ExperimentDAO experimentDAO, String userFromLogin, DateTimeZone timezone) {
-        // TODO Auto-generated method stub
-        return null;
-      }
+     
 
       @Override
       public Boolean deleteExperiments(List<Long> experimentIds, String email) {
@@ -149,7 +146,7 @@ public class EventJsonUploadProcessorTest extends TestCase {
 
       @Override
       public ExperimentQueryResult getMyJoinedExperiments(String email, DateTimeZone timezone, Integer limit,
-                                                          String cursor) {
+                                                          String cursor, String sortColumn, String sortOrder) {
         // TODO Auto-generated method stub
         return null;
       }
@@ -159,6 +156,17 @@ public class EventJsonUploadProcessorTest extends TestCase {
         // TODO Auto-generated method stub
         return null;
       }
+
+
+      @Override
+      public List<ValidationMessage> saveExperiment(ExperimentDAO experiment, String loggedInUserEmail,
+                                                    DateTimeZone timezone, boolean sendToCloudSqlflag,
+                                                    boolean validate) {
+        // TODO Auto-generated method stub
+        return null;
+      }
+
+    
 
     };
 
@@ -201,7 +209,7 @@ public class EventJsonUploadProcessorTest extends TestCase {
 
       @Override
       public ExperimentQueryResult getUsersAdministeredExperiments(String email, DateTimeZone timezone, Integer limit,
-                                                                   String cursor) {
+                                                                   String cursor, String sortColumn, String sortOrder) {
         // TODO Auto-generated method stub
         return null;
       }
@@ -224,11 +232,6 @@ public class EventJsonUploadProcessorTest extends TestCase {
         return null;
       }
 
-      @Override
-      public List<ValidationMessage> saveExperiment(ExperimentDAO experimentDAO, String userFromLogin, DateTimeZone timezone) {
-        // TODO Auto-generated method stub
-        return null;
-      }
 
       @Override
       public Boolean deleteExperiments(List<Long> experimentIds, String email) {
@@ -238,7 +241,7 @@ public class EventJsonUploadProcessorTest extends TestCase {
 
       @Override
       public ExperimentQueryResult getMyJoinedExperiments(String email, DateTimeZone timezone, Integer limit,
-                                                          String cursor) {
+                                                          String cursor, String sortColumn, String sortOrder) {
         // TODO Auto-generated method stub
         return null;
       }
@@ -248,6 +251,16 @@ public class EventJsonUploadProcessorTest extends TestCase {
         // TODO Auto-generated method stub
         return null;
       }
+
+      @Override
+      public List<ValidationMessage> saveExperiment(ExperimentDAO experiment, String loggedInUserEmail,
+                                                    DateTimeZone timezone, boolean cloudSqlflag, boolean validate) {
+
+        // TODO Auto-generated method stub
+        return null;
+      }
+
+      
 
     };
 
@@ -295,7 +308,7 @@ public class EventJsonUploadProcessorTest extends TestCase {
 
       @Override
       public ExperimentQueryResult getUsersAdministeredExperiments(String email, DateTimeZone timezone, Integer limit,
-                                                                   String cursor) {
+                                                                   String cursor, String sortColumn, String sortOrder) {
         // TODO Auto-generated method stub
         return null;
       }
@@ -318,11 +331,7 @@ public class EventJsonUploadProcessorTest extends TestCase {
         return null;
       }
 
-      @Override
-      public List<ValidationMessage> saveExperiment(ExperimentDAO experimentDAO, String userFromLogin, DateTimeZone timezone) {
-        // TODO Auto-generated method stub
-        return null;
-      }
+     
 
       @Override
       public Boolean deleteExperiments(List<Long> experimentIds, String email) {
@@ -332,7 +341,7 @@ public class EventJsonUploadProcessorTest extends TestCase {
 
       @Override
       public ExperimentQueryResult getMyJoinedExperiments(String email, DateTimeZone timezone, Integer limit,
-                                                          String cursor) {
+                                                          String cursor, String sortColumn, String sortOrder) {
         // TODO Auto-generated method stub
         return null;
       }
@@ -342,6 +351,16 @@ public class EventJsonUploadProcessorTest extends TestCase {
         // TODO Auto-generated method stub
         return null;
       }
+
+      @Override
+      public List<ValidationMessage> saveExperiment(ExperimentDAO experiment, String loggedInUserEmail,
+                                                    DateTimeZone timezone, boolean cloudSqlflag, boolean validate) {
+
+        // TODO Auto-generated method stub
+        return null;
+      }
+
+      
 
     };
 
@@ -390,7 +409,7 @@ public class EventJsonUploadProcessorTest extends TestCase {
       }
       @Override
       public ExperimentQueryResult getUsersAdministeredExperiments(String email, DateTimeZone timezone, Integer limit,
-                                                                   String cursor) {
+                                                                   String cursor, String sortColumn, String sortOrder) {
         // TODO Auto-generated method stub
         return null;
       }
@@ -409,11 +428,7 @@ public class EventJsonUploadProcessorTest extends TestCase {
         // TODO Auto-generated method stub
         return null;
       }
-      @Override
-      public List<ValidationMessage> saveExperiment(ExperimentDAO experimentDAO, String userFromLogin, DateTimeZone timezone) {
-        // TODO Auto-generated method stub
-        return null;
-      }
+     
       @Override
       public Boolean deleteExperiments(List<Long> experimentIds, String email) {
         // TODO Auto-generated method stub
@@ -421,7 +436,7 @@ public class EventJsonUploadProcessorTest extends TestCase {
       }
       @Override
       public ExperimentQueryResult getMyJoinedExperiments(String email, DateTimeZone timezone, Integer limit,
-                                                          String cursor) {
+                                                          String cursor, String sortColumn, String sortOrder) {
         // TODO Auto-generated method stub
         return null;
       }
@@ -430,6 +445,13 @@ public class EventJsonUploadProcessorTest extends TestCase {
         // TODO Auto-generated method stub
         return null;
       }
+      @Override
+      public List<ValidationMessage> saveExperiment(ExperimentDAO experiment, String loggedInUserEmail,
+                                                    DateTimeZone timezone, boolean cloudSqlflag, boolean validate) {
+        // TODO Auto-generated method stub
+        return null;
+      }
+      
     };
   }
 

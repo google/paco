@@ -2,6 +2,7 @@
 
   <div class="header section">
     <span ng-bind="input.name" ng-if="input.name"></span>
+    <no-ios class="no-audio" ng-if="input.responseType === 'audio'">iOS does not support audio</no-ios>
     <span ng-if="!input.name">Input {{$index + 1}}</span>
 
     <a class="remove button" href="" ng-click="remove(group.inputs, $index)"></a>
@@ -13,13 +14,16 @@
   </div>
 
   <div class="padded">
-    <div class="column0">
-      <select ng-model="input.responseType">
-        <option value="" disabled selected>Response Type</option>
-        <option ng-selected="{{id === input.responseType}}" ng-repeat="(id, type) in responseTypes"
-        value="{{id}}">{{type}}</option>
-      </select>
-
+    <div class="column0">    
+    <md-input-container layout="row" >
+      <label>Response type</label>
+      <md-select ng-model="input.responseType" placeholder="Response Type" flex="85">    
+      <md-select-header>
+	      <span>Response Type</span>
+	    </md-select-header>  
+      <md-option ng-repeat="option in responseTypes" ng-value="option.id">{{option.name}}</option>
+      </md-select>
+    </md-input-container>
       <md-checkbox ng-model="input.required" aria-label="Required">
         Required
       </md-checkbox>
@@ -30,28 +34,30 @@
     </div>
 
     <div class="column1">
-      <md-input-container>
+    <div layout="row">
+    
+      <md-input-container flex="100">
         <label>Question for the Participant</label>
-        <input ng-model="input.text">
+        <textarea ng-model="input.text" md-no-resize md-maxlength=500></textarea>
       </md-input-container>
-
+	</div>
       <div layout="row">
-        <md-input-container class="medium" flex>
+        <md-input-container class="medium" flex="25">
           <label>Input {{$index + 1}} Variable Name</label>
-          <input ng-model="input.name">
+          <input ng-model="input.name" ng-trim="true" ng-change="input.name = input.name.split(' ').join('_')" >
         </md-input-container>
 
-        <div flex>
+          <md-input-container ng-if="input.conditional"  flex="75">
+            <label>Condition</label>
+            <input ng-model="input.conditionExpression">
+          </md-input-container>
+        
           <paco-help tip="conditional" ng-if="input.conditional">
             Help: Conditional Logic
           </paco-help>
 
 
-          <md-input-container ng-if="input.conditional">
-            <label>Condition</label>
-            <input ng-model="input.conditionExpression">
-          </md-input-container>
-        </div>
+
       </div>
 
       <div ng-if="input.responseType === 'list'">
@@ -63,7 +69,8 @@
       <div class="likert" ng-if="input.responseType === 'likert'" layout="row">
         <md-input-container flex>
           <label>Likert Steps</label>
-          <input ng-model="input.likertSteps" type="number" min="1" max="9">
+          <input ng-model="input.likertSteps" type="number" min="1" max="9"
+            ng-pattern="/^[0-9]*$/">
         </md-input-container>
 
         <md-input-container flex>

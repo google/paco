@@ -1,12 +1,12 @@
 package com.google.sampling.experiential.server.stats.participation;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNotNull;
 
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.junit.Test;
-
-import com.google.sampling.experiential.server.stats.participation.LocalToUTCTimeZoneConverter;
 
 
 public class LocalToUTCTimeZoneConverterTest {

@@ -5,10 +5,18 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.joda.time.DateMidnight;
+import org.joda.time.Days;
+
+import com.pacoapp.paco.shared.util.TimeUtil;
+
 
 public class ExperimentGroup extends ModelBase implements Validatable, java.io.Serializable {
 
+  private static final int MAX_DURATION_DAYS_FOR_LARGE_DATA_LOGGERS = 14;
+
   private String name;
+  private GroupTypeEnum groupType;
 
   private Boolean customRendering = false;
   private String customRenderingCode;
@@ -18,9 +26,12 @@ public class ExperimentGroup extends ModelBase implements Validatable, java.io.S
   private String endDate;
 
   private Boolean logActions = false;
+  private Boolean logShutdown = false;
 
   private Boolean backgroundListen = false;
   private String backgroundListenSourceIdentifier;
+
+  private Boolean accessibilityListen = false;
 
   private List<ActionTrigger> actionTriggers;
   private List<Input2> inputs;
@@ -34,15 +45,19 @@ public class ExperimentGroup extends ModelBase implements Validatable, java.io.S
   // experiments
   private Integer feedbackType;
 
+  private Boolean rawDataAccess = true;
+
+  private boolean logNotificationEvents = false;
+
   public ExperimentGroup() {
     super();
     this.actionTriggers = new ArrayList<ActionTrigger>();
     this.inputs = new ArrayList<Input2>();
     this.feedbackType = Feedback.FEEDBACK_TYPE_STATIC_MESSAGE;
   }
-    
 
-    
+
+
   public ExperimentGroup(String string) {
     this();
     this.name = string;
@@ -140,6 +155,12 @@ public class ExperimentGroup extends ModelBase implements Validatable, java.io.S
     this.backgroundListenSourceIdentifier = backgroundListenSourceIdentifier;
   }
 
+  public Boolean getAccessibilityListen() { return accessibilityListen; }
+
+  public void setAccessibilityListen(Boolean accessibilityListen) {
+    this.accessibilityListen = accessibilityListen;
+  }
+
   public String getEndDate() {
     return endDate;
   }
@@ -174,14 +195,17 @@ public class ExperimentGroup extends ModelBase implements Validatable, java.io.S
 
   public void validateWith(Validator validator) {
 //    System.out.println("VALIDATING GROUP");
-    validator.isNotNullAndNonEmptyString(name, "name is not properly initialized");
+    validator.isNonEmptyString(name, "name is not properly initialized");
 
     validateActionTriggers(validator);
 
     validator.isNotNull(backgroundListen, "backgroundListen not initialized");
+    validator.isNotNull(accessibilityListen, "accessibilityListen not initialized");
     validator.isNotNull(logActions, "logActions not initialized");
+    validator.isNotNull(logNotificationEvents, "logNotificationEvents not initialized");
+    validator.isNotNull(logShutdown, "logShutdown not initialized");
     if (backgroundListen != null && backgroundListen) {
-      validator.isNotNullAndNonEmptyString(backgroundListenSourceIdentifier,
+      validator.isNonEmptyString(backgroundListenSourceIdentifier,
                                            "background listening requires a source identifier");
     }
     validator.isNotNull(customRendering, "customRendering not initialized properly");
@@ -193,6 +217,12 @@ public class ExperimentGroup extends ModelBase implements Validatable, java.io.S
       validator.isValidDateString(startDate, "start date must be a valid string");
       validator.isValidDateString(endDate, "end date must be a valid string");
     }
+    if (isPresentAndTrue(logActions) || isPresentAndTrue(accessibilityListen) || isPresentAndTrue(logNotificationEvents)) {
+      if (fixedDuration == null || !fixedDuration || !isDurationLessThanTwoWeeks()) {
+        validator.addError("logActions, logAccessibilityEvents and logNotificationEvents are only "
+                + "allowed on Fixed Duration experiments that run less than 2 weeks due to large data volumes.");
+      }
+    }
     validator.isNotNull(feedbackType, "feedbacktype is not properly initialized");
     validator.isNotNull(feedback, "feedback is not properly initialized");
 
@@ -200,9 +230,36 @@ public class ExperimentGroup extends ModelBase implements Validatable, java.io.S
 
     validator.isNotNull(endOfDayGroup, "endOfDayGroup is not properly initialized");
     if (endOfDayGroup != null && endOfDayGroup) {
-      validator.isNotNullAndNonEmptyString(endOfDayReferredGroupName, "endOfDayGroups need to specify the name of the group to which they refer");
+      validator.isNonEmptyString(endOfDayReferredGroupName, "endOfDayGroups need to specify the name of the group to which they refer");
     }
     feedback.validateWith(validator);
+  }
+
+
+
+  private boolean isDurationLessThanTwoWeeks() {
+    try {
+      if (getStartDate() == null || getEndDate() == null) {
+        return false;
+      }
+      DateMidnight startDateCandidate = TimeUtil.unformatDate(getStartDate()).toDateMidnight();
+      DateMidnight endDateCandidate = TimeUtil.unformatDate(getEndDate()).toDateMidnight();
+      Days daysDuration = Days.daysBetween(startDateCandidate, endDateCandidate);
+      if (daysDuration.getDays() > MAX_DURATION_DAYS_FOR_LARGE_DATA_LOGGERS) {
+        return false;
+      } else {
+        return true;
+      }
+    } catch (Exception e) {
+       // fall through to return false
+    }
+    return false;
+  }
+
+
+
+  private boolean isPresentAndTrue(Boolean fieldToValidate) {
+    return fieldToValidate != null && logActions;
   }
 
   public void validateInputs(Validator validator) {
@@ -213,10 +270,9 @@ public class ExperimentGroup extends ModelBase implements Validatable, java.io.S
       return;
     }
     for (Input2 input : inputs) {
-      // TODO commenting this out for now because one experimentor uses the same name cleverly but under conditionals that are mutually exclusive.
-//      if (!inputNames.add(input.getName())) {
-//        validator.addError("Input name: " + input.getName() + " is duplicate. All input names within a group must be unique");
-//      }
+      if (!inputNames.add(input.getName())) {
+        validator.addError("Input name: " + input.getName() + " is duplicate. All input names within a group must be unique");
+      }
       input.validateWith(validator);
     }
   }
@@ -252,5 +308,43 @@ public class ExperimentGroup extends ModelBase implements Validatable, java.io.S
   }
 
 
+
+  public boolean getLogShutdown() {
+    return this.logShutdown;
+  }
+
+  public void setLogShutdown(Boolean logShutdown) {
+    this.logShutdown = logShutdown;
+  }
+
+  public Boolean getRawDataAccess() {
+    return this.rawDataAccess;
+  }
+
+  public void setRawDataAccess(Boolean rawDataAccess) {
+    this.rawDataAccess = rawDataAccess;
+  }
+
+
+
+  public Boolean getLogNotificationEvents() {
+    return this.logNotificationEvents;
+  }
+
+  public void setLogNotificationEvents(Boolean shouldLog) {
+    this.logNotificationEvents = shouldLog;
+  }
+
+
+
+  public GroupTypeEnum getGroupType() {
+    return groupType;
+  }
+
+
+
+  public void setGroupType(GroupTypeEnum groupType) {
+    this.groupType = groupType;
+  }
 
 }

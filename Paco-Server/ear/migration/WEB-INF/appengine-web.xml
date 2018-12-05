@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!--
+ ~ Copyright 2011 Google Inc. All Rights Reserved.
+ ~
+ ~ Licensed under the Apache License, Version 2.0 (the "License");
+ ~ you may not use this file except in compliance  with the License.  
+ ~ You may obtain a copy of the License at
+ ~
+ ~
+ ~    http://www.apache.org/licenses/LICENSE-2.0
+ ~
+ ~ Unless required by applicable law or agreed to in writing,
+ ~ software distributed under the License is distributed on an
+ ~ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ ~ KIND, either express or implied.  See the License for the
+ ~ specific language governing permissions and limitations
+ ~ under the License.
+ --><appengine-web-app xmlns="http://appengine.google.com/ns/1.0">
+  <application>quantifiedself</application>
+  <module>migration</module>
+  <version>211</version>
+  <!-- Configure java.util.logging -->
+  <system-properties>
+    <property value="WEB-INF/logging.properties" name="java.util.logging.config.file"/>
+    <property name="ae-cloudsql.database-url" value="AAA"/>
+    <property name="ae-cloudsql.database-username" value="BBB"/>
+    <property name="ae-cloudsql.database-password" value="CCC"/>
+    <property name="ae-connection-pool.maxconn" value="100"/>
+    <property name="ae-cloudsql.local-database-url" value="DDD"/>
+    <property name="ae-cloudsql.local-database-username" value="EEE"/>
+    <property name="ae-cloudsql.local-database-password" value="FFF"/>
+  </system-properties>
+  <ssl-enabled>true</ssl-enabled>
+  <sessions-enabled>true</sessions-enabled>
+  <precompilation-enabled>true</precompilation-enabled>
+  <threadsafe>true</threadsafe>
+  <instance-class>B8</instance-class>
+  <basic-scaling>
+    <max-instances>10</max-instances>
+  </basic-scaling>
+</appengine-web-app>

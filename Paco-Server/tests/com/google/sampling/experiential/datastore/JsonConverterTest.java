@@ -3,12 +3,12 @@ package com.google.sampling.experiential.datastore;
 import java.util.ArrayList;
 import java.util.List;
 
-import junit.framework.TestCase;
-
 import com.google.common.collect.Lists;
 import com.pacoapp.paco.shared.model2.ActionTrigger;
 import com.pacoapp.paco.shared.model2.ExperimentDAO;
 import com.pacoapp.paco.shared.model2.JsonConverter;
+
+import junit.framework.TestCase;
 
 public class JsonConverterTest extends TestCase {
 
@@ -25,9 +25,9 @@ public class JsonConverterTest extends TestCase {
     ArrayList publishedAdmins = new java.util.ArrayList();
     publishedAdmins.add("example@example.com");
     experimentList.add(new ExperimentDAO(new Long(1), "1title", "1descr", "1consent", "1email",
-                                         null, null, null,
+                                         (String)null /*pk*/, null, null, false,
                                          publishedAdmins, publishedAdmins,
-                                         false, 1, false, null, null));
+                                         false, 1, false, null, null, false, null));
   }
 
   public void testShortJsonifyShortening() throws Exception {

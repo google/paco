@@ -178,6 +178,9 @@ public class Event {
   private void setWhatMap(Set<What> whats) {
     this.keysList = Lists.newArrayList();
     this.valuesList = Lists.newArrayList();
+    if (what == null) {
+      return;
+    }
     for (What what : whats) {
       keysList.add(what.getName());
       valuesList.add(what.getValue());
@@ -354,10 +357,23 @@ public class Event {
   public String toString() {
     java.text.SimpleDateFormat simpleDateFormat =
       new java.text.SimpleDateFormat(TimeUtil.DATETIME_FORMAT);
+    java.text.SimpleDateFormat simpleDateFormatWithMs =
+            new java.text.SimpleDateFormat(TimeUtil.DATETIME_FORMAT_WITH_MS);
+
 
     StringBuilder buf = new StringBuilder();
     buf.append(who).append("\n");
-    buf.append(simpleDateFormat.format(when)).append("\n");
+    //TODO better way to handle the formatting issue
+    // Must make sure, when is holding a datetime with milliseconds and then just go with one consistent formatter
+    try {
+      buf.append(simpleDateFormat.format(when)).append("\n");
+    } catch (Exception e) {
+      try {
+        buf.append(simpleDateFormatWithMs.format(when)).append("\n");
+      } catch (Exception e1) {
+        buf.append(when).append("\n");
+      }
+    }
     buf.append(experimentId).append("\n");
     buf.append(experimentName).append("\n");
     buf.append(responseTime != null ? simpleDateFormat.format(getResponseTimeWithTimeZone(null)) : null).append("\n");
@@ -444,7 +460,7 @@ public class Event {
       try {
         parseInt = Integer.parseInt(hours);
       } catch (NumberFormatException e) {
-        EventServlet.log.info("Timezone hours are not an integer this event.");
+        EventServlet.log.info("Timezone hours are not an integer this event: " + hours);
         return new DateTime(time);
       }
       DateTimeZone timezoneForOffsetHours = DateTimeZone.forOffsetHours(parseInt);

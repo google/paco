@@ -2,8 +2,6 @@ package com.google.sampling.experiential.server;
 
 import java.util.List;
 
-import junit.framework.TestCase;
-
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
@@ -17,6 +15,8 @@ import com.pacoapp.paco.shared.model2.PacoAction;
 import com.pacoapp.paco.shared.model2.PacoNotificationAction;
 import com.pacoapp.paco.shared.model2.Schedule;
 import com.pacoapp.paco.shared.model2.ScheduleTrigger;
+
+import junit.framework.TestCase;
 
 public class ExperimentCacheHelperTests extends TestCase {
 

@@ -1,0 +1,31 @@
+<md-input-container class="inputsDropDown">
+  <label class="inputsLabel">Input 1</label>
+  <md-select class="inputsSelect" ng-model="currentVisualization.xAxisVariable"
+             md-on-close="toggleDrawButton(true)">
+    <!--<md-optgroup ng-repeat="grp in groups" label={{grp}} ng-model="selectedGroup">-->
+      <!--<md-option ng-value="input1" ng-repeat="input1 in groupInputs| filter: {'group':grp}">{{input1.inputs}}-->
+      <!--</md-option>-->
+    <!--</md-optgroup>-->
+    <md-optgroup label="Inputs">
+      <md-option ng-value="input" ng-repeat="input in groupInputs">{{input}}<div class="resType"><span>{{input.responseType}}</span></div></md-option>
+    </md-optgroup>
+  </md-select>
+</md-input-container>
+
+<md-input-container class="inputsDropDown">
+  <label class="inputsLabel">Variables</label>
+  <md-select class="inputsSelect" ng-model="currentVisualization.yAxisVariables"
+             md-on-close="toggleDrawButton(true)"
+             data-md-container-class="selectdemoSelectHeader"
+             md-on-close="getVariable2()"
+             md-selected-text="getInputsLength()"
+             multiple>
+    <!--<md-optgroup ng-repeat="grp in groups" label={{grp}} ng-model="selectedGroup">-->
+      <!--<md-option ng-value="variable2" ng-repeat="variable2 in groupInputs| filter: {'group':grp}">{{variable2.inputs}}-->
+      <!--</md-option>-->
+    <!--</md-optgroup>-->
+    <md-optgroup label="Inputs">
+      <md-option ng-value="input" ng-repeat="input in groupInputs">{{input}}<div class="resType"><span>{{input.responseType}}</span></div></md-option>
+    </md-optgroup>
+  </md-select>
+</md-input-container>

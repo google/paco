@@ -21,10 +21,22 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.android.apps.paco.questioncondparser.ExpressionEvaluator;
+import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
+import com.google.common.io.Files;
+import com.pacoapp.paco.R;
+import com.pacoapp.paco.UserPreferences;
+import com.pacoapp.paco.shared.model2.Input2;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -37,13 +49,16 @@ import android.graphics.Bitmap.CompressFormat;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.location.Location;
+import android.media.MediaPlayer;
+import android.media.MediaPlayer.OnCompletionListener;
+import android.media.MediaRecorder;
 import android.media.SoundPool;
 import android.net.Uri;
 import android.os.Environment;
 import android.os.Parcelable;
+import android.text.Html;
 import android.text.InputType;
 import android.util.Base64;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AdapterView;
@@ -62,14 +77,10 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.apps.paco.questioncondparser.ExpressionEvaluator;
-import com.google.common.base.Strings;
-import com.pacoapp.paco.PacoConstants;
-import com.pacoapp.paco.R;
-import com.pacoapp.paco.UserPreferences;
-import com.pacoapp.paco.shared.model2.Input2;
-
 public class InputLayout extends LinearLayout implements SpeechRecognitionListener {
+
+  private static Logger Log = LoggerFactory.getLogger(InputLayout.class);
+
   public static final int CAMERA_REQUEST_CODE = 10001;
   // TODO Bob  refactor into separate classes because not every input can receive text from speech recognition
 
@@ -91,7 +102,13 @@ public class InputLayout extends LinearLayout implements SpeechRecognitionListen
   private File file;
   private int requestCode;
   private ImageView photoView;
+  protected String audioFileName;
   private static int code = 1200;
+  private MediaRecorder audioRecorder = null;
+  private MediaPlayer   audioPlayer = null;
+  boolean mStartRecording = true;
+  boolean mStartPlaying = true;
+
 
   public InputLayout(ExperimentExecutor context, Input2 input2) {
     super(context);
@@ -102,6 +119,11 @@ public class InputLayout extends LinearLayout implements SpeechRecognitionListen
     componentWithValue = getInputResponseTypeView(input2);
     inputChangeListeners = new ArrayList<ChangeListener>();
     setVisible(input2.getConditional() == null || !input2.getConditional());
+  }
+
+  private void createAudioFileName() {
+    audioFileName = Environment.getExternalStorageDirectory().getAbsolutePath();
+    audioFileName += "/audio_"+System.currentTimeMillis() + ".mp3";
   }
 
   public View getComponentWithValue() {
@@ -125,6 +147,18 @@ public class InputLayout extends LinearLayout implements SpeechRecognitionListen
       file = new File(filePath);
       renderPhotoButton(input);
       prefs.clearPhotoAddress();
+    }
+  }
+
+  public void onPause() {
+    if (audioRecorder != null) {
+      audioRecorder.release();
+      audioRecorder = null;
+    }
+
+    if (audioPlayer != null) {
+      audioPlayer.release();
+      audioPlayer = null;
     }
   }
 
@@ -185,6 +219,8 @@ public class InputLayout extends LinearLayout implements SpeechRecognitionListen
       return getNumberValue();
     } else if (input.getResponseType().equals(Input2.PHOTO)) {
       return getPhotoValue();
+    } else if (input.getResponseType().equals(Input2.AUDIO)) {
+      return getAudioValue();
     }
     return null;
   }
@@ -207,6 +243,8 @@ public class InputLayout extends LinearLayout implements SpeechRecognitionListen
       return intToString(getNumberValue());
     } else if (input.getResponseType().equals(Input2.PHOTO)) {
       return getPhotoValue();
+    } else if (input.getResponseType().equals(Input2.AUDIO)) {
+      return getAudioValue();
     }
     return null;
   }
@@ -256,6 +294,21 @@ public class InputLayout extends LinearLayout implements SpeechRecognitionListen
     return input.getName();
   }
 
+  private String getAudioValue() {
+    if (audioFileName != null) {
+      try {
+        byte[] bytes = Files.toByteArray(new File(audioFileName));
+        return Base64.encodeToString(bytes, Base64.DEFAULT);
+      } catch (IOException e) {
+        e.printStackTrace();
+        Toast.makeText(getContext(), R.string.could_not_encode_audio, Toast.LENGTH_LONG).show();
+      }
+
+    }
+    return "";
+  }
+
+
   private String getPhotoValue() {
     // Load data from this.file if it is non-null
     // Base64 encode the data and return it
@@ -291,7 +344,7 @@ public class InputLayout extends LinearLayout implements SpeechRecognitionListen
       o2.inSampleSize = scale;
       b = BitmapFactory.decodeStream(new FileInputStream(f), null, o2);
     } catch (FileNotFoundException e) {
-      Toast.makeText(getContext(), R.string.missing_image_warning, Toast.LENGTH_LONG);
+      Toast.makeText(getContext(), R.string.missing_image_warning, Toast.LENGTH_LONG).show();
     }
     return b;
   }
@@ -440,6 +493,8 @@ public class InputLayout extends LinearLayout implements SpeechRecognitionListen
       return renderNumber(input2);
     } else if (questionType.equals(Input2.PHOTO)) {
       return renderPhotoButton(input2);
+    } else if (questionType.equals(Input2.AUDIO)) {
+      return renderAudioRecorder(input2);
     }
     return null;
   }
@@ -500,7 +555,6 @@ public class InputLayout extends LinearLayout implements SpeechRecognitionListen
     } // otherwise leave as it was previously
   }
 
-
   private void startCameraForResult() {
     try {
       Intent i = new Intent("android.media.action.IMAGE_CAPTURE");
@@ -536,7 +590,7 @@ public class InputLayout extends LinearLayout implements SpeechRecognitionListen
       // Create the storage directory if it does not exist
       if (! mediaStorageDir.exists()){
           if (! mediaStorageDir.mkdirs()){
-              Log.d(PacoConstants.TAG, "failed to create directory");
+              Log.debug("failed to create directory");
               return null;
           }
       }
@@ -683,9 +737,9 @@ public class InputLayout extends LinearLayout implements SpeechRecognitionListen
     for (int i = 0; i < count; i++) {
       checkedChoicesBoolArray[i] = checkedChoices.contains(input.getListChoices().get(i));
     }
-    List<String> listChoices = input.getListChoices();
-    String[] listChoiceArray = new String[listChoices.size()];
-    listChoices.toArray(listChoiceArray );
+    List<CharSequence> listChoices = convertHtmlChoicesToTextChoices(input.getListChoices());
+    CharSequence[] listChoiceArray = new CharSequence[listChoices.size()];
+    listChoices.toArray(listChoiceArray);
     builder.setMultiChoiceItems(listChoiceArray, checkedChoicesBoolArray, multiselectListDialogListener);
     builder.setPositiveButton(R.string.done_button, new Dialog.OnClickListener() {
 
@@ -706,6 +760,17 @@ public class InputLayout extends LinearLayout implements SpeechRecognitionListen
     });
 
     return multiSelectListDialog.getListView();
+  }
+
+  public List<CharSequence> convertHtmlChoicesToTextChoices(List<String> rawListChoices) {
+    List<CharSequence> listChoices = Lists.newArrayList();
+    for (String currentChoice : rawListChoices) {
+      if (currentChoice == null) {
+        currentChoice = "";
+      }
+      listChoices.add(Html.fromHtml(currentChoice));
+    }
+    return listChoices;
   }
 
   private View renderMultiSelectListDialog() {
@@ -732,16 +797,17 @@ public class InputLayout extends LinearLayout implements SpeechRecognitionListen
     listView.setPadding(0, 2, 0, 8);
     final Spinner findViewById = (Spinner) findViewById(R.id.list);
     // Formerly android.R.layout.simple_spinner_item
-    final List<String> listChoicesList = input.getListChoices();
+    List<CharSequence> listChoicesList = convertHtmlChoicesToTextChoices(input.getListChoices());
 
-    ArrayAdapter<String> choices = new ArrayAdapter<String>(getContext(),
+    String defaultListItem = getResources().getString(R.string.default_list_item);
+    if (!listChoicesList.get(0).equals(defaultListItem)) {
+      listChoicesList.add(0, defaultListItem);       // "No selection" list item.
+    }
+    ArrayAdapter<CharSequence> choices = new ArrayAdapter<CharSequence>(getContext(),
             //android.R.layout.simple_spinner_dropdown_item,
             R.layout.multiline_spinner_item,
             listChoicesList);
-    String defaultListItem = getResources().getString(R.string.default_list_item);
-    if (!choices.getItem(0).equals(defaultListItem)) {
-      choices.insert(defaultListItem, 0);       // "No selection" list item.
-    }
+
 
     findViewById.setAdapter(choices);
 
@@ -777,12 +843,12 @@ public class InputLayout extends LinearLayout implements SpeechRecognitionListen
     String leftSideLabel = input2.getLeftSideLabel();
     if (leftSideLabel != null) {
       TextView leftSideView = (TextView) findViewById(R.id.LeftText);
-      leftSideView.setText(leftSideLabel);
+      leftSideView.setText(Html.fromHtml(leftSideLabel));
     }
     String rightSideLabel = input2.getRightSideLabel();
     if (rightSideLabel != null) {
       TextView rightSideView = (TextView) findViewById(R.id.RightText);
-      rightSideView.setText(rightSideLabel);
+      rightSideView.setText(Html.fromHtml(rightSideLabel));
     }
     RadioGroup radioGroup = (RadioGroup) findViewById(R.id.LikertRadioGroup);
     radioGroup.setOnCheckedChangeListener(new OnCheckedChangeListener() {
@@ -835,7 +901,7 @@ public class InputLayout extends LinearLayout implements SpeechRecognitionListen
     case 10:
       return R.layout.radio_group_10;
     default:
-      Log.e(PacoConstants.TAG, "Steps unknown or too big: " + steps);
+      Log.error("Steps unknown or too big: " + steps);
       return R.layout.radio_group_error;
     }
 
@@ -890,8 +956,10 @@ public class InputLayout extends LinearLayout implements SpeechRecognitionListen
     String text = input.getText();
     if (input.getResponseType().equals(Input2.LOCATION) && Strings.isNullOrEmpty(text)) {
       text = getContext().getString(R.string.location_to_be_recorded_default_prompt);
+    } else if (Strings.isNullOrEmpty(text)) {
+      text = "";
     }
-    inputTextView.setText(text);
+    inputTextView.setText(Html.fromHtml(text));
     inputTextView.setTextSize(18);
     if (!Strings.isNullOrEmpty(text)) {
       inputTextView.setBackgroundColor(Color.argb(40, 200, 200, 250));
@@ -905,7 +973,7 @@ public class InputLayout extends LinearLayout implements SpeechRecognitionListen
       try {
         match = interpreter.parse(input.getConditionExpression());
       } catch (IllegalArgumentException iae) {
-        Log.e(PacoConstants.TAG, "Parsing problem: " + iae.getMessage());
+        Log.error("Parsing problem: " + iae.getMessage());
         match = false;
       }
       setVisible(match);
@@ -959,9 +1027,7 @@ public class InputLayout extends LinearLayout implements SpeechRecognitionListen
 
   private View renderGeistNowSmilerLikert(Integer likertSteps) {
     // create a GeistNow radio group with # of steps and images
-    if (likertSteps != null && likertSteps != 5) {
-      throw new RuntimeException("Currently we are only doing the GeistNow 5 step likert scale.");
-    }
+    likertSteps = 5;
     View likertView = ((LayoutInflater)getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(R.layout.likert_smiley, this, true);
     likertView.setPadding(0, 2, 0, 16);
     RadioGroup findViewById = (RadioGroup) findViewById(R.id.GeistNowRadioGroup);
@@ -993,6 +1059,138 @@ public class InputLayout extends LinearLayout implements SpeechRecognitionListen
     if (this.requestCode == requestCode - CAMERA_REQUEST_CODE) {
       photoView.setImageBitmap(decodeFileAndScaleToThumb(file));
     }
+  }
+
+  private View renderAudioRecorder(Input2 input2) {
+    View audioInputView = ((LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(
+        R.layout.audio_input, this, true);
+    audioInputView.setPadding(0, 2, 0, 8);
+    final Button recordButton = (Button) findViewById(R.id.AudioRecordButton);
+    final Button playButton = (Button) findViewById(R.id.AudioPlayButton);
+    final Button deleteButton = (Button) findViewById(R.id.AudioDeleteButton);
+    toggleOtherButtons(playButton, deleteButton, file != null);
+
+    recordButton.setOnClickListener(new View.OnClickListener() {
+      public void onClick(View v) {
+        onRecord(mStartRecording);
+        if (mStartRecording) {
+            recordButton.setText("Stop");
+        } else {
+          recordButton.setText("Record");
+        }
+        toggleOtherButtons(playButton, deleteButton, !mStartRecording);
+        mStartRecording = !mStartRecording;
+      }
+    });
+
+    final OnCompletionListener completionListener = new OnCompletionListener() {
+      @Override
+      public void onCompletion(MediaPlayer mp) {
+        playButton.setText("Play");
+        mStartPlaying = true;
+        toggleOtherButtons(recordButton, deleteButton, true);
+      }
+    };
+
+    playButton.setOnClickListener(new View.OnClickListener() {
+      @Override
+      public void onClick(View v) {
+        onPlay(mStartPlaying, completionListener);
+        if (mStartPlaying) {
+          playButton.setText("Stop");
+        } else {
+          playButton.setText("Play");
+        }
+        toggleOtherButtons(recordButton, deleteButton, !mStartPlaying);
+        mStartPlaying = !mStartPlaying;
+      }
+    });
+
+    deleteButton.setOnClickListener(new View.OnClickListener() {
+      @Override
+      public void onClick(View v) {
+        if (audioFileName != null) {
+          deleteAudioFile();
+        }
+        toggleOtherButtons(playButton, deleteButton, false);
+      }
+    });
+    return audioInputView;
+  }
+
+  private void toggleOtherButtons(Button playButton, Button deleteButton, boolean enabled) {
+    playButton.setEnabled(enabled);
+    deleteButton.setEnabled(enabled);
+  }
+
+
+
+
+  private void onRecord(boolean start) {
+    if (start) {
+      startRecording();
+    } else {
+      stopRecording();
+    }
+  }
+
+  private void onPlay(boolean start, OnCompletionListener listener) {
+    if (start) {
+      startPlaying(listener);
+    } else {
+      stopPlaying();
+    }
+  }
+
+  private void startPlaying(OnCompletionListener listener) {
+    audioPlayer = new MediaPlayer();
+    try {
+      audioPlayer.setDataSource(audioFileName);
+      audioPlayer.prepare();
+      audioPlayer.start();
+      audioPlayer.setOnCompletionListener(listener);
+    } catch (IOException e) {
+      Log.error("prepare() failed");
+    }
+  }
+
+  private void stopPlaying() {
+    audioPlayer.release();
+    audioPlayer = null;
+  }
+
+  private void startRecording() {
+    if (audioFileName != null) {
+      deleteAudioFile();
+    }
+    createAudioFileName();
+    audioRecorder = new MediaRecorder();
+    audioRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
+    audioRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4/* THREE_GPP */);
+    audioRecorder.setOutputFile(audioFileName);
+    audioRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC/* AMR_NB */);
+
+    try {
+      audioRecorder.prepare();
+    } catch (IOException e) {
+      Log.error("prepare() failed");
+    }
+
+    audioRecorder.start();
+  }
+
+  private void stopRecording() {
+    audioRecorder.stop();
+    audioRecorder.release();
+    audioRecorder = null;
+  }
+
+  private void deleteAudioFile() {
+    File f = new File(audioFileName);
+    if (f.exists()) {
+      f.delete();
+    }
+    audioFileName = null;
   }
 
 }

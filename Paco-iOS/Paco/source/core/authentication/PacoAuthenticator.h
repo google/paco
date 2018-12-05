@@ -17,17 +17,23 @@
 
 
 
-@class GTMOAuth2Authentication;
+@class GTMFetcherAuthorizationProtocol;
+@class GTMAppAuthFetcherAuthorization;
+@class OIDAuthState;
+@class OIDServiceConfiguration;
+
 
 @interface PacoAuthenticator : NSObject
 
-@property(nonatomic, readonly, retain) GTMOAuth2Authentication *auth;
+@property(nonatomic, readonly, retain) GTMAppAuthFetcherAuthorization *auth;
 
 - (id)initWithFirstLaunchFlag:(BOOL)firstLaunch;
 
 - (void)reAuthenticateWithBlock:(void(^)(NSError*))completionBlock;
 
-- (void)authenticateWithOAuth2WithCompletionHandler:(void (^)(NSError *))completionHandler;
+//- (void)authenticateWithOAuth2WithCompletionHandler:(void (^)(NSError *))completionHandler;
+
+- (void)authenticateWithGTMAppAuthWithCompletionHandler:(void (^)(NSError *))completionHandler;
 
 - (BOOL)isLoggedIn;
 

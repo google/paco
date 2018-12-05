@@ -16,7 +16,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Ringtone for alerts"
+            android:text="@string/ringtone_for_alerts_label"
             android:textAppearance="?android:attr/textAppearanceLarge" />
 
         <View
@@ -72,7 +72,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Google Email Address"
+            android:text="@string/google_email_address_label"
             android:textAppearance="?android:attr/textAppearanceLarge" />
 
         <View
@@ -84,7 +84,7 @@
             android:id="@+id/accountTextView"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:text="foo@example.com"
+            android:text=""
             android:textAppearance="?android:attr/textAppearanceMedium" />
     </LinearLayout>
 
@@ -100,7 +100,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Server Address"
+            android:text="@string/server_address_label"
             android:textAppearance="?android:attr/textAppearanceLarge" />
 
         <TextView
@@ -122,44 +122,6 @@
             android:textAppearance="?android:attr/textAppearanceMedium" />
     </LinearLayout>
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
-        android:layout_marginLeft="8dp"
-        android:layout_marginRight="8dp"
-        android:layout_marginTop="0dp"
-        android:orientation="vertical" >
 
-        <View
-            android:layout_width="fill_parent"
-            android:layout_height="3dp"
-            android:layout_marginBottom="4dp"
-            android:background="@android:color/darker_gray" />
-
-        <Button
-            android:id="@+id/sendPacoLogButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Send Paco Log"
-            android:textAppearance="?android:attr/textAppearanceMedium" />
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
-        android:layout_marginLeft="8dp"
-        android:layout_marginRight="8dp"
-        android:layout_marginTop="8dp"
-        android:orientation="vertical" >
-
-        <Button
-            android:id="@+id/debugButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Debug ESM"
-            android:textAppearance="?android:attr/textAppearanceMedium" />
-    </LinearLayout>
 
 </LinearLayout>

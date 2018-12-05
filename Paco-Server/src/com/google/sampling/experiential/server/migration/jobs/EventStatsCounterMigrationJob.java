@@ -2,7 +2,6 @@ package com.google.sampling.experiential.server.migration.jobs;
 
 import java.util.Date;
 import java.util.List;
-import java.util.Set;
 import java.util.logging.Logger;
 
 import org.joda.time.DateTime;
@@ -13,48 +12,15 @@ import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.FetchOptions;
-import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.PreparedQuery;
 import com.google.appengine.api.datastore.Query;
-import com.google.appengine.api.datastore.QueryResultList;
-import com.google.appengine.api.datastore.Transaction;
 import com.google.appengine.api.datastore.Query.FilterOperator;
+import com.google.appengine.api.datastore.QueryResultList;
 import com.google.appengine.api.taskqueue.Queue;
 import com.google.appengine.api.taskqueue.QueueFactory;
 import com.google.appengine.api.taskqueue.TaskOptions;
-import com.google.appengine.api.users.User;
-import com.google.appengine.api.users.UserService;
-import com.google.common.base.Joiner;
-import com.google.common.base.Strings;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
-import com.google.sampling.experiential.datastore.ExperimentJsonEntityManager;
-import com.google.sampling.experiential.model.Experiment;
-import com.google.sampling.experiential.model.Input;
-import com.google.sampling.experiential.model.SignalSchedule;
-import com.google.sampling.experiential.model.Trigger;
-import com.google.sampling.experiential.server.ExperimentAccessManager;
-import com.google.sampling.experiential.server.ExperimentRetrieverOld;
 import com.google.sampling.experiential.server.migration.MigrationJob;
 import com.google.sampling.experiential.server.stats.participation.ParticipationStatsService;
-import com.pacoapp.paco.shared.model.SignalScheduleDAO;
-import com.pacoapp.paco.shared.model.TriggerDAO;
-import com.pacoapp.paco.shared.model2.ActionTrigger;
-import com.pacoapp.paco.shared.model2.ExperimentDAO;
-import com.pacoapp.paco.shared.model2.ExperimentGroup;
-import com.pacoapp.paco.shared.model2.ExperimentValidator;
-import com.pacoapp.paco.shared.model2.Feedback;
-import com.pacoapp.paco.shared.model2.Input2;
-import com.pacoapp.paco.shared.model2.InterruptCue;
-import com.pacoapp.paco.shared.model2.InterruptTrigger;
-import com.pacoapp.paco.shared.model2.JsonConverter;
-import com.pacoapp.paco.shared.model2.PacoAction;
-import com.pacoapp.paco.shared.model2.PacoNotificationAction;
-import com.pacoapp.paco.shared.model2.Pair;
-import com.pacoapp.paco.shared.model2.Schedule;
-import com.pacoapp.paco.shared.model2.ScheduleTrigger;
-import com.pacoapp.paco.shared.model2.SignalTime;
-import com.pacoapp.paco.shared.model2.ValidationMessage;
 
 public class EventStatsCounterMigrationJob implements MigrationJob {
 
@@ -237,9 +203,8 @@ public class EventStatsCounterMigrationJob implements MigrationJob {
   }
 
   @Override
-  public boolean doMigration() {
+  public boolean doMigration(String cursor, DateTime startTime, DateTime endTime) {
     return doMigrationWithMapReduce();
     //return doMigrationInLoopForLatestOnly();
   }
-
 }

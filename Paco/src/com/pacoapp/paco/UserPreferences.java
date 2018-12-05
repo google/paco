@@ -23,14 +23,14 @@ import java.util.List;
 
 import org.joda.time.DateTime;
 
-import android.accounts.Account;
-import android.content.Context;
-import android.content.SharedPreferences;
-
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 import com.pacoapp.paco.shared.util.TimeUtil;
+
+import android.accounts.Account;
+import android.content.Context;
+import android.content.SharedPreferences;
 
 /**
  * A place for storing various preferences of the user.
@@ -39,6 +39,8 @@ import com.pacoapp.paco.shared.util.TimeUtil;
  *
  */
 public class UserPreferences {
+
+  private static final String ZIPPED_LOG_FILE_PATH = "zippedLogFilePath";
 
   private static final String SEEN_EXPERIMENT_INVITATIONS_KEY = "seenExperimentInvitations";
 
@@ -403,6 +405,14 @@ public class UserPreferences {
 
   public boolean experimentEdited(Long experimentId) {
     return getAppPrefs().getBoolean(EXPERIMENT_EDITED_KEY + "_" + experimentId, false);
+  }
+
+  public void setZipLogFileUri(String path) {
+    getAppPrefs().edit().putString(ZIPPED_LOG_FILE_PATH, path).commit();
+  }
+
+  public String getZipLogFileUri() {
+    return getAppPrefs().getString(ZIPPED_LOG_FILE_PATH, null);
   }
 }
 

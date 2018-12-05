@@ -16,11 +16,10 @@
  */
 package com.pacoapp.paco.ui;
 
-import java.util.List;
-
 import android.content.Intent;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.text.Html;
@@ -31,15 +30,12 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.common.base.Strings;
 import com.pacoapp.paco.R;
 import com.pacoapp.paco.model.Experiment;
 import com.pacoapp.paco.model.ExperimentProviderUtil;
-import com.pacoapp.paco.shared.model2.ActionTrigger;
 import com.pacoapp.paco.shared.model2.ExperimentGroup;
-import com.pacoapp.paco.shared.model2.Schedule;
-import com.pacoapp.paco.shared.model2.ScheduleTrigger;
 import com.pacoapp.paco.shared.util.ExperimentHelper;
-import com.pacoapp.paco.shared.util.SchedulePrinter;
 import com.pacoapp.paco.utils.IntentExtraHelper;
 
 public class PostJoinInstructionsActivity extends ActionBarActivity implements ExperimentLoadingActivity {
@@ -70,6 +66,26 @@ public class PostJoinInstructionsActivity extends ActionBarActivity implements E
       Toast.makeText(this, R.string.cannot_find_the_experiment_warning, Toast.LENGTH_SHORT).show();
       finish();
     } else {
+      if (ExperimentHelper.declaresAccessibilityLogging(experiment.getExperimentDAO())) {
+        Button openAccessibilitySettings = (Button) findViewById(R.id.openAccessibilitySettings);
+        openAccessibilitySettings.setVisibility(TextView.VISIBLE);
+        openAccessibilitySettings.setOnClickListener(new OnClickListener() {
+          @Override
+          public void onClick(View view) {
+            runAccessibilityActivity();
+          }
+        });
+      }
+      if (ExperimentHelper.declaresLogAppUsageAndBrowserCollection(experiment.getExperimentDAO())) {
+        Button openUsageAccessSettings = (Button) findViewById(R.id.openUsageAccessSettings);
+        openUsageAccessSettings.setVisibility(TextView.VISIBLE);
+        openUsageAccessSettings.setOnClickListener(new OnClickListener() {
+          @Override
+          public void onClick(View view) {
+            runUsageAccessActivity();
+          }
+        });
+      }
       boolean userEditableSchedule = ExperimentHelper.hasUserEditableSchedule(experiment.getExperimentDAO());
       if (userEditableSchedule) {
         Button reviewScheduleButton = (Button) findViewById(R.id.reviewSchedule);
@@ -85,7 +101,9 @@ public class PostJoinInstructionsActivity extends ActionBarActivity implements E
 
       TextView ic = (TextView) findViewById(R.id.instructionsTextView);
       final String postInstallInstructions = experiment.getExperimentDAO().getPostInstallInstructions();
-      ic.setText(Html.fromHtml(postInstallInstructions));
+      if (!Strings.isNullOrEmpty(postInstallInstructions)) {
+        ic.setText(Html.fromHtml(postInstallInstructions));
+      }
 
       Button closeButton = (Button) findViewById(R.id.instructionsCloseButton);
       closeButton.setOnClickListener(new OnClickListener() {
@@ -113,28 +131,20 @@ public class PostJoinInstructionsActivity extends ActionBarActivity implements E
     }
   }
 
-  public String createSchedulesString() {
-    StringBuffer buf = new StringBuffer();
-    List<ExperimentGroup> groups = experiment.getExperimentDAO().getGroups();
-    boolean firstItem = true;
-    for (ExperimentGroup experimentGroup : groups) {
-      List<ActionTrigger> actionTriggers = experimentGroup.getActionTriggers();
-      for (ActionTrigger actionTrigger : actionTriggers) {
-        if (actionTrigger instanceof ScheduleTrigger) {
-          List<Schedule> schedules = ((ScheduleTrigger)actionTrigger).getSchedules();
+  /**
+   * Show the user an activity allowing to provide accessibility permissions to Paco
+   */
+  private void runAccessibilityActivity() {
+    Intent accessibilityActivityIntent = new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS);
+    startActivity(accessibilityActivityIntent);
+  }
 
-          for (Schedule schedule : schedules) {
-            if (firstItem) {
-              firstItem = false;
-            } else {
-              buf.append("; ");
-            }
-            buf.append(SchedulePrinter.toString(schedule));
-          }
-        }
-      }
-    }
-    return buf.toString();
+  /*
+   * Show the user an activity allowing to provide app usage access to Paco
+   */
+  private void runUsageAccessActivity() {
+    Intent intent = new Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS);
+    startActivity(intent);
   }
 
   private void runScheduleActivity() {

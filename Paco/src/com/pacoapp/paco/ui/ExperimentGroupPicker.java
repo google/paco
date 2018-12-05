@@ -3,6 +3,21 @@ package com.pacoapp.paco.ui;
 import java.util.List;
 
 import org.joda.time.DateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.common.collect.Lists;
+import com.pacoapp.paco.R;
+import com.pacoapp.paco.model.Experiment;
+import com.pacoapp.paco.model.ExperimentProviderUtil;
+import com.pacoapp.paco.shared.model2.ActionTrigger;
+import com.pacoapp.paco.shared.model2.ExperimentDAO;
+import com.pacoapp.paco.shared.model2.ExperimentGroup;
+import com.pacoapp.paco.shared.model2.GroupTypeEnum;
+import com.pacoapp.paco.shared.model2.InterruptCue;
+import com.pacoapp.paco.shared.model2.InterruptTrigger;
+import com.pacoapp.paco.shared.scheduling.ActionScheduleGenerator;
+import com.pacoapp.paco.utils.IntentExtraHelper;
 
 import android.content.Intent;
 import android.graphics.drawable.ColorDrawable;
@@ -18,24 +33,14 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
 
-import com.google.common.collect.Lists;
-import com.pacoapp.paco.R;
-import com.pacoapp.paco.model.Experiment;
-import com.pacoapp.paco.model.ExperimentProviderUtil;
-import com.pacoapp.paco.shared.model2.ActionTrigger;
-import com.pacoapp.paco.shared.model2.ExperimentDAO;
-import com.pacoapp.paco.shared.model2.ExperimentGroup;
-import com.pacoapp.paco.shared.model2.InterruptCue;
-import com.pacoapp.paco.shared.model2.InterruptTrigger;
-import com.pacoapp.paco.shared.scheduling.ActionScheduleGenerator;
-import com.pacoapp.paco.utils.IntentExtraHelper;
-
 public class ExperimentGroupPicker extends ActionBarActivity implements ExperimentLoadingActivity {
 
   public static final String SHOULD_GO_TO_RENDER_NEXT = "should_render_next";
   public static final int FEEDBACK_NEXT = 1;
   public static final int RENDER_NEXT = 2;
   public static final int SCHEDULE_NEXT = 3;
+
+  private static Logger Log = LoggerFactory.getLogger(ExperimentGroupPicker.class);
   private Experiment experiment;
   private ExperimentProviderUtil experimentProviderUtil;
   private List<ExperimentGroup> experimentGroups;
@@ -48,6 +53,7 @@ public class ExperimentGroupPicker extends ActionBarActivity implements Experime
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
+    Log.debug("ExperimentGroupPicker onCreate");
     experimentProviderUtil = new ExperimentProviderUtil(this);
     IntentExtraHelper.loadExperimentInfoFromIntent(this, getIntent(), experimentProviderUtil);
     shouldRender = getIntent().getIntExtra(SHOULD_GO_TO_RENDER_NEXT, RENDER_NEXT);
@@ -73,12 +79,12 @@ public class ExperimentGroupPicker extends ActionBarActivity implements Experime
       choosableGroups = Lists.newArrayList();
       for (ExperimentGroup experimentGroup : groups) {
         if (!experimentGroup.getFixedDuration() || (!ActionScheduleGenerator.isOver(new DateTime(), experimentDAO))) {
-          if (shouldRender == RENDER_NEXT && experimentGroup.getInputs() != null && !experimentGroup.getInputs().isEmpty()) {
+          if (shouldRender == RENDER_NEXT && experimentGroup.getGroupType().equals(GroupTypeEnum.SURVEY)) {
             choosableGroups.add(experimentGroup);
           }
         } else if (experimentGroup.getFixedDuration() && ActionScheduleGenerator.isOver(new DateTime(), experimentDAO)) {
           final ActionTrigger actionTrigger = experimentGroup.getActionTriggers().get(0);
-          if (shouldRender == RENDER_NEXT && experimentGroup.getInputs() != null && !experimentGroup.getInputs().isEmpty() &&
+          if (shouldRender == RENDER_NEXT && experimentGroup.getGroupType().equals(GroupTypeEnum.SURVEY) &&
                   actionTrigger instanceof InterruptTrigger
                   && ((InterruptTrigger)actionTrigger).getCues().get(0).getCueCode() == InterruptCue.PACO_EXPERIMENT_ENDED_EVENT) {
             choosableGroups.add(experimentGroup);
@@ -118,6 +124,7 @@ public class ExperimentGroupPicker extends ActionBarActivity implements Experime
   @Override
   protected void onResume() {
     super.onResume();
+    Log.debug("ExperimentGroupPicker onResume");
   }
 
   @Override

@@ -1,6 +1,9 @@
 package com.google.sampling.experiential.server;
 
+import java.sql.Timestamp;
+import java.text.ParseException;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.Locale;
 import java.util.TimeZone;
 import java.util.logging.Logger;
@@ -13,10 +16,13 @@ import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
+import com.google.sampling.experiential.shared.EventDAO;
+
 public class TimeUtil {
 
   public static final Logger log = Logger.getLogger(TimeUtil.class.getName());
   public static final String DATETIME_FORMAT = "yyyy/MM/dd HH:mm:ssZ";
+  public static final String DATETIME_FORMAT_MS = "yyyy/MM/dd HH:mm:ss.SSSZ";
   public static final String DATE_FORMAT = "yyyy/MM/dd";
 
   public static DateMidnight getDateMidnightForDateString(String dateStr) {
@@ -79,5 +85,63 @@ public class TimeUtil {
     return jodaTimeZone;
 
   }
+  
+  public static DateTime parseDate(DateTimeFormatter df, String when) throws ParseException {
+    return df.parseDateTime(when);
+  }
 
+  public static Date adjustTimeToTimezoneIfNecesssary(String tz, Date dateObj) {
+    if (dateObj == null) {
+      return null;
+    }
+    DateTimeZone timezone = null;
+    if (tz != null) {
+      timezone = DateTimeZone.forID(tz);
+    }
+    if (timezone != null && dateObj.getTimezoneOffset() != timezone.getOffset(dateObj.getTime())) {
+      dateObj = new DateTime(dateObj).withZone(timezone).toDate();
+    }
+    return dateObj;
+  }
+  
+  public static int getFractionalSeconds(Timestamp tStamp) {
+    int fracSeconds = 0;
+    if (tStamp.getNanos() >= 1000000) {
+      fracSeconds = tStamp.getNanos() / 1000000;
+    }
+    return fracSeconds;
+  }
+  
+  public static Integer getIntFromOffsetString(String timeZone) {
+    String hours = timeZone.substring(0,3);
+    if (hours.startsWith("+")) {
+      hours = hours.substring(1);
+    }
+
+    int parseInt;
+    try {
+      parseInt = Integer.parseInt(hours);
+    } catch (NumberFormatException e) {
+      log.warning("Timezone hours are not an integer this event: " + hours);
+      return 0; 
+    }
+    return parseInt;
+  }
+  
+  public static void adjustTimeZone(EventDAO event) throws ParseException {
+    int offsetHrs = 0;
+    if (event.getTimezone() != null) {
+      offsetHrs = TimeUtil.getIntFromOffsetString(event.getTimezone());
+    }
+    
+    if (event.getScheduledTime() != null) {
+      event.setScheduledTime(event.getScheduledTime().withZoneRetainFields(DateTimeZone.forOffsetHours(offsetHrs)));
+    }
+    if (event.getResponseTime() != null) {
+      event.setResponseTime(event.getResponseTime().withZoneRetainFields(DateTimeZone.forOffsetHours(offsetHrs)));
+    }
+    if (event.getSortDate() != null) {
+      event.setSortDate(event.getSortDate().withZoneRetainFields(DateTimeZone.forOffsetHours(offsetHrs)));
+    }
+  }
 }

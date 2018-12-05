@@ -13,13 +13,15 @@ public class UsageStatsBlobWriter {
 
   public String writeStatsAsJson(String jobId, String timeZone, String requestorEmail) {
     log.info("writing usage stats report");
+//    UsageStatsBackfillJob job = new UsageStatsBackfillJob();
+//    UsageStatsCreatorStatsJob job = new UsageStatsCreatorStatsJob();
     UsageStatsCronJob job = new UsageStatsCronJob();
     try {
       job.run();
     } catch (IOException e) {
       e.printStackTrace();
     }
-    return "it doesn't do that anymore :-)"; 
+    return "no job id reported for this type of job";
   }
-  
+
 }

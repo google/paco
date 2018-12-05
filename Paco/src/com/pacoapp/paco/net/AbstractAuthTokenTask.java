@@ -8,13 +8,13 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 import org.json.JSONException;
-
-import android.os.AsyncTask;
-import android.util.Log;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.android.gms.auth.GoogleAuthUtil;
-import com.pacoapp.paco.PacoConstants;
 import com.pacoapp.paco.UserPreferences;
+
+import android.os.AsyncTask;
 
 
 /*
@@ -35,6 +35,8 @@ import com.pacoapp.paco.UserPreferences;
 
 
 public abstract class AbstractAuthTokenTask extends AsyncTask<Void, Void, Void> {
+
+  private static Logger Log = LoggerFactory.getLogger(AbstractAuthTokenTask.class);
 
       protected NetworkClient networkClient;
 
@@ -63,7 +65,7 @@ public abstract class AbstractAuthTokenTask extends AsyncTask<Void, Void, Void> 
 
       protected void onError(String msg, Exception e) {
           if (e != null) {
-            Log.e(PacoConstants.TAG, "Exception: ", e);
+            Log.error("Exception: ", e);
           }
           networkClient.show(msg);  // will be run in UI thread
       }
@@ -107,7 +109,7 @@ public abstract class AbstractAuthTokenTask extends AsyncTask<Void, Void, Void> 
           } else if (sc == 401) {
               GoogleAuthUtil.invalidateToken(networkClient.getContext(), token);
               onError("Server auth error, please try again.", null);
-              Log.i(PacoConstants.TAG, "Server auth error: " + readResponse(con.getErrorStream()));
+              Log.info("Server auth error: " + readResponse(con.getErrorStream()));
               return;
           } else {
             onError("Server returned the following error code: " + sc, null);

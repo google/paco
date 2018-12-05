@@ -5,6 +5,7 @@ import java.util.logging.Logger;
 
 import org.joda.time.DateTimeZone;
 
+import com.google.sampling.experiential.datastore.ExperimentJsonEntityManager;
 import com.pacoapp.paco.shared.model2.ExperimentDAO;
 import com.pacoapp.paco.shared.model2.JsonConverter;
 
@@ -16,17 +17,34 @@ abstract class ExperimentServletHandler {
   protected Integer limit;
   protected String cursor;
   protected String pacoProtocol;
+  protected String sortColumn;
+  protected String sortOrder;
 
   public ExperimentServletHandler(String email, DateTimeZone timezone2, Integer limit, String cursor, String pacoProtocol) {
+    this(email, timezone2, limit, cursor, pacoProtocol, null, null);
+  }
+
+  public ExperimentServletHandler(String email, DateTimeZone timezone, Integer limit, String cursor,
+                                  String pacoProtocol, String sortColumn, String sortOrder) {
     this.email = email;
-    if (timezone2 != null) {
-      this.timezone = timezone2;
+    if (timezone != null) {
+      this.timezone = timezone;
     } else {
       this.timezone = DateTimeZone.getDefault();
     }
     this.limit = limit;
     this.cursor = cursor;
     this.pacoProtocol = pacoProtocol;
+    if (sortColumn == null || sortColumn.isEmpty()) {
+      this.sortColumn = ExperimentJsonEntityManager.TITLE_COLUMN;
+    } else {
+      this.sortColumn = sortColumn;
+    }
+    if (sortOrder == null || !sortOrder.toLowerCase().equals("desc")) {
+      this.sortOrder = "asc";
+    } else {
+      this.sortOrder = "desc";
+    }
   }
 
   public String performLoad() {

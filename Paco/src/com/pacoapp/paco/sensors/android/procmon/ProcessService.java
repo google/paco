@@ -4,23 +4,12 @@ import java.util.Collections;
 import java.util.List;
 
 import org.joda.time.DateTime;
-
-import android.app.ActivityManager;
-import android.app.ActivityManager.RecentTaskInfo;
-import android.app.Service;
-import android.content.Context;
-import android.content.Intent;
-import android.content.pm.ApplicationInfo;
-import android.content.pm.PackageManager;
-import android.content.pm.PackageManager.NameNotFoundException;
-import android.os.IBinder;
-import android.os.PowerManager;
-import android.util.Log;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
-import com.pacoapp.paco.PacoConstants;
 import com.pacoapp.paco.model.Event;
 import com.pacoapp.paco.model.Experiment;
 import com.pacoapp.paco.model.ExperimentProviderUtil;
@@ -35,7 +24,20 @@ import com.pacoapp.paco.shared.scheduling.ActionScheduleGenerator;
 import com.pacoapp.paco.shared.util.ExperimentHelper;
 import com.pacoapp.paco.shared.util.TimeUtil;
 
+import android.app.ActivityManager;
+import android.app.ActivityManager.RecentTaskInfo;
+import android.app.Service;
+import android.content.Context;
+import android.content.Intent;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
+import android.content.pm.PackageManager.NameNotFoundException;
+import android.os.IBinder;
+import android.os.PowerManager;
+
 public class ProcessService extends Service {
+
+  private static Logger Log = LoggerFactory.getLogger(ProcessService.class);
 
   private ActivityManager am;
   private ExperimentProviderUtil experimentProviderUtil;
@@ -46,10 +48,10 @@ public class ProcessService extends Service {
   public void onStart(Intent intent, int startId) {
     super.onStart(intent, startId);
     if (running) {
-      Log.i(PacoConstants.TAG, "Paco App Usage Poller.onStart() -- Already running");
+      Log.info("Paco App Usage Poller.onStart() -- Already running");
       return;
     } else {
-      Log.i(PacoConstants.TAG, "Paco App Usage Poller.onStart()");
+      Log.info("Paco App Usage Poller.onStart()");
 
       am = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
 
@@ -69,27 +71,15 @@ public class ProcessService extends Service {
           List<String> previousTaskNames = null;
           List<String> tasksOfInterestForClosing = initializeCloseAppTasksToWatch();
 
-          boolean inBrowser = BroadcastTriggerReceiver.isInBrowser(getApplicationContext());
-
           try {
             while (pm.isScreenOn() && BroadcastTriggerReceiver.shouldWatchProcesses(getApplicationContext())) {
               synchronized (this) {
                 try {
-                  Log.i(PacoConstants.TAG, "polling on: runnable instance = " + this.toString());
+                  //Log.info("polling on: runnable instance = " + this.toString());
                   List<String> recentTaskNames = getRecentTaskNames();
 
                   List<String> newlyUsedTasks = checkForNewlyUsedTasks(previousTaskNames, tasksOfInterest,
                                                                        recentTaskNames);
-                  if (newlyUsedTasks.size() > 0 && isBrowserTask(newlyUsedTasks.get(0))
-                      && BroadcastTriggerReceiver.shouldLogActions(getApplicationContext())) {
-                    BroadcastTriggerReceiver.createBrowserHistoryStartSnapshot(getApplicationContext());
-                    BroadcastTriggerReceiver.toggleInBrowser(getApplicationContext(), true);
-                    inBrowser = true;
-                  } else if (inBrowser == true && newlyUsedTasks.size() > 0 && !isBrowserTask(newlyUsedTasks.get(0))) {
-                    inBrowser = false;
-                    BroadcastTriggerReceiver.toggleInBrowser(getApplicationContext(), false);
-                    BroadcastTriggerReceiver.createBrowserHistoryEndSnapshot(getApplicationContext());
-                  }
 
                   if (newlyUsedTasks.size() > 0) {
                     createTriggersForNewlyUsedTasksOfInterest(tasksOfInterest, newlyUsedTasks);
@@ -104,19 +94,17 @@ public class ProcessService extends Service {
 
                   previousTaskNames = recentTaskNames;
                   int sleepTime = BroadcastTriggerReceiver.getFrequency(ProcessService.this) * 1000;
-                  Log.i(PacoConstants.TAG, "sleepTime = " + sleepTime);
+                  //Log.info("sleepTime = " + sleepTime);
                   wait(sleepTime);
                 } catch (Exception e) {
                 }
               }
             }
-            // if (!pm.isScreenOn()) {
-            // BroadcastTriggerReceiver.createBrowserHistoryEndSnapshot(getApplicationContext());
-            // //testIfUserHasResponded
-            // //createNotificationIfNotResponded
+            if (!pm.isScreenOn() && BroadcastTriggerReceiver.shouldWatchProcesses(getApplicationContext())) {
+              createScreenOffPacoEvents(getApplicationContext());
+            }
             //
-            // }
-            Log.i(PacoConstants.TAG, "polling stopping: instance = " + ProcessService.this.toString());
+            Log.info("polling stopping: instance = " + ProcessService.this.toString());
           } finally {
             previousTaskNames = null;
             wl.release();
@@ -250,12 +238,12 @@ public class ProcessService extends Service {
         }
 
         private void triggerAppUsed(String appIdentifier) {
-          Log.i(PacoConstants.TAG, "Paco App Usage poller trigger app used: " + appIdentifier);
+          Log.info("Paco App Usage poller trigger app used: " + appIdentifier);
           triggerCodeForAppTrigger(appIdentifier, InterruptCue.APP_USAGE);
         }
 
         private void triggerAppClosed(String appIdentifier) {
-            Log.i(PacoConstants.TAG, "Paco App Usage poller trigger app used: " + appIdentifier);
+            Log.info("Paco App Usage poller trigger app used: " + appIdentifier);
             triggerCodeForAppTrigger(appIdentifier, InterruptCue.APP_CLOSED);
           }
 
@@ -286,8 +274,11 @@ public class ProcessService extends Service {
     String usedAppsPrettyNamesString = Joiner.on(",").join(prettyAppNames);
     String usedAppsNamesString = Joiner.on(",").join(newlyUsedTasks);
     for (Experiment experiment : experimentsNeedingEvent) {
-      Event event = createAppsUsedPacoEvent(usedAppsPrettyNamesString, usedAppsNamesString, experiment);
-      experimentProviderUtil.insertEvent(event);
+      List<ExperimentGroup> groupsThatCare = ExperimentHelper.getGroupsThatCareAboutActionLogging(experiment.getExperimentDAO());
+      for (ExperimentGroup experimentGroup : groupsThatCare) {
+        Event event = createAppsUsedPacoEvent(usedAppsPrettyNamesString, usedAppsNamesString, experiment, experimentGroup);
+        experimentProviderUtil.insertEvent(event);
+      }
     }
 
   }
@@ -333,11 +324,14 @@ public class ProcessService extends Service {
   }
 
   private Event createAppsUsedPacoEvent(String usedAppsPrettyNamesString, String usedAppsTaskNamesString,
-                                        Experiment experiment) {
+                                        Experiment experiment, ExperimentGroup experimentGroup) {
     Event event = new Event();
     event.setExperimentId(experiment.getId());
     event.setServerExperimentId(experiment.getServerId());
     event.setExperimentName(experiment.getExperimentDAO().getTitle());
+    if (experimentGroup != null) {
+      event.setExperimentGroupName(experimentGroup.getName());
+    }
     event.setExperimentVersion(experiment.getExperimentDAO().getVersion());
     event.setResponseTime(new DateTime());
 
@@ -373,7 +367,37 @@ public class ProcessService extends Service {
 
   @Override
   public void onDestroy() {
-    Log.i(PacoConstants.TAG, "Paco App Usage poller.onDestroy()");
+    Log.info("Paco App Usage poller.onDestroy()");
+  }
+
+  protected void createScreenOffPacoEvents(Context context) {
+    ExperimentProviderUtil experimentProviderUtil = new ExperimentProviderUtil(context);
+    List<Experiment> joined = experimentProviderUtil.getJoinedExperiments();
+
+    for (Experiment experiment : joined) {
+      List<ExperimentGroup> groupsThatCare = ExperimentHelper.getGroupsThatCareAboutActionLogging(experiment.getExperimentDAO());
+      for (ExperimentGroup experimentGroup : groupsThatCare) {
+        Event event = createScreenOffPacoEvent(experiment, experimentGroup.getName());
+        experimentProviderUtil.insertEvent(event);
+      }
+    }
+  }
+
+  protected Event createScreenOffPacoEvent(Experiment experiment, String groupName) {
+    Event event = new Event();
+    event.setExperimentId(experiment.getId());
+    event.setServerExperimentId(experiment.getServerId());
+    event.setExperimentName(experiment.getExperimentDAO().getTitle());
+    event.setExperimentGroupName(groupName);
+    event.setExperimentVersion(experiment.getExperimentDAO().getVersion());
+    event.setResponseTime(new DateTime());
+
+    Output responseForInput = new Output();
+
+    responseForInput.setAnswer(new DateTime().toString());
+    responseForInput.setName("userNotPresent");
+    event.addResponse(responseForInput);
+    return event;
   }
 
 }

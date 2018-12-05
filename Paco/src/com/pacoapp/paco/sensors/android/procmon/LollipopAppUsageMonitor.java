@@ -3,21 +3,23 @@ package com.pacoapp.paco.sensors.android.procmon;
 import java.util.List;
 
 import org.joda.time.DateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import android.annotation.SuppressLint;
-import android.content.Context;
-import android.content.Intent;
-import android.util.Log;
-
-import com.pacoapp.paco.PacoConstants;
 import com.pacoapp.paco.model.Experiment;
 import com.pacoapp.paco.sensors.android.BroadcastTriggerReceiver;
 import com.pacoapp.paco.sensors.android.BroadcastTriggerService;
 import com.pacoapp.paco.shared.model2.InterruptCue;
 import com.pacoapp.paco.shared.util.TimeUtil;
 
+import android.annotation.SuppressLint;
+import android.content.Context;
+import android.content.Intent;
+
 @SuppressLint("NewApi")
 public class LollipopAppUsageMonitor {
+
+  private static Logger Log = LoggerFactory.getLogger(LollipopAppUsageMonitor.class);
 
   private boolean inBrowser;
 
@@ -53,11 +55,6 @@ public class LollipopAppUsageMonitor {
       @Override
       public void appOpened(AppUsageEvent event, boolean shouldTrigger) {
         final boolean shouldLogActions = BroadcastTriggerReceiver.shouldLogActions(context);
-        if (isBrowserTask(event) && shouldLogActions) {
-          BroadcastTriggerReceiver.createBrowserHistoryStartSnapshot(context);
-          BroadcastTriggerReceiver.toggleInBrowser(context, true);
-          inBrowser = true;
-        }
 
         if (shouldTrigger) {
           triggerAppUsed(event.getAppIdentifier());
@@ -73,11 +70,6 @@ public class LollipopAppUsageMonitor {
 
       @Override
       public void appClosed(AppUsageEvent event, boolean shouldTrigger) {
-        if (inBrowser == true && isBrowserTask(event)) {
-          inBrowser = false;
-          BroadcastTriggerReceiver.toggleInBrowser(context, false);
-          BroadcastTriggerReceiver.createBrowserHistoryEndSnapshot(context);
-        }
         if (shouldTrigger) {
           triggerAppClosed(event.getAppIdentifier());
         }
@@ -89,13 +81,6 @@ public class LollipopAppUsageMonitor {
     List<AppUsageEvent> usageEventsFriendly = getUsageEvents();
     //printEvents(usageEventsFriendly);
     appUseChangeDetector.newEvents(usageEventsFriendly);
-  }
-
-  private boolean isBrowserTask(AppUsageEvent usageStats) {
-    String packageName = usageStats.getPkgName();
-    return packageName.startsWith("com.android.browser")
-        || packageName.startsWith("com.android.chrome")
-        || packageName.startsWith("org.mozilla.firefox");
   }
 
   public List<AppUsageEvent> getUsageEvents() {
@@ -110,17 +95,17 @@ public class LollipopAppUsageMonitor {
       b.append("\", ").append(usageEvent.getType());
       b.append(", ").append(usageEvent.getTimestamp()).append("l);");
 
-      Log.i(PacoConstants.TAG, b.toString() + "\n");
+      Log.info(b.toString() + "\n");
     }
   }
 
   private void triggerAppUsed(String appIdentifier) {
-    Log.i(PacoConstants.TAG, "Paco App Usage poller trigger app used: " + appIdentifier);
+    Log.info("Paco App Usage poller trigger app used: " + appIdentifier);
     triggerCodeForAppTrigger(appIdentifier, InterruptCue.APP_USAGE);
   }
 
   private void triggerAppClosed(String appIdentifier) {
-    Log.i(PacoConstants.TAG, "Paco App Usage poller trigger app used: " + appIdentifier);
+    Log.info("Paco App Usage poller trigger app used: " + appIdentifier);
     triggerCodeForAppTrigger(appIdentifier, InterruptCue.APP_CLOSED);
   }
 

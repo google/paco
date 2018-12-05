@@ -1,8 +1,8 @@
 /*
 * Copyright 2011 Google Inc. All Rights Reserved.
-* 
+*
 * Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance  with the License.  
+* you may not use this file except in compliance  with the License.
 * You may obtain a copy of the License at
 *
 *    http://www.apache.org/licenses/LICENSE-2.0
@@ -35,12 +35,13 @@ import com.google.sampling.experiential.shared.TimeUtil;
 
 public class JDOQueryBuilder {
 
-  private static final List<String> CANNED_DATE_RANGES = Lists.newArrayList("last_week", 
+  private static final List<String> CANNED_DATE_RANGES = Lists.newArrayList("last_week",
       "last_month");
 
   private EventJDOQuery jdoQuery;
-  
-  private DateTimeFormatter jodaFormatter = DateTimeFormat.forPattern(TimeUtil.DATE_FORMAT);
+
+  private DateTimeFormatter jodaDateFormatter = DateTimeFormat.forPattern(TimeUtil.DATE_FORMAT);
+  private DateTimeFormatter jodaDateTimeFormatter = DateTimeFormat.forPattern(TimeUtil.DATETIME_FORMAT_EVENT_QUERY);
 
 
 
@@ -48,7 +49,7 @@ public class JDOQueryBuilder {
     this.jdoQuery = new EventJDOQuery(newQuery);
   }
 
-  public void addFilters(List<com.google.sampling.experiential.server.Query> queryFilters, 
+  public void addFilters(List<com.google.sampling.experiential.server.Query> queryFilters,
       DateTimeZone jodaTimeZone) {
     if (queryFilters == null || queryFilters.isEmpty()) {
       return;
@@ -57,13 +58,15 @@ public class JDOQueryBuilder {
       String key = query.getKey();
       if (key.equals("date_range") || key.startsWith("@")) {
         compareDateRange(key, query.getValue(), jodaTimeZone);
+      } else if (key.equals("datetime_range")) {
+        compareDateTimeRange(key, query.getValue(), jodaTimeZone);
       } else {
         if (key.equals("who") && query.getValue() != null) {
           jdoQuery.setHasWho(query.getValue());
         }
         compareMemberResultToQueryValue(query, key);
       }
-    }    
+    }
   }
 
   private boolean isCannedDateRange(String value) {
@@ -77,7 +80,7 @@ public class JDOQueryBuilder {
   private void compareDateRange(String key, String range, DateTimeZone jodaTimeZone) {
     DateTime startDate = null;
     DateTime endDate = null;
-    
+
     boolean keyCannedDateRange = isKeyCannedDateRange(key);
     boolean rangeCannedDateRange = isCannedDateRange(range);
     if (keyCannedDateRange || rangeCannedDateRange) {
@@ -97,7 +100,7 @@ public class JDOQueryBuilder {
       }
       startDate = interval.getStart();
       endDate = interval.getEnd().plusDays(1);
-      
+
     } else {
       Iterable<String> iterable = Splitter.on("-").split(range);
       Iterator<String> iter = iterable.iterator();
@@ -109,11 +112,11 @@ public class JDOQueryBuilder {
       if (iter.hasNext()) {
         secondDate = iter.next();
       }
-      
-      startDate = newDateTimeFromString(firstDate, jodaTimeZone);
+
+      startDate = newDateTimeFromDateString(firstDate, jodaTimeZone);
       endDate = null;
       if (secondDate != null && !secondDate.isEmpty()) {
-        endDate = newDateTimeFromString(secondDate, jodaTimeZone).plusDays(1);
+        endDate = newDateTimeFromDateString(secondDate, jodaTimeZone).plusDays(1);
       } else {
         endDate = startDate.plusDays(1);
       }
@@ -123,14 +126,43 @@ public class JDOQueryBuilder {
     jdoQuery.addParameterObjects(startDate.toDate(), endDate.toDate());
   }
 
-  private void compareMemberResultToQueryValue(com.google.sampling.experiential.server.Query query, 
+  private void compareDateTimeRange(String key, String range, DateTimeZone jodaTimeZone) {
+    DateTime startDate = null;
+    DateTime endDate = null;
+
+    Iterable<String> iterable = Splitter.on("--").split(range);
+    Iterator<String> iter = iterable.iterator();
+    if (!iter.hasNext()) {
+      throw new IllegalArgumentException("Illformed Date Range: " + range);
+    }
+    String firstDate = iter.next();
+    String secondDate = null;
+    if (iter.hasNext()) {
+      secondDate = iter.next();
+    }
+
+    startDate = newDateTimeFromDateTimeString(firstDate, jodaTimeZone);
+    endDate = null;
+    if (secondDate != null && !secondDate.isEmpty()) {
+      endDate = newDateTimeFromDateTimeString(secondDate, jodaTimeZone);
+    } else {
+      endDate = startDate.plusDays(1);
+    }
+
+    jdoQuery.addFilters("when >= startDateParam", "when <= endDateParam");
+    jdoQuery.declareParameters("java.util.Date startDateParam", "java.util.Date endDateParam");
+    jdoQuery.addParameterObjects(startDate.toDate(), endDate.toDate());
+  }
+
+
+  private void compareMemberResultToQueryValue(com.google.sampling.experiential.server.Query query,
       String key) {
     String value = query.getValue();
     if (eventPropertyHasKey(key)) {
       if (value != null) {
         addTestThatKeyEquals(key, value);
       } else {
-        throw new IllegalArgumentException("All Events have this property. " + 
+        throw new IllegalArgumentException("All Events have this property. " +
             "Specify a matching value");
       }
     } else {
@@ -140,7 +172,7 @@ public class JDOQueryBuilder {
         addExistenceOfWhatKeyTest(key);
       }
     }
-    
+
   }
 
   // TODO(bobevans): once appengine supports querying on properties of
@@ -148,12 +180,12 @@ public class JDOQueryBuilder {
   // For now, we still do the EventMatcher on the results returned, but at least
   // it is a smaller set, and the database query should be more efficient than retrieving
   // all events.
-  private void addTestThatWhatKeyEquals(String key, String value) {    
+  private void addTestThatWhatKeyEquals(String key, String value) {
     // TODO (bobevans): this is not exactly correct, because the value could be contained
     // at a different index, meaning that we don't actually have equality.
     // We really want a Map (not supported), but we would also like an index for the key and
     // value to ensure that those match.
-   jdoQuery.addFilters("keysList.contains(\"" + key 
+   jdoQuery.addFilters("keysList.contains(\"" + key
        + "\") && valuesList.contains(\"" + value +"\")");
   }
 
@@ -165,20 +197,25 @@ public class JDOQueryBuilder {
     jdoQuery.addFilters("keysList.contains(\"" + key + "\")");
   }
 
-  private boolean eventPropertyHasKey(String key) {    
+  private boolean eventPropertyHasKey(String key) {
     return Event.eventProperties.contains(key);
   }
 
-  private DateTime newDateTimeFromString(String firstDate, DateTimeZone jodaTimeZone) {
-    DateTime parsedTime = jodaFormatter.withZone(jodaTimeZone).parseDateTime(firstDate);
+  private DateTime newDateTimeFromDateString(String firstDate, DateTimeZone jodaTimeZone) {
+    DateTime parsedTime = jodaDateFormatter.withZone(jodaTimeZone).parseDateTime(firstDate);
+    return parsedTime.withZone(DateTimeZone.UTC);
+  }
+
+  private DateTime newDateTimeFromDateTimeString(String firstDate, DateTimeZone jodaTimeZone) {
+    DateTime parsedTime = jodaDateTimeFormatter.parseDateTime(firstDate);
     return parsedTime.withZone(DateTimeZone.UTC);
   }
 
   public EventJDOQuery getQuery() {
     return jdoQuery;
   }
-  
-  
+
+
   private static Interval getLastWeek(DateTimeZone clientTimeZone) {
     return getWeekEnclosing(getDayLastWeek(clientTimeZone));
   }
@@ -214,7 +251,7 @@ public class JDOQueryBuilder {
   }
 
   private static DateTime getMondayAfterWeekEnclosing(DateTime today) {
-    return today.dayOfWeek().setCopy(DateTimeConstants.SUNDAY).plusDays(1); 
+    return today.dayOfWeek().setCopy(DateTimeConstants.SUNDAY).plusDays(1);
   }
 
   private static DateTime getMondayOfWeekEnclosing(DateTime today) {

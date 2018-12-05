@@ -11,12 +11,14 @@ public class ExperimentDAOCore extends ModelBase implements Validatable, Seriali
   public static final int LOCATION_DATA_COLLECTION = 2;
   public static final int PHONE_DETAILS = 3;
   public static final int APP_INSTALL_DATA_COLLECTION = 4;
+  public static final int ACCESSIBILITY_LOGGING = 5;
   public static final List<Integer> EXTRA_DATA_COLLECTION_DECLS = new ArrayList<Integer>();
   static {
     EXTRA_DATA_COLLECTION_DECLS.add(APP_USAGE_BROWSER_HISTORY_DATA_COLLECTION);
     EXTRA_DATA_COLLECTION_DECLS.add(LOCATION_DATA_COLLECTION);
     EXTRA_DATA_COLLECTION_DECLS.add(PHONE_DETAILS);
     EXTRA_DATA_COLLECTION_DECLS.add(APP_INSTALL_DATA_COLLECTION);
+    EXTRA_DATA_COLLECTION_DECLS.add(ACCESSIBILITY_LOGGING);
    }
 
 
@@ -29,6 +31,7 @@ public class ExperimentDAOCore extends ModelBase implements Validatable, Seriali
   protected String organization;
   protected String contactEmail;
   protected String contactPhone;
+  private String publicKey;
   protected String joinDate;
   protected Long id;
   protected String informedConsentForm;
@@ -39,7 +42,7 @@ public class ExperimentDAOCore extends ModelBase implements Validatable, Seriali
   private Date latestEndDate;
 
   public ExperimentDAOCore(Long id, String title, String description, String informedConsentForm,
-                           String creatorEmail,
+                           String creatorEmail, String publicKey,
                            String joinDate, Boolean recordPhoneDetails, Boolean deleted2,
                            List<Integer> extraDataCollectionDeclarationsList,
                            String organization, String contactPhone, String contactEmail,
@@ -53,6 +56,7 @@ public class ExperimentDAOCore extends ModelBase implements Validatable, Seriali
     this.organization = organization;
     this.contactEmail = contactEmail;
     this.contactPhone = contactPhone;
+    this.publicKey = publicKey;
     this.joinDate = joinDate;
     this.setRecordPhoneDetails(recordPhoneDetails);
     this.deleted = deleted != null ? deleted : false;
@@ -178,7 +182,7 @@ public class ExperimentDAOCore extends ModelBase implements Validatable, Seriali
   @Override
   public void validateWith(Validator validator) {
 //    System.out.println("VALIDATING CORE");
-    validator.isNotNullAndNonEmptyString(title, "Experiment title cannot be null");
+    validator.isNonEmptyString(title, "Experiment title cannot be null");
     validator.isValidEmail(creator, "Experiment creator must be a valid email address");
     if (contactEmail != null && contactEmail.length() > 0) {
       validator.isValidEmail(contactEmail, "Experiment contact must be a valid email address");
@@ -192,7 +196,7 @@ public class ExperimentDAOCore extends ModelBase implements Validatable, Seriali
       validator.isValidDateString(joinDate, "join date should be a valid date string");
     }
     if (organization != null && organization.length() > 0) {
-      validator.isNotNullAndNonEmptyString(organization,
+      validator.isNonEmptyString(organization,
                                            "organization must be non null if it is specified");
     }
 
@@ -215,4 +219,11 @@ public class ExperimentDAOCore extends ModelBase implements Validatable, Seriali
   }
 
 
+  public String getPublicKey() {
+    return publicKey;
+  }
+
+  public void setPublicKey(String publicKey) {
+    this.publicKey = publicKey;
+  }
 }

@@ -18,4 +18,5 @@
 
 @interface PacoMainViewController : UIViewController <UIActionSheetDelegate, MFMailComposeViewControllerDelegate>
 
+@property BOOL stillAuthenticating;
 @end

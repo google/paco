@@ -2,8 +2,6 @@ package com.google.sampling.experiential.server;
 
 import java.util.List;
 
-import junit.framework.TestCase;
-
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 
@@ -13,6 +11,8 @@ import com.google.common.collect.Lists;
 import com.pacoapp.paco.shared.comm.Outcome;
 import com.pacoapp.paco.shared.model2.ExperimentDAO;
 import com.pacoapp.paco.shared.model2.JsonConverter;
+
+import junit.framework.TestCase;
 
 public class ExperimentServiceTest extends TestCase {
 

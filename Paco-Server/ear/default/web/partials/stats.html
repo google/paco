@@ -19,6 +19,16 @@
         </md-select>
       </md-input-container>
 
+      <span>
+        <img src="/img/ic_chevron_right_24px.svg">
+        <md-input-container class="viewSelector">
+          <md-select ng-model="showGroup" aria-label="Filter stats by group" ng-change="loadStats()" >
+            <md-option value="all">All Groups</md-option>
+            <md-option ng-repeat="group in groupNames" value="{{group}}">{{group}}</md-option>
+          </md-select>
+        </md-input-container>
+      </span>
+
       <md-chips ng-if="userChips" ng-model="userChips" md-on-remove="removeUserChip()" placeholder=""></md-chips>
     </div>
 
@@ -28,7 +38,7 @@
       <md-progress-linear md-mode="indeterminate" ng-if="loading === true"></md-progress-linear>
     </div>
 
-    <div ng-show="stats && userChips" class="frame">
+    <div ng-if="stats && userChips" class="frame">
 
       <div class="summary" ng-if="stats && experiment">
         <div class="individual-stat">
@@ -58,15 +68,17 @@
             </span>
           </td>
           <td>
-            <span class="sorting">
-              <a href="" ng-click="setColumn('schedR')" class="left" ng-class="{arrow: (sortColumn == 'schedR'), down: reverseSort }">Response</a> /
-              <a href="" ng-click="setColumn('missedR')"  ng-class="{arrow: (sortColumn == 'missedR'), down: reverseSort }">Signal</a>
-              <br>Ratio
-            </span>
+            <a href="" ng-click="setColumn('schedR')" class="left" ng-class="{arrow: (sortColumn == 'schedR'), down: reverseSort }">Responses</a>
+          </td>
+          <td>
+            <a href="" ng-click="setColumn('signals')"  ng-class="{arrow: (sortColumn == 'signals'), down: reverseSort }">Signals</a>
+          </td>
+          <td>
+            <a href="" ng-click="setColumn('missedR')"  ng-class="{arrow: (sortColumn == 'missedR'), down: reverseSort }">Misses</a>
           </td>
           <td right-border>
             <span class="sorting">
-              <a href="" ng-click="setColumn('selfR')" ng-class="{arrow: (sortColumn == 'selfR'), down: reverseSort }">Self-Report</a><br>Count
+              <a href="" ng-click="setColumn('selfR')" ng-class="{arrow: (sortColumn == 'selfR'), down: reverseSort }">Self-Reports</a>
             </span>
           </td>
         </tr>
@@ -74,8 +86,10 @@
           <td right-border>
             {{row["date"]}}
           </td>
-          <td>{{row["schedR"]}} / {{row["schedR"] + row["missedR"]}}</td>
-          <td right-border>{{row["selfR"]}}</td>
+          <td>{{row["schedR"]}}</td>
+          <td>{{row["signals"]}}</td>
+          <td>{{row["missedR"]}}</td>
+          <td>{{row["selfR"]}}</td>
         </tr>
          <tfoot>
             <td colspan=7>Showing {{stats.length}} out of {{stats.length}}</td>
@@ -85,27 +99,31 @@
     <!--  barf - this is my hacked version to show a different table depending on whether we are looking at one user or all users stats. -->
       <div ng-show="stats && !userChips" class="frame">
 
-      <div class="summary" ng-if="stats && experiment && experiment.published">
+      <div class="summary" ng-if="stats && experiment">
 
         <div class="stat">
-          <b>{{experiment.publishedUsers.length}}</b> invited
+          <b>{{experiment.publishedUsers.length}}</b>
+          <div>invited</div>
         </div>
         <div class="stat">
-          <b>{{stats.count}}</b> joined
+          <b>{{stats.data.length}}</b>
+          <div>joined</div>
         </div>
         <div class="stat">
-         <b>{{stats.todayParticipantCount}}</b> participated today
+         <b>{{stats.dayParticipantCount}}</b>
+         <div>participated on {{statsDate | date:'MM/dd/yy' }}</div>
         </div>
         <div class="stat">
-          <b>{{1-(stats.todayParticipantCount/stats.count)|percent}}</b> non-responders today
+          <b>{{1-(stats.dayParticipantCount/stats.data.length)|percent}}</b>
+          <div> non-responders on {{statsDate | date:'MM/dd/yy' }}</div>
         </div>
       </div>
 
       <table>
         <tr>
           <td right-border></td>
-          <td right-border colspan=2>Today</td>
-          <td colspan=2>Total</td>
+          <td right-border colspan=3><md-datepicker ng-model="statsDate" md-placeholder="Enter date"></md-datepicker></td>
+          <td colspan=4>Total</td>
         </tr>
         <tr heading>
           <td right-border>
@@ -117,41 +135,56 @@
           </td>
           <td>
             <span class="sorting">
-              <a href="" ng-click="setColumn('todaySignalResponseCount')" class="left" ng-class="{arrow: (sortColumn == 'todaySignalResponseCount'), down: reverseSort }">Response</a> /
-              <a href="" ng-click="setColumn('todaySignalCount')"  ng-class="{arrow: (sortColumn == 'todaySignalCount'), down: reverseSort }">Signal</a>
-              <br>Ratio
+              <a href="" ng-click="setColumn('daySignalResponseCount')" class="left" ng-class="{arrow: (sortColumn == 'daySignalResponseCount'), down: reverseSort }">Responses</a> /
+              <a href="" ng-click="setColumn('daySignalCount')"  ng-class="{arrow: (sortColumn == 'daySignalCount'), down: reverseSort }">Signals</a>
             </span>
           </td>
+          <td>
+            <span class="sorting">
+              <a href="" ng-click="setColumn('daySignalMissCount')" ng-class="{arrow: (sortColumn == 'daySignalMissCount'), down: reverseSort }">Misses</a>
+            </span>
+          </td> 
           <td right-border>
             <span class="sorting">
-              <a href="" ng-click="setColumn('todaySelfReportCount')" ng-class="{arrow: (sortColumn == 'todaySelfReportCount'), down: reverseSort }">Self-Report</a><br>Count
+              <a href="" ng-click="setColumn('daySelfReportCount')" ng-class="{arrow: (sortColumn == 'daySelfReportCount'), down: reverseSort }">Self-Report</a>
             </span>
           </td>
           <td>
             <span class="sorting">
-              <a href="" ng-click="setColumn('totalSignalResponseCount')" class="left" ng-class="{arrow: (sortColumn == 'totalSignalResponseCount'), down: reverseSort }">Response</a> / 
-              <a href="" ng-click="setColumn('totalSignalCount')"  ng-class="{arrow: (sortColumn == 'totalSignalCount'), down: reverseSort }">Signal</a>
-              <br>Ratio
+              <a href="" ng-click="setColumn('totalSignalResponseCount')" class="left" ng-class="{arrow: (sortColumn == 'totalSignalResponseCount'), down: reverseSort }">Responses</a> /
+              <a href="" ng-click="setColumn('totalSignalCount')"  ng-class="{arrow: (sortColumn == 'totalSignalCount'), down: reverseSort }">Signals</a>
             </span>
           </td>
           <td>
             <span class="sorting">
-              <a href="" ng-click="setColumn('totalSelfReportCount')" ng-class="{arrow: (sortColumn == 'totalSelfReportCount'), down: reverseSort }">Self-Report</a><br>Count
+              <a href="" ng-click="setColumn('totalSignalMissCount')" ng-class="{arrow: (sortColumn == 'totalSignalMissCount'), down: reverseSort }">Misses</a>
+            </span>
+          </td>          <td>
+            <span class="sorting">
+              <a href="" ng-click="setColumn('totalSelfReportCount')" ng-class="{arrow: (sortColumn == 'totalSelfReportCount'), down: reverseSort }">Self-Reports</a>
+            </span>
+          </td>
+          <td>
+            <span class="sorting">
+              <a href="" ng-click="setColumn('lastContactDateTime')" ng-class="{arrow: (sortColumn == 'lastContactDateTime'), down: reverseSort }">Last Report</a>
             </span>
           </td>
         </tr>
-        <tr ng-repeat="row in stats.participants | orderBy: sortColumn: reverseSort">
+        <tr ng-repeat="row in stats.data | orderBy: sortColumn: reverseSort">
           <td right-border>
             <a ng-if="!users" href="#/stats/{{experiment.id}}/{{row['who']}}" >{{row["who"]}}</a>
             <span ng-if="users">{{row["who"]}}</span>
           </td>
-          <td>{{row["todaySignalResponseCount"]}} / {{row["todaySignalCount"]}}</td>
-          <td right-border>{{row["todaySelfReportCount"]}}</td>
+          <td>{{row["daySignalResponseCount"]}} / {{row["daySignalCount"]}}</td>
+          <td>{{row["daySignalMissCount"]}}</td>
+          <td right-border>{{row["daySelfReportCount"]}}</td>
           <td>{{row["totalSignalResponseCount"]}} / {{row["totalSignalCount"]}}</td>
+          <td>{{row["totalSignalMissCount"]}}</td>
           <td>{{row["totalSelfReportCount"]}}</td>
+          <td>{{row["lastContactDateTime"]|timeSince}}</td>
         </tr>
          <tfoot>
-            <td colspan=7>Showing {{stats.participants.length}} out of {{stats.count}}</td>
+            <td colspan=7>Showing {{stats.data.length}} out of {{stats.data.length}}</td>
           </tfoot>
       </table>
     </div>

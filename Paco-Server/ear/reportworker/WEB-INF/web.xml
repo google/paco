@@ -20,7 +20,6 @@
     "http://java.sun.com/dtd/web-app_2_3.dtd">
 
 <web-app>
-   
   <!-- Servlets -->
   <servlet>
     <servlet-name>backendReportJobExecutorServlet</servlet-name>
@@ -39,8 +38,17 @@
     <servlet-name>migrationBackendServlet</servlet-name>
     <url-pattern>/migrateBackend</url-pattern>
   </servlet-mapping>
+
+   <servlet>   
+    <servlet-name>reportsBackendServlet</servlet-name>
+    <servlet-class>com.google.sampling.experiential.server.reports.ReportsBackendServlet</servlet-class>
+  </servlet>    
+  <servlet-mapping>
+    <servlet-name>reportsBackendServlet</servlet-name>
+    <url-pattern>/reportsBackend</url-pattern>
+  </servlet-mapping>
   
-    <servlet>
+  <servlet>
     <servlet-name>usageCronJobServlet</servlet-name>
     <servlet-class>com.google.sampling.experiential.server.UsageCronJobServlet</servlet-class>
   </servlet>
@@ -48,27 +56,32 @@
     <servlet-name>usageCronJobServlet</servlet-name>
     <url-pattern>/usage_cron</url-pattern>
   </servlet-mapping>
-  
-  
+
+  <servlet>
+    <servlet-name>hubCronJobServlet</servlet-name>
+    <servlet-class>com.google.sampling.experiential.server.HubCronJobServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>hubCronJobServlet</servlet-name>
+    <url-pattern>/hub_cron</url-pattern>
+  </servlet-mapping>
+
+  <servlet>
+    <servlet-name>backendHubStatsExecutorServlet</servlet-name>
+    <servlet-class>com.google.sampling.experiential.server.BackendHubStatsExecutorServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>backendHubStatsExecutorServlet</servlet-name>
+    <url-pattern>/hubJobExecutor</url-pattern>
+  </servlet-mapping>
   
   <!--  workers are only called internally should not be accessible by others -->
   <security-constraint>
     <web-resource-collection>
       <url-pattern>/backendReportJobExecutor*</url-pattern>
       <url-pattern>/usage_cron*</url-pattern>
-    </web-resource-collection>
-    <auth-constraint>
-      <role-name>admin</role-name> 
-    </auth-constraint>
-
-    <user-data-constraint>
-      <transport-guarantee>CONFIDENTIAL</transport-guarantee>
-    </user-data-constraint>
-    
-  </security-constraint>
-  
-  <security-constraint>
-    <web-resource-collection>
+      <url-pattern>/hubJobExecutor*</url-pattern>
+      <url-pattern>/hub_cron*</url-pattern>
       <url-pattern>/migrate*</url-pattern>
     </web-resource-collection>
     <auth-constraint>
@@ -77,8 +90,5 @@
     <user-data-constraint>
       <transport-guarantee>CONFIDENTIAL</transport-guarantee>
     </user-data-constraint>
-    
   </security-constraint>
-  
-  
 </web-app>

@@ -1,6 +1,43 @@
+#built application files
+*.apk
+*.ap_
+
+# files for the dex VM
+*.dex
+
+# Java class files
+*.class
+
+# generated files
+bin/
+gen/
+
+# Local configuration file (sdk path, etc)
 local.properties
+
+# Windows thumbnail db
+Thumbs.db
+
+# OSX files
+.DS_Store
+
+# Eclipse project files
+.classpath
+.project
 .settings
 .settings/*
+
+# Android Studio
+*.iml
+.idea
+#.idea/workspace.xml - remove # and delete .idea if it better suit your needs.
+.gradle
+build/
+
+#NDK
+obj/
+
+
 .DS_Store
 *.keystore
 AndroidCompatSupport/v7/appcompat/bin/res/crunch
@@ -50,7 +87,7 @@ Paco-Server/ear/reportworker/WEB-INF/lib/shared.jar
 # Created by https://www.gitignore.io
 
 ### Xcode ###
-build/
+#build/
 *.pbxuser
 !default.pbxuser
 *.mode1v3
@@ -67,6 +104,8 @@ DerivedData
 Paco-iOS/Paco.xcodeproj/project.xcworkspace/xcuserdata/*
 Paco-iOS/Paco.xcodeproj/project.xcworkspace/xcshareddata/*
 Paco-iOS/Paco.xcodeproj/xcuserdata/*
+Paco-iOS/Paco.xcworkspace/xcuserdata/*  
 Paco-iOS/ParseKit/ParseKit.xcodeproj/xcuserdata/*
 Paco-iOS/ParseKit/lib/OCMock/OCMock.xcodeproj/xcuserdata/*
 Paco-iOS/ParseKit/include*
+Paco-iOS/DerivedData/*

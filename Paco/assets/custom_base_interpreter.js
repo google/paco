@@ -88,6 +88,10 @@ var paco = (function (init) {
         return events;
       };
       
+      function getEventsForExperimentGroup() {
+        alert("not implemented!");
+      };
+      
       function getLastEvent() {
         getAllEvents();
         return events[events.length - 1];
@@ -96,7 +100,8 @@ var paco = (function (init) {
       return {
         saveEvent : saveEvent,
         getAllEvents: getAllEvents,
-        getLastEvent : getLastEvent
+        getLastEvent : getLastEvent,
+        getEventsForExperimentGroup : getEventsForExperimentGroup
       };
     };
 
@@ -117,16 +122,31 @@ var paco = (function (init) {
           loaded = true;
         }
         return events;
-      }
+      };
+      
+      function getEventsForExperimentGroup() {
+        if (!loaded) {
+          events = JSON.parse(pacodb.getEventsForExperimentGroup());
+          loaded = true;
+        }
+        return events;
+      };
 
       function getLastEvent() {
         return JSON.parse(pacodb.getLastEvent());
       };
 
+      function getEventsByQuery(queryJson) {
+        return JSON.parse(pacodb.getEventsByQuery(queryJson));
+      };
+
+
       return {
         saveEvent : saveEvent,
         getAllEvents: getAllEvents,
-        getLastEvent : getLastEvent
+        getLastEvent : getLastEvent,
+        getEventsByQuery : getEventsByQuery,
+        getEventsForExperimentGroup : getEventsForExperimentGroup
       };
     };
 
@@ -179,6 +199,32 @@ var paco = (function (init) {
         return newarray;
     };
 
+   /*
+     * The query JSON should have the following format Example
+     * {query:{criteria: " (group_name in(?,?) and (answer=?)) ",values:["New
+     * Group","Exp Group", "ven"]},limit: 100,group: "group_name",order:
+     * "response_time" ,select: ["group_name","response_time",
+     * "experiment_name", "text", "answer"]}
+     * The above JSON represents the following
+     * query->criteria: String with where clause conditions and the values replaced by '?'
+     * query->values: An array of String representing the values of the '?' expressed in query->criteria (in order).
+     * query->limit: Integer Number of records to limit the result set . This will apply only if we have valid value in 'order' clause
+     * query->group: String which holds the group by column
+     * query->order: String which holds the order by columns separated by commas
+     * query->select: An array of String which holds the column names and executes the following query
+     * Since the query requires columns from both Events and Outputs table, we do the
+     * inner join. If the query requires columns from just Events table, it will
+     * be a plain select ......from Events
+     * SELECT group_name, response_time,
+     * experiment_name, text, answer FROM events INNER JOIN outputs ON
+     * events._id = event_id WHERE ( (group_name in(?,?) and (answer=?)) ) GROUP
+     * BY group_name ORDER BY response_time limit 100
+     *
+     */
+    var getEventsByQuery = function(queryJson) {
+      return db.getEventsByQuery(queryJson);
+    };
+
     var getResponsesForEventNTimesAgo = function (nBack) {
         var experimentData = db.getAllEvents();
         if (nBack > experimentData.length) {
@@ -196,7 +242,7 @@ var paco = (function (init) {
     return {
       saveEvent : saveEvent,
       getAllEvents : getAllEvents,
-
+      getEventsByQuery : getEventsByQuery,
       getLastEvent : function() {
         return db.getLastEvent();
       },
@@ -204,6 +250,10 @@ var paco = (function (init) {
       getLastNEvents : function(n) {
         var events = db.getAllEvents();
         return events.slice(0..n);
+      },
+      
+      getEventsForExperimentGroup : function() {
+        return db.getEventsForExperimentGroup();
       },
 
       getResponsesForEventNTimesAgo : getResponsesForEventNTimesAgo,
@@ -296,7 +346,11 @@ var paco = (function (init) {
 	        	// TODO i18n
 	          alert("No notification support"); 
 	        },
-	        removeNotification : function(message) { 
+	        createNotificationWithTimeout : function(message, timeout) { 
+            // TODO i18n
+            alert("No notification support"); 
+          },
+          removeNotification : function(message) { 
 		          alert("No notification support"); 
 		    },
 		      removeAllNotifications : function() {
@@ -309,7 +363,10 @@ var paco = (function (init) {
 	      createNotification : function(message) {
 	        notificationService.createNotification(message);
 	      }, 
-	      removeNotification : function(message) {
+	      createNotificationWithTimeout : function(message, timeout) {
+          notificationService.createNotificationWithTimeout(message, timeout);
+        },
+        removeNotification : function(message) {
 	    	  notificationService.removeNotification(message);
 	      },
         removeAllNotifications : function() {
@@ -340,6 +397,47 @@ var paco = (function (init) {
 		  }
 	    };
 	  })();
+
+  obj.calendarService = (function() {
+    if (!calendar) {
+      calendar = { 
+        listEventInstances : function(startMillis, endMillis) { 
+          // TODO i18n
+          alert("No calendar support"); 
+        }
+      };
+    }
+
+    return {
+      listEventInstances : function(startMillis, endMillis) {
+        return calendar.listEventInstances(startMillis, endMillis);
+      }
+    };
+  })();
+  
+  obj.locationService = (function() {
+    if (!locationService) {
+      locationService = { 
+        getLastKnownLocation: function() { 
+          // TODO i18n
+          alert("No locationService support"); 
+        },
+        getDistanceFrom : function(location) { 
+          alert("No locationService support"); 
+        }
+      };
+    }
+
+    return {
+      getLastKnownLocation: function() { 
+        return JSON.parse(locationService.getLastKnownLocation());
+         
+      },
+      getDistanceFrom : function(location) { 
+        return JSON.parse(locationService.getDistanceFrom(location)); 
+      }
+    };
+  })();
 
   return obj;
 })();

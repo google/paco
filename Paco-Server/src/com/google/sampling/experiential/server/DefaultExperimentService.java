@@ -1,5 +1,6 @@
 package com.google.sampling.experiential.server;
 
+import java.sql.SQLException;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -20,6 +21,10 @@ import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import com.google.sampling.experiential.dao.CSExperimentUserDao;
+import com.google.sampling.experiential.dao.CSExperimentVersionGroupMappingDao;
+import com.google.sampling.experiential.dao.impl.CSExperimentUserDaoImpl;
+import com.google.sampling.experiential.dao.impl.CSExperimentVersionGroupMappingDaoImpl;
 import com.google.sampling.experiential.datastore.ExperimentJsonEntityManager;
 import com.google.sampling.experiential.datastore.PublicExperimentList;
 import com.google.sampling.experiential.datastore.PublicExperimentList.CursorExerimentIdListPair;
@@ -32,6 +37,7 @@ import com.pacoapp.paco.shared.model2.ExperimentIdQueryResult;
 import com.pacoapp.paco.shared.model2.ExperimentJoinQueryResult;
 import com.pacoapp.paco.shared.model2.ExperimentQueryResult;
 import com.pacoapp.paco.shared.model2.ExperimentValidator;
+import com.pacoapp.paco.shared.model2.InterruptCue;
 import com.pacoapp.paco.shared.model2.InterruptTrigger;
 import com.pacoapp.paco.shared.model2.JsonConverter;
 import com.pacoapp.paco.shared.model2.PacoAction;
@@ -87,6 +93,18 @@ class DefaultExperimentService implements ExperimentService {
   protected List<ExperimentDAO> getExperimentsByIdInternal(List<Long> experimentIds, String email, DateTimeZone timezone) {
     List<String> experimentJsons = getExperimentsByIdAsJson(experimentIds, email, timezone);
     log.info("Got back " + experimentJsons.size() +" jsons for " + experimentIds.size() + " ids ( " + Joiner.on(",").join(experimentIds) + ")");
+    return turnJsonsIntoExperiments(experimentJsons);
+  }
+
+//  protected ExperimentQueryResult getExperimentsByIdInternalSorted(List<Long> experimentIds, String cursor) {
+//    com.pacoapp.paco.shared.util.ExperimentHelper.Pair<List<String>, String> experimentJsonsResult = getExperimentsByIdAsJsonSorted(experimentIds, cursor);
+//    log.info("Got back " + experimentJsonsResult.first.size() +" jsons for " + experimentIds.size() + " ids ( " + Joiner.on(",").join(experimentIds) + ")");
+//    List<ExperimentDAO> experiments = turnJsonsIntoExperiments(experimentJsonsResult.first);
+//    return new ExperimentQueryResult(cursor, experiments);
+//  }
+
+
+  private List<ExperimentDAO> turnJsonsIntoExperiments(List<String> experimentJsons) {
     List<ExperimentDAO> experiments = Lists.newArrayList();
     for (String experimentJson : experimentJsons) {
       if (experimentJson != null) {
@@ -109,66 +127,114 @@ class DefaultExperimentService implements ExperimentService {
     return ExperimentJsonEntityManager.getExperimentsById(experimentIds);
   }
 
+//  protected com.pacoapp.paco.shared.util.ExperimentHelper.Pair<List<String>, String> getExperimentsByIdAsJsonSorted(List<Long> experimentIds,
+//                                                                                                                    String cursor) {
+//    // TODO who can access this call and in what role?
+//    // is email a participant or an admin?
+//    return ExperimentJsonEntityManager.getExperimentsByIdSortedByTitle(experimentIds, cursor);
+//  }
+
+  protected ExperimentQueryResult getExperimentsByAdminAsJsonSorted(String admin, Integer limit, String cursor, String sortColumn, String sortOrder) {
+    // TODO who can access this call and in what role?
+    // is email a participant or an admin?
+    com.pacoapp.paco.shared.util.ExperimentHelper.Pair<List<String>, String> experimentJsonsResult = ExperimentJsonEntityManager.getExperimentsByAdminSorted(admin, limit, cursor, sortColumn, sortOrder);
+    log.info("Got back " + experimentJsonsResult.first.size() +" jsons");
+    List<ExperimentDAO> experiments = turnJsonsIntoExperiments(experimentJsonsResult.first);
+    return new ExperimentQueryResult(experimentJsonsResult.second, experiments);
+  }
+
+  protected ExperimentQueryResult getExperimentsByIdAsJsonSorted(List<Long> experimentIds, Integer limit, String cursor, String sortColumn, String sortOrder) {
+    // TODO who can access this call and in what role?
+    // is email a participant or an admin?
+    com.pacoapp.paco.shared.util.ExperimentHelper.Pair<List<String>, String> experimentJsonsResult = ExperimentJsonEntityManager.getExperimentsByIdSorted(experimentIds, limit, cursor, sortColumn, sortOrder);
+    log.info("Got back " + experimentJsonsResult.first.size() +" jsons");
+    List<ExperimentDAO> experiments = turnJsonsIntoExperiments(experimentJsonsResult.first);
+    return new ExperimentQueryResult(experimentJsonsResult.second, experiments);
+  }
 
   // save experiments
   @Override
   public List<ValidationMessage> saveExperiment(ExperimentDAO experiment,
                                                 String loggedInUserEmail,
-                                                DateTimeZone timezone) {
-    
-    if (ExperimentAccessManager.isUserAllowedToSaveExperiment(experiment.getId(), loggedInUserEmail)) {
-      ensureIdsOnActionTriggerObjects(experiment);
-      lowercaseAllEmailAddresses(experiment);
-      
-      ExperimentValidator validator = new ExperimentValidator();
-      experiment.validateWith(validator);
-      List<ValidationMessage> results = validator.getResults();
-      if (!results.isEmpty()) {
-        return results;
-      }
-
-      DatastoreService ds = DatastoreServiceFactory.getDatastoreService();
-      TransactionOptions options = TransactionOptions.Builder.withXG(true);
-      Transaction tx = ds.beginTransaction(options);
-      try {
-        if (experiment.getId() == null) {
-          experiment.setCreator(loggedInUserEmail);
+                                                DateTimeZone timezone, boolean persistInCloudSql, boolean validate) throws SQLException, Exception {
+    if (persistInCloudSql) {
+      CSExperimentUserDao exptUserDaoImpl = new CSExperimentUserDaoImpl();
+      CSExperimentVersionGroupMappingDao exptVersionMapping = new CSExperimentVersionGroupMappingDaoImpl();
+//      // for saving experiment, group, inputs
+      exptVersionMapping.ensureExperimentVersionGroupMapping(experiment);
+//      // for saving admin and participants
+      exptUserDaoImpl.ensureUserId(experiment.getId(), Sets.newHashSet(experiment.getAdmins()), Sets.newHashSet(experiment.getPublishedUsers()));
+    } else {
+      if (ExperimentAccessManager.isUserAllowedToSaveExperiment(experiment.getId(), loggedInUserEmail)) {
+        
+        ensureIdsOnActionTriggerObjects(experiment);
+        lowercaseAllEmailAddresses(experiment);
+        if (validate) {
+          ExperimentValidator validator = new ExperimentValidator();
+          experiment.validateWith(validator);
+          List<ValidationMessage> results = validator.getResults();
+          if (!results.isEmpty()) {
+            return results;
+          }
         }
-        if (!experiment.getAdmins().contains(loggedInUserEmail)) {
-          experiment.getAdmins().add(loggedInUserEmail);
-        }
-        if (Strings.isNullOrEmpty(experiment.getContactEmail())) {
-          experiment.setContactEmail(experiment.getCreator());
-        }
-        Integer version = experiment.getVersion();
-        if (version == null || version == 0) {
-          version = 1;
-        } else {
-          version++;
-        }
-        experiment.setVersion(version);
-        experiment.setModifyDate(com.pacoapp.paco.shared.util.TimeUtil.formatDate(new Date().getTime()));
-        Key experimentKey = ExperimentJsonEntityManager.saveExperiment(ds, tx, JsonConverter.jsonify(experiment),
-                                                                       experiment.getId(),
-                                                                       experiment.getTitle(),
-                                                                       experiment.getVersion());
-
-        experiment.setId(experimentKey.getId());
-        ExperimentAccessManager.updateAccessControlEntities(ds, tx, experiment, experimentKey, timezone);
-        tx.commit();
-        return null;
-      } catch (Exception e) {
-        e.printStackTrace();
-        throw new IllegalStateException(e);
-      } finally {
-        if (tx.isActive()) {
-          tx.rollback();
-        }
+          
+       
+          DatastoreService ds = DatastoreServiceFactory.getDatastoreService();
+          TransactionOptions options = TransactionOptions.Builder.withXG(true);
+          Transaction tx = ds.beginTransaction(options);
+          try {
+            if (experiment.getId() == null) {
+              experiment.setCreator(loggedInUserEmail);
+            }
+            if (!experiment.getAdmins().contains(loggedInUserEmail)) {
+              experiment.getAdmins().add(loggedInUserEmail);
+            }
+            
+            if (Strings.isNullOrEmpty(experiment.getContactEmail())) {
+              experiment.setContactEmail(experiment.getCreator());
+            }
+            Integer version = experiment.getVersion();
+             
+            if (version == null || version == 0) {
+              version = 1;
+            } else {
+              version++;
+            }
+            experiment.setVersion(version);
+            
+            final long millis = new DateTime().getMillis();
+            experiment.setModifyDate(com.pacoapp.paco.shared.util.TimeUtil.formatDate(millis));
+            Key experimentKey = ExperimentJsonEntityManager.saveExperiment(ds, tx, JsonConverter.jsonify(experiment),
+                                                                           experiment.getId(),
+                                                                           experiment.getTitle(),
+                                                                           experiment.getVersion(),
+                                                                           millis,
+                                                                           experiment.getAdmins());
+            
+            experiment.setId(experimentKey.getId());
+            ExperimentAccessManager.updateAccessControlEntities(ds, tx, experiment, experimentKey, timezone);
+          
+            tx.commit();
+         
+           
+          } catch (Exception e) {
+            e.printStackTrace();
+            throw new IllegalStateException(e);
+          } finally {
+            if (tx.isActive()) {
+              tx.rollback();
+            }
+          }
+          
+        
+      } else {
+        throw new IllegalStateException(loggedInUserEmail + " does not have permission to edit " + experiment.getTitle());
       }
     }
-    throw new IllegalStateException(loggedInUserEmail + " does not have permission to edit " + experiment.getTitle());
-
+    return null;
   }
+
+ 
 
 
   private void lowercaseAllEmailAddresses(ExperimentDAO experiment) {
@@ -210,6 +276,14 @@ class DefaultExperimentService implements ExperimentService {
                 if (schedule.getId() == null) {
                   schedule.setId(id++);
                 }
+              }
+            }
+          } else if (actionTrigger instanceof InterruptTrigger) {
+            InterruptTrigger interruptTrigger = (InterruptTrigger)actionTrigger;
+            List<InterruptCue> cues = interruptTrigger.getCues();
+            for (InterruptCue interruptCue : cues) {
+              if (interruptCue.getId() == null) {
+                interruptCue.setId(id++);
               }
             }
           }
@@ -338,7 +412,12 @@ class DefaultExperimentService implements ExperimentService {
 
   @Override
   public ExperimentQueryResult getMyJoinedExperiments(String email, DateTimeZone timeZoneForClient,
-                                                        Integer limit, String cursor) {
+                                                        Integer limit, String cursor, String sortColumn, String sortOrder) {
+    //TODO stopping at 30 because we cannot do an inline request for more than 30 experiments.
+    // maybe there is another way to do it where we are pulling all joined table ids for user but then loading by 30 from
+    // experiment table and resorting in memory.
+    // The expectation is that users would not normally be joining more than 30 experiments.
+    // The other option is that if you are an admin, we always make you look in the admin list. That is lame.
     ExperimentJoinQueryResult experimentIdJoinDatePairs = ExperimentAccessManager.getJoinedExperimentsFor(email, limit == null ? 1000 : limit, cursor);
 
     if (experimentIdJoinDatePairs.getExperiments() == null ||
@@ -418,20 +497,32 @@ class DefaultExperimentService implements ExperimentService {
   }
 
 
-
-
   @Override
   public ExperimentQueryResult getUsersAdministeredExperiments(String email, DateTimeZone timezone, Integer limit,
-                                                               String cursor) {
-    ExperimentIdQueryResult experimentIdsQueryResult = ExperimentAccessManager.getExistingExperimentIdsForAdmin(email, limit == null ? 0 : limit, cursor);
-    //log.info("Administered experiments for: " + email + ". Count: " + experimentIds.size() + ". ids = " + Joiner.on(",").join(experimentIds));
-    List<ExperimentDAO> experiments = getExperimentsByIdInternal(experimentIdsQueryResult.getExperiments(), email, timezone);
-    return new ExperimentQueryResult(experimentIdsQueryResult.getCursor(), experiments);
+                                                               String cursor, String sortColumn, String sortOrder) {
+    //return getUsersAdministeredExperimentsPagingById(email, timezone, limit, cursor);
+    //return getUsersAdministeredExperimentsSorted(email, timezone, limit, cursor);
+    return getExperimentsByAdminAsJsonSorted(email, limit == null ? 0 : limit, cursor, sortColumn, sortOrder);
   }
+
 
   @Override
   public ExperimentQueryResult getExperimentsPublishedPublicly(DateTimeZone timezone, Integer limit, String cursor, String email) {
     CursorExerimentIdListPair cursorIdPair = PublicExperimentList.getPublicExperiments(timezone.getID(), limit, cursor);
+    List<ExperimentDAO> experiments = getExperimentsByIdInternal(cursorIdPair.ids, null, timezone);
+    removeNonAdminData(email, experiments);
+    return new ExperimentQueryResult(cursorIdPair.cursor, experiments);
+  }
+
+  public ExperimentQueryResult getExperimentsPublishedPubliclyNew(DateTimeZone timezone, Integer limit, String cursor, String email) {
+    CursorExerimentIdListPair cursorIdPair = PublicExperimentList.getPublicExperimentsNew(timezone.getID(), limit, cursor);
+    List<ExperimentDAO> experiments = getExperimentsByIdInternal(cursorIdPair.ids, null, timezone);
+    removeNonAdminData(email, experiments);
+    return new ExperimentQueryResult(cursorIdPair.cursor, experiments);
+  }
+
+  public ExperimentQueryResult getExperimentsPublishedPubliclyPopular(DateTimeZone timezone, Integer limit, String cursor, String email) {
+    CursorExerimentIdListPair cursorIdPair = PublicExperimentList.getPublicExperimentsPopular(timezone.getID(), limit, cursor);
     List<ExperimentDAO> experiments = getExperimentsByIdInternal(cursorIdPair.ids, null, timezone);
     removeNonAdminData(email, experiments);
     return new ExperimentQueryResult(cursorIdPair.cursor, experiments);

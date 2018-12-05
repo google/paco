@@ -1,0 +1,11 @@
+<md-menu>
+  <md-button class="downArrow historyButton" aria-label="Open menu with custom trigger" ng-click="$mdMenu.open()"  ng-disabled="vizHistory.length == 0">
+  </md-button>
+  <md-menu-content width="2" ng-click="$mdMenu.close()">
+    <md-menu-item ng-repeat="viz in vizHistory">
+      <md-button ng-click="getSelectedViz(viz)">
+        {{viz.historyTitle}}
+      </md-button>
+    </md-menu-item>
+  </md-menu-content>
+</md-menu>

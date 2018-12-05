@@ -74,6 +74,9 @@ var paco = (function (init) {
   };
 
   function validNumber(val) {
+   if (!val) {
+      return true;
+    }
     if (!isNumeric(val)) {
       return false;
     }
@@ -95,30 +98,34 @@ var paco = (function (init) {
   };
   
   // TODO i18n
-  valid = function(input, inputHtml, response) { 
-    if ((input.mandatory && inputHtml.element[0].style.display != "none") && (!response.answer || response.answer.length === 0)) {
-      return { "succeeded" : false , "error" : "Response mandatory for " + input.name, "name" : input.name};    
+  valid = function(input, inputHtml, response) {
+    var displayProperty = !inputHtml.element.hasClass("hide");
+    if ((input.required && displayProperty) && (!response.answer || response.answer.length === 0)) {
+    	// TODO i18n
+      return { "succeeded" : false, "error" : "Response required for " + input.name, "name" : input.name};    
     } else if (!validValueForResponseType(response)) {
-      return { "succeeded" : false , "error" : "Response mandatory for " + name, "name" : name};    
+      return { "succeeded" : false, "error" : "Response required for " + name, "name" : name};    
     } else {
-      return { "succeeded" : true };
+      return { "succeeded" : true, "name" : input.name};
     }
   };
   
   
   obj.validate = function(experimentGroup, responseEvent, inputHtmls, errorMarkingCallback) {
-    var errors = [];
+    var hasErrors = false;
+    var all = [];
     for (var i in experimentGroup.inputs) {
       var input = experimentGroup.inputs[i];
       var response = responseEvent.responses[i];
       var visualElement = inputHtmls[i];
       var validity = valid(input, visualElement, response);
       if (!validity.succeeded) {
-        errors.push(validity);
+        hasErrors = true;
       } 
+      all.push(validity);
     }
-    if (errors.length > 0) {
-      errorMarkingCallback.invalid(errors);
+    if (hasErrors) {
+      errorMarkingCallback.invalid(all);
     } else {
       errorMarkingCallback.valid(responseEvent);
     }
@@ -156,6 +163,10 @@ var paco = (function (init) {
         return events;
       };
       
+      function getEventsForExperimentGroup() {
+        alert("not implemented!");
+      };
+      
       function getLastEvent() {
         getAllEvents();
         return events[events.length - 1];
@@ -164,7 +175,8 @@ var paco = (function (init) {
       return {
         saveEvent : saveEvent,
         getAllEvents: getAllEvents,
-        getLastEvent : getLastEvent
+        getLastEvent : getLastEvent,
+        getEventsForExperimentGroup : getEventsForExperimentGroup
       };
     };
 
@@ -185,16 +197,35 @@ var paco = (function (init) {
           loaded = true;
         }
         return events;
-      }
+      };
+      
+      function getEventsForExperimentGroup() {
+        if (!loaded) {
+          events = JSON.parse(window.db.getEventsForExperimentGroup());
+          loaded = true;
+        }
+        return events;
+      };
 
       function getLastEvent() {
-        return JSON.parse(window.db.getLastEvent());
+        return JSON.parse(window.db.getLastNEvents(1));
+      };
+      
+      function getLastNEvents(num) {
+        return JSON.parse(window.db.getLastNEvents(num));
+      };
+      
+      function getEventsByQuery(queryJson) {
+        return JSON.parse(window.db.getEventsByQuery(queryJson));
       };
 
       return {
         saveEvent : saveEvent,
         getAllEvents: getAllEvents,
-        getLastEvent : getLastEvent
+        getLastEvent : getLastEvent,
+        getLastNEvents : getLastNEvents,
+        getEventsByQuery : getEventsByQuery,        
+        getEventsForExperimentGroup : getEventsForExperimentGroup
       };
     };
 
@@ -244,6 +275,33 @@ var paco = (function (init) {
         return newarray;
     };
 
+        
+    /*
+     * The query JSON should have the following format Example 
+     * {query:{criteria: " (group_name in(?,?) and (answer=?)) ",values:["New
+     * Group","Exp Group", "ven"]},limit: 100,group: "group_name",order:
+     * "response_time" ,select: ["group_name","response_time",
+     * "experiment_name", "text", "answer"]} 
+     * The above JSON represents the following
+     * query->criteria: String with where clause conditions and the values replaced by '?' 
+     * query->values: An array of String representing the values of the '?' expressed in query->criteria (in order). 
+     * query->limit: Integer Number of records to limit the result set 
+     * query->group: String which holds the group by column 
+     * query->order: String which holds the order by columns separated by commas 
+     * query->select: An array of String which holds the column names and executes the following query 
+     * Since the query requires columns from both Events and Outputs table, we do the
+     * inner join. If the query requires columns from just Events table, it will
+     * be a plain select ......from Events 
+     * SELECT group_name, response_time,
+     * experiment_name, text, answer FROM events INNER JOIN outputs ON
+     * events._id = event_id WHERE ( (group_name in(?,?) and (answer=?)) ) GROUP
+     * BY group_name ORDER BY response_time limit 100
+     * 
+     */
+    var getEventsByQuery = function(queryJson) {
+      return db.getEventsByQuery(queryJson);
+    };
+
     var getResponsesForEventNTimesAgo = function (nBack) {
         var experimentData = db.getAllEvents();
         if (nBack > experimentData.length) {
@@ -261,17 +319,20 @@ var paco = (function (init) {
     return {
       saveEvent : saveEvent,
       getAllEvents : getAllEvents,
-
+      getEventsByQuery : getEventsByQuery,
       getLastEvent : function() {
         return db.getLastEvent();
       },
 
       getLastNEvents : function(n) {
-        var events = db.getAllEvents();
-        return events.slice(0..n);
+    	  return db.getLastNEvents(n);
       },
       getResponseForItem  : getResponseForItem,
       
+      getEventsForExperimentGroup : function() {
+        return db.getEventsForExperimentGroup();
+      },
+
       getResponsesForEventNTimesAgo : getResponsesForEventNTimesAgo,
 
       getAnswerNTimesAgoFor : getAnswerNTimesAgoFor,
@@ -375,6 +436,7 @@ var paco = (function (init) {
 
   obj.executor = (function() {
     if (!window.executor) {
+    	// TODO i18n
       window.executor = { done : function() { alert("done"); } };
     }
 
@@ -391,7 +453,7 @@ var paco = (function (init) {
     if (!window.photoService) {
       window.photoService = { 
         launch : function(callback) { 
-        	//TODO i18n
+        	// TODO i18n
           alert("No photo support"); 
         } 
       };
@@ -415,11 +477,19 @@ var paco = (function (init) {
 	    if (!window.notificationService) {
 	      window.notificationService = { 
 	        createNotification : function(message) { 
+	        	// TODO i18n
 	          alert("No notification support"); 
 	        },
-	        removeNotification : function(message) { 
+	        createNotificationWithTimeout : function(message, timeout) { 
+            // TODO i18n
+            alert("No notification support"); 
+          },
+          removeNotification : function(message) { 
 		          alert("No notification support"); 
-		    }
+		      },
+          removeAllNotifications : function() {
+            alert("No notification support");
+          }
 	      };
 	    }
 
@@ -427,18 +497,75 @@ var paco = (function (init) {
 	      createNotification : function(message) {
 	        window.notificationService.createNotification(message);
 	      }, 
-	      removeNotification : function() {
-	    	  window.notificationService.removeNotification();
-	      }
+	      createNotificationWithTimeout : function(message, timeout) {
+          notificationService.createNotificationWithTimeout(message, timeout);
+        },
+        removeNotification : function(message) {
+	    	  window.notificationService.removeNotification(message);
+	      },
+        removeAllNotifications : function() {
+          window.notificationService.removeAllNotifications();
+        }
 	    };
 	  })();
 
+  obj.stringService = (function() {
+	    if (!window.strings) {
+	      window.strings = { 
+	        getString: function(stringId) { 
+	        	// TODO i18n
+	          alert("No strings support"); 
+	        },
+	        getString : function(stringId, formatArgs) { 
+		          alert("No strings support"); 
+		      }
+	        };
+	    }
 
+	    return {
+	      getString : function(stringId) {
+	        return window.strings.getString(stringId);
+	      }, 
+	      getStringFormatted : function(stringId, formatArgs) {
+		    return window.strings.getString(stringId, formatArgs);
+		  }
+	    };
+	  })();
+
+  obj.calendarService = (function() {
+    if (!window.calendar) {
+      window.calendar = { 
+        listEventInstances : function(startMillis, endMillis) { 
+          // TODO i18n
+          alert("No calendar support"); 
+        }
+      };
+    }
+
+    return {
+      listEventInstances : function(startMillis, endMillis) {
+        return window.calendar.listEventInstances(startMillis, endMillis);
+      }
+    };
+  })();
+  
   return obj;
 })();
 
 paco.renderer = (function() {
 
+  function escapeHtml(text) {
+    var map = {
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      '"': '&quot;',
+      "'": '&#39;'
+    };
+
+    return text.replace(/[&<>"']/g, function(m) { return map[m]; });
+  }
+  
   renderPrompt = function(input) {
     var element = $(document.createElement("h6"));
     element.addClass("left light");
@@ -511,7 +638,7 @@ paco.renderer = (function() {
     var rawElement = document.createElement("input");
     var element = $(rawElement);
     element.addClass("light");
-    element.attr("type", "text");
+    element.attr("type", "number");
     element.attr("name", input.name);
     if (response.answer) {
       element.attr("value", parseInt(response.answer) - 1);
@@ -522,6 +649,7 @@ paco.renderer = (function() {
         element.removeClass("outlineElement");
       } catch (e) {
         element.addClass("outlineElement");
+    	// TODO i18n
         alert("bad value: " + e);            
       }
       conditionalListener.inputChanged();
@@ -548,7 +676,6 @@ paco.renderer = (function() {
     }
     var steps = input.likertSteps;
     for(var i = 0; i < steps; i++) {
-      
       var rawElement = document.createElement("input");
       var element = $(rawElement);
 //      element.addClass("light"); // radio-input
@@ -571,8 +698,7 @@ paco.renderer = (function() {
           response.answer = index + 1;
           conditionalListener.inputChanged();
         };        
-      }(i));     
-      
+      }(i));        
     }
     
     var right = input.rightSideLabel || "";
@@ -587,7 +713,7 @@ paco.renderer = (function() {
     return element;
   };
 
-  renderList = function(input, response, parent, conditionalListener) {
+  renderList = function(input, response, root, conditionalListener) {
     
     
     var steps = input.listChoices;
@@ -599,12 +725,16 @@ paco.renderer = (function() {
       } else {
         selected = [];
       }
-      parent.addClass("left-align");
+      root.addClass("left-align");
+      
+      var parent = $('<div>');
+      root.append(parent);
+      parent.attr("name", input.name);
       
       for (var step = 0; step < steps.length; step++) {
         var currentStep = steps[step];
         var p = $('<div>'); // didn't work
-        p.css("line-height", "1"); // didnt work
+        p.css("line-height", "1"); // didnt work        
         p.addClass("input-field col s12 left-align");
         parent.append(p);
         
@@ -652,6 +782,7 @@ paco.renderer = (function() {
       }
       $('select').material_select('destroy');
       var s = $('<select id="' + input.name + '" name="' + input.name + '" />');
+      s.attr("name", input.name);
       var startIndex = 0;
           $("<option />", {value: 0, text: "Please select"}).appendTo(s);
           startIndex = 1;
@@ -660,13 +791,13 @@ paco.renderer = (function() {
       }
       s.addClass("light");
       
-      parent.append(s)
+      root.append(s)
       
       var label = $("<label>");
       label.attr("for", input.name);
       label.attr("text", "");
       label.addClass("light");      
-      parent.append(label);
+      root.append(label);
    
       $('select').material_select();
       s.css("display", "block");
@@ -687,11 +818,14 @@ paco.renderer = (function() {
     element.addClass("light");
     element.attr("type", "button");
     element.attr("name", input.name);
-    element.attr("value", "Click");
+    // TODO i18n
+    element.attr("value", "Add Picture");
+    element.css({"margin-right" : "1em"});
     
     
     var imgElement = $("<img/>", { src : "file:///android_asset/paco_sil.png"});    
-    imgElement.attr("height", "100");
+    imgElement.attr("height", "50");
+    imgElement.css({"border" : "1px solid #021a40"});
     element.click(function() {
       function cameraCallback(cameraData) {
         if (cameraData && cameraData.length > 0) {          
@@ -752,7 +886,6 @@ paco.renderer = (function() {
     conditionalListener.addInput(input, response, panelDiv);
 
     panelDiv.append(renderBreak());
-    
     return { "element" : panelDiv, "response" : response };
   };
 
@@ -780,8 +913,9 @@ paco.renderer = (function() {
   renderSaveButton = function() {
     var saveButton = $(document.createElement("input"));
     saveButton.attr("type", "submit");
+    // TODO i18n
     saveButton.attr("value", "Save Response");
-    saveButton.css({"margin-top":".5em", "margin-bottom" : "0.5em"});
+    saveButton.css({"margin-top":".5em", "margin-bottom" : "0.5em", "width" : "90%"});
     return saveButton;
   };
   
@@ -796,18 +930,40 @@ paco.renderer = (function() {
   removeErrors = function(outputs) {
     for (var i in outputs) {
       var name = outputs[i].name
-      $("input[name=" + name + "]").removeClass("outlineElement");
+      var elem = $("[name=" + name + "]")
+      //elem.removeClass("outlineElement");
+      elem.css({"outline": ""});
     }
 
     // var str = JSON.stringify(json);
     // $("p").text("SUCCESS. Data" + str);
   };
 
-  addErrors = function(json) {
+  showErrors = function(json) {
+    var errors = [];
     for (var i in json) {
-      var name = json[i].name
-      $("input[name=" + name + "]").addClass("outlineElement");
+      var event = json[i];
+      if (event.error) {
+        errors.push(event.error);
+      }
     }
+    alert("Error:\n\n" + errors.join("\n"));
+  }
+  
+  updateErrors = function(json) {    
+    //alert("json = " + JSON.stringify(json, null, 2));
+    for (var i in json) {      
+      var name = json[i].name
+      var elem = $("[name=" + name + "]"); 
+      
+      if (!json[i].succeeded) {
+      //elem.addClass("outlineElement");
+        elem.css({"outline": "2px solid #F00"});
+      } else {
+        elem.css({"outline": ""});
+      }
+    }
+    showErrors(json);
   };
 
   registerValidationErrorMarkingCallback = function(experimentGroup, responseEvent, inputHtmls, saveButton, mainValidationCallback) {
@@ -820,8 +976,8 @@ paco.renderer = (function() {
       }        
     };
 
-    var invalidResponse = function(event) {
-      addErrors(event);
+    var invalidResponse = function(all) {
+      updateErrors(all);
       saveButton.show();
     };
 
@@ -872,8 +1028,7 @@ paco.renderer = (function() {
     scriptElement.type = 'text/javascript';
     
     var strippedCode = scriptBody(customRenderingCode);
-    scriptElement.text = strippedCode;
-    
+    scriptElement.text = strippedCode;    
     additionsDivId.append(scriptElement);
 
     var newSpan = $(document.createElement('span'));
@@ -890,7 +1045,8 @@ paco.renderer = (function() {
   };
 
   loadCustomExperiment = function(experimentGroup, rootPanel) {    
-    var additionsDivId = $(document.createElement("div"));    
+    var additionsDivId = $(document.createElement("div"));
+    
     var customRenderingCode = experimentGroup.customRenderingCode;
     var newHtml = $(document.createElement('div'));
     newHtml.html(customRenderingCode);
@@ -929,6 +1085,7 @@ paco.renderer = (function() {
     element.append(subElement);
 
     var lastEvent = db.getLastEvent();
+    // TODO i18n
     element.append(renderPlainText("Scheduled Time: " + lastEvent.scheduledTime));
     element.append(renderBreak());
     element.append(renderPlainText("Response Time: " + lastEvent.responseTime));
@@ -1016,9 +1173,10 @@ paco.renderer = (function() {
       if (!input) {
         continue;
       }
+      
       responsesHtml += "<div class=\"row\" style=\"margin-bottom: 8px;\">";
-      responsesHtml += "<h6 class=\"left indigo-text\">";
-      responsesHtml += input.text;
+      responsesHtml += "<h6 class=\"left indigo-text\">";      
+      responsesHtml += input.text;      
       responsesHtml += "</h6><br>";
       responsesHtml += "<p class=\"black-text\">";
       responsesHtml += "&nbsp;&nbsp;&nbsp;"
@@ -1036,29 +1194,32 @@ paco.renderer = (function() {
           if (!input.multiselect) {
             answer = parseInt(answer);
             var index = answer;
-            listChoiceName = input.listChoices[index];
+            listChoiceName = input.listChoices[index - 1];
           } else {
             var indices = answer.split(",");
-            for (var i = 0; i < indices.length; i++) {
-              if (i > 0) {
+            for (var j = 0; j < indices.length; j++) {
+              if (j > 0) {
                 listChoiceName += ", ";
               }
-              var index = indices[i]; 
+              var index = indices[j]; 
               index -= 1;
               if (index < 0) {
                 index = 0;
               }
               listChoiceName += input.listChoices[index];
             }
-          }
+          } 
           
         }       
         responsesHtml += listChoiceName;
       } else {
-        responsesHtml += response["answer"];
+        var escapedResponse = escapeHtml(response["answer"]);
+        //confirm("escaped response = |" + escapedResponse +"|");
+        responsesHtml += escapedResponse;
       }
       responsesHtml += "</p></div>";
     }
+
     element.html(responsesHtml);
   };
 
@@ -1134,11 +1295,17 @@ paco.executeEod = (function() {
     }
     
     function isActive(eventDate, now, triggerTime, timeout) { 
+      var nt = now.getTime(); 
+			var eventDateMidnight = new Date(eventDate.getFullYear(), 
+                                           eventDate.getMonth(), 
+                                           eventDate.getDate()).getTime();
+      var ft = eventDateMidnight + triggerTime.fixedTimeMillisFromMidnight + timeout;
+      //var active = nt <= ft;
+      //alert("nt = " + nt + ", edt = " + edt + ", ft = " + ft + ", active = " + active );
+      
       return eventDate.getDate() == now.getDate() || 
              eventDate.getDate() == (now.getDate() - 1)  && 
-                 now.getTime() <= new Date(eventDate.getFullYear(), 
-                                           eventDate.getMonth(), 
-                                           eventDate.getDate()).getTime() + triggerTime + timeout; 
+                 now.getTime() <= ft; 
     };
     
     var getActiveEventsWithoutEod = function(referredExperimentGroup, experimentGroup, db) {      
@@ -1159,7 +1326,7 @@ paco.executeEod = (function() {
         var eventDateTime = new Date(event.responseTime);
         if (!isActive(eventDateTime, now, triggerTime, timeout)) {
           // maybe build the list of already expired events to show as well.
-          break;
+          continue;
         }
         var eventGroupName = event.experimentGroupName;
         if (!eventGroupName) {
@@ -1207,7 +1374,6 @@ paco.executeEod = (function() {
    
     var dbSaveOutcomeCallback = function(status) {
       if (status["status"] === "success") {
-//        alert("Success in dbSaveOutcomeCallback");
         var justSaved = unfinishedDailyEvents[currentPingIndex]; 
         submitted.push(justSaved.responseTime);
         if (submitted.length == unfinishedDailyEvents.length) {
@@ -1229,7 +1395,6 @@ paco.executeEod = (function() {
     };
 
     var saveDataCallback = function(event) {
-//      alert("Saving event: " + JSON.stringify(event, null, 2));
       var responses = event.responses;
       var atLeastOneAnswer = false;
       for (var i = 0; i < event.responses.length; i++) {
@@ -1258,6 +1423,7 @@ paco.executeEod = (function() {
     var renderEvent = function() {
       unsavedEdits = false;
       var currentEvent = unfinishedDailyEvents[currentPingIndex];
+      
       form_root.append(paco.renderer.renderDailyPingResponsesPanel(referredExperimentGroup.inputs, 
           currentEvent, currentPingIndex, pingCount));
       if (submitted.indexOf(currentEvent.responseTime) != -1) {

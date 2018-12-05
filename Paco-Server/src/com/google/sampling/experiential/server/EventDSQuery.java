@@ -16,13 +16,19 @@
 */
 package com.google.sampling.experiential.server;
 
-import javax.jdo.Query;
 
+import java.util.List;
+
+import com.google.appengine.api.datastore.Query.CompositeFilterOperator;
 import com.google.appengine.api.datastore.Query.Filter;
-import com.google.appengine.api.datastore.Query.FilterOperator;
-import com.google.appengine.api.datastore.Query.FilterPredicate;
+import com.google.common.collect.Lists;
 
-public class EventDSQuery extends BaseJDOQuery {
+public class EventDSQuery  {
+
+  protected com.google.appengine.api.datastore.Query query;
+  protected List<Filter> filters;
+  private boolean conjunctive = true;
+
 
   private boolean hasAWho;
   private String who;
@@ -36,25 +42,37 @@ public class EventDSQuery extends BaseJDOQuery {
     this.who = who;
   }
 
-  public EventDSQuery(Query newQuery) {
-    super(newQuery);
-    query.setOrdering("when desc");
+  public EventDSQuery(com.google.appengine.api.datastore.Query newQuery) {
+    super();
+    this.query = newQuery;
+    this.filters = Lists.newArrayList();
   }
 
   public String who() {
     return who;
   }
 
-  public void getLowLevelDatastoreEntityQuery(com.google.appengine.api.datastore.Query q) {
-    if (filters.size() > 0) {
-      for (String filter : filters) {
-        q.setFilter(createFilterPredicate(filter));
-      }
+  public void applyFiltersToQuery(com.google.appengine.api.datastore.Query q) {
+    if (filters.size() == 1) {
+      q.setFilter(filters.get(0));
+    } else if (filters.size() > 1) {
+      q.setFilter(createCompoundFilter());
     }
   }
 
-  private Filter createFilterPredicate(String filter) {
-    return new FilterPredicate(filter, FilterOperator.EQUAL, filter);
+  private Filter createCompoundFilter() {
+    if (conjunctive) {
+      return CompositeFilterOperator.and(filters);
+    } else {
+      return CompositeFilterOperator.or(filters);
+    }
   }
 
+  public void addFilter(Filter filter) {
+      filters.add(filter);
+  }
+
+  
+  
+  
 }

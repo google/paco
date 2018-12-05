@@ -1,0 +1,19 @@
+<div class="datesDropDown">
+  <md-select  ng-model="selectedDateTime"
+              placeholder="Date/Time"
+              md-on-close="toggleDrawButton(true)"
+              data-md-container-class="selectdemoSelectHeader"
+  class="dateTimeSelect">
+    <md-select-header class="demo-select-header">
+      <input placeholder="Date/Time"
+             class="demo-header-searchbox md-text">
+    </md-select-header>
+    <md-optgroup label="DateTime">
+      <div class="dateRangeWidth"><md-datepicker class="datePicker" ng-model="currentVisualization.startDatetime" md-placeholder="Start date"></md-datepicker>
+      <md-input-container class="timePicker"><input  aria-label="startTime" ng-model="currentVisualization.startDatetime" type="time"></md-input-container></div>
+      <div class="dateRangeWidth"><md-datepicker class="datePicker" ng-model="currentVisualization.endDatetime" md-placeholder="End date"></md-datepicker>
+      <md-input-container class="timePicker"><input aria-label="endTime" ng-model="currentVisualization.endDatetime" type="time"></md-input-container></div>
+    </md-optgroup>
+  </md-select>
+
+</div>

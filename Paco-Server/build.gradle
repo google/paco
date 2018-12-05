@@ -1,0 +1,134 @@
+buildscript {    // Configuration for building
+    repositories {
+        jcenter()    // Bintray's repository - a fast Maven Central mirror & more
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'com.google.cloud.tools:appengine-gradle-plugin:+'    // latest App Engine Gradle tasks
+    }
+}
+
+repositories {   // repositories for Jar's you access in your code
+    maven {
+        url 'https://maven-central.storage.googleapis.com'             // Google's mirror of Maven Central
+//   url 'https://oss.sonatype.org/content/repositories/snapshots' // SNAPSHOT Repository (if needed)
+    }
+    jcenter()
+    mavenCentral()
+}
+
+apply plugin: 'java'
+apply plugin: 'war'
+apply plugin: 'ear'
+apply plugin: 'com.google.cloud.tools.appengine'
+
+dependencies {
+    appengineSdk 'com.google.appengine:appengine-java-sdk:1.9.0'
+    providedCompile group: 'javax.servlet', name: 'servlet-api', version:'2.5'
+    compile 'com.google.appengine:appengine:+'
+
+    // Persistence
+    compile 'org.ow2.asm:asm:4.0'
+    compile 'org.datanucleus:datanucleus-api-jpa:3.1.3'
+    compile 'org.datanucleus:datanucleus-api-jdo:3.1.3'
+    compile 'com.google.appengine.orm:datanucleus-appengine:2.1.2'
+    compile 'org.datanucleus:datanucleus-core:3.1.3'
+    compile 'org.apache.geronimo.specs:geronimo-jpa_2.0_spec:1.0'
+    compile 'javax.jdo:jdo-api:3.0.1'
+    compile 'javax.transaction:jta:1.1'
+
+    // paco libs
+    compile 'antlr-runtime:3.2'
+    compile 'appengine-api-1.0-sdk:1.9.0'
+    compile 'appengine-api-labs:1.9.0'
+    compile 'appengine-gcs-client:0.4.4'
+    compile 'appengine-mapreduce'
+    compile 'appengine-pipeline:0.2.13'
+//compile 'common-util:1.1.1'
+//compile 'commons-codec-1.5:sources'
+    compile 'commons-codec:1.5'
+    compile 'commons-dbcp:1.4'
+    compile 'commons-fileupload:1.2.2'
+    compile 'commons-io:2.0.1'
+    compile 'commons-lang:3.1'
+//compile 'commons-logging:1.1.1'
+    compile 'commons-pool:1.5.4'
+    compile 'fastutil:6.5.16'
+//compile 'google-api-client:1.22.0'
+//compile 'google-api-client-appengine:1.20.0'
+//compile 'google-api-services-sqladmin-v1beta4-rev25:1.22.0'
+//compile 'google-api-services-storage-v1beta2-rev76:1.20.0'
+//compile 'google-http-client-1.20.0.jar.properties'
+//compile 'google-http-client:1.22.0'
+//compile 'google-http-client-appengine:1.20.0'
+//compile 'google-http-client-jackson2:1.22.0'
+//compile 'google-oauth-client:1.22.0'
+    compile 'com.google.guava:guava:16.0.1'
+//compile 'guava-jdk5:17.0'
+//compile 'httpclient:4.0.1'
+//compile 'httpcore:4.0.1'
+    compile 'jackson-all:1.9.11'
+//compile 'jackson-core:2.1.3'
+//compile 'jdo2-api-2.3:eb'
+    compile 'joda-time:joda-time:2.9.3'
+    compile 'json:1.5'
+    compile 'jsqlparser:0.9'
+//compile 'jsr107cache:1.1'
+//compile 'jsr305:1.3.9'
+//compile 'libservice.jar'
+    compile 'mysql-connector-java:5.1.38'
+    compile 'mysql-socket-factory:1.0.2'
+    compile 'mysql-socket-factory-core:1.0.2'
+//compile 'objectify:4.0'
+    compile 'opencsv:2.3'
+    compile 'protobuf-java:2.6.0'
+    compile 'sqlbuilder:2.1.6'
+//compile 'validation-api-1.0.0.GA-sources.jar'
+//compile 'validation-api:1.0.0.GA'
+
+}
+
+war {
+
+}
+
+appengine {  // App Engine tasks configuration
+
+    app {
+        id=quantifiedself
+    }
+
+    downloadSdk = true
+
+    enhancer {
+        version = "v1"
+        api="jdo"
+        enhanceOnBuild = true
+    }
+
+    run {      // local (dev_appserver) configuration (standard environments only)
+        port = 8888                 // default
+
+        // uncomment to enable hot reload for dev server
+        //jvmFlags = ["-Dappengine.fullscan.seconds=5"]
+
+        // for debugging uncomment this
+        //jvmFlags = ['-Xdebug', '-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5005']
+    }
+
+    deploy {   // deploy configuration
+        stopPreviousVersion = true  // default - stop the current version
+        promote = false              // default - if true make this the current version
+    }
+
+    appcfg {
+        oauth2 = true
+    }
+
+}
+
+group = 'com.pacoapp.paco'   // Generated output GroupId
+version = '213'          // Version in generated output
+
+sourceCompatibility = 1.7  // App Engine Standard uses Java 7
+targetCompatibility = 1.7  // App Engine Standard uses Java 7

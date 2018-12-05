@@ -1,12 +1,24 @@
 
 pacoApp.directive('pacoGroup', function () {
 
+  var evaluateConditionals = function($scope) {
+    for ( var inputIdx in $scope.group.inputs) {
+      var input = $scope.group.inputs[inputIdx];
+      if (input.conditional) {
+        var validity = parser.parse(input.conditionExpression, $scope.responses);
+        $scope.mask[inputIdx] = !validity;
+      }
+    } 
+  }
+  
   var controller = ['$scope', '$http', '$location', '$mdDialog', '$anchorScroll', 'util',
     function($scope, $http, $location, $mdDialog, $anchorScroll, util) {
 
-    $scope.mask = {};
-    $scope.responses = $scope.responses || {};
-
+    //this.$onInit = function() {
+      $scope.mask = {};
+      $scope.responses = $scope.responses || {};
+    
+    
     $scope.post = {
       appId: 'webform',
       pacoVersion: 1,
@@ -16,22 +28,19 @@ pacoApp.directive('pacoGroup', function () {
       if (angular.isDefined($scope.experiment)) {
         $scope.post.experimentId = $scope.experiment.id;
       }
+      if (angular.isDefined($scope.group)) {
+        evaluateConditionals($scope);      
+      }
     });
 
     $scope.$watchCollection('responses', function(newValue, oldValue) {
 
         if (angular.isDefined(newValue) &&
             angular.isDefined($scope.group)) {
-
-          for ( var inputIdx in $scope.group.inputs) {
-            var input = $scope.group.inputs[inputIdx];
-            if (input.conditional) {
-              var validity = parser.parse(input.conditionExpression, $scope.responses);
-              $scope.mask[inputIdx] = !validity;
-            }
-          }
+          evaluateConditionals($scope);      
         }
     });
+   // };
 
     $scope.respond = function() {
 
@@ -70,10 +79,11 @@ pacoApp.directive('pacoGroup', function () {
         post.responses.push(eodPair);
         post.responses.push(referPair);
       }
+    $http.post( 
+      '/events', post)
+      .then(function onSuccess(data) {
 
-    $http.post('/events', post).success(function(data) {
-
-        if (data[0].status === true) {
+        if (data.data[0].status === true) {
 
           if ($scope.events) {
             $scope.activeIdx++;
@@ -85,7 +95,7 @@ pacoApp.directive('pacoGroup', function () {
           if (!$scope.events || !$scope.events[$scope.activeIdx]) {
             $mdDialog.show(
               $mdDialog.alert()
-              .title('Respond Status')
+              .title('Response Status')
               .content('Success!')
               .ariaLabel('Success')
               .ok('OK')
@@ -93,10 +103,25 @@ pacoApp.directive('pacoGroup', function () {
               $location.path('/experiments');
             });
           }
+        } else {
+          $mdDialog.show(
+              $mdDialog.alert()
+              .title('Response Status')
+              .content('Could not save response.<br/>Error: ' + data[0].errorMessage)
+              .ariaLabel('Could not save response')
+              .ok('OK')
+            )
         }
 
-      }).error(function(data, status, headers, config) {
+      }, function onError(data, status, headers, config) {
         console.error(data);
+        $mdDialog.show(
+            $mdDialog.alert()
+            .title('Response Status')
+            .content('Could not save response.<br/>Error: ' + data)
+            .ariaLabel('Could not save response')
+            .ok('OK')
+          )
       });
     };
 
@@ -144,13 +169,47 @@ pacoApp.directive('pacoGroup', function () {
 
       $scope.responses[responseName] = list.join();
     };
+    
+    $scope.loadFileData = function (event, responseName) {
+     event.target.removeEventListener('change', []);
+      event.target.addEventListener('change', function(e) { 
+        var file = event.target.files[0];
+        if (file && file.size <= 1000000) {
+          var name = event.target.name;
+          var fr = new FileReader();
+          fr.onload = (function(theFile) {
+            return function(e) {
+              var imgData = e.target.result;
+              var truncatedImgData = imgData.substring(23);
+              $scope.responses[responseName] = truncatedImgData;
+              $scope.$apply();
+            };
+          })(file);
+          fr.readAsDataURL(file);
+        } else if (file && file.size > 1000000) {
+          $mdDialog.show(
+              $mdDialog.alert()
+              .title('File too large')
+              .content('The photo is greather than 1mb. It is too large.')
+              .ariaLabel('File too large')
+              .ok('OK'));
+        } else {
+          $scope.responses[responseName] = undefined;          
+        }
+      });
+
+    };
+
+    $scope.removeFileData = function (responseName) {
+      $scope.responses[responseName] = undefined;
+    };
 
   }];
 
   return {
     restrict: 'E',
     scope: {  'group': '=data',
-              'responses': '=',
+              'responses': '=?',
               'preview': '=',
               'readonly': '=',
               'events': '=',
@@ -178,7 +237,6 @@ pacoApp.directive('pacoHelp', function() {
     restrict: 'E',
     transclude: true,
     scope: {  'tip': '@tip' },
-//    template: '<a class="paco-help" href="#/help/{{tip}}" target="_new"><img src="img/ic_help_outline_black_24px.svg"></a>',
     template: '<a class="paco-help" href="#/help/{{tip}}" target="_new"><img src="img/ic_help_outline_black_24px.svg"><span class="tip-text" ng-transclude></span></a>',
     link: function(scope, element) {}
   };
@@ -377,6 +435,30 @@ pacoApp.filter('percent', ['$filter', function ($filter) {
     }
     return $filter('number')(input * 100, 0) + '%';
   };
+}]);
+
+
+pacoApp.filter('timeSince', ['$filter', function ($filter) {
+  return function(millis) {
+    var seconds = Math.floor(((new Date().getTime()/1000) - millis/1000))
+    interval = Math.floor(seconds / 31536000);
+
+    // if (interval > 1) return interval + 'y';
+    //
+    // interval = Math.floor(seconds / 2592000);
+    // if (interval > 1) return interval + 'mos';
+
+    interval = Math.floor(seconds / 86400);
+    if (interval >= 1) return interval + ' days';
+
+    interval = Math.floor(seconds / 3600);
+    if (interval >= 1) return interval + ' hours';
+
+    interval = Math.floor(seconds / 60);
+    if (interval > 1) return interval + ' minutes';
+
+    return Math.floor(seconds) + ' seconds';
+  }
 }]);
 
 
@@ -637,4 +719,175 @@ pacoApp.directive('fileDropzone', function() {
       });
     }
   };
+});
+
+
+pacoApp.directive('pacoGroupPub', function () {
+
+  var evaluateConditionals = function($scope) {
+    for ( var inputIdx in $scope.group.inputs) {
+      var input = $scope.group.inputs[inputIdx];
+      if (input.conditional) {
+        var validity = parser.parse(input.conditionExpression, $scope.responses);
+        $scope.mask[inputIdx] = !validity;
+      }
+    } 
+  }
+  var controller = ['$scope', '$http', '$location', '$mdDialog', '$anchorScroll', 'util',
+    function($scope, $http, $location, $mdDialog, $anchorScroll, util) {
+
+    $scope.responses = $scope.responses || {};
+    
+    $scope.mask = {};
+  
+    $scope.post = {
+      appId: 'webform',
+      pacoVersion: 1,
+    };
+
+    $scope.$watch('group', function(newValue, oldValue) {
+      if (angular.isDefined($scope.experiment)) {
+        $scope.post.experimentId = $scope.experiment.id;
+      }
+      if (angular.isDefined($scope.group)) {
+        evaluateConditionals($scope);      
+      }
+    });
+
+    $scope.$watchCollection('responses', function(newValue, oldValue) {
+
+        if (angular.isDefined(newValue) &&
+            angular.isDefined($scope.group)) {
+          evaluateConditionals($scope);        
+        }
+    });
+
+    $scope.respond = function() {
+
+      var post = {};
+
+      post.experimentGroupName = $scope.group.name;
+      post.experimentName = $scope.experiment.title;
+      post.experimentId = $scope.$parent.experiment.id;
+      post.experimentVersion = $scope.experiment.version;
+      post.pacoVersion = 4;
+      post.appId = 'webform';
+      post.responses = [];
+      post.responseTime = util.formatDate(new Date());
+
+      for (var name in $scope.responses) {
+        var pair = {
+          name: name,
+          answer: $scope.responses[name]
+        };
+        post.responses.push(pair);
+      }
+
+      if ($scope.events) {
+
+        var event = $scope.events[$scope.activeIdx];
+        var responseTime = util.formatDate(new Date(event.responseTime));
+
+        var eodPair = {
+          'name': 'eodResponseTime',
+          'answer':  responseTime
+        }
+        var referPair = {
+          'name': 'referred_group',
+          'answer': event.experimentGroupName
+        }
+        post.responses.push(eodPair);
+        post.responses.push(referPair);
+      }
+
+    $http.post('/pubexperiments', post).then(function(data) {
+
+        if (data.data[0].status === true) {
+
+          if ($scope.events) {
+            $scope.activeIdx++;
+            $scope.responses = {};
+          }
+
+          $anchorScroll('');
+
+          if (!$scope.events || !$scope.events[$scope.activeIdx]) {
+            $mdDialog.show(
+              $mdDialog.alert()
+              .title('Respond Status')
+              .content('Success!')
+              .ariaLabel('Success')
+              .ok('OK')
+            ).then(function() {
+              $location.path('/');
+            });
+          }
+        }
+
+      }, function(data, status, headers, config) {
+        console.error(data);
+      });
+    };
+
+    $scope.range = function(start, end) {
+      var arr = [];
+      for (var i = start; i <= end; i++) {
+        arr.push(i);
+      }
+      return arr;
+    }
+
+    $scope.inListString = function(item, responseName) {
+      if (!$scope.responses) {
+        return false;
+      }
+      var listString = $scope.responses[responseName];
+      if (listString === undefined || listString === '') {
+        return false;
+      }
+      var list = listString.split(',');
+      if (list.indexOf(item + '') !== -1) {
+        return true;
+      }
+      return false;
+    }
+
+    $scope.toggleStringItem = function(item, responseName) {
+
+      var listString = $scope.responses[responseName];
+      var list = [];
+
+      if (listString === undefined || listString === '') {
+        $scope.responses[responseName] = [];
+      } else {
+        list = listString.split(',');
+      }
+
+      var find = list.indexOf('' + item);
+
+      if (find === -1) {
+        list.push(item + '');
+      } else {
+        list.splice(find, 1);
+      }
+
+      $scope.responses[responseName] = list.join();
+    };
+
+  }];
+
+  
+  return {
+    restrict: 'E',
+    scope: {  'group': '=data',
+              'responses': '=?',
+              'preview': '=',
+              'readonly': '=',
+              'events': '=',
+              'experiment': '=',
+              'activeIdx': '='},
+    controller: controller,
+    templateUrl: 'partials/group.html'
+  };
+  
 });

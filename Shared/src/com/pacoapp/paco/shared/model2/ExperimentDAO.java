@@ -19,8 +19,9 @@
 package com.pacoapp.paco.shared.model2;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.List;
+
+import com.google.common.collect.Lists;
 
 
 
@@ -49,15 +50,18 @@ public class ExperimentDAO extends ExperimentDAOCore implements Serializable {
   protected List<ExperimentGroup> groups;
   private String ringtoneUri;
   private String postInstallInstructions;
+  private Boolean anonymousPublic;
+  private List<Visualization> visualizations;
+
 
   // Visible for testing
   public ExperimentDAO(Long id, String title, String description, String informedConsentForm,
-      String email,
+      String email, String publicKey,
       String joinDate,
       String modifyDate, Boolean published, List<String> admins, List<String> publishedUsers,
       Boolean deleted, Integer version, Boolean recordPhoneDetails, List<ExperimentGroup> groups,
-      List<Integer> extraDataDeclarations) {
-    super(id, title, description, informedConsentForm, email, joinDate, recordPhoneDetails, deleted, extraDataDeclarations, null, null, null, null, null);
+      List<Integer> extraDataDeclarations, Boolean anonymousPublic, List<Visualization> visualizations) {
+    super(id, title, description, informedConsentForm, email, publicKey, joinDate, recordPhoneDetails, deleted, extraDataDeclarations, null, null, null, null, null);
     this.id = id;
     this.title = title;
     this.description = description;
@@ -69,6 +73,8 @@ public class ExperimentDAO extends ExperimentDAOCore implements Serializable {
     this.publishedUsers = ListMaker.paramOrNewList(publishedUsers, String.class);
     this.version = version;
     this.groups = ListMaker.paramOrNewList(groups, ExperimentGroup.class);
+    this.anonymousPublic = anonymousPublic;
+    this.visualizations = visualizations;
   }
 
   /**
@@ -79,6 +85,7 @@ public class ExperimentDAO extends ExperimentDAOCore implements Serializable {
     this.admins = new java.util.ArrayList();
     this.publishedUsers = new java.util.ArrayList();
     this.groups = new java.util.ArrayList();
+    this.visualizations = new java.util.ArrayList();
   }
 
   public String getModifyDate() {
@@ -99,6 +106,15 @@ public class ExperimentDAO extends ExperimentDAOCore implements Serializable {
   public void setPublished(Boolean published) {
     this.published = published;
   }
+
+  public Boolean getAnonymousPublic() {
+    return anonymousPublic;
+  }
+
+  public void setAnonymousPublic(Boolean anonymousPublic) {
+    this.anonymousPublic = anonymousPublic;
+  }
+
 
   /**
    * @return
@@ -150,6 +166,9 @@ public class ExperimentDAO extends ExperimentDAOCore implements Serializable {
 
   //@JsonIgnore
   public boolean isWhoAllowedToPostToExperiment(String who) {
+    if (getPublished() != null && getPublished() && getAnonymousPublic() != null && getAnonymousPublic()) {
+      return true;
+    }
     who = who.toLowerCase();
     return isAdmin(who) ||
       (getPublished() && (getPublishedUsers().isEmpty() || getPublishedUsers().contains(who)));
@@ -163,14 +182,13 @@ public class ExperimentDAO extends ExperimentDAOCore implements Serializable {
   @Override
   public void validateWith(Validator validator) {
     super.validateWith(validator);
-//    System.out.println("VALIDATING EXPERIMENTDAO");
     validator.isValidCollectionOfEmailAddresses(admins, "admins should be a valid list of email addresses");
     validator.isNotNullAndNonEmptyCollection(groups, "there should be at least one experiment group");
     if (publishedUsers != null && !publishedUsers.isEmpty()) {
       validator.isValidCollectionOfEmailAddresses(publishedUsers, "published users should contain valid email addresses");
     }
-    List<String> groupNames = new ArrayList();
-    List<ExperimentGroup> endOfDayGroups = new ArrayList();
+    List<String> groupNames = Lists.newArrayList();
+    List<ExperimentGroup> endOfDayGroups = Lists.newArrayList();
     for (ExperimentGroup group : groups) {
       if (groupNames.contains(group.getName())) {
         validator.addError("Group name: " + group.getName() + " is not unique. Group names must be unique");
@@ -216,4 +234,11 @@ public class ExperimentDAO extends ExperimentDAOCore implements Serializable {
     this.postInstallInstructions = instructions;
   }
 
+  public List<Visualization> getVisualizations() {
+    return visualizations;
+  }
+
+  public void setVisualizations(List<Visualization> visualizations) {
+    this.visualizations = visualizations;
+  }
 }

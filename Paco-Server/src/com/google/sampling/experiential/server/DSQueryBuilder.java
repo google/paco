@@ -19,8 +19,6 @@ package com.google.sampling.experiential.server;
 import java.util.Iterator;
 import java.util.List;
 
-import javax.jdo.Query;
-
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeConstants;
 import org.joda.time.DateTimeZone;
@@ -28,6 +26,11 @@ import org.joda.time.Interval;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
+import com.google.appengine.api.datastore.Query.CompositeFilter;
+import com.google.appengine.api.datastore.Query.CompositeFilterOperator;
+import com.google.appengine.api.datastore.Query.Filter;
+import com.google.appengine.api.datastore.Query.FilterOperator;
+import com.google.appengine.api.datastore.Query.FilterPredicate;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 import com.google.sampling.experiential.model.Event;
@@ -38,14 +41,13 @@ public class DSQueryBuilder {
   private static final List<String> CANNED_DATE_RANGES = Lists.newArrayList("last_week",
       "last_month");
 
-  private EventDSQuery jdoQuery;
+  private EventDSQuery dsQuery;
 
   private DateTimeFormatter jodaFormatter = DateTimeFormat.forPattern(TimeUtil.DATE_FORMAT);
+  private DateTimeFormatter jodaDateTimeFormatter = DateTimeFormat.forPattern(TimeUtil.DATETIME_FORMAT_EVENT_QUERY);
 
-
-
-  public DSQueryBuilder(Query newQuery) {
-    this.jdoQuery = new EventDSQuery(newQuery);
+  public DSQueryBuilder(com.google.appengine.api.datastore.Query newQuery) {
+    this.dsQuery = new EventDSQuery(newQuery);
   }
 
   public void addFilters(List<com.google.sampling.experiential.server.Query> queryFilters,
@@ -57,9 +59,11 @@ public class DSQueryBuilder {
       String key = query.getKey();
       if (key.equals("date_range") || key.startsWith("@")) {
         compareDateRange(key, query.getValue(), jodaTimeZone);
+      } else if (key.equals("datetime_range")) {
+        compareDateTimeRange(key, query.getValue(), jodaTimeZone);
       } else {
         if (key.equals("who") && query.getValue() != null) {
-          jdoQuery.setHasWho(query.getValue());
+          dsQuery.setHasWho(query.getValue());
         }
         compareMemberResultToQueryValue(query, key);
       }
@@ -118,9 +122,46 @@ public class DSQueryBuilder {
         endDate = startDate.plusDays(1);
       }
     }
-    jdoQuery.addFilters("when >= startDateParam", "when <= endDateParam");
-    jdoQuery.declareParameters("java.util.Date startDateParam", "java.util.Date endDateParam");
-    jdoQuery.addParameterObjects(startDate.toDate(), endDate.toDate());
+    Filter startDateFilter = new FilterPredicate("when", FilterOperator.GREATER_THAN_OR_EQUAL, startDate.toDate());
+    Filter endDateFilter = new FilterPredicate("when", FilterOperator.LESS_THAN_OR_EQUAL, endDate.toDate());
+    CompositeFilter betweenDateFilter =
+            CompositeFilterOperator.and(startDateFilter, endDateFilter);
+    dsQuery.addFilter(betweenDateFilter);
+  }
+
+  private void compareDateTimeRange(String key, String range, DateTimeZone jodaTimeZone) {
+    DateTime startDate = null;
+    DateTime endDate = null;
+
+    Iterable<String> iterable = Splitter.on("--").split(range);
+    Iterator<String> iter = iterable.iterator();
+    if (!iter.hasNext()) {
+      throw new IllegalArgumentException("Illformed Date Range: " + range);
+    }
+    String firstDate = iter.next();
+    String secondDate = null;
+    if (iter.hasNext()) {
+      secondDate = iter.next();
+    }
+
+    startDate = newDateTimeFromDateTimeString(firstDate, jodaTimeZone);
+    endDate = null;
+    if (secondDate != null && !secondDate.isEmpty()) {
+      endDate = newDateTimeFromDateTimeString(secondDate, jodaTimeZone);
+    } else {
+      endDate = startDate.plusDays(1);
+    }
+
+    Filter startDateFilter = new FilterPredicate("when", FilterOperator.GREATER_THAN_OR_EQUAL, startDate.toDate());
+    Filter endDateFilter = new FilterPredicate("when", FilterOperator.LESS_THAN_OR_EQUAL, endDate.toDate());
+    CompositeFilter betweenDateFilter =
+            CompositeFilterOperator.and(startDateFilter, endDateFilter);
+    dsQuery.addFilter(betweenDateFilter);
+  }
+
+  private DateTime newDateTimeFromDateTimeString(String firstDate, DateTimeZone jodaTimeZone) {
+    DateTime parsedTime = jodaDateTimeFormatter.parseDateTime(firstDate);
+    return parsedTime.withZone(DateTimeZone.UTC);
   }
 
   private void compareMemberResultToQueryValue(com.google.sampling.experiential.server.Query query,
@@ -153,16 +194,20 @@ public class DSQueryBuilder {
     // at a different index, meaning that we don't actually have equality.
     // We really want a Map (not supported), but we would also like an index for the key and
     // value to ensure that those match.
-   jdoQuery.addFilters("keysList.contains(\"" + key
-       + "\") && valuesList.contains(\"" + value +"\")");
+//   dsQuery.addFilters("keysList.contains(\"" + key
+//       + "\") && valuesList.contains(\"" + value +"\")");
+   FilterPredicate keyFilter = new FilterPredicate("keysList", FilterOperator.EQUAL, key);
+   FilterPredicate valueFilter = new FilterPredicate("valuesList", FilterOperator.EQUAL, value);
+   CompositeFilter kvFilter = CompositeFilterOperator.and(keyFilter, valueFilter);
+   dsQuery.addFilter(kvFilter);
   }
 
   private void addTestThatKeyEquals(String key, String value) {
-    jdoQuery.addFilters(key + " == '" + value + "'");
+    dsQuery.addFilter(new FilterPredicate(key, FilterOperator.EQUAL, value));
   }
 
   private void addExistenceOfWhatKeyTest(String key) {
-    jdoQuery.addFilters("keysList.contains(\"" + key + "\")");
+    dsQuery.addFilter(new FilterPredicate("keysList", FilterOperator.EQUAL, key));
   }
 
   private boolean eventPropertyHasKey(String key) {
@@ -175,7 +220,7 @@ public class DSQueryBuilder {
   }
 
   public EventDSQuery getQuery() {
-    return jdoQuery;
+    return dsQuery;
   }
 
 

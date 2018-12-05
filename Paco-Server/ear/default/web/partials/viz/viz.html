@@ -1,0 +1,200 @@
+<div ng-controller="VizCtrl" class="padded">
+  <div class="nav padded">
+    <a href="#">
+      <md-button>Experiments</md-button>
+    </a>
+    <img src="/img/ic_chevron_right_24px.svg">
+    <a href="#/experiment/{{experiment.id}}">
+      <md-button aria-label="experiment name">
+        <span ng-if="!experiment">{{experiment.id}}</span>
+        <span ng-if="experiment">{{experiment.title}}</span>
+      </md-button>
+    </a>
+  </div>
+  <div>
+    <div ng-if="loadDataSummary">
+      <span>Loading experiment data summary...</span>
+      <md-progress-linear md-mode="indeterminate"></md-progress-linear>
+    </div>
+    <div class="variable-width">
+      <div class="snapshotContainer">
+        <table class="tableContainer">
+          <tr class="rowContainer">
+            <td class="cellContainer">
+              <div class="dataCount">{{participantsCount}}</div>
+              <div class="countText">Participants</div>
+            </td>
+            <td class="cellContainer">
+              <div class="dateRangeVal">{{dateRange[0]}}</div>
+              <div class="dateRangeVal">{{dateRange[1]}}</div>
+              <div class="countText">Dates of Study</div>
+            </td>
+            <td class="cellContainer">
+              <div class="dataCount">{{responseCounts[0]}}</div>
+              <div class="countText">Scheduled Responses</div>
+            </td>
+            <td class="cellContainer">
+              <div class="dataCount">{{responseCounts[1]}}</div>
+              <div class="countText">Missed Responses</div>
+            </td>
+            <td class="cellContainer">
+              <div class="dataCount">{{responseCounts[2]}}</div>
+              <div class="countText">Self & Logged Responses</div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div class="vizSectionLabels"><span>Data Exploration</span></div>
+      <md-input-container class="quesDropDown">
+        <label class="quesLabel">Please choose a data exploration question</label>
+        <md-select class="quesSelect" md-container-class="quesContainer" ng-model="currentVisualization.question"
+                   md-on-close="getTemplate(true)">
+          <md-optgroup label="Please choose a data exploration question">
+            <md-option ng-repeat="ques in questions" ng-value="ques.question">{{ques.question}}</md-option>
+          </md-optgroup>
+        </md-select>
+      </md-input-container>
+
+      <md-toolbar ng-show="currentVisualization.question" class="controlsToolbar">
+        <div class="md-toolbar-tools">
+          <div layout="row" class="vizPickerRow">
+            <div layout="column" class="vizTypeSelectionDiv">
+              <div class="categoryLabels">Viz</div>
+              <div ng-show="vizChartTypes" layout="row" class="alignVizInput">
+                <span class="asterisk">*</span>
+                <types-drop-down></types-drop-down>
+              </div>
+            </div>
+            <div class="separator">|</div>
+            <div layout="column" class="vizInputSelections">
+              <div class="categoryLabels">Data</div>
+              <div class="alignLblInput" layout="row">
+                <div ng-show="multipleInputs" layout="row">
+                  <span class="asterisk">*</span>
+                  <multiple-inputs-drop-down></multiple-inputs-drop-down>
+                </div>
+                <div ng-show="singleInput" layout="row">
+                  <span class="asterisk">*</span>
+                  <single-input-drop-down></single-input-drop-down>
+                </div>
+                <div ng-show="yAxisLabel" layout="column">
+                  <label class="yAxisText">y Axis</label>
+                  <label class="yAxisTextLabel">{{yAxisLabel}}</label>
+                </div>
+                <div ng-show="correlationViz" layout="row">
+                  <span class="asterisk">*</span>
+                  <multiple-inputs-drop-down></multiple-inputs-drop-down>
+                </div>
+              </div>
+            </div>
+            <div class="separator">|</div>
+            <div layout="column" class="vizFilterSelections">
+              <div class="categoryLabels">Filter</div>
+              <div class="alignLblInput" layout="row">
+                <participants-drop-down ng-show="expParticipants"></participants-drop-down>
+                <date-range ng-show="dateRangeControl" class="dateSelections"></date-range>
+              </div>
+            </div>
+            <create-button ng-show="createBtn" class="vizCreateButton"></create-button>
+            <div layout="row" class="vizRevisions">
+              <md-button class="backArrow backButton" ng-disabled="backButtonDisabled" ng-click="prevViz()"></md-button>
+              <history-drop-down></history-drop-down>
+              <md-button class="frwdArrow frwdButton" ng-disabled="forwardButtonDisabled" ng-click="nextViz()"></md-button>
+            </div>
+            <md-button ng-show="saveDownload" class="md-primary" style="color:white" ng-click="saveViz()">Save Visualization
+            </md-button>
+            <md-button id="download" pdf-save-button="idOne" pdf-name="test.pdf" ng-show="false"
+                       class="md-primary" style="color:white">Download
+            </md-button>
+          </div>
+        </div>
+      </md-toolbar>
+    </div>
+
+    <div ng-if="loadViz">
+      <span>Building visualization...</span>
+      <md-progress-linear md-mode="indeterminate"></md-progress-linear>
+    </div>
+    <div ng-show="vizTemplate" class="vizTemplate">
+      <div layout="row" class="vizTitleContainer">
+        <div class="vizCaption" ng-show="editTitleTextMode">
+          <md-input-container class="md-block">
+            <input class="vizTitle" ng-model="currentVisualization.title" ng-value="currentVisualization.title">
+            <div class="doneButton" ng-click="confirmTitle()"></div>
+            <div class="resetTextButton" ng-click="resetTitle()"></div>
+          </md-input-container>
+        </div>
+        <div class="vizTitle" layout="row" layout-align="center" ng-show="editTitleMode" ng-hide="editTitleTextMode">
+          <span>{{currentVisualization.title}}</span>
+          <div ng-show="currentVisualization.title" ng-click="editTitle()" class="editTextButton"></div>
+        </div>
+      </div>
+      <div class="vizContainer"></div>
+      <div class="vizDescContainer">
+      <div ng-hide="editDescMode" ng-show="editDescTextMode">
+        <div class="descStaticText" layout="row"><span>Description:</span></div>
+        <div class="vizDescription">
+          <div class="vizDescBlock" layout-gt-sm="row">
+            <md-input-container class="md-block" style="width:78%">
+              <textarea class="descTextArea" ng-style={'height':descTextarea.height} ng-model="vizDescription"
+                        md-maxlength="500"
+                        rows="3"
+                        md-select-on-focus></textarea>
+              <div class="confirmDesc" ng-click="confirmDesc()"></div>
+              <div class="resetDesc" ng-click="resetDesc()"></div>
+            </md-input-container>
+          </div>
+        </div>
+      </div>
+      <div ng-show="editDescMode">
+        <div class="descStaticText" layout="row"><span>Description:</span>
+          <div ng-show="editMode" class="editDescButton" ng-click="editDesc()"></div>
+        </div>
+        <div class="descText" ng-bind-html="vizDescription"></div>
+      </div>
+      </div>
+    </div>
+  </div>
+
+  <div ng-if="error" class="error viz">
+    Error - {{error.code}}: {{error.data}} {{error.message}}
+  </div>
+
+  <div ng-show="experiment.visualizations.length > 0" class="vizTableContainer">
+    <div class="vizSectionLabels"><span>Saved Visualizations</span></div>
+    <table class="vizTable">
+      <tr class="viz">
+        <th class="viz">Title</th>
+        <th class="viz">Date Range</th>
+        <th class="viz">Type</th>
+        <th class="viz">Date Created</th>
+        <!-- 
+        <th class="viz"></th>
+         -->
+        <th class="viz"></th>
+      </tr>
+      <tr class="viz" ng-repeat="viz in experiment.visualizations track by $index">
+        <td class="viz">
+          <a><span class="md-primary" ng-click="reloadViz(viz,$index)">{{viz.title}}</span></a>
+        </td>
+        <td class="viz">{{viz.startDatetime | date:'yyyy/MM/dd'}} - {{viz.endDatetime | date:'yyyy/MM/dd'}}</td>
+        <td class="viz">{{viz.type}}</td>
+        <td class="viz">{{viz.modifyDate | date:'yyyy/MM/dd'}}</td>
+       <!-- 
+        <td class="viz">
+          <a><span class="md-primary">Download</span></a>
+        </td>
+         -->
+        <td class="viz">
+          <a> <span class="md-primary" ng-click="deleteViz(viz,$index)">Delete</span></a>
+        </td>
+       
+      </tr>
+    </table>
+    <div class="clearTable">
+      <a><span class="md-primary clearTable" ng-click="deleteAllSavedVisualizations()">Delete All</span></a>
+    </div>
+  </div>
+</div>
+</div>
+
