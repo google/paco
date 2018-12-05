@@ -1,0 +1,93 @@
+
+PACO = Personal Analytics Companion (Quantified Self and Social Science Experiment platform)
+
+-------
+Google Internal Page : goto/paco
+Public Open Source Page : http://code.google.com/p/paco
+-------
+
+Contacts: bobevans@google.com, yimingzhang@google.com, gregvance@google.com
+
+
+Code Overview
+
+./paco/Paco-iOS/  			                	(top level iOS Paco folder)
+./paco/Paco-iOS/Paco.xcodeproj/	            	(the Paco iOS Project 'File')
+./paco/Paco-iOS/Paco/			                (all the paco specific code)
+./paco/Paco-iOS/ParseKit/			            (all the ParseKit specific code)   version: svn trunk https://code.google.com/p/parsekit/source/detail?r=1543
+./paco/Paco-iOS/vendor/			                (all the third party library code)
+./paco/Paco-iOS/vendor/touchengine/	         	(used for GoogleAppEngine login code, https://code.google.com/p/touchengine/)
+./paco/Paco-iOS/vendor/google-toolbox-for-mac/	(public version, used for OAuth2, https://code.google.com/p/google-toolbox-for-mac/)
+./paco/Paco-iOS/vendor/sskeychain			    (v1.2.0, keychain wrapper library, https://github.com/soffes/sskeychain)
+./paco/Paco-iOS/vendor/lumberjack			    (v1.8.0, logging library, https://github.com/CocoaLumberjack/CocoaLumberjack)
+./paco/Paco-iOS/vendor/jcnotificationbannerpresenter        (probably v1.0.2, banner library, https://github.com/jcoleman/JCNotificationBannerPresenter)
+./paco/Paco-iOS/PacoTests/		            	(unit tests)
+
+----- Files of Interest ------------------------------------------------------
+
+PacoLocation.h - Location Services 
+PacoAuthenticator.h - ClientLogin & OAuth2 implementations (server still needs to support OAuth2 I think)
+PacoClient.h - The main singleton with access to other parts of the app
+PacoModel.h - The data model, access experiment/event data here.  Also provides persistent storage.
+PacoScheduler.h - The code to generate local alarm times for experiment events.
+PacoService.h - The code for paco RPCs to populate a PacoModel
+PacoDate.h - A bunch of misc. code for working with dates.
+
+----- MainScreen --------------------------------------------------------------
+
+PacoMainViewController.h
+	- PacoMenuButton.h
+
+----- FindExperimentsScreen ---------------------------------------------------
+
+PacoFindExperimentsViewController.h
+	- PacoExperimentDetailsViewController.h
+	- PacoConsentViewController.h
+
+----- EditScheduleScreen ------------------------------------------------------
+
+PacoEditScheduleViewController.h
+	- PacoEditScheduleView.h
+		- PacoByWeekOrMonthSelectionView.h
+		- PacoTimeSelectionView.h
+		- PacoDayOfMonthSelectionView.h
+		- PacoDayOfWeekSelectionView.h
+		- PacoRepeatRateSelectionView.h
+		- PacoFirstDayOfMonthSelectionView.h
+		- PacoESMFrequencySelectionView.h
+		- PacoESMPeriodSelectionView.h
+		- PacoESMIncludeWeekendsSelectionView.h
+		- PacoScheduleEditView.h
+
+----- RunningExperimentsScreen ------------------------------------------------
+
+PacoRunningExperientsViewController.h
+
+----- ExperimentListScreen ----------------------------------------------------
+
+PacoExperimentListViewController.h
+
+----- LoginScreen -------------------------------------------------------------
+
+PacoLoginScreenViewController.h
+
+----- QuestionsScreen ---------------------------------------------------------
+
+PacoQuestionScreenViewController.h
+	- PacoQuestionView.h
+
+----- UIComponents Code ----------------------------------------------------------
+
+PacoCheckboxView.h
+PacoColor.h (shared colors used by other UI bits, could change this to CSS if someone wants to)
+PacoFont.h (Shared fonts used by other UI bits, could change this to CSS if someone is so inclined)
+PacoLayout.h (a bunch of rectangle layout functions)
+PacoSliderView.h
+PacoTableCell.h
+PacoTableTextCell.h
+PacoTableView.h
+PacoTableViewDelegate.h
+PacoTitleView.h
+PacoLoadingTableCell.h
+
+

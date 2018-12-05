@@ -1,0 +1,81 @@
+.basics md-input-container {
+  overflow-y: hidden;
+}
+
+md-input-container div[ng-message] {
+  color: #9E9E9E;
+  line-height: 1.2em;
+}
+
+.basics .disclosures {
+  display: block;
+  min-height: 58px;
+}
+
+.basics .disclosures .padded {
+  padding-top: 0;
+}
+
+.basics h2 {
+  background: #e0e0e0;
+  margin: 0;
+  padding: 16px;
+}
+
+.basics md-select {
+  margin-left: 16px;
+}
+
+.upload {
+  position: relative;
+}
+
+.upload .dropzone {
+  background: url('../img/mountain.png') #d8d8d8 no-repeat;
+  background-size: cover;
+  border: 3px dashed #9E9E9E;
+  border-radius: 50%;
+  display: inline-block;
+  height: 88px;
+  width: 88px;
+  margin-right: 16px;
+  overflow: hidden;
+  pointer-events: none;
+  -webkit-transition: border-color .25s;
+}
+
+.upload .dropzone.highlight {
+  border-color: #4951b5;
+}
+
+.upload .dropzone img {
+  width: 100%;
+  height: auto;
+  max-height: 100%;
+}
+
+.upload .text {
+  display: inline-block;
+  font-size: 14px;
+  line-height: 16px;
+  margin-top: 16px;
+  vertical-align: top;
+  pointer-events: none;
+}
+
+.upload .text b {
+  color: #4951b5;
+  font-size: 18px;
+  font-weight: 500;
+}
+
+.upload .upload-button {
+  display: none;
+}
+
+.upload .x {
+  left: 100px;
+  cursor: pointer;
+  position: absolute;
+  top: 100px;
+}

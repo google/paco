@@ -1,2 +1,0 @@
-function ntb(a){this.b=a}
-c2(783,1,Mnc,ntb);_.ic=function otb(a){var b,c;b=jI(a.Tc(),155);c=hC((GC(),IC((vD(),PC))),b,null);KRb(this.b,c)};_.b=null;c2(784,1,toc);_.qc=function stb(){var a,b,c,d,e;H4(this.b,(a=new m8b,b=new MRb,xj(a,new ntb(b),(!sA&&(sA=new Qx),sA)),l8b(a,new zH,true),c=(GC(),IC((vD(),OC))),d=new L7b,G7b(d,new _7b(c)),e=new p5b,m5b(e,new TRb('<b>Permanent DatePicker:<\/b>')),m5b(e,b),m5b(e,a),m5b(e,new TRb('<br><br><br><b>DateBox with popup DatePicker:<\/b>')),m5b(e,d),e))};var HT=Hcc(ivc,'CwDatePicker$1',783);gpc(Jn)(35);

@@ -1,0 +1,68 @@
+.list .admin {
+  background: url('../img/admin.png') no-repeat;
+  background-size: 10px 10px;
+  background-position: 4px 6px;
+  padding-left: 18px;
+  position: absolute;
+  top: 16px;
+  right: 16px;
+}
+
+.list .participant {
+  background: url('../img/participant.png') no-repeat;
+  background-size: 5px 10px;
+  background-position: 4px 6px;
+  padding-left: 13px;
+  position: absolute;
+  top: 16px;
+  right: 16px;
+}
+
+.list .organization {
+  color: #999;
+}
+
+.list .modifyDate {
+  padding-top:5px;	
+  color: #555;
+  font-size: 12px; 
+}
+
+
+.list .join {
+  float: right;
+  margin-right: -8px;
+}
+
+.list a {
+  text-decoration: none;
+}
+
+.list md-card.deleting {
+  opacity: .5;
+  pointer-events: none;
+}
+
+.list .group {
+  margin-top: 32px;
+}
+
+.list.centered {
+  width: 800px;
+  margin-left: -400px;
+}
+
+.list .new-experiment {
+  position: absolute;
+  top: 10px;
+  right: 0px;
+  z-index: 1;
+}
+
+.list button.show-more {
+  width: 100%;
+}
+
+.list .status {
+  margin: 16px 8px;
+}

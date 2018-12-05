@@ -13,15 +13,16 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.google.corp.productivity.specialprojects.android.comm.LoginRedirectHandler;
 import com.pacoapp.paco.R;
+import com.pacoapp.paco.UserPreferences;
+import com.pacoapp.paco.net.AbstractAuthTokenTask;
 
 public class AccountChooser extends ListActivity {
 
   public static final String ACCOUNT_NAME = "ACCOUNT_NAME";
   public static final String ACCOUNT_TYPE = "accountType";
   private static final String GOOGLE_ACCOUNT = "com.google";
-  
+
   private String accountType = GOOGLE_ACCOUNT;
   private Account[] accounts;
   private UserPreferences userPrefs;
@@ -45,7 +46,7 @@ public class AccountChooser extends ListActivity {
     AccountManager am = AccountManager.get(this);
     accounts = am.getAccountsByType(accountType);
     if (accounts == null || accounts.length == 0) {
-      am.addAccount(accountType, LoginRedirectHandler.AUTH_TOKEN_TYPE, null, null, null, null, null);
+      am.addAccount(accountType, AbstractAuthTokenTask.AUTH_TOKEN_TYPE_USERINFO_EMAIL, null, null, null, null, null);
     } else {
       List<String> accountNames = new ArrayList<String>();
       for (Account acct : accounts) {
@@ -54,8 +55,8 @@ public class AccountChooser extends ListActivity {
       setListAdapter(new ArrayAdapter(this, android.R.layout.simple_list_item_1, accountNames));
     }
   }
-  
-  
+
+
 
   @Override
   protected void onListItemClick(ListView l, View v, int position, long id) {
@@ -71,10 +72,10 @@ public class AccountChooser extends ListActivity {
     result.putExtra(ACCOUNT_NAME, accountName);
     setResult(0, result);
   }
-  
-  
-  
 
-  
+
+
+
+
 
 }

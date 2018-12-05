@@ -2,9 +2,7 @@ package com.google.sampling.experiential.server;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.text.NumberFormat;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
@@ -14,15 +12,23 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.codehaus.jackson.JsonGenerationException;
+import org.codehaus.jackson.map.JsonMappingException;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 
 import com.google.appengine.api.users.User;
 import com.google.appengine.api.users.UserService;
-import com.google.appengine.api.users.UserServiceFactory;
+import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.sampling.experiential.model.Event;
-import com.google.sampling.experiential.model.Experiment;
+import com.google.sampling.experiential.server.ParticipationStats.ParticipantParticipationStat;
+import com.google.sampling.experiential.server.stats.participation.ParticipationStatsService;
+import com.google.sampling.experiential.server.stats.participation.ResponseStat;
+import com.pacoapp.paco.shared.model2.ExperimentDAO;
+import com.pacoapp.paco.shared.model2.JsonConverter;
 
 public class ParticipantStatServlet extends HttpServlet {
 
@@ -30,137 +36,225 @@ public class ParticipantStatServlet extends HttpServlet {
   public static final String DEV_HOST = "<Your machine name here>";
   private UserService userService;
 
+  /**
+   * Produces a json output for the stats mainpage
+   *
+   * endpoint /participation?experimentId=&who=&limit=&cursor=
+   *
+   */
   @Override
   protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-    UserService userService = UserServiceFactory.getUserService();
-    User user = getWhoFromLogin();
+    User user = AuthUtil.getWhoFromLogin();
 
     if (user == null) {
-      resp.sendRedirect(userService.createLoginURL(req.getRequestURI()));
+      AuthUtil.redirectUserToLogin(req, resp);
     } else {
-      resp.setContentType("text/html;charset=UTF-8");
+      resp.setContentType("text/json;charset=UTF-8");
 
-      String experimentId = req.getParameter("experimentId");
-      if (experimentId == null || experimentId.isEmpty()) {
-        resp.getWriter().write("No results");
+      String experimentIdStr = req.getParameter("experimentId");
+      if (experimentIdStr == null || experimentIdStr.isEmpty()) {
+        resp.getWriter().write("No experiment id specified");
         return;
       } else {
-        final boolean alpha = req.getParameter("alpha") != null;
-        Experiment experiment = ExperimentRetriever.getInstance().getExperiment(experimentId);
-        List<Query> queryFilters = new QueryParser().parse("experimentId=" + experimentId);
+        Long experimentId = null;
+        try {
+          experimentId = Long.parseLong(experimentIdStr);
+        } catch (NumberFormatException nfe) {
+          resp.getWriter().write("Invalid experiment id specified");
+          return;
+        }
+
+        String whoParam = req.getParameter("who");
         DateTimeZone timeZoneForClient = TimeUtil.getTimeZoneForClient(req);
-        List<Event> events = EventRetriever.getInstance().getEvents(queryFilters, user.getEmail(),
-                                                                    timeZoneForClient, 0, 20000);
-        Map<String, ParticipantReport> participantReports = Maps.newConcurrentMap();
-        for (Event event : events) {
-          ParticipantReport participantReport = participantReports.get(event.getWho());
-          if (participantReport == null) {
-            participantReport = new ParticipantReport(event.getWho(), timeZoneForClient);
-            participantReports.put(event.getWho(), participantReport);
-          }
-          participantReport.addEvent(event);
+        if (!ExperimentAccessManager.isAdminForExperiment(AuthUtil.getEmailOfUser(req, user), experimentId)
+            && !isQueryingOwnStats(AuthUtil.getEmailOfUser(req, user), whoParam)) {
+          resp.setStatus(HttpServletResponse.SC_FORBIDDEN);
+          return;
         }
+        ExperimentDAO experiment = ExperimentServiceFactory.getExperimentService().getExperiment(experimentId);
 
-        int totalResponses = 0;
-        List<ParticipantReport> participantReportValues = Lists.newArrayList(participantReports.values());
-        for (ParticipantReport report : participantReportValues) {
-          report.computeStats();
-          totalResponses += report.getSelfReportAndSignaledResponseCount();
-        }
 
-        PrintWriter writer = resp.getWriter();
-        writer.write("<html><head><title>Participant Stats for " + experiment.getTitle() + "</title>" +
-        "<style type=\"text/css\">"+
-            "body {font-family: verdana,arial,sans-serif;color:#333333}" +
-          "table.gridtable {font-family: verdana,arial,sans-serif;font-size:11px;color:#333333;border-width: 1px;border-color: " +
-          "#666666;border-collapse: collapse;}" +
-          "table.gridtable th {border-width: 1px;padding: 8px;border-style: solid;border-color: #666666;background-color: #dedede;}" +
-          "table.gridtable td {border-width: 1px;padding: 8px;border-style: solid;border-color: #666666;background-color: #ffffff;}" +
-          "</style>" +
-      		"</head><body>");
-        writer.write("<div style=\"float: left;\">");
-        writer.write("<h2>" + experiment.getTitle() +" Participant Stats</h2>");
-        if (alpha) {
-          writer.write("<p>Sorted alphabetically</p>");
-          writer.write("<p><a href=\"/participantStats?experimentId="+ experimentId +"\">Click for sorted by today's signaled response rate</a></p>");
-        } else {
-          writer.write("<p>Sorted by lowest signaled response rate for today</p>");
-          writer.write("<p><a href=\"/participantStats?alpha=true&experimentId="+ experimentId +"\">Click for alphabetically sorted</a></p>");
-            
-        }
-        writer.write("<div><span style=\"font-weight: bold;\">Number of Joined Participants: </span>");
-        writer.write("<span>" + participantReports.keySet().size() +"</span></div>");
-        
-        writer.write("<div><span style=\"font-weight: bold;\">Number of Responses: </span>");
-        writer.write("<span>" + totalResponses +"</span></div>");
-
-        writer.write("<hr/>");
-        writer.write("<table class=\"gridtable\">");
-        writer.write("<tr style=\"font-weight: bold; text-align:left;\">");
-        writer.write("<th>Who</th>" +
-        		"<th>Today's Signal Response<br/>" +
-        		"% = Responded / Sent</th>" +        		
-        		"<th>Today's Self Reports</th>" +
-        		
-            "<th style=\"background-color: #a9a9a9;\">Total Signaled Response<br/>" +
-            "% = Responded / Sent</th>" +
-            "<th>Total Self Reports</th>" +
-            "<th>Total Reports<br/>(signaled + self)</th>" +
-            "</tr>");
-
-        
-        Collections.sort(participantReportValues, new Comparator<ParticipantReport>() {
-          @Override
-          public int compare(ParticipantReport participantReport1, ParticipantReport participantReport2) {
-            if (alpha) {
-               return participantReport1.getWho().toLowerCase().compareTo(participantReport2.getWho().toLowerCase());
+        String v2Stats = req.getParameter("statv2");
+        if (Strings.isNullOrEmpty(v2Stats)) {
+          if (Strings.isNullOrEmpty(whoParam)) {
+            computeOldStatsFromCounters(req, resp, user, experimentId, whoParam, timeZoneForClient);
+          } else {
+            // inline of the reportType = who in computeStatsFromCounters below
+            ParticipationStatsService ps = new ParticipationStatsService();
+            List<ResponseStat> participationStats = ps.getDailyTotalsForParticipant(experimentId, whoParam);
+            PrintWriter writer = resp.getWriter();
+            ObjectMapper mapper = JsonConverter.getObjectMapper();
+            //mapper.setDateFormat(new SimpleDateFormat("yyyy/MM/dd"));
+            if (participationStats != null) {
+              writer.write(mapper.writeValueAsString(participationStats));
             } else {
-              float report1ResponseRate = participantReport1.getSignaledResponseRate();
-              float report2ResponseRate = participantReport2.getSignaledResponseRate();
-              if (report1ResponseRate == report2ResponseRate) {
-                return 0;
-              } else if (report1ResponseRate > report2ResponseRate) {
-                return 1;
-              } else {
-                return -1;
-              }
+              writer.write("Could not compute stats. Please check server for errors.");
             }
           }
-          
-        });
-        NumberFormat percentFormat = NumberFormat.getPercentInstance();
-        for (ParticipantReport report : participantReportValues) {
-          writer.write("<tr style=\"text-align:right;\">");
-          String who = report.getWho();
-          String anonymousId = Event.getAnonymousId(who);
-          writer.write("<td style=\"text-align:left;\">" + who + "</td>");
-          writer.write("<td>" + 
-              percentFormat.format(report.getTodaysSignaledResponseRate()) + " = ");
-          
-          writer.write(Integer.toString(report.getTodaysSignaledResponseCount()) + " / " +
-              Integer.toString(report.getTodaysScheduledCount()) +
-              "</td>");
-          
-          writer.write("<td>" + Integer.toString(report.getTodaysSelfReportResponseCount()) + "</td>");
-          
-          writer.write("<td style=\"background-color: #dedede;\">" + percentFormat.format(report.getSignaledResponseRate()) + " = ");
-          
-          writer.write(Integer.toString(report.getSignaledResponseCount()) + " / " +
-              Integer.toString(report.getScheduledCount()) +              
-              "</td>");
-          writer.write("<td>" + Integer.toString(report.getSelfReportResponseCount()) + "</td>");
-          
-          writer.write("<td>" + Integer.toString(report.getSelfReportAndSignaledResponseCount()) + "</td>");
-          writer.write("</tr>");
+
+        } else {
+          computeStatsFromCounters(req, resp, user, experimentId, whoParam, timeZoneForClient);
         }
-        writer.write("</table></div></body></html>");
+
       }
     }
   }
 
-  private User getWhoFromLogin() {
-    UserService userService = UserServiceFactory.getUserService();
-    return userService.getCurrentUser();
+  private void computeStatsFromCounters(HttpServletRequest req, HttpServletResponse resp, User user, Long experimentId,
+                                        String whoParam, DateTimeZone timeZoneForClient) throws IOException {
+    String experimentGroupName = req.getParameter("experimentGroupName");
+    String reportType = req.getParameter("reportType");
+    String dateParam = req.getParameter("date"); //
+    DateTime date = null;
+    if (!Strings.isNullOrEmpty(dateParam)) {
+      date = com.pacoapp.paco.shared.util.TimeUtil.parseDateWithoutZone(dateParam);
+    }
+
+    ParticipationStatsService ps =  new ParticipationStatsService();
+    List<ResponseStat> participationStats = null;
+    if (Strings.isNullOrEmpty(reportType) || reportType.equals("today")) {
+      if (!Strings.isNullOrEmpty(experimentGroupName)) {
+        participationStats = ps.getTotalByParticipantOnDateForGroup(experimentId, experimentGroupName, new DateTime());
+      } else {
+        participationStats = ps.getTotalByParticipantOnDate(experimentId, new DateTime());
+      }
+    } else if (reportType.equals("date")) {
+      if (date == null) {
+        throw new IllegalArgumentException("Must specify date correctly for reportType=date.");
+      }
+      if (!Strings.isNullOrEmpty(experimentGroupName)) {
+        participationStats = ps.getTotalByParticipantOnDateForGroup(experimentId, experimentGroupName, date);
+      } else {
+        participationStats = ps.getTotalByParticipantOnDate(experimentId, date);
+      }
+    } else if (reportType.equals("total")) {
+      if (!Strings.isNullOrEmpty(experimentGroupName)) {
+        participationStats = ps.getTotalByParticipantForGroup(experimentId, experimentGroupName);
+      } else {
+        participationStats = ps.getTotalByParticipant(experimentId);
+      }
+    } else if (reportType.equals("who") || !Strings.isNullOrEmpty(whoParam)) {
+      if (!Strings.isNullOrEmpty(experimentGroupName)) {
+        participationStats = ps.getDailyTotalsForParticipantForGroup(experimentId, experimentGroupName, whoParam);
+      } else {
+        participationStats = ps.getDailyTotalsForParticipant(experimentId, whoParam);
+      }
+    } else if (reportType.equals("totalEventCounts")) {
+      participationStats = Lists.newArrayList(ps.getTotalResponseCount(experimentId)); // todo write a single object instead of a list
+    }
+    PrintWriter writer = resp.getWriter();
+    ObjectMapper mapper = JsonConverter.getObjectMapper();
+    if (participationStats != null && !participationStats.isEmpty()) {
+      writer.write(mapper.writeValueAsString(participationStats));
+    } else if (participationStats != null && participationStats.isEmpty()) {
+      writer.write("{ \"message\" : \"No data\"}");
+    } else {
+      writer.write("{ \"message\" : \"Could not compute stats. Please check server for errors.\"}");
+    }
+  }
+
+  private void computeOldStatsFromCounters(HttpServletRequest req, HttpServletResponse resp, User user,
+                                           Long experimentId, String whoParam, DateTimeZone timeZoneForClient) throws IOException {
+    // computes the overview stats for the project stats page using the new counters
+    ParticipationStatsService ps =  new ParticipationStatsService();
+    List<ResponseStat> totalParticipationStats = ps.getTotalByParticipant(experimentId);
+
+    Map<String, ResponseStat> todayResponseMap = Maps.newConcurrentMap();
+    List<ResponseStat> todayParticipationStats = ps.getTotalByParticipantOnDate(experimentId, new DateTime());
+    for (ResponseStat responseStat : todayParticipationStats) {
+      todayResponseMap.put(responseStat.who, responseStat);
+    }
+
+    List<ParticipantParticipationStat> participantStats = Lists.newArrayList();
+
+    for (ResponseStat totalResponseStat : totalParticipationStats) {
+      ResponseStat todayWho = todayResponseMap.get(totalResponseStat.who);
+      participantStats.add(new ParticipationStats.ParticipantParticipationStat(totalResponseStat.who,
+                                                                               todayWho != null ? (todayWho.schedR + todayWho.missedR) : 0,
+                                                                               todayWho != null ? todayWho.schedR : 0,
+                                                                               todayWho != null ? todayWho.selfR : 0,
+                                                                               totalResponseStat.schedR + totalResponseStat.missedR,
+                                                                               totalResponseStat.schedR,
+                                                                               totalResponseStat.selfR));
+    }
+
+
+    ParticipationStats participationStats = new ParticipationStats(participantStats, null);
+
+    PrintWriter writer = resp.getWriter();
+    ObjectMapper mapper = JsonConverter.getObjectMapper();
+    writer.write(mapper.writeValueAsString(participationStats));
+  }
+
+
+
+  private void computeStatsFromEventsTable(HttpServletRequest req, HttpServletResponse resp, User user,
+                                           Long experimentId, String whoParam, DateTimeZone timeZoneForClient)
+                                                                                                              throws IOException,
+                                                                                                              JsonGenerationException,
+                                                                                                              JsonMappingException {
+    String fullQuery = "experimentId=" + experimentId;
+    if (!Strings.isNullOrEmpty(whoParam)) {
+      fullQuery += ":who=" + whoParam;
+    }
+    List<Query> queryFilters = new QueryParser().parse(fullQuery);
+    String cursor = req.getParameter("cursor");
+    String limitStr = req.getParameter("limit");
+    int limit = 0;
+    if (!Strings.isNullOrEmpty(limitStr)) {
+      try {
+        limit = Integer.parseInt(limitStr);
+      } catch (NumberFormatException e) {
+        e.printStackTrace();
+      }
+    }
+
+    EventQueryResultPair eventQueryResultPair = EventRetriever.getInstance()
+                                                              .getEventsInBatchesOneBatch(queryFilters,
+                                                                                          AuthUtil.getEmailOfUser(req,
+                                                                                                                  user),
+                                                                                          timeZoneForClient, limit,
+                                                                                          cursor);
+
+    Map<String, ParticipantReport> participantReports = Maps.newConcurrentMap();
+    for (Event event : eventQueryResultPair.getEvents()) {
+      ParticipantReport participantReport = participantReports.get(event.getWho());
+      if (participantReport == null) {
+        participantReport = new ParticipantReport(event.getWho(), timeZoneForClient);
+        participantReports.put(event.getWho(), participantReport);
+      }
+      participantReport.addEvent(event);
+    }
+
+    List<ParticipantParticipationStat> participantStats = Lists.newArrayList();
+
+    List<ParticipantReport> participantReportValues = Lists.newArrayList(participantReports.values());
+    for (ParticipantReport report : participantReportValues) {
+      report.computeStats();
+      participantStats.add(new ParticipationStats.ParticipantParticipationStat(
+                                                                               report.getWho(),
+                                                                               report.getTodaysScheduledCount(),
+                                                                               report.getTodaysSignaledResponseCount(),
+                                                                               report.getTodaysSelfReportResponseCount(),
+                                                                               report.getScheduledCount(),
+                                                                               report.getSignaledResponseCount(),
+                                                                               report.getSelfReportResponseCount()));
+    }
+
+    Collections.sort(participantStats);
+    String nextCursor = eventQueryResultPair.getCursor();
+    if (nextCursor == null || nextCursor.equals(cursor)) {
+      nextCursor = null;
+    }
+    ParticipationStats participationStats = new ParticipationStats(participantStats, nextCursor);
+
+    PrintWriter writer = resp.getWriter();
+    ObjectMapper mapper = JsonConverter.getObjectMapper();
+    writer.write(mapper.writeValueAsString(participationStats));
+  }
+
+  private boolean isQueryingOwnStats(String emailOfUser, String whoParam) {
+    return whoParam != null && whoParam.toLowerCase().equals(emailOfUser);
   }
 
 }

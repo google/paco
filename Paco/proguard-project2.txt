@@ -1,0 +1,92 @@
+-optimizationpasses 1
+-dontusemixedcaseclassnames
+-dontskipnonpubliclibraryclasses
+-dontpreverify
+-verbose
+-optimizations !code/simplification/arithmetic,!field/*,!class/merging/*
+
+-keep public class * extends android.app.Activity
+-keep public class * extends android.app.Application
+-keep public class * extends android.app.Service
+-keep public class * extends android.content.BroadcastReceiver
+-keep public class * extends android.content.ContentProvider
+-keep public class * extends android.app.backup.BackupAgentHelper
+-keep public class * extends android.preference.Preference
+#-keep public class com.android.vending.licensing.ILicensingService
+
+-keepclasseswithmembernames class * {
+    native <methods>;
+}
+
+-keepclasseswithmembers class * {
+    public <init>(android.content.Context, android.util.AttributeSet);
+}
+
+-keepclasseswithmembers class * {
+    public <init>(android.content.Context, android.util.AttributeSet, int);
+}
+
+-keepclassmembers class * extends android.app.Activity {
+   public void *(android.view.View);
+}
+
+-keepclassmembers enum * {
+    public static **[] values();
+    public static ** valueOf(java.lang.String);
+}
+
+-keep class * implements android.os.Parcelable {
+  public static final android.os.Parcelable$Creator *;
+}
+
+-keep class * extends java.util.ListResourceBundle {
+    protected java.lang.Object[][] getContents();
+}
+
+-keep public class com.google.android.gms.common.internal.safeparcel.SafeParcelable {
+    public static final *** NULL;
+}
+
+-keepnames @com.google.android.gms.common.annotation.KeepName class *
+-keepclassmembernames class * {
+    @com.google.android.gms.common.annotation.KeepName *;
+}
+
+-keepnames class * implements android.os.Parcelable {
+    public static final ** CREATOR;
+}
+
+-keep class android.support.v7.** { *; }
+-keep interface android.support.v7.** { *; }
+-keep class android.support.v7.app.** { *; }
+-keep interface android.support.v7.app.** { *; }
+
+-dontwarn **CompatHoneycomb
+-keep class android.support.v4.** { *; }
+-keep class android.support.v4.app.** { *; }
+-keep interface android.support.v4.app.** { *; }
+
+-dontwarn org.mozilla.javascript.**
+-dontwarn org.antlr.runtime.**
+-dontwarn org.codehaus.jackson.**
+-dontwarn com.pacoapp.paco.shared.client.**
+-dontwarn com.google.common.**
+-dontwarn com.pacoapp.paco.shared.OutcomeTest
+
+-keep class com.pacoapp.paco.** { *; }
+-keep interface com.pacoapp.paco.** { *; }
+-keep class com.google.android.apps.paco.** { *; }
+-keep interface com.google.android.apps.paco.** { *; }
+-keep class com.pacoapp.paco.shared.** { *; }
+-keep interface com.pacoapp.paco.shared.** { *; }
+-keep class org.mozilla.javascript.** { *; }
+-keep class org.antlr.runtime.** { *; }
+-keep class org.codehaus.jackson.** { *; }
+-keep class org.joda.** { *; }
+-keep class com.pacoapp.paco.shared.client.** { *; }
+-keep class com.google.common.** { *; }
+-keep class com.jawbone.** {*;}
+-keep class com.bodymedia.** {*;}
+-keep class android.support.v7.app.ActionBarActivity { *; }
+-keep class libcore.icu.ICU.** { *; }
+

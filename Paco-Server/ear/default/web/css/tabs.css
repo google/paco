@@ -1,0 +1,42 @@
+md-tabs-ink-bar {
+  background-color: #ff1c6d !important;
+}
+
+md-tabs-canvas {
+  background: #5c6bc0 !important; 
+}
+
+md-tab-item {
+  color: rgba(255,255,255,.7) !important;
+}
+
+md-tab-item.md-active {
+  background-color: #5c6bc0 !important;
+  color: white !important;
+}
+
+.md-button {
+  margin-bottom: -4px;
+  margin-left: 0px;
+  margin-top: -4px;
+}
+
+.edit .save {
+  position: absolute;
+  right: 0;
+  top: 72px;
+  z-index: 10;
+}
+
+.edit .actions {
+  float: right;
+  margin-right: -16px;
+}
+
+.edit .save button {
+  color: white;
+}
+
+.edit .save a {
+  color: red;
+}

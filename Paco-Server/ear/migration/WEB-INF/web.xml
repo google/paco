@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- ~ Copyright 2011 Google Inc. All Rights Reserved. ~ ~ Licensed under 
+  the Apache License, Version 2.0 (the "License"); ~ you may not use this file 
+  except in compliance with the License. ~ You may obtain a copy of the License 
+  at ~ ~ http://www.apache.org/licenses/LICENSE-2.0 ~ ~ Unless required by 
+  applicable law or agreed to in writing, ~ software distributed under the 
+  License is distributed on an ~ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS 
+  OF ANY ~ KIND, either express or implied. See the License for the ~ specific 
+  language governing permissions and limitations ~ under the License. -->
+<!DOCTYPE web-app
+    PUBLIC "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN"
+    "http://java.sun.com/dtd/web-app_2_3.dtd">
+
+<web-app>
+  <servlet>
+    <servlet-name>ServerCreateServlet</servlet-name>
+    <servlet-class>com.google.sampling.experiential.server.migration.CloudSQLCreateServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>ServerCreateServlet</servlet-name>
+    <url-pattern>/migration/csCreate</url-pattern>
+  </servlet-mapping>
+  <servlet>
+    <servlet-name>FailedEventsInsertServlet</servlet-name>
+    <servlet-class>com.google.sampling.experiential.server.FailedEventsInsertServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>FailedEventsInsertServlet</servlet-name>
+    <url-pattern>/migration/csFailedEventsInsert</url-pattern>
+  </servlet-mapping>
+  <servlet>
+    <servlet-name>EventCounterServlet</servlet-name>
+    <servlet-class>com.google.sampling.experiential.server.migration.mr.eventctr.EventCounterMRServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>EventCounterServlet</servlet-name>
+    <url-pattern>/migration/eventCounter</url-pattern>
+  </servlet-mapping>
+  <servlet>
+    <servlet-name>MayJuneEventCounterServlet</servlet-name>
+    <servlet-class>com.google.sampling.experiential.server.migration.mr.dayctr.MayJuneEventCounterMRServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>MayJuneEventCounterServlet</servlet-name>
+    <url-pattern>/migration/mayJuneEventCounter</url-pattern>
+  </servlet-mapping>
+  <servlet>
+    <servlet-name>migrationFrontendServlet</servlet-name>
+    <servlet-class>com.google.sampling.experiential.server.migration.MigrationFrontendServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>migrationFrontendServlet</servlet-name>
+    <url-pattern>/migration/migrate</url-pattern>
+  </servlet-mapping>
+ 
+  <!-- gwt-only client endpoints use UserService with https -->
+  <!-- admin only endpoints use UserService, https, and admin role -->
+  <security-constraint>
+    <web-resource-collection>
+      <url-pattern>/*</url-pattern>
+    </web-resource-collection>
+    <auth-constraint>
+      <role-name>admin</role-name>
+    </auth-constraint>
+    <user-data-constraint>
+      <transport-guarantee>CONFIDENTIAL</transport-guarantee>
+    </user-data-constraint>
+  </security-constraint>
+</web-app>

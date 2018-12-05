@@ -1,2 +1,0 @@
-function Bsb(){}
-L1(773,1,Unc,Bsb);_.Hc=function Csb(a){IKb('Stop poking me!')};L1(774,1,Xnc);_.qc=function Gsb(){var a,b,c;o4(this.b,(a=new WVb,a.f[Xtc]=10,b=new lNb('Normal Button',new Bsb),A4b(b.db,Dpc,'cwBasicButton-normal'),TVb(a,b),c=new kNb('Disabled Button'),A4b(c.db,Dpc,'cwBasicButton-disabled'),c.db[Hvc]=true,TVb(a,c),a))};var kT=kcc(Muc,'CwBasicButton$1',773);Koc(In)(2);

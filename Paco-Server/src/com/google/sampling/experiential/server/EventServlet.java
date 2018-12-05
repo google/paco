@@ -21,12 +21,14 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
+import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.logging.Logger;
 
@@ -34,23 +36,26 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.map.annotate.JsonSerialize.Inclusion;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 
-import com.google.appengine.api.backends.BackendService;
-import com.google.appengine.api.backends.BackendServiceFactory;
+import com.google.appengine.api.modules.ModulesService;
+import com.google.appengine.api.modules.ModulesServiceFactory;
 import com.google.appengine.api.users.User;
-import com.google.appengine.api.users.UserService;
-import com.google.appengine.api.users.UserServiceFactory;
+import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.google.sampling.experiential.model.Event;
+import com.google.sampling.experiential.model.PhotoBlob;
 import com.google.sampling.experiential.shared.EventDAO;
+import com.google.sampling.experiential.shared.WhatDAO;
+import com.pacoapp.paco.shared.model2.JsonConverter;
 
 /**
  * Servlet that answers queries for Events.
@@ -67,34 +72,80 @@ public class EventServlet extends HttpServlet {
   @Override
   protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
     setCharacterEncoding(req, resp);
-    UserService userService = UserServiceFactory.getUserService();
-    User user = userService.getCurrentUser();
+    User user = AuthUtil.getWhoFromLogin();
     if (user == null) {
-      resp.sendRedirect(userService.createLoginURL(req.getRequestURI()));
+      AuthUtil.redirectUserToLogin(req, resp);
     } else {
       String anonStr = req.getParameter("anon");
       boolean anon = false;
       if (anonStr != null) {
         anon = Boolean.parseBoolean(anonStr);
       }
+      String includePhotosParam = req.getParameter("includePhotos");
+      boolean includePhotos = false;
+      if (includePhotosParam != null) {
+        includePhotos = Boolean.parseBoolean(includePhotosParam);
+      }
+      boolean cmdline = req.getParameter("cmdline") != null;
+      String cursor = req.getParameter("cursor");
+      String limitStr = req.getParameter("limit");
+      int limit = 0;
+      if (!Strings.isNullOrEmpty(limitStr)) {
+          try {
+            limit = Integer.parseInt(limitStr);
+          } catch (NumberFormatException e) {
+            e.printStackTrace();
+          }
+      }
+      boolean doJsonOnBackend = req.getParameter("backend") != null;
+
       if (req.getParameter("mapping") != null) {
-        dumpUserIdMapping(req, resp);
+        dumpUserIdMapping(req, resp, limit, cursor);
       } else if (req.getParameter("json") != null) {
-        resp.setContentType("application/json;charset=UTF-8");
-        dumpEventsJson(resp, req, anon);
+        if (!doJsonOnBackend) {
+          resp.setContentType("application/json;charset=UTF-8");
+          dumpEventsJson(resp, req, anon, includePhotos, limit, cursor, cmdline);
+        } else {
+          dumpEventsJsonExperimental(resp, req, anon, limit, cursor, cmdline);
+        }
       } else if (req.getParameter("photozip") != null) {
-        dumpPhotosZip(resp, req, anon);
+        dumpPhotosZip(resp, req, anon, limit, cursor, cmdline);
       } else if (req.getParameter("csv") != null) {
-        dumpEventsCSV(resp, req, anon);
+        dumpEventsCSVExperimental(resp, req, anon, limit, cursor, cmdline);
+      } else if (req.getParameter("html2") != null) {
+        dumpEventsHtmlExperimental(resp, req, anon, limit, cursor, cmdline);
       } else {
-        dumpEventsHtml(resp, req, anon);
+        dumpEventsHtml(resp, req, anon, limit, cursor, cmdline);
       }
     }
   }
 
-  private void dumpUserIdMapping(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+  private void dumpEventJsonUsingBackend(HttpServletResponse resp, HttpServletRequest req, boolean anon, int limit, String cursor, boolean cmdline) throws IOException {
+    String loggedInuser = AuthUtil.getWhoFromLogin().getEmail().toLowerCase();
+    if (loggedInuser != null && adminUsers.contains(loggedInuser)) {
+      loggedInuser = defaultAdmin; //TODO this is dumb. It should just be the value, loggedInuser.
+    }
+
+    DateTimeZone timeZoneForClient = TimeUtil.getTimeZoneForClient(req);
+    String jobId = runReportJob(anon, loggedInuser, timeZoneForClient, req, "json", limit, cursor);
+    // Give the backend time to startup and register the job.
+    try {
+      Thread.sleep(100);
+    } catch (InterruptedException e) {
+    }
+    if (cmdline) {
+      resp.getWriter().println(jobId);
+    } else {
+      resp.sendRedirect("/jobStatus?jobId=" + jobId);
+    }
+
+  }
+
+  // TODO replace this with a call to the joined table to get all the unique users for an experiment.
+  private void dumpUserIdMapping(HttpServletRequest req, HttpServletResponse resp, int limit, String cursor) throws IOException {
     List<com.google.sampling.experiential.server.Query> query = new QueryParser().parse(stripQuotes(HttpUtil.getParam(req, "q")));
-    List<Event> events = getEventsWithQuery(req, query, 0, 20000);
+    EventQueryResultPair eventQueryPair = getEventsWithQuery(req, query, limit, cursor);
+    List<Event> events = eventQueryPair.getEvents();
     EventRetriever.sortEvents(events);
     Set<String> whos = new HashSet<String>();
     for (Event event : events) {
@@ -111,29 +162,23 @@ public class EventServlet extends HttpServlet {
     resp.getWriter().println(mappingOutput.toString());
   }
 
-  private boolean isDevInstance(HttpServletRequest req) {
-    return ExperimentServlet.isDevInstance(req);
-  }
 
-  private User getWhoFromLogin() {
-    UserService userService = UserServiceFactory.getUserService();
-    return userService.getCurrentUser();
-  }
-
-  private void dumpEventsJson(HttpServletResponse resp, HttpServletRequest req, boolean anon) throws IOException {
+  private void dumpEventsJson(HttpServletResponse resp, HttpServletRequest req, boolean anon, boolean includePhotos, int limit, String cursor, boolean cmdline) throws IOException {
     List<com.google.sampling.experiential.server.Query> query = new QueryParser().parse(stripQuotes(HttpUtil.getParam(req, "q")));
-    List<Event> events = getEventsWithQuery(req, query, 0, 20000);
+    EventQueryResultPair eventQueryPair = getEventsWithQuery(req, query, limit, cursor);
+    List<Event> events = eventQueryPair.getEvents();
     EventRetriever.sortEvents(events);
-    String jsonOutput = jsonifyEvents(events, anon, TimeUtil.getTimeZoneForClient(req).getID());
+
+    String jsonOutput = jsonifyEvents(eventQueryPair, anon, TimeUtil.getTimeZoneForClient(req).getID(), includePhotos);
     resp.getWriter().println(jsonOutput);
   }
 
-  private String jsonifyEvents(List<Event> events, boolean anon, String timezoneId) {
-    ObjectMapper mapper = new ObjectMapper();
-    mapper.getSerializationConfig().setSerializationInclusion(Inclusion.NON_NULL);
+  private String jsonifyEvents(EventQueryResultPair eventQueryPair, boolean anon, String timezoneId, boolean includePhotos) {
+    ObjectMapper mapper = JsonConverter.getObjectMapper();
+
     try {
       List<EventDAO> eventDAOs = Lists.newArrayList();
-      for (Event event : events) {
+      for (Event event : eventQueryPair.getEvents()) {
         String userId = event.getWho();
         if (anon) {
           userId = Event.getAnonymousId(userId);
@@ -148,15 +193,57 @@ public class EventServlet extends HttpServlet {
         if (scheduledDateTime != null) {
           scheduledTime = scheduledDateTime.toDate();
         }
+        final List<WhatDAO> whatMap = EventRetriever.convertToWhatDAOs(event.getWhat());
+        List<PhotoBlob> photos = event.getBlobs();
+        String[] photoBlobs = null;
+        if (includePhotos && photos != null && photos.size() > 0) {
 
-        eventDAOs.add(new EventDAO(userId, event.getWhen(), event.getExperimentName(), event.getLat(), event.getLon(),
-                                   event.getAppId(), event.getPacoVersion(), event.getWhatMap(), event.isShared(),
+          photoBlobs = new String[photos.size()];
+
+          Map<String, PhotoBlob> photoByNames = Maps.newConcurrentMap();
+          for (PhotoBlob photoBlob : photos) {
+            photoByNames.put(photoBlob.getName(), photoBlob);
+          }
+          for(WhatDAO currentWhat : whatMap) {
+            String value = null;
+            if (photoByNames.containsKey(currentWhat.getName())) {
+              byte[] photoData = photoByNames.get(currentWhat.getName()).getValue();
+              if (photoData != null && photoData.length > 0) {
+                String photoString = new String(Base64.encodeBase64(photoData));
+                if (!photoString.equals("==")) {
+                  value = photoString;
+                } else {
+                  value = "";
+                }
+              } else {
+                value = "";
+              }
+              currentWhat.setValue(value);
+            }
+          }
+        }
+
+        eventDAOs.add(new EventDAO(userId,
+                                   event.getWhen(),
+                                   event.getExperimentName(),
+                                   event.getLat(), event.getLon(),
+                                   event.getAppId(),
+                                   event.getPacoVersion(),
+                                   whatMap,
+                                   event.isShared(),
                                    responseTime,
                                    scheduledTime,
-                                   null, Long.parseLong(event.getExperimentId()),
-                                   event.getExperimentVersion(), event.getTimeZone()));
+                                   null,
+                                   Long.parseLong(event.getExperimentId()),
+                                   event.getExperimentVersion(),
+                                   event.getTimeZone(),
+                                   event.getExperimentGroupName(),
+                                   event.getActionTriggerId(),
+                                   event.getActionTriggerSpecId(),
+                                   event.getActionId()));
       }
-      return mapper.writeValueAsString(eventDAOs);
+      EventDAOQueryResultPair eventDaoQueryResultPair = new EventDAOQueryResultPair(eventDAOs, eventQueryPair.getCursor());
+      return mapper.writeValueAsString(eventDaoQueryResultPair);
     } catch (JsonGenerationException e) {
       e.printStackTrace();
     } catch (JsonMappingException e) {
@@ -167,54 +254,108 @@ public class EventServlet extends HttpServlet {
     return "Error could not retrieve events as json";
   }
 
-  private void dumpEventsCSV(HttpServletResponse resp, HttpServletRequest req, boolean anon) throws IOException {
-    String loggedInuser = getWhoFromLogin().getEmail().toLowerCase();
+  private void dumpEventsCSVExperimental(HttpServletResponse resp, HttpServletRequest req, boolean anon, int limit, String cursor, boolean cmdline) throws IOException {
+    String loggedInuser = AuthUtil.getWhoFromLogin().getEmail().toLowerCase();
     if (loggedInuser != null && adminUsers.contains(loggedInuser)) {
       loggedInuser = defaultAdmin; //TODO this is dumb. It should just be the value, loggedInuser.
     }
 
     DateTimeZone timeZoneForClient = TimeUtil.getTimeZoneForClient(req);
-    String jobId = runReportJob(anon, loggedInuser, timeZoneForClient, req, "csv");
+    String jobId = runReportJob(anon, loggedInuser, timeZoneForClient, req, "csv2", limit, cursor);
     // Give the backend time to startup and register the job.
     try {
       Thread.sleep(100);
     } catch (InterruptedException e) {
     }
-    resp.sendRedirect("/jobStatus?jobId=" + jobId);
+    if (cmdline) {
+      resp.getWriter().println(jobId);
+    } else {
+      resp.sendRedirect("/jobStatus?jobId=" + jobId);
+    }
+  }
+
+  private void dumpEventsJsonExperimental(HttpServletResponse resp, HttpServletRequest req, boolean anon, int limit, String cursor, boolean cmdline) throws IOException {
+    String loggedInuser = AuthUtil.getWhoFromLogin().getEmail().toLowerCase();
+    if (loggedInuser != null && adminUsers.contains(loggedInuser)) {
+      loggedInuser = defaultAdmin; //TODO this is dumb. It should just be the value, loggedInuser.
+    }
+
+    DateTimeZone timeZoneForClient = TimeUtil.getTimeZoneForClient(req);
+    String jobId = runReportJob(anon, loggedInuser, timeZoneForClient, req, "json2", limit, cursor);
+    // Give the backend time to startup and register the job.
+    try {
+      Thread.sleep(100);
+    } catch (InterruptedException e) {
+    }
+    if (cmdline) {
+      resp.getWriter().println(jobId);
+    } else {
+      resp.sendRedirect("/jobStatus?jobId=" + jobId);
+    }
+  }
+
+  private void dumpEventsHtmlExperimental(HttpServletResponse resp, HttpServletRequest req, boolean anon, int limit, String cursor, boolean cmdline) throws IOException {
+    String loggedInuser = AuthUtil.getWhoFromLogin().getEmail().toLowerCase();
+    if (loggedInuser != null && adminUsers.contains(loggedInuser)) {
+      loggedInuser = defaultAdmin; //TODO this is dumb. It should just be the value, loggedInuser.
+    }
+
+    DateTimeZone timeZoneForClient = TimeUtil.getTimeZoneForClient(req);
+    String jobId = runReportJob(anon, loggedInuser, timeZoneForClient, req, "html2", limit, cursor);
+    // Give the backend time to startup and register the job.
+    try {
+      Thread.sleep(100);
+    } catch (InterruptedException e) {
+    }
+    if (cmdline) {
+      resp.getWriter().println(jobId);
+    } else {
+      resp.sendRedirect("/jobStatus?jobId=" + jobId);
+    }
 
   }
 
 
-  private void dumpEventsHtml(HttpServletResponse resp, HttpServletRequest req, boolean anon) throws IOException {
-    String loggedInuser = getWhoFromLogin().getEmail().toLowerCase();
+
+  private void dumpEventsHtml(HttpServletResponse resp, HttpServletRequest req, boolean anon, int limit, String cursor, boolean cmdline) throws IOException {
+    String loggedInuser = AuthUtil.getWhoFromLogin().getEmail().toLowerCase();
     if (loggedInuser != null && adminUsers.contains(loggedInuser)) {
       loggedInuser = defaultAdmin; //TODO this is dumb. It should just be the value, loggedInuser.
     }
 
     DateTimeZone timeZoneForClient = TimeUtil.getTimeZoneForClient(req);
-    String jobId = runReportJob(anon, loggedInuser, timeZoneForClient, req, "html");
+    String jobId = runReportJob(anon, loggedInuser, timeZoneForClient, req, "html", limit, cursor);
     // Give the backend time to startup and register the job.
     try {
       Thread.sleep(100);
     } catch (InterruptedException e) {
     }
-    resp.sendRedirect("/jobStatus?jobId=" + jobId);
+    if (cmdline) {
+      resp.getWriter().println(jobId);
+    } else {
+      resp.sendRedirect("/jobStatus?jobId=" + jobId);
+    }
   }
 
-  private void dumpPhotosZip(HttpServletResponse resp, HttpServletRequest req, boolean anon) throws IOException {
-    String loggedInuser = getWhoFromLogin().getEmail().toLowerCase();
+  private void dumpPhotosZip(HttpServletResponse resp, HttpServletRequest req, boolean anon, int limit, String cursor, boolean cmdline) throws IOException {
+    String loggedInuser = AuthUtil.getWhoFromLogin().getEmail().toLowerCase();
     if (loggedInuser != null && adminUsers.contains(loggedInuser)) {
       loggedInuser = defaultAdmin; //TODO this is dumb. It should just be the value, loggedInuser.
     }
 
     DateTimeZone timeZoneForClient = TimeUtil.getTimeZoneForClient(req);
-    String jobId = runReportJob(anon, loggedInuser, timeZoneForClient, req, "photozip");
+
+    String jobId = runReportJob(anon, loggedInuser, timeZoneForClient, req, "photozip", limit, cursor);
     // Give the backend time to startup and register the job.
     try {
       Thread.sleep(100);
     } catch (InterruptedException e) {
     }
-    resp.sendRedirect("/jobStatus?jobId=" + jobId);
+    if (cmdline) {
+      resp.getWriter().println(jobId);
+    } else {
+      resp.sendRedirect("/jobStatus?jobId=" + jobId);
+    }
   }
 
 
@@ -227,24 +368,27 @@ public class EventServlet extends HttpServlet {
    * @param timeZoneForClient
    * @param req
    * @param reportFormat
+   * @param limit
+   * @param cursor
    * @return the jobId to check in on the status of this background job
    * @throws IOException
    */
   private String runReportJob(boolean anon, String loggedInuser, DateTimeZone timeZoneForClient,
-                                 HttpServletRequest req, String reportFormat) throws IOException {
-    BackendService backendsApi = BackendServiceFactory.getBackendService();
-    String backendAddress = backendsApi.getBackendAddress("reportworker");
+                                 HttpServletRequest req, String reportFormat, int limit, String cursor) throws IOException {
+    ModulesService modulesApi = ModulesServiceFactory.getModulesService();
+    String backendAddress = modulesApi.getVersionHostname("reportworker", modulesApi.getDefaultVersion("reportworker"));
+     try {
 
-    try {
       BufferedReader reader = null;
       try {
-        reader = sendToBackend(timeZoneForClient, req, backendAddress, reportFormat);
+        reader = sendToBackend(timeZoneForClient, req, backendAddress, reportFormat, cursor, limit);
       } catch (SocketTimeoutException se) {
+        log.info("Timed out sending to backend. Trying again...");
         try {
           Thread.sleep(100);
         } catch (InterruptedException e) {
         }
-        reader = sendToBackend(timeZoneForClient, req, backendAddress, reportFormat);
+        reader = sendToBackend(timeZoneForClient, req, backendAddress, reportFormat, cursor, limit);
       }
       if (reader != null) {
         StringBuilder buf = new StringBuilder();
@@ -262,15 +406,26 @@ public class EventServlet extends HttpServlet {
   }
 
   private BufferedReader sendToBackend(DateTimeZone timeZoneForClient, HttpServletRequest req,
-                                       String backendAddress, String reportFormat) throws MalformedURLException, IOException {
-    URL url = new URL("http://" + backendAddress + "/backendReportJobExecutor?q=" +
+                                       String backendAddress, String reportFormat, String cursor, int limit) throws MalformedURLException, IOException {
+
+    String httpScheme = "https";
+    String localAddr = req.getLocalAddr();
+    if (localAddr != null && localAddr.matches("127.0.0.1")) {
+      httpScheme = "http";
+    }
+    URL url = new URL(httpScheme + "://" + backendAddress + "/backendReportJobExecutor?q=" +
             req.getParameter("q") +
-            "&who="+getWhoFromLogin().getEmail().toLowerCase() +
+            "&who="+AuthUtil.getWhoFromLogin().getEmail().toLowerCase() +
             "&anon=" + req.getParameter("anon") +
-            "&tz="+timeZoneForClient +
-            "&reportFormat="+reportFormat);
+            "&includePhotos=" +req.getParameter("includePhotos") +
+            "&tz=" + timeZoneForClient +
+            "&reportFormat=" + reportFormat +
+            "&cursor=" + cursor +
+            "&limit=" + limit);
     log.info("URL to backend = " + url.toString());
-    InputStreamReader inputStreamReader = new InputStreamReader(url.openStream());
+    HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+    connection.setInstanceFollowRedirects(false);
+    InputStreamReader inputStreamReader = new InputStreamReader(connection.getInputStream());
     BufferedReader reader = new BufferedReader(inputStreamReader);
     return reader;
   }
@@ -288,32 +443,25 @@ public class EventServlet extends HttpServlet {
     return parameter;
   }
 
-  private List<Event> getEventsWithQuery(HttpServletRequest req,
-                                         List<com.google.sampling.experiential.server.Query> queries, int offset, int limit) {
-    User whoFromLogin = getWhoFromLogin();
-    if (!isDevInstance(req) && whoFromLogin == null) {
-      throw new IllegalArgumentException("Must be logged in to retrieve data.");
-    }
-    String who = null;
-    if (whoFromLogin != null) {
-      who = whoFromLogin.getEmail().toLowerCase();
-    }
-    return EventRetriever.getInstance().getEvents(queries, who, TimeUtil.getTimeZoneForClient(req), offset, limit);
+  private EventQueryResultPair getEventsWithQuery(HttpServletRequest req,
+                                         List<com.google.sampling.experiential.server.Query> queries, int limit, String cursor) {
+    User whoFromLogin = AuthUtil.getWhoFromLogin();
+    return EventRetriever.getInstance().getEventsInBatches(queries, whoFromLogin.getEmail().toLowerCase(), TimeUtil.getTimeZoneForClient(req), limit, cursor);
   }
 
   @Override
   public void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-    setCharacterEncoding(req, resp);
-    User who = getWhoFromLogin();
-    if (who == null) {
-      throw new IllegalArgumentException("Must be logged in!");
-    }
 
-    // TODO(bobevans): Add security check, and length check for DoS
-    if (ServletFileUpload.isMultipartContent(req)) {
-      processCsvUpload(req, resp);
+    setCharacterEncoding(req, resp);
+    User who = AuthUtil.getWhoFromLogin();
+    if (who == null) {
+      AuthUtil.redirectUserToLogin(req, resp);
     } else {
-      processJsonUpload(req, resp);
+      if (ServletFileUpload.isMultipartContent(req)) {
+        processCsvUpload(req, resp);
+      } else {
+        processJsonUpload(req, resp);
+      }
     }
   }
 
@@ -323,20 +471,14 @@ public class EventServlet extends HttpServlet {
     resp.setContentType("text/html;charset=UTF-8");
     PrintWriter out = resp.getWriter(); // TODO move all req/resp writing to here.
     try {
-      new EventCsvUploadProcessor().processCsvUpload(getWhoFromLogin(), fileUploadTool.getItemIterator(req), out);
+      new EventCsvUploadProcessor().processCsvUpload(AuthUtil.getWhoFromLogin(), fileUploadTool.getItemIterator(req), out);
     } catch (FileUploadException e) {
         log.severe("FileUploadException: " + e.getMessage());
         out.println("Error in receiving file.");
     }
   }
   private void processJsonUpload(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-    String postBodyString;
-    try {
-      postBodyString = org.apache.commons.io.IOUtils.toString(req.getInputStream(), "UTF-8");
-    } catch (IOException e) {
-      log.info("IO Exception reading post data stream: " + e.getMessage());
-      throw e;
-    }
+    String postBodyString = RequestProcessorUtil.getBody(req);
     if (postBodyString.equals("")) {
       throw new IllegalArgumentException("Empty Post body");
     }
@@ -344,7 +486,13 @@ public class EventServlet extends HttpServlet {
     String appIdHeader = req.getHeader("http.useragent");
     String pacoVersion = req.getHeader("paco.version");
     log.info("Paco version = " + pacoVersion);
-    String results = EventJsonUploadProcessor.create().processJsonEvents(postBodyString, getWhoFromLogin().getEmail().toLowerCase(), appIdHeader, pacoVersion);
+    String results = EventJsonUploadProcessor.create().processJsonEvents(postBodyString, AuthUtil.getEmailOfUser(req, AuthUtil.getWhoFromLogin()), appIdHeader, pacoVersion);
+
+    if (req.getHeader("pacoProtocol") != null && req.getHeader("pacoProtocol").indexOf("4") == -1) {
+      log.severe("oldProtocol " + req.getHeader("pacoProtocol") + " (iOS) results?");
+      log.severe(results);
+    }
+
     resp.setContentType("application/json;charset=UTF-8");
     resp.getWriter().write(results);
   }

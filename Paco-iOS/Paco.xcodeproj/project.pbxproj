@@ -1,0 +1,1895 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		3129004016DAA4C7008FF617 /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3129003F16DAA4C6008FF617 /* CoreLocation.framework */; };
+		3129004216DAAC9F008FF617 /* MapKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3129004116DAAC9D008FF617 /* MapKit.framework */; };
+		319771C9163F0733000AC06B /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 319771C8163F0733000AC06B /* UIKit.framework */; };
+		319771CB163F0733000AC06B /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 319771CA163F0733000AC06B /* Foundation.framework */; };
+		319771F1163F0733000AC06B /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 319771C8163F0733000AC06B /* UIKit.framework */; };
+		319771F2163F0733000AC06B /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 319771CA163F0733000AC06B /* Foundation.framework */; };
+		31977219163F2655000AC06B /* CFNetwork.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 31977218163F2655000AC06B /* CFNetwork.framework */; };
+		3197721B163F265C000AC06B /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3197721A163F265B000AC06B /* Security.framework */; };
+		3197721D163F2672000AC06B /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3197721C163F2672000AC06B /* SystemConfiguration.framework */; };
+		31D5575116DAD33200C7D1BE /* MobileCoreServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 31D5575016DAD33200C7D1BE /* MobileCoreServices.framework */; };
+		36000C3417C6B0A300A8A9E7 /* libParseKitMobile.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 36000C2817C6AEA900A8A9E7 /* libParseKitMobile.a */; };
+		36000C3817C6B34000A8A9E7 /* libicucore.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 36000C3717C6B34000A8A9E7 /* libicucore.dylib */; };
+		36000C5917CD1AF600A8A9E7 /* Test_999999999.plist in Resources */ = {isa = PBXBuildFile; fileRef = 36000C5817CD1AF600A8A9E7 /* Test_999999999.plist */; };
+		3612A269185FE7AA00DEADD1 /* PacoTimeEditView.m in Sources */ = {isa = PBXBuildFile; fileRef = 3612A268185FE7AA00DEADD1 /* PacoTimeEditView.m */; };
+		361A118B18F30CC9000E9CA2 /* UIColor+Paco.m in Sources */ = {isa = PBXBuildFile; fileRef = 361A118A18F30CC9000E9CA2 /* UIColor+Paco.m */; };
+		361A118C18F30CC9000E9CA2 /* UIColor+Paco.m in Sources */ = {isa = PBXBuildFile; fileRef = 361A118A18F30CC9000E9CA2 /* UIColor+Paco.m */; };
+		361A11A318F5A89A000E9CA2 /* UIFont+Paco.m in Sources */ = {isa = PBXBuildFile; fileRef = 361A11A218F5A89A000E9CA2 /* UIFont+Paco.m */; };
+		361A11A418F5A89A000E9CA2 /* UIFont+Paco.m in Sources */ = {isa = PBXBuildFile; fileRef = 361A11A218F5A89A000E9CA2 /* UIFont+Paco.m */; };
+		361A11A618F85B7B000E9CA2 /* PacoScheduleGeneratorDailyTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 361A11A518F85B7B000E9CA2 /* PacoScheduleGeneratorDailyTests.m */; };
+		361AB05617DA77000053C313 /* PacoNotificationManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 361AB05517DA77000053C313 /* PacoNotificationManager.m */; };
+		363C99F11815FF8200D806F6 /* NSMutableArray+Paco.m in Sources */ = {isa = PBXBuildFile; fileRef = 363C99F01815FF8200D806F6 /* NSMutableArray+Paco.m */; };
+		363C99F21815FF8200D806F6 /* NSMutableArray+Paco.m in Sources */ = {isa = PBXBuildFile; fileRef = 363C99F01815FF8200D806F6 /* NSMutableArray+Paco.m */; };
+		363C9A431816F4A600D806F6 /* PacoNSMutableArrayCategoryTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 363C9A421816F4A600D806F6 /* PacoNSMutableArrayCategoryTests.m */; };
+		363E210817AAD028007DE3CE /* PacoEvent.m in Sources */ = {isa = PBXBuildFile; fileRef = 363E210717AAD028007DE3CE /* PacoEvent.m */; };
+		363E210B17AAD05B007DE3CE /* PacoEventManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 363E210A17AAD05B007DE3CE /* PacoEventManager.m */; };
+		363E211317AF8420007DE3CE /* Reachability.m in Sources */ = {isa = PBXBuildFile; fileRef = 363E211217AF8420007DE3CE /* Reachability.m */; };
+		363E211617AF88BB007DE3CE /* PacoEventUploader.m in Sources */ = {isa = PBXBuildFile; fileRef = 363E211517AF88BB007DE3CE /* PacoEventUploader.m */; };
+		363E211A17B5B13F007DE3CE /* PacoExpressionExecutor.m in Sources */ = {isa = PBXBuildFile; fileRef = 363E211917B5B13F007DE3CE /* PacoExpressionExecutor.m */; };
+		363E211D17B5B1F6007DE3CE /* PacoInputEvaluator.m in Sources */ = {isa = PBXBuildFile; fileRef = 363E211C17B5B1F6007DE3CE /* PacoInputEvaluator.m */; };
+		3640613018230DA700DA5EB7 /* PacoExperimentTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 3640612F18230DA700DA5EB7 /* PacoExperimentTests.m */; };
+		36417BE8180DCA9600335B74 /* NSCalendar+Paco.m in Sources */ = {isa = PBXBuildFile; fileRef = 36417BE5180DCA9600335B74 /* NSCalendar+Paco.m */; };
+		36417BE9180DCA9600335B74 /* NSCalendar+Paco.m in Sources */ = {isa = PBXBuildFile; fileRef = 36417BE5180DCA9600335B74 /* NSCalendar+Paco.m */; };
+		36417BEA180DCA9600335B74 /* NSDate+Paco.m in Sources */ = {isa = PBXBuildFile; fileRef = 36417BE7180DCA9600335B74 /* NSDate+Paco.m */; };
+		36417BEB180DCA9600335B74 /* NSDate+Paco.m in Sources */ = {isa = PBXBuildFile; fileRef = 36417BE7180DCA9600335B74 /* NSDate+Paco.m */; };
+		3647925F181711D100409E87 /* PacoNotificationManagerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 3647925E181711D100409E87 /* PacoNotificationManagerTests.m */; };
+		3647926818171D7600409E87 /* PacoSchedulerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 3647926718171D7600409E87 /* PacoSchedulerTests.m */; };
+		36488B8718BFDC46004517E2 /* PacoTriggerSignal.m in Sources */ = {isa = PBXBuildFile; fileRef = 36488B8618BFDC46004517E2 /* PacoTriggerSignal.m */; };
+		36488B8818BFDC46004517E2 /* PacoTriggerSignal.m in Sources */ = {isa = PBXBuildFile; fileRef = 36488B8618BFDC46004517E2 /* PacoTriggerSignal.m */; };
+		36488BB518C8FB2E004517E2 /* incompatible@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 36488BB418C8FB2E004517E2 /* incompatible@2x.png */; };
+		36488BB818C90D9A004517E2 /* PacoScheduleGenerator+Weekly.m in Sources */ = {isa = PBXBuildFile; fileRef = 36488BB718C90D9A004517E2 /* PacoScheduleGenerator+Weekly.m */; };
+		36488BB918C90D9A004517E2 /* PacoScheduleGenerator+Weekly.m in Sources */ = {isa = PBXBuildFile; fileRef = 36488BB718C90D9A004517E2 /* PacoScheduleGenerator+Weekly.m */; };
+		36488BBE18CA598C004517E2 /* PacoPublicDefinitionLoader.m in Sources */ = {isa = PBXBuildFile; fileRef = 36488BBD18CA598C004517E2 /* PacoPublicDefinitionLoader.m */; };
+		36488BBF18CA598C004517E2 /* PacoPublicDefinitionLoader.m in Sources */ = {isa = PBXBuildFile; fileRef = 36488BBD18CA598C004517E2 /* PacoPublicDefinitionLoader.m */; };
+		36488BCC18CA6BAF004517E2 /* PacoEnumerator.m in Sources */ = {isa = PBXBuildFile; fileRef = 36488BCB18CA6BAF004517E2 /* PacoEnumerator.m */; };
+		36488BCD18CA6BAF004517E2 /* PacoEnumerator.m in Sources */ = {isa = PBXBuildFile; fileRef = 36488BCB18CA6BAF004517E2 /* PacoEnumerator.m */; };
+		365B3C2E1836EF41003D57A7 /* UIImage+Paco.m in Sources */ = {isa = PBXBuildFile; fileRef = 365B3C2D1836EF41003D57A7 /* UIImage+Paco.m */; };
+		365B3C2F1836EF41003D57A7 /* UIImage+Paco.m in Sources */ = {isa = PBXBuildFile; fileRef = 365B3C2D1836EF41003D57A7 /* UIImage+Paco.m */; };
+		365D20DD181B18CD0097F379 /* PacoNSErrorCategoryTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 365D20DC181B18CD0097F379 /* PacoNSErrorCategoryTests.m */; };
+		365D20E7181B198D0097F379 /* NSString+Paco.m in Sources */ = {isa = PBXBuildFile; fileRef = 365D20E6181B198D0097F379 /* NSString+Paco.m */; };
+		365D20E8181B198D0097F379 /* NSString+Paco.m in Sources */ = {isa = PBXBuildFile; fileRef = 365D20E6181B198D0097F379 /* NSString+Paco.m */; };
+		365D20EA181B1B000097F379 /* PacoNSStringCategoryTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 365D20E9181B1B000097F379 /* PacoNSStringCategoryTests.m */; };
+		365D20EF1820622A0097F379 /* PacoScheduleGenerator+ESM.m in Sources */ = {isa = PBXBuildFile; fileRef = 365D20EE1820622A0097F379 /* PacoScheduleGenerator+ESM.m */; };
+		365D20F01820622A0097F379 /* PacoScheduleGenerator+ESM.m in Sources */ = {isa = PBXBuildFile; fileRef = 365D20EE1820622A0097F379 /* PacoScheduleGenerator+ESM.m */; };
+		365D20FA1820695E0097F379 /* PacoUtility.m in Sources */ = {isa = PBXBuildFile; fileRef = 365D20F91820695E0097F379 /* PacoUtility.m */; };
+		365D20FB1820695E0097F379 /* PacoUtility.m in Sources */ = {isa = PBXBuildFile; fileRef = 365D20F91820695E0097F379 /* PacoUtility.m */; };
+		3662927D1821C10800FC647A /* PacoExperimentScheduleTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 3662927C1821C10800FC647A /* PacoExperimentScheduleTests.m */; };
+		366292861821C2EF00FC647A /* PacoUtilityTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 366292851821C2EF00FC647A /* PacoUtilityTests.m */; };
+		366F469D18CF127E00789A54 /* PacoScheduleGenerator+MonthlyByDayOfMonth.m in Sources */ = {isa = PBXBuildFile; fileRef = 366F469C18CF127E00789A54 /* PacoScheduleGenerator+MonthlyByDayOfMonth.m */; };
+		366F469E18CF127E00789A54 /* PacoScheduleGenerator+MonthlyByDayOfMonth.m in Sources */ = {isa = PBXBuildFile; fileRef = 366F469C18CF127E00789A54 /* PacoScheduleGenerator+MonthlyByDayOfMonth.m */; };
+		366F46A118CF12FB00789A54 /* PacoScheduleGenerator+MonthlyByDayOfWeek.m in Sources */ = {isa = PBXBuildFile; fileRef = 366F46A018CF12FB00789A54 /* PacoScheduleGenerator+MonthlyByDayOfWeek.m */; };
+		366F46A218CF12FB00789A54 /* PacoScheduleGenerator+MonthlyByDayOfWeek.m in Sources */ = {isa = PBXBuildFile; fileRef = 366F46A018CF12FB00789A54 /* PacoScheduleGenerator+MonthlyByDayOfWeek.m */; };
+		366F46B318CF82C200789A54 /* PacoPublicExperimentController.m in Sources */ = {isa = PBXBuildFile; fileRef = 366F46B218CF82C200789A54 /* PacoPublicExperimentController.m */; };
+		367171FD183AFE33005A5058 /* help.html in Resources */ = {isa = PBXBuildFile; fileRef = 367171FC183AFE33005A5058 /* help.html */; };
+		367233D41803956E006611E6 /* UILocalNotification+Paco.m in Sources */ = {isa = PBXBuildFile; fileRef = 367233D31803956E006611E6 /* UILocalNotification+Paco.m */; };
+		367233DC1803958D006611E6 /* UILocalNotification+Paco.m in Sources */ = {isa = PBXBuildFile; fileRef = 367233D31803956E006611E6 /* UILocalNotification+Paco.m */; };
+		367233DE1803AEE9006611E6 /* PacoNotificationCategoryTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 367233DD1803AEE9006611E6 /* PacoNotificationCategoryTests.m */; };
+		367233E1180619A5006611E6 /* PacoScheduleGenerator.m in Sources */ = {isa = PBXBuildFile; fileRef = 367233E0180619A5006611E6 /* PacoScheduleGenerator.m */; };
+		367233E2180619A5006611E6 /* PacoScheduleGenerator.m in Sources */ = {isa = PBXBuildFile; fileRef = 367233E0180619A5006611E6 /* PacoScheduleGenerator.m */; };
+		367233E418061FD6006611E6 /* PacoScheduleGeneratorTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 367233E318061FD6006611E6 /* PacoScheduleGeneratorTests.m */; };
+		368C2EE1178DFFBA00546918 /* PacoAlertView.m in Sources */ = {isa = PBXBuildFile; fileRef = 368C2EE0178DFFBA00546918 /* PacoAlertView.m */; };
+		368DB0C818EB55D20033DFFF /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 368DB0C718EB55D20033DFFF /* Images.xcassets */; };
+		368F4DA317ECE9ED00CFC2E4 /* PacoDateUtilityTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 368F4DA217ECE9ED00CFC2E4 /* PacoDateUtilityTests.m */; };
+		36946B05177A37CF005E0C04 /* PacoExperimentFeedback.m in Sources */ = {isa = PBXBuildFile; fileRef = 36946B04177A37CE005E0C04 /* PacoExperimentFeedback.m */; };
+		36946B08177A385A005E0C04 /* PacoExperimentInput.m in Sources */ = {isa = PBXBuildFile; fileRef = 36946B07177A385A005E0C04 /* PacoExperimentInput.m */; };
+		36946B0B177A3968005E0C04 /* PacoExperimentSchedule.m in Sources */ = {isa = PBXBuildFile; fileRef = 36946B0A177A3967005E0C04 /* PacoExperimentSchedule.m */; };
+		36946B0E177A55BA005E0C04 /* PacoExperimentDefinition.m in Sources */ = {isa = PBXBuildFile; fileRef = 36946B0D177A55B9005E0C04 /* PacoExperimentDefinition.m */; };
+		36946B14177A5782005E0C04 /* PacoExperiment.m in Sources */ = {isa = PBXBuildFile; fileRef = 36946B13177A5782005E0C04 /* PacoExperiment.m */; };
+		369EC80018467C2B00A1EFE4 /* PacoLoadingView.m in Sources */ = {isa = PBXBuildFile; fileRef = 369EC7FF18467C2B00A1EFE4 /* PacoLoadingView.m */; };
+		36A8201818B556CC00FE83A5 /* PacoScheduleGenerator+Daily.m in Sources */ = {isa = PBXBuildFile; fileRef = 36A8201718B556CC00FE83A5 /* PacoScheduleGenerator+Daily.m */; };
+		36A8201918B556CC00FE83A5 /* PacoScheduleGenerator+Daily.m in Sources */ = {isa = PBXBuildFile; fileRef = 36A8201718B556CC00FE83A5 /* PacoScheduleGenerator+Daily.m */; };
+		36A8201C18B5576400FE83A5 /* PacoScheduleGenerator+Weekdays.m in Sources */ = {isa = PBXBuildFile; fileRef = 36A8201B18B5576400FE83A5 /* PacoScheduleGenerator+Weekdays.m */; };
+		36A8201D18B5576400FE83A5 /* PacoScheduleGenerator+Weekdays.m in Sources */ = {isa = PBXBuildFile; fileRef = 36A8201B18B5576400FE83A5 /* PacoScheduleGenerator+Weekdays.m */; };
+		36AD6CE217C4440000B93855 /* NSError+Paco.m in Sources */ = {isa = PBXBuildFile; fileRef = 36AD6CE117C4440000B93855 /* NSError+Paco.m */; };
+		36AD6CEB17C5977E00B93855 /* PacoEvaluatorTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 36AD6CEA17C5977E00B93855 /* PacoEvaluatorTests.m */; };
+		36B5A4F218282CBC004DB894 /* PacoScheduleGeneratorDailyESMTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 36B5A4F118282CBC004DB894 /* PacoScheduleGeneratorDailyESMTests.m */; };
+		36B5A4FB18282E46004DB894 /* PacoScheduleGeneratorWeeklyESMTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 36B5A4FA18282E46004DB894 /* PacoScheduleGeneratorWeeklyESMTests.m */; };
+		36B5A4FD18282EA5004DB894 /* PacoScheduleGeneratorMonthlyESMTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 36B5A4FC18282EA5004DB894 /* PacoScheduleGeneratorMonthlyESMTests.m */; };
+		36B8EB6717568DAF004CF035 /* PacoAuthenticator.m in Sources */ = {isa = PBXBuildFile; fileRef = 36B8EB0417568DAF004CF035 /* PacoAuthenticator.m */; };
+		36B8EB6817568DAF004CF035 /* PacoClient.m in Sources */ = {isa = PBXBuildFile; fileRef = 36B8EB0717568DAF004CF035 /* PacoClient.m */; };
+		36B8EB6917568DAF004CF035 /* PacoLocation.m in Sources */ = {isa = PBXBuildFile; fileRef = 36B8EB0A17568DAF004CF035 /* PacoLocation.m */; };
+		36B8EB6A17568DAF004CF035 /* PacoModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 36B8EB0D17568DAF004CF035 /* PacoModel.m */; };
+		36B8EB6B17568DAF004CF035 /* PacoScheduler.m in Sources */ = {isa = PBXBuildFile; fileRef = 36B8EB1017568DAF004CF035 /* PacoScheduler.m */; };
+		36B8EB6C17568DAF004CF035 /* PacoService.m in Sources */ = {isa = PBXBuildFile; fileRef = 36B8EB1317568DAF004CF035 /* PacoService.m */; };
+		36B8EB6D17568DAF004CF035 /* PacoDateUtility.m in Sources */ = {isa = PBXBuildFile; fileRef = 36B8EB1617568DAF004CF035 /* PacoDateUtility.m */; };
+		36B8EB6E17568DAF004CF035 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 36B8EB1717568DAF004CF035 /* main.m */; };
+		36B8EB6F17568DAF004CF035 /* PacoAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 36B8EB1A17568DAF004CF035 /* PacoAppDelegate.m */; };
+		36B8EB7017568DAF004CF035 /* PacoEditScheduleViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 36B8EB1F17568DAF004CF035 /* PacoEditScheduleViewController.m */; };
+		36B8EB7117568DAF004CF035 /* PacoByWeekOrMonthSelectionView.m in Sources */ = {isa = PBXBuildFile; fileRef = 36B8EB2217568DAF004CF035 /* PacoByWeekOrMonthSelectionView.m */; };
+		36B8EB7217568DAF004CF035 /* PacoDayOfMonthSelectionView.m in Sources */ = {isa = PBXBuildFile; fileRef = 36B8EB2417568DAF004CF035 /* PacoDayOfMonthSelectionView.m */; };
+		36B8EB7317568DAF004CF035 /* PacoDayOfWeekSelectionView.m in Sources */ = {isa = PBXBuildFile; fileRef = 36B8EB2617568DAF004CF035 /* PacoDayOfWeekSelectionView.m */; };
+		36B8EB7417568DAF004CF035 /* PacoESMFrequencySelectionView.m in Sources */ = {isa = PBXBuildFile; fileRef = 36B8EB2817568DAF004CF035 /* PacoESMFrequencySelectionView.m */; };
+		36B8EB7517568DAF004CF035 /* PacoESMIncludeWeekendsSelectionView.m in Sources */ = {isa = PBXBuildFile; fileRef = 36B8EB2A17568DAF004CF035 /* PacoESMIncludeWeekendsSelectionView.m */; };
+		36B8EB7617568DAF004CF035 /* PacoESMPeriodSelectionView.m in Sources */ = {isa = PBXBuildFile; fileRef = 36B8EB2C17568DAF004CF035 /* PacoESMPeriodSelectionView.m */; };
+		36B8EB7717568DAF004CF035 /* PacoFirstDayOfMonthSelectionView.m in Sources */ = {isa = PBXBuildFile; fileRef = 36B8EB2E17568DAF004CF035 /* PacoFirstDayOfMonthSelectionView.m */; };
+		36B8EB7817568DAF004CF035 /* PacoRepeatRateSelectionView.m in Sources */ = {isa = PBXBuildFile; fileRef = 36B8EB3017568DAF004CF035 /* PacoRepeatRateSelectionView.m */; };
+		36B8EB7917568DAF004CF035 /* PacoScheduleEditView.m in Sources */ = {isa = PBXBuildFile; fileRef = 36B8EB3217568DAF004CF035 /* PacoScheduleEditView.m */; };
+		36B8EB7A17568DAF004CF035 /* PacoTimeSelectionView.m in Sources */ = {isa = PBXBuildFile; fileRef = 36B8EB3417568DAF004CF035 /* PacoTimeSelectionView.m */; };
+		36B8EB7C17568DAF004CF035 /* PacoConsentViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 36B8EB3B17568DAF004CF035 /* PacoConsentViewController.m */; };
+		36B8EB7D17568DAF004CF035 /* PacoExperimentDetailsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 36B8EB3E17568DAF004CF035 /* PacoExperimentDetailsViewController.m */; };
+		36B8EB7E17568DAF004CF035 /* PacoFindMyExperimentsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 36B8EB4017568DAF004CF035 /* PacoFindMyExperimentsViewController.m */; };
+		36B8EB8017568DAF004CF035 /* PacoMainViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 36B8EB4617568DAF004CF035 /* PacoMainViewController.m */; };
+		36B8EB8117568DAF004CF035 /* PacoMenuButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 36B8EB4817568DAF004CF035 /* PacoMenuButton.m */; };
+		36B8EB8217568DAF004CF035 /* PacoQuestionScreenViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 36B8EB4B17568DAF004CF035 /* PacoQuestionScreenViewController.m */; };
+		36B8EB8317568DAF004CF035 /* PacoQuestionView.m in Sources */ = {isa = PBXBuildFile; fileRef = 36B8EB4D17568DAF004CF035 /* PacoQuestionView.m */; };
+		36B8EB8417568DAF004CF035 /* PacoRunningExperimentsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 36B8EB5017568DAF004CF035 /* PacoRunningExperimentsViewController.m */; };
+		36B8EB8517568DAF004CF035 /* PacoCheckboxView.m in Sources */ = {isa = PBXBuildFile; fileRef = 36B8EB5317568DAF004CF035 /* PacoCheckboxView.m */; };
+		36B8EB8817568DAF004CF035 /* PacoLayout.m in Sources */ = {isa = PBXBuildFile; fileRef = 36B8EB5917568DAF004CF035 /* PacoLayout.m */; };
+		36B8EB8917568DAF004CF035 /* PacoLoadingTableCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 36B8EB5B17568DAF004CF035 /* PacoLoadingTableCell.m */; };
+		36B8EB8A17568DAF004CF035 /* PacoSliderView.m in Sources */ = {isa = PBXBuildFile; fileRef = 36B8EB5D17568DAF004CF035 /* PacoSliderView.m */; };
+		36B8EB8B17568DAF004CF035 /* PacoTableCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 36B8EB5F17568DAF004CF035 /* PacoTableCell.m */; };
+		36B8EB8C17568DAF004CF035 /* PacoTableTextCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 36B8EB6117568DAF004CF035 /* PacoTableTextCell.m */; };
+		36B8EB8D17568DAF004CF035 /* PacoTableView.m in Sources */ = {isa = PBXBuildFile; fileRef = 36B8EB6317568DAF004CF035 /* PacoTableView.m */; };
+		36B8EBD617568E29004CF035 /* calculator.png in Resources */ = {isa = PBXBuildFile; fileRef = 36B8EB9617568E29004CF035 /* calculator.png */; };
+		36B8EBD717568E29004CF035 /* current_experiments_disabled.png in Resources */ = {isa = PBXBuildFile; fileRef = 36B8EB9717568E29004CF035 /* current_experiments_disabled.png */; };
+		36B8EBD817568E29004CF035 /* current_experiments_focused.png in Resources */ = {isa = PBXBuildFile; fileRef = 36B8EB9817568E29004CF035 /* current_experiments_focused.png */; };
+		36B8EBD917568E29004CF035 /* current_experiments_normal.png in Resources */ = {isa = PBXBuildFile; fileRef = 36B8EB9917568E29004CF035 /* current_experiments_normal.png */; };
+		36B8EBDA17568E29004CF035 /* current_experiments_pressed.png in Resources */ = {isa = PBXBuildFile; fileRef = 36B8EB9A17568E29004CF035 /* current_experiments_pressed.png */; };
+		36B8EBDE17568E29004CF035 /* experiment_disabled.png in Resources */ = {isa = PBXBuildFile; fileRef = 36B8EBA117568E29004CF035 /* experiment_disabled.png */; };
+		36B8EBDF17568E29004CF035 /* experiment_focused.png in Resources */ = {isa = PBXBuildFile; fileRef = 36B8EBA217568E29004CF035 /* experiment_focused.png */; };
+		36B8EBE017568E29004CF035 /* experiment_normal.png in Resources */ = {isa = PBXBuildFile; fileRef = 36B8EBA317568E29004CF035 /* experiment_normal.png */; };
+		36B8EBE117568E29004CF035 /* experiment_pressed.png in Resources */ = {isa = PBXBuildFile; fileRef = 36B8EBA417568E29004CF035 /* experiment_pressed.png */; };
+		36B8EBE217568E29004CF035 /* feedback_disabled.png in Resources */ = {isa = PBXBuildFile; fileRef = 36B8EBA517568E29004CF035 /* feedback_disabled.png */; };
+		36B8EBE317568E29004CF035 /* feedback_focused.png in Resources */ = {isa = PBXBuildFile; fileRef = 36B8EBA617568E29004CF035 /* feedback_focused.png */; };
+		36B8EBE417568E29004CF035 /* feedback_normal.png in Resources */ = {isa = PBXBuildFile; fileRef = 36B8EBA717568E29004CF035 /* feedback_normal.png */; };
+		36B8EBE517568E29004CF035 /* feedback_pressed.png in Resources */ = {isa = PBXBuildFile; fileRef = 36B8EBA817568E29004CF035 /* feedback_pressed.png */; };
+		36B8EBE617568E29004CF035 /* find_experiments_disabled.png in Resources */ = {isa = PBXBuildFile; fileRef = 36B8EBA917568E29004CF035 /* find_experiments_disabled.png */; };
+		36B8EBE717568E29004CF035 /* find_experiments_focused.png in Resources */ = {isa = PBXBuildFile; fileRef = 36B8EBAA17568E29004CF035 /* find_experiments_focused.png */; };
+		36B8EBE817568E29004CF035 /* find_experiments_normal.png in Resources */ = {isa = PBXBuildFile; fileRef = 36B8EBAB17568E29004CF035 /* find_experiments_normal.png */; };
+		36B8EBE917568E29004CF035 /* find_experiments_pressed.png in Resources */ = {isa = PBXBuildFile; fileRef = 36B8EBAC17568E29004CF035 /* find_experiments_pressed.png */; };
+		36B8EBF217568E29004CF035 /* paco32.png in Resources */ = {isa = PBXBuildFile; fileRef = 36B8EBB517568E29004CF035 /* paco32.png */; };
+		36B8EBF517568E29004CF035 /* question.png in Resources */ = {isa = PBXBuildFile; fileRef = 36B8EBB817568E29004CF035 /* question.png */; };
+		36B8EBF817568E29004CF035 /* smile_icon1.png in Resources */ = {isa = PBXBuildFile; fileRef = 36B8EBBB17568E29004CF035 /* smile_icon1.png */; };
+		36B8EBF917568E29004CF035 /* smile_icon1_re.png in Resources */ = {isa = PBXBuildFile; fileRef = 36B8EBBC17568E29004CF035 /* smile_icon1_re.png */; };
+		36B8EBFA17568E29004CF035 /* smile_icon2.png in Resources */ = {isa = PBXBuildFile; fileRef = 36B8EBBD17568E29004CF035 /* smile_icon2.png */; };
+		36B8EBFB17568E29004CF035 /* smile_icon2_re.png in Resources */ = {isa = PBXBuildFile; fileRef = 36B8EBBE17568E29004CF035 /* smile_icon2_re.png */; };
+		36B8EBFC17568E29004CF035 /* smile_icon3.png in Resources */ = {isa = PBXBuildFile; fileRef = 36B8EBBF17568E29004CF035 /* smile_icon3.png */; };
+		36B8EBFD17568E29004CF035 /* smile_icon3_re.png in Resources */ = {isa = PBXBuildFile; fileRef = 36B8EBC017568E29004CF035 /* smile_icon3_re.png */; };
+		36B8EBFE17568E29004CF035 /* smile_icon4.png in Resources */ = {isa = PBXBuildFile; fileRef = 36B8EBC117568E29004CF035 /* smile_icon4.png */; };
+		36B8EBFF17568E29004CF035 /* smile_icon4_re.png in Resources */ = {isa = PBXBuildFile; fileRef = 36B8EBC217568E29004CF035 /* smile_icon4_re.png */; };
+		36B8EC0017568E29004CF035 /* smile_icon5.png in Resources */ = {isa = PBXBuildFile; fileRef = 36B8EBC317568E29004CF035 /* smile_icon5.png */; };
+		36B8EC0117568E29004CF035 /* smile_icon5_re.png in Resources */ = {isa = PBXBuildFile; fileRef = 36B8EBC417568E29004CF035 /* smile_icon5_re.png */; };
+		36B8EC1017568E29004CF035 /* uicheckbox_checked.png in Resources */ = {isa = PBXBuildFile; fileRef = 36B8EBD317568E29004CF035 /* uicheckbox_checked.png */; };
+		36B8EC1117568E29004CF035 /* uicheckbox_unchecked.png in Resources */ = {isa = PBXBuildFile; fileRef = 36B8EBD417568E29004CF035 /* uicheckbox_unchecked.png */; };
+		36B8EC3C17568E40004CF035 /* PacoTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 36B8EC3717568E40004CF035 /* PacoTests.m */; };
+		36B8EC3D17568E40004CF035 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 36B8EC3917568E40004CF035 /* InfoPlist.strings */; };
+		36BC10DD17FE09E8001EA9DD /* PacoIOSLocalNotificationTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 36BC10DC17FE09E8001EA9DD /* PacoIOSLocalNotificationTests.m */; };
+		36BD6D15194A390D00CD50A8 /* PacoEditScheduleAfterJoinController.m in Sources */ = {isa = PBXBuildFile; fileRef = 36BD6D14194A390D00CD50A8 /* PacoEditScheduleAfterJoinController.m */; };
+		36C4A33D18A4DEEE00D8FE59 /* DDASLLogger.m in Sources */ = {isa = PBXBuildFile; fileRef = 36C4A33818A4DEEE00D8FE59 /* DDASLLogger.m */; };
+		36C4A33E18A4DEEE00D8FE59 /* DDFileLogger.m in Sources */ = {isa = PBXBuildFile; fileRef = 36C4A33A18A4DEEE00D8FE59 /* DDFileLogger.m */; };
+		36C4A33F18A4DEEE00D8FE59 /* DDLog.m in Sources */ = {isa = PBXBuildFile; fileRef = 36C4A33C18A4DEEE00D8FE59 /* DDLog.m */; };
+		36C4A34918A4DFEC00D8FE59 /* DDTTYLogger.m in Sources */ = {isa = PBXBuildFile; fileRef = 36C4A34818A4DFEC00D8FE59 /* DDTTYLogger.m */; };
+		36D33C8F17D579F600AC30B9 /* PacoExpressionExecutor.m in Sources */ = {isa = PBXBuildFile; fileRef = 363E211917B5B13F007DE3CE /* PacoExpressionExecutor.m */; };
+		36D33C9717D57A5B00AC30B9 /* PacoAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 36B8EB1A17568DAF004CF035 /* PacoAppDelegate.m */; };
+		36D424A017E64917003BCD61 /* PacoESMDateTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 36D4249F17E64917003BCD61 /* PacoESMDateTests.m */; };
+		36D8B54F17F153A100F7698E /* PacoClientTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 36D8B54E17F153A100F7698E /* PacoClientTests.m */; };
+		36F02D33180DE16B0027395F /* PacoNSCalendarCategoryTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 36F02D31180DE16B0027395F /* PacoNSCalendarCategoryTests.m */; };
+		36F02D34180DE16B0027395F /* PacoNSDateCategoryTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 36F02D32180DE16B0027395F /* PacoNSDateCategoryTests.m */; };
+		36F3EFE818FC645500ABF242 /* PacoESMDailyGeneratorWithCache.m in Sources */ = {isa = PBXBuildFile; fileRef = 36F3EFE718FC645500ABF242 /* PacoESMDailyGeneratorWithCache.m */; };
+		36F457E31863ABA900931049 /* welcome_paco.html in Resources */ = {isa = PBXBuildFile; fileRef = 36F457E21863ABA900931049 /* welcome_paco.html */; };
+		44239C001EA9DD4B0026E69A /* AppAuth.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 44239BFD1EA9DD4B0026E69A /* AppAuth.framework */; };
+		44239C011EA9DD4B0026E69A /* GTMAppAuth.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 44239BFE1EA9DD4B0026E69A /* GTMAppAuth.framework */; };
+		44239C021EA9DD4B0026E69A /* GTMSessionFetcher.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 44239BFF1EA9DD4B0026E69A /* GTMSessionFetcher.framework */; };
+		6A56DF05AC441FE9735102FE /* Pods_Paco.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8DA66BC3BA03A7F250872B5E /* Pods_Paco.framework */; };
+		7F8531D41A37BE680028BA23 /* JCNotificationBanner.m in Sources */ = {isa = PBXBuildFile; fileRef = 7F8531BE1A37BE680028BA23 /* JCNotificationBanner.m */; };
+		7F8531D51A37BE680028BA23 /* JCNotificationBannerPresenter.m in Sources */ = {isa = PBXBuildFile; fileRef = 7F8531C11A37BE680028BA23 /* JCNotificationBannerPresenter.m */; };
+		7F8531D61A37BE680028BA23 /* JCNotificationBannerPresenterIOS7Style.m in Sources */ = {isa = PBXBuildFile; fileRef = 7F8531C31A37BE680028BA23 /* JCNotificationBannerPresenterIOS7Style.m */; };
+		7F8531D71A37BE680028BA23 /* JCNotificationBannerPresenterIOSStyle.m in Sources */ = {isa = PBXBuildFile; fileRef = 7F8531C51A37BE680028BA23 /* JCNotificationBannerPresenterIOSStyle.m */; };
+		7F8531D81A37BE680028BA23 /* JCNotificationBannerPresenterSmokeStyle.m in Sources */ = {isa = PBXBuildFile; fileRef = 7F8531C71A37BE680028BA23 /* JCNotificationBannerPresenterSmokeStyle.m */; };
+		7F8531D91A37BE680028BA23 /* JCNotificationBannerView.m in Sources */ = {isa = PBXBuildFile; fileRef = 7F8531C91A37BE680028BA23 /* JCNotificationBannerView.m */; };
+		7F8531DA1A37BE680028BA23 /* JCNotificationBannerViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 7F8531CB1A37BE680028BA23 /* JCNotificationBannerViewController.m */; };
+		7F8531DB1A37BE680028BA23 /* JCNotificationBannerViewIOS7Style.m in Sources */ = {isa = PBXBuildFile; fileRef = 7F8531CD1A37BE680028BA23 /* JCNotificationBannerViewIOS7Style.m */; };
+		7F8531DC1A37BE680028BA23 /* JCNotificationBannerViewIOSStyle.m in Sources */ = {isa = PBXBuildFile; fileRef = 7F8531CF1A37BE680028BA23 /* JCNotificationBannerViewIOSStyle.m */; };
+		7F8531DD1A37BE680028BA23 /* JCNotificationBannerWindow.m in Sources */ = {isa = PBXBuildFile; fileRef = 7F8531D11A37BE680028BA23 /* JCNotificationBannerWindow.m */; };
+		7F8531DE1A37BE680028BA23 /* JCNotificationCenter.m in Sources */ = {isa = PBXBuildFile; fileRef = 7F8531D31A37BE680028BA23 /* JCNotificationCenter.m */; };
+		7FB660801AA8C305008D2327 /* paco32@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 7FB6607E1AA8C305008D2327 /* paco32@2x.png */; };
+		7FB660901AA8C352008D2327 /* PacoTitleView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 7FB6608F1AA8C352008D2327 /* PacoTitleView.xib */; };
+		C567E89017A03FDE00267A26 /* deepbark_trial.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = C567E88F17A03FDE00267A26 /* deepbark_trial.mp3 */; };
+		C5B4691917B07E4900B6BC18 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C5B4691817B07E4900B6BC18 /* CoreGraphics.framework */; };
+		C5C4F5D217B163EF009E9F18 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C5C4F5D117B163EF009E9F18 /* QuartzCore.framework */; };
+		C5C4F5D317B163EF009E9F18 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C5C4F5D117B163EF009E9F18 /* QuartzCore.framework */; };
+		E43DA21D185ADDD2007F04F9 /* PacoWebViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = E43DA21C185ADDD2007F04F9 /* PacoWebViewController.m */; };
+		E440AB3B19140E0800D6FD09 /* PacoOpenSourceLibViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = E440AB3A19140E0800D6FD09 /* PacoOpenSourceLibViewController.m */; };
+		E462379218F9F1E900610F56 /* PacoDatePickerView.m in Sources */ = {isa = PBXBuildFile; fileRef = E462379118F9F1E900610F56 /* PacoDatePickerView.m */; };
+		E480BE161896F3C700662432 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = E480BE141896F3C700662432 /* InfoPlist.strings */; };
+		E480BE201896F3E100662432 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = E480BE1E1896F3E100662432 /* Localizable.strings */; };
+		E48622A2188FEE17000B5044 /* PacoSubtitleTableCell.m in Sources */ = {isa = PBXBuildFile; fileRef = E48622A1188FEE16000B5044 /* PacoSubtitleTableCell.m */; };
+		E4D5DE861837DE9A00E5446A /* MessageUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E4D5DE851837DE9900E5446A /* MessageUI.framework */; };
+		E4E8F352183B21500022613A /* PacoContactUsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = E4E8F351183B21500022613A /* PacoContactUsViewController.m */; };
+		E4F9A79818899F39006A2803 /* PacoStepperView.m in Sources */ = {isa = PBXBuildFile; fileRef = E4F9A79718899F39006A2803 /* PacoStepperView.m */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		319771F3163F0733000AC06B /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 319771BB163F0733000AC06B /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 319771C3163F0733000AC06B;
+			remoteInfo = Paco;
+		};
+		36000C2117C6AEA900A8A9E7 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 36000C1517C6AEA900A8A9E7 /* ParseKit.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 8DC2EF5B0486A6940098B216;
+			remoteInfo = ParseKit;
+		};
+		36000C2317C6AEA900A8A9E7 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 36000C1517C6AEA900A8A9E7 /* ParseKit.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = D3F8A48D175817DF00056188;
+			remoteInfo = PEGKit;
+		};
+		36000C2517C6AEA900A8A9E7 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 36000C1517C6AEA900A8A9E7 /* ParseKit.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = D3D9753216E7F36700D55EAB;
+			remoteInfo = libParseKit;
+		};
+		36000C2717C6AEA900A8A9E7 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 36000C1517C6AEA900A8A9E7 /* ParseKit.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = D3FDC5830FFC4BFC00F1F797;
+			remoteInfo = libParseKitMobile;
+		};
+		36000C2917C6AEA900A8A9E7 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 36000C1517C6AEA900A8A9E7 /* ParseKit.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = D37D8DC61571A4F700CDB822;
+			remoteInfo = ParseKitTests;
+		};
+		36000C2B17C6AEA900A8A9E7 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 36000C1517C6AEA900A8A9E7 /* ParseKit.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = D33494100E2963FD00406085;
+			remoteInfo = DemoApp;
+		};
+		36000C2D17C6AEA900A8A9E7 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 36000C1517C6AEA900A8A9E7 /* ParseKit.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = D34185040E520D3F0081B0DC;
+			remoteInfo = DebugApp;
+		};
+		36000C2F17C6AEA900A8A9E7 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 36000C1517C6AEA900A8A9E7 /* ParseKit.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = D338302F171C923700CCE513;
+			remoteInfo = ParserGenApp;
+		};
+		36000C3517C6B0A800A8A9E7 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 36000C1517C6AEA900A8A9E7 /* ParseKit.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = D3FDC5820FFC4BFC00F1F797;
+			remoteInfo = libParseKitMobile;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		3129003F16DAA4C6008FF617 /* CoreLocation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = System/Library/Frameworks/CoreLocation.framework; sourceTree = SDKROOT; };
+		3129004116DAAC9D008FF617 /* MapKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MapKit.framework; path = System/Library/Frameworks/MapKit.framework; sourceTree = SDKROOT; };
+		319771C4163F0733000AC06B /* Paco.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Paco.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		319771C8163F0733000AC06B /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
+		319771CA163F0733000AC06B /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
+		319771EE163F0733000AC06B /* PacoTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PacoTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		31977218163F2655000AC06B /* CFNetwork.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CFNetwork.framework; path = System/Library/Frameworks/CFNetwork.framework; sourceTree = SDKROOT; };
+		3197721A163F265B000AC06B /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
+		3197721C163F2672000AC06B /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
+		31D5575016DAD33200C7D1BE /* MobileCoreServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MobileCoreServices.framework; path = System/Library/Frameworks/MobileCoreServices.framework; sourceTree = SDKROOT; };
+		36000C1517C6AEA900A8A9E7 /* ParseKit.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = ParseKit.xcodeproj; path = ParseKit/ParseKit.xcodeproj; sourceTree = "<group>"; };
+		36000C3717C6B34000A8A9E7 /* libicucore.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libicucore.dylib; path = usr/lib/libicucore.dylib; sourceTree = SDKROOT; };
+		36000C5817CD1AF600A8A9E7 /* Test_999999999.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Test_999999999.plist; sourceTree = "<group>"; };
+		3612A267185FE7AA00DEADD1 /* PacoTimeEditView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoTimeEditView.h; sourceTree = "<group>"; };
+		3612A268185FE7AA00DEADD1 /* PacoTimeEditView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoTimeEditView.m; sourceTree = "<group>"; };
+		361A118918F30CC9000E9CA2 /* UIColor+Paco.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIColor+Paco.h"; sourceTree = "<group>"; };
+		361A118A18F30CC9000E9CA2 /* UIColor+Paco.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIColor+Paco.m"; sourceTree = "<group>"; };
+		361A11A118F5A89A000E9CA2 /* UIFont+Paco.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIFont+Paco.h"; sourceTree = "<group>"; };
+		361A11A218F5A89A000E9CA2 /* UIFont+Paco.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIFont+Paco.m"; sourceTree = "<group>"; };
+		361A11A518F85B7B000E9CA2 /* PacoScheduleGeneratorDailyTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoScheduleGeneratorDailyTests.m; sourceTree = "<group>"; };
+		361AB05417DA77000053C313 /* PacoNotificationManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoNotificationManager.h; sourceTree = "<group>"; };
+		361AB05517DA77000053C313 /* PacoNotificationManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoNotificationManager.m; sourceTree = "<group>"; };
+		363C99EF1815FF8200D806F6 /* NSMutableArray+Paco.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSMutableArray+Paco.h"; sourceTree = "<group>"; };
+		363C99F01815FF8200D806F6 /* NSMutableArray+Paco.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSMutableArray+Paco.m"; sourceTree = "<group>"; };
+		363C9A421816F4A600D806F6 /* PacoNSMutableArrayCategoryTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoNSMutableArrayCategoryTests.m; sourceTree = "<group>"; };
+		363E210617AAD028007DE3CE /* PacoEvent.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoEvent.h; sourceTree = "<group>"; };
+		363E210717AAD028007DE3CE /* PacoEvent.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoEvent.m; sourceTree = "<group>"; };
+		363E210917AAD05B007DE3CE /* PacoEventManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoEventManager.h; sourceTree = "<group>"; };
+		363E210A17AAD05B007DE3CE /* PacoEventManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoEventManager.m; sourceTree = "<group>"; };
+		363E211117AF8420007DE3CE /* Reachability.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Reachability.h; sourceTree = "<group>"; };
+		363E211217AF8420007DE3CE /* Reachability.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Reachability.m; sourceTree = "<group>"; };
+		363E211417AF88BA007DE3CE /* PacoEventUploader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoEventUploader.h; sourceTree = "<group>"; };
+		363E211517AF88BB007DE3CE /* PacoEventUploader.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoEventUploader.m; sourceTree = "<group>"; };
+		363E211817B5B13F007DE3CE /* PacoExpressionExecutor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoExpressionExecutor.h; sourceTree = "<group>"; };
+		363E211917B5B13F007DE3CE /* PacoExpressionExecutor.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoExpressionExecutor.m; sourceTree = "<group>"; };
+		363E211B17B5B1F6007DE3CE /* PacoInputEvaluator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoInputEvaluator.h; sourceTree = "<group>"; };
+		363E211C17B5B1F6007DE3CE /* PacoInputEvaluator.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoInputEvaluator.m; sourceTree = "<group>"; };
+		3640612F18230DA700DA5EB7 /* PacoExperimentTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoExperimentTests.m; sourceTree = "<group>"; };
+		36417BE4180DCA9600335B74 /* NSCalendar+Paco.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSCalendar+Paco.h"; sourceTree = "<group>"; };
+		36417BE5180DCA9600335B74 /* NSCalendar+Paco.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSCalendar+Paco.m"; sourceTree = "<group>"; };
+		36417BE6180DCA9600335B74 /* NSDate+Paco.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSDate+Paco.h"; sourceTree = "<group>"; };
+		36417BE7180DCA9600335B74 /* NSDate+Paco.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSDate+Paco.m"; sourceTree = "<group>"; };
+		3647925E181711D100409E87 /* PacoNotificationManagerTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoNotificationManagerTests.m; sourceTree = "<group>"; };
+		3647926718171D7600409E87 /* PacoSchedulerTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoSchedulerTests.m; sourceTree = "<group>"; };
+		36488B8518BFDC46004517E2 /* PacoTriggerSignal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoTriggerSignal.h; sourceTree = "<group>"; };
+		36488B8618BFDC46004517E2 /* PacoTriggerSignal.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoTriggerSignal.m; sourceTree = "<group>"; };
+		36488BB418C8FB2E004517E2 /* incompatible@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "incompatible@2x.png"; sourceTree = "<group>"; };
+		36488BB618C90D9A004517E2 /* PacoScheduleGenerator+Weekly.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "PacoScheduleGenerator+Weekly.h"; sourceTree = "<group>"; };
+		36488BB718C90D9A004517E2 /* PacoScheduleGenerator+Weekly.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "PacoScheduleGenerator+Weekly.m"; sourceTree = "<group>"; };
+		36488BBC18CA598C004517E2 /* PacoPublicDefinitionLoader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoPublicDefinitionLoader.h; sourceTree = "<group>"; };
+		36488BBD18CA598C004517E2 /* PacoPublicDefinitionLoader.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoPublicDefinitionLoader.m; sourceTree = "<group>"; };
+		36488BC718CA5E67004517E2 /* PacoEnumerator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoEnumerator.h; sourceTree = "<group>"; };
+		36488BCB18CA6BAF004517E2 /* PacoEnumerator.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoEnumerator.m; sourceTree = "<group>"; };
+		365B3C2C1836EF41003D57A7 /* UIImage+Paco.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIImage+Paco.h"; sourceTree = "<group>"; };
+		365B3C2D1836EF41003D57A7 /* UIImage+Paco.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIImage+Paco.m"; sourceTree = "<group>"; };
+		365D20DC181B18CD0097F379 /* PacoNSErrorCategoryTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoNSErrorCategoryTests.m; sourceTree = "<group>"; };
+		365D20E5181B198D0097F379 /* NSString+Paco.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSString+Paco.h"; sourceTree = "<group>"; };
+		365D20E6181B198D0097F379 /* NSString+Paco.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSString+Paco.m"; sourceTree = "<group>"; };
+		365D20E9181B1B000097F379 /* PacoNSStringCategoryTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoNSStringCategoryTests.m; sourceTree = "<group>"; };
+		365D20ED1820622A0097F379 /* PacoScheduleGenerator+ESM.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "PacoScheduleGenerator+ESM.h"; sourceTree = "<group>"; };
+		365D20EE1820622A0097F379 /* PacoScheduleGenerator+ESM.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "PacoScheduleGenerator+ESM.m"; sourceTree = "<group>"; };
+		365D20F81820695E0097F379 /* PacoUtility.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoUtility.h; sourceTree = "<group>"; };
+		365D20F91820695E0097F379 /* PacoUtility.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoUtility.m; sourceTree = "<group>"; };
+		3662927C1821C10800FC647A /* PacoExperimentScheduleTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoExperimentScheduleTests.m; sourceTree = "<group>"; };
+		366292851821C2EF00FC647A /* PacoUtilityTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoUtilityTests.m; sourceTree = "<group>"; };
+		366F469B18CF127E00789A54 /* PacoScheduleGenerator+MonthlyByDayOfMonth.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "PacoScheduleGenerator+MonthlyByDayOfMonth.h"; sourceTree = "<group>"; };
+		366F469C18CF127E00789A54 /* PacoScheduleGenerator+MonthlyByDayOfMonth.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "PacoScheduleGenerator+MonthlyByDayOfMonth.m"; sourceTree = "<group>"; };
+		366F469F18CF12FB00789A54 /* PacoScheduleGenerator+MonthlyByDayOfWeek.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "PacoScheduleGenerator+MonthlyByDayOfWeek.h"; sourceTree = "<group>"; };
+		366F46A018CF12FB00789A54 /* PacoScheduleGenerator+MonthlyByDayOfWeek.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "PacoScheduleGenerator+MonthlyByDayOfWeek.m"; sourceTree = "<group>"; };
+		366F46B118CF82C200789A54 /* PacoPublicExperimentController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoPublicExperimentController.h; sourceTree = "<group>"; };
+		366F46B218CF82C200789A54 /* PacoPublicExperimentController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoPublicExperimentController.m; sourceTree = "<group>"; };
+		367171FC183AFE33005A5058 /* help.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = help.html; sourceTree = "<group>"; };
+		367233D21803956E006611E6 /* UILocalNotification+Paco.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UILocalNotification+Paco.h"; sourceTree = "<group>"; };
+		367233D31803956E006611E6 /* UILocalNotification+Paco.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UILocalNotification+Paco.m"; sourceTree = "<group>"; };
+		367233DD1803AEE9006611E6 /* PacoNotificationCategoryTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoNotificationCategoryTests.m; sourceTree = "<group>"; };
+		367233DF180619A5006611E6 /* PacoScheduleGenerator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoScheduleGenerator.h; sourceTree = "<group>"; };
+		367233E0180619A5006611E6 /* PacoScheduleGenerator.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoScheduleGenerator.m; sourceTree = "<group>"; };
+		367233E318061FD6006611E6 /* PacoScheduleGeneratorTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoScheduleGeneratorTests.m; sourceTree = "<group>"; };
+		368C2EDF178DFFBA00546918 /* PacoAlertView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoAlertView.h; sourceTree = "<group>"; };
+		368C2EE0178DFFBA00546918 /* PacoAlertView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoAlertView.m; sourceTree = "<group>"; };
+		368DB0C718EB55D20033DFFF /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
+		368F4DA217ECE9ED00CFC2E4 /* PacoDateUtilityTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoDateUtilityTests.m; sourceTree = "<group>"; };
+		36946B03177A37CE005E0C04 /* PacoExperimentFeedback.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoExperimentFeedback.h; sourceTree = "<group>"; };
+		36946B04177A37CE005E0C04 /* PacoExperimentFeedback.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoExperimentFeedback.m; sourceTree = "<group>"; };
+		36946B06177A385A005E0C04 /* PacoExperimentInput.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoExperimentInput.h; sourceTree = "<group>"; };
+		36946B07177A385A005E0C04 /* PacoExperimentInput.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoExperimentInput.m; sourceTree = "<group>"; };
+		36946B09177A3967005E0C04 /* PacoExperimentSchedule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoExperimentSchedule.h; sourceTree = "<group>"; };
+		36946B0A177A3967005E0C04 /* PacoExperimentSchedule.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoExperimentSchedule.m; sourceTree = "<group>"; };
+		36946B0C177A55B9005E0C04 /* PacoExperimentDefinition.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoExperimentDefinition.h; sourceTree = "<group>"; };
+		36946B0D177A55B9005E0C04 /* PacoExperimentDefinition.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoExperimentDefinition.m; sourceTree = "<group>"; };
+		36946B12177A5781005E0C04 /* PacoExperiment.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoExperiment.h; sourceTree = "<group>"; };
+		36946B13177A5782005E0C04 /* PacoExperiment.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoExperiment.m; sourceTree = "<group>"; };
+		369EC7FE18467C2B00A1EFE4 /* PacoLoadingView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoLoadingView.h; sourceTree = "<group>"; };
+		369EC7FF18467C2B00A1EFE4 /* PacoLoadingView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoLoadingView.m; sourceTree = "<group>"; };
+		36A8201618B556CC00FE83A5 /* PacoScheduleGenerator+Daily.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "PacoScheduleGenerator+Daily.h"; sourceTree = "<group>"; };
+		36A8201718B556CC00FE83A5 /* PacoScheduleGenerator+Daily.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "PacoScheduleGenerator+Daily.m"; sourceTree = "<group>"; };
+		36A8201A18B5576400FE83A5 /* PacoScheduleGenerator+Weekdays.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "PacoScheduleGenerator+Weekdays.h"; sourceTree = "<group>"; };
+		36A8201B18B5576400FE83A5 /* PacoScheduleGenerator+Weekdays.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "PacoScheduleGenerator+Weekdays.m"; sourceTree = "<group>"; };
+		36AD6CE017C4440000B93855 /* NSError+Paco.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSError+Paco.h"; sourceTree = "<group>"; };
+		36AD6CE117C4440000B93855 /* NSError+Paco.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSError+Paco.m"; sourceTree = "<group>"; };
+		36AD6CE917C5977E00B93855 /* PacoEvaluatorTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoEvaluatorTests.h; sourceTree = "<group>"; };
+		36AD6CEA17C5977E00B93855 /* PacoEvaluatorTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoEvaluatorTests.m; sourceTree = "<group>"; };
+		36B5A4F118282CBC004DB894 /* PacoScheduleGeneratorDailyESMTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoScheduleGeneratorDailyESMTests.m; sourceTree = "<group>"; };
+		36B5A4FA18282E46004DB894 /* PacoScheduleGeneratorWeeklyESMTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoScheduleGeneratorWeeklyESMTests.m; sourceTree = "<group>"; };
+		36B5A4FC18282EA5004DB894 /* PacoScheduleGeneratorMonthlyESMTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoScheduleGeneratorMonthlyESMTests.m; sourceTree = "<group>"; };
+		36B8EB0317568DAF004CF035 /* PacoAuthenticator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoAuthenticator.h; sourceTree = "<group>"; };
+		36B8EB0417568DAF004CF035 /* PacoAuthenticator.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoAuthenticator.m; sourceTree = "<group>"; };
+		36B8EB0617568DAF004CF035 /* PacoClient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoClient.h; sourceTree = "<group>"; };
+		36B8EB0717568DAF004CF035 /* PacoClient.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoClient.m; sourceTree = "<group>"; };
+		36B8EB0917568DAF004CF035 /* PacoLocation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoLocation.h; sourceTree = "<group>"; };
+		36B8EB0A17568DAF004CF035 /* PacoLocation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoLocation.m; sourceTree = "<group>"; };
+		36B8EB0C17568DAF004CF035 /* PacoModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoModel.h; sourceTree = "<group>"; };
+		36B8EB0D17568DAF004CF035 /* PacoModel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoModel.m; sourceTree = "<group>"; };
+		36B8EB0F17568DAF004CF035 /* PacoScheduler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoScheduler.h; sourceTree = "<group>"; };
+		36B8EB1017568DAF004CF035 /* PacoScheduler.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoScheduler.m; sourceTree = "<group>"; };
+		36B8EB1217568DAF004CF035 /* PacoService.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoService.h; sourceTree = "<group>"; };
+		36B8EB1317568DAF004CF035 /* PacoService.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoService.m; sourceTree = "<group>"; };
+		36B8EB1517568DAF004CF035 /* PacoDateUtility.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoDateUtility.h; sourceTree = "<group>"; };
+		36B8EB1617568DAF004CF035 /* PacoDateUtility.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoDateUtility.m; sourceTree = "<group>"; };
+		36B8EB1717568DAF004CF035 /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		36B8EB1817568DAF004CF035 /* Paco-Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "Paco-Prefix.pch"; sourceTree = "<group>"; };
+		36B8EB1917568DAF004CF035 /* PacoAppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoAppDelegate.h; sourceTree = "<group>"; };
+		36B8EB1A17568DAF004CF035 /* PacoAppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoAppDelegate.m; sourceTree = "<group>"; };
+		36B8EB1B17568DAF004CF035 /* PacoConfig.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoConfig.h; sourceTree = "<group>"; };
+		36B8EB1E17568DAF004CF035 /* PacoEditScheduleViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoEditScheduleViewController.h; sourceTree = "<group>"; };
+		36B8EB1F17568DAF004CF035 /* PacoEditScheduleViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoEditScheduleViewController.m; sourceTree = "<group>"; };
+		36B8EB2117568DAF004CF035 /* PacoByWeekOrMonthSelectionView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoByWeekOrMonthSelectionView.h; sourceTree = "<group>"; };
+		36B8EB2217568DAF004CF035 /* PacoByWeekOrMonthSelectionView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoByWeekOrMonthSelectionView.m; sourceTree = "<group>"; };
+		36B8EB2317568DAF004CF035 /* PacoDayOfMonthSelectionView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoDayOfMonthSelectionView.h; sourceTree = "<group>"; };
+		36B8EB2417568DAF004CF035 /* PacoDayOfMonthSelectionView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoDayOfMonthSelectionView.m; sourceTree = "<group>"; };
+		36B8EB2517568DAF004CF035 /* PacoDayOfWeekSelectionView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoDayOfWeekSelectionView.h; sourceTree = "<group>"; };
+		36B8EB2617568DAF004CF035 /* PacoDayOfWeekSelectionView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoDayOfWeekSelectionView.m; sourceTree = "<group>"; };
+		36B8EB2717568DAF004CF035 /* PacoESMFrequencySelectionView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoESMFrequencySelectionView.h; sourceTree = "<group>"; };
+		36B8EB2817568DAF004CF035 /* PacoESMFrequencySelectionView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoESMFrequencySelectionView.m; sourceTree = "<group>"; };
+		36B8EB2917568DAF004CF035 /* PacoESMIncludeWeekendsSelectionView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoESMIncludeWeekendsSelectionView.h; sourceTree = "<group>"; };
+		36B8EB2A17568DAF004CF035 /* PacoESMIncludeWeekendsSelectionView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoESMIncludeWeekendsSelectionView.m; sourceTree = "<group>"; };
+		36B8EB2B17568DAF004CF035 /* PacoESMPeriodSelectionView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoESMPeriodSelectionView.h; sourceTree = "<group>"; };
+		36B8EB2C17568DAF004CF035 /* PacoESMPeriodSelectionView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoESMPeriodSelectionView.m; sourceTree = "<group>"; };
+		36B8EB2D17568DAF004CF035 /* PacoFirstDayOfMonthSelectionView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoFirstDayOfMonthSelectionView.h; sourceTree = "<group>"; };
+		36B8EB2E17568DAF004CF035 /* PacoFirstDayOfMonthSelectionView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoFirstDayOfMonthSelectionView.m; sourceTree = "<group>"; };
+		36B8EB2F17568DAF004CF035 /* PacoRepeatRateSelectionView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoRepeatRateSelectionView.h; sourceTree = "<group>"; };
+		36B8EB3017568DAF004CF035 /* PacoRepeatRateSelectionView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoRepeatRateSelectionView.m; sourceTree = "<group>"; };
+		36B8EB3117568DAF004CF035 /* PacoScheduleEditView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoScheduleEditView.h; sourceTree = "<group>"; };
+		36B8EB3217568DAF004CF035 /* PacoScheduleEditView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoScheduleEditView.m; sourceTree = "<group>"; };
+		36B8EB3317568DAF004CF035 /* PacoTimeSelectionView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoTimeSelectionView.h; sourceTree = "<group>"; };
+		36B8EB3417568DAF004CF035 /* PacoTimeSelectionView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoTimeSelectionView.m; sourceTree = "<group>"; };
+		36B8EB3617568DAF004CF035 /* PacoExperimentListViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoExperimentListViewController.h; sourceTree = "<group>"; };
+		36B8EB3717568DAF004CF035 /* PacoExperimentListViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoExperimentListViewController.m; sourceTree = "<group>"; };
+		36B8EB3A17568DAF004CF035 /* PacoConsentViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoConsentViewController.h; sourceTree = "<group>"; };
+		36B8EB3B17568DAF004CF035 /* PacoConsentViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoConsentViewController.m; sourceTree = "<group>"; };
+		36B8EB3D17568DAF004CF035 /* PacoExperimentDetailsViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoExperimentDetailsViewController.h; sourceTree = "<group>"; };
+		36B8EB3E17568DAF004CF035 /* PacoExperimentDetailsViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoExperimentDetailsViewController.m; sourceTree = "<group>"; };
+		36B8EB3F17568DAF004CF035 /* PacoFindMyExperimentsViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoFindMyExperimentsViewController.h; sourceTree = "<group>"; };
+		36B8EB4017568DAF004CF035 /* PacoFindMyExperimentsViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoFindMyExperimentsViewController.m; sourceTree = "<group>"; };
+		36B8EB4517568DAF004CF035 /* PacoMainViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoMainViewController.h; sourceTree = "<group>"; };
+		36B8EB4617568DAF004CF035 /* PacoMainViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoMainViewController.m; sourceTree = "<group>"; };
+		36B8EB4717568DAF004CF035 /* PacoMenuButton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoMenuButton.h; sourceTree = "<group>"; };
+		36B8EB4817568DAF004CF035 /* PacoMenuButton.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoMenuButton.m; sourceTree = "<group>"; };
+		36B8EB4A17568DAF004CF035 /* PacoQuestionScreenViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoQuestionScreenViewController.h; sourceTree = "<group>"; };
+		36B8EB4B17568DAF004CF035 /* PacoQuestionScreenViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoQuestionScreenViewController.m; sourceTree = "<group>"; };
+		36B8EB4C17568DAF004CF035 /* PacoQuestionView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoQuestionView.h; sourceTree = "<group>"; };
+		36B8EB4D17568DAF004CF035 /* PacoQuestionView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoQuestionView.m; sourceTree = "<group>"; };
+		36B8EB4F17568DAF004CF035 /* PacoRunningExperimentsViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoRunningExperimentsViewController.h; sourceTree = "<group>"; };
+		36B8EB5017568DAF004CF035 /* PacoRunningExperimentsViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoRunningExperimentsViewController.m; sourceTree = "<group>"; };
+		36B8EB5217568DAF004CF035 /* PacoCheckboxView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoCheckboxView.h; sourceTree = "<group>"; };
+		36B8EB5317568DAF004CF035 /* PacoCheckboxView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoCheckboxView.m; sourceTree = "<group>"; };
+		36B8EB5817568DAF004CF035 /* PacoLayout.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoLayout.h; sourceTree = "<group>"; };
+		36B8EB5917568DAF004CF035 /* PacoLayout.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoLayout.m; sourceTree = "<group>"; };
+		36B8EB5A17568DAF004CF035 /* PacoLoadingTableCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoLoadingTableCell.h; sourceTree = "<group>"; };
+		36B8EB5B17568DAF004CF035 /* PacoLoadingTableCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoLoadingTableCell.m; sourceTree = "<group>"; };
+		36B8EB5C17568DAF004CF035 /* PacoSliderView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoSliderView.h; sourceTree = "<group>"; };
+		36B8EB5D17568DAF004CF035 /* PacoSliderView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoSliderView.m; sourceTree = "<group>"; };
+		36B8EB5E17568DAF004CF035 /* PacoTableCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoTableCell.h; sourceTree = "<group>"; };
+		36B8EB5F17568DAF004CF035 /* PacoTableCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoTableCell.m; sourceTree = "<group>"; };
+		36B8EB6017568DAF004CF035 /* PacoTableTextCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoTableTextCell.h; sourceTree = "<group>"; };
+		36B8EB6117568DAF004CF035 /* PacoTableTextCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoTableTextCell.m; sourceTree = "<group>"; };
+		36B8EB6217568DAF004CF035 /* PacoTableView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoTableView.h; sourceTree = "<group>"; };
+		36B8EB6317568DAF004CF035 /* PacoTableView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoTableView.m; sourceTree = "<group>"; };
+		36B8EB6417568DAF004CF035 /* PacoTableViewDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoTableViewDelegate.h; sourceTree = "<group>"; };
+		36B8EB9117568E22004CF035 /* Paco-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "Paco-Info.plist"; sourceTree = "<group>"; };
+		36B8EB9617568E29004CF035 /* calculator.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = calculator.png; sourceTree = "<group>"; };
+		36B8EB9717568E29004CF035 /* current_experiments_disabled.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = current_experiments_disabled.png; sourceTree = "<group>"; };
+		36B8EB9817568E29004CF035 /* current_experiments_focused.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = current_experiments_focused.png; sourceTree = "<group>"; };
+		36B8EB9917568E29004CF035 /* current_experiments_normal.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = current_experiments_normal.png; sourceTree = "<group>"; };
+		36B8EB9A17568E29004CF035 /* current_experiments_pressed.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = current_experiments_pressed.png; sourceTree = "<group>"; };
+		36B8EBA117568E29004CF035 /* experiment_disabled.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = experiment_disabled.png; sourceTree = "<group>"; };
+		36B8EBA217568E29004CF035 /* experiment_focused.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = experiment_focused.png; sourceTree = "<group>"; };
+		36B8EBA317568E29004CF035 /* experiment_normal.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = experiment_normal.png; sourceTree = "<group>"; };
+		36B8EBA417568E29004CF035 /* experiment_pressed.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = experiment_pressed.png; sourceTree = "<group>"; };
+		36B8EBA517568E29004CF035 /* feedback_disabled.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = feedback_disabled.png; sourceTree = "<group>"; };
+		36B8EBA617568E29004CF035 /* feedback_focused.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = feedback_focused.png; sourceTree = "<group>"; };
+		36B8EBA717568E29004CF035 /* feedback_normal.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = feedback_normal.png; sourceTree = "<group>"; };
+		36B8EBA817568E29004CF035 /* feedback_pressed.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = feedback_pressed.png; sourceTree = "<group>"; };
+		36B8EBA917568E29004CF035 /* find_experiments_disabled.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = find_experiments_disabled.png; sourceTree = "<group>"; };
+		36B8EBAA17568E29004CF035 /* find_experiments_focused.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = find_experiments_focused.png; sourceTree = "<group>"; };
+		36B8EBAB17568E29004CF035 /* find_experiments_normal.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = find_experiments_normal.png; sourceTree = "<group>"; };
+		36B8EBAC17568E29004CF035 /* find_experiments_pressed.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = find_experiments_pressed.png; sourceTree = "<group>"; };
+		36B8EBB517568E29004CF035 /* paco32.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = paco32.png; sourceTree = "<group>"; };
+		36B8EBB817568E29004CF035 /* question.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = question.png; sourceTree = "<group>"; };
+		36B8EBBB17568E29004CF035 /* smile_icon1.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = smile_icon1.png; sourceTree = "<group>"; };
+		36B8EBBC17568E29004CF035 /* smile_icon1_re.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = smile_icon1_re.png; sourceTree = "<group>"; };
+		36B8EBBD17568E29004CF035 /* smile_icon2.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = smile_icon2.png; sourceTree = "<group>"; };
+		36B8EBBE17568E29004CF035 /* smile_icon2_re.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = smile_icon2_re.png; sourceTree = "<group>"; };
+		36B8EBBF17568E29004CF035 /* smile_icon3.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = smile_icon3.png; sourceTree = "<group>"; };
+		36B8EBC017568E29004CF035 /* smile_icon3_re.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = smile_icon3_re.png; sourceTree = "<group>"; };
+		36B8EBC117568E29004CF035 /* smile_icon4.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = smile_icon4.png; sourceTree = "<group>"; };
+		36B8EBC217568E29004CF035 /* smile_icon4_re.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = smile_icon4_re.png; sourceTree = "<group>"; };
+		36B8EBC317568E29004CF035 /* smile_icon5.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = smile_icon5.png; sourceTree = "<group>"; };
+		36B8EBC417568E29004CF035 /* smile_icon5_re.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = smile_icon5_re.png; sourceTree = "<group>"; };
+		36B8EBD317568E29004CF035 /* uicheckbox_checked.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = uicheckbox_checked.png; sourceTree = "<group>"; };
+		36B8EBD417568E29004CF035 /* uicheckbox_unchecked.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = uicheckbox_unchecked.png; sourceTree = "<group>"; };
+		36B8EC3617568E40004CF035 /* PacoTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoTests.h; sourceTree = "<group>"; };
+		36B8EC3717568E40004CF035 /* PacoTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoTests.m; sourceTree = "<group>"; };
+		36B8EC3A17568E40004CF035 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		36B8EC3B17568E40004CF035 /* PacoTests-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "PacoTests-Info.plist"; sourceTree = "<group>"; };
+		36BC10DC17FE09E8001EA9DD /* PacoIOSLocalNotificationTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoIOSLocalNotificationTests.m; sourceTree = "<group>"; };
+		36BD6D13194A390D00CD50A8 /* PacoEditScheduleAfterJoinController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoEditScheduleAfterJoinController.h; sourceTree = "<group>"; };
+		36BD6D14194A390D00CD50A8 /* PacoEditScheduleAfterJoinController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoEditScheduleAfterJoinController.m; sourceTree = "<group>"; };
+		36C4A33718A4DEEE00D8FE59 /* DDASLLogger.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DDASLLogger.h; sourceTree = "<group>"; };
+		36C4A33818A4DEEE00D8FE59 /* DDASLLogger.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DDASLLogger.m; sourceTree = "<group>"; };
+		36C4A33918A4DEEE00D8FE59 /* DDFileLogger.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DDFileLogger.h; sourceTree = "<group>"; };
+		36C4A33A18A4DEEE00D8FE59 /* DDFileLogger.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DDFileLogger.m; sourceTree = "<group>"; };
+		36C4A33B18A4DEEE00D8FE59 /* DDLog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DDLog.h; sourceTree = "<group>"; };
+		36C4A33C18A4DEEE00D8FE59 /* DDLog.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DDLog.m; sourceTree = "<group>"; };
+		36C4A34718A4DFEC00D8FE59 /* DDTTYLogger.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DDTTYLogger.h; sourceTree = "<group>"; };
+		36C4A34818A4DFEC00D8FE59 /* DDTTYLogger.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DDTTYLogger.m; sourceTree = "<group>"; };
+		36D4249E17E64917003BCD61 /* PacoESMDateTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoESMDateTests.h; sourceTree = "<group>"; };
+		36D4249F17E64917003BCD61 /* PacoESMDateTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoESMDateTests.m; sourceTree = "<group>"; };
+		36D8B54E17F153A100F7698E /* PacoClientTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoClientTests.m; sourceTree = "<group>"; };
+		36F02D31180DE16B0027395F /* PacoNSCalendarCategoryTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoNSCalendarCategoryTests.m; sourceTree = "<group>"; };
+		36F02D32180DE16B0027395F /* PacoNSDateCategoryTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoNSDateCategoryTests.m; sourceTree = "<group>"; };
+		36F3EFE718FC645500ABF242 /* PacoESMDailyGeneratorWithCache.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoESMDailyGeneratorWithCache.m; sourceTree = "<group>"; };
+		36F457E21863ABA900931049 /* welcome_paco.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = welcome_paco.html; sourceTree = "<group>"; };
+		44239BFD1EA9DD4B0026E69A /* AppAuth.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppAuth.framework; path = "DerivedData/Paco/Build/Products/Debug-iphonesimulator/AppAuth/AppAuth.framework"; sourceTree = "<group>"; };
+		44239BFE1EA9DD4B0026E69A /* GTMAppAuth.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GTMAppAuth.framework; path = "DerivedData/Paco/Build/Products/Debug-iphonesimulator/GTMAppAuth/GTMAppAuth.framework"; sourceTree = "<group>"; };
+		44239BFF1EA9DD4B0026E69A /* GTMSessionFetcher.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GTMSessionFetcher.framework; path = "DerivedData/Paco/Build/Products/Debug-iphonesimulator/GTMSessionFetcher/GTMSessionFetcher.framework"; sourceTree = "<group>"; };
+		7F8531BD1A37BE680028BA23 /* JCNotificationBanner.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = JCNotificationBanner.h; path = jcnotificationbannerpresenter/Library/JCNotificationBanner.h; sourceTree = "<group>"; };
+		7F8531BE1A37BE680028BA23 /* JCNotificationBanner.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = JCNotificationBanner.m; path = jcnotificationbannerpresenter/Library/JCNotificationBanner.m; sourceTree = "<group>"; };
+		7F8531BF1A37BE680028BA23 /* JCNotificationBannerPresenter_Private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = JCNotificationBannerPresenter_Private.h; path = jcnotificationbannerpresenter/Library/JCNotificationBannerPresenter_Private.h; sourceTree = "<group>"; };
+		7F8531C01A37BE680028BA23 /* JCNotificationBannerPresenter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = JCNotificationBannerPresenter.h; path = jcnotificationbannerpresenter/Library/JCNotificationBannerPresenter.h; sourceTree = "<group>"; };
+		7F8531C11A37BE680028BA23 /* JCNotificationBannerPresenter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = JCNotificationBannerPresenter.m; path = jcnotificationbannerpresenter/Library/JCNotificationBannerPresenter.m; sourceTree = "<group>"; };
+		7F8531C21A37BE680028BA23 /* JCNotificationBannerPresenterIOS7Style.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = JCNotificationBannerPresenterIOS7Style.h; path = jcnotificationbannerpresenter/Library/JCNotificationBannerPresenterIOS7Style.h; sourceTree = "<group>"; };
+		7F8531C31A37BE680028BA23 /* JCNotificationBannerPresenterIOS7Style.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = JCNotificationBannerPresenterIOS7Style.m; path = jcnotificationbannerpresenter/Library/JCNotificationBannerPresenterIOS7Style.m; sourceTree = "<group>"; };
+		7F8531C41A37BE680028BA23 /* JCNotificationBannerPresenterIOSStyle.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = JCNotificationBannerPresenterIOSStyle.h; path = jcnotificationbannerpresenter/Library/JCNotificationBannerPresenterIOSStyle.h; sourceTree = "<group>"; };
+		7F8531C51A37BE680028BA23 /* JCNotificationBannerPresenterIOSStyle.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = JCNotificationBannerPresenterIOSStyle.m; path = jcnotificationbannerpresenter/Library/JCNotificationBannerPresenterIOSStyle.m; sourceTree = "<group>"; };
+		7F8531C61A37BE680028BA23 /* JCNotificationBannerPresenterSmokeStyle.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = JCNotificationBannerPresenterSmokeStyle.h; path = jcnotificationbannerpresenter/Library/JCNotificationBannerPresenterSmokeStyle.h; sourceTree = "<group>"; };
+		7F8531C71A37BE680028BA23 /* JCNotificationBannerPresenterSmokeStyle.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = JCNotificationBannerPresenterSmokeStyle.m; path = jcnotificationbannerpresenter/Library/JCNotificationBannerPresenterSmokeStyle.m; sourceTree = "<group>"; };
+		7F8531C81A37BE680028BA23 /* JCNotificationBannerView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = JCNotificationBannerView.h; path = jcnotificationbannerpresenter/Library/JCNotificationBannerView.h; sourceTree = "<group>"; };
+		7F8531C91A37BE680028BA23 /* JCNotificationBannerView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = JCNotificationBannerView.m; path = jcnotificationbannerpresenter/Library/JCNotificationBannerView.m; sourceTree = "<group>"; };
+		7F8531CA1A37BE680028BA23 /* JCNotificationBannerViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = JCNotificationBannerViewController.h; path = jcnotificationbannerpresenter/Library/JCNotificationBannerViewController.h; sourceTree = "<group>"; };
+		7F8531CB1A37BE680028BA23 /* JCNotificationBannerViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = JCNotificationBannerViewController.m; path = jcnotificationbannerpresenter/Library/JCNotificationBannerViewController.m; sourceTree = "<group>"; };
+		7F8531CC1A37BE680028BA23 /* JCNotificationBannerViewIOS7Style.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = JCNotificationBannerViewIOS7Style.h; path = jcnotificationbannerpresenter/Library/JCNotificationBannerViewIOS7Style.h; sourceTree = "<group>"; };
+		7F8531CD1A37BE680028BA23 /* JCNotificationBannerViewIOS7Style.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = JCNotificationBannerViewIOS7Style.m; path = jcnotificationbannerpresenter/Library/JCNotificationBannerViewIOS7Style.m; sourceTree = "<group>"; };
+		7F8531CE1A37BE680028BA23 /* JCNotificationBannerViewIOSStyle.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = JCNotificationBannerViewIOSStyle.h; path = jcnotificationbannerpresenter/Library/JCNotificationBannerViewIOSStyle.h; sourceTree = "<group>"; };
+		7F8531CF1A37BE680028BA23 /* JCNotificationBannerViewIOSStyle.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = JCNotificationBannerViewIOSStyle.m; path = jcnotificationbannerpresenter/Library/JCNotificationBannerViewIOSStyle.m; sourceTree = "<group>"; };
+		7F8531D01A37BE680028BA23 /* JCNotificationBannerWindow.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = JCNotificationBannerWindow.h; path = jcnotificationbannerpresenter/Library/JCNotificationBannerWindow.h; sourceTree = "<group>"; };
+		7F8531D11A37BE680028BA23 /* JCNotificationBannerWindow.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = JCNotificationBannerWindow.m; path = jcnotificationbannerpresenter/Library/JCNotificationBannerWindow.m; sourceTree = "<group>"; };
+		7F8531D21A37BE680028BA23 /* JCNotificationCenter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = JCNotificationCenter.h; path = jcnotificationbannerpresenter/Library/JCNotificationCenter.h; sourceTree = "<group>"; };
+		7F8531D31A37BE680028BA23 /* JCNotificationCenter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = JCNotificationCenter.m; path = jcnotificationbannerpresenter/Library/JCNotificationCenter.m; sourceTree = "<group>"; };
+		7FB6607E1AA8C305008D2327 /* paco32@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "paco32@2x.png"; sourceTree = "<group>"; };
+		7FB6607F1AA8C305008D2327 /* paco32@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "paco32@3x.png"; sourceTree = "<group>"; };
+		7FB6608F1AA8C352008D2327 /* PacoTitleView.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = PacoTitleView.xib; sourceTree = "<group>"; };
+		8DA66BC3BA03A7F250872B5E /* Pods_Paco.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Paco.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		9D60D437C62D01DB8DA47FFA /* Pods-Paco.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Paco.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Paco/Pods-Paco.debug.xcconfig"; sourceTree = "<group>"; };
+		B8B04486F837EC6A07859438 /* Pods-Paco.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Paco.release.xcconfig"; path = "Pods/Target Support Files/Pods-Paco/Pods-Paco.release.xcconfig"; sourceTree = "<group>"; };
+		C567E88F17A03FDE00267A26 /* deepbark_trial.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = deepbark_trial.mp3; sourceTree = "<group>"; };
+		C5B4691817B07E4900B6BC18 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
+		C5C4F5D117B163EF009E9F18 /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
+		E43DA21B185ADDD2007F04F9 /* PacoWebViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoWebViewController.h; sourceTree = "<group>"; };
+		E43DA21C185ADDD2007F04F9 /* PacoWebViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoWebViewController.m; sourceTree = "<group>"; };
+		E440AB3919140E0800D6FD09 /* PacoOpenSourceLibViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoOpenSourceLibViewController.h; sourceTree = "<group>"; };
+		E440AB3A19140E0800D6FD09 /* PacoOpenSourceLibViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoOpenSourceLibViewController.m; sourceTree = "<group>"; };
+		E462379018F9F1E900610F56 /* PacoDatePickerView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoDatePickerView.h; sourceTree = "<group>"; };
+		E462379118F9F1E900610F56 /* PacoDatePickerView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoDatePickerView.m; sourceTree = "<group>"; };
+		E480BE151896F3C700662432 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = InfoPlist.strings; sourceTree = "<group>"; };
+		E480BE1F1896F3E100662432 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = Localizable.strings; sourceTree = "<group>"; };
+		E48622A0188FEE16000B5044 /* PacoSubtitleTableCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoSubtitleTableCell.h; sourceTree = "<group>"; };
+		E48622A1188FEE16000B5044 /* PacoSubtitleTableCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoSubtitleTableCell.m; sourceTree = "<group>"; };
+		E4D5DE851837DE9900E5446A /* MessageUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MessageUI.framework; path = System/Library/Frameworks/MessageUI.framework; sourceTree = SDKROOT; };
+		E4D96CF71896F941007F8668 /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ja; path = ja.lproj/Localizable.strings; sourceTree = "<group>"; };
+		E4D96CFF1896F95D007F8668 /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ja; path = ja.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		E4E8F350183B21500022613A /* PacoContactUsViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoContactUsViewController.h; sourceTree = "<group>"; };
+		E4E8F351183B21500022613A /* PacoContactUsViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoContactUsViewController.m; sourceTree = "<group>"; };
+		E4F9A79618899F39006A2803 /* PacoStepperView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PacoStepperView.h; sourceTree = "<group>"; };
+		E4F9A79718899F39006A2803 /* PacoStepperView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PacoStepperView.m; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		319771C1163F0733000AC06B /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				44239C001EA9DD4B0026E69A /* AppAuth.framework in Frameworks */,
+				44239C011EA9DD4B0026E69A /* GTMAppAuth.framework in Frameworks */,
+				44239C021EA9DD4B0026E69A /* GTMSessionFetcher.framework in Frameworks */,
+				E4D5DE861837DE9A00E5446A /* MessageUI.framework in Frameworks */,
+				C5C4F5D217B163EF009E9F18 /* QuartzCore.framework in Frameworks */,
+				319771C9163F0733000AC06B /* UIKit.framework in Frameworks */,
+				319771CB163F0733000AC06B /* Foundation.framework in Frameworks */,
+				C5B4691917B07E4900B6BC18 /* CoreGraphics.framework in Frameworks */,
+				36000C3817C6B34000A8A9E7 /* libicucore.dylib in Frameworks */,
+				36000C3417C6B0A300A8A9E7 /* libParseKitMobile.a in Frameworks */,
+				31D5575116DAD33200C7D1BE /* MobileCoreServices.framework in Frameworks */,
+				3129004216DAAC9F008FF617 /* MapKit.framework in Frameworks */,
+				3129004016DAA4C7008FF617 /* CoreLocation.framework in Frameworks */,
+				3197721D163F2672000AC06B /* SystemConfiguration.framework in Frameworks */,
+				3197721B163F265C000AC06B /* Security.framework in Frameworks */,
+				31977219163F2655000AC06B /* CFNetwork.framework in Frameworks */,
+				6A56DF05AC441FE9735102FE /* Pods_Paco.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		319771EA163F0733000AC06B /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				319771F1163F0733000AC06B /* UIKit.framework in Frameworks */,
+				319771F2163F0733000AC06B /* Foundation.framework in Frameworks */,
+				C5C4F5D317B163EF009E9F18 /* QuartzCore.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		319771B9163F0733000AC06B = {
+			isa = PBXGroup;
+			children = (
+				319771CE163F0733000AC06B /* Paco */,
+				36B8EC3517568E40004CF035 /* PacoTests */,
+				36B8EC1217568E33004CF035 /* vendor */,
+				319771C7163F0733000AC06B /* Frameworks */,
+				319771C5163F0733000AC06B /* Products */,
+				36000C1517C6AEA900A8A9E7 /* ParseKit.xcodeproj */,
+				4E3FFB9EF2A09E0E4F8D8E9A /* Pods */,
+			);
+			sourceTree = "<group>";
+		};
+		319771C5163F0733000AC06B /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				319771C4163F0733000AC06B /* Paco.app */,
+				319771EE163F0733000AC06B /* PacoTests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		319771C7163F0733000AC06B /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				44239BFD1EA9DD4B0026E69A /* AppAuth.framework */,
+				44239BFE1EA9DD4B0026E69A /* GTMAppAuth.framework */,
+				44239BFF1EA9DD4B0026E69A /* GTMSessionFetcher.framework */,
+				E4D5DE851837DE9900E5446A /* MessageUI.framework */,
+				C5C4F5D117B163EF009E9F18 /* QuartzCore.framework */,
+				C5B4691817B07E4900B6BC18 /* CoreGraphics.framework */,
+				36000C3717C6B34000A8A9E7 /* libicucore.dylib */,
+				3129003F16DAA4C6008FF617 /* CoreLocation.framework */,
+				31D5575016DAD33200C7D1BE /* MobileCoreServices.framework */,
+				3129004116DAAC9D008FF617 /* MapKit.framework */,
+				3197721C163F2672000AC06B /* SystemConfiguration.framework */,
+				3197721A163F265B000AC06B /* Security.framework */,
+				31977218163F2655000AC06B /* CFNetwork.framework */,
+				319771C8163F0733000AC06B /* UIKit.framework */,
+				319771CA163F0733000AC06B /* Foundation.framework */,
+				8DA66BC3BA03A7F250872B5E /* Pods_Paco.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		319771CE163F0733000AC06B /* Paco */ = {
+			isa = PBXGroup;
+			children = (
+				36B8EB0017568DAF004CF035 /* source */,
+				36B8EB8F17568E22004CF035 /* config */,
+				36B8EB9417568E29004CF035 /* resources */,
+			);
+			path = Paco;
+			sourceTree = "<group>";
+		};
+		36000C1617C6AEA900A8A9E7 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				36000C2217C6AEA900A8A9E7 /* ParseKit.framework */,
+				36000C2417C6AEA900A8A9E7 /* PEGKit.framework */,
+				36000C2617C6AEA900A8A9E7 /* libParseKit.a */,
+				36000C2817C6AEA900A8A9E7 /* libParseKitMobile.a */,
+				36000C2A17C6AEA900A8A9E7 /* ParseKitTests.octest */,
+				36000C2C17C6AEA900A8A9E7 /* DemoApp.app */,
+				36000C2E17C6AEA900A8A9E7 /* DebugApp.app */,
+				36000C3017C6AEA900A8A9E7 /* ParserGenApp.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		363E210517AACFF1007DE3CE /* events */ = {
+			isa = PBXGroup;
+			children = (
+				363E210617AAD028007DE3CE /* PacoEvent.h */,
+				363E210717AAD028007DE3CE /* PacoEvent.m */,
+				363E210917AAD05B007DE3CE /* PacoEventManager.h */,
+				363E210A17AAD05B007DE3CE /* PacoEventManager.m */,
+				363E211417AF88BA007DE3CE /* PacoEventUploader.h */,
+				363E211517AF88BB007DE3CE /* PacoEventUploader.m */,
+			);
+			path = events;
+			sourceTree = "<group>";
+		};
+		363E211017AF8420007DE3CE /* reachability */ = {
+			isa = PBXGroup;
+			children = (
+				363E211117AF8420007DE3CE /* Reachability.h */,
+				363E211217AF8420007DE3CE /* Reachability.m */,
+			);
+			path = reachability;
+			sourceTree = "<group>";
+		};
+		363E211717B5B068007DE3CE /* conditional */ = {
+			isa = PBXGroup;
+			children = (
+				363E211817B5B13F007DE3CE /* PacoExpressionExecutor.h */,
+				363E211917B5B13F007DE3CE /* PacoExpressionExecutor.m */,
+				363E211B17B5B1F6007DE3CE /* PacoInputEvaluator.h */,
+				363E211C17B5B1F6007DE3CE /* PacoInputEvaluator.m */,
+			);
+			path = conditional;
+			sourceTree = "<group>";
+		};
+		366F46A918CF829800789A54 /* PublicExperimentScreen */ = {
+			isa = PBXGroup;
+			children = (
+				366F46B118CF82C200789A54 /* PacoPublicExperimentController.h */,
+				366F46B218CF82C200789A54 /* PacoPublicExperimentController.m */,
+			);
+			path = PublicExperimentScreen;
+			sourceTree = "<group>";
+		};
+		36AD6CDF17C443DF00B93855 /* common */ = {
+			isa = PBXGroup;
+			children = (
+				36AD6CE017C4440000B93855 /* NSError+Paco.h */,
+				36AD6CE117C4440000B93855 /* NSError+Paco.m */,
+				365D20E5181B198D0097F379 /* NSString+Paco.h */,
+				365D20E6181B198D0097F379 /* NSString+Paco.m */,
+				365B3C2C1836EF41003D57A7 /* UIImage+Paco.h */,
+				365B3C2D1836EF41003D57A7 /* UIImage+Paco.m */,
+				365D20F81820695E0097F379 /* PacoUtility.h */,
+				365D20F91820695E0097F379 /* PacoUtility.m */,
+			);
+			path = common;
+			sourceTree = "<group>";
+		};
+		36B8EB0017568DAF004CF035 /* source */ = {
+			isa = PBXGroup;
+			children = (
+				36B8EB1717568DAF004CF035 /* main.m */,
+				36B8EB1817568DAF004CF035 /* Paco-Prefix.pch */,
+				36B8EB1917568DAF004CF035 /* PacoAppDelegate.h */,
+				36B8EB1A17568DAF004CF035 /* PacoAppDelegate.m */,
+				36B8EB1B17568DAF004CF035 /* PacoConfig.h */,
+				36B8EB0117568DAF004CF035 /* core */,
+				36B8EB1C17568DAF004CF035 /* ui */,
+			);
+			path = source;
+			sourceTree = "<group>";
+		};
+		36B8EB0117568DAF004CF035 /* core */ = {
+			isa = PBXGroup;
+			children = (
+				36AD6CDF17C443DF00B93855 /* common */,
+				36B8EB0217568DAF004CF035 /* authentication */,
+				36B8EB0517568DAF004CF035 /* client */,
+				36B8EB0817568DAF004CF035 /* location */,
+				36B8EB0B17568DAF004CF035 /* model */,
+				363E211717B5B068007DE3CE /* conditional */,
+				363E210517AACFF1007DE3CE /* events */,
+				36B8EB0E17568DAF004CF035 /* scheduling */,
+				36B8EB1117568DAF004CF035 /* service */,
+				36B8EB1417568DAF004CF035 /* shared */,
+			);
+			path = core;
+			sourceTree = "<group>";
+		};
+		36B8EB0217568DAF004CF035 /* authentication */ = {
+			isa = PBXGroup;
+			children = (
+				36B8EB0317568DAF004CF035 /* PacoAuthenticator.h */,
+				36B8EB0417568DAF004CF035 /* PacoAuthenticator.m */,
+			);
+			path = authentication;
+			sourceTree = "<group>";
+		};
+		36B8EB0517568DAF004CF035 /* client */ = {
+			isa = PBXGroup;
+			children = (
+				36B8EB0617568DAF004CF035 /* PacoClient.h */,
+				36B8EB0717568DAF004CF035 /* PacoClient.m */,
+			);
+			path = client;
+			sourceTree = "<group>";
+		};
+		36B8EB0817568DAF004CF035 /* location */ = {
+			isa = PBXGroup;
+			children = (
+				36B8EB0917568DAF004CF035 /* PacoLocation.h */,
+				36B8EB0A17568DAF004CF035 /* PacoLocation.m */,
+			);
+			path = location;
+			sourceTree = "<group>";
+		};
+		36B8EB0B17568DAF004CF035 /* model */ = {
+			isa = PBXGroup;
+			children = (
+				36B8EB0C17568DAF004CF035 /* PacoModel.h */,
+				36B8EB0D17568DAF004CF035 /* PacoModel.m */,
+				36946B03177A37CE005E0C04 /* PacoExperimentFeedback.h */,
+				36946B04177A37CE005E0C04 /* PacoExperimentFeedback.m */,
+				36946B06177A385A005E0C04 /* PacoExperimentInput.h */,
+				36946B07177A385A005E0C04 /* PacoExperimentInput.m */,
+				36946B09177A3967005E0C04 /* PacoExperimentSchedule.h */,
+				36946B0A177A3967005E0C04 /* PacoExperimentSchedule.m */,
+				36488B8518BFDC46004517E2 /* PacoTriggerSignal.h */,
+				36488B8618BFDC46004517E2 /* PacoTriggerSignal.m */,
+				36946B0C177A55B9005E0C04 /* PacoExperimentDefinition.h */,
+				36946B0D177A55B9005E0C04 /* PacoExperimentDefinition.m */,
+				36946B12177A5781005E0C04 /* PacoExperiment.h */,
+				36946B13177A5782005E0C04 /* PacoExperiment.m */,
+				36488BBC18CA598C004517E2 /* PacoPublicDefinitionLoader.h */,
+				36488BBD18CA598C004517E2 /* PacoPublicDefinitionLoader.m */,
+				36488BC718CA5E67004517E2 /* PacoEnumerator.h */,
+				36488BCB18CA6BAF004517E2 /* PacoEnumerator.m */,
+			);
+			path = model;
+			sourceTree = "<group>";
+		};
+		36B8EB0E17568DAF004CF035 /* scheduling */ = {
+			isa = PBXGroup;
+			children = (
+				36B8EB0F17568DAF004CF035 /* PacoScheduler.h */,
+				36B8EB1017568DAF004CF035 /* PacoScheduler.m */,
+				361AB05417DA77000053C313 /* PacoNotificationManager.h */,
+				361AB05517DA77000053C313 /* PacoNotificationManager.m */,
+				367233D21803956E006611E6 /* UILocalNotification+Paco.h */,
+				367233D31803956E006611E6 /* UILocalNotification+Paco.m */,
+				367233DF180619A5006611E6 /* PacoScheduleGenerator.h */,
+				367233E0180619A5006611E6 /* PacoScheduleGenerator.m */,
+				36A8201618B556CC00FE83A5 /* PacoScheduleGenerator+Daily.h */,
+				36A8201718B556CC00FE83A5 /* PacoScheduleGenerator+Daily.m */,
+				36A8201A18B5576400FE83A5 /* PacoScheduleGenerator+Weekdays.h */,
+				36A8201B18B5576400FE83A5 /* PacoScheduleGenerator+Weekdays.m */,
+				365D20ED1820622A0097F379 /* PacoScheduleGenerator+ESM.h */,
+				365D20EE1820622A0097F379 /* PacoScheduleGenerator+ESM.m */,
+				36488BB618C90D9A004517E2 /* PacoScheduleGenerator+Weekly.h */,
+				36488BB718C90D9A004517E2 /* PacoScheduleGenerator+Weekly.m */,
+				366F469B18CF127E00789A54 /* PacoScheduleGenerator+MonthlyByDayOfMonth.h */,
+				366F469C18CF127E00789A54 /* PacoScheduleGenerator+MonthlyByDayOfMonth.m */,
+				366F469F18CF12FB00789A54 /* PacoScheduleGenerator+MonthlyByDayOfWeek.h */,
+				366F46A018CF12FB00789A54 /* PacoScheduleGenerator+MonthlyByDayOfWeek.m */,
+			);
+			path = scheduling;
+			sourceTree = "<group>";
+		};
+		36B8EB1117568DAF004CF035 /* service */ = {
+			isa = PBXGroup;
+			children = (
+				36B8EB1217568DAF004CF035 /* PacoService.h */,
+				36B8EB1317568DAF004CF035 /* PacoService.m */,
+			);
+			path = service;
+			sourceTree = "<group>";
+		};
+		36B8EB1417568DAF004CF035 /* shared */ = {
+			isa = PBXGroup;
+			children = (
+				36417BE4180DCA9600335B74 /* NSCalendar+Paco.h */,
+				36417BE5180DCA9600335B74 /* NSCalendar+Paco.m */,
+				36417BE6180DCA9600335B74 /* NSDate+Paco.h */,
+				36417BE7180DCA9600335B74 /* NSDate+Paco.m */,
+				36B8EB1517568DAF004CF035 /* PacoDateUtility.h */,
+				36B8EB1617568DAF004CF035 /* PacoDateUtility.m */,
+				363C99EF1815FF8200D806F6 /* NSMutableArray+Paco.h */,
+				363C99F01815FF8200D806F6 /* NSMutableArray+Paco.m */,
+			);
+			path = shared;
+			sourceTree = "<group>";
+		};
+		36B8EB1C17568DAF004CF035 /* ui */ = {
+			isa = PBXGroup;
+			children = (
+				366F46A918CF829800789A54 /* PublicExperimentScreen */,
+				E43DA21A185ADDD2007F04F9 /* WebViewController */,
+				E4E8F34F183B21500022613A /* ContactScreen */,
+				36B8EB4417568DAF004CF035 /* MainScreen */,
+				E440AB3119140DA700D6FD09 /* OpenSourceLibScreen */,
+				36B8EB3817568DAF004CF035 /* FindExperimentScreen */,
+				36B8EB3517568DAF004CF035 /* ExperimentListScreen */,
+				36B8EB1D17568DAF004CF035 /* EditScheduleScreen */,
+				36B8EB4E17568DAF004CF035 /* RunningExperimentScreen */,
+				36B8EB4917568DAF004CF035 /* QuestionScreen */,
+				36B8EB5117568DAF004CF035 /* UIComponents */,
+			);
+			path = ui;
+			sourceTree = "<group>";
+		};
+		36B8EB1D17568DAF004CF035 /* EditScheduleScreen */ = {
+			isa = PBXGroup;
+			children = (
+				36B8EB1E17568DAF004CF035 /* PacoEditScheduleViewController.h */,
+				36B8EB1F17568DAF004CF035 /* PacoEditScheduleViewController.m */,
+				36B8EB2017568DAF004CF035 /* SchedulingViews */,
+			);
+			path = EditScheduleScreen;
+			sourceTree = "<group>";
+		};
+		36B8EB2017568DAF004CF035 /* SchedulingViews */ = {
+			isa = PBXGroup;
+			children = (
+				36B8EB2117568DAF004CF035 /* PacoByWeekOrMonthSelectionView.h */,
+				36B8EB2217568DAF004CF035 /* PacoByWeekOrMonthSelectionView.m */,
+				36B8EB2317568DAF004CF035 /* PacoDayOfMonthSelectionView.h */,
+				36B8EB2417568DAF004CF035 /* PacoDayOfMonthSelectionView.m */,
+				36B8EB2517568DAF004CF035 /* PacoDayOfWeekSelectionView.h */,
+				36B8EB2617568DAF004CF035 /* PacoDayOfWeekSelectionView.m */,
+				36B8EB2717568DAF004CF035 /* PacoESMFrequencySelectionView.h */,
+				36B8EB2817568DAF004CF035 /* PacoESMFrequencySelectionView.m */,
+				36B8EB2917568DAF004CF035 /* PacoESMIncludeWeekendsSelectionView.h */,
+				36B8EB2A17568DAF004CF035 /* PacoESMIncludeWeekendsSelectionView.m */,
+				36B8EB2B17568DAF004CF035 /* PacoESMPeriodSelectionView.h */,
+				36B8EB2C17568DAF004CF035 /* PacoESMPeriodSelectionView.m */,
+				36B8EB2D17568DAF004CF035 /* PacoFirstDayOfMonthSelectionView.h */,
+				36B8EB2E17568DAF004CF035 /* PacoFirstDayOfMonthSelectionView.m */,
+				36B8EB2F17568DAF004CF035 /* PacoRepeatRateSelectionView.h */,
+				36B8EB3017568DAF004CF035 /* PacoRepeatRateSelectionView.m */,
+				36B8EB3117568DAF004CF035 /* PacoScheduleEditView.h */,
+				36B8EB3217568DAF004CF035 /* PacoScheduleEditView.m */,
+				36B8EB3317568DAF004CF035 /* PacoTimeSelectionView.h */,
+				36B8EB3417568DAF004CF035 /* PacoTimeSelectionView.m */,
+				3612A267185FE7AA00DEADD1 /* PacoTimeEditView.h */,
+				3612A268185FE7AA00DEADD1 /* PacoTimeEditView.m */,
+			);
+			path = SchedulingViews;
+			sourceTree = "<group>";
+		};
+		36B8EB3517568DAF004CF035 /* ExperimentListScreen */ = {
+			isa = PBXGroup;
+			children = (
+				36B8EB3617568DAF004CF035 /* PacoExperimentListViewController.h */,
+				36B8EB3717568DAF004CF035 /* PacoExperimentListViewController.m */,
+			);
+			path = ExperimentListScreen;
+			sourceTree = "<group>";
+		};
+		36B8EB3817568DAF004CF035 /* FindExperimentScreen */ = {
+			isa = PBXGroup;
+			children = (
+				36B8EB3917568DAF004CF035 /* ConsentScreen */,
+				36B8EB3C17568DAF004CF035 /* ExperimentDetailsScreen */,
+				36B8EB3F17568DAF004CF035 /* PacoFindMyExperimentsViewController.h */,
+				36B8EB4017568DAF004CF035 /* PacoFindMyExperimentsViewController.m */,
+			);
+			path = FindExperimentScreen;
+			sourceTree = "<group>";
+		};
+		36B8EB3917568DAF004CF035 /* ConsentScreen */ = {
+			isa = PBXGroup;
+			children = (
+				36B8EB3A17568DAF004CF035 /* PacoConsentViewController.h */,
+				36B8EB3B17568DAF004CF035 /* PacoConsentViewController.m */,
+			);
+			path = ConsentScreen;
+			sourceTree = "<group>";
+		};
+		36B8EB3C17568DAF004CF035 /* ExperimentDetailsScreen */ = {
+			isa = PBXGroup;
+			children = (
+				36B8EB3D17568DAF004CF035 /* PacoExperimentDetailsViewController.h */,
+				36B8EB3E17568DAF004CF035 /* PacoExperimentDetailsViewController.m */,
+			);
+			path = ExperimentDetailsScreen;
+			sourceTree = "<group>";
+		};
+		36B8EB4417568DAF004CF035 /* MainScreen */ = {
+			isa = PBXGroup;
+			children = (
+				36B8EB4517568DAF004CF035 /* PacoMainViewController.h */,
+				36B8EB4617568DAF004CF035 /* PacoMainViewController.m */,
+				36B8EB4717568DAF004CF035 /* PacoMenuButton.h */,
+				36B8EB4817568DAF004CF035 /* PacoMenuButton.m */,
+			);
+			path = MainScreen;
+			sourceTree = "<group>";
+		};
+		36B8EB4917568DAF004CF035 /* QuestionScreen */ = {
+			isa = PBXGroup;
+			children = (
+				36B8EB4A17568DAF004CF035 /* PacoQuestionScreenViewController.h */,
+				36B8EB4B17568DAF004CF035 /* PacoQuestionScreenViewController.m */,
+				36B8EB4C17568DAF004CF035 /* PacoQuestionView.h */,
+				36B8EB4D17568DAF004CF035 /* PacoQuestionView.m */,
+			);
+			path = QuestionScreen;
+			sourceTree = "<group>";
+		};
+		36B8EB4E17568DAF004CF035 /* RunningExperimentScreen */ = {
+			isa = PBXGroup;
+			children = (
+				36B8EB4F17568DAF004CF035 /* PacoRunningExperimentsViewController.h */,
+				36B8EB5017568DAF004CF035 /* PacoRunningExperimentsViewController.m */,
+				36BD6D13194A390D00CD50A8 /* PacoEditScheduleAfterJoinController.h */,
+				36BD6D14194A390D00CD50A8 /* PacoEditScheduleAfterJoinController.m */,
+			);
+			path = RunningExperimentScreen;
+			sourceTree = "<group>";
+		};
+		36B8EB5117568DAF004CF035 /* UIComponents */ = {
+			isa = PBXGroup;
+			children = (
+				361A11A118F5A89A000E9CA2 /* UIFont+Paco.h */,
+				361A11A218F5A89A000E9CA2 /* UIFont+Paco.m */,
+				361A118918F30CC9000E9CA2 /* UIColor+Paco.h */,
+				361A118A18F30CC9000E9CA2 /* UIColor+Paco.m */,
+				36B8EB5217568DAF004CF035 /* PacoCheckboxView.h */,
+				36B8EB5317568DAF004CF035 /* PacoCheckboxView.m */,
+				36B8EB5817568DAF004CF035 /* PacoLayout.h */,
+				36B8EB5917568DAF004CF035 /* PacoLayout.m */,
+				36B8EB5A17568DAF004CF035 /* PacoLoadingTableCell.h */,
+				36B8EB5B17568DAF004CF035 /* PacoLoadingTableCell.m */,
+				36B8EB5C17568DAF004CF035 /* PacoSliderView.h */,
+				36B8EB5D17568DAF004CF035 /* PacoSliderView.m */,
+				36B8EB5E17568DAF004CF035 /* PacoTableCell.h */,
+				36B8EB5F17568DAF004CF035 /* PacoTableCell.m */,
+				E48622A0188FEE16000B5044 /* PacoSubtitleTableCell.h */,
+				E48622A1188FEE16000B5044 /* PacoSubtitleTableCell.m */,
+				36B8EB6017568DAF004CF035 /* PacoTableTextCell.h */,
+				36B8EB6117568DAF004CF035 /* PacoTableTextCell.m */,
+				36B8EB6217568DAF004CF035 /* PacoTableView.h */,
+				36B8EB6317568DAF004CF035 /* PacoTableView.m */,
+				36B8EB6417568DAF004CF035 /* PacoTableViewDelegate.h */,
+				7FB6608F1AA8C352008D2327 /* PacoTitleView.xib */,
+				E462379018F9F1E900610F56 /* PacoDatePickerView.h */,
+				E462379118F9F1E900610F56 /* PacoDatePickerView.m */,
+				368C2EDF178DFFBA00546918 /* PacoAlertView.h */,
+				368C2EE0178DFFBA00546918 /* PacoAlertView.m */,
+				369EC7FE18467C2B00A1EFE4 /* PacoLoadingView.h */,
+				369EC7FF18467C2B00A1EFE4 /* PacoLoadingView.m */,
+				E4F9A79618899F39006A2803 /* PacoStepperView.h */,
+				E4F9A79718899F39006A2803 /* PacoStepperView.m */,
+			);
+			path = UIComponents;
+			sourceTree = "<group>";
+		};
+		36B8EB8F17568E22004CF035 /* config */ = {
+			isa = PBXGroup;
+			children = (
+				368DB0C718EB55D20033DFFF /* Images.xcassets */,
+				36B8EB9117568E22004CF035 /* Paco-Info.plist */,
+			);
+			path = config;
+			sourceTree = "<group>";
+		};
+		36B8EB9417568E29004CF035 /* resources */ = {
+			isa = PBXGroup;
+			children = (
+				E480BE131896F3C700662432 /* en.lproj */,
+				36488BB418C8FB2E004517E2 /* incompatible@2x.png */,
+				36F457E21863ABA900931049 /* welcome_paco.html */,
+				367171FC183AFE33005A5058 /* help.html */,
+				36000C5817CD1AF600A8A9E7 /* Test_999999999.plist */,
+				C567E88F17A03FDE00267A26 /* deepbark_trial.mp3 */,
+				36B8EB9617568E29004CF035 /* calculator.png */,
+				36B8EB9717568E29004CF035 /* current_experiments_disabled.png */,
+				36B8EB9817568E29004CF035 /* current_experiments_focused.png */,
+				36B8EB9917568E29004CF035 /* current_experiments_normal.png */,
+				36B8EB9A17568E29004CF035 /* current_experiments_pressed.png */,
+				36B8EBA117568E29004CF035 /* experiment_disabled.png */,
+				36B8EBA217568E29004CF035 /* experiment_focused.png */,
+				36B8EBA317568E29004CF035 /* experiment_normal.png */,
+				36B8EBA417568E29004CF035 /* experiment_pressed.png */,
+				36B8EBA517568E29004CF035 /* feedback_disabled.png */,
+				36B8EBA617568E29004CF035 /* feedback_focused.png */,
+				36B8EBA717568E29004CF035 /* feedback_normal.png */,
+				36B8EBA817568E29004CF035 /* feedback_pressed.png */,
+				36B8EBA917568E29004CF035 /* find_experiments_disabled.png */,
+				36B8EBAA17568E29004CF035 /* find_experiments_focused.png */,
+				36B8EBAB17568E29004CF035 /* find_experiments_normal.png */,
+				36B8EBAC17568E29004CF035 /* find_experiments_pressed.png */,
+				36B8EBB517568E29004CF035 /* paco32.png */,
+				7FB6607E1AA8C305008D2327 /* paco32@2x.png */,
+				7FB6607F1AA8C305008D2327 /* paco32@3x.png */,
+				36B8EBB817568E29004CF035 /* question.png */,
+				36B8EBBB17568E29004CF035 /* smile_icon1.png */,
+				36B8EBBC17568E29004CF035 /* smile_icon1_re.png */,
+				36B8EBBD17568E29004CF035 /* smile_icon2.png */,
+				36B8EBBE17568E29004CF035 /* smile_icon2_re.png */,
+				36B8EBBF17568E29004CF035 /* smile_icon3.png */,
+				36B8EBC017568E29004CF035 /* smile_icon3_re.png */,
+				36B8EBC117568E29004CF035 /* smile_icon4.png */,
+				36B8EBC217568E29004CF035 /* smile_icon4_re.png */,
+				36B8EBC317568E29004CF035 /* smile_icon5.png */,
+				36B8EBC417568E29004CF035 /* smile_icon5_re.png */,
+				36B8EBD317568E29004CF035 /* uicheckbox_checked.png */,
+				36B8EBD417568E29004CF035 /* uicheckbox_unchecked.png */,
+			);
+			path = resources;
+			sourceTree = "<group>";
+		};
+		36B8EC1217568E33004CF035 /* vendor */ = {
+			isa = PBXGroup;
+			children = (
+				36C4A33618A4DEEE00D8FE59 /* lumberjack */,
+				C5C4F5D417B1738E009E9F18 /* jcnotificationbannerpresenter */,
+				363E211017AF8420007DE3CE /* reachability */,
+			);
+			path = vendor;
+			sourceTree = "<group>";
+		};
+		36B8EC3517568E40004CF035 /* PacoTests */ = {
+			isa = PBXGroup;
+			children = (
+				367233E318061FD6006611E6 /* PacoScheduleGeneratorTests.m */,
+				361A11A518F85B7B000E9CA2 /* PacoScheduleGeneratorDailyTests.m */,
+				36F3EFE718FC645500ABF242 /* PacoESMDailyGeneratorWithCache.m */,
+				36B5A4F118282CBC004DB894 /* PacoScheduleGeneratorDailyESMTests.m */,
+				36B5A4FA18282E46004DB894 /* PacoScheduleGeneratorWeeklyESMTests.m */,
+				36B5A4FC18282EA5004DB894 /* PacoScheduleGeneratorMonthlyESMTests.m */,
+				36F02D31180DE16B0027395F /* PacoNSCalendarCategoryTests.m */,
+				36F02D32180DE16B0027395F /* PacoNSDateCategoryTests.m */,
+				36BC10DC17FE09E8001EA9DD /* PacoIOSLocalNotificationTests.m */,
+				367233DD1803AEE9006611E6 /* PacoNotificationCategoryTests.m */,
+				36D8B54E17F153A100F7698E /* PacoClientTests.m */,
+				36AD6CE917C5977E00B93855 /* PacoEvaluatorTests.h */,
+				36AD6CEA17C5977E00B93855 /* PacoEvaluatorTests.m */,
+				36B8EC3617568E40004CF035 /* PacoTests.h */,
+				36B8EC3717568E40004CF035 /* PacoTests.m */,
+				36D4249E17E64917003BCD61 /* PacoESMDateTests.h */,
+				36D4249F17E64917003BCD61 /* PacoESMDateTests.m */,
+				368F4DA217ECE9ED00CFC2E4 /* PacoDateUtilityTests.m */,
+				363C9A421816F4A600D806F6 /* PacoNSMutableArrayCategoryTests.m */,
+				3647925E181711D100409E87 /* PacoNotificationManagerTests.m */,
+				3647926718171D7600409E87 /* PacoSchedulerTests.m */,
+				365D20DC181B18CD0097F379 /* PacoNSErrorCategoryTests.m */,
+				365D20E9181B1B000097F379 /* PacoNSStringCategoryTests.m */,
+				3662927C1821C10800FC647A /* PacoExperimentScheduleTests.m */,
+				366292851821C2EF00FC647A /* PacoUtilityTests.m */,
+				3640612F18230DA700DA5EB7 /* PacoExperimentTests.m */,
+				36B8EC3817568E40004CF035 /* resources */,
+			);
+			path = PacoTests;
+			sourceTree = "<group>";
+		};
+		36B8EC3817568E40004CF035 /* resources */ = {
+			isa = PBXGroup;
+			children = (
+				36B8EC3B17568E40004CF035 /* PacoTests-Info.plist */,
+				36B8EC3917568E40004CF035 /* InfoPlist.strings */,
+			);
+			path = resources;
+			sourceTree = "<group>";
+		};
+		36C4A33618A4DEEE00D8FE59 /* lumberjack */ = {
+			isa = PBXGroup;
+			children = (
+				36C4A34718A4DFEC00D8FE59 /* DDTTYLogger.h */,
+				36C4A34818A4DFEC00D8FE59 /* DDTTYLogger.m */,
+				36C4A33718A4DEEE00D8FE59 /* DDASLLogger.h */,
+				36C4A33818A4DEEE00D8FE59 /* DDASLLogger.m */,
+				36C4A33918A4DEEE00D8FE59 /* DDFileLogger.h */,
+				36C4A33A18A4DEEE00D8FE59 /* DDFileLogger.m */,
+				36C4A33B18A4DEEE00D8FE59 /* DDLog.h */,
+				36C4A33C18A4DEEE00D8FE59 /* DDLog.m */,
+			);
+			path = lumberjack;
+			sourceTree = "<group>";
+		};
+		4E3FFB9EF2A09E0E4F8D8E9A /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				9D60D437C62D01DB8DA47FFA /* Pods-Paco.debug.xcconfig */,
+				B8B04486F837EC6A07859438 /* Pods-Paco.release.xcconfig */,
+			);
+			name = Pods;
+			sourceTree = "<group>";
+		};
+		C5C4F5D417B1738E009E9F18 /* jcnotificationbannerpresenter */ = {
+			isa = PBXGroup;
+			children = (
+				7F8531BD1A37BE680028BA23 /* JCNotificationBanner.h */,
+				7F8531BE1A37BE680028BA23 /* JCNotificationBanner.m */,
+				7F8531BF1A37BE680028BA23 /* JCNotificationBannerPresenter_Private.h */,
+				7F8531C01A37BE680028BA23 /* JCNotificationBannerPresenter.h */,
+				7F8531C11A37BE680028BA23 /* JCNotificationBannerPresenter.m */,
+				7F8531C21A37BE680028BA23 /* JCNotificationBannerPresenterIOS7Style.h */,
+				7F8531C31A37BE680028BA23 /* JCNotificationBannerPresenterIOS7Style.m */,
+				7F8531C41A37BE680028BA23 /* JCNotificationBannerPresenterIOSStyle.h */,
+				7F8531C51A37BE680028BA23 /* JCNotificationBannerPresenterIOSStyle.m */,
+				7F8531C61A37BE680028BA23 /* JCNotificationBannerPresenterSmokeStyle.h */,
+				7F8531C71A37BE680028BA23 /* JCNotificationBannerPresenterSmokeStyle.m */,
+				7F8531C81A37BE680028BA23 /* JCNotificationBannerView.h */,
+				7F8531C91A37BE680028BA23 /* JCNotificationBannerView.m */,
+				7F8531CA1A37BE680028BA23 /* JCNotificationBannerViewController.h */,
+				7F8531CB1A37BE680028BA23 /* JCNotificationBannerViewController.m */,
+				7F8531CC1A37BE680028BA23 /* JCNotificationBannerViewIOS7Style.h */,
+				7F8531CD1A37BE680028BA23 /* JCNotificationBannerViewIOS7Style.m */,
+				7F8531CE1A37BE680028BA23 /* JCNotificationBannerViewIOSStyle.h */,
+				7F8531CF1A37BE680028BA23 /* JCNotificationBannerViewIOSStyle.m */,
+				7F8531D01A37BE680028BA23 /* JCNotificationBannerWindow.h */,
+				7F8531D11A37BE680028BA23 /* JCNotificationBannerWindow.m */,
+				7F8531D21A37BE680028BA23 /* JCNotificationCenter.h */,
+				7F8531D31A37BE680028BA23 /* JCNotificationCenter.m */,
+			);
+			name = jcnotificationbannerpresenter;
+			sourceTree = "<group>";
+		};
+		E43DA21A185ADDD2007F04F9 /* WebViewController */ = {
+			isa = PBXGroup;
+			children = (
+				E43DA21B185ADDD2007F04F9 /* PacoWebViewController.h */,
+				E43DA21C185ADDD2007F04F9 /* PacoWebViewController.m */,
+			);
+			path = WebViewController;
+			sourceTree = "<group>";
+		};
+		E440AB3119140DA700D6FD09 /* OpenSourceLibScreen */ = {
+			isa = PBXGroup;
+			children = (
+				E440AB3919140E0800D6FD09 /* PacoOpenSourceLibViewController.h */,
+				E440AB3A19140E0800D6FD09 /* PacoOpenSourceLibViewController.m */,
+			);
+			path = OpenSourceLibScreen;
+			sourceTree = "<group>";
+		};
+		E480BE131896F3C700662432 /* en.lproj */ = {
+			isa = PBXGroup;
+			children = (
+				E480BE141896F3C700662432 /* InfoPlist.strings */,
+				E480BE1E1896F3E100662432 /* Localizable.strings */,
+			);
+			path = en.lproj;
+			sourceTree = "<group>";
+		};
+		E4E8F34F183B21500022613A /* ContactScreen */ = {
+			isa = PBXGroup;
+			children = (
+				E4E8F350183B21500022613A /* PacoContactUsViewController.h */,
+				E4E8F351183B21500022613A /* PacoContactUsViewController.m */,
+			);
+			path = ContactScreen;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		319771C3163F0733000AC06B /* Paco */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 31977200163F0733000AC06B /* Build configuration list for PBXNativeTarget "Paco" */;
+			buildPhases = (
+				9EE300EE5E584EA2BA9D7BC8 /* [CP] Check Pods Manifest.lock */,
+				319771C0163F0733000AC06B /* Sources */,
+				319771C1163F0733000AC06B /* Frameworks */,
+				319771C2163F0733000AC06B /* Resources */,
+				D20EC8846F25838C3B206789 /* [CP] Embed Pods Frameworks */,
+				FF6711621A40FDBEB880F61A /* [CP] Copy Pods Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				36000C3617C6B0A800A8A9E7 /* PBXTargetDependency */,
+			);
+			name = Paco;
+			productName = Paco;
+			productReference = 319771C4163F0733000AC06B /* Paco.app */;
+			productType = "com.apple.product-type.application";
+		};
+		319771ED163F0733000AC06B /* PacoTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 31977203163F0733000AC06B /* Build configuration list for PBXNativeTarget "PacoTests" */;
+			buildPhases = (
+				319771E9163F0733000AC06B /* Sources */,
+				319771EA163F0733000AC06B /* Frameworks */,
+				319771EB163F0733000AC06B /* Resources */,
+				319771EC163F0733000AC06B /* ShellScript */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				319771F4163F0733000AC06B /* PBXTargetDependency */,
+			);
+			name = PacoTests;
+			productName = PacoTests;
+			productReference = 319771EE163F0733000AC06B /* PacoTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		319771BB163F0733000AC06B /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				CLASSPREFIX = Paco;
+				LastUpgradeCheck = 0500;
+				ORGANIZATIONNAME = Paco;
+				TargetAttributes = {
+					319771C3163F0733000AC06B = {
+						DevelopmentTeam = J7M7JW942W;
+						ProvisioningStyle = Automatic;
+					};
+					319771ED163F0733000AC06B = {
+						DevelopmentTeam = J7M7JW942W;
+					};
+				};
+			};
+			buildConfigurationList = 319771BE163F0733000AC06B /* Build configuration list for PBXProject "Paco" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				English,
+				ja,
+			);
+			mainGroup = 319771B9163F0733000AC06B;
+			productRefGroup = 319771C5163F0733000AC06B /* Products */;
+			projectDirPath = "";
+			projectReferences = (
+				{
+					ProductGroup = 36000C1617C6AEA900A8A9E7 /* Products */;
+					ProjectRef = 36000C1517C6AEA900A8A9E7 /* ParseKit.xcodeproj */;
+				},
+			);
+			projectRoot = "";
+			targets = (
+				319771C3163F0733000AC06B /* Paco */,
+				319771ED163F0733000AC06B /* PacoTests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXReferenceProxy section */
+		36000C2217C6AEA900A8A9E7 /* ParseKit.framework */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.framework;
+			path = ParseKit.framework;
+			remoteRef = 36000C2117C6AEA900A8A9E7 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		36000C2417C6AEA900A8A9E7 /* PEGKit.framework */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.framework;
+			path = PEGKit.framework;
+			remoteRef = 36000C2317C6AEA900A8A9E7 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		36000C2617C6AEA900A8A9E7 /* libParseKit.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libParseKit.a;
+			remoteRef = 36000C2517C6AEA900A8A9E7 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		36000C2817C6AEA900A8A9E7 /* libParseKitMobile.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libParseKitMobile.a;
+			remoteRef = 36000C2717C6AEA900A8A9E7 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		36000C2A17C6AEA900A8A9E7 /* ParseKitTests.octest */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.cfbundle;
+			path = ParseKitTests.octest;
+			remoteRef = 36000C2917C6AEA900A8A9E7 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		36000C2C17C6AEA900A8A9E7 /* DemoApp.app */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.application;
+			path = DemoApp.app;
+			remoteRef = 36000C2B17C6AEA900A8A9E7 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		36000C2E17C6AEA900A8A9E7 /* DebugApp.app */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.application;
+			path = DebugApp.app;
+			remoteRef = 36000C2D17C6AEA900A8A9E7 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		36000C3017C6AEA900A8A9E7 /* ParserGenApp.app */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.application;
+			path = ParserGenApp.app;
+			remoteRef = 36000C2F17C6AEA900A8A9E7 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+/* End PBXReferenceProxy section */
+
+/* Begin PBXResourcesBuildPhase section */
+		319771C2163F0733000AC06B /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				36B8EBD617568E29004CF035 /* calculator.png in Resources */,
+				7FB660901AA8C352008D2327 /* PacoTitleView.xib in Resources */,
+				36B8EBD717568E29004CF035 /* current_experiments_disabled.png in Resources */,
+				36B8EBD817568E29004CF035 /* current_experiments_focused.png in Resources */,
+				36488BB518C8FB2E004517E2 /* incompatible@2x.png in Resources */,
+				36B8EBD917568E29004CF035 /* current_experiments_normal.png in Resources */,
+				36B8EBDA17568E29004CF035 /* current_experiments_pressed.png in Resources */,
+				36B8EBDE17568E29004CF035 /* experiment_disabled.png in Resources */,
+				36B8EBDF17568E29004CF035 /* experiment_focused.png in Resources */,
+				36B8EBE017568E29004CF035 /* experiment_normal.png in Resources */,
+				36B8EBE117568E29004CF035 /* experiment_pressed.png in Resources */,
+				36B8EBE217568E29004CF035 /* feedback_disabled.png in Resources */,
+				36B8EBE317568E29004CF035 /* feedback_focused.png in Resources */,
+				36F457E31863ABA900931049 /* welcome_paco.html in Resources */,
+				36B8EBE417568E29004CF035 /* feedback_normal.png in Resources */,
+				368DB0C818EB55D20033DFFF /* Images.xcassets in Resources */,
+				36B8EBE517568E29004CF035 /* feedback_pressed.png in Resources */,
+				36B8EBE617568E29004CF035 /* find_experiments_disabled.png in Resources */,
+				36B8EBE717568E29004CF035 /* find_experiments_focused.png in Resources */,
+				36B8EBE817568E29004CF035 /* find_experiments_normal.png in Resources */,
+				36B8EBE917568E29004CF035 /* find_experiments_pressed.png in Resources */,
+				E480BE161896F3C700662432 /* InfoPlist.strings in Resources */,
+				36B8EBF217568E29004CF035 /* paco32.png in Resources */,
+				367171FD183AFE33005A5058 /* help.html in Resources */,
+				36B8EBF517568E29004CF035 /* question.png in Resources */,
+				7FB660801AA8C305008D2327 /* paco32@2x.png in Resources */,
+				E480BE201896F3E100662432 /* Localizable.strings in Resources */,
+				36B8EBF817568E29004CF035 /* smile_icon1.png in Resources */,
+				36B8EBF917568E29004CF035 /* smile_icon1_re.png in Resources */,
+				36B8EBFA17568E29004CF035 /* smile_icon2.png in Resources */,
+				36B8EBFB17568E29004CF035 /* smile_icon2_re.png in Resources */,
+				36B8EBFC17568E29004CF035 /* smile_icon3.png in Resources */,
+				36B8EBFD17568E29004CF035 /* smile_icon3_re.png in Resources */,
+				36B8EBFE17568E29004CF035 /* smile_icon4.png in Resources */,
+				36B8EBFF17568E29004CF035 /* smile_icon4_re.png in Resources */,
+				36B8EC0017568E29004CF035 /* smile_icon5.png in Resources */,
+				36B8EC0117568E29004CF035 /* smile_icon5_re.png in Resources */,
+				36B8EC1017568E29004CF035 /* uicheckbox_checked.png in Resources */,
+				36B8EC1117568E29004CF035 /* uicheckbox_unchecked.png in Resources */,
+				C567E89017A03FDE00267A26 /* deepbark_trial.mp3 in Resources */,
+				36000C5917CD1AF600A8A9E7 /* Test_999999999.plist in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		319771EB163F0733000AC06B /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				36B8EC3D17568E40004CF035 /* InfoPlist.strings in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		319771EC163F0733000AC06B /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# Run the unit tests in this test bundle.\n\"${SYSTEM_DEVELOPER_DIR}/Tools/RunUnitTests\"\n";
+		};
+		9EE300EE5E584EA2BA9D7BC8 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n";
+			showEnvVarsInLog = 0;
+		};
+		D20EC8846F25838C3B206789 /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-Paco/Pods-Paco-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		FF6711621A40FDBEB880F61A /* [CP] Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "[CP] Copy Pods Resources";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-Paco/Pods-Paco-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		319771C0163F0733000AC06B /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				36B8EB6717568DAF004CF035 /* PacoAuthenticator.m in Sources */,
+				36B8EB6817568DAF004CF035 /* PacoClient.m in Sources */,
+				36B8EB6917568DAF004CF035 /* PacoLocation.m in Sources */,
+				36B8EB6A17568DAF004CF035 /* PacoModel.m in Sources */,
+				36B8EB6B17568DAF004CF035 /* PacoScheduler.m in Sources */,
+				36B8EB6C17568DAF004CF035 /* PacoService.m in Sources */,
+				E43DA21D185ADDD2007F04F9 /* PacoWebViewController.m in Sources */,
+				7F8531D91A37BE680028BA23 /* JCNotificationBannerView.m in Sources */,
+				36B8EB6D17568DAF004CF035 /* PacoDateUtility.m in Sources */,
+				36B8EB6E17568DAF004CF035 /* main.m in Sources */,
+				36B8EB6F17568DAF004CF035 /* PacoAppDelegate.m in Sources */,
+				36B8EB7017568DAF004CF035 /* PacoEditScheduleViewController.m in Sources */,
+				36B8EB7117568DAF004CF035 /* PacoByWeekOrMonthSelectionView.m in Sources */,
+				36B8EB7217568DAF004CF035 /* PacoDayOfMonthSelectionView.m in Sources */,
+				36B8EB7317568DAF004CF035 /* PacoDayOfWeekSelectionView.m in Sources */,
+				36B8EB7417568DAF004CF035 /* PacoESMFrequencySelectionView.m in Sources */,
+				36B8EB7517568DAF004CF035 /* PacoESMIncludeWeekendsSelectionView.m in Sources */,
+				36B8EB7617568DAF004CF035 /* PacoESMPeriodSelectionView.m in Sources */,
+				36B8EB7717568DAF004CF035 /* PacoFirstDayOfMonthSelectionView.m in Sources */,
+				36B8EB7817568DAF004CF035 /* PacoRepeatRateSelectionView.m in Sources */,
+				7F8531D41A37BE680028BA23 /* JCNotificationBanner.m in Sources */,
+				36C4A34918A4DFEC00D8FE59 /* DDTTYLogger.m in Sources */,
+				36B8EB7917568DAF004CF035 /* PacoScheduleEditView.m in Sources */,
+				7F8531D81A37BE680028BA23 /* JCNotificationBannerPresenterSmokeStyle.m in Sources */,
+				36B8EB7A17568DAF004CF035 /* PacoTimeSelectionView.m in Sources */,
+				3612A269185FE7AA00DEADD1 /* PacoTimeEditView.m in Sources */,
+				7F8531D61A37BE680028BA23 /* JCNotificationBannerPresenterIOS7Style.m in Sources */,
+				36B8EB7C17568DAF004CF035 /* PacoConsentViewController.m in Sources */,
+				365B3C2E1836EF41003D57A7 /* UIImage+Paco.m in Sources */,
+				36B8EB7D17568DAF004CF035 /* PacoExperimentDetailsViewController.m in Sources */,
+				36B8EB7E17568DAF004CF035 /* PacoFindMyExperimentsViewController.m in Sources */,
+				7F8531D71A37BE680028BA23 /* JCNotificationBannerPresenterIOSStyle.m in Sources */,
+				36B8EB8017568DAF004CF035 /* PacoMainViewController.m in Sources */,
+				36B8EB8117568DAF004CF035 /* PacoMenuButton.m in Sources */,
+				36B8EB8217568DAF004CF035 /* PacoQuestionScreenViewController.m in Sources */,
+				36B8EB8317568DAF004CF035 /* PacoQuestionView.m in Sources */,
+				E4E8F352183B21500022613A /* PacoContactUsViewController.m in Sources */,
+				36B8EB8417568DAF004CF035 /* PacoRunningExperimentsViewController.m in Sources */,
+				36B8EB8517568DAF004CF035 /* PacoCheckboxView.m in Sources */,
+				36B8EB8817568DAF004CF035 /* PacoLayout.m in Sources */,
+				363C99F11815FF8200D806F6 /* NSMutableArray+Paco.m in Sources */,
+				36B8EB8917568DAF004CF035 /* PacoLoadingTableCell.m in Sources */,
+				36A8201C18B5576400FE83A5 /* PacoScheduleGenerator+Weekdays.m in Sources */,
+				367233D41803956E006611E6 /* UILocalNotification+Paco.m in Sources */,
+				365D20EF1820622A0097F379 /* PacoScheduleGenerator+ESM.m in Sources */,
+				36B8EB8A17568DAF004CF035 /* PacoSliderView.m in Sources */,
+				36417BEA180DCA9600335B74 /* NSDate+Paco.m in Sources */,
+				36B8EB8B17568DAF004CF035 /* PacoTableCell.m in Sources */,
+				36B8EB8C17568DAF004CF035 /* PacoTableTextCell.m in Sources */,
+				36417BE8180DCA9600335B74 /* NSCalendar+Paco.m in Sources */,
+				36B8EB8D17568DAF004CF035 /* PacoTableView.m in Sources */,
+				7F8531DA1A37BE680028BA23 /* JCNotificationBannerViewController.m in Sources */,
+				E462379218F9F1E900610F56 /* PacoDatePickerView.m in Sources */,
+				365D20FA1820695E0097F379 /* PacoUtility.m in Sources */,
+				36C4A33E18A4DEEE00D8FE59 /* DDFileLogger.m in Sources */,
+				E4F9A79818899F39006A2803 /* PacoStepperView.m in Sources */,
+				36946B05177A37CF005E0C04 /* PacoExperimentFeedback.m in Sources */,
+				7F8531DB1A37BE680028BA23 /* JCNotificationBannerViewIOS7Style.m in Sources */,
+				36C4A33F18A4DEEE00D8FE59 /* DDLog.m in Sources */,
+				366F46B318CF82C200789A54 /* PacoPublicExperimentController.m in Sources */,
+				36946B08177A385A005E0C04 /* PacoExperimentInput.m in Sources */,
+				361A118B18F30CC9000E9CA2 /* UIColor+Paco.m in Sources */,
+				36946B0B177A3968005E0C04 /* PacoExperimentSchedule.m in Sources */,
+				361A11A318F5A89A000E9CA2 /* UIFont+Paco.m in Sources */,
+				36946B0E177A55BA005E0C04 /* PacoExperimentDefinition.m in Sources */,
+				36946B14177A5782005E0C04 /* PacoExperiment.m in Sources */,
+				7F8531D51A37BE680028BA23 /* JCNotificationBannerPresenter.m in Sources */,
+				368C2EE1178DFFBA00546918 /* PacoAlertView.m in Sources */,
+				36488BB818C90D9A004517E2 /* PacoScheduleGenerator+Weekly.m in Sources */,
+				366F469D18CF127E00789A54 /* PacoScheduleGenerator+MonthlyByDayOfMonth.m in Sources */,
+				369EC80018467C2B00A1EFE4 /* PacoLoadingView.m in Sources */,
+				E48622A2188FEE17000B5044 /* PacoSubtitleTableCell.m in Sources */,
+				36488BBE18CA598C004517E2 /* PacoPublicDefinitionLoader.m in Sources */,
+				36A8201818B556CC00FE83A5 /* PacoScheduleGenerator+Daily.m in Sources */,
+				36488BCC18CA6BAF004517E2 /* PacoEnumerator.m in Sources */,
+				E440AB3B19140E0800D6FD09 /* PacoOpenSourceLibViewController.m in Sources */,
+				366F46A118CF12FB00789A54 /* PacoScheduleGenerator+MonthlyByDayOfWeek.m in Sources */,
+				363E210817AAD028007DE3CE /* PacoEvent.m in Sources */,
+				36BD6D15194A390D00CD50A8 /* PacoEditScheduleAfterJoinController.m in Sources */,
+				363E210B17AAD05B007DE3CE /* PacoEventManager.m in Sources */,
+				36488B8718BFDC46004517E2 /* PacoTriggerSignal.m in Sources */,
+				363E211317AF8420007DE3CE /* Reachability.m in Sources */,
+				363E211617AF88BB007DE3CE /* PacoEventUploader.m in Sources */,
+				365D20E7181B198D0097F379 /* NSString+Paco.m in Sources */,
+				36C4A33D18A4DEEE00D8FE59 /* DDASLLogger.m in Sources */,
+				363E211A17B5B13F007DE3CE /* PacoExpressionExecutor.m in Sources */,
+				363E211D17B5B1F6007DE3CE /* PacoInputEvaluator.m in Sources */,
+				7F8531DC1A37BE680028BA23 /* JCNotificationBannerViewIOSStyle.m in Sources */,
+				7F8531DD1A37BE680028BA23 /* JCNotificationBannerWindow.m in Sources */,
+				367233E1180619A5006611E6 /* PacoScheduleGenerator.m in Sources */,
+				36AD6CE217C4440000B93855 /* NSError+Paco.m in Sources */,
+				7F8531DE1A37BE680028BA23 /* JCNotificationCenter.m in Sources */,
+				361AB05617DA77000053C313 /* PacoNotificationManager.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		319771E9163F0733000AC06B /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				36A8201D18B5576400FE83A5 /* PacoScheduleGenerator+Weekdays.m in Sources */,
+				36B5A4FB18282E46004DB894 /* PacoScheduleGeneratorWeeklyESMTests.m in Sources */,
+				365D20EA181B1B000097F379 /* PacoNSStringCategoryTests.m in Sources */,
+				36B8EC3C17568E40004CF035 /* PacoTests.m in Sources */,
+				367233E418061FD6006611E6 /* PacoScheduleGeneratorTests.m in Sources */,
+				363C9A431816F4A600D806F6 /* PacoNSMutableArrayCategoryTests.m in Sources */,
+				36AD6CEB17C5977E00B93855 /* PacoEvaluatorTests.m in Sources */,
+				365D20F01820622A0097F379 /* PacoScheduleGenerator+ESM.m in Sources */,
+				3662927D1821C10800FC647A /* PacoExperimentScheduleTests.m in Sources */,
+				36488BB918C90D9A004517E2 /* PacoScheduleGenerator+Weekly.m in Sources */,
+				36D33C8F17D579F600AC30B9 /* PacoExpressionExecutor.m in Sources */,
+				36417BE9180DCA9600335B74 /* NSCalendar+Paco.m in Sources */,
+				36417BEB180DCA9600335B74 /* NSDate+Paco.m in Sources */,
+				368F4DA317ECE9ED00CFC2E4 /* PacoDateUtilityTests.m in Sources */,
+				36B5A4F218282CBC004DB894 /* PacoScheduleGeneratorDailyESMTests.m in Sources */,
+				366292861821C2EF00FC647A /* PacoUtilityTests.m in Sources */,
+				366F46A218CF12FB00789A54 /* PacoScheduleGenerator+MonthlyByDayOfWeek.m in Sources */,
+				365D20DD181B18CD0097F379 /* PacoNSErrorCategoryTests.m in Sources */,
+				36F02D34180DE16B0027395F /* PacoNSDateCategoryTests.m in Sources */,
+				366F469E18CF127E00789A54 /* PacoScheduleGenerator+MonthlyByDayOfMonth.m in Sources */,
+				36A8201918B556CC00FE83A5 /* PacoScheduleGenerator+Daily.m in Sources */,
+				365D20FB1820695E0097F379 /* PacoUtility.m in Sources */,
+				36D33C9717D57A5B00AC30B9 /* PacoAppDelegate.m in Sources */,
+				361A118C18F30CC9000E9CA2 /* UIColor+Paco.m in Sources */,
+				36BC10DD17FE09E8001EA9DD /* PacoIOSLocalNotificationTests.m in Sources */,
+				36488BCD18CA6BAF004517E2 /* PacoEnumerator.m in Sources */,
+				361A11A618F85B7B000E9CA2 /* PacoScheduleGeneratorDailyTests.m in Sources */,
+				367233DC1803958D006611E6 /* UILocalNotification+Paco.m in Sources */,
+				361A11A418F5A89A000E9CA2 /* UIFont+Paco.m in Sources */,
+				36D424A017E64917003BCD61 /* PacoESMDateTests.m in Sources */,
+				365B3C2F1836EF41003D57A7 /* UIImage+Paco.m in Sources */,
+				365D20E8181B198D0097F379 /* NSString+Paco.m in Sources */,
+				36F02D33180DE16B0027395F /* PacoNSCalendarCategoryTests.m in Sources */,
+				3647925F181711D100409E87 /* PacoNotificationManagerTests.m in Sources */,
+				367233E2180619A5006611E6 /* PacoScheduleGenerator.m in Sources */,
+				3640613018230DA700DA5EB7 /* PacoExperimentTests.m in Sources */,
+				36B5A4FD18282EA5004DB894 /* PacoScheduleGeneratorMonthlyESMTests.m in Sources */,
+				3647926818171D7600409E87 /* PacoSchedulerTests.m in Sources */,
+				36488B8818BFDC46004517E2 /* PacoTriggerSignal.m in Sources */,
+				36488BBF18CA598C004517E2 /* PacoPublicDefinitionLoader.m in Sources */,
+				36D8B54F17F153A100F7698E /* PacoClientTests.m in Sources */,
+				363C99F21815FF8200D806F6 /* NSMutableArray+Paco.m in Sources */,
+				36F3EFE818FC645500ABF242 /* PacoESMDailyGeneratorWithCache.m in Sources */,
+				367233DE1803AEE9006611E6 /* PacoNotificationCategoryTests.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		319771F4163F0733000AC06B /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 319771C3163F0733000AC06B /* Paco */;
+			targetProxy = 319771F3163F0733000AC06B /* PBXContainerItemProxy */;
+		};
+		36000C3617C6B0A800A8A9E7 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = libParseKitMobile;
+			targetProxy = 36000C3517C6B0A800A8A9E7 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin PBXVariantGroup section */
+		36B8EC3917568E40004CF035 /* InfoPlist.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				36B8EC3A17568E40004CF035 /* en */,
+			);
+			name = InfoPlist.strings;
+			sourceTree = "<group>";
+		};
+		E480BE141896F3C700662432 /* InfoPlist.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				E480BE151896F3C700662432 /* en */,
+				E4D96CFF1896F95D007F8668 /* ja */,
+			);
+			name = InfoPlist.strings;
+			sourceTree = "<group>";
+		};
+		E480BE1E1896F3E100662432 /* Localizable.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				E480BE1F1896F3E100662432 /* en */,
+				E4D96CF71896F941007F8668 /* ja */,
+			);
+			name = Localizable.strings;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		319771FE163F0733000AC06B /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "iPhone Distribution";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer: Paco Developers (NW2F476Z8Y)";
+				COPY_PHASE_STRIP = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = "ParseKit/include/**";
+				IPHONEOS_DEPLOYMENT_TARGET = 9.3;
+				ONLY_ACTIVE_ARCH = YES;
+				PROVISIONING_PROFILE = "6FF1CA60-7E74-4967-9810-F69E1FEC48AB";
+				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "6FF1CA60-7E74-4967-9810-F69E1FEC48AB";
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				USER_HEADER_SEARCH_PATHS = "ParseKit/include/**";
+			};
+			name = Debug;
+		};
+		319771FF163F0733000AC06B /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "iPhone Distribution";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer: Paco Developers (NW2F476Z8Y)";
+				COPY_PHASE_STRIP = YES;
+				ENABLE_NS_ASSERTIONS = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = "ParseKit/include/**";
+				IPHONEOS_DEPLOYMENT_TARGET = 9.3;
+				ONLY_ACTIVE_ARCH = NO;
+				OTHER_CFLAGS = "-DNS_BLOCK_ASSERTIONS=1";
+				PROVISIONING_PROFILE = "6FF1CA60-7E74-4967-9810-F69E1FEC48AB";
+				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "6FF1CA60-7E74-4967-9810-F69E1FEC48AB";
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				USER_HEADER_SEARCH_PATHS = "ParseKit/include/**";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		31977201163F0733000AC06B /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 9D60D437C62D01DB8DA47FFA /* Pods-Paco.debug.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
+				CODE_SIGN_IDENTITY = "iPhone Developer: Paco Developers (NW2F476Z8Y)";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				DEVELOPMENT_TEAM = J7M7JW942W;
+				ENTITLEMENTS_REQUIRED = Yes;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/DerivedData/Paco/Build/Products/Debug-iphonesimulator/AppAuth",
+					"$(PROJECT_DIR)/DerivedData/Paco/Build/Products/Debug-iphonesimulator/GTMAppAuth",
+					"$(PROJECT_DIR)/DerivedData/Paco/Build/Products/Debug-iphonesimulator/GTMSessionFetcher",
+				);
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "Paco/source/Paco-Prefix.pch";
+				INFOPLIST_FILE = "Paco/config/Paco-Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+				OTHER_LDFLAGS = "";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "";
+				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				TARGETED_DEVICE_FAMILY = "1,2";
+				WRAPPER_EXTENSION = app;
+			};
+			name = Debug;
+		};
+		31977202163F0733000AC06B /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = B8B04486F837EC6A07859438 /* Pods-Paco.release.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
+				CODE_SIGN_IDENTITY = "iPhone Developer: Paco Developers (NW2F476Z8Y)";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				DEVELOPMENT_TEAM = J7M7JW942W;
+				ENTITLEMENTS_REQUIRED = Yes;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/DerivedData/Paco/Build/Products/Debug-iphonesimulator/AppAuth",
+					"$(PROJECT_DIR)/DerivedData/Paco/Build/Products/Debug-iphonesimulator/GTMAppAuth",
+					"$(PROJECT_DIR)/DerivedData/Paco/Build/Products/Debug-iphonesimulator/GTMSessionFetcher",
+				);
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "Paco/source/Paco-Prefix.pch";
+				INFOPLIST_FILE = "Paco/config/Paco-Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+				OTHER_LDFLAGS = "";
+				"OTHER_LDFLAGS[arch=*]" = "";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				TARGETED_DEVICE_FAMILY = "1,2";
+				WRAPPER_EXTENSION = app;
+			};
+			name = Release;
+		};
+		31977204163F0733000AC06B /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(BUILT_PRODUCTS_DIR)/Paco.app/Paco";
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				FRAMEWORK_SEARCH_PATHS = (
+					"\"$(SDKROOT)/Developer/Library/Frameworks\"",
+					"\"$(DEVELOPER_LIBRARY_DIR)/Frameworks\"",
+					"$(inherited)",
+				);
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "Paco/source/Paco-Prefix.pch";
+				INFOPLIST_FILE = "PacoTests/resources/PacoTests-Info.plist";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "";
+				TEST_HOST = "$(BUNDLE_LOADER)";
+			};
+			name = Debug;
+		};
+		31977205163F0733000AC06B /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(BUILT_PRODUCTS_DIR)/Paco.app/Paco";
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				FRAMEWORK_SEARCH_PATHS = (
+					"\"$(SDKROOT)/Developer/Library/Frameworks\"",
+					"\"$(DEVELOPER_LIBRARY_DIR)/Frameworks\"",
+					"$(inherited)",
+				);
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "Paco/source/Paco-Prefix.pch";
+				INFOPLIST_FILE = "PacoTests/resources/PacoTests-Info.plist";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "";
+				TEST_HOST = "$(BUNDLE_LOADER)";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		319771BE163F0733000AC06B /* Build configuration list for PBXProject "Paco" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				319771FE163F0733000AC06B /* Debug */,
+				319771FF163F0733000AC06B /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		31977200163F0733000AC06B /* Build configuration list for PBXNativeTarget "Paco" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				31977201163F0733000AC06B /* Debug */,
+				31977202163F0733000AC06B /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		31977203163F0733000AC06B /* Build configuration list for PBXNativeTarget "PacoTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				31977204163F0733000AC06B /* Debug */,
+				31977205163F0733000AC06B /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 319771BB163F0733000AC06B /* Project object */;
+}

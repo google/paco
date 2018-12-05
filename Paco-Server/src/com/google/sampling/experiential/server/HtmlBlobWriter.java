@@ -18,21 +18,26 @@ import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
 import com.google.appengine.api.blobstore.BlobKey;
+import com.google.appengine.api.blobstore.BlobstoreService;
+import com.google.appengine.api.blobstore.BlobstoreServiceFactory;
 import com.google.appengine.api.files.AppEngineFile;
 import com.google.appengine.api.files.FileService;
 import com.google.appengine.api.files.FileServiceFactory;
 import com.google.appengine.api.files.FileWriteChannel;
-import com.google.appengine.api.files.FinalizationException;
-import com.google.appengine.api.files.LockException;
+import com.google.appengine.tools.cloudstorage.GcsFileOptions;
+import com.google.appengine.tools.cloudstorage.GcsFilename;
+import com.google.appengine.tools.cloudstorage.GcsOutputChannel;
+import com.google.appengine.tools.cloudstorage.GcsService;
+import com.google.appengine.tools.cloudstorage.GcsServiceFactory;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.google.paco.shared.model.InputDAO;
 import com.google.sampling.experiential.model.Event;
-import com.google.sampling.experiential.model.Experiment;
-import com.google.sampling.experiential.model.Input;
 import com.google.sampling.experiential.model.PhotoBlob;
 import com.google.sampling.experiential.shared.EventDAO;
 import com.google.sampling.experiential.shared.TimeUtil;
+import com.google.sampling.experiential.shared.WhatDAO;
+import com.pacoapp.paco.shared.model2.ExperimentDAO;
+import com.pacoapp.paco.shared.model2.Input2;
 
 public class HtmlBlobWriter {
 
@@ -43,78 +48,53 @@ public class HtmlBlobWriter {
   public HtmlBlobWriter() {
   }
 
-  public String writeNormalExperimentEventsAsHtml(boolean anon, List<Event> events, String jobId, String experimentId, String timeZone)
+  public String writeNormalExperimentEventsAsHtml(boolean anon, EventQueryResultPair eventQueryResultPair, String jobId, String experimentId, String timeZone, String originalQuery, String requestorEmail)
           throws IOException {
     log.info("writing normal Experiment events as html");
 
-    Experiment experiment = ExperimentRetriever.getInstance().getExperiment(experimentId);
+    ExperimentDAO experiment = ExperimentServiceFactory.getExperimentService().getExperiment(Long.parseLong(experimentId));
     String eventPage;
     try {
-      eventPage = printEvents(events, experiment, timeZone, anon);
+      eventPage = printEvents(eventQueryResultPair, experiment, timeZone, anon, originalQuery, requestorEmail);
     } catch (IOException e) {
       log.severe("Could not run printEvents. " + e.getMessage());
       e.printStackTrace();
       throw e;
     }
 
-    FileService fileService = FileServiceFactory.getFileService();
-    AppEngineFile file;
-    try {
-      file = fileService.createNewBlobFile("text/html;charset=UTF-8", jobId);
-    } catch (IOException e) {
-      log.severe("Could not create blob file. " + e.getMessage());
-      e.printStackTrace();
-      throw e;
-    }
-
-    // Open a channel to write to it
-    boolean lock = true;
-    FileWriteChannel writeChannel;
-    try {
-      writeChannel = fileService.openWriteChannel(file, lock);
-    } catch (FileNotFoundException e) {
-      log.severe("Could not open write channel. " + e.getMessage());
-      e.printStackTrace();
-      throw e;
-    } catch (FinalizationException e) {
-      log.severe("Could not finalize. " + e.getMessage());
-      e.printStackTrace();
-      throw e;
-    } catch (LockException e) {
-      log.severe("Lock Exception " + e.getMessage());
-      e.printStackTrace();
-      throw e;
-    } catch (IOException e) {
-      log.severe("IOException: " + e.getMessage());
-      e.printStackTrace();
-      throw e;
-    }
-
-    // Different standard Java ways of writing to the channel
-    // are possible. Here we use a PrintWriter:
-    PrintWriter out = new PrintWriter(Channels.newWriter(writeChannel, "UTF8"));
-
-
-
-    out.println(printHeader(events.size(), getExperimentTitle(experiment), timeZone));
-    out.println(eventPage);
-    out.flush();
-    out.close();
-    try {
-      writeChannel.closeFinally();
-    } catch (IllegalStateException e) {
-      log.severe("Could not closeFinally on channel. " + e.getMessage());
-      e.printStackTrace();
-      throw e;
-    } catch (IOException e) {
-      log.severe("IOException on closeFinally. " + e.getMessage());
-      e.printStackTrace();
-      throw e;
-    }
-
-    BlobKey blobKey = fileService.getBlobKey(file);
+    BlobKey blobKey = writeBlobUsingNewApi(eventQueryResultPair, jobId, timeZone, experiment, eventPage);
     return blobKey.getKeyString();
 
+  }
+
+  private BlobKey writeBlobUsingNewApi(EventQueryResultPair eventQueryResultPair, String jobId, String timeZone,
+                                       ExperimentDAO experiment, String eventPage) throws IOException,
+                                                                               FileNotFoundException {
+    GcsService gcsService = GcsServiceFactory.createGcsService();
+    String bucketName = System.getProperty("com.pacoapp.reportbucketname");
+    String fileName = jobId;
+    GcsFilename filename = new GcsFilename(bucketName, fileName);
+    GcsFileOptions options = new GcsFileOptions.Builder()
+            .mimeType("text/html")
+            .acl("project-private")
+            .addUserMetadata("jobId", jobId)
+            .build();
+
+    GcsOutputChannel writeChannel = gcsService.createOrReplace(filename, options);
+    PrintWriter writer = new PrintWriter(Channels.newWriter(writeChannel, "UTF8"));
+    writer.println(printHeader(eventQueryResultPair.getEvents().size(),
+                               getExperimentTitle(experiment), timeZone));
+    writer.println(eventPage);
+    writer.flush();
+
+    writeChannel.waitForOutstandingWrites();
+
+    //writeChannel.write(ByteBuffer.wrap("And miles to go before I sleep.".getBytes("UTF8")));
+
+    writeChannel.close();
+    BlobstoreService blobstoreService = BlobstoreServiceFactory.getBlobstoreService();
+    BlobKey blobKey = blobstoreService.createGsBlobKey("/gs/" + bucketName + "/" + fileName);
+    return blobKey;
   }
 
   public String writeEndOfDayExperimentEventsAsHtml(boolean anon, String jobId, String experimentId,
@@ -132,7 +112,7 @@ public class HtmlBlobWriter {
     PrintWriter out = new PrintWriter(Channels.newWriter(writeChannel, "UTF8"));
 
 
-    Experiment experiment = ExperimentRetriever.getInstance().getExperiment(experimentId);
+    ExperimentDAO experiment = ExperimentServiceFactory.getExperimentService().getExperiment(Long.parseLong(experimentId));
     String eventPage = printEventDAOs(events, experiment, timeZoneForClient, anon);
 
     out.println(printHeader(events.size(), getExperimentTitle(experiment), timeZoneForClient));
@@ -147,7 +127,7 @@ public class HtmlBlobWriter {
   }
 
 
-  private String getExperimentTitle(Experiment experiment) {
+  private String getExperimentTitle(ExperimentDAO experiment) {
     String experimentTitle = experiment != null ? experiment.getTitle() : null;
     return escapeText(experimentTitle);
   }
@@ -179,13 +159,17 @@ public class HtmlBlobWriter {
 
   }
 
-  private String printEvents(List<Event> events, Experiment experiment, String clientTimezone, boolean anon) throws IOException {
-    if (events.isEmpty()) {
+  private String printEvents(EventQueryResultPair eventQueryResultPair, ExperimentDAO experiment, String clientTimezone, boolean anon, String originalQuery, String whoFromLogin) throws IOException {
+    if (eventQueryResultPair.getEvents().isEmpty()) {
       return "No events in experiment: " + getExperimentTitle(experiment) + ".";
     } else {
       List<String> inputKeys = Lists.newArrayList();
-      for (Input item : experiment.getInputs()) {
-        inputKeys.add(item.getName());
+
+      if (experiment != null) {
+        List<Input2> inputs = getAllInputsForExperiment(experiment);
+        for (Input2 item : inputs) {
+          inputKeys.add(item.getName());
+        }
       }
 
       StringBuilder out = new StringBuilder();
@@ -200,7 +184,7 @@ public class HtmlBlobWriter {
       out.append("<th>Other Responses</th>");
       out.append("</tr>");
 
-      for (Event event : events) {
+      for (Event event : eventQueryResultPair.getEvents()) {
 
         try {
           out.append("<tr>");
@@ -248,69 +232,87 @@ public class HtmlBlobWriter {
           log.log(Level.INFO, "Exception in event processing " + e.getMessage(), e);
         }
       }
-      out.append("</table></body></html>");
+      out.append("</table>");
+//      if (eventQueryResultPair.getCursor() != null) {
+//        String nextCursorUrl = "/events?q=" +
+//                originalQuery +
+//                "&who=" + whoFromLogin +
+//                "&anon=" + anon +
+//                "&tz=" + clientTimezone +
+//                "&reportFormat=html" +
+//                "&cursor=" + eventQueryResultPair.getCursor();
+//        out.append("<center><font size=+4><a href=\"" + nextCursorUrl + "\">Load More Results</a></font></center>");
+//
+//      }
+      out.append("</body></html>");
       return out.toString();
     }
   }
 
-  private String printEventDAOs(List<EventDAO> events, Experiment experiment, String clientTimezone, boolean anon) throws IOException {
+  private String printEventDAOs(List<EventDAO> events, ExperimentDAO experiment, String clientTimezone, boolean anon) throws IOException {
     if (events.isEmpty()) {
       return "No events in experiment: " + getExperimentTitle(experiment) + ".";
-    } else {
-      List<String> inputKeys = Lists.newArrayList();
-      for (Input item : experiment.getInputs()) {
-        inputKeys.add(item.getName());
-      }
-
-      StringBuilder out = new StringBuilder();
-      out.append("<table class=\"gridtable\">");
-      out.append("<tr><th>Experiment Name</th><th>Experiment Version</th><th>Scheduled Time</th><th>Response Time</th><th>Who</th>");
-
-      for (String inputName : inputKeys) {
-        out.append("<th>");
-        out.append(escapeText(inputName));
-        out.append("</th>");
-      }
-      out.append("<th>Other Responses</th>");
-      out.append("</tr>");
-
-      for (EventDAO event : events) {
-        out.append("<tr>");
-        out.append("<td>").append(escapeText(event.getExperimentName())).append("</td>");
-        out.append("<td>").append(event.getExperimentVersion()).append("</td>");
-        out.append("<td>").append(getTimeString(event, event.getScheduledTime(), clientTimezone)).append("</td>");
-        out.append("<td>").append(getTimeString(event, event.getResponseTime(), clientTimezone)).append("</td>");
-
-        String who = event.getWho();
-        if (anon) {
-          who = Event.getAnonymousId(who);
-        }
-        out.append("<td>").append(who).append("</td>");
-
-        for (Input input : experiment.getInputs()) {
-          out.append("<td>");
-          out.append(getValueAsDisplayString(event, input));
-          out.append("</td>");
-        }
-
-        List<String> keysCopy = Lists.newArrayList(event.getWhat().keySet());
-        keysCopy.removeAll(inputKeys);
-        for (String extraKey : keysCopy) {
-          out.append("<td>");
-          out.append(extraKey);
-          out.append(" = ");
-          out.append(getValueAsDisplayString(event, extraKey));
-          out.append("</td>");
-        }
-        out.append("<tr>");
-      }
-      out.append("</table></body></html>");
-      return out.toString();
     }
+    List<String> inputKeys = Lists.newArrayList();
+    List<Input2> inputs = getAllInputsForExperiment(experiment);
+    for (Input2 item : inputs) {
+      inputKeys.add(item.getName());
+    }
+
+    StringBuilder out = new StringBuilder();
+    out.append("<table class=\"gridtable\">");
+    out.append("<tr><th>Experiment Name</th><th>Experiment Version</th><th>Scheduled Time</th><th>Response Time</th><th>Who</th>");
+
+    for (String inputName : inputKeys) {
+      out.append("<th>");
+      out.append(escapeText(inputName));
+      out.append("</th>");
+    }
+    out.append("<th>Other Responses</th>");
+    out.append("</tr>");
+
+    for (EventDAO event : events) {
+      out.append("<tr>");
+      out.append("<td>").append(escapeText(event.getExperimentName())).append("</td>");
+      out.append("<td>").append(event.getExperimentVersion()).append("</td>");
+      out.append("<td>").append(getTimeString(event, event.getScheduledTime(), clientTimezone)).append("</td>");
+      out.append("<td>").append(getTimeString(event, event.getResponseTime(), clientTimezone)).append("</td>");
+
+      String who = event.getWho();
+      if (anon) {
+        who = Event.getAnonymousId(who);
+      }
+      out.append("<td>").append(who).append("</td>");
+
+      for (Input2 input : inputs) {
+        out.append("<td>");
+        out.append(getValueAsDisplayString(event, input));
+        out.append("</td>");
+      }
+
+      for (WhatDAO currentWhat : event.getWhat()) {
+        if (!inputKeys.contains(currentWhat.getName())) {
+          out.append("<td>");
+          out.append(currentWhat.getName());
+          out.append(" = ");
+          out.append(getValueAsDisplayString(currentWhat.getValue()));
+          out.append("</td>");
+        }
+      }
+      out.append("<tr>");
+    }
+
+    out.append("</table></body></html>");
+    return out.toString();
+
   }
 
-  private String getValueAsDisplayString(EventDAO event, String key) {
-    String value = event.getWhatByKey(key);
+  private List<Input2> getAllInputsForExperiment(ExperimentDAO experiment) {
+    List<Input2> inputs = experiment.getGroups().get(0).getInputs();
+    return inputs;
+  }
+
+  private String getValueAsDisplayString(String value) {
     if (value == null) {
       value = "";
     } else if (value.startsWith("===")) {
@@ -334,11 +336,11 @@ public class HtmlBlobWriter {
   }
 
 
-  private String getValueAsDisplayString(EventDAO event, Input input) {
+  private String getValueAsDisplayString(EventDAO event, Input2 input) {
     String value = event.getWhatByKey(input.getName());
     if (value == null) {
       value = "";
-    } else if (input.getQuestionType().equals(InputDAO.PHOTO)) {
+    } else if (input.getResponseType().equals(Input2.PHOTO)) {
       byte[] photoData = value.getBytes();
       if (photoData != null && photoData.length > 0) {
         String photoString = new String(Base64.encodeBase64(photoData));

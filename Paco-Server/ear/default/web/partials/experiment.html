@@ -1,0 +1,92 @@
+<div ng-controller="ExperimentCtrl" class="centered experiment">
+  <div class="nav">
+    <a href="#/experiments">
+      <md-button>Experiments</md-button>
+    </a>
+
+    <img src="/img/ic_chevron_right_24px.svg">
+
+    <a href="#/experiment/{{experiment.id}}">
+      <md-button>{{experiment.title}}</md-button>
+    </a>
+  </div>
+
+  <md-card>
+    <md-card-content>
+      <div class="padded">
+
+        <h1>{{experiment.title}}</h1>
+
+        <div ng-if="experiment.organization">
+          by {{experiment.organization}}
+        </div>
+
+        <div ng-if="experiment.description">
+          <br>
+          <h1>Description</h1>
+          <p>
+           {{experiment.description}}
+           </p>
+        </div>
+
+        <div ng-if="experiment.informedConsentForm">
+          <h2>Informed Consent</h2>
+          <p>
+           {{experiment.informedConsentForm}}
+           </p>
+        </div>
+      </div>
+    </md-card-content>
+
+    <div class="md-actions" ng-controller="ListCtrl">
+          <a href="#/edit/{{experiment.id}}">
+            <md-button ng-if="admin">
+              Edit
+            </md-button>
+          </a>
+
+          <a href="#/respond/{{experiment.id}}" ng-if="joinedIndex.indexOf(experiment.id) !== -1">
+            <md-button>
+              Respond
+            </md-button>
+          </a>
+
+          <a href="#/copy/{{experiment.id}}">
+            <md-button>
+              Copy
+            </md-button>
+          </a>
+
+          <a href="" ng-click="deleteExperiment($event, experiment)" ng-if="admin">
+            <md-button>
+              Delete
+            </md-button>
+          </a>
+
+          <a href="#/stats/{{experiment.id}}">
+            <md-button>
+              Stats
+            </md-button>
+          </a>
+
+          <a href="#/data/{{experiment.id}}">
+            <md-button>
+              View Data
+            </md-button>
+          </a>
+
+          <a href="#/data/{{experiment.id}}/anonymous">
+            <md-button>
+              Anon Data
+            </md-button>
+          </a>
+
+          <a href="" ng-click="joinExperiment($event, experiment)" 
+              ng-if="joinedIndex.indexOf(experiment.id) === -1">
+            <md-button>
+              Join
+            </md-button>
+          </a>
+        </div>
+  </md-card>
+</div>

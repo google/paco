@@ -1,0 +1,278 @@
+.data .frame {
+  max-width: 100%;
+  overflow-x: scroll;
+  overflow-y: auto;
+  padding-bottom: 3px;
+  padding-right: 3px;
+}
+
+.data .nav {
+  font-size: 18px;
+  font-weight: 400;
+  position: relative;
+  min-width: 960px;
+}
+
+.data .nav .viewSelector {
+  display: inline-block;
+}
+
+.nav img {
+  vertical-align: middle;
+}
+
+.data .footer {
+  line-height: 24px;
+  margin-right: 2px;
+  padding: 16px;
+}
+
+.data .actions {
+  float: right;
+}
+
+.data md-menu {
+  position: absolute;
+  top: 0;
+  right: 0;
+}
+
+.data table {
+  background: white;
+  border-collapse: collapse;
+  border-radius: 2px;
+  box-shadow: 0px 3px 1px -2px rgba(0, 0, 0, 0.2), 0px 2px 2px 0px rgba(0, 0, 0, 0.14), 0px 1px 5px 0px rgba(0, 0, 0, 0.12);
+  font-size: 13px;
+  position: relative;
+  width: 100%;
+}
+
+.data .summary {
+  background: #d8d8d8;
+  margin-bottom: 20px;
+  padding: 40px;
+  text-align: center;
+}
+
+.data .summary .stat {
+  background: #eee;
+  box-sizing: border-box;
+  display: inline-block;
+  font-size: 12px;
+  margin: 5px;
+  min-height: 100px;
+  padding: 20px;
+  position: relative;
+  text-align: center;
+  width: 160px;
+}
+
+.data .summary .stat div {
+  position: absolute;
+  width: 75%;
+}
+
+.data .summary .stat b {
+  color: red;
+  display: block;
+  font-size: 28px;
+}
+
+.data .summary .individual-stat {
+  background: #eee;
+  box-sizing: border-box;
+  display: inline-block;
+  font-size: 12px;
+  margin: 5px;
+  padding: 20px;
+  position: relative;
+  text-align: center;
+  width: 160px;
+}
+
+.data .summary .individual-stat b {
+  color: red;
+  display: block;
+  font-size: 28px;
+}
+
+/* The menu is placed outside of the data DOM node so it's
+ * necessary to target this without a .data selector  */
+md-menu-item {
+  border-top: 1px solid #eee;
+  padding-left: 16px;
+}
+
+md-menu-content {
+  max-height: calc(100vh - 250px);
+}
+
+.data table tr {
+  border-bottom: 1px solid #e3e3e3;
+  height: 48px;
+}
+
+.data.events table thead {
+  border-bottom: 1px solid #e3e3e3;
+  display: block;
+  height: 48px;
+}
+
+.data.events table tbody {
+  display: block;
+  max-height: calc(100vh - 372px);
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+.data.events table tbody tr:nth-of-type(1) a {
+  position: absolute;
+  top: 16px;
+}
+
+.data.events table tbody tr:nth-of-type(2) a {
+  display: block;
+  height: 0px;
+  overflow: hidden;
+}
+
+::-webkit-scrollbar-track  {
+  min-height: 24px;
+}
+
+.data.events table tbody tr:nth-of-type(1),
+.data.events table tbody tr:nth-of-type(2) {
+  border-bottom: none;
+  height: 0px;
+}
+
+.data table td {
+  padding: 0 24px 0 24px;
+  white-space: nowrap;
+}
+
+.data table td.content {
+  overflow: hidden;
+  position: relative;
+}
+
+.data table td.content div img {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+}
+
+.data table td.content:hover {
+  overflow: visible;
+}
+
+.data table td.content:hover div img {
+  border: 1px solid gray;
+  width: 600px;
+  z-index: 100;
+}
+
+.data table td a {
+  position: relative;
+}
+
+.data table td .sorting {
+  display: block;
+  position: relative;
+}
+
+.data table td .arrow:after {
+  content: '\2191';
+  position: absolute;
+  top: 0;
+  right: -16px;
+}
+
+.data table td .left.arrow:after {
+  left: -16px;
+  right: auto;
+}
+
+.data table td .down.arrow:after {
+  content: '\2193';
+  position: absolute;
+}
+
+.data table td[right-border] {
+  border-right: 1px solid #e3e3e3;
+}
+
+.data table tfoot td {
+  text-align: left;
+}
+
+.data .variable-width {
+  display: inline-block;
+  max-width: 100%;
+  text-align: left;
+}
+
+.data .status {
+  margin: 16px 8px;
+}
+
+.data {
+  text-align: center;
+}
+
+.data .error {
+  margin: 16px;
+  text-align: left;
+}
+
+.data .audio {
+	width:45px;
+}
+
+.data md-chips {
+  display: inline-block;
+  position: relative;
+}
+
+.data md-chips md-chips-wrap {
+  box-shadow: none !important;
+  position: absolute;
+  left: 0;
+  top: -30px;
+}
+
+.data md-chips .md-chip-input-container {
+  display: none;
+}
+
+.data md-chips .md-chips.md-focused {
+  box-shadow: none;
+}
+
+.report  {
+  width: 600px;
+}
+
+.report md-select {
+  display: inline-block;
+}
+
+.report md-progress-circular {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+}
+
+.report .switches {
+  position: absolute;
+  left: 50%;
+  top: 24px;
+}
+
+.report .error {
+  position: absolute;
+  left: 16px;
+  bottom: 16px;
+  color: red;
+}

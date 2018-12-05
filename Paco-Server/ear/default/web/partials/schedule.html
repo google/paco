@@ -1,0 +1,170 @@
+<md-dialog aria-label="Edit Schedule" class="schedule">
+  <md-dialog-content>
+    <div class="column0">
+      <div>
+        <select ng-model="schedule.scheduleType" as-string>
+          <option disabled selected value="">Signal Schedule</option>
+          <option ng-selected="$index === schedule.scheduleType" ng-repeat="type in scheduleTypes"
+          value="{{$index}}">
+            {{type}}
+          </option>
+        </select>
+      </div>
+
+      <div class="snooze" ng-if="schedule.scheduleType < 5">
+
+        <md-input-container ng-if="schedule.scheduleType === 4">
+          <label>Minimum between</label>
+          <input type="number" ng-model="schedule.minimumBuffer"
+            ng-pattern="/^[0-9]*$/">
+          <div ng-messages>
+            <div ng-message>minutes</div>
+          </div>
+        </md-input-container>
+
+        <md-input-container ng-if="schedule.snoozeCount" ng-init="schedule.snoozeTimeInMinutes = 10">
+          <label>Snooze time</label>
+          <input type="number" ng-model="schedule.snoozeTimeInMinutes"
+            ng-pattern="/^[0-9]*$/">
+        </md-input-container>
+
+        <md-checkbox ng-model="schedule.userEditable" aria-label="User editable">
+          User editable
+        </md-checkbox>
+
+        <md-checkbox ng-model="schedule.onlyEditableOnJoin" aria-label="User editable on join">
+          Editable on Join
+        </md-checkbox>
+      </div>
+    </div>
+
+    <div class="column1">
+      <div ng-if="schedule.scheduleType === 0">
+        Repeat every
+        <select ng-model="schedule.repeatRate" as-string>
+          <option value="" disabled selected></option>
+          <option ng-selected="rate === schedule.repeatRate" ng-repeat="rate in repeatRates"
+          value="{{rate}}">{{rate}}</option>
+        </select>
+        days
+      </div>
+
+      <div ng-if="schedule.scheduleType === 2">
+        Repeat every
+        <select ng-model="schedule.repeatRate" as-string>
+          <option value="" disabled selected></option>
+          <option ng-selected="rate === schedule.repeatRate" ng-repeat="rate in repeatRates"
+          value="{{rate}}">{{rate}}</option>
+        </select>
+        weeks
+      </div>
+
+      <div ng-if="schedule.scheduleType === 3">
+        Repeat every
+        <select ng-model="schedule.repeatRate" as-string>
+          <option value="" disabled selected></option>
+          <option ng-selected="rate === schedule.repeatRate" ng-repeat="rate in repeatRates"
+          value="{{rate}}">{{rate}}</option>
+        </select>
+        months
+      </div>
+
+      <div ng-if="schedule.scheduleType === 3">
+        <md-radio-group ng-model="schedule.byDayOfMonth" as-string>
+
+          <div>
+            <md-radio-button value="true" class="inline">Day of Month</md-radio-button>
+            <select ng-model="schedule.dayOfMonth" ng-if="schedule.byDayOfMonth">
+              <option ng-selected="day === schedule.dayOfMonth" ng-repeat="day in daysOfMonth"
+              value="{{day}}">{{day}}</option>
+            </select>
+          </div>
+          <div>
+            <md-radio-button value="false" class="inline">Day of Week </md-radio-button>
+            <select ng-model="schedule.weekOfMonth" ng-if="!schedule.byDayOfMonth">
+              <option ng-selected="week === schedule.weekOfMonth" ng-repeat="week in weeksOfMonth"
+              value="{{week}}">{{week}}</option>
+            </select>
+          </div>
+
+        </md-radio-group>
+      </div>
+
+      <div ng-if="schedule.scheduleType === 2 || (schedule.scheduleType === 3 && schedule.byDayOfMonth === false)"
+      class="days">
+        <div class="repeat-label">
+          Repeat on
+        </div>
+        <md-checkbox ng-model="days[0]" aria-label="Sunday">Su</md-checkbox>
+        <md-checkbox ng-model="days[1]" aria-label="Monday">M</md-checkbox>
+        <md-checkbox ng-model="days[2]" aria-label="Tuesday">Tu</md-checkbox>
+        <md-checkbox ng-model="days[3]" aria-label="Wednesday">W</md-checkbox>
+        <md-checkbox ng-model="days[4]" aria-label="Thursday">Th</md-checkbox>
+        <md-checkbox ng-model="days[5]" aria-label="Friday">F</md-checkbox>
+        <md-checkbox ng-model="days[6]" aria-label="Saturday">Sa</md-checkbox>
+      </div>
+
+      <div ng-repeat="time in schedule.signalTimes track by $index" layout="row" class="time" 
+      ng-if="schedule.scheduleType >= 0 && schedule.scheduleType <= 3">
+
+        <md-input-container flex>
+          <label>Time</label>
+          <input type="time" milli ng-model="time.fixedTimeMillisFromMidnight">
+        </md-input-container>
+
+        <md-input-container flex>
+          <label>Label</label>
+          <input type="text" ng-model="time.label">
+        </md-input-container>
+
+        <div flex>
+          <md-button add-icon ng-click="addTime(schedule.signalTimes, $index)">Time</md-button>
+          <a href="" class="remove button" ng-click="remove(schedule.signalTimes, $index)"
+          ng-if="schedule.signalTimes.length > 1"></a>
+        </div>
+        <div>
+
+        </div>
+      </div>
+
+      <div ng-if="schedule.scheduleType === 4">
+        <div layout="row">
+          <md-input-container flex="33">
+            <label>Frequency</label>
+            <input type="number" min="0" max="100" ng-model="schedule.esmFrequency"  ng-pattern="/^[0-9]*$/">
+          </md-input-container>
+
+          <select ng-model="schedule.esmPeriodInDays" flex="33" class="period" as-string>
+            <option value="" disabled selected>Select period</option>
+            <option ng-selected="$index === schedule.esmPeriodInDays" ng-repeat="period in esmPeriods"
+            value="{{$index}}">{{period}}</option>
+          </select>
+        </div>
+
+        <div layout="row">
+          <md-input-container flex>
+            <label>Start Time</label>
+            <input type="time" milli ng-model="schedule.esmStartHour">
+          </md-input-container>
+
+          <md-input-container flex>
+            <label>End Time</label>
+            <input type="time" milli ng-model="schedule.esmEndHour">
+          </md-input-container>
+
+          <div flex="40" class="add">
+            <md-checkbox ng-model="schedule.esmWeekends" aria-label="Include weekends">
+              Include weekends
+            </md-checkbox>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </md-dialog-content>
+  <div class="md-actions">
+    <md-button ng-click="hide()" class="md-primary">
+      Done
+    </md-button>
+  </div>
+</md-dialog>

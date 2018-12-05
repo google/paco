@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en" ng-app="pacoApp" ng-strict-di>
+<head>
+  <link rel="stylesheet" href="bower_components/angular/angular-csp.css">
+  <link rel="stylesheet" href="bower_components/angular-material/angular-material.css">
+  
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/home.css">
+  <link rel="stylesheet" href="css/list.css">
+  <link rel="stylesheet" href="css/tabs.css">
+  <link rel="stylesheet" href="css/basics.css">
+  <link rel="stylesheet" href="css/admin.css">
+  <link rel="stylesheet" href="css/groups.css">
+  <link rel="stylesheet" href="css/preview.css">
+  <link rel="stylesheet" href="css/schedule.css">
+  <link rel="stylesheet" href="css/data.css">
+  <link rel="stylesheet" href="css/experiment.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:100,200,300,400,500">
+
+  <script src="bower_components/angular/angular.js"></script>
+  <script src="bower_components/angular-route/angular-route.js"></script>
+  <script src="bower_components/angular-aria/angular-aria.js"></script>
+  <script src="bower_components/angular-animate/angular-animate.js"></script>
+  <script src="bower_components/angular-material/angular-material.js"></script>
+  
+  <script src="js/app.js"></script>
+  <script src="js/eod.js"></script>
+  <script src="js/controllers.js"></script>
+  <script src="js/directives.js"></script>
+  <script src="js/services.js"></script>
+
+  <script language="javascript" type="text/javascript" src="/eod/peg-0.8.0.min.js"></script>
+  <script language="javascript" type="text/javascript" src="/eod/conditional_parser.js"></script>
+
+  <script type="text/javascript" src="bower_components/ace-builds/src-min-noconflict/ace.js"></script>
+  <script type="text/javascript" src="bower_components/angular-ui-ace/ui-ace.js"></script>
+
+  <base href="/">
+</head>
+
+<body ng-app="pacoApp" ng-controller="HomeCtrl">
+  <div class="home">
+    <div ng-include="'partials/menu.html'"></div>
+    <div ng-view class="main"></div>
+    <div ng-include="'partials/sitemap.html'"></div>
+  </div>
+</body>
+
+</html>

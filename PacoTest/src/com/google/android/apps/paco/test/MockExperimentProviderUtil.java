@@ -5,10 +5,10 @@ import java.util.List;
 import android.content.Context;
 import android.net.Uri;
 
-import com.google.android.apps.paco.Experiment;
-import com.google.android.apps.paco.ExperimentColumns;
-import com.google.android.apps.paco.ExperimentProviderUtil;
 import com.google.common.collect.Lists;
+import com.pacoapp.paco.model.Experiment;
+import com.pacoapp.paco.model.ExperimentColumns;
+import com.pacoapp.paco.model.ExperimentProviderUtil;
 
 class MockExperimentProviderUtil extends ExperimentProviderUtil {
 
@@ -32,6 +32,15 @@ class MockExperimentProviderUtil extends ExperimentProviderUtil {
   }
 
   @Override
+  public Experiment getExperimentByServerId(long id) {
+    for (Experiment experiment : experimentList) {
+      if (experiment.getServerId() != null && experiment.getServerId().equals(id))
+        return experiment;
+    }
+    return null;
+  }
+
+  @Override
   public void updateJoinedExperiment(Experiment experiment) {
     Experiment experimentToDelete = null;
     for (Experiment e : experimentList) {
@@ -45,7 +54,6 @@ class MockExperimentProviderUtil extends ExperimentProviderUtil {
     }
   }
 
-  @Override
   public Experiment getExperiment(long experimentId) {
     for (Experiment e : experimentList) {
       if (e.getId().equals(experimentId)) {

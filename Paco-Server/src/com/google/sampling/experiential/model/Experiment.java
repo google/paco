@@ -41,7 +41,6 @@ import com.google.appengine.api.datastore.Text;
 import com.google.appengine.api.users.User;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
-import com.google.paco.shared.model.SignalScheduleDAO;
 import com.google.sampling.experiential.shared.TimeUtil;
 
 
@@ -59,6 +58,8 @@ import com.google.sampling.experiential.shared.TimeUtil;
  */
 @PersistenceCapable(identityType = IdentityType.APPLICATION, detachable = "true")
 public class Experiment {
+
+  private static final long serialVersionUID = -1407635488794262589l;
 
   @PrimaryKey
   @Persistent(valueStrategy = IdGeneratorStrategy.IDENTITY)
@@ -142,41 +143,28 @@ public class Experiment {
   private Text customRenderingCode;
 
   @Persistent
-  private Boolean showFeedback;
+  private Integer feedbackType;
+
+  @Persistent
+  private Boolean backgroundListen = false;
+
+  @Persistent
+  private String backgroundListenSourceIdentifier = "";
+
+  @Persistent
+  private Boolean accessibilityListen = false;
+
+  @Persistent
+  private Boolean logActions = false;
+
+  @Persistent
+  private Boolean recordPhoneDetails = false;
+
+  @Persistent
+  private List<Integer> extraDataCollectionDeclarations;
 
 
-  /**
-   * @param id
-   * @param title2
-   * @param description2
-   * @param creator2
-   * @param informedConsentForm2
-   * @param questionsCanChange
-   * @param modifyDate
-   * @param published TODO
-   * @param admins TODO
-   */
-  public Experiment(Long id, String title, String description, User creator,
-      String informedConsentForm, Boolean questionsCanChange, SignalSchedule schedule,
-      String modifyDate, Boolean published, List<String> admins) {
-    this.id = id;
-    this.title = title;
-    this.description = description;
-    this.creator = creator;
-    this.informedConsentForm = informedConsentForm;
-    this.schedule = schedule;
-    this.questionsChange = questionsCanChange;
-    this.modifyDate = getFormattedDate(modifyDate, TimeUtil.DATE_FORMAT);
-    this.inputs = Lists.newArrayList();
-    feedback = Lists.newArrayList();
-    this.published = published;
-    this.admins = admins;
-    if (this.admins == null) {
-      this.admins = Lists.newArrayList(creator.getEmail());
-    } else if (admins.size() == 0 || !admins.contains(creator.getEmail())) {
-      admins.add(0, creator.getEmail());
-    }
-  }
+  
 
   /**
    *
@@ -273,6 +261,12 @@ public class Experiment {
   public String getEndDate() {
     return getDateAsString(endDate, TimeUtil.DATE_FORMAT);
   }
+
+  @JsonIgnore
+  public Date getEndDateAsDate() {
+    return endDate;
+  }
+
 
   public void setEndDate(String endDateStr) {
       setFormattedEndDate(endDateStr);
@@ -426,9 +420,22 @@ public class Experiment {
   }
 
   @JsonIgnore
+  public boolean isPublic() {
+    return (getPublished() != null && getPublished() == true) &&
+            (getPublishedUsers() == null || getPublishedUsers().isEmpty());
+  }
+
+  @JsonIgnore
   private DateTime getEndDateTime() {
-    if (getSchedule().getScheduleType().equals(SignalScheduleDAO.WEEKDAY)) {
-      List<Long> times = schedule.getTimes();
+    if (getSchedule() != null && getSchedule().getScheduleType().equals(com.pacoapp.paco.shared.model2.Schedule.WEEKDAY)) {
+      List<SignalTime> signalTimes = schedule.getSignalTimes();
+      List<Integer> times = Lists.newArrayList();
+      for (SignalTime signalTime : signalTimes) {
+        // TODO adjust for offset times and include them
+        if (signalTime.getType() == com.pacoapp.paco.shared.model2.SignalTime.FIXED_TIME) {
+          times.add(signalTime.getFixedTimeMillisFromMidnight());
+        }
+      }
       // get the latest time
       Collections.sort(times);
       DateTime lastTimeForDay = new DateTime().plus(times.get(times.size() - 1));
@@ -500,13 +507,60 @@ public class Experiment {
 
   }
 
-  public Boolean shouldShowFeedback() {
-    return showFeedback;
+  public Integer getFeedbackType() {
+    return feedbackType;
   }
 
-  public void setShowFeedback(Boolean show) {
-    this.showFeedback = show;
+  public void setFeedbackType(Integer feedbackType2) {
+    this.feedbackType = feedbackType2;
+
   }
 
+  public Boolean shouldLogActions() {
+    return logActions;
+  }
 
+  public void setLogActions(Boolean val) {
+    this.logActions = val;
+  }
+
+  public Boolean isRecordPhoneDetails() {
+    return recordPhoneDetails;
+  }
+
+  public void setRecordPhoneDetails(Boolean recordPhoneDetails) {
+    this.recordPhoneDetails = recordPhoneDetails;
+  }
+
+  public Boolean isBackgroundListen() {
+    return backgroundListen;
+  }
+
+  public void setBackgroundListen(Boolean backgroundListen) {
+    this.backgroundListen = backgroundListen;
+  }
+
+  public String getBackgroundListenSourceIdentifier() {
+    return backgroundListenSourceIdentifier;
+  }
+
+  public void setBackgroundListenSourceIdentifier(String sourceId) {
+    this.backgroundListenSourceIdentifier = sourceId;
+  }
+
+  public Boolean isAccessibilityListen() {
+    return accessibilityListen;
+  }
+
+  public void setAccessibilityListen(Boolean accessibilityListen) {
+    this.accessibilityListen = accessibilityListen;
+  }
+
+  public List<Integer> getExtraDataCollectionDeclarations() {
+    return extraDataCollectionDeclarations;
+  }
+
+  public void setExtraDataCollectionDeclarations(List<Integer> dataCollectionDeclarations) {
+    this.extraDataCollectionDeclarations = dataCollectionDeclarations;
+  }
 }

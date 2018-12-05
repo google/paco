@@ -1,0 +1,13 @@
+.published label {
+  font-size: 12px !important;
+  color: rgba(0,0,0,0.54);
+}
+
+.published md-switch {
+  margin: 8px;
+}
+
+.published .warning {
+  color: red;
+  font-size: 12px;
+}

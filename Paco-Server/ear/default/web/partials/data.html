@@ -1,0 +1,119 @@
+<div ng-controller="DataCtrl" class="padded events data">
+  <div class="variable-width">
+
+  <div class="nav">
+      <a href="#">
+        <md-button>Experiments</md-button>
+      </a>
+      <img src="/img/ic_chevron_right_24px.svg">
+      <a href="#/experiment/{{experimentId}}">
+        <md-button aria-label="experiment name">
+          <span ng-if="!experiment">{{experimentId}}</span>
+          <span ng-if="experiment">{{experiment.title}}</span>
+        </md-button>
+      </a>
+      <img src="/img/ic_chevron_right_24px.svg">
+      <md-input-container class="viewSelector">
+        <md-select ng-model="currentView" ng-change="switchView()" aria-label="change view">
+          <md-option value="stats" aria-label="stats view">Stats</md-option>
+          <md-option value="data" aria-label="data view">Data</md-option>
+        </md-select>
+      </md-input-container>
+
+      <span>
+        <img src="/img/ic_chevron_right_24px.svg">
+        <md-input-container class="viewSelector">
+          <md-select ng-model="showGroup" aria-label="Filter data by group" ng-change="loadEvents(true)" >
+            <md-option value="all">All Groups</md-option>
+            <md-option ng-repeat="group in groupNames" value="{{group}}">{{group}}</md-option>
+          </md-select>
+        </md-input-container>
+      </span>
+
+      <md-chips ng-if="userChips" ng-model="userChips" md-on-remove="removeUserChip()" placeholder=""></md-chips>
+
+      <md-menu md-offset="108 4" ng-if="table">
+        <md-button aria-label="Toggle displayed columns" ng-click="$mdOpenMenu($event)">
+          Columns
+        </md-button>
+        <md-menu-content>
+          <md-menu-item ng-repeat="cell in table.header| orderBy:'toString()' track by $index">
+            <md-checkbox ng-model="showColumn[cell]">
+              {{cell}}
+            </md-checkbox>
+          </md-menu-item>
+        </md-menu-content>
+      </md-menu>
+    </div>
+
+    <div ng-if="table && table.rows.length > 0" class="frame">
+      <table>
+        <thead></thead>
+        <tbody>
+          <tr ng-repeat="copy in [1,2]">
+            <td ng-repeat="cell in table.header track by $index" ng-show="showColumn[cell]">
+              <a href=""  ng-click="setColumn($index)"
+              ng-class="{arrow: (sortColumn == $index), down: reverseSort }">
+                {{cell}}
+              </a>
+            </td>
+          </tr>
+          <tr ng-repeat="row in table.rows | orderBy: columnSort: reverseSort">
+            <td ng-repeat="cell in row track by $index" ng-show="showColumn[table.header[$index]]" class="content">
+              <a href="#/data/{{experiment.id}}/{{cell}}" ng-if="table.header[$index]=='who' && !users && !anon">{{cell}}</a>
+
+              <div ng-if="table.header[$index]!='who' || users || anon"
+                ng-switch="isPhotoData(cell)">
+                <img ng-switch-when="true" ng-src="{{photoHeader}}{{cell}}">                
+              </div>
+              <div ng-if="table.header[$index]!='who' || users || anon"
+                ng-switch="isAudioData(cell)">
+                <audio controls class="audio" ng-switch-when="true" ng-src="{{makeAudioSrc(cell)}}">                
+              </div>
+              <div ng-if="table.header[$index]!='who' || users || anon"
+                ng-switch="isPhotoData(cell) || isAudioData(cell)">
+                <span ng-switch-when="false">{{cell}}&nbsp;</span>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div ng-if="loading" class="status">
+      <span>{{status}}</span>
+      <md-button ng-click="loadEvents()" ng-if="loading === false && error">Reload</md-button>
+      <md-progress-linear md-mode="indeterminate" ng-if="loading === true"></md-progress-linear>
+    </div>
+
+    <md-card class="footer" ng-if="table">
+      <md-card-content>
+        Showing {{table.rows.length}} events
+        <md-button ng-if="eventCursor" ng-click="loadEvents()">
+          Show More
+        </md-button>
+        <div class="actions">
+        <!-- 
+          <a ng-href="#/data/{{experiment.id}}/#{{columnString}}">
+            <md-button>Column View</md-button>
+          </a>
+           -->
+          <a ng-href="" ng-click="showReportOptions(experiment)" class="download">
+            <md-button>Generate Report</md-button>
+          </a>
+
+        <a class="button" id="downloadButton" download="report.{{reportType}}" href="{{reportData}}" ng-if="reportData">
+          <md-button class="md-raised md-primary">
+            Download {{reportType}}
+          </md-button>
+        </a>
+        </div>
+      </md-card-content>
+    </md-card>
+  </div>
+
+  <div ng-if="error" class="error">
+    Error {{error.code}}: {{error.message}}
+  </div>
+
+</div>

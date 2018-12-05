@@ -1,0 +1,309 @@
+.group {
+  position: relative;
+}
+
+.group .removeGroup {
+  background: url('../img/ic_clear_24px.svg') no-repeat;
+  height: 26px;
+  opacity: .5;
+  display: inline-block;
+  float: right;
+  width: 26px;
+}
+
+.group md-input-container no-ios {
+  position: absolute;
+  right: -24px;
+}
+
+.group .removeGroup:hover {
+  opacity: 1;
+}
+
+.group .header > md-input-container {
+  padding-bottom: 0;
+  margin-top: 16px;
+  width: 200px
+}
+
+.group .duration {
+  padding: 0 0 0 16px;
+}
+
+.group .duration .title {
+  margin-top: 16px;
+}
+
+.group .duration md-input-container {
+  padding: 0;
+}
+
+.group .duration .date {
+  padding-right: 16px;
+}
+
+.group .duration md-radio-group {
+  margin-left: 4px;
+}
+
+.choice, .time {
+  position: relative;
+}
+
+.choice .remove-button {
+  position: absolute;
+  top: 32px;
+  right: -40px;
+}
+
+.choice .buttons {
+  margin-top: 24px;
+  width: 130px;
+}
+
+.time .remove.button {
+  position: absolute;
+  top: 28px;
+  right: 0px;
+}
+
+.light {
+  color: #9FA8DA;
+}
+
+.trigger .header, .input .header {
+  background: #E8EAF6;
+  padding-left: 32px;
+}
+
+.trigger.reveal {
+  max-height: 10px;
+  overflow: hidden;
+  -webkit-transition: height .5s;
+}
+
+.trigger .minBuffer {
+  width: 300px !important;
+}
+
+.input select {
+  margin-left: 16px;
+}
+
+.section {
+  font-weight: 300;
+  padding: 12px;
+  margin: 0;
+}
+
+.remove.button {
+  background: url('../img/ic_clear_24px.svg') no-repeat;
+}
+
+.button.add {
+  background: url('../img/ic_add_circle_outline_24px.svg') no-repeat;
+}
+
+.button.up {
+  background: url('../img/ic_arrow_up_24.svg') no-repeat;
+}
+
+.button.down {
+  background: url('../img/ic_arrow_down_24.svg') no-repeat;
+}
+
+.groups .button {
+  float: right;
+  height: 24px;
+  margin-left: 8px;
+  opacity: .5;
+  width: 24px;
+}
+
+.button:hover {
+  opacity: 1;
+}
+
+md-card .section {
+  background: white;
+  cursor: pointer;
+  font-weight: 400;
+  outline: none;
+  padding: 16px;
+  position: relative;
+  -webkit-user-select: none;
+}
+
+md-card .section .title {
+  outline: none;
+  display: inline-block;
+  font-weight: 500;
+  height: 24px;
+  width: 200px;
+} 
+
+md-card .section .group-name {
+  position: absolute;
+  top: 12px;
+  left: 230px;
+  width: 400px;
+}
+
+md-card .section .buffer-input {
+  position: absolute;
+  top: 6px;
+  left: 500px;
+  width: 100px;
+}
+
+md-card .group-toggle {
+  background: url('../img/ic_expand_more_48px.svg') no-repeat;
+  background-size: 24px;
+  width: 24px;
+  height: 24px;
+  margin: 0 0 -4px -4px;
+  display: inline-block;
+  -webkit-transition: -webkit-transform .25s;
+  outline: none;
+}
+
+md-card .group-toggle.hiding {
+  -webkit-transform: rotate(-180deg);
+}
+
+md-card .section .subtitle {
+  display: inline-block;
+  height: 24px;
+  width: 180px;
+}
+
+md-card .section .subsub {
+  display: inline-block;
+  height: 24px;
+  margin-left: 32px;
+  width: 182px;
+}
+
+.groups md-card md-card-content {
+  min-height: 58px;
+}
+
+md-card-content[expandable=true] > .section::after {
+  background: url('../img/ic_unfoldMore.svg') no-repeat;
+  content: "";
+  height: 24px;
+  opacity: .5;
+  pointer-events: none;
+  position: absolute;
+  right: 16px;
+  top: 16px;
+  width: 24px;
+}
+
+md-card-content[expandable=true] > .section:hover::after {
+  opacity: 1;
+}
+
+div[expander] {
+  opacity: 0;
+  pointer-events: none;
+  -webkit-transition: opacity ease-in-out .5s, margin-bottom ease-in-out .5s .25s;
+}
+
+.expand div[expander] {
+  opacity: 1;
+  pointer-events: all;
+  -webkit-transition: opacity ease-in-out .5s .25s, margin-bottom ease-in-out .5s;
+}
+
+
+md-card-content.expand::after  {
+  background: url('../img/ic_unfoldLess.svg') no-repeat;
+}
+
+.md-button[add-icon] {
+  background: url('../img/ic_add_circle_outline_24px.svg') no-repeat;
+  background-position: 4px 50%;
+  padding-left: 32px;
+}
+
+/* Hack to make background image appear lighter when button is disabled */
+.md-button[add-icon][disabled]:after {
+  background: rgba(255, 255, 255, .6);
+  content: '';
+  position: absolute;
+  left: 0;
+  width: 28px;
+  height: 100%;
+}
+
+.advanced.padded {
+  padding-top: 0px;
+}
+
+.advanced .row {
+  position: relative;
+}
+
+.advanced .row .right {
+  position: absolute;
+  left: 320px;
+  top: 0px;
+}
+
+.advanced .row .right.source md-input-container {
+  position: absolute;
+  left: 120px;
+  top: -6px;
+}
+
+.advanced .row .right md-select {
+  position: absolute;
+  left: 124px;
+  top: -26px;
+}
+
+.advanced .row no-ios {
+  position: absolute;
+  left: 320px;
+  top: 0;
+}
+
+.advanced .row .right.source no-ios {
+  top: 2px;
+}
+
+.advanced .feedback {
+  margin-bottom: 8px;
+  margin-left: 8px;
+  position: relative;
+}
+
+.advanced .feedback .message {
+  margin-top: -8px;
+  padding-left: 16px;
+  padding-right: 16px;
+}
+
+.advanced textarea {
+  font-family: monospace;
+}
+
+.source div[ui-ace] {
+  min-height: 600px;
+}
+
+.instructions .message{
+  color: #9E9E9E;
+  font-size: 12px;
+}
+
+.advanced select {
+  margin-left: 8px;
+}
+
+.source-frame .ace_editor {
+  border: 1px solid lightgray;
+  margin-top: 8px;
+  position: relative !important;
+}

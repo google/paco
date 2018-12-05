@@ -1,0 +1,65 @@
+<div ng-controller="ExperimentCtrl" class="centered">
+  
+  <div class="nav">
+    <a href="#/experiments">
+      <md-button>
+        Experiments
+      </md-button>
+    </a>
+
+    <img src="/img/ic_chevron_right_24px.svg">
+
+    <a href="#/experiment/{{respondExperimentId}}">
+      <md-button>{{experiment.title}}</md-button>
+    </a>
+
+    <img src="/img/ic_chevron_right_24px.svg">
+
+    <a href="#/respond/{{respondExperimentId}}">
+      <md-button>Respond</md-button>
+    </a>
+  </div>
+
+   <div ng-if="respondableGroups.length > 1" class="group-select">
+    <label>Select Group:</label>
+    <md-select ng-model="state.groupIndex">
+      <md-option ng-repeat="grp in respondableGroups" value="{{$index}}" placeholder="group">
+        {{grp.name}}
+      </md-option>
+    </md-select>
+  </div>
+
+  <div ng-if="respondableGroups[state.groupIndex].endOfDayGroup" ng-controller="EodCtrl">    
+    <div ng-if="activeEvents[activeIdx]" class="event">
+
+      <md-card>
+        <md-card-content> 
+          <div class="header">
+            <div class="day">{{activeEvents[activeIdx].responseTime | date:'EEEE'}}</div>
+            <div class="date">{{activeEvent[activeIdx].responseTime | date:'d/M/yyyy'}}</div>
+            <div class="ping">Ping {{activeIdx + 1}} of {{activeEvents.length}}</div>
+            <div class="time">Captured at 
+              {{activeEvents[activeIdx].responseTime | date:'mediumTime'}}</div>
+          </div>
+        </md-card-content>
+      </md-card>
+
+      <paco-group data="referredGroup" readonly="true" responses="activeEvents[activeIdx].responsePairs">
+      </paco-group>
+      
+      <paco-group data="respondableGroups[state.groupIndex]" events="activeEvents" 
+      active-idx="activeIdx" experiment="experiment"></paco-group>
+
+    </div>
+    <div ng-if="!activeEvents[activeIdx]">
+      No more daily events.
+    </div>
+   
+  </div>
+
+  <div ng-if="!respondableGroups[state.groupIndex].endOfDayGroup">
+    <paco-group data="respondableGroups[state.groupIndex]" experiment="experiment"></paco-group>
+  </div>
+  
+
+</div>

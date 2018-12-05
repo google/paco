@@ -1,0 +1,153 @@
+.centered {
+  left: 50%;
+  margin-left: -480px;
+  position: relative;
+  width: 960px;
+}
+
+.main h1, .main h2 {
+  font-size: 24px;
+  font-weight: 400;
+  margin: 16px 0 16px 0;
+}
+
+.main h2 {
+  font-size: 18px;
+}
+
+md-toolbar {
+  background: #5c6bc0 !important;
+  box-shadow: 0px 3px 3px rgba(0,0,0,.1);
+  color: white !important;
+}
+
+md-toolbar a {
+  color: white;
+  font-weight: bold;
+}
+
+md-toolbar .paco-home {
+  background: white;
+  border-radius: 50%;
+  cursor: pointer;
+  height: 96px;
+  margin: 16px;
+  outline-style: none;
+  padding: 16px;
+  width: 96px;
+}
+
+md-toolbar .title {
+  font-size: 34px;
+  position: absolute;
+  left: 128px;
+  top: 32px;
+  text-transform: uppercase;
+}
+
+md-toolbar #login {
+  position: absolute;
+  top: 24px;
+  right: 16px;
+}
+
+md-toolbar .logout {
+  font-size: 14px;
+  position: absolute;
+  text-align: right;
+  top: 16px;
+  right: 8px;
+}
+
+md-toolbar .logout .user {
+  margin-right: 20px;
+}
+
+md-toolbar .previous {
+  position: absolute;
+  right: 16px;
+  bottom: 16px;
+}
+
+md-toolbar .subtitle {
+  font-size: 18px;
+  position: absolute;
+  left: 128px;
+  top: 72px;
+}
+
+.welcome {
+  font-weight: 300;
+}
+
+.welcome a {
+  text-decoration: none;
+}
+
+.welcome .top {
+  margin-top: 24px;
+  overflow: hidden;
+}
+
+.welcome .top .iphone {
+  float: left;
+  margin-top: 16px;
+}
+
+.welcome .top h2 {
+  color: #ff5722;
+  font-weight: 300;
+  margin: 16px 0 16px 0;
+}
+
+.welcome .top h1 {
+  color: #ff5722;
+  font-weight: 100;
+  font-size: 60px;
+  line-height: 50px;
+  margin: 16px 0 0 0;
+}
+
+.welcome .top .apps {
+  margin-top: 64px;
+}
+
+.welcome .top .signin button {
+  background: #5c6bc0;
+  color: white;
+  margin: 0 8px 0 0;
+}
+
+.welcome .text {
+  padding: 16px;
+  padding-right: 30%;
+}
+
+.welcome .what {
+  background: #eceff1;
+}
+
+.welcome .text h1 {
+  font-size: 32px;
+  font-weight: 100;
+  margin: 0;
+}
+
+.sitemap {
+  background: #eee;
+  padding: 16px;
+  position: relative;
+}
+
+.sitemap .links {
+  text-align: center;
+  position: relative;
+  width: 960px;
+  left: 50%;
+  bottom: 0px;
+  margin-left: -480px;
+}
+
+.sitemap .links a {
+  display: block;
+}

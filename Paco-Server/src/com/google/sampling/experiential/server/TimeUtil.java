@@ -1,8 +1,12 @@
 package com.google.sampling.experiential.server;
 
+import java.sql.Timestamp;
+import java.text.ParseException;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.Locale;
 import java.util.TimeZone;
+import java.util.logging.Logger;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -14,7 +18,9 @@ import org.joda.time.format.DateTimeFormatter;
 
 public class TimeUtil {
 
+  public static final Logger log = Logger.getLogger(TimeUtil.class.getName());
   public static final String DATETIME_FORMAT = "yyyy/MM/dd HH:mm:ssZ";
+  public static final String DATETIME_FORMAT_MS = "yyyy/MM/dd HH:mm:ss.SSSZ";
   public static final String DATE_FORMAT = "yyyy/MM/dd";
 
   public static DateMidnight getDateMidnightForDateString(String dateStr) {
@@ -23,6 +29,12 @@ public class TimeUtil {
   }
 
   public static DateTime getNowInUserTimezone(DateTimeZone dateTimeZone) {
+    DateTime datetime = new DateTime();
+    return TimeUtil.adjustToTimezone(dateTimeZone, datetime);
+  }
+
+  public static DateTime getNowInUserTimezone(String dateTimeZoneId) {
+    DateTimeZone dateTimeZone = DateTimeZone.forID(dateTimeZoneId);
     DateTime datetime = new DateTime();
     return TimeUtil.adjustToTimezone(dateTimeZone, datetime);
   }
@@ -45,20 +57,56 @@ public class TimeUtil {
   }
 
   public static DateTimeZone getTimeZoneForClient(HttpServletRequest req) {
-    String tzStr = HttpUtil.getParam(req, "tz");
-    if (tzStr != null && !tzStr.isEmpty()) {
-      DateTimeZone jodaTimeZone = DateTimeZone.forID(tzStr);
-      if (jodaTimeZone != null) {
-        return jodaTimeZone;
+    Locale clientLocale = null;
+    if (req != null) {
+      String tzStr = req.getParameter("tz"); // don't urldecode this as it
+                                             // always gets decoded properly..
+      if (tzStr != null && !tzStr.isEmpty()) {
+        DateTimeZone jodaTimeZone = null;
+        try {
+          jodaTimeZone = DateTimeZone.forID(tzStr);
+          if (jodaTimeZone != null) {
+            return jodaTimeZone;
+          }
+        } catch (IllegalArgumentException e) {
+          log.severe("Could not parse timezone: " + tzStr);
+        }
       }
+      clientLocale = req.getLocale();
     }
-
-    Locale clientLocale = req.getLocale();
+    if (clientLocale == null) {
+      clientLocale = Locale.getDefault();
+    }
     Calendar calendar = Calendar.getInstance(clientLocale);
     TimeZone clientTimeZone = calendar.getTimeZone();
     DateTimeZone jodaTimeZone = DateTimeZone.forTimeZone(clientTimeZone);
     return jodaTimeZone;
 
   }
+  
+  public static DateTime parseDate(DateTimeFormatter df, String when) throws ParseException {
+    return df.parseDateTime(when);
+  }
 
+  public static Date adjustTimeToTimezoneIfNecesssary(String tz, Date dateObj) {
+    if (dateObj == null) {
+      return null;
+    }
+    DateTimeZone timezone = null;
+    if (tz != null) {
+      timezone = DateTimeZone.forID(tz);
+    }
+    if (timezone != null && dateObj.getTimezoneOffset() != timezone.getOffset(dateObj.getTime())) {
+      dateObj = new DateTime(dateObj).withZone(timezone).toDate();
+    }
+    return dateObj;
+  }
+  
+  public static int getFractionalSeconds(Timestamp tStamp) {
+    int fracSeconds = 0;
+    if (tStamp.getNanos() >= 1000000) {
+      fracSeconds = tStamp.getNanos() / 1000000;
+    }
+    return fracSeconds;
+  }
 }

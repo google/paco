@@ -1,0 +1,249 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- ~ Copyright 2011 Google Inc. All Rights Reserved. ~ ~ Licensed under 
+  the Apache License, Version 2.0 (the "License"); ~ you may not use this file 
+  except in compliance with the License. ~ You may obtain a copy of the License 
+  at ~ ~ http://www.apache.org/licenses/LICENSE-2.0 ~ ~ Unless required by 
+  applicable law or agreed to in writing, ~ software distributed under the 
+  License is distributed on an ~ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS 
+  OF ANY ~ KIND, either express or implied. See the License for the ~ specific 
+  language governing permissions and limitations ~ under the License. -->
+<!DOCTYPE web-app
+    PUBLIC "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN"
+    "http://java.sun.com/dtd/web-app_2_3.dtd">
+
+<web-app>
+
+  <!-- Default page to serve -->
+  <welcome-file-list>
+    <welcome-file>index.html</welcome-file>
+  </welcome-file-list>
+
+  <!-- Filters -->
+  <filter>
+    <filter-name>Authenticated Servlet Filter</filter-name>
+    <filter-class>com.google.sampling.experiential.server.AuthenticatedServletFilter</filter-class>
+  </filter>
+  
+  <!-- Servlets -->
+  <!--  model & report endpoints -->
+  <servlet>
+    <servlet-name>eventServlet</servlet-name>
+    <servlet-class>com.google.sampling.experiential.server.EventServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>eventServlet</servlet-name>
+    <url-pattern>/events</url-pattern>
+  </servlet-mapping>
+ 
+  <servlet>
+    <servlet-name>ServerSearchServlet</servlet-name>
+    <servlet-class>com.google.sampling.experiential.server.CloudSqlSearchServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>ServerSearchServlet</servlet-name>
+    <url-pattern>/csSearch</url-pattern>
+  </servlet-mapping>
+  
+  <servlet>
+    <servlet-name>usageServlet</servlet-name>
+    <servlet-class>com.google.sampling.experiential.server.UsageServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>usageServlet</servlet-name>
+    <url-pattern>/usage</url-pattern>
+  </servlet-mapping>
+
+    <servlet>
+    <servlet-name>participantJoinStatsServlet</servlet-name>
+    <servlet-class>com.google.sampling.experiential.server.ParticipantJoinStatServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>participantJoinStatsServlet</servlet-name>
+    <url-pattern>/participantJoinStats</url-pattern>
+  </servlet-mapping>
+  
+  <!--  
+ <servlet>
+        <servlet-name>bshservlet</servlet-name>
+        <servlet-class>bsh.servlet.BshServlet</servlet-class>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>bshservlet</servlet-name>
+        <url-pattern>/eval</url-pattern>
+    </servlet-mapping>
+  -->
+  
+  <servlet>
+    <servlet-name>experimentServlet</servlet-name>
+    <servlet-class>com.google.sampling.experiential.server.ExperimentServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>experimentServlet</servlet-name>
+    <url-pattern>/experiments</url-pattern>
+  </servlet-mapping>
+
+  <servlet>
+    <servlet-name>pubExperimentServlet</servlet-name>
+    <servlet-class>com.google.sampling.experiential.server.PubExperimentServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>pubExperimentServlet</servlet-name>
+    <url-pattern>/pubexperiments</url-pattern>
+  </servlet-mapping>
+  
+  
+  <servlet>
+    <servlet-name>authServlet</servlet-name>
+    <servlet-class>com.google.sampling.experiential.server.AuthServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>authServlet</servlet-name>
+    <url-pattern>/userinfo</url-pattern>
+  </servlet-mapping>
+
+  <servlet>
+    <servlet-name>participationStatsServlet</servlet-name>
+    <servlet-class>com.google.sampling.experiential.server.ParticipantStatServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>participationStatsServlet</servlet-name>
+    <url-pattern>/participantStats</url-pattern>
+  </servlet-mapping>
+  
+  <servlet>
+    <servlet-name>jobStatusServlet</servlet-name>
+    <servlet-class>com.google.sampling.experiential.server.JobStatusServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>jobStatusServlet</servlet-name>
+    <url-pattern>/jobStatus</url-pattern>
+  </servlet-mapping>
+  
+  <filter-mapping>
+    <filter-name>Authenticated Servlet Filter</filter-name>
+    <servlet-name>SimonServlet</servlet-name>
+  </filter-mapping>
+  <servlet>
+    <servlet-name>SimonServlet</servlet-name>
+    <servlet-class>com.google.sampling.experiential.server.SimonServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>SimonServlet</servlet-name>
+    <url-pattern>/simon</url-pattern>
+  </servlet-mapping>
+  
+  <!--  administrative and debugging endpoints -->
+  
+  <!-- only needed for local dev instance. In other environments, cloudsqlinsert in map reduce  will be used-->
+   <!-- 
+   <servlet>
+    <servlet-name>ServerInsertServlet</servlet-name>
+    <servlet-class>com.google.sampling.experiential.server.CloudSqlInsertServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>ServerInsertServlet</servlet-name>
+    <url-pattern>/csInsert</url-pattern>
+  </servlet-mapping>
+   -->
+  <!-- 
+   <servlet>
+    <servlet-name>EventCounterServlet</servlet-name>
+    <servlet-class>com.google.sampling.experiential.server.migration.mr.eventctr.EventCounterMRServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>EventCounterServlet</servlet-name>
+    <url-pattern>/eventCounter</url-pattern>
+  </servlet-mapping>
+<servlet>
+    <servlet-name>MayJuneEventCounterServlet</servlet-name>
+    <servlet-class>com.google.sampling.experiential.server.migration.mr.dayctr.MayJuneEventCounterMRServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>MayJuneEventCounterServlet</servlet-name>
+    <url-pattern>/mayJuneEventCounter</url-pattern>
+  </servlet-mapping>
+  -->
+  
+  <servlet>
+    <display-name>Remote API Servlet</display-name>
+    <servlet-name>RemoteApiServlet</servlet-name>
+    <servlet-class>com.google.apphosting.utils.remoteapi.RemoteApiServlet</servlet-class>
+    <load-on-startup>1</load-on-startup>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>RemoteApiServlet</servlet-name>
+    <url-pattern>/remote_api</url-pattern>
+  </servlet-mapping>
+  
+  <!--
+    <servlet>
+    <servlet-name>PipelineServlet</servlet-name>
+    <servlet-class>
+      com.google.appengine.tools.pipeline.impl.servlets.PipelineServlet
+    </servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>PipelineServlet</servlet-name>
+    <url-pattern>/_ah/pipeline/*</url-pattern>
+  </servlet-mapping>
+ 
+   <servlet>
+    <servlet-name>mapreduce</servlet-name>
+    <servlet-class>
+      com.google.appengine.tools.mapreduce.MapReduceServlet
+    </servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>mapreduce</servlet-name>
+    <url-pattern>/mapreduce/*</url-pattern>
+  </servlet-mapping>
+  
+  -->
+  <!-- security constraints -->
+  <!-- ensure https, authenticate as necessary using Userservice or OAuthService in get/post 
+    methods -->
+    
+  <security-constraint>
+    <web-resource-collection>       
+         <url-pattern>/*</url-pattern>
+      <url-pattern>/index.html</url-pattern>
+      <url-pattern>/events*</url-pattern>
+      <url-pattern>/experiments*</url-pattern>
+      <url-pattern>/participantStats*</url-pattern>
+      <url-pattern>/jobStatus*</url-pattern>
+      <url-pattern>/simon*</url-pattern>      
+      <url-pattern>/usage*</url-pattern>
+      <url-pattern>/csSearch</url-pattern> 
+    </web-resource-collection>
+    <user-data-constraint>
+      <transport-guarantee>CONFIDENTIAL</transport-guarantee>
+    </user-data-constraint>
+  </security-constraint>
+
+
+  <!-- gwt-only client endpoints use UserService with https -->
+  <!-- admin only endpoints use UserService, https, and admin role -->
+  <security-constraint>
+    <web-resource-collection>
+      <!--  TODO : can we remove these bottom commented lines-->
+      <!-- <url-pattern>/migrate*</url-pattern>-->
+      <!--  <url-pattern>/pacoserver/migrate*</url-pattern>-->
+      <url-pattern>/remote_api*</url-pattern>
+      <url-pattern>/eval*</url-pattern>
+      <url-pattern>/participantJoinStats*</url-pattern>
+      <!--  <url-pattern>/csInsert</url-pattern> --> 
+      <!--  <url-pattern>/eventCounter</url-pattern> --> 
+      <!--  <url-pattern>/mayJuneEventCounter</url-pattern>  --> 
+    </web-resource-collection>
+    <auth-constraint>
+      <role-name>admin</role-name>
+    </auth-constraint>
+    <user-data-constraint>
+      <transport-guarantee>CONFIDENTIAL</transport-guarantee>
+    </user-data-constraint>
+  </security-constraint>
+
+  
+ 
+</web-app>

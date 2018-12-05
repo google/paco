@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+    <item
+        android:id="@+id/editSchedule"
+        android:title="@string/edit_schedule_menu_item" />
+    <item
+        android:id="@+id/emailResearcher"
+        android:title="Email Researcher" />
+    <item
+        android:id="@+id/stopExperiment"
+        android:title="@string/stop_experiment_menu_item" />
+
+</menu>

@@ -103,5 +103,16 @@
     </subant>
   </target>
 
-    <target name="-setup" depends="build-shared,android_rules.-setup,-check-env"></target>
+ <target name="copyjars"
+      description="Copies the App Engine JARs to the WAR.">
+    <copy
+        todir="libs"
+        flatten="true">
+      <fileset dir="../Shared/lib">
+        <include name="**/*.jar" />
+      </fileset>
+    </copy>
+  </target>
+
+    <target name="-setup" depends="build-shared,copyjars,android_rules.-setup,-check-env"></target>
 </project>

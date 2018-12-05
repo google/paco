@@ -1,0 +1,170 @@
+/* Copyright 2014 Google Inc. All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+//Main Screen
+"Find My Experiments" = "Find My Experiments";
+"Explore Your Data" = "Explore Your Data";
+"Create an experiment" = "Create an Experiment";
+"User Guide" = "User Guide";
+"Contact us" = "Contact Us";
+"User Guide" = "User Guide";
+"How to Create an Experiment" = "How to Create an Experiment";
+"How to Message" = "Since creating experiments involves a fair amount of text entry, a phone is not so well-suited to creating experiments.\n\nPlease point your browser to\nhttp://pacoapp.com/ to create an experiment.";
+"Welcome back %@!" = "Welcome back %@!";
+"Welcome to Paco %@!" = "Welcome to PACO %@!";
+"Something went wrong, please try again." = "Something went wrong, please try again.";
+"Configure Server Address" = "Configure Server Address";
+"WARNING: Only change this if you know what you are doing" = "WARNING: Only change this if you know what you are doing";
+"Enter Server Address" = "Enter Server Address";
+"Failed to change server address" = "Failed to change server address";
+"You have input an invalid address!" = "You have input an invalid address!";
+"Server address is configured to %@" = "Server address is configured to %@";
+//Get Info screen
+"Version" = "Version";
+"Close" = "Close";
+"About Paco" = "About Paco";
+"Send Logs to Paco Team" = "Send Logs to Paco Team";
+"Paco Logs" = "Paco Logs";
+"Open Source Libraries" = "Open Source Libraries";
+//Ways to talk to Paco
+"Ways to talk to Paco" = "Ways to talk to Paco";
+"Email user group" = "Email user group";
+"Browse user group" = "Browse user group";
+"Browse Website" = "Browse Website";
+"Note" = "Note";
+"Safari Launch Message" = "You are about to leave Paco and visit Safari.";
+"Cancel" = "Cancel";
+"Mail Status" = "Mail Status";
+"Email Cancelled" = "Email sending cancelled";
+"Email Saved" = "Email successfully saved in drafts folder";
+"Email Sent" = "Email successfully sent";
+"Email Failed" = "Something went wrong, please try again later.";
+"Email not configured" = "Email not configured";
+"Configure email message" = "Please configure your email account to send messages";
+"Paco Feedback" = "Paco Feedback";
+
+//Login
+"Oops" = "Oops";
+"Login invalid message" = "Please input valid email and password.";
+"Login message" = "Log in with a Google account\n\n  Run Your Paco Experiment Today!";
+"<password>" = "<password>";
+"2-factor Authentication message" = "Have a problem logging in?\nYour account probably uses 2-factor authentication.";
+"Check how to generate your app password" = "Check how to generate your app password";
+"2-factor title" = "2-factor Authentication Instruction";
+"2-factor Instruction" = "Click \"Go to Safari\" button to go to https://www.google.com/settings/security, log in, enter your OTP code, click on \"Settings\" next to \"App passwords\", sign in, enter \"paco\" as the app name and click \"Generate password\". Select and copy your password, come back to Paco app and enter your email and paste the newly-generated password to log in.";
+"Go to Safari" = "Go to Safari";
+
+//Find My Experiment View
+"My Experiments" = "My Experiments";
+"Finding Experiments" = "Finding Experiments";
+"Sorry" = "Sorry";
+"Something went wrong, please try again later." = "Something went wrong, please try again later.";
+"Refresh" = "Refresh";
+"The notification should send an error!" = "The notification should send an error!";
+"Paco CreateExperiments Message" = "There aren't any experiments published to you or created by you. You can go to the Paco website to create an experiment now.";
+
+//Running Experiments View
+"Running Experiments" = "Running Experiments";
+"Loading Running Experiments ..." = "Loading Running Experiments ...";
+"Participate" = "Participate";
+"Stop Experiment" = "Stop Experiment";
+"Success" = "Success";
+"The experiment was stopped." = "The experiment was stopped.";
+"Are you sure?" = "Are you sure?";
+"All your data will be deleted permanently with this experiment." = "All your data will be deleted permanently with this experiment.";
+"Absolutely Sure!" = "Absolutely Sure!";
+"Go to Find My Experiments" = "Go to Find My Experiments \nto select an experiment to join";
+"You haven't joined any experiment yet." = "You haven't joined any experiment yet.";
+"Time to participate!" = "Time to participate!";
+
+//Delegate
+"No need to fill out any survey at this moment for this experiment." = "No need to fill out any survey at this moment for this experiment.";
+
+//Consent VC
+"Consent Text" = "By joining this experiment, you may be sharing data with the creator and administrators of this experiment. Read the data handling policy they have provided below to decide on whether you want to participate in this experiment.";
+"Data Handling & Privacy Agreement between You and the Experiment Creator" = "Data Handling & Privacy Agreement between You and the Experiment Creator";
+"I Consent" = "I Consent";
+"Congratulations!" = "Congratulations!";
+"You've successfully joined this experiment!" = "You've successfully joined this experiment!";
+
+//Experiment Deatils screen
+"Description:" = "Description:";
+"Start Date:" = "Start Date:";
+"End Date:" = "End Date:";
+"Creator:" = "Creator:";
+"Join this Experiment" = "Join this Experiment";
+"Joined Experiment Alert" = "You have joined this experiment,\nCheck it out in Running Experiments.";
+"Incompatible with iOS" = "Incompatible with iOS";
+"Experiment Incompatibility alertview message" = "This experiment is not compatible with iOS, thus won't work as expected on your iOS device.";
+"Join anyway" = "Join anyway";
+"Skip joining" = "Skip joining";
+
+//Scheduling
+"Scheduling" = "Scheduling";
+"By Week" = "By Week";
+"By Month" = "By Month";
+"Day of Month" = "Day of Month = %d";
+"S" = "S";
+"M" = "M";
+"T" = "T";
+"W" = "W";
+"F" = "F";
+"Frequency" = "Frequency %d";
+"Include Weekends" = "Include Weekends";
+"Day" = "Day:";
+"Week" = "Week";
+"Month" = "Month";
+"Repeat every %d day(s)" = "Repeat every %d day(s)";
+"Repeat every %d weeks." = "Repeat every %d weeks.";
+"Repeat every %d month(s)." = "Repeat every %d month(s).";
+"Join" = "Join";
+"Start Time" = "Start Time";
+"End Time" = "End Time";
+"Self scheduled." = "Self scheduled.";
+"Submit responses whenever you wish." = "Submit responses whenever you wish.";
+"Signal Time(s)" = "Signal Time(s)";
+"Enter a time" = "Enter a time";
+"Edit" = "Edit";
+"Done" = "Done";
+"Set Time" = "Set a Time";
+"Set %@" = "Set %@";
+
+//Question screen
+"Participate!" = "Participate!";
+"Submit" = "Submit";
+"It is recommended that you fill this study out on your computer instead." = "It is recommended that you fill this study out on your computer instead.";
+"I will respond on the web" = "I will respond on the web";
+"Required Answer Missing:" = "Required Answer Missing:";
+"Nice" = "Nice";
+"Your survey was successfully submitted!" = "Your survey was successfully submitted!";
+"Hi" = "Hi";
+"Tap to Take Photo" = "Tap to Take Photo";
+"Tap to Choose Photo" = "Tap to Choose Photo";
+"photoSegmentControl receive a wrong selected status!" = "photoSegmentControl receive a wrong selected status!";
+"question" = "question";
+"<type response here>" = "<type response here>";
+"question_list" = "question_list";
+"question_list_radio" = "question_list_radio";
+"question_number" = "question_number";
+"Attaching your location ..." = "Attaching your location ...";
+"Attach a photo." = "Attach a photo.";
+"Camera" = "Camera";
+"Library" = "Library";
+"Loading" = "Loading ...";
+"Value" = "Value";
+"This is the location that will be recorded for your response." = "This is the location that will be recorded for your response.";
+//opensource libraries screen
+"OpenSource Library View Header title" = "Thanks for the work of the following open source projects, which have been very useful to make Paco a better quantified system!";
+

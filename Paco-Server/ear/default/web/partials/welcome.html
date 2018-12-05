@@ -1,0 +1,84 @@
+<div ng-if="user" ng-include="'partials/list.html'"></div>
+
+<div class="centered welcome" ng-if="!user">
+
+  <div class="top">
+    <img src="img/iphone.png" class="iphone">
+
+    <h1>PACO</h1> is a tool for building Personal Science Experiments IN MINUTES!
+    <h2>Start an Experiment!</h2>
+
+    <a href="{{loginURL}}" class="signin">
+      <md-button class="md-raised" id="login">
+        Sign In
+      </md-button>
+    </a>
+    to start or join an experiment.
+
+    <div class="apps">
+      <h2>Participate in Paco studies on your phone</h2>
+      <a href="https://itunes.apple.com/us/app/paco/id787552234?mt=8" target="_blank">
+        <img src="img/appstore.png">
+      </a>
+      <a href="https://play.google.com/store/apps/details?id=com.pacoapp.paco" target="_blank">
+        <img src="img/playstore.png">
+      </a>
+    </div>
+
+    Download PACO free on the AppStore or Google Play. If you already have the app,
+    <a href="{{loginURL}}">sign in here.</a>
+  </div>
+
+  <div class="what text">
+    <h1>What is PACO and what can it do?</h1>
+    <p>
+      Paco started as a way to scratch an itch. I wanted to understand how I was spending
+      my time and how I could use it better. I wanted a personal assistant that I
+      could tell what to manage and it would give me gentle nudges when I was straying
+      from my plan.
+    </p>
+    <p> It is named after our dog, Paco, who was a great personal assistant. He instinctively
+      knew how I felt. When I was happy, he would bring the ball to play. When I
+      was sad or tired he would nuzzle up to comfort me.
+    </p>
+    <p> This sophisticated vision is still aspirational, not yet fully realized. Along
+      the way, we have created a system that allows individuals and researchers to
+      observe and experiment with behavior. Paco provides a platform with building
+      blocks for behavioral theories. With it, you can sample the world, reason about
+      it, and even develop interventions aimed at changing behavior. This is no small
+      undertaking, and may never be fully accomplished, but by making it open source,
+      working with researchers, and creating a place where participants and researchers
+      can find each other, we hope we will make better progress and move our understanding
+      of our behavior forward and maybe get to live better, healthier lives.
+    </p>
+  </div>
+
+  <div class="text">
+    <h1>Get Involved!</h1>
+    <p>
+      Paco is open source because behavior is so complicated and there is so much yet to
+      learn. It is more than anyone or any one team could ever hope to completely
+      cover. We want to learn from each other while reducing the grunt work that
+      each project requires prior to launching an experiment.
+    </p>
+    <p>
+      Paco is a platform for behavioral science to speed the implementation, testing and
+      sharing of theories, frameworks, idioms, and tricks for understanding and changing
+      behavior. Ultimately, we want to build in the language of behavior not Android,
+      iOS, or Javascript. The problems are about humans not computers, web frameworks,
+      data storage, security, signaling mechanisms, sensors, or a million other technical
+      issues. So, let's share the grunt work and get to the good stuff.
+    </p>
+    <p>
+      We've made a good start but it's a tiny fraction of what we think will be needed.
+      If you want to contribute to Paco, whether to fix a bug that is driving you
+      crazy, add features to suit your research needs, or discuss the methodology
+      and research, get involved with our
+      <a href="http://www.github.com/google/paco" target="_blank">developer site</a>
+      and <a href="https://groups.google.com/forum/#!forum/paco-users" target="_blank">
+      our mailing list</a>. We welcome contributions and enjoy working with other
+      engineers and researchers excited about understanding behavior.
+    </p>
+  </div>
+
+</div>

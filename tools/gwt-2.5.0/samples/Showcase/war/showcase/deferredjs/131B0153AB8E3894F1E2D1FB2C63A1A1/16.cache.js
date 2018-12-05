@@ -1,2 +1,0 @@
-function V5b(){var a,b,c,d,e;b=new Dzc(4,4);d=b.g;c=b.f;for(e=0;e<d;++e){for(a=0;a<c;++a){Xyc(b,e,a,new Ync((oNb(),dNb)))}}Pyc(b,'cwGrid');return b}
-AIb(833,1,T2c);_.lc=function _5b(){iLb(this.a,V5b())};G3c(wn)(16);

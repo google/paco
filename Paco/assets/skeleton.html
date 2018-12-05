@@ -5,7 +5,7 @@
     <script language="javascript" type="text/javascript" src="file:///android_asset/jquery.js"></script>
     <script language="javascript" type="text/javascript" src="file:///android_asset/jquery.flot.js"></script>
     <script language="javascript" type="text/javascript" src="file:///android_asset/jquery.flot.stack.js"></script>
-    <script language="javascript" type="text/javascript" src="file:///android_asset/peg-0.7.0.min.js"></script>
+    <script language="javascript" type="text/javascript" src="file:///android_asset/peg-0.8.0.min.js"></script>
     <script language="javascript" type="text/javascript" src="file:///android_asset/conditional_parser.js"></script>
     <script language="javascript" type="text/javascript" src="file:///android_asset/custom_base.js"></script>
     
@@ -18,7 +18,7 @@
  	  
  	  function getData() {
         var jsondata = window.env.getValue("lastResponse");
-        var experimentData = $.parseJSON(jsondata);
+        var experimentData = $.parseJSON(jsondata); 
         if (!experimentData) {
           // hack for samsung tmobile phones
           experimentData = eval('(' + jsondata + ')');
@@ -45,6 +45,7 @@
           } catch(err) {
             var additionsDivID = document.getElementById("additionsdiv");
             var newSpan = document.createElement('span');
+            // TODO i18n
             newSpan.innerHTML = '<br><br>No data was found.';
             additionsDivID.appendChild(newSpan);  
             return;
@@ -52,6 +53,7 @@
           for (var i=0;i < responses.length;i++) {
             var response = responses[i];
             if (response.answer == null || response.answer.length == 0) {
+            // TODO i18n
               response.answer = "No Answer";
             }
             
@@ -64,12 +66,14 @@
               responsesHtml += "<img src='data:image/jpg;base64," + response["answer"]  +"' width=150>";
             } else {
               responsesHtml += response["answer"];
-              responsesHtml += "&nbsp;&nbsp;&nbsp;<a href='file:///android_asset/time.html?inputId=" + response["inputId"] + "'>Chart</a>";
+              // TODO i18n
+              responsesHtml += "&nbsp;&nbsp;&nbsp;<a href='file:///android_asset/time.html?inputId=" + response["name"] + "'>Chart</a>";
             }      
             responsesHtml += "</div><br/></div>";
           } 
           if (responsesHtml == "") {
-            responsesHtml = "No responses found!";
+          // TODO i18n
+            responsesHtml = "No data was found!";
           }
         }
  	    $("#responses").html(responsesHtml);
@@ -98,11 +102,12 @@
       var additionsDivID = document.getElementById("additionsdiv");         
       var newScript = document.createElement('script');
       newScript.type = 'text/javascript';
-      newScript.innerHTML = scriptBody(window.additions.substring(0));
+
+      newScript.innerHTML = scriptBody(window.env.getValue("additions"));
       additionsDivID.appendChild(newScript);
         
       var newSpan = document.createElement('span');
-      newSpan.innerHTML = htmlBody(window.additions);
+      newSpan.innerHTML = htmlBody(window.env.getValue("additions"));
       additionsDivID.appendChild(newSpan);
 
       

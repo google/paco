@@ -1,0 +1,27 @@
+{
+  "name": "app",
+  "version": "2.1.1",
+  "homepage": "https://github.com/google/paco",
+  "authors": [
+    "Ian Spiro <ispiro@google.com>"
+  ],
+  "license": "MIT",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "angular-animate": "^1.4.0",
+    "angular-aria": "^1.4.0",
+    "angular-material": "master",
+    "angular-ui-ace": "bower",
+    "angular-route": "master"
+  },
+  "resolutions": {
+    "angular": "1.4.5"
+  }
+}

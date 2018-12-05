@@ -1,5 +1,6 @@
 /*
  * Copyright 2011 Google Inc. All Rights Reserved.
+ * Copyright 2011 Google Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance  with the License.
@@ -29,7 +30,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnMultiChoiceClickListener;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -49,13 +49,23 @@ import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
+import com.google.common.base.Strings;
 import com.pacoapp.paco.R;
+import com.pacoapp.paco.model.Experiment;
+import com.pacoapp.paco.model.ExperimentProviderUtil;
+import com.pacoapp.paco.shared.model2.ExperimentGroup;
+import com.pacoapp.paco.shared.model2.Schedule;
+import com.pacoapp.paco.shared.model2.ScheduleTrigger;
+import com.pacoapp.paco.shared.model2.SignalTime;
+import com.pacoapp.paco.ui.ExperimentLoadingActivity;
+import com.pacoapp.paco.ui.ScheduleDetailFragment;
+import com.pacoapp.paco.ui.Validation;
+import com.pacoapp.paco.utils.IntentExtraHelper;
 
-public class ExperimentScheduleActivity extends Activity {
+public class ExperimentScheduleActivity extends Activity implements ExperimentLoadingActivity {
 
   private static final String TIME_FORMAT_STRING = "hh:mm aa";
 
-  private Uri uri;
   private Experiment experiment;
   private ExperimentProviderUtil experimentProviderUtil;
   private TimePicker timePicker;
@@ -81,60 +91,82 @@ public class ExperimentScheduleActivity extends Activity {
 
   private LinearLayout timesScheduleLayout;
 
+  private Schedule schedule;
+
+  private boolean userEditable = true;
+
+  private ExperimentGroup experimentGroup;
+
+  private ScheduleTrigger scheduleTrigger;
+
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
 
     final Intent intent = getIntent();
-    uri = intent.getData();
-    if (uri != null) {
-//      showingJoinedExperiments = uri.getPathSegments().get(0)
-//          .equals(ExperimentColumns.JOINED_EXPERIMENTS_CONTENT_URI.getPathSegments().get(0));
 
+    experimentProviderUtil = new ExperimentProviderUtil(this);
+    IntentExtraHelper.loadExperimentInfoFromIntent(this, intent, experimentProviderUtil);
 
-      // branch out into a different view to include based on the type of schedule
-      // in the experiment.
-      experimentProviderUtil = new ExperimentProviderUtil(this);
-      // if (showingJoinedExperiments) {
-      experiment = experimentProviderUtil.getExperiment(uri);
-      // } else {
-      // experiment = experimentProviderUtil.getExperimentFromDisk(uri);
-      // }
-
-      setUpSchedulingLayout();
-    }
-  }
-
-  private void setUpSchedulingLayout() {
     if (experiment == null) {
       Toast.makeText(this, R.string.cannot_find_the_experiment_warning, Toast.LENGTH_SHORT).show();
       finish();
     } else {
-      // setup ui pieces for times lists and esm start/end timepickers
-      inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
-      timesScheduleLayout = (LinearLayout) inflater.inflate(R.layout.times_schedule, null);
-      timePicker = (TimePicker) timesScheduleLayout.findViewById(R.id.DailyScheduleTimePicker);
-      timePicker.setIs24HourView(false);
-      // end setup ui pieces
-      if (experiment.getSchedule() != null) {
-        createSelections();
+      loadScheduleFromIntent();
+      if (schedule == null) {
+        Toast.makeText(this, R.string.cannot_find_the_experiment_warning, Toast.LENGTH_SHORT).show();
+        finish();
+      } else {
+        userEditable = getUserEditableFromIntent();
+        setUpSchedulingLayout();
       }
-
-      if (experiment.getSchedule() == null
-          || experiment.getSchedule().getScheduleType().equals(SignalSchedule.SELF_REPORT)) {
-        setContentView(R.layout.self_report_schedule);
-      } else if (experiment.getSchedule().getScheduleType().equals(SignalSchedule.WEEKDAY)
-          || experiment.getSchedule().getScheduleType().equals(SignalSchedule.DAILY)) {
-        showDailyScheduleConfiguration();
-      } else if (experiment.getSchedule().getScheduleType().equals(SignalSchedule.WEEKLY)) {
-        showWeeklyScheduleConfiguration();
-      } else if (experiment.getSchedule().getScheduleType().equals(SignalSchedule.MONTHLY)) {
-        showMonthlyScheduleConfiguration();
-      } else if (experiment.getSchedule().getScheduleType().equals(SignalSchedule.ESM)) {
-        showEsmScheduleConfiguration();
-      }
-      setupScheduleSaving();
     }
+
+  }
+
+  private boolean getUserEditableFromIntent() {
+    if (getIntent().getExtras() != null) {
+      return getIntent().getBooleanExtra(ScheduleDetailFragment.USER_EDITABLE_SCHEDULE, true);
+    }
+    return false;
+  }
+
+  private void loadScheduleFromIntent() {
+    if (getIntent().getExtras() != null) {
+      long scheduleTriggerId = getIntent().getExtras().getLong(ScheduleDetailFragment.SCHEDULE_TRIGGER_ID);
+      Long scheduleId = getIntent().getExtras().getLong(ScheduleDetailFragment.SCHEDULE_ID);
+      scheduleTrigger = (ScheduleTrigger)experimentGroup.getActionTriggerById(scheduleTriggerId);
+      schedule = scheduleTrigger.getSchedulesById(scheduleId);
+    }
+  }
+
+  private void setUpSchedulingLayout() {
+    // setup ui pieces for times lists and esm start/end timepickers
+    inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
+    timesScheduleLayout = (LinearLayout) inflater.inflate(R.layout.times_schedule, null);
+    timePicker = (TimePicker) timesScheduleLayout.findViewById(R.id.DailyScheduleTimePicker);
+    timePicker.setIs24HourView(false);
+    // end setup ui pieces
+
+    if (schedule == null) {
+      setContentView(R.layout.self_report_schedule);
+      save();
+      return;
+    }
+
+    createSelections();
+
+    if (schedule.getScheduleType().equals(Schedule.WEEKDAY)
+               || schedule.getScheduleType().equals(Schedule.DAILY)) {
+      showDailyScheduleConfiguration();
+    } else if (schedule.getScheduleType().equals(Schedule.WEEKLY)) {
+      showWeeklyScheduleConfiguration();
+    } else if (schedule.getScheduleType().equals(Schedule.MONTHLY)) {
+      showMonthlyScheduleConfiguration();
+    } else if (schedule.getScheduleType().equals(Schedule.ESM)) {
+      showEsmScheduleConfiguration();
+    }
+    setupScheduleSaving();
   }
 
   // Visible for testing
@@ -147,34 +179,27 @@ public class ExperimentScheduleActivity extends Activity {
   }
 
   private void setupScheduleSaving() {
-    setupSaveButton();
-    if (userCannotConfirmSchedule()) {
+    if (userEditable) {
       save();
+    } else {
+      setupSaveButton();
     }
-  }
-
-  private Boolean userCannotConfirmSchedule() {
-    if (experiment.getSchedule() != null) {
-      return experiment.getSchedule().getUserEditable() != null
-          && experiment.getSchedule().getUserEditable() == Boolean.FALSE;
-    }
-    return false;
   }
 
   private void showEsmScheduleConfiguration() {
     setContentView(R.layout.esm_schedule);
     TextView title = (TextView) findViewById(R.id.experimentNameSchedule);
-    title.setText(experiment.getTitle());
+    title.setText(experiment.getExperimentDAO().getTitle());
 
     startHourField = (Button) findViewById(R.id.startHourTimePickerLabel);
     startHourField.setText(new DateMidnight().toDateTime()
-                           .withMillisOfDay(experiment.getSchedule().getEsmStartHour().intValue())
-                           .toString(TIME_FORMAT_STRING));
+                                             .withMillisOfDay(schedule.getEsmStartHour().intValue())
+                                             .toString(TIME_FORMAT_STRING));
 
     endHourField = (Button) findViewById(R.id.endHourTimePickerLabel);
     endHourField.setText(new DateMidnight().toDateTime()
-                         .withMillisOfDay(experiment.getSchedule().getEsmEndHour().intValue())
-                         .toString(TIME_FORMAT_STRING));
+                                           .withMillisOfDay(schedule.getEsmEndHour().intValue())
+                                           .toString(TIME_FORMAT_STRING));
 
     // TODO (bobevans): get rid of this duplication
 
@@ -186,7 +211,7 @@ public class ExperimentScheduleActivity extends Activity {
         dialogBuilder.setView(timesScheduleLayout);
         final AlertDialog dialog = dialogBuilder.setTitle(R.string.start_time_title).create();
 
-        Long offset = experiment.getSchedule().getEsmStartHour();
+        Long offset = schedule.getEsmStartHour();
         DateTime startHour = new DateMidnight().toDateTime().withMillisOfDay(offset.intValue());
         timePicker.setCurrentHour(startHour.getHourOfDay());
         timePicker.setCurrentMinute(startHour.getMinuteOfHour());
@@ -194,13 +219,13 @@ public class ExperimentScheduleActivity extends Activity {
         dialog.setButton(Dialog.BUTTON_POSITIVE, getString(R.string.save_button),
                          new DialogInterface.OnClickListener() {
 
-          public void onClick(DialogInterface dialog, int which) {
-            experiment.getSchedule().setEsmStartHour(getHourOffsetFromPicker());
-            startHourField.setText(getTextFromPicker(experiment.getSchedule().getEsmStartHour()
-                                                     .intValue()));
-          }
+                           public void onClick(DialogInterface dialog, int which) {
+                             schedule.setEsmStartHour(getHourOffsetFromPicker());
+                             startHourField.setText(getTextFromPicker(schedule.getEsmStartHour()
+                                                                                .intValue()));
+                           }
 
-        });
+                         });
         dialog.show();
       }
     });
@@ -215,7 +240,7 @@ public class ExperimentScheduleActivity extends Activity {
         endHourDialogBuilder.setView(timesScheduleLayout);
         final AlertDialog endHourDialog = endHourDialogBuilder.setTitle(R.string.end_time_title).create();
 
-        Long offset = experiment.getSchedule().getEsmEndHour();
+        Long offset = schedule.getEsmEndHour();
         DateTime endHour = new DateMidnight().toDateTime().withMillisOfDay(offset.intValue());
         timePicker.setCurrentHour(endHour.getHourOfDay());
         timePicker.setCurrentMinute(endHour.getMinuteOfHour());
@@ -223,13 +248,13 @@ public class ExperimentScheduleActivity extends Activity {
         endHourDialog.setButton(Dialog.BUTTON_POSITIVE, getString(R.string.save_button),
                                 new DialogInterface.OnClickListener() {
 
-          public void onClick(DialogInterface dialog, int which) {
-            experiment.getSchedule().setEsmEndHour(getHourOffsetFromPicker());
-            endHourField.setText(getTextFromPicker(experiment.getSchedule().getEsmEndHour()
-                                                   .intValue()));
-          }
+                                  public void onClick(DialogInterface dialog, int which) {
+                                    schedule.setEsmEndHour(getHourOffsetFromPicker());
+                                    endHourField.setText(getTextFromPicker(schedule.getEsmEndHour()
+                                                                                     .intValue()));
+                                  }
 
-        });
+                                });
         endHourDialog.show();
       }
     });
@@ -244,7 +269,7 @@ public class ExperimentScheduleActivity extends Activity {
 
   private void showDailyScheduleConfiguration() {
     setContentView(R.layout.daily_schedule);
-    if (experiment.getSchedule().getScheduleType().equals(SignalSchedule.DAILY)) {
+    if (schedule.getScheduleType().equals(Schedule.DAILY)) {
       createRepeatRate(getString(R.string.days));
     } else {
       hideRepeatRate();
@@ -276,7 +301,7 @@ public class ExperimentScheduleActivity extends Activity {
 
     radioGroup = (RadioGroup) findViewById(R.id.RadioGroup01);
 
-    if (experiment.getSchedule().getByDayOfMonth()) {
+    if (schedule.getByDayOfMonth()) {
       ((RadioButton) findViewById(R.id.domRadio)).setChecked(true);
     } else {
       ((RadioButton) findViewById(R.id.dowRadio)).setChecked(true);
@@ -287,7 +312,7 @@ public class ExperimentScheduleActivity extends Activity {
       }
 
     });
-    toggleByDayOfMonth_DayOfWeekWidgets(experiment.getSchedule().getByDayOfMonth());
+    toggleByDayOfMonth_DayOfWeekWidgets(schedule.getByDayOfMonth());
     createTimesList();
   }
 
@@ -298,11 +323,11 @@ public class ExperimentScheduleActivity extends Activity {
                                                                          android.R.layout.simple_spinner_item);
     adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
     domSpinner.setAdapter(adapter);
-    domSpinner.setSelection(experiment.getSchedule().getDayOfMonth() - 1);
+    domSpinner.setSelection(schedule.getDayOfMonth() - 1);
     domSpinner.setOnItemSelectedListener(new OnItemSelectedListener() {
 
       public void onItemSelected(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
-        experiment.getSchedule().setDayOfMonth(arg2 + 1);
+        schedule.setDayOfMonth(arg2 + 1);
       }
 
       public void onNothingSelected(AdapterView<?> arg0) {
@@ -317,11 +342,11 @@ public class ExperimentScheduleActivity extends Activity {
                                                                          android.R.layout.simple_spinner_item);
     adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
     nthOfMonthSpinner.setAdapter(adapter);
-    nthOfMonthSpinner.setSelection(experiment.getSchedule().getNthOfMonth());
+    nthOfMonthSpinner.setSelection(schedule.getNthOfMonth());
     nthOfMonthSpinner.setOnItemSelectedListener(new OnItemSelectedListener() {
 
       public void onItemSelected(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
-        experiment.getSchedule().setNthOfMonth(arg2);
+        schedule.setNthOfMonth(arg2);
       }
 
       public void onNothingSelected(AdapterView<?> arg0) {
@@ -332,14 +357,14 @@ public class ExperimentScheduleActivity extends Activity {
 
   private void toggleByDayOfMonth_DayOfWeekWidgets(boolean isByDayOfMonth) {
     if (isByDayOfMonth) {
-      experiment.getSchedule().setByDayOfMonth(Boolean.TRUE);
+      schedule.setByDayOfMonth(Boolean.TRUE);
       nthOfMonthText.setVisibility(View.GONE);
       nthOfMonthSpinner.setVisibility(View.GONE);
       dayOfMonthText.setVisibility(View.VISIBLE);
       dowButton.setVisibility(View.GONE);
       domSpinner.setVisibility(View.VISIBLE);
     } else {
-      experiment.getSchedule().setByDayOfMonth(Boolean.FALSE);
+      schedule.setByDayOfMonth(Boolean.FALSE);
       nthOfMonthText.setVisibility(View.VISIBLE);
       nthOfMonthSpinner.setVisibility(View.VISIBLE);
       dayOfMonthText.setVisibility(View.GONE);
@@ -363,12 +388,12 @@ public class ExperimentScheduleActivity extends Activity {
                                                                          android.R.layout.simple_spinner_item);
     adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
     repeatRate.setAdapter(adapter);
-    repeatRate.setSelection(experiment.getSchedule().getRepeatRate() - 1);
+    repeatRate.setSelection(schedule.getRepeatRate() - 1);
 
     repeatRate.setOnItemSelectedListener(new OnItemSelectedListener() {
 
       public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-        experiment.getSchedule().setRepeatRate(position + 1);
+        schedule.setRepeatRate(position + 1);
       }
 
       public void onNothingSelected(AdapterView<?> parent) {
@@ -380,13 +405,12 @@ public class ExperimentScheduleActivity extends Activity {
     repeatPeriodLabel.setText(" " + period);
   }
 
-
   private void createTimesList() {
     TextView title = (TextView) findViewById(R.id.experimentNameSchedule);
-    title.setText(experiment.getTitle());
+    title.setText(experiment.getExperimentDAO().getTitle());
 
     timeList = (ListView) findViewById(R.id.timesList);
-    final List<Long> times = experiment.getSchedule().getTimes();
+    final List<SignalTime> times = schedule.getSignalTimes();
     setArrayAdapter(times);
 
     // timeList.setOnItemClickListener(new OnItemClickListener() {
@@ -421,9 +445,9 @@ public class ExperimentScheduleActivity extends Activity {
     // });
   }
 
-  private void setArrayAdapter(final List<Long> times) {
+  private void setArrayAdapter(final List<SignalTime> times) {
     List<String> timeStrs = new ArrayList<String>();
-    for (Long time : times) {
+    for (SignalTime time : times) {
       timeStrs.add(getStringForTime(time));
     }
 
@@ -431,8 +455,12 @@ public class ExperimentScheduleActivity extends Activity {
     timeList.setAdapter(timeAdapter);
   }
 
-  private String getStringForTime(Long time) {
-    return new DateTime().withMillisOfDay(time.intValue()).toString("hh:mm a");
+  private String getStringForTime(SignalTime time) {
+    if (time.getType() == SignalTime.FIXED_TIME) {
+      return new DateTime().withMillisOfDay(time.getFixedTimeMillisFromMidnight()).toString("hh:mm a");
+    } else {
+      return "+" + time.getOffsetTimeMillis() / 1000 / 60 + " mins";
+    }
   }
 
   class ButtonArrayAdapter extends ArrayAdapter<String> {
@@ -447,10 +475,22 @@ public class ExperimentScheduleActivity extends Activity {
         convertView = inflater.inflate(R.layout.timelist_item, null);
       }
 
+      TextView label = (TextView) convertView.findViewById(R.id.textView1);
+      String labelText = schedule.getSignalTimes().get(position).getLabel();
+      if (Strings.isNullOrEmpty(labelText)) {
+        labelText = "Time " + Integer.toString(position + 1);
+      }
+      label.setText(labelText + ": ");
       Button btn = (Button) convertView.findViewById(R.id.timePickerLabel);
       btn.setText(text);
+      if (text.startsWith("+")) {
+        btn.setEnabled(false);
+      } else {
+        btn.setEnabled(true);
+      }
       // set listener for the whole row
-      convertView.setOnClickListener(new OnItemClickListener(position));
+      // convertView.setOnClickListener(new OnItemClickListener(position));
+      btn.setOnClickListener(new OnItemClickListener(position));
       return convertView;
     }
   }
@@ -463,13 +503,13 @@ public class ExperimentScheduleActivity extends Activity {
     }
 
     public void onClick(View arg0) {
-      final List<Long> times = experiment.getSchedule().getTimes();
+      final List<SignalTime> times = schedule.getSignalTimes();
       final AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(ExperimentScheduleActivity.this);
       unsetTimesViewParent();
       dialogBuilder.setView(timesScheduleLayout);
       final AlertDialog dialog = dialogBuilder.setTitle(R.string.modify_time_title).create();
 
-      DateTime selectedDateTime = new DateTime().withMillisOfDay(times.get(position).intValue());
+      DateTime selectedDateTime = new DateTime().withMillisOfDay(times.get(position).getFixedTimeMillisFromMidnight());
       timePicker.setCurrentHour(selectedDateTime.getHourOfDay());
       timePicker.setCurrentMinute(selectedDateTime.getMinuteOfHour());
 
@@ -480,8 +520,8 @@ public class ExperimentScheduleActivity extends Activity {
           // there,
           // so that the current hour will work when the user is editing it
           // directly.
-          long offsetMillis = timePicker.getCurrentHour() * 60 * 60 * 1000 + timePicker.getCurrentMinute() * 60 * 1000;
-          times.set(position, offsetMillis);
+          int offsetMillis = timePicker.getCurrentHour() * 60 * 60 * 1000 + timePicker.getCurrentMinute() * 60 * 1000;
+          times.get(position).setFixedTimeMillisFromMidnight(offsetMillis);
           // timeAdapter.notifyDataSetChanged();
           setArrayAdapter(times);
         }
@@ -493,86 +533,37 @@ public class ExperimentScheduleActivity extends Activity {
 
   private boolean[] createSelections() {
     selections = new boolean[7];
-    int weekDaysScheduled = experiment.getSchedule().getWeekDaysScheduled();
-    for (int i = 0; i < SignalSchedule.DAYS_OF_WEEK.length; i++) {
-      selections[i] = (weekDaysScheduled & SignalSchedule.DAYS_OF_WEEK[i]) == SignalSchedule.DAYS_OF_WEEK[i];
+    int weekDaysScheduled = schedule.getWeekDaysScheduled();
+    for (int i = 0; i < Schedule.DAYS_OF_WEEK.length; i++) {
+      selections[i] = (weekDaysScheduled & Schedule.DAYS_OF_WEEK[i]) == Schedule.DAYS_OF_WEEK[i];
     }
     return selections;
   }
 
   private void setupSaveButton() {
-    Button saveScheduleButton = (Button) findViewById(R.id.SetDailyScheduleButton);
-    saveScheduleButton.setOnClickListener(new OnClickListener() {
-
-      public void onClick(View v) {
-        save();
-      }
-    });
   }
-
-  private void saveExperimentRegistration() {
-    if (experiment.getSchedule() != null
-        && experiment.getSchedule().getScheduleType().equals(SignalSchedule.ESM)) {
-      AlarmStore alarmStore = new AlarmStore(this);
-      alarmStore.deleteAllSignalsForSurvey(experiment.getId());
-      experimentProviderUtil.deleteNotificationsForExperiment(experiment.getId());
-    }
-    experimentProviderUtil.updateJoinedExperiment(experiment);
-    createJoinEvent();
-    startService(new Intent(this, SyncService.class));
-  }
-
-  /**
-   * Creates a pacot for a newly registered experiment
-   */
-  private void createJoinEvent() {
-    Event event = new Event();
-    event.setExperimentId(experiment.getId());
-    event.setServerExperimentId(experiment.getServerId());
-    event.setExperimentName(experiment.getTitle());
-    event.setExperimentVersion(experiment.getVersion());
-    event.setResponseTime(new DateTime());
-
-    Output responseForInput = new Output();
-    responseForInput.setAnswer("true");
-    responseForInput.setName("joined");
-    event.addResponse(responseForInput);
-
-    Output responseForSchedule = new Output();
-    SignalingMechanism schedule = experiment.getSignalingMechanisms().get(0);
-    responseForSchedule.setAnswer(schedule.toString());
-    responseForSchedule.setName("schedule");
-    event.addResponse(responseForSchedule);
-
-    experimentProviderUtil.insertEvent(event);
-  }
-
-
 
   private void save() {
     Validation valid = isValid();
     if (!valid.ok()) {
       Toast.makeText(this, valid.errorMessage(), Toast.LENGTH_LONG).show();
       return;
+    } else {
+      setResult(RESULT_OK, serialize(schedule));
     }
-    scheduleExperiment();
-    Toast.makeText(this, getString(R.string.successfully_joined_experiment), Toast.LENGTH_LONG).show();
   }
 
-  // Visible for testing
-  public void scheduleExperiment() {
-    saveExperimentRegistration();
-    setResult(FindExperimentsActivity.JOINED_EXPERIMENT);
-    if (uri != null) {
-      startService(new Intent(ExperimentScheduleActivity.this, BeeperService.class));
-    }
-    finish();
+  private Intent serialize(Schedule schedule2) {
+    Intent intent = new Intent();
+    intent.putExtra(Experiment.ACTION_TRIGGER_SPEC_ID, schedule2.getId());
+    //intent.putExtra(Experiment.ACTION_TRIGGER_SPEC, JsonConverter.schedule2);
+    return intent;
   }
 
   private Validation isValid() {
     Validation validation = new Validation();
-    if (experiment.getSchedule() != null && experiment.getSchedule().getScheduleType().equals(SignalSchedule.ESM)) {
-      if (experiment.getSchedule().getEsmStartHour() >= experiment.getSchedule().getEsmEndHour()) {
+    if (schedule != null && schedule.getScheduleType().equals(Schedule.ESM)) {
+      if (schedule.getEsmStartHour() >= schedule.getEsmEndHour()) {
         validation.addMessage(getString(R.string.start_hour_must_be_before_end_hour_warning));
       }
     }
@@ -581,13 +572,12 @@ public class ExperimentScheduleActivity extends Activity {
 
   private Long getHourOffsetFromPicker() {
     return new Long(new DateMidnight().toDateTime().withHourOfDay(timePicker.getCurrentHour())
-                    .withMinuteOfHour(timePicker.getCurrentMinute()).getMillisOfDay());
+                                      .withMinuteOfHour(timePicker.getCurrentMinute()).getMillisOfDay());
   }
 
   private String getTextFromPicker(int esmOffset) {
     return new DateMidnight().toDateTime().withMillisOfDay(esmOffset).toString(TIME_FORMAT_STRING);
   }
-
 
   protected Dialog onCreateDialog(int id, Bundle args) {
     return getDaysOfWeekDialog();
@@ -601,7 +591,7 @@ public class ExperimentScheduleActivity extends Activity {
   private AlertDialog getDaysOfWeekDialog() {
     AlertDialog.Builder dialogBldr = new AlertDialog.Builder(this).setTitle(R.string.days_of_week_title);
 
-    if (experiment.getSchedule().getScheduleType().equals(SignalSchedule.WEEKLY)) {
+    if (schedule.getScheduleType().equals(Schedule.WEEKLY)) {
       dialogBldr.setMultiChoiceItems(R.array.days_of_week, selections, new OnMultiChoiceClickListener() {
         public void onClick(DialogInterface dialog, int which, boolean isChecked) {
           selections[which] = isChecked;
@@ -630,11 +620,12 @@ public class ExperimentScheduleActivity extends Activity {
 
         for (int i = 0; i < 7; i++) {
           if (selections[i]) {
-            selected |= SignalSchedule.DAYS_OF_WEEK[i];
+            selected |= Schedule.DAYS_OF_WEEK[i];
           }
         }
-        experiment.getSchedule().setWeekDaysScheduled(selected);
+        schedule.setWeekDaysScheduled(selected);
       }
+
     });
     return dialogBldr.create();
 
@@ -643,6 +634,18 @@ public class ExperimentScheduleActivity extends Activity {
   // Visible for testing
   public Experiment getExperiment() {
     return experiment;
+  }
+
+  @Override
+  public void setExperiment(Experiment experimentByServerId) {
+    this.experiment = experimentByServerId;
+
+  }
+
+  @Override
+  public void setExperimentGroup(ExperimentGroup groupByName) {
+    this.experimentGroup = groupByName;
+
   }
 
 }

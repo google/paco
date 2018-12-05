@@ -1,0 +1,116 @@
+.schedule h1 {
+  font-weight: 400;
+  margin: 12px 0 0 0;
+}
+
+.schedule b {
+  font-weight: 400;
+  text-transform: uppercase;
+}
+
+.schedule a {
+  color: #3f51b5;
+  text-decoration: none;
+  text-transform: uppercase;
+}
+
+.schedule p {
+  margin: 0;
+  padding: 0;
+}
+
+.schedule .period {
+  margin-top: 30px;
+}
+
+md-dialog.schedule md-dialog-content, md-dialog.action md-dialog-content {
+  min-height: 280px;
+}
+
+.days {
+  margin-bottom: 24px;
+}
+
+.days .repeat-label {
+  display: inline;
+  line-height: 32px;
+  vertical-align: top;
+}
+
+.days md-checkbox {
+  display: inline-block;
+  position: relative;
+  width: 18px;
+}
+
+.days md-checkbox .md-label {
+  position: absolute;
+  top: 24px;
+  left: -10px;
+}
+
+.schedule .inline {
+  display: inline-block;
+}
+
+.schedule .column0 {
+  width: 200px;
+  margin-right: 16px;
+}
+
+.schedule .column1 {
+  margin-right: 0;
+  width: 500px;
+}
+
+.schedule .column1 button {
+  margin-top: 20px;
+}
+
+.schedule md-radio-group {
+  border: none;
+}
+
+.cue {
+  min-width: 400px;
+}
+
+.section input[type=time] {
+  border: none !important;
+  color: black;
+  margin-right: -28px;
+}
+
+.snooze label {
+  display: inline-block;
+  width: 200px;
+}
+
+.snooze input {
+  width: 200px;
+}
+
+.action {
+  min-width: 540px;
+}
+
+.action md-input-container {
+  padding-right: 16px;
+}
+
+.action md-checkbox {
+  left: -6px;
+  position: relative;
+  top: 20px;
+}
+
+.action .ios {
+  height: 24px;
+  margin-left: 16px;
+}
+
+.action .ace_editor {
+  width: 800px;
+  margin-top: 16px;
+  border: 1px solid lightgray;
+}

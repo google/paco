@@ -1,10 +1,34 @@
-function defaultPage(){
-  var jsondata = window.env.getValue("lastResponse");
-  var experimentData = $.parseJSON(jsondata);
-  if (!experimentData) {
-    // hack for samsung tmobile phones
-    experimentData = eval('(' + jsondata + ')');
+function getGroupByName(experiment, name) {
+  var groups = experiment.groups;  
+  for(var i = 0; i < groups.length; i++) {
+    var group = groups[i];    
+    if (group.name === name) {
+      return group;
+    }
   }
+  return null;
+}
+
+function mapInputs(experiment) {
+  var inputsByName = {};
+  var groupName =  window.env.getValue("experimentGroupName");
+  var group = getGroupByName(experiment, groupName);
+  
+  
+  var inputs = group.inputs;
+  for (var i = 0; i< inputs.length; i++) {
+    var input = inputs[i];
+    inputsByName[input.name] = input;
+  }
+  return inputsByName;
+}
+
+function defaultPage(){
+  var experimentData = paco.db.getLastEvent();
+  
+  var experiment = paco.experimentService.getExperiment();
+  //alert(JSON.stringify(experiment, null, 2));
+  var inputsByName = mapInputs(experiment);
   
   if (!experimentData) {
     alert("No Data");
@@ -24,21 +48,23 @@ function defaultPage(){
     if (response.answer == null || response.answer.length == 0) {
       response.answer = "No Answer";
     }
-  
-    responsesHtml += "<div>";
-    responsesHtml += "<div style='text-align:left;line-height:1.5;font-size:20;'>";
-    responsesHtml += response["prompt"];
-    responsesHtml += "</div><br/>";
-    responsesHtml += "<div style='color:#333333;text-align:center;line-height:1.5;font-size:18;'>";
-    if (response["responseType"] == "photo") {
-      responsesHtml += "<img src='data:image/jpg;base64," + response["answer"] + "' width=150>";
-    } else if (response["responseType"] == "location") {
-      responsesHtml += "&nbsp;&nbsp;&nbsp;<a href='file:///android_asset/map.html?inputId=" + response["inputId"] + "'>Maps</a>";
-    } else {
-      responsesHtml += response["answer"];
-      responsesHtml += "&nbsp;&nbsp;&nbsp;<a href='file:///android_asset/time.html?inputId=" + response["inputId"] + "'>Chart</a>";
+    var input = inputsByName[response.name];
+    if (input) {
+	    responsesHtml += "<div>";
+	    responsesHtml += "<div style='text-align:left;line-height:1.5;font-size:20;'>";
+	    responsesHtml += input.text;
+	    responsesHtml += "</div><br/>";
+	    responsesHtml += "<div style='color:#333333;text-align:center;line-height:1.5;font-size:18;'>";
+	    if (input.responseType === "photo") {
+	      responsesHtml += "<img src='data:image/jpg;base64," + response["answer"] + "' width=150>";
+	    } else if (input.responseType === "location") {
+	      responsesHtml += "&nbsp;&nbsp;&nbsp;<a href='file:///android_asset/map.html?inputId=" + response["name"] + "'>Maps</a>";
+	    } else {
+	      responsesHtml += response["answer"];
+	      responsesHtml += "&nbsp;&nbsp;&nbsp;<a href='file:///android_asset/time.html?inputId=" + response["name"] + "'>Chart</a>";
+	    }
+	    responsesHtml += "</div><br/></div>";
     }
-    responsesHtml += "</div><br/></div>";
   }
   if (responsesHtml == "") {
     responsesHtml = "No responses found!";

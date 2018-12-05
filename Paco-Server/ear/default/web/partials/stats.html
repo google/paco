@@ -1,0 +1,195 @@
+<div ng-controller="DataCtrl" class="padded stats data">
+  <div class="variable-width">
+    <div class="nav">
+      <a href="#">
+        <md-button>Experiments</md-button>
+      </a>
+      <img src="/img/ic_chevron_right_24px.svg">
+      <a href="#/experiment/{{experimentId}}">
+        <md-button aria-label="experiment name">
+          <span ng-if="!experiment">{{experimentId}}</span>
+          <span ng-if="experiment">{{experiment.title}}</span>
+        </md-button>
+      </a>
+      <img src="/img/ic_chevron_right_24px.svg">
+      <md-input-container class="viewSelector">
+        <md-select ng-model="currentView" ng-change="switchView()" aria-label="Change view">
+          <md-option value="stats" aria-label="Stats view">Stats</md-option>
+          <md-option value="data" aria-label="Data view">Data</md-option>
+        </md-select>
+      </md-input-container>
+
+      <span>
+        <img src="/img/ic_chevron_right_24px.svg">
+        <md-input-container class="viewSelector">
+          <md-select ng-model="showGroup" aria-label="Filter stats by group" ng-change="loadStats()" >
+            <md-option value="all">All Groups</md-option>
+            <md-option ng-repeat="group in groupNames" value="{{group}}">{{group}}</md-option>
+          </md-select>
+        </md-input-container>
+      </span>
+
+      <md-chips ng-if="userChips" ng-model="userChips" md-on-remove="removeUserChip()" placeholder=""></md-chips>
+    </div>
+
+    <div ng-if="loading" class="status">
+      <span>{{status}}</span>
+      <md-button ng-click="loadStats()" ng-if="loading === false && error">Reload</md-button>
+      <md-progress-linear md-mode="indeterminate" ng-if="loading === true"></md-progress-linear>
+    </div>
+
+    <div ng-show="stats && userChips" class="frame">
+
+      <div class="summary" ng-if="stats && experiment">
+        <div class="individual-stat">
+          <b>{{stats.responseRate|percent}}</b> Overall Response Rate
+        </div>
+        
+        <div class="individual-stat">
+          <b>{{stats.signaledResponseCount}}</b> Signaled Responses
+        </div>
+        <div class="individual-stat">
+         <b>{{(stats.totalSignalCount)}}</b> Total Signals
+        </div>
+        <div class="individual-stat">
+          <b>{{stats.selfReportResponseCount}}</b> Self Reports 
+        </div>
+                
+      </div>
+
+      <table>
+        
+        <tr >
+          <td right-border>
+            <span class="sorting">
+              <a href="" ng-click="setColumn('date')" ng-class="{arrow: (sortColumn == 'date'), down: reverseSort }">
+                Date
+              </a>
+            </span>
+          </td>
+          <td>
+            <a href="" ng-click="setColumn('schedR')" class="left" ng-class="{arrow: (sortColumn == 'schedR'), down: reverseSort }">Responses</a>
+          </td>
+          <td>
+            <a href="" ng-click="setColumn('signals')"  ng-class="{arrow: (sortColumn == 'signals'), down: reverseSort }">Signals</a>
+          </td>
+          <td>
+            <a href="" ng-click="setColumn('missedR')"  ng-class="{arrow: (sortColumn == 'missedR'), down: reverseSort }">Misses</a>
+          </td>
+          <td right-border>
+            <span class="sorting">
+              <a href="" ng-click="setColumn('selfR')" ng-class="{arrow: (sortColumn == 'selfR'), down: reverseSort }">Self-Reports</a>
+            </span>
+          </td>
+        </tr>
+        <tr ng-repeat="row in stats | orderBy: sortColumn: reverseSort">
+          <td right-border>
+            {{row["date"]}}
+          </td>
+          <td>{{row["schedR"]}}</td>
+          <td>{{row["signals"]}}</td>
+          <td>{{row["missedR"]}}</td>
+          <td>{{row["selfR"]}}</td>
+        </tr>
+         <tfoot>
+            <td colspan=7>Showing {{stats.length}} out of {{stats.length}}</td>
+          </tfoot>
+      </table>
+    </div>
+    <!--  barf - this is my hacked version to show a different table depending on whether we are looking at one user or all users stats. -->
+      <div ng-show="stats && !userChips" class="frame">
+
+      <div class="summary" ng-if="stats && experiment && experiment.published">
+
+        <div class="stat">
+          <b>{{experiment.publishedUsers.length}}</b>
+          <div>invited</div>
+        </div>
+        <div class="stat">
+          <b>{{stats.data.length}}</b>
+          <div>joined</div>
+        </div>
+        <div class="stat">
+         <b>{{stats.dayParticipantCount}}</b>
+         <div>participated on {{statsDate | date:'MM/dd/yy' }}</div>
+        </div>
+        <div class="stat">
+          <b>{{1-(stats.dayParticipantCount/stats.data.length)|percent}}</b>
+          <div> non-responders on {{statsDate | date:'MM/dd/yy' }}</div>
+        </div>
+      </div>
+
+      <table>
+        <tr>
+          <td right-border></td>
+          <td right-border colspan=3><md-datepicker ng-model="statsDate" md-placeholder="Enter date"></md-datepicker></td>
+          <td colspan=4>Total</td>
+        </tr>
+        <tr heading>
+          <td right-border>
+            <span class="sorting">
+              <a href="" ng-click="setColumn('who')" ng-class="{arrow: (sortColumn == 'who'), down: reverseSort }">
+                who
+              </a>
+            </span>
+          </td>
+          <td>
+            <span class="sorting">
+              <a href="" ng-click="setColumn('daySignalResponseCount')" class="left" ng-class="{arrow: (sortColumn == 'daySignalResponseCount'), down: reverseSort }">Responses</a> /
+              <a href="" ng-click="setColumn('daySignalCount')"  ng-class="{arrow: (sortColumn == 'daySignalCount'), down: reverseSort }">Signals</a>
+            </span>
+          </td>
+          <td>
+            <span class="sorting">
+              <a href="" ng-click="setColumn('daySignalMissCount')" ng-class="{arrow: (sortColumn == 'daySignalMissCount'), down: reverseSort }">Misses</a>
+            </span>
+          </td> 
+          <td right-border>
+            <span class="sorting">
+              <a href="" ng-click="setColumn('daySelfReportCount')" ng-class="{arrow: (sortColumn == 'daySelfReportCount'), down: reverseSort }">Self-Report</a>
+            </span>
+          </td>
+          <td>
+            <span class="sorting">
+              <a href="" ng-click="setColumn('totalSignalResponseCount')" class="left" ng-class="{arrow: (sortColumn == 'totalSignalResponseCount'), down: reverseSort }">Responses</a> /
+              <a href="" ng-click="setColumn('totalSignalCount')"  ng-class="{arrow: (sortColumn == 'totalSignalCount'), down: reverseSort }">Signals</a>
+            </span>
+          </td>
+          <td>
+            <span class="sorting">
+              <a href="" ng-click="setColumn('totalSignalMissCount')" ng-class="{arrow: (sortColumn == 'totalSignalMissCount'), down: reverseSort }">Misses</a>
+            </span>
+          </td>          <td>
+            <span class="sorting">
+              <a href="" ng-click="setColumn('totalSelfReportCount')" ng-class="{arrow: (sortColumn == 'totalSelfReportCount'), down: reverseSort }">Self-Reports</a>
+            </span>
+          </td>
+          <td>
+            <span class="sorting">
+              <a href="" ng-click="setColumn('lastContactDateTime')" ng-class="{arrow: (sortColumn == 'lastContactDateTime'), down: reverseSort }">Last Report</a>
+            </span>
+          </td>
+        </tr>
+        <tr ng-repeat="row in stats.data | orderBy: sortColumn: reverseSort">
+          <td right-border>
+            <a ng-if="!users" href="#/stats/{{experiment.id}}/{{row['who']}}" >{{row["who"]}}</a>
+            <span ng-if="users">{{row["who"]}}</span>
+          </td>
+          <td>{{row["daySignalResponseCount"]}} / {{row["daySignalCount"]}}</td>
+          <td>{{row["daySignalMissCount"]}}</td>
+          <td right-border>{{row["daySelfReportCount"]}}</td>
+          <td>{{row["totalSignalResponseCount"]}} / {{row["totalSignalCount"]}}</td>
+          <td>{{row["totalSignalMissCount"]}}</td>
+          <td>{{row["totalSelfReportCount"]}}</td>
+          <td>{{row["lastContactDateTime"]|timeSince}}</td>
+        </tr>
+         <tfoot>
+            <td colspan=7>Showing {{stats.data.length}} out of {{stats.data.length}}</td>
+          </tfoot>
+      </table>
+    </div>
+    <div ng-if="error" class="error">
+      Error {{error.code}}: {{error.message}}
+    </div>
+  </div>
+</div>

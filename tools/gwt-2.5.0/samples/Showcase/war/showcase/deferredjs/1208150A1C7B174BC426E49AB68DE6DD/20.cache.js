@@ -1,3 +1,0 @@
-function otb(a){this.b=a}
-function MTb(){Yi(this,Dr($doc,'file'));this.db[mqc]='gwt-FileUpload'}
-W1(785,1,coc,otb);_.Hc=function ptb(a){var b;b=this.b.db.value;b.length==0?SKb('\u4F60\u5FC5\u987B\u9009\u62E9\u8981\u4E0A\u4F20\u7684\u6587\u4EF6'):SKb('\u6587\u4EF6\u4E0A\u4F20\u5B8C\u6BD5\uFF01')};_.b=null;W1(786,1,foc);_.qc=function ttb(){var a,b,c;z4(this.b,(a=new g5b,d5b(a,new NRb('<b>\u9009\u62E9\u4E00\u4E2A\u6587\u4EF6\uFF1A<\/b>')),b=new MTb,K4b(b.db,Npc,'cwFileUpload'),d5b(a,b),c=new uNb('\u4E0A\u4F20\u6587\u4EF6'),vj(c,new otb(b),(tx(),tx(),sx)),d5b(a,new NRb('<br>')),d5b(a,c),a))};W1(1029,104,unc,MTb);_.Vb=function NTb(a){Aj(this,a)};var ET=ucc(Vuc,'CwFileUpload$1',785),dX=ucc(Uuc,'FileUpload',1029);Uoc(In)(20);

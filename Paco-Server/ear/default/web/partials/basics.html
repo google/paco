@@ -1,0 +1,111 @@
+<div class="basics">
+  <p>Let's define some of the basics for your experiment.</p>
+  <md-card>
+    <md-card-content>
+      <h2>Experiment Listing</h2>
+
+      <div layout="column" layout-padding layout-margin>
+        <div layout="row">
+          <md-input-container flex=85>
+            <label>Title</label>
+            <input ng-model="experiment.title">
+            <div ng-messages>
+              <div ng-message>Your experiment title should be simple, specific and memorable.</div>
+            </div>
+          </md-input-container>
+          <div flex></div>
+          <md-input-container flex=10>
+            <label>Version</label>
+            <input type="text" ng-model="experiment.version" ng-disabled="true"></input>
+          </md-input-container>
+        </div>
+
+        <md-input-container>
+          <label>Contact Email</label>
+          <input type="text" ng-model="experiment.contactEmail"></input>
+        </md-input-container>
+
+        <md-input-container>
+          <label>Organization</label>
+          <input ng-model="experiment.organization">
+          <div ng-messages>
+            <div ng-message>What organization is sponsoring the experiment? If it's not sponsored by
+              an organization, you can just use your name.</div>
+          </div>
+        </md-input-container>
+
+        <md-input-container>
+          <label>Description</label>
+          <textarea ng-model="experiment.description"></textarea>
+          <div ng-messages>
+            <div ng-message>Our search tools run through the title and description sections of your
+              project, so be sure to incorporate any keywords here.</div>
+          </div>
+        </md-input-container>
+
+        <md-input-container>
+          <label>Informed Consent</label>
+          <textarea ng-model="experiment.informedConsentForm"></textarea>
+        </md-input-container>
+
+       <div layout="row">
+          <div flex=40>Ringtone
+            <md-input-container>
+            <md-select ng-model="experiment.ringtoneUri" placeholder="Select">
+              <md-option ng-repeat="ringtone in ringtones" value="/assets/ringtone/{{ringtone}}">
+                {{ringtone}}
+              </md-option>
+            </md-select>
+            </md-input-container>
+          </div>
+
+          <div flex=10></div>
+
+          <div flex>
+            Phone details
+            <div>
+              <label>
+                <md-checkbox ng-model="experiment.recordPhoneDetails">
+                Record phone details in the "Join" event</md-checkbox>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <div class="padded instructions">
+          Instructions
+
+          <div class="source-frame">
+            <div class="ace_editor" ng-model="experiment.postInstallInstructions" ui-ace="{
+                onLoad: aceInfinity,
+                rendererOptions: {
+                  minLines: 5,
+                  maxLines: 100
+                }
+              }">
+            </div>
+          </div>
+          <div class="message">
+            These instructions will be shown to the user immediately after they join the experiment.
+          </div>
+        </div>
+      </div>
+    </md-card-content>
+    <md-divider></md-divider>
+    <md-card-content expandable=true expanded=false class="disclosures">
+      <div ng-click="toggleExpand()" class="section">
+        Advanced: Disclose Data Collected by Custom Scripts
+      </div>
+      <div expander class="padded">
+        <div ng-repeat="(id, declare) in dataDeclarations">
+
+            <label>
+              <md-checkbox ng-checked="inList(id)" value="{{id}}"
+                ng-click="toggleDeclaration(id)"> {{declare}}</md-checkbox>
+            </label>
+          </div>
+        </div>
+      </md-card-content>
+
+  </md-card>
+</div>

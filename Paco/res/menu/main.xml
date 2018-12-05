@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context=".MainActivity" >
+    <!--  action bar visible -->
+    <item android:id="@+id/action_find_experiments"
+        android:title="@string/action_find_experiments"
+        android:icon="@android:drawable/ic_menu_search"
+        app:showAsAction="always" />
+    
+    <!--  overflow -->
+    <item android:id="@+id/action_refreshMenuItem"
+        android:title="@string/refresh_experiment_menu_item"
+        android:icon="@drawable/ic_action_refresh"
+        app:showAsAction="never" />
+    <item android:id="@+id/action_settings"
+        android:title="@string/action_settings"
+        android:orderInCategory="100"
+        app:showAsAction="never" />
+    <item android:id="@+id/action_preferences"
+        android:title="@string/action_language_preference"
+        android:orderInCategory="100"
+        app:showAsAction="never" />
+    <item android:id="@+id/action_user_guide"
+        android:title="@string/action_user_guide"
+        android:orderInCategory="100"
+        app:showAsAction="never" />
+    <item android:id="@+id/action_troubleshooting"
+        android:title="@string/action_troubleshooting"
+        android:orderInCategory="100"
+        app:showAsAction="never" />
+    <item android:id="@+id/action_email_paco_team"
+        android:title="@string/action_email_paco_team"
+        android:orderInCategory="100"
+        android:icon="@android:drawable/ic_menu_send"
+        app:showAsAction="never" />
+    <item android:id="@+id/action_about"
+        android:title="@string/action_about"
+        android:icon="@android:drawable/ic_menu_info_details"
+        android:orderInCategory="100"
+        app:showAsAction="never" />
+    <item android:id="@+id/action_user_agreement"
+        android:title="@string/action_user_agreement"
+        android:orderInCategory="100"
+        app:showAsAction="never" />
+    <!--   -->
+    <item android:id="@+id/action_open_source_libs"
+        android:title="@string/action_open_source_libs"
+        android:orderInCategory="100"
+        app:showAsAction="never" />
+</menu>

@@ -1,0 +1,120 @@
+<div class="groups">
+
+  <div class="group" ng-repeat="group in experiment.groups track by $index" ng-controller="GroupsCtrl">
+
+    <md-card hidable>
+      <md-card-content ng-if="experiment.groups.length > 1 || hiding">
+          <paco-help tip="experiment-groups" ng-if="$index > 0">
+            Help: Experiment Groups
+          </paco-help>
+        <div class="section">
+
+          <div class="title" ng-click="toggleHide()">
+            <a href="" class="group-toggle" ng-class="{hiding: hiding}"></a>
+            Experiment Group
+          </div>
+          <md-input-container placeholder="Group Name" md-no-float class="group-name">
+            <input ng-model="group.name" aria-label="Group name">
+            <no-ios ng-if="$index > 0">iOS does not support multiple groups</no-ios>
+          </md-input-container>
+
+
+          <a href="" class="removeGroup" ng-click="remove(experiment.groups, $index)">
+          </a>
+
+        </div>
+
+      </md-card-content>
+
+      <md-card-content ng-hide="hiding">
+        <md-divider></md-divider>
+
+        <div class="duration section" layout="row">
+          <div class="title">
+            Duration
+          </div>
+          <md-radio-group ng-model="group.fixedDuration" layout="row" as-string>
+            <md-radio-button value="false">Ongoing</md-radio-button>
+            <md-radio-button value="true">Fixed</md-radio-button>
+          </md-radio-group>
+
+          <div flex class="date">
+            <md-input-container ng-if="group.fixedDuration">
+              <label>Start date</label>
+              <input type="date" paco-date ng-model="group.startDate">
+            </md-input-container>
+          </div>
+          <div flex class="date">
+            <md-input-container ng-if="group.fixedDuration">
+              <label>End date</label>
+              <input type="date" paco-date ng-model="group.endDate">
+            </md-input-container>
+          </div>
+        </div>
+      </md-card-content>
+
+      <md-card-content ng-hide="hiding" expandable="{{group.actionTriggers.length > 0}}">
+        <md-divider></md-divider>
+
+        <div class="section" ng-click="toggleExpand()">
+          <div class="title">
+            <span ng-if="experiment.groups.length > 1">Group {{$parent.$parent.$index + 1}}</span>
+            Triggers
+            <span class="light">({{group.actionTriggers.length}})</span>
+          </div>
+          <md-button ng-click="addScheduleTrigger($event, toggleExpand)">
+            Add Scheduled Trigger
+          </md-button>
+          <md-button ng-click="addEventTrigger($event, toggleExpand)">
+            Add Event Trigger
+          </md-button>
+        </div>
+
+        <div expander>
+          <paco-help tip="triggers" ng-if="group.actionTriggers.length > 0">Help: Triggers</paco-help>
+          <div ng-repeat="trigger in group.actionTriggers track by $index" ng-include="'partials/trigger.html'">
+          </div>
+        </div>
+      </md-card-content>
+
+      <md-card-content ng-hide="hiding" expandable="{{group.inputs.length > 0}}">
+        <md-divider></md-divider>
+        <div class="section" ng-click="toggleExpand()">
+          <div class="title">
+            <span ng-if="experiment.groups.length > 1">Group {{$index + 1}}</span> Inputs
+            <span class="light">({{group.inputs.length}})</span>
+          </div>
+          <md-button ng-click="addInput($event, toggleExpand)">
+            Add Input
+          </md-button>
+        </div>
+        <div expander ng-show="group.inputs.length > 0">
+          <paco-help tip="inputs" ng-if="group.inputs.length > 0">Help: Inputs</paco-help>
+          <div ng-repeat="input in group.inputs track by $index" ng-include="'partials/input.html'">
+          </div>
+        </div>
+      </md-card-content>
+
+      <md-card-content ng-hide="hiding" expandable=true expanded=false>
+        <paco-help tip="advanced" ng-if="state.expand">Help: Advanced</paco-help>
+        <md-divider></md-divider>
+        <div class="section" ng-click="toggleExpand()">
+          <div class="title">
+            <span ng-if="experiment.groups.length > 1">Group {{$index+1}}</span>
+            Advanced
+          </div>
+          <i>End of day, background listening, accessibility listening, logging, custom rendering, feedback</i>
+        </div>
+
+        <div expander>
+          <div ng-include="'partials/advanced.html'"></div>
+        </div>
+      </md-card-content>
+
+    </md-card>
+  </div>
+
+  <md-button ng-click="addGroup()">
+    Add Experiment Group
+  </md-button>
+</div>

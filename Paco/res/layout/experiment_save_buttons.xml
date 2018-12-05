@@ -24,7 +24,7 @@
         <Button android:text="@string/save_response" android:id="@+id/SaveResponseButton"
             android:layout_width="fill_parent" android:layout_height="50dip"
             android:layout_gravity="center" />
-        <Button android:text="@string/refresh_questions" android:id="@+id/RefreshQuestionsButton"
+        <Button android:text="" android:id="@+id/RefreshQuestionsButton"
             android:visibility="gone" android:layout_width="fill_parent"
             android:layout_height="50dip" android:layout_gravity="center" />
     </LinearLayout>

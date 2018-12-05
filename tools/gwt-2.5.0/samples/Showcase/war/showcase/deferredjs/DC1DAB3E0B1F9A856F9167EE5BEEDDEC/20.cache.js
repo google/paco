@@ -1,3 +1,0 @@
-function Osb(a){this.a=a}
-function nTb(){Ni(this,qr($doc,'file'));this.cb[Opc]='gwt-FileUpload'}
-o1(784,1,Enc,Osb);_.Dc=function Psb(a){var b;b=this.a.cb.value;b.length==0?sKb('You must select a file to upload'):sKb('File uploaded!')};_.a=null;o1(785,1,Hnc);_.lc=function Tsb(){var a,b,c;Y3(this.a,(a=new N4b,K4b(a,new oRb('<b>Select a file:<\/b>')),b=new nTb,p4b(b.cb,npc,'cwFileUpload'),K4b(a,b),c=new XMb('Upload File'),kj(c,new Osb(b),($w(),$w(),Zw)),K4b(a,new oRb('<br>')),K4b(a,c),a))};o1(1030,102,Wmc,nTb);_.Qb=function oTb(a){pj(this,a)};var XS=Xbc(muc,'CwFileUpload$1',784),xW=Xbc(luc,'FileUpload',1030);uoc(wn)(20);

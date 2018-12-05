@@ -1,8 +1,8 @@
 /*
  * Copyright 2011 Google Inc. All Rights Reserved.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance  with the License.  
+ * you may not use this file except in compliance  with the License.
  * You may obtain a copy of the License at
  *
  *    http://www.apache.org/licenses/LICENSE-2.0
@@ -19,10 +19,12 @@ package com.google.android.apps.paco;
 
 import java.util.List;
 
+import com.pacoapp.paco.UserPreferences;
+
 import android.content.Context;
 import android.os.AsyncTask;
 
-class DownloadFullExperimentsTask extends AsyncTask<Void, Void, String> {
+public class DownloadFullExperimentsTask extends AsyncTask<Void, Void, String> {
   private final Context enclosingContext;
   private UserPreferences userPrefs;
   private DownloadFullExperimentsTaskListener listener;
@@ -31,8 +33,8 @@ class DownloadFullExperimentsTask extends AsyncTask<Void, Void, String> {
 
   @SuppressWarnings("unchecked")
   public DownloadFullExperimentsTask(Context context,
-                                     DownloadFullExperimentsTaskListener listener, 
-                                     UserPreferences userPrefs, 
+                                     DownloadFullExperimentsTaskListener listener,
+                                     UserPreferences userPrefs,
                                      List<Long> experimentIds) {
     this.enclosingContext = context;
     this.listener = listener;
@@ -41,12 +43,12 @@ class DownloadFullExperimentsTask extends AsyncTask<Void, Void, String> {
   }
 
   protected String doInBackground(Void... params) {
-    DownloadHelper downloadHelper = new DownloadHelper(enclosingContext, userPrefs);
+    DownloadExperimentsHelper downloadHelper = new DownloadExperimentsHelper(enclosingContext, userPrefs, null, null);
     String errorCode = downloadHelper.downloadRunningExperiments(experimentIds);
     contentAsString = downloadHelper.getContentAsString();
     return errorCode;
   }
-   
+
   protected void onProgressUpdate() {
 
   }
@@ -56,7 +58,7 @@ class DownloadFullExperimentsTask extends AsyncTask<Void, Void, String> {
       listener.done(resultCode);
     }
   }
-  
+
   public String getContentAsString() {
     return contentAsString;
   }

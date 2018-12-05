@@ -1,0 +1,17 @@
+<!doctype html>
+<html lang="en" ng-app="pacoApp" ng-strict-di>
+<head>
+  <script src="js/angular.min.js"></script>
+  <script src="js/main.min.js"></script>
+  <link rel="stylesheet" href="css/styles.min.css">
+</head>
+
+<body ng-app="pacoApp" ng-controller="HomeCtrl">
+  <div class="home">
+    <div ng-include="'partials/menu.html'"></div>
+    <div ng-view class="main"></div>
+    <div ng-include="'partials/sitemap.html'"></div>
+  </div>
+</body>
+
+</html>

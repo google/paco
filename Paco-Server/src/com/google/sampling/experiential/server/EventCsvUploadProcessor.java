@@ -11,19 +11,16 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
-import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.fileupload.FileItemIterator;
 import org.apache.commons.fileupload.FileItemStream;
 import org.apache.commons.fileupload.FileUploadBase.SizeLimitExceededException;
 import org.apache.commons.fileupload.FileUploadException;
-import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.commons.io.IOUtils;
+import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormatter;
 
 import au.com.bytecode.opencsv.CSVReader;
 
@@ -31,16 +28,16 @@ import com.google.appengine.api.users.User;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import com.google.paco.shared.Outcome;
-import com.google.paco.shared.model.InputDAO;
-import com.google.sampling.experiential.model.Experiment;
-import com.google.sampling.experiential.model.Input;
 import com.google.sampling.experiential.model.PhotoBlob;
 import com.google.sampling.experiential.model.What;
 import com.google.sampling.experiential.shared.TimeUtil;
+import com.pacoapp.paco.shared.comm.Outcome;
+import com.pacoapp.paco.shared.model2.ExperimentDAO;
+import com.pacoapp.paco.shared.model2.Input2;
+import com.pacoapp.paco.shared.util.ExperimentHelper;
 
 public class EventCsvUploadProcessor {
-  
+
   private static final Logger log = Logger.getLogger(EventCsvUploadProcessor.class.getName());
 
   void processCsvUpload(User loggedInWho, FileItemIterator iterator, PrintWriter out) {
@@ -93,20 +90,32 @@ public class EventCsvUploadProcessor {
   }
 
   private void saveCSV(String fileContents, User loggedInWho) throws ParseException {
-    CSVReader reader = new CSVReader(new BufferedReader(new StringReader("yourfile.csv")));
-    List<String[]> rows;
+    CSVReader reader = null;
+    
     try {
-      rows = reader.readAll();
-    } catch (IOException e) {
-      throw new IllegalArgumentException("Error reading CSV. Check your file if this is incorrect.");
-    }
-    if (rows == null || rows.size() == 0) {
-      log.info("No rows in uploaded CSV");
-      throw new IllegalArgumentException("No rows in uploaded CSV. Check your file if this is incorrect.");
-    }
-    String[] header = rows.get(0);
-    for (int i = 1; i < rows.size(); i++) {
-      postEventFromRowAsHash(convertToHashMap(header, rows.get(i)), i, loggedInWho);
+      reader = new CSVReader(new BufferedReader(new StringReader("yourfile.csv")));
+      List<String[]> rows;
+      try {
+        rows = reader.readAll();
+      } catch (IOException e) {
+        throw new IllegalArgumentException("Error reading CSV. Check your file if this is incorrect.");
+      }
+      if (rows == null || rows.size() == 0) {
+        log.info("No rows in uploaded CSV");
+        throw new IllegalArgumentException("No rows in uploaded CSV. Check your file if this is incorrect.");
+      }
+      String[] header = rows.get(0);
+      for (int i = 1; i < rows.size(); i++) {
+        postEventFromRowAsHash(convertToHashMap(header, rows.get(i)), i, loggedInWho);
+      }
+    } finally {
+      if (reader != null) {
+        try {
+          reader.close();
+        } catch (IOException e) {
+          e.printStackTrace();
+        }
+      }
     }
 
   }
@@ -121,7 +130,7 @@ public class EventCsvUploadProcessor {
     return map;
   }
 
-  public void postEventFromRowAsHash(HashMap<String, String> rowData, long eventId, User loggedInWho) 
+  public void postEventFromRowAsHash(HashMap<String, String> rowData, long eventId, User loggedInWho)
       throws ParseException {
 
     if (loggedInWho == null) {
@@ -144,14 +153,17 @@ public class EventCsvUploadProcessor {
       pacoVersion = rowData.get("pacoVersion");
       rowData.remove("pacoVersion");
     }
-    SimpleDateFormat df = new SimpleDateFormat(TimeUtil.DATETIME_FORMAT);
-    SimpleDateFormat oldDf = new SimpleDateFormat(TimeUtil.DATETIME_FORMAT_OLD);
+//    SimpleDateFormat df = new SimpleDateFormat(TimeUtil.DATETIME_FORMAT);
+//    SimpleDateFormat oldDf = new SimpleDateFormat(TimeUtil.DATETIME_FORMAT_OLD);
+    DateTimeFormatter df = org.joda.time.format.DateTimeFormat.forPattern(TimeUtil.DATETIME_FORMAT).withOffsetParsed();
     Date whenDate = new Date();
 
     String experimentId = null;
     String experimentName = null;
-    Date responseTime = null;
-    Date scheduledTime = null;
+    String groupName = null;
+
+    DateTime responseTime = null;
+    DateTime scheduledTime = null;
 
     if (rowData.containsKey("experimentId")) {
       experimentId = rowData.get("experimentId");
@@ -168,11 +180,42 @@ public class EventCsvUploadProcessor {
       if (!Strings.isNullOrEmpty(experimentVersionStr)) {
         try {
           experimentVersion = Integer.parseInt(experimentVersionStr);
-        } catch (NumberFormatException nfe) {          
+        } catch (NumberFormatException nfe) {
         }
       }
     }
-    Experiment experiment = ExperimentRetriever.getInstance().getExperiment(experimentId);
+
+    if (rowData.containsKey("experimentGroupName")) {
+      groupName = rowData.get("experimentGroupName");
+      rowData.remove("experimentGroupName");
+    }
+
+    Long actionTriggerId = null;
+    if (rowData.containsKey("actionTriggerId")) {
+      String actionTriggerIdStr = rowData.get("actionTriggerId");
+      if (!Strings.isNullOrEmpty(actionTriggerIdStr)) {
+        actionTriggerId = Long.parseLong(actionTriggerIdStr);
+      }
+      rowData.remove("actionTriggerId");
+    }
+    Long actionTriggerSpecId = null;
+    if (rowData.containsKey("actionTriggerSpecId")) {
+      String actionTriggerSpecIdStr = rowData.get("actionTriggerSpecId");
+      if (!Strings.isNullOrEmpty(actionTriggerSpecIdStr)) {
+        actionTriggerSpecId = Long.parseLong(actionTriggerSpecIdStr);
+      }
+      rowData.remove("actionTriggerSpecId");
+    }
+    Long actionId = null;
+    if (rowData.containsKey("actionId")) {
+      String actionIdStr = rowData.get("actionId");
+      if (!Strings.isNullOrEmpty(actionIdStr)) {
+        actionId = Long.parseLong(actionIdStr);
+      }
+      rowData.remove("actionId");
+    }
+
+    ExperimentDAO experiment = ExperimentServiceFactory.getExperimentService().getExperiment(Long.parseLong(experimentId));
 
     if (experiment == null) {
       throw new IllegalArgumentException("Must post to an existing experiment!");
@@ -188,11 +231,11 @@ public class EventCsvUploadProcessor {
       log.info("There are " + rowData.keySet().size() + " csv columns left");
       for (String name : rowData.keySet()) {
         String answer = rowData.get(name);
-        Input input = null;
+        Input2 input = null;
         if (experiment != null) {
-          input = experiment.getInputWithName(name);
+          input =ExperimentHelper.getInputWithName(experiment, name, groupName);
         }
-        if (input != null && input.getResponseType() != null && input.getResponseType().equals(InputDAO.PHOTO)) {
+        if (input != null && input.getResponseType() != null && input.getResponseType().equals(Input2.PHOTO)) {
           PhotoBlob photoBlob = new PhotoBlob(name, Base64.decodeBase64(answer.getBytes()));
           blobs.add(photoBlob);
           answer = "blob";
@@ -205,13 +248,13 @@ public class EventCsvUploadProcessor {
     if (rowData.containsKey("responseTime")) {
       String responseTimeStr = rowData.get("responseTime");
       if (!responseTimeStr.equals("null") && !responseTimeStr.isEmpty()) {
-        responseTime = parseDate(df, oldDf, responseTimeStr);
+        responseTime = parseDate(df, responseTimeStr);
       }
     }
     if (rowData.containsKey("scheduledTime")) {
       String timeStr = rowData.get("scheduledTime");
       if (!timeStr.equals("null") && !timeStr.isEmpty()) {
-        scheduledTime = parseDate(df, oldDf, timeStr);
+        scheduledTime = parseDate(df, timeStr);
       }
     }
 
@@ -219,13 +262,16 @@ public class EventCsvUploadProcessor {
              + (new SimpleDateFormat(TimeUtil.DATETIME_FORMAT)).format(whenDate) + ", appId = " + appId
              + ", what length = " + whats.size());
 
+
     EventRetriever.getInstance().postEvent(who, null, null, whenDate, appId, pacoVersion, whats, false, experimentId,
-                                           experimentName, experimentVersion, responseTime, scheduledTime, blobs, null);
+                                           experimentName, experimentVersion, responseTime, scheduledTime, blobs,
+                                           groupName, actionTriggerId, actionTriggerSpecId, actionId);
 
   }
-  
-  private Date parseDate(SimpleDateFormat df, SimpleDateFormat oldDf, String when) throws ParseException {
-    return df.parse(when);
+
+  private DateTime parseDate(DateTimeFormatter df, String when) throws ParseException {
+    return df.parseDateTime(when);
   }
+
 
 }

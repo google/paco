@@ -49,7 +49,7 @@
       android:layout_width="55dip"
       android:layout_height="48dip"
       android:layout_gravity="right"
-      android:text="@string/welcome_read_later"
+      android:text="@string/ok"
       android:textSize="14dip" />
   </LinearLayout>
 </LinearLayout>

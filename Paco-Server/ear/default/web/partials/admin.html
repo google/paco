@@ -1,0 +1,65 @@
+<md-card ng-controller="AdminCtrl">
+  <md-card-content>
+
+    <div layout="row" layout-margin>
+
+      <div flex class="published">
+        <label>Experiment Status</label>
+        <md-switch ng-model="experiment.published" aria-label="Published">
+          {{experiment.published ? "Published" : "Unpublished"}}
+        </md-switch>
+        <div class="warning" ng-show="experiment0.published !== experiment.published">
+          Save changes to {{experiment.published ? "publish" : "unpublish"}}
+        </div>
+      </div>
+
+      <md-input-container flex>
+        <label>Creator</label>
+        <input type="text" ng-model="experiment.creator" ng-disabled="true"></input>
+      </md-input-container>
+
+      <md-input-container flex>
+        <label>Experiment ID</label>
+        <input type="text" ng-model="experiment.id" ng-disabled="true"></input>
+      </md-input-container>
+    </div>
+
+    <div layout="column" layout-margin>
+      <md-input-container flex>
+        <label>Administrators</label>
+        <input type="text" ng-model="experiment.admins" ng-list=", ">
+        <div ng-messages>
+          <div ng-message>Enter administrator email addresses, separated by commas. Administrators
+            can edit this experiment and see its results.</div>
+        </div>
+      </md-input-container>
+
+      <md-input-container flex>
+        <label>Published Audience</label>
+        <textarea ng-model="experiment.publishedUsers" ng-list=", "></textarea>
+        <div ng-messages>
+          <div ng-message>Enter emails separated by commas. An empty list is publishing publicly.</div>
+        </div>
+      </md-input-container>
+
+
+      <div layout="row">
+        <div layout-margin flex>
+          <md-input-container >
+            <label>Mobile Shareable Link</label>
+            <textarea ng-disabled="true">pacoapp://experiment/{{ experiment.id }}</textarea>
+          </md-input-container>
+        </div>
+      </div>
+    </div>
+
+      <md-input-container layout-margin>
+        <label>RSA Public key</label>
+        <textarea ng-model="experiment.publicKey"></textarea>
+        <div ng-messages>
+          <div ng-message>Leave empty for no end-to-end encryption.</div>
+        </div>
+      </md-input-container>
+
+  </md-card-content>
+</md-card>

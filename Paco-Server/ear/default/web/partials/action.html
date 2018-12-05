@@ -1,0 +1,86 @@
+<md-dialog aria-label="Edit Action" class="action">
+  <md-dialog-content>
+    <div layout="row">
+      <div>
+        <select ng-model="action.actionCode" as-string>
+          <option value="" disabled selected>Choose Action</option>
+          <option ng-selected="(id) == action.actionCode" ng-repeat="(id, type) in actionTypes"
+          value="{{id}}">{{type}}</option>
+        </select>
+      </div>
+
+      <div class="ios" flex>
+        <no-ios ng-if="action.actionCode > 1">iOS does not support this action</no-ios>
+      </div>
+    </div>
+
+    <md-input-container ng-if="action.actionCode === 2">
+      <label>Message</label>
+      <input type="text" ng-model="action.msgText">
+    </md-input-container>
+
+    <div ng-if="action.actionCode < 3">
+
+      <div layout="row">
+        <div flex>
+        <md-input-container flex>
+          <label>Timeout</label>
+          <input type="number" ng-model="action.timeout" min="0" ng-pattern="/^[0-9]*$/">
+          <div ng-messages>
+            <div ng-message>minutes</div>
+          </div>
+        </md-input-container>
+        </div>
+
+        <div flex>
+          <md-input-container flex>
+            <md-checkbox ng-model="action.snoozeCount" aria-label="Snooze repeats" ng-true-value="1" ng-false-value="0">
+              Snooze repeats
+            </md-checkbox>
+          </md-input-container>
+        </div>
+      </div>
+
+      <div layout="row">
+        <div flex>
+          <md-input-container ng-if="triggerType === 'interruptTrigger'">
+            <label>Delay between cue and action</label>
+            <input type="number" ng-model="action.delay" min="0" ng-pattern="/^[0-9]*$/">
+            <div ng-messages>
+              <div ng-message>seconds</div>
+            </div>
+          </md-input-container>
+        </div>
+
+        <div flex>
+          <md-input-container ng-if="action.snoozeCount > 0">
+            <label>Snooze time</label>
+            <input type="number" ng-model="action.snoozeTimeInMinutes" min="0" ng-pattern="/^[0-9]*$/">
+            <div ng-messages>
+              <div ng-message>minutes</div>
+            </div>
+          </md-input-container>
+        </div>
+      </div>
+    </div>
+
+    <div ng-if="action.actionCode === 4" class="ace_editor" ng-model="action.customScript"
+      ui-ace="{
+        mode: 'javascript',
+        onLoad: aceLoaded,
+        rendererOptions: {
+          minLines: 20,
+          maxLines: 30
+        }
+      }">
+    </div>
+
+  </md-dialog-content>
+
+  <div class="md-actions">
+    <md-button ng-click="hide()" class="md-primary">
+      Done
+    </md-button>
+  </div>
+
+</md-dialog>

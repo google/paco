@@ -1,0 +1,206 @@
+body,
+html {
+  background: #eee;
+  min-width: 1024px;
+}
+
+body.no-scroll {
+  overflow: hidden;
+}
+
+.home {
+  background: #F5F5F5;
+}
+
+.main {
+  margin: 16px;
+  min-height: calc(100vh - 236px);
+  overflow: hidden;
+}
+
+a {
+  color: #3e82f7;
+  outline: none;
+  text-decoration: none;
+}
+
+b {
+  font-weight: 500;
+}
+
+md-card {
+  /*overflow: hidden;*/
+  margin: 16px 0 16px 0;
+}
+
+md-card-content {
+  background: white;
+  position: relative;
+}
+
+md-card md-card-content {
+  padding: 0;
+}
+
+md-card .md-actions {
+  padding-left: 8px;
+  padding-right: 8px;
+}
+
+md-dialog ul {
+  list-style: none;
+  padding-left: 16px;
+}
+
+md-dialog li {
+  font-style: italic;
+}
+
+.padded {
+  padding: 16px;
+}
+
+.column0 {
+  display: inline-block;
+  vertical-align: top;
+  width: 192px;
+}
+
+.column1 {
+  display: inline-block;
+  vertical-align: top;
+  width: 732px;
+}
+
+.column1 .remove-button {
+  position: relative;
+  bottom: 26px;
+}
+
+.schedule .remove.button {
+  bottom: 0px;
+  width: 24px;
+}
+
+.short {
+  width: 112px;
+  margin-right: 16px;
+  float: left;
+}
+
+.medium {
+  float: left;
+  margin-right: 16px;
+  width: 224px;
+}
+
+.error {
+  color: red;
+}
+
+.notransition {
+  -webkit-transition: none !important;
+  -moz-transition: none !important;
+  -o-transition: none !important;
+  -ms-transition: none !important;
+  transition: none !important;
+}
+
+.eod md-dialog-content {
+  min-width: 600px;
+  min-height: 400px;
+}
+
+.eod iframe {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  border: none;
+}
+
+.no-ios, .paco-tip  {
+  display: inline-block;
+  line-height: 16px;
+  vertical-align: bottom;
+}
+
+.no-ios img,
+.no-ios .paco-tip {
+  width: 24px;
+}
+
+no-ios {
+  position: relative;
+}
+
+paco-help {
+  position: absolute;
+  right: 0px;
+}
+
+.paco-help {
+  position: absolute;
+  cursor: pointer;
+  right: -36px;
+  top: 18px;
+  z-index: 2;
+}
+
+md-dialog paco-help {
+  position: relative;
+  top: 0px;
+}
+
+md-dialog .paco-help {
+  top: 0px;
+}
+
+.paco-help img {
+  opacity: .5;
+  -webkit-transition: opacity .25s;
+}
+
+.paco-help:hover img {
+  opacity: 1;
+}
+
+.paco-help .tip-text, .no-ios .tip-text {
+  background: rgba(0, 0, 0, .75);
+  border-radius: 2px;
+  color: white;
+  font-size: 12px;
+  height: 18px;
+  opacity: 0;
+  padding: 4px 8px 4px 8px;
+  pointer-events: none;
+  position: absolute;
+  left: 48px;
+  -webkit-transition: opacity .5s;
+  white-space: nowrap;
+}
+
+.paco-help .tip-text {
+  top: -2px;
+  left: 28px;
+}
+
+.paco-help:hover .tip-text, .no-ios:hover .tip-text {
+  opacity: 1;
+}
+
+.help {
+  left: 50%;
+  margin-left: -480px;
+  width: 960px;
+  position: absolute;
+  height: calc(100% - 236px);
+}
+
+.help iframe {
+  border: none;
+  height: 100%;
+  width: 960px;
+}
+

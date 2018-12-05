@@ -1,0 +1,101 @@
+<div ng-controller="TriggerCtrl" class="trigger">
+  <div class="header section">
+    <div class="subtitle">
+      <span ng-if="trigger.type === 'scheduleTrigger'">Scheduled</span>
+      <span ng-if="trigger.type === 'interruptTrigger'">Event</span>
+      Trigger
+    </div>
+
+    <md-button ng-if="trigger.type === 'scheduleTrigger'" ng-click="addSchedule()">
+      Add Schedule
+    </md-button>
+
+    <md-button ng-if="trigger.type === 'interruptTrigger'" ng-click="addCue()">
+      Add Cue
+    </md-button>
+
+    <md-button ng-click="addAction()">
+      Add Action
+    </md-button>
+
+    <no-ios ng-if="trigger.type === 'interruptTrigger'">iOS does not support event triggers</no-ios>
+
+    <a class="remove button" href="" ng-click="remove(group.actionTriggers, $index)">
+    </a>
+  </div>
+
+  <div ng-repeat="schedule in trigger.schedules track by $index">
+    <div class="section">
+      <div class="subsub">
+        <md-button ng-click="showSchedule($event, schedule)">
+          Edit Schedule {{$index + 1}}
+        </md-button>
+      </div>
+      <span ng-controller="SummaryCtrl" ng-bind="getScheduleSummary()"></span>
+      <no-ios ng-if="$index > 0">iOS does not support multiple schedules</no-ios>
+      <a class="remove button" ng-if="trigger.schedules.length > 1" href="" ng-click="remove(trigger.schedules, $index)">
+      </a>
+    </div>
+  </div>
+
+	<div class="section" ng-if="trigger.type === 'interruptTrigger'">
+		<div class="subsub">Constraints</div>
+		Minimum minutes between signals
+		<md-input-container md-no-float class="buffer-input">
+		  <input type="number" ng-model="trigger.minimumBuffer"
+			placeholder="minutes" ng-pattern="/^[0-9]*$/"> 
+		</md-input-container>
+		<div style="padding-left: 210px;">
+			<md-checkbox ng-model="trigger.timeWindow"
+				aria-label="Limit trigger window">Limit trigger window
+			</md-checkbox>
+		</div>
+		<div style="padding-left: 216px;" layout="row" ng-if="trigger.timeWindow">
+			<md-input-container flex="20" style="padding-right:25px;">
+			    <label>Start Time</label>
+			    <input type="time" milli ng-model="trigger.startTimeMillis">
+			</md-input-container>
+			 
+			<md-input-container flex="20" style="padding-right:25px;"> 
+			    <label>End Time</label>
+			    <input type="time" milli ng-model="trigger.endTimeMillis">
+			</md-input-container>
+			
+			<div flex="24" class="add" style="vertical-align:top;">
+			    <md-checkbox ng-model="trigger.weekends" aria-label="Include weekends" > 
+				  Include weekends 
+				</md-checkbox>
+			</div>
+		</div>
+	</div>
+
+
+	<div ng-repeat="cue in trigger.cues track by $index">
+    <div class="section">
+      <div class="subsub">
+        <md-button ng-click="showCue($event, cue)">
+          Edit Cue {{$index + 1}}
+        </md-button>
+
+      </div>
+      <span ng-controller="SummaryCtrl" ng-bind="getCueSummary()"></span>
+      <a class="remove button" ng-if="trigger.cues.length > 1" href="" ng-click="remove(trigger.cues, $index)">
+      </a>
+    </div>
+  </div>
+
+  <div ng-repeat="action in trigger.actions track by $index">
+    <div class="section">
+      <div class="subsub">
+        <md-button ng-click="showAction($event, action, trigger.type)">
+          Edit Action {{$index + 1}}
+        </md-button>
+
+      </div>
+      <span ng-controller="SummaryCtrl" ng-bind="getActionSummary()"></span>
+      <a class="remove button" ng-if="trigger.actions.length > 1" href="" ng-click="remove(trigger.actions, $index)"></a>
+    </div>
+  </div>
+</div>
+
+

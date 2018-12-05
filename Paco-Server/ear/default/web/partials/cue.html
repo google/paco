@@ -1,0 +1,43 @@
+<md-dialog aria-label="Edit Cue">
+  <md-dialog-content>
+
+    <div class="cue">
+      <div>
+        <select ng-model="cue.cueCode" as-string>
+          <option value="" disabled selected>Choose cue event</option>
+          <option ng-selected="($index + 1) === cue.cueCode" ng-repeat="type in cueTypes" value="{{$index + 1}}">{{type}}</option>
+        </select>
+
+        <paco-help tip="app-triggers" ng-if="cue.cueCode === 4 || cue.cueCode === 5 || cue.cueCode === 18">
+          Help: App Triggers
+        </paco-help>
+      </div>
+
+      <md-input-container ng-if="cue.cueCode === 3 || cue.cueCode === 4 || cue.cueCode === 5 || cue.cueCode === 18">
+        <label>Source of Paco Action</label>
+        <input type="text" ng-model="cue.cueSource">
+      </md-input-container>
+      
+      <md-input-container ng-if="cue.cueCode === 21">
+        <label>Android View Package Name (Optional)</label>
+        <input type="text" ng-model="cue.cueSource">
+      </md-input-container>
+      
+      <md-input-container ng-if="cue.cueCode === 21">
+        <label>Android View Class Name (Optional)</label>
+        <input type="text" ng-model="cue.cueAEClassName">
+      </md-input-container>
+      
+      <md-input-container ng-if="cue.cueCode === 21">
+        <label>Android View Content Descriptor Text (Optional)</label>
+        <input type="text" ng-model="cue.cueAEContentDescription">
+      </md-input-container>
+    </div>
+  </md-dialog-content>
+
+  <div class="md-actions">
+    <md-button ng-click="hide()" class="md-primary">
+      Done
+    </md-button>
+  </div>
+</md-dialog>

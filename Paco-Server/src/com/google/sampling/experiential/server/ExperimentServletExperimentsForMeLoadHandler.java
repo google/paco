@@ -4,18 +4,21 @@ import java.util.List;
 
 import org.joda.time.DateTimeZone;
 
-import com.google.paco.shared.model.ExperimentDAO;
+import com.pacoapp.paco.shared.model2.ExperimentDAO;
+import com.pacoapp.paco.shared.model2.ExperimentQueryResult;
 
 
 public class ExperimentServletExperimentsForMeLoadHandler extends ExperimentServletShortLoadHandler {
 
-  public ExperimentServletExperimentsForMeLoadHandler(String email, DateTimeZone timezone) {
-    super(email, timezone);
+  public ExperimentServletExperimentsForMeLoadHandler(String email, DateTimeZone timezone, Integer limit, String cursor, String pacoProtocol) {
+    super(email, timezone, limit, cursor, pacoProtocol);
   }
 
   @Override
   protected List<ExperimentDAO> getAllExperimentsAvailableToUser() {
-    return ExperimentCacheHelper.getInstance().getMyJoinableExperiments(email, timezone);
+    ExperimentQueryResult pair = ExperimentServiceFactory.getExperimentService().getMyJoinableExperiments(email, timezone, limit, cursor);
+    cursor = pair.getCursor();
+    return pair.getExperiments();
   }
 
 }
