@@ -15,21 +15,46 @@
 
 #import "PacoAuthenticator.h"
 
-#import "GTMOAuth2Authentication.h"
-#import "GTMOAuth2SignIn.h"
-#import "GTMOAuth2ViewControllerTouch.h"
+#import <AppAuth/AppAuth.h>
+#import <GTMAppAuth/GTMAppAuth.h>
+#import "GTMAppAuthFetcherAuthorization.h"
+#import "GTMOAuth2KeychainCompatibility.h"
+#import "PacoAppDelegate.h"
+
 #import "PacoClient.h"
-#import "SSKeychain.h"
 
+NSString * const gtmAppAuthKeyChainName = @"PacoGTMAppAuthKeychain";
+NSString * const oldKeyChainName = @"PacoKeychain2";
 
-NSString* const kPacoService = @"com.google.paco";
+/*! @brief The OIDC issuer from which the configuration will be discovered.
+ */
+static NSString *const kIssuer = @"https://accounts.google.com";
 
+/*! @brief The OAuth client ID.
+ @discussion For Google, register your client at
+ https://console.developers.google.com/apis/credentials?project=_
+ The client should be registered with the "iOS" type.
+ */
+static NSString *const kClientID = @"619519633889-f79aogqhj44eut1u75e8jaa5eav8p3eu.apps.googleusercontent.com";
+
+/*! @brief The OAuth redirect URI for the client @c kClientID.
+ @discussion With Google, the scheme of the redirect URI is the reverse DNS notation of the
+ client ID. This scheme must be registered as a scheme in the project's Info
+ property list ("CFBundleURLTypes" plist key). Any path component will work, we use
+ 'oauthredirect' here to help disambiguate from any other use of this scheme.
+ */
+static NSString *const kRedirectURI =
+@"com.googleusercontent.apps.619519633889-f79aogqhj44eut1u75e8jaa5eav8p3eu:/oauthredirect";
+
+/*! @brief @c NSCoding key for the authState property.
+ */
+static NSString *const kExampleAuthorizerKey = @"authorization";
 
 typedef void (^PacoAuthenticationBlock)(NSError *);
 
 @interface PacoAuthenticator ()
-@property(nonatomic, readwrite, retain) GTMOAuth2ViewControllerTouch *authUI;
-@property(nonatomic, readwrite, retain) GTMOAuth2Authentication *auth;
+//@property(nonatomic, readwrite, retain) GTMOAuth2ViewControllerTouch *authUI;
+@property(nonatomic, readwrite, retain) GTMAppAuthFetcherAuthorization *auth;
 @property(nonatomic, readwrite, copy) PacoAuthenticationBlock completionHandler;
 @property(nonatomic, readwrite, assign) BOOL userLoggedIn;
 
@@ -52,41 +77,26 @@ typedef void (^PacoAuthenticationBlock)(NSError *);
 
 #pragma mark - log in status
 - (NSString*)fetchUserEmailFromKeyChain {
-  NSArray* accounts = [SSKeychain accountsForService:kPacoService];
-  if (0 == [accounts count]) {
+  GTMAppAuthFetcherAuthorization *authorization = [GTMAppAuthFetcherAuthorization authorizationFromKeychainForName:gtmAppAuthKeyChainName];
+  if (!authorization) {
     NSLog(@"No email stored in Keychain");
     return nil;
   }
-  NSAssert([accounts count] == 1, @"should only have one account!");
-  NSDictionary* accountDict = accounts[0];
-  NSString* email = accountDict[kSSKeychainAccountKey];
-  NSLog(@"Fetched an email from Keychain");
-  return email;
+  return authorization.userEmail;
 }
 
 - (BOOL)isUserAccountStored {
   NSString* email = [self fetchUserEmailFromKeyChain];
-  NSString* pwd = [SSKeychain passwordForService:kPacoService account:email];
-  if ([email length] > 0 && [pwd length] > 0) {
-    return YES;
-  }
-  return NO;
+  return [email length] > 0;
 }
 
 - (BOOL)hasAccountInKeyChain {
-  NSArray* accounts = [SSKeychain accountsForService:kPacoService];
-  return [accounts count] > 0;
+  GTMAppAuthFetcherAuthorization *authorization = [GTMAppAuthFetcherAuthorization authorizationFromKeychainForName:gtmAppAuthKeyChainName];
+  return authorization;
 }
 
 - (void)deleteAllAccountsFromKeyChain {
-  NSArray* accounts = [NSArray arrayWithArray:[SSKeychain accountsForService:kPacoService]];
-  for (NSDictionary* accountDict in accounts) {
-    NSString* email = accountDict[kSSKeychainAccountKey];
-    BOOL success = [SSKeychain deletePasswordForService:kPacoService account:email];
-    if (!success) {
-      NSLog(@"[ERROR] Failed to delete password and account in keychain!");
-    }
-  }
+  [GTMAppAuthFetcherAuthorization removeAuthorizationFromKeychainForName:gtmAppAuthKeyChainName];
 }
 
 - (void)deleteAccount {
@@ -94,13 +104,9 @@ typedef void (^PacoAuthenticationBlock)(NSError *);
   if ([self hasAccountInKeyChain]) {
     [self deleteAllAccountsFromKeyChain];
   }
-  // Remove auth from keychain to prevent future auto sign-in as (null).
-  [GTMOAuth2ViewControllerTouch removeAuthFromKeychainForName:@"PacoKeychain2"];
-  [GTMOAuth2ViewControllerTouch revokeTokenForGoogleAuthentication:self.auth];
 }
 
-- (BOOL)isLoggedIn
-{
+- (BOOL)isLoggedIn {
   return self.userLoggedIn;
 }
 
@@ -117,70 +123,102 @@ typedef void (^PacoAuthenticationBlock)(NSError *);
 }
 
 - (void)reAuthenticateWithBlock:(void(^)(NSError*))completionBlock {
-  [self authenticateWithOAuth2WithCompletionHandler:completionBlock];
+  [self authenticateWithGTMAppAuthWithCompletionHandler:completionBlock];
 }
 
+#pragma mark - GTMAppAuth
 
-#pragma mark - OAuth2
+- (void)authenticateWithGTMAppAuthWithCompletionHandler:(void (^)(NSError *))completionHandler {
+  // Attempt to deserialize from Keychain in GTMAppAuth format.
+  GTMAppAuthFetcherAuthorization *authorization = [GTMAppAuthFetcherAuthorization authorizationFromKeychainForName:gtmAppAuthKeyChainName];
+  self.auth = authorization;
 
-- (void)authenticateWithOAuth2WithCompletionHandler:(void (^)(NSError *))completionHandler {
-  // Standard OAuth2 login flow.
-  // See: https://code.google.com/apis/console/#project:406945030854:access
   
-  NSString *scopes = @"https://www.googleapis.com/auth/userinfo.email";
-  NSString *clientId = @"1051938716780.apps.googleusercontent.com";
-
-  // ispiro: Apparently the clientSecret parameter can be empty and auth still succeeds.
-  NSString *clientSecret = @"";
-  GTMOAuth2Authentication *keychainAuth =
-      [GTMOAuth2ViewControllerTouch
-          authForGoogleFromKeychainForName:@"PacoKeychain2"
-          clientID:clientId
-          clientSecret:clientSecret];
-  
-  if (keychainAuth && (keychainAuth.parameters)[@"refresh_token"]) {
-    self.auth = keychainAuth;
+  // If no data found in the new format, try to deserialize data from GTMOAuth2
+  if (!authorization) {
+    // Tries to load the data serialized by GTMOAuth2 using old keychain name.
+    // If you created a new client id, be sure to use the *previous* client id and secret here.
+    authorization =
+    [GTMOAuth2KeychainCompatibility authForGoogleFromKeychainForName:oldKeyChainName
+                                                            clientID:@"1051938716780.apps.googleusercontent.com"
+                                                        clientSecret:@""];
+    if (authorization) {
+      // Remove previously stored GTMOAuth2-formatted data.
+      [GTMOAuth2KeychainCompatibility removeAuthFromKeychainForName:oldKeyChainName];
+      // Serialize to Keychain in GTMAppAuth format.
+      [GTMAppAuthFetcherAuthorization saveAuthorization:(GTMAppAuthFetcherAuthorization *)authorization
+                                      toKeychainForName:gtmAppAuthKeyChainName];
+      if (completionHandler) {
+        completionHandler(nil);
+      }
+    } else {
+              NSURL *issuer = [NSURL URLWithString:kIssuer];
+        NSURL *redirectURI = [NSURL URLWithString:kRedirectURI];
+        
+        NSLog(@"Fetching configuration for issuer: %@", issuer);
+        
+        // discovers endpoints
+        [OIDAuthorizationService
+         discoverServiceConfigurationForIssuer:issuer
+         completion:^(OIDServiceConfiguration *_Nullable configuration, NSError *_Nullable error) {
+           
+           if (!configuration) {
+             NSLog(@"Error retrieving discovery document: %@", [error localizedDescription]);
+             self.auth = nil;
+             return;
+           }
+           
+           NSLog(@"Got configuration", nil);
+           
+           // builds authentication request
+           OIDAuthorizationRequest *request =
+             [[OIDAuthorizationRequest alloc] initWithConfiguration:configuration
+                                                         clientId:kClientID
+                                                           scopes:@[OIDScopeEmail]
+                                                      redirectURL:redirectURI
+                                                     responseType:OIDResponseTypeCode
+                                             additionalParameters:nil];
+           // performs authentication request
+           PacoAppDelegate *appDelegate = (PacoAppDelegate *)[[UIApplication sharedApplication] delegate];
+           NSLog(@"Initiating authorization request with scope: %@", request.scope);
+           
+           UIViewController *controller = [UIApplication sharedApplication].keyWindow.rootViewController;
+                         
+           appDelegate.currentAuthorizationFlow =
+              [OIDAuthState authStateByPresentingAuthorizationRequest:request
+                                          presentingViewController:controller
+                                                          callback:^(OIDAuthState *_Nullable authState,
+                                                                     NSError *_Nullable error) {
+                                                            if (authState) {
+                                                              GTMAppAuthFetcherAuthorization *authorization =
+                                                              [[GTMAppAuthFetcherAuthorization alloc] initWithAuthState:authState];
+                                                              
+                                                              self.auth = authorization;
+                                                              NSLog(@"Got authorization tokens. ", nil); //authState.lastTokenResponse.accessToken);
+                                                              [GTMAppAuthFetcherAuthorization saveAuthorization:(GTMAppAuthFetcherAuthorization *)authorization
+                                                                                              toKeychainForName:gtmAppAuthKeyChainName];
+                                                              NSLog(@"PACO OAUTH2 LOGIN AUTH SUCCEEDED [%@]", authorization.authState.refreshToken);
+                                                              self.userLoggedIn = YES;
+                                                              if (completionHandler) {
+                                                                completionHandler(nil);
+                                                              }
+                                                              
+                                                            } else {
+                                                              self.auth = nil;
+                                                              NSLog(@"Authorization error: %@", [error localizedDescription]);
+                                                              NSLog(@"PACO OAUTH2 LOGIN AUTH FAILED [%@]", error);
+                                                              self.userLoggedIn = NO;
+                                                            }
+                                                          }];
+         }];
+      
+    }
+  } else {
+    self.auth = authorization;
     if (completionHandler) {
       completionHandler(nil);
     }
-    return;
   }
-
-
-  _authUI = [[GTMOAuth2ViewControllerTouch alloc]
-      initWithScope:scopes
-      clientID:clientId
-      clientSecret:clientSecret
-      keychainItemName:@"PacoKeychain2"
-      completionHandler:^(GTMOAuth2ViewControllerTouch *viewController,
-                          GTMOAuth2Authentication *auth,
-                          NSError *error) {
-          BOOL result = [GTMOAuth2ViewControllerTouch saveParamsToKeychainForName:@"PacoKeychain2"
-                                                                   authentication:auth];
-          assert(result);
-          // TODO(ispiro): If user presses cancel at the final screen, assert will fail. Should return to splash screen.
-          self.auth = auth;
-          if (auth && !error) {
-            [SSKeychain setPassword:@""
-                         forService:kPacoService
-                            account:auth.userEmail];
-            NSLog(@"PACO OAUTH2 LOGIN AUTH SUCCEEDED [%@]", auth.tokenURL.absoluteString);
-            self.userLoggedIn = YES;
-          } else {
-            NSLog(@"PACO OAUTH2 LOGIN AUTH FAILED [%@]", error);
-            self.userLoggedIn = NO;
-          }
-          if (completionHandler) {
-            completionHandler(nil);
-          }
-          // TODO(ispiro): Find a way to hide this window faster.
-          [[UIApplication sharedApplication].keyWindow.rootViewController
-              dismissViewControllerAnimated:NO completion:^{}];
-      }];
-  [[UIApplication sharedApplication].keyWindow.rootViewController
-      presentViewController:_authUI animated:NO completion:^{
-        self.authUI = nil;
-      }];
 }
 
 @end

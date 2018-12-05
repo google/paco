@@ -16,6 +16,7 @@
 #import <UIKit/UIKit.h>
 
 @class PacoMainViewController;
+@protocol OIDAuthorizationFlowSession;
 
 @interface PacoAppDelegate : UIResponder <UIApplicationDelegate>
 
@@ -26,5 +27,13 @@
 @property (strong, nonatomic) UILocalNotification* notificationFromAppLaunch;
 
 - (void)processNotificationIfNeeded;
+
+/*! @brief The authorization flow session which receives the return URL from
+ \SFSafariViewController.
+ @discussion We need to store this in the app delegate as it's that delegate which receives the
+ incoming URL on UIApplicationDelegate.application:openURL:options:. This property will be
+ nil, except when an authorization flow is in progress.
+ */
+@property(nonatomic, strong, nullable) id<OIDAuthorizationFlowSession> currentAuthorizationFlow;
 
 @end
