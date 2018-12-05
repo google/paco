@@ -37,7 +37,7 @@
 
       <md-input-container flex>
         <label>Published Audience</label>
-        <input type="text" ng-model="experiment.publishedUsers" ng-list=", "></input>
+        <textarea ng-model="experiment.publishedUsers" ng-list=", "></textarea>
         <div ng-messages>
           <div ng-message>Enter emails separated by commas. An empty list is publishing publicly.</div>
         </div>

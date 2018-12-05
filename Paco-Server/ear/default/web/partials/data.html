@@ -6,7 +6,6 @@
         <md-button>Experiments</md-button>
       </a>
       <img src="/img/ic_chevron_right_24px.svg">
-
       <a href="#/experiment/{{experimentId}}">
         <md-button aria-label="experiment name">
           <span ng-if="!experiment">{{experimentId}}</span>
@@ -20,6 +19,9 @@
           <md-option value="data" aria-label="data view">Data</md-option>
         </md-select>
       </md-input-container>
+
+      <md-chips ng-if="restrict" ng-model="userChips" md-on-remove="removeUserChip()"></md-chips>
+
       <md-menu md-offset="108 4">
         <md-button aria-label="Toggle displayed columns" ng-click="$mdOpenMenu($event)">
           Columns
@@ -54,15 +56,18 @@
             </td>
           </tr>
           <tr ng-repeat="row in table.rows | orderBy: columnSort: reverseSort">
-            <td ng-repeat="cell in row track by $index" ng-show="showColumn[table.header[$index]]">{{cell}}</td>
+            <td ng-repeat="cell in row track by $index" ng-show="showColumn[table.header[$index]]">
+              <a href="#/data/{{experiment.id}}/{{cell}}" ng-if="table.header[$index]=='who' && !users && !anon">{{cell}}</a>
+              <span ng-if="table.header[$index]!='who' || users || anon">{{cell}}</span>
+            </td>
           </tr>
         </tbody>
       </table>
     </div>
 
-    <md-card class="footer">
+    <md-card class="footer" ng-if="table && table.rows.length > 0">
       <md-card-content>
-        Showing {{table.rows.length - 1}} out of {{table.rows.length - 1}}
+        Showing {{table.rows.length}} out of {{table.rows.length}}
         <a ng-href="{{csvData}}" download="export.csv" class="download">
           <md-button>Download CSV</md-button>
         </a>  

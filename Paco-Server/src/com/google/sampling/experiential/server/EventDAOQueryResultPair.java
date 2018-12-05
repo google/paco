@@ -8,11 +8,11 @@ import com.google.sampling.experiential.shared.EventDAO;
 public class EventDAOQueryResultPair implements Serializable{
 
   private List<EventDAO> events;
-  private String nextCursor;
+  private String cursor;
 
-  public EventDAOQueryResultPair(List<EventDAO> eventDAOs, String nextCursor) {
+  public EventDAOQueryResultPair(List<EventDAO> eventDAOs, String cursor) {
     this.events = eventDAOs;
-    this.nextCursor = nextCursor;
+    this.cursor = cursor;
   }
 
   public List<EventDAO> getEvents() {
@@ -23,12 +23,12 @@ public class EventDAOQueryResultPair implements Serializable{
     this.events = events;
   }
 
-  public String getNextCursor() {
-    return nextCursor;
+  public String getCursor() {
+    return cursor;
   }
 
-  public void setNextCursor(String nextCursor) {
-    this.nextCursor = nextCursor;
+  public void setCursor(String cursor) {
+    this.cursor = cursor;
   }
 
 

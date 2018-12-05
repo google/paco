@@ -212,7 +212,7 @@ public class EventServlet extends HttpServlet {
                                    event.getActionTriggerSpecId(),
                                    event.getActionId()));
       }
-      EventDAOQueryResultPair eventDaoQueryResultPair = new EventDAOQueryResultPair(eventDAOs, eventQueryPair.getNextCursor());
+      EventDAOQueryResultPair eventDaoQueryResultPair = new EventDAOQueryResultPair(eventDAOs, eventQueryPair.getCursor());
       return mapper.writeValueAsString(eventDaoQueryResultPair);
     } catch (JsonGenerationException e) {
       e.printStackTrace();

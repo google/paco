@@ -34,6 +34,7 @@ import com.pacoapp.paco.shared.model.ExperimentQueryResult;
 import com.pacoapp.paco.shared.model.SignalScheduleDAO;
 import com.pacoapp.paco.shared.model.SignalTimeDAO;
 import com.pacoapp.paco.shared.model.SignalingMechanismDAO;
+import com.pacoapp.paco.shared.model2.Pair;
 
 public class ExperimentRetrieverOld {
 
