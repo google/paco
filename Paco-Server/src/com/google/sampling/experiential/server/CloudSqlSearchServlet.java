@@ -22,6 +22,7 @@ import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.json.JSONException;
+import org.json.JSONObject;
 
 import com.google.appengine.api.users.User;
 import com.google.common.collect.Lists;
@@ -107,6 +108,10 @@ public class CloudSqlSearchServlet extends HttpServlet {
       CloudSQLDao impl = new CloudSQLDaoImpl();
       String reqBody = RequestProcessorUtil.getBody(req);
       try {
+        if(reqBody.startsWith("{\"message")) {
+          JSONObject queryObj = new JSONObject(reqBody);
+          reqBody = queryObj.getString("message");
+        }
         sqlQueryObj = QueryJsonParser.parseSqlQueryFromJson(reqBody, enableGrpByAndProjection);
         String plainSql = SearchUtil.getPlainSql(sqlQueryObj);
         selStatement = SearchUtil.getJsqlSelectStatement(plainSql);
