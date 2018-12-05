@@ -1,0 +1,1097 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		A675261F1CD6C5B3000882B1 /* PacoUtil.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = A675261E1CD6C5B3000882B1 /* PacoUtil.h */; };
+		A67526211CD6C5B3000882B1 /* PacoUtil.m in Sources */ = {isa = PBXBuildFile; fileRef = A67526201CD6C5B3000882B1 /* PacoUtil.m */; };
+		A67526301CD6C709000882B1 /* OrgJodaTimeDateTime+PacoDateHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = A675262F1CD6C709000882B1 /* OrgJodaTimeDateTime+PacoDateHelper.m */; };
+		A67526341CD6C779000882B1 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A67526331CD6C779000882B1 /* Security.framework */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		A6752CC21CD7BD4B000882B1 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = A6752CBE1CD7BD4B000882B1 /* JodaCompile.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = A605D5E01C77AA0700770A4E;
+			remoteInfo = JodaCompile;
+		};
+		A6752CC41CD7BDA7000882B1 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = A6752CBE1CD7BD4B000882B1 /* JodaCompile.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = A605D5DF1C77AA0700770A4E;
+			remoteInfo = JodaCompile;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		A67526191CD6C5B3000882B1 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "include/$(PRODUCT_NAME)";
+			dstSubfolderSpec = 16;
+			files = (
+				A675261F1CD6C5B3000882B1 /* PacoUtil.h in CopyFiles */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		A675261B1CD6C5B3000882B1 /* libPacoUtil.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libPacoUtil.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		A675261E1CD6C5B3000882B1 /* PacoUtil.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PacoUtil.h; sourceTree = "<group>"; };
+		A67526201CD6C5B3000882B1 /* PacoUtil.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = PacoUtil.m; sourceTree = "<group>"; };
+		A675262E1CD6C709000882B1 /* OrgJodaTimeDateTime+PacoDateHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "OrgJodaTimeDateTime+PacoDateHelper.h"; path = "../../OrgJodaTimeDateTime+PacoDateHelper.h"; sourceTree = "<group>"; };
+		A675262F1CD6C709000882B1 /* OrgJodaTimeDateTime+PacoDateHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "OrgJodaTimeDateTime+PacoDateHelper.m"; path = "../../OrgJodaTimeDateTime+PacoDateHelper.m"; sourceTree = "<group>"; };
+		A67526331CD6C779000882B1 /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
+		A67527551CD6C9F2000882B1 /* FromString.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FromString.h; sourceTree = "<group>"; };
+		A67527561CD6C9F2000882B1 /* FromString.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FromString.m; sourceTree = "<group>"; };
+		A67527571CD6C9F2000882B1 /* ToString.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ToString.h; sourceTree = "<group>"; };
+		A67527581CD6C9F2000882B1 /* ToString.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ToString.m; sourceTree = "<group>"; };
+		A675275B1CD6C9F2000882B1 /* AbstractDateTime.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AbstractDateTime.h; sourceTree = "<group>"; };
+		A675275C1CD6C9F2000882B1 /* AbstractDateTime.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AbstractDateTime.m; sourceTree = "<group>"; };
+		A675275D1CD6C9F2000882B1 /* AbstractDuration.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AbstractDuration.h; sourceTree = "<group>"; };
+		A675275E1CD6C9F2000882B1 /* AbstractDuration.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AbstractDuration.m; sourceTree = "<group>"; };
+		A675275F1CD6C9F2000882B1 /* AbstractInstant.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AbstractInstant.h; sourceTree = "<group>"; };
+		A67527601CD6C9F2000882B1 /* AbstractInstant.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AbstractInstant.m; sourceTree = "<group>"; };
+		A67527611CD6C9F2000882B1 /* AbstractInterval.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AbstractInterval.h; sourceTree = "<group>"; };
+		A67527621CD6C9F2000882B1 /* AbstractInterval.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AbstractInterval.m; sourceTree = "<group>"; };
+		A67527631CD6C9F2000882B1 /* AbstractPartial.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AbstractPartial.h; sourceTree = "<group>"; };
+		A67527641CD6C9F2000882B1 /* AbstractPartial.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AbstractPartial.m; sourceTree = "<group>"; };
+		A67527651CD6C9F2000882B1 /* AbstractPeriod.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AbstractPeriod.h; sourceTree = "<group>"; };
+		A67527661CD6C9F2000882B1 /* AbstractPeriod.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AbstractPeriod.m; sourceTree = "<group>"; };
+		A67527671CD6C9F2000882B1 /* BaseDateTime.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BaseDateTime.h; sourceTree = "<group>"; };
+		A67527681CD6C9F2000882B1 /* BaseDateTime.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = BaseDateTime.m; sourceTree = "<group>"; };
+		A67527691CD6C9F2000882B1 /* BaseDuration.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BaseDuration.h; sourceTree = "<group>"; };
+		A675276A1CD6C9F2000882B1 /* BaseDuration.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = BaseDuration.m; sourceTree = "<group>"; };
+		A675276B1CD6C9F2000882B1 /* BaseInterval.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BaseInterval.h; sourceTree = "<group>"; };
+		A675276C1CD6C9F2000882B1 /* BaseInterval.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = BaseInterval.m; sourceTree = "<group>"; };
+		A675276D1CD6C9F2000882B1 /* BaseLocal.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BaseLocal.h; sourceTree = "<group>"; };
+		A675276E1CD6C9F2000882B1 /* BaseLocal.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = BaseLocal.m; sourceTree = "<group>"; };
+		A675276F1CD6C9F2000882B1 /* BasePartial.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BasePartial.h; sourceTree = "<group>"; };
+		A67527701CD6C9F2000882B1 /* BasePartial.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = BasePartial.m; sourceTree = "<group>"; };
+		A67527711CD6C9F2000882B1 /* BasePeriod.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BasePeriod.h; sourceTree = "<group>"; };
+		A67527721CD6C9F2000882B1 /* BasePeriod.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = BasePeriod.m; sourceTree = "<group>"; };
+		A67527731CD6C9F2000882B1 /* BaseSingleFieldPeriod.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BaseSingleFieldPeriod.h; sourceTree = "<group>"; };
+		A67527741CD6C9F2000882B1 /* BaseSingleFieldPeriod.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = BaseSingleFieldPeriod.m; sourceTree = "<group>"; };
+		A67527761CD6C9F2000882B1 /* AssembledChronology.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AssembledChronology.h; sourceTree = "<group>"; };
+		A67527771CD6C9F2000882B1 /* AssembledChronology.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AssembledChronology.m; sourceTree = "<group>"; };
+		A67527781CD6C9F2000882B1 /* BaseChronology.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BaseChronology.h; sourceTree = "<group>"; };
+		A67527791CD6C9F2000882B1 /* BaseChronology.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = BaseChronology.m; sourceTree = "<group>"; };
+		A675277A1CD6C9F2000882B1 /* BasicChronology.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BasicChronology.h; sourceTree = "<group>"; };
+		A675277B1CD6C9F2000882B1 /* BasicChronology.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = BasicChronology.m; sourceTree = "<group>"; };
+		A675277C1CD6C9F2000882B1 /* BasicDayOfMonthDateTimeField.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BasicDayOfMonthDateTimeField.h; sourceTree = "<group>"; };
+		A675277D1CD6C9F2000882B1 /* BasicDayOfMonthDateTimeField.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = BasicDayOfMonthDateTimeField.m; sourceTree = "<group>"; };
+		A675277E1CD6C9F2000882B1 /* BasicDayOfYearDateTimeField.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BasicDayOfYearDateTimeField.h; sourceTree = "<group>"; };
+		A675277F1CD6C9F2000882B1 /* BasicDayOfYearDateTimeField.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = BasicDayOfYearDateTimeField.m; sourceTree = "<group>"; };
+		A67527801CD6C9F2000882B1 /* BasicFixedMonthChronology.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BasicFixedMonthChronology.h; sourceTree = "<group>"; };
+		A67527811CD6C9F2000882B1 /* BasicFixedMonthChronology.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = BasicFixedMonthChronology.m; sourceTree = "<group>"; };
+		A67527821CD6C9F2000882B1 /* BasicGJChronology.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BasicGJChronology.h; sourceTree = "<group>"; };
+		A67527831CD6C9F2000882B1 /* BasicGJChronology.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = BasicGJChronology.m; sourceTree = "<group>"; };
+		A67527841CD6C9F2000882B1 /* BasicMonthOfYearDateTimeField.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BasicMonthOfYearDateTimeField.h; sourceTree = "<group>"; };
+		A67527851CD6C9F2000882B1 /* BasicMonthOfYearDateTimeField.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = BasicMonthOfYearDateTimeField.m; sourceTree = "<group>"; };
+		A67527861CD6C9F2000882B1 /* BasicSingleEraDateTimeField.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BasicSingleEraDateTimeField.h; sourceTree = "<group>"; };
+		A67527871CD6C9F2000882B1 /* BasicSingleEraDateTimeField.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = BasicSingleEraDateTimeField.m; sourceTree = "<group>"; };
+		A67527881CD6C9F2000882B1 /* BasicWeekOfWeekyearDateTimeField.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BasicWeekOfWeekyearDateTimeField.h; sourceTree = "<group>"; };
+		A67527891CD6C9F2000882B1 /* BasicWeekOfWeekyearDateTimeField.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = BasicWeekOfWeekyearDateTimeField.m; sourceTree = "<group>"; };
+		A675278A1CD6C9F2000882B1 /* BasicWeekyearDateTimeField.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BasicWeekyearDateTimeField.h; sourceTree = "<group>"; };
+		A675278B1CD6C9F2000882B1 /* BasicWeekyearDateTimeField.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = BasicWeekyearDateTimeField.m; sourceTree = "<group>"; };
+		A675278C1CD6C9F2000882B1 /* BasicYearDateTimeField.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BasicYearDateTimeField.h; sourceTree = "<group>"; };
+		A675278D1CD6C9F2000882B1 /* BasicYearDateTimeField.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = BasicYearDateTimeField.m; sourceTree = "<group>"; };
+		A675278E1CD6C9F2000882B1 /* BuddhistChronology.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BuddhistChronology.h; sourceTree = "<group>"; };
+		A675278F1CD6C9F2000882B1 /* BuddhistChronology.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = BuddhistChronology.m; sourceTree = "<group>"; };
+		A67527901CD6C9F2000882B1 /* CopticChronology.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CopticChronology.h; sourceTree = "<group>"; };
+		A67527911CD6C9F2000882B1 /* CopticChronology.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = CopticChronology.m; sourceTree = "<group>"; };
+		A67527921CD6C9F2000882B1 /* EthiopicChronology.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = EthiopicChronology.h; sourceTree = "<group>"; };
+		A67527931CD6C9F2000882B1 /* EthiopicChronology.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = EthiopicChronology.m; sourceTree = "<group>"; };
+		A67527941CD6C9F2000882B1 /* GJCacheKey.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GJCacheKey.h; sourceTree = "<group>"; };
+		A67527951CD6C9F2000882B1 /* GJCacheKey.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = GJCacheKey.m; sourceTree = "<group>"; };
+		A67527961CD6C9F2000882B1 /* GJChronology.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GJChronology.h; sourceTree = "<group>"; };
+		A67527971CD6C9F2000882B1 /* GJChronology.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = GJChronology.m; sourceTree = "<group>"; };
+		A67527981CD6C9F2000882B1 /* GJDayOfWeekDateTimeField.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GJDayOfWeekDateTimeField.h; sourceTree = "<group>"; };
+		A67527991CD6C9F2000882B1 /* GJDayOfWeekDateTimeField.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = GJDayOfWeekDateTimeField.m; sourceTree = "<group>"; };
+		A675279A1CD6C9F2000882B1 /* GJEraDateTimeField.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GJEraDateTimeField.h; sourceTree = "<group>"; };
+		A675279B1CD6C9F2000882B1 /* GJEraDateTimeField.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = GJEraDateTimeField.m; sourceTree = "<group>"; };
+		A675279C1CD6C9F2000882B1 /* GJLocaleSymbols.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GJLocaleSymbols.h; sourceTree = "<group>"; };
+		A675279D1CD6C9F2000882B1 /* GJLocaleSymbols.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = GJLocaleSymbols.m; sourceTree = "<group>"; };
+		A675279E1CD6C9F2000882B1 /* GJMonthOfYearDateTimeField.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GJMonthOfYearDateTimeField.h; sourceTree = "<group>"; };
+		A675279F1CD6C9F2000882B1 /* GJMonthOfYearDateTimeField.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = GJMonthOfYearDateTimeField.m; sourceTree = "<group>"; };
+		A67527A01CD6C9F2000882B1 /* GJYearOfEraDateTimeField.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GJYearOfEraDateTimeField.h; sourceTree = "<group>"; };
+		A67527A11CD6C9F2000882B1 /* GJYearOfEraDateTimeField.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = GJYearOfEraDateTimeField.m; sourceTree = "<group>"; };
+		A67527A21CD6C9F2000882B1 /* GregorianChronology.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GregorianChronology.h; sourceTree = "<group>"; };
+		A67527A31CD6C9F2000882B1 /* GregorianChronology.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = GregorianChronology.m; sourceTree = "<group>"; };
+		A67527A41CD6C9F2000882B1 /* IslamicChronology.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IslamicChronology.h; sourceTree = "<group>"; };
+		A67527A51CD6C9F2000882B1 /* IslamicChronology.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = IslamicChronology.m; sourceTree = "<group>"; };
+		A67527A61CD6C9F2000882B1 /* ISOChronology.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ISOChronology.h; sourceTree = "<group>"; };
+		A67527A71CD6C9F2000882B1 /* ISOChronology.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ISOChronology.m; sourceTree = "<group>"; };
+		A67527A81CD6C9F2000882B1 /* ISOYearOfEraDateTimeField.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ISOYearOfEraDateTimeField.h; sourceTree = "<group>"; };
+		A67527A91CD6C9F2000882B1 /* ISOYearOfEraDateTimeField.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ISOYearOfEraDateTimeField.m; sourceTree = "<group>"; };
+		A67527AA1CD6C9F2000882B1 /* JulianChronology.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = JulianChronology.h; sourceTree = "<group>"; };
+		A67527AB1CD6C9F2000882B1 /* JulianChronology.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = JulianChronology.m; sourceTree = "<group>"; };
+		A67527AC1CD6C9F2000882B1 /* LenientChronology.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LenientChronology.h; sourceTree = "<group>"; };
+		A67527AD1CD6C9F2000882B1 /* LenientChronology.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = LenientChronology.m; sourceTree = "<group>"; };
+		A67527AE1CD6C9F2000882B1 /* LimitChronology.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LimitChronology.h; sourceTree = "<group>"; };
+		A67527AF1CD6C9F2000882B1 /* LimitChronology.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = LimitChronology.m; sourceTree = "<group>"; };
+		A67527B01CD6C9F2000882B1 /* StrictChronology.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = StrictChronology.h; sourceTree = "<group>"; };
+		A67527B11CD6C9F2000882B1 /* StrictChronology.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = StrictChronology.m; sourceTree = "<group>"; };
+		A67527B21CD6C9F2000882B1 /* ZonedChronology.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ZonedChronology.h; sourceTree = "<group>"; };
+		A67527B31CD6C9F2000882B1 /* ZonedChronology.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ZonedChronology.m; sourceTree = "<group>"; };
+		A67527B41CD6C9F2000882B1 /* Chronology.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Chronology.h; sourceTree = "<group>"; };
+		A67527B51CD6C9F2000882B1 /* Chronology.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Chronology.m; sourceTree = "<group>"; };
+		A67527B71CD6C9F2000882B1 /* AbstractConverter.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AbstractConverter.h; sourceTree = "<group>"; };
+		A67527B81CD6C9F2000882B1 /* AbstractConverter.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AbstractConverter.m; sourceTree = "<group>"; };
+		A67527B91CD6C9F2000882B1 /* CalendarConverter.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CalendarConverter.h; sourceTree = "<group>"; };
+		A67527BA1CD6C9F2000882B1 /* CalendarConverter.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = CalendarConverter.m; sourceTree = "<group>"; };
+		A67527BB1CD6C9F2000882B1 /* Converter.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Converter.h; sourceTree = "<group>"; };
+		A67527BC1CD6C9F2000882B1 /* Converter.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Converter.m; sourceTree = "<group>"; };
+		A67527BD1CD6C9F2000882B1 /* ConverterManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ConverterManager.h; sourceTree = "<group>"; };
+		A67527BE1CD6C9F2000882B1 /* ConverterManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ConverterManager.m; sourceTree = "<group>"; };
+		A67527BF1CD6C9F2000882B1 /* ConverterSet.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ConverterSet.h; sourceTree = "<group>"; };
+		A67527C01CD6C9F2000882B1 /* ConverterSet.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ConverterSet.m; sourceTree = "<group>"; };
+		A67527C11CD6C9F2000882B1 /* DateConverter.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DateConverter.h; sourceTree = "<group>"; };
+		A67527C21CD6C9F2000882B1 /* DateConverter.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DateConverter.m; sourceTree = "<group>"; };
+		A67527C31CD6C9F2000882B1 /* DurationConverter.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DurationConverter.h; sourceTree = "<group>"; };
+		A67527C41CD6C9F2000882B1 /* DurationConverter.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DurationConverter.m; sourceTree = "<group>"; };
+		A67527C51CD6C9F2000882B1 /* InstantConverter.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = InstantConverter.h; sourceTree = "<group>"; };
+		A67527C61CD6C9F2000882B1 /* InstantConverter.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = InstantConverter.m; sourceTree = "<group>"; };
+		A67527C71CD6C9F2000882B1 /* IntervalConverter.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IntervalConverter.h; sourceTree = "<group>"; };
+		A67527C81CD6C9F2000882B1 /* IntervalConverter.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = IntervalConverter.m; sourceTree = "<group>"; };
+		A67527C91CD6C9F2000882B1 /* LongConverter.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LongConverter.h; sourceTree = "<group>"; };
+		A67527CA1CD6C9F2000882B1 /* LongConverter.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = LongConverter.m; sourceTree = "<group>"; };
+		A67527CB1CD6C9F2000882B1 /* NullConverter.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NullConverter.h; sourceTree = "<group>"; };
+		A67527CC1CD6C9F2000882B1 /* NullConverter.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NullConverter.m; sourceTree = "<group>"; };
+		A67527CD1CD6C9F2000882B1 /* PartialConverter.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PartialConverter.h; sourceTree = "<group>"; };
+		A67527CE1CD6C9F2000882B1 /* PartialConverter.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = PartialConverter.m; sourceTree = "<group>"; };
+		A67527CF1CD6C9F2000882B1 /* PeriodConverter.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PeriodConverter.h; sourceTree = "<group>"; };
+		A67527D01CD6C9F2000882B1 /* PeriodConverter.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = PeriodConverter.m; sourceTree = "<group>"; };
+		A67527D11CD6C9F2000882B1 /* ReadableDurationConverter.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ReadableDurationConverter.h; sourceTree = "<group>"; };
+		A67527D21CD6C9F2000882B1 /* ReadableDurationConverter.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ReadableDurationConverter.m; sourceTree = "<group>"; };
+		A67527D31CD6C9F2000882B1 /* ReadableInstantConverter.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ReadableInstantConverter.h; sourceTree = "<group>"; };
+		A67527D41CD6C9F2000882B1 /* ReadableInstantConverter.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ReadableInstantConverter.m; sourceTree = "<group>"; };
+		A67527D51CD6C9F2000882B1 /* ReadableIntervalConverter.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ReadableIntervalConverter.h; sourceTree = "<group>"; };
+		A67527D61CD6C9F2000882B1 /* ReadableIntervalConverter.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ReadableIntervalConverter.m; sourceTree = "<group>"; };
+		A67527D71CD6C9F2000882B1 /* ReadablePartialConverter.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ReadablePartialConverter.h; sourceTree = "<group>"; };
+		A67527D81CD6C9F2000882B1 /* ReadablePartialConverter.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ReadablePartialConverter.m; sourceTree = "<group>"; };
+		A67527D91CD6C9F2000882B1 /* ReadablePeriodConverter.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ReadablePeriodConverter.h; sourceTree = "<group>"; };
+		A67527DA1CD6C9F2000882B1 /* ReadablePeriodConverter.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ReadablePeriodConverter.m; sourceTree = "<group>"; };
+		A67527DB1CD6C9F2000882B1 /* StringConverter.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = StringConverter.h; sourceTree = "<group>"; };
+		A67527DC1CD6C9F2000882B1 /* StringConverter.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = StringConverter.m; sourceTree = "<group>"; };
+		A67527DD1CD6C9F2000882B1 /* DateMidnight.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DateMidnight.h; sourceTree = "<group>"; };
+		A67527DE1CD6C9F2000882B1 /* DateMidnight.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DateMidnight.m; sourceTree = "<group>"; };
+		A67527DF1CD6C9F2000882B1 /* DateTime.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DateTime.h; sourceTree = "<group>"; };
+		A67527E01CD6C9F2000882B1 /* DateTime.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DateTime.m; sourceTree = "<group>"; };
+		A67527E11CD6C9F2000882B1 /* DateTimeComparator.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DateTimeComparator.h; sourceTree = "<group>"; };
+		A67527E21CD6C9F2000882B1 /* DateTimeComparator.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DateTimeComparator.m; sourceTree = "<group>"; };
+		A67527E31CD6C9F2000882B1 /* DateTimeConstants.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DateTimeConstants.h; sourceTree = "<group>"; };
+		A67527E41CD6C9F2000882B1 /* DateTimeConstants.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DateTimeConstants.m; sourceTree = "<group>"; };
+		A67527E51CD6C9F2000882B1 /* DateTimeField.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DateTimeField.h; sourceTree = "<group>"; };
+		A67527E61CD6C9F2000882B1 /* DateTimeField.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DateTimeField.m; sourceTree = "<group>"; };
+		A67527E71CD6C9F2000882B1 /* DateTimeFieldType.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DateTimeFieldType.h; sourceTree = "<group>"; };
+		A67527E81CD6C9F2000882B1 /* DateTimeFieldType.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DateTimeFieldType.m; sourceTree = "<group>"; };
+		A67527E91CD6C9F2000882B1 /* DateTimeUtils.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DateTimeUtils.h; sourceTree = "<group>"; };
+		A67527EA1CD6C9F2000882B1 /* DateTimeUtils.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DateTimeUtils.m; sourceTree = "<group>"; };
+		A67527EB1CD6C9F2000882B1 /* DateTimeZone.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DateTimeZone.h; sourceTree = "<group>"; };
+		A67527EC1CD6C9F2000882B1 /* DateTimeZone.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DateTimeZone.m; sourceTree = "<group>"; };
+		A67527ED1CD6C9F2000882B1 /* Days.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Days.h; sourceTree = "<group>"; };
+		A67527EE1CD6C9F2000882B1 /* Days.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Days.m; sourceTree = "<group>"; };
+		A67527EF1CD6C9F2000882B1 /* Duration.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Duration.h; sourceTree = "<group>"; };
+		A67527F01CD6C9F2000882B1 /* Duration.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Duration.m; sourceTree = "<group>"; };
+		A67527F11CD6C9F2000882B1 /* DurationField.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DurationField.h; sourceTree = "<group>"; };
+		A67527F21CD6C9F2000882B1 /* DurationField.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DurationField.m; sourceTree = "<group>"; };
+		A67527F31CD6C9F2000882B1 /* DurationFieldType.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DurationFieldType.h; sourceTree = "<group>"; };
+		A67527F41CD6C9F2000882B1 /* DurationFieldType.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DurationFieldType.m; sourceTree = "<group>"; };
+		A67527F61CD6C9F2000882B1 /* AbstractPartialFieldProperty.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AbstractPartialFieldProperty.h; sourceTree = "<group>"; };
+		A67527F71CD6C9F2000882B1 /* AbstractPartialFieldProperty.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AbstractPartialFieldProperty.m; sourceTree = "<group>"; };
+		A67527F81CD6C9F2000882B1 /* AbstractReadableInstantFieldProperty.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AbstractReadableInstantFieldProperty.h; sourceTree = "<group>"; };
+		A67527F91CD6C9F2000882B1 /* AbstractReadableInstantFieldProperty.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AbstractReadableInstantFieldProperty.m; sourceTree = "<group>"; };
+		A67527FA1CD6C9F2000882B1 /* BaseDateTimeField.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BaseDateTimeField.h; sourceTree = "<group>"; };
+		A67527FB1CD6C9F2000882B1 /* BaseDateTimeField.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = BaseDateTimeField.m; sourceTree = "<group>"; };
+		A67527FC1CD6C9F2000882B1 /* BaseDurationField.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BaseDurationField.h; sourceTree = "<group>"; };
+		A67527FD1CD6C9F2000882B1 /* BaseDurationField.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = BaseDurationField.m; sourceTree = "<group>"; };
+		A67527FE1CD6C9F2000882B1 /* DecoratedDateTimeField.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DecoratedDateTimeField.h; sourceTree = "<group>"; };
+		A67527FF1CD6C9F2000882B1 /* DecoratedDateTimeField.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DecoratedDateTimeField.m; sourceTree = "<group>"; };
+		A67528001CD6C9F2000882B1 /* DecoratedDurationField.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DecoratedDurationField.h; sourceTree = "<group>"; };
+		A67528011CD6C9F2000882B1 /* DecoratedDurationField.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DecoratedDurationField.m; sourceTree = "<group>"; };
+		A67528021CD6C9F2000882B1 /* DelegatedDateTimeField.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DelegatedDateTimeField.h; sourceTree = "<group>"; };
+		A67528031CD6C9F2000882B1 /* DelegatedDateTimeField.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DelegatedDateTimeField.m; sourceTree = "<group>"; };
+		A67528041CD6C9F2000882B1 /* DelegatedDurationField.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DelegatedDurationField.h; sourceTree = "<group>"; };
+		A67528051CD6C9F2000882B1 /* DelegatedDurationField.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DelegatedDurationField.m; sourceTree = "<group>"; };
+		A67528061CD6C9F2000882B1 /* DividedDateTimeField.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DividedDateTimeField.h; sourceTree = "<group>"; };
+		A67528071CD6C9F2000882B1 /* DividedDateTimeField.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DividedDateTimeField.m; sourceTree = "<group>"; };
+		A67528081CD6C9F2000882B1 /* FieldUtils.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FieldUtils.h; sourceTree = "<group>"; };
+		A67528091CD6C9F2000882B1 /* FieldUtils.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FieldUtils.m; sourceTree = "<group>"; };
+		A675280A1CD6C9F2000882B1 /* ImpreciseDateTimeField.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ImpreciseDateTimeField.h; sourceTree = "<group>"; };
+		A675280B1CD6C9F2000882B1 /* ImpreciseDateTimeField.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ImpreciseDateTimeField.m; sourceTree = "<group>"; };
+		A675280C1CD6C9F2000882B1 /* LenientDateTimeField.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LenientDateTimeField.h; sourceTree = "<group>"; };
+		A675280D1CD6C9F2000882B1 /* LenientDateTimeField.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = LenientDateTimeField.m; sourceTree = "<group>"; };
+		A675280E1CD6C9F2000882B1 /* MillisDurationField.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MillisDurationField.h; sourceTree = "<group>"; };
+		A675280F1CD6C9F2000882B1 /* MillisDurationField.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MillisDurationField.m; sourceTree = "<group>"; };
+		A67528101CD6C9F2000882B1 /* OffsetDateTimeField.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OffsetDateTimeField.h; sourceTree = "<group>"; };
+		A67528111CD6C9F2000882B1 /* OffsetDateTimeField.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OffsetDateTimeField.m; sourceTree = "<group>"; };
+		A67528121CD6C9F2000882B1 /* PreciseDateTimeField.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PreciseDateTimeField.h; sourceTree = "<group>"; };
+		A67528131CD6C9F2000882B1 /* PreciseDateTimeField.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = PreciseDateTimeField.m; sourceTree = "<group>"; };
+		A67528141CD6C9F2000882B1 /* PreciseDurationDateTimeField.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PreciseDurationDateTimeField.h; sourceTree = "<group>"; };
+		A67528151CD6C9F2000882B1 /* PreciseDurationDateTimeField.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = PreciseDurationDateTimeField.m; sourceTree = "<group>"; };
+		A67528161CD6C9F2000882B1 /* PreciseDurationField.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PreciseDurationField.h; sourceTree = "<group>"; };
+		A67528171CD6C9F2000882B1 /* PreciseDurationField.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = PreciseDurationField.m; sourceTree = "<group>"; };
+		A67528181CD6C9F2000882B1 /* RemainderDateTimeField.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RemainderDateTimeField.h; sourceTree = "<group>"; };
+		A67528191CD6C9F2000882B1 /* RemainderDateTimeField.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = RemainderDateTimeField.m; sourceTree = "<group>"; };
+		A675281A1CD6C9F2000882B1 /* ScaledDurationField.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ScaledDurationField.h; sourceTree = "<group>"; };
+		A675281B1CD6C9F2000882B1 /* ScaledDurationField.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ScaledDurationField.m; sourceTree = "<group>"; };
+		A675281C1CD6C9F2000882B1 /* SkipDateTimeField.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SkipDateTimeField.h; sourceTree = "<group>"; };
+		A675281D1CD6C9F2000882B1 /* SkipDateTimeField.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SkipDateTimeField.m; sourceTree = "<group>"; };
+		A675281E1CD6C9F2000882B1 /* SkipUndoDateTimeField.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SkipUndoDateTimeField.h; sourceTree = "<group>"; };
+		A675281F1CD6C9F2000882B1 /* SkipUndoDateTimeField.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SkipUndoDateTimeField.m; sourceTree = "<group>"; };
+		A67528201CD6C9F2000882B1 /* StrictDateTimeField.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = StrictDateTimeField.h; sourceTree = "<group>"; };
+		A67528211CD6C9F2000882B1 /* StrictDateTimeField.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = StrictDateTimeField.m; sourceTree = "<group>"; };
+		A67528221CD6C9F2000882B1 /* UnsupportedDateTimeField.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = UnsupportedDateTimeField.h; sourceTree = "<group>"; };
+		A67528231CD6C9F2000882B1 /* UnsupportedDateTimeField.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = UnsupportedDateTimeField.m; sourceTree = "<group>"; };
+		A67528241CD6C9F2000882B1 /* UnsupportedDurationField.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = UnsupportedDurationField.h; sourceTree = "<group>"; };
+		A67528251CD6C9F2000882B1 /* UnsupportedDurationField.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = UnsupportedDurationField.m; sourceTree = "<group>"; };
+		A67528261CD6C9F2000882B1 /* ZeroIsMaxDateTimeField.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ZeroIsMaxDateTimeField.h; sourceTree = "<group>"; };
+		A67528271CD6C9F2000882B1 /* ZeroIsMaxDateTimeField.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ZeroIsMaxDateTimeField.m; sourceTree = "<group>"; };
+		A67528291CD6C9F2000882B1 /* DateTimeFormat.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DateTimeFormat.h; sourceTree = "<group>"; };
+		A675282A1CD6C9F2000882B1 /* DateTimeFormat.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DateTimeFormat.m; sourceTree = "<group>"; };
+		A675282B1CD6C9F2000882B1 /* DateTimeFormatter.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DateTimeFormatter.h; sourceTree = "<group>"; };
+		A675282C1CD6C9F2000882B1 /* DateTimeFormatter.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DateTimeFormatter.m; sourceTree = "<group>"; };
+		A675282D1CD6C9F2000882B1 /* DateTimeFormatterBuilder.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DateTimeFormatterBuilder.h; sourceTree = "<group>"; };
+		A675282E1CD6C9F2000882B1 /* DateTimeFormatterBuilder.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DateTimeFormatterBuilder.m; sourceTree = "<group>"; };
+		A675282F1CD6C9F2000882B1 /* DateTimeParser.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DateTimeParser.h; sourceTree = "<group>"; };
+		A67528301CD6C9F2000882B1 /* DateTimeParser.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DateTimeParser.m; sourceTree = "<group>"; };
+		A67528311CD6C9F2000882B1 /* DateTimeParserBucket.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DateTimeParserBucket.h; sourceTree = "<group>"; };
+		A67528321CD6C9F2000882B1 /* DateTimeParserBucket.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DateTimeParserBucket.m; sourceTree = "<group>"; };
+		A67528331CD6C9F2000882B1 /* DateTimeParserInternalParser.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DateTimeParserInternalParser.h; sourceTree = "<group>"; };
+		A67528341CD6C9F2000882B1 /* DateTimeParserInternalParser.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DateTimeParserInternalParser.m; sourceTree = "<group>"; };
+		A67528351CD6C9F2000882B1 /* DateTimePrinter.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DateTimePrinter.h; sourceTree = "<group>"; };
+		A67528361CD6C9F2000882B1 /* DateTimePrinter.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DateTimePrinter.m; sourceTree = "<group>"; };
+		A67528371CD6C9F2000882B1 /* DateTimePrinterInternalPrinter.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DateTimePrinterInternalPrinter.h; sourceTree = "<group>"; };
+		A67528381CD6C9F2000882B1 /* DateTimePrinterInternalPrinter.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DateTimePrinterInternalPrinter.m; sourceTree = "<group>"; };
+		A67528391CD6C9F2000882B1 /* FormatUtils.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FormatUtils.h; sourceTree = "<group>"; };
+		A675283A1CD6C9F2000882B1 /* FormatUtils.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FormatUtils.m; sourceTree = "<group>"; };
+		A675283B1CD6C9F2000882B1 /* InternalParser.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = InternalParser.h; sourceTree = "<group>"; };
+		A675283C1CD6C9F2000882B1 /* InternalParser.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = InternalParser.m; sourceTree = "<group>"; };
+		A675283D1CD6C9F2000882B1 /* InternalParserDateTimeParser.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = InternalParserDateTimeParser.h; sourceTree = "<group>"; };
+		A675283E1CD6C9F2000882B1 /* InternalParserDateTimeParser.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = InternalParserDateTimeParser.m; sourceTree = "<group>"; };
+		A675283F1CD6C9F2000882B1 /* InternalPrinter.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = InternalPrinter.h; sourceTree = "<group>"; };
+		A67528401CD6C9F2000882B1 /* InternalPrinter.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = InternalPrinter.m; sourceTree = "<group>"; };
+		A67528411CD6C9F2000882B1 /* InternalPrinterDateTimePrinter.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = InternalPrinterDateTimePrinter.h; sourceTree = "<group>"; };
+		A67528421CD6C9F2000882B1 /* InternalPrinterDateTimePrinter.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = InternalPrinterDateTimePrinter.m; sourceTree = "<group>"; };
+		A67528431CD6C9F2000882B1 /* ISODateTimeFormat.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ISODateTimeFormat.h; sourceTree = "<group>"; };
+		A67528441CD6C9F2000882B1 /* ISODateTimeFormat.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ISODateTimeFormat.m; sourceTree = "<group>"; };
+		A67528451CD6C9F2000882B1 /* ISOPeriodFormat.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ISOPeriodFormat.h; sourceTree = "<group>"; };
+		A67528461CD6C9F2000882B1 /* ISOPeriodFormat.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ISOPeriodFormat.m; sourceTree = "<group>"; };
+		A67528471CD6C9F2000882B1 /* PeriodFormat.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PeriodFormat.h; sourceTree = "<group>"; };
+		A67528481CD6C9F2000882B1 /* PeriodFormat.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = PeriodFormat.m; sourceTree = "<group>"; };
+		A67528491CD6C9F2000882B1 /* PeriodFormatter.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PeriodFormatter.h; sourceTree = "<group>"; };
+		A675284A1CD6C9F2000882B1 /* PeriodFormatter.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = PeriodFormatter.m; sourceTree = "<group>"; };
+		A675284B1CD6C9F2000882B1 /* PeriodFormatterBuilder.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PeriodFormatterBuilder.h; sourceTree = "<group>"; };
+		A675284C1CD6C9F2000882B1 /* PeriodFormatterBuilder.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = PeriodFormatterBuilder.m; sourceTree = "<group>"; };
+		A675284D1CD6C9F2000882B1 /* PeriodParser.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PeriodParser.h; sourceTree = "<group>"; };
+		A675284E1CD6C9F2000882B1 /* PeriodParser.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = PeriodParser.m; sourceTree = "<group>"; };
+		A675284F1CD6C9F2000882B1 /* PeriodPrinter.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PeriodPrinter.h; sourceTree = "<group>"; };
+		A67528501CD6C9F2000882B1 /* PeriodPrinter.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = PeriodPrinter.m; sourceTree = "<group>"; };
+		A67528511CD6C9F2000882B1 /* Hours.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Hours.h; sourceTree = "<group>"; };
+		A67528521CD6C9F2000882B1 /* Hours.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Hours.m; sourceTree = "<group>"; };
+		A67528531CD6C9F2000882B1 /* IllegalFieldValueException.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IllegalFieldValueException.h; sourceTree = "<group>"; };
+		A67528541CD6C9F2000882B1 /* IllegalFieldValueException.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = IllegalFieldValueException.m; sourceTree = "<group>"; };
+		A67528551CD6C9F2000882B1 /* IllegalInstantException.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IllegalInstantException.h; sourceTree = "<group>"; };
+		A67528561CD6C9F2000882B1 /* IllegalInstantException.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = IllegalInstantException.m; sourceTree = "<group>"; };
+		A67528571CD6C9F2000882B1 /* Instant.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Instant.h; sourceTree = "<group>"; };
+		A67528581CD6C9F2000882B1 /* Instant.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Instant.m; sourceTree = "<group>"; };
+		A67528591CD6C9F2000882B1 /* Interval.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Interval.h; sourceTree = "<group>"; };
+		A675285A1CD6C9F2000882B1 /* Interval.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Interval.m; sourceTree = "<group>"; };
+		A675285B1CD6C9F2000882B1 /* JodaTimePermission.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = JodaTimePermission.h; sourceTree = "<group>"; };
+		A675285C1CD6C9F2000882B1 /* JodaTimePermission.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = JodaTimePermission.m; sourceTree = "<group>"; };
+		A675285D1CD6C9F2000882B1 /* LocalDate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LocalDate.h; sourceTree = "<group>"; };
+		A675285E1CD6C9F2000882B1 /* LocalDate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = LocalDate.m; sourceTree = "<group>"; };
+		A675285F1CD6C9F2000882B1 /* LocalDateTime.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LocalDateTime.h; sourceTree = "<group>"; };
+		A67528601CD6C9F2000882B1 /* LocalDateTime.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = LocalDateTime.m; sourceTree = "<group>"; };
+		A67528611CD6C9F2000882B1 /* LocalTime.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LocalTime.h; sourceTree = "<group>"; };
+		A67528621CD6C9F2000882B1 /* LocalTime.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = LocalTime.m; sourceTree = "<group>"; };
+		A67528631CD6C9F2000882B1 /* Minutes.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Minutes.h; sourceTree = "<group>"; };
+		A67528641CD6C9F2000882B1 /* Minutes.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Minutes.m; sourceTree = "<group>"; };
+		A67528651CD6C9F2000882B1 /* MonthDay.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MonthDay.h; sourceTree = "<group>"; };
+		A67528661CD6C9F2000882B1 /* MonthDay.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MonthDay.m; sourceTree = "<group>"; };
+		A67528671CD6C9F2000882B1 /* Months.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Months.h; sourceTree = "<group>"; };
+		A67528681CD6C9F2000882B1 /* Months.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Months.m; sourceTree = "<group>"; };
+		A67528691CD6C9F2000882B1 /* MutableDateTime.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MutableDateTime.h; sourceTree = "<group>"; };
+		A675286A1CD6C9F2000882B1 /* MutableDateTime.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MutableDateTime.m; sourceTree = "<group>"; };
+		A675286B1CD6C9F2000882B1 /* MutableInterval.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MutableInterval.h; sourceTree = "<group>"; };
+		A675286C1CD6C9F2000882B1 /* MutableInterval.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MutableInterval.m; sourceTree = "<group>"; };
+		A675286D1CD6C9F2000882B1 /* MutablePeriod.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MutablePeriod.h; sourceTree = "<group>"; };
+		A675286E1CD6C9F2000882B1 /* MutablePeriod.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MutablePeriod.m; sourceTree = "<group>"; };
+		A675286F1CD6C9F2000882B1 /* Partial.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Partial.h; sourceTree = "<group>"; };
+		A67528701CD6C9F2000882B1 /* Partial.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Partial.m; sourceTree = "<group>"; };
+		A67528711CD6C9F2000882B1 /* Period.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Period.h; sourceTree = "<group>"; };
+		A67528721CD6C9F2000882B1 /* Period.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Period.m; sourceTree = "<group>"; };
+		A67528731CD6C9F2000882B1 /* PeriodType.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PeriodType.h; sourceTree = "<group>"; };
+		A67528741CD6C9F2000882B1 /* PeriodType.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = PeriodType.m; sourceTree = "<group>"; };
+		A67528751CD6C9F2000882B1 /* ReadableDateTime.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ReadableDateTime.h; sourceTree = "<group>"; };
+		A67528761CD6C9F2000882B1 /* ReadableDateTime.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ReadableDateTime.m; sourceTree = "<group>"; };
+		A67528771CD6C9F2000882B1 /* ReadableDuration.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ReadableDuration.h; sourceTree = "<group>"; };
+		A67528781CD6C9F2000882B1 /* ReadableDuration.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ReadableDuration.m; sourceTree = "<group>"; };
+		A67528791CD6C9F2000882B1 /* ReadableInstant.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ReadableInstant.h; sourceTree = "<group>"; };
+		A675287A1CD6C9F2000882B1 /* ReadableInstant.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ReadableInstant.m; sourceTree = "<group>"; };
+		A675287B1CD6C9F2000882B1 /* ReadableInterval.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ReadableInterval.h; sourceTree = "<group>"; };
+		A675287C1CD6C9F2000882B1 /* ReadableInterval.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ReadableInterval.m; sourceTree = "<group>"; };
+		A675287D1CD6C9F2000882B1 /* ReadablePartial.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ReadablePartial.h; sourceTree = "<group>"; };
+		A675287E1CD6C9F2000882B1 /* ReadablePartial.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ReadablePartial.m; sourceTree = "<group>"; };
+		A675287F1CD6C9F2000882B1 /* ReadablePeriod.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ReadablePeriod.h; sourceTree = "<group>"; };
+		A67528801CD6C9F2000882B1 /* ReadablePeriod.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ReadablePeriod.m; sourceTree = "<group>"; };
+		A67528811CD6C9F2000882B1 /* ReadWritableDateTime.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ReadWritableDateTime.h; sourceTree = "<group>"; };
+		A67528821CD6C9F2000882B1 /* ReadWritableDateTime.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ReadWritableDateTime.m; sourceTree = "<group>"; };
+		A67528831CD6C9F2000882B1 /* ReadWritableInstant.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ReadWritableInstant.h; sourceTree = "<group>"; };
+		A67528841CD6C9F2000882B1 /* ReadWritableInstant.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ReadWritableInstant.m; sourceTree = "<group>"; };
+		A67528851CD6C9F2000882B1 /* ReadWritableInterval.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ReadWritableInterval.h; sourceTree = "<group>"; };
+		A67528861CD6C9F2000882B1 /* ReadWritableInterval.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ReadWritableInterval.m; sourceTree = "<group>"; };
+		A67528871CD6C9F2000882B1 /* ReadWritablePeriod.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ReadWritablePeriod.h; sourceTree = "<group>"; };
+		A67528881CD6C9F2000882B1 /* ReadWritablePeriod.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ReadWritablePeriod.m; sourceTree = "<group>"; };
+		A67528891CD6C9F2000882B1 /* Seconds.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Seconds.h; sourceTree = "<group>"; };
+		A675288A1CD6C9F2000882B1 /* Seconds.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Seconds.m; sourceTree = "<group>"; };
+		A675288B1CD6C9F2000882B1 /* TimeOfDay.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TimeOfDay.h; sourceTree = "<group>"; };
+		A675288C1CD6C9F2000882B1 /* TimeOfDay.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TimeOfDay.m; sourceTree = "<group>"; };
+		A675288E1CD6C9F2000882B1 /* CachedDateTimeZone.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CachedDateTimeZone.h; sourceTree = "<group>"; };
+		A675288F1CD6C9F2000882B1 /* CachedDateTimeZone.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = CachedDateTimeZone.m; sourceTree = "<group>"; };
+		A67528901CD6C9F2000882B1 /* DateTimeZoneBuilder.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DateTimeZoneBuilder.h; sourceTree = "<group>"; };
+		A67528911CD6C9F2000882B1 /* DateTimeZoneBuilder.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DateTimeZoneBuilder.m; sourceTree = "<group>"; };
+		A67528921CD6C9F2000882B1 /* DefaultNameProvider.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DefaultNameProvider.h; sourceTree = "<group>"; };
+		A67528931CD6C9F2000882B1 /* DefaultNameProvider.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DefaultNameProvider.m; sourceTree = "<group>"; };
+		A67528941CD6C9F2000882B1 /* FixedDateTimeZone.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FixedDateTimeZone.h; sourceTree = "<group>"; };
+		A67528951CD6C9F2000882B1 /* FixedDateTimeZone.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FixedDateTimeZone.m; sourceTree = "<group>"; };
+		A67528961CD6C9F2000882B1 /* NameProvider.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NameProvider.h; sourceTree = "<group>"; };
+		A67528971CD6C9F2000882B1 /* NameProvider.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NameProvider.m; sourceTree = "<group>"; };
+		A67528981CD6C9F2000882B1 /* Provider.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Provider.h; sourceTree = "<group>"; };
+		A67528991CD6C9F2000882B1 /* Provider.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Provider.m; sourceTree = "<group>"; };
+		A675289A1CD6C9F2000882B1 /* UTCProvider.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = UTCProvider.h; sourceTree = "<group>"; };
+		A675289B1CD6C9F2000882B1 /* UTCProvider.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = UTCProvider.m; sourceTree = "<group>"; };
+		A675289C1CD6C9F2000882B1 /* ZoneInfoCompiler.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ZoneInfoCompiler.h; sourceTree = "<group>"; };
+		A675289D1CD6C9F2000882B1 /* ZoneInfoCompiler.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ZoneInfoCompiler.m; sourceTree = "<group>"; };
+		A675289E1CD6C9F2000882B1 /* ZoneInfoLogger.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ZoneInfoLogger.h; sourceTree = "<group>"; };
+		A675289F1CD6C9F2000882B1 /* ZoneInfoLogger.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ZoneInfoLogger.m; sourceTree = "<group>"; };
+		A67528A01CD6C9F2000882B1 /* ZoneInfoProvider.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ZoneInfoProvider.h; sourceTree = "<group>"; };
+		A67528A11CD6C9F2000882B1 /* ZoneInfoProvider.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ZoneInfoProvider.m; sourceTree = "<group>"; };
+		A67528A21CD6C9F2000882B1 /* UTCDateTimeZone.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = UTCDateTimeZone.h; sourceTree = "<group>"; };
+		A67528A31CD6C9F2000882B1 /* UTCDateTimeZone.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = UTCDateTimeZone.m; sourceTree = "<group>"; };
+		A67528A41CD6C9F2000882B1 /* Weeks.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Weeks.h; sourceTree = "<group>"; };
+		A67528A51CD6C9F2000882B1 /* Weeks.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Weeks.m; sourceTree = "<group>"; };
+		A67528A61CD6C9F2000882B1 /* YearMonth.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = YearMonth.h; sourceTree = "<group>"; };
+		A67528A71CD6C9F2000882B1 /* YearMonth.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = YearMonth.m; sourceTree = "<group>"; };
+		A67528A81CD6C9F2000882B1 /* YearMonthDay.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = YearMonthDay.h; sourceTree = "<group>"; };
+		A67528A91CD6C9F2000882B1 /* YearMonthDay.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = YearMonthDay.m; sourceTree = "<group>"; };
+		A67528AA1CD6C9F2000882B1 /* Years.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Years.h; sourceTree = "<group>"; };
+		A67528AB1CD6C9F2000882B1 /* Years.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Years.m; sourceTree = "<group>"; };
+		A67528AC1CD6CA62000882B1 /* IOSArray.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = IOSArray.h; path = ../../../Shared/j2objc/include/IOSArray.h; sourceTree = "<group>"; };
+		A67528AD1CD6CA62000882B1 /* IOSClass.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = IOSClass.h; path = ../../../Shared/j2objc/include/IOSClass.h; sourceTree = "<group>"; };
+		A67528AE1CD6CA62000882B1 /* IOSObjectArray.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = IOSObjectArray.h; path = ../../../Shared/j2objc/include/IOSObjectArray.h; sourceTree = "<group>"; };
+		A67528AF1CD6CA62000882B1 /* IOSPrimitiveArray.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = IOSPrimitiveArray.h; path = ../../../Shared/j2objc/include/IOSPrimitiveArray.h; sourceTree = "<group>"; };
+		A67528B01CD6CA62000882B1 /* IOSReflection.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = IOSReflection.h; path = ../../../Shared/j2objc/include/IOSReflection.h; sourceTree = "<group>"; };
+		A67528B11CD6CA62000882B1 /* J2ObjC_common.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = J2ObjC_common.h; path = ../../../Shared/j2objc/include/J2ObjC_common.h; sourceTree = "<group>"; };
+		A67528B21CD6CA62000882B1 /* J2ObjC_header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = J2ObjC_header.h; path = ../../../Shared/j2objc/include/J2ObjC_header.h; sourceTree = "<group>"; };
+		A67528B31CD6CA62000882B1 /* J2ObjC_source.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = J2ObjC_source.h; path = ../../../Shared/j2objc/include/J2ObjC_source.h; sourceTree = "<group>"; };
+		A67528B41CD6CA62000882B1 /* J2ObjC_types.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = J2ObjC_types.h; path = ../../../Shared/j2objc/include/J2ObjC_types.h; sourceTree = "<group>"; };
+		A6752CBE1CD7BD4B000882B1 /* JodaCompile.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = JodaCompile.xcodeproj; path = ../J2ObjcLibrary/JodaCompile/JodaCompile.xcodeproj; sourceTree = "<group>"; };
+		A6752CC61CD7CF48000882B1 /* Config.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = Config.xcconfig; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		A67526181CD6C5B3000882B1 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A67526341CD6C779000882B1 /* Security.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		A67526121CD6C5B3000882B1 = {
+			isa = PBXGroup;
+			children = (
+				A6752CC61CD7CF48000882B1 /* Config.xcconfig */,
+				A6752CBE1CD7BD4B000882B1 /* JodaCompile.xcodeproj */,
+				A67527521CD6C9F2000882B1 /* org */,
+				A67526331CD6C779000882B1 /* Security.framework */,
+				A675261D1CD6C5B3000882B1 /* PacoUtil */,
+				A675261C1CD6C5B3000882B1 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		A675261C1CD6C5B3000882B1 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				A675261B1CD6C5B3000882B1 /* libPacoUtil.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		A675261D1CD6C5B3000882B1 /* PacoUtil */ = {
+			isa = PBXGroup;
+			children = (
+				A67528AC1CD6CA62000882B1 /* IOSArray.h */,
+				A67528AD1CD6CA62000882B1 /* IOSClass.h */,
+				A67528AE1CD6CA62000882B1 /* IOSObjectArray.h */,
+				A67528AF1CD6CA62000882B1 /* IOSPrimitiveArray.h */,
+				A67528B01CD6CA62000882B1 /* IOSReflection.h */,
+				A67528B11CD6CA62000882B1 /* J2ObjC_common.h */,
+				A67528B21CD6CA62000882B1 /* J2ObjC_header.h */,
+				A67528B31CD6CA62000882B1 /* J2ObjC_source.h */,
+				A67528B41CD6CA62000882B1 /* J2ObjC_types.h */,
+				A675262E1CD6C709000882B1 /* OrgJodaTimeDateTime+PacoDateHelper.h */,
+				A675262F1CD6C709000882B1 /* OrgJodaTimeDateTime+PacoDateHelper.m */,
+				A675261E1CD6C5B3000882B1 /* PacoUtil.h */,
+				A67526201CD6C5B3000882B1 /* PacoUtil.m */,
+			);
+			path = PacoUtil;
+			sourceTree = "<group>";
+		};
+		A67527521CD6C9F2000882B1 /* org */ = {
+			isa = PBXGroup;
+			children = (
+				A67527531CD6C9F2000882B1 /* joda */,
+			);
+			name = org;
+			path = ../J2ObjcLibrary/JodaCompile/JodaCompile/org;
+			sourceTree = "<group>";
+		};
+		A67527531CD6C9F2000882B1 /* joda */ = {
+			isa = PBXGroup;
+			children = (
+				A67527541CD6C9F2000882B1 /* convert */,
+				A67527591CD6C9F2000882B1 /* time */,
+			);
+			path = joda;
+			sourceTree = "<group>";
+		};
+		A67527541CD6C9F2000882B1 /* convert */ = {
+			isa = PBXGroup;
+			children = (
+				A67527551CD6C9F2000882B1 /* FromString.h */,
+				A67527561CD6C9F2000882B1 /* FromString.m */,
+				A67527571CD6C9F2000882B1 /* ToString.h */,
+				A67527581CD6C9F2000882B1 /* ToString.m */,
+			);
+			path = convert;
+			sourceTree = "<group>";
+		};
+		A67527591CD6C9F2000882B1 /* time */ = {
+			isa = PBXGroup;
+			children = (
+				A675275A1CD6C9F2000882B1 /* base */,
+				A67527751CD6C9F2000882B1 /* chrono */,
+				A67527B41CD6C9F2000882B1 /* Chronology.h */,
+				A67527B51CD6C9F2000882B1 /* Chronology.m */,
+				A67527B61CD6C9F2000882B1 /* convert */,
+				A67527DD1CD6C9F2000882B1 /* DateMidnight.h */,
+				A67527DE1CD6C9F2000882B1 /* DateMidnight.m */,
+				A67527DF1CD6C9F2000882B1 /* DateTime.h */,
+				A67527E01CD6C9F2000882B1 /* DateTime.m */,
+				A67527E11CD6C9F2000882B1 /* DateTimeComparator.h */,
+				A67527E21CD6C9F2000882B1 /* DateTimeComparator.m */,
+				A67527E31CD6C9F2000882B1 /* DateTimeConstants.h */,
+				A67527E41CD6C9F2000882B1 /* DateTimeConstants.m */,
+				A67527E51CD6C9F2000882B1 /* DateTimeField.h */,
+				A67527E61CD6C9F2000882B1 /* DateTimeField.m */,
+				A67527E71CD6C9F2000882B1 /* DateTimeFieldType.h */,
+				A67527E81CD6C9F2000882B1 /* DateTimeFieldType.m */,
+				A67527E91CD6C9F2000882B1 /* DateTimeUtils.h */,
+				A67527EA1CD6C9F2000882B1 /* DateTimeUtils.m */,
+				A67527EB1CD6C9F2000882B1 /* DateTimeZone.h */,
+				A67527EC1CD6C9F2000882B1 /* DateTimeZone.m */,
+				A67527ED1CD6C9F2000882B1 /* Days.h */,
+				A67527EE1CD6C9F2000882B1 /* Days.m */,
+				A67527EF1CD6C9F2000882B1 /* Duration.h */,
+				A67527F01CD6C9F2000882B1 /* Duration.m */,
+				A67527F11CD6C9F2000882B1 /* DurationField.h */,
+				A67527F21CD6C9F2000882B1 /* DurationField.m */,
+				A67527F31CD6C9F2000882B1 /* DurationFieldType.h */,
+				A67527F41CD6C9F2000882B1 /* DurationFieldType.m */,
+				A67527F51CD6C9F2000882B1 /* field */,
+				A67528281CD6C9F2000882B1 /* format */,
+				A67528511CD6C9F2000882B1 /* Hours.h */,
+				A67528521CD6C9F2000882B1 /* Hours.m */,
+				A67528531CD6C9F2000882B1 /* IllegalFieldValueException.h */,
+				A67528541CD6C9F2000882B1 /* IllegalFieldValueException.m */,
+				A67528551CD6C9F2000882B1 /* IllegalInstantException.h */,
+				A67528561CD6C9F2000882B1 /* IllegalInstantException.m */,
+				A67528571CD6C9F2000882B1 /* Instant.h */,
+				A67528581CD6C9F2000882B1 /* Instant.m */,
+				A67528591CD6C9F2000882B1 /* Interval.h */,
+				A675285A1CD6C9F2000882B1 /* Interval.m */,
+				A675285B1CD6C9F2000882B1 /* JodaTimePermission.h */,
+				A675285C1CD6C9F2000882B1 /* JodaTimePermission.m */,
+				A675285D1CD6C9F2000882B1 /* LocalDate.h */,
+				A675285E1CD6C9F2000882B1 /* LocalDate.m */,
+				A675285F1CD6C9F2000882B1 /* LocalDateTime.h */,
+				A67528601CD6C9F2000882B1 /* LocalDateTime.m */,
+				A67528611CD6C9F2000882B1 /* LocalTime.h */,
+				A67528621CD6C9F2000882B1 /* LocalTime.m */,
+				A67528631CD6C9F2000882B1 /* Minutes.h */,
+				A67528641CD6C9F2000882B1 /* Minutes.m */,
+				A67528651CD6C9F2000882B1 /* MonthDay.h */,
+				A67528661CD6C9F2000882B1 /* MonthDay.m */,
+				A67528671CD6C9F2000882B1 /* Months.h */,
+				A67528681CD6C9F2000882B1 /* Months.m */,
+				A67528691CD6C9F2000882B1 /* MutableDateTime.h */,
+				A675286A1CD6C9F2000882B1 /* MutableDateTime.m */,
+				A675286B1CD6C9F2000882B1 /* MutableInterval.h */,
+				A675286C1CD6C9F2000882B1 /* MutableInterval.m */,
+				A675286D1CD6C9F2000882B1 /* MutablePeriod.h */,
+				A675286E1CD6C9F2000882B1 /* MutablePeriod.m */,
+				A675286F1CD6C9F2000882B1 /* Partial.h */,
+				A67528701CD6C9F2000882B1 /* Partial.m */,
+				A67528711CD6C9F2000882B1 /* Period.h */,
+				A67528721CD6C9F2000882B1 /* Period.m */,
+				A67528731CD6C9F2000882B1 /* PeriodType.h */,
+				A67528741CD6C9F2000882B1 /* PeriodType.m */,
+				A67528751CD6C9F2000882B1 /* ReadableDateTime.h */,
+				A67528761CD6C9F2000882B1 /* ReadableDateTime.m */,
+				A67528771CD6C9F2000882B1 /* ReadableDuration.h */,
+				A67528781CD6C9F2000882B1 /* ReadableDuration.m */,
+				A67528791CD6C9F2000882B1 /* ReadableInstant.h */,
+				A675287A1CD6C9F2000882B1 /* ReadableInstant.m */,
+				A675287B1CD6C9F2000882B1 /* ReadableInterval.h */,
+				A675287C1CD6C9F2000882B1 /* ReadableInterval.m */,
+				A675287D1CD6C9F2000882B1 /* ReadablePartial.h */,
+				A675287E1CD6C9F2000882B1 /* ReadablePartial.m */,
+				A675287F1CD6C9F2000882B1 /* ReadablePeriod.h */,
+				A67528801CD6C9F2000882B1 /* ReadablePeriod.m */,
+				A67528811CD6C9F2000882B1 /* ReadWritableDateTime.h */,
+				A67528821CD6C9F2000882B1 /* ReadWritableDateTime.m */,
+				A67528831CD6C9F2000882B1 /* ReadWritableInstant.h */,
+				A67528841CD6C9F2000882B1 /* ReadWritableInstant.m */,
+				A67528851CD6C9F2000882B1 /* ReadWritableInterval.h */,
+				A67528861CD6C9F2000882B1 /* ReadWritableInterval.m */,
+				A67528871CD6C9F2000882B1 /* ReadWritablePeriod.h */,
+				A67528881CD6C9F2000882B1 /* ReadWritablePeriod.m */,
+				A67528891CD6C9F2000882B1 /* Seconds.h */,
+				A675288A1CD6C9F2000882B1 /* Seconds.m */,
+				A675288B1CD6C9F2000882B1 /* TimeOfDay.h */,
+				A675288C1CD6C9F2000882B1 /* TimeOfDay.m */,
+				A675288D1CD6C9F2000882B1 /* tz */,
+				A67528A21CD6C9F2000882B1 /* UTCDateTimeZone.h */,
+				A67528A31CD6C9F2000882B1 /* UTCDateTimeZone.m */,
+				A67528A41CD6C9F2000882B1 /* Weeks.h */,
+				A67528A51CD6C9F2000882B1 /* Weeks.m */,
+				A67528A61CD6C9F2000882B1 /* YearMonth.h */,
+				A67528A71CD6C9F2000882B1 /* YearMonth.m */,
+				A67528A81CD6C9F2000882B1 /* YearMonthDay.h */,
+				A67528A91CD6C9F2000882B1 /* YearMonthDay.m */,
+				A67528AA1CD6C9F2000882B1 /* Years.h */,
+				A67528AB1CD6C9F2000882B1 /* Years.m */,
+			);
+			path = time;
+			sourceTree = "<group>";
+		};
+		A675275A1CD6C9F2000882B1 /* base */ = {
+			isa = PBXGroup;
+			children = (
+				A675275B1CD6C9F2000882B1 /* AbstractDateTime.h */,
+				A675275C1CD6C9F2000882B1 /* AbstractDateTime.m */,
+				A675275D1CD6C9F2000882B1 /* AbstractDuration.h */,
+				A675275E1CD6C9F2000882B1 /* AbstractDuration.m */,
+				A675275F1CD6C9F2000882B1 /* AbstractInstant.h */,
+				A67527601CD6C9F2000882B1 /* AbstractInstant.m */,
+				A67527611CD6C9F2000882B1 /* AbstractInterval.h */,
+				A67527621CD6C9F2000882B1 /* AbstractInterval.m */,
+				A67527631CD6C9F2000882B1 /* AbstractPartial.h */,
+				A67527641CD6C9F2000882B1 /* AbstractPartial.m */,
+				A67527651CD6C9F2000882B1 /* AbstractPeriod.h */,
+				A67527661CD6C9F2000882B1 /* AbstractPeriod.m */,
+				A67527671CD6C9F2000882B1 /* BaseDateTime.h */,
+				A67527681CD6C9F2000882B1 /* BaseDateTime.m */,
+				A67527691CD6C9F2000882B1 /* BaseDuration.h */,
+				A675276A1CD6C9F2000882B1 /* BaseDuration.m */,
+				A675276B1CD6C9F2000882B1 /* BaseInterval.h */,
+				A675276C1CD6C9F2000882B1 /* BaseInterval.m */,
+				A675276D1CD6C9F2000882B1 /* BaseLocal.h */,
+				A675276E1CD6C9F2000882B1 /* BaseLocal.m */,
+				A675276F1CD6C9F2000882B1 /* BasePartial.h */,
+				A67527701CD6C9F2000882B1 /* BasePartial.m */,
+				A67527711CD6C9F2000882B1 /* BasePeriod.h */,
+				A67527721CD6C9F2000882B1 /* BasePeriod.m */,
+				A67527731CD6C9F2000882B1 /* BaseSingleFieldPeriod.h */,
+				A67527741CD6C9F2000882B1 /* BaseSingleFieldPeriod.m */,
+			);
+			path = base;
+			sourceTree = "<group>";
+		};
+		A67527751CD6C9F2000882B1 /* chrono */ = {
+			isa = PBXGroup;
+			children = (
+				A67527761CD6C9F2000882B1 /* AssembledChronology.h */,
+				A67527771CD6C9F2000882B1 /* AssembledChronology.m */,
+				A67527781CD6C9F2000882B1 /* BaseChronology.h */,
+				A67527791CD6C9F2000882B1 /* BaseChronology.m */,
+				A675277A1CD6C9F2000882B1 /* BasicChronology.h */,
+				A675277B1CD6C9F2000882B1 /* BasicChronology.m */,
+				A675277C1CD6C9F2000882B1 /* BasicDayOfMonthDateTimeField.h */,
+				A675277D1CD6C9F2000882B1 /* BasicDayOfMonthDateTimeField.m */,
+				A675277E1CD6C9F2000882B1 /* BasicDayOfYearDateTimeField.h */,
+				A675277F1CD6C9F2000882B1 /* BasicDayOfYearDateTimeField.m */,
+				A67527801CD6C9F2000882B1 /* BasicFixedMonthChronology.h */,
+				A67527811CD6C9F2000882B1 /* BasicFixedMonthChronology.m */,
+				A67527821CD6C9F2000882B1 /* BasicGJChronology.h */,
+				A67527831CD6C9F2000882B1 /* BasicGJChronology.m */,
+				A67527841CD6C9F2000882B1 /* BasicMonthOfYearDateTimeField.h */,
+				A67527851CD6C9F2000882B1 /* BasicMonthOfYearDateTimeField.m */,
+				A67527861CD6C9F2000882B1 /* BasicSingleEraDateTimeField.h */,
+				A67527871CD6C9F2000882B1 /* BasicSingleEraDateTimeField.m */,
+				A67527881CD6C9F2000882B1 /* BasicWeekOfWeekyearDateTimeField.h */,
+				A67527891CD6C9F2000882B1 /* BasicWeekOfWeekyearDateTimeField.m */,
+				A675278A1CD6C9F2000882B1 /* BasicWeekyearDateTimeField.h */,
+				A675278B1CD6C9F2000882B1 /* BasicWeekyearDateTimeField.m */,
+				A675278C1CD6C9F2000882B1 /* BasicYearDateTimeField.h */,
+				A675278D1CD6C9F2000882B1 /* BasicYearDateTimeField.m */,
+				A675278E1CD6C9F2000882B1 /* BuddhistChronology.h */,
+				A675278F1CD6C9F2000882B1 /* BuddhistChronology.m */,
+				A67527901CD6C9F2000882B1 /* CopticChronology.h */,
+				A67527911CD6C9F2000882B1 /* CopticChronology.m */,
+				A67527921CD6C9F2000882B1 /* EthiopicChronology.h */,
+				A67527931CD6C9F2000882B1 /* EthiopicChronology.m */,
+				A67527941CD6C9F2000882B1 /* GJCacheKey.h */,
+				A67527951CD6C9F2000882B1 /* GJCacheKey.m */,
+				A67527961CD6C9F2000882B1 /* GJChronology.h */,
+				A67527971CD6C9F2000882B1 /* GJChronology.m */,
+				A67527981CD6C9F2000882B1 /* GJDayOfWeekDateTimeField.h */,
+				A67527991CD6C9F2000882B1 /* GJDayOfWeekDateTimeField.m */,
+				A675279A1CD6C9F2000882B1 /* GJEraDateTimeField.h */,
+				A675279B1CD6C9F2000882B1 /* GJEraDateTimeField.m */,
+				A675279C1CD6C9F2000882B1 /* GJLocaleSymbols.h */,
+				A675279D1CD6C9F2000882B1 /* GJLocaleSymbols.m */,
+				A675279E1CD6C9F2000882B1 /* GJMonthOfYearDateTimeField.h */,
+				A675279F1CD6C9F2000882B1 /* GJMonthOfYearDateTimeField.m */,
+				A67527A01CD6C9F2000882B1 /* GJYearOfEraDateTimeField.h */,
+				A67527A11CD6C9F2000882B1 /* GJYearOfEraDateTimeField.m */,
+				A67527A21CD6C9F2000882B1 /* GregorianChronology.h */,
+				A67527A31CD6C9F2000882B1 /* GregorianChronology.m */,
+				A67527A41CD6C9F2000882B1 /* IslamicChronology.h */,
+				A67527A51CD6C9F2000882B1 /* IslamicChronology.m */,
+				A67527A61CD6C9F2000882B1 /* ISOChronology.h */,
+				A67527A71CD6C9F2000882B1 /* ISOChronology.m */,
+				A67527A81CD6C9F2000882B1 /* ISOYearOfEraDateTimeField.h */,
+				A67527A91CD6C9F2000882B1 /* ISOYearOfEraDateTimeField.m */,
+				A67527AA1CD6C9F2000882B1 /* JulianChronology.h */,
+				A67527AB1CD6C9F2000882B1 /* JulianChronology.m */,
+				A67527AC1CD6C9F2000882B1 /* LenientChronology.h */,
+				A67527AD1CD6C9F2000882B1 /* LenientChronology.m */,
+				A67527AE1CD6C9F2000882B1 /* LimitChronology.h */,
+				A67527AF1CD6C9F2000882B1 /* LimitChronology.m */,
+				A67527B01CD6C9F2000882B1 /* StrictChronology.h */,
+				A67527B11CD6C9F2000882B1 /* StrictChronology.m */,
+				A67527B21CD6C9F2000882B1 /* ZonedChronology.h */,
+				A67527B31CD6C9F2000882B1 /* ZonedChronology.m */,
+			);
+			path = chrono;
+			sourceTree = "<group>";
+		};
+		A67527B61CD6C9F2000882B1 /* convert */ = {
+			isa = PBXGroup;
+			children = (
+				A67527B71CD6C9F2000882B1 /* AbstractConverter.h */,
+				A67527B81CD6C9F2000882B1 /* AbstractConverter.m */,
+				A67527B91CD6C9F2000882B1 /* CalendarConverter.h */,
+				A67527BA1CD6C9F2000882B1 /* CalendarConverter.m */,
+				A67527BB1CD6C9F2000882B1 /* Converter.h */,
+				A67527BC1CD6C9F2000882B1 /* Converter.m */,
+				A67527BD1CD6C9F2000882B1 /* ConverterManager.h */,
+				A67527BE1CD6C9F2000882B1 /* ConverterManager.m */,
+				A67527BF1CD6C9F2000882B1 /* ConverterSet.h */,
+				A67527C01CD6C9F2000882B1 /* ConverterSet.m */,
+				A67527C11CD6C9F2000882B1 /* DateConverter.h */,
+				A67527C21CD6C9F2000882B1 /* DateConverter.m */,
+				A67527C31CD6C9F2000882B1 /* DurationConverter.h */,
+				A67527C41CD6C9F2000882B1 /* DurationConverter.m */,
+				A67527C51CD6C9F2000882B1 /* InstantConverter.h */,
+				A67527C61CD6C9F2000882B1 /* InstantConverter.m */,
+				A67527C71CD6C9F2000882B1 /* IntervalConverter.h */,
+				A67527C81CD6C9F2000882B1 /* IntervalConverter.m */,
+				A67527C91CD6C9F2000882B1 /* LongConverter.h */,
+				A67527CA1CD6C9F2000882B1 /* LongConverter.m */,
+				A67527CB1CD6C9F2000882B1 /* NullConverter.h */,
+				A67527CC1CD6C9F2000882B1 /* NullConverter.m */,
+				A67527CD1CD6C9F2000882B1 /* PartialConverter.h */,
+				A67527CE1CD6C9F2000882B1 /* PartialConverter.m */,
+				A67527CF1CD6C9F2000882B1 /* PeriodConverter.h */,
+				A67527D01CD6C9F2000882B1 /* PeriodConverter.m */,
+				A67527D11CD6C9F2000882B1 /* ReadableDurationConverter.h */,
+				A67527D21CD6C9F2000882B1 /* ReadableDurationConverter.m */,
+				A67527D31CD6C9F2000882B1 /* ReadableInstantConverter.h */,
+				A67527D41CD6C9F2000882B1 /* ReadableInstantConverter.m */,
+				A67527D51CD6C9F2000882B1 /* ReadableIntervalConverter.h */,
+				A67527D61CD6C9F2000882B1 /* ReadableIntervalConverter.m */,
+				A67527D71CD6C9F2000882B1 /* ReadablePartialConverter.h */,
+				A67527D81CD6C9F2000882B1 /* ReadablePartialConverter.m */,
+				A67527D91CD6C9F2000882B1 /* ReadablePeriodConverter.h */,
+				A67527DA1CD6C9F2000882B1 /* ReadablePeriodConverter.m */,
+				A67527DB1CD6C9F2000882B1 /* StringConverter.h */,
+				A67527DC1CD6C9F2000882B1 /* StringConverter.m */,
+			);
+			path = convert;
+			sourceTree = "<group>";
+		};
+		A67527F51CD6C9F2000882B1 /* field */ = {
+			isa = PBXGroup;
+			children = (
+				A67527F61CD6C9F2000882B1 /* AbstractPartialFieldProperty.h */,
+				A67527F71CD6C9F2000882B1 /* AbstractPartialFieldProperty.m */,
+				A67527F81CD6C9F2000882B1 /* AbstractReadableInstantFieldProperty.h */,
+				A67527F91CD6C9F2000882B1 /* AbstractReadableInstantFieldProperty.m */,
+				A67527FA1CD6C9F2000882B1 /* BaseDateTimeField.h */,
+				A67527FB1CD6C9F2000882B1 /* BaseDateTimeField.m */,
+				A67527FC1CD6C9F2000882B1 /* BaseDurationField.h */,
+				A67527FD1CD6C9F2000882B1 /* BaseDurationField.m */,
+				A67527FE1CD6C9F2000882B1 /* DecoratedDateTimeField.h */,
+				A67527FF1CD6C9F2000882B1 /* DecoratedDateTimeField.m */,
+				A67528001CD6C9F2000882B1 /* DecoratedDurationField.h */,
+				A67528011CD6C9F2000882B1 /* DecoratedDurationField.m */,
+				A67528021CD6C9F2000882B1 /* DelegatedDateTimeField.h */,
+				A67528031CD6C9F2000882B1 /* DelegatedDateTimeField.m */,
+				A67528041CD6C9F2000882B1 /* DelegatedDurationField.h */,
+				A67528051CD6C9F2000882B1 /* DelegatedDurationField.m */,
+				A67528061CD6C9F2000882B1 /* DividedDateTimeField.h */,
+				A67528071CD6C9F2000882B1 /* DividedDateTimeField.m */,
+				A67528081CD6C9F2000882B1 /* FieldUtils.h */,
+				A67528091CD6C9F2000882B1 /* FieldUtils.m */,
+				A675280A1CD6C9F2000882B1 /* ImpreciseDateTimeField.h */,
+				A675280B1CD6C9F2000882B1 /* ImpreciseDateTimeField.m */,
+				A675280C1CD6C9F2000882B1 /* LenientDateTimeField.h */,
+				A675280D1CD6C9F2000882B1 /* LenientDateTimeField.m */,
+				A675280E1CD6C9F2000882B1 /* MillisDurationField.h */,
+				A675280F1CD6C9F2000882B1 /* MillisDurationField.m */,
+				A67528101CD6C9F2000882B1 /* OffsetDateTimeField.h */,
+				A67528111CD6C9F2000882B1 /* OffsetDateTimeField.m */,
+				A67528121CD6C9F2000882B1 /* PreciseDateTimeField.h */,
+				A67528131CD6C9F2000882B1 /* PreciseDateTimeField.m */,
+				A67528141CD6C9F2000882B1 /* PreciseDurationDateTimeField.h */,
+				A67528151CD6C9F2000882B1 /* PreciseDurationDateTimeField.m */,
+				A67528161CD6C9F2000882B1 /* PreciseDurationField.h */,
+				A67528171CD6C9F2000882B1 /* PreciseDurationField.m */,
+				A67528181CD6C9F2000882B1 /* RemainderDateTimeField.h */,
+				A67528191CD6C9F2000882B1 /* RemainderDateTimeField.m */,
+				A675281A1CD6C9F2000882B1 /* ScaledDurationField.h */,
+				A675281B1CD6C9F2000882B1 /* ScaledDurationField.m */,
+				A675281C1CD6C9F2000882B1 /* SkipDateTimeField.h */,
+				A675281D1CD6C9F2000882B1 /* SkipDateTimeField.m */,
+				A675281E1CD6C9F2000882B1 /* SkipUndoDateTimeField.h */,
+				A675281F1CD6C9F2000882B1 /* SkipUndoDateTimeField.m */,
+				A67528201CD6C9F2000882B1 /* StrictDateTimeField.h */,
+				A67528211CD6C9F2000882B1 /* StrictDateTimeField.m */,
+				A67528221CD6C9F2000882B1 /* UnsupportedDateTimeField.h */,
+				A67528231CD6C9F2000882B1 /* UnsupportedDateTimeField.m */,
+				A67528241CD6C9F2000882B1 /* UnsupportedDurationField.h */,
+				A67528251CD6C9F2000882B1 /* UnsupportedDurationField.m */,
+				A67528261CD6C9F2000882B1 /* ZeroIsMaxDateTimeField.h */,
+				A67528271CD6C9F2000882B1 /* ZeroIsMaxDateTimeField.m */,
+			);
+			path = field;
+			sourceTree = "<group>";
+		};
+		A67528281CD6C9F2000882B1 /* format */ = {
+			isa = PBXGroup;
+			children = (
+				A67528291CD6C9F2000882B1 /* DateTimeFormat.h */,
+				A675282A1CD6C9F2000882B1 /* DateTimeFormat.m */,
+				A675282B1CD6C9F2000882B1 /* DateTimeFormatter.h */,
+				A675282C1CD6C9F2000882B1 /* DateTimeFormatter.m */,
+				A675282D1CD6C9F2000882B1 /* DateTimeFormatterBuilder.h */,
+				A675282E1CD6C9F2000882B1 /* DateTimeFormatterBuilder.m */,
+				A675282F1CD6C9F2000882B1 /* DateTimeParser.h */,
+				A67528301CD6C9F2000882B1 /* DateTimeParser.m */,
+				A67528311CD6C9F2000882B1 /* DateTimeParserBucket.h */,
+				A67528321CD6C9F2000882B1 /* DateTimeParserBucket.m */,
+				A67528331CD6C9F2000882B1 /* DateTimeParserInternalParser.h */,
+				A67528341CD6C9F2000882B1 /* DateTimeParserInternalParser.m */,
+				A67528351CD6C9F2000882B1 /* DateTimePrinter.h */,
+				A67528361CD6C9F2000882B1 /* DateTimePrinter.m */,
+				A67528371CD6C9F2000882B1 /* DateTimePrinterInternalPrinter.h */,
+				A67528381CD6C9F2000882B1 /* DateTimePrinterInternalPrinter.m */,
+				A67528391CD6C9F2000882B1 /* FormatUtils.h */,
+				A675283A1CD6C9F2000882B1 /* FormatUtils.m */,
+				A675283B1CD6C9F2000882B1 /* InternalParser.h */,
+				A675283C1CD6C9F2000882B1 /* InternalParser.m */,
+				A675283D1CD6C9F2000882B1 /* InternalParserDateTimeParser.h */,
+				A675283E1CD6C9F2000882B1 /* InternalParserDateTimeParser.m */,
+				A675283F1CD6C9F2000882B1 /* InternalPrinter.h */,
+				A67528401CD6C9F2000882B1 /* InternalPrinter.m */,
+				A67528411CD6C9F2000882B1 /* InternalPrinterDateTimePrinter.h */,
+				A67528421CD6C9F2000882B1 /* InternalPrinterDateTimePrinter.m */,
+				A67528431CD6C9F2000882B1 /* ISODateTimeFormat.h */,
+				A67528441CD6C9F2000882B1 /* ISODateTimeFormat.m */,
+				A67528451CD6C9F2000882B1 /* ISOPeriodFormat.h */,
+				A67528461CD6C9F2000882B1 /* ISOPeriodFormat.m */,
+				A67528471CD6C9F2000882B1 /* PeriodFormat.h */,
+				A67528481CD6C9F2000882B1 /* PeriodFormat.m */,
+				A67528491CD6C9F2000882B1 /* PeriodFormatter.h */,
+				A675284A1CD6C9F2000882B1 /* PeriodFormatter.m */,
+				A675284B1CD6C9F2000882B1 /* PeriodFormatterBuilder.h */,
+				A675284C1CD6C9F2000882B1 /* PeriodFormatterBuilder.m */,
+				A675284D1CD6C9F2000882B1 /* PeriodParser.h */,
+				A675284E1CD6C9F2000882B1 /* PeriodParser.m */,
+				A675284F1CD6C9F2000882B1 /* PeriodPrinter.h */,
+				A67528501CD6C9F2000882B1 /* PeriodPrinter.m */,
+			);
+			path = format;
+			sourceTree = "<group>";
+		};
+		A675288D1CD6C9F2000882B1 /* tz */ = {
+			isa = PBXGroup;
+			children = (
+				A675288E1CD6C9F2000882B1 /* CachedDateTimeZone.h */,
+				A675288F1CD6C9F2000882B1 /* CachedDateTimeZone.m */,
+				A67528901CD6C9F2000882B1 /* DateTimeZoneBuilder.h */,
+				A67528911CD6C9F2000882B1 /* DateTimeZoneBuilder.m */,
+				A67528921CD6C9F2000882B1 /* DefaultNameProvider.h */,
+				A67528931CD6C9F2000882B1 /* DefaultNameProvider.m */,
+				A67528941CD6C9F2000882B1 /* FixedDateTimeZone.h */,
+				A67528951CD6C9F2000882B1 /* FixedDateTimeZone.m */,
+				A67528961CD6C9F2000882B1 /* NameProvider.h */,
+				A67528971CD6C9F2000882B1 /* NameProvider.m */,
+				A67528981CD6C9F2000882B1 /* Provider.h */,
+				A67528991CD6C9F2000882B1 /* Provider.m */,
+				A675289A1CD6C9F2000882B1 /* UTCProvider.h */,
+				A675289B1CD6C9F2000882B1 /* UTCProvider.m */,
+				A675289C1CD6C9F2000882B1 /* ZoneInfoCompiler.h */,
+				A675289D1CD6C9F2000882B1 /* ZoneInfoCompiler.m */,
+				A675289E1CD6C9F2000882B1 /* ZoneInfoLogger.h */,
+				A675289F1CD6C9F2000882B1 /* ZoneInfoLogger.m */,
+				A67528A01CD6C9F2000882B1 /* ZoneInfoProvider.h */,
+				A67528A11CD6C9F2000882B1 /* ZoneInfoProvider.m */,
+			);
+			path = tz;
+			sourceTree = "<group>";
+		};
+		A6752CBF1CD7BD4B000882B1 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				A6752CC31CD7BD4B000882B1 /* libJodaCompile.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		A675261A1CD6C5B3000882B1 /* PacoUtil */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A67526241CD6C5B3000882B1 /* Build configuration list for PBXNativeTarget "PacoUtil" */;
+			buildPhases = (
+				A67526171CD6C5B3000882B1 /* Sources */,
+				A67526181CD6C5B3000882B1 /* Frameworks */,
+				A67526191CD6C5B3000882B1 /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				A6752CC51CD7BDA7000882B1 /* PBXTargetDependency */,
+			);
+			name = PacoUtil;
+			productName = PacoUtil;
+			productReference = A675261B1CD6C5B3000882B1 /* libPacoUtil.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		A67526131CD6C5B3000882B1 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0720;
+				ORGANIZATIONNAME = "Northrop O'brien";
+				TargetAttributes = {
+					A675261A1CD6C5B3000882B1 = {
+						CreatedOnToolsVersion = 7.2.1;
+					};
+				};
+			};
+			buildConfigurationList = A67526161CD6C5B3000882B1 /* Build configuration list for PBXProject "PacoUtil" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = A67526121CD6C5B3000882B1;
+			productRefGroup = A675261C1CD6C5B3000882B1 /* Products */;
+			projectDirPath = "";
+			projectReferences = (
+				{
+					ProductGroup = A6752CBF1CD7BD4B000882B1 /* Products */;
+					ProjectRef = A6752CBE1CD7BD4B000882B1 /* JodaCompile.xcodeproj */;
+				},
+			);
+			projectRoot = "";
+			targets = (
+				A675261A1CD6C5B3000882B1 /* PacoUtil */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXReferenceProxy section */
+		A6752CC31CD7BD4B000882B1 /* libJodaCompile.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libJodaCompile.a;
+			remoteRef = A6752CC21CD7BD4B000882B1 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+/* End PBXReferenceProxy section */
+
+/* Begin PBXSourcesBuildPhase section */
+		A67526171CD6C5B3000882B1 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A67526211CD6C5B3000882B1 /* PacoUtil.m in Sources */,
+				A67526301CD6C709000882B1 /* OrgJodaTimeDateTime+PacoDateHelper.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		A6752CC51CD7BDA7000882B1 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = JodaCompile;
+			targetProxy = A6752CC41CD7BDA7000882B1 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		A67526221CD6C5B3000882B1 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = A6752CC61CD7CF48000882B1 /* Config.xcconfig */;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.2;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+			};
+			name = Debug;
+		};
+		A67526231CD6C5B3000882B1 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.2;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				SDKROOT = iphoneos;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		A67526251CD6C5B3000882B1 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = A6752CC61CD7CF48000882B1 /* Config.xcconfig */;
+			buildSettings = {
+				LIBRARY_SEARCH_PATHS = "";
+				OTHER_LDFLAGS = "";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+			};
+			name = Debug;
+		};
+		A67526261CD6C5B3000882B1 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				HEADER_SEARCH_PATHS = (
+					../../../../joda/build,
+					"${J2OBJC_HOME}/include",
+				);
+				LIBRARY_SEARCH_PATHS = "";
+				OTHER_LDFLAGS = "";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		A67526161CD6C5B3000882B1 /* Build configuration list for PBXProject "PacoUtil" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A67526221CD6C5B3000882B1 /* Debug */,
+				A67526231CD6C5B3000882B1 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		A67526241CD6C5B3000882B1 /* Build configuration list for PBXNativeTarget "PacoUtil" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A67526251CD6C5B3000882B1 /* Debug */,
+				A67526261CD6C5B3000882B1 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = A67526131CD6C5B3000882B1 /* Project object */;
+}

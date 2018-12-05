@@ -14,32 +14,15 @@
  */
 
 #import <UIKit/UIKit.h>
+#import "PacoNotificationConstants.h" 
 
 @class PacoExperiment;
 
-typedef NS_ENUM(NSInteger, PacoNotificationStatus) {
-  PacoNotificationStatusUnknown = 0,      //unknown
-  PacoNotificationStatusNotFired,         //not fired yet
-  PacoNotificationStatusFiredNotTimeout,  //fired, but not timed out
-  PacoNotificationStatusTimeout,          //fired, and timed out
-};
 
 
-extern NSString* const kNotificationSoundName;
-extern NSString* const kUserInfoKeyExperimentId;
-extern NSString* const kUserInfoKeyExperimentTitle;
-extern NSString* const kUserInfoKeyNotificationFireDate;
-extern NSString* const kUserInfoKeyNotificationTimeoutDate;
 
 
-@interface PacoNotificationInfo : NSObject
-@property(nonatomic, copy, readonly) NSString* experimentId;
-@property(nonatomic, copy, readonly) NSString* experimentTitle;
-@property(nonatomic, strong, readonly) NSDate* fireDate;
-@property(nonatomic, strong, readonly) NSDate* timeOutDate;
-@end
-
-
+    
 typedef void(^NotificationProcessBlock)(UILocalNotification* activeNotification,
                                         NSArray* expiredNotifications,
                                         NSArray* notFiredNotifications);

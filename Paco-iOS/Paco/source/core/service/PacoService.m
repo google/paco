@@ -1,16 +1,16 @@
-/* Copyright 2013 Google Inc. All Rights Reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+/* Copyright 2015  Google
+ 
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+ 
+ http://www.apache.org/licenses/LICENSE-2.0
+ 
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
  */
 
 #import "PacoService.h"
@@ -18,15 +18,20 @@
 
 #import "GTMHTTPFetcher.h"
 #import "GTMHTTPFetcherLogging.h"
-#import "GTMOAuth2Authentication.h"
 #import "PacoAuthenticator.h"
 #import "PacoDateUtility.h"
-#import "PacoModel.h"
-#import "PacoClient.h"
+#import "PacoExtendedClient.h"
 #import "PacoExperimentInput.h"
 #import "PacoExperimentSchedule.h"
-#import "PacoExperimentDefinition.h"
-#import "PacoEvent.h"
+#import "ExperimentDAO.h" 
+#import "PacoSerializer.h"
+#import "PacoEventExtended.h"
+#import "PacoNetwork.h" 
+#import "PacoSerializeUtil.h" 
+#import "PacoNetwork.h" 
+
+
+
 
 @implementation PacoService
 
@@ -40,6 +45,8 @@
   free(dst);
   return converted;
 }
+
+
 
 - (void)authenticateRequest:(NSMutableURLRequest *)request
                 withFetcher:(GTMHTTPFetcher *)fetcher {
@@ -56,13 +63,20 @@
              completionHandler:(void (^)(id, NSError *))completionHandler {
   NSString *version = [[NSBundle mainBundle] infoDictionary][(NSString*)kCFBundleVersionKey];
   NSAssert([version length] > 0, @"version number is not valid!");
-  [request setValue:@"iOS" forHTTPHeaderField:@"http.useragent"];
-  [request setValue:version forHTTPHeaderField:@"paco.version"];
-  [request setValue:@"3.0" forHTTPHeaderField:@"pacoProtocol"];
+   [request setValue:@"iOS" forHTTPHeaderField:@"http.useragent"];
+    [request setValue:@"4.0" forHTTPHeaderField:@"paco.version"];
+    [request setValue:@"4.0" forHTTPHeaderField:@"pacoProtocol"];
 
   // Authenticate
     [GTMHTTPFetcher setLoggingEnabled:YES];
-  GTMHTTPFetcher *fetcher = [[GTMHTTPFetcher alloc] initWithRequest:request];
+   GTMHTTPFetcher *fetcher = [[GTMHTTPFetcher alloc] initWithRequest:request];
+    fetcher.allowLocalhostRequest = YES;
+    
+    
+    fetcher.allowedInsecureSchemes = @[ @"http"];
+    
+    
+    
   [self authenticateRequest:request withFetcher:fetcher];
   fetcher.delegateQueue = [NSOperationQueue mainQueue];
 
@@ -75,12 +89,14 @@
       id jsonObj = nil;
       NSError *jsonError = nil;
       if ([data length]) {
+          
+    
         jsonObj = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingAllowFragments error:&jsonError];
         if (jsonError) {
           DDLogError(@"JSON PARSE ERROR = %@\n", jsonError);
           DDLogError(@"PROBABLY AN AUTH ERROR");
           
-          [[PacoClient sharedInstance] invalidateUserAccount];
+         // [[PacoExtendedClient sharedInstance] invalidateUserAccount];
         }
       }
       if (completionHandler) {
@@ -89,6 +105,7 @@
     }];
 }
 
+
 //http request to load paginated experiment definitions
 - (void)sendGetHTTPRequestWithEndPoint:(NSString*)endPointString andBlock:(PacoPaginatedResponseBlock)block {
     
@@ -96,7 +113,7 @@
   NSAssert(endPointString.length > 0, @"endpoint string should be valid!");
   
   NSURL *url = [NSURL URLWithString:
-                   [NSString stringWithFormat:@"%@/%@",[PacoClient sharedInstance].serverDomain,endPointString]];
+                   [NSString stringWithFormat:@"%@/%@",[PacoNetwork sharedInstance].serverDomain,endPointString]];
   NSMutableURLRequest *request =
     [NSMutableURLRequest requestWithURL:url
                           cachePolicy:NSURLRequestReloadIgnoringLocalCacheData
@@ -105,11 +122,12 @@
   
   [self executePacoServiceCall:request completionHandler:^(id jsonData, NSError *error) {
     if (!error) {
-      NSAssert([jsonData isKindOfClass:[NSDictionary class]], @"paginated response should be a dictionary");
+    //  NSAssert([jsonData isKindOfClass:[NSDictionary class]], @"paginated response should be a dictionary");
       if (block) {
-        NSString* cursor = jsonData[@"cursor"];
-        NSArray* results = jsonData[@"results"];
-        block(results, cursor, nil);
+        // NSString* cursor = jsonData[@"cursor"];
+        // NSArray* results = jsonData[@"results"];
+          
+        block(jsonData, nil, nil);
       }
     } else {
       if (block) {
@@ -120,6 +138,27 @@
 }
 
 
+- (void)loadPublicDefinitionListWithCursorAndEndpoint:(NSString*) endPoint cursor:(NSString*)cursor   limit:(NSUInteger)limit block:(PacoPaginatedResponseBlock)block {
+  
+    if ([cursor length] > 0) {
+        endPoint = [endPoint stringByAppendingFormat:@"&cursor=%@", cursor];
+    }
+    else
+    {
+        cursor = [NSString new];
+        
+    }
+    if (limit > 0) {
+        endPoint = [endPoint stringByAppendingFormat:@"&limit=%lu", (unsigned long)limit];
+    }
+    endPoint = [endPoint stringByAppendingFormat:@"&tz=%@", [PacoDateUtility escapedNameForSystemTimeZone]];
+    [self sendGetHTTPRequestWithEndPoint:endPoint andBlock:block];
+}
+
+
+
+
+/*
 - (void)loadPublicDefinitionListWithCursor:(NSString*)cursor limit:(NSUInteger)limit block:(PacoPaginatedResponseBlock)block {
   NSString* endPoint = @"/experiments?public";
   if ([cursor length] > 0) {
@@ -130,30 +169,41 @@
   }
     endPoint = [endPoint stringByAppendingFormat:@"&tz=%@", [PacoDateUtility escapedNameForSystemTimeZone]];
   [self sendGetHTTPRequestWithEndPoint:endPoint andBlock:block];
-}
+}*/
 
 
-- (void)loadMyShortDefinitionListWithBlock:(void (^)(NSArray*, NSError*))completionBlock {
+
+- (void)loadMyShortDefinitionListWithBlock:(void (^)(NSDictionary * dictionary , NSError*))completionBlock {
   NSString *endPoint = [@"experiments?mine" stringByAppendingFormat:@"&tz=%@",
                         [PacoDateUtility escapedNameForSystemTimeZone]];
-  [self sendGetHTTPRequestWithEndPoint:endPoint andBlock:^(NSArray *items, NSString *cursor, NSError *error) {
+  [self sendGetHTTPRequestWithEndPoint:endPoint andBlock:^(NSDictionary  *items, NSString *cursor, NSError *error) {
     if (completionBlock) {
       completionBlock(items, error);
     }
   }];
 }
 
-- (void)loadFullDefinitionListWithIDs:(NSArray*)idList andBlock:(void (^)(NSArray*, NSError*))completionBlock {
+- (void)loadFullDefinitionListWithIDs:(NSArray  *)idList andBlock:(void (^)(NSDictionary*, NSError*))completionBlock {
   NSAssert([idList count] > 0, @"idList should have more than one id inside!");
+    
+    
   NSString* endPointString = [NSString stringWithFormat:@"experiments?id=%@&tz=%@",[idList componentsJoinedByString:@","], [PacoDateUtility escapedNameForSystemTimeZone]];
-  [self sendGetHTTPRequestWithEndPoint:endPointString andBlock:^(NSArray* items, NSString* cursor, NSError* error) {
+  [self sendGetHTTPRequestWithEndPoint:endPointString andBlock:^(NSDictionary* items, NSString* cursor, NSError* error) {
     if (completionBlock) {
-      NSMutableArray* definitionList = [NSMutableArray arrayWithCapacity:[items count]];
-      for (id definitionJson in items) {
+      NSMutableArray* definitionList = [NSMutableArray arrayWithCapacity:[items[@"results"]  count]];
+      for (id definitionJson in items[@"results"]) {
+          
         NSAssert([definitionJson isKindOfClass:[NSDictionary class]], @"a full definition should be a dictionary ");
-        PacoExperimentDefinition* definition = [PacoExperimentDefinition pacoExperimentDefinitionFromJSON:definitionJson];
-        NSAssert(definition, @"definition should be valid");
-        [definitionList addObject:definition];
+          
+          NSArray* array = [PacoSerializeUtil getClassNames];
+          PacoSerializer * serializer = [[PacoSerializer alloc] initWithArrayOfClasses:array withNameOfClassAttribute:@"nameOfClass"];
+          
+          
+         PAExperimentDAO * dao =  [serializer buildModelObject:definitionJson];
+
+ 
+         [definitionList addObject:dao];
+  
       }
       completionBlock([NSArray arrayWithArray:definitionList], error);
     }
@@ -161,10 +211,10 @@
 }
 
 - (void)loadFullDefinitionWithID:(NSString*)definitionID andBlock:(void (^)(PacoExperimentDefinition*, NSError*))completionBlock {
-  [self loadFullDefinitionListWithIDs:@[definitionID] andBlock:^(NSArray* definitionList, NSError* error) {
+  [self loadFullDefinitionListWithIDs:@[definitionID] andBlock:^(NSDictionary* definitionList, NSError* error) {
     PacoExperimentDefinition* definition = nil;
     if (!error) {
-      definition = [definitionList firstObject];
+      definition = [[definitionList allValues] firstObject];
       if (!definition) {
         DDLogWarn(@"Warning: No full definition is found for id=%@, the experiment could expire already", definitionID);
         NSDictionary* userInfo = @{NSLocalizedDescriptionKey : @"No full definition is found on server! "
@@ -180,37 +230,52 @@
   }];
 }
 
-- (void)loadMyDefinitionIDListWithBlock:(void (^)(NSArray*, NSError*))completionBlock {
-  [self loadMyShortDefinitionListWithBlock:^(NSArray* definitionList, NSError* error) {
+
+ 
+
+- (void)loadMyDefinitionIDListWithBlock:(void (^)(NSArray *, NSError*))completionBlock {
+    
+  [self loadMyShortDefinitionListWithBlock:^(NSDictionary* definitionList, NSError* error) {
     if (error == nil) {
-      NSMutableArray* result = [NSMutableArray arrayWithCapacity:[definitionList count]];
-      for (NSDictionary* dict in definitionList) {
-        NSNumber* idNum = dict[@"id"];
+      NSMutableArray* result = [NSMutableArray arrayWithCapacity:[[definitionList allValues ] count]];
+        
+      for (NSDictionary* dictionary   in  definitionList[@"results"])
+      {
+     
+        NSNumber* idNum = dictionary[@"id"];
         NSAssert(idNum != nil && [idNum isKindOfClass:[NSNumber class]], @"idNum should be valid!");
         NSString* definitionId = [NSString stringWithFormat:@"%lld", [idNum longLongValue]];
-        [result addObject:definitionId];
+       [result addObject:definitionId];
+          
+          
+          
+          
       }
       if (completionBlock) {
         completionBlock(result, error);
       }
     } else {
+        
+       
       if (completionBlock) {
         completionBlock(nil, error);
       }
     }
   }];
 }
+ 
+ 
 
 //YMZ:TODO: there should be a single endpoint for this API
-- (void)loadMyFullDefinitionListWithBlock:(void (^)(NSArray*, NSError*))completionBlock {
+- (void)loadMyFullDefinitionListWithBlock:(void (^)(NSArray *, NSError*))completionBlock {
   NSAssert(completionBlock != nil, @"a completion block has to be passed in");
   
-  [self loadMyDefinitionIDListWithBlock:^(NSArray* idList, NSError* error) {
+  [self loadMyDefinitionIDListWithBlock:^(NSArray * idList, NSError* error) {
     if (!error) {
       if (0 == [idList count]) {
-        completionBlock(idList, nil);
+         completionBlock(idList, nil);
       } else {
-        [self loadFullDefinitionListWithIDs:idList andBlock:^(NSArray* fullList, NSError* error) {
+        [self loadFullDefinitionListWithIDs:idList andBlock:^(NSDictionary * fullList, NSError* error) {
           if (!error) {
             completionBlock(fullList, nil);
           } else {
@@ -227,9 +292,14 @@
 
 - (void)submitEventList:(NSArray*)eventList withCompletionBlock:(void (^)(NSArray*, NSError*))completionBlock {
   NSAssert([eventList count] > 0, @"eventList should have more than one item!");
+    
+    
+ 
+   
+    
   
   // Setup our request.
-  NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:@"%@/events", [PacoClient sharedInstance].serverDomain]];
+  NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:@"%@/events", [PacoNetwork sharedInstance].serverDomain]];
   NSMutableURLRequest *request =
   [NSMutableURLRequest requestWithURL:url
                           cachePolicy:NSURLRequestReloadIgnoringLocalCacheData
@@ -238,24 +308,130 @@
   
   // Serialize to JSON for the request body.
   NSMutableArray* body = [NSMutableArray arrayWithCapacity:[eventList count]];
-  for (PacoEvent* event in eventList) {
-    id jsonObject = [event payloadJsonWithImageString];
+  for (PacoEventExtended* event in eventList) {
+      id jsonObject = event; //  [event payloadJsonWithImageString];
+      
+      
     NSAssert(jsonObject != nil, @"jsonObject should NOT be nil!");
-    [body addObject:jsonObject];
+    NSAssert( [NSJSONSerialization isValidJSONObject:jsonObject], @"must be valid json object" );
+      
+      
+      NSMutableDictionary* parsedDictionary = [[NSMutableDictionary alloc] init];
+      
+      
+      
+      for (NSString* key in jsonObject) {
+          id object = [jsonObject objectForKey:key];
+          
+          if(![object isEqual:[NSNull null]])
+          {
+              
+              /* remove leading underscore if there is one */
+              
+              NSString *jsnName = nil;
+              if( [key characterAtIndex:0] == '_')
+              {
+               
+                  jsnName = [key substringFromIndex:1];
+              }
+              else
+              {
+                  
+                  jsnName  = key;
+                  
+              }
+              
+              
+              if(![jsnName isEqualToString:@"responseTime"])
+              {
+                 /* if([jsnName isEqualToString:@"scheduledTime"])
+                  {
+                      NSDate *today =  (NSDate*) object;
+                      NSDateFormatter *dateFormat = [[NSDateFormatter alloc] init];
+                      [dateFormat setDateFormat:@"yyyy/MM/dd HH:mm:ssZ"];
+                      NSString *dateString = [dateFormat stringFromDate:today];
+                      [parsedDictionary setObject:dateString  forKey:jsnName];
+                      
+                  }
+                  else
+                  {*/
+                  
+                  
+                     [parsedDictionary setObject:object  forKey:jsnName];
+                  
+                 /* }*/
+                  
+              }
+              else
+              {
+                  
+                      NSDate *today = [NSDate date];
+                      NSDateFormatter *dateFormat = [[NSDateFormatter alloc] init];
+                      [dateFormat setDateFormat:@"yyyy/MM/dd HH:mm:ssZ"];
+                      NSString *dateString = [dateFormat stringFromDate:today];
+                      [parsedDictionary setObject:dateString  forKey:jsnName];
+ 
+                  
+              }
+              
+              
+          }
+      }
+      
+      
+ 
+
+      
+      /* delete this
+      [jsonObject removeObjectForKey:@"_responses"];
+       [jsonObject removeObjectForKey:@"responses"];
+       [jsonObject removeObjectForKey:@"actionSpecification"];
+       [jsonObject removeObjectForKey:@"actionTriggerId"];
+       [jsonObject removeObjectForKey:@"actionId"];
+       [jsonObject removeObjectForKey:@"latitude"];
+       [jsonObject removeObjectForKey:@"longitude"];
+      [jsonObject removeObjectForKey:@"actionId"];
+      [jsonObject removeObjectForKey:@"scheduleId"];
+      [jsonObject removeObjectForKey:@"scheduleId"];
+      [jsonObject removeObjectForKey:@"when"];
+      [jsonObject removeObjectForKey:@"responseTime"];
+      */
+      
+      /* delete this */
+      
+    [body addObject:parsedDictionary];
   }
   
-  //YMZ:TODO: error handling here
+   
   NSError *jsonError = nil;
-  NSData *jsonData = [NSJSONSerialization dataWithJSONObject:body
+    
+    
+   BOOL isValid =  [NSJSONSerialization isValidJSONObject:body];
+    
+   NSData *jsonData = [NSJSONSerialization dataWithJSONObject:body
                                                      options:NSJSONWritingPrettyPrinted
                                                        error:&jsonError];
+    
+    
+    /*lets turn json dataobject  back to json */
+    
+   // NSError *e = nil;
+   // id   json = [NSJSONSerialization JSONObjectWithData:jsonData options:NSJSONWritingPrettyPrinted  error:&e];
+    
+    
+    NSString *jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
+    NSLog(@"%@", jsonString);
+    
+  
+
+    
   
   [request setValue:@"application/json" forHTTPHeaderField:@"Content-Type"];
   [request setValue:[NSString stringWithFormat:@"%lu", (unsigned long)[jsonData length]]
  forHTTPHeaderField:@"Content-Length"];
   [request setHTTPBody:jsonData];
   
-  // Make the network call.
+  // make the network call.
   [self executePacoServiceCall:request
              completionHandler:^(id jsonData, NSError *error) {
                DDLogInfo(@"Event Upload RESPONSE = %@", jsonData);
@@ -272,37 +448,15 @@
                  }
                }
                if (completionBlock) {
+                   
                  completionBlock(successEventIndexes, error);
+                   
                }
              }];
 }
 
-- (void)loadEventsForExperiment:(PacoExperimentDefinition *)experiment
-    withCompletionHandler:(void (^)(NSArray *, NSError *))completionHandler {
-  // Setup our request.
-  NSString *urlString =
-      [NSString stringWithFormat:@"%@/events?json&q='experimentId=%@:who=%@'",
-           [PacoClient sharedInstance].serverDomain,
-           experiment.experimentId,
-           [[PacoClient sharedInstance] userEmail]];//self.authenticator.auth.userEmail];
-  NSLog(@"******\n\t%@\n******", urlString);
-  NSURL *url = [NSURL URLWithString:urlString];
-  NSMutableURLRequest *request =
-      [NSMutableURLRequest requestWithURL:url
-                              cachePolicy:NSURLRequestReloadIgnoringLocalCacheData
-                          timeoutInterval:120];
-  [request setHTTPMethod:@"GET"];
 
-  // Make the network call.
-  [self executePacoServiceCall:request
-             completionHandler:^(id jsonData, NSError *error) {
-      if (completionHandler) {
-        NSLog(@"_+_+_+_EVENT RESPONSE _+_+_+_\n%@", jsonData);
 
-        completionHandler(jsonData, error);
-      }
-  }];
-}
 
 
 @end

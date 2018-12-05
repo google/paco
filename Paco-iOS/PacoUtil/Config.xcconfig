@@ -1,0 +1,9 @@
+//
+//  Config.xcconfig
+//  PacoUtil
+//
+//  Created by Northrop O'brien on 5/2/16.
+//  Copyright © 2016 Northrop O'brien. All rights reserved.
+//
+
+J2OBJC_HOME = ../../../j2objc/dist

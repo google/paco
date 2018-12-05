@@ -23,5 +23,15 @@ public class OutcomeTest {
     assertEquals(errorMessage, out.getErrorMessage());
   }
   
+  @Test
+  public void testLargerTha128() {
+    
+	  Integer n = 12345;
+	  Integer n1 = 12345;
+	  assertTrue(n == n1);
+  }
+ 
+  
+  
 
 }

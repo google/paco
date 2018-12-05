@@ -15,7 +15,9 @@ Paco-Server/ear/gwt-unitCache/*
 Paco-Server/ear/default/WEB-INF/deploy/*
 Paco-Server/ear/default/WEB-INF/appengine-generated/
 Paco-Server/ear/default/WEB-INF/classes/*
+Paco-Server/.settings/
 Paco-Server/ear/reportworker/WEB-INF/classes/*
+Paco-Server/ear/default/WEB-INF/lib/
 Paco-Server/ear/reportworker/WEB-INF/lib/*
 Paco-Server/ear/default/WEB-INF/lib/appengine-api-1.0-sdk-1.5.0.1.jar
 Paco-Server/ear/default/WEB-INF/lib/appengine-api-labs-1.5.0.1.jar
@@ -29,6 +31,7 @@ Paco-Server/www-test/*
 PacoTest/local.properties
 PacoTest/bin/*
 PacoTest/testbin/*
+Paco-iOS/vendor/*
 PacoTest/gen/*
 PacoTest/libs/js.jar
 PacoTest/reports/*

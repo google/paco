@@ -1,27 +1,29 @@
-/* Copyright 2013 Google Inc. All Rights Reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+/* Copyright 2015  Google
+ 
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+ 
+ http://www.apache.org/licenses/LICENSE-2.0
+ 
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
  */
 
 #import "PacoNotificationManager.h"
 #import "PacoDateUtility.h"
-#import "UILocalNotification+Paco.h"
-#import "PacoScheduler.h"
+//#import "UILocalNotification+Paco.h"
+
+#import "UILocalNotification+PacoExteded.h"
+
 #import "NSError+Paco.h"
 #import "NSString+Paco.h"
 #import "NSMutableArray+Paco.h"
-#import "PacoClient.h"
 
+int const kTotalNumOfNotifications = 60;
 static NSString* kNotificationPlistName = @"notificationDictionary.plist";
 
 @interface PacoNotificationManager ()
@@ -38,6 +40,7 @@ static NSString* kNotificationPlistName = @"notificationDictionary.plist";
                                 firstLaunchFlag:(BOOL)firstLaunch {
   PacoNotificationManager* manager = [[PacoNotificationManager alloc] init];
   manager.delegate = delegate;
+  manager.notificationDict = [NSMutableDictionary new];
   
   if (firstLaunch) {
     [manager cancelAlliOSNotifications];
@@ -45,30 +48,32 @@ static NSString* kNotificationPlistName = @"notificationDictionary.plist";
   return manager;
 }
 
+
+
 - (void)adjustBadgeNumber {
   [self updateBadgeNumber:[self totalNumberOfActiveNotifications]];
 }
 
 - (void)updateBadgeNumber:(NSUInteger)numOfActiveNotifications {
-  DDLogInfo(@"There are %lu active notifications", (unsigned long)numOfActiveNotifications);
+  NSLog(@"There are %lu active notifications", (unsigned long)numOfActiveNotifications);
 
   int badgeNumber = numOfActiveNotifications > 0 ? 1 : 0;
   [UIApplication sharedApplication].applicationIconBadgeNumber = badgeNumber;
 
-  DDLogInfo(@"Badge number set to %d", badgeNumber);
+  NSLog(@"Badge number set to %d", badgeNumber);
 }
 
 - (void)handleExpiredNotifications:(NSArray*)expiredNotifications {
   if (!self.delegate) {
-    DDLogError(@"PacoNotificationManager's delegate should be a valid PacoScheduler's object!");
+    NSLog(@"PacoNotificationManager's delegate should be a valid PacoScheduler's object!");
   }
   [self.delegate handleExpiredNotifications:expiredNotifications];
 }
 
 - (void)cancelAlliOSNotifications {
-  DDLogInfo(@"Cancel All Local Notifications!");
+  NSLog(@"Cancel All Local Notifications!");
   [[UIApplication sharedApplication] cancelAllLocalNotifications];
-  DDLogInfo(@"Badge number set to 0");
+  NSLog(@"Badge number set to 0");
   [UIApplication sharedApplication].applicationIconBadgeNumber = 0;
 }
 
@@ -90,7 +95,7 @@ static NSString* kNotificationPlistName = @"notificationDictionary.plist";
     
     //reset notification dictionary
     self.notificationDict = [NSMutableDictionary dictionary];
-    DDLogInfo(@"New Notification Dict: %@", [self.notificationDict pacoDescriptionForNotificationDict]);
+    NSLog(@"New Notification Dict: %@", [self.notificationDict pacoDescriptionForNotificationDict]);
     [self saveNotificationsToCache];
   }
 }
@@ -100,12 +105,12 @@ static NSString* kNotificationPlistName = @"notificationDictionary.plist";
     if (notification == nil) {
       return;
     }
-    DDLogInfo(@"Handling responded notification...");
+    NSLog(@"Handling responded notification...");
     //Since this notification is responded successfully, cancelling it will clear it from the notification tray
-    [UILocalNotification pacoCancelLocalNotification:notification];
+    [UILocalNotification pacoCancelLocalNotificationExt:notification];
     
     //remove this notification from local cache
-    NSString* experimentId = [notification pacoExperimentId];
+    NSString* experimentId = [notification pacoExperimentIdExt];
     NSAssert(experimentId, @"experimentId should be valid");
     NSMutableArray* notifications = (self.notificationDict)[experimentId];
     if (0 == [notifications count]) {
@@ -113,7 +118,7 @@ static NSString* kNotificationPlistName = @"notificationDictionary.plist";
     }
     [notifications removeObject:notification];
     (self.notificationDict)[experimentId] = notifications;
-    DDLogInfo(@"New Notification Dict: %@", [self.notificationDict pacoDescriptionForNotificationDict]);
+    NSLog(@"New Notification Dict: %@", [self.notificationDict pacoDescriptionForNotificationDict]);
     [self saveNotificationsToCache];
     
     [self adjustBadgeNumber];
@@ -152,7 +157,7 @@ static NSString* kNotificationPlistName = @"notificationDictionary.plist";
         }
       };
       
-      [UILocalNotification pacoProcessNotifications:notifications withBlock:block];
+      [UILocalNotification pacoProcessNotificationsExt:notifications withBlock:block];
     }
     
     if (0 == [allExpiredNotifications count]) {
@@ -166,7 +171,11 @@ static NSString* kNotificationPlistName = @"notificationDictionary.plist";
   }
 }
 
+
+
+
 /*
+ 
  - Keep the active notifications
 
  - For all expired notifications:
@@ -182,8 +191,12 @@ static NSString* kNotificationPlistName = @"notificationDictionary.plist";
  a. if it is in local cache, meaning it's scheduled already, don't do anything
  b. if it isn't in local cache, schedule it and save it in cache
  **/
+
+
 - (void)scheduleNotifications:(NSArray*)newNotifications {
   @synchronized (self) {
+      
+      
     NSMutableArray *allActive = [NSMutableArray array];
     NSMutableArray *allExpired = [NSMutableArray array];
     NSMutableArray *allToCancel = [NSMutableArray array];
@@ -191,10 +204,16 @@ static NSString* kNotificationPlistName = @"notificationDictionary.plist";
     NSMutableDictionary *resultDict = [NSMutableDictionary dictionary];
 
     //generate a dictionary from the new list of notifcations
-    NSDictionary *newNotificationDict = [UILocalNotification pacoSortedDictionaryFromNotifications:newNotifications];
-    for (NSString* experimentId in self.notificationDict) {
+    NSDictionary *newNotificationDict = [UILocalNotification pacoSortedDictionaryFromNotificationsExt:newNotifications];
+      
+    for (NSString* experimentId in self.notificationDict)
+    {
+        
       NSArray *currentNotifications = self.notificationDict[experimentId];
+        
+        
       NSArray *newNotifications = newNotificationDict[experimentId];
+        
 
       NotificationReplaceBlock block = ^(UILocalNotification *active,
                                          NSArray *expired,
@@ -211,7 +230,10 @@ static NSString* kNotificationPlistName = @"notificationDictionary.plist";
         [allToCancel addObjectsFromArray:toBeCanceled];
         [allToSchedule addObjectsFromArray:toBeScheduled];
       };
-      [UILocalNotification pacoReplaceCurrentNotifications:currentNotifications
+        
+       
+        
+      [UILocalNotification pacoReplaceCurrentNotificationsExt:currentNotifications
                                       withNewNotifications:newNotifications
                                                   andBlock:block];
     }
@@ -219,27 +241,28 @@ static NSString* kNotificationPlistName = @"notificationDictionary.plist";
     for (NSString *experimentId in newNotificationDict) {
       BOOL isNewExperiment = (self.notificationDict[experimentId] == nil);
       if (isNewExperiment) {
+          
         NSMutableArray *notifications = newNotificationDict[experimentId];
         resultDict[experimentId] = [notifications pacoSortLocalNotificationsAndRemoveDuplicates];
         [allToSchedule addObjectsFromArray:notifications];
       }
     }
 
-    DDLogInfo(@"%lu active: %@", (unsigned long)[allActive count], [allActive pacoDescriptionForNotifications]);
-    DDLogInfo(@"%lu expired: %@", (unsigned long)[allExpired count], [allExpired pacoDescriptionForNotifications]);
-    DDLogInfo(@"%lu to be canceled: %@",
+    NSLog(@"%lu active: %@", (unsigned long)[allActive count], [allActive pacoDescriptionForNotifications]);
+    NSLog(@"%lu expired: %@", (unsigned long)[allExpired count], [allExpired pacoDescriptionForNotifications]);
+    NSLog(@"%lu to be canceled: %@",
               (unsigned long)[allToCancel count], [allToCancel pacoDescriptionForNotifications]);
-    DDLogInfo(@"%lu new to be scheduled: %@",
+    NSLog(@"%lu new to be scheduled: %@",
               (unsigned long)[allToSchedule count], [allToSchedule pacoDescriptionForNotifications]);
 
     self.notificationDict = resultDict;
     [self saveNotificationsToCache];
-    DDLogInfo(@"%@", [self.notificationDict pacoDescriptionForNotificationDict]);
+    NSLog(@"%@", [self.notificationDict pacoDescriptionForNotificationDict]);
 
     [self handleExpiredNotifications:allExpired];
     [allToCancel addObjectsFromArray:allExpired];
-    [UILocalNotification pacoCancelNotifications:allToCancel];
-    [UILocalNotification pacoScheduleNotifications:allToSchedule];
+    [UILocalNotification pacoCancelNotificationsExt:allToCancel];
+    [UILocalNotification pacoScheduleNotificationsExt:allToSchedule];
     [self updateBadgeNumber:[allActive count]];
   }
 }
@@ -285,14 +308,14 @@ static NSString* kNotificationPlistName = @"notificationDictionary.plist";
           newNotificationDict[experimentId] = [NSMutableArray arrayWithArray:nonExpiredNotifications];
         }
       };
-      [UILocalNotification pacoFetchExpiredNotificationsFrom:notifications withBlock:block];
+      [UILocalNotification pacoFetchExpiredNotificationsFromExt:notifications withBlock:block];
     }
-    DDLogInfo(@"Clean %lu expired notifications...", (unsigned long)[allExpiredNotifications count]);
+    NSLog(@"Clean %lu expired notifications...", (unsigned long)[allExpiredNotifications count]);
     //handle the expired notifications
     if ([allExpiredNotifications count] > 0) {
-      [UILocalNotification pacoCancelNotifications:allExpiredNotifications];
+      [UILocalNotification pacoCancelNotificationsExt:allExpiredNotifications];
       [self handleExpiredNotifications:allExpiredNotifications];
-      DDLogInfo(@"New Notification Dict: %@", [newNotificationDict pacoDescriptionForNotificationDict]);
+      NSLog(@"New Notification Dict: %@", [newNotificationDict pacoDescriptionForNotificationDict]);
     }
     //set the new notification dict, and save it to cache
     self.notificationDict = newNotificationDict;
@@ -312,7 +335,11 @@ static NSString* kNotificationPlistName = @"notificationDictionary.plist";
       if (0 == [notifications count]) {
         continue;
       }
-      [UILocalNotification pacoProcessNotifications:notifications
+        
+        
+        
+        
+      [UILocalNotification pacoProcessNotificationsExt:notifications
                                           withBlock:^(UILocalNotification* activeNotification,
                                                       NSArray* expiredNotifications,
                                                       NSArray* notFiredNotifications) {
@@ -332,14 +359,14 @@ static NSString* kNotificationPlistName = @"notificationDictionary.plist";
     NSMutableArray* notifications = (self.notificationDict)[experimentId];
     if (notifications != nil) {
       NSAssert([notifications isKindOfClass:[NSMutableArray class]], @"should be NSMutableArray object");
-      [UILocalNotification pacoCancelNotifications:notifications];
+      [UILocalNotification pacoCancelNotificationsExt:notifications];
       [self.notificationDict removeObjectForKey:experimentId];
-      DDLogInfo(@"New Notification Dict: %@", [self.notificationDict pacoDescriptionForNotificationDict]);
+      NSLog(@"New Notification Dict: %@", [self.notificationDict pacoDescriptionForNotificationDict]);
       //save the new notifications
       [self saveNotificationsToCache];
     }
     //Just in case, remove any notificaiton that still exists in OS system
-    [UILocalNotification cancelScheduledNotificationsForExperiment:experimentId];
+    [UILocalNotification cancelScheduledNotificationsForExperimentExt:experimentId];
   }
 }
 
@@ -354,15 +381,15 @@ static NSString* kNotificationPlistName = @"notificationDictionary.plist";
       NSMutableArray* notifications = (self.notificationDict)[experimentId];
       if (notifications != nil) {
         NSAssert([notifications isKindOfClass:[NSMutableArray class]], @"should be NSMutableArray object");
-        [UILocalNotification pacoCancelNotifications:notifications];
+        [UILocalNotification pacoCancelNotificationsExt:notifications];
         [self.notificationDict removeObjectForKey:experimentId];
       }
       //Just in case, remove any notificaiton that still exists in OS system
-      [UILocalNotification cancelScheduledNotificationsForExperiment:experimentId];
+      [UILocalNotification cancelScheduledNotificationsForExperimentExt:experimentId];
     }
 
-    DDLogInfo(@"Finish Cancel Notifications for experiments: %@", experimentIds);
-    DDLogInfo(@"New Notification Dict: %@", [self.notificationDict pacoDescriptionForNotificationDict]);
+    NSLog(@"Finish Cancel Notifications for experiments: %@", experimentIds);
+    NSLog(@"New Notification Dict: %@", [self.notificationDict pacoDescriptionForNotificationDict]);
     //save the new notifications
     [self saveNotificationsToCache];
   }
@@ -377,7 +404,8 @@ static NSString* kNotificationPlistName = @"notificationDictionary.plist";
       return nil;
     }
     __block UILocalNotification* result = nil;
-    [UILocalNotification pacoProcessNotifications:notifications
+      
+    [UILocalNotification pacoProcessNotificationsExt:notifications
                                         withBlock:^(UILocalNotification* activeNotification,
                                                     NSArray* expiredNotifications,
                                                     NSArray* notFiredNotifications) {
@@ -388,19 +416,25 @@ static NSString* kNotificationPlistName = @"notificationDictionary.plist";
 }
 
 - (BOOL)isNotificationActive:(UILocalNotification*)notification {
+    
   @synchronized(self) {
     if (notification == nil) {
       return NO;
     }
-    if ([notification pacoStatus] == PacoNotificationStatusTimeout) {
+
+    if ([notification pacoStatusExt] == PacoNotificationStatusTimeout) {
       return NO;
     }
-    NSString* experimentId = [notification pacoExperimentId];
-    NSAssert([experimentId length] > 0, @"experimentId should be nil");
+      
+    NSString* experimentId = [notification pacoExperimentIdExt];
+    NSAssert([experimentId length] != 0, @"experimentId should not be nil");
     UILocalNotification* activeNotification = [self activeNotificationForExperiment:experimentId];
-    BOOL isActive = activeNotification && [activeNotification pacoIsEqualTo:notification];
+    BOOL isActive = activeNotification && [activeNotification pacoIsSame:notification];
     return isActive;
   }
+    
+    
+    
 }
 
 - (void)checkCorrectnessForExperiment:(NSString*)instanceIdToCheck {
@@ -418,9 +452,9 @@ static NSString* kNotificationPlistName = @"notificationDictionary.plist";
     NSData* data = [NSKeyedArchiver archivedDataWithRootObject:self.notificationDict];
     BOOL success = [data writeToFile:[self notificationPlistPath] atomically:YES];
     if (success) {
-      DDLogInfo(@"Successfully saved notifications!");
+      NSLog(@"Successfully saved notifications!");
     } else {
-      DDLogInfo(@"Failed to save notifications!");
+      NSLog(@"Failed to save notifications!");
     }
     return success;
   }

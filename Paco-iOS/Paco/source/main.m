@@ -14,12 +14,13 @@
  */
 
 #import <UIKit/UIKit.h>
-
+#import <PixateFreestyle/PixateFreestyle.h>
 #import "PacoAppDelegate.h"
 
 int main(int argc, char *argv[])
 {
   @autoreleasepool {
+    //  [PixateFreestyle initializePixateFreestyle];
       return UIApplicationMain(argc, argv, nil, NSStringFromClass([PacoAppDelegate class]));
   }
 }

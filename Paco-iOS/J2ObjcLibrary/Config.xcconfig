@@ -1,0 +1,6 @@
+//
+//  Config.xcconfig
+//
+//   All rights reserved.
+//
+J2OBJC_HOME = ${PROJECT_DIR}/../../../j2objc

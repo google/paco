@@ -1,0 +1,9 @@
+//
+//  Config.xcconfig
+//  JodaCompile
+//
+//  Created by Northrop O'brien on 2/21/16.
+//  Copyright © 2016 Northrop O'brien. All rights reserved.
+//
+J2OBJC_HOME = ${PROJECT_DIR}/../../../../j2objc
+JODA_TRANSPILED_DIR = ../transpiled_joda

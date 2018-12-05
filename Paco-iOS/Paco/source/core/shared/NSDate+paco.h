@@ -75,6 +75,7 @@
 
 - (NSDate*)pacoDailyESMNextCycleStartDate:(BOOL)includeWeekends;
 - (NSDate*)pacoWeeklyESMNextCycleStartDate;
-- (NSDate*)pacoMonthlyESMNextCycleStartDate;
+ 
+- (long long)pacoGetMilliSeconds;
 
 @end
