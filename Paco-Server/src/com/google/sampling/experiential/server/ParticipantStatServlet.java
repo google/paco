@@ -115,7 +115,7 @@ public class ParticipantStatServlet extends HttpServlet {
         }
 
         Collections.sort(participantStats);
-        String nextCursor = eventQueryResultPair.getNextCursor();
+        String nextCursor = eventQueryResultPair.getCursor();
         if (nextCursor == null || nextCursor.equals(cursor)) {
           nextCursor = null;
         }

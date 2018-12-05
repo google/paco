@@ -1,4 +1,4 @@
-<div ng-controller="DataCtrl" class="stats data">
+<div ng-controller="DataCtrl" class="padded stats data">
   <div class="variable-width">
     <div class="nav">
       <a href="#">
@@ -17,6 +17,9 @@
           <md-option value="stats" aria-label="Stats view">Stats</md-option>
           <md-option value="data" aria-label="Data view">Data</md-option>
         </md-select>
+      </md-input-container>
+  
+      <md-chips ng-if="restrict" ng-model="userChips" md-on-remove="removeUserChip()"></md-chips>
     </div>
 
     <div ng-if="loading" class="status">
@@ -52,7 +55,9 @@
         <tr heading>
           <td right-border>
             <span class="sorting">
-              <a href="" ng-click="setColumn('who')" ng-class="{arrow: (sortColumn == 'who'), down: reverseSort }">Participant<br>email</a>
+              <a href="" ng-click="setColumn('who')" ng-class="{arrow: (sortColumn == 'who'), down: reverseSort }">
+                who
+              </a>
             </span>
           </td>
           <td>
@@ -64,7 +69,7 @@
           </td>
           <td right-border>
             <span class="sorting">
-              <a href="" ng-click="setColumn('todaySelfReportCount')" ng-class="{arrow: (sortColumn == 'todaySelfReportCount'), down: reverseSort }">Self-Report<br>Count</a>
+              <a href="" ng-click="setColumn('todaySelfReportCount')" ng-class="{arrow: (sortColumn == 'todaySelfReportCount'), down: reverseSort }">Self-Report</a><br>Count
             </span>
           </td>
           <td>
@@ -76,12 +81,15 @@
           </td>
           <td>
             <span class="sorting">
-              <a href="" ng-click="setColumn('totalSelfReportCount')" ng-class="{arrow: (sortColumn == 'totalSelfReportCount'), down: reverseSort }">Self-Report<br>Count</a>
+              <a href="" ng-click="setColumn('totalSelfReportCount')" ng-class="{arrow: (sortColumn == 'totalSelfReportCount'), down: reverseSort }">Self-Report</a><br>Count
             </span>
           </td>
         </tr>
         <tr ng-repeat="row in stats.participants | orderBy: sortColumn: reverseSort">
-          <td right-border>{{row["who"]}}</td>
+          <td right-border>
+            <a ng-if="!users" href="#/stats/{{experiment.id}}/{{row['who']}}" >{{row["who"]}}</a>
+            <span ng-if="users">{{row["who"]}}</span>
+          </td>
           <td>{{row["todaySignalResponseCount"]}} / {{row["todaySignalCount"]}}</td>
           <td right-border>{{row["todaySelfReportCount"]}}</td>
           <td>{{row["totalSignalResponseCount"]}} / {{row["totalSignalCount"]}}</td>

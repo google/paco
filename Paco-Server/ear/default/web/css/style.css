@@ -4,12 +4,17 @@ html {
   min-width: 1024px;
 }
 
+body.no-scroll {
+  overflow: hidden;
+}
+
 .home {
   background: #F5F5F5;
 }
 
 .main {
-  min-height: calc(100vh - 300px)
+  margin: 16px;
+  min-height: calc(100vh - 236px);
 }
 
 a {

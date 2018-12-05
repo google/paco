@@ -167,15 +167,15 @@ public class ExperimentExecutorCustomRendering extends ActionBarActivity impleme
     actionBar.setDisplayShowTitleEnabled(false);
     actionBar.setBackgroundDrawable(new ColorDrawable(0xff4A53B3));
 
-    experimentProviderUtil = new ExperimentProviderUtil(this);    
+    experimentProviderUtil = new ExperimentProviderUtil(this);
     if (experiment == null || experimentGroup == null) {
       IntentExtraHelper.loadExperimentInfoFromIntent(this, getIntent(), experimentProviderUtil);
     }
-
+    loadNotificationData();
     if (experiment == null || experimentGroup == null) {
       displayNoExperimentMessage();
     } else {
-      loadNotificationData();
+
       actionBar.setTitle(experiment.getExperimentDAO().getTitle());
 
       inflater = (LayoutInflater)getSystemService(Context.LAYOUT_INFLATER_SERVICE);

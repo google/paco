@@ -7,11 +7,11 @@ import com.google.sampling.experiential.model.Event;
 public class EventQueryResultPair {
 
   private List<Event> events;
-  private String nextCursor;
+  private String cursor;
 
-  public EventQueryResultPair(List<Event> newArrayList, String nextCursor) {
+  public EventQueryResultPair(List<Event> newArrayList, String cursor) {
     this.events = newArrayList;
-    this.nextCursor = nextCursor;
+    this.cursor = cursor;
   }
 
   public List<Event> getEvents() {
@@ -22,12 +22,12 @@ public class EventQueryResultPair {
     this.events = events;
   }
 
-  public String getNextCursor() {
-    return nextCursor;
+  public String getCursor() {
+    return cursor;
   }
 
-  public void setNextCursor(String nextCursor) {
-    this.nextCursor = nextCursor;
+  public void setCursor(String cursor) {
+    this.cursor = cursor;
   }
 
 }

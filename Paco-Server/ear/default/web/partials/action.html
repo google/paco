@@ -1,10 +1,10 @@
 <md-dialog aria-label="Edit Action" class="action">
   <md-dialog-content>
     <div>
-      <select ng-model="action.actionCode" as-string>
+      <select ng-model="action.actionCode">
         <option value="" disabled selected>Choose Action</option>
-        <option ng-selected="($index + 1) === action.actionCode" ng-repeat="type in actionTypes"
-        value="{{$index + 1}}">{{type}}</option>
+        <option ng-selected="(id) === action.actionCode" ng-repeat="(id, type) in actionTypes"
+        value="{{id}}">{{type}}</option>
       </select>
     </div>
     

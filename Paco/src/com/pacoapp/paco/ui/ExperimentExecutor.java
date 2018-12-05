@@ -129,11 +129,12 @@ public class ExperimentExecutor extends ActionBarActivity implements ChangeListe
     if (experiment == null || experimentGroup == null) {
       IntentExtraHelper.loadExperimentInfoFromIntent(this, getIntent(), experimentProviderUtil);
     }
-
+    loadNotificationData();
+    
     if (experiment == null || experimentGroup == null) {
       displayNoExperimentMessage();
     } else {
-      loadNotificationData();
+      
       actionBar.setTitle(experiment.getExperimentDAO().getTitle());
       if (scheduledTime == null || scheduledTime == 0l) {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
